@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Box, Button, Popover, Stack, Switch, Typography, useMediaQuery } from '@mui/material';
+import { Box, Button, MenuItem, Popover, Stack, Switch, TextField, Typography, useMediaQuery } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 import { IconSettings } from '@tabler/icons-react';
 import AppDialog from '@components/common/Overlays/AppDialog';
@@ -11,12 +11,25 @@ import useToolbarState, { same } from '@hooks/useToolbarState';
 // A page's settings, remembered per page in this browser: the player's edits only (useToolbarState's rule).
 export const usePageSettings = (page, defaults) => useToolbarState(page, defaults, { scope: 'page-settings' });
 
+// One gear over several stores: the page's own settings and a tab's, each kept under the key it already had, so a
+// setting that moved here keeps its value. parts are { state, defaults, set }, defaults holding only the keys the gear
+// shows; a change goes to the part that owns its key, and Reset puts each part's shown keys back.
+export const joinSettings = (...parts) => ({
+  state: Object.assign({}, ...parts.map((part) => part.state)),
+  defaults: Object.assign({}, ...parts.map((part) => part.defaults)),
+  onChange: (patch) => parts.forEach(({ defaults, set }) => {
+    const own = Object.entries(patch).filter(([key]) => Object.hasOwn(defaults, key));
+    if (own.length) set(Object.fromEntries(own));
+  }),
+  onReset: () => parts.forEach(({ defaults, set }) => set(defaults))
+});
+
 // The board's dot: a setting differs from its default. Its room is always kept, so the button never changes width.
 const DOT_SX = { display: 'inline-block', width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main', ml: '2px', alignSelf: 'flex-start', mt: 0.5 };
 const SettingsContext = createContext({ state: {}, onChange: () => {} });
 
-// The settings that change the numbers on the whole page (Toolbar board, "Where a control goes"): the gear at the end
-// of the header row opens them, a dot says one differs from its default, Reset puts the defaults back. A popover on
+// The settings that change the numbers on the page (Toolbar board, "Where a control goes"), the ones only one tab
+// reads too, grouped under that tab's name (Group): the gear at the end of the header row opens them, a dot says one differs from its default, Reset puts the defaults back. A popover on
 // desktop, a sheet on a phone. It renders into the header's slot, which exists only after mount, so the export has no
 // gear and nothing mismatches.
 const PageSettings = ({ state, defaults, onChange, onReset, children }) => {
@@ -75,12 +88,35 @@ const Toggle = ({ name, label, help }) => {
 PageSettings.Toggle = Toggle;
 
 // One number setting: the field (empty is the default, which it shows as its placeholder) and one line on what it changes.
-const NumberSetting = ({ name, label, help, defaultValue, min, max, integer }) => {
+const NumberSetting = ({ name, label, help, defaultValue, min, max, integer, unit }) => {
   const { state, onChange } = useContext(SettingsContext);
   return <NumberField label={label} help={help} value={state?.[name] ?? null} defaultValue={defaultValue}
-                      min={min} max={max} integer={integer} sx={{ width: '100%' }}
+                      min={min} max={max} integer={integer} unit={unit} sx={{ width: '100%' }}
                       onChange={(next) => onChange({ [name]: next })}/>;
 };
 PageSettings.Number = NumberSetting;
+
+// One choice from a list ([value, label]): the field and one line on what it changes. defaultValue is what an unset
+// setting (null) means, shown as picked; picking it again stores nothing.
+const SelectSetting = ({ name, label, help, options, defaultValue }) => {
+  const { state, onChange } = useContext(SettingsContext);
+  return <TextField select label={label} helperText={help} value={state?.[name] ?? defaultValue ?? ''} fullWidth
+                    onChange={(event) => onChange({
+                      [name]: defaultValue !== undefined && event.target.value === defaultValue ? null : event.target.value
+                    })}>
+    {options.map(([value, text]) => <MenuItem key={value} value={value}>{text}</MenuItem>)}
+  </TextField>;
+};
+PageSettings.Select = SelectSetting;
+
+// The settings one tab reads, under that tab's name.
+const Group = ({ title, children }) => {
+  const titleId = useId();
+  return <Stack role="group" aria-labelledby={titleId} gap={2}>
+    <Typography variant="groupLabel" component="h3" id={titleId} color="text.secondary">{title}</Typography>
+    {children}
+  </Stack>;
+};
+PageSettings.Group = Group;
 
 export default PageSettings;

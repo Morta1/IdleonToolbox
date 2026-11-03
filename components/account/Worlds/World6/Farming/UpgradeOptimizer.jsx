@@ -5,9 +5,7 @@ import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
-import useCheckbox from '@components/common/useCheckbox';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
-import NumberField from '@components/common/NumberField';
 import { getOptimizedLandRankUpgrades, isCropValueCapped, LAND_RANK_GOALS } from '@parsers/world-6/farming';
 import { clampCustomMax, MAX_CUSTOM_UPGRADES } from '@parsers/genericUpgradeOptimizer';
 import InfoButton from '@components/common/InfoButton';
@@ -16,6 +14,7 @@ import Notice from '@components/common/Notice';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import PageSettings from '@components/common/PageSettings';
 
 const pointsOptions = [10, 25, 50, 100, 250, 500, 1000];
 const groupModes = ['None', 'Upgrade', 'Summary'];
@@ -36,28 +35,54 @@ const formatBonus = (bonus) => formatNum(bonus, 'pct', { bare: true });
 const formatPercentChange = (percentChange) => formatNum(percentChange, 'pct', { signed: true, precise: true });
 const points = (count) => `${count} ${count === 1 ? 'pt' : 'pts'}`;
 
+// The plan's settings, in Farming's gear under the tab's name, each kept under the key it had on the tab (the
+// checkbox's own key for Only affordable): the page shows them, the tab reads them.
+export const LAND_RANK_GEAR = { goal: 'evolution', points: 100, customMax: 100, onlyAffordable: false };
+export const useLandRankSettings = () => {
+  const [goal, setGoal] = useLocalStorage({ key: 'landRankOptimizer:goal', defaultValue: 'evolution' });
+  const [maxUpgrades, setMaxUpgrades] = useLocalStorage({ key: 'landRankOptimizer:maxUpgrades', defaultValue: 100 });
+  const [maxUpgradesMode, setMaxUpgradesMode] = useLocalStorage({ key: 'landRankOptimizer:maxUpgradesMode', defaultValue: 'preset' });
+  const [customMaxUpgrades, setCustomMaxUpgrades] = useLocalStorage({ key: 'landRankOptimizer:customMaxUpgrades', defaultValue: 100 });
+  const [onlyAffordable, setOnlyAffordable] = useLocalStorage({ key: 'checkbox-Only affordable', defaultValue: false });
+  const custom = maxUpgradesMode === 'custom';
+  const state = {
+    goal,
+    points: custom ? 'custom' : maxUpgrades,
+    customMax: customMaxUpgrades === '' || customMaxUpgrades == null ? null : clampCustomMax(customMaxUpgrades),
+    onlyAffordable: Boolean(onlyAffordable)
+  };
+  const set = (patch) => {
+    if (Object.hasOwn(patch, 'goal')) setGoal(patch.goal);
+    if (Object.hasOwn(patch, 'points')) {
+      setMaxUpgradesMode(patch.points === 'custom' ? 'custom' : 'preset');
+      if (patch.points !== 'custom') setMaxUpgrades(patch.points);
+    }
+    if (Object.hasOwn(patch, 'customMax')) setCustomMaxUpgrades(patch.customMax ?? '');
+    if (Object.hasOwn(patch, 'onlyAffordable')) setOnlyAffordable(patch.onlyAffordable);
+  };
+  return { state, defaults: LAND_RANK_GEAR, set, maxToUse: custom ? clampCustomMax(customMaxUpgrades) : maxUpgrades };
+};
+
+// state: useLandRankSettings' state, for the category's description and the custom field
+export const LandRankSettings = ({ state }) => <PageSettings.Group title={'Rank Optimizer'}>
+  <PageSettings.Select name={'goal'} label={'Optimization category'} help={goalDescriptions[state?.goal]}
+                       options={[...Object.entries(LAND_RANK_GOALS).map(([key, { name }]) => [key, name]), ['all', 'All']]}/>
+  <PageSettings.Select name={'points'} label={'Points to spend'}
+                       options={[...pointsOptions.map((option) => [option, formatNum(option)]), ['custom', 'Custom']]}/>
+  {state?.points === 'custom' ? <PageSettings.Number name={'customMax'} label={'Custom max'} defaultValue={100} min={1}
+                                                     max={MAX_CUSTOM_UPGRADES} integer/> : null}
+  <PageSettings.Toggle name={'onlyAffordable'} label={'Only affordable'}
+                       help={'Plans only as many upgrades as your unspent rank points buy.'}/>
+</PageSettings.Group>;
+
 const UpgradeOptimizer = () => {
   const { state } = useContext(AppContext);
   const account = state?.account;
   const farming = account?.farming;
   const { availablePoints = 0, hasLandRank } = farming || {};
 
-  const [goal, setGoal] = useLocalStorage({
-    key: 'landRankOptimizer:goal',
-    defaultValue: 'evolution'
-  });
-  const [maxUpgrades, setMaxUpgrades] = useLocalStorage({
-    key: 'landRankOptimizer:maxUpgrades',
-    defaultValue: 100
-  });
-  const [maxUpgradesMode, setMaxUpgradesMode] = useLocalStorage({
-    key: 'landRankOptimizer:maxUpgradesMode',
-    defaultValue: 'preset'
-  });
-  const [customMaxUpgrades, setCustomMaxUpgrades] = useLocalStorage({
-    key: 'landRankOptimizer:customMaxUpgrades',
-    defaultValue: 100
-  });
+  const { state: settings, maxToUse } = useLandRankSettings();
+  const { goal, onlyAffordable } = settings;
   // Land rank steps repeat far more than the other optimizers' do: a flat list is 1000 copies of
   // the same row, so the grouped view is the one worth landing on.
   const [groupMode, setGroupMode] = useLocalStorage({
@@ -68,11 +93,6 @@ const UpgradeOptimizer = () => {
     key: 'landRankOptimizer:viewMode',
     defaultValue: 'grid'
   });
-  const [AffordableCheckboxEl, onlyAffordable] = useCheckbox('Only affordable');
-
-  const maxToUse = maxUpgradesMode === 'custom'
-    ? clampCustomMax(customMaxUpgrades)
-    : maxUpgrades;
   const optimizedUpgrades = getOptimizedLandRankUpgrades(account, maxToUse, { goal, onlyAffordable });
 
   // The percent changes are gains of the whole goal per step, so a group's total compounds.
@@ -198,67 +218,29 @@ const UpgradeOptimizer = () => {
   ];
 
   return <Stack gap={3}>
-    {/* The plan's settings, for this tab only: bottoms aligned, so the checkbox and the switch sit on the fields'
-        line, not their labels' */}
-    <Stack gap={1}>
-      <Stack direction={'row'} gap={2} alignItems={'flex-end'} flexWrap={'wrap'}>
-        <FormControl size={'small'} sx={{ width: 200 }}>
-          <InputLabel id={'land-rank-goal'}>Optimization Category</InputLabel>
-          <Select labelId={'land-rank-goal'}
-                  label={'Optimization Category'}
-                  value={goal}
-                  onChange={(e) => setGoal(e.target.value)}>
-            {Object.entries(LAND_RANK_GOALS).map(([key, { name }]) => <MenuItem key={key} value={key}>{name}</MenuItem>)}
-            <MenuItem value={'all'}>All</MenuItem>
-          </Select>
-        </FormControl>
-        <FormControl size={'small'} sx={{ width: 160 }}>
-          <InputLabel id={'land-rank-points'}>Points to spend</InputLabel>
-          <Select labelId={'land-rank-points'}
-                  label={'Points to spend'}
-                  value={maxUpgradesMode === 'custom' ? 'custom' : maxUpgrades}
-                  onChange={(e) => {
-                    const value = e.target.value;
-                    if (value === 'custom') {
-                      setMaxUpgradesMode('custom');
-                      return;
-                    }
-                    setMaxUpgradesMode('preset');
-                    setMaxUpgrades(value);
-                  }}>
-            {pointsOptions.map((option) => <MenuItem key={option} value={option}>{option}</MenuItem>)}
-            <MenuItem value={'custom'}>Custom</MenuItem>
-          </Select>
-        </FormControl>
-        {maxUpgradesMode === 'custom' ? <NumberField label={'Custom max'}
-                                                     value={customMaxUpgrades === '' || customMaxUpgrades == null ? null : clampCustomMax(customMaxUpgrades)}
-                                                     min={1}
-                                                     max={MAX_CUSTOM_UPGRADES}
-                                                     integer
-                                                     help={false}
-                                                     sx={{ width: 120 }}
-                                                     onChange={(next) => setCustomMaxUpgrades(next ?? '')}/> : null}
-        <FormControl size={'small'} sx={{ width: 120 }}>
-          <InputLabel id={'land-rank-group'}>Group mode</InputLabel>
-          <Select labelId={'land-rank-group'}
-                  label={'Group mode'}
-                  value={groupMode}
-                  onChange={(e) => setGroupMode(e.target.value)}>
-            {groupModes.map((mode) => <MenuItem key={mode} value={mode}>{mode}</MenuItem>)}
-          </Select>
-        </FormControl>
-        <Stack direction={'row'} alignItems={'center'} sx={{ minHeight: 40 }}>
-          <AffordableCheckboxEl/>
-          <InfoButton label={'the plan'}>{METHOD_NOTE}</InfoButton>
-        </Stack>
-        <ViewSwitch size={'medium'} label={'View'} options={[['grid', 'Cards'], ['list', 'Table']]} value={viewMode}
-                    onChange={setViewMode} sx={{ ml: 'auto' }}/>
-      </Stack>
-      <Typography variant={'body2'} color={'text.secondary'}>{goalDescriptions[goal]}</Typography>
+    {/* The plan's settings are in the page's gear; its grouping and view stay here */}
+    <Stack direction={'row'} gap={2} alignItems={'flex-end'} flexWrap={'wrap'}>
+      <FormControl size={'small'} sx={{ width: 120 }}>
+        <InputLabel id={'land-rank-group'}>Group mode</InputLabel>
+        <Select labelId={'land-rank-group'}
+                label={'Group mode'}
+                value={groupMode}
+                onChange={(e) => setGroupMode(e.target.value)}>
+          {groupModes.map((mode) => <MenuItem key={mode} value={mode}>{mode}</MenuItem>)}
+        </Select>
+      </FormControl>
+      <ViewSwitch size={'medium'} label={'View'} options={[['grid', 'Cards'], ['list', 'Table']]} value={viewMode}
+                  onChange={setViewMode} sx={{ ml: 'auto' }}/>
     </Stack>
 
     <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
-      <Typography variant={'sectionTitle'} component={'h2'}>Recommended upgrade sequence</Typography>
+      {/* The category is in the gear, so the heading names it */}
+      <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+        <Typography variant={'sectionTitle'} component={'h2'}>
+          {LAND_RANK_GOALS[goal] ? `Recommended ${LAND_RANK_GOALS[goal].name} upgrade sequence` : 'Recommended upgrade sequence'}
+        </Typography>
+        <InfoButton label={'the plan'}>{METHOD_NOTE}</InfoButton>
+      </Stack>
       <StatTile label={'Points spent / unspent'}
                 value={`${formatNum(optimizedUpgrades.length)} / ${formatNum(availablePoints)}`}/>
     </Stack>

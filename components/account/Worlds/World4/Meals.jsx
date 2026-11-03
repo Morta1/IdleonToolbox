@@ -25,7 +25,7 @@ import StatTile from '@components/common/cards/StatTile';
 import Panel from '@components/common/cards/Panel';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
-import { usePageSettings } from '@components/common/PageSettings';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
 import Notice from '@components/common/Notice';
 import StatusText from '@components/common/StatusText';
@@ -34,8 +34,10 @@ import Num, { Duration } from '@components/common/Num';
 
 const BREAKPOINT_LEVELS = [11, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200];
 const MEALS_TOOLBAR = { sort: null, hideCapped: false, view: 'cards' };
-// The settings that change the meal numbers, for this tab only (remembered, never in the gear)
-const MEALS_SETTINGS = { overflow: false, amethyst: false, foodLust: null, procs: 15, bookOrder: false };
+// The tab's remembered settings: the three that change the meal numbers sit in Cooking's gear (MEALS_GEAR), the queue's
+// procs and the book order on the tab
+export const MEALS_SETTINGS = { overflow: false, amethyst: false, foodLust: null, procs: 15, bookOrder: false };
+export const MEALS_GEAR = { overflow: false, amethyst: false, foodLust: null };
 const SORTS = [['time', 'Time to next level', 'asc'], ['nmlb', 'No Meal Left Behind', 'asc'], ['ribbon', 'Ribbon rank', 'asc'],
   ...BREAKPOINT_LEVELS.map((level) => [`lv${level}`, `Time to Lv ${level}`, 'asc'])];
 const AMETHYST_RHINESTONE = 4.5;
@@ -73,6 +75,26 @@ const iconLabel = (key, src, text) => <Box key={key} component={'span'} sx={{ '&
   <GameIcon src={src} size={24} alt={''}/>{text}
 </Box>;
 
+// What the meal settings read: the best Overflowing Ladle, whether the Amethyst Rhinestone is found (its switch is a
+// what-if until then), and the account's Food Lust bosses
+const mealSettingFacts = (account, characters) => ({
+  overflowingLadle: getHighestOverflowingLadle(characters),
+  amethystRhinestone: getJewelBonus(account?.lab?.jewels, 0, getLabBonus(account?.lab?.labBonuses, 8)), // gem multi
+  accountFoodLust: account?.equinox?.upgrades?.find(({ name }) => name === 'Food_Lust')?.bonus
+});
+
+// The Meals tab's settings in Cooking's gear, under the tab's name
+export const MealsSettings = ({ account, characters }) => {
+  const { overflowingLadle, amethystRhinestone, accountFoodLust } = mealSettingFacts(account, characters);
+  return <PageSettings.Group title={'Meals'}>
+    <PageSettings.Toggle name={'overflow'} label={'Overflowing Ladle'}
+                         help={`Blood Berserker talent: ladles give ${formatNum(overflowingLadle?.value ?? 0, 'pct')} more AFK time${overflowingLadle?.character ? ` (${overflowingLadle.character})` : ''}.`}/>
+    {amethystRhinestone === 0 ? <PageSettings.Toggle name={'amethyst'} label={'Amethyst Rhinestone'}
+                                                     help={'Counts the 4.5x meal speed the jewel gives.'}/> : null}
+    <PageSettings.Number name={'foodLust'} label={'Food Lust bosses'} defaultValue={accountFoodLust} min={0} max={14} integer/>
+  </PageSettings.Group>;
+};
+
 // No Meal Left Behind levels the lowest meal it can, the one furthest down the book on a tie
 const nmlbOrder = (meals, mealMaxLevel) => (meals ?? [])
   .filter((meal) => meal?.level >= NO_MEAL_LEFT_BEHIND_MIN_LEVEL && meal?.level < mealMaxLevel)
@@ -103,7 +125,6 @@ const Meals = ({
                  totalMealSpeed,
                  mealMaxLevel,
                  achievements,
-                 lab,
                  equinoxUpgrades,
                  kitchensFailed
                }) => {
@@ -116,14 +137,11 @@ const Meals = ({
     key: 'meals-filter-limit',
     defaultValue: 0
   });
-  const spelunkerObolMulti = getLabBonus(lab?.labBonuses, 8); // gem multi
-  const realAmethystRhinestone = getJewelBonus(lab?.jewels, 0, spelunkerObolMulti);
-  const mealSpeed = (totalMealSpeed ?? 0) * (settings?.amethyst && realAmethystRhinestone === 0 ? AMETHYST_RHINESTONE : 1);
-  const accountFoodLust = equinoxUpgrades?.find(({ name }) => name === 'Food_Lust')?.bonus;
+  const { overflowingLadle: overflowingLadleBonus, amethystRhinestone } = mealSettingFacts(account, characters);
+  const mealSpeed = (totalMealSpeed ?? 0) * (settings?.amethyst && amethystRhinestone === 0 ? AMETHYST_RHINESTONE : 1);
   const equinox = equinoxUpgrades?.map((upgrade) => upgrade?.name === 'Food_Lust' && settings?.foodLust != null
     ? { ...upgrade, bonus: settings.foodLust }
     : upgrade);
-  const overflowingLadleBonus = getHighestOverflowingLadle(characters);
   const overflowDivisor = settings?.overflow && overflowingLadleBonus?.value ? 1 + overflowingLadleBonus.value / 100 : 1;
   const nmlbActive = getNoMealLeftBehindLevels(account) > 0;
   const noMealLeftBehind = nmlbActive ? nmlbOrder(meals, mealMaxLevel)[0] : null;
@@ -213,13 +231,6 @@ const Meals = ({
     : [];
   const nmlbLadles = nmlbQueue.reduce((sum, { ladles }) => Number.isFinite(ladles) ? sum + ladles : sum, 0);
 
-  const settingSwitch = (name, label, help) => <Stack sx={{ maxWidth: 320 }}>
-    <FormControlLabel label={label} sx={{ mr: 0 }}
-                      control={<Switch checked={Boolean(settings?.[name])}
-                                       onChange={(event) => setSettings({ [name]: event.target.checked })}/>}/>
-    <Typography variant={'caption'} color={'text.secondary'}>{help}</Typography>
-  </Stack>;
-
   // The target the cards measure against, its progress and time, and the ladles it takes
   const breakpointSection = (meal) => {
     const { amount, level } = meal;
@@ -247,14 +258,6 @@ const Meals = ({
         <StatTile label={'No Meal Left Behind next'} icon={`data/${noMealLeftBehind.rawName}.png`}
                   value={cleanUnderscore(noMealLeftBehind.name)}/>
       </Stack> : null}
-      {/* The meal numbers' settings, for this tab only: bottoms aligned (5b's land rank row) */}
-      <Stack direction={'row'} gap={3} alignItems={'flex-end'} flexWrap={'wrap'} mb={2}>
-        {settingSwitch('overflow', 'Overflowing Ladle', `Blood Berserker talent: ladles give ${formatNum(overflowingLadleBonus?.value ?? 0, 'pct')} more AFK time${overflowingLadleBonus?.character ? ` (${overflowingLadleBonus.character})` : ''}.`)}
-        {realAmethystRhinestone === 0 ? settingSwitch('amethyst', 'Amethyst Rhinestone', 'Counts the 4.5x meal speed the jewel gives.') : null}
-        <NumberField label={'Food Lust bosses'} value={settings?.foodLust ?? null} defaultValue={accountFoodLust}
-                     min={0} max={14} integer help={false} sx={{ width: 160 }}
-                     onChange={(next) => setSettings({ foodLust: next })}/>
-      </Stack>
       <Box>
         <Toolbar state={toolbar} defaults={MEALS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
                  total={meals?.length ?? 0} shown={visibleMeals.length} noun={'meals'}>

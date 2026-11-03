@@ -6,7 +6,7 @@ import { notateNumber, parseShorthandNumber } from '@utility/helpers';
 const LEVELS_AHEAD = [1, 5, 10, 25, 100];
 // Typed values need a ceiling: totals are summed one level at a time and some upgrades (Royal
 // Armory past 999, Menagerie boosts) have no cap.
-const MAX_LEVELS_AHEAD = 1000;
+export const MAX_LEVELS_AHEAD = 1000;
 
 // +1 is the card's own cost row with nothing added, so it reads as the default view.
 const levelsAheadLabel = (amount) => amount === 1 ? 'Current' : `+${amount} levels`;

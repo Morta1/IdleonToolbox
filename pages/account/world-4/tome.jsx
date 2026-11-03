@@ -7,7 +7,8 @@ import { useSpriteBounds } from '@utility/spriteBounds';
 import { formatGame, tomeQuantity } from '@utility/gameNotation';
 import Tabber from '../../../components/common/Tabber';
 import { PAGES } from '@components/constants';
-import TomeRankings, { isTomeEntryLocked } from '@components/account/Worlds/World4/TomeRankings';
+import TomeRankings, { isTomeEntryLocked, RANKINGS_SETTINGS, RankingsSettings } from '@components/account/Worlds/World4/TomeRankings';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import useRealDate from '@hooks/useRealDate';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import NumberField from '@components/common/NumberField';
@@ -159,6 +160,8 @@ const Tome = () => {
   const tome = state?.account?.tome ?? {};
   const sectionFailed = isSectionFailed(state?.account, 'tome');
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('tome', TOME_TOOLBAR);
+  // The Rankings tab's settings, kept under the tab's own key
+  const [rankSettings, setRankSettings, resetRankSettings] = usePageSettings('tome-rankings', RANKINGS_SETTINGS);
 
   // Calculate countdown to next tome nametag reset and next 10 resets (stable across re-renders)
   const [{ nextResetTime, nextResetTimes }] = useState(() => {
@@ -197,6 +200,10 @@ const Tome = () => {
       title="Tome | Idleon Toolbox"
       description="Track your Tome upgrade bonuses, highscores, and progression rewards in Legends of Idleon World 4"
     />
+    {sectionFailed ? null : <PageSettings state={rankSettings} defaults={RANKINGS_SETTINGS} onChange={setRankSettings}
+                                          onReset={resetRankSettings}>
+      <RankingsSettings/>
+    </PageSettings>}
     {sectionFailed ? <MissingData name={'the Tome'} failed/> : null}
     <PageSummary>
       <StatTile label={'Total points'} value={sectionFailed ? '-' : formatGame(tome?.totalPoints ?? 0, 'Summoning.TomePTS')}/>

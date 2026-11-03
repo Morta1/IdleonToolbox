@@ -3,7 +3,7 @@ import React, { useContext, useState } from 'react';
 import { useSessionStorage } from '@mantine/hooks';
 import { AppContext } from 'components/common/context/AppProvider';
 import Kitchens from 'components/account/Worlds/World4/Kitchens';
-import Meals from '@components/account/Worlds/World4/Meals';
+import Meals, { MEALS_GEAR, MEALS_SETTINGS, MealsSettings } from '@components/account/Worlds/World4/Meals';
 import CookingMastery from '@components/account/Worlds/World4/CookingMastery';
 import Ribbons from '@components/account/Worlds/World4/Ribbons';
 import { NextSeo } from 'next-seo';
@@ -17,7 +17,7 @@ import { PAGES } from '@components/constants';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import PageSettings, { usePageSettings } from '@components/common/PageSettings';
+import PageSettings, { joinSettings, usePageSettings } from '@components/common/PageSettings';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 
 const COOKING_SETTINGS = { forceNano: false };
@@ -38,7 +38,9 @@ const Cooking = () => {
   const kitchensFailed = sectionFailed || isSectionFailed(account, 'cooking.kitchens');
   const [pickedId, setPickedId] = useState(null);
   const selectedCharacter = characters?.find((character) => character?.playerId === pickedId) || characters?.[0];
-  const [settings, setSettings, resetSettings] = usePageSettings('cooking', COOKING_SETTINGS);
+  const [settings, setSettings] = usePageSettings('cooking', COOKING_SETTINGS);
+  // The Meals tab's settings, kept under the tab's own key
+  const [mealSettings, setMealSettings] = usePageSettings('cooking-meals', MEALS_SETTINGS);
   // A character with the chip and Gordonius Major counts it whatever the setting
   const characterNano = !!getPlayerLabChipBonus(selectedCharacter, account, 15)
     && (!!hasGordonius(selectedCharacter) || !!gordoniusInfinite(account));
@@ -73,10 +75,11 @@ const Cooking = () => {
                                                     value={character?.playerId}>{character?.name}</MenuItem>)}
         </TextField>
       </PageHeaderControl> : null}
-      {characters?.length ? <PageSettings state={settings} defaults={COOKING_SETTINGS} onChange={setSettings}
-                                          onReset={resetSettings}>
+      {characters?.length ? <PageSettings {...joinSettings({ state: settings, defaults: COOKING_SETTINGS, set: setSettings },
+        { state: mealSettings, defaults: MEALS_GEAR, set: setMealSettings })}>
         <PageSettings.Toggle name={'forceNano'} label={'Force nano chip'}
                              help={'Counts the nano chip in meal speed for any character, assuming Gordonius Major is active.'}/>
+        <MealsSettings account={account} characters={characters}/>
       </PageSettings> : null}
       {sectionFailed ? <MissingData name={'Cooking'} failed/> : kitchensFailed ? <MissingData name={'Kitchens'} failed/> : null}
       <PageSummary>
@@ -89,7 +92,6 @@ const Cooking = () => {
         <Meals characters={characters}
                {...cooking}
                kitchens={kitchens}
-               lab={account?.lab}
                achievements={achievements}
                totalMealSpeed={totalMealSpeed}
                account={account}

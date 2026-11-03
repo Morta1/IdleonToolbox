@@ -5,19 +5,29 @@ import { Box, Stack, Typography } from '@mui/material';
 import { format, isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
-import NumberField from '@components/common/NumberField';
 import { getRequirementAmount } from '@parsers/world-4/lab';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
-import { usePageSettings } from '@components/common/PageSettings';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import Notice from '@components/common/Notice';
 import { chipText } from './Chips';
 import { jewelText } from './Mainframe';
 
 const ROTATION_TOOLBAR = { search: '', weeks: '10' };
-const ROTATION_SETTINGS = { threshold: null };
+// The mark's threshold, in the Laboratory's gear under the tab's name: it marks chips, it does not filter them
+export const ROTATION_SETTINGS = { threshold: null };
+
+export const RotationSettings = () => <PageSettings.Group title={'Chips And Jewels Rotation'}>
+  <PageSettings.Number name={'threshold'} label={'Chips owned to mark'} min={0} integer
+                       help={'A chip you own more of than this is marked on every week'}/>
+</PageSettings.Group>;
+
+// The rotation follows the save's clock (timeAway) and the server's current shop (serverVars): a guest has neither, and
+// the parser reads serverVars.ChipRepo without a guard
+export const canRotate = (account, sectionFailed) => !sectionFailed && Boolean(account?.serverVars)
+  && Number.isFinite(account?.timeAway?.GlobalTime);
 const WEEKS = [10, 20, 30, 40, 50];
 // The shop's third item each week is a jewel, the first two chips
 const JEWEL_SLOT = 2;
@@ -26,20 +36,18 @@ const LabRotation = ({ sectionFailed }) => {
   const { state } = useContext(AppContext);
   const formatDate = useFormatDate();
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('lab-rotation', ROTATION_TOOLBAR);
-  const [settings, setSettings] = usePageSettings('lab-rotation', ROTATION_SETTINGS);
+  const [settings] = usePageSettings('lab-rotation', ROTATION_SETTINGS);
   const lab = state?.account?.lab ?? {};
   const currentRotation = lab?.currentRotation ?? [];
-  // The rotation follows the save's clock (timeAway) and the server's current shop (serverVars): a guest has neither, and
-  // the parser reads serverVars.ChipRepo without a guard
-  const canRotate = !sectionFailed && Boolean(state?.account?.serverVars) && Number.isFinite(state?.account?.timeAway?.GlobalTime);
-  const rotations = canRotate ? getChipsAndJewels(state?.account, Number(toolbar?.weeks) || WEEKS[0]) : [];
+  const rotating = canRotate(state?.account, sectionFailed);
+  const rotations = rotating ? getChipsAndJewels(state?.account, Number(toolbar?.weeks) || WEEKS[0]) : [];
   const search = String(toolbar?.search ?? '').trim().toLowerCase();
   const shown = rotations.map((rotation, rotationIndex) => ({ ...rotation, rotationIndex }))
     .filter(({ items }) => !search || items?.some((item) => cleanUnderscore(item?.name).toLowerCase().includes(search)));
   const threshold = settings?.threshold;
 
   if (sectionFailed) return null;
-  if (!canRotate) {
+  if (!rotating) {
     return <Notice tone={'locked'}>The shop rotation follows your save&apos;s clock: it shows once you sign in.</Notice>;
   }
 
@@ -49,12 +57,6 @@ const LabRotation = ({ sectionFailed }) => {
       <Toolbar.Search placeholder={'Search chips and jewels'}/>
       <Toolbar.Show name={'weeks'} options={WEEKS.map((weeks) => [String(weeks), `${weeks} weeks`])}/>
     </Toolbar>
-    {/* The tab's own setting: it marks chips, it does not filter them */}
-    <Stack direction={'row'} gap={2} alignItems={'flex-end'} flexWrap={'wrap'} mb={2}>
-      <NumberField label={'Chips owned to mark'} value={threshold ?? null} min={0} integer sx={{ width: 200 }}
-                   help={'A chip you own more of than this is marked on every week'}
-                   onChange={(next) => setSettings({ threshold: next })}/>
-    </Stack>
     <Stack gap={3}>
       {shown.map(({ items, date, rotationIndex }) => <Stack key={'rotation' + rotationIndex} gap={1}>
         {isValid(date) ? <Typography variant={'cardTitle'} component={'h3'}>

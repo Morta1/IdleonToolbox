@@ -11,7 +11,8 @@ import { PAGES } from '@components/constants';
 import { calcTotalItemOwned } from '@parsers/storage';
 import Missions from '@components/account/Worlds/World7/Menagerie/Missions';
 import Unlocks from '@components/account/Worlds/World7/Menagerie/Unlocks';
-import Boosts from '@components/account/Worlds/World7/Menagerie/Boosts';
+import Boosts, { BOOSTS_SETTINGS, BoostsSettings } from '@components/account/Worlds/World7/Menagerie/Boosts';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import Jellies from '@components/account/Worlds/World7/Menagerie/Jellies';
 import { formatLumi, LUMI_ICON, SHELL_ICON } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
@@ -33,6 +34,8 @@ const Menagerie = () => {
     unlocks,
     boosts
   } = menagerie || {};
+  // The Boosts tab's setting (not remembered before it moved here)
+  const [settings, setSettings, resetSettings] = usePageSettings('menagerie', BOOSTS_SETTINGS);
   const unlocksOwned = unlocks?.filter(({ owned }) => owned)?.length ?? 0;
   const boostLevels = boosts?.reduce((sum, { level }) => sum + (level ?? 0), 0) ?? 0;
   const claimableMissions = unlocked ? missions?.filter(({ canClaim, visible }) => canClaim && visible)?.length ?? 0 : 0;
@@ -45,6 +48,10 @@ const Menagerie = () => {
       title="Luminous Menagerie | Idleon Toolbox"
       description="Track your Luminous Menagerie missions, unlocks, boosts, jellyfish and Lumi gains in Legends of Idleon World 7"
     />
+    {/* Only a boost that shows its cost is priced ahead: with none, the setting would change nothing */}
+    {boosts?.some(({ visible }) => visible) ? <PageSettings state={settings} defaults={BOOSTS_SETTINGS} onChange={setSettings} onReset={resetSettings}>
+      <BoostsSettings/>
+    </PageSettings> : null}
     {!unlocked ? <Notice tone={'locked'} sx={{ mb: 2 }}>
       Your account hasn't reached the Luminous Menagerie yet. It's in the Molten Edge map in World 7.
     </Notice> : null}
@@ -61,7 +68,8 @@ const Menagerie = () => {
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'menagerie')}>
       <Missions missions={missions} unlocked={unlocked}/>
       <Unlocks unlocks={unlocks} menagerie={menagerie}/>
-      <Boosts account={state?.account} boosts={boosts} doublers={menagerie?.doublers} lumi={lumi}/>
+      <Boosts account={state?.account} boosts={boosts} doublers={menagerie?.doublers} lumi={lumi}
+              levelsAhead={settings?.levelsAhead ?? 1}/>
       <Jellies jellies={menagerie?.jellies}
                ladlesOwned={calcTotalItemOwned(state?.account?.storage, state?.characters, 'Ladle')}
                buildSlotOpen={!state?.account?.towers?.data?.some(({ slot }) => slot === EIGHTH_BUILD_SLOT)}/>

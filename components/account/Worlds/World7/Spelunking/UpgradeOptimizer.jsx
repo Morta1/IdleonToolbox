@@ -1,18 +1,9 @@
 import React, { useContext, useId } from 'react';
+import PageSettings from '@components/common/PageSettings';
 import { AppContext } from '@components/common/context/AppProvider';
-import {
-  Checkbox,
-  FormControl,
-  FormControlLabel,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-  Typography
-} from '@mui/material';
+import { FormControl, InputLabel, MenuItem, Select, Stack, Typography } from '@mui/material';
 import { formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
-import NumberField from '@components/common/NumberField';
 import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -32,26 +23,52 @@ const formatLevel = (upgrade) => formatNum(upgrade?.level, 'level', { max: Numbe
 // A grouped step's levels, a → b in commas like every level
 const levelRange = (upgrade) => `${formatNum(upgrade?.startLevel ?? 0)} → ${formatNum(upgrade?.finalLevel ?? 0)}`;
 
+// The plan's settings, in Spelunking's gear under the tab's name, each kept under the key it had on the tab: the page
+// shows them, the tab reads them.
+export const SPELUNKING_GEAR = { category: 'Power', max: 10, customMax: 10, onlyAffordable: false };
+export const useSpelunkingOptimizerSettings = () => {
+  const [maxUpgrades, setMaxUpgrades] = useLocalStorage({ key: 'spelunkingUpgradeOptimizer:maxUpgrades', defaultValue: 10 });
+  const [maxUpgradesMode, setMaxUpgradesMode] = useLocalStorage({ key: 'spelunkingUpgradeOptimizer:maxUpgradesMode', defaultValue: 'preset' });
+  const [customMaxUpgrades, setCustomMaxUpgrades] = useLocalStorage({ key: 'spelunkingUpgradeOptimizer:customMaxUpgrades', defaultValue: 10 });
+  const [onlyAffordable, setOnlyAffordable] = useLocalStorage({ key: 'spelunkingUpgradeOptimizer:onlyAffordable', defaultValue: false });
+  const [category, setCategory] = useLocalStorage({ key: 'spelunkingUpgradeOptimizer:optimizationCategory', defaultValue: 'Power' });
+  const custom = maxUpgradesMode === 'custom';
+  const state = {
+    category,
+    max: custom ? 'custom' : maxUpgrades,
+    customMax: customMaxUpgrades === '' || customMaxUpgrades == null ? null : clampCustomMax(customMaxUpgrades),
+    onlyAffordable: Boolean(onlyAffordable)
+  };
+  const set = (patch) => {
+    if (Object.hasOwn(patch, 'category')) setCategory(patch.category);
+    if (Object.hasOwn(patch, 'max')) {
+      setMaxUpgradesMode(patch.max === 'custom' ? 'custom' : 'preset');
+      if (patch.max !== 'custom') setMaxUpgrades(patch.max);
+    }
+    if (Object.hasOwn(patch, 'customMax')) setCustomMaxUpgrades(patch.customMax ?? '');
+    if (Object.hasOwn(patch, 'onlyAffordable')) setOnlyAffordable(patch.onlyAffordable);
+  };
+  return { state, defaults: SPELUNKING_GEAR, set, maxToUse: custom ? clampCustomMax(customMaxUpgrades) : maxUpgrades };
+};
+
+// state: useSpelunkingOptimizerSettings' state, for the custom field
+export const SpelunkingOptimizerSettings = ({ state }) => <PageSettings.Group title={'Upgrade Optimizer'}>
+  <PageSettings.Select name={'category'} label={'Optimization category'}
+                       options={optimizationCategorys.map((category) => [category, category])}/>
+  <PageSettings.Select name={'max'} label={'Max upgrades'}
+                       options={[...maxUpgradesOptions.map((max) => [max, formatNum(max)]), ['custom', 'Custom']]}/>
+  {state?.max === 'custom' ? <PageSettings.Number name={'customMax'} label={'Custom max'} defaultValue={10} min={1}
+                                                  max={MAX_CUSTOM_UPGRADES} integer/> : null}
+  <PageSettings.Toggle name={'onlyAffordable'} label={'Only show affordable upgrades'}
+                       help={'Plans only the upgrades your amber can buy.'}/>
+</PageSettings.Group>;
+
 const UpgradeOptimizer = ({ character, account }) => {
   const { state } = useContext(AppContext);
   // Each Select is named by its label, not its value, for a screen reader
   const fieldId = useId();
-  const [maxUpgrades, setMaxUpgrades] = useLocalStorage({
-    key: 'spelunkingUpgradeOptimizer:maxUpgrades',
-    defaultValue: 10
-  });
-  const [maxUpgradesMode, setMaxUpgradesMode] = useLocalStorage({
-    key: 'spelunkingUpgradeOptimizer:maxUpgradesMode',
-    defaultValue: 'preset'
-  });
-  const [customMaxUpgrades, setCustomMaxUpgrades] = useLocalStorage({
-    key: 'spelunkingUpgradeOptimizer:customMaxUpgrades',
-    defaultValue: 10
-  });
-  const [onlyAffordable, setOnlyAffordable] = useLocalStorage({
-    key: 'spelunkingUpgradeOptimizer:onlyAffordable',
-    defaultValue: false
-  });
+  const { state: settings, maxToUse } = useSpelunkingOptimizerSettings();
+  const { category: optimizationCategory, onlyAffordable } = settings;
   const [viewMode, setViewMode] = useLocalStorage({
     key: 'spelunkingUpgradeOptimizer:viewMode',
     defaultValue: 'grid'
@@ -60,20 +77,12 @@ const UpgradeOptimizer = ({ character, account }) => {
     key: 'spelunkingUpgradeOptimizer:groupMode',
     defaultValue: 'None'
   });
-  const [optimizationCategory, setOptimizationCategory] = useLocalStorage({
-    key: 'spelunkingUpgradeOptimizer:optimizationCategory',
-    defaultValue: 'Power'
-  });
 
   const denominator = getAmberDenominator(account);
   const amberIndex = getAmberIndex(account);
 
   let optimizedUpgrades = [];
   if (character && account) {
-    const maxToUse = maxUpgradesMode === 'custom'
-      ? clampCustomMax(customMaxUpgrades)
-      : maxUpgrades;
-
     const characters = state?.characters || [];
 
     const getUpgradesForCategory = (category, limit, useOnlyAffordable) => {
@@ -320,56 +329,9 @@ const UpgradeOptimizer = ({ character, account }) => {
 
   return (
     <Stack gap={3}>
-      {/* Decision 10: the plan's settings stay in this tab, bottoms aligned so the checkbox sits on the fields' line */}
+      {/* The plan's settings are in the page's gear (the owner's rule, Decision 10 overridden); its grouping and view
+          stay here */}
       <Stack direction="row" gap={2} alignItems="flex-end" flexWrap="wrap">
-        <FormControl size="small" sx={{ width: 180 }}>
-          <InputLabel id={`${fieldId}-category`}>Optimization category</InputLabel>
-          <Select
-            labelId={`${fieldId}-category`}
-            value={optimizationCategory}
-            label="Optimization category"
-            onChange={(e) => setOptimizationCategory(e.target.value)}
-          >
-            {optimizationCategorys.map(mode => (
-              <MenuItem key={mode} value={mode}>{mode}</MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-        <FormControl size="small" sx={{ width: 160 }}>
-          <InputLabel id={`${fieldId}-max`}>Max upgrades</InputLabel>
-          <Select
-            labelId={`${fieldId}-max`}
-            value={maxUpgradesMode === 'custom' ? 'custom' : maxUpgrades}
-            label="Max upgrades"
-            onChange={(e) => {
-              const val = e.target.value;
-              if (val === 'custom') {
-                setMaxUpgradesMode('custom');
-              }
-              else {
-                setMaxUpgradesMode('preset');
-                setMaxUpgrades(val);
-              }
-            }}
-          >
-            {maxUpgradesOptions.map(max => (
-              <MenuItem key={max} value={max}>{max}</MenuItem>
-            ))}
-            <MenuItem value={'custom'}>Custom</MenuItem>
-          </Select>
-        </FormControl>
-        {maxUpgradesMode === 'custom' && (
-          <NumberField
-            label="Custom max"
-            value={customMaxUpgrades === '' || customMaxUpgrades == null ? null : clampCustomMax(customMaxUpgrades)}
-            min={1}
-            max={MAX_CUSTOM_UPGRADES}
-            integer
-            help={false}
-            sx={{ width: 120 }}
-            onChange={(next) => setCustomMaxUpgrades(next ?? '')}
-          />
-        )}
         <FormControl size="small" sx={{ width: 120 }}>
           <InputLabel id={`${fieldId}-group`}>Group mode</InputLabel>
           <Select
@@ -383,16 +345,6 @@ const UpgradeOptimizer = ({ character, account }) => {
             ))}
           </Select>
         </FormControl>
-        <FormControlLabel
-          control={
-            <Checkbox
-              checked={onlyAffordable}
-              onChange={(e) => setOnlyAffordable(e.target.checked)}
-              size="small"
-            />
-          }
-          label="Only show affordable upgrades"
-        />
         {/* The key and its values stay: the screens harness seeds spelunkingUpgradeOptimizer:viewMode */}
         <ViewSwitch size={'medium'} label={'View'} options={[['grid', 'Cards'], ['list', 'Table']]} value={viewMode}
                     onChange={setViewMode} sx={{ ml: 'auto' }}/>

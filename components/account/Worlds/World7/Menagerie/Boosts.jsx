@@ -4,7 +4,8 @@ import { formatNum } from '@utility/helpers';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import StatTile from '@components/common/cards/StatTile';
-import useLevelsAhead, { LevelsAheadCaption } from '@components/common/LevelsAhead';
+import { LevelsAheadCaption, MAX_LEVELS_AHEAD } from '@components/common/LevelsAhead';
+import PageSettings from '@components/common/PageSettings';
 import { getMenagerieBoostTotalCost } from '@parsers/world-7/menagerie';
 import { DOUBLER_ICONS, formatLumi, LUMI_ICON, RankRequired } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
@@ -17,8 +18,15 @@ const DOUBLER_CARDS = [
   { key: 'omnijade', title: 'Omnijade' }
 ];
 
-const Boosts = ({ account, boosts, doublers, lumi }) => {
-  const { picker, levelsAhead } = useLevelsAhead();
+// Levels ahead prices this tab only: in the Menagerie's gear, under the tab's name
+export const BOOSTS_SETTINGS = { levelsAhead: null };
+
+export const BoostsSettings = () => <PageSettings.Group title={'Boosts'}>
+  <PageSettings.Number name={'levelsAhead'} label={'Levels ahead'} defaultValue={1} min={1} max={MAX_LEVELS_AHEAD} integer
+                       help={'Each boost also shows the total cost of this many levels.'}/>
+</PageSettings.Group>;
+
+const Boosts = ({ account, boosts, doublers, lumi, levelsAhead = 1 }) => {
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
       {DOUBLER_CARDS.map(({ key, title }) => {
@@ -27,8 +35,6 @@ const Boosts = ({ account, boosts, doublers, lumi }) => {
         return <StatTile key={key} label={title} icon={DOUBLER_ICONS[key]} value={`${formatNum(used)} / ${formatNum(owned)}`}/>;
       })}
     </Stack>
-    {/* Levels ahead prices this tab only, so it stays here (the overview's rule for a one-tab setting) */}
-    <Stack mb={2}>{picker}</Stack>
     <CardGrid size={'m'}>
       {boosts?.map(({ index, description, level, perLevel, cost, visible, rankRequired }) => {
         const targetLevel = (level ?? 0) + levelsAhead;

@@ -16,7 +16,7 @@ import ItemCard from '@components/common/cards/ItemCard';
 import Notice from '@components/common/Notice';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
-import { usePageSettings } from '@components/common/PageSettings';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { CLASSIFICATION_TYPES, CLASSIFICATIONS_KEY, classificationsOf, withClassification } from './tomeClassifications';
 
 const RANK_OPTIONS = [
@@ -24,8 +24,13 @@ const RANK_OPTIONS = [
   ...['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '80%', '90%', '95%'].map((value) => ({ label: `Top ${value}`, value }))
 ];
 const RANKINGS_TOOLBAR = { search: '', sort: { key: 'lowest', order: 'asc' }, view: 'none', hideMaxed: false };
-// The comparison and the target change every percentile and gap on the tab: its settings row, remembered
-const RANKINGS_SETTINGS = { rank: 'all', target: null };
+// The comparison and the target change every percentile and gap on the tab: in the Tome's gear, under the tab's name
+export const RANKINGS_SETTINGS = { rank: 'all', target: null };
+
+export const RankingsSettings = () => <PageSettings.Group title={'Rankings'}>
+  <PageSettings.Select name={'rank'} label={'Compare within'} options={RANK_OPTIONS.map(({ label, value }) => [value, label])}/>
+  <PageSettings.Number name={'target'} label={'Target percentile'} unit={'%'} min={0} max={100}/>
+</PageSettings.Group>;
 const POINTS = 'Summoning.TomePTS';
 
 function interpolatePercentile(value, boundaries, percentilePoints) {
@@ -121,7 +126,7 @@ const TomeRankings = () => {
   const [percentileData, setPercentileData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('tome-rankings', RANKINGS_TOOLBAR);
-  const [settings, setSettings] = usePageSettings('tome-rankings', RANKINGS_SETTINGS);
+  const [settings] = usePageSettings('tome-rankings', RANKINGS_SETTINGS);
   const [toolbarBottom, setToolbarBottom] = useState(null);
   // Read after mount (the first render matches the export); no default, so a player who never edited stores nothing.
   const [storedClassifications, setStoredClassifications] = useLocalStorage({ key: CLASSIFICATIONS_KEY });
@@ -287,14 +292,6 @@ const TomeRankings = () => {
 
   return (
     <Stack gap={2} sx={{ maxWidth: 1100 }}>
-      <Stack direction={'row'} gap={2} alignItems={'flex-end'} flexWrap={'wrap'}>
-        <TextField select label={'Compare within'} value={selectedRank} sx={{ minWidth: 180 }}
-                   onChange={(event) => setSettings({ rank: event.target.value })}>
-          {RANK_OPTIONS.map(({ label, value }) => <MenuItem key={value} value={value}>{label}</MenuItem>)}
-        </TextField>
-        <NumberField label={'Target percentile'} unit={'%'} value={settings?.target ?? null} min={0} max={100}
-                     help={false} sx={{ width: 160 }} onChange={(next) => setSettings({ target: next })}/>
-      </Stack>
       <Stack>
         <Typography variant="caption" color="text.secondary">
           {`${formatNum(displayPlayers)} players`}
