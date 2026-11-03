@@ -35,16 +35,23 @@ export const getCogViewValue = (cog, view) => {
 };
 
 // The number a cog shows under its art, in the game's Big: its own row, never over the sprite. It may take half the
-// gap on each side, so a five character "87.4K" fits under a 30 px slot.
+// gap on each side, so a five character "87.4K" fits under a 30 px slot. One that still doesn't fit ("1.16QQ") never
+// cuts: it takes a second line, breaking before its suffix ("1.16" over "QQ"), and the row grows with it.
 export const CAPTION_HEIGHT = 16;
-export const CogCaption = ({ value, width }) => <Typography variant={'caption'} component={'div'} noWrap sx={{
-  height: CAPTION_HEIGHT,
+const captionText = (value) => {
+  const text = String(formatGame(value, 'Big'));
+  const [, digits, suffix] = text.match(/^([\d.,]+)([A-Za-z].*)$/) ?? [];
+  return digits ? <>{digits}<wbr/>{suffix}</> : text;
+};
+export const CogCaption = ({ value, width }) => <Typography variant={'caption'} component={'div'} sx={{
+  minHeight: CAPTION_HEIGHT,
   lineHeight: `${CAPTION_HEIGHT}px`,
   width: `calc(${width} + ${SLOT_GAP}px)`,
   mx: `-${SLOT_GAP / 2}px`,
   textAlign: 'center',
+  overflowWrap: 'anywhere',
   fontVariantNumeric: 'tabular-nums'
-}}>{value ? formatGame(value, 'Big') : null}</Typography>;
+}}>{value ? captionText(value) : null}</Typography>;
 
 // The sprite a cog draws: a character's head, or the cog's own art
 export const cogSprite = (name) => (name?.includes('Player') ? 'headBIG' : name);
@@ -130,8 +137,10 @@ const ConstructionBoard = ({ view, board, roundedValues, leftColumn, rightColumn
         display: 'grid',
         gap: `${SLOT_GAP}px`,
         gridTemplateColumns: `repeat(${cols}, var(--cog-slot))`,
-        // Each row holds the slot's art and the caption row under it
-        gridAutoRows: `calc(var(--cog-slot) + ${CAPTION_HEIGHT}px)`
+        // Each row holds the slot's art and the caption row under it, taller where a caption takes two lines. The
+        // strips beside the board are taller than it, so the rows keep their own height instead of sharing the slack.
+        gridAutoRows: `minmax(calc(var(--cog-slot) + ${CAPTION_HEIGHT}px), auto)`,
+        alignContent: 'start'
       }}
     >
     {slots?.map((slot, index) => {
