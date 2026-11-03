@@ -36,19 +36,19 @@ describe('Research page', () => {
   it('renders the level with its EXP progress and the level up ETAs', () => {
     renderPage();
     const { researchLevel, researchEXPpercent } = account.research;
-    expect(cardText('Research Level')).toContain(`${researchLevel} (${formatNum(researchEXPpercent, 'pct')})`);
+    expect(cardText('Research level')).toContain(`${researchLevel} (${formatNum(researchEXPpercent, 'pct')})`);
     // 66.3h to level at the fixture's rate (2.3.550: Killroy 5 is a whole multiplier), 44.3h once the tournament registration is counted.
-    expect(cardText('Time To Level')).toContain('2d 18h');
-    expect(cardText('Time With Registrant')).toContain('1d 20h');
+    expect(cardText('Time to level')).toContain('2d 18h');
+    expect(cardText('Time with registrant')).toContain('1d 20h');
   });
 
-  // Registering for the tournament banks 12hrs of research gains once per tournament day, so the
+  // Registering for the tournament banks 12 hours of research gains once per tournament day, so the
   // assumption behind the second ETA hangs off an info icon rather than sitting in the value.
   it('explains the registrant assumption on an info icon, not on the card', () => {
     renderPage();
-    const card = screen.getByText('Time With Registrant').closest('[data-card-title-value]');
+    const card = screen.getByText('Time with registrant').closest('[data-card-title-value]');
     expect(card.getAttribute('aria-label')).toBeNull();
-    const icon = card.querySelector('[aria-label*="12hrs of research gains"]');
+    const icon = card.querySelector('[aria-label="About Time with registrant"]');
     expect(icon).not.toBeNull();
   });
 });
