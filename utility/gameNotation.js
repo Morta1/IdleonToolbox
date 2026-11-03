@@ -37,6 +37,11 @@ export const formatGame = (value, key, ruleValue = value) => {
   return value < 0 ? `-${text}` : text;
 };
 
+// Bits read in the game's Bits notation wherever they show: every Gaming cost rule is Bits (FertilizerUpgCosts,
+// ImportItemCOST, SuperbitCost, MutateUpgCosts), so the balance and the costs paid in bits elsewhere (Divinity's
+// blessings, the Bell's rings, Menagerie missions) take the same rule.
+export const formatBits = (value) => formatGame(value, 'GamingStatType.SuperbitCost');
+
 // The game's Minor Link Bonus line (N.js, the Divinity panel): Arctis counts whole talent levels (Math.ceil), every
 // other god floors to a tenth.
 export const minorBonusText = (bonus, isArctis) => (isArctis ? String(Math.ceil(bonus)) : formatGame(bonus, 'Divinity.DivMinorBonus'));

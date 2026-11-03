@@ -5,7 +5,7 @@ import React from 'react';
 import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '../../../../Tooltip';
 
-const Mutations = ({ account }) => {
+const Mutations = ({ gaming }) => {
   const {
     mutations,
     unlockedMutations,
@@ -13,7 +13,7 @@ const Mutations = ({ account }) => {
     mutationCost,
     newMutationChance,
     mutationChanceBreakpoints
-  } = account?.gaming;
+  } = gaming ?? {};
 
   return <>
     <Stack mb={3} direction={'row'} gap={3} flexWrap={'wrap'}>

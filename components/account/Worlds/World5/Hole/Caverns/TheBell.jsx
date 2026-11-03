@@ -1,7 +1,7 @@
 import { Box, Stack, Typography } from '@mui/material';
-import { formatDuration, formatNum, getBitIndex, getCoinsArray, notateNumber, prefix } from '@utility/helpers';
+import { formatDuration, formatNum, getBitIndex, getCoinsArray, prefix } from '@utility/helpers';
 import { useSpriteBounds } from '@utility/spriteBounds';
-import { formatGame } from '@utility/gameNotation';
+import { formatBits, formatGame } from '@utility/gameNotation';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import React from 'react';
 import CoinDisplay from '@components/common/CoinDisplay';
@@ -35,9 +35,8 @@ const BellArt = ({ index }) => {
 const BellMethodCost = ({ costType, cost, owned }) => {
   if (costType === 'money') return <CoinDisplay title={''} noShadow money={getCoinsArray(cost)}/>;
   if (costType === 'bits') {
-    // The game's bits notation (phase 6: one NotateNumber)
     return <ItemCard.Cost icon={`etc/Bits_${getBitIndex(cost)}.png`} iconAlt={'Bits'} need={cost} have={owned}
-                          format={(value) => notateNumber(value, 'bits')}/>;
+                          format={formatBits}/>;
   }
   const [icon, name] = BELL_COSTS[costType] ?? ['afk_targets/Nothing.png', ''];
   return <ItemCard.Cost icon={icon} iconAlt={name} need={cost ?? 0} have={owned}/>;

@@ -1,18 +1,20 @@
 import React from 'react';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getBitIndex, getTabs, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
-import { CardTitleAndValue } from '@components/common/styles';
+import { cleanUnderscore, formatNum, getBitIndex, getTabs } from '@utility/helpers';
+import { formatBits } from '@utility/gameNotation';
 import Tabber from '@components/common/Tabber';
 import Imports from './Imports';
 import Mutations from './Mutations';
 import LogBook from '@components/account/Worlds/World5/Gaming/LogBook';
 import Superbits from '@components/account/Worlds/World5/Gaming/Superbits';
 import { PAGES } from '@components/constants';
-import { countOwnedLogBooks, getBitsMulti } from '@parsers/world-5/gaming';
-import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
+import { getBitsMulti } from '@parsers/world-5/gaming';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 import Palette from './Palette';
 
-const General = ({ account, characters, lastUpdated }) => {
+const General = ({ account, gaming, sectionFailed, characters, lastUpdated }) => {
   const {
     bits,
     availableSprouts,
@@ -20,56 +22,44 @@ const General = ({ account, characters, lastUpdated }) => {
     sproutsCapacity,
     fertilizerUpgrades,
     envelopes,
-    bestNugget,
     superbitsUpgrades,
     logBook,
     ratTokens
-  } = account?.gaming;
-  const ownedLogBooks = countOwnedLogBooks(logBook);
-  const bitMulti = getBitsMulti(account, characters);
+  } = gaming ?? {};
+  // The bit multi re-reads the gaming section, which a failed parse leaves empty
+  const bitMulti = sectionFailed ? null : getBitsMulti(account, characters);
+  const bitMultiText = formatNum(bitMulti?.value ?? 1, 'mult');
 
   return <>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Bits'} value={notateNumber(bits, 'bits')} icon={`etc/Bits_${getBitIndex(bits)}.png`}/>
-      <CardWithBreakdown title={'Bit Multi'} value={`${notateNumber(bitMulti?.value)}x`} breakdown={bitMulti?.breakdown}/>
-      <CardTitleAndValue title={'Sprouts'} value={`${availableSprouts} / ${sproutsCapacity ?? 0}`}
-                         icon={'etc/Sprouts.png'}/>
-      <CardTitleAndValue title={'Best Nugget'} icon={'etc/GamingNugget.png'}
-                         value={numberWithCommas(parseFloat(bestNugget), false)}/>
-      <CardTitleAndValue title={'Drops'} value={availableDrops} icon={`etc/GamingDrop.png`}/>
-      <CardTitleAndValue title={'Envelopes'} value={notateNumber(envelopes)} icon={`etc/GamingEnvelope.png`}/>
-      <CardTitleAndValue title={'Rat Tokens'} value={notateNumber(ratTokens)} icon={`data/GamingRatCrown.png`}/>
-      <CardTitleAndValue title={'Crowns'} value={`${account?.gaming?.ratKing?.crownsCount ?? 0} / ${account?.gaming?.logBook?.length ?? 0}`} icon={`data/GamingRatCrown.png`}
-                         imgStyle={{ width: 24, height: 24 }}/>
-      <CardTitleAndValue title={'Log book'} value={`${ownedLogBooks} / ${account?.gaming?.logBook?.length ?? 0}`} icon={`data/GamingPlanth5.png`}
-                         imgStyle={{ width: 24, height: 24 }}/>
-    </Stack>
-
-    <Stack mt={2} mb={3} direction={'row'} flexWrap={'wrap'} gap={2}>
-      {fertilizerUpgrades?.map(({ name, level, description, cost }) => {
-        return <Card key={name} sx={{ width: 250 }}>
-          <CardContent>
-            <Stack direction={'row'} gap={2} justifyContent={'space-between'}>
-              <Typography variant={'body1'} sx={{ width: 120 }}>{cleanUnderscore(name)}</Typography>
-              <Typography variant={'body1'}>Lv. {level}</Typography>
-            </Stack>
-            <Typography variant={'body2'} mt={1}>{cleanUnderscore(description)}</Typography>
-            <Stack mt={1} direction={'row'} gap={1} alignItems={'center'}>
-              <img src={`${prefix}etc/Bits_${getBitIndex(cost)}.png`} alt="" style={{ objectFit: 'contain' }}/>
-              <Typography >{notateNumber(cost, 'bits')}</Typography>
-            </Stack>
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
+    <PageSummary>
+      <StatTile label={'Bits'} icon={`etc/Bits_${getBitIndex(bits ?? 0)}.png`} value={formatBits(bits ?? 0)}/>
+      <StatTile label={'Bit multi'} value={bitMultiText} breakdownTitle={'Bit multi'}
+                breakdown={bitMulti?.breakdown ? { ...bitMulti.breakdown, totalValue: bitMultiText } : undefined}/>
+      <StatTile label={'Sprouts'} icon={'etc/Sprouts.png'}
+                value={`${formatNum(availableSprouts ?? 0)} / ${formatNum(sproutsCapacity ?? 0)}`}/>
+      <StatTile label={'Drops'} icon={'etc/GamingDrop.png'} value={availableDrops ?? 0} kind={'amount'}/>
+      <StatTile label={'Envelopes'} icon={'etc/GamingEnvelope.png'} value={envelopes ?? 0} kind={'amount'}/>
+      <StatTile label={'Rat tokens'} icon={'data/GamingRatCrown.png'} value={ratTokens ?? 0} kind={'amount'}/>
+    </PageSummary>
+    <CardGrid size={'m'} sx={{ mb: 3 }}>
+      {fertilizerUpgrades?.map(({ name, level, description, cost }) => <ItemCard key={name} title={cleanUnderscore(name)}
+                                                                                  level={{ value: level ?? 0 }}
+                                                                                  footer={<ItemCard.Cost
+                                                                                    icon={`etc/Bits_${getBitIndex(cost ?? 0)}.png`}
+                                                                                    iconAlt={'Bits'} need={cost ?? 0}
+                                                                                    have={bits ?? 0}
+                                                                                    game={'GamingStatType.FertilizerUpgCosts'}/>}>
+        {description ? <ItemCard.Desc text={description}/> : null}
+      </ItemCard>)}
+    </CardGrid>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'gaming')}>
-      <Imports account={account} lastUpdated={lastUpdated}/>
-      <Superbits superbits={superbitsUpgrades}/>
-      <Mutations account={account} lastUpdated={lastUpdated}/>
-      <LogBook logBook={account?.gaming?.logBook} ownedLogBooks={ownedLogBooks}/>
-      <Palette account={account}/>
+      <Imports account={account} gaming={gaming} lastUpdated={lastUpdated}/>
+      <Superbits superbits={superbitsUpgrades} bits={bits}/>
+      <Mutations account={account} gaming={gaming} lastUpdated={lastUpdated}/>
+      <LogBook logBook={logBook} crowns={gaming?.ratKing?.crownsCount ?? 0}/>
+      <Palette account={account} gaming={gaming}/>
     </Tabber>
-  </>
+  </>;
 };
 
 export default General;

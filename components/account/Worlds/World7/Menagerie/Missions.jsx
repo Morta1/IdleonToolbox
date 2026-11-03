@@ -1,7 +1,7 @@
 import React from 'react';
 import { Stack } from '@mui/material';
-import { formatNum, getBitIndex, notateNumber } from '@utility/helpers';
-import { formatGame } from '@utility/gameNotation';
+import { formatNum, getBitIndex } from '@utility/helpers';
+import { formatBits, formatGame } from '@utility/gameNotation';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
@@ -15,7 +15,7 @@ const formatAmount = (value, isLogScale, isBits) => {
   const amount = Math.pow(10, value);
   if (!isBits) return formatNum(amount);
   return <Stack component={'span'} direction={'row'} alignItems={'center'} gap={0.5} sx={{ display: 'inline-flex' }}>
-    {notateNumber(amount, 'bits')}<GameIcon src={`etc/Bits_${getBitIndex(amount)}.png`} size={16} alt={'Bits'}/>
+    {formatBits(amount)}<GameIcon src={`etc/Bits_${getBitIndex(amount)}.png`} size={16} alt={'Bits'}/>
   </Stack>;
 };
 
