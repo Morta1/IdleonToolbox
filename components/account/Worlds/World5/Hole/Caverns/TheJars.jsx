@@ -1,154 +1,107 @@
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getTabs, msToDate, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
-import { CardTitleAndValue } from '@components/common/styles';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum, getTabs, msToDate } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { PAGES } from '@components/constants';
 import useTabIndex from '@hooks/useTabIndex';
 import ViewSwitch from '@components/common/ViewSwitch';
-import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import StatTile from '@components/common/cards/StatTile';
+import IconTile from '@components/common/cards/IconTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Num from '@components/common/Num';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
 import { MAX_JARS } from '@parsers/world-5/caverns/the-jars';
+import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 
 const VIEWS = getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore', 'The Jars');
 
+// A drawer headed with its tile's own text
+const withText = (breakdown, text) => (breakdown ? { ...breakdown, totalValue: text } : undefined);
+
 const TheJars = ({ hole }) => {
   const [view] = useTabIndex(VIEWS, { queryKey: 'dnt' });
+  const theJars = hole?.caverns?.theJars;
+  const perHour = theJars?.perHour?.value ?? 0;
+  const perHourText = formatNum(perHour);
+  const rupieText = formatGame(theJars?.rupieValue?.value ?? 0, 'Holes.JarRupieValue');
+  const extraText = formatNum(theJars?.rupieExtraChance?.value ?? 0, 'pct');
+
+  const jarCard = (jar, index) => {
+    const req = jar?.req ?? 0;
+    const perSlots = (slots) => (req > 0 ? Math.floor((perHour * slots) / req) : 0);
+    // Info 5: the rate with one, two and three slots on this jar, a list inside a hover note before
+    const rates = createBreakdown(`${jar?.name} per hour`, formatNum(perSlots(1)), flatLines([1, 2, 3].map((slots) => ({
+      name: `${slots} ${slots === 1 ? 'slot' : 'slots'}`, value: perSlots(slots), formatted: formatNum(perSlots(slots))
+    }))), { combine: 'list' });
+    const tiers = jar?.owned?.tiers ?? [];
+    const heldText = `${formatNum(jar?.owned?.total ?? 0)} (${formatNum(jar?.owned?.quantity ?? 0)} quantity)`;
+    // Each tier's count and what it is worth in tier 1 jars, a hover list before (the muted tier line goes with it)
+    const held = tiers.length ? createBreakdown(`${jar?.name} held`, heldText, flatLines(tiers.map(({ tier, count }) => ({
+      name: `Tier ${tier}`, value: count,
+      formatted: `${formatNum(count)} (${formatNum(count * Math.pow(10, tier - 1))} quantity)`
+    }))), { combine: 'list' }) : null;
+    const enchant = jar?.enchant?.breakdown;
+    return <ItemCard key={`jar-${index}`} icon={`etc/Jar_${index}.png`} title={cleanUnderscore(jar?.name)} dimmed={!jar?.unlocked}>
+      <ItemCard.Desc>{jar?.effect}</ItemCard.Desc>
+      <ItemCard.Facts rows={[
+        enchant ? ['Enchant chance', <Breakdown key={'enchant'} asValue data={enchant}>{enchant.totalValue}</Breakdown>] : null,
+        ['Jars per hour', <Breakdown key={'rates'} asValue data={rates}>{formatNum(perSlots(1))}</Breakdown>],
+        ['Destroyed', jar?.destroyed ?? 0, 'amount'],
+        ['Held', held ? <Breakdown key={'held'} asValue data={held}>{heldText}</Breakdown> : heldText],
+        ['Time to full', perHour > 0 ? msToDate((req / perHour) * 3600 * 1000) : '-'],
+        ['Needed', Math.floor(req), 'amount']
+      ]}/>
+    </ItemCard>;
+  };
+
   return <>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {hole?.caverns?.theJars?.rupies?.map((amount, index) => <CardTitleAndValue
-        cardSx={{my:0}}
-        title={''} key={`rupie-${index}`} stackProps icon={`data/HoleJarR${index}.png`}
-        iconAlt={`Rupie tier ${index + 1}`}
-        value={notateNumber(Math.floor(amount))}/>)}
+    <CardGrid size={'icon'} sx={{ mb: 3 }}>
+      {(theJars?.rupies ?? []).map((amount, index) => {
+        const owned = Math.floor(Number(amount) || 0);
+        const name = `Rupie tier ${index + 1}`;
+        // Big, as the rupie costs print (ItemCard.Cost's default)
+        return <IconTile key={`rupie-${index}`} icon={`data/HoleJarR${index}.png`} alt={name} value={<Num value={owned} game={'Big'}/>}
+                         status={owned > 0 ? undefined : 'missing'} details={`${name}: ${formatNum(owned, 'exact')}`}/>;
+      })}
+    </CardGrid>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={2}>
+      <StatTile label={'Progress per hour'} value={perHourText} breakdown={withText(theJars?.perHour?.breakdown, perHourText)}/>
+      <StatTile label={'Progress per minute'} value={perHour / 60} kind={'amount'}/>
+      <StatTile label={'Rupie value'} value={rupieText} breakdown={withText(theJars?.rupieValue?.breakdown, rupieText)}/>
+      <StatTile label={'Extra rupie chance'} value={extraText}
+                breakdown={withText(theJars?.rupieExtraChance?.breakdown, extraText)}/>
+      <StatTile label={'Total jars'} value={`${formatNum(theJars?.totalJars ?? 0)} / ${formatNum(MAX_JARS)}`}/>
+      <StatTile label={'Total quantity'} value={theJars?.totalJarQuantity ?? 0} kind={'amount'}
+                info={'Every jar counted as its tier 1 equivalent: a tier 2 jar is worth 10.'}/>
+      <StatTile label={'Total enhancing levels'} value={theJars?.totalEnhancingLevels ?? 0} kind={'amount'}/>
+      <StatTile label={'Total jars destroyed'} value={theJars?.totalJarsDestroyed ?? 0} kind={'amount'}/>
+      {opalsFoundTile(hole, 10)}
     </Stack>
-    <Divider sx={{ mt: 1 }}/>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'} mt={3}>
-      <CardWithBreakdown title={'Progress per hour'}
-                         value={notateNumber(hole?.caverns?.theJars?.perHour?.value, 'Big')}
-                         breakdown={hole?.caverns?.theJars?.perHour?.breakdown}/>
-      <CardTitleAndValue title={'Progress per minute'}
-                         value={notateNumber(hole?.caverns?.theJars?.perHour?.value / 60, 'Big')}/>
-      <CardWithBreakdown title={'Rupie value'}
-                         value={notateNumber(hole?.caverns?.theJars?.rupieValue.value, 'Big')} breakdown={hole?.caverns?.theJars?.rupieValue.breakdown}/>
-      <CardWithBreakdown title={'Extra rupie chance'}
-                         value={`${numberWithCommas(hole?.caverns?.theJars?.rupieExtraChance?.value ?? 0)}%`}
-                         breakdown={hole?.caverns?.theJars?.rupieExtraChance?.breakdown}/>
-      <CardTitleAndValue title={'Total jars'}
-                         value={`${hole?.caverns?.theJars?.totalJars} / ${MAX_JARS}`}/>
-      <CardTitleAndValue title={'Total quantity'}>
-        <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <Typography>{notateNumber(hole?.caverns?.theJars?.totalJarQuantity ?? 0, 'Big')}</Typography>
-          <Tooltip title={'Every jar counted as its tier 1 equivalent (a T2 jar is worth 10)'}>
-            <Stack alignContent={'center'}>
-              <IconInfoCircleFilled size={18}/>
-            </Stack>
-          </Tooltip>
-        </Stack>
-      </CardTitleAndValue>
-      <CardTitleAndValue title={'Total enhancing levels'}
-                         value={numberWithCommas(hole?.caverns?.theJars?.totalEnhancingLevels ?? 0)}/>
-      <CardTitleAndValue title={'Total jars destroyed'}
-                         value={numberWithCommas(hole?.caverns?.theJars?.totalJarsDestroyed ?? 0)}/>
-      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.holesObject?.opalsPerCavern?.[10] || 0}/>
-      <Divider orientation={'vertical'} sx={{ my: 2 }} flexItem/>
-      {hole?.caverns?.theJars?.activeSlots?.map(({ progress, req, jarType }, index) => <CardTitleAndValue
-        title={cleanUnderscore(hole?.caverns?.theJars?.jars?.[jarType]?.name)} key={`slots-${index}`}
-        icon={`etc/Jar_${jarType}.png`}
-        imgStyle={{ width: 26, height: 26 }}
-        value={`${numberWithCommas(Math.floor(progress))} / ${numberWithCommas(Math.floor(req))}`}/>)}
-    </Stack>
-    <Divider sx={{ mb: 2 }}/>
+    {theJars?.activeSlots?.length ? <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      {theJars.activeSlots.map(({ progress, req, jarType }, index) => <StatTile key={`slots-${index}`}
+        label={cleanUnderscore(theJars?.jars?.[jarType]?.name)} icon={`etc/Jar_${jarType}.png`}
+        value={`${formatNum(Math.floor(progress ?? 0))} / ${formatNum(Math.floor(req ?? 0))}`}/>)}
+    </Stack> : null}
     {/* How this cavern shows (Tabs board, level 3): a switch in its title row, still ?dnt= in the URL. */}
     <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} mb={2}>
-      <Typography variant={'sectionTitle'}>The Jars</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>The Jars</Typography>
       <ViewSwitch options={VIEWS.map((name) => [name, name])} queryKey={'dnt'} label={'The Jars view'} sx={{ ml: 'auto' }}/>
     </Stack>
-    {view === 0 ? <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-        {hole?.caverns?.theJars?.jars?.map(({ name, unlocked, req, effect, destroyed, enchant, owned }, index) => {
-          return <Card key={`jar-${index}`}>
-            <CardContent sx={{
-              width: 350,
-              minHeight: 265,
-              opacity: unlocked ? 1 : .5
-            }}>
-              <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <img style={{ width: 26, height: 26, objectFit: 'contain' }} src={`${prefix}etc/Jar_${index}.png`}
-                     alt={`jar-${index}`}/>
-                <Typography variant={'body1'}>{cleanUnderscore(name)}</Typography>
-              </Stack>
-              <Stack direction={'row'} alignItems={'center'} gap={1} sx={{ height: 41 }}>
-                <Typography variant={'body1'}>{effect}</Typography>
-                {enchant ? <Breakdown data={enchant.breakdown}>
-                  <Stack alignContent={'center'}>
-                    <IconInfoCircleFilled size={18} style={{ flexShrink: 0 }}/>
-                  </Stack>
-                </Breakdown> : null}
-              </Stack>
-              <Divider sx={{ mt: .5, mb: 1 }}/>
-              <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <Typography variant={'body1'}>Jars per
-                  hour: {Math.floor(hole?.caverns?.theJars?.perHour?.value / req)}</Typography>
-                <Tooltip title={<Stack>
-                  <Typography variant={'body2'}>2
-                    slots: {Math.floor((hole?.caverns?.theJars?.perHour?.value * 2) / req)} / hr</Typography>
-                  <Typography variant={'body2'}>3
-                    slots: {Math.floor((hole?.caverns?.theJars?.perHour?.value * 3) / req)} / hr</Typography>
-                </Stack>}>
-                  <IconInfoCircleFilled size={18}/>
-                </Tooltip>
-              </Stack>
-              <Typography variant={'body1'}>Jars destroyed: {numberWithCommas(destroyed)}</Typography>
-              <Divider sx={{ my: 1 }}/>
-              <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <Typography variant={'body1'}>
-                  Held: {numberWithCommas(owned?.total ?? 0)} ({notateNumber(owned?.quantity ?? 0, 'Big')} quantity)
-                </Typography>
-                {owned?.tiers?.length ? <Tooltip title={<Stack>
-                  {owned.tiers.map(({ tier, count }) => <Typography key={`tier-${tier}`} variant={'body2'}>
-                    T{tier}: {numberWithCommas(count)} ({notateNumber(count * Math.pow(10, tier - 1), 'Big')} quantity)
-                  </Typography>)}
-                </Stack>}>
-                  <Stack alignContent={'center'}>
-                    <IconInfoCircleFilled size={18}/>
-                  </Stack>
-                </Tooltip> : null}
-              </Stack>
-              <Typography variant={'body2'} sx={{ opacity: .7, minHeight: 21 }}>
-                {owned?.tiers?.map(({ tier, count }) => `T${tier} x${count}`).join(' · ')}
-              </Typography>
-              <Divider sx={{ my: 1 }}/>
-              <Typography variant={'body1'}>Time to
-                full: {msToDate(req / hole?.caverns?.theJars?.perHour?.value * 1000 * 3600)}</Typography>
-              <Typography variant={'body1'}>Req: {numberWithCommas(Math.floor(req))}</Typography>
-            </CardContent>
-          </Card>
-        })}
-      </Stack> : <Stack mt={2} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-        {hole?.caverns?.theJars?.collectibles?.map(({ name, level, description, doubled }, index) => <Card
-          key={`collectible-${index}`}>
-          <CardContent sx={{
-            width: 350,
-            opacity: level > 0 ? 1 : .5
-          }}>
-            <Stack direction={'row'} alignItems={'center'} gap={1}>
-              <img style={{ width: 26, height: 26, objectFit: 'contain' }} src={`${prefix}data/HoleJarC${index}.png`}
-                   alt={`jar-${index}`}/>
-              <Stack sx={{ width: '100%' }} direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
-                <Typography color={doubled ? 'secondary' : 'inherit'}
-                            variant={'body1'}>{cleanUnderscore(name)}</Typography>
-                <Typography variant={'body1'}>(Lv. {level}){doubled
-                  ? <Typography component={'span'} variant={'caption'} color={'secondary'}> x2 Doubled</Typography>
-                  : null}</Typography>
-              </Stack>
-            </Stack>
-            <Typography sx={{ minHeight: 41, display: 'flex', alignItems: 'center', whiteSpace: 'pre-line' }}
-                        variant={'body1'}>{cleanUnderscore(description)}</Typography>
-          </CardContent>
-        </Card>)}
-      </Stack>}
-  </>
+    {view === 0
+      ? <CardGrid size={'m'}>{(theJars?.jars ?? []).map(jarCard)}</CardGrid>
+      : <CardGrid size={'m'}>
+        {(theJars?.collectibles ?? []).map(({ name, level, description, doubled }, index) =>
+          <ItemCard key={`collectible-${index}`} icon={`data/HoleJarC${index}.png`} title={name} level={{ value: level ?? 0 }}
+                    dimmed={!(level > 0)}
+                    // The parser marks the first collectible doubled for a save that has picked none (a guest)
+                    aside={doubled && level > 0
+                      ? <Typography variant={'caption'} color={'secondary'}>x2 Doubled</Typography> : null}>
+            {/* The parser turned the game's @ into \n: back to @, so ItemCard.Desc draws each line */}
+            <ItemCard.Desc text={(description ?? '').replaceAll('\n', '@')}/>
+          </ItemCard>)}
+      </CardGrid>}
+  </>;
 };
 
 export default TheJars;
