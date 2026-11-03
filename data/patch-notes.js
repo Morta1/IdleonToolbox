@@ -4,6 +4,25 @@ import React from 'react';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '3.3.107',
+    'gameVer': '2.3.561',
+    'date': '03/11/2026',
+    'features': [
+      'Cape Vine: new World 4 page with your capes, Golden Vines and bonuses, and its bonuses now count in your stats',
+      'Rift: Research Skill Mastery',
+      'Dashboard: alerts for capes missing from the Cape Vine and a Golden Vine ready to unlock'
+    ],
+    'fixes': [
+      'Printer: Yet Another Printer Multi now counts',
+      'Masterclass drops: Killroy now gives its full bonus',
+      'Spelunking: the Pit O Pages talent now counts for every character',
+      'Farming: Land Rank EXP now includes the Exotic Market, Menagerie and talent bonuses',
+      'Damage: Eclectic Sigils now add their Research Grid damage bonus',
+      'Royal Guardian: Expanded Barracks gives unit slots up to Lv 6',
+      'Hole: the Temple shows large torch counts and costs in M and B'
+    ]
+  },
+  {
     'ver': '3.3.106',
     'gameVer': '2.3.550',
     'date': '02/11/2026',
