@@ -1,12 +1,18 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, getCoinsArray } from 'utility/helpers';
 import CoinDisplay from 'components/common/CoinDisplay';
 import { NextSeo } from 'next-seo';
+import { getBribes } from '@parsers/world-1/bribes';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+
 const Bribes = () => {
   const { state } = useContext(AppContext);
+  const bribesFailed = isSectionFailed(state?.account, 'bribes');
+  // A failed section lists every bribe at zero (the parser's catalog with no save), with no cost or Purchased
+  const bribes = bribesFailed ? getBribes({}) : state?.account?.bribes ?? [];
 
   return (
     <>
@@ -14,37 +20,20 @@ const Bribes = () => {
         title="Bribes | Idleon Toolbox"
         description="Track your bribe status, costs, and bonus effects across all Legends of Idleon worlds"
       />
-      <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-        {state?.account?.bribes?.map((bribe, index) => {
-          const { name, desc, price, done, value } = bribe;
-          const money = getCoinsArray(price);
-          return (
-            <Card sx={{
-              width: 250,
-              borderLeft: done ? '4px solid' : '4px solid transparent',
-              borderColor: done ? 'success.main' : 'transparent',
-              opacity: done ? 0.7 : 1,
-              display: 'flex',
-              flexDirection: 'column'
-            }} key={'bribe-' + index}>
-              <CardContent sx={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
-                <Stack gap={0.5}>
-                  <Typography variant="body1" fontWeight="bold">{cleanUnderscore(name)}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {index === 0 ? cleanUnderscore(desc).replace('5%', `${value}%`) : cleanUnderscore(desc)}
-                  </Typography>
-                </Stack>
-                <Stack mt={1.5}>
-                  {done
-                    ? <StatusText status={'maxed'}>Purchased</StatusText>
-                    : <CoinDisplay title={''} money={money}/>
-                  }
-                </Stack>
-              </CardContent>
-            </Card>
-          );
+      {bribesFailed ? <MissingData name={'Bribes'} failed/> : null}
+      <CardGrid size={'s'}>
+        {bribes?.map(({ name, desc, price, done, value }) => {
+          const purchased = !bribesFailed && done;
+          // The game's text says 5%; the bribe gives its value
+          const description = name === 'Insider_Trading' ? desc?.replace('5%', `${value}%`) : desc;
+          return <ItemCard key={name} title={cleanUnderscore(name)}
+                           status={purchased ? 'done' : undefined} statusLabel={purchased ? 'Purchased' : undefined}
+                           footer={purchased || bribesFailed ? null
+                             : <ItemCard.Facts rows={[['Cost', <CoinDisplay key={'cost'} dense money={getCoinsArray(price)}/>]]}/>}>
+            <ItemCard.Desc text={description}/>
+          </ItemCard>;
         })}
-      </Stack>
+      </CardGrid>
     </>
   );
 };
