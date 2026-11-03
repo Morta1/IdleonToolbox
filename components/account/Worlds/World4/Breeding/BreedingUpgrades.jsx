@@ -1,4 +1,4 @@
-import { Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum } from 'utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { getTotalKitchenLevels } from '@parsers/world-4/cooking';
@@ -10,12 +10,26 @@ import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 
 // The cost of every level left, named by the level it reaches, after the next level's cost: green once the owned
-// amount covers it all. On a short cost it takes its own row under the numbers (64 px: the meal's column and its gap).
-const ToMax = ({ total, maxLevel, covered, short }) => <Typography variant={'body2'} component={'span'}
-                                                                 color={covered ? 'text.success' : 'text.secondary'}
-                                                                 sx={short ? { flexBasis: '100%', pl: '64px' } : undefined}>
+// amount covers it all. Its amount and "to Lv N" never part.
+const ToMax = ({ total, maxLevel, covered }) => <Typography variant={'body2'} component={'span'}
+                                                          color={covered ? 'text.success' : 'text.secondary'}
+                                                          sx={{ whiteSpace: 'nowrap' }}>
   {formatGame(total, 'Breeding.PetUpgCostREAL')} to Lv {maxLevel}
 </Typography>;
+
+// A cost line: its currency in a fixed slot as wide as the small meal (56 px), so both lines' numbers start at one x,
+// and the numbers wrap in their own column, never back under the currency. The column's padding puts its first line
+// (body2, 20 px) on the slot's middle, so the currency sits beside the owned / cost pair however far the rest wraps.
+const TEXT_LINE = 20;
+const CostLine = ({ icon, height, children }) => <Stack direction={'row'} alignItems={'flex-start'} gap={1}>
+  <Box sx={{ flexShrink: 0, width: 56, height, display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>
+    {icon}
+  </Box>
+  <Stack direction={'row'} alignItems={'center'} columnGap={1} rowGap={0.5} flexWrap={'wrap'}
+         sx={{ minWidth: 0, py: `${(height - TEXT_LINE) / 2}px` }}>
+    {children}
+  </Stack>
+</Stack>;
 
 // The game names upgrade 1 "Gene_Splicing_}_Helps_unlock_next_Mob_type": the words after its } are a second line
 const nameParts = (name) => {
@@ -67,19 +81,16 @@ const BreedingUpgrades = ({ account, petUpgrades, deadCells, meals }) => {
                          meta={meta}
                          level={{ value: upgrade?.level ?? 0, max: upgrade?.maxLevel }}
                          footer={<>
-                           <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-                             <ItemCard.Cost icon={'data/PetDeadCell.png'} iconAlt={'Dead cells'}
-                                            need={calcCellCost(upgrade)} have={deadCells ?? 0}
-                                            game={'Breeding.PetUpgCostREAL'}/>
+                           <CostLine height={24} icon={<GameIcon src={'data/PetDeadCell.png'} size={24} alt={'Dead cells'}/>}>
+                             <ItemCard.Cost need={calcCellCost(upgrade)} have={deadCells ?? 0} game={'Breeding.PetUpgCostREAL'}/>
                              <ToMax total={cellCostToMax} maxLevel={upgrade?.maxLevel}
                                     covered={(deadCells ?? 0) >= cellCostToMax}/>
-                           </Stack>
-                           {index > 0 ? <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-                             <ItemCard.Cost icon={<MealIcon rawName={`CookingMB${upgrade?.foodIndex}`} small/>}
-                                            need={foodUpgradeCost} have={foodAmount} game={'Breeding.PetUpgCostREAL'}/>
-                             <ToMax total={foodCostToMax} maxLevel={upgrade?.maxLevel} covered={foodAmount >= foodCostToMax}
-                                    short={foodAmount < foodUpgradeCost}/>
-                           </Stack> : null}
+                           </CostLine>
+                           {index > 0 ? <CostLine height={40}
+                                                  icon={<MealIcon rawName={`CookingMB${upgrade?.foodIndex}`} small centered/>}>
+                             <ItemCard.Cost need={foodUpgradeCost} have={foodAmount} game={'Breeding.PetUpgCostREAL'}/>
+                             <ToMax total={foodCostToMax} maxLevel={upgrade?.maxLevel} covered={foodAmount >= foodCostToMax}/>
+                           </CostLine> : null}
                          </>}>
           <ItemCard.Desc text={upgrade?.description}/>
           <ItemCard.Facts rows={[
