@@ -2,7 +2,8 @@ import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Box, Stack } from '@mui/material';
-import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
+import { cleanUnderscore, formatNum, getTabs, prefix } from '@utility/helpers';
+import { useSpriteBounds } from '@utility/spriteBounds';
 import { formatGame, tomeQuantity } from '@utility/gameNotation';
 import Tabber from '../../../components/common/Tabber';
 import { PAGES } from '@components/constants';
@@ -61,6 +62,18 @@ const requiredQuantity = (bonus, points) => {
     return Math.ceil(Math.pow(10, logQ));
   }
   return null;
+};
+
+// The rank's word art ("TOP 25%", a 102 x 17 canvas) beside its words at its own size, cropped to the letters it draws:
+// StatTile's 24 px icon shrank it past reading, and pixel art never scales up (5e's Bell). Until the bounds arrive it
+// draws its whole canvas and reads as pending, as a GameIcon does.
+const RankBadge = ({ top }) => {
+  const src = `data/TomeTop${top}.png`;
+  const bounds = useSpriteBounds();
+  const [, , x0, y0, x1, y1] = bounds?.[src] ?? [102, 17, 0, 0, 102, 17];
+  return <Box component={'img'} src={`${prefix}${src}`} alt={''} data-fit={bounds ? undefined : 'pending'}
+              sx={{ display: 'block', flexShrink: 0, width: x1 - x0, height: y1 - y0, objectFit: 'none',
+                objectPosition: `${-x0}px ${-y0}px` }}/>;
 };
 
 // The tier the parser picked, read back off its colour; its word and the theme's colour for it
@@ -187,7 +200,9 @@ const Tome = () => {
     {sectionFailed ? <MissingData name={'the Tome'} failed/> : null}
     <PageSummary>
       <StatTile label={'Total points'} value={sectionFailed ? '-' : formatGame(tome?.totalPoints ?? 0, 'Summoning.TomePTS')}/>
-      <StatTile label={'Rank'} icon={tome?.top >= 0 ? `data/TomeTop${tome.top}.png` : undefined} value={rankText}
+      <StatTile label={'Rank'} value={tome?.top >= 0 && !sectionFailed
+        ? <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>{rankText}<RankBadge top={tome.top}/></Box>
+        : rankText}
                 breakdown={cutOffs} breakdownTitle={'Rank'} breakdownNoun={'cut-offs'}/>
       {/* An absolute date: the countdown is not shifted by the save's upload time */}
       <StatTile label={'Nametag reward reset'} value={<Timer type={'countdown'} date={nextResetTime}/>}
