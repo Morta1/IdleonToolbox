@@ -2,7 +2,7 @@ import React from 'react';
 import { MenuItem, Stack, TextField, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
 import { GoalIcon } from './GoalVisuals';
 
-const ICON_SIZE = 20;
+const ICON_SIZE = 24;
 
 // The system select and the entry search already name what is tracked, so the toggle stays short
 const helperText = (value, { label, entryLabel, groups, allOnly }) => {

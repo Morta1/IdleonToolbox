@@ -25,7 +25,7 @@ const HintPaper = ({ hint, children, ...props }) => (
 );
 
 // goalKeys: keys of the entries that already have a goal, marked in the list
-const EntrySearch = ({ descriptor, rows, value, goalKeys, onChange }) => {
+const EntrySearch = ({ descriptor, rows, value, goalKeys, onChange, error }) => {
   const [input, setInput] = useState('');
   const [listOpen, setListOpen] = useState(false);
   const selected = rows.find((row) => String(descriptor.key(row)) === String(value)) ?? null;
@@ -67,7 +67,7 @@ const EntrySearch = ({ descriptor, rows, value, goalKeys, onChange }) => {
         </Box>
       )}
       renderInput={(params) => (
-        <TextField {...params} label={capitalizeFirst(descriptor.entryLabel)} slotProps={{
+        <TextField {...params} label={capitalizeFirst(descriptor.entryLabel)} error={Boolean(error)} helperText={error} slotProps={{
           input: {
             ...params.InputProps,
             startAdornment: selected ? <EntryIcon src={descriptor.icon(selected)} alt=""/> : null

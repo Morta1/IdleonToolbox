@@ -78,7 +78,7 @@ const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
             {descriptor?.allOnly ? null : (
               <IconButton size="small" aria-label={`Set goal for ${entry.name}`} sx={ACTION_SX}
                           color={hasOwnGoal(entry) ? 'primary' : 'default'}
-                          onClick={(e) => setPicking({ anchorEl: e.currentTarget, ...entryGoalOf(view, entry) })}>
+                          onClick={() => setPicking({ ...entryGoalOf(view, entry) })}>
                 <IconTargetArrow size={16}/>
               </IconButton>
             )}
@@ -92,7 +92,7 @@ const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
         </Button>
       ) : null}
       {picking && descriptor ? (
-        <GoalPopover anchorEl={picking.anchorEl} open onClose={() => setPicking(null)}
+        <GoalPopover open onClose={() => setPicking(null)}
                      systems={[descriptor]} initial={{ system: view.system, key: picking.key, scope: picking.scope }}
                      source={source} entryOnly/>
       ) : null}

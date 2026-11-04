@@ -38,7 +38,7 @@ const mount = (props) => render(
     <AppContext.Provider value={{ state: { uid: ACCOUNT_KEY, characters, account } }}>
       <GoalsProvider>
         <Probe/>
-        <GoalPopover anchorEl={document.body} open onClose={() => {}} source="entry" {...props}/>
+        <GoalPopover open onClose={() => {}} source="entry" {...props}/>
       </GoalsProvider>
     </AppContext.Provider>
   </ThemeProvider>
@@ -207,7 +207,7 @@ describe('GoalPopover', () => {
       fireEvent.click(button('All'));
       fireEvent.click(button('Max'));
       save();
-      expect(screen.getByText('No entries can reach this target')).toBeTruthy();
+      expect(screen.getByText('No entry can reach this target.')).toBeTruthy();
       expect(api.goals).toEqual([]);
     });
   });
@@ -218,7 +218,7 @@ describe('GoalPopover', () => {
     fireEvent.click(button('% of max'));
     setTarget(50);
     save();
-    expect(screen.getByText('No entries can reach this target')).toBeTruthy();
+    expect(screen.getByText('No entry can reach this target.')).toBeTruthy();
     expect(api.goals).toEqual([]);
   });
 

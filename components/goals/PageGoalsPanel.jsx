@@ -24,11 +24,12 @@ const PanelRow = ({ view, onOpen }) => {
   );
 };
 
-// views: the page's goals, already resolved and ordered (open first, reached last)
-const PageGoalsPanel = ({ views, onAdd, onOpen, dashboardHref, onLeave }) => (
+// views: the page's goals, already resolved and ordered (open first, reached last). titled: false where the sheet around
+// it already says so.
+const PageGoalsPanel = ({ views, onAdd, onOpen, dashboardHref, onLeave, titled = true }) => (
   <Stack gap={1}>
-    <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
-      <Typography variant={'sectionTitle'} component={'h2'}>Goals on this page</Typography>
+    <Stack direction="row" alignItems="center" justifyContent={titled ? 'space-between' : 'flex-end'} gap={1}>
+      {titled ? <Typography variant={'sectionTitle'} component={'h2'}>Goals on this page</Typography> : null}
       <Button size="small" startIcon={<IconPlus size={16}/>} onClick={onAdd}>
         Add goal
       </Button>

@@ -158,10 +158,10 @@ const Goals = () => {
   const layoutId = LAYOUTS.some(([key]) => key === layout) ? layout : LAYOUTS[0][0];
   const cardsShown = layoutId === 'cards';
 
-  const onEdit = (view, anchorEl) => {
+  const onEdit = (view) => {
     const goal = goals.find(({ id }) => id === view.id);
     const descriptor = getDescriptor(view.system);
-    if (goal && descriptor) setEditing({ anchorEl, goal, descriptor });
+    if (goal && descriptor) setEditing({ goal, descriptor });
   };
 
   // A range view stands for two goals, so pinning it pins both
@@ -267,7 +267,7 @@ const Goals = () => {
       </Panel>
       {fileImport.text !== null ? <ImportDialog text={fileImport.text} onClose={fileImport.close}/> : null}
       {editing ? (
-        <GoalPopover anchorEl={editing.anchorEl} open onClose={() => setEditing(null)}
+        <GoalPopover open onClose={() => setEditing(null)}
                      systems={[editing.descriptor]}
                      initial={{ system: editing.goal.system, key: editing.goal.key, scope: editing.goal.scope, goal: editing.goal }}
                      source="dashboard"/>

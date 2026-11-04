@@ -3,6 +3,8 @@ import { useRouter } from 'next/router';
 import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import Popover from '@mui/material/Popover';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import AppDialog from '@components/common/Overlays/AppDialog';
 import { IconPlus, IconTargetArrow } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { useGoals } from '@components/goals/GoalsProvider';
@@ -32,6 +34,7 @@ const AddGoalButton = () => {
   // null | 'panel' | 'add' | { edit: goal }
   const [open, setOpen] = useState(null);
   const [cardId, setCardId] = useState(null);
+  const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const systems = descriptorsForRoute(router?.pathname);
   // Before the stored goals arrive the label would flash Add goal
   if (!enabled || !loaded || !systems.length) return null;
@@ -73,10 +76,14 @@ const AddGoalButton = () => {
   const editDescriptor = editing ? getDescriptor(editing.system) : null;
   // The add popover opens on the system of the page tab in view
   const tabSystem = systemForTab(router?.pathname, router?.isReady ? router.query : {}, systems);
-  const openAdd = (e) => {
-    setAnchorEl(e.currentTarget);
-    setOpen('add');
-  };
+  const openAdd = () => setOpen('add');
+  // Opening the form swaps the panel for it (never a dialog from a dialog)
+  const panel = card ? (
+    <GoalCard view={card} onBack={() => setCardId(null)} onEdit={onEdit} onRemove={onRemove}/>
+  ) : (
+    <PageGoalsPanel views={views} onAdd={openAdd} onOpen={(view) => setCardId(view.id)} onLeave={close}
+                    dashboardHref={dashboardHref} titled={!isPhone}/>
+  );
 
   return (
     <>
@@ -93,25 +100,18 @@ const AddGoalButton = () => {
         </IconButton>
       ) : null}
       <Contained>
-        <Popover open={open === 'panel'} anchorEl={anchorEl} onClose={close}
-                 anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                 transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                 slotProps={{ paper: { sx: { p: 2, width: 380, maxWidth: 'calc(100vw - 32px)' } } }}>
-          {card ? (
-            <GoalCard view={card} onBack={() => setCardId(null)} onEdit={onEdit} onRemove={onRemove}/>
-          ) : (
-            <PageGoalsPanel views={views} onAdd={() => setOpen('add')} onOpen={(view) => setCardId(view.id)}
-                            onLeave={close}
-                            dashboardHref={dashboardHref}/>
-          )}
-        </Popover>
+        {isPhone ? <AppDialog open={open === 'panel'} onClose={close} size="s" title="Goals on this page">{panel}</AppDialog>
+          : <Popover open={open === 'panel'} anchorEl={anchorEl} onClose={close}
+                     anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                     transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+                     slotProps={{ paper: { sx: { p: 2, width: 380, maxWidth: 'calc(100vw - 32px)' } } }}>
+            {panel}
+          </Popover>}
         {open === 'add' ? (
-          <GoalPopover anchorEl={anchorEl} open onClose={close} onSaved={onSaved} systems={systems}
-                       initial={{ system: tabSystem }} source="header" align="right"/>
+          <GoalPopover open onClose={close} onSaved={onSaved} systems={systems} initial={{ system: tabSystem }} source="header"/>
         ) : null}
         {editing && editDescriptor ? (
-          <GoalPopover anchorEl={anchorEl} open onClose={close} onSaved={onSaved}
-                       systems={[editDescriptor]} initial={{ goal: editing }} source="header" align="right"/>
+          <GoalPopover open onClose={close} onSaved={onSaved} systems={[editDescriptor]} initial={{ goal: editing }} source="header"/>
         ) : null}
       </Contained>
     </>
