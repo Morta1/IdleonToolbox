@@ -1,122 +1,100 @@
 import { NextSeo } from 'next-seo';
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, getTabs, notateNumber, prefix } from '@utility/helpers';
-import { CardTitleAndValue } from '@components/common/styles';
+import { Box } from '@mui/material';
+import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import { MissingData, isSectionFailed } from '@components/common/styles';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World2/Kangaroo/Upgrades';
-import Tooltip from '@components/Tooltip';
 import { PAGES } from '@components/constants';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import Panel from '@components/common/cards/Panel';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import ItemCard from '@components/common/cards/ItemCard';
+import StatusText from '@components/common/StatusText';
+import { getKangaroo } from '@parsers/world-2/kangaroo';
+
+// The parser prints a shiny fish count itself; with no save it reads "NaNeNaN" (parsers/world-2/kangaroo.ts)
+const caught = (amount) => (/NaN/.test(`${amount}`) ? '0' : amount);
 
 const Kangaroo = () => {
   const { state } = useContext(AppContext);
-  const { kangaroo } = state?.account || {};
-  const notation = (val) => val < 9999999 ? commaNotation(Math.ceil(val)) : notateNumber(val, 'Big')
+  const failed = isSectionFailed(state?.account, 'kangaroo');
+  // A failed section draws Poppy's lists at zero (the parser's own empty save); its numbers are not the player's
+  const kangaroo = failed ? getKangaroo(undefined, {}) : state?.account?.kangaroo;
+  // No save has no fish caught, so there is no next upgrade to count toward
+  const hasSave = !failed && kangaroo?.progress != null;
+  const number = (value, render) => (failed ? '-' : render(value ?? 0));
+  const fishRate = kangaroo?.fishRate ?? 0;
 
   return <>
     <NextSeo
       title="Poppy The Kangaroo | Idleon Toolbox"
       description="Track your Kangaroo minigame upgrades, jump progress, and bonus rewards in Legends of Idleon"
     />
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
-      <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}
-                         title={'Avg. Points/Reset'}
-                         value={notation(kangaroo?.avgResetPoints)}/>
-      <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}
-                         stackProps={{ flexDirection: 'row', gap: '16px', flexWrap: 'wrap' }}>
-        <Section title={'Fish'} value={notation(kangaroo?.totalFish)} icon={'etc/KFish.png'}/>
-        <Section title={'Fish/m'} value={notation(kangaroo?.bonuses?.[0]?.bonus)} icon={'etc/KFish.png'}/>
-        <Section title={'Fish/h'} value={notation(kangaroo?.bonuses?.[0]?.bonus * 60)}
-                 icon={'etc/KFish.png'}/>
-        <Section title={'Next upg.'} value={kangaroo?.nextLvReq > 0
-          ? `${notateNumber(kangaroo?.progress)}/${notateNumber(kangaroo?.nextLvReq)}`
-          : 'Done'} icon={'etc/KFish.png'}/>
-      </CardTitleAndValue>
-      <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}
-                         stackProps={{ flexDirection: 'row', gap: '16px', flexWrap: 'wrap' }}>
-        <Section title={'Tars'} value={notation(kangaroo?.totalTarFishOwned)} icon={'etc/KTar.png'}/>
-        <Section title={'Tar/h'} value={notation(3600 / kangaroo?.tarFishRate)} icon={'etc/KTar.png'}/>
-      </CardTitleAndValue>
-      <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}
-                         stackProps={{ flexDirection: 'row', gap: '16px', flexWrap: 'wrap' }}>
-        <Section title={'Progress'} value={`${notation(kangaroo?.shinyProgress)}%`} icon={'etc/KShiny.png'}/>
-        <Section title={'Shiny/m'} value={`${notation(kangaroo?.shinyRatePercent)}%`} icon={'etc/KShiny.png'}/>
-      </CardTitleAndValue>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-        {kangaroo?.bonuses.map(({ name, bonus, percentage }, index) => {
-          if (index === 0) return;
-          bonus = Math.round(10 * bonus) / 10;
-          return <CardTitleAndValue cardSx={{ my: 1 }} key={name} title={name}
-                                    value={`${!percentage ? '+' : ''}${bonus}${percentage ? '%' : ''}`}
-                                    icon={`etc/Kangaroob_${index}.png`}/>
-        })}
-      </Stack>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-        {kangaroo?.megaFish?.map(({ description, unlocked, amount, totalBonus }, index) => {
-          return <CardTitleAndValue cardSx={{ my: 1 }} value={amount > 0 ? amount : ''}
-                                    tooltipTitle={cleanUnderscore(description.replace('{', totalBonus))}
-                                    iconAlt={`Mega Fish ${index + 1}`}
-                                    key={'mega' + index} icon={`data/RooMG${index}.png`}
-                                    imgStyle={{ width: 32, opacity: unlocked ? 1 : .5 }} imgOnly/>
-        })}
-      </Stack>
-    </Stack>
+    {failed ? <MissingData name={'Kangaroo'} failed/> : null}
+    <PageSummary>
+      <StatTile label={'Fish'} icon={'etc/KFish.png'} value={number(kangaroo?.totalFish, formatNum)}/>
+      <StatTile label={'Fish per minute'} value={number(fishRate, formatNum)}/>
+      <StatTile label={'Fish per hour'} value={number(fishRate * 60, formatNum)}/>
+      <StatTile label={'Next upgrade'} value={!hasSave ? '-' : kangaroo?.nextLvReq > 0
+        ? `${formatGame(kangaroo.progress, 'Summoning.RooNextUpgReq')} / ${formatGame(kangaroo.nextLvReq, 'Summoning.RooNextUpgReq')}`
+        : <StatusText status={'done'}>All unlocked</StatusText>}/>
+      <StatTile label={'Tar fish'} icon={'etc/KTar.png'}
+                value={number(kangaroo?.totalTarFishOwned, (value) => formatGame(value, 'Summoning.RooCost_T'))}/>
+      <StatTile label={'Tar fish per hour'}
+                value={failed || !(kangaroo?.tarFishRate > 0) ? '-' : formatNum(3600 / kangaroo.tarFishRate)}/>
+      <StatTile label={'Shiny progress'} icon={'etc/KShiny.png'}
+                value={number(kangaroo?.shinyProgress, (value) => formatNum(value, 'pct'))}/>
+      <StatTile label={'Shiny per minute'} value={number(kangaroo?.shinyRatePercent, (value) => formatNum(value, 'pct'))}/>
+      <StatTile label={'Average reset points'}
+                value={number(kangaroo?.avgResetPoints, (value) => formatNum(value, 'amount', { precise: true }))}/>
+    </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['clickers'].categories, 'kangaroo')}>
-      <Upgrades upgrades={kangaroo?.upgrades}/>
-      <Upgrades upgrades={kangaroo?.tarUpgrades} isTar/>
-      <Stack gap={5}>
-        <Stack>
-          <Typography variant={'sectionTitle'} component={'h2'} mb={1}>Multi</Typography>
-          <CardTitleAndValue cardSx={{ my: 1, height: 'fit-content' }}
-                             stackProps={{ flexDirection: 'row', gap: '16px', flexWrap: 'wrap' }}>
-            <Section title={'Total multi'} value={`${kangaroo?.totalMulti.replace('.00', '')}x`}/>
-            {kangaroo?.allMultipliers?.map(({ multi, amount }, multiIndex) => <Section key={'multi' + multiIndex}
-                                                                                       title={amount}
-                                                                                       icon={`data/RooFishS${multiIndex}.png`}
-                                                                                       value={multi !== '1'
-                                                                                         ? `${multi}x`
-                                                                                         : ''}/>)}
-          </CardTitleAndValue>
-        </Stack>
-        <Stack>
-          <Typography variant={'sectionTitle'} component={'h2'} mb={1}>Reset bonuses</Typography>
-          <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-            {kangaroo?.resetBonuses.map(({ desc, level }, index) => {
-              return <ResetCard key={'reset' + index}
-                                level={level}
-                                desc={cleanUnderscore(desc)}
-                                icon={`data/RooReset${index}.png`}/>
-            })}
-          </Stack>
-        </Stack>
-      </Stack>
+      <Upgrades upgrades={kangaroo?.upgrades} failed={failed} fish={kangaroo?.totalFish ?? 0}/>
+      <Upgrades upgrades={kangaroo?.tarUpgrades} isTar failed={failed} tarFish={kangaroo?.totalTarFishOwned ?? 0}/>
+      <CardGrid size={'m'} sx={{ alignItems: 'start' }}>
+        <Panel title={"Poppy's bonuses"}>
+          {(kangaroo?.bonuses ?? []).slice(1).map(({ name, bonus, percentage }, index) => <Panel.Row key={name}
+                                                                                                    icon={`etc/Kangaroob_${index + 1}.png`}
+                                                                                                    name={name}
+                                                                                                    value={failed ? '-' : percentage
+                                                                                                      ? formatNum(bonus ?? 0, 'pct', { signed: true })
+                                                                                                      : formatNum(bonus ?? 0, 'amount', { signed: true })}/>)}
+        </Panel>
+        <Panel title={'Megafish'}>
+          <Box sx={{ p: 1.5 }}>
+            <CardGrid size={'icon'}>
+              {(kangaroo?.megaFish ?? []).map(({ description, unlocked, amount, totalBonus }, index) => <IconTile key={index}
+                                                                                                                icon={`data/RooMG${index}.png`}
+                                                                                                                alt={`Megafish ${index + 1}`}
+                                                                                                                status={failed || unlocked ? undefined : 'missing'}
+                                                                                                                value={!failed && amount > 0 ? formatNum(amount) : undefined}
+                                                                                                                details={<ItemCard.Desc
+                                                                                                                  text={cleanUnderscore(`${description ?? ''}`.replace('{', () => formatNum(totalBonus ?? 1, 'mult', { bare: true })))}/>}/>)}
+            </CardGrid>
+          </Box>
+        </Panel>
+        <Panel title={'Shiny multi'}>
+          {/* The parser prints the total in Summoning.RooShinyMulti, as the game does ("1.00x") */}
+          <Panel.Row name={'Total multi'} value={failed ? '-' : `${kangaroo?.totalMulti ?? '1.00'}x`}/>
+          {(kangaroo?.allMultipliers ?? []).map(({ multi, amount }, index) => <Panel.Row key={index}
+                                                                                         icon={`data/RooFishS${index}.png`}
+                                                                                         name={failed ? `Shiny fish ${index + 1}` : `${caught(amount)} caught`}
+                                                                                         value={failed ? '-' : `${multi}x`}/>)}
+        </Panel>
+        <Panel title={'Reset bonuses'}>
+          {(kangaroo?.resetBonuses ?? []).map(({ desc, level }, index) => <Panel.Row key={index}
+                                                                                     icon={`data/RooReset${index}.png`}
+                                                                                     name={cleanUnderscore(desc)}
+                                                                                     value={failed ? '-' : formatNum(level ?? 0, 'level')}/>)}
+        </Panel>
+      </CardGrid>
     </Tabber>
   </>
 };
 
-const Section = ({ title, value, icon, sx, iconStyle, fontSize }) => {
-  return <div style={{ ...sx }}>
-    <Typography variant={'body2'} color="text.secondary" gutterBottom>{title}</Typography>
-    <Stack direction="row" gap={1}>
-      {icon ? <img style={{ objectFit: 'contain', ...iconStyle }} src={`${prefix}${icon}`} alt=""/> : null}
-      <Typography sx={{ fontSize }}>{value}</Typography>
-    </Stack>
-  </div>
-}
-
-const ResetCard = ({ level, desc, icon }) => {
-  return <Tooltip title={desc}>
-    <Card>
-      <CardContent>
-        <Stack direction={'row'} gap={1}>
-          <img style={{ objectFit: 'contain', width: 26, height: 26 }} src={`${prefix}${icon}`} alt=""/>
-          <Typography>Lv. {level}</Typography>
-        </Stack>
-      </CardContent>
-    </Card>
-  </Tooltip>
-}
-
 export default Kangaroo;
-

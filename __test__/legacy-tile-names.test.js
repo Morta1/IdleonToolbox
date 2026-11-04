@@ -12,7 +12,6 @@ const LEGACY_IMPORT = /\bimport\s*\{[^}]*\b(?:CardTitleAndValue|CardWithBreakdow
 const LEGACY_IMPORTERS = [
   'components/account/Pets/PetMart.jsx',
   'pages/account/clickers/bubba.jsx',
-  'pages/account/clickers/kangaroo.jsx',
   'pages/account/prem-currency/bundles.jsx',
   'pages/account/prem-currency/gem-shop.jsx',
   'pages/account/prem-currency/pets.jsx',
