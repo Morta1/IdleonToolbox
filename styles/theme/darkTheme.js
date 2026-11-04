@@ -91,7 +91,9 @@ const darkTheme = createTheme({
       // Sailing's artifact forms, the game's: Base, Ancient, Eldritch, Sovereign, Omnipotent, Transcendent, Verisimilitude
       artifactTiers: ['#ffffff', '#ffd700', '#ffa092', '#67da80', '#00ffde', '#b388ff', '#ff7eb6'],
       // The Tome's point tiers, the game's: bronze, silver, gold, blue
-      tomeTiers: { bronze: '#ffc277', silver: '#d6dbe0', gold: '#ffd700', blue: '#56ccff' }
+      tomeTiers: { bronze: '#ffc277', silver: '#d6dbe0', gold: '#ffd700', blue: '#56ccff' },
+      // The kingdom screen's own outpost modes: yellow Resource Depot, cyan Support Camp, pink Savage Stronghold
+      outpostModes: ['#f7de2a', '#31cef0', '#f8b4f8']
     }
   },
   // The Foundations type scale. body and caption are MUI's body2 and caption. pageTitle, sectionTitle,

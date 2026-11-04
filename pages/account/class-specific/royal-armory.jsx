@@ -99,7 +99,7 @@ const RoyalArmory = () => {
               resourcePerHour={royalGuardian?.resourcePerHour} costing={costing} sectionFailed={sectionFailed}/>
       <Outposts outposts={royalGuardian?.outposts} outpostStats={outpostStats}
                 resources={royalGuardian?.resources} clearingMaps={royalGuardian?.clearingMaps}
-                activeKillClear={royalGuardian?.guardian?.activeKillClear}/>
+                activeKillClear={royalGuardian?.guardian?.activeKillClear} sectionFailed={sectionFailed}/>
       <Resources resources={royalGuardian?.resources} outposts={royalGuardian?.outposts}
                  resourcePerHour={royalGuardian?.resourcePerHour}/>
       <UpgradeOptimizer account={state?.account} character={selectedRoyalGuardian} sectionFailed={sectionFailed}/>

@@ -1,15 +1,12 @@
 import React, { useState } from 'react';
-import { Box, Divider, Paper, Stack, Typography, useMediaQuery } from '@mui/material';
-import ToggleButton from '@mui/material/ToggleButton';
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
-import { notateNumber, prefix, secondsToCoarseDuration } from '@utility/helpers';
-import Tooltip from '@components/Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
+import { Box, Divider, Paper, Stack, Typography, useMediaQuery, useTheme } from '@mui/material';
+import { formatDuration, formatNum, prefix } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import GameIcon from '@components/common/GameIcon';
+import InfoButton from '@components/common/InfoButton';
+import Notice from '@components/common/Notice';
+import ViewSwitch from '@components/common/ViewSwitch';
 
-// The colours the kingdom screen itself draws each outpost mode in, so the map reads the same way
-// as the game's: yellow depot, cyan support camp, pink savage stronghold. The game colours a
-// connection line by the mode of the outpost it leaves, and so does this.
-const MODE_MAP_COLOR = ['#f7de2a', '#31cef0', '#f8b4f8'];
 const MODE_LABELS = ['Resource Depot', 'Support Camp', 'Savage Stronghold'];
 // Straight up first, then fanning out to either side in 15 degree steps.
 const LABEL_ANGLES = Array.from({ length: 24 }, (_, step) => -90 + (step % 2 ? -1 : 1) * Math.ceil(step / 2) * 15)
@@ -25,16 +22,30 @@ const distance = (ax, ay, bx, by) => Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(a
 
 // The catalog has no real names for resources, only "Resource 4" placeholders, so the sprite is
 // the only thing that identifies a node to the player.
-const NodeIcon = ({ node, size = 18 }) => (
-  <img src={`${prefix}data/${node.rawName}.png`} alt="" width={size} height={size}
-       style={{ objectFit: 'contain', verticalAlign: 'middle' }}/>
-);
+const NodeIcon = ({ node, size = 16 }) => <GameIcon src={`data/${node.rawName}.png`} size={size} alt={''}/>;
+// A node's amounts, in the rule every resource amount on the page prints in
+const amount = (value) => formatGame(value ?? 0, 'RoyalG.ArmoryUpgCost');
+// Enter or Space on a focused marker does what its click does
+const onActivate = (action) => (event) => {
+  if (event.key === 'Enter' || event.key === ' ') {
+    event.preventDefault();
+    action(event);
+  }
+};
 
 const KingdomMap = ({ outposts, resources }) => {
+  const theme = useTheme();
+  // The colours the kingdom screen itself draws each outpost mode in (the theme's outpostModes), so the map reads the
+  // same way as the game's. The game colours a connection line by the mode of the outpost it leaves, and so does this.
+  const MODE_MAP_COLOR = theme.palette.identity.outpostModes;
+  // The markers' and labels' outline: the page's own background, so they lift off any line under them
+  const OUTLINE = theme.palette.background.default;
   const [world, setWorld] = useState(null);
   const [selected, setSelected] = useState(null);
   const [hovered, setHovered] = useState(null);
   const [hoveredNode, setHoveredNode] = useState(null);
+  // A node pins its card on a click, a tap or Enter, as an outpost does: hover only previews
+  const [selectedNode, setSelectedNode] = useState(null);
   // Wide screens get the card in a panel beside the map, where it hides nothing. False on the first
   // render, so the static export and hydration both start from the overlay layout.
   const sidePanel = useMediaQuery((theme) => theme.breakpoints.up('lg'));
@@ -56,7 +67,7 @@ const KingdomMap = ({ outposts, resources }) => {
   const nodeOf = (nodeIndex) => worldNodes.find(({ index }) => index === nodeIndex);
   // A node under the cursor wins the card: it is the smaller target, so the player is being
   // deliberate when they land on one.
-  const focusedNode = hoveredNode != null ? nodeOf(hoveredNode) : null;
+  const focusedNode = (hoveredNode ?? selectedNode) != null ? nodeOf(hoveredNode ?? selectedNode) ?? null : null;
 
   // Every line the game draws: an outpost to each node it collects, and a support camp to each
   // outpost it boosts.
@@ -126,7 +137,7 @@ const KingdomMap = ({ outposts, resources }) => {
   const rankOverflow = rankTargets.length - rankList.length;
   const rankText = (need) => {
     if (need.rankNeeded == null) return 'no Military rank reaches it';
-    const eta = need.etaHours == null ? null : secondsToCoarseDuration(need.etaHours * 3600);
+    const eta = need.etaHours == null ? null : formatDuration(need.etaHours * 3600);
     return `Military ${need.rankNeeded}${eta ? ` · ~${eta}` : ''}`;
   };
   const focusedNodeNeed = focusedNode && focused && focused.mode !== 1 ? rankNeedOf(focusedNode.index) : null;
@@ -202,18 +213,18 @@ const KingdomMap = ({ outposts, resources }) => {
             <Stack direction="row" gap={1} alignItems="center">
               <NodeIcon node={focusedNode} size={28}/>
               <Stack direction="column">
-                <Typography variant="body2" sx={{ fontWeight: 600 }}>
-                  {`${notateNumber(focusedNode.collected, 'Big')} / ${notateNumber(focusedNode.maxQuantity, 'Big')} collected`}
+                <Typography variant="cardTitle" component="div">
+                  {`${amount(focusedNode.collected)} / ${amount(focusedNode.maxQuantity)} collected`}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {`Node ${focusedNode.index} · Lv${focusedNode.nodeLevel} · ${Math.round(100 * focusedNode.fillPercent)}% spent`}
+                  {`Node ${focusedNode.index} · Lv ${formatNum(focusedNode.nodeLevel)} · ${formatNum(Math.round(100 * focusedNode.fillPercent))}% spent`}
                 </Typography>
               </Stack>
             </Stack>
             <Divider sx={{ my: 1 }}/>
             <Typography variant="caption" sx={{ display: 'block' }}>
               {/* Account-wide storage of this resource, not this node's own pile. */}
-              {`In storage: ${notateNumber(focusedNode.stored, 'Big')}`}
+              {`In storage: ${amount(focusedNode.stored)}`}
             </Typography>
             <Typography variant="caption" sx={{ display: 'block' }}>
               {focusedNode.connected
@@ -237,15 +248,15 @@ const KingdomMap = ({ outposts, resources }) => {
           </Paper>
           : focused
             ? <Paper elevation={sidePanel ? 0 : 8} sx={cardSx(250)}>
-            <Typography variant="body2" sx={{ fontWeight: 600 }}>{focused.name}</Typography>
+            <Typography variant="cardTitle" component="div">{focused.name}</Typography>
             <Typography variant="caption" color="text.secondary">
               {MODE_LABELS[focused.mode]}
-              {` · ${notateNumber(focused.resourceRate, 'Big')}/hr · ${focused.range}px range`}
+              {` · ${formatGame(focused.resourceRate ?? 0, 'RoyalG.OutpostResourceRate')}/hr · ${formatGame(focused.range ?? 0, 'RoyalG.OutpostRange')}px range`}
             </Typography>
             <Divider sx={{ my: 1 }}/>
             {/* A support camp spends its two slots on outposts, not nodes, so naming them "connected
                 nodes" would read as a mistake on every support camp. */}
-            <Typography variant="caption" sx={{ fontWeight: 600, display: 'block' }}>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
               {focused.mode === 1 ? 'Boosting' : 'Connected'}
             </Typography>
             {focused.mode === 1
@@ -265,14 +276,14 @@ const KingdomMap = ({ outposts, resources }) => {
                     <Typography variant="caption">
                       {node.exhausted
                     ? 'empty'
-                    : `${notateNumber(node.collected, 'Big')} / ${notateNumber(node.maxQuantity, 'Big')} collected`}
+                    : `${amount(node.collected)} / ${amount(node.maxQuantity)} collected`}
                     </Typography>
                   </Stack>
                 ))
                 : <Typography variant="caption" sx={{ opacity: 0.7, display: 'block' }}>
                   Nothing wired to this outpost.
                 </Typography>}
-            <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 1 }}>
+            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
               In reach, not connected
             </Typography>
             {reachList.length > 0
@@ -296,7 +307,7 @@ const KingdomMap = ({ outposts, resources }) => {
                 : null}
             {rankList.length > 0
               ? <>
-                <Typography variant="caption" sx={{ fontWeight: 600, display: 'block', mt: 1 }}>
+                <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 1 }}>
                   {`Reach without Guards (Military ${militaryRank})`}
                 </Typography>
                 {rankList.map(({ need, node }) => (
@@ -316,22 +327,18 @@ const KingdomMap = ({ outposts, resources }) => {
             : null;
 
   if (worlds.length === 0) {
-    return <Typography>No outposts are on the kingdom map yet.</Typography>;
+    return <Notice>No outposts are on the kingdom map yet.</Notice>;
   }
 
   return (
     <Stack direction="column" gap={2}>
       <Stack direction="row" gap={1.5} flexWrap="wrap" alignItems="center">
-        <ToggleButtonGroup exclusive size="small" value={activeWorld}
-                           onChange={(event, next) => {
-                             if (next == null) return;
-                             setWorld(next);
-                             setSelected(null);
-                           }}>
-          {worlds.map((worldNumber) => (
-            <ToggleButton key={worldNumber} value={worldNumber}>World {worldNumber}</ToggleButton>
-          ))}
-        </ToggleButtonGroup>
+        <ViewSwitch label={'World'} options={worlds.map((worldNumber) => [worldNumber, `World ${worldNumber}`])} value={activeWorld}
+                    onChange={(next) => {
+                      setWorld(next);
+                      setSelected(null);
+                      setSelectedNode(null);
+                    }}/>
         {MODE_LABELS.map((label, mode) => (
           <Stack key={label} direction="row" gap={0.75} alignItems="center">
             <Box sx={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: MODE_MAP_COLOR[mode] }}/>
@@ -343,11 +350,10 @@ const KingdomMap = ({ outposts, resources }) => {
           <Typography variant="caption">Faded: empty node</Typography>
         </Stack>
         <Stack direction="row" gap={0.5} alignItems="center">
-          <Typography variant="body2">Click an outpost to pin it</Typography>
-          <Tooltip
-            title="The dashed ring is how far the outpost reaches: any node inside it can be wired to this outpost. An outpost collects one node at a time: wiring a new one replaces what it had. When the outpost has Guards in its slots, the solid inner ring is its reach without them, and the striped band between the two is the range the Guards add.">
-            <InfoIcon sx={{ fontSize: 14, opacity: 0.7 }}/>
-          </Tooltip>
+          <Typography variant="body2">Click an outpost or a node to pin it</Typography>
+          <InfoButton label={'Reach rings'}>
+            The dashed ring is how far the outpost reaches: any node inside it can be wired to this outpost. An outpost collects one node at a time: wiring a new one replaces what it had. When the outpost has Guards in its slots, the solid inner ring is its reach without them, and the striped band between the two is the range the Guards add.
+          </InfoButton>
         </Stack>
         {/* Always rendered: showing it on hover wrapped the toolbar, which pushed the map out from
             under the cursor and ended the hover. */}
@@ -383,7 +389,10 @@ const KingdomMap = ({ outposts, resources }) => {
         }}>
           <Box component="svg" viewBox={`${minX} ${minY} ${width} ${height}`}
                preserveAspectRatio="xMidYMid meet"
-               onClick={() => setSelected(null)}
+               onClick={() => {
+                 setSelected(null);
+                 setSelectedNode(null);
+               }}
                sx={{ width: '100%', height: '100%', display: 'block' }}>
             {/* The reach ring sits under everything so markers stay readable inside it. */}
             {showGuardRing
@@ -424,11 +433,18 @@ const KingdomMap = ({ outposts, resources }) => {
               const inReach = focusedReach?.has(node.index);
               const linked = focused?.connectedNodes?.some(({ index }) => index === node.index);
               const relevant = !focused || linked || inReach || focusedNode?.index === node.index;
+              const pinNode = (event) => {
+                event.stopPropagation();
+                setSelectedNode(selectedNode === node.index ? null : node.index);
+              };
               return (
                 <g key={`node-${node.index}`} opacity={dimmed(relevant)}
-                   style={{ cursor: 'pointer' }}
+                   style={{ cursor: 'pointer' }} role="button" tabIndex={0} aria-pressed={selectedNode === node.index}
+                   aria-label={`Node ${node.index}`}
                    onMouseEnter={() => setHoveredNode(node.index)}
-                   onMouseLeave={() => setHoveredNode(null)}>
+                   onMouseLeave={() => setHoveredNode(null)}
+                   onClick={pinNode}
+                   onKeyDown={onActivate(pinNode)}>
                   {inReach && !linked
                     ? <circle cx={node.anchorX} cy={node.anchorY} r={16} fill="none"
                               stroke={nodeNeedsGuards(node) ? 'currentColor' : focusedColor} strokeWidth={2.5}
@@ -448,25 +464,28 @@ const KingdomMap = ({ outposts, resources }) => {
 
             {worldOutposts.map((outpost) => {
               const isFocused = focused?.mapIndex === outpost.mapIndex;
+              const pinOutpost = (event) => {
+                event.stopPropagation();
+                setSelectedNode(null);
+                setSelected(selected === outpost.mapIndex ? null : outpost.mapIndex);
+              };
               return (
                 <g key={`outpost-${outpost.mapIndex}`} opacity={dimmed(isFocused)}
-                   style={{ cursor: 'pointer' }}
+                   style={{ cursor: 'pointer' }} role="button" tabIndex={0} aria-pressed={selected === outpost.mapIndex}
+                   aria-label={`${outpost.name}, ${MODE_LABELS[outpost.mode]}`}
                    onMouseEnter={() => setHovered(outpost.mapIndex)}
                    onMouseLeave={() => setHovered(null)}
-                   onClick={(event) => {
-                     event.stopPropagation();
-                     setSelected(selected === outpost.mapIndex ? null : outpost.mapIndex);
-                   }}>
+                   onClick={pinOutpost}
+                   onKeyDown={onActivate(pinOutpost)}>
                   <circle cx={outpost.mapX} cy={outpost.mapY} r={isFocused ? 12 : 9}
                           fill={MODE_MAP_COLOR[outpost.mode] ?? MODE_MAP_COLOR[0]}
-                          stroke="#1b1b1b" strokeWidth={2}/>
+                          stroke={OUTLINE} strokeWidth={2}/>
                   {isFocused
                     ? <text x={outpost.mapX} y={outpost.mapY - 18} textAnchor="middle" fontSize={14}
-                            fill="currentColor" stroke="#1b1b1b" strokeWidth={3} paintOrder="stroke">
+                            fill="currentColor" stroke={OUTLINE} strokeWidth={3} paintOrder="stroke">
                       {outpost.name}
                     </text>
                     : null}
-                  <title>{`${outpost.name} · ${MODE_LABELS[outpost.mode]}`}</title>
                 </g>
               );
             })}
@@ -476,7 +495,7 @@ const KingdomMap = ({ outposts, resources }) => {
               innerLabel ? { key: 'inner', ...innerLabel } : null
             ].filter(Boolean).map(({ key, x, y, text }) => (
               <text key={key} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize={13}
-                    fill={focusedColor} stroke="#1b1b1b" strokeWidth={3} paintOrder="stroke"
+                    fill={focusedColor} stroke={OUTLINE} strokeWidth={3} paintOrder="stroke"
                     style={{ pointerEvents: 'none' }}>
                 {text}
               </text>
@@ -492,7 +511,7 @@ const KingdomMap = ({ outposts, resources }) => {
             <Box sx={{ position: 'absolute', inset: 0 }}>
               {card ?? <Paper elevation={0} sx={{ ...cardSx(), display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <Typography variant="body2" color="text.secondary" sx={{ textAlign: 'center' }}>
-                  Hover an outpost or node to see its details, or click an outpost to pin it.
+                  Click an outpost or a node to see its details and pin it.
                 </Typography>
               </Paper>}
             </Box>
