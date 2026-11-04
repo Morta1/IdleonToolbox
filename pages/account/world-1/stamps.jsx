@@ -221,7 +221,12 @@ const Stamps = () => {
                               meta={pickedStamp.maxLevel > 0 ? formatNum(pickedStamp.level, 'level', { max: pickedStamp.maxLevel }) : undefined}
                               aside={<Link component={'button'} onClick={() => openWikiEntity(`item:${pickedStamp.rawName}`)}
                                            sx={{ font: 'inherit' }}>Wiki page</Link>}
-                              sx={{ mb: 2, position: 'sticky', top: stickyTop, zIndex: (theme) => theme.zIndex.appBar - 2 }}>
+                              sx={{
+                                // Below 600 px the band, the Toolbar and a pinned Panel left the grid half the screen:
+                                // a picked tile shows its details as its note there instead
+                                display: { xs: 'none', sm: 'block' },
+                                mb: 2, position: 'sticky', top: stickyTop, zIndex: (theme) => theme.zIndex.appBar - 2
+                              }}>
           {stampDetails(pickedStamp, detailsContext)}
         </Panel> : null}
         <Stack gap={2}>
@@ -235,7 +240,8 @@ const Stamps = () => {
                   {shown.map((stamp) => stampTile(stamp, {
                     failed: stampsFailed,
                     selected: stamp.rawName === pickedStamp?.rawName,
-                    onSelect: stampsFailed ? undefined : () => setPicked(stamp.rawName)
+                    onSelect: stampsFailed ? undefined : () => setPicked(stamp.rawName),
+                    phoneDetails: stampsFailed ? undefined : stampNote(stamp, detailsContext)
                   }))}
                 </CardGrid>
               </Box>
@@ -249,8 +255,8 @@ const Stamps = () => {
 
 // A stamp as a tile (Decision 3): its level, the exalted frame, grey until found, the ▲ while it can level up (at
 // the reducer in use or the step below), and the levels gained since the snapshot as a count, which wins over the ▲.
-// A tap picks it for the details Panel
-const stampTile = (stamp, { failed, selected, onSelect }) => <IconTile
+// A tap picks it for the details Panel, or below 600 px pins its details as its note
+const stampTile = (stamp, { failed, selected, onSelect, phoneDetails }) => <IconTile
   key={stamp.rawName}
   icon={`data/${stamp.rawName}.png`}
   alt={cleanUnderscore(stamp.displayName)}
@@ -259,7 +265,20 @@ const stampTile = (stamp, { failed, selected, onSelect }) => <IconTile
   status={failed || stamp.level > 0 ? undefined : 'missing'}
   badge={stamp.gained > 0 ? `+${formatNum(stamp.gained)}` : STATE_TONES[stamp.state] === 'ready' ? 'up' : undefined}
   selected={selected}
-  onSelect={onSelect}/>;
+  onSelect={onSelect}
+  phoneDetails={phoneDetails}/>;
+
+// The details as a phone's note: the Panel's name, level and wiki link over the same details
+const stampNote = (stamp, context) => <Stack gap={1}>
+  <Stack direction={'row'} alignItems={'baseline'} justifyContent={'space-between'} gap={1}>
+    <Typography variant={'body2'} component={'div'} sx={{ color: 'text.primary', fontWeight: 500 }}>
+      {`${cleanUnderscore(stamp.displayName)}${stamp.maxLevel > 0 ? `, ${formatNum(stamp.level, 'level', { max: stamp.maxLevel })}` : ''}`}
+    </Typography>
+    <Link component={'button'} onClick={() => openWikiEntity(`item:${stamp.rawName}`)} sx={{ font: 'inherit', flexShrink: 0 }}>
+      Wiki page</Link>
+  </Stack>
+  {stampDetails(stamp, context, true)}
+</Stack>;
 
 // What a stamp costs to carry at the reducer in use: the smallest reducer that fits it, or none up to the cap
 const reducerLine = (minReduction, reducer) => {
@@ -300,7 +319,7 @@ const boostLine = (boosts, stampName) => {
 
 // The picked stamp's details, under its name: its sentence filled as the game fills it, its state in words, what the
 // next level costs against what you own, the next levels' costs and each top character's carry capacity
-const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText, exaltedMulti, vaultBonus, charmBonus }) => {
+const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText, exaltedMulti, vaultBonus, charmBonus }, inNote) => {
   const {
     displayName, level, maxLevel, effect, bonus, gained, state: type, goldCost, materialCost,
     futureCosts, bestCharacter, ownedMats, greenStackOwnedMats, hasMoney, itemReq, minReduction
@@ -310,14 +329,14 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText, exaltedMul
   const owned = (keepGreenstacks ? greenStackOwnedMats : ownedMats) ?? 0;
   const boosts = level > 0 ? stampBoosts(stamp, { exaltedMulti, exaltedText, vaultBonus, charmBonus }) : [];
   const reducerText = level > 0 && atMax ? reducerLine(minReduction, reducer) : null;
-  return <Box sx={{
+  return <Box sx={inNote ? { display: 'grid', gap: 2, maxHeight: '30vh', overflowY: 'auto' } : {
     display: 'grid',
     gap: 2,
     p: { xs: 1.5, sm: 2 },
     alignItems: 'start',
     // The table takes its own width beside the two text columns
     gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 1fr) auto minmax(0, 1fr)' },
-    // A phone keeps the grid in view under the pinned details: their body scrolls inside
+    // A narrow window keeps the grid in view under the pinned details: their body scrolls inside
     maxHeight: { xs: '30vh', md: 'none' },
     overflowY: { xs: 'auto', md: 'visible' }
   }}>

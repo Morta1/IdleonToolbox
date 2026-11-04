@@ -35,7 +35,10 @@ const Badge = ({ badge }) => <Box component={'span'} sx={{
 // onSelect makes the tile a button that picks it, for a grid too large to draw a note per tile (the Slab's 1,935
 // items): the page shows the picked one's details once, and selected draws the selected line. An empty slot draws no
 // sprite, so its alt names it ("Empty slot" by default) when it has details to open; one with none is not a button.
-const IconTile = ({ icon, fallback, alt = '', value, kind, frame, badge, mark, markAlt, status, details, onSelect, selected }) => {
+// phoneDetails go with onSelect: below 600 px, where the page's details Panel does not show, a pick also pins the
+// picked tile's details as its note (sized to a table), so the grid keeps the screen.
+const IconTile = ({ icon, fallback, alt = '', value, kind, frame, badge, mark, markAlt, status, details, onSelect, selected,
+  phoneDetails }) => {
   const empty = status === 'empty';
   const hasValue = value !== undefined && !empty;
   const tile = <Box sx={[
@@ -71,6 +74,11 @@ const IconTile = ({ icon, fallback, alt = '', value, kind, frame, badge, mark, m
         <GameIcon src={mark} size={24} alt={markAlt ?? ''}/>
       </Box> : null}
   </Box>;
+  if (onSelect && phoneDetails) {
+    return <NoteTrigger note={phoneDetails} table phoneOnly onPick={onSelect} block
+                        buttonProps={{ 'aria-pressed': Boolean(selected) }}
+                        sx={{ maxWidth: 72, borderRadius: '8px' }}>{tile}</NoteTrigger>;
+  }
   if (onSelect) {
     return <ButtonBase component={'span'} disableRipple aria-pressed={Boolean(selected)} onClick={onSelect}
                        sx={{ display: 'flex', width: '100%', maxWidth: 72, borderRadius: '8px' }}>{tile}</ButtonBase>;

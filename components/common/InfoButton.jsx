@@ -14,7 +14,9 @@ const TABLE_NOTE_WIDTH = 'calc(100vw - 48px)';
 // (an icon); aria-expanded says it is pinned, which is also how a caller styles that state. block makes the trigger
 // as wide as its parent, for content that takes the width it is given (a progress bar). table is a note that holds a
 // table: it sizes to the table, up to the viewport less the page's gutters, so every column shows without a scroll.
-export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, children }) => {
+// onPick and phoneOnly make the trigger a picker whose note shows only below 600 px, where the page has no room for
+// the picked thing's details beside its grid (Stamps): a click picks, and on a phone it also pins the note.
+export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, phoneOnly, buttonProps, children }) => {
   const [pinned, setPinned] = useState(false);
   const [previewing, setPreviewing] = useState(false);
 
@@ -34,15 +36,18 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, children 
         onOpen={() => setPreviewing(true)}
         onClose={handleClose}
         disableTouchListener
+        slotProps={phoneOnly ? { popper: { sx: { display: { sm: 'none' } } } } : undefined}
       >
         <ButtonBase
           component={'span'}
           disableRipple
           aria-label={label}
           aria-expanded={pinned}
+          {...buttonProps}
           onClick={(event) => {
             // A note never triggers the card, row or sort header it sits in
             event.stopPropagation();
+            onPick?.(event);
             setPinned(!pinned);
           }}
           sx={[block ? { width: '100%' } : null, ...(Array.isArray(sx) ? sx : [sx])]}
