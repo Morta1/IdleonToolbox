@@ -8,7 +8,6 @@ import {
   Divider,
   inputBaseClasses,
   Link,
-  ListSubheader,
   Stack,
   TextField,
   Typography,
@@ -49,14 +48,30 @@ const sameUrl = (a, b) => {
 // as WikiSearchBar's is: the same chunk serves both.
 const defaultLoadWikiEntries = () => import('../../data/wiki-search-index.json').then((mod) => mod.default || mod);
 
-// The row the arrows picked carries a primary bar on its left edge, so it reads apart from the row under the
-// pointer, which only tints.
+// The row the arrows picked is a band across the whole panel on the blue tint, with a bar at the panel's left edge, so it
+// reads apart from the row under the pointer, which only tints.
 const ROW_SX = (selected) => ({
-  listStyle: 'none', position: 'relative', borderRadius: 1, mb: 0.5, px: 1, minHeight: { xs: 52, sm: 48 },
+  listStyle: 'none', position: 'relative', px: 2, py: '6px', minHeight: 52, boxSizing: 'border-box',
   display: 'flex', alignItems: 'center', gap: 1.5,
-  bgcolor: selected ? 'action.selected' : 'transparent', '&:hover': { bgcolor: 'action.hover' },
+  bgcolor: selected ? 'primary.soft' : 'transparent', '&:hover': { bgcolor: selected ? 'primary.soft' : 'action.hover' },
   boxShadow: selected ? 'inset 3px 0 0 var(--mui-palette-primary-main)' : 'none'
 });
+// A page's tab inside its row: a 26 px outlined pill, whose tap target reaches 44 px on a coarse pointer.
+const TAB_PILL_SX = {
+  position: 'relative', display: 'inline-flex', alignItems: 'center', height: 26, px: '9px', borderRadius: 999, border: 1,
+  borderColor: 'divider', fontSize: 12.5, color: 'text.secondary', '&:hover': { color: 'text.primary', borderColor: 'outline' },
+  '@media (pointer: coarse)': { '&::before': { content: '""', position: 'absolute', inset: '-9px 0' } }
+};
+const GroupTitle = ({ children }) => <Typography variant="groupLabel" component="div" color="text.secondary" sx={{ px: 2, py: '6px' }}>{children}</Typography>;
+// A key as a key cap (Search board).
+const Kbd = ({ sx, ...props }) => <Box component="kbd" {...props} sx={[{
+  display: 'inline-flex', alignItems: 'center', height: 22, px: 0.75, border: 1, borderColor: 'outline', borderRadius: 1,
+  fontSize: 11.5, color: 'text.secondary', fontFamily: 'inherit'
+}, sx]}/>;
+const KeyHint = ({ keys, children }) => <Stack component="span" direction="row" alignItems="center" gap={0.75}>
+  {keys.map((key) => <Kbd key={key}>{key}</Kbd>)}
+  {children}
+</Stack>;
 
 // A row with no art (NPCs, quests, the art the game never shipped) shows a muted book, not an empty slot.
 const RowIcon = ({ row }) => {
@@ -72,16 +87,16 @@ const RowIcon = ({ row }) => {
 const ResultRow = ({ row, selected, onOpen, hrefFor }) => <Box component="li" data-selected={selected || undefined}
                                                                sx={ROW_SX(selected)}>
   <RowIcon row={row}/>
-  <Box sx={{ flex: 1, minWidth: 0, py: 0.75 }}>
+  <Box sx={{ flex: 1, minWidth: 0 }}>
     <Link href={hrefFor(row.href)} onClick={onOpen(row, row.href)} underline="none" color="text.primary"
-          sx={{ display: 'block', fontWeight: 500, '&::after': { content: '""', position: 'absolute', inset: 0 } }}>
+          sx={{ display: 'block', fontSize: 15, fontWeight: 500, '&::after': { content: '""', position: 'absolute', inset: 0 } }}>
       {row.label}
       {/* Tells a same-name entry apart, as the wiki's own search does. */}
       {row.disambig ? <Typography component="span" variant="body2" color="text.secondary">{` ${row.disambig}`}</Typography> : null}
     </Link>
-    {row.note ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>{row.note}</Typography> : null}
-    {row.tabs?.length ? <Stack direction="row" columnGap={1.5} flexWrap="wrap" sx={{ position: 'relative', zIndex: 1 }}>
-      {row.tabs.map((tab) => <Link key={tab.label} href={hrefFor(tab.href)} onClick={onOpen(row, tab.href)} variant="caption" sx={touchTarget}>
+    {row.note ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block', fontSize: 12.5 }}>{row.note}</Typography> : null}
+    {row.tabs?.length ? <Stack direction="row" gap={0.75} flexWrap="wrap" sx={{ position: 'relative', zIndex: 1, mt: 0.5 }}>
+      {row.tabs.map((tab) => <Link key={tab.label} href={hrefFor(tab.href)} onClick={onOpen(row, tab.href)} underline="none" sx={TAB_PILL_SX}>
         {tab.label}
       </Link>)}
     </Stack> : null}
@@ -355,12 +370,19 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
             fullWidth
             maxWidth={'sm'}
             fullScreen={isSm}
-            slotProps={{ paper: { 'aria-label': 'Search', sx: isSm ? { borderRadius: 0, border: 0 } : undefined } }}
+            // The panel hugs what it shows, so it hangs from a fixed top: centred, it would jump with every letter typed
+            sx={{ '& .MuiDialog-container': { alignItems: { sm: 'flex-start' } } }}
+            slotProps={{
+              paper: {
+                'aria-label': 'Search',
+                sx: isSm ? { borderRadius: 0, border: 0 } : { mt: '12vh', maxHeight: 'calc(100% - 12vh - 32px)' }
+              }
+            }}
             open={searchOpen}
             onClose={closePanel}
             TransitionProps={{ onExited: clearPanel }}>
       <DialogTitle component="div" sx={{ p: 0 }}>
-        <Stack direction="row" alignItems="center" sx={{ pr: { xs: 1, sm: 2 } }}>
+        <Stack direction="row" alignItems="center" sx={{ pl: 0.5, pr: { xs: 1, sm: 2 }, minHeight: 56 }}>
           <TextField
             inputRef={inputRef}
             fullWidth
@@ -380,6 +402,7 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
                 border: 'none',
                 height: 0
               },
+              [`.${inputBaseClasses.root}`]: { fontSize: 16 },
               [`.${inputBaseClasses.input}`]: {
                 paddingLeft: '8px'
               }
@@ -389,54 +412,47 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
               input: { startAdornment: <IconSearch stroke={'grey'}/> }
             }}
           />
-          <Box component="kbd" aria-hidden sx={{
-            display: { xs: 'none', sm: 'inline-flex' }, alignItems: 'center', px: 0.75, py: 0.25, border: 1,
-            borderColor: 'divider', borderRadius: 1, typography: 'caption', color: 'text.secondary', fontFamily: 'inherit'
-          }}>
-            Esc
-          </Box>
+          <Kbd aria-hidden sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>Esc</Kbd>
           <Button onClick={closePanel} sx={{ display: { xs: 'inline-flex', sm: 'none' }, flexShrink: 0 }}>Cancel</Button>
         </Stack>
         <Divider/>
       </DialogTitle>
       {/* Full screen on a phone: the list ends clear of the safe area and, until it is answered, the consent banner */}
       <DialogContent ref={listRef} sx={{
-        height: { sm: 450 }, px: 2, pt: 0, pb: { xs: 'calc(env(safe-area-inset-bottom) + var(--consent-banner-height, 0px))', sm: 0 }
+        maxHeight: { sm: 450 }, px: 0, pt: 0, pb: { xs: 'calc(env(safe-area-inset-bottom) + var(--consent-banner-height, 0px))', sm: 0 }
       }}>
         {/* A typo still lands (Search board, "Forgiving"): the closest rows, and what the search was read as. */}
-        {term && closeTo ? <Typography role="status" variant="body2" color="text.secondary" sx={{ px: 1, pt: 1.5 }}>
+        {term && closeTo ? <Typography role="status" color="text.secondary" sx={{ px: 2, pt: '10px', fontSize: 13 }}>
           {`No exact match. Showing the closest: ${closeTo}`}
         </Typography> : null}
         {groups.map((group) => (
-          <Box key={group.key}>
-            <ListSubheader component="div" disableSticky sx={{ background: 'none', lineHeight: '32px', px: 1 }}>
-              {group.title}
-            </ListSubheader>
+          <Box key={group.key} sx={{ pt: 1, pb: 0.5 }}>
+            <GroupTitle>{group.title}</GroupTitle>
             <Box component="ul" sx={{ p: 0, m: 0 }}>
               {group.rows.map((row) => <ResultRow key={row.key} row={row} selected={indexOf.get(row.key) === selectedIndex}
                                                   onOpen={onOpen} hrefFor={hrefFor}/>)}
               {group.more ? <Box component="li" data-selected={indexOf.get(`more:${group.key}`) === selectedIndex || undefined}
-                                 sx={{ ...ROW_SX(indexOf.get(`more:${group.key}`) === selectedIndex), minHeight: { xs: 44, sm: 36 }, px: 0 }}>
+                                 sx={{ ...ROW_SX(indexOf.get(`more:${group.key}`) === selectedIndex), minHeight: { xs: 44, sm: 36 }, px: 0, py: 0 }}>
                 {/* The focus goes back to the field, so typing and the arrows carry on after the list grows */}
-                <Button size="small" sx={{ ml: 5.5, ...touchTarget }} onClick={() => {
+                <Button size="small" sx={{ ml: 7, ...touchTarget }} onClick={() => {
                   group.more.open();
                   inputRef.current?.focus();
                 }}>{group.more.label}</Button>
               </Box> : null}
-              {group.note ? <Typography component="li" variant="caption" color="text.secondary" sx={{ listStyle: 'none', display: 'block', pl: 6.5, pb: 1 }}>
+              {group.note ? <Typography component="li" variant="caption" color="text.secondary" sx={{ listStyle: 'none', display: 'block', pl: 7.5, pb: 1 }}>
                 {group.note}
               </Typography> : null}
             </Box>
           </Box>
         ))}
         {/* The wiki group's place while its index loads (the first open only, a moment). */}
-        {wikiLoading ? <Box>
-          <ListSubheader component="div" disableSticky sx={{ background: 'none', lineHeight: '32px', px: 1 }}>Wiki</ListSubheader>
-          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', px: 1, pb: 1 }}>Loading the wiki</Typography>
+        {wikiLoading ? <Box sx={{ pt: 1, pb: 0.5 }}>
+          <GroupTitle>Wiki</GroupTitle>
+          <Typography variant="caption" color="text.secondary" sx={{ display: 'block', px: 2, pb: 1 }}>Loading the wiki</Typography>
         </Box> : null}
         {/* A search that matches nothing says so, with the step that brings the rows back (the breakdown's way) */}
         {!groups.length && !wikiLoading && term ? (
-          <Notice sx={{ px: 1, py: 2 }} focusAfter={() => inputRef.current}
+          <Notice sx={{ px: 2, py: 2 }} focusAfter={() => inputRef.current}
                   action={{
                     label: 'Clear search', onClick: () => {
                       setSearchTerm('');
@@ -447,13 +463,15 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
           </Notice>
         ) : null}
         {!groups.length && !wikiLoading && !term ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', p: 4 }}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 4 }}>
             <Typography color="text.secondary">Pages you pin or visit show here</Typography>
           </Box>
         ) : null}
       </DialogContent>
-      <Box sx={{ display: { xs: 'none', sm: 'flex' }, px: 3, py: 1, borderTop: 1, borderColor: 'divider' }}>
-        <Typography variant="caption" color="text.secondary">↑ ↓ move · Enter open · Esc close</Typography>
+      <Box sx={{ display: { xs: 'none', sm: 'flex' }, gap: 2, px: 2, py: '10px', borderTop: 1, borderColor: 'divider', fontSize: 12, color: 'text.secondary' }}>
+        <KeyHint keys={['↑', '↓']}>move</KeyHint>
+        <KeyHint keys={['Enter']}>open</KeyHint>
+        <KeyHint keys={['Esc']}>close</KeyHint>
       </Box>
     </Dialog>
   </>;
