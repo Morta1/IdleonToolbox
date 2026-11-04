@@ -15,7 +15,7 @@ const TheTemple = ({ hole }) => {
   const chanceText = formatNum(temple?.extraTorchChance?.value ?? 0, 'pct');
   const chanceBreakdown = temple?.extraTorchChance?.breakdown;
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Torches'} icon={TORCH_ICON} value={torches} kind={'amount'}/>
       <StatTile label={'Layer'} value={temple?.layer ?? 0} kind={'amount'}/>
       <StatTile label={'Extra torch chance'} value={chanceText}

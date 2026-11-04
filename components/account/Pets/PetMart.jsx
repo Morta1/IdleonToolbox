@@ -109,7 +109,7 @@ const PetMart = ({ petMart, companions, lastUpdated, sectionFailed, companionsFa
     {isError ? <Notice tone={'error'} action={{ label: 'Retry', onClick: () => refetch() }}>
       Couldn&apos;t load the Pet Mart history.
     </Notice> : null}
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       <StatTile label={'New pets in'} value={<Timer type={'countdown'} date={getNextPetMartRestock()} component={'span'}
                                                      placeholder={<StatusText status={'ready'}>Restocked</StatusText>}/>}/>
       {saveIsToday && gems?.offered ? <StatTile label={'Daily free gems'} icon={'data/PremiumGem.png'}

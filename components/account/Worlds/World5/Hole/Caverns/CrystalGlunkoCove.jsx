@@ -40,7 +40,7 @@ const CrystalGlunkoCove = ({ hole }) => {
     || `Shape ${(shape?.index ?? 0) + 1}`;
 
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Cove drop rate'} value={cove?.dropRate ?? 1} kind={'mult'}/>
       <StatTile label={'Cove AFK gains'} value={100 * (cove?.afkGains ?? 0)} kind={'pct'}/>
       <StatTile label={'Multikill per tier'} value={cove?.multiKillTier ?? 0} kind={'pct'}/>

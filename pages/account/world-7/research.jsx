@@ -90,7 +90,7 @@ const Research = () => {
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'research')}>
       {/* Decision 6: the numbers that count one tab's list sit at that tab's top */}
       <Stack gap={3}>
-        <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+        <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
           <StatTile label={'Grid points'} value={`${formatNum(gridPTSpent ?? 0)} / ${formatNum(gridPTSearned ?? 0)}`}/>
           <StatTile label={'Shapes owned'} value={shapesOwned ?? 0} kind={'amount'}/>
           <StatTile label={'Lenses'} value={magnifiersOwned ?? 0} kind={'amount'}/>
@@ -103,7 +103,7 @@ const Research = () => {
         <Grid gridSquares={gridSquares}/>
       </Stack>
       <Stack gap={3}>
-        <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+        <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
           <StatTile label={'Observations found'}
                     value={`${formatNum(totalOccurrencesFound ?? 0)} / ${formatNum(occurrencesToBeFound ?? 0)}`}/>
           <StatTile label={'Max roll'} value={maxRoll ?? 0} kind={'amount'}/>

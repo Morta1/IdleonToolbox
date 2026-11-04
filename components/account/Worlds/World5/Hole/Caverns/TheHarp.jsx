@@ -20,7 +20,7 @@ const TheHarp = ({ hole }) => {
   const theHarp = hole?.caverns?.theHarp;
   const strings = theHarp?.stringNotes ?? [];
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Power'} value={theHarp?.power ?? 0} kind={'pct'}/>
       <StatTile label={'Power rate'} value={`${formatNum(theHarp?.powerRate ?? 0)}/hr`}/>
       <StatTile label={'Strings'} value={theHarp?.stringSlots ?? 0} kind={'amount'}/>

@@ -56,16 +56,22 @@ const STATUS_SX = { alignSelf: 'flex-start', flexShrink: 0 };
 const HEADER_SX = { '& > [data-title-row]:has(> span) + [data-aside]': { ml: -0.5 } };
 const ASIDE_SX = { alignSelf: 'flex-start', flexShrink: 0, '&:empty': { display: 'none' } };
 
-// Icon, title, one muted meta line (the level always as "Lv 458 / 999,999"), and at the top right the
+// "Lv 458" with its cap a step dimmer (Cards board).
+const levelLine = ({ value, max }) => {
+  const [current, cap] = formatNum(value, 'level', { max }).split(' / ');
+  return cap ? <>{current}<Box component={'span'} sx={{ color: 'text.muted' }}>{' / '}{cap}</Box></> : current;
+};
+
+// Icon, title, one muted meta line at 13/400 (the level always as "Lv 458 / 999,999"), and at the top right the
 // state, a marker or the › of a link card. MealHeader uses it on its own.
 export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title, level, meta, status, statusLabel, aside, link }) => {
-  const metaParts = [level ? formatNum(level.value, 'level', { max: level.max }) : null, meta].filter(Boolean);
+  const metaParts = [level ? levelLine(level) : null, meta].filter(Boolean);
   return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={{ ...HEADER_SX, minHeight: icon || title ? 40 : undefined }}>
     {typeof icon === 'string' ? <GameIcon src={icon} size={iconSize ?? ICON_SIZE[size]} alt={iconAlt}/> : icon}
     <Box data-title-row sx={TITLE_ROW_SX}>
       <Stack sx={TITLE_BLOCK_SX}>
         {title ? <Typography variant={'cardTitle'} component={'h3'}>{title}</Typography> : null}
-        {metaParts.length ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>
+        {metaParts.length ? <Typography color={'text.secondary'} component={'div'} sx={{ fontSize: 13, lineHeight: '18px' }}>
           {metaParts.map((part, index) => <Fragment key={index}>{index ? ' · ' : null}{part}</Fragment>)}
         </Typography> : null}
       </Stack>

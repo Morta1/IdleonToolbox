@@ -44,7 +44,7 @@ const Maps = ({ character, account, characters, sectionFailed }) => {
     && (view?.tachyon === 'all' || `${tachyonType}` === view?.tachyon));
 
   return <Stack gap={3}>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       <StatTile label={'Weapon drop chance'} icon={'data/EquipmentWandsArc0.png'}
                 value={sectionFailed ? '-' : formatNum(weaponDropChance, 'odds')}/>
       <StatTile label={'Weapon quality'} value={sectionFailed ? '-' : weaponQualityText} breakdownTitle={'Weapon quality'}

@@ -23,7 +23,7 @@ const ConstructMastery = ({ totalLevels, account, sectionFailed }) => {
   const levels = totalLevels ?? 0;
   const masteryBonus = (bonus) => (sectionFailed ? '-' : formatNum(getConstructionMasteryBonus(account, bonus), 'pct'));
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Construct LV'} value={levels} kind={'amount'}/>
       <StatTile label={'Refinery speed'} icon={'etc/Refinery_Spd.png'}
                 value={masteryBonus(CONSTRUCT_MASTERY.REFINERY_SPEED)}/>

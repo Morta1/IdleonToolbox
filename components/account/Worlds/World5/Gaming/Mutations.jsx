@@ -25,7 +25,7 @@ const Mutations = ({ gaming }) => {
     : undefined;
 
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'DNA'} icon={'etc/DNA.png'} value={dna ?? 0} kind={'amount'}/>
       <StatTile label={'New mutation chance'} value={chanceText} breakdown={chanceBreakdown}/>
       <StatTile label={'Mutation cost'} icon={`etc/Bits_${getBitIndex(mutationCost ?? 0)}.png`}

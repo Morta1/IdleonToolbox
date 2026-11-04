@@ -48,7 +48,7 @@ const TheBell = ({ hole }) => {
   const methods = theBell?.improvementMethods ?? [];
   const ringBonuses = theBell?.bellBonuses ?? [];
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'New method chance'} value={(theBell?.newMethodChance ?? 0) * 100} kind={'pct'}/>
       <StatTile label={'Rings'} value={theBell?.rings ?? 0} kind={'amount'}
                 info={'The 20th-ring bonus from its study triggers on rings 19, 39, 59 and 79, then every 20 rings.'}/>

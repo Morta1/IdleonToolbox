@@ -8,7 +8,7 @@ import ItemCard from '@components/common/cards/ItemCard';
 // Elixirs have no names in the data, so a card is its sprite and its sentence. The slot and duplicate caps have no
 // data field, so they stay written in.
 const Elixirs = ({ elixirs, ownedElixirs, ownedSlots, maxElixirDuplicates }) => <>
-  <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+  <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
     <StatTile label={'Elixirs'} value={`${formatNum(ownedElixirs ?? 0)} / ${formatNum(elixirs?.length ?? 0)}`}/>
     <StatTile label={'Slots'} value={`${formatNum(ownedSlots ?? 0)} / 5`}/>
     <StatTile label={'Duplicates'} value={`${formatNum(maxElixirDuplicates ?? 0)} / 4`}/>

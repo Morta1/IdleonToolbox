@@ -9,7 +9,7 @@ import IconTile from '@components/common/cards/IconTile';
 const LogBook = ({ logBook, crowns }) => {
   const total = logBook?.length ?? 0;
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Log book'} icon={'data/GamingPlanth5.png'}
                 value={`${formatNum(countOwnedLogBooks(logBook) ?? 0)} / ${formatNum(total)}`}/>
       <StatTile label={'Crowns'} icon={'data/GamingRatCrown.png'} value={`${formatNum(crowns ?? 0)} / ${formatNum(total)}`}/>

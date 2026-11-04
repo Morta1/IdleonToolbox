@@ -74,7 +74,7 @@ const VoteBallot = () => {
         {hasClock ? 'No bonus is on this week\'s ballot.' : guest ? 'This week\'s ballot shows here once you sign in.'
           : 'This week\'s ballot follows your save\'s game clock, and this save has none.'}
       </Notice> : null}
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'} sx={{ mb: 2 }}>
+      <Stack direction={'row'} gap={1} flexWrap={'wrap'} sx={{ mb: 2 }}>
         <StatTile label={label} value={multiText}
                   breakdown={!ballotFailed && breakdown ? { ...breakdown, totalValue: multiText } : undefined}/>
         {hasClock ? <StatTile label={'Next week in'} value={<Duration seconds={timeLeft}/>}/> : null}

@@ -64,6 +64,7 @@ const IconTile = ({ icon, fallback, alt = '', value, kind, frame, badge, mark, m
     {icon && !empty ? <GameIcon src={icon} fallback={fallback} size={40} alt={alt} frame={frame}
                                 status={status === 'missing' ? 'missing' : undefined}/> : null}
     {hasValue ? <Typography component={'div'} variant={'caption'} sx={{
+      fontSize: 13,
       fontWeight: 500,
       lineHeight: '16px',
       fontVariantNumeric: 'tabular-nums',

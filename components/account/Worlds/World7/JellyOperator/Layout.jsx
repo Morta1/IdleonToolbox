@@ -77,7 +77,7 @@ const Layout = ({ layout, cells }) => {
   return (
     <Stack gap={1.5} sx={{ width: '100%', maxWidth: 760 }}>
       {showPassives ? (
-        <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+        <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
           <StatTile label={'Passive damage'} value={<Num value={passives.damage} game={'JellyOperation.UnitSumAtk'} unit={'x'}/>}/>
           <StatTile label={'Passive speed'} value={formatNum(passives.speed, 'mult')}/>
           <StatTile label={'Virus stars'} icon={'etc/JellyStar.png'} value={formatNum(passives.stars)}

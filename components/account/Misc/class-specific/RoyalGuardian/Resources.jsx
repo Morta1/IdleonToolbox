@@ -46,7 +46,7 @@ const Resources = ({ resources, outposts, resourcePerHour, sectionFailed }) => {
 
   return (
     <Stack direction="column" gap={3}>
-      <Stack direction="row" gap={2} flexWrap="wrap">
+      <Stack direction="row" gap={1} flexWrap="wrap">
         <StatTile label={'Nodes'} value={tile(formatNum(list.filter(({ empty }) => !empty).length))}/>
         <StatTile label={'Spent nodes'} value={tile(formatNum(exhaustedNodes))}/>
         <StatTile label={'Unconnected'} value={tile(formatNum(unconnected))}/>

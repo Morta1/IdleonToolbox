@@ -65,7 +65,7 @@ const TheJars = ({ hole }) => {
                          status={owned > 0 ? undefined : 'missing'} details={`${name}: ${formatNum(owned, 'exact')}`}/>;
       })}
     </CardGrid>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={2}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={2}>
       <StatTile label={'Progress per hour'} value={perHourText} breakdown={withText(theJars?.perHour?.breakdown, perHourText)}/>
       <StatTile label={'Progress per minute'} value={perHour / 60} kind={'amount'}/>
       <StatTile label={'Rupie value'} value={rupieText} breakdown={withText(theJars?.rupieValue?.breakdown, rupieText)}/>
@@ -78,7 +78,7 @@ const TheJars = ({ hole }) => {
       <StatTile label={'Total jars destroyed'} value={theJars?.totalJarsDestroyed ?? 0} kind={'amount'}/>
       {opalsFoundTile(hole, 10)}
     </Stack>
-    {theJars?.activeSlots?.length ? <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    {theJars?.activeSlots?.length ? <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       {theJars.activeSlots.map(({ progress, req, jarType }, index) => <StatTile key={`slots-${index}`}
         label={cleanUnderscore(theJars?.jars?.[jarType]?.name)} icon={`etc/Jar_${jarType}.png`}
         value={`${formatNum(Math.floor(progress ?? 0))} / ${formatNum(Math.floor(req ?? 0))}`}/>)}

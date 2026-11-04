@@ -59,7 +59,7 @@ const Palette = ({ account, gaming }) => {
   const luckText = `${formatGame(paletteLuck?.value ?? 1, 'GamingStatType.PaletteLuck')}x`;
 
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Palette final bonus'} value={formatGame(paletteFinalBonus ?? 0, 'GamingStatType.PaletteBonus')}/>
       <StatTile label={'Palette luck'} value={luckText} breakdownTitle={'Palette luck'}
                 breakdown={paletteLuck?.breakdown ? { ...paletteLuck.breakdown, totalValue: luckText } : undefined}/>

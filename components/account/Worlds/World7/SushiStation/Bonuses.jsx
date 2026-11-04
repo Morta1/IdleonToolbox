@@ -10,7 +10,7 @@ import GameIcon from '@components/common/GameIcon';
 const Bonuses = ({ rogBonuses, uniqueSushi, knowledge, totalKnowledgeLevels, totalPerfectos }) => (
   <Stack gap={3}>
     {/* Decision 3: the tab's totals stay at its top */}
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       <StatTile label={'Total knowledge LV'} value={totalKnowledgeLevels ?? 0} kind={'amount'}/>
       <StatTile label={'Perfectos'} value={totalPerfectos ?? 0} kind={'amount'}/>
       <StatTile label={'Unlocked'} value={`${formatNum(uniqueSushi ?? 0)} / ${formatNum(rogBonuses?.length ?? 0)}`}/>

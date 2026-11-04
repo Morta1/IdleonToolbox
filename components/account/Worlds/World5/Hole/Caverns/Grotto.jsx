@@ -12,7 +12,7 @@ const OPIE = 47;
 const Grotto = ({ hole }) => {
   const grotto = hole?.caverns?.grotto;
   const schematics = hole?.engineerBonuses ?? [];
-  return <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+  return <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
     <StatTile label={'Layer'} value={grotto?.layer ?? 0} kind={'amount'}/>
     <StatTile label={'Monarch HP'} value={formatGame(grotto?.monarchHp ?? 0, 'Holes.MonarchHP')}/>
     <StatTile label={'Mushroom kills'}

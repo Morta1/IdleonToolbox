@@ -8,7 +8,7 @@ import { formatGame } from '@utility/gameNotation';
 
 const Market = ({ market, crop }) => {
   return (<>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={2} mb={2}>
+    <Stack direction={'row'} flexWrap={'wrap'} gap={1} mb={2}>
       <StatTile label={'Total day market levels'} value={formatNum(sumMarketLevels(market?.slice(0, DAY_MARKET_SIZE)))}/>
       <StatTile label={'Total night market levels'}
                 value={formatNum(sumMarketLevels(market?.slice(DAY_MARKET_SIZE, DAY_MARKET_SIZE * 2)))}/>

@@ -68,7 +68,7 @@ const DailyRibbons = ({ inputs }) => {
   return <>
     {sectionTitle('Daily ribbons', 'Ribbons added to your shelf every day and the chance for each rank. When the shelf is full, a new ribbon combines with one of the same rank, otherwise it replaces a lower one. Move the Smoky slider to preview a different Cooking Mastery point split, your save is not changed.')}
     {!daily.unlocked ? <Notice tone={'locked'}>Daily ribbons unlock from the Ribbon Winning Grimoire upgrade.</Notice> : <>
-      <Stack direction={'row'} flexWrap={'wrap'} gap={2} alignItems={'stretch'}>
+      <Stack direction={'row'} flexWrap={'wrap'} gap={1} alignItems={'stretch'}>
         <StatTile label={'Ribbons per day'} value={perDayText} breakdownTitle={'Ribbons per day'}
                   breakdown={daily.countBreakdown ? { ...daily.countBreakdown, totalValue: perDayText } : undefined}/>
         <StatTile label={'Average rank'} value={previewValue(current.expectedRank, daily.expectedRank,
@@ -128,7 +128,7 @@ const Ribbons = ({ cookingMastery, account, sectionFailed }) => {
   const legendRanks = Array.from({ length: ribbons?.maxRank ?? 0 }, (_, index) => index + 1);
 
   return <>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={2} mb={3} alignItems={'stretch'}>
+    <Stack direction={'row'} flexWrap={'wrap'} gap={1} mb={3} alignItems={'stretch'}>
       <StatTile label={'Total ribbon ranks'} value={ribbons?.total ?? 0} kind={'amount'}
                 info={'Ranks are counted across your meals only, ribbons still on the shelf are not included. This is the total the Sour mastery category scales with.'}/>
       <StatTile label={'Highest ribbon'} value={ribbons?.highest > 0 ? `Rank ${formatNum(ribbons.highest)}` : '-'}

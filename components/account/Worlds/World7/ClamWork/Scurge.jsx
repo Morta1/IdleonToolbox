@@ -18,7 +18,7 @@ const Scurge = ({ scurge }) => {
   return <>
     {unlocked ? null : <Notice tone={'locked'} sx={{ mb: 2 }}>Scurge unlocks from the Luminous Menagerie.</Notice>}
     {/* Decision 6: the tab's own numbers sit at its top */}
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Scurge LV'} value={level ?? 0} kind={'amount'}/>
       <StatTile label={'Scurge EXP'}>
         <Typography component={'div'} variant={'value'}>

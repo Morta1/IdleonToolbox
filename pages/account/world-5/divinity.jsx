@@ -144,7 +144,7 @@ const Divinity = () => {
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'divinity')}>
       <div>
-        <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+        <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
           <StatTile label={'Total blessing levels'} value={getTotalBlessingLevels(deities)} kind={'amount'}/>
         </Stack>
         <CardGrid size={'m'}>

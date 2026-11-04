@@ -10,7 +10,7 @@ import Notice from '@components/common/Notice';
 
 // A list's best wave, then a card per wave: the waves past it greyed, the rest reached
 const arenaWaves = (title, maxLevel, bonuses, failed) => <>
-  <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={2}>
+  <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={2}>
     <StatTile label={title} value={failed ? '-' : maxLevel ?? 0} kind={'amount'}/>
   </Stack>
   <CardGrid size={'s'}>

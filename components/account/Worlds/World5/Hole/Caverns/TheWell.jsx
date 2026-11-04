@@ -68,7 +68,7 @@ const TheWell = ({ hole }) => {
   };
 
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Opal cost'} icon={'data/HoleWellFill1.png'} value={theWell?.opalCost ?? 0}/>
       {opalsFoundTile(hole, 0)}
       <StatTile label={'Total bar expansions'} value={getHoleLeaderboardTotals(hole).barExpansions} kind={'amount'}/>

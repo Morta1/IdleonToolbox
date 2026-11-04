@@ -25,7 +25,7 @@ const Charge = () => {
 
   return (
     <>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'} sx={{ mb: 3 }}>
+      <Stack direction={'row'} gap={1} flexWrap={'wrap'} sx={{ mb: 3 }}>
         <StatTile label={'Total charge'} value={Math.round(totalCharge ?? 0)} kind={'amount'}/>
         <StatTile label={'Daily charge'} value={formatNum(24 * (totalChargeRate ?? 0), 'pct')}/>
         <StatTile label={'First to full'} value={someoneFills ? closestToFull?.character : '-'}

@@ -41,7 +41,7 @@ const Sushi = ({ slots, knowledge, fireplaces }) => {
 
   return (
     <Stack gap={3}>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
         <StatTile label={'Slots filled'} value={`${formatNum(filled)} / ${formatNum(SLOT_COUNT)}`}/>
       </Stack>
       {/* The 15-wide grid keeps the game's layout; on a phone it scrolls on its own instead of widening the page */}

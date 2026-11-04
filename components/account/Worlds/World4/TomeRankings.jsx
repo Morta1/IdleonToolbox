@@ -313,7 +313,7 @@ const TomeRankings = () => {
           <Toolbar.View options={[['none', 'List'], ['tier', 'By tier'], ['type', 'By type']]}/>
         </Toolbar>
 
-        {hasUserData && groupMode === 'none' ? <Stack direction="row" gap={2} flexWrap="wrap" mb={2}>
+        {hasUserData && groupMode === 'none' ? <Stack direction="row" gap={1} flexWrap="wrap" mb={2}>
           <StatTile label={'Below 25th'} value={below25} kind={'amount'} status={'problem'}/>
           <StatTile label={'25th to 75th'} value={between} kind={'amount'} status={'needs'}/>
           <StatTile label={'Above 75th'} value={above75} kind={'amount'} status={'info'}/>

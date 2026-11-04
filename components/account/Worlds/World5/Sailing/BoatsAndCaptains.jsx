@@ -115,7 +115,7 @@ const BoatsAndCaptains = ({
   const travelText = `${formatNum(minimumTravelTime ?? 0)} min`;
 
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Total boat levels'} value={calcTotalBoatLevels(boats) ?? 0} kind={'amount'}/>
       {lootMulti ? <StatTile label={'Loot multi'} value={lootText} breakdownTitle={'Loot multi'}
                              breakdown={withText(lootMulti?.breakdown, lootText)}/> : null}

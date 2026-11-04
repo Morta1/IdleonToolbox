@@ -129,7 +129,7 @@ const Kitchens = ({
 
   return (
     <>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={2}>
+      <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={2}>
         <StatTile label={'Spice claims'}
                   value={sectionFailed ? '-' : `${formatNum(spices?.numberOfClaims ?? 0)} / ${formatNum(maxNumberOfSpiceClicks)}`}/>
       </Stack>

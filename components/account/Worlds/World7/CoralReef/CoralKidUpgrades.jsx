@@ -41,7 +41,7 @@ const UpgradeGrid = ({ upgrades, locked, totalDivinityLevel, divinityPoints, spi
 // The Singularity panel's conversion: Divinity PTS, kills and AFK hours into Singularity Spirals
 const Singularity = ({ singularity, spiralsOwned }) => {
   const { points, kills, hours, baseValue, killMulti, timeMulti, totalValue } = singularity ?? {};
-  return <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={2}>
+  return <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={2}>
     <StatTile label={'Singularity Spirals'} icon={`data/${SINGULARITY_SPIRAL}.png`} value={formatGame(spiralsOwned ?? 0, COST_RULE)}/>
     <StatTile label={'Divinity PTS'} value={`${formatGame(points ?? 0, COST_RULE)} (base ${formatGame(baseValue ?? 0, COST_RULE)})`}/>
     <StatTile label={'Kills'} value={kills ?? 0} kind={'amount'} sub={formatNum(killMulti ?? 1, 'mult')}/>
@@ -67,7 +67,7 @@ const CoralKidUpgrades = ({ coralKidUpgrades }) => {
 
   return <Box>
     {failed ? <MissingData name={'Coral Kid upgrades'} failed/> : null}
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Total upgrade LV'} value={totalLevels} kind={'amount'}/>
     </Stack>
     <UpgradeGrid upgrades={pageOne} totalDivinityLevel={totalDivinityLevel} divinityPoints={divinityPoints}

@@ -65,7 +65,7 @@ const LoreBosses = ({ loreBosses, account }) => {
   return (
     <Stack gap={3}>
       {/* Decision 3: the tab's totals stay at its top */}
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
         <StatTile label={'Total best depth'} value={depths} kind={'amount'}/>
         {manicUnlocked || manicDepths > 0
           ? <StatTile label={'Total best manic depth'} value={manicDepths} kind={'amount'}/>

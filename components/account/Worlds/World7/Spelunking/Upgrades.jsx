@@ -29,7 +29,7 @@ const Upgrades = ({ upgrades, totalUpgradeLevels, amber, denominator, amberIndex
   const roots = buildDependencyTree(upgrades ?? []).map(keep).filter(Boolean);
 
   return <Stack gap={3}>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       <StatTile label={'Total upgrade LV'} value={totalUpgradeLevels ?? 0} kind={'amount'}/>
     </Stack>
     <Box>

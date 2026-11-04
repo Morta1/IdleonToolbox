@@ -119,7 +119,7 @@ const Other = ({ pets, fencePets, isShiny, multi, killPetTimeUnlocked, sectionFa
   const multiText = formatNum(multi?.value ?? 1, 'mult');
 
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={multiName} value={sectionFailed ? '-' : multiText} breakdownTitle={multiName}
                 breakdown={multi?.breakdown && !sectionFailed ? { ...multi.breakdown, totalValue: multiText } : undefined}/>
       <StatTile label={'Total levels'} value={sectionFailed ? '-' : totalLevels} kind={'amount'}/>

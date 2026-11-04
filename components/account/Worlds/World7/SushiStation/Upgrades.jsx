@@ -13,7 +13,7 @@ const Upgrades = ({ upgrades, totalUpgradeLevels, characters, bucks, doublersOwn
   return (
     <Stack gap={3}>
       {/* Decision 3: the tab's total stays at its top */}
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
         <StatTile label={'Total upgrade LV'} value={totalUpgradeLevels ?? 0} kind={'amount'}/>
       </Stack>
       <CardGrid size={'m'}>

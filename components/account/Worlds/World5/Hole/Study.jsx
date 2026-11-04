@@ -48,7 +48,7 @@ const Study = ({ account }) => {
   </ItemCard>;
 
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Study rate'} icon={'etc/Study_Rate.png'}
                 value={`${formatGame(perHour, 'Holes.BolaiaStudyRate')}/hr`}/>
       {villagerTiles(study)}

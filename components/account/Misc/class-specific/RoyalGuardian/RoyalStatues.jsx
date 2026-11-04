@@ -53,7 +53,7 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels, sectionFailed }
   const ownedOf = (costItem) => statueFlair?.marbleTotals?.find((marble) => marble.costItem === costItem)?.owned;
   return (
     <Stack direction="column" gap={3}>
-      <Stack direction="row" gap={2} flexWrap="wrap">
+      <Stack direction="row" gap={1} flexWrap="wrap">
         <StatTile label={'Total statue levels'} value={sectionFailed ? '-' : formatNum(getTotalStatueLevels(statueLevels))}/>
       </Stack>
       {royalStatues?.length ? <CardGrid size={'s'}>

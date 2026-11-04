@@ -243,7 +243,7 @@ const Meals = ({
 
   return (
     <>
-      {noMealLeftBehind ? <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+      {noMealLeftBehind ? <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
         <StatTile label={'No Meal Left Behind next'} icon={`data/${noMealLeftBehind.rawName}.png`}
                   value={cleanUnderscore(noMealLeftBehind.name)}/>
       </Stack> : null}

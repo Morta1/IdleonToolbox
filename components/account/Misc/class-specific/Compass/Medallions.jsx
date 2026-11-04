@@ -25,7 +25,7 @@ const Medallions = ({ medallions, totalAcquiredMedallions, abominations, section
   const shown = sectionFailed ? catalog : catalog.filter(({ acquired, dustType }) => (view?.found === 'found' ? acquired
     : view?.found === 'missing' ? !acquired : true) && (view?.dust === 'all' || `${dustType}` === view?.dust));
   return <Stack gap={3}>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       <StatTile label={'Medallions found'}
                 value={sectionFailed ? '-' : `${formatNum(totalAcquiredMedallions ?? found)} / ${formatNum(catalog.length)}`}/>
     </Stack>

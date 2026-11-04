@@ -15,7 +15,7 @@ const Bravery = ({ hole }) => {
   const enemyHp = hps.length ? createBreakdown('Enemy HP', `${hps[0]?.name}: ${hpText(hps[0])}`,
     flatLines(hps.map((hp) => ({ name: hp?.name, value: hp?.value, formatted: hpText(hp) }))), { combine: 'list' }) : null;
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Damage'} icon={'etc/Bravery_Sword.png'}
                 value={`${formatGame(bravery?.damage?.min ?? 0, 'Holes.Bravery_MinDMG')} - ${formatGame(bravery?.damage?.max ?? 0, 'Holes.Bravery_MaxDMG')}`}/>
       <StatTile label={'Swords'} icon={'data/HoleBraverySword.png'} value={bravery?.ownedSwords ?? 0} kind={'amount'}/>

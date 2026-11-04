@@ -8,7 +8,7 @@ import { monumentBonusCard, monumentTiles, opalsFoundTile } from '@components/ac
 const Wisdom = ({ hole }) => {
   const wisdom = hole?.caverns?.wisdom;
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Attempts'} icon={'etc/Wisdom_Attempts.png'} value={wisdom?.attempts ?? 0} kind={'amount'}/>
       <StatTile label={'Attempts per round'} icon={'etc/Wisdom_Attempts.png'} value={wisdom?.attemptsGainPerRound ?? 0}
                 kind={'amount'}/>

@@ -43,7 +43,7 @@ const CookingMastery = ({ cookingMastery, account, sectionFailed }) => {
   const pointsPair = (spent, left, key) => `${formatGame(spent ?? 0, key)} / ${formatGame((spent ?? 0) + (left ?? 0), key)}`;
 
   return <>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={2} mb={3} alignItems={'stretch'}>
+    <Stack direction={'row'} flexWrap={'wrap'} gap={1} mb={3} alignItems={'stretch'}>
       <StatTile label={'Mastery level'} value={level ?? 0} kind={'amount'}/>
       <StatTile label={'EXP'}
                 value={`${formatGame(exp ?? 0, 'Summoning2.ExpReqCook')} / ${formatGame(expReq ?? 0, 'Summoning2.ExpReqCook')}`}/>

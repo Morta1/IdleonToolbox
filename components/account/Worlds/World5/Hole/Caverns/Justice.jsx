@@ -8,7 +8,7 @@ import { monumentBonusCard, monumentTiles, opalsFoundTile } from '@components/ac
 const Justice = ({ hole }) => {
   const justice = hole?.caverns?.justice;
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Mental health'} icon={'etc/Justice_Health.png'} value={justice?.health ?? 0} kind={'amount'}/>
       <StatTile label={'Coins'} icon={'etc/Justice_Coin.png'} value={justice?.coins ?? 0} kind={'amount'}/>
       <StatTile label={'Popularity'} icon={'etc/Justice_Popularity.png'} value={justice?.popularity ?? 0} kind={'amount'}/>
