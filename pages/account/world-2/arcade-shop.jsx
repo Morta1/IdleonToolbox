@@ -103,7 +103,7 @@ const ArcadeShop = () => {
 
   const totalCostToMax = shop.reduce((total, upgrade) => total + getCostToMax(upgrade.level, upgradeIndexOf(upgrade), stampMath), 0);
   const multiText = arcadeFailed ? '-' : formatNum(goldBallMulti?.value ?? 1, 'mult');
-  const ballsText = (value) => (arcadeFailed ? '-' : formatGame(value ?? 0, COST_RULE));
+  const ballsText = (value) => (arcadeFailed ? '-' : formatGame(value ?? 0, COST_RULE, { whole: true }));
 
   // An upgrade below Lv 100 costs gold balls; Lv 100 to Super costs Royal balls and Super to Omega Omega balls, where
   // the game shows no more cost. The cost line stands alone, as the game's "Cost:" line does: in a Facts row its sprite
@@ -118,7 +118,7 @@ const ArcadeShop = () => {
     : <>
       <ItemCard.Cost icon={GOLD_BALL_ICON} iconAlt={'Gold balls'} need={getCost(level, upgradeIndex, stampMath)}
                      have={goldBalls ?? 0} game={COST_RULE}/>
-      <ItemCard.Facts rows={[['Cost to max', formatGame(getCostToMax(level, upgradeIndex, stampMath), COST_RULE)]]}/>
+      <ItemCard.Facts rows={[['Cost to max', formatGame(getCostToMax(level, upgradeIndex, stampMath), COST_RULE, { whole: true })]]}/>
     </>);
 
   const upgradeCard = (upgrade) => {
@@ -142,14 +142,14 @@ const ArcadeShop = () => {
     />
     {failedSection ? <MissingData name={SECTION_NAMES[failedSection]} failed/> : null}
     <PageSummary>
-      <StatTile label={'Balls'} icon={'data/PachiBall0.png'} value={arcadeFailed ? '-' : formatNum(balls ?? 0)}/>
+      <StatTile label={'Balls'} icon={'data/PachiBall0.png'} value={arcadeFailed ? '-' : formatNum(balls ?? 0, 'whole')}/>
       <StatTile label={'Gold balls'} icon={GOLD_BALL_ICON} value={ballsText(goldBalls)}/>
       <StatTile label={'Gold ball multi'} value={multiText}
                 breakdown={!arcadeFailed && goldBallMulti?.breakdown ? { ...goldBallMulti.breakdown, totalValue: multiText } : undefined}/>
       <StatTile label={'Royal balls'} icon={ROYAL_BALL_ICON} value={ballsText(royalBalls)}/>
       <StatTile label={'Omega balls'} icon={OMEGA_BALL_ICON} value={ballsText(omegaBalls)}/>
       <StatTile label={'Cost to max all'} icon={!failedSection && totalCostToMax > 0 ? GOLD_BALL_ICON : undefined}
-                value={failedSection ? '-' : formatGame(totalCostToMax, COST_RULE)}/>
+                value={failedSection ? '-' : formatGame(totalCostToMax, COST_RULE, { whole: true })}/>
     </PageSummary>
     <Box>
       {/* A failed section's upgrades are all at zero: nothing for the filters to hide */}

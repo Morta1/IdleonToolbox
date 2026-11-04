@@ -49,7 +49,7 @@ const Prayers = () => {
               ['Bonus', fillPrayer(effect, prayerValue(x1, level))],
               ['Curse', fillPrayer(curse, prayerValue(x2, level))],
               ['Unlocks at', `Wave ${formatNum(unlockWave ?? 0)} in ${cleanUnderscore(unlockZone ?? '')}`],
-              priced ? ['Cost to max', formatGame(calcCostToMax(prayer), 'WorshipStuff.PrayerCost')] : null
+              priced ? ['Cost to max', formatGame(calcCostToMax(prayer), 'WorshipStuff.PrayerCost', { whole: true })] : null
             ]}/>
             {equippedBy.length ? <ItemCard.Section label={'Equipped by'}>
               <Stack direction={'row'} flexWrap={'wrap'} gap={1}>

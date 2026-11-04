@@ -27,7 +27,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
     return <ItemCard key={`shop-${index}`} title={cleanUnderscore(name)}
                      icon={name?.includes('_UI') ? skinIcon(`data/${fixedRawName}.png`) : `data/${fixedRawName}.png`}
                      footer={<ItemCard.Cost icon={TROPHY_ICON} iconAlt={'Trophies'} need={x1 ?? 0} have={trophies}
-                                            format={(value) => formatNum(value)}/>}/>;
+                                            format={(value) => formatNum(value, 'whole')}/>}/>;
   };
 
   const turnCard = ({ actions, task }, index) => {

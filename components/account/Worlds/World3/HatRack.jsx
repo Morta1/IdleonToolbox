@@ -9,8 +9,8 @@ import { catalogCard } from '@components/account/Worlds/World7/Gallery/Trophies'
 
 const BASE_STATS = gameTables.galleryBonusStats;
 
-// Same text as the rack: the total rounded up, base stats as "+12 STR", etc bonuses carry their own "%_" prefix
-const bonusText = ({ name, value }) => cleanUnderscore(`+${formatNum(Math.ceil(value ?? 0))}${BASE_STATS.includes(name) ? '_' : ''}${name}`);
+// Same text as the rack: base stats as "+12 STR", etc bonuses carry their own "%_" prefix
+const bonusText = ({ name, value }) => cleanUnderscore(`+${formatNum(value ?? 0)}${BASE_STATS.includes(name) ? '_' : ''}${name}`);
 
 // The game's rack draws a picked helmet's own numbers, its UQ1val and UQ2val with no multi (N.js, the hat rack
 // screen), so every line of a card is base: the parser's multiplied misc lines give way to the item's own

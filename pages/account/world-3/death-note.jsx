@@ -45,7 +45,7 @@ const RANK_LEGEND = <Stack gap={1}>
 
 const COLUMNS = [
   { key: 'monster', label: 'Monster', value: (mob) => cleanUnderscore(mob.displayName) },
-  { key: 'kills', label: 'Kills', numeric: true, sortable: true, phone: true, value: (mob) => mob.kills, kind: 'amount' },
+  { key: 'kills', label: 'Kills', numeric: true, sortable: true, phone: true, value: (mob) => mob.kills, kind: 'whole' },
   {
     // On the phone row too, beside the kills: the name and two short cells fit 336 px
     key: 'rank', label: 'Rank', numeric: true, sortable: true, phone: true, info: RANK_LEGEND, value: (mob) => mob.noteRank,

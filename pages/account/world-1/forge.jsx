@@ -43,7 +43,7 @@ const materialCell = (material) => isBlank(material) ? null
   : <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1, verticalAlign: 'middle', whiteSpace: 'nowrap' }}>
     <GameIcon src={`data/${material.rawName}.png`} size={24}
               alt={cleanUnderscore(material?.name ?? material.rawName)}/>
-    {formatNum(material?.quantity ?? 0)}
+    {formatNum(material?.quantity ?? 0, 'whole')}
   </Box>;
 
 const Forge = () => {
@@ -58,7 +58,7 @@ const Forge = () => {
     empty: [slot?.ore, slot?.barrel, slot?.bar].every(isBlank)
   }));
   const upgrades = forgeFailed ? getForge({}, {})?.upgrades ?? [] : forge?.upgrades ?? [];
-  const capText = forgeFailed ? '-' : formatNum(forge?.oreCapacity?.value ?? 0);
+  const capText = forgeFailed ? '-' : formatNum(forge?.oreCapacity?.value ?? 0, 'whole');
   const capBreakdown = forgeFailed ? undefined : forge?.oreCapacity?.breakdown;
 
   const slotColumns = [

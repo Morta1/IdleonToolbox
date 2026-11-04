@@ -151,8 +151,8 @@ const Refinery = () => {
           <Box sx={{ px: 2, pt: 1, pb: 1 }}>
             {/* The game draws a salt's power as Whole(refined) / Whole(PowerCAP) */}
             <ItemCard.Progress label={'Power'} percent={powerCap > 0 ? Math.min(100, (refined / powerCap) * 100) : 0}
-                               value={formatGame(refined ?? 0, 'Refinery.PowerCAP')}
-                               max={formatGame(powerCap ?? 0, 'Refinery.PowerCAP')}/>
+                               value={formatGame(refined ?? 0, 'Refinery.PowerCAP', { whole: true })}
+                               max={formatGame(powerCap ?? 0, 'Refinery.PowerCAP', { whole: true })}/>
           </Box>
         </Box>
         <Box sx={{ width: '100%', minWidth: 0, p: 2 }}>
@@ -315,11 +315,11 @@ const SaltChainSummary = ({ balances }) => {
 // the next rank's amount under it.
 const CostAmount = ({ value, next, short, nextShort, showNext }) => <>
   <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, whiteSpace: 'nowrap' }}>
-    {formatNum(value)}
+    {formatNum(value, 'whole')}
     {short ? <StatusText status={'problem'}>short</StatusText> : null}
   </Box>
   {showNext && next ? <Typography variant={'caption'} component={'div'} color={'text.secondary'} sx={{ whiteSpace: 'nowrap' }}>
-    next {formatNum(next)}{nextShort ? ', short' : ''}
+    next {formatNum(next, 'whole')}{nextShort ? ', short' : ''}
   </Typography> : null}
 </>;
 
@@ -336,7 +336,7 @@ const COST_COLUMNS = [
   costColumn('cycle', 'Cycle'),
   costColumn('hour', 'Hour'),
   costColumn('rankUp', 'Rank up'),
-  { key: 'owned', label: 'Owned', numeric: true, render: ({ totalAmount }) => formatNum(totalAmount) },
+  { key: 'owned', label: 'Owned', numeric: true, render: ({ totalAmount }) => formatNum(totalAmount, 'whole') },
   {
     key: 'printing', label: 'Printing /hr', numeric: true,
     info: 'What keeps coming in per hour: the printer for a material, the salt above for a salt. Trapped critters are not counted.',

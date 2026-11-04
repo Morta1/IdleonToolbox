@@ -20,8 +20,8 @@ const BOTTLE_ICON = 'data/Island1.png';
 // A shop row's effect is a sprite path (a stamp, a talent book) or the bonus in words
 const SPRITE = /^(data|etc)\//;
 
-// Island trash, Shimmer and the other counts can come from the save as numeric strings
-const count = (value) => formatNum(Number(value) || 0);
+// Island trash, Shimmer and the other counts can come from the save as numeric strings. A balance or a price, so whole.
+const count = (value) => formatNum(Number(value) || 0, 'whole');
 
 // The parser builds a level the save does not hold yet into its text as "undefined" (parsers/world-2/islands.ts:227 and
 // :231, Rando's "5% Loot (" + level + ")", and :261, the Shimmer shop's "+{" replaced with its bonus), so a guest's shop
@@ -87,7 +87,7 @@ const Islands = () => {
     if (!unlocked) return null;
     return <>
       <ItemCard.Facts rows={[
-        Object.hasOwn(island, 'trash') ? [currencyLabel('etc/Trash_Currency.png', 'Garbage'), count(trash)] : null,
+        Object.hasOwn(island, 'trash') ? [currencyLabel('etc/Trash_Currency.png', 'Garbage'), count(Math.floor(Number(trash) || 0))] : null,
         currentTrial ? [currencyLabel('etc/Shimmer_Currency.png', 'Shimmer'), count(shimmerCurrency)] : null,
         currentTrial ? ['Best DPS ever', cleanUnderscore(bestDpsEver)] : null,
         Object.hasOwn(island, 'unclaimedDays') ? ['Mobs waiting', count(mobsWaiting)] : null,

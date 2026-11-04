@@ -30,7 +30,7 @@ const Schedule = ({ killroy, schedule, hasClock, guest, sectionFailed }) => {
     // it (a Beginner row on a 1920 card), Under 100 takes a second line under the kills
     const value = <Box component={'span'} sx={{ ...LINE_SX, columnGap: 0.5, rowGap: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
       <GameIcon src={`data/Mface${monster?.MonsterFace}.png`} size={24} alt={name}/>
-      {sectionFailed ? '-' : formatNum(kills)}
+      {sectionFailed ? '-' : formatNum(kills, 'whole')}
       {!sectionFailed && kills < EQUINOX_KILLS ? <StatusText status={'ready'}>Under 100</StatusText> : null}
     </Box>;
     const label = <Box component={'span'} sx={LINE_SX}>

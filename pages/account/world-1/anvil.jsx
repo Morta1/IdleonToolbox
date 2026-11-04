@@ -42,7 +42,7 @@ const metaLine = (parts) => parts.filter(Boolean).map((part, index) => <Fragment
 
 const catalogCard = ({ rawName, displayName, requiredAmount, levelReq, exp }) => <ItemCard
   key={rawName} icon={`data/${rawName}.png`} title={cleanUnderscore(displayName)}>
-  <ItemCard.Facts rows={[['Smithing Lv', formatNum(levelReq ?? 0)], ['Materials', formatNum(requiredAmount ?? 0)],
+  <ItemCard.Facts rows={[['Smithing Lv', formatNum(levelReq ?? 0, 'whole')], ['Materials', formatNum(requiredAmount ?? 0, 'whole')],
     ['EXP per craft', formatNum(exp ?? 0)]]}/>
 </ItemCard>;
 
@@ -81,7 +81,7 @@ const Anvil = () => {
       currentProgress: 0,
       fromZero: true
     });
-    const capText = formatGame(capacity, 'AnvilProduceStats.Cap');
+    const capText = formatGame(capacity, 'AnvilProduceStats.Cap', { whole: true });
     const fullIn = percentOfCap >= 100
       ? <StatusText status={'ready'}>Full</StatusText>
       : <Timer type={'countdown'} component={'span'} date={new Date().getTime() + (timeTillCap * 1000)}
@@ -90,7 +90,7 @@ const Anvil = () => {
                      title={cleanUnderscore(displayName ?? rawName)}
                      meta={`${formatNum(hammers)} ${hammers === 1 ? 'hammer' : 'hammers'}`}>
       {/* Without the speed, the amount made since the save is unknown: the cap alone, no bar */}
-      {speedFailed ? null : <ItemCard.Progress label={'Cap'} value={formatGame(future, 'AnvilProduceStats.Cap')}
+      {speedFailed ? null : <ItemCard.Progress label={'Cap'} value={formatGame(future, 'AnvilProduceStats.Cap', { whole: true })}
                                                max={capText}
                                                percent={Number.isFinite(percentOfCap) ? Math.min(100, percentOfCap) : 0}/>}
       <ItemCard.Facts rows={[
@@ -99,7 +99,7 @@ const Anvil = () => {
         ['Full from empty', speedFailed ? '-' : <Duration seconds={timeFromZero}/>],
         ['Per day', speedFailed ? '-' : formatNum(perDay)],
         ['EXP per craft', formatNum(exp ?? 0)],
-        ['EXP waiting', formatGame(currentXP ?? 0, 'Big')]
+        ['EXP waiting', formatGame(currentXP ?? 0, 'Big', { whole: true })]
       ]}/>
     </ItemCard>;
   };

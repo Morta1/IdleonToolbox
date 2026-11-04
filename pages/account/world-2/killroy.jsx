@@ -30,8 +30,8 @@ const Killroy = () => {
     />
     {killroyFailed ? <MissingData name={'Killroy'} failed/> : null}
     <PageSummary>
-      <StatTile label={'Skulls'} icon={'etc/Killroy_Skull.png'} value={tile(formatNum(killroy?.skulls ?? 0))}/>
-      <StatTile label={'Total kills'} value={tile(formatNum(killroy?.totalKills ?? 0))}/>
+      <StatTile label={'Skulls'} icon={'etc/Killroy_Skull.png'} value={tile(formatNum(killroy?.skulls ?? 0, 'whole'))}/>
+      <StatTile label={'Total kills'} value={tile(formatNum(killroy?.totalKills ?? 0, 'whole'))}/>
       <StatTile label={'Total damage multi'} value={tile(formatNum(killroy?.totalDamageMulti ?? 1, 'mult'))}/>
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 2'].categories, 'killroy')}>

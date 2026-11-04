@@ -39,7 +39,7 @@ export const getCogViewValue = (cog, view) => {
 // cuts: it takes a second line, breaking before its suffix ("1.16" over "QQ"), and the row grows with it.
 export const CAPTION_HEIGHT = 16;
 const captionText = (value) => {
-  const text = String(formatGame(value, 'Big'));
+  const text = String(formatGame(value, 'Big', { whole: true }));
   const [, digits, suffix] = text.match(/^([\d.,]+)([A-Za-z].*)$/) ?? [];
   return digits ? <>{digits}<wbr/>{suffix}</> : text;
 };
@@ -79,7 +79,7 @@ const cogNote = ({ currentAmount, requiredAmount, cog, affectedBy, affects, flag
   return <Stack gap={0.5}>
     <Typography variant={'cardTitle'} component={'div'}>{characterOf(cog) || getCogDisplayName(cog?.name) || 'Flag'}</Typography>
     {currentAmount < requiredAmount ? <Typography variant={'body2'}>
-      {`${formatGame(currentAmount, 'WorkbenchStuff.FlagReq')} / ${formatGame(requiredAmount, 'WorkbenchStuff.FlagReq')} (${formatNum((currentAmount / requiredAmount) * 100, 'pct')})`}
+      {`${formatGame(currentAmount, 'WorkbenchStuff.FlagReq', { whole: true })} / ${formatGame(requiredAmount, 'WorkbenchStuff.FlagReq', { whole: true })} (${formatNum((currentAmount / requiredAmount) * 100, 'pct')})`}
     </Typography> : null}
     {eta ? <Typography variant={'body2'} color={'text.secondary'}>{`Unlocks in ${eta}`}</Typography> : null}
     {stats.map(({ name, value }, statIndex) => <Typography key={`${name}-${statIndex}`} variant={'body2'}>

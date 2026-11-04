@@ -7,10 +7,10 @@ const Monsters = ({ killroy, sectionFailed }) => <CardGrid size={'icon'}>
   {(killroy?.list ?? []).map(({ rawName, name, world, killRoyKills, icon }) => {
     const kills = Number(killRoyKills) || 0;
     const monster = cleanUnderscore(name ?? rawName);
-    return <IconTile key={rawName} icon={`data/${icon}.png`} alt={monster} value={formatNum(kills)}
+    return <IconTile key={rawName} icon={`data/${icon}.png`} alt={monster} value={formatNum(kills, 'whole')}
                      status={sectionFailed || kills ? undefined : 'missing'}
                      details={sectionFailed ? undefined
-                       : `${monster} (World ${(world ?? 0) + 1}): ${formatNum(kills)} ${kills === 1 ? 'kill' : 'kills'}`}/>;
+                       : `${monster} (World ${(world ?? 0) + 1}): ${formatNum(kills, 'whole')} ${kills === 1 ? 'kill' : 'kills'}`}/>;
   })}
 </CardGrid>;
 

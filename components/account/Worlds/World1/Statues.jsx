@@ -25,7 +25,7 @@ const statueDetails = ({ statue, index, account, characters, nextLv, flairLevel,
       <Typography variant={'body2'}>{statueSentence(effect, level * bonus)}</Typography>
     </ItemCard.Section>
     <ItemCard.Facts rows={[
-      ['Progress', `${formatGame(progress, 'Big')} / ${formatGame(nextLv, 'Big')}`],
+      ['Progress', `${formatGame(progress, 'Big', { whole: true })} / ${formatGame(nextLv, 'Big', { whole: true })}`],
       ['Voodoo Statufication', formatNum(talentMulti, 'mult')],
       flairMulti > 1 ? [`Statue Flair ${flairLevel}`, `${formatNum(flairMulti, 'mult')} statue EXP`] : null
     ]}/>

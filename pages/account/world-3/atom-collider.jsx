@@ -50,7 +50,7 @@ const AtomCollider = () => {
     <PageSummary>
       {/* Every atom cost prints in this rule (AtomCollider.AtomCost), so the balance does too */}
       <StatTile label={'Particles'} icon={'etc/Particle.png'}
-                value={sectionFailed ? '-' : formatGame(owned, 'AtomCollider.AtomCost')}/>
+                value={sectionFailed ? '-' : formatGame(owned, 'AtomCollider.AtomCost', { whole: true })}/>
       <StatTile label={'Stamp reducer'} icon={'data/Atom0.png'} value={sectionFailed ? '-' : formatNum(stampReducer, 'pct')}/>
     </PageSummary>
     <CardGrid size={'m'}>
@@ -64,8 +64,8 @@ const AtomCollider = () => {
                                                          have={owned} game={'AtomCollider.AtomCost'}/> : null}>
           <ItemCard.Desc text={atomLines(atom, index, state?.account)}/>
           {priced ? <ItemCard.Facts rows={[
-            ['Level after next', formatGame(nextLeveCost, 'AtomCollider.AtomCost')],
-            ['Cost to max', formatGame(costToMax, 'AtomCollider.AtomCost')],
+            ['Level after next', formatGame(nextLeveCost, 'AtomCollider.AtomCost', { whole: true })],
+            ['Cost to max', formatGame(costToMax, 'AtomCollider.AtomCost', { whole: true })],
             // The printer makes the atoms: a failed printer section leaves the wait unknown
             cost > particles && (printerFailed || atomsPerHour > 0)
               ? ['Next level in', printerFailed ? '-' : <Duration key={'next'} seconds={(cost - particles) / atomsPerHour * 3600}/>]

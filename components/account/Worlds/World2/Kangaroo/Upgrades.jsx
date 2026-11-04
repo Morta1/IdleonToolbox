@@ -15,7 +15,7 @@ const Upgrades = ({ upgrades, isTar, failed, fish, tarFish }) => <CardGrid size=
                                                                                       footer={failed ? null : unlocked === false
                                                                                         ? <ItemCard.Facts rows={[['Unlocks', isTar
                                                                                           ? `with Megafish ${TAR_MEGAFISH(index)}`
-                                                                                          : `at ${formatGame(Number(x3), 'Summoning.RooNextUpgReq')} fish caught`]]}/>
+                                                                                          : `at ${formatGame(Number(x3), 'Summoning.RooNextUpgReq', { whole: true })} fish caught`]]}/>
                                                                                         : <ItemCard.Cost icon={`etc/K${isTar ? 'Tar' : 'Fish'}.png`}
                                                                                                          iconAlt={isTar ? 'Tar fish' : 'Fish'}
                                                                                                          need={cost} have={isTar ? tarFish : fish}

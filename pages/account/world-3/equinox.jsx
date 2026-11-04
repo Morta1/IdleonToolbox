@@ -19,7 +19,7 @@ const Equinox = () => {
   const equinox = state?.account?.equinox;
   const sectionFailed = isSectionFailed(state?.account, 'equinox');
   const fillText = `${formatGame(equinox?.chargeRate ?? 0, 'Dreamstuff.BarFillRate')}/hr`;
-  const bar = (value) => formatGame(value ?? 0, 'Dreamstuff.BarFillReq');
+  const bar = (value) => formatGame(value ?? 0, 'Dreamstuff.BarFillReq', { whole: true });
   return (
     <>
       <NextSeo

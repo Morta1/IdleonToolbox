@@ -41,7 +41,7 @@ const SaltLick = () => {
                          status={sectionFailed ? undefined : !unlocked ? 'locked' : level >= maxLevel ? 'maxed' : undefined}
                          footer={priced ? <ItemCard.Cost icon={`data/${rawName}.png`} iconAlt={cleanUnderscore(name)}
                                                          need={calcBonusCost(bonus)} have={totalAmount ?? 0}/> : null}>
-          {priced ? <ItemCard.Facts rows={[['Cost to max', formatGame(calcCostToMax(bonus), 'Big')]]}/> : null}
+          {priced ? <ItemCard.Facts rows={[['Cost to max', formatGame(calcCostToMax(bonus), 'Big', { whole: true })]]}/> : null}
         </ItemCard>;
       })}
     </CardGrid>

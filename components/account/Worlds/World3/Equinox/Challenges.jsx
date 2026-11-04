@@ -38,7 +38,7 @@ const Challenges = ({ challenges, sectionFailed }) => {
         return <ItemCard key={`${label}-${index}`} title={cleanUnderscore(label?.capitalize?.() ?? label)}
                          status={status} statusLabel={statusLabel}>
           <ItemCard.Facts rows={[['Reward', cleanUnderscore(reward)]]}/>
-          {current !== -1 ? <ItemCard.Progress label={'Progress'} value={current ?? 0} max={goal ?? 0}/> : null}
+          {current !== -1 ? <ItemCard.Progress label={'Progress'} value={current ?? 0} max={goal ?? 0} kind={'whole'}/> : null}
         </ItemCard>;
       })}
     </CardGrid>

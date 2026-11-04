@@ -20,7 +20,7 @@ import Panel from '@components/common/cards/Panel';
 
 const itemName = (rawName) => cleanUnderscore(itemsTable?.[rawName]?.displayName ?? rawName);
 const trapBoxName = (trapType) => itemName(`TrapBoxSet${(trapType ?? 0) + 1}`);
-const critters = (value) => formatGame(value ?? 0, 'TrappingStuffs.TotalQTY');
+const critters = (value) => formatGame(value ?? 0, 'TrappingStuffs.TotalQTY', { whole: true });
 
 // A trap's numbers at the collector's rates: the box, its quantity and EXP (or shiny) multis, trap EXP and critters
 const trapNote = (slot, collectRate) => <Stack gap={0.5}>

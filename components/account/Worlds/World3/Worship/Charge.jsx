@@ -31,7 +31,7 @@ const Charge = () => {
         <StatTile label={'First to full'} value={someoneFills ? closestToFull?.character : '-'}
                   sub={someoneFills ? <Timer type={'countdown'} placeholder={full} lastUpdated={state?.lastUpdated}
                                              date={now + closestToFull.timeLeft}/> : undefined}/>
-        <StatTile label={'Charge with syphon'} value={`${formatNum(totalCharge ?? 0)} / ${formatNum(maxChargeWithSyphon)}`}
+        <StatTile label={'Charge with syphon'} value={`${formatNum(totalCharge ?? 0, 'whole')} / ${formatNum(maxChargeWithSyphon, 'whole')}`}
                   info={'Log in to every character before you use the syphon: the game applies a character\'s charge only when it logs in.'}
                   sub={bestWizard?.name ? <>{bestWizard.name}{' · '}<Timer type={'countdown'} placeholder={full}
                                                                        date={timeToOverCharge}
