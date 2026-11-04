@@ -1,6 +1,6 @@
 import React from 'react';
 import { Stack, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
 import Notice from '@components/common/Notice';
 import ProgressBar from '@components/common/ProgressBar';
 import StatTile from '@components/common/cards/StatTile';
@@ -31,7 +31,7 @@ const Scurge = ({ scurge }) => {
       <StatTile label={'Points left'} icon={SCURGE_POINT_ICON} value={points} kind={'amount'}/>
     </Stack>
     <CardGrid size={'m'}>
-      {upgrades?.map((upgrade) => <ItemCard key={upgrade?.name || upgrade?.index} title={cleanUnderscore(upgrade?.name)}
+      {upgrades?.map((upgrade) => <ItemCard key={upgrade?.name || upgrade?.index} title={titleCaseName(cleanUnderscore(upgrade?.name))}
                                             level={{ value: upgrade?.level ?? 0 }}
                                             dimmed={!(unlocked && upgrade?.unlocked)}
                                             footer={<>

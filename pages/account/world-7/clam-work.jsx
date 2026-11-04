@@ -87,7 +87,7 @@ const ClamWork = () => {
     </PageHeaderControl> : null}
     <PageSettings state={settings} defaults={CLAM_SETTINGS} onChange={setSettings} onReset={resetSettings}>
       <PageSettings.Number name={'multiKill'} label={'Multikill'} defaultValue={suggestedMultiKill} min={0} integer
-                           help={`MULTI-SCALPING reads the multikill of the character at the Clamworks: ${formatNum(suggestedMultiKill)} for ${character?.name ?? 'your first character'}. Type the number the game shows there to use it instead.`}/>
+                           help={`Multi-Scalping reads the multikill of the character at the Clamworks: ${formatNum(suggestedMultiKill)} for ${character?.name ?? 'your first character'}. Type the number the game shows there to use it instead.`}/>
     </PageSettings>
     {!section || sectionFailed ? <MissingData name={'Clam Work'} failed={sectionFailed}/> : null}
     <PageSummary>
@@ -105,7 +105,7 @@ const ClamWork = () => {
       {/* Phase 4's Summary line for a setting that changes what the numbers mean */}
       <StatTile label={'Multikill'} value={formatNum(multiKill)}
                 sub={settings?.multiKill != null ? `Yours, auto ${formatNum(suggestedMultiKill)}` : 'Auto'}
-                info={'MULTI-SCALPING scales with the multikill of the character farming the Clamworks. Page settings takes the number the game shows there.'}/>
+                info={'Multi-Scalping scales with the multikill of the character farming the Clamworks. Page settings takes the number the game shows there.'}/>
     </PageSummary>
     <Tabber tabs={['Upgrades', 'Upgrade Optimizer', 'Scurge', 'Scurge Optimizer', 'Compensations']}>
       <Upgrades upgrades={upgrades} ownedPearls={ownedPearls ?? 0}/>

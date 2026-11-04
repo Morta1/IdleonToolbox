@@ -1,9 +1,9 @@
 import { Box, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import React from 'react';
 import { SUMMONING_COLOURS } from '@parsers/world-6/summoning';
-import useRealDate from '@hooks/useRealDate';
+import useHydrated from '@hooks/useHydrated';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -15,18 +15,25 @@ const UPGRADES_TOOLBAR = { sort: null, view: 'group' };
 const COST_UPGRADES = [49, 57, 72];
 
 const Upgrades = ({ upgrades, essences, familiarCostReset }) => {
-  const getRealDateInMs = useRealDate();
+  const hydrated = useHydrated();
+  // How long the familiar's cost has until it resets, in seconds: read only once hydrated, so the export and the first
+  // render agree. A reset the save's clock has already passed is not "resets in": it says so instead.
+  const resetIn = hydrated && familiarCostReset ? (familiarCostReset - new Date().getTime()) / 1000 : null;
+  const resetLine = (line) => {
+    if (!line.includes('|')) return line;
+    if (resetIn === null) return '';
+    return resetIn > 0 ? line.replace('|', formatDuration(resetIn)) : 'Cost has reset since this save.';
+  };
   // The game's fill (N.js, the upgrade panel): every { is the bonus in commas (Summoning.SummUpgBonus), } the total
-  // in commas, except the cost upgrades, whose } is the share they take off the cost; | is the familiar cost's reset
-  // date. A line whose } the parser has no total for is left out rather than printed empty.
+  // in commas, except the cost upgrades, whose } is the share they take off the cost; | is the familiar cost's reset,
+  // here as the time left. A line whose } the parser has no total for is left out rather than printed empty.
   const bonusText = (bonus, value, totalBonus, originalIndex) => {
     const total = COST_UPGRADES.includes(originalIndex)
       ? formatNum(100 * (1 - 1 / (1 + (value ?? 0) / 100)), 'pct', { bare: true })
       : typeof totalBonus === 'number' ? formatGame(totalBonus, 'Summoning.SummUpgBonus') : null;
-    return bonus.split('@').filter((line) => total !== null || !line.includes('}')).join('@')
+    return bonus.split('@').filter((line) => total !== null || !line.includes('}')).map(resetLine).filter(Boolean).join('@')
       .replaceAll('{', formatGame(value ?? 0, 'Summoning.SummUpgBonus'))
-      .replaceAll('}', total ?? '')
-      .replace('|', familiarCostReset ? getRealDateInMs(familiarCostReset) : '');
+      .replaceAll('}', total ?? '');
   };
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('summoning-upgrades', UPGRADES_TOOLBAR);
   const byCost = toolbar?.sort?.key === 'cost';

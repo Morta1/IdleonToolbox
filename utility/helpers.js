@@ -317,6 +317,17 @@ export const cloneObject = (data) => {
   }
 };
 
+// The game's ALL-CAPS names read in Title Case on a card ("PEARL_VALUE" to "Pearl Value", Cards board: never uppercase).
+// Display only: the game's data keeps its caps. Pass it the name once its underscores are gone.
+const TITLE_SMALL_WORDS = new Set(['a', 'an', 'and', 'at', 'for', 'in', 'of', 'on', 'or', 'the', 'to']);
+const TITLE_KEPT_CAPS = /^(VIP|XP|EXP|AFK|DPS|HP|MP|DNA|[IVX]+)$/;
+export const titleCaseName = (name) => `${name ?? ''}`.split(' ').map((word, index) => {
+  if (TITLE_KEPT_CAPS.test(word)) return word;
+  const lower = word.toLowerCase();
+  if (index > 0 && TITLE_SMALL_WORDS.has(lower)) return lower;
+  return lower.replace(/(^|-)([a-z])/g, (_, start, letter) => `${start}${letter.toUpperCase()}`);
+}).join(' ');
+
 export const cleanUnderscore = (str) => {
   try {
     if (!str) return '';

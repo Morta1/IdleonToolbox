@@ -55,16 +55,18 @@ const MasterclassUpgradeCard = ({
                      {unlockText ? <Typography variant={'body2'} color={'text.secondary'}>{unlockText}</Typography> : null}
                    </>}>
     <ItemCard.Desc text={description}/>
-    <ItemCard.Facts rows={[!catalogOnly && !isMaxed && nextLevelBonus ? ['Next level bonus', nextLevelBonus] : null]}/>
+    <ItemCard.Facts rows={[!catalogOnly && !isMaxed && nextLevelBonus ? ['Next level', nextLevelBonus] : null]}/>
     {extraData ? <ItemCard.Desc>{extraData}</ItemCard.Desc> : null}
   </ItemCard>
 };
 
-// A sentence's own fills, as the parsers fill its { and } (compass.ts, tesseract.ts getDescription), so a row beside it
+// A sentence's own fills, as the parsers fill its { and } (compass.ts, tesseract.ts, grimoire.ts), so a row beside it
 // reads its number as the sentence does. Compass: } MultiplierInfo of 1 + bonus / 100; { NotateNumber Small for a row
 // under 0.9 a level (the parser's smallNotation), else CommaNotation. Tesseract: } MultiplierInfo of 1 + bonus / 100 (the
-// CommaNotation of its floor from a bonus of 1,000); { CommaNotation under 1e9, NotateNumber Big past it.
+// CommaNotation of its floor from a bonus of 1,000); { CommaNotation under 1e9, NotateNumber Big past it. Grimoire: }
+// MultiplierInfo of 1 + bonus / 100; { CommaNotation.
 const SENTENCE_FILLS = {
+  grimoire: (upgrade, multi) => (value) => (multi ? notateNumber(1 + value / 100, 'MultiplierInfo') : commaNotation(value)),
   compass: ({ smallNotation }, multi) => (value) => (multi ? notateNumber(1 + value / 100, 'MultiplierInfo')
     : smallNotation ? notateNumber(value, 'Small') : formatGame(value, 'Windwalker.CompassBonus')),
   tesseract: (upgrade, multi) => (value) => (multi

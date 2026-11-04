@@ -75,10 +75,12 @@ const cloudSection = (cloud, lastUpdated) => {
 };
 
 // A boat upgrade: its value now and next, the next bonus level and what it costs, and the next level's cost against
-// the treasure owned
+// the treasure owned. Two of these sit side by side under one line (Cards board's L card), one over the other where
+// a column would drop under 150 px (a phone).
 const upgradeSection = (title, level, step, value, next, key, resource, breakpointResource) => {
   const breakpoint = (level ?? 0) + (step - ((level ?? 0) % step));
-  return <ItemCard.Section label={`${title} Lv ${formatNum(level ?? 0)}`}>
+  return <Stack gap={1} sx={{ minWidth: 0 }}>
+    <Typography variant={'groupLabel'} color={'text.secondary'}>{`${title} · Lv ${formatNum(level ?? 0)}`}</Typography>
     <ItemCard.Facts rows={[
       ['Value', `${formatGame(value ?? 0, key)} → ${formatGame(next ?? 0, key)}`],
       ['Next bonus', `Lv ${formatNum(breakpoint)} (${formatNum(breakpoint - (level ?? 0))} more)`],
@@ -86,8 +88,9 @@ const upgradeSection = (title, level, step, value, next, key, resource, breakpoi
     ]}/>
     {resource ? <ItemCard.Cost icon={`data/${resource.rawName}.png`} iconAlt={treasureName(treasureIndex(resource.rawName))}
                                need={resource.required ?? 0} have={resource.amount ?? 0} game={'Sailing.BoatUpgCostQty'}/> : null}
-  </ItemCard.Section>;
+  </Stack>;
 };
+const UPGRADES_SX = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 2, pt: 1, borderTop: 1, borderColor: 'divider' };
 
 const BoatsAndCaptains = ({
                             boats,
@@ -131,7 +134,7 @@ const BoatsAndCaptains = ({
     </Panel> : null}
     {boats?.length ? <>
       <Typography mb={2} variant={'sectionTitle'} component={'h2'}>Boats</Typography>
-      <CardGrid size={'m'} sx={{ mb: 3 }}>
+      <CardGrid size={'l'} sx={{ mb: 3 }}>
         {boats.map(({
                       rawName,
                       level,
@@ -144,18 +147,27 @@ const BoatsAndCaptains = ({
                       captainMappedIndex,
                       island,
                       timeLeft,
+                      distanceTraveled,
                       resources,
                       breakpointResources,
                       chestOdds,
                       cloud
-                    }, index) => <ItemCard key={`${rawName}-${index}`} icon={`etc/${rawName}.png`} title={`Boat ${boatIndex + 1}`}
+                    }, index) => <ItemCard key={`${rawName}-${index}`} icon={`etc/${rawName}.png`} iconSize={40} title={`Boat ${boatIndex + 1}`}
                                            level={{ value: level ?? 0 }}
                                            meta={[captainMappedIndex ? `Captain ${captainMappedIndex}` : null, cleanUnderscore(island?.name ?? '')]
                                              .filter(Boolean).join(' · ')}>
-          <ItemCard.Facts rows={[
+          <ItemCard.Stats cols={[
+            ['Loot', formatGame(loot?.value ?? 0, 'Sailing.BoatValue')],
+            ['Speed', formatGame(speed?.raw ?? 0, 'Sailing.BoatSpeed')],
             island ? ['Arrives in', <Timer key={'timer'} type={'countdown'} lastUpdated={lastUpdated}
-                                           date={new Date().getTime() + (timeLeft ?? 0)}/>] : null,
-            ['Distance', <Num key={'distance'} value={island?.distance ?? 0} system={'Sailing'}/>],
+                                           date={new Date().getTime() + (timeLeft ?? 0)}/>] : null
+          ].filter(Boolean)}/>
+          {island ? <ItemCard.Progress label={`To ${cleanUnderscore(island.name)}`}
+                                       percent={island.distance > 0 ? Math.min(100, 100 * (distanceTraveled ?? 0) / island.distance) : 100}
+                                       value={<Num value={distanceTraveled ?? 0} system={'Sailing'}/>}
+                                       max={<Num value={island.distance ?? 0} system={'Sailing'}/>}/> : null}
+          <ItemCard.Facts rows={[
+            island ? null : ['Distance', <Num key={'distance'} value={0} system={'Sailing'}/>],
             [<Stack key={'label'} component={'span'} direction={'row'} gap={0.5} alignItems={'center'}>
               Min travel distance
               <InfoButton label={'Min travel distance'}>How far this boat sails in the minimum travel time
@@ -163,8 +175,10 @@ const BoatsAndCaptains = ({
             </Stack>, <Num key={'min'} value={(speed?.raw ?? 0) * (minimumTravelTime ?? 0) / 60} system={'Sailing'}/>]
           ]}/>
           {cloud ? cloudSection(cloud, lastUpdated) : nextChestSection(chestOdds, artifactChance)}
-          {upgradeSection('Loot', lootLevel, 8, loot?.value, loot?.nextLevelValue, 'Sailing.BoatValue', resources?.[0], breakpointResources?.[0])}
-          {upgradeSection('Speed', speedLevel, 7, speed?.raw, speed?.nextLevelValue, 'Sailing.BoatSpeed', resources?.[1], breakpointResources?.[1])}
+          <Box sx={UPGRADES_SX}>
+            {upgradeSection('Loot', lootLevel, 8, loot?.value, loot?.nextLevelValue, 'Sailing.BoatValue', resources?.[0], breakpointResources?.[0])}
+            {upgradeSection('Speed', speedLevel, 7, speed?.raw, speed?.nextLevelValue, 'Sailing.BoatSpeed', resources?.[1], breakpointResources?.[1])}
+          </Box>
         </ItemCard>)}
       </CardGrid>
     </> : null}

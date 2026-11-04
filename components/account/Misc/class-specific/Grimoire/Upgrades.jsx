@@ -1,8 +1,9 @@
 import React from 'react';
 import { Stack } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
-import { boneNames, getGrimoireTotalUpgradeCost } from '@parsers/class-specific/grimoire';
-import MasterclassUpgradeCard, { masterclassText, unlockLine } from '../MasterclassUpgradeCard';
+import { grimoire } from '@website-data';
+import { boneNames, calcGrimoireBonus, getGrimoireTotalUpgradeCost } from '@parsers/class-specific/grimoire';
+import MasterclassUpgradeCard, { formatNextLevelBonus, masterclassText, unlockLine } from '../MasterclassUpgradeCard';
 import CardGrid from '@components/common/cards/CardGrid';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
@@ -13,6 +14,16 @@ import { cleanUpgradeName } from '@utility/goals/registry/names';
 // A saved checkbox from before resets once: the old shared "Hide maxed/locked upgrades" keys ticked four pages at once
 const UPGRADES_TOOLBAR = { search: '', sort: null, hideMaxed: false, hideLocked: false };
 const byCost = (order) => (a, b) => (order === 'desc' ? -1 : 1) * ((a.cost || 0) - (b.cost || 0));
+
+// The next level's bonus, from the parser's own formula on the list the page holds. A sentence with no number to fill
+// (an upgrade that only unlocks something) has no such row.
+const nextLevelRow = (catalog, upgrade) => {
+  const raw = grimoire?.[upgrade.index]?.description ?? '';
+  if (!/[{}]/.test(raw)) return null;
+  const position = catalog.indexOf(upgrade);
+  const nextLevelBonus = calcGrimoireBonus(catalog.map((entry, index) => (index === position ? { ...entry, level: entry.level + 1 } : entry)), position);
+  return formatNextLevelBonus({ ...upgrade, nextLevelBonus }, 'grimoire', raw);
+};
 
 // costing: the page's Levels ahead and Daily Shopping Spree (its Page settings). sectionFailed: the catalog at zero
 // (the parser's empty save) by name, with no cost, state or Toolbar.
@@ -25,6 +36,9 @@ const Upgrades = ({ account, upgrades, bones, costing, sectionFailed }) => {
     && !(view?.hideMaxed && upgrade.level >= upgrade.x4)
     && !(view?.hideLocked && !upgrade.unlocked));
   const sorted = view?.sort ? shown.toSorted(byCost(view.sort.order)) : shown;
+  // Every level counts toward the next upgrade's unlock, so an upgrade still levelling says how far off it is
+  const nextUnlockIn = account?.grimoire?.nextUnlock ? (account.grimoire.nextUnlock.unlockLevel ?? 0) - (account.grimoire.totalUpgradeLevels ?? 0) : 0;
+  const nextUnlockLine = nextUnlockIn > 0 ? `Next unlock in ${formatNum(nextUnlockIn)} ${nextUnlockIn === 1 ? 'level' : 'levels'}` : null;
 
   return (
     <Stack direction="column" gap={4}>
@@ -51,6 +65,8 @@ const Upgrades = ({ account, upgrades, bones, costing, sectionFailed }) => {
                                          maxLevel={x4}
                                          // The three monster ladders' target, after the space the game's "Target:$" lacks
                                          description={masterclassText(description, ` ${monsterProgress ? cleanUnderscore(monsterProgress) : '?'}`)}
+                                         nextLevelBonus={nextLevelRow(catalog, upgrade)}
+                                         footerLine={unlocked && level < x4 ? nextUnlockLine : null}
                                          currencyIcon={`Bone${boneType}_x1`}
                                          currencyName={boneNames[boneType]}
                                          costGame={'Summoning.GrimoireUpgCost'}

@@ -1,3 +1,5 @@
+import { cleanUpgradeName } from '@utility/goals/registry/names';
+import { titleCaseName } from '@utility/helpers';
 import React, { useContext } from 'react';
 import Notice from '@components/common/Notice';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -12,6 +14,7 @@ const ScurgeOptimizer = ({ character, account, multiKill, sectionFailed }) => {
     return <Notice tone={'locked'}>Scurge unlocks from the Luminous Menagerie.</Notice>;
   }
   return <GenericUpgradeOptimizer
+    upgradeTitle={(name) => titleCaseName(cleanUpgradeName(name))}
     character={character}
     account={account}
     sectionFailed={sectionFailed}

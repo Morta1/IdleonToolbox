@@ -68,6 +68,8 @@ const FIELD_INFO_SX = { mb: '12px', '@media (pointer: coarse)': { mb: '14px' } }
 const NOWRAP_SX = { whiteSpace: 'nowrap' };
 
 const GenericUpgradeOptimizer = ({
+  // An upgrade's name as this page reads it (Clam Work's all-caps names in Title Case)
+  upgradeTitle = cleanUpgradeName,
   character,
   account,
   getOptimizedUpgradesFn,
@@ -362,7 +364,7 @@ const GenericUpgradeOptimizer = ({
       label: 'Name',
       icon: upgradeImagePrefix ? (upgrade) => <GameIcon src={upgradeIconPath(upgrade)} alt={''} size={32}/> : undefined,
       render: (upgrade) => <Stack component={'span'} gap={0.25}>
-        <span>{cleanUpgradeName(upgrade.name)}</span>
+        <span>{upgradeTitle(upgrade.name)}</span>
         {upgrade.lockedNow ? <Typography variant={'body2'} color={'text.secondary'} component={'span'}>{lockLabel(upgrade)}</Typography> : null}
       </Stack>
     },
@@ -594,7 +596,7 @@ const GenericUpgradeOptimizer = ({
     const step = upgrade.sequence?.length > 1
       ? `Upgrades #${position + 1} to #${position + upgrade.sequence.length}`
       : `Upgrade #${position + 1}`;
-    return <ItemCard key={position} title={cleanUpgradeName(upgrade.name)}
+    return <ItemCard key={position} title={upgradeTitle(upgrade.name)}
                      icon={upgradeImagePrefix ? upgradeIconPath(upgrade) : undefined}
                      meta={<><Box component={'span'} sx={NOWRAP_SX}>{stepLevels(upgrade)}</Box>{' · '}
                        <Box component={'span'} sx={NOWRAP_SX}>{step}</Box></>}
@@ -656,7 +658,7 @@ const GenericUpgradeOptimizer = ({
     columns={upgradeColumns}
     rows={displayUpgrades}
     rowKey={'upgradeIndex'}
-    rowLabel={(upgrade) => cleanUpgradeName(upgrade.name)}
+    rowLabel={(upgrade) => upgradeTitle(upgrade.name)}
     // The page numbers its rows: # stays the position shown, whatever the split.
     rankOf={(upgrade) => upgrade.displayPosition}
     bands={splitByResource ? (upgrade) => sectionBand[getResourceType(upgrade)] : undefined}

@@ -1,9 +1,12 @@
 import React from 'react';
 import GenericUpgradeOptimizer from '@components/account/Misc/class-specific/GenericUpgradeOptimizer';
 import { CLAM_WORK_UPGRADE_CATEGORIES, getOptimizedClamWorkUpgrades, pearlNames } from '@parsers/world-7/clamWork';
+import { cleanUpgradeName } from '@utility/goals/registry/names';
+import { titleCaseName } from '@utility/helpers';
 
 const UpgradeOptimizer = ({ character, account, multiKill, sectionFailed }) => (
   <GenericUpgradeOptimizer
+    upgradeTitle={(name) => titleCaseName(cleanUpgradeName(name))}
     character={character}
     account={account}
     sectionFailed={sectionFailed}

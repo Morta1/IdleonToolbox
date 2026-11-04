@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Box, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, formatNum } from 'utility/helpers';
+import { cleanUnderscore, commaNotation, formatNum, titleCaseName } from 'utility/helpers';
 import { gameBonusText } from '@utility/gameNotation';
 import { MissingData, PlayersList, isSectionFailed } from '@components/common/styles';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
@@ -60,7 +60,7 @@ const sigilCard = (sigil, { failed, progressionFailed, tierUnlocks, characters, 
                     sx={{ display: 'inline-flex', filter: failed || !TIER_HUES[unlocked] ? undefined : `hue-rotate(${TIER_HUES[unlocked]}deg)` }}>
     <GameIcon src={`data/aSiga${index}.png`} size={40} alt={''}/>
   </Box>;
-  if (failed) return <ItemCard key={name} icon={icon} title={cleanUnderscore(name)}/>;
+  if (failed) return <ItemCard key={name} icon={icon} title={titleCaseName(cleanUnderscore(name))}/>;
   const nextCost = progressionFailed ? getSigilNextCost(sigil, tierUnlocks) : sigil?.nextCost;
   const charging = sigil?.characters ?? [];
   const maxed = nextCost == null;
@@ -74,7 +74,7 @@ const sigilCard = (sigil, { failed, progressionFailed, tierUnlocks, characters, 
       ? ['Next tier', <Timer key={'timer'} type={'countdown'} component={'span'} date={lastUpdated + timeLeft}
                                 placeholder={ready}/>]
       : null;
-  return <ItemCard key={name} icon={icon} title={cleanUnderscore(name)} meta={TIER_WORDS[unlocked]}
+  return <ItemCard key={name} icon={icon} title={titleCaseName(cleanUnderscore(name))} meta={TIER_WORDS[unlocked]}
                    dimmed={unlocked === UNDISCOVERED} status={maxed ? 'maxed' : charging.length ? 'active' : undefined}
                    statusLabel={maxed ? undefined : 'Charging'}
                    footer={maxed ? null : <ItemCard.Facts rows={[

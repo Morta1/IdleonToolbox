@@ -27,7 +27,7 @@ const Bribes = () => {
           // The game's text says 5%; the bribe gives its value
           const description = name === 'Insider_Trading' ? desc?.replace('5%', `${value}%`) : desc;
           return <ItemCard key={name} title={cleanUnderscore(name)}
-                           status={purchased ? 'done' : undefined} statusLabel={purchased ? 'Purchased' : undefined}
+                           status={purchased ? 'active' : undefined} statusLabel={purchased ? 'Purchased' : undefined}
                            footer={purchased || bribesFailed ? null
                              : <ItemCard.Facts rows={[['Cost', <CoinDisplay key={'cost'} dense money={getCoinsArray(price)}/>]]}/>}>
             <ItemCard.Desc text={description}/>
