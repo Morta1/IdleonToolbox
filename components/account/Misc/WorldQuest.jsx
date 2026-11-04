@@ -10,8 +10,14 @@ import GameIcon from '@components/common/GameIcon';
 import InfoButton from '@components/common/InfoButton';
 import StatusText from '@components/common/StatusText';
 
-// Some npcs hold a repeatable quest that decides completion regardless of the rest of their list
-const REPEATABLE = { Picnic_Stowaway: 'Live-Action_Entertainment', Scripticus: 'Champion_of_the_Grasslands' };
+// Two npcs' lines end before their lists do (N.js): Picnic Stowaway's quests after Live-Action Entertainment are his
+// "repeatable Daily Questline" that starts over every 24 hours, and Scripticus' Can't somebody else do it? is a side
+// quest one dialogue branch offers. The named quest is the npc's last; the ones after it sit under their own label,
+// outside the npc's count and state.
+const FINAL_QUEST = {
+  Picnic_Stowaway: { name: 'Live-Action_Entertainment', after: 'Daily questline' },
+  Scripticus: { name: 'Champion_of_the_Grasslands', after: 'Side quest' }
+};
 
 // A quest's state for the picked characters: done (by all of them, or any with Done by any), in progress (someone
 // finished it or stands on it), or nothing. No picked character (a guest): nothing is done and nothing is at risk.
@@ -41,21 +47,29 @@ export const shapeQuests = (quests, selected, doneByAny, greenStacks) => {
           && missableDrops.some(({ greenStacked }) => !greenStacked)
       };
     });
-    const completedQuests = npcQuests.reduce((sum, { completed, done }) => sum + (done ? 1 : completed.length > 0 ? 0.5 : 0), 0);
-    const inProgressQuests = npcQuests.filter(({ progress }) => progress.some(({ status }) => status !== -1)).length;
+    const final = FINAL_QUEST[npc?.name];
+    const finalAt = final ? npcQuests.findIndex(({ Name }) => Name === final.name) : -1;
+    // The quests the npc's count and state both read: up to its last one (the named quest, or the list's end)
+    const counted = finalAt === -1 ? npcQuests : npcQuests.slice(0, finalAt + 1);
+    const completedQuests = counted.reduce((sum, { completed, done }) => sum + (done ? 1 : completed.length > 0 ? 0.5 : 0), 0);
+    const inProgressQuests = counted.filter(({ progress }) => progress.some(({ status }) => status !== -1)).length;
     // Every picked character finished the final quest, so there's nothing left to do here even if an earlier quest
     // went unfinished: some are unreachable once you've moved past them, and would hold the npc at in progress forever
     const charactersAtTheEnd = (npcQuests.at(-1)?.progress ?? []).filter(({ status }) => status === 1).map(({ charIndex }) => charIndex);
     const everyoneFinished = !doneByAny && selected.length > 0 && selected.every((index) => charactersAtTheEnd.includes(index));
-    const questsStatus = everyoneFinished ? 1
-      : completedQuests === 0 ? (inProgressQuests > 0 ? 0 : -1)
-        : completedQuests === npcQuests.length ? 1 : 0;
-    const repeatable = REPEATABLE[npc?.name] ? npcQuests.find(({ Name }) => Name === REPEATABLE[npc?.name]) : null;
+    // A finished last quest finishes the npc: the quests left unfinished before it are unreachable, so they leave the
+    // count too, and "N / N done" always sits beside Done
+    const finished = finalAt === -1 ? everyoneFinished : !!counted.at(-1)?.done;
+    const done = counted.filter((quest) => quest.done).length;
     return {
       ...npc,
-      npcQuests,
-      done: npcQuests.filter(({ done }) => done).length,
-      status: repeatable?.done ? 1 : questsStatus,
+      npcQuests: counted,
+      laterQuests: npcQuests.slice(counted.length),
+      laterLabel: final?.after,
+      done,
+      total: finished ? done : counted.length,
+      status: finished ? 1 : completedQuests === 0 ? (inProgressQuests > 0 ? 0 : -1)
+        : completedQuests === counted.length ? 1 : 0,
       missablePending: npcQuests.some(({ missablePending }) => missablePending)
     };
   })]));
@@ -125,6 +139,11 @@ const questState = (quest) => (quest?.done ? <StatusText status={'done'}>Done</S
   : quest?.inProgress ? <StatusText status={'active'}>In progress</StatusText> : undefined);
 
 // One world: its name over its npcs, each a collapsible Panel of its quests. A world with no npc shown draws nothing.
+const questRow = (quest, index, characters) => <Panel.Row key={quest?.QuestName ?? `${quest?.Name}-${index}`}
+                                                          name={questName(quest)}
+                                                          sub={questSub(quest, characters)}
+                                                          value={questState(quest)}/>;
+
 const WorldQuest = ({ worldName, npcs, characters }) => {
   if (!npcs?.length) return null;
   return <Stack gap={1.5}>
@@ -132,15 +151,15 @@ const WorldQuest = ({ worldName, npcs, characters }) => {
     {npcs.map((npc) => <Panel key={npc?.name} collapsible defaultOpen={false} icon={npcSprite(npc?.name)}
                               title={cleanUnderscore(npc?.name)}
                               meta={<>
-                                {`${formatNum(npc?.done ?? 0)} / ${formatNum(npc?.npcQuests?.length ?? 0)} done`}
+                                {`${formatNum(npc?.done ?? 0)} / ${formatNum(npc?.total ?? 0)} done`}
                                 {npc?.status === 0 ? <> · <StatusText status={'active'}>In progress</StatusText></>
                                   : npc?.status === 1 ? <> · <StatusText status={'done'}>Done</StatusText></> : null}
                                 {npc?.missablePending ? <> · <StatusText status={'needs'}>Missable drop</StatusText></> : null}
                               </>}>
-      {npc?.npcQuests?.map((quest, index) => <Panel.Row key={quest?.QuestName ?? `${quest?.Name}-${index}`}
-                                                        name={questName(quest)}
-                                                        sub={questSub(quest, characters)}
-                                                        value={questState(quest)}/>)}
+      {npc?.npcQuests?.map((quest, index) => questRow(quest, index, characters))}
+      {npc?.laterQuests?.length ? <Panel.Group label={npc?.laterLabel}>
+        {npc.laterQuests.map((quest, index) => questRow(quest, index, characters))}
+      </Panel.Group> : null}
     </Panel>)}
   </Stack>;
 };
