@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
-import { Stack, Typography } from '@mui/material';
+import Notice from '@components/common/Notice';
 
 // The page moved to /account/class-specific/royal-armory: every other class-specific entry is named
 // after the skill it tracks (Grimoire, Compass, Tesseract), and the in-game skill here is the Royal
@@ -34,10 +34,8 @@ const RoyalGuardianRedirect = () => {
       canonical={`https://idleontoolbox.com${ROYAL_ARMORY_PATH}`}
       noindex
     />
-    <Stack sx={{ my: 4 }} alignItems={'center'} gap={1}>
-      <Typography>This page moved to Royal Armory.</Typography>
-      <a href={ROYAL_ARMORY_PATH}>Continue to Royal Armory</a>
-    </Stack>
+    {/* A real link, so the way on works before the page's script has run */}
+    <Notice tone={'info'} action={{ label: 'Continue to Royal Armory', href: ROYAL_ARMORY_PATH }}>This page moved to Royal Armory.</Notice>
   </>;
 };
 

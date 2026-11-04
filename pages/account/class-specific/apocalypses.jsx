@@ -1,53 +1,72 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext } from 'react';
+import { Box, Stack, Typography } from '@mui/material';
+import { NextSeo } from 'next-seo';
 import { AppContext } from '@components/common/context/AppProvider';
 import { CLASSES, talentPagesMap } from '@parsers/talents';
-import {
-  Card,
-  CardContent,
-  Checkbox,
-  Divider,
-  FormControlLabel,
-  Stack,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography
-} from '@mui/material';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix, tryToParse } from '@utility/helpers';
-import styled from '@emotion/styled';
-import { NextSeo } from 'next-seo';
-import Tooltip from '@components/Tooltip';
-import FormatAlignCenterIcon from '@mui/icons-material/FormatAlignCenter';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import Panel from '@components/common/cards/Panel';
+import Notice from '@components/common/Notice';
+import StatusText from '@components/common/StatusText';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+
+// Every Barbarian and Blood Berserker by default, the old first-visit pick. A pick saved before (apocalypseCharacters)
+// is not read: it resets once.
+const APOCALYPSES_TOOLBAR = { show: 'maniacs', superChow: false };
+// The three apocalypses, their kill thresholds (the parser's getBarbarianZowChow) and the rule their Panel names
+const APOCALYPSES = [
+  { key: 'zow', name: 'Zow', thresholds: [1e5], rule: '100K kills each' },
+  { key: 'chow', name: 'Chow', thresholds: [1e6, 1e8], rule: '1M kills for Chow, 100M for Super Chow' },
+  { key: 'wow', name: 'Wow', thresholds: [1e9], rule: '1B kills each' }
+];
+const TIER_NAMES = { chow: ['Chow', 'Super Chow'] };
+
+const isManiac = (character) => ['Barbarian', 'Blood_Berserker'].some((name) => talentPagesMap[character?.class]?.includes(CLASSES[name]));
+
+// What the next tier of one monster needs, in words
+const nextTier = ({ key, name, thresholds }, kills, done) => {
+  const tier = (done ?? []).findIndex((reached) => !reached);
+  if (tier < 0) return null;
+  return `${formatNum(Math.max(0, thresholds[tier] - kills))} more for ${TIER_NAMES[key]?.[tier] ?? name}`;
+};
+
+// One apocalypse of one character: its monsters left as tiles, the done count and the rule in the meta
+const apocalypsePanel = (character, apocalypse, hideSuperChow) => {
+  const monsters = character?.[apocalypse.key];
+  const finished = monsters?.finished ?? [];
+  const list = monsters?.list ?? [];
+  const allDone = monsters ? list.every(({ done }) => done?.every(Boolean)) : false;
+  const left = list.filter(({ done, kills }) => !done?.every(Boolean) && !(hideSuperChow && apocalypse.key === 'chow' && kills > 1e6));
+  const doneText = apocalypse.key === 'chow'
+    ? `${formatNum(finished[0] ?? 0)} Chow, ${formatNum(finished[1] ?? 0)} Super Chow done`
+    : `${formatNum(finished[0] ?? 0)} done`;
+  return <Panel key={apocalypse.key} title={`${character?.name}: ${apocalypse.name}`} meta={`${doneText} · ${apocalypse.rule}`}
+                aside={allDone ? <StatusText status={'done'}>Done</StatusText> : null}>
+    {!monsters ? <Box sx={{ p: 2 }}>
+      <Notice tone={'locked'}>{`${apocalypse.name} is still locked for ${character?.name}.`}</Notice>
+    </Box> : left.length ? <Box sx={{ p: 2 }}>
+      <CardGrid size={'icon'}>
+        {left.map(({ mapName, name, monsterFace, kills, done }, index) => <IconTile
+          key={`${name}-${index}`} icon={`data/Mface${monsterFace}.png`} alt={cleanUnderscore(name ?? '')} value={formatNum(kills)}
+          details={<Stack gap={0.5}>
+            <Typography variant={'body2'}>{`${cleanUnderscore(name ?? '')}, ${cleanUnderscore(mapName ?? '')}`}</Typography>
+            <Typography variant={'body2'}>{`${formatNum(Math.floor(kills), 'exact')} kills`}</Typography>
+            {nextTier(apocalypse, kills, done) ? <Typography variant={'body2'}>{nextTier(apocalypse, kills, done)}</Typography> : null}
+          </Stack>}/>)}
+      </CardGrid>
+    </Box> : null}
+  </Panel>;
+};
 
 const Apocalypses = () => {
   const { state } = useContext(AppContext);
-  const [filteredCharacters, setFilteredCharacters] = useState([0]);
-
-  const handleFilteredCharacters = (event, newCharacters) => {
-    newCharacters?.length > 0 && setFilteredCharacters(newCharacters)
-    localStorage.setItem('apocalypseCharacters', JSON.stringify(newCharacters));
-  };
-
-  const handleSelectAll = () => {
-    const allSelected = filteredCharacters?.length === state?.characters?.length;
-    const chars = Array.from(Array(allSelected ? 1 : state?.characters?.length).keys());
-    setFilteredCharacters(chars);
-  };
-
-  useEffect(() => {
-    const chars = tryToParse(localStorage.getItem('apocalypseCharacters'));
-    if (chars) {
-      setFilteredCharacters(tryToParse(localStorage.getItem('apocalypseCharacters')));
-    } else {
-      if (state?.characters) {
-        const localManiacs = state?.characters?.filter((character) => {
-          const isBarbarian = talentPagesMap[character?.class]?.includes(CLASSES.Barbarian);
-          const isBloodBerserker = talentPagesMap[character?.class]?.includes(CLASSES.Blood_Berserker);
-          return isBarbarian || isBloodBerserker;
-        });
-        setFilteredCharacters(localManiacs?.map(({ playerId }) => playerId))
-      }
-    }
-  }, []);
+  const [view, setView, resetView] = useToolbarState('apocalypses', APOCALYPSES_TOOLBAR);
+  const characters = state?.characters ?? [];
+  const maniacs = characters.filter(isManiac);
+  const shownCharacters = view?.show === 'all' ? characters : view?.show === 'maniacs' ? maniacs
+    : characters.filter((character) => `${character?.playerId}` === view?.show);
 
   return (
     <>
@@ -55,111 +74,27 @@ const Apocalypses = () => {
         title="Apocalypses | Idleon Toolbox"
         description="Dedicated to the barbarian/blood berserker class to keep track of Zow and Chow talents"
       />
-      <Stack direction={'row'} my={2} justifyContent={'center'} flexWrap={'wrap'}>
-        <ToggleButtonGroup
-          size={'small'}
-          sx={{ display: 'flex', flexWrap: 'wrap' }}
-          value={filteredCharacters}
-          onChange={handleFilteredCharacters}>
-          {state?.characters?.map((character, index) => {
-            return (
-              <Tooltip title={character?.name} key={character?.name + '' + index}>
-                <ToggleButton
-                  sx={{ height: 'inherit' }}
-                  value={index}>
-                  <img
-                    src={`${prefix}data/ClassIcons${character?.classIndex}.png`}
-                    alt=""
-                  />
-                </ToggleButton>
-              </Tooltip>
-            );
-          })}
-        </ToggleButtonGroup>
-        <ToggleButtonGroup sx={{ display: 'flex', flexWrap: 'wrap' }}
-                           size={'small'}>
-          <Tooltip title={'Select all'}>
-            <ToggleButton
-              sx={{ height: 'inherit' }}
-              onClick={handleSelectAll}
-              value={'all'}>
-              <FormatAlignCenterIcon/>
-            </ToggleButton>
-          </Tooltip>
-        </ToggleButtonGroup>
-      </Stack>
-      <Typography mb={3} component={'div'} variant={'caption'}>* Listed monsters are the ones you haven't
-        zowed/chowed and how many you've already killed</Typography>
-      <Stack gap={4}>
-        {filteredCharacters.length === 0 ? <Typography sx={{ textAlign: 'center' }}>Please select at
-          least one character</Typography> : null}
-        {state?.characters?.map(({ name, zow, chow, wow, playerId }, index) => {
-          if (filteredCharacters?.indexOf(playerId) === -1) return null;
-          return <Stack key={`${name}-zow-chow`} gap={2}>
-            <ApocDisplay apocName={'zow'} charName={name} key={`${name}-zow`} monsters={zow}/>
-            <ApocDisplay apocName={'chow'} charName={name} key={`${name}-chow`} monsters={chow}/>
-            <ApocDisplay apocName={'wow'} charName={name} key={`${name}-wow`} monsters={wow}/>
-            {index < filteredCharacters.length - 1 ? <Divider my={5}/> : null}
-          </Stack>
-        })}
-      </Stack>
+      {!characters.length
+        ? <Notice tone={'signin'}>Each Barbarian&apos;s Zow, Chow and Wow progress shows here once you sign in.</Notice>
+        : <Stack gap={3}>
+          <Toolbar state={view} defaults={APOCALYPSES_TOOLBAR} onChange={setView} onReset={resetView}
+                   total={characters.length} shown={shownCharacters.length} noun={'characters'}>
+            <Toolbar.Show options={[['maniacs', 'Barbarians', maniacs.length], ['all', 'All characters', characters.length],
+              ...characters.map((character) => [`${character?.playerId}`, character?.name])]}/>
+            <Toolbar.Filter name={'superChow'} label={'Hide super chow'}/>
+          </Toolbar>
+          <Typography variant={'body2'} color={'text.secondary'}>
+            Each apocalypse lists the monsters a character still has to kill for it, with the kills so far.
+          </Typography>
+          {view?.show === 'maniacs' && !maniacs.length
+            ? <Notice>No Barbarian or Blood Berserker on this account: pick a character in Show.</Notice>
+            : null}
+          {shownCharacters.map((character) => <Stack key={character?.playerId} gap={2}>
+            {APOCALYPSES.map((apocalypse) => apocalypsePanel(character, apocalypse, view?.superChow))}
+          </Stack>)}
+        </Stack>}
     </>
-  )
+  );
 };
-
-const ApocDisplay = ({ apocName, charName, monsters }) => {
-  const [onlySuperChows, setOnlySuperChows] = useState(false);
-
-  const allDone = monsters?.list?.every(({ done }) => done.every((done) => done));
-  return <Stack gap={2}>
-    <Typography variant={'sectionTitle'} component={'h2'}>{charName} {apocName}ed {apocName === 'zow' || apocName === 'wow'
-      ? monsters.finished.at(0)
-      : monsters?.finished?.join('/') ?? 0} monsters</Typography>
-    {apocName === 'chow' ?
-      <Typography component={'div'} variant={'caption'}>* Normal Chow requires 1M kills / Super Chow requires 100M
-        kills</Typography> : null}
-    {apocName === 'wow' ?
-      <Typography component={'div'} variant={'caption'}>* Wow requires 1 billion kills</Typography> : null}
-    {apocName === 'chow' ? <FormControlLabel
-      control={<Checkbox checked={onlySuperChows} onChange={() => setOnlySuperChows(!onlySuperChows)}/>}
-      name={'onlySuperChows'}
-      label="Hide super chow"/> : null}
-    <Card>
-      <CardContent sx={{
-        '&:last-child': { padding: '8px' }
-      }}>
-        {allDone ? <Typography>You're Done</Typography> : monsters ? <Stack gap={1} direction={'row'} flexWrap={'wrap'}>
-          {monsters?.list?.map(({
-                                  mapName,
-                                  name,
-                                  monsterFace,
-                                  kills,
-                                  done,
-                                  thresholds
-                                }, index) => {
-            if (onlySuperChows && kills > 1e6) return;
-            return !done.every((done) => done) ?
-              <Tooltip title={`${cleanUnderscore(mapName)} - ${numberWithCommas(Math.floor(kills))}`}
-                       key={`${charName}-${name}-${index}`}>
-                <Card sx={{ width: 75, height: 75 }} variant={'outlined'}>
-                  <CardContent sx={{ '&:last-child': { padding: 0 } }}>
-                    <Stack alignItems={'center'} gap={1}>
-                      <MonsterIcon src={`${prefix}data/Mface${monsterFace}.png`} alt=""/>
-                      <Typography>{notateNumber(kills, 'Big')}</Typography>
-                    </Stack>
-                  </CardContent>
-                </Card>
-              </Tooltip> : null
-          })}
-        </Stack> : <Typography>{apocName} talent is still locked !</Typography>}
-      </CardContent>
-    </Card>
-  </Stack>
-}
-
-const MonsterIcon = styled.img`
-  width: 35px;
-  height: 41px;
-`
 
 export default Apocalypses;
