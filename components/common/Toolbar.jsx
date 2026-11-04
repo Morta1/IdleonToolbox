@@ -76,7 +76,7 @@ export const ShowField = ({ value, onChange, label = 'Show', options, fullWidth 
     select
     value={value ?? ''}
     onChange={(event) => onChange(event.target.value)}
-    sx={fullWidth ? { width: '100%' } : { minWidth: 200 }}
+    sx={fullWidth ? { width: '100%' } : undefined}
     slotProps={{
       select: {
         displayEmpty: true,
@@ -132,7 +132,7 @@ const Sort = ({ name = 'sort', options, sx }) => {
         const option = options.find(([key]) => key === event.target.value);
         onChange({ [name]: option ? { key: option[0], order: option[2] ?? 'desc' } : null });
       }}
-      sx={placement === 'panel' ? { flex: 1 } : { minWidth: 180 }}
+      sx={placement === 'panel' ? { flex: 1 } : undefined}
       slotProps={{
         select: {
           displayEmpty: true,

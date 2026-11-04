@@ -1,4 +1,6 @@
+import { createElement } from 'react';
 import { createTheme } from '@mui/material/styles';
+import { IconChevronDown } from '@tabler/icons-react';
 
 // Values are read through theme.vars, so a light scheme can later swap them without touching this file's rules.
 const palette = (theme) => (theme.vars || theme).palette;
@@ -14,6 +16,17 @@ const floating = (theme) => ({
 
 // Controls board: 32 px in content, 40 in toolbars and forms, 44 on touch.
 const TOUCH = '@media (pointer: coarse)';
+
+// iOS Safari zooms the page when a focused input's text is under 16 px, so a typed field keeps 16 px at phone width and
+// 14 px everywhere else (T3). A select's value is not an input and stays 14.
+const PHONE = '@media (max-width: 599.95px)';
+
+// A select's arrow (Toolbar board): the thin 16 px stroke chevron, everywhere. MUI places it through the class it passes.
+const SelectChevron = (props) => createElement(IconChevronDown, { size: 16, ...props });
+// A select's open list marks the current row with a small blue check before it, not a tint (Controls board). Drawn by the
+// theme so every select has it: a class on the list, and a check masked out of the primary color.
+const SELECT_LIST = 'select-list';
+const CHECK_MARK = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'black\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M5 12l5 5l10 -10\'/%3E%3C/svg%3E")';
 
 // A small button or a link that is a tap target on its own takes the 44 px touch height every other control
 // has, on a coarse pointer only (a mouse keeps its size): the Details trigger, the sign-in links, the search's
@@ -167,6 +180,17 @@ const darkTheme = createTheme({
           // One row height for every menu (Decision 8). MUI drops its own minimum from sm up, so it repeats there.
           minHeight: 40,
           [theme.breakpoints.up('sm')]: { minHeight: 40 },
+          // Controls board: a row is 14/400, its text whether plain or in a ListItemText
+          fontSize: 14,
+          lineHeight: '20px',
+          '& .MuiTypography-body1': { fontSize: 14, lineHeight: '20px' },
+          [`.${SELECT_LIST} &`]: { paddingLeft: 36 },
+          [`.${SELECT_LIST} &.Mui-selected, .${SELECT_LIST} &.Mui-selected.Mui-focusVisible`]: { backgroundColor: 'transparent' },
+          [`.${SELECT_LIST} &.Mui-selected:hover`]: { backgroundColor: palette(theme).action.hover },
+          [`.${SELECT_LIST} &.Mui-selected::before`]: {
+            content: '""', position: 'absolute', left: 14, top: 'calc(50% - 7px)', width: 14, height: 14,
+            backgroundColor: palette(theme).primary.main, maskImage: CHECK_MARK, maskSize: 'contain', maskRepeat: 'no-repeat'
+          },
           // Overlays board: an 18 px menu icon in text.secondary. The color goes through a variable the
           // icon reads (MuiListItemIcon), so a row that colors its own icon (Log out) keeps it.
           '--menu-icon-color': palette(theme).text.secondary,
@@ -257,7 +281,25 @@ const darkTheme = createTheme({
     },
     MuiAutocomplete: {
       defaultProps: {
-        size: 'small'
+        size: 'small',
+        popupIcon: createElement(SelectChevron)
+      },
+      styleOverrides: {
+        listbox: { fontSize: 14 },
+        popupIndicator: ({ theme }) => ({ color: palette(theme).text.primary })
+      }
+    },
+    MuiSelect: {
+      defaultProps: {
+        IconComponent: SelectChevron,
+        MenuProps: { MenuListProps: { className: SELECT_LIST } }
+      },
+      styleOverrides: {
+        icon: ({ theme }) => ({
+          fontSize: 16,
+          right: 10,
+          '&:not(.Mui-disabled)': { color: palette(theme).text.primary }
+        })
       }
     },
     // Labels sit above the field, always visible, never floating in the border where they get cut
@@ -299,8 +341,20 @@ const darkTheme = createTheme({
         notched: false
       },
       styleOverrides: {
+        // Toolbar and Controls boards: 14/400 in a 40 px field, 12 px in from its edges. 20 + 10 + 10 holds the 40 that
+        // MUI's small input only reached at 16 px text.
         root: {
-          [TOUCH]: { minHeight: 44 }
+          fontSize: 14,
+          minHeight: 40,
+          [TOUCH]: { minHeight: 44 },
+          [PHONE]: { '& input:not(.MuiSelect-nativeInput), & textarea': { fontSize: 16 } }
+        },
+        adornedStart: { paddingLeft: 12 },
+        adornedEnd: { paddingRight: 12 },
+        input: {
+          '&.MuiInputBase-inputSizeSmall:not(.MuiInputBase-inputMultiline)': { paddingTop: 10, paddingBottom: 10, lineHeight: '20px', height: 20, minHeight: 20 },
+          '&:not(.MuiInputBase-inputMultiline):not(.MuiInputBase-inputAdornedStart)': { paddingLeft: 12 },
+          '&:not(.MuiInputBase-inputMultiline):not(.MuiInputBase-inputAdornedEnd):not(.MuiSelect-select)': { paddingRight: 12 }
         }
       }
     },
