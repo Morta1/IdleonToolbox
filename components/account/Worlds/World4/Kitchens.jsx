@@ -1,13 +1,12 @@
 import { Stack, Typography } from '@mui/material';
 import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
-import { formatGame } from '@utility/gameNotation';
+import { formatGame, mealBonusText } from '@utility/gameNotation';
 import Timer from 'components/common/Timer';
 import React from 'react';
 import {
   calcMealTime,
   calcTimeToNextLevel,
-  formatMealBonus,
   getMealBonus,
   getMealLevelCost,
   maxNumberOfSpiceClicks,
@@ -38,14 +37,14 @@ const mealProgress = (meal, { totalMealSpeed, achievements, equinoxUpgrades, acc
   const realEffect = getMealBonus(account, meal).value;
   const target = showDiamond ? diamondCost : levelCost;
   return <>
-    <ItemCard.Desc text={meal?.effect?.replace('{', formatMealBonus(realEffect))}/>
+    <ItemCard.Desc text={meal?.effect?.replace('{', mealBonusText(realEffect))}/>
     <ItemCard.Facts rows={[
       ['Next level', isReady ? <StatusText key={'ready'} status={'ready'}/> : hoursText(timeTillNextLevel)],
       showDiamond ? ['Diamond plate', hoursText(timeToDiamond)] : null
     ]}/>
     <ItemCard.Progress label={showDiamond ? 'Progress to Lv 11' : 'Progress'}
                        percent={target > 0 ? Math.min(100, 100 * (meal?.amount ?? 0) / target) : 100}
-                       value={<Num value={meal?.amount ?? 0} game={MEAL_COST}/>} max={<Num value={target ?? 0} game={MEAL_COST}/>}/>
+                       value={<Num value={meal?.amount ?? 0} game={MEAL_COST} whole/>} max={<Num value={target ?? 0} game={MEAL_COST} whole/>}/>
   </>;
 };
 
@@ -119,8 +118,8 @@ const Kitchens = ({
       </> : null}
       <ItemCard.Progress label={'Progress'}
                          percent={recipeTime > 0 ? Math.min(100, 100 * (kitchen?.currentProgress ?? 0) / recipeTime) : 0}
-                         value={<Num value={kitchen?.currentProgress ?? 0} game={MEAL_COST}/>}
-                         max={<Num value={recipeTime} game={MEAL_COST}/>}/>
+                         value={<Num value={kitchen?.currentProgress ?? 0} game={MEAL_COST} whole/>}
+                         max={<Num value={recipeTime} game={MEAL_COST} whole/>}/>
       <ItemCard.Facts rows={[['Done in', <Timer key={'done'} variant={'body2'} placeholder={<StatusText status={'ready'}/>}
                                                 type={'countdown'} date={new Date().getTime() + (timeToFinish * 1000 * 3600)}
                                                 lastUpdated={lastUpdated}/>]]}/>
@@ -136,7 +135,7 @@ const Kitchens = ({
       {spices?.available?.length ? <CardGrid size={'icon'} sx={{ mb: 3 }}>
         {spices.available.map((spice, index) => <IconTile key={`${spice?.rawName}-${index}`} icon={`data/${spice?.rawName}.png`}
                                                           alt={`${spice?.name} spice`}
-                                                          value={formatGame(spice?.amount ?? 0, SPICE_COST)}
+                                                          value={formatGame(spice?.amount ?? 0, SPICE_COST, { whole: true })}
                                                           details={`${spice?.name} spice: ${formatNum(Number(spice?.amount ?? 0), 'exact')}`}/>)}
       </CardGrid> : null}
       {/* In a failed section the page's note says why there are none */}

@@ -49,7 +49,7 @@ const vialNote = (vial, multiplierText) => {
   return <Stack gap={1}>
     <Stack gap={0.5}>
       <Typography variant={'body2'}>{`${vialName(vial)}, ${formatNum(level, 'level', { max: MAX_VIAL_LEVEL })}`}</Typography>
-      <Typography variant={'body2'}>{cleanUnderscore(desc.replace(/{|\$/g, gameBonusText(bonus, vial, 'vial')))}</Typography>
+      <Typography variant={'body2'}>{cleanUnderscore(desc.replace(/{|\$/g, gameBonusText(bonus)))}</Typography>
       {multiplierText && level > 0 && multiplier > 1 ? <Typography variant={'body2'} color={'text.secondary'}>
         {`${multiplierText(multiplier)} vial bonus`}</Typography> : null}
       {level > 0 ? null : <StatusText status={'needs'}>Not found yet</StatusText>}

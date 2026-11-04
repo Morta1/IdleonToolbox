@@ -288,7 +288,7 @@ describe('share and gain', () => {
   });
 
   it('never rounds a share to 0% or 100% that is not', () => {
-    expect([0, 0.0018, 4.567, 43.31, 99.998, 100].map(formatShare)).toEqual(['0%', '<0.1%', '4.6%', '43.3%', '>99.9%', '100%']);
+    expect([0, 0.0018, 4.567, 43.31, 99.998, 100].map(formatShare)).toEqual(['0%', '<0.1%', '4.57%', '43.31%', '>99.9%', '100%']);
   });
 
   it('puts both on the rows the drawer shows', () => {

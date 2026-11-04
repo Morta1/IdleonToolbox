@@ -130,8 +130,7 @@ const Stamps = () => {
   const pricedGilded = Boolean(settings?.gilded) !== stampDefaults.gilded;
   const gildedSub = stampsFailed ? undefined : pricedGilded
     ? settings?.gilded ? 'Priced with gilded stamps' : 'Priced without gilded stamps'
-    // The game's Gilded Stamp screen floors it: "DAILY CHANCE FOR A GILDED STAMP: " + Math.floor(total / 100) + "%"
-    : `${formatNum(Math.floor(calcStampLevels(account?.stamps) / 100), 'pct')} chance`;
+    : `${formatNum(calcStampLevels(account?.stamps) / 100, 'pct')} chance`;
 
   // The levels a stamp gained since the snapshot, when Show levels gained is on
   const gainedOf = (category, index, level) => {
@@ -338,7 +337,7 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText, exaltedMul
   }}>
     <Stack gap={1}>
       <Typography variant={'body2'} component={'div'}>
-        {`+${cleanUnderscore((effect ?? '').replace('+{', gameBonusText(bonus, stamp, 'stamp')))}`}</Typography>
+        {`+${cleanUnderscore((effect ?? '').replace('+{', gameBonusText(bonus)))}`}</Typography>
       {boosts.length ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>
         {boostLine(boosts, cleanUnderscore(displayName))}</Typography> : null}
       {unobtainableStamps[displayName] ? <StatusText status={'locked'}>Unobtainable</StatusText> : null}
@@ -362,9 +361,9 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText, exaltedMul
     {level > 0 ? <ItemCard.Section label={'Carry capacity'}>
       <ItemCard.Facts rows={[
         ...(bestCharacter?.topCharacters ?? []).map(({ character, maxCapacity }) => [character,
-          maxCapacity >= materialCost ? formatNum(maxCapacity ?? 0)
-            : <>{formatNum(maxCapacity ?? 0)} <StatusText status={'problem'}>Short</StatusText></>]),
-        ['In storage', formatNum(owned)],
+          maxCapacity >= materialCost ? formatNum(maxCapacity ?? 0, 'whole')
+            : <>{formatNum(maxCapacity ?? 0, 'whole')} <StatusText status={'problem'}>Short</StatusText></>]),
+        ['In storage', formatNum(owned, 'whole')],
         gained > 0 ? ['Levels gained since your snapshot', formatNum(gained)] : null
       ]}/>
     </ItemCard.Section> : null}
@@ -416,7 +415,7 @@ const FutureCosts = ({ futureCosts }) => <DataTable
       label: <GameIcon src={`data/${futureCosts[0]?.rawName}.png`} alt={cleanUnderscore(futureCosts[0]?.name ?? 'Material')}
                        size={16}/>,
       numeric: true,
-      render: ({ materialCost }) => (materialCost ? formatGame(materialCost, 'Big') : null)
+      render: ({ materialCost }) => (materialCost ? formatGame(materialCost, 'Big', { whole: true }) : null)
     },
     {
       key: 'coins',

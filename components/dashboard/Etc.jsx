@@ -601,7 +601,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           <TimerRow target="World 7.overstim"
             page={'/account/world-7/spelunking'}
             message={`Overstim Lv ${spelunking.overstimEffectiveLevel} → ${spelunking.overstimEffectiveLevel
-              + 1}: ${formatGame(spelunking.overstimEffectiveCurrent, 'Spelunk.OverstimQtyREQ', spelunking.overstimEffectiveReq)} / ${formatGame(spelunking.overstimEffectiveReq, 'Spelunk.OverstimQtyREQ')}${spelunking.overstimPendingLevels > 0
+              + 1}: ${formatGame(spelunking.overstimEffectiveCurrent, 'Spelunk.OverstimQtyREQ', { ruleValue: spelunking.overstimEffectiveReq, whole: true })} / ${formatGame(spelunking.overstimEffectiveReq, 'Spelunk.OverstimQtyREQ', { whole: true })}${spelunking.overstimPendingLevels > 0
                 ? ` (${spelunking.overstimPendingLevels} level${spelunking.overstimPendingLevels > 1 ? 's' : ''} banked, they apply when you open spelunking)`
                 : ''}`}
             lastUpdated={lastUpdated}

@@ -21,7 +21,7 @@ const PlayerBubbles = ({ bubbles }) => {
 
 const BubbleDetails = ({ bubbleName, desc, func, level, x1, x2 }) => <>
   <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(bubbleName)}</Typography>
-  <Typography variant={'body2'}>{cleanUnderscore(desc ?? '').replace(/({}?)|\$/g, gameBonusText(growth(func, level, x1, x2), { func, x1, x2 }, 'bubble'))}</Typography>
+  <Typography variant={'body2'}>{cleanUnderscore(desc ?? '').replace(/({}?)|\$/g, gameBonusText(growth(func, level, x1, x2)))}</Typography>
 </>;
 
 export default PlayerBubbles;

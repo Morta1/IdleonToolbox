@@ -189,7 +189,7 @@ const Cost = ({ icon, iconAlt = '', need, have, game = 'Big', format }) => {
   const short = known && have < need;
   const perAmount = typeof icon === 'function';
   const amount = (value) => <>
-    {format ? format(value) : <Num value={value} game={game}/>}
+    {format ? format(value) : <Num value={value} game={game} whole/>}
     {perAmount ? <GameIcon src={icon(value)} size={16} alt={iconAlt}/> : null}
   </>;
   return <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>

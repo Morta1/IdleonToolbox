@@ -51,16 +51,16 @@ describe('formatGame', () => {
   });
 
   it('prints a stat it has no rule for in Big, the most common mode in the game, with the sign drawn outside', () => {
-    expect([formatGame(1234, 'Not.AStat'), formatGame(-1234, 'Not.AStat'), formatGame(undefined, 'Not.AStat')])
-      .toEqual(['1.24K', '-1.24K', '-']);
+    expect([formatGame(1234567, 'Not.AStat'), formatGame(-1234567, 'Not.AStat'), formatGame(undefined, 'Not.AStat')])
+      .toEqual(['1.24M', '-1.24M', '-']);
   });
 
   // Rules Task 0's regeneration added: plain arithmetic, a switch in a switch.
   it.each([
-    [1256.09, 'ArcaneType.Arcane_AttackSpdPCT', '1256'],
-    [156.78, 'Windwalker.Compass_CRITPCT', '156.7'],
+    [1256.09, 'ArcaneType.Arcane_AttackSpdPCT', '1,256.09'],
+    [156.78, 'Windwalker.Compass_CRITPCT', '156.78'],
     [12.5, 'Summoning.GrimoireBonesDropDEC', '12.50'],
-    [12345, 'Summoning.GrimoireBonesDropDEC', '12,345'],
+    [12345.67, 'Summoning.GrimoireBonesDropDEC', '12,345.67'],
     [4.11e6, 'Summoning.GrimoireBonesDropDEC', '4.11M'],
     [123456, 'MenagerieStuff.Cost', '123,456'],
     [1.5e9, 'MenagerieStuff.Cost', '1.5B']
@@ -69,11 +69,27 @@ describe('formatGame', () => {
   });
 
   it('takes the mode from the value the game switches a pair on', () => {
-    expect([formatGame(64154, 'SushiStuff.KnowledgeXP_req', 167000), formatGame(5551, 'SushiStuff.KnowledgeXP_req', 217)])
+    expect([formatGame(64154, 'SushiStuff.KnowledgeXP_req', { ruleValue: 167000, whole: true }),
+      formatGame(5551, 'SushiStuff.KnowledgeXP_req', { ruleValue: 217, whole: true })])
       .toEqual(['64.2K', '5,551']);
   });
 
-  // Lane B per system: Sailing's keyless amounts in Big at every size; another system, or a multiplier, keeps its kind
+  // The site's rule in every mode below 1M, what stays whole keeping the game's print and direction
+  it.each([
+    ['Holes.Bravery_MonsterHP', 88996.992, '88,996.99', '88,997'],
+    ['TotalStats.Drop_Rarity', 6.34, '6.34', '6.34'],
+    ['TotalStats.Drop_Rarity', 1529.05, '1,529.05', '1,529'],
+    ['RoyalG.OutpostRange', 123.45, '123.45', '123'],
+    ['Holes2.SpacesOwned', 40.5, '40.5', '41'],
+    ['Holes.Cost_FountainUPG', 13957.65, '13,957.65', '14K'],
+    ['Holes.Cost_FountainUPG', 1234567, '1.24M', '1.24M'],
+    ['GamingStatType.MutateUpgCosts', 1234.5, '1234', '1234'],
+    ['Refinery.PowerCAP', 1234.5, '1234', '1234']
+  ])('formatGame(%s, %s) = %s, whole %s', (key, value, text, wholeText) => {
+    expect([formatGame(value, key), formatGame(value, key, { whole: true })]).toEqual([text, wholeText]);
+  });
+
+  // Lane B per system: Sailing's keyless amounts in Big at every size, whole; another system, or a multiplier, keeps its kind
   it.each([
     [25000, 'amount', 'Sailing', '25K'],
     [58.38, 'amount', 'Sailing', '58'],
@@ -83,28 +99,18 @@ describe('formatGame', () => {
     expect(formatSystem(value, kind, system)).toBe(text);
   });
 
-  it('fills the game sentences the way the game does', () => {
+  it('fills the game sentences with the rule, Arctis counting whole talent levels', () => {
     expect([fillVoteText('+{% Drop Rate, }x total', 35.24), minorBonusText(12.36, false), minorBonusText(12.36, true)])
-      .toEqual(['+35.2% Drop Rate, 1.35x total', '12.3', '13']);
+      .toEqual(['+35.24% Drop Rate, 1.35x total', '12.36', '13']);
   });
 
-  // Each system's rounding, one row per branch: a stamp's add reads its x1, a bubble's or vial's its x2
   it.each([
-    [0.256, { func: 'decay' }, 'stamp', '0.26'],
-    [0.54, { func: 'add', x1: 1 }, 'stamp', '0.5'],
-    [12.34, { func: 'decay' }, 'stamp', '12.3'],
-    [12.34, { func: 'add', x1: 0.5 }, 'stamp', '12.3'],
-    [12.5, { func: 'add', x1: 1 }, 'stamp', '13'],
-    [150.4, { func: 'decay' }, 'stamp', '150'],
-    [1.634, { func: 'decayMulti' }, 'bubble', '1.63'],
-    [0.35, { func: 'addDECAY' }, 'bubble', '0.4'],
-    [24.94, { func: 'decay' }, 'bubble', '24.9'],
-    [30.6, { func: 'decay' }, 'bubble', '31'],
-    [5.554, { func: 'decay' }, 'vial', '5.55'],
-    [12.34, { func: 'add', x2: 0 }, 'vial', '12.3'],
-    [1.634, { func: 'decayMulti' }, 'vial', '2'],
-    [150.4, { func: 'add', x2: 0 }, 'vial', '150']
-  ])('gameBonusText(%s, %j, %s) = %s', (value, fields, system, expected) => {
-    expect(gameBonusText(value, fields, system)).toBe(expected);
+    [0.256, '0.26'],
+    [12.5, '12.5'],
+    [282.79, '282.79'],
+    [251368.98, '251,368.98'],
+    [1234567.8, '1234568']
+  ])('gameBonusText(%s) = %s', (value, expected) => {
+    expect(gameBonusText(value)).toBe(expected);
   });
 });

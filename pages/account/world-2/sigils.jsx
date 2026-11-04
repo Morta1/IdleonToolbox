@@ -82,7 +82,7 @@ const sigilCard = (sigil, { failed, progressionFailed, tierUnlocks, characters, 
                      nextRow
                    ]}/>}>
     <ItemCard.Desc text={unlocked === UNDISCOVERED ? 'Discover it to see its bonus.'
-      : cleanUnderscore((effect ?? '').replace(/{/g, gameBonusText(bonus, sigil, 'bubble')))}/>
+      : cleanUnderscore((effect ?? '').replace(/{/g, gameBonusText(bonus)))}/>
     {unlocked !== UNDISCOVERED && boost > 1 ? <Typography variant={'body2'} color={'text.secondary'}>
       {`${formatNum(boost, 'mult')} from ${boostSources}`}</Typography> : null}
     {/* In the body, not beside the title: four class icons and the status left the title a word a line. A maxed

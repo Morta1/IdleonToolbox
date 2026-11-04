@@ -8,6 +8,7 @@ import darkTheme from '../../styles/theme/darkTheme';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import raw from '../../data/raw.json';
 import { getTrapsBonuses } from '@parsers/world-3/traps';
+import { formatNum } from '@utility/helpers';
 
 vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, asPath: '/' }) }));
 vi.mock('next-seo', () => ({ NextSeo: () => null }));
@@ -75,7 +76,7 @@ describe('Traps collector selection', () => {
     renderPage({ characters, account });
 
     expect(screen.getByRole('combobox').textContent).toBe(`Collect as${best.name}`);
-    expect(collectRates()).toContain(`${Math.round(best.critter * 100)}%`);
+    expect(collectRates()).toContain(formatNum(best.critter * 100, 'pct'));
   });
 
   it('moves both the collect rate and the shiny multi onto the picked character', () => {
@@ -92,7 +93,7 @@ describe('Traps collector selection', () => {
     // The character rows below the picker repeat every name, so stay inside the open menu.
     fireEvent.click(within(screen.getByRole('listbox')).getByText(other.name));
 
-    expect(collectRates()).toContain(`${Math.round(other.critter * 100)}%`);
+    expect(collectRates()).toContain(formatNum(other.critter * 100, 'pct'));
     expect(collectRates()).not.toBe(rateBefore);
     expect(shinyMulti()).not.toBe(multiBefore);
   });

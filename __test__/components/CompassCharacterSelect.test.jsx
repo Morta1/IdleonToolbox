@@ -58,7 +58,7 @@ describe('Compass character selection', () => {
     expect(nonWindWalker.playerId).toBe(0);
     expect(windWalker.playerId).not.toBe(0);
     renderWith(characters);
-    expect(critValue()).toContain('156.6');
+    expect(critValue()).toContain('156.7');
   });
 
   // The bug: the old code only picked a wind walker when there was exactly one, so two or more
@@ -66,14 +66,14 @@ describe('Compass character selection', () => {
   it('defaults to the first wind walker when the account has several', () => {
     const secondWindWalker = { ...windWalker, name: 'SecondWW', playerId: 7 };
     renderWith([...characters, secondWindWalker]);
-    expect(critValue()).toContain('156.6');
+    expect(critValue()).toContain('156.7');
     expect(critValue()).not.toContain('151%');
   });
 
   it('switches stats when another wind walker is picked', () => {
     const weaker = { ...nonWindWalker, class: windWalker.class, name: 'WeakWW', playerId: 7 };
     renderWith([...characters, weaker]);
-    expect(critValue()).toContain('156.6');
+    expect(critValue()).toContain('156.7');
 
     fireEvent.mouseDown(screen.getByRole('combobox'));
     fireEvent.click(screen.getByText('WeakWW'));

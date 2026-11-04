@@ -1,5 +1,5 @@
 import { Box, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, formatNum, notateNumber, shownDifference } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, formatNum, notateNumber, SHORT_FROM, shownDifference } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
@@ -60,18 +60,18 @@ const MasterclassUpgradeCard = ({
   </ItemCard>
 };
 
-// A sentence's own fills, as the parsers fill its { and } (compass.ts, tesseract.ts, grimoire.ts), so a row beside it
-// reads its number as the sentence does. Compass: } MultiplierInfo of 1 + bonus / 100; { NotateNumber Small for a row
-// under 0.9 a level (the parser's smallNotation), else CommaNotation. Tesseract: } MultiplierInfo of 1 + bonus / 100 (the
-// CommaNotation of its floor from a bonus of 1,000); { CommaNotation under 1e9, NotateNumber Big past it. Grimoire: }
-// MultiplierInfo of 1 + bonus / 100; { CommaNotation.
+// A next level's bonus, in the unit its sentence reads: } MultiplierInfo of 1 + bonus / 100, { the site's rule below 1M.
+// From 1M up each keeps the sentence's own fill (compass.ts, tesseract.ts, grimoire.ts). Compass: { NotateNumber Small for
+// a row under 0.9 a level (the parser's smallNotation), else CommaNotation. Tesseract: } the CommaNotation of its floor;
+// { CommaNotation under 1e9, NotateNumber Big past it. Grimoire: { CommaNotation.
+const multiFill = (value) => formatNum(1 + value / 100, 'mult', { bare: true });
 const SENTENCE_FILLS = {
-  grimoire: (upgrade, multi) => (value) => (multi ? notateNumber(1 + value / 100, 'MultiplierInfo') : commaNotation(value)),
-  compass: ({ smallNotation }, multi) => (value) => (multi ? notateNumber(1 + value / 100, 'MultiplierInfo')
-    : smallNotation ? notateNumber(value, 'Small') : formatGame(value, 'Windwalker.CompassBonus')),
+  grimoire: (upgrade, multi) => (value) => (multi ? multiFill(value) : value < SHORT_FROM ? formatNum(value) : commaNotation(value)),
+  compass: ({ smallNotation }, multi) => (value) => (multi ? multiFill(value)
+    : smallNotation ? formatNum(value) : formatGame(value, 'Windwalker.CompassBonus')),
   tesseract: (upgrade, multi) => (value) => (multi
-    ? (value < 1e3 ? notateNumber(1 + value / 100, 'MultiplierInfo') : commaNotation(Math.floor(1 + value / 100)))
-    : value < 1e9 ? commaNotation(value) : notateNumber(value, 'Big'))
+    ? (1 + value / 100 < SHORT_FROM ? multiFill(value) : commaNotation(Math.floor(1 + value / 100)))
+    : value < SHORT_FROM ? formatNum(value) : value < 1e9 ? commaNotation(value) : notateNumber(value, 'Big'))
 };
 
 // The unit a sentence prints after its number, from its text in the game's data: "}x" a multiplier, "{%" a percent
@@ -93,9 +93,9 @@ export const unlockLine = (unlocked, totalLevels) => (!unlocked && totalLevels >
   ? `Unlocks at ${formatNum(totalLevels)} total ${totalLevels === 1 ? 'level' : 'levels'}`
   : null);
 
-// A "done / total" pair as the parser writes it in raw digits ("0 / 1332"), in the amount kind: "0 / 1,332"
+// A "done / total" pair as the parser writes it in raw digits ("0 / 1332"), counts: "0 / 1,332"
 export const amountPair = (text) => `${text ?? ''}`.replace(/(\d+(?:\.\d+)?) \/ (\d+(?:\.\d+)?)/,
-  (_, done, total) => `${formatNum(Number(done))} / ${formatNum(Number(total))}`);
+  (_, done, total) => `${formatNum(Number(done), 'whole')} / ${formatNum(Number(total), 'whole')}`);
 
 // A masterclass sentence as the game draws it: the parser filled { and }, and the page fills $ where the toolbox
 // knows the number (Decision 6); a $ it cannot compute reads "?" rather than a sentence with a hole. The game's own

@@ -29,7 +29,7 @@ const BONUS_START = [0, 25, 100];
 const BoxDetails = ({ name, upgrades, level }) => <>
   <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(name)}</Typography>
   {upgrades?.map(({ bonus, func, x1, x2 }, index) => <Typography key={`${bonus}-${index}`} variant={'body2'}>
-    {`+${gameBonusText(Math.max(0, growth(func, level - BONUS_START[index], x1, x2)), { func, x1, x2 }, 'bubble')}${cleanUnderscore(bonus)}`}
+    {`+${gameBonusText(Math.max(0, growth(func, level - BONUS_START[index], x1, x2)))}${cleanUnderscore(bonus)}`}
   </Typography>)}
 </>;
 

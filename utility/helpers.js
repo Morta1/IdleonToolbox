@@ -641,7 +641,7 @@ export const commaNotation = (number) => {
   return formattedNumber + suffix;
 }
 
-// The game's usual switch: commas below 1M, its "Big" notation from there.
+// The game's usual switch, and the form of a whole thing (the whole kind): commas below 1M, its "Big" notation from there.
 // `round` applies to the comma branch only, so callers keep their floor/ceil there.
 export const commaOrBig = (value, round = Math.round) => 1e6 > value ? commaNotation(round(value)) : notateNumber(value, 'Big');
 
@@ -666,20 +666,32 @@ export const shownPercent = (partText, wholeText) => {
   return whole.digits > 0 ? part.digits / whole.digits * 10 ** (part.power - whole.power) * 100 : null;
 };
 
+// The site's one rule (the owner, 2026-11-04, for the endgamers who read the decimals): below 1M a number shows the
+// decimals it has, up to two, with commas, rounded, the trailing zeros dropped; from 1M up it reads the game's short
+// form, as the game's key or the kind says. So 6.34x, 1,529.05x, 6,395.65%, 3.59, and past 1M 1.93e21x. No setting: low
+// numbers read the same either way. A value's fraction under about 0.005 is float noise, so it reads whole, and a very
+// small value keeps two significant digits (0.0012%, not 0%).
+// The number itself never changes, only how many digits show. A whole thing computed as a fraction stays whole, as the
+// game prints it, by asking for that where it prints: a cost, a requirement, kills, an item count, a balance (Cost 363,
+// never 362.4). The whole kind here; { whole: true } in formatGame, whole on <Num>. Default to decimals, opt out on
+// purpose. Where the game ceils or floors one, the call site keeps that direction. Durations, odds, levels and prices
+// have their own forms and take no part.
+//
 // Numbers board, lane B: a number only the toolbox shows, in the game's usual format for its kind. Every kind
 // notates the magnitude and draws the sign itself, because the game's NotateNumber assumes a positive number.
-//   amount  counts, totals, costs     CommaNotation below 1M, Big from there (commaOrBig)  21,146 · 2.16Q
-//   mult    anything that multiplies  MultiplierInfo up to 10,000, Big past it, then x     19.21x · 5.14Mx
-//   pct     bonuses, chances          Small (decimals under 100), Big from 1,000, then %  88.5% · 1.16K%
-//   rate    per hour, per kill        a signed amount per unit                             +6.51e31/hr
-//   level   levels and caps           Lv, commas, the cap after a slash                    Lv 106 / 250
-//   odds    a chance from 0 to 1      1 in N, commas                                       1 in 152
-//   price   real money (bundles)      a dollar sign, two decimals                          $4.99
+//   amount  totals, stats               the rule, Big from 1M                                 3.59 · 21,146 · 2.16Q
+//   whole   costs, requirements, counts CommaNotation below 1M, Big from there (commaOrBig)   21,146 · 2.16Q
+//   mult    anything that multiplies    MultiplierInfo (two decimals, always) with commas, Big from 1M, then x
+//                                                                                             19.21x · 14.00x · 5.14Mx
+//   pct     bonuses, chances            the rule, Big from 1M, then %                         88.51% · 6,395.65% · 1.16M%
+//   rate    per hour, per kill          a signed amount per unit                              +61,080.25/hr · +6.51e31/hr
+//   level   levels and caps             Lv, commas, the cap after a slash                     Lv 106 / 250
+//   odds    a chance from 0 to 1        1 in N, commas                                        1 in 152
+//   price   real money (bundles)        a dollar sign, two decimals                           $4.99
 //   exact   the digits behind a short number (a note): commas, up to 3 decimals, Big past 2^53   1,234.568
 // Options: signed (a change: +144%), precise (up to 3 decimals, the toolbox's ThreeDecimals, for breakdown totals
-// and values endgamers push), decimals (exactly that many, zeros kept, below the kind's switch to Big, for a column
-// whose values line up: 15.0%, 4.0%), bare (no % or x: the game's own sentence carries it), max and next (level), per
-// (rate, default hr).
+// and values endgamers push), decimals (exactly that many, zeros kept, below 1M, for a column whose values line up:
+// 15.0%, 4.0%), bare (no % or x: the game's own sentence carries it), max and next (level), per (rate, default hr).
 
 // Precise: up to three decimals (the toolbox's ThreeDecimals) and two significant digits under 0.01, so a small but
 // real gain never prints as 0 (0.0012%, not 0%).
@@ -689,17 +701,28 @@ const preciseDigits = (value) => (value > 0 && value < 0.01
 
 const fixedDigits = (value, decimals) => numberWithCommas(value.toFixed(decimals));
 
+// Where the rule hands over to the short form, every kind and mode alike.
+export const SHORT_FROM = 1e6;
+
+// The rule's digits, for a magnitude below SHORT_FROM. Under a millionth is noise too, not a very small value.
+export const fullDigits = (value) => {
+  if (value > 0 && value < 0.01) return value < 1e-6 ? '0' : preciseDigits(value);
+  return numberWithCommas(String(Math.round(100 * value) / 100));
+};
+
+// The rule's digits where the print is the game's own two decimals: 14.00 keeps its zeros
+export const multiplierDigits = (value) => (value > 0 && value < 0.01 ? fullDigits(value) : numberWithCommas(notateNumber(value, 'MultiplierInfo')));
+
 const KIND_FORMATS = {
-  amount: (value, precise, decimals) => (1e6 > value && decimals != null ? fixedDigits(value, decimals)
-    : precise && 1e6 > value ? numberWithCommas(preciseDigits(value)) : commaOrBig(value)),
-  // The game's own switch, `1e4 < x ? "Big" : "MultiplierInfo"` (Sailing's LootMulti), so 10,000 itself stays long.
+  amount: (value, precise, decimals) => (SHORT_FROM <= value ? notateNumber(value, 'Big')
+    : decimals != null ? fixedDigits(value, decimals) : precise ? numberWithCommas(preciseDigits(value)) : fullDigits(value)),
+  whole: (value) => commaOrBig(value),
   // An exact 0 (nothing multiplied yet) reads 0x, not MultiplierInfo's 0.00x.
-  mult: (value, precise, decimals) => (1e4 < value ? notateNumber(value, 'Big')
-    : decimals != null ? fixedDigits(value, decimals) : precise ? preciseDigits(value)
-      : value === 0 ? '0' : notateNumber(value, 'MultiplierInfo')),
-  // Small and Big share every arm from 100 up, so Small alone is "Small below 1,000, then Big".
-  pct: (value, precise, decimals) => (1e3 > value && decimals != null ? fixedDigits(value, decimals)
-    : precise && 1e3 > value ? preciseDigits(value) : notateNumber(value, 'Small')),
+  mult: (value, precise, decimals) => (SHORT_FROM <= value ? notateNumber(value, 'Big')
+    : decimals != null ? fixedDigits(value, decimals) : precise ? numberWithCommas(preciseDigits(value))
+      : value === 0 ? '0' : multiplierDigits(value)),
+  pct: (value, precise, decimals) => (SHORT_FROM <= value ? notateNumber(value, 'Big')
+    : decimals != null ? fixedDigits(value, decimals) : precise ? numberWithCommas(preciseDigits(value)) : fullDigits(value)),
   // Real money (bundle prices): two decimals, always.
   price: (value) => `$${numberWithCommas(value.toFixed(2))}`,
   // Every digit, for the exact number behind a short one (a note): commas, up to three decimals. Never digits a double

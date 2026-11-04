@@ -86,7 +86,7 @@ const futureBubbles = (cauldrons, fromMost) => {
   const pick = fromMost ? Math.max : Math.min;
   const first = pick(...(progress.length ? progress : [FUTURE_BUBBLES_FALLBACK])) + 1;
   const brew = (bubble) => getMaxCauldron(bubble - 1);
-  const text = (bubble) => `${formatGame(brew(bubble), 'CauldronStats.MaxCauldronQTY')} per attempt`;
+  const text = (bubble) => `${formatGame(brew(bubble), 'CauldronStats.MaxCauldronQTY', { whole: true })} per attempt`;
   const rows = Array.from({ length: FUTURE_BUBBLES_ROWS }, (_, index) => first + index)
     .map((bubble) => info(`#${bubble} (World ${Math.ceil(bubble / 5)})`, brew(bubble), { formatted: text(bubble) }));
   return {
@@ -247,8 +247,8 @@ const bubbleRow = (bubble, cauldronIndex, { account, prisma, failed, effThreshol
     : effThreshold / (100 - effThreshold) * x2) : null;
   const missing = needed === null ? null : needed - level;
   const pastEff = func.toLowerCase().includes('decay') && (!maxBonus || (missing !== null && missing <= 0));
-  const bonusText = gameBonusText(bonus, bubble, 'bubble');
-  const maxText = maxBonus && !placeholder ? gameBonusText(maxBonus, bubble, 'bubble') : null;
+  const bonusText = gameBonusText(bonus);
+  const maxText = maxBonus && !placeholder ? gameBonusText(maxBonus) : null;
   return {
     bubble,
     cauldronIndex,
@@ -268,9 +268,6 @@ const bubbleRow = (bubble, cauldronIndex, { account, prisma, failed, effThreshol
 
 const prismaGlow = (row) => (row.isPrisma ? `data/aUpgradesGlow${row.cauldronIndex}.png` : undefined);
 
-// The bonus as the game rounds it for the sentence, with its digits grouped
-const bonusAmount = (text) => formatNum(Number(text), 'exact');
-
 // A bubble's details on a tap: its sentence filled as the game fills it, how far it is to its cap, the level that
 // reaches the efficiency threshold, and the next level's cost. A bubble at Lv 0 is not found yet (a cauldron's
 // unlocked bubbles stop at its first Lv 0 one), so it has no level to buy
@@ -289,8 +286,7 @@ const bubbleNote = (row, { account, discounts, prismaText, effThreshold, showTar
       {level > 0 ? null : <StatusText status={'needs'}>Not found yet</StatusText>}
     </Stack>
     <ItemCard.Facts rows={[
-      maxText ? ['Bonus', sentenceHasBonus ? `${capText} of ${bonusAmount(maxText)}`
-        : `${bonusAmount(bonusText)} of ${bonusAmount(maxText)} (${capText})`] : null,
+      maxText ? ['Bonus', sentenceHasBonus ? `${capText} of ${maxText}` : `${bonusText} of ${maxText} (${capText})`] : null,
       showTargets && target !== null
         ? Number.isFinite(target) ? [`Reaches ${threshold} at`, `Lv ${formatNum(target)}`] : [`Reaches ${threshold}`, 'Never']
         : null
@@ -315,7 +311,7 @@ const bubbleColumns = (showTargets) => [
     value: (row) => (Number.isFinite(row.target) ? row.target : null)
   } : null,
   { key: 'cap', label: 'Of cap', kind: 'pct', value: (row) => row.capPercent },
-  { key: 'bonus', label: 'Bonus', kind: 'exact', value: (row) => (row.placeholder ? null : Number(row.bonusText)) }
+  { key: 'bonus', label: 'Bonus', kind: 'exact', value: (row) => (row.placeholder ? null : Number(row.bonusText.replace(/,/g, ''))) }
 ].filter(Boolean);
 
 const Bubbles = () => {

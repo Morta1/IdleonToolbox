@@ -3,7 +3,6 @@ import {
   calcMealTime,
   calcTimeToNextLevel,
   getHighestOverflowingLadle,
-  formatMealBonus,
   getMealBonus,
   getMealLevelCost,
   getNoMealLeftBehindLevels,
@@ -12,7 +11,7 @@ import {
   NO_MEAL_LEFT_BEHIND_MIN_LEVEL
 } from '@parsers/world-4/cooking';
 import { cleanUnderscore, formatNum, shownDifference } from 'utility/helpers';
-import { formatGame } from '@utility/gameNotation';
+import { formatGame, mealBonusText } from '@utility/gameNotation';
 import { Box, Button, FormControlLabel, Slider, Stack, Switch, Typography } from '@mui/material';
 import { useLocalStorage } from '@mantine/hooks';
 import NumberField from '@components/common/NumberField';
@@ -54,9 +53,9 @@ const timeText = (hours) => {
   return Number.isFinite(value) ? <Duration seconds={value * 3600}/> : 'Never';
 };
 // A meal sentence's own fill, its sign and unit included: "+{%_Total_Damage" at 3814 reads "+3,814%"
-const mealFill = (effect, value) => effect?.replace('{', formatMealBonus(value)).split('_')[0];
+const mealFill = (effect, value) => effect?.replace('{', mealBonusText(value)).split('_')[0];
 // A meal's gain is the difference of its two fills as printed, so it always adds up (the bracket rule)
-const shownGain = (current, next) => shownDifference(formatMealBonus(current), formatMealBonus(next));
+const shownGain = (current, next) => shownDifference(mealBonusText(current), mealBonusText(next));
 // A short number whose exact digits open on a tap, when they differ from it
 const exactNote = (short, exact) => short === exact ? short : <NoteTrigger note={exact}>{short}</NoteTrigger>;
 // A Facts label led by its sprite: inline, so the row's baseline stays the words'
@@ -232,8 +231,8 @@ const Meals = ({
       {maxed ? <StatusText status={'maxed'}/> : covered ? <StatusText status={'maxed'}>Breakpoint maxed</StatusText>
         : <ItemCard.Progress label={bpLevel > 0 ? `Progress to Lv ${formatNum(bpLevel)}` : 'Progress'}
                              percent={bpCost > 0 ? Math.min(100, 100 * amount / bpCost) : 100}
-                             value={exactNote(<Num value={Math.floor(amount ?? 0)} game={'CookingR.CookingMenuMealCosts'}/>, formatNum(amount ?? 0, 'exact'))}
-                             max={exactNote(<Num value={Math.ceil(bpCost ?? 0)} game={'CookingR.CookingMenuMealCosts'}/>, formatNum(bpCost ?? 0, 'exact'))}/>}
+                             value={exactNote(<Num value={Math.floor(amount ?? 0)} game={'CookingR.CookingMenuMealCosts'} whole/>, formatNum(amount ?? 0, 'exact'))}
+                             max={exactNote(<Num value={Math.ceil(bpCost ?? 0)} game={'CookingR.CookingMenuMealCosts'} whole/>, formatNum(bpCost ?? 0, 'exact'))}/>}
       {maxed ? null : <ItemCard.Facts rows={[
         [bpLevel > 0 ? `To Lv ${formatNum(bpLevel)}` : 'Next level', shownTime(timeToBp)],
         ...ladleRows(timeToBp, singleKitchenMulti)
@@ -262,7 +261,7 @@ const Meals = ({
               key={name} icon={<MealIcon rawName={rawName} plateLevel={level} small/>} title={cleanUnderscore(name)}
               meta={`Lv ${formatNum(level)} → ${formatNum(level + 1)}`}>
               <ItemCard.Facts rows={[
-                ['Bonus', `+${formatMealBonus(current)}% → +${formatMealBonus(next)}% (+${formatMealBonus(shownGain(current, next))}%)`],
+                ['Bonus', `+${mealBonusText(current)}% → +${mealBonusText(next)}% (+${mealBonusText(shownGain(current, next))}%)`],
                 ['Next level', shownTime(timeTillNextLevel)],
                 ...ladleRows(timeTillNextLevel, singleKitchenMulti)
               ]}/>
@@ -306,9 +305,9 @@ const Meals = ({
             const ribbonIndex = ribbonOf(meal);
             const ribbonBonus = getRibbonBonus(account, ribbonIndex);
             const { value: realEffect, breakdown: effectBreakdown } = getMealBonus(account, meal);
-            // The game prints a meal's bonus with its own fill (formatMealBonus); the sentence opens what it adds up to,
+            // A meal's bonus (mealBonusText): the sentence opens what it adds up to,
             // headed and totalled as the sentence reads it ("+3,814%", "+290Px")
-            const sentence = cleanUnderscore(effect?.replace('{', formatMealBonus(realEffect)));
+            const sentence = cleanUnderscore(effect?.replace('{', mealBonusText(realEffect)));
             const effectFill = mealFill(effect, realEffect);
             const nextLevelNotation = level < mealMaxLevel ? mealFill(effect, getMealBonus(account, meal, level + 1).value) : null;
             return <ItemCard key={mealIndex} icon={<MealIcon rawName={rawName} plateLevel={level}/>}

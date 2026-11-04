@@ -34,9 +34,9 @@ const HEADING_SX = { mt: 4, mb: 1.5 };
 // The game rounds this to 0.01%, which hides everything past the first few worlds.
 const formatChance = (chance) => formatNum(Math.min(chance, 100), 'pct', { precise: true });
 // The game draws a brew boost's and a liquid's Cap and Rate pair in Big on both sides (CauldronStats.CauldronLvsBrewREQ)
-const brewReq = (value) => formatGame(value, 'CauldronStats.CauldronLvsBrewREQ');
+const brewReq = (value) => formatGame(value, 'CauldronStats.CauldronLvsBrewREQ', { whole: true });
 // The game draws the liquid in its jar in Small beside the cap in Big: NotateNumber(CauldronInfo[6][i], "Small"), a
-// save field with no gameNotation key, so its fill is copied
+// save field with no gameNotation key, so its fill is copied. A balance a bubble's cost spends, so it stays as the game prints it
 const liquidAmount = (value) => notateNumber(value, 'Small');
 
 // A level against its max, with the Maxed word once it is there
@@ -65,7 +65,7 @@ const getNewBubbleBreakdown = (displayName, cauldron) => {
     const unlocked = unlockedBubbles + offset;
     const bubble = unlocked + 1;
     const chance = getBaseNewBubbleChance(unlocked) * newBubble.multi;
-    const brew = formatGame(getMaxCauldron(unlocked), 'CauldronStats.MaxCauldronQTY');
+    const brew = formatGame(getMaxCauldron(unlocked), 'CauldronStats.MaxCauldronQTY', { whole: true });
     return info(`#${bubble} (World ${Math.ceil(bubble / 5)}): ${brew} per attempt`, chance,
       { formatted: formatChance(chance) });
   });
@@ -97,7 +97,7 @@ const brewingCard = ({ name, displayName }, index, cauldron = {}, characters, fa
   const { newBubble, brewSpeed, attempts = 0, progress = 0, req = 0, players = [], boosts = {} } = cauldron;
   const towardNext = req > 0 ? progress - attempts * req : 0;
   // The game draws the pair in Small while the cauldron's max is under 10, Big from there (CauldronStats.MaxCauldronQTY)
-  const brew = (value) => formatGame(value, 'CauldronStats.MaxCauldronQTY', req);
+  const brew = (value) => formatGame(value, 'CauldronStats.MaxCauldronQTY', { ruleValue: req, whole: true });
   const speedText = formatNum(brewSpeed?.value ?? 0, 'rate');
   const chanceText = formatChance(newBubble?.chance ?? 0);
   const expected = newBubble ? ` (about ${formatNum(newBubble.expectedBubbles ?? 0)} bubbles)` : '';
@@ -130,7 +130,7 @@ const liquidCard = ({ displayName }, index, { upgrades = {}, jar, amount, charac
   const { regen, capacity, players = [] } = upgrades;
   const { maxLiquid, decantCap, decantRate, isDragonic, maxLiquidBreakdown } = jar ?? {};
   const hasCap = Number.isFinite(maxLiquid);
-  const capText = hasCap ? formatGame(maxLiquid, 'CauldronStats.LiquidCap') : '-';
+  const capText = hasCap ? formatGame(maxLiquid, 'CauldronStats.LiquidCap', { whole: true }) : '-';
   const cap = hasCap && maxLiquidBreakdown
     ? <Breakdown key={'cap'} asValue title={`${displayName} capacity`}
                  data={{ ...maxLiquidBreakdown, totalValue: capText }}>{capText}</Breakdown>

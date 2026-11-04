@@ -16,8 +16,8 @@ const getCostToMax = ({ maxLevel, level, gpBaseCost, gpIncrease }) => {
 const bonusSentence = ({ bonus, func, x1, x2, level = 0 }) => {
   const value = growth(func, level, x1, x2, false);
   return cleanUnderscore(`${bonus ?? ''}`
-    .replace(/{/g, gameBonusText(value, { func, x1, x2 }, 'bubble'))
-    .replace(/}/g, gameBonusText(100 - value, { func, x1, x2 }, 'bubble'))
+    .replace(/{/g, gameBonusText(value))
+    .replace(/}/g, gameBonusText(100 - value))
     .replace(/]/g, `${Math.round(level + 10)}`));
 };
 
@@ -31,8 +31,8 @@ const GuildBonuses = ({ bonuses, sectionFailed }) => <CardGrid size={'m'}>
                      level={levelled ? { value: level, max: maxLevel } : undefined}
                      status={levelled && level >= maxLevel ? 'maxed' : undefined}
                      footer={levelled ? <ItemCard.Facts rows={[
-                       ['Cost', `${formatNum(gpBaseCost + level * gpIncrease)} GP`],
-                       ['Cost to max', `${formatNum(getCostToMax({ maxLevel, level, gpBaseCost, gpIncrease }))} GP`]
+                       ['Cost', `${formatNum(gpBaseCost + level * gpIncrease, 'whole')} GP`],
+                       ['Cost to max', `${formatNum(getCostToMax({ maxLevel, level, gpBaseCost, gpIncrease }), 'whole')} GP`]
                      ]}/> : null}>
       {sectionFailed ? null : <ItemCard.Desc text={bonusSentence(bonusObject)}/>}
     </ItemCard>;
