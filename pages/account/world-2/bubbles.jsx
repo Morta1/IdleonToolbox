@@ -237,7 +237,8 @@ const bubbleRow = (bubble, cauldronIndex, { account, prisma, failed, effThreshol
   const { level = 0, func = '', x1, x2 } = bubble;
   const isPrisma = !failed && isPrismaBubble(account, bubble.bubbleIndex);
   const multi = isPrisma ? prisma : 1;
-  const bonus = round(growth(func, level, x1, x2, false) * multi);
+  // A bubble not found yet gives nothing, though some curves start above 0 (bigBase at x1, decayMulti at 1)
+  const bonus = level > 0 ? round(growth(func, level, x1, x2, false) * multi) : 0;
   const placeholder = isPlaceholderBubble(bubble);
   const capped = getMaxBonus(func, x1);
   const maxBonus = capped ? capped * multi : null;
