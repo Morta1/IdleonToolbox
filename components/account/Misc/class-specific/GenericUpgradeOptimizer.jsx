@@ -628,13 +628,14 @@ const GenericUpgradeOptimizer = ({
       value: autoResourcePerHour?.[key] ?? 0,
       formatted: `${formatGame(autoResourcePerHour?.[key] ?? 0, 'RoyalG.OutpostResourceRate')}/hr`
     }))), { combine: 'list' }) : null;
-  // One sentence under the row for the picked option that needs one: a helper line would lift its field off the
-  // row's line
-  const rowNote = optimizationMethod === 'rph-auto'
-    ? 'Auto rates come from your outposts and their nodes, each capped by what its node can give in 24 hours.'
-    : groupMode === 'Game order'
-      ? 'Game order lists one row per upgrade in the game\'s menu order; costs follow the plan\'s order, so the daily 80% discount may land on other purchases.'
-      : null;
+  // A sentence under the row for each picked option that needs one, each on its own line: a helper line would lift
+  // its field off the row's line. The discount clause only where the daily 80% discount prices these upgrades.
+  const rowNotes = [
+    optimizationMethod === 'rph-auto' ? 'Auto rates come from your outposts and their nodes, each capped by what its node can give in 24 hours.' : null,
+    groupMode === 'Game order'
+      ? `Game order lists one row per upgrade in the game's menu order${usesMasterclassReduction ? '; costs follow the plan\'s order, so the daily 80% discount may land on other purchases' : ''}.`
+      : null
+  ].filter(Boolean);
 
   const cards = splitByResource
     ? <Stack gap={3}>
@@ -736,7 +737,7 @@ const GenericUpgradeOptimizer = ({
           <ViewSwitch size={'medium'} label={'View'} options={[['grid', 'Cards'], ['list', 'Table']]} value={viewMode}
                       onChange={setViewMode} sx={{ ml: 'auto' }}/>
         </Stack>
-        {rowNote ? <Typography variant={'body2'} color={'text.secondary'}>{rowNote}</Typography> : null}
+        {rowNotes.map((note) => <Typography key={note} variant={'body2'} color={'text.secondary'}>{note}</Typography>)}
       </Stack>
 
       {optimizationMethod === 'rph' && (
