@@ -139,11 +139,11 @@ describe('royal guardian unit alerts', () => {
     const [spareIcon, parkedIcon] = document.querySelectorAll('img[src*="RGunit2"]');
 
     fireEvent.mouseOver(spareIcon);
-    expect(await screen.findByText(/Guards whose range it does not need - Traders or Surveyors/)).toBeTruthy();
+    expect(await screen.findByText(/Guards whose range it does not need: Traders or Surveyors/)).toBeTruthy();
     expect(screen.getByText('1 spare Guard')).toBeTruthy();
 
     fireEvent.mouseOver(parkedIcon);
-    expect(await screen.findByText(/only reach an empty resource - Traders or Surveyors .* rewire it after the reset/)).toBeTruthy();
+    expect(await screen.findByText(/only reach an empty resource: Traders or Surveyors .* rewire it after the reset/)).toBeTruthy();
     expect(screen.getByText('1 Guard on an empty resource')).toBeTruthy();
   });
 

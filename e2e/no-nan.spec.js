@@ -149,11 +149,13 @@ test('active stuff calculator renders no NaN with a leftover snapshot and no sav
 });
 
 // A logged-out dashboard draws only its sign-in note, so the alert and timer hovers are read on the demo.
-test('dashboard timer tooltips render no NaN/Infinity/undefined', async ({ page }) => {
+test('dashboard alert and timer previews render no NaN/Infinity/undefined', async ({ page }) => {
+  // The demo draws over 500 icons, each hovered in turn
+  test.setTimeout(180_000);
   await page.goto('/dashboard?demo=true', { waitUntil: 'domcontentloaded' });
   await waitForRender(page);
 
-  const hoverables = await page.$$('img');
+  const hoverables = await page.$$('[aria-haspopup="dialog"] img');
   const seen = new Set();
   const offending = new Set();
 
