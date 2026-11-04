@@ -1,78 +1,53 @@
-import { capitalize, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, pascalCase, prefix } from 'utility/helpers';
-import HtmlTooltip from 'components/Tooltip';
-import { IconWithText, TitleAndValue } from '@components/common/styles';
-import ProgressBar from 'components/common/ProgressBar';
-import Box from '@mui/material/Box';
+import { Box, capitalize, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum, pascalCase } from 'utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import ItemCard from '@components/common/cards/ItemCard';
 import { getStatueBonus } from '@parsers/world-1/statues';
 import { getStatueFlairExpMulti, getStatueFlairLevel } from '@parsers/class-specific/royalGuardian';
 
-const Statues = ({ characters, account }) => {
-  return (
-    <Stack sx={{ height: 'fit-content' }} flexWrap={'wrap'} direction={'row'} justifyContent={'center'} gap={2}>
-      {account?.statues?.map((statue, index) => {
-        const { name, rawName, level, bonus, talentMulti, progress } = statue;
-        const calcBonus = level * bonus * talentMulti;
-        const nextLv = Math.round(Math.pow(level, 1.17) * Math.pow(1.35, level / 10) + 1);
-        const flairMulti = getStatueFlairExpMulti(account, index);
-        const flairLevel = getStatueFlairLevel(account, index);
-        return <Box key={name + index} sx={{ position: 'relative' }}>
-          <StatueFlairBanner flairLevel={flairLevel}/>
-          <HtmlTooltip title={<StatueTooltip {...statue} calcBonus={calcBonus} nextLv={nextLv} account={account}
-                                             characters={characters} index={index} flairMulti={flairMulti}
-                                             flairLevel={flairLevel}/>}>
-            <IconWithText stat={level} icon={rawName} size={40}/>
-          </HtmlTooltip>
-          <ProgressBar percent={progress / nextLv * 100} label={false}/>
-        </Box>;
-      })}
-    </Stack>
-  );
+const statueName = (name) => `${capitalize(cleanUnderscore(`${name ?? ''}`.toLowerCase()))} Statue`;
+// The statue's sentence: its @ filled with the bonus to a tenth (the old tooltip's fill; the walk compares the game's)
+const statueSentence = (effect, bonus) => cleanUnderscore(pascalCase(`${effect ?? ''}`.replace(/(%?)(@)/, '$2$1_')
+  .replace('@', Math.floor(10 * bonus) / 10)));
+
+const statueDetails = ({ statue, index, account, characters, nextLv, flairLevel, flairMulti }) => {
+  const { name, level = 0, bonus = 0, talentMulti = 1, progress = 0, effect } = statue ?? {};
+  return <Stack gap={1}>
+    <Box>
+      <Typography variant={'cardTitle'} component={'div'}>{statueName(name)}</Typography>
+      <Typography variant={'body2'} color={'text.secondary'}>{formatNum(level, 'level')}</Typography>
+    </Box>
+    <Typography variant={'body2'}>{statueSentence(effect, level * bonus * talentMulti)}</Typography>
+    <ItemCard.Facts rows={[
+      ['Progress', `${formatGame(progress, 'Big')} / ${formatGame(nextLv, 'Big')}`],
+      ['Voodoo Statufication', formatNum(talentMulti, 'mult')],
+      flairMulti > 1 ? [`Statue Flair ${flairLevel}`, `${formatNum(flairMulti, 'mult')} statue EXP`] : null
+    ]}/>
+    {characters?.length ? <ItemCard.Section label={'Per character'}>
+      <ItemCard.Facts rows={characters.map(({ name: characterName, flatTalents }) => [characterName,
+        formatNum(Math.floor(10 * getStatueBonus(account, index, flatTalents)) / 10, 'amount', { precise: true })])}/>
+    </ItemCard.Section> : null}
+  </Stack>;
 };
 
-// Game draws the flair banner as a font glyph; the pngs are crops of it (z-processing glyph icons, in public/etc).
-// Anchored to the cell's center so it sits on the sprite's top-right whatever the level's width.
-const StatueFlairBanner = ({ flairLevel }) => {
-  if (!flairLevel) return null;
-  return <img style={{ position: 'absolute', top: -4, left: 'calc(50% + 6px)', width: 20, height: 18, zIndex: 1, pointerEvents: 'none' }}
-              src={`${prefix}etc/StatueFlair${flairLevel}.png`} alt={`Statue Flair ${flairLevel}`}/>;
-};
-
-const StatueTooltip = ({
-                         effect,
-                         talentMulti,
-                         name,
-                         account,
-                         progress,
-                         characters,
-                         calcBonus,
-                         nextLv,
-                         index,
-                         flairMulti,
-                         flairLevel
-                       }) => {
-  const desc = cleanUnderscore(pascalCase(effect?.replace(/(%?)(@)/, '$2$1_').replace('@', Math.floor(10 * calcBonus) / 10)));
-  return <>
-    <Typography variant={'cardTitle'} component={'div'}>{capitalize(cleanUnderscore(name.toLowerCase()))}</Typography>
-    <Typography variant={'body1'}>{desc}</Typography>
-    <Divider sx={{ my: 1 }}/>
-    <ProgressBar percent={progress / nextLv * 100}/>
-    <Typography
-      variant={'body2'}>{notateNumber(progress, 'Big')} / {notateNumber(nextLv, 'Big')}</Typography>
-    <Divider sx={{ my: 1 }}/>
-    <Typography component={'div'} variant={'caption'}>Voodo
-      Statufication: {notateNumber(talentMulti, 'MultiplierInfo')}x</Typography>
-    {flairMulti > 1 ? <Typography component={'div'} variant={'caption'}>
-      Statue Flair {flairLevel}: {notateNumber(flairMulti, 'MultiplierInfo')}x statue exp
-    </Typography> : null}
-    <Divider sx={{ my: 1 }}/>
-    <Stack>
-      {characters?.map(({ name: cName, flatTalents }) => {
-        const bonus = getStatueBonus(account, index, flatTalents);
-        return <TitleAndValue key={cName} title={cName} value={Math.floor(10 * bonus) / 10}/>
-      })}
-    </Stack>
-  </>
-};
+const Statues = ({ characters, account }) => <Box sx={{ p: 1.5 }}>
+  <CardGrid size={'icon'}>
+    {(account?.statues ?? []).map((statue, index) => {
+      const level = statue?.level ?? 0;
+      const nextLv = Math.round(Math.pow(level, 1.17) * Math.pow(1.35, level / 10) + 1);
+      const flairLevel = getStatueFlairLevel(account, index);
+      // The game draws the flair banner as a font glyph; the pngs are crops of it (public/etc): the statue's mark
+      return <IconTile key={`${statue?.name}-${index}`} icon={`data/${statue?.rawName}.png`} alt={statueName(statue?.name)}
+                       value={formatNum(level)} status={level ? undefined : 'missing'}
+                       mark={flairLevel ? `etc/StatueFlair${flairLevel}.png` : undefined} markAlt={`Statue Flair ${flairLevel}`}
+                       details={statueDetails({
+                         statue, index, account, characters, nextLv, flairLevel,
+                         flairMulti: getStatueFlairExpMulti(account, index)
+                       })}/>;
+    })}
+  </CardGrid>
+</Box>;
 
 export default Statues;
