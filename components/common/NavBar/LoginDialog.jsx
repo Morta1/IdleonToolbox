@@ -1,7 +1,7 @@
 import { useContext, useEffect, useId, useRef, useState } from 'react';
-import { Box, Button, Link, Stack, Typography } from '@mui/material';
+import { Box, Button, Divider, Link, Stack, Typography } from '@mui/material';
 import {
-  IconBrandApple, IconBrandGoogle, IconBrandSteam, IconCheck, IconChevronDown, IconChevronLeft, IconChevronRight,
+  IconBrandAppleFilled, IconBrandGoogleFilled, IconBrandSteamFilled, IconCheck, IconChevronLeft, IconChevronRight,
   IconMail, IconX
 } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
@@ -13,15 +13,16 @@ import EmailLogin from '../Logins/EmailLogin';
 import GoogleLogin from '../Logins/GoogleLogin';
 import AppleLogin from '../Logins/AppleLogin';
 import SteamLogin from '../Logins/SteamLogin';
+import { fieldEdge } from '../Logins/look';
 import { AppContext } from '../context/AppProvider';
 import { routeNeedsAccount } from '@utility/account-routes';
 import { touchTarget } from '../../../styles/theme/darkTheme';
 
 // The four ways into the game's account (Sign in board). The ids are AppProvider's loginType values.
 const METHODS = [
-  { id: 'google', label: 'Google', Icon: IconBrandGoogle, Flow: GoogleLogin },
-  { id: 'steam', label: 'Steam', Icon: IconBrandSteam, Flow: SteamLogin },
-  { id: 'apple', label: 'Apple', Icon: IconBrandApple, Flow: AppleLogin },
+  { id: 'google', label: 'Google', Icon: IconBrandGoogleFilled, Flow: GoogleLogin },
+  { id: 'steam', label: 'Steam', Icon: IconBrandSteamFilled, Flow: SteamLogin },
+  { id: 'apple', label: 'Apple', Icon: IconBrandAppleFilled, Flow: AppleLogin },
   { id: 'email', label: 'email', Icon: IconMail, Flow: EmailLogin }
 ];
 
@@ -40,10 +41,20 @@ const SOURCE_URL = 'https://github.com/Morta1/IdleonToolbox/tree/main/services/a
 // the game's own Firebase project.
 const READS = ['Your characters, items and progress', 'Live updates while the game runs'];
 const NEVER = [
-  'Store your password: Google, Apple and Steam passwords stay on their own pages, and an email password goes straight to the game\'s sign-in service',
-  'Change your save: it only reads',
+  'Store your password. Google, Apple and Steam passwords stay on their own pages; an email password goes straight to the game\'s sign-in service.',
+  'Change your save. It only reads.',
   'Payments or gem purchases'
 ];
+
+// The board's title block: the close on the title's line, out in the gutter, and no more room under the title
+// than the line that follows wants.
+const HEADER_SX = { pb: 0.5, '& > .MuiIconButton-root': { mr: '-10px' } };
+
+const METHOD_SX = {
+  height: 48, px: '14px', gap: 1.5, justifyContent: 'flex-start', textAlign: 'left', borderRadius: '6px',
+  fontSize: 14, fontWeight: 400, lineHeight: 1.43, letterSpacing: 'normal', color: 'text.primary'
+};
+const LIST_SX = { listStyle: 'none', p: 0, m: 0, mb: 1, gap: '7px', fontSize: 13, lineHeight: '18px' };
 
 // The sample account loads with the page (AppProvider's init runs once per load), so this is a real
 // navigation: the page on screen when it reads an account, the dashboard otherwise. Read from the Router
@@ -64,31 +75,41 @@ const openSample = (event) => {
 };
 
 const Line = ({ Glyph, color, children }) => <Stack component="li" direction="row" gap={1} alignItems="flex-start">
-  <Box component="span" aria-hidden sx={{ color, display: 'inline-flex', pt: '3px' }}><Glyph size={14} stroke={2.5}/></Box>
+  <Box component="span" aria-hidden sx={{ color, display: 'inline-flex', flexShrink: 0, pt: '2px' }}><Glyph size={14} stroke={2}/></Box>
   <span>{children}</span>
 </Stack>;
 
 const ReadsPanel = ({ open, onToggle }) => {
   const panelId = useId();
-  return <Box sx={{ width: { md: 260 }, flexShrink: 0 }}>
-    <Button size="small" onClick={onToggle} aria-expanded={open} aria-controls={panelId}
-            endIcon={<IconChevronDown size={16} style={{ transform: open ? 'rotate(180deg)' : undefined }}/>}
-            // 44 px on touch; not touchTarget, whose inline-flex would show the button from sm on a touch tablet
-            sx={{ display: { xs: 'inline-flex', sm: 'none' }, px: 0, '@media (pointer: coarse)': { minHeight: 44 } }}>
-      What the toolbox reads, and never does
+  return <Box sx={{ display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+    <Button variant="outlined" color="inherit" onClick={onToggle} aria-expanded={open} aria-controls={panelId}
+            sx={{
+              display: { xs: 'flex', sm: 'none' }, height: 44, px: '14px', justifyContent: 'space-between', borderRadius: '6px',
+              borderColor: 'divider', fontSize: 14, fontWeight: 400, letterSpacing: 'normal', textAlign: 'left', color: 'text.primary'
+            }}>
+      <span>What the toolbox reads, and never does</span>
+      <Box component="span" aria-hidden sx={{ display: 'inline-flex', color: 'text.muted', transform: open ? 'rotate(90deg)' : undefined }}>
+        <IconChevronRight size={14}/>
+      </Box>
     </Button>
-    <Box id={panelId} sx={{ display: { xs: open ? 'block' : 'none', sm: 'block' }, typography: 'body2', color: 'text.secondary' }}>
-      <Typography variant="body2" fontWeight={600} color="text.primary">What the toolbox reads</Typography>
-      <Stack component="ul" gap={0.5} sx={{ listStyle: 'none', p: 0, m: 0, mt: 0.5 }}>
+    <Box id={panelId} sx={{
+      display: { xs: open ? 'flex' : 'none', sm: 'flex' }, flexDirection: 'column', gap: 1, flex: 1, mt: { xs: 1.5, sm: 0 },
+      pl: { md: 3 }, borderLeft: { md: 1 }, borderColor: { md: 'divider' }, typography: 'body2', color: 'text.secondary'
+    }}>
+      <Typography variant="body2" fontWeight={500} color="text.primary">What the toolbox reads</Typography>
+      <Stack component="ul" sx={LIST_SX}>
         {READS.map((text) => <Line key={text} Glyph={IconCheck} color="text.success">{text}</Line>)}
       </Stack>
-      <Typography variant="body2" fontWeight={600} color="text.primary" sx={{ mt: 2 }}>What it never does</Typography>
-      <Stack component="ul" gap={0.5} sx={{ listStyle: 'none', p: 0, m: 0, mt: 0.5 }}>
-        {NEVER.map((text) => <Line key={text} Glyph={IconX} color="text.secondary">{text}</Line>)}
+      <Typography variant="body2" fontWeight={500} color="text.primary">What it never does</Typography>
+      <Stack component="ul" sx={LIST_SX}>
+        {NEVER.map((text) => <Line key={text} Glyph={IconX} color="text.error">{text}</Line>)}
       </Stack>
-      <Link href={SOURCE_URL} target="_blank" rel="noopener" variant="body2" sx={{ display: 'inline-block', mt: 2 }}>
-        Open source: see how sign-in works
-      </Link>
+      <Box sx={{ mt: 'auto', fontSize: 12.5 }}>
+        Open source.{' '}
+        <Link href={SOURCE_URL} target="_blank" rel="noopener" underline="hover" sx={touchTarget}>
+          See how sign-in works ›
+        </Link>
+      </Box>
     </Box>
   </Box>;
 };
@@ -159,41 +180,50 @@ const LoginDialog = ({ open, onClose }) => {
     </AppDialog>;
   }
 
-  return <AppDialog open={open} onClose={handleClose} size="l" phone="full" pinTop title="Sign in"
-                    subtitle="Use the account you play Legends of Idleon with.">
+  return <AppDialog open={open} onClose={handleClose} size="l" phone="full" pinTop title="Sign in" headerSx={HEADER_SX}>
+    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>Use the account you play Legends of Idleon with.</Typography>
     {/* Full screen on a phone, where the dialog adds no room of its own under the last line */}
-    <Stack direction={{ xs: 'column', md: 'row' }} gap={3} sx={{ pb: { xs: SHEET_BOTTOM, sm: 0 } }}>
-      <Stack gap={2} sx={{ flex: 1, minWidth: 0 }}>
-        <Box ref={body} sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: '1fr 1fr' }, gap: 1 }}>
+    <Box sx={{
+      display: 'grid', gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 1fr) 290px' }, columnGap: 3, rowGap: 2,
+      pb: { xs: SHEET_BOTTOM, sm: '6px' }
+    }}>
+      <Stack sx={{ gap: { xs: 2, md: '14px' }, minWidth: 0 }}>
+        <Stack ref={body} gap={1.25}>
           {orderMethods(lastMethod).map(({ id, label, Icon }) => (
-            <Button key={id} variant="outlined" startIcon={<Icon size={20}/>} endIcon={<IconChevronRight size={18}/>}
+            <Button key={id} variant="outlined" color="inherit"
                     onClick={() => {
                       leaveFlow();
                       stepChanged.current = true;
                       setMethodId(id);
                     }}
-                    sx={{ justifyContent: 'flex-start', textAlign: 'left', minHeight: 48, '& .MuiButton-endIcon': { ml: 'auto' } }}>
-              <Stack component="span">
-                <span>Continue with {label}</span>
-                {/* StatusText's "selected" look, written out: StatusText imports Notice, which imports this
-                    dialog, and the cycle throws on StatusText's top-level NOTICE_TONES read wherever
-                    Notice is evaluated first (Toolbar, so ControlBar.test.jsx and the wiki's EntityList). */}
-                {id === lastMethod ? <Typography component="span" variant="body2" fontWeight={500} color="primary.main">
-                  Last used
-                </Typography> : null}
-              </Stack>
+                    sx={{ ...METHOD_SX, borderColor: id === lastMethod ? 'primary.edge' : fieldEdge }}>
+              <Icon size={20} style={{ flexShrink: 0 }}/>
+              <span>Continue with {label}</span>
+              {id === lastMethod ? <Box component="span" sx={{ ml: 'auto', typography: 'caption', color: 'text.secondary' }}>
+                Last used
+              </Box> : null}
+              <Box component="span" aria-hidden sx={{ display: 'inline-flex', ml: id === lastMethod ? '10px' : 'auto', color: 'text.muted' }}>
+                <IconChevronRight size={14}/>
+              </Box>
             </Button>
           ))}
-        </Box>
-        <Typography variant="body2" color="text.secondary">
-          Not sure which one? It&apos;s the one you use to start the game.
+        </Stack>
+        <Typography variant="body2" color="text.secondary" sx={{ fontSize: 13 }}>
+          Not sure which one? It&apos;s the one you pick on the game&apos;s login screen.
         </Typography>
-        {!state?.demo ? <Link href={SAMPLE_FALLBACK} onClick={openSample} variant="body2" sx={{ alignSelf: 'flex-start', ...touchTarget }}>
-          Just looking? Browse the sample account
-        </Link> : null}
+        {!state?.demo ? <>
+          <Divider sx={{ my: '2px' }}/>
+          <Stack direction="row" alignItems="center" flexWrap="wrap"
+                 sx={{ columnGap: '14px', minHeight: 32, typography: 'body2', color: 'text.secondary' }}>
+            <span>Just looking?</span>
+            <Link href={SAMPLE_FALLBACK} onClick={openSample} underline="hover" sx={touchTarget}>
+              Browse the sample account
+            </Link>
+          </Stack>
+        </> : null}
       </Stack>
       <ReadsPanel open={showReads} onToggle={() => setShowReads(!showReads)}/>
-    </Stack>
+    </Box>
   </AppDialog>;
 };
 

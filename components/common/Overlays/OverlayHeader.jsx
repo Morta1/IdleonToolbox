@@ -4,9 +4,9 @@ import { IconX } from '@tabler/icons-react';
 // Title (section-title, 18/600), an optional line under it, an optional aside before the close (a
 // breakdown's total), and a 40 px close button that is always there. The title and the aside share a wrapping
 // row: beside each other while both fit whole, the aside on its own line under the title when they don't, so
-// a long total never squeezes the title into a word per line or draws over it.
-const OverlayHeader = ({ titleId, title, subtitle, icon, aside, onClose }) => (
-  <Stack direction="row" alignItems="center" gap={1.5} sx={{ px: 3, pt: 2, pb: 1.5, flexShrink: 0 }}>
+// a long total never squeezes the title into a word per line or draws over it. sx: a form's own room around the title.
+const OverlayHeader = ({ titleId, title, subtitle, icon, aside, sx, onClose }) => (
+  <Stack direction="row" alignItems="center" gap={1.5} sx={{ px: 3, pt: 2, pb: 1.5, flexShrink: 0, ...sx }}>
     {icon}
     <Box sx={{ flex: 1, minWidth: 0, display: 'flex', flexWrap: 'wrap', alignItems: 'center', columnGap: 1.5, rowGap: 0.5 }}>
       <Box sx={{ flex: '1 1 auto' }}>
