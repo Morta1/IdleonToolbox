@@ -183,8 +183,9 @@ const Section = ({ label, children }) => <Stack gap={1} sx={{ pt: 1, borderTop: 
 // game names the stat's rule in gameNotation (MenagerieStuff.Cost), and a stat with no rule prints Big, the mode the
 // game draws nearly every owned / cost pair in (Breeding, the Hole, the Masterclass upgrades). format replaces it for
 // a currency with its own notation (Gaming bits). icon as a function of the amount is a tiered currency's (bits: the
-// notation divides by 1e18 per tier), so each amount carries its own tier's sprite.
-const Cost = ({ icon, iconAlt = '', need, have, game = 'Big', format }) => {
+// notation divides by 1e18 per tier), so each amount carries its own tier's sprite. needBelow keeps "need X more" on a
+// line of its own, so only the amounts set the width a narrow column has to leave the cost.
+const Cost = ({ icon, iconAlt = '', need, have, game = 'Big', format, needBelow }) => {
   const known = typeof have === 'number';
   const short = known && have < need;
   const perAmount = typeof icon === 'function';
@@ -192,7 +193,7 @@ const Cost = ({ icon, iconAlt = '', need, have, game = 'Big', format }) => {
     {format ? format(value) : <Num value={value} game={game} whole/>}
     {perAmount ? <GameIcon src={icon(value)} size={16} alt={iconAlt}/> : null}
   </>;
-  return <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+  const amounts = <>
     {perAmount ? null : typeof icon === 'string' ? <GameIcon src={icon} size={24} alt={iconAlt}/> : icon}
     <Typography variant={'body2'} component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
       {known ? <>
@@ -206,10 +207,13 @@ const Cost = ({ icon, iconAlt = '', need, have, game = 'Big', format }) => {
         {amount(need)}
       </Box>
     </Typography>
-    {short ? <Typography variant={'body2'} component={'span'} color={'text.secondary'}>
-      need {amount(need - have)} more
-    </Typography> : null}
-  </Stack>;
+  </>;
+  const needLine = short ? <Typography variant={'body2'} component={'span'} color={'text.secondary'}>
+    need {amount(need - have)} more
+  </Typography> : null;
+  return needBelow
+    ? <Stack gap={0.5}><Stack direction={'row'} alignItems={'center'} gap={1}>{amounts}</Stack>{needLine}</Stack>
+    : <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>{amounts}{needLine}</Stack>;
 };
 
 ItemCard.Desc = Desc;

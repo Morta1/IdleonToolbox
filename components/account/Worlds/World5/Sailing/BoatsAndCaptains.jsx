@@ -74,23 +74,25 @@ const cloudSection = (cloud, lastUpdated) => {
   </ItemCard.Section>;
 };
 
-// A boat upgrade: its value now and next, the next bonus level and what it costs, and the next level's cost against
-// the treasure owned. Two of these sit side by side under one line (Cards board's L card), one over the other where
-// a column would drop under 150 px (a phone).
+// A boat upgrade: its value now and next, the next level's cost against the treasure owned, then the next bonus level
+// and what it costs to reach. Two of these sit side by side under one line (Cards board's L card).
 const upgradeSection = (title, level, step, value, next, key, resource, breakpointResource) => {
   const breakpoint = (level ?? 0) + (step - ((level ?? 0) % step));
-  return <Stack gap={1} sx={{ minWidth: 0 }}>
+  const bonusCost = breakpointResource ? `: ${formatGame(breakpointResource?.required ?? 0, 'Sailing.BoatUpgCostQty', { whole: true })}` : '';
+  return <Stack gap={0.75} sx={UPGRADE_SX}>
     <Typography variant={'groupLabel'} color={'text.secondary'}>{`${title} · Lv ${formatNum(level ?? 0)}`}</Typography>
-    <ItemCard.Facts rows={[
-      ['Value', `${formatGame(value ?? 0, key)} → ${formatGame(next ?? 0, key)}`],
-      ['Next bonus', `Lv ${formatNum(breakpoint)} (${formatNum(breakpoint - (level ?? 0))} more)`],
-      breakpointResource ? [`Cost to Lv ${formatNum(breakpoint)}`, formatGame(breakpointResource?.required ?? 0, 'Sailing.BoatUpgCostQty', { whole: true })] : null
-    ]}/>
-    {resource ? <ItemCard.Cost icon={`data/${resource.rawName}.png`} iconAlt={treasureName(treasureIndex(resource.rawName))}
+    <Typography variant={'body2'} component={'div'} sx={{ fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>
+      {`${formatGame(value ?? 0, key)} → ${formatGame(next ?? 0, key)}`}
+    </Typography>
+    {resource ? <ItemCard.Cost icon={`data/${resource.rawName}.png`} iconAlt={treasureName(treasureIndex(resource.rawName))} needBelow
                                need={resource.required ?? 0} have={resource.amount ?? 0} game={'Sailing.BoatUpgCostQty'}/> : null}
+    <Typography color={'text.secondary'} component={'div'} sx={{ fontSize: 13, lineHeight: '18px' }}>{`Bonus at Lv ${formatNum(breakpoint)}${bonusCost}`}</Typography>
   </Stack>;
 };
-const UPGRADES_SX = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 2, pt: 1, borderTop: 1, borderColor: 'divider' };
+const UPGRADES_SX = { display: 'flex', flexWrap: 'wrap', gap: 2, pt: 1, borderTop: 1, borderColor: 'divider' };
+// A block is as wide as its longest line and no line breaks. Two that fit share the row in equal columns, two that
+// don't stack, so a long value never splits on a phone.
+const UPGRADE_SX = { flex: '1 1 0', minWidth: 'max-content', whiteSpace: 'nowrap' };
 
 // Three columns, two on a phone. A column's first row draws no line: the Panel's header band sits over it.
 const ISLANDS_SX = {
