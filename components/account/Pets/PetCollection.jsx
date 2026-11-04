@@ -146,12 +146,13 @@ const PetCollection = ({ companions, sectionFailed, tournamentFailed }) => {
     const stateOf = petState(pet);
     const editable = editing && !plusView && pet.copies === 0 && !pet.viaToken;
     const shownEffect = plusView ? pet.upgradedEffect : pet.upgraded && pet.upgradedEffect ? pet.upgradedEffect : pet.effect;
-    const upgradeCost = !pet.upgraded && pet.upgradeCost > 0 ? <Stack direction={'row'} alignItems={'center'} columnGap={1} flexWrap={'wrap'}>
+    // The label on its own line at every price width, so the cost rows of a grid read alike
+    const upgradeCost = !pet.upgraded && pet.upgradeCost > 0 ? <Box>
       {plusView ? null : <Typography variant={'body2'} color={'text.secondary'}>Pet Mart+</Typography>}
       <ItemCard.Cost icon={petCrystalIcon(24)} iconAlt={'Pet Crystals'} need={pet.upgradeCost}
                      have={failed ? undefined : state?.account?.companions?.petCrystals ?? 0}
                      format={(value) => formatNum(value)}/>
-    </Stack> : null;
+    </Box> : null;
     const sale = saleLine(salesOf(pet.index));
     return <ItemCard key={pet.index} icon={<GameIcon src={monsterSprite(pet.name)} size={40} alt={''}
                                                      status={isMissing(pet) ? 'missing' : undefined}/>}
