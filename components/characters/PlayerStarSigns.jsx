@@ -1,26 +1,19 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatStarSignBonus } from 'utility/helpers';
+import { Typography } from '@mui/material';
+import Panel from '@components/common/cards/Panel';
 
 const PlayerStarSigns = ({ signs }) => {
-  const sortedSigns = signs?.toSorted((a, b) => a?.starName.localeCompare(b?.starName, 'en'))
-  return <Stack sx={{ width: { xs: '100%', sm: 340 } }}>
-    <Typography variant={'sectionTitle'} component={'h2'}>Star Signs</Typography>
-    <Stack gap={1}>
-      {sortedSigns?.map(({ starName, bonuses }, index) => {
-        const hasChipBoost = bonuses?.some(({ chipBoost }) => chipBoost > 1);
-        return starName !== 'None' ? <Card key={starName + index}>
-            <CardContent>
-              <Typography fontWeight={'bold'} variant={'body1'}>{cleanUnderscore(starName)}</Typography>
-              {/* Each of the game's lines on its own: a comma between them broke a sentence that runs over two */}
-              {bonuses?.map(({ rawName, bonus }, lineIndex) => <Typography key={lineIndex} color={hasChipBoost ? 'text.info' : ''}>
-                {cleanUnderscore(formatStarSignBonus(rawName, bonus))}
-              </Typography>)}
-            </CardContent>
-          </Card>
-          : null;
-      })}
-    </Stack>
-  </Stack>
+  const sortedSigns = signs?.toSorted((a, b) => a?.starName.localeCompare(b?.starName, 'en'));
+  return <Panel title={'Star Signs'}>
+    {sortedSigns?.map(({ starName, bonuses }, index) => (starName !== 'None' ? <Panel.Row
+      key={starName + index}
+      name={cleanUnderscore(starName)}
+      // Each of the game's lines on its own: a comma between them broke a sentence that runs over two
+      sub={<>
+        {bonuses?.map(({ rawName, bonus }, lineIndex) => <div key={lineIndex}>{cleanUnderscore(formatStarSignBonus(rawName, bonus))}</div>)}
+        {bonuses?.some(({ chipBoost }) => chipBoost > 1) ? <Typography variant={'caption'} component={'div'}>Chip boosted</Typography> : null}
+      </>}/> : null))}
+  </Panel>;
 };
 
 export default PlayerStarSigns;

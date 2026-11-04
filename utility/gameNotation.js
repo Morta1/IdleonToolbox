@@ -1,7 +1,7 @@
 // The key's own file, not the @website-data barrel: the barrel builds itemsArray when it loads, so importing it
 // ships every table to any page that prints a Num (the wiki's included).
 import gameNotation from '../data/website-data/gameNotation.json';
-import { commaNotation, formatNum, getBitIndex, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, formatNum, getBitIndex, notateNumber } from '@utility/helpers';
 
 // Numbers board, lane A: a number the game shows, in the format the game's own call for that stat uses. z-processing
 // reads the rules from N.js (analysis/facts/gameNotation.js) into website-data's gameNotation, keyed
@@ -81,6 +81,11 @@ export const tomeQuantity = ({ x2, x4 } = {}, quantity) => (quantity > 1e9 && x2
 
 // The game's vote and meritocracy lines (N.js, the ballot screen): { is the bonus rounded to a tenth, } is
 // 1 + bonus / 100 in MultiplierInfo, the x left to the sentence.
+// The game's prayer screen fill, Math.round(x * max(1, 1 + (lv - 1) / 10)) (N.js, the prayer panel): whole numbers, and a
+// prayer at Lv 0 reads its first level's numbers
+export const prayerValue = (base, level) => Math.round((base ?? 0) * Math.max(1, 1 + ((level ?? 0) - 1) / 10));
+export const fillPrayer = (text, value) => cleanUnderscore(text ?? '').replace('{', formatNum(value));
+
 export const fillVoteText = (description, bonus) => (description ?? '')
   .replace('{', String(Math.round(10 * (bonus ?? 0)) / 10))
   .replace('}', notateNumber(1 + (bonus ?? 0) / 100, 'MultiplierInfo'));

@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum } from 'utility/helpers';
-import { formatGame } from '@utility/gameNotation';
+import { fillPrayer, formatGame, prayerValue } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import { calcPrayerCost, getPrayers } from '@parsers/world-3/prayers';
 import { items as itemsTable } from '@website-data';
@@ -11,10 +11,6 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 
-// The game's prayer screen fill, Math.round(x * max(1, 1 + (lv - 1) / 10)) (N.js, the prayer panel): whole numbers, and a
-// prayer at Lv 0 reads its first level's numbers (Decision 11)
-const prayerValue = (base, level) => Math.round((base ?? 0) * Math.max(1, 1 + ((level ?? 0) - 1) / 10));
-const fillPrayer = (text, value) => cleanUnderscore(text ?? '').replace('{', formatNum(value));
 const soulName = (rawName) => cleanUnderscore(itemsTable?.[rawName]?.displayName ?? rawName);
 
 const calcCostToMax = (prayer) => Array.from({ length: Math.max(0, (prayer?.maxLevel ?? 0) - (prayer?.level ?? 0)) },

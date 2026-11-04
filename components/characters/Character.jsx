@@ -17,7 +17,6 @@ import AnvilDetails from './AnvilDetails';
 import PlayerStarSigns from './PlayerStarSigns';
 import PlayerBubbles from './PlayerBubbles';
 import Stats from './Stats';
-import ActiveSkillsCD from './ActiveSkillsCD';
 import Inventory from './Inventory';
 import Chips from '../account/Worlds/World4/Chips';
 import Divinity from './Divinity';
@@ -87,7 +86,7 @@ const Character = ({
       component: <AnvilDetails characters={characters} character={character} account={account} />,
       filter: 'Anvil Details'
     },
-    { component: <Inventory inventory={inventory} inventorySlots={inventorySlots} />, filter: 'Inventory' },
+    { component: <Inventory inventory={inventory} inventorySlots={inventorySlots} account={account} />, filter: 'Inventory' },
     { component: <PostOffice {...postOffice} showUnmaxedBoxesOnly={showUnmaxedBoxesOnly} />, filter: 'Post Office' },
     {
       component: <Chips playerLabLevel={skillsInfo?.laboratory?.level ?? 0}
