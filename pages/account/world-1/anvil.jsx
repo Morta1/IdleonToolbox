@@ -1,6 +1,6 @@
 import React, { Fragment, useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, fillArrayToLength, formatNum } from 'utility/helpers';
 import { formatGame } from '@utility/gameNotation';
@@ -66,11 +66,12 @@ const Anvil = () => {
 
   const slotCard = (slot, slotIndex, stats, afkTime) => {
     if (!slot?.hammers) return <ItemCard key={`empty-${slotIndex}`} title={'Empty slot'} dimmed/>;
-    const { rawName, hammers, currentProgress = 0, requiredAmount, currentXP, displayName, exp } = slot;
+    const { rawName, hammers, requiredAmount, currentXP, displayName, exp } = slot;
     const future = getAnvilFutureProduction({ ...slot, stats, afkTime });
     const capacity = stats?.anvilCapacity;
     const percentOfCap = Math.round(future / capacity * 100);
-    const perDay = ((currentProgress + 24 * (stats?.anvilSpeed ?? 0)) / requiredAmount) * hammers;
+    // The Summary's rate for this character and product: a slot makes no more an hour than its cap holds
+    const perDay = 24 * Math.min((stats?.anvilSpeed ?? 0) * hammers / requiredAmount, capacity ?? 0);
     const timeTillCap = getTimeTillCap({ ...slot, stats, afkTime });
     const timeFromZero = getTimeTillCap({
       ...slot,
@@ -138,7 +139,9 @@ const Anvil = () => {
       ? <Notice tone={'signin'} sx={{ mb: 2 }}>Each character&apos;s anvil shows here once you sign in.</Notice>
       : null}
     {products.length ? <PageSummary>{products.map(productTile)}</PageSummary> : null}
-    {anvil.length ? <Stack gap={2}>{anvil.map(anvilPanel)}</Stack> : <>
+    {/* Two or three characters a row from md: a character runs two or three slots, so a full-width Panel was mostly
+     empty */}
+    {anvil.length ? <CardGrid size={'l'}>{anvil.map(anvilPanel)}</CardGrid> : <>
       <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1.5 }}>Anvil products</Typography>
       <CardGrid size={'s'}>{getAnvilProductCatalog().map(catalogCard)}</CardGrid>
     </>}
