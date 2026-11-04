@@ -1,11 +1,14 @@
 // @vitest-environment jsdom
 import '../../polyfills';
 import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 import Characters from '@components/dashboard/Characters';
+
+// The section's Toolbar pins under the profile band, which reads the route.
+vi.mock('next/router', () => ({ useRouter: () => ({ query: {}, asPath: '/dashboard', pathname: '/dashboard' }) }));
 
 const trackers = {
   bags: { checked: true, options: [{ name: 'unmaxedBags', checked: true }] }

@@ -4,6 +4,7 @@ import { differenceInHours, differenceInMinutes } from 'date-fns';
 import {
   cashFormatter,
   commaNotation,
+  formatNum,
   getCoinsArray,
   kFormatter,
   notateNumber,
@@ -15,6 +16,7 @@ import Timer from '../common/Timer';
 import Tooltip from '../Tooltip';
 import { getAfkGain, getCashMulti, getClassExpMulti, getDropRate, getRespawnRate, notateExpMulti } from '../../parsers/character';
 import { getGoldenFoodMulti } from '../../parsers/misc';
+import { formatGame } from '@utility/gameNotation';
 import React from 'react';
 import { getMaxDamage, notateDamage } from '../../parsers/damage';
 import CoinDisplay from '../common/CoinDisplay';
@@ -31,6 +33,38 @@ const colors = {
   agility: 'success.light',
   wisdom: 'secondary',
   luck: 'warning.light'
+};
+
+// The game's Cash multi fill: Big past 1e16, its own B past 1e10 and M past 1e7, MultiplierInfo under.
+const cashMultiText = (value) => (value > 1e16 || value <= 1e7 ? formatGame(value, 'ArbitraryCode.MonsterCash')
+  : value > 1e10 ? `${Math.floor(value / 1e8) / 10}B` : `${Math.floor(value / 1e5) / 10}M`);
+
+// The stats /characters and the dashboard's cards both show, in one label and one format each: { label, value, breakdown,
+// notation } (notation: the breakdown's own number rule). The game's rule where gameNotation names the stat.
+export const characterStatFacts = (character, characters, account) => {
+  const { crystalSpawnChance, nonConsumeChance } = character || {};
+  const playerInfo = getMaxDamage(character, characters, account) || {};
+  const { cashMulti, breakdown: cashBreakdown } = getCashMulti(character, account, characters, playerInfo) || {};
+  const { dropRate, breakdown: dropBreakdown } = getDropRate(character, account, characters) || {};
+  const { respawnRate, breakdown: respawnBreakdown } = getRespawnRate(character, account) || {};
+  const { afkGains, breakdown: afkBreakdown } = getAfkGain(character, characters, account) || {};
+  const guaranteed = crystalSpawnChance?.guaranteedLeft > 0;
+  return [
+    { label: 'Damage', value: <GameIconNotation value={notateDamage(playerInfo)} sx={{ typography: 'body2', fontWeight: 500, flexWrap: 'wrap', justifyContent: 'flex-end' }}/>, breakdown: playerInfo?.damageBreakdown, notation: 'ThreeDecimals' },
+    { label: 'HP', value: formatNum(playerInfo?.maxHp) },
+    { label: 'MP', value: formatNum(playerInfo?.maxMp) },
+    { label: 'Accuracy', value: formatNum(playerInfo?.accuracy) },
+    { label: 'Movement speed', value: formatNum(playerInfo?.movementSpeed, 'pct') },
+    { label: 'Cash multi', value: cashMulti == null ? '-' : `${cashMultiText(cashMulti)}x`, breakdown: cashBreakdown, notation: 'Smaller' },
+    { label: 'Drop rate', value: dropRate == null ? '-' : `${formatGame(dropRate, 'TotalStats.Drop_Rarity')}x`, breakdown: dropBreakdown, notation: 'ThreeDecimals' },
+    { label: 'Respawn time', value: formatNum(respawnRate, 'pct'), breakdown: respawnBreakdown, notation: 'Smaller' },
+    { label: 'AFK gains', value: afkGains == null ? '-' : `${formatGame(afkGains * 100, 'AFKgainrates.Fighting')}%`, breakdown: afkBreakdown },
+    // effectiveValue, not value: the game rolls min(cap, chance), so the raw number overstates how often a crystal spawns
+    guaranteed
+      ? { label: 'Crystal guaranteed', value: `${formatGame(crystalSpawnChance.guaranteedLeft, 'Thingies.GuaranteedCrystalMobs')} left` }
+      : { label: 'Crystal chance', value: formatNum(crystalSpawnChance?.effectiveValue, 'odds'), breakdown: crystalSpawnChance?.breakdown },
+    { label: 'Non consume chance', value: formatNum(nonConsumeChance, 'pct') }
+  ];
 };
 
 const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => {

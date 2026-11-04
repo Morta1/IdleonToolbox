@@ -22,6 +22,7 @@ import { buildModel } from '@utility/dashboard/settingsModel';
 import { runAction } from '@utility/dashboard/settingsActions';
 import { alertLabel, alertPage, buildQuickEdit, pageHref } from '@utility/dashboard/quickEdit';
 import { useRouter } from 'next/router';
+import usePageTop from '@hooks/usePageTop';
 import { closeNotice, notify } from '@components/common/Overlays/notify';
 import { trackSettingsEvent } from '@utility/dashboard/settingsAnalytics';
 import AlertQuickEdit from '@components/dashboard/settings/AlertQuickEdit';
@@ -106,6 +107,8 @@ const Dashboard = () => {
   const [storageRead, setStorageRead] = useState(false);
   useEffect(() => setStorageRead(true), []);
   const [initialFilter, setInitialFilter] = useState('all');
+  const [sectionsBarBottom, setSectionsBarBottom] = useState(0);
+  const pageTop = usePageTop();
 
   const handleOpenSettings = (configType, path, source) => {
     trackSettingsEvent('alert_settings_opened', { source });
@@ -209,7 +212,7 @@ const Dashboard = () => {
     goals: <Goals/>,
     account: <Account trackers={config?.account} characters={characters} account={account} lastUpdated={lastUpdated}/>,
     characters: <Characters trackers={config?.characters} characters={characters} account={account}
-                            lastUpdated={lastUpdated} hideAlertless={hideAlertless}/>,
+                            lastUpdated={lastUpdated} hideAlertless={hideAlertless} onHideAlertless={setHideAlertless}/>,
     timers: <Etc characters={characters} account={account} trackers={config?.timers} lastUpdated={lastUpdated}/>
   };
 
@@ -228,14 +231,15 @@ const Dashboard = () => {
                                                                  handleOpenSettings(null, null, 'note');
                                                                }}
                                                                onDismiss={() => setDefaultsNoteDismissed(true)}/> : null}
-      <Toolbar noun={'sections'}>
+      <Toolbar noun={'sections'} onStickyBottom={setSectionsBarBottom}>
         <Toolbar.Lead>
           <SectionToggles order={sectionOrder} filters={filters} onFilters={handleFilters} onReorder={setSavedOrder}/>
         </Toolbar.Lead>
       </Toolbar>
       <PageSettings onOpen={() => handleOpenSettings(null, null, 'button')} label={'Configure alerts'}
                     changed={Object.keys(diffTrackers(baseTrackers, config)).length > 0}/>
-      <Stack gap={2}>
+      {/* A section's own Toolbar pins right under the page's, the way a pinned tab strip takes this variable */}
+      <Stack gap={2} sx={{ '--page-tabs-pinned': `${Math.max(0, sectionsBarBottom - pageTop)}px` }}>
         <DashboardSettingsProvider onOpenAlert={handleOpenAlert}
                                    labelFor={(configType, target, extra) => alertLabel(config, configType, target, extra)}
                                    hrefFor={(configType, target) => {
