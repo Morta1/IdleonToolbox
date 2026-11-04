@@ -1,7 +1,7 @@
 import React from 'react';
 import Library from '../account/Worlds/World3/Library';
 import NextLink from 'next/link';
-import { Card, CardContent, Divider, Link, Stack, Typography } from '@mui/material';
+import { Link, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum, getDuration, getNextCompanionClaim, splitTime } from '@utility/helpers';
 import { fillVoteText, formatGame } from '@utility/gameNotation';
 import useFormatDate from '@hooks/useFormatDate';
@@ -49,7 +49,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     const allEmpty = Object.values(data || {}).every(({ checked }) => !checked);
     return { ...res, [alertName]: allEmpty };
   }, {});
-  const router = useRouter();
   const events = getRandomEvents(account);
   // `events[0]` is still listed while its hour is running, so it's the event happening NOW, not the
   // next one to spawn. The icon and the countdown have to resolve to the same event or the tile
@@ -627,44 +626,13 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
       </Section>}
 
       {trackers?.Etc?.minibosses?.checked && <Section title={'Bosses'}>
-        {showDefecaus || showBaba ? <Stack gap={2} sx={{ px: 2, py: 1.5 }}>
-          <BossRespawns account={account} characters={characters} lastUpdated={lastUpdated}
-            showDefecaus={showDefecaus} showBaba={showBaba} />
-        </Stack> : null}
-        {minibosses?.length > 0 ? <Stack gap={1} sx={{ px: 2, py: 1.5 }}>
-          <Stack gap={2}
-            sx={{ cursor: 'pointer' }}
-            onClick={() => router.push({ pathname: '/account/world-3/death-note', query: sessionQuery(router.query) })}
-          >
-            {minibosses.map(({ rawName, name, current, daysTillNext, maxed }) => {
-              return <Stack key={`miniboss-timer-${rawName}`}>
-                <Stack direction={'row'} alignItems={'center'} gap={1}>
-                  <AlertIcon configType={'timers'} target="Etc.minibosses" extra={{ items: [{ key: MINIBOSS_KEYS[rawName] }] }}
-                    icon={`etc/${rawName}.png`} size={TIMER_ICON_SIZE}/>
-                  <Stack>
-                    <Typography>{cleanUnderscore(name)}</Typography>
-                    <Stack direction={'row'} alignItems={'center'} gap={1}
-                      divider={<Divider orientation={'vertical'}
-                        flexItem />}>
-                      <Typography component={'span'} color="text.secondary">Current: <Typography
-                        color={maxed ? 'text.error' : 'inherit'} component={'span'}>{maxed
-                          ? `Maxed (${current})`
-                          : current}</Typography></Typography>
-                      {!maxed ? <Typography color="text.secondary">+1 in {daysTillNext} days</Typography> : null}
-                    </Stack>
-                  </Stack>
-                </Stack>
-              </Stack>
-            })}
-          </Stack>
-        </Stack> : null}
+        {showDefecaus || showBaba
+          ? <BossRespawns account={account} characters={characters} lastUpdated={lastUpdated} showDefecaus={showDefecaus} showBaba={showBaba}/>
+          : null}
+        {minibosses?.map((miniboss) => <MinibossRow key={`miniboss-timer-${miniboss.rawName}`} {...miniboss}/>)}
       </Section>}
-      {trackers?.Etc?.library?.checked && account?.finishedWorlds?.World2 ?
-        <Card sx={{ width: 'fit-content', height: 'fit-content' }}>
-          <CardContent>
-            <Library libraryTimes={account?.libraryTimes} lastUpdated={lastUpdated} />
-          </CardContent>
-        </Card> : null}
+      {trackers?.Etc?.library?.checked && account?.finishedWorlds?.World2
+        ? <Library libraryTimes={account?.libraryTimes} failed={failed('libraryTimes')}/> : null}
     </CardGrid>
   </>
 };
@@ -709,6 +677,24 @@ const TimerRow = ({
     {href && !failed ? <Link component={NextLink} href={href} underline={'hover'} color={'inherit'} variant={'body2'}>{value}</Link>
       : <Typography component={'span'} variant={'body2'}>{value}</Typography>}
     {failed ? null : state}
+  </Stack>;
+};
+
+// A miniboss: its icon opens the alert's quick edit, its name links to the Death Note, and it reads how many wait.
+const MinibossRow = ({ rawName, name, current, daysTillNext, maxed }) => {
+  const router = useRouter();
+  return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={{ px: 2, py: 1.25 }}>
+    <AlertIcon configType={'timers'} target="Etc.minibosses" extra={{ items: [{ key: MINIBOSS_KEYS[rawName] }] }}
+               icon={`etc/${rawName}.png`} size={TIMER_ICON_SIZE}/>
+    <Stack sx={{ minWidth: 0 }}>
+      <Link component={NextLink} href={{ pathname: '/account/world-3/death-note', query: sessionQuery(router.query) }}
+            underline={'hover'} color={'inherit'} variant={'body2'} sx={{ fontWeight: 500 }}>{cleanUnderscore(name)}</Link>
+      {maxed
+        ? <StatusText status={'ready'}>{`Maxed (${formatNum(current)})`}</StatusText>
+        : <Typography variant={'body2'} color={'text.secondary'}>
+          {`Current ${formatNum(current)} · +1 in ${formatNum(daysTillNext)} day${daysTillNext === 1 ? '' : 's'}`}
+        </Typography>}
+    </Stack>
   </Stack>;
 };
 

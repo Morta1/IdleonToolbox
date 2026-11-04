@@ -1,13 +1,14 @@
 import React from 'react';
-import { Button, Divider, IconButton, Stack, Typography } from '@mui/material';
-import InfoIcon from '@mui/icons-material/Info';
+import { Box, Button, IconButton, Stack, Typography } from '@mui/material';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import styled from '@emotion/styled';
 import useFormatDate from '@hooks/useFormatDate';
 import useBossRespawns from '@hooks/useBossRespawns';
-import Tooltip from '../Tooltip';
 import Timer from '../common/Timer';
-import { prefix } from '@utility/helpers';
+import GameIcon from '@components/common/GameIcon';
+import InfoButton from '@components/common/InfoButton';
+import StatusText from '@components/common/StatusText';
+
+const TAP = { minHeight: { xs: 44, sm: 'auto' } };
 
 const BossRespawns = ({ account, characters, lastUpdated, showDefecaus = true, showBaba = true }) => {
   const formatDate = useFormatDate();
@@ -31,84 +32,61 @@ const BossRespawns = ({ account, characters, lastUpdated, showDefecaus = true, s
     {showDefecaus ? <BossRow
       icon={'monsters/poopBig/static.png'}
       name={'Dr Defecaus'}
-      dimmed={defecausStatus !== 'up'}
+      up={defecausStatus === 'up'}
+      onKill={killDefecaus}
+      onUndo={undoDefecaus}
+      waitLabel={'Next in'}
+      waitDate={nextReset}
       info={<>
         <Typography variant={'body2'}>Respawns on every daily reset.</Typography>
         <Typography variant={'body2'}>The respawn timer lives on the device that ran the reset, so if you
           switched devices he may not be up there.</Typography>
         <Typography variant={'body2'}>{trackingNote}</Typography>
       </>}
-    >
-      {defecausStatus === 'up' ? <>
-        <Typography color={'text.error'}>Up</Typography>
-        <Button size={'small'} variant={'outlined'} sx={{ py: 0, minWidth: 0 }}
-          onClick={killDefecaus}>Killed</Button>
-      </> : <>
-        <Typography sx={{ opacity: 0.6 }}>Killed</Typography>
-        <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-          <Typography component={'span'} color={'text.secondary'} noWrap>Next in <Timer type={'countdown'} date={nextReset}
-            stopAtZero /></Typography>
-          <UndoButton onClick={undoDefecaus} />
-        </Stack>
-      </>}
-    </BossRow> : null}
+    /> : null}
     {showBaba ? <BossRow
       icon={'monsters/babayaga/static.png'}
       name={'Baba Yaga'}
-      dimmed={!babaUp}
+      up={babaUp}
+      onKill={killBaba}
+      onUndo={undoBaba}
+      waitLabel={'Back in'}
+      waitDate={babaRespawnAt}
       info={<>
         <Typography variant={'body2'}>Respawns 22h 20m after she was killed.</Typography>
-        {!babaUp ? <Typography variant={'body2'}>Killed at {formatDate(babaKilledAt)}</Typography> : null}
+        {!babaUp ? <Typography variant={'body2'}>{`Killed at ${formatDate(babaKilledAt, { showSeconds: false })}`}</Typography> : null}
         <Typography variant={'body2'}>The respawn timer lives on the device you killed her on.</Typography>
         <Typography variant={'body2'}>{tracked
           ? 'The timer starts on its own when the boss Death Note kill count goes up, from the moment Toolbox notices it. Click Killed to start it yourself.'
           : 'Click Killed after you kill her to start the timer.'}</Typography>
       </>}
-    >
-      {babaUp ? <>
-        <Typography color={'text.error'}>Up</Typography>
-        <Button size={'small'} variant={'outlined'} sx={{ py: 0, minWidth: 0 }}
-          onClick={killBaba}>Killed</Button>
-      </> : <>
-        <Typography sx={{ opacity: 0.6 }}>Killed</Typography>
-        <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-          <Typography component={'span'} color={'text.secondary'} noWrap>Back in <Timer type={'countdown'}
-            date={babaRespawnAt} stopAtZero /></Typography>
-          <UndoButton onClick={undoBaba} />
-        </Stack>
-      </>}
-    </BossRow> : null}
+    /> : null}
   </>;
 };
 
-const BossRow = ({ icon, name, dimmed, info, children }) => {
-  return <Stack direction={'row'} alignItems={'center'} gap={1}>
-    <IconImg src={`${prefix}${icon}`} alt={''} style={{ opacity: dimmed ? 0.45 : 1 }} />
-    <Stack>
-      <Stack direction={'row'} alignItems={'center'} gap={0.75}>
-        <Typography sx={{ opacity: dimmed ? 0.6 : 1 }}>{name}</Typography>
-        <Tooltip title={<Stack gap={1}>{info}</Stack>}>
-          <InfoIcon sx={{ fontSize: 16, opacity: 0.7 }} />
-        </Tooltip>
-      </Stack>
-      <Stack direction={'row'} alignItems={'center'} gap={1}
-        divider={<Divider orientation={'vertical'} flexItem />}>
-        {children}
-      </Stack>
+// A boss that respawns: up (with its Killed button), or killed with its countdown and an Undo. The sprite dims with the
+// word beside it.
+const BossRow = ({ icon, name, up, onKill, onUndo, waitLabel, waitDate, info }) => <Stack direction={'row'} alignItems={'center'} gap={1.5}
+                                                                                          sx={{ px: 2, py: 1.25 }}>
+  <Box component={'span'} sx={{ display: 'inline-flex', opacity: up ? 1 : 0.45 }}><GameIcon src={icon} size={32} alt={''}/></Box>
+  <Stack sx={{ minWidth: 0, flex: 1 }}>
+    <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+      <Typography variant={'body2'} component={'div'} sx={{ fontWeight: 500 }}>{name}</Typography>
+      <InfoButton label={name}><Stack gap={1}>{info}</Stack></InfoButton>
     </Stack>
+    {up ? <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+      <StatusText status={'ready'}>Up</StatusText>
+      <Button size={'small'} variant={'outlined'} onClick={onKill} sx={TAP}>Killed</Button>
+    </Stack> : <Stack direction={'row'} alignItems={'center'} columnGap={1} flexWrap={'wrap'}>
+      <Typography variant={'body2'} color={'text.secondary'}>Killed</Typography>
+      <Typography variant={'body2'} component={'span'} color={'text.secondary'} noWrap>
+        {waitLabel} <Timer type={'countdown'} date={waitDate} stopAtZero component={'span'}/>
+      </Typography>
+      <IconButton size={'small'} aria-label={'Undo kill'} onClick={onUndo} sx={{ '@media (pointer: coarse)': { width: 44, height: 44 } }}>
+        <RestartAltIcon sx={{ fontSize: 18 }}/>
+      </IconButton>
+    </Stack>}
   </Stack>
-}
-
-const UndoButton = ({ onClick }) => <Tooltip title={'Undo kill'}>
-  <IconButton size={'small'} sx={{ p: 0.25 }} onClick={onClick} aria-label={'Undo kill'}>
-    <RestartAltIcon sx={{ fontSize: 18 }} />
-  </IconButton>
-</Tooltip>;
-
-const IconImg = styled.img`
-  width: 26px;
-  height: 26px;
-  object-fit: contain;
-`;
+</Stack>;
 
 export default BossRespawns;
