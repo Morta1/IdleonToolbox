@@ -45,18 +45,19 @@ describe('Talents tab', () => {
   it('counts the points invested, not the added levels on top of them', () => {
     renderTalents({ addedLevels: 237, cap: 300 });
 
-    expect(screen.getByText('Total Points Spent: 120')).toBeTruthy();
+    expect(screen.getByText('Points spent')).toBeTruthy();
+    expect(screen.getByText('120')).toBeTruthy();
   });
 
   it('shows the added levels a Royal Guardian talent actually receives', () => {
     renderTalents({ addedLevels: 237, cap: 50 });
 
-    expect(screen.getByText('Added levels: 50')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Added levels breakdown, 50/ })).toBeTruthy();
   });
 
   it('shows no added levels without the Talent Reattainment upgrade', () => {
     renderTalents({ addedLevels: 237, cap: 0 });
 
-    expect(screen.getByText('Added levels: 0')).toBeTruthy();
+    expect(screen.getByRole('button', { name: /Added levels breakdown, 0/ })).toBeTruthy();
   });
 });
