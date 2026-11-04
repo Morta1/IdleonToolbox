@@ -131,7 +131,8 @@ const Stamps = () => {
   const pricedGilded = Boolean(settings?.gilded) !== stampDefaults.gilded;
   const gildedSub = stampsFailed ? undefined : pricedGilded
     ? settings?.gilded ? 'Priced with gilded stamps' : 'Priced without gilded stamps'
-    : `${formatNum(calcStampLevels(account?.stamps) / 100, 'pct')} chance`;
+    // The game's Gilded Stamp screen floors it: "DAILY CHANCE FOR A GILDED STAMP: " + Math.floor(total / 100) + "%"
+    : `${formatNum(Math.floor(calcStampLevels(account?.stamps) / 100), 'pct')} chance`;
 
   // The levels a stamp gained since the snapshot, when Show levels gained is on
   const gainedOf = (category, index, level) => {
@@ -198,7 +199,8 @@ const Stamps = () => {
         <StatTile label={'Exalted multi'} value={exaltedFailed ? '-' : exaltedText}
                   breakdown={!exaltedFailed && exaltedMulti?.breakdown ? { ...exaltedMulti.breakdown, totalValue: exaltedText } : undefined}
                   breakdownTitle={'Exalted multi'}/>
-        <StatTile label={'Stamp reducer'} icon={'data/Atom0.png'}
+        {/* No sprite: Hydrogen's Atom0 reads as a dot at a tile's size */}
+        <StatTile label={'Stamp reducer'}
                   value={atomsFailed && !reducerSet ? '-' : formatNum(reducer, 'pct')}
                   sub={reducerSet && !atomsFailed ? `Yours is ${formatNum(stampReducer, 'pct')}` : undefined}/>
         <StatTile label={'Exalted stamps'} icon={'etc/Exalted_Stamp_Frame.png'}
@@ -233,7 +235,7 @@ const Stamps = () => {
           {categories.map(({ category, levels, shown }) => {
             // A category with no stamp in the picked state draws no Panel over nothing
             if (!shown.length) return null;
-            return <Panel key={category} title={category.capitalize()} meta={`${formatNum(levels)} levels`}>
+            return <Panel key={category} title={category.capitalize()} meta={stampsFailed ? '-' : `${formatNum(levels)} levels`}>
               {/* 8 px on a phone, so four tiles fit its 336 px Panel */}
               <Box sx={{ p: { xs: 1, sm: 1.5 } }}>
                 <CardGrid size={'icon'}>

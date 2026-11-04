@@ -6,6 +6,9 @@ import Tooltip from '@components/Tooltip';
 const TOUCH = '@media (pointer: coarse)';
 // A table note's widest: the viewport less the page's 24 px gutters
 const TABLE_NOTE_WIDTH = 'calc(100vw - 48px)';
+// A note keeps the page's 16 px gutter from the screen's edges: a phone note opened flush to them
+const NOTE_POPPER = { popperOptions: { modifiers: [{ name: 'preventOverflow', options: { padding: 16 } }] } };
+const PHONE_NOTE_POPPER = { ...NOTE_POPPER, sx: { display: { sm: 'none' } } };
 
 // A note that opens from its trigger (Info board). Hover or keyboard focus previews it; a click, a tap or
 // Enter keeps it open until a click elsewhere or Esc. The project Tooltip on its own needs a press and hold
@@ -36,7 +39,7 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, p
         onOpen={() => setPreviewing(true)}
         onClose={handleClose}
         disableTouchListener
-        slotProps={phoneOnly ? { popper: { sx: { display: { sm: 'none' } } } } : undefined}
+        slotProps={{ popper: phoneOnly ? PHONE_NOTE_POPPER : NOTE_POPPER }}
       >
         <ButtonBase
           component={'span'}

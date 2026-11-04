@@ -470,7 +470,7 @@ const Bubbles = () => {
             {cauldrons.map(({ name, displayName, levels, shown }) => {
               // A cauldron with no bubble the search finds draws no Panel over nothing
               if (!shown.length) return null;
-              return <Panel key={name} title={displayName} meta={`${formatNum(levels)} levels`}>
+              return <Panel key={name} title={displayName} meta={alchemyFailed ? '-' : `${formatNum(levels)} levels`}>
                 {/* Five a row, the game's worlds of five; 8 px on a phone, so the five fit its Panel */}
                 <Box sx={{ p: { xs: 1, sm: 1.5 } }}>
                   <CardGrid size={'icon'} columns={5}>

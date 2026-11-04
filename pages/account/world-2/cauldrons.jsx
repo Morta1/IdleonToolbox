@@ -100,7 +100,7 @@ const brewingCard = ({ name, displayName }, index, cauldron = {}, characters, fa
   const brew = (value) => formatGame(value, 'CauldronStats.MaxCauldronQTY', req);
   const speedText = formatNum(brewSpeed?.value ?? 0, 'rate');
   const chanceText = formatChance(newBubble?.chance ?? 0);
-  const expected = newBubble ? ` (about ${formatNum(newBubble.expectedBubbles ?? 0, 'amount', { precise: true })} bubbles)` : '';
+  const expected = newBubble ? ` (about ${formatNum(newBubble.expectedBubbles ?? 0)} bubbles)` : '';
   return <ItemCard key={name} icon={`data/aJarB${index}.png`} title={displayName}
                    aside={players.length ? <PlayersList players={players} characters={characters}/> : null}>
     {failed ? null : <ItemCard.Progress label={'Next attempt'} value={brew(towardNext)} max={brew(req)}
