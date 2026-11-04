@@ -37,8 +37,9 @@ const VoteBallot = () => {
   const bonusOf = (bonus) => (ballotFailed ? 0 : bonus?.bonus);
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('vote-ballot', BALLOT_TOOLBAR);
   const globalTime = Number(account?.timeAway?.GlobalTime ?? NaN);
-  // With no save clock (a guest) there is no week to count down to, and no ballot to read
+  // With no save clock (a guest, or a save that came without one) there is no week to count down to
   const hasClock = Number.isFinite(globalTime);
+  const guest = state?.emptyAccount;
 
   const ballotTab = ({ label, multiText, breakdown, timeLeft, bonuses, describe, iconOf }) => {
     const entries = (bonuses ?? []).map((bonus, index) => ({ bonus, index }));
@@ -69,8 +70,9 @@ const VoteBallot = () => {
 
     return <>
       {/* Under a failed section's note the empty ballot stays silent */}
-      {!ballotFailed && !hasBallot ? <Notice tone={hasClock ? 'info' : 'signin'} sx={{ mb: 2 }}>
-        {hasClock ? 'No bonus is on this week\'s ballot.' : 'This week\'s ballot shows here once you sign in.'}
+      {!ballotFailed && !hasBallot ? <Notice tone={hasClock ? 'info' : guest ? 'signin' : 'missing'} sx={{ mb: 2 }}>
+        {hasClock ? 'No bonus is on this week\'s ballot.' : guest ? 'This week\'s ballot shows here once you sign in.'
+          : 'This week\'s ballot follows your save\'s game clock, and this save has none.'}
       </Notice> : null}
       <Stack direction={'row'} gap={2} flexWrap={'wrap'} sx={{ mb: 2 }}>
         <StatTile label={label} value={multiText}

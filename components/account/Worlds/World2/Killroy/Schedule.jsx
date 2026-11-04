@@ -11,10 +11,13 @@ import StatusText from '@components/common/StatusText';
 const EQUINOX_KILLS = 100;
 const LINE_SX = { display: 'inline-flex', alignItems: 'center', gap: 0.5, whiteSpace: 'nowrap' };
 
-const Schedule = ({ killroy, schedule, hasClock, sectionFailed }) => {
+// The weeks follow the save's game clock: a guest has none until they sign in, and a save can come without one
+const Schedule = ({ killroy, schedule, hasClock, guest, sectionFailed }) => {
   const formatDate = useFormatDate();
   if (!hasClock) {
-    return <Notice tone={'signin'}>Killroy&apos;s schedule follows your save&apos;s clock: it shows here once you sign in.</Notice>;
+    return guest
+      ? <Notice tone={'signin'}>Killroy&apos;s schedule follows your save&apos;s clock: it shows here once you sign in.</Notice>
+      : <Notice tone={'missing'}>Killroy&apos;s schedule follows your save&apos;s game clock, and this save has none.</Notice>;
   }
   const list = killroy?.list ?? [];
 

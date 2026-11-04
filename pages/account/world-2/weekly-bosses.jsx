@@ -46,9 +46,12 @@ const WeeklyBosses = () => {
       {week ? <WeeklyBoss {...week} bossIndex={picked} account={account} characters={state?.characters}
                           trophies={trophies}/> : null}
     </> : <>
-      <Notice tone={'signin'} sx={{ mb: 2 }}>
+      {/* A guest has no clock until they sign in; a save can come without one */}
+      {state?.emptyAccount ? <Notice tone={'signin'} sx={{ mb: 2 }}>
         Weekly bosses follow your save&apos;s clock: the coming weeks show here once you sign in.
-      </Notice>
+      </Notice> : <Notice tone={'missing'} sx={{ mb: 2 }}>
+        Weekly bosses follow your save&apos;s game clock, and this save has none.
+      </Notice>}
       <CardGrid size={'icon'}>
         {BOSSES.map(({ bossName }) => <IconTile key={bossName} icon={`etc/${bossName}.png`}
                                                 alt={cleanUnderscore(bossName)} details={cleanUnderscore(bossName)}/>)}

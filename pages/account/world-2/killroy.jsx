@@ -35,7 +35,8 @@ const Killroy = () => {
       <StatTile label={'Total damage multi'} value={tile(formatNum(killroy?.totalDamageMulti ?? 1, 'mult'))}/>
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 2'].categories, 'killroy')}>
-      <Schedule killroy={killroy} schedule={schedule} hasClock={hasClock} sectionFailed={killroyFailed}/>
+      <Schedule killroy={killroy} schedule={schedule} hasClock={hasClock} guest={state?.emptyAccount}
+                sectionFailed={killroyFailed}/>
       <Upgrades killroy={killroy} sectionFailed={killroyFailed}/>
       <PermanentUpgrades killroy={killroy} sectionFailed={killroyFailed}/>
       <Monsters killroy={killroy} sectionFailed={killroyFailed}/>
