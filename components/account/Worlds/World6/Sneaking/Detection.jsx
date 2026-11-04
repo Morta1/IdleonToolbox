@@ -74,7 +74,7 @@ const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
         {ninjas.map(({ playerIndex, floor: ninjaFloor, stealth, stealthBreakdown, detection: chance }) => (
           <ItemCard key={`current-${playerIndex}`} icon={`data/ClassIcons${characters?.[playerIndex]?.classIndex}.png`}
                     title={characters?.[playerIndex]?.name}
-                    meta={`Floor ${ninjaFloor + 1} · ${formatNum(flowerStacks?.[ninjaFloor] ?? 0)} flowers`}>
+                    meta={`Floor ${ninjaFloor + 1} · ${formatNum(flowerStacks?.[ninjaFloor] ?? 0, 'whole')} flowers`}>
             <ItemCard.Facts rows={[
               ['Detection', formatDetection(chance)],
               ['Stealth', <Breakdown key={'stealth'} asValue data={stealthBreakdown}><Num value={stealth}
@@ -162,7 +162,7 @@ const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
               value: ({ flowersNeeded }) => flowersNeeded,
               render: ({ flowersNeeded }) => (flowersNeeded === Infinity
                 ? <StatusText status={'problem'}>Unreachable</StatusText>
-                : flowersNeeded === 0 ? <StatusText status={'ready'}>Reached</StatusText> : formatNum(flowersNeeded))
+                : flowersNeeded === 0 ? <StatusText status={'ready'}>Reached</StatusText> : formatNum(flowersNeeded, 'whole'))
             }
           ]}
           rows={rows}

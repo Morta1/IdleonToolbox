@@ -43,7 +43,7 @@ const Market = ({ market, crop }) => {
                                                                                     have={ownedOf(nextType)}
                                                                                     game={'FarmingStuffs.MarketCostQTY'}/>)}
           </ItemCard.Section> : null}
-          {costToMax > 0 ? <ItemCard.Facts rows={[['Cost to max', formatGame(costToMax, 'FarmingStuffs.MarketCostQTY')]]}/> : null}
+          {costToMax > 0 ? <ItemCard.Facts rows={[['Cost to max', formatGame(costToMax, 'FarmingStuffs.MarketCostQTY', { whole: true })]]}/> : null}
         </ItemCard>;
       })}
     </CardGrid>

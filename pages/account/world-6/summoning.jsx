@@ -66,7 +66,7 @@ const Summoning = () => {
       <StatTile icon={'etc/Endless_Summoning.png'} label={'Highest endless level'} value={highestEndlessLevel ?? 0}
                 kind={'amount'}/>
       {/* Each tile opens its own number: the unclaimed EXP has no breakdown, the multi behind it is its own tile */}
-      <StatTile icon={'data/SumExp.png'} label={'Unclaimed familiar EXP'} value={`${formatNum(pendingExp?.exp)} EXP`}
+      <StatTile icon={'data/SumExp.png'} label={'Unclaimed familiar EXP'} value={`${formatNum(pendingExp?.exp, 'whole')} EXP`}
                 sub={<>{claimText}{maxGain > 0 ? <>{', '}<Breakdown asValue data={levelGainsBreakdown}>
                   {`+${gainRange} Lv`}</Breakdown></> : null}</>}/>
       <StatTile label={'Summoning EXP multi'} value={formatNum(familiarExp?.expMulti ?? 1, 'mult')}
@@ -75,7 +75,7 @@ const Summoning = () => {
         const index = Number(key);
         const gain = essenceGain?.[index];
         return <StatTile key={index} icon={`data/SummC${index + 1}.png`} label={`${SUMMONING_COLOURS[index]} essence`}
-                         value={essences?.[index] ?? 0} kind={'amount'}
+                         value={essences?.[index] ?? 0} kind={'whole'}
                          sub={gain?.unlocked ? <Breakdown asValue data={gain?.breakdown}>
                            {`+${formatGame(gain?.value, 'Summoning.SummRockEssGen')}/hr`}</Breakdown> : null}/>;
       })}

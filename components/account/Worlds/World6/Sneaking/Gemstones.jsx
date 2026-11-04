@@ -22,7 +22,7 @@ const Gemstones = ({ gemStones }) => {
                        saturationPct,
                        unlocked
                      }, index) => (
-      <ItemCard key={'gemstone-' + index} icon={`data/${rawName}.png`} title={name} meta={`${formatNum(baseValue ?? 0)} gems`}
+      <ItemCard key={'gemstone-' + index} icon={`data/${rawName}.png`} title={name} meta={`${formatNum(baseValue ?? 0, 'whole')} gems`}
                 dimmed={!(unlocked || baseValue > 0)}>
         <ItemCard.Desc text={cleanUnderscore(description)}/>
         <ItemCard.Progress label={'Bonus'} value={bonusText(displayBonus, index)} max={bonusText(displayMaxBonus, index)}

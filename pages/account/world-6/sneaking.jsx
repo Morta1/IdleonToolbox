@@ -43,7 +43,7 @@ const Sneaking = () => {
     />
     <PageSummary>
       {/* The save keeps the coins as text past 1e21 ("5.385403851749856e+79") */}
-      <StatTile label={'Jade coins'} icon={'etc/jade_coin.png'} value={Number(jadeCoins ?? 0)} kind={'amount'}/>
+      <StatTile label={'Jade coins'} icon={'etc/jade_coin.png'} value={Number(jadeCoins ?? 0)} kind={'whole'}/>
       <StatTile label={'Daily charm rolls used'} value={`${formatNum(dailyCharmRollCount ?? 0)} / 120`}/>
       <StatTile label={'Remaining pristine rolls'} value={remainingPristineRolls ?? 0} kind={'amount'}
                 info={`Current pristine chance: ${formatNum(pristineCharmChance, 'odds')}.`}/>

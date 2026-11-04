@@ -59,9 +59,9 @@ const Plot = ({ plot, market, ranks, lastUpdated, account, characters, selectedC
                          aside={isLocked ? <StatusText status={'locked'}/> : null}>
           <ItemCard.Facts rows={[
             ['Crop', <Stack key={'crop'} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
-              <GameIcon src={`data/${cropRawName}`} size={16} alt={''}/>{formatNum(cropQuantity ?? 0)}</Stack>],
+              <GameIcon src={`data/${cropRawName}`} size={16} alt={''}/>{formatNum(cropQuantity ?? 0, 'whole')}</Stack>],
             account?.farming?.hasLandRank ? ['Rank', formatNum(rank || 0)] : null,
-            ['Rank EXP', `${formatGame(rankProgress || 0, 'FarmingStuffs.LankRankEXPreq')} / ${formatGame(rankRequirement || 0, 'FarmingStuffs.LankRankEXPreq')}`],
+            ['Rank EXP', `${formatGame(rankProgress || 0, 'FarmingStuffs.LankRankEXPreq', { whole: true })} / ${formatGame(rankRequirement || 0, 'FarmingStuffs.LankRankEXPreq', { whole: true })}`],
             ['Crop evo', <Breakdown key={'evo'} asValue data={nextEvoChance?.breakdown}>
               {nextEvoChance?.isLocked ? 'Locked' : formatNum(nextEvoChance?.value, 'pct')}</Breakdown>],
             ['Current OG', `${currentOG} (x${formatGame(ogMulti, 'FarmingStuffs.OGmulti')})`],

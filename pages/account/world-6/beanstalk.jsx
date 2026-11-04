@@ -70,14 +70,14 @@ const Beanstalk = () => {
         // Storage is the account's chest, named like a place; characters keep their own spelling
         const ownedLines = flatLines(Object.entries(goldenFoods || {})
           .map(([playerName, { amount }]) => ({
-            name: playerName === 'storage' ? 'Storage' : playerName, value: amount, formatted: formatNum(amount)
+            name: playerName === 'storage' ? 'Storage' : playerName, value: amount, formatted: formatNum(amount, 'whole')
           })));
         const total = evaluateBreakdownNode(sumGroup('Owned', ownedLines));
         // The card's Owned, its drawer's header and its rows all in the amount kind (2,218 opens 2,218)
-        const breakdown = createBreakdown(cleanUnderscore(displayName), formatNum(total), ownedLines, { combine: 'sum' });
+        const breakdown = createBreakdown(cleanUnderscore(displayName), formatNum(total, 'whole'), ownedLines, { combine: 'sum' });
         // A guest has no ranks: rank 0's breakpoint, not "Maxed"
         const breakpoint = BEANSTALK_BREAKPOINTS?.[rank ?? 0];
-        const owned = <Breakdown asValue data={breakdown}><Num value={total}/></Breakdown>;
+        const owned = <Breakdown asValue data={breakdown}><Num value={total} whole/></Breakdown>;
         const sprite = <GameIcon src={`data/${rawName}.png`} size={32} alt={''}/>;
         return <ItemCard key={rawName} title={cleanUnderscore(displayName)} status={breakpoint ? undefined : 'maxed'}
                          icon={displayName && displayName !== 'ERROR'
@@ -88,7 +88,7 @@ const Beanstalk = () => {
                                           label={`${cleanUnderscore(displayName)} details`}>{sprite}</NoteTrigger>
                            : sprite}>
           {breakpoint
-            ? <ItemCard.Progress label={'Owned'} value={owned} max={<Num value={breakpoint}/>}
+            ? <ItemCard.Progress label={'Owned'} value={owned} max={<Num value={breakpoint} whole/>}
                                  percent={Math.min(100, (100 * (total ?? 0)) / breakpoint)}/>
             : <ItemCard.Facts rows={[['Owned', owned]]}/>}
         </ItemCard>;

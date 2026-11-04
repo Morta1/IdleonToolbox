@@ -40,7 +40,7 @@ const Crop = ({ crop, maxTimes, cropDepot }) => {
               const found = crop?.[cropId] >= 0;
               // Crops have no names in the game data, so a tile is named by its seed and its place
               return <IconTile key={cropId} icon={`data/FarmCrop${cropId}.png`} alt={`${label} crop ${position + 1}`}
-                               value={found ? crop?.[cropId] : 0} kind={'amount'} status={found ? undefined : 'missing'}
+                               value={found ? crop?.[cropId] : 0} kind={'whole'} status={found ? undefined : 'missing'}
                                details={found ? formatNum(crop?.[cropId], 'exact') : undefined}/>;
             })}
           </CardGrid>
