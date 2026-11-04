@@ -36,9 +36,9 @@ const Panel = ({ icon, iconAlt = '', title, meta, aside, collapsible, defaultOpe
   </Box>;
 };
 
-// Icon, name and one muted line on the left; the number on the right.
-const Row = ({ icon, iconAlt = '', name, sub, value, valueSub, kind }) => <Stack direction={'row'} alignItems={'center'}
-                                                                               gap={1.5} sx={{ px: 2, py: 1.25 }}>
+// Icon, name and one muted line on the left; the number on the right. sx is for a row in a narrow column.
+const Row = ({ icon, iconAlt = '', name, sub, value, valueSub, kind, sx }) => <Stack direction={'row'} alignItems={'center'}
+                                                                                   gap={1.5} sx={[{ px: 2, py: 1.25 }, ...(Array.isArray(sx) ? sx : [sx])]}>
   {typeof icon === 'string' ? <GameIcon src={icon} size={32} alt={iconAlt}/> : icon}
   <Stack sx={{ minWidth: 0, flex: 1 }}>
     <Typography variant={'body2'} component={'div'} sx={{ fontWeight: 500 }}>{name}</Typography>

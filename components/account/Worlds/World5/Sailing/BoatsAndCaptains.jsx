@@ -92,6 +92,24 @@ const upgradeSection = (title, level, step, value, next, key, resource, breakpoi
 };
 const UPGRADES_SX = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: 2, pt: 1, borderTop: 1, borderColor: 'divider' };
 
+// Three columns, two on a phone. A column's first row draws no line: the Panel's header band sits over it.
+const ISLANDS_SX = {
+  display: 'grid',
+  gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', md: 'repeat(3, minmax(0, 1fr))' },
+  '& > *': { borderTop: 1, borderColor: 'divider' },
+  '& > :nth-of-type(-n+2)': { borderTop: 0 },
+  '& > :nth-of-type(3)': { borderTopWidth: { xs: 1, md: 0 } }
+};
+// A phone's column is 175 px: at 13 px the longest name and two captains share its line. Past that a name folds between
+// its words, never inside one, and the captains fold at their commas.
+const ISLAND_ROW_SX = {
+  px: { xs: 1, md: 2 },
+  gap: { xs: 1, md: 1.5 },
+  '& .MuiTypography-root': { fontSize: { xs: 13, md: 14 } },
+  '& > div:first-of-type': { minWidth: 'min-content' },
+  '& > div:last-of-type': { flexShrink: 1, minWidth: 0 }
+};
+
 const BoatsAndCaptains = ({
                             boats,
                             captains,
@@ -125,13 +143,6 @@ const BoatsAndCaptains = ({
       {minimumTravelTime ? <StatTile label={'Min travel time'} value={travelText} breakdownTitle={'Min travel time'}
                                      breakdown={withText(minimumTravelTimeBreakdown, travelText)}/> : null}
     </Stack>
-    {Object.keys(shipOverview).length ? <Panel title={'Islands'} sx={{ mb: 3 }}>
-      {Object.entries(shipOverview).map(([islandName, { islandIndex, boats: islandBoats }]) => <Panel.Row
-        key={islandName}
-        icon={islandName !== 'Not assigned' ? `data/SailT${2 * islandIndex + 1}.png` : undefined}
-        name={cleanUnderscore(islandName)}
-        value={islandBoats?.map(({ captainMappedIndex }) => captainMappedIndex).filter(Boolean).join(', ')}/>)}
-    </Panel> : null}
     {boats?.length ? <>
       <Typography mb={2} variant={'sectionTitle'} component={'h2'}>Boats</Typography>
       <CardGrid size={'l'} sx={{ mb: 3 }}>
@@ -182,6 +193,16 @@ const BoatsAndCaptains = ({
         </ItemCard>)}
       </CardGrid>
     </> : null}
+    {Object.keys(shipOverview).length ? <Panel title={'Islands'} sx={{ mb: 3 }}>
+      <Box sx={ISLANDS_SX}>
+        {Object.entries(shipOverview).map(([islandName, { islandIndex, boats: islandBoats }]) => <Panel.Row
+          key={islandName}
+          sx={ISLAND_ROW_SX}
+          icon={islandName !== 'Not assigned' ? <GameIcon src={`data/SailT${2 * islandIndex + 1}.png`} size={24} alt={''}/> : undefined}
+          name={cleanUnderscore(islandName)}
+          value={islandBoats?.map(({ captainMappedIndex }) => captainMappedIndex).filter(Boolean).join(', ')}/>)}
+      </Box>
+    </Panel> : null}
     {shopCaptains?.length ? <>
       <Typography mb={2} variant={'sectionTitle'} component={'h2'}>Captains shop</Typography>
       <CardGrid size={'m'} sx={{ mb: 3 }}>
