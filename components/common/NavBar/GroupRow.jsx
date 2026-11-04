@@ -17,9 +17,17 @@ const PILL_SX = {
   display: 'inline-flex', alignItems: 'center', gap: 1, height: 36, px: 1.5, borderRadius: 999, flexShrink: 0,
   typography: 'body2', fontWeight: 500, whiteSpace: 'nowrap', textDecoration: 'none'
 };
+// The board's .wbtn: the group's name in caps, closed by a line before the first pill.
 const GROUP_BUTTON_SX = {
-  height: 36, px: 1.5, mr: 0.5, gap: 0.5, borderRadius: 1, flexShrink: 0, color: 'text.secondary', whiteSpace: 'nowrap',
-  '&:hover': { color: 'text.primary', bgcolor: 'action.hover' }
+  height: 36, pl: 1, pr: 1.25, mr: 1, gap: 0.5, borderRadius: '6px 0 0 6px', flexShrink: 0, color: 'text.secondary', whiteSpace: 'nowrap',
+  borderRight: 1, borderColor: 'divider', '&:hover': { color: 'text.primary', bgcolor: 'action.hover' }
+};
+// The row's line runs window edge to edge while its content stays at the page's x. A spread shadow paints the rest of
+// the line and clip-path holds it to 1 px: a shadow adds no scrollable overflow, so nothing scrolls sideways, and the
+// row stays in the page's column with no copy of the frame's rules.
+const EDGE_LINE_SX = {
+  content: '""', position: 'absolute', left: 0, right: 0, bottom: 0, height: '1px', bgcolor: 'divider',
+  boxShadow: (theme) => `0 0 0 100vmax ${(theme.vars || theme).palette.divider}`, clipPath: 'inset(0 -100vmax)'
 };
 
 // Shown on a row at least `from` px wide, and below `below` (rowSplit's widths, read against the row as a container).
@@ -48,8 +56,9 @@ const Pill = ({ page, current, nav, sx }) => {
 
 
 // A page's siblings (Layout boards): the group's name opens its menu, the pages are links, and what does not fit in
-// the row's real width waits under More, never the page on screen (navMenu rowSplit). Scrolls with the page
-// (Decision 10). From md; a phone has its title switcher instead.
+// the row's real width waits under More, never the page on screen (navMenu rowSplit). A band under the bar: it takes
+// back main's top padding, so it sits flush under the bar (or the notice band), 52 px, with the title 22 px under it
+// (16 here and 6 in the header row's 48). Scrolls with the page (Decision 10). From md; a phone has its title switcher.
 const GroupRow = ({ openMenu, phoneMenuOpen, onOpenMenu }) => {
   const router = useRouter();
   const pathname = router?.pathname ?? '';
@@ -84,7 +93,7 @@ const GroupRow = ({ openMenu, phoneMenuOpen, onOpenMenu }) => {
   const moreButton = (kind, from, below) => <ButtonBase aria-haspopup={kind} aria-expanded={more?.kind === kind}
                                                         aria-controls={more?.kind === kind ? ROW_ID : undefined}
                                                         onClick={(event) => openMore(event, kind)}
-                                                        sx={[PILL_SX, { border: 1, borderColor: 'divider', color: 'text.secondary', gap: 0.5 },
+                                                        sx={[PILL_SX, { border: 1, borderColor: 'outline', color: 'text.primary', gap: 0.5 },
                                                           onRow('inline-flex', from, below)]}>
     More
     {moreCounts.map(([hidden, low, high]) => <Box key={hidden} component="span" sx={onRow('inline', low, high)}>({hidden})</Box>)}
@@ -93,13 +102,13 @@ const GroupRow = ({ openMenu, phoneMenuOpen, onOpenMenu }) => {
 
   return <Box component="nav" ref={rowRef} aria-label={`${group.label} pages`} data-shell="group-row"
               sx={{
-                display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 0.5, height: 52, mb: 1, borderBottom: 1,
-                borderColor: 'divider', containerType: 'inline-size'
+                display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 0.5, height: 52, mt: -3, mb: 2,
+                position: 'relative', containerType: 'inline-size', '&::after': EDGE_LINE_SX
               }}>
     <ButtonBase {...{ [MENU_BUTTON]: '' }} onClick={() => onOpenMenu(group)} aria-expanded={menuOpen || phoneMenuOpen}
                 aria-controls={menuOpen ? navMenuId(group.menu) : phoneMenuOpen ? PHONE_MENU_ID : undefined} sx={GROUP_BUTTON_SX}>
-      <Typography variant="groupLabel" component="span">{group.label}</Typography>
-      <IconChevronDown size={16} aria-hidden/>
+      <Typography variant="groupLabel" component="span" sx={{ fontSize: 13, fontWeight: 600 }}>{group.label}</Typography>
+      <IconChevronDown size={18} aria-hidden/>
     </ButtonBase>
     {pages.map((page) => <Pill key={page.url} page={page} current={page.url === pathname} nav={nav}
                                sx={onRow('inline-flex', showFrom[page.url])}/>)}

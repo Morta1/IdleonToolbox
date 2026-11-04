@@ -196,7 +196,7 @@ const PinnedPages = () => {
         onClick={handleClick}
       >
         <ListItemText component={'span'} disableTypography
-                      sx={{ fontWeight: 'bold', fontSize: 16 }}>
+                      sx={{ fontWeight: 600, fontSize: 16 }}>
           Pinned pages
         </ListItemText>
         <KeyboardArrowDownIcon sx={{

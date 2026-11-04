@@ -67,6 +67,8 @@ const darkTheme = createTheme({
       info: '#4fc3f7'
     },
     divider: 'rgba(255, 255, 255, 0.12)',
+    // The edge of a control that stands on its own (a field's own rest border): an outlined button, a filter pill, More.
+    outline: 'rgba(255, 255, 255, 0.23)',
     // Identity colors: a thing's own color that reads the same everywhere, not a state or a role (3b Decision 3).
     // pin: the breakdown's pinned star, gold as "pinned" reads elsewhere.
     identity: {

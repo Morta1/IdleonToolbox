@@ -90,8 +90,8 @@ const NavBar = ({ children }) => {
             sectionTitle (18/26/600), the nearest step to the boards' 20/700; phones read "IT". */}
         <Link component={NextLink} href={{ pathname: '/', query: sessionQuery(router.query) }} prefetch={prefetch}
               underline="none" color="inherit"
-              sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1, flexShrink: 0, [BAR_TIGHT]: { mr: 1 } }}>
-          <img src={`${prefix}data/Coins5.png`} alt=""/>
+              sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1.25, flexShrink: 0, [BAR_TIGHT]: { mr: 1 } }}>
+          <img src={`${prefix}data/Coins5.png`} alt="" width={28} height={28}/>
           <Typography component="span" variant="sectionTitle" sx={{ display: { xs: 'none', sm: 'inline' } }}>Idleon Toolbox</Typography>
           <Typography component="span" variant="sectionTitle" sx={{ display: { xs: 'inline', sm: 'none' } }}>IT</Typography>
         </Link>

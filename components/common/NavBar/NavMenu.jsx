@@ -27,7 +27,7 @@ export const NavMenuButton = ({ menu, open, selected, onToggle }) => (
   <ListItemButton id={buttonId(menu)} {...{ [MENU_BUTTON]: '' }} data-cy={`nav-item-${menu}`}
                   selected={selected} aria-expanded={open} aria-controls={open ? navMenuId(menu) : undefined}
                   onClick={() => onToggle(menu)} dense size="medium" sx={{ borderRadius: 2, p: '0 8px' }}>
-    <ListItemText component="span" disableTypography sx={{ fontWeight: 'bold', fontSize: 16 }}>
+    <ListItemText component="span" disableTypography sx={{ fontWeight: 600, fontSize: 16 }}>
       {LABELS[menu]}
     </ListItemText>
     <IconChevronDown size={16} aria-hidden

@@ -57,7 +57,7 @@ export const groupByKey = (key) => [...ACCOUNT_GROUPS, ...TOOLS_GROUPS].find((gr
 
 // A group row's split by the room it has, from an estimate of each part that never comes out short of the real one: a
 // pill is its label (Roboto 500 at 14 px, body2's 0.15 px letter spacing), a 22 px icon and 8 px to it, 12 px of
-// padding each side and 4 px to the next; the group's button its caps label (12 px, 0.04em spacing), its padding,
+// padding each side and 4 px to the next; the group's button its caps label (13 px at 600, 0.04em spacing), its padding,
 // chevron and 8 px to the first pill; More 94 px and 8.2 px per digit of its count. A label's width sums each
 // character's measured advance, plus 2% in case another font draws it. The current page always shows; the group's other
 // pages follow in order while they fit with More beside them, and More goes where all of them fit, so the current page
@@ -80,7 +80,7 @@ const charWidth = (char) => {
 };
 const textWidth = (label, scale, spacing) => [...label].reduce((sum, char) => sum + charWidth(char) * scale + spacing, 0) * 1.02;
 const pillWidth = (label) => 58 + textWidth(label, 1, 0.15);
-const buttonWidth = (label) => 57 + textWidth(label.toUpperCase(), 12 / 14, 0.48);
+const buttonWidth = (label) => 57 + textWidth(label.toUpperCase(), (13 / 14) * 1.02, 0.52);
 const moreWidth = (hidden) => 94 + 8.2 * String(hidden).length;
 export const rowSplit = (group, currentUrl) => {
   const pages = group.pages;

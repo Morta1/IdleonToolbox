@@ -52,7 +52,7 @@ const NavItemsList = ({ openMenu, onMenu }) => {
               <ListItemText
                 component={'span'}
                 disableTypography
-                sx={{ fontWeight: 'bold', fontSize: 16 }}
+                sx={{ fontWeight: 600, fontSize: 16 }}
               >
                 {navItem.capitalize()}
               </ListItemText>
