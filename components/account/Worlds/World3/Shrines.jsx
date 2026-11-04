@@ -5,7 +5,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
 
-const pct = (value) => `+${formatNum(value ?? 0, 'pct', { precise: true })}`;
+const pct = (value) => `+${formatNum(value ?? 0, 'pct')}`;
 
 // The game's shrine sign (N.js): { is floor((level - 1) * per level + base), with no card bonus
 const shrineSentence = ({ desc, shrineLevel }, entry) => cleanUnderscore(`${desc ?? ''}`.replace('{',
@@ -29,7 +29,7 @@ const shrineDetails = (shrine, entry, contributors, perHour) => {
     {built ? <ItemCard.Facts rows={[
       ['Map', cleanUnderscore(mapNames?.[shrine?.mapId])],
       ['Progress', `${gameHours(progress)} / ${gameHours(hoursReq, Math.ceil)} hours`],
-      perHour !== undefined ? ['Per hour', formatNum(perHour, 'rate', { precise: true })] : null,
+      perHour !== undefined ? ['Per hour', formatNum(perHour, 'rate')] : null,
       perHour !== undefined ? ['Next level in', perHour > 0 ? formatDuration((hoursReq - progress) / perHour * 3600) : '-'] : null,
       ['With cards', pct(shrine?.bonus)],
       contributors ? ['Contributors', contributors.length ? contributors.join(', ') : 'Nobody on its map'] : null,
