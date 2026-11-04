@@ -71,9 +71,9 @@ const getFlagEta = (currentAmount, requiredAmount, flagPlaced, flagSpeedBoost, f
 const characterOf = (cog) => (cog?.name?.includes('Player') ? cog?.name?.split('Player_')[1] : '');
 const slotName = (slot) => characterOf(slot?.cog) || getCogDisplayName(slot?.cog?.name) || (slot?.flagPlaced ? 'Flag' : 'Slot');
 
-// A slot's note, opened on a tap or a click: the cog, a flag's progress and time left, each stat (whole numbers with
-// Round cog stats on, every digit with it off), and the slots it boosts or is boosted by
-const cogNote = ({ currentAmount, requiredAmount, cog, affectedBy, affects, flagPlaced, flagSpeedBoost }, { rounded, flaggyRate }) => {
+// A slot's note, opened on a tap or a click: the cog, a flag's progress and time left, each stat in the game's two
+// decimals (MultiplierInfo), and the slots it boosts or is boosted by
+const cogNote = ({ currentAmount, requiredAmount, cog, affectedBy, affects, flagPlaced, flagSpeedBoost }, { flaggyRate }) => {
   const eta = getFlagEta(currentAmount, requiredAmount, flagPlaced, flagSpeedBoost, flaggyRate);
   const stats = Object.values(cog?.stats || {}).filter(({ name }) => name);
   return <Stack gap={0.5}>
@@ -83,7 +83,7 @@ const cogNote = ({ currentAmount, requiredAmount, cog, affectedBy, affects, flag
     </Typography> : null}
     {eta ? <Typography variant={'body2'} color={'text.secondary'}>{`Unlocks in ${eta}`}</Typography> : null}
     {stats.map(({ name, value }, statIndex) => <Typography key={`${name}-${statIndex}`} variant={'body2'}>
-      {rounded ? formatNum(value) : formatNum(value, 'exact')}{cleanUnderscore(name)}
+      {formatNum(value, 'mult', { bare: true })}{cleanUnderscore(name)}
     </Typography>)}
     {cog?.originalIndex != null ? <Typography variant={'body2'} color={'text.secondary'}>{`Index ${cog.originalIndex}`}</Typography> : null}
     {affectedBy?.length > 0 ? <Typography variant={'body2'} color={'text.secondary'}>{`Affected by: ${affectedBy.join(', ')}`}</Typography> : null}
@@ -104,7 +104,7 @@ const SLOT_ART_SX = { width: 'var(--cog-slot)', height: 'var(--cog-slot)', displ
  */
 export const BOARD_MIN_WIDTH = (BOARD_X + 2) * SLOT_MIN + (BOARD_X + 1) * SLOT_GAP;
 
-const ConstructionBoard = ({ view, board, roundedValues, leftColumn, rightColumn, markSpares, dimUnchanged, highlightSlots, boardFlaggyRate }) => {
+const ConstructionBoard = ({ view, board, leftColumn, rightColumn, markSpares, dimUnchanged, highlightSlots, boardFlaggyRate }) => {
   // The side strips hold 12 small cogs against the board's 8 rows. Laying all three out in one grid
   // left 48 blank cells in the middle, so each is its own grid and they simply sit side by side.
   const columns = [
@@ -180,7 +180,7 @@ const ConstructionBoard = ({ view, board, roundedValues, leftColumn, rightColumn
         >
           {cog?.name || flagPlaced
             ? <NoteTrigger block label={slotName(slot)}
-                           note={cogNote(slot, { rounded: roundedValues, flaggyRate: boardFlaggyRate })}>{art}</NoteTrigger>
+                           note={cogNote(slot, { flaggyRate: boardFlaggyRate })}>{art}</NoteTrigger>
             : art}
         </Box>
       );

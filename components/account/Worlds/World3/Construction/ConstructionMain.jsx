@@ -34,7 +34,6 @@ import ConstructionSmallCogs from './ConstructionSmallCogs';
 import ConstructionMoves from './ConstructionMoves';
 import { useConstructionOptimizer } from '@hooks/useConstructionOptimizer';
 import useToolbarState from '@hooks/useToolbarState';
-import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import usePageTop from '@hooks/usePageTop';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
 import { notify } from '@components/common/Overlays/notify';
@@ -84,13 +83,6 @@ const legendItem = (color, label) => <Stack key={label} direction={'row'} alignI
   <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>{label}</Typography>
 </Stack>;
 
-// The slot notes' rounding, in Construction's gear under the tab's name (not remembered before it moved there)
-export const CONSTRUCTION_SETTINGS = { roundCogStats: true };
-
-export const ConstructionSettings = () => <PageSettings.Group title={'Main'}>
-  <PageSettings.Toggle name={'roundCogStats'} label={'Round cog stats'} help={'Rounds the numbers in each slot\'s note to whole numbers. Off, they show every digit.'}/>
-</PageSettings.Group>;
-
 const ConstructionMain = () => {
   const { state } = useContext(AppContext);
   // Under the bar and the band while it shows, and under the View toolbar once it pins
@@ -99,8 +91,6 @@ const ConstructionMain = () => {
   const stickyTop = Math.max(pageTop, toolbarBottom) + 8;
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('construction-board', BOARD_TOOLBAR);
   const view = toolbar?.view ?? 'build';
-  const [settings] = usePageSettings('construction', CONSTRUCTION_SETTINGS);
-  const roundedValues = Boolean(settings?.roundCogStats);
   const [stat, setStat] = useState('totalBuildRate');
   const [weights, setWeights] = useState({ totalBuildRate: 1, totalPlayerExpRate: 1, totalFlaggyRate: 1 });
   const [computeSeconds, setComputeSeconds] = useState(3);
@@ -385,7 +375,6 @@ const ConstructionMain = () => {
             }
           }}>
             <ConstructionBoard view={view}
-                               roundedValues={roundedValues}
                                markSpares={!!optimized}
                                dimUnchanged={cursor > 0}
                                highlightSlots={highlightSlots}
