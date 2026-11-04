@@ -19,7 +19,6 @@ const LEGACY_IMPORTERS = [
   'pages/account/misc/friends-stats.jsx',
   'pages/account/misc/guild.jsx',
   'pages/account/misc/quests.jsx',
-  'pages/account/misc/storage.jsx',
   'pages/account/misc/tournament.jsx',
   'pages/account/misc/upgrade-vault.jsx',
   'pages/account/prem-currency/bundles.jsx',

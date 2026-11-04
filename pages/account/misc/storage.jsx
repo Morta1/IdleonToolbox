@@ -1,15 +1,14 @@
 import { AppContext } from 'components/common/context/AppProvider';
 import React, { useContext } from 'react';
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
+import { Box, Link, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum, getCoinsArray, getTabs, groupByKey } from 'utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
-import Image from 'next/image';
-import { prefix } from 'utility/helpers';
+import { openWikiEntity } from '@utility/wiki/item-page';
+import StatusText from '@components/common/StatusText';
 import ItemDisplay from '@components/common/ItemDisplay';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
-import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import CoinDisplay from '@components/common/CoinDisplay';
 import Notice from '@components/common/Notice';
 import PageSummary from '@components/common/cards/PageSummary';
@@ -25,9 +24,20 @@ import { MissingData, isSectionFailed } from '@components/common/styles';
 // tier) they repeat it
 const exactCoins = (coins) => (Number.isFinite(coins) && coins >= 100 && coins < Number.MAX_SAFE_INTEGER
   ? formatNum(Math.floor(coins), 'exact') : undefined);
-const moneyValue = (coins) => (Number.isFinite(coins) ? <CoinDisplay dense money={getCoinsArray(coins)}/> : '-');
+// The tiers wrap between coins in a narrow tile (the phone Summary's column), never inside a coin's number
+const moneyValue = (coins) => (Number.isFinite(coins) ? <Box component={'span'} sx={{ overflowWrap: 'normal' }}>
+  <CoinDisplay dense money={getCoinsArray(coins)} style={{ flexWrap: 'wrap', rowGap: 2 }}/>
+</Box> : '-');
 
 const ITEMS_TOOLBAR = { search: '', sort: null, view: 'all' };
+
+// A chest: its slots, whether it is found, and its page on the toolbox's own wiki (5i's stamps precedent)
+const chestDetails = (chest) => <Stack gap={0.5} alignItems={'flex-start'}>
+  <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(chest?.displayName)}</Typography>
+  <Typography variant={'body2'}>{`${formatNum((chest?.amount || chest?.capacity) ?? 0)} slots`}</Typography>
+  {chest?.unlocked ? <StatusText status={'done'}>Found</StatusText> : <StatusText status={'needs'}>Not found yet</StatusText>}
+  <Link component={'button'} onClick={() => openWikiEntity(`item:${chest?.rawName}`)} sx={{ font: 'inherit' }}>Wiki page</Link>
+</Stack>;
 
 const Looty = () => {
   const { state } = useContext(AppContext);
@@ -50,6 +60,8 @@ const Looty = () => {
                                               mark={greenStacks.has(item?.rawName) ? 'data/GreenSymbol.png' : undefined}
                                               markAlt={'Greenstacked'}
                                               details={<ItemDisplay {...item} showAmount/>}/>;
+  const slots = state?.account?.storage?.slots;
+  const slotsText = storageFailed ? '-' : formatNum(slots?.value ?? 0);
   const groups = view.view === 'type' ? Object.entries(groupByKey(sorted, ({ Type }) => Type)) : [];
 
   return (
@@ -84,31 +96,16 @@ const Looty = () => {
               : <CardGrid size={'icon'}>{sorted.map(itemTile)}</CardGrid>}
         </Box>
         <Stack gap={2}>
-          <CardWithBreakdown title={'Slots Owned'} value={`${state?.account?.storage?.slots?.value}`}
-                             icon={'data/InvStorage1.png'}
-                             breakdown={state?.account?.storage?.slots?.breakdown}
-                             skipNotation/>
-          <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-            {state?.account?.storage?.storageChests?.map(({
-                                                            rawName,
-                                                            displayName,
-                                                            amount,
-                                                            capacity,
-                                                            unlocked
-                                                          }, index) => {
-              return <Card key={rawName} sx={{ width: 200, opacity: unlocked ? 1 : .5, cursor: 'pointer' }}
-                           onClick={() => window.open(`https://idleon.wiki/wiki/${displayName}`, '_blank')}>
-                <CardContent>
-                  <Typography>{(cleanUnderscore(displayName)).toLowerCase().capitalize()}</Typography>
-                  <Stack direction={'row'} flexWrap={'wrap'} gap={1} data-index={index} alignItems={'center'}>
-                    <Image loading="lazy" data-index={index} width={30} height={30} style={{ objectFit: 'contain' }}
-                           src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-                    <Typography>+{amount || capacity}</Typography>
-                  </Stack>
-                </CardContent>
-              </Card>
-            })}
-          </Stack>
+          <StatTile label={'Slots owned'} icon={'data/InvStorage1.png'} value={slotsText} breakdownTitle={'Slots owned'}
+                    breakdown={!storageFailed && slots?.breakdown ? { ...slots.breakdown, totalValue: slotsText } : undefined}/>
+          {storageFailed ? null : <CardGrid size={'icon'}>
+            {(state?.account?.storage?.storageChests ?? []).map((chest) => <IconTile key={chest?.rawName}
+                                                                                   icon={`data/${chest?.rawName}.png`}
+                                                                                   alt={cleanUnderscore(chest?.displayName)}
+                                                                                   value={`+${formatNum((chest?.amount || chest?.capacity) ?? 0)}`}
+                                                                                   status={chest?.unlocked ? undefined : 'missing'}
+                                                                                   details={chestDetails(chest)}/>)}
+          </CardGrid>}
         </Stack>
       </Tabber>
     </>
