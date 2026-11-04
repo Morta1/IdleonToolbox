@@ -70,7 +70,10 @@ const itemTitle = (displayName) => cleanUnderscore(`${displayName ?? ''}`.toLowe
 const GemShop = () => {
   const { state } = useContext(AppContext);
   const failed = isSectionFailed(state?.account, 'gemShopPurchases');
-  const gems = state?.account?.currencies?.gems;
+  const currenciesFailed = isSectionFailed(state?.account, 'currencies');
+  const failedNames = [failed && 'Gem Shop', currenciesFailed && 'Gems'].filter(Boolean);
+  // A failed currencies section leaves the balance unknown, so a card says the cost and no "need"
+  const gems = currenciesFailed ? undefined : state?.account?.currencies?.gems;
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('gem-shop', SHOP_TOOLBAR);
   const hideMaxed = !failed && toolbar.hideMaxed;
   // Past limited specials reuse the current items' indices, so the save can't say which of them were bought
@@ -105,7 +108,7 @@ const GemShop = () => {
                      title={itemTitle(displayName)} meta={TIER_NAME[getPriority(category, globalIndex)]}
                      status={maxed ? 'maxed' : undefined}
                      footer={bought == null ? null : <ItemCard.Cost icon={'data/PremiumGem.png'} iconAlt={'Gems'} need={nextCost}
-                                                                    have={gems ?? 0} format={(value) => formatNum(value)}/>}>
+                                                                    have={gems} format={(value) => formatNum(value)}/>}>
       <ItemCard.Desc text={cleanUnderscore(desc ?? '')}/>
       <ItemCard.Facts rows={[
         bought == null ? ['Cost', formatNum(cost)] : ['Bought', `${formatNum(bought)} / ${formatNum(maxPurchases)}`],
@@ -121,7 +124,7 @@ const GemShop = () => {
       title="Gem Shop | Idleon Toolbox"
       description="Browse all gem shop purchases, upgrade bonuses, and premium currency spending in Legends of Idleon"
     />
-    {failed ? <MissingData name={'Gem Shop'} failed/> : null}
+    {failedNames.length ? <MissingData name={failedNames.join(' and ')} failed/> : null}
     <PageSummary>
       <StatTile label={'Gems'} icon={'data/PremiumGem.png'} value={gems == null ? '-' : formatNum(gems)}/>
     </PageSummary>
