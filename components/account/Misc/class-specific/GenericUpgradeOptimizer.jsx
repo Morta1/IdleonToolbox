@@ -197,6 +197,8 @@ const GenericUpgradeOptimizer = ({
   useEffect(() => () => {
     Object.values(valueCommitDebouncersRef.current).forEach(fn => fn?.cancel?.());
   }, []);
+  // Before the plan is computed: the optimizer would walk a section's fallback, and a parser reading it can throw
+  if (sectionFailed) return null;
   let optimizedUpgrades = [];
   if (character) {
     const maxToUse = maxUpgradesMode === 'custom'
@@ -647,7 +649,6 @@ const GenericUpgradeOptimizer = ({
     surface={'card'}
   />;
 
-  if (sectionFailed) return null;
   return (
     <Stack gap={3}>
       {/* The plan's settings: a tool's inputs stay on its tab, beside the plan they change (the owner's rule) */}
