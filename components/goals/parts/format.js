@@ -3,8 +3,9 @@ import { isAllChars, isCharScope, MAX_TARGET, NEXT_TARGET } from '@utility/goals
 import { capitalizeFirst } from '@utility/goals/registry/names';
 import { getDescriptor } from '@utility/goals/registry';
 
-// The amount kind: every digit under a million, then short ("1.04B"), on a goal's face and its details alike
-export const formatNumber = (n) => formatNum(n);
+// A goal counts whole things (levels, kills, items, a price): every digit under a million, then short ("1.04B"), on a
+// goal's face and its details alike
+export const formatNumber = (n) => formatNum(n, 'whole');
 
 // Floored so 89.99% never reads as a reached 90%
 export const formatPercent = (n) => `${Math.floor(n)}%`;
