@@ -25,10 +25,11 @@ const PIN_TOP_SX = { mt: '10vh', maxHeight: 'calc(90vh - 16px)' };
 // aria-controls. onExited: once it has finished closing, for a dialog opened from a menu row, whose
 // opener is gone, to hand focus back to the menu's trigger. pinTop (desktop): the dialog's top stays put
 // while its content changes height (a sign-in step, an error appearing), instead of re-centering.
-// headerSx: the room around the title, for a dialog whose board draws its own.
+// headerSx: the room around the title, for a dialog whose board draws its own. above: a line over the title, outside
+// the scrolling body.
 const AppDialog = ({
   open, onClose, onExited, id, title, subtitle, icon, size = 'm', phone = 'sheet', actions, dirty = false, pinTop = false,
-  headerSx, children
+  headerSx, above, children
 }) => {
   const titleId = useId();
   // false at build and on the first client render; nothing opens before the player clicks.
@@ -40,7 +41,7 @@ const AppDialog = ({
     onClose();
   };
   const full = isPhone && phone === 'full';
-  const header = <OverlayHeader titleId={titleId} title={title} subtitle={subtitle} icon={icon} onClose={onClose}
+  const header = <OverlayHeader titleId={titleId} title={title} subtitle={subtitle} icon={icon} onClose={onClose} above={above}
                                 sx={{ ...headerSx, ...(full ? FULL_HEADER_SX : {}) }}/>;
   const footer = actions?.length ? <OverlayActions actions={actions} onClose={onClose} sheet={isPhone}/> : null;
 

@@ -50,6 +50,14 @@ const NEVER = [
 // than the line that follows wants.
 const HEADER_SX = { pb: 0.5, '& > .MuiIconButton-root': { mr: '-10px' } };
 
+// The board's way back, over the title: a bare link on one 19 px line. The box keeps that line, so a link grown to
+// 44 px on touch grows out of it evenly, and the title's row reaches under it to keep the board's room.
+const BACK_SX = {
+  display: 'flex', alignItems: 'center', height: 19, flexShrink: 0, position: 'relative', zIndex: 1,
+  px: { xs: 2, sm: 3 }, mt: { xs: 2, sm: 3 }, mb: { xs: '-4px', sm: '-13px' }
+};
+const BACK_LINK_SX = { display: 'inline-flex', alignItems: 'center', gap: 0.5, fontSize: 13, fontWeight: 500, ...touchTarget };
+
 const METHOD_SX = {
   height: 48, px: '14px', gap: 1.5, justifyContent: 'flex-start', textAlign: 'left', borderRadius: '6px',
   fontSize: 14, fontWeight: 400, lineHeight: 1.43, letterSpacing: 'normal', color: 'text.primary'
@@ -167,15 +175,18 @@ const LoginDialog = ({ open, onClose }) => {
 
   if (method) {
     const { Flow, id, label } = method;
-    return <AppDialog open={open} onClose={handleClose} size="m" phone="full" pinTop title={`Sign in with ${label}`}>
-      <Button ref={body} size="small" startIcon={<IconChevronLeft size={18}/>} sx={{ alignSelf: 'flex-start', mb: 2, px: 0, ...touchTarget }}
-              onClick={() => {
-                leaveFlow();
-                stepChanged.current = true;
-                setMethodId(null);
-              }}>
-        All sign-in options
-      </Button>
+    const back = <Box sx={BACK_SX}>
+      <Link ref={body} component="button" type="button" underline="hover" sx={BACK_LINK_SX}
+            onClick={() => {
+              leaveFlow();
+              stepChanged.current = true;
+              setMethodId(null);
+            }}>
+        <IconChevronLeft size={16} stroke={2.2}/>All sign-in options
+      </Link>
+    </Box>;
+    return <AppDialog open={open} onClose={handleClose} size="s" phone="full" pinTop title={`Sign in with ${label}`}
+                      headerSx={HEADER_SX} above={back}>
       <Flow onStart={() => setLastMethod(id)}/>
     </AppDialog>;
   }
