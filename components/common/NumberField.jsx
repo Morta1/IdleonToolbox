@@ -9,7 +9,7 @@ import { notateNumber, numberWithCommas, parseShorthandNumber } from '@utility/h
 // names one of its numbers (a default), so the two read alike.
 export const fieldNumber = (n) => (Math.abs(n) < 1e15 ? numberWithCommas(Math.round(n * 1e4) / 1e4) : notateNumber(n, 'Big'));
 
-const rangeText = (min, max) => {
+export const rangeText = (min, max) => {
   if (min != null && max != null) return `${fieldNumber(min)} to ${fieldNumber(max)}`;
   if (max != null) return `Up to ${fieldNumber(max)}`;
   return min != null ? `At least ${fieldNumber(min)}` : null;
@@ -41,7 +41,8 @@ const NOTATION = /[a-z%]/i;
 // ariaLabel names a field whose label is short or sits beside it. help is the line under it when there is nothing else
 // to say (default: the range); false leaves it out, for a field in a row of controls. error is the caller's own message
 // (a goal above its max), shown after the field's. onCommit gets the value the field is left with (on leave or Enter),
-// null when emptied, for callers that act only then.
+// null when emptied, for callers that act only then. inline: a narrow field at a row's end (Page settings): the default
+// reads as its number alone, and a message under the field runs left from its right edge on one line.
 const NumberField = ({
   label,
   ariaLabel,
@@ -60,6 +61,7 @@ const NumberField = ({
   inputMode = 'decimal',
   disabled,
   fullWidth,
+  inline = false,
   sx
 }) => {
   const id = useId();
@@ -95,7 +97,7 @@ const NumberField = ({
     id={id}
     label={label}
     value={draft ?? (value == null ? '' : fieldNumber(value))}
-    placeholder={defaultValue != null ? `${fieldNumber(defaultValue)} (default)` : placeholder}
+    placeholder={defaultValue != null ? (inline ? fieldNumber(defaultValue) : `${fieldNumber(defaultValue)} (default)`) : placeholder}
     error={shownError !== null}
     helperText={helperText}
     disabled={disabled}
@@ -126,6 +128,7 @@ const NumberField = ({
       if (event.key === 'Enter') commit();
     }}
     slotProps={{
+      ...(inline ? { formHelperText: { sx: { alignSelf: 'flex-end', width: 'max-content', textAlign: 'right' } } } : {}),
       htmlInput: { inputMode, 'aria-label': ariaLabel },
       input: {
         startAdornment: icon ? <InputAdornment position="start">{icon}</InputAdornment> : null,

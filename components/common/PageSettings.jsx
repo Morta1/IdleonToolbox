@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { Box, Button, MenuItem, Popover, Stack, Switch, TextField, Typography, useMediaQuery } from '@mui/material';
 import { IconSettings } from '@tabler/icons-react';
 import AppDialog from '@components/common/Overlays/AppDialog';
-import NumberField from '@components/common/NumberField';
+import NumberField, { fieldNumber, rangeText } from '@components/common/NumberField';
 import { usePageHeaderSlot } from '@components/common/NavBar/PageHeader';
 import useToolbarState, { same } from '@hooks/useToolbarState';
 import { headerGearSx, widerThanPhone } from '@components/common/NavBar/headerAction';
@@ -31,6 +31,19 @@ const DOT_SX = {
   '@media (max-width: 599.95px)': { position: 'absolute', top: 2, right: 2, m: 0 }
 };
 const SettingsContext = createContext({ state: {}, onChange: () => {} });
+// Toolbar board: an outlined control at the header's right end, white 14/400 with the 23% edge; on a phone the gear alone.
+const BUTTON_SX = [{
+  color: 'text.primary', borderColor: 'outline', fontWeight: 400, whiteSpace: 'nowrap', pl: 1.5, pr: 1.25,
+  '& .MuiButton-startIcon': { ml: 0, mr: 0.75 },
+  '&:hover': { borderColor: 'text.secondary', bgcolor: 'action.hover' }
+}, headerGearSx];
+// One row per setting with a line between rows (Toolbar board's panel). A child is a row, a page's own row (Stamps'
+// snapshot) or a Group, whose title and rows follow the same rules. px: the panel's 16, or 0 inside a sheet's own gutter.
+const rowsSx = (px) => ({
+  '& > :not([data-settings-group]), & [data-settings-group] > *': { px, py: 1.25, minHeight: 44, boxSizing: 'border-box' },
+  '& > * + *, & [data-settings-group] > * + * + *': { borderTop: 1, borderColor: 'divider' },
+  '& [data-settings-group] > h3': { pt: 1.5, pb: 0.5, minHeight: 0 }
+});
 
 // The settings that change the numbers on the page (Toolbar board, "Where a control goes"), the ones only one tab
 // reads too, grouped under that tab's name (Group): the gear at the end of the header row opens them, a dot says one differs from its default, Reset puts the defaults back. A popover on
@@ -40,6 +53,9 @@ const SettingsContext = createContext({ state: {}, onChange: () => {} });
 const PageSettings = ({ state, defaults, onChange, onReset, onOpen, label = 'Page settings', changed: isChanged, children }) => {
   const node = usePageHeaderSlot('settings');
   const [anchor, setAnchor] = useState(null);
+  // Where the button ends on screen: the panel stays under it and scrolls itself when tall, instead of Popover lifting it
+  // over its own button. At least 240 px, so a button low on a short window still opens a usable panel.
+  const [buttonBottom, setButtonBottom] = useState(0);
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const panelId = useId();
   const rowsRef = useRef(null);
@@ -53,9 +69,9 @@ const PageSettings = ({ state, defaults, onChange, onReset, onOpen, label = 'Pag
   // The name lives here, not in the words: a phone's button is the gear alone
   const buttonName = changed ? `${label}, changed` : label;
   if (onOpen) {
-    return createPortal(<Button startIcon={<IconSettings size={18}/>} aria-label={buttonName} aria-haspopup="dialog" onClick={onOpen} sx={headerGearSx}>{buttonLabel}</Button>, node);
+    return createPortal(<Button variant="outlined" startIcon={<IconSettings size={18}/>} aria-label={buttonName} aria-haspopup="dialog" onClick={onOpen} sx={BUTTON_SX}>{buttonLabel}</Button>, node);
   }
-  const rows = <SettingsContext value={{ state, onChange, close }}><Stack ref={rowsRef} gap={2}>{children}</Stack></SettingsContext>;
+  const rows = <SettingsContext value={{ state, onChange, close }}><Stack ref={rowsRef} sx={rowsSx(isPhone ? 0 : 2)}>{children}</Stack></SettingsContext>;
   // Reset leaves with the change it undid: the focus goes on to the first setting rather than to the popover or
   // the sheet itself
   const resetHere = () => {
@@ -63,8 +79,12 @@ const PageSettings = ({ state, defaults, onChange, onReset, onOpen, label = 'Pag
     requestAnimationFrame(() => rowsRef.current?.querySelector('input, button, [tabindex="0"]')?.focus());
   };
   return createPortal(<>
-    <Button startIcon={<IconSettings size={18}/>} aria-label={buttonName} aria-haspopup="dialog" aria-expanded={Boolean(anchor)}
-            aria-controls={anchor ? panelId : undefined} onClick={(event) => setAnchor(event.currentTarget)} sx={headerGearSx}>
+    <Button variant="outlined" startIcon={<IconSettings size={18}/>} aria-label={buttonName} aria-haspopup="dialog" aria-expanded={Boolean(anchor)}
+            aria-controls={anchor ? panelId : undefined} sx={BUTTON_SX}
+            onClick={(event) => {
+              setButtonBottom(event.currentTarget.getBoundingClientRect().bottom);
+              setAnchor(event.currentTarget);
+            }}>
       {buttonLabel}
     </Button>
     {isPhone
@@ -74,37 +94,56 @@ const PageSettings = ({ state, defaults, onChange, onReset, onOpen, label = 'Pag
       </AppDialog>
       : <Popover open={Boolean(anchor)} anchorEl={anchor} onClose={close} id={panelId}
                  anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }} transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-                 slotProps={{ paper: { role: 'dialog', 'aria-label': 'Page settings', sx: { width: 360, maxWidth: 'calc(100vw - 32px)', p: 2 } } }}>
-        <Stack direction="row" alignItems="center" sx={{ mb: 2, minHeight: 32 }}>
-          <Typography variant="sectionTitle" component="h2">Page settings</Typography>
-          {changed ? <Button size="small" onClick={resetHere} sx={{ ml: 'auto' }}>Reset</Button> : null}
+                 slotProps={{
+                   paper: {
+                     role: 'dialog', 'aria-label': 'Page settings', sx: {
+                       width: 400, maxWidth: 'calc(100vw - 32px)', pb: '6px', overflowY: 'auto',
+                       maxHeight: `max(240px, calc(100vh - ${buttonBottom + 20}px - var(--nitro-ad-height, 0px)))`
+                     }
+                   }
+                 }}>
+        <Stack direction="row" alignItems="center" sx={{
+          position: 'sticky', top: 0, zIndex: 1, bgcolor: 'background.paper', px: 2, py: 0.75, minHeight: 44, boxSizing: 'border-box',
+          borderBottom: 1, borderColor: 'divider'
+        }}>
+          <Typography component="h2" sx={{ fontSize: 15, lineHeight: '24px', fontWeight: 500 }}>Page settings</Typography>
+          {changed ? <Button size="small" onClick={resetHere} sx={{ ml: 'auto', fontSize: 13 }}>Reset</Button> : null}
         </Stack>
         {rows}
       </Popover>}
   </>, node);
 };
 
+// A setting's row: its name and one line on what it changes on the left, in words nothing hides; its control on the right.
+const Row = ({ label, labelFor, help, helpId, children }) => <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1.5}>
+  <Stack sx={{ flex: 1, minWidth: 0 }}>
+    <Typography variant="body2" component={labelFor ? 'label' : 'div'} htmlFor={labelFor}>{label}</Typography>
+    {help ? <Typography variant="caption" color="text.secondary" id={helpId}>{help}</Typography> : null}
+  </Stack>
+  {children}
+</Stack>;
+
 // One on/off setting: its name, one line on what it changes, the switch.
 const Toggle = ({ name, label, help }) => {
   const { state, onChange } = useContext(SettingsContext);
   const helpId = useId();
-  return <Stack direction="row" alignItems="center" gap={2}>
-    <Stack sx={{ flex: 1, minWidth: 0 }}>
-      <Typography variant="body2" component="label" htmlFor={`${helpId}-input`}>{label}</Typography>
-      <Typography variant="caption" color="text.secondary" id={helpId}>{help}</Typography>
-    </Stack>
+  return <Row label={label} labelFor={`${helpId}-input`} help={help} helpId={helpId}>
     <Switch checked={Boolean(state?.[name])} onChange={(event) => onChange({ [name]: event.target.checked })}
             inputProps={{ id: `${helpId}-input`, role: 'switch', 'aria-describedby': helpId }}/>
-  </Stack>;
+  </Row>;
 };
 PageSettings.Toggle = Toggle;
 
-// One number setting: the field (empty is the default, which it shows as its placeholder) and one line on what it changes.
+// One number setting: the field (empty is the default, which it shows as its placeholder) and one line on what it changes,
+// or its range where the page has no words for it. The field is the board's 72 px, wider when its number needs the room.
 const NumberSetting = ({ name, label, help, defaultValue, min, max, integer, unit }) => {
   const { state, onChange } = useContext(SettingsContext);
-  return <NumberField label={label} help={help} value={state?.[name] ?? null} defaultValue={defaultValue}
-                      min={min} max={max} integer={integer} unit={unit} sx={{ width: '100%' }}
-                      onChange={(next) => onChange({ [name]: next })}/>;
+  const value = state?.[name] ?? null;
+  const digits = String(fieldNumber(value ?? defaultValue ?? 0)).length + (unit ? 2 : 0);
+  return <Row label={label} help={help ?? rangeText(min, max)}>
+    <NumberField ariaLabel={label} help={false} inline value={value} defaultValue={defaultValue} min={min} max={max} integer={integer} unit={unit}
+                 sx={{ width: Math.max(72, 24 + digits * 10), flexShrink: 0 }} onChange={(next) => onChange({ [name]: next })}/>
+  </Row>;
 };
 PageSettings.Number = NumberSetting;
 
@@ -112,12 +151,15 @@ PageSettings.Number = NumberSetting;
 // setting (null) means, shown as picked; picking it again stores nothing.
 const SelectSetting = ({ name, label, help, options, defaultValue }) => {
   const { state, onChange } = useContext(SettingsContext);
-  return <TextField select label={label} helperText={help} value={state?.[name] ?? defaultValue ?? ''} fullWidth
-                    onChange={(event) => onChange({
-                      [name]: defaultValue !== undefined && event.target.value === defaultValue ? null : event.target.value
-                    })}>
-    {options.map(([value, text]) => <MenuItem key={value} value={value}>{text}</MenuItem>)}
-  </TextField>;
+  return <Row label={label} help={help}>
+    <TextField select value={state?.[name] ?? defaultValue ?? ''} sx={{ flexShrink: 0, maxWidth: '60%' }}
+               slotProps={{ select: { SelectDisplayProps: { 'aria-label': label } } }}
+               onChange={(event) => onChange({
+                 [name]: defaultValue !== undefined && event.target.value === defaultValue ? null : event.target.value
+               })}>
+      {options.map(([value, text]) => <MenuItem key={value} value={value}>{text}</MenuItem>)}
+    </TextField>
+  </Row>;
 };
 PageSettings.Select = SelectSetting;
 
@@ -126,23 +168,19 @@ PageSettings.Select = SelectSetting;
 const ActionSetting = ({ label, help, action }) => {
   const { close } = useContext(SettingsContext);
   const helpId = useId();
-  return <Stack direction="row" alignItems="center" gap={2}>
-    <Stack sx={{ flex: 1, minWidth: 0 }}>
-      <Typography variant="body2">{label}</Typography>
-      <Typography variant="caption" color="text.secondary" id={helpId}>{help}</Typography>
-    </Stack>
+  return <Row label={label} help={help} helpId={helpId}>
     <Button aria-describedby={helpId} sx={{ flexShrink: 0 }} onClick={() => {
       close?.();
       action?.onClick?.();
     }}>{action?.label}</Button>
-  </Stack>;
+  </Row>;
 };
 PageSettings.Action = ActionSetting;
 
 // The settings one tab reads, under that tab's name.
 const Group = ({ title, children }) => {
   const titleId = useId();
-  return <Stack role="group" aria-labelledby={titleId} gap={2}>
+  return <Stack role="group" aria-labelledby={titleId} data-settings-group>
     <Typography variant="groupLabel" component="h3" id={titleId} color="text.secondary">{title}</Typography>
     {children}
   </Stack>;
