@@ -1,6 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Box } from '@mui/material';
-import { IconEye, IconFlask, IconInfoCircle, IconUserQuestion } from '@tabler/icons-react';
+import { IconEye, IconFlask, IconInfoCircle, IconLayoutNavbar } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
 import { simulatedCompanionsKey } from '@components/constants';
 import { useRouter } from 'next/router';
@@ -55,7 +55,7 @@ const ProfileBanner = () => {
     </Notice>;
   }
   if (isSample) {
-    return <Notice placement={'banner'} tone={'signin'} icon={IconUserQuestion}>
+    return <Notice placement={'banner'} tone={'signin'} icon={IconLayoutNavbar}>
       Sample account<WideOnly>: sign in to see your own numbers</WideOnly>
     </Notice>;
   }

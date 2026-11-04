@@ -71,11 +71,20 @@ const actionText = ({ label, busy, busyLabel }) => (busy ? <>
 // Retry for a read that can fail again: busy while the caller asks again (a query's isFetching).
 export const retryAction = (onClick, busy) => ({ label: 'Retry', busyLabel: 'Retrying', onClick, busy: Boolean(busy) });
 
+// Notices board: 14/400 in a 28 px button, the band's full 40 px its tap target.
 const bannerButtonSx = (tone, color) => ({
   ml: 1,
   flexShrink: 0,
   whiteSpace: 'nowrap',
-  fontSize: 12,
+  fontSize: 14,
+  fontWeight: 400,
+  lineHeight: '20px',
+  minHeight: 28,
+  height: 28,
+  py: 0,
+  px: 1.25,
+  '&::before': { content: '""', position: 'absolute', inset: '-6px 0' },
+  '@media (pointer: coarse)': { minHeight: 28 },
   color,
   borderColor: tone === 'info' || tone === 'signin' ? 'primary.edge' : color,
   '&:hover': { borderColor: color, color: 'text.primary' }
