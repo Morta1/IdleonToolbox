@@ -1,14 +1,13 @@
 import { Box, Stack, Typography } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, formatNum, growth, round } from 'utility/helpers';
+import { cleanUnderscore, formatNum, growth, round, shownPercent } from 'utility/helpers';
 import { formatGame, gameBonusText } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import {
   CAULDRON_INFO,
   findAddDecayThresholdLevel,
   getAlchemy,
-  getBubbleEffectPercent,
   getBubbleParticleCost,
   getBubbleBonus,
   getBubbleUpgradeCost,
@@ -228,14 +227,18 @@ const dailyTile = (bubble, index, { upgradeable, account, discounts }) => {
 const matchesSearch = (bubble, query) => !query || [bubbleTitle(bubble?.bubbleName), cleanUnderscore(bubble?.desc ?? ''),
   ...(bubble?.itemReq ?? []).filter(isMaterial).map(materialName)].some((text) => text.toLowerCase().includes(query));
 
+// A bubble the game has not given a bonus yet ("It's just a normal bubble"): no bonus, cap or target of its own
+const isPlaceholderBubble = (bubble) => bubble?.bubbleName === 'BUBBLE';
+
 // One bubble's numbers, once for its tile, its details and its table row. A Prisma bubble's bonus and cap take the
 // Prisma multi. The target is the level that reaches the efficiency threshold, while the bubble is under it; a failed
-// section has no level to aim from and dims nothing
+// section has no level to aim from and dims nothing. How far it is to its cap is the ratio of the two numbers as shown
 const bubbleRow = (bubble, cauldronIndex, { account, prisma, failed, effThreshold, levelThreshold, dimPastEff, dimPastLevel }) => {
   const { level = 0, func = '', x1, x2 } = bubble;
   const isPrisma = !failed && isPrismaBubble(account, bubble.bubbleIndex);
   const multi = isPrisma ? prisma : 1;
   const bonus = round(growth(func, level, x1, x2, false) * multi);
+  const placeholder = isPlaceholderBubble(bubble);
   const capped = getMaxBonus(func, x1);
   const maxBonus = capped ? capped * multi : null;
   const needed = maxBonus && !failed ? (func.toLowerCase() === 'adddecay'
@@ -243,6 +246,8 @@ const bubbleRow = (bubble, cauldronIndex, { account, prisma, failed, effThreshol
     : effThreshold / (100 - effThreshold) * x2) : null;
   const missing = needed === null ? null : needed - level;
   const pastEff = func.toLowerCase().includes('decay') && (!maxBonus || (missing !== null && missing <= 0));
+  const bonusText = gameBonusText(bonus, bubble, 'bubble');
+  const maxText = maxBonus && !placeholder ? gameBonusText(maxBonus, bubble, 'bubble') : null;
   return {
     bubble,
     cauldronIndex,
@@ -250,11 +255,12 @@ const bubbleRow = (bubble, cauldronIndex, { account, prisma, failed, effThreshol
     name: bubbleTitle(bubble.bubbleName),
     level,
     isPrisma,
-    bonusText: gameBonusText(bonus, bubble, 'bubble'),
-    maxText: maxBonus ? gameBonusText(maxBonus, bubble, 'bubble') : null,
-    capPercent: maxBonus ? getBubbleEffectPercent(account, bubble) : null,
+    placeholder,
+    bonusText,
+    maxText,
+    capPercent: maxText ? shownPercent(bonusText, maxText) : null,
     // Infinity at a 100% threshold: a decaying bonus never reaches its cap
-    target: missing > 0 ? level + Math.ceil(missing) : null,
+    target: missing > 0 && !placeholder ? level + Math.ceil(missing) : null,
     pastThreshold: !failed && ((dimPastEff && pastEff) || (dimPastLevel && level > levelThreshold))
   };
 };
@@ -268,18 +274,22 @@ const bonusAmount = (text) => formatNum(Number(text), 'exact');
 // reaches the efficiency threshold, and the next level's cost. A bubble at Lv 0 is not found yet (a cauldron's
 // unlocked bubbles stop at its first Lv 0 one), so it has no level to buy
 const bubbleNote = (row, { account, discounts, prismaText, effThreshold, showTargets }) => {
-  const { bubble, name, level, isPrisma, bonusText, maxText, capPercent, target } = row;
+  const { bubble, name, level, isPrisma, placeholder, bonusText, maxText, capPercent, target } = row;
   const threshold = formatNum(effThreshold, 'pct');
+  // The sentence already holds the bonus where it fills one, so the line names only how far it is to the cap
+  const sentenceHasBonus = (bubble.desc ?? '').includes('{');
+  const capText = formatNum(capPercent, 'pct');
   return <Stack gap={1}>
     <Stack gap={0.5}>
       <Typography variant={'body2'}>{`${name}, Lv ${formatNum(level)}`}</Typography>
-      {isPrisma ? <Typography variant={'body2'} color={'text.secondary'}>
+      {isPrisma && !placeholder ? <Typography variant={'body2'} color={'text.secondary'}>
         {prismaText ? `Prisma: ${prismaText} bonus` : 'Prisma'}</Typography> : null}
       <Typography variant={'body2'}>{cleanUnderscore((bubble.desc ?? '').replace(/{/g, bonusText))}</Typography>
       {level > 0 ? null : <StatusText status={'needs'}>Not found yet</StatusText>}
     </Stack>
     <ItemCard.Facts rows={[
-      maxText ? ['Bonus', `${bonusAmount(bonusText)} of ${bonusAmount(maxText)} (${formatNum(capPercent, 'pct')})`] : null,
+      maxText ? ['Bonus', sentenceHasBonus ? `${capText} of ${bonusAmount(maxText)}`
+        : `${bonusAmount(bonusText)} of ${bonusAmount(maxText)} (${capText})`] : null,
       showTargets && target !== null
         ? Number.isFinite(target) ? [`Reaches ${threshold} at`, `Lv ${formatNum(target)}`] : [`Reaches ${threshold}`, 'Never']
         : null
@@ -304,7 +314,7 @@ const bubbleColumns = (showTargets) => [
     value: (row) => (Number.isFinite(row.target) ? row.target : null)
   } : null,
   { key: 'cap', label: 'Of cap', kind: 'pct', value: (row) => row.capPercent },
-  { key: 'bonus', label: 'Bonus', kind: 'exact', value: (row) => Number(row.bonusText) }
+  { key: 'bonus', label: 'Bonus', kind: 'exact', value: (row) => (row.placeholder ? null : Number(row.bonusText)) }
 ].filter(Boolean);
 
 const Bubbles = () => {

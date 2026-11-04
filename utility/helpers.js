@@ -648,6 +648,11 @@ export const shownDifference = (fromText, toText) => {
   const power = Math.min(from.power, to.power);
   return (to.digits * 10 ** (to.power - power) - from.digits * 10 ** (from.power - power)) * 10 ** power;
 };
+// The same rule for a share: "X of Y (Z%)" is X over Y as shown, so the percent always reads as the two numbers do
+export const shownPercent = (partText, wholeText) => {
+  const [part, whole] = [shownDigits(partText), shownDigits(wholeText)];
+  return whole.digits > 0 ? part.digits / whole.digits * 10 ** (part.power - whole.power) * 100 : null;
+};
 
 // Numbers board, lane B: a number only the toolbox shows, in the game's usual format for its kind. Every kind
 // notates the magnitude and draws the sign itself, because the game's NotateNumber assumes a positive number.
