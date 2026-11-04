@@ -35,8 +35,10 @@ const Dungeons = () => {
 
   const nextHappyHours = calcHappyHours(state?.serverVars?.HappyHours) ?? [];
   // The schedule is a list, so a breakdown (Info board step 5); the next one is the tile's own countdown. The dates come
-  // from the current clock, not the save's, so the countdown takes no lastUpdated (it would subtract the save's age)
-  const happyHours = nextHappyHours.length > 1 ? createBreakdown('Happy hours', '', flatLines(nextHappyHours.map((date, index) => ({
+  // from the current clock, not the save's, so the countdown takes no lastUpdated (it would subtract the save's age).
+  // The drawer is named as its tile and headed with the tile's date: a countdown would go stale while it is open
+  const nextText = nextHappyHours.length ? formatDate(nextHappyHours[0], { showSeconds: false }) : undefined;
+  const happyHours = nextHappyHours.length > 1 ? createBreakdown('Next happy hour', nextText, flatLines(nextHappyHours.map((date, index) => ({
     name: `#${formatNum(index + 1)}`, value: date, formatted: formatDate(date, { showSeconds: false })
   }))), { combine: 'list' }) : undefined;
 
@@ -55,9 +57,9 @@ const Dungeons = () => {
         <StatTile label={'Flurbos'} icon={'data/DungCredits2.png'} value={shown(formatGame(flurbos ?? 0, 'DungeonCalc.PassiveStatCost2'))}/>
         <StatTile label={'Next happy hour'}
                   value={nextHappyHours.length ? <Timer type={'countdown'} date={nextHappyHours[0]}/> : '-'}
-                  sub={nextHappyHours.length ? formatDate(nextHappyHours[0], { showSeconds: false }) : undefined}
+                  sub={nextText}
                   info={nextHappyHours.length ? undefined : 'The happy hour schedule comes from the game\'s server with your save.'}
-                  breakdown={happyHours} breakdownTitle={'Happy hours'} breakdownNoun={'happy hours'}/>
+                  breakdown={happyHours} breakdownNoun={'happy hours'}/>
       </PageSummary>
       <Tabber tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'dungeons')}>
         <Upgrades {...dungeons} sectionFailed={dungeonsFailed}/>

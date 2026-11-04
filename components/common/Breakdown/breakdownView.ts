@@ -85,7 +85,7 @@ export const toBreakdownTree = (data: AnyBreakdown, valueNotation: string, skipN
   ]));
 }
 
-const countLines = (node: BreakdownNode): number =>
+export const countLines = (node: BreakdownNode): number =>
   isBreakdownGroup(node) ? node.children.reduce((total, child) => total + countLines(child), 0) : 1;
 
 const displayOf = (node: BreakdownNode, { valueNotation, skipNotation, countNoun = 'sources' }: ViewOptions) => {

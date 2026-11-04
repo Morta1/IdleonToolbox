@@ -37,6 +37,7 @@ import GameIconNotation from "@components/common/GameIconNotation";
 import {
   buildView,
   collectGroupKeys,
+  countLines,
   defaultExpandedKeys,
   flattenView,
   formatTotal,
@@ -59,6 +60,8 @@ import {
 
 // More notes than this bury the groups worth upgrading under near-zero ones
 const TOP_GAINS_SHOWN = 3
+// A list breakdown's lines from which its drawer offers a search
+const SEARCH_FROM = 10
 
 // Info board: a value that opens a breakdown carries a 14 px bars glyph, and a hover tints the whole value
 const VALUE_TRIGGER_SX = { "&:hover": { bgcolor: "primary.soft" } }
@@ -150,6 +153,9 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
 
   const tree = toBreakdownTree(data, valueNotation, skipNotation)
   const rootCombine = isLegacyBreakdown(data) ? "list" : data.combine ?? DEFAULT_ROOT_COMBINE
+  // A short list (the two next happy hours) is read at a glance: its drawer has no search until SEARCH_FROM lines
+  const searchable = isLegacyBreakdown(data) || data.combine !== "list"
+    || tree.reduce((lines, node) => lines + countLines(node), 0) >= SEARCH_FROM
   // Only an open drawer pays for them; pages hold dozens of closed breakdowns
   const shares = open ? computeShares(tree, rootCombine) : new Map()
   const gains = open ? computeGains(tree, rootCombine) : new Map()
@@ -261,6 +267,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
     <Stack
       direction="row"
       alignItems="center"
+      justifyContent="flex-end"
       spacing={1}
       sx={{
         px: isMobile ? 1.5 : 2,
@@ -269,7 +276,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
         borderColor: "divider",
       }}
     >
-      <TextField
+      {searchable ? <TextField
         size="small"
         placeholder="Search"
         inputProps={{ "aria-label": "Search sources" }}
@@ -304,7 +311,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
             </InputAdornment>
           ),
         }}
-      />
+      /> : null}
       <IconButton
         aria-label="Breakdown options"
         aria-haspopup="menu"
