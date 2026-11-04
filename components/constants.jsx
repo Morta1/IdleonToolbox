@@ -86,7 +86,8 @@ export const PAGES = {
     'task board': {
       icon: 'etc/TasksStar',
       categories: [
-        { label: 'achievements', icon: 'data/TaskAchBorder1', tabs: WORLD_TABS },
+        // The game lists no World 7 achievement yet (achievements.json stops at slot 419): its tab comes back with them
+        { label: 'achievements', icon: 'data/TaskAchBorder1', tabs: WORLD_TABS.slice(0, 6) },
         { label: 'tasks', icon: 'etc/TasksStar', tabs: WORLD_TABS },
         { label: 'merits', icon: 'etc/Merit_4', tabs: WORLD_TABS },
         { label: 'unlocks', icon: 'data/PetLockB0', tabs: ['Tab 1', 'Tab 2', 'Tab 3', 'Tab 4', 'Tab 5', 'Tab 6', 'Tab 7'] }
