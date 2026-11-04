@@ -1,50 +1,23 @@
-import { Stack, Typography, Divider } from '@mui/material';
 import React from 'react';
-import { numberWithCommas, cleanUnderscore } from '@utility/helpers';
+import { Box } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import Panel from '@components/common/cards/Panel';
-import InfoButton from '@components/common/InfoButton';
-import { TitleAndValue } from '@components/common/styles';
 
 // A name and a score per row: two columns, so a Panel list rather than a table (Tables board, "A table needs a
-// header" with 3 or more columns). A score with upgrades explains them from its i.
+// header" with 3 or more columns). A score with upgrades (Hoops, Darts) lists them in a group of its own under the
+// scores, so nothing in the Panel opens only on a tap.
 const Highscores = ({ title, highscore }) => {
-  const sorted = [...(highscore ?? [])].sort((a, b) => b.score - a.score);
+  const sorted = (highscore ?? []).toSorted((a, b) => (b?.score ?? 0) - (a?.score ?? 0));
   return <Panel title={title}>
-    {sorted.map((row) => <Panel.KV key={row.name} value={numberWithCommas(parseInt(row.score))} label={<Stack
-      direction={'row'} alignItems={'center'} gap={0.5} component={'span'}>
-      {row.name.capitalize()}
-      {row.upgrades?.length ? <InfoButton label={row.name.capitalize()} maxWidth={450}><UpgradesNote row={row}/></InfoButton> : null}
-    </Stack>}/>)}
+    {sorted.map((row) => <Panel.KV key={row?.name} label={row?.name?.capitalize()} value={formatNum(Number(row?.score) || 0)}/>)}
+    {sorted.filter((row) => row?.upgrades?.length).map((row) => <Panel.Group key={row?.name} label={`${row?.name?.capitalize()} upgrades`}>
+      <Panel.KV label={'Total points'} value={formatNum(row?.totalPoints ?? 0)}/>
+      {row?.upgrades?.map((upgrade, index) => <Panel.KV key={index} label={cleanUnderscore(upgrade?.description)}
+                                                        value={upgrade?.unlocked || !upgrade?.pointsToUnlock
+                                                          ? <Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>{formatNum(upgrade?.level ?? 0, 'level')}</Box>
+                                                          : `Unlocks at ${formatNum(upgrade.pointsToUnlock)} points`}/>)}
+    </Panel.Group>)}
   </Panel>;
 };
-
-const UpgradesNote = ({ row }) => <Stack gap={1}>
-  {row.totalPoints !== undefined && (
-    <>
-      <TitleAndValue
-        title="Total Points"
-        value={numberWithCommas(row.totalPoints)}
-        boldTitle
-      />
-      <Divider sx={{ my: 0.5 }}/>
-    </>
-  )}
-  <Stack gap={1}>
-    {row.upgrades.map((upgrade, index) => (
-      <Stack key={index} gap={0.5}>
-        <Typography variant="body2" sx={{ fontWeight: 500 }}>
-          {cleanUnderscore(upgrade.description)}
-        </Typography>
-        <Stack gap={0.25}>
-          <Typography variant="caption">Level: {upgrade.level || 0}</Typography>
-          {!upgrade.unlocked ? <Typography variant="caption" sx={{ color: 'text.secondary' }}>
-            {'Unlocks at ' + upgrade.pointsToUnlock + ' points'}
-          </Typography> : null}
-        </Stack>
-        {index < row.upgrades.length - 1 && <Divider sx={{ mt: 0.5 }}/>}
-      </Stack>
-    ))}
-  </Stack>
-</Stack>;
 
 export default Highscores;

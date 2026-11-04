@@ -1,10 +1,42 @@
-import CoinDisplay from 'components/common/CoinDisplay';
-import { Stack, Typography } from '@mui/material';
-import { IconWithText, TitleAndValue } from '@components/common/styles';
-import HtmlTooltip from '../../Tooltip';
-import { commaNotation, numberWithCommas, secondsToShortDuration } from '@utility/helpers';
 import React from 'react';
+import { Box, Stack, Typography } from '@mui/material';
+import CoinDisplay from 'components/common/CoinDisplay';
+import Panel from '@components/common/cards/Panel';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
+import { cleanUnderscore, formatNum, secondsToShortDuration } from '@utility/helpers';
+import { keysMap } from '@parsers/parseMaps';
 
+// A count read from the save; a days count the game has not started yet reads 0
+const count = (value) => formatNum(Number.isFinite(Number(value)) ? Number(value) : 0);
+
+// What an NPC hands out once a day: its rate, the days since the last pickup and what waits (up to 3 days' worth)
+const pickupFacts = (entry, name) => <Stack key={name} gap={0.5}>
+  <Stack direction={'row'} alignItems={'center'} gap={1}>
+    <GameIcon src={`data/${entry?.rawName}.png`} size={24} alt={''}/>
+    <Typography variant={'cardTitle'} component={'div'}>{name}</Typography>
+  </Stack>
+  <ItemCard.Facts rows={[
+    ['Per day', count(entry?.amountPerDay)],
+    ['Days since pickup', count(entry?.daysSincePickup)],
+    ['Waiting to collect', count(entry?.totalAmount)]
+  ]}/>
+</Stack>;
+
+// A candy's hours as a span of days and hours (not time left, so not formatDuration's Ready)
+const asDays = (hours) => secondsToShortDuration((hours ?? 0) * 3600);
+const candyFacts = (candies) => <Stack gap={0.5}>
+  <Typography variant={'cardTitle'} component={'div'}>Candies</Typography>
+  <ItemCard.Facts rows={[
+    ['Guaranteed', `${formatNum(candies?.guaranteed ?? 0)} hours (${asDays(candies?.guaranteed)})`],
+    ['Variant', `${formatNum(candies?.special?.min ?? 0)} to ${formatNum(candies?.special?.max ?? 0)} hours `
+    + `(${asDays(candies?.special?.min)} to ${asDays(candies?.special?.max)})`]
+  ]}/>
+</Stack>;
+
+// keysFailed and ticketsFailed: their sub-sections failed, so their tiles read "-" with nothing to open
 const Currencies = ({
                       money = [],
                       WorldTeleports,
@@ -14,61 +46,32 @@ const Currencies = ({
                       gems,
                       KeysAll,
                       minigamePlays,
-                      candies
+                      candies,
+                      keysFailed,
+                      ticketsFailed
                     }) => {
-  // A candy's hours as a span of days and hours (not time left, so not formatDuration's Ready).
-  const asDays = (hours) => secondsToShortDuration(hours * 3600);
-  return <Stack>
-    <CoinDisplay className={'box'} money={money}/>
-    <Typography mt={2} mb={1} textAlign={'center'}>Currencies</Typography>
-    <Stack flexWrap={'wrap'} gap={1} justifyContent={'center'} direction={'row'}>
-      <IconWithText size={32} title={'World Teleports'} stat={commaNotation(WorldTeleports)} icon={'rtt0'}/>
-      <IconWithText size={32} title={'Obol Fragments'} stat={commaNotation(ObolFragments)} icon={'ObolFrag'}/>
-      <HtmlTooltip title={<Stack gap={2}>
-        {ColosseumTickets?.allTickets?.map(({
-                                              rawName,
-                                              amount,
-                                              totalAmount,
-                                              amountPerDay,
-                                              daysSincePickup
-                                            }, index) => {
-          return <Stack key={`${rawName}-${index}`} direction={'row'} gap={1}>
-            <Stack>
-              <IconWithText size={32} stat={''} icon={rawName}/>
-            </Stack>
-            <Stack>
-              <TitleAndValue title={'Tickets Per Day'} value={amountPerDay}/>
-              <TitleAndValue title={'Days Since Pickup'} value={isNaN(daysSincePickup) ? 0 : daysSincePickup}/>
-              <TitleAndValue title={'Total Keys'} value={isNaN(totalAmount) ? 0 : totalAmount}/>
-            </Stack>
-          </Stack>
-        })}
-      </Stack>}>
-        <IconWithText size={32} stat={commaNotation(ColosseumTickets?.totalAmount)} icon={'TixCol'}/>
-      </HtmlTooltip>
-      <IconWithText size={32} title={'Silver Pens'} stat={commaNotation(SilverPens)} icon={'SilverPen'}/>
-      <IconWithText size={32} title={'Gems'} stat={commaNotation(gems)} icon={'PremiumGem'}/>
-      <IconWithText size={32} title={'Minigame Plays'} stat={commaNotation(minigamePlays)}
-                    icon={'MGp'}/>
-      {KeysAll?.map(({ rawName, amount, totalAmount, amountPerDay, daysSincePickup }, index) => {
-        return <HtmlTooltip key={`${rawName}-${index}`}
-                            title={<Stack>
-                              <TitleAndValue title={'Keys Per Day'} value={amountPerDay}/>
-                              <TitleAndValue title={'Days Since Pickup'}
-                                             value={isNaN(daysSincePickup) ? 0 : daysSincePickup}/>
-                              <TitleAndValue title={'Total Keys'} value={isNaN(totalAmount) ? 0 : totalAmount}/>
-                            </Stack>}>
-          <IconWithText size={32} stat={commaNotation(amount)} icon={rawName}/>
-        </HtmlTooltip>
-      })}
-      <IconWithText size={32} icon={'Timecandy1'} label={'Candies'} stat={numberWithCommas(candies?.guaranteed)}
-                    title={<Stack>
-                      <Typography variant={'cardTitle'} component={'span'}>Candies</Typography>
-                      <Typography variant={'body2'}>Guaranteed: {numberWithCommas(candies?.guaranteed)} hrs ({asDays(candies?.guaranteed)})</Typography>
-                      <Typography variant={'body2'}>Variant: {numberWithCommas(candies?.special?.min)} - {numberWithCommas(candies?.special?.max)} hrs ({asDays(candies?.special?.min)} - {asDays(candies?.special?.max)})</Typography>
-                    </Stack>}/>
-    </Stack>
-  </Stack>
+  const keys = keysFailed ? Object.values(keysMap) : KeysAll ?? [];
+  return <Panel title={'Currencies'}>
+    <Panel.Row name={'Total money'} value={<CoinDisplay dense money={money}/>}/>
+    <Box sx={{ p: 1.5 }}>
+      <CardGrid size={'icon'}>
+        <IconTile icon={'data/rtt0.png'} alt={'World Teleports'} value={count(WorldTeleports)} details={'World Teleports'}/>
+        <IconTile icon={'data/ObolFrag.png'} alt={'Obol Fragments'} value={count(ObolFragments)} details={'Obol Fragments'}/>
+        <IconTile icon={'data/TixCol.png'} alt={'Colosseum Tickets'}
+                  value={ticketsFailed ? '-' : count(ColosseumTickets?.totalAmount)}
+                  details={ticketsFailed ? undefined : <Stack gap={1.5}>
+                    {(ColosseumTickets?.allTickets ?? []).map((ticket, index) => pickupFacts(ticket, `Ticket ${index + 1}`))}
+                  </Stack>}/>
+        <IconTile icon={'data/SilverPen.png'} alt={'Silver Pens'} value={count(SilverPens)} details={'Silver Pens'}/>
+        <IconTile icon={'data/PremiumGem.png'} alt={'Gems'} value={count(gems)} details={'Gems'}/>
+        <IconTile icon={'data/MGp.png'} alt={'Minigame Plays'} value={count(minigamePlays)} details={'Minigame Plays'}/>
+        {keys.map((key) => <IconTile key={key?.rawName} icon={`data/${key?.rawName}.png`} alt={cleanUnderscore(key?.name)}
+                                     value={keysFailed ? '-' : count(key?.amount)}
+                                     details={keysFailed ? undefined : pickupFacts(key, cleanUnderscore(key?.name))}/>)}
+        <IconTile icon={'data/Timecandy1.png'} alt={'Candies'} value={count(candies?.guaranteed)} details={candyFacts(candies)}/>
+      </CardGrid>
+    </Box>
+  </Panel>;
 };
 
 export default Currencies;
