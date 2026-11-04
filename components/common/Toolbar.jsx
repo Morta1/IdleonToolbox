@@ -2,6 +2,7 @@ import React, { Children, createContext, isValidElement, useContext, useEffect, 
 import {
   Box,
   Button,
+  ButtonBase,
   IconButton,
   InputAdornment,
   MenuItem,
@@ -113,7 +114,7 @@ export const FilterPill = ({ value, on, label, onToggle }) => <ToggleButton
   selected={Boolean(on)}
   onChange={onToggle}
   sx={{
-    borderRadius: 999, px: 2, gap: 0.75, whiteSpace: 'nowrap',
+    borderRadius: 999, px: 1.75, gap: 0.75, whiteSpace: 'nowrap', fontWeight: 400, color: 'text.primary', borderColor: 'outline',
     '&.Mui-selected, &.Mui-selected:hover': { color: 'primary.main', bgcolor: 'primary.soft', borderColor: 'primary.edge' }
   }}
 >
@@ -195,6 +196,19 @@ const onSentence = (filters, search) => {
   return `${subject.charAt(0).toUpperCase()}${subject.slice(1)} ${filters > 1 || (filters && search) ? 'are' : 'is'} on.`;
 };
 
+// The result line's tokens and Reset (Toolbar board): 26 px drawn, with the 44 px tap target on a phone's coarse pointer.
+const LINE_TAP = { position: 'relative', '@media (pointer: coarse)': { '&::before': { content: '""', position: 'absolute', inset: '-9px 0' } } };
+const TOKEN_SX = {
+  ...LINE_TAP, height: 26, gap: 0.5, pl: 1.25, pr: 0.75, borderRadius: 999, bgcolor: 'action.hover', color: 'text.primary', fontSize: 12.5, fontWeight: 400
+};
+const RESET_SX = { ...LINE_TAP, height: 26, ml: 0.5, px: 0.5, borderRadius: 1, color: 'primary.main', fontSize: 13, fontWeight: 500 };
+
+// A group of the phone panel, under its caps label.
+const PanelGroup = ({ label, children }) => <Stack gap={0.75}>
+  <Typography variant="groupLabel" color="text.secondary">{label}</Typography>
+  {children}
+</Stack>;
+
 // One row of controls for a list page (Toolbar board), grown from the leaderboards ControlBar. Sticky under
 // the nav bar, and under the profile banner when it shows, within its parent: a page puts the toolbar and
 // the content it controls in one box, so both leave together at the content's end. On a phone everything
@@ -255,10 +269,9 @@ const Toolbar = ({
   const hasPanel = Boolean(panel) || panelSlots.length > 0;
   const buttonLabel = panelChanged.length ? `${panelLabel} (${panelChanged.length})` : panelLabel;
 
-  // What narrows the list, in the row's order. Each filter has its own way back here; a search is only named,
-  // since its field's own x clears it.
+  // What narrows the list, in the row's order, each with its own way back here.
   const narrowing = [
-    ...searches.filter(differs).map((child) => ({ key: slotKey(child), text: `"${state[slotKey(child)]}"`, search: true })),
+    ...searches.filter(differs).map((child) => ({ key: slotKey(child), text: `"${state[slotKey(child)]}"`, label: `search "${state[slotKey(child)]}"` })),
     ...shows.filter(differs).map((child) => {
       const label = child.props.options.find(([value]) => value === state[slotKey(child)])?.[1] ?? '';
       return { key: slotKey(child), text: label, label };
@@ -315,24 +328,16 @@ const Toolbar = ({
         </Stack>
         {narrowing.length ? <Stack direction="row" gap={1} alignItems="center" flexWrap="wrap" sx={{ mt: 1.5 }}>
           {/* A line of its own on a phone, so Reset never wraps alone after the tokens. */}
-          <Typography variant="body2" color="text.secondary" sx={{ flexBasis: { xs: '100%', sm: 'auto' } }}>
-            {`Showing ${commaNotation(shown)} of ${commaNotation(total)}`}
+          <Typography component="div" color="text.secondary" sx={{ fontSize: 13, lineHeight: '20px', flexBasis: { xs: '100%', sm: 'auto' } }}>
+            Showing <Box component="span" sx={{ color: 'text.primary', fontWeight: 500 }}>{commaNotation(shown)}</Box> of {commaNotation(total)}
           </Typography>
-          {narrowing.map(({ key, text, label, search }) => search
-            // The field's own x clears a search; here it is only named (Toolbar board: each active filter with an x)
-            ? <Typography key={key} variant="body2">{text}</Typography>
-            : <Button
-              key={key}
-              size="small"
-              variant="outlined"
-              aria-label={`Clear ${label}`}
-              endIcon={<IconX size={14}/>}
-              onClick={() => change({ [key]: defaults[key] })}
-            >
-              {text}
-            </Button>)}
+          {narrowing.map(({ key, text, label }) => <ButtonBase key={key} aria-label={`Clear ${label}`} sx={TOKEN_SX}
+                                                               onClick={() => change({ [key]: defaults[key] })}>
+            {text}
+            <IconX size={14}/>
+          </ButtonBase>)}
           {/* With nothing shown, the empty note's Reset is the one way back */}
-          {shown > 0 ? <Button size="small" onClick={onReset}>Reset</Button> : null}
+          {shown > 0 ? <ButtonBase onClick={onReset} sx={RESET_SX}>Reset</ButtonBase> : null}
         </Stack> : null}
         {/* A message about what the bar just did (a search that found no one): in the bar, so it shows
             where the player is looking after a scroll. The empty-result note stays under the bar. */}
@@ -347,10 +352,10 @@ const Toolbar = ({
                  ]}>
         <Box sx={focusWithinRing}>
           {panel ? panel.props.children(close) : <ToolbarContext value={{ ...row, placement: 'panel' }}>
-            <Stack gap={1.5}>
-              {shows}
-              {filters.length ? <Stack direction="row" gap={1} flexWrap="wrap">{filters}</Stack> : null}
-              {sorts}
+            <Stack gap={2}>
+              {shows.length ? <PanelGroup label="Show"><Stack gap={1.5}>{shows}</Stack></PanelGroup> : null}
+              {filters.length ? <PanelGroup label="Filters"><Stack direction="row" gap={1} flexWrap="wrap">{filters}</Stack></PanelGroup> : null}
+              {sorts.length ? <PanelGroup label="Sort">{sorts}</PanelGroup> : null}
             </Stack>
           </ToolbarContext>}
         </Box>

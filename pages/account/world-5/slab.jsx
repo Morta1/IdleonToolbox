@@ -1,6 +1,5 @@
 import { AppContext } from '@components/common/context/AppProvider';
 import React, { useContext, useState } from 'react';
-import { Box } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
 import { getSlabBonus } from '@parsers/world-5/sailing';

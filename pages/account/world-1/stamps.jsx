@@ -17,7 +17,6 @@ import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
 import StatusText from '@components/common/StatusText';
 import Toolbar from '@components/common/Toolbar';
-import InfoButton from '@components/common/InfoButton';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import useToolbarState from '@hooks/useToolbarState';
 import {
