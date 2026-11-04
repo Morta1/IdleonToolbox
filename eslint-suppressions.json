@@ -14,11 +14,6 @@
       "count": 5
     }
   },
-  "components/account/Misc/class-specific/RoyalGuardian/KingdomMap.jsx": {
-    "no-restricted-syntax": {
-      "count": 6
-    }
-  },
   "components/account/Pets/PetCollection.jsx": {
     "no-restricted-syntax": {
       "count": 3
@@ -223,21 +218,6 @@
     }
   },
   "hooks/useLeaderboardSelf.js": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "pages/account/class-specific/apocalypses.jsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "pages/account/class-specific/grimoire.jsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "pages/account/class-specific/tesseract.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
     }
