@@ -117,7 +117,7 @@ const SteamLogin = ({ onStart }) => {
       { title: 'Sign in on Steam', done: opened, children: <>
         <span>
           A new tab opens Steam&apos;s own sign-in page.
-          {opened ? <> <Link component="button" type="button" underline="hover" onClick={handleOpen} sx={{ verticalAlign: 'baseline', ...touchTarget }}>Open it again</Link></> : null}
+          {opened ? <> <Link component="button" type="button" onClick={handleOpen} sx={{ verticalAlign: 'baseline', ...touchTarget }}>Open it again</Link></> : null}
         </span>
         {!opened ? <ActionButton disabled={busy} icon={OPENS_ICON} onClick={handleOpen} sx={IN_STEP_SX}>Open Steam sign-in</ActionButton> : null}
       </> },

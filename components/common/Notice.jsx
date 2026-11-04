@@ -242,7 +242,7 @@ const NoticeBody = ({ tone = 'info', placement = 'note', icon, action, onDismiss
             onClick={own('action', entry.onClick, entry.label, entry.busy)}
             aria-disabled={entry.busy || undefined}
             data-notice-action={entry.label}
-            underline="hover"
+           
             sx={NOTE_LINK_SX}
           >
             {actionText(entry)}

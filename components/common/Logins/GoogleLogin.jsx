@@ -109,7 +109,7 @@ const GoogleLogin = ({ onStart }) => {
       </> },
       { title: 'Enter it on Google\'s page', children: <span>
         Google asks you to confirm on its own site:{' '}
-        <Link target="_blank" href={googleDeviceUrl} rel="noreferrer" underline="hover" onClick={() => setOpenedGooglePage(true)}>google.com/device</Link>
+        <Link target="_blank" href={googleDeviceUrl} rel="noreferrer" onClick={() => setOpenedGooglePage(true)}>google.com/device</Link>
       </span> },
       { title: 'Come back here', children: <span>
         The toolbox checks every few seconds and signs you in once Google confirms.

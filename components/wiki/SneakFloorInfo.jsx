@@ -42,7 +42,7 @@ const SneakFloorInfo = ({ node, index, hrefFor, onNavigate }) => {
     const item = index?.byId?.[id];
     if (!item) return null;
     return <React.Fragment key={id}>
-      <Link {...linkProps(hrefFor, id)} underline={'hover'} onClick={navigateOnPlainClick(onNavigate, id, Boolean(hrefFor?.(id)))}>
+      <Link {...linkProps(hrefFor, id)} onClick={navigateOnPlainClick(onNavigate, id, Boolean(hrefFor?.(id)))}>
         {entityName(item)}
       </Link>
       {need ? ` (needs a ${need})` : null}
@@ -87,7 +87,7 @@ const SneakFloorInfo = ({ node, index, hrefFor, onNavigate }) => {
               const item = index?.byId?.[id];
               return <Stack component={'span'}>
                 {item
-                  ? <Link {...linkProps(hrefFor, id)} underline={'hover'} onClick={navigateOnPlainClick(onNavigate, id, Boolean(hrefFor?.(id)))}>
+                  ? <Link {...linkProps(hrefFor, id)} onClick={navigateOnPlainClick(onNavigate, id, Boolean(hrefFor?.(id)))}>
                     {entityName(item)}
                   </Link>
                   : id}

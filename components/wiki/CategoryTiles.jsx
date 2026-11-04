@@ -59,7 +59,7 @@ const CategoryTiles = ({ counts, onGo }) => {
             {systems.map((system) => <React.Fragment key={system.label}>
               {/* An li like the rows beside it: a <p> is not a valid child of the list. The heading is the system's page. */}
               <ListSubheader disableSticky sx={{ typography: 'body2', color: 'text.secondary', fontWeight: 500, px: 2, pt: 0.75, bgcolor: 'transparent' }}>
-                <Link href={systemHref(system)} underline={'hover'} color={'inherit'}
+                <Link href={systemHref(system)} color={'inherit'}
                       onClick={navigateOnPlainClick(onGo, systemHref(system), true)}>
                   {system.label}
                 </Link>

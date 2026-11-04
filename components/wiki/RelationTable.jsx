@@ -34,7 +34,7 @@ const RowName = ({ row, hrefFor, onNavigate }) => {
   return <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'} component={'span'}>
     {row.other.navigable === false
       ? <Typography variant={'body2'} component={'span'}>{label}</Typography>
-      : <Link href={href} variant={'body2'} underline={'hover'} onClick={navigateOnPlainClick(onNavigate, row.otherId, Boolean(href))}>
+      : <Link href={href} variant={'body2'} onClick={navigateOnPlainClick(onNavigate, row.otherId, Boolean(href))}>
         {label}
       </Link>}
     {row.edge?.meta?.recipe ? <TagLine tags={['Recipe']}/> : null}

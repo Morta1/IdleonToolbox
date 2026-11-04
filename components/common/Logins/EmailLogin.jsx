@@ -64,7 +64,7 @@ const EmailLogin = ({ onStart }) => {
       <LoginErrorAlert sx={{ mt: 2 }} error={state?.loginError || error}/>
       {/* Under the button as the board draws it; on a phone above it, where the button sticks to the bottom */}
       <FlowAction onClick={handleSubmit} loading={waitingForAuth} sx={{ order: { xs: 1, sm: 0 } }}>Sign in</FlowAction>
-      <Link href="https://www.reddit.com/r/idleon/comments/12ccw2h/steam_email/" target="_blank" rel="noopener" underline="hover"
+      <Link href="https://www.reddit.com/r/idleon/comments/12ccw2h/steam_email/" target="_blank" rel="noopener"
             sx={{ mt: 2, alignSelf: 'center', order: { xs: 0, sm: 1 }, fontSize: 13.5, fontWeight: 500, ...touchTarget }}>
         Forgot which email you used?
       </Link>

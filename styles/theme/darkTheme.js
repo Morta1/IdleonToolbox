@@ -154,10 +154,15 @@ const darkTheme = createTheme({
         })
       }
     },
+    // Controls board: a link is blue with an underline on hover; one that leaves the site stays underlined at rest.
     MuiLink: {
+      defaultProps: {
+        underline: 'hover'
+      },
       styleOverrides: {
         root: ({ theme }) => ({
-          '&:focus-visible': focusRing(theme)
+          '&:focus-visible': focusRing(theme),
+          '&[href^="http"]:not([href*="idleontoolbox.com"]):not(.MuiLink-underlineNone)': { textDecoration: 'underline' }
         })
       }
     },

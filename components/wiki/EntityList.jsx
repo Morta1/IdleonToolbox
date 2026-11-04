@@ -121,7 +121,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
         <Link
           {...linkProps(hrefFor, entry.id)}
           variant={'body2'}
-          underline={'hover'}
+         
           textAlign={'left'}
           onClick={navigateOnPlainClick(onNavigate, entry.id, Boolean(hrefFor?.(entry.id)))}
         >
@@ -143,7 +143,7 @@ const Band = ({ band, colour, index, onNavigate, hrefFor, banner, labelOf }) => 
       component={'button'}
       type={'button'}
       variant={'body2'}
-      underline={'hover'}
+     
       sx={{ alignSelf: 'flex-start' }}
       onClick={() => setExpanded(true)}
     >

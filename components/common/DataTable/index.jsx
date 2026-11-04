@@ -348,7 +348,7 @@ const DataTable = ({
                   component={'button'}
                   type={'button'}
                   variant={'body2'}
-                  underline={'hover'}
+                 
                   onClick={() => {
                     focusBand.current = band.key;
                     setExpanded({ ...expanded, [band.key]: true });

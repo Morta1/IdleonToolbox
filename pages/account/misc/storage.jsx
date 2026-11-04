@@ -36,7 +36,7 @@ const chestDetails = (chest) => <Stack gap={0.5} alignItems={'flex-start'}>
   <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(chest?.displayName)}</Typography>
   <Typography variant={'body2'}>{`${formatNum((chest?.amount || chest?.capacity) ?? 0)} slots`}</Typography>
   {chest?.unlocked ? <StatusText status={'done'}>Found</StatusText> : <StatusText status={'needs'}>Not found yet</StatusText>}
-  <Link component={'button'} onClick={() => openWikiEntity(`item:${chest?.rawName}`)} sx={{ font: 'inherit' }}>Wiki page</Link>
+  <Link component={'button'} variant={'body2'} onClick={() => openWikiEntity(`item:${chest?.rawName}`)}>Wiki page ›</Link>
 </Stack>;
 
 const Looty = () => {

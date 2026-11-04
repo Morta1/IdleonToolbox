@@ -17,7 +17,7 @@ const linkedLine = (line, targets, { hrefFor, onNavigate }) => {
     ? <Link
       key={at}
       {...linkProps(hrefFor, segment.id)}
-      underline={'hover'}
+     
       onClick={navigateOnPlainClick(onNavigate, segment.id, Boolean(hrefFor?.(segment.id)))}
     >
       {segment.text}

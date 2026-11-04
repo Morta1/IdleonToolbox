@@ -27,7 +27,7 @@ const GuildName = ({ guild, router }) => {
     </Stack>;
   }
   return <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'} component={'span'}>
-    <Link component={'button'} type={'button'} variant={'body2'} underline={'hover'} fontWeight={500} textAlign={'left'}
+    <Link component={'button'} type={'button'} variant={'body2'} fontWeight={500} textAlign={'left'}
           onClick={() => router.push(`/guilds/detail?id=${encodeURIComponent(guild_id)}`)}>
       {guild_name}
     </Link>

@@ -114,7 +114,7 @@ const ReadsPanel = ({ open, onToggle }) => {
       </Stack>
       <Box sx={{ mt: 'auto', fontSize: 12.5 }}>
         Open source.{' '}
-        <Link href={SOURCE_URL} target="_blank" rel="noopener" underline="hover" sx={touchTarget}>
+        <Link href={SOURCE_URL} target="_blank" rel="noopener" sx={touchTarget}>
           See how sign-in works ›
         </Link>
       </Box>
@@ -176,7 +176,7 @@ const LoginDialog = ({ open, onClose }) => {
   if (method) {
     const { Flow, id, label } = method;
     const back = <Box sx={BACK_SX}>
-      <Link ref={body} component="button" type="button" underline="hover" sx={BACK_LINK_SX}
+      <Link ref={body} component="button" type="button" sx={BACK_LINK_SX}
             onClick={() => {
               leaveFlow();
               stepChanged.current = true;
@@ -227,7 +227,7 @@ const LoginDialog = ({ open, onClose }) => {
           <Stack direction="row" alignItems="center" flexWrap="wrap"
                  sx={{ columnGap: '14px', minHeight: 32, typography: 'body2', color: 'text.secondary' }}>
             <span>Just looking?</span>
-            <Link href={SAMPLE_FALLBACK} onClick={openSample} underline="hover" sx={touchTarget}>
+            <Link href={SAMPLE_FALLBACK} onClick={openSample} sx={touchTarget}>
               Browse the sample account
             </Link>
           </Stack>

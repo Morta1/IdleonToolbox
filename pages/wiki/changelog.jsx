@@ -40,7 +40,7 @@ const Changelog = ({ versions }) => {
               <Link
                 href={entityHref(entry)}
                 variant={'body2'}
-                underline={'hover'}
+               
                 sx={{ minWidth: 200 }}
                 onClick={navigateOnPlainClick(go, entityHref(entry), true)}
               >

@@ -40,7 +40,7 @@ const statLines = (item) => {
 export const catalogCard = (item, meta) => {
   const lines = statLines(item);
   return <ItemCard key={item?.rawName} icon={`data/${item?.rawName}.png`} dimmed={!item?.isAcquired}
-                   title={<Link component={'button'} color={'inherit'} underline={'hover'}
+                   title={<Link component={'button'} color={'inherit'}
                                 onClick={() => openItemWikiPage(item?.rawName)}
                                 sx={{ font: 'inherit', textAlign: 'left', verticalAlign: 'baseline' }}>{itemName(item)}</Link>}
                    meta={meta}>

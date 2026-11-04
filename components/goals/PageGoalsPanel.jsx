@@ -39,7 +39,7 @@ const PageGoalsPanel = ({ views, onAdd, onOpen, dashboardHref, onLeave, titled =
       {views.map((view) => <PanelRow key={view.id} view={view} onOpen={onOpen}/>)}
     </Box>
     <Divider/>
-    <MuiLink component={Link} href={dashboardHref} variant="body2" underline="hover" onClick={onLeave}
+    <MuiLink component={Link} href={dashboardHref} variant="body2" onClick={onLeave}
              sx={{ alignSelf: 'flex-start' }}>
       All goals on the dashboard
     </MuiLink>

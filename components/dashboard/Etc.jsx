@@ -670,7 +670,7 @@ const TimerRow = ({
   return <Stack direction={'row'} alignItems={'center'} gap={1.5} flexWrap={'wrap'} sx={{ px: 2, py: 1 }}>
     <AlertIcon configType={'timers'} target={target} extra={items ? { items } : undefined} message={failed ? undefined : message}
                icon={icon} size={TIMER_ICON_SIZE}/>
-    {href && !failed ? <Link component={NextLink} href={href} underline={'hover'} color={'inherit'} variant={'body2'}>{value}</Link>
+    {href && !failed ? <Link component={NextLink} href={href} color={'inherit'} variant={'body2'}>{value}</Link>
       : <Typography component={'span'} variant={'body2'}>{value}</Typography>}
     {failed ? null : state}
   </Stack>;
@@ -684,7 +684,7 @@ const MinibossRow = ({ rawName, name, current, daysTillNext, maxed }) => {
                icon={`etc/${rawName}.png`} size={TIMER_ICON_SIZE}/>
     <Stack sx={{ minWidth: 0 }}>
       <Link component={NextLink} href={{ pathname: '/account/world-3/death-note', query: sessionQuery(router.query) }}
-            underline={'hover'} color={'inherit'} variant={'body2'} sx={{ fontWeight: 500 }}>{cleanUnderscore(name)}</Link>
+            color={'inherit'} variant={'body2'} sx={{ fontWeight: 500 }}>{cleanUnderscore(name)}</Link>
       {maxed
         ? <StatusText status={'ready'}>{`Maxed (${formatNum(current)})`}</StatusText>
         : <Typography variant={'body2'} color={'text.secondary'}>

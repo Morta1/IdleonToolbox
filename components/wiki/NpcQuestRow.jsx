@@ -35,7 +35,7 @@ const Reward = ({ item, amount, onNavigate, hrefFor, id }) => {
           : <Link
             href={href}
             variant={'caption'}
-            underline={'hover'}
+           
             color={'text.secondary'}
             onClick={navigateOnPlainClick(onNavigate, id, Boolean(href))}
           >
@@ -107,7 +107,7 @@ const NpcQuestRow = ({ index, edge, other: quest, otherId, onNavigate, hrefFor }
         href={href}
         variant={'body2'}
         fontWeight={600}
-        underline={'hover'}
+       
         onClick={navigateOnPlainClick(onNavigate, otherId, Boolean(href))}
       >
         {entityName(quest)}

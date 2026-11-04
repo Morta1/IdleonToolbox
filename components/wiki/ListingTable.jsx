@@ -76,7 +76,7 @@ const RowLink = ({ entry, hrefFor, onNavigate, heading }) => {
   const href = hrefFor?.(entry.id);
   const name = <>{entry.label}<Disambig entry={entry} band={heading}/></>;
   if (!href) {
-    return <Link {...linkProps(hrefFor, entry.id)} variant={'body2'} underline={'hover'} textAlign={'left'}
+    return <Link {...linkProps(hrefFor, entry.id)} variant={'body2'} textAlign={'left'}
                  onClick={navigateOnPlainClick(onNavigate, entry.id, false)}>{name}</Link>;
   }
   return <a href={href} className={'row-link'} onClick={navigateOnPlainClick(onNavigate, entry.id, true)}>{name}</a>;

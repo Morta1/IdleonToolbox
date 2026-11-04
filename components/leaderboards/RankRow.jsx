@@ -51,7 +51,7 @@ const RankRow = ({ rank, name, value, notation, scale, display = null, kind = nu
       <Box sx={{ width: drawer ? 34 : 30, flexShrink: 0, display: 'flex', justifyContent: drawer ? 'flex-start' : 'center' }}>
         <RankBadge rank={rank} plain={plainRank} strong={emphasised} dim={dimRank}/>
       </Box>
-      <Link href={profileUrl(name)} target="_blank" underline="hover" color="inherit" noWrap
+      <Link href={profileUrl(name)} target="_blank" color="inherit" noWrap
             sx={{ minWidth: 0, fontSize: 'inherit', fontWeight: emphasised ? (around ? 700 : 600) : kind ? 600 : 400, opacity: name?.startsWith('Anon#') ? 0.85 : 1 }}>
         {pinned && kind === 'logged' ? `${name} (you)` : name}
       </Link>

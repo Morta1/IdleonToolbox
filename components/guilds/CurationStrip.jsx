@@ -263,7 +263,7 @@ export default function CurationStrip({ guilds, router }) {
               type="button"
               variant="subtitle2"
               color="inherit"
-              underline="hover"
+             
               fontWeight={700}
               noWrap
               onClick={() => navigate(closest.leader.guild_id)}
@@ -280,7 +280,7 @@ export default function CurationStrip({ guilds, router }) {
               type="button"
               variant="subtitle2"
               color="inherit"
-              underline="hover"
+             
               fontWeight={700}
               noWrap
               onClick={() => navigate(closest.challenger.guild_id)}

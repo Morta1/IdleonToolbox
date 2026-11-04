@@ -652,7 +652,7 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
                     // and a crawler's rendered DOM all behave. onClick still routes it in-app.
                     {...linkProps(hrefFor, otherId)}
                     variant={'body2'}
-                    underline={'hover'}
+                   
                     textAlign={'left'}
                     onClick={navigateOnPlainClick(onNavigate, otherId, Boolean(hrefFor?.(otherId)))}
                   >

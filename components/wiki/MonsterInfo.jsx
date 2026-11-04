@@ -15,7 +15,7 @@ import { accuracyForHitChance, HIT_CURVE } from '@utility/hit-chance.mjs';
 const PageLink = ({ id, label, hrefFor, onNavigate }) => <Link
   {...linkProps(hrefFor, id)}
   variant={'body2'}
-  underline={'hover'}
+ 
   onClick={navigateOnPlainClick(onNavigate, id, Boolean(hrefFor?.(id)))}
 >
   {label}

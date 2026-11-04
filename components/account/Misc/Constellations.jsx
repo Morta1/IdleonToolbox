@@ -77,7 +77,7 @@ const ConstellationsComp = ({ constellations = [], characters = [], sectionFaile
       label: 'Name',
       icon: ({ rawIndex }) => (rawIndex == null ? null : <GameIcon src={`etc/Constellation_${rawIndex}.png`} size={32} alt={''}/>),
       // nowrap: "A-10" broke at its hyphen at 1920
-      render: ({ name }) => <Link component={'button'} variant={'body2'} color={'inherit'} underline={'hover'} textAlign={'left'}
+      render: ({ name }) => <Link component={'button'} variant={'body2'} color={'inherit'} textAlign={'left'}
                                   sx={{ whiteSpace: 'nowrap' }} onClick={() => openWikiEntity(`constellation:${name}`)}>{cleanUnderscore(name)}</Link>
     },
     {

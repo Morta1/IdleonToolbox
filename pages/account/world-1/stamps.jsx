@@ -216,8 +216,7 @@ const Stamps = () => {
                                               frame={pickedStamp.exalted ? 'etc/Exalted_Stamp_Frame.png' : undefined}/>}
                               title={cleanUnderscore(pickedStamp.displayName)}
                               meta={pickedStamp.maxLevel > 0 ? formatNum(pickedStamp.level, 'level', { max: pickedStamp.maxLevel }) : undefined}
-                              aside={<Link component={'button'} onClick={() => openWikiEntity(`item:${pickedStamp.rawName}`)}
-                                           sx={{ font: 'inherit' }}>Wiki page</Link>}
+                              aside={<Link component={'button'} variant={'body2'} onClick={() => openWikiEntity(`item:${pickedStamp.rawName}`)}>Wiki page ›</Link>}
                               sx={{
                                 // Below 600 px the band, the Toolbar and a pinned Panel left the grid half the screen:
                                 // a picked tile shows its details as its note there instead
@@ -271,8 +270,8 @@ const stampNote = (stamp, context) => <Stack gap={1}>
     <Typography variant={'body2'} component={'div'} sx={{ color: 'text.primary', fontWeight: 500 }}>
       {`${cleanUnderscore(stamp.displayName)}${stamp.maxLevel > 0 ? `, ${formatNum(stamp.level, 'level', { max: stamp.maxLevel })}` : ''}`}
     </Typography>
-    <Link component={'button'} onClick={() => openWikiEntity(`item:${stamp.rawName}`)} sx={{ font: 'inherit', flexShrink: 0 }}>
-      Wiki page</Link>
+    <Link component={'button'} variant={'body2'} onClick={() => openWikiEntity(`item:${stamp.rawName}`)} sx={{ flexShrink: 0 }}>
+      Wiki page ›</Link>
   </Stack>
   {stampDetails(stamp, context, true)}
 </Stack>;

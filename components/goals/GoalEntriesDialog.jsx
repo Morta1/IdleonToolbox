@@ -19,7 +19,7 @@ const GoalEntriesDialog = ({ view, source, onClose }) => {
         <GoalEntries view={view} source={source} maxHeight="none"/>
         {view.route ? (
           <MuiLink component={Link} href={{ pathname: view.route, query: sessionQuery(router.query) }} variant="body2"
-                   underline="hover" sx={{ alignSelf: 'flex-start' }}>
+                   sx={{ alignSelf: 'flex-start' }}>
             {`Full list on the ${view.label} page`}
           </MuiLink>
         ) : null}

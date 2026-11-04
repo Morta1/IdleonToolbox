@@ -67,7 +67,7 @@ const TrackedItems = ({ items, onSetCount }) => {
                  sx={{ width: 32, height: 32, objectFit: 'contain' }}/>
           </ItemTooltip>
           <Box sx={{ minWidth: 0, gridColumn: { xs: '2 / 4', sm: 'auto' } }}>
-            <Link component={'button'} type={'button'} underline={'hover'} color={'primary'}
+            <Link component={'button'} type={'button'} color={'primary'}
                   onClick={() => openItemWikiPage(rawName)}
                   sx={{ fontSize: 14, fontWeight: 500, textAlign: 'left', overflowWrap: 'anywhere' }}>
               {name}
