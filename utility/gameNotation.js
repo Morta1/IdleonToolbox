@@ -80,6 +80,9 @@ export const clickerAmount = (value) => {
   return 9999999 > value ? commaNotation(Math.ceil(value)) : String(notateNumber(value, 'Big'));
 };
 
+// The game's fill for Poppy's bonuses (N.js, the Poppy panel): commas past 100, a tenth up to it.
+export const poppyFill = (value) => (100 < value ? commaNotation(value) : String(Math.round(10 * (value ?? 0)) / 10));
+
 // A Tome entry's quantity, the game's fill: Big past 1e9 on a log curve (x2 1), two decimals on an x4 entry, commas
 // otherwise. One rule for the Tome's Overview and Rankings.
 export const tomeQuantity = ({ x2, x4 } = {}, quantity) => (quantity > 1e9 && x2 === 1

@@ -14,10 +14,10 @@ import ItemCard from '@components/common/cards/ItemCard';
 import StatusText from '@components/common/StatusText';
 import { getOwl } from '@parsers/world-1/owl';
 
-const bonusText = ({ name, bonus, percentage }) => percentage
-  ? formatNum(bonus ?? 0, 'pct', { signed: true })
-  // Shiny Feather is a count
-  : name === 'Shiny Feather' ? formatNum(bonus ?? 0) : formatNum(bonus ?? 0, 'amount', { signed: true });
+// The game fills Orion's bonuses with the raw number (N.js, the Orion panel): commas and no K. Shiny Feather is a count
+const bonusText = ({ name, bonus, percentage }) => (name === 'Shiny Feather'
+  ? formatNum(bonus ?? 0)
+  : `${formatNum(bonus ?? 0, 'exact', { signed: true })}${percentage ? '%' : ''}`);
 
 const Owl = () => {
   const { state } = useContext(AppContext);

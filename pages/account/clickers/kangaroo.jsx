@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Box } from '@mui/material';
 import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
-import { clickerAmount, formatGame } from '@utility/gameNotation';
+import { clickerAmount, formatGame, poppyFill } from '@utility/gameNotation';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World2/Kangaroo/Upgrades';
@@ -19,6 +19,7 @@ import { getKangaroo } from '@parsers/world-2/kangaroo';
 
 // The parser prints a shiny fish count itself; with no save it reads "NaNeNaN" (parsers/world-2/kangaroo.ts)
 const caught = (amount) => (/NaN/.test(`${amount}`) ? '0' : amount);
+const bonusText = ({ bonus, percentage }) => `${bonus > 0 ? '+' : ''}${poppyFill(bonus)}${percentage ? '%' : ''}`;
 
 const Kangaroo = () => {
   const { state } = useContext(AppContext);
@@ -48,8 +49,8 @@ const Kangaroo = () => {
       <StatTile label={'Tar fish per hour'}
                 value={failed || !(kangaroo?.tarFishRate > 0) ? '-' : formatNum(3600 / kangaroo.tarFishRate)}/>
       <StatTile label={'Shiny progress'} icon={'etc/KShiny.png'}
-                value={number(kangaroo?.shinyProgress, (value) => formatNum(value, 'pct'))}/>
-      <StatTile label={'Shiny per minute'} value={number(kangaroo?.shinyRatePercent, (value) => formatNum(value, 'pct'))}/>
+                value={number(kangaroo?.shinyProgress, (value) => `${poppyFill(value)}%`)}/>
+      <StatTile label={'Shiny per minute'} value={number(kangaroo?.shinyRatePercent, (value) => `${poppyFill(value)}%`)}/>
       <StatTile label={'Average reset points'}
                 value={number(kangaroo?.avgResetPoints, (value) => formatNum(value, 'amount', { precise: true }))}/>
     </PageSummary>
@@ -58,12 +59,10 @@ const Kangaroo = () => {
       <Upgrades upgrades={kangaroo?.tarUpgrades} isTar failed={failed} tarFish={kangaroo?.totalTarFishOwned ?? 0}/>
       <CardGrid size={'m'} sx={{ alignItems: 'start' }}>
         <Panel title={"Poppy's bonuses"}>
-          {(kangaroo?.bonuses ?? []).slice(1).map(({ name, bonus, percentage }, index) => <Panel.Row key={name}
-                                                                                                    icon={`etc/Kangaroob_${index + 1}.png`}
-                                                                                                    name={name}
-                                                                                                    value={failed ? '-' : percentage
-                                                                                                      ? formatNum(bonus ?? 0, 'pct', { signed: true })
-                                                                                                      : formatNum(bonus ?? 0, 'amount', { signed: true })}/>)}
+          {(kangaroo?.bonuses ?? []).slice(1).map((entry, index) => <Panel.Row key={entry.name}
+                                                                       icon={`etc/Kangaroob_${index + 1}.png`}
+                                                                       name={entry.name}
+                                                                       value={failed ? '-' : bonusText(entry)}/>)}
         </Panel>
         <Panel title={'Megafish'}>
           <Box sx={{ p: 1.5 }}>
