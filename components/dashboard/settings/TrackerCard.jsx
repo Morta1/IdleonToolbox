@@ -10,22 +10,28 @@ import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import ExpandLessIcon from '@mui/icons-material/ExpandLess';
 import NextLink from 'next/link';
-import { prefix } from '@utility/helpers';
+import { useRouter } from 'next/router';
+import GameIcon from '@components/common/GameIcon';
+import Notice from '@components/common/Notice';
 import { nestDependents, optionExtras } from '@utility/dashboard/settingsModel';
+import { pageHref } from '@utility/dashboard/quickEdit';
 import EditedTag from './EditedTag';
 import OptionRow, { OptionNumberField } from './OptionRow';
 import { useHighlightTarget } from './useHighlightTarget';
 import LetterBadge from './LetterBadge';
 
 const TrackerIcon = ({ tracker }) => tracker.icon
-  ? <img src={`${prefix}${tracker.icon}.png`} alt="" width={28} height={28} style={{ objectFit: 'contain', opacity: tracker.on ? 1 : 0.4 }}/>
-  : <LetterBadge label={tracker.label} size={28} radius={1.5} sx={{ opacity: tracker.on ? 1 : 0.4 }}/>;
+  ? <Box component="span" sx={{ display: 'inline-flex', opacity: tracker.on ? 1 : 0.4 }}><GameIcon src={`${tracker.icon}.png`} size={24} alt=""/></Box>
+  : <LetterBadge label={tracker.label} size={24} radius={1.5} sx={{ opacity: tracker.on ? 1 : 0.4 }}/>;
 
-const TrackerLink = ({ tracker }) => tracker.link
-  ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-    {tracker.link.text} <Link component={NextLink} href={tracker.link.href}>{tracker.link.label}</Link>
-  </Typography>
-  : null;
+// Keeps demo and profile, as a quick edit's page link does
+const TrackerPageLink = ({ link }) => {
+  const router = useRouter();
+  return <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
+    {link.text} <Link component={NextLink} href={pageHref({ pathname: link.href }, router?.query)}>{link.label}</Link>
+  </Typography>;
+};
+const TrackerLink = ({ tracker }) => (tracker.link ? <TrackerPageLink link={tracker.link}/> : null);
 
 const TrackerSwitch =({ tracker, onAction }) => <Switch
   checked={tracker.on}
@@ -47,7 +53,7 @@ export const CompactRow = ({ tracker, highlight = false, highlightKey = null, on
     <TrackerSwitch tracker={tracker} onAction={onAction}/>
     <TrackerIcon tracker={tracker}/>
     <Box sx={{ minWidth: 0, flex: 1 }}>
-      <Typography variant="body2" fontWeight={500}>
+      <Typography variant="cardTitle" component="div">
         {tracker.label}{tracker.edited ? <EditedTag/> : null}
       </Typography>
       {tracker.options[0] || tracker.unit
@@ -68,16 +74,14 @@ const OptionList = ({ tracker, highlightOption, highlightKey, onAction }) => {
     ...unfolded.filter(({ group }) => !group),
     ...groupOrder.flatMap((group) => unfolded.filter((option) => option.group === group))
   ]);
-  let lastGroup = null;
-  return visible.map(({ option, depth }) => {
-    const heading = option.group && option.group !== lastGroup ? option.group : null;
-    if (option.group) lastGroup = option.group;
-    return <React.Fragment key={option.name}>
-      {heading ? <Typography variant="groupLabel" component="h3" color="text.secondary" sx={{ mt: 2 }}>{heading}</Typography> : null}
-      <OptionRow option={option} tracker={tracker} onAction={onAction} {...optionExtras(tracker, option)} depth={depth}
-                 highlight={highlightOption === option.name} highlightKey={highlightKey}/>
-    </React.Fragment>;
-  });
+  // A group's heading goes on its first option; an option with no group between two of one doesn't restart it.
+  const lastGroupBefore = (index) => visible.slice(0, index).findLast(({ option }) => option.group)?.option.group;
+  return visible.map(({ option, depth }, index) => <React.Fragment key={option.name}>
+    {option.group && option.group !== lastGroupBefore(index)
+      ? <Typography variant="groupLabel" component="h3" color="text.secondary" sx={{ mt: 2 }}>{option.group}</Typography> : null}
+    <OptionRow option={option} tracker={tracker} onAction={onAction} {...optionExtras(tracker, option)} depth={depth}
+               highlight={highlightOption === option.name} highlightKey={highlightKey}/>
+  </React.Fragment>);
 };
 
 // A card expands only when it has options beyond the one shown inline in its header.
@@ -93,7 +97,7 @@ const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = nu
       <TrackerSwitch tracker={tracker} onAction={onAction}/>
       <TrackerIcon tracker={tracker}/>
       <Box sx={{ minWidth: 0, flex: '1 1 140px' }}>
-        <Typography variant="body1" fontWeight={500}>
+        <Typography variant="cardTitle" component="div">
           {tracker.label}{tracker.edited ? <EditedTag/> : null}
         </Typography>
         {/* "1 of 1 options on" says nothing, so a lone option names itself instead. */}
@@ -120,9 +124,9 @@ const TrackerCard = ({ tracker, expanded, onToggleExpanded, highlightOption = nu
         </IconButton> : null}
     </Stack>
     {expanded && hasBody ? <Box sx={{ px: { xs: 1.5, sm: 2 }, pb: 2, pl: { sm: 8 }, borderTop: 1, borderColor: 'divider' }}>
-      {!tracker.on ? <Typography variant="body2" sx={{ mt: 1.5, p: 1, borderRadius: 1, bgcolor: 'action.hover' }}>
+      {!tracker.on ? <Notice tone={'info'} sx={{ mt: 1.5 }}>
         {tracker.label} alerts are off. These options are kept and still editable: they apply when you turn it back on.
-      </Typography> : null}
+      </Notice> : null}
       <OptionList tracker={tracker} highlightOption={highlightOption} highlightKey={highlightKey} onAction={onAction}/>
     </Box> : null}
   </Paper>;

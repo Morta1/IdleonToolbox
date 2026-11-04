@@ -25,20 +25,28 @@ const Harness = ({ target = null, edits = {}, open = true, initialFilter }) => {
   </ThemeProvider>;
 };
 const edits = () => diffTrackers(baseTrackers, latest);
+// The Material tracker's link keeps the session's query.
+vi.mock('next/router', () => ({ useRouter: () => ({ query: {}, asPath: '/dashboard', pathname: '/dashboard' }) }));
+
 // Every alert baseTrackers defines; a game update that adds one (2.3.540's Menagerie alerts) moves the chip with it.
 const ALL_COUNT = allTrackers(buildModel(resolveTrackers(baseTrackers, {}), baseTrackers, {})).length;
 const button = (text) => [...document.body.querySelectorAll('button')].find((b) => b.textContent === text);
+const showField = () => document.body.querySelector('[aria-label="Show"]');
+const showOptions = () => {
+  fireEvent.mouseDown(showField());
+  return [...document.body.querySelectorAll('[role="option"]')].map(({ textContent }) => textContent);
+};
 
 describe('DashboardSettings window', () => {
   beforeAll(() => {
     Element.prototype.scrollIntoView = () => {};
   });
 
-  it('opens on the first section with counts on the chips', () => {
+  it('opens on the first section with counts in the Show field', () => {
     render(<Harness/>);
     expect(document.body.textContent).toContain('Configure alerts');
-    expect(document.body.textContent).toContain('Every count is alerts, not options');
-    expect(document.body.textContent).toContain(`All ${ALL_COUNT}On`);
+    expect(document.body.querySelector('[aria-label="Show"]').textContent).toContain('All');
+    expect(showOptions()[0]).toBe(`All (${ALL_COUNT})`);
   });
 
   it('the legend says what the blue dot means', () => {
@@ -57,13 +65,12 @@ describe('DashboardSettings window', () => {
     expect(toggles().every((b) => b.getAttribute('aria-expanded') === 'false')).toBe(true);
   });
 
-  it('filter chips say which one is pressed', () => {
+  it('the Show field says which filter is on', () => {
     render(<Harness/>);
-    const chip = (label) => [...document.body.querySelectorAll('[aria-pressed]')].find((el) => el.textContent.startsWith(label));
-    expect(chip('All').getAttribute('aria-pressed')).toBe('true');
-    fireEvent.click(chip('Edited'));
-    expect(chip('Edited').getAttribute('aria-pressed')).toBe('true');
-    expect(chip('All').getAttribute('aria-pressed')).toBe('false');
+    expect(showField().textContent).toContain('All');
+    showOptions();
+    fireEvent.click([...document.body.querySelectorAll('[role="option"]')].find(({ textContent }) => textContent.startsWith('Edited')));
+    expect(showField().textContent).toContain('Edited');
   });
 
   it('Review edits opens on the first section with edits', () => {
@@ -101,8 +108,8 @@ describe('DashboardSettings window', () => {
   it('spaces alone are not a search', () => {
     render(<Harness/>);
     fireEvent.change(document.body.querySelector('input[aria-label="Search alerts"]'), { target: { value: '   ' } });
-    expect(document.body.textContent).toContain('Every count is alerts, not options');
-    expect(document.body.textContent).toContain(`All ${ALL_COUNT}On`);
+    expect(document.body.querySelector('[aria-label="Show"]').textContent).toContain('All');
+    expect(showOptions()[0]).toBe(`All (${ALL_COUNT})`);
   });
 
   it('a deep link opens the section with the alert expanded', () => {

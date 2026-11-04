@@ -16,6 +16,9 @@ const trackerFor = (path, edits = {}) => {
 };
 const renderIn = (node) => render(<ThemeProvider theme={darkTheme}>{node}</ThemeProvider>).container;
 
+// The Material tracker's link keeps the session's query.
+vi.mock('next/router', () => ({ useRouter: () => ({ query: {}, asPath: '/dashboard', pathname: '/dashboard' }) }));
+
 describe('TrackerCard', () => {
   it('collapsed: switch, summary and expand', () => {
     const onAction = vi.fn();

@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
 import Dialog from '@mui/material/Dialog';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
@@ -19,6 +18,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconFileExport } from '@tabler/icons-react';
 import { handleDownload } from '@utility/helpers';
 import FileUploadButton, { FILE_BUTTON_SX } from '@components/common/DownloadButton';
+import { ShowField } from '@components/common/Toolbar';
 import { resolveSettingsTarget } from '@utility/dashboard/settingsTarget';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, loadTrackers, TRACKERS_SCHEMA } from '@utility/dashboard/trackerStore';
@@ -186,21 +186,26 @@ const DashboardSettings = ({
       }
     }}/>;
 
-  // Swipeable on a phone without a scrollbar: the bar sat on top of the chips, and the cut-off last chip already shows there is more.
-  const chips = <Stack direction="row" gap={1} alignItems="center" sx={{ overflowX: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
-    {FILTERS.map((key) => <Chip key={key} label={`${FILTER_LABELS[key]} ${countFor(key)}`}
-                                color={filter === key ? 'primary' : 'default'} variant={filter === key ? 'filled' : 'outlined'}
-                                aria-pressed={filter === key} onClick={() => setFilter(key)} sx={{ minHeight: { xs: 44, sm: 32 } }}/>)}
-    <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', ml: 1 }}>
-      {searching ? 'While searching, counts are results' : 'Every count is alerts, not options'}
-    </Typography>
-    <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 0.75, ml: 1 }}>
+  const fileButtons = <>
+    <FileUploadButton ref={importButton} onFileUpload={handleImport}
+                      onInvalidFile={(fileName) => setImportError(refusal(fileName))}>
+      Import
+    </FileUploadButton>
+    <Button onClick={handleExport} startIcon={<IconFileExport size={18}/>} variant="outlined" size="small"
+            sx={FILE_BUTTON_SX}>Export</Button>
+  </>;
+
+  const filterRow = <Stack direction="row" columnGap={2} rowGap={1} alignItems="center" flexWrap="wrap">
+    <ShowField value={filter} onChange={setFilter} options={FILTERS.map((key) => [key, FILTER_LABELS[key], countFor(key)])} fullWidth={isSm}/>
+    {searching ? <Typography variant="caption" color="text.secondary">While searching, counts are results</Typography> : null}
+    <Typography variant="caption" color="text.secondary" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}>
       <EditedDot label={null}/>Changed from default
     </Typography>
   </Stack>;
 
   const pane = searching
-    ? <SearchResults results={results.filter(({ tracker }) => matchesFilter(tracker, filter))} query={searching} onAction={onAction} onShow={showResult}/>
+    ? <SearchResults results={results.filter(({ tracker }) => matchesFilter(tracker, filter))} query={searching} onAction={onAction} onShow={showResult}
+                     onClear={() => setQuery('')}/>
     : <SectionPane section={section} filter={filter} expanded={expanded}
                    onToggleExpanded={(path) => setExpanded((prev) => ({ ...prev, [path]: !prev[path] }))}
                    onSetExpanded={(paths, value) => setExpanded((prev) => ({ ...prev, ...Object.fromEntries(paths.map((path) => [path, value])) }))}
@@ -219,18 +224,15 @@ const DashboardSettings = ({
           <Typography id={TITLE_ID} variant={'sectionTitle'} component="h1" sx={{ whiteSpace: 'nowrap' }}>Configure alerts</Typography>
           {!isSm ? <Box sx={{ flex: 1, maxWidth: 520 }}>{search}</Box> : null}
           <Stack direction="row" alignItems="center" gap={0.5} sx={{ ml: 'auto' }}>
-            <FileUploadButton ref={importButton} onFileUpload={handleImport}
-                              onInvalidFile={(fileName) => setImportError(refusal(fileName))}>
-              Import
-            </FileUploadButton>
-            <Button onClick={handleExport} startIcon={<IconFileExport size={18}/>} variant="outlined" size="small"
-                    sx={FILE_BUTTON_SX}>Export</Button>
+            {!isSm ? fileButtons : null}
             {!isSm ? <Button size="small" color="inherit" disabled={!Object.keys(edits).length} onClick={resetAll}>Reset all</Button> : null}
             <IconButton aria-label="Close" sx={TAP} onClick={onClose}><CloseIcon/></IconButton>
           </Stack>
         </Stack>
+        {/* A phone's title row holds the back arrow, the title and the close: the pair took the close off the screen. */}
+        {isSm ? <Stack direction="row" gap={0.5}>{fileButtons}</Stack> : null}
         {isSm ? search : null}
-        {chips}
+        {filterRow}
         {/* The player's file, not a bug: no Report or Reload, and the x or the next import clears it */}
         {importError ? <Notice key={importError.id} tone={'error'} action={false} onDismiss={() => setImportError(null)} focusAfter={importButton}>
           {importError.message}

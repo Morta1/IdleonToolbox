@@ -1,23 +1,18 @@
 import React from 'react';
-import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import Notice from '@components/common/Notice';
 import { optionExtras } from '@utility/dashboard/settingsModel';
 import OptionRow from './OptionRow';
 import TrackerCard, { CompactRow } from './TrackerCard';
 
 const groupKey = ({ tab, section }) => [tab.label, section.section ? section.label : null].filter(Boolean).join(' · ');
 
-const SearchResults = ({ results, query, onAction, onShow }) => {
+const SearchResults = ({ results, query, onAction, onShow, onClear }) => {
   if (!results.length) {
-    return <Box sx={{ textAlign: 'center', py: 4 }}>
-      <Typography fontWeight={500}>{`No alerts match "${query}"`}</Typography>
-      <Typography variant="body2" color="text.secondary" sx={{ mt: 0.75 }}>
-        Searched names, options and descriptions in all three tabs.
-      </Typography>
-    </Box>;
+    return <Notice tone={'info'} action={{ label: 'Clear search', onClick: onClear }}>{`No alerts match "${query}".`}</Notice>;
   }
   const groups = results.reduce((acc, result) => {
     const key = groupKey(result);

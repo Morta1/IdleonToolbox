@@ -66,20 +66,21 @@ const Search = ({ name = 'search', placeholder }) => {
   />;
 };
 
+// The Show and Filter looks for a control that sits outside a bar (a dialog's header, a drawer): the same field and pill,
+// fed by their own value. The bar's Show and Filter render these.
 // Which set of rows to show, each option with its count: [value, label, count]. label: what the field filters, where a
 // Toolbar has several Show fields ("World", "Rank"): it takes "Show"'s place before the value and names the field.
-const Show = ({ name = 'show', label = 'Show', options }) => {
-  const { state, onChange, placement } = useContext(ToolbarContext);
-  const labelOf = (value) => options.find(([key]) => key === value)?.[1] ?? '';
+export const ShowField = ({ value, onChange, label = 'Show', options, fullWidth }) => {
+  const labelOf = (key) => options.find(([option]) => option === key)?.[1] ?? '';
   return <TextField
     select
-    value={state[name] ?? ''}
-    onChange={(event) => onChange({ [name]: event.target.value })}
-    sx={placement === 'panel' ? { width: '100%' } : { minWidth: 200 }}
+    value={value ?? ''}
+    onChange={(event) => onChange(event.target.value)}
+    sx={fullWidth ? { width: '100%' } : { minWidth: 200 }}
     slotProps={{
       select: {
         displayEmpty: true,
-        renderValue: (value) => prefixed(label, labelOf(value)),
+        renderValue: (key) => prefixed(label, labelOf(key)),
         SelectDisplayProps: { 'aria-label': label }
       }
     }}
@@ -90,22 +91,30 @@ const Show = ({ name = 'show', label = 'Show', options }) => {
   </TextField>;
 };
 
+const Show = ({ name = 'show', label, options }) => {
+  const { state, onChange, placement } = useContext(ToolbarContext);
+  return <ShowField value={state[name]} onChange={(next) => onChange({ [name]: next })} label={label} options={options}
+                    fullWidth={placement === 'panel'}/>;
+};
+
 // An on/off filter, a pill you press.
+export const FilterPill = ({ value, on, label, onToggle }) => <ToggleButton
+  value={value ?? label}
+  selected={Boolean(on)}
+  onChange={onToggle}
+  sx={{
+    borderRadius: 999, px: 2, gap: 0.75, whiteSpace: 'nowrap',
+    '&.Mui-selected, &.Mui-selected:hover': { color: 'primary.main', bgcolor: 'primary.soft', borderColor: 'primary.edge' }
+  }}
+>
+  {on ? <IconCheck size={16}/> : null}
+  {label}
+</ToggleButton>;
+
 const Filter = ({ name, label }) => {
   const { state, onChange } = useContext(ToolbarContext);
   const on = Boolean(state[name]);
-  return <ToggleButton
-    value={name}
-    selected={on}
-    onChange={() => onChange({ [name]: !on })}
-    sx={{
-      borderRadius: 999, px: 2, gap: 0.75, whiteSpace: 'nowrap',
-      '&.Mui-selected, &.Mui-selected:hover': { color: 'primary.main', bgcolor: 'primary.soft', borderColor: 'primary.edge' }
-    }}
-  >
-    {on ? <IconCheck size={16}/> : null}
-    {label}
-  </ToggleButton>;
+  return <FilterPill value={name} on={on} label={label} onToggle={() => onChange({ [name]: !on })}/>;
 };
 
 // The sort without the headers: options are [key, label, firstOrder?]. The direction button is the only way a

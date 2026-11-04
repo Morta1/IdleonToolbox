@@ -1,9 +1,9 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import Notice from '@components/common/Notice';
 import { matchesFilter } from '@utility/dashboard/settingsModel';
 import TrackerCard, { CompactRow, hasOptionsBody } from './TrackerCard';
 
@@ -42,10 +42,9 @@ const SectionPane = ({ section, filter, expanded, onToggleExpanded, onSetExpande
         </Button> : null}
       </Stack>
     </Stack>
-    {!visible.length ? <Paper variant="outlined" sx={{ p: 3, textAlign: 'center' }}>
-      <Typography fontWeight={500}>{filter === 'off' ? `Every ${section.label} alert is on` : `No ${section.label} alerts match this filter`}</Typography>
-      <Button sx={{ mt: 1.5, ...buttonSx }} variant="outlined" onClick={onShowAll}>Show all alerts</Button>
-    </Paper> : null}
+    {!visible.length ? <Notice tone={'info'} action={{ label: 'Show all alerts', onClick: onShowAll }}>
+      {filter === 'off' ? `Every ${section.label} alert is on.` : `No ${section.label} alert matches this filter.`}
+    </Notice> : null}
     {compact.length ? <Box sx={{ display: 'grid', gap: 1 }}>
       {compact.map((tracker) => <CompactRow key={tracker.path} tracker={tracker} onAction={onAction}
                                             highlight={target?.path === tracker.path} highlightKey={target}/>)}

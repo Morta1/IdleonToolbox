@@ -10,7 +10,8 @@ import Typography from '@mui/material/Typography';
 import CheckIcon from '@mui/icons-material/Check';
 import CloseIcon from '@mui/icons-material/Close';
 import { useViewportSize } from '@mantine/hooks';
-import { cleanUnderscore, pascalCase, prefix } from '@utility/helpers';
+import { cleanUnderscore, pascalCase } from '@utility/helpers';
+import GameIcon from '@components/common/GameIcon';
 import { pickerItemLabel } from '@utility/dashboard/quickEdit';
 import NumberField, { fieldNumber } from '@components/common/NumberField';
 import EditedTag from './EditedTag';
@@ -87,8 +88,7 @@ export const PickerTiles = ({ option, tracker, onAction, disabled }) => {
                                               border: 1, borderColor: on ? 'primary.main' : 'divider',
                                               bgcolor: on ? 'action.selected' : 'transparent'
                                             }}>
-      <img src={`${prefix}data/${key}.png`} alt="" width={28} height={28}
-           style={{ objectFit: 'contain', opacity: on ? 1 : 0.3, filter: on ? 'none' : 'grayscale(1)' }}/>
+      <GameIcon src={`data/${key}.png`} size={32} alt="" status={on ? undefined : 'missing'}/>
       {on ? <Box component="span" sx={{ position: 'absolute', top: -4, right: -4, width: 14, height: 14, borderRadius: '50%', bgcolor: 'primary.main', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
         <CheckIcon sx={{ fontSize: 10, color: 'background.default' }}/>
       </Box> : null}
@@ -111,8 +111,7 @@ export const ToggleChips = ({ option, tracker, onAction, disabled }) => <Stack d
                                                                        sx={{ minHeight: { xs: 44, sm: 32 } }}
                                                                        onClick={() => onAction('togglePickerItem', tracker, option.name, key)}>
     {option.itemIcons?.[key]
-      ? <img src={`${prefix}${option.itemIcons[key]}.png`} alt="" width={20} height={20}
-             style={{ objectFit: 'contain', marginRight: 6, opacity: on ? 1 : 0.5 }}/> : null}
+      ? <Box component="span" sx={{ display: 'inline-flex', mr: 0.75, opacity: on ? 1 : 0.5 }}><GameIcon src={`${option.itemIcons[key]}.png`} size={16} alt=""/></Box> : null}
     {key.camelToTitleCase && /^[a-z]/.test(key) ? key.camelToTitleCase() : key}
   </Button>)}
 </Stack>;
@@ -125,7 +124,7 @@ export const SearchPicker = ({ option, tracker, onAction, disabled }) => {
   const entries = Object.entries(option.props.value ?? {});
   const on = entries.filter(([, checked]) => checked).map(([key]) => key);
   const icon = (key) => option.props.icons?.[key]
-    ? <img src={`${prefix}${option.props.icons[key]}.png`} alt="" width={20} height={20} style={{ objectFit: 'contain' }}/>
+    ? <GameIcon src={`${option.props.icons[key]}.png`} size={16} alt=""/>
     : null;
   return <Stack gap={1}>
     <Autocomplete size="small" disabled={disabled} sx={{ maxWidth: 320 }}
@@ -161,9 +160,9 @@ const PerWorld = ({ option, tracker, onAction, disabled }) => {
   const overrides = WORLDS.filter((world) => perWorld[world] != null && perWorld[world] !== '');
   return <Box sx={{ mt: 1 }}>
     <Stack direction="row" alignItems="center" gap={1.5}>
-      <Button size="small" sx={{ p: 0, minWidth: 0 }} disabled={disabled} aria-expanded={open} onClick={() => setOpen(!open)}>Per world</Button>
+      <Button size="small" sx={{ p: 0, minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={disabled} aria-expanded={open} onClick={() => setOpen(!open)}>Per world</Button>
       <Typography variant="caption" color="text.secondary">
-        {overrides.length ? `${overrides.length} override${overrides.length > 1 ? 's' : ''}: ${overrides.map((w) => `W${w} ${perWorld[w]}`).join(', ')}` : 'No overrides'}
+        {overrides.length ? `${overrides.length} override${overrides.length > 1 ? 's' : ''}: ${overrides.map((w) => `W${w} ${perWorld[w]}`).join(', ')}` : 'No world overrides'}
       </Typography>
     </Stack>
     {open && !disabled ? <Box sx={{ mt: 1 }}>
@@ -198,7 +197,7 @@ const OptionRow = ({ option, tracker, foldedOptions = [], disabledReason = null,
       {/* The label line shares a center with the checkbox (28 px), or with the 40 px number field
           beside it, where the checkbox moves down to match. */}
       <Stack direction="row" alignItems="flex-start" flexWrap="wrap" columnGap={2} rowGap={1}>
-        <Typography variant="body2" fontWeight={500} sx={{ minHeight: option.type === 'input' ? { xs: 28, sm: 40 } : 28, display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
+        <Typography variant="body2" sx={{ minHeight: option.type === 'input' ? { xs: 28, sm: 40 } : 28, display: 'flex', alignItems: 'center', flexWrap: 'wrap' }}>
           {option.label}{option.edited ? <EditedTag/> : null}
         </Typography>
         {option.type === 'input' ? <Box sx={{ ml: { sm: 'auto' } }}><OptionNumberField option={option} tracker={tracker} onAction={onAction} disabled={disabled}/></Box> : null}
