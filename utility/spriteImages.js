@@ -48,6 +48,9 @@ export const monsterSprite = (nameOrRaw, variant = 'static') => monsterImage(nam
 export const npcImage = (name, variant = 'static') =>
   npcImageFrom(spriteManifest, name, variant);
 
+// The same NPC sprite as a path under public/, for GameIcon, which adds the site prefix itself
+export const npcSprite = (name, variant = 'static') => npcImage(name, variant).slice(prefix.length);
+
 // Moved from helpers.js; now returns a complete src (callers no longer add prefix/.png).
 export const getActivityIcon = (character) => {
   const { afkTarget, targetMonster, monsterFace } = character || {};

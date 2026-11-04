@@ -1,321 +1,147 @@
-import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import React from 'react';
-import RadioButtonCheckedIcon from '@mui/icons-material/RadioButtonChecked';
-import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import RadioButtonUncheckedOutlinedIcon from '@mui/icons-material/RadioButtonUncheckedOutlined';
-import WarningAmberIcon from '@mui/icons-material/WarningAmber';
-import InfoIcon from '@mui/icons-material/Info';
-import { Accordion, AccordionDetails, AccordionSummary, Avatar, Badge, Box, Stack, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import {
-  Timeline,
-  TimelineConnector,
-  TimelineContent,
-  TimelineDot,
-  TimelineItem,
-  TimelineOppositeContent,
-  TimelineSeparator
-} from '@mui/lab';
-import Tooltip from 'components/Tooltip';
+import { Box, Stack, Typography } from '@mui/material';
 import CoinDisplay from 'components/common/CoinDisplay';
-import { cleanUnderscore, getCoinsArray, numberWithCommas, prefix, worldColor } from 'utility/helpers';
-import { npcImage } from '@utility/spriteImages';
+import { cleanUnderscore, formatNum, getCoinsArray } from 'utility/helpers';
+import { npcSprite } from '@utility/spriteImages';
 import { items } from '@website-data';
+import Panel from '@components/common/cards/Panel';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
+import InfoButton from '@components/common/InfoButton';
+import StatusText from '@components/common/StatusText';
 
-const WorldQuest = ({
-  quests,
-  characters,
-  totalCharacters,
-  worldName,
-  worldIndex,
-  hideCompleted,
-  completedByAny,
-  missableOnly
-}) => {
-  const isQuestDone = (completed) => completedByAny
-    ? completed?.length > 0
-    : completed?.length === totalCharacters;
-  const getQuestIndicator = (status) => {
-    switch (status) {
-      case 1:
-        return <CheckCircleIcon sx={{ ml: 'auto', fontSize: 24, color: 'text.success' }}/>;
-      case 0:
-        return <RadioButtonCheckedIcon sx={{ ml: 'auto', width: 24, height: 24, color: 'text.warning' }}/>;
-      case -1:
-        return <RadioButtonUncheckedOutlinedIcon sx={{ ml: 'auto', color: 'text.muted' }}/>;
-      default:
-        return null;
-    }
-  }
-  const color = worldColor[worldIndex] || worldColor[0];
+// Some npcs hold a repeatable quest that decides completion regardless of the rest of their list
+const REPEATABLE = { Picnic_Stowaway: 'Live-Action_Entertainment', Scripticus: 'Champion_of_the_Grasslands' };
 
-  // Some npcs hold a repeatable quest that decides completion regardless of the rest of their list
-  const getNpcStatus = (npc) => {
-    let forceCompletion;
-    if (npc?.name === 'Picnic_Stowaway') {
-      const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Live-Action_Entertainment');
-      forceCompletion = isQuestDone(repeatable?.completed) ? 1 : 0;
-    }
-    else if (npc?.name === 'Scripticus') {
-      const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Champion_of_the_Grasslands');
-      forceCompletion = isQuestDone(repeatable?.completed) ? 1 : 0
-    }
-    else if (npc?.name === 'Potti') {
-      // const repeatable = npc?.npcQuests?.find(({ Name }) => Name === 'Spirit_of_the_Hero');
-      // forceCompletion = repeatable?.completed?.length === totalCharacters ? 1 : 0
-    }
-    return forceCompletion || npc?.questsStatus;
-  }
-
-  const npcList = quests?.[worldName]?.filter((npc) => (!hideCompleted || getNpcStatus(npc) !== 1)
-    && (!missableOnly || npc?.missablePending));
-  if (missableOnly && !npcList?.length) return null;
-
-  return (
-    <Box sx={{ width: { xs: 350, sm: 400 } }}>
-      <WorldTitle sx={{ justifySelf: 'flex-start', color: color }} variant={'sectionTitle'} component="h2">
-        {cleanUnderscore(worldName)}
-      </WorldTitle>
-      {npcList?.map((npc, index) => {
-        return <StyledAccordion key={npc?.name + index} TransitionProps={{ unmountOnExit: true }}>
-          <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-            <img width={50} height={50} src={npcImage(npc?.name)} alt="npc-icon" />
-            <span className={'npc-name'}>{cleanUnderscore(npc?.name)}</span>
-            {npc?.missablePending ? <Tooltip title={'Has a quest with drops that stop once it is finished, not greenstacked yet'}>
-              <WarningAmberIcon sx={{ ml: 1, fontSize: 20, color: 'text.warning' }}/>
-            </Tooltip> : null}
-            {getQuestIndicator(getNpcStatus(npc))}
-          </AccordionSummary>
-          <StyledAccordionDetails>
-            <Timeline sx={{ m: 0, p: 0 }}>
-              {npc?.npcQuests?.map((npcQuest, innerIndex) => {
-                const { Name, completed = [], progress = [], missableDrops = [] } = npcQuest;
-                return <TimelineItem key={npc?.name + '' + index + '' + innerIndex}>
-                  <TimelineOppositeContent sx={{ display: 'none' }} />
-                  <TimelineSeparator>
-                    <Tooltip title={<QuestTooltip {...npcQuest} npcName={npc?.name} />}>
-                      <TimelineDot
-                        sx={{ width: 15, height: 15 }}
-                        color={isQuestDone(completed)
-                          ? 'success'
-                          : completed?.length === 0 && progress.length === 0 ? 'grey' : 'warning'} />
-                    </Tooltip>
-                    {innerIndex < npc?.npcQuests?.length - 1 ? <TimelineConnector /> : null}
-                  </TimelineSeparator>
-                  <TimelineContent>
-                    <Typography>{cleanUnderscore(Name)}</Typography>
-                    {missableDrops?.length > 0 ? <MissableDrops drops={missableDrops}/> : null}
-                    {progress?.length > 0 ?
-                      <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
-                        {progress?.map(({ charIndex, status }) => {
-                          return <Badge
-                            key={charIndex + '' + innerIndex}
-                            anchorOrigin={{
-                              vertical: 'bottom',
-                              horizontal: 'right'
-                            }}
-                            badgeContent={<StatusIndicator
-                              color={status === 1 ? 'var(--mui-palette-success-main)' : status === -1 ? 'var(--mui-palette-text-muted)' : 'var(--mui-palette-warning-main)'} />}>
-                            <Tooltip
-                              title={`${characters?.[charIndex]?.name} - ${status === 1 ? 'Completed' : status === -1
-                                ? 'Not yet unlocked'
-                                : 'In progress'}`}>
-                              <Avatar
-                                alt="avatar-icon"
-                                src={`${prefix}data/ClassIcons${characters[charIndex]?.classIndex}.png`} />
-                            </Tooltip>
-                          </Badge>
-                        })}
-                      </Stack>
-                      : null}
-                  </TimelineContent>
-                </TimelineItem>
-              })}
-            </Timeline>
-          </StyledAccordionDetails>
-        </StyledAccordion>
-      })}
-    </Box>
-  );
+// A quest's state for the picked characters: done (by all of them, or any with Done by any), in progress (someone
+// finished it or stands on it), or nothing. No picked character (a guest): nothing is done and nothing is at risk.
+// A pure function of the parsed quests, so the parsed account is never changed.
+export const shapeQuests = (quests, selected, doneByAny, greenStacks) => {
+  const picked = new Set(selected);
+  const ofPicked = (list) => (list ?? []).filter(({ charIndex }) => picked.has(charIndex));
+  const isDone = (completed) => selected.length > 0
+    && (doneByAny ? completed.length > 0 : completed.length === selected.length);
+  return Object.fromEntries(Object.entries(quests ?? {}).map(([world, npcs]) => [world, (npcs ?? []).map((npc) => {
+    const npcQuests = (npc?.npcQuests ?? []).map((quest) => {
+      const completed = ofPicked(quest?.completed);
+      const progress = ofPicked(quest?.progress);
+      // A quest-only drop is still at risk while it isn't greenstacked and a picked character can still finish the
+      // quest (and lose the drop)
+      const missableDrops = (quest?.missableDrops ?? []).map((rawName) => ({ rawName, greenStacked: greenStacks.has(rawName) }));
+      const done = isDone(completed);
+      return {
+        ...quest,
+        completed,
+        progress,
+        missableDrops,
+        done,
+        inProgress: !done && (completed.length > 0 || progress.some(({ status }) => status === 0)),
+        missablePending: selected.length > 0 && completed.length < selected.length
+          && missableDrops.some(({ greenStacked }) => !greenStacked)
+      };
+    });
+    const completedQuests = npcQuests.reduce((sum, { completed, done }) => sum + (done ? 1 : completed.length > 0 ? 0.5 : 0), 0);
+    const inProgressQuests = npcQuests.filter(({ progress }) => progress.some(({ status }) => status !== -1)).length;
+    // Every picked character finished the final quest, so there's nothing left to do here even if an earlier quest
+    // went unfinished: some are unreachable once you've moved past them, and would hold the npc at in progress forever
+    const charactersAtTheEnd = (npcQuests.at(-1)?.progress ?? []).filter(({ status }) => status === 1).map(({ charIndex }) => charIndex);
+    const everyoneFinished = !doneByAny && selected.length > 0 && selected.every((index) => charactersAtTheEnd.includes(index));
+    const questsStatus = everyoneFinished ? 1
+      : completedQuests === 0 ? (inProgressQuests > 0 ? 0 : -1)
+        : completedQuests === npcQuests.length ? 1 : 0;
+    const repeatable = REPEATABLE[npc?.name] ? npcQuests.find(({ Name }) => Name === REPEATABLE[npc?.name]) : null;
+    return {
+      ...npc,
+      npcQuests,
+      done: npcQuests.filter(({ done }) => done).length,
+      status: repeatable?.done ? 1 : questsStatus,
+      missablePending: npcQuests.some(({ missablePending }) => missablePending)
+    };
+  })]));
 };
 
-const MissableDrops = ({ drops }) => {
-  return <Stack direction={'row'} alignItems={'center'} gap={1} mb={1}>
-    {drops?.map(({ rawName, greenStacked }) => {
-      const name = cleanUnderscore(items?.[rawName]?.displayName || rawName);
-      return <Tooltip key={rawName} title={`${name}${greenStacked ? ' (Greenstacked)' : ''}`}>
-        <Box sx={{ display: 'inline-flex', position: 'relative', opacity: greenStacked ? 0.5 : 1 }}>
-          <img width={28} height={28} style={{ objectFit: 'contain' }} src={`${prefix}data/${rawName}.png`}
-               alt={name}/>
-          {greenStacked ? <img src={`${prefix}data/GreenSymbol.png`}
-                               alt={'greenstacked'}
-                               style={{ position: 'absolute', top: -3, right: -3 }}
-                               width={28}
-                               height={28}/> : null}
-        </Box>
-      </Tooltip>
-    })}
-    <Tooltip
-      title={'These items only drop while a character has this quest in progress. Finishing it stops the drop for that character, so keep one on the quest until the item is greenstacked.'}>
-      <InfoIcon sx={{ fontSize: 16, cursor: 'pointer' }}/>
-    </Tooltip>
-  </Stack>
-}
+const EXP_TYPES = ['Class', 'Mining', 'Smithing', 'Choppin', 'Fishing', 'Alchemy', 'Catching', 'Trapping', 'Construction', 'Worship'];
 
-const getExpType = (type) => {
-  switch (type) {
-    case 0:
-      return 'Class';
-    case 1:
-      return 'Mining';
-    case 2:
-      return 'Smithing';
-    case 3:
-      return 'Choppin';
-    case 4:
-      return 'Fishing';
-    case 5:
-      return 'Alchemy';
-    case 6:
-      return 'Catching';
-    case 7:
-      return 'Trapping';
-    case 8:
-      return 'Construction';
-    case 9:
-      return 'Worship';
-    default:
-      return '';
+const spriteLabel = (src, text) => <Stack direction={'row'} alignItems={'center'} gap={1} component={'span'}>
+  <GameIcon src={src} size={24} alt={''}/>
+  {text}
+</Stack>;
+
+const rewardRow = ({ name, rawName = '', amount }) => {
+  if (rawName === 'COIN') return [spriteLabel('data/Coins1.png', 'Coins'), <CoinDisplay key={'coins'} dense money={getCoinsArray(amount)}/>];
+  if (rawName.includes('Experience')) {
+    return [spriteLabel('data/XP.png', `${EXP_TYPES[parseInt(rawName.replace('Experience', ''))] ?? ''} EXP`.trim()), formatNum(amount ?? 0)];
   }
-}
+  const sprite = rawName.includes('Talent') ? 'TalentBook1' : rawName.includes('Recipes') ? `SmithingRecipes${rawName.at(-1)}` : rawName;
+  return [spriteLabel(`data/${sprite}.png`, cleanUnderscore(name || rawName)), formatNum(amount ?? 0)];
+};
 
-const QuestTooltip = ({ rewards, itemReq, customArray }) => {
-  return <Stack gap={2}>
-    {customArray?.length > 0 ? <Stack>
-      <Typography variant={'cardTitle'} component={'div'}>Requirements</Typography>
-      <Stack>
-        {customArray?.map(({ desc, value }, index) => {
-          return <div key={desc + '' + index}>
-            {cleanUnderscore(desc)} {value}
-          </div>
-        })}
-      </Stack>
+const NoteGroup = ({ label, rows }) => <Stack gap={0.5}>
+  <Typography variant={'groupLabel'} color={'text.secondary'}>{label}</Typography>
+  <ItemCard.Facts rows={rows}/>
+</Stack>;
+
+// A quest's requirements and rewards, on the quest name's i
+const questNote = ({ Name, customArray, itemReq, rewards }) => <Stack gap={1.5}>
+  <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(Name)}</Typography>
+  {customArray?.length ? <NoteGroup label={'Requirements'} rows={customArray.map(({ desc, value }) => [
+    cleanUnderscore(`${desc ?? ''}`).replace(/:\s*$/, ''), Number.isFinite(Number(value)) ? formatNum(Number(value)) : value])}/> : null}
+  {itemReq?.length ? <NoteGroup label={'Items'} rows={itemReq.map(({ name, rawName, amount }) => [
+    spriteLabel(`data/${rawName}.png`, cleanUnderscore(name || items?.[rawName]?.displayName || rawName)), formatNum(amount ?? 0)])}/> : null}
+  {rewards?.length ? <NoteGroup label={'Rewards'} rows={rewards.map(rewardRow)}/> : null}
+</Stack>;
+
+const questSub = (quest, characters) => {
+  const working = quest?.inProgress ? quest.progress.filter(({ status }) => status === 0)
+    .map(({ charIndex }) => characters?.[charIndex]?.name).filter(Boolean) : [];
+  if (!working.length && !quest?.missableDrops?.length) return undefined;
+  return <Stack gap={0.5} component={'span'}>
+    {working.length ? <span>{`In progress for ${working.join(', ')}`}</span> : null}
+    {quest?.missableDrops?.length ? <Stack direction={'row'} flexWrap={'wrap'} columnGap={1.5} rowGap={0.5} component={'span'}>
+      {quest.missableDrops.map(({ rawName, greenStacked }) => <Box key={rawName} component={'span'}
+                                                                   sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+        <GameIcon src={`data/${rawName}.png`} size={16} alt={''}/>
+        {`${cleanUnderscore(items?.[rawName]?.displayName || rawName)}${greenStacked ? ' (greenstacked)' : ''}`}
+      </Box>)}
     </Stack> : null}
-    {itemReq?.length > 0 ? <Stack>
-      <Typography variant={'cardTitle'} component={'div'}>Item requirements</Typography>
-      <Stack direction={'row'} gap={2}>
-        {itemReq?.map(({ name, rawName, amount }, index) => {
-          return <Stack alignItems={'center'} justifyContent={'center'} key={name + '' + index}>
-            <ItemIcon className={'item-img'} src={`${prefix}data/${rawName}.png`} alt="item-icon" />
-            <Typography className={'amount'}>{numberWithCommas(amount)}</Typography>
-          </Stack>
-        })}
-      </Stack>
-    </Stack> : null}
-    {rewards?.length > 0 ? <Stack>
-      <Typography variant={'cardTitle'} component={'div'}>Rewards</Typography>
-      <Stack direction={'row'} alignItems={'center'} gap={2}>
-        {rewards?.map(({ name, rawName, amount }, index) => {
-          let img, expType;
-          if (rawName.includes('Experience')) {
-            img = 'XP';
-            expType = getExpType(parseInt(rawName?.replace('Experience', '')))
-          }
-          else if (rawName.includes('Talent')) {
-            img = 'TalentBook1';
-          }
-          else if (rawName.includes('Recipes')) {
-            img = `SmithingRecipes${rawName[rawName.length - 1]}`;
-          }
-          else {
-            img = rawName;
-          }
-          return <div className={'item-wrapper'} title={cleanUnderscore(name)} key={name + '' + index}>
-            {rawName !== 'COIN' ? <Stack justifyContent={'center'} alignItems={'center'}>
-              <ItemIcon
-                title={cleanUnderscore(name || rawName)}
-                src={`${prefix}data/${img}.png`}
-                alt="reward-icon" />
-              {expType ? <Typography variant={'caption'}>{expType} exp</Typography> : null}
-              <Typography className={'amount'}>{numberWithCommas(amount)}</Typography>
-            </Stack> :
-              <div className={'coins'}>
-                <CoinDisplay title={''}
-                  noShadow
-                  money={getCoinsArray(amount)} /></div>}
-          </div>
-        })}
-      </Stack>
-    </Stack> : null}
-  </Stack>
-}
+  </Stack>;
+};
 
-const ItemIcon = styled('img')`
-  width: 40px;
-  height: 40px;
-`
+// The name's last word and its i on one line, so the i never wraps alone
+const questName = (quest) => {
+  const name = cleanUnderscore(quest?.Name);
+  const lastWordAt = name.lastIndexOf(' ') + 1;
+  return <>
+    {name.slice(0, lastWordAt)}
+    <Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>
+      {name.slice(lastWordAt)}
+      <InfoButton label={name} sx={{ ml: 0.5 }}>{questNote(quest)}</InfoButton>
+    </Box>
+  </>;
+};
 
-const StatusIndicator = styled('div')`
-  width: 12px;
-  height: 12px;
-  background-color: ${({ color }) => color};
-  border-radius: 50%;
-  border: 1px solid white;
-`;
+const questState = (quest) => (quest?.done ? <StatusText status={'done'}>Done</StatusText>
+  : quest?.inProgress ? <StatusText status={'active'}>In progress</StatusText> : undefined);
 
-const StyledAccordion = styled(Accordion)`
-  & .MuiCollapse-root .MuiList-root:not(:last-child):after {
-    content: "";
-    position: absolute;
-    bottom: -30px;
-    left: 20px;
-    height: 100%;
-    width: 2px;
-    background-color: var(--mui-palette-divider);
-  }
-
-  .MuiAccordionSummary-content {
-    display: flex;
-    align-items: center;
-
-    .npc-name {
-      margin-left: 10px;
-    }
-
-    & > img {
-      object-fit: contain;
-    }
-  }
-`;
-
-const StyledAccordionDetails = styled(AccordionDetails)`
-  && {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-  }
-
-  .quest-name-wrapper {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-  }
-
-  .characters {
-    display: flex;
-    align-items: center;
-  }
-
-  .npc-quests-wrapper {
-    .quest-name {
-    }
-  }
-`
-
-const WorldTitle = styled(Typography)`
-  margin-bottom: 16px;
-  text-align: center;
-  text-transform: capitalize;
-`;
+// One world: its name over its npcs, each a collapsible Panel of its quests. A world with no npc shown draws nothing.
+const WorldQuest = ({ worldName, npcs, characters }) => {
+  if (!npcs?.length) return null;
+  return <Stack gap={1.5}>
+    <Typography variant={'sectionTitle'} component={'h2'}>{cleanUnderscore(worldName)}</Typography>
+    {npcs.map((npc) => <Panel key={npc?.name} collapsible defaultOpen={false} icon={npcSprite(npc?.name)}
+                              title={cleanUnderscore(npc?.name)}
+                              meta={<>
+                                {`${formatNum(npc?.done ?? 0)} / ${formatNum(npc?.npcQuests?.length ?? 0)} done`}
+                                {npc?.status === 0 ? <> · <StatusText status={'active'}>In progress</StatusText></>
+                                  : npc?.status === 1 ? <> · <StatusText status={'done'}>Done</StatusText></> : null}
+                                {npc?.missablePending ? <> · <StatusText status={'needs'}>Missable drop</StatusText></> : null}
+                              </>}>
+      {npc?.npcQuests?.map((quest, index) => <Panel.Row key={quest?.QuestName ?? `${quest?.Name}-${index}`}
+                                                        name={questName(quest)}
+                                                        sub={questSub(quest, characters)}
+                                                        value={questState(quest)}/>)}
+    </Panel>)}
+  </Stack>;
+};
 
 export default WorldQuest;
