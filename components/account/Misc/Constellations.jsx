@@ -85,11 +85,14 @@ const ConstellationsComp = ({ constellations = [], characters = [], sectionFaile
       label: 'Progress',
       numeric: true,
       align: 'left',
+      // A star's Done or Ready to claim shows without opening its row on a phone
+      phone: !sectionFailed,
       sortable: !sectionFailed,
       sortValue: (row) => ({ done: 2, ready: 1 })[stateOf(row)] ?? (row?.completedChars?.length ?? 0) / (row?.requiredPlayers || 1),
       render: (row) => (sectionFailed ? null
         : stateOf(row) === 'done' ? <StatusText status={'done'}>Done</StatusText>
-          : stateOf(row) === 'ready' ? <StatusText status={'ready'}>Ready to claim</StatusText>
+          // It may take two lines on the narrowest phones, so the row's chevron stays in the card
+          : stateOf(row) === 'ready' ? <StatusText status={'ready'} sx={{ whiteSpace: { xs: 'normal', sm: 'nowrap' } }}>Ready to claim</StatusText>
             : `${formatNum(Math.min(row?.completedChars?.length ?? 0, row?.requiredPlayers ?? 0))} / ${formatNum(row?.requiredPlayers ?? 0)}`)
     },
     { key: 'location', label: 'Location', render: ({ location, mapIndex }) => <Location location={location} mapIndex={mapIndex}/> },
