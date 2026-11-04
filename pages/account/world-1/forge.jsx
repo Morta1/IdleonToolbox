@@ -26,9 +26,11 @@ const getCost = (level, costMulti) => {
   return Math.round(400 * Math.pow(costMulti, level - 5))
 }
 
+// What the levels from a level to the max cost; the total counts from Lv 0, so a maxed upgrade's total is a new
+// one's cost to max
 const getCostToMax = (level, maxLevel, costMulti, totalCost) => {
   let costToMax = 0;
-  for (let i = totalCost ? 1 : level; i < maxLevel; i++) {
+  for (let i = totalCost ? 0 : level; i < maxLevel; i++) {
     costToMax += getCost(i, costMulti);
   }
   return costToMax ?? 0;
