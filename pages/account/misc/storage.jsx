@@ -62,7 +62,7 @@ const Looty = () => {
                                               value={formatGame(item?.amount ?? 0, 'Big')}
                                               mark={greenStacks.has(item?.rawName) ? 'data/GreenSymbol.png' : undefined}
                                               markAlt={'Greenstacked'}
-                                              details={<ItemDisplay {...item} showAmount/>}/>;
+                                              details={<ItemDisplay {...item} account={state?.account} showAmount/>}/>;
   const slots = state?.account?.storage?.slots;
   const slotsText = storageFailed ? '-' : formatNum(slots?.value ?? 0);
   const groups = view.view === 'type' ? Object.entries(groupByKey(sorted, ({ Type }) => Type)) : [];

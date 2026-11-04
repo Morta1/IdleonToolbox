@@ -5,10 +5,19 @@ import GameIcon from '@components/common/GameIcon';
 import React from 'react';
 import { getPowerType } from '@parsers/powerTypes';
 
+// An ore's smelt time as the game's item box fills its ] (N.js): Cooldown / (4 x ForgeSpeeed(0)), rounded up in its
+// unit. Forge slot 1's speed comes from the account when the caller passes it; without one it is the base 0.25.
+const smeltTime = (cooldown, account) => {
+  const seconds = (Number(cooldown) || 0) / (4 * (account?.forge?.list?.[0]?.speed || 0.25));
+  return 60 > seconds ? `${Math.ceil(seconds)} Seconds` : 3600 > seconds ? `${Math.ceil(seconds / 60)} Minutes`
+    : 86400 > seconds ? `${Math.ceil(seconds / 3600)} Hours` : `${Math.ceil(seconds / 86400)} Days`;
+};
+
 const ItemDisplay = ({
                        character,
                        account,
                        Type,
+                       typeGen,
                        description,
                        lvReqToEquip,
                        Class: className,
@@ -66,7 +75,7 @@ const ItemDisplay = ({
   // The game's sentence carries its own %, so the bonus goes in bare.
   const mergedDesc = allDesc.filter((desc) => desc && desc !== 'Filler').join(' ').replace(/\[/, isGoldenFood
     ? formatNum(goldenFoodBonus, 'pct', { bare: true })
-    : Amount).replace(/]/, Cooldown);
+    : Amount).replace(/]/, typeGen === 'bOre' ? smeltTime(Cooldown, account) : Cooldown);
 
   return displayName && displayName !== 'Empty' && displayName !== 'Locked' ? <>
     {/* An item card's header: the M card's 40 px icon, named by the title beside it */}
