@@ -10,7 +10,7 @@ import { petsViewKey, simulatedCompanionsKey } from '@components/constants';
 import { monsterSprite } from '@utility/spriteImages';
 import { format, parseISO } from 'date-fns';
 import { usePetMartHistory } from '@hooks/usePetMartHistory';
-import { getPetMartLastSeen, lastInPetMartKey, mergePetMartHistory } from '@utility/petMartHistory';
+import { getPetMartLastSeen, getPetMartToday, lastInPetMartKey, mergePetMartHistory } from '@utility/petMartHistory';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import StatTile from '@components/common/cards/StatTile';
@@ -41,7 +41,7 @@ const saleLine = (sales) => {
   return <Typography variant={'body2'} color={inToday ? 'text.success' : 'text.secondary'}>{text}</Typography>;
 };
 
-const PetCollection = ({ companions, sectionFailed }) => {
+const PetCollection = ({ companions, sectionFailed, tournamentFailed }) => {
   const { state, reparseOwnAccount } = useContext(AppContext);
   const [view, setView] = useLocalStorage({ key: petsViewKey, defaultValue: 'pets' });
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('pets', PETS_TOOLBAR);
@@ -95,11 +95,13 @@ const PetCollection = ({ companions, sectionFailed }) => {
   const released = groups.flatMap((group) => group.indices).map((i) => indexedCompanions[i]).filter(Boolean);
   // Pet Mart sightings: the worker's log plus today's stock from the account, read from the counter
   // that sells what the view shows (the pet itself, or its + upgrade).
-  const petMart = state?.account?.tournament?.petMart;
+  const petMart = tournamentFailed ? null : state?.account?.tournament?.petMart;
   const now = Date.now();
   const history = mergePetMartHistory(historyData?.days, petMart, now);
   const lastSeenOf = getPetMartLastSeen(history, plusView ? 'plus' : 'base');
-  const todayOffers = new Set(((plusView ? petMart?.plusOffers : petMart?.offers) ?? []).map((offer) => offer.companionIndex));
+  // Today's rotation is the one open now (the Pet Mart tab's): the save's copy only while the save is today's
+  const today = getPetMartToday(historyData?.days, petMart, state?.lastUpdated, now);
+  const todayOffers = new Set(((plusView ? today?.plus : today?.base) ?? []).map((offer) => offer.index));
   const salesOf = (index) => ({ lastSeen: lastSeenOf.get(index), inToday: todayOffers.has(index), historyLoaded });
   // Ascending puts pets never in the Pet Mart first; descending puts today's offers first and them last.
   const sortedBySighting = sort?.key === 'lastSeen' && !editing;

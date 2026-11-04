@@ -16,6 +16,8 @@ import { getCompanions } from '@parsers/misc';
 const Pets = () => {
   const { state } = useContext(AppContext);
   const companionsFailed = isSectionFailed(state?.account, 'companions');
+  const tournamentFailed = isSectionFailed(state?.account, 'tournament');
+  const failedNames = [companionsFailed && 'Pets', tournamentFailed && 'Pet Mart'].filter(Boolean);
   // A failed section draws the game's pets at zero (the parser's own empty save): no copy, token or simulation
   const companions = companionsFailed ? getCompanions(undefined, []) : state?.account?.companions;
   const anchor = companions?.freeClaimAnchor;
@@ -26,7 +28,7 @@ const Pets = () => {
       title="Pets | Idleon Toolbox"
       description="View your pet collection, Pet Mart+ upgrades and bonuses, trade offers, and the daily Pet Mart rotation in Legends of Idleon"
     />
-    {companionsFailed ? <MissingData name={'Pets'} failed/> : null}
+    {failedNames.length ? <MissingData name={failedNames.join(' and ')} failed/> : null}
     <PageSummary>
       <StatTile label={'Pet crystals'} icon={'data/PremiumGem.png'} imgStyle={PET_CRYSTAL_LOOK} value={count(companions?.petCrystals)}/>
       <StatTile label={'Boxes opened'} value={count(companions?.totalBoxesOpened)}/>
@@ -39,8 +41,9 @@ const Pets = () => {
                  placeholder={<StatusText status={'ready'}>Ready to claim</StatusText>}/>}/>
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['prem-currency'].categories, 'pets')}>
-      <PetCollection companions={companions?.list} sectionFailed={companionsFailed}/>
-      <PetMart petMart={state?.account?.tournament?.petMart} companions={companions?.list}/>
+      <PetCollection companions={companions?.list} sectionFailed={companionsFailed} tournamentFailed={tournamentFailed}/>
+      <PetMart petMart={state?.account?.tournament?.petMart} companions={companions?.list} lastUpdated={state?.lastUpdated}
+               sectionFailed={tournamentFailed} companionsFailed={companionsFailed} guest={Boolean(state?.emptyAccount)}/>
     </Tabber>
   </>
 };

@@ -1,165 +1,152 @@
-import React, { useState } from 'react';
-import { Button, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Box, Button, Stack, Typography } from '@mui/material';
 import { format, parseISO } from 'date-fns';
-import { cleanUnderscore, getNextPetMartRestock, numberWithCommas, prefix } from '@utility/helpers';
-import { monsterImage } from '@utility/spriteImages';
-import { CardTitleAndValue, MissingData } from '@components/common/styles';
+import { cleanUnderscore, formatNum, getNextPetMartRestock } from '@utility/helpers';
+import { monsterSprite } from '@utility/spriteImages';
 import Timer from '@components/common/Timer';
 import { usePetMartHistory } from '@hooks/usePetMartHistory';
-import { mergePetMartHistory } from '@utility/petMartHistory';
+import useFormatDate from '@hooks/useFormatDate';
+import { getPetMartRotationDate, getPetMartToday, mergePetMartHistory } from '@utility/petMartHistory';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
+import StatTile from '@components/common/cards/StatTile';
+import GameIcon from '@components/common/GameIcon';
+import Notice from '@components/common/Notice';
+import StatusText from '@components/common/StatusText';
+import { effectText, petCrystalIcon } from '@components/account/Pets/PetCollection';
 
 // The tournament's Pet Mart: two counters that each restock daily with five pets. The base counter
 // sells the pet itself, the + counter sells the Pet Mart+ upgrade of a pet you already own. Both
 // price in Pet Crystals, and a day's discount shows as a struck list price beside the real one.
 // The full + price list lives in the Pets tab's Pet Mart+ view; this tab is today's stock and the
 // log of past rotations.
-const crystalStyle = { objectFit: 'contain', filter: 'hue-rotate(280deg)' };
-
-const Price = ({ listPrice, price }) => {
-  const discounted = listPrice > price;
-  return <Stack direction={'row'} gap={0.5} alignItems={'center'}>
-    <img width={16} height={16} style={crystalStyle} src={`${prefix}data/PremiumGem.png`} alt={'Pet Crystals'}/>
-    {discounted && <Typography variant={'caption'} color={'text.secondary'} sx={{ textDecoration: 'line-through' }}>
-      {numberWithCommas(listPrice)}
-    </Typography>}
-    <Typography variant={'body2'} color={discounted ? 'text.success' : 'text.primary'}>
-      {numberWithCommas(price)}
-    </Typography>
-  </Stack>;
-};
-
-const OfferCard = ({ offer, companion, plus }) => {
-  const name = companion?.name ?? offer.name;
-  const owned = Boolean(companion?.acquired) && !companion?.viaToken && !companion?.simulated;
-  // The green border means "you already have what this card sells": the pet on the base counter,
-  // the upgrade on the + counter. Same cue as the Pets tab, read against the offer.
-  const have = plus ? Boolean(companion?.upgraded) : owned;
-  const effect = plus ? companion?.upgradedEffect : companion?.effect;
-  // The + counter only upgrades a pet you own a real copy of: a token or a simulation is not one.
-  const needsBasePet = plus && !have && !(companion?.copies > 0);
-
-  // 240 wide so a counter's five offers sit on one row at 1920.
-  return <Card sx={{
-    width: 240,
-    border: have ? '1px solid' : '',
-    borderColor: have ? 'success.dark' : ''
-  }}>
-    <CardContent sx={{ '&:last-child': { padding: 1.5 }, height: '100%' }}>
-      <Stack direction={'row'} gap={1.5}>
-        <img width={42} height={42} style={{ objectFit: 'contain' }} src={monsterImage(name)} alt={name}/>
-        <Stack gap={1} sx={{ minWidth: 0 }}>
-          <Typography variant={'body1'}>{cleanUnderscore(name)}{plus ? '+' : ''}</Typography>
-          {effect && <Typography variant={'body2'} color={'text.secondary'}>
-            {cleanUnderscore(effect.replace(/{/g, '+'))}
-          </Typography>}
-          <Price listPrice={offer.listPrice} price={offer.price}/>
-          {needsBasePet && <Typography variant={'body2'} color={'text.secondary'}>Needs the base pet</Typography>}
-        </Stack>
-      </Stack>
-    </CardContent>
-  </Card>;
-};
-
-const Counter = ({ title, offers, companions, plus }) => <Stack gap={1}>
-  <Typography variant={'subtitle2'} color={'text.secondary'}>{title}</Typography>
-  {offers?.length
-    ? <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {offers.map((offer) => <OfferCard
-        key={`${plus ? 'plus' : 'base'}-${offer.companionIndex}`}
-        offer={offer}
-        companion={companions?.[offer.companionIndex]}
-        plus={plus}
-      />)}
-    </Stack>
-    : <Typography variant={'body2'} color={'text.secondary'}>Nothing on offer today</Typography>}
-</Stack>;
 
 // Rows shown before "Show older days".
 const RECENT_DAYS = 14;
 
-const PastOffer = ({ offer, companions, plus }) => {
-  const name = companions?.[offer.index]?.name;
-  if (!name) return null;
-  return <Stack direction={'row'} gap={0.75} alignItems={'center'}>
-    <img width={22} height={22} style={{ objectFit: 'contain' }} src={monsterImage(name)} alt={name}/>
-    <Typography variant={'body2'}>{cleanUnderscore(name)}{plus ? '+' : ''}</Typography>
-    {offer.price != null && <Price listPrice={offer.list ?? offer.price} price={offer.price}/>}
+const priceLine = ({ list, price }, size = 16) => {
+  const discounted = list > price;
+  return <Stack direction={'row'} gap={0.5} alignItems={'center'} component={'span'}>
+    {petCrystalIcon(size)}
+    {discounted ? <Typography variant={'body2'} component={'span'} color={'text.secondary'} sx={{ textDecoration: 'line-through' }}>
+      {formatNum(list)}
+    </Typography> : null}
+    <Typography variant={'body2'} component={'span'} color={discounted ? 'text.success' : 'text.primary'}>{formatNum(price ?? 0)}</Typography>
   </Stack>;
 };
 
-const PastCounter = ({ label, offers, companions, plus }) => offers?.length ? <Stack direction={'row'} gap={1.5}>
-  <Typography variant={'caption'} color={'text.secondary'} sx={{ width: 44, flexShrink: 0, pt: 0.25 }}>{label}</Typography>
-  <Stack direction={'row'} gap={'4px 16px'} flexWrap={'wrap'}>
-    {offers.map((offer) => <PastOffer key={offer.index} offer={offer} companions={companions} plus={plus}/>)}
-  </Stack>
-</Stack> : null;
-
-// Every recorded rotation before today, newest first.
-const PastRotations = ({ days, loggingSince, companions }) => {
-  const [showAll, setShowAll] = useState(false);
-  const shown = showAll ? days : days.slice(0, RECENT_DAYS);
-
-  return <Stack gap={1}>
-    <Stack direction={'row'} alignItems={'baseline'} gap={2}>
-      <Typography variant={'sectionTitle'} component={'h2'}>Past rotations</Typography>
-      {loggingSince && <Typography variant={'caption'} color={'text.secondary'}>
-        Logged daily since {format(parseISO(loggingSince), 'MMM d')}
-      </Typography>}
-    </Stack>
-    {!days.length && <Typography variant={'body2'} color={'text.secondary'}>
-      Past rotations show up here after the next restock.
-    </Typography>}
-    {shown.map((day) => <React.Fragment key={`${day.date}-${day.shopDay}`}>
-      <Divider/>
-      <Stack direction={'row'} gap={2} sx={{ py: 0.5 }}>
-        <Stack sx={{ width: 96, flexShrink: 0 }}>
-          <Typography variant={'body2'}>{format(parseISO(day.date), 'MMM d, yyyy')}</Typography>
-          {day.shopDay != null && <Typography variant={'caption'} color={'text.secondary'}>Shop day {day.shopDay}</Typography>}
-        </Stack>
-        <Stack gap={0.75}>
-          <PastCounter label={'Mart+'} offers={day.plus} companions={companions} plus/>
-          <PastCounter label={'Mart'} offers={day.base} companions={companions}/>
-        </Stack>
-      </Stack>
-    </React.Fragment>)}
-    {days.length > RECENT_DAYS && <Button size={'small'} sx={{ alignSelf: 'flex-start' }} onClick={() => setShowAll(!showAll)}>
-      {showAll ? 'Show fewer days' : `Show ${days.length - RECENT_DAYS} older days`}
-    </Button>}
-  </Stack>;
-};
-
-const PetMart = ({ petMart, companions }) => {
-  const { data: historyData } = usePetMartHistory();
-  if (!petMart) return <MissingData name={'Pet Mart'}/>;
-  const { shopDay, gems, offers = [], plusOffers = [] } = petMart;
-
-  return <Stack gap={3}>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'New pets in'} value={<Timer
-        type={'countdown'} date={getNextPetMartRestock()}
-        placeholder={'Restocked'}/>}/>
-      {gems?.offered && <CardTitleAndValue title={'Daily free gems'} icon={'data/PremiumGem.png'}
-        imgStyle={{ width: 24, height: 24 }}
-        value={gems.claimable ? `${numberWithCommas(gems.amount)} to claim` : 'Claimed'}/>}
-    </Stack>
-    <Stack direction={'row'} alignItems={'baseline'} gap={2}>
-      <Typography variant={'sectionTitle'} component={'h2'}>Current rotation</Typography>
-      <Typography variant={'caption'} color={'text.secondary'}>Shop day {shopDay}</Typography>
-    </Stack>
-    <Counter title={'Pet Mart+ (upgrades)'} offers={plusOffers} companions={companions} plus/>
-    <Counter title={'Pet Mart (pets)'} offers={offers} companions={companions}/>
-    {historyData && <PastRotations {...pastRotations(historyData.days, petMart)} companions={companions}/>}
-  </Stack>;
-};
-
-// Everything but the rotation on screen above, and the first day the log has (today included, so
-// the date shows from the first logged day on).
-const pastRotations = (days, petMart) => {
-  const history = mergePetMartHistory(days, petMart, Date.now());
+// The clock, read once per render after the data loader (the export is the loader): today's rotation, everything
+// before it, and the first day the log has (today included, so the date shows from the first logged day on)
+const readRotations = (data, petMart, lastUpdated) => {
+  const now = Date.now();
+  const history = data ? mergePetMartHistory(data.days, petMart, now) : [];
+  const todayDate = getPetMartRotationDate(now);
   return {
-    days: history.filter((day) => day.shopDay !== petMart?.shopDay),
+    today: getPetMartToday(data?.days, petMart, lastUpdated, now),
+    pastDays: history.filter((day) => day.date !== todayDate),
     loggingSince: history.at(-1)?.date
   };
+};
+
+const PetMart = ({ petMart, companions, lastUpdated, sectionFailed, companionsFailed, guest }) => {
+  const { data, isPending, isError, refetch } = usePetMartHistory();
+  const formatDate = useFormatDate();
+  const [showAll, setShowAll] = useState(false);
+  const savePetMart = sectionFailed ? null : petMart;
+  const { today, pastDays, loggingSince } = readRotations(data, savePetMart, lastUpdated);
+  const saveIsToday = today?.source === 'save';
+  const waiting = !today && isPending;
+  const gems = savePetMart?.gems;
+  const shownDays = showAll ? pastDays : pastDays.slice(0, RECENT_DAYS);
+
+  const offerCard = (offer, plus) => {
+    const companion = companions?.[offer.index];
+    const name = companion?.name ?? offer.name;
+    const owned = !companionsFailed && Boolean(companion?.acquired) && !companion?.viaToken && !companion?.simulated;
+    // "You already have what this card sells": the pet on the base counter, the upgrade on the + counter
+    const have = !companionsFailed && (plus ? Boolean(companion?.upgraded) : owned);
+    const effect = plus ? companion?.upgradedEffect : companion?.effect;
+    // The + counter only upgrades a pet you own a real copy of: a token or a simulation is not one.
+    const needsBasePet = !companionsFailed && plus && !have && !(companion?.copies > 0);
+    return <ItemCard key={`${plus ? 'plus' : 'base'}-${offer.index}`} icon={name ? monsterSprite(name) : undefined}
+                     title={`${cleanUnderscore(name)}${plus ? '+' : ''}`}
+                     status={have ? 'done' : undefined} statusLabel={plus ? 'Upgraded' : 'Owned'}
+                     footer={priceLine(offer)}>
+      {effect ? <ItemCard.Desc text={effectText(effect)}/> : null}
+      {needsBasePet ? <ItemCard.Facts rows={[['Needs', 'the base pet']]}/> : null}
+    </ItemCard>;
+  };
+
+  const counter = (title, offers, plus) => <Stack gap={1}>
+    <Typography variant={'groupLabel'} component={'h3'}>{title}</Typography>
+    {offers?.length
+      ? <CardGrid size={'s'}>{offers.map((offer) => offerCard(offer, plus))}</CardGrid>
+      : <Typography variant={'body2'} color={'text.secondary'}>No offers today.</Typography>}
+  </Stack>;
+
+  const todayMissing = isError
+    ? guest ? null : `Today's rotation isn't known: your save is from ${formatDate(lastUpdated, { showSeconds: false })}.`
+    : "Today's rotation isn't logged yet: it shows here within the hour.";
+
+  const pastCounter = (label, offers, plus) => (offers?.length ? <Stack direction={'row'} gap={1} alignItems={'baseline'}>
+    <Typography variant={'body2'} color={'text.secondary'} sx={{ flexShrink: 0 }}>{label}</Typography>
+    <Stack direction={'row'} columnGap={2} rowGap={0.5} flexWrap={'wrap'} sx={{ minWidth: 0 }}>
+      {offers.map((offer) => {
+        const name = companions?.[offer.index]?.name;
+        if (!name) return null;
+        return <Stack key={offer.index} direction={'row'} gap={0.5} alignItems={'center'}>
+          <GameIcon src={monsterSprite(name)} size={16} alt={''}/>
+          <Typography variant={'body2'} color={'text.primary'}>{cleanUnderscore(name)}{plus ? '+' : ''}</Typography>
+          {offer.price != null ? priceLine({ list: offer.list ?? offer.price, price: offer.price }) : null}
+        </Stack>;
+      })}
+    </Stack>
+  </Stack> : null);
+
+  return <Stack gap={3}>
+    {isError ? <Notice tone={'error'} action={{ label: 'Retry', onClick: () => refetch() }}>
+      Couldn&apos;t load the Pet Mart history.
+    </Notice> : null}
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+      <StatTile label={'New pets in'} value={<Timer type={'countdown'} date={getNextPetMartRestock()} component={'span'}
+                                                     placeholder={<StatusText status={'ready'}>Restocked</StatusText>}/>}/>
+      {saveIsToday && gems?.offered ? <StatTile label={'Daily free gems'} icon={'data/PremiumGem.png'}
+                                                value={gems.claimable ? `${formatNum(gems.amount)} to claim` : 'Claimed'}/> : null}
+    </Stack>
+    {/* No heading over nothing: a guest whose history failed has only the note above */}
+    {today || waiting || todayMissing ? <Stack gap={2}>
+      <Stack direction={'row'} alignItems={'baseline'} columnGap={2} flexWrap={'wrap'}>
+        <Typography variant={'sectionTitle'} component={'h2'}>Today&apos;s rotation</Typography>
+        {today?.shopDay != null ? <Typography variant={'caption'} color={'text.secondary'}>Shop day {today.shopDay}</Typography> : null}
+      </Stack>
+      {today ? <>
+          {counter('Pet Mart+ upgrades', today.plus, true)}
+          {counter('Pet Mart pets', today.base, false)}
+        </>
+        : waiting ? <Typography variant={'body2'} color={'text.secondary'}>Loading today&apos;s rotation</Typography>
+          : <Typography variant={'body2'} color={'text.secondary'}>{todayMissing}</Typography>}
+    </Stack> : null}
+    {isError ? null : <Box>
+      <Panel title={'Past rotations'} meta={loggingSince ? `Logged daily since ${format(parseISO(loggingSince), 'MMM d')}` : undefined}>
+        {isPending ? <Panel.Row name={<Typography variant={'body2'} component={'span'} color={'text.secondary'}>Loading past rotations</Typography>}/>
+          : !pastDays.length
+            ? <Panel.Row name={<Typography variant={'body2'} component={'span'} color={'text.secondary'}>
+              Past rotations show up here after the next restock.
+            </Typography>}/>
+            : shownDays.map((day) => <Panel.Row key={`${day.date}-${day.shopDay}`} name={format(parseISO(day.date), 'MMM d, yyyy')}
+                                                sub={<Stack gap={0.5} sx={{ mt: 0.5 }}>
+                                                  {pastCounter('Pet Mart+', day.plus, true)}
+                                                  {pastCounter('Pet Mart', day.base, false)}
+                                                </Stack>}
+                                                value={undefined}
+                                                valueSub={day.shopDay != null ? `Shop day ${day.shopDay}` : undefined}/>)}
+      </Panel>
+      {pastDays.length > RECENT_DAYS ? <Button size={'small'} sx={{ mt: 1 }} onClick={() => setShowAll(!showAll)}>
+        {showAll ? 'Show fewer days' : `Show ${pastDays.length - RECENT_DAYS} older ${pastDays.length - RECENT_DAYS === 1 ? 'day' : 'days'}`}
+      </Button> : null}
+    </Box>}
+  </Stack>;
 };
 
 export default PetMart;

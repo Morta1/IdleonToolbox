@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getPetMartLastSeen, getPetMartRotationDate, mergePetMartHistory } from '@utility/petMartHistory';
+import { getPetMartLastSeen, getPetMartRotationDate, getPetMartToday, mergePetMartHistory } from '@utility/petMartHistory';
 
 const NOON_OCT_20 = Date.UTC(2026, 9, 20, 12);
 const live = (date, shopDay, plus, base = []) => ({
@@ -33,6 +33,17 @@ describe('mergePetMartHistory', () => {
     ['nothing is logged yet', []]
   ])('leaves the history as is when %s', (_, days) => {
     expect(mergePetMartHistory(days, petMart, NOON_OCT_20)).toEqual(days);
+  });
+});
+
+describe('getPetMartToday', () => {
+  const save = { shopDay: 235, offers: [{ companionIndex: 4, listPrice: 10, price: 8 }], plusOffers: [] };
+  it.each([
+    ['the save, newer than the restock', [live('2026-10-19', 235, [9])], Date.UTC(2026, 9, 20, 10), 'save'],
+    ['the logged day, the save being older', [live('2026-10-19', 235, [9])], Date.UTC(2026, 7, 1), 'live'],
+    ['nothing, neither being today', [live('2026-10-18', 234, [9])], Date.UTC(2026, 7, 1), null]
+  ])('takes %s', (_, days, lastUpdated, source) => {
+    expect(getPetMartToday(days, save, lastUpdated, NOON_OCT_20)?.source ?? null).toBe(source);
   });
 });
 

@@ -10,7 +10,7 @@ import { getCompanions } from '@parsers/misc';
 vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, asPath: '/' }) }));
 vi.mock('next-seo', () => ({ NextSeo: () => null }));
 // The worker's Pet Mart history; each test sets what the API "returned".
-const petMartHistory = vi.hoisted(() => ({ data: undefined, isSuccess: false }));
+const petMartHistory = vi.hoisted(() => ({ data: undefined, isSuccess: false, isPending: false, isError: false, refetch: () => {} }));
 vi.mock('@hooks/usePetMartHistory', () => ({ usePetMartHistory: () => petMartHistory }));
 
 const { AppContext } = await import('@components/common/context/AppProvider');
@@ -21,7 +21,7 @@ const renderPets = (copies, { plusView = false, filter, petMart } = {}) => {
   const companions = getCompanions({ l: copies }, []);
   const { container } = render(
     <ThemeProvider theme={darkTheme}>
-      <AppContext.Provider value={{ state: { account: { companions, tournament: { petMart } } }, reparseOwnAccount: vi.fn() }}>
+      <AppContext.Provider value={{ state: { account: { companions, tournament: { petMart } }, lastUpdated: Date.now() }, reparseOwnAccount: vi.fn() }}>
         <Pets/>
       </AppContext.Provider>
     </ThemeProvider>
@@ -203,7 +203,7 @@ describe('Pet Mart tab: Past rotations', () => {
     Object.assign(petMartHistory, { data: { days }, isSuccess: true });
     const PetMart = (await import('@components/account/Pets/PetMart')).default;
     const { container } = render(<ThemeProvider theme={darkTheme}>
-      <PetMart petMart={petMart} companions={getCompanions({ l: [] }, []).list}/>
+      <PetMart petMart={petMart} companions={getCompanions({ l: [] }, []).list} lastUpdated={Date.now()}/>
     </ThemeProvider>);
     const text = container.textContent;
     return text.slice(text.indexOf('Past rotations'));

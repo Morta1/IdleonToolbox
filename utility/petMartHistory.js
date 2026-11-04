@@ -30,6 +30,20 @@ export const mergePetMartHistory = (days, petMart, now) => {
   return merged.sort(byNewest);
 };
 
+// The rotation open at `now`: the save's own copy while the save is newer than the restock that opened it, else the day
+// the worker logged under that restock's date; null when neither has it (an older save before the hourly log runs)
+export const getPetMartToday = (days, petMart, lastUpdated, now) => {
+  const openedAt = getNextPetMartRestock(now) - DAY_MS;
+  if (petMart?.shopDay >= 1 && lastUpdated >= openedAt && (petMart?.offers?.length || petMart?.plusOffers?.length)) {
+    const toOffer = (offer) => ({ index: offer.companionIndex, list: offer.listPrice, price: offer.price });
+    return {
+      date: getPetMartRotationDate(now), shopDay: petMart.shopDay, source: 'save',
+      base: (petMart.offers ?? []).map(toOffer), plus: (petMart.plusOffers ?? []).map(toOffer)
+    };
+  }
+  return (Array.isArray(days) ? days : []).find((day) => day.date === getPetMartRotationDate(now)) ?? null;
+};
+
 // Companion index -> the last date it was on one counter ('plus' or 'base').
 export const getPetMartLastSeen = (history, counter) => {
   const lastSeen = new Map();
