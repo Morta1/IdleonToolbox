@@ -101,7 +101,7 @@ const StatTile = ({
     <Box sx={{ display: stackProps ? 'flex' : 'block', flexDirection: 'column', minWidth: 0, ...(stackProps || {}) }}>
       {label ? <Typography component={'div'} sx={LABEL_SX}>
         {label}
-        {note ? <InfoButton label={name}>{note}</InfoButton> : null}
+        {note ? <InfoButton label={name} underTile>{note}</InfoButton> : null}
       </Typography> : null}
       {isShown(shown) || opener
         ? <Typography component={'div'} variant={hero ? 'heroValue' : 'value'}>

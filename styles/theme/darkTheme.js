@@ -465,7 +465,10 @@ const darkTheme = createTheme({
         tooltip: ({ theme }) => ({
           ...floating(theme),
           color: palette(theme).text.secondary,
-          padding: 8
+          // Info board: 13.5/400, the caller's size in Tooltip.jsx, in text.secondary
+          fontWeight: 400,
+          lineHeight: '19px',
+          padding: '10px 12px'
         })
       }
     },

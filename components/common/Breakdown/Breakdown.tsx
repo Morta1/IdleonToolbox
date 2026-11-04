@@ -26,7 +26,6 @@ import SearchIcon from "@mui/icons-material/Search";
 import StarIcon from "@mui/icons-material/Star";
 import StarBorderIcon from "@mui/icons-material/StarBorder";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import BarChartIcon from "@mui/icons-material/BarChart";
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from "@utility/clipboard";
 import { notify } from "@components/common/Overlays/notify";
 import AppDrawer from "@components/common/Overlays/AppDrawer";
@@ -382,7 +381,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
       >
         {children}
         {asValue ? <Box component="span" aria-hidden sx={{ display: "inline-flex", ml: 0.5, color: "primary.main", verticalAlign: "-2px" }}>
-          <BarChartIcon sx={{ fontSize: 14 }}/>
+          <BreakdownGlyph/>
         </Box> : null}
       </ButtonBase>
 
@@ -401,7 +400,16 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   )
 }
 
+// Three lines getting shorter: there is a breakdown behind this value (Info board).
+const BreakdownGlyph = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" aria-hidden>
+  <path d="M4 6h16M4 12h11M4 18h6"/>
+</svg>
+
 const indent = (depth: number, isMobile: boolean) => (isMobile ? 2 : 3) + depth * 2
+
+// A phone's rows are the board's 34 px, about 12 lines on screen. A row's star keeps a 44 px wide tap target as tall as
+// its row: the theme's 40 px touch minimum would make each row 60 px.
+const STAR_TOUCH = { "@media (pointer: coarse)": { minWidth: 24, minHeight: 24, "&::before": { content: '""', position: "absolute", inset: "-5px -10px" } } }
 
 // A fixed width keeps every row's value in one column
 const InsightCell = ({ node, insight }: { node: ViewNode, insight: RowInsight }) => {
@@ -471,8 +479,8 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, insight, children }: {
           gap: 1,
           pl: indent(node.depth, isMobile),
           pr: isMobile ? 2 : 3,
-          py: topLevel ? (isMobile ? 1.75 : 1.5) : 1,
-          minHeight: isMobile ? 44 : "auto",
+          py: isMobile ? "7px" : topLevel ? 1.5 : 1,
+          minHeight: isMobile ? 34 : "auto",
           bgcolor: isBest ? "rgba(102, 187, 106, 0.1)" : topLevel ? "transparent" : "rgba(255, 255, 255, 0.03)",
           boxShadow: isBest ? 'inset 3px 0 0 var(--mui-palette-success-main)' : 'none',
           border: "none",
@@ -532,8 +540,8 @@ const LineRow = ({ node, pinned, onPin, isMobile, insight }: {
       gap: 1,
       pl: indent(node.depth, isMobile),
       pr: isMobile ? 2 : 3,
-      py: isMobile ? 1.25 : 0.75,
-      minHeight: isMobile ? 44 : "auto",
+      py: isMobile ? "5px" : 0.75,
+      minHeight: isMobile ? 34 : "auto",
       opacity: node.inactive ? 0.5 : 1,
       transition: "background-color 0.2s",
       bgcolor: pinned ? "rgba(255, 215, 0, 0.1)" : "transparent",
@@ -557,6 +565,7 @@ const LineRow = ({ node, pinned, onPin, isMobile, insight }: {
             opacity: 1,
             bgcolor: "transparent",
           },
+          ...STAR_TOUCH,
         }}
       >
         {pinned ? <StarIcon sx={{ fontSize: 16 }}/> : <StarBorderIcon sx={{ fontSize: 16 }}/>}

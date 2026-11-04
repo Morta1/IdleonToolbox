@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Box, ButtonBase, ClickAwayListener } from '@mui/material';
 import { IconInfoCircle } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -19,9 +19,13 @@ const PHONE_NOTE_POPPER = { ...NOTE_POPPER, sx: { display: { sm: 'none' } } };
 // table: it sizes to the table, up to the viewport less the page's gutters, so every column shows without a scroll.
 // onPick and phoneOnly make the trigger a picker whose note shows only below 600 px, where the page has no room for
 // the picked thing's details beside its grid (Stamps): a click picks, and on a phone it also pins the note.
-export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, phoneOnly, buttonProps, children }) => {
+export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, phoneOnly, buttonProps, underTile, children }) => {
   const [pinned, setPinned] = useState(false);
   const [previewing, setPreviewing] = useState(false);
+  const triggerRef = useRef(null);
+  // underTile: a StatTile's note opens under the whole tile, from its left edge, so the tile's own number stays readable
+  // (Info board).
+  const tileAnchor = underTile ? { anchorEl: () => triggerRef.current?.closest('[data-card-title-value]') ?? triggerRef.current } : {};
 
   const handleClose = (event) => {
     setPreviewing(false);
@@ -39,9 +43,11 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, p
         onOpen={() => setPreviewing(true)}
         onClose={handleClose}
         disableTouchListener
-        slotProps={{ popper: phoneOnly ? PHONE_NOTE_POPPER : NOTE_POPPER }}
+        placement={underTile ? 'bottom-start' : 'bottom'}
+        slotProps={{ popper: { ...(phoneOnly ? PHONE_NOTE_POPPER : NOTE_POPPER), ...tileAnchor } }}
       >
         <ButtonBase
+          ref={triggerRef}
           component={'span'}
           disableRipple
           aria-label={label}
@@ -83,8 +89,8 @@ const INFO_SX = {
 };
 
 // The outline i after a label: what a number or a rule means, in one to three sentences (Info board).
-const InfoButton = ({ label, children, maxWidth, sx }) => (
-  <NoteTrigger note={children} label={`About ${label}`} maxWidth={maxWidth}
+const InfoButton = ({ label, children, maxWidth, sx, underTile }) => (
+  <NoteTrigger note={children} label={`About ${label}`} maxWidth={maxWidth} underTile={underTile}
                sx={[INFO_SX, ...(Array.isArray(sx) ? sx : [sx])]}>
     <IconInfoCircle size={16}/>
   </NoteTrigger>
