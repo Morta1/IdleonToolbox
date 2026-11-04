@@ -58,7 +58,7 @@ const JellyOperator = () => {
                 sub={`${formatNum(dailyOperations ?? 2)} a day`}/>
       {/* The costs' rule, so the balance and every upgrade cost read alike */}
       <StatTile label={'Bloodcells'} icon={'etc/Bloodcell.png'}
-                value={<Num value={Math.floor(bloodcells ?? 0)} game={'JellyOperation.UpgCost'}/>}/>
+                value={<Num value={Math.floor(bloodcells ?? 0)} game={'JellyOperation.UpgCost'} whole/>}/>
       <StatTile label={'Bloodcell multi'} value={<Num value={bloodcellMulti ?? 1} game={'JellyOperation.CurrencyMulti'} unit={'x'}/>}
                 breakdown={bloodcellMultiBreakdown} breakdownTitle={'Bloodcell multi'}/>
       <StatTile label={'Cell types unlocked'} value={`${formatNum(unitsOwned ?? 0)} / ${formatNum(cells?.length ?? 0)}`}/>

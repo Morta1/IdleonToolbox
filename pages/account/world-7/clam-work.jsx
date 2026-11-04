@@ -94,12 +94,12 @@ const ClamWork = () => {
       <StatTile label={'Worker class'} value={formatNum(workerClass, 'level')}/>
       {/* Every pearl cost prints in this rule (Thingies.Clam_Cost), so the balance does too */}
       <StatTile label={'Pearls'} icon={'data/ClamPearl0.png'}
-                value={<Num value={ownedPearls ?? 0} game={'Thingies.Clam_Cost'}/>}/>
+                value={<Num value={ownedPearls ?? 0} game={'Thingies.Clam_Cost'} whole/>}/>
       <StatTile label={'Promotion chance'} value={(promotionChance ?? 0) * 100} kind={'pct'}/>
-      <StatTile label={'Promotion cost'} value={formatGame(promotionCost ?? 0, 'Thingies.Clam_Cost')}/>
+      <StatTile label={'Promotion cost'} value={formatGame(promotionCost ?? 0, 'Thingies.Clam_Cost', { whole: true })}/>
       <StatTile label={'Pearl value multiplier'} value={formatGame(pearlValue ?? 1, 'Thingies.ClamPearlValue')}/>
       <StatTile label={'Black pearl value'} value={formatGame(blackPearlValue ?? 50, 'Thingies.Clam_BlackPearlValue')}/>
-      <StatTile label={'Clam mobs'} value={formatGame(mobs ?? 0, 'Thingies.Clam_Mobs')}/>
+      <StatTile label={'Clam mobs'} value={formatGame(mobs ?? 0, 'Thingies.Clam_Mobs', { whole: true })}/>
       <StatTile label={'Clam HP'} value={clamHp ?? 0} kind={'amount'}/>
       <StatTile label={'Respawn time'} value={`${formatNum(respawn ?? 60)}s`}/>
       {/* Phase 4's Summary line for a setting that changes what the numbers mean */}

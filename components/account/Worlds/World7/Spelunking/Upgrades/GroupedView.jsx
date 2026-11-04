@@ -17,7 +17,7 @@ const COLUMN_NAMES = {
 const GroupedView = ({ grouped, amber, denominator, amberIndex }) => {
   const amberIcon = `data/CaveAmber${amberIndex}.png`;
   // The game's amber line: the amount over the denominator, commas under 1e9 and Big past it
-  const amberText = (value) => formatGame((value ?? 0) / denominator, 'Spelunk.AmberDenominator');
+  const amberText = (value) => formatGame((value ?? 0) / denominator, 'Spelunk.AmberDenominator', { whole: true });
   return <Stack gap={3}>
     {Object.entries(grouped).map(([groupKey, upgrades]) => {
       const groupCostToMax = upgrades.reduce((sum, u) => sum + (u?.costToMax ?? 0), 0);

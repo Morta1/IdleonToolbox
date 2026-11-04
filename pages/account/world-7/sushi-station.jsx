@@ -21,7 +21,7 @@ const toDuration = (hours) => secondsToCoarseDuration((hours ?? 0) * 3600) ?? 'n
 const buildMultiBreakdown = ({ statName, multi, generationLabel, rawLabel, raw, perHr, extraSources = [], breakpoints }) =>
   createBreakdown(statName, formatNum(1 + (multi ?? 0) / 100, 'mult', { precise: true }), [
     listGroup('Next breakpoints', breakpoints?.map(({ multi: target, required, hours }) =>
-      info(formatNum(target, 'mult'), required, { formatted: `${formatNum(required)} · ${toDuration(hours)}` })) ?? []),
+      info(formatNum(target, 'mult'), required, { formatted: `${formatNum(required, 'whole')} · ${toDuration(hours)}` })) ?? []),
     listGroup(generationLabel, [
       info(rawLabel, raw ?? 0, { formatted: formatNum(Math.floor(raw ?? 0)) }),
       info('Per hour', perHr ?? 0, { formatted: perHr > 0 ? formatNum(perHr) : 'Not generating' }),
@@ -99,7 +99,7 @@ const SushiStation = () => {
       <StatTile label={'Unique sushi'} value={uniqueSushi ?? 0} kind={'amount'}/>
       {/* The upgrade panel's own print, so the balance reads as Upgrades' costs do */}
       <StatTile label={'Bucks'} icon={'etc/Bucks.png'}
-                value={<Num value={Math.floor(currency?.bucks ?? 0)} game={'SushiStuff.UpgCost'}/>}/>
+                value={<Num value={Math.floor(currency?.bucks ?? 0)} game={'SushiStuff.UpgCost'} whole/>}/>
       <StatTile label={'Bucks per hour'} icon={'etc/Bucks.png'}
                 value={<Num value={Math.floor(currency?.currencyPerHR ?? 0)} game={'SushiStuff.CurrencyperHR'}/>}/>
       {currency?.combo?.unlocked ? <StatTile label={'Combo multi'} icon={'etc/Bucks.png'}
@@ -108,14 +108,14 @@ const SushiStation = () => {
                                              info={'Multiplies all Bucks gained. Combining sushi adds the created tier to the combo, cooking new sushi or stalling ends it. Based on your best combo ever, caps just under 101x.'}/> : null}
       <DoublerUsageCard title={'Doublers'} doubler={state?.account?.menagerie?.doublers?.sushi} icon={DOUBLER_ICONS.sushi}/>
       <StatTile label={'Fuel'} icon={'etc/Fuel.png'}
-                value={`${formatGame(fuel?.current ?? 0, 'SushiStuff.FuelCap')} / ${formatGame(fuel?.cap ?? 0, 'SushiStuff.FuelCap')}`}/>
+                value={`${formatGame(fuel?.current ?? 0, 'SushiStuff.FuelCap', { whole: true })} / ${formatGame(fuel?.cap ?? 0, 'SushiStuff.FuelCap', { whole: true })}`}/>
       <StatTile label={'Fuel per hour'} icon={'etc/Fuel.png'} value={formatGame(fuel?.generation ?? 0, 'SushiStuff.FuelGen')}/>
       {/* Decision 2: the multis keep Precise's 3 decimals (1.122x); the phone list fixes the wrap */}
       {sparks > 0 || sparkBonus?.potassiumCount > 0
         ? <StatTile label={'Spark multi'} breakdown={sparkBreakdown} skipNotation/> : null}
       {overtuned?.unlocked ? <StatTile label={'Overtuned multi'} breakdown={overtunedBreakdown} skipNotation/> : null}
       {nextSushi ? <StatTile label={'Next unlock'} icon={`data/Sushi${nextTier}.png`}
-                             value={`${nextSushi?.name} (${formatGame(Math.ceil(nextFuelCost), 'SushiStuff.FuelCost')} fuel)`}
+                             value={`${nextSushi?.name} (${formatGame(Math.ceil(nextFuelCost), 'SushiStuff.FuelCost', { whole: true })} fuel)`}
                              info={`Cook a Tier ${nextTier + 1} sushi to discover ${nextSushi?.name}.`}/> : null}
       {sushiCooking?.nextUnperfectedIdx >= 0
         ? <StatTile label={'Perfecto chance'} value={formatNum(perfectoChance, 'pct')}

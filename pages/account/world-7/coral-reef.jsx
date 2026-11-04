@@ -33,7 +33,7 @@ const CoralReef = () => {
     {!section || sectionFailed ? <MissingData name={'Coral Reef'} failed={sectionFailed}/> : null}
     <PageSummary>
       {/* The game prints every reef cost in Big (Decision 13), so the balance beside them does too */}
-      <StatTile label={'Coral'} icon={'data/Coral0.png'} value={<Num value={ownedCorals ?? 0} game={'Big'}/>}/>
+      <StatTile label={'Coral'} icon={'data/Coral0.png'} value={<Num value={ownedCorals ?? 0} game={'Big'} whole/>}/>
       <StatTile label={'Reef day gains'} icon={'data/Coral0.png'} value={reefGainsText}
                 breakdown={reefDayGains?.breakdown ? { ...reefDayGains.breakdown, totalValue: reefGainsText } : undefined}
                 breakdownTitle={'Reef day gains'}/>

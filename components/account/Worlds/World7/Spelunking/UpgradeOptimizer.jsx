@@ -136,7 +136,7 @@ const UpgradeOptimizer = ({ character, account }) => {
   const amberIcon = `data/CaveAmber${amberIndex}.png`;
   // The game's amber line, over the denominator (Spelunk.AmberDenominator), with its icon
   const amberCost = (cost) => <Stack component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
-    <GameIcon src={amberIcon} size={16} alt={'Amber'}/>{formatGame((cost ?? 0) / denominator, 'Spelunk.AmberDenominator')}
+    <GameIcon src={amberIcon} size={16} alt={'Amber'}/>{formatGame((cost ?? 0) / denominator, 'Spelunk.AmberDenominator', { whole: true })}
   </Stack>;
 
   // Helper function to get the change value and label based on upgrade category

@@ -42,12 +42,12 @@ const UpgradeGrid = ({ upgrades, locked, totalDivinityLevel, divinityPoints, spi
 const Singularity = ({ singularity, spiralsOwned }) => {
   const { points, kills, hours, baseValue, killMulti, timeMulti, totalValue } = singularity ?? {};
   return <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={2}>
-    <StatTile label={'Singularity Spirals'} icon={`data/${SINGULARITY_SPIRAL}.png`} value={formatGame(spiralsOwned ?? 0, COST_RULE)}/>
-    <StatTile label={'Divinity PTS'} value={`${formatGame(points ?? 0, COST_RULE)} (base ${formatGame(baseValue ?? 0, COST_RULE)})`}/>
+    <StatTile label={'Singularity Spirals'} icon={`data/${SINGULARITY_SPIRAL}.png`} value={formatGame(spiralsOwned ?? 0, COST_RULE, { whole: true })}/>
+    <StatTile label={'Divinity PTS'} value={`${formatGame(points ?? 0, COST_RULE, { whole: true })} (base ${formatGame(baseValue ?? 0, COST_RULE, { whole: true })})`}/>
     <StatTile label={'Kills'} value={kills ?? 0} kind={'amount'} sub={formatNum(killMulti ?? 1, 'mult')}/>
     <StatTile label={'Hours'} value={hours ?? 0} kind={'amount'} sub={formatNum(timeMulti ?? 0, 'mult')}/>
     <StatTile label={'Spirals on claim'} icon={`data/${SINGULARITY_SPIRAL}.png`}
-              value={formatGame(Math.floor(totalValue ?? 0), COST_RULE)}/>
+              value={formatGame(Math.floor(totalValue ?? 0), COST_RULE, { whole: true })}/>
   </Stack>;
 };
 

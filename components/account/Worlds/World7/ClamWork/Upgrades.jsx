@@ -10,7 +10,7 @@ import ItemCard from '@components/common/cards/ItemCard';
 const LockedFooter = ({ required, cost }) => <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1} flexWrap={'wrap'}>
   <Typography variant={'body2'} color={'text.secondary'} component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}>
     <IconLock size={16} aria-hidden/>
-    {`Needs ${formatGame(required, 'Thingies.Clam_PearlUpgReq')} pearls`}
+    {`Needs ${formatGame(required, 'Thingies.Clam_PearlUpgReq', { whole: true })} pearls`}
   </Typography>
   {cost > 0 ? <ItemCard.Cost icon={'data/ClamPearl0.png'} iconAlt={'Pearls'} need={cost} game={'Thingies.Clam_Cost'}/> : null}
 </Stack>;

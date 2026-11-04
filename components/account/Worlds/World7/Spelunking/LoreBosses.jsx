@@ -17,7 +17,7 @@ const LoreBosses = ({ loreBosses, account }) => {
   const manicUnlocked = account?.spelunking?.manicUnlocked;
   const { depths = 0, manicDepths = 0 } = account?.spelunking?.saveTotals || {};
   // The game's amber line, as the haul's own print (Spelunk[2]): over the denominator, commas under 1e9, Big past it
-  const amberText = (value) => formatGame((value ?? 0) / amberDenominator, 'Spelunk.AmberDenominator');
+  const amberText = (value) => formatGame((value ?? 0) / amberDenominator, 'Spelunk.AmberDenominator', { whole: true });
 
   const bossCard = (boss) => {
     const iconLetter = number2letter[boss.index];

@@ -37,7 +37,7 @@ const Scurge = ({ scurge }) => {
                                             footer={<>
                                               <ItemCard.Cost icon={SCURGE_POINT_ICON} iconAlt={'Scurge points'}
                                                              need={upgrade?.cost ?? 0} have={points}
-                                                             format={(value) => formatNum(value)}/>
+                                                             format={(value) => formatNum(value, 'whole')}/>
                                               {upgrade?.levelReq > 0 && !upgrade?.unlocked
                                                 ? <Typography variant={'body2'} color={'text.secondary'}>
                                                   {`Needs Scurge LV ${formatNum(upgrade.levelReq)}`}

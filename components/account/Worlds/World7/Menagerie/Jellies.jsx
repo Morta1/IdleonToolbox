@@ -69,7 +69,7 @@ const YellowJelly = ({ yellow, buildSlotOpen }) => <ItemCard.Facts rows={[
     ? <StatusText key={'slot'} status={'ready'}>Open</StatusText>
     : <StatusText key={'slot'} status={'info'}>In use</StatusText>],
   // The game's build line, Big on both sides (MenagerieStuff.ConstBuildREQ)
-  ['Build progress', `${formatGame(yellow?.progress ?? 0, 'MenagerieStuff.ConstBuildREQ')} / ${formatGame(yellow?.requirement ?? 0, 'MenagerieStuff.ConstBuildREQ')}`],
+  ['Build progress', `${formatGame(yellow?.progress ?? 0, 'MenagerieStuff.ConstBuildREQ', { whole: true })} / ${formatGame(yellow?.requirement ?? 0, 'MenagerieStuff.ConstBuildREQ', { whole: true })}`],
   ...YELLOW_BONUS_NAMES.map((name, index) => {
     const bonus = yellow?.bonuses?.[index] ?? 0;
     const perLevel = yellow?.perLevel?.[index] ?? 0;
@@ -88,7 +88,7 @@ const ChapterPages = ({ pages }) => <Stack direction={'row'} flexWrap={'wrap'} g
   {pages?.map((amount, chapter) => <Stack key={chapter} alignItems={'center'} sx={{ width: 44 }}>
     <GameIcon src={`data/Spelunking${chapter}.png`} size={24} alt={`Chapter ${chapter + 1}`}
               status={amount > 0 ? undefined : 'missing'}/>
-    <Typography variant={'caption'}>{amount > 0 ? formatNum(amount) : '???'}</Typography>
+    <Typography variant={'caption'}>{amount > 0 ? formatNum(amount, 'whole') : '???'}</Typography>
   </Stack>)}
 </Stack>;
 

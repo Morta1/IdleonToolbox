@@ -19,7 +19,7 @@ export const DOUBLER_ICONS = {
 
 // Lumi as the game prints it in its costs (MenagerieStuff.Cost): commas up to 1e9, Big past it, so the balance, every
 // cost and Levels ahead read alike.
-export const formatLumi = (value) => formatGame(Math.floor(value ?? 0), 'MenagerieStuff.Cost');
+export const formatLumi = (value) => formatGame(Math.floor(value ?? 0), 'MenagerieStuff.Cost', { whole: true });
 
 // Menagerie doublers (and Black Stars, Organic Labels, Omnijade) as "placed / owned", on every page they are spent on.
 // Hidden until the account owns one. A StatTile, so it sits in a Summary or a tab's row like any other number.

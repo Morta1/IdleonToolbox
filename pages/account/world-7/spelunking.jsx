@@ -76,7 +76,7 @@ const Spelunking = () => {
     <PageSummary>
       <StatTile label={'Power'} icon={'data/CaveShopUpg17.png'}
                 value={<Num value={power?.value} game={'Spelunk.POW'}/>} breakdown={power?.breakdown}/>
-      <StatTile label={'Amber Found'} value={formatGame(amber, 'Spelunk.AmberDenominator')} icon={`data/CaveAmber${getAmberIndex(state?.account)}.png`}/>
+      <StatTile label={'Amber Found'} value={formatGame(amber, 'Spelunk.AmberDenominator', { whole: true })} icon={`data/CaveAmber${getAmberIndex(state?.account)}.png`}/>
       <StatTile label={'Amber Gain'} icon={`data/CaveAmber${getAmberIndex(state?.account)}.png`}
                 value={<Num value={amberGain?.value} game={'Spelunk.AmberGain'}/>} breakdown={amberGain?.breakdown}/>
       <StatTile label={'Daily Page Reads'}
@@ -94,7 +94,7 @@ const Spelunking = () => {
                 breakdown={spelunkingEfficiencyBreakdown}/>
       {trackometerUnlocked ? <StatTile label={'Stamina Trackometer'} icon={'data/CaveShopUpg59.png'}
                                        value={formatNum(overstimStack, 'level')}
-                                       sub={`Next level ${formatGame(trackometerProgress, 'Spelunk.OverstimQtyREQ2')} / ${formatGame(overstimQtyREQ2, 'Spelunk.OverstimQtyREQ2')}`}/> : null}
+                                       sub={`Next level ${formatGame(trackometerProgress, 'Spelunk.OverstimQtyREQ2', { whole: true })} / ${formatGame(overstimQtyREQ2, 'Spelunk.OverstimQtyREQ2', { whole: true })}`}/> : null}
       <StatTile label={'Manic Mode'} value={manicModeActive ? 'Active' : 'Inactive'}
                 status={manicModeActive ? 'active' : undefined}/>
     </PageSummary>

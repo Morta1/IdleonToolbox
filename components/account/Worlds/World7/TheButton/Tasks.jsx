@@ -17,7 +17,7 @@ const TASKS_TOOLBAR = { cycle: 0, hideReady: false };
 // as its sentence does). A save balance can arrive as a numeric string (Jade's "3.85e124"): it is a number, not ∞.
 const amount = (value) => {
   const number = typeof value === 'string' ? Number(value) : value;
-  return Number.isFinite(number) ? formatNum(number, 'amount') : '∞';
+  return Number.isFinite(number) ? formatNum(number, 'whole') : '∞';
 };
 
 // A task's next five requirements, as a list: the first is the next time the task comes up

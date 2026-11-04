@@ -30,9 +30,7 @@ const getObservationLevelColor = (level) => {
 
 const OBSERVATIONS_TOOLBAR = { hideFound: false };
 
-// Decision 13: insight has no game rule, so the amount kind, whole like the insight levels beside it
-const insight = (value) => formatNum(value ?? 0, 'amount');
-// A rate whole from 10 up; under 10 with Precise's decimals, so a real rate under 0.5/hr never reads 0
+// A rate under 10 keeps Precise's three decimals, so a real rate under 0.5/hr never reads 0
 const insightRate = (value) => formatNum(value ?? 0, 'amount', { precise: (value ?? 0) < 10 });
 
 const observationCard = (obs) => {
@@ -48,7 +46,7 @@ const observationCard = (obs) => {
     <ItemCard.Facts rows={[
       ['Research LV needed', formatNum(obs?.researchLvReq ?? 0)],
       ['Insight LV', formatNum(obs?.insightLevel ?? 0)],
-      obs?.found ? ['Insight EXP', `${insight(obs.insightExp)} / ${insight(obs.insightExpREQ)}`] : null,
+      obs?.found ? ['Insight EXP', `${formatNum(obs.insightExp ?? 0)} / ${formatNum(obs.insightExpREQ ?? 0, 'whole')}`] : null,
       obs?.found ? [<React.Fragment key={'displayed'}>
         Displayed insight per hour <InfoButton label={'Displayed insight per hour'}>Insight EXP per hour as the
         game shows it: the insight rate times the Research EXP multi. Insight levels slower than this.</InfoButton>

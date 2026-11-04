@@ -31,8 +31,8 @@ const ZenithMarket = () => {
     : [];
   const totalInventoryClusters = clusterInventoryData.reduce((sum, item) => sum + (item.amount || 0), 0);
   const inventoryBreakdown = clusterInventoryData.length
-    ? createBreakdown('Clusters in inventories', formatNum(totalInventoryClusters),
-      flatLines(clusterInventoryData.map(({ owner, amount }) => ({ name: owner, value: amount, formatted: formatNum(amount) }))),
+    ? createBreakdown('Clusters in inventories', formatNum(totalInventoryClusters, 'whole'),
+      flatLines(clusterInventoryData.map(({ owner, amount }) => ({ name: owner, value: amount, formatted: formatNum(amount, 'whole') }))),
       { combine: 'list' })
     : undefined;
 
@@ -45,8 +45,8 @@ const ZenithMarket = () => {
     <PageSummary>
       {/* The market's own print, so the balance reads as its costs do */}
       <StatTile label={'Zenith clusters'} icon={CLUSTER_ICON}
-                value={<Num value={clusters ?? 0} game={'Thingies.ZenithMarketCost'}/>}/>
-      <StatTile label={'Clusters in inventories'} value={totalInventoryClusters} kind={'amount'}
+                value={<Num value={clusters ?? 0} game={'Thingies.ZenithMarketCost'} whole/>}/>
+      <StatTile label={'Clusters in inventories'} value={totalInventoryClusters} kind={'whole'}
                 breakdown={inventoryBreakdown} breakdownTitle={'Clusters in inventories'}/>
       <StatTile label={'Total upgrade LV'} value={account?.spelunking?.saveTotals?.zenithMarketUpgradeLevels ?? 0}
                 kind={'amount'}/>
@@ -62,7 +62,7 @@ const ZenithMarket = () => {
                                                 have={clusters ?? 0} game={'Thingies.ZenithMarketCost'}/>}>
           {item?.description ? <ItemCard.Desc text={item.description}/> : null}
           {item?.costToMax > 0
-            ? <ItemCard.Facts rows={[['Cost to max', formatGame(item.costToMax, 'Thingies.ZenithMarketCost')]]}/>
+            ? <ItemCard.Facts rows={[['Cost to max', formatGame(item.costToMax, 'Thingies.ZenithMarketCost', { whole: true })]]}/>
             : null}
         </ItemCard>;
       })}

@@ -11,7 +11,7 @@ const Cells = ({ cells }) => <CardGrid size={'s'}>
     <ItemCard.Facts rows={[
       ['DPS', formatNum(dps ?? 0)],
       passive ? ['Passive', passive] : null,
-      ['Next level', `${formatNum(expReq ?? 0)} EXP`]
+      ['Next level', `${formatNum(expReq ?? 0, 'whole')} EXP`]
     ]}/>
     {effect ? <ItemCard.Desc text={effect}/> : null}
   </ItemCard>)}

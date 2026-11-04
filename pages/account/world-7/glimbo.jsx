@@ -24,7 +24,7 @@ const Glimbo = () => {
     />
     {!section || sectionFailed ? <MissingData name={'Glimbo'} failed={sectionFailed}/> : null}
     <PageSummary>
-      <StatTile label={'Total trades'} value={formatGame(glimboTotalTrades ?? 0, 'Minehead.GlimboTotalTrades')}/>
+      <StatTile label={'Total trades'} value={formatGame(glimboTotalTrades ?? 0, 'Minehead.GlimboTotalTrades', { whole: true })}/>
       <StatTile label={'Drop rate bonus'}
                 value={<Num value={1 + (dropRateBonus ?? 0) / 100} game={'Minehead.GlimboDRmulti'} unit={'x'}/>}/>
     </PageSummary>

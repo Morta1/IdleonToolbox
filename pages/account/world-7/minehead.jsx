@@ -44,7 +44,7 @@ const Minehead = () => {
     <PageSummary>
       {/* The upgrade panel prints the balance beside each cost in its rule (Minehead.UpgCost), so the Summary does too */}
       <StatTile label={'Mine currency'} icon={MINE_CURRENCY_ICON}
-                value={<Num value={mineCurrency ?? 0} game={'Minehead.UpgCost'}/>}/>
+                value={<Num value={mineCurrency ?? 0} game={'Minehead.UpgCost'} whole/>}/>
       <StatTile label={'Daily tries'} value={`${formatNum(dailyTriesLeft ?? 0)} / ${formatNum(dailyTriesMax ?? 3)}`}/>
       <StatTile label={'Opponents beaten'} value={opponentsBeat ?? 0} kind={'amount'}/>
       <StatTile label={'Max lives'} value={maxHP_You ?? MINEHEAD_BASE_LIVES} kind={'amount'}/>

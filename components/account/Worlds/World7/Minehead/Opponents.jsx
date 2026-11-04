@@ -13,7 +13,7 @@ const Opponents = ({ opponents }) => <CardGrid size={'m'}>
                      status={beaten ? 'done' : undefined} statusLabel={'Beaten'} dimmed={!beaten}>
       <ItemCard.Facts rows={[
         ['Max HP', formatGame(maxHP ?? 0, 'Minehead.MaxHP_Opp')],
-        ['Depth charges', formatGame(minesCount ?? 0, 'Minehead.Mines_Opp')]
+        ['Depth charges', formatGame(minesCount ?? 0, 'Minehead.Mines_Opp', { whole: true })]
       ]}/>
       {bonusDescription
         ? <ItemCard.Section label={'Reward'}><ItemCard.Desc text={bonusDescription}/></ItemCard.Section>

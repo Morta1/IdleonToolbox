@@ -11,9 +11,9 @@ import StatusText from '@components/common/StatusText';
 // The game's mission line, "You have: N" in commas (MenagerieStuff.MissionProg); missions 20 and 24 count digits, and
 // mission 24's Gaming Bits keep the game's bits notation
 const formatAmount = (value, isLogScale, isBits) => {
-  if (!isLogScale) return formatGame(value ?? 0, 'MenagerieStuff.MissionProg');
+  if (!isLogScale) return formatGame(value ?? 0, 'MenagerieStuff.MissionProg', { whole: true });
   const amount = Math.pow(10, value);
-  if (!isBits) return formatNum(amount);
+  if (!isBits) return formatNum(amount, 'whole');
   return <Stack component={'span'} direction={'row'} alignItems={'center'} gap={0.5} sx={{ display: 'inline-flex' }}>
     {formatBits(amount)}<GameIcon src={`etc/Bits_${getBitIndex(amount)}.png`} size={16} alt={'Bits'}/>
   </Stack>;
@@ -53,7 +53,7 @@ const Missions = ({ missions, unlocked }) => {
             ? [visible ? 'Claimable now' : 'Claimable once unlocked', `${formatNum(claimable)} ${claimable === 1 ? 'shell' : 'shells'}`]
             : null,
           increment > 0
-            ? ['Requirement', `+${isLogScale ? `${formatNum(increment)} digits` : formatGame(increment, 'MenagerieStuff.MissionProg')} per claim`]
+            ? ['Requirement', `+${isLogScale ? `${formatNum(increment)} digits` : formatGame(increment, 'MenagerieStuff.MissionProg', { whole: true })} per claim`]
             : null
         ]}/>
       </ItemCard>;
