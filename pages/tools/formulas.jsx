@@ -138,7 +138,7 @@ const Formulas = () => {
         formula: bitMulti?.expression,
         value: bitMulti?.value,
         breakdown: bitMulti?.breakdown,
-        renderValue: (value) => Number.isFinite(value) ? formatNum(value, 'pct') : '—',
+        renderValue: (value) => Number.isFinite(value) ? formatNum(value, 'pct') : '-',
         description: 'Bit multi bonuses from all sources'
       },
       {
