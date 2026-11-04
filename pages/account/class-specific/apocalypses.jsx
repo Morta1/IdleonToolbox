@@ -48,13 +48,18 @@ const apocalypsePanel = (character, apocalypse, hideSuperChow) => {
       <Notice tone={'locked'}>{`${apocalypse.name} is still locked for ${character?.name}.`}</Notice>
     </Box> : left.length ? <Box sx={{ p: 2 }}>
       <CardGrid size={'icon'}>
-        {left.map(({ mapName, name, monsterFace, kills, done }, index) => <IconTile
-          key={`${name}-${index}`} icon={`data/Mface${monsterFace}.png`} alt={cleanUnderscore(name ?? '')} value={formatNum(kills)}
-          details={<Stack gap={0.5}>
-            <Typography variant={'body2'}>{`${cleanUnderscore(name ?? '')}, ${cleanUnderscore(mapName ?? '')}`}</Typography>
-            <Typography variant={'body2'}>{`${formatNum(Math.floor(kills), 'exact')} kills`}</Typography>
-            {nextTier(apocalypse, kills, done) ? <Typography variant={'body2'}>{nextTier(apocalypse, kills, done)}</Typography> : null}
-          </Stack>}/>)}
+        {left.map(({ mapName, name, monsterFace, kills, done }, index) => {
+          // A kill counts once it is whole: the tile, its details and the next tier all read the floor
+          const shownKills = Math.floor(kills ?? 0);
+          const next = nextTier(apocalypse, shownKills, done);
+          return <IconTile
+            key={`${name}-${index}`} icon={`data/Mface${monsterFace}.png`} alt={cleanUnderscore(name ?? '')} value={formatNum(shownKills)}
+            details={<Stack gap={0.5}>
+              <Typography variant={'body2'}>{`${cleanUnderscore(name ?? '')}, ${cleanUnderscore(mapName ?? '')}`}</Typography>
+              <Typography variant={'body2'}>{`${formatNum(shownKills, 'exact')} kills`}</Typography>
+              {next ? <Typography variant={'body2'}>{next}</Typography> : null}
+            </Stack>}/>;
+        })}
       </CardGrid>
     </Box> : null}
   </Panel>;
