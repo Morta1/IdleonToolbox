@@ -16,6 +16,8 @@ const TIER_NOTE = 'Total marble to bring every statue of that marble up to this 
 const LOCKED_TIER_NOTE = 'Locked: needs the Menagerie unlock that boosts max Flair LV of Statues to Elegant.';
 // The flair costs and the marbles owned, in their game rules
 const flairCost = (value) => formatGame(value ?? 0, 'RoyalG.SF_costo');
+// The game draws a statue's sentence in font 652, whose 千 glyph is its x mark: "}千 TOTAL DAMAGE" reads "4.12x TOTAL DAMAGE"
+const statueSentence = (description) => cleanText(`${description ?? ''}`.replace(/千/g, 'x'));
 
 // A marble's costs to bring every statue to each flair level. A locked flair or tier keeps its amounts, in the muted
 // color: they are what the player plans toward. Otherwise a cost already covered says so beside its amount.
@@ -58,9 +60,10 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels, sectionFailed }
         {royalStatues.map(({ index, description, level, bonus, upgradeOdds, costItem, named }) => <ItemCard
           key={index} icon={`data/${costItem}.png`} title={`Statue ${index}`} level={{ value: level ?? 0 }}
           status={named ? undefined : 'locked'} statusLabel={'Unreleased'}>
-          <ItemCard.Desc text={named ? cleanText(description) : 'Not yet released in-game.'}/>
+          <ItemCard.Desc text={named ? statueSentence(description) : 'Not yet released in-game.'}/>
           {sectionFailed ? null : <ItemCard.Facts rows={[
-            ['Bonus', formatGame(bonus ?? 0, 'RoyalG.StatueBon')],
+            // A named statue's sentence prints its bonus already
+            named ? null : ['Bonus', formatGame(bonus ?? 0, 'RoyalG.StatueBon')],
             ['Upgrade odds', upgradeOdds > 0 ? `1 in ${formatGame(1 / upgradeOdds, 'RoyalG.StatueUpgOdds')}` : '-']
           ]}/>}
         </ItemCard>)}

@@ -22,7 +22,9 @@ const OrbletMarket = ({ orbletMarket, orblets, sectionFailed }) => {
       footer={sectionFailed ? null : <ItemCard.Cost icon={'data/Orblet_x1.png'} iconAlt={'Orblets'} game={'Thingies.OrbletMarketCost'}
                                                     need={cost} have={orblets ?? 0}/>}>
       <ItemCard.Desc text={lines(description, index)}/>
-      {sectionFailed ? null : <ItemCard.Facts rows={[['Bonus', formatGame(bonus ?? 0, 'Thingies.OrbletMarketBonus')]]}/>}
+      {/* A sentence the parser filled with the bonus prints it already: only a $ sentence (GLORIFICATION's) leaves it out */}
+      {sectionFailed || !`${description ?? ''}`.includes('$') ? null
+        : <ItemCard.Facts rows={[['Bonus', formatGame(bonus ?? 0, 'Thingies.OrbletMarketBonus')]]}/>}
     </ItemCard>)}
   </CardGrid>;
 };
