@@ -7,15 +7,16 @@ const BUSY_SX = {
   bgcolor: 'action.disabledBackground', color: 'action.disabled', boxShadow: 'none', cursor: 'default',
   '&:hover': { bgcolor: 'action.disabledBackground', boxShadow: 'none' }
 };
-// The flow waits on another site: the board keeps the button as it was, the status line says what it waits for.
-const INERT_SX = { cursor: 'default', '&:hover': { bgcolor: 'primary.main' } };
+// The flow waits on another site: the button dims and ignores presses, the status line says what it waits for. At
+// .65 its dark label still reads at 5:1 on the dimmed blue, where DIM's .55 would read at 4:1.
+const INERT_SX = { opacity: 0.65, cursor: 'default', '&:hover': { bgcolor: 'primary.main' } };
 const DOT_SX = {
   width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main',
   boxShadow: (theme) => `0 0 0 4px ${(theme.vars || theme).palette.primary.soft}`
 };
 
-// The blue button of the Sign in board, the same on every method. icon: what follows its label. inert: looks
-// as it did but ignores presses, for a flow that is waiting.
+// The blue button of the Sign in board, the same on every method. icon: what follows its label. inert: dimmed,
+// and ignores presses, for a flow that is waiting.
 export const ActionButton = ({ loading = false, disabled = false, inert = false, icon, onClick, children, sx, ...buttonProps }) => {
   const busy = loading || disabled;
   const stateSx = busy ? BUSY_SX : inert ? INERT_SX : {};
