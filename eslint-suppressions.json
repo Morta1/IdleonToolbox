@@ -10,15 +10,7 @@
     }
   },
   "components/account/Pets/PetCollection.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    },
     "react-hooks/purity": {
-      "count": 1
-    }
-  },
-  "components/account/Pets/PetMart.jsx": {
-    "no-restricted-syntax": {
       "count": 1
     }
   },
