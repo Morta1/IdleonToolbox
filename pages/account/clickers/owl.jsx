@@ -55,7 +55,7 @@ const Owl = () => {
             {(owl?.megaFeathers ?? []).map(({ description, unlocked, amount, totalBonus }, index) => <IconTile key={index}
                                                                                                             icon={`data/Feaz${index}.png`}
                                                                                                             alt={`Megafeather ${index + 1}`}
-                                                                                                            status={failed || unlocked ? undefined : 'missing'}
+                                                                                                            status={unlocked ? undefined : 'missing'}
                                                                                                             value={!failed && amount > 0 ? formatGame(amount, 'Summoning.OwlMegafeather') : undefined}
                                                                                                             details={<ItemCard.Desc
                                                                                                               text={cleanUnderscore(`${description ?? ''}`.replace('{', () => formatNum(totalBonus ?? 1, 'mult', { bare: true })))}/>}/>)}

@@ -34,7 +34,7 @@ const Achievements = () => {
   const failed = isSectionFailed(state?.account, 'achievements');
   const [view, setView, resetView] = useToolbarState('achievements', ACHIEVEMENTS_TOOLBAR);
   const hideCompleted = !failed && view.hideCompleted;
-  // A failed section draws the game's list at zero: no done state and no progress that would not be the player's
+  // A failed section draws the game's list at zero, a guest's grey: no done state and no progress that would not be the player's
   const achievements = failed ? getAchievements(undefined) : state?.account?.achievements;
   const { worldTotals, combined } = getAchievementWorldTotals(achievements, TABS);
   const pair = (done, total) => (failed ? '-' : `${formatNum(done)} / ${formatNum(total)}`);
@@ -76,7 +76,7 @@ const Achievements = () => {
           {shown.length ? <CardGrid size={'icon'}>
             {shown.map((achievement) => <IconTile key={achievement.rawName} icon={`data/${achievement.rawName}.png`}
                                                   alt={cleanUnderscore(achievement.name)}
-                                                  status={failed || achievement.completed ? undefined : 'missing'}
+                                                  status={achievement.completed ? undefined : 'missing'}
                                                   value={underWay(achievement) ? formatNum(achievement.currentQuantity) : undefined}
                                                   details={details(achievement)}/>)}
           </CardGrid> : null}

@@ -69,7 +69,7 @@ const Kangaroo = () => {
               {(kangaroo?.megaFish ?? []).map(({ description, unlocked, amount, totalBonus }, index) => <IconTile key={index}
                                                                                                                 icon={`data/RooMG${index}.png`}
                                                                                                                 alt={`Megafish ${index + 1}`}
-                                                                                                                status={failed || unlocked ? undefined : 'missing'}
+                                                                                                                status={unlocked ? undefined : 'missing'}
                                                                                                                 value={!failed && amount > 0 ? formatNum(amount) : undefined}
                                                                                                                 details={<ItemCard.Desc
                                                                                                                   text={cleanUnderscore(`${description ?? ''}`.replace('{', () => formatNum(totalBonus ?? 1, 'mult', { bare: true })))}/>}/>)}

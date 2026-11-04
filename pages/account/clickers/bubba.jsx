@@ -49,7 +49,7 @@ const Bubba = () => {
           <CardGrid size={'icon'}>
             {(bubba?.megaFlesh ?? []).map((entry, index) => <IconTile key={index} icon={`data/BubbaMF${index}.png`}
                                                                      alt={`Megaflesh ${index + 1}`}
-                                                                     status={failed || entry?.unlocked ? undefined : 'missing'}
+                                                                     status={entry?.unlocked ? undefined : 'missing'}
                                                                      value={!failed && entry?.amount > 0 ? formatNum(entry.amount) : undefined}
                                                                      details={<ItemCard.Desc text={megafleshText(entry).split('\n')}/>}/>)}
           </CardGrid>
