@@ -95,9 +95,10 @@ const PetMart = ({ petMart, companions, lastUpdated, sectionFailed, companionsFa
       {offers.map((offer) => {
         const name = companions?.[offer.index]?.name;
         if (!name) return null;
-        return <Stack key={offer.index} direction={'row'} gap={0.5} alignItems={'center'}>
+        // A name stays on one line; on a narrow row its price moves under it
+        return <Stack key={offer.index} direction={'row'} columnGap={0.5} alignItems={'center'} flexWrap={'wrap'}>
           <GameIcon src={monsterSprite(name)} size={16} alt={''}/>
-          <Typography variant={'body2'} color={'text.primary'}>{cleanUnderscore(name)}{plus ? '+' : ''}</Typography>
+          <Typography variant={'body2'} color={'text.primary'} sx={{ whiteSpace: 'nowrap' }}>{cleanUnderscore(name)}{plus ? '+' : ''}</Typography>
           {offer.price != null ? priceLine({ list: offer.list ?? offer.price, price: offer.price }) : null}
         </Stack>;
       })}
@@ -135,12 +136,11 @@ const PetMart = ({ petMart, companions, lastUpdated, sectionFailed, companionsFa
               Past rotations show up here after the next restock.
             </Typography>}/>
             : shownDays.map((day) => <Panel.Row key={`${day.date}-${day.shopDay}`} name={format(parseISO(day.date), 'MMM d, yyyy')}
-                                                sub={<Stack gap={0.5} sx={{ mt: 0.5 }}>
+                                                sub={<Stack gap={0.5}>
+                                                  {day.shopDay != null ? <Typography variant={'caption'} component={'div'} color={'text.secondary'}>Shop day {day.shopDay}</Typography> : null}
                                                   {pastCounter('Pet Mart+', day.plus, true)}
                                                   {pastCounter('Pet Mart', day.base, false)}
-                                                </Stack>}
-                                                value={undefined}
-                                                valueSub={day.shopDay != null ? `Shop day ${day.shopDay}` : undefined}/>)}
+                                                </Stack>}/>)}
       </Panel>
       {pastDays.length > RECENT_DAYS ? <Button size={'small'} sx={{ mt: 1 }} onClick={() => setShowAll(!showAll)}>
         {showAll ? 'Show fewer days' : `Show ${pastDays.length - RECENT_DAYS} older ${pastDays.length - RECENT_DAYS === 1 ? 'day' : 'days'}`}
