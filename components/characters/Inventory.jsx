@@ -13,7 +13,7 @@ const Inventory = ({ inventory, inventoryLength, inventorySlots, amountKey = 'am
   const grid = <CardGrid size={'icon'} fill sx={capacity && !asc ? { p: 1.5 } : undefined}>
     {inventory?.map((item, index) => <IconTile
       key={item?.rawName + '' + index} icon={`data/${item?.rawName}.png`} alt={cleanUnderscore(item?.displayName ?? item?.name ?? '')}
-      value={item?.perHour ? formatNum(item?.perHour, 'rate') : formatNum(item?.[amountKey])}
+      value={item?.perHour ? formatNum(item?.perHour, 'rate') : formatNum(item?.[amountKey], 'whole')}
       details={item?.perHour ? <ExtraData {...item} amount={item?.[amountKey]}/> : <ItemDisplay {...item} account={account}/>}/>)}
   </CardGrid>;
   return capacity && !asc
@@ -27,7 +27,7 @@ const Inventory = ({ inventory, inventoryLength, inventorySlots, amountKey = 'am
 const ExtraData = ({ name, displayName, perHour, perDay, perGoal, amount }) => <Stack gap={0.5}>
   <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(name || displayName)}</Typography>
   <ItemCard.Facts rows={[
-    perHour ? ['Total', formatNum(amount)] : null,
+    perHour ? ['Total', formatNum(amount, 'whole')] : null,
     perHour ? ['Rate', formatNum(perHour, 'rate', { precise: true })] : null,
     perDay ? ['Per day', formatNum(perDay, 'rate', { precise: true, per: 'day' })] : null,
     perGoal ? ['Goal', perGoal > 0 ? `${formatDuration(perGoal * 3600)} to go` : 'Reached'] : null

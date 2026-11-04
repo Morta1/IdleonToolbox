@@ -25,7 +25,7 @@ const Equipment = ({ equipment, tools, food, account, character, characters }) =
             return <IconTile key={`${rawName}-${itemIndex}`} status={'empty'} alt={'Empty slot'}/>;
           }
           return <IconTile key={`${rawName}-${itemIndex}`} icon={`data/${rawName}.png`} alt={cleanUnderscore(displayName)}
-                           value={amount ? formatNum(amount) : undefined}
+                           value={amount ? formatNum(amount, 'whole') : undefined}
                            details={<ItemDisplay {...item} character={character} account={account} characters={characters}
                                                  getGoldenFoodBonus={getGoldenFoodBonus}/>}/>;
         })}

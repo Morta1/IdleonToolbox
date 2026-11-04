@@ -23,9 +23,6 @@ const CRIT_CHANCE_DISPLAY_CAP = 200;
 const STAT_LABELS = { strength: 'STR', agility: 'AGI', wisdom: 'WIS', luck: 'LUK' };
 const STAT_KEYS = { strength: 'TotalStats.STR', agility: 'TotalStats.AGI', wisdom: 'TotalStats.WIS', luck: 'TotalStats.LUK' };
 
-// A percent never reads with K beside numbers that don't ("6.4K%"): from 1,000 it takes commas (the 5l walk's call)
-const percentText = (value) => (value < 1000 ? formatNum(value, 'pct') : `${formatNum(value)}%`);
-
 // The game's Cash multi fill: Big past 1e16, its own B past 1e10 and M past 1e7, MultiplierInfo under.
 const cashMultiText = (value) => (value > 1e16 || value <= 1e7 ? formatGame(value, 'ArbitraryCode.MonsterCash')
   : value > 1e10 ? `${Math.floor(value / 1e8) / 10}B` : `${Math.floor(value / 1e5) / 10}M`);
@@ -44,15 +41,16 @@ export const characterStatFacts = (character, characters, account, playerInfo = 
     { label: 'HP', value: formatNum(playerInfo?.maxHp) },
     { label: 'MP', value: formatNum(playerInfo?.maxMp) },
     { label: 'Accuracy', value: formatNum(playerInfo?.accuracy) },
-    { label: 'Movement speed', value: percentText(playerInfo?.movementSpeed) },
+    { label: 'Movement speed', value: formatNum(playerInfo?.movementSpeed, 'pct') },
     { label: 'Cash multi', value: cashMulti == null ? '-' : `${cashMultiText(cashMulti)}x`, breakdown: cashBreakdown, notation: 'Smaller' },
     { label: 'Drop rate', value: dropRate == null ? '-' : `${formatGame(dropRate, 'TotalStats.Drop_Rarity')}x`, breakdown: dropBreakdown, notation: 'ThreeDecimals' },
     { label: 'Respawn time', value: formatNum(respawnRate, 'pct'), breakdown: respawnBreakdown, notation: 'Smaller' },
     { label: 'AFK gains', value: afkGains == null ? '-' : `${formatGame(afkGains * 100, 'AFKgainrates.Fighting')}%`, breakdown: afkBreakdown },
     // effectiveValue, not value: the game rolls min(cap, chance), so the raw number overstates how often a crystal spawns
     guaranteed
-      ? { label: 'Crystal guaranteed', value: `${formatGame(crystalSpawnChance.guaranteedLeft, 'Thingies.GuaranteedCrystalMobs')} left` }
-      : { label: 'Crystal chance', value: formatNum(crystalSpawnChance?.effectiveValue, 'odds'), breakdown: crystalSpawnChance?.breakdown },
+      ? { label: 'Crystal guaranteed', value: `${formatGame(crystalSpawnChance.guaranteedLeft, 'Thingies.GuaranteedCrystalMobs', { whole: true })} left` }
+      : { label: 'Crystal chance', value: formatNum(crystalSpawnChance?.effectiveValue, 'odds'), breakdown: crystalSpawnChance?.breakdown,
+        rowText: `${formatNum(crystalSpawnChance?.effectiveValue, 'odds')} (${formatNum(crystalSpawnChance?.effectiveValue * 100, 'pct')})` },
     { label: 'Non consume chance', value: formatNum(nonConsumeChance, 'pct') }
   ];
 };
@@ -84,7 +82,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
         ? <Panel.KV key={statName} label={STAT_LABELS[statName] ?? statName} value={STAT_KEYS[statName] ? formatGame(statValue, STAT_KEYS[statName]) : formatNum(statValue)}/>
         : null))}
       <Fact {...facts['Cash multi']}/>
-      <Fact label={'Golden food'} value={percentText(Math.max(0, 100 * (goldenFoodMulti - 1)))} breakdown={goldenFoodBreakdown} notation={'Smaller'}/>
+      <Fact label={'Golden food'} value={formatNum(Math.max(0, 100 * (goldenFoodMulti - 1)), 'pct')} breakdown={goldenFoodBreakdown} notation={'Smaller'}/>
       <Fact {...facts.HP}/>
       <Fact {...facts.MP}/>
       <Fact label={'Kills per hour'} value={formatNum(Math.floor(playerInfo?.finalKillsPerHour))}/>
@@ -100,7 +98,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
       <Fact {...facts['AFK gains']}/>
       <Fact {...facts['Non consume chance']}/>
       <Box sx={{ px: 2, py: 0.75 }}>
-        <ItemCard.Progress label={'EXP'} value={formatNum(classSkill?.exp)} max={formatNum(classSkill?.expReq)}
+        <ItemCard.Progress label={'EXP'} value={formatNum(classSkill?.exp, 'whole')} max={formatNum(classSkill?.expReq, 'whole')}
                            percent={Math.min(100, (classSkill?.exp / classSkill?.expReq * 100) || 0)}/>
       </Box>
       <Fact label={'EXP multi'} value={<GameIconNotation value={notateExpMulti(classExp)} sx={{ typography: 'body2', fontWeight: 500, display: 'inline-flex' }}/>}
@@ -109,7 +107,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
       {nextPortal?.goal > 10 && (nextPortal?.current < nextPortal?.goal || portalLock?.open === false) ? <Box>
         {nextPortal?.current < nextPortal?.goal ? <Panel.KV label={'Next portal'} value={<Stack direction={'row'} alignItems={'center'} gap={0.5}>
           <GameIcon src={`data/${nextPortal?.currentIcon}.png`} size={16} alt={''}/>
-          {formatNum(nextPortal?.current)} / {formatNum(nextPortal?.goal)}
+          {formatNum(nextPortal?.current, 'whole')} / {formatNum(nextPortal?.goal, 'whole')}
         </Stack>}/> : <Panel.KV label={'Next portal'} value={''}/>}
         <Box sx={{ px: 2 }}><MultiCharLockText lock={portalLock}/></Box>
       </Box> : null}

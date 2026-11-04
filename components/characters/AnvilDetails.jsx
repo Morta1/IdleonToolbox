@@ -41,12 +41,12 @@ const AnvilDetails = ({ character, account, characters }) => {
     <Panel.Group label={'Bonus'}>
       <Panel.KV label={'EXP'} value={`${formatGame(calcAnvilExp(character, characters, account, baseAnvilExp, xpPoints), 'AnvilProduceStats.ProdExpBonus')}%`}/>
       <Panel.KV label={'Speed'} value={formatGame(anvilSpeed, 'AnvilProduceStats.ProductionSpeed')}/>
-      <Panel.KV label={'Capacity'} value={formatGame(anvilCapacity, 'AnvilProduceStats.Cap')}/>
+      <Panel.KV label={'Capacity'} value={formatGame(anvilCapacity, 'AnvilProduceStats.Cap', { whole: true })}/>
     </Panel.Group>
     <Panel.Group label={'Material'}>
       {anvilCost?.rawName ? <Panel.KV label={'Item'} value={<GameIcon src={`data/${anvilCost?.rawName}.png`} size={24} alt={'Anvil upgrade material'}/>}/> : null}
-      <Panel.KV label={'Upgrade cost'} value={formatNum(anvilCost?.nextMatUpgrade)}/>
-      <Panel.KV label={'Total spent'} value={formatNum(anvilCost?.totalMats)}/>
+      <Panel.KV label={'Upgrade cost'} value={formatNum(anvilCost?.nextMatUpgrade, 'whole')}/>
+      <Panel.KV label={'Total spent'} value={formatNum(anvilCost?.totalMats, 'whole')}/>
     </Panel.Group>
     <Panel.Group label={'Money'}>
       <Panel.KV label={'Upgrade cost'} value={<Coins amount={anvilCost?.nextCoinUpgrade}/>}/>

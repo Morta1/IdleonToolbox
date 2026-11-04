@@ -90,9 +90,9 @@ const ItemDisplay = ({
         {capacity ? <TitleAndValue title={Type?.includes('CARRY') ? 'Base capacity' : 'Description'}
                                    value={`${cleanUnderscore(capacity)}`}/> : null}
         {capacityPerSlot ? <TitleAndValue title={'Capacity per slot'}
-                                          value={formatNum(capacityPerSlot)}/> : null}
+                                          value={formatNum(capacityPerSlot, 'whole')}/> : null}
         {maxCapacity ? <TitleAndValue title={'Max capacity'}
-                                      value={formatNum(maxCapacity)}/> : null}
+                                      value={formatNum(maxCapacity, 'whole')}/> : null}
       </Stack> :
       <Stack alignitems={'flex-start'}>
         {Type ? <TitleAndValue title={'Type'} value={cleanUnderscore(Type)}/> : null}
@@ -122,7 +122,7 @@ const ItemDisplay = ({
         {amount > 0 && showAmount ?
           <>
             <Divider sx={{ my: 2 }}/>
-            <TitleAndValue title={'Amount'} value={formatNum(amount)}/>
+            <TitleAndValue title={'Amount'} value={formatNum(amount, 'whole')}/>
           </> : null}
         {/*{maxUpgradeSlots > 0*/}
         {/*  ? <TitleAndValue title={'Upgrade Slots'}*/}

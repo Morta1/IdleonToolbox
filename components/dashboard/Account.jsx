@@ -160,7 +160,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.General?.etc?.miniBosses?.length > 0
                 ?
                 alerts?.General?.etc?.miniBosses?.map(({ rawName, name, current }) => <Alert target={'General.etc.miniBosses'} key={rawName}
-                                                                                             title={`You can kill ${formatNum(current)} ${cleanUnderscore(name)}s`}
+                                                                                             title={`You can kill ${formatNum(current, 'whole')} ${cleanUnderscore(name)}s`}
                                                                                              iconPath={`etc/${rawName}`}/>)
                 : null}
               {alerts?.General?.tasks?.length > 0 ?
@@ -171,7 +171,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.General?.etc?.keys?.length > 0
                 ?
                 alerts?.General?.etc?.keys?.map(({ rawName, totalAmount }, index) => <Alert target={'General.etc.keys'} key={rawName + '' + index}
-                                                                                            title={`${formatNum(totalAmount)} of ${cleanUnderscore(pascalCase(rawName))} ${rawName.includes('Tix')
+                                                                                            title={`${formatNum(totalAmount, 'whole')} of ${cleanUnderscore(pascalCase(rawName))} ${rawName.includes('Tix')
                                                                                               ? 'tickets'
                                                                                               : 'keys'} are ready`}
                                                                                             iconPath={`data/${rawName}`}/>)
@@ -261,7 +261,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'etc/Trash_Currency'}/> : null}
               {alerts?.['World 2']?.islands?.collectibleGarbage ?
                 <Alert target={'World 2.islands.collectibleGarbage'}
-                  title={`You have around ${formatNum(alerts?.['World 2']?.islands?.collectibleGarbage)} garbage waiting to be collected in trash island`}
+                  title={`You have around ${formatNum(alerts?.['World 2']?.islands?.collectibleGarbage, 'whole')} garbage waiting to be collected in trash island`}
                   iconPath={'etc/Trash_Currency'}/> : null}
               {alerts?.['World 2']?.islands?.crystalIsland ?
                 <Alert target={'World 2.islands.crystalIsland'}
@@ -336,7 +336,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   title={<>
                     <div>{name} {type === 'cauldron' ? 'cauldron' : 'liquid'} p2w upgrades you can afford</div>
                     {upgrades?.map(({ label, level, maxLevel, cost }) => <div key={label}>
-                      {label}: Lv {level} / {maxLevel} ({formatGame(cost, 'Big')} coins)
+                      {label}: Lv {level} / {maxLevel} ({formatGame(cost, 'Big', { whole: true })} coins)
                     </div>)}
                   </>}
                   iconPath={`data/aJar${type === 'cauldron' ? 'B' : 'L'}${index}`}/>)
@@ -476,7 +476,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/Ribbon0'}/> : null}
               {alerts?.['World 4']?.cooking?.mealLadleCost?.count > 0 ?
                 <Alert target={'World 4.cooking.mealLadleCost'}
-                  title={`${formatNum(alerts?.['World 4']?.cooking?.mealLadleCost?.count)} meal${alerts?.['World 4']?.cooking?.mealLadleCost?.count > 1 ? 's are' : ' is'} below ${formatGame(alerts?.['World 4']?.cooking?.mealLadleCost?.threshold, 'Big')} ladle${alerts?.['World 4']?.cooking?.mealLadleCost?.threshold === 1 ? '' : 's'} to level up`}
+                  title={`${formatNum(alerts?.['World 4']?.cooking?.mealLadleCost?.count)} meal${alerts?.['World 4']?.cooking?.mealLadleCost?.count > 1 ? 's are' : ' is'} below ${formatGame(alerts?.['World 4']?.cooking?.mealLadleCost?.threshold, 'Big', { whole: true })} ladle${alerts?.['World 4']?.cooking?.mealLadleCost?.threshold === 1 ? '' : 's'} to level up`}
                   iconPath={'data/Ladle'}/> : null}
               {alerts?.['World 4']?.cooking?.cookingMastery?.purple > 0 ?
                 <Alert target={'World 4.cooking.cookingMastery'}
@@ -637,7 +637,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   <Alert
                     target={'World 6.beanstalk.readyToPlant'}
                     key={'beanstalk' + rawName}
-                    title={`You own ${formatNum(total)} ${cleanUnderscore(displayName)}: enough to rank it up on the beanstalk (${formatNum(breakpoint)} needed)`}
+                    title={`You own ${formatNum(total, 'whole')} ${cleanUnderscore(displayName)}: enough to rank it up on the beanstalk (${formatNum(breakpoint, 'whole')} needed)`}
                     iconPath={`data/${rawName}`}/>)
                 : null}
               {alerts?.['World 6']?.summoning?.familiar ?
@@ -650,7 +650,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/Heart'}/> : null}
               {alerts?.['World 6']?.summoning?.familiarExp ?
                 <Alert target={'World 6.summoning.familiarExp'}
-                  title={`${formatNum(alerts?.['World 6']?.summoning?.familiarExp.exp)} familiar EXP unclaimed (${formatDuration(alerts?.['World 6']?.summoning?.familiarExp.seconds)})`}
+                  title={`${formatNum(alerts?.['World 6']?.summoning?.familiarExp.exp, 'whole')} familiar EXP unclaimed (${formatDuration(alerts?.['World 6']?.summoning?.familiarExp.seconds)})`}
                   iconPath={'data/SumExp'}/> : null}
               {alerts?.['World 6']?.summoning?.familiarLevelUp ?
                 <Alert target={'World 6.summoning.familiarLevelUp'}
@@ -672,7 +672,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/FarmPlant1'}/> : null}
               {alerts?.['World 6']?.farming?.totalCrops > 0 ?
                 <Alert target={'World 6.farming.totalCrops'}
-                  title={`You have ${formatNum(alerts?.['World 6']?.farming?.totalCrops)} crops ready to be collected`}
+                  title={`You have ${formatNum(alerts?.['World 6']?.farming?.totalCrops, 'whole')} crops ready to be collected`}
                   iconPath={'data/FarmPlant6'}/> : null}
               {alerts?.['World 6']?.farming?.beanTrade > 0 ?
                 <Alert target={'World 6.farming.beanTrade'}
@@ -722,7 +722,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                       : 's have'} ${formatNum(alerts?.['World 7']?.royalGuardian?.unspentPts?.threshold)}+ unspent PTS`}
                     entries={alerts?.['World 7']?.royalGuardian?.unspentPts?.outposts?.map((outpost) => ({
                       ...outpost,
-                      detail: `${formatNum(outpost?.ptsLeft)} PTS`
+                      detail: `${formatNum(outpost?.ptsLeft, 'whole')} PTS`
                     }))}/>}
                   iconPath={'etc/Royal_Cost'} imgStyle={{ width: 18, height: 18 }} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
               {alerts?.['World 7']?.royalGuardian?.claimableMaps?.length > 0 ?
@@ -908,7 +908,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 alerts?.['World 7']?.minehead?.currencyUpgrades?.map((upgrade) => <Alert target={'World 7.minehead.currencyUpgrades'}
                   items={[{ key: `MineUpg${upgrade?.index}`, label: cleanUnderscore(upgrade?.name) }]}
                   key={`minehead-upgrade-${upgrade?.index}`}
-                  title={`You can afford ${cleanUnderscore(upgrade?.name)} Lv ${formatNum(upgrade?.level + 1)} (${formatGame(upgrade?.cost, 'Minehead.UpgCost')})`}
+                  title={`You can afford ${cleanUnderscore(upgrade?.name)} Lv ${formatNum(upgrade?.level + 1)} (${formatGame(upgrade?.cost, 'Minehead.UpgCost', { whole: true })})`}
                   iconPath={`data/MineUpg${upgrade?.index}`}/>) : null}
               {alerts?.['World 7']?.research?.observationRollsLeft ?
                 <Alert target={'World 7.research.observationRollsLeft'}
@@ -974,7 +974,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                     headline={`You can afford ${formatNum(alerts?.['World 7']?.menagerie?.affordableUnlocks?.length)} Menagerie unlock${alerts?.['World 7']?.menagerie?.affordableUnlocks?.length === 1 ? '' : 's'}`}
                     entries={alerts?.['World 7']?.menagerie?.affordableUnlocks?.map(({ index, name, cost }) => ({
                       key: index,
-                      text: `${name}: ${formatGame(cost, 'MenagerieStuff.Cost')} Lumi`
+                      text: `${name}: ${formatGame(cost, 'MenagerieStuff.Cost', { whole: true })} Lumi`
                     }))}/>}
                   iconPath={`data/MenaIconO${alerts?.['World 7']?.menagerie?.affordableUnlocks?.[0]?.index}`}/> : null}
               {alerts?.['World 7']?.menagerie?.affordableBoosts?.length > 0 ?
@@ -983,11 +983,11 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={`data/MenaIconP${alerts?.['World 7']?.menagerie?.affordableBoosts?.[0]?.index}`}/> : null}
               {alerts?.['World 7']?.menagerie?.lumiBoost ?
                 <Alert target={'World 7.menagerie.lumiBoost'}
-                  title={`You can afford the Lumi/hr boost (Lv ${alerts?.['World 7']?.menagerie?.lumiBoost?.level + 1}, ${formatGame(alerts?.['World 7']?.menagerie?.lumiBoost?.cost, 'MenagerieStuff.Cost')} Lumi)`}
+                  title={`You can afford the Lumi/hr boost (Lv ${alerts?.['World 7']?.menagerie?.lumiBoost?.level + 1}, ${formatGame(alerts?.['World 7']?.menagerie?.lumiBoost?.cost, 'MenagerieStuff.Cost', { whole: true })} Lumi)`}
                   iconPath={'data/MenaIconP1'}/> : null}
               {alerts?.['World 7']?.menagerie?.missionBoost ?
                 <Alert target={'World 7.menagerie.missionBoost'}
-                  title={`You can afford the Mission boost (Lv ${alerts?.['World 7']?.menagerie?.missionBoost?.level + 1}, ${formatGame(alerts?.['World 7']?.menagerie?.missionBoost?.cost, 'MenagerieStuff.Cost')} Lumi)`}
+                  title={`You can afford the Mission boost (Lv ${alerts?.['World 7']?.menagerie?.missionBoost?.level + 1}, ${formatGame(alerts?.['World 7']?.menagerie?.missionBoost?.cost, 'MenagerieStuff.Cost', { whole: true })} Lumi)`}
                   iconPath={'data/MenaIconP0'}/> : null}
               {alerts?.['World 7']?.menagerie?.pinkJelly?.map((upgrade) =>
                 <Alert target={'World 7.menagerie.pinkJelly'}
@@ -996,7 +996,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/MenaJelly1'}/>)}
               {alerts?.['World 7']?.menagerie?.blueJelly ?
                 <Alert target={'World 7.menagerie.blueJelly'}
-                  title={`You have ${formatGame(alerts?.['World 7']?.menagerie?.blueJelly, 'Big')} ladles to give the Blue jelly`}
+                  title={`You have ${formatGame(alerts?.['World 7']?.menagerie?.blueJelly, 'Big', { whole: true })} ladles to give the Blue jelly`}
                   iconPath={'data/MenaJelly2'}/> : null}
               {alerts?.['World 7']?.menagerie?.redJelly ?
                 <Alert target={'World 7.menagerie.redJelly'}
@@ -1018,7 +1018,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={MENAGERIE_DOUBLER_ALERTS[key]?.iconPath}/>)}
               {alerts?.['World 7']?.clamWork?.promotionAffordable ?
                 <Alert target={'World 7.clamWork.promotionAffordable'}
-                  title={`You can afford a promotion to Worker Class Lv ${formatNum(alerts?.['World 7']?.clamWork?.promotionAffordable?.nextClass)} (${formatGame(alerts?.['World 7']?.clamWork?.promotionAffordable?.cost, 'Thingies.Clam_Cost')} pearls, ${formatNum(alerts?.['World 7']?.clamWork?.promotionAffordable?.chance * 100, 'pct')} chance)`}
+                  title={`You can afford a promotion to Worker Class Lv ${formatNum(alerts?.['World 7']?.clamWork?.promotionAffordable?.nextClass)} (${formatGame(alerts?.['World 7']?.clamWork?.promotionAffordable?.cost, 'Thingies.Clam_Cost', { whole: true })} pearls, ${formatNum(alerts?.['World 7']?.clamWork?.promotionAffordable?.chance * 100, 'pct')} chance)`}
                   iconPath={'data/ClamPearl0'}/> : null}
               {alerts?.['World 7']?.theButton?.instaSkipAvailable ?
                 <Alert target={'World 7.theButton.instaSkipAvailable'}
@@ -1122,7 +1122,7 @@ const AffordableStampLevels = ({ count, names = [], totalCost, percentOfMoney, s
   const others = names.length - listed.length;
   return <Stack gap={.5}>
     <Typography variant={'body2'}>
-      You can afford to level {formatNum(count)} stamp{count > 1 ? 's' : ''} for {formatNum(totalCost)} coins
+      You can afford to level {formatNum(count, 'whole')} stamp{count > 1 ? 's' : ''} for {formatNum(totalCost, 'whole')} coins
       ({formatNum(percentOfMoney, 'pct')} of your account coins){listed.length > 0 ? ':' : ''}
     </Typography>
     {listed.length > 0 ? <Stack component={'ul'} sx={{ m: 0, pl: 2.5 }}>
@@ -1167,7 +1167,7 @@ const RefineryTitle = ({ missingMats, hoursLeft }) => <Stack gap={.5}>
 const ShopTitle = ({ shop }) => <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
   {shop?.map(({ amount, rawName }, index) => <Stack alignItems={'center'} key={rawName + index}>
     <GameIcon src={`data/${rawName}.png`} size={32} alt={pickerItemLabel(rawName)}/>
-    <Typography variant={'body2'}>{formatNum(amount)}</Typography>
+    <Typography variant={'body2'}>{formatNum(amount, 'whole')}</Typography>
   </Stack>)}
 </Stack>;
 

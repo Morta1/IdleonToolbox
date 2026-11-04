@@ -32,7 +32,7 @@ const SkillDetails = ({ skillName, skill, character, characters, account }) => {
     {!isGlobalSkill(skillName) && rank != null
       ? <Panel.KV label={'Account rank'} value={`${formatNum(rank)} of ${formatNum(characters?.length)}`}/> : null}
     <Box sx={{ px: 2, py: 0.75 }}>
-      <ItemCard.Progress label={'EXP'} value={formatGame(exp, 'Big')} max={formatGame(expReq, 'Big')} percent={Math.min(100, (exp / expReq * 100) || 0)}/>
+      <ItemCard.Progress label={'EXP'} value={formatGame(exp, 'Big', { whole: true })} max={formatGame(expReq, 'Big', { whole: true })} percent={Math.min(100, (exp / expReq * 100) || 0)}/>
     </Box>
     {expMulti ? <Panel.KV label={'EXP multi'} value={expMulti.breakdown
       ? <Breakdown asValue title={'EXP multi'} data={{ ...expMulti.breakdown, totalValue: multiText }}>{multiText}</Breakdown> : multiText}/> : null}

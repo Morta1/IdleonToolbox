@@ -19,7 +19,7 @@ const Bags = ({ bags, capBags }) => <Panel title={'Bags'}>
       {/* The game draws every MaxCapacity kind in Big */}
       {capBags?.map((item, index) => <IconTile key={item?.displayName + index} icon={`data/${item?.rawName}.png`}
                                                alt={cleanUnderscore(item?.displayName ?? '')}
-                                               value={formatGame(item?.capacityPerSlot, 'Big')} details={<ItemDisplay {...item}/>}/>)}
+                                               value={formatGame(item?.capacityPerSlot, 'Big', { whole: true })} details={<ItemDisplay {...item}/>}/>)}
     </CardGrid>
   </Panel.Group>
 </Panel>;
