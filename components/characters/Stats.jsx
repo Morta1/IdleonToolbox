@@ -1,39 +1,30 @@
-import InfoIcon from '@mui/icons-material/Info';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { differenceInHours, differenceInMinutes } from 'date-fns';
-import {
-  cashFormatter,
-  commaNotation,
-  formatNum,
-  getCoinsArray,
-  kFormatter,
-  notateNumber,
-  numberWithCommas,
-  pascalCase,
-  prefix
-} from 'utility/helpers';
+import { formatNum, getCoinsArray } from 'utility/helpers';
 import Timer from '../common/Timer';
-import Tooltip from '../Tooltip';
 import { getAfkGain, getCashMulti, getClassExpMulti, getDropRate, getRespawnRate, notateExpMulti } from '../../parsers/character';
 import { getGoldenFoodMulti } from '../../parsers/misc';
 import { formatGame } from '@utility/gameNotation';
 import React from 'react';
 import { getMaxDamage, notateDamage } from '../../parsers/damage';
 import CoinDisplay from '../common/CoinDisplay';
-import ProgressBar from '@components/common/ProgressBar';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import GameIconNotation from '@components/common/GameIconNotation';
 import MultiCharLockText from '@components/common/MultiCharLockText';
+import GameIcon from '@components/common/GameIcon';
+import InfoButton from '@components/common/InfoButton';
+import StatusText from '@components/common/StatusText';
+import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
 
 // The character screen shows crit chance as 200% once it passes 199 (display only)
 const CRIT_CHANCE_DISPLAY_CAP = 200;
 
-const colors = {
-  strength: 'error.light',
-  agility: 'success.light',
-  wisdom: 'secondary',
-  luck: 'warning.light'
-};
+const STAT_LABELS = { strength: 'STR', agility: 'AGI', wisdom: 'WIS', luck: 'LUK' };
+const STAT_KEYS = { strength: 'TotalStats.STR', agility: 'TotalStats.AGI', wisdom: 'TotalStats.WIS', luck: 'TotalStats.LUK' };
+
+// A percent never reads with K beside numbers that don't ("6.4K%"): from 1,000 it takes commas (the 5l walk's call)
+const percentText = (value) => (value < 1000 ? formatNum(value, 'pct') : `${formatNum(value)}%`);
 
 // The game's Cash multi fill: Big past 1e16, its own B past 1e10 and M past 1e7, MultiplierInfo under.
 const cashMultiText = (value) => (value > 1e16 || value <= 1e7 ? formatGame(value, 'ArbitraryCode.MonsterCash')
@@ -41,20 +32,19 @@ const cashMultiText = (value) => (value > 1e16 || value <= 1e7 ? formatGame(valu
 
 // The stats /characters and the dashboard's cards both show, in one label and one format each: { label, value, breakdown,
 // notation } (notation: the breakdown's own number rule). The game's rule where gameNotation names the stat.
-export const characterStatFacts = (character, characters, account) => {
+export const characterStatFacts = (character, characters, account, playerInfo = getMaxDamage(character, characters, account) || {}) => {
   const { crystalSpawnChance, nonConsumeChance } = character || {};
-  const playerInfo = getMaxDamage(character, characters, account) || {};
   const { cashMulti, breakdown: cashBreakdown } = getCashMulti(character, account, characters, playerInfo) || {};
   const { dropRate, breakdown: dropBreakdown } = getDropRate(character, account, characters) || {};
   const { respawnRate, breakdown: respawnBreakdown } = getRespawnRate(character, account) || {};
   const { afkGains, breakdown: afkBreakdown } = getAfkGain(character, characters, account) || {};
   const guaranteed = crystalSpawnChance?.guaranteedLeft > 0;
   return [
-    { label: 'Damage', value: <GameIconNotation value={notateDamage(playerInfo)} sx={{ typography: 'body2', fontWeight: 500, flexWrap: 'wrap', justifyContent: 'flex-end' }}/>, breakdown: playerInfo?.damageBreakdown, notation: 'ThreeDecimals' },
+    { label: 'Damage', value: <GameIconNotation value={notateDamage(playerInfo)} sx={{ typography: 'body2', fontWeight: 500, display: 'inline-flex', flexWrap: 'wrap', justifyContent: 'flex-end' }}/>, breakdown: playerInfo?.damageBreakdown, notation: 'ThreeDecimals' },
     { label: 'HP', value: formatNum(playerInfo?.maxHp) },
     { label: 'MP', value: formatNum(playerInfo?.maxMp) },
     { label: 'Accuracy', value: formatNum(playerInfo?.accuracy) },
-    { label: 'Movement speed', value: formatNum(playerInfo?.movementSpeed, 'pct') },
+    { label: 'Movement speed', value: percentText(playerInfo?.movementSpeed) },
     { label: 'Cash multi', value: cashMulti == null ? '-' : `${cashMultiText(cashMulti)}x`, breakdown: cashBreakdown, notation: 'Smaller' },
     { label: 'Drop rate', value: dropRate == null ? '-' : `${formatGame(dropRate, 'TotalStats.Drop_Rarity')}x`, breakdown: dropBreakdown, notation: 'ThreeDecimals' },
     { label: 'Respawn time', value: formatNum(respawnRate, 'pct'), breakdown: respawnBreakdown, notation: 'Smaller' },
@@ -67,212 +57,78 @@ export const characterStatFacts = (character, characters, account) => {
   ];
 };
 
+// A row of the panel. A value in text heads its own drawer, so the two read alike; a drawer is named as the row is.
+const Fact = ({ label, value, breakdown, notation }) => <Panel.KV label={label} value={breakdown
+  ? <Breakdown asValue title={label} valueNotation={notation} data={typeof value === 'string' ? { ...breakdown, totalValue: value } : breakdown}>{value}</Breakdown>
+  : value}/>;
+
 const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => {
-  const { name, stats, afkTime, crystalSpawnChance, nextPortal, nonConsumeChance } = character;
+  if (!statsFilter) return null;
+  const { stats, afkTime, crystalSpawnChance, nextPortal } = character;
   const portalLock = nextPortal?.multiCharLock;
-  const { dropRate, breakdown: drBreakdown } = getDropRate(character, account, characters) || {};
-  const { respawnRate, breakdown: rtBreakdown } = getRespawnRate(character, account) || {};
-  const { afkGains, breakdown: agBreakdown } = getAfkGain(character, characters, account);
-  const {
-    value: classExp,
-    breakdown: classExpBreakdown
-  } = getClassExpMulti(character, account, characters);
-  const {
-    value: goldenFoodMulti,
-    breakdown: goldenFoodBreakdown
-  } = getGoldenFoodMulti(character, account, characters);
+  const { value: classExp, breakdown: classExpBreakdown } = getClassExpMulti(character, account, characters);
+  const { value: goldenFoodMulti, breakdown: goldenFoodBreakdown } = getGoldenFoodMulti(character, account, characters);
   const playerInfo = getMaxDamage(character, characters, account);
-  const { cashMulti, breakdown } = getCashMulti(character, account, characters, playerInfo) || {};
+  const facts = Object.fromEntries(characterStatFacts(character, characters, account, playerInfo).map((fact) => [fact.label, fact]));
+  const isActive = differenceInMinutes(lastUpdated, afkTime) <= 5;
+  const isOvertime = character?.activePrayers?.find(({ name }) => name === 'Unending_Energy') && differenceInHours(lastUpdated, afkTime) > 10;
+  const totalStats = Object.entries(stats || {}).reduce((sum, [statName, statValue]) => sum + (statName !== 'level' ? statValue : 0), 0);
+  const classSkill = character?.skillsInfo?.character;
+  const guaranteed = crystalSpawnChance?.guaranteedLeft > 0;
+  const crystalPercent = crystalSpawnChance?.effectiveValue * 100;
 
-  const isOvertime = () => {
-    const hasUnendingEnergy = character?.activePrayers?.find(({ name }) => name === 'Unending_Energy');
-    const timePassed = new Date().getTime() + (afkTime - lastUpdated);
-    const hours = differenceInHours(new Date(), new Date(timePassed));
-    return hasUnendingEnergy && hours > 10;
-  };
-
-  const isActive = () => {
-    const timePassed = new Date().getTime() + (afkTime - lastUpdated);
-    const minutes = differenceInMinutes(new Date(), new Date(timePassed));
-    return minutes <= 5;
-  };
-
-  const getTotalStats = (character) => {
-    return Object.entries(character?.stats || {})?.reduce((sum, [statName, statValue]) => sum + (statName !== 'level'
-      ? statValue
-      : 0), 0);
-  };
-  return (
-    <>
-      <Stack gap={2} flexWrap={'wrap'}>
-        {statsFilter ? <>
-          <Stack sx={{ minWidth: 250 }} flexWrap={'wrap'} gap={1} divider={<Divider/>}>
-            <Stat title={'Total Stats'} value={commaNotation(getTotalStats(character))}/>
-            {Object.entries(stats || {})?.map(([statName, statValue], index) => {
-              return statName !== 'level' ? (
-                <Stack key={`${name}-${statName}-${index}`} direction={'row'} justifyContent={'space-between'}
-                       sx={rowSx}>
-                  <Typography component={'span'}
-                              variant={'body1'}
-                              sx={labelSx}
-                              color={colors?.[statName] || 'info.light'}>
-                    {pascalCase(statName)}
-                  </Typography>
-                  <Typography variant={'body1'}
-                              component={'span'}
-                              sx={valueSx}>{commaNotation(statValue)}</Typography>
-                </Stack>
-              ) : null;
-            })}
-            <NewStat title={'Cash Multiplier'} useDoubleColumn value={`${cashFormatter(cashMulti, 2)}x`}
-                     breakdown={breakdown} breakdownNotation={'Smaller'}/>
-            <NewStat title={'Golden Food'}
-                     value={`${notateNumber(Math.max(0, 100 * (goldenFoodMulti - 1)), 'MultiplierInfo')}%`}
-                     breakdown={goldenFoodBreakdown} breakdownNotation={'Smaller'}/>
-            <Stat title={'HP'} value={notateNumber(playerInfo?.maxHp)}/>
-            <Stat title={'MP'} value={notateNumber(playerInfo?.maxMp)}/>
-            <Stat title={'Kills Per Hour'}
-                  value={playerInfo?.finalKillsPerHour > 1e6
-                    ? notateNumber(playerInfo?.finalKillsPerHour)
-                    : numberWithCommas(Math.floor(playerInfo?.finalKillsPerHour))}/>
-            <NewStat title={'Kill per Kill'}
-                     value={`${notateNumber(playerInfo?.killPerkill?.value, 'MultiplierInfo')}x`}
-                     breakdown={playerInfo?.killPerkill?.breakdown} breakdownNotation={'ThreeDecimals'}/>
-            <NewStat title={'Defence'} value={commaNotation(playerInfo?.defence?.value)}
-                     breakdown={playerInfo?.defence?.breakdown}/>
-            <Stat title={'Critical Chance'} value={`${notateNumber(Math.min(CRIT_CHANCE_DISPLAY_CAP, playerInfo?.critChance ?? 0))}%`}/>
-            <Stat title={'Critical Damage'} value={`${notateNumber(playerInfo?.critDamage, 'MultiplierInfo')}x`}/>
-            <Stat title={'Accuracy'} value={notateNumber(playerInfo?.accuracy)}/>
-            <Stat title={'Movement Speed'} value={`${notateNumber(playerInfo?.movementSpeed)}%`}/>
-            <Stat title={'Damage'} damage value={notateDamage(playerInfo)}
-                  breakdownData={playerInfo?.damageBreakdown} breakdownNotation={'ThreeDecimals'}/>
-<NewStat title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}
-                     breakdown={drBreakdown} breakdownNotation={'ThreeDecimals'} useDoubleColumn/>
-            <NewStat title={'Respawn Time'}
-                     value={`${notateNumber(respawnRate, 'MultiplierInfo')}%`}
-                     breakdown={rtBreakdown} breakdownNotation={'Smaller'}/>
-            <NewStat title={'AFK Gains'}
-                     value={afkGains == null ? 'N/A' : `${notateNumber(afkGains * 100, 'MultiplierInfo')}%`}
-                     breakdown={agBreakdown}/>
-            <Stat title={'Non Consume Chance'}
-                  value={`${kFormatter(nonConsumeChance, 2)}%`}
-            />
-            <Stack direction={'row'} gap={2}>
-              <Typography color={'text.info'}>Exp</Typography>
-              <ProgressBar
-                boxSx={{ width: '100%' }}
-                noteLabel={'Class EXP'}
-                tooltipTitle={`${notateNumber(character?.skillsInfo?.character?.exp)} / ${notateNumber(character?.skillsInfo?.character?.expReq)}`}
-                percent={character?.skillsInfo?.character?.exp / character?.skillsInfo?.character?.expReq * 100}/>
-            </Stack>
-            <NewStat title={'Exp multi'}
-                     value={<GameIconNotation value={notateExpMulti(classExp)}
-                                              sx={classExpBreakdown ? { borderBottom: '1px dotted', lineHeight: 1 } : {}}/>}
-                     breakdown={classExpBreakdown} breakdownNotation={'Smaller'} useDoubleColumn/>
-            <Stat title={'Money'}
-                  value={<CoinDisplay title={''}
-                                      money={getCoinsArray(character?.money ? character?.money : 0)}/>}
-            />
-            {nextPortal?.goal > 10 && (nextPortal?.current < nextPortal?.goal || portalLock?.open === false) ? (
-              <Card variant={'outlined'}>
-                <CardContent>
-                  <Typography color={'text.info'}>Next Portal</Typography>
-                  {nextPortal?.current < nextPortal?.goal ? <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <img width={32} height={32} src={`${prefix}data/${nextPortal?.currentIcon}.png`} alt=""/>
-                    <Typography>{`${kFormatter(nextPortal?.current)} / ${kFormatter(nextPortal?.goal)}`}</Typography>
-                  </Stack> : null}
-                  <MultiCharLockText lock={portalLock}/>
-                </CardContent>
-              </Card>
-            ) : null}
-          </Stack>
-
-          <Card variant={'outlined'}>
-            <CardContent>
-              {/* While guaranteed crystal kills remain the game shows how many are left instead of the chance */}
-              <Typography color={'text.info'}>{crystalSpawnChance?.guaranteedLeft > 0 ? 'Crystal Guaranteed' : 'Crystal Chance'}</Typography>
-              <Stack direction={'row'} gap={1}>
-                {/* The game rolls min(cap, chance), so past the cap this number stops improving and
-                    the overflow turns into Crystal Embiggener instead. */}
-                {crystalSpawnChance?.guaranteedLeft > 0
-                  ? <Typography>{commaNotation(crystalSpawnChance.guaranteedLeft)} left</Typography>
-                  : <Typography>{`1 in ${Math.floor(1 / crystalSpawnChance?.effectiveValue)}`} ({notateNumber(crystalSpawnChance?.effectiveValue * 100, 'MultiplierInfo')?.replace('.00', '')}%)</Typography>}
-                {crystalSpawnChance?.capped && !(crystalSpawnChance?.guaranteedLeft > 0) ? <Typography sx={{ opacity: .7 }}>capped</Typography> : null}
-                <Breakdown data={crystalSpawnChance?.breakdown}>
-                  <InfoIcon/>
-                </Breakdown>
-              </Stack>
-            </CardContent>
-          </Card>
-          <Card variant={'outlined'}>
-            <CardContent>
-              <Typography color={'text.info'}>Afk time</Typography>
-              <Stack direction={'row'} alignItems={'center'} gap={1} color={isOvertime() ? 'text.error' : ''}>
-                {isActive() ? <Typography color={'text.success'}>Active</Typography> : <Timer type={'up'}
-                                                                                               date={afkTime}
-                                                                                               lastUpdated={lastUpdated}/>}
-                {isOvertime() ? (
-                  <Tooltip title={'This character is afk more than 10 hours with Unending Energy prayer'}>
-                    <InfoIcon/>
-                  </Tooltip>
-                ) : null}
-              </Stack>
-            </CardContent>
-          </Card>
-        </> : null}
-      </Stack>
-    </>
-  );
+  return <Panel title={'Stats'}>
+    <Box sx={{ py: 0.75 }}>
+      <Panel.KV label={'Total stats'} value={formatNum(totalStats)}/>
+      {Object.entries(stats || {}).map(([statName, statValue]) => (statName !== 'level'
+        ? <Panel.KV key={statName} label={STAT_LABELS[statName] ?? statName} value={STAT_KEYS[statName] ? formatGame(statValue, STAT_KEYS[statName]) : formatNum(statValue)}/>
+        : null))}
+      <Fact {...facts['Cash multi']}/>
+      <Fact label={'Golden food'} value={percentText(Math.max(0, 100 * (goldenFoodMulti - 1)))} breakdown={goldenFoodBreakdown} notation={'Smaller'}/>
+      <Fact {...facts.HP}/>
+      <Fact {...facts.MP}/>
+      <Fact label={'Kills per hour'} value={formatNum(Math.floor(playerInfo?.finalKillsPerHour))}/>
+      <Fact label={'Kill per kill'} value={formatNum(playerInfo?.killPerkill?.value, 'mult')} breakdown={playerInfo?.killPerkill?.breakdown} notation={'ThreeDecimals'}/>
+      <Fact label={'Defence'} value={formatGame(playerInfo?.defence?.value, 'TotalStats.Defence')} breakdown={playerInfo?.defence?.breakdown}/>
+      <Fact label={'Crit chance'} value={formatNum(Math.min(CRIT_CHANCE_DISPLAY_CAP, playerInfo?.critChance ?? 0), 'pct')}/>
+      <Fact label={'Crit damage'} value={formatNum(playerInfo?.critDamage, 'mult')}/>
+      <Fact {...facts.Accuracy}/>
+      <Fact {...facts['Movement speed']}/>
+      <Fact {...facts.Damage}/>
+      <Fact {...facts['Drop rate']}/>
+      <Fact {...facts['Respawn time']}/>
+      <Fact {...facts['AFK gains']}/>
+      <Fact {...facts['Non consume chance']}/>
+      <Box sx={{ px: 2, py: 0.75 }}>
+        <ItemCard.Progress label={'EXP'} value={formatNum(classSkill?.exp)} max={formatNum(classSkill?.expReq)}
+                           percent={Math.min(100, (classSkill?.exp / classSkill?.expReq * 100) || 0)}/>
+      </Box>
+      <Fact label={'EXP multi'} value={<GameIconNotation value={notateExpMulti(classExp)} sx={{ typography: 'body2', fontWeight: 500, display: 'inline-flex' }}/>}
+            breakdown={classExpBreakdown} notation={'Smaller'}/>
+      <Panel.KV label={'Money'} value={<CoinDisplay title={''} money={getCoinsArray(character?.money ? character?.money : 0)}/>}/>
+      {nextPortal?.goal > 10 && (nextPortal?.current < nextPortal?.goal || portalLock?.open === false) ? <Box>
+        {nextPortal?.current < nextPortal?.goal ? <Panel.KV label={'Next portal'} value={<Stack direction={'row'} alignItems={'center'} gap={0.5}>
+          <GameIcon src={`data/${nextPortal?.currentIcon}.png`} size={16} alt={''}/>
+          {formatNum(nextPortal?.current)} / {formatNum(nextPortal?.goal)}
+        </Stack>}/> : <Panel.KV label={'Next portal'} value={''}/>}
+        <Box sx={{ px: 2 }}><MultiCharLockText lock={portalLock}/></Box>
+      </Box> : null}
+      {/* While guaranteed crystal kills remain the game shows how many are left instead of the chance */}
+      <Panel.KV label={facts['Crystal guaranteed']?.label ?? 'Crystal chance'} value={guaranteed ? facts['Crystal guaranteed'].value : <Stack alignItems={'flex-end'}>
+        {/* The game rolls min(cap, chance), so past the cap this number stops improving and the overflow turns into
+            Crystal Embiggener instead. */}
+        <Breakdown asValue title={'Crystal chance'} data={crystalSpawnChance?.breakdown && { ...crystalSpawnChance.breakdown, totalValue: facts['Crystal chance'].value }}>
+          {facts['Crystal chance'].value}
+        </Breakdown>
+        <Typography variant={'caption'} color={'text.secondary'}>{formatNum(crystalPercent, 'pct')}</Typography>
+        {crystalSpawnChance?.capped ? <StatusText status={'info'}>Capped</StatusText> : null}
+      </Stack>}/>
+      <Panel.KV label={<Stack direction={'row'} alignItems={'center'} gap={0.5} component={'span'}>
+        AFK time
+        {isOvertime ? <InfoButton label={'AFK time'}>This character has been AFK more than 10 hours with Unending Energy equipped.</InfoButton> : null}
+      </Stack>} value={isActive ? <StatusText status={'active'}/> : <Timer type={'up'} date={afkTime} lastUpdated={lastUpdated} component={'span'}/>}/>
+    </Box>
+  </Panel>;
 };
-
-// Character columns are a fixed share of the page, so a value too long for one (huge damage or
-// multipliers) wraps under itself instead of running into the next character's labels.
-const rowSx = { gap: 1 };
-const labelSx = { flexShrink: 0, whiteSpace: 'nowrap' };
-const valueSx = { textAlign: 'right', overflowWrap: 'anywhere' };
-
-const Stat = ({ title, value, damage, breakdownData, skipNotation }) => {
-  const content = !damage ? (
-    <Typography component={'span'} sx={{
-      ...valueSx,
-      ...(breakdownData ? { alignItems: 'center', borderBottom: '1px dotted', lineHeight: 1 } : {})
-    }}
-    >{value}</Typography>
-  ) : (
-    <GameIconNotation value={value} sx={{
-      ...valueSx,
-      flexWrap: 'wrap',
-      justifyContent: 'flex-end',
-      ...(breakdownData ? { borderBottom: '1px dotted', lineHeight: 1 } : {})
-    }}/>
-  );
-
-  return (
-    (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdownData ? 'center' : 'flex-start'}
-            sx={rowSx}>
-      <Typography color={'text.info'} sx={labelSx}>{title}</Typography>
-      <Breakdown data={breakdownData} skipNotation={skipNotation}>
-        {content}
-      </Breakdown>
-    </Stack>)
-  );
-}
-
-const NewStat = ({ title, value, breakdown = '', breakdownNotation = 'Smaller', skipNotation }) => {
-  return (
-    (<Stack direction={'row'} justifyContent={'space-between'} alignItems={breakdown ? 'center' : 'flex-start'}
-            sx={rowSx}>
-      <Typography color={'text.info'} sx={labelSx}>{title}</Typography>
-      <Breakdown data={breakdown} valueNotation={breakdownNotation} skipNotation={skipNotation}>
-        <Typography component={'span'} sx={{
-          ...valueSx,
-          ...(breakdown ? { alignItems: 'center', borderBottom: '1px dotted', lineHeight: 1 } : {})
-        }}>
-          {value}
-        </Typography>
-      </Breakdown>
-    </Stack>)
-  );
-}
 
 export default Stats;
