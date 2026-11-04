@@ -1,72 +1,84 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
-import { cleanUnderscore, prefix, worldsArray } from '@utility/helpers';
-import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
-import { CardTitleAndValue } from '@components/common/styles';
+import { cleanUnderscore, formatNum, worldsArray } from '@utility/helpers';
+import { Box } from '@mui/material';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import StatusText from '@components/common/StatusText';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 import useTabIndex from '@hooks/useTabIndex';
-import EmptyState from '@components/common/EmptyState';
+import { getTasks } from '@parsers/tasks';
+
+const MERITS_TOOLBAR = { hideMaxed: false };
+
+const meritSentence = ({ description, descLine2 }) => cleanUnderscore(`${description ?? ''}${descLine2 && descLine2 !== 'Descline2'
+  ? ` ${descLine2}`
+  : ''}`);
 
 const Merits = () => {
   const { state } = useContext(AppContext);
   const [world] = useTabIndex(worldsArray);
-  const [hideCompleted, setHideCompleted] = useState(false);
+  const failed = isSectionFailed(state?.account, 'tasks');
+  const [view, setView, resetView] = useToolbarState('merits', MERITS_TOOLBAR);
+  const hideMaxed = !failed && view.hideMaxed;
+  // A failed section draws the game's merits at zero (the parser's own empty save), with no purchases or price state
+  const parsed = failed ? getTasks(undefined) : state?.account;
+  // Merits to spend per world: Tasks[4][world + 1] (Tasks[4][0] is the unlock points)
+  const meritsOf = (index) => (failed ? null : state?.account?.tasks?.[4]?.[index + 1] ?? 0);
 
-  const worldMerits = state?.account?.meritsDescriptions?.[world]
+  const worldMerits = parsed?.meritsDescriptions?.[world]
     ?.filter(({ descLine1, meritCost }) => descLine1 !== 'IDK_YET' && meritCost !== null) ?? [];
-  const visibleMerits = worldMerits.filter(({ level, totalLevels }) => !(hideCompleted && level >= totalLevels));
+  const isMaxed = ({ level, totalLevels }) => !failed && (level ?? 0) >= totalLevels;
+  const shown = worldMerits.filter((merit) => !(hideMaxed && isMaxed(merit)));
+
+  // The merit shop's second line (N.js, the TaskShopDesc draw): a gated merit asks for its world's task [num2] at rank
+  // num3 plus the purchases so far, and turns green once that task reaches it
+  const meritGate = (merit) => {
+    if (!Number(merit?.num1)) return null;
+    const task = parsed?.tasksDescriptions?.[world]?.[merit.num2];
+    const rank = Number(merit.num3) + (merit.level ?? 0);
+    return { name: cleanUnderscore(task?.name), rank, met: !failed && (task?.level ?? 0) >= rank };
+  };
+
+  const meritCard = (merit, index) => {
+    const maxed = isMaxed(merit);
+    const gate = maxed ? null : meritGate(merit);
+    return <ItemCard key={index} icon={`data/${merit.icon}.png`} title={meritSentence(merit)}
+                     meta={failed ? undefined : `Purchases ${formatNum(merit.level ?? 0)} / ${formatNum(merit.totalLevels)}`}
+                     status={maxed ? 'maxed' : undefined}
+                     footer={failed ? null : <ItemCard.Cost icon={`etc/Merit_${world}.png`} iconAlt={'Merits'}
+                                                            need={merit.meritCost} have={meritsOf(world)}/>}>
+      {gate ? <ItemCard.Facts rows={[['Needs', failed
+        ? `${gate.name} at rank ${formatNum(gate.rank)}`
+        : <StatusText key={'gate'} status={gate.met ? 'done' : 'needs'} wrap>{`${gate.name} at rank ${formatNum(gate.rank)}`}</StatusText>]]}/>
+        : null}
+    </ItemCard>;
+  };
 
   return (<>
     <NextSeo
       title="Merits | Idleon Toolbox"
       description="Track your merit shop purchases, point spending, and available upgrades in Legends of Idleon"
     />
-    <FormControlLabel
-      control={<Checkbox checked={hideCompleted}
-                         onChange={(e) => setHideCompleted(e.target.checked)}/>}
-      label={'Hide completed'}/>
+    {failed ? <MissingData name={'Merits'} failed/> : null}
+    <PageSummary>
+      {worldsArray.map((name, index) => <StatTile key={name} label={name} icon={`etc/Merit_${index}.png`}
+                                                  value={failed ? '-' : formatNum(meritsOf(index))}/>)}
+    </PageSummary>
     <Tabber tabs={worldsArray} keepChildren>
-      <Stack mb={3} alignItems={'center'}>
-        <CardTitleAndValue title={'Merits'}>
-          <Stack direction={'row'} alignItems={'center'} gap={1}>
-            <img src={`${prefix}etc/Merit_${world}.png`} alt={`merit_${world}`}/>
-            <Typography>{state?.account?.tasks?.[4]?.[world + 1]}</Typography>
-          </Stack>
-        </CardTitleAndValue>
-      </Stack>
-      <Stack index={world} direction={'row'} flexWrap={'wrap'} gap={3} justifyContent={'center'}>
-        {visibleMerits?.length === 0
-          ? <EmptyState hideCompleted={hideCompleted && worldMerits.length > 0} label={'merits'}
-                        onShowCompleted={() => setHideCompleted(false)}/>
-          : null}
-        {visibleMerits?.map(({
-                               description,
-                               descLine2,
-                               level,
-                               icon,
-                               meritCost,
-                               totalLevels
-                             }, index) => {
-          const desc = description + (descLine2 !== 'Descline2' ? ` ${descLine2}` : '');
-          return <Card key={'key' + index} sx={{ width: 400 }}>
-            <CardContent sx={{
-              border: level >= totalLevels ? '1px solid' : '',
-              borderColor: level >= totalLevels ? 'success.main' : '',
-              height: '100%'
-            }}>
-              <Stack direction={'row'} alignItems={'center'} gap={2}>
-                <img src={`${prefix}data/${icon}.png`} alt={'merit_icon' + icon}/>
-                <Typography sx={{ mb: 1 }}>{cleanUnderscore(desc)}</Typography>
-              </Stack>
-              <Stack sx={{ mt: 2 }} justifyContent={'space-between'} direction={'row'}>
-                <Typography>Purchases: {level} / {totalLevels}</Typography>
-                <Typography>Price: {meritCost}</Typography>
-              </Stack>
-            </CardContent>
-          </Card>
-        })}
-      </Stack>
+      <Box>
+        {failed ? null : <Toolbar state={view} defaults={MERITS_TOOLBAR} onChange={setView} onReset={resetView}
+                                  total={worldMerits.length} shown={shown.length} noun={'merits'}>
+          <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
+        </Toolbar>}
+        {shown.length ? <CardGrid size={'m'}>{shown.map(meritCard)}</CardGrid> : null}
+      </Box>
     </Tabber>
   </>);
 };

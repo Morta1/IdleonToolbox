@@ -17,7 +17,6 @@ const LEGACY_IMPORTERS = [
   'pages/account/prem-currency/bundles.jsx',
   'pages/account/prem-currency/gem-shop.jsx',
   'pages/account/prem-currency/pets.jsx',
-  'pages/account/task-board/merits.jsx',
   'pages/account/task-board/unlocks.jsx',
   'pages/tools/material-tracker.jsx'
 ];
