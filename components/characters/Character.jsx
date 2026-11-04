@@ -1,6 +1,10 @@
 import React from 'react';
-import { Box, Card, Grid, Stack, Typography } from '@mui/material';
+import { Box, Grid, Stack } from '@mui/material';
 import { prefix } from 'utility/helpers';
+import ErrorBoundary from '@components/common/ErrorBoundary';
+import GameIcon from '@components/common/GameIcon';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 import Bags from './Bags';
 import Talents from './Talents';
 import EquippedCards from './EquippedCards';
@@ -13,7 +17,6 @@ import AnvilDetails from './AnvilDetails';
 import PlayerStarSigns from './PlayerStarSigns';
 import PlayerBubbles from './PlayerBubbles';
 import Stats from './Stats';
-import styled from '@emotion/styled';
 import ActiveSkillsCD from './ActiveSkillsCD';
 import Inventory from './Inventory';
 import Chips from '../account/Worlds/World4/Chips';
@@ -105,39 +108,30 @@ const Character = ({
 
   return (
     <>
-      <Grid item xl={cols}>
+      <Grid item xs={12.5} md={Math.max(cols, 6)} lg={Math.max(cols, 4)} xl={cols}>
         <Stack gap={2}>
-          <Card sx={{ display: 'flex', alignItems: 'center', gap: 2, px: 2, py: 1 }}>
-            <Box sx={{ display: { sm: 'none', md: 'block' } }}><img src={`${prefix}data/ClassIcons${classIndex}.png`}
-              alt="" /></Box>
-            <Stack>
-              <Typography sx={{ typography: { xs: 'body2', sm: 'body1' } }}>
-                {name} ({level})
-              </Typography>
-              {trophy ?
-                <TrophyIcon src={`${prefix}data/${trophy.replace('Replica', '')}disp.png`} style={{ width: 102, height: 19 }} alt={trophy.replace('Replica', '')} /> : <Box
-                  sx={{ width: 102, height: 19 }}></Box>}
-            </Stack>
-          </Card>
-          <Stack direction={'row'} flexWrap={'wrap'} gap={4}>
+          <ItemCard size={'s'} icon={<GameIcon src={`data/ClassIcons${classIndex}.png`} size={32} alt={''}/>} title={name}
+                    level={{ value: level ?? 0 }}
+                    aside={trophy
+                      ? <Box component={'img'} src={`${prefix}data/${trophy.replace('Replica', '')}disp.png`} alt={''}
+                             sx={{ width: 102, height: 19, objectFit: 'contain', display: 'block' }}/>
+                      : null}/>
+          {/* Sections of very different heights flow down columns, each whole, and each fails alone */}
+          <CardGrid size={'l'} flow>
             {views?.map((view, index) => {
               let shouldDisplay = filters?.[view.filter];
               if (Array.isArray(view.filter)) {
                 shouldDisplay = view.filter.some((v) => filters?.[v]);
               }
-              return shouldDisplay ?
-                <React.Fragment key={`${name}-${view?.filter}-${index}`}>{view.component}</React.Fragment> : null;
+              return shouldDisplay ? <Box key={`${name}-${view?.filter}-${index}`}>
+                <ErrorBoundary title={`${[view.filter].flat()[0]} didn't load`} resetKey={lastUpdated}>{view.component}</ErrorBoundary>
+              </Box> : null;
             })}
-          </Stack>
+          </CardGrid>
         </Stack>
       </Grid>
     </>
   );
 };
-
-const TrophyIcon = styled.img`
-  width: 104px;
-  object-fit: contain;
-`;
 
 export default Character;

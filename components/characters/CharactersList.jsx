@@ -2,8 +2,6 @@ import {
   Box,
   Button,
   Checkbox,
-  Chip,
-  chipClasses,
   Divider,
   Link,
   List,
@@ -17,9 +15,10 @@ import {
 import React, { startTransition, useContext, useEffect, useState } from 'react';
 import { AppContext, shownFilters } from '@components/common/context/AppProvider';
 import Notice from '@components/common/Notice';
-import { prefix, sections } from 'utility/helpers';
-import Tooltip from '@components/Tooltip';
+import { formatNum, sections } from 'utility/helpers';
 import AppDrawer from '@components/common/Overlays/AppDrawer';
+import GameIcon from '@components/common/GameIcon';
+import { FilterPill } from '@components/common/Toolbar';
 import { IconChevronDown } from '@tabler/icons-react';
 
 // Ensure the saved selection has an entry for every current character. Characters created after
@@ -132,7 +131,7 @@ const CharactersList = () => {
 
   const totalLevels = state?.characters?.reduce((res, { level }) => res + (level || 0), 0);
 
-  const handleChipClick = (name) => {
+  const toggleSection = (name) => {
     const newChipsState = {
       ...chips,
       [name]: !chips?.[name]
@@ -162,7 +161,7 @@ const CharactersList = () => {
         <ListItem sx={{ display: { lg: 'none' } }}>
           {state?.emptyAccount
             ? <Notice tone={'signin'}>Your characters show here once you sign in.</Notice>
-            : <Notice tone={'missing'}>This account has no characters yet.</Notice>}
+            : state?.account?.failedSections?.includes('*') ? null : <Notice tone={'missing'}>This account has no characters yet.</Notice>}
         </ListItem>
       );
     }
@@ -201,15 +200,16 @@ const CharactersList = () => {
             aria-label={`Check to see stats for ${name}`}
           />}>
         <ListItemIcon>
-          <Tooltip title={`Lv. ${level}`}>
-            <img style={{ width: 38, height: 36 }} src={`${prefix}${classIcon}`} alt=""/>
-          </Tooltip>
+          <GameIcon src={classIcon} size={32} alt=""/>
         </ListItemIcon>
         <ListItemText
           sx={{ height: 30, margin: 0 }} id={name} primary={name}
-          secondary={<Link component="button" type="button" data-only="" underline="always" color="inherit"
-                           aria-label={`Show only ${name}`} onClick={() => handleCharacterChange(null, null, index)}
-                           sx={ONLY_SX}>Only</Link>}/>
+          secondary={<>
+            {`Lv ${formatNum(level)}`}
+            <span data-only=""> · <Link component="button" type="button" underline="always" color="inherit"
+                                        aria-label={`Show only ${name}`} onClick={() => handleCharacterChange(null, null, index)}
+                                        sx={ONLY_SX}>Only</Link></span>
+          </>}/>
       </ListItem>
     });
   };
@@ -237,7 +237,7 @@ const CharactersList = () => {
             checked={checked?.all}
           />
         }>
-        <ListItemText>All (Lv. {totalLevels})</ListItemText>
+        <ListItemText>{`All · Lv ${formatNum(totalLevels)} total`}</ListItemText>
       </ListItem>
     );
   };
@@ -252,25 +252,10 @@ const CharactersList = () => {
       <List>
         <ListItem>
           <Stack gap={2}>
-            <Typography variant={'body1'}>Filter by section</Typography>
-            <Stack direction={'row'} rowGap={1.5} columnGap={1} flexWrap={'wrap'}>
-              {sections.map(({ name }, index) => {
-                return <Chip key={`${name}-${index}`}
-                             sx={{
-                               borderRadius: '8px',
-                               height: 24,
-                               minWidth: 60,
-                               maxWidth: 150,
-                               border: '1px solid var(--mui-palette-divider)',
-                               [`.${chipClasses.label}`]: {
-                                 px: 1
-                               }
-                             }}
-                             onClick={() => handleChipClick(name)} size={'small'}
-                             variant={chips?.[name] ? 'filled' : 'outlined'}
-                             color={chips?.[name] ? 'primary' : 'default'}
-                             label={name}/>
-              })}
+            <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>Filter by section</Typography>
+            <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+              {sections.map(({ name }, index) => <FilterPill key={`${name}-${index}`} label={name} on={chips?.[name]}
+                                                             onToggle={() => toggleSection(name)}/>)}
             </Stack>
           </Stack>
         </ListItem>
@@ -295,8 +280,9 @@ export const CharactersPicker = ({ open, onOpenChange, buttonRef }) => {
             sx={{ color: 'text.primary', bgcolor: 'primary.soft', borderColor: 'primary.edge', fontWeight: 600 }}>
       {shown.length ? <Box component="span" aria-hidden sx={{ display: 'flex', mr: 1 }}>
         {shown.slice(0, 3).map(({ name, classIndex }, index) => (
-          <Box key={`${name}-${index}`} component="img" src={`${prefix}${classIconOf(classIndex)}`} alt=""
-               sx={{ width: 24, height: 22, objectFit: 'contain', mr: -0.5 }}/>
+          <Box key={`${name}-${index}`} component="span" sx={{ display: 'inline-flex', mr: -0.5 }}>
+            <GameIcon src={classIconOf(classIndex)} size={24} alt=""/>
+          </Box>
         ))}
       </Box> : null}
       Characters: {shown.length} of {characters.length}

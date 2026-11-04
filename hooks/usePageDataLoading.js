@@ -28,7 +28,9 @@ const usePageDataLoading = () => {
     }
   } else if (isCharactersPage) {
     // An anonymous visitor's flags arrive before the empty account is parsed: wait for the parse.
-    const isDataLoaded = !!state?.characters?.length || (state?.emptyAccount && !!state?.account);
+    // A whole-parse failure has no characters to wait for, as on the dashboard
+    const isDataLoaded = !!state?.characters?.length || (state?.emptyAccount && !!state?.account)
+      || !!state?.account?.failedSections?.includes('*');
     if (state.isLoading || !isDataLoaded) {
       return { loading: true, message: 'Loading character data...', isDataPage };
     }
