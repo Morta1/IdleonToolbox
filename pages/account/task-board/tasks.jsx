@@ -1,88 +1,98 @@
-import { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import Tabber from '../../../components/common/Tabber';
 import { NextSeo } from 'next-seo';
-import { Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix, worldsArray } from '@utility/helpers';
-import ProgressBar from '../../../components/common/ProgressBar';
-import { CardTitleAndValue } from '@components/common/styles';
-import EmptyState from '@components/common/EmptyState';
-import { getWorldTaskLevels, isPlaceholderTask } from '@parsers/tasks';
+import { Box, Stack } from '@mui/material';
+import { cleanUnderscore, formatNum, worldsArray } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
+import Num from '@components/common/Num';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+import { getTasks, getWorldTaskLevels, isPlaceholderTask } from '@parsers/tasks';
 import useTabIndex from '@hooks/useTabIndex';
+
+const TASKS_TOOLBAR = { hideCompleted: false };
+// Slot 8 is the day's task: one rank, no merits (parsers/tasks.ts)
+const DAILY_TASK = 8;
+const sumOf = (list, key) => list.reduce((sum, item) => sum + (item?.[key] ?? 0), 0);
+const big = (value) => formatGame(value ?? 0, 'TaskStuff.TaskPointREQ');
+
+// The task board's own fill (N.js, the board's draw): every { is the rank's requirement in Big and every } the rank's
+// filler1 entry (none on a Blank420q row). A maxed task shows filler2's third part instead, its { the stat; the day's
+// task, once done, the game's own line.
+const taskSentence = ({ index, description, filler1, filler2, requirement, stat, level, breakpoints }, maxed) => {
+  if (index === DAILY_TASK && maxed) return 'You did it gamer! You did the thing, woo!';
+  const closing = `${filler2 ?? ''}`.split('|')[2];
+  if (maxed && closing) return cleanUnderscore(closing.replaceAll('{', () => big(stat)));
+  // A maxed task with no closing line (Achievement Hunter) keeps its sentence at its last requirement
+  const needs = maxed ? Number(breakpoints?.at(-1) ?? 0) : requirement;
+  const filled = `${description ?? ''}`.replaceAll('{', () => big(needs));
+  return cleanUnderscore(filler1 && filler1 !== 'Blank420q'
+    ? filled.replaceAll('}', () => `${filler1}`.split('|')[level] ?? '')
+    : filled);
+};
 
 const Tasks = () => {
   const { state } = useContext(AppContext);
   const [world] = useTabIndex(worldsArray);
-  const [hideCompleted, setHideCompleted] = useState(false);
+  const failed = isSectionFailed(state?.account, 'tasks');
+  const [view, setView, resetView] = useToolbarState('tasks', TASKS_TOOLBAR);
+  const hideCompleted = !failed && view.hideCompleted;
+  // A failed section draws the game's tasks at rank 0 (the parser's own empty save), with no progress or pay
+  const tasksDescriptions = failed ? getTasks(undefined).tasksDescriptions : state?.account?.tasksDescriptions;
+  const worlds = worldsArray.map((name, index) => ({ name, ...getWorldTaskLevels(tasksDescriptions, index) }));
+  const ranks = (done, max) => (failed ? '-' : `${formatNum(done)} / ${formatNum(max)}`);
 
-  const { worldTasks, totalLevels, maxLevels } = getWorldTaskLevels(state?.account?.tasksDescriptions, world);
-  const visibleTasks = worldTasks
+  const worldTasks = (worlds[world]?.worldTasks ?? [])
     .map((task, index) => ({ ...task, index }))
-    .filter((task) => !isPlaceholderTask(task))
-    .filter(({ level, maxLevel }) => !(hideCompleted && level >= maxLevel));
+    .filter((task) => !isPlaceholderTask(task));
+  const shown = worldTasks.filter(({ level, maxLevel }) => !(hideCompleted && level >= maxLevel));
+
+  const taskCard = (task) => {
+    const daily = task.index === DAILY_TASK;
+    const maxed = !failed && task.level >= task.maxLevel;
+    const requirement = task.requirement ?? 0;
+    return <ItemCard key={task.index} icon={`data/TaskRank${failed ? 0 : task.level}.png`} title={cleanUnderscore(task.name)}
+                     meta={daily ? 'Daily task' : undefined}
+                     level={failed || daily ? undefined : { value: task.level, max: task.maxLevel }}
+                     status={maxed ? 'maxed' : undefined}
+                     footer={failed || daily ? null : <ItemCard.Facts rows={[['Next rank pays', <Stack key={'pay'} direction={'row'} gap={0.5} alignItems={'center'}>
+                       {formatGame(task.meritReward ?? 0, 'TaskStuff.MeritsGiven')}
+                       <GameIcon src={`etc/Merit_${world}.png`} size={16} alt={'Merits'}/>
+                     </Stack>]]}/>}>
+      <ItemCard.Desc text={taskSentence(task, maxed)}/>
+      {/* The game caps the count at the requirement: "2M/2M", then "Tap to Complete!" */}
+      {failed || maxed ? null : <ItemCard.Progress label={'Progress'}
+                                                   percent={requirement > 0 ? Math.min(100, (task.stat / requirement) * 100) : 0}
+                                                   value={<Num value={Math.min(task.stat ?? 0, requirement)} game={'TaskStuff.TaskPointREQ'}/>}
+                                                   max={<Num value={requirement} game={'TaskStuff.TaskPointREQ'}/>}/>}
+    </ItemCard>;
+  };
 
   return (<>
     <NextSeo
       title="Tasks | Idleon Toolbox"
       description="Track your task board completion, rewards, and progression across all task categories in Legends of Idleon"
     />
-    <Stack mb={3} direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Task levels'} value={`${totalLevels} / ${maxLevels}`}/>
-      <FormControlLabel
-        control={<Checkbox checked={hideCompleted}
-                           onChange={(e) => setHideCompleted(e.target.checked)}/>}
-        label={'Hide completed'}/>
-    </Stack>
+    {failed ? <MissingData name={'Tasks'} failed/> : null}
+    <PageSummary>
+      {worlds.map(({ name, totalLevels, maxLevels }) => <StatTile key={name} label={name} value={ranks(totalLevels, maxLevels)}/>)}
+      <StatTile label={'Total'} value={ranks(sumOf(worlds, 'totalLevels'), sumOf(worlds, 'maxLevels'))}/>
+    </PageSummary>
     <Tabber tabs={worldsArray} keepChildren>
-      <Stack index={world} direction={'row'} flexWrap={'wrap'} gap={3} justifyContent={'center'}>
-        {visibleTasks?.length === 0
-          ? <EmptyState hideCompleted={hideCompleted && worldTasks.length > 0} label={'tasks'}
-                        onShowCompleted={() => setHideCompleted(false)}/>
-          : null}
-        {visibleTasks?.map(({
-                              stat,
-                              level,
-                              name,
-                              description,
-                              filler1,
-                              filler2,
-                              maxLevel,
-                              requirement,
-                              meritReward,
-                              index
-                            }) => {
-          const req = requirement ?? 0;
-          let desc;
-          if (requirement === null) {
-            desc = filler2.split('|').slice(-1)?.[0]?.replace(/{/, notateNumber(stat, 'Big'));
-          } else {
-            desc = description.replace(/{/g, notateNumber(requirement, 'Big')).replace(/}/g, filler1.split('|')?.[level])
-          }
-          const percent = stat / req * 100;
-          return <Card key={'key' + index} sx={{ width: 400 }}>
-            <CardContent sx={{
-              border: level >= maxLevel ? '1px solid' : '',
-              borderColor: level >= maxLevel ? 'success.main' : '',
-              height: '100%'
-            }}>
-              <Stack direction={'row'} alignItems={'center'}>
-                <img src={`${prefix}data/TaskRank${level}.png`} alt={'task-rank-' + level}/>
-                <Typography>{cleanUnderscore(name)} ({level} / {maxLevel})</Typography>
-              </Stack>
-              <Typography sx={{ mb: 1 }}>{cleanUnderscore(desc)}</Typography>
-              <Typography>{notateNumber(stat, 'Big')}{level <= maxLevel
-                ? ` / ${notateNumber(req)}`
-                : ''}</Typography>
-              {level <= maxLevel ? <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <img src={`${prefix}etc/Merit_${world}.png`} alt={'cost_merit-' + world}/>
-                <Typography>{meritReward}</Typography>
-              </Stack> : null}
-              {level <= maxLevel ? <ProgressBar
-                percent={!isNaN(percent) && percent !== Infinity ? percent : 100}/> : null}
-            </CardContent>
-          </Card>
-        })}
-      </Stack>
+      <Box>
+        {failed ? null : <Toolbar state={view} defaults={TASKS_TOOLBAR} onChange={setView} onReset={resetView}
+                                  total={worldTasks.length} shown={shown.length} noun={'tasks'}>
+          <Toolbar.Filter name={'hideCompleted'} label={'Hide completed'}/>
+        </Toolbar>}
+        {shown.length ? <CardGrid size={'m'}>{shown.map(taskCard)}</CardGrid> : null}
+      </Box>
     </Tabber>
   </>);
 };
