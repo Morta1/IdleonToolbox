@@ -348,10 +348,11 @@ export const gameLines = (text, { keepBlank = false, sentences = false } = {}) =
 };
 
 // Star sign bonuses use "{" as a value placeholder, but decimal-valued bonuses
-// use the "{.{" token pair instead, so both have to be substituted.
+// use the "{.{" token pair instead, so both have to be substituted. The game data writes a sign's level condition
+// with a glyph its font draws: "(If_Lv&60)" means at least 60 (the parser counts the sign from classLevel >= 60).
 export const formatStarSignBonus = (rawName, bonus) => {
   if (!rawName) return '';
-  return String(rawName).replace('{.{', bonus).replace(/{/g, bonus);
+  return String(rawName).replace('{.{', bonus).replace(/{/g, bonus).replace(/&/g, '≥');
 };
 
 export const getNumberWithOrdinal = (n) => {

@@ -29,7 +29,7 @@ describe('formatStarSignBonus', () => {
   it('leaves no placeholder behind for any star sign in the game data', () => {
     Object.values(rawStarSigns).forEach(({ starName, bonuses }) => {
       bonuses?.forEach(({ rawName, bonus }) => {
-        expect(formatStarSignBonus(rawName, bonus), starName).not.toMatch(/[{}]/);
+        expect(formatStarSignBonus(rawName, bonus), starName).not.toMatch(/[{}&]/);
       });
     });
   });
