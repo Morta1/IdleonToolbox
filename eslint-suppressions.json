@@ -9,11 +9,6 @@
       "count": 16
     }
   },
-  "components/account/Misc/Dungeons/RngItems.js": {
-    "no-restricted-syntax": {
-      "count": 5
-    }
-  },
   "components/account/Pets/PetCollection.jsx": {
     "no-restricted-syntax": {
       "count": 3
@@ -25,16 +20,6 @@
   "components/account/Pets/PetMart.jsx": {
     "no-restricted-syntax": {
       "count": 1
-    }
-  },
-  "components/account/Worlds/World2/ObolsView.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
-    }
-  },
-  "components/account/Worlds/World7/Tournament/Leaderboard.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
     }
   },
   "components/characters/EquippedCards.jsx": {
@@ -218,27 +203,6 @@
     }
   },
   "hooks/useLeaderboardSelf.js": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "pages/account/misc/guild.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    },
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "pages/account/misc/quests.jsx": {
-    "react-hooks/immutability": {
-      "count": 1
-    },
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "pages/account/misc/storage.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
     }
