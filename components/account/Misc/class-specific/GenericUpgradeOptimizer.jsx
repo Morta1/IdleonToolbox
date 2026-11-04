@@ -41,6 +41,10 @@ const stepLevels = (upgrade) => {
 };
 // A time left as every page writes it (Decision 8): "ready in 3d 4h", past 999 days "> 999d", "ready now" at zero
 const readyText = (hours) => (hours > 0 ? `ready in ${formatDuration(hours * 3600)}` : 'ready now');
+// A group's, a tile's or a band's time is its last step's; steps with no time (no rate) leave it with none
+const latestReady = (steps) => (steps?.length && steps.every((step) => step?.readyHours != null)
+  ? Math.max(...steps.map((step) => step.readyHours))
+  : null);
 // Sums one statChange into a per-stat map; shared by the Upgrade and Summary grouping branches so
 // a field added to one can't silently produce NaN sums in the other.
 const accumulateStatChange = (map, statChange) => {
@@ -219,13 +223,43 @@ const GenericUpgradeOptimizer = ({
   const holdRates = optimizedUpgrades.holdRates ?? [];
   const bestBuy = optimizedUpgrades[0];
 
+  // What is held of each resource, by its name
+  const heldByName = {};
+  const resourceArr = resourceKey.split('.').reduce((obj, key) => obj?.[key], account) || [];
+  resourceArr.forEach((resource, idx) => {
+    // A save's resource array can be sparse: Royal Guardian's RoyalG[1] carries nulls in the
+    // slots its kingdom has not unlocked, so neither the entry nor a name for it is guaranteed.
+    const name = resourceNames[idx] || resource?.name;
+    if (name) {
+      heldByName[name] = (getResourceAmount ? getResourceAmount(resource, idx, resourceNames) : resource?.value ?? resource) ?? 0;
+    }
+  });
+  const usageName = (type) => resourceNames[type] || type;
+  const rateOf = (type) => {
+    const rph = Number(effectiveResourcePerHour?.[type]);
+    return usesRph && rph > 0 ? rph : null;
+  };
+  // One ready rule for every step, and so for every card, tile and band built from them: the hours until what is
+  // held covers the plan's spending on the step's resource up to it, (spent - held) / rate. 0 reads "ready now";
+  // with no rate there is no time at all. The parser's walk (All with a rate) counts the same way, adding the
+  // shared play time and the purchase that unlocks a row, so its hours stand.
+  const spentByType = {};
+  const plan = optimizedUpgrades.map((step) => {
+    const type = getResourceType(step);
+    spentByType[type] = (spentByType[type] ?? 0) + (step.cost ?? 0);
+    const rate = rateOf(type);
+    const held = Number(heldByName[usageName(type)]) || 0;
+    const readyHours = rate === null ? null : step.readyInHours ?? Math.max(0, spentByType[type] - held) / rate;
+    return { ...step, readyHours };
+  });
+
   // Group upgrades by name if consolidation is enabled
   let displayUpgrades;
   if (groupMode === 'Upgrade') {
     // Group consecutive upgrades of the same type while preserving order
     const consolidatedUpgrades = [];
     let currentGroup = null;
-    optimizedUpgrades.forEach((upgrade, index) => {
+    plan.forEach((upgrade, index) => {
       const upgradeName = upgrade.name;
       const startLevel = currentGroup && currentGroup.name === upgradeName
         ? currentGroup.startLevel
@@ -279,7 +313,7 @@ const GenericUpgradeOptimizer = ({
   }
   else if (groupMode === 'Summary' || groupMode === 'Game order') {
     const grouped = {};
-    optimizedUpgrades.forEach((upgrade, index) => {
+    plan.forEach((upgrade, index) => {
       if (!grouped[upgrade.name]) {
         grouped[upgrade.name] = {
           ...upgrade,
@@ -314,7 +348,7 @@ const GenericUpgradeOptimizer = ({
     }
   }
   else {
-    displayUpgrades = optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
+    displayUpgrades = plan.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
   }
 
   // The table's columns, here because the sort below reads Cost's value. Their renders name helpers declared
@@ -365,41 +399,24 @@ const GenericUpgradeOptimizer = ({
       }
       sectionsByType[resourceType].upgrades.push(upgrade);
       sectionsByType[resourceType].cost += upgrade.totalCost || upgrade.cost;
-      (upgrade.sequence ?? [upgrade]).forEach((step) => {
-        if (step.readyInHours == null) return;
-        sectionsByType[resourceType].readyInHours = Math.max(sectionsByType[resourceType].readyInHours ?? 0, step.readyInHours);
-      });
+      sectionsByType[resourceType].steps = [...(sectionsByType[resourceType].steps ?? []), ...(upgrade.sequence ?? [upgrade])];
     });
   }
   // Calculate total resource costs by type
   const resourceUsageMap = {};
-  optimizedUpgrades.forEach(upgrade => {
+  plan.forEach(upgrade => {
     const resourceType = getResourceType(upgrade);
-    const name = resourceNames[resourceType] || resourceType;
+    const name = usageName(resourceType);
     if (!resourceUsageMap[name]) {
       resourceUsageMap[name] = {
         name,
         type: resourceType,
         cost: 0,
-        currentAmount: 0,
-        readyInHours: null
+        steps: []
       };
     }
     resourceUsageMap[name].cost += upgrade.cost;
-    if (upgrade.readyInHours != null) {
-      resourceUsageMap[name].readyInHours = Math.max(resourceUsageMap[name].readyInHours ?? 0, upgrade.readyInHours);
-    }
-  });
-  const resourceArr = resourceKey.split('.').reduce((obj, key) => obj?.[key], account) || [];
-  resourceArr.forEach((resource, idx) => {
-    // A save's resource array can be sparse: Royal Guardian's RoyalG[1] carries nulls in the
-    // slots its kingdom has not unlocked, so neither the entry nor a name for it is guaranteed.
-    const name = resourceNames[idx] || resource?.name;
-    if (name && resourceUsageMap[name]) {
-      resourceUsageMap[name].currentAmount = (getResourceAmount
-        ? getResourceAmount(resource, idx, resourceNames)
-        : resource?.value ?? resource) ?? 0;
-    }
+    resourceUsageMap[name].steps.push(upgrade);
   });
   const resourceUsage = Object.values(resourceUsageMap);
 
@@ -498,14 +515,10 @@ const GenericUpgradeOptimizer = ({
     return steps > 1 ? `-80% on ${discounted}/${steps}` : '-80%';
   };
 
-  // RPH mode only: when the plan can afford this row (a group: its last level), counting what is
-  // held now and every resource filling in parallel, or one shared pool of farming time.
+  // With a rate only: when the plan can afford this row (a group: its last level)
   const readyNote = (upgrade) => {
-    const hours = upgrade.sequence?.length > 1
-      ? Math.max(...upgrade.sequence.map((step) => step.readyInHours ?? 0))
-      : upgrade.readyInHours;
-    if (hours === null || hours === undefined) return null;
-    return readyText(hours);
+    const hours = latestReady(upgrade.sequence?.length > 1 ? upgrade.sequence : [upgrade]);
+    return hours === null ? null : readyText(hours);
   };
 
   const upgradeIconPath = (upgrade) => `data/${upgradeImagePrefix}${getUpgradeIconIndex ? getUpgradeIconIndex(upgrade) : upgrade.index}.png`;
@@ -553,15 +566,10 @@ const GenericUpgradeOptimizer = ({
     setRphDialogOpen(false);
   };
 
-  // A resource's total cost and, with a rate, how long it takes to farm.
-  const sectionFarmingHours = (section) => {
-    const rph = effectiveResourcePerHour[section.resourceType];
-    const hasRph = usesRph && rph && !isNaN(rph) && rph > 0;
-    return section.readyInHours ?? (hasRph ? section.cost / rph : null);
-  };
+  // A resource's total cost and, with a rate, when the plan has it all
   const sectionMeta = (section) => {
-    const farmingHours = sectionFarmingHours(section);
-    return `${formatGame(section.cost, costGame)}${farmingHours && farmingHours >= (1 / 60) ? ` · ${readyText(farmingHours)}` : ''}`;
+    const hours = latestReady(section.steps);
+    return `${formatGame(section.cost, costGame)}${hours === null ? '' : ` · ${readyText(hours)}`}`;
   };
   const sectionCount = (section) => `${formatNum(section.upgrades.length)} ${section.upgrades.length === 1 ? 'upgrade' : 'upgrades'}`;
 
@@ -758,17 +766,10 @@ const GenericUpgradeOptimizer = ({
       </Stack>
       {character && resourceUsage.length ? <Stack direction="row" gap={1} flexWrap="wrap">
         {resourceUsage.map((resource) => {
-          const resourcePerHourValue = effectiveResourcePerHour[resource.type];
-          const hasResourcePerHour = usesRph && resourcePerHourValue && !isNaN(resourcePerHourValue) && resourcePerHourValue > 0;
-          // The walk's ready time already counts held stock; stat categories have none, so they
-          // fall back to farming the whole cost from zero.
-          const timeEstimateHours = resource.readyInHours ?? (hasResourcePerHour ? resource.cost / resourcePerHourValue : null);
-          // The walk's ready time is always shown (0 reads "ready now"); a farm-from-zero estimate
-          // under a minute is noise.
-          const shouldShowTimeEstimate = resource.readyInHours != null || timeEstimateHours >= (1 / 60);
+          const hours = latestReady(resource.steps);
           return <StatTile key={resource.name} label={cleanUnderscore(resource.name)} icon={resourceIconPath(resource.type)}
                            value={formatGame(resource.cost, costGame)}
-                           sub={shouldShowTimeEstimate ? readyText(timeEstimateHours) : undefined}/>;
+                           sub={hours === null ? undefined : readyText(hours)}/>;
         })}
       </Stack> : null}
       {character ? renderHoldRates() : null}
