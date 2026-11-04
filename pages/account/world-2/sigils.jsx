@@ -5,7 +5,7 @@ import { cleanUnderscore, commaNotation, formatNum } from 'utility/helpers';
 import { gameBonusText } from '@utility/gameNotation';
 import { MissingData, PlayersList, isSectionFailed } from '@components/common/styles';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
-import { calcSigilsLevels, getAlchemy } from '@parsers/world-2/alchemy';
+import { calcSigilsLevels, getAlchemy, getSigilNextCost, getSigilTierUnlocks } from '@parsers/world-2/alchemy';
 import { getPrismaMulti } from '@parsers/class-specific/tesseract';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { sigils as sigilsCatalog } from '@website-data';
@@ -51,22 +51,26 @@ const ready = <StatusText status={'ready'}>Ready to level up</StatusText>;
 
 // A sigil: its tier in words beside the game's tint, its bonus, and the progress toward its next tier. timeLeft counts
 // from the save, so the countdown ends at the save's time plus it, and a time that ran out since then shows Ready, not a
-// countdown that would be false (one label for both). A failed section's catalog has the name and art only.
-const sigilCard = (sigil, { failed, progressionFailed, characters, lastUpdated, boostSources }) => {
-  const { name, index, progress = 0, effect, unlocked = UNDISCOVERED, nextCost, chargeRate, bonus = 0 } = sigil;
+// countdown that would be false (one label for both). A failed section's catalog has the name and art only. A failed
+// charging step (alchemy.sigilProgression) loses only the charge rate: the next tier's cost is the catalog's, read with
+// the parser's own tier gates, so Maxed, Ready and the progress pair stay, and the countdown reads "-"
+const sigilCard = (sigil, { failed, progressionFailed, tierUnlocks, characters, lastUpdated, boostSources }) => {
+  const { name, index, progress = 0, effect, unlocked = UNDISCOVERED, chargeRate, bonus = 0 } = sigil;
   const icon = <Box component={'span'}
                     sx={{ display: 'inline-flex', filter: failed || !TIER_HUES[unlocked] ? undefined : `hue-rotate(${TIER_HUES[unlocked]}deg)` }}>
     <GameIcon src={`data/aSiga${index}.png`} size={40} alt={''}/>
   </Box>;
   if (failed) return <ItemCard key={name} icon={icon} title={cleanUnderscore(name)}/>;
+  const nextCost = progressionFailed ? getSigilNextCost(sigil, tierUnlocks) : sigil?.nextCost;
   const charging = sigil?.characters ?? [];
-  const maxed = !progressionFailed && nextCost == null;
-  const isReady = !progressionFailed && !maxed && progress >= nextCost;
+  const maxed = nextCost == null;
+  const isReady = !maxed && progress >= nextCost;
   const timeLeft = (nextCost - progress) / chargeRate * 3600 * 1000;
   const base = sigilsCatalog?.[index]?.[TIER_BONUS[unlocked]];
   const boost = base > 0 ? bonus / base : 1;
   const nextRow = isReady ? ['Next tier', ready]
-    : !progressionFailed && Number.isFinite(timeLeft) && Number.isFinite(lastUpdated)
+    : progressionFailed ? ['Next tier', '-']
+    : Number.isFinite(timeLeft) && Number.isFinite(lastUpdated)
       ? ['Next tier', <Timer key={'timer'} type={'countdown'} component={'span'} date={lastUpdated + timeLeft}
                                 placeholder={ready}/>]
       : null;
@@ -74,7 +78,7 @@ const sigilCard = (sigil, { failed, progressionFailed, characters, lastUpdated, 
                    dimmed={unlocked === UNDISCOVERED} status={maxed ? 'maxed' : charging.length ? 'active' : undefined}
                    statusLabel={maxed ? undefined : 'Charging'}
                    footer={maxed ? null : <ItemCard.Facts rows={[
-                     ['Progress', `${sigilProgress(progress, unlocked)} / ${progressionFailed ? '-' : commaNotation(nextCost)}`],
+                     ['Progress', `${sigilProgress(progress, unlocked)} / ${commaNotation(nextCost)}`],
                      nextRow
                    ]}/>}>
     <ItemCard.Desc text={unlocked === UNDISCOVERED ? 'Discover it to see its bonus.'
@@ -112,7 +116,7 @@ const Sigils = () => {
     : 'Chilled Yarn and the meritocracy bonus';
   const cardContext = {
     failed: alchemyFailed, progressionFailed, characters: state?.characters, lastUpdated: state?.lastUpdated,
-    boostSources
+    boostSources, tierUnlocks: progressionFailed && !alchemyFailed ? getSigilTierUnlocks(account) : null
   };
 
   return <>
