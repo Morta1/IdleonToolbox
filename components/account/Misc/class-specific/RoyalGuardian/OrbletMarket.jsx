@@ -1,5 +1,6 @@
 import React from 'react';
 import { formatGame } from '@utility/gameNotation';
+import { titleCaseName } from '@utility/helpers';
 import { cleanText } from '@utility/goals/registry/names';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -16,7 +17,7 @@ const OrbletMarket = ({ orbletMarket, orblets, sectionFailed }) => {
   if (!catalog.length) return null;
   return <CardGrid size={'s'}>
     {catalog.map(({ index, name, description, level, maxLevel, cost, bonus, maxed }) => <ItemCard
-      key={index} icon={'data/Orblet.png'} title={cleanText(name)}
+      key={index} icon={'data/Orblet.png'} title={titleCaseName(cleanText(name))}
       level={{ value: level ?? 0, max: maxLevel }}
       status={!sectionFailed && maxed ? 'maxed' : undefined}
       footer={sectionFailed ? null : <ItemCard.Cost icon={'data/Orblet_x1.png'} iconAlt={'Orblets'} game={'Thingies.OrbletMarketCost'}

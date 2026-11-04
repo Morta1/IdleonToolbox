@@ -1,7 +1,7 @@
 import { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import { Box, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum, prefix, titleCaseName } from '@utility/helpers';
 import { monsterSprite } from '@utility/spriteImages';
 import { NextSeo } from 'next-seo';
 import { companions as companionsData } from '@website-data';
@@ -66,7 +66,7 @@ const Bundles = () => {
   const packCard = (bundle) => {
     const companion = companionsData?.[bundle.companionIndex];
     return <ItemCard key={bundle.name} icon={companion?.name ? monsterSprite(companion.name) : undefined}
-                     title={cleanUnderscore(bundle.displayName)} meta={companion?.name ? cleanUnderscore(companion.name) : undefined}
+                     title={titleCaseName(cleanUnderscore(bundle.displayName))} meta={companion?.name ? cleanUnderscore(companion.name) : undefined}
                      status={isOwned(bundle) ? 'done' : undefined} statusLabel={'Owned'}>
       <ItemCard.Facts rows={[
         ['Price', bundle.price != null ? formatNum(bundle.price, 'price') : '-'],

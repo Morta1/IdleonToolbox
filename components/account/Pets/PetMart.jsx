@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
 import { format, parseISO } from 'date-fns';
-import { cleanUnderscore, formatNum, getNextPetMartRestock } from '@utility/helpers';
+import { cleanUnderscore, formatNum, getNextPetMartRestock, titleCaseName } from '@utility/helpers';
 import { monsterSprite } from '@utility/spriteImages';
 import Timer from '@components/common/Timer';
 import { usePetMartHistory } from '@hooks/usePetMartHistory';
@@ -70,7 +70,7 @@ const PetMart = ({ petMart, companions, lastUpdated, sectionFailed, companionsFa
     // The + counter only upgrades a pet you own a real copy of: a token or a simulation is not one.
     const needsBasePet = !companionsFailed && plus && !have && !(companion?.copies > 0);
     return <ItemCard key={`${plus ? 'plus' : 'base'}-${offer.index}`} icon={name ? monsterSprite(name) : undefined}
-                     title={`${cleanUnderscore(name)}${plus ? '+' : ''}`}
+                     title={`${titleCaseName(cleanUnderscore(name))}${plus ? '+' : ''}`}
                      status={have ? 'done' : undefined} statusLabel={plus ? 'Upgraded' : 'Owned'}
                      footer={priceLine(offer)}>
       {effect ? <ItemCard.Desc text={effectText(effect)}/> : null}

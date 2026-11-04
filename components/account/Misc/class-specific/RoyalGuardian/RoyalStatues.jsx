@@ -7,7 +7,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
 import StatTile from '@components/common/cards/StatTile';
-import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { cleanText } from '@utility/goals/registry/names';
 import { getTotalStatueLevels } from '@parsers/class-specific/royalGuardian';
@@ -84,7 +84,7 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels, sectionFailed }
           ) : null}
           {statueFlair?.statues?.length ? <CardGrid size={'s'}>
             {statueFlair.statues.map(({ index, name, level, maxLevel, cost, bonus, expMulti, costItem }) => <ItemCard
-              key={index} title={cleanText(name)} level={{ value: level ?? 0, max: maxLevel }} dimmed={!statueFlair?.unlocked}
+              key={index} title={titleCaseName(cleanText(name))} level={{ value: level ?? 0, max: maxLevel }} dimmed={!statueFlair?.unlocked}
               footer={<ItemCard.Cost icon={`data/${costItem}.png`} iconAlt={cleanUnderscore(statueFlair?.marbleTotals
                 ?.find((marble) => marble.costItem === costItem)?.name ?? '')} game={'RoyalG.SF_costo'} need={cost}
                                      have={ownedOf(costItem)}/>}>

@@ -1,5 +1,5 @@
 import { Stack } from '@mui/material';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, titleCaseName } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -19,7 +19,7 @@ const TheDen = ({ hole }) => {
     </Stack>
     <CardGrid size={'m'}>
       {(theDen?.amplifiers ?? []).map(({ ampName, ampDescription, level, bonus }, index) =>
-        <ItemCard key={`amp-${index}`} icon={`data/HoleFightAmp${index}.png`} title={cleanUnderscore(ampName)}
+        <ItemCard key={`amp-${index}`} icon={`data/HoleFightAmp${index}.png`} title={titleCaseName(cleanUnderscore(ampName))}
                   level={{ value: level ?? 0 }} status={index < (theDen?.ownedAmps ?? 0) ? undefined : 'locked'}>
           {/* The parser's bonus is already the game's Small or Big */}
           <ItemCard.Desc text={(ampDescription ?? '').replace('{', bonus)}/>

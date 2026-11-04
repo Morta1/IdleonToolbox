@@ -1,5 +1,5 @@
 import { Box, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
 import React, { useContext } from 'react';
 import { NextSeo } from 'next-seo';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -51,7 +51,7 @@ const EventShop = () => {
 
   const bonusCard = ({ index, name, description, price, owned: isOwned, lastSold }, { locked, offRotation: off } = {}) => {
     const ownedNow = !parseFailed && isOwned;
-    return <ItemCard key={`event-bonus-${index}`} icon={`data/EventShopBuy${index}.png`} title={cleanUnderscore(name)}
+    return <ItemCard key={`event-bonus-${index}`} icon={`data/EventShopBuy${index}.png`} title={titleCaseName(cleanUnderscore(name))}
                      dimmed={locked} status={ownedNow ? 'done' : undefined} statusLabel={'Owned'}
                      footer={ownedNow ? null : <ItemCard.Cost icon={'etc/Event_Currency.png'} iconAlt={'Stars'} need={price}
                                                               have={parseFailed ? undefined : stars}

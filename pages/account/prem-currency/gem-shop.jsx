@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import { gemShop } from '@website-data';
 import { Stack, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
@@ -65,7 +65,7 @@ const TIERS = [['all', 'All tiers'], ['S', 'S tier'], ['A', 'A tier'], ['B', 'B 
 const TIER_NAME = { S: 'S tier', A: 'A tier', B: 'B tier', C: 'C tier' };
 const PAST_CATEGORY = 'past_limited_specials';
 const isRealItem = ({ rawName, displayName }) => rawName !== 'Blank' && displayName !== 'NAME_OF_ITEM';
-const itemTitle = (displayName) => cleanUnderscore(`${displayName ?? ''}`.toLowerCase().camelToTitleCase());
+const itemTitle = (displayName) => titleCaseName(cleanUnderscore(displayName));
 
 const GemShop = () => {
   const { state } = useContext(AppContext);
