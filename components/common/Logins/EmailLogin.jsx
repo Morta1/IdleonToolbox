@@ -5,6 +5,8 @@ import { AppContext } from '../context/AppProvider';
 import { describeLoginError, toLoginError } from '@utility/loginErrors';
 import LoginErrorAlert from './LoginErrorAlert';
 import FlowAction from './FlowAction';
+import { FIELD_SX, FLOW_SX } from './look';
+import { touchTarget } from '../../../styles/theme/darkTheme';
 
 const EmailLogin = ({ onStart }) => {
   const { state, dispatch, waitingForAuth, setWaitingForAuth } = useContext(AppContext);
@@ -47,24 +49,25 @@ const EmailLogin = ({ onStart }) => {
   }
 
   return (
-    <Stack sx={{ flex: 1 }}>
-      <Stack gap={3} sx={{ pt: 1 }}>
-        <TextField inputProps={{ autoComplete: 'email', type: 'email', inputMode: 'email' }} value={email} error={submitted && !email} name={'email'}
+    <Stack sx={FLOW_SX}>
+      <Stack gap={2}>
+        <TextField sx={FIELD_SX} inputProps={{ autoComplete: 'email', type: 'email', inputMode: 'email' }} value={email} error={submitted && !email} name={'email'}
                    onChange={handleChange}
                    onKeyDown={handleKeyDown}
                    label={'Email'}/>
-        <TextField value={password} error={submitted && !password} name={'password'}
+        <TextField sx={FIELD_SX} value={password} error={submitted && !password} name={'password'}
                    onChange={handleChange}
                    onKeyDown={handleKeyDown}
                    label={'Password'}
                    inputProps={{ type: 'password', autoComplete: 'current-password' }}/>
       </Stack>
       <LoginErrorAlert sx={{ mt: 2 }} error={state?.loginError || error}/>
-      <Link href="https://www.reddit.com/r/idleon/comments/12ccw2h/steam_email/" target="_blank" rel="noopener"
-            variant="body2" sx={{ mt: 2, alignSelf: 'flex-start' }}>
+      {/* Under the button as the board draws it; on a phone above it, where the button sticks to the bottom */}
+      <FlowAction onClick={handleSubmit} loading={waitingForAuth} sx={{ order: { xs: 1, sm: 0 } }}>Sign in</FlowAction>
+      <Link href="https://www.reddit.com/r/idleon/comments/12ccw2h/steam_email/" target="_blank" rel="noopener" underline="hover"
+            sx={{ mt: 2, alignSelf: 'center', order: { xs: 0, sm: 1 }, fontSize: 13.5, fontWeight: 500, ...touchTarget }}>
         Forgot which email you used?
       </Link>
-      <FlowAction onClick={handleSubmit} loading={waitingForAuth}>Sign in</FlowAction>
     </Stack>
   );
 };
