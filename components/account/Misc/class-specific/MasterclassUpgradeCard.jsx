@@ -1,5 +1,5 @@
 import { Box, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, formatNum, notateNumber, shownDifference } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
@@ -60,19 +60,30 @@ const MasterclassUpgradeCard = ({
   </ItemCard>
 };
 
-// "1.25x (+0.05x)" for multiplier upgrades, "125 (+5)" for flat ones, as the card's sentence fills its { : the system's
-// rule (bonusGame), a compass row whose bonus per level is under 0.9 in NotateNumber Small (the parser's smallNotation)
-// so its decimals show, and without a rule the amount kind (Tesseract: its sentence fills { in commas, where its
-// ArcaneUpgBonus rule says Big)
-export const formatNextLevelBonus = ({ isMulti, smallNotation, nextLevelBonus, bonusDiff }, bonusGame) => {
-  const value = isMulti
-    ? formatNum(1 + nextLevelBonus / 100, 'mult')
-    : smallNotation ? notateNumber(nextLevelBonus, 'Small')
-      : bonusGame ? formatGame(nextLevelBonus, bonusGame) : formatNum(nextLevelBonus, 'amount', { precise: true });
-  const diff = isMulti
-    ? formatNum(bonusDiff / 100, 'mult', { signed: true, precise: true })
-    : formatNum(bonusDiff, 'amount', { signed: true, precise: true });
-  return `${value} (${diff})`;
+// A sentence's own fills, as the parsers fill its { and } (compass.ts, tesseract.ts getDescription), so a row beside it
+// reads its number as the sentence does. Compass: } MultiplierInfo of 1 + bonus / 100; { NotateNumber Small for a row
+// under 0.9 a level (the parser's smallNotation), else CommaNotation. Tesseract: } MultiplierInfo of 1 + bonus / 100 (the
+// CommaNotation of its floor from a bonus of 1,000); { CommaNotation under 1e9, NotateNumber Big past it.
+const SENTENCE_FILLS = {
+  compass: ({ smallNotation }, multi) => (value) => (multi ? notateNumber(1 + value / 100, 'MultiplierInfo')
+    : smallNotation ? notateNumber(value, 'Small') : formatGame(value, 'Windwalker.CompassBonus')),
+  tesseract: (upgrade, multi) => (value) => (multi
+    ? (value < 1e3 ? notateNumber(1 + value / 100, 'MultiplierInfo') : commaNotation(Math.floor(1 + value / 100)))
+    : value < 1e9 ? commaNotation(value) : notateNumber(value, 'Big'))
+};
+
+// The unit a sentence prints after its number, from its text in the game's data: "}x" a multiplier, "{%" a percent
+const sentenceUnit = (raw) => (`${raw ?? ''}`.includes('}') ? 'x' : `${raw ?? ''}`.includes('{%') ? '%' : '');
+
+// "1.30x (+0.05x)", "214% (+3%)": the next level's bonus in its sentence's fill and unit, and in brackets the gap
+// between the two numbers as they read (shownDifference), so the row never disagrees with the sentence above it.
+// system: 'compass' or 'tesseract'; raw: the upgrade's sentence in the game's data, before the parser filled it.
+export const formatNextLevelBonus = (upgrade, system, raw) => {
+  const unit = sentenceUnit(raw);
+  const fill = SENTENCE_FILLS[system](upgrade, unit === 'x');
+  const next = fill(upgrade?.nextLevelBonus ?? 0);
+  const gap = shownDifference(fill(upgrade?.bonus ?? 0), next);
+  return `${next}${unit} (${formatNum(gap, 'amount', { signed: true, precise: true })}${unit})`;
 };
 
 // A masterclass sentence as the game draws it: the parser filled { and }, and the page fills $ where the toolbox

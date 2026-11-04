@@ -2,6 +2,7 @@ import React from 'react';
 import { Stack, Typography } from '@mui/material';
 import { formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
+import { tesseract } from '@website-data';
 import { getPrismaMulti, getTesseractTotalUpgradeCost, tachyonNames } from '@parsers/class-specific/tesseract';
 import MasterclassUpgradeCard, { formatNextLevelBonus, masterclassText } from '../MasterclassUpgradeCard';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -87,7 +88,7 @@ const Upgrades = ({ account, upgrades, tachyons, prismaChance, costing, sectionF
                                    level={level}
                                    maxLevel={x4}
                                    description={masterclassText(description, arcaneDollar(upgrade, fills))}
-                                   nextLevelBonus={formatNextLevelBonus(upgrade)}
+                                   nextLevelBonus={formatNextLevelBonus(upgrade, 'tesseract', tesseract?.[index]?.description)}
                                    extraData={extraData}
                                    currencyIcon={`Tach${x3}_x1`}
                                    currencyName={tachyonNames[x3]}
