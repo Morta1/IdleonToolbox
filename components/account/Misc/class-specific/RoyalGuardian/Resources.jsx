@@ -1,46 +1,43 @@
-import React, { useState } from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  FormControl,
-  InputLabel,
-  LinearProgress,
-  Select,
-  Stack,
-  Typography
-} from '@mui/material';
-import MenuItem from '@mui/material/MenuItem';
-import { notateNumber, prefix } from '@utility/helpers';
-import { CardTitleAndValue } from '@components/common/styles';
-import Tooltip from '@components/Tooltip';
-import useCheckbox from '@components/common/useCheckbox';
-import { formatEta } from './formatEta';
+import React, { useContext } from 'react';
+import { Box, Stack } from '@mui/material';
+import { formatDuration, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import { ROYAL_RESOURCE_NAMES } from '@parsers/class-specific/royalGuardian';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
+import StatTile from '@components/common/cards/StatTile';
+import Notice from '@components/common/Notice';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+import { AppContext } from '@components/common/context/AppProvider';
 
-const ALL_WORLDS = 'all';
+// A saved checkbox from before resets once ("Hide unused slots", "Only unconnected")
+const RESOURCES_TOOLBAR = { world: 'all', hideUnused: false, unconnected: false };
+// Every resource amount on the page prints in the armory costs' rule, which these pay
+const amount = (value) => formatGame(value ?? 0, 'RoyalG.ArmoryUpgCost');
+// One to three columns of rows, as wide as the page allows
+const ROWS_GRID_SX = { display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' } };
 
-const Resources = ({ resources, outposts, resourcePerHour }) => {
-  const [world, setWorld] = useState(ALL_WORLDS);
-  const [CheckboxEl, hideEmptyNodes] = useCheckbox('Hide unused slots');
-  const [ConnectedEl, onlyUnconnected] = useCheckbox('Only unconnected');
-
-  const list = resources ?? [];
-  const worlds = [...new Set(list.map(({ world: nodeWorld }) => nodeWorld))].sort((a, b) => a - b);
+// sectionFailed: the section's note is the page's first element: no tile numbers, nodes or Toolbar here
+const Resources = ({ resources, outposts, resourcePerHour, sectionFailed }) => {
+  const { state } = useContext(AppContext);
+  const [view, setView, resetView] = useToolbarState('royal-armory-resources', RESOURCES_TOOLBAR);
+  const list = sectionFailed ? [] : resources ?? [];
+  const worlds = [...new Set(list.map(({ world }) => world))].sort((a, b) => a - b);
   const modeOf = (mapIndex) => outposts?.find((outpost) => outpost.mapIndex === mapIndex)?.mode ?? 0;
 
-  const filtered = list.filter((node) => {
-    if (world !== ALL_WORLDS && node.world !== world) return false;
-    if (hideEmptyNodes && node.empty) return false;
-    if (onlyUnconnected && node.connected) return false;
-    return true;
-  });
+  const shown = list.filter((node) => (view?.world === 'all' || `${node.world}` === view?.world)
+    && !(view?.hideUnused && node.empty)
+    && !(view?.unconnected && node.connected));
 
   // An empty node pays nothing until a restock refills it, which is the one thing here that
   // costs the player something right now.
   const exhaustedNodes = list.filter(({ exhausted, empty }) => exhausted && !empty).length;
   const unconnected = list.filter(({ connected, empty }) => !connected && !empty).length;
+  const tile = (value) => (sectionFailed ? '-' : value);
 
-  // One tile per resource rather than per node: several nodes can mine the same resource, and the
+  // One row per resource rather than per node: several nodes can mine the same resource, and the
   // player plans armory buys off what is banked plus what the outposts bring in over the next day.
   const totals = [...new Map(list.filter(({ empty }) => !empty)
     .map(({ resourceIndex, rawName, stored }) => [resourceIndex, { resourceIndex, rawName, stored }])).values()]
@@ -48,99 +45,59 @@ const Resources = ({ resources, outposts, resourcePerHour }) => {
     .sort((a, b) => a.resourceIndex - b.resourceIndex);
 
   return (
-    <Stack direction="column" gap={4}>
-      <Stack direction="row" gap={{ xs: 1, md: 3 }} flexWrap="wrap">
-        <CardTitleAndValue title="Nodes" value={list.filter(({ empty }) => !empty).length}/>
-        <CardTitleAndValue title="Empty Nodes" value={exhaustedNodes}/>
-        <CardTitleAndValue title="Unconnected" value={unconnected}/>
-        <CardTitleAndValue title="Total Node Levels"
-                           value={notateNumber(list.reduce((sum, { nodeLevel }) => sum + nodeLevel, 0))}/>
+    <Stack direction="column" gap={3}>
+      <Stack direction="row" gap={2} flexWrap="wrap">
+        <StatTile label={'Nodes'} value={tile(formatNum(list.filter(({ empty }) => !empty).length))}/>
+        <StatTile label={'Empty nodes'} value={tile(formatNum(exhaustedNodes))}/>
+        <StatTile label={'Unconnected'} value={tile(formatNum(unconnected))}/>
+        <StatTile label={'Total node levels'} value={tile(formatNum(list.reduce((sum, { nodeLevel }) => sum + (nodeLevel ?? 0), 0)))}/>
       </Stack>
 
-      {totals.length > 0 ? <Stack direction="row" gap={{ xs: 1, md: 2 }} flexWrap="wrap">
-        {totals.map(({ resourceIndex, rawName, stored, dailyIncome }) => (
-          <CardTitleAndValue key={resourceIndex} icon={`data/${rawName}.png`}
-                             imgStyle={{ width: 32, height: 32 }} cardSx={{ minWidth: 150 }}
-                             value={<Stack>
-                               <Typography>{notateNumber(stored, 'Big')}</Typography>
-                               <Typography variant="caption"
-                                           color={dailyIncome > 0 ? 'text.success' : 'text.secondary'}>
-                                 {dailyIncome > 0 ? `+${notateNumber(dailyIncome, 'Big')} / 24h` : 'Not collected'}
-                               </Typography>
-                             </Stack>}/>
-        ))}
-      </Stack> : null}
+      {totals.length ? <Panel title={'Resources in storage'}>
+        <Box sx={ROWS_GRID_SX}>
+          {totals.map(({ resourceIndex, rawName, stored, dailyIncome }) => <Panel.Row
+            key={resourceIndex} icon={`data/${rawName}.png`} name={ROYAL_RESOURCE_NAMES[resourceIndex] ?? `Resource ${resourceIndex}`}
+            value={amount(stored)}
+            valueSub={dailyIncome > 0 ? `+${formatGame(dailyIncome, 'RoyalG.OutpostResourceRate')} a day` : 'Not collected'}/>)}
+        </Box>
+      </Panel> : null}
 
-      <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
-        <FormControl size="small" sx={{ width: 140 }}>
-          <InputLabel>World</InputLabel>
-          <Select value={world} label="World" onChange={(e) => setWorld(e.target.value)}>
-            <MenuItem value={ALL_WORLDS}>All</MenuItem>
-            {worlds.map((nodeWorld) => <MenuItem key={nodeWorld} value={nodeWorld}>World {nodeWorld}</MenuItem>)}
-          </Select>
-        </FormControl>
-        <CheckboxEl/>
-        <ConnectedEl/>
-      </Stack>
-
-      <Box sx={{
-        display: 'grid',
-        gap: 2,
-        gridTemplateColumns: 'repeat(auto-fill, minmax(260px, 1fr))',
-        alignItems: 'stretch'
-      }}>
-        {filtered.map((node) => {
-          const { index, empty, rawName, resourceIndex, nodeLevel, collected, maxQuantity, stored } = node;
-          const { connected, connectedMaps, connectedMap, connectedMapName, exhausted, fillPercent, hoursToEmpty } = node;
-          // A Savage Stronghold pours its collection back into the node instead of banking it.
-          const collectors = connectedMaps.map((mapIndex, order) => (order === 0
-            ? connectedMapName || `map ${mapIndex}`
-            : outposts?.find((outpost) => outpost.mapIndex === mapIndex)?.name || `map ${mapIndex}`));
-
-          return (
-            <Card key={index} sx={{ height: '100%' }}>
-              <CardContent sx={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
-                <Stack direction="row" gap={1.5} alignItems="center">
-                  {empty
-                    ? null
-                    : <img src={`${prefix}data/${rawName}.png`} alt="" width={32} height={32}
-                           style={{ objectFit: 'contain' }}/>}
-                  <Stack direction="column">
-                    <Typography variant="body2">
-                      {empty ? 'Unused slot' : `Node ${index}`}
-                    </Typography>
-                    <Typography variant="caption" color="text.secondary">
-                      Lv{nodeLevel}
-                    </Typography>
-                  </Stack>
-                </Stack>
-
+      {sectionFailed ? null : !list.length
+        ? state?.emptyAccount ? <Notice tone={'signin'}>Your kingdom&apos;s resource nodes show here once you sign in.</Notice> : null
+        : <Stack direction="column" gap={3}>
+          <Toolbar state={view} defaults={RESOURCES_TOOLBAR} onChange={setView} onReset={resetView}
+                   total={list.length} shown={shown.length} noun={'nodes'}>
+            <Toolbar.Show name={'world'} options={[['all', 'All worlds', list.length],
+              ...worlds.map((world) => [`${world}`, `World ${world}`, list.filter((node) => node.world === world).length])]}/>
+            <Toolbar.Filter name={'hideUnused'} label={'Hide unused slots'}/>
+            <Toolbar.Filter name={'unconnected'} label={'Only unconnected'}/>
+          </Toolbar>
+          {shown.length ? <CardGrid size={'s'}>
+            {shown.map((node) => {
+              const { index, empty, rawName, nodeLevel, collected, maxQuantity, stored } = node;
+              const { connected, connectedMaps, connectedMap, connectedMapName, exhausted, fillPercent, hoursToEmpty } = node;
+              // A Savage Stronghold pours its collection back into the node instead of banking it.
+              const collectors = (connectedMaps ?? []).map((mapIndex, order) => (order === 0
+                ? connectedMapName || `map ${mapIndex}`
+                : outposts?.find((outpost) => outpost.mapIndex === mapIndex)?.name || `map ${mapIndex}`));
+              return <ItemCard key={index} icon={empty ? undefined : `data/${rawName}.png`}
+                               title={empty ? 'Unused slot' : `Node ${index}`} meta={`Lv ${formatNum(nodeLevel ?? 0)}`}
+                               status={!empty && exhausted ? 'needs' : undefined} statusLabel={'Empty'}>
                 {empty ? null : <>
-                  <Typography variant="caption" sx={{ mt: 1.5 }}>
-                    {notateNumber(collected, 'Big')} / {notateNumber(maxQuantity, 'Big')} collected
-                    {exhausted ? ' (empty)' : ''}
-                  </Typography>
-                  <LinearProgress variant="determinate" value={100 * fillPercent}
-                                  color={exhausted ? 'warning' : 'primary'}
-                                  sx={{ height: 6, borderRadius: 3, mt: 0.5 }}/>
-                  {hoursToEmpty != null
-                    ? <Typography variant="caption" sx={{ mt: 0.5 }}>Empties in {formatEta(hoursToEmpty)}</Typography>
-                    : null}
-                  <Typography variant="caption" sx={{ mt: 1 }}>
-                    In storage: {notateNumber(stored, 'Big')}
-                  </Typography>
+                  <ItemCard.Progress label={'Collected'} percent={100 * (fillPercent ?? 0)}
+                                     value={amount(collected)} max={amount(maxQuantity)}/>
+                  <ItemCard.Facts rows={[
+                    hoursToEmpty != null ? ['Empties in', formatDuration(hoursToEmpty * 3600)] : null,
+                    ['In storage', amount(stored)]
+                  ]}/>
                 </>}
-
-                <Typography variant="caption" sx={{ mt: 'auto', pt: 1 }}>
-                  {connected
-                    ? `${modeOf(connectedMap) === 2 ? 'Stockpiled by' : 'Collected by'} ${collectors.join(', ')}`
-                    : 'Not connected'}
-                </Typography>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </Box>
+                <ItemCard.Facts rows={[connected
+                  ? [modeOf(connectedMap) === 2 ? 'Stockpiled by' : 'Collected by', collectors.join(', ')]
+                  : ['Collected by', 'Not connected']]}/>
+              </ItemCard>;
+            })}
+          </CardGrid> : null}
+        </Stack>}
     </Stack>
   );
 };

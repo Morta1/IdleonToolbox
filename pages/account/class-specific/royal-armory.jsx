@@ -101,9 +101,10 @@ const RoyalArmory = () => {
                 resources={royalGuardian?.resources} clearingMaps={royalGuardian?.clearingMaps}
                 activeKillClear={royalGuardian?.guardian?.activeKillClear} sectionFailed={sectionFailed}/>
       <Resources resources={royalGuardian?.resources} outposts={royalGuardian?.outposts}
-                 resourcePerHour={royalGuardian?.resourcePerHour}/>
+                 resourcePerHour={royalGuardian?.resourcePerHour} sectionFailed={sectionFailed}/>
       <UpgradeOptimizer account={state?.account} character={selectedRoyalGuardian} sectionFailed={sectionFailed}/>
-      <RoyalStatues royalStatues={royalStatues} statueFlair={statueFlair} statueLevels={raw?.[0]}/>
+      <RoyalStatues royalStatues={catalog?.royalStatues ?? royalStatues} statueFlair={statueFlair} statueLevels={raw?.[0]}
+                    sectionFailed={sectionFailed}/>
       <OrbletMarket orbletMarket={catalog?.orbletMarket ?? orbletMarket} orblets={orblets} sectionFailed={sectionFailed}/>
     </Tabber>
   </>;
