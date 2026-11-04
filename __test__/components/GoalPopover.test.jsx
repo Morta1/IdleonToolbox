@@ -14,7 +14,7 @@ import { getDescriptor, withDescriptors } from '@utility/goals/registry';
 import { createGoal, GOALS_STORAGE_KEY, MAX_GOALS } from '@utility/goals/store';
 import { resolveGoal } from '@utility/goals/resolve';
 import { getBubbleLevelForPercent } from '@parsers/world-2/alchemy';
-import { numberWithCommas } from '@utility/helpers';
+import { formatNumber } from '@components/goals/parts/format';
 
 const { account, characters } = parseFixture(latest);
 const ctx = { account, characters };
@@ -66,9 +66,9 @@ describe('GoalPopover', () => {
     expect(button('Level')).toBeTruthy();
     expect(button('% of max')).toBeTruthy();
     const level = getBubbleLevelForPercent(account, bubbleRow, 90);
-    const step = button(`90% = Lv ${numberWithCommas(level)}`);
+    const step = button(`90% = Lv ${formatNumber(level)}`);
     expect(step).toBeTruthy();
-    expect(screen.getByText(new RegExp(`^You have Lv ${numberWithCommas(bubbleRow.level)} · \\d+% of max$`))).toBeTruthy();
+    expect(screen.getByText(new RegExp(`^You have Lv ${formatNumber(bubbleRow.level)} · \\d+% of max$`))).toBeTruthy();
     fireEvent.click(step);
     save();
     expect(api.goals).toHaveLength(1);
@@ -93,7 +93,7 @@ describe('GoalPopover', () => {
     expect(button('Level')).toBeNull();
     expect(button('% of max')).toBeNull();
     const max = grimoire.metrics.level.max(cappedGrimoire, ctx);
-    expect(button(`Max (${numberWithCommas(max)})`)).toBeTruthy();
+    expect(button(`Max (${formatNumber(max)})`)).toBeTruthy();
     capped.unmount();
 
     mount({ systems: [grimoire], initial: { system: 'grimoire', key: grimoire.key(uncappedGrimoire) } });
@@ -133,7 +133,7 @@ describe('GoalPopover', () => {
     const max = grimoire.metrics.level.max(cappedGrimoire, ctx);
     setTarget(max + 1);
     save();
-    expect(screen.getByText(`Target is above the max (${numberWithCommas(max)})`)).toBeTruthy();
+    expect(screen.getByText(`Target is above the max (${formatNumber(max)})`)).toBeTruthy();
     expect(api.goals).toEqual([]);
   });
 
@@ -287,8 +287,8 @@ describe('GoalPopover', () => {
     fireEvent.mouseDown(screen.getByLabelText('System'));
     const options = screen.getAllByRole('option');
     expect(options.map((o) => o.textContent)).toEqual([
-      `Bubbles${numberWithCommas(bubble.list(ctx).length)}`,
-      `Stamps${numberWithCommas(stamp.list(ctx).length)}`
+      `Bubbles${formatNumber(bubble.list(ctx).length)}`,
+      `Stamps${formatNumber(stamp.list(ctx).length)}`
     ]);
     expect(options.map((o) => o.querySelector('img').getAttribute('src'))).toEqual([
       `/${bubble.icon(bubble.list(ctx)[0])}.png`,
@@ -357,8 +357,8 @@ describe('GoalPopover', () => {
   });
 
   it.each([
-    ['a level', () => bubble, (row) => `You have Lv ${numberWithCommas(row.level)}`, 'Target level'],
-    ['kills', () => getDescriptor('killroyKills'), (row) => `You have ${numberWithCommas(Number(row.killRoyKills) || 0)} kills`, 'Target kills']
+    ['a level', () => bubble, (row) => `You have Lv ${formatNumber(row.level)}`, 'Target level'],
+    ['kills', () => getDescriptor('killroyKills'), (row) => `You have ${formatNumber(Number(row.killRoyKills) || 0)} kills`, 'Target kills']
   ])('the target row of %s says what you have and names the unit in the field', (_, descriptorOf, have, placeholder) => {
     const d = descriptorOf();
     const row = d.list(ctx).find((r) => d.metrics[Object.keys(d.metrics)[0]].value(r, ctx) > 0);
@@ -403,9 +403,9 @@ describe('GoalPopover', () => {
     mount({ systems: [totals], initial: { system: 'researchTotals', key: 'observations' } });
     expect(['One', 'All'].map((name) => !!button(name))).toEqual([false, false]);
     expect(screen.getByText('One total you pick from the list.')).toBeTruthy();
-    expect(button(`Max (${numberWithCommas(row.max)})`)).toBeTruthy();
-    const max = row.value >= row.max ? 'Already maxed' : `Max ${numberWithCommas(row.max)}`;
-    expect(screen.getByText(`You have ${numberWithCommas(row.value)} · ${max}`)).toBeTruthy();
+    expect(button(`Max (${formatNumber(row.max)})`)).toBeTruthy();
+    const max = row.value >= row.max ? 'Already maxed' : `Max ${formatNumber(row.max)}`;
+    expect(screen.getByText(`You have ${formatNumber(row.value)} · ${max}`)).toBeTruthy();
     setTarget(row.max);
     save();
     expect(api.goals.map(({ system, kind, key, metric, target }) => [system, kind, key, metric, target]))
@@ -449,7 +449,7 @@ describe('GoalPopover', () => {
     fireEvent.change(screen.getByLabelText('Item'), { target: { value: 'a' } });
     const matches = createFilterOptions()(item.list(ctx), { inputValue: 'a', getOptionLabel: (row) => String(item.name(row) ?? '') });
     expect(matches.length).toBeGreaterThan(250);
-    expect(screen.getByText(`250 of ${numberWithCommas(matches.length)}, type to filter`)).toBeTruthy();
+    expect(screen.getByText(`250 of ${formatNumber(matches.length)}, type to filter`)).toBeTruthy();
   });
 
   it('Sword Stamp has no Max step and accepts level 600', () => {

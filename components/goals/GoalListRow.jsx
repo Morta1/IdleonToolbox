@@ -3,11 +3,13 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Box, Button, ButtonBase, Stack, Typography } from '@mui/material';
 import { IconChevronDown, IconNote } from '@tabler/icons-react';
-import { editText, goalFace, goalText, valueColor } from './parts/format';
+import { editText, goalFace, goalText, maxIsGoal, valueColor } from './parts/format';
 import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GOAL_LIST_WIDTH, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX, PinStar } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntries from './GoalEntries';
 import { isUnresolved } from '@utility/goals/resolve';
+import ItemCard from '@components/common/cards/ItemCard';
+import StatusText from '@components/common/StatusText';
 
 const ROW_HEIGHT = 38;
 
@@ -34,8 +36,8 @@ const ROW_GRID_SX = {
   }
 };
 const LINE_SX = { ...ONE_LINE_SX, display: 'block' };
-const MAIN_LINE_SX = { ...LINE_SX, fontSize: 14, lineHeight: '18px' };
-const SUB_LINE_SX = { ...LINE_SX, fontSize: 12, lineHeight: '16px', color: 'text.secondary' };
+const MAIN_LINE_SX = { ...LINE_SX, typography: 'body2', lineHeight: '18px' };
+const SUB_LINE_SX = { ...LINE_SX, typography: 'caption', lineHeight: '16px', color: 'text.secondary' };
 // A phone keeps Edit and Remove on the name line so the reason and the amount get the full second line
 const UNRESOLVED_GRID_SX = {
   display: 'grid',
@@ -78,7 +80,7 @@ const RowSlots = ({ view, face, open = false }) => (
         <GoalMark mark={face.mark} size={14}/>
         <Box component="span" data-goal-value sx={{
           ...MAIN_LINE_SX,
-          fontSize: { xs: 12, sm: 14 },
+          typography: { xs: 'caption', sm: 'body2' },
           lineHeight: { xs: '16px', sm: '18px' },
           color: valueColor(view.status)
         }}>
@@ -111,7 +113,7 @@ const ProgressSlots = ({ view, face }) => {
         gridArea: 'aside',
         alignSelf: 'center',
         textAlign: 'right',
-        fontSize: 12,
+        typography: 'caption',
         lineHeight: '16px',
         color: reached ? 'text.success' : 'text.secondary'
       }}>
@@ -126,10 +128,10 @@ const ProgressSlots = ({ view, face }) => {
 const RowDetails = ({ view, face, id, source, onEdit, onRemove }) => {
   const router = useRouter();
   const { editable, route, openLabel, onOpenPage, onOpenWiki } = goalActions(view, router.query);
-  const showGoal = view.kind !== 'all' && !view.boolean && !view.watch;
+  const showGoal = (view.kind !== 'all' || maxIsGoal(view)) && !view.boolean && !view.watch;
   return (
     <Stack id={id} gap={1} sx={{ px: 1, pb: 1.5, pt: 0.5 }}>
-      {showGoal ? <Typography variant="body2" color="text.secondary">{`Goal: ${goalText(view)}`}</Typography> : null}
+      {showGoal ? <ItemCard.Facts rows={[['Goal', goalText(view)]]}/> : null}
       {face.cost ? (
         <Typography variant="body2" component="div" color="text.secondary"
                     sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
@@ -146,7 +148,7 @@ const RowDetails = ({ view, face, id, source, onEdit, onRemove }) => {
       ) : null}
       {view.kind === 'all' && view.shortCount ? (
         <Stack gap={0.5}>
-          <Typography variant="subtitle2" component="h3">Next up</Typography>
+          <Typography variant="groupLabel" component="h3" color="text.secondary">Next up</Typography>
           <GoalEntries view={view} source={source}/>
         </Stack>
       ) : null}
@@ -189,7 +191,9 @@ const UnresolvedRow = ({ view, face, onEdit, onRemove }) => (
     </Box>
     {/* the reason and the entry's current amount share one line */}
     <Box component="span" data-goal-reason sx={{ ...SUB_LINE_SX, gridArea: 'reason' }}>
-      <span data-goal-value>{face.value}</span>
+      <span data-goal-value>
+        {view.status === 'missing' ? <StatusText status={'needs'} sx={{ typography: 'caption', lineHeight: '16px' }}>{face.value}</StatusText> : face.value}
+      </span>
       {face.caption ? <>{' · '}<span data-goal-caption>{face.caption}</span></> : null}
     </Box>
     <Box sx={{ gridArea: 'actions', display: 'flex', gap: 0.5 }}>
@@ -218,8 +222,7 @@ const GoalListRow = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard'
       minWidth: 0,
       border: 1,
       borderColor: open ? 'primary.main' : 'divider',
-      borderRadius: 1,
-      opacity: view.status === 'missing' ? 0.6 : 1
+      borderRadius: 1
     }}>
       {/* the star sits outside the row button (a button cannot hold another); a goal that cannot be measured only shows it */}
       <Box sx={{ display: 'flex', alignItems: 'center', pl: 0.5, '& > :last-child': { flex: 1, minWidth: 0 } }}>

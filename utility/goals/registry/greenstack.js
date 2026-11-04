@@ -25,6 +25,8 @@ export default {
   metrics: {
     quantity: {
       label: 'Quantity',
+      // A greenstack is its own target, 10M: an all goal reads "All greenstacks", not "max quantity"
+      maxIsGoal: true,
       // The game keeps an item greenstacked after the stack drops below 10M
       value: (row, ctx) => row.greenStacked
         ? GREENSTACK_AMOUNT

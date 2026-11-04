@@ -397,8 +397,8 @@ describe('row text', () => {
     expect(statusText(view(fields))).toBe(text);
   });
 
-  it('the expanded goal line keeps the full number of a big target', () => {
-    expect(goalText(view({ metric: 'big', target: 1e12 }))).toBe('At least 1,000,000,000,000');
+  it('the expanded goal line reads a big target short, as its face does', () => {
+    expect(goalText(view({ metric: 'big', target: 1e12 }))).toBe('At least 1T');
   });
 
   // Coins draw the price beside it; a currency without an icon names the price in words
@@ -516,7 +516,7 @@ describe('row text', () => {
     expect(ranged.goalIds).toEqual(['lower', 'upper']);
     expect(ranged.progress).toBe(Math.min(...resolved.filter(({ id }) => id !== 'other').map(({ progress }) => progress)));
     // a million and up reads short on the face, like the range bounds
-    expect(statusText(ranged)).toBe(`${value >= 1e6 ? notateNumber(value) : formatNumber(value)} of 500K - 5M`);
+    expect(statusText(ranged)).toBe(`${value >= 1e6 ? notateNumber(value) : formatNumber(value)} of 500,000 to 5M`);
   });
 
   it.each([

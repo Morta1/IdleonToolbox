@@ -94,7 +94,10 @@ const rowNames = (list) => rows(list).map((li) => li.querySelector('[data-goal-n
 const rowText = (row) => ['[data-goal-value]', '[data-goal-caption]', '[data-goal-aside]']
   .map((sel) => row.querySelector(sel)?.textContent ?? '');
 const openRow = (row) => fireEvent.click(row.querySelector('[data-goal-row]'));
-const chip = (name) => screen.getByRole('button', { name });
+const pick = (field, option) => {
+  fireEvent.mouseDown(screen.getByRole('combobox', { name: field }));
+  fireEvent.click(screen.getByRole('option', { name: option }));
+};
 const expandedNames = () => within(screen.getByRole('list', { name: 'Entries still short' }))
   .getAllByRole('listitem').map((li) => li.querySelector('[data-entry-name]').textContent);
 
@@ -138,7 +141,7 @@ describe('Dashboard goals', () => {
     mount();
     await screen.findByText('1 goal · 0 reached');
     expect(rows()).toHaveLength(1);
-    expect(rowText(rows()[0])[0]).toMatch(/ of 500K - 5M$/);
+    expect(rowText(rows()[0])[0]).toMatch(/ of 500,000 to 5M$/);
   });
 
   it('an all row says what each entry needs in its name and counts entries done; the next one waits for the open row', async () => {
@@ -148,7 +151,7 @@ describe('Dashboard goals', () => {
     const view = resolveGoal(all, ctx);
     const [row] = rows(await screen.findByRole('list', { name: 'Goals' }));
     const [next] = view.short;
-    expect(row.querySelector('[data-goal-name]').textContent).toBe('All bubbles at least Lv 1,000,000,000');
+    expect(row.querySelector('[data-goal-name]').textContent).toBe('All bubbles at least Lv 1B');
     expect(rowText(row)).toEqual([`${formatNumber(view.met)} of ${formatNumber(view.total)} done`, '',
       progressPercent(view)]);
     expect(within(row).queryByText(next.name, { exact: false })).toBeNull();
@@ -224,12 +227,11 @@ describe('Dashboard goals', () => {
     expect(rowText(rows()[0])).toEqual([bare(tiers[current]), '', `${current}/${current + 1}`]);
   });
 
-  it('a missing goal is a dimmed row with No longer in the game and Remove, without opening', async () => {
+  it('a missing goal is a row with No longer in the game and Remove, without opening', async () => {
     seed(goal({ key: 'no-such-bubble', target: 5 }));
     mount();
     await screen.findByText('No longer in the game');
     const [row] = rows();
-    expect(getComputedStyle(row).opacity).toBe('0.6');
     expect(screen.queryByText('no-such-bubble')).toBeNull();
     expect(within(row).getAllByRole('button').map((b) => b.textContent)).toEqual(['Remove']);
     // a phone gets a 40px target around the one-line button
@@ -273,7 +275,8 @@ describe('Dashboard goals', () => {
     expect(within(row).getByRole('img', { name: 'Has a note' })).toBeTruthy();
     openRow(row);
     expect(row.querySelector('[data-goal-row]').getAttribute('aria-expanded')).toBe('true');
-    expect(within(row).getByText(`Goal: At least Lv ${formatNumber(view.targetValue)}`)).toBeTruthy();
+    expect(within(row).getByText('Goal')).toBeTruthy();
+    expect(within(row).getByText(`At least Lv ${formatNumber(view.targetValue)}`)).toBeTruthy();
     expect(row.querySelector('[data-goal-note]').textContent).toBe('Before the next event');
     expect(within(row).getAllByRole('button').slice(2).map((b) => b.textContent)).toEqual(['Edit', 'Remove']);
     expect(within(row).getByRole('link', { name: 'Open Bubbles page' }).getAttribute('href')).toBe(`${bubble.route}?demo=true`);
@@ -307,22 +310,22 @@ describe('Dashboard goals', () => {
     expect(getComputedStyle(menuSlot).gridRow).toBe('2');
   });
 
-  it('system chips filter the rows and All brings every goal back', async () => {
+  it('the Show field filters the rows and All brings every goal back', async () => {
     seed(openGoal(), goal({ key: bubble.key(levelled[2]), target: levelled[2].level + 1000 }),
       goal({ system: 'stamp', key: stamp.key(levelledStamp), target: levelledStamp.level * 10 }));
     mount();
     await screen.findByText('3 goals · 0 reached');
-    expect(chip('All 3').getAttribute('aria-pressed')).toBe('true');
-    fireEvent.click(chip('Stamps 1'));
+    expect(screen.getByRole('combobox', { name: 'Show' }).textContent).toContain('All');
+    pick('Show', 'Stamps (1)');
     expect(rowNames()).toEqual([stamp.name(levelledStamp)]);
-    expect(chip('Stamps 1').getAttribute('aria-pressed')).toBe('true');
-    fireEvent.click(chip('Bubbles 2'));
+    expect(screen.getByRole('combobox', { name: 'Show' }).textContent).toContain('Stamps');
+    pick('Show', 'Bubbles (2)');
     expect(rowNames()).toHaveLength(2);
-    fireEvent.click(chip('All 3'));
+    pick('Show', 'All (3)');
     expect(rowNames()).toHaveLength(3);
   });
 
-  it('past five systems the rest fold into a +k chip (never a +1) whose menu filters too', async () => {
+  it('the Show field lists every system, however many there are', async () => {
     const systems = ['bubble', 'stamp', 'grimoire', 'slab', 'killroyKills', 'summonStone', 'bribe'];
     seed(...systems.map((system) => {
       const d = getDescriptor(system);
@@ -330,16 +333,15 @@ describe('Dashboard goals', () => {
     }));
     mount();
     await screen.findByText('7 goals', { exact: false });
-    const folded = getDescriptors().map(({ system }) => system).filter((system) => systems.includes(system))
-      .slice(5).map((system) => `${getDescriptor(system).label} 1`);
-    fireEvent.click(chip('More systems'));
-    expect(screen.getAllByRole('menuitem').map((m) => m.textContent)).toEqual(folded);
-    fireEvent.click(screen.getByRole('menuitem', { name: folded[1] }));
-    expect(chip(folded[1]).getAttribute('aria-pressed')).toBe('true');
-    expect(screen.queryByRole('button', { name: 'More systems' })).toBeTruthy();
+    const names = getDescriptors().map(({ system }) => system).filter((system) => systems.includes(system))
+      .map((system) => `${getDescriptor(system).label} (1)`);
+    fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Show' }));
+    expect(screen.getAllByRole('option').map((m) => m.textContent)).toEqual(['All (7)', ...names]);
+    fireEvent.click(screen.getByRole('option', { name: names[6] }));
+    expect(screen.getByRole('combobox', { name: 'Show' }).textContent).toContain(names[6].replace(' (1)', ''));
   });
 
-  it('Rows is the default layout; Cards keeps a fixed 78px card with its own actions slot, and the choice is remembered', async () => {
+  it('Rows is the default layout; Cards keeps a fixed 80px card with its own actions slot, and the choice is remembered', async () => {
     seed({ ...openGoal(), note: 'Before the next event' });
     const first = mount();
     await screen.findByText('1 goal · 0 reached');
@@ -348,12 +350,11 @@ describe('Dashboard goals', () => {
     fireEvent.click(layout('Cards'));
     const [card] = rows();
     expect(card.querySelector('[data-goal-row]')).toBeNull();
-    expect(getComputedStyle(card).height).toBe('78px');
+    expect(getComputedStyle(card).height).toBe('80px');
     const actions = within(card).getByRole('button', { name: 'Goal actions' });
     expect(getComputedStyle(actions).position).not.toBe('absolute');
-    // phone targets: a 40px actions button and 40px layout toggles
-    expect([getComputedStyle(actions).width, getComputedStyle(actions).height, getComputedStyle(layout('Rows')).minHeight])
-      .toEqual(['40px', '40px', '40px']);
+    // a phone target: a 40px actions button
+    expect([getComputedStyle(actions).width, getComputedStyle(actions).height]).toEqual(['40px', '40px']);
     fireEvent.click(actions);
     // the note above the actions is not the first focus stop
     expect(document.activeElement.textContent).toBe('Edit');
@@ -386,11 +387,7 @@ describe('Dashboard goals', () => {
     await screen.findByText('3 goals · 0 reached');
     const [quarterName, tenthName, halfName] = [bubble.name(a), stamp.name(levelledStamp), bubble.name(b)];
     expect(rowNames()).toEqual([tenthName, halfName, quarterName]);
-    const sortBy = (current, next) => {
-      fireEvent.click(chip(current));
-      fireEvent.click(screen.getByRole('menuitem', { name: next }));
-    };
-    sortBy('Closest first', 'Recently added');
+    pick('Sort by', 'Recently added');
     expect(rowNames()).toEqual([tenthName, halfName, quarterName]);
     fireEvent.click(screen.getByRole('button', { name: 'Unpin goal' }));
     expect(rowNames()).toEqual([halfName, tenthName, quarterName]);
@@ -398,7 +395,7 @@ describe('Dashboard goals', () => {
     expect(rowNames()).toEqual([quarterName, halfName, tenthName]);
     first.unmount();
     mount();
-    expect(await screen.findByRole('button', { name: 'Recently added' })).toBeTruthy();
+    expect((await screen.findByRole('combobox', { name: 'Sort by' })).textContent).toContain('Recently added');
   });
 
   it('reached goals wait in a collapsed Reached strip with Clear reached', async () => {
@@ -457,7 +454,7 @@ describe('Dashboard goals', () => {
     await screen.findByText('1 goal · 0 reached');
     const [row] = rows();
     openRow(row);
-    for (const [label, target] of [['Edit at least 500K', '500,000'], ['Edit at most 5M', '5,000,000']]) {
+    for (const [label, target] of [['Edit at least 500,000', '500,000'], ['Edit at most 5M', '5,000,000']]) {
       fireEvent.click(within(row).getByRole('button', { name: label }));
       expect((await screen.findByLabelText(/^Target/)).value).toBe(target);
       fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
@@ -563,7 +560,7 @@ describe('Dashboard goals', () => {
     fireEvent.click(await screen.findByRole('button', { name: 'Cards' }));
     fireEvent.click(within(rows()[0]).getByRole('button', { name: 'Goal actions' }));
     fireEvent.click(screen.getByRole('menuitem', { name: 'Next up' }));
-    const dialog = screen.getByRole('dialog', { name: 'All bubbles at least Lv 1,000,000,000' });
+    const dialog = screen.getByRole('dialog', { name: 'All bubbles at least Lv 1B' });
     expect(expandedNames()).toEqual(view.short.slice(0, 50).map(({ name }) => name));
     expect(within(dialog).getByRole('link', { name: 'Full list on the Bubbles page' }).getAttribute('href'))
       .toBe(`${bubble.route}?demo=true`);

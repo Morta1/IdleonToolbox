@@ -18,11 +18,12 @@ const columns = (size, count) => (size === 'icon'
 // cards themselves (the Sampling companion's rows). columns: the icon grid's fixed column count.
 // flow: the cards flow down columns of the size's width, each kept whole, for Panels of very different heights
 // (General): a tall one never sets a row's height for the short ones beside it, so it leaves no empty band.
+// Any other prop goes to the grid's own element (a list's component and name).
 // fill: an icon grid that fits its Panel on a phone, its tiles sharing the row at 64 to 72 px each: General's Panels
 // at 384 held 3 tiles and an 86 px empty band where a fourth almost fit. From 600 px the tiles keep their 72 px.
 const FILL_SX = { gridTemplateColumns: { xs: 'repeat(auto-fill, minmax(64px, 1fr))', sm: 'repeat(auto-fill, 72px)' } };
-const CardGrid = ({ size = 'm', columns: count, withBorder, flow, fill, children, sx }) => <CardSize.Provider value={size}>
-  <Box sx={[
+const CardGrid = ({ size = 'm', columns: count, withBorder, flow, fill, children, sx, ...rest }) => <CardSize.Provider value={size}>
+  <Box {...rest} sx={[
     flow ? { columnWidth: CARD_MIN_WIDTH[size], columnGap: 2, '& > *': { breakInside: 'avoid', mb: 2 }, '& > :last-child': { mb: 0 } }
       : { display: 'grid', gridTemplateColumns: columns(size, count), gap: size === 'icon' ? 1 : 2 },
     !flow && fill && size === 'icon' && FILL_SX,

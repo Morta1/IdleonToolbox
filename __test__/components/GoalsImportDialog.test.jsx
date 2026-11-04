@@ -67,9 +67,9 @@ describe('Goals import dialog', () => {
     seed(bubble('old'));
     mount(<ImportDialog text={fileText([bubble('new')])} onClose={vi.fn()}/>);
     await waitFor(() => expect(api.loaded).toBe(true));
-    expect(screen.queryByText('This removes your 1 current goal')).toBeNull();
+    expect(screen.queryByText('This removes your 1 current goal.')).toBeNull();
     fireEvent.click(screen.getByLabelText('Replace my goals'));
-    expect(screen.getByText('This removes your 1 current goal')).toBeTruthy();
+    expect(screen.getByText('This removes your 1 current goal.')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Import 1 goal' }));
     await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Imported 1.'));
     expect(stored().map((g) => g.key)).toEqual(['new']);
@@ -113,7 +113,7 @@ describe('Goals import dialog', () => {
     expect(screen.getByText('1 goal: 1 account, 0 character')).toBeTruthy();
     expect(screen.getByText(/, 1 other goal left out$/)).toBeTruthy();
     fireEvent.click(screen.getByLabelText('Replace my item goals'));
-    expect(screen.getByText('This removes your 1 current item goal')).toBeTruthy();
+    expect(screen.getByText('This removes your 1 current item goal.')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Import 1 item goal' }));
     await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Imported 1.'));
     expect(stored().map((g) => g.key)).toEqual(['keep', 'New']);

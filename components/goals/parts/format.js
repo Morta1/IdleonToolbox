@@ -1,8 +1,10 @@
-import { notateNumber, numberWithCommas } from '@utility/helpers';
+import { formatNum } from '@utility/helpers';
 import { isAllChars, isCharScope, MAX_TARGET, NEXT_TARGET } from '@utility/goals/store';
 import { capitalizeFirst } from '@utility/goals/registry/names';
+import { getDescriptor } from '@utility/goals/registry';
 
-export const formatNumber = (n) => numberWithCommas(Math.round(n));
+// The amount kind: every digit under a million, then short ("1.04B"), on a goal's face and its details alike
+export const formatNumber = (n) => formatNum(n);
 
 // Floored so 89.99% never reads as a reached 90%
 export const formatPercent = (n) => `${Math.floor(n)}%`;
@@ -65,14 +67,8 @@ export const valueColor = (status) => {
   return 'text.primary';
 };
 
-// The row and card face is one short line: a million and up reads "1.04B"; the expanded goal keeps every digit
-const faceNumber = (n) => (Math.abs(n) >= 1e6 ? String(notateNumber(n)) : formatNumber(n));
-
 // An amount of a price's currency: small ones in full, big ones short ("1.2M"); bits keep their own notation
-export const costAmount = (cost, n) => {
-  if (cost.format) return cost.format(n);
-  return n < 1e4 ? formatNumber(n) : String(notateNumber(n));
-};
+export const costAmount = (cost, n) => (cost.format ? cost.format(n) : formatNumber(n));
 
 // "1.2M of 5M coins"
 export const costText = (cost) => `${costAmount(cost, cost.have)} of ${costAmount(cost, cost.price)} ${cost.label}`;
@@ -117,7 +113,7 @@ export const amountWithUnit = (metric, n, { percent = false } = {}) => {
 export const targetPlaceholder = (label, percent) => (percent ? 'Target %' : `Target ${String(label ?? '').toLowerCase()}`.trim());
 
 // One bound of an item range, in the range's notation: "At least 500K"
-export const rangeBoundText = (part) => `${directionOf(part.op)} ${notateNumber(part.targetValue)}`;
+export const rangeBoundText = (part) => `${directionOf(part.op)} ${formatNumber(part.targetValue)}`;
 
 // "Edit at least 500K" for one bound of a range; any other goal is just Edit
 export const editText = (view, part) => {
@@ -125,11 +121,16 @@ export const editText = (view, part) => {
   return `Edit ${lowerFirst(rangeBoundText(part))}`;
 };
 
-// What the goal asks for: "At least Lv 100", "At most 10", "500K - 5M"
+// A system whose max is the goal itself: its all goal reads by its name, and says what each entry needs in its details
+export const maxIsGoal = (view) => view.kind === 'all' && view.target === MAX_TARGET
+  && Boolean(getDescriptor(view.system)?.metrics?.[view.metric]?.maxIsGoal);
+
+// What the goal asks for: "At least Lv 100", "At most 10", "500,000 to 5M", "10M each"
 export const goalText = (view) => {
   if (view.boolean) return booleanWords(view).done;
-  if (view.range) return `${notateNumber(view.range.lower.targetValue)} - ${notateNumber(view.range.upper.targetValue)}`;
+  if (view.range) return `${formatNumber(view.range.lower.targetValue)} to ${formatNumber(view.range.upper.targetValue)}`;
   if (view.target === NEXT_TARGET) return view.metricLabel;
+  if (maxIsGoal(view)) return `${formatNumber(getDescriptor(view.system).metrics[view.metric].max())} each`;
   if (view.kind === 'all' && view.target === MAX_TARGET) return `Max ${String(view.metricLabel).toLowerCase()}`;
   const direction = directionOf(view.op);
   if (view.tierName) return `${direction} ${shortTier(view.tierName)}`;
@@ -141,12 +142,12 @@ export const goalText = (view) => {
 // ("At most 10") and a watch goal has no target
 const amountParts = (view) => {
   const percent = view.unit === 'percentOfMax';
-  const value = percent ? formatPercent(view.value) : `${unitOf(metricOf(view))}${faceNumber(view.value)}`;
+  const value = percent ? formatPercent(view.value) : `${unitOf(metricOf(view))}${formatNumber(view.value)}`;
   if (view.watch) return { value: percent ? value : `${value}${suffixOf(view.metricLabel)}`, target: '' };
   if (view.range) return { value, target: `of ${goalText(view)}` };
   const suffix = percent ? '' : suffixOf(view.metricLabel);
-  if (view.op === '<=') return { value, target: `${directionOf(view.op)} ${targetText(view, faceNumber)}${suffix}` };
-  return { value, target: `of ${targetText(view, faceNumber)}${suffix}` };
+  if (view.op === '<=') return { value, target: `${directionOf(view.op)} ${targetText(view)}${suffix}` };
+  return { value, target: `of ${targetText(view)}${suffix}` };
 };
 
 // One entry's amount in its goal's unit: "Lv 148", the tier name; a yes/no entry has none
@@ -243,7 +244,7 @@ const titleTarget = (view) => {
 // A goal's name; an all or group goal also says what each entry needs ("All bubbles at least Lv 100")
 export const goalTitle = (view) => {
   const name = goalName(view);
-  if (view.kind !== 'all' || view.boolean || view.watch || view.status === 'missing' || view.status === 'invalid') return name;
+  if (view.kind !== 'all' || view.boolean || view.watch || view.status === 'missing' || view.status === 'invalid' || maxIsGoal(view)) return name;
   return `${name} ${lowerFirst(titleTarget(view))}`;
 };
 

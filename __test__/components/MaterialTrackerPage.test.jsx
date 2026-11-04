@@ -14,7 +14,7 @@ import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
 import { resolveGoal } from '@utility/goals/resolve';
 import { formatNumber, goalFace, goalTitle } from '@components/goals/parts/format';
 import { FOLD_NOTICE_KEY, MIGRATED_FLAG_KEY } from '@components/goals/useMaterialTrackerMigration';
-import { handleDownload, notateNumber } from '@utility/helpers';
+import { handleDownload } from '@utility/helpers';
 import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 
 vi.mock('next/router', () => ({
@@ -191,7 +191,7 @@ describe('material tracker page', () => {
     mount();
     expect(rowNames()).toEqual([item.name(first)]);
     const [row] = within(goalList()).getAllByRole('listitem');
-    expect(row.textContent).toContain(`${notateNumber(500000)} - ${notateNumber(5000000)}`);
+    expect(row.textContent).toContain('500,000 to 5M');
     openRow(row);
     fireEvent.click(within(row).getByRole('button', { name: 'Remove' }));
     expect(api.goals).toEqual([]);

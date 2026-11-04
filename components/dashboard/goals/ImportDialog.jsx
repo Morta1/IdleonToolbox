@@ -15,6 +15,7 @@ import { getDescriptor } from '@utility/goals/registry';
 import { ALL_GOALS, defaultCharMap, parseImport, planImport, summarizeImport } from '@utility/goals/importExport';
 import { trackEvent } from '@utility/analytics';
 import AppDialog from '@components/common/Overlays/AppDialog';
+import Notice from '@components/common/Notice';
 import { notify } from '@components/common/Overlays/notify';
 
 export const READ_ERROR = Symbol('read-error');
@@ -42,7 +43,7 @@ const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan
   const summary = summarizeImport(file);
   return (
     <Stack gap={2} sx={{ pt: 1 }}>
-      <Typography>{`${summary.total} ${summary.total === 1 ? 'goal' : 'goals'}: ${summary.account} account, ${summary.character} character`}</Typography>
+      <Typography variant="body2">{`${summary.total} ${summary.total === 1 ? 'goal' : 'goals'}: ${summary.account} account, ${summary.character} character`}</Typography>
       <FormControl>
         <RadioGroup value={mode} onChange={(e) => setMode(e.target.value)}>
           <FormControlLabel value="merge" control={<Radio size="small"/>} label="Merge with my goals"/>
@@ -50,9 +51,7 @@ const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan
         </RadioGroup>
       </FormControl>
       {mode === 'replace' && currentCount > 0 ? (
-        <Typography variant="body2" color="text.warning">
-          {`This removes your ${currentCount} current ${noun}${currentCount === 1 ? '' : 's'}`}
-        </Typography>
+        <Notice tone={'missing'}>{`This removes your ${currentCount} current ${noun}${currentCount === 1 ? '' : 's'}.`}</Notice>
       ) : null}
       {summary.characters.map(({ name, count }) => (
         <Stack key={name} direction="row" gap={2} alignItems="center">
@@ -138,7 +137,7 @@ const ImportDialog = ({ text, onClose, only = ALL_GOALS, noun = 'goal' }) => {
         ? <ImportBody file={parsed.file} mode={mode} setMode={setMode} charMap={charMap} setCharMap={setCharMap}
                       characters={characters} plan={plan} currentCount={replaced.length} noun={noun}
                       leftOut={parsed.leftOut}/>
-        : <Typography color="text.error">{ERRORS[parsed.error]}</Typography>}
+        : <Notice tone={'error'} action={false}>{ERRORS[parsed.error]}</Notice>}
     </AppDialog>
   );
 };

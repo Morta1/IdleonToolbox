@@ -23,11 +23,12 @@ const GreenstackFoldNotice = ({ sx }) => {
   const pending = loaded && notice?.count > 0 && !notice.seen && notice.accountKey === accountKey;
   const markSeen = () => setNotice({ ...notice, seen: true });
 
-  // Swaps back what "Keep as separate goals" swapped
+  // Swaps back what "Keep as separate goals" swapped, and offers the split again
   const undoKeep = (added, removed) => {
     // A duplicate of an existing goal was never saved under its own id, so removing every id leaves that goal alone
     removeMany(added.map(({ id }) => id));
     saveMany(removed);
+    setNotice({ ...notice, seen: false });
   };
 
   // Rebuilt from the old tracker key, which the migration only ever reads

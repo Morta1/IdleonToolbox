@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Box, Button, Divider, IconButton, Menu, MenuItem, Typography } from '@mui/material';
+import CardGrid from '@components/common/cards/CardGrid';
 import { IconDotsVertical, IconNote } from '@tabler/icons-react';
 import { editText, goalFace, valueColor } from './parts/format';
-import { COMPACT_BUTTON_SX, GOAL_LIST_WIDTH, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX, PinStar } from './parts/GoalVisuals';
+import { COMPACT_BUTTON_SX, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX, PinStar } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntriesDialog from './GoalEntriesDialog';
 import { isUnresolved } from '@utility/goals/resolve';
 
-const CARD_HEIGHT = 78;
+const CARD_HEIGHT = 80;
 
 // Three fixed rows (name, value, bar and percent) so every card lines up with its neighbours; the actions
 // button has its own slot on the value line, so the name keeps the whole first line
@@ -23,7 +24,7 @@ const CARD_SX = {
   px: 1,
   py: 0.75,
   display: 'grid',
-  gridTemplateRows: '22px 20px 20px',
+  gridTemplateRows: '24px 20px 20px',
   gridTemplateColumns: 'minmax(0, 1fr) auto',
   columnGap: 1
 };
@@ -43,7 +44,6 @@ const GoalTile = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard' })
   const [menu, setMenu] = useState(null);
   const [entriesOpen, setEntriesOpen] = useState(false);
   const face = goalFace(view);
-  const missing = view.status === 'missing';
   const unresolved = isUnresolved(view);
   const reached = view.status === 'reached';
   const { editable, route, openLabel, onOpenPage, onOpenWiki } = goalActions(view, router.query);
@@ -55,10 +55,10 @@ const GoalTile = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard' })
   };
 
   return (
-    <Box component="li" data-goal-status={view.status} sx={{ ...CARD_SX, opacity: missing ? 0.6 : 1 }}>
+    <Box component="li" data-goal-status={view.status} sx={CARD_SX}>
       <Box sx={{ gridRow: 1, gridColumn: '1 / 3', display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
         <PinStar pinned={view.pinned} onToggle={onTogglePin && !unresolved ? () => onTogglePin(view) : undefined} keepSlot={!!onTogglePin} size={14}/>
-        <GoalIcon src={view.icon} alt="" size={20}/>
+        <GoalIcon src={view.icon} alt="" size={24}/>
         <Typography data-goal-name variant="body2" component="span" sx={{ ...LINE_SX, fontWeight: 500, flexShrink: 1 }}>
           {displayTitle(view)}
         </Typography>
@@ -151,20 +151,11 @@ const GoalTile = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard' })
   );
 };
 
-// The card grid: as many 200px columns as fit the same width as the rows
+// The card grid: as many columns as fit the same width as the rows, one a row on a phone
 export const GoalGrid = ({ label, children }) => (
-  <Box component="ul" aria-label={label} sx={{
-    listStyle: 'none',
-    m: 0,
-    p: 0,
-    display: 'grid',
-    gap: 1.5,
-    gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-    width: GOAL_LIST_WIDTH,
-    maxWidth: '100%'
-  }}>
+  <CardGrid size={'s'} component={'ul'} aria-label={label} sx={{ listStyle: 'none', m: 0, p: 0 }}>
     {children}
-  </Box>
+  </CardGrid>
 );
 
 export default GoalTile;

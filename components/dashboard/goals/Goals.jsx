@@ -1,23 +1,12 @@
 import React, { useContext, useState } from 'react';
 import dynamic from 'next/dynamic';
-import Link from 'next/link';
+import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { useLocalStorage } from '@mantine/hooks';
-import {
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Chip,
-  Menu,
-  MenuItem,
-  Stack,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography,
-  useMediaQuery
-} from '@mui/material';
-import { IconArrowsSort, IconChevronDown, IconChevronRight, IconTargetArrow } from '@tabler/icons-react';
+import { Box, Button, Link, Stack, Typography } from '@mui/material';
+import { IconChevronDown, IconChevronRight, IconTargetArrow } from '@tabler/icons-react';
+import Panel from '@components/common/cards/Panel';
+import Toolbar from '@components/common/Toolbar';
 import { AppContext } from '@components/common/context/AppProvider';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { useMaterialTrackerMigration } from '@components/goals/useMaterialTrackerMigration';
@@ -49,83 +38,53 @@ const STARTER_PAGES = [
 ];
 
 const SORTS = [
-  { id: 'closest', label: 'Closest first' },
-  { id: 'recent', label: 'Recently added' }
+  ['closest', 'Closest first', 'desc'],
+  ['recent', 'Recently added', 'desc']
 ];
+const DEFAULT_SORT = { key: 'closest', order: 'desc' };
 const SORT_KEY = 'goals-dashboard-sort';
 const LAYOUTS = [
-  { id: 'rows', label: 'Rows' },
-  { id: 'cards', label: 'Cards' }
+  ['rows', 'Rows'],
+  ['cards', 'Cards']
 ];
 const LAYOUT_KEY = 'goals-dashboard-layout';
 // The dashboard leads with the goals closest to done; the rest wait behind Show all so the alerts stay in reach
 const SHOWN_GOALS = 8;
 const SHOW_ALL_KEY = 'goals-dashboard-show-all';
-// a phone gets a 40px tap target
-const LAYOUT_BUTTON_SX = (theme) => ({
-  py: 0,
-  px: 1,
-  fontSize: 13,
-  minHeight: 40,
-  [theme.breakpoints.up('sm')]: { minHeight: 'auto' }
-});
-// Stretches to the Rows / Cards toggle beside it, with its own padding and a gap after the icon
-const SORT_CHIP_SX = {
-  fontSize: 13,
-  height: 'auto',
-  minHeight: 'auto',
-  px: '11px',
-  py: '5px',
-  '& .MuiChip-icon': { ml: 0, mr: '6px' },
-  '& .MuiChip-label': { px: 0 }
-};
-// More systems than this fold into a "+k" chip
-const SYSTEM_CHIPS = 5;
-
-const CHIP_SX = { fontSize: 13 };
-// MUI's default icon margins leave a wide, lopsided gap beside a game icon
-const STARTER_CHIP_SX = {
-  ...CHIP_SX,
-  height: 32,
-  pl: '8px',
-  pr: '12px',
-  '& .MuiChip-icon': { ml: 0, mr: 0, width: 20, height: 20 },
-  '& .MuiChip-label': { pl: '8px', pr: 0 }
-};
-
 // Looks like the header button but does nothing: it only shows where to click
 const AddGoalReplica = () => (
   <Box component="span" sx={{
     display: 'inline-flex', alignItems: 'center', gap: 0.5, px: 1, py: '2px', borderRadius: 1, color: 'primary.main',
-    bgcolor: 'action.hover', verticalAlign: 'middle', fontSize: 13
+    bgcolor: 'action.hover', verticalAlign: 'middle', typography: 'caption'
   }}>
     <IconTargetArrow size={16}/>
     <span>Add goal</span>
   </Box>
 );
 
-const StarterChips = ({ query }) => (
-  <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
+const StarterLinks = ({ query }) => (
+  <Stack direction="row" columnGap={2} rowGap={1} flexWrap="wrap" alignItems="center">
     {STARTER_PAGES.map(([label, route, icon]) => (
-      <Chip key={route} component={Link} href={{ pathname: route, query: sessionQuery(query) }} clickable
-            variant="outlined" label={label} sx={STARTER_CHIP_SX}
-            icon={<GoalIcon src={icon} alt="" size={20}/>}/>
+      <Link key={route} component={NextLink} href={{ pathname: route, query: sessionQuery(query) }} variant="body2"
+            sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, minHeight: { xs: 44, sm: 'auto' } }}>
+        <GoalIcon src={icon} alt="" size={24}/>{label}
+      </Link>
     ))}
   </Stack>
 );
 
-// The first-run block: what goals are and where to start. Not an empty list, so not the shared EmptyState.
+// The first-run block: what goals are and where to start.
 const FirstGoalIntro = ({ query }) => (
   <Stack direction="row">
     <Stack gap={1} sx={{ minWidth: 0 }}>
-      <Typography fontWeight={600}>Set your first goal</Typography>
+      <Typography variant="cardTitle" component="h3">Set your first goal</Typography>
       <Typography variant="body2" color="text.secondary">
         Pick something you&apos;re working toward, like a stamp level, all meals to Lv 100 or a bribe, and track it here.
       </Typography>
       <Typography variant="body2" color="text.secondary">
         Use <AddGoalReplica/> beside a page&apos;s title, or start with:
       </Typography>
-      <StarterChips query={query}/>
+      <StarterLinks query={query}/>
       <Typography variant="caption" color="text.secondary">
         Items from the material tracker show up here automatically.
       </Typography>
@@ -147,15 +106,16 @@ const closenessRank = (view) => {
   return view.progress == null ? 1 : 0;
 };
 
-const sortViews = (views, sort, createdAtOf) => {
-  const sorted = sort === 'recent'
-    ? stableSort(views, (a, b) => createdAtOf(b) - createdAtOf(a))
-    : stableSort(views, (a, b) => closenessRank(a) - closenessRank(b) || (b.progress ?? 0) - (a.progress ?? 0));
+const sortViews = (views, { key, order }, createdAtOf) => {
+  const sign = order === 'asc' ? -1 : 1;
+  const sorted = key === 'recent'
+    ? stableSort(views, (a, b) => sign * (createdAtOf(b) - createdAtOf(a)))
+    : stableSort(views, (a, b) => closenessRank(a) - closenessRank(b) || sign * ((b.progress ?? 0) - (a.progress ?? 0)));
   // Pinned goals lead under either sort, ahead of the cap on how many show
   return stableSort(sorted, (a, b) => Number(b.pinned) - Number(a.pinned));
 };
 
-// One chip per system with its goal count, the most tracked first so the chips before "+k" are the useful ones
+// One option per system with its goal count, the most tracked first
 const systemsOf = (views) => {
   const systems = new Map();
   for (const view of views) {
@@ -172,13 +132,11 @@ const Goals = () => {
   const { enabled, goals, saveMany } = useGoals();
   const [editing, setEditing] = useState(null);
   const [systemFilter, setSystemFilter] = useState('');
-  const [sortMenu, setSortMenu] = useState(null);
-  const [moreMenu, setMoreMenu] = useState(null);
   const [reachedOpen, setReachedOpen] = useState(false);
   const [showAll, setShowAll] = useLocalStorage({ key: SHOW_ALL_KEY, defaultValue: false });
+  // Saved before the direction existed as the sort's name alone: that sort, in its one direction
   const [sort, setSort] = useLocalStorage({ key: SORT_KEY, defaultValue: 'closest' });
   const [layout, setLayout] = useLocalStorage({ key: LAYOUT_KEY, defaultValue: 'rows' });
-  const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const { removeWithUndo: removeIds } = useGoalsUndo();
   const fileImport = useGoalsFileImport();
   const { overCap } = useMaterialTrackerMigration();
@@ -192,19 +150,13 @@ const Goals = () => {
   const filtered = activeSystem ? views.filter(({ system }) => system === activeSystem) : views;
   const createdAt = new Map(goals.map(({ id, createdAt: at }) => [id, at ?? 0]));
   const createdAtOf = (view) => Math.max(...(view.goalIds ?? [view.id]).map((id) => createdAt.get(id) ?? 0));
-  const sortId = SORTS.some(({ id }) => id === sort) ? sort : SORTS[0].id;
-  const open = sortViews(filtered.filter(({ status }) => status !== 'reached'), sortId, createdAtOf);
-  const shownReached = sortViews(filtered.filter(({ status }) => status === 'reached'), sortId, createdAtOf);
-  const layoutId = LAYOUTS.some(({ id }) => id === layout) ? layout : LAYOUTS[0].id;
-  const cardsShown = layoutId === 'cards' && !isPhone;
-
-  // A "+1" chip takes the room of the chip it hides, so fold only two or more
-  const chipCount = systems.length === SYSTEM_CHIPS + 1 ? systems.length : SYSTEM_CHIPS;
-  let shownSystems = systems.slice(0, chipCount);
-  if (activeSystem && !shownSystems.some(({ system }) => system === activeSystem)) {
-    shownSystems = [...systems.slice(0, chipCount - 1), systems.find(({ system }) => system === activeSystem)];
-  }
-  const hiddenSystems = systems.filter((entry) => !shownSystems.includes(entry));
+  const sortKey = typeof sort === 'string' ? sort : sort?.key;
+  const shownSort = SORTS.some(([key]) => key === sortKey)
+    ? { key: sortKey, order: sort?.order === 'asc' ? 'asc' : 'desc' } : DEFAULT_SORT;
+  const open = sortViews(filtered.filter(({ status }) => status !== 'reached'), shownSort, createdAtOf);
+  const shownReached = sortViews(filtered.filter(({ status }) => status === 'reached'), shownSort, createdAtOf);
+  const layoutId = LAYOUTS.some(([key]) => key === layout) ? layout : LAYOUTS[0][0];
+  const cardsShown = layoutId === 'cards';
 
   const onEdit = (view, anchorEl) => {
     const goal = goals.find(({ id }) => id === view.id);
@@ -230,22 +182,11 @@ const Goals = () => {
 
   const onExport = () => handleDownload(exportGoals(goals, state?.characters), goalsFileName('idleon-goals'));
 
-  const pickSystem = (system) => {
-    setSystemFilter(system);
-    setMoreMenu(null);
-  };
-  const systemChip = ({ system, label, count }) => (
-    <Chip key={system} size="small" label={`${label} ${formatNumber(count)}`} onClick={() => pickSystem(system)}
-          aria-pressed={activeSystem === system} color={activeSystem === system ? 'primary' : 'default'}
-          variant={activeSystem === system ? 'filled' : 'outlined'} sx={CHIP_SX}/>
-  );
-
   const rows = (label, list) => (
     <GoalRows label={label}>
       {list.map((view) => <GoalListRow key={view.id} view={view} onEdit={onEdit} onRemove={onRemove} onTogglePin={onTogglePin}/>)}
     </GoalRows>
   );
-  // Phones always get rows: a card there is only a taller row
   const goalList = (label, list) => (cardsShown ? (
     <GoalGrid label={label}>
       {list.map((view) => <GoalTile key={view.id} view={view} onEdit={onEdit} onRemove={onRemove} onTogglePin={onTogglePin}/>)}
@@ -253,33 +194,15 @@ const Goals = () => {
   ) : rows(label, list));
 
   return (
-    <Card data-section="goals" sx={{ width: 'fit-content', maxWidth: '100%' }}>
-      <CardContent>
-        <Stack direction="row" alignItems="center" columnGap={2} rowGap={0.5} flexWrap="wrap" sx={{ mb: 1.5 }}>
-          <Stack direction="row" alignItems="center" gap={1}>
-            <Box sx={{
-              width: 32, height: 32, borderRadius: 1.5, display: 'flex', alignItems: 'center',
-              justifyContent: 'center', bgcolor: 'action.selected', color: 'primary.main'
-            }}>
-              <IconTargetArrow size={20}/>
-            </Box>
-            <Typography component="h2" variant={'sectionTitle'}>Goals</Typography>
-          </Stack>
-          {views.length ? (
-            <Typography variant="body2" color="text.secondary">
-              {`${plural(views.length, 'goal')} · ${formatNumber(reached.length)} reached`}
-            </Typography>
-          ) : null}
-          <Stack direction="row" gap={1} sx={{ ml: 'auto' }}>
-            {goals.length ? (
-              <Button size="small" onClick={onExport}>Export</Button>
-            ) : null}
-            <Button size="small" onClick={fileImport.pick}>
-              Import
-            </Button>
-            {fileImport.input}
-          </Stack>
-        </Stack>
+    <Box data-section="goals" sx={{ width: 'fit-content', maxWidth: '100%' }}>
+      <Panel icon={<Box component="span" sx={{ display: 'inline-flex', color: 'primary.main' }}><IconTargetArrow size={24}/></Box>}
+             title={'Goals'} meta={views.length ? `${plural(views.length, 'goal')} · ${formatNumber(reached.length)} reached` : undefined}
+             aside={<Stack direction="row" gap={1}>
+               {goals.length ? <Button size="small" onClick={onExport}>Export</Button> : null}
+               <Button size="small" onClick={fileImport.pick}>Import</Button>
+               {fileImport.input}
+             </Stack>}>
+      <Box sx={{ p: 2 }}>
         {/* The material tracker migration's two messages, together, as notes */}
         <GreenstackFoldNotice sx={{ mb: 1.5 }}/>
         {overCap > 0 ? (
@@ -287,46 +210,21 @@ const Goals = () => {
         ) : null}
         {views.length === 0 ? <FirstGoalIntro query={router.query}/> : (
           <>
-            <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center" sx={{ mb: 1.5 }}>
-              <Chip size="small" label={`All ${formatNumber(views.length)}`} onClick={() => pickSystem('')}
-                    aria-pressed={!activeSystem} color={!activeSystem ? 'primary' : 'default'}
-                    variant={!activeSystem ? 'filled' : 'outlined'} sx={CHIP_SX}/>
-              {shownSystems.map(systemChip)}
-              {hiddenSystems.length ? (
-                <Chip size="small" variant="outlined" label={`+${hiddenSystems.length}`} aria-haspopup="menu"
-                      aria-label="More systems"
-                      onClick={(e) => setMoreMenu(e.currentTarget)} sx={CHIP_SX}/>
-              ) : null}
-              <Stack direction="row" gap={1} alignItems="stretch" sx={{ ml: { sm: 'auto' } }}>
-                <Chip size="small" variant="outlined" icon={<IconArrowsSort size={14}/>} aria-haspopup="menu"
-                      label={SORTS.find(({ id }) => id === sortId).label}
-                      onClick={(e) => setSortMenu(e.currentTarget)} sx={SORT_CHIP_SX}/>
-                <ToggleButtonGroup size="small" exclusive value={layoutId} aria-label="Goal layout"
-                                   sx={{ display: { xs: 'none', sm: 'inline-flex' } }}
-                                   onChange={(_, next) => next && setLayout(next)}>
-                  {LAYOUTS.map(({ id, label }) => (
-                    <ToggleButton key={id} value={id} sx={LAYOUT_BUTTON_SX}>
-                      {label}
-                    </ToggleButton>
-                  ))}
-                </ToggleButtonGroup>
-              </Stack>
-            </Stack>
-            <Menu anchorEl={moreMenu} open={!!moreMenu} onClose={() => setMoreMenu(null)}>
-              {hiddenSystems.map(({ system, label, count }) => (
-                <MenuItem key={system} onClick={() => pickSystem(system)}>{`${label} ${formatNumber(count)}`}</MenuItem>
-              ))}
-            </Menu>
-            <Menu anchorEl={sortMenu} open={!!sortMenu} onClose={() => setSortMenu(null)}>
-              {SORTS.map(({ id, label }) => (
-                <MenuItem key={id} selected={id === sortId} onClick={() => {
-                  setSort(id);
-                  setSortMenu(null);
-                }}>
-                  {label}
-                </MenuItem>
-              ))}
-            </Menu>
+            <Toolbar state={{ show: activeSystem, sort: shownSort, view: layoutId }}
+                     defaults={{ show: '', sort: DEFAULT_SORT, view: LAYOUTS[0][0] }}
+                     onChange={({ show, sort: nextSort, view }) => {
+                       if (show !== undefined) setSystemFilter(show);
+                       if (nextSort !== undefined) setSort(nextSort ?? DEFAULT_SORT);
+                       if (view) setLayout(view);
+                     }}
+                     onReset={() => {
+                       setSystemFilter('');
+                       setSort(DEFAULT_SORT);
+                     }} total={views.length} shown={filtered.length} noun={'goals'}>
+              <Toolbar.Show options={[['', 'All', views.length], ...systems.map(({ system, label, count }) => [system, label, count])]}/>
+              <Toolbar.Sort options={SORTS}/>
+              <Toolbar.View options={LAYOUTS}/>
+            </Toolbar>
             {showAll && open.length > SHOWN_GOALS ? (
               <Stack direction="row" alignItems="center" gap={0.5} sx={{ mb: 0.5 }}>
                 <Typography variant="body2" color="text.secondary">
@@ -340,7 +238,7 @@ const Goals = () => {
               </Stack>
             ) : null}
             {open.length ? goalList('Goals', showAll ? open : open.slice(0, SHOWN_GOALS)) : (
-              <Typography variant="body2" color="text.secondary">Every goal here is reached</Typography>
+              <Notice tone={'info'}>Every goal here is reached: clear them under Reached.</Notice>
             )}
             {open.length > SHOWN_GOALS ? (
               <Button size="small" aria-expanded={!!showAll} onClick={() => setShowAll(!showAll)}
@@ -365,7 +263,8 @@ const Goals = () => {
             ) : null}
           </>
         )}
-      </CardContent>
+      </Box>
+      </Panel>
       {fileImport.text !== null ? <ImportDialog text={fileImport.text} onClose={fileImport.close}/> : null}
       {editing ? (
         <GoalPopover anchorEl={editing.anchorEl} open onClose={() => setEditing(null)}
@@ -373,7 +272,7 @@ const Goals = () => {
                      initial={{ system: editing.goal.system, key: editing.goal.key, scope: editing.goal.scope, goal: editing.goal }}
                      source="dashboard"/>
       ) : null}
-    </Card>
+    </Box>
   );
 };
 

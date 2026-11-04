@@ -178,10 +178,10 @@ describe('Header page goals', () => {
     );
     mount();
     fireEvent.click(await screen.findByRole('button', { name: /^Goals · \d of 1 reached$/ }));
-    fireEvent.click(within(panelRows()[0]).getByText(/of 500K - 5M$/));
+    fireEvent.click(within(panelRows()[0]).getByText(/of 500,000 to 5M$/));
     const card = screen.getByTestId('goal-card');
     expect(within(card).getAllByRole('button').map((b) => b.textContent).filter((t) => t.startsWith('Edit')))
-      .toEqual(['Edit at least 500K', 'Edit at most 5M']);
+      .toEqual(['Edit at least 500,000', 'Edit at most 5M']);
     fireEvent.click(within(card).getByRole('button', { name: 'Edit at most 5M' }));
     expect((await screen.findByLabelText(/^Target/)).value).toBe('5,000,000');
     expect(screen.getByLabelText('Direction').textContent).toBe('Stay at or below');
