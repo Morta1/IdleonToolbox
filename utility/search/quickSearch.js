@@ -1,3 +1,4 @@
+import { groupOf } from '@utility/navMenu';
 import { getPageIcon, PAGE_BY_URL, PAGE_INDEX } from '@utility/pageIndex';
 import { BREAKDOWN_SEARCH, breakdownKey } from '@utility/breakdownSearch';
 import { KIND_LABELS } from '@utility/wiki/kind-labels.mjs';
@@ -19,19 +20,27 @@ export const wordMatcher = (term) => {
   return (texts) => words.length > 0 && words.every((word) => texts.some((text) => text && word.test(text)));
 };
 
+// An account page's line names its group as the nav does (Premium, Classes, Basics), not its folder. A tool's reads Tools.
+const sectionName = (page) => (page.group === 'pages' ? groupOf(page.url)?.label : null) ?? page.section;
+
 // What a page row can open: the page, each tab, each nested tab. A search that names a tab lands on it
 // ("meals" opens Cooking's Meals tab); the row still lists every tab as a link.
-const targetsOf = (page) => [
-  { texts: [page.label, page.section], query: {}, note: page.section },
-  ...page.tabs.map(({ tab }) => ({ texts: [page.label, tab, page.section], query: { t: tab }, note: `${page.section} · ${tab} tab` })),
-  ...page.nestedTabs.flatMap(({ tab, nestedTab, nestedTabs = [] }) => [
-    { texts: [page.label, tab, nestedTab, page.section], query: { t: tab, nt: nestedTab }, note: `${page.section} · ${tab}: ${nestedTab}` },
-    ...nestedTabs.map((deep) => ({
-      texts: [page.label, tab, nestedTab, deep, page.section], query: { t: tab, nt: nestedTab, dnt: deep },
-      note: `${page.section} · ${tab}: ${nestedTab}: ${deep}`
-    }))
-  ])
-];
+const targetsOf = (page) => {
+  const section = sectionName(page);
+  // The folder's own name still finds a page whose group the nav names otherwise ("misc", "prem")
+  const texts = (...parts) => [page.label, ...parts, section, page.section];
+  return [
+    { texts: texts(), query: {}, note: section },
+    ...page.tabs.map(({ tab }) => ({ texts: texts(tab), query: { t: tab }, note: `${section} · ${tab} tab` })),
+    ...page.nestedTabs.flatMap(({ tab, nestedTab, nestedTabs = [] }) => [
+      { texts: texts(tab, nestedTab), query: { t: tab, nt: nestedTab }, note: `${section} · ${tab}: ${nestedTab}` },
+      ...nestedTabs.map((deep) => ({
+        texts: texts(tab, nestedTab, deep), query: { t: tab, nt: nestedTab, dnt: deep },
+        note: `${section} · ${tab}: ${nestedTab}: ${deep}`
+      }))
+    ])
+  ];
+};
 
 export const pageRow = (page, target = targetsOf(page)[0]) => ({
   key: `${page.url}?${new URLSearchParams(target.query)}`,
@@ -191,7 +200,7 @@ const savedRow = ({ url, tab, nestedTab, deeplyNestedTab, name }) => {
     key: `saved:${url}?${new URLSearchParams(query)}`,
     kind: 'page',
     label: page?.label ?? String(name ?? url).replace('-', ' '),
-    note: [page?.section, tab ? `${tab} tab` : null].filter(Boolean).join(' · '),
+    note: [page ? sectionName(page) : null, tab ? `${tab} tab` : null].filter(Boolean).join(' · '),
     icon: getPageIcon({ url, tab, nestedTab }),
     href: { pathname: url, query }
   };

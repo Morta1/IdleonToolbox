@@ -30,6 +30,8 @@ const Kangaroo = () => {
   const hasSave = !failed && kangaroo?.progress != null;
   const number = (value, render) => (failed ? '-' : render(value ?? 0));
   const fishRate = kangaroo?.fishRate ?? 0;
+  // The Tar Pit opens with Megafish 1: until then no tar fish come in, whatever the base rate says
+  const tarPitOpen = (kangaroo?.tarUpgrades ?? []).some(({ unlocked }) => unlocked);
 
   return <>
     <NextSeo
@@ -47,7 +49,7 @@ const Kangaroo = () => {
       <StatTile label={'Tar fish'} icon={'etc/KTar.png'}
                 value={number(kangaroo?.totalTarFishOwned, clickerAmount)}/>
       <StatTile label={'Tar fish per hour'}
-                value={failed || !(kangaroo?.tarFishRate > 0) ? '-' : formatNum(3600 / kangaroo.tarFishRate)}/>
+                value={failed || !(kangaroo?.tarFishRate > 0) ? '-' : tarPitOpen ? formatNum(3600 / kangaroo.tarFishRate) : '0'}/>
       <StatTile label={'Shiny progress'} icon={'etc/KShiny.png'}
                 value={number(kangaroo?.shinyProgress, (value) => `${poppyFill(value)}%`)}/>
       <StatTile label={'Shiny per minute'} value={number(kangaroo?.shinyRatePercent, (value) => `${poppyFill(value)}%`)}/>

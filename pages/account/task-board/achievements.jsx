@@ -51,7 +51,7 @@ const Achievements = () => {
         ? ['Progress', `${formatNum(achievement.currentQuantity)} / ${formatNum(achievement.quantity)}`]
         : null,
       !failed && achievement.completed ? ['State', <StatusText key={'done'} status={'done'}>Completed</StatusText>] : null,
-      ['Rewards', cleanUnderscore((achievement.rewards ?? []).join(', '))]
+      ['Rewards', (achievement.rewards ?? []).map((reward) => cleanUnderscore(reward).trim()).join(', ')]
     ]}/>
   </Stack>;
 

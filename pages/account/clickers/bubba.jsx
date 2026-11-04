@@ -14,10 +14,13 @@ import ItemCard from '@components/common/cards/ItemCard';
 import Upgrades from '@components/account/clickers/bubba/Upgrades';
 import { getBubba } from '@parsers/clickers/bubba';
 
-// The parser formats the last megaflesh's bonus; its $ takes it
+// The parser formats the last megaflesh's bonus; its $ takes it. "Current_Bonus:$x" has no space of its own
 const megafleshText = ({ description, totalBonus }) => cleanUnderscore(totalBonus !== undefined
-  ? `${description ?? ''}`.replace('$', () => totalBonus)
+  ? `${description ?? ''}`.replace(':$', () => ': $').replace('$', () => totalBonus)
   : `${description ?? ''}`);
+
+// The game's own bonus lines: every one signed but "{%_XP_Multi"
+const XP_MULTI = 'EXP Multi';
 
 const Bubba = () => {
   const { state } = useContext(AppContext);
@@ -42,7 +45,7 @@ const Bubba = () => {
         {Object.values(bubba?.bonuses ?? {}).map(({ name, bonus, isNegative }, index) => <Panel.Row key={name}
                                                                                                   icon={`etc/Bubba_${index + 1}.png`}
                                                                                                   name={name}
-                                                                                                  value={failed ? '-' : formatNum(isNegative ? -(bonus ?? 0) : bonus ?? 0, 'pct', { signed: true })}/>)}
+                                                                                                  value={failed ? '-' : formatNum(isNegative ? -(bonus ?? 0) : bonus ?? 0, 'pct', { signed: name !== XP_MULTI })}/>)}
       </Panel>
       <Panel title={'Megaflesh'}>
         <Box sx={{ p: 1.5 }}>
