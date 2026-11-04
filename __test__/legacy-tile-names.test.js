@@ -14,7 +14,6 @@ const LEGACY_IMPORTERS = [
   'pages/account/clickers/bubba.jsx',
   'pages/account/clickers/kangaroo.jsx',
   'pages/account/clickers/owl.jsx',
-  'pages/account/misc/tournament.jsx',
   'pages/account/prem-currency/bundles.jsx',
   'pages/account/prem-currency/gem-shop.jsx',
   'pages/account/prem-currency/pets.jsx',

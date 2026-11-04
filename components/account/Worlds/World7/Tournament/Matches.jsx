@@ -1,187 +1,92 @@
 import React, { useContext, useState } from 'react';
-import { Box, Button, Card, CardContent, Collapse, Divider, Stack, Typography } from '@mui/material';
-import StatusText from '@components/common/StatusText';
+import { Box, Button, Collapse, Stack, Typography } from '@mui/material';
 import Notice from '@components/common/Notice';
 import { AppContext } from '@components/common/context/AppProvider';
-import Tooltip from '@components/Tooltip';
-import { cleanUnderscore, prefix } from '@utility/helpers';
-import { monsterImage } from '@utility/spriteImages';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import { monsterSprite } from '@utility/spriteImages';
 import { companions as companionsData } from '@website-data';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
 
 const teamPower = (pets, companions) =>
   pets.reduce((sum, idx) => sum + (companions?.[idx]?.tourPower ?? 0), 0);
 
 // Match strings carry pet indices only, so an opponent's Pet Mart+ upgrades are unknown: their pets
 // read base power from the catalog. The player's own pets use the account list (upgraded power).
-const petLabel = (comp) => `${cleanUnderscore(comp.name)}${comp.upgraded ? '+' : ''}`;
+const petLabel = (comp) => `${cleanUnderscore(comp?.name)}${comp?.upgraded ? '+' : ''}`;
 
-const MatchResult = ({ result }) => {
-  if (result === 'win') return <StatusText status={'done'}>Win</StatusText>;
-  if (result === 'loss') return <StatusText status={'problem'}>Loss</StatusText>;
-  return <Typography variant={'body2'} color={'text.muted'}>?</Typography>;
+// A pet: its 16 px sprite beside its name, one nowrap group, so a team wraps between pets
+export const Pet = ({ comp, children }) => <Box component={'span'}
+                                                sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, whiteSpace: 'nowrap' }}>
+  <GameIcon src={monsterSprite(comp?.name)} size={16} alt={''}/>
+  {children ?? petLabel(comp)}
+</Box>;
+
+export const PetList = ({ pets }) => <Box component={'span'}
+                                          sx={{ display: 'inline-flex', flexWrap: 'wrap', columnGap: 1.5, rowGap: 0.25 }}>
+  {pets.map((comp, index) => <Pet key={index} comp={comp}/>)}
+</Box>;
+
+// companionsFailed: the account's list failed, so the player's pets are named from the catalog and their power is "-"
+const Team = ({ label, pets, companions, companionsFailed }) => {
+  const list = companionsFailed ? companionsData : companions;
+  const shown = (pets ?? []).map((idx) => list?.[idx]).filter(Boolean);
+  return <ItemCard.Section label={label}>
+    <Typography variant={'body2'} color={'text.secondary'}>
+      {`${companionsFailed ? '-' : formatGame(teamPower(pets ?? [], companions), 'Stuff2.PetTournyPOW')} power`}
+    </Typography>
+    <Typography variant={'body2'} component={'div'}><PetList pets={shown}/></Typography>
+  </ItemCard.Section>;
 };
 
-const PetGrid = ({ label, pets, companions, totalPower }) => (
-  <Stack gap={0.5}>
-    <Stack direction="row" gap={1} alignItems="baseline">
-      <Typography variant="caption" color="text.secondary">{label}</Typography>
-      {totalPower > 0 && (
-        <Stack direction="row" alignItems="center" gap={0.5}>
-          <img width={14} height={14} style={{ objectFit: 'contain' }} src={`${prefix}etc/Companion_Power.png`} alt="Companion Power" />
-          <Typography variant="caption" color="primary.main">{totalPower}</Typography>
-        </Stack>
-      )}
-    </Stack>
-    <Stack direction="row" gap={2} flexWrap="wrap">
-      {pets.map((petIdx, i) => {
-        const comp = companions?.[petIdx];
-        if (!comp) return null;
-        return (
-          <Stack key={i} alignItems="center" gap={0} sx={{ width: 36 }}>
-            <Box title={petLabel(comp)}>
-              <img
-                width={50}
-                height={50}
-                style={{ objectFit: 'contain' }}
-                src={monsterImage(comp.name)}
-                alt={comp.name}
-              />
-            </Box>
-            {(comp.tourPower ?? 0) > 0 && (
-              <Stack direction="row" alignItems="center" gap={1}>
-                <img width={10} height={10} style={{ objectFit: 'contain' }} src={`${prefix}etc/Companion_Power.png`} alt="Companion Power" />
-                <Typography variant="caption" sx={{ lineHeight: 1, color: 'text.secondary' }}>
-                  {comp.tourPower}
-                </Typography>
-              </Stack>
-            )}
-          </Stack>
-        );
-      })}
-    </Stack>
-  </Stack>
-);
-
-const PET_OUTLINE = {
-  player: 'primary.main',
-  opponent: 'text.error',
-};
-
+// "Your Frog 62% beat Rattle Snake 38%": the winner first, the player's pet named as theirs
 const BattleStep = ({ step, playerCompanions, opponentCompanions }) => {
   const playerComp = playerCompanions?.[step.playerDbIdx];
   const opponentComp = opponentCompanions?.[step.opponentDbIdx];
   if (!playerComp || !opponentComp) return null;
   const totalPower = (playerComp.tourPower ?? 0) + (opponentComp.tourPower ?? 0);
   const playerChance = totalPower > 0 ? Math.round((playerComp.tourPower ?? 0) / totalPower * 100) : 50;
-  const opponentChance = 100 - playerChance;
-  return (
-    <Stack direction="row" alignItems="center" gap={0.5}>
-      <Tooltip title={`${petLabel(playerComp)}: ${playerChance}% to win`}>
-        <Box sx={{
-          opacity: step.playerWins ? 1 : 0.25,
-          borderBottom: '2px solid', borderColor: PET_OUTLINE.player,
-          cursor: 'default',
-        }}>
-          <img width={42} height={42} style={{ objectFit: 'contain', display: 'block' }}
-            src={monsterImage(playerComp.name)} alt={playerComp.name} />
-        </Box>
-      </Tooltip>
-      <Typography variant="caption" color="text.muted" sx={{ fontSize: 9 }}>vs</Typography>
-      <Tooltip title={`${petLabel(opponentComp)}: ${opponentChance}% to win`}>
-        <Box sx={{
-          opacity: step.playerWins ? 0.25 : 1,
-          borderBottom: '2px solid', borderColor: PET_OUTLINE.opponent,
-          cursor: 'default',
-        }}>
-          <img width={42} height={42} style={{ objectFit: 'contain', display: 'block' }}
-            src={monsterImage(opponentComp.name)} alt={opponentComp.name} />
-        </Box>
-      </Tooltip>
-    </Stack>
-  );
+  const mine = <Pet comp={playerComp}>{`Your ${petLabel(playerComp)} ${playerChance}%`}</Pet>;
+  const theirs = <Pet comp={opponentComp}>{`${petLabel(opponentComp)} ${100 - playerChance}%`}</Pet>;
+  return <Typography variant={'body2'} component={'div'} sx={{ display: 'flex', flexWrap: 'wrap', columnGap: 0.75 }}>
+    {step.playerWins ? mine : theirs}<span>beat</span>{step.playerWins ? theirs : mine}
+  </Typography>;
 };
 
-const BattleLegend = () => (
-  <Stack direction="row" gap={2} alignItems="center" pb={0.5}>
-    {[['player', 'You'], ['opponent', 'Opponent']].map(([key, label]) => (
-      <Stack key={key} direction="row" alignItems="center" gap={0.5}>
-        <Box sx={{ width: 10, height: 3, bgcolor: PET_OUTLINE[key], flexShrink: 0 }} />
-        <Typography variant="caption" sx={{ fontSize: 10 }}>{label}</Typography>
-      </Stack>
-    ))}
-    <Typography variant="caption" color="text.secondary" sx={{ fontSize: 10 }}>Faded = dies</Typography>
-  </Stack>
-);
-
-const BattleRounds = ({ rounds, playerCompanions, opponentCompanions }) => (
-  <Stack gap={1} pt={0.5}>
-    <BattleLegend />
-    {rounds.map((round, ri) => (
-      <Stack key={ri} gap={0.5}>
-        <Typography variant="caption" color="text.secondary" sx={{ fontSize: 10 }}>
-          Round {ri + 1}
-        </Typography>
-        <Stack direction="row" gap={0.5} flexWrap="wrap">
-          {round.map((step, si) => (
-            <BattleStep key={si} step={step} playerCompanions={playerCompanions} opponentCompanions={opponentCompanions} />
-          ))}
-        </Stack>
-        {ri < rounds.length - 1 && <Divider />}
-      </Stack>
-    ))}
-  </Stack>
-);
-
-const MatchCard = ({ match, companionList }) => {
+const MatchCard = ({ match, companionList, companionsFailed }) => {
   const [showBattle, setShowBattle] = useState(false);
-  const myPower = teamPower(match.playerPets, companionList);
-  const oppPower = teamPower(match.opponentPets, companionsData);
   const hasBattle = match.battleRounds?.length > 0;
-  return (
-    <Card>
-      <CardContent sx={{ '&:last-child': { pb: 1.5 } }}>
+  const result = match.result === 'win' ? 'done' : match.result === 'loss' ? 'problem' : undefined;
+  return <ItemCard title={`vs ${match.opponentName}`} meta={match.roundName ?? 'Qualifying'}
+                   status={result} statusLabel={match.result === 'win' ? 'Win' : 'Loss'}>
+    {match.isQualifying ? <ItemCard.Facts rows={[['Lives', formatNum(match.playerLives ?? 0)]]}/> : null}
+    <Team label={'Your team'} pets={match.playerPets} companions={companionList} companionsFailed={companionsFailed}/>
+    <Team label={'Opponent\'s team'} pets={match.opponentPets} companions={companionsData}/>
+    {hasBattle && !companionsFailed ? <>
+      <Button size={'small'} variant={'text'} sx={{ alignSelf: 'flex-start' }} aria-expanded={showBattle}
+              onClick={() => setShowBattle((shown) => !shown)}>
+        {`${showBattle ? 'Hide' : 'Show'} battle sequence (${formatNum(match.battleRounds.length)} rounds)`}
+      </Button>
+      <Collapse in={showBattle}>
         <Stack gap={1.5}>
-          <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
-            <Stack gap={0}>
-              <Typography variant="body1" fontWeight="bold">
-                vs {match.opponentName}
-              </Typography>
-              {match.roundName && (
-                <Typography variant="caption" color="text.secondary">{match.roundName}</Typography>
-              )}
-            </Stack>
-            <Stack direction="row" gap={1} alignItems="center">
-              <MatchResult result={match.result}/>
-              {match.isQualifying && (
-                <Typography variant="caption" color="text.secondary">
-                  ❤ {match.playerLives}
-                </Typography>
-              )}
-            </Stack>
-          </Stack>
-          <PetGrid label="Your team" pets={match.playerPets} companions={companionList} totalPower={myPower} />
-          <PetGrid label="Opponent's team" pets={match.opponentPets} companions={companionsData} totalPower={oppPower} />
-          {hasBattle && (
-            <>
-              <Button size="small" variant="text" sx={{ alignSelf: 'flex-start', p: 0, minWidth: 0 }}
-                onClick={() => setShowBattle(v => !v)}>
-                {showBattle ? 'Hide' : 'Show'} battle sequence ({match.battleRounds.length} rounds)
-              </Button>
-              <Collapse in={showBattle}>
-                <BattleRounds rounds={match.battleRounds} playerCompanions={companionList} opponentCompanions={companionsData} />
-              </Collapse>
-            </>
-          )}
+          {match.battleRounds.map((round, index) => <ItemCard.Section key={index} label={`Round ${index + 1}`}>
+            {round.map((step, stepIndex) => <BattleStep key={stepIndex} step={step} playerCompanions={companionList}
+                                                        opponentCompanions={companionsData}/>)}
+          </ItemCard.Section>)}
         </Stack>
-      </CardContent>
-    </Card>
-  );
+      </Collapse>
+    </> : null}
+  </ItemCard>;
 };
 
-const Matches = ({ tournament, companions }) => {
+// sectionFailed: the tournament section failed, so there is nothing to say under the page's note
+const Matches = ({ tournament, companions, sectionFailed, companionsFailed }) => {
   const { state } = useContext(AppContext);
   const { matches = [] } = tournament ?? {};
   const companionList = companions ?? [];
+  if (sectionFailed) return null;
 
   // The server sends match history to a signed-in player only
   if (!matches.length) {
@@ -193,13 +98,11 @@ const Matches = ({ tournament, companions }) => {
   return (
     <Stack gap={2}>
       <Typography variant="body2" color="text.secondary">
-        {matches.length} match{matches.length !== 1 ? 'es' : ''} recorded this tournament day.
+        {`${formatNum(matches.length)} ${matches.length === 1 ? 'match' : 'matches'} recorded this tournament day.`}
       </Typography>
-      <Stack gap={2}>
-        {matches.map((match, idx) => (
-          <MatchCard key={idx} match={match} companionList={companionList} />
-        ))}
-      </Stack>
+      <CardGrid size={'l'}>
+        {matches.map((match, idx) => <MatchCard key={idx} match={match} companionList={companionList} companionsFailed={companionsFailed}/>)}
+      </CardGrid>
     </Stack>
   );
 };
