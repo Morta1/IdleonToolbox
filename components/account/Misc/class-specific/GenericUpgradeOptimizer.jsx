@@ -64,6 +64,8 @@ const accumulateStatChange = (map, statChange) => {
 };
 // The settings row's InfoButton sits level with its field's input (40 px, 44 on touch), not with the label above it
 const FIELD_INFO_SX = { mb: '12px', '@media (pointer: coarse)': { mb: '14px' } };
+// A card's levels and its place in the plan each stay whole ("Upgrade #10"): the meta wraps only between them
+const NOWRAP_SX = { whiteSpace: 'nowrap' };
 
 const GenericUpgradeOptimizer = ({
   character,
@@ -590,7 +592,8 @@ const GenericUpgradeOptimizer = ({
       : `Upgrade #${position + 1}`;
     return <ItemCard key={position} title={cleanUpgradeName(upgrade.name)}
                      icon={upgradeImagePrefix ? upgradeIconPath(upgrade) : undefined}
-                     meta={`${stepLevels(upgrade)} · ${step}`}
+                     meta={<><Box component={'span'} sx={NOWRAP_SX}>{stepLevels(upgrade)}</Box>{' · '}
+                       <Box component={'span'} sx={NOWRAP_SX}>{step}</Box></>}
                      status={upgrade.lockedNow ? 'locked' : undefined} statusLabel={upgrade.lockedNow ? lockLabel(upgrade) : undefined}
                      footer={<>
                        <ItemCard.Facts rows={[[grouped ? 'Total cost' : 'Cost', costNode(upgrade)]]}/>
