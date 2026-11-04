@@ -67,7 +67,7 @@ const MatchCard = ({ match, companionList, companionsFailed }) => {
     {hasBattle && !companionsFailed ? <>
       <Button size={'small'} variant={'text'} sx={{ alignSelf: 'flex-start' }} aria-expanded={showBattle}
               onClick={() => setShowBattle((shown) => !shown)}>
-        {`${showBattle ? 'Hide' : 'Show'} battle sequence (${formatNum(match.battleRounds.length)} rounds)`}
+        {`${showBattle ? 'Hide' : 'Show'} battle sequence (${formatNum(match.battleRounds.length)} ${match.battleRounds.length === 1 ? 'round' : 'rounds'})`}
       </Button>
       <Collapse in={showBattle}>
         <Stack gap={1.5}>
