@@ -22,8 +22,8 @@ import ItemCard from '@components/common/cards/ItemCard';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 
-const GOLD_BALL_ICON = 'data/PachiBall1.png';
-// The game's Royal and Omega ball glyphs (font 472) and Super / Omega level banners (font 675)
+// The game's Gold, Royal and Omega ball glyphs (font 472) and Super / Omega level banners (font 675)
+const GOLD_BALL_ICON = 'etc/GoldBall.png';
 const ROYAL_BALL_ICON = 'etc/RoyalBall.png';
 const OMEGA_BALL_ICON = 'etc/OmegaBall.png';
 const ARCADE_SUPER_BANNER = 'etc/ArcadeSuper.png';
