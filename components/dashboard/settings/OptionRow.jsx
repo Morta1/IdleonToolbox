@@ -46,9 +46,11 @@ export const Help = ({ text, clamp = true }) => {
 export const optionNumber = (text) => (text === '' || text == null || Number.isNaN(Number(text)) ? null : Number(text));
 
 // hideReset: the card's own Reset already covers it (a number shown inline in the card header), so only "Default N" shows.
-export const OptionNumberField = ({ option, tracker, onAction, ariaLabel, disabled = false, hideReset = false }) => <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
+// label: a visible one, where no row beside the field names it (the quick edit).
+export const OptionNumberField = ({ option, tracker, onAction, label, ariaLabel, disabled = false, hideReset = false }) => <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
   <NumberField
-    ariaLabel={ariaLabel ?? option.label}
+    label={label}
+    ariaLabel={label ? undefined : ariaLabel ?? option.label}
     value={optionNumber(option.props.value)}
     min={option.props.minValue}
     max={option.props.maxValue}

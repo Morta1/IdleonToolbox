@@ -25,7 +25,7 @@ describe('timer icons', () => {
     const icons = [...container.querySelectorAll('[role="button"][aria-haspopup="dialog"]')];
     expect(icons.length).toBeGreaterThanOrEqual(2);
     fireEvent.click(icons[0]);
-    expect(onOpenAlert).toHaveBeenCalledWith(icons[0], 'timers', 'General.daily', undefined);
+    expect(onOpenAlert).toHaveBeenCalledWith(icons[0], 'timers', 'General.daily', undefined, expect.stringContaining('Daily reset'));
     expect(push).not.toHaveBeenCalled();
   });
 });

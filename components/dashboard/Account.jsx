@@ -1196,7 +1196,7 @@ const Alert = ({
                  // Names the icon for screen readers when the title is not plain text.
                  ariaLabel
                }) => {
-  const settingsProps = useAlertSettingsProps('account', target, items || worlds ? { items, worlds } : undefined);
+  const settingsProps = useAlertSettingsProps('account', target, items || worlds ? { items, worlds } : undefined, title);
   const {
     Icon: BadgeIcon,
     label: badgeLabel,

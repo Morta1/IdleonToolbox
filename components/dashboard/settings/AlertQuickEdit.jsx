@@ -7,6 +7,7 @@ import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import NextLink from 'next/link';
 import { prefix } from '@utility/helpers';
+import GameIcon from '@components/common/GameIcon';
 import { optionExtras } from '@utility/dashboard/settingsModel';
 import NumberField from '@components/common/NumberField';
 import { Help, OptionNumberField, optionNumber, Picker, ToggleChips } from './OptionRow';
@@ -73,7 +74,7 @@ const Body = ({ quickEdit, onAction }) => {
   if (kind === 'tracker') {
     return <>
       <TrackerToggle tracker={tracker} onAction={onAction}/>
-      {option?.type === 'input' ? <OptionNumberField option={option} tracker={tracker} onAction={onAction} ariaLabel={`${tracker.label} ${option.label}`}/> : null}
+      {option?.type === 'input' ? <OptionNumberField option={option} tracker={tracker} onAction={onAction} label={option.label}/> : null}
       <Help text={option?.help} clamp={false}/>
     </>;
   }
@@ -93,7 +94,7 @@ const Body = ({ quickEdit, onAction }) => {
     {kind === 'threshold' || kind === 'perWorld'
       ? <Stack gap={0.5}>
         {kind === 'perWorld' ? <Typography variant="caption" color="text.secondary">Main value</Typography> : null}
-        <OptionNumberField option={option} tracker={tracker} onAction={onAction} disabled={locked || !option.checked}/>
+        <OptionNumberField option={option} tracker={tracker} onAction={onAction} label={option.label} disabled={locked || !option.checked}/>
       </Stack> : null}
     {kind === 'perWorld' ? <Stack gap={1}>
       {worlds.map((row) => <WorldRow key={row.world} row={row} option={option} tracker={tracker} onAction={onAction}
@@ -108,25 +109,21 @@ const Body = ({ quickEdit, onAction }) => {
   </>;
 };
 
-const AlertQuickEdit = ({ quickEdit, open, iconSrc = null, pageHref = null, onClose, onExited, onAction, onOpenAll, onUndo }) => {
+// message: what the clicked alert says (its sentence, its list, a timer's exact time). It comes first: a tap has no hover
+// to read it from.
+const AlertQuickEdit = ({ quickEdit, open, iconSrc = null, message = null, pageHref = null, onClose, onExited, onAction, onOpenAll, onUndo }) => {
   if (!quickEdit) return null;
   const { tracker, option, kind, everyCharacter, configType } = quickEdit;
   // The title is the alert that was clicked; the subtitle says where it lives in the settings.
   const title = kind === 'tracker' || !option ? tracker.label : option.label;
   const where = [TAB_LABELS[configType], tracker.section, title === tracker.label ? null : tracker.label].filter(Boolean).join(' · ');
+  // iconSrc is the clicked sprite as the page drew it, with the path prefix GameIcon adds itself.
   const icon = iconSrc || tracker.icon
-    ? <img src={iconSrc ?? `${prefix}${tracker.icon}.png`} alt="" width={24} height={24} style={{ objectFit: 'contain' }}/>
+    ? <GameIcon src={iconSrc ? iconSrc.slice(prefix.length) : `${tracker.icon}.png`} size={24} alt=""/>
     : <LetterBadge label={tracker.label} size={24} radius={1}/>;
   return <AppDialog open={open} onClose={onClose} onExited={onExited} size="s" title={title} subtitle={where || null} icon={icon}>
     <Stack gap={1.5}>
-      {pageHref ? <Button component={NextLink} href={pageHref} variant="outlined" size="small"
-                          sx={{
-                            alignSelf: 'flex-start', flexShrink: 0, whiteSpace: 'nowrap',
-                            // Stays compact on a phone, but the tap area still reaches the 44px the other controls get.
-                            '&::after': { content: '""', position: 'absolute', inset: { xs: '-7px 0', sm: 0 } }
-                          }}>
-        {quickEdit.page.label}<Box component="span" sx={{ display: { xs: 'none', sm: 'inline' }, whiteSpace: 'pre' }}> page</Box>&nbsp;→
-      </Button> : null}
+      {message ? <Typography variant="body2" component="div" sx={{ pb: 1.5, borderBottom: 1, borderColor: 'divider' }}>{message}</Typography> : null}
       <Stack gap={1.5}>
         <Body quickEdit={quickEdit} onAction={onAction}/>
       </Stack>
@@ -138,7 +135,12 @@ const AlertQuickEdit = ({ quickEdit, open, iconSrc = null, pageHref = null, onCl
           {/* Always in its slot, greyed until there is a change: appearing later grew the dialog and moved the checkbox under the pointer. */}
           <Button size="small" sx={{ minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={!onUndo} onClick={onUndo}>Undo</Button>
         </Stack>
-        <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onOpenAll}>All {tracker.label} settings</Button>
+        <Stack direction="row" alignItems="center" gap={0.5} flexWrap="wrap">
+          {pageHref ? <Button component={NextLink} href={pageHref} size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }}>
+            Open {quickEdit.page.label} page
+          </Button> : null}
+          <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onOpenAll}>All {tracker.label} settings</Button>
+        </Stack>
       </Stack>
     </Stack>
   </AppDialog>;

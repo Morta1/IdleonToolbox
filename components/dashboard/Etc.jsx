@@ -736,8 +736,8 @@ const IconImg = styled.img`
   object-fit: contain;
 `;
 
-const TimerIcon = ({ src, alt = '', target, items }) => {
-  const settingsProps = useAlertSettingsProps('timers', target, items ? { items } : undefined);
+const TimerIcon = ({ src, alt = '', target, items, message }) => {
+  const settingsProps = useAlertSettingsProps('timers', target, items ? { items } : undefined, message);
   return <Box component="span" {...settingsProps}
               sx={{
                 display: 'inline-flex', borderRadius: 1, cursor: target ? 'pointer' : 'inherit',
@@ -784,7 +784,7 @@ const TimerCard = ({
   return <Tooltip title={tooltipContent}>
     <Stack sx={{ cursor: page ? 'pointer' : 'auto' }} direction={'row'} gap={1} alignItems={'center'}
       onClick={() => page && router.push({ pathname: page, query: { ...sessionQuery(router.query), ...query } })}>
-      <TimerIcon src={`${prefix}${icon}`} alt="" target={target} items={items}/>
+      <TimerIcon src={`${prefix}${icon}`} alt="" target={target} items={items} message={tooltipContent}/>
       {forcePlaceholder ? <Typography color={'text.error'}>{timerPlaceholder}</Typography> : <Timer
         type={'countdown'} date={time}
         sx={{ color: showAsError ? 'text.error' : ' ' }}
@@ -819,7 +819,7 @@ const MonumentCard = ({
   return <Tooltip title={tooltipContent}>
     <Stack sx={{ cursor: page ? 'pointer' : 'auto' }} direction={'row'} gap={1} alignItems={'center'}
       onClick={() => page && router.push({ pathname: page, query: { ...sessionQuery(router.query), ...query } })}>
-      <TimerIcon src={`${prefix}${icon}`} alt="" target={target} items={items}/>
+      <TimerIcon src={`${prefix}${icon}`} alt="" target={target} items={items} message={tooltipContent}/>
       <Typography color={isOverMax ? 'text.error' : 'inherit'}>{isOverMax ? 'Go fight!' : `${currentMultiRounded}x / ${maxMultiRounded}x`}</Typography>
     </Stack>
   </Tooltip>

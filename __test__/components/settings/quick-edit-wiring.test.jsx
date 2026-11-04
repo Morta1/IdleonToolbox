@@ -42,7 +42,7 @@ describe('useAlertSettingsProps', () => {
     expect(icon.getAttribute('tabindex')).toBe('0');
     expect(icon.getAttribute('aria-haspopup')).toBe('dialog');
     fireEvent.click(icon);
-    expect(onOpenAlert).toHaveBeenCalledWith(icon, 'account', 'World 3.construction.materials', extra);
+    expect(onOpenAlert).toHaveBeenCalledWith(icon, 'account', 'World 3.construction.materials', extra, undefined);
     expect(onRowClick).not.toHaveBeenCalled();
     fireEvent.keyDown(icon, { key: 'Enter' });
     fireEvent.keyDown(icon, { key: ' ' });

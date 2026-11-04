@@ -395,7 +395,7 @@ const BagList = ({ name, bags }) => {
 // `target` is the dot path of the alert's own setting - clicking the icon opens the configuration
 // modal on it. See utility/dashboard/settingsTarget.
 const Alert = ({ title, iconPath, style = {}, extra, target, items, worlds }) => {
-  const settingsProps = useAlertSettingsProps('characters', target, items || worlds ? { items, worlds } : undefined);
+  const settingsProps = useAlertSettingsProps('characters', target, items || worlds ? { items, worlds } : undefined, title);
   return <Stack {...settingsProps}
                 {...(target ? { 'aria-label': typeof title === 'string' ? title : settingsProps['aria-label'] } : {})}
                 sx={{ position: 'relative', ...(target ? { cursor: 'pointer', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main', borderRadius: 1 } } : {}) }}>

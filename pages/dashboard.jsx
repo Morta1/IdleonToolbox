@@ -120,7 +120,7 @@ const Dashboard = () => {
   const quickEditFor = (current, configType, target, extra) =>
     buildQuickEdit(current, buildModel(current, baseTrackers, diffTrackers(baseTrackers, current)), configType, target, extra);
 
-  const handleOpenAlert = (element, configType, target, extra = {}) => {
+  const handleOpenAlert = (element, configType, target, extra = {}, message = null) => {
     closeNotice(quickNotice.current);
     if (!quickEditFor(config, configType, target, extra)) {
       handleOpenSettings(configType, target, 'alert');
@@ -131,7 +131,7 @@ const Dashboard = () => {
     setQuickEditCount((count) => count + 1);
     setQuickOpen(true);
     setQuickEdit({
-      id: quickEditCount + 1, configType, target, extra,
+      id: quickEditCount + 1, configType, target, extra, message,
       // The quick edit shows the icon that was clicked, not the tracker's own one (The Hole vs Bravery).
       iconSrc: element.querySelector('img')?.getAttribute('src') ?? null,
       snapshot: config
@@ -254,6 +254,7 @@ const Dashboard = () => {
                        initialFilter={initialFilter}
                        exportConfig={legacyMode ? config : toStoredTrackers(baseTrackers, config)}/>
     <AlertQuickEdit quickEdit={quickModel} open={quickOpen && Boolean(quickModel)} iconSrc={quickEdit?.iconSrc}
+                    message={quickEdit?.message}
                     onExited={() => setQuickEdit(null)}
                     pageHref={quickModel?.page ? pageHref(quickModel.page, router.query) : null}
                     // Escape unmounts the popover without blurring its field; blur first so its clamp runs.
