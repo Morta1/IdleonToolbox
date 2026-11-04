@@ -1,12 +1,12 @@
 import React, { createContext, useContext, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Box, Button, MenuItem, Popover, Stack, Switch, TextField, Typography, useMediaQuery } from '@mui/material';
-import { visuallyHidden } from '@mui/utils';
 import { IconSettings } from '@tabler/icons-react';
 import AppDialog from '@components/common/Overlays/AppDialog';
 import NumberField from '@components/common/NumberField';
 import { usePageHeaderSlot } from '@components/common/NavBar/PageHeader';
 import useToolbarState, { same } from '@hooks/useToolbarState';
+import { headerGearSx, widerThanPhone } from '@components/common/NavBar/headerAction';
 
 // A page's settings, remembered per page in this browser: the player's edits only (useToolbarState's rule).
 export const usePageSettings = (page, defaults) => useToolbarState(page, defaults, { scope: 'page-settings' });
@@ -24,8 +24,12 @@ export const joinSettings = (...parts) => ({
   onReset: () => parts.forEach(({ defaults, set }) => set(defaults))
 });
 
-// The board's dot: a setting differs from its default. Its room is always kept, so the button never changes width.
-const DOT_SX = { display: 'inline-block', width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main', ml: '2px', alignSelf: 'flex-start', mt: 0.5 };
+// The board's dot: a setting differs from its default. Its room is always kept, so the button never changes width; on a
+// phone, where the button is the gear alone, it sits on the gear's corner.
+const DOT_SX = {
+  display: 'inline-block', width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main', ml: '2px', alignSelf: 'flex-start', mt: 0.5,
+  '@media (max-width: 599.95px)': { position: 'absolute', top: 2, right: 2, m: 0 }
+};
 const SettingsContext = createContext({ state: {}, onChange: () => {} });
 
 // The settings that change the numbers on the page (Toolbar board, "Where a control goes"), the ones only one tab
@@ -43,12 +47,13 @@ const PageSettings = ({ state, defaults, onChange, onReset, onOpen, label = 'Pag
   const changed = isChanged ?? Object.keys(defaults ?? {}).some((key) => !same(state?.[key], defaults[key]));
   const close = () => setAnchor(null);
   const buttonLabel = <>
-    {label}
+    <Box component="span" sx={widerThanPhone}>{label}</Box>
     <Box component="span" aria-hidden sx={[DOT_SX, { visibility: changed ? 'visible' : 'hidden' }]}/>
-    {changed ? <Box component="span" sx={visuallyHidden}>, changed</Box> : null}
   </>;
+  // The name lives here, not in the words: a phone's button is the gear alone
+  const buttonName = changed ? `${label}, changed` : label;
   if (onOpen) {
-    return createPortal(<Button startIcon={<IconSettings size={18}/>} aria-haspopup="dialog" onClick={onOpen}>{buttonLabel}</Button>, node);
+    return createPortal(<Button startIcon={<IconSettings size={18}/>} aria-label={buttonName} aria-haspopup="dialog" onClick={onOpen} sx={headerGearSx}>{buttonLabel}</Button>, node);
   }
   const rows = <SettingsContext value={{ state, onChange, close }}><Stack ref={rowsRef} gap={2}>{children}</Stack></SettingsContext>;
   // Reset leaves with the change it undid: the focus goes on to the first setting rather than to the popover or
@@ -58,8 +63,8 @@ const PageSettings = ({ state, defaults, onChange, onReset, onOpen, label = 'Pag
     requestAnimationFrame(() => rowsRef.current?.querySelector('input, button, [tabindex="0"]')?.focus());
   };
   return createPortal(<>
-    <Button startIcon={<IconSettings size={18}/>} aria-haspopup="dialog" aria-expanded={Boolean(anchor)}
-            aria-controls={anchor ? panelId : undefined} onClick={(event) => setAnchor(event.currentTarget)}>
+    <Button startIcon={<IconSettings size={18}/>} aria-label={buttonName} aria-haspopup="dialog" aria-expanded={Boolean(anchor)}
+            aria-controls={anchor ? panelId : undefined} onClick={(event) => setAnchor(event.currentTarget)} sx={headerGearSx}>
       {buttonLabel}
     </Button>
     {isPhone

@@ -17,6 +17,7 @@ import { notify } from '@components/common/Overlays/notify';
 import GoalPopover from './GoalPopover';
 import PageGoalsPanel from './PageGoalsPanel';
 import GoalCard from './GoalCard';
+import { headerActionSx, headerIconActionSx } from '@components/common/NavBar/headerAction';
 
 const stop = (event) => event.stopPropagation();
 
@@ -87,7 +88,11 @@ const AddGoalButton = () => {
 
   return (
     <>
-      <Button startIcon={<IconTargetArrow/>}
+      <Button sx={headerActionSx}
+              startIcon={<>
+                <IconTargetArrow size={20} style={{ display: 'var(--wide-only, block)' }}/>
+                <IconPlus size={16} style={{ display: 'var(--phone-only, none)' }}/>
+              </>}
               onClick={(e) => {
                 setAnchorEl(e.currentTarget);
                 setOpen(views.length ? 'panel' : 'add');
@@ -95,7 +100,7 @@ const AddGoalButton = () => {
         {views.length ? `Goals · ${reached} of ${views.length} reached` : 'Add goal'}
       </Button>
       {views.length ? (
-        <IconButton aria-label="Add goal" color="primary" onClick={openAdd}>
+        <IconButton aria-label="Add goal" color="primary" onClick={openAdd} sx={headerIconActionSx}>
           <IconPlus size={20}/>
         </IconButton>
       ) : null}
