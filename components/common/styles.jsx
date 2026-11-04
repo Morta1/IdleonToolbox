@@ -123,18 +123,31 @@ export const isSectionFailed = (account, section) => {
   return !!failed?.includes(section) || !!failed?.includes('*');
 };
 
+// The parse's own section keys as a player reads them: "printer" is "Printer", "cooking.kitchens" "Cooking kitchens".
+const sectionName = (key) => {
+  const words = `${key}`.replace(/\./g, ' ').replace(/([a-z])([A-Z])/g, (_, a, b) => `${a} ${b}`).toLowerCase();
+  return `${words.charAt(0).toUpperCase()}${words.slice(1)}`;
+};
+const joinNames = (names) => (names.length < 2 ? names.join('') : `${names.slice(0, -1).join(', ')} and ${names.at(-1)}`);
+// What a page that reads many sections says failed: '*' (the whole parse) is "your save", and past three the rest are counted.
+const failedSectionsName = (sections) => (sections.includes('*') ? 'your save'
+  : joinNames([...sections.slice(0, 3).map(sectionName), ...(sections.length > 3 ? [`${sections.length - 3} more`] : [])]));
+
 // A page's first note when its section is missing or failed to parse (Notices board, "Never replace the page"): the
-// page renders under it.
-export const MissingData = ({ name, failed }) => {
+// page renders under it. sections: the parse's failed keys, for a page that reads too many to name itself (failed is
+// then implied).
+export const MissingData = ({ name, failed, sections }) => {
+  const shownName = sections ? failedSectionsName(sections) : name;
+  const isFailed = failed || Boolean(sections);
   useEffect(() => {
     // Parse errors only reach the console otherwise; this surfaces breaks nobody reports.
-    if (failed) trackEvent('section_failed', { section: name });
-  }, [failed, name]);
+    if (isFailed) trackEvent('section_failed', { section: shownName });
+  }, [isFailed, shownName]);
 
   // The name leads (or stands alone): some names carry their own article ("The Button").
-  return failed
-    ? <Notice tone={'error'} sx={{ mb: 2 }}>{`Couldn't load ${name}. That's a bug on my end.`}</Notice>
-    : <Notice tone={'missing'} sx={{ mb: 2 }}>{`${name} has no data in your save yet: it shows up here once it does.`}</Notice>;
+  return isFailed
+    ? <Notice tone={'error'} sx={{ mb: 2 }}>{`Couldn't load ${shownName}. That's a bug on my end.`}</Notice>
+    : <Notice tone={'missing'} sx={{ mb: 2 }}>{`${shownName} has no data in your save yet: it shows up here once it does.`}</Notice>;
 };
 
 // CardTitleAndValue is StatTile under its old name: callers move to StatTile by name with their pages.

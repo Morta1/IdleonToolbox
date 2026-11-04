@@ -31,16 +31,25 @@ const SettingsContext = createContext({ state: {}, onChange: () => {} });
 // The settings that change the numbers on the page (Toolbar board, "Where a control goes"), the ones only one tab
 // reads too, grouped under that tab's name (Group): the gear at the end of the header row opens them, a dot says one differs from its default, Reset puts the defaults back. A popover on
 // desktop, a sheet on a phone. It renders into the header's slot, which exists only after mount, so the export has no
-// gear and nothing mismatches.
-const PageSettings = ({ state, defaults, onChange, onReset, children }) => {
+// gear and nothing mismatches. onOpen: a page whose settings live in their own window (the dashboard's alerts): the same
+// header button and dot, under its own label, and a click opens that window instead (changed says when the dot shows).
+const PageSettings = ({ state, defaults, onChange, onReset, onOpen, label = 'Page settings', changed: isChanged, children }) => {
   const node = usePageHeaderSlot('settings');
   const [anchor, setAnchor] = useState(null);
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const panelId = useId();
   const rowsRef = useRef(null);
   if (!node) return null;
-  const changed = Object.keys(defaults).some((key) => !same(state?.[key], defaults[key]));
+  const changed = isChanged ?? Object.keys(defaults ?? {}).some((key) => !same(state?.[key], defaults[key]));
   const close = () => setAnchor(null);
+  const buttonLabel = <>
+    {label}
+    <Box component="span" aria-hidden sx={[DOT_SX, { visibility: changed ? 'visible' : 'hidden' }]}/>
+    {changed ? <Box component="span" sx={visuallyHidden}>, changed</Box> : null}
+  </>;
+  if (onOpen) {
+    return createPortal(<Button startIcon={<IconSettings size={18}/>} aria-haspopup="dialog" onClick={onOpen}>{buttonLabel}</Button>, node);
+  }
   const rows = <SettingsContext value={{ state, onChange, close }}><Stack ref={rowsRef} gap={2}>{children}</Stack></SettingsContext>;
   // Reset leaves with the change it undid: the focus goes on to the first setting rather than to the popover or
   // the sheet itself
@@ -51,9 +60,7 @@ const PageSettings = ({ state, defaults, onChange, onReset, children }) => {
   return createPortal(<>
     <Button startIcon={<IconSettings size={18}/>} aria-haspopup="dialog" aria-expanded={Boolean(anchor)}
             aria-controls={anchor ? panelId : undefined} onClick={(event) => setAnchor(event.currentTarget)}>
-      Page settings
-      <Box component="span" aria-hidden sx={[DOT_SX, { visibility: changed ? 'visible' : 'hidden' }]}/>
-      {changed ? <Box component="span" sx={visuallyHidden}>, changed</Box> : null}
+      {buttonLabel}
     </Button>
     {isPhone
       ? <AppDialog open={Boolean(anchor)} onClose={close} id={panelId} size="s" title="Page settings"

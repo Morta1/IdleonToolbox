@@ -19,7 +19,7 @@ const Harness = ({ target = null, edits = {}, open = true, initialFilter }) => {
   });
   return <ThemeProvider theme={darkTheme}>
     <DashboardSettings open={open} onClose={() => {}} config={config} onChange={setConfig} onFileUpload={() => {}}
-                       target={target} hideAlertless={false} onHideAlertlessChange={() => {}}
+                       target={target}
                        initialFilter={initialFilter}/>
     <SnackbarHost/>
   </ThemeProvider>;
@@ -176,12 +176,12 @@ describe('DashboardSettings window', () => {
     try {
       render(<Harness/>);
       fireEvent.click(button('Characters'));
-      expect(document.body.textContent).toContain('Hide characters without alerts');
+      expect(document.body.textContent).toMatch(/\d+ alerts · \d+ on/);
       fireEvent.click(document.body.querySelector('[aria-label="Back to sections"]'));
       const navButtons = () => document.body.querySelectorAll('nav[aria-label="Characters sections"] button');
       expect(navButtons()[0]).toBeTruthy();
       fireEvent.click(navButtons()[0]);
-      expect(document.body.textContent).toContain('Hide characters without alerts');
+      expect(document.body.textContent).toMatch(/\d+ alerts · \d+ on/);
       // A tracker link in the menu opens the section on that alert.
       fireEvent.click(document.body.querySelector('[aria-label="Back to sections"]'));
       fireEvent.click(navButtons()[1]);

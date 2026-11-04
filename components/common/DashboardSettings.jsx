@@ -9,7 +9,6 @@ import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Stack from '@mui/material/Stack';
 import Notice from '@components/common/Notice';
-import Switch from '@mui/material/Switch';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -42,8 +41,7 @@ const refusal = (fileName) => (previous) => ({ message: notAConfig(fileName), id
 const FILTER_LABELS = { all: 'All', on: 'On', off: 'Off', edited: 'Edited', threshold: 'Has threshold' };
 
 const DashboardSettings = ({
-  open, onClose, config, onChange, onFileUpload, exportConfig, target,
-  hideAlertless, onHideAlertlessChange, initialFilter = 'all'
+  open, onClose, config, onChange, onFileUpload, exportConfig, target, initialFilter = 'all'
 }) => {
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const edits = diffTrackers(baseTrackers, config);
@@ -201,23 +199,12 @@ const DashboardSettings = ({
     </Typography>
   </Stack>;
 
-  const hideAlertlessRow = tab.configType === 'characters' ? <Stack direction="row" alignItems="center" gap={1.5}
-                                                                    sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 1 }}>
-    <Switch checked={Boolean(hideAlertless)} onChange={(e) => onHideAlertlessChange(e.target.checked)}
-            inputProps={{ 'aria-label': 'Hide characters without alerts' }}/>
-    <Box>
-      <Typography variant="body2" fontWeight={500}>Hide characters without alerts</Typography>
-      <Typography variant="caption" color="text.secondary">Saved in this browser, not in your exported config</Typography>
-    </Box>
-  </Stack> : null;
-
   const pane = searching
     ? <SearchResults results={results.filter(({ tracker }) => matchesFilter(tracker, filter))} query={searching} onAction={onAction} onShow={showResult}/>
     : <SectionPane section={section} filter={filter} expanded={expanded}
                    onToggleExpanded={(path) => setExpanded((prev) => ({ ...prev, [path]: !prev[path] }))}
                    onSetExpanded={(paths, value) => setExpanded((prev) => ({ ...prev, ...Object.fromEntries(paths.map((path) => [path, value])) }))}
-                   target={highlight} onAction={onAction} onBulk={onBulk} onShowAll={() => setFilter('all')}
-                   extraTop={hideAlertlessRow}/>;
+                   target={highlight} onAction={onAction} onBulk={onBulk} onShowAll={() => setFilter('all')}/>;
 
   const nav = <SettingsNav model={model} tabIndex={tabIndex} onTabChange={changeTab} sectionKey={section.key}
                            onSectionChange={changeSection} onTrackerJump={jumpTo}/>;

@@ -1,6 +1,11 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AppContext, writeStored } from '@components/common/context/AppProvider';
 import { Stack } from '@mui/material';
+import ErrorBoundary from '@components/common/ErrorBoundary';
+import Notice from '@components/common/Notice';
+import PageSettings from '@components/common/PageSettings';
+import Toolbar from '@components/common/Toolbar';
+import { MissingData } from '@components/common/styles';
 import SectionToggles from '@components/dashboard/SectionToggles';
 import { normalizeSectionOrder } from '@utility/dashboard/sectionOrder';
 import Characters from '../components/dashboard/Characters';
@@ -10,8 +15,6 @@ import Goals from '@components/dashboard/goals/Goals';
 import { NextSeo } from 'next-seo';
 import DashboardSettings from '../components/common/DashboardSettings';
 import { DashboardSettingsProvider } from '@components/common/context/DashboardSettingsProvider';
-import Button from '@mui/material/Button';
-import { IconSettingsFilled } from '@tabler/icons-react';
 import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import DefaultsNote from '@components/dashboard/settings/DefaultsNote';
@@ -25,11 +28,15 @@ import AlertQuickEdit from '@components/dashboard/settings/AlertQuickEdit';
 import { diffTrackers, LEGACY_BACKUP_KEY, loadTrackers, toStoredTrackers } from '@utility/dashboard/trackerStore';
 
 const GOALS_FILTER_ADDED_KEY = 'dashboard-goals-filter-added';
+const SECTION_TITLES = { goals: 'The goals', account: 'The Account alerts', characters: 'The Characters alerts', timers: 'The timers' };
 
 const Dashboard = () => {
   const router = useRouter();
   const { dispatch, state } = useContext(AppContext);
   const { characters, account, lastUpdated } = state;
+  const guest = Boolean(state?.emptyAccount);
+  // No save was read: an alert or a timer would be computed from nothing, so only the page's note shows.
+  const noSave = guest || Boolean(account?.failedSections?.includes('*'));
   const [open, setOpen] = useState(false);
   // Set when the modal is opened by clicking an alert, so it lands on that alert's own setting.
   const [settingsTarget, setSettingsTarget] = useState(null);
@@ -187,10 +194,6 @@ const Dashboard = () => {
     writeStored('dashboard-filters', newFilters);
   };
 
-  const handleHideAlertless = (checked) => {
-    setHideAlertless(checked);
-  };
-
   const isDisplayed = (filter) => {
     return filters.includes(filter)
   }
@@ -216,22 +219,22 @@ const Dashboard = () => {
       description="Provides key information about your account and alerts you when there are unfinished tasks"
     />
     <Stack>
+      {account?.failedSections?.length
+        ? <MissingData sections={account.failedSections}/>
+        : guest ? <Notice tone={'signin'} sx={{ mb: 2 }}>Your alerts, timers and goals show here once you sign in.</Notice> : null}
       {storageRead && !defaultsNoteDismissed && defaultsNoteCount > 0 ? <DefaultsNote count={defaultsNoteCount}
                                                                onReview={() => {
                                                                  setInitialFilter('edited');
                                                                  handleOpenSettings(null, null, 'note');
                                                                }}
                                                                onDismiss={() => setDefaultsNoteDismissed(true)}/> : null}
-      <Stack mb={2} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
-        <SectionToggles order={sectionOrder} filters={filters} onFilters={handleFilters} onReorder={setSavedOrder}/>
-        <Button variant={'outlined'}
-                startIcon={<IconSettingsFilled size={20}/>}
-                onClick={() => {
-                  handleOpenSettings(null, null, 'button');
-                }}>
-          Configure alerts
-        </Button>
-      </Stack>
+      <Toolbar noun={'sections'}>
+        <Toolbar.Lead>
+          <SectionToggles order={sectionOrder} filters={filters} onFilters={handleFilters} onReorder={setSavedOrder}/>
+        </Toolbar.Lead>
+      </Toolbar>
+      <PageSettings onOpen={() => handleOpenSettings(null, null, 'button')} label={'Configure alerts'}
+                    changed={Object.keys(diffTrackers(baseTrackers, config)).length > 0}/>
       <Stack gap={2}>
         <DashboardSettingsProvider onOpenAlert={handleOpenAlert}
                                    labelFor={(configType, target, extra) => alertLabel(config, configType, target, extra)}
@@ -239,15 +242,17 @@ const Dashboard = () => {
                                      const page = alertPage(config, configType, target);
                                      return page ? pageHref(page, router.query) : null;
                                    }}>
-          {sectionOrder.map((id) => isDisplayed(id) ? <React.Fragment key={id}>{sections[id]}</React.Fragment> : null)}
+          {/* Each section fails alone: a throw in one leaves its note and the others. */}
+          {sectionOrder.map((id) => isDisplayed(id) && !noSave
+            ? <ErrorBoundary key={id} title={`${SECTION_TITLES[id]} didn't load`} resetKey={lastUpdated}>{sections[id]}</ErrorBoundary>
+            : null)}
         </DashboardSettingsProvider>
       </Stack>
     </Stack>
     <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}
                        onClose={handleCloseSettings} config={config} target={settingsTarget}
                        initialFilter={initialFilter}
-                       exportConfig={legacyMode ? config : toStoredTrackers(baseTrackers, config)}
-                       hideAlertless={hideAlertless} onHideAlertlessChange={handleHideAlertless}/>
+                       exportConfig={legacyMode ? config : toStoredTrackers(baseTrackers, config)}/>
     <AlertQuickEdit quickEdit={quickModel} open={quickOpen && Boolean(quickModel)} iconSrc={quickEdit?.iconSrc}
                     onExited={() => setQuickEdit(null)}
                     pageHref={quickModel?.page ? pageHref(quickModel.page, router.query) : null}

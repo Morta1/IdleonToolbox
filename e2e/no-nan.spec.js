@@ -148,8 +148,9 @@ test('active stuff calculator renders no NaN with a leftover snapshot and no sav
   expect(hits, `Bad text found:\n${hits.join('\n')}`).toEqual([]);
 });
 
-test('dashboard timer tooltips render no NaN/Infinity/undefined for a logged-out visitor', async ({ page }) => {
-  await page.goto('/dashboard', { waitUntil: 'domcontentloaded' });
+// A logged-out dashboard draws only its sign-in note, so the alert and timer hovers are read on the demo.
+test('dashboard timer tooltips render no NaN/Infinity/undefined', async ({ page }) => {
+  await page.goto('/dashboard?demo=true', { waitUntil: 'domcontentloaded' });
   await waitForRender(page);
 
   const hoverables = await page.$$('img');

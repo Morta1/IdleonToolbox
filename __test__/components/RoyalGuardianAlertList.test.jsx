@@ -47,6 +47,16 @@ const renderDashboard = () => render(<ThemeProvider theme={darkTheme}>
 </ThemeProvider>);
 
 describe('royal guardian alert list', () => {
+  // The printer section's failed default ({}) throws in its alerts: that row says so, and World 7's alerts stay.
+  it('a family that throws takes only its own row', async () => {
+    render(<ThemeProvider theme={darkTheme}>
+      <Account account={{ ...account, finishedWorlds: { World2: true, World6: true }, printer: {} }} characters={[]} lastUpdated={0}
+               trackers={{ ...trackers, 'World 3': { printer: { checked: true, options: [{ name: 'includeResource', checked: true, props: { value: {} } }] } } }}/>
+    </ThemeProvider>);
+    expect(await screen.findByText('Couldn\'t check these alerts.')).toBeTruthy();
+    expect(document.querySelector('img[src*="Royal_Cost"]')).toBeTruthy();
+  });
+
   it('names the world and the map monster next to every outpost', async () => {
     renderDashboard();
     fireEvent.mouseOver(document.querySelector('img[src*="Royal_Cost"]'));

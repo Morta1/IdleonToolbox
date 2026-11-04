@@ -33,7 +33,9 @@ const usePageDataLoading = () => {
       return { loading: true, message: 'Loading character data...', isDataPage };
     }
   } else if (isDashboardPage) {
-    const isDataLoaded = (!!state?.account && !!state?.characters?.length) || (state?.emptyAccount && !!state?.account);
+    // A whole-parse failure has no characters to wait for: the page says what failed, never a loader that stays.
+    const isDataLoaded = (!!state?.account && !!state?.characters?.length) || (state?.emptyAccount && !!state?.account)
+      || !!state?.account?.failedSections?.includes('*');
     if (state.isLoading || !isDataLoaded) {
       return { loading: true, message: 'Loading dashboard data...', isDataPage };
     }

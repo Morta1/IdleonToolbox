@@ -21,6 +21,7 @@ import WarningRoundedIcon from '@mui/icons-material/WarningRounded';
 import LinkIcon from '@mui/icons-material/Link';
 import LockIcon from '@mui/icons-material/Lock';
 import HtmlTooltip from '../Tooltip';
+import StatusText from '@components/common/StatusText';
 import {
   getGeneralAlerts,
   getWorld1Alerts,
@@ -86,7 +87,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
   // the alert follows the "All greenstacks" goal; a single greenstack entry goal has no short list to name
   const greenstackGoal = goals.find(({ system, kind }) => system === 'greenstack' && kind === 'all');
   const greenstackView = greenstackGoal ? resolveGoal(greenstackGoal, { account, characters }) : null;
-  const { alerts, emptyAlertRows } = useAlerts({
+  const { alerts, emptyAlertRows, failedRows } = useAlerts({
     alertsMap,
     data: account,
     extraData: characters,
@@ -1074,6 +1075,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'etc/ButtonG'}/> : null}
             </Stack>
           </Stack> : null}
+          {failedRows?.map((row) => <Stack key={row} direction={'row'} gap={4}>
+            <Typography sx={{ flexShrink: 0 }} color={'text.secondary'}>{row}</Typography>
+            <StatusText status={'problem'}>Couldn't check these alerts.</StatusText>
+          </Stack>)}
         </Stack> : <Typography>There are no account alerts to display</Typography>}
       </CardContent>
     </Card>

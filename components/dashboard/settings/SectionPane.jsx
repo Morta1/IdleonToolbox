@@ -9,7 +9,7 @@ import TrackerCard, { CompactRow, hasOptionsBody } from './TrackerCard';
 
 const TAB_LABELS = { account: 'Account', characters: 'Characters', timers: 'Timers' };
 
-const SectionPane = ({ section, filter, expanded, onToggleExpanded, onSetExpanded, target, onAction, onBulk, onShowAll, extraTop = null }) => {
+const SectionPane = ({ section, filter, expanded, onToggleExpanded, onSetExpanded, target, onAction, onBulk, onShowAll }) => {
   const visible = section.trackers.filter((tracker) => matchesFilter(tracker, filter) || tracker.path === target?.path);
   const compact = visible.filter(({ compact: isCompact }) => isCompact);
   const cards = visible.filter(({ compact: isCompact }) => !isCompact);
@@ -42,7 +42,6 @@ const SectionPane = ({ section, filter, expanded, onToggleExpanded, onSetExpande
         </Button> : null}
       </Stack>
     </Stack>
-    {extraTop}
     {!visible.length ? <Paper variant="outlined" sx={{ p: 3, textAlign: 'center' }}>
       <Typography fontWeight={500}>{filter === 'off' ? `Every ${section.label} alert is on` : `No ${section.label} alerts match this filter`}</Typography>
       <Button sx={{ mt: 1.5, ...buttonSx }} variant="outlined" onClick={onShowAll}>Show all alerts</Button>
