@@ -422,9 +422,13 @@ const GenericUpgradeOptimizer = ({
   });
   const resourceUsage = Object.values(resourceUsageMap);
 
-  // Format for display
-  const formatChange = (change) => formatNum(change, 'amount', { signed: true, precise: true });
-  const formatPercentChange = (percentChange) => formatNum(percentChange, 'pct', { signed: true, precise: true });
+  // A stat change in the amount kind, its percent in the pct kind, neither with every decimal ("+564,379 (+0.04%)").
+  // Under 100 the amount reads the pct kind's Small rule without its %, where a whole number would read +0 for a
+  // crit chance step or +2 for +1.5; under 0.01 both keep two significant digits rather than read 0.
+  const formatChange = (change) => (Math.abs(change) >= 100
+    ? formatNum(change, 'amount', { signed: true })
+    : formatNum(change, 'pct', { signed: true, bare: true, precise: Math.abs(change) < 0.01 }));
+  const formatPercentChange = (percentChange) => formatNum(percentChange, 'pct', { signed: true, precise: Math.abs(percentChange) < 0.01 });
   // Precise keeps two significant digits under 0.01, so a small hoarding note still adds up on screen
   const formatSignedPercent = (percentChange) => formatNum(percentChange, 'pct', { signed: true, precise: true });
   // Hours of farming needed to rebuild the resource this purchase spends
