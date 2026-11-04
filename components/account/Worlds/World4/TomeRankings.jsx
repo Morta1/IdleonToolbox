@@ -264,12 +264,12 @@ const TomeRankings = () => {
       }
     },
     // The calculator under an opened row says Points with its max, so the row's list leaves it out.
-    { key: 'points', label: 'Points', numeric: true, details: false, render: ({ userPoints }) => (hasUserData ? formatGame(userPoints ?? 0, POINTS) : null) },
+    { key: 'points', label: 'Points', numeric: true, details: false, render: ({ userPoints }) => (hasUserData ? formatGame(userPoints ?? 0, POINTS, { whole: true }) : null) },
     ...(targetSet ? [{
       key: 'target',
       label: 'To target',
       numeric: true,
-      render: ({ gap }) => (gap == null ? null : gap > 0 ? `+${formatGame(gap, POINTS)}` : <StatusText status={'maxed'}>Reached</StatusText>)
+      render: ({ gap }) => (gap == null ? null : gap > 0 ? `+${formatGame(gap, POINTS, { whole: true })}` : <StatusText status={'maxed'}>Reached</StatusText>)
     }] : [])
   ];
   // Tier and type groupings are bands, always open; the summary tiles above count each tier.
@@ -296,7 +296,7 @@ const TomeRankings = () => {
         <Typography variant="caption" color="text.secondary">
           {`${formatNum(displayPlayers)} players`}
           {selectedRank !== 'all' && rankThresholds?.[selectedRank] != null
-            ? ` (at least ${formatGame(rankThresholds[selectedRank], POINTS)} total points)` : null}
+            ? ` (at least ${formatGame(rankThresholds[selectedRank], POINTS, { whole: true })} total points)` : null}
         </Typography>
         {percentileData.createdAt ? <Typography variant="caption" color="text.secondary">
           {`Updated ${formatDate(percentileData.createdAt, { showSeconds: false })}`}
@@ -364,18 +364,18 @@ const ExpandedCalculator = ({ row, bounds, percentilePoints, hasUserData, onClas
     ? calcQuantityForPoints({ x1, x2, x3, points: requiredPts })
     : null;
   const targetText = requiredPts == null ? null
-    : !hasUserData || gap == null ? `${formatGame(requiredPts, POINTS)} points`
-      : gap > 0 ? `Needs ${formatGame(requiredPts, POINTS)} points (+${formatGame(gap, POINTS)} to go${requiredQty != null
-        ? `, ${tomeQuantity(row, requiredQty)} quantity` : ''})`
+    : !hasUserData || gap == null ? `${formatGame(requiredPts, POINTS, { whole: true })} points`
+      : gap > 0 ? `Needs ${formatGame(requiredPts, POINTS, { whole: true })} points (+${formatGame(gap, POINTS, { whole: true })} to go${requiredQty != null
+        ? `, ${tomeQuantity(row, requiredQty, { whole: true })} quantity` : ''})`
         : <StatusText key={'reached'} status={'done'}>Reached</StatusText>;
 
   return (
     <Stack gap={1} px={1} pb={1} pt={0.25}>
       {hasUserData ? <ItemCard.Facts rows={[
         ['Quantity', tomeQuantity(row, quantity)],
-        ['Points', `${formatGame(userPoints ?? 0, POINTS)} / ${formatGame(maxPoints ?? 0, POINTS)}`],
-        maxQty != null ? ['Max quantity', tomeQuantity(row, maxQty)] : null,
-        qtyGap != null && qtyGap > 0 ? ['Next point', `+${tomeQuantity(row, qtyGap)} quantity`] : null
+        ['Points', `${formatGame(userPoints ?? 0, POINTS, { whole: true })} / ${formatGame(maxPoints ?? 0, POINTS, { whole: true })}`],
+        maxQty != null ? ['Max quantity', tomeQuantity(row, maxQty, { whole: true })] : null,
+        qtyGap != null && qtyGap > 0 ? ['Next point', `+${tomeQuantity(row, qtyGap, { whole: true })} quantity`] : null
       ]}/> : null}
       <Stack direction="row" gap={2} alignItems="flex-end" flexWrap="wrap">
         <TextField select size={'small'} value={classification} sx={{ minWidth: 130 }}

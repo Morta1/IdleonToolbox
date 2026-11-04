@@ -112,9 +112,9 @@ const QuantityCalculator = ({ bonus, maxPoints }) => {
   const [targetPoints, setTargetPoints] = useState(null);
   const quantity = targetPoints > 0 && targetPoints <= maxPoints ? requiredQuantity(bonus, targetPoints) : null;
   const result = !targetPoints ? null
-    : targetPoints > maxPoints ? `Past the max of ${formatGame(maxPoints, 'Summoning.TomePTS')}`
+    : targetPoints > maxPoints ? `Past the max of ${formatGame(maxPoints, 'Summoning.TomePTS', { whole: true })}`
       : quantity === Infinity ? 'Out of reach'
-        : quantity === null ? '-' : `Needs ${tomeQuantity(bonus, quantity)}`;
+        : quantity === null ? '-' : `Needs ${tomeQuantity(bonus, quantity, { whole: true })}`;
   return <Stack gap={1}>
     <NumberField label={'Target points'} value={targetPoints} min={0} help={false} sx={{ width: 160 }}
                  onChange={(next) => setTargetPoints(next)}/>
@@ -131,7 +131,7 @@ const detailsSection = (bonus, tier) => {
   return <>
     <ItemCard.Section label={'Tiers'}>
       <ItemCard.Facts rows={[
-        ...Object.entries(requiredQuantities ?? {}).map(([key, value]) => [key.capitalize(), tomeQuantity(bonus, value)]),
+        ...Object.entries(requiredQuantities ?? {}).map(([key, value]) => [key.capitalize(), tomeQuantity(bonus, value, { whole: true })]),
         x2 === 3 ? ['Direction', 'Lower is better'] : null
       ]}/>
       <Stack direction={'row'} gap={0.5} aria-hidden>
@@ -145,10 +145,10 @@ const detailsSection = (bonus, tier) => {
     </ItemCard.Section>
     {maxPoints ? <ItemCard.Section>
       <ItemCard.Progress label={'Points'} percent={Math.min(100, 100 * points / maxPoints)}
-                         value={<Num value={points} game={'Summoning.TomePTS'}/>}
-                         max={<Num value={maxPoints} game={'Summoning.TomePTS'}/>}/>
+                         value={<Num value={points} game={'Summoning.TomePTS'} whole/>}
+                         max={<Num value={maxPoints} game={'Summoning.TomePTS'} whole/>}/>
       <ItemCard.Facts rows={[maxQuantity === null ? null
-        : ['Max at', maxQuantity === Infinity ? 'Out of reach' : tomeQuantity(bonus, maxQuantity)]]}/>
+        : ['Max at', maxQuantity === Infinity ? 'Out of reach' : tomeQuantity(bonus, maxQuantity, { whole: true })]]}/>
       <QuantityCalculator bonus={bonus} maxPoints={maxPoints}/>
     </ItemCard.Section> : null}
   </>;
@@ -181,7 +181,7 @@ const Tome = () => {
   const rankIndex = tops.findIndex((score) => (tome?.totalPoints ?? 0) >= score);
   const rankText = rankIndex >= 0 ? `Top ${RANKS[rankIndex]}` : '-';
   const cutOffs = tops.length ? createBreakdown('Rank', rankText, flatLines(tops.map((score, index) => ({
-    name: `Top ${RANKS[index]}`, value: score, formatted: `${formatGame(score, 'Summoning.TomePTS')} points`
+    name: `Top ${RANKS[index]}`, value: score, formatted: `${formatGame(score, 'Summoning.TomePTS', { whole: true })} points`
   }))), { combine: 'list' }) : undefined;
   const resets = createBreakdown('Nametag reward reset', getRealDateInMs(nextResetTime), flatLines(nextResetTimes.map((time, index) => ({
     name: index ? `Reset ${index + 1}` : 'Next reset', value: time, formatted: getRealDateInMs(time)
@@ -206,7 +206,7 @@ const Tome = () => {
     </PageSettings>}
     {sectionFailed ? <MissingData name={'the Tome'} failed/> : null}
     <PageSummary>
-      <StatTile label={'Total points'} value={sectionFailed ? '-' : formatGame(tome?.totalPoints ?? 0, 'Summoning.TomePTS')}/>
+      <StatTile label={'Total points'} value={sectionFailed ? '-' : formatGame(tome?.totalPoints ?? 0, 'Summoning.TomePTS', { whole: true })}/>
       <StatTile label={'Rank'} value={tome?.top >= 0 && !sectionFailed
         ? <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>{rankText}<RankBadge top={tome.top}/></Box>
         : rankText}
@@ -243,10 +243,10 @@ const Tome = () => {
               // A locked entry counts nothing toward the total (the parser's sum skips it): 0 points and no tier
               const points = locked ? 0 : bonus.points;
               const tier = locked ? null : tierOf(color);
-              const pointsText = `${formatGame(points ?? 0, 'Summoning.TomePTS')} / ${formatGame(maxPoints ?? 0, 'Summoning.TomePTS')}`;
+              const pointsText = `${formatGame(points ?? 0, 'Summoning.TomePTS', { whole: true })} / ${formatGame(maxPoints ?? 0, 'Summoning.TomePTS', { whole: true })}`;
               return <ItemCard key={'tome-bonus' + index} title={cleanUnderscore(name?.replace('(Tap_for_more_info)', ''))}
                                dimmed={locked} status={locked ? 'locked' : maxPoints && points >= maxPoints ? 'maxed' : undefined}
-                               meta={locked ? `Unlocks at account Lv ${formatGame(tomeLvReq, 'Summoning.TomeLvReq')}`
+                               meta={locked ? `Unlocks at account Lv ${formatGame(tomeLvReq, 'Summoning.TomeLvReq', { whole: true })}`
                                  : position === 19 ? 'Uses your active character' : undefined}>
                 <ItemCard.Facts rows={[
                   ['Quantity', tomeQuantity(bonus, quantity)],

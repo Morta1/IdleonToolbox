@@ -15,7 +15,7 @@ import { isSectionFailed } from '@components/common/styles';
 const ToMax = ({ total, maxLevel, covered }) => <Typography variant={'body2'} component={'span'}
                                                           color={covered ? 'text.success' : 'text.secondary'}
                                                           sx={{ whiteSpace: 'nowrap' }}>
-  {formatGame(total, 'Breeding.PetUpgCostREAL')} to Lv {maxLevel}
+  {formatGame(total, 'Breeding.PetUpgCostREAL', { whole: true })} to Lv {maxLevel}
 </Typography>;
 
 // A cost line: its currency in a fixed slot as wide as the small meal (56 px), so both lines' numbers start at one x,

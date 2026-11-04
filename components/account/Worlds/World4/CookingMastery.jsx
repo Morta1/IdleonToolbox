@@ -40,13 +40,13 @@ const CookingMastery = ({ cookingMastery, account, sectionFailed }) => {
 
   const hoursToLevel = expRate > 0 ? Math.max(0, expReq - exp) / expRate : null;
   const rateText = `${formatGame(expRate ?? 0, 'Summoning2.ExpRateCook')}/hr`;
-  const pointsPair = (spent, left, key) => `${formatGame(spent ?? 0, key)} / ${formatGame((spent ?? 0) + (left ?? 0), key)}`;
+  const pointsPair = (spent, left, key) => `${formatGame(spent ?? 0, key, { whole: true })} / ${formatGame((spent ?? 0) + (left ?? 0), key, { whole: true })}`;
 
   return <>
     <Stack direction={'row'} flexWrap={'wrap'} gap={1} mb={3} alignItems={'stretch'}>
       <StatTile label={'Mastery level'} value={level ?? 0} kind={'amount'}/>
       <StatTile label={'EXP'}
-                value={`${formatGame(exp ?? 0, 'Summoning2.ExpReqCook')} / ${formatGame(expReq ?? 0, 'Summoning2.ExpReqCook')}`}/>
+                value={`${formatGame(exp ?? 0, 'Summoning2.ExpReqCook', { whole: true })} / ${formatGame(expReq ?? 0, 'Summoning2.ExpReqCook', { whole: true })}`}/>
       <StatTile label={'EXP rate'} value={rateText} breakdownTitle={'EXP rate'}
                 breakdown={expRateBreakdown ? { ...expRateBreakdown, totalValue: rateText } : undefined}/>
       <StatTile label={'Time to level'} value={hoursToLevel !== null ? <Duration seconds={hoursToLevel * 3600}/> : '-'}/>

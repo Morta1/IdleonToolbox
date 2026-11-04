@@ -19,7 +19,7 @@ const All = ({ pets }) => {
       <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
         <Typography variant={'sectionTitle'} component={'h2'}>World {worldIndex + 1}</Typography>
         <StatTile label={'Cells'} icon={`data/Genetic${worldIndex}.png`}
-                  value={formatGame(genetics?.[worldIndex] ?? 0, 'Breeding.GeneticCost')}/>
+                  value={formatGame(genetics?.[worldIndex] ?? 0, 'Breeding.GeneticCost', { whole: true })}/>
       </Stack>
       <CardGrid size={'icon'}>
         {list?.map((pet) => <IconTile key={pet?.monsterName} icon={petIcon(pet)} alt={cleanUnderscore(pet?.monsterName)}
