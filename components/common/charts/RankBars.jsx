@@ -11,8 +11,8 @@ const TIP_ROOM = 64;
 // Rank a list, or a share past six parts (Charts board, "Form by job"; a donut is for six parts or fewer, and no
 // chart has that few today): sorted bars in one color (slot 1, an Other row in grey), the value at the tip and no
 // axis. 18 px bars about 10 px apart, square where they start on the 23% edge and 4 px round at the end; the
-// hovered row lightens. From sm the names share one column, so every bar starts at the same x; on a phone each
-// name sits above its bar. rows: [{ key, name, tag, value, tip, detail, other }], sorted and folded by the
+// hovered row lightens. From sm the names share one column, right-aligned against the bars, so every bar starts at the
+// same x and a short name stays by its bar; on a phone each name sits above its bar. rows: [{ key, name, tag, value, tip, detail, other }], sorted and folded by the
 // caller; tip is the short value at the bar's end, detail the exact one in the tooltip, which sits on the bar's end
 // (the row is the hit area, up to 712 px wide). A bar is at least 2 px, so a row far below the first still shows
 // a mark (Decision 4). The focus ring sits inside the row, clear of its neighbours.
@@ -41,7 +41,7 @@ const RankBars = ({ label, rows }) => {
         '&:focus-visible .bar': { filter: 'brightness(1.25)' },
         '&:focus-visible': focusRing(theme, -2)
       }}>
-        <Box sx={{ typography: 'body2', color: 'text.secondary', minWidth: 0, overflowWrap: 'anywhere' }}>
+        <Box sx={{ typography: 'body2', color: 'text.secondary', minWidth: 0, overflowWrap: 'anywhere', textAlign: { sm: 'right' } }}>
           {row.name}
           {row.tag ? <Box component={'span'} sx={{ typography: 'caption', color: 'text.muted', ml: 0.75 }}>{row.tag}</Box> : null}
         </Box>

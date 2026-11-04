@@ -22,11 +22,11 @@ const ChartFrame = ({ legend, table, children }) => {
   return <Stack ref={frame} gap={1.5} sx={{ scrollMarginTop: `${SCROLL_TARGET_MARGIN}px` }}>
     {!asTable && legend?.length > 1 ? <ChartLegend items={legend}/> : null}
     <Box id={bodyId}>{asTable ? <DataTable {...table}/> : children}</Box>
-    <Box>
-      <Button size={'small'} aria-controls={bodyId} onClick={toggle}>
+    <Stack direction={'row'} justifyContent={'flex-end'} sx={{ pt: 1, borderTop: 1, borderColor: 'divider' }}>
+      <Button size={'small'} aria-controls={bodyId} onClick={toggle} sx={{ fontSize: 13 }}>
         {asTable ? 'Show as chart' : 'Show as table'}
       </Button>
-    </Box>
+    </Stack>
   </Stack>;
 };
 
