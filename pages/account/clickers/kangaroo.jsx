@@ -51,8 +51,7 @@ const Kangaroo = () => {
       <StatTile label={'Shiny progress'} icon={'etc/KShiny.png'}
                 value={number(kangaroo?.shinyProgress, (value) => `${poppyFill(value)}%`)}/>
       <StatTile label={'Shiny per minute'} value={number(kangaroo?.shinyRatePercent, (value) => `${poppyFill(value)}%`)}/>
-      <StatTile label={'Average reset points'}
-                value={number(kangaroo?.avgResetPoints, (value) => formatNum(value, 'amount', { precise: true }))}/>
+      <StatTile label={'Average reset points'} value={number(kangaroo?.avgResetPoints, clickerAmount)}/>
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['clickers'].categories, 'kangaroo')}>
       <Upgrades upgrades={kangaroo?.upgrades} failed={failed} fish={kangaroo?.totalFish ?? 0}/>
