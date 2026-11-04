@@ -50,7 +50,7 @@ const Formulas = () => {
   const doubleStatueDropSize = getDoubleStatueDropSize(state?.account);
   const doubleGoldenFoodDropSize = getDoubleGoldenFoodDropSize(state?.account);
   // The game rolls a double drop once, so anything past 100% is wasted
-  const renderDoubleDropChance = (value) => `${notateNumber(value, 'MultiplierInfo')}%${value > 100 ? ' (capped at 100%)' : ''}`;
+  const renderDoubleDropChance = (value) => `${formatNum(value, 'mult', { bare: true })}%${value > 100 ? ' (capped at 100%)' : ''}`;
   const formulas = [
       {
         id: 'crystalChance',
@@ -68,7 +68,7 @@ const Formulas = () => {
         formula: respawnRate?.expression,
         value: respawnRate?.respawnRate,
         breakdown: respawnRate?.breakdown,
-        renderValue: (value) => `${notateNumber(value, 'MultiplierInfo')}%`,
+        renderValue: (value) => `${formatNum(value, 'mult', { bare: true })}%`,
         description: 'How often a mob is spawned'
       },
       {
@@ -95,7 +95,7 @@ const Formulas = () => {
         formula: dropRate?.expression,
         value: dropRate?.dropRate,
         breakdown: dropRate?.breakdown,
-        renderValue: (value) => `${notateNumber(value, 'MultiplierInfo')}x`,
+        renderValue: (value) => formatNum(value, 'mult'),
         description: 'Drop rate bonuses from all sources'
       },
       {
@@ -138,7 +138,7 @@ const Formulas = () => {
         formula: bitMulti?.expression,
         value: bitMulti?.value,
         breakdown: bitMulti?.breakdown,
-        renderValue: (value) => Number.isFinite(value) ? `${notateNumber(value)}%` : '—',
+        renderValue: (value) => Number.isFinite(value) ? formatNum(value, 'pct') : '—',
         description: 'Bit multi bonuses from all sources'
       },
       {
