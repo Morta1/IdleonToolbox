@@ -14,32 +14,6 @@
       "count": 1
     }
   },
-  "components/characters/EquippedCards.jsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "components/characters/Skills.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
-  "components/characters/Stats.jsx": {
-    "no-restricted-syntax": {
-      "count": 4
-    }
-  },
-  "components/characters/Talents.jsx": {
-    "no-restricted-syntax": {
-      "count": 6
-    },
-    "react-hooks/immutability": {
-      "count": 1
-    },
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
   "components/common/Ads/GoogleAdUnit.jsx": {
     "no-restricted-syntax": {
       "count": 3
@@ -72,11 +46,6 @@
   },
   "components/common/useCheckbox.jsx": {
     "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "components/dashboard/Account.jsx": {
-    "no-restricted-syntax": {
       "count": 1
     }
   },
