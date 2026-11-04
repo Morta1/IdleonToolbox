@@ -38,6 +38,10 @@ import useFormatDate from '@hooks/useFormatDate';
 import { getExaltedStampBonus } from '@parsers/world-1/stamps';
 import { OPT } from '@parsers/accountOptions';
 import { openWikiEntity } from '@utility/wiki/item-page';
+import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
+import { getCharmBonus } from '@parsers/world-6/sneaking';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { createBreakdown, multiplier as multiplierLine } from '@parsers/breakdown';
 
 // The game's reducer grows by the Hydrogen atom's daily bonus up to 90% (Atom Collider): the what-if steps it can take
 const reducerSteps = (account) => {
@@ -139,6 +143,7 @@ const Stamps = () => {
     levels: list.reduce((sum, { level }) => sum + (level ?? 0), 0),
     shown: list.map((stamp, index) => ({
       ...stamp,
+      category,
       state: states[category]?.[index],
       gained: gainedOf(category, index, stamp.level),
       bonus: getStampBonus(account, category, stamp.rawName, stamp.bestCharacter),
@@ -150,7 +155,10 @@ const Stamps = () => {
   const shownStamps = stampsFailed ? [] : categories.flatMap(({ shown }) => shown);
   const pickedStamp = shownStamps.find(({ rawName }) => rawName === picked) ?? shownStamps[0];
   const detailsContext = {
-    keepGreenstacks: settings?.keepGreenstacks, reducer, exaltedText: exaltedFailed ? null : exaltedText
+    keepGreenstacks: settings?.keepGreenstacks, reducer, exaltedText: exaltedFailed ? null : exaltedText,
+    exaltedMulti: 1 + (exaltedMulti?.value ?? 0) / 100,
+    vaultBonus: getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 16),
+    charmBonus: getCharmBonus(account, 'Liqorice_Rolle')
   };
 
   return (
@@ -262,20 +270,45 @@ const reducerLine = (minReduction, reducer) => {
   return reduction > reducer ? `Needs a ${formatNum(reduction, 'pct')} reducer to carry` : `Carries from a ${formatNum(reduction, 'pct')} reducer`;
 };
 
+// Every factor a stamp's bonus holds beside its base, as getStampBonus multiplies them (the game's StampBonusOfTypeX):
+// the lab's doubler and the Liqorice Rolle charm on combat and skill stamps, Stamp Bonanza on the four base stats,
+// the exalted multi. A factor fed by a failed section has no value
+const BASE_STATS = ['BaseDmg', 'BaseHP', 'BaseAcc', 'BaseDef'];
+const stampBoosts = ({ category, multiplier, stat, exalted }, { exaltedMulti, exaltedText, vaultBonus, charmBonus }) => [
+  category !== 'misc' && multiplier > 1 ? { name: 'Certified Stamp Book', value: multiplier } : null,
+  BASE_STATS.includes(stat) && vaultBonus > 0 ? { name: 'Stamp Bonanza', value: 1 + vaultBonus / 100 } : null,
+  category !== 'misc' && charmBonus > 0 ? { name: 'Liqorice Rolle', value: 1 + charmBonus / 100 } : null,
+  exalted ? { name: 'Exalted Stamps', value: exaltedText ? exaltedMulti : null } : null
+].filter(Boolean);
+
+// Up to two factors read as words; more open as a breakdown from their product, each factor named on the line
+const boostLine = (boosts, stampName) => {
+  const known = boosts.every(({ value }) => value != null);
+  if (boosts.length <= 2 || !known) {
+    return boosts.map(({ name, value }) => (value != null ? `${formatNum(value, 'mult')} from ${name}` : name)).join(', ');
+  }
+  const productText = formatNum(boosts.reduce((product, { value }) => product * value, 1), 'mult');
+  const names = boosts.map(({ name }) => name);
+  return <>
+    <Breakdown asValue title={`${stampName} boosts`}
+               data={createBreakdown(`${stampName} boosts`, productText, boosts.map(({ name, value }) => multiplierLine(name, value)))}>
+      {productText}
+    </Breakdown>
+    {` from ${names.slice(0, -1).join(', ')} and ${names.at(-1)}`}
+  </>;
+};
+
 // The picked stamp's details, under its name: its sentence filled as the game fills it, its state in words, what the
 // next level costs against what you own, the next levels' costs and each top character's carry capacity
-const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText }) => {
+const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText, exaltedMulti, vaultBonus, charmBonus }) => {
   const {
-    displayName, level, maxLevel, effect, multiplier, bonus, exalted, gained, state: type, goldCost, materialCost,
+    displayName, level, maxLevel, effect, bonus, gained, state: type, goldCost, materialCost,
     futureCosts, bestCharacter, ownedMats, greenStackOwnedMats, hasMoney, itemReq, minReduction
   } = stamp;
   // Below the max level a level costs coins; at it, raising the max costs the material
   const atMax = level >= maxLevel;
   const owned = (keepGreenstacks ? greenStackOwnedMats : ownedMats) ?? 0;
-  const boosts = level > 0 ? [
-    multiplier === 2 ? 'Doubled by the lab' : multiplier > 1 ? `${formatNum(multiplier, 'mult')} from the lab` : null,
-    exalted ? (exaltedText ? `${exaltedText} exalted` : 'Exalted') : null
-  ].filter(Boolean) : [];
+  const boosts = level > 0 ? stampBoosts(stamp, { exaltedMulti, exaltedText, vaultBonus, charmBonus }) : [];
   const reducerText = level > 0 && atMax ? reducerLine(minReduction, reducer) : null;
   return <Box sx={{
     display: 'grid',
@@ -291,7 +324,8 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText }) => {
     <Stack gap={1}>
       <Typography variant={'body2'} component={'div'}>
         {`+${cleanUnderscore((effect ?? '').replace('+{', gameBonusText(bonus, stamp, 'stamp')))}`}</Typography>
-      {boosts.length ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{boosts.join(', ')}</Typography> : null}
+      {boosts.length ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>
+        {boostLine(boosts, cleanUnderscore(displayName))}</Typography> : null}
       {unobtainableStamps[displayName] ? <StatusText status={'locked'}>Unobtainable</StatusText> : null}
       {type ? <StatusText status={STATE_TONES[type] ?? 'problem'} wrap>{STATE_LABELS[type]}</StatusText> : null}
       {level > 0 ? <ItemCard.Section label={atMax ? 'Raise the max level' : 'Next level'}>
