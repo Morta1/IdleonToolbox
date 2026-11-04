@@ -70,7 +70,7 @@ const TheBell = ({ hole }) => {
                   ? <Breakdown key={'rate'} asValue data={{ ...expRate.breakdown, totalValue: rateText }}
                                title={`${title} EXP rate`}>{rateText}</Breakdown>
                   : rateText],
-                ['EXP', `${formatGame(exp ?? 0, 'Holes.BellEXPreq')} / ${formatGame(expReq ?? 0, 'Holes.BellEXPreq')}`],
+                ['EXP', `${formatGame(exp ?? 0, 'Holes.BellEXPreq', { whole: true })} / ${formatGame(expReq ?? 0, 'Holes.BellEXPreq', { whole: true })}`],
                 ['Time to full', secondsToFull === null ? '-' : secondsToFull > 0 ? formatDuration(secondsToFull)
                   : <StatusText key={'ready'} status={'ready'}>{readyUses > 1 ? `Ready (x${formatNum(readyUses)})` : 'Ready'}</StatusText>]
               ]}/>

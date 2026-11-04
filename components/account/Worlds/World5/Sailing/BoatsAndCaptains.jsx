@@ -84,7 +84,7 @@ const upgradeSection = (title, level, step, value, next, key, resource, breakpoi
     <ItemCard.Facts rows={[
       ['Value', `${formatGame(value ?? 0, key)} → ${formatGame(next ?? 0, key)}`],
       ['Next bonus', `Lv ${formatNum(breakpoint)} (${formatNum(breakpoint - (level ?? 0))} more)`],
-      breakpointResource ? [`Cost to Lv ${formatNum(breakpoint)}`, formatGame(breakpointResource?.required ?? 0, 'Sailing.BoatUpgCostQty')] : null
+      breakpointResource ? [`Cost to Lv ${formatNum(breakpoint)}`, formatGame(breakpointResource?.required ?? 0, 'Sailing.BoatUpgCostQty', { whole: true })] : null
     ]}/>
     {resource ? <ItemCard.Cost icon={`data/${resource.rawName}.png`} iconAlt={treasureName(treasureIndex(resource.rawName))}
                                need={resource.required ?? 0} have={resource.amount ?? 0} game={'Sailing.BoatUpgCostQty'}/> : null}

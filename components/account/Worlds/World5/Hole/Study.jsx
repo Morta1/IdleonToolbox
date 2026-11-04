@@ -41,7 +41,7 @@ const Study = ({ account }) => {
                                            ? <InfoButton label={'The Bell study'}>Its bonus triggers on rings 19, 39, 59 and
                                              79, then every 20 rings.</InfoButton> : null}
                                          footer={<ItemCard.Facts rows={[
-                                           ['Progress', `${formatGame(entry?.progress ?? 0, 'Holes.StudyReqForBolaia')} / ${formatGame(entry?.req ?? 0, 'Holes.StudyReqForBolaia')}`],
+                                           ['Progress', `${formatGame(entry?.progress ?? 0, 'Holes.StudyReqForBolaia', { whole: true })} / ${formatGame(entry?.req ?? 0, 'Holes.StudyReqForBolaia', { whole: true })}`],
                                            ['Next level', <Duration key={'next'} seconds={secondsLeft(entry)}/>]
                                          ]}/>}>
     <ItemCard.Desc text={entry?.description}/>

@@ -21,7 +21,7 @@ const fillTimes = (sediment, theWell) => (theWell?.buckets ?? []).map((_, index)
     || (theWell?.fillRate ?? 0) * (index + 1);
   return rate > 0 ? ((sediment?.max ?? 0) - (sediment?.current ?? 0)) / rate * 3600 : Infinity;
 });
-const sedimentText = (value) => formatGame(Math.max(0, value ?? 0), 'Holes.SedimentMax');
+const sedimentText = (value) => formatGame(Math.max(0, value ?? 0), 'Holes.SedimentMax', { whole: true });
 // A sediment by its place in the parser's list: the rock layer first, then the sediments by their sprite
 const sedimentName = (index) => (index === 0 ? 'Rocks' : `Sediment ${index}`);
 
@@ -56,7 +56,7 @@ const TheWell = ({ hole }) => {
       }))), { combine: 'list' });
     return <ItemCard key={`sediment-${index}`} icon={`data/HoleWellFill${index}.png`} title={sedimentName(index)}
                      status={locked ? 'locked' : undefined}>
-      {isRocks ? <ItemCard.Facts rows={[['Left', formatGame(Math.abs(current), 'Holes.SedimentMax')]]}/> : null}
+      {isRocks ? <ItemCard.Facts rows={[['Left', formatGame(Math.abs(current), 'Holes.SedimentMax', { whole: true })]]}/> : null}
       {!isRocks && !locked ? <>
         <ItemCard.Progress label={'Filled'} value={sedimentText(current)} max={sedimentText(max)}
                            percent={max > 0 ? Math.min(100, (current / max) * 100) : 0}/>

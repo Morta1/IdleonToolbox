@@ -32,7 +32,7 @@ const Measure = ({ hole }) => {
           <ItemCard.Facts rows={[
             ['Base', measureText(description, baseBonus)],
             ['Multi', `${formatGame(multi ?? 1, 'Holes.MeasurementMulti')}x`],
-            measuredBy?.label ? [measuredBy.label, formatGame(measuredBy?.value ?? 0, 'Holes.MeasurementQTYfound')] : null
+            measuredBy?.label ? [measuredBy.label, formatGame(measuredBy?.value ?? 0, 'Holes.MeasurementQTYfound', { whole: true })] : null
           ]}/>
         </ItemCard>;
       })}

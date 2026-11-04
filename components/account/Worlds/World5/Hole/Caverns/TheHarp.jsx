@@ -24,7 +24,7 @@ const TheHarp = ({ hole }) => {
       <StatTile label={'Power'} value={theHarp?.power ?? 0} kind={'pct'}/>
       <StatTile label={'Power rate'} value={`${formatNum(theHarp?.powerRate ?? 0)}/hr`}/>
       <StatTile label={'Strings'} value={theHarp?.stringSlots ?? 0} kind={'amount'}/>
-      <StatTile label={'New note cost'} value={formatGame(theHarp?.newNoteCost ?? 0, 'Holes.HarpNewNote_Cost')}/>
+      <StatTile label={'New note cost'} value={formatGame(theHarp?.newNoteCost ?? 0, 'Holes.HarpNewNote_Cost', { whole: true })}/>
       <StatTile label={'Opal chance'} icon={'data/Opal.png'}
                 value={`${formatGame((theHarp?.opalChance ?? 0) * 100, 'Holes.HarpOpalOdds')}%`}/>
       {opalsFoundTile(hole, 5)}
@@ -37,7 +37,7 @@ const TheHarp = ({ hole }) => {
           const owned = theHarp?.notes?.[index] ?? 0;
           const name = `Harp note ${index + 1}`;
           return <IconTile key={`note-${index}`} icon={`data/HoleHarpNote${index}.png`} alt={name}
-                           value={<Num value={owned} game={'Holes.HarpNoteProduced'}/>}
+                           value={<Num value={owned} game={'Holes.HarpNoteProduced'} whole/>}
                            status={owned > 0 ? undefined : 'missing'} details={`${name}: ${formatNum(owned, 'exact')}`}/>;
         })}
       </CardGrid>

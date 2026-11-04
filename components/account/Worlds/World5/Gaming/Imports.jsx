@@ -53,9 +53,9 @@ const importExtras = (index, item, gaming, account, lastUpdated) => {
     return <ItemCard.Facts rows={[
       ['Since last dig', <Timer key={'timer'} date={new Date().getTime() - (gaming?.lastShovelClicked ?? 0) * 1000}
                                 lastUpdated={lastUpdated}/>],
-      ['Nuggets', <Breakdown key={'nuggets'} asValue data={nuggets}>{formatNum(gaming?.goldNuggets ?? 0)}</Breakdown>],
-      ['Rolls', `${formatNum((maxNuggetValue ?? 0) / 1584.89)} to ${formatNum(maxNuggetValue ?? 0)}`],
-      ['Best nugget', formatNum(Number(gaming?.bestNugget) || 0)],
+      ['Nuggets', <Breakdown key={'nuggets'} asValue data={nuggets}>{formatNum(gaming?.goldNuggets ?? 0, 'whole')}</Breakdown>],
+      ['Rolls', `${formatNum((maxNuggetValue ?? 0) / 1584.89, 'whole')} to ${formatNum(maxNuggetValue ?? 0, 'whole')}`],
+      ['Best nugget', formatNum(Number(gaming?.bestNugget) || 0, 'whole')],
       ['Since upgrade', account?.accountOptions?.[OPT.nuggetsSinceUpgrade] ?? 0, 'amount']
     ]}/>;
   }
@@ -65,11 +65,11 @@ const importExtras = (index, item, gaming, account, lastUpdated) => {
       {acquired ? <ItemCard.Facts rows={[
         ['Since last visit', <Timer key={'timer'} date={new Date().getTime() - (gaming?.lastAcornClicked ?? 0) * 1000}
                                     lastUpdated={lastUpdated}/>],
-        ['Acorns', <Breakdown key={'acorns'} asValue data={acorns}>{formatNum(gaming?.acorns ?? 0)}</Breakdown>]
+        ['Acorns', <Breakdown key={'acorns'} asValue data={acorns}>{formatNum(gaming?.acorns ?? 0, 'whole')}</Breakdown>]
       ]}/> : null}
       {acornShop?.length ? <ItemCard.Section label={'Acorn Shop'}>
         <ItemCard.Facts rows={acornShop.map(({ description, cost }) => [cleanUnderscore(description),
-          `${formatNum(cost ?? 0)} ${cost === 1 ? 'acorn' : 'acorns'}`])}/>
+          `${formatNum(cost ?? 0, 'whole')} ${cost === 1 ? 'acorn' : 'acorns'}`])}/>
       </ItemCard.Section> : null}
     </>;
   }

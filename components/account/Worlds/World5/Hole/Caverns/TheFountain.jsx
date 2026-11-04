@@ -26,7 +26,7 @@ const FOUNTAIN_VIEW = { view: 'graph' };
 const FOUNTAIN_VIEW_PHONE = { view: 'list' };
 
 // Each currency's balance reads like its costs (Holes.Cost_FountainUPG)
-const currencyText = (value) => formatGame(value ?? 0, 'Holes.Cost_FountainUPG');
+const currencyText = (value) => formatGame(value ?? 0, 'Holes.Cost_FountainUPG', { whole: true });
 
 // "1 in N" (the game's own line, Holes2.Fount_DuckChance) rides after the percent only under 50%, and never beside a 0%
 const duckText = (chance) => {
@@ -210,9 +210,9 @@ const TheFountain = ({ hole }) => {
 
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
-      <StatTile label={'Marbles'} value={formatGame(fountain?.marbleCurrency ?? 0, 'Holes.Fount_MarbleizeCost')}/>
-      <StatTile label={'Max coins'} value={formatGame((fountain?.spacesOwned ?? 0) * (fountain?.maxStackSize ?? 0), 'Holes2.MaxCoinz')}
-                info={`The most coins the floor holds before they collect themselves: ${formatGame(fountain?.spacesOwned ?? 0, 'Holes2.SpacesOwned')} spaces of ${formatGame(fountain?.maxStackSize ?? 0, 'Holes2.MaxStackSize')}.`}/>
+      <StatTile label={'Marbles'} value={formatGame(fountain?.marbleCurrency ?? 0, 'Holes.Fount_MarbleizeCost', { whole: true })}/>
+      <StatTile label={'Max coins'} value={formatGame((fountain?.spacesOwned ?? 0) * (fountain?.maxStackSize ?? 0), 'Holes2.MaxCoinz', { whole: true })}
+                info={`The most coins the floor holds before they collect themselves: ${formatGame(fountain?.spacesOwned ?? 0, 'Holes2.SpacesOwned', { whole: true })} spaces of ${formatGame(fountain?.maxStackSize ?? 0, 'Holes2.MaxStackSize', { whole: true })}.`}/>
       {currencies.map((currency) => <StatTile key={`cur-${currency.type}`} label={currency.name}
                                               icon={`data/HoleFountainCoin${currency.type}.png`}
                                               value={currencyText(currency.amount)}/>)}
@@ -222,7 +222,7 @@ const TheFountain = ({ hole }) => {
     {bars.length > 0 ? <Panel title={'Fountain bars'} sx={{ mb: 3 }}>
       {bars.map((bar) => <Stack key={`bar-${bar.tier}`} gap={1} sx={{ px: 2, py: 1.5 }}>
         <ItemCard.Progress label={<>{bar.name} <InfoButton label={bar.name}>{bar.description}</InfoButton></>}
-                           value={bar.progress ?? 0} max={bar.req ?? 0}/>
+                           value={bar.progress ?? 0} max={bar.req ?? 0} kind={'whole'}/>
         <ItemCard.Facts rows={[
           ['Time to full', <Duration key={'full'} seconds={(bar.timeToFullMs ?? 0) / 1000}/>],
           ['Full cycle', msToDate(bar.timeFullCycleMs ?? 0)],

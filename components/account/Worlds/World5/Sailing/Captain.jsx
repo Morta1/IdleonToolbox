@@ -58,8 +58,8 @@ const Captain = ({
                                                            have={lootPile?.[0]?.amount ?? 0} game={'Sailing.BuyCaptainCost'}/> : null}>
     {/* The captain's EXP, both sides in the game's rule for it */}
     {!shop && !empty ? <ItemCard.Progress label={'EXP'} percent={Math.min(100, 100 * (expValue ?? 0) / (expReqValue || 1))}
-                                          value={formatGame(expValue ?? 0, 'Sailing.CaptainExpReq')}
-                                          max={formatGame(expReqValue ?? 0, 'Sailing.CaptainExpReq')}/> : null}
+                                          value={formatGame(expValue ?? 0, 'Sailing.CaptainExpReq', { whole: true })}
+                                          max={formatGame(expReqValue ?? 0, 'Sailing.CaptainExpReq', { whole: true })}/> : null}
     {!empty ? <ItemCard.Facts rows={[
       bonusRow(shop, firstBonusIndex, firstBonusName, firstBonus, firstBonusValue),
       secondBonusIndex >= 0 && secondBonusValue > 0 ? bonusRow(shop, secondBonusIndex, secondBonusName, secondBonus, secondBonusValue) : null

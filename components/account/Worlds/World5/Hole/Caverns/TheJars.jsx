@@ -35,11 +35,11 @@ const TheJars = ({ hole }) => {
       name: `${slots} ${slots === 1 ? 'slot' : 'slots'}`, value: perSlots(slots), formatted: formatNum(perSlots(slots))
     }))), { combine: 'list' });
     const tiers = jar?.owned?.tiers ?? [];
-    const heldText = `${formatNum(jar?.owned?.total ?? 0)} (${formatNum(jar?.owned?.quantity ?? 0)} quantity)`;
+    const heldText = `${formatNum(jar?.owned?.total ?? 0, 'whole')} (${formatNum(jar?.owned?.quantity ?? 0, 'whole')} quantity)`;
     // Each tier's count and what it is worth in tier 1 jars, a hover list before (the muted tier line goes with it)
     const held = tiers.length ? createBreakdown(`${jar?.name} held`, heldText, flatLines(tiers.map(({ tier, count }) => ({
       name: `Tier ${tier}`, value: count,
-      formatted: `${formatNum(count)} (${formatNum(count * Math.pow(10, tier - 1))} quantity)`
+      formatted: `${formatNum(count, 'whole')} (${formatNum(count * Math.pow(10, tier - 1), 'whole')} quantity)`
     }))), { combine: 'list' }) : null;
     const enchant = jar?.enchant?.breakdown;
     return <ItemCard key={`jar-${index}`} icon={`etc/Jar_${index}.png`} title={cleanUnderscore(jar?.name)} dimmed={!jar?.unlocked}>
@@ -61,7 +61,7 @@ const TheJars = ({ hole }) => {
         const owned = Math.floor(Number(amount) || 0);
         const name = `Rupie tier ${index + 1}`;
         // Big, as the rupie costs print (ItemCard.Cost's default)
-        return <IconTile key={`rupie-${index}`} icon={`data/HoleJarR${index}.png`} alt={name} value={<Num value={owned} game={'Big'}/>}
+        return <IconTile key={`rupie-${index}`} icon={`data/HoleJarR${index}.png`} alt={name} value={<Num value={owned} game={'Big'} whole/>}
                          status={owned > 0 ? undefined : 'missing'} details={`${name}: ${formatNum(owned, 'exact')}`}/>;
       })}
     </CardGrid>
@@ -72,7 +72,7 @@ const TheJars = ({ hole }) => {
       <StatTile label={'Extra rupie chance'} value={extraText}
                 breakdown={withText(theJars?.rupieExtraChance?.breakdown, extraText)}/>
       <StatTile label={'Total jars'} value={`${formatNum(theJars?.totalJars ?? 0)} / ${formatNum(MAX_JARS)}`}/>
-      <StatTile label={'Total quantity'} value={theJars?.totalJarQuantity ?? 0} kind={'amount'}
+      <StatTile label={'Total quantity'} value={theJars?.totalJarQuantity ?? 0} kind={'whole'}
                 info={'Every jar counted as its tier 1 equivalent: a tier 2 jar is worth 10.'}/>
       <StatTile label={'Total enhancing levels'} value={theJars?.totalEnhancingLevels ?? 0} kind={'amount'}/>
       <StatTile label={'Total jars destroyed'} value={theJars?.totalJarsDestroyed ?? 0} kind={'amount'}/>

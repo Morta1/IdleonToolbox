@@ -56,7 +56,7 @@ const CrystalGlunkoCove = ({ hole }) => {
           // Whole shapes, as the Jars' rupies: the tile, its note and its owned state read one number (0.1 is none)
           const owned = Math.floor(Number(shape.owned) || 0);
           return <IconTile key={shape.name} icon={`data/${shape.name}.png`} alt={shapeName(shape)}
-                           value={<Num value={owned} game={'Big'}/>} status={owned > 0 ? undefined : 'missing'}
+                           value={<Num value={owned} game={'Big'} whole/>} status={owned > 0 ? undefined : 'missing'}
                            details={`${shapeName(shape)}: ${formatNum(owned, 'exact')}`}/>;
         })}
       </CardGrid>

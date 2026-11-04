@@ -26,7 +26,7 @@ const Mutations = ({ gaming }) => {
 
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
-      <StatTile label={'DNA'} icon={'etc/DNA.png'} value={dna ?? 0} kind={'amount'}/>
+      <StatTile label={'DNA'} icon={'etc/DNA.png'} value={dna ?? 0} kind={'whole'}/>
       <StatTile label={'New mutation chance'} value={chanceText} breakdown={chanceBreakdown}/>
       <StatTile label={'Mutation cost'} icon={`etc/Bits_${getBitIndex(mutationCost ?? 0)}.png`}
                 value={formatGame(mutationCost ?? 0, 'GamingStatType.MutateUpgCosts')}/>

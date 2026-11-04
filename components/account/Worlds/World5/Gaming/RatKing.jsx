@@ -19,7 +19,7 @@ const SHOP_COLUMNS = [
     key: 'bonus', label: 'Bonus', numeric: true, value: ({ bonus }) => bonus ?? 0,
     render: ({ bonus }) => formatNum(bonus ?? 0, 'pct', { signed: true })
   },
-  { key: 'cost', label: 'Next cost (tokens)', numeric: true, kind: 'amount', value: ({ cost }) => cost ?? 0 }
+  { key: 'cost', label: 'Next cost (tokens)', numeric: true, kind: 'whole', value: ({ cost }) => cost ?? 0 }
 ];
 
 // The King Rat import's panel: rat tokens read in the amount kind on both sides, the balance and the shop costs

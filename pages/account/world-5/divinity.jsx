@@ -74,7 +74,7 @@ const linkedSection = (sentence, linked) => {
 const CURRENCIES = {
   bits: { icon: bitsIcon, alt: 'Bits', format: formatBits, perAmount: true },
   sailingGold: { icon: () => 'data/SailT0.png', alt: 'Gold bars', format: (value) => formatSystem(value, 'amount', 'Sailing') },
-  particles: { icon: () => 'etc/Particle.png', alt: 'Particles', format: (value) => formatGame(value, 'Big') }
+  particles: { icon: () => 'etc/Particle.png', alt: 'Particles', format: (value) => formatGame(value, 'Big', { whole: true }) }
 };
 const godCost = ({ type, cost, costToMax, currency } = {}) => {
   if (type === 'coins') {

@@ -42,9 +42,9 @@ const General = ({ account, gaming, sectionFailed, characters, lastUpdated }) =>
                 breakdown={bitMulti?.breakdown ? { ...bitMulti.breakdown, totalValue: bitMultiText } : undefined}/>
       <StatTile label={'Sprouts'} icon={'etc/Sprouts.png'}
                 value={`${formatNum(availableSprouts ?? 0)} / ${formatNum(sproutsCapacity ?? 0)}`}/>
-      <StatTile label={'Drops'} icon={'etc/GamingDrop.png'} value={availableDrops ?? 0} kind={'amount'}/>
-      <StatTile label={'Envelopes'} icon={'etc/GamingEnvelope.png'} value={envelopes ?? 0} kind={'amount'}/>
-      <StatTile label={'Rat tokens'} icon={'data/GamingRatCrown.png'} value={ratTokens ?? 0} kind={'amount'}/>
+      <StatTile label={'Drops'} icon={'etc/GamingDrop.png'} value={availableDrops ?? 0} kind={'whole'}/>
+      <StatTile label={'Envelopes'} icon={'etc/GamingEnvelope.png'} value={envelopes ?? 0} kind={'whole'}/>
+      <StatTile label={'Rat tokens'} icon={'data/GamingRatCrown.png'} value={ratTokens ?? 0} kind={'whole'}/>
     </PageSummary>
     <CardGrid size={'m'} sx={{ mb: 3 }}>
       {fertilizerUpgrades?.map(({ name, level, description, cost }) => <ItemCard key={name} title={cleanUnderscore(name)}

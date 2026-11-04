@@ -33,10 +33,10 @@ const Gambit = ({ hole }) => {
                          value={time > 0 ? msToClock(time * 1000) : '-'}/>;
       })}
       <StatTile label={'Total gambit time'} value={totalTime > 0 ? msToClock(totalTime * 1000) : '-'}/>
-      <StatTile label={'Base points'} value={formatGame(Math.floor(gambit?.basePoints ?? 0), 'Holes.GambitPts')}/>
-      <StatTile label={'Points'} value={formatGame(Math.floor(points), 'Holes.GambitPts')}/>
+      <StatTile label={'Base points'} value={formatGame(Math.floor(gambit?.basePoints ?? 0), 'Holes.GambitPts', { whole: true })}/>
+      <StatTile label={'Points'} value={formatGame(Math.floor(points), 'Holes.GambitPts', { whole: true })}/>
       <StatTile label={'Points multi'} value={`${formatGame(gambit?.pointsMulti ?? 1, 'Holes.GambitPTSmulti')}x`}/>
-      {nextUnlock ? <StatTile label={'Next bonus at'} value={formatGame(nextUnlock.pointsReq ?? 0, 'Holes.GambitPtsREQ')}
+      {nextUnlock ? <StatTile label={'Next bonus at'} value={formatGame(nextUnlock.pointsReq ?? 0, 'Holes.GambitPtsREQ', { whole: true })}
                               sub={bonusName(nextUnlock.name)}/> : null}
       <StatTile label={'Summoning doublers'} value={`${formatNum(doublers?.appointed ?? 0)} / ${formatNum(doublers?.total ?? 0)}`}/>
       {opalsFoundTile(hole, 13)}
@@ -49,9 +49,9 @@ const Gambit = ({ hole }) => {
                          status={reached ? 'done' : undefined} statusLabel={reached ? 'Unlocked' : undefined}
                          meta={isNext ? 'Next' : undefined}
                          footer={reached ? null
-                           : <ItemCard.Facts rows={[['Points needed', formatGame(pointsReq ?? 0, 'Holes.GambitPtsREQ')]]}/>}>
+                           : <ItemCard.Facts rows={[['Points needed', formatGame(pointsReq ?? 0, 'Holes.GambitPtsREQ', { whole: true })]]}/>}>
           {description && description !== 'no'
-            ? <ItemCard.Desc text={description.replace('$', formatGame(doublersLeft, 'Holes.Gambit_SummoningDoublersLeft'))}/>
+            ? <ItemCard.Desc text={description.replace('$', formatGame(doublersLeft, 'Holes.Gambit_SummoningDoublersLeft', { whole: true }))}/>
             : null}
         </ItemCard>;
       })}
