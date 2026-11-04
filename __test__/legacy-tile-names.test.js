@@ -10,7 +10,6 @@ const SCANNED_DIRS = ['components', 'pages', 'hooks'];
 const LEGACY_IMPORT = /\bimport\s*\{[^}]*\b(?:CardTitleAndValue|CardWithBreakdown)\b[^}]*\}\s*from\b/;
 
 const LEGACY_IMPORTERS = [
-  'pages/account/prem-currency/bundles.jsx',
   'pages/tools/material-tracker.jsx'
 ];
 
