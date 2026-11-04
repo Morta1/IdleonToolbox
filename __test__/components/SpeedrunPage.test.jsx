@@ -37,17 +37,17 @@ const cardValue = (title) => screen.getByText(title).parentElement.textContent.r
 // useCheckbox persists to localStorage by label, so one test's toggle would leak into the next.
 beforeEach(() => window.localStorage.clear());
 
-const showDetails = () => fireEvent.click(screen.getByLabelText('Detailed view'));
+const showDetails = () => fireEvent.click(screen.getByRole('button', { name: 'Detailed view' }));
 
 describe('Speedrun page', () => {
   it('renders the highscore panel for the demo account', () => {
     renderWith(characters);
     expect(screen.getByText('Portal highscore')).toBeTruthy();
     expect(screen.getByText('Run duration')).toBeTruthy();
-    expect(screen.getByText('Void talent pts / run')).toBeTruthy();
+    expect(screen.getByText('Void talent points per run')).toBeTruthy();
     expect(screen.getByText('Multikill per tier')).toBeTruthy();
     expect(screen.getByText('Portals to next step')).toBeTruthy();
-    expect(screen.getByText('Equinox goal (75)')).toBeTruthy();
+    expect(screen.getByText('Equinox goal')).toBeTruthy();
   });
 
   it('hangs each explanation off an info icon rather than the whole card', async () => {
@@ -69,7 +69,7 @@ describe('Speedrun page', () => {
   it('groups the portals by world rather than ranking them', () => {
     renderWith(characters);
     const portals = screen.getByLabelText('speedrun portals');
-    const worlds = within(portals).getAllByRole('heading').map((heading) => heading.textContent);
+    const worlds = within(portals).getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent);
     expect(worlds).toEqual([...worlds].sort());
     expect(worlds[0]).toBe('World 1');
     expect(worlds.length).toBeGreaterThan(1);
@@ -118,7 +118,7 @@ describe('Speedrun page', () => {
 
   it('breaks portal progress down into the bonuses most players miss', async () => {
     renderWith(characters);
-    const card = screen.getByText('Portal progress / kill').closest('[data-card-title-value]');
+    const card = screen.getByText('Portal progress per kill').closest('[data-card-title-value]');
     fireEvent.click(within(card).getByRole('button'));
     expect(await screen.findByText('Active Murdering (vault 43)')).toBeTruthy();
     expect(screen.getByText('Seawater vial')).toBeTruthy();
@@ -134,7 +134,7 @@ describe('Speedrun page', () => {
     const { container } = renderWith(characters);
     // "Kill per kill" is both a card and a source inside the portal-progress breakdown.
     expect(screen.getAllByText('Kill per kill').length).toBeGreaterThan(0);
-    expect(screen.getByText('Portal progress / kill')).toBeTruthy();
+    expect(screen.getByText('Portal progress per kill')).toBeTruthy();
     expect(container.textContent).not.toMatch(/NaN|undefined|Infinity/);
   });
 

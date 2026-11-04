@@ -1,60 +1,39 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix, secondsToShortDuration } from '@utility/helpers';
-import { TitleAndValue } from '@components/common/styles';
-import useCheckbox from '@components/common/useCheckbox';
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 import MultiCharLockText from '@components/common/MultiCharLockText';
 import Notice from '@components/common/Notice';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 
-// One row per portal. Maps with two get two, told apart by where each door leads.
-const PortalRow = ({ portal, showDoor, runUnlocked }) => {
-  const { portalIndex, reqKills, destinationName, secondsToClear, buffedSecondsToClear, reachable, multiCharLock } = portal;
+// A saved checkbox from before resets once ("Hide portals I can't hit", "Detailed view")
+const PORTALS_TOOLBAR = { reachable: false, detailed: false };
 
-  return <Stack gap={0.25} sx={{ py: 0.5 }}>
-    {showDoor ? <Typography variant={'caption'} color={'text.secondary'}>
-      {destinationName ? `Door to ${cleanUnderscore(destinationName)}` : `Portal ${portalIndex + 1}`}
-    </Typography> : null}
-    <TitleAndValue title={'Kills needed'} value={numberWithCommas(reqKills)}/>
-    <TitleAndValue title={'Clear time'} value={reachable ? secondsToShortDuration(secondsToClear) : 'Can\'t hit this monster'}/>
-    {reachable && runUnlocked ? <TitleAndValue title={'With Void Radius'} value={secondsToShortDuration(buffedSecondsToClear)}/> : null}
-    <MultiCharLockText lock={multiCharLock}/>
-  </Stack>;
-};
+// One section per portal. Maps with two get two, told apart by where each door leads.
+const portalSection = ({ portalIndex, reqKills, destinationName, secondsToClear, buffedSecondsToClear, reachable, multiCharLock },
+  showDoor, runUnlocked) => <ItemCard.Section key={portalIndex}
+                                              label={showDoor ? destinationName ? `Door to ${cleanUnderscore(destinationName)}` : `Portal ${portalIndex + 1}` : undefined}>
+  <ItemCard.Facts rows={[
+    ['Kills needed', formatNum(reqKills)],
+    ['Clear time', reachable ? formatDuration(secondsToClear) : 'Can\'t hit this monster'],
+    reachable && runUnlocked ? ['With Void Radius', formatDuration(buffedSecondsToClear)] : null
+  ]}/>
+  <MultiCharLockText lock={multiCharLock}/>
+</ItemCard.Section>;
 
-const MapCard = ({ mapName, monster, effectiveKillsPerSecond, reachable, portals, detailed, runUnlocked }) => <Card
-  sx={{ width: 260 }}>
-  <CardContent>
-    <Stack direction={'row'} alignItems={'center'} gap={1}>
-      <img src={`${prefix}data/Mface${monster?.MonsterFace}.png`} alt="" width={28} height={28}
-           style={{ objectFit: 'contain' }}/>
-      <Typography variant={'body2'} sx={{ fontWeight: 500 }}>{cleanUnderscore(mapName)}</Typography>
-    </Stack>
-    <Typography variant={'caption'} color={'text.secondary'}>
-      {reachable ? `${notateNumber(effectiveKillsPerSecond, 'Big')} portal progress / sec` : 'Out of reach'}
-    </Typography>
-    {!detailed ? portals.map(({ portalIndex, multiCharLock }) => <MultiCharLockText key={portalIndex}
-                                                                                 lock={multiCharLock}
-                                                                                 variant={'caption'}
-                                                                                 component={'div'}/>) : null}
-    {detailed ? <>
-      <Divider sx={{ my: 1 }}/>
-      <Stack divider={<Divider flexItem/>}>
-        {portals.map((portal) => <PortalRow key={portal.portalIndex} portal={portal}
-                                            showDoor={portals.length > 1} runUnlocked={runUnlocked}/>)}
-      </Stack>
-    </> : null}
-  </CardContent>
-</Card>;
-
-const Portals = ({ character, plan }) => {
-  const [BlockedCheckboxEl, hideUnclearable] = useCheckbox('Hide portals I can\'t hit');
-  const [DetailedCheckboxEl, detailed] = useCheckbox('Detailed view');
+const Portals = ({ character, plan, emptyAccount }) => {
+  const [view, setView, resetView] = useToolbarState('speedrun-portals', PORTALS_TOOLBAR);
 
   if (!character) {
-    return <Notice tone={'locked'}>Create a Voidwalker to see your portal costs.</Notice>;
+    return emptyAccount
+      ? <Notice tone={'signin'}>Your Voidwalker&apos;s portals and their clear times show here once you sign in.</Notice>
+      : <Notice tone={'locked'}>Create a Voidwalker to see your portal costs.</Notice>;
   }
 
-  const visible = plan.portals.filter(({ reachable }) => !hideUnclearable || reachable);
+  const all = plan?.portals ?? [];
+  const visible = all.filter(({ reachable }) => !view?.reachable || reachable);
 
   // Grouped by world, maps in the game's own order. Any other ordering would read as a route, and
   // the real one turns on travel, unlocks and buff timing as much as on kill cost.
@@ -70,20 +49,27 @@ const Portals = ({ character, plan }) => {
     return result;
   }, {});
 
-  return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={2}>
-      <BlockedCheckboxEl/>
-      <DetailedCheckboxEl/>
-    </Stack>
+  return <Stack gap={3}>
+    <Toolbar state={view} defaults={PORTALS_TOOLBAR} onChange={setView} onReset={resetView}
+             total={all.length} shown={visible.length} noun={'portals'}>
+      <Toolbar.Filter name={'reachable'} label={'Hide portals I can\'t hit'}/>
+      <Toolbar.Filter name={'detailed'} label={'Detailed view'}/>
+    </Toolbar>
     <Stack gap={3} aria-label="speedrun portals">
       {Object.entries(worlds).map(([world, maps]) => <Stack key={world} gap={1.5}>
         <Typography variant={'sectionTitle'} component={'h2'}>World {world}</Typography>
-        <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'flex-start'}>
-          {[...maps.values()].map((map) => <MapCard key={map.mapIndex} {...map} detailed={detailed} runUnlocked={plan.runUnlocked}/>)}
-        </Stack>
+        <CardGrid size={'s'}>
+          {[...maps.values()].map(({ mapIndex, mapName, monster, effectiveKillsPerSecond, reachable, portals }) => <ItemCard
+            key={mapIndex} icon={`data/Mface${monster?.MonsterFace}.png`} title={cleanUnderscore(mapName ?? '')}
+            meta={reachable ? `${formatNum(effectiveKillsPerSecond)} portal progress per second` : 'Out of reach'}>
+            {view?.detailed
+              ? portals.map((portal) => portalSection(portal, portals.length > 1, plan?.runUnlocked))
+              : portals.map(({ portalIndex, multiCharLock }) => <MultiCharLockText key={portalIndex} lock={multiCharLock}/>)}
+          </ItemCard>)}
+        </CardGrid>
       </Stack>)}
     </Stack>
-  </>
+  </Stack>;
 };
 
 export default Portals;

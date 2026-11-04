@@ -1,25 +1,26 @@
-import React, { useContext, useState } from 'react';
-import { Divider, Select, Stack, Typography } from '@mui/material';
-import MenuItem from '@mui/material/MenuItem';
+import React, { useContext } from 'react';
+import { Box, MenuItem, TextField } from '@mui/material';
+import { useLocalStorage } from '@mantine/hooks';
 import { NextSeo } from 'next-seo';
 import { AppContext } from '@components/common/context/AppProvider';
-import { CardTitleAndValue } from '@components/common/styles';
-import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
+import { isSectionFailed, MissingData } from '@components/common/styles';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import { getPortalProgressBreakdown, getSpeedrunPlan, getSpeedrunStats } from '@parsers/class-specific/speedrun';
 import { getMaxDamage } from '@parsers/damage';
-import { notateNumber, numberWithCommas, prefix, secondsToShortDuration } from '@utility/helpers';
+import { formatDuration, formatNum } from '@utility/helpers';
 import Portals from '@components/account/Misc/class-specific/Speedrun/Portals';
 import Bosses from '@components/account/Misc/class-specific/Speedrun/Bosses';
 
 const Speedrun = () => {
   const { state } = useContext(AppContext);
-  const [selectedChar, setSelectedChar] = useState(null);
-  const voidwalkers = state?.characters?.filter((character) => checkCharClass(character?.class, CLASSES.Voidwalker)) ?? [];
-  // Derived rather than stored, so accounts with more than one voidwalker don't read their stats
-  // off whoever happens to sit first in the account.
-  const selectedVoidwalker = voidwalkers?.find((character) => character?.playerId === selectedChar)
-    ?? voidwalkers?.[0];
+  const sectionFailed = isSectionFailed(state?.account, 'speedrun');
+  // Remembered per page; no default, so a pick that was never made keeps following the first Voidwalker
+  const [selectedChar, setSelectedChar] = useLocalStorage({ key: 'speedrun:selectedChar' });
+  const voidwalkers = (state?.characters ?? []).filter((character) => checkCharClass(character?.class, CLASSES.Voidwalker));
+  const selectedVoidwalker = voidwalkers.find((character) => character?.playerId === selectedChar) ?? voidwalkers[0];
 
   const {
     highscore,
@@ -43,55 +44,61 @@ const Speedrun = () => {
   // Both extra terms only pay out while actively playing, which a run always is, and both are easy
   // to miss - hence a breakdown rather than a bare number.
   const progress = getPortalProgressBreakdown(state?.account, killPerKill?.value ?? 1);
+  // Each drawer is named and headed as its tile reads
+  const killPerKillText = formatNum(killPerKill?.value ?? 1, 'mult');
+  const progressText = formatNum(progress?.perKill ?? 0);
+  const damageText = formatNum(playerInfo?.maxDamage ?? 0);
+  // "-" marks a tile the missing Voidwalker feeds
+  const ofVoidwalker = (value) => (selectedVoidwalker ? value : '-');
 
   return <>
     <NextSeo
       title="Speedrun | Idleon Toolbox"
       description="Track your voidwalker speedrun highscore, the bonuses it feeds and what every portal costs"
     />
-    <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      {voidwalkers.length > 1 ? <CardTitleAndValue title={'Character'}
-                                                   value={<Select size={'small'}
-                                                                  value={selectedVoidwalker?.playerId ?? ''}
-                                                                  onChange={(e) => setSelectedChar(e.target.value)}>
-                                                     {voidwalkers?.map((character, index) => <MenuItem
-                                                       key={character?.name + index}
-                                                       value={character?.playerId}>
-                                                       <Stack direction={'row'} alignItems={'center'} gap={2}>
-                                                         <img src={`${prefix}data/ClassIcons${character?.classIndex}.png`}
-                                                              alt="" width={32} height={32}/>
-                                                         <Typography>{character?.name}</Typography>
-                                                       </Stack>
-                                                     </MenuItem>)}
-                                                   </Select>}/> : null}
-      <CardTitleAndValue title={'Portal highscore'} value={numberWithCommas(highscore)}
-                         icon={'data/UISkillIcon45.png'} imgStyle={{ width: 32 }}/>
-      {/* Each note hangs off the label's i (StatTile's info), as the Info board draws it */}
-      <CardTitleAndValue title={'Run duration'}
-                         value={runUnlocked ? `${numberWithCommas(runDuration)}s` : 'Talent not learned'}
-                         info={runUnlocked
-                           ? `Void Trial Rerun lasts this long, once every ${secondsToShortDuration(runCooldown)}`
-                           : 'Level Void Trial Rerun to start a speedrun'}/>
-      <CardTitleAndValue title={'Void talent pts / run'} value={numberWithCommas(voidPointsPerRun)}
-                         info={`${voidPointsPerPortal} per portal unlocked`}/>
-      <CardTitleAndValue title={'Multikill per tier'} value={`${notateNumber(multiKillBonus, 'MultiplierInfo')}%`}
-                         info={`${notateNumber(multiKillPerFiveMaps, 'MultiplierInfo')}% per 5 maps of highscore, applied to every character`}/>
-      <CardTitleAndValue title={'Portals to next step'} value={numberWithCommas(portalsToNextStep)}
-                         info={'Multikill per tier only goes up every 5 portals of highscore'}/>
-      <CardTitleAndValue title={'Void radius'} value={`${notateNumber(voidRadiusBonus, 'MultiplierInfo')}%`}
-                         info={'Extra multikill per tier for 20s per cast, only during a speedrun'}
-                         icon={'data/UISkillIcon46.png'} imgStyle={{ width: 32 }}/>
-      <CardTitleAndValue title={`Equinox goal (${equinoxGoal})`}
-                         value={equinoxGoalReached ? 'Done' : `${numberWithCommas(portalsToEquinoxGoal)} to go`}
-                         info={'Unlock 75 or more portals on a single speedrun'}/>
-      <CardWithBreakdown title={'Kill per kill'} value={notateNumber(killPerKill?.value ?? 0, 'Big')} breakdown={killPerKill?.breakdown}/>
-      <CardWithBreakdown title={'Portal progress / kill'} value={notateNumber(progress.perKill, 'Big')} breakdown={progress.breakdown}/>
-      <CardTitleAndValue title={'Multikill tiers'} value={numberWithCommas(playerInfo?.multiKillTiers ?? 0)}/>
-      <CardWithBreakdown title={'Damage'} value={notateNumber(playerInfo?.maxDamage ?? 0, 'Big')} breakdown={playerInfo?.damageBreakdown}/>
-    </Stack>
-    <Divider sx={{ mb: 3 }}/>
-    <Bosses bosses={plan.bosses} bossPortals={plan.bossPortals} runUnlocked={plan.runUnlocked}/>
-    <Portals character={selectedVoidwalker} plan={plan}/>
+    {sectionFailed ? <MissingData name={'Speedrun'} failed/> : null}
+    {voidwalkers.length > 1 ? <PageHeaderControl>
+      <TextField select value={selectedVoidwalker?.playerId ?? ''} onChange={(event) => setSelectedChar(event.target.value)}
+                 sx={{ minWidth: 180 }}
+                 slotProps={{
+                   select: {
+                     renderValue: (id) => <><Box component={'span'} sx={{ color: 'text.secondary', mr: 0.75 }}>Character</Box>
+                       {voidwalkers.find((character) => character?.playerId === id)?.name}</>,
+                     SelectDisplayProps: { 'aria-label': 'Voidwalker' }
+                   }
+                 }}>
+        {voidwalkers.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{character?.name}</MenuItem>)}
+      </TextField>
+    </PageHeaderControl> : null}
+    {/* Each note hangs off the label's i (StatTile's info), as the Info board draws it */}
+    <PageSummary>
+      <StatTile label={'Portal highscore'} icon={'data/UISkillIcon45.png'} value={formatNum(highscore ?? 0)}/>
+      <StatTile label={'Run duration'} value={ofVoidwalker(runUnlocked ? formatDuration(runDuration) : 'Talent not learned')}
+                info={runUnlocked
+                  ? `Void Trial Rerun lasts this long, once every ${formatDuration(runCooldown)}`
+                  : 'Level Void Trial Rerun to start a speedrun'}/>
+      <StatTile label={'Void talent points per run'} value={ofVoidwalker(formatNum(voidPointsPerRun ?? 0))}
+                info={`${formatNum(voidPointsPerPortal ?? 0)} per portal unlocked`}/>
+      <StatTile label={'Multikill per tier'} value={formatNum(multiKillBonus ?? 0, 'pct')}
+                info={`${formatNum(multiKillPerFiveMaps ?? 0, 'pct')} per 5 maps of highscore, applied to every character`}/>
+      <StatTile label={'Portals to next step'} value={formatNum(portalsToNextStep ?? 0)}
+                info={'Multikill per tier only goes up every 5 portals of highscore'}/>
+      <StatTile label={'Void radius'} icon={'data/UISkillIcon46.png'} value={ofVoidwalker(formatNum(voidRadiusBonus ?? 0, 'pct'))}
+                info={'Extra multikill per tier for 20s per cast, only during a speedrun'}/>
+      <StatTile label={'Equinox goal'} sub={`${formatNum(equinoxGoal ?? 0)} portals in one run`}
+                value={equinoxGoalReached ? 'Done' : `${formatNum(portalsToEquinoxGoal ?? 0)} to go`}
+                info={'Unlock 75 or more portals on a single speedrun'}/>
+      <StatTile label={'Kill per kill'} value={ofVoidwalker(killPerKillText)} breakdownTitle={'Kill per kill'}
+                breakdown={killPerKill?.breakdown ? { ...killPerKill.breakdown, totalValue: killPerKillText } : undefined}/>
+      <StatTile label={'Portal progress per kill'} value={progressText} breakdownTitle={'Portal progress per kill'}
+                breakdown={progress?.breakdown ? { ...progress.breakdown, totalValue: progressText } : undefined}/>
+      <StatTile label={'Multikill tiers'} value={ofVoidwalker(formatNum(playerInfo?.multiKillTiers ?? 0))}/>
+      <StatTile label={'Damage'} value={ofVoidwalker(damageText)} breakdownTitle={'Damage'}
+                breakdown={playerInfo?.damageBreakdown ? { ...playerInfo.damageBreakdown, totalValue: damageText } : undefined}/>
+    </PageSummary>
+    <Bosses bosses={plan?.bosses} bossPortals={plan?.bossPortals} runUnlocked={plan?.runUnlocked}
+            hasVoidwalker={Boolean(selectedVoidwalker)} emptyAccount={state?.emptyAccount}/>
+    <Portals character={selectedVoidwalker} plan={plan} emptyAccount={state?.emptyAccount}/>
   </>
 };
 
