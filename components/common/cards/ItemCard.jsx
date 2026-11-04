@@ -24,6 +24,11 @@ const VALUE_SX = { ...TEXT_VALUE_SX, whiteSpace: 'nowrap', ml: 'auto' };
 // which sat the value 8 to 10 px low, so that row centres its value on the label.
 const TEXT_ROW_SX = { columnGap: 1.5, '&:has(> :first-child img)': { alignItems: 'center' } };
 const ROW_SX = { ...TEXT_ROW_SX, flexWrap: 'wrap' };
+// Beside a value in words a short label ("Last sold", "Shiny passive": up to SHORT_LABEL characters) never breaks: the
+// value wraps instead. A longer one ("Next tier (Verisimilitude)") still shares the row's width with its value, or both
+// would stack into a narrow column.
+const SHORT_LABEL = 16;
+const SHORT_LABEL_SX = { flexShrink: 0 };
 
 // The words a value's own strings spell; a node that prints its value itself (a <Num>) spells nothing.
 const textOf = (node) => {
@@ -128,7 +133,8 @@ const Facts = ({ rows }) => {
       const numeric = isNumberLike(value, kind);
       return <Stack key={index} direction={'row'} justifyContent={'space-between'} alignItems={'baseline'}
                     sx={numeric ? ROW_SX : TEXT_ROW_SX}>
-        <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{label}</Typography>
+        <Typography variant={'body2'} color={'text.secondary'} component={'div'}
+                    sx={!numeric && textOf(label).length <= SHORT_LABEL ? SHORT_LABEL_SX : undefined}>{label}</Typography>
         <Typography variant={'body2'} component={'div'} sx={numeric ? VALUE_SX : TEXT_VALUE_SX}>{numOrNode(value, kind)}</Typography>
       </Stack>;
     })}
