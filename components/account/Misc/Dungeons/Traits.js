@@ -1,28 +1,23 @@
-import { Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '@utility/helpers';
-import Tooltip from '../../../Tooltip';
+import React from 'react';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import Panel from '@components/common/cards/Panel';
+import CardGrid from '@components/common/cards/CardGrid';
+import StatusText from '@components/common/StatusText';
 
-const Traits = ({ statBoosts }) => {
-  return <>
-    {statBoosts.map(({ section, levelReq, bonuses }, sectionIndex) => {
-      return <Stack my={3} key={section + sectionIndex} direction={'row'} gap={2}>
-        <Stack sx={{ width: 200 }} gap={1}>
-          <Typography sx={{ fontWeight: 'bold' }}>{section}</Typography>
-          <Typography>Rank {levelReq}+</Typography>
-        </Stack>
-        <Stack direction={'row'} gap={2} alignItems={'center'}>
-          {bonuses.map(({ bonus, isActive, bonusIndex }, index) => {
-            const iconName = isActive ? 'DungTraitA' : 'DungTraitB';
-            return <Stack key={'bonus' + index} direction={'row'} gap={2}>
-              <Tooltip title={cleanUnderscore(bonus)}>
-                <img src={`${prefix}data/${iconName}${bonusIndex}.png`} alt={''}/>
-              </Tooltip>
-            </Stack>
-          })}
-        </Stack>
-      </Stack>
+// A trait's sentence is the point, so it shows; the game data's "~" is its font's "&" ("armor ~ jewelry")
+const traitText = (bonus) => cleanUnderscore(`${bonus ?? ''}`).replace(/~/g, '&');
+
+// sectionFailed: the traits by name, none active
+const Traits = ({ statBoosts, sectionFailed }) => <CardGrid size={'l'} sx={{ alignItems: 'start' }}>
+  {(statBoosts ?? []).map(({ section, levelReq, bonuses }, sectionIndex) => <Panel key={`${section}-${sectionIndex}`}
+                                                                                   title={section}
+                                                                                   meta={`Rank ${formatNum(levelReq ?? 0)}+`}>
+    {(bonuses ?? []).map(({ bonus, isActive, bonusIndex }) => {
+      const active = !sectionFailed && isActive;
+      return <Panel.Row key={bonusIndex} icon={`data/DungTrait${active ? 'A' : 'B'}${bonusIndex}.png`} name={traitText(bonus)}
+                        value={active ? <StatusText status={'active'}/> : undefined}/>;
     })}
-  </>
-};
+  </Panel>)}
+</CardGrid>;
 
 export default Traits;

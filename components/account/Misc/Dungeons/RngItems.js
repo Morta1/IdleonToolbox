@@ -1,53 +1,55 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import Tooltip from '@components/Tooltip';
+import { Box, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum, notateNumber } from '@utility/helpers';
 import React from 'react';
+import Panel from '@components/common/cards/Panel';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import ItemCard from '@components/common/cards/ItemCard';
+import StatusText from '@components/common/StatusText';
 
-const rarityColors = {
-  Common: '#ffffff',
-  Uncommon: '#378b37',
-  Rare: '#2c2cae',
-  Epic: '#7b3f7b',
-  Legendary: '#e68533'
-}
-
+// The game's rarity order; each is a Panel named with the game's word
 const RARITIES = ['Common', 'Uncommon', 'Rare', 'Epic', 'Legendary'];
 
-const RngItems = ({ rngItems }) => {
-  return <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-    {rngItems?.map((item, index) => {
-      const { name, increment, rarity, level, baseValue, maxLevel } = item;
-      const realBonus = baseValue + (increment * level);
-      const baseCost = 1 + .7 * Math.pow(level, 1.5 + .05 * level)
-      const costMulti = RARITIES.indexOf(rarity);
-      const cost = Math.floor(baseCost * (1 + (costMulti + 1) * Math.pow(4, (costMulti + 2.348) / 2.348)))
-      return <Tooltip key={name} title={<AdditionalInfo {...item} cost={cost} realBonus={realBonus}/>}>
-        <Card
-          sx={{
-            width: 120,
-            border: `1px solid ${rarityColors?.[rarity]}`,
-            opacity: level === -1 ? .5 : 1
-          }}>
-          <CardContent>
-            <img src={`${prefix}data/DungItems${index}.png`} alt={''}/>
-            <Typography color={level >= maxLevel ? 'text.success' : ''} mt={1}>Lv. {level > 0
-              ? level
-              : 0} / {maxLevel}</Typography>
-          </CardContent>
-        </Card>
-      </Tooltip>
-    })}
-  </Stack>
+const nextLevelCost = ({ level, rarity }) => {
+  const baseCost = 1 + .7 * Math.pow(level, 1.5 + .05 * level);
+  const costMulti = RARITIES.indexOf(rarity);
+  return Math.floor(baseCost * (1 + (costMulti + 1) * Math.pow(4, (costMulti + 2.348) / 2.348)));
 };
 
-const AdditionalInfo = ({ name, level, desc, realBonus, cost, maxLevel }) => {
-  return <>
-    <Typography fontSize={18} variant={'subtitle2'}>{cleanUnderscore(name)}</Typography>
-    <Typography>{cleanUnderscore(desc.replace('{', notateNumber(realBonus, 'MultiplierInfo')))}</Typography>
-    {level >= 0 && level < maxLevel
-      ? <Typography mt={2}>Next lvl cost: {cost}</Typography>
-      : null}
-  </>
-}
+const rngDetails = (item, credits, sectionFailed) => {
+  const { name, level = 0, desc = '', baseValue = 0, increment = 0, maxLevel } = item ?? {};
+  if (sectionFailed) return cleanUnderscore(name);
+  // The game's sentence: its { filled in MultiplierInfo
+  const sentence = cleanUnderscore(desc.replace('{', notateNumber(baseValue + increment * level, 'MultiplierInfo')));
+  return <Stack gap={1}>
+    <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(name)}</Typography>
+    <Typography variant={'body2'}>{sentence}</Typography>
+    {level === -1 ? <StatusText status={'needs'}>Not found yet</StatusText>
+      : level >= maxLevel ? <StatusText status={'maxed'}>Max level</StatusText>
+        : <ItemCard.Section label={'Next level cost'}>
+          <ItemCard.Cost icon={'data/DungCredits1.png'} iconAlt={'Credits'} game={'DungeonCalc.RngUpgCost'}
+                         need={nextLevelCost(item)} have={credits ?? 0}/>
+        </ItemCard.Section>}
+  </Stack>;
+};
+
+const RngItems = ({ rngItems, credits, sectionFailed }) => <Stack gap={2}>
+  {RARITIES.map((rarity) => {
+    const items = (rngItems ?? []).filter((item) => item?.rarity === rarity);
+    if (!items.length) return null;
+    const found = items.filter(({ level }) => level !== -1).length;
+    return <Panel key={rarity} title={rarity}
+                  meta={sectionFailed ? undefined : `${formatNum(found)} of ${formatNum(items.length)} found`}>
+      <Box sx={{ p: 1.5 }}>
+        <CardGrid size={'icon'}>
+          {items.map((item) => <IconTile key={item?.index} icon={`data/DungItems${item?.index}.png`} alt={cleanUnderscore(item?.name)}
+                                         value={sectionFailed ? undefined : `${formatNum(Math.max(0, item?.level ?? 0))} / ${formatNum(item?.maxLevel ?? 0)}`}
+                                         status={!sectionFailed && item?.level === -1 ? 'missing' : undefined}
+                                         details={rngDetails(item, credits, sectionFailed)}/>)}
+        </CardGrid>
+      </Box>
+    </Panel>;
+  })}
+</Stack>;
 
 export default RngItems;
