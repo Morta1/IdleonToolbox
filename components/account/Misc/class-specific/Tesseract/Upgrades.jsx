@@ -41,8 +41,9 @@ const arcaneDollar = (upgrade, { prismaChance, crystalChargeReq, bonusOf }) => {
   }
 };
 
-// costing: the page's Levels ahead and Daily Shopping Spree (its Page settings)
-const Upgrades = ({ account, upgrades, tachyons, prismaChance, costing }) => {
+// costing: the page's Levels ahead and Daily Shopping Spree (its Page settings). sectionFailed: the catalog at zero
+// (the parser's empty save) by name, with no cost, state or Toolbar.
+const Upgrades = ({ account, upgrades, tachyons, prismaChance, costing, sectionFailed }) => {
   const { levelsAhead = 1, forceLegendTalent, isOverridden } = costing ?? {};
   const [view, setView, resetView] = useToolbarState('tesseract-upgrades', UPGRADES_TOOLBAR);
   const accountOptions = account?.accountOptions;
@@ -58,19 +59,19 @@ const Upgrades = ({ account, upgrades, tachyons, prismaChance, costing }) => {
     bonusOf: (index) => (upgrades ?? []).find((upgrade) => upgrade?.index === index)?.bonus ?? 0
   };
   const catalog = (upgrades ?? []).filter(({ description }) => description !== PLACEHOLDER);
-  const shown = catalog.filter((upgrade) => matchesUpgradeSearch(upgrade, view?.search)
+  const shown = sectionFailed ? catalog : catalog.filter((upgrade) => matchesUpgradeSearch(upgrade, view?.search)
     && !(view?.hideMaxed && upgrade.level >= upgrade.x4)
     && !(view?.hideLocked && !upgrade.unlocked));
   // One list in the game's order, or by tachyon, cheapest first inside each (as the Type sort did); a group with
   // nothing shown draws nothing
-  const groups = view?.view === 'tachyon'
+  const groups = view?.view === 'tachyon' && !sectionFailed
     ? Object.keys(tachyonNames).map((type) => ({
       key: type,
       title: tachyonNames[type],
       icon: `data/Tach${type}_x1.png`,
       list: shown.filter(({ x3 }) => `${x3}` === type).toSorted(byCost(view?.sort?.order ?? 'asc'))
     }))
-    : [{ key: 'all', list: view?.sort ? shown.toSorted(byCost(view.sort.order)) : shown }];
+    : [{ key: 'all', list: view?.sort && !sectionFailed ? shown.toSorted(byCost(view.sort.order)) : shown }];
 
   const renderUpgradeCard = (upgrade) => {
     const { name, cost, description, level, x3, x4, x6, extraData, index, unlocked } = upgrade;
@@ -96,19 +97,20 @@ const Upgrades = ({ account, upgrades, tachyons, prismaChance, costing }) => {
                                    targetLevel={targetLevel}
                                    targetCost={targetCost}
                                    unlockText={x6 > 0 ? `Unlocks at ${formatNum(x6)} levels` : null}
-                                   unlocked={unlocked}/>;
+                                   unlocked={unlocked}
+                                   catalogOnly={sectionFailed}/>;
   };
 
   return (
     <Stack direction="column" gap={4}>
-      <Toolbar state={view} defaults={UPGRADES_TOOLBAR} onChange={setView} onReset={resetView}
+      {sectionFailed ? null : <Toolbar state={view} defaults={UPGRADES_TOOLBAR} onChange={setView} onReset={resetView}
                total={catalog.length} shown={shown.length} noun={'upgrades'}>
         <Toolbar.Search placeholder={'Search upgrades'}/>
         <Toolbar.Sort options={[['cost', 'Cost', 'asc']]}/>
         <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
         <Toolbar.Filter name={'hideLocked'} label={'Hide locked'}/>
         <Toolbar.View options={[['list', 'List'], ['tachyon', 'By tachyon']]}/>
-      </Toolbar>
+      </Toolbar>}
       {groups.map(({ key, title, icon, list }) => list.length ? <Stack key={key} direction="column" gap={2}>
         {title ? <Stack direction="row" alignItems="center" gap={1}>
           <GameIcon src={icon} size={24} alt={''}/>
