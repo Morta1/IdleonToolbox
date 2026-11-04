@@ -88,7 +88,7 @@ const Grimoire = () => {
     </PageHeaderControl> : null}
     <PageSummary>
       <StatTile label={'Total levels'} value={shown(formatNum(totalUpgradeLevels ?? 0))}/>
-      <StatTile label={'Total bones collected'} value={shown(formatNum(totalBonesCollected ?? 0))}/>
+      <StatTile label={'Total bones collected'} value={shown(formatNum(totalBonesCollected ?? 0, 'whole'))}/>
       <StatTile label={'Extra bones'} value={shown(extraBonesText)} breakdownTitle={'Extra bones'}
                 breakdown={!sectionFailed && wraithStats?.extraBonesBreakdown
                   ? { ...wraithStats.extraBonesBreakdown, totalValue: extraBonesText }
@@ -99,7 +99,7 @@ const Grimoire = () => {
                                        info={cleanUnderscore(nextUnlock.description ?? '')}/> : null}
       {/* Every bone cost on the Upgrades tab prints in this rule, so the balances do too */}
       {boneNames.map((name, index) => <StatTile key={name} label={name} icon={`data/Bone${index}_x1.png`}
-                                                value={shown(formatGame(bones?.[index] ?? 0, 'Summoning.GrimoireUpgCost'))}/>)}
+                                                value={shown(formatGame(bones?.[index] ?? 0, 'Summoning.GrimoireUpgCost', { whole: true }))}/>)}
     </PageSummary>
     <Panel title={'Wraith Form'} meta={formMeta} sx={{ mb: 3 }}>
       <Box sx={FORM_GRID_SX}>

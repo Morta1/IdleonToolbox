@@ -28,9 +28,9 @@ const arcaneDollar = (upgrade, { prismaChance, crystalChargeReq, bonusOf }) => {
   switch (upgrade?.index) {
     case 3:
       if (prismaChance == null) return undefined;
-      return prismaChance > 0 ? formatGame(1 / prismaChance, 'ArcaneType.PrismaBubDropChance') : formatGame(1e4, 'Big');
+      return prismaChance > 0 ? formatGame(1 / prismaChance, 'ArcaneType.PrismaBubDropChance', { whole: true }) : formatGame(1e4, 'Big', { whole: true });
     case 13:
-      return crystalChargeReq == null ? undefined : formatGame(crystalChargeReq, 'ArcaneType.CrystalChargeReq');
+      return crystalChargeReq == null ? undefined : formatGame(crystalChargeReq, 'ArcaneType.CrystalChargeReq', { whole: true });
     case 40:
       return `${round2(1.1 + bonusOf(40) / 100)}`;
     case 45:

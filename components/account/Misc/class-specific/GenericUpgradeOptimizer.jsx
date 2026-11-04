@@ -491,7 +491,7 @@ const GenericUpgradeOptimizer = ({
             </Typography>
             <InfoButton label={`Holding ${cleanUnderscore(rate.name)}`}>{rate.hourly
               ? 'What farming this resource adds just by keeping it, no purchase. It shrinks as the stash grows, since the bonus follows its log.'
-              : `What a stash 10x bigger than your ${formatGame(rate.held ?? 0, costGame)} would add, no purchase. Set a real resource per hour to see it per hour of farming.`}</InfoButton>
+              : `What a stash 10x bigger than your ${formatGame(rate.held ?? 0, costGame, { whole: true })} would add, no purchase. Set a real resource per hour to see it per hour of farming.`}</InfoButton>
           </Stack>
         ))}
         {bestBuyPerHour !== null && rates.some((rate) => rate.hourly) && (
@@ -534,7 +534,7 @@ const GenericUpgradeOptimizer = ({
   // The cost in the system's rule beside its resource's sprite, which names the resource: it stands alone here
   const costNode = (upgrade) => <Stack component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
     <GameIcon src={resourceIconPath(getResourceType(upgrade))} size={16} alt={resourceName(getResourceType(upgrade))}/>
-    {formatGame(stepCost(upgrade) ?? 0, costGame)}
+    {formatGame(stepCost(upgrade) ?? 0, costGame, { whole: true })}
   </Stack>;
   // The discount and the ready time, in words under the cost
   const costNotes = (upgrade) => {
@@ -577,7 +577,7 @@ const GenericUpgradeOptimizer = ({
   // A resource's total cost and, with a rate, when the plan has it all
   const sectionMeta = (section) => {
     const hours = latestReady(section.steps);
-    return `${formatGame(section.cost, costGame)}${hours === null ? '' : ` · ${readyText(hours)}`}`;
+    return `${formatGame(section.cost, costGame, { whole: true })}${hours === null ? '' : ` · ${readyText(hours)}`}`;
   };
   const sectionCount = (section) => `${formatNum(section.upgrades.length)} ${section.upgrades.length === 1 ? 'upgrade' : 'upgrades'}`;
 
@@ -778,7 +778,7 @@ const GenericUpgradeOptimizer = ({
         {resourceUsage.map((resource) => {
           const hours = latestReady(resource.steps);
           return <StatTile key={resource.name} label={cleanUnderscore(resource.name)} icon={resourceIconPath(resource.type)}
-                           value={formatGame(resource.cost, costGame)}
+                           value={formatGame(resource.cost, costGame, { whole: true })}
                            sub={hours === null ? undefined : readyText(hours)}/>;
         })}
       </Stack> : null}

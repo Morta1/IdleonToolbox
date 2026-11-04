@@ -71,7 +71,7 @@ const Tesseract = () => {
   // The drawer is named and headed as the tile reads
   const extraTachyonText = `${formatGame(extraTachyon?.value ?? 1, 'ArcaneType.ExtraTachyon')}x`;
   // The game's own "1 in N" (its Prisma sentence prints the same)
-  const prismaText = prismaChance > 0 ? `1 in ${formatGame(1 / prismaChance, 'ArcaneType.PrismaBubDropChance')}` : '-';
+  const prismaText = prismaChance > 0 ? `1 in ${formatGame(1 / prismaChance, 'ArcaneType.PrismaBubDropChance', { whole: true })}` : '-';
   // A tile the failed section feeds shows no number
   const shown = (value) => (sectionFailed ? '-' : value);
   const formMeta = selectedArcanist?.name
@@ -99,13 +99,13 @@ const Tesseract = () => {
     </PageHeaderControl> : null}
     <PageSummary>
       <StatTile label={'Total levels'} value={shown(formatNum(totalUpgradeLevels ?? 0))}/>
-      <StatTile label={'Total tachyons collected'} value={shown(formatNum(totalTachyonsCollected ?? 0))}/>
+      <StatTile label={'Total tachyons collected'} value={shown(formatNum(totalTachyonsCollected ?? 0, 'whole'))}/>
       <StatTile label={'Prisma chance'} value={shown(prismaText)}/>
       <StatTile label={'Extra tachyon'} value={shown(extraTachyonText)} breakdownTitle={'Extra tachyon'}
                 breakdown={!sectionFailed && extraTachyon?.breakdown ? { ...extraTachyon.breakdown, totalValue: extraTachyonText } : undefined}/>
       {/* Every tachyon cost on the Upgrades tab prints in this rule, so the balances do too */}
       {Object.keys(tachyonNames).map((index) => <StatTile key={index} label={tachyonNames[index]} icon={`data/Tach${index}_x1.png`}
-                                                          value={shown(formatGame(tachyons?.[index]?.value ?? 0, 'ArcaneType.ArcaneUpgCost'))}/>)}
+                                                          value={shown(formatGame(tachyons?.[index]?.value ?? 0, 'ArcaneType.ArcaneUpgCost', { whole: true }))}/>)}
     </PageSummary>
     <Panel title={'Arcanist Form'} meta={formMeta} sx={{ mb: 3 }}>
       <Box sx={FORM_GRID_SX}>

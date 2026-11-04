@@ -51,10 +51,10 @@ const Dungeons = () => {
       {dungeonsFailed ? <MissingData name={'Dungeons'} failed/> : null}
       <PageSummary>
         <StatTile label={'Rank'} icon={dungeonsFailed ? undefined : `data/Dung_Rank${rank}.png`} value={shown(formatNum(rank ?? 0))}
-                  sub={dungeonsFailed ? undefined : `${formatNum(progress ?? 0)} / ${formatNum(Number(rankReq) || 0)} EXP`}/>
+                  sub={dungeonsFailed ? undefined : `${formatNum(progress ?? 0, 'whole')} / ${formatNum(Number(rankReq) || 0, 'whole')} EXP`}/>
         <StatTile label={'Boosted runs'} icon={'etc/boosted-runs.png'} value={shown(formatNum(boostedRuns ?? 0))}/>
-        <StatTile label={'Credits'} icon={'data/DungCredits1.png'} value={shown(formatGame(credits ?? 0, 'DungeonCalc.PassiveStatCost'))}/>
-        <StatTile label={'Flurbos'} icon={'data/DungCredits2.png'} value={shown(formatGame(flurbos ?? 0, 'DungeonCalc.PassiveStatCost2'))}/>
+        <StatTile label={'Credits'} icon={'data/DungCredits1.png'} value={shown(formatGame(credits ?? 0, 'DungeonCalc.PassiveStatCost', { whole: true }))}/>
+        <StatTile label={'Flurbos'} icon={'data/DungCredits2.png'} value={shown(formatGame(flurbos ?? 0, 'DungeonCalc.PassiveStatCost2', { whole: true }))}/>
         <StatTile label={'Next happy hour'}
                   value={nextHappyHours.length ? <Timer type={'countdown'} date={nextHappyHours[0]}/> : '-'}
                   sub={nextText}

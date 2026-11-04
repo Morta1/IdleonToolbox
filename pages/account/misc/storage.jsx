@@ -59,7 +59,7 @@ const Looty = () => {
   // The greenstack symbol is the game's own mark for a stack of 10M or more
   const itemTile = (item, index) => <IconTile key={`${item?.rawName}-${index}`} icon={`data/${item?.rawName}.png`}
                                               alt={cleanUnderscore(item?.name ?? item?.rawName)}
-                                              value={formatGame(item?.amount ?? 0, 'Big')}
+                                              value={formatGame(item?.amount ?? 0, 'Big', { whole: true })}
                                               mark={greenStacks.has(item?.rawName) ? 'data/GreenSymbol.png' : undefined}
                                               markAlt={'Greenstacked'}
                                               details={<ItemDisplay {...item} account={state?.account} showAmount/>}/>;

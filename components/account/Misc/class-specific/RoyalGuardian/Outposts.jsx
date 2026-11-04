@@ -90,7 +90,7 @@ const clearingCard = ({ mapIndex, name, world, kills, killsRequired, progress, m
                      <InfoButton label={'the clearing ETA'} sx={{ ml: 0.5 }}>{clearingHint}</InfoButton>)}>
     <ItemCard.Progress label={progress >= 1 ? 'Ready to claim' : `${formatNum(Math.floor(100 * progress))}% cleared`}
                        percent={100 * Math.min(1, progress ?? 0)}
-                       value={formatGame(kills ?? 0, 'RoyalG.OutpostKillsReq')} max={formatGame(killsRequired ?? 0, 'RoyalG.OutpostKillsReq')}/>
+                       value={formatGame(kills ?? 0, 'RoyalG.OutpostKillsReq', { whole: true })} max={formatGame(killsRequired ?? 0, 'RoyalG.OutpostKillsReq', { whole: true })}/>
     <Typography variant={'body2'} color={'text.secondary'}>{`${units}${eta}`}</Typography>
   </ItemCard>;
 };
@@ -190,7 +190,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
       <ItemCard.Facts rows={[
         ['Collection rate', `${formatGame(resourceRate ?? 0, 'RoyalG.OutpostResourceRate')}/hr`],
         ['Range', `${formatGame(range ?? 0, 'RoyalG.OutpostRange')}px`],
-        ['PTS', `${formatNum(ptsLeft ?? 0)} / ${formatNum(ptsTotal ?? 0)}`]
+        ['PTS', `${formatNum(ptsLeft ?? 0, 'whole')} / ${formatNum(ptsTotal ?? 0, 'whole')}`]
       ]}/>
       {(rankBars ?? []).map((bar) => {
         const time = !bar.unlocked ? ' · Locked' : bar.expPerHour > 0 ? ` · ${formatDuration((bar.hoursToNextRank ?? 0) * 3600)}` : '';
@@ -198,7 +198,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
         const filteredRank = isRankFiltered && bar.type === rankType ? ` (filter: ${formatRankRange(minRank, maxRank)})` : '';
         return <ItemCard.Progress key={bar.type} label={`${bar.name} rank ${formatNum(bar.rank ?? 0)}${time}${filteredRank}`}
                                   percent={100 * (bar.progress ?? 0)}
-                                  value={formatGame(bar.exp ?? 0, 'RoyalG.OutpostEXPreq')} max={formatGame(bar.required ?? 0, 'RoyalG.OutpostEXPreq')}/>;
+                                  value={formatGame(bar.exp ?? 0, 'RoyalG.OutpostEXPreq', { whole: true })} max={formatGame(bar.required ?? 0, 'RoyalG.OutpostEXPreq', { whole: true })}/>;
       })}
       <ItemCard.Section label={'Units'}>
         <CardGrid size={'icon'}>
@@ -227,14 +227,14 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
                                                     status={node.exhausted ? 'dim' : undefined}
                                                     details={node.exhausted
                                                       ? `Node ${node.index}: spent, it pays nothing until a restock refills it`
-                                                      : `Node ${node.index}: ${formatGame(node.collected ?? 0, 'RoyalG.ArmoryUpgCost')} / ${formatGame(node.maxQuantity ?? 0, 'RoyalG.ArmoryUpgCost')} collected`}/>)}
+                                                      : `Node ${node.index}: ${formatGame(node.collected ?? 0, 'RoyalG.ArmoryUpgCost', { whole: true })} / ${formatGame(node.maxQuantity ?? 0, 'RoyalG.ArmoryUpgCost', { whole: true })} collected`}/>)}
           </CardGrid>
           : <Typography variant={'body2'} color={'text.secondary'}>Not connected to any resource</Typography>}
       </ItemCard.Section>
       {upgrades?.length ? <ItemCard.Section label={'Upgrades'}>
         {upgrades.map((upgrade) => <Stack key={upgrade.index} gap={0.25}>
           <ItemCard.Facts rows={[[`${upgrade.name} Lv ${formatNum(upgrade.level ?? 0)}`,
-            upgrade.unlocked ? `${formatNum(upgrade.cost ?? 0)} PTS` : 'Locked']]}/>
+            upgrade.unlocked ? `${formatNum(upgrade.cost ?? 0, 'whole')} PTS` : 'Locked']]}/>
           {upgrade.effects?.length ? <Typography variant={'body2'} color={'text.secondary'}>
             {upgrade.effects.map((effect) => `${effect.value} ${effect.label}`).join(' · ')}
           </Typography> : null}
@@ -254,7 +254,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
       <Stack direction="row" gap={2} flexWrap="wrap">
         {/* Outposts built is the page Summary's: one tile per number */}
         <StatTile label={'Collection rate'} value={shown(`${formatGame(totalRate, 'RoyalG.OutpostResourceRate')}/hr`)}/>
-        <StatTile label={'Unspent PTS'} value={shown(formatNum(unspentPts))}/>
+        <StatTile label={'Unspent PTS'} value={shown(formatNum(unspentPts, 'whole'))}/>
         <StatTile label={'Unit types unlocked'}
                   value={shown(`${formatNum(outpostStats?.unitsUnlocked ?? 0)} / ${formatNum(unitNames.length)}`)}/>
         <StatTile label={'Worlds unlocked'} value={shown(formatNum(outpostStats?.worldsUnlocked ?? 0))}/>

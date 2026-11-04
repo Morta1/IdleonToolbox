@@ -15,7 +15,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 // A saved checkbox from before resets once ("Hide unused slots", "Only unconnected")
 const RESOURCES_TOOLBAR = { world: 'all', hideUnused: false, unconnected: false };
 // Every resource amount on the page prints in the armory costs' rule, which these pay
-const amount = (value) => formatGame(value ?? 0, 'RoyalG.ArmoryUpgCost');
+const amount = (value) => formatGame(value ?? 0, 'RoyalG.ArmoryUpgCost', { whole: true });
 // One to three columns of rows, as wide as the page allows
 const ROWS_GRID_SX = { display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' } };
 

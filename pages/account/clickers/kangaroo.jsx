@@ -44,7 +44,7 @@ const Kangaroo = () => {
       <StatTile label={'Fish per minute'} value={number(fishRate, formatNum)}/>
       <StatTile label={'Fish per hour'} value={number(fishRate * 60, formatNum)}/>
       <StatTile label={'Next upgrade'} value={!hasSave ? '-' : kangaroo?.nextLvReq > 0
-        ? `${formatGame(kangaroo.progress, 'Summoning.RooNextUpgReq')} / ${formatGame(kangaroo.nextLvReq, 'Summoning.RooNextUpgReq')}`
+        ? `${formatGame(kangaroo.progress, 'Summoning.RooNextUpgReq', { whole: true })} / ${formatGame(kangaroo.nextLvReq, 'Summoning.RooNextUpgReq', { whole: true })}`
         : <StatusText status={'done'}>All unlocked</StatusText>}/>
       <StatTile label={'Tar fish'} icon={'etc/KTar.png'}
                 value={number(kangaroo?.totalTarFishOwned, clickerAmount)}/>
@@ -72,7 +72,7 @@ const Kangaroo = () => {
                                                                                                                 icon={`data/RooMG${index}.png`}
                                                                                                                 alt={`Megafish ${index + 1}`}
                                                                                                                 status={unlocked ? undefined : 'missing'}
-                                                                                                                value={!failed && amount > 0 ? formatNum(amount) : undefined}
+                                                                                                                value={!failed && amount > 0 ? formatNum(amount, 'whole') : undefined}
                                                                                                                 details={<ItemCard.Desc
                                                                                                                   text={cleanUnderscore(`${description ?? ''}`.replace('{', () => formatNum(totalBonus ?? 1, 'mult', { bare: true })))}/>}/>)}
             </CardGrid>

@@ -24,7 +24,7 @@ const distance = (ax, ay, bx, by) => Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(a
 // the only thing that identifies a node to the player.
 const NodeIcon = ({ node, size = 16 }) => <GameIcon src={`data/${node.rawName}.png`} size={size} alt={''}/>;
 // A node's amounts, in the rule every resource amount on the page prints in
-const amount = (value) => formatGame(value ?? 0, 'RoyalG.ArmoryUpgCost');
+const amount = (value) => formatGame(value ?? 0, 'RoyalG.ArmoryUpgCost', { whole: true });
 // Enter or Space on a focused marker does what its click does
 const onActivate = (action) => (event) => {
   if (event.key === 'Enter' || event.key === ' ') {

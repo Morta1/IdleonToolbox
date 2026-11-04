@@ -109,7 +109,7 @@ const Compass = () => {
                 info={sectionFailed ? undefined : 'Not including Spirit Reindeer kills'}
                 breakdown={!sectionFailed && extraDust?.breakdown ? { ...extraDust.breakdown, totalValue: extraDustText } : undefined}
                 breakdownTitle={'Extra dust'}/>
-      <StatTile label={'Total dust collected'} value={shown(formatNum(totalDustsCollected ?? 0))}/>
+      <StatTile label={'Total dust collected'} value={shown(formatNum(totalDustsCollected ?? 0, 'whole'))}/>
       <StatTile label={'Exalted stamps'} icon={'etc/Exalted_Stamp_Frame.png'}
                 value={shown(`${formatNum(remainingExaltedStamps ?? 0)} / ${formatNum((usedExaltedStamps ?? 0) + (remainingExaltedStamps ?? 0))}`)}/>
       {topOfTheMorninKills || sectionFailed
@@ -118,7 +118,7 @@ const Compass = () => {
       {/* Every dust cost on the Upgrades tab prints in this rule, so the balances do too */}
       {Object.keys(dustNames).map((index) => <StatTile key={index} label={cleanUnderscore(dustNames[index])}
                                                        icon={`data/Dust${index}_x1.png`}
-                                                       value={shown(formatGame(dusts?.[index]?.value ?? 0, 'Windwalker.CompassUpgCost'))}/>)}
+                                                       value={shown(formatGame(dusts?.[index]?.value ?? 0, 'Windwalker.CompassUpgCost', { whole: true }))}/>)}
     </PageSummary>
     <Panel title={'Tempest Form'} meta={formMeta} sx={{ mb: 3 }}>
       <Box sx={FORM_GRID_SX}>

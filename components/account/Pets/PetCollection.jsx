@@ -151,7 +151,7 @@ const PetCollection = ({ companions, sectionFailed, tournamentFailed }) => {
       {plusView ? null : <Typography variant={'body2'} color={'text.secondary'}>Pet Mart+</Typography>}
       <ItemCard.Cost icon={petCrystalIcon(24)} iconAlt={'Pet Crystals'} need={pet.upgradeCost}
                      have={failed ? undefined : state?.account?.companions?.petCrystals ?? 0}
-                     format={(value) => formatNum(value)}/>
+                     format={(value) => formatNum(value, 'whole')}/>
     </Box> : null;
     const sale = saleLine(salesOf(pet.index));
     return <ItemCard key={pet.index} icon={<GameIcon src={monsterSprite(pet.name)} size={40} alt={''}

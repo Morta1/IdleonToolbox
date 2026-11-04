@@ -48,7 +48,7 @@ const Achievements = () => {
     <ItemCard.Desc text={achievementText(achievement.desc)}/>
     <ItemCard.Facts rows={[
       underWay(achievement)
-        ? ['Progress', `${formatNum(achievement.currentQuantity)} / ${formatNum(achievement.quantity)}`]
+        ? ['Progress', `${formatNum(achievement.currentQuantity, 'whole')} / ${formatNum(achievement.quantity, 'whole')}`]
         : null,
       !failed && achievement.completed ? ['State', <StatusText key={'done'} status={'done'}>Completed</StatusText>] : null,
       ['Rewards', (achievement.rewards ?? []).map((reward) => cleanUnderscore(reward).trim()).join(', ')]
@@ -77,7 +77,7 @@ const Achievements = () => {
             {shown.map((achievement) => <IconTile key={achievement.rawName} icon={`data/${achievement.rawName}.png`}
                                                   alt={cleanUnderscore(achievement.name)}
                                                   status={achievement.completed ? undefined : 'missing'}
-                                                  value={underWay(achievement) ? formatNum(achievement.currentQuantity) : undefined}
+                                                  value={underWay(achievement) ? formatNum(achievement.currentQuantity, 'whole') : undefined}
                                                   details={details(achievement)}/>)}
           </CardGrid> : null}
         </Box>

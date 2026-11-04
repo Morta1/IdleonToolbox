@@ -25,7 +25,7 @@ const UNLOCKS_TOOLBAR = { hideUnlocked: false };
 // The data's one currency reads in the plural after an amount ("5 Gems"); every other entry is a recipe's own name
 const itemName = (item) => {
   const name = cleanUnderscore(item?.displayName);
-  return `${item?.amount > 0 ? `${formatNum(item.amount)} ` : ''}${name === 'Gem' && item?.amount > 1 ? 'Gems' : name}`;
+  return `${item?.amount > 0 ? `${formatNum(item.amount, 'whole')} ` : ''}${name === 'Gem' && item?.amount > 1 ? 'Gems' : name}`;
 };
 
 const Unlocks = () => {

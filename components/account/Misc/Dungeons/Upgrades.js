@@ -55,7 +55,7 @@ const UpgradeList = ({ isFlurbo, upgrades = [], balance, sectionFailed }) => {
                            {/* The next level's cost against the balance, its own line: a pair that runs long wraps */}
                            <ItemCard.Cost icon={currencyIcon} iconAlt={currencyName} game={costGame}
                                           need={calcUpgradeCost(isFlurbo, level)} have={balance ?? 0}/>
-                           <ItemCard.Facts rows={[['Cost to max', formatGame(calcCostToMax(isFlurbo, level, cap), costGame)]]}/>
+                           <ItemCard.Facts rows={[['Cost to max', formatGame(calcCostToMax(isFlurbo, level, cap), costGame, { whole: true })]]}/>
                          </>}>
           {sectionFailed ? null : <ItemCard.Facts rows={[['Bonus', bonusText(upgrade)]]}/>}
         </ItemCard>;

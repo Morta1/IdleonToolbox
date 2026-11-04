@@ -29,7 +29,7 @@ const baseStats = (label, qualityText, stats) => createBreakdown(label, qualityT
 // The next step of a map bonus, where the parser can name it: "TONS" is more than 100,000 kills away
 const nextStep = (killsToNext) => {
   if (killsToNext === 'TONS') return 'next in more than 100K kills';
-  return Number.isFinite(killsToNext) && killsToNext > 0 ? `next in ${formatNum(killsToNext)} kills` : null;
+  return Number.isFinite(killsToNext) && killsToNext > 0 ? `next in ${formatNum(killsToNext, 'whole')} kills` : null;
 };
 
 // sectionFailed: the maps at zero by name, with no open state, bonus or Toolbar; the drop numbers read "-"
@@ -71,7 +71,7 @@ const Maps = ({ character, account, characters, sectionFailed }) => {
               {formatGame(tachyonQuantity ?? 0, 'ArcaneType.ArcaneTachyonQTYbase')}
               <GameIcon src={`data/Tach${tachyonType}_x1.png`} size={16} alt={tachyonNames[tachyonType] ?? ''}/>
             </Stack>],
-            ['Kills to charge', formatNum(reqKills)],
+            ['Kills to charge', formatNum(reqKills, 'whole')],
             ['Time to charge', formatDuration(timeLeft)]
           ]}/>
           {(portals ?? []).map(({ multiCharLock }, portalIndex) => <MultiCharLockText key={portalIndex} lock={multiCharLock}/>)}

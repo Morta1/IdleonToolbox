@@ -21,7 +21,7 @@ const TASKS_TOOLBAR = { hideCompleted: false };
 // Slot 8 is the day's task: one rank, no merits (parsers/tasks.ts)
 const DAILY_TASK = 8;
 const sumOf = (list, key) => list.reduce((sum, item) => sum + (item?.[key] ?? 0), 0);
-const big = (value) => formatGame(value ?? 0, 'TaskStuff.TaskPointREQ');
+const big = (value) => formatGame(value ?? 0, 'TaskStuff.TaskPointREQ', { whole: true });
 
 // The task board's own fill (N.js, the board's draw): every { is the rank's requirement in Big and every } the rank's
 // filler1 entry (none on a Blank420q row). A maxed task shows filler2's third part instead, its { the stat; the day's
@@ -63,15 +63,15 @@ const Tasks = () => {
                      level={failed || daily ? undefined : { value: task.level, max: task.maxLevel }}
                      status={maxed ? 'maxed' : undefined}
                      footer={failed || daily ? null : <ItemCard.Facts rows={[['Next rank pays', <Stack key={'pay'} direction={'row'} gap={0.5} alignItems={'center'}>
-                       {formatGame(task.meritReward ?? 0, 'TaskStuff.MeritsGiven')}
+                       {formatGame(task.meritReward ?? 0, 'TaskStuff.MeritsGiven', { whole: true })}
                        <GameIcon src={`etc/Merit_${world}.png`} size={16} alt={'Merits'}/>
                      </Stack>]]}/>}>
       <ItemCard.Desc text={taskSentence(task, maxed)}/>
       {/* The game caps the count at the requirement: "2M/2M", then "Tap to Complete!" */}
       {failed || maxed ? null : <ItemCard.Progress label={'Progress'}
                                                    percent={requirement > 0 ? Math.min(100, (task.stat / requirement) * 100) : 0}
-                                                   value={<Num value={Math.min(task.stat ?? 0, requirement)} game={'TaskStuff.TaskPointREQ'}/>}
-                                                   max={<Num value={requirement} game={'TaskStuff.TaskPointREQ'}/>}/>}
+                                                   value={<Num value={Math.min(task.stat ?? 0, requirement)} game={'TaskStuff.TaskPointREQ'} whole/>}
+                                                   max={<Num value={requirement} game={'TaskStuff.TaskPointREQ'} whole/>}/>}
     </ItemCard>;
   };
 

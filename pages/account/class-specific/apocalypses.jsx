@@ -29,7 +29,7 @@ const isManiac = (character) => ['Barbarian', 'Blood_Berserker'].some((name) => 
 const nextTier = ({ key, name, thresholds }, kills, done) => {
   const tier = (done ?? []).findIndex((reached) => !reached);
   if (tier < 0) return null;
-  return `${formatNum(Math.max(0, thresholds[tier] - kills))} more for ${TIER_NAMES[key]?.[tier] ?? name}`;
+  return `${formatNum(Math.max(0, thresholds[tier] - kills), 'whole')} more for ${TIER_NAMES[key]?.[tier] ?? name}`;
 };
 
 // One apocalypse of one character: its monsters left as tiles, the done count and the rule in the meta
@@ -53,7 +53,7 @@ const apocalypsePanel = (character, apocalypse, hideSuperChow) => {
           const shownKills = Math.floor(kills ?? 0);
           const next = nextTier(apocalypse, shownKills, done);
           return <IconTile
-            key={`${name}-${index}`} icon={`data/Mface${monsterFace}.png`} alt={cleanUnderscore(name ?? '')} value={formatNum(shownKills)}
+            key={`${name}-${index}`} icon={`data/Mface${monsterFace}.png`} alt={cleanUnderscore(name ?? '')} value={formatNum(shownKills, 'whole')}
             details={<Stack gap={0.5}>
               <Typography variant={'body2'}>{`${cleanUnderscore(name ?? '')}, ${cleanUnderscore(mapName ?? '')}`}</Typography>
               <Typography variant={'body2'}>{`${formatNum(shownKills, 'exact')} kills`}</Typography>

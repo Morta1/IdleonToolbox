@@ -40,7 +40,7 @@ const Owl = () => {
       <StatTile label={'Feathers per second'} value={failed ? '-' : formatGame(featherRate, 'Summoning.OwlFeatherRate')}/>
       <StatTile label={'Feathers per hour'} value={failed ? '-' : formatGame(featherRate * 3600, 'Summoning.OwlFeatherRate')}/>
       <StatTile label={'Next upgrade'} value={!hasSave ? '-' : owl?.nextLvReq > 0
-        ? `${formatGame(owl.progress, 'Summoning.OwlNextUpgReq')} / ${formatGame(owl.nextLvReq, 'Summoning.OwlNextUpgReq')}`
+        ? `${formatGame(owl.progress, 'Summoning.OwlNextUpgReq', { whole: true })} / ${formatGame(owl.nextLvReq, 'Summoning.OwlNextUpgReq', { whole: true })}`
         : <StatusText status={'done'}>All unlocked</StatusText>}/>
     </PageSummary>
     <CardGrid size={'m'} sx={{ mb: 3, alignItems: 'start' }}>
@@ -56,7 +56,7 @@ const Owl = () => {
                                                                                                             icon={`data/Feaz${index}.png`}
                                                                                                             alt={`Megafeather ${index + 1}`}
                                                                                                             status={unlocked ? undefined : 'missing'}
-                                                                                                            value={!failed && amount > 0 ? formatGame(amount, 'Summoning.OwlMegafeather') : undefined}
+                                                                                                            value={!failed && amount > 0 ? formatGame(amount, 'Summoning.OwlMegafeather', { whole: true }) : undefined}
                                                                                                             details={<ItemCard.Desc
                                                                                                               text={cleanUnderscore(`${description ?? ''}`.replace('{', () => formatNum(totalBonus ?? 1, 'mult', { bare: true })))}/>}/>)}
           </CardGrid>
@@ -73,7 +73,7 @@ const Owl = () => {
                                                                                                  ? <ItemCard.Cost icon={'etc/Owlb_0.png'} iconAlt={'Feathers'}
                                                                                                                   need={cost} have={feathers}
                                                                                                                   format={clickerAmount}/>
-                                                                                                 : <ItemCard.Facts rows={[['Unlocks at', `${formatGame(Number(x3), 'Summoning.OwlNextUpgReq')} feathers made`]]}/>}>
+                                                                                                 : <ItemCard.Facts rows={[['Unlocks at', `${formatGame(Number(x3), 'Summoning.OwlNextUpgReq', { whole: true })} feathers made`]]}/>}>
         <ItemCard.Desc text={cleanUnderscore(desc)}/>
       </ItemCard>)}
     </CardGrid>

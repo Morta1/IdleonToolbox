@@ -15,7 +15,7 @@ import { getTotalStatueLevels } from '@parsers/class-specific/royalGuardian';
 const TIER_NOTE = 'Total marble to bring every statue of that marble up to this level from its current level.';
 const LOCKED_TIER_NOTE = 'Locked: needs the Menagerie unlock that boosts max Flair LV of Statues to Elegant.';
 // The flair costs and the marbles owned, in their game rules
-const flairCost = (value) => formatGame(value ?? 0, 'RoyalG.SF_costo');
+const flairCost = (value) => formatGame(value ?? 0, 'RoyalG.SF_costo', { whole: true });
 // The game draws a statue's sentence in font 652, whose 千 glyph is its x mark: "}千 TOTAL DAMAGE" reads "4.12x TOTAL DAMAGE"
 const statueSentence = (description) => cleanText(`${description ?? ''}`.replace(/千/g, 'x'));
 
@@ -26,7 +26,7 @@ const flairColumns = (statueFlair) => [
     key: 'marble', label: 'Marble', value: ({ name }) => cleanUnderscore(name),
     icon: ({ costItem }) => <GameIcon src={`data/${costItem}.png`} alt={''} size={24}/>
   },
-  { key: 'owned', label: 'Owned', numeric: true, value: ({ owned }) => owned, render: ({ owned }) => formatGame(owned ?? 0, 'RoyalG.SF_weOwn') },
+  { key: 'owned', label: 'Owned', numeric: true, value: ({ owned }) => owned, render: ({ owned }) => formatGame(owned ?? 0, 'RoyalG.SF_weOwn', { whole: true }) },
   { key: 'left', label: 'Statues left', numeric: true, value: ({ statuesLeft }) => statuesLeft },
   ...(statueFlair?.marbleTotals?.[0]?.tiers ?? []).map((_, tier) => {
     const locked = tier >= statueFlair?.maxLevel;
@@ -64,7 +64,7 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels, sectionFailed }
           {sectionFailed ? null : <ItemCard.Facts rows={[
             // A named statue's sentence prints its bonus already
             named ? null : ['Bonus', formatGame(bonus ?? 0, 'RoyalG.StatueBon')],
-            ['Upgrade odds', upgradeOdds > 0 ? `1 in ${formatGame(1 / upgradeOdds, 'RoyalG.StatueUpgOdds')}` : '-']
+            ['Upgrade odds', upgradeOdds > 0 ? `1 in ${formatGame(1 / upgradeOdds, 'RoyalG.StatueUpgOdds', { whole: true })}` : '-']
           ]}/>}
         </ItemCard>)}
       </CardGrid> : null}

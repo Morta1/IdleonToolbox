@@ -30,9 +30,9 @@ const priceLine = ({ list, price }, size = 16) => {
   return <Stack direction={'row'} gap={0.5} alignItems={'center'} component={'span'}>
     {petCrystalIcon(size)}
     {discounted ? <Typography variant={'body2'} component={'span'} color={'text.secondary'} sx={{ textDecoration: 'line-through' }}>
-      {formatNum(list)}
+      {formatNum(list, 'whole')}
     </Typography> : null}
-    <Typography variant={'body2'} component={'span'} color={discounted ? 'text.success' : 'text.primary'}>{formatNum(price ?? 0)}</Typography>
+    <Typography variant={'body2'} component={'span'} color={discounted ? 'text.success' : 'text.primary'}>{formatNum(price ?? 0, 'whole')}</Typography>
   </Stack>;
 };
 
@@ -113,7 +113,7 @@ const PetMart = ({ petMart, companions, lastUpdated, sectionFailed, companionsFa
       <StatTile label={'New pets in'} value={<Timer type={'countdown'} date={getNextPetMartRestock()} component={'span'}
                                                      placeholder={<StatusText status={'ready'}>Restocked</StatusText>}/>}/>
       {saveIsToday && gems?.offered ? <StatTile label={'Daily free gems'} icon={'data/PremiumGem.png'}
-                                                value={gems.claimable ? `${formatNum(gems.amount)} to claim` : 'Claimed'}/> : null}
+                                                value={gems.claimable ? `${formatNum(gems.amount, 'whole')} to claim` : 'Claimed'}/> : null}
     </Stack>
     {/* No heading over nothing: a guest whose history failed has only the note above */}
     {today || waiting || todayMissing ? <Stack gap={2}>

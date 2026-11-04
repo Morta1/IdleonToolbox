@@ -55,7 +55,7 @@ const EventShop = () => {
                      dimmed={locked} status={ownedNow ? 'done' : undefined} statusLabel={'Owned'}
                      footer={ownedNow ? null : <ItemCard.Cost icon={'etc/Event_Currency.png'} iconAlt={'Stars'} need={price}
                                                               have={parseFailed ? undefined : stars}
-                                                              format={(value) => formatNum(value)}/>}>
+                                                              format={(value) => formatNum(value, 'whole')}/>}>
       <ItemCard.Desc text={cleanUnderscore(description ?? '')}/>
       {off ? <ItemCard.Facts rows={[['Last sold', lastSoldText(lastSold)]]}/> : null}
     </ItemCard>;

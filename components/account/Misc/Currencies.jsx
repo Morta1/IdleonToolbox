@@ -10,7 +10,7 @@ import { cleanUnderscore, formatNum, secondsToShortDuration } from '@utility/hel
 import { keysMap } from '@parsers/parseMaps';
 
 // A count read from the save; a days count the game has not started yet reads 0
-const count = (value) => formatNum(Number.isFinite(Number(value)) ? Number(value) : 0);
+const count = (value) => formatNum(Number.isFinite(Number(value)) ? Number(value) : 0, 'whole');
 
 // What an NPC hands out once a day: its rate, the days since the last pickup and what waits (up to 3 days' worth)
 const pickupFacts = (entry, name) => <Stack key={name} gap={0.5}>

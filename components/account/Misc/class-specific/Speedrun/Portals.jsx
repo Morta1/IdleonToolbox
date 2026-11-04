@@ -16,7 +16,7 @@ const portalSection = ({ portalIndex, reqKills, destinationName, secondsToClear,
   showDoor, runUnlocked) => <ItemCard.Section key={portalIndex}
                                               label={showDoor ? destinationName ? `Door to ${cleanUnderscore(destinationName)}` : `Portal ${portalIndex + 1}` : undefined}>
   <ItemCard.Facts rows={[
-    ['Kills needed', formatNum(reqKills)],
+    ['Kills needed', formatNum(reqKills, 'whole')],
     ['Clear time', reachable ? formatDuration(secondsToClear) : 'Can\'t hit this monster'],
     reachable && runUnlocked ? ['With Void Radius', formatDuration(buffedSecondsToClear)] : null
   ]}/>

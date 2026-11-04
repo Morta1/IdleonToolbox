@@ -108,12 +108,12 @@ const GemShop = () => {
                      title={itemTitle(displayName)} meta={TIER_NAME[getPriority(category, globalIndex)]}
                      status={maxed ? 'maxed' : undefined}
                      footer={bought == null ? null : <ItemCard.Cost icon={'data/PremiumGem.png'} iconAlt={'Gems'} need={nextCost}
-                                                                    have={gems} format={(value) => formatNum(value)}/>}>
+                                                                    have={gems} format={(value) => formatNum(value, 'whole')}/>}>
       <ItemCard.Desc text={cleanUnderscore(desc ?? '')}/>
       <ItemCard.Facts rows={[
-        bought == null ? ['Cost', formatNum(cost)] : ['Bought', `${formatNum(bought)} / ${formatNum(maxPurchases)}`],
+        bought == null ? ['Cost', formatNum(cost, 'whole')] : ['Bought', `${formatNum(bought, 'whole')} / ${formatNum(maxPurchases, 'whole')}`],
         bought != null && !maxed && maxPurchases - bought > 1
-          ? ['Cost to max', formatNum(calculateTotalCostToMax(cost, costIncrement || 0, bought, maxPurchases))]
+          ? ['Cost to max', formatNum(calculateTotalCostToMax(cost, costIncrement || 0, bought, maxPurchases), 'whole')]
           : null
       ]}/>
     </ItemCard>;

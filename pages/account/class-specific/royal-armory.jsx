@@ -23,7 +23,7 @@ import { createBreakdown, flatLines, info } from '@parsers/breakdown';
 import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
 
 // The game's "1 in N" for a marble's chance per kill
-const marbleText = (chance) => (chance > 0 ? `1 in ${formatGame(1 / chance, 'RoyalG.MarbleDrop')}` : '-');
+const marbleText = (chance) => (chance > 0 ? `1 in ${formatGame(1 / chance, 'RoyalG.MarbleDrop', { whole: true })}` : '-');
 // A failed section's catalogs at zero, from the parser's own empty save: every shelf, statue and orblet upgrade by name
 const zeroRoyalGuardian = () => {
   try {
@@ -82,10 +82,10 @@ const RoyalArmory = () => {
       </TextField>
     </PageHeaderControl> : null}
     <PageSummary>
-      <StatTile label={'Total armory levels'} value={shown(formatGame(armory?.totalLevels ?? 0, 'RoyalG.ArmoryUpgTotal'))}/>
+      <StatTile label={'Total armory levels'} value={shown(formatGame(armory?.totalLevels ?? 0, 'RoyalG.ArmoryUpgTotal', { whole: true }))}/>
       <StatTile label={'Shelves unlocked'}
                 value={shown(`${formatNum(armory?.unlockedSlots ?? 0)} / ${formatNum(armory?.slotToId?.length ?? 0)}`)}/>
-      <StatTile label={'Outposts built'} value={shown(formatGame(outpostStats?.built ?? 0, 'RoyalG.TotalStatz'))}/>
+      <StatTile label={'Outposts built'} value={shown(formatGame(outpostStats?.built ?? 0, 'RoyalG.TotalStatz', { whole: true }))}/>
       {sectionFailed ? <StatTile label={'Marble chance'} value={'-'}/>
         : marbleBreakdown ? <StatTile label={'Marble chance'} sub={'World 1, per kill on an outpost map'}
                                       value={marbleText(marbleDropChanceEffective[0])} breakdown={marbleBreakdown}
