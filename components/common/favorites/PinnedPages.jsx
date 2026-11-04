@@ -185,7 +185,7 @@ const PinnedPages = () => {
         sx={{
           color: 'white',
           borderRadius: '8px',
-          ...(!isXs ? { p: '0 8px' } : {})
+          ...(!isXs ? { p: '0 8px' } : { minHeight: 46 })
         }}
         selected={open}
         variant={'text'}
@@ -196,7 +196,7 @@ const PinnedPages = () => {
         onClick={handleClick}
       >
         <ListItemText component={'span'} disableTypography
-                      sx={{ fontWeight: 600, fontSize: 16 }}>
+                      sx={{ fontWeight: isXs ? 500 : 600, fontSize: 16 }}>
           Pinned pages
         </ListItemText>
         <KeyboardArrowDownIcon sx={{

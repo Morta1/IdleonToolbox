@@ -53,9 +53,11 @@ const darkTheme = createTheme({
       edge: 'rgba(144, 202, 249, 0.5)'
     },
     // default is surface.page (page, app bar), paper is surface.card (cards, tables, dialogs).
+    // tint: 5% white, a row or group set off from its list (the phone menu's open group).
     background: {
       default: '#141A21',
-      paper: '#1C252E'
+      paper: '#1C252E',
+      tint: 'rgba(255, 255, 255, 0.05)'
     },
     text: {
       primary: '#fff',
