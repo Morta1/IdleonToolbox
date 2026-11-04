@@ -19,7 +19,11 @@ const statueDetails = ({ statue, index, account, characters, nextLv, flairLevel,
       <Typography variant={'cardTitle'} component={'div'}>{statueName(name)}</Typography>
       <Typography variant={'body2'} color={'text.secondary'}>{formatNum(level, 'level')}</Typography>
     </Box>
-    <Typography variant={'body2'}>{statueSentence(effect, level * bonus * talentMulti)}</Typography>
+    {/* The sentence is the base (level x bonus) and says so: the per character rows apply every multiplier, as the
+     game's statue screen does, so it never reads as their total */}
+    <ItemCard.Section label={'Base, before multipliers'}>
+      <Typography variant={'body2'}>{statueSentence(effect, level * bonus)}</Typography>
+    </ItemCard.Section>
     <ItemCard.Facts rows={[
       ['Progress', `${formatGame(progress, 'Big')} / ${formatGame(nextLv, 'Big')}`],
       ['Voodoo Statufication', formatNum(talentMulti, 'mult')],
