@@ -95,14 +95,10 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     const trimmedSlots = getTotalGildedSlots(account);
     const isSlotTrimmed = building?.slot !== -1 && building?.slot < trimmedSlots;
     const buildCost = getBuildCost(account?.towers, building?.level, building?.bonusInc, building?.index);
-    let timeLeft;
     // for (l = r._customBlock_WorkbenchStuff("TowerBuildSlots", 0, 0) | 0; g < l; )
-    if (isSlotTrimmed) {
-      const trimmedSlotSpeed = getGildedBoostioBonus(account) * account?.construction?.totalBuildRate;
-      timeLeft = (buildCost - building?.progress) / (trimmedSlotSpeed) * 1000 * 3600;
-    } else {
-      timeLeft = (buildCost - building?.progress) / account?.construction?.totalBuildRate * 1000 * 3600;
-    }
+    const buildRate = account?.construction?.totalBuildRate;
+    const speed = isSlotTrimmed ? getGildedBoostioBonus(account) * buildRate : buildRate;
+    const timeLeft = (buildCost - building?.progress) / speed * 1000 * 3600;
     if (building?.inProgress && (closestBuilding?.timeLeft === 0 || timeLeft < closestBuilding?.timeLeft)) {
       return { timeLeft, icon: `ConTower${building?.index}` };
     }

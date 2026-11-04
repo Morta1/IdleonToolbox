@@ -118,10 +118,7 @@ const Character = ({
           {/* Sections of very different heights flow down columns, each whole, and each fails alone */}
           <CardGrid size={'l'} flow>
             {views?.map((view, index) => {
-              let shouldDisplay = filters?.[view.filter];
-              if (Array.isArray(view.filter)) {
-                shouldDisplay = view.filter.some((v) => filters?.[v]);
-              }
+              const shouldDisplay = [view.filter].flat().some((filter) => filters?.[filter]);
               return shouldDisplay ? <Box key={`${name}-${view?.filter}-${index}`}>
                 <ErrorBoundary title={`${[view.filter].flat()[0]} didn't load`} resetKey={lastUpdated}>{view.component}</ErrorBoundary>
               </Box> : null;
