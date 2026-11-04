@@ -42,6 +42,9 @@ const chestDetails = (chest) => <Stack gap={0.5} alignItems={'flex-start'}>
 const Looty = () => {
   const { state } = useContext(AppContext);
   const storageFailed = isSectionFailed(state?.account, 'storage');
+  // The money tiles read the currencies section: a failed one dashes them, named in the page's one note
+  const currenciesFailed = isSectionFailed(state?.account, 'currencies');
+  const failedNames = [storageFailed && 'Storage', currenciesFailed && 'Currencies'].filter(Boolean);
   const list = state?.account?.storage?.list ?? [];
   const greenStacks = new Set(state?.account?.storage?.greenStacks ?? []);
   const { bankMoney, rawMoney } = state?.account?.currencies ?? {};
@@ -70,10 +73,12 @@ const Looty = () => {
         title="Storage | Idleon Toolbox"
         description="Browse your full storage inventory with item counts, chest slots, and capacity in Legends of Idleon"
       />
-      {storageFailed ? <MissingData name={'Storage'} failed/> : null}
+      {failedNames.length ? <MissingData name={failedNames.join(' and ')} failed/> : null}
       <PageSummary>
-        <StatTile label={'Storage money'} value={moneyValue(bankMoney)} sub={exactCoins(bankMoney)}/>
-        <StatTile label={'Total money'} value={moneyValue(rawMoney)} sub={exactCoins(rawMoney)}
+        <StatTile label={'Storage money'} value={currenciesFailed ? '-' : moneyValue(bankMoney)}
+                  sub={currenciesFailed ? undefined : exactCoins(bankMoney)}/>
+        <StatTile label={'Total money'} value={currenciesFailed ? '-' : moneyValue(rawMoney)}
+                  sub={currenciesFailed ? undefined : exactCoins(rawMoney)}
                   info={'Your storage and every character\'s coins together.'}/>
       </PageSummary>
       <Tabber tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'storage')}>
