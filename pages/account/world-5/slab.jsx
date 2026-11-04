@@ -12,11 +12,11 @@ import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
-import InfoButton from '@components/common/InfoButton';
 import Panel from '@components/common/cards/Panel';
 import GameIcon from '@components/common/GameIcon';
 
 const SLAB_TOOLBAR = { search: '', show: 'missing' };
+const UNREALISTIC_NOTE = 'Items you can loot but not reasonably greenstack: one-off quest rewards, shop items with a daily stock of 1 to 30, gem shop only items and event boxes. They stay out of Missing greenstacks and the greenstack total, unless you have greenstacked one.';
 const SHOWS = [['missing', 'Missing items'], ['looted', 'Looted items'], ['all', 'All items'], ['rotation', 'GemShop rotation'],
   ['unobtainable', 'Unobtainable'], ['greenstacked', 'Greenstacks'], ['greenstackable', 'Missing greenstacks'],
   ['unrealistic', 'Unrealistic greenstacks']];
@@ -77,14 +77,8 @@ const Slab = () => {
     <Toolbar state={toolbar} defaults={SLAB_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
              total={items.length} shown={shown.length} noun={'items'} onStickyBottom={setStickyTop}>
       <Toolbar.Search placeholder={'Search items'}/>
-      <Toolbar.Lead>
-        <Box sx={{ display: 'flex', alignItems: 'center', height: 40 }}>
-          <InfoButton label={'Unrealistic greenstacks'}>Items you can loot but not reasonably greenstack: one-off quest
-            rewards, shop items with a daily stock of 1 to 30, gem shop only items and event boxes. They stay out of
-            Missing greenstacks and the greenstack total, unless you have greenstacked one.</InfoButton>
-        </Box>
-      </Toolbar.Lead>
-      <Toolbar.Show options={SHOWS.map(([value, label]) => [value, label, items.filter((item) => shouldDisplayItem(item, value)).length])}/>
+      <Toolbar.Show options={SHOWS.map(([value, label]) => [value, label, items.filter((item) => shouldDisplayItem(item, value)).length,
+        value === 'unrealistic' ? UNREALISTIC_NOTE : undefined])}/>
     </Toolbar>
     {item ? <Panel icon={<GameIcon src={`data/${item.rawName}.png`} fallback={`data/${item.rawName}_x1.png`} size={24} alt={''}/>}
                    title={cleanUnderscore(item.name)}

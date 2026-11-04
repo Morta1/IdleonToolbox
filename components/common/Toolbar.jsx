@@ -14,6 +14,7 @@ import { IconAdjustmentsHorizontal, IconArrowDown, IconArrowUp, IconCheck, IconS
 import usePageTop from '@hooks/usePageTop';
 import { same } from '@hooks/useToolbarState';
 import Notice from '@components/common/Notice';
+import InfoButton from '@components/common/InfoButton';
 import { commaNotation } from '@utility/helpers';
 import AppDialog from '@components/common/Overlays/AppDialog';
 import ViewSwitch from '@components/common/ViewSwitch';
@@ -23,7 +24,7 @@ import { focusWithinRing } from '../../styles/theme/darkTheme';
 // sits in the bar ('row') or in the phone panel ('panel').
 const ToolbarContext = createContext({ state: {}, defaults: {}, onChange: () => {}, placement: 'row' });
 
-// The muted word before a select's value: "Show World 3", "Sort: Cost".
+// The muted word before a select's value: "Show: World 3", "Sort: Cost".
 const prefixed = (prefix, label) => <>
   <Box component="span" sx={{ color: 'text.secondary', mr: 0.75 }}>{prefix}</Box>
   {label}
@@ -68,27 +69,36 @@ const Search = ({ name = 'search', placeholder }) => {
 
 // The Show and Filter looks for a control that sits outside a bar (a dialog's header, a drawer): the same field and pill,
 // fed by their own value. The bar's Show and Filter render these.
-// Which set of rows to show, each option with its count: [value, label, count]. label: what the field filters, where a
-// Toolbar has several Show fields ("World", "Rank"): it takes "Show"'s place before the value and names the field.
+// Which set of rows to show, each option with its count: [value, label, count, note]. label: what the field filters, where
+// a Toolbar has several Show fields ("World", "Rank"): it takes "Show"'s place before the value and names the field.
+// note: a line on what an option means. Its i sits beside the option in the list, and beside the field while that option
+// is picked: the list's own keys never reach a button inside a row, so Tab finds it there.
 export const ShowField = ({ value, onChange, label = 'Show', options, fullWidth }) => {
-  const labelOf = (key) => options.find(([option]) => option === key)?.[1] ?? '';
-  return <TextField
+  const optionOf = (key) => options.find(([option]) => option === key);
+  const counted = ([, label, count]) => (count == null ? label : `${label} (${commaNotation(count)})`);
+  const picked = optionOf(value);
+  const field = <TextField
     select
     value={value ?? ''}
     onChange={(event) => onChange(event.target.value)}
-    sx={fullWidth ? { width: '100%' } : undefined}
+    sx={fullWidth ? { flex: 1, width: '100%' } : undefined}
     slotProps={{
       select: {
         displayEmpty: true,
-        renderValue: (key) => prefixed(label, labelOf(key)),
+        renderValue: (key) => prefixed(`${label}:`, optionOf(key) ? counted(optionOf(key)) : ''),
         SelectDisplayProps: { 'aria-label': label }
       }
     }}
   >
-    {options.map(([key, label, count]) => <MenuItem key={key} value={key}>
-      {count == null ? label : `${label} (${commaNotation(count)})`}
+    {options.map((option) => <MenuItem key={option[0]} value={option[0]} sx={{ gap: 0.75 }}>
+      {counted(option)}
+      {option[3] ? <InfoButton label={option[1]}>{option[3]}</InfoButton> : null}
     </MenuItem>)}
   </TextField>;
+  return picked?.[3] ? <Stack direction="row" alignItems="center" gap={0.75} sx={fullWidth ? { width: '100%' } : undefined}>
+    {field}
+    <InfoButton label={picked[1]}>{picked[3]}</InfoButton>
+  </Stack> : field;
 };
 
 const Show = ({ name = 'show', label, options }) => {
@@ -117,8 +127,10 @@ const Filter = ({ name, label }) => {
   return <FilterPill value={name} on={on} label={label} onToggle={() => onChange({ [name]: !on })}/>;
 };
 
-// The sort without the headers: options are [key, label, firstOrder?]. The direction button is the only way a
-// phone, whose headers are hidden, flips a sort.
+// The sort without the headers: options are [key, label, firstOrder?]. A click on a table's header flips its sort, but a
+// card view and a phone have no header to click: there the direction button is the only way, so it stays, and it shows
+// once a sort is picked rather than sitting faint and disabled. (The one Sort over a sortable table, the wiki's listing,
+// hides below its headers' width.)
 const Sort = ({ name = 'sort', options, sx }) => {
   const { state, onChange, placement } = useContext(ToolbarContext);
   const sort = state[name] ?? null;
@@ -144,16 +156,14 @@ const Sort = ({ name = 'sort', options, sx }) => {
       <MenuItem value="">Default</MenuItem>
       {options.map(([key, label]) => <MenuItem key={key} value={key}>{label}</MenuItem>)}
     </TextField>
-    <IconButton
+    {sort ? <IconButton
       aria-label={descending ? 'Descending' : 'Ascending'}
-      disabled={!sort}
-      // sort?.key, not sort.key: React Compiler reads a closure's property paths during render, and the
-      // button is disabled (sort null) until a sort is picked.
+      // sort?.key, not sort.key: React Compiler reads a closure's property paths during render.
       onClick={() => onChange({ [name]: { key: sort?.key, order: descending ? 'asc' : 'desc' } })}
       sx={{ width: 40, height: 40 }}
     >
       {descending ? <IconArrowDown size={18}/> : <IconArrowUp size={18}/>}
-    </IconButton>
+    </IconButton> : null}
   </Stack>;
 };
 
@@ -235,7 +245,8 @@ const Toolbar = ({
   }
   // A phone row holding a search, a view and the panel button left the search a few letters wide: the search
   // takes its own line there, the view and the button the next.
-  const searchOwnRow = searches.length > 0 && ofType(View).length > 0;
+  const views = ofType(View);
+  const searchOwnRow = searches.length > 0 && views.length > 0;
   const differs = (child) => !same(state[slotKey(child)], defaults[slotKey(child)]);
 
   // The panel's count: every Show, Filter and Sort away from its default.
@@ -279,15 +290,14 @@ const Toolbar = ({
       '@media (max-height: 500px)': { position: 'static' }
     }}>
       <ToolbarContext value={row}>
-        <Stack direction="row" gap={{ xs: 1, sm: 2 }} alignItems="flex-start"
+        {/* Toolbar board: what narrows the list from the left, Sort and View at the far right, View last, 10 px apart.
+            A phone: the search, then the panel's button and View at its end. */}
+        <Stack direction="row" gap={{ xs: 1, sm: '10px' }} alignItems="flex-start"
                flexWrap={{ xs: searchOwnRow ? 'wrap' : 'nowrap', sm: 'wrap' }}>
           {searchOwnRow
             ? <Box sx={{ display: 'flex', flex: { xs: '1 1 100%', sm: '0 0 auto' } }}>{searches}</Box>
             : searches}
           {ofType(Lead)}
-          {/* Both layouts are in the markup and CSS picks one, so a phone does not reflow after hydration. */}
-          <Box sx={{ display: { xs: 'none', sm: 'contents' } }}>{[...panelSlots, ...others]}</Box>
-          {ofType(View)}
           {hasPanel ? (panelIconOnly
             ? <IconButton aria-label={buttonLabel} {...panelButton}
                           sx={{ ...phoneOnly, width: 44, height: 44, bgcolor: 'action.hover', color: 'common.white' }}>
@@ -297,6 +307,11 @@ const Toolbar = ({
                       sx={{ ...phoneOnly, whiteSpace: 'nowrap' }}>
               {buttonLabel}
             </Button>) : null}
+          {/* Both layouts are in the markup and CSS picks one, so a phone does not reflow after hydration. */}
+          <Box sx={{ display: { xs: 'none', sm: 'contents' } }}>{[...shows, ...filters, ...others]}</Box>
+          <Box sx={{ flex: 1, display: { xs: views.length ? 'block' : 'none', sm: 'block' } }}/>
+          <Box sx={{ display: { xs: 'none', sm: 'contents' } }}>{sorts}</Box>
+          {views}
         </Stack>
         {narrowing.length ? <Stack direction="row" gap={1} alignItems="center" flexWrap="wrap" sx={{ mt: 1.5 }}>
           {/* A line of its own on a phone, so Reset never wraps alone after the tokens. */}

@@ -210,12 +210,8 @@ const Stamps = () => {
         {stampsFailed ? null : <Toolbar state={view} defaults={STAMPS_TOOLBAR} onChange={setView} onReset={resetView}
                                         total={allStates.length} shown={shownCount} noun={'stamps'}
                                         onStickyBottom={setStickyTop}>
-          <Toolbar.Lead>
-            <Box sx={{ display: 'flex', alignItems: 'center', height: 40 }}>
-              <InfoButton label={'Out of reach'}>{`An out of reach stamp costs more than your best carry capacity even at the ${MAX_STAMP_REDUCTION}% reducer cap, so no reducer unlocks it. Being short on the material itself is Short on materials.`}</InfoButton>
-            </Box>
-          </Toolbar.Lead>
-          <Toolbar.Show options={[['all', 'All stamps', allStates.length], ...STAMP_STATES.map(([key, label]) => [key, label, counts[key]])]}/>
+          <Toolbar.Show options={[['all', 'All stamps', allStates.length], ...STAMP_STATES.map(([key, label]) => [key, label, counts[key],
+            key === 'impossible' ? `An out of reach stamp costs more than your best carry capacity even at the ${MAX_STAMP_REDUCTION}% reducer cap, so no reducer unlocks it. Being short on the material itself is Short on materials.` : undefined])]}/>
         </Toolbar>}
         {pickedStamp ? <Panel icon={<GameIcon src={`data/${pickedStamp.rawName}.png`} size={24} alt={''}
                                               frame={pickedStamp.exalted ? 'etc/Exalted_Stamp_Frame.png' : undefined}/>}
