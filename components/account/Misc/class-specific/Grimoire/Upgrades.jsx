@@ -14,26 +14,27 @@ import { cleanUpgradeName } from '@utility/goals/registry/names';
 const UPGRADES_TOOLBAR = { search: '', sort: null, hideMaxed: false, hideLocked: false };
 const byCost = (order) => (a, b) => (order === 'desc' ? -1 : 1) * ((a.cost || 0) - (b.cost || 0));
 
-// costing: the page's Levels ahead and Daily Shopping Spree (its Page settings)
-const Upgrades = ({ account, upgrades, bones, costing }) => {
+// costing: the page's Levels ahead and Daily Shopping Spree (its Page settings). sectionFailed: the catalog at zero
+// (the parser's empty save) by name, with no cost, state or Toolbar.
+const Upgrades = ({ account, upgrades, bones, costing, sectionFailed }) => {
   const { levelsAhead = 1, forceLegendTalent, isOverridden } = costing ?? {};
   const [view, setView, resetView] = useToolbarState('grimoire-upgrades', UPGRADES_TOOLBAR);
   // A failed grimoire section has no list: an empty catalog, not a crash
   const catalog = upgrades ?? [];
-  const shown = catalog.filter((upgrade) => matchesUpgradeSearch(upgrade, view?.search)
+  const shown = sectionFailed ? catalog : catalog.filter((upgrade) => matchesUpgradeSearch(upgrade, view?.search)
     && !(view?.hideMaxed && upgrade.level >= upgrade.x4)
     && !(view?.hideLocked && !upgrade.unlocked));
   const sorted = view?.sort ? shown.toSorted(byCost(view.sort.order)) : shown;
 
   return (
     <Stack direction="column" gap={4}>
-      <Toolbar state={view} defaults={UPGRADES_TOOLBAR} onChange={setView} onReset={resetView}
+      {sectionFailed ? null : <Toolbar state={view} defaults={UPGRADES_TOOLBAR} onChange={setView} onReset={resetView}
                total={catalog.length} shown={shown.length} noun={'upgrades'}>
         <Toolbar.Search placeholder={'Search upgrades'}/>
         <Toolbar.Sort options={[['cost', 'Cost', 'asc']]}/>
         <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
         <Toolbar.Filter name={'hideLocked'} label={'Hide locked'}/>
-      </Toolbar>
+      </Toolbar>}
       {sorted.length ? <CardGrid size={'m'}>
         {sorted.map((upgrade) => {
           const { name, cost, description, monsterProgress, boneType, unlockLevel, level, unlocked, x4, index } = upgrade;
@@ -58,7 +59,8 @@ const Upgrades = ({ account, upgrades, bones, costing }) => {
                                          targetLevel={targetLevel}
                                          targetCost={targetCost}
                                          unlockText={unlockLevel > 0 ? `Unlocks at ${formatNum(unlockLevel)} levels` : null}
-                                         unlocked={unlocked}/>;
+                                         unlocked={unlocked}
+                                         catalogOnly={sectionFailed}/>;
         })}
       </CardGrid> : null}
     </Stack>

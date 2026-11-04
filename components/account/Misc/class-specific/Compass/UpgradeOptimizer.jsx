@@ -12,10 +12,11 @@ const getGamePositions = (account) => {
   return positions;
 };
 
-const UpgradeOptimizer = ({ character, account }) => {
+const UpgradeOptimizer = ({ character, account, sectionFailed }) => {
   const gamePositions = getGamePositions(account);
   return <GenericUpgradeOptimizer
     character={character}
+    sectionFailed={sectionFailed}
     account={account}
     getOptimizedUpgradesFn={getOptimizedUpgrades}
     upgradeCategories={UPGRADE_CATEGORIES}

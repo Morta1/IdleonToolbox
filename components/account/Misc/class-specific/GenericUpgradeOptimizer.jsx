@@ -100,7 +100,10 @@ const GenericUpgradeOptimizer = ({
   // The game's rule for this system's costs (gameNotation), so a step's cost reads as the upgrade cards' beside it
   costGame = 'Big',
   // Whose plan this is, for the note when the account has no such character (Wind Walker, Death Bringer...)
-  characterLabel = 'character'
+  characterLabel = 'character',
+  // The caller's section failed to load: its note is the page's first element, and the plan, which would rest on
+  // nothing, draws nothing (no settings, no empty note)
+  sectionFailed = false
 }) => {
   const { state } = useContext(AppContext);
   // Stat keys are camelCase; the fallback spaces them out so "pearlGain" reads as "Pearl Gain".
@@ -644,6 +647,7 @@ const GenericUpgradeOptimizer = ({
     surface={'card'}
   />;
 
+  if (sectionFailed) return null;
   return (
     <Stack gap={3}>
       {/* The plan's settings: a tool's inputs stay on its tab, beside the plan they change (the owner's rule) */}

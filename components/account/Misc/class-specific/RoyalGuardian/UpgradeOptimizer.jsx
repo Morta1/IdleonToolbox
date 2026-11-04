@@ -7,9 +7,10 @@ import {
   ROYAL_RESOURCE_NAMES
 } from '@parsers/class-specific/royalGuardian';
 
-const UpgradeOptimizer = ({ character, account }) => (
+const UpgradeOptimizer = ({ character, account, sectionFailed }) => (
   <GenericUpgradeOptimizer
     character={character}
+    sectionFailed={sectionFailed}
     account={account}
     getOptimizedUpgradesFn={getOptimizedArmoryUpgrades}
     upgradeCategories={ARMORY_UPGRADE_CATEGORIES}

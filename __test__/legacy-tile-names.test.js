@@ -15,7 +15,6 @@ const LEGACY_IMPORTERS = [
   'components/account/Misc/class-specific/RoyalGuardian/RoyalStatues.jsx',
   'components/account/Misc/class-specific/Tesseract/Maps.jsx',
   'components/account/Pets/PetMart.jsx',
-  'pages/account/class-specific/grimoire.jsx',
   'pages/account/class-specific/royal-armory.jsx',
   'pages/account/class-specific/speedrun.jsx',
   'pages/account/class-specific/tesseract.jsx',

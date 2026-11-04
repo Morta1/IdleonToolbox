@@ -2,9 +2,10 @@ import React from 'react';
 import GenericUpgradeOptimizer from '../GenericUpgradeOptimizer';
 import { getOptimizedTesseractUpgrades, TESSERACT_UPGRADE_CATEGORIES, tachyonNames } from '@parsers/class-specific/tesseract';
 
-const UpgradeOptimizer = ({ character, account }) => (
+const UpgradeOptimizer = ({ character, account, sectionFailed }) => (
   <GenericUpgradeOptimizer
     character={character}
+    sectionFailed={sectionFailed}
     account={account}
     getOptimizedUpgradesFn={getOptimizedTesseractUpgrades}
     upgradeCategories={TESSERACT_UPGRADE_CATEGORIES}

@@ -1,86 +1,39 @@
-
-import { Card, CardContent, Divider, Stack, Typography, Select, MenuItem, FormControl, InputLabel } from '@mui/material';
-import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
-import React, { useState } from 'react';
+import React from 'react';
+import { Stack } from '@mui/material';
+import { cleanUnderscore } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { boneNames } from '@parsers/class-specific/grimoire';
-import { monsterImage } from '@utility/spriteImages';
+import { monsterSprite } from '@utility/spriteImages';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+
+const MONSTERS_TOOLBAR = { bone: 'all' };
 
 const Monsters = ({ monsters }) => {
-  const [selectedBoneType, setSelectedBoneType] = useState('');
-
-  const filterMonsters = (list) => {
-    if (selectedBoneType === '') return list;
-    return list.filter(monster => monster.boneType === parseInt(selectedBoneType));
-  };
-
-  const filteredMonsters = filterMonsters(monsters);
-
-  return <>
-    <Stack direction="column" gap={2}>
-      <FormControl size="small" sx={{ width: 250, mb: 2 }}>
-        <InputLabel id="bone-type-select-label">Filter by Bone Type</InputLabel>
-        <Select
-          labelId="bone-type-select-label"
-          id="bone-type-select"
-          value={selectedBoneType}
-          label="Filter by Bone Type"
-          onChange={(e) => setSelectedBoneType(e.target.value)}
-        >
-          <MenuItem value="">All Bone Types</MenuItem>
-          {boneNames.map((name, index) => (
-            <MenuItem key={index} value={index}>
-              <Stack direction="row" gap={1} alignItems="center">
-                <img
-                  style={{ width: 24, height: 24, objectPosition: '0 -6px' }}
-                  src={`${prefix}data/Bone${index}_x1.png`} alt=""/>
-                {name}
-              </Stack>
-            </MenuItem>
-          ))}
-        </Select>
-      </FormControl>
-
-      <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
-        {filteredMonsters?.map(({
-                                  Name,
-                                  description = '',
-                                  boneType,
-                                  boneQuantity
-                                }, index) => {
-          return (
-            <Card key={Name + index}>
-              <CardContent
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  width: 300,
-                  minHeight: 76
-                }}
-              >
-                <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center"
-                       sx={{ position: 'relative' }}>
-                  <img style={{ width: 41, height: 41, objectFit: 'contain' }}
-                       src={monsterImage(Name)} alt={Name}/>
-                  <Stack>
-                    <Typography>{cleanUnderscore(Name)}</Typography>
-                    <Typography variant={'caption'}>{description ? `(${description})` : ''}</Typography>
-                  </Stack>
-                </Stack>
-                <Divider sx={{ my: 1 }}/>
-                <Stack sx={{ width: '100%' }} direction={'row'} alignItems={'center'} gap={2}>
-                  <Stack direction={'row'} alignItems="center" sx={{ ml: 'auto' }}>
-                    <Typography variant={'body1'}>{numberWithCommas(Math.floor(boneQuantity))}</Typography>
-                    <img style={{ width: 42, height: 42, marginTop: -15 }}
-                         src={`${prefix}data/Bone${boneType}_x1.png`} alt=""/>
-                  </Stack>
-                </Stack>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </Stack>
-    </Stack>
-  </>
+  const [view, setView, resetView] = useToolbarState('grimoire-monsters', MONSTERS_TOOLBAR);
+  // A failed grimoire section has no list: an empty catalog, not a crash
+  const catalog = monsters ?? [];
+  const shown = view?.bone === 'all' ? catalog : catalog.filter(({ boneType }) => `${boneType}` === view?.bone);
+  return <Stack gap={3}>
+    <Toolbar state={view} defaults={MONSTERS_TOOLBAR} onChange={setView} onReset={resetView}
+             total={catalog.length} shown={shown.length} noun={'monsters'}>
+      <Toolbar.Show name={'bone'} options={[['all', 'All bones', catalog.length],
+        ...boneNames.map((name, index) => [`${index}`, name, catalog.filter(({ boneType }) => boneType === index).length])]}/>
+    </Toolbar>
+    {shown.length ? <CardGrid size={'s'}>
+      {shown.map(({ Name, description, boneType, boneQuantity }, index) => <ItemCard
+        key={`${Name}-${index}`} icon={monsterSprite(Name)} title={cleanUnderscore(Name ?? '')}
+        meta={description ? cleanUnderscore(description) : undefined}>
+        <ItemCard.Facts rows={[['Bones per kill', <Stack key={'bones'} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
+          {formatGame(boneQuantity ?? 0, 'Summoning.GrimoireBoneQTYbase')}
+          <GameIcon src={`data/Bone${boneType}_x1.png`} size={16} alt={boneNames[boneType] ?? ''}/>
+        </Stack>]]}/>
+      </ItemCard>)}
+    </CardGrid> : null}
+  </Stack>;
 };
 
 export default Monsters;

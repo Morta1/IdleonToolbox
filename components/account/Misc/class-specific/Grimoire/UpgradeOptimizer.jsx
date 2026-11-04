@@ -2,9 +2,10 @@ import React from 'react';
 import GenericUpgradeOptimizer from '../GenericUpgradeOptimizer';
 import { getOptimizedGrimoireUpgrades, GRIMOIRE_UPGRADE_CATEGORIES, boneNames } from '@parsers/class-specific/grimoire';
 
-const UpgradeOptimizer = ({ character, account, fishingEfficiency }) => (
+const UpgradeOptimizer = ({ character, account, fishingEfficiency, sectionFailed }) => (
   <GenericUpgradeOptimizer
     character={character}
+    sectionFailed={sectionFailed}
     account={account}
     getOptimizedUpgradesFn={getOptimizedGrimoireUpgrades}
     upgradeCategories={GRIMOIRE_UPGRADE_CATEGORIES}

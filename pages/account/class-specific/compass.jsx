@@ -128,7 +128,7 @@ const Compass = () => {
     <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'compass')}>
       <Upgrades account={state?.account} upgrades={catalog?.groupedUpgrades ?? groupedUpgrades} dusts={dusts} costing={costing}
                 sectionFailed={sectionFailed}/>
-      <UpgradeOptimizer character={selectedWindWalker} account={state?.account}/>
+      <UpgradeOptimizer character={selectedWindWalker} account={state?.account} sectionFailed={sectionFailed}/>
       <Abominations abominations={catalog?.abominations ?? abominations} sectionFailed={sectionFailed}/>
       <Medallions medallions={catalog?.medallions ?? medallions} totalAcquiredMedallions={totalAcquiredMedallions}
                   abominations={catalog?.abominations ?? abominations} sectionFailed={sectionFailed}/>
