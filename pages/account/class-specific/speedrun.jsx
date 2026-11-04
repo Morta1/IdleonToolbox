@@ -14,6 +14,15 @@ import { formatDuration, formatNum } from '@utility/helpers';
 import Portals from '@components/account/Misc/class-specific/Speedrun/Portals';
 import Bosses from '@components/account/Misc/class-specific/Speedrun/Bosses';
 
+// The portal progress tree with its Kill per kill line, and any group holding it, read "-"
+const dashKillPerKill = (nodes) => (nodes ?? []).map((node) => {
+  if (!node?.children) return node?.name === 'Kill per kill' ? { ...node, formatted: '-' } : node;
+  const children = dashKillPerKill(node.children);
+  return children.some((child, index) => child !== node.children[index] && child?.formatted === '-')
+    ? { ...node, children, formatted: '-' }
+    : { ...node, children };
+});
+
 const Speedrun = () => {
   const { state } = useContext(AppContext);
   const sectionFailed = isSectionFailed(state?.account, 'speedrun');
@@ -46,10 +55,16 @@ const Speedrun = () => {
   const progress = getPortalProgressBreakdown(state?.account, killPerKill?.value ?? 1);
   // Each drawer is named and headed as its tile reads
   const killPerKillText = formatNum(killPerKill?.value ?? 1, 'mult');
-  const progressText = formatNum(progress?.perKill ?? 0);
   const damageText = formatNum(playerInfo?.maxDamage ?? 0);
   // "-" marks a tile the missing Voidwalker feeds
   const ofVoidwalker = (value) => (selectedVoidwalker ? value : '-');
+  // With no Voidwalker the progress rests on a stand-in kill per kill of 1: the tile, the drawer's heading, its Kill per
+  // kill line and the group that line sums into all dash, as the Kill per kill tile does. A list: no share of a total
+  // that is not there.
+  const progressText = ofVoidwalker(formatNum(progress?.perKill ?? 0));
+  const progressBreakdown = progress?.breakdown && !selectedVoidwalker
+    ? { ...progress.breakdown, combine: 'list', tree: dashKillPerKill(progress.breakdown.tree) }
+    : progress?.breakdown;
 
   return <>
     <NextSeo
@@ -91,7 +106,7 @@ const Speedrun = () => {
       <StatTile label={'Kill per kill'} value={ofVoidwalker(killPerKillText)} breakdownTitle={'Kill per kill'}
                 breakdown={killPerKill?.breakdown ? { ...killPerKill.breakdown, totalValue: killPerKillText } : undefined}/>
       <StatTile label={'Portal progress per kill'} value={progressText} breakdownTitle={'Portal progress per kill'}
-                breakdown={progress?.breakdown ? { ...progress.breakdown, totalValue: progressText } : undefined}/>
+                breakdown={progressBreakdown ? { ...progressBreakdown, totalValue: progressText } : undefined}/>
       <StatTile label={'Multikill tiers'} value={ofVoidwalker(formatNum(playerInfo?.multiKillTiers ?? 0))}/>
       <StatTile label={'Damage'} value={ofVoidwalker(damageText)} breakdownTitle={'Damage'}
                 breakdown={playerInfo?.damageBreakdown ? { ...playerInfo.damageBreakdown, totalValue: damageText } : undefined}/>
