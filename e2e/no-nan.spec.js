@@ -46,7 +46,7 @@ const ALLOWED_UNDEFINED_TEXT = new Set([
 ]);
 
 const ALLOWED_INFINITY_TEXT = new Set([
-  'Infinity hammer',
+  'Infinity Hammer',
   // A patch note describing an Infinity bug, same as the NaN entries above: the word is the
   // subject of the sentence, not a value that leaked onto the page.
   'Sneaking: a weapon past level 110 showed an Infinity stat instead of its real value',
