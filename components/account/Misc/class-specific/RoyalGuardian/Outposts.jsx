@@ -222,7 +222,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
             {connectedNodes.map((node) => <IconTile key={node.index} icon={`data/${node.rawName}.png`} alt={`Node ${node.index}`}
                                                     status={node.exhausted ? 'dim' : undefined}
                                                     details={node.exhausted
-                                                      ? `Node ${node.index}: empty, it pays nothing until a restock refills it`
+                                                      ? `Node ${node.index}: spent, it pays nothing until a restock refills it`
                                                       : `Node ${node.index}: ${formatGame(node.collected ?? 0, 'RoyalG.ArmoryUpgCost')} / ${formatGame(node.maxQuantity ?? 0, 'RoyalG.ArmoryUpgCost')} collected`}/>)}
           </CardGrid>
           : <Typography variant={'body2'} color={'text.secondary'}>Not connected to any resource</Typography>}

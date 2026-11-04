@@ -213,11 +213,12 @@ const KingdomMap = ({ outposts, resources }) => {
             <Stack direction="row" gap={1} alignItems="center">
               <NodeIcon node={focusedNode} size={28}/>
               <Stack direction="column">
+                {/* A spent node's save holds -1, read as 0 collected: it says so in words, with no pair */}
                 <Typography variant="cardTitle" component="div">
-                  {`${amount(focusedNode.collected)} / ${amount(focusedNode.maxQuantity)} collected`}
+                  {focusedNode.exhausted ? 'Spent' : `${amount(focusedNode.collected)} / ${amount(focusedNode.maxQuantity)} collected`}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {`Node ${focusedNode.index} · Lv ${formatNum(focusedNode.nodeLevel)} · ${formatNum(Math.round(100 * focusedNode.fillPercent))}% spent`}
+                  {`Node ${focusedNode.index} · Lv ${formatNum(focusedNode.nodeLevel)}${focusedNode.exhausted ? '' : ` · ${formatNum(Math.round(100 * focusedNode.fillPercent))}% spent`}`}
                 </Typography>
               </Stack>
             </Stack>
@@ -242,7 +243,7 @@ const KingdomMap = ({ outposts, resources }) => {
               : null}
             {focusedNode.exhausted
               ? <Typography variant="caption" sx={{ display: 'block', color: 'text.warning' }}>
-                Empty: it pays nothing until a restock refills it.
+                It pays nothing until a restock refills it.
               </Typography>
               : null}
           </Paper>
@@ -347,7 +348,7 @@ const KingdomMap = ({ outposts, resources }) => {
         ))}
         <Stack direction="row" gap={0.75} alignItems="center">
           <Box sx={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: 'text.primary', opacity: 0.35 }}/>
-          <Typography variant="caption">Faded: empty node</Typography>
+          <Typography variant="caption">Faded: spent node</Typography>
         </Stack>
         <Stack direction="row" gap={0.5} alignItems="center">
           <Typography variant="body2">Click an outpost or a node to pin it</Typography>
@@ -454,7 +455,7 @@ const KingdomMap = ({ outposts, resources }) => {
                     ? <circle cx={node.anchorX} cy={node.anchorY} r={18} fill="none" stroke="currentColor"
                               strokeWidth={2} opacity={0.8}/>
                     : null}
-                  {/* Empty nodes are simply faded: a node with resource left keeps its full colour. */}
+                  {/* Spent nodes are simply faded: a node with resource left keeps its full colour. */}
                   <image href={`${prefix}data/${node.rawName}.png`} x={node.anchorX - 12} y={node.anchorY - 12}
                          width={24} height={24}
                          style={node.exhausted ? { filter: 'grayscale(1)', opacity: 0.35 } : undefined}/>

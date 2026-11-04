@@ -31,7 +31,7 @@ const Resources = ({ resources, outposts, resourcePerHour, sectionFailed }) => {
     && !(view?.hideUnused && node.empty)
     && !(view?.unconnected && node.connected));
 
-  // An empty node pays nothing until a restock refills it, which is the one thing here that
+  // A spent node pays nothing until a restock refills it, which is the one thing here that
   // costs the player something right now.
   const exhaustedNodes = list.filter(({ exhausted, empty }) => exhausted && !empty).length;
   const unconnected = list.filter(({ connected, empty }) => !connected && !empty).length;
@@ -48,7 +48,7 @@ const Resources = ({ resources, outposts, resourcePerHour, sectionFailed }) => {
     <Stack direction="column" gap={3}>
       <Stack direction="row" gap={2} flexWrap="wrap">
         <StatTile label={'Nodes'} value={tile(formatNum(list.filter(({ empty }) => !empty).length))}/>
-        <StatTile label={'Empty nodes'} value={tile(formatNum(exhaustedNodes))}/>
+        <StatTile label={'Spent nodes'} value={tile(formatNum(exhaustedNodes))}/>
         <StatTile label={'Unconnected'} value={tile(formatNum(unconnected))}/>
         <StatTile label={'Total node levels'} value={tile(formatNum(list.reduce((sum, { nodeLevel }) => sum + (nodeLevel ?? 0), 0)))}/>
       </Stack>
@@ -82,10 +82,11 @@ const Resources = ({ resources, outposts, resourcePerHour, sectionFailed }) => {
                 : outposts?.find((outpost) => outpost.mapIndex === mapIndex)?.name || `map ${mapIndex}`));
               return <ItemCard key={index} icon={empty ? undefined : `data/${rawName}.png`}
                                title={empty ? 'Unused slot' : `Node ${index}`} meta={`Lv ${formatNum(nodeLevel ?? 0)}`}
-                               status={!empty && exhausted ? 'needs' : undefined} statusLabel={'Empty'}>
+                               status={!empty && exhausted ? 'needs' : undefined} statusLabel={'Spent'}>
                 {empty ? null : <>
-                  <ItemCard.Progress label={'Collected'} percent={100 * (fillPercent ?? 0)}
-                                     value={amount(collected)} max={amount(maxQuantity)}/>
+                  {/* A spent node's save holds -1, which the parser reads as 0 collected: the pair would say untouched */}
+                  {exhausted ? null : <ItemCard.Progress label={'Collected'} percent={100 * (fillPercent ?? 0)}
+                                                         value={amount(collected)} max={amount(maxQuantity)}/>}
                   <ItemCard.Facts rows={[
                     hoursToEmpty != null ? ['Empties in', formatDuration(hoursToEmpty * 3600)] : null,
                     ['In storage', amount(stored)]
