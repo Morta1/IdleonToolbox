@@ -83,7 +83,7 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
       key: 'name',
       label: 'Name',
       value: (row) => entityName(row.other),
-      icon: (row) => <EntityIcon node={row.other} size={32}/>,
+      icon: (row) => <EntityIcon node={row.other} size={24}/>,
       render: (row) => <RowName row={row} hrefFor={hrefFor} onNavigate={onNavigate}/>
     },
     ...(anyQuantity ? [{

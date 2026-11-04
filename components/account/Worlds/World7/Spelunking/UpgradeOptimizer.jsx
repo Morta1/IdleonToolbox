@@ -280,7 +280,7 @@ const UpgradeOptimizer = ({ character, account }) => {
     {
       key: 'name',
       label: 'Name',
-      icon: (upgrade) => <GameIcon src={`data/CaveShopUpg${upgrade.originalIndex}.png`} alt={''} size={32}/>,
+      icon: (upgrade) => <GameIcon src={`data/CaveShopUpg${upgrade.originalIndex}.png`} alt={''} size={24}/>,
       render: (upgrade) => cleanUpgradeName(upgrade.name)
     },
     ...(optimizationCategory === 'All' ? [{ key: 'category', label: 'Category', render: (upgrade) => upgrade.category || 'Unknown' }] : []),

@@ -36,7 +36,7 @@ const Location = ({ location, mapIndex }) => {
   const mob = mobOf(mapIndex);
   const world = Number.isInteger(mapIndex) ? Math.floor(mapIndex / 50) + 1 : null;
   return <Stack spacing={0.25}>
-    <span>{location === 'End_Of_The_Road' ? cleanUnderscore(location) + ' *' : cleanUnderscore(location)}</span>
+    <Box component={'span'} sx={{ fontWeight: 500 }}>{location === 'End_Of_The_Road' ? cleanUnderscore(location) + ' *' : cleanUnderscore(location)}</Box>
     {world || mob ? <Typography variant={'caption'} color={'text.secondary'} component={'div'}
                                 sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', columnGap: 0.5 }}>
       {world ? <span>{`World ${world}`}</span> : null}
@@ -75,7 +75,7 @@ const ConstellationsComp = ({ constellations = [], characters = [], sectionFaile
     {
       key: 'name',
       label: 'Name',
-      icon: ({ rawIndex }) => (rawIndex == null ? null : <GameIcon src={`etc/Constellation_${rawIndex}.png`} size={32} alt={''}/>),
+      icon: ({ rawIndex }) => (rawIndex == null ? null : <GameIcon src={`etc/Constellation_${rawIndex}.png`} size={24} alt={''}/>),
       // nowrap: "A-10" broke at its hyphen at 1920
       render: ({ name }) => <Link component={'button'} variant={'body2'} color={'inherit'} textAlign={'left'}
                                   sx={{ whiteSpace: 'nowrap' }} onClick={() => openWikiEntity(`constellation:${name}`)}>{cleanUnderscore(name)}</Link>
@@ -84,6 +84,7 @@ const ConstellationsComp = ({ constellations = [], characters = [], sectionFaile
       key: 'progress',
       label: 'Progress',
       numeric: true,
+      align: 'left',
       sortable: !sectionFailed,
       sortValue: (row) => ({ done: 2, ready: 1 })[stateOf(row)] ?? (row?.completedChars?.length ?? 0) / (row?.requiredPlayers || 1),
       render: (row) => (sectionFailed ? null

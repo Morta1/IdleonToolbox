@@ -268,7 +268,7 @@ const CappedRank = ({ rank }) => <Box component={'span'} sx={{ display: 'inline-
 const SALT_COLUMNS = [
   {
     key: 'salt', label: 'Salt', sortable: true, value: (salt) => cleanUnderscore(salt.saltName),
-    icon: (salt) => <GameIcon src={`data/${salt.rawName}.png`} alt={''} size={32} status={salt.unlocked ? undefined : 'missing'}/>
+    icon: (salt) => <GameIcon src={`data/${salt.rawName}.png`} alt={''} size={24} status={salt.unlocked ? undefined : 'missing'}/>
   },
   { key: 'rank', label: 'Rank', numeric: true, sortable: true, value: (salt) => salt.rank,
     render: (salt) => formatNum(salt.rank) },
@@ -306,12 +306,9 @@ const SALT_COLUMNS = [
 
 const SaltChainSummary = ({ balances }) => {
   if (!balances?.length) return null;
-  // Below md the table hides columns behind chevrons, so it takes the column's width, as the cost tables under it do.
-  return <Box sx={{ width: { xs: '100%', md: 'fit-content' }, maxWidth: '100%' }}>
-    <DataTable columns={SALT_COLUMNS} rows={balances} rowKey={'rawName'}
-               rowLabel={(salt) => cleanUnderscore(salt.saltName)}
-               muted={(salt) => (salt.unlocked ? null : 'Locked')} surface={'card'}/>
-  </Box>;
+  return <DataTable columns={SALT_COLUMNS} rows={balances} rowKey={'rawName'}
+                    rowLabel={(salt) => cleanUnderscore(salt.saltName)}
+                    muted={(salt) => (salt.unlocked ? null : 'Locked')} surface={'card'}/>;
 }
 
 // A cost cell: the amount, "short" when the stock and what comes in can't cover it, and with Show next level cost on,
@@ -334,7 +331,7 @@ const costColumn = (key, label) => ({
 const COST_COLUMNS = [
   {
     key: 'material', label: 'Material', value: ({ name }) => cleanUnderscore(name),
-    icon: ({ rawName }) => <GameIcon src={`data/${rawName}.png`} alt={''} size={32}/>
+    icon: ({ rawName }) => <GameIcon src={`data/${rawName}.png`} alt={''} size={24}/>
   },
   costColumn('cycle', 'Cycle'),
   costColumn('hour', 'Hour'),

@@ -102,7 +102,9 @@ const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onN
     cellSx: column.type === 'cost' ? COST : column.type === 'effect' ? EFFECT : undefined,
     render: (entry) => cellContent(column, entry.cells?.[i] ?? null, labelOf)
   }));
+  // The listing's Toolbar holds the phone's Sort
   return <DataTable
+    sortField={false}
     columns={[name, ...data]}
     bands={bands.map((band, bandIndex) => ({
       key: band.key,

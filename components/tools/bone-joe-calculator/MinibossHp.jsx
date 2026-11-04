@@ -126,7 +126,7 @@ const MinibossHp = ({
             {
               key: 'miniboss', label: 'Miniboss', value: ({ name }) => cleanUnderscore(name),
               // monsterImage returns a full URL, which GameIcon would prefix a second time.
-              icon: ({ name }) => <img src={monsterImage(name)} alt="" width={32} height={32} style={{ objectFit: 'contain' }}/>
+              icon: ({ name }) => <img src={monsterImage(name)} alt="" width={24} height={24} style={{ objectFit: 'contain' }}/>
             },
             // A phone keeps HP, the number the pickles change.
             { key: 'baseHp', label: 'Base HP', numeric: true, render: ({ baseHp }) => notateNumber(baseHp, 'Big') },

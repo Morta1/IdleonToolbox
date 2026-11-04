@@ -24,7 +24,7 @@ const statueSentence = (description) => cleanText(`${description ?? ''}`.replace
 const flairColumns = (statueFlair) => [
   {
     key: 'marble', label: 'Marble', value: ({ name }) => cleanUnderscore(name),
-    icon: ({ costItem }) => <GameIcon src={`data/${costItem}.png`} alt={''} size={32}/>
+    icon: ({ costItem }) => <GameIcon src={`data/${costItem}.png`} alt={''} size={24}/>
   },
   { key: 'owned', label: 'Owned', numeric: true, value: ({ owned }) => owned, render: ({ owned }) => formatGame(owned ?? 0, 'RoyalG.SF_weOwn') },
   { key: 'left', label: 'Statues left', numeric: true, value: ({ statuesLeft }) => statuesLeft },

@@ -23,6 +23,7 @@ import {
   visibleRows
 } from './layout';
 import useStickyHeader from './useStickyHeader';
+import SortField from './SortField';
 
 // One table for rows of numbers people compare (Tables board). columns[0] is the row's name: always shown,
 // left-aligned, `icon` beside it. The rest are data columns: `numeric` ones right-align in tabular figures.
@@ -39,13 +40,15 @@ import useStickyHeader from './useStickyHeader';
 // content under an opened row at every width (a per-row calculator), after the columns the phone hides; a column
 // with `details: false` stays out of that list (the detail slot already says it). `from` is the window width (a
 // breakpoint key, or px) where a column the phone hides joins the row: sm for the secondary column, md for the rest.
-// `stickyTop` is where the page's sticky toolbar ends: a long table's header sticks there.
+// `stickyTop` is where the page's sticky toolbar ends: a long table's header sticks there. A table that hides columns
+// on a phone and has sortable ones draws a Sort field over itself there, or `sortField={false}` where the page's Toolbar
+// already holds one. `align: 'left'` keeps a number column to the left, beside the name (Constellations' Progress).
 
 // A small table (fits) keeps the phone's tighter padding at every width: it often sits inside a 260 px note. A table
 // that brings its columns in at sm keeps it until md (tightUntilMd).
 const TIGHT = { px: 0.75 };
 const TIGHT_UNTIL_MD = { px: { xs: 0.75, md: 1.5 } };
-const cellStyle = (column, tight) => ({ ...(column.numeric ? NUM : CELL), ...tight, ...column.cellSx });
+const cellStyle = (column, tight) => ({ ...(column.numeric ? NUM : CELL), ...tight, ...(column.align === 'left' ? { textAlign: 'left' } : {}), ...column.cellSx });
 
 // A kind column (Numbers board) is a number column whose cell formats its value; a change always carries its sign.
 // A column with a value and no render prints the value. Null is the muted dash.
@@ -83,19 +86,22 @@ const dataCell = (column, i, row, context, mute, wordAt) => {
 // 2,405 rows, and a styled component per cell made "Show more" four times slower than the grid it replaced.
 // Separate borders, always: a stuck header cell keeps its line, and the table looks the same before and after
 // the header starts sticking.
-const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, surface, fits, withDetail, tight) => ({
+const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, surface, fits, withDetail, tight, iconned) => ({
   width: '100%',
   borderCollapse: 'separate',
   borderSpacing: 0,
   '& th.name': { ...HEAD, ...tight },
-  '& td.name': { ...CELL, ...tight },
-  '& .row-name': { display: 'flex', gap: 1, alignItems: 'center' },
+  // A row's name leads it (Tables board): 14/500
+  '& td.name': { ...CELL, ...tight, fontWeight: 500 },
+  '& td.name .MuiTypography-body2, & td.name .MuiLink-root': { fontWeight: 500 },
+  '& .row-name': { display: 'flex', gap: 1.25, alignItems: 'center' },
   '& a.row-link': { typography: 'body2', color: 'primary.main', textDecoration: 'none', '&:hover': { textDecoration: 'underline' } },
   '& .na': { color: 'text.muted' },
-  // A phone row is a 48 px touch target; a row with hidden columns opens them under it (Tables board, on a phone).
-  // With a detail slot every row opens at every width; otherwise only where the phone hides columns.
+  // A phone row is a 48 px touch target, a desktop row 41 (the board's 40 and its line); a row with hidden columns opens
+  // them under it (Tables board, on a phone). With a detail slot every row opens at every width; otherwise only where
+  // the phone hides columns. A small table inside a note keeps its own height.
   '& tr.row': {
-    height: { xs: 48, md: 'auto' },
+    height: { xs: 48, md: fits ? 'auto' : 41 },
     ...(expandable ? (withDetail ? { cursor: 'pointer' } : fromStyle('cursor', until, 'pointer', 'auto')) : {})
   },
   ...(expandable ? {
@@ -105,19 +111,20 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, 
     },
     '& thead td.expand': { borderColor: 'divider' },
     // One plain button styled once, not an IconButton per row (2,400 rows on Items). Its chevron is two
-    // borders of a square, turned down when closed and up when open.
+    // borders of a square, pointing right when closed and down when open.
     '& .expand-button': {
       display: 'flex', alignItems: 'center', justifyContent: 'center', width: 40, height: 40, p: 0,
       border: 0, bgcolor: 'transparent', color: 'text.secondary', cursor: 'pointer',
       '&::before': {
         content: '""', width: 8, height: 8, borderRight: '2px solid', borderBottom: '2px solid',
-        transform: 'translateY(-2px) rotate(45deg)'
+        transform: 'translateX(-2px) rotate(-45deg)'
       },
-      '&[aria-expanded="true"]::before': { transform: 'translateY(2px) rotate(225deg)' }
+      '&[aria-expanded="true"]::before': { transform: 'translateY(-2px) rotate(45deg)' }
     },
     '& tr.detail': withDetail ? { display: 'table-row' } : fromStyle('display', until, 'table-row', 'none'),
     '& tr.detail > td': { ...CELL, pt: 0 },
-    '& .detail-list': { m: 0, display: 'flex', flexDirection: 'column', gap: 0.5 },
+    // The details start under the name, past a row's 24 px icon and its 10 px gap
+    '& .detail-list': { m: 0, display: 'flex', flexDirection: 'column', gap: 0.5, ...(iconned ? { pl: '34px' } : {}) },
     // The hidden columns' list: each item only where its column hides (the column rules below), so the detail slot,
     // which opens at every width, lists nothing a row already shows.
     '& .detail-item': { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 2 },
@@ -147,7 +154,7 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, 
     const nowrap = tight !== TIGHT_UNTIL_MD && column.numeric && typeof column.label === 'string'
       && column.label.trim().split(/\s+/).length <= 2;
     return [
-      [`& th.col-${i}`, { ...HEAD, ...tight, ...(column.numeric ? { textAlign: 'right' } : {}), ...(nowrap ? { whiteSpace: 'nowrap' } : {}), ...display }],
+      [`& th.col-${i}`, { ...HEAD, ...tight, ...(column.numeric && column.align !== 'left' ? { textAlign: 'right' } : {}), ...(nowrap ? { whiteSpace: 'nowrap' } : {}), ...display }],
       [`& td.col-${i}`, { ...cellStyle(column, tight), ...display }],
       // Its item in the row's Details list leaves once the column shows in the row.
       ...(expandable && !phoneKeeps(column, i, primary) ? [[`& .detail-${i}`, fromStyle('display', columnFrom(column, i, secondary), 'flex', 'none')]] : [])
@@ -181,7 +188,7 @@ const HeadLabel = ({ column, sort, onSortChange }) => {
     direction={sort?.key === column.key ? sort?.order : firstOrder(column)}
     onClick={() => onSortChange?.(nextSort(sort, column))}
     // The arrow goes on the inner side, so a number heading lines up with the figures under it.
-    sx={column.numeric ? { flexDirection: 'row-reverse' } : undefined}
+    sx={column.numeric && column.align !== 'left' ? { flexDirection: 'row-reverse' } : undefined}
   >
     {column.label}
   </TableSortLabel> : column.label;
@@ -208,6 +215,7 @@ const DataTable = ({
                      surface = 'page',
                      fits = false,
                      detail,
+                     sortField = true,
                      sx
                    }) => {
   const [expanded, setExpanded] = useState({});
@@ -229,6 +237,7 @@ const DataTable = ({
   const expandable = !fits && (Boolean(detail) || data.some((column, i) => !phoneKeeps(column, i, primary)));
   const until = detailsUntil(data, primary, secondary);
   const tight = fits ? TIGHT : tightUntilMd(data, primary) ? TIGHT_UNTIL_MD : {};
+  const sortable = columns.filter((column) => column.sortable);
   // Where a locked row's word goes: the first data column a phone shows.
   const wordAt = Math.max(0, data.findIndex((column, i) => phoneKeeps(column, i, primary)));
   // The band whose Show more was just used: its first new row takes the focus once it mounts.
@@ -255,8 +264,10 @@ const DataTable = ({
   };
 
   return <>
+    {sortField && expandable && sortable.length ? <SortField columns={sortable} sort={sort} onChange={changeSort}
+                                                             sx={{ mb: 1, ...fromStyle('display', until, 'flex', 'none') }}/> : null}
     <Box ref={boxRef} sx={[{ overflowX: sticky ? 'visible' : 'auto' }, surface === 'card' ? cardSurface : null]}>
-      <Box component={'table'} ref={tableRef} sx={tableStyle(data, primary, secondary, sx, sticky ? stickyTop : null, expandable, until, surface, fits, Boolean(detail), tight)}>
+      <Box component={'table'} ref={tableRef} sx={tableStyle(data, primary, secondary, sx, sticky ? stickyTop : null, expandable, until, surface, fits, Boolean(detail), tight, Boolean(name.icon))}>
         <thead>
         <tr>
           {rankOf ? <th scope={'col'} className={'rank'}>#</th> : null}

@@ -193,7 +193,7 @@ const UpgradeOptimizer = () => {
     {
       key: 'name',
       label: 'Name',
-      icon: (upgrade) => <GameIcon src={`data/RankUpg${upgrade.index}.png`} alt={''} size={32}/>,
+      icon: (upgrade) => <GameIcon src={`data/RankUpg${upgrade.index}.png`} alt={''} size={24}/>,
       render: (upgrade) => {
         const capStatus = renderCapStatus(upgrade);
         return <span>{cleanUnderscore(upgrade.name)}{capStatus ? <> {capStatus}</> : null}</span>;

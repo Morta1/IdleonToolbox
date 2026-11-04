@@ -19,7 +19,7 @@ const expText = ({ expReward }) => formatGame(expReward?.value ?? 0, 'WorshipStu
 const COLUMNS = [
   {
     key: 'totem', label: 'Totem', value: totemName,
-    icon: ({ index }) => <GameIcon src={`etc/totem_${index}.png`} alt={''} size={32}/>
+    icon: ({ index }) => <GameIcon src={`etc/totem_${index}.png`} alt={''} size={24}/>
   },
   { key: 'map', label: 'Map', value: ({ map }) => cleanUnderscore(map) },
   { key: 'maxWave', label: 'Max wave', numeric: true, sortable: true, value: ({ maxWave }) => maxWave || 0, kind: 'amount' },

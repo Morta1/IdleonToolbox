@@ -141,7 +141,7 @@ const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
           columns={[
             {
               key: 'ninja', label: 'Ninja', value: ({ playerIndex }) => characters?.[playerIndex]?.name,
-              icon: ({ playerIndex }) => <GameIcon src={`data/ClassIcons${characters?.[playerIndex]?.classIndex}.png`} alt={''} size={32}/>
+              icon: ({ playerIndex }) => <GameIcon src={`data/ClassIcons${characters?.[playerIndex]?.classIndex}.png`} alt={''} size={24}/>
             },
             {
               key: 'level', label: 'Sneaking level', kind: 'amount', sortable: true,

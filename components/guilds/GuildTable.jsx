@@ -53,7 +53,7 @@ export default function GuildTable({ guilds, hoistedRows, showHoistedSection, is
       key: 'guild',
       label: 'Guild',
       value: (guild) => guild.guild_name,
-      icon: (guild) => (guild.tombstone ? null : <GameIcon src={`data/G2icon${guild.guild_icon}.png`} alt={''} size={32}/>),
+      icon: (guild) => (guild.tombstone ? null : <GameIcon src={`data/G2icon${guild.guild_icon}.png`} alt={''} size={24}/>),
       render: (guild) => <GuildName guild={guild} router={router}/>
     },
     { key: 'total_gp', label: 'Total GP', kind: 'amount', sortable: true, phone: true, value: (guild) => guild.total_gp },

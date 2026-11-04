@@ -62,7 +62,7 @@ const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti,
   const columns = [
     {
       key: 'character', label: 'Character', value: ({ character }) => character?.name,
-      icon: ({ character }) => <GameIcon src={`data/ClassIcons${character?.classIndex}.png`} alt={''} size={32}/>
+      icon: ({ character }) => <GameIcon src={`data/ClassIcons${character?.classIndex}.png`} alt={''} size={24}/>
     },
     {
       key: 'damage', label: 'Damage', numeric: true, phone: true,
