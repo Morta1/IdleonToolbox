@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Box } from '@mui/material';
 import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
-import { formatGame } from '@utility/gameNotation';
+import { clickerAmount, formatGame } from '@utility/gameNotation';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World2/Kangaroo/Upgrades';
@@ -37,14 +37,14 @@ const Kangaroo = () => {
     />
     {failed ? <MissingData name={'Kangaroo'} failed/> : null}
     <PageSummary>
-      <StatTile label={'Fish'} icon={'etc/KFish.png'} value={number(kangaroo?.totalFish, formatNum)}/>
+      <StatTile label={'Fish'} icon={'etc/KFish.png'} value={number(kangaroo?.totalFish, clickerAmount)}/>
       <StatTile label={'Fish per minute'} value={number(fishRate, formatNum)}/>
       <StatTile label={'Fish per hour'} value={number(fishRate * 60, formatNum)}/>
       <StatTile label={'Next upgrade'} value={!hasSave ? '-' : kangaroo?.nextLvReq > 0
         ? `${formatGame(kangaroo.progress, 'Summoning.RooNextUpgReq')} / ${formatGame(kangaroo.nextLvReq, 'Summoning.RooNextUpgReq')}`
         : <StatusText status={'done'}>All unlocked</StatusText>}/>
       <StatTile label={'Tar fish'} icon={'etc/KTar.png'}
-                value={number(kangaroo?.totalTarFishOwned, (value) => formatGame(value, 'Summoning.RooCost_T'))}/>
+                value={number(kangaroo?.totalTarFishOwned, clickerAmount)}/>
       <StatTile label={'Tar fish per hour'}
                 value={failed || !(kangaroo?.tarFishRate > 0) ? '-' : formatNum(3600 / kangaroo.tarFishRate)}/>
       <StatTile label={'Shiny progress'} icon={'etc/KShiny.png'}

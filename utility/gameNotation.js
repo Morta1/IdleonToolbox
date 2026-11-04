@@ -73,6 +73,13 @@ export const formatSystem = (value, kind = 'amount', system, options = {}) => {
 // other god floors to a tenth.
 export const minorBonusText = (bonus, isArctis) => (isArctis ? String(Math.ceil(bonus)) : formatGame(bonus, 'Divinity.DivMinorBonus'));
 
+// The game's Orion and Poppy screens (N.js, every cost and the feather, fish and tar fish balances): commas under 10M,
+// rounded up, Big from there. Summoning.OwlCost and Summoning.RooCost_T hold only the Big arm, and a fish cost has no key.
+export const clickerAmount = (value) => {
+  if (value == null || Number.isNaN(value)) return '-';
+  return 9999999 > value ? commaNotation(Math.ceil(value)) : String(notateNumber(value, 'Big'));
+};
+
 // A Tome entry's quantity, the game's fill: Big past 1e9 on a log curve (x2 1), two decimals on an x4 entry, commas
 // otherwise. One rule for the Tome's Overview and Rankings.
 export const tomeQuantity = ({ x2, x4 } = {}, quantity) => (quantity > 1e9 && x2 === 1

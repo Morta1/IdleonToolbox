@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Box } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
-import { formatGame } from '@utility/gameNotation';
+import { clickerAmount, formatGame } from '@utility/gameNotation';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -36,7 +36,7 @@ const Owl = () => {
     />
     {failed ? <MissingData name={'Owl'} failed/> : null}
     <PageSummary>
-      <StatTile label={'Feathers'} icon={'etc/Owlb_0.png'} value={failed ? '-' : formatGame(feathers, 'Summoning.OwlCost')}/>
+      <StatTile label={'Feathers'} icon={'etc/Owlb_0.png'} value={failed ? '-' : clickerAmount(feathers)}/>
       <StatTile label={'Feathers per second'} value={failed ? '-' : formatGame(featherRate, 'Summoning.OwlFeatherRate')}/>
       <StatTile label={'Feathers per hour'} value={failed ? '-' : formatGame(featherRate * 3600, 'Summoning.OwlFeatherRate')}/>
       <StatTile label={'Next upgrade'} value={!hasSave ? '-' : owl?.nextLvReq > 0
@@ -72,7 +72,7 @@ const Owl = () => {
                                                                                                footer={failed ? null : unlocked
                                                                                                  ? <ItemCard.Cost icon={'etc/Owlb_0.png'} iconAlt={'Feathers'}
                                                                                                                   need={cost} have={feathers}
-                                                                                                                  game={'Summoning.OwlCost'}/>
+                                                                                                                  format={clickerAmount}/>
                                                                                                  : <ItemCard.Facts rows={[['Unlocks at', `${formatGame(Number(x3), 'Summoning.OwlNextUpgReq')} feathers made`]]}/>}>
         <ItemCard.Desc text={cleanUnderscore(desc)}/>
       </ItemCard>)}

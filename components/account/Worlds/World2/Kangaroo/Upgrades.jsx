@@ -1,5 +1,5 @@
 import { cleanUnderscore, formatNum } from '@utility/helpers';
-import { formatGame } from '@utility/gameNotation';
+import { clickerAmount, formatGame } from '@utility/gameNotation';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 
@@ -19,10 +19,7 @@ const Upgrades = ({ upgrades, isTar, failed, fish, tarFish }) => <CardGrid size=
                                                                                         : <ItemCard.Cost icon={`etc/K${isTar ? 'Tar' : 'Fish'}.png`}
                                                                                                          iconAlt={isTar ? 'Tar fish' : 'Fish'}
                                                                                                          need={cost} have={isTar ? tarFish : fish}
-                                                                                                         {...(isTar
-                                                                                                           ? { game: 'Summoning.RooCost_T' }
-                                                                                                           // A fish cost has no gameNotation key
-                                                                                                           : { format: (value) => formatNum(value) })}/>}>
+                                                                                                         format={clickerAmount}/>}>
     <ItemCard.Desc text={cleanUnderscore(desc)}/>
   </ItemCard>)}
 </CardGrid>;
