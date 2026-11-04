@@ -2,7 +2,7 @@ import React from 'react';
 import { Stack } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { boneNames, getGrimoireTotalUpgradeCost } from '@parsers/class-specific/grimoire';
-import MasterclassUpgradeCard, { masterclassText } from '../MasterclassUpgradeCard';
+import MasterclassUpgradeCard, { masterclassText, unlockLine } from '../MasterclassUpgradeCard';
 import CardGrid from '@components/common/cards/CardGrid';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
@@ -58,7 +58,7 @@ const Upgrades = ({ account, upgrades, bones, costing, sectionFailed }) => {
                                          nextCost={nextCost}
                                          targetLevel={targetLevel}
                                          targetCost={targetCost}
-                                         unlockText={unlockLevel > 0 ? `Unlocks at ${formatNum(unlockLevel)} levels` : null}
+                                         unlockText={unlockLine(unlocked, unlockLevel)}
                                          unlocked={unlocked}
                                          catalogOnly={sectionFailed}/>;
         })}

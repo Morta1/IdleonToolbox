@@ -86,6 +86,15 @@ export const formatNextLevelBonus = (upgrade, system, raw) => {
   return `${next}${unit} (${formatNum(gap, 'amount', { signed: true, precise: true })}${unit})`;
 };
 
+// The owner's Upgrade Vault rule: a locked upgrade reads the total levels that open it, an unlocked one nothing
+export const unlockLine = (unlocked, totalLevels) => (!unlocked && totalLevels > 0
+  ? `Unlocks at ${formatNum(totalLevels)} total ${totalLevels === 1 ? 'level' : 'levels'}`
+  : null);
+
+// A "done / total" pair as the parser writes it in raw digits ("0 / 1332"), in the amount kind: "0 / 1,332"
+export const amountPair = (text) => `${text ?? ''}`.replace(/(\d+(?:\.\d+)?) \/ (\d+(?:\.\d+)?)/,
+  (_, done, total) => `${formatNum(Number(done))} / ${formatNum(Number(total))}`);
+
 // A masterclass sentence as the game draws it: the parser filled { and }, and the page fills $ where the toolbox
 // knows the number (Decision 6); a $ it cannot compute reads "?" rather than a sentence with a hole. The game's own
 // "2.00x" keeps its decimals.

@@ -66,8 +66,9 @@ const Search = ({ name = 'search', placeholder }) => {
   />;
 };
 
-// Which set of rows to show, each option with its count: [value, label, count].
-const Show = ({ name = 'show', options }) => {
+// Which set of rows to show, each option with its count: [value, label, count]. label: what the field filters, where a
+// Toolbar has several Show fields ("World", "Rank"): it takes "Show"'s place before the value and names the field.
+const Show = ({ name = 'show', label = 'Show', options }) => {
   const { state, onChange, placement } = useContext(ToolbarContext);
   const labelOf = (value) => options.find(([key]) => key === value)?.[1] ?? '';
   return <TextField
@@ -78,8 +79,8 @@ const Show = ({ name = 'show', options }) => {
     slotProps={{
       select: {
         displayEmpty: true,
-        renderValue: (value) => prefixed('Show', labelOf(value)),
-        SelectDisplayProps: { 'aria-label': 'Show' }
+        renderValue: (value) => prefixed(label, labelOf(value)),
+        SelectDisplayProps: { 'aria-label': label }
       }
     }}
   >

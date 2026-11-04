@@ -31,9 +31,9 @@ const Medallions = ({ medallions, totalAcquiredMedallions, abominations, section
     </Stack>
     {sectionFailed ? null : <Toolbar state={view} defaults={MEDALLIONS_TOOLBAR} onChange={setView} onReset={resetView}
                                      total={catalog.length} shown={shown.length} noun={'medallions'}>
-      <Toolbar.Show name={'found'} options={[['all', 'All medallions', catalog.length], ['found', 'Found', found],
+      <Toolbar.Show name={'found'} label={'Medallions'} options={[['all', 'All medallions', catalog.length], ['found', 'Found', found],
         ['missing', 'Not found', catalog.length - found]]}/>
-      <Toolbar.Show name={'dust'} options={[['all', 'All dusts', catalog.length],
+      <Toolbar.Show name={'dust'} label={'Dusts'} options={[['all', 'All dusts', catalog.length],
         ...dustTypes.map((type) => [type, cleanUnderscore(dustNames[type]), catalog.filter(({ dustType }) => `${dustType}` === type).length])]}/>
     </Toolbar>}
     {shown.length ? <CardGrid size={'icon'}>

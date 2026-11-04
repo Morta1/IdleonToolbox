@@ -2,7 +2,7 @@ import React from 'react';
 import { Stack, Typography } from '@mui/material';
 import { compass } from '@website-data';
 import { dustNames, getCompassTotalUpgradeCost } from '@parsers/class-specific/compass';
-import MasterclassUpgradeCard, { formatNextLevelBonus, masterclassText } from '../MasterclassUpgradeCard';
+import MasterclassUpgradeCard, { amountPair, formatNextLevelBonus, masterclassText } from '../MasterclassUpgradeCard';
 import CardGrid from '@components/common/cards/CardGrid';
 import GameIcon from '@components/common/GameIcon';
 import Toolbar from '@components/common/Toolbar';
@@ -56,7 +56,7 @@ const Upgrades = ({ account, upgrades, dusts, costing, sectionFailed }) => {
                                    // The $ the parser leaves is a number the toolbox can't compute: "?"
                                    description={masterclassText(description)}
                                    nextLevelBonus={formatNextLevelBonus(upgrade, 'compass', compass?.[index]?.description)}
-                                   extraData={extraData}
+                                   extraData={extraData ? amountPair(extraData) : extraData}
                                    currencyIcon={`Dust${x3}_x1`}
                                    currencyName={dustNames[x3]}
                                    costGame={'Windwalker.CompassUpgCost'}
@@ -64,7 +64,7 @@ const Upgrades = ({ account, upgrades, dusts, costing, sectionFailed }) => {
                                    nextCost={nextCost}
                                    targetLevel={targetLevel}
                                    targetCost={targetCost}
-                                   unlockText={unlocksAt > 0 ? `Unlocks at ${path}: ${unlocksAt}` : null}
+                                   unlockText={!unlocked && unlocksAt > 0 ? `Unlocks at ${path}: ${unlocksAt}` : null}
                                    unlocked={unlocked}
                                    catalogOnly={sectionFailed}/>;
   };

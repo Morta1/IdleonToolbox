@@ -1,6 +1,6 @@
 import React, { useContext, useDeferredValue, useEffect, useState } from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
-import { Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { formatDuration, formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { monsterSprite } from '@utility/spriteImages';
@@ -16,6 +16,12 @@ import useToolbarState from '@hooks/useToolbarState';
 import { AppContext } from '@components/common/context/AppProvider';
 import KingdomMap from './KingdomMap';
 import { OUTPOST_RANK_NAMES } from '@parsers/class-specific/royalGuardian';
+
+// A meta line's i keeps the line's last word beside it, so a wrapped meta never leaves the i alone on a line
+const metaWithInfo = (text, info) => {
+  const lastWordAt = text.lastIndexOf(' ') + 1;
+  return <>{text.slice(0, lastWordAt)}<Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>{text.slice(lastWordAt)}{info}</Box></>;
+};
 
 // Rank sorts are keyed 'rank<type>', the index into each outpost's rankBars.
 const RANK_SORT_PREFIX = 'rank';
@@ -80,10 +86,8 @@ const clearingCard = ({ mapIndex, name, world, kills, killsRequired, progress, m
     : '';
   return <ItemCard key={`clearing-${mapIndex}`} icon={faceOf(monsterRawName)} iconAlt={monsterName ?? ''}
                    title={name || `Map ${mapIndex}`}
-                   meta={<>
-                     {[`World ${formatNum(world)}`, monsterLabel(name, monsterName), 'Clearing'].filter(Boolean).join(' · ')}
-                     <InfoButton label={'the clearing ETA'} sx={{ ml: 0.5 }}>{clearingHint}</InfoButton>
-                   </>}>
+                   meta={metaWithInfo([`World ${formatNum(world)}`, monsterLabel(name, monsterName), 'Clearing'].filter(Boolean).join(' · '),
+                     <InfoButton label={'the clearing ETA'} sx={{ ml: 0.5 }}>{clearingHint}</InfoButton>)}>
     <ItemCard.Progress label={progress >= 1 ? 'Ready to claim' : `${formatNum(Math.floor(100 * progress))}% cleared`}
                        percent={100 * Math.min(1, progress ?? 0)}
                        value={formatGame(kills ?? 0, 'RoyalG.OutpostKillsReq')} max={formatGame(killsRequired ?? 0, 'RoyalG.OutpostKillsReq')}/>
@@ -181,7 +185,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
     const meta = [`World ${formatNum(world)}`, monsterLabel(name, monsterName), modeName, supportText, purified ? 'Purified' : null]
       .filter(Boolean).join(' · ');
     return <ItemCard key={mapIndex} icon={faceOf(monsterRawName)} iconAlt={monsterName ?? ''} title={name || `Map ${mapIndex}`}
-                     meta={<>{meta}<InfoButton label={'this mode'} sx={{ ml: 0.5 }}>{modeHint}</InfoButton></>}
+                     meta={metaWithInfo(meta, <InfoButton label={'this mode'} sx={{ ml: 0.5 }}>{modeHint}</InfoButton>)}
                      status={boosted ? 'active' : undefined} statusLabel={'Glorified'}>
       <ItemCard.Facts rows={[
         ['Collection rate', `${formatGame(resourceRate ?? 0, 'RoyalG.OutpostResourceRate')}/hr`],
@@ -270,11 +274,11 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
             {view?.view === 'map' ? null : <Toolbar.Search placeholder={'Search maps and monsters'}/>}
             {view?.view === 'map' ? null : <Toolbar.Sort options={[['rate', 'Collection rate', 'desc'], ['range', 'Connection range', 'desc'],
               ['pts', 'Unspent PTS', 'desc'], ...OUTPOST_RANK_NAMES.map((name, type) => [`${RANK_SORT_PREFIX}${type}`, `${name} rank`, 'desc'])]}/>}
-            {view?.view === 'map' ? null : <Toolbar.Show name={'world'} options={[['all', 'All worlds', cards.length],
+            {view?.view === 'map' ? null : <Toolbar.Show name={'world'} label={'World'} options={[['all', 'All worlds', cards.length],
               ...worlds.map((world) => [`${world}`, `World ${world}`, cards.filter((outpost) => outpost.world === world).length])]}/>}
-            {view?.view === 'map' ? null : <Toolbar.Show name={'glorified'} options={[['all', 'All outposts', cards.length],
+            {view?.view === 'map' ? null : <Toolbar.Show name={'glorified'} label={'Outpost'} options={[['all', 'All outposts', cards.length],
               ['yes', 'Glorified', list.filter(({ boosted }) => boosted).length], ['no', 'Not glorified', list.filter(({ boosted }) => !boosted).length]]}/>}
-            {view?.view === 'map' ? null : <Toolbar.Show name={'rank'} options={[[NO_RANK, 'Any rank'],
+            {view?.view === 'map' ? null : <Toolbar.Show name={'rank'} label={'Rank'} options={[[NO_RANK, 'Any rank'],
               ...OUTPOST_RANK_NAMES.map((name, type) => [`${type}`, `${name} rank`])]}/>}
             {view?.view === 'map' ? null : <Toolbar.Filter name={'byWorld'} label={'By world'}/>}
             <Toolbar.View options={[['cards', 'Cards'], ['map', 'Map']]}/>

@@ -4,7 +4,7 @@ import { formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { tesseract } from '@website-data';
 import { getPrismaMulti, getTesseractTotalUpgradeCost, tachyonNames } from '@parsers/class-specific/tesseract';
-import MasterclassUpgradeCard, { formatNextLevelBonus, masterclassText } from '../MasterclassUpgradeCard';
+import MasterclassUpgradeCard, { formatNextLevelBonus, masterclassText, unlockLine } from '../MasterclassUpgradeCard';
 import CardGrid from '@components/common/cards/CardGrid';
 import GameIcon from '@components/common/GameIcon';
 import Toolbar from '@components/common/Toolbar';
@@ -97,7 +97,7 @@ const Upgrades = ({ account, upgrades, tachyons, prismaChance, costing, sectionF
                                    nextCost={nextCost}
                                    targetLevel={targetLevel}
                                    targetCost={targetCost}
-                                   unlockText={x6 > 0 ? `Unlocks at ${formatNum(x6)} levels` : null}
+                                   unlockText={unlockLine(unlocked, x6)}
                                    unlocked={unlocked}
                                    catalogOnly={sectionFailed}/>;
   };

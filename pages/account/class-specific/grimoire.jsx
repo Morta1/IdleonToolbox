@@ -95,7 +95,7 @@ const Grimoire = () => {
                   : undefined}/>
       {sectionFailed ? <StatTile label={'Next upgrade'} value={'-'}/>
         : nextUnlock?.name ? <StatTile label={'Next upgrade'} value={cleanUpgradeName(nextUnlock.name)}
-                                       sub={`At ${formatNum(nextUnlock.unlockLevel)} total levels`}
+                                       sub={`At ${formatNum(nextUnlock.unlockLevel)} total ${nextUnlock.unlockLevel === 1 ? 'level' : 'levels'}`}
                                        info={cleanUnderscore(nextUnlock.description ?? '')}/> : null}
       {/* Every bone cost on the Upgrades tab prints in this rule, so the balances do too */}
       {boneNames.map((name, index) => <StatTile key={name} label={name} icon={`data/Bone${index}_x1.png`}
