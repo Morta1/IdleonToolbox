@@ -1,33 +1,20 @@
-import React from 'react';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
-const Upgrades = ({ upgrades }) => {
-  return <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-    {upgrades?.map((upgrade, index) => {
-      const { name, description, level, cost, unlocked } = upgrade;
-      return <Card key={'upgrade-' + index}
-        sx={{ width: 350, mt: 1, opacity: unlocked ? 1 : 0.5 }}>
-        <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-          <Stack direction={'row'} gap={2} alignItems={'center'}>
-            <img src={`${prefix}etc/Bubbo_Upgrade_${index}.png`} alt={''} style={{ width: 32, height: 32, objectFit: 'contain' }} />
-            <Typography>{cleanUnderscore(name)}</Typography>
-          </Stack>
-          <Typography mt={1} variant={'body2'} color={'text.secondary'} sx={{ whiteSpace: 'pre-line' }}>
-            {cleanUnderscore(description)}
-          </Typography>
-          <Stack mt={1} direction={'row'} justifyContent={'space-between'} alignItems={'center'}>
-            <Typography>Lv. {level}</Typography>
-            <Stack direction={'row'} gap={1} alignItems={'center'}>
-              <Typography>{cost < 9999999 ? commaNotation(Math.ceil(cost)) : notateNumber(cost, 'Big')}</Typography>
-              <img style={{ objectFit: 'contain', width: 20, height: 20 }} src={`${prefix}etc/Bubba_0.png`} alt="Bubba 0" />
-            </Stack>
-          </Stack>
-        </CardContent>
-      </Card>
-    })}
-  </Stack>;
-};
+// A locked upgrade waits on the page's next upgrade (the meat made unlocks the next type), so it carries no cost
+const Upgrades = ({ upgrades, failed, meatSlices }) => <CardGrid size={'m'}>
+  {(upgrades ?? []).map(({ name, description, level, cost, unlocked }, index) => <ItemCard key={index}
+                                                                                         icon={`etc/Bubbo_Upgrade_${index}.png`}
+                                                                                         title={cleanUnderscore(name)}
+                                                                                         meta={failed ? undefined : formatNum(level ?? 0, 'level')}
+                                                                                         status={failed || unlocked ? undefined : 'locked'}
+                                                                                         footer={failed || !unlocked ? null
+                                                                                           : <ItemCard.Cost icon={'etc/Bubba_0.png'} iconAlt={'Meat slices'}
+                                                                                                            need={cost} have={meatSlices}
+                                                                                                            game={'Bubbastuff.UpgCost'}/>}>
+    <ItemCard.Desc text={cleanUnderscore(description ?? '').split('\n')}/>
+  </ItemCard>)}
+</CardGrid>;
 
 export default Upgrades;
-
