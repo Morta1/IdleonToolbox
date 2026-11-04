@@ -1,68 +1,83 @@
 import { NextSeo } from 'next-seo';
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
-import { CardTitleAndValue } from '@components/common/styles';
+import { Box } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import Panel from '@components/common/cards/Panel';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import ItemCard from '@components/common/cards/ItemCard';
+import StatusText from '@components/common/StatusText';
+import { getOwl } from '@parsers/world-1/owl';
 
-const MyComponent = () => {
+const bonusText = ({ name, bonus, percentage }) => percentage
+  ? formatNum(bonus ?? 0, 'pct', { signed: true })
+  // Shiny Feather is a count
+  : name === 'Shiny Feather' ? formatNum(bonus ?? 0) : formatNum(bonus ?? 0, 'amount', { signed: true });
+
+const Owl = () => {
   const { state } = useContext(AppContext);
-  const { owl } = state?.account || {};
-  const notation = (val) => val < 9999999 ? commaNotation(Math.ceil(val)) : notateNumber(val, 'Big')
+  const failed = isSectionFailed(state?.account, 'owl');
+  // A failed section draws Orion's lists at zero (the parser's own empty save); its numbers are not the player's
+  const owl = failed ? getOwl(undefined, {}) : state?.account?.owl;
+  // No save has no feathers made, so there is no next upgrade to count toward
+  const hasSave = !failed && owl?.progress != null;
+  const feathers = owl?.feathers ?? 0;
+  const featherRate = owl?.featherRate ?? 0;
+
   return <>
     <NextSeo
       title="Owl | Idleon Toolbox"
       description="Track your Owl minigame upgrades, feather progress, and bonus multipliers in Legends of Idleon"
     />
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
-      <CardTitleAndValue cardSx={{my: 1}} title={'Feathers'} value={notation(owl?.feathers || 0)} icon={'etc/Owlb_0.png'}/>
-      <CardTitleAndValue cardSx={{my: 1}} title={'Feathers/sec'} value={notation(owl?.bonuses?.[0]?.bonus)}
-                         icon={'etc/Owlb_0.png'}/>
-      <CardTitleAndValue cardSx={{my: 1}} title={'Feathers/hour'} value={notation(owl?.bonuses?.[0]?.bonus * 60 * 60)}
-                         icon={'etc/Owlb_0.png'}/>
-      <CardTitleAndValue cardSx={{my: 1}} title={'Next Lv'} value={owl?.nextLvReq > 0
-        ? `${notateNumber(owl?.progress)}/${notateNumber(owl?.nextLvReq)}`
-        : 'Done'}/>
-    </Stack>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
-      {owl?.bonuses.map(({ name, bonus, percentage }, index) => {
-        if (index === 0) return;
-        return <CardTitleAndValue cardSx={{my: 1}} key={name} title={name}
-                                  value={`${!percentage ? '+' : ''}${commaNotation(bonus)}${percentage ? '%' : ''}`}
-                                  icon={`etc/Owlb_${index}.png`}>
-        </CardTitleAndValue>
-      })}
-    </Stack>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
-      {owl?.megaFeathers?.map(({ description, unlocked, amount, totalBonus }, index) => {
-        return <CardTitleAndValue cardSx={{my: 1}} value={amount > 0 ? amount : ''} tooltipTitle={cleanUnderscore(description.replace('{',  totalBonus)) } key={'mega' + index} icon={`data/Feaz${index}.png`}
-                                  iconAlt={`Mega Feather ${index + 1}`}
-                                  imgStyle={{ width: 32, opacity: unlocked ? 1 : .5 }} imgOnly/>
-      })}
-    </Stack>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-      {owl?.upgrades?.map(({ name, desc, level, cost, unlocked }, index) => {
-        return <Card key={'upgrade-' + index} sx={{ width: 350, mt: 1, opacity: unlocked ? 1 : .5 }}>
-          <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-            <Stack direction={'row'} gap={2}>
-              <img src={`${prefix}etc/Owl_${index}.png`} alt={''}/>
-              <Typography>{cleanUnderscore(name)}</Typography>
-            </Stack>
-            <Typography mt={1}>{cleanUnderscore(index === 4 ? desc.replace('{', owl?.restartMulti) : desc)}</Typography>
-            <Stack mt={'auto'} direction={'row'} justifyContent={'space-between'}>
-              <Typography>Lv. {level}</Typography>
-              <Stack direction={'row'} gap={1}>
-                <Typography>{cost < 9999999 ? commaNotation(Math.ceil(cost)) : notateNumber(cost, 'Big')}</Typography>
-                <img src={`${prefix}etc/Owlb_0.png`} alt="Owlb 0"/>
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
-  </>
-
+    {failed ? <MissingData name={'Owl'} failed/> : null}
+    <PageSummary>
+      <StatTile label={'Feathers'} icon={'etc/Owlb_0.png'} value={failed ? '-' : formatGame(feathers, 'Summoning.OwlCost')}/>
+      <StatTile label={'Feathers per second'} value={failed ? '-' : formatGame(featherRate, 'Summoning.OwlFeatherRate')}/>
+      <StatTile label={'Feathers per hour'} value={failed ? '-' : formatGame(featherRate * 3600, 'Summoning.OwlFeatherRate')}/>
+      <StatTile label={'Next upgrade'} value={!hasSave ? '-' : owl?.nextLvReq > 0
+        ? `${formatGame(owl.progress, 'Summoning.OwlNextUpgReq')} / ${formatGame(owl.nextLvReq, 'Summoning.OwlNextUpgReq')}`
+        : <StatusText status={'done'}>All unlocked</StatusText>}/>
+    </PageSummary>
+    <CardGrid size={'m'} sx={{ mb: 3, alignItems: 'start' }}>
+      <Panel title={'Bonuses of Orion'}>
+        {(owl?.bonuses ?? []).slice(1).map((bonus, index) => <Panel.Row key={bonus.name} icon={`etc/Owlb_${index + 1}.png`}
+                                                                        name={bonus.name}
+                                                                        value={failed ? '-' : bonusText(bonus)}/>)}
+      </Panel>
+      <Panel title={'Megafeathers'}>
+        <Box sx={{ p: 1.5 }}>
+          <CardGrid size={'icon'}>
+            {(owl?.megaFeathers ?? []).map(({ description, unlocked, amount, totalBonus }, index) => <IconTile key={index}
+                                                                                                            icon={`data/Feaz${index}.png`}
+                                                                                                            alt={`Megafeather ${index + 1}`}
+                                                                                                            status={failed || unlocked ? undefined : 'missing'}
+                                                                                                            value={!failed && amount > 0 ? formatGame(amount, 'Summoning.OwlMegafeather') : undefined}
+                                                                                                            details={<ItemCard.Desc
+                                                                                                              text={cleanUnderscore(`${description ?? ''}`.replace('{', () => formatNum(totalBonus ?? 1, 'mult', { bare: true })))}/>}/>)}
+          </CardGrid>
+        </Box>
+      </Panel>
+    </CardGrid>
+    <CardGrid size={'m'}>
+      {(owl?.upgrades ?? []).map(({ name, desc, level, cost, unlocked, x3 }, index) => <ItemCard key={index}
+                                                                                               icon={`etc/Owl_${index}.png`}
+                                                                                               title={cleanUnderscore(name)}
+                                                                                               meta={failed ? undefined : formatNum(level ?? 0, 'level')}
+                                                                                               status={failed || unlocked ? undefined : 'locked'}
+                                                                                               footer={failed ? null : unlocked
+                                                                                                 ? <ItemCard.Cost icon={'etc/Owlb_0.png'} iconAlt={'Feathers'}
+                                                                                                                  need={cost} have={feathers}
+                                                                                                                  game={'Summoning.OwlCost'}/>
+                                                                                                 : <ItemCard.Facts rows={[['Unlocks at', `${formatGame(Number(x3), 'Summoning.OwlNextUpgReq')} feathers made`]]}/>}>
+        <ItemCard.Desc text={cleanUnderscore(desc)}/>
+      </ItemCard>)}
+    </CardGrid>
+  </>;
 };
 
-export default MyComponent;
-
+export default Owl;
