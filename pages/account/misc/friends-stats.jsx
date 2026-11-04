@@ -1,14 +1,27 @@
 import React, { useContext } from 'react';
 import { NextSeo } from 'next-seo';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
-import { CardTitleAndValue } from '@components/common/styles';
+import { MissingData, isSectionFailed } from '@components/common/styles';
 import { formatNum } from '@utility/helpers';
+import { getFriendBonusStats } from '@parsers/misc';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+
+// A failed section draws the parser's own seven bonuses on an empty account: their names, nothing given
+const friendsCatalog = () => {
+  try {
+    return getFriendBonusStats({});
+  } catch {
+    return {};
+  }
+};
 
 const FriendsStats = () => {
   const { state } = useContext(AppContext);
-  const { friendBonusStats } = state?.account || {};
-  const { bonuses = [], slots, multiplier } = friendBonusStats || {};
+  const failed = isSectionFailed(state?.account, 'friendBonusStats');
+  const { bonuses = [], slots, multiplier } = (failed ? friendsCatalog() : state?.account?.friendBonusStats) ?? {};
 
   return (
     <>
@@ -16,37 +29,22 @@ const FriendsStats = () => {
         title="Friends Stats | Idleon Toolbox"
         description="View all friendship bonuses and their effects on your Legends of Idleon account progression"
       />
-      <Stack gap={2}>
-        <Stack mb={3} direction={'row'} flexWrap={'wrap'} gap={3} alignItems="center">
-          <CardTitleAndValue
-            title={'Slots'}
-            value={`${slots}`}
-          />
-          <CardTitleAndValue
-            title={'Multiplier'}
-            value={multiplier}
-            kind={'mult'}
-          />
-        </Stack>
-        <Stack direction="row" flexWrap="wrap" gap={2}>
-          {bonuses?.map((bonus, index) => (
-            <Card key={`friend-bonus-${bonus?.statIndex ?? index}`} sx={{ minWidth: 220 }}>
-              <CardContent>
-                <Typography variant="subtitle1">{formatNum(bonus?.value ?? 0, 'pct', { bare: true })}{bonus?.name || 'Bonus'}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Friend: {bonus?.friendName || '-'}
-                </Typography>
-                <Typography variant="body2" color="text.secondary">
-                  Level: {bonus?.level ?? 0}
-                </Typography>
-              </CardContent>
-            </Card>
-          ))}
-        </Stack>
-      </Stack>
+      {failed ? <MissingData name={'Friends Stats'} failed/> : null}
+      <PageSummary>
+        <StatTile label={'Slots'} value={failed ? '-' : formatNum(slots ?? 0)}/>
+        <StatTile label={'Multiplier'} value={failed ? '-' : formatNum(multiplier ?? 1, 'mult')}/>
+      </PageSummary>
+      <CardGrid size={'s'}>
+        {(bonuses ?? []).map((bonus, index) => <ItemCard key={`friend-bonus-${bonus?.statIndex ?? index}`}
+                                                         title={failed
+                                                           ? `${bonus?.name ?? ''}`.replace(/^%\s*/, '')
+                                                           : `${formatNum(bonus?.value ?? 0, 'pct', { bare: true })}${bonus?.name ?? ''}`}
+                                                         meta={failed ? undefined : bonus?.friendName
+                                                           ? `${bonus.friendName} · ${formatNum(bonus?.level ?? 0, 'level')}`
+                                                           : 'No friend gives it yet'}/>)}
+      </CardGrid>
     </>
   );
 };
 
 export default FriendsStats;
-
