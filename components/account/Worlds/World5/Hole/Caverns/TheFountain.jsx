@@ -1,5 +1,5 @@
 import React, { Fragment, useEffect, useRef, useState } from 'react';
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography, useMediaQuery } from '@mui/material';
 import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, formatNum, msToDate } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
@@ -20,7 +20,10 @@ const NODE = 56;
 const PAD = 36;
 const SCALE = 1.4; // spread the graph out vs the in-game compact layout
 
+// A phone opens on the list, the tree one tap away. A choice that differs from its width's default is stored, and a
+// stored choice wins at any width.
 const FOUNTAIN_VIEW = { view: 'graph' };
+const FOUNTAIN_VIEW_PHONE = { view: 'list' };
 
 // Each currency's balance reads like its costs (Holes.Cost_FountainUPG)
 const currencyText = (value) => formatGame(value ?? 0, 'Holes.Cost_FountainUPG');
@@ -199,7 +202,8 @@ const FountainList = ({ water, t, currencies }) => <Stack gap={2} sx={{ mt: 1 }}
 
 const TheFountain = ({ hole }) => {
   const fountain = hole?.caverns?.theFountain;
-  const [shown, setShown] = useToolbarState('hole-fountain', FOUNTAIN_VIEW);
+  const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+  const [shown, setShown] = useToolbarState('hole-fountain', isPhone ? FOUNTAIN_VIEW_PHONE : FOUNTAIN_VIEW);
   const visibleWaters = (fountain?.waters ?? []).filter((w) => w?.implemented);
   const currencies = fountain?.currencies ?? [];
   const bars = fountain?.fountainBars ?? [];
