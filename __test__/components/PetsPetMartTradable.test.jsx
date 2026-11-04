@@ -27,31 +27,42 @@ const renderPets = (copies, { plusView = false, filter, petMart } = {}) => {
     </ThemeProvider>
   );
   if (plusView) fireEvent.click(container.querySelector('button[value="plus"]'));
-  if (filter) fireEvent.click(container.querySelector(`input[value="${filter}"]`));
-  const cardOf = (index) => container.querySelector(`img[alt="${companions.list[index].name}"]`)?.closest('.MuiCard-root') ?? null;
+  if (filter) {
+    fireEvent.mouseDown(within(container).getByRole('combobox', { name: 'Show' }));
+    fireEvent.click(document.querySelector(`li[data-value="${filter}"]`));
+  }
+  // A pet's card is the article titled by its name (its + version's in the Pet Mart+ view)
+  const cardOf = (index) => {
+    const name = companions.list[index].name.replace(/_/g, ' ');
+    return [...container.querySelectorAll('article')]
+      .find((card) => [name, `${name}+`].includes(card.querySelector('h3')?.textContent)) ?? null;
+  };
   return { cardOf, companions, container };
 };
+
+// The card's meta line, under its title
+const metaOf = (card) => card.querySelector('h3')?.nextElementSibling?.textContent ?? null;
 
 describe('Pets page: Pet Mart+ tradability', () => {
   it('flags an untradable + copy even when a base copy of the same pet is tradable', () => {
     const { cardOf } = renderPets(['1,1,0,0,0', '1,0,0,0,1']);
     const card = cardOf(1);
-    expect(card.textContent).toContain('Tradable: 1/2');
-    expect(card.textContent).toContain('Pet Mart+ tradable: 0/1');
-    expect([...card.querySelectorAll('[data-tag]')].map((tag) => tag.textContent)).toEqual(['Pet Mart+']);
+    expect(card.textContent).toContain('Tradable1 / 2');
+    expect(card.textContent).toContain('Pet Mart+ tradable0 / 1');
+    expect(metaOf(card)).toBe('Pet Mart+');
   });
 
   it('counts only the tradable + copies when several copies are upgraded', () => {
     const { cardOf } = renderPets(['1,1,0,0,1', '1,0,0,0,1']);
     const card = cardOf(1);
-    expect(card.textContent).toContain('Pet Mart+ tradable: 1/2');
-    expect([...card.querySelectorAll('[data-tag]')].map((tag) => tag.textContent)).toEqual(['Pet Mart+']);
+    expect(card.textContent).toContain('Pet Mart+ tradable1 / 2');
+    expect(metaOf(card)).toBe('Pet Mart+');
   });
 
   it('shows no + tradability line on a pet that was never upgraded', () => {
     const { cardOf } = renderPets(['1,1,0,0,0']);
     const card = cardOf(1);
-    expect(card.textContent).toContain('Tradable: 1/1');
+    expect(card.textContent).toContain('Tradable1 / 1');
     expect(card.textContent).not.toContain('Pet Mart+ tradable');
   });
 });
@@ -68,24 +79,24 @@ describe('Pets page: Pet Mart+ view', () => {
 
   it('lists only the + pool, each as its + version with the + bonus', () => {
     const { cardOf, container } = renderPets(copies, { plusView: true });
-    expect(container.textContent).toMatch(/Upgraded 1\/\d+/);
+    expect(container.textContent).toMatch(/Upgraded\s*1 \/ \d+/);
     expect(cardOf(noPlusIndex)).toBeNull();
     const card = cardOf(upgradedPet.index);
     expect(card.textContent).toContain(`${upgradedPet.name.replace(/_/g, ' ')}+`);
-    expect(card.textContent).toContain('Tradable: 1/1');
+    expect(card.textContent).toContain('Tradable1 / 1');
   });
 
   it.each([
-    ['upgraded', () => upgradedPet, false, false, '1'],
-    ['owned, not upgraded', () => ownedPet, true, false, '1'],
-    ['not owned', () => unownedPet, true, true, '0.4']
-  ])('%s: price shown %s, needs base pet %s, opacity %s', (_, pet, price, needsBase, opacity) => {
+    ['upgraded', () => upgradedPet, false, false, false],
+    ['owned, not upgraded', () => ownedPet, true, false, false],
+    ['not owned', () => unownedPet, true, true, true]
+  ])('%s: price shown %s, needs base pet %s, sprite greyed %s', (_, pet, price, needsBase, missing) => {
     const { cardOf } = renderPets(copies, { plusView: true });
     const card = cardOf(pet().index);
     expect(card.querySelector('img[alt="Pet Crystals"]') !== null).toBe(price);
     expect(card.textContent.includes('Needs the base pet')).toBe(needsBase);
-    // The fade sits on the card body so the Pet Mart line under it stays readable.
-    expect(getComputedStyle(card.querySelector('.MuiCardContent-root > .MuiStack-root')).opacity).toBe(opacity);
+    // The sprite greys, never the card, so the Pet Mart line under it stays readable.
+    expect(card.querySelector('[data-status="missing"]') !== null).toBe(missing);
   });
 
   it('Missing hides upgraded pets, Tradable keeps only tradable + copies', () => {
@@ -145,7 +156,7 @@ describe('Pets page: Pet Mart+ sales history', () => {
     Object.assign(petMartHistory, { data: { days }, isSuccess: true });
     const { cardOf } = renderPets([], { petMart });
     const card = cardOf(unseenPet);
-    expect(getComputedStyle(card.querySelector('.MuiCardContent-root > .MuiStack-root')).opacity).toBe('0.4');
+    expect(card.querySelector('[data-status="missing"]')).not.toBeNull();
     const line = [...card.querySelectorAll('p')].find((p) => p.textContent === 'In the Pet Mart today');
     const faded = [];
     for (let node = line; node !== card; node = node.parentElement) faded.push(getComputedStyle(node).opacity);
@@ -164,8 +175,10 @@ describe('Pets page: Pet Mart+ sales history', () => {
   ])('sorts by last in the Pet Mart: %s', (sortBy, expected) => {
     Object.assign(petMartHistory, { data: { days }, isSuccess: true });
     const { cardOf, container } = renderPets([], { plusView: true, petMart });
-    fireEvent.mouseDown(within(container).getByRole('combobox'));
-    fireEvent.click(document.querySelector(`li[data-value="${sortBy}"]`));
+    fireEvent.mouseDown(within(container).getByRole('combobox', { name: 'Sort by' }));
+    fireEvent.click(document.querySelector('li[data-value="lastSeen"]'));
+    // The sort opens newest first; its direction button turns it to oldest first
+    if (sortBy === 'oldest') fireEvent.click(within(container).getByRole('button', { name: 'Descending' }));
     const order = expected().map((index) => cardOf(index));
     for (let i = 1; i < order.length; i++) {
       expect(order[i - 1].compareDocumentPosition(order[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

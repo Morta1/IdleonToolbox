@@ -41,7 +41,7 @@ const PageSettings = ({ state, defaults, onChange, onReset, children }) => {
   if (!node) return null;
   const changed = Object.keys(defaults).some((key) => !same(state?.[key], defaults[key]));
   const close = () => setAnchor(null);
-  const rows = <SettingsContext value={{ state, onChange }}><Stack ref={rowsRef} gap={2}>{children}</Stack></SettingsContext>;
+  const rows = <SettingsContext value={{ state, onChange, close }}><Stack ref={rowsRef} gap={2}>{children}</Stack></SettingsContext>;
   // Reset leaves with the change it undid: the focus goes on to the first setting rather than to the popover or
   // the sheet itself
   const resetHere = () => {
@@ -108,6 +108,24 @@ const SelectSetting = ({ name, label, help, options, defaultValue }) => {
   </TextField>;
 };
 PageSettings.Select = SelectSetting;
+
+// A setting that starts a mode on the page instead of holding a value (the Pets tab's simulation): its name, one line on
+// what it changes, and the button that starts it. The panel closes, so the page shows the mode.
+const ActionSetting = ({ label, help, action }) => {
+  const { close } = useContext(SettingsContext);
+  const helpId = useId();
+  return <Stack direction="row" alignItems="center" gap={2}>
+    <Stack sx={{ flex: 1, minWidth: 0 }}>
+      <Typography variant="body2">{label}</Typography>
+      <Typography variant="caption" color="text.secondary" id={helpId}>{help}</Typography>
+    </Stack>
+    <Button aria-describedby={helpId} sx={{ flexShrink: 0 }} onClick={() => {
+      close?.();
+      action?.onClick?.();
+    }}>{action?.label}</Button>
+  </Stack>;
+};
+PageSettings.Action = ActionSetting;
 
 // The settings one tab reads, under that tab's name.
 const Group = ({ title, children }) => {
