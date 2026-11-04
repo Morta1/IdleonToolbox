@@ -79,9 +79,11 @@ const getNewBubbleBreakdown = (displayName, cauldron) => {
   ]);
 };
 
-// A brew boost: its level and the brew toward the next one (the game floors it first), Maxed at the cap
-const boostRow = ([statName, label], { level = 0, progress = 0, req = 0 } = {}) => {
+// A brew boost: its level and the brew toward the next one (the game floors it first), Maxed at the cap. A failed
+// section's catalog has no brew: the pair reads "-" with no bar
+const boostRow = ([statName, label], { level = 0, progress = 0, req = 0 } = {}, failed) => {
   const name = `${label} · ${formatNum(level, 'level', { max: CAULDRONS_MAX_LEVELS.brewing })}`;
+  if (failed) return <ItemCard.Facts key={statName} rows={[[name, '-']]}/>;
   return level >= CAULDRONS_MAX_LEVELS.brewing
     ? <ItemCard.Facts key={statName} rows={[[name, <StatusText key={'maxed'} status={'maxed'}/>]]}/>
     : <ItemCard.Progress key={statName} label={name} value={brewReq(Math.floor(progress))} max={brewReq(req)}
@@ -89,8 +91,9 @@ const boostRow = ([statName, label], { level = 0, progress = 0, req = 0 } = {}) 
 };
 
 // A brewing cauldron. The brew speed and new bubble chance come from the parser's own step (alchemy.cauldrons): a
-// failed step, or a failed section's catalog, has neither, so they read "-".
-const brewingCard = ({ name, displayName }, index, cauldron = {}, characters) => {
+// failed step, or a failed section's catalog, has neither, so they read "-". A failed section's catalog has no brew
+// either: its pairs and counts read "-" with no bar.
+const brewingCard = ({ name, displayName }, index, cauldron = {}, characters, failed) => {
   const { newBubble, brewSpeed, attempts = 0, progress = 0, req = 0, players = [], boosts = {} } = cauldron;
   const towardNext = req > 0 ? progress - attempts * req : 0;
   // The game draws the pair in Small while the cauldron's max is under 10, Big from there (CauldronStats.MaxCauldronQTY)
@@ -100,9 +103,10 @@ const brewingCard = ({ name, displayName }, index, cauldron = {}, characters) =>
   const expected = newBubble ? ` (about ${formatNum(newBubble.expectedBubbles ?? 0, 'amount', { precise: true })} bubbles)` : '';
   return <ItemCard key={name} icon={`data/aJarB${index}.png`} title={displayName}
                    aside={players.length ? <PlayersList players={players} characters={characters}/> : null}>
-    <ItemCard.Progress label={'Next attempt'} value={brew(towardNext)} max={brew(req)}
-                       percent={req > 0 ? Math.min(100, towardNext / req * 100) : 0}/>
+    {failed ? null : <ItemCard.Progress label={'Next attempt'} value={brew(towardNext)} max={brew(req)}
+                                        percent={req > 0 ? Math.min(100, towardNext / req * 100) : 0}/>}
     <ItemCard.Facts rows={[
+      failed ? ['Next attempt', '-'] : null,
       ['Brew speed', brewSpeed
         ? <Breakdown key={'speed'} asValue title={`${displayName} brew speed`}
                      data={{ ...brewSpeed.breakdown, totalValue: speedText }}>{speedText}</Breakdown>
@@ -112,16 +116,16 @@ const brewingCard = ({ name, displayName }, index, cauldron = {}, characters) =>
                      data={getNewBubbleBreakdown(displayName, cauldron)}>{chanceText}</Breakdown>
         : '-'],
       newBubble?.chance > 0 && newBubble.chance < 50 ? ['Odds', formatNum(newBubble.chance / 100, 'odds')] : null,
-      ['Attempts ready', attempts > 0 ? `${formatNum(attempts)}${expected}` : '0']
+      ['Attempts ready', failed ? '-' : attempts > 0 ? `${formatNum(attempts)}${expected}` : '0']
     ]}/>
     <ItemCard.Section label={'Boosts'}>
-      {BOOSTS.map((boost) => boostRow(boost, boosts?.[boost[0]]))}
+      {BOOSTS.map((boost) => boostRow(boost, boosts?.[boost[0]], failed))}
     </ItemCard.Section>
   </ItemCard>;
 };
 
 // A liquid's jar. Its cap and its Cap and Rate levels come from the parser's own step (alchemy.liquidCauldrons): with
-// that step or the section failed they read "-", and the liquid shows no bar.
+// that step or the section failed they read "-", and the liquid shows no bar and no half a pair.
 const liquidCard = ({ displayName }, index, { upgrades = {}, jar, amount, characters, failed }) => {
   const { regen, capacity, players = [] } = upgrades;
   const { maxLiquid, decantCap, decantRate, isDragonic, maxLiquidBreakdown } = jar ?? {};
@@ -143,7 +147,7 @@ const liquidCard = ({ displayName }, index, { upgrades = {}, jar, amount, charac
     {hasCap ? <ItemCard.Progress label={'Liquid'} value={liquidAmount(amount)} max={cap}
                                  percent={maxLiquid > 0 ? Math.min(100, amount / maxLiquid * 100) : 0}/> : null}
     <ItemCard.Facts rows={[
-      hasCap ? null : ['Liquid', `${liquidAmount(amount)} / -`],
+      hasCap ? null : ['Liquid', '-'],
       decant('Cap', decantCap),
       decant('Rate', decantRate)
     ]}/>
@@ -174,7 +178,7 @@ const Cauldrons = () => {
       <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1.5 }}>Brewing</Typography>
       <CardGrid size={'l'}>
         {CAULDRON_INFO.map((cauldron, index) => brewingCard(cauldron, index, alchemy?.cauldrons?.[cauldron.name],
-          characters))}
+          characters, alchemyFailed))}
       </CardGrid>
 
       <Typography variant={'sectionTitle'} component={'h2'} sx={HEADING_SX}>Pay 2 Win</Typography>
