@@ -8,7 +8,7 @@ const SignInSteps = ({ steps }) => <Box component="ol" sx={{ listStyle: 'none', 
   {steps.map(({ title, done, children }, index) => (
     <Stack component="li" key={title} direction="row" gap={1.5} alignItems="flex-start">
       <Box aria-hidden sx={{
-        width: 24, height: 24, boxSizing: 'border-box', borderRadius: '50%', border: 1, flexShrink: 0, display: 'grid', placeItems: 'center',
+        width: 26, height: 26, boxSizing: 'border-box', borderRadius: '50%', border: 1, flexShrink: 0, display: 'grid', placeItems: 'center',
         fontSize: 12, fontWeight: 600, borderColor: done ? 'text.success' : 'text.muted',
         bgcolor: done ? 'text.success' : 'transparent', color: done ? 'background.default' : 'text.secondary'
       }}>

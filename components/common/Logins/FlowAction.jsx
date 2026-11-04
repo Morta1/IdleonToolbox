@@ -37,7 +37,7 @@ export const ActionButton = ({ loading = false, disabled = false, inert = false,
 const FlowAction = ({ status, phoneOnly = false, sx, ...action }) => (
   <Box sx={{
     position: { xs: 'sticky', sm: 'static' }, bottom: 0, zIndex: 1, mt: { xs: 'auto', sm: 0 }, pt: { xs: '12px', sm: 2 },
-    mx: { xs: -2, sm: 0 }, px: { xs: 2, sm: 0 }, pb: { xs: SHEET_BOTTOM, sm: 0 }, borderTop: { xs: 1, sm: 0 }, borderColor: 'divider',
+    mx: { xs: -2, sm: 0 }, px: { xs: 2, sm: 0 }, pb: { xs: SHEET_BOTTOM, sm: 0 }, borderTop: { xs: 1, sm: 0 }, borderColor: { xs: 'divider' },
     bgcolor: 'background.paper', display: { xs: 'flex', sm: phoneOnly ? 'none' : 'flex' }, flexDirection: { xs: 'column-reverse', sm: 'column' },
     ...sx
   }}>
