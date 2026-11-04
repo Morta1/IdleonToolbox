@@ -4,8 +4,8 @@ import { IconInfoCircle } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 
 const TOUCH = '@media (pointer: coarse)';
-// A table note's widest: the viewport less the page's 24 px gutters
-const TABLE_NOTE_WIDTH = 'calc(100vw - 48px)';
+// A table note's widest: the viewport less the 16 px every note keeps from the screen's edges (NOTE_POPPER)
+const TABLE_NOTE_WIDTH = 'calc(100vw - 32px)';
 // A note keeps the page's 16 px gutter from the screen's edges: a phone note opened flush to them
 const NOTE_POPPER = { popperOptions: { modifiers: [{ name: 'preventOverflow', options: { padding: 16 } }] } };
 const PHONE_NOTE_POPPER = { ...NOTE_POPPER, sx: { display: { sm: 'none' } } };

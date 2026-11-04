@@ -3,7 +3,7 @@
 // - CENTERED: two ads, one each side of a 1260 px page, where both fit by width and a 600 px ad fits by height;
 // - ONE_AD: one ad on the right from 850 px wide, narrower or shorter than that: page and ad are one group of at most
 //   1576 px, centred, and below 1624 px the group fills the window with 24 px sides, today's shape;
-// - under 850 px, no ad: the page fills the window.
+// - under 850 px, no ad: the page fills the window, with 16 px sides on a phone as the phone boards draw.
 // CSS only: the export and the first render agree at every size, and a page can take its width helper without the
 // shell's hooks (useFrame.js picks the frame for the page on screen; SideAds in AdUnit.jsx creates the units).
 export const FRAME_MAX = 1260;
@@ -29,6 +29,10 @@ export const ONE_AD = '@media (min-width: 850px) and (max-width: 1899.98px), (mi
 export const BAR_SNUG = '@media (min-width: 1200px) and (max-width: 1439.95px)';
 export const BAR_TIGHT = '@media (min-width: 1200px) and (max-width: 1279.95px)';
 
+// A phone's page sides. A media query rather than a breakpoint object, so CENTERED's px: 0 needs no source order to win.
+export const PHONE_SIDES = '@media (max-width: 599.95px)';
+export const pageSidesSx = { px: 3, [PHONE_SIDES]: { px: 2 } };
+
 const grid = (columns, areas, gap) => ({
   display: 'grid', justifyContent: 'center', columnGap: `${gap}px`, gridTemplateColumns: columns, gridTemplateAreas: areas
 });
@@ -37,7 +41,7 @@ const grid = (columns, areas, gap) => ({
 // widens with its left edge where it was; between two ads it stays put and the ads' columns stay as margins.
 export const frameSx = ({ reserveAds }) => ({
   width: '100%',
-  px: 3,
+  ...pageSidesSx,
   [ONE_AD]: reserveAds
     ? grid(`minmax(0, ${FRAME_MAX}px) ${AD_WIDE}px`, '"page right"', AD_GAP)
     : grid(`minmax(0, ${FRAME_MAX + AD_GAP + AD_WIDE}px)`, '"page"', AD_GAP),

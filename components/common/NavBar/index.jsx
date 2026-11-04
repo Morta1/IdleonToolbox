@@ -23,7 +23,7 @@ import NextLink from 'next/link';
 import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
 import { NavMenuPanel } from './NavMenu';
-import { BAR_TIGHT, capPageWidth, pageColumnSx } from './frame';
+import { BAR_TIGHT, capPageWidth, pageColumnSx, PHONE_SIDES } from './frame';
 import useFrame from './useFrame';
 import GroupRow from './GroupRow';
 import PageHeader, { PageHeaderSlots } from './PageHeader';
@@ -123,8 +123,9 @@ const NavBar = ({ children }) => {
       <Stack data-shell="footer" direction="row" justifyContent="center" alignItems="center" flexWrap="wrap" useFlexGap
              columnGap={1} rowGap={0.5}
              sx={{
-               // main has no side padding now that the frame owns it: the footer keeps its 24 px sides
+               // main has no side padding now that the frame owns it: the footer keeps the page's sides
                mx: 3,
+               [PHONE_SIDES]: { mx: 2 },
                px: 2,
                mt: 4,
                py: 1.5,

@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { useSidebarAdBlocked } from '@hooks/useSidebarAd';
-import { frameSx, PAGE_CAPS } from './frame';
+import { frameSx, PAGE_CAPS, pageSidesSx } from './frame';
 
 // The frame of the page on screen, for the page and for the bar's panels alike, so a panel's edges are the page's
 // whatever the ads do. Home and patch notes are not inner pages: they keep the full width and have no side ad. Nor are
@@ -18,7 +18,7 @@ const useFrame = () => {
   const adBlocked = useSidebarAdBlocked();
   const pathname = router?.pathname || '/';
   const inner = !OUTER_PAGES.includes(pathname);
-  return { inner, sx: inner ? frameSx({ reserveAds: !adBlocked }) : { px: 3 }, cap: PAGE_CAPS[pathname] ?? null };
+  return { inner, sx: inner ? frameSx({ reserveAds: !adBlocked }) : pageSidesSx, cap: PAGE_CAPS[pathname] ?? null };
 };
 
 export default useFrame;
