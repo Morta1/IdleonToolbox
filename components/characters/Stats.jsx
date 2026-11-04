@@ -50,7 +50,9 @@ export const characterStatFacts = (character, characters, account, playerInfo = 
     guaranteed
       ? { label: 'Crystal guaranteed', value: `${formatGame(crystalSpawnChance.guaranteedLeft, 'Thingies.GuaranteedCrystalMobs', { whole: true })} left` }
       : { label: 'Crystal chance', value: formatNum(crystalSpawnChance?.effectiveValue, 'odds'), breakdown: crystalSpawnChance?.breakdown,
-        rowText: `${formatNum(crystalSpawnChance?.effectiveValue, 'odds')} (${formatNum(crystalSpawnChance?.effectiveValue * 100, 'pct')})` },
+        rowText: crystalSpawnChance?.effectiveValue > 0
+          ? `${formatNum(crystalSpawnChance.effectiveValue, 'odds')} (${formatNum(crystalSpawnChance.effectiveValue * 100, 'pct')})`
+          : undefined },
     { label: 'Non consume chance', value: formatNum(nonConsumeChance, 'pct') }
   ];
 };
