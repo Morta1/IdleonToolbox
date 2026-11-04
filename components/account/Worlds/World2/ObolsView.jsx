@@ -35,7 +35,9 @@ const obolTile = (item, index, type, totalLevels) => {
   const key = `${item?.rawName}-${index}`;
   if (isLocked(item)) {
     return <IconTile key={key} icon={`data/ObolLocked${shapes[item?.shape]}.png`} alt={'Locked slot'}
-                     value={formatNum(item.levelReq, 'level')}
+                     // "Lv N" is one unit (Num never wraps); "Lv 1,250" can't fit a family tile (49 px), so from
+                     // four digits the level reads as its amount alone, beside the lock
+                     value={item.levelReq} kind={item.levelReq >= 1e3 ? 'amount' : 'level'}
                      details={type === 'account'
                        ? `Unlocks at ${formatNum(item.levelReq)} total character levels (you have ${formatNum(totalLevels ?? 0)}).`
                        : `Unlocks at character level ${formatNum(item.levelReq)}.`}/>;
