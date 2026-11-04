@@ -54,7 +54,7 @@ const Currencies = ({
   return <Panel title={'Currencies'}>
     <Panel.Row name={'Total money'} value={<CoinDisplay dense money={money}/>}/>
     <Box sx={{ p: 1.5 }}>
-      <CardGrid size={'icon'}>
+      <CardGrid size={'icon'} fill>
         <IconTile icon={'data/rtt0.png'} alt={'World Teleports'} value={count(WorldTeleports)} details={'World Teleports'}/>
         <IconTile icon={'data/ObolFrag.png'} alt={'Obol Fragments'} value={count(ObolFragments)} details={'Obol Fragments'}/>
         <IconTile icon={'data/TixCol.png'} alt={'Colosseum Tickets'}

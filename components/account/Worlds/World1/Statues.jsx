@@ -37,7 +37,7 @@ const statueDetails = ({ statue, index, account, characters, nextLv, flairLevel,
 };
 
 const Statues = ({ characters, account }) => <Box sx={{ p: 1.5 }}>
-  <CardGrid size={'icon'}>
+  <CardGrid size={'icon'} fill>
     {(account?.statues ?? []).map((statue, index) => {
       const level = statue?.level ?? 0;
       const nextLv = Math.round(Math.pow(level, 1.17) * Math.pow(1.35, level / 10) + 1);

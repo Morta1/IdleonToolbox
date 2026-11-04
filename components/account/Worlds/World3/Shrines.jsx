@@ -40,7 +40,7 @@ const shrineDetails = (shrine, entry, contributors, perHour) => {
 
 // shrinesExpBonus: each character's EXP into each shrine (null when its section failed: no rate, no contributors)
 const Shrines = ({ shrines, shrinesExpBonus }) => <Box sx={{ p: 1.5 }}>
-  <CardGrid size={'icon'}>
+  <CardGrid size={'icon'} fill>
     {(shrines ?? []).map((shrine, index) => {
       const entry = shrineData?.[`${shrine?.rawName ?? ''}`.replace('ConTowerB', '')];
       const contributors = shrinesExpBonus ? (shrinesExpBonus?.breakdown?.[index] ?? [])
