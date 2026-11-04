@@ -30,8 +30,8 @@ const General = () => {
       description="View your Legends of Idleon account overview including level, gems, keys, and general progression stats"
     />
     {failedNames ? <MissingData name={failedNames} failed/> : null}
-    {/* Panels keep their own height: a short list never stretches to its row's tallest */}
-    <CardGrid size={'m'} sx={{ alignItems: 'start' }}>
+    {/* The Panels flow down columns as main's did: the tall Statues Panel leaves no empty band */}
+    <CardGrid size={'m'} flow>
       {failedOf('obols') ? null : <Panel title={'Family obols'}>
         <ObolsView obols={account?.obols} type={'account'} characters={state?.characters}/>
       </Panel>}

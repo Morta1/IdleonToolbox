@@ -16,9 +16,12 @@ const columns = (size, count) => (size === 'icon'
 // Cards never set a width: the grid picks the column count and every card stretches to its row.
 // min(…, 100%) keeps an L card from overflowing a phone. withBorder frames children that are not
 // cards themselves (the Sampling companion's rows). columns: the icon grid's fixed column count.
-const CardGrid = ({ size = 'm', columns: count, withBorder, children, sx }) => <CardSize.Provider value={size}>
+// flow: the cards flow down columns of the size's width, each kept whole, for Panels of very different heights
+// (General): a tall one never sets a row's height for the short ones beside it, so it leaves no empty band.
+const CardGrid = ({ size = 'm', columns: count, withBorder, flow, children, sx }) => <CardSize.Provider value={size}>
   <Box sx={[
-    { display: 'grid', gridTemplateColumns: columns(size, count), gap: size === 'icon' ? 1 : 2 },
+    flow ? { columnWidth: CARD_MIN_WIDTH[size], columnGap: 2, '& > *': { breakInside: 'avoid', mb: 2 }, '& > :last-child': { mb: 0 } }
+      : { display: 'grid', gridTemplateColumns: columns(size, count), gap: size === 'icon' ? 1 : 2 },
     withBorder && { '& > *': { border: 1, borderColor: 'divider', borderRadius: '8px', p: 2 } },
     ...(Array.isArray(sx) ? sx : [sx])
   ]}>
