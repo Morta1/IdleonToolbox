@@ -23,8 +23,9 @@ const Schedule = ({ killroy, schedule, hasClock, sectionFailed }) => {
     const monster = monsters?.[room];
     const name = cleanUnderscore(monster?.Name ?? '');
     const kills = Number(list.find((mob) => mob.name === monster?.Name)?.killRoyKills) || 0;
-    // A failed section's kills are unknown: no number and no Under 100
-    const value = <Box component={'span'} sx={{ ...LINE_SX, gap: 1 }}>
+    // A failed section's kills are unknown: no number and no Under 100. Where the room's class leaves no room for
+    // it (a Beginner row on a 1920 card), Under 100 takes a second line under the kills
+    const value = <Box component={'span'} sx={{ ...LINE_SX, columnGap: 0.5, rowGap: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
       <GameIcon src={`data/Mface${monster?.MonsterFace}.png`} size={24} alt={name}/>
       {sectionFailed ? '-' : formatNum(kills)}
       {!sectionFailed && kills < EQUINOX_KILLS ? <StatusText status={'ready'}>Under 100</StatusText> : null}
