@@ -3,6 +3,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { formatNum, getTabs } from '@utility/helpers';
 import Notice from '@components/common/Notice';
+import { isSectionFailed, MissingData } from '@components/common/styles';
 import Num from '@components/common/Num';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -36,6 +37,9 @@ const JellyOperator = () => {
     cells,
     layout
   } = state?.account?.jellyOperator || {};
+  const sectionFailed = isSectionFailed(state?.account, 'jellyOperator');
+  // A guest has nothing to reach yet, and a failed section says nothing about where the account is
+  const locked = !unlocked && !state?.emptyAccount && !sectionFailed;
 
   return <>
     <NextSeo
@@ -44,7 +48,9 @@ const JellyOperator = () => {
     />
 
     {/* Decision 13: the parser knows whether the account has reached it; a guest or a new account sees why it's zero */}
-    {unlocked ? null : <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached the Jelly Operator yet.</Notice>}
+    {sectionFailed ? <MissingData name={'Jelly Operator'} failed/> : null}
+    {state?.emptyAccount ? <Notice tone={'signin'} sx={{ mb: 2 }}>Your Jelly Operator shows here once you sign in.</Notice> : null}
+    {locked ? <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached the Jelly Operator yet.</Notice> : null}
     <PageSummary>
       <StatTile label={'Obstructions removed'}
                 value={`${formatNum(obstructionsDefeated ?? 0)} / ${formatNum(maxObstructionsDefeated ?? 0)}`}/>
@@ -68,7 +74,7 @@ const JellyOperator = () => {
       <Obstructions obstructions={obstructions}/>
       <Upgrades upgrades={upgrades} characters={state?.characters} bloodcells={bloodcells}
                 doublersOwned={state?.account?.menagerie?.doublers?.jellyOperator?.owned}/>
-      <UpgradeOptimizer account={state?.account} characters={state?.characters}/>
+      <UpgradeOptimizer account={state?.account} characters={state?.characters} sectionFailed={sectionFailed} locked={locked}/>
       <Cells cells={cells}/>
     </Tabber>
   </>;

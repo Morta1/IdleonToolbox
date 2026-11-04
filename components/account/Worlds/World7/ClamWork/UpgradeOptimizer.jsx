@@ -2,10 +2,11 @@ import React from 'react';
 import GenericUpgradeOptimizer from '@components/account/Misc/class-specific/GenericUpgradeOptimizer';
 import { CLAM_WORK_UPGRADE_CATEGORIES, getOptimizedClamWorkUpgrades, pearlNames } from '@parsers/world-7/clamWork';
 
-const UpgradeOptimizer = ({ character, account, multiKill }) => (
+const UpgradeOptimizer = ({ character, account, multiKill, sectionFailed }) => (
   <GenericUpgradeOptimizer
     character={character}
     account={account}
+    sectionFailed={sectionFailed}
     getOptimizedUpgradesFn={(char, acc, category, maxUpgrades, options) => getOptimizedClamWorkUpgrades(
       char, acc, category, maxUpgrades, { ...options, multiKill }
     )}

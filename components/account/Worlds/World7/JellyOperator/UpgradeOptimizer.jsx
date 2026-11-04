@@ -5,14 +5,17 @@ import { getOptimizedJellyUpgrades, JELLY_UPGRADE_CATEGORIES } from '@parsers/wo
 // Bloodcells are the only currency; keyed by '' so the icon path resolves to etc/Bloodcell.png.
 const resourceNames = { '': 'Bloodcells' };
 
-const UpgradeOptimizer = ({ account, characters }) => {
+// locked: the account hasn't reached the Jelly Operator, and the page's note says so first: the plan draws nothing
+const UpgradeOptimizer = ({ account, characters, sectionFailed, locked }) => {
   // game: "UpgLvREQ" is checked against the Research skill level
   const researchLevel = Math.max(0, ...(characters || []).map((c) => c?.skillsInfo?.research?.level ?? 0));
+  if (locked) return null;
   return (
     <GenericUpgradeOptimizer
-      // The optimizer is account-wide; the component only needs a truthy character to run.
-      character={characters?.[0] ?? {}}
+      // The optimizer is account-wide and only needs a character to run; a guest has none and gets the sign-in note.
+      character={characters?.[0]}
       account={account}
+      sectionFailed={sectionFailed}
       getOptimizedUpgradesFn={(char, acc, category, maxUpgrades, options) => getOptimizedJellyUpgrades(
         char, acc, category, maxUpgrades, { ...options, researchLevel }
       )}

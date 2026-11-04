@@ -109,9 +109,9 @@ const ClamWork = () => {
     </PageSummary>
     <Tabber tabs={['Upgrades', 'Upgrade Optimizer', 'Scurge', 'Scurge Optimizer', 'Compensations']}>
       <Upgrades upgrades={upgrades} ownedPearls={ownedPearls ?? 0}/>
-      <UpgradeOptimizer character={character} account={optimizerAccount} multiKill={multiKill}/>
+      <UpgradeOptimizer character={character} account={optimizerAccount} multiKill={multiKill} sectionFailed={sectionFailed}/>
       <Scurge scurge={scurge}/>
-      <ScurgeOptimizer character={character} account={optimizerAccount} multiKill={multiKill}/>
+      <ScurgeOptimizer character={character} account={optimizerAccount} multiKill={multiKill} sectionFailed={sectionFailed}/>
       <Compensations compensations={compensations}/>
     </Tabber>
   </>;
