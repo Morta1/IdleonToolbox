@@ -10,10 +10,10 @@ import { treasureIndex, treasureName } from './LootPile';
 const Trade = ({ rawName, date, lootItemCost, moneyValue }) => {
   const formatDate = useFormatDate();
   return <>
-    <Stack direction={'row'} alignItems={'center'} justifyContent={'center'} gap={1}>
-      {isValid(new Date(date)) ? formatDate(new Date(date)) : null}
+    <Stack direction={'row'} alignItems={'center'} gap={1}>
+      {isValid(new Date(date)) ? formatDate(new Date(date), { showSeconds: false }) : null}
     </Stack>
-    <Stack direction={'row'} alignItems={'center'} gap={1} justifyContent={'center'}>
+    <Stack direction={'row'} alignItems={'center'} gap={1}>
       <Stack direction={'row'} gap={1} alignItems={'center'}>
         <GameIcon src={`data/${rawName}.png`} size={24} alt={treasureName(treasureIndex(rawName))}/>
         <Num value={lootItemCost ?? 0} system={'Sailing'}/>
