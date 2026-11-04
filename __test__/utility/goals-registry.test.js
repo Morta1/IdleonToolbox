@@ -218,6 +218,7 @@ it.each([[999999, 999999, null], [200, 999999, 200], [998, 999, 998], [999, 999,
 
 it('cleanUpgradeName strips glyphs and help markers', () => {
   expect(cleanUpgradeName('Wraith_Damage(Tap_for_more_info)船')).toBe('Wraith Damage');
+  expect(cleanUpgradeName('Mining_Payday$_製')).toBe('Mining Payday');
 });
 
 // Lists that are filtered after the catalog position is known: the key must stay the catalog position

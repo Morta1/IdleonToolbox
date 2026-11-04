@@ -1,10 +1,12 @@
 import { cleanUnderscore } from '@utility/helpers';
 
+// Three vault names end in the game's money sign ($), which reads as a raw placeholder
 export const cleanUpgradeName = (name) => cleanUnderscore(name
   .replace(/[船般航舞製]/, '')
+  .replace(/[$]/g, '')
   .replace('(Tap_for_more_info)', '')
   .replace('(Tap_for_Info)', '')
-  .replace('(#)', ''));
+  .replace('(#)', '')).trim();
 
 // Masterclass glyphs plus 千膛, which only show up in the Royal Guardian catalogs (statues, orblet market, armory).
 export const cleanText = (str) => cleanUnderscore((str ?? '').replace(/[船般航舞製千膛]/g, ''));
