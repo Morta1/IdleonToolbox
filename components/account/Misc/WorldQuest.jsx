@@ -27,7 +27,8 @@ export const shapeQuests = (quests, selected, doneByAny, greenStacks) => {
       const progress = ofPicked(quest?.progress);
       // A quest-only drop is still at risk while it isn't greenstacked and a picked character can still finish the
       // quest (and lose the drop)
-      const missableDrops = (quest?.missableDrops ?? []).map((rawName) => ({ rawName, greenStacked: greenStacks.has(rawName) }));
+      // No greenstack list (a failed looty section): which drops are stacked isn't known, so nothing is at risk
+      const missableDrops = (quest?.missableDrops ?? []).map((rawName) => ({ rawName, greenStacked: greenStacks?.has(rawName) }));
       const done = isDone(completed);
       return {
         ...quest,
@@ -36,7 +37,7 @@ export const shapeQuests = (quests, selected, doneByAny, greenStacks) => {
         missableDrops,
         done,
         inProgress: !done && (completed.length > 0 || progress.some(({ status }) => status === 0)),
-        missablePending: selected.length > 0 && completed.length < selected.length
+        missablePending: !!greenStacks && selected.length > 0 && completed.length < selected.length
           && missableDrops.some(({ greenStacked }) => !greenStacked)
       };
     });

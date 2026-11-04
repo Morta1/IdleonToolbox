@@ -17,10 +17,18 @@ const WORLDS = ['Blunder_Hills', 'Yum_Yum_Desert', 'Frostbite_Tundra', 'Hyperion
 
 const QUESTS_TOOLBAR = { show: '0', hideCompleted: false, doneByAny: false, missable: false };
 
+// The sections Quests reads, by the name its one note gives them; a whole-parse failure names the page
+const SECTIONS = [['quests', 'Quests'], ['totalQuestsCompleted', 'Unique quests completed'], ['looty', 'the Slab']];
+const joinNames = (names) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0]);
+
 const Quests = () => {
   const { state } = useContext(AppContext);
   const questsFailed = isSectionFailed(state?.account, 'quests');
   const totalFailed = isSectionFailed(state?.account, 'totalQuestsCompleted');
+  // A failed looty section has no greenstack list: no drop is called missable and the filter goes
+  const lootyFailed = isSectionFailed(state?.account, 'looty');
+  const failedNames = state?.account?.failedSections?.includes('*') ? 'Quests'
+    : joinNames(SECTIONS.filter(([key]) => state?.account?.failedSections?.includes(key)).map(([, name]) => name));
   const [view, setView, resetView] = useToolbarState('quests', QUESTS_TOOLBAR);
   const characters = state?.characters ?? [];
   const picked = Number(view.show);
@@ -28,9 +36,9 @@ const Quests = () => {
   const selected = !characters.length ? [] : view.show === 'all' ? characters.map((_, index) => index)
     : [Number.isInteger(picked) && picked >= 0 && picked < characters.length ? picked : 0];
   const worlds = questsFailed ? {} : shapeQuests(state?.account?.quests ?? {}, selected, view.doneByAny,
-    new Set(state?.account?.looty?.greenStacks ?? []));
+    lootyFailed ? null : new Set(state?.account?.looty?.greenStacks ?? []));
   const shownOf = (world) => (worlds?.[world] ?? []).filter((npc) => (!view.hideCompleted || npc?.status !== 1)
-    && (!view.missable || npc?.missablePending));
+    && (!view.missable || lootyFailed || npc?.missablePending));
   const npcCount = WORLDS.reduce((sum, world) => sum + (worlds?.[world]?.length ?? 0), 0);
   const shownCount = WORLDS.reduce((sum, world) => sum + shownOf(world).length, 0);
 
@@ -40,7 +48,7 @@ const Quests = () => {
         title="Quests | Idleon Toolbox"
         description="Track quest completion progress across all NPCs and characters in Legends of Idleon"
       />
-      {questsFailed ? <MissingData name={'Quests'} failed/> : null}
+      {failedNames ? <MissingData name={failedNames} failed/> : null}
       <PageSummary>
         <StatTile label={'Unique quests completed'}
                   value={totalFailed ? '-' : formatNum(state?.account?.totalQuestsCompleted ?? 0)}
@@ -58,7 +66,7 @@ const Quests = () => {
             ...characters.map((character, index) => [`${index}`, character?.name])]}/> : null}
           <Toolbar.Filter name={'hideCompleted'} label={'Hide completed'}/>
           <Toolbar.Filter name={'doneByAny'} label={'Done by any'}/>
-          <Toolbar.Filter name={'missable'} label={'Missable greenstacks'}/>
+          {lootyFailed ? null : <Toolbar.Filter name={'missable'} label={'Missable greenstacks'}/>}
         </Toolbar>
         <CardGrid size={'l'} sx={{ alignItems: 'start' }}>
           {WORLDS.map((world) => <WorldQuest key={world} worldName={world} npcs={shownOf(world)} characters={characters}/>)}
