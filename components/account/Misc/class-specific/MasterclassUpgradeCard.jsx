@@ -27,6 +27,8 @@ const MasterclassUpgradeCard = ({
                                   targetLevel,
                                   targetCost,
                                   unlockText,
+                                  // A caption under the cost: how far off the priced level is (the Armory)
+                                  footerLine,
                                   unlocked,
                                   catalogOnly
                                 }) => {
@@ -40,7 +42,8 @@ const MasterclassUpgradeCard = ({
                      {title.slice(0, lastWordAt)}
                      <Box component="span" sx={{ whiteSpace: 'nowrap' }}>{title.slice(lastWordAt)}{helpIcon}</Box>
                    </> : title}
-                   level={{ value: level, max: maxLevel }}
+                   // An uncapped upgrade (an armory shelf past 999) reads its level with no max
+                   level={{ value: level, max: Number.isFinite(maxLevel) ? maxLevel : null }}
                    status={catalogOnly ? undefined : isMaxed ? 'maxed' : unlocked ? undefined : 'locked'}
                    footer={catalogOnly ? null : <>
                      <ItemCard.Cost icon={`data/${currencyIcon}.png`} iconAlt={currencyName} game={costGame} need={nextCost}
@@ -48,6 +51,7 @@ const MasterclassUpgradeCard = ({
                      {targetLevel > level + 1
                        ? <LevelsAheadCaption targetLevel={formatNum(targetLevel)} targetCost={targetCost} owned={owned} indent={32}/>
                        : null}
+                     {footerLine ? <Typography variant={'body2'} color={'text.secondary'}>{footerLine}</Typography> : null}
                      {unlockText ? <Typography variant={'body2'} color={'text.secondary'}>{unlockText}</Typography> : null}
                    </>}>
     <ItemCard.Desc text={description}/>

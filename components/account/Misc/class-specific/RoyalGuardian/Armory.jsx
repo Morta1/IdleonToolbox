@@ -1,68 +1,54 @@
-import React, { useState } from 'react';
-import { Box, Card, CardContent, Divider, FormControl, InputLabel, Select, Stack, TextField, Typography } from '@mui/material';
-import StatusText from '@components/common/StatusText';
-import MenuItem from '@mui/material/MenuItem';
-import { commaNotation, notateNumber, prefix } from '@utility/helpers';
+import React from 'react';
+import { Stack } from '@mui/material';
+import { formatDuration, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { cleanText } from '@utility/goals/registry/names';
-import useCheckbox from '@components/common/useCheckbox';
-import { getArmoryTotalUpgradeCost } from '@parsers/class-specific/royalGuardian';
-import { formatLevelsAheadCost } from '../useMasterclassCostControls';
-import { formatEta } from './formatEta';
+import { getArmoryTotalUpgradeCost, ROYAL_RESOURCE_NAMES } from '@parsers/class-specific/royalGuardian';
+import MasterclassUpgradeCard from '../MasterclassUpgradeCard';
+import CardGrid from '@components/common/cards/CardGrid';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
 
+// Shelf order (the in-game armory layout) unless a sort is picked. A saved checkbox from before resets once: the old
+// shared "Hide maxed/locked upgrades" keys ticked four pages at once.
+const ARMORY_TOOLBAR = { search: '', sort: null, hideMaxed: false, hideLocked: false };
+const SORT_VALUE = { cost: (upgrade) => upgrade.cost || 0, level: (upgrade) => upgrade.level || 0 };
+
 // The armory renders every upgrade at its OWN shelf currency icon (RGres{costResourceIndex}.png) -
 // this is the game's own render, not a per-upgrade icon; there is no such asset.
-const Armory = ({ account, upgrades, resourceStorage, resourcePerHour, costing }) => {
-  const [sortBy, setSortBy] = useState('slot');
-  const [searchText, setSearchText] = useState('');
-  const [CheckboxEl, hideMaxedUpgrades] = useCheckbox('Hide maxed upgrades');
-  const [LockedCheckboxEl, hideLockedUpgrades] = useCheckbox('Hide locked upgrades');
-  // The page's Levels ahead and Daily Shopping Spree (its Page settings)
+// costing: the page's Levels ahead and Daily Shopping Spree (its Page settings). sectionFailed: the shelves at zero by
+// name (the parser's empty save), with no cost, state or Toolbar.
+const Armory = ({ account, upgrades, resourceStorage, resourcePerHour, costing, sectionFailed }) => {
   const { levelsAhead = 1, forceLegendTalent, isOverridden } = costing ?? {};
+  const [view, setView, resetView] = useToolbarState('royal-armory-armory', ARMORY_TOOLBAR);
 
   // Only the 69 shelf slots are ever shown - the 14 catalog ids with no slot aren't purchasable
   // and have no shelf position to render in (see task C2 brief).
-  const shelved = (upgrades ?? []).filter((upgrade) => upgrade.slot >= 0);
-
-  const filtered = shelved.filter((upgrade) => matchesUpgradeSearch(upgrade, searchText));
-
-  const sorted = [...filtered].sort((a, b) => {
-    if (sortBy === 'cost') return (a.cost || 0) - (b.cost || 0);
-    if (sortBy === 'level') return (b.level || 0) - (a.level || 0);
-    return a.slot - b.slot; // shelf order, matching the in-game armory layout
-  });
+  const shelved = (upgrades ?? []).filter((upgrade) => upgrade.slot >= 0).toSorted((a, b) => a.slot - b.slot);
+  const shown = sectionFailed ? shelved : shelved.filter((upgrade) => matchesUpgradeSearch(upgrade, view?.search)
+    && !(view?.hideMaxed && upgrade.maxed)
+    && !(view?.hideLocked && !upgrade.unlocked));
+  const sorted = view?.sort && !sectionFailed
+    ? shown.toSorted((a, b) => (view.sort.order === 'desc' ? -1 : 1) * (SORT_VALUE[view.sort.key](a) - SORT_VALUE[view.sort.key](b)))
+    : shown;
 
   return (
     <Stack direction="column" gap={4}>
-      <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
-        <FormControl size="small" sx={{ width: 200 }}>
-          <InputLabel>Sort By</InputLabel>
-          <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
-            <MenuItem value="slot">Shelf order</MenuItem>
-            <MenuItem value="cost">Cost</MenuItem>
-            <MenuItem value="level">Level</MenuItem>
-          </Select>
-        </FormControl>
-        <TextField
-          size="small"
-          label="Search by name or description"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          sx={{ width: 250 }}
-        />
-        <CheckboxEl/>
-        <LockedCheckboxEl/>
-      </Stack>
-
-      <Stack direction="row" gap={2} flexWrap="wrap" alignItems="stretch">
+      {sectionFailed ? null : <Toolbar state={view} defaults={ARMORY_TOOLBAR} onChange={setView} onReset={resetView}
+                                       total={shelved.length} shown={shown.length} noun={'shelves'}>
+        <Toolbar.Search placeholder={'Search shelves'}/>
+        <Toolbar.Sort options={[['cost', 'Cost', 'asc'], ['level', 'Level', 'desc']]}/>
+        <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
+        <Toolbar.Filter name={'hideLocked'} label={'Hide locked'}/>
+      </Toolbar>}
+      {sorted.length ? <CardGrid size={'m'}>
         {sorted.map((upgrade) => {
           const {
             index, name, description, level, maxLevel, cost, unlocked, maxed, slot, shelfUnlockTotalLevels,
             costResourceIndex, costResourceRawName
           } = upgrade;
-          if (hideMaxedUpgrades && maxed) return null;
-          if (hideLockedUpgrades && !unlocked) return null;
           const capped = maxLevel < 999;
           const stored = resourceStorage?.[costResourceIndex] ?? 0;
           const targetLevel = Math.min(level + levelsAhead, capped ? maxLevel : Infinity);
@@ -70,66 +56,33 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour, costing }
           const targetCost = maxed ? 0 : getArmoryTotalUpgradeCost(account, upgrade, targetLevel, forceLegendTalent);
           const income = resourcePerHour?.[costResourceIndex] ?? 0;
           const missing = Math.max(0, targetCost - stored);
-          const eta = income > 0
-            ? `ready in ${formatEta(missing / income)} · ${notateNumber(income, 'Big')}/hr`
-            : 'not collected by any outpost';
+          // How far off the priced level is, at the outposts' income (the Resources tab's)
+          const footerLine = sectionFailed || maxed || missing <= 0 ? null : income > 0
+            ? `Ready in ${formatDuration(3600 * missing / income)} at ${formatGame(income, 'RoyalG.OutpostResourceRate')}/hr`
+            : 'Not collected by any outpost';
 
-          return (
-            <Card key={index}>
-              <CardContent sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                width: 340,
-                minHeight: 230,
-                height: '100%',
-                opacity: unlocked ? 1 : 0.5
-              }}>
-                <Stack direction="row" gap={2} flexWrap="nowrap" alignItems="center">
-                  <img style={{ width: 32, height: 32, flexShrink: 0 }} src={`${prefix}data/${costResourceRawName}.png`} alt=""/>
-                  <Typography sx={{ minWidth: 0 }}>
-                    {/* The level and the help i wrap as one piece, so the i never sits alone on a line */}
-                    {cleanText(name)} <Box component="span" sx={{ whiteSpace: 'nowrap' }}>
-                      ({level}{capped ? ` / ${maxLevel}` : ''})
-                      <UpgradeHelpIcon label={cleanText(name)} panel="armory" index={index}/>
-                    </Box>
-                  </Typography>
-                  {!unlocked ? <StatusText status={'locked'} sx={{ flexShrink: 0 }}/> : null}
-                </Stack>
-                <Divider sx={{ my: 1 }}/>
-                <Typography sx={{ whiteSpace: 'pre-line' }}>{cleanText(description)}</Typography>
-                <Divider sx={{ my: 1, mt: 'auto' }}/>
-                <Stack direction="row" gap={1} flexWrap="wrap" alignItems="center">
-                  <img style={{ width: 24, height: 24 }} src={`${prefix}data/${costResourceRawName}.png`} alt=""/>
-                  {maxed
-                    ? <Typography>Maxed</Typography>
-                    : <Typography color={stored >= nextCost ? 'text.success' : 'text.error'}>
-                      Cost: {notateNumber(stored)} / {notateNumber(nextCost, 'Big')}
-                    </Typography>}
-                </Stack>
-                {/* The next level is always the cost row above; this line only prices the picker's
-                    target when it goes further, or says how far off the next level is. */}
-                {!maxed && (targetLevel > level + 1 || missing > 0)
-                  ? <Typography variant="caption" color="text.secondary" sx={{ pl: 4 }}>
-                    {targetLevel > level + 1
-                      ? <>
-                        {'Lv '}{targetLevel}{': '}
-                        <Typography component="span" variant="caption"
-                                    color={missing <= 0 ? 'text.success' : 'text.error'}>
-                          {formatLevelsAheadCost(targetCost)}
-                        </Typography>
-                        {missing > 0 ? ` · ${eta}` : ''}
-                      </>
-                      : eta.charAt(0).toUpperCase() + eta.slice(1)}
-                  </Typography>
-                  : null}
-                <Divider sx={{ my: 1 }}/>
-                {/* The game numbers shelves from 1, the catalog slots from 0. */}
-                <Typography>Shelf {slot + 1} · Unlocks at: {commaNotation(shelfUnlockTotalLevels)} levels</Typography>
-              </CardContent>
-            </Card>
-          );
+          return <MasterclassUpgradeCard key={index}
+                                         name={name}
+                                         icon={costResourceRawName}
+                                         helpIcon={<UpgradeHelpIcon label={cleanText(name)} panel="armory" index={index}/>}
+                                         level={level}
+                                         maxLevel={capped ? maxLevel : Infinity}
+                                         // The parser turns the game's @ into line breaks: one line each
+                                         description={cleanText(description).split('\n')}
+                                         currencyIcon={costResourceRawName}
+                                         currencyName={ROYAL_RESOURCE_NAMES[costResourceIndex] ?? ''}
+                                         costGame={'RoyalG.ArmoryUpgCost'}
+                                         owned={stored}
+                                         nextCost={nextCost}
+                                         targetLevel={targetLevel}
+                                         targetCost={targetCost}
+                                         // The game numbers shelves from 1, the catalog slots from 0
+                                         unlockText={`Shelf ${formatNum(slot + 1)}${unlocked ? '' : ` · unlocks at ${formatNum(shelfUnlockTotalLevels)} levels`}`}
+                                         footerLine={footerLine}
+                                         unlocked={unlocked}
+                                         catalogOnly={sectionFailed}/>;
         })}
-      </Stack>
+      </CardGrid> : null}
     </Stack>
   );
 };
