@@ -11,12 +11,10 @@ const PlayerStarSigns = ({ signs }) => {
         return starName !== 'None' ? <Card key={starName + index}>
             <CardContent>
               <Typography fontWeight={'bold'} variant={'body1'}>{cleanUnderscore(starName)}</Typography>
-              <Typography color={hasChipBoost ? 'text.info' : ''}>{bonuses?.map(({
-                                                                                    rawName,
-                                                                                    bonus
-                                                                                  }, index) => `${cleanUnderscore(formatStarSignBonus(rawName, bonus))}${bonuses.length - 1 === index
-                ? ''
-                : ', '}`)}</Typography>
+              {/* Each of the game's lines on its own: a comma between them broke a sentence that runs over two */}
+              {bonuses?.map(({ rawName, bonus }, lineIndex) => <Typography key={lineIndex} color={hasChipBoost ? 'text.info' : ''}>
+                {cleanUnderscore(formatStarSignBonus(rawName, bonus))}
+              </Typography>)}
             </CardContent>
           </Card>
           : null;

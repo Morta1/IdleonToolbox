@@ -10,6 +10,10 @@ import { PAGES } from '@components/constants';
 import useTabIndex from '@hooks/useTabIndex';
 import usePageTop from '@hooks/usePageTop';
 
+const bonusLines = ({ bonuses, description }) => (bonuses
+  ? bonuses.map(({ rawName, bonus }) => cleanUnderscore(formatStarSignBonus(rawName, bonus)))
+  : [cleanUnderscore(description)]);
+
 const StarSigns = ({ starSigns, infiniteStars }) => {
   const tabs = getTabs(PAGES.ACCOUNT.misc.categories, 'constellations', 'Star Signs');
   const [selectedTab] = useTabIndex(tabs, { queryKey: 'nt' });
@@ -45,9 +49,10 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
       label: 'Bonuses',
       // What a sign gives is the point, so a phone keeps it beside the name; the cost waits under the chevron.
       phone: true,
-      value: ({ bonuses, description }) => (bonuses
-        ? bonuses.map(({ rawName, bonus }) => cleanUnderscore(formatStarSignBonus(rawName, bonus))).join(', ')
-        : cleanUnderscore(description))
+      value: (row) => bonusLines(row).join(' '),
+      // Each of the game's lines on its own: one sentence can run over two ("+10% chance to not" / "consume food"),
+      // so a comma between them broke it mid-sentence
+      render: (row) => bonusLines(row).map((line, index) => <Box key={index} component={'span'} sx={{ display: 'block' }}>{line}</Box>)
     },
     { key: 'cost', label: 'Cost', numeric: true, value: ({ cost }) => cost }
   ];
