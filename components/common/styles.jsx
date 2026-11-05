@@ -128,9 +128,8 @@ const sectionName = (key) => {
   return `${words.charAt(0).toUpperCase()}${words.slice(1)}`;
 };
 const joinNames = (names) => (names.length < 2 ? names.join('') : `${names.slice(0, -1).join(', ')} and ${names.at(-1)}`);
-// What a page that reads many sections says failed: '*' (the whole parse) is "your save", and past three the rest are counted.
-const failedSectionsName = (sections) => (sections.includes('*') ? 'your save'
-  : joinNames([...sections.slice(0, 3).map(sectionName), ...(sections.length > 3 ? [`${sections.length - 3} more`] : [])]));
+// What a page that reads many sections says failed: '*' (the whole parse) is "your save", else every one by name.
+const failedSectionsName = (sections) => (sections.includes('*') ? 'your save' : joinNames(sections.map(sectionName)));
 
 // A page's first note when its section is missing or failed to parse (Notices board, "Never replace the page"): the
 // page renders under it. sections: the parse's failed keys, for a page that reads too many to name itself (failed is
@@ -150,9 +149,11 @@ export const MissingData = ({ name, failed, sections }) => {
 };
 
 // A page's first note for the sections it reads directly: names ({ key: name }, first first) says what to call the first
-// failed one, and a whole-parse failure reads "your save".
+// failed one, and a whole-parse failure reads "your save". With no names, a page of composites that read nearly every
+// section: any failed one counts, and the note names them all.
 export const MissingSections = ({ account, names }) => {
   const failed = account?.failedSections;
+  if (!names) return failed?.length ? <MissingData sections={failed}/> : null;
   const first = failed?.includes('*') ? 'your save' : names?.[Object.keys(names ?? {}).find((key) => failed?.includes(key))];
   return first ? <MissingData name={first} failed/> : null;
 };

@@ -22,15 +22,11 @@ import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import Notice from '@components/common/Notice';
 import Toolbar from '@components/common/Toolbar';
 import Panel from '@components/common/cards/Panel';
-import { isSectionFailed, MissingSections } from '@components/common/styles';
+import { MissingSections } from '@components/common/styles';
 import HeaderCharacterPicker from '@components/tools/HeaderCharacterPicker';
 import useToolbarState from '@hooks/useToolbarState';
 
 const FORMULAS_TOOLBAR = { search: '' };
-const SECTION_NAMES = {
-  hole: 'The Hole', alchemy: 'Alchemy', breeding: 'Breeding', legendTalents: 'Legend Talents', farming: 'Farming', printer: 'Printer',
-  gaming: 'Gaming', equinox: 'Equinox'
-};
 
 // A formula's own parser can read a section its name doesn't say: a throw reads "-", as a failed section does.
 const attempt = (read) => {
@@ -45,6 +41,12 @@ const EXPRESSION_SX = { borderRadius: '12px', p: 1.5, borderLeft: '4px solid var
 
 // The game rolls a double drop once, so anything past 100% is wasted
 const doubleDropChance = (value) => `${formatNum(value, 'pct')}${value > 100 ? ' (capped at 100%)' : ''}`;
+// A drop size counts whole statues or foods: 6x, as main reads it
+const dropSize = (value) => `${formatNum(value, 'whole')}x`;
+
+// A drawer's line in its trigger's words and unit: the parser's breakdown keeps its own for the pages that read it.
+const withLine = (breakdown, name, patch) => (breakdown
+  ? { ...breakdown, tree: breakdown.tree?.map((node) => (node.name === name ? { ...node, ...patch } : node)) } : breakdown);
 
 const Formulas = () => {
   const { state } = useContext(AppContext);
@@ -53,26 +55,26 @@ const Formulas = () => {
   const [pickedChar, setPickedChar] = useLocalStorage({ key: 'formulas:character' });
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('formulas', FORMULAS_TOOLBAR);
   const selectedChar = characters?.[pickedChar] ?? characters?.[0] ?? null;
-  const failed = (name) => isSectionFailed(account, name);
-  // Every per-character formula reads the hole's schematics and throws without them, and a guest has no character
-  const perCharacter = (read) => (selectedChar && !failed('hole') ? attempt(read) : null);
-  const unlessFailed = (name, read) => (failed(name) ? null : attempt(read));
+  // These composites read nearly every section, over its empty fallback when it failed: under any failed section their
+  // numbers aren't the player's, so they read "-" and the note names what failed. A guest has no character.
+  const composite = (read) => (account?.failedSections?.length ? null : attempt(read));
+  const perCharacter = (read) => (selectedChar ? composite(read) : null);
 
   const respawnRate = perCharacter(() => getRespawnRate(selectedChar, account));
   const cashMulti = perCharacter(() => getCashMulti(selectedChar, account, characters));
   const expMulti = perCharacter(() => getClassExpMulti(selectedChar, account, characters));
   const dropRate = perCharacter(() => getDropRate(selectedChar, account, characters));
-  const cropEvo = failed('farming') ? null : perCharacter(() => getCropEvolution(account, selectedChar, account?.farming?.plot?.[0], false, characters));
-  const printerMulti = unlessFailed('printer', () => getPrinterMulti(account, characters));
-  const bitMulti = unlessFailed('gaming', () => (account?.gaming ? getBitsMulti(account, characters) : null));
+  const cropEvo = perCharacter(() => getCropEvolution(account, selectedChar, account?.farming?.plot?.[0], false, characters));
+  const printerMulti = composite(() => getPrinterMulti(account, characters));
+  const bitMulti = composite(() => (account?.gaming ? getBitsMulti(account, characters) : null));
   const goldenFoodMulti = perCharacter(() => getGoldenFoodMulti(selectedChar, account, characters));
   const doubleStatueDropChance = perCharacter(() => getDoubleStatueDrop(account, selectedChar, characters));
   const doubleGoldenFoodDropChance = perCharacter(() => getDoubleGoldenFoodDrop(account, selectedChar, characters));
-  const doubleStatueDropSize = unlessFailed('*', () => getDoubleStatueDropSize(account));
-  const doubleGoldenFoodDropSize = unlessFailed('*', () => getDoubleGoldenFoodDropSize(account));
+  const doubleStatueDropSize = composite(() => getDoubleStatueDropSize(account));
+  const doubleGoldenFoodDropSize = composite(() => getDoubleGoldenFoodDropSize(account));
   const crystal = perCharacter(() => selectedChar?.crystalSpawnChance);
-  const monument = unlessFailed('hole', () => account?.hole?.caverns?.bravery?.afkPercent);
-  const equinox = unlessFailed('equinox', () => account?.equinox);
+  const monument = composite(() => account?.hole?.caverns?.bravery?.afkPercent);
+  const equinox = composite(() => account?.equinox);
 
   const formulas = [
     {
@@ -90,6 +92,8 @@ const Formulas = () => {
       value: respawnRate?.respawnRate,
       breakdown: respawnRate?.breakdown,
       renderValue: (value) => formatNum(value, 'pct'),
+      // A fixed respawn's one line: the parser's "Respawn time 180" under a trigger reading "180%"
+      drawer: (breakdown, text) => withLine(breakdown, 'Respawn time', { name: 'Respawn rate', formatted: text }),
       description: 'How often a mob is spawned'
     },
     {
@@ -186,7 +190,8 @@ const Formulas = () => {
       formula: doubleStatueDropSize?.expression,
       value: doubleStatueDropSize?.value,
       breakdown: doubleStatueDropSize?.breakdown,
-      renderValue: (value) => formatNum(value, 'mult'),
+      renderValue: dropSize,
+      drawer: (breakdown, text) => withLine(breakdown, '2x Drop Size', { formatted: text }),
       description: 'How many statues a double statue drop gives'
     },
     {
@@ -204,7 +209,8 @@ const Formulas = () => {
       formula: doubleGoldenFoodDropSize?.expression,
       value: doubleGoldenFoodDropSize?.value,
       breakdown: doubleGoldenFoodDropSize?.breakdown,
-      renderValue: (value) => formatNum(value, 'mult'),
+      renderValue: dropSize,
+      drawer: (breakdown, text) => withLine(breakdown, '2x Drop Size', { formatted: text }),
       description: 'How many golden foods a double golden food drop gives'
     }
   ];
@@ -219,7 +225,7 @@ const Formulas = () => {
       description="Browse formulas and calculations for various Legends of Idleon game mechanics including damage, drop rates, and more"
     />
     {!characters ? <DataLoadingWrapper/> : <>
-      <MissingSections account={account} names={SECTION_NAMES}/>
+      <MissingSections account={account}/>
       {state?.emptyAccount ? <Notice tone={'signin'} sx={{ mb: 2 }}>Character formulas use your characters once you sign in.</Notice> : null}
       {characters.length ? <HeaderCharacterPicker characters={characters} value={String(selectedChar?.playerId ?? '')} onChange={setPickedChar}/> : null}
       <Box>
@@ -228,20 +234,23 @@ const Formulas = () => {
           <Toolbar.Search placeholder={'Search formulas'}/>
         </Toolbar>
         <Stack gap={1}>
-          {shownFormulas.map(({ id, name, description, formula, value: rawValue, breakdown, renderValue }) => {
+          {shownFormulas.map(({ id, name, description, formula, value: rawValue, breakdown, renderValue, drawer }) => {
             // A numeric string is a number; anything else a failed section left reads "-", with nothing to open
             const value = typeof rawValue === 'string' ? Number(rawValue) : rawValue;
             const known = Number.isFinite(value);
             const text = known ? renderValue(value) : '-';
             // The drawer is headed with the value's own text, so the two read alike
-            const shown = known && breakdown ? <Breakdown data={{ ...breakdown, totalValue: text }} skipNotation title={name} asValue>{text}</Breakdown> : text;
+            const shownBreakdown = drawer ? drawer(breakdown, text) : breakdown;
+            const shown = known && breakdown ? <Breakdown data={{ ...shownBreakdown, totalValue: text }} skipNotation title={name} asValue>{text}</Breakdown> : text;
             return <Panel key={id} collapsible defaultOpen={false} title={name} meta={description}
                           aside={<Typography variant={'value'} component={'div'} sx={{ textAlign: 'right' }}>{shown}</Typography>}>
               <Stack gap={1} sx={{ p: 2 }}>
-                <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>Formula</Typography>
-                {formula ? <Box sx={EXPRESSION_SX}><Highlighter>{formula}</Highlighter></Box>
-                  : <Typography variant={'body2'} color={'text.secondary'}>-</Typography>}
-                <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'} sx={{ mt: 1 }}>Result</Typography>
+                {/* A formula the parser doesn't write out has no heading to sit under */}
+                {formula ? <>
+                  <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>Formula</Typography>
+                  <Box sx={EXPRESSION_SX}><Highlighter>{formula}</Highlighter></Box>
+                </> : null}
+                <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'} sx={formula ? { mt: 1 } : undefined}>Result</Typography>
                 <Typography variant={'value'} component={'div'}>{shown}</Typography>
               </Stack>
             </Panel>;
