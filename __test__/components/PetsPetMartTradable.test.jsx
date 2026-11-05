@@ -178,7 +178,7 @@ describe('Pets page: Pet Mart+ sales history', () => {
     fireEvent.mouseDown(within(container).getByRole('combobox', { name: 'Sort by' }));
     fireEvent.click(document.querySelector('li[data-value="lastSeen"]'));
     // The sort opens newest first; its direction button turns it to oldest first
-    if (sortBy === 'oldest') fireEvent.click(within(container).getByRole('button', { name: 'Descending' }));
+    if (sortBy === 'oldest') fireEvent.click(within(container).getByRole('button', { name: 'Highest first, click to flip' }));
     const order = expected().map((index) => cardOf(index));
     for (let i = 1; i < order.length; i++) {
       expect(order[i - 1].compareDocumentPosition(order[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();

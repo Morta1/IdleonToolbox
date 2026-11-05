@@ -16,6 +16,7 @@ import usePageTop from '@hooks/usePageTop';
 import { same } from '@hooks/useToolbarState';
 import Notice from '@components/common/Notice';
 import InfoButton from '@components/common/InfoButton';
+import Tooltip from '@components/Tooltip';
 import { commaNotation } from '@utility/helpers';
 import AppDialog from '@components/common/Overlays/AppDialog';
 import ViewSwitch from '@components/common/ViewSwitch';
@@ -133,15 +134,17 @@ const Filter = ({ name, label }) => {
   return <FilterPill value={name} on={on} label={label} onToggle={() => onChange({ [name]: !on })}/>;
 };
 
-// The sort without the headers: options are [key, label, firstOrder?]. A click on a table's header flips its sort, but a
-// card view and a phone have no header to click: there the direction button is the only way, so it stays, and it shows
-// once a sort is picked rather than sitting faint and disabled. (The one Sort over a sortable table, the wiki's listing,
-// hides below its headers' width.)
+// The sort without the headers: options are [key, label, firstOrder?, alphabetical?]. A click on a table's header flips its
+// sort, but a card view and a phone have no header to click: there the direction button is the only way, so it stays, and it
+// shows once a sort is picked rather than sitting faint and disabled. (The one Sort over a sortable table, the wiki's listing,
+// hides below its headers' width.) alphabetical: its key is words, so the button says A to Z, not lowest first.
 const Sort = ({ name = 'sort', options, sx }) => {
   const { state, onChange, placement } = useContext(ToolbarContext);
   const sort = state[name] ?? null;
   const descending = sort?.order === 'desc';
   const labelOf = (key) => options.find(([value]) => value === key)?.[1] ?? key;
+  const [low, high] = options.find(([value]) => value === sort?.key)?.[3] ? ['A to Z', 'Z to A'] : ['Lowest first', 'Highest first'];
+  const flip = `${descending ? high : low}, click to flip`;
   return <Stack direction="row" gap={0.5} alignItems="center" sx={{ ...(placement === 'panel' ? { width: '100%' } : {}), ...sx }}>
     <TextField
       select
@@ -162,14 +165,16 @@ const Sort = ({ name = 'sort', options, sx }) => {
       <MenuItem value="">Default</MenuItem>
       {options.map(([key, label]) => <MenuItem key={key} value={key}>{label}</MenuItem>)}
     </TextField>
-    {sort ? <IconButton
-      aria-label={descending ? 'Descending' : 'Ascending'}
-      // sort?.key, not sort.key: React Compiler reads a closure's property paths during render.
-      onClick={() => onChange({ [name]: { key: sort?.key, order: descending ? 'asc' : 'desc' } })}
-      sx={{ width: 40, height: 40 }}
-    >
-      {descending ? <IconArrowDown size={18}/> : <IconArrowUp size={18}/>}
-    </IconButton> : null}
+    {sort ? <Tooltip title={flip} disableTouchListener>
+      <IconButton
+        aria-label={flip}
+        // sort?.key, not sort.key: React Compiler reads a closure's property paths during render.
+        onClick={() => onChange({ [name]: { key: sort?.key, order: descending ? 'asc' : 'desc' } })}
+        sx={{ width: 40, height: 40 }}
+      >
+        {descending ? <IconArrowDown size={18}/> : <IconArrowUp size={18}/>}
+      </IconButton>
+    </Tooltip> : null}
   </Stack>;
 };
 

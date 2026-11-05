@@ -212,7 +212,7 @@ const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = nul
     if ('sort' in patch) onSortChange?.(patch.sort);
   };
   const sortOptions = [NAME_COLUMN, ...columns.filter((column) => column.sortable)]
-    .map((column) => [column.key, column.label, firstOrder({ numeric: isNumericColumn(column) })]);
+    .map((column) => [column.key, column.label, firstOrder({ numeric: isNumericColumn(column) }), !isNumericColumn(column)]);
 
   // The container the table's columns and the Sort below read: the width beside the rail, not the window's.
   return <Stack gap={2} sx={table ? { containerType: 'inline-size' } : undefined}>
