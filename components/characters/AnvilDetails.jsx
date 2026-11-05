@@ -1,5 +1,7 @@
 import React from 'react';
-import { formatNum, getCoinsArray } from 'utility/helpers';
+import { Stack } from '@mui/material';
+import { cleanUnderscore, formatNum, getCoinsArray } from 'utility/helpers';
+import { items } from '@website-data';
 import { formatGame } from '@utility/gameNotation';
 import CoinDisplay from '../common/CoinDisplay';
 import { calcAnvilExp, getPlayerAnvil } from '@parsers/world-1/anvil';
@@ -44,7 +46,10 @@ const AnvilDetails = ({ character, account, characters }) => {
       <Panel.KV label={'Capacity'} value={formatGame(anvilCapacity, 'AnvilProduceStats.Cap', { whole: true })}/>
     </Panel.Group>
     <Panel.Group label={'Material'}>
-      {anvilCost?.rawName ? <Panel.KV label={'Item'} value={<GameIcon src={`data/${anvilCost?.rawName}.png`} size={24} alt={'Anvil upgrade material'}/>}/> : null}
+      {anvilCost?.rawName ? <Panel.KV label={'Item'} value={<Stack direction={'row'} alignItems={'center'} gap={0.5} component={'span'}>
+        <GameIcon src={`data/${anvilCost?.rawName}.png`} size={24} alt={''}/>
+        {cleanUnderscore(items?.[anvilCost?.rawName]?.displayName ?? anvilCost?.rawName)}
+      </Stack>}/> : null}
       <Panel.KV label={'Upgrade cost'} value={formatNum(anvilCost?.nextMatUpgrade, 'whole')}/>
       <Panel.KV label={'Total spent'} value={formatNum(anvilCost?.totalMats, 'whole')}/>
     </Panel.Group>

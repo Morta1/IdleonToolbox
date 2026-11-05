@@ -1,4 +1,4 @@
-import { cleanUnderscore, formatNum } from 'utility/helpers';
+import { cleanUnderscore, formatNum, titleCaseName } from 'utility/helpers';
 import { Divider, Stack, Typography } from '@mui/material';
 import { TitleAndValue } from './styles';
 import GameIcon from '@components/common/GameIcon';
@@ -12,6 +12,11 @@ const smeltTime = (cooldown, account) => {
   return 60 > seconds ? `${Math.ceil(seconds)} Seconds` : 3600 > seconds ? `${Math.ceil(seconds / 60)} Minutes`
     : 86400 > seconds ? `${Math.ceil(seconds / 3600)} Hours` : `${Math.ceil(seconds / 86400)} Days`;
 };
+
+// The data's type is a raw key ("INVENTORY_G", "STORAGE_", "PREMIUM_HELMET"): a type as words
+const typeName = (type) => (type?.startsWith('INVENTORY') ? 'Inventory Bag'
+  : type?.startsWith('STORAGE') ? 'Storage Chest' : titleCaseName(cleanUnderscore(type)));
+const slotsText = (slots) => `+${slots} slot${Number(slots) === 1 ? '' : 's'}`;
 
 const ItemDisplay = ({
                        character,
@@ -86,17 +91,17 @@ const ItemDisplay = ({
     {showRawName ? <Typography variant={'caption'} color={'text.secondary'}>{rawName}</Typography> : null}
     <Divider flexItem sx={{ my: 2 }}/>
     {Type?.includes('INVENTORY') || Type?.includes('CARRY') ? <Stack alignitems={'flex-start'}>
-        {Type ? <TitleAndValue title={'Type'} value={cleanUnderscore(Type)}/> : null}
-        {capacity ? <TitleAndValue title={Type?.includes('CARRY') ? 'Base capacity' : 'Description'}
-                                   value={`${cleanUnderscore(capacity)}`}/> : null}
+        {Type ? <TitleAndValue title={'Type'} value={typeName(Type)}/> : null}
+        {capacity ? <TitleAndValue title={Type?.includes('CARRY') ? 'Base capacity' : 'Adds'}
+                                   value={Type?.includes('CARRY') ? `${cleanUnderscore(capacity)}` : slotsText(capacity)}/> : null}
         {capacityPerSlot ? <TitleAndValue title={'Capacity per slot'}
                                           value={formatNum(capacityPerSlot, 'whole')}/> : null}
         {maxCapacity ? <TitleAndValue title={'Max capacity'}
                                       value={formatNum(maxCapacity, 'whole')}/> : null}
       </Stack> :
       <Stack alignitems={'flex-start'}>
-        {Type ? <TitleAndValue title={'Type'} value={cleanUnderscore(Type)}/> : null}
-        {capacity ? <TitleAndValue title={'Description'} value={`+${cleanUnderscore(capacity)} slots`}/> : null}
+        {Type ? <TitleAndValue title={'Type'} value={typeName(Type)}/> : null}
+        {capacity ? <TitleAndValue title={'Adds'} value={slotsText(capacity)}/> : null}
         {/* One description: the filled-in lines when the item has them, else its own text, without the game's
             "Filler" padding (the raw text above the filled-in one read "Smelt down [ Ores ... Filler Filler") */}
         {mergedDesc ? <TitleAndValue value={cleanUnderscore(mergedDesc)}/>
