@@ -1,30 +1,34 @@
 import React from 'react';
-import styled from '@emotion/styled';
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
+import { Divider, Stack } from '@mui/material';
 import ItemDisplay from '../../common/ItemDisplay';
-import { prefix } from 'utility/helpers';
-import Tooltip from '../../Tooltip';
+import { cleanUnderscore, formatNum } from 'utility/helpers';
 import { CLASSES, talentPagesMap } from '@parsers/talents';
 import { items as itemsList } from '@website-data';
 import { getGoldenFoodBonus } from '@parsers/misc';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import Panel from '@components/common/cards/Panel';
+import StatusText from '@components/common/StatusText';
+import { ownerName } from '@components/tools/item-planner/ItemTooltip';
 
 const Equipment = ({ equipment, tools, food, account, character, characters, weaponByClass, hideEmpty, allAccountItems }) => {
-  return <Stack>
-    <Typography variant={'sectionTitle'} component={'h2'}>Equipment</Typography>
-    <Stack mt={2} direction={'row'} gap={1} flexWrap={'wrap'} justifyContent={'center'}>
-      <EquipmentPage allAccountItems={allAccountItems} weaponByClass={weaponByClass} windowName={'equipment'}
-                     hideEmpty={hideEmpty}
-                     items={equipment?.slice(0, 8)} character={character}
-                     account={account} characters={characters}/>
-      <EquipmentPage allAccountItems={allAccountItems} windowName={'equipment'} hideEmpty={hideEmpty}
-                     items={equipment?.slice(8)} character={character}
-                     account={account} characters={characters}/>
-      <EquipmentPage allAccountItems={allAccountItems} windowName={'tools'} hideEmpty={hideEmpty} items={tools}
-                     character={character} account={account} characters={characters}/>
-      <EquipmentPage allAccountItems={allAccountItems} windowName={'food'} hideEmpty={hideEmpty} items={food}
-                     character={character} account={account} characters={characters}/>
+  const page = (windowName, items, weapons) => <EquipmentPage allAccountItems={allAccountItems} weaponByClass={weapons} windowName={windowName}
+                                                              hideEmpty={hideEmpty} items={items} character={character}
+                                                              account={account} characters={characters}/>;
+  return <Panel title={'Equipment'}>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'flex-start'} sx={{ p: 2 }}>
+      {page('equipment', equipment?.slice(0, 8), weaponByClass)}
+      {page('equipment', equipment?.slice(8))}
+      {page('tools', tools)}
+      {page('food', food)}
     </Stack>
-  </Stack>
+  </Panel>;
+};
+
+// Where an item stands for this character, in words: a guest has no character to say it of.
+const ownedLine = (isEquipped, owners) => {
+  if (isEquipped) return <StatusText status={'active'}>Equipped</StatusText>;
+  return <StatusText status={'needs'} wrap>{owners.length ? `Not equipped: in ${owners.join(', ')}` : 'Not owned'}</StatusText>;
 };
 
 const EquipmentPage = ({ allAccountItems, items, character, account, characters, hideEmpty, windowName, weaponByClass }) => {
@@ -32,59 +36,29 @@ const EquipmentPage = ({ allAccountItems, items, character, account, characters,
   const baseClass = classes.find(cls => talentPagesMap?.[character?.class]?.includes(cls)) || CLASSES.Beginner;
   const actualItem = itemsList?.[weaponByClass?.[baseClass]];
 
-  return (
-    <Box
-      sx={{
-        display: 'grid',
-        justifyContent: 'center',
-        gridTemplateColumns: 'repeat(2, 60px)'
-      }}
-    >
-      {items?.slice(0, 8).map((item, itemIndex) => {
-        const { rawName, displayName, amount } = (itemIndex === 1 && actualItem ? actualItem : item) || {};
-        if (hideEmpty && rawName === 'Blank') return null;
+  return <CardGrid size={'icon'} columns={2} sx={{ flex: '0 0 152px' }}>
+    {items?.slice(0, 8).map((item, itemIndex) => {
+      const shownItem = (itemIndex === 1 && actualItem ? actualItem : item) || {};
+      const { rawName, displayName, amount } = shownItem;
+      if (hideEmpty && rawName === 'Blank') return null;
 
-        const isEquipped = character?.[windowName]?.some(({ rawName: rName }) => rName === rawName);
-        let owners
-        if (!isEquipped) {
-          owners = allAccountItems.filter(({ rawName: rName }) => rName === rawName).map(({ owner }) => owner);
-        }
-
-        return (
-          <Card
-            key={`${rawName}-${itemIndex}`}
-            sx={{
-              display: 'flex',
-              justifyContent: 'center',
-              alignItems: 'center',
-              minHeight: 76
-            }}
-            variant="outlined"
-          >
-            <CardContent sx={{ '&:last-child': { padding: 0 } }}>
-              <Stack alignItems="center" justifyContent="center" sx={{ opacity: isEquipped ? 1 : 0.5 }}>
-                <Tooltip
-                  title={
-                    displayName && displayName !== 'ERROR'
-                      ? <ItemDisplay {...(itemIndex === 1 && actualItem ? actualItem : item)} character={character} account={account} characters={characters} owners={owners} getGoldenFoodBonus={getGoldenFoodBonus}/>
-                      : ''
-                  }
-                >
-                  <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-                </Tooltip>
-                {displayName !== 'ERROR' && rawName !== 'Blank' ? amount : ' '}
-              </Stack>
-            </CardContent>
-          </Card>
-        );
-      })}
-    </Box>
-  );
+      const isEquipped = character?.[windowName]?.some(({ rawName: rName }) => rName === rawName);
+      const owners = isEquipped ? [] : [...new Set(allAccountItems.filter(({ rawName: rName }) => rName === rawName).map(({ owner }) => ownerName(owner ?? '')))].filter(Boolean);
+      const known = displayName && displayName !== 'ERROR';
+      return <IconTile
+        key={`${rawName}-${itemIndex}`}
+        icon={`data/${rawName}.png`}
+        fallback={`data/${rawName}_x1.png`}
+        alt={known ? cleanUnderscore(displayName) : rawName}
+        status={isEquipped ? undefined : 'missing'}
+        value={known && rawName !== 'Blank' && amount !== undefined ? formatNum(Number(amount), 'whole') : undefined}
+        details={known ? <>
+          {character?.name ? <>{ownedLine(isEquipped, owners)}<Divider sx={{ my: 1 }}/></> : null}
+          <ItemDisplay {...shownItem} character={character} account={account} characters={characters} getGoldenFoodBonus={getGoldenFoodBonus}/>
+        </> : undefined}
+      />;
+    })}
+  </CardGrid>;
 };
 
-const ItemIcon = styled.img`
-  width: 50px;
-  height: 50px;
-  object-fit: contain;
-`
 export default Equipment;

@@ -1,39 +1,35 @@
-import { Badge, Grid, Stack, Typography } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import React from 'react';
-import { cleanUnderscore, prefix } from '@utility/helpers';
-import Tooltip from '@components/Tooltip';
+import { cleanUnderscore } from '@utility/helpers';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import Panel from '@components/common/cards/Panel';
+import { isSectionFailed } from '@components/common/styles';
 
 const Chips = ({ chips, account, character }) => {
-  return <Stack>
-    <Typography mb={2} variant={'sectionTitle'} component={'h2'}>Chips</Typography>
-    <Stack>
-      <Grid container rowGap={3}>
+  // A failed lab section can't say what a character holds: no count, no grey
+  const labFailed = isSectionFailed(account, 'lab');
+  return <Panel title={'Chips'}>
+    <Box sx={{ p: 2 }}>
+      <CardGrid size={'icon'} fill>
         {chips?.map(({ chip, count }, index) => {
           const { name, index: chipIndex } = chip || {};
           const chipList = account?.lab?.playersChips?.[character?.playerId] || [];
           const chipCount = chipList.filter(({ index: cIndex }) => cIndex === chipIndex).length;
-          const hasChip = chipCount >= count;
-
-          return <Grid display={'flex'} sx={{ position: 'relative', opacity: hasChip ? 1 : 0.1 }}
-                       justifyContent={'center'} key={`${name}-${index}`}
-                       xs={3} item>
-            <Tooltip title={<ChipTooltip {...chip} equippedChips={chipCount} count={count}/>}>
-              <Badge badgeContent={`${chipCount} / ${count}`}>
-                <img width={48} src={`${prefix}data/ConsoleChip${chip?.index}.png`} alt=""/>
-              </Badge>
-            </Tooltip>
-          </Grid>
+          return <IconTile key={`${name}-${index}`} icon={`data/ConsoleChip${chip?.index}.png`}
+                           alt={cleanUnderscore(name?.toLowerCase().capitalize() ?? '')}
+                           value={labFailed ? undefined : `${chipCount} / ${count}`}
+                           status={!labFailed && chipCount < count ? 'missing' : undefined}
+                           details={<ChipDetails {...chip}/>}/>;
         })}
-      </Grid>
-    </Stack>
-  </Stack>
+      </CardGrid>
+    </Box>
+  </Panel>;
 };
 
-const ChipTooltip = ({ name, bonus, baseVal, count, equippedChips }) => {
-  return <>
-    <Typography mb={1} variant={'cardTitle'} component={'div'}>{cleanUnderscore(name.toLowerCase().capitalize())} ({equippedChips} / {count})</Typography>
-    <Typography>{cleanUnderscore(bonus?.replace(/{/g, baseVal))}</Typography>
-  </>;
-}
+const ChipDetails = ({ name, bonus, baseVal }) => <>
+  <Typography variant={'cardTitle'} component={'div'} sx={{ mb: 0.5 }}>{cleanUnderscore(name?.toLowerCase().capitalize() ?? '')}</Typography>
+  <Typography variant={'body2'}>{cleanUnderscore(bonus?.replace(/{/g, baseVal) ?? '')}</Typography>
+</>;
 
 export default Chips;
