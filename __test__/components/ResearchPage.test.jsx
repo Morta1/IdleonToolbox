@@ -30,7 +30,7 @@ const renderPage = () => render(
 );
 
 // The card wraps title and value in one element, so this reads the whole card's text.
-const cardText = (title) => screen.getByText(title).closest('[data-card-title-value]').textContent;
+const cardText = (title) => screen.getByText(title).closest('[data-stat-tile]').textContent;
 
 describe('Research page', () => {
   it('renders the level with its EXP progress and the level up ETAs', () => {
@@ -46,7 +46,7 @@ describe('Research page', () => {
   // assumption behind the second ETA hangs off an info icon rather than sitting in the value.
   it('explains the registrant assumption on an info icon, not on the card', () => {
     renderPage();
-    const card = screen.getByText('Time with registrant').closest('[data-card-title-value]');
+    const card = screen.getByText('Time with registrant').closest('[data-stat-tile]');
     expect(card.getAttribute('aria-label')).toBeNull();
     const icon = card.querySelector('[aria-label="About Time with registrant"]');
     expect(icon).not.toBeNull();

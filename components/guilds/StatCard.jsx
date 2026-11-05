@@ -22,8 +22,7 @@ export default function StatCard({ label, value, delta, history, caption, hint }
     label={label}
     value={formatNum(value, 'amount')}
     info={hint}
-    cardSx={TILE_SX}
-    stackProps={{ flex: 1 }}
+    sx={TILE_SX}
     sub={lines.length || moved ? <>
       {lines.map((line) => <div key={line}>{line}</div>)}
       {moved ? <Box sx={{ mt: 1 }}><Sparkline values={history} width={150} height={44} color={seriesColors(muiTheme.palette.mode)[0]} wide/></Box> : null}

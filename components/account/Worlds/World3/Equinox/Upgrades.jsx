@@ -9,7 +9,7 @@ import ItemCard from '@components/common/cards/ItemCard';
 const Upgrades = ({ upgrades, sectionFailed }) => {
   return <>
     <StatTile label={'Total upgrade levels'} value={sectionFailed ? '-' : getTotalUpgradeLevels(upgrades)} kind={'amount'}
-              cardSx={{ mb: 2 }}/>
+              sx={{ mb: 2 }}/>
     <CardGrid size={'m'}>
       {(upgrades ?? []).map(({ name, desc, lvl, maxLvl, unlocked, bonus }, index) => {
         if (name === 'Hmm...') return null;

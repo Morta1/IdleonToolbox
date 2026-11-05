@@ -55,9 +55,9 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, p
   const noteRef = useRef(null);
   // The focus Esc hands back to the trigger would open its preview again
   const skipFocusPreview = useRef(false);
-  // underTile: a StatTile's note opens under the whole tile, from its left edge, so the tile's own number stays readable
-  // (Info board).
-  const tileAnchor = underTile ? { anchorEl: () => triggerRef.current?.closest('[data-card-title-value]') ?? triggerRef.current } : {};
+  // underTile: a StatTile's note opens under the whole tile (its data-stat-tile mark), from its left edge, so the tile's own
+  // number stays readable (Info board).
+  const tileAnchor = underTile ? { anchorEl: () => triggerRef.current?.closest('[data-stat-tile]') ?? triggerRef.current } : {};
 
   const handleClose = () => setPreviewing(false);
 

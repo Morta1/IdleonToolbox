@@ -83,7 +83,7 @@ const Totems = ({ totemsFailed, towersFailed }) => {
 
   return (
     <>
-      <StatTile label={'Total max waves'} icon={'etc/totem_0.png'} kind={'amount'} cardSx={{ mb: 2 }}
+      <StatTile label={'Total max waves'} icon={'etc/totem_0.png'} kind={'amount'} sx={{ mb: 2 }}
                 value={towersFailed || totemsFailed ? '-' : state?.account?.towers?.totalWaves ?? 0}/>
       {rows.length ? <DataTable columns={COLUMNS} rows={rows} rowKey={'index'} rowLabel={totemName} surface={'card'}/> : null}
     </>

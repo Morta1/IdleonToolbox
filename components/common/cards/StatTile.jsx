@@ -3,7 +3,7 @@ import { Box, Typography } from '@mui/material';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import StatusText from '@components/common/StatusText';
 import GameIcon from '@components/common/GameIcon';
-import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
+import InfoButton from '@components/common/InfoButton';
 import { numOrNode } from '@components/common/Num';
 import { formatNum } from '@utility/helpers';
 import { CARD_RADIUS } from './tokens';
@@ -29,25 +29,20 @@ const DETAILS_SX = { color: 'text.secondary', ...touchTarget };
 
 const LABEL_SX = { display: 'flex', alignItems: 'center', gap: 0.5, fontSize: 12, lineHeight: '16px', color: 'text.secondary' };
 
-// StatTile (Cards board): one number and its label, 12 px muted over the 16 px value. CardTitleAndValue
-// and CardWithBreakdown are this tile under their old names, so their callers keep their props:
-// title is label, tooltipTitle is info, cardSx, stackProps, variant, imgStyle and imgOnly as before.
-// The old names and the title and tooltipTitle aliases go in phase 6 (__test__/legacy-tile-names.test.js).
+// StatTile (Cards board): one number and its label, 12 px muted over the 16 px value. data-stat-tile is its mark for what
+// reads a tile from outside: PageSummary lays tiles out by it, and InfoButton hangs a note under it.
 // breakdownTitle names the drawer when the breakdown's own name differs from the tile's label; breakdownNoun is what a
 // list breakdown's lines count as ("11 characters", sources by default). failed: the section behind the number failed to
 // parse, so the value reads "-" with no drawer, sub or state (PageSummary's failed by default); its label and info stay.
 const StatTile = ({
-                    title,
-                    label = title,
+                    label,
                     value,
                     kind,
                     children,
                     icon,
                     iconAlt,
-                    imgOnly,
                     imgStyle,
                     info,
-                    tooltipTitle,
                     breakdown: breakdownData,
                     breakdownTitle,
                     breakdownNoun,
@@ -56,9 +51,7 @@ const StatTile = ({
                     status: statusName,
                     failed,
                     size = 'compact',
-                    variant,
-                    cardSx,
-                    stackProps
+                    sx
                   }) => {
   const summaryFailed = useContext(SummaryFailed);
   const isFailed = failed ?? summaryFailed;
@@ -67,12 +60,11 @@ const StatTile = ({
   const status = isFailed ? undefined : statusName;
   const shown = isFailed ? '-' : isShown(value) ? value : breakdown ? breakdownTotal(breakdown) : undefined;
   const hero = size === 'hero';
-  const note = info ?? (imgOnly ? undefined : tooltipTitle);
   const name = typeof label === 'string' && label ? label : undefined;
   const number = numOrNode(shown, kind);
   const text = status ? <StatusText status={status}>{number}</StatusText> : number;
   const look = iconLook(imgStyle);
-  const sprite = icon ? <GameIcon src={icon} size={imgOnly ? 32 : 24}
+  const sprite = icon ? <GameIcon src={icon} size={24}
                                   alt={name ? '' : (iconAlt ?? icon.split('/').pop().replace(/\.\w+$/, ''))}/> : null;
   const iconNode = sprite && look ? <Box component={'span'} sx={{ display: 'inline-flex', ...look }}>{sprite}</Box> : sprite;
   // data-tile-icon lets a container hide the sprite (PageSummary's phone list).
@@ -81,11 +73,11 @@ const StatTile = ({
     : null;
   // A list breakdown has no total to show, so a tile with nothing else keeps a muted word as its way in.
   const hasBreakdown = Array.isArray(breakdown) ? breakdown.some(Boolean) : Boolean(breakdown);
-  const opener = hasBreakdown && !isShown(shown) && !children && !imgOnly
+  const opener = hasBreakdown && !isShown(shown) && !children
     ? <Box component={'span'} sx={DETAILS_SX}>Details</Box>
     : null;
 
-  return <Box data-card-title-value sx={[
+  return <Box data-stat-tile sx={[
     {
       display: 'flex',
       alignItems: 'center',
@@ -100,17 +92,14 @@ const StatTile = ({
       borderRadius: `${CARD_RADIUS}px`,
       bgcolor: 'background.paper'
     },
-    hero && { alignItems: 'flex-start', gap: 2, p: 2 },
-    (hero || variant === 'outlined') && { border: 1, borderColor: 'divider' },
-    ...(Array.isArray(cardSx) ? cardSx : [cardSx])
+    hero && { alignItems: 'flex-start', gap: 2, p: 2, border: 1, borderColor: 'divider' },
+    ...(Array.isArray(sx) ? sx : [sx])
   ]}>
-    {imgOnly && tooltipTitle && tileIcon
-      ? <NoteTrigger note={tooltipTitle} label={name ?? iconAlt}>{tileIcon}</NoteTrigger>
-      : tileIcon}
-    <Box sx={{ display: stackProps ? 'flex' : 'block', flexDirection: 'column', minWidth: 0, ...(stackProps || {}) }}>
+    {tileIcon}
+    <Box sx={{ flex: 1, minWidth: 0 }}>
       {label ? <Typography component={'div'} sx={LABEL_SX}>
         {label}
-        {note ? <InfoButton label={name} underTile>{note}</InfoButton> : null}
+        {info ? <InfoButton label={name} underTile>{info}</InfoButton> : null}
       </Typography> : null}
       {isShown(shown) || opener
         ? <Typography component={'div'} variant={hero ? 'heroValue' : 'value'}>
@@ -119,7 +108,7 @@ const StatTile = ({
             {opener ?? text}
           </Breakdown> : text}
         </Typography>
-        : imgOnly ? null : children}
+        : children}
       {sub ? <Typography component={'div'} variant={'caption'} color={'text.secondary'}
                          sx={{ lineHeight: '16px' }}>{sub}</Typography> : null}
     </Box>

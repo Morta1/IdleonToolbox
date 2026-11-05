@@ -24,7 +24,7 @@ const Traps = (await import('../../pages/account/world-3/traps')).default;
 const { characters, account } = parseFixture(raw);
 
 // A Summary tile's whole text: its label, value and sub.
-const tileText = (label) => screen.getByText(label).closest('[data-card-title-value]').textContent;
+const tileText = (label) => screen.getByText(label).closest('[data-stat-tile]').textContent;
 
 const renderPage = (state) => render(
   <ThemeProvider theme={darkTheme}>

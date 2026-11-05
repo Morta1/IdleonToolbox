@@ -147,11 +147,6 @@ export const MissingSections = ({ account, names }) => {
   return first ? <MissingData name={first} failed/> : null;
 };
 
-// CardTitleAndValue is StatTile under its old name: callers move to StatTile by name with their pages.
-// The alias goes in phase 6; __test__/legacy-tile-names.test.js blocks new imports of it.
-export { default as CardTitleAndValue } from '@components/common/cards/StatTile';
-
-
 export const CenteredStack = ({ direction = 'row', children }) => {
   return <Stack gap={1} direction={direction} alignItems={'center'}>
     {children}

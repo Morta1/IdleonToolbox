@@ -34,7 +34,7 @@ const renderPage = () => render(
 );
 
 // The card wraps title and value in one element, so this reads the whole card's text.
-const cardText = (title) => screen.getByText(title).closest('[data-card-title-value]').textContent;
+const cardText = (title) => screen.getByText(title).closest('[data-stat-tile]').textContent;
 
 describe('Clam Work page', () => {
   it('renders the clam stat cards', () => {

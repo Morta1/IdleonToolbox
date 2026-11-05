@@ -108,7 +108,7 @@ const Forge = () => {
     {forgeFailed ? <MissingData name={'Forge'} failed/> : null}
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 1'].categories, 'forge')}>
       <>
-        <StatTile label={'Max ore capacity'} value={capText} cardSx={{ mb: 2 }}
+        <StatTile label={'Max ore capacity'} value={capText} sx={{ mb: 2 }}
                   breakdown={capBreakdown ? { ...capBreakdown, totalValue: capText } : undefined}/>
         {slots.length ? <DataTable columns={slotColumns} rows={slots} rowKey={'index'}
                                    rowLabel={(row) => `Slot ${row.index + 1}`} stickyTop={pageTop}

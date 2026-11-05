@@ -48,10 +48,10 @@ const YouCard = ({ data, kind, index, onClear, clearLabel = 'Clear' }) => {
           <Typography variant="body2" color="text.secondary">{of}</Typography>
         </Stack>
         <Stack direction="row" flexWrap="wrap" gap={1}>
-          <StatTile label="First places" value={counts.firsts} cardSx={{ ...TILE_SX, minWidth: 'min-content' }}
+          <StatTile label="First places" value={counts.firsts} sx={{ ...TILE_SX, minWidth: 'min-content' }}
                     sub={firstsSub.length ? firstsSub.map((line) => <Box key={line} sx={LABEL_SX}>{line}</Box>) : null}/>
-          <StatTile label="Top 25" value={counts.top25} cardSx={TILE_SX}/>
-          <StatTile label="Top 100" value={counts.top100} cardSx={TILE_SX}/>
+          <StatTile label="Top 25" value={counts.top25} sx={TILE_SX}/>
+          <StatTile label="Top 100" value={counts.top100} sx={TILE_SX}/>
         </Stack>
       </Stack>
       {firsts.sole.length ? <Panel.KV label={<Box component="span" sx={LABEL_SX}>Alone at #1</Box>} value={boardList(firsts.sole.map(label))}/> : null}

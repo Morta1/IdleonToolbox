@@ -103,7 +103,7 @@ describe('Overview You card', () => {
     expect(label.parentElement.textContent).toBe('You · Baker333');
     expect(screen.getByText('#75')).toBeTruthy();
     expect(screen.getByText('of 2,608 · top 2.88% · 14,901.02 pts')).toBeTruthy();
-    const tile = (name) => screen.getByText(name).closest('[data-card-title-value]').textContent;
+    const tile = (name) => screen.getByText(name).closest('[data-stat-tile]').textContent;
     expect(tile('First places')).toBe('First places1+1 at the max');
     expect(tile('Top 25')).toBe('Top 251');
     expect(tile('Top 100')).toBe('Top 1002');
@@ -114,7 +114,7 @@ describe('Overview You card', () => {
     const tiedData = { ...withMax, ranks: { ...withMax.ranks, coins: { r: 1, v: 9, p: 3.4, t: 88 } } };
     renderOverview({ player: { context: logged, data: tiedData } });
     await screen.findByText('You');
-    expect(screen.getByText('First places').closest('[data-card-title-value]').textContent).toBe('First places21 tied+1 at the max');
+    expect(screen.getByText('First places').closest('[data-stat-tile]').textContent).toBe('First places21 tied+1 at the max');
     expect(screen.getByText('Mining')).toBeTruthy();
     expect(screen.getByText('Coins (88 players)')).toBeTruthy();
     expect(screen.getByText('Log Book')).toBeTruthy();
