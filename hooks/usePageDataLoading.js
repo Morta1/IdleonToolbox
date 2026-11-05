@@ -13,7 +13,8 @@ const usePageDataLoading = () => {
 
   // Determine the page type
   const isAccountPage = router.pathname.includes('/account');
-  const isToolPage = router.pathname.includes('/tools');
+  // The hub (/tools) lists the tools and reads no save; only a tool under it can wait for one
+  const isToolPage = router.pathname.startsWith('/tools/');
   const endPoint = router.pathname.split('/')?.[2] || '';
   const formattedEndPoint = endPoint?.replace('-', ' ')?.toCamelCase();
   const isCharactersPage = router.pathname === '/characters';

@@ -11,6 +11,7 @@ const STATIC_ROUTES = new Set([
   '/patch-notes',
   '/privacy-policy',
   '/statistics',
+  '/tools',
   '/tools/builds',
   '/tools/builds/[slug]',
   '/wiki',
