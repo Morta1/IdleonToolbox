@@ -11,7 +11,8 @@ export async function fetchGuildIndex(deps = {}) {
 export async function fetchGuildDetail(guildId, deps = {}) {
   const fetchFn = deps.fetch || globalThis.fetch;
   const res = await fetchFn(`${GUILD_HISTORY_BASE}/api/guilds/${encodeURIComponent(guildId)}`);
-  if (!res.ok) throw new Error(`fetchGuildDetail ${guildId} failed: ${res.status}`);
+  // A 404 is an answer, not a failure: no guild has this id.
+  if (!res.ok) throw Object.assign(new Error(`fetchGuildDetail ${guildId} failed: ${res.status}`), { status: res.status });
   return res.json();
 }
 

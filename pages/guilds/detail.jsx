@@ -79,6 +79,12 @@ export default function GuildDetail() {
   // router.query is empty until the router is ready, so a real link never reads as having no id. An address with no query
   // is ready on the client's first render and not at the export: both draw the loader until hydration.
   if (!hydrated || !router.isReady) return <SimpleLoader message="Loading guild history..."/>;
+  if (id && query.error?.status === 404) {
+    return <>
+      <BackToGuilds/>
+      <Notice tone={'missing'}>This guild isn't tracked: it left the top guilds, or the link is wrong.</Notice>
+    </>;
+  }
   if (id && showsFailure(query)) {
     return <>
       <BackToGuilds/>
