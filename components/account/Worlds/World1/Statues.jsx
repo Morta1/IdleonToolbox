@@ -11,6 +11,8 @@ const statueName = (name) => `${capitalize(cleanUnderscore(`${name ?? ''}`.toLow
 // The statue's sentence: its @ filled with the bonus to a tenth (the old tooltip's fill; the walk compares the game's)
 const statueSentence = (effect, bonus) => cleanUnderscore(pascalCase(`${effect ?? ''}`.replace(/(%?)(@)/, '$2$1_')
   .replace('@', Math.floor(10 * bonus) / 10)));
+// The sentence without its number: "Fishing Power"
+const statueBonusName = (effect) => cleanUnderscore(pascalCase(`${effect ?? ''}`.replace(/%?@/, '')));
 
 const statueDetails = ({ statue, index, account, characters, nextLv, flairLevel, flairMulti }) => {
   const { name, level = 0, bonus = 0, talentMulti = 1, progress = 0, effect } = statue ?? {};
@@ -19,20 +21,24 @@ const statueDetails = ({ statue, index, account, characters, nextLv, flairLevel,
       <Typography variant={'cardTitle'} component={'div'}>{statueName(name)}</Typography>
       <Typography variant={'body2'} color={'text.secondary'}>{formatNum(level, 'level')}</Typography>
     </Box>
-    {/* The sentence is the base (level x bonus) and says so: the per character rows apply every multiplier, as the
-     game's statue screen does, so it never reads as their total */}
-    <ItemCard.Section label={'Base, before multipliers'}>
-      <Typography variant={'body2'}>{statueSentence(effect, level * bonus)}</Typography>
+    {/* The base is level x bonus: the per character rows apply every multiplier, as the game's statue screen does, so
+     their heading says so and the two never read as one sum */}
+    <ItemCard.Section label={statueBonusName(effect)}>
+      <ItemCard.Facts rows={[
+        ['Base', statueSentence(effect, level * bonus)],
+        ['Voodoo Statufication', formatNum(talentMulti, 'mult')]
+      ]}/>
     </ItemCard.Section>
-    <ItemCard.Facts rows={[
-      ['Progress', `${formatGame(progress, 'Big', { whole: true })} / ${formatGame(nextLv, 'Big', { whole: true })}`],
-      ['Voodoo Statufication', formatNum(talentMulti, 'mult')],
-      flairMulti > 1 ? [`Statue Flair ${flairLevel}`, `${formatNum(flairMulti, 'mult')} statue EXP`] : null
-    ]}/>
-    {characters?.length ? <ItemCard.Section label={'Per character'}>
+    {characters?.length ? <ItemCard.Section label={'Per character, with all multipliers'}>
       <ItemCard.Facts rows={characters.map(({ name: characterName, flatTalents }) => [characterName,
         formatNum(Math.floor(10 * getStatueBonus(account, index, flatTalents)) / 10, 'amount', { precise: true })])}/>
     </ItemCard.Section> : null}
+    <ItemCard.Section label={'Next level'}>
+      <ItemCard.Facts rows={[
+        ['Progress', `${formatGame(progress, 'Big', { whole: true })} / ${formatGame(nextLv, 'Big', { whole: true })}`],
+        flairMulti > 1 ? [`Statue Flair ${flairLevel}`, `${formatNum(flairMulti, 'mult')} statue EXP`] : null
+      ]}/>
+    </ItemCard.Section>
   </Stack>;
 };
 
