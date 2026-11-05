@@ -69,7 +69,7 @@ describe('material tracker page', () => {
 
   it('shows the empty state without item goals', () => {
     mount();
-    expect(screen.getByText('Add item goals with the Add goal button')).toBeTruthy();
+    expect(screen.getByText('No item goals yet. Add one with Add goal, or import a file.')).toBeTruthy();
   });
 
   it('lists the account item goals', () => {
