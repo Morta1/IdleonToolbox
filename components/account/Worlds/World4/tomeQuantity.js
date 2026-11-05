@@ -15,12 +15,13 @@ export const quantityForPoints = (bonus, points) => {
     if (base >= 2) return Infinity;
     return Math.ceil((base * x1) / (2 - base));
   }
-  // Reversed: lower is better. No quantity earns more than a quantity of 0 does; up to that, the targetPercent's half a
-  // point can land just past the peak, which is the same 0.
+  // Reversed: lower is better, so this is the most an entry may hold and still earn them: the last whole quantity short
+  // of where the curve falls to one point fewer. No quantity earns more than a quantity of 0 does, and the game gives 0
+  // past 5 * x1, where the curve alone would still pay. The 1e-9 keeps a whole answer whole against the float's dust.
   if (x2 === 3) {
     if (points > Math.ceil(REVERSED_PEAK * x3)) return Infinity;
-    const base = Math.pow(targetPercent, 1 / 5);
-    return Math.ceil(Math.max(0, (1.2 * 6 * x1 - base * 7 * x1) / (1.2 - base)));
+    const base = Math.pow((points - 1) / x3, 1 / 5);
+    return Math.max(0, Math.min(5 * x1, Math.ceil((1.2 * 6 * x1 - base * 7 * x1) / (1.2 - base) - 1e-9) - 1));
   }
   // Exponential
   if (x2 === 0) {

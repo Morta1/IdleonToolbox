@@ -136,9 +136,14 @@ describe('the Tome inverse on a reversed entry', () => {
   const gamePoints = ({ x1, x3 }, Q) => Math.ceil((Q > 5 * x1 ? 0 : Math.pow((1.2 * (6 * x1 - Q)) / (7 * x1 - Q), 5)) * x3);
   const reversed = tomeData.filter(({ x2 }) => x2 === 3);
 
-  it.each(reversed.map((bonus) => [bonus.name, bonus]))('%s tops out at a quantity of 0', (name, bonus) => {
+  it.each(reversed.map((bonus) => [bonus.name, bonus]))('%s: the most it may hold for each point, none past a quantity of 0', (name, bonus) => {
     const max = gamePoints(bonus, 0);
     expect(quantityForPoints(bonus, max + 1)).toBe(Infinity);
-    expect(quantityForPoints(bonus, max)).toBeLessThanOrEqual(1);
+    const off = [];
+    for (let points = 1; points <= max; points += 1) {
+      const quantity = quantityForPoints(bonus, points);
+      if (gamePoints(bonus, quantity) < points || gamePoints(bonus, quantity + 1) >= points) off.push(`${points}: ${quantity}`);
+    }
+    expect(off).toEqual([]);
   });
 });
