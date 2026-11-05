@@ -333,7 +333,7 @@ const darkTheme = createTheme({
           fontWeight: 500,
           color: palette(theme).text.secondary,
           '&.MuiInputLabel-shrink': { transform: 'none' },
-          '&.Mui-focused': { color: palette(theme).text.secondary }
+          '&.Mui-focused': { color: palette(theme).primary.main }
         })
       }
     },
