@@ -22,7 +22,7 @@ const STAR_PAGES = 5;
 const STAR_ARROW_SLOTS = [10, 14];
 // Preset and page tabs in one block, and the two numbers on one row: an added-levels glyph keeps its slot in each
 const CONTROLS_SX = { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mb: '6px' };
-const PRESET_SX = { '& .MuiToggleButton-root': { px: '10px', height: 32, fontSize: 13 } };
+const PRESET_SX = { '& .MuiToggleButton-root': { px: { xs: 1, sm: '10px' }, height: 32, fontSize: 13, fontWeight: 400 } };
 const POINTS_SX = { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: '12px', mb: 1, '& > .MuiStack-root': { borderTop: 0 } };
 
 const getStarTalentPage = (talents, index) => {

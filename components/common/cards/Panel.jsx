@@ -32,6 +32,8 @@ const SHEET_LINE = { borderTop: 1, borderColor: 'background.tint', '&:first-chil
 const SHEET_VALUE_SX = {
   ...VALUE_SX, whiteSpace: 'nowrap', pr: '22px',
   '&:has([aria-haspopup="dialog"])': { pr: '2px' },
+  // A value drawn in game sprites sits lower than text: the glyph follows the value's middle on every row
+  '& [aria-haspopup="dialog"]': { display: 'inline-flex', alignItems: 'center' },
   '& [aria-haspopup="dialog"] > [aria-hidden]': { ml: '6px' }
 };
 
@@ -54,7 +56,7 @@ const SheetSection = ({ side, fold, bodyId, title, meta, aside, children, sx }) 
     ...(fold ? { display: { xs: fold.open ? 'block' : 'none', sm: 'block' }, [PHONE]: { px: '12px', pb: '14px' } } : {})
   }}>
     {/* The heading's right side holds the summary on a phone, so its meta opens with the body */}
-    {fold && meta ? <Typography color={'text.secondary'} component={'div'} sx={{ display: { xs: 'block', sm: 'none' }, fontSize: 13, lineHeight: '18px', mb: 1 }}>{meta}</Typography> : null}
+    {fold && meta ? <Typography color={'text.secondary'} component={'div'} sx={{ display: { xs: 'block', sm: 'none' }, fontSize: 13, lineHeight: '18px', mt: '-6px', mb: 1 }}>{meta}</Typography> : null}
     {children}
   </Box>
 </Box>;
