@@ -40,8 +40,8 @@ const Library = ({ libraryTimes, failed }) => {
 
   return <Panel icon={'data/Libz.png'} title={'Library'}>
     <Panel.KV label={'Books ready'} value={formatNum(bookCount)}/>
-    {breakdown ? <Panel.KV label={'Checkout time at your last save'} value={<Breakdown asValue title={'Checkout time at your last save'}
-                                                                     data={{ ...breakdown, totalValue: checkoutTime }}>{checkoutTime}</Breakdown>}/> : null}
+    {breakdown ? <Panel.Row name={'Checkout time'} sub={'At your last save'}
+                            value={<Breakdown asValue title={'Checkout time'} data={{ ...breakdown, totalValue: checkoutTime }}>{checkoutTime}</Breakdown>}/> : null}
     {next > 0 ? <WaitRow name={'Next book in'} time={next}/>
       : <Panel.Row name={'Next book in'} value={<StatusText status={'info'}>Wait for game update</StatusText>}/>}
     {mainBreakpoints?.map(breakpointRow)}
