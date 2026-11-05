@@ -44,7 +44,7 @@ const Missions = ({ missions, unlocked }) => {
                        title={name}
                        meta={`Claimed ${formatNum(claims ?? 0)} times`}
                        status={visible ? undefined : 'locked'}
-                       aside={unlocked && visible && canClaim ? <StatusText status={'ready'}>Claimable</StatusText> : null}>
+                       titleState={unlocked && visible && canClaim ? <StatusText status={'ready'}>Claimable</StatusText> : null}>
         <ItemCard.Desc>{description}</ItemCard.Desc>
         <Progress progress={progress} requirement={requirement} increment={increment} claims={claims} isLogScale={isLogScale} isBits={isBits}/>
         <ItemCard.Facts rows={[

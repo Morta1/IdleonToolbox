@@ -98,9 +98,7 @@ const territoryClear = ({ current, snapshot, saveSeconds, hours }) => {
   return <Section key={'territory'} title={'Territory clear'}
                   info={'Measured is how far the clear counter of the map moved since the snapshot. Militia kills are banked and only land when you open the map, so the calculator subtracts just the militia kills that actually landed between the two saves. Map open or closed, Yours stays your own rate.'}>
     <Panel.KV label={'Map'} value={current.name}/>
-    <Panel.KV label={'Progress'} value={<Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>
-      {formatNum(current.kills, 'whole')} / {formatNum(current.killsRequired, 'whole')}
-    </Box>}/>
+    <Panel.KV label={'Progress'} value={`${formatNum(current.kills, 'whole')} / ${formatNum(current.killsRequired, 'whole')}`}/>
     <Panel.KV label={'Measured'} value={formatNum(measuredPerHour, 'rate')}/>
     <Panel.KV label={'Militia'} value={`${formatNum(militiaPerHour, 'rate')} (${units} unit${units === 1 ? '' : 's'})`}/>
     {militiaLanded != null ? <Panel.KV label={'Militia landed'} value={formatNum(militiaLanded, 'whole')}/> : null}

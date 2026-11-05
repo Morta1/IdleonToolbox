@@ -51,6 +51,8 @@ describe('formatNum', () => {
     [88.51, 'pct', { bare: true }, '88.51'],
     [4.99, 'price', {}, '$4.99'],
     [1234.5678, 'exact', {}, '1,234.568'],
+    // Past about 9e12 ThreeDecimals' 1000 * x passes 2^53: no decimal is real
+    [12345678901234.5, 'exact', {}, '12,345,678,901,235'],
     [undefined, 'amount', {}, '-']
   ])('formatNum(%s, %s, %o) = %s', (value, kind, options, expected) => {
     expect(formatNum(value, kind, options)).toBe(expected);

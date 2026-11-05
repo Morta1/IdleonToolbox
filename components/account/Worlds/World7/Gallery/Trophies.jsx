@@ -35,10 +35,10 @@ const statLines = (item) => {
 };
 
 // One catalog item (Decision 1): its sprite, its name opening its wiki page, its state in the meta line; a not
-// acquired one takes the card's own dim, its words in text.secondary
+// acquired one takes the card's own dim, with its words outside the dim, in text.secondary
 export const catalogCard = (item, meta) => {
   const lines = statLines(item);
-  return <ItemCard key={item?.rawName} icon={`data/${item?.rawName}.png`} dimmed={!item?.isAcquired}
+  return <ItemCard key={item?.rawName} icon={`data/${item?.rawName}.png`} dimmed={!item?.isAcquired} keepMeta
                    title={<Link component={'button'} color={'inherit'}
                                 onClick={() => openItemWikiPage(item?.rawName)}
                                 sx={{ font: 'inherit', textAlign: 'left', verticalAlign: 'baseline' }}>{itemName(item)}</Link>}

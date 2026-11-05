@@ -56,7 +56,7 @@ const Plot = ({ plot, market, ranks, lastUpdated, account, characters, selectedC
         const nextEvoChance = getCropEvolution(account, selectedCharacter, crop, enableNano, characters);
         return <ItemCard key={'plot-' + index} icon={`etc/${seedRawName}`} title={`Plot ${index + 1}`}
                          meta={`Floor ${Math.floor(index / 9) + 1}`}
-                         aside={isLocked ? <StatusText status={'locked'}/> : null}>
+                         titleState={isLocked ? <StatusText status={'locked'}/> : null}>
           <ItemCard.Facts rows={[
             ['Crop', <Stack key={'crop'} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
               <GameIcon src={`data/${cropRawName}`} size={16} alt={''}/>{formatNum(cropQuantity ?? 0, 'whole')}</Stack>],

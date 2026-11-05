@@ -221,7 +221,7 @@ const TheFountain = ({ hole }) => {
     </Stack>
     {bars.length > 0 ? <Panel title={'Fountain bars'} sx={{ mb: 3 }}>
       {bars.map((bar) => <Stack key={`bar-${bar.tier}`} gap={1} sx={{ px: 2, py: 1.5 }}>
-        <ItemCard.Progress label={<>{bar.name} <InfoButton label={bar.name}>{bar.description}</InfoButton></>}
+        <ItemCard.Progress label={<>{bar.name} <InfoButton label={bar.name}>{bar.description}</InfoButton></>} barLabel={bar.name}
                            value={bar.progress ?? 0} max={bar.req ?? 0} kind={'whole'}/>
         <ItemCard.Facts rows={[
           ['Time to full', <Duration key={'full'} seconds={(bar.timeToFullMs ?? 0) / 1000}/>],

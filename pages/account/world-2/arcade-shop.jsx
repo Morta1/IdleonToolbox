@@ -106,8 +106,7 @@ const ArcadeShop = () => {
   const ballsText = (value) => (arcadeFailed ? '-' : formatGame(value ?? 0, COST_RULE, { whole: true }));
 
   // An upgrade below Lv 100 costs gold balls; Lv 100 to Super costs Royal balls and Super to Omega Omega balls, where
-  // the game shows no more cost. The cost line stands alone, as the game's "Cost:" line does: in a Facts row its sprite
-  // sat the numbers above the label's line.
+  // the game shows no more cost. The cost line stands alone, as the game's "Cost:" line does.
   const capFooter = (capCost) => {
     const omega = capCost.currency === 'omega';
     return <ItemCard.Cost icon={omega ? OMEGA_BALL_ICON : ROYAL_BALL_ICON} iconAlt={omega ? 'Omega balls' : 'Royal balls'}

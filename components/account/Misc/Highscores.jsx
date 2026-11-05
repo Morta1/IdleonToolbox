@@ -1,5 +1,4 @@
 import React from 'react';
-import { Box } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import Panel from '@components/common/cards/Panel';
 
@@ -14,7 +13,7 @@ const Highscores = ({ title, highscore }) => {
       <Panel.KV label={'Total points'} value={formatNum(row?.totalPoints ?? 0)}/>
       {row?.upgrades?.map((upgrade, index) => <Panel.KV key={index} label={cleanUnderscore(upgrade?.description)}
                                                         value={upgrade?.unlocked || !upgrade?.pointsToUnlock
-                                                          ? <Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>{formatNum(upgrade?.level ?? 0, 'level')}</Box>
+                                                          ? formatNum(upgrade?.level ?? 0, 'level')
                                                           : `Unlocks at ${formatNum(upgrade.pointsToUnlock)} points`}/>)}
     </Panel.Group>)}
   </Panel>;

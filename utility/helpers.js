@@ -729,7 +729,9 @@ const KIND_FORMATS = {
   // so it reads the Big rule, as the short number beside it does. A whole number prints as it is: ThreeDecimals'
   // 1000 * x passes 2^53 from about 9e12 and turned a rupie count of 79,138,063,219,213 into 79,138,063,219,212.98.
   exact: (value) => (Number.isFinite(value) && value >= Number.MAX_SAFE_INTEGER ? notateNumber(value, 'Big')
-    : numberWithCommas(Number.isInteger(value) ? String(value) : notateNumber(value, 'ThreeDecimals')))
+    : numberWithCommas(Number.isInteger(value) ? String(value)
+      // ThreeDecimals' 1000 * x passes 2^53 from about 9e12: no decimal past it is real
+      : value >= 9e12 ? String(Math.round(value)) : notateNumber(value, 'ThreeDecimals')))
 };
 
 // The game draws a multiplier's x and a percent's % after the number. bare leaves them to the game's own sentence.

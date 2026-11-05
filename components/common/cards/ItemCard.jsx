@@ -1,4 +1,4 @@
-import { Fragment, isValidElement } from 'react';
+import { Fragment } from 'react';
 import NextLink from 'next/link';
 import { Box, LinearProgress, Stack, Typography } from '@mui/material';
 import GameIcon from '@components/common/GameIcon';
@@ -6,7 +6,7 @@ import Num, { numOrNode } from '@components/common/Num';
 import StatusText from '@components/common/StatusText';
 import { formatNum, gameLines } from '@utility/helpers';
 import { useCardSize } from './CardGrid';
-import { CARD_PADDING, cardState, cardSurface } from './tokens';
+import { CARD_PADDING, cardState, cardSurface, dimKeepingMeta, isNumberLike, textOf } from './tokens';
 
 // The icon follows the card size unless the card passes iconSize (2b Decision 3 keeps some art at 56 on M cards).
 const ICON_SIZE = { s: 32, m: 40, l: 56 };
@@ -20,30 +20,15 @@ const TEXT_VALUE_SX = {
   '& [aria-haspopup="dialog"]': { whiteSpace: 'nowrap' }
 };
 const VALUE_SX = { ...TEXT_VALUE_SX, whiteSpace: 'nowrap', ml: 'auto' };
-// A row keeps its text on one baseline, except one whose label holds a sprite: a sprite's baseline is its bottom edge,
-// which sat the value 8 to 10 px low, so that row centres its value on the label.
-const TEXT_ROW_SX = { columnGap: 1.5, '&:has(> :first-child img)': { alignItems: 'center' } };
+// A row keeps its text on one baseline, except one that holds a sprite on either side: a sprite's baseline is its bottom
+// edge, which sat the other side 8 to 10 px off, so that row centres its two sides.
+const TEXT_ROW_SX = { columnGap: 1.5, '&:has(img)': { alignItems: 'center' } };
 const ROW_SX = { ...TEXT_ROW_SX, flexWrap: 'wrap' };
 // Beside a value in words a short label ("Last sold", "Shiny passive": up to SHORT_LABEL characters) never breaks: the
 // value wraps instead. A longer one ("Next tier (Verisimilitude)") still shares the row's width with its value, or both
 // would stack into a narrow column.
 const SHORT_LABEL = 16;
 const SHORT_LABEL_SX = { flexShrink: 0 };
-
-// The words a value's own strings spell; a node that prints its value itself (a <Num>) spells nothing.
-const textOf = (node) => {
-  if (typeof node === 'string' || typeof node === 'number') return String(node);
-  if (Array.isArray(node)) return node.map(textOf).join('');
-  return isValidElement(node) ? textOf(node.props?.children) : '';
-};
-
-// A number, a number pair, or a value with nothing to read counts as a number: a digit and no word of four letters
-// ("Lv 2,626 → 2,635", "1 in 25,000"). "1.00x Construction Build Rate (+0.25x/lv)" is words.
-const isNumberLike = (value, kind) => {
-  if (kind || typeof value === 'number') return true;
-  const text = textOf(value);
-  return !text || (/\d/.test(text) && !/[A-Za-z]{4,}/.test(text));
-};
 
 // The title block and the state share one wrapping row: the title block asks for its one-line width, so when the title
 // and the state don't fit side by side the state takes its own line under the title instead of squeezing it to a
@@ -66,18 +51,21 @@ const levelLine = ({ value, max }) => {
 // Icon, title, one muted meta line at 13/400 (the level always as "Lv 458 / 999,999"), and at the top right the
 // state, a marker or the › of a link card. MealHeader uses it on its own. statusOwnLine: the state under the title at every
 // width, for a grid of one kind of card where some have it (the leaderboards' boards): their titles stay level.
-export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title, level, meta, status, statusLabel, statusOwnLine, aside, link }) => {
+// titleState: a state word that says something about the thing but puts no look on the card (a plot keeps growing while
+// its evo is locked, so status="locked" would lie): it sits where status does, and drops under a squeezed title with it.
+export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title, level, meta, status, statusLabel, statusOwnLine, titleState, aside, link }) => {
   const metaParts = [level ? levelLine(level) : null, meta].filter(Boolean);
-  return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={{ ...HEADER_SX, minHeight: icon || title ? 40 : undefined }}>
+  return <Stack data-card-header direction={'row'} alignItems={'center'} gap={1.5} sx={{ ...HEADER_SX, minHeight: icon || title ? 40 : undefined }}>
     {typeof icon === 'string' ? <GameIcon src={icon} size={iconSize ?? ICON_SIZE[size]} alt={iconAlt}/> : icon}
     <Box data-title-row sx={TITLE_ROW_SX}>
-      <Stack sx={TITLE_BLOCK_SX}>
+      <Stack data-title-block sx={TITLE_BLOCK_SX}>
         {title ? <Typography variant={'cardTitle'} component={'h3'}>{title}</Typography> : null}
-        {metaParts.length ? <Typography color={'text.secondary'} component={'div'} sx={{ fontSize: 13, lineHeight: '18px' }}>
+        {metaParts.length ? <Typography data-card-meta color={'text.secondary'} component={'div'} sx={{ fontSize: 13, lineHeight: '18px' }}>
           {metaParts.map((part, index) => <Fragment key={index}>{index ? ' · ' : null}{part}</Fragment>)}
         </Typography> : null}
       </Stack>
       {status ? <StatusText status={status} sx={statusOwnLine ? STATUS_OWN_LINE_SX : STATUS_SX}>{statusLabel}</StatusText> : null}
+      {titleState ? <Box component={'span'} sx={STATUS_SX}>{titleState}</Box> : null}
     </Box>
     {aside || link ? <Stack data-aside direction={'row'} alignItems={'center'} gap={1} sx={ASIDE_SX}>
       {aside}
@@ -90,14 +78,15 @@ export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title
 // ItemCard (Cards board): one game thing in a grid. Only the title is required; spacing, type and
 // state come from the card, never from the page. A maxed card drops its footer (its cost). With href
 // the whole card is the link, so it holds no buttons; onClick opens it in place (a page that keeps its query), and
-// prefetch false leaves a large page's data until it is opened.
-const ItemCard = ({ href, onClick, prefetch, status, dimmed, size, footer, children, ...header }) => {
+// prefetch false leaves a large page's data until it is opened. keepMeta: a dimmed card whose meta line is its state in
+// words (Gallery's "Not acquired") keeps that line at full strength, so it reads at AA.
+const ItemCard = ({ href, onClick, prefetch, status, dimmed, keepMeta, size, footer, children, ...header }) => {
   const gridSize = useCardSize();
   const cardSize = size ?? gridSize;
   const root = href ? { component: NextLink, href, onClick, prefetch } : { component: 'article' };
   return <Box {...root} sx={[
     (theme) => cardSurface(theme),
-    (theme) => cardState(theme, status ?? (dimmed ? 'dim' : undefined)),
+    (theme) => (dimmed && keepMeta && !status ? dimKeepingMeta(theme) : cardState(theme, status ?? (dimmed ? 'dim' : undefined))),
     {
       display: 'flex',
       flexDirection: 'column',
@@ -160,8 +149,9 @@ const Stats = ({ cols }) => <Box sx={{ display: 'grid', gridAutoFlow: 'column', 
 </Box>;
 
 // One bar: label, numbers, 6 px. percent overrides value / max for a bar that does not start at zero
-// (a Menagerie mission measures from its last claim), and value and max may then be ready-made nodes.
-const Progress = ({ label, value, max, kind = 'amount', percent: fill }) => {
+// (a Menagerie mission measures from its last claim), and value and max may then be ready-made nodes. barLabel names the
+// bar where the label is a node (a name with its i).
+const Progress = ({ label, barLabel, value, max, kind = 'amount', percent: fill }) => {
   const percent = fill ?? (max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 100);
   return <Stack gap={0.75}>
     <Stack direction={'row'} justifyContent={'space-between'} sx={ROW_SX}>
@@ -169,7 +159,7 @@ const Progress = ({ label, value, max, kind = 'amount', percent: fill }) => {
       <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{numOrNode(value, kind)} / {numOrNode(max, kind)}</Typography>
     </Stack>
     <LinearProgress variant={'determinate'} value={percent} color={percent >= 100 ? 'success' : 'primary'}
-                    aria-label={typeof label === 'string' ? label : undefined}
+                    aria-label={barLabel ?? (typeof label === 'string' ? label : undefined)}
                     sx={{ height: 6, borderRadius: 3, bgcolor: 'divider' }}/>
   </Stack>;
 };

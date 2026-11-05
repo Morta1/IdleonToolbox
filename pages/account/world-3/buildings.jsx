@@ -82,11 +82,13 @@ const durationOrDash = (seconds) => (Number.isFinite(seconds) ? <Duration second
 // A tower's progress pair in the game's rule, its exact digits on a tap only while a double holds both numbers whole
 // (under 2^53): past it 'exact' prints Big, which repeated the card's pair or mixed the two kinds ("1.3e23 / 37.7Q")
 const exactFits = (value) => Number.isFinite(value) && Math.floor(value) < Number.MAX_SAFE_INTEGER;
+const exactOf = (value) => formatNum(Math.floor(value), 'exact');
 const progressValue = (progress, buildCost) => {
   const short = formatGame(progress, 'WorkbenchStuff.TowerBuildReq', { whole: true });
-  return exactFits(progress) && exactFits(buildCost)
-    ? <NoteTrigger label={'Exact progress'}
-                   note={`${formatNum(Math.floor(progress), 'exact')} / ${formatNum(Math.floor(buildCost), 'exact')}`}>{short}</NoteTrigger>
+  // The note would repeat the card's pair (a guest's "0 / 2"): no trigger
+  const pairShown = short === exactOf(progress) && formatGame(buildCost, 'WorkbenchStuff.TowerBuildReq', { whole: true }) === exactOf(buildCost);
+  return exactFits(progress) && exactFits(buildCost) && !pairShown
+    ? <NoteTrigger label={'Exact progress'} note={`${exactOf(progress)} / ${exactOf(buildCost)}`}>{short}</NoteTrigger>
     : short;
 };
 

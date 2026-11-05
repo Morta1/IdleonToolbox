@@ -18,7 +18,7 @@ const CardView = ({ colours, fastestIndices, blackStarsOwned }) => <CardGrid siz
     return <ItemCard key={item.index} title={colourName(item)}
                      level={level !== undefined ? { value: level } : undefined}
                      status={active ? 'active' : undefined} dimmed={!hasBonus}
-                     aside={fastestIndices.has(item.index) ? <StatusText status={'best'}>Fastest to level</StatusText> : null}>
+                     titleState={fastestIndices.has(item.index) ? <StatusText status={'best'}>Fastest to level</StatusText> : null}>
       <ItemCard.Facts rows={[
         chance > 0 && chance < Infinity ? ['Chance', paletteOdds(chance)] : null,
         blackStars > 0 ? [<BlackStars key={'stars'} count={blackStars}/>, formatNum(blackStarMulti ?? 1, 'mult')] : null

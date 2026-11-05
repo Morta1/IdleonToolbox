@@ -4,7 +4,7 @@ import { IconChevronDown } from '@tabler/icons-react';
 import GameIcon from '@components/common/GameIcon';
 import { numOrNode } from '@components/common/Num';
 import { useSheet } from './SheetContext';
-import { cardSurface } from './tokens';
+import { cardSurface, isNumberLike } from './tokens';
 
 const VALUE_SX = { fontWeight: 500, textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
 // Rows split by lines: every row but the first draws the line above it.
@@ -127,13 +127,14 @@ const Group = ({ label, children }) => {
   </Box>;
 };
 
-// Label and value as divs, never the default p: either can be a whole element (InfoBox's hydration note).
+// Label and value as divs, never the default p: either can be a whole element (InfoBox's hydration note). A number never
+// breaks inside itself (ItemCard's Facts' rule): only a value in words wraps.
 const KV = ({ label, value, kind }) => {
   const sheet = useSheet();
   return <Stack direction={'row'} justifyContent={'space-between'} alignItems={sheet ? 'center' : undefined} gap={sheet ? 1 : 2}
                 sx={sheet ? { ...SHEET_LINE, minHeight: { xs: 32, sm: 26 }, boxSizing: 'content-box' } : { px: 2, py: 0.75 }}>
     <Typography variant={'body2'} color={'text.secondary'} component={'div'} sx={sheet ? { whiteSpace: 'nowrap' } : undefined}>{label}</Typography>
-    <Typography variant={'body2'} component={'div'} sx={sheet ? SHEET_VALUE_SX : VALUE_SX}>{numOrNode(value, kind)}</Typography>
+    <Typography variant={'body2'} component={'div'} sx={sheet ? SHEET_VALUE_SX : { ...VALUE_SX, ...(isNumberLike(value, kind) ? { whiteSpace: 'nowrap' } : {}) }}>{numOrNode(value, kind)}</Typography>
   </Stack>;
 };
 

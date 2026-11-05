@@ -1,3 +1,5 @@
+import { isValidElement } from 'react';
+
 // The Cards board's shared rules, written once. StatTile, ItemCard, Panel and IconTile read these;
 // pages never do. Every color is a theme role, so the light scheme needs nothing here.
 const palette = (theme) => (theme.vars || theme).palette;
@@ -31,4 +33,27 @@ export const cardState = (theme, state) => {
     return { borderColor: palette(theme).primary.main, boxShadow: `inset 0 0 0 1px ${palette(theme).primary.main}` };
   }
   return {};
+};
+
+// A dimmed card whose state words must read at AA (Gallery's "Not acquired"): its surface and contents at DIM, its
+// meta line at full strength. opacity can't be undone inside a parent, so it goes on each part, not on the card.
+export const dimKeepingMeta = (theme) => ({
+  backgroundColor: `color-mix(in srgb, ${palette(theme).background.paper} ${DIM * 100}%, transparent)`,
+  borderColor: `color-mix(in srgb, ${palette(theme).divider} ${DIM * 100}%, transparent)`,
+  '& > :not([data-card-header]), & [data-card-header] > :not([data-title-row]), & [data-title-row] > :not([data-title-block]), & [data-title-block] > :not([data-card-meta])': { opacity: DIM }
+});
+
+// The words a value's own strings spell; a node that prints its value itself (a <Num>) spells nothing.
+export const textOf = (node) => {
+  if (typeof node === 'string' || typeof node === 'number') return String(node);
+  if (Array.isArray(node)) return node.map(textOf).join('');
+  return isValidElement(node) ? textOf(node.props?.children) : '';
+};
+
+// A number, a number pair, or a value with nothing to read counts as a number: a digit and no word of four letters
+// ("Lv 2,626 → 2,635", "1 in 25,000"). "1.00x Construction Build Rate (+0.25x/lv)" is words.
+export const isNumberLike = (value, kind) => {
+  if (kind || typeof value === 'number') return true;
+  const text = textOf(value);
+  return !text || (/\d/.test(text) && !/[A-Za-z]{4,}/.test(text));
 };
