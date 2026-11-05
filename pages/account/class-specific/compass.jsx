@@ -14,7 +14,6 @@ import Panel from '@components/common/cards/Panel';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 import { isSectionFailed, MissingData } from '@components/common/styles';
 import Upgrades from '@components/account/Misc/class-specific/Compass/Upgrades';
-import { amountPair } from '@components/account/Misc/class-specific/MasterclassUpgradeCard';
 import Abominations from '@components/account/Misc/class-specific/Compass/Abominations';
 import Medallions from '@components/account/Misc/class-specific/Compass/Medallions';
 import Portals from '@components/account/Misc/class-specific/Compass/Portals';
@@ -121,7 +120,7 @@ const Compass = () => {
       <StatTile label={'Exalted stamps'} icon={'etc/Exalted_Stamp_Frame.png'}
                 value={shown(`${formatNum(remainingExaltedStamps ?? 0)} / ${formatNum((usedExaltedStamps ?? 0) + (remainingExaltedStamps ?? 0))}`)}/>
       {topOfTheMorninKills || sectionFailed
-        ? <StatTile label={'Top of the Mornin\' kills'} value={shown(amountPair(topOfTheMorninKills))}/>
+        ? <StatTile label={'Top of the Mornin\' kills'} value={shown(`${formatNum(topOfTheMorninKills?.kills ?? 0, 'whole')} / ${formatNum(topOfTheMorninKills?.total ?? 0, 'whole')}`)}/>
         : null}
       {/* Every dust cost on the Upgrades tab prints in this rule, so the balances do too */}
       {Object.keys(dustNames).map((index) => <StatTile key={index} label={cleanUnderscore(dustNames[index])}
