@@ -55,9 +55,8 @@ const Tabber = ({
                   keepChildren,
                   activeTab,
                   // Page tabs start under the page title, in a full-width strip. align="center" is the
-                  // opt-out. endSlot renders at the right end of the same row.
+                  // opt-out.
                   align = 'start',
-                  endSlot,
                   // Also opt-in: the row strip sticks at this offset from the top of the viewport.
                   stickyTop,
                   // Also opt-in: ids that tie each tab to one tabpanel wrapping the children.
@@ -103,8 +102,8 @@ const Tabber = ({
   const showAllChildren = keepChildren ?? Boolean(onTabChange);
   const alignStart = align === 'start';
   // Level 2 draws its own pills, so the row, its reveal and its fade are level 1's alone.
-  const rowStrip = level === 1 && (alignStart || endSlot != null);
-  // A row strip shares its width with the end slot, so it scrolls whenever its tabs outgrow it.
+  const rowStrip = level === 1 && alignStart;
+  // A row strip scrolls whenever its tabs outgrow it.
   const useScrollable = forceScroll || rowStrip || (isMd && tabs.length >= 4) || tabs.length >= 8;
   const panelId = idPrefix ? `${idPrefix}-panel` : undefined;
   const tabsRef = useRef(null);
@@ -124,7 +123,7 @@ const Tabber = ({
   }, [pinOnPhone]);
 
   // MUI scrolls the selected tab into view when it changes, but not when the strip itself settles
-  // later (a deep link renders before the end slot and fonts land), which left it off-screen.
+  // later (a deep link renders before the fonts land), which left it off-screen.
   useEffect(() => {
     if (!rowStrip) return;
     const reveal = () => {
@@ -246,7 +245,6 @@ const Tabber = ({
         '@media (max-height: 500px)': { position: 'static' }
       })}>
         {tabStrip}
-        {endSlot != null ? <Box sx={{ flexShrink: 0 }}>{endSlot}</Box> : null}
       </Box>
     ) : tabStrip;
   return <Box ref={rootRef} sx={(theme) => ({

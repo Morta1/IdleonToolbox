@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 
@@ -53,19 +53,8 @@ describe('Tabber', () => {
     }
   });
 
-  it('renders an end slot after the tabs in the same row, and nothing extra by default', () => {
-    const { container } = renderTabber(7, { align: 'start', endSlot: <span data-testid="end">status</span> });
-    const end = container.querySelector('[data-testid="end"]');
-    const row = end.parentElement.parentElement;
-    expect(row.querySelector('.MuiTabs-root')).toBeTruthy();
-    expect(getComputedStyle(row).display).toBe('flex');
-    cleanup();
-    const plain = renderTabber(7, { align: 'center' }).container;
-    expect(plain.querySelector('[data-testid="end"]')).toBeNull();
-    expect(plain.querySelector('.MuiTabs-root').parentElement.parentElement).toBe(plain);
-  });
   it('scrolls a row strip, pins it when asked, and ties tabs to one panel', () => {
-    const { container } = renderTabber(7, { align: 'start', endSlot: <span/>, stickyTop: 120, idPrefix: 'lb' });
+    const { container } = renderTabber(7, { align: 'start', stickyTop: 120, idPrefix: 'lb' });
     expect(container.querySelector('.MuiTabs-scroller.MuiTabs-scrollableX')).toBeTruthy();
     const row = container.querySelector('.MuiTabs-root').parentElement;
     expect(getComputedStyle(row).position).toBe('sticky');
