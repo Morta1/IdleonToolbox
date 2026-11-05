@@ -7,6 +7,7 @@ import ItemDisplay from 'components/common/ItemDisplay';
 import Panel from '@components/common/cards/Panel';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
+import { useSheet } from '@components/common/cards/SheetContext';
 import StatusText from '@components/common/StatusText';
 import Notice from '@components/common/Notice';
 
@@ -53,6 +54,7 @@ const obolTile = (item, index, type, totalLevels) => {
 
 const ObolsView = ({ obols, type = 'character', obolStats, characters, account }) => {
   const totalLevels = characters?.reduce((res, { level }) => res + (level || 0), 0);
+  const sheet = useSheet();
   if (!obols) return null;
   if (obolStats) {
     const stats = Object.entries(obols?.stats ?? {});
@@ -69,9 +71,9 @@ const ObolsView = ({ obols, type = 'character', obolStats, characters, account }
     </Panel>;
   }
   const slots = obols?.list?.length ? obols.list : type === 'account' ? guestBoard() : [];
-  const board = <Stack gap={1} sx={{ p: 1.5 }}>
+  const board = <Stack gap={sheet ? '6px' : 1} sx={sheet ? undefined : { p: 1.5 }}>
     {rowsOf(slots, ROWS[type] ?? ROWS.character).map((row, rowIndex) => <CardGrid key={rowIndex} size={'icon'}
-                                                                                     columns={row.length}
+                                                                                     columns={row.length} sheetTile={48}
                                                                                      sx={{ justifyContent: 'center' }}>
       {row.map((item, index) => obolTile(item, index, type, totalLevels))}
     </CardGrid>)}

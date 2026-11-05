@@ -104,7 +104,7 @@ const Talents = ({
   const addedText = formatNum(effectiveAddedLevels ?? 0);
 
   return <Panel title={'Talents'} meta={isStarTab ? `Specials ${specialsTab + 1}` : cleanUnderscore(talents?.[activeTab]?.name)}>
-    <Stack gap={1} sx={{ px: 1.5, pt: 1.5 }}>
+    <Stack gap={1}>
       <ViewSwitch
         label={'Talent preset'}
         value={preset}
@@ -126,13 +126,13 @@ const Talents = ({
         onTabChange={changeTab}
       />
     </Stack>
-    <Box sx={{ py: 0.75 }}>
+    <Box>
       <Panel.KV label={'Points spent'} value={formatNum(spentTalentPoints ?? 0)}/>
       <Panel.KV label={'Added levels'} value={effectiveAddedLevelsBreakdown
         ? <Breakdown asValue title={'Added levels'} valueNotation={'Big'} data={{ ...effectiveAddedLevelsBreakdown, totalValue: addedText }}>{addedText}</Breakdown>
         : addedText}/>
     </Box>
-    <CardGrid size={'icon'} columns={5} sx={{ p: 1.5 }}>
+    <CardGrid size={'icon'} sheetColumns={[5]}>
       {activeTalents?.orderedTalents?.slice(0, 15).map((talentDetails, index) => {
         const { talentId, level, baseLevel, maxLevel, name, isSuperTalent } = talentDetails;
         const slotKey = `${talentId}-${index}`;

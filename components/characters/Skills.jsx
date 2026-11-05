@@ -12,6 +12,7 @@ import Panel from '@components/common/cards/Panel';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
+import Notice from '@components/common/Notice';
 
 // The game's SkillStats blocks spell two skills differently from the save
 const SKILL_STAT_NAMES = { chopping: 'Choppin' };
@@ -27,11 +28,11 @@ const SkillDetails = ({ skillName, skill, character, characters, account }) => {
   const efficiency = getSkillEfficiency(skillName, character, characters, account, playerInfo);
   const multiText = expMulti ? `${skillNumber(expMulti.value, skillStatKey(skillName, 'EXPmulti'), expMulti.formattedValue)}x` : null;
   const efficiencyText = efficiency ? skillNumber(efficiency.value, skillStatKey(skillName, 'Efficiency'), efficiency.formattedValue) : null;
-  return <Box sx={{ pb: 1 }}>
+  return <Box sx={{ mt: 1 }}>
     <Panel.KV label={capitalize(skillName)} value={formatNum(level, 'level')}/>
     {!isGlobalSkill(skillName) && rank != null
       ? <Panel.KV label={'Account rank'} value={`${formatNum(rank)} of ${formatNum(characters?.length)}`}/> : null}
-    <Box sx={{ px: 2, py: 0.75 }}>
+    <Box sx={{ py: 0.75 }}>
       <ItemCard.Progress label={'EXP'} value={formatGame(exp, 'Big', { whole: true })} max={formatGame(expReq, 'Big', { whole: true })} percent={Math.min(100, (exp / expReq * 100) || 0)}/>
     </Box>
     {expMulti ? <Panel.KV label={'EXP multi'} value={expMulti.breakdown
@@ -47,21 +48,21 @@ const Skills = ({ skills, account, characters, character, showSkillsRankOneOnly 
   const [picked, setPicked] = useState(null);
   const shown = Object.keys(skills || {}).filter((skillName) => skillName !== 'character'
     && (!showSkillsRankOneOnly || skills[skillName]?.rank === 1));
-  if (showSkillsRankOneOnly && !shown.length) return null;
+  if (showSkillsRankOneOnly && !shown.length) return <Panel title={'Skills'}><Notice>No skill at rank 1 on this character.</Notice></Panel>;
   const pickedName = shown.includes(picked) ? picked : null;
 
   return <Panel title={'Skills'} meta={showSkillsRankOneOnly ? 'Rank 1 only' : undefined}>
-    <CardGrid size={'icon'} fill sx={{ p: 1.5 }}>
+    <CardGrid size={'icon'} sheetColumns={[5]}>
       {shown.map((skillName) => {
         const { level, rank, icon } = skills[skillName];
-        return <IconTile key={skillName} icon={`data/${icon}.png`} alt={capitalize(skillName)} value={formatNum(level, 'level')}
+        return <IconTile key={skillName} icon={`data/${icon}.png`} alt={capitalize(skillName)} value={formatNum(level, 'whole')}
                          badge={!isGlobalSkill(skillName) && rank <= 3 ? rank : undefined}
                          onSelect={() => setPicked(skillName)} selected={pickedName === skillName}/>;
       })}
     </CardGrid>
     {pickedName
       ? <SkillDetails skillName={pickedName} skill={skills[pickedName]} character={character} characters={characters} account={account}/>
-      : <Typography variant={'body2'} color={'text.secondary'} sx={{ px: 2, py: 1.5 }}>Pick a skill to see its EXP and efficiency.</Typography>}
+      : <Typography color={'text.secondary'} sx={{ mt: 1, fontSize: 13, lineHeight: '18px' }}>Pick a skill to see its EXP and efficiency.</Typography>}
   </Panel>;
 };
 

@@ -5,21 +5,19 @@ import React from 'react';
 import Panel from '@components/common/cards/Panel';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
+import Notice from '@components/common/Notice';
 
 const PostOffice = ({ boxes, totalPointsSpent, totalOrders, showUnmaxedBoxesOnly }) => {
   const spent = Math.floor(totalPointsSpent ?? 0);
   const orders = Math.floor(totalOrders ?? 0);
-  return <Panel title={'Post Office'} meta={<>
-    {`Points spent ${formatNum(spent)} / ${formatNum(orders)}`}
-    {spent < orders ? ` · ${formatNum(orders - spent)} unspent` : ''}
-  </>}>
-    <CardGrid size={'icon'} fill sx={{ p: 1.5 }}>
-      {boxes?.map((box, index) => {
-        if (box?.name === 'Filler' || (showUnmaxedBoxesOnly && box?.level === box?.maxLevel)) return null;
-        return <IconTile key={`${box?.name}-${index}`} icon={`data/UIboxUpg${index}.png`} alt={cleanUnderscore(box?.name ?? '')}
-                         value={formatNum(box?.level ?? 0)} details={<BoxDetails {...box}/>}/>;
-      })}
-    </CardGrid>
+  const isShown = (box) => box?.name !== 'Filler' && !(showUnmaxedBoxesOnly && box?.level === box?.maxLevel);
+  return <Panel title={'Post Office'} meta={spent < orders ? `${formatNum(orders - spent)} unspent` : undefined}>
+    {showUnmaxedBoxesOnly && !boxes?.some(isShown) ? <Notice>Every box is maxed.</Notice> : <CardGrid size={'icon'} sheetColumns={[6]}>
+      {boxes?.map((box, index) => (isShown(box)
+        ? <IconTile key={`${box?.name}-${index}`} icon={`data/UIboxUpg${index}.png`} alt={cleanUnderscore(box?.name ?? '')}
+                    value={formatNum(box?.level ?? 0)} details={<BoxDetails {...box}/>}/>
+        : null))}
+    </CardGrid>}
   </Panel>;
 };
 

@@ -10,10 +10,10 @@ import ItemCard from '@components/common/cards/ItemCard';
 import StatusText from '@components/common/StatusText';
 
 const Prayers = ({ prayers }) => <Panel title={'Prayers'}>
-  {prayers?.length ? <CardGrid size={'icon'} fill sx={{ p: 1.5 }}>
+  {prayers?.length ? <CardGrid size={'icon'} sheetColumns={[8, 6]}>
     {prayers.map((prayer) => <IconTile key={prayer?.prayerIndex} icon={`data/Prayer${prayer?.prayerIndex}.png`}
                                        alt={cleanUnderscore(prayer?.name ?? '')} details={<PrayerDetails {...prayer}/>}/>)}
-  </CardGrid> : <Typography variant={'body2'} color={'text.secondary'} sx={{ px: 2, py: 1.5 }}>No prayers equipped</Typography>}
+  </CardGrid> : <Typography variant={'body2'} color={'text.secondary'}>No prayers equipped</Typography>}
 </Panel>;
 
 // The game's numbers, as the Prayers page fills them, and the souls it costs against the ones owned

@@ -19,7 +19,7 @@ const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
   const cardPreset = cardPresets?.[selectedTab] ?? (selectedTab === 0 ? equippedCards : EMPTY_PRESET);
 
   return <Panel title={'Equipped cards'}>
-    <Stack gap={1.5} sx={{ p: 1.5 }}>
+    <Stack gap={1}>
       <Tabber
         level={2}
         disableQuery

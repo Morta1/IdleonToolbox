@@ -50,24 +50,24 @@ const Characters = () => {
       <>
         {!isPending && (hasSkillsFilter || hasPostOfficeFilter)
           ? <Toolbar state={toolbarState} defaults={{ showRankOneOnly: false, showUnmaxedBoxesOnly: false }} onChange={setToolbar}
-                     onReset={() => setToolbar({ showRankOneOnly: false, showUnmaxedBoxesOnly: false })}
-                     total={numberOfCharacters} shown={numberOfCharacters} noun={'characters'}>
+                     onReset={() => setToolbar({ showRankOneOnly: false, showUnmaxedBoxesOnly: false })} counted={false}>
             {hasSkillsFilter ? <Toolbar.Filter name={'showRankOneOnly'} label={'Show rank 1 only'}/> : null}
             {hasPostOfficeFilter ? <Toolbar.Filter name={'showUnmaxedBoxesOnly'} label={'Show unmaxed boxes only'}/> : null}
           </Toolbar> : null}
         {isPending ? <Stack alignItems={'center'} mt={1} mb={1}><CircularProgress size={24}/></Stack> : null}
-        <Grid container sx={{ columnGap: 2, rowGap: 5 }} columns={12.5}>
+        <Grid container sx={{ columnGap: 2, rowGap: 5 }} columns={deferredCount === 1 ? 12 : 12.5}>
           {state?.characters?.map((character, index) => {
             return deferredDisplayed?.[index]
-              ? <Character filters={filters}
+              ? <Grid item xs={deferredCount === 1 ? 12 : 12.5} md={Math.max(characterCols, 6)} lg={Math.max(characterCols, 4)} xl={characterCols}
+                      key={`${character?.name}-${index}`}>
+                <Character filters={filters}
                            account={state?.account}
                            character={character}
                            characters={state?.characters}
-                           cols={characterCols}
                            lastUpdated={state?.lastUpdated}
                            showSkillsRankOneOnly={state.showRankOneOnly}
-                           showUnmaxedBoxesOnly={state.showUnmaxedBoxesOnly}
-                           key={`${character?.name}-${index}`}/>
+                           showUnmaxedBoxesOnly={state.showUnmaxedBoxesOnly}/>
+              </Grid>
               : null;
           })}
         </Grid>

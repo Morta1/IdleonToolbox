@@ -1,10 +1,11 @@
 import React from 'react';
-import { Box, Grid, Stack } from '@mui/material';
-import { prefix } from 'utility/helpers';
+import { Box, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum, prefix, sections } from 'utility/helpers';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 import GameIcon from '@components/common/GameIcon';
-import CardGrid from '@components/common/cards/CardGrid';
-import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
+import SheetContext from '@components/common/cards/SheetContext';
+import { cardSurface } from '@components/common/cards/tokens';
 import Bags from './Bags';
 import Talents from './Talents';
 import EquippedCards from './EquippedCards';
@@ -21,21 +22,50 @@ import Inventory from './Inventory';
 import Chips from '../account/Worlds/World4/Chips';
 import Divinity from './Divinity';
 
+// A section's title on the page, where it differs from the name it is stored under
+const TITLES = { Cards: 'Equipped cards', 'Obols Stats': 'Obol stats', 'Star Signs': 'Star signs', 'Equipped Bubbles': 'Equipped bubbles', 'Anvil Details': 'Anvil details' };
+
+const ONE_LINE_SX = { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
+
+// A character's name row: class sprite, name, class and level on one muted line, the trophy at the right
+const NameRow = ({ character }) => {
+  const { name, classIndex, class: className, level, equipment } = character;
+  const trophy = equipment?.reduce((res, { rawName }) => (!res && rawName?.includes('Trophy') ? rawName : res), '');
+  return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={{ px: 2, py: '12px', minHeight: 68, boxSizing: 'border-box' }}>
+    <GameIcon src={`data/ClassIcons${classIndex}.png`} size={40} alt={''}/>
+    <Stack sx={{ minWidth: 0, flex: 1 }}>
+      <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1} sx={{ minWidth: 0 }}>
+        <Typography variant={'cardTitle'} component={'h2'} sx={ONE_LINE_SX}>{name}</Typography>
+        {trophy ? <Box component={'img'} src={`${prefix}data/${trophy.replace('Replica', '')}disp.png`} alt={''}
+                       sx={{ width: 102, height: 19, objectFit: 'contain', display: 'block', flexShrink: 0 }}/> : null}
+      </Stack>
+      <Typography color={'text.secondary'} component={'div'} sx={{ ...ONE_LINE_SX, fontSize: 13, lineHeight: '18px' }}>
+        {cleanUnderscore(className ?? '')} · {formatNum(level ?? 0, 'level')}
+      </Typography>
+    </Stack>
+  </Stack>;
+};
+
+// One card per character, its sections in the one order (helpers' sections), each failing alone and keeping its place.
+// One character is a sheet: the card fills the page and its sections flow down columns, each whole.
+const FLOW_SX = (theme) => ({
+  columnWidth: 340,
+  columnGap: 0,
+  columnRule: `1px solid ${(theme.vars || theme).palette.divider}`
+});
+const SHEET = { side: false };
+
 const Character = ({
   character,
   account,
   lastUpdated,
   filters,
-  cols,
   characters,
   showSkillsRankOneOnly,
   showUnmaxedBoxesOnly
 }) => {
   const {
     name,
-    classIndex,
-    level,
-    cards,
     skillsInfo,
     activePrayers,
     starSigns,
@@ -47,87 +77,48 @@ const Character = ({
     food,
     invBagsUsed,
     carryCapBags,
-    flatTalents,
-    flatStarTalents,
-    cooldowns,
-    afkTime,
     inventory,
     inventorySlots,
     playerId
   } = character;
-  const views = [
-    {
-      component: <Stats
-        statsFilter={filters?.['Stats']}
-        character={character}
-        characters={characters}
-        account={account}
-        lastUpdated={lastUpdated} />,
-      filter: ['Stats']
-    },
-    { component: <ObolsView obols={obols} characters={characters} />, filter: 'Obols' },
-    { component: <ObolsView obols={obols} obolStats characters={characters} account={account} />, filter: 'Obols Stats' },
-    { component: <Bags {...{ bags: invBagsUsed, capBags: carryCapBags }} />, filter: 'Bags' },
-    {
-      component: <Talents {...character}
-        selectedPreset={character?.selectedTalentPreset ?? 1}
-        account={account}
-      />,
-      filter: 'Talents'
-    },
-    { component: <EquippedCards {...character} />, filter: 'Cards' },
-    {
-      component: <Skills skills={skillsInfo} account={account} characters={characters} character={character} charName={name} showSkillsRankOneOnly={showSkillsRankOneOnly} />,
-      filter: 'Skills'
-    },
-    { component: <Prayers prayers={activePrayers} />, filter: 'Prayers' },
-    { component: <PlayerStarSigns signs={starSigns} />, filter: 'Star Signs' },
-    {
-      component: <AnvilDetails characters={characters} character={character} account={account} />,
-      filter: 'Anvil Details'
-    },
-    { component: <Inventory inventory={inventory} inventorySlots={inventorySlots} account={account} />, filter: 'Inventory' },
-    { component: <PostOffice {...postOffice} showUnmaxedBoxesOnly={showUnmaxedBoxesOnly} />, filter: 'Post Office' },
-    {
-      component: <Chips playerLabLevel={skillsInfo?.laboratory?.level ?? 0}
-        playerChips={account?.lab?.playersChips?.[playerId]} characters={characters}
-        charactersPage />, filter: 'Chips'
-    },
-    {
-      component: <Equipment {...{ charName: name, equipment, tools, food, character, characters, account }} />,
-      filter: 'Equipment'
-    },
-    { component: <PlayerBubbles bubbles={equippedBubbles} />, filter: 'Equipped Bubbles' },
-    { component: <Divinity character={character} account={account} />, filter: 'Divinity' }
-  ];
+  const views = {
+    Stats: <Stats statsFilter={filters?.['Stats']} character={character} characters={characters} account={account} lastUpdated={lastUpdated}/>,
+    Talents: <Talents {...character} selectedPreset={character?.selectedTalentPreset ?? 1} account={account}/>,
+    Cards: <EquippedCards {...character}/>,
+    Skills: <Skills skills={skillsInfo} account={account} characters={characters} character={character} charName={name} showSkillsRankOneOnly={showSkillsRankOneOnly}/>,
+    Equipment: <Equipment {...{ charName: name, equipment, tools, food, character, characters, account }}/>,
+    Obols: <ObolsView obols={obols} characters={characters}/>,
+    'Obols Stats': <ObolsView obols={obols} obolStats characters={characters} account={account}/>,
+    Inventory: <Inventory inventory={inventory} inventorySlots={inventorySlots} account={account}/>,
+    Bags: <Bags {...{ bags: invBagsUsed, capBags: carryCapBags }}/>,
+    Prayers: <Prayers prayers={activePrayers}/>,
+    'Star Signs': <PlayerStarSigns signs={starSigns}/>,
+    'Equipped Bubbles': <PlayerBubbles bubbles={equippedBubbles}/>,
+    // A Panel here, not in Chips: Console draws Chips too
+    Chips: <Panel title={'Chips'}>
+      <Chips playerLabLevel={skillsInfo?.laboratory?.level ?? 0} playerChips={account?.lab?.playersChips?.[playerId]}/>
+    </Panel>,
+    Divinity: <Divinity character={character} account={account}/>,
+    'Anvil Details': <AnvilDetails characters={characters} character={character} account={account}/>,
+    'Post Office': <PostOffice {...postOffice} showUnmaxedBoxesOnly={showUnmaxedBoxesOnly}/>
+  };
 
-  const trophy = equipment?.reduce((res, { rawName }) => (!res && rawName.includes('Trophy')
-    ? rawName
-    : res), '');
-
-  return (
-    <>
-      <Grid item xs={12.5} md={Math.max(cols, 6)} lg={Math.max(cols, 4)} xl={cols}>
-        <Stack gap={2}>
-          <ItemCard size={'s'} icon={<GameIcon src={`data/ClassIcons${classIndex}.png`} size={32} alt={''}/>} title={name}
-                    level={{ value: level ?? 0 }}
-                    aside={trophy
-                      ? <Box component={'img'} src={`${prefix}data/${trophy.replace('Replica', '')}disp.png`} alt={''}
-                             sx={{ width: 102, height: 19, objectFit: 'contain', display: 'block' }}/>
-                      : null}/>
-          {/* Sections of very different heights flow down columns, each whole, and each fails alone */}
-          <CardGrid size={'l'} flow>
-            {views?.map((view, index) => {
-              const shouldDisplay = [view.filter].flat().some((filter) => filters?.[filter]);
-              return shouldDisplay ? <Box key={`${name}-${view?.filter}-${index}`}>
-                <ErrorBoundary title={`${[view.filter].flat()[0]} didn't load`} resetKey={lastUpdated}>{view.component}</ErrorBoundary>
-              </Box> : null;
-            })}
-          </CardGrid>
-        </Stack>
-      </Grid>
-    </>
-  );
+  return <SheetContext value={SHEET}>
+    <Box data-character-card sx={(theme) => cardSurface(theme)}>
+      <NameRow character={character}/>
+      <Box sx={FLOW_SX}>
+        {sections.filter((section) => filters?.[section.name]).map((section) => {
+          const title = TITLES[section.name] ?? section.name;
+          return <Box key={section.name} sx={{ breakInside: 'avoid', minWidth: 0 }}>
+            <ErrorBoundary note={`${title} didn't load.`} tone={'missing'} resetKey={lastUpdated}
+                           wrap={(note) => <Panel title={title}>{note}</Panel>}>
+              {views[section.name]}
+            </ErrorBoundary>
+          </Box>;
+        })}
+      </Box>
+    </Box>
+  </SheetContext>;
 };
 
 export default Character;

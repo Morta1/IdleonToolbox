@@ -4,7 +4,7 @@ import Panel from '@components/common/cards/Panel';
 
 const PlayerStarSigns = ({ signs }) => {
   const sortedSigns = signs?.toSorted((a, b) => a?.starName.localeCompare(b?.starName, 'en'));
-  return <Panel title={'Star Signs'}>
+  return <Panel title={'Star signs'}>
     {sortedSigns?.map(({ starName, bonuses }, index) => (starName !== 'None' ? <Panel.Row
       key={starName + index}
       name={cleanUnderscore(starName)}

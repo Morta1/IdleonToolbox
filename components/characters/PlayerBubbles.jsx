@@ -1,4 +1,4 @@
-import { Box, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import { cleanUnderscore, growth } from 'utility/helpers';
 import { gameBonusText } from '@utility/gameNotation';
 import Panel from '@components/common/cards/Panel';
@@ -9,13 +9,13 @@ import StatusText from '@components/common/StatusText';
 const PlayerBubbles = ({ bubbles }) => {
   const equipped = bubbles?.filter(({ bubbleName }) => bubbleName) ?? [];
   return <Panel title={'Equipped bubbles'}>
-    {equipped.length ? <CardGrid size={'icon'} fill sx={{ p: 1.5 }}>
+    {equipped.length ? <CardGrid size={'icon'} sheetColumns={[8, 6]}>
       {equipped.map((bubble, index) => {
         const name = bubble.bubbleName === 'BUG]' ? 'Bug2' : bubble.bubbleName;
         return <IconTile key={`${name}-${index}`} icon={`data/${bubble.rawName}.png`} alt={cleanUnderscore(name)}
                          details={<BubbleDetails {...bubble} bubbleName={name}/>}/>;
       })}
-    </CardGrid> : <Box sx={{ px: 2, py: 1.5 }}><StatusText status={'needs'}>No active bubble</StatusText></Box>}
+    </CardGrid> : <StatusText status={'needs'}>No active bubble</StatusText>}
   </Panel>;
 };
 

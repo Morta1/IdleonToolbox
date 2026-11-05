@@ -228,9 +228,11 @@ const PanelGroup = ({ label, children }) => <Stack gap={0.75}>
 // searchAlone: a lead wide enough to squeeze the search on a phone (card search's presets button): the search takes its
 // own line there, as it does beside a view.
 // inPanel: the bar sits inside a Panel (the dashboard's goals): on the Panel's colour, on its sides, a line under it.
+// counted false: what the filters narrow isn't a list with a total (/characters), so the result line has no count and no
+// empty note: only its tokens and Reset.
 const Toolbar = ({
   onStickyBottom, panelLabel = 'Filters', panelIcon = null, panelIconOnly = false, panelTall = false, searchAlone = false, inPanel = false,
-  state = {}, defaults = {}, onChange, onReset, total = 0, shown = 0, noun = 'results', note = null, children
+  counted = true, state = {}, defaults = {}, onChange, onReset, total = 0, shown = 0, noun = 'results', note = null, children
 }) => {
   const [panelOpen, setPanelOpen] = useState(false);
   const [barHeight, setBarHeight] = useState(0);
@@ -334,16 +336,16 @@ const Toolbar = ({
         </Stack>
         {narrowing.length ? <Stack direction="row" gap={1} alignItems="center" flexWrap="wrap" sx={{ mt: 1.5 }}>
           {/* A line of its own on a phone, so Reset never wraps alone after the tokens. */}
-          <Typography component="div" color="text.secondary" sx={{ fontSize: 13, lineHeight: '20px', flexBasis: { xs: '100%', sm: 'auto' } }}>
+          {counted ? <Typography component="div" color="text.secondary" sx={{ fontSize: 13, lineHeight: '20px', flexBasis: { xs: '100%', sm: 'auto' } }}>
             Showing <Box component="span" sx={{ color: 'text.primary', fontWeight: 500 }}>{commaNotation(shown)}</Box> of {commaNotation(total)}
-          </Typography>
+          </Typography> : null}
           {narrowing.map(({ key, text, label }) => <ButtonBase key={key} aria-label={`Clear ${label}`} sx={TOKEN_SX}
                                                                onClick={() => change({ [key]: defaults[key] })}>
             {text}
             <IconX size={14}/>
           </ButtonBase>)}
           {/* With nothing shown, the empty note's Reset is the one way back */}
-          {shown > 0 ? <ButtonBase onClick={onReset} sx={RESET_SX}>Reset</ButtonBase> : null}
+          {shown > 0 || !counted ? <ButtonBase onClick={onReset} sx={RESET_SX}>Reset</ButtonBase> : null}
         </Stack> : null}
         {/* A message about what the bar just did (a search that found no one): in the bar, so it shows
             where the player is looking after a scroll. The empty-result note stays under the bar. */}
@@ -368,7 +370,7 @@ const Toolbar = ({
       </AppDialog>
     </Box>
     {/* An empty result is a note under the toolbar (Notices board). */}
-    {shown === 0 && narrowing.length ? <Notice tone="info" action={{ label: 'Reset', onClick: onReset }} sx={inPanel ? { m: 2 } : undefined}>
+    {counted && shown === 0 && narrowing.length ? <Notice tone="info" action={{ label: 'Reset', onClick: onReset }} sx={inPanel ? { m: 2 } : undefined}>
       {`No ${noun} match. ${onSentence(filtersOn, searchOn)}`}
     </Notice> : null}
   </>;

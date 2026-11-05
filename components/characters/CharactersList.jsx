@@ -249,7 +249,7 @@ const CharactersList = () => {
       <List>
         <ListItem>
           <Stack gap={2}>
-            <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>Filter by section</Typography>
+            <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>Sections</Typography>
             <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
               {sections.map(({ name }, index) => <FilterPill key={`${name}-${index}`} label={name} on={chips?.[name]}
                                                              onToggle={() => toggleSection(name)}/>)}

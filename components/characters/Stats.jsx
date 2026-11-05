@@ -39,7 +39,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
   const crystal = facts['Crystal guaranteed'] ?? facts['Crystal chance'];
 
   return <Panel title={'Stats'}>
-    <Box sx={{ py: 0.75 }}>
+    <Box>
       <Panel.KV label={'Total stats'} value={formatNum(totalStats)}/>
       {Object.entries(stats || {}).map(([statName, statValue]) => (statName !== 'level'
         ? <Panel.KV key={statName} label={STAT_LABELS[statName] ?? statName} value={STAT_KEYS[statName] ? formatGame(statValue, STAT_KEYS[statName]) : formatNum(statValue)}/>
@@ -60,7 +60,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
       <Fact {...facts['Respawn time']}/>
       <Fact {...facts['AFK gains']}/>
       <Fact {...facts['Non consume chance']}/>
-      <Box sx={{ px: 2, py: 0.75 }}>
+      <Box sx={{ py: 0.75 }}>
         <ItemCard.Progress label={'EXP'} value={formatNum(classSkill?.exp, 'whole')} max={formatNum(classSkill?.expReq, 'whole')}
                            percent={Math.min(100, (classSkill?.exp / classSkill?.expReq * 100) || 0)}/>
       </Box>
@@ -71,7 +71,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
           <GameIcon src={`data/${nextPortal?.currentIcon}.png`} size={16} alt={''}/>
           {formatNum(nextPortal?.current, 'whole')} / {formatNum(nextPortal?.goal, 'whole')}
         </Stack>}/> : <Panel.KV label={'Next portal'} value={''}/>}
-        <Box sx={{ px: 2 }}><MultiCharLockText lock={portalLock}/></Box>
+        <MultiCharLockText lock={portalLock}/>
       </Box> : null}
       <Panel.KV label={crystal.label} value={crystal.breakdown ? <Stack alignItems={'flex-end'}>
         {/* The game rolls min(cap, chance), so past the cap this number stops improving and the overflow turns into

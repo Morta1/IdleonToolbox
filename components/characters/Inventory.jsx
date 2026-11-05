@@ -10,7 +10,7 @@ import ItemCard from '@components/common/cards/ItemCard';
 // under their own headings, so the grid alone (asc is the wider list).
 const Inventory = ({ inventory, inventoryLength, inventorySlots, amountKey = 'amount', asc, account }) => {
   const capacity = inventorySlots ? `Capacity ${formatNum(inventoryLength || inventory?.length || 0)} / ${formatNum(inventorySlots)}` : null;
-  const grid = <CardGrid size={'icon'} fill sx={capacity && !asc ? { p: 1.5 } : undefined}>
+  const grid = <CardGrid size={'icon'} fill sheetColumns={[6]}>
     {inventory?.map((item, index) => <IconTile
       key={item?.rawName + '' + index} icon={`data/${item?.rawName}.png`} alt={cleanUnderscore(item?.displayName ?? item?.name ?? '')}
       value={item?.perHour ? formatNum(item?.perHour, 'rate') : formatNum(item?.[amountKey], 'whole')}

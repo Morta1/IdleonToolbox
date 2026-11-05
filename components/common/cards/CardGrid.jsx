@@ -40,7 +40,7 @@ const CardGrid = ({ size = 'm', columns: count, sheetColumns, sheetTile, withBor
     <Box {...rest} sx={[
       flow ? { columnWidth: CARD_MIN_WIDTH[size], columnGap: 2, '& > *': { breakInside: 'avoid', mb: 2 }, '& > :last-child': { mb: 0 } }
         : { display: 'grid', gridTemplateColumns: columns(size, count), gap: size === 'icon' ? 1 : 2 },
-      !flow && fill && size === 'icon' && FILL_SX,
+      !flow && fill && !sheet && size === 'icon' && FILL_SX,
       withBorder && { '& > *': { border: 1, borderColor: 'divider', borderRadius: '8px', p: 2 } },
       ...(Array.isArray(sx) ? sx : [sx]),
       sheet && size === 'icon' && sheetGrid(sheetColumns, sheetTile, count)

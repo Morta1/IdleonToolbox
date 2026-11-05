@@ -8,7 +8,8 @@ import { errorMessage, trackEvent } from '@utility/analytics';
  * the page goes blank and only a full refresh brings it back. In dev that also kills Fast Refresh,
  * since there is no tree left for it to patch. This keeps the failure contained to one subtree instead of a white page.
  * detail: the whole-page boundaries put the actual error on screen, for a report. A section's note reads the sentence
- * alone: the raw text stays in the console.
+ * alone: the raw text stays in the console. note, tone and wrap are for a boundary inside a card: its own sentence and
+ * tone, drawn inside what wrap returns (a section with its title), so it keeps its place.
  */
 class ErrorBoundary extends React.Component {
   // attempt keys the note, so a Try again that fails again is a new alert, read out again.
@@ -41,8 +42,12 @@ class ErrorBoundary extends React.Component {
     const { error } = this.state;
     if (!error) return this.props.children;
 
-    const { title = 'Something went wrong', gutters = false, detail = false } = this.props;
+    const { title = 'Something went wrong', gutters = false, detail = false, note, tone = 'error', wrap } = this.props;
     const tryAgain = () => this.setState(({ attempt }) => ({ error: null, attempt: attempt + 1 }));
+
+    if (wrap) {
+      return wrap(<Notice key={this.state.attempt} tone={tone} action={{ label: 'Try again', onClick: tryAgain }}>{note ?? `${title}.`}</Notice>);
+    }
 
     // The root boundary sits outside AppProvider: Notice reads AppContext's default there, which is fine. A page's
     // boundary sits in the page's own padding, lined up with its title; the root one has no page around it.
