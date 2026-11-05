@@ -13,6 +13,13 @@ export const forceSectionFailures = (names?: string[]) => {
   forced = names?.length ? new Set(names) : null;
 };
 
+// The last pass's readers meet a section that kept failing as its catalog at zero, not {}: parseData fills this before that pass.
+let catalogs: Record<string, any> | null = null;
+
+export const setSectionCatalogs = (sections: Record<string, any> | null) => {
+  catalogs = sections;
+};
+
 export const safeSection = <T>(name: string, fallback: T, fn: () => T): T => {
   try {
     if (forced?.has(name)) throw new Error(`forced: ${name}`);
@@ -21,6 +28,6 @@ export const safeSection = <T>(name: string, fallback: T, fn: () => T): T => {
   } catch (err) {
     console.error(`[parsers] section "${name}" failed, using fallback:`, err);
     failedSections?.add(name);
-    return fallback;
+    return catalogs && name in catalogs ? catalogs[name] : fallback;
   }
 };

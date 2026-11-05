@@ -3,6 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { liveCount } from '@parsers/catalog';
 import { getCashMulti } from '@parsers/character';
+import { parseData } from '@parsers/index';
 import demoJson from '../../data/raw.json';
 import * as websiteData from '@website-data';
 
@@ -51,6 +52,27 @@ describe('no section silently falls back on an empty parse', () => {
 
     const unexpected = [...failures].filter((name) => !ALLOWLISTED_FAILURES.includes(name)).sort();
     expect(unexpected).toEqual([]);
+  });
+});
+
+describe('a section that fails', () => {
+  const failing = (names) => {
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    try {
+      return parseData(demoJson.data ?? demoJson, demoJson.charNames ?? [], demoJson.companion ?? null, demoJson.guildData ?? null, demoJson.serverVars, undefined, null, { failSections: names });
+    } finally {
+      spy.mockRestore();
+    }
+  };
+
+  it.each(['farming', 'sailing', 'gaming', 'cooking'])('%s draws what an empty save draws', (name) => {
+    const { account } = failing([name]);
+    expect(account[name]).toEqual(parseEmpty().account[name]);
+    expect(account.failedSections).toEqual([name]);
+  });
+
+  it('a whole-parse failure stays as it was', () => {
+    expect(failing(['*'])).toEqual({ account: { failedSections: ['*'] }, characters: [], parseFailed: true });
   });
 });
 
