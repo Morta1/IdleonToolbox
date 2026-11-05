@@ -37,7 +37,8 @@ const run = () => {
 describe('budgeted search on a real board', () => {
   let account;
   let optimized;
-  // One 60k-iteration run serves both checks. Parse first so the seed is spent on the search alone.
+  // One 60k-iteration run serves both checks. Parse first so the seed is spent on the search alone. 30 s: a parse plus
+  // that run sits close to the 10 s a hook gets by default once the whole suite is loading the machine.
   beforeAll(() => {
     ({ account } = parseFixture(latest));
     vi.spyOn(Math, 'random').mockImplementation(seededRandom(5));
@@ -46,7 +47,7 @@ describe('budgeted search on a real board', () => {
     } finally {
       vi.restoreAllMocks();
     }
-  });
+  }, 30_000);
 
   it('leaves no slot emptier than it found it', () => {
     const before = (account?.construction?.board ?? []).filter(({ cog }) => !cog || cog.name === 'Blank').length;

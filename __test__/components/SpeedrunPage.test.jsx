@@ -39,7 +39,8 @@ beforeEach(() => window.localStorage.clear());
 
 const showDetails = () => fireEvent.click(screen.getByRole('button', { name: 'Detailed view' }));
 
-describe('Speedrun page', () => {
+// 30 s: each test renders the whole page, every portal priced, and the full suite's load can stretch that past 20 s.
+describe('Speedrun page', { timeout: 30_000 }, () => {
   it('renders the highscore panel for the demo account', () => {
     renderWith(characters);
     expect(screen.getByText('Portal highscore')).toBeTruthy();

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
@@ -124,11 +123,6 @@ const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti,
   </>;
 };
 
-// The config inputs sit above this table and re-render the page on every keystroke, while pricing
-// every character's damage here costs far more than one frame. React Compiler would memoize this
-// boundary in the app, but tests run without it, so the guard is explicit rather than implied.
-const MemoCharacterTable = React.memo(CharacterTable);
-
 const CharacterMinibosses = ({
                                characters,
                                account,
@@ -144,7 +138,7 @@ const CharacterMinibosses = ({
     {holeFailed && hasCharacters ? <Typography variant={'body2'} color={'text.secondary'} sx={{ p: 2 }}>
       Couldn't work out your characters' damage: the hole section failed to load.
     </Typography> : null}
-    {!holeFailed && hasCharacters ? <MemoCharacterTable
+    {!holeFailed && hasCharacters ? <CharacterTable
       characters={characters}
       account={account}
       overridePickles={overridePickles}

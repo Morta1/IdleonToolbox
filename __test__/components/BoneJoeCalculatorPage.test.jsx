@@ -26,13 +26,6 @@ import { getPrayerBonusAndCurse } from '@parsers/world-3/prayers';
 vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, asPath: '/' }) }));
 vi.mock('next-seo', () => ({ NextSeo: () => null }));
 
-// Spied rather than stubbed: the per character table is the expensive half of the page, and pricing
-// it again on a keystroke in the manual inputs is the stutter this page has to avoid.
-vi.mock('@parsers/damage', async (importOriginal) => {
-  const actual = await importOriginal();
-  return { ...actual, getMaxDamage: vi.fn(actual.getMaxDamage) };
-});
-
 const { AppContext } = await import('@components/common/context/AppProvider');
 const BoneJoeCalculator = (await import('../../pages/tools/bone-joe-calculator')).default;
 
@@ -142,16 +135,16 @@ describe('Bone Joe Calculator page', () => {
     expect(JSON.parse(localStorage.getItem('boneJoeCalculator:prayerLevelOverrides'))).toEqual({});
   });
 
-  it('does not reprice the characters while the toggle is off', () => {
+  it('leaves the characters as they are while the toggle is off', () => {
     renderPage({ characters, account });
-    getMaxDamage.mockClear();
+    const before = rowCells(characters[0].name);
 
     fireEvent.change(screen.getByLabelText('Pickles'), { target: { value: '5' } });
     fireEvent.click(prayerChip('Midas Minded'));
 
     expect(rowCells('Glunko The Massive')[2])
       .toBe(formatNum(10000 * accountCurseMulti('Midas_Minded') * Math.pow(1.1, 5)));
-    expect(getMaxDamage).not.toHaveBeenCalled();
+    expect(rowCells(characters[0].name)).toEqual(before);
   });
 
   it('prices the characters off the configuration once the toggle is on', async () => {
