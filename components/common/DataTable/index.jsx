@@ -39,7 +39,8 @@ import SortField from './SortField';
 // a small table that fits a phone as it is (a note's): every column at every width, no chevron. `detail(row)` is
 // content under an opened row at every width (a per-row calculator), after the columns the phone hides; a column
 // with `details: false` stays out of that list (the detail slot already says it). `from` is the window width (a
-// breakpoint key, or px) where a column the phone hides joins the row: sm for the secondary column, md for the rest.
+// breakpoint key, or px) where a column the phone hides joins the row: sm for the secondary column, md for the rest; or
+// { room: px }, the width of the container around the table, for a table whose width isn't the window's (the wiki's).
 // `stickyTop` is where the page's sticky toolbar ends: a long table's header sticks there. A table that hides columns
 // on a phone and has sortable ones draws a Sort field over itself there, or `sortField={false}` where the page's Toolbar
 // already holds one. `align: 'left'` keeps a number column to the left, beside the name (Constellations' Progress).

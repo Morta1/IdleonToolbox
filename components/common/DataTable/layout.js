@@ -31,32 +31,38 @@ export const secondaryColumn = (columns, primary) => {
 
 // A phone gets the name, the primary column and any other column marked `phone` (a chart's table keeps every
 // series it draws), sm adds the secondary, md shows all. CSS only, so the first render is the same at every width.
-export const phoneKeeps = (column, index, primary) => index === primary || Boolean(column?.phone);
+// A primary column with a `room` waits for it too: beside the wiki's rail a window of 900 leaves less than a phone has.
+export const phoneKeeps = (column, index, primary) => (index === primary && column?.from?.room == null) || Boolean(column?.phone);
 
-// The window width from which a column the phone hides joins the row: its own `from` (a breakpoint key, or a width
-// in px for a table that needs one between breakpoints), else sm for the secondary column and md for the rest.
+// The width from which a column the phone hides joins the row: its own `from` (a breakpoint key, a window width in px for
+// a table that needs one between breakpoints, or { room: px } for the width of the container around the table), else sm
+// for the secondary column and md for the rest.
 export const columnFrom = (column, index, secondary) => column?.from ?? (index === secondary ? 'sm' : 'md');
 
 // MUI's default breakpoints, which the theme keeps: only to compare a key with a width in px.
 const BREAKPOINT_PX = { xs: 0, sm: 600, md: 900, lg: 1200, xl: 1536 };
-const widthOf = (from) => (typeof from === 'number' ? from : BREAKPOINT_PX[from] ?? 0);
+const widthOf = (from) => (typeof from === 'number' ? from : from?.room ?? BREAKPOINT_PX[from] ?? 0);
 
-// A style that changes at a `from`: a breakpoint key stays a responsive value, a width in px is its own media query.
-export const fromStyle = (property, from, below, above) => (typeof from === 'number'
-  ? { [property]: below, [`@media (min-width:${from}px)`]: { [property]: above } }
-  : { [property]: { xs: below, [from]: above } });
+// A style that changes at a `from`: a breakpoint key stays a responsive value, a width in px is its own media query, a
+// room its own container query.
+export const fromStyle = (property, from, below, above) => {
+  if (from?.room != null) return { [property]: below, [`@container (min-width:${from.room}px)`]: { [property]: above } };
+  return typeof from === 'number'
+    ? { [property]: below, [`@media (min-width:${from}px)`]: { [property]: above } }
+    : { [property]: { xs: below, [from]: above } };
+};
 
 // Where the phone's Details chevron ends: where the last column the phone hides joins the row. md normally; sm when
 // sm shows every column the phone hides, or sm would open an empty list (a table with exactly two data columns).
 export const detailsUntil = (columns, primary, secondary) => columns
   .map((column, i) => (phoneKeeps(column, i, primary) ? null : columnFrom(column, i, secondary)))
   .filter(Boolean)
-  .reduce((widest, from) => (widthOf(from) > widthOf(widest) ? from : widest), 'sm');
+  .reduce((widest, from) => (from?.room != null && widest === 'sm' ? from : widthOf(from) > widthOf(widest) ? from : widest), 'sm');
 
 // A table that brings a column into the row before md (`from: 'sm'`) chose its columns to fit a 600 px window: its cells
 // keep the phone's tighter padding until md.
 export const tightUntilMd = (columns, primary) => columns.some((column, i) => !phoneKeeps(column, i, primary)
-  && column?.from != null && widthOf(column.from) < BREAKPOINT_PX.md);
+  && column?.from != null && column.from.room == null && widthOf(column.from) < BREAKPOINT_PX.md);
 
 export const columnDisplay = (index, primary, secondary, column) => (phoneKeeps(column, index, primary)
   ? { display: 'table-cell' }

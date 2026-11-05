@@ -10,12 +10,6 @@ import usePageTop from '@hooks/usePageTop';
 
 const RAIL_WIDTH = 250;
 const RAIL_GAP = 24;
-// DataTable brings every column in at md (900), the width the rail appears, so beside the rail a listing's columns wait
-// for the room. Measured across every listing's real rows: name, primary and secondary fit from 1090, three data columns
-// from md's width plus the rail, and each one past that takes about 86 px more (totem's five, the widest, hold from 1346).
-export const RAIL_SECONDARY_FROM = 1090;
-export const RAIL_FROM = 900 + RAIL_WIDTH + RAIL_GAP;
-export const railFrom = (dataColumns) => RAIL_FROM + Math.max(0, dataColumns - 3) * 86;
 
 // A closed fold renders nothing under it (unmountOnExit). The rail sits on every wiki page, and every fold's links
 // in all 8,000 exported pages made up about half of the static export, which GitHub Pages caps at 1 GB. A crawler

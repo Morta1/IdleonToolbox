@@ -1,7 +1,6 @@
 import React from 'react';
 import { Link, Typography } from '@mui/material';
 import DataTable from '@components/common/DataTable';
-import { primaryColumn, secondaryColumn } from '@components/common/DataTable/layout';
 import EntityIcon from './EntityIcon';
 import GemCount from './GemCount';
 import { coinsOf } from './CoinAmount';
@@ -12,7 +11,6 @@ import { formatAmount } from '@utility/wiki/effects.mjs';
 import { notateAmount, notateGame } from '@utility/wiki/notate';
 import { NAME_COLUMN, NO_MAX, isNumericColumn } from '@utility/wiki/listing-sort.mjs';
 import { gameGlyphs, shownName } from '@utility/wiki/game-glyphs.mjs';
-import { RAIL_SECONDARY_FROM, railFrom } from './WikiRail';
 
 // What tells a same-name page from the others, printed after the name they share. Not under a band heading
 // that already says it ("Trophy" over a trophy).
@@ -21,14 +19,12 @@ export const Disambig = ({ entry, band }) => (entry.disambig && entry.disambig !
   <Typography component={'span'} variant={'caption'} color={'text.secondary'}>{entry.disambig}</Typography>
 </> : null);
 
-// A cost's currency word can run long ("Summoning Essence"), so it wraps on a phone rather than push the page sideways.
-const COST = { whiteSpace: { xs: 'normal', sm: 'nowrap' } };
+// A cost's currency word can run long ("Summoning Essence"), so a row's costs wrap until the box holds them on one line.
+const costSx = (oneLineFrom) => ({ whiteSpace: 'normal', [`@container (min-width:${oneLineFrom}px)`]: { whiteSpace: 'nowrap' } });
 const EFFECT = { color: 'text.secondary' };
 
 // The wiki's own cell markup, styled once on the table like the rest.
 const WIKI_CELLS = {
-  // Just past md the box beside the rail is 262 px: a long name may break there rather than scroll the table.
-  '@media (max-width: 960px)': { '& td.name': { overflowWrap: 'anywhere' } },
   '& .end': { display: 'flex', justifyContent: 'flex-end' },
   '& .coins': { display: 'flex', gap: 0.75, flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center' },
   '& .coin': { display: 'flex', gap: 0.25, alignItems: 'center', typography: 'caption', color: 'text.secondary' }
@@ -92,7 +88,7 @@ const RowLink = ({ entry, hrefFor, onNavigate, heading }) => {
 // A listing as one table: the bands become full-width rows inside it, so the columns line up across them,
 // which is the pattern RelationTable uses for a monster's drop tables. The wiki's cell types live here;
 // DataTable draws the table.
-const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onNavigate, labelOf, stickyTop }) => {
+const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onNavigate, labelOf, stickyTop, rooms }) => {
   // A kind the game draws no art for (superbits, cove upgrades) keeps no empty icon slot on every row.
   const drawsIcons = bands.some((band) => band.entries.some((entry) => entry.node?.icon));
   const name = {
@@ -106,18 +102,15 @@ const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onN
     info: column.note,
     sortable: column.sortable,
     numeric: isNumericColumn(column),
-    cellSx: column.type === 'cost' ? COST : column.type === 'effect' ? EFFECT : undefined,
+    cellSx: column.type === 'cost' ? costSx(rooms.costOnOneLine) : column.type === 'effect' ? EFFECT : undefined,
+    // A column waits in Details until the box around the table holds it (listingRoom).
+    from: { room: rooms.at[i] },
     render: (entry) => cellContent(column, entry.cells?.[i] ?? null, labelOf)
   }));
-  // A column waits until the table holds it beside the rail (WikiRail's widths); the primary is always there.
-  const primary = primaryColumn(data, sort);
-  const secondary = secondaryColumn(data, primary);
-  const allFrom = railFrom(data.length);
-  const placed = data.map((column, i) => (i === primary ? column : { ...column, from: i === secondary ? RAIL_SECONDARY_FROM : allFrom }));
   // The listing's Toolbar holds the phone's Sort
   return <DataTable
     sortField={false}
-    columns={[name, ...placed]}
+    columns={[name, ...data]}
     bands={bands.map((band) => ({
       key: band.key,
       label: band.label && !sorted ? labelOf(band.label) : null,
@@ -132,7 +125,7 @@ const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onN
       return href ? { href, label: entry.label } : null;
     }}
     stickyTop={stickyTop}
-    sx={WIKI_CELLS}
+    sx={{ ...WIKI_CELLS, ...rooms.holds }}
   />;
 };
 

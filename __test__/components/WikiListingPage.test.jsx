@@ -103,7 +103,8 @@ describe('WikiListingPage sort', () => {
     Object.assign(router, { isReady: true, query });
     const { container } = renderPage(props);
     // Within the head: a role query over a 222-row page is seconds slower and finds the same button.
-    fireEvent.click(within(container.querySelector('thead')).getByRole('button', { name: header }));
+    // hidden: jsdom resolves no container query, so a column waiting for its room reads as hidden.
+    fireEvent.click(within(container.querySelector('thead')).getByRole('button', { name: header, hidden: true }));
     expect(router.replace.mock.calls).toEqual([[{ pathname, query: written }, undefined, { shallow: true, scroll: false }]]);
   });
   // Next keeps this page mounted between two listings, so a filter typed on one emptied the next.

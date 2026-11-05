@@ -9,7 +9,7 @@ import { firstOrder, visibleRows } from '@components/common/DataTable/layout';
 import Toolbar from '@components/common/Toolbar';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import CategoryHeader, { pluralInSentence } from './CategoryHeader';
-import { railFrom } from './WikiRail';
+import { listingRooms } from './listingRoom';
 import { linkProps, navigateOnPlainClick } from './links';
 import { SECTION_ORDER, chooseGrouping, facetReader, groupEntries } from '@utility/wiki/grouping';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
@@ -194,6 +194,8 @@ const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = nul
     : groupEntries(matches, category ? 'none' : mode, facetOf);
   // A banner is the row itself, and a table cell would shrink it to nothing, so the banner kinds keep their cards.
   const table = columns.length > 0 && !BANNER_KINDS.has(kind);
+  // From the whole list, not the filtered view: the columns don't come and go as a reader types.
+  const rooms = table ? listingRooms({ columns, entries: all, labelOf, sort: sorted ? sort : null }) : null;
 
   // The toolbar's state is this listing's own: filter and category stay in useState (nothing is remembered),
   // and the sort stays in the URL through onSortChange.
@@ -212,7 +214,8 @@ const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = nul
   const sortOptions = [NAME_COLUMN, ...columns.filter((column) => column.sortable)]
     .map((column) => [column.key, column.label, firstOrder({ numeric: isNumericColumn(column) })]);
 
-  return <Stack gap={2}>
+  // The container the table's columns and the Sort below read: the width beside the rail, not the window's.
+  return <Stack gap={2} sx={table ? { containerType: 'inline-size' } : undefined}>
     <CategoryHeader kind={kind} count={all.length}/>
 
     <Toolbar state={toolbar} defaults={TOOLBAR_DEFAULTS} onChange={onToolbarChange} onReset={() => onToolbarChange(TOOLBAR_DEFAULTS)}
@@ -223,7 +226,7 @@ const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = nul
         ...categories.map((name) => [name, labelOf(name), counts[name]])
       ]}/> : null}
       {/* Headers sort a table once they all show; before that, and on cards, the select is the only way to sort them all. */}
-      {columns.length > 0 ? <Toolbar.Sort options={sortOptions} sx={table ? { [`@media (min-width:${railFrom(columns.length)}px)`]: { display: 'none' } } : undefined}/> : null}
+      {columns.length > 0 ? <Toolbar.Sort options={sortOptions} sx={table ? { [`@container (min-width:${rooms.everyColumn}px)`]: { display: 'none' } } : undefined}/> : null}
     </Toolbar>
 
     {table ? <ListingTable
@@ -236,6 +239,7 @@ const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = nul
       onNavigate={onNavigate}
       labelOf={labelOf}
       stickyTop={toolbarBottom}
+      rooms={rooms}
     /> : bands.map((band) => <Band
       key={band.key}
       band={band}

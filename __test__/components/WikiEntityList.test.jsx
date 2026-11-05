@@ -6,7 +6,6 @@ import { renderToString } from 'react-dom/server';
 import { fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import EntityList from '@components/wiki/EntityList';
-import { railFrom } from '@components/wiki/WikiRail';
 import darkTheme from '../../styles/theme/darkTheme';
 import { listingCells, listingColumns } from '@utility/wiki/listing.mjs';
 
@@ -285,7 +284,8 @@ describe('EntityList table', () => {
   ])('moves a %s Cost header on to the next sort', (unused, sort, next) => {
     const onSortChange = vi.fn();
     const { getByRole } = renderTable({ sort, onSortChange });
-    fireEvent.click(getByRole('button', { name: 'Cost' }));
+    // jsdom resolves no container query: the heading reads as hidden.
+    fireEvent.click(getByRole('button', { name: 'Cost', hidden: true }));
     expect(onSortChange.mock.calls).toEqual([[next]]);
   });
 
@@ -330,13 +330,13 @@ describe('EntityList table', () => {
     expect({
       expanded: details.getAttribute('aria-expanded'),
       labels: [...detail.querySelectorAll('dt')].map((label) => label.textContent)
-    }).toEqual({ expanded: 'true', labels: ['Effect', 'Max level', 'Research level needed'] });
+    }).toEqual({ expanded: 'true', labels: ['Effect', 'Cost', 'Max level', 'Research level needed'] });
   });
 
-  // jsdom resolves no media queries, so read the rules emotion emitted for a cell's classes.
+  // jsdom resolves no queries, so read the rules emotion emitted for a cell's classes.
   // The cells carry no style of their own (the table styles each column once), so the rules are the table's,
-  // scoped to a column's class. The Sort by select stays until railFrom, where every header shows.
-  it('shows the name and the primary column on a phone, the third data column from railFrom', () => {
+  // scoped to a column's class. The Sort by select stays until the box holds every column, where every header shows.
+  it('brings each column in by the room around the table, the sentence last', () => {
     const { container, getByRole } = renderTable();
     const css = [...document.querySelectorAll('style')].map((style) => style.textContent);
     const classOf = (element) => [...element.classList].find((name) => name.startsWith('css-'));
@@ -344,22 +344,19 @@ describe('EntityList table', () => {
     const table = classOf(container.querySelector('table'));
     // Name, then Effect (col-0), Cost (col-1, primary), Max level (col-2, secondary), Research level needed (col-3).
     const cells = [...container.querySelector('tbody tr').querySelectorAll('td')].map((cell) => cell.className);
+    const roomOf = (column) => Number(/@container \(min-width:(\d+)px\)/.exec(displayRules(`.${table} td.${column}{`).find((rule) => rule.includes('table-cell')))[1]);
+    const sortRule = displayRules(`.${classOf(getByRole('combobox', { name: 'Sort by' }).closest('.MuiStack-root'))}{`).find((rule) => rule.startsWith('@container'));
+    const rooms = ['col-1', 'col-2', 'col-3', 'col-0'].map(roomOf);
     expect({
       cells,
-      primary: displayRules(`.${table} td.col-1{`).filter((rule) => rule.includes('display:none')),
-      third: displayRules(`.${table} td.col-3{`),
-      sortControl: displayRules(`.${classOf(getByRole('combobox', { name: 'Sort by' }).closest('.MuiStack-root'))}{`)
-        .filter((rule) => rule.startsWith('@media'))
+      inOrder: [...rooms].sort((a, b) => a - b),
+      sortFrom: Number(/min-width:(\d+)px/.exec(sortRule)[1]),
+      sortHides: sortRule.includes('display:none')
     }).toEqual({
       cells: ['name', 'col-0', 'col-1', 'col-2', 'col-3', 'expand'],
-      primary: [],
-      third: [
-        expect.stringMatching(/^\.css-\w+ td\.col-3\{[^}]*display:none;[^}]*\}$/),
-        expect.stringMatching(new RegExp(`^@media \\(min-width:${railFrom(4)}px\\)\\{\\.css-\\w+ td\\.col-3\\{[^}]*display:table-cell;[^}]*\\}\\}$`))
-      ],
-      sortControl: [
-        expect.stringMatching(new RegExp(`^@media \\(min-width:${railFrom(4)}px\\)\\{\\.css-[\\w-]+\\{[^}]*display:none;[^}]*\\}\\}$`))
-      ]
+      inOrder: rooms,
+      sortFrom: rooms.at(-1),
+      sortHides: true
     });
   });
 });

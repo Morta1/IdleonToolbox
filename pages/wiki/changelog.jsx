@@ -25,15 +25,15 @@ const Changelog = ({ versions }) => {
     <Stack gap={2}>
       {versions.map(({ version, added, changed, kinds }) => <Panel key={version} title={version}
                                                                  meta={[added > 0 && `${formatNum(added, 'whole')} added`, changed > 0 && `${formatNum(changed, 'whole')} changed`].filter(Boolean).join(', ')}>
-        <Stack gap={1.5} sx={{ p: 2 }}>
+        <Stack gap={1.5} sx={{ p: 2, containerType: 'inline-size' }}>
           {kinds.map(({ kind, entries }) => <Stack key={kind} gap={0.25}>
             <Typography variant={'groupLabel'} component={'h4'} color={'text.secondary'}>
               {KIND_PLURALS[kind] || kind}
             </Typography>
-            {entries.map((entry) => <Stack
+            {/* Name beside change once the Panel holds both, whatever the window: beside the rail at 900 it is 228 px. */}
+            {entries.map((entry) => <Box
               key={`${entry.kind}-${entry.slug}`}
-              direction={{ xs: 'column', sm: 'row' }}
-              gap={{ xs: 0, sm: 1.5 }}
+              sx={{ display: 'flex', flexDirection: 'column', '@container (min-width:480px)': { flexDirection: 'row', columnGap: 1.5 } }}
             >
               <Link
                 href={entityHref(entry)}
@@ -44,13 +44,13 @@ const Changelog = ({ versions }) => {
               >
                 {cleanUnderscore(entry.name)}
               </Link>
-              <Typography variant={'body2'} color={'text.secondary'} component={'div'} sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>
+              <Typography variant={'body2'} color={'text.secondary'} component={'div'} sx={{ minWidth: 0, overflowWrap: 'break-word' }}>
                 {entry.added
                   ? <StatusText status={'info'}>Added</StatusText>
                   : entry.fields.map(({ field, from, to }) =>
                     `${fieldLabel(field)} went from ${formatValue(from)} to ${formatValue(to)}`).join(', ')}
               </Typography>
-            </Stack>)}
+            </Box>)}
           </Stack>)}
         </Stack>
       </Panel>)}
