@@ -13,18 +13,24 @@ import { PAGES } from '@components/constants';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import Notice from '@components/common/Notice';
+import useTabIndex from '@hooks/useTabIndex';
+
+// The tabs that keep their catalog under a failed section; the others go blank, with no zeros to explain
+const AT_ZERO_TABS = ['Artifacts', 'Loot Pile'];
 
 const Sailing = () => {
   const { state } = useContext(AppContext);
   const sailing = state?.account?.sailing ?? {};
   const sectionFailed = isSectionFailed(state?.account, 'sailing');
+  const tabs = getTabs(PAGES.ACCOUNT['world 5'].categories, 'sailing');
+  const [tabIndex] = useTabIndex(tabs);
 
   return <>
     <NextSeo
       title="Sailing | Idleon Toolbox"
       description="Keep track of your artiacts, boats and captains and their bonuses"
     />
-    {sectionFailed ? <MissingData name={'Sailing'} failed atZero/>
+    {sectionFailed ? <MissingData name={'Sailing'} failed atZero={AT_ZERO_TABS.includes(tabs[tabIndex])}/>
       : sailing?.unlocked === false ? <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached Sailing yet.</Notice> : null}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Chests'} icon={'npcs/Chesty.png'}
@@ -32,7 +38,7 @@ const Sailing = () => {
       <StatTile label={'Captains'} icon={'npcs/Captain.gif'} value={sailing?.captains?.length ?? 0} kind={'amount'}/>
       <StatTile label={'Boats'} icon={'npcs/Boat.gif'} value={sailing?.boats?.length ?? 0} kind={'amount'}/>
     </PageSummary>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'sailing')}>
+    <Tabber tabs={tabs}>
       <Artifacts artifacts={sailing?.artifacts}/>
       <Trades trades={sailing?.trades} hasBoats={(sailing?.boats?.length ?? 0) > 0} sectionFailed={sectionFailed}/>
       <BoatsAndCaptains boats={sailing?.boats} captains={sailing?.captains}

@@ -22,6 +22,7 @@ import StatTile from '@components/common/cards/StatTile';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
+import useTabIndex from '@hooks/useTabIndex';
 
 const FARMING_SETTINGS = { forceNano: false };
 
@@ -29,6 +30,8 @@ const Farming = () => {
   const { state } = useContext(AppContext);
   const farming = state?.account?.farming || {};
   const sectionFailed = isSectionFailed(state?.account, 'farming');
+  const tabs = getTabs(PAGES.ACCOUNT['world 6'].categories, 'farming');
+  const [tabIndex] = useTabIndex(tabs);
   const characters = state?.characters;
   const account = state?.account;
   const {
@@ -72,7 +75,7 @@ const Farming = () => {
       description="Track your farming garden plots, crop progress, OG bonuses, and evolution upgrades in Legends of Idleon"
     />
     {/* The picker and the gear work on a plot that didn't load */}
-    {sectionFailed ? <MissingData name={'Farming'} failed/> : <>
+    {sectionFailed ? <MissingData name={'Farming'} failed atZero={tabs[tabIndex] === 'Crop'}/> : <>
       {characters?.length ? <PageHeaderControl>
         <TextField select value={selectedCharacter?.playerId ?? ''} onChange={(event) => setPickedId(event.target.value)}
                    sx={{ minWidth: 180 }}
@@ -114,7 +117,7 @@ const Farming = () => {
                   breakdown={stats?.cropValue}/>
       </> : null}
     </PageSummary>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'farming')}>
+    <Tabber tabs={tabs}>
       {sectionFailed ? null : <Plot plot={plot} crop={crop} market={market} ranks={ranks} lastUpdated={state?.lastUpdated}
             characters={characters}
             account={account}

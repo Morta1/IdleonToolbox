@@ -21,7 +21,7 @@ const HatRackPage = () => {
         title="Hat Rack | Idleon Toolbox"
         description="Keep track of your hat rack bonuses and premium hats"
       />
-      {sectionFailed ? <MissingData name={'Hat Rack'} failed/> : null}
+      {sectionFailed ? <MissingData name={'Hat Rack'} failed atZero/> : null}
       <PageSummary>
         <StatTile label={'Total hats'} value={sectionFailed ? '-' : totalHats ?? 0} kind={'amount'}/>
         <StatTile label={'Bonus multi'} value={sectionFailed ? '-' : `${formatGame(bonusMulti ?? 1, 'Gallery.HatrackBonusMulti')}x`}/>
