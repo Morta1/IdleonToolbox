@@ -1,13 +1,14 @@
 import React from 'react';
 import { cleanUnderscore, getCoinsArray } from '@utility/helpers';
+import { fillCeil } from '@utility/gameNotation';
 import CoinDisplay from '@components/common/CoinDisplay';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 
 // The game's own fill: { is the bonus ceiled to hundredths, } the same of 1 + bonus / 100
 const fillDescription = (description, bonus) => description
-  .replace(/\{/g, String(Math.ceil(100 * bonus) / 100))
-  .replace(/\}/g, String(Math.ceil(100 * (1 + bonus / 100)) / 100));
+  .replace(/\{/g, String(fillCeil(bonus)))
+  .replace(/\}/g, String(fillCeil(1 + bonus / 100)));
 
 const Upgrades = ({ upgrades }) => <CardGrid size={'m'}>
   {upgrades?.map((upgrade, index) => <ItemCard key={upgrade?.name || index} icon={`etc/Advice_Fish_${index}.png`}

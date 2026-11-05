@@ -55,6 +55,21 @@ export const formatSystem = (value, kind = 'amount', system, options = {}) => {
   return kind === 'rate' ? `${value > 0 ? '+' : ''}${text}/${options.per ?? 'hr'}` : text;
 };
 
+// The game's two hand fills, written where a panel prints a bonus into its sentence.
+// `{` in the land rank database (N.js:108905): Math.round(100 * x) / 100
+export const fillRound = (x) => Math.round(100 * x) / 100;
+// `{` and `}` on an Advice Fish upgrade (N.js:218986): Math.ceil(100 * x) / 100
+export const fillCeil = (x) => Math.ceil(100 * x) / 100;
+
+// The Temple panel's amounts (N.js:113876): millions past 1e7, billions past billionsFrom (1e13 for the torch count, 1e10
+// for costs), capped at 999999B. Each part is CommaNotation of the scaled value, which a gameNotation mode can't say.
+export const templeAmount = (value, billionsFrom) => {
+  if (value > 999999999999999.9) return '999999B';
+  if (value > billionsFrom) return `${commaNotation(value / 1e9)}B`;
+  if (value > 9999999.9) return `${commaNotation(value / 1e6)}M`;
+  return commaNotation(value);
+};
+
 // The game's Cash multi fill (N.js, the stat screen): Big past 1e16, its own B past 1e10 and M past 1e7, MultiplierInfo under.
 export const cashMultiText = (value) => (value > 1e16 || value <= 1e7 ? formatGame(value, 'ArbitraryCode.MonsterCash')
   : value > 1e10 ? `${Math.floor(value / 1e8) / 10}B` : `${Math.floor(value / 1e5) / 10}M`);

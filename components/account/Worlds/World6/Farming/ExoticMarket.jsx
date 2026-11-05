@@ -1,5 +1,6 @@
 import { Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
+import { fillRound } from '@utility/gameNotation';
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import {
@@ -17,9 +18,8 @@ import GameIcon from '@components/common/GameIcon';
 import StatusText from '@components/common/StatusText';
 import Timer from '@components/common/Timer';
 
-// The card text's own fill (parsers/world-6/farming.ts, `{`): Math.round(100 * x) / 100, so the bar and the line
-// under it read 0.67 alike
-const effectText = (value) => String(Math.round((value ?? 0) * 100) / 100);
+// The card text's own fill (parsers/world-6/farming.ts, `{`), so the bar and the line under it read 0.67 alike
+const effectText = (value) => String(fillRound(value ?? 0));
 
 const Market = ({ market }) => {
   const { state } = useContext(AppContext);

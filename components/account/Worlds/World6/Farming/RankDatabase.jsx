@@ -1,5 +1,6 @@
 import { Box, Typography } from '@mui/material';
 import { cleanUnderscore } from '@utility/helpers';
+import { fillRound } from '@utility/gameNotation';
 import React from 'react';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -22,7 +23,7 @@ const RankDatabase = ({ ranks, hasLandRank }) => {
                        footer={upgradeLevel <= 0
                          ? <Typography variant={'body2'} color={'text.secondary'}>Unlocks at {unlockAt}</Typography>
                          : null}>
-        <ItemCard.Desc text={cleanUnderscore(description).replace('{', hasLandRank ? Math.round(100 * bonus) / 100 : 0)}/>
+        <ItemCard.Desc text={cleanUnderscore(description).replace('{', hasLandRank ? fillRound(bonus) : 0)}/>
       </ItemCard>;
     })}
   </CardGrid>

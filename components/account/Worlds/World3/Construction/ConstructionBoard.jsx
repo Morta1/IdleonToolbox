@@ -2,6 +2,7 @@ import { Box, Stack, Typography } from '@mui/material';
 import {
   cleanUnderscore,
   formatNum,
+  gameFill,
   prefix,
   secondsToCoarseDuration
 } from '@utility/helpers';
@@ -70,14 +71,15 @@ const characterOf = (cog) => (cog?.name?.includes('Player') ? cog?.name?.split('
 const slotName = (slot) => characterOf(slot?.cog) || getCogDisplayName(slot?.cog?.name) || (slot?.flagPlaced ? 'Flag' : 'Slot');
 
 // A slot's note, opened on a tap or a click: the cog, a flag's progress and time left, each stat in the game's two
-// decimals (MultiplierInfo), and the slots it boosts or is boosted by
+// decimals (MultiplierInfo), and the slots it boosts or is boosted by. A flag's progress prints as the game's board does
+// (N.js:92922): Small below 10, Big from there, the requirement in Big.
 const cogNote = ({ currentAmount, requiredAmount, cog, affectedBy, affects, flagPlaced, flagSpeedBoost }, { flaggyRate }) => {
   const eta = getFlagEta(currentAmount, requiredAmount, flagPlaced, flagSpeedBoost, flaggyRate);
   const stats = Object.values(cog?.stats || {}).filter(({ name }) => name);
   return <Stack gap={0.5}>
     <Typography variant={'cardTitle'} component={'div'}>{characterOf(cog) || getCogDisplayName(cog?.name) || 'Flag'}</Typography>
     {currentAmount < requiredAmount ? <Typography variant={'body2'}>
-      {`${formatGame(currentAmount, 'WorkbenchStuff.FlagReq', { whole: true })} / ${formatGame(requiredAmount, 'WorkbenchStuff.FlagReq', { whole: true })} (${formatNum((currentAmount / requiredAmount) * 100, 'pct')})`}
+      {`${gameFill(currentAmount, currentAmount < 10 ? 'Small' : 'Big', { whole: true })} / ${formatGame(requiredAmount, 'WorkbenchStuff.FlagReq', { whole: true })} (${formatNum((currentAmount / requiredAmount) * 100, 'pct')})`}
     </Typography> : null}
     {eta ? <Typography variant={'body2'} color={'text.secondary'}>{`Unlocks in ${eta}`}</Typography> : null}
     {stats.map(({ name, value }, statIndex) => <Typography key={`${name}-${statIndex}`} variant={'body2'}>
