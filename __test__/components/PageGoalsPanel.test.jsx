@@ -14,7 +14,6 @@ import { getDescriptor } from '@utility/goals/registry';
 import { resolveGoal } from '@utility/goals/resolve';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
 import { formatNumber, statusText } from '@components/goals/parts/format';
-import { NoticeStackProvider } from '@components/common/NoticeSnackbar';
 import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 
 const router = { pathname: '/account/world-2/bubbles', query: { demo: 'true', t: 'tab' }, isReady: true, push: vi.fn() };
@@ -257,32 +256,6 @@ describe('Header page goals', () => {
     expect(api.goals).toHaveLength(1);
     expect(await within(await screen.findByRole('status')).findByText('Goal saved')).toBeTruthy();
     expect(screen.getByRole('link', { name: 'View on dashboard' }).getAttribute('href')).toBe('/dashboard?demo=true');
-  });
-
-  it('Goal saved shows in the one shared notice column', async () => {
-    render(
-      <ThemeProvider theme={darkTheme}>
-        <AppContext.Provider value={{ state: { uid: ACCOUNT_KEY, account, characters }, dispatch: vi.fn() }}>
-          <GoalsProvider>
-            <NoticeStackProvider>
-              <AddGoalButton/>
-              <SnackbarHost/>
-            </NoticeStackProvider>
-          </GoalsProvider>
-        </AppContext.Provider>
-      </ThemeProvider>
-    );
-    await openPanel('Add goal');
-    const row = levelled[1];
-    fireEvent.change(screen.getByLabelText('Bubble'), { target: { value: bubble.name(row) } });
-    fireEvent.click(screen.getByRole('option', { name: bubble.name(row) }));
-    fireEvent.change(screen.getByLabelText(/^Target/), { target: { value: String(row.level + 1) } });
-    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-    // The status region and the snackbar both say Goal saved
-    const saved = await screen.findAllByText('Goal saved');
-    const stacks = saved.map((node) => node.closest('[data-notice-stack]'));
-    expect(stacks).toEqual(Array(saved.length).fill(stacks[0]));
-    expect(stacks[0]).toBeTruthy();
   });
 
   it.each([

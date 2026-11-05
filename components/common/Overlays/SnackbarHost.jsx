@@ -4,11 +4,11 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/compat/router';
 import { Box, Button, Snackbar } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
-import { NoticeStack, STACKED_SX } from '@components/common/NoticeSnackbar';
 import { closeAllNotices, closeNotice, noticeSnapshot, serverNoticeSnapshot, subscribeNotices } from './notify';
 
-// Inside a modal's slot the snackbar keeps MUI's fixed bottom center, above the anchor ad and the consent banner.
-const IN_SLOT_SX = {
+// MUI's fixed bottom center, full width with 8 px sides on a phone, above the anchor ad and, until it is answered, the
+// consent banner (z 9999999), which hid an Undo.
+const BOTTOM_SX = {
   bottom: {
     xs: 'calc(var(--nitro-ad-height, 0px) + var(--consent-banner-height, 0px) + 8px)',
     sm: 'calc(var(--nitro-ad-height, 0px) + var(--consent-banner-height, 0px) + 24px)'
@@ -78,14 +78,14 @@ const SnackbarHost = () => {
     <Box component="span" ref={announcer} role="status" sx={visuallyHidden}/>
     {/* role none: the region above says it once; the snackbar's own default (alert) would say it again, loudly */}
     <Snackbar key={notice?.id} open={open} anchorOrigin={{ vertical: inSheet ? 'top' : 'bottom', horizontal: 'center' }}
-              sx={inSheet ? IN_SHEET_SX : slot ? IN_SLOT_SX : STACKED_SX} autoHideDuration={action ? 6000 : 4000}
+              sx={inSheet ? IN_SHEET_SX : BOTTOM_SX} autoHideDuration={action ? 6000 : 4000}
               onClose={(event, reason) => {
                 if (reason !== 'clickaway') close();
               }}
               message={notice?.message} action={button} ContentProps={{ role: 'none' }}/>
   </>;
 
-  return slot ? createPortal(content, slot) : <NoticeStack>{content}</NoticeStack>;
+  return slot ? createPortal(content, slot) : content;
 };
 
 export default SnackbarHost;

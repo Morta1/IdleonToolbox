@@ -10,7 +10,6 @@ import Head from 'next/head';
 import AppProvider from '../components/common/context/AppProvider';
 import PreferencesProvider from '../components/common/context/PreferencesProvider';
 import { GoalsProvider } from '../components/goals/GoalsProvider';
-import { NoticeStackProvider } from '../components/common/NoticeSnackbar';
 import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 import { NextSeo } from 'next-seo';
 import NavBar from '../components/common/NavBar';
@@ -198,7 +197,6 @@ const MyApp = (props) => {
             <PreferencesProvider>
             <AppProvider>
               <GoalsProvider>
-              <NoticeStackProvider>
               <NavBar>
                 {/* App-level SEO defaults, deliberately without a title or description: every page
                     declares its own, and _app's <Head> above covers the rest.
@@ -256,7 +254,6 @@ const MyApp = (props) => {
                 </ErrorBoundary>
               </NavBar>
               <SnackbarHost/>
-              </NoticeStackProvider>
               </GoalsProvider>
             </AppProvider>
             </PreferencesProvider>
