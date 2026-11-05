@@ -164,7 +164,8 @@ const scanPage = ({ maxLines, minGap }) => {
     for (const match of text.matchAll(/[\p{L}\p{N}%.,_'’]{3,}/gu)) {
       if (linesOf(match.index, match.index + match[0].length) > 1) add('brokenWord', `${match[0]} @ ${where(el)}`);
     }
-    for (const match of text.matchAll(/[\d.,]+[A-Za-z%]{0,3}\s*\/\s*[\d.,]+[A-Za-z%]{0,3}/g)) {
+    // A lone pair: a longer list ("200 / 520 / 1,352") wraps between its numbers as a sentence does.
+    for (const match of text.matchAll(/(?<![\d.,]|[\d.,A-Za-z%]\s*\/\s*)[\d.,]+[A-Za-z%]{0,3}\s*\/\s*[\d.,]+[A-Za-z%]{0,3}(?![\d.,A-Za-z%]|\s*\/)/g)) {
       if (linesOf(match.index, match.index + match[0].length) > 1) add('brokenPair', `${match[0]} @ ${where(el)}`);
     }
     range.selectNodeContents(node);
@@ -238,7 +239,8 @@ const scanPage = ({ maxLines, minGap }) => {
   });
 
   main.querySelectorAll('a[href], button, input:not([type="hidden"]):not([aria-hidden="true"]), select, textarea, [tabindex]:not([tabindex="-1"])').forEach((el) => {
-    if (!el.getBoundingClientRect().width) return;
+    // A folded Collapse's controls keep their box, and innerText reads nothing under visibility: hidden.
+    if (!el.getBoundingClientRect().width || style(el).visibility !== 'visible') return;
     const name = el.getAttribute('aria-label') || el.getAttribute('aria-labelledby') || el.innerText || el.getAttribute('placeholder')
       || el.labels?.[0]?.innerText || el.querySelector('img[alt]:not([alt=""])')?.alt || '';
     if (!name.trim()) add('unnamed', `${el.tagName} ${el.getAttribute('href')?.slice(0, 40) ?? ''}`.trim());
