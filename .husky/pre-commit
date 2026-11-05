@@ -5,6 +5,7 @@ set -f
 # A new test that scans sources (readFileSync, readdirSync, helpers/source-files) must join this list.
 SOURCE_SCANS="__test__/no-nossr.test.js __test__/alt-text.test.js __test__/card-spacing.test.js __test__/firebase-lazy.test.js
   __test__/components/leaderboards/jsx-comment-text.test.js __test__/utility/goals-header-only.test.js
+  __test__/components/shell-contracts.test.js
   __test__/parsers/arcade-bonus.test.js __test__/parsers/sailing-locked-shape.test.js __test__/parsers/talent-vs-game.test.js
   __test__/data/website-data-barrel.test.js __test__/gameNotation.test.js"
 # game-tables.test.js scans the wiki sources in one test, and the rest of the file takes about 40 s: only that test runs.

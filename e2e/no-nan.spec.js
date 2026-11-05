@@ -170,6 +170,72 @@ test('active stuff calculator renders no NaN with a leftover snapshot and no sav
   expect(hits, `Bad text found:\n${hits.join('\n')}`).toEqual([]);
 });
 
+// A tool's first screen hid what its second one prints, so one optimizer's Run and one calculator's input per section that
+// has them (World 5, misc, premium currency, clickers and the task board have neither). A guest wherever the tool draws
+// for one; a tool that needs characters or land ranks reads the demo. Each step proves it landed.
+const inGear = (label, value) => async (page) => {
+  await page.getByRole('button', { name: 'Page settings' }).click();
+  await page.getByRole('dialog', { name: 'Page settings' }).getByLabel(label, { exact: true }).fill(value);
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('button', { name: 'Page settings, changed' })).toBeVisible();
+};
+const pickSecond = (label) => async (page) => {
+  const field = page.getByRole('combobox', { name: label });
+  const before = await field.innerText();
+  await field.click();
+  await page.getByRole('option').nth(1).click();
+  await expect(field).not.toHaveText(before);
+};
+const TOOL_STATES = [
+  ['World 1 calculator', '/account/world-1/stamps', inGear('Stamp reducer', '50')],
+  ['World 2 calculator', '/account/world-2/bubbles', inGear('Bargain tags', '3')],
+  ['World 3 optimizer', '/account/world-3/construction', async (page) => {
+    await page.getByRole('button', { name: 'Optimize', exact: true }).click();
+    await expect(page.getByRole('button', { name: 'Clear', exact: true })).toBeVisible({ timeout: 45_000 });
+  }],
+  ['World 3 calculator', '/account/world-3/worship?t=Totems&demo=true', inGear('Worship efficiency', '100')],
+  ['World 4 calculator', '/account/world-4/cooking?t=Meals&demo=true', inGear('Food Lust bosses', '5')],
+  ['World 6 optimizer', '/account/world-6/farming?t=Rank+Optimizer&demo=true', pickSecond('Max upgrades')],
+  ['World 7 optimizer', '/account/world-7/clam-work?t=Upgrade+Optimizer', pickSecond('Optimize for')],
+  ['World 7 calculator', '/account/world-7/clam-work', inGear('Multikill', '100')],
+  ['Class optimizer', '/account/class-specific/tesseract?t=Upgrade+Optimizer', pickSecond('Optimize for')],
+  ['Class calculator', '/account/class-specific/tesseract', inGear('Levels ahead', '5')],
+  ['Tools optimizer', '/tools/guaranteed-drop-calculator', async (page) => {
+    await page.getByLabel('Material').click();
+    await page.getByRole('option').first().click();
+    await page.getByLabel('Drop rate').fill('300');
+    await page.getByLabel('Kills with multikill').fill('1000');
+    await page.getByLabel('Multikill bonus').fill('10');
+    await page.getByRole('button', { name: 'Run', exact: true }).click();
+    await expect(page.getByText(/^x\d+ drop$/).first()).toBeVisible();
+  }],
+  ['Tools calculator', '/tools/bone-joe-calculator', async (page) => {
+    const row = page.getByRole('row', { name: /Glunko/ });
+    const before = await row.innerText();
+    await page.getByLabel('Pickles').fill('5');
+    await expect(row).not.toHaveText(before);
+  }]
+];
+
+test.describe('A tool\'s second state renders no NaN/undefined/crash fallback', () => {
+  for (const [name, route, step] of TOOL_STATES) {
+    test(name, async ({ page }) => {
+      test.setTimeout(90_000);
+      const pageErrors = [];
+      page.on('pageerror', (err) => pageErrors.push(err.message));
+      await page.goto(route, { waitUntil: 'domcontentloaded' });
+      await waitForRender(page);
+      await step(page);
+      await waitForRender(page);
+
+      const offending = (await findOffendingTextNodes(page)).filter((text) => !isAllowed(text));
+      expect(offending, `Bad text found on ${route}:\n${offending.join('\n')}`).toEqual([]);
+      for (const errorText of ERROR_BOUNDARY_TEXT) await expect(page.getByText(errorText, { exact: true })).toHaveCount(0);
+      expect(pageErrors).toEqual([]);
+    });
+  }
+});
+
 // A logged-out dashboard draws only its sign-in note, so the alert and timer hovers are read on the demo.
 test('dashboard alert and timer previews render no NaN/Infinity/undefined', async ({ page }) => {
   // The demo draws over 500 icons, each hovered in turn

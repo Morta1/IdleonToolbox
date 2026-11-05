@@ -2,39 +2,43 @@
 import '../../polyfills';
 import React from 'react';
 import { describe, expect, it } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import StatTile from '@components/common/cards/StatTile';
 import darkTheme from '../../styles/theme/darkTheme';
 
 const renderCard = (ui) => render(<ThemeProvider theme={darkTheme}>{ui}</ThemeProvider>);
 
+const TOTALLED = { statName: 'Enemy HP', totalValue: 'Lv. 1: 10', tree: [] };
+const UNTOTALLED = { statName: 'Enemy HP', tree: [] };
+const CHILDREN = <span>from children</span>;
+
+// Every mix of the props that fight over the value's slot. reads: the slot's text, null with no slot; drawer: the value opens
+// the breakdown; kids: the children show.
+const SLOT = [
+  ['a value', { value: 12 }, '12', false, false],
+  ['a 0', { value: 0, icon: 'data/Opal.png' }, '0', false, false],
+  ['a 0 over children', { value: 0, children: CHILDREN }, '0', false, false],
+  ['undefined, with children', { value: undefined, children: CHILDREN }, null, false, true],
+  ['null, with children', { value: null, children: CHILDREN }, null, false, true],
+  ['an empty string, with children', { value: '', children: CHILDREN }, null, false, true],
+  ['a value and a breakdown', { value: 12, breakdown: TOTALLED }, '12', true, false],
+  ['a breakdown alone: its total', { breakdown: TOTALLED }, 'Lv. 1: 10', true, false],
+  ['a breakdown with no total: the muted word', { breakdown: UNTOTALLED }, 'Details', true, false],
+  ['a breakdown with no total, with children', { breakdown: UNTOTALLED, children: CHILDREN }, null, false, true],
+  ['failed, with a value', { failed: true, value: 12 }, '-', false, false],
+  ['failed, with a breakdown', { failed: true, breakdown: TOTALLED }, '-', false, false],
+  ['failed, with children', { failed: true, children: CHILDREN }, '-', false, false]
+];
+
 describe('StatTile', () => {
-  it('renders a 0 alongside an icon', () => {
-    renderCard(<StatTile label={'Opals invested'} value={0} icon={'data/Opal.png'}/>);
-    expect(screen.getByText('0')).toBeDefined();
-  });
-
-  it('falls back to children when the value is genuinely absent', () => {
-    for (const absent of [undefined, null, '']) {
-      const { unmount } = renderCard(
-        <StatTile label={'Reef Day Gains'} value={absent}><span>from children</span></StatTile>
-      );
-      expect(screen.getByText('from children')).toBeDefined();
-      unmount();
-    }
-  });
-
-  it('renders a 0 as "0" with its title, not children or an empty card', () => {
-    renderCard(<StatTile label={'Level'} value={0}><span>from children</span></StatTile>);
-    expect(screen.getByText('Level')).toBeDefined();
-    expect(screen.queryByText('from children')).toBeNull();
-    expect(screen.getByText('0')).toBeDefined();
-  });
-
-  it('shows the breakdown total when the tile has no value of its own', () => {
-    renderCard(<StatTile label={'Enemy HP'} breakdown={{ statName: 'Enemy HP', totalValue: 'Lv. 1: 10', tree: [] }}/>);
-    // The total is the breakdown's trigger, so it sits inside the one button on the tile.
-    expect(screen.getByRole('button').textContent).toContain('Lv. 1: 10');
-  });
+  it.each(SLOT.flatMap(([name, ...row]) => [[name, 'compact', 'value', ...row], [name, 'hero', 'heroValue', ...row]]))(
+    '%s, %s', (_, size, variant, props, reads, drawer, kids) => {
+      const { container } = renderCard(<StatTile label={'Level'} size={size} {...props}/>);
+      expect(screen.getByText('Level')).toBeDefined();
+      const slot = container.querySelector(`.MuiTypography-${variant}`);
+      expect(slot?.textContent ?? null).toBe(reads);
+      expect(Boolean(slot && within(slot).queryByRole('button'))).toBe(drawer);
+      expect(Boolean(screen.queryByText('from children'))).toBe(kids);
+    });
 });
