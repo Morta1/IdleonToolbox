@@ -276,7 +276,6 @@ const STEP_SX = {
 // The characters to show and the sections to show them with, behind one control (phase 4 Decision 9): the shown
 // characters' class icons and how many of all, opening this list in a drawer beside the page, or a sheet with Done
 // on a phone. Not modal on desktop, so a tick shows on the page at once. The page owns open, so its note can open it.
-// Before Pin from 600 px: the header's control slot is display: contents there, so order reaches its row.
 export const CharactersPicker = ({ open, onOpenChange, buttonRef }) => {
   const { state, dispatch } = useContext(AppContext);
   const characters = state?.characters ?? [];
@@ -288,7 +287,7 @@ export const CharactersPicker = ({ open, onOpenChange, buttonRef }) => {
     const data = onlyCharacter(characters.length, (from + by + characters.length) % characters.length);
     startTransition(() => dispatch({ type: 'displayedCharacters', data }));
   };
-  return <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, order: { sm: -1 } }}>
+  return <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
     <Button ref={buttonRef} variant="outlined" onClick={() => onOpenChange(true)} aria-haspopup="dialog" aria-expanded={open}
             endIcon={<IconChevronDown size={18} aria-hidden/>}
             sx={{ color: 'text.primary', bgcolor: 'primary.soft', borderColor: 'primary.edge', fontWeight: 600 }}>

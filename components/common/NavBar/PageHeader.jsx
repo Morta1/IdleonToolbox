@@ -144,6 +144,12 @@ const PageHeader = ({ onOpenGroup }) => {
   const goals = hasGoals(pathname);
   const group = groupOf(pathname);
   if (!title && !showPin && !goals) return null;
+  const actions = <>
+    {showPin ? <Pin/> : null}
+    {isCharacters ? null : <ControlSlot/>}
+    {/* Add goal's room on a phone is held while it loads, so its arrival never wraps the row */}
+    {goals ? <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 2 }, minWidth: { xs: 84, sm: 0 } }}><AddGoalButton/></Box> : null}
+  </>;
   return <Stack data-shell="header" direction="row" alignItems={{ xs: 'flex-end', sm: 'center' }} columnGap={{ xs: 1, sm: 2 }} rowGap={0.5} flexWrap="wrap"
                 sx={{ minHeight: 48, mb: 2, mt: { xs: -1, sm: 0 } }}>
     {title ? <Stack direction="row" alignItems="center" columnGap={2} sx={{ minWidth: 0, maxWidth: '100%', ...(isCharacters ? { [PHONE_SIDES]: { flexGrow: 1 } } : {}) }}>
@@ -158,10 +164,14 @@ const PageHeader = ({ onOpenGroup }) => {
              flex: '1 1 auto', minWidth: 0, maxWidth: '100%', '&:not(:has(> :not(:empty)))': { display: 'none' },
              ...(isCharacters ? { [PHONE_SIDES]: { display: 'contents', '& > :empty': { display: 'none' } } } : {})
            }}>
-      {showPin ? <Pin/> : null}
-      <ControlSlot/>
-      {/* Add goal's room on a phone is held while it loads, so its arrival never wraps the row */}
-      {goals ? <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 2 }, minWidth: { xs: 84, sm: 0 } }}><AddGoalButton/></Box> : null}
+      {/* Tab follows the DOM, never CSS order. The characters page's row is its picker, Pin, Add goal from 600 px, and Pin,
+          Add goal, then the picker on its own line on a phone: its buttons sit on both sides of the slot and each width
+          shows its pair, display: none taking the other out of the tab order. */}
+      {isCharacters ? <>
+        <Box sx={{ display: { xs: 'contents', sm: 'none' } }}>{actions}</Box>
+        <ControlSlot/>
+        <Box sx={{ display: { xs: 'none', sm: 'contents' } }}>{actions}</Box>
+      </> : actions}
       <Box sx={{ flex: 1 }}/>
       <SettingsSlot/>
     </Stack>
