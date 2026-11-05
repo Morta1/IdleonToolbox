@@ -41,7 +41,7 @@ const Tasks = ({ list, currentRift = 0, currentProgress, characters, chars }) =>
   return <Box>
     <Toolbar state={toolbar} defaults={TASKS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
              total={tasks.length} shown={shown.length} noun={'tasks'}>
-      <Toolbar.Filter name={'done'} label={'Show done'}/>
+      <Toolbar.Filter name={'done'} label={'Show done'} display/>
     </Toolbar>
     <CardGrid size={'m'}>
       {shown.map(({ monsterName, task, icon, riftIndex }) => {

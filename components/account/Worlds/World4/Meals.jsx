@@ -12,7 +12,7 @@ import {
 } from '@parsers/world-4/cooking';
 import { cleanUnderscore, formatNum, shownDifference } from 'utility/helpers';
 import { formatGame, mealBonusText } from '@utility/gameNotation';
-import { Box, Button, FormControlLabel, Slider, Stack, Switch, Typography } from '@mui/material';
+import { Box, Button, Slider, Stack, Typography } from '@mui/material';
 import { useLocalStorage } from '@mantine/hooks';
 import NumberField from '@components/common/NumberField';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
@@ -34,10 +34,10 @@ import Num, { Duration } from '@components/common/Num';
 const BREAKPOINT_LEVELS = [11, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200];
 const MEALS_TOOLBAR = { sort: null, hideCapped: false, view: 'cards' };
 // The tab's remembered settings: the three that change the meal numbers sit in Cooking's gear (MEALS_GEAR), the queue's
-// procs and the book order on the tab
-export const MEALS_SETTINGS = { overflow: false, amethyst: false, foodLust: null, procs: 15, bookOrder: false };
+// procs on the tab
+export const MEALS_SETTINGS = { overflow: false, amethyst: false, foodLust: null, procs: 15 };
 export const MEALS_GEAR = { overflow: false, amethyst: false, foodLust: null };
-const SORTS = [['time', 'Time to next level', 'asc'], ['nmlb', 'No Meal Left Behind', 'asc'], ['ribbon', 'Ribbon rank', 'asc'],
+const SORTS = [['book', 'Book order', 'asc'], ['time', 'Time to next level', 'asc'], ['nmlb', 'No Meal Left Behind', 'asc'], ['ribbon', 'Ribbon rank', 'asc'],
   ...BREAKPOINT_LEVELS.map((level) => [`lv${level}`, `Time to Lv ${level}`, 'asc'])];
 const AMETHYST_RHINESTONE = 4.5;
 
@@ -164,7 +164,7 @@ const Meals = ({
     : sortKey === 'ribbon'
       // Unribboned meals last, the rest by rank
       ? calculated.toSorted((a, b) => (ribbonOf(a) === 0) - (ribbonOf(b) === 0) || ribbonOf(a) - ribbonOf(b))
-      : sortKey
+      : sortKey && sortKey !== 'book'
         // Meals already at the target level go last
         ? calculated.toSorted((a, b) => (target > 0 ? (a.level >= target) - (b.level >= target) : 0)
           || hoursOf(entryFor(a, target)) - hoursOf(entryFor(b, target)))
@@ -201,7 +201,9 @@ const Meals = ({
   const upgradableCount = ordered.filter(isLimitCandidate).length;
   const limited = mealLimit > 0 && mealLimit < upgradableCount;
   const limitedMeals = applyMealLimit(ordered, mealLimit, upgradableCount);
-  const visibleMeals = settings?.bookOrder ? limitedMeals.toSorted((a, b) => a?.index - b?.index) : limitedMeals;
+  const visibleMeals = sortKey === 'book'
+    ? limitedMeals.toSorted((a, b) => (toolbar?.sort?.order === 'desc' ? b?.index - a?.index : a?.index - b?.index))
+    : limitedMeals;
   const costs = visibleMeals.filter(isMealUpgradable).map(getMealCost).filter(Number.isFinite);
   const costTotal = costs.length ? costs.reduce((sum, cost) => sum + cost, 0) : null;
   // Only over meals the account has started: an empty list (a failed section) or a guest's says nothing
@@ -296,9 +298,7 @@ const Meals = ({
         {visibleMeals.length ? <Typography my={1} variant={'sectionTitle'} component={'h2'}>Meals</Typography> : null}
         <MealsFilterBar upgradableCount={upgradableCount} total={costTotal}
                         limited={limited} value={limited ? mealLimit : upgradableCount}
-                        onCommit={(val) => setMealLimit(val >= upgradableCount ? 0 : val)}
-                        bookOrder={Boolean(settings?.bookOrder)}
-                        onBookOrder={(on) => setSettings({ bookOrder: on })}/>
+                        onCommit={(val) => setMealLimit(val >= upgradableCount ? 0 : val)}/>
         <CardGrid size={'m'}>
           {visibleMeals.map((meal) => {
             const { name, rawName, effect, level, cookingMasteryNode, index: mealIndex } = meal;
@@ -337,7 +337,7 @@ const Meals = ({
 // Slider narrows the list to the N cheapest meals to upgrade, and the total next to it is the
 // ladles that batch costs. Only the total is shown: a ladle stack is spent in full when used, so
 // a per-meal maximum would just tell people to over-pull on everything but the priciest meal.
-const MealsFilterBar = ({ upgradableCount, total, limited, value, onCommit, bookOrder, onBookOrder }) => {
+const MealsFilterBar = ({ upgradableCount, total, limited, value, onCommit }) => {
   // Drag position is kept here on purpose: the meal list only changes on release, so letting it
   // live in the parent re-rendered every card on every mousemove.
   const [dragValue, setDragValue] = useState(null);
@@ -368,11 +368,6 @@ const MealsFilterBar = ({ upgradableCount, total, limited, value, onCommit, book
         <InfoButton label={'Ladles total'}>{`${formatNum(total, 'exact')} ladles to upgrade every meal shown: the sum of the per-meal figures on the cards below.`}</InfoButton>
       </Stack> : null}
       {limited ? <Button size={'small'} onClick={() => onCommit(upgradableCount)}>Reset</Button> : null}
-      <Stack>
-        <FormControlLabel label={'Book order'} sx={{ mr: 0 }}
-                          control={<Switch checked={bookOrder} onChange={(event) => onBookOrder(event.target.checked)}/>}/>
-        <Typography variant={'caption'} color={'text.secondary'}>Lists these meals in cooking book order.</Typography>
-      </Stack>
     </Stack>
   );
 };

@@ -81,7 +81,8 @@ const VoteBallot = () => {
       </Stack>
       <Box>
         {hasBallot ? <Toolbar state={toolbar} defaults={BALLOT_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
-                              total={entries.length} shown={shown} noun={'bonuses'}>
+                              total={entries.length} shown={shown} noun={'bonuses'}
+                              emptyNote={'No bonus is on the ballot this week.'}>
           <Toolbar.Filter name={'onlyBallot'} label={'Hide off-rotation'}/>
         </Toolbar> : null}
         {onlyBallot ? <Stack gap={3}>

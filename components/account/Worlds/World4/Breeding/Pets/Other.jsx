@@ -133,9 +133,9 @@ const Other = ({ pets, fencePets, isShiny, multi, killPetTimeUnlocked, sectionFa
       <Toolbar state={toolbar} defaults={MOBS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
                total={list.length} shown={shown.length} noun={'mobs'}>
         <Toolbar.Filter name={'fenced'} label={'On the fence'}/>
-        <Toolbar.Show name={'below'} options={[['all', 'Every level', list.length],
+        <Toolbar.Show name={'below'} label={'Level'} options={[['all', 'Every level', list.length],
           ...levels.map((level) => [String(level), `Below Lv ${level}`, list.filter((pet) => levelOf(pet, isShiny) < level).length])]}/>
-        {isShiny ? <Toolbar.Show name={'passive'} options={[['any', 'Any passive', list.length],
+        {isShiny ? <Toolbar.Show name={'passive'} label={'Passive'} options={[['any', 'Any passive', list.length],
           ...passives.map((passive) => [passive, passive, list.filter((pet) => passiveOf(pet) === passive).length])]}/> : null}
         <Toolbar.Sort options={[['time', 'Time to next level', 'asc']]}/>
         {isShiny ? <Toolbar.View options={[['cards', 'All'], ['grouped', 'By passive']]}/> : null}

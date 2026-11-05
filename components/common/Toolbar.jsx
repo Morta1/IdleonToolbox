@@ -124,6 +124,8 @@ export const FilterPill = ({ value, on, label, onToggle, sx, children, ...rest }
   {label}
 </ToggleButton>;
 
+// display: the pill changes how the list reads, not which rows it holds ("Box details"), so the bar leaves it out of the
+// result line. It still counts on the phone button. The bar reads it off the props.
 const Filter = ({ name, label }) => {
   const { state, onChange } = useContext(ToolbarContext);
   const on = Boolean(state[name]);
@@ -170,10 +172,21 @@ const Sort = ({ name = 'sort', options, sx }) => {
   </Stack>;
 };
 
+// ViewSwitch is for two or three ways to show a thing: more than that can't hold a phone's row, so it is a field there.
+const MAX_SEGMENTS = 3;
+
 // Row only, next to the phone button. 40 px, a toolbar's size.
 const View = ({ name = 'view', options = [['cards', 'Cards'], ['table', 'Table']] }) => {
   const { state, onChange } = useContext(ToolbarContext);
-  return <ViewSwitch size="medium" options={options} value={state[name]} onChange={(value) => onChange({ [name]: value })}/>;
+  const pick = (value) => onChange({ [name]: value });
+  const segments = <ViewSwitch size="medium" options={options} value={state[name]} onChange={pick}/>;
+  if (options.length <= MAX_SEGMENTS) return segments;
+  return <>
+    <Box sx={{ display: { xs: 'flex', sm: 'none' }, flex: 1, minWidth: 0 }}>
+      <ShowField label="View" value={state[name]} onChange={pick} options={options} fullWidth/>
+    </Box>
+    <Box sx={{ display: { xs: 'none', sm: 'block' } }}>{segments}</Box>
+  </>;
 };
 
 const SLOTS = [Search, Lead, Panel, Show, Filter, Sort, View];
@@ -230,9 +243,10 @@ const PanelGroup = ({ label, children }) => <Stack gap={0.75}>
 // inPanel: the bar sits inside a Panel (the dashboard's goals): on the Panel's colour, on its sides, a line under it.
 // counted false: what the filters narrow isn't a list with a total (/characters), so the result line has no count and no
 // empty note: only its tokens and Reset.
+// emptyNote: the page's own sentence for an empty result, when it knows why ("All caught up"): in place of the generic one.
 const Toolbar = ({
   onStickyBottom, panelLabel = 'Filters', panelIcon = null, panelIconOnly = false, panelTall = false, searchAlone = false, inPanel = false,
-  counted = true, state = {}, defaults = {}, onChange, onReset, total = 0, shown = 0, noun = 'results', note = null, children
+  counted = true, state = {}, defaults = {}, onChange, onReset, total = 0, shown = 0, noun = 'results', note = null, emptyNote, children
 }) => {
   const [panelOpen, setPanelOpen] = useState(false);
   const [barHeight, setBarHeight] = useState(0);
@@ -267,6 +281,8 @@ const Toolbar = ({
   // A phone row holding a search, a view and the panel button left the search a few letters wide: the search
   // takes its own line there, the view and the button the next.
   const views = ofType(View);
+  // A View that is a field on a phone takes the row, with no spacer before it
+  const viewIsField = views.some((child) => (child.props.options?.length ?? 0) > MAX_SEGMENTS);
   const searchOwnRow = searches.length > 0 && (views.length > 0 || searchAlone);
   const differs = (child) => !same(state[slotKey(child)], defaults[slotKey(child)]);
 
@@ -277,15 +293,16 @@ const Toolbar = ({
   const buttonLabel = panelChanged.length ? `${panelLabel} (${panelChanged.length})` : panelLabel;
 
   // What narrows the list, in the row's order, each with its own way back here.
+  const narrowingFilters = filters.filter((child) => !child.props.display);
   const narrowing = [
     ...searches.filter(differs).map((child) => ({ key: slotKey(child), text: `"${state[slotKey(child)]}"`, label: `search "${state[slotKey(child)]}"` })),
     ...shows.filter(differs).map((child) => {
       const label = child.props.options.find(([value]) => value === state[slotKey(child)])?.[1] ?? '';
       return { key: slotKey(child), text: label, label };
     }),
-    ...filters.filter(differs).map((child) => ({ key: slotKey(child), text: child.props.label, label: child.props.label }))
+    ...narrowingFilters.filter(differs).map((child) => ({ key: slotKey(child), text: child.props.label, label: child.props.label }))
   ];
-  const filtersOn = shows.filter(differs).length + filters.filter(differs).length;
+  const filtersOn = shows.filter(differs).length + narrowingFilters.filter(differs).length;
   const searchOn = searches.some(differs);
 
   const open = panelOpen;
@@ -330,7 +347,7 @@ const Toolbar = ({
             </Button>) : null}
           {/* Both layouts are in the markup and CSS picks one, so a phone does not reflow after hydration. */}
           <Box sx={{ display: { xs: 'none', sm: 'contents' } }}>{[...shows, ...filters, ...others]}</Box>
-          <Box sx={{ flex: 1, display: { xs: views.length ? 'block' : 'none', sm: 'block' } }}/>
+          <Box sx={{ flex: 1, display: { xs: views.length && !viewIsField ? 'block' : 'none', sm: 'block' } }}/>
           <Box sx={{ display: { xs: 'none', sm: 'contents' } }}>{sorts}</Box>
           {views}
         </Stack>
@@ -371,7 +388,7 @@ const Toolbar = ({
     </Box>
     {/* An empty result is a note under the toolbar (Notices board). */}
     {counted && shown === 0 && narrowing.length ? <Notice tone="info" action={{ label: 'Reset', onClick: onReset }} sx={inPanel ? { m: 2 } : undefined}>
-      {`No ${noun} match. ${onSentence(filtersOn, searchOn)}`}
+      {emptyNote ?? `No ${noun} match. ${onSentence(filtersOn, searchOn)}`}
     </Notice> : null}
   </>;
 };

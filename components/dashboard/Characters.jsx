@@ -274,7 +274,8 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
     {/* Only this section's cards: the bar counts what it hides. With every card hidden its own empty note says so. */}
     <Toolbar state={{ hideAlertless: Boolean(hideAlertless) }} defaults={{ hideAlertless: false }}
              onChange={(patch) => onHideAlertless?.(Boolean(patch.hideAlertless))} onReset={() => onHideAlertless?.(false)}
-             total={characters?.length ?? 0} shown={cards?.length ?? 0} noun={'characters'}>
+             total={characters?.length ?? 0} shown={cards?.length ?? 0} noun={'characters'}
+             emptyNote={'All caught up: no character has an alert.'}>
       <Toolbar.Filter name={'hideAlertless'} label={'Hide characters without alerts'}/>
     </Toolbar>
     <CardGrid size={'s'}>{cards}</CardGrid>

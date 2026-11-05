@@ -90,7 +90,7 @@ const Imports = ({ account, gaming, lastUpdated }) => {
   return <>
     <Toolbar state={toolbar} defaults={IMPORTS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
              total={imports.length} shown={imports.length} noun={'imports'}>
-      <Toolbar.Filter name={'boxDetails'} label={'Box details'}/>
+      <Toolbar.Filter name={'boxDetails'} label={'Box details'} display/>
     </Toolbar>
     <CardGrid size={'m'}>
       {imports.map((item, index) => {
