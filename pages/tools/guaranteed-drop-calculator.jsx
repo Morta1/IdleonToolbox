@@ -91,7 +91,7 @@ const GuaranteedDropCalculator = () => {
           This does not include values from the 2x kills lab bonus or the god bonus in W5 (divide the kills input by 4 if
           both bonuses apply), kill-per-kill talents, prayers, or bubbles.
         </Typography>
-        <Stack direction={'row'} columnGap={1.5} rowGap={1.5} flexWrap={'wrap'} alignItems={'flex-start'}>
+        <Panel.Inputs sx={{ p: 0, alignItems: 'flex-start' }}>
           <Autocomplete
             value={value}
             onChange={(event, newValue) => {
@@ -133,7 +133,7 @@ const GuaranteedDropCalculator = () => {
             }}/>)}
           {/* The fields carry their labels above: the button lines up with their boxes */}
           <Button variant={'contained'} onClick={handleCalc} sx={{ mt: '24px' }}>Run</Button>
-        </Stack>
+        </Panel.Inputs>
         {results?.length > 0 ? <>
           <Divider/>
           <ItemCard.Facts rows={results.map(({ breakpoint, hours }) => [`x${breakpoint} drop`, formatDuration(hours * 3600)])}/>

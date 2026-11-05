@@ -138,8 +138,31 @@ const KV = ({ label, value, kind }) => {
   </Stack>;
 };
 
+// A tool's inputs (Controls board, "Heights in one card"): a row that wraps, each field at 40 px, 44 on touch, its label
+// above, Run last. The result is the Panel's next child, under its line. A switch's row is a field's height and its label a
+// field's size, so it sits on the fields' line. On a phone the fields share each row's width, as the Tools phone board's does.
+const INPUTS_SX = {
+  p: 2,
+  '& > .MuiFormControlLabel-root': { mr: 0, '@media (pointer: coarse)': { minHeight: 44 } },
+  '& > .MuiFormControlLabel-root > .MuiFormControlLabel-label': { fontSize: 14 },
+  [PHONE]: { '& > .MuiFormControl-root, & > .MuiStack-root, & > .MuiStack-root > .MuiFormControl-root': { flexGrow: 1 } }
+};
+const Inputs = ({ children, sx }) => <Stack direction={'row'} columnGap={1.5} rowGap={1.5} flexWrap={'wrap'} alignItems={'flex-end'}
+                                            sx={[INPUTS_SX, ...(Array.isArray(sx) ? sx : [sx])]}>{children}</Stack>;
+
+// Buttons among a tool's inputs (Effort, Cog type): the caption reads as a field's label, so the group sits on the fields' line
+const InputGroup = ({ label, children }) => <Stack sx={{ minWidth: 0 }}>
+  <Typography color={'text.secondary'} component={'div'} sx={{ fontSize: 12, lineHeight: '20px', fontWeight: 500, mb: '4px' }}>{label}</Typography>
+  {children}
+</Stack>;
+
+// An InfoButton beside a field sits level with the field's input (40 px, 44 on touch), not with the label above it
+export const FIELD_INFO_SX = { mb: '12px', '@media (pointer: coarse)': { mb: '14px' } };
+
 Panel.Row = Row;
 Panel.Group = Group;
 Panel.KV = KV;
+Panel.Inputs = Inputs;
+Panel.InputGroup = InputGroup;
 
 export default Panel;

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Divider, FormControlLabel, IconButton, Stack, Switch } from '@mui/material';
+import { Box, FormControlLabel, IconButton, Switch } from '@mui/material';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import NumberField from '@components/common/NumberField';
 import DataTable from '@components/common/DataTable';
@@ -37,72 +37,70 @@ const MinibossHp = ({
   const handlePrayerLevel = (name) => (next) => setPrayerLevel(name, next ?? 0);
 
   return <Panel title={'Miniboss HP'}>
-    <Stack gap={2} sx={{ p: 2 }}>
-      <Stack direction={'row'} columnGap={1.5} rowGap={1.5} flexWrap={'wrap'} alignItems={'flex-end'}>
-        <NumberField
-          label={'Pickles'}
-          sx={{ flex: '1 1 120px', minWidth: 0 }}
+    <Panel.Inputs>
+      <NumberField
+        label={'Pickles'}
+        sx={{ flex: '1 1 120px', minWidth: 0 }}
+        min={0}
+        max={maxPickles}
+        integer
+        help={false}
+        value={pickles}
+        onChange={(next) => setPickles(next ?? 0)}
+      />
+      {activePrayers.map((prayer) => {
+        const name = cleanUnderscore(prayer?.name);
+        return <NumberField
+          key={prayer?.name}
+          label={name}
+          value={prayer?.level}
           min={0}
-          max={maxPickles}
+          max={prayer?.maxLevel}
           integer
           help={false}
-          value={pickles}
-          onChange={(next) => setPickles(next ?? 0)}
-        />
-        {activePrayers.map((prayer) => {
-          const name = cleanUnderscore(prayer?.name);
-          return <NumberField
-            key={prayer?.name}
-            label={name}
-            value={prayer?.level}
-            min={0}
-            max={prayer?.maxLevel}
-            integer
-            help={false}
-            onChange={handlePrayerLevel(prayer?.name)}
-            sx={{
-              flex: '1 1 170px',
-              minWidth: 0,
-              ...(prayer?.enabled ? {} : { '& .MuiInputBase-input': { color: 'text.muted' } })
-            }}
-            icon={levelsFromAccount ? <IconButton size={'small'} aria-label={`Equip ${name}`} aria-pressed={Boolean(prayer?.enabled)}
-                                                  sx={EQUIP_SX} onClick={() => togglePrayer(prayer?.name)}>
-              <GameIcon src={`data/Prayer${prayer?.prayerIndex}.png`} size={24} alt={''} status={prayer?.enabled ? undefined : 'missing'}/>
-            </IconButton> : undefined}
-            unit={levelsFromAccount && prayer?.level !== prayer?.accountLevel
-              ? <IconButton size={'small'} edge={'end'} aria-label={`Reset ${name} to account level`}
-                            onClick={() => setPrayerLevel(prayer?.name, prayer?.accountLevel)}>
-                <RestartAltIcon fontSize={'small'}/>
-              </IconButton>
-              : undefined}
-          />;
-        })}
-        {/* It only moves the characters' table, but it is one of this tool's inputs: they share one row */}
-        {showTargetHits ? <NumberField
-          label={'Target hits'}
-          sx={{ flex: '1 1 120px', minWidth: 0 }}
-          min={1}
-          max={maxTargetHits}
-          integer
-          help={false}
-          value={targetHits}
-          onChange={(next) => setTargetHits(next ?? 1)}
-        /> : null}
-      </Stack>
+          onChange={handlePrayerLevel(prayer?.name)}
+          sx={{
+            flex: '1 1 170px',
+            minWidth: 0,
+            ...(prayer?.enabled ? {} : { '& .MuiInputBase-input': { color: 'text.muted' } })
+          }}
+          icon={levelsFromAccount ? <IconButton size={'small'} aria-label={`Equip ${name}`} aria-pressed={Boolean(prayer?.enabled)}
+                                                sx={EQUIP_SX} onClick={() => togglePrayer(prayer?.name)}>
+            <GameIcon src={`data/Prayer${prayer?.prayerIndex}.png`} size={24} alt={''} status={prayer?.enabled ? undefined : 'missing'}/>
+          </IconButton> : undefined}
+          unit={levelsFromAccount && prayer?.level !== prayer?.accountLevel
+            ? <IconButton size={'small'} edge={'end'} aria-label={`Reset ${name} to account level`}
+                          onClick={() => setPrayerLevel(prayer?.name, prayer?.accountLevel)}>
+              <RestartAltIcon fontSize={'small'}/>
+            </IconButton>
+            : undefined}
+        />;
+      })}
+      {/* It only moves the characters' table, but it is one of this tool's inputs: they share one row */}
+      {showTargetHits ? <NumberField
+        label={'Target hits'}
+        sx={{ flex: '1 1 120px', minWidth: 0 }}
+        min={1}
+        max={maxTargetHits}
+        integer
+        help={false}
+        value={targetHits}
+        onChange={(next) => setTargetHits(next ?? 1)}
+      /> : null}
       <FormControlLabel
-        sx={{ width: 'fit-content' }}
         control={<Switch
           checked={applyToCharacters}
           onChange={({ target }) => setApplyToCharacters(target.checked)}
         />}
         label={'Apply to characters'}
       />
-      <Divider/>
+    </Panel.Inputs>
+    <Box sx={{ p: 2 }}>
       <ItemCard.Facts rows={[
         ['Monster HP curse', formatNum(curse, 'pct', { signed: true })],
         ['Each kill counts as', `${formatNum(killCredit, 'whole')} Deathnote ${killCredit === 1 ? 'kill' : 'kills'}`]
       ]}/>
-    </Stack>
+    </Box>
     <DataTable
       columns={[
         {

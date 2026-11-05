@@ -8,11 +8,7 @@ import Plot from '@components/account/Worlds/World6/Farming/Plot';
 import Crop from '@components/account/Worlds/World6/Farming/Crop';
 import { formatNum, getTabs } from '@utility/helpers';
 import RankDatabase from '@components/account/Worlds/World6/Farming/RankDatabase';
-import LandRankOptimizer, {
-  LAND_RANK_GEAR,
-  LandRankSettings,
-  useLandRankSettings
-} from '@components/account/Worlds/World6/Farming/UpgradeOptimizer';
+import LandRankOptimizer from '@components/account/Worlds/World6/Farming/UpgradeOptimizer';
 import { PAGES } from '@components/constants';
 import ExoticMarket from '@components/account/Worlds/World6/Farming/ExoticMarket';
 import ExoticMarketRotation from '@components/account/Worlds/World6/Farming/ExoticMarketRotation';
@@ -23,7 +19,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { getSkillExpMulti } from '@parsers/character';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import PageSettings, { joinSettings, usePageSettings } from '@components/common/PageSettings';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 
 const FARMING_SETTINGS = { forceNano: false };
@@ -53,11 +49,7 @@ const Farming = () => {
   // The Death Bringer with the most Mass Irrigation, until the player picks another (the lookup answers 0 for none)
   const selectedCharacter = characters?.find((character) => character?.playerId === pickedId)
     || getCharacterByHighestTalent(characters, CLASSES.Death_Bringer, 'MASS_IRRIGATION') || characters?.[0];
-  const [settings, setSettings] = usePageSettings('farming', FARMING_SETTINGS);
-  // The Rank Optimizer tab's plan settings, kept under the tab's own keys; they plan nothing without Land Rank
-  const landRank = useLandRankSettings();
-  const gear = joinSettings({ state: settings, defaults: FARMING_SETTINGS, set: setSettings },
-    ...(hasLandRank ? [landRank] : []));
+  const [settings, setSettings, resetSettings] = usePageSettings('farming', FARMING_SETTINGS);
 
   const hasNanoAndGordonius = () => {
     const hasChip = getPlayerLabChipBonus(selectedCharacter, account, 15);
@@ -91,10 +83,9 @@ const Farming = () => {
                                                   value={character?.playerId}>{character?.name}</MenuItem>)}
       </TextField>
     </PageHeaderControl> : null}
-    {characters?.length ? <PageSettings {...gear}>
+    {characters?.length ? <PageSettings state={settings} defaults={FARMING_SETTINGS} onChange={setSettings} onReset={resetSettings}>
       <PageSettings.Toggle name={'forceNano'} label={'Force nano chip'}
                            help={'Counts the nano chip in crop evo for any character, assuming Cropiovo Minor is active.'}/>
-      {hasLandRank ? <LandRankSettings state={landRank.state}/> : null}
     </PageSettings> : null}
     <PageSummary>
       {/* breakdownTitle: the drawer takes the tile's name; the breakdown's own stays its link and pin key */}

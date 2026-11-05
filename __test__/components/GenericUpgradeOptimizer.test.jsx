@@ -345,6 +345,15 @@ describe('GenericUpgradeOptimizer game order', () => {
     ]);
     expect(rowNames(container)).toEqual(['Late Upgrade', 'Early Upgrade']);
   });
+
+  it.each([
+    ['Upgrade', ['Late_Upgrade', 'Late_Upgrade', 'Early_Upgrade'], 'Upgrades #1 to #2'],
+    ['Summary', ['Late_Upgrade', 'Early_Upgrade', 'Late_Upgrade'], '2 upgrades, #1 to #3']
+  ])('a %s card names where its steps sit in the plan', (group, names, place) => {
+    seedSetting('groupMode', group);
+    const { container } = renderOptimizer(names.map((name, step) => namedRow(name, 1, 10 + step)));
+    expect(container.textContent).toContain(place);
+  });
 });
 
 const renderWithAutoRph = (autoResourcePerHour, rows = []) => {

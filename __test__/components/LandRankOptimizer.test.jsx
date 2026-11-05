@@ -21,7 +21,7 @@ const renderOptimizer = (state = { characters, account }) => render(
   </ThemeProvider>
 );
 
-// The category is in Farming's gear now: the tab reads it from the key it always had
+// The category's field reads the key it always had
 const withGoal = (goal) => localStorage.setItem('landRankOptimizer:goal', JSON.stringify(goal));
 
 const pickOption = (label, option) => {
@@ -60,7 +60,7 @@ describe('Land rank upgrade optimizer', () => {
 
   it('lists every point separately once grouping is off', () => {
     renderOptimizer();
-    pickOption('Group mode', 'None');
+    pickOption('Group', 'None');
     expect(screen.getAllByText('1 pt')).toHaveLength(100);
   });
 

@@ -105,7 +105,7 @@ const MinorBonusCalculator = ({ characters, account }) => {
           Fields start from your save. Change any of them to test a setup.
         </Typography>
       </Stack>
-      <Stack direction={'row'} columnGap={1.5} rowGap={1.5} flexWrap={'wrap'} alignItems={'flex-start'}>
+      <Panel.Inputs sx={{ p: 0 }}>
         <TextField select label={'God'} sx={FIELD_SX} value={godSlot}
                    onChange={({ target: { value } }) => setGodSlot(Number(value))}>
           {gods?.map((god, index) => <MenuItem key={god?.name} value={index}>
@@ -133,7 +133,7 @@ const MinorBonusCalculator = ({ characters, account }) => {
           // Arctis hands out whole talent levels; the other gods' bonus is a percent with decimals.
                      integer={isTalentTarget} help={false} value={Number.isFinite(target) ? target : null}
                      onChange={handleOverride('target')}/>
-      </Stack>
+      </Panel.Inputs>
       <Divider/>
       <Stack gap={1}>
         <ItemCard.Facts rows={[

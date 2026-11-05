@@ -13,11 +13,7 @@ import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World7/Spelunking/Upgrades';
 import Lore from '@components/account/Worlds/World7/Spelunking/Lore';
 import Elixirs from '@components/account/Worlds/World7/Spelunking/Elixirs';
-import UpgradeOptimizer, {
-  SpelunkingOptimizerSettings,
-  useSpelunkingOptimizerSettings
-} from '@components/account/Worlds/World7/Spelunking/UpgradeOptimizer';
-import PageSettings from '@components/common/PageSettings';
+import UpgradeOptimizer from '@components/account/Worlds/World7/Spelunking/UpgradeOptimizer';
 import { OPT } from '@parsers/accountOptions';
 
 const Spelunking = () => {
@@ -53,8 +49,6 @@ const Spelunking = () => {
     saveTotals
   } = state?.account?.spelunking || {};
   const denominator = getAmberDenominator(state?.account);
-  // The Upgrade Optimizer tab's plan settings, kept under the tab's own keys
-  const optimizer = useSpelunkingOptimizerSettings();
   // The game's amber line: the save's amount over the denominator, commas under 1e9 and Big past it
   // (Spelunk.AmberDenominator). Dividing first also turns a save's text number past 1e21 into a number.
   const amber = Number(currentAmber ?? 0) / denominator;
@@ -67,12 +61,6 @@ const Spelunking = () => {
       title="Spelunking | Idleon Toolbox"
       description="Keep track of your spelunking levels, upgrades and stats"
     />
-    {/* The optimizer plans for a character, so a guest's gear would change nothing */}
-    {state?.characters?.length ? <PageSettings state={optimizer.state} defaults={optimizer.defaults} onChange={optimizer.set}
-                                               onReset={() => optimizer.set(optimizer.defaults)}>
-      <SpelunkingOptimizerSettings state={optimizer.state}/>
-    </PageSettings> : null}
-
     <PageSummary>
       <StatTile label={'Power'} icon={'data/CaveShopUpg17.png'}
                 value={<Num value={power?.value} game={'Spelunk.POW'}/>} breakdown={power?.breakdown}/>

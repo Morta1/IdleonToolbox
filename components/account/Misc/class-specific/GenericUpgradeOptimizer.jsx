@@ -14,7 +14,7 @@ import Notice from '@components/common/Notice';
 import ViewSwitch from '@components/common/ViewSwitch';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
-import Panel from '@components/common/cards/Panel';
+import Panel, { FIELD_INFO_SX } from '@components/common/cards/Panel';
 import StatTile from '@components/common/cards/StatTile';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -23,6 +23,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { clampCustomMax, MAX_CUSTOM_UPGRADES } from '@parsers/genericUpgradeOptimizer';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 import { OPT } from '@parsers/accountOptions';
+import { stepLevels, stepMeta } from './upgradeSteps';
 
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
 // 'Game order' is Summary sorted by in-game list position: reordering single steps would scatter
@@ -30,15 +31,6 @@ const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
 const groupModes = ['None', 'Upgrade', 'Summary', 'Game order'];
 // One rate of 1 per resource: the manual method's starting point, so an untouched rate never divides by zero
 const ratesOfOne = (resourceNames) => Object.fromEntries(Object.keys(resourceNames ?? {}).map((key) => [key, 1]));
-// "Lv 99 → 100 / 100": where the step starts and the level it buys to; a group from its first step's start. Not every
-// upgrade set has a max level (clam work upgrades are uncapped), so the max shows only where there is one.
-const stepLevels = (upgrade) => {
-  const grouped = upgrade?.sequence?.length > 1;
-  const to = grouped ? upgrade.finalLevel : upgrade?.level;
-  const from = (grouped ? upgrade.startLevel : upgrade?.level) - 1;
-  const max = Number.isFinite(upgrade?.x4) ? ` / ${formatNum(upgrade.x4)}` : '';
-  return `Lv ${formatNum(from)} → ${formatNum(to)}${max}`;
-};
 // A time left as every page writes it (Decision 8): "ready in 3d 4h", past 999 days "> 999d", "ready now" at zero
 const readyText = (hours) => (hours > 0 ? `ready in ${formatDuration(hours * 3600)}` : 'ready now');
 // A group's, a tile's or a band's time is its last step's; steps with no time (no rate) leave it with none
@@ -62,10 +54,6 @@ const accumulateStatChange = (map, statChange) => {
   map[statChange.stat].grossPercentChange += statChange.grossPercentChange ?? statChange.percentChange;
   map[statChange.stat].hoardingPercentChange += statChange.hoardingPercentChange ?? 0;
 };
-// The settings row's InfoButton sits level with its field's input (40 px, 44 on touch), not with the label above it
-const FIELD_INFO_SX = { mb: '12px', '@media (pointer: coarse)': { mb: '14px' } };
-// A card's levels and its place in the plan each stay whole ("Upgrade #10"): the meta wraps only between them
-const NOWRAP_SX = { whiteSpace: 'nowrap' };
 
 const GenericUpgradeOptimizer = ({
   // An upgrade's name as this page reads it (Clam Work's all-caps names in Title Case)
@@ -276,12 +264,12 @@ const GenericUpgradeOptimizer = ({
         currentGroup = {
           ...upgrade,
           upgradeIndex: index,
-          sequence: [{ ...upgrade, originalIndex: index }],
+          sequence: [{ ...upgrade, upgradeIndex: index }],
           startLevel
         };
       }
       else {
-        currentGroup.sequence.push({ ...upgrade, originalIndex: index });
+        currentGroup.sequence.push({ ...upgrade, upgradeIndex: index });
       }
     });
     if (currentGroup) {
@@ -332,7 +320,7 @@ const GenericUpgradeOptimizer = ({
       }
 
       const g = grouped[upgrade.name];
-      g.sequence.push(upgrade);
+      g.sequence.push({ ...upgrade, upgradeIndex: index });
       g.finalLevel = Math.max(g.finalLevel, upgrade.level);
       g.totalCost += upgrade.cost;
       if (upgrade.hadReduction) g.discountedSteps += 1;
@@ -593,13 +581,9 @@ const GenericUpgradeOptimizer = ({
   const renderUpgradeCard = (upgrade) => {
     const position = upgrade.upgradeIndex;
     const grouped = upgrade.sequence?.length > 1 && Boolean(upgrade.combinedStatChanges);
-    const step = upgrade.sequence?.length > 1
-      ? `Upgrades #${position + 1} to #${position + upgrade.sequence.length}`
-      : `Upgrade #${position + 1}`;
     return <ItemCard key={position} title={upgradeTitle(upgrade.name)}
                      icon={upgradeImagePrefix ? upgradeIconPath(upgrade) : undefined}
-                     meta={<><Box component={'span'} sx={NOWRAP_SX}>{stepLevels(upgrade)}</Box>{' · '}
-                       <Box component={'span'} sx={NOWRAP_SX}>{step}</Box></>}
+                     meta={stepMeta(upgrade)}
                      status={upgrade.lockedNow ? 'locked' : undefined} statusLabel={upgrade.lockedNow ? lockLabel(upgrade) : undefined}
                      footer={<>
                        <ItemCard.Facts rows={[[grouped ? 'Total cost' : 'Cost', costNode(upgrade)]]}/>
@@ -670,8 +654,9 @@ const GenericUpgradeOptimizer = ({
   return (
     <Stack gap={3}>
       {/* The plan's settings: a tool's inputs stay on its tab, beside the plan they change (the owner's rule) */}
-      <Stack gap={1}>
-        <Stack direction="row" gap={2} alignItems="flex-end" flexWrap="wrap">
+      <Panel title={'Upgrade plan'} aside={<ViewSwitch size={'medium'} label={'View'} options={[['grid', 'Cards'], ['list', 'Table']]}
+                                                       value={viewMode} onChange={setViewMode}/>}>
+        <Panel.Inputs>
           <TextField select label="Optimize for" value={category} onChange={(e) => setCategory(e.target.value)}
                      sx={{ width: 200 }}>
             {Object.entries(upgradeCategories ?? {}).map(([key, { name }]) => <MenuItem key={key} value={key}>{name}</MenuItem>)}
@@ -719,10 +704,10 @@ const GenericUpgradeOptimizer = ({
           <TextField select label="Group" value={groupMode} onChange={(e) => setGroupMode(e.target.value)} sx={{ width: 140 }}>
             {groupModes.map(group => <MenuItem key={group} value={group}>{group}</MenuItem>)}
           </TextField>
-          {showSplitByResource ? <FormControlLabel label="Split by resource" sx={{ mr: 0 }}
+          {showSplitByResource ? <FormControlLabel label="Split by resource"
                                                    control={<Switch checked={splitByResource}
                                                                     onChange={() => setSplitByResource(prev => !prev)}/>}/> : null}
-          <FormControlLabel label="Only affordable" sx={{ mr: 0 }}
+          <FormControlLabel label="Only affordable"
                             control={<Switch checked={Boolean(onlyAffordable)} onChange={() => setOnlyAffordable(!onlyAffordable)}/>}/>
           {usesMasterclassReduction ? <Stack direction="row" alignItems="flex-end" gap={0.5}>
             <NumberField
@@ -740,11 +725,11 @@ const GenericUpgradeOptimizer = ({
               {`Daily Shopping Spree makes your first ${formatNum(dailyReductionGrant)} Masterclass purchases each day 80% cheaper, and the allowance resets every day. This starts at what today has left, so steps past it are priced at full rate: raise it to plan across several days, or clear it to follow the live count.`}
             </InfoButton>
           </Stack> : null}
-          <ViewSwitch size={'medium'} label={'View'} options={[['grid', 'Cards'], ['list', 'Table']]} value={viewMode}
-                      onChange={setViewMode} sx={{ ml: 'auto' }}/>
-        </Stack>
-        {rowNotes.map((note) => <Typography key={note} variant={'body2'} color={'text.secondary'}>{note}</Typography>)}
-      </Stack>
+        </Panel.Inputs>
+        {rowNotes.length ? <Stack gap={0.5} sx={{ p: 2 }}>
+          {rowNotes.map((note) => <Typography key={note} variant={'body2'} color={'text.secondary'}>{note}</Typography>)}
+        </Stack> : null}
+      </Panel>
 
       {optimizationMethod === 'rph' && (
         // Every field saves as it changes; Done names that, where the close alone read as cancel.
