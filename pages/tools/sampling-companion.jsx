@@ -19,7 +19,7 @@ import Obols from '@components/tools/sampling-companion/Obols';
 import StarSigns from '@components/tools/sampling-companion/StarSigns';
 import { addEquippedItems, getAllItems, mergeItemsByOwner } from '@parsers/items';
 
-const SECTION_NAMES = { lab: 'Laboratory', prayers: 'Prayers', starSigns: 'Star Signs', cards: 'Cards' };
+const SECTION_NAMES = { lab: 'Laboratory', prayers: 'Prayers', starSigns: 'Star Signs', cards: 'Cards', storage: 'Storage' };
 const SETUP_IDS = Object.keys(samplingSetups);
 const SAMPLING_TOOLBAR = { setup: SETUP_IDS[0] };
 
@@ -45,7 +45,7 @@ const SamplingCompanion = () => {
         <Box>
           {/* A setup is a pick, not a filter: its default follows it, so no "Showing" line */}
           <Toolbar state={toolbar} defaults={{ setup: toolbar.setup }} onChange={setToolbar} onReset={resetToolbar}
-                   panelLabel={'Setup'} total={SETUP_IDS.length} shown={SETUP_IDS.length} noun={'setups'}>
+                   panelLabel={`Setup: ${selectedSetup?.name}`} total={SETUP_IDS.length} shown={SETUP_IDS.length} noun={'setups'}>
             <Toolbar.Show name={'setup'} label={'Setup'} options={Object.entries(samplingSetups).map(([id, { name }]) => [id, name])}/>
           </Toolbar>
           <CardGrid size={'l'}>
