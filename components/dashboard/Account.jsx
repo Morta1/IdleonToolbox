@@ -20,7 +20,7 @@ import Notice from '@components/common/Notice';
 import GameIcon from '@components/common/GameIcon';
 import Panel from '@components/common/cards/Panel';
 import ItemCard from '@components/common/cards/ItemCard';
-import AlertIcon from './AlertIcon';
+import AlertIcon, { counted } from './AlertIcon';
 import {
   getGeneralAlerts,
   getWorld1Alerts,
@@ -63,6 +63,8 @@ const alertBadges = {
   sharedLink: { Icon: LinkIcon, color: 'var(--mui-palette-primary-main)', size: 18 },
   locked: { Icon: LockIcon, color: 'var(--mui-palette-text-warning)', size: 15 }
 };
+
+const captainBonus = (bonus) => cleanUnderscore(bonus).replace(/,(?=\S)/g, ', ');
 
 const ROWS = ['General', 'World 1', 'World 2', 'World 3', 'World 4', 'World 5', 'World 6', 'World 7'];
 
@@ -109,10 +111,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
   const rowIcons = {
     General: <>
               {alerts?.General?.etc?.familyObols ?
-                <Alert target={'General.etc.familyObols'} title={`You have ${formatNum(alerts?.General?.etc?.familyObols)} empty family obol slots`}
+                <Alert target={'General.etc.familyObols'} title={`You have ${counted(alerts?.General?.etc?.familyObols, 'empty family obol slot')}`}
                        iconPath={'etc/ObolEmpty1'}/> : null}
               {alerts?.General?.gemsFromBosses ?
-                <Alert target={'General.gemsFromBosses'} title={`You can kill ${formatNum(alerts?.General?.gemsFromBosses)} more bosses for gems`}
+                <Alert target={'General.gemsFromBosses'} title={`You can kill ${counted(alerts?.General?.gemsFromBosses, 'more boss', 'more bosses')} for gems`}
                        iconPath={'data/PremiumGem'}/> : null}
               {alerts?.General?.etc?.freeCompanion && !failed('companions') ?
                 <Alert target={'General.etc.freeCompanion'} title={`You can claim a free companion`}
@@ -160,7 +162,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.General?.etc?.miniBosses?.length > 0
                 ?
                 alerts?.General?.etc?.miniBosses?.map(({ rawName, name, current }) => <Alert target={'General.etc.miniBosses'} key={rawName}
-                                                                                             title={`You can kill ${formatNum(current, 'whole')} ${cleanUnderscore(name)}s`}
+                                                                                             title={`${cleanUnderscore(name)}: ${counted(current, 'kill')}`}
                                                                                              iconPath={`etc/${rawName}`}/>)
                 : null}
               {alerts?.General?.tasks?.length > 0 ?
@@ -173,7 +175,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 alerts?.General?.etc?.keys?.map(({ rawName, totalAmount }, index) => <Alert target={'General.etc.keys'} key={rawName + '' + index}
                                                                                             title={`${formatNum(totalAmount, 'whole')} of ${cleanUnderscore(pascalCase(rawName))} ${rawName.includes('Tix')
                                                                                               ? 'tickets'
-                                                                                              : 'keys'} are ready`}
+                                                                                              : 'keys'} ${totalAmount === 1 ? 'is' : 'are'} ready`}
                                                                                             iconPath={`data/${rawName}`}/>)
                 : null}
               {alerts?.General?.materialTracker?.length > 0
@@ -211,13 +213,13 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
     </>,
     'World 1': <>
               {alerts?.['World 1']?.stamps?.gildedStamps > 0 ?
-                <Alert target={'World 1.stamps.gildedStamps'} title={`You have ${formatNum(alerts?.['World 1']?.stamps?.gildedStamps)} available gilded stamps`}
+                <Alert target={'World 1.stamps.gildedStamps'} title={`You have ${counted(alerts?.['World 1']?.stamps?.gildedStamps, 'available gilded stamp')}`}
                        iconPath={'data/GildedStamp'}/> : null}
               {alerts?.['World 1']?.stamps?.affordableStampLevels ?
                 <Alert target={'World 1.stamps.affordableStampLevels'} title={<AffordableStampLevels {...alerts?.['World 1']?.stamps?.affordableStampLevels}/>}
                        iconPath={'data/StampA34'}/> : null}
               {alerts?.['World 1']?.stamps?.exaltedStamps > 0 ?
-                <Alert target={'World 1.stamps.exaltedStamps'} title={`You have ${formatNum(alerts?.['World 1']?.stamps?.exaltedStamps)} unused exalted stamps`}
+                <Alert target={'World 1.stamps.exaltedStamps'} title={`You have ${counted(alerts?.['World 1']?.stamps?.exaltedStamps, 'unused exalted stamp')}`}
                        iconPath={'etc/Exalted_Stamp_Frame'}/> : null}
               {alerts?.['World 1']?.owl?.featherRestart ?
                 <Alert target={'World 1.owl.featherRestart'} title={`Feather restart can be upgraded`}
@@ -244,7 +246,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'etc/KUpga_11'}/> : null}
               {alerts?.['World 2']?.islands?.unclaimedDays ?
                 <Alert target={'World 2.islands.unclaimedDays'}
-                  title={`You haven't claimed your islands' content in ${formatNum(alerts?.['World 2']?.islands?.unclaimedDays)} days`}
+                  title={`You haven't claimed your islands' content in ${counted(alerts?.['World 2']?.islands?.unclaimedDays, 'day')}`}
                   iconPath={'data/Island1'}/> : null}
               {alerts?.['World 2']?.islands?.shimmerIsland ?
                 <Alert target={'World 2.islands.shimmerIsland'}
@@ -273,7 +275,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 2.alchemy.gems'} title={'You haven\'t bought alchemy gems today'} iconPath={'data/PremiumGem'}/> : null}
               {alerts?.['World 2']?.alchemy?.alternateParticles ?
                 <Alert target={'World 2.alchemy.alternateParticles'}
-                  title={`You have ${formatNum(alerts?.['World 2']?.alchemy?.alternateParticles)} alternate particles upgrades available`}
+                  title={`You have ${counted(alerts?.['World 2']?.alchemy?.alternateParticles, 'alternate particle upgrade')} available`}
                   iconPath={'etc/Particle'}/> : null}
               {alerts?.['World 2']?.weeklyBosses?.daily
                 ?
@@ -351,7 +353,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
     'World 3': <>
               {alerts?.['World 3']?.library?.books ?
                 <Alert target={'World 3.library.books'}
-                  title={`Library has ${formatNum(account?.libraryTimes?.bookCount)} books ready`}
+                  title={`Library has ${counted(account?.libraryTimes?.bookCount, 'book')} ready`}
                   iconPath={'data/Libz'}/> : null}
               {alerts?.['World 3']?.atomCollider?.stampReducer ?
                 <Alert target={'World 3.atomCollider.stampReducer'}
@@ -364,12 +366,12 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 3']?.equinox?.bar ?
                 <Alert target={'World 3.equinox.bar'} title={`Your Equinox bar is full`} iconPath={'data/Quest78'}/> : null}
               {alerts?.['World 3']?.equinox?.challenges > 0 ?
-                <Alert target={'World 3.equinox.challenges'} title={`You have ${formatNum(alerts?.['World 3']?.equinox?.challenges)} challenges to validate`}
+                <Alert target={'World 3.equinox.challenges'} title={`You have ${counted(alerts?.['World 3']?.equinox?.challenges, 'challenge')} to validate`}
                        iconPath={'data/Quest78'}/> : null}
               {alerts?.['World 3']?.equinox?.foodLust ?
                 <Alert target={'World 3.equinox.foodLust'} title={alerts?.['World 3']?.equinox?.foodLustMaxed
-                  ? `Food Lust is maxed (${formatNum(alerts?.['World 3']?.equinox?.foodLustStacks)} stacks)`
-                  : `You have ${formatNum(alerts?.['World 3']?.equinox?.foodLustStacks)} Food Lust stacks`}
+                  ? `Food Lust is maxed (${counted(alerts?.['World 3']?.equinox?.foodLustStacks, 'stack')})`
+                  : `You have ${counted(alerts?.['World 3']?.equinox?.foodLustStacks, 'Food Lust stack')}`}
                        iconPath={'etc/Dream_Upgrade_10'}/> : null}
               {alerts?.['World 3']?.construction?.materials?.length > 0
                 ?
@@ -431,7 +433,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                                                                                        iconPath={`data/${rawName}`}/>)
                 : null}
               {alerts?.['World 3']?.traps?.overdue > 0 ?
-                <Alert target={'World 3.traps.overdue'} title={`${formatNum(alerts?.['World 3']?.traps?.overdue)} traps are overdue`}
+                <Alert target={'World 3.traps.overdue'} title={`${counted(alerts?.['World 3']?.traps?.overdue, 'trap')} ${alerts?.['World 3']?.traps?.overdue === 1 ? 'is' : 'are'} overdue`}
                        iconPath={'data/TrapBoxSet1'}/> : null}
               {alerts?.['World 3']?.hatRack?.missingHats?.length > 0 && !failed('hatRack') ?
                 alerts?.['World 3']?.hatRack?.missingHats?.map(({ itemName, owner, rawName }, index) =>
@@ -466,13 +468,13 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                        title={`You have ${formatNum(alerts?.['World 4']?.tome?.nametagClaim)} Tome ranking nametag${alerts?.['World 4']?.tome?.nametagClaim > 1 ? 's' : ''} available to claim`}
                        iconPath={'data/EquipmentNametag22'}/> : null}
               {alerts?.['World 4']?.cooking?.spices > 0 ?
-                <Alert target={'World 4.cooking.spices'} title={`You have ${formatNum(alerts?.['World 4']?.cooking?.spices)} spice clicks left`}
+                <Alert target={'World 4.cooking.spices'} title={`You have ${counted(alerts?.['World 4']?.cooking?.spices, 'spice click')} left`}
                        iconPath={'data/CookingSpice0'}/> : null}
               {Number.isFinite(alerts?.['World 4']?.cooking?.ribbons) ?
                 <Alert target={'World 4.cooking.ribbons'}
                   title={alerts?.['World 4']?.cooking?.ribbons === 0
                     ? 'Your ribbon shelf is full'
-                    : `You have reached your threshold of ${formatNum(alerts?.['World 4']?.cooking?.ribbons)} empty ribbon slots`}
+                    : `Your ribbon shelf has ${counted(alerts?.['World 4']?.cooking?.ribbons, 'empty slot')} left`}
                   iconPath={'data/Ribbon0'}/> : null}
               {alerts?.['World 4']?.cooking?.mealLadleCost?.count > 0 ?
                 <Alert target={'World 4.cooking.mealLadleCost'}
@@ -547,13 +549,13 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                     key={'captain' + captain?.captainIndex}
                     ariaLabel={`Captain ${captain?.captainIndex} in the shop`}
                     title={<Stack gap={1}>
-                      <Typography variant={'body2'}>Captain {captain?.captainIndex} with {cleanUnderscore(bonus)} from
+                      <Typography variant={'body2'}>Captain {captain?.captainIndex} with {captainBonus(bonus)} from
                         the shop is {enderCaptain ? 'an ender captain (hidden +25% loot and artifact)' : `better
                         than ${badCaptains.length} of
                         your captains`}</Typography>
                       <Stack>
                         {badCaptains?.map(({ captainIndex, bonus }) => <Typography variant={'body2'} key={`cap-${captainIndex}`}>
-                          {captainIndex}: {cleanUnderscore(bonus)}
+                          {captainIndex}: {captainBonus(bonus)}
                         </Typography>)}
                       </Stack>
                     </Stack>}
@@ -596,7 +598,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 5.hole.grotto'} title={`You can kill the monarch`}
                        iconPath={'etc/Grotto'}/> : null}
               {alerts?.['World 5']?.hole?.jars >= 0 ?
-                <Alert target={'World 5.hole.jars'} title={`You can break ${formatNum(alerts?.['World 5']?.hole?.jars)} jars in the jars cavern`}
+                <Alert target={'World 5.hole.jars'} title={`You can break ${counted(alerts?.['World 5']?.hole?.jars, 'jar')} in the jars cavern`}
                        iconPath={'etc/Jar_0'}/> : null}
               {alerts?.['World 5']?.hole?.jarsFull > 0 ?
                 <Alert target={'World 5.hole.jarsFull'} title={`${formatNum(alerts?.['World 5']?.hole?.jarsFull)} jar slot${alerts?.['World 5']?.hole?.jarsFull > 1 ? 's are' : ' is'} full and ready to open`}
@@ -621,15 +623,15 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
     'World 6': <>
               {alerts?.['World 6']?.sneaking?.lastLooted ?
                 <Alert target={'World 6.sneaking.lastLooted'}
-                  title={`You haven't looted rewards from sneaking for ${formatNum(Math.floor(account?.sneaking?.lastLooted / 60))} minutes`}
+                  title={`You haven't looted rewards from sneaking for ${counted(Math.floor(account?.sneaking?.lastLooted / 60), 'minute')}`}
                   iconPath={'data/NjUpgI14'}/> : null}
               {alerts?.['World 6']?.sneaking?.remainingPristineRolls ?
                 <Alert target={'World 6.sneaking.remainingPristineRolls'}
-                  title={`${formatNum(alerts?.['World 6']?.sneaking?.remainingPristineRolls.remaining)} pristine charm rolls remaining (${formatNum(alerts?.['World 6']?.sneaking?.remainingPristineRolls.used)}/120 used)`}
+                  title={`${counted(alerts?.['World 6']?.sneaking?.remainingPristineRolls.remaining, 'pristine charm roll')} remaining (${formatNum(alerts?.['World 6']?.sneaking?.remainingPristineRolls.used)}/120 used)`}
                   iconPath={'data/NjTrP0'}/> : null}
               {alerts?.['World 6']?.sneaking?.remainingSymbolRolls ?
                 <Alert target={'World 6.sneaking.remainingSymbolRolls'}
-                  title={`${formatNum(alerts?.['World 6']?.sneaking?.remainingSymbolRolls.remaining)} symbol rolls remaining (${formatNum(alerts?.['World 6']?.sneaking?.remainingSymbolRolls.used)}/75 used)`}
+                  title={`${counted(alerts?.['World 6']?.sneaking?.remainingSymbolRolls.remaining, 'symbol roll')} remaining (${formatNum(alerts?.['World 6']?.sneaking?.remainingSymbolRolls.used)}/75 used)`}
                   iconPath={'data/NjTrP0'}/> : null}
               {alerts?.['World 6']?.beanstalk?.readyToPlant?.length > 0 && !failed('storage')
                 ?
@@ -646,7 +648,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/SumUpgIc2'}/> : null}
               {alerts?.['World 6']?.summoning?.battleAttempts ?
                 <Alert target={'World 6.summoning.battleAttempts'}
-                  title={`You have ${formatNum(alerts?.['World 6']?.summoning?.battleAttempts)} summoning battle attempts`}
+                  title={`You have ${counted(alerts?.['World 6']?.summoning?.battleAttempts, 'summoning battle attempt')}`}
                   iconPath={'data/Heart'}/> : null}
               {alerts?.['World 6']?.summoning?.familiarExp ?
                 <Alert target={'World 6.summoning.familiarExp'}
@@ -658,11 +660,11 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/SumExp'}/> : null}
               {alerts?.['World 6']?.farming?.missingPlots?.length > 0 ?
                 <Alert target={'World 6.farming.missingPlots'}
-                  title={`You have ${formatNum(alerts?.['World 6']?.farming?.missingPlots?.length)} seeds available to be planted`}
+                  title={`You have ${counted(alerts?.['World 6']?.farming?.missingPlots?.length, 'seed')} available to be planted`}
                   iconPath={'data/FarmPlant1'}/> : null}
               {alerts?.['World 6']?.farming?.plots?.length > 0 ?
                 <Alert target={'World 6.farming.plots'}
-                  title={`${formatNum(alerts?.['World 6']?.farming?.plots?.length)} plots reached the threshold of ${formatNum(alerts?.['World 6']?.farming?.plots?.[0]?.threshold)} OGs (${formatNum(Math.min(1e9, Math.max(1, Math.pow(2, alerts?.['World 6']?.farming?.plots?.[0]?.threshold))), 'mult')})`}
+                  title={`${counted(alerts?.['World 6']?.farming?.plots?.length, 'plot')} reached the threshold of ${formatNum(alerts?.['World 6']?.farming?.plots?.[0]?.threshold)} OGs (${formatNum(Math.min(1e9, Math.max(1, Math.pow(2, alerts?.['World 6']?.farming?.plots?.[0]?.threshold))), 'mult')})`}
                   iconPath={'data/ClassIcons57'}/> : null}
               {alerts?.['World 6']?.farming?.finishedPlots ?
                 <Alert target={'World 6.farming.finishedPlots'}
@@ -672,7 +674,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/FarmPlant1'}/> : null}
               {alerts?.['World 6']?.farming?.totalCrops > 0 ?
                 <Alert target={'World 6.farming.totalCrops'}
-                  title={`You have ${formatNum(alerts?.['World 6']?.farming?.totalCrops, 'whole')} crops ready to be collected`}
+                  title={`You have ${counted(alerts?.['World 6']?.farming?.totalCrops, 'crop')} ready to be collected`}
                   iconPath={'data/FarmPlant6'}/> : null}
               {alerts?.['World 6']?.farming?.beanTrade > 0 ?
                 <Alert target={'World 6.farming.beanTrade'}
@@ -686,7 +688,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/FarmStT3'}/> : null}
               {alerts?.['World 6']?.etc?.emperorAttempts > 0 ?
                 <Alert target={'World 6.etc.emperorAttempts'}
-                  title={`You have reached ${formatNum(alerts?.['World 6']?.etc?.emperorAttempts)} emperor attempts`}
+                  title={`You have reached ${counted(alerts?.['World 6']?.etc?.emperorAttempts, 'emperor attempt')}`}
                   iconPath={'data/Boss6'}/> : null}
     </>,
     'World 7': <>

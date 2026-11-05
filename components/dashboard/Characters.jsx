@@ -10,7 +10,7 @@ import Toolbar from '@components/common/Toolbar';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import { characterStatFacts } from '@components/characters/statFacts';
-import AlertIcon from './AlertIcon';
+import AlertIcon, { counted } from './AlertIcon';
 import {
   alchemyAlerts,
   anvilAlerts,
@@ -139,16 +139,16 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
         <Alert target={'cards.passiveCards'} title={`${name} has a passive card equipped`}
                iconPath={`etc/PassiveCard`}/> : null}
       {trackers?.obols && alerts?.obols?.missingObols?.length > 0 ?
-        <Alert target={'obols.missingObols'} title={`${name} has ${alerts?.obols?.missingObols?.length} empty obol slots`}
+        <Alert target={'obols.missingObols'} title={`${name} has ${counted(alerts?.obols?.missingObols?.length, 'empty obol slot')}`}
                iconPath={'data/ObolLocked1'}/> : null}
       {trackers?.postOffice && alerts?.postOffice?.unspentPoints ?
-        <Alert target={'postOffice.unspentPoints'} title={`${name} has ${formatNum(Math.floor(postOffice?.unspentPoints))} unspent post office points`}
+        <Alert target={'postOffice.unspentPoints'} title={`${name} has ${counted(Math.floor(postOffice?.unspentPoints), 'unspent post office point')}`}
                iconPath={'data/UIboxUpg0'}/> : null}
       {trackers?.anvil && alerts?.anvil?.missingHammers > 0 ?
-        <Alert target={'anvil.missingHammers'} title={`${name} is missing ${alerts?.anvil?.missingHammers} hammers`}
+        <Alert target={'anvil.missingHammers'} title={`${name} is missing ${counted(alerts?.anvil?.missingHammers, 'hammer')}`}
                iconPath={'data/GemP1'}/> : null}
       {trackers?.anvil && alerts?.anvil?.unspentPoints > 0 ?
-        <Alert target={'anvil.unspentPoints'} title={`${name} has ${formatNum(alerts?.anvil?.unspentPoints)} unspent anvil points`}
+        <Alert target={'anvil.unspentPoints'} title={`${name} has ${counted(alerts?.anvil?.unspentPoints, 'unspent anvil point')}`}
                iconPath={'data/ClassIcons43'}/> : null}
       {trackers?.classSpecific && alerts?.classSpecific?.wrongItems?.acWeapon ?
         <Alert target={'classSpecific.wrongItems'} title={`${name} is not in Arcanist form but is using an Arcanist-form weapon`}
@@ -196,11 +196,11 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
           return <Alert target={'anvil.anvilOverdue'} key={`${name}-${characterIndex}`}
                         title={`${cleanUnderscore(name)} ${isFull
                           ? 'production is full'
-                          : `is ${diff} minutes away from being full`}`}
+                          : `is ${counted(diff, 'minute')} away from being full`}`}
                         iconPath={`data/${rawName}`}/>;
         }) : null}
       {trackers?.starSigns && alerts?.starSigns?.missingStarSigns > 0 ?
-        <Alert target={'starSigns.missingStarSigns'} title={`${name} is missing ${alerts?.starSigns?.missingStarSigns} star signs`}
+        <Alert target={'starSigns.missingStarSigns'} title={`${name} is missing ${counted(alerts?.starSigns?.missingStarSigns, 'star sign')}`}
                iconPath={'data/SignStar1b'}/> : null}
       {trackers?.talents && alerts?.talents?.talents?.length > 0 ? alerts?.talents?.talents?.map(({
                                                                                                     name,
@@ -225,12 +225,12 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
           iconPath={'data/LegendTalentIcon0'}/> : null}
       {trackers?.talents && alerts?.talents?.unmaxedTalents?.length > 0 ?
         <Alert target={'talents.unmaxedTalents'}
-          title={<TalentList name={name} verb={'talents below max level'}
+          title={<TalentList name={name} noun={'talent'} verb={'below max level'}
                              talents={alerts?.talents?.unmaxedTalents}/>}
           iconPath={`data/${getTalentBookIcon(character?.class)}`}/> : null}
       {trackers?.talents && alerts?.talents?.libraryUpgradableTalents?.length > 0 ?
         <Alert target={'talents.libraryUpgradableTalents'}
-          title={<TalentList name={name} verb={'talents the Library can raise'}
+          title={<TalentList name={name} noun={'talent'} verb={'the Library can raise'}
                              talents={alerts?.talents?.libraryUpgradableTalents}/>}
           iconPath={`data/${getTalentBookIcon(character?.class)}`}/> : null}
       {trackers?.tools?.checked && alerts?.tools?.length > 0 ? alerts?.tools?.map(({
@@ -320,11 +320,11 @@ const UpgradeArrow = () => <Box component={'span'} sx={{ position: 'absolute', t
 </Box>;
 
 const TALENT_LIST_LIMIT = 15;
-const TalentList = ({ name, verb, talents }) => {
+const TalentList = ({ name, noun, verb, talents }) => {
   const shown = talents?.slice(0, TALENT_LIST_LIMIT);
   const rest = talents?.length - shown?.length;
   return <Stack gap={.5}>
-    <Typography variant={'body2'}>{name} has {talents?.length} {verb}</Typography>
+    <Typography variant={'body2'}>{name} has {counted(talents?.length, noun)} {verb}</Typography>
     {shown?.map(({ name: talentName, skillIndex, level, target }, index) => (
       <Stack key={`${skillIndex}-${index}`} direction={'row'} alignItems={'center'} gap={1}>
         <GameIcon src={`data/UISkillIcon${skillIndex}.png`} size={24} alt={''}/>
@@ -340,7 +340,7 @@ const TalentList = ({ name, verb, talents }) => {
 const BAG_TYPE_NAMES = { bCraft: 'Materials', Foods: 'Food' };
 const BagList = ({ name, bags }) => {
   return <Stack gap={.5}>
-    <Typography variant={'body2'}>{name} has {bags?.length} unmaxed carry bag{bags?.length === 1 ? '' : 's'}</Typography>
+    <Typography variant={'body2'}>{name} has {counted(bags?.length, 'unmaxed carry bag')}</Typography>
     {bags?.map(({ bagType, capacity, maxCapacity, rawName }, index) => (
       <Stack key={`${bagType}-${index}`} direction={'row'} alignItems={'center'} gap={1}>
         <GameIcon src={`data/${rawName}.png`} size={24} alt={''}/>

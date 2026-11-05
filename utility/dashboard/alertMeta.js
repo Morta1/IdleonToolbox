@@ -177,7 +177,7 @@ export const alertMeta = {
     page: { pathname: '/account/clickers/owl', label: 'Owl' },
     options: {
       featherRestart: { label: 'Feather Restart affordable' },
-      megaFeatherRestart: { label: 'Mega Feather Restart affordable' }
+      megaFeatherRestart: { label: 'Megafeather Restart affordable' }
     }
   },
   'account.World 1.forge': {
@@ -462,7 +462,7 @@ export const alertMeta = {
     options: {
       spices: { label: 'Spice clicks left', page: { query: { t: 'Kitchens' }, label: 'Kitchens' } },
       ribbons: {
-        label: 'Empty ribbon slots',
+        label: 'Ribbon shelf filling up',
         help: 'Alerts when the ribbon shelf has this many empty slots or fewer (28 slots).',
         page: { query: { t: 'Ribbons' }, label: 'Ribbons' }
       },

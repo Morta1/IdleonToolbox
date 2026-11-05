@@ -2,6 +2,10 @@ import { Box } from '@mui/material';
 import GameIcon from '@components/common/GameIcon';
 import Tooltip from '@components/Tooltip';
 import { useAlertSettingsProps } from '@components/common/context/DashboardSettingsProvider';
+import { formatNum } from '@utility/helpers';
+
+// A count in an alert's sentence: "1 trap", "49 traps". many: where adding an s isn't the plural.
+export const counted = (count, one, many = `${one}s`) => `${formatNum(count, 'whole')} ${count === 1 ? one : many}`;
 
 const BUTTON_SX = { cursor: 'pointer', '&:focus-visible': { outline: '2px solid', outlineColor: 'primary.main' } };
 

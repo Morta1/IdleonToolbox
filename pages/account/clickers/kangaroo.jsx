@@ -51,7 +51,7 @@ const Kangaroo = () => {
       <StatTile label={'Tar fish per hour'}
                 value={failed || !(kangaroo?.tarFishRate > 0) ? '-' : tarPitOpen ? formatNum(3600 / kangaroo.tarFishRate) : '0'}/>
       <StatTile label={'Shiny progress'} icon={'etc/KShiny.png'}
-                value={number(kangaroo?.shinyProgress, (value) => `${poppyFill(value)}%`)}/>
+                value={number(kangaroo?.shinyProgress, (value) => formatNum(value, 'pct'))}/>
       <StatTile label={'Shiny per minute'} value={number(kangaroo?.shinyRatePercent, (value) => `${poppyFill(value)}%`)}/>
       <StatTile label={'Average reset points'} value={number(kangaroo?.avgResetPoints, clickerAmount)}/>
     </PageSummary>
