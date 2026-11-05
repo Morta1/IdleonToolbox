@@ -41,7 +41,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
   };
 
   return <Panel icon={`etc/${bossName}.png`} title={cleanUnderscore(bossName)}
-                meta={isValid(date) ? formatDate(date) : undefined}>
+                meta={isValid(date) ? formatDate(date, { showSeconds: false }) : undefined}>
     <Stack gap={3} sx={{ p: 2 }}>
       <Stack gap={1}>
         <Typography variant={'groupLabel'} color={'text.secondary'}>Shop items</Typography>
