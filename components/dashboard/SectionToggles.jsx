@@ -27,8 +27,8 @@ const SortableToggle = ({ value, label, on, onToggle, onMove }) => {
   return <FilterPill ref={setNodeRef} value={value} on={on} label={label} onToggle={onToggle} {...listeners} onKeyDown={handleKeyDown}
                      aria-keyshortcuts={'Alt+ArrowLeft Alt+ArrowRight'}
                      sx={{
-                       // A phone's row fits the four pills on one line at 384
-                       px: { xs: 0.75, sm: 1.75 },
+                       // A phone's row fits the four pills on one line at 384, each with the check's room
+                       px: { xs: on ? '6px' : '16px', sm: on ? '14px' : '25px' },
                        gap: { xs: 0.5, sm: 0.75 },
                        fontSize: { xs: 13, sm: 14 },
                        position: 'relative',

@@ -109,13 +109,14 @@ const Show = ({ name = 'show', label, options }) => {
 };
 
 // An on/off filter, a pill you press. Anything else (a ref, a drag's listeners, a key handler, sx) goes to the button.
+// Off keeps the check's room as padding (25 px a side; on: 14, the 16 px check, 6, the text, 14), so a press moves nothing.
 export const FilterPill = ({ value, on, label, onToggle, sx, children, ...rest }) => <ToggleButton
   {...rest}
   value={value ?? label}
   selected={Boolean(on)}
   onChange={onToggle}
   sx={[{
-    borderRadius: 999, px: 1.75, gap: 0.75, whiteSpace: 'nowrap', fontWeight: 400, color: 'text.primary', borderColor: 'outline',
+    borderRadius: 999, px: on ? '14px' : '25px', gap: 0.75, whiteSpace: 'nowrap', fontWeight: 400, color: 'text.primary', borderColor: 'outline',
     '&.Mui-selected, &.Mui-selected:hover': { color: 'primary.main', bgcolor: 'primary.soft', borderColor: 'primary.edge' }
   }, ...(Array.isArray(sx) ? sx : [sx])]}
 >
