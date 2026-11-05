@@ -24,7 +24,7 @@ const Sailing = () => {
       title="Sailing | Idleon Toolbox"
       description="Keep track of your artiacts, boats and captains and their bonuses"
     />
-    {sectionFailed ? <MissingData name={'Sailing'} failed/>
+    {sectionFailed ? <MissingData name={'Sailing'} failed atZero/>
       : sailing?.unlocked === false ? <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached Sailing yet.</Notice> : null}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Chests'} icon={'npcs/Chesty.png'}

@@ -119,8 +119,9 @@ const failedSectionsName = (sections) => (sections.includes('*') ? 'your save' :
 
 // A page's first note when its section is missing or failed to parse (Notices board, "Never replace the page"): the
 // page renders under it. sections: the parse's failed keys, for a page that reads too many to name itself (failed is
-// then implied).
-export const MissingData = ({ name, failed, sections }) => {
+// then implied). atZero: the page keeps its catalog at zero under the note, so the note says so (Notices board, "Nothing
+// of yours"); a page whose body went blank has no zeros to explain.
+export const MissingData = ({ name, failed, sections, atZero }) => {
   const shownName = sections ? failedSectionsName(sections) : name;
   const isFailed = failed || Boolean(sections);
   useEffect(() => {
@@ -130,7 +131,9 @@ export const MissingData = ({ name, failed, sections }) => {
 
   // The name leads (or stands alone): some names carry their own article ("The Button").
   return isFailed
-    ? <Notice tone={'error'} sx={{ mb: 2 }}>{`Couldn't load ${shownName}. That's a bug on my end.`}</Notice>
+    ? <Notice tone={'error'} sx={{ mb: 2 }}>{atZero
+      ? `Couldn't load your ${shownName}, so everything shows at zero. That's a bug on my end.`
+      : `Couldn't load ${shownName}. That's a bug on my end.`}</Notice>
     : <Notice tone={'missing'} sx={{ mb: 2 }}>{`${shownName} has no data in your save yet: it shows up here once it does.`}</Notice>;
 };
 
