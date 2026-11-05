@@ -188,12 +188,12 @@ const Tome = () => {
           </Panel> : null}
         </CardGrid>
         <Box>
-          <Toolbar state={toolbar} defaults={TOME_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+          {sectionFailed ? null : <Toolbar state={toolbar} defaults={TOME_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
                    total={entries.length} shown={shown.length} noun={'entries'}>
             <Toolbar.Search placeholder={'Search the Tome'}/>
             <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
             <Toolbar.View options={[['cards', 'Cards'], ['details', 'Details']]}/>
-          </Toolbar>
+          </Toolbar>}
           <CardGrid size={'m'}>
             {shown.map(({ bonus, position }) => {
               const { name, color, tomeLvReq, quantity, maxPoints, index } = bonus;
