@@ -8,13 +8,6 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 
-// Gambit_0 to 5, the parser's extraCalculations 65 to 70: the parser slices the runs from the save, so the page draws
-// all six for a save that has none yet
-const GAMBIT_RUNS = 6;
-// A bonus's name; the first one carries the game's own '(TAP ME)' hint, which the parser means to drop but misses
-// before its underscores are cleaned
-const bonusName = (name) => cleanUnderscore(name).replace('(TAP ME)', '').trim();
-
 const Gambit = ({ hole }) => {
   const gambit = hole?.caverns?.gambit;
   const nextUnlock = gambit?.nextUnlock;
@@ -26,8 +19,7 @@ const Gambit = ({ hole }) => {
 
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
-      {Array.from({ length: GAMBIT_RUNS }, (_, index) => {
-        const time = gambit?.times?.[index] ?? 0;
+      {(gambit?.times ?? []).map((time, index) => {
         // A record, so the clock stays (Follow-up 5a); 0 is a run never done
         return <StatTile key={`run-${index}`} label={`Gambit ${index + 1}`} icon={`etc/Gambit_${index}.png`}
                          value={time > 0 ? msToClock(time * 1000) : '-'}/>;
@@ -37,7 +29,7 @@ const Gambit = ({ hole }) => {
       <StatTile label={'Points'} value={formatGame(Math.floor(points), 'Holes.GambitPts', { whole: true })}/>
       <StatTile label={'Points multi'} value={`${formatGame(gambit?.pointsMulti ?? 1, 'Holes.GambitPTSmulti')}x`}/>
       {nextUnlock ? <StatTile label={'Next bonus at'} value={formatGame(nextUnlock.pointsReq ?? 0, 'Holes.GambitPtsREQ', { whole: true })}
-                              sub={bonusName(nextUnlock.name)}/> : null}
+                              sub={cleanUnderscore(nextUnlock.name)}/> : null}
       <StatTile label={'Summoning doublers'} value={`${formatNum(doublers?.appointed ?? 0)} / ${formatNum(doublers?.total ?? 0)}`}/>
       {opalsFoundTile(hole, 13)}
     </Stack>
@@ -45,7 +37,7 @@ const Gambit = ({ hole }) => {
       {(gambit?.bonuses ?? []).map(({ name, description, pointsReq }, index) => {
         const reached = points > pointsReq;
         const isNext = !reached && nextUnlock?.pointsReq === pointsReq;
-        return <ItemCard key={`bonus-${index}`} title={bonusName(name)} dimmed={!reached && !isNext}
+        return <ItemCard key={`bonus-${index}`} title={cleanUnderscore(name)} dimmed={!reached && !isNext}
                          status={reached ? 'done' : undefined} statusLabel={reached ? 'Unlocked' : undefined}
                          meta={isNext ? 'Next' : undefined}
                          footer={reached ? null

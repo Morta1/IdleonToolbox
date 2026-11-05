@@ -12,14 +12,13 @@ const MAJIK_LETTERS = ['A', 'B', 'C'];
 
 // A majik's line as the game fills it: } its multiplier to two decimals, { the bonus, | per cosmo schematic, $ per 5
 // opals of the least-invested villager; @_Y and @_Z name the linked gods and go with Doot. Any other @ is the game's
-// line break, which ItemCard.Desc splits on. The parser lists a link with no god for a save that has none (a guest),
-// so only named gods fill the line.
+// line break, which ItemCard.Desc splits on.
 const majikText = ({ description, bonus, hasDoot, godsLinks }, hole, linksGods) => {
   const filled = (description ?? '').replace('}', Math.round(100 * (1 + bonus / 100)) / 100).replace('{', bonus)
     .replace('|', Math.round(bonus * (hole?.cosmoSchematics ?? 0)))
     .replace('$', Math.round(Math.floor((hole?.leastOpalInvestedVillager ?? 0) / 5) * bonus));
   if (!linksGods) return filled;
-  const gods = hasDoot ? [] : (godsLinks ?? []).map((link) => link?.name).filter(Boolean);
+  const gods = hasDoot ? [] : (godsLinks ?? []).map((link) => link?.name);
   return filled.replace('@_Y', gods.join(', ')).replace('@_Z', '');
 };
 

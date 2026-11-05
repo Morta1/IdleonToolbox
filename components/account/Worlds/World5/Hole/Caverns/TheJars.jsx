@@ -94,8 +94,7 @@ const TheJars = ({ hole, sectionFailed }) => {
         {(theJars?.collectibles ?? []).map(({ name, level, description, doubled }, index) =>
           <ItemCard key={`collectible-${index}`} icon={`data/HoleJarC${index}.png`} title={name} level={{ value: level ?? 0 }}
                     dimmed={!(level > 0)}
-                    // The parser marks the first collectible doubled for a save that has picked none (a guest)
-                    aside={doubled && level > 0
+                    aside={doubled
                       ? <Typography variant={'caption'} color={'secondary'}>x2 Doubled</Typography> : null}>
             {/* The parser turned the game's @ into \n: back to @, so ItemCard.Desc draws each line */}
             <ItemCard.Desc text={(description ?? '').replaceAll('\n', '@')}/>

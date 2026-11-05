@@ -12,10 +12,6 @@ import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 
 import { HARP_STRING_LETTERS as STRING_LETTERS, harpNoteIcon } from '@parsers/world-5/caverns/the-harp';
 
-// The harp notes are the ten hole resources 10 to 19 (getHoleResourceIcon); the parser slices them from the save, so
-// the page draws all ten for a save that has none yet
-const HARP_NOTES = 10;
-
 const TheHarp = ({ hole }) => {
   const theHarp = hole?.caverns?.theHarp;
   const strings = theHarp?.stringNotes ?? [];
@@ -33,8 +29,7 @@ const TheHarp = ({ hole }) => {
     <Stack gap={1} mb={3}>
       <Typography variant={'sectionTitle'} component={'h2'}>Notes</Typography>
       <CardGrid size={'icon'}>
-        {Array.from({ length: HARP_NOTES }, (_, index) => {
-          const owned = theHarp?.notes?.[index] ?? 0;
+        {(theHarp?.notes ?? []).map((owned, index) => {
           const name = `Harp note ${index + 1}`;
           return <IconTile key={`note-${index}`} icon={`data/HoleHarpNote${index}.png`} alt={name}
                            value={<Num value={owned} game={'Holes.HarpNoteProduced'} whole/>}

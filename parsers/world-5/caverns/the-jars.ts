@@ -89,7 +89,8 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
       // @ is the game's line break
       description: description.replace('{', String(bonus)).replace('}', String(1 + bonus / 100))
         .replace('$', rupieValueText).replace(/@/g, '\n'),
-      doubled: holesObject?.extraCalculations?.[62] === index
+      // game: 0 <= Holes[11][62] and 1 <= its level, so a save that has picked none (-1, or no slot at all) doubles nothing
+      doubled: level >= 1 && holesObject?.extraCalculations?.[62] === index
     }
   });
 

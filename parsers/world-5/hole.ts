@@ -216,11 +216,11 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
       }
       else {
         if (majikIndex === 2 && bonusIndex === 0) {
-          if (extraCalculations?.[29] !== -1) {
-            godsLinks.push({ index: extraCalculations?.[29], name: gods?.[extraCalculations?.[29]]?.name })
+          if (extraCalculations?.[29] > -1 && gods?.[extraCalculations[29]]) {
+            godsLinks.push({ index: extraCalculations[29], name: gods[extraCalculations[29]].name })
           }
-          if (extraCalculations?.[30] !== -1) {
-            godsLinks.push({ index: extraCalculations?.[30], name: gods?.[extraCalculations?.[30]]?.name })
+          if (extraCalculations?.[30] > -1 && gods?.[extraCalculations[30]]) {
+            godsLinks.push({ index: extraCalculations[30], name: gods[extraCalculations[30]].name })
           }
         }
       }
@@ -749,7 +749,8 @@ const getStudies = (holesObject: any, villagerLevel: any, account: any) => {
   const locations = ['Shallow Caverns', 'Glowshroom Tunnels', 'Underground Overgrowth', 'Sentinel Caverns']
   const peripheralVision = !!isSuperbitUnlocked(account, 'Peripheral_Vision');
   const names = holesInfo?.[68];
-  const activeStudy = holesObject?.extraCalculations?.[61];
+  // game: a study only runs once Bolaia has a level (1 <= Holes[1][4]); before that the save's 0 names no study
+  const activeStudy = villagerLevel >= 1 ? holesObject?.extraCalculations?.[61] : null;
   const studies = holesInfo?.[69]?.map((description: any, index: any) => {
     const listIndex = Math.floor(index / 5);
     const bonus = getStudyBonus(holesObject, index, 0);
