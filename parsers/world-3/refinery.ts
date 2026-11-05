@@ -1,4 +1,4 @@
-import { cleanUnderscore, growth, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, gameFill, growth } from '@utility/helpers';
 import { items, randomList, refinery } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { calculateItemTotalAmount } from '@parsers/items';
@@ -391,7 +391,7 @@ export const getSaltsBalance = (account: Account, characters: any[], precomputed
       ? createBreakdown('Max safe rank', maxSafeRank, [
         ...(previousCost ? [flat(cleanUnderscore(previousSalt?.saltName) ?? '', saltMaxSafeRank)] : []),
         ...printerLimits.map(({ name, printedPerHour, neededPerHour, maxRank }) => flat(cleanUnderscore(name) ?? '', maxRank, {
-          note: `Printing ${notateNumber(printedPerHour)}/hr, needs ${notateNumber(neededPerHour)}/hr`
+          note: `Printing ${gameFill(printedPerHour, 'Big')}/hr, needs ${gameFill(neededPerHour, 'Big')}/hr`
         }))
       ], { combine: 'min' })
       : null;

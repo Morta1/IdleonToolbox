@@ -1,4 +1,4 @@
-import { commaNotation, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
+import { gameFill, lavaLog, lavaLog2, tryToParse } from '@utility/helpers';
 import { bubbaUpgrades, generalSpelunky } from '@website-data';
 import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
@@ -71,9 +71,7 @@ const parseBubba = (rawBubba: any, account: any) => {
     };
     if (index === 0) {
       const value = 1 + (getMegafleshOwned(rawBubba, 0) * getTotalQTYofLVs(rawBubba)) / 100;
-      const formatted = value < 100
-        ? String(notateNumber(value, 'MultiplierInfo')).replace('#', '')
-        : commaNotation(value);
+      const formatted = gameFill(value, value < 100 ? 'MultiplierInfo' : 'Comma');
       return { ...base, totalBonus: formatted };
     }
     if (index === 11) {
@@ -83,7 +81,7 @@ const parseBubba = (rawBubba: any, account: any) => {
       return {
         ...base,
         amount,
-        totalBonus: String(notateNumber(value, 'MultiplierInfo')).replace('#', '')
+        totalBonus: gameFill(value, 'MultiplierInfo')
       };
     }
     return base;
@@ -342,19 +340,13 @@ const formatUpgradeDescription = (rawBubba: any, upgradeIndex: any) => {
 
   // Replace { with bonus value
   if (description.includes('{')) {
-    const bonusValue = bonus < 1e6
-      ? commaNotation(bonus)
-      : notateNumber(bonus, 'Big');
-    description = description.replace('{', '' + bonusValue);
+    description = description.replace('{', gameFill(bonus, bonus < 1e6 ? 'Comma' : 'Big'));
   }
 
   // Replace } with multiplier (1 + bonus / 100)
   if (description.includes('}')) {
     const multiplier = 1 + bonus / 100;
-    let multiplierStr = '' + notateNumber(multiplier, 'MultiplierInfo');
-    // Remove # if present
-    multiplierStr = multiplierStr.replace(/#/g, '');
-    description = description.replace('}', multiplierStr);
+    description = description.replace('}', gameFill(multiplier, 'MultiplierInfo'));
   }
 
   // Replace $ with special values

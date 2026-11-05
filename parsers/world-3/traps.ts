@@ -7,7 +7,7 @@ import { getPrayerBonusAndCurse } from '@parsers/world-3/prayers';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getTrappingStuff } from '@parsers/character';
 import { getFoodBonus, getSkillCardBonus } from '@parsers/misc';
-import { cleanUnderscore, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, gameFill } from '@utility/helpers';
 import { checkCharClass, CLASSES, getCharacterByHighestTalent, getTalentBonus, unownedTalentBonus } from '@parsers/talents';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
@@ -252,11 +252,11 @@ export const getShinyChance = (character: any, account: any): ShinyChance & { so
 // shiny and the surplus buys nothing on that critter.
 const formatChance = (value: number) => {
   if (value >= 100) return '100%';
-  if (value >= 1) return `${notateNumber(value, 'Big')}%`;
+  if (value >= 1) return `${gameFill(value, 'Big')}%`;
   return `${parseFloat(value.toPrecision(3))}%`;
 }
 
-const formatMulti = (value: number) => `x${notateNumber(value, 'MultiplierInfo')}`;
+const formatMulti = (value: number) => `x${gameFill(value, 'MultiplierInfo')}`;
 
 // The shiny chance is per character - the talent, its trapping-level repeat, the equipped boost
 // food and the Shiny Snitch prayer are all character-bound - so the caller picks whose to show,

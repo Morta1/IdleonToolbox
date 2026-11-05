@@ -1,5 +1,5 @@
 import type { IdleonData, Account, ServerVars } from '../types';
-import { growth, notateNumber, tryToParse } from '@utility/helpers';
+import { gameFill, growth, notateNumber, tryToParse } from '@utility/helpers';
 import { arcadeShop } from '@website-data';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
@@ -33,8 +33,8 @@ export const isArcadePlaceholder = (upgrade: any) => /who_knows/i.test(upgrade?.
 // game: the ArcadeShopInfo text, "{" -> NotateNumber(bonus, "Smaller") and "}" -> NotateNumber(1 + bonus/100,
 // "MultiplierInfo") with "#" stripped (the "}x_" entries are multipliers)
 export const formatArcadeEffect = (effect: string = '', bonus: number = 0) => effect
-  .replace('{', String(notateNumber(bonus, 'Smaller')))
-  .replace('}', String(notateNumber(1 + bonus / 100, 'MultiplierInfo')).replace('#', ''));
+  .replace('{', gameFill(bonus, 'Smaller'))
+  .replace('}', gameFill(1 + bonus / 100, 'MultiplierInfo'));
 
 const GOLDEN_YELLOW_PALETTE = 15;
 const GOLD_BALL_ARCADE_BONUS = 39;

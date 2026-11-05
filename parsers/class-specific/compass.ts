@@ -159,6 +159,7 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
       index
     }
   });
+  let topOfTheMorninKills;
   upgrades = upgrades.map((upgrade, index) => {
     const bonus = getLocalCompassBonus(upgrades, index);
     const nextLevelBonus = getCompassBonusAtLevel(upgrades, index, upgrade?.level + 1);
@@ -169,6 +170,7 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
       const killsLeft = Math.max(0, accountData?.accountOptions?.[OPT.topOfTheMorninKillsLeft] ?? 0);
       const total = getLocalCompassBonus(upgrades, 9) + getLocalCompassBonus(upgrades, 71);
       killsProgress = { kills: total - killsLeft, total };
+      topOfTheMorninKills = killsProgress;
     }
     const smallNotation = upgrade?.x5 < SMALL_NOTATION_BELOW;
     let description = upgrade?.description
@@ -218,7 +220,8 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
     usedExaltedStamps: exaltedStampsRaw?.length ?? 0,
     remainingExaltedStamps,
     totalUpgradeLevels,
-    totalDustsCollected
+    totalDustsCollected,
+    topOfTheMorninKills
   }
 }
 
@@ -543,17 +546,17 @@ const getTotalBonusText = (index: number, bonus: number, accountData: any): stri
   const dustOwned = (dustIndex: number) => lavaLog(accountData?.accountOptions?.[357 + dustIndex] ?? 0);
   switch (index) {
     case 22:
-      return commaNotation(bonus * dustOwned(0));
+      return gameFill(bonus * dustOwned(0), 'Comma');
     case 23:
-      return commaNotation(bonus * dustOwned(3));
+      return gameFill(bonus * dustOwned(3), 'Comma');
     case 26:
-      return notateNumber(Math.pow(1 + bonus / 100, accountData?.accountOptions?.[OPT.ninjaMasteryTier] ?? 0), 'MultiplierInfo') + 'x';
+      return gameFill(Math.pow(1 + bonus / 100, accountData?.accountOptions?.[OPT.ninjaMasteryTier] ?? 0), 'MultiplierInfo') + 'x';
     case 30:
-      return commaNotation(bonus * dustOwned(1));
+      return gameFill(bonus * dustOwned(1), 'Comma');
     case 34:
-      return commaNotation(bonus * dustOwned(2));
+      return gameFill(bonus * dustOwned(2), 'Comma');
     case 36:
-      return String(notateNumber(100 * (1 - 1 / (1 + bonus / 100)), 'Small'));
+      return gameFill(100 * (1 - 1 / (1 + bonus / 100)), 'Small');
     default:
       return null;
   }
@@ -573,10 +576,13 @@ const getTempestAllDropBonus = (account: any, dropRate: number) => (0 < (account
 
 // game: the compass panel's "$" that read the character (the rest getTotalBonusText fills at the parse). 2's element and
 // 121's multi read the Tempest gear worn right now (EffectAmount, WWzWepAtk), so their sentences say that in words.
-export const getCompassDollar = (index: number, account: any, { dropRate = 0, mapIndex = 0 }: { dropRate?: number; mapIndex?: number } = {}) => {
+export const getCompassDollar = (index: number, account: any, { dropRate: rawDropRate = 0, mapIndex = 0 }: { dropRate?: number; mapIndex?: number } = {}) => {
   const bonus = (upgradeIndex: number) => getCompassBonus(account, upgradeIndex);
+  // A failed section's drop rate can read NaN: the sentence reads the base chance
+  const dropRate = Number.isFinite(rawDropRate) ? rawDropRate : 1;
   const allDrop = getTempestAllDropBonus(account, dropRate);
-  const oneIn = (chance: number) => gameFill(1 / Math.max(1e-7, chance), 'Comma', { whole: true });
+  // A sure drop reads 1 in 1, where the panel's CommaNotation prints 1 in 0
+  const oneIn = (chance: number) => gameFill(Math.max(1, 1 / Math.max(1e-7, chance)), 'Comma', { whole: true });
   switch (index) {
     case 2:
       return 'the one your Tempest gear gives';

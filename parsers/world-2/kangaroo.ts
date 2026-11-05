@@ -1,5 +1,5 @@
 import { poppyBonuses, poppyTarBonuses } from '@website-data';
-import { commaNotation, notateNumber } from '@utility/helpers';
+import { gameFill } from '@utility/helpers';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
@@ -233,10 +233,10 @@ const formatDescription = (account: any, level: any, desc: any, upgradesIndex: a
   const optionValue = account?.accountOptions?.[index] ?? 0;
   const lvl = level ?? 0;
   let newDesc = desc;
-  newDesc = newDesc.replace('{', '' + commaNotation(optionValue * (data[i]?.x6)));
+  newDesc = newDesc.replace('{', gameFill(optionValue * (data[i]?.x6), 'Comma'));
   newDesc = newDesc.replace(']', '' + Math.round(100 + (lvl * (data[i]?.x6))) / 100);
-  newDesc = newDesc.replace('~', '' + notateNumber(100 * (1 - 1 / (1 + lvl * (data[i]?.x6) / 100)), 'Small'));
-  newDesc = newDesc.replace('?', '' + notateNumber((data[i]?.x6) * (lvl / (40 + lvl)), 'Small'));
+  newDesc = newDesc.replace('~', gameFill(100 * (1 - 1 / (1 + lvl * (data[i]?.x6) / 100)), 'Small'));
+  newDesc = newDesc.replace('?', gameFill((data[i]?.x6) * (lvl / (40 + lvl)), 'Small'));
   return newDesc;
 }
 

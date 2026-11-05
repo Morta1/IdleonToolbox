@@ -1,4 +1,4 @@
-import { growth, tryToParse } from '@utility/helpers';
+import { gameFill, growth, tryToParse } from '@utility/helpers';
 import { chips, classes, jewels, labBonuses, merits, randomList, talents } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
@@ -212,7 +212,7 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
       bonusOn: updatedBonus,
       jewelBoost,
       description: MULTIPLIER_TEXT_LAB_BONUSES.includes(index)
-        ? bonus?.description?.replace(baseMulti, (1 + updatedBonus / 100).toFixed(2))
+        ? bonus?.description?.replace(baseMulti, gameFill(1 + updatedBonus / 100, 'MultiplierInfo'))
         : bonus?.description
     };
   })

@@ -1,5 +1,5 @@
 import { equipmentSets, randomList } from '@website-data';
-import { notateNumber } from '@utility/helpers';
+import { gameFill } from '@utility/helpers';
 import { isBundlePurchased } from '@parsers/misc';
 import { getBestActiveCharacter } from '@parsers/talents';
 import type { IdleonData, Account, ServerVars } from '../types';
@@ -36,7 +36,7 @@ export const getArmorSmithy = (idleonData: IdleonData, serverVars: ServerVars, a
     .map((set) => {
       const description = set.description.replace('|', '_')
         .replace('{', String(set.bonusValue))
-        .replace('}', String(notateNumber(1 + set.bonusValue / 100, 'MultiplierInfo')))
+        .replace('}', gameFill(1 + set.bonusValue / 100, 'MultiplierInfo'))
       const unlocked = unlockedSets.includes(set?.setName);
       // game: GetSetBonus(set, "Bonus") also counts a set the logged-in character wears in full,
       // whether or not it was ever handed in to the smithy

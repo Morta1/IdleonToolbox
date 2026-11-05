@@ -1,4 +1,4 @@
-import { cleanUnderscore, growth } from '@utility/helpers';
+import { gameFill, cleanUnderscore, growth } from '@utility/helpers';
 import { Stack, Typography } from '@mui/material';
 import React from 'react';
 import { FLURBO_UPGRADE_MAX_LEVEL as flurboUpgradeMaxLevel, INSIDE_UPGRADE_MAX_LEVEL as insideDungeonUpgradeMaxLevel } from '@parsers/dungeons';
@@ -32,8 +32,8 @@ const calcCostToMax = (isFlurbo, level, cap) => {
   return total;
 };
 
-// The game's passive line (N.js, the DungPassiveStats draw): the bonus rounded to a tenth
-const bonusText = (upgrade) => `+${Math.round(10 * growth(upgrade?.func, upgrade?.level, upgrade?.x1, upgrade?.x2)) / 10}${upgrade?.type === '%' ? '%' : ''}`;
+// The game's passive line (N.js, the DungPassiveStats draw), with the decimals it has
+const bonusText = (upgrade) => `+${gameFill(growth(upgrade?.func, upgrade?.level, upgrade?.x1, upgrade?.x2), 'Comma')}${upgrade?.type === '%' ? '%' : ''}`;
 
 const UpgradeList = ({ isFlurbo, upgrades = [], balance, sectionFailed }) => {
   const cap = isFlurbo ? flurboUpgradeMaxLevel : insideDungeonUpgradeMaxLevel;

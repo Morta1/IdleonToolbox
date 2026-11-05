@@ -65,14 +65,15 @@ const GAME = {
   // Summoning("VaultUpgTotal") and Summoning("VaultUpgUNLOCKED")
   totalLevels: 11317,
   unlockedCount: 90,
-  // the description placeholders the vault screen fills in, game functions applied to the same inputs
+  // the description placeholders the vault screen fills in, game functions applied to the same inputs. The site's rule
+  // shows a sentence's decimals: the panel itself reads +8%, +3,878%, +362% and +288% for 15, 17, 35 and 41
   descriptionValues: {
-    15: ['+8%', 'Walking_Stick', '+71%'],
-    17: ['+3,878%'],
+    15: ['+7.9%', 'Walking_Stick', '+71%'],
+    17: ['+3,878.04%'],
     34: ['+7800%'],
-    35: ['+362%'],
+    35: ['+362.08%'],
     37: ['+193,545%'],
-    41: ['+288%'],
+    41: ['+287.64%'],
     70: ['+5,200%']
   },
   // Grimoire upgrades 13/21/31: RANDOlist[104] names at OptionsListAccount 334/335/336 (78/78/17 of 78)
