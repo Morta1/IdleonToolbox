@@ -52,8 +52,8 @@ export const textOf = (node) => {
 
 // A number, a number pair, or a value with nothing to read counts as a number: a digit and no word of four letters
 // ("Lv 2,626 → 2,635", "1 in 25,000"). "1.00x Construction Build Rate (+0.25x/lv)" is words.
-export const isNumberLike = (value, kind) => {
-  if (kind || typeof value === 'number') return true;
+export const isNumberLike = (value, how) => {
+  if (how || typeof value === 'number') return true;
   const text = textOf(value);
   // Past a pair it is a list ("200 / 520 / 1,352 / ..."), which wraps between its numbers rather than leave the card.
   return !text || (/\d/.test(text) && !/[A-Za-z]{4,}/.test(text) && text.split(' / ').length <= 2);

@@ -121,19 +121,19 @@ const Desc = ({ text, children }) => {
   </Stack>;
 };
 
-// Label left, value right, so numbers line up down the card. A row is [label, value, kind?]; a falsy row
-// is skipped, and no rows draw nothing (no empty gap in the card).
+// Label left, value right, so numbers line up down the card. A row is [label, value, how?], how being what numOrNode takes;
+// a falsy row is skipped, and no rows draw nothing (no empty gap in the card).
 const Facts = ({ rows }) => {
   const shown = rows.filter(Boolean);
   if (!shown.length) return null;
   return <Stack gap={0.5}>
-    {shown.map(([label, value, kind], index) => {
-      const numeric = isNumberLike(value, kind);
+    {shown.map(([label, value, how], index) => {
+      const numeric = isNumberLike(value, how);
       return <Stack key={index} direction={'row'} justifyContent={'space-between'} alignItems={'baseline'}
                     sx={numeric ? ROW_SX : TEXT_ROW_SX}>
         <Typography variant={'body2'} color={'text.secondary'} component={'div'}
                     sx={!numeric && textOf(label).length <= SHORT_LABEL ? SHORT_LABEL_SX : undefined}>{label}</Typography>
-        <Typography variant={'body2'} component={'div'} sx={numeric ? VALUE_SX : TEXT_VALUE_SX}>{numOrNode(value, kind)}</Typography>
+        <Typography variant={'body2'} component={'div'} sx={numeric ? VALUE_SX : TEXT_VALUE_SX}>{numOrNode(value, how)}</Typography>
       </Stack>;
     })}
   </Stack>;
@@ -141,16 +141,16 @@ const Facts = ({ rows }) => {
 
 // Side-by-side numbers, caption over value, each on the inset surface (the page color).
 const Stats = ({ cols }) => <Box sx={{ display: 'grid', gridAutoFlow: 'column', gridAutoColumns: '1fr', gap: 1 }}>
-  {cols.map(([label, value, kind], index) => <Stack key={index}
+  {cols.map(([label, value, how], index) => <Stack key={index}
                                                     sx={{ px: 1, py: 1, borderRadius: 1, bgcolor: 'background.default' }}>
     <Typography variant={'caption'} color={'text.secondary'} sx={{ lineHeight: '16px' }}>{label}</Typography>
-    <Typography variant={'value'} component={'div'}>{numOrNode(value, kind)}</Typography>
+    <Typography variant={'value'} component={'div'}>{numOrNode(value, how)}</Typography>
   </Stack>)}
 </Box>;
 
 // One bar: label, numbers, 6 px. percent overrides value / max for a bar that does not start at zero
 // (a Menagerie mission measures from its last claim), and value and max may then be ready-made nodes. barLabel names the
-// bar where the label is a node (a name with its i).
+// bar where the label is a node (a name with its i). kind is what numOrNode takes.
 const Progress = ({ label, barLabel, value, max, kind = 'amount', percent: fill }) => {
   const percent = fill ?? (max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 100);
   return <Stack gap={0.75}>

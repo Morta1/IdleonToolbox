@@ -70,7 +70,7 @@ const TILE_MAX = 'var(--tile-max, 72px)';
 // is not a button.
 // phoneDetails go with onSelect: below 600 px, where the page's details Panel does not show, a pick also pins the
 // picked tile's details as its note (sized to a table), so the grid keeps the screen.
-// sub: a dimmer line under the value, inside a sheet (a talent's "/ max").
+// sub: a dimmer line under the value, inside a sheet (a talent's "/ max"). kind is what numOrNode takes.
 const IconTile = ({ icon, fallback, alt = '', value, kind, sub, frame, height = 72, badge, mark, markAlt, status, details, onSelect, selected,
   phoneDetails }) => {
   const small = Boolean(useSheet());

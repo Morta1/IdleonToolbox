@@ -24,7 +24,7 @@ describe('gameNotation', () => {
 // data does not have prints in Big without a word, so every literal key a component passes must exist. Big itself
 // is a mode, ItemCard.Cost's default.
 const MODES = new Set(['Big']);
-const KEY_USES = [/\bgame=\{?\s*['"]([^'"]+)['"]/g, /\bformatGame\([^,()]+(?:\([^()]*\))?[^,()]*,\s*['"]([^'"]+)['"]/g];
+const KEY_USES = [/\bgame=\{?\s*['"]([^'"]+)['"]/g, /\{\s*game:\s*['"]([^'"]+)['"]/g, /\bformatGame\([^,()]+(?:\([^()]*\))?[^,()]*,\s*['"]([^'"]+)['"]/g];
 
 it('names only keys the game data has, wherever a component asks for the game format', () => {
   const unknown = [];

@@ -26,4 +26,15 @@ describe('ItemCard', () => {
     const { container } = renderCard(<ItemCard title={'Familiar'} footer={<ItemCard.Cost {...cost}/>}/>);
     expect(container.querySelector('article').lastChild.textContent).toBe(expected);
   });
+
+  // Holes.Bravery_MonsterHP is a Comma stat in the game's data, so from 1M up the game's rule reads apart from the kind's.
+  it.each([
+    ['a kind', 'amount', '1.24M'],
+    ['the game\'s rule', { game: 'Holes.Bravery_MonsterHP' }, '1,234,568'],
+    ['the game\'s rule and a unit', { game: 'Holes.Bravery_MonsterHP', unit: 'x' }, '1,234,568x'],
+    ['nothing', undefined, '1234567.5']
+  ])('prints a row\'s number by %s', (_, how, expected) => {
+    const { container } = renderCard(<ItemCard title={'Familiar'}><ItemCard.Facts rows={[['Health', 1234567.5, how]]}/></ItemCard>);
+    expect(container.querySelector('article').textContent).toBe(`FamiliarHealth${expected}`);
+  });
 });
