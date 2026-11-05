@@ -89,10 +89,7 @@ const AddGoalButton = () => {
   return (
     <>
       <Button sx={headerActionSx}
-              startIcon={<>
-                <IconTargetArrow size={20} style={{ display: 'var(--wide-only, block)' }}/>
-                <IconPlus size={16} style={{ display: 'var(--phone-only, none)' }}/>
-              </>}
+              startIcon={<IconTargetArrow size={20}/>}
               onClick={(e) => {
                 setAnchorEl(e.currentTarget);
                 setOpen(views.length ? 'panel' : 'add');

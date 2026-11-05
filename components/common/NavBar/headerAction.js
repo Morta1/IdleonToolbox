@@ -5,10 +5,7 @@ const PHONE = '@media (max-width: 599.95px)';
 const HIT_AREA = { content: '""', position: 'absolute', inset: '-6px 0' };
 
 export const headerActionSx = {
-  // Add goal's two icons: the target from sm, the board's plus below it
-  '--wide-only': 'block', '--phone-only': 'none',
   [PHONE]: {
-    '--wide-only': 'none', '--phone-only': 'block',
     minHeight: 32, minWidth: 0, px: 0.5, py: 0, fontSize: 13, whiteSpace: 'nowrap', flexShrink: 0,
     '& .MuiButton-startIcon': { mr: 0.5, ml: 0 },
     '& .MuiButton-startIcon svg': { width: 16, height: 16 },
