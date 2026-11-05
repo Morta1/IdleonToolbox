@@ -108,16 +108,18 @@ const Show = ({ name = 'show', label, options }) => {
                     fullWidth={placement === 'panel'}/>;
 };
 
-// An on/off filter, a pill you press.
-export const FilterPill = ({ value, on, label, onToggle }) => <ToggleButton
+// An on/off filter, a pill you press. Anything else (a ref, a drag's listeners, a key handler, sx) goes to the button.
+export const FilterPill = ({ value, on, label, onToggle, sx, children, ...rest }) => <ToggleButton
+  {...rest}
   value={value ?? label}
   selected={Boolean(on)}
   onChange={onToggle}
-  sx={{
+  sx={[{
     borderRadius: 999, px: 1.75, gap: 0.75, whiteSpace: 'nowrap', fontWeight: 400, color: 'text.primary', borderColor: 'outline',
     '&.Mui-selected, &.Mui-selected:hover': { color: 'primary.main', bgcolor: 'primary.soft', borderColor: 'primary.edge' }
-  }}
+  }, ...(Array.isArray(sx) ? sx : [sx])]}
 >
+  {children}
   {on ? <IconCheck size={16}/> : null}
   {label}
 </ToggleButton>;

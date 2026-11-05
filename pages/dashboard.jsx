@@ -238,8 +238,9 @@ const Dashboard = () => {
       </Toolbar>
       <PageSettings onOpen={() => handleOpenSettings(null, null, 'button')} label={'Configure alerts'}
                     changed={Object.keys(diffTrackers(baseTrackers, config)).length > 0}/>
-      {/* A section's own Toolbar pins right under the page's, the way a pinned tab strip takes this variable */}
-      <Stack gap={2} sx={{ '--page-tabs-pinned': `${Math.max(0, sectionsBarBottom - pageTop)}px` }}>
+      {/* A section's own Toolbar pins right under the page's, the way a pinned tab strip takes this variable. Its own
+          stacking context keeps it under the page's bar while it scrolls up to its pin. */}
+      <Stack gap={2} sx={{ position: 'relative', zIndex: 0, '--page-tabs-pinned': `${Math.max(0, sectionsBarBottom - pageTop)}px` }}>
         <DashboardSettingsProvider onOpenAlert={handleOpenAlert}
                                    labelFor={(configType, target, extra) => alertLabel(config, configType, target, extra)}
                                    hrefFor={(configType, target) => {
