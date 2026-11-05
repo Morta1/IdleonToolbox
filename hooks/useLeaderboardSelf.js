@@ -3,7 +3,8 @@ import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 
 // Who "you" are on the leaderboards: the Anon# id this browser last uploaded under, else the first
-// character. Mantine reads storage in an effect, so the export and the first client render agree.
+// character, for a signed-in account or a player's own imported save. A demo or a viewed profile is someone else's save:
+// its first character would look up a stranger who shares the name, and show them as "You". Mantine reads storage in an effect, so the export and the first client render agree.
 // For a signed-in account the name stays null until that read has landed for the current uid,
 // otherwise the main character would show for one render and cost a wasted /player lookup.
 const useLeaderboardSelf = () => {
@@ -17,7 +18,7 @@ const useLeaderboardSelf = () => {
   useEffect(() => {
     setReadUid(uid ?? null);
   }, [uid]);
-  const mainChar = state?.characters?.[0]?.name ?? null;
+  const mainChar = (uid || state?.manualImport) && !state?.demo && !state?.profile ? state?.characters?.[0]?.name ?? null : null;
   const settled = !uid || readUid === uid;
   return {
     name: settled ? (uid && anonId) || mainChar : null,

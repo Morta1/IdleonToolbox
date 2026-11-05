@@ -24,6 +24,12 @@ const RankBadge = ({ rank, plain, strong, dim }) => {
   </Typography>;
 };
 
+// A value and the digits behind it: the digits open from the value, on a click, a tap or Enter. When they read the same
+// there is nothing to open.
+export const ExactValue = ({ text, exact }) => (exact && exact !== text
+  ? <NoteTrigger note={exact} label={`${text}, exact value`} sx={{ zIndex: 1, whiteSpace: 'nowrap' }}>{text}</NoteTrigger>
+  : text);
+
 // plainRank: a maxed board's ten #1s are text, not ten trophies (D7).
 // variant: 'card' rows sit in a metric card (a centred rank column), 'list' and 'around' rows in the drawer (left-aligned);
 // 'around' rows are boxed, so the player's row gets a full outline.
@@ -55,12 +61,13 @@ const RankRow = ({ rank, name, value, notation, scale, display = null, exact = n
       <Box sx={{ minWidth: drawer ? 34 : 30, flexShrink: 0, display: 'flex', justifyContent: drawer ? 'flex-start' : 'center' }}>
         <RankBadge rank={rank} plain={plainRank} strong={emphasised} dim={dimRank}/>
       </Box>
-      <Link href={profileUrl(name)} target="_blank" color="inherit" noWrap
-            sx={{ minWidth: 0, fontSize: 'inherit', fontWeight: emphasised ? 600 : kind ? 500 : 400, opacity: name?.startsWith('Anon#') ? 0.85 : 1 }}>
+      {/* A long name wraps: there is no hover to read a cut one from. */}
+      <Link href={profileUrl(name)} target="_blank" color="inherit"
+            sx={{ minWidth: 0, overflowWrap: 'anywhere', fontSize: 'inherit', fontWeight: emphasised ? 600 : kind ? 500 : 400, opacity: name?.startsWith('Anon#') ? 0.85 : 1 }}>
         {pinned && kind === 'logged' ? `${name} (you)` : name}
       </Link>
       {kind && !(pinned && kind === 'logged') ? <Box component="span" sx={visuallyHidden}>{SPOKEN_KIND[kind]}</Box> : null}
-      {globalRank ? <Typography variant="caption" color="text.muted" noWrap>global {rankText(globalRank)}</Typography> : null}
+      {globalRank ? <Typography variant="caption" color="text.muted" sx={{ whiteSpace: 'nowrap' }}>global {rankText(globalRank)}</Typography> : null}
       <Box sx={{ flexGrow: 1 }}/>
       {maxCheck ? (
         <Stack direction="row" alignItems="center" gap={0.5} sx={{ color: 'text.success', typography: 'caption' }}>
@@ -68,9 +75,9 @@ const RankRow = ({ rank, name, value, notation, scale, display = null, exact = n
           max
         </Stack>
       ) : (
-        // The value never shrinks: on a narrow row the name truncates, not the number.
-        <Typography component="div" color="text.secondary" noWrap sx={{ fontSize: 'inherit', flexShrink: 0, overflow: 'visible', fontVariantNumeric: 'tabular-nums' }}>
-          {exact ? <NoteTrigger note={exact} label={`${text}, exact value`}>{text}</NoteTrigger> : text}
+        // The value never shrinks: on a narrow row the name wraps, not the number.
+        <Typography component="div" color="text.secondary" sx={{ fontSize: 'inherit', flexShrink: 0, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+          <ExactValue text={text} exact={exact}/>
         </Typography>
       )}
     </Stack>

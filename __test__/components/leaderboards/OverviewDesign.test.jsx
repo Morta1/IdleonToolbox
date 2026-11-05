@@ -102,11 +102,11 @@ describe('Overview You card', () => {
     const label = await screen.findByText('You');
     expect(label.parentElement.textContent).toBe('You · Baker333');
     expect(screen.getByText('#75')).toBeTruthy();
-    expect(screen.getByText('of 2,608 · top 2.9% · 14,901.02 pts')).toBeTruthy();
-    const tile = (name) => screen.getByText(name).closest('[data-stat]').textContent;
-    expect(tile('First places')).toBe('1First places+1 at the max');
-    expect(tile('Top 25')).toBe('1Top 25');
-    expect(tile('Top 100')).toBe('2Top 100');
+    expect(screen.getByText('of 2,608 · top 2.88% · 14,901.02 pts')).toBeTruthy();
+    const tile = (name) => screen.getByText(name).closest('[data-card-title-value]').textContent;
+    expect(tile('First places')).toBe('First places1+1 at the max');
+    expect(tile('Top 25')).toBe('Top 251');
+    expect(tile('Top 100')).toBe('Top 1002');
     expect(document.body.textContent).not.toMatch(/\bcap\b/i);
   });
 
@@ -114,12 +114,12 @@ describe('Overview You card', () => {
     const tiedData = { ...withMax, ranks: { ...withMax.ranks, coins: { r: 1, v: 9, p: 3.4, t: 88 } } };
     renderOverview({ player: { context: logged, data: tiedData } });
     await screen.findByText('You');
-    expect(screen.getByText('First places').closest('[data-stat]').textContent).toBe('2First places1 tied+1 at the max');
-    fireEvent.mouseOver(screen.getByRole('button', { name: 'About first places' }));
-    const tip = await screen.findByRole('tooltip');
-    expect(tip.textContent).toMatch(/#1 alone: /);
-    expect(tip.textContent).toMatch(/Tied for #1: .*\(88 players\)/);
-    expect(tip.textContent).toMatch(/At the max: .*not counted as first places/);
+    expect(screen.getByText('First places').closest('[data-card-title-value]').textContent).toBe('First places21 tied+1 at the max');
+    expect(screen.getByText('Mining')).toBeTruthy();
+    expect(screen.getByText('Coins (88 players)')).toBeTruthy();
+    expect(screen.getByText('Log Book')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'About At the max' }));
+    expect((await screen.findByRole('tooltip')).textContent).toMatch(/not counted as first places/);
   });
 
   it('offers a way back from a searched player on the card itself', async () => {
@@ -148,17 +148,16 @@ describe('Overview highlights', () => {
 
   it('puts the tab and value under the label and the rank on the right', async () => {
     show([{ metric: 'mining', value: 240, rank: 3, topPercent: 0.2 }]);
-    const value = (await screen.findAllByText('240')).find((el) => el.parentElement.textContent === 'Skills · 240');
-    expect(value.getAttribute('title')).toBe('240');
+    expect(await screen.findByText('Skills · 240')).toBeTruthy();
     expect(screen.getByText('Your highlights')).toBeTruthy();
-    expect(screen.getByText('your strongest boards')).toBeTruthy();
+    expect(screen.getByText('Your strongest boards')).toBeTruthy();
     expect(screen.getByText('#3')).toBeTruthy();
     expect(screen.getByText('top 0.2%')).toBeTruthy();
   });
 
   it('leaves no stray separator or NaN when the value is missing', async () => {
     show([{ metric: 'mining', rank: 3, topPercent: 0.2 }]);
-    const card = (await screen.findByText('Your highlights')).closest('.MuiCard-root');
+    const card = (await screen.findByText('Your highlights')).closest('section');
     expect(within(card).getByText('Skills')).toBeTruthy();
     expect(within(card).queryByText(/·|NaN|undefined/)).toBeNull();
   });
@@ -178,15 +177,15 @@ describe('Overview highlights', () => {
 describe('Overview within reach', () => {
   it('lists label, rank and value, the step and an Around you link', async () => {
     renderOverview({ player: { context: logged, data } });
-    const row = await screen.findByRole('button', { name: /Mining · #3 · 240/ });
-    expect(row.textContent).toContain('+10 to reach #2');
-    expect(row.textContent).toContain('Around you›');
-    expect(screen.getByText('smallest step to the next rank')).toBeTruthy();
+    const panel = (await screen.findByText('Within reach')).closest('section');
+    expect(panel.textContent).toContain('Mining#3 · 240+10 to reach #2Around you');
+    expect(within(panel).getByRole('link', { name: 'Around you' })).toBeTruthy();
+    expect(screen.getByText('Smallest step to the next rank')).toBeTruthy();
   });
 });
 
 describe('Overview category tiles', () => {
-  const tiles = () => screen.getAllByRole('link').filter((link) => /^\?t=/.test(link.getAttribute('href') ?? ''));
+  const tiles = () => screen.getAllByRole('link').filter((link) => /^\?t=\w+$/.test(link.getAttribute('href') ?? ''));
   const rankData = { ...data, ranks: {
     logBook: { r: 7, v: 50, p: 1, t: 1 }, coins: { r: 21, v: 5, p: 4, t: 1 },
     mining: { r: 3, v: 240, p: 0.2, t: 1, nr: 2, nv: 250 }, farming: { r: 100, v: 9, p: 8, t: 1 }
@@ -197,16 +196,16 @@ describe('Overview category tiles', () => {
     await screen.findByText('G1');
     const found = tiles();
     expect(found.map((link) => link.getAttribute('href'))).toEqual(['?t=Account', '?t=Skills']);
-    expect(found[0].textContent).toBe('Account2');
-    expect(screen.queryByText(/median/)).toBeNull();
+    expect(found[0].textContent).toBe('Account2 boards›');
+    expect(screen.queryByText(/Median/)).toBeNull();
   });
 
   it('shows the median rank and the best board of the player in each tab', async () => {
     renderOverview({ player: { context: logged, data: rankData } });
     await screen.findByText('G1');
     const [account, skills] = tiles();
-    expect(account.textContent).toBe('Account2median #14#7 Log Book');
-    expect(skills.textContent).toBe('Skills2median #52#3 Mining');
+    expect(account.textContent).toBe('Account2 boards›Median rank#14Best board#7 Log Book');
+    expect(skills.textContent).toBe('Skills2 boards›Median rank#52Best board#3 Mining');
   });
 
   it('switches tab in place on a plain click and leaves modified clicks to the browser', async () => {

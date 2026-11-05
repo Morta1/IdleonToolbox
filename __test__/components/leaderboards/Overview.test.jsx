@@ -40,7 +40,7 @@ describe('Overview', () => {
     renderOverview({ player: { context: null }, onOpen });
     expect(await screen.findByText('G1')).toBeTruthy();
     expect(screen.getByText('G10')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: /Full top 100/ }));
+    fireEvent.click(screen.getByRole('link', { name: /Full top 100/ }));
     expect(onOpen).toHaveBeenCalledWith('globalRanking', 'overview');
   });
 
@@ -85,7 +85,7 @@ describe('Overview', () => {
     expect(await screen.findByText('Searched player')).toBeTruthy();
     expect(screen.getByText('#75')).toBeTruthy();
     expect(screen.getByText('Highlights')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: /Mining · #3/ }));
+    fireEvent.click(screen.getByRole('link', { name: 'Around them' }));
     expect(onOpen).toHaveBeenCalledWith('mining', 'within_reach');
   });
 

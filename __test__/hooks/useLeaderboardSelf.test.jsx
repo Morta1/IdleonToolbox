@@ -41,6 +41,11 @@ describe('useLeaderboardSelf', () => {
     expect(result.current).toEqual({ name: null, pending: false, participation: null, lastUpload: null });
   });
 
+  it.each([[{ demo: true }], [{ profile: true }], [{}]])('has no self in someone else\'s save: %j', (state) => {
+    const { result } = renderHook(() => useLeaderboardSelf(), { wrapper: wrap({ ...state, characters: [{ name: 'Baker333' }] }) });
+    expect(result.current.name).toBeNull();
+  });
+
   it('is pending while the account is still loading', () => {
     const { result } = renderHook(() => useLeaderboardSelf(), { wrapper: wrap({ isLoading: true }) });
     expect(result.current.pending).toBe(true);

@@ -1,90 +1,65 @@
 import React from 'react';
-import { Button, Card, IconButton, Stack, Typography } from '@mui/material';
+import { Button, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
-import InfoIcon from '@mui/icons-material/Info';
-import Tooltip from '@components/Tooltip';
-import { numberWithCommas } from '@utility/helpers';
+import InfoButton from '@components/common/InfoButton';
+import Panel from '@components/common/cards/Panel';
+import StatTile from '@components/common/cards/StatTile';
+import { formatNum } from '@utility/helpers';
 import { countStanding, firstPlaces, topPercentLabel } from './standing';
 import { HIGHLIGHT, LABEL_COLOR } from './RankRow';
 import { formatMetricValue, rankText } from './format';
 
-const Stat = ({ label, value, sub, info }) => (
-  <Box data-stat sx={{ bgcolor: 'background.paper', borderRadius: 2, p: 1.25 }}>
-    <Typography variant={'heroValue'} component={'div'}>{value}</Typography>
-    <Stack direction="row" alignItems="center" gap={0.5}>
-      <Typography color="text.secondary" sx={{ fontSize: 12 }}>{label}</Typography>
-      {info ? (
-        <Tooltip title={info}>
-          <IconButton size="small" aria-label={`About ${label.toLowerCase()}`} sx={{ p: 0.25, color: 'text.secondary' }}>
-            <InfoIcon sx={{ fontSize: 14 }}/>
-          </IconButton>
-        </Tooltip>
-      ) : null}
-    </Stack>
-    {/* One line per part: the tile is narrow, and a wrap mid-part splits "+3 at the / max". */}
-    {(sub ?? []).map((line) => <Typography key={line} variant={'caption'} component={'p'} color="text.muted">{line}</Typography>)}
-  </Box>
-);
+const TILE_SX = { flex: '1 1 96px', width: 'auto', alignItems: 'flex-start', bgcolor: 'background.default' };
+// A short label never folds beside a long list of boards.
+const LABEL_SX = { whiteSpace: 'nowrap' };
 
 const SHOWN = 6;
 const boardList = (names) => names.length > SHOWN ? `${names.slice(0, SHOWN).join(', ')} and ${names.length - SHOWN} more` : names.join(', ');
 
-const FirstPlacesInfo = ({ firsts, index }) => {
-  const label = (key) => index.byKey[key]?.label ?? key;
-  return (
-    <Stack gap={0.75}>
-      {firsts.sole.length ? <span>#1 alone: {boardList(firsts.sole.map(label))}</span> : null}
-      {firsts.tied.length ? <span>Tied for #1: {boardList(firsts.tied.map(({ key, t }) => `${label(key)} (${numberWithCommas(t)} players)`))}</span> : null}
-      {firsts.atMax.length ? (
-        <span>At the max: {boardList(firsts.atMax.map(label))}. So many players hold the max on these boards that they are not counted as first places.</span>
-      ) : null}
-    </Stack>
-  );
-};
-
 // onClear: leaves a searched player; it reads "Back to you" when the visitor has standing of their own.
-const YouCard = ({ data, kind, index, onSeeAll, onClear, clearLabel = 'Clear' }) => {
+const YouCard = ({ data, kind, index, onClear, clearLabel = 'Clear' }) => {
   const { player, ranks } = data;
   const counts = countStanding(ranks, index);
   // A maxed board is shared by everyone who reached the max, so it is counted apart from the firsts.
   const firsts = firstPlaces(ranks, index);
   const atMax = firsts.atMax.length;
-  const firstsSub = [firsts.tied.length ? `${firsts.tied.length} tied` : null, atMax ? `+${atMax} at the max` : null].filter(Boolean);
-  const topPercent = topPercentLabel(Math.max(0.1, Math.round((player.rank / player.totalUsers) * 1000) / 10));
-  const of = [`of ${numberWithCommas(player.totalUsers)}`, topPercent, formatMetricValue('points', player.compositeScore)].filter(Boolean).join(' · ');
+  // One line per part: the tile is narrow, and a wrap mid-part splits "+3 at the / max".
+  const firstsSub = [firsts.tied.length ? `${formatNum(firsts.tied.length, 'whole')} tied` : null, atMax ? `+${formatNum(atMax, 'whole')} at the max` : null].filter(Boolean);
+  const topPercent = topPercentLabel(Math.max(0.1, (player.rank / player.totalUsers) * 100));
+  const of = [player.totalUsers != null ? `of ${formatNum(player.totalUsers, 'whole')}` : null, topPercent, formatMetricValue('points', player.compositeScore)].filter(Boolean).join(' · ');
+  const label = (key) => index.byKey[key]?.label ?? key;
   return (
-    <Card variant="outlined" sx={{
-      height: '100%', boxSizing: 'border-box', p: { xs: '14px', md: '18px 20px' }, borderRadius: 2, bgcolor: 'action.selected', border: '2px solid', borderColor: HIGHLIGHT[kind], boxShadow: 'none'
-    }}>
-      <Stack gap={1.5}>
-        <Stack direction="row" alignItems="center" gap={1}>
-          <Typography component="h2" sx={{ flexGrow: 1, minWidth: 0, fontSize: 12, fontWeight: 700, letterSpacing: 0.5, textTransform: 'uppercase', color: LABEL_COLOR[kind] }}>
-            <span>{kind === 'logged' ? 'You' : 'Searched player'}</span>
-            {' · '}
-            {/* Names are case-sensitive, so the label's capitals stop at the name. */}
-            <Box component="span" sx={{ textTransform: 'none' }}>{player.mainChar}</Box>
-          </Typography>
-          {kind === 'searched' && onClear ? (
-            // The visible word leads the name, so "click Clear" works for voice control.
-            <Button size="small" onClick={onClear} aria-label={`${clearLabel}, stop viewing ${player.mainChar}`}
-                    sx={{ p: 0, minWidth: 0, fontWeight: 600, flexShrink: 0 }}>
-              {clearLabel}<Box component="span" aria-hidden sx={{ ml: 0.5 }}>×</Box>
-            </Button>
-          ) : null}
-        </Stack>
-        <Stack direction="row" alignItems="baseline" columnGap={1.25} flexWrap="wrap">
-          <Typography component="p" sx={{ fontSize: { xs: 34, md: 44 }, fontWeight: 700, lineHeight: 1 }}>{rankText(player.rank)}</Typography>
-          <Typography color="text.secondary" sx={{ fontSize: { xs: 12, md: 13 } }}>{of}</Typography>
-        </Stack>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, minmax(0, 1fr))', gap: 1, mt: 0.5 }}>
-          <Stat label="First places" value={counts.firsts} sub={firstsSub}
-                info={counts.firsts || atMax ? <FirstPlacesInfo firsts={firsts} index={index}/> : null}/>
-          <Stat label="Top 25" value={counts.top25}/>
-          <Stat label="Top 100" value={counts.top100}/>
+    <Panel
+      title={
+        <Box component="span" sx={{ typography: 'groupLabel', textTransform: 'none', color: LABEL_COLOR[kind] }}>
+          <span>{kind === 'logged' ? 'You' : 'Searched player'}</span>
+          {' · '}
+          {player.mainChar}
         </Box>
-        {onSeeAll ? <Button onClick={onSeeAll}>See all ranks</Button> : null}
+      }
+      aside={kind === 'searched' && onClear ? (
+        // The visible word leads the name, so "click Clear" works for voice control.
+        <Button size="small" onClick={onClear} aria-label={`${clearLabel}, stop viewing ${player.mainChar}`}>{clearLabel}</Button>
+      ) : null}
+      sx={{ height: '100%', boxSizing: 'border-box', border: '2px solid', borderColor: HIGHLIGHT[kind] }}>
+      <Stack gap={1.5} sx={{ p: 2 }}>
+        <Stack direction="row" alignItems="baseline" columnGap={1.25} flexWrap="wrap">
+          <Typography component="p" variant="heroValue">{rankText(player.rank)}</Typography>
+          <Typography variant="body2" color="text.secondary">{of}</Typography>
+        </Stack>
+        <Stack direction="row" flexWrap="wrap" gap={1}>
+          <StatTile label="First places" value={counts.firsts} cardSx={TILE_SX}
+                    sub={firstsSub.length ? firstsSub.map((line) => <div key={line}>{line}</div>) : null}/>
+          <StatTile label="Top 25" value={counts.top25} cardSx={TILE_SX}/>
+          <StatTile label="Top 100" value={counts.top100} cardSx={TILE_SX}/>
+        </Stack>
       </Stack>
-    </Card>
+      {firsts.sole.length ? <Panel.KV label={<Box component="span" sx={LABEL_SX}>Alone at #1</Box>} value={boardList(firsts.sole.map(label))}/> : null}
+      {firsts.tied.length ? <Panel.KV label={<Box component="span" sx={LABEL_SX}>Tied for #1</Box>} value={boardList(firsts.tied.map(({ key, t }) => `${label(key)} (${formatNum(t, 'whole')} players)`))}/> : null}
+      {atMax ? <Panel.KV
+        label={<Box component="span" sx={LABEL_SX}>At the max <InfoButton label="At the max">So many players hold the max on these boards that they are not counted as first places.</InfoButton></Box>}
+        value={boardList(firsts.atMax.map(label))}/> : null}
+    </Panel>
   );
 };
 

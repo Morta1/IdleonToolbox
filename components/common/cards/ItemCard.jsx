@@ -87,11 +87,11 @@ export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title
 
 // ItemCard (Cards board): one game thing in a grid. Only the title is required; spacing, type and
 // state come from the card, never from the page. A maxed card drops its footer (its cost). With href
-// the whole card is the link, so it holds no buttons.
-const ItemCard = ({ href, status, dimmed, size, footer, children, ...header }) => {
+// the whole card is the link, so it holds no buttons; onClick opens it in place (a page that keeps its query).
+const ItemCard = ({ href, onClick, status, dimmed, size, footer, children, ...header }) => {
   const gridSize = useCardSize();
   const cardSize = size ?? gridSize;
-  const root = href ? { component: NextLink, href } : { component: 'article' };
+  const root = href ? { component: NextLink, href, onClick } : { component: 'article' };
   return <Box {...root} sx={[
     (theme) => cardSurface(theme),
     (theme) => cardState(theme, status ?? (dimmed ? 'dim' : undefined)),
