@@ -236,8 +236,9 @@ const UpgradeOptimizer = () => {
                 value={`${formatNum(optimizedUpgrades.length)} / ${formatNum(availablePoints)}`}/>
     </Stack>
     {/* One note per place: the lock note is that place's note, so the empty plan says nothing more */}
-    {hasLandRank ? null : <Notice tone={'locked'}>
-      Land Rank isn&apos;t unlocked on this account yet. Buy it from the farming market first.
+    {hasLandRank ? null : <Notice tone={state?.emptyAccount ? 'signin' : 'locked'}>
+      {state?.emptyAccount ? 'Your Land Rank upgrade plan shows here once you sign in.'
+        : "Land Rank isn't unlocked on this account yet. Buy it from the farming market first."}
     </Notice>}
     {displayUpgrades.length > 0
       ? viewMode === 'grid'
