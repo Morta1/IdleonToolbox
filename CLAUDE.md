@@ -54,6 +54,11 @@ Extend these instead of writing new ones next to them:
 ## Testing
 When testing add "http://localhost:3001?demo=true" to be able to access all pages without login in
 
+Hand checks run on `node tools/page-check.mjs <routes>` (static export on `E2E_PORT`, default 3002): sizes, demo and guest,
+forced failed sections, API replies through `--setup`, one image sheet per page, text dumps that compare with `diff -r`, and a
+DOM scan for broken words, overlaps, text out of its card, tall rows, hidden table heads and raw game marks. Extend it instead
+of writing a one-off script. A hit is a lead, and a clean run isn't "looks right": it can't see a floating footer.
+
 E2E gotchas (`npm run test:e2e` — builds, then serves `out/` on **3002**, or on `E2E_PORT` when set; `test:e2e:nobuild` reuses `out/`):
 - E2E runs against the **static export, not `next dev`**. A stale `out/` tests old code.
 - Never `waitForLoadState('networkidle')` — ad scripts never let it settle. Use `waitForRender` from `e2e/wait-helpers.js`.

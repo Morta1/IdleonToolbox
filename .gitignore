@@ -44,6 +44,9 @@ public/workers/
 # parse golden output (tools/parse-golden)
 /.golden
 
+# hand-check output (tools/page-check.mjs)
+/.page-check
+
 # redesign screenshot harness (playwright.screens.config.js)
 /.screens/
 /.screens-region/
