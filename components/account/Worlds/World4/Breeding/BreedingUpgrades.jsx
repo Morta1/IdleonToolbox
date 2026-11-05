@@ -3,7 +3,6 @@ import { cleanUnderscore, formatNum } from 'utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { getTotalKitchenLevels } from '@parsers/world-4/cooking';
 import { calcUpgradeBonus } from '@parsers/world-4/breeding';
-import { petUpgrades as PET_UPGRADES } from '@website-data';
 import MealIcon from 'components/common/MealIcon';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -41,10 +40,8 @@ const nameParts = (name) => {
   return { title: cleanUnderscore(title).trim(), meta: cleanUnderscore(rest.join(' ')).trim() || undefined };
 };
 
-const BreedingUpgrades = ({ account, petUpgrades, deadCells, meals, sectionFailed }) => {
-  // An empty save has no upgrade list (the parser maps the save): the catalog at Lv 0. So has a failed section, whose
-  // catalog shows no cost, state or total: none of it is the player's
-  const upgrades = petUpgrades?.length ? petUpgrades : PET_UPGRADES.map((upgrade) => ({ ...upgrade, level: 0 }));
+// A failed section's catalog (the parser's own with no save) shows no cost, state or total: none of it is the player's
+const BreedingUpgrades = ({ account, petUpgrades: upgrades, deadCells, meals, sectionFailed }) => {
   const calcFoodCost = (upgrade) => {
     return upgrade?.baseCost * (1 + upgrade?.level) * Math.pow(upgrade?.costScale, upgrade?.level);
   }

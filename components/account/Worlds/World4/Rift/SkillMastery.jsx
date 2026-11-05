@@ -6,7 +6,6 @@ import { createBreakdown, flatLines } from '@parsers/breakdown';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
-import Notice from '@components/common/Notice';
 
 // Bonus texts mirror the game's own skill mastery panel (N.js _GenINFO[95..98])
 const defaultBonuses = [
@@ -53,7 +52,6 @@ const getBonusText = (skillName, bonusIndex) => {
 
 const SkillMastery = ({ currentRift, totalSkillsLevels, characters }) => {
   const skills = Object.entries(totalSkillsLevels ?? {}).filter(([skillName]) => !skillsWithoutMastery.includes(skillName));
-  if (!skills.length) return <Notice tone={'info'}>Skill totals show here once your characters are loaded.</Notice>;
   return <CardGrid size={'m'}>
     {skills.map(([skillName, { icon, level, rank }]) => {
       const skillLabel = cleanUnderscore(skillName.capitalize());

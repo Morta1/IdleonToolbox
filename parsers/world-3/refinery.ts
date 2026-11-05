@@ -145,12 +145,6 @@ export const getRefineryCycleBonuses = (account: Account, characters: any[]) => 
 // Seconds per cycle before any speed bonus
 const REFINERY_BASE_CYCLE_TIMES = { combustion: 900, synthesis: 3600, polymerize: 14400 * 25 };
 
-const formatCycleTime = (seconds: number) => {
-  const rounded = Math.ceil(seconds);
-  const minutes = Math.floor(rounded / 60);
-  return `${minutes}m:${String(rounded % 60).padStart(2, '0')}s`;
-}
-
 // Exported so one alert evaluation can compute the stamp/shiny/vial/talent stack once and feed it
 // to both getSaltMatsTimeLeft and getSaltsBalance.
 export const getRefineryCycleTimes = (account: Account, characters: any[]) => computeRefineryCycleTimes(account, characters);
@@ -216,8 +210,8 @@ export const getRefineryCycles = (account: Account, characters: any[], lastUpdat
   ];
   // The cycle time is the base time over the speed, rounded up to whole seconds
   const cycleBreakdown = (name: string, baseTime: number, time: number, extraSpeed: BreakdownNode[] = []) =>
-    createBreakdown(`${name} cycle time`, formatCycleTime(time), [
-      flat('Base time', baseTime, { formatted: formatCycleTime(baseTime) }),
+    createBreakdown(`${name} cycle time`, Math.ceil(time), [
+      flat('Base time', baseTime),
       productGroup('Refinery speed', [...speedLines, ...extraSpeed])
     ], { combine: 'divide', round: 'ceil' });
   const combustion = {

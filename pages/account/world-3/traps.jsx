@@ -86,7 +86,7 @@ const Traps = () => {
             ? <IconTile key={`${slot.rawName}-${slotIndex}`} icon={`data/${slot.rawName}.png`} alt={slot.name}
                         mark={`data/TrapBoxSet${(slot.trapType ?? 0) + 1}.png`} markAlt={trapBoxName(slot.trapType)}
                         value={<Timer type={'countdown'} component={'span'} sx={{ font: 'inherit' }} date={slot.timeLeft}
-                                      lastUpdated={state?.lastUpdated} placeholder={<StatusText status={'ready'}/>}/>}
+                                      placeholder={<StatusText status={'ready'}/>}/>}
                         details={trapNote(slot, collectRate)}/>
             : <IconTile key={`empty-${slotIndex}`} status={'empty'}/>)}</CardGrid>
           : <Typography variant={'body2'} color={'text.secondary'}>Equip a trap set to place traps.</Typography>}

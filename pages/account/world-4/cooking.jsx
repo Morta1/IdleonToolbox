@@ -1,6 +1,5 @@
 import { Box, TextField } from '@mui/material';
 import React, { useContext, useState } from 'react';
-import { useSessionStorage } from '@mantine/hooks';
 import { AppContext } from 'components/common/context/AppProvider';
 import Kitchens from 'components/account/Worlds/World4/Kitchens';
 import Meals, { MEALS_GEAR, MEALS_SETTINGS, MealsSettings } from '@components/account/Worlds/World4/Meals';
@@ -8,7 +7,7 @@ import CookingMastery from '@components/account/Worlds/World4/CookingMastery';
 import Ribbons from '@components/account/Worlds/World4/Ribbons';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
-import { getTabs, tryToParse } from '@utility/helpers';
+import { getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { calcTotalMeals, getTotalMealSpeed, parseKitchens } from '@parsers/world-4/cooking';
 import MenuItem from '@mui/material/MenuItem';
@@ -48,11 +47,8 @@ const Cooking = () => {
   const characterNano = !!getPlayerLabChipBonus(selectedCharacter, account, 15)
     && (!!hasGordonius(selectedCharacter) || !!gordoniusInfinite(account));
   const enableNanoChip = characterNano || Boolean(settings?.forceNano);
-  // The raw save, for the picked character's kitchens: Mantine reads it after mount, so the first render never touches
-  // session storage. No defaultValue: nothing is written back.
-  const [raw] = useSessionStorage({ key: 'rawJson' });
-  const kitchens = raw?.data && !kitchensFailed
-    ? parseKitchens(tryToParse(raw.data.Cooking), tryToParse(raw.data.Atoms), characters, account,
+  const kitchens = cooking?.rawKitchens && !kitchensFailed
+    ? parseKitchens(cooking.rawKitchens, cooking.rawAtoms, characters, account,
       { characterIndex: selectedCharacter?.playerId, enableNanoChip })
     : cooking?.kitchens;
 

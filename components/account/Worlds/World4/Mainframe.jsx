@@ -66,9 +66,8 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords, account, sect
       </CardGrid>
       {jewels?.length ? <Typography variant={'sectionTitle'} component={'h2'} sx={{ mt: 4, mb: 1 }}>Jewels</Typography> : null}
       <CardGrid size={'icon'}>
-        {/* An empty save's catalog carries no sprite name: the parser names a save's jewels ConsoleJwl<index> */}
         {jewels?.map((jewel, index) => <IconTile key={`${jewel?.name}-${index}`}
-                                                 icon={`data/${jewel?.rawName ?? `ConsoleJwl${index}`}.png`}
+                                                 icon={`data/${jewel?.rawName}.png`}
                                                  alt={titleCase(jewel?.name)}
                                                  status={!jewel?.acquired ? 'missing' : jewel?.active ? 'active' : undefined}
                                                  details={<ItemCard.Desc text={[`${titleCase(jewel?.name)}: ${!jewel?.acquired ? 'Not found' : jewel?.active ? 'Active' : 'Found'}`,

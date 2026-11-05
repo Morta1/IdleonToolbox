@@ -34,8 +34,8 @@ const TIERS = ['bronze', 'silver', 'gold', 'blue'];
 // pixel art never scales up (5e's Bell).
 const RankBadge = ({ top }) => <GameIcon src={`data/TomeTop${top}.png`} fit={'bounds'} size={[102, 17]} alt={''}/>;
 
-// The tier the parser picked, read back off its colour; its word and the theme's colour for it
-const tierOf = (color) => Object.keys(segmentColors).find((tier) => segmentColors[tier] === color) ?? 'bronze';
+// The tier the parser picked, read back off its colour (a locked entry has none); its word and the theme's colour for it
+const tierOf = (color) => Object.keys(segmentColors).find((tier) => segmentColors[tier] === color) ?? null;
 const tierName = (tier) => `${tier.capitalize()} tier`;
 const tierColor = (tier) => (theme) => (theme.vars || theme).palette.identity.tomeTiers[tier];
 
@@ -201,9 +201,8 @@ const Tome = () => {
             {shown.map(({ bonus, position }) => {
               const { name, color, tomeLvReq, quantity, maxPoints, index } = bonus;
               const locked = isTomeEntryLocked(bonus, accountLevel);
-              // A locked entry counts nothing toward the total (the parser's sum skips it): 0 points and no tier
-              const points = locked ? 0 : bonus.points;
-              const tier = locked ? null : tierOf(color);
+              const { points } = bonus;
+              const tier = tierOf(color);
               const pointsText = `${formatGame(points ?? 0, 'Summoning.TomePTS', { whole: true })} / ${formatGame(maxPoints ?? 0, 'Summoning.TomePTS', { whole: true })}`;
               return <ItemCard key={'tome-bonus' + index} title={cleanUnderscore(name?.replace('(Tap_for_more_info)', ''))}
                                dimmed={locked} status={locked ? 'locked' : maxPoints && points >= maxPoints ? 'maxed' : undefined}

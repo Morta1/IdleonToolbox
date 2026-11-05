@@ -30,13 +30,14 @@ export const getLockedEquinox = () => ({
   chargeRequired: 0,
   chargeRate: 0,
   timeToFull: undefined,
-  challenges: equinoxChallenges.map(({ label, goal, reward }) => ({
-    label, goal, reward, current: 0, active: false, locked: false
+  // As a save with no Research reads them (the parsed shape's researchG8Level gate)
+  challenges: equinoxChallenges.map(({ label, goal, reward }, index) => ({
+    label, goal, reward, current: 0, active: false, locked: index >= 36
   })),
   upgrades: equinoxUpgrades.map(({ name, description, maxLevel }, index) => ({
     name,
     bonus: 0,
-    desc: description?.replace('{}', '0').replace('{', '').replace('}', '0').split('_@_'),
+    desc: description?.replace(/\}/g, '0').replace(/\{/g, '+').split('_@_'),
     lvl: 0,
     maxLvl: maxLevel,
     unlocked: index === 0
@@ -248,7 +249,7 @@ const parseEquinoxUpgrades = (challenges: any, dream: any, account: any) => {
       name: name,
       bonus: realBonus,
       // game: every "}" becomes LV * DreamUpg[i][3] (Voter_Rights' "Total Bonus: {}%" included); "{" is the + glyph
-      desc: description?.replace(/\}/g, String((bonus ?? 0) * dream[index] || 0)).replace(/\{/g, '').split('_@_'),
+      desc: description?.replace(/\}/g, String((bonus ?? 0) * dream[index] || 0)).replace(/\{/g, '+').split('_@_'),
       lvl: dream[index] || 0,
       maxLvl: totalValue,
       unlocked: index <= nbChallengeUnlocked

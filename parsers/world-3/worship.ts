@@ -185,7 +185,8 @@ export const getChargeRate = (character: any, account: any) => {
 export const getPlayerWorship = (character: any, account: any, playerCharge: any) => {
   const maxCharge = getMaxCharge(character, account)
   const chargeRate = getChargeRate(character, account);
-  const afkFor = new Date().getTime() - character.afkTime;
+  // Up to the save's clock, not now: an old profile's charge reads what it was, and a timer takes the save's age off
+  const afkFor = Math.max(0, (account?.timeAway?.GlobalTime ?? 0) * 1000 - character.afkTime);
   const estimatedCharge = Math.min(parseInt(playerCharge) + chargeRate * (afkFor / 1000 / 3600), maxCharge);
   return {
     maxCharge: round(maxCharge),

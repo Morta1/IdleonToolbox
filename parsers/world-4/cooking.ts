@@ -62,7 +62,9 @@ export const getCooking = (idleonData: any, account: any, characters?: any) => {
   const mealsRaw = tryToParse(idleonData?.Meals) || idleonData?.Meals;
   const territoryRaw = saveField(idleonData, 'Territory') || idleonData?.Territory;
   const cookMasterRaw = tryToParse(idleonData?.CookMaster) || idleonData?.CookMaster;
-  return parseCooking(mealsRaw, territoryRaw, cookingRaw, account, cookMasterRaw, characters);
+  // The save's kitchens and atoms, for parseKitchens from the picked character's side (the Kitchens tab)
+  const atomsRaw = saveField(idleonData, 'Atoms') || idleonData?.Atoms;
+  return { ...parseCooking(mealsRaw, territoryRaw, cookingRaw, account, cookMasterRaw, characters), rawKitchens: cookingRaw, rawAtoms: atomsRaw };
 }
 
 const parseCooking = (mealsRaw: any, territoryRaw: any, cookingRaw: any, account: any, cookMasterRaw?: any, characters?: any) => {

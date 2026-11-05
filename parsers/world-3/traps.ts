@@ -17,11 +17,13 @@ import { getMenagerieBoost } from '@parsers/world-7/menagerie';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, info, listGroup, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 import { OPT } from '@parsers/accountOptions';
 
-export const getTraps = (rawCharactersData: any) => {
-  return parseTraps(rawCharactersData);
+export const getTraps = (rawCharactersData: any, timeAway?: any) => {
+  return parseTraps(rawCharactersData, timeAway);
 }
 
-const parseTraps = (rawCharactersData: any) => {
+const parseTraps = (rawCharactersData: any, timeAway?: any) => {
+  // A trap's elapsed time is the save's, so its end is anchored on the save's clock
+  const saveTime = Number.isFinite(timeAway?.GlobalTime) ? timeAway.GlobalTime * 1000 : new Date().getTime();
   return rawCharactersData.map((char: any) => {
     const traps = char?.PldTraps || [];
     return traps.reduce((res: any, critterInfo: any) => {
@@ -36,7 +38,7 @@ const parseTraps = (rawCharactersData: any) => {
         crittersQuantity,
         trapType,
         trapExp,
-        timeLeft: new Date().getTime() + (timeLeft * 1000),
+        timeLeft: saveTime + (timeLeft * 1000),
         trapData
       }] : res;
     }, []);

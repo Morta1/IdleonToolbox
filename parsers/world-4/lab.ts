@@ -34,7 +34,7 @@ const parseLab = (labRaw: any, charactersData: any, account: any, updatedCharact
       playersCords: [],
       playersChips: [],
       connectedPlayers: [],
-      jewels: liveEntries<any>(jewels as any[]).map(({ entry }) => ({ ...entry, acquired: false, active: false })),
+      jewels: liveEntries<any>(jewels as any[]).map(({ entry, index }) => ({ ...entry, acquired: false, active: false, rawName: `ConsoleJwl${index}` })),
       chips: liveEntries<any>(chips as any[]).map(({ entry }) => ({ ...entry, repoAmount: 0, amount: 0, totalAmount: 0 })),
       labBonuses: liveEntries<any>(labBonuses as any[]).map(({ entry }) => ({ ...entry, active: false })),
       totalRawChips: 0,

@@ -238,7 +238,7 @@ const getStaticData = (idleonData: IdleonData, charNames: string[], companion: C
     constellations,
     rawConstellationsDone,
     shopStock: safeSection<any>('shopStock', [], () => getShops(idleonData)),
-    traps: safeSection<any>('traps', [], () => getTraps(serializedCharactersData)),
+    traps: safeSection<any>('traps', [], () => getTraps(serializedCharactersData, tryToParse(idleonData?.TimeAway))),
     totems: safeSection<any>('totems', [], () => getTotems(idleonData)),
     adviceFish: safeSection<any>('adviceFish', {}, () => getAdviceFish(idleonData)),
     guild: safeSection<any>('guild', getLockedGuild(), () => getGuild(idleonData, guildData)),

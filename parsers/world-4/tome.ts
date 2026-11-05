@@ -35,21 +35,24 @@ export const segmentColors = {
 export const getTome = (idleonData: IdleonData, account: Account, characters: any[], serverVars: any) => {
   const indexes = ninjaExtraInfo[32];
   const bonusNames = ninjaExtraInfo[33];
-  const tomeQuantities = calcTomeQuantity(account, characters, idleonData);
+  // No save has done nothing: its sections' stand-ins (rank 1, floor 1) are no quantity of the player's
+  const tomeQuantities = characters?.length ? calcTomeQuantity(account, characters, idleonData) : [];
   let totalPoints = 0;
   let tome = tomeData.map((bonus: any, index: number) => {
     const realIndex = indexes.indexOf(index.toString());
     const tomeLvReq = 40 * realIndex + (5 * Math.max(0, realIndex - 35) + (10 * Math.max(0, realIndex - 60) + (10 * Math.max(0, realIndex - 80) + 15 * Math.max(0, realIndex - 100)))) + 350;
     const quantity = tomeQuantities?.[index] || 0;
-    const pointsPercent = calcPointsPercent(bonus, quantity);
-    const color = TIER_THRESHOLDS.silver > pointsPercent ? segmentColors.bronze : TIER_THRESHOLDS.gold > pointsPercent
+    // A locked entry counts nothing and has no tier, though a reversed curve reads full at a quantity of 0
+    const locked = (account?.accountLevel ?? 0) < tomeLvReq;
+    const pointsPercent = locked ? 0 : calcPointsPercent(bonus, quantity);
+    const color = locked ? null : TIER_THRESHOLDS.silver > pointsPercent ? segmentColors.bronze : TIER_THRESHOLDS.gold > pointsPercent
       ? segmentColors.silver
       : TIER_THRESHOLDS.blue > pointsPercent
         ? segmentColors.gold
         : segmentColors.blue;
     const points = Math.ceil(pointsPercent * bonus?.x3);
     const maxPoints = getMaxPointsForBonus(bonus);
-    totalPoints += (account?.accountLevel ?? 0) >= tomeLvReq ? points : 0;
+    totalPoints += points;
     const requiredQuantities = getRequiredQuantitiesEfficient(bonus);
     return {
       ...bonus,

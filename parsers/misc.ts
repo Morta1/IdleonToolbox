@@ -1,5 +1,5 @@
 import { createRange, lavaLog, notateNumber, number2letter, tryToParse } from '@utility/helpers';
-import { filteredGemShopItems, filteredLootyItems, keysMap, unrealisticGreenstackItems } from './parseMaps';
+import { filteredGemShopItems, filteredLootyItems, keysMap, skillIndexMap, unrealisticGreenstackItems } from './parseMaps';
 import {
   bonuses,
   bundles as bundlesData,
@@ -806,18 +806,16 @@ export const calculateLeaderboard = (characters: any) => {
 };
 
 export const calculateTotalSkillsLevel = (characters: any) => {
+  // The catalog at 0, so no save still reads every skill
+  const catalog = Object.fromEntries(Object.entries(skillIndexMap).map(([index, { name, icon }]) =>
+    [name, { level: 0, index: Number(index) - 1, icon }]));
   const allSkills = characters?.reduce((res: any, { skillsInfo }: any) => {
     if (!skillsInfo) return res;
     for (const [skillName, skillData] of Object.entries(skillsInfo) as [string, any][]) {
-      if (res?.[skillName]) {
-        res[skillName] = { ...res[skillName], level: res[skillName].level + (skillData?.level ?? 0) }
-      }
-      else {
-        res[skillName] = { level: skillData?.level, index: skillData?.index - 1, icon: skillData?.icon };
-      }
+      res[skillName] = { ...res[skillName], level: (res[skillName]?.level ?? 0) + (skillData?.level ?? 0) };
     }
     return res;
-  }, {})
+  }, catalog) ?? catalog;
   return Object.entries(allSkills)?.reduce((res: any, [skillName, skillVal]: [string, any]) => {
     const { level } = skillVal;
     const rank = getSkillRank(level);
