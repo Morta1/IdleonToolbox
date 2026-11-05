@@ -172,7 +172,7 @@ const DashboardSettings = ({
   };
 
   const search = <TextField
-    size="small" fullWidth value={query} placeholder={`Search ${allTrackers(model).length} alerts, options and descriptions`}
+    size="small" fullWidth value={query} placeholder={isSm ? `Search ${allTrackers(model).length} alerts` : `Search ${allTrackers(model).length} alerts, options and descriptions`}
     onChange={(e) => {
       setQuery(e.target.value);
       // Results replace the pane, so start them at the top rather than at the old scroll position.
@@ -203,6 +203,11 @@ const DashboardSettings = ({
     </Typography>
   </Stack>;
 
+  // The player's file, not a bug: no Report or Reload, and the x or the next import clears it
+  const importNote = importError ? <Notice key={importError.id} tone={'error'} action={false} onDismiss={() => setImportError(null)} focusAfter={importButton}>
+    {importError.message}
+  </Notice> : null;
+
   const pane = searching
     ? <SearchResults results={results.filter(({ tracker }) => matchesFilter(tracker, filter))} query={searching} onAction={onAction} onShow={showResult}
                      onClear={() => setQuery('')}/>
@@ -217,7 +222,7 @@ const DashboardSettings = ({
   return <>
     <Dialog open={open} onClose={onClose} aria-labelledby={TITLE_ID} fullWidth maxWidth="lg" fullScreen={isSm}
             PaperProps={{ sx: { height: { sm: '90vh' } } }}>
-      <DialogTitle component="div" id="configure-alerts-header" sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pb: 1.5 }}>
+      <DialogTitle component="div" id="configure-alerts-header" sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pb: { xs: 1, sm: 1.5 } }}>
         <Stack direction="row" alignItems="center" gap={2}>
           {isSm && mobileDetail && !searching
             ? <IconButton aria-label="Back to sections" sx={TAP} onClick={() => setMobileDetail(false)}><ArrowBackIcon/></IconButton> : null}
@@ -229,21 +234,24 @@ const DashboardSettings = ({
             <IconButton aria-label="Close" sx={TAP} onClick={onClose}><CloseIcon/></IconButton>
           </Stack>
         </Stack>
-        {/* A phone's title row holds the back arrow, the title and the close: the pair took the close off the screen. */}
-        {isSm ? <Stack direction="row" gap={0.5}>{fileButtons}</Stack> : null}
-        {isSm ? search : null}
-        {filterRow}
-        {/* The player's file, not a bug: no Report or Reload, and the x or the next import clears it */}
-        {importError ? <Notice key={importError.id} tone={'error'} action={false} onDismiss={() => setImportError(null)} focusAfter={importButton}>
-          {importError.message}
-        </Notice> : null}
+        {!isSm ? filterRow : null}
+        {!isSm ? importNote : null}
       </DialogTitle>
       <DialogContent dividers sx={{ p: 0, display: 'flex', minHeight: 0 }}>
         {isSm
-          ? <Box ref={paneRef} sx={{ p: 1.5, width: '100%', overflowY: 'auto' }}>{searching || mobileDetail ? pane : <>
-            {nav}
-            <Button fullWidth color="inherit" sx={{ ...TAP, mt: 2 }} disabled={!Object.keys(edits).length} onClick={resetAll}>Reset all alerts</Button>
-          </>}</Box>
+          ? <Box ref={paneRef} sx={{ p: 1.5, width: '100%', overflowY: 'auto' }}>
+            {/* A phone keeps only the title row fixed: the rest scrolls away with the list, for the room to read it */}
+            <Stack gap={1.5} sx={{ mb: 1.5 }}>
+              <Stack direction="row" gap={0.5}>{fileButtons}</Stack>
+              {search}
+              {filterRow}
+              {importNote}
+            </Stack>
+            {searching || mobileDetail ? pane : <>
+              {nav}
+              <Button fullWidth color="inherit" sx={{ ...TAP, mt: 2 }} disabled={!Object.keys(edits).length} onClick={resetAll}>Reset all alerts</Button>
+            </>}
+          </Box>
           : <>
             <Box sx={{ width: 288, flexShrink: 0, borderRight: 1, borderColor: 'divider', p: 1.5, overflowY: 'auto' }}>{nav}</Box>
             <Box ref={paneRef} sx={{ flex: 1, minWidth: 0, p: 2.5, overflowY: 'auto' }}>{pane}</Box>
