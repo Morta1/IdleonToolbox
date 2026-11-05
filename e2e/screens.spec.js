@@ -1,7 +1,7 @@
 // Screenshot every route in demo mode, for playwright.screens.config.js (npm run screens:base / screens:diff).
 import { test as base, expect } from '@playwright/test';
 import { getAllTestCases, clientNavigate } from './smoke-helpers.js';
-import { waitForRender } from './wait-helpers';
+import { settleStrips, waitForRender } from './wait-helpers';
 import { fixClock } from './fixed-clock.mjs';
 
 // One fixed clock for every screenshot, so "updated 4 minutes ago" and countdowns read the same on
@@ -102,6 +102,7 @@ const shoot = async (page, name) => {
   const phone = test.info().project.use.isMobile;
   const restoreViewport = phone ? await fitPhoneViewport(page) : null;
   try {
+    await settleStrips(page);
     await expect(region ?? page).toHaveScreenshot(fileName(name), {
       ...(region || phone ? {} : { fullPage: true }),
       mask: [...MASKS, ...(region ? REGION_MASKS : [])].map((selector) => page.locator(selector)),
