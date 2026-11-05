@@ -60,14 +60,6 @@ const msPerDay = 8.64e+7;
 export const getTimeAsDays = (time) => {
   return Math.ceil(time * 3600 * 1000 / msPerDay);
 }
-export const eventsColors = {
-  'Meteorite': '#f8e8b7',
-  'Mega_Grumblo': '#e6b471',
-  'Glacial_Guild': '#65b8d6',
-  'Snake_Swarm': '#3f9c61',
-  'Angry_Frogs': '#f6b5f8'
-}
-
 export const
   number2letter = [
     "_",

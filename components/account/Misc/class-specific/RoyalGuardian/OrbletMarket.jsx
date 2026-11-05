@@ -1,7 +1,7 @@
 import React from 'react';
 import { formatGame } from '@utility/gameNotation';
 import { titleCaseName } from '@utility/helpers';
-import { cleanText } from '@utility/goals/registry/names';
+import { cleanText, gameText } from '@utility/goals/registry/names';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 
@@ -9,7 +9,7 @@ import ItemCard from '@components/common/cards/ItemCard';
 // current map's outpost is not yet glorified, is the one that says what the upgrade does. Any other $ reads "?".
 const GLORIFY = '10%_chance_to_Glorify_the_current_Outpost';
 // The parser's lines (the game's @), one each
-const lines = (description, index) => cleanText(`${description ?? ''}`.split('$').join(index === 4 ? GLORIFY : '?')).split('\n');
+const lines = (description, index) => gameText(`${description ?? ''}`.split('$').join(index === 4 ? GLORIFY : '?')).split('\n');
 
 // sectionFailed: the upgrades at zero by name (the parser's empty save), with no bonus, cost or state
 const OrbletMarket = ({ orbletMarket, orblets, sectionFailed }) => {

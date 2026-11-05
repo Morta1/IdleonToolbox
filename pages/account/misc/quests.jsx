@@ -10,7 +10,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import Toolbar from '@components/common/Toolbar';
 import InfoButton from '@components/common/InfoButton';
 import useToolbarState from '@hooks/useToolbarState';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isSectionFailed, joinNames } from '@components/common/styles';
 
 const WORLDS = ['Blunder_Hills', 'Yum_Yum_Desert', 'Frostbite_Tundra', 'Hyperion_Nebula', 'Smolderin\'_Plateau',
   'Spirited_Valley', 'Shimmerfin_Deep'];
@@ -19,7 +19,6 @@ const QUESTS_TOOLBAR = { show: '0', hideCompleted: false, doneByAny: false, miss
 
 // The sections Quests reads, by the name its one note gives them; a whole-parse failure names the page
 const SECTIONS = [['quests', 'Quests'], ['totalQuestsCompleted', 'Unique quests completed'], ['looty', 'the Slab']];
-const joinNames = (names) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0]);
 
 const Quests = () => {
   const { state } = useContext(AppContext);

@@ -21,5 +21,5 @@ export function resolveSeoHead({ pageProps, pageSeo }) {
 
 // The visible heading is the title without the site suffix, rendered only by PageTitle.
 export function headingOf(title) {
-  return title?.replace(/\s*[|\-–—]\s*Idleon Toolbox\s*$/i, '')?.trim() || null;
+  return title?.replace(/\s*[|\-\u2013\u2014]\s*Idleon Toolbox\s*$/i, '')?.trim() || null;
 }

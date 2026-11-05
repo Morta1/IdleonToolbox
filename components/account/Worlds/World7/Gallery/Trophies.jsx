@@ -1,8 +1,7 @@
 import React from 'react';
 import { Divider, Link, Stack, Typography } from '@mui/material';
 import { formatNum } from '@utility/helpers';
-import { TitleAndValue } from '@components/common/styles';
-import ItemDisplay from '@components/common/ItemDisplay';
+import ItemDisplay, { ItemLine } from '@components/common/ItemDisplay';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -18,7 +17,7 @@ export const itemName = (item) => (item?.displayName || item?.rawName)?.replace(
 
 const multiLine = (label, value) => (value ? <>
   <Divider sx={{ my: 1 }}/>
-  <TitleAndValue title={label} value={formatNum(value, 'mult')}/>
+  <ItemLine title={label} value={formatNum(value, 'mult')}/>
 </> : null);
 
 // The item's stat lines, one each, as the gallery applies them: the parser fills the podium, inventory or nametag

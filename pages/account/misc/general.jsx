@@ -9,14 +9,12 @@ import React, { useContext } from 'react';
 import { NextSeo } from 'next-seo';
 import CardGrid from '@components/common/cards/CardGrid';
 import Panel from '@components/common/cards/Panel';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isSectionFailed, joinNames } from '@components/common/styles';
 
 // The sections General reads, by the name its one note gives them (Notices board: one note per place)
 const SECTIONS = [['obols', 'Obols'], ['currencies', 'Currencies'], ['currencies.KeysAll', 'Keys'],
   ['currencies.ColosseumTickets', 'Colosseum Tickets'], ['shrines', 'Shrines'], ['shrinesExpBonus', 'Shrine EXP'],
   ['statues', 'Statues'], ['highscores', 'Highscores'], ['alchemy', 'Alchemy'], ['stamps', 'Stamps'], ['tasks', 'Tasks']];
-
-const joinNames = (names) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0]);
 
 const General = () => {
   const { state } = useContext(AppContext);

@@ -1,6 +1,6 @@
 import React, { forwardRef, useEffect } from 'react';
 import { cleanUnderscore, formatNum, growth, prefix, talentText } from 'utility/helpers';
-import { Badge, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Notice from '@components/common/Notice';
 import GameIcon from '@components/common/GameIcon';
@@ -22,21 +22,6 @@ export const IconWithText = forwardRef((props, ref) => {
   return title ? <NoteTrigger note={title} label={name || undefined}>{body}</NoteTrigger> : body;
 })
 IconWithText.displayName = 'IconWithText'
-
-export const TitleAndValue = ({ title, value, boldTitle, titleStyle = {}, valueStyle = {}, stackStyle }) => {
-  return <Stack direction={'row'} flexWrap={'wrap'} alignItems={'center'} sx={stackStyle}>
-    {title ? <Typography variant={'body2'} sx={titleStyle} fontWeight={boldTitle ? 'bold' : 500}
-                         component={'span'}>{title}:&nbsp;</Typography> : null}
-    <Typography variant={'body2'} component={'span'} sx={valueStyle}>{value}</Typography>
-  </Stack>
-}
-
-export const StyledBadge = styled(Badge)`
-  & .MuiBadge-badge {
-    background-color: var(--mui-palette-text-secondary);
-    color: var(--mui-palette-background-default);
-  }
-`
 
 // A card is 56x72, not a square item box, so its art keeps its own box (5a Decision 1), dimmed when not owned.
 // Its details open on a tap.
@@ -128,7 +113,7 @@ const sectionName = (key) => {
   const words = `${key}`.replace(/\./g, ' ').replace(/([a-z])([A-Z])/g, (_, a, b) => `${a} ${b}`).toLowerCase();
   return `${words.charAt(0).toUpperCase()}${words.slice(1)}`;
 };
-const joinNames = (names) => (names.length < 2 ? names.join('') : `${names.slice(0, -1).join(', ')} and ${names.at(-1)}`);
+export const joinNames = (names) => (names.length < 2 ? names.join('') : `${names.slice(0, -1).join(', ')} and ${names.at(-1)}`);
 // What a page that reads many sections says failed: '*' (the whole parse) is "your save", else every one by name.
 const failedSectionsName = (sections) => (sections.includes('*') ? 'your save' : joinNames(sections.map(sectionName)));
 

@@ -8,6 +8,7 @@ import Panel from '@components/common/cards/Panel';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 import InfoButton from '@components/common/InfoButton';
+import WithLastWord from '@components/common/WithLastWord';
 import StatusText from '@components/common/StatusText';
 
 // Two npcs' lines end before their lists do (N.js): Picnic Stowaway's quests after Live-Action Entertainment are his
@@ -122,17 +123,9 @@ const questSub = (quest, characters) => {
   </Stack>;
 };
 
-// The name's last word and its i on one line, so the i never wraps alone
 const questName = (quest) => {
   const name = cleanUnderscore(quest?.Name);
-  const lastWordAt = name.lastIndexOf(' ') + 1;
-  return <>
-    {name.slice(0, lastWordAt)}
-    <Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>
-      {name.slice(lastWordAt)}
-      <InfoButton label={name} sx={{ ml: 0.5 }}>{questNote(quest)}</InfoButton>
-    </Box>
-  </>;
+  return <WithLastWord text={name}><InfoButton label={name} sx={{ ml: 0.5 }}>{questNote(quest)}</InfoButton></WithLastWord>;
 };
 
 const questState = (quest) => (quest?.done ? <StatusText status={'done'}>Done</StatusText>

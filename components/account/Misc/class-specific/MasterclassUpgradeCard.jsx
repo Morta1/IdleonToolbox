@@ -1,8 +1,9 @@
-import { Box, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, formatNum, notateNumber, SHORT_FROM, shownDifference } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
+import WithLastWord from '@components/common/WithLastWord';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { LevelsAheadCaption } from './useMasterclassCostControls';
 
@@ -36,12 +37,8 @@ const MasterclassUpgradeCard = ({
   // The help i keeps the name's last word on its line: a name that fills the card wraps that word with the
   // i, never the i alone.
   const title = cleanUpgradeName(name);
-  const lastWordAt = title.lastIndexOf(' ') + 1;
   return <ItemCard icon={<GameIcon src={`data/${icon}.png`} frame={frame ? `data/${frame}.png` : undefined} size={40} alt={''}/>}
-                   title={helpIcon ? <>
-                     {title.slice(0, lastWordAt)}
-                     <Box component="span" sx={{ whiteSpace: 'nowrap' }}>{title.slice(lastWordAt)}{helpIcon}</Box>
-                   </> : title}
+                   title={helpIcon ? <WithLastWord text={title}>{helpIcon}</WithLastWord> : title}
                    // An uncapped upgrade (an armory shelf past 999) reads its level with no max
                    level={{ value: level, max: Number.isFinite(maxLevel) ? maxLevel : null }}
                    status={catalogOnly ? undefined : isMaxed ? 'maxed' : unlocked ? undefined : 'locked'}

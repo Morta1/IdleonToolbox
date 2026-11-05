@@ -1,6 +1,6 @@
 import React, { useContext, useDeferredValue, useEffect, useState } from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
-import { Box, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { formatDuration, formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { monsterSprite } from '@utility/spriteImages';
@@ -10,18 +10,13 @@ import ItemCard from '@components/common/cards/ItemCard';
 import IconTile from '@components/common/cards/IconTile';
 import StatTile from '@components/common/cards/StatTile';
 import InfoButton from '@components/common/InfoButton';
+import WithLastWord from '@components/common/WithLastWord';
 import Notice from '@components/common/Notice';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 import { AppContext } from '@components/common/context/AppProvider';
 import KingdomMap from './KingdomMap';
 import { OUTPOST_RANK_NAMES } from '@parsers/class-specific/royalGuardian';
-
-// A meta line's i keeps the line's last word beside it, so a wrapped meta never leaves the i alone on a line
-const metaWithInfo = (text, info) => {
-  const lastWordAt = text.lastIndexOf(' ') + 1;
-  return <>{text.slice(0, lastWordAt)}<Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>{text.slice(lastWordAt)}{info}</Box></>;
-};
 
 // Rank sorts are keyed 'rank<type>', the index into each outpost's rankBars.
 const RANK_SORT_PREFIX = 'rank';
@@ -86,8 +81,9 @@ const clearingCard = ({ mapIndex, name, world, kills, killsRequired, progress, m
     : '';
   return <ItemCard key={`clearing-${mapIndex}`} icon={faceOf(monsterRawName)} iconAlt={monsterName ?? ''}
                    title={name || `Map ${mapIndex}`}
-                   meta={metaWithInfo([`World ${formatNum(world)}`, monsterLabel(name, monsterName), 'Clearing'].filter(Boolean).join(' · '),
-                     <InfoButton label={'the clearing ETA'} sx={{ ml: 0.5 }}>{clearingHint}</InfoButton>)}>
+                   meta={<WithLastWord text={[`World ${formatNum(world)}`, monsterLabel(name, monsterName), 'Clearing'].filter(Boolean).join(' · ')}>
+                     <InfoButton label={'the clearing ETA'} sx={{ ml: 0.5 }}>{clearingHint}</InfoButton>
+                   </WithLastWord>}>
     <ItemCard.Progress label={progress >= 1 ? 'Ready to claim' : `${formatNum(Math.floor(100 * progress))}% cleared`}
                        percent={100 * Math.min(1, progress ?? 0)}
                        value={formatGame(kills ?? 0, 'RoyalG.OutpostKillsReq', { whole: true })} max={formatGame(killsRequired ?? 0, 'RoyalG.OutpostKillsReq', { whole: true })}/>
@@ -185,7 +181,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
     const meta = [`World ${formatNum(world)}`, monsterLabel(name, monsterName), modeName, supportText, purified ? 'Purified' : null]
       .filter(Boolean).join(' · ');
     return <ItemCard key={mapIndex} icon={faceOf(monsterRawName)} iconAlt={monsterName ?? ''} title={name || `Map ${mapIndex}`}
-                     meta={metaWithInfo(meta, <InfoButton label={'this mode'} sx={{ ml: 0.5 }}>{modeHint}</InfoButton>)}
+                     meta={<WithLastWord text={meta}><InfoButton label={'this mode'} sx={{ ml: 0.5 }}>{modeHint}</InfoButton></WithLastWord>}
                      status={boosted ? 'active' : undefined} statusLabel={'Glorified'}>
       <ItemCard.Facts rows={[
         ['Collection rate', `${formatGame(resourceRate ?? 0, 'RoyalG.OutpostResourceRate')}/hr`],

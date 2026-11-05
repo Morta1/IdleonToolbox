@@ -1,6 +1,5 @@
 import { cleanUnderscore, formatNum, titleCaseName } from 'utility/helpers';
 import { Divider, Stack, Typography } from '@mui/material';
-import { TitleAndValue } from './styles';
 import GameIcon from '@components/common/GameIcon';
 import React from 'react';
 import { getPowerType } from '@parsers/powerTypes';
@@ -22,6 +21,12 @@ const stoneText = (text, chance, slots) => {
   const filled = text.replace('*', Math.min(Number(chance) || 0, 100)).replace('#', slots);
   return Number(slots) === 1 ? filled.replace('slots', 'slot') : filled;
 };
+
+// One line of an item's note: the label at 500, its value after it, wrapping as a sentence does.
+export const ItemLine = ({ title, value, titleStyle }) => <Stack direction={'row'} flexWrap={'wrap'} alignItems={'center'}>
+  {title ? <Typography variant={'body2'} component={'span'} fontWeight={500} sx={titleStyle}>{title}:&nbsp;</Typography> : null}
+  <Typography variant={'body2'} component={'span'}>{value}</Typography>
+</Stack>;
 
 const ItemDisplay = ({
                        character,
@@ -98,46 +103,46 @@ const ItemDisplay = ({
     {showRawName ? <Typography variant={'caption'} color={'text.secondary'}>{rawName}</Typography> : null}
     <Divider flexItem sx={{ my: 2 }}/>
     {Type?.includes('INVENTORY') || Type?.includes('CARRY') ? <Stack alignitems={'flex-start'}>
-        {Type ? <TitleAndValue title={'Type'} value={typeName(Type)}/> : null}
-        {capacity ? <TitleAndValue title={Type?.includes('CARRY') ? 'Base capacity' : 'Adds'}
+        {Type ? <ItemLine title={'Type'} value={typeName(Type)}/> : null}
+        {capacity ? <ItemLine title={Type?.includes('CARRY') ? 'Base capacity' : 'Adds'}
                                    value={Type?.includes('CARRY') ? `${cleanUnderscore(capacity)}` : slotsText(capacity)}/> : null}
-        {capacityPerSlot ? <TitleAndValue title={'Capacity per slot'}
+        {capacityPerSlot ? <ItemLine title={'Capacity per slot'}
                                           value={formatNum(capacityPerSlot, 'whole')}/> : null}
-        {maxCapacity ? <TitleAndValue title={'Max capacity'}
+        {maxCapacity ? <ItemLine title={'Max capacity'}
                                       value={formatNum(maxCapacity, 'whole')}/> : null}
       </Stack> :
       <Stack alignitems={'flex-start'}>
-        {Type ? <TitleAndValue title={'Type'} value={typeName(Type)}/> : null}
-        {capacity ? <TitleAndValue title={'Adds'} value={slotsText(capacity)}/> : null}
+        {Type ? <ItemLine title={'Type'} value={typeName(Type)}/> : null}
+        {capacity ? <ItemLine title={'Adds'} value={slotsText(capacity)}/> : null}
         {/* One description: the filled-in lines when the item has them, else its own text, without the game's
             "Filler" padding (the raw text above the filled-in one read "Smelt down [ Ores ... Filler Filler") */}
-        {mergedDesc ? <TitleAndValue value={cleanUnderscore(mergedDesc)}/>
-          : description ? <TitleAndValue value={cleanUnderscore(description).replace(/\bFiller\b/g, '').replace(/\s+/g, ' ').trim()}/>
+        {mergedDesc ? <ItemLine value={cleanUnderscore(mergedDesc)}/>
+          : description ? <ItemLine value={cleanUnderscore(description).replace(/\bFiller\b/g, '').replace(/\s+/g, ' ').trim()}/>
             : null}
-        {(allowNegativeValues || Speed >= 0) && Speed ? <TitleAndValue title={'Speed'} value={Speed}/> : null}
-        {(allowNegativeValues || Weapon_Power >= 0) && Weapon_Power ? <TitleAndValue
+        {(allowNegativeValues || Speed >= 0) && Speed ? <ItemLine title={'Speed'} value={Speed}/> : null}
+        {(allowNegativeValues || Weapon_Power >= 0) && Weapon_Power ? <ItemLine
           title={getPowerType(UQ1txt || rawName, Type)} value={Weapon_Power}/> : null}
-        {(allowNegativeValues || STR >= 0) && STR ? <TitleAndValue titleStyle={{ color: 'error.dark' }} title={'STR'}
+        {(allowNegativeValues || STR >= 0) && STR ? <ItemLine titleStyle={{ color: 'error.dark' }} title={'STR'}
                                                                    value={STR}/> : null}
-        {(allowNegativeValues || AGI >= 0) && AGI ? <TitleAndValue titleStyle={{ color: 'success.dark' }} title={'AGI'}
+        {(allowNegativeValues || AGI >= 0) && AGI ? <ItemLine titleStyle={{ color: 'success.dark' }} title={'AGI'}
                                                                    value={AGI}/> : null}
-        {(allowNegativeValues || WIS >= 0) && WIS ? <TitleAndValue titleStyle={{ color: 'secondary.dark' }}
+        {(allowNegativeValues || WIS >= 0) && WIS ? <ItemLine titleStyle={{ color: 'secondary.dark' }}
                                                                    title={'WIS'} value={WIS}/> : null}
-        {(allowNegativeValues || LUK >= 0) && LUK ? <TitleAndValue titleStyle={{ color: 'warning.dark' }} title={'LUK'}
+        {(allowNegativeValues || LUK >= 0) && LUK ? <ItemLine titleStyle={{ color: 'warning.dark' }} title={'LUK'}
                                                                    value={LUK}/> : null}
-        {(allowNegativeValues || Defence >= 0) && Defence ? <TitleAndValue title={'Defence'} value={Defence}/> : null}
-        {(allowNegativeValues || Reach >= 0) && Reach ? <TitleAndValue title={'Reach'} value={Reach}/> : null}
-        {UQ1txt && UQ1val ? <TitleAndValue title={'Misc'} value={cleanUnderscore(`+${UQ1val}${UQ1txt}`)}/> : null}
-        {UQ2txt && UQ2val ? <TitleAndValue title={'Misc'} value={cleanUnderscore(`+${UQ2val}${UQ2txt}`)}/> : null}
+        {(allowNegativeValues || Defence >= 0) && Defence ? <ItemLine title={'Defence'} value={Defence}/> : null}
+        {(allowNegativeValues || Reach >= 0) && Reach ? <ItemLine title={'Reach'} value={Reach}/> : null}
+        {UQ1txt && UQ1val ? <ItemLine title={'Misc'} value={cleanUnderscore(`+${UQ1val}${UQ1txt}`)}/> : null}
+        {UQ2txt && UQ2val ? <ItemLine title={'Misc'} value={cleanUnderscore(`+${UQ2val}${UQ2txt}`)}/> : null}
         {Upgrade_Slots_Left > 0 ?
-          <TitleAndValue title={'Upgrade Slots Left'} value={Upgrade_Slots_Left}/> : null}
+          <ItemLine title={'Upgrade Slots Left'} value={Upgrade_Slots_Left}/> : null}
         {amount > 0 && showAmount ?
           <>
             <Divider sx={{ my: 2 }}/>
-            <TitleAndValue title={'Amount'} value={formatNum(amount, 'whole')}/>
+            <ItemLine title={'Amount'} value={formatNum(amount, 'whole')}/>
           </> : null}
         {/*{maxUpgradeSlots > 0*/}
-        {/*  ? <TitleAndValue title={'Upgrade Slots'}*/}
+        {/*  ? <ItemLine title={'Upgrade Slots'}*/}
         {/*                   value={`${maxUpgradeSlots - Upgrade_Slots_Left} / ${maxUpgradeSlots}`}/>*/}
         {/*  : null}*/}
 
@@ -150,7 +155,7 @@ const ItemDisplay = ({
 
         {owners?.length > 0 ? <>
           <Divider sx={{ my: 2 }}/>
-          <TitleAndValue title={'Owners'} value={owners.join(', ')}/>
+          <ItemLine title={'Owners'} value={owners.join(', ')}/>
         </> : null}
       </Stack>}
     {breakdown ? <>
@@ -158,7 +163,7 @@ const ItemDisplay = ({
       <Stack>
         {breakdown?.map(({ name, value, title }, index) => title ? <Typography sx={{ fontWeight: 500 }}
                                                                                key={`${name}-${index}`}>{title}</Typography>
-          : !name ? <Divider sx={{ my: 1 }} key={`${name}-${index}`}/> : <TitleAndValue
+          : !name ? <Divider sx={{ my: 1 }} key={`${name}-${index}`}/> : <ItemLine
             key={`${name}-${index}`}
             titleStyle={{ width: 120 }}
             title={name}

@@ -10,6 +10,9 @@ export const cleanUpgradeName = (name) => cleanUnderscore(name
 
 // Masterclass glyphs plus 千膛, which only show up in the Royal Guardian catalogs (statues, orblet market, armory).
 export const cleanText = (str) => cleanUnderscore((str ?? '').replace(/[船般航舞製千膛]/g, ''));
+// A game sentence for the screen: a glyph mid-sentence ("Click the 膛 button") leaves its two spaces behind. cleanText stays
+// as it is, because stableText builds goal keys on it.
+export const gameText = (str) => cleanText(str).replace(/ {2,}/g, ' ');
 
 // Catalogs repeat names (placeholder bonuses, twin entries): the 2nd and later get "(n)" so searches stay unambiguous.
 export const withUniqueNames = (rows, nameOf) => {

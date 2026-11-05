@@ -2,7 +2,7 @@ import React from 'react';
 import { Stack } from '@mui/material';
 import { formatDuration, formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
-import { cleanText } from '@utility/goals/registry/names';
+import { cleanText, gameText } from '@utility/goals/registry/names';
 import { getArmoryTotalUpgradeCost, ROYAL_RESOURCE_NAMES } from '@parsers/class-specific/royalGuardian';
 import MasterclassUpgradeCard from '../MasterclassUpgradeCard';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -68,7 +68,7 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour, costing, 
                                          level={level}
                                          maxLevel={capped ? maxLevel : Infinity}
                                          // The parser turns the game's @ into line breaks: one line each
-                                         description={cleanText(description).split('\n')}
+                                         description={gameText(description).split('\n')}
                                          currencyIcon={costResourceRawName}
                                          currencyName={ROYAL_RESOURCE_NAMES[costResourceIndex] ?? ''}
                                          costGame={'RoyalG.ArmoryUpgCost'}
