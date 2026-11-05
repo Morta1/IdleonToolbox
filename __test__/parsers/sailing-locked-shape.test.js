@@ -4,7 +4,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import {
-  artifacts, equinoxChallenges, equinoxUpgrades, gamingPalette, gamingUpgrades, guildBonuses, superbitsUpgrades
+  artifacts, equinoxChallenges, equinoxUpgrades, gamingPalette, gamingUpgrades, guildBonuses, islands, superbitsUpgrades
 } from '@website-data';
 import { getGuildBonusBonus, getGuildLevel } from '@parsers/guild';
 import { getEquinoxBonus, getLockedEquinox } from '@parsers/world-3/equinox';
@@ -47,6 +47,7 @@ describe('sailing locked shape', () => {
     const { sailing } = parseEmpty().account;
     expect(sailing.artifacts).toHaveLength(artifacts.length);
     expect(sailing.artifacts[0]?.name ?? sailing.artifacts[0]?.displayName).toBeTruthy();
+    expect(sailing.lootPile.map(({ amount }) => amount)).toEqual(new Array(1 + 2 * islands.length).fill(0));
   });
 
   it.each(REQUIRED_COLLECTIONS)('exposes %s as an array, not undefined', (key) => {

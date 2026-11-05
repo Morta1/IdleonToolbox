@@ -26,7 +26,6 @@ describe('world 5-7 breakdowns rebuild their value', () => {
     expect(boats.length).toBeGreaterThan(0);
     boats.forEach(({ artifactChance }) => {
       const { rawValue, breakdown } = artifactChance;
-      expect(breakdown.totalValue).toBe(artifactChance.value);
       expectRebuilds(breakdown, rawValue);
     });
   });

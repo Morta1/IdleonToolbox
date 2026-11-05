@@ -9,7 +9,6 @@ import GameIcon from '@components/common/GameIcon';
 import Num from '@components/common/Num';
 import Notice from '@components/common/Notice';
 
-// The parser hands the tier chances as toFixed(5) strings, so each is a number again before it prints
 const TIERS = [['ancientChance', 2], ['eldritchChance', 3], ['sovereignChance', 4], ['omnipotentChance', 5],
   ['transcendentChance', 6], ['verisimilitudeChance', 7]];
 
@@ -36,9 +35,9 @@ const Chests = ({ chests, sectionFailed }) => {
                          <Num key={'treasure'} value={treasure ?? 0} system={'Sailing'}/>]]}/>}>
         {done ? null : <ItemCard.Facts rows={[
           ['Artifact', formatNum(artifactChance ?? 0, 'pct')],
-          ...TIERS.filter(([key]) => Number(chest[key]) > 0)
+          ...TIERS.filter(([key]) => chest[key] != null)
             .map(([key, tier]) => [<Box key={key} component={'span'} sx={{ color: artifactTierColor(tier) }}>{ARTIFACT_TIERS[tier - 1].full}</Box>,
-              formatNum(Number(chest[key]), 'pct')])
+              formatNum(chest[key], 'pct')])
         ]}/>}
         {!done && possibleArtifacts?.length ? <CardGrid size={'icon'}>
           {possibleArtifacts.map((artifact) => <IconTile key={artifact?.rawName} icon={`data/${artifact?.rawName}.png`}

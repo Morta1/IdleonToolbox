@@ -31,12 +31,6 @@ const artifactIcon = (rawName, tier) => tier === 7
 
 // The parser drops the game's line break before the total (sailing.ts), so the card puts it back
 const withTotalLine = (text) => cleanUnderscore(text ?? '').replace(/\s*(Total bonus)/i, ' @ $1');
-// The game fills Deathskull's $ with its form's line (gameTables.artifactFormText); the parser leaves it for an artifact
-// with no form yet (an empty save), so the card fills it the game's way
-const FORM_TEXT = gameTables?.artifactFormText;
-const filledDescription = ({ description, rawName }, tier) => (rawName === `Arti${FORM_TEXT?.artifact}` && description?.includes('$')
-  ? description.replace('$', FORM_TEXT?.forms?.[Math.round(tier)] ?? '')
-  : description);
 
 // Info 5: Crystal Steak's and Socrates' per-character tables, a list in a hover note before
 const PER_CHARACTER = {
@@ -63,6 +57,7 @@ const catalogAtZero = () => (ARTIFACTS ?? []).map((artifact, index) => ({
   rawName: `Arti${index}`,
   acquired: 0,
   description: String(artifact?.description ?? '').replace(/_*@?_*Total_Bonus.*$/, '').replace('{', artifact?.baseBonus ?? '')
+    .replace('$', gameTables?.artifactFormText?.forms?.[0] ?? '')
 }));
 
 const Artifacts = ({ artifacts }) => <CardGrid size={'m'}>
@@ -73,7 +68,7 @@ const Artifacts = ({ artifacts }) => <CardGrid size={'m'}>
     const next = tier >= 1 && tier < TIERS.length ? getTierDescription(artifact, tier + 1) : '';
     return <ItemCard key={`${name}-${index}`} icon={artifactIcon(rawName, tier)} title={cleanUnderscore(name)} dimmed={!tier}
                      meta={tier ? `Tier ${tier} of ${TIERS.length} · ${TIERS[tier - 1]?.full}` : 'Not acquired'}>
-      <ItemCard.Desc text={withTotalLine(filledDescription(artifact, tier))}/>
+      <ItemCard.Desc text={withTotalLine(artifact?.description)}/>
       {/* The tier is the meta line's; the rows say what it gives now and what the next one would */}
       <ItemCard.Facts rows={[
         current ? ['Now', cleanUnderscore(current)] : null,
