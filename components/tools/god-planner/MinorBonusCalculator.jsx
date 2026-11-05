@@ -1,7 +1,11 @@
 import React, { useState } from 'react';
-import { Box, Card, CardContent, Divider, MenuItem, Stack, TextField, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum, numberWithCommas, prefix } from '@utility/helpers';
+import { Divider, MenuItem, Stack, TextField, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import NumberField from '@components/common/NumberField';
+import Panel from '@components/common/cards/Panel';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
+import StatusText from '@components/common/StatusText';
 import { gods } from '@website-data';
 import {
   GOD_SLOT,
@@ -15,6 +19,10 @@ import {
   getRequiredCoralKidLevel,
   getRequiredDivinityLevel
 } from '@parsers/world-5/divinity';
+
+// The inputs share a wrapping row at one height: each takes its share of the width, none a fixed one
+const FIELD_SX = { flex: '1 1 150px', minWidth: 0 };
+const precise = (value) => formatNum(value, 'amount', { precise: true });
 
 const MinorBonusCalculator = ({ characters, account }) => {
   const [godSlot, setGodSlot] = useState(GOD_SLOT.Arctis);
@@ -36,11 +44,13 @@ const MinorBonusCalculator = ({ characters, account }) => {
   const coralKidUpgBonus = Math.round(coralKidLevel);
   const inputs = { divinityLevel, bigPBubble, multiplier, coralKidUpgBonus };
   const currentBonus = getMinorDivinityBonusValue(inputs);
+  const cap = getMinorDivinityBonusCap(inputs);
 
   // Arctis is the only god whose bonus lands on whole steps, since it is ceiled into talent levels.
   const isTalentTarget = godSlot === GOD_SLOT.Arctis;
   const target = overrides?.target ?? Math.ceil(currentBonus) + 1;
   const targetBonus = isTalentTarget ? target - 1 : target;
+  const bubbleCap = (1 + bubbleShape?.x1) * (bubbleShape?.prismaMultiplier ?? 1);
 
   const requirements = [
     {
@@ -55,7 +65,7 @@ const MinorBonusCalculator = ({ characters, account }) => {
         x2: bubbleShape?.x2,
         prismaMultiplier: bubbleShape?.prismaMultiplier
       }),
-      note: `caps at ${Math.round((1 + bubbleShape?.x1) * (bubbleShape?.prismaMultiplier ?? 1) * 100) / 100}x`
+      note: Number.isFinite(bubbleCap) ? `caps at ${formatNum(bubbleCap, 'mult')}` : null
     },
     {
       label: 'Divinity level',
@@ -81,137 +91,73 @@ const MinorBonusCalculator = ({ characters, account }) => {
 
   // An emptied field reads 0.
   const handleOverride = (field) => (next) => setOverrides((prev) => ({ ...prev, [field]: next ?? 0 }));
+  const withTalents = (bonus) => (isTalentTarget ? `${precise(bonus)} (+${formatNum(Math.ceil(bonus), 'whole')} talent LV)` : precise(bonus));
 
-  return <Card sx={{ width: 'fit-content' }}>
-    <CardContent>
-      <Stack gap={2}>
-        <Typography variant={'body2'} sx={{ maxWidth: 600 }}>Minor Link Bonus:</Typography>
-        <Box
-          component={'pre'}
-          sx={{
-            m: 0,
-            p: 1.5,
-            borderRadius: 1,
-            overflowX: 'auto',
-            fontSize: 13,
-            bgcolor: 'background.default',
-            border: '1px solid',
-            borderColor: 'divider'
-          }}
-        >
-          <code>div lv / (60 + div lv) * BIG P bubble * god multiplier * (1 + coral kid / 100)</code>
-        </Box>
-        <Typography variant={'body2'} sx={{ maxWidth: 600 }}>
+  return <Panel title={'Bonus calculator'} meta={'What a god is worth now, and what a target costs.'}>
+    <Stack gap={2} sx={{ p: 2 }}>
+      <Stack gap={0.5}>
+        <Typography variant={'body2'}>
+          Minor link bonus = div lv / (60 + div lv) × BIG P bubble × god multi × (1 + Coral Kid / 100)
+        </Typography>
+        <Typography variant={'body2'} color={'text.secondary'}>
           Fields start from your save. Change any of them to test a setup.
         </Typography>
-        <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-          <TextField
-            select
-            size={'small'}
-            label={'God'}
-            sx={{ width: 190 }}
-            value={godSlot}
-            onChange={({ target: { value } }) => setGodSlot(Number(value))}
-          >
-            {gods?.map((god, index) => <MenuItem key={god?.name} value={index}>
-              <Stack direction={'row'} gap={1} alignItems={'center'}>
-                <img width={20} height={20} src={`${prefix}data/DivGod${index}.png`} alt=""/>
-                {god?.name}
-              </Stack>
-            </MenuItem>)}
-          </TextField>
-          {characters?.length > 0 ? <TextField
-            select
-            size={'small'}
-            label={'Character'}
-            sx={{ width: 170 }}
-            value={characterIndex}
-            onChange={({ target: { value } }) => {
-              setCharacterIndex(Number(value));
-              // The divinity level belongs to the character, so a new pick takes over the field again.
-              setOverrides((prev) => ({ ...prev, divinityLevel: null }));
-            }}
-          >
-            {characters?.map(({ name }, index) => <MenuItem key={name} value={index}>{name}</MenuItem>)}
-          </TextField> : null}
-        </Stack>
-        <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-          <NumberField
-            label={'Divinity level'}
-            sx={{ width: 150 }}
-            min={0}
-            integer
-            help={false}
-            value={divinityLevel}
-            onChange={handleOverride('divinityLevel')}
-          />
-          <NumberField
-            label={'BIG P level'}
-            sx={{ width: 150 }}
-            min={0}
-            integer
-            help={false}
-            value={bigPLevel}
-            onChange={handleOverride('bigPLevel')}
-          />
-          <NumberField
-            label={'Coral Kid level'}
-            sx={{ width: 150 }}
-            min={0}
-            integer
-            help={false}
-            value={coralKidLevel}
-            onChange={handleOverride('coralKidLevel')}
-          />
-          <Divider orientation={'vertical'} flexItem sx={{ display: { xs: 'none', sm: 'block' } }}/>
-          <NumberField
-            label={isTalentTarget ? 'Target talent LV' : 'Target bonus'}
-            sx={{ width: 170 }}
-            min={0}
-            // Arctis hands out whole talent levels; the other gods' bonus is a percent with decimals.
-            integer={isTalentTarget}
-            help={false}
-            value={target}
-            onChange={handleOverride('target')}
-          />
-        </Stack>
-        <Divider/>
-        <Stack gap={0.5}>
-          <Typography>
-            Current bonus: <strong>{formatNum(currentBonus, 'amount', { precise: true })}</strong>
-            {isTalentTarget ? ` (+${numberWithCommas(Math.ceil(currentBonus))} talent LV)` : null}
-          </Typography>
-          <Typography variant={'body2'}>
-            Divinity levels alone top out at {formatNum(getMinorDivinityBonusCap(inputs), 'amount', { precise: true })}
-            {isTalentTarget ? ` (+${numberWithCommas(Math.ceil(getMinorDivinityBonusCap(inputs)))} talent LV)` : null}
-          </Typography>
-          <Typography variant={'caption'}>{cleanUnderscore(gods?.[godSlot]?.minorBonus?.replace(/{/g, ''))}</Typography>
-        </Stack>
-        <Divider/>
-        {reached
-          ? <Typography color={'text.success'}>
-            Already there: {formatNum(currentBonus, 'amount', { precise: true })} clears {numberWithCommas(targetBonus)}.
-          </Typography>
-          : <Stack gap={1}>
-            <Typography variant={'body2'} sx={{ maxWidth: 600 }}>
-              {isTalentTarget
-                ? `+${numberWithCommas(target)} talent LV needs a bonus above ${numberWithCommas(targetBonus)}. Each line raises one thing, the others unchanged.`
-                : `Needs a bonus above ${numberWithCommas(targetBonus)}. Each line raises one thing, the others unchanged.`}
-            </Typography>
-            {requirements.map(({ label, current, required, note }) => <Typography key={label} variant={'body2'}>
-              {label}: {required === null
-              ? <span>out of reach{note ? ` (${note})` : ''}</span>
-              : <strong>{numberWithCommas(required)}</strong>}
-              {required === null ? null : ` (you have ${numberWithCommas(current)}, +${numberWithCommas(Math.max(0, required - current))})`}
-            </Typography>)}
-            {coralKidOnly && coralKidFloor !== null ? <Typography variant={'body2'} color={'text.warning'}
-                                                                 sx={{ maxWidth: 600 }}>
-              Only Coral Kid can get there, and never below level {numberWithCommas(coralKidFloor)}.
-            </Typography> : null}
-          </Stack>}
       </Stack>
-    </CardContent>
-  </Card>;
+      <Stack direction={'row'} columnGap={1.5} rowGap={1.5} flexWrap={'wrap'} alignItems={'flex-start'}>
+        <TextField select label={'God'} sx={FIELD_SX} value={godSlot}
+                   onChange={({ target: { value } }) => setGodSlot(Number(value))}>
+          {gods?.map((god, index) => <MenuItem key={god?.name} value={index}>
+            <Stack direction={'row'} gap={1} alignItems={'center'}>
+              <GameIcon src={`data/DivGod${index}.png`} size={24} alt={''}/>
+              {god?.name}
+            </Stack>
+          </MenuItem>)}
+        </TextField>
+        {characters?.length > 0 ? <TextField select label={'Character'} sx={FIELD_SX} value={characterIndex}
+                                             onChange={({ target: { value } }) => {
+                                               setCharacterIndex(Number(value));
+                                               // The divinity level belongs to the character, so a new pick takes over the field again.
+                                               setOverrides((prev) => ({ ...prev, divinityLevel: null }));
+                                             }}>
+          {characters?.map(({ name }, index) => <MenuItem key={name} value={index}>{name}</MenuItem>)}
+        </TextField> : null}
+        <NumberField label={'Divinity level'} sx={FIELD_SX} min={0} integer help={false} value={divinityLevel}
+                     onChange={handleOverride('divinityLevel')}/>
+        <NumberField label={'BIG P level'} sx={FIELD_SX} min={0} integer help={false} value={bigPLevel}
+                     onChange={handleOverride('bigPLevel')}/>
+        <NumberField label={'Coral Kid level'} sx={FIELD_SX} min={0} integer help={false} value={coralKidLevel}
+                     onChange={handleOverride('coralKidLevel')}/>
+        <NumberField label={isTalentTarget ? 'Target talent LV' : 'Target bonus'} sx={FIELD_SX} min={0}
+          // Arctis hands out whole talent levels; the other gods' bonus is a percent with decimals.
+                     integer={isTalentTarget} help={false} value={Number.isFinite(target) ? target : null}
+                     onChange={handleOverride('target')}/>
+      </Stack>
+      <Divider/>
+      <Stack gap={1}>
+        <ItemCard.Facts rows={[
+          ['Current bonus', withTalents(currentBonus)],
+          ['Divinity levels alone top out at', withTalents(cap)]
+        ]}/>
+        <Typography variant={'body2'} color={'text.secondary'}>{cleanUnderscore(gods?.[godSlot]?.minorBonus?.replace(/{/g, ''))}</Typography>
+      </Stack>
+      <Divider/>
+      {reached
+        ? <StatusText status={'done'} wrap>Already there: {precise(currentBonus)} clears {formatNum(targetBonus)}.</StatusText>
+        : <Stack gap={1}>
+          <Typography variant={'body2'} color={'text.secondary'}>
+            {isTalentTarget
+              ? `+${formatNum(target, 'whole')} talent LV needs a bonus above ${formatNum(targetBonus)}. Each line raises one thing, the others unchanged.`
+              : `Needs a bonus above ${formatNum(targetBonus)}. Each line raises one thing, the others unchanged.`}
+          </Typography>
+          <ItemCard.Facts rows={requirements.map(({ label, current, required, note }) => [label, required === null
+            ? `Out of reach${note ? ` (${note})` : ''}`
+            : `${formatNum(required, 'whole')} (you have ${formatNum(current, 'whole')}, +${formatNum(Math.max(0, required - current), 'whole')})`])}/>
+          {coralKidOnly && coralKidFloor !== null
+            ? <StatusText status={'needs'} wrap>Only Coral Kid can get there, and never below level {formatNum(coralKidFloor, 'whole')}.</StatusText>
+            : null}
+        </Stack>}
+    </Stack>
+  </Panel>;
 };
 
 export default MinorBonusCalculator;
