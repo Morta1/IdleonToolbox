@@ -66,7 +66,7 @@ const NameRow = ({ character, side, pinTop }) => {
                        sx={{ flex: '0 10000 102px', minWidth: 64, height: 19, objectFit: 'contain', objectPosition: 'right', display: 'block' }}/> : null}
       </Stack>
       <Typography color={'text.secondary'} component={'div'} sx={{ ...ONE_LINE_SX, fontSize: 13, lineHeight: '18px' }}>
-        {cleanUnderscore(className ?? '')} · {formatNum(level ?? 0, 'level')}
+        {[cleanUnderscore(className), formatNum(level ?? 0, 'level')].filter(Boolean).join(' · ')}
       </Typography>
     </Stack>
   </Stack>;
