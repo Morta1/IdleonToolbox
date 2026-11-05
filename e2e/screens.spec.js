@@ -69,6 +69,27 @@ const COUNT = process.env.SCREENS_COUNT;
 const REGION = process.env.SCREENS_REGION;
 const REGION_MASKS = ['[data-shell="bar"]', '[data-shell="band"]'];
 
+// A shot past the viewport drops the touch emulation, so a phone's (pointer: coarse) sizes never showed. A phone's viewport
+// takes the page's height for the shot instead, which also puts a sticky piece at its true top. main's 100vh floor stays at
+// the phone's height, or it pushes the footer out of the shot. A vh cap on a panel can still grow the page, so it measures
+// until the two agree. Returns what puts it all back.
+const fitPhoneViewport = async (page) => {
+  const viewport = page.viewportSize();
+  await page.evaluate(() => {
+    const main = document.querySelector('main');
+    main.style.minHeight = getComputedStyle(main).minHeight;
+  });
+  for (let measured = 0; measured < 4; measured += 1) {
+    const height = await page.evaluate(() => document.documentElement.scrollHeight);
+    if (height === page.viewportSize().height) break;
+    await page.setViewportSize({ width: viewport.width, height });
+  }
+  return async () => {
+    await page.setViewportSize(viewport);
+    await page.evaluate(() => document.querySelector('main').style.removeProperty('min-height'));
+  };
+};
+
 const shoot = async (page, name) => {
   // GameIcon refits once the sprite bounds arrive (utility/spriteBounds.js): shoot after that.
   await expect(page.locator('[data-fit="pending"]')).toHaveCount(0);
@@ -78,13 +99,16 @@ const shoot = async (page, name) => {
     test.info().annotations.push({ type: 'region', description: 'none' });
     return;
   }
+  const phone = test.info().project.use.isMobile;
+  const restoreViewport = phone ? await fitPhoneViewport(page) : null;
   try {
     await expect(region ?? page).toHaveScreenshot(fileName(name), {
-      ...(region ? {} : { fullPage: true }),
+      ...(region || phone ? {} : { fullPage: true }),
       mask: [...MASKS, ...(region ? REGION_MASKS : [])].map((selector) => page.locator(selector)),
       ...(looseRatio(name) ? { maxDiffPixelRatio: looseRatio(name) } : {}),
     });
   } finally {
+    await restoreViewport?.();
     // Counted once the shot has settled, changed or not: a slow route (Speedrun) is still rendering right after the refit.
     if (COUNT) test.info().annotations.push({ type: 'count', description: String(await page.locator(COUNT).count()) });
   }
