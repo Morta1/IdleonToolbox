@@ -1,6 +1,7 @@
 import { Typography } from '@mui/material';
 import { IconBolt, IconCheck } from '@tabler/icons-react';
 import { NOTICE_TONES } from '@components/common/Notice';
+import UpTriangle from '@components/common/UpTriangle';
 
 // Controls board, Status text: a state is a glyph and a word in its color, never a chip and never
 // color alone. children replace the default word ("Purchased", "12 unspent"); the look stays.
@@ -14,6 +15,8 @@ const STATUS = {
   active: { color: 'text.success', glyph: '●', word: 'Active' },
   // A pick the page recommends (Gaming's fastest palette to level). The board folds "best" ambers into warning.
   best: { color: 'text.warning', glyph: <IconBolt size={14} stroke={2.2}/> },
+  // Not capped yet, a tile's can level up triangle and the reason beside it (the Library can still raise a talent).
+  up: { color: 'text.secondary', glyph: <UpTriangle/> },
   // A to-do that is not a shortfall (the item planner's Not crafted).
   info: { color: NOTICE_TONES.info.color, glyph: <NOTICE_TONES.info.Glyph size={14} stroke={2.2}/> },
   needs: { color: NOTICE_TONES.missing.color, glyph: <NOTICE_TONES.missing.Glyph size={14} stroke={2.2}/> },

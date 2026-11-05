@@ -154,7 +154,8 @@ const Talents = ({
                          badge={libraryCanRaise ? 'up' : undefined}
                          details={<Stack gap={0.5}>
                            <TalentTooltip {...talentDetails}/>
-                           {isMaxed ? <StatusText status={'maxed'} wrap>{libraryCanRaise ? 'Maxed: the Library can still raise it' : 'Maxed'}</StatusText> : null}
+                           {libraryCanRaise ? <StatusText status={'up'} wrap>The Library can still raise it</StatusText>
+                             : isMaxed ? <StatusText status={'maxed'} wrap>Maxed</StatusText> : null}
                          </Stack>}/>;
       })}
     </CardGrid>
