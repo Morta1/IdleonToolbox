@@ -9,6 +9,13 @@ const STAMP_TYPES = { combat: 'Combat', skills: 'Skills', misc: 'Misc' };
 const bubbleName = (cauldronIndex, bubbleIndex) =>
   cleanUnderscore(cauldrons?.[cauldronsIndexMapping[cauldronIndex]]?.[bubbleIndex]?.bubbleName).toLowerCase().capitalizeAll();
 
+// The worker's Total levels buckets (its visualizations pipeline): 100 wide to 800, then 1,000 wide, and 18,000+ past the
+// last. Mongo's $bucket leaves an empty one out, so a gap in the reply is a real zero. Below 500 the page leaves them out.
+const TOTAL_LEVELS_FROM = 500;
+const TOTAL_LEVEL_BUCKETS = [500, 600, 700, 800, ...Array.from({ length: 18 }, (_, i) => (i + 1) * 1000)];
+// A class too rare to matter still counts toward its base class; one with no base class the game names goes in Other.
+export const OTHER_PART = 'Other';
+
 // One entry per chart the API sends: its Panel's title and subtitle, and its form. 'rank' and 'share' entries turn
 // the raw answer into rows ({ key, name, tag, value }); 'spread' and 'stacked' entries into buckets ({ key, label,
 // range, values }), a stacked one with a value per name in its `series`.
@@ -26,20 +33,27 @@ export const getVisualizationMap = (classes) => ({
     }
   },
   totalLevels: {
-    form: 'spread', title: 'Total levels', subtitle: 'Players', unit: 'Players', nameLabel: 'Total level',
-    // A bucket runs to the next one the API sends, so its range survives the buckets the chart leaves out.
-    rows: (raw) => raw.map(({ _id, count }, index) => {
-      const from = Number.parseInt(_id, 10);
-      const next = raw[index + 1] ? Number.parseInt(raw[index + 1]._id, 10) : null;
-      const open = String(_id).endsWith('+') || next == null;
-      return {
-        key: String(_id),
-        label: `${chartNum(from)}${open ? '+' : ''}`,
-        range: open ? `${formatNum(from)}+` : `${formatNum(from)} to ${formatNum(next - 1)}`,
-        values: { count },
-        keep: index > 4 && count > 50
-      };
-    }).filter((row) => row.keep)
+    form: 'spread', title: 'Total levels', subtitle: `Players at total level ${formatNum(TOTAL_LEVELS_FROM)} or more`, unit: 'Players', nameLabel: 'Total level',
+    // Every bucket from the first one kept to the last, a sparse one as a short column, an omitted one at 0, so the axis
+    // never jumps a step. A bucket runs to the next one.
+    rows: (raw) => {
+      const sent = new Map(raw.map((bucket) => [Number.parseInt(bucket._id, 10), bucket]).filter(([from]) => Number.isFinite(from)));
+      const last = Math.max(...sent.keys());
+      const froms = [...new Set([...TOTAL_LEVEL_BUCKETS, ...sent.keys()])]
+        .filter((from) => from >= TOTAL_LEVELS_FROM && from <= last)
+        .toSorted((a, b) => a - b);
+      return froms.map((from, index) => {
+        const next = froms[index + 1];
+        const bucket = sent.get(from);
+        const open = String(bucket?._id).endsWith('+') || next == null;
+        return {
+          key: String(bucket?._id ?? from),
+          label: `${chartNum(from)}${open ? '+' : ''}`,
+          range: open ? `${formatNum(from)}+` : `${formatNum(from)} to ${formatNum(next - 1)}`,
+          values: { count: bucket?.count ?? 0 }
+        };
+      });
+    }
   },
   worldDistribution: {
     form: 'spread', title: 'World distribution', subtitle: 'Players', unit: 'Players', nameLabel: 'World',
@@ -78,14 +92,15 @@ export const getVisualizationMap = (classes) => ({
   classDistributionPerSlot: {
     form: 'stacked', title: 'Class distribution per slot', subtitle: 'Characters', unit: 'Characters', nameLabel: 'Slot',
     // Each base class keeps its series slot whatever its count, in this order, Beginner at the bottom.
-    series: [CLASSES.Beginner, CLASSES.Warrior, CLASSES.Archer, CLASSES.Mage],
+    series: [CLASSES.Beginner, CLASSES.Warrior, CLASSES.Archer, CLASSES.Mage, OTHER_PART],
     rows: (raw) => {
       const slots = Array.from({ length: 11 }, (_, i) => ({ key: `slot-${i}`, label: String(i + 1), range: `Slot ${i + 1}`, values: {} }));
       for (const item of raw) {
         const slot = slots[item.slot];
-        if (!slot || item.count <= 50) continue;
+        if (!slot) continue;
         const baseClass = getBaseClass(classes?.[item.class]);
-        slot.values[baseClass] = (slot.values[baseClass] ?? 0) + item.count;
+        const part = [CLASSES.Beginner, CLASSES.Warrior, CLASSES.Archer, CLASSES.Mage].includes(baseClass) ? baseClass : OTHER_PART;
+        slot.values[part] = (slot.values[part] ?? 0) + item.count;
       }
       return slots;
     }

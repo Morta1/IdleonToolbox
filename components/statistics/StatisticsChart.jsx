@@ -6,6 +6,7 @@ import Num from '@components/common/Num';
 import { seriesColors } from '@utility/chartTheme';
 import { chartNum, foldOther } from '@utility/chartScale';
 import { formatNum } from '@utility/helpers';
+import { OTHER_PART } from './consts';
 
 // A share shows this many parts before the rest folds into Other (Decision 6).
 const SHARE_ROWS = 10;
@@ -22,8 +23,8 @@ const barRows = (config, raw) => {
       ...row,
       name: row.other ? `Other (${row.count} ${config.otherNoun})` : row.name,
       share,
-      tip: formatNum(share, 'pct'),
-      detail: `${formatNum(row.value)} · ${formatNum(share, 'pct')}`
+      tip: formatNum(share, 'pct', { decimals: 2 }),
+      detail: `${formatNum(row.value)} · ${formatNum(share, 'pct', { decimals: 2 })}`
     };
   });
 };
@@ -37,7 +38,7 @@ const barTable = (config, rows) => ({
     ...(config.tagLabel ? [{ key: 'tag', label: config.tagLabel, render: (row) => row.tag ?? null }] : []),
     { key: 'value', label: config.unit, numeric: true, phone: true, render: (row) => <Num value={row.value}/> },
     // A share's bars print the percent, so a phone keeps it beside the count.
-    ...(config.form === 'share' ? [{ key: 'share', label: 'Share', numeric: true, phone: true, render: (row) => <Num value={row.share} kind={'pct'}/> }] : [])
+    ...(config.form === 'share' ? [{ key: 'share', label: 'Share', numeric: true, phone: true, render: (row) => formatNum(row.share, 'pct', { decimals: 2 }) }] : [])
   ]
 });
 
@@ -54,7 +55,8 @@ const columnTable = (config, columns, rows) => {
       ...(columns.length === 1
         ? [{ key: columns[0].key, label: config.unit, numeric: true, phone: true, render: (row) => <Num value={row.values[columns[0].key]}/> }]
         : [
-          ...columns.map((item) => ({ key: item.key, label: item.label, numeric: true, phone: true, render: (row) => <Num value={row.values[item.key] ?? 0}/> })),
+          // The rare part leaves room for the ones the chart is about: it opens under a row until the table has room for it.
+          ...columns.map((item) => ({ key: item.key, label: item.label, numeric: true, ...(item.key === OTHER_PART ? { from: 1500 } : { phone: true }), render: (row) => <Num value={row.values[item.key] ?? 0}/> })),
           { key: 'total', label: 'Total', numeric: true, render: (row) => <Num value={total(row)}/> }
         ])
     ]
@@ -72,11 +74,11 @@ const StatisticsChart = ({ config, raw }) => {
     </ChartFrame>;
   }
 
-  // A spread is one series; stacked parts take the series slots in order, never cycled.
-  const columns = config.form === 'stacked'
-    ? config.series.map((name, i) => ({ key: name, label: name, color: series[i] }))
-    : [{ key: 'count', label: config.unit, color: series[0] }];
+  // A spread is one series; stacked parts take the series slots in order, never cycled. A part no row holds draws nothing.
   const rows = config.rows(raw);
+  const columns = config.form === 'stacked'
+    ? config.series.map((name, i) => ({ key: name, label: name, color: series[i] })).filter(({ key }) => rows.some((row) => row.values[key]))
+    : [{ key: 'count', label: config.unit, color: series[0] }];
   return <ChartFrame legend={columns.map(({ label, color }) => ({ label, color }))} table={columnTable(config, columns, rows)}>
     <ColumnChart label={config.title} series={columns} rows={rows}/>
   </ChartFrame>;

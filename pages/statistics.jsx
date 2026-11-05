@@ -1,43 +1,49 @@
 import { NextSeo } from 'next-seo';
 import React, { useEffect, useState } from 'react';
 import SimpleLoader from '../components/common/SimpleLoader';
-import { Box, Grid } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { classes } from '@website-data';
 import { getVisualizationMap } from '@components/statistics/consts';
+import CardGrid from '@components/common/cards/CardGrid';
 import Panel from '@components/common/cards/Panel';
-import Notice from '@components/common/Notice';
+import ErrorBoundary from '@components/common/ErrorBoundary';
+import Notice, { retryAction } from '@components/common/Notice';
 import StatisticsChart from '@components/statistics/StatisticsChart';
 
 const API_URL = process.env.NEXT_PUBLIC_PROFILES_URL;
 
+const fetchVisualizations = () => fetch(`${API_URL}/visualizations`).then((res) => {
+  if (!res.ok) throw new Error('Failed to fetch');
+  return res.json();
+});
+
 const Statistics = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [retrying, setRetrying] = useState(false);
+  const [failed, setFailed] = useState(0);
   const visualizationMap = getVisualizationMap(classes);
 
-  // Whole page is a loader below - let the layout collapse the ad gutter so it centres
+  const load = () => fetchVisualizations()
+    .then((json) => {
+      setData(json);
+      setFailed(0);
+    })
+    .catch(() => setFailed((count) => count + 1))
+    .finally(() => {
+      setLoading(false);
+      setRetrying(false);
+    });
 
   useEffect(() => {
-    fetch(`${API_URL}/visualizations`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch');
-        return res.json();
-      })
-      .then((json) => {
-        setData(json);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+    load();
   }, []);
 
-  // One chart per key the API sends that the map knows (createdAt and _id are skipped).
-  const charts = data
-    ? Object.entries(data).filter(([key]) => visualizationMap[key]).map(([key, raw]) => [key, visualizationMap[key], raw])
-    : [];
+  // One chart per key the API sends that the map knows (createdAt and _id are skipped). A key whose answer is not a list
+  // has nothing to draw, and the page says so once under the charts.
+  const known = Object.keys(visualizationMap);
+  const charts = known.filter((key) => Array.isArray(data?.[key])).map((key) => [key, visualizationMap[key], data[key]]);
+  const unread = known.length - charts.length;
 
   // Rendered in both branches - when it sat below the early return the page had no title at all
   // while the visualizations were still loading.
@@ -50,16 +56,24 @@ const Statistics = () => {
 
   return <>
     {seo}
-    <Box sx={{ p: { xs: 1, sm: 2.5 } }}>
-      {error ? <Notice tone={'error'}>Could not load the statistics.</Notice> : null}
-      {!error && data ? <Grid container spacing={3}>
-        {charts.map(([key, config, raw]) => <Grid item xs={12} md={6} key={key}>
-          <Panel title={config.title} meta={config.subtitle} sx={{ height: '100%' }}>
-            <Box sx={{ p: { xs: 1.5, sm: 2 } }}><StatisticsChart config={config} raw={raw}/></Box>
-          </Panel>
-        </Grid>)}
-      </Grid> : null}
-    </Box>
+    {failed
+      ? <Notice key={failed} tone={'error'} action={retryAction(() => {
+        setRetrying(true);
+        load();
+      }, retrying)}>Could not load the statistics.</Notice>
+      : <>
+        <Typography variant={'body2'} color={'text.secondary'} sx={{ mb: 3 }}>
+          Counted from every profile players have uploaded to Idleon Toolbox, refreshed every 30 minutes.
+        </Typography>
+        {charts.length ? <CardGrid size={'l'}>
+          {charts.map(([key, config, raw]) => <Panel key={key} title={config.title} meta={config.subtitle} sx={{ height: '100%', boxSizing: 'border-box' }}>
+            <Box sx={{ p: { xs: 1.5, sm: 2 } }}>
+              <ErrorBoundary title={'This chart didn\'t load'}><StatisticsChart config={config} raw={raw}/></ErrorBoundary>
+            </Box>
+          </Panel>)}
+        </CardGrid> : <Notice tone={'info'}>No statistics yet.</Notice>}
+        {charts.length && unread ? <Box sx={{ mt: 3 }}><Notice tone={'info'}>{unread} {unread === 1 ? 'chart' : 'charts'} didn't load.</Notice></Box> : null}
+      </>}
   </>;
 };
 
