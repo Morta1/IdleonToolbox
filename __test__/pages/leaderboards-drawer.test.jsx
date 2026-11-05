@@ -140,11 +140,12 @@ describe('leaderboards board drawer', () => {
   });
 
   it('still opens a board from a card when meta is down', async () => {
-    fetchMeta.mockRejectedValueOnce(new Error('meta down'));
+    fetchMeta.mockRejectedValueOnce(new Error('meta down')).mockRejectedValueOnce(new Error('meta down'));
     routerState.push.mockImplementation(({ query }) => { routerState.query = query; });
     routerState.query = { t: 'skills' };
     const { rerender } = renderPage();
-    fireEvent.click(await screen.findByRole('link', { name: /Top 100/ }));
+    // The page's own retry comes first, a second later
+    fireEvent.click(await screen.findByRole('link', { name: /Top 100/ }, { timeout: 3000 }));
     rerender();
     expect(await screen.findByRole('dialog', { name: 'Mining' })).toBeTruthy();
     await waitFor(() => expect(fetchBoard).toHaveBeenCalledWith('mining', expect.any(Object)));

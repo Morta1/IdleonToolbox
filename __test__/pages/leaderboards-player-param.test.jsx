@@ -124,14 +124,11 @@ describe('leaderboards ?player= deep link', () => {
     expect(fetchTab).toHaveBeenCalledTimes(1);
   });
 
-  it('puts the board count in its own span on the tab and the status line in the tab strip', async () => {
+  it('puts the board count in its own span on the tab and one status line in the control bar', async () => {
     renderPage();
     await waitFor(() => expect(screen.getByRole('tab', { name: /Skills/ }).querySelector('span')?.textContent).toBe('1'));
     expect(screen.getByRole('tab', { name: /Skills/ }).textContent).toBe('Skills1');
-    const statuses = await screen.findAllByText(/10 players · updated/);
-    const inStrip = statuses.find((status) => status.parentElement.parentElement.parentElement.querySelector('[role="tablist"]'));
-    expect(inStrip).toBeTruthy();
-    expect(inStrip.closest('.MuiTabs-root')).toBeNull();
+    expect(await screen.findAllByText(/10 players · updated/)).toHaveLength(1);
   });
 
   it('keeps the logged-in treatment when you search your own name', async () => {
@@ -142,13 +139,14 @@ describe('leaderboards ?player= deep link', () => {
   });
 
   it('offers a retry when a tab fails to load', async () => {
-    fetchTab.mockRejectedValueOnce(new Error('boom'));
+    fetchTab.mockRejectedValueOnce(new Error('boom')).mockRejectedValueOnce(new Error('boom'));
     routerState.query = { t: 'skills' };
     renderPage();
-    expect(await screen.findByText('Couldn\'t load these boards.')).toBeTruthy();
+    // The page's own retry comes first, a second later
+    expect(await screen.findByText('Couldn\'t load these boards.', {}, { timeout: 3000 })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(await screen.findByText('Mining')).toBeTruthy();
-    expect(fetchTab).toHaveBeenCalledTimes(2);
+    expect(fetchTab).toHaveBeenCalledTimes(3);
   });
 
   it('stores the anonymous switch value it is given', async () => {

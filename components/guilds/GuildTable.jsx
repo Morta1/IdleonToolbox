@@ -85,8 +85,9 @@ const GuildName = ({ guild, router }) => {
 
 const membersText = ({ members_count, total_gp }) => {
   if (members_count == null) return null;
+  // The game's own cap (N.js GuildMaxMembers); it reads GP total_gp can lag, so a count past it stands alone.
   const cap = 30 + 4 * getGuildLevel(total_gp);
-  return Number.isFinite(cap) ? `${formatNum(members_count, 'whole')} / ${formatNum(cap, 'whole')}` : formatNum(members_count, 'whole');
+  return Number.isFinite(cap) && members_count <= cap ? `${formatNum(members_count, 'whole')} / ${formatNum(cap, 'whole')}` : formatNum(members_count, 'whole');
 };
 
 export default function GuildTable({ guilds, hoistedRows, showHoistedSection, isPinned, onTogglePin, router, stickyTop }) {

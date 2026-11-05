@@ -285,23 +285,36 @@ const MetricJump = ({ index, onMetric, inputRef = null, showKeyHint = false, ful
 
 // Sits at the right end of the tab strip on desktop and in the phone menu. Times are the visitor's
 // clock, so nothing renders until hydration.
-export const LeaderboardStatus = ({ totalPlayers, createdAt }) => {
+const LeaderboardStatus = ({ totalPlayers, createdAt }) => {
   const hydrated = useHydrated();
   const formatDate = useFormatDate();
   if (!hydrated || !createdAt) return null;
   return (
-    <Typography variant="caption" sx={{ color: 'text.muted', whiteSpace: 'nowrap' }}>
+    <Typography variant="caption" sx={{ color: 'text.muted' }}>
       {`${totalPlayers ? `${formatNum(totalPlayers, 'whole')} players · ` : ''}updated ${formatDate(createdAt, { timeOnly: true, showSeconds: false })} · next about ${formatDate(createdAt + AGGREGATION_INTERVAL, { timeOnly: true, showSeconds: false })}`}
     </Typography>
   );
 };
 
 // onStickyBottom: where the bar ends on screen, so the tab strip can pin right under it.
+// drawerReach: what an open board drawer takes from the window's right edge, which the status line ends clear of.
 // viewing: the ?player= context ({ name, kind }), held by the search field, which clears it.
 // note: the answer to a player search (a Notice), shown in the bar; onSearchEmptied: the field was emptied.
 const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAnonymous, onPlayer, onMetric, onStickyBottom, viewing, onClearPlayer, note = null,
-                      onSearchEmptied, children }) => {
+                      onSearchEmptied, drawerReach = 0, children }) => {
   const jumpRef = useRef(null);
+  const statusRef = useRef(null);
+  const [endRoom, setEndRoom] = useState(0);
+
+  useEffect(() => {
+    const status = statusRef.current;
+    if (!drawerReach || !status || typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(() => {
+      setEndRoom(Math.max(0, drawerReach - (document.documentElement.clientWidth - status.getBoundingClientRect().right)));
+    });
+    observer.observe(status);
+    return () => observer.disconnect();
+  }, [drawerReach]);
 
   // "/" focuses the board jump, registered on this page only and ignored while typing.
   useEffect(() => {
@@ -336,8 +349,8 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
       <MetricJump index={index} onMetric={onMetric} inputRef={jumpRef} showKeyHint/>
       {anonSwitch}
       {children}
-      <Box sx={{ flexGrow: 1 }}/>
-      <Box sx={{ display: { xs: 'none', sm: 'flex', xl: 'none' }, alignItems: 'center', minHeight: fieldHeight }}>
+      {/* One line's width and its share of the row, whatever the drawer does: where the padding leaves less, the line takes two */}
+      <Box ref={statusRef} sx={{ display: { xs: 'none', sm: 'flex' }, flex: '1 1 274px', minWidth: 0, justifyContent: 'flex-end', alignItems: 'center', textAlign: 'right', minHeight: fieldHeight, pr: { md: `${drawerReach ? endRoom : 0}px` } }}>
         <LeaderboardStatus totalPlayers={totalPlayers} createdAt={createdAt}/>
       </Box>
       <Toolbar.Panel>{(close) => <Stack gap={1.5}>

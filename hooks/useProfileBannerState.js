@@ -5,7 +5,7 @@ import { routeNeedsAccount } from '@utility/account-routes';
 
 // Routes that still pay for an empty account (account-routes.js) though no number on them reads it, so the guest's band
 // has nothing true to say there.
-const NO_GUEST_NUMBERS = new Set(['/guilds/detail', '/guilds/ecosystem', '/settings']);
+const NO_GUEST_NUMBERS = new Set(['/settings']);
 
 const useProfileBannerState = () => {
   const { state } = useContext(AppContext);

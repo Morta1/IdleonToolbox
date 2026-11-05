@@ -344,7 +344,7 @@ const Settings = () => {
 
             <Stack sx={{ pl: 2, borderLeft: '2px solid', borderColor: 'divider' }} spacing={1}>
               <SettingRow label="Hide gem info" description="Remove gems and bundle data from uploads">
-                <Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)}/>
+                <Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)} inputProps={{ 'aria-label': 'Hide gem info' }}/>
               </SettingRow>
 
               <SettingRow label={<Stack direction="row" alignItems="center" gap={0.5}>
@@ -376,6 +376,7 @@ const Settings = () => {
                 <Switch
                   checked={leaderboardParticipation === 'on'}
                   disabled={profileAccess === 'off'}
+                  inputProps={{ 'aria-label': 'Leaderboard participation' }}
                   onChange={() => {
                     setLeaderboardParticipation(leaderboardParticipation === 'on' ? 'off' : 'on');
                   }}

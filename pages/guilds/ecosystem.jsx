@@ -19,7 +19,7 @@ const EcosystemSection = ({ title, children }) => <Panel title={title} sx={{ mb:
   <CardGrid size={'s'} sx={{ p: 2 }}>{children}</CardGrid>
 </Panel>;
 
-const BackToGuilds = () => <Button size={'small'} startIcon={<IconArrowLeft size={18}/>} component={NextLink} href={'/guilds'} sx={{ mb: 2 }}>
+const BackToGuilds = () => <Button size={'small'} startIcon={<IconArrowLeft size={18}/>} component={NextLink} href={'/guilds'} prefetch={false} sx={{ mb: 2 }}>
   Back to guilds
 </Button>;
 

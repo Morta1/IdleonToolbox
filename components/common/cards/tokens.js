@@ -55,5 +55,6 @@ export const textOf = (node) => {
 export const isNumberLike = (value, kind) => {
   if (kind || typeof value === 'number') return true;
   const text = textOf(value);
-  return !text || (/\d/.test(text) && !/[A-Za-z]{4,}/.test(text));
+  // Past a pair it is a list ("200 / 520 / 1,352 / ..."), which wraps between its numbers rather than leave the card.
+  return !text || (/\d/.test(text) && !/[A-Za-z]{4,}/.test(text) && text.split(' / ').length <= 2);
 };

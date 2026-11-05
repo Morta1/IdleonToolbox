@@ -80,7 +80,7 @@ describe('ControlBar', () => {
     expect(onPlayer).toHaveBeenNthCalledWith(2, 'Baker333', 'typeahead');
   });
 
-  it('shows the status line in the bar below xl and in the phone menu', async () => {
+  it('shows the status line in the bar and in the phone menu', async () => {
     renderBar({ createdAt: Date.UTC(2026, 9, 8, 7, 31) });
     expect(await screen.findByText(/2,608 players · updated/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'More options' }));

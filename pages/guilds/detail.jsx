@@ -105,6 +105,7 @@ export default function GuildDetail() {
   // The history covers 30 days, so a rank held across all of it may have held longer: say what the data knows.
   const heldLabel = (days) => (days >= 30 ? 'Held for 30+ days' : `Held for ${days} ${days === 1 ? 'day' : 'days'}`);
   const guildLevel = total_gp == null ? null : getGuildLevel(total_gp);
+  // The game's own cap (N.js GuildMaxMembers); it reads GP total_gp can lag, so a count past it stands alone.
   const maxMembers = guildLevel == null ? null : 30 + 4 * guildLevel;
   const gpThisWeek = current_week?.gp_this_week ?? 0;
 
@@ -139,7 +140,7 @@ export default function GuildDetail() {
       <StatTile label={'Rank'} value={rankText(rank)} sub={steady ? heldLabel(held.days) : undefined}/>
       <StatTile label={'Total GP'} value={formatNum(total_gp, 'amount')}/>
       <StatTile label={'Level'} value={formatNum(guildLevel, 'whole')}/>
-      <StatTile label={'Members'} value={maxMembers == null ? formatNum(members_count, 'whole') : `${formatNum(members_count, 'whole')} / ${formatNum(maxMembers, 'whole')}`}/>
+      <StatTile label={'Members'} value={maxMembers == null || members_count > maxMembers ? formatNum(members_count, 'whole') : `${formatNum(members_count, 'whole')} / ${formatNum(maxMembers, 'whole')}`}/>
     </PageSummary>
 
     <Panel title={'This week\'s progress'} sx={PANEL_SX}

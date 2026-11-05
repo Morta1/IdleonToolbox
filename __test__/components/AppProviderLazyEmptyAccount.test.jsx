@@ -19,7 +19,7 @@ const { default: usePageDataLoading } = await import('@hooks/usePageDataLoading'
 describe('routeNeedsAccount', () => {
   it.each([
     '/', '/wiki', '/wiki/[kind]', '/wiki/[kind]/[slug]', '/wiki/[kind]/[slug]/[entity]', '/wiki/changelog', '/tools/builds', '/tools/builds/[slug]',
-    '/patch-notes', '/privacy-policy', '/404', '/guilds', '/leaderboards', '/statistics', '/tools'
+    '/patch-notes', '/privacy-policy', '/404', '/guilds', '/guilds/detail', '/guilds/ecosystem', '/leaderboards', '/statistics', '/tools', '/tools/active-exp-calculator'
   ])('%s renders without a parsed account', (pathname) => {
     expect(routeNeedsAccount(pathname)).toBe(false);
   });
@@ -27,7 +27,7 @@ describe('routeNeedsAccount', () => {
   // Anything not audited keeps the old behaviour: a page added later can't silently lose its data.
   it.each([
     '/dashboard', '/characters', '/settings', '/account/world-3/printer', '/tools/card-search', '/tools/builds/edit',
-    '/tools/builds/my-builds', '/guilds/detail', '/some-future-page'
+    '/tools/builds/my-builds', '/some-future-page'
   ])('%s still gets a parsed account', (pathname) => {
     expect(routeNeedsAccount(pathname)).toBe(true);
   });
@@ -45,6 +45,13 @@ describe('usePageDataLoading for an anonymous visitor', () => {
 
     const parsed = { ...flagsOnly, account: { empty: true }, characters: [] };
     expect(renderHook(usePageDataLoading, { wrapper: withState(parsed) }).result.current.loading).toBe(false);
+  });
+
+  // No account ever comes there, so waiting for one would be a loader that never ends.
+  it('a tool on an audited route waits for nothing', () => {
+    router.pathname = '/tools/active-exp-calculator';
+    const flagsOnly = { isLoading: false, signedIn: false, emptyAccount: true };
+    expect(renderHook(usePageDataLoading, { wrapper: withState(flagsOnly) }).result.current.loading).toBe(false);
   });
 });
 

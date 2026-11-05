@@ -11,7 +11,7 @@ import { trackLeaderboardEvent } from '@components/leaderboards/analytics';
 import useLeaderboardSelf from '@hooks/useLeaderboardSelf';
 import { RUN_QUERY_KEYS, TABS, buildMetaIndex, rankText, showsFailure, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
 import { focusWithinRing } from '../styles/theme/darkTheme';
-import ControlBar, { LeaderboardStatus } from '@components/leaderboards/ControlBar';
+import ControlBar from '@components/leaderboards/ControlBar';
 import Overview from '@components/leaderboards/Overview';
 import CategoryTab from '@components/leaderboards/CategoryTab';
 import BoardDrawer from '@components/leaderboards/BoardDrawer';
@@ -61,7 +61,7 @@ const Leaderboards = () => {
   const searchedSelf = Boolean(queryPlayer && self.name && queryPlayer.toLowerCase() === self.name.toLowerCase());
   const context = queryPlayer ? { name: queryPlayer, kind: searchedSelf ? 'logged' : 'searched' } : self.name ? { name: self.name, kind: 'logged' } : null;
 
-  const metaQuery = useQuery({ queryKey: ['lb-meta'], queryFn: fetchMeta, staleTime: staleUntilNextRun, refetchInterval: untilNextRun });
+  const metaQuery = useQuery({ queryKey: ['lb-meta'], queryFn: fetchMeta, staleTime: staleUntilNextRun, refetchInterval: untilNextRun, retry: 1 });
   const index = buildMetaIndex(metaQuery.data);
 
   // A new run makes every cached tab, board and player stale at once, so the page never shows the
@@ -78,7 +78,8 @@ const Leaderboards = () => {
     queryKey: ['leaderboard', selectedTab],
     queryFn: () => fetchTab(selectedTab),
     enabled: selectedTab !== 'overview',
-    staleTime: staleUntilNextRun
+    staleTime: staleUntilNextRun,
+    retry: 1
   });
   const playerQuery = useQuery({
     queryKey: ['lb-player', context?.name.toLowerCase()],
@@ -266,6 +267,7 @@ const Leaderboards = () => {
       index={index}
       totalPlayers={index.totalPlayers}
       createdAt={statusCreatedAt}
+      drawerReach={drawerMetric ? DRAWER_WIDTH + DRAWER_GAP : 0}
       showAnonymous={showAnonymous}
       onToggleAnonymous={(event, checked) => setShowAnonymous(checked)}
       onPlayer={lookupPlayer}
@@ -285,8 +287,6 @@ const Leaderboards = () => {
       components={tabLabels}
       stickyTop={stripTop ?? undefined}
       idPrefix="lb"
-      // The strip has room for the status line only on wide screens; below that it sits in the control bar.
-      endSlot={<Box sx={{ display: { xs: 'none', xl: 'block' } }}><LeaderboardStatus totalPlayers={index.totalPlayers} createdAt={statusCreatedAt}/></Box>}
       activeTab={TABS.findIndex((tab) => tab.toLowerCase() === selectedTab)}
       clearOnChange={['m']}
       keepChildren>

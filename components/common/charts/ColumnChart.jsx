@@ -44,8 +44,11 @@ const ColumnChart = ({ label, series, rows }) => {
   const column = width && rows.length ? width / rows.length : 0;
   const labelWidth = CHAR_WIDTH * Math.max(0, ...rows.map((row) => String(row.label).length));
   const everyNth = column ? Math.max(1, Math.ceil((labelWidth + LABEL_GAP) / column)) : 0;
+  // The end label moves inside the plot by what it overhangs (endLabelInside), out of the gap to the label before it,
+  // which gives way when that leaves too little ("15,000" against "18,000+").
+  const beforeEndGivesWay = everyNth * column < labelWidth + LABEL_GAP + Math.max(0, labelWidth - column) / 2;
   const labelled = new Set(everyNth
-    ? rows.map((_, i) => i).filter((i) => i % everyNth === 0)
+    ? rows.map((_, i) => i).filter((i) => i % everyNth === 0 && !(beforeEndGivesWay && i === rows.length - 1 - everyNth))
     : labelIndexes(rows.length, rows.length <= ALL_LABELS ? rows.length : FEW_LABELS));
   // A label wider than its column would run past the card at the plot's end ("18,000+" on a phone).
   const endLabelInside = column > 0 && labelWidth > column;

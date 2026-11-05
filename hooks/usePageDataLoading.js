@@ -1,6 +1,7 @@
 import { useContext } from 'react';
 import { useRouter } from 'next/router';
 import { AppContext } from '@components/common/context/AppProvider';
+import { routeNeedsAccount } from '@utility/account-routes';
 import { offlineTools } from '@utility/navMenu';
 
 /**
@@ -13,8 +14,9 @@ const usePageDataLoading = () => {
 
   // Determine the page type
   const isAccountPage = router.pathname.includes('/account');
-  // The hub (/tools) lists the tools and reads no save; only a tool under it can wait for one
-  const isToolPage = router.pathname.startsWith('/tools/');
+  // The hub (/tools) lists the tools and reads no save; only a tool under it can wait for one, and a route audited to
+  // need no account never gets one to wait for: a guest doesn't parse there.
+  const isToolPage = router.pathname.startsWith('/tools/') && routeNeedsAccount(router.pathname);
   const endPoint = router.pathname.split('/')?.[2] || '';
   const formattedEndPoint = endPoint?.replace('-', ' ')?.toCamelCase();
   const isCharactersPage = router.pathname === '/characters';

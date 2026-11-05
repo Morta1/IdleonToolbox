@@ -413,6 +413,7 @@ const AppProvider = ({ children }) => {
         type: ACTION_TYPES.DATA,
         data: {
           ...parsedData,
+          serverVars,
           lastUpdated: timestamp,
           demo: true,
           emptyAccount: false,
