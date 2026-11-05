@@ -37,7 +37,7 @@ describe('CategoryTiles', () => {
     const countText = LISTED_KINDS.filter((kind) => counts[kind]).map((kind) => counts[kind].toLocaleString('en-US'));
 
     expect(links.map((link) => link.getAttribute('href'))).toEqual(expected);
-    expect(kindLinks.map((link, i) => link.textContent.slice(-countText[i].length))).toEqual(countText);
+    expect(kindLinks.map((link, i) => link.textContent.replace('›', '').slice(-countText[i].length))).toEqual(countText);
   });
 
   it('titles each group that has rows, in the rail order', () => {

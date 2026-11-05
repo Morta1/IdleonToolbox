@@ -2,7 +2,8 @@ import React, { useEffect } from 'react';
 import Head from 'next/head';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
-import { Stack, Typography } from '@mui/material';
+import { Link, Stack } from '@mui/material';
+import Notice from '@components/common/Notice';
 import { sessionQuery } from '@utility/nav-query';
 
 const SITE_ORIGIN = 'https://idleontoolbox.com';
@@ -27,8 +28,8 @@ const WikiRedirectPage = ({ to, seoTitle, seoDescription }) => {
       <link rel="canonical" href={`${SITE_ORIGIN}${to}`} key="canonical"/>
       <meta httpEquiv="refresh" content={`0; url=${to}`} key="refresh"/>
     </Head>
-    <Stack sx={{ my: 4 }} alignItems={'center'} gap={1}>
-      <Typography>This page moved to <a href={to}>{`${SITE_ORIGIN}${to}`}</a></Typography>
+    <Stack sx={{ my: 4 }}>
+      <Notice tone={'info'}>This page moved to <Link href={to}>{`${SITE_ORIGIN}${to}`}</Link></Notice>
     </Stack>
   </>;
 };

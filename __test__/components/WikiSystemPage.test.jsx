@@ -29,8 +29,8 @@ describe('WikiSystemPage', () => {
     const { container } = renderPage();
     expect(pageLinks(container).map((link) => [link.getAttribute('href'), link.textContent])).toEqual([
       ['/wiki', 'Wiki'],
-      ['/wiki/equinox/upgrades', `Upgrades${counts.equinox.toLocaleString('en-US')}`],
-      ['/wiki/equinox/dreams', `Dreams${counts.dream.toLocaleString('en-US')}`]
+      ['/wiki/equinox/upgrades', `Upgrades${counts.equinox.toLocaleString('en-US')}›`],
+      ['/wiki/equinox/dreams', `Dreams${counts.dream.toLocaleString('en-US')}›`]
     ]);
   });
 
@@ -53,8 +53,7 @@ describe('WikiSystemPage', () => {
     const { container } = renderPage();
     expect({
       heading: container.querySelector('h2').textContent,
-      headingInCard: Boolean(container.querySelector('h2').closest('.MuiCard-root')),
-      cards: [...container.querySelectorAll('.MuiCard-root')].filter((card) => !card.closest('nav[aria-label="Wiki categories"]')).map((card) => card.querySelector('a').getAttribute('href'))
-    }).toEqual({ heading: 'Equinox', headingInCard: false, cards: ['/wiki/equinox/upgrades', '/wiki/equinox/dreams'] });
+      cards: [...container.querySelectorAll('a h3')].map((title) => title.closest('a').getAttribute('href'))
+    }).toEqual({ heading: 'Equinox', cards: ['/wiki/equinox/upgrades', '/wiki/equinox/dreams'] });
   });
 });

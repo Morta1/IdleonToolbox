@@ -28,7 +28,7 @@ const WikiListingPage = ({ kind, entries, columns = [], seoTitle, seoDescription
     { pathname: listingHref(kind), query: sortQuery(router.query, next) }, undefined, { shallow: true, scroll: false });
 
   return <WikiRail current={kind}>
-    <Box sx={{ maxWidth: 1200 }}>
+    <Box>
       <NextSeo title={seoTitle} description={seoDescription}/>
       <Stack gap={2}>
         <WikiBreadcrumbs crumbs={wikiCrumbs({ kind, listing: true })} onGo={go}/>

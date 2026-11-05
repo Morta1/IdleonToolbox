@@ -1,20 +1,20 @@
 // Turning a diff into a sentence. The extractor emits the game's own field names, which is the
 // right boundary: it produces data, the site produces words.
-import { cleanUnderscore, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 
 // The archive starts here, so "no changes listed" means "none since 2.3.43" and must not be read
 // as "this has never changed".
 export const ARCHIVE_START = '2.3.43';
 
-// Diffed from our own per-version data exports, which move when the extractor changes as well as
+// Diffed from the site's own per-version data exports, which move when the extractor changes as well as
 // when the game does. Two statistical filters and a curated field list remove almost all of that,
 // but an extraction bugfix is indistinguishable from a nerf, so the page says so rather than
-// presenting every line as certain. "the versions we have data for" is the honest phrasing: the
+// presenting every line as certain. "the versions I have data for" is the honest phrasing: the
 // archive skips versions (2.3.496, 2.3.512-521 and others), so a change that shipped in a missing
-// one is attributed to the next version we hold.
+// one is attributed to the next version held.
 // Lives here rather than in either surface: the entity page and the rollup page show the same
 // caveat, and two copies of it drift.
-export const CAVEAT = `Derived by comparing the game's data between the versions we have data for, `
+export const CAVEAT = `Derived by comparing the game's data between the versions I have data for, `
   + `starting at ${ARCHIVE_START}. `
   + 'An occasional line may be a correction to how the data is read rather than a change to the game.';
 
@@ -67,24 +67,19 @@ export const fieldLabel = (field) => {
     .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
     .split(/[_\s]+/)
     .filter(Boolean);
-  // Only the first word is forced to a capital. Every other word already starts uppercase on its
-  // own, whether split out of SCREAMING_SNAKE_CASE or off a camelCase boundary, so touching it
-  // here would just be redundant. A lone lowercase word with no boundary to split on ("effect",
-  // "bonus", "name": 49 rows between them) needs the same capital, or it reads as lowercase
-  // against the page's Title Case headings. STR and its three siblings are unaffected: their
-  // first letter is already a capital, so they keep rendering as Str, Agi, Wis and Luk.
+  // Sentence case: the first word takes a capital, the rest none ("Sell price"). A lone lowercase word with no boundary
+  // to split on ("effect", "bonus", "name": 49 rows between them) needs that capital too. STR and its three siblings
+  // keep rendering as Str, Agi, Wis and Luk.
   return words
-    .map((word, i) => (i === 0 ? word.charAt(0).toUpperCase() : word.charAt(0)) + word.slice(1).toLowerCase())
+    .map((word, i) => (i === 0 ? word.charAt(0).toUpperCase() + word.slice(1).toLowerCase() : word.toLowerCase()))
     .join(' ');
 };
 
 // Past a billion the digit string stops being a number a reader can take in: monster:w7b8's
-// health goes 3e+31 to 5e+33, which toLocaleString renders as a 40 character comma string on
-// every World 7 boss page. notateNumber is what the rest of the site uses, but its unsuffixed
-// branch floors anything under 100 (0.2 would print as "0") and rounds 4,200 to "4.2K", so exact
-// digits stay below the threshold where they are still readable.
+// health goes 3e+31 to 5e+33, a 40 character comma string on every World 7 boss page. So the exact digits stay below the
+// threshold where they are still readable, and the site's Big rule takes over past it.
 const NOTATE_ABOVE = 1e9;
-const formatNumber = (value) => (value >= NOTATE_ABOVE ? notateNumber(value) : value.toLocaleString('en-US'));
+const formatNumber = (value) => formatNum(value, value >= NOTATE_ABOVE ? 'amount' : 'exact');
 
 export const formatValue = (value) => {
   if (value == null) return 'none';

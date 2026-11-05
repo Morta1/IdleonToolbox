@@ -575,10 +575,10 @@ describe('EntityPanel field links', () => {
     expect(screen.getAllByRole('heading', { name: 'Upgrades' })).toHaveLength(1);
     expect({
       tables: container.querySelectorAll('table').length,
-      cards: [...container.querySelectorAll('.MuiCard-root .MuiCard-root a')].map((link) => [link.getAttribute('href'), link.textContent])
+      cards: [...container.querySelectorAll('a h3')].map((title) => title.closest('a')).map((link) => [link.getAttribute('href'), link.textContent])
     }).toEqual({
       tables: 0,
-      cards: [['/wiki/compass-upgrades', 'Compass Upgrades16'], ['/wiki/royal-armory/upgrades', 'Royal Armory Upgrades1']]
+      cards: [['/wiki/compass-upgrades', 'Compass Upgrades16›'], ['/wiki/royal-armory/upgrades', 'Royal Armory Upgrades1›']]
     });
   });
 

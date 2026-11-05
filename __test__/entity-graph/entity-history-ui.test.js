@@ -12,7 +12,7 @@ describe('fieldLabel', () => {
     ['RespawnTime', 'Respawn time'],
     ['materials', 'Recipe'],
     // An unmapped field survives as words rather than falling through as raw SCREAMING_SNAKE.
-    ['BACKUP_ENERGY', 'Backup Energy'],
+    ['BACKUP_ENERGY', 'Backup energy'],
     ['desc_line1', 'Description'],
     // A talent change is reported as the part of the talent that moved. lvlUpText is the per-level
     // line the game shows under the talent; "Lvl Up Text" is the raw key wearing a hat.
@@ -25,8 +25,8 @@ describe('fieldLabel', () => {
     ['y1', 'Second value'],
     ['y2', 'Second value scaling'],
     // camelCase has no underscore to split on: fieldLabel('sellPrice') used to be 'sellprice'.
-    ['sellPrice', 'Sell Price'],
-    ['itemQuantity', 'Item Quantity'],
+    ['sellPrice', 'Sell price'],
+    ['itemQuantity', 'Item quantity'],
     // A lone lowercase word is capitalized, or it renders as "effect: ..." under Title Case headings.
     ['effect', 'Effect'],
     ['bonus', 'Bonus'],

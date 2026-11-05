@@ -31,7 +31,8 @@ import ShopCatalog, { shopCatalogShows } from './ShopCatalog';
 import EntityIcon from './EntityIcon';
 import GemCount from './GemCount';
 import { goOnPlainClick, linkProps, navigateOnPlainClick } from './links';
-import { KindTile, TILE_GRID } from './KindLink';
+import { KindTile } from './KindLink';
+import CardGrid from '@components/common/cards/CardGrid';
 import WikiBreadcrumbs from './WikiBreadcrumbs';
 
 export { EntityIcon, entityName, KIND_LABELS, KIND_PLURALS };
@@ -598,11 +599,11 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
           {title}
         </Typography>
         {note ? <Typography variant={'caption'} color={'text.secondary'}>{note}</Typography> : null}
-        {asKinds ? <Box sx={TILE_GRID}>
+        {asKinds ? <CardGrid size={'s'}>
           {/* A tile is a link to its kind's listing, so a kind without one has no tile. */}
           {groups.filter(({ key }) => listingHref(key)).map(({ key, edges }) => <KindTile key={key} kind={key} count={edges.length}
                                                                                        go={goOnPlainClick(onGo)}/>)}
-        </Box> : null}
+        </CardGrid> : null}
         {!asKinds && tabular ? <RelationTable
           groups={groups.map((group) => ({ ...group, rows: collapseRows(group.edges, dir) }))}
           index={index}

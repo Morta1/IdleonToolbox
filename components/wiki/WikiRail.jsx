@@ -17,7 +17,7 @@ const Fold = ({ label, startOpen, children }) => {
   return <>
     <ListItemButton onClick={() => setOpen(!open)} aria-expanded={open} sx={{ py: 0.25 }}>
       <ListItemText primary={label} slotProps={{
-        primary: { variant: 'body2', color: 'text.secondary', fontWeight: 500 }
+        primary: { variant: 'body2', color: 'text.secondary', sx: { fontWeight: 'fontWeightMedium' } }
       }}/>
       {open ? <ExpandLess fontSize={'small'}/> : <ExpandMore fontSize={'small'}/>}
     </ListItemButton>
@@ -44,7 +44,7 @@ const SystemFold = ({ system, startOpen, selected, go, children }) => {
       </IconButton>
       <ListItemButton component={'a'} href={href} selected={selected} onClick={(event) => go(event, href)}
                       sx={{ pl: '7px' }}>
-        <ListItemText primary={system.label} slotProps={{ primary: { fontWeight: 500 } }}/>
+        <ListItemText primary={system.label} slotProps={{ primary: { sx: { fontWeight: 'fontWeightMedium' } } }}/>
       </ListItemButton>
     </ListItem>
     <Collapse in={open} unmountOnExit>
@@ -121,7 +121,7 @@ const WikiRail = ({ current, currentSystem = null, children }) => {
       <List dense disablePadding>
         <ListItemButton component={'a'} href={'/wiki'} selected={!current && !currentSystem}
                         onClick={(event) => go(event, '/wiki')}>
-          <ListItemText primary={'Wiki Home'} slotProps={{ primary: { fontWeight: 600 } }}/>
+          <ListItemText primary={'Wiki home'} slotProps={{ primary: { sx: { fontWeight: 'fontWeightMedium' } } }}/>
         </ListItemButton>
         {KIND_GROUPS.map((group) => <RailGroup key={group.label} group={group} current={current} currentSystem={currentSystem}
                                                 go={go}/>)}

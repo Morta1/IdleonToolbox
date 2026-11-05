@@ -1,34 +1,32 @@
 import React from 'react';
-import { Box, Card, CardContent, Link, Stack, Typography } from '@mui/material';
-import TagLine from '@components/common/TagLine';
+import { Box, Link, Stack, Typography } from '@mui/material';
+import Panel from '@components/common/cards/Panel';
+import Notice from '@components/common/Notice';
+import StatusText from '@components/common/StatusText';
 import { NextSeo } from 'next-seo';
 import WikiRail from '@components/wiki/WikiRail';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { navigateOnPlainClick, useWikiGo } from '@components/wiki/links';
 import { CAVEAT, fieldLabel, formatValue } from '@utility/wiki/history';
 import { entityHref } from '@utility/wiki/page-graph';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 
 const Changelog = ({ versions }) => {
   const go = useWikiGo();
 
   return <WikiRail current={'changelog'}>
-    <Box sx={{ maxWidth: 1200 }}>
+    <Box>
     <NextSeo
       title="Game changelog | Idleon Toolbox"
       description="What each Legends of Idleon patch changed: items, monsters, recipes, companions and talents, version by version."
     />
-    <Typography variant={'body2'} color={'text.secondary'} sx={{ mb: 2 }}>{CAVEAT}</Typography>
+    <Box sx={{ mb: 2 }}><Notice tone={'info'}>{CAVEAT}</Notice></Box>
 
     <Stack gap={2}>
-      {versions.map(({ version, added, changed, kinds }) => <Card key={version} variant={'outlined'}>
-        <CardContent>
-          <Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'}>
-            <Typography variant={'cardTitle'} component={'h3'}>{version}</Typography>
-            <TagLine variant={'body2'} tags={[added > 0 && `${added} added`, changed > 0 && `${changed} changed`]}/>
-          </Stack>
-
-          {kinds.map(({ kind, entries }) => <Stack key={kind} sx={{ mt: 1.5 }} gap={0.25}>
+      {versions.map(({ version, added, changed, kinds }) => <Panel key={version} title={version}
+                                                                 meta={[added > 0 && `${formatNum(added, 'whole')} added`, changed > 0 && `${formatNum(changed, 'whole')} changed`].filter(Boolean).join(', ')}>
+        <Stack gap={1.5} sx={{ p: 2 }}>
+          {kinds.map(({ kind, entries }) => <Stack key={kind} gap={0.25}>
             <Typography variant={'groupLabel'} component={'h4'} color={'text.secondary'}>
               {KIND_PLURALS[kind] || kind}
             </Typography>
@@ -46,16 +44,16 @@ const Changelog = ({ versions }) => {
               >
                 {cleanUnderscore(entry.name)}
               </Link>
-              <Typography variant={'body2'} color={'text.secondary'}>
+              <Typography variant={'body2'} color={'text.secondary'} component={'div'} sx={{ minWidth: 0, overflowWrap: 'anywhere' }}>
                 {entry.added
-                  ? 'added'
+                  ? <StatusText status={'info'}>Added</StatusText>
                   : entry.fields.map(({ field, from, to }) =>
-                    `${fieldLabel(field)}: ${formatValue(from)} to ${formatValue(to)}`).join(', ')}
+                    `${fieldLabel(field)} went from ${formatValue(from)} to ${formatValue(to)}`).join(', ')}
               </Typography>
             </Stack>)}
           </Stack>)}
-        </CardContent>
-      </Card>)}
+        </Stack>
+      </Panel>)}
     </Stack>
     </Box>
   </WikiRail>;

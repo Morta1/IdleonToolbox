@@ -18,12 +18,15 @@ const defaultLoadEntries = () => import('../../data/wiki-search-index.json')
 const WikiSearchBar = ({ loadEntries = defaultLoadEntries }) => {
   const router = useRouter();
   const [entries, setEntries] = useState(null);
+  const [failed, setFailed] = useState(false);
   const [inputValue, setInputValue] = useState('');
 
   useEffect(() => {
     let alive = true;
     loadEntries().then((loaded) => {
       if (alive) setEntries(loaded);
+    }).catch(() => {
+      if (alive) setFailed(true);
     });
     return () => {
       alive = false;
@@ -43,7 +46,7 @@ const WikiSearchBar = ({ loadEntries = defaultLoadEntries }) => {
     filterOptions={(allOptions) => allOptions}
     getOptionLabel={(option) => option.label}
     getOptionKey={(option) => option.id}
-    loading={!entries}
+    loading={!entries && !failed}
     blurOnSelect
     onInputChange={(event, value) => setInputValue(value)}
     onChange={(event, option) => {
@@ -55,7 +58,7 @@ const WikiSearchBar = ({ loadEntries = defaultLoadEntries }) => {
       const { key, ...optionProps } = props;
       return <Stack key={key} {...optionProps} direction={'row'} gap={1.5} alignItems={'center'}>
         <EntityIcon node={option} size={24}/>
-        <Typography sx={{ flexGrow: 1 }}>
+        <Typography variant={'body2'} sx={{ flexGrow: 1 }}>
           {option.label}
           {/* Tells a same-name option apart; the label alone is still what the input matches and shows. */}
           {option.disambig ? <>
@@ -66,7 +69,7 @@ const WikiSearchBar = ({ loadEntries = defaultLoadEntries }) => {
         <TagLine tags={[KIND_LABELS[option.kind] || option.kind]}/>
       </Stack>;
     }}
-    noOptionsText={inputValue ? 'No matches' : 'Start typing to search'}
+    noOptionsText={failed ? 'Search didn\'t load. Reload the page to try again.' : inputValue ? 'No matches' : 'Start typing to search'}
     renderInput={(params) => <TextField
       {...params}
       label={'Search the wiki'}
@@ -74,7 +77,7 @@ const WikiSearchBar = ({ loadEntries = defaultLoadEntries }) => {
         input: {
           ...params.InputProps,
           endAdornment: <>
-            {!entries ? <CircularProgress size={18}/> : null}
+            {!entries && !failed ? <CircularProgress size={18}/> : null}
             {params.InputProps.endAdornment}
           </>
         }
