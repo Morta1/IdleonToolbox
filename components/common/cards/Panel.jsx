@@ -11,21 +11,22 @@ const ROWS_SX = { '& > * + *': { borderTop: 1, borderColor: 'divider' } };
 
 // Panel (Cards board): a titled box around a list, a table, a chart or a form. The title lives in the
 // 56 px header band, never as a heading above a card. A collapsed panel keeps its rows in the page
-// (hidden), so the static export still carries them.
-const Panel = ({ icon, iconAlt = '', title, meta, aside, collapsible, defaultOpen = true, children, sx }) => {
+// (hidden), so the static export still carries them. asideOwnRow: on a phone the aside takes its own row under the title,
+// so a long meta never wraps beside it.
+const Panel = ({ icon, iconAlt = '', title, meta, aside, asideOwnRow, collapsible, defaultOpen = true, children, sx }) => {
   const [open, setOpen] = useState(defaultOpen);
   const bodyId = useId();
   const shown = !collapsible || open;
   const name = typeof title === 'string' ? title : '';
   return <Box component={'section'} sx={[(theme) => cardSurface(theme), ...(Array.isArray(sx) ? sx : [sx])]}>
-    <Stack direction={'row'} alignItems={'center'} gap={1.5}
+    <Stack direction={'row'} alignItems={'center'} gap={1.5} flexWrap={asideOwnRow ? { xs: 'wrap', sm: 'nowrap' } : undefined}
            sx={{ minHeight: 56, py: 1, pl: 2, pr: 1.5, borderBottom: shown ? 1 : 0, borderColor: 'divider' }}>
       {typeof icon === 'string' ? <GameIcon src={icon} size={24} alt={iconAlt}/> : icon}
       <Stack sx={{ minWidth: 0, flex: 1 }}>
         <Typography variant={'cardTitle'} component={'h2'}>{title}</Typography>
         {meta ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{meta}</Typography> : null}
       </Stack>
-      {aside ? <Box sx={{ flexShrink: 0 }}>{aside}</Box> : null}
+      {aside ? <Box sx={{ flexShrink: 0, ...(asideOwnRow ? { flexBasis: { xs: '100%', sm: 'auto' } } : {}) }}>{aside}</Box> : null}
       {collapsible ? <IconButton size={'small'} aria-expanded={open} aria-controls={bodyId}
                                  aria-label={`${open ? 'Collapse' : 'Expand'} ${name}`.trim()}
                                  onClick={() => setOpen(!open)}>

@@ -13,6 +13,10 @@ export const GOAL_LIST_WIDTH = { xs: '100%', md: 880 };
 
 // One line of a row or card that ends in an ellipsis instead of wrapping
 export const LINE_SX = { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 };
+// The same from 600 px. On a phone it wraps: an ellipsis there cut the number off a goal and two names to one.
+export const WRAP_ON_PHONE_SX = {
+  overflow: { xs: 'visible', sm: 'hidden' }, textOverflow: { xs: 'clip', sm: 'ellipsis' }, whiteSpace: { xs: 'normal', sm: 'nowrap' }, minWidth: 0
+};
 
 const HEXAGON = 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)';
 

@@ -183,34 +183,38 @@ const Goals = () => {
   const onExport = () => handleDownload(exportGoals(goals, state?.characters), goalsFileName('idleon-goals'));
 
   const rows = (label, list) => (
-    <GoalRows label={label}>
+    <GoalRows label={label} lined>
       {list.map((view) => <GoalListRow key={view.id} view={view} onEdit={onEdit} onRemove={onRemove} onTogglePin={onTogglePin}/>)}
     </GoalRows>
   );
   const goalList = (label, list) => (cardsShown ? (
-    <GoalGrid label={label}>
-      {list.map((view) => <GoalTile key={view.id} view={view} onEdit={onEdit} onRemove={onRemove} onTogglePin={onTogglePin}/>)}
-    </GoalGrid>
+    <Box sx={{ p: 2 }}>
+      <GoalGrid label={label}>
+        {list.map((view) => <GoalTile key={view.id} view={view} onEdit={onEdit} onRemove={onRemove} onTogglePin={onTogglePin}/>)}
+      </GoalGrid>
+    </Box>
   ) : rows(label, list));
 
   return (
-    <Box data-section="goals" sx={{ width: 'fit-content', maxWidth: '100%' }}>
+    <Box data-section="goals">
       <Panel icon={<Box component="span" sx={{ display: 'inline-flex', color: 'primary.main' }}><IconTargetArrow size={24}/></Box>}
              title={'Goals'} meta={views.length ? `${plural(views.length, 'goal')} · ${formatNumber(reached.length)} reached` : undefined}
+             asideOwnRow
              aside={<Stack direction="row" gap={1}>
                {goals.length ? <Button size="small" onClick={onExport}>Export</Button> : null}
                <Button size="small" onClick={fileImport.pick}>Import</Button>
                {fileImport.input}
              </Stack>}>
-      <Box sx={{ p: 2 }}>
+      {/* One box, so the Toolbar pins over the list it controls and leaves with it */}
+      <Box>
         {/* The material tracker migration's two messages, together, as notes */}
-        <GreenstackFoldNotice sx={{ mb: 1.5 }}/>
+        <GreenstackFoldNotice sx={{ m: 2 }}/>
         {overCap > 0 ? (
-          <Notice tone={'missing'} sx={{ mb: 1 }}>{`${overCap} tracked materials could not be added (goal limit).`}</Notice>
+          <Notice tone={'missing'} sx={{ m: 2 }}>{`${overCap} tracked materials could not be added (goal limit).`}</Notice>
         ) : null}
-        {views.length === 0 ? <FirstGoalIntro query={router.query}/> : (
+        {views.length === 0 ? <Box sx={{ p: 2 }}><FirstGoalIntro query={router.query}/></Box> : (
           <>
-            <Toolbar state={{ show: activeSystem, sort: shownSort, view: layoutId }}
+            <Toolbar inPanel state={{ show: activeSystem, sort: shownSort, view: layoutId }}
                      defaults={{ show: '', sort: DEFAULT_SORT, view: LAYOUTS[0][0] }}
                      onChange={({ show, sort: nextSort, view }) => {
                        if (show !== undefined) setSystemFilter(show);
@@ -226,7 +230,7 @@ const Goals = () => {
               <Toolbar.View options={LAYOUTS}/>
             </Toolbar>
             {showAll && open.length > SHOWN_GOALS ? (
-              <Stack direction="row" alignItems="center" gap={0.5} sx={{ mb: 0.5 }}>
+              <Stack direction="row" alignItems="center" gap={0.5} sx={{ px: 2, py: 0.5, borderBottom: 1, borderColor: 'divider' }}>
                 <Typography variant="body2" color="text.secondary">
                   {`Showing all ${formatNumber(open.length)}`}
                 </Typography>
@@ -238,17 +242,18 @@ const Goals = () => {
               </Stack>
             ) : null}
             {open.length ? goalList('Goals', showAll ? open : open.slice(0, SHOWN_GOALS)) : (
-              <Notice tone={'info'}>Every goal here is reached: clear them under Reached.</Notice>
+              <Notice tone={'info'} sx={{ m: 2 }}>Every goal here is reached: clear them under Reached.</Notice>
             )}
             {open.length > SHOWN_GOALS ? (
-              <Button size="small" aria-expanded={!!showAll} onClick={() => setShowAll(!showAll)}
-                      sx={{ mt: 1 }}>
-                {showAll ? 'Show fewer' : `Show all ${formatNumber(open.length)} goals`}
-              </Button>
+              <Box sx={{ px: 1, py: 0.5, borderTop: 1, borderColor: 'divider' }}>
+                <Button size="small" aria-expanded={!!showAll} onClick={() => setShowAll(!showAll)}>
+                  {showAll ? 'Show fewer' : `Show all ${formatNumber(open.length)} goals`}
+                </Button>
+              </Box>
             ) : null}
             {shownReached.length ? (
-              <Box sx={{ mt: 1.5 }}>
-                <Stack direction="row" alignItems="center" gap={1}>
+              <Box sx={{ borderTop: 1, borderColor: 'divider' }}>
+                <Stack direction="row" alignItems="center" gap={1} sx={{ px: 1, py: 0.5 }}>
                   <Button size="small" aria-expanded={reachedOpen} onClick={() => setReachedOpen(!reachedOpen)}
                           startIcon={reachedOpen ? <IconChevronDown size={16}/> : <IconChevronRight size={16}/>}
                          >
@@ -257,7 +262,7 @@ const Goals = () => {
                   <Button size="small" onClick={clearReached}>Clear reached</Button>
                 </Stack>
                 {reachedOpen ? (
-                  <Box sx={{ mt: 1 }}>{goalList('Reached goals', shownReached)}</Box>
+                  <Box sx={{ borderTop: 1, borderColor: 'divider' }}>{goalList('Reached goals', shownReached)}</Box>
                 ) : null}
               </Box>
             ) : null}

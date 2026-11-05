@@ -111,7 +111,7 @@ describe('Dashboard goals', () => {
     expect(['Export', 'Import'].map((name) => !!screen.queryByRole('button', { name }))).toEqual([true, true]);
   });
 
-  it('an entry row: name, the value, a 4px bar and the percent in one 38px line', async () => {
+  it('an entry row: name, the value, a 4px bar and the percent', async () => {
     const open = openGoal();
     seed(open);
     mount();
@@ -119,7 +119,6 @@ describe('Dashboard goals', () => {
     await screen.findByText(view.name);
     const [row] = rows();
     expect(rowText(row)).toEqual([`Lv ${formatNumber(view.value)} of ${formatNumber(view.targetValue)}`, '', progressPercent(view)]);
-    expect(getComputedStyle(row.querySelector('[data-goal-row]')).height).toBe('38px');
     expect(getComputedStyle(within(row).getByRole('progressbar', { name: view.name })).height).toBe('4px');
   });
 

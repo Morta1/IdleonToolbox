@@ -227,8 +227,9 @@ const PanelGroup = ({ label, children }) => <Stack gap={0.75}>
 // note: a Notice shown in the bar, about what the bar just did (a player search that found no one).
 // searchAlone: a lead wide enough to squeeze the search on a phone (card search's presets button): the search takes its
 // own line there, as it does beside a view.
+// inPanel: the bar sits inside a Panel (the dashboard's goals): on the Panel's colour, on its sides, a line under it.
 const Toolbar = ({
-  onStickyBottom, panelLabel = 'Filters', panelIcon = null, panelIconOnly = false, panelTall = false, searchAlone = false,
+  onStickyBottom, panelLabel = 'Filters', panelIcon = null, panelIconOnly = false, panelTall = false, searchAlone = false, inPanel = false,
   state = {}, defaults = {}, onChange, onReset, total = 0, shown = 0, noun = 'results', note = null, children
 }) => {
   const [panelOpen, setPanelOpen] = useState(false);
@@ -302,7 +303,8 @@ const Toolbar = ({
     <Box ref={barRef} sx={{
       // Under a tab strip that pins on a phone (Tabber sets --page-tabs-pinned there), as DataTable's sticky header does
       position: 'sticky', top: `calc(${top}px + var(--page-tabs-pinned, 0px))`, zIndex: (theme) => theme.zIndex.appBar - 1,
-      bgcolor: 'background.default', py: 1.5,
+      bgcolor: inPanel ? 'background.paper' : 'background.default', py: 1.5,
+      ...(inPanel ? { px: 2, borderBottom: 1, borderColor: 'divider' } : {}),
       // A landscape phone has no height to spare for pinned bars.
       '@media (max-height: 500px)': { position: 'static' }
     }}>
@@ -366,7 +368,7 @@ const Toolbar = ({
       </AppDialog>
     </Box>
     {/* An empty result is a note under the toolbar (Notices board). */}
-    {shown === 0 && narrowing.length ? <Notice tone="info" action={{ label: 'Reset', onClick: onReset }}>
+    {shown === 0 && narrowing.length ? <Notice tone="info" action={{ label: 'Reset', onClick: onReset }} sx={inPanel ? { m: 2 } : undefined}>
       {`No ${noun} match. ${onSentence(filtersOn, searchOn)}`}
     </Notice> : null}
   </>;

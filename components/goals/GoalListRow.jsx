@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { Box, Button, ButtonBase, Stack, Typography } from '@mui/material';
 import { IconChevronDown, IconNote } from '@tabler/icons-react';
 import { editText, goalFace, goalText, maxIsGoal, valueColor } from './parts/format';
-import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GOAL_LIST_WIDTH, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX, PinStar } from './parts/GoalVisuals';
+import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GOAL_LIST_WIDTH, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX, PinStar, WRAP_ON_PHONE_SX } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntries from './GoalEntries';
 import { isUnresolved } from '@utility/goals/resolve';
@@ -13,25 +13,27 @@ import StatusText from '@components/common/StatusText';
 
 const ROW_HEIGHT = 38;
 
-// Fixed slots so the value and the bar sit at the same x in every row. A phone gives the name its own full line and
-// puts the value, bar and percent on the second; a tier's goal line shows on a desktop only
+// Fixed slots so the value and the bar sit at the same x in every row. A phone gives the name, the value and the bar
+// with its percent a line each, so nothing is cut: the name and the value wrap; a tier's goal line shows on a desktop only
 const ROW_GRID_SX = {
   display: 'grid',
   alignItems: 'center',
   columnGap: 1,
+  rowGap: { xs: 0.25, sm: 0 },
   width: '100%',
-  height: ROW_HEIGHT,
+  height: { xs: 'auto', sm: ROW_HEIGHT },
   px: 1,
+  py: { xs: 0.75, sm: 0 },
   textAlign: 'left',
   alignContent: 'center',
   // a desktop row splits into three even parts: the name, the value, and the bar with its percent
   gridTemplateColumns: {
-    xs: '24px minmax(0, 1fr) 56px 32px 16px',
+    xs: '24px minmax(0, 1fr) 32px 16px',
     sm: '28px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 40px 16px'
   },
-  gridTemplateRows: { xs: '18px 16px', sm: 'auto' },
+  gridTemplateRows: 'auto',
   gridTemplateAreas: {
-    xs: '"icon name name name chevron" "icon value bar aside chevron"',
+    xs: '"icon name name chevron" "icon value value chevron" "icon bar aside chevron"',
     sm: '"icon name value bar aside chevron"'
   }
 };
@@ -44,10 +46,11 @@ const UNRESOLVED_GRID_SX = {
   alignItems: 'center',
   alignContent: 'center',
   columnGap: 1,
-  height: ROW_HEIGHT,
+  height: { xs: 'auto', sm: ROW_HEIGHT },
   px: 1,
+  py: { xs: 0.75, sm: 0 },
   gridTemplateColumns: '24px minmax(0, 1fr) auto',
-  gridTemplateRows: '18px 16px',
+  gridTemplateRows: { xs: 'auto', sm: '18px 16px' },
   gridTemplateAreas: { xs: '"icon name actions" "icon reason reason"', sm: '"icon name actions" "icon reason actions"' }
 };
 // One text line tall, so the buttons never spill into the reason line under them
@@ -65,7 +68,7 @@ const RowSlots = ({ view, face, open = false }) => (
     </Box>
     <Box component="span" sx={{ gridArea: 'name', minWidth: 0 }}>
       <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
-        <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, fontWeight: 500, minWidth: 0, ...(open ? WRAPPED_SX : {}) }}>
+        <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, ...WRAP_ON_PHONE_SX, fontWeight: 500, ...(open ? WRAPPED_SX : {}) }}>
           {displayTitle(view)}
         </Box>
         {view.note ? (
@@ -80,6 +83,7 @@ const RowSlots = ({ view, face, open = false }) => (
         <GoalMark mark={face.mark} size={14}/>
         <Box component="span" data-goal-value sx={{
           ...MAIN_LINE_SX,
+          ...WRAP_ON_PHONE_SX,
           typography: { xs: 'caption', sm: 'body2' },
           lineHeight: { xs: '16px', sm: '18px' },
           color: valueColor(view.status)
@@ -187,10 +191,10 @@ const UnresolvedRow = ({ view, face, onEdit, onRemove }) => (
       <GoalIcon src={view.icon} alt="" size={24}/>
     </Box>
     <Box component="span" sx={{ gridArea: 'name', display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
-      <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, fontWeight: 500, minWidth: 0 }}>{displayTitle(view)}</Box>
+      <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, ...WRAP_ON_PHONE_SX, fontWeight: 500 }}>{displayTitle(view)}</Box>
     </Box>
     {/* the reason and the entry's current amount share one line */}
-    <Box component="span" data-goal-reason sx={{ ...SUB_LINE_SX, gridArea: 'reason' }}>
+    <Box component="span" data-goal-reason sx={{ ...SUB_LINE_SX, ...WRAP_ON_PHONE_SX, gridArea: 'reason' }}>
       <span data-goal-value>
         {view.status === 'missing' ? <StatusText status={'needs'} sx={{ typography: 'caption', lineHeight: '16px' }}>{face.value}</StatusText> : face.value}
       </span>
@@ -247,9 +251,18 @@ const GoalListRow = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard'
   );
 };
 
-// One capped-width column keeps the name, value and bar close enough to scan on wide screens
-export const GoalRows = ({ label, children }) => (
-  <Box component="ul" aria-label={label} sx={{
+// A Panel's list: the rows fill it, with lines between them and no box of their own, their star on the Panel's 16 px side
+const LINED_LIST_SX = {
+  listStyle: 'none',
+  m: 0,
+  p: 0,
+  '& > li': { border: 0, borderRadius: 0, px: 1 },
+  '& > li + li': { borderTop: 1, borderColor: 'divider' }
+};
+
+// One capped-width column keeps the name, value and bar close enough to scan on wide screens. lined: in a Panel.
+export const GoalRows = ({ label, lined = false, children }) => (
+  <Box component="ul" aria-label={label} sx={lined ? LINED_LIST_SX : {
     listStyle: 'none',
     m: 0,
     p: 0,
