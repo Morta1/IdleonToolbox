@@ -1,13 +1,17 @@
-import { Divider, Stack, Typography } from '@mui/material';
-import { Section } from '@components/tools/active-calculator/common';
-import React, { Fragment, useContext } from 'react';
+import { Box } from '@mui/material';
+import { counter, CounterTable, elapsedHours, Section } from '@components/tools/active-calculator/common';
+import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import { checkCharClass, CLASSES, getTalentBonusIfActive } from '@parsers/talents';
-import { notateNumber, numberWithCommas } from '@utility/helpers';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
-import { formatEta } from '@components/account/Misc/class-specific/RoyalGuardian/formatEta';
+import { formatDuration, formatNum } from '@utility/helpers';
+import Panel from '@components/common/cards/Panel';
+import StatusText from '@components/common/StatusText';
+
+const BONES = [['Femur', 330], ['Ribcage', 331], ['Cranium', 332], ['Bovinae', 333]];
+const TACHYONS = [['Purple', 388], ['Brown', 389], ['Green', 390], ['Red', 391], ['Silver', 392], ['Gold', 393]];
+const ARCANE_KILLS = [['DR', 0], ['EXP', 1], ['AFK', 2]];
+const DUSTS = [['Stardust', 357], ['Moondust', 358], ['Solardust', 359], ['Cooldust', 360], ['Novadust', 361]];
 
 const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
   const { state } = useContext(AppContext);
@@ -16,218 +20,66 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
 
   const character = state?.characters?.[selectedChar];
   const characterClass = character?.class;
+  const hours = elapsedHours(lastUpdated, snapshottedAcc?.snapshotTime);
   const isDivineKnight = checkCharClass(characterClass, CLASSES.Divine_Knight);
   const isElementalSorcerer = checkCharClass(characterClass, CLASSES.Elemental_Sorcerer);
   const isSiegeBreaker = checkCharClass(characterClass, CLASSES.Siege_Breaker);
-  const dbFormActive = getTalentBonusIfActive(character?.activeBuffs, 'WRAITH_FORM');
-  const isDeathBringer = checkCharClass(characterClass, CLASSES.Death_Bringer) && dbFormActive;
-  const acFormActive = getTalentBonusIfActive(character?.activeBuffs, 'ARCANIST_FORM');
-  const isArcaneCultist = checkCharClass(characterClass, CLASSES.Arcane_Cultist) && acFormActive;
-  const wwFormActive = getTalentBonusIfActive(character?.activeBuffs, 'TEMPEST_FORM');
-  const isWindWalker = checkCharClass(characterClass, CLASSES.Wind_Walker) && wwFormActive;
+  const isDeathBringer = checkCharClass(characterClass, CLASSES.Death_Bringer) && getTalentBonusIfActive(character?.activeBuffs, 'WRAITH_FORM');
+  const isArcaneCultist = checkCharClass(characterClass, CLASSES.Arcane_Cultist) && getTalentBonusIfActive(character?.activeBuffs, 'ARCANIST_FORM');
+  const isWindWalker = checkCharClass(characterClass, CLASSES.Wind_Walker) && getTalentBonusIfActive(character?.activeBuffs, 'TEMPEST_FORM');
   const isRoyalGuardian = checkCharClass(characterClass, CLASSES.Royal_Guardian);
 
-  const getPerHour = (difference) => Math.floor((difference / ((lastUpdated - snapshottedAcc?.snapshotTime) / 1000 / 60)) * 60);
   const getKills = (source) => Math.floor(source?.kills?.[snapshottedChar?.mapIndex] || 0);
-  const getAccountOption = (key) => state?.account?.accountOptions?.[key] || 0;
-  const getSnapshotOption = (key) => snapshottedAcc?.accountOptions?.[key] || 0;
-  const getDiff = (key) => getAccountOption(key) - getSnapshotOption(key);
-  const dkOrbsDiff = getDiff(138);
-  const esWormholeDiff = getDiff(152);
-  const sbPlunderousDiff = getDiff(139);
-  const dkBonesDiff = {
-    'Femur': getDiff(330),
-    'Ribcage': getDiff(331),
-    'Cranium': getDiff(332),
-    'Bovinae': getDiff(333)
-  }
-  const acTachyonDiff = {
-    'Purple': getDiff(388),
-    'Brown': getDiff(389),
-    'Green': getDiff(390),
-    'Red': getDiff(391),
-    'Silver': getDiff(392),
-    'Gold': getDiff(393)
-  }
-  const getArcaneKills = (source, bonusIndex) => {
-    return parseInt(source?.tesseract?.mapBonusRaw?.[snapshottedChar?.mapIndex]?.[bonusIndex], 10) || 0;
-  };
-  const acArcaneKillsDiff = {
-    'DR': getArcaneKills(state?.account, 0) - getArcaneKills(snapshottedAcc, 0),
-    'EXP': getArcaneKills(state?.account, 1) - getArcaneKills(snapshottedAcc, 1),
-    'AFK': getArcaneKills(state?.account, 2) - getArcaneKills(snapshottedAcc, 2)
-  };
-  const wwDustDiff = {
-    'Stardust': getDiff(357),
-    'Moondust': getDiff(358),
-    'Solardust': getDiff(359),
-    'Cooldust': getDiff(360),
-    'Novadust': getDiff(361)
-  }
+  const optionRow = (label, key) => counter(label, Math.floor(snapshottedAcc?.accountOptions?.[key] || 0), Math.floor(state?.account?.accountOptions?.[key] || 0));
+  const getArcaneKills = (source, bonusIndex) => parseInt(source?.tesseract?.mapBonusRaw?.[snapshottedChar?.mapIndex]?.[bonusIndex], 10) || 0;
 
-  const findClearing = (source) => source?.royalGuardian?.clearingMaps
-    ?.find(({ mapIndex }) => mapIndex === snapshottedChar?.mapIndex);
+  const bands = [
+    { key: 'kills', label: null, rows: [counter('Kills', getKills(snapshottedChar), getKills(character))] },
+    isDivineKnight ? { key: 'divine-knight', label: 'Divine Knight', rows: [optionRow('Orbs', 138)] } : null,
+    isElementalSorcerer ? { key: 'elemental-sorcerer', label: 'Elemental Sorcerer', rows: [optionRow('Wormholes', 152)] } : null,
+    isSiegeBreaker ? { key: 'siege-breaker', label: 'Siege Breaker', rows: [optionRow('Plunderous', 139)] } : null,
+    isDeathBringer ? { key: 'death-bringer', label: 'Death Bringer', rows: BONES.map(([label, key]) => optionRow(label, key)) } : null,
+    isArcaneCultist ? {
+      key: 'arcane-cultist', label: 'Arcane Cultist', rows: [
+        ...TACHYONS.map(([label, key]) => optionRow(`${label} tachyons`, key)),
+        ...ARCANE_KILLS.map(([label, index]) => counter(`${label} arcane kills`, getArcaneKills(snapshottedAcc, index), getArcaneKills(state?.account, index)))
+      ]
+    } : null,
+    isWindWalker ? { key: 'wind-walker', label: 'Wind Walker', rows: DUSTS.map(([label, key]) => optionRow(label, key)) } : null
+  ].filter(Boolean);
+
+  const findClearing = (source) => source?.royalGuardian?.clearingMaps?.find(({ mapIndex }) => mapIndex === snapshottedChar?.mapIndex);
   const currentClearing = isRoyalGuardian ? findClearing(state?.account) : null;
   const snapshotClearing = isRoyalGuardian ? findClearing(snapshottedAcc) : null;
 
-  return (
-    <Section title="Kills">
-      {!resultsOnly ? <>
-        <Stack>
-          <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Snapshot</Typography>
-          <Typography variant="body2">Kills: {numberWithCommas(getKills(snapshottedChar))}</Typography>
-          <Divider sx={{ my: 1 }}/>
-          {isDivineKnight &&
-            <Typography variant="body2">DK Orbs: {numberWithCommas(getSnapshotOption(138))}</Typography>}
-          {isElementalSorcerer &&
-            <Typography variant="body2">ES Wormhole: {numberWithCommas(getSnapshotOption(152))}</Typography>}
-          {isSiegeBreaker &&
-            <Typography variant="body2">SB Plunderous: {numberWithCommas(getSnapshotOption(139))}</Typography>}
-          {isDeathBringer ?
-            <>
-              <Typography variant="body1">DK Bones</Typography>
-              <Typography variant="body2">Femur: {numberWithCommas(Math.floor(getSnapshotOption(330)))}</Typography>
-              <Typography variant="body2">Ribcage: {numberWithCommas(Math.floor(getSnapshotOption(331)))}</Typography>
-              <Typography variant="body2">Cranium: {numberWithCommas(Math.floor(getSnapshotOption(332)))}</Typography>
-              <Typography variant="body2">Bovinae: {numberWithCommas(Math.floor(getSnapshotOption(333)))}</Typography>
-            </> : null}
-          {isArcaneCultist ? <>
-            <Typography variant="body1">AC Tachyons</Typography>
-            <Typography variant="body2">Purple: {numberWithCommas(Math.floor(getSnapshotOption(388)))}</Typography>
-            <Typography variant="body2">Brown: {numberWithCommas(Math.floor(getSnapshotOption(389)))}</Typography>
-            <Typography variant="body2">Green: {numberWithCommas(Math.floor(getSnapshotOption(390)))}</Typography>
-            <Typography variant="body2">Red: {numberWithCommas(Math.floor(getSnapshotOption(391)))}</Typography>
-            <Typography variant="body2">Silver: {numberWithCommas(Math.floor(getSnapshotOption(392)))}</Typography>
-            <Typography variant="body2">Gold: {numberWithCommas(Math.floor(getSnapshotOption(393)))}</Typography>
-            <Divider sx={{ my: 1 }}/>
-            <Typography variant="body1">AC Arcane Kills</Typography>
-            <Typography variant="body2">DR: {numberWithCommas(getArcaneKills(snapshottedAcc, 0))}</Typography>
-            <Typography variant="body2">EXP: {numberWithCommas(getArcaneKills(snapshottedAcc, 1))}</Typography>
-            <Typography variant="body2">AFK: {numberWithCommas(getArcaneKills(snapshottedAcc, 2))}</Typography>
-          </> : null}
-          {isWindWalker ? <>
-            <Typography variant="body1">WW Dust</Typography>
-            <Typography variant="body2">Stardust: {numberWithCommas(Math.floor(getSnapshotOption(357)))}</Typography>
-            <Typography variant="body2">Moondust: {numberWithCommas(Math.floor(getSnapshotOption(358)))}</Typography>
-            <Typography variant="body2">Solardust: {numberWithCommas(Math.floor(getSnapshotOption(359)))}</Typography>
-            <Typography variant="body2">Cooldust: {numberWithCommas(Math.floor(getSnapshotOption(360)))}</Typography>
-            <Typography variant="body2">Novadust: {numberWithCommas(Math.floor(getSnapshotOption(361)))}</Typography>
-          </> : null}
-        </Stack>
-        <Divider flexItem orientation={'vertical'} sx={{ mx: 2 }}/>
-        <Stack>
-          <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Current</Typography>
-          <Typography
-            variant="body2">Kills: {numberWithCommas(getKills(state?.characters?.[selectedChar]))}</Typography>
-          <Divider sx={{ my: 1 }}/>
-          {isDivineKnight &&
-            <Typography variant="body2">DK Orbs: {numberWithCommas(getAccountOption(138))}</Typography>}
-          {isElementalSorcerer &&
-            <Typography variant="body2">ES Wormhole: {numberWithCommas(getAccountOption(152))}</Typography>}
-          {isSiegeBreaker &&
-            <Typography variant="body2">SB Plunderous: {numberWithCommas(getAccountOption(139))}</Typography>}
-          {isDeathBringer ?
-            <>
-              <Typography variant="body1">DK Bones</Typography>
-              <Typography variant="body2">Femur: {numberWithCommas(Math.floor(getAccountOption(330)))}</Typography>
-              <Typography variant="body2">Ribcage: {numberWithCommas(Math.floor(getAccountOption(331)))}</Typography>
-              <Typography variant="body2">Cranium: {numberWithCommas(Math.floor(getAccountOption(332)))}</Typography>
-              <Typography variant="body2">Bovinae: {numberWithCommas(Math.floor(getAccountOption(333)))}</Typography>
-            </> : null}
-          {isArcaneCultist ? <>
-            <Typography variant="body1">AC Tachyons</Typography>
-            <Typography variant="body2">Purple: {numberWithCommas(Math.floor(getAccountOption(388)))}</Typography>
-            <Typography variant="body2">Brown: {numberWithCommas(Math.floor(getAccountOption(389)))}</Typography>
-            <Typography variant="body2">Green: {numberWithCommas(Math.floor(getAccountOption(390)))}</Typography>
-            <Typography variant="body2">Red: {numberWithCommas(Math.floor(getAccountOption(391)))}</Typography>
-            <Typography variant="body2">Silver: {numberWithCommas(Math.floor(getAccountOption(392)))}</Typography>
-            <Typography variant="body2">Gold: {numberWithCommas(Math.floor(getAccountOption(393)))}</Typography>
-            <Divider sx={{ my: 1 }}/>
-            <Typography variant="body1">AC Arcane Kills</Typography>
-            <Typography variant="body2">DR: {numberWithCommas(getArcaneKills(state?.account, 0))}</Typography>
-            <Typography variant="body2">EXP: {numberWithCommas(getArcaneKills(state?.account, 1))}</Typography>
-            <Typography variant="body2">AFK: {numberWithCommas(getArcaneKills(state?.account, 2))}</Typography>
-          </> : null}
-          {isWindWalker ? <>
-            <Typography variant="body1">WW Dust</Typography>
-            <Typography variant="body2">Stardust: {numberWithCommas(Math.floor(getAccountOption(357)))}</Typography>
-            <Typography variant="body2">Moondust: {numberWithCommas(Math.floor(getAccountOption(358)))}</Typography>
-            <Typography variant="body2">Solardust: {numberWithCommas(Math.floor(getAccountOption(359)))}</Typography>
-            <Typography variant="body2">Cooldust: {numberWithCommas(Math.floor(getAccountOption(360)))}</Typography>
-            <Typography variant="body2">Novadust: {numberWithCommas(Math.floor(getAccountOption(361)))}</Typography>
-          </>:null}
-        </Stack>
-      </> : null}
-      <Stack>
-        <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Result</Typography>
-        <Stack direction="row" alignItems="center" gap={0.5}>
-          <Typography variant="body2">
-            Kills: {notateNumber(getKills(state?.characters?.[selectedChar]) - getKills(snapshottedChar))}
-          </Typography>
-          <Tooltip title="Includes kill per kill">
-            <IconInfoCircleFilled size={18}/>
-          </Tooltip>
-        </Stack>
-        <Typography variant="body2">Per
-          hour: {numberWithCommas(getPerHour(getKills(snapshottedChar) - getKills(state?.characters?.[selectedChar])))}</Typography>
-        <Typography variant="body2">Per
-          day: {numberWithCommas(getPerHour(getKills(snapshottedChar) - getKills(state?.characters?.[selectedChar])) * 24)}</Typography>
-        {currentClearing && snapshotClearing
-          ? <TerritoryClear current={currentClearing} snapshot={snapshotClearing}
-                            currentSaveTime={state?.account?.timeAway?.Player}
-                            snapshotSaveTime={snapshottedAcc?.timeAway?.Player}
-                            getPerHour={getPerHour}/>
-          : null}
-        {isDivineKnight ? <>
-          <Divider sx={{ my: 1 }}/>
-          <Typography variant="body1">DK Orbs</Typography>
-          <Typography variant="body2">Diff: {numberWithCommas(dkOrbsDiff)}</Typography>
-          <Typography variant="body2">Per hour: {numberWithCommas(getPerHour(dkOrbsDiff))}</Typography>
-          <Typography variant="body2">Per day: {numberWithCommas(getPerHour(dkOrbsDiff) * 24)}</Typography>
-        </> : null}
-        {isElementalSorcerer ? <>
-          <Divider sx={{ my: 1 }}/>
-          <Typography variant="body1">ES Wormhole</Typography>
-          <Typography variant="body2">Diff: {numberWithCommas(esWormholeDiff)}</Typography>
-          <Typography variant="body2">Per hour: {numberWithCommas(getPerHour(esWormholeDiff))}</Typography>
-          <Typography variant="body2">Per day: {numberWithCommas(getPerHour(esWormholeDiff) * 24)}</Typography>
-        </> : null}
-        {isSiegeBreaker ? <>
-          <AdvancedSection title="SB Plunderous" getPerHour={getPerHour}
-                           items={[{ label: 'Plunderous', value: sbPlunderousDiff }]}/>
-        </> : null}
-        {isDeathBringer ? <>
-          <AdvancedSection title="DK Bones"
-                           items={Object.entries(dkBonesDiff).map(([key, value]) => ({ label: key, value }))}
-                           getPerHour={getPerHour}/>
-        </> : null}
-        {isArcaneCultist ? <>
-          <AdvancedSection title="AC Tachyons"
-                           items={Object.entries(acTachyonDiff).map(([key, value]) => ({ label: key, value }))}
-                           getPerHour={getPerHour}/>
-          <AdvancedSection title="AC Arcane Kills"
-                           items={Object.entries(acArcaneKillsDiff).map(([key, value]) => ({ label: key, value }))}
-                           getPerHour={getPerHour}/>
-        </> : null}
-        {isWindWalker ? <>
-          <AdvancedSection title="WW Dust"
-                           items={Object.entries(wwDustDiff).map(([key, value]) => ({ label: key, value }))}
-                           getPerHour={getPerHour}/>
-        </> : null}
-      </Stack>
+  return <>
+    <Section title={'Kills'} info={'Kills gained include kill per kill.'}>
+      <CounterTable bands={bands} hours={hours} resultsOnly={resultsOnly}/>
     </Section>
-  );
+    {currentClearing && snapshotClearing ? territoryClear({
+      current: currentClearing,
+      snapshot: snapshotClearing,
+      saveSeconds: state?.account?.timeAway?.Player - snapshottedAcc?.timeAway?.Player,
+      hours
+    }) : null}
+  </>;
+};
+
+const clearState = ({ remaining, cleared, totalPerHour, ownPerHour }) => {
+  if (remaining <= 0) return <StatusText status={'ready'} wrap>{cleared ? 'Ready to claim' : 'Ready once you open the map'}</StatusText>;
+  if (totalPerHour > 0) return `Clears in ${formatDuration((remaining / totalPerHour) * 3600)}${ownPerHour > 0 ? '' : ' (militia only)'}`;
+  return <Box component={'span'} sx={{ color: 'text.secondary' }}>No clear progress yet</Box>;
 };
 
 // The clear counter moves from two sources: the Royal Guardian's own kills on the map and the
 // Clearing units sent at it. Militia kills are banked (RoyalG[3][0] seconds) and only land when the
 // map screen is opened, so the share of the measured diff that is militia comes from how much of the
 // save-to-save time was paid out, not from the formula rate alone.
-const TerritoryClear = ({ current, snapshot, currentSaveTime, snapshotSaveTime, getPerHour }) => {
+const territoryClear = ({ current, snapshot, saveSeconds, hours }) => {
+  const perHour = (kills) => (hours ? kills / hours : 0);
   const measuredKills = current.kills - snapshot.kills;
-  const measuredPerHour = Math.max(0, getPerHour(measuredKills));
+  const measuredPerHour = Math.max(0, perHour(measuredKills));
   const militiaPerHour = current.militiaRate ?? 0;
-  const saveSeconds = currentSaveTime - snapshotSaveTime;
   const canTrackBank = Number.isFinite(current.bankedSeconds) && Number.isFinite(snapshot.bankedSeconds)
     && Number.isFinite(saveSeconds) && saveSeconds >= 0;
   // A snapshot taken before the bank was parsed falls back to assuming the militia landed in full.
@@ -235,59 +87,29 @@ const TerritoryClear = ({ current, snapshot, currentSaveTime, snapshotSaveTime, 
     ? Math.max(0, militiaPerHour * (saveSeconds + snapshot.bankedSeconds - current.bankedSeconds) / 3600)
     : null;
   const ownPerHour = Math.max(0, militiaLanded != null
-    ? getPerHour(measuredKills - militiaLanded)
+    ? perHour(measuredKills - militiaLanded)
     : measuredPerHour - militiaPerHour);
   const bankedKills = current.bankedKills ?? 0;
   const remaining = Math.max(0, current.killsRequired - current.kills - bankedKills);
-  const totalPerHour = ownPerHour + militiaPerHour;
-  return <>
-    <Divider sx={{ my: 1 }}/>
-    <Stack direction="row" alignItems="center" gap={0.5}>
-      <Typography variant="body1">Territory clear</Typography>
-      <Tooltip title={'Measured is how far the clear counter of the map moved since the snapshot. Militia kills are banked and only land when you open the map, so the calculator subtracts just the militia kills that actually landed between the two saves. Map open or closed, Yours stays your own rate.'}>
-        <IconInfoCircleFilled size={18}/>
-      </Tooltip>
-    </Stack>
-    <Typography variant="body2">{current.name}</Typography>
-    <Typography variant="body2">
-      Progress: {notateNumber(current.kills, 'Big')} / {notateNumber(current.killsRequired, 'Big')}
-    </Typography>
-    <Typography variant="body2">Measured: {notateNumber(measuredPerHour / 60, 'Big')} / min</Typography>
-    <Typography variant="body2">Measured: {notateNumber(measuredPerHour, 'Big')} / hr</Typography>
-    <Typography variant="body2">
-      Militia: {notateNumber(militiaPerHour, 'Big')} / hr ({current.militiaUnits ?? 0} unit{current.militiaUnits === 1 ? '' : 's'})
-    </Typography>
-    {militiaLanded != null ? <Typography variant="body2">
-      Militia landed: {notateNumber(militiaLanded, 'Big')} since snapshot
-    </Typography> : null}
-    {bankedKills > 0 ? <Typography variant="body2">
-      Militia banked: {notateNumber(bankedKills, 'Big')} (lands when you open the map)
-    </Typography> : null}
-    <Typography variant="body2">Yours: {notateNumber(ownPerHour, 'Big')} / hr</Typography>
-    <Typography variant="body2">
-      {remaining <= 0
-        ? current.kills >= current.killsRequired ? 'Ready to claim' : 'Ready once you open the map'
-        : totalPerHour > 0
-          ? `Clears in ${formatEta(remaining / totalPerHour)}${ownPerHour > 0 ? '' : ' (militia only)'}`
-          : 'No clear progress yet'}
-    </Typography>
-  </>;
+  const units = current.militiaUnits ?? 0;
+  return <Section key={'territory'} title={'Territory clear'}
+                  info={'Measured is how far the clear counter of the map moved since the snapshot. Militia kills are banked and only land when you open the map, so the calculator subtracts just the militia kills that actually landed between the two saves. Map open or closed, Yours stays your own rate.'}>
+    <Panel.KV label={'Map'} value={current.name}/>
+    <Panel.KV label={'Progress'} value={<Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>
+      {formatNum(current.kills, 'whole')} / {formatNum(current.killsRequired, 'whole')}
+    </Box>}/>
+    <Panel.KV label={'Measured'} value={formatNum(measuredPerHour, 'rate')}/>
+    <Panel.KV label={'Militia'} value={`${formatNum(militiaPerHour, 'rate')} (${units} unit${units === 1 ? '' : 's'})`}/>
+    {militiaLanded != null ? <Panel.KV label={'Militia landed'} value={formatNum(militiaLanded, 'whole')}/> : null}
+    {bankedKills > 0 ? <Panel.KV label={'Militia banked'} value={`${formatNum(bankedKills, 'whole')} (lands when you open the map)`}/> : null}
+    <Panel.KV label={'Yours'} value={formatNum(ownPerHour, 'rate')}/>
+    <Panel.KV label={'State'} value={clearState({
+      remaining,
+      cleared: current.kills >= current.killsRequired,
+      totalPerHour: ownPerHour + militiaPerHour,
+      ownPerHour
+    })}/>
+  </Section>;
 };
 
-const AdvancedSection = ({ title, items, getPerHour }) => {
-  return <>
-    <Divider sx={{ my: 1 }}/>
-    <Typography variant="body1">{title}</Typography>
-    {items.map(({ label, value }, index) => {
-      return <Fragment key={`${title}-${index}`}>
-        <Divider sx={{ my: 1 }}/>
-        <Typography variant="body2">{label}</Typography>
-        <Typography variant="body2">{numberWithCommas(Math.floor(value))}</Typography>
-        <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(value)))} / hr</Typography>
-        <Typography variant="body2">{numberWithCommas(getPerHour(Math.floor(value * 24)))} /
-          day</Typography>
-      </Fragment>
-    })}
-  </>
-}
 export default KillsSection;

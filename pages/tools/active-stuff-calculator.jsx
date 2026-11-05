@@ -1,24 +1,13 @@
 import { NextSeo } from 'next-seo';
-import React, { useContext, useEffect, useState } from 'react';
-import {
-  Checkbox,
-  Divider,
-  FormControlLabel,
-  Select,
-  selectClasses,
-  Stack,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography
-} from '@mui/material';
-import { prefix } from '@utility/helpers';
-import MenuItem from '@mui/material/MenuItem';
+import React, { useContext } from 'react';
+import { Box, Stack } from '@mui/material';
+import { formatDuration } from '@utility/helpers';
 import { AppContext } from '@components/common/context/AppProvider';
 import Notice from '@components/common/Notice';
-import { IconDeviceFloppy, IconInfoCircleFilled, IconCopy } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
+import { IconCopy, IconDeviceFloppy } from '@tabler/icons-react';
 import Button from '@mui/material/Button';
 import useFormatDate from '@hooks/useFormatDate';
+import useToolbarState from '@hooks/useToolbarState';
 import { useLocalStorage } from '@mantine/hooks';
 import ExpSection from '@components/tools/active-calculator/ExpSection';
 import DropSection from '@components/tools/active-calculator/DropSection';
@@ -30,6 +19,12 @@ import CoinsSection from '@components/tools/active-calculator/CoinsSection';
 import CauldronsSection from '@components/tools/active-calculator/CauldronsSection';
 import ObolsSection from '@components/tools/active-calculator/ObolsSection';
 import OrbletsSection from '@components/tools/active-calculator/OrbletsSection';
+import HeaderCharacterPicker from '@components/tools/HeaderCharacterPicker';
+import InfoButton from '@components/common/InfoButton';
+import Toolbar from '@components/common/Toolbar';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import { MissingSections } from '@components/common/styles';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
 import { notify } from '@components/common/Overlays/notify';
 import {
@@ -39,70 +34,37 @@ import {
   toCharacterSnapshot
 } from '@utility/activeCalculatorSnapshot';
 
-
-const sections = ['coins', 'pets', 'kills', 'exp', 'cards', 'drops', 'cauldrons', 'obols', 'orblets'];
+const SECTIONS = [['coins', 'Coins'], ['pets', 'Pets'], ['kills', 'Kills'], ['exp', 'Exp'], ['cards', 'Cards'], ['drops', 'Drops'],
+  ['cauldrons', 'Cauldrons'], ['obols', 'Obols'], ['orblets', 'Orblets']];
+const CALCULATOR_TOOLBAR = { show: 'all', resultsOnly: false };
+const SECTION_NAMES = { breeding: 'Breeding', cards: 'Cards', alchemy: 'Alchemy', obols: 'Obols', royalGuardian: 'Royal Guardian', tesseract: 'Tesseract' };
 
 const ActiveStuffCalculator = () => {
   const { state } = useContext(AppContext);
   const formatDate = useFormatDate();
   const [snapshottedAcc, setSnapshottedAcc] = useLocalStorage({ key: ACCOUNT_SNAPSHOT_KEY, defaultValue: null });
   const [snapshottedChar, setSnapshottedChar] = useLocalStorage({ key: CHARACTER_SNAPSHOT_KEY, defaultValue: null });
-  const [resultsOnly, setResultsOnly] = useLocalStorage({ key: 'activeDropResultsOnly', defaultValue: false });
-  const [selectedSections, setSelectedSections] = useLocalStorage({
-    key: 'activeDropSections',
-    defaultValue: sections
-  });
-  const [selectedChar, setSelectedChar] = useState('0');
-  const selectedCharacterClass = state?.characters?.[selectedChar]?.class;
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('active-stuff-calculator', CALCULATOR_TOOLBAR);
+  // The pick is remembered; before one, the page follows the snapshot's character
+  const [pickedChar, setPickedChar] = useLocalStorage({ key: 'active-stuff-calculator:character' });
+  const characters = state?.characters;
+  const selectedChar = String(characters?.[pickedChar] ? pickedChar : snapshottedChar?.playerId ?? characters?.[0]?.playerId ?? 0);
+  const currentCharacter = characters?.[selectedChar];
+  const selectedCharacterClass = currentCharacter?.class;
   const isBeastMaster = checkCharClass(selectedCharacterClass, CLASSES.Beast_Master)
     || checkCharClass(selectedCharacterClass, CLASSES.Wind_Walker);
   const isShaman = checkCharClass(selectedCharacterClass, CLASSES.Shaman);
   const isRoyalGuardian = checkCharClass(selectedCharacterClass, CLASSES.Royal_Guardian);
-
-  useEffect(() => {
-    if (snapshottedChar) {
-      setSelectedChar(snapshottedChar?.playerId + '');
-      let currentSections = selectedSections;
-      if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, CLASSES.Beast_Master) && !checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, CLASSES.Wind_Walker)) {
-        currentSections = currentSections.filter((name) => name !== 'pets');
-      }
-      if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, CLASSES.Shaman)) {
-        currentSections = currentSections.filter((name) => name !== 'cauldrons');
-      }
-      if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, CLASSES.Royal_Guardian)) {
-        currentSections = currentSections.filter((name) => name !== 'orblets');
-      }
-      setSelectedSections(currentSections);
-    }
-  }, [snapshottedChar, snapshottedAcc]);
-
-  const isDisplayed = (section) => {
-    return selectedSections.includes(section)
-  }
-
-  const handleCharChange = (e) => {
-    let currentSections = selectedSections;
-    if (!checkCharClass(state?.characters?.[e.target?.value?.playerId]?.class, CLASSES.Beast_Master)) {
-      currentSections = currentSections.filter((name) => name !== 'pets');
-    }
-    if (!checkCharClass(state?.characters?.[snapshottedChar?.playerId]?.class, CLASSES.Shaman)) {
-      currentSections = currentSections.filter((name) => name !== 'cauldrons');
-    }
-    // e.target.value is the playerId itself, not the character.
-    if (!checkCharClass(state?.characters?.[e.target?.value]?.class, CLASSES.Royal_Guardian)) {
-      currentSections = currentSections.filter((name) => name !== 'orblets');
-    }
-    setSelectedSections(currentSections);
-    setSelectedChar(e.target.value);
-  }
-
-  const handleSections = (e, newSections) => {
-    setSelectedSections(newSections);
-  };
+  const offered = SECTIONS.filter(([section]) => (section === 'pets' ? isBeastMaster
+    : section === 'cauldrons' ? isShaman
+      : section === 'orblets' ? isRoyalGuardian : true));
+  // A section this character's class lacks falls back to all of them
+  const show = offered.some(([section]) => section === toolbar.show) ? toolbar.show : 'all';
+  const isDisplayed = (section) => offered.some(([name]) => name === section) && (show === 'all' || show === section);
 
   const handleSaveSnapshot = () => {
     const snapshotTime = new Date().getTime();
-    setSnapshottedChar(toCharacterSnapshot({ ...state?.characters?.[selectedChar], snapshotTime }))
+    setSnapshottedChar(toCharacterSnapshot({ ...currentCharacter, snapshotTime }))
     setSnapshottedAcc(toAccountSnapshot({ ...state?.account, snapshotTime }))
   }
 
@@ -118,98 +80,53 @@ const ActiveStuffCalculator = () => {
 
   const lastUpdatedSeconds = state?.account?.timeAway?.Player;
   const lastUpdated = Number.isFinite(lastUpdatedSeconds) ? lastUpdatedSeconds * 1000 : null;
-  const currentCharacter = state?.characters?.[selectedChar];
+  const snapshotTime = snapshottedChar?.snapshotTime;
+  const elapsedSeconds = snapshotTime && lastUpdated !== null ? (lastUpdated - snapshotTime) / 1000 : null;
+  const hasSnapshot = (snapshottedChar?.playerId + '') === selectedChar;
+  const sectionProps = { selectedChar, lastUpdated, resultsOnly: toolbar.resultsOnly };
 
   return <>
     <NextSeo
       title="Active Stuff Calculator | Idleon Toolbox"
       description="Calculate active gameplay item drops, resource gains, and efficiency for your Legends of Idleon characters"
     />
-    <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-      <Select
-        size={'small'}
-        sx={{
-          width: 230,
-          paddingRight: 2,
-          [`& .${selectClasses.select}`]: {
-            display: 'flex',
-            alignItems: 'center'
-          }
-        }} value={selectedChar} onChange={handleCharChange}>
-        {state?.characters?.map((character, index) => {
-          const classIcon = character?.classIndex !== undefined ? `data/ClassIcons${character?.classIndex}.png` : 'afk_targets/Nothing.png'
-          return <MenuItem key={character?.name + index} value={character?.playerId}
-                           selected={selectedChar === character?.playerId}>
-            <Stack direction={'row'} alignItems={'center'} gap={2}>
-              <img src={`${prefix}${classIcon}`} alt="" width={32} height={32}/>
-              <Typography>{character?.name}</Typography>
-            </Stack>
-          </MenuItem>
-        })}
-      </Select>
-      <Divider orientation={'vertical'} flexItem sx={{ ml: 2, display: { xs: 'none', sm: 'block' } }}/>
-      <Stack gap={.5} sx={{ ml: 2 }}>
-        <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <Button sx={{ width: 'fit-content' }} variant={'contained'} size={'small'} onClick={handleSaveSnapshot}
-                  startIcon={<IconDeviceFloppy/>}>
-            Save snapshot
-          </Button>
-          <Button sx={{ width: 'fit-content' }} variant={'outlined'} size={'small'} onClick={handleCopySnapshot}
-                  startIcon={<IconCopy/>} disabled={!snapshottedAcc || !snapshottedChar}>
-            Copy snapshot
-          </Button>
-          <Tooltip
-            title={'You can only take a snapshot of one character at a time.'}>
-            <IconInfoCircleFilled/>
-          </Tooltip>
-        </Stack>
-        <FormControlLabel
-          control={<Checkbox size="small" checked={resultsOnly} onChange={() => setResultsOnly(!resultsOnly)}/>}
-          name={'resultsOnly'}
-          label="Show results only"/>
+    <MissingSections account={state?.account} names={SECTION_NAMES}/>
+    {state?.emptyAccount ? <Notice tone={'signin'} sx={{ mb: 2 }}>Sign in to compare a snapshot with your save.</Notice> : null}
+    {currentCharacter ? <>
+      <HeaderCharacterPicker characters={characters} value={selectedChar} onChange={setPickedChar}/>
+      <PageSummary label={'Snapshot times'}>
+        <StatTile label={'Snapshot taken'} value={snapshotTime ? formatDate(snapshotTime) : '-'} sub={snapshottedChar?.name}/>
+        <StatTile label={'Last save'} value={lastUpdated !== null ? formatDate(lastUpdated) : '-'}/>
+        <StatTile label={'Measured over'} value={elapsedSeconds > 0 ? formatDuration(elapsedSeconds) : '-'}/>
+      </PageSummary>
+      <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+        <Button variant={'contained'} onClick={handleSaveSnapshot} startIcon={<IconDeviceFloppy size={18}/>}>Save snapshot</Button>
+        <Button variant={'outlined'} onClick={handleCopySnapshot} startIcon={<IconCopy size={18}/>}
+                disabled={!snapshottedAcc || !snapshottedChar}>
+          Copy snapshot
+        </Button>
+        <InfoButton label={'snapshots'}>One snapshot at a time: a new one replaces the last, for any character.</InfoButton>
       </Stack>
-    </Stack>
-    <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ mt: 2 }}>
-      <ToggleButtonGroup value={selectedSections} onChange={handleSections}>
-        {sections.map((section) => {
-          if (section === 'pets' && !isBeastMaster) return null;
-          if (section === 'cauldrons' && !isShaman) return null;
-          if (section === 'orblets' && !isRoyalGuardian) return null;
-          return <ToggleButton key={section} value={section}>{section.camelToTitleCase()}</ToggleButton>
-        })}
-      </ToggleButtonGroup>
-      <Stack>
-        {state?.account?.timeAway?.Player ? <Typography component={'span'}
-                     variant={'body2'}>Last
-          update - {formatDate(state?.account?.timeAway?.Player * 1000)}</Typography> : null}
-        {snapshottedChar?.snapshotTime
-          ? <Typography
-            variant={'body2'}>{snapshottedChar?.name} - {formatDate(snapshottedChar?.snapshotTime)}</Typography>
-          : null}
-      </Stack>
-    </Stack>
-    {selectedSections.length === 0
-      ? <Notice sx={{ mt: 2 }}>Pick at least one section above.</Notice>
-      : !currentCharacter || lastUpdated === null
-        ? <Notice tone={'signin'} sx={{ mt: 2 }}>Your snapshot compares against your current save once you sign in.</Notice>
-      : (snapshottedChar?.playerId + '') != selectedChar
-        ? <Notice sx={{ mt: 2 }}>This character has no snapshot yet: Save snapshot takes one.</Notice> : <>
-        {isDisplayed('coins') ? <CoinsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
-        {isDisplayed('pets') && isBeastMaster
-          ? <PetSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/>
-          : null}
-        {isDisplayed('kills')
-          ? <KillsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/>
-          : null}
-        {isDisplayed('exp') ? <ExpSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
-        {isDisplayed('cards') ? <CardsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
-        {isDisplayed('drops') ? <DropSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
-        {isDisplayed('cauldrons') ? <CauldronsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
-        {isDisplayed('obols') ? <ObolsSection selectedChar={selectedChar} lastUpdated={lastUpdated} resultsOnly={resultsOnly}/> : null}
-        {isDisplayed('orblets') && isRoyalGuardian
-          ? <OrbletsSection lastUpdated={lastUpdated} resultsOnly={resultsOnly}/>
-          : null}
-      </>}
+      <Box>
+        <Toolbar state={{ ...toolbar, show }} defaults={CALCULATOR_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+                 total={offered.length} shown={show === 'all' ? offered.length : 1} noun={'sections'}>
+          <Toolbar.Show options={[['all', 'All sections'], ...offered]}/>
+          <Toolbar.Filter name={'resultsOnly'} label={'Results only'}/>
+        </Toolbar>
+        {!hasSnapshot ? <Notice>This character has no snapshot yet: Save snapshot takes one.</Notice> : <Stack gap={3}>
+          {elapsedSeconds !== null && elapsedSeconds <= 0 ? <Notice>Your last save is older than this snapshot: cloud save in game to see what you gained.</Notice> : null}
+          {isDisplayed('coins') ? <CoinsSection {...sectionProps}/> : null}
+          {isDisplayed('pets') ? <PetSection {...sectionProps}/> : null}
+          {isDisplayed('kills') ? <KillsSection {...sectionProps}/> : null}
+          {isDisplayed('exp') ? <ExpSection {...sectionProps}/> : null}
+          {isDisplayed('cards') ? <CardsSection {...sectionProps}/> : null}
+          {isDisplayed('drops') ? <DropSection {...sectionProps}/> : null}
+          {isDisplayed('cauldrons') ? <CauldronsSection {...sectionProps}/> : null}
+          {isDisplayed('obols') ? <ObolsSection {...sectionProps}/> : null}
+          {isDisplayed('orblets') ? <OrbletsSection {...sectionProps}/> : null}
+        </Stack>}
+      </Box>
+    </> : null}
   </>;
 };
 
