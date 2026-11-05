@@ -29,7 +29,8 @@ const parseDungeons = (dungeonUpgrades: any, accountOptions: any[] | undefined):
   const statBoostsRaw = dungeonUpgrades?.[2];
   const flurbosUpgradesRaw = dungeonUpgrades?.[5];
 
-  const rngItems = liveEntries<any>(dungeonCreditShop).map(({ entry, index }) => ({ ...entry, index, level: rngItemsRaw?.[index] ?? 0 }));
+  // game: 0 > level reads as not found, so with no save nothing is
+  const rngItems = liveEntries<any>(dungeonCreditShop).map(({ entry, index }) => ({ ...entry, index, level: rngItemsRaw?.[index] ?? -1 }));
   let counter = 0;
   const statBoosts = dungeonTraits?.map((trait: any) => ({
     ...trait, bonuses: trait?.bonuses?.map((bonus: any) => {

@@ -16,9 +16,9 @@ const Dot = ({ sx }) => <Box component={'span'} aria-hidden={'true'} sx={{
 }}/>;
 
 // The weeks follow the save's game clock: a guest has none until they sign in, and a save can come without one
-const Schedule = ({ killroy, schedule, hasClock, guest, sectionFailed }) => {
+const Schedule = ({ killroy, schedule, guest, sectionFailed }) => {
   const formatDate = useFormatDate();
-  if (!hasClock) {
+  if (!schedule?.length) {
     return guest
       ? <Notice tone={'signin'}>Killroy&apos;s schedule follows your save&apos;s clock: it shows here once you sign in.</Notice>
       : <Notice tone={'missing'}>Killroy&apos;s schedule follows your save&apos;s game clock, and this save has none.</Notice>;

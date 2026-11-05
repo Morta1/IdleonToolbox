@@ -224,11 +224,11 @@ const extraIslandDetails = (account: Account, characters: any[], index: number):
     result = {
       learnMore: true, shop: [
         {
-          effect: `5% Loot (${(account as any)?.accountOptions?.[OPT.randoIslandLootLevel]})`,
+          effect: `5% Loot (${(account as any)?.accountOptions?.[OPT.randoIslandLootLevel] ?? 0})`,
           cost: Math.round(10 * Math.pow(1.5, (account as any)?.accountOptions?.[OPT.randoIslandLootLevel] ?? 0))
         },
         {
-          effect: `3% Double boss (${(account as any)?.accountOptions?.[OPT.randoIslandDoubleBossLevel]})`,
+          effect: `3% Double boss (${(account as any)?.accountOptions?.[OPT.randoIslandDoubleBossLevel] ?? 0})`,
           cost: Math.round(6 * Math.pow(1.4, (account as any)?.accountOptions?.[OPT.randoIslandDoubleBossLevel] ?? 0))
         },
         {
@@ -255,12 +255,11 @@ const extraIslandDetails = (account: Account, characters: any[], index: number):
     const bestDpsEver = notateNumber((account as any)?.accountOptions?.[OPT.shimmerBestDps]);
     const shimmerCurrency = (account as any)?.accountOptions?.[OPT.shimmerCurrency];
     const shimmerShop = shimmerIslandShop?.map(({ effect, divider }, index: number) => {
-      const bonus = (account as any)?.accountOptions?.[174 + index]
-      const bonusForCost = bonus ?? 0;
+      const bonus = (account as any)?.accountOptions?.[174 + index] ?? 0;
       return {
         effect: effect?.replace('{', bonus)?.replace(',', ' '),
         bonus,
-        cost: 1 + Math.floor(bonusForCost / divider)
+        cost: 1 + Math.floor(bonus / divider)
       }
     })
     result = {

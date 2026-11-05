@@ -25,7 +25,6 @@ const Owl = () => {
   // A failed section draws Orion's lists at zero (the parser's own empty save); its numbers are not the player's
   const owl = failed ? getOwl(undefined, {}) : state?.account?.owl;
   // No save has no feathers made, so there is no next upgrade to count toward
-  const hasSave = !failed && owl?.progress != null;
   const feathers = owl?.feathers ?? 0;
   const featherRate = owl?.featherRate ?? 0;
 
@@ -39,7 +38,7 @@ const Owl = () => {
       <StatTile label={'Feathers'} icon={'etc/Owlb_0.png'} value={failed ? '-' : clickerAmount(feathers)}/>
       <StatTile label={'Feathers per second'} value={failed ? '-' : formatGame(featherRate, 'Summoning.OwlFeatherRate')}/>
       <StatTile label={'Feathers per hour'} value={failed ? '-' : formatGame(featherRate * 3600, 'Summoning.OwlFeatherRate')}/>
-      <StatTile label={'Next upgrade'} value={!hasSave ? '-' : owl?.nextLvReq > 0
+      <StatTile label={'Next upgrade'} value={failed || owl?.nextLvReq == null ? '-' : owl.nextLvReq > 0
         ? `${formatGame(owl.progress, 'Summoning.OwlNextUpgReq', { whole: true })} / ${formatGame(owl.nextLvReq, 'Summoning.OwlNextUpgReq', { whole: true })}`
         : <StatusText status={'done'}>All unlocked</StatusText>}/>
     </PageSummary>

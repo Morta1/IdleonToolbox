@@ -76,7 +76,8 @@ const parseKangaroo = (account: any) => {
     }
   });
   const nextLvReqIndex = upgrades?.findIndex(({ level, x3 }) => progress < x3);
-  const nextLvReq = poppyBonuses?.[nextLvReqIndex]?.x3;
+  // null with no save: no fish caught, so no next upgrade to count toward. 0 is every upgrade unlocked
+  const nextLvReq = progress == null ? null : poppyBonuses?.[nextLvReqIndex]?.x3 ?? 0;
   const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 45);
   const fountainPoppyBonus = getFountainBonusTotal(account?.hole?.holesObject, 1, 18);
   // game: "Summoning:RooCatchFishQTY"

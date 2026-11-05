@@ -1636,31 +1636,31 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
   const killRoyClasses = getKillRoyClasses(rooms, accountData, serverVars);
   const upgrades = [
     {
-      level: accountData?.accountOptions?.[OPT.killroyTimerLevel],
+      level: accountData?.accountOptions?.[OPT.killroyTimerLevel] ?? 0,
       description: 'Increases your maximum time in room. Base time is 100 seconds.',
       upgrade: '+1 Second Timer'
     },
     {
-      level: accountData?.accountOptions?.[OPT.killroyTalentDropsLevel],
+      level: accountData?.accountOptions?.[OPT.killroyTalentDropsLevel] ?? 0,
       description: 'Increases chance for Talent Point drop, depends on how many Talent Point drops already got',
       upgrade: '+ Talent Drops'
     },
     {
-      level: accountData?.accountOptions?.[OPT.killroyBonusSkullsLevel],
+      level: accountData?.accountOptions?.[OPT.killroyBonusSkullsLevel] ?? 0,
       description: 'Increases chance of dropping skulls by mobs',
       upgrade: '+1% Bonus Skulls'
     },
     {
-      level: accountData?.accountOptions?.[OPT.killroyRespawnLevel],
+      level: accountData?.accountOptions?.[OPT.killroyRespawnLevel] ?? 0,
       description: 'Faster Respawn'
     },
     {
-      level: accountData?.accountOptions?.[OPT.killroyDungeonDropsLevel],
+      level: accountData?.accountOptions?.[OPT.killroyDungeonDropsLevel] ?? 0,
       description: 'Mobs can drop Dungeon Credits now',
       upgrade: 'Dungeon Drops'
     },
     {
-      level: accountData?.accountOptions?.[OPT.killroyPearlDropsLevel],
+      level: accountData?.accountOptions?.[OPT.killroyPearlDropsLevel] ?? 0,
       description: 'Mobs can drop Pearls now',
       upgrade: 'Pearl Drops'
     }
@@ -1894,6 +1894,8 @@ export const calcTotalQuestCompleted = (characters: any) => {
 }
 
 export const getKillroySchedule = (account: any, characters: any, serverVars: any) => {
+  // The weeks are seeded from the save's clock: with none, every week would draw the same rooms with no date
+  if (!Number.isFinite(account?.timeAway?.GlobalTime)) return [];
   const unlockedThirdKillRoy = account?.accountOptions?.[OPT.killroyThirdFightUnlocked] === 1;
   const rooms = unlockedThirdKillRoy ? 3 : 2;
   const schedule = [];

@@ -63,7 +63,7 @@ const Dungeons = () => {
       </PageSummary>
       <Tabber tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'dungeons')}>
         <Upgrades {...dungeons} sectionFailed={dungeonsFailed}/>
-        <RngItems {...dungeons} sectionFailed={dungeonsFailed} emptyAccount={state?.emptyAccount}/>
+        <RngItems {...dungeons} sectionFailed={dungeonsFailed}/>
         <Traits {...dungeons} sectionFailed={dungeonsFailed}/>
       </Tabber>
     </>

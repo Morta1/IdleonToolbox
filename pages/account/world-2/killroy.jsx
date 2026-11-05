@@ -18,9 +18,7 @@ const Killroy = () => {
   const killroyFailed = isSectionFailed(state?.account, 'killroy');
   // A failed section's {} default: the upgrades, the shop and the monsters at zero, the parser's own with no save
   const killroy = (killroyFailed ? getKillRoy({}, [], {}, {}) : state?.account?.killroy) ?? {};
-  // The weeks are seeded from the save's clock: with none, every week would draw the same rooms with no date
-  const hasClock = Number.isFinite(state?.account?.timeAway?.GlobalTime);
-  const schedule = hasClock ? getKillroySchedule(state?.account, state?.characters, state?.account?.serverVars) : [];
+  const schedule = getKillroySchedule(state?.account, state?.characters, state?.account?.serverVars);
   const tile = (text) => (killroyFailed ? '-' : text);
 
   return <>
@@ -35,7 +33,7 @@ const Killroy = () => {
       <StatTile label={'Total damage multi'} value={tile(formatNum(killroy?.totalDamageMulti ?? 1, 'mult'))}/>
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 2'].categories, 'killroy')}>
-      <Schedule killroy={killroy} schedule={schedule} hasClock={hasClock} guest={state?.emptyAccount}
+      <Schedule killroy={killroy} schedule={schedule} guest={state?.emptyAccount}
                 sectionFailed={killroyFailed}/>
       <Upgrades killroy={killroy} sectionFailed={killroyFailed}/>
       <PermanentUpgrades killroy={killroy} sectionFailed={killroyFailed}/>

@@ -36,8 +36,6 @@ const Unlocks = () => {
   const hideUnlocked = !failed && view.hideUnlocked;
   // A failed section draws the game's unlock pairs with no state (the parser's own empty save)
   const unlocks = failed ? getTasks(undefined).taskUnlocks : state?.account?.taskUnlocks;
-  // With no save the parser's points owned read -10 and the next requirement -80 (parsers/tasks.ts): neither is the player's
-  const hasPoints = !failed && unlocks?.pointsReq > 0;
 
   const list = unlocks?.taskUnlocksList?.[column] ?? [];
   const isUnlocked = ({ unlocked }) => !failed && Boolean(unlocked);
@@ -52,9 +50,9 @@ const Unlocks = () => {
     {failed ? <MissingData name={'Unlocks'} failed atZero/> : null}
     <PageSummary>
       <StatTile label={'Available unlocks'}
-                value={hasPoints ? formatNum(Math.max(0, unlocks.unlockPointsOwned - unlocks.unlockedRecipes)) : '-'}/>
+                value={failed ? '-' : formatNum(Math.max(0, unlocks?.unlockPointsOwned - unlocks?.unlockedRecipes))}/>
       <StatTile label={'Next unlock'}
-                value={hasPoints ? `${formatNum(unlocks.currentPoints)} / ${formatNum(unlocks.pointsReq)}` : '-'}/>
+                value={failed ? '-' : `${formatNum(unlocks?.currentPoints)} / ${formatNum(unlocks?.pointsReq)}`}/>
       <StatTile label={'Unlocked recipes'} value={failed ? '-' : formatNum(unlocks?.unlockedRecipes ?? 0)}/>
     </PageSummary>
     <Tabber tabs={tabs} keepChildren>

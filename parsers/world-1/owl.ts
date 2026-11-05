@@ -84,7 +84,8 @@ const parseOwl = (account: any) => {
     }
   });
   const nextLvReqIndex = upgrades?.findIndex(({ level, x3 }) => progress < x3);
-  const nextLvReq = owlData?.[nextLvReqIndex]?.x3 || 0;
+  // null with no save: no feathers made, so no next upgrade to count toward. 0 is every upgrade unlocked
+  const nextLvReq = progress == null ? null : owlData?.[nextLvReqIndex]?.x3 ?? 0;
   const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 21);
   const meritocracyBonus = getMeritocracyBonus(account, 12);
 

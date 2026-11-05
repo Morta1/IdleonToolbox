@@ -19,9 +19,7 @@ const WeeklyBosses = () => {
   const [picked, setPicked] = useState(0);
   const account = state?.account;
   const trophies = Number(account?.accountOptions?.[OPT.weeklyBossTrophies]) || 0;
-  // The weeks are seeded from the save's clock: with none, every week would draw the same boss with no date
-  const hasClock = Number.isFinite(Number(account?.timeAway?.GlobalTime ?? NaN));
-  const schedule = hasClock ? getWeeklyBoss(account, weeks) : [];
+  const schedule = getWeeklyBoss(account, weeks);
   const week = schedule[picked];
 
   return <>
@@ -32,7 +30,7 @@ const WeeklyBosses = () => {
     <PageSummary>
       <StatTile label={'Trophies'} icon={TROPHY_ICON} value={formatNum(trophies)}/>
     </PageSummary>
-    {hasClock ? <>
+    {schedule.length ? <>
       <CardGrid size={'icon'}>
         {schedule.map(({ bossName }, index) => <IconTile key={`week-${index}`} icon={`etc/${bossName}.png`}
                                                          alt={`${cleanUnderscore(bossName)}, week ${index + 1}`}

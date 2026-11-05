@@ -26,8 +26,6 @@ const Kangaroo = () => {
   const failed = isSectionFailed(state?.account, 'kangaroo');
   // A failed section draws Poppy's lists at zero (the parser's own empty save); its numbers are not the player's
   const kangaroo = failed ? getKangaroo(undefined, {}) : state?.account?.kangaroo;
-  // No save has no fish caught, so there is no next upgrade to count toward
-  const hasSave = !failed && kangaroo?.progress != null;
   const number = (value, render) => (failed ? '-' : render(value ?? 0));
   const fishRate = kangaroo?.fishRate ?? 0;
   // The Tar Pit opens with Megafish 1: until then no tar fish come in, whatever the base rate says
@@ -43,7 +41,7 @@ const Kangaroo = () => {
       <StatTile label={'Fish'} icon={'etc/KFish.png'} value={number(kangaroo?.totalFish, clickerAmount)}/>
       <StatTile label={'Fish per minute'} value={number(fishRate, formatNum)}/>
       <StatTile label={'Fish per hour'} value={number(fishRate * 60, formatNum)}/>
-      <StatTile label={'Next upgrade'} value={!hasSave ? '-' : kangaroo?.nextLvReq > 0
+      <StatTile label={'Next upgrade'} value={failed || kangaroo?.nextLvReq == null ? '-' : kangaroo.nextLvReq > 0
         ? `${formatGame(kangaroo.progress, 'Summoning.RooNextUpgReq', { whole: true })} / ${formatGame(kangaroo.nextLvReq, 'Summoning.RooNextUpgReq', { whole: true })}`
         : <StatusText status={'done'}>All unlocked</StatusText>}/>
       <StatTile label={'Tar fish'} icon={'etc/KTar.png'}

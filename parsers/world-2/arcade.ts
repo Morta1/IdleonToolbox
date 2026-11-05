@@ -76,9 +76,9 @@ export const getGoldBallMulti = (account: Account, serverVars: ServerVars, chara
 }
 
 const parseArcade = (arcadeRaw: any, account: Account, serverVars: ServerVars, characters?: any[]) => {
-  const balls = (account as any)?.accountOptions?.[OPT.arcadeBalls];
-  const goldBalls = (account as any)?.accountOptions?.[OPT.arcadeGoldBalls];
-  const royalBalls = (account as any)?.accountOptions?.[OPT.arcadeCosmicBalls];
+  const balls = (account as any)?.accountOptions?.[OPT.arcadeBalls] ?? 0;
+  const goldBalls = (account as any)?.accountOptions?.[OPT.arcadeGoldBalls] ?? 0;
+  const royalBalls = (account as any)?.accountOptions?.[OPT.arcadeCosmicBalls] ?? 0;
   // 2.3.540 Omega balls (Menagerie unlock 6), spent on the Lv 101 -> 102 Omega upgrade
   const omegaBalls = (account as any)?.accountOptions?.[OPT.omegaArcadeBalls] ?? 0;
 

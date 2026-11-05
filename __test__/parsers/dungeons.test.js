@@ -16,7 +16,7 @@ describe('getDungeons', () => {
     expect(result.rngItems).toHaveLength(liveCount(dungeonCreditShop));
     expect(result.insideUpgrades).toHaveLength(liveCount(dungeonStats));
     expect(result.upgrades).toHaveLength(liveCount(dungeonFlurboStats));
-    expect(result.rngItems.every((u) => u.level === 0)).toBe(true);
+    expect(result.rngItems.every((u) => u.level === -1)).toBe(true);
     expect(result.insideUpgrades.every((u) => u.level === 0)).toBe(true);
     expect(result.upgrades.every((u) => u.level === 0)).toBe(true);
     expect([result.rngItems[0].name, result.insideUpgrades[0].effect, result.upgrades[0].effect])
