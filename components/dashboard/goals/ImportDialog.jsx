@@ -27,6 +27,10 @@ const ERRORS = {
   read: 'This file could not be read'
 };
 
+// The option for a character left out: a real value, since an empty one needs displayEmpty, and that draws the field's
+// border with a gap for its label.
+const SKIP = '__skip__';
+
 const greenstackKeysOf = (ctx) => {
   const greenstack = getDescriptor('greenstack');
   return new Set(greenstack.list(ctx).map((row) => greenstack.key(row)));
@@ -59,10 +63,9 @@ const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan
             {`${name}: ${count} ${count === 1 ? 'goal' : 'goals'}`}
           </Typography>
           <TextField select size="small" label="Import as" sx={{ flex: 1, minWidth: 0 }}
-                     value={Object.hasOwn(charMap, name) && typeof charMap[name] === 'string' ? charMap[name] : ''}
-                     onChange={(e) => setCharMap({ ...charMap, [name]: e.target.value || null })}
-                     slotProps={{ select: { displayEmpty: true }, inputLabel: { shrink: true } }}>
-            <MenuItem value="">Skip</MenuItem>
+                     value={Object.hasOwn(charMap, name) && typeof charMap[name] === 'string' ? charMap[name] : SKIP}
+                     onChange={(e) => setCharMap({ ...charMap, [name]: e.target.value === SKIP ? null : e.target.value })}>
+            <MenuItem value={SKIP}>Skip</MenuItem>
             {characters.map((c) => <MenuItem key={c.name} value={c.name}>{c.name}</MenuItem>)}
           </TextField>
         </Stack>

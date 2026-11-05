@@ -10,7 +10,7 @@ const NoteInput = ({ value, onChange }) => (
     label="Note"
     placeholder="Optional"
     value={value}
-    slotProps={{ htmlInput: { maxLength: MAX_NOTE_LENGTH }, inputLabel: { shrink: true } }}
+    slotProps={{ htmlInput: { maxLength: MAX_NOTE_LENGTH } }}
     onChange={(e) => onChange(e.target.value)}
   />
 );
