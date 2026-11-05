@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Box, ButtonBase, ClickAwayListener } from '@mui/material';
 import { IconInfoCircle } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
@@ -28,10 +28,22 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, p
   // (Info board).
   const tileAnchor = underTile ? { anchorEl: () => triggerRef.current?.closest('[data-card-title-value]') ?? triggerRef.current } : {};
 
-  const handleClose = (event) => {
-    setPreviewing(false);
-    if (event?.key === 'Escape') setPinned(false);
-  };
+  const handleClose = () => setPreviewing(false);
+
+  // Escape closes the note and nothing else: a drawer or dialog under it stays. In the capture phase, ahead of the Modal
+  // that holds the focus; while a note is open it is the top thing on the screen.
+  const open = pinned || previewing;
+  useEffect(() => {
+    if (!open) return undefined;
+    const closeOnEscape = (event) => {
+      if (event.key !== 'Escape') return;
+      event.stopPropagation();
+      setPinned(false);
+      setPreviewing(false);
+    };
+    document.addEventListener('keydown', closeOnEscape, true);
+    return () => document.removeEventListener('keydown', closeOnEscape, true);
+  }, [open]);
 
   return <ClickAwayListener onClickAway={() => setPinned(false)}>
     <Box component={'span'} sx={{ display: block ? 'flex' : 'inline-flex', verticalAlign: 'middle' }}>
@@ -40,7 +52,7 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, p
         title={<SheetContext value={null}><span>{note}</span></SheetContext>}
         describeChild
         maxWidth={table ? TABLE_NOTE_WIDTH : maxWidth}
-        open={pinned || previewing}
+        open={open}
         onOpen={() => setPreviewing(true)}
         onClose={handleClose}
         disableTouchListener
