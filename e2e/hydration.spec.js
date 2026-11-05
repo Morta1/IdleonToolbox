@@ -134,6 +134,16 @@ test.describe('a tab deep link selects the tab and its data', () => {
       }
     );
 
+    // The cards wait for meta, and the live one refuses localhost: three retries, about 7 s of the 10 s below.
+    await page.route(
+      (url) => url.pathname.endsWith('/leaderboards/meta'),
+      (route) => route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ tabs: [{ key: 'skills', label: 'Skills', sections: [{ name: 'Gathering', metrics: [{ key: 'mining', label: 'Mining' }] }] }] })
+      })
+    );
+
     await page.goto('/leaderboards?t=Skills');
     await waitForRender(page);
     await page.waitForFunction(() => window.next?.router?.isReady === true, null, { timeout: 30_000 });
