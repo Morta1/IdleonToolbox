@@ -98,12 +98,11 @@ const LineChart = ({
                                                  strokeWidth={2} strokeLinejoin={'round'} strokeLinecap={'round'}/>)}
         {atHover.map(({ item, point }) => <circle key={item.id} cx={px(point.x)} cy={py(point.y)} r={3} fill={item.color}/>)}
         {last ? <g transform={`translate(${px(last.x)}, ${py(last.y)})`}>
+          {/* A plate in the card color from the dot past the label: a line that runs behind it (last week's) stops short
+              of the digits, where a stroke of it between the dot and the label read as a minus sign. */}
+          <rect x={5} y={-9} width={endRoom - 5} height={18} fill={theme.palette.background.paper}/>
           <circle r={4} fill={main.color} stroke={theme.palette.background.paper} strokeWidth={2}/>
-          {/* A halo in the card color, so a line that runs under the label (last week's) never crosses it. */}
-          <text x={10} dominantBaseline={'central'} style={{
-            ...text12(theme.palette.text.secondary), fontWeight: 500,
-            paintOrder: 'stroke', stroke: theme.palette.background.paper, strokeWidth: 4, strokeLinejoin: 'round'
-          }}>
+          <text x={10} dominantBaseline={'central'} style={{ ...text12(theme.palette.text.secondary), fontWeight: 500 }}>
             {formatValue(last.y)}
           </text>
         </g> : null}
