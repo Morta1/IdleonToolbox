@@ -223,8 +223,10 @@ const PanelGroup = ({ label, children }) => <Stack gap={0.75}>
 // panelTall: the phone panel holds a list that opens below its field (the leaderboards' Jump to a board), so
 // its sheet keeps 85% of the window and the list has room under the field.
 // note: a Notice shown in the bar, about what the bar just did (a player search that found no one).
+// searchAlone: a lead wide enough to squeeze the search on a phone (card search's presets button): the search takes its
+// own line there, as it does beside a view.
 const Toolbar = ({
-  onStickyBottom, panelLabel = 'Filters', panelIcon = null, panelIconOnly = false, panelTall = false,
+  onStickyBottom, panelLabel = 'Filters', panelIcon = null, panelIconOnly = false, panelTall = false, searchAlone = false,
   state = {}, defaults = {}, onChange, onReset, total = 0, shown = 0, noun = 'results', note = null, children
 }) => {
   const [panelOpen, setPanelOpen] = useState(false);
@@ -260,7 +262,7 @@ const Toolbar = ({
   // A phone row holding a search, a view and the panel button left the search a few letters wide: the search
   // takes its own line there, the view and the button the next.
   const views = ofType(View);
-  const searchOwnRow = searches.length > 0 && views.length > 0;
+  const searchOwnRow = searches.length > 0 && (views.length > 0 || searchAlone);
   const differs = (child) => !same(state[slotKey(child)], defaults[slotKey(child)]);
 
   // The panel's count: every Show, Filter and Sort away from its default.

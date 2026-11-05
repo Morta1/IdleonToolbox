@@ -2,13 +2,13 @@ import React, { forwardRef, useEffect } from 'react';
 import { cleanUnderscore, formatNum, growth, prefix } from 'utility/helpers';
 import { Badge, Stack, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import Tooltip from '../Tooltip';
 import Notice from '@components/common/Notice';
 import GameIcon from '@components/common/GameIcon';
 import { NoteTrigger } from '@components/common/InfoButton';
 import ItemCard from '@components/common/cards/ItemCard';
 import { trackEvent } from '@utility/analytics';
 import { calcCardBonus } from 'parsers/cardMath';
+import { formatGame } from '@utility/gameNotation';
 
 // A sprite over its count. size is a GameIcon size; a title is the thing's name, a note that opens on a tap. A title
 // that is more than a name (a note with lines) takes label as the thing's name.
@@ -39,21 +39,19 @@ export const StyledBadge = styled(Badge)`
 `
 
 // A card is 56x72, not a square item box, so its art keeps its own box (5a Decision 1), dimmed when not owned.
-// Its details open on a tap. tooltipProps marks a card whose cell is itself a button (card search's picking): a
-// note there would nest a button and take the pick's click, so that card keeps its hover preview.
+// Its details open on a tap.
 export const CardAndBorder = (cardProps) => {
-  const { cardName, displayName, stars, cardIndex, name, variant, rawName, amount, nextLevelReq, forceDisable, tooltipProps } = cardProps;
+  const { cardName, displayName, stars, cardIndex, name, variant, rawName, amount, nextLevelReq, forceDisable } = cardProps;
   const iconSrc = variant === 'cardSet' ? `${prefix}data/${rawName}.png` : `${prefix}data/2Cards${cardIndex}.png`;
   const realCardName = variant === 'cardSet' ? name : cardName;
   const label = cleanUnderscore(displayName ?? realCardName ?? rawName ?? '');
-  const dim = (!amount && variant !== 'cardSet') || forceDisable;
+  // A card the save never mentions (a failed cards section) is unknown, not missing: only a 0 dims it
+  const dim = (amount === 0 && variant !== 'cardSet') || forceDisable;
   const art = <img src={iconSrc} alt={label} style={{ width: 56, height: 72, objectFit: 'contain', opacity: dim ? .5 : 1 }}/>;
   const details = <CardTooltip {...{ ...cardProps, cardName: realCardName, nextLevelReq, amount }}/>;
 
   return <>
-    {tooltipProps
-      ? <Tooltip {...tooltipProps} title={details}>{art}</Tooltip>
-      : <NoteTrigger note={details} label={label}>{art}</NoteTrigger>}
+    <NoteTrigger note={details} label={label}>{art}</NoteTrigger>
     {/* After the art, so the equipped border draws over it */}
     {stars > 0 && !forceDisable ?
       <BorderIcon src={`${prefix}data/CardEquipBorder${stars}.png`} alt=""/> : null}
@@ -61,6 +59,7 @@ export const CardAndBorder = (cardProps) => {
 }
 
 // A card set has no displayName: its note is titled by the set's name (cardName), as its trigger is.
+const cardCount = (value) => formatGame(value, 'RunCodeOfTypeXforThingY.CardsTillNextLV', { whole: true });
 const CardTooltip = ({ displayName, cardName, effect, bonus, stars, showInfo, nextLevelReq, amount }) => {
   let realBonus = bonus;
   if (showInfo) {
@@ -68,18 +67,18 @@ const CardTooltip = ({ displayName, cardName, effect, bonus, stars, showInfo, ne
   }
   return <>
     <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(displayName ?? cardName ?? '')}</Typography>
-    <Typography variant={'body2'}>{cleanUnderscore(effect.replace('{', realBonus))}</Typography>
+    <Typography variant={'body2'}>{cleanUnderscore(effect?.replace('{', formatNum(realBonus)) ?? '')}</Typography>
     {showInfo ? <Stack mt={1} direction={'row'} gap={1} flexWrap={'wrap'}>
       {[1, 2, 3, 4, 5, 6, 7].map((_, index) => {
         return <Stack key={`${displayName}-${index}`} alignItems={'center'} justifyContent={'space-between'}>
           {index === 0 ? <Typography variant={'body2'}>Base</Typography> :
             <GameIcon src={`etc/Star${index}.png`} size={16} alt={`${index} star`}/>}
-          <Typography variant={'body2'}>{bonus * (index + 1)}</Typography>
+          <Typography variant={'body2'}>{formatNum(bonus * (index + 1))}</Typography>
         </Stack>
       })}
     </Stack> : null}
-    {amount >= nextLevelReq ? <Typography variant={'body2'}>You've collected {formatNum(amount)} cards</Typography> : nextLevelReq > 0 ?
-      <ItemCard.Facts rows={[['Progress', `${formatNum(amount)} / ${formatNum(nextLevelReq)}`]]}/> : null}
+    {amount >= nextLevelReq ? <Typography variant={'body2'}>You've collected {cardCount(amount)} cards</Typography> : nextLevelReq > 0 ?
+      <ItemCard.Facts rows={[['Progress', `${cardCount(amount)} / ${cardCount(nextLevelReq)}`]]}/> : null}
   </>
 }
 
@@ -148,6 +147,14 @@ export const MissingData = ({ name, failed, sections }) => {
   return isFailed
     ? <Notice tone={'error'} sx={{ mb: 2 }}>{`Couldn't load ${shownName}. That's a bug on my end.`}</Notice>
     : <Notice tone={'missing'} sx={{ mb: 2 }}>{`${shownName} has no data in your save yet: it shows up here once it does.`}</Notice>;
+};
+
+// A page's first note for the sections it reads directly: names ({ key: name }, first first) says what to call the first
+// failed one, and a whole-parse failure reads "your save".
+export const MissingSections = ({ account, names }) => {
+  const failed = account?.failedSections;
+  const first = failed?.includes('*') ? 'your save' : names?.[Object.keys(names ?? {}).find((key) => failed?.includes(key))];
+  return first ? <MissingData name={first} failed/> : null;
 };
 
 // CardTitleAndValue is StatTile under its old name: callers move to StatTile by name with their pages.

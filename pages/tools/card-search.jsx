@@ -1,22 +1,13 @@
 import React, { useContext, useState } from 'react';
-import {
-  Box,
-  Button,
-  Checkbox,
-  Chip,
-  FormControlLabel,
-  InputAdornment,
-  Stack,
-  TextField,
-  Typography
-} from '@mui/material';
+import { Box, Button, ButtonBase, Stack, Typography } from '@mui/material';
 import { IconCards, IconMinus, IconPlus } from '@tabler/icons-react';
 import { cleanUnderscore, prefix } from 'utility/helpers';
 import { cards, cardSets, stats } from '@website-data';
-import ClearIcon from '@mui/icons-material/Clear';
-import { styled } from '@mui/material/styles';
 import { AppContext } from 'components/common/context/AppProvider';
-import { CardAndBorder } from '@components/common/styles';
+import { CardAndBorder, isSectionFailed, MissingSections } from '@components/common/styles';
+import Notice from '@components/common/Notice';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 import { NextSeo } from 'next-seo';
 import { useLocalStorage } from '@mantine/hooks';
 import { isMasteryBonusUnlocked } from '@parsers/misc';
@@ -73,13 +64,36 @@ const isSkillMasteryPassiveCards = ({ effect, account }) => {
   return skillMasteryPassive || Boolean(dropRateCardsArePassives);
 }
 
+const STAT_PRESETS = ['AFK', 'Choppin', 'Mining', 'Fishing', 'Catching', 'Trapping', 'Cooking', 'Worship', 'Spelunking', 'Lab',
+  'Crystal Mob', 'Accuracy', 'Money', 'Card Drop', 'Drop Rate', 'Monster Exp', 'Skill Exp', 'Defence', 'Damage', 'Dungeon',
+  'Stats', 'STR', 'AGI', 'WIS', 'LUK'];
+
+const CARD_TOOLBAR = { search: '', stat: 'all', hidePassives: false };
+const SECTION_NAMES = { cards: 'Cards', rift: 'Rift', upgradeVault: 'Upgrade Vault', legendTalents: 'Legend Talents' };
+
+// A term finds a card by the words of its effect, and by the effects the game counts towards that stat (additionalEffects)
+const matchesTerm = (effect, term) => {
+  const cleanEffect = (effect ?? '').replace(/[+%{]+_/, '').replace(/_/g, ' ');
+  const lowerTerm = term.toLowerCase();
+  return cleanEffect.toLowerCase().includes(lowerTerm) || Boolean(additionalEffects[lowerTerm]?.includes(cleanUnderscore(cleanEffect)));
+};
+
+// The add or remove button is 24 px, on the card's corner, with a 44 px tap area on a touch screen
+const PICK_SX = {
+  position: 'absolute', top: -6, right: -6, zIndex: 1, width: 24, height: 24, borderRadius: '50%',
+  bgcolor: 'primary.main', color: 'primary.contrastText',
+  '@media (pointer: coarse)': { '&::after': { content: '""', position: 'absolute', inset: -10, borderRadius: '50%' } }
+};
+const PICK_REMOVE_SX = { bgcolor: 'error.main', color: 'error.contrastText' };
+const SLOT_LABEL_SX = {
+  position: 'absolute', top: -6, left: -6, zIndex: 1, minWidth: 18, height: 18, px: 0.5, borderRadius: '9px', textAlign: 'center',
+  bgcolor: 'primary.main', color: 'primary.contrastText', fontSize: 12, fontWeight: 700, lineHeight: '18px', pointerEvents: 'none'
+};
+const IN_PRESET_SX = { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2, borderRadius: '6px' };
+
 export default function CardSearch() {
   const { state } = useContext(AppContext);
-  const [value, setValue] = useState('');
-  const [hidePassives, setHidePassives] = useLocalStorage({
-    key: 'card-search:hidePassives',
-    defaultValue: false
-  });
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('card-search', CARD_TOOLBAR);
   const [storedPresets, setPresets] = useLocalStorage({ key: 'card-search:presets', defaultValue: [] });
   const [selectedPreset, setSelectedPreset] = useLocalStorage({ key: 'card-search:selectedPreset', defaultValue: 0 });
   const [presetsOpen, setPresetsOpen] = useState(false);
@@ -150,49 +164,18 @@ export default function CardSearch() {
   const picking = presetsOpen && Boolean(preset);
   const presetCards = preset?.cards || [];
   const presetCardSet = preset?.cardSet;
-  const localCardObject = Object.keys(cardsObject).reduce((res, cardSet) => {
-    const cardsArr = cardsObject[cardSet];
-    const sortedCardArr = cardsArr.filter(({ effect }) => {
-      const isSkillMasteryPassive = isSkillMasteryPassiveCards({ effect, account: state?.account });
-      if (hidePassives && (effect?.includes('(Passive)') || effect?.includes('(P)') || isSkillMasteryPassive)) {
-        return false;
-      }
-      const cleanEffect = effect.replace(/[+%{]+_/, '').replace(/_/g, ' ');
-      const isEffect = cleanEffect?.toLowerCase()?.includes(value.toLowerCase())
-      const additionalEffect = additionalEffects[value.toLowerCase()]?.includes(cleanUnderscore(cleanEffect));
-      return isEffect || additionalEffect;
-    });
-    return { ...res, [cardSet]: sortedCardArr };
-  }, {});
-
-  const preConfiguredStats = [
-    'Show All',
-    'Afk',
-    'Choppin',
-    'Mining',
-    'Fishing',
-    'Catching',
-    'Trapping',
-    'Cooking',
-    'Worship',
-    'Spelunking',
-    'Lab',
-    'Crystal Mob',
-    'Accuracy',
-    'Money',
-    'Card Drop',
-    'Drop Rate',
-    'Monster Exp',
-    'Skill Exp',
-    'Defence',
-    'Damage',
-    'Dungeon',
-    'Stats',
-    'STR',
-    'AGI',
-    'WIS',
-    'LUK'
-  ];
+  // A failed cards section is unknown, not unowned: its cards draw undimmed, with no stars and no passive mark
+  const cardsFailed = isSectionFailed(state?.account, 'cards');
+  // Every card once, with what its filters read
+  const catalog = Object.entries(cardsObject).flatMap(([category, cardsArr]) => cardsArr.map((card) => {
+    const isSkillMasteryPassive = !cardsFailed && isSkillMasteryPassiveCards({ effect: card?.effect, account: state?.account });
+    const isPassive = Boolean(card?.effect?.includes('(Passive)') || card?.effect?.includes('(P)')) || isSkillMasteryPassive;
+    return { card, category, isSkillMasteryPassive, isPassive };
+  }));
+  const passesOthers = ({ card, isPassive }) => (!toolbar.hidePassives || !isPassive) && matchesTerm(card?.effect, toolbar.search);
+  const countFor = (stat) => catalog.filter((entry) => passesOthers(entry) && matchesTerm(entry.card?.effect, stat)).length;
+  const shown = catalog.filter((entry) => passesOthers(entry) && (toolbar.stat === 'all' || matchesTerm(entry.card?.effect, toolbar.stat)));
+  const cardCount = presetCards.filter(Boolean).length;
 
   return (
     <>
@@ -200,300 +183,94 @@ export default function CardSearch() {
         title="Card Search | Idleon Toolbox"
         description="Card search and filter by various tags e.g. Choppin, Catching, Worship, Attack etc"
       />
-      <Main>
-        <Stack direction="row" alignItems="center" gap={2} mb={2} flexWrap={'wrap'}>
-          <StyledTextField
-            InputProps={{
-              endAdornment: (
-                <StyledInputAdornment onClick={() => setValue('')} position="end">
-                  <ClearIcon/>
-                </StyledInputAdornment>
-              )
-            }}
-            label="Enter Card stat.."
-            type="text"
-            value={value}
-            onChange={({ target }) => setValue(target?.value)}
-          />
-          <FormControlLabel
-            control={
-              <Checkbox
-                size="small"
-                checked={hidePassives}
-                onChange={(e) => setHidePassives(e.target.checked)}
-              />
-            }
-            label="Hide Passive Cards"
-          />
-          <Button variant={presetsOpen ? 'contained' : 'outlined'} size={'small'} startIcon={<IconCards size={18}/>}
-                  aria-pressed={presetsOpen}
-                  onClick={() => presetsOpen ? setPresetsOpen(false) : openPresets()}>
-            Card presets{presets.length ? ` (${presets.length})` : ''}
-          </Button>
-        </Stack>
-
-        <Stack direction={'row'} my={2} gap={1} flexWrap={'wrap'}>
-          {preConfiguredStats.map((stat, index) => (
-            <Chip
-              sx={{
-                borderRadius: '8px',
-                height: 24,
-                minWidth: 60,
-                maxWidth: 150,
-                border: '1px solid gray'
-              }}
-              key={stat + '' + index}
-              size="small"
-              variant="outlined"
-              label={stat}
-              onClick={() => {
-                setValue(stat === 'Show All' ? '' : stat);
-              }}
-            />
-          ))}
-        </Stack>
-
-        <Stack direction={'row'} gap={4}>
-        <div className={`cards${picking ? ' picking' : ''}`}>
-          {picking ? <PickingStrip direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-            <Typography variant={'body2'}>
-              {Number.isInteger(targetSlot) || targetSlot === 'set'
-                ? <>Next card goes into {targetSlot === 'set' ? 'the card set slot' : `slot ${targetSlot + 1}`} of <b>{preset.name}</b></>
-                : <>Adding to <b>{preset.name}</b>: {presetCards.filter(Boolean).length}/{presetCards.length} cards.
-                  Click a card to add or remove it</>}
-            </Typography>
-            <Box sx={{ flex: 1 }}/>
-            <Button size={'small'} onClick={() => setPresetsOpen(false)}>Done</Button>
-          </PickingStrip> : null}
-          {Object.keys(localCardObject)?.length > 0 ? (
-            categoriesOrder.map((cardSet, cardSetIndex) => {
-              const cardsArr = localCardObject[cardSet];
-              if (!cardsArr || cardsArr?.length === 0) return null;
-              const isCardSets = cardSet === 'Card Sets';
-              return (
-                <React.Fragment key={cardSet + '' + cardSetIndex}>
-                  {isCardSets ? <Typography my={1} variant={'sectionTitle'} component={'h2'}>Card Sets</Typography> :
-                    <img src={`${prefix}etc/${cardSet}_Card_Header.png`}
-                         style={{ margin: '20px 0 10px 0' }}
-                         alt={cardSet}
-                    />}
-                  <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: 600 }}>
-                    {cardsArr.map((card, index) => {
-                      const { displayName, name, effect } = card;
-                      let {
-                        stars,
-                        amount,
-                        nextLevelReq
-                      } = state?.account?.cards?.[displayName] || {};
-                      const isSkillMasteryPassive = isSkillMasteryPassiveCards({
-                        effect,
-                        account: state?.account
-                      });
-                      if (isCardSets) {
-                        ({ stars, amount } = cardSetsData?.[name] || {});
-                        nextLevelReq = cardsObject[name].length * (Math.min(6, stars + 1) + 1);
-                      }
-                      const slotIndex = isCardSets ? (presetCardSet === name ? 'set' : -1) : presetCards.indexOf(displayName);
-                      const inPreset = slotIndex !== -1;
-                      const label = cleanUnderscore(isCardSets ? name : displayName);
-
-                      return (
-                        <div key={displayName + '' + index}
-                             className={`card-cell${picking && inPreset ? ' in-preset' : ''}`}
-                             style={{ position: 'relative' }}
-                             {...(picking ? {
-                               role: 'button',
-                               tabIndex: 0,
-                               'aria-label': `${inPreset ? 'Remove' : 'Add'} ${label} ${inPreset ? 'from' : 'to'} ${preset.name}`,
-                               'aria-pressed': inPreset,
-                               onClick: () => pickCard(card, isCardSets),
-                               onKeyDown: (e) => {
-                                 if (e.key !== 'Enter' && e.key !== ' ') return;
-                                 e.preventDefault();
-                                 pickCard(card, isCardSets);
-                               }
-                             } : {})}>
-                          {picking && inPreset ? <span className={'slot-chip'}>
-                            {slotIndex === 'set' ? 'S' : slotIndex + 1}
-                          </span> : null}
-                          {picking ? <span className={`pick-badge${inPreset ? ' remove' : ''}`}>
-                            {inPreset ? <IconMinus size={14} stroke={3}/> : <IconPlus size={14} stroke={3}/>}
-                          </span> : null}
-                          <CardAndBorder nextLevelReq={nextLevelReq} amount={amount}
-                                         tooltipProps={picking ? PICKING_TOOLTIP : undefined}
-                                         variant={isCardSets ? 'cardSet' : ''} showInfo
-                                         {...{
-                                           ...card,
-                                           stars,
-                                           displayName: isSkillMasteryPassive ? `${displayName} (P)` : displayName
-                                         }}
-                          />
-                        </div>
-                      );
-                    })}
-                  </Stack>
-                </React.Fragment>
-              );
-            })
-          ) : (
-            <div className="not-found">Please try another phrase</div>
-          )}
-        </div>
-          {presetsOpen ? <CardPresets
-            presets={presets}
-            selected={selected}
-            characters={state?.characters}
-            hasAccount={Boolean(state?.account)}
-            targetSlot={targetSlot}
-            onTargetSlot={setTargetSlot}
-            onRemoveSlot={removeSlot}
-            onSelect={(index) => {
-              setSelectedPreset(index);
-              setTargetSlot(null);
-            }}
-            onChange={updatePreset}
-            onAdd={addPreset}
-            onCreate={() => addPreset(emptyPreset(`Preset ${presets.length + 1}`))}
-            onDelete={(index) => {
-              setPresets(presets.filter((_, presetIndex) => presetIndex !== index));
-              setSelectedPreset(Math.max(index - 1, 0));
-              setTargetSlot(null);
-            }}
-            onNotify={({ message }) => notify(message)}
-            onClose={() => setPresetsOpen(false)}
-            getCard={getCard}
-            getCardSet={getCardSet}
-            catalogCards={catalogCards}
-            cardSetsData={cardSetsData}
-          /> : null}
-        </Stack>
-        {/* Room for the fixed bottom bar on small screens */}
-        {presetsOpen ? <Box sx={{ height: { xs: 160, md: 0 } }}/> : null}
-      </Main>
+      <MissingSections account={state?.account} names={SECTION_NAMES}/>
+      <Stack direction={'row'} gap={4}>
+        <Box sx={{ flex: 1, minWidth: 0 }}>
+          <Toolbar state={toolbar} defaults={CARD_TOOLBAR} onChange={setToolbar} onReset={resetToolbar} searchAlone
+                   total={catalog.length} shown={shown.length} noun={'cards'}>
+            <Toolbar.Search placeholder={'Search card effects'}/>
+            <Toolbar.Lead>
+              <Button variant={presetsOpen ? 'contained' : 'outlined'} startIcon={<IconCards size={18}/>} aria-pressed={presetsOpen}
+                      sx={{ whiteSpace: 'nowrap' }} onClick={() => presetsOpen ? setPresetsOpen(false) : openPresets()}>
+                {presets.length ? `Card presets (${presets.length})` : 'Card presets'}
+              </Button>
+            </Toolbar.Lead>
+            <Toolbar.Show name={'stat'} label={'Stat'} options={[['all', 'Any stat'], ...STAT_PRESETS.map((stat) => [stat, stat, countFor(stat)])]}/>
+            <Toolbar.Filter name={'hidePassives'} label={'Hide passive cards'}/>
+          </Toolbar>
+          {picking ? <Notice action={{ label: 'Done', onClick: () => setPresetsOpen(false) }} sx={{ mb: 2 }}>
+            {targetSlot === 'set' ? `Next card goes into the card set slot of ${preset.name}.`
+              : Number.isInteger(targetSlot) ? `Next card goes into slot ${targetSlot + 1} of ${preset.name}.`
+                : `Adding to ${preset.name}: ${cardCount} / ${presetCards.length} cards. Tap a card's + to add it.`}
+          </Notice> : null}
+          {categoriesOrder.map((cardSet) => {
+            const entries = shown.filter(({ category }) => category === cardSet);
+            if (!entries.length) return null;
+            const isCardSets = cardSet === 'Card Sets';
+            return <Box key={cardSet} sx={{ mb: 2.5 }}>
+              {isCardSets ? <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1.25 }}>Card sets</Typography>
+                : <Box component={'img'} src={`${prefix}etc/${cardSet}_Card_Header.png`} alt={cleanUnderscore(cardSet)}
+                       sx={{ display: 'block', maxWidth: '100%', mb: 1.25 }}/>}
+              <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: { md: 600 } }}>
+                {entries.map(({ card, isSkillMasteryPassive }) => {
+                  const { displayName, name } = card;
+                  const owned = (isCardSets ? cardSetsData?.[name] : state?.account?.cards?.[displayName]) ?? {};
+                  const nextLevelReq = isCardSets ? cardsObject[name]?.length * (Math.min(6, owned.stars + 1) + 1) : owned.nextLevelReq;
+                  const slotIndex = isCardSets ? (presetCardSet === name ? 'set' : -1) : presetCards.indexOf(displayName);
+                  const inPreset = slotIndex !== -1;
+                  const label = cleanUnderscore(isCardSets ? name : displayName);
+                  return <Box key={displayName ?? name} sx={[{ position: 'relative' }, picking && inPreset && IN_PRESET_SX]}>
+                    <CardAndBorder nextLevelReq={nextLevelReq} amount={owned.amount} variant={isCardSets ? 'cardSet' : ''} showInfo
+                                   {...{
+                                     ...card,
+                                     stars: owned.stars,
+                                     displayName: isSkillMasteryPassive && displayName ? `${displayName} (P)` : displayName
+                                   }}/>
+                    {picking ? <>
+                      {/* The button names the card; the number only says which slot it sits in */}
+                      {inPreset ? <Box component={'span'} aria-hidden sx={SLOT_LABEL_SX}>{slotIndex === 'set' ? 'S' : slotIndex + 1}</Box> : null}
+                      <ButtonBase disableRipple aria-pressed={inPreset} sx={[PICK_SX, inPreset && PICK_REMOVE_SX]}
+                                  aria-label={`${inPreset ? 'Remove' : 'Add'} ${label} ${inPreset ? 'from' : 'to'} ${preset.name}`}
+                                  onClick={() => pickCard(card, isCardSets)}>
+                        {inPreset ? <IconMinus size={14} stroke={3}/> : <IconPlus size={14} stroke={3}/>}
+                      </ButtonBase>
+                    </> : null}
+                  </Box>;
+                })}
+              </Stack>
+            </Box>;
+          })}
+        </Box>
+        {presetsOpen ? <CardPresets
+          presets={presets}
+          selected={selected}
+          characters={state?.characters}
+          hasAccount={Boolean(state?.account)}
+          targetSlot={targetSlot}
+          onTargetSlot={setTargetSlot}
+          onRemoveSlot={removeSlot}
+          onSelect={(index) => {
+            setSelectedPreset(index);
+            setTargetSlot(null);
+          }}
+          onChange={updatePreset}
+          onAdd={addPreset}
+          onCreate={() => addPreset(emptyPreset(`Preset ${presets.length + 1}`))}
+          onDelete={(index) => {
+            setPresets(presets.filter((_, presetIndex) => presetIndex !== index));
+            setSelectedPreset(Math.max(index - 1, 0));
+            setTargetSlot(null);
+          }}
+          onNotify={({ message }) => notify(message)}
+          onClose={() => setPresetsOpen(false)}
+          getCard={getCard}
+          getCardSet={getCardSet}
+          catalogCards={catalogCards}
+          cardSetsData={cardSetsData}
+        /> : null}
+      </Stack>
+      {/* Room for the fixed bottom bar on small screens */}
+      {presetsOpen ? <Box sx={{ height: { xs: 160, md: 0 } }}/> : null}
     </>
   );
 }
-
-// While picking, the card tooltip must not catch the pointer over the card it belongs to
-const PICKING_TOOLTIP = { disableInteractive: true, enterDelay: 600, enterNextDelay: 600 };
-
-const PickingStrip = styled(Stack)(({ theme }) => ({
-  marginBottom: theme.spacing(2),
-  padding: theme.spacing(1, 1.5),
-  maxWidth: 600,
-  border: `1px solid ${theme.palette.primary.main}`,
-  borderRadius: 8
-}));
-
-const StyledTextField = styled(TextField)`
-  && label.Mui-focused {
-    color: rgba(255, 255, 255, 0.7);
-  }
-
-  & .MuiInput-underline:after {
-    border-bottom-color: green;
-  }
-`;
-
-const StyledInputAdornment = styled(InputAdornment)`
-  cursor: pointer;
-`;
-
-const Main = styled('main')`
-  color: white;
-
-  .chips {
-    margin: 20px 0;
-
-    .chip {
-      margin-right: 10px;
-      margin-top: 8px;
-    }
-  }
-
-  .cards {
-    min-height: 600px;
-    min-width: 0;
-
-    .pick-badge, .slot-chip {
-      position: absolute;
-      z-index: 1;
-      pointer-events: none;
-    }
-
-    &.picking .card-cell {
-      cursor: pointer;
-      border-radius: 6px;
-      outline-offset: 2px;
-
-      // Inside the card's top-right corner: the slot chip holds top-left, and the tooltip opens below
-      .pick-badge {
-        top: 2px;
-        right: 2px;
-        width: 20px;
-        height: 20px;
-        display: none;
-        align-items: center;
-        justify-content: center;
-        border-radius: 50%;
-        background: ${({ theme }) => theme.palette.primary.main};
-        color: ${({ theme }) => theme.palette.primary.contrastText};
-
-        &.remove {
-          background: var(--mui-palette-error-main);
-          color: ${({ theme }) => theme.palette.error.contrastText};
-        }
-      }
-
-      &:hover, &:focus-visible {
-        outline: 2px solid ${({ theme }) => theme.palette.primary.main};
-
-        .pick-badge {
-          display: flex;
-        }
-      }
-
-      &.in-preset {
-        outline: 2px solid ${({ theme }) => theme.palette.primary.main};
-
-        &:hover, &:focus-visible {
-          outline-width: 3px;
-        }
-      }
-
-      .slot-chip {
-        top: 2px;
-        left: 2px;
-        min-width: 18px;
-        height: 18px;
-        padding: 0 4px;
-        border-radius: 9px;
-        background: ${({ theme }) => theme.palette.primary.main};
-        color: ${({ theme }) => theme.palette.primary.contrastText};
-        font-size: 12px;
-        font-weight: 700;
-        line-height: 18px;
-        text-align: center;
-      }
-    }
-
-    .category-wrapper {
-
-
-    }
-
-    .card-banner {
-      margin: 10px;
-      display: block;
-    }
-
-    .not-found {
-      margin: 20px;
-      font-size: 30px;
-    }
-
-    .image-wrapper {
-      display: inline-block;
-    }
-  }
-`;
