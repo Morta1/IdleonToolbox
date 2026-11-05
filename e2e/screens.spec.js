@@ -3,6 +3,7 @@ import { test as base, expect } from '@playwright/test';
 import { getAllTestCases, clientNavigate } from './smoke-helpers.js';
 import { settleStrips, waitForRender } from './wait-helpers';
 import { fixClock } from './fixed-clock.mjs';
+import serveLiveReplies from './live-replies.mjs';
 
 // One fixed clock for every screenshot, so "updated 4 minutes ago" and countdowns read the same on
 // every run, in the parse worker too: traps and Equinox's time to full are worked out in there.
@@ -31,6 +32,7 @@ const test = base.extend({
     const context = await browser.newContext({ viewport, isMobile, hasTouch, deviceScaleFactor, storageState });
     await blockNitro(context);
     await fixClock(context, FIXED_TIME);
+    await serveLiveReplies(context);
     const page = await context.newPage();
     await page.goto('/dashboard?demo=true');
     await waitForRender(page);
@@ -40,24 +42,6 @@ const test = base.extend({
 });
 
 const fileName = (name) => (name.replace(/[^a-z0-9]+/gi, '_').replace(/^_|_$/g, '') || 'home') + '.png';
-// Routes that differ a little between two runs of the same build, with why. They get a looser
-// threshold instead of a skip, so a real change still fails them.
-const LOOSE = {
-  // Tome rankings ask the live API too: a spinner on one run, "not available yet" on the next.
-  '/account/world-4/tome [Rankings]': 0.01,
-  // Pet Mart shows the live price history, which gains a row each day.
-  '/account/prem-currency/pets [Pet Mart]': 0.01,
-  '/account/prem-currency/bundles [Pet Mart]': 0.01,
-  // Small trap icons differ by a few pixels between runs on the phone (0.2% of the page).
-  '/account/world-3/traps': 0.01,
-};
-const looseRatio = (name) => LOOSE[name];
-
-// Routes that never settle, so a screenshot of them proves nothing. Checked by hand instead.
-const SKIP = {
-  // Flips between about 5,900 and 15,900 px tall while it renders, and differs even at the viewport.
-  '/account/class-specific/royal-armory [Outposts]': true,
-};
 
 // SCREENS_COUNT=<css selector> records how many elements match on each route, so a task can show that
 // the routes it changed are exactly the routes that render what it touched (tools/screens-routes.mjs).
@@ -106,7 +90,6 @@ const shoot = async (page, name) => {
     await expect(region ?? page).toHaveScreenshot(fileName(name), {
       ...(region || phone ? {} : { fullPage: true }),
       mask: [...MASKS, ...(region ? REGION_MASKS : [])].map((selector) => page.locator(selector)),
-      ...(looseRatio(name) ? { maxDiffPixelRatio: looseRatio(name) } : {}),
     });
   } finally {
     await restoreViewport?.();
@@ -125,7 +108,7 @@ for (const path of STATIC_ROUTES) {
   });
 }
 
-for (const { name, path, query } of getAllTestCases().filter(({ name }) => !SKIP[name])) {
+for (const { name, path, query } of getAllTestCases()) {
   test(name, async ({ screenPage }) => {
     await clientNavigate(screenPage, path, query);
     await shoot(screenPage, name);

@@ -19,7 +19,7 @@
 // --no-shots scan only. --out default .page-check (gitignored). Exit 1 on any hit, 2 when the server is down.
 //
 // Each route and state gets a <slug>.png sheet of its sizes; originals and the .txt dumps sit beside it, so two runs
-// compare with `diff -r`. A hit is a lead to look at, not a verdict: the owner's rule is still the shot beside its board.
+// compare with `diff -r`. A dump leaves out [data-volatile], the page's live numbers. A hit is a lead to look at, not a verdict: the owner's rule is still the shot beside its board.
 import { chromium } from 'playwright';
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
@@ -309,6 +309,15 @@ const scanPage = ({ maxLines, minGap, maxLowContrast }) => {
   };
 };
 
+// main's text without what moves between runs. Hidden for the read rather than cut from a clone: innerText needs layout.
+const pageDump = (page, root) => page.evaluate((selector) => {
+  const volatile = [...document.querySelectorAll(`${selector} [data-volatile]`)];
+  volatile.forEach((el) => el.style.setProperty('display', 'none'));
+  const text = document.querySelector(selector)?.innerText ?? '';
+  volatile.forEach((el) => el.style.removeProperty('display'));
+  return text;
+}, root);
+
 // A sticky head only shows it's hidden once the page has scrolled under whatever pins above it. A long table is
 // useStickyHeader's: past 80% of the height under the toolbar. A pinned head knows its top; any other goes by the bar's.
 const hiddenHeads = (page) => page.evaluate(async () => {
@@ -382,7 +391,7 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
     if (sideways > 1) hits.sideways = [`${sideways}px`];
     result.height = height;
     result.hits = Object.fromEntries(Object.entries(hits).filter(([, list]) => list.length));
-    writeFileSync(join(opts.out, `${slug}-${size.width}.txt`), await page.locator(opts.click ? 'body' : 'main').innerText().catch(() => ''));
+    writeFileSync(join(opts.out, `${slug}-${size.width}.txt`), await pageDump(page, opts.click ? 'body' : 'main').catch(() => ''));
     if (!opts['no-shots']) {
       if (touch) {
         for (let i = 0, y = 0; i < PHONE_SHOTS && y < height; i += 1, y += size.height - 80) {

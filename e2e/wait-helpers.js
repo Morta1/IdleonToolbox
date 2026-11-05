@@ -1,14 +1,18 @@
+// A route that loads too slowly makes Next navigate the hard way (route-loader's timeout, which a cold worker on a busy
+// machine reaches), so the page can be mid-load at any read here, with no body yet or with the read cut off by the load.
+const readPage = (page) => page.evaluate(() => ({
+  settled: document.readyState !== 'loading' && !document.querySelector('[data-testid="page-loader"]'),
+  length: document.body?.innerText.length ?? 0
+})).catch(() => ({ settled: false, length: 0 }));
+
+// Two equal reads past the loader: a page that brings its loader back starts over, and the loader's own text never counts.
 export const waitForRender = async (page, maxMs = 15_000) => {
   const deadline = Date.now() + maxMs;
-  await page
-    .waitForFunction(() => !document.querySelector('[data-testid="page-loader"]'), null, { timeout: maxMs })
-    .catch(() => {});
-
   let previous = null;
   while (Date.now() < deadline) {
-    const length = await page.evaluate(() => document.body.innerText.length);
-    if (length > 0 && length === previous) return;
-    previous = length;
+    const { settled, length } = await readPage(page);
+    if (settled && length > 0 && length === previous) return;
+    previous = settled ? length : null;
     await page.waitForTimeout(200);
   }
   throw new Error(`page never stopped rendering within ${maxMs}ms - the scan below would have read a half-built DOM`);

@@ -101,7 +101,13 @@ export function getAllTestCases() {
 export async function clientNavigate(page, pathname, query = {}) {
   // Returns push's promise, so this waits for the route change itself. Without it waitForRender's first sample read
   // the page being left, and every navigation paid an extra 200 ms poll before the new page counted as settled.
-  await page.evaluate(({ pathname, query }) => window.next.router.push({ pathname, query: { demo: 'true', ...query } }), { pathname, query });
+  const moved = await page.evaluate(({ pathname, query }) => window.next.router.push({ pathname, query: { demo: 'true', ...query } }), { pathname, query })
+    .catch((error) => {
+      if (/context was destroyed/.test(error.message)) return false;
+      throw error;
+    });
+  // false: the route took too long to load, so Next is loading its URL the hard way. Until that lands, the old page reads as settled.
+  if (moved === false) await page.waitForEvent('load', { timeout: 10_000 }).catch(() => {});
   // Was a flat 800ms, which every smoke test paid whether the page needed it or not, and which
   // could still expire early on a slow one.
   await waitForRender(page);

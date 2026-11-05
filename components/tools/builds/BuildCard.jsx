@@ -152,7 +152,7 @@ const BuildCard = ({ build, staticIds }) => {
 
           <Stack direction="row" alignItems="center" gap={1} sx={{ flexShrink: 0, color: TEXT_STRONG }}>
             <Tooltip title={`${views} view${views === 1 ? '' : 's'}`}>
-              <Stack direction="row" alignItems="center" gap={0.3}>
+              <Stack data-volatile direction="row" alignItems="center" gap={0.3}>
                 <VisibilityIcon sx={{ fontSize: 14, color: TEXT_MUTED }}/>
                 <Typography sx={{ ...metricLabelSx, color: TEXT_MUTED }}>
                   {formatCount(views)}
