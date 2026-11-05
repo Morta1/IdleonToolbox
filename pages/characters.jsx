@@ -1,6 +1,7 @@
 import React, { useContext, useDeferredValue, useRef, useState } from 'react';
 import { Box, CircularProgress, Stack } from '@mui/material';
-import Character from '@components/characters/Character';
+import { useLocalStorage } from '@mantine/hooks';
+import Character, { isSectionOpen } from '@components/characters/Character';
 import Notice from '@components/common/Notice';
 import Toolbar from '@components/common/Toolbar';
 import { MissingData } from '@components/common/styles';
@@ -37,6 +38,9 @@ const Characters = () => {
   // The picker's drawer opens from its header control or from a note below, which hands it the control's focus first,
   // so closing the drawer returns there even after a tick has taken the note away
   const [pickerOpen, setPickerOpen] = useState(false);
+  // No default: nothing is stored until the player opens or closes one
+  const [openSections, setOpenSections] = useLocalStorage({ key: 'characters:openSections' });
+  const toggleSection = (name) => setOpenSections((current) => ({ ...current, [name]: !isSectionOpen(current, name) }));
   const pickerButton = useRef(null);
   const choose = () => {
     pickerButton.current?.focus();
@@ -74,6 +78,8 @@ const Characters = () => {
                            lastUpdated={state?.lastUpdated}
                            side={sideBySide}
                            pinTop={pinTop}
+                           openSections={openSections}
+                           onToggleSection={toggleSection}
                            showSkillsRankOneOnly={state.showRankOneOnly}
                            showUnmaxedBoxesOnly={state.showUnmaxedBoxesOnly}
                            key={`${character?.name}-${index}`}/>

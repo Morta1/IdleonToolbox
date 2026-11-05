@@ -13,6 +13,7 @@ import StatusText from '../common/StatusText';
 import Panel from '../common/cards/Panel';
 import CardGrid from '../common/cards/CardGrid';
 import IconTile from '../common/cards/IconTile';
+import { pointsSpent } from './sectionSummary';
 
 const LOCK = 'data/UISkillIconLocke.png';
 // A star talent page's 13 talents, with its two arrows in their slots
@@ -22,7 +23,7 @@ const STAR_ARROW_SLOTS = [10, 14];
 // Preset and page tabs in one block, and the two numbers on one row: an added-levels glyph keeps its slot in each
 const CONTROLS_SX = { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mb: '6px' };
 const PRESET_SX = { '& .MuiToggleButton-root': { px: '10px', height: 32, fontSize: 13 } };
-const POINTS_SX = { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: '12px', mb: 1, '& > *': { borderTop: 0 } };
+const POINTS_SX = { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: '12px', mb: 1, '& > .MuiStack-root': { borderTop: 0 } };
 
 const getStarTalentPage = (talents, index) => {
   const page = talents.slice(index * STAR_PAGE_SIZE, (index + 1) * STAR_PAGE_SIZE);
@@ -72,13 +73,7 @@ const Talents = ({
     setSpecialTabs(0);
   };
 
-  // `level` carries the added levels on top of the points actually invested, so summing it counts
-  // the account-wide bonus once per talent. Star talents never take added levels and carry no
-  // baseLevel, so they fall back to level.
-  const spentTalentPoints = activeTalents?.orderedTalents?.reduce(
-    (res, { level = 0, baseLevel }) => res + (baseLevel ?? level),
-    0
-  );
+  const spentTalentPoints = pointsSpent(activeTalents?.orderedTalents);
 
   const selectedAddedLevels = isUsingPreset
     ? talentPreset?.addedLevels

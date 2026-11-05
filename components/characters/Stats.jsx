@@ -8,6 +8,7 @@ import { getMaxDamage } from '../../parsers/damage';
 import CoinDisplay from '../common/CoinDisplay';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { characterPanelFacts, characterStatFacts } from './statFacts';
+import { totalStats } from './sectionSummary';
 import MultiCharLockText from '@components/common/MultiCharLockText';
 import GameIcon from '@components/common/GameIcon';
 import InfoButton from '@components/common/InfoButton';
@@ -43,13 +44,12 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
   ].map((fact) => [fact.label, fact]));
   const isActive = differenceInMinutes(lastUpdated, afkTime) <= 5;
   const isOvertime = character?.activePrayers?.find(({ name }) => name === 'Unending_Energy') && differenceInHours(lastUpdated, afkTime) > 10;
-  const totalStats = Object.entries(stats || {}).reduce((sum, [statName, statValue]) => sum + (statName !== 'level' ? statValue : 0), 0);
   const classSkill = character?.skillsInfo?.character;
   const crystal = facts['Crystal guaranteed'] ?? facts['Crystal chance'];
 
   return <Panel title={'Stats'}>
     <Panel.Group label={'Attributes'}>
-      <Panel.KV label={'Total stats'} value={formatNum(totalStats)}/>
+      <Panel.KV label={'Total stats'} value={formatNum(totalStats(stats))}/>
       {Object.entries(stats || {}).map(([statName, statValue]) => (statName !== 'level'
         ? <Panel.KV key={statName} label={STAT_LABELS[statName] ?? statName} value={STAT_KEYS[statName] ? formatGame(statValue, STAT_KEYS[statName]) : formatNum(statValue)}/>
         : null))}

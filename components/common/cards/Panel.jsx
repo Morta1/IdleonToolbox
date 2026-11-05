@@ -1,5 +1,5 @@
 import { useId, useState } from 'react';
-import { Box, IconButton, Stack, Typography } from '@mui/material';
+import { Box, ButtonBase, IconButton, Stack, Typography } from '@mui/material';
 import { IconChevronDown } from '@tabler/icons-react';
 import GameIcon from '@components/common/GameIcon';
 import { numOrNode } from '@components/common/Num';
@@ -10,12 +10,22 @@ const VALUE_SX = { fontWeight: 500, textAlign: 'right', fontVariantNumeric: 'tab
 // Rows split by lines: every row but the first draws the line above it.
 const ROWS_SX = { '& > * + *': { borderTop: 1, borderColor: 'divider' } };
 
-// A section of a sheet (the characters board's .sec): no surface, a line above. The section is the container its grids
-// query, so their column counts follow the column it sits in, not the window (CardGrid).
-const sectionSx = (side) => ({
-  minWidth: 0, boxSizing: 'border-box', containerType: 'inline-size', borderTop: 1, borderColor: 'divider',
-  ...(side ? { pt: '12px', px: '12px', pb: '14px' } : { pt: '14px', px: 2, pb: 2 })
+// A section of a sheet (the characters board's .sec): no surface, a line above. Its body is the container its grids query,
+// so their column counts follow the column it sits in, not the window (CardGrid). Below 600 px a section with a fold keeps
+// its padding on the heading button and the body instead.
+const PHONE = '@media (max-width: 599.95px)';
+const sectionSx = (side, fold) => ({
+  minWidth: 0, boxSizing: 'border-box', borderTop: 1, borderColor: 'divider',
+  ...(side ? { pt: '12px', px: '12px', pb: '14px' } : { pt: '14px', px: 2, pb: 2 }),
+  ...(fold ? { [PHONE]: { p: 0 } } : {})
 });
+// A phone's section is a 48 px row until it opens: title, what it holds while closed, a chevron. CSS picks the row or the
+// plain heading and hides the body, so nothing is measured and the body stays mounted.
+const FOLD_SX = { display: 'flex', width: '100%', minHeight: 48, px: '12px', gap: 1, justifyContent: 'flex-start', font: 'inherit', textAlign: 'left' };
+const FOLD_SUMMARY_SX = {
+  flex: '1 1 0', minWidth: 0, textAlign: 'right', fontSize: 13, lineHeight: '18px', fontWeight: 400, color: 'text.secondary',
+  whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis'
+};
 // A row's line inside a sheet is the faintest role: the board's 7% has no token of its own.
 const SHEET_LINE = { borderTop: 1, borderColor: 'background.tint', '&:first-child': { borderTop: 0 } };
 // Every value lines up, with or without a breakdown: a row with no glyph keeps the glyph's room at its end.
@@ -25,13 +35,28 @@ const SHEET_VALUE_SX = {
   '& [aria-haspopup="dialog"] > [aria-hidden]': { ml: '6px' }
 };
 
-const SheetSection = ({ side, title, meta, aside, children, sx }) => <Box component={'section'} sx={[sectionSx(side), ...(Array.isArray(sx) ? sx : [sx])]}>
-  <Stack direction={'row'} alignItems={'baseline'} justifyContent={'space-between'} gap={1.5} sx={{ mb: 1 }}>
+const SheetSection = ({ side, fold, bodyId, title, meta, aside, children, sx }) => <Box component={'section'} sx={[sectionSx(side, fold), ...(Array.isArray(sx) ? sx : [sx])]}>
+  {fold ? <Typography variant={'cardTitle'} component={'h3'} sx={{ display: { xs: 'block', sm: 'none' } }}>
+    <ButtonBase aria-expanded={fold.open} aria-controls={bodyId} onClick={fold.onToggle} sx={FOLD_SX}>
+      <Box component={'span'} sx={{ whiteSpace: 'nowrap', flexShrink: 0 }}>{title}</Box>
+      <Box component={'span'} sx={FOLD_SUMMARY_SX}>{fold.open ? null : fold.summary}</Box>
+      <IconChevronDown size={18} aria-hidden style={{ flexShrink: 0, transform: fold.open ? 'rotate(180deg)' : 'none' }}/>
+    </ButtonBase>
+  </Typography> : null}
+  <Stack direction={'row'} alignItems={'baseline'} justifyContent={'space-between'} gap={1.5}
+         sx={{ mb: 1, ...(fold ? { display: { xs: 'none', sm: 'flex' } } : {}) }}>
     <Typography variant={'cardTitle'} component={'h3'} sx={{ minWidth: 0 }}>{title}</Typography>
     {meta ? <Typography color={'text.secondary'} component={'div'} sx={{ fontSize: 13, lineHeight: '18px', whiteSpace: 'nowrap' }}>{meta}</Typography> : null}
     {aside ? <Box sx={{ flexShrink: 0 }}>{aside}</Box> : null}
   </Stack>
-  {children}
+  <Box id={bodyId} sx={{
+    containerType: 'inline-size',
+    ...(fold ? { display: { xs: fold.open ? 'block' : 'none', sm: 'block' }, [PHONE]: { px: '12px', pb: '14px' } } : {})
+  }}>
+    {/* The heading's right side holds the summary on a phone, so its meta opens with the body */}
+    {fold && meta ? <Typography color={'text.secondary'} component={'div'} sx={{ display: { xs: 'block', sm: 'none' }, fontSize: 13, lineHeight: '18px', mb: 1 }}>{meta}</Typography> : null}
+    {children}
+  </Box>
 </Box>;
 
 // Panel (Cards board): a titled box around a list, a table, a chart or a form. The title lives in the
@@ -42,7 +67,7 @@ const Panel = ({ icon, iconAlt = '', title, meta, aside, asideOwnRow, collapsibl
   const [open, setOpen] = useState(defaultOpen);
   const bodyId = useId();
   const sheet = useSheet();
-  if (sheet) return <SheetSection side={sheet.side} title={title} meta={meta} aside={aside} sx={sx}>{children}</SheetSection>;
+  if (sheet) return <SheetSection side={sheet.side} fold={sheet.fold} bodyId={bodyId} title={title} meta={meta} aside={aside} sx={sx}>{children}</SheetSection>;
   const shown = !collapsible || open;
   const name = typeof title === 'string' ? title : '';
   return <Box component={'section'} sx={[(theme) => cardSurface(theme), ...(Array.isArray(sx) ? sx : [sx])]}>
@@ -103,7 +128,7 @@ const Group = ({ label, children }) => {
 const KV = ({ label, value, kind }) => {
   const sheet = useSheet();
   return <Stack direction={'row'} justifyContent={'space-between'} alignItems={sheet ? 'center' : undefined} gap={sheet ? 1 : 2}
-                sx={sheet ? { ...SHEET_LINE, minHeight: 26, boxSizing: 'content-box' } : { px: 2, py: 0.75 }}>
+                sx={sheet ? { ...SHEET_LINE, minHeight: { xs: 32, sm: 26 }, boxSizing: 'content-box' } : { px: 2, py: 0.75 }}>
     <Typography variant={'body2'} color={'text.secondary'} component={'div'} sx={sheet ? { whiteSpace: 'nowrap' } : undefined}>{label}</Typography>
     <Typography variant={'body2'} component={'div'} sx={sheet ? SHEET_VALUE_SX : VALUE_SX}>{numOrNode(value, kind)}</Typography>
   </Stack>;

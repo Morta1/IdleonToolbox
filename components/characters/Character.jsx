@@ -21,6 +21,7 @@ import Stats from './Stats';
 import Inventory from './Inventory';
 import Chips from '../account/Worlds/World4/Chips';
 import Divinity from './Divinity';
+import { sectionSummary } from './sectionSummary';
 
 // A section's title on the page, where it differs from the name it is stored under
 const TITLES = { Cards: 'Equipped cards', 'Obols Stats': 'Obol stats', 'Star Signs': 'Star signs', 'Equipped Bubbles': 'Equipped bubbles', 'Anvil Details': 'Anvil details' };
@@ -87,8 +88,8 @@ const sideCardSx = (rows) => ({
   // A character past a row's columns starts a new row, and a phone stacks them: the row gap stays 0, so the lines stay shared
   mb: 2
 });
-const SHEET = { side: false };
-const SIDE_SHEET = { side: true };
+// Stats opens first; the rest are remembered per section name, for every character (the page's openSections).
+export const isSectionOpen = (openSections, name) => openSections?.[name] ?? name === 'Stats';
 
 const Character = ({
   character,
@@ -98,6 +99,8 @@ const Character = ({
   characters,
   side,
   pinTop,
+  openSections,
+  onToggleSection,
   showSkillsRankOneOnly,
   showUnmaxedBoxesOnly
 }) => {
@@ -142,23 +145,28 @@ const Character = ({
 
   const shown = sections.filter((section) => filters?.[section.name]);
 
-  return <SheetContext value={side ? SIDE_SHEET : SHEET}>
-    <Box data-character-card sx={[(theme) => cardSurface(theme), side && sideCardSx(shown.length + 1)]}>
-      {side ? <Box sx={{ gridRow: 1, gridColumn: 1, height: SIDE_NAME_HEIGHT }}/> : null}
-      <NameRow character={character} side={side} pinTop={pinTop}/>
-      <Box sx={side ? { display: 'contents' } : FLOW_SX}>
-        {shown.map((section, index) => {
-          const title = TITLES[section.name] ?? section.name;
-          return <Box key={section.name} sx={side ? { gridRow: index + 2, gridColumn: 1, minWidth: 0 } : { breakInside: 'avoid', minWidth: 0 }}>
+  return <Box data-character-card sx={[(theme) => cardSurface(theme), side && sideCardSx(shown.length + 1)]}>
+    {side ? <Box sx={{ gridRow: 1, gridColumn: 1, height: SIDE_NAME_HEIGHT }}/> : null}
+    <NameRow character={character} side={side} pinTop={pinTop}/>
+    <Box sx={side ? { display: 'contents' } : FLOW_SX}>
+      {shown.map((section, index) => {
+        const title = TITLES[section.name] ?? section.name;
+        const fold = {
+          open: isSectionOpen(openSections, section.name),
+          onToggle: () => onToggleSection?.(section.name),
+          summary: sectionSummary(section.name, character, account)
+        };
+        return <Box key={section.name} sx={side ? { gridRow: index + 2, gridColumn: 1, minWidth: 0 } : { breakInside: 'avoid', minWidth: 0 }}>
+          <SheetContext value={{ side: Boolean(side), fold }}>
             <ErrorBoundary note={`${title} didn't load.`} tone={'missing'} resetKey={lastUpdated}
-                           wrap={(note) => <Panel title={title}>{note}</Panel>}>
+                           wrap={(note) => <SheetContext value={{ side: Boolean(side), fold: { ...fold, summary: null } }}><Panel title={title}>{note}</Panel></SheetContext>}>
               {views[section.name]}
             </ErrorBoundary>
-          </Box>;
-        })}
-      </Box>
+          </SheetContext>
+        </Box>;
+      })}
     </Box>
-  </SheetContext>;
+  </Box>;
 };
 
 export default Character;

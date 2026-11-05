@@ -5,6 +5,7 @@ import { getGoldenFoodBonus } from '@parsers/misc';
 import Panel from '@components/common/cards/Panel';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
+import { isFilledSlot } from './sectionSummary';
 
 const SLOTS_PER_GROUP = 8;
 
@@ -21,7 +22,7 @@ const Equipment = ({ equipment, tools, food, account, character, characters }) =
         {items?.slice(0, SLOTS_PER_GROUP).map((item, itemIndex) => {
           const { rawName, displayName, amount } = item;
           // A slot with nothing in it has nothing to read: no note, no tab stop
-          if (rawName === 'Blank' || !displayName || displayName === 'ERROR') {
+          if (!isFilledSlot(item)) {
             return <IconTile key={`${rawName}-${itemIndex}`} status={'empty'} alt={'Empty slot'}/>;
           }
           return <IconTile key={`${rawName}-${itemIndex}`} icon={`data/${rawName}.png`} alt={cleanUnderscore(displayName)}
