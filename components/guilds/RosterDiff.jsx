@@ -1,31 +1,15 @@
-import { Box, Stack, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
+import Panel from '@components/common/cards/Panel';
+import { formatNum } from '@utility/helpers';
 
-function Side({ names, label, color }) {
-  return (
-    <Box flex={1} minWidth={0}>
-      <Typography variant="groupLabel" component="div" sx={{ color }}>
-        {label} ({names?.length ?? 0})
-      </Typography>
-      <Box sx={{ mt: 1 }}>
-        {names && names.length > 0 ? (
-          <Typography variant={'body2'}>{names.join(', ')}</Typography>
-        ) : (
-          <Typography variant="body2" color="text.secondary">None</Typography>
-        )}
-      </Box>
-    </Box>
-  );
-}
+const Side = ({ names, label }) => <Panel.KV label={<span style={{ whiteSpace: 'nowrap' }}>{label} ({formatNum(names?.length ?? 0, 'whole')})</span>} value={names?.length ? names.join(', ') : 'None'}/>;
 
 export default function RosterDiff({ joined, left }) {
-  const noChanges = (!joined || joined.length === 0) && (!left || left.length === 0);
-  if (noChanges) {
-    return <Typography variant="body2" color="text.secondary">No roster changes this week</Typography>;
+  if (!joined?.length && !left?.length) {
+    return <Typography variant="body2" color="text.secondary" sx={{ px: 2, py: 1.25 }}>No roster changes this week</Typography>;
   }
-  return (
-    <Stack direction={{ xs: 'column', sm: 'row' }} gap={3}>
-      <Side names={joined} label="Joined" color="text.success" />
-      <Side names={left} label="Left" color="text.error" />
-    </Stack>
-  );
+  return <>
+    <Side names={joined} label="Joined"/>
+    <Side names={left} label="Left"/>
+  </>;
 }

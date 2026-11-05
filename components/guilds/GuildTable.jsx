@@ -110,7 +110,7 @@ export default function GuildTable({ guilds, hoistedRows, showHoistedSection, is
       key: 'vs_last_wk_pct',
       label: 'vs last week',
       kind: 'pct',
-      format: { decimals: 1 },
+      format: { decimals: 2 },
       change: 'higher',
       sortable: true,
       info: VS_LAST_WEEK_NOTE,

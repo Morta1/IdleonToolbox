@@ -1,19 +1,22 @@
 import { useState } from 'react';
-import { Box, Stack, TextField, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import TagLine from '@components/common/TagLine';
 import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
 import { NoteTrigger } from '@components/common/InfoButton';
+import Notice from '@components/common/Notice';
+import Toolbar from '@components/common/Toolbar';
 import useFormatDate from '@hooks/useFormatDate';
 import usePageTop from '@hooks/usePageTop';
 
 // Guild role from the member's rank field (g). Mirrors the in-game guild member
 // list (GuildMembers.jsx / N.js): ranks 0-4 each get their own GuildRank{g} icon,
-// rank 5 (regular member) gets no icon. 0 = King, 1 = Leader; 2-4 are unlabeled
-// officer tiers. Returns null when rank is missing or 5+ so no badge shows.
+// rank 5 (regular member) gets no icon. The game names the two that lead ("Guild leaders, indicated by the King and Crown
+// role icons"): 0 and 1. It names no other, and 2-4 have no powers beyond a member's.
+// Returns null when rank is missing or 5+ so no badge shows.
 function guildRole(rank) {
   if (rank == null || rank >= 5) return null;
-  const label = rank === 0 ? 'King' : rank === 1 ? 'Leader' : `Rank ${rank}`;
+  const label = rank === 0 ? 'King' : rank === 1 ? 'Crown' : 'Member';
   return { label, icon: `etc/GuildRank${rank}.png` };
 }
 
@@ -82,7 +85,7 @@ export default function ContributorLeaderboard({ members }) {
     { key: 'member', label: 'Member', value: (m) => m.member_name, render: (m) => <MemberName member={m}/> },
     { key: 'gp_earned', label: 'GP', kind: 'amount', sortable: true, phone: true, value: (m) => m.gp_earned ?? 0 },
     {
-      key: 'share', label: '% Guild', kind: 'pct', info: 'Share of the guild\'s total weekly GP contributed by this member.',
+      key: 'share', label: '% Guild', kind: 'pct', format: { decimals: 2 }, info: 'Share of the guild\'s total weekly GP contributed by this member.',
       value: (m) => (totalGuildGp > 0 ? (m.gp_earned / totalGuildGp) * 100 : 0)
     },
     {
@@ -108,32 +111,24 @@ export default function ContributorLeaderboard({ members }) {
     ? ranked.filter((m) => m.member_name?.toLowerCase().includes(normalizedQuery))
     : ranked;
 
+  if (!ranked.length) return <Box sx={{ p: 2 }}><Notice tone={'info'}>No member contributed this week.</Notice></Box>;
   return (
-    <Stack spacing={2}>
-      <TextField
-        size="small"
-        placeholder="Search member by name"
-        value={query}
-        onChange={(e) => setQuery(e.target.value)}
-        sx={{ width: 280 }}
-      />
-
-      {filtered.length === 0 ? (
-        <Typography color="text.secondary">
-          {normalizedQuery ? `No members match "${query}"` : 'No member contributions this week'}
-        </Typography>
-      ) : (
-        // Every member up to 80 rows; past that, 60 and "Show n more" (DataTable's band preview).
-        <DataTable
-          columns={columns}
-          rows={filtered}
-          rowKey={'member_name'}
-          rowLabel={(m) => m.member_name}
-          rankOf={(m) => m.rank}
-          defaultSort={{ key: 'gp_earned', order: 'desc' }}
-          stickyTop={pageTop}
-        />
-      )}
-    </Stack>
+    <>
+      <Toolbar state={{ search: query }} defaults={{ search: '' }} onChange={({ search }) => setQuery(search ?? '')} onReset={() => setQuery('')}
+               total={ranked.length} shown={filtered.length} noun={'members'} inPanel>
+        <Toolbar.Search placeholder={'Search members by name'}/>
+      </Toolbar>
+      {/* Every member up to 80 rows; past that, 60 and "Show n more" (DataTable's band preview). */}
+      {filtered.length ? <Box sx={{ p: 2 }}><DataTable
+        columns={columns}
+        rows={filtered}
+        rowKey={'member_name'}
+        rowLabel={(m) => m.member_name}
+        rankOf={(m) => m.rank}
+        defaultSort={{ key: 'gp_earned', order: 'desc' }}
+        stickyTop={pageTop}
+        surface={'card'}
+      /></Box> : null}
+    </>
   );
 }

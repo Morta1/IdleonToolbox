@@ -4,18 +4,13 @@ import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
 import { useGuildDetail } from '@hooks/useGuildHistory';
-import {
-  Box,
-  Button,
-  Paper,
-  Stack,
-  Typography
-} from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { Box, Button, Stack, Typography } from '@mui/material';
+import { IconArrowLeft } from '@tabler/icons-react';
 import { NextSeo } from 'next-seo';
 import { isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
-import { formatNum, numberWithCommas } from '@utility/helpers';
+import useHydrated from '@hooks/useHydrated';
+import { formatNum } from '@utility/helpers';
 import { getGuildLevel } from '../../parsers/guild';
 import WeeklyProgressChart from '@components/guilds/WeeklyProgressChart';
 import TrendChart from '@components/guilds/TrendChart';
@@ -23,29 +18,19 @@ import RankHistoryChart from '@components/guilds/RankHistoryChart';
 import { heldRank } from '@components/guilds/rankHistory';
 import ContributorLeaderboard from '@components/guilds/ContributorLeaderboard';
 import RosterDiff from '@components/guilds/RosterDiff';
+import { rankText, showsFailure } from '@components/leaderboards/format';
+import GameIcon from '@components/common/GameIcon';
+import Notice, { retryAction } from '@components/common/Notice';
+import PageSummary from '@components/common/cards/PageSummary';
+import Panel from '@components/common/cards/Panel';
+import StatTile from '@components/common/cards/StatTile';
 import SimpleLoader from '@components/common/SimpleLoader';
 import { SCROLL_TARGET_MARGIN } from '@hooks/usePageTop';
 
 const DAY_MS = 24 * 3600 * 1000;
 const WEEK_MS = 7 * DAY_MS;
-
-function MetricTile({ label, value, sublabel }) {
-  return (
-    <Box sx={{ minWidth: 120 }}>
-      <Typography variant="groupLabel" component="div" color="text.secondary">
-        {label}
-      </Typography>
-      <Typography variant="heroValue" component="div" sx={{ mt: 0.25 }}>
-        {value}
-      </Typography>
-      {sublabel && (
-        <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.25 }}>
-          {sublabel}
-        </Typography>
-      )}
-    </Box>
-  );
-}
+const PANEL_SX = { mb: 3 };
+const BODY_SX = { p: 2 };
 
 // Same-hour-of-week comparison: find last week's progress at the matching point.
 // Returns null if either side is missing or last week's value is 0.
@@ -64,11 +49,23 @@ function computeVsLastWeekPct(currentTs, lastTs, gpThisWeek) {
   return (gpThisWeek - match.total_gp) / match.total_gp;
 }
 
+// Under 0.05% either way is the same pace, as the guild list's column reads it.
+const paceWords = (change) => {
+  if (Math.abs(change) < 0.0005) return 'The same pace as last week at this hour';
+  return `${formatNum(Math.abs(change) * 100, 'pct', { decimals: 2 })} ${change > 0 ? 'ahead of' : 'behind'} last week at this hour`;
+};
+
+const BackToGuilds = () => <Button size={'small'} startIcon={<IconArrowLeft size={18}/>} component={NextLink} href={'/guilds'} sx={{ mb: 2 }}>
+  Back to guilds
+</Button>;
+
 export default function GuildDetail() {
   const router = useRouter();
   const formatDate = useFormatDate();
+  const hydrated = useHydrated();
   const { id } = router.query;
-  const { data, isLoading, error } = useGuildDetail(id);
+  const query = useGuildDetail(id);
+  const { data, isLoading } = query;
 
   // /guilds/detail?id=...#contributors (the Discord bot links here). The page renders a loader
   // first, so the browser's own hash scroll finds nothing: scroll once the guild is in.
@@ -79,17 +76,30 @@ export default function GuildDetail() {
     document.getElementById('contributors')?.scrollIntoView({ block: 'start' });
   }, [data]);
 
-  if (isLoading || !id) return <SimpleLoader message="Loading guild history..."/>;
-  if (error) return <Typography color={'text.error'}>Failed to load guild history</Typography>;
-  if (!data) return null;
+  // router.query is empty until the router is ready, so a real link never reads as having no id. An address with no query
+  // is ready on the client's first render and not at the export: both draw the loader until hydration.
+  if (!hydrated || !router.isReady) return <SimpleLoader message="Loading guild history..."/>;
+  if (id && showsFailure(query)) {
+    return <>
+      <BackToGuilds/>
+      <Notice key={query.errorUpdateCount} tone={'error'} action={retryAction(() => query.refetch(), query.isFetching)}>Couldn't load this guild's history.</Notice>
+    </>;
+  }
+  if (id && isLoading) return <SimpleLoader message="Loading guild history..."/>;
+  if (!id || !data) {
+    return <>
+      <BackToGuilds/>
+      <Notice tone={'info'}>Pick a guild from the guild list.</Notice>
+    </>;
+  }
 
-  const { guild_name, rank, total_gp, members_count, total_gp_history, current_week, last_week, roster_diff } = data;
+  const { guild_name, guild_icon, rank, total_gp, members_count, total_gp_history, current_week, last_week, roster_diff } = data;
   const held = heldRank(data.rank_history);
   const steady = held != null && held.rank === rank;
   // The history covers 30 days, so a rank held across all of it may have held longer: say what the data knows.
   const heldLabel = (days) => (days >= 30 ? 'Held for 30+ days' : `Held for ${days} ${days === 1 ? 'day' : 'days'}`);
-  const guildLevel = getGuildLevel(total_gp);
-  const maxMembers = 30 + 4 * guildLevel;
+  const guildLevel = total_gp == null ? null : getGuildLevel(total_gp);
+  const maxMembers = guildLevel == null ? null : 30 + 4 * guildLevel;
   const gpThisWeek = current_week?.gp_this_week ?? 0;
 
   const latestTick = current_week?.timeseries?.[current_week.timeseries.length - 1];
@@ -107,80 +117,48 @@ export default function GuildDetail() {
       description={`Weekly GP progress and contributors for guild ${guild_name}`}
     />
 
-    <Button
-      size="small"
-      startIcon={<ArrowBackIcon/>}
-      component={NextLink}
-      href={'/guilds'}
-      sx={{ mb: 2, alignSelf: 'flex-start' }}
-    >
-      Back to guilds
-    </Button>
+    <BackToGuilds/>
 
-    <Typography variant={'pageTitle'} component={'h2'}>{guild_name}</Typography>
+    <Stack direction={'row'} alignItems={'center'} gap={1.5}>
+      {guild_icon != null ? <GameIcon src={`data/G2icon${guild_icon}.png`} size={32} alt={''}/> : null}
+      <Typography variant={'sectionTitle'} component={'h2'}>{guild_name ?? 'Unnamed guild'}</Typography>
+    </Stack>
     {lastUpdatedMs && isValid(new Date(lastUpdatedMs)) && (
       <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mb: 2 }}>
-        Updated {formatDate(lastUpdatedMs)}
+        Updated {formatDate(lastUpdatedMs, { showSeconds: false })}
       </Typography>
     )}
 
-    <Paper sx={{ p: 2, mb: 3 }}>
-      <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        gap={{ xs: 2, sm: 4 }}
-        sx={{ flexWrap: 'wrap' }}
-      >
-        <MetricTile label="Rank" value={`#${rank}`} sublabel={steady ? heldLabel(held.days) : undefined}/>
-        <MetricTile label="Total GP" value={numberWithCommas(total_gp)} />
-        <MetricTile label="Level" value={guildLevel} />
-        <MetricTile label="Members" value={`${members_count} / ${maxMembers}`} />
-      </Stack>
-    </Paper>
+    <PageSummary label={'This guild'}>
+      <StatTile label={'Rank'} value={rankText(rank)} sub={steady ? heldLabel(held.days) : undefined}/>
+      <StatTile label={'Total GP'} value={formatNum(total_gp, 'amount')}/>
+      <StatTile label={'Level'} value={formatNum(guildLevel, 'whole')}/>
+      <StatTile label={'Members'} value={maxMembers == null ? formatNum(members_count, 'whole') : `${formatNum(members_count, 'whole')} / ${formatNum(maxMembers, 'whole')}`}/>
+    </PageSummary>
 
-    <Paper sx={{ p: 2, mb: 3 }}>
-      <Stack
-        direction="row"
-        alignItems="baseline"
-        gap={1.5}
-        sx={{ mb: 2, flexWrap: 'wrap' }}
-      >
-        <Typography variant={'cardTitle'} component={'h3'}>This week's progress</Typography>
-        <Typography variant="heroValue" component="div">
-          {numberWithCommas(gpThisWeek)} GP
-        </Typography>
-        {vsLastWkPct != null && (
-          <Typography
-            variant="body2"
-            fontWeight={Math.abs(vsLastWkPct) >= 0.2 ? 600 : 400}
-            sx={{ color: vsLastWkPct >= 0 ? 'text.success' : 'text.error' }}
-          >
-            {formatNum(vsLastWkPct * 100, 'pct', { signed: true })} vs last week
-          </Typography>
-        )}
-      </Stack>
-      <WeeklyProgressChart detail={data} />
-    </Paper>
+    <Panel title={'This week\'s progress'} sx={PANEL_SX}
+           meta={<>{formatNum(gpThisWeek, 'amount')} GP{vsLastWkPct != null ? ` · ${paceWords(vsLastWkPct)}` : ''}</>}>
+      <Box sx={BODY_SX}><WeeklyProgressChart detail={data}/></Box>
+    </Panel>
 
     {total_gp_history?.length >= 2 && (
-      <Paper sx={{ p: 2, mb: 3 }}>
-        <Typography variant={'cardTitle'} component={'h3'} sx={{ mb: 1 }}>GP gained per day (last 30 days)</Typography>
-        <TrendChart values={total_gp_history} lastUpdatedMs={lastUpdatedMs} />
-      </Paper>
+      <Panel title={'GP gained per day (last 30 days)'} sx={PANEL_SX}>
+        <Box sx={BODY_SX}><TrendChart values={total_gp_history} lastUpdatedMs={lastUpdatedMs}/></Box>
+      </Panel>
     )}
 
-    {steady ? null : <Paper sx={{ p: 2, mb: 3 }}>
-      <Typography variant={'cardTitle'} component={'h3'} sx={{ mb: 1 }}>Rank history (last 30 days)</Typography>
-      <RankHistoryChart rankHistory={data.rank_history} />
-    </Paper>}
+    {steady ? null : <Panel title={'Rank history (last 30 days)'} sx={PANEL_SX}>
+      <Box sx={BODY_SX}><RankHistoryChart rankHistory={data.rank_history}/></Box>
+    </Panel>}
 
-    <Paper id="contributors" sx={{ p: 2, mb: 3, scrollMarginTop: `${SCROLL_TARGET_MARGIN}px` }}>
-      <Typography variant={'cardTitle'} component={'h3'} sx={{ mb: 2 }}>Top contributors this week</Typography>
-      <ContributorLeaderboard members={current_week?.members} />
-    </Paper>
+    <Box id="contributors" sx={{ mb: 3, scrollMarginTop: `${SCROLL_TARGET_MARGIN}px` }}>
+      <Panel title={'Top contributors this week'}>
+        <ContributorLeaderboard members={current_week?.members}/>
+      </Panel>
+    </Box>
 
-    <Paper sx={{ p: 2 }}>
-      <Typography variant={'cardTitle'} component={'h3'} sx={{ mb: 2 }}>Roster changes this week</Typography>
-      <RosterDiff joined={roster_diff?.joined} left={roster_diff?.left} />
-    </Paper>
+    <Panel title={'Roster changes this week'}>
+      <RosterDiff joined={roster_diff?.joined} left={roster_diff?.left}/>
+    </Panel>
   </Box>;
 }

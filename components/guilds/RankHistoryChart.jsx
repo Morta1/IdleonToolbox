@@ -1,13 +1,13 @@
-import { Box, Typography, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import { format } from 'date-fns';
 import ChartFrame from '@components/common/charts/ChartFrame';
 import LineChart from '@components/common/charts/LineChart';
+import Notice from '@components/common/Notice';
+import { rankText } from '@components/leaderboards/format';
 import useFormatDate from '@hooks/useFormatDate';
 import { labelIndexes, valueTicks } from '@utility/chartScale';
 import { seriesColors } from '@utility/chartTheme';
 import { transformRankHistory } from './rankHistory';
-
-const rankText = (rank) => `#${rank}`;
 
 export default function RankHistoryChart({ rankHistory }) {
   const { mode } = useTheme().palette;
@@ -15,13 +15,7 @@ export default function RankHistoryChart({ rankHistory }) {
   const formatDate = useFormatDate();
   const data = transformRankHistory(rankHistory).map((point) => ({ x: point.ts, y: point.y }));
 
-  if (data.length === 0) {
-    return (
-      <Box sx={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Typography color="text.secondary">No rank history yet.</Typography>
-      </Box>
-    );
-  }
+  if (data.length === 0) return <Notice tone={'info'}>No rank history yet.</Notice>;
 
   const ranks = data.map((point) => point.y);
   const ticks = valueTicks(Math.min(...ranks), Math.max(...ranks), { integer: true });

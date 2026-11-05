@@ -1,27 +1,19 @@
 // components/guilds/WeeklyProgressChart.jsx
-import { Box, Typography, useTheme } from '@mui/material';
+import { Typography, useTheme } from '@mui/material';
+import { addDays, format, startOfDay } from 'date-fns';
 import ChartFrame from '@components/common/charts/ChartFrame';
 import LineChart from '@components/common/charts/LineChart';
+import Notice from '@components/common/Notice';
 import Num from '@components/common/Num';
+import useFormatDate from '@hooks/useFormatDate';
 import { seriesColors } from '@utility/chartTheme';
 
-// The reporting week runs Saturday 21:00 UTC to the next Saturday 21:00 UTC,
-// so hour 0 of the week is Saturday 21:00 (21 hours into Saturday).
-const DAY_NAMES = ['Sat', 'Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const WEEK_START_HOUR = 21;
-// A day's name marks its UTC midnight: hours 3, 27, ... 147 of the week (Sunday to Saturday). Ticks at hours 0, 24,
-// ... put "Mon" on Monday 9PM.
-const DAY_TICKS = [1, 2, 3, 4, 5, 6, 7].map((day) => day * 24 - WEEK_START_HOUR);
-
-function formatHourInWeek(hoursInWeek) {
-  const hoursFromSaturdayMidnight = WEEK_START_HOUR + hoursInWeek;
-  const dayIndex = Math.min(7, Math.floor(hoursFromSaturdayMidnight / 24));
-  const day = DAY_NAMES[dayIndex];
-  const hourOfDay = Math.floor(hoursFromSaturdayMidnight % 24);
-  const period = hourOfDay >= 12 ? 'PM' : 'AM';
-  const hour12 = hourOfDay % 12 || 12;
-  return `${day} ${hour12}${period} UTC`;
-}
+// The reporting week runs Saturday 21:00 UTC to the next Saturday 21:00 UTC. The chart reads the visitor's clock: x is
+// hours into this guild week, and every day's name marks that day's midnight where the visitor is.
+const dayTicks = (weekStart) => Array.from({ length: 7 }, (_, day) => {
+  const midnight = startOfDay(addDays(new Date(weekStart), day + 1));
+  return { x: (midnight.getTime() - weekStart) / HOUR_MS, name: format(midnight, 'EEE') };
+});
 
 const WEEK_MS = 7 * 24 * 3600 * 1000;
 const HOUR_MS = 3600 * 1000;
@@ -49,30 +41,34 @@ function weekStartMs(ms) {
   return ms - ((ms - WEEK_ANCHOR_MS) % WEEK_MS);
 }
 
-// The empty state, as tall as the chart's card body was.
-const EmptyChart = ({ children }) => <Box sx={{ height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-  <Typography color="text.secondary">{children}</Typography>
-</Box>;
-
 export default function WeeklyProgressChart({ detail }) {
   const theme = useTheme();
+  const formatDate = useFormatDate();
   const [thisWeek, lastWeek] = transformForChart(detail);
   const series = [
     { ...thisWeek, label: 'This week', color: seriesColors(theme.palette.mode)[0] },
     // The earlier period in grey behind it (Charts board, "Change over time").
     { ...lastWeek, label: 'Last week', color: theme.palette.text.muted }
   ].filter((item) => item.data.length > 0);
-  if (series.length === 0) return <EmptyChart>No hourly snapshots yet: the chart fills in as they arrive.</EmptyChart>;
+  if (series.length === 0) return <Notice tone={'info'}>No hourly snapshots yet: the chart fills in as they arrive.</Notice>;
+  // Last week's hours land on this week's clock: the chart compares the same hour of the week.
+  const firstThis = detail.current_week?.timeseries?.[0]?.captured_at;
+  const weekStart = firstThis != null ? weekStartMs(firstThis) : weekStartMs(detail.last_week?.timeseries?.[0]?.captured_at) + WEEK_MS;
+  const ticks = dayTicks(weekStart);
+  const hourLabel = (x) => {
+    const date = weekStart + x * HOUR_MS;
+    return `${format(date, 'EEE')} ${formatDate(date, { timeOnly: true, showSeconds: false })}`;
+  };
   const hours = [...new Set(series.flatMap((item) => item.data.map((point) => point.x)))].toSorted((a, b) => a - b);
   const at = (week, x) => week.data.find((point) => point.x === x)?.y ?? null;
-  return <ChartFrame
+  return <><ChartFrame
     legend={series.map(({ label, color }) => ({ label, color, mark: 'line' }))}
     table={{
       rows: hours.map((x) => ({ x, thisWeek: at(thisWeek, x), lastWeek: at(lastWeek, x) })),
       rowKey: 'x',
-      rowLabel: (row) => formatHourInWeek(row.x),
+      rowLabel: (row) => hourLabel(row.x),
       columns: [
-        { key: 'x', label: 'Time', render: (row) => formatHourInWeek(row.x) },
+        { key: 'x', label: 'Time', render: (row) => hourLabel(row.x) },
         { key: 'thisWeek', label: 'This week', numeric: true, phone: true, render: (row) => (row.thisWeek == null ? null : <Num value={row.thisWeek}/>) },
         // Both weeks on a phone too: the chart compares them.
         { key: 'lastWeek', label: 'Last week', numeric: true, phone: true, render: (row) => (row.lastWeek == null ? null : <Num value={row.lastWeek}/>) }
@@ -80,7 +76,9 @@ export default function WeeklyProgressChart({ detail }) {
     }}
   >
     <LineChart label="This week's progress" series={series} xDomain={{ min: 0, max: 168 }}
-               xTicks={DAY_TICKS} formatX={(x) => DAY_NAMES[(x + WEEK_START_HOUR) / 24]}
-               tooltipTitle={formatHourInWeek}/>
-  </ChartFrame>;
+               xTicks={ticks.map(({ x }) => x)} formatX={(x) => ticks.find((tick) => tick.x === x)?.name ?? ''}
+               tooltipTitle={hourLabel}/>
+  </ChartFrame>
+    <Typography variant={'caption'} color={'text.secondary'} component={'p'} sx={{ mt: 1 }}>The guild week resets Saturday 21:00 UTC.</Typography>
+  </>;
 }
