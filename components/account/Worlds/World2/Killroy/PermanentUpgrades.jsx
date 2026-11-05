@@ -71,18 +71,17 @@ const PermanentUpgrades = ({ killroy, sectionFailed }) => <CardGrid size={'m'}>
     const valueText = fill && Number.isFinite(bonus) ? fillText(bonus, fill) : bonusDisplay;
     const capText = fill ? fillText(fill.cap, fill) : capDisplay;
     // A failed section's shop is the catalog at zero: no progress, breakpoint or applied bonus of its own
-    const rows = sectionFailed ? [] : [
-      nextBreakpoint ? ['Next breakpoint', breakpointsTrigger(title, nextBreakpoint, breakpoints)] : null,
-      ...(appliedBonuses ?? []).map(({ name: applied, value, max }) => [`Applied to ${applied}`,
-        `${appliedText(value)} (max ${appliedText(max)})`])
-    ];
+    const applied = sectionFailed ? [] : appliedBonuses ?? [];
     return <ItemCard key={`upgrade-${index}`} icon={`etc/Skull_Shop_Item_${index}.png`} title={title}
                      level={level > 0 ? { value: level } : undefined}>
       {name ? <ItemCard.Desc text={text}/> : null}
       {!sectionFailed && progress != null
         ? <ItemCard.Progress label={'Toward its cap'} value={valueText} max={capText} percent={progress}/>
         : null}
-      <ItemCard.Facts rows={rows}/>
+      <ItemCard.Facts rows={[!sectionFailed && nextBreakpoint ? ['Next breakpoint', breakpointsTrigger(title, nextBreakpoint, breakpoints)] : null]}/>
+      {applied.length ? <ItemCard.Section label={'Applied to'}>
+        <ItemCard.Facts rows={applied.map(({ name: target, value, max }) => [target, `${appliedText(value)} / ${appliedText(max)}`])}/>
+      </ItemCard.Section> : null}
     </ItemCard>;
   })}
 </CardGrid>;
