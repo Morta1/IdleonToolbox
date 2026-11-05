@@ -292,7 +292,7 @@ describe('EntityList table', () => {
   // Sorted, the list is one run: band headings between the rows would cut the order the reader asked for.
   it('keeps the category bands as rows inside the one table until the list is sorted', () => {
     const headings = (sort) => [...renderTable({ count: 4, categoryOf: (i) => (i < 2 ? 'A' : 'B'), sort }).container
-      .querySelectorAll('tbody th[scope="rowgroup"] p')].map((heading) => heading.textContent);
+      .querySelectorAll('tbody th[scope="rowgroup"] .MuiTypography-groupLabel')].map((heading) => heading.textContent);
     expect({ unsorted: headings(null), sorted: headings({ key: 'cost', order: 'asc' }) }).toEqual({ unsorted: ['A', 'B'], sorted: [] });
   });
 

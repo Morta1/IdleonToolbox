@@ -296,14 +296,14 @@ const DataTable = ({
                 component={'th'}
                 scope={'rowgroup'}
                 colSpan={span}
-                // The accent is the band's own color (a world's); a band without one draws no edge.
-                sx={{ ...CELL, textAlign: 'left', bgcolor: 'action.hover', ...(band.accent ? { borderLeft: '3px solid', borderLeftColor: band.accent } : {}) }}
+                // The accent is the band's own color (a world's); a band without one draws no edge. 34 px, as the board draws it.
+                sx={{ ...CELL, height: 34, py: 0.5, textAlign: 'left', bgcolor: 'action.hover', ...(band.accent ? { borderLeft: '3px solid', borderLeftColor: band.accent } : {}) }}
               >
                 <Stack direction={'row'} gap={1.5} alignItems={band.icon ? 'center' : 'baseline'} flexWrap={'wrap'}>
                   {band.icon ?? null}
-                  <Typography variant={'body2'} fontWeight={600}>{heading}</Typography>
-                  {band.meta ? <Typography variant={'body2'} color={'text.secondary'}>{band.meta}</Typography> : null}
-                  <Typography variant={'caption'} color={'text.muted'} sx={{ ml: 'auto' }}>
+                  <Typography variant={'groupLabel'} component={'span'} color={'text.secondary'}>{heading}</Typography>
+                  {band.meta ? <Typography variant={'caption'} color={'text.secondary'}>{band.meta}</Typography> : null}
+                  <Typography variant={'caption'} color={'text.secondary'} sx={{ ml: 'auto' }}>
                     {numberWithCommas(band.rows.length)}
                   </Typography>
                 </Stack>
