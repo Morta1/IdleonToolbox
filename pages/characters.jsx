@@ -6,24 +6,27 @@ import Toolbar from '@components/common/Toolbar';
 import { MissingData } from '@components/common/styles';
 import { CharactersPicker } from '@components/characters/CharactersList';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
-import { AppContext, shownFilters } from 'components/common/context/AppProvider';
+import { AppContext, shownCharacters, shownFilters } from 'components/common/context/AppProvider';
+import { sections } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
 
 const Characters = () => {
   const { state, dispatch } = useContext(AppContext);
-  const deferredDisplayed = useDeferredValue(state?.displayedCharacters);
-  const isPending = deferredDisplayed !== state?.displayedCharacters;
-  const numberOfCharacters = Object.values(state?.displayedCharacters || [])?.filter((val) => val).length;
-  const deferredCount = Object.values(deferredDisplayed || [])?.filter((val) => val).length;
+  const displayed = shownCharacters(state);
+  const deferredDisplayed = useDeferredValue(displayed);
+  const isPending = deferredDisplayed !== displayed;
+  const numberOfCharacters = state?.characters?.filter((_, index) => displayed?.[index])?.length ?? 0;
+  const deferredCount = state?.characters?.filter((_, index) => deferredDisplayed?.[index])?.length ?? 0;
   const characterCols = Math.max(3, 12 / deferredCount);
   const hasCharacters = !!state?.characters?.length;
   const filters = shownFilters(state);
   const hasSkillsFilter = filters?.Skills;
   const hasPostOfficeFilter = filters?.['Post Office'];
+  const hasSection = sections.some(({ name }) => filters?.[name]);
   const failedSections = state?.account?.failedSections;
   const toolbarState = { showRankOneOnly: Boolean(state?.showRankOneOnly), showUnmaxedBoxesOnly: Boolean(state?.showUnmaxedBoxesOnly) };
   const setToolbar = (patch) => Object.entries(patch).forEach(([type, data]) => dispatch({ type, data }));
-  // The picker's drawer opens from its header control or from the note below, which hands it the control's focus first,
+  // The picker's drawer opens from its header control or from a note below, which hands it the control's focus first,
   // so closing the drawer returns there even after a tick has taken the note away
   const [pickerOpen, setPickerOpen] = useState(false);
   const pickerButton = useRef(null);
@@ -41,7 +44,9 @@ const Characters = () => {
     {hasCharacters ? <PageHeaderControl>
       <CharactersPicker open={pickerOpen} onOpenChange={setPickerOpen} buttonRef={pickerButton}/>
     </PageHeaderControl> : null}
-    {numberOfCharacters > 0 ? (
+    {numberOfCharacters > 0 && !hasSection ? <Notice action={{ label: 'Choose sections', onClick: choose }}>
+      No section is on: tick one under Characters to show it here.
+    </Notice> : numberOfCharacters > 0 ? (
       <>
         {!isPending && (hasSkillsFilter || hasPostOfficeFilter)
           ? <Toolbar state={toolbarState} defaults={{ showRankOneOnly: false, showUnmaxedBoxesOnly: false }} onChange={setToolbar}

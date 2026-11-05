@@ -23,7 +23,7 @@ import { sessionQuery } from '@utility/nav-query';
 import {
   addRecent, emptyBox, PINS_SHOWN, recentEntry, searchToolbox, WIKI_MAX, WIKI_SHOWN, wikiMatches, wikiRow
 } from '@utility/search/quickSearch';
-import { AppContext, shownFilters } from '@components/common/context/AppProvider';
+import { AppContext, shownCharacters, shownFilters } from '@components/common/context/AppProvider';
 import EntityIcon from '@components/wiki/EntityIcon';
 import { touchTarget } from '../../styles/theme/darkTheme';
 import Notice from '@components/common/Notice';
@@ -265,7 +265,7 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
       startTransition(() => dispatch({ type: 'searchFilters', data: { ...state?.searchFilters, [filter]: true } }));
     }
     // ...and with no character picked there is nothing to open, so show the first one
-    if (filter && !Object.values(state?.displayedCharacters ?? {}).some(Boolean)) {
+    if (filter && !Object.values(shownCharacters(state)).some(Boolean)) {
       startTransition(() => dispatch({ type: 'displayedCharacters', data: { ...state?.displayedCharacters, 0: true } }));
     }
     trackSearch(searchTerm, count);

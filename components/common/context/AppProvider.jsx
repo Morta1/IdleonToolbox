@@ -36,11 +36,19 @@ export const ACTION_TYPES = {
   HYDRATE_STORAGE: 'hydrateStorage'
 };
 
+// What the characters page shows until the player changes something: the first character with these sections. Only
+// ever derived, so a first visit stores nothing; the first change stores these plus that change.
+const FIRST_VISIT_SECTIONS = { Stats: true, Talents: true, Cards: true, Skills: true, Equipment: true };
+const FIRST_VISIT_CHARACTERS = { all: false, 0: true };
+
+export const savedFilters = (state) => state?.filters ?? FIRST_VISIT_SECTIONS;
+export const shownCharacters = (state) => state?.displayedCharacters ?? FIRST_VISIT_CHARACTERS;
+
 // The characters page sections to show: the saved chips plus any the quick search turned on for
 // this visit, which are never written to storage
 export const shownFilters = (state) => state?.searchFilters
-  ? { ...state?.filters, ...state.searchFilters }
-  : state?.filters;
+  ? { ...savedFilters(state), ...state.searchFilters }
+  : savedFilters(state);
 
 export function appReducer(state, action) {
   const actionHandlers = {

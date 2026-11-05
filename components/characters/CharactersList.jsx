@@ -13,7 +13,7 @@ import {
   Typography
 } from '@mui/material';
 import React, { startTransition, useContext, useEffect, useState } from 'react';
-import { AppContext, shownFilters } from '@components/common/context/AppProvider';
+import { AppContext, shownCharacters, shownFilters } from '@components/common/context/AppProvider';
 import Notice from '@components/common/Notice';
 import { formatNum, sections } from 'utility/helpers';
 import AppDrawer from '@components/common/Overlays/AppDrawer';
@@ -54,11 +54,8 @@ const ONLY_SX = {
 const CharactersList = () => {
   const { state, dispatch } = useContext(AppContext);
   const [checked, setChecked] = useState(() =>
-    reconcileDisplayedCharacters(state?.displayedCharacters, state?.characters?.length));
-  const [chips, setSelectedChips] = useState(shownFilters(state) ? shownFilters(state) : sections.reduce((res, { name }) => ({
-    ...res,
-    [name]: false
-  }), {}));
+    reconcileDisplayedCharacters(shownCharacters(state), state?.characters?.length));
+  const [chips, setSelectedChips] = useState(shownFilters(state));
 
   // Adjust-during-render rather than an effect, because storage lands a render after mount and
   // the roster can grow: the checkboxes have to follow both without a paint in between.
@@ -78,8 +75,8 @@ const CharactersList = () => {
       filters: state?.filters,
       searchFilters: state?.searchFilters
     });
-    setChecked(reconcileDisplayedCharacters(state?.displayedCharacters, state?.characters?.length));
-    if (shownFilters(state)) setSelectedChips(shownFilters(state));
+    setChecked(reconcileDisplayedCharacters(shownCharacters(state), state?.characters?.length));
+    setSelectedChips(shownFilters(state));
   }
 
   // Persist the backfilled selection to global state so the characters page also includes new
@@ -273,7 +270,7 @@ export const CharactersPicker = ({ open, onOpenChange, buttonRef }) => {
   const { state } = useContext(AppContext);
   const characters = state?.characters ?? [];
   if (!characters.length) return null;
-  const shown = characters.filter((_, index) => state?.displayedCharacters?.[index]);
+  const shown = characters.filter((_, index) => shownCharacters(state)?.[index]);
   return <>
     <Button ref={buttonRef} variant="outlined" onClick={() => onOpenChange(true)} aria-haspopup="dialog" aria-expanded={open}
             endIcon={<IconChevronDown size={18} aria-hidden/>}
