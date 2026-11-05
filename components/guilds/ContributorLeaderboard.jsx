@@ -7,7 +7,6 @@ import { NoteTrigger } from '@components/common/InfoButton';
 import Notice from '@components/common/Notice';
 import Toolbar from '@components/common/Toolbar';
 import useFormatDate from '@hooks/useFormatDate';
-import usePageTop from '@hooks/usePageTop';
 
 // Guild role from the member's rank field (g). Mirrors the in-game guild member
 // list (GuildMembers.jsx / N.js): ranks 0-4 each get their own GuildRank{g} icon,
@@ -52,7 +51,9 @@ export function sortedMembers(members) {
   return [...members].sort((a, b) => (b.gp_earned || 0) - (a.gp_earned || 0));
 }
 
-// The role icon (a member with none keeps its room, so names line up), the name and when they joined.
+// The role icon (a member with none keeps its room, so names line up), the name and when they joined, under the name
+// where the row has no room for both: at 384 the two pushed the table past its box, and a table that scrolls sideways
+// can't pin its head.
 const MemberName = ({ member }) => {
   const role = guildRole(member.member_rank);
   const joinedWeeksAgo = member.joined_weeks_ago ?? null;
@@ -60,18 +61,20 @@ const MemberName = ({ member }) => {
     {role
       ? <NoteTrigger note={role.label} label={role.label}><GameIcon src={role.icon} alt={''} size={16}/></NoteTrigger>
       : <Box component="span" sx={{ display: 'inline-block', width: 16, height: 16, flexShrink: 0 }}/>}
-    <Typography variant="body2" component="span">{member.member_name}</Typography>
-    {joinedWeeksAgo != null && (
-      <TagLine tags={[joinedWeeksAgo === 0 ? 'Joined this week' : `Joined ${joinedWeeksAgo}w ago`]}/>
-    )}
+    <Stack direction="row" alignItems="center" flexWrap="wrap" columnGap={0.75} component="span">
+      <Typography variant="body2" component="span">{member.member_name}</Typography>
+      {joinedWeeksAgo != null && (
+        <TagLine tags={[joinedWeeksAgo === 0 ? 'Joined this week' : `Joined ${joinedWeeksAgo}w ago`]}/>
+      )}
+    </Stack>
   </Stack>;
 };
 
 export default function ContributorLeaderboard({ members }) {
   const formatDate = useFormatDate();
   const [query, setQuery] = useState('');
-  // Up to 209 rows: the header sticks under the nav bar while they scroll.
-  const pageTop = usePageTop();
+  // Up to 209 rows: the header sticks under the search while they scroll.
+  const [toolbarBottom, setToolbarBottom] = useState(null);
 
   const sorted = sortedMembers(members);
   const ranked = sorted.map((m, i) => ({
@@ -115,8 +118,8 @@ export default function ContributorLeaderboard({ members }) {
   return (
     <>
       <Toolbar state={{ search: query }} defaults={{ search: '' }} onChange={({ search }) => setQuery(search ?? '')} onReset={() => setQuery('')}
-               total={ranked.length} shown={filtered.length} noun={'members'} inPanel>
-        <Toolbar.Search placeholder={'Search members by name'}/>
+               total={ranked.length} shown={filtered.length} noun={'members'} inPanel onStickyBottom={setToolbarBottom}>
+        <Toolbar.Search placeholder={'Search members'}/>
       </Toolbar>
       {/* Every member up to 80 rows; past that, 60 and "Show n more" (DataTable's band preview). */}
       {filtered.length ? <Box sx={{ p: 2 }}><DataTable
@@ -126,7 +129,7 @@ export default function ContributorLeaderboard({ members }) {
         rowLabel={(m) => m.member_name}
         rankOf={(m) => m.rank}
         defaultSort={{ key: 'gp_earned', order: 'desc' }}
-        stickyTop={pageTop}
+        stickyTop={toolbarBottom}
         surface={'card'}
       /></Box> : null}
     </>

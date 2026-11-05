@@ -1,4 +1,4 @@
-import React, { useContext } from 'react';
+import React, { useContext, useState } from 'react';
 import { Box, Link, Stack, Typography } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { isToday, isValid } from 'date-fns';
@@ -44,6 +44,8 @@ const Guilds = () => {
   const formatDate = useFormatDate();
   const router = useRouter();
   const { state } = useContext(AppContext);
+  // Where the search ends on screen, for the table's column names to pin under.
+  const [toolbarBottom, setToolbarBottom] = useState(null);
   const index = useGuildIndex();
   const { data: globalSnapshotData, isError: snapshotsFailed } = useGlobalSnapshots();
   // A reply that isn't a list reads as an empty one.
@@ -91,8 +93,8 @@ const Guilds = () => {
       <Link component={NextLink} href={'/guilds/ecosystem'} variant={'caption'} sx={{ verticalAlign: 'baseline' }}>Ecosystem stats</Link>
     </Stack>
     <Toolbar state={{ search: query }} defaults={{ search: '' }} onChange={({ search }) => setQuery(search ?? '')} onReset={() => setQuery('')}
-             total={guilds.length} shown={filteredGuilds?.length ?? 0} noun={'guilds'}>
-      <Toolbar.Search placeholder={'Search guilds by name'}/>
+             total={guilds.length} shown={filteredGuilds?.length ?? 0} noun={'guilds'} onStickyBottom={setToolbarBottom}>
+      <Toolbar.Search placeholder={'Search guilds'}/>
     </Toolbar>
     <GuildTable
       guilds={filteredGuilds ?? []}
@@ -101,6 +103,7 @@ const Guilds = () => {
       isPinned={isPinned}
       onTogglePin={togglePin}
       router={router}
+      stickyTop={toolbarBottom}
     />
   </Box>;
 };

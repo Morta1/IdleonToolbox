@@ -5,7 +5,6 @@ import DataTable from '@components/common/DataTable';
 import GameIcon, { MissingArt } from '@components/common/GameIcon';
 import StatusText from '@components/common/StatusText';
 import TagLine from '@components/common/TagLine';
-import usePageTop from '@hooks/usePageTop';
 import { getGuildLevel } from '@parsers/guild';
 import { seriesColors } from '@utility/chartTheme';
 import { formatNum } from '@utility/helpers';
@@ -90,9 +89,8 @@ const membersText = ({ members_count, total_gp }) => {
   return Number.isFinite(cap) ? `${formatNum(members_count, 'whole')} / ${formatNum(cap, 'whole')}` : formatNum(members_count, 'whole');
 };
 
-export default function GuildTable({ guilds, hoistedRows, showHoistedSection, isPinned, onTogglePin, router }) {
+export default function GuildTable({ guilds, hoistedRows, showHoistedSection, isPinned, onTogglePin, router, stickyTop }) {
   const muiTheme = useTheme();
-  const pageTop = usePageTop();
   const sparkColor = seriesColors(muiTheme.palette.mode)[0];
   const columns = [
     {
@@ -173,6 +171,6 @@ export default function GuildTable({ guilds, hoistedRows, showHoistedSection, is
     // A guild pinned but no longer tracked stays listed, dimmed, so it can still be unpinned.
     muted={(guild) => Boolean(guild.tombstone)}
     surface={'card'}
-    stickyTop={pageTop}
+    stickyTop={stickyTop}
   />;
 }
