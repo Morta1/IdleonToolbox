@@ -260,6 +260,9 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   const ownedElixirs = (upgrades as any)?.[23]?.baseBonus;
   const ownedSlots = 1 + ((upgrades as any)?.[24]?.baseBonus ?? 0);
   const maxElixirDuplicates = (upgrades as any)?.[25]?.baseBonus;
+  // The shop's caps, each upgrade's max level (x3). game: "ElixirSlotsOwned" is min(5, 1 + its bonus)
+  const elixirSlotsCap = 1 + (Number((spelunkingUpgrades as any)?.[24]?.x3) || 0);
+  const elixirDuplicatesCap = Number((spelunkingUpgrades as any)?.[25]?.x3) || 0;
   const equippedElixirs = rawSpelunking?.[7] || [];
   const elixirs = generalSpelunky[16]?.map((description: any, index: any) => {
     const timesUsed = equippedElixirs.filter((elixirIndex: any) => elixirIndex === index).length;
@@ -357,6 +360,8 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
     ownedSlots,
     ownedElixirs,
     maxElixirDuplicates,
+    elixirSlotsCap,
+    elixirDuplicatesCap,
     talentSpelunkArrays,
     charactersStamina,
     // Patch 2.3.525: Overstim stack, Manic Mode, and the sum47 upgrade tail.

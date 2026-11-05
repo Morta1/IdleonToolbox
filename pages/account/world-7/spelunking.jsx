@@ -37,6 +37,8 @@ const Spelunking = () => {
     ownedElixirs,
     ownedSlots,
     maxElixirDuplicates,
+    elixirSlotsCap,
+    elixirDuplicatesCap,
     power,
     totalGrandDiscoveries,
     overstimRate,
@@ -106,7 +108,8 @@ const Spelunking = () => {
         bestCaveLevels={bestCaveLevels}
         account={state?.account}
       />
-      <Elixirs elixirs={elixirs} ownedElixirs={ownedElixirs} ownedSlots={ownedSlots} maxElixirDuplicates={maxElixirDuplicates} />
+      <Elixirs elixirs={elixirs} ownedElixirs={ownedElixirs} ownedSlots={ownedSlots} maxElixirDuplicates={maxElixirDuplicates}
+               slotsCap={elixirSlotsCap} duplicatesCap={elixirDuplicatesCap} />
       {sectionFailed ? null : <UpgradeOptimizer character={state?.characters?.[0]} account={state?.account} />}
     </Tabber>
   </SummaryFailed>

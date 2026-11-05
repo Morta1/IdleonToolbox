@@ -1,5 +1,5 @@
 import { Box, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import React from 'react';
 import { getEndlessBattles, SUMMONING_COLOURS } from '@parsers/world-6/summoning';
 import StatTile from '@components/common/cards/StatTile';
@@ -44,8 +44,7 @@ const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel, winnerB
             <CardGrid size={'s'}>
               {colorBattles.map(({ territoryName, difficulty, won, icon, bonus }, index) => {
                 if (hide && won) return null;
-                // The parser's monster srcs carry the prefix, which GameIcon adds itself
-                return <ItemCard key={'battle-' + index} icon={icon?.slice(prefix.length)} title={cleanUnderscore(territoryName)}
+                return <ItemCard key={'battle-' + index} icon={icon} title={cleanUnderscore(territoryName)}
                                  meta={colorBattleIndex === 9 ? `Battle ${index + 1}` : undefined}
                                  status={won ? 'done' : undefined} statusLabel={'Won'}>
                   {bonus?.bonus ? <ItemCard.Desc text={bonus?.bonus}/> : null}

@@ -1,5 +1,5 @@
 import { Stack } from '@mui/material';
-import { cleanUnderscore, formatNum, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import React from 'react';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
@@ -18,9 +18,8 @@ const Stones = ({ stones }) => {
           formatted: formatNum(futureHp)
         })) ?? []),
         { combine: 'list' });
-      // The parser's monster srcs carry the prefix, which GameIcon adds itself
       return <ItemCard key={'stone-' + index} icon={`etc/SumStone_${index}.png`} title={cleanUnderscore(name)}
-                       aside={<GameIcon src={monsterIcon?.slice(prefix.length)} size={40} alt={'Boss'}/>}>
+                       aside={<GameIcon src={monsterIcon} size={40} alt={'Boss'}/>}>
         <ItemCard.Desc text={cleanUnderscore(bonus).capitalizeAll()}/>
         <ItemCard.Facts rows={[
           ['Kills', kills ?? 0, 'amount'],
@@ -28,7 +27,7 @@ const Stones = ({ stones }) => {
           ['Found at', cleanUnderscore(mapName)],
           mapMonsterIcon && mapMonsterName ? ['Map monster', <Stack key={'monster'} component={'span'} direction={'row'}
                                                                     alignItems={'center'} gap={0.5}>
-            <GameIcon src={mapMonsterIcon?.slice(prefix.length)} size={24} alt={''}/>{cleanUnderscore(mapMonsterName)}
+            <GameIcon src={mapMonsterIcon} size={24} alt={''}/>{cleanUnderscore(mapMonsterName)}
           </Stack>] : null
         ]}/>
       </ItemCard>;

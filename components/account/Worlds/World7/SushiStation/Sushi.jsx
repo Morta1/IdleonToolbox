@@ -20,10 +20,8 @@ const FIREPLACE_DESCS = [
 ];
 
 // The game's board: 15 columns of 8 slots, a fireplace under each column. Decision 7: every visitor sees the whole
-// board, filled from the save where it has slots (the parser builds them from the save; Leftovers).
+// board, filled from the save where it has slots.
 const COLUMNS = 15;
-const SLOT_COUNT = 120;
-const EMPTY_SLOT = { tier: -1, slotEffect: -1, fireplaceType: -1, currencyPerSlot: 0 };
 
 // A filled slot's details, a tap or a click away (Decision 5: the board stays the game's picture)
 const slotNote = (slot, sushiName) => <Stack gap={0.5}>
@@ -35,14 +33,14 @@ const slotNote = (slot, sushiName) => <Stack gap={0.5}>
 </Stack>;
 
 const Sushi = ({ slots, knowledge, fireplaces }) => {
-  const board = Array.from({ length: SLOT_COUNT }, (_, i) => slots?.[i] ?? EMPTY_SLOT);
-  const hearths = Array.from({ length: COLUMNS }, (_, i) => fireplaces?.[i] ?? { index: i, type: -1, active: false });
+  const board = slots ?? [];
+  const hearths = fireplaces ?? [];
   const filled = board.filter((slot) => slot.tier >= 0).length;
 
   return (
     <Stack gap={3}>
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-        <StatTile label={'Slots filled'} value={`${formatNum(filled)} / ${formatNum(SLOT_COUNT)}`}/>
+        <StatTile label={'Slots filled'} value={`${formatNum(filled)} / ${formatNum(board.length)}`}/>
       </Stack>
       {/* The 15-wide grid keeps the game's layout; on a phone it scrolls on its own instead of widening the page */}
       <Box sx={{ maxWidth: '100%', overflowX: 'auto' }}>

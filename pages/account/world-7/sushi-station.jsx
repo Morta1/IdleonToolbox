@@ -37,6 +37,7 @@ const SushiStation = () => {
 
   const {
     uniqueSushi,
+    nextFuelCost,
     fuel,
     currency,
     upgrades,
@@ -54,8 +55,6 @@ const SushiStation = () => {
   const overtuned = currency?.overtuned;
   const nextTier = uniqueSushi ?? 0;
   const nextSushi = nextTier < (rogBonuses?.length ?? 0) ? knowledge?.[nextTier] : null;
-  // The fuel to cook the next tier, as the page already works it out (the game's SushiStuff.FuelCost; Leftovers: parser)
-  const nextFuelCost = nextTier === 5 ? 176 : 10 * Math.pow(1.83, nextTier) - Math.pow(nextTier, 2);
   // Decision 8: a chance past 100% is a certain Perfecto
   const perfectoChance = Math.min(100, (sushiCooking?.perfectOdds ?? 0) * 100);
   const sparkBreakdown = buildMultiBreakdown({
@@ -68,7 +67,7 @@ const SushiStation = () => {
     breakpoints: sparkBonus?.nextBreakpoints,
     extraSources: [
       info('Potassium fireplaces', sparkBonus?.potassiumCount ?? 0, {
-        formatted: `${formatNum(sparkBonus?.potassiumCount ?? 0)} / 15`
+        formatted: `${formatNum(sparkBonus?.potassiumCount ?? 0)} / ${formatNum(fireplaces?.length ?? 0)}`
       }),
       info('Boosts', 0, { formatted: 'All fireplace bonuses' }),
       info('Each 0.01x costs', 0, { formatted: '~4x the previous sparks' })

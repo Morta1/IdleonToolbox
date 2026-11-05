@@ -16,6 +16,13 @@ import { DOUBLER_SPELUNK_ROW, getDoublerMulti, isDoublerEligible } from '@parser
 // game: "MaxTier" (a literal there; the name table here follows it)
 const MAX_TIER = ((researchData as any[])?.[30]?.length ?? 1) - 1;
 
+// game: the board is 15 columns of 8 slots, a fireplace under each column
+const SUSHI_SLOTS = 120;
+const SUSHI_COLUMNS = 15;
+
+// game: "SushiStuff:FuelCost", the fuel to cook a tier
+const getNextFuelCost = (tier: number) => (tier === 5 ? 176 : 10 * Math.pow(1.83, tier) - Math.pow(tier, 2));
+
 const getRawSushi = (idleonData: any) => {
   const raw = tryToParse(idleonData?.Sushi) || idleonData?.Sushi;
   return Array.isArray(raw) ? raw : [];
@@ -301,19 +308,22 @@ export const getSushiStation = (idleonData: any, account: any) => {
 
   // Total currency per hour
   let currencyPerHR = 0;
-  for (let i = 0; i < 120; i++) {
+  for (let i = 0; i < SUSHI_SLOTS; i++) {
     if ((slotTiers[i] ?? -1) >= 0) {
       currencyPerHR += getCurrencyPerSlot(i);
     }
   }
 
   // --- Slots ---
-  const slots = slotTiers.slice(0, 120).map((tier: number, i: number) => ({
-    tier,
-    slotEffect: slotEffects[i] ?? -1,
-    fireplaceType: fireplaceTypes[i % 15] ?? -1,
-    currencyPerSlot: tier >= 0 ? getCurrencyPerSlot(i) : 0
-  }));
+  const slots = Array.from({ length: SUSHI_SLOTS }, (_, i) => {
+    const tier = slotTiers[i] ?? -1;
+    return {
+      tier,
+      slotEffect: slotEffects[i] ?? -1,
+      fireplaceType: fireplaceTypes[i % SUSHI_COLUMNS] ?? -1,
+      currencyPerSlot: tier >= 0 ? getCurrencyPerSlot(i) : 0
+    };
+  });
 
   // --- Cooking ---
   const maxCookTier = Math.round(getUpgradeQTY(idleonData, upgradeLevels, 6));
@@ -391,15 +401,15 @@ export const getSushiStation = (idleonData: any, account: any) => {
   const nextUnperfectedIdx = knowledge.findIndex(k => k.discovered && !k.perfecto);
 
   // --- Fireplaces ---
-  const fireplaces = fireplaceTypes.map((type: number, i: number) => ({
-    index: i,
-    type,
-    active: type >= 0
-  }));
+  const fireplaces = Array.from({ length: SUSHI_COLUMNS }, (_, i) => {
+    const type = fireplaceTypes[i] ?? -1;
+    return { index: i, type, active: type >= 0 };
+  });
 
   return {
     unlocked,
     uniqueSushi,
+    nextFuelCost: getNextFuelCost(uniqueSushi),
     fuel: { current: fuel, cap: fuelCap, generation: fuelGen },
     currency: {
       bucks, currencyMulti, currencyPerHR, overtunedMulti,
