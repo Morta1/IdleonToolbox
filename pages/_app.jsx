@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Router, { useRouter } from 'next/router';
 import { CacheProvider, ThemeProvider as EmotionThemeProvider } from '@emotion/react';
 import { CssBaseline, ThemeProvider } from '@mui/material';
@@ -17,7 +17,7 @@ import DataLoadingWrapper from '../components/common/DataLoadingWrapper';
 import ConsentScripts from '@components/common/Etc/ContentScripts';
 import { CookieConsent } from 'react-cookie-consent';
 import ConsentBannerHeight from '@components/common/Etc/ConsentBannerHeight';
-import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
+import CookiePolicyDialog, { openCookiePolicy } from '@components/common/Etc/CookiePolicyDialog';
 import Button from '@mui/material/Button';
 import useGdprRegion, { getConsentObject } from '../hooks/useGdprRegion';
 import DynamicBreadcrumbs from '@components/common/DynamicBreadcrumbs';
@@ -55,7 +55,6 @@ const preConnections = [
 
 const MyApp = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
-  const [openPolicy, setOpenPolicy] = useState(false);
   const router = useRouter();
   const { asPath, pathname } = router;
   // Pages generated from a dynamic route share one PAGE_SEO entry, so they carry their own
@@ -149,7 +148,7 @@ const MyApp = (props) => {
         {/* The banner sits outside the ThemeProvider, so this button gets MUI's default theme (a dark blue in
             capitals): its case and the theme's primary color, 6.9:1 on the banner, are written here. */}
         <Button variant={'text'} sx={{ height: 24, px: 1, fontSize: 12, textTransform: 'none', color: 'var(--mui-palette-primary-main)' }}
-                onClick={() => setOpenPolicy(true)}>Learn
+                onClick={openCookiePolicy}>Learn
           more</Button>
       </CookieConsent>}
       </ConsentBannerHeight>
@@ -189,7 +188,7 @@ const MyApp = (props) => {
       <CacheProvider value={emotionCache}>
         <ThemeProvider theme={darkTheme}>
           <EmotionThemeProvider theme={darkTheme}>
-            <CookiePolicyDialog open={openPolicy} onClose={() => setOpenPolicy(false)}/>
+            <CookiePolicyDialog/>
             <CssBaseline/>
             <RouteProgress/>
             {/* Outer net for the shell itself (providers, NavBar). Still beats a blank root. */}

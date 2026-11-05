@@ -24,6 +24,7 @@ import {
   addRecent, emptyBox, PINS_SHOWN, recentEntry, searchToolbox, WIKI_MAX, WIKI_SHOWN, wikiMatches, wikiRow
 } from '@utility/search/quickSearch';
 import { AppContext, shownCharacters, shownFilters } from '@components/common/context/AppProvider';
+import usePin from '@components/common/favorites/usePin';
 import EntityIcon from '@components/wiki/EntityIcon';
 import { touchTarget } from '../../styles/theme/darkTheme';
 import Notice from '@components/common/Notice';
@@ -122,6 +123,7 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const router = useRouter();
   const { state, dispatch } = useContext(AppContext);
+  const { pinnedPages } = usePin();
   const updateQuery = sessionQuery(router?.query);
 
   // The pages left on this device, newest first. No default: a visitor who never moves writes nothing.
@@ -207,7 +209,7 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
   } : null;
   // GA's results_count: the toolbox's exact rows and the wiki's.
   const count = results.count + wiki.length;
-  const box = emptyBox({ pins: state?.pinnedPages, recent, currentUrl: router?.pathname });
+  const box = emptyBox({ pins: pinnedPages, recent, currentUrl: router?.pathname });
   const pinsHidden = showAllPins ? 0 : Math.max(0, box.pins.length - PINS_SHOWN);
   // A term shows the toolbox's results; the empty box shows the pinned pages, then the recent ones
   // (Search board, "Useful when empty").

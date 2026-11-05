@@ -13,6 +13,7 @@ import { readLocalStorageValue } from '@mantine/hooks';
 import { simulatedCompanionsKey } from '@components/constants';
 import { parseSave } from '@utility/parseSave';
 import { shrinkStoredSnapshots } from '@utility/activeCalculatorSnapshot';
+import { removeDeadStorageKeys } from '@utility/deadStorageKeys';
 import { describeLoginError, toLoginError } from '@utility/loginErrors';
 
 export const AppContext = createContext({});
@@ -24,7 +25,6 @@ export const ACTION_TYPES = {
   DISPLAYED_CHARACTERS: 'displayedCharacters',
   FILTERS: 'filters',
   SEARCH_FILTERS: 'searchFilters',
-  PINNED_PAGES: 'pinnedPages',
   PLANNER: 'planner',
   TRACKERS: 'trackers',
   GOD_PLANNER: 'godPlanner',
@@ -59,9 +59,9 @@ export function appReducer(state, action) {
     // user's uid and token. A whitelist drops any future session key by default. storageHydrated
     // rides along too, or the persist effect would skip every write after a logout.
     [ACTION_TYPES.LOGOUT]: () => {
-      const { filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings, storageHydrated } = state;
+      const { filters, displayedCharacters, trackers, godPlanner, planner, settings, storageHydrated } = state;
       return {
-        filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings,
+        filters, displayedCharacters, trackers, godPlanner, planner, settings,
         storageHydrated,
         signedIn: false,
         isLoading: false
@@ -74,7 +74,6 @@ export function appReducer(state, action) {
     // A chip the player picks replaces the search's temporary ones (see shownFilters)
     [ACTION_TYPES.FILTERS]: () => ({ ...state, filters: action.data, searchFilters: undefined }),
     [ACTION_TYPES.SEARCH_FILTERS]: () => ({ ...state, searchFilters: action.data }),
-    [ACTION_TYPES.PINNED_PAGES]: () => ({ ...state, pinnedPages: action.data }),
     [ACTION_TYPES.PLANNER]: () => ({ ...state, planner: action.data }),
     [ACTION_TYPES.TRACKERS]: () => ({ ...state, trackers: action.data }),
     [ACTION_TYPES.GOD_PLANNER]: () => ({ ...state, godPlanner: action.data }),
@@ -93,7 +92,6 @@ export function appReducer(state, action) {
 
 const STORAGE_KEYS = [
   'filters',
-  'pinnedPages',
   'displayedCharacters',
   'trackers',
   'godPlanner',
@@ -108,31 +106,22 @@ const STORAGE_KEYS = [
 // wait for via storageHydrated.
 export const DEFAULT_STATE = {
   isLoading: true,
-  pinnedPages: [],
   storageHydrated: false
 };
 
 // Call only from an effect: reading storage during render would make the first client render
 // differ from the export, and React answers a mismatch by re-rendering the whole page.
-export const readStoredState = () => {
-  const loadedState = STORAGE_KEYS.reduce((state, key) => {
-    try {
-      const value = localStorage.getItem(key);
-      if (value) {
-        state[key] = JSON.parse(value);
-      }
-    } catch (err) {
-      console.warn(`Failed to parse ${key} from localStorage:`, err);
+export const readStoredState = () => STORAGE_KEYS.reduce((state, key) => {
+  try {
+    const value = localStorage.getItem(key);
+    if (value) {
+      state[key] = JSON.parse(value);
     }
-    return state;
-  }, {});
-
-  if (!loadedState.pinnedPages) {
-    loadedState.pinnedPages = [];
+  } catch (err) {
+    console.warn(`Failed to parse ${key} from localStorage:`, err);
   }
-
-  return loadedState;
-};
+  return state;
+}, {});
 
 // A visitor with site data blocked gets a SecurityError from every localStorage touch, and the
 // persist effect runs on the first render of every page, so an unguarded write would reach the
@@ -318,6 +307,7 @@ const AppProvider = ({ children }) => {
   // effect's position: dispatching here flips the flag and re-runs it with the stored values.
   useEffect(() => {
     shrinkStoredSnapshots();
+    removeDeadStorageKeys();
     dispatch({ type: ACTION_TYPES.HYDRATE_STORAGE, data: readStoredState() });
   }, []);
 
@@ -516,9 +506,6 @@ const AppProvider = ({ children }) => {
     if (state?.filters) {
       writeStored('filters', state.filters);
     }
-    if (state?.pinnedPages) {
-      writeStored('pinnedPages', state.pinnedPages);
-    }
     if (state?.displayedCharacters) {
       writeStored('displayedCharacters', state.displayedCharacters);
     }
@@ -540,7 +527,6 @@ const AppProvider = ({ children }) => {
     }
   }, [
     state?.trackers,
-    state?.pinnedPages,
     state?.filters,
     state?.displayedCharacters,
     state?.planner,

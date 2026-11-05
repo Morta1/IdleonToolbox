@@ -15,7 +15,6 @@ vi.mock('@utility/helpers', async (importOriginal) => ({
   handleDownload: (...args) => handleDownload(...args)
 }));
 
-const { AppContext } = await import('@components/common/context/AppProvider');
 const PinnedPages = (await import('@components/common/favorites/PinnedPages')).default;
 const SnackbarHost = (await import('@components/common/Overlays/SnackbarHost')).default;
 
@@ -24,16 +23,15 @@ const pins = [
   { name: 'alchemy', url: '/account/worlds/alchemy', tab: 'Bubbles' }
 ];
 
-const dispatch = vi.fn();
-
-const renderPinned = (pinnedPages) => render(
-  <ThemeProvider theme={darkTheme}>
-    <AppContext.Provider value={{ state: { pinnedPages }, dispatch }}>
+const renderPinned = (pinnedPages) => {
+  localStorage.setItem('pinnedPages', JSON.stringify(pinnedPages));
+  return render(
+    <ThemeProvider theme={darkTheme}>
       <PinnedPages/>
       <SnackbarHost/>
-    </AppContext.Provider>
-  </ThemeProvider>
-);
+    </ThemeProvider>
+  );
+};
 
 // The actions live inside the popover, so every test opens it first.
 const openPopover = () => fireEvent.click(screen.getByText('Pinned pages'));
@@ -46,7 +44,6 @@ const uploadFile = (contents) => {
 describe('PinnedPages export/import', () => {
   beforeEach(() => {
     localStorage.clear();
-    dispatch.mockClear();
     handleDownload.mockClear();
   });
 
@@ -63,12 +60,12 @@ describe('PinnedPages export/import', () => {
     expect(screen.getByRole('button', { name: 'Export' }).disabled).toBe(true);
   });
 
-  it('imports pins from a file into state and localStorage', async () => {
+  it('imports pins from a file into localStorage, and the list reads them', async () => {
     renderPinned([]);
     openPopover();
     uploadFile(JSON.stringify(pins));
-    await waitFor(() => expect(dispatch).toHaveBeenCalledWith({ type: 'pinnedPages', data: pins }));
-    expect(JSON.parse(localStorage.getItem('pinnedPages'))).toEqual(pins);
+    await waitFor(() => expect(JSON.parse(localStorage.getItem('pinnedPages'))).toEqual(pins));
+    expect(screen.getByRole('button', { name: 'Export' }).disabled).toBe(false);
     expect(within(screen.getByRole('status')).getByText('Imported 2 pinned pages')).toBeTruthy();
   });
 
@@ -78,7 +75,6 @@ describe('PinnedPages export/import', () => {
     openPopover();
     uploadFile(JSON.stringify({ account: {}, characters: {} }));
     await waitFor(() => expect(within(screen.getByRole('status')).getByText('That file doesn\'t contain pinned pages')).toBeTruthy());
-    expect(dispatch).not.toHaveBeenCalled();
-    expect(localStorage.getItem('pinnedPages')).toBeNull();
+    expect(JSON.parse(localStorage.getItem('pinnedPages'))).toEqual(pins);
   });
 });

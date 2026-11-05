@@ -1,3 +1,4 @@
+import { useSyncExternalStore } from 'react';
 import {
   Button,
   Link as MuiLink,
@@ -8,7 +9,22 @@ import {
 } from '@mui/material';
 import AppDialog from '@components/common/Overlays/AppDialog';
 
-export default function CookiePolicyDialog({ open, onClose }) {
+// One dialog, in _app, for the banner's Learn more and the footer's Cookie Policy: either opens it from here.
+let opened = false;
+const listeners = new Set();
+const setOpened = (value) => {
+  opened = value;
+  listeners.forEach((listener) => listener());
+};
+export const openCookiePolicy = () => setOpened(true);
+const subscribe = (listener) => {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
+};
+
+export default function CookiePolicyDialog() {
+  const open = useSyncExternalStore(subscribe, () => opened, () => false);
+  const onClose = () => setOpened(false);
   const handleRevokeConsent = () => {
     document.cookie = 'idleon-consent=; Max-Age=0; path=/';
     location.reload();

@@ -1,10 +1,14 @@
 import { useRouter } from 'next/router';
-import { useContext } from 'react';
-import { AppContext } from '@components/common/context/AppProvider';
+import { useLocalStorage } from '@mantine/hooks';
 import { PAGE_BY_URL } from '@utility/pageIndex';
 
+const NO_PINS = [];
+
 const usePin = () => {
-  const { dispatch, state } = useContext(AppContext);
+  // No defaultValue, so a visitor with no pins stores nothing. Mantine reads storage in an effect: the export and the
+  // first client render have no pins, and every reader of this hook moves together.
+  const [stored, setPinnedPages] = useLocalStorage({ key: 'pinnedPages' });
+  const pinnedPages = Array.isArray(stored) ? stored : NO_PINS;
   const router = useRouter();
   // One rule for showing a page as pinned and for pinning or unpinning it: the same route and the same tabs, exactly.
   // A substring match lit the star on pages whose name contains a pinned one, and a pin with no tab on every tab.
@@ -18,18 +22,17 @@ const usePin = () => {
     tabKey(tab) === tabKey(t) &&
     (nestedTab ?? null) === (nt ?? null) &&
     (deeplyNestedTab ?? null) === (dnt ?? null);
-  const isPinned = state.pinnedPages?.find(isThisPin);
+  const isPinned = pinnedPages.find(isThisPin);
 
   const togglePin = () => {
-    const exist = state?.pinnedPages?.find(isThisPin);
-    let updatePinnedPages = [...(state?.pinnedPages || [])];
+    const exist = pinnedPages.find(isThisPin);
+    let updatePinnedPages = [...pinnedPages];
     if (exist) {
       updatePinnedPages = updatePinnedPages.filter((pin) => !isThisPin(pin));
     } else {
       updatePinnedPages.push({ name: pageName, tab: t, nestedTab: nt, deeplyNestedTab: dnt, url: router.pathname })
     }
-    localStorage.setItem('pinnedPages', JSON.stringify(updatePinnedPages));
-    dispatch({ type: 'pinnedPages', data: updatePinnedPages });
+    setPinnedPages(updatePinnedPages);
 
     if (typeof window.gtag !== 'undefined') {
       window.gtag('event', exist ? 'page_unpinned' : 'page_pinned', {
@@ -41,11 +44,9 @@ const usePin = () => {
   }
 
   const removePin = (index) => {
-    let updatePinnedPages = [...(state?.pinnedPages || [])];
-    const removed = updatePinnedPages[index];
-    updatePinnedPages = updatePinnedPages.filter((_, ind) => ind !== index);
-    localStorage.setItem('pinnedPages', JSON.stringify(updatePinnedPages));
-    dispatch({ type: 'pinnedPages', data: updatePinnedPages });
+    const removed = pinnedPages[index];
+    const updatePinnedPages = pinnedPages.filter((_, ind) => ind !== index);
+    setPinnedPages(updatePinnedPages);
     if (removed && typeof window.gtag !== 'undefined') {
       window.gtag('event', 'page_unpinned', {
         event_category: 'engagement',
@@ -55,17 +56,7 @@ const usePin = () => {
     }
   }
 
-  const reorderPins = (newOrder) => {
-    localStorage.setItem('pinnedPages', JSON.stringify(newOrder));
-    dispatch({ type: 'pinnedPages', data: newOrder });
-  }
-
-  const setPins = (pages) => {
-    localStorage.setItem('pinnedPages', JSON.stringify(pages));
-    dispatch({ type: 'pinnedPages', data: pages });
-  }
-
-  return { pinnedPages: state.pinnedPages, isPinned, togglePin, removePin, reorderPins, setPins };
+  return { pinnedPages, isPinned, togglePin, removePin, reorderPins: setPinnedPages, setPins: setPinnedPages };
 };
 
 export default usePin;

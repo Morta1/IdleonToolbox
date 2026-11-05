@@ -17,7 +17,7 @@ import useFormatDate from '@hooks/useFormatDate';
 import AuthSkeleton from './AuthSkeleton';
 import { BottomBannerAd, SideAds } from '@components/common/Ads/AdUnit';
 import ProfileBanner from './ProfileBanner';
-import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
+import { openCookiePolicy } from '@components/common/Etc/CookiePolicyDialog';
 import { DISCORD_BOT_INSTALL_URL, DISCORD_SERVER_URL, trackBotInstallClick } from '@components/discordLinks';
 import NextLink from 'next/link';
 import { sessionQuery } from '@utility/nav-query';
@@ -31,7 +31,6 @@ import PageHeader, { PageHeaderSlots } from './PageHeader';
 const NavBar = ({ children }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
-  const [openPolicy, setOpenPolicy] = useState(false);
   const formatDate = useFormatDate();
   const prefetch = useNavPrefetch();
   // The bar's open menu ('account', 'tools' or null) and the phone menu (null, or { group } it opened at). A page
@@ -154,12 +153,11 @@ const NavBar = ({ children }) => {
           <FooterDot/>
           <Link component="button" variant="caption" color="text.secondary"
                 sx={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
-                onClick={() => setOpenPolicy(true)}>
+                onClick={openCookiePolicy}>
             Cookie Policy
           </Link>
         </Stack>
       </Stack>
-      <CookiePolicyDialog open={openPolicy} onClose={() => setOpenPolicy(false)}/>
     </Box>
     <BottomBannerAd/>
   </>

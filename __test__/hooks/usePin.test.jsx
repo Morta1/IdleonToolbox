@@ -6,7 +6,6 @@ import { act, renderHook } from '@testing-library/react';
 const router = vi.hoisted(() => ({ pathname: '/account/worlds/alchemy', query: {} }));
 vi.mock('next/router', () => ({ useRouter: () => router }));
 
-const { AppContext } = await import('@components/common/context/AppProvider');
 const { default: usePin } = await import('@components/common/favorites/usePin');
 
 const pins = [
@@ -20,13 +19,10 @@ const pins = [
 const togglePinOn = (query, pathname = '/account/worlds/alchemy') => {
   router.pathname = pathname;
   router.query = query;
-  const dispatch = vi.fn();
-  const wrapper = ({ children }) => (
-    <AppContext.Provider value={{ state: { pinnedPages: pins }, dispatch }}>{children}</AppContext.Provider>
-  );
-  const { result } = renderHook(usePin, { wrapper });
+  localStorage.setItem('pinnedPages', JSON.stringify(pins));
+  const { result } = renderHook(usePin);
   act(() => result.current.togglePin());
-  return dispatch.mock.calls[0][0].data;
+  return result.current.pinnedPages;
 };
 
 describe('usePin togglePin', () => {
@@ -45,5 +41,12 @@ describe('usePin togglePin', () => {
       ...pins,
       { name: 'alchemy', tab: 'Liquid', nestedTab: undefined, deeplyNestedTab: undefined, url: '/account/worlds/alchemy' }
     ]);
+  });
+
+  it('reads saved pins as they are, and treats junk in the key as no pins', () => {
+    localStorage.setItem('pinnedPages', JSON.stringify(pins));
+    expect(renderHook(usePin).result.current.pinnedPages).toEqual(pins);
+    localStorage.setItem('pinnedPages', 'not json');
+    expect(renderHook(usePin).result.current.pinnedPages).toEqual([]);
   });
 });
