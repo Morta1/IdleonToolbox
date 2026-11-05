@@ -23,47 +23,11 @@ import Panel from '@components/common/cards/Panel';
 import Num from '@components/common/Num';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
+import { quantityForPoints } from '@components/account/Worlds/World4/tomeQuantity';
 
 const RANKS = ['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '80%', '90%', '95%'];
 const TOME_TOOLBAR = { search: '', hideMaxed: false, view: 'cards' };
 const TIERS = ['bronze', 'silver', 'gold', 'blue'];
-
-// The quantity an entry needs for a number of points, the inverse of its curve (points = ceil(percent * x3)); Infinity
-// when the curve never reaches it, null when the entry has no curve
-const requiredQuantity = (bonus, points) => {
-  const { x1, x2, x3 } = bonus || {};
-  if (!x1 || x2 === undefined || !x3 || !points || points <= 0) return null;
-  const targetPercent = (points - 0.5) / x3;
-  // Linear
-  if (x2 === 2) return Math.ceil(targetPercent * x1);
-  // Diminishing returns
-  if (x2 === 4) {
-    const base = Math.pow(targetPercent, 1 / 0.7);
-    if (base >= 2) return Infinity;
-    return Math.ceil((base * x1) / (2 - base));
-  }
-  // Reversed: lower is better
-  if (x2 === 3) {
-    const base = Math.pow(targetPercent, 1 / 5);
-    if (base >= 1.2) return 0;
-    return Math.ceil(Math.max(0, (1.2 * 6 * x1 - base * 7 * x1) / (1.2 - base)));
-  }
-  // Exponential
-  if (x2 === 0) {
-    const base = Math.pow(targetPercent, 1 / 0.7);
-    if (base >= 1.7) return Infinity;
-    return Math.ceil((base * x1) / (1.7 - base));
-  }
-  // Logarithmic
-  if (x2 === 1) {
-    const denom = 2 * targetPercent - 2.4;
-    if (denom === 0) return Infinity;
-    const logQ = -(targetPercent * x1) / denom;
-    if (logQ <= 0) return Infinity;
-    return Math.ceil(Math.pow(10, logQ));
-  }
-  return null;
-};
 
 // The rank's word art ("TOP 25%", a 102 x 17 canvas) beside its words at its own size, cropped to the letters it draws:
 // StatTile's 24 px icon shrank it past reading, and pixel art never scales up (5e's Bell). Until the bounds arrive it
@@ -110,7 +74,7 @@ const tierFills = (bonus) => {
 // The calculator's own number: the points the player aims for, and the quantity that takes
 const QuantityCalculator = ({ bonus, maxPoints }) => {
   const [targetPoints, setTargetPoints] = useState(null);
-  const quantity = targetPoints > 0 && targetPoints <= maxPoints ? requiredQuantity(bonus, targetPoints) : null;
+  const quantity = targetPoints > 0 && targetPoints <= maxPoints ? quantityForPoints(bonus, targetPoints) : null;
   const result = !targetPoints ? null
     : targetPoints > maxPoints ? `Past the max of ${formatGame(maxPoints, 'Summoning.TomePTS', { whole: true })}`
       : quantity === Infinity ? 'Out of reach'
@@ -127,7 +91,7 @@ const detailsSection = (bonus, tier) => {
   const { requiredQuantities, points = 0, maxPoints = 0, x2 } = bonus ?? {};
   // A locked entry has no tier, so its bar draws empty
   const fills = tier ? tierFills(bonus) : [0, 0, 0];
-  const maxQuantity = maxPoints ? requiredQuantity(bonus, maxPoints) : null;
+  const maxQuantity = maxPoints ? quantityForPoints(bonus, maxPoints) : null;
   return <>
     <ItemCard.Section label={'Tiers'}>
       <ItemCard.Facts rows={[
@@ -149,6 +113,8 @@ const detailsSection = (bonus, tier) => {
                          max={<Num value={maxPoints} game={'Summoning.TomePTS'} whole/>}/>
       <ItemCard.Facts rows={[maxQuantity === null ? null
         : ['Max at', maxQuantity === Infinity ? 'Out of reach' : tomeQuantity(bonus, maxQuantity, { whole: true })]]}/>
+    </ItemCard.Section> : null}
+    {maxPoints ? <ItemCard.Section label={'Calculator'}>
       <QuantityCalculator bonus={bonus} maxPoints={maxPoints}/>
     </ItemCard.Section> : null}
   </>;

@@ -1,10 +1,12 @@
-import { Box, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
+import { Stack } from '@mui/material';
 import { useContext, useState } from 'react';
 import { getCharacterByHighestSkillLevel } from '../../../../../parsers/misc';
 import { AppContext } from '../../../../common/context/AppProvider';
 import { formatNum } from '@utility/helpers';
+import Panel from '@components/common/cards/Panel';
 import StatTile from '@components/common/cards/StatTile';
 import DataTable from '@components/common/DataTable';
+import ViewSwitch from '@components/common/ViewSwitch';
 
 const COG_TYPES = [[2, 'Nooby'], [3, 'Decent'], [4, 'Superb'], [5, 'Ultimate']];
 
@@ -39,16 +41,14 @@ const CogStatCalculator = () => {
         {/* The value a cog of this type centres on (the old page's "main"); the table's row is the range it rolls in */}
         <StatTile label={'Main construction value'} value={formatNum(mainConstructionValue, 'amount', { precise: true })}/>
       </Stack>
-      <Stack gap={0.5}>
-        <Typography variant={'caption'} color={'text.secondary'}>Cog type</Typography>
-        <ToggleButtonGroup exclusive value={cogType} aria-label={'Cog type'}
-                           onChange={(event, next) => (next != null ? setCogType(Number(next)) : null)}>
-          {COG_TYPES.map(([value, label]) => <ToggleButton key={value} value={value}>{label}</ToggleButton>)}
-        </ToggleButtonGroup>
-      </Stack>
-      <Box sx={{ width: { xs: '100%', sm: 'fit-content' }, maxWidth: '100%' }}>
-        <DataTable fits columns={COLUMNS} rows={rows} rowKey={'stat'} surface={'card'}/>
-      </Box>
+      <Panel title={'Cog stat calculator'} sx={{ width: { xs: '100%', sm: 'fit-content' }, maxWidth: '100%' }}>
+        <Panel.Inputs>
+          <Panel.InputGroup label={'Cog type'}>
+            <ViewSwitch size={'medium'} label={'Cog type'} options={COG_TYPES} value={cogType} onChange={setCogType}/>
+          </Panel.InputGroup>
+        </Panel.Inputs>
+        <DataTable fits columns={COLUMNS} rows={rows} rowKey={'stat'}/>
+      </Panel>
     </Stack>
   )
 };

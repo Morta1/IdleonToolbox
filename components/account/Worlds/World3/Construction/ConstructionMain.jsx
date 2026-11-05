@@ -40,6 +40,8 @@ import { notify } from '@components/common/Overlays/notify';
 import Toolbar from '@components/common/Toolbar';
 import InfoButton from '@components/common/InfoButton';
 import Notice from '@components/common/Notice';
+import Panel, { FIELD_INFO_SX } from '@components/common/cards/Panel';
+import ViewSwitch from '@components/common/ViewSwitch';
 
 // The board pins under the fixed nav bar so it stays in view while the steps list scrolls beside it:
 // the step highlight is useless if the board it lights up is three screens away.
@@ -224,9 +226,9 @@ const ConstructionMain = () => {
 
         {/* The optimizer's controls run across the top: wide-and-short by nature, keeping them out of the
             right column leaves the whole viewport height for the steps list. */}
-        <Paper ref={stripRef} variant={'outlined'} sx={{ p: 2, minWidth: 0 }}>
-          <Stack gap={1}>
-            <Stack direction={'row'} gap={2} rowGap={1.5} flexWrap={'wrap'} alignItems={'flex-end'}>
+        <Box ref={stripRef} sx={{ minWidth: 0 }}>
+          <Panel title={'Optimizer'}>
+            <Panel.Inputs>
               <TextField select label={'Optimize for'} value={stat} disabled={running} sx={{ minWidth: 180 }}
                          onChange={(event) => handleStatChange(event.target.value)}>
                 <MenuItem value={'totalBuildRate'}>Build speed</MenuItem>
@@ -245,7 +247,7 @@ const ConstructionMain = () => {
                                                    disabled={running}
                                                    sx={{ width: 76 }}
                                                    onChange={(next) => handleWeightChange(key, next ?? 0)}/>) : null}
-              {totalCharacters > 0 ? <Stack direction={'row'} alignItems={'center'} gap={0.75}>
+              {totalCharacters > 0 ? <Stack direction={'row'} alignItems={'flex-end'} gap={0.5}>
                 {/* No help line: it would drop this field out of line with the rest of the flex-end row */}
                 <NumberField label={'Max characters'}
                              value={maxCharacters === '' ? null : Number(maxCharacters)}
@@ -256,19 +258,14 @@ const ConstructionMain = () => {
                              disabled={running}
                              sx={{ width: 120 }}
                              onChange={(next) => setMaxCharacters(next ?? '')}/>
-                <InfoButton label={'Max characters'}>
+                <InfoButton label={'Max characters'} sx={FIELD_INFO_SX}>
                   Characters on the board stop making cogs, so the optimizer only uses this many.
                 </InfoButton>
               </Stack> : null}
-              <Stack gap={0.5}>
-                <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>Effort</Typography>
-                <ToggleButtonGroup exclusive value={computeSeconds} disabled={running} aria-label={'Effort'}
-                                   onChange={(e, value) => (value ? setComputeSeconds(value) : null)}>
-                  {COMPUTE_PRESETS.map(({ label, seconds }) => <ToggleButton key={label} value={seconds}>
-                    {label}
-                  </ToggleButton>)}
-                </ToggleButtonGroup>
-              </Stack>
+              <Panel.InputGroup label={'Effort'}>
+                <ViewSwitch size={'medium'} label={'Effort'} disabled={running} value={computeSeconds} onChange={setComputeSeconds}
+                            options={COMPUTE_PRESETS.map(({ label, seconds }) => [seconds, label])}/>
+              </Panel.InputGroup>
               {running
                 ? <Stack direction={'row'} alignItems={'center'} gap={1}>
                   <CircularProgress size={16}/>
@@ -307,53 +304,55 @@ const ConstructionMain = () => {
                   <ListItemIcon><OpenInNewIcon/></ListItemIcon><ListItemText>Cogstruction on GitHub</ListItemText>
                 </MenuItem>
               </Menu>
-            </Stack>
-            {running ? <LinearProgress variant={'determinate'} value={progress * 100}
-                                       sx={{ height: 6, borderRadius: 3 }}/> : null}
-            {error ? <Notice tone={'error'}>{error}</Notice> : null}
-            {/* Nobody knows up front whether the swaps worth making run out at three or at fifteen,
-                so the run answers it: each budget with what it actually buys. The cheapest one that
-                already gets effectively the whole gain starts selected. */}
-            {plans.length > 0 && !running
-              ? <Stack gap={0.5}>
-                <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-                  <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>Plan</Typography>
-                  <InfoButton label={'Plan'}>
-                    How much of the gain each swap budget buys. Fewer swaps means less dragging in game, and the gain
-                    usually flattens out well before the full plan.
-                  </InfoButton>
+            </Panel.Inputs>
+            {running || error || plans.length > 0 ? <Stack gap={1} sx={{ p: 2 }}>
+              {running ? <LinearProgress variant={'determinate'} value={progress * 100}
+                                         sx={{ height: 6, borderRadius: 3 }}/> : null}
+              {error ? <Notice tone={'error'}>{error}</Notice> : null}
+              {/* Nobody knows up front whether the swaps worth making run out at three or at fifteen,
+                  so the run answers it: each budget with what it actually buys. The cheapest one that
+                  already gets effectively the whole gain starts selected. */}
+              {plans.length > 0 && !running
+                ? <Stack gap={0.5}>
+                  <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+                    <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>Plan</Typography>
+                    <InfoButton label={'Plan'}>
+                      How much of the gain each swap budget buys. Fewer swaps means less dragging in game, and the gain
+                      usually flattens out well before the full plan.
+                    </InfoButton>
+                  </Stack>
+                  <ToggleButtonGroup exclusive value={optimized?.maxSwaps ?? null} aria-label={'Plan'}
+                                     onChange={(e, value) => (value === undefined ? null : handlePlanChange(value))}
+                                     sx={{ flexWrap: 'wrap', gap: 0.75, '& .MuiToggleButtonGroup-grouped': {
+                                       border: 1, borderColor: 'divider', borderRadius: 1
+                                     } }}>
+                    {plans.map(({ maxSwaps, gain: planGain, moves: planMoves }) => <ToggleButton
+                      key={maxSwaps ?? 'all'} value={maxSwaps} sx={PLAN_CARD_SX}>
+                      <Stack alignItems={'center'} gap={0.25}>
+                        <Typography variant={'caption'} sx={{ lineHeight: 1.4 }}>
+                          {maxSwaps === null
+                            ? `All ${planMoves?.length ?? 0}`
+                            : `${planMoves?.length ?? 0} swap${planMoves?.length === 1 ? '' : 's'}`}
+                        </Typography>
+                        <Typography variant={'caption'} sx={{ color: 'text.secondary', lineHeight: 1.4 }}>
+                          {formatGain(planGain)}
+                        </Typography>
+                      </Stack>
+                    </ToggleButton>)}
+                  </ToggleButtonGroup>
+                  {suggested?.maxSwaps !== null && optimized?.maxSwaps === suggested?.maxSwaps
+                  && !curve?.unlimited?.redundant
+                    ? <Typography variant={'caption'} sx={{ color: 'text.secondary', mt: 0.5 }}>
+                      {suggested.moves?.length} swaps get
+                      you {formatNum((suggested.gain / (curve.unlimited.gain || suggested.gain)) * 100, 'pct')} of
+                      the full {curve.unlimited.moves?.length}-swap plan.
+                    </Typography>
+                    : null}
                 </Stack>
-                <ToggleButtonGroup exclusive value={optimized?.maxSwaps ?? null} aria-label={'Plan'}
-                                   onChange={(e, value) => (value === undefined ? null : handlePlanChange(value))}
-                                   sx={{ flexWrap: 'wrap', gap: 0.75, '& .MuiToggleButtonGroup-grouped': {
-                                     border: 1, borderColor: 'divider', borderRadius: 1
-                                   } }}>
-                  {plans.map(({ maxSwaps, gain: planGain, moves: planMoves }) => <ToggleButton
-                    key={maxSwaps ?? 'all'} value={maxSwaps} sx={PLAN_CARD_SX}>
-                    <Stack alignItems={'center'} gap={0.25}>
-                      <Typography variant={'caption'} sx={{ lineHeight: 1.4 }}>
-                        {maxSwaps === null
-                          ? `All ${planMoves?.length ?? 0}`
-                          : `${planMoves?.length ?? 0} swap${planMoves?.length === 1 ? '' : 's'}`}
-                      </Typography>
-                      <Typography variant={'caption'} sx={{ color: 'text.secondary', lineHeight: 1.4 }}>
-                        {formatGain(planGain)}
-                      </Typography>
-                    </Stack>
-                  </ToggleButton>)}
-                </ToggleButtonGroup>
-                {suggested?.maxSwaps !== null && optimized?.maxSwaps === suggested?.maxSwaps
-                && !curve?.unlimited?.redundant
-                  ? <Typography variant={'caption'} sx={{ color: 'text.secondary', mt: 0.5 }}>
-                    {suggested.moves?.length} swaps get
-                    you {formatNum((suggested.gain / (curve.unlimited.gain || suggested.gain)) * 100, 'pct')} of
-                    the full {curve.unlimited.moves?.length}-swap plan.
-                  </Typography>
-                  : null}
-              </Stack>
-              : null}
-          </Stack>
-        </Paper>
+                : null}
+            </Stack> : null}
+          </Panel>
+        </Box>
         <Box ref={columnsRef} sx={{
           display: 'flex',
           flexDirection: 'column',

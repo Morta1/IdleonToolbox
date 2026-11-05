@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
-import { ninjaExtraInfo } from '@website-data';
+import { ninjaExtraInfo, tomeData } from '@website-data';
+import { quantityForPoints } from '@components/account/Worlds/World4/tomeQuantity';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
 // latest.json is that account's save (OptionsListAccount[340] matches). All three lists are indexed by tome
@@ -127,5 +128,17 @@ describe('tome colour thresholds', () => {
       }
     }
     expect(off).toEqual([]);
+  });
+});
+
+describe('the Tome inverse on a reversed entry', () => {
+  // TomePCT's type 3 and TomePTS, verbatim from the game
+  const gamePoints = ({ x1, x3 }, Q) => Math.ceil((Q > 5 * x1 ? 0 : Math.pow((1.2 * (6 * x1 - Q)) / (7 * x1 - Q), 5)) * x3);
+  const reversed = tomeData.filter(({ x2 }) => x2 === 3);
+
+  it.each(reversed.map((bonus) => [bonus.name, bonus]))('%s tops out at a quantity of 0', (name, bonus) => {
+    const max = gamePoints(bonus, 0);
+    expect(quantityForPoints(bonus, max + 1)).toBe(Infinity);
+    expect(quantityForPoints(bonus, max)).toBeLessThanOrEqual(1);
   });
 });

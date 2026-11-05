@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, FormControl, InputLabel, MenuItem, Select, Stack, Typography } from '@mui/material';
+import { Box, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { useLocalStorage } from '@mantine/hooks';
 import NumberField from '@components/common/NumberField';
 import DataTable from '@components/common/DataTable';
@@ -11,6 +11,7 @@ import ViewSwitch from '@components/common/ViewSwitch';
 import Num from '@components/common/Num';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import Panel, { FIELD_INFO_SX } from '@components/common/cards/Panel';
 import Notice from '@components/common/Notice';
 import { formatNum, parseShorthandNumber } from '@utility/helpers';
 import {
@@ -85,33 +86,21 @@ const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
       </CardGrid>
     </Stack>
 
-    <Stack gap={2}>
-      <Stack direction={'row'} alignItems={'center'} gap={1}>
-        <Typography variant={'sectionTitle'} component={'h2'}>What if</Typography>
-        <InfoButton label={'What if'}>
-          Preview any mastery and floor without moving there. Funeral Flower stacks are per floor and reset when you
-          change mastery, so &quot;Current&quot; stacks only count on the mastery you are on.
-        </InfoButton>
-      </Stack>
+    <Panel title={'What if'} sx={{ maxWidth: 900 }} aside={<InfoButton label={'What if'}>
+      Preview any mastery and floor without moving there. Funeral Flower stacks are per floor and reset when you
+      change mastery, so &quot;Current&quot; stacks only count on the mastery you are on.
+    </InfoButton>}>
       {/* Bottoms aligned: the switch and the i sit on the fields' line, not their labels' */}
-      <Stack direction={'row'} gap={2} alignItems={'flex-end'} flexWrap={'wrap'}>
-        <FormControl size={'small'} sx={{ width: 160 }}>
-          <InputLabel id={'detection-mastery'}>Mastery</InputLabel>
-          <Select labelId={'detection-mastery'} label={'Mastery'} value={mastery}
-                  onChange={(e) => setMastery(e.target.value)}>
-            {masteryOptions.map((value) => <MenuItem key={value} value={value}>
-              {value}{value === currentMastery ? ' (current)' : ''}
-            </MenuItem>)}
-          </Select>
-        </FormControl>
-        <FormControl size={'small'} sx={{ width: 100 }}>
-          <InputLabel id={'detection-floor'}>Floor</InputLabel>
-          <Select labelId={'detection-floor'} label={'Floor'} value={floor}
-                  onChange={(e) => setFloor(e.target.value)}>
-            {Array.from({ length: FLOORS }, (_, index) => <MenuItem key={index} value={index}>{index + 1}</MenuItem>)}
-          </Select>
-        </FormControl>
-        <Stack direction={'row'} alignItems={'center'} gap={1}>
+      <Panel.Inputs>
+        <TextField select label={'Mastery'} value={mastery} sx={{ width: 160 }} onChange={(e) => setMastery(e.target.value)}>
+          {masteryOptions.map((value) => <MenuItem key={value} value={value}>
+            {value}{value === currentMastery ? ' (current)' : ''}
+          </MenuItem>)}
+        </TextField>
+        <TextField select label={'Floor'} value={floor} sx={{ width: 100 }} onChange={(e) => setFloor(e.target.value)}>
+          {Array.from({ length: FLOORS }, (_, index) => <MenuItem key={index} value={index}>{index + 1}</MenuItem>)}
+        </TextField>
+        <Stack direction={'row'} alignItems={'flex-end'} gap={0.5}>
           <NumberField label={'Funeral Flowers'} sx={{ width: 160 }}
                        value={flowersInput === 'current' ? null : Number.isNaN(parsedFlowers) ? null : parsedFlowers}
                        placeholder={`Current (${formatNum(currentFlowers, 'amount')})`}
@@ -119,7 +108,7 @@ const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
                        // Stacks run past a million, where a phone's number pad has no letters for 1.5M.
                        inputMode={'text'}
                        onChange={(next) => setFlowersInput(next ?? 'current')}/>
-          <InfoButton label={'Funeral Flowers'}>
+          <InfoButton label={'Funeral Flowers'} sx={FIELD_INFO_SX}>
             {`Each stack gives +${flowerBonus}% stealth on its floor. Leave empty to use the stacks you have there now. Accepts shorthand like 10K or 1.5M.`}
           </InfoButton>
         </Stack>
@@ -135,9 +124,8 @@ const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
             ninja on the floor by themselves.
           </InfoButton>
         </Stack>
-      </Stack>
-      {ninjas.length ? <Box sx={{ maxWidth: 900 }}>
-        <DataTable
+      </Panel.Inputs>
+      {ninjas.length ? <DataTable
           columns={[
             {
               key: 'ninja', label: 'Ninja', value: ({ playerIndex }) => characters?.[playerIndex]?.name,
@@ -168,10 +156,9 @@ const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
           rows={rows}
           rowKey={'playerIndex'}
           rowLabel={({ playerIndex }) => characters?.[playerIndex]?.name}
-          surface={'card'}
         />
-      </Box> : noNinjas(`Your ninjas' detection on the floor you pick shows here`)}
-    </Stack>
+        : <Box sx={{ p: 2 }}>{noNinjas(`Your ninjas' detection on the floor you pick shows here`)}</Box>}
+    </Panel>
   </Stack>
 };
 

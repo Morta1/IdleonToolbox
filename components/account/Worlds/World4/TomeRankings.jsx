@@ -18,6 +18,7 @@ import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { CLASSIFICATION_TYPES, CLASSIFICATIONS_KEY, classificationsOf, withClassification } from './tomeClassifications';
+import { quantityForPoints } from './tomeQuantity';
 
 const RANK_OPTIONS = [
   { label: 'All players', value: 'all' },
@@ -78,37 +79,6 @@ export const isTomeEntryLocked = (bonus, accountLevel) => (accountLevel ?? 0) < 
 
 const toneText = (tone) => `text.${tone}`;
 const toneFill = (tone) => (tone === 'muted' ? 'text.muted' : `${tone}.main`);
-
-function calcQuantityForPoints({ x1, x2, x3, points }) {
-  if (!x1 || x2 === undefined || !x3 || points <= 0) return null;
-  const targetPercent = (points - 0.5) / x3;
-
-  if (x2 === 2) return Math.ceil(targetPercent * x1);
-  if (x2 === 4) {
-    const base = Math.pow(targetPercent, 1 / 0.7);
-    if (base >= 2) return null;
-    return Math.ceil((base * x1) / (2 - base));
-  }
-  if (x2 === 3) {
-    const base = Math.pow(targetPercent, 1 / 5);
-    if (base >= 1.2) return null;
-    const qty = (1.2 * 6 * x1 - base * 7 * x1) / (1.2 - base);
-    return Math.ceil(Math.max(0, qty));
-  }
-  if (x2 === 0) {
-    const base = Math.pow(targetPercent, 1 / 0.7);
-    if (base >= 1.7) return null;
-    return Math.ceil((base * x1) / (1.7 - base));
-  }
-  if (x2 === 1) {
-    const denom = 2 * targetPercent - 2.4;
-    if (denom === 0) return null;
-    const logQ = -(targetPercent * x1) / denom;
-    if (logQ <= 0) return null;
-    return Math.ceil(Math.pow(10, logQ));
-  }
-  return null;
-}
 
 function ordinal(n) {
   const r = n % 100;
@@ -341,7 +311,7 @@ const TomeRankings = () => {
 // points
 const ExpandedCalculator = ({ row, bounds, percentilePoints, hasUserData, onClassChange }) => {
   const [targetPercentile, setTargetPercentile] = useState(null);
-  const { userPoints, quantity, maxPoints, x1, x2, x3, classification, index: displayIndex } = row;
+  const { userPoints, quantity, maxPoints, classification, index: displayIndex } = row;
 
   let requiredPts = null;
   let gap = null;
@@ -354,18 +324,18 @@ const ExpandedCalculator = ({ row, bounds, percentilePoints, hasUserData, onClas
   }
 
   const nextPointQty = hasUserData && userPoints < maxPoints
-    ? calcQuantityForPoints({ x1, x2, x3, points: userPoints + 1 })
+    ? quantityForPoints(row, userPoints + 1)
     : null;
-  const qtyGap = nextPointQty != null ? nextPointQty - quantity : null;
+  const qtyGap = Number.isFinite(nextPointQty) ? nextPointQty - quantity : null;
   const maxQty = maxPoints
-    ? calcQuantityForPoints({ x1, x2, x3, points: maxPoints })
+    ? quantityForPoints(row, maxPoints)
     : null;
   const requiredQty = requiredPts != null
-    ? calcQuantityForPoints({ x1, x2, x3, points: requiredPts })
+    ? quantityForPoints(row, requiredPts)
     : null;
   const targetText = requiredPts == null ? null
     : !hasUserData || gap == null ? `${formatGame(requiredPts, POINTS, { whole: true })} points`
-      : gap > 0 ? `Needs ${formatGame(requiredPts, POINTS, { whole: true })} points (+${formatGame(gap, POINTS, { whole: true })} to go${requiredQty != null
+      : gap > 0 ? `Needs ${formatGame(requiredPts, POINTS, { whole: true })} points (+${formatGame(gap, POINTS, { whole: true })} to go${Number.isFinite(requiredQty)
         ? `, ${tomeQuantity(row, requiredQty, { whole: true })} quantity` : ''})`
         : <StatusText key={'reached'} status={'done'}>Reached</StatusText>;
 
@@ -374,23 +344,24 @@ const ExpandedCalculator = ({ row, bounds, percentilePoints, hasUserData, onClas
       {hasUserData ? <ItemCard.Facts rows={[
         ['Quantity', tomeQuantity(row, quantity)],
         ['Points', `${formatGame(userPoints ?? 0, POINTS, { whole: true })} / ${formatGame(maxPoints ?? 0, POINTS, { whole: true })}`],
-        maxQty != null ? ['Max quantity', tomeQuantity(row, maxQty, { whole: true })] : null,
+        Number.isFinite(maxQty) ? ['Max quantity', tomeQuantity(row, maxQty, { whole: true })] : null,
         qtyGap != null && qtyGap > 0 ? ['Next point', `+${tomeQuantity(row, qtyGap, { whole: true })} quantity`] : null
       ]}/> : null}
-      <Stack direction="row" gap={2} alignItems="flex-end" flexWrap="wrap">
-        <TextField select size={'small'} value={classification} sx={{ minWidth: 130 }}
-                   slotProps={{ select: { SelectDisplayProps: { 'aria-label': 'Metric type' } } }}
-                   onChange={(event) => onClassChange(displayIndex, event.target.value)}>
-          {Object.entries(CLASSIFICATION_TYPES).map(([id, { label, tone }]) => (
-            <MenuItem key={id} value={Number(id)}>
-              <Typography variant={'caption'} sx={{ color: toneText(tone) }}>{label}</Typography>
-            </MenuItem>
-          ))}
-        </TextField>
-        <NumberField label={'Target'} unit={'%'} ariaLabel={'Target percentile'} value={targetPercentile} min={0} max={100}
-                     help={false} sx={{ width: 120 }} onChange={(next) => setTargetPercentile(next)}/>
-      </Stack>
-      {targetText ? <ItemCard.Facts rows={[['At that target', targetText]]}/> : null}
+      <ItemCard.Section label={'Calculator'}>
+        <Stack direction="row" columnGap={1.5} rowGap={1.5} alignItems="flex-end" flexWrap="wrap">
+          <TextField select label={'Metric type'} value={classification} sx={{ minWidth: 130 }}
+                     onChange={(event) => onClassChange(displayIndex, event.target.value)}>
+            {Object.entries(CLASSIFICATION_TYPES).map(([id, { label, tone }]) => (
+              <MenuItem key={id} value={Number(id)}>
+                <Typography variant={'caption'} sx={{ color: toneText(tone) }}>{label}</Typography>
+              </MenuItem>
+            ))}
+          </TextField>
+          <NumberField label={'Target'} unit={'%'} ariaLabel={'Target percentile'} value={targetPercentile} min={0} max={100}
+                       help={false} sx={{ width: 120 }} onChange={(next) => setTargetPercentile(next)}/>
+        </Stack>
+        {targetText ? <ItemCard.Facts rows={[['At that target', targetText]]}/> : null}
+      </ItemCard.Section>
     </Stack>
   );
 };
