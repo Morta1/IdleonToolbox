@@ -23,7 +23,7 @@ const Library = ({ libraryTimes, failed }) => {
   const breakpointRow = ({ breakpoint, label, time }) => {
     if (!(time > 0)) return null;
     return label
-      ? <Panel.Row key={label} name={`${label.replace('0 to ', '')} books take`} value={formatDuration(time)}/>
+      ? <Panel.Row key={label} name={`First ${label.replace('0 to ', '')} books take`} value={formatDuration(time)}/>
       : <WaitRow key={breakpoint} name={`${breakpoint} books in`} time={time}/>;
   };
   const mainBreakpoints = breakpoints?.filter(({ label }) => !label || label === '0 to 20');
