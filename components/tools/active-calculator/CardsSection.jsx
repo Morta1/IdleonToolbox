@@ -25,9 +25,11 @@ const CardsSection = ({ lastUpdated }) => {
           const perHour = Number(card?.perHour);
           const hoursLeft = Number(card?.hoursForNextLevel);
           return <Stack key={cardIndex} gap={0.25}>
-            <Box sx={{ position: 'relative', width: 'fit-content', mb: 1 }}>
-              {/* The card's own note reads the real count: the row's amount is what it gained */}
-              <CardAndBorder {...card} amount={state?.account?.cards?.[displayName]?.amount}/>
+            {/* 16 px: a card's frame hangs below its art, and its gems reach the count */}
+            <Box sx={{ position: 'relative', width: 'fit-content', mb: 2 }}>
+              {/* The card's own note reads the real count and the bonus at its stars, as Card search's does: the row's
+                  amount is what it gained */}
+              <CardAndBorder {...card} amount={state?.account?.cards?.[displayName]?.amount} showInfo/>
             </Box>
             <Typography variant={'value'} component={'div'}>{formatNum(amount, 'whole')}</Typography>
             <Typography variant={'caption'} component={'div'}>{Number.isFinite(perHour) ? formatNum(perHour, 'rate') : '-'}</Typography>

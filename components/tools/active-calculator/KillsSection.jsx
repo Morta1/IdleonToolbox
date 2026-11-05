@@ -7,10 +7,11 @@ import { checkCharClass, CLASSES, getTalentBonusIfActive } from '@parsers/talent
 import { formatDuration, formatNum } from '@utility/helpers';
 import Panel from '@components/common/cards/Panel';
 import StatusText from '@components/common/StatusText';
+import { isSectionFailed } from '@components/common/styles';
 
 const BONES = [['Femur', 330], ['Ribcage', 331], ['Cranium', 332], ['Bovinae', 333]];
 const TACHYONS = [['Purple', 388], ['Brown', 389], ['Green', 390], ['Red', 391], ['Silver', 392], ['Gold', 393]];
-const ARCANE_KILLS = [['DR', 0], ['EXP', 1], ['AFK', 2]];
+const ARCANE_KILLS = [['Drop rate', 0], ['EXP', 1], ['AFK', 2]];
 const DUSTS = [['Stardust', 357], ['Moondust', 358], ['Solardust', 359], ['Cooldust', 360], ['Novadust', 361]];
 
 const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
@@ -32,6 +33,8 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
   const getKills = (source) => Math.floor(source?.kills?.[snapshottedChar?.mapIndex] || 0);
   const optionRow = (label, key) => counter(label, Math.floor(snapshottedAcc?.accountOptions?.[key] || 0), Math.floor(state?.account?.accountOptions?.[key] || 0));
   const getArcaneKills = (source, bonusIndex) => parseInt(source?.tesseract?.mapBonusRaw?.[snapshottedChar?.mapIndex]?.[bonusIndex], 10) || 0;
+  // A failed tesseract section can't say: its kills read "-", not 0
+  const nowArcaneKills = (bonusIndex) => (isSectionFailed(state?.account, 'tesseract') ? null : getArcaneKills(state?.account, bonusIndex));
 
   const bands = [
     { key: 'kills', label: null, rows: [counter('Kills', getKills(snapshottedChar), getKills(character))] },
@@ -42,7 +45,7 @@ const KillsSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
     isArcaneCultist ? {
       key: 'arcane-cultist', label: 'Arcane Cultist', rows: [
         ...TACHYONS.map(([label, key]) => optionRow(`${label} tachyons`, key)),
-        ...ARCANE_KILLS.map(([label, index]) => counter(`${label} arcane kills`, getArcaneKills(snapshottedAcc, index), getArcaneKills(state?.account, index)))
+        ...ARCANE_KILLS.map(([label, index]) => counter(`${label} arcane kills`, getArcaneKills(snapshottedAcc, index), nowArcaneKills(index)))
       ]
     } : null,
     isWindWalker ? { key: 'wind-walker', label: 'Wind Walker', rows: DUSTS.map(([label, key]) => optionRow(label, key)) } : null
