@@ -17,6 +17,11 @@ const smeltTime = (cooldown, account) => {
 const typeName = (type) => (type?.startsWith('INVENTORY') ? 'Inventory Bag'
   : type?.startsWith('STORAGE') ? 'Storage Chest' : titleCaseName(cleanUnderscore(type)));
 const slotsText = (slots) => `+${slots} slot${Number(slots) === 1 ? '' : 's'}`;
+// An upgrade stone's lines as the game's item box fills them (N.js): * its chance, at most 100, # the slots it takes.
+const stoneText = (text, chance, slots) => {
+  const filled = text.replace('*', Math.min(Number(chance) || 0, 100)).replace('#', slots);
+  return Number(slots) === 1 ? filled.replace('slots', 'slot') : filled;
+};
 
 const ItemDisplay = ({
                        character,
@@ -51,6 +56,7 @@ const ItemDisplay = ({
                        desc_line7,
                        desc_line8,
                        Amount,
+                       Trigger,
                        amount,
                        showAmount,
                        Cooldown,
@@ -78,9 +84,10 @@ const ItemDisplay = ({
     goldenFoodBonus = getGoldenFoodBonus(displayName, character, account, characters)
   }
   // The game's sentence carries its own %, so the bonus goes in bare.
-  const mergedDesc = allDesc.filter((desc) => desc && desc !== 'Filler').join(' ').replace(/\[/, isGoldenFood
+  const filledDesc = allDesc.filter((desc) => desc && desc !== 'Filler').join(' ').replace(/\[/, isGoldenFood
     ? formatNum(goldenFoodBonus, 'pct', { bare: true })
     : Amount).replace(/]/, typeGen === 'bOre' ? smeltTime(Cooldown, account) : Cooldown);
+  const mergedDesc = typeGen === 'dStone' ? stoneText(filledDesc, Amount, Trigger) : filledDesc;
 
   return displayName && displayName !== 'Empty' && displayName !== 'Locked' ? <>
     {/* An item card's header: the M card's 40 px icon, named by the title beside it */}
