@@ -9,11 +9,6 @@
       "count": 9
     }
   },
-  "components/account/Pets/PetCollection.jsx": {
-    "react-hooks/purity": {
-      "count": 1
-    }
-  },
   "components/common/Ads/GoogleAdUnit.jsx": {
     "no-restricted-syntax": {
       "count": 3
