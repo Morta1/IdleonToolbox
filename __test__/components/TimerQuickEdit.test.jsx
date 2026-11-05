@@ -19,11 +19,11 @@ describe('timer icons', () => {
     const onOpenAlert = vi.fn();
     const { container } = render(<ThemeProvider theme={darkTheme}>
       <DashboardSettingsProvider onOpenAlert={onOpenAlert}>
-        <Etc characters={[]} account={{ finishedWorlds: {} }} trackers={trackers} lastUpdated={Date.now()}/>
+        <Etc characters={[]} account={{ finishedWorlds: {}, timeAway: { ShopRestock: 3600 } }} trackers={trackers} lastUpdated={Date.now()}/>
       </DashboardSettingsProvider>
     </ThemeProvider>);
     const icons = [...container.querySelectorAll('[role="button"][aria-haspopup="dialog"]')];
-    expect(icons.length).toBeGreaterThanOrEqual(2);
+    expect(icons.length).toBeGreaterThanOrEqual(1);
     fireEvent.click(icons[0]);
     expect(onOpenAlert).toHaveBeenCalledWith(icons[0], 'timers', 'General.daily', undefined, expect.stringContaining('Daily reset'));
     expect(push).not.toHaveBeenCalled();

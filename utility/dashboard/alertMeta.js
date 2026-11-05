@@ -1261,10 +1261,10 @@ export const alertMeta = {
 
   // Timers: Clickers
   'timers.Clickers.featherRestart': { label: 'Feather Restart', icon: 'etc/Owl_4', page: { pathname: '/account/clickers/owl', label: 'Owl' }, unit: 'Orion', options: {} },
-  'timers.Clickers.megaFeatherRestart': { label: 'Mega Feather Restart', icon: 'etc/Owl_8', page: { pathname: '/account/clickers/owl', label: 'Owl' }, unit: 'Orion', options: {} },
+  'timers.Clickers.megaFeatherRestart': { label: 'Megafeather Restart', icon: 'etc/Owl_8', page: { pathname: '/account/clickers/owl', label: 'Owl' }, unit: 'Orion', options: {} },
   'timers.Clickers.fisherooReset': { label: 'Fisheroo Reset', icon: 'etc/KUpga_6', page: { pathname: '/account/clickers/kangaroo', label: 'Kangaroo' }, unit: 'Poppy', options: {} },
   'timers.Clickers.greatestCatch': { label: 'Greatest Catch', icon: 'etc/KUpga_11', page: { pathname: '/account/clickers/kangaroo', label: 'Kangaroo' }, unit: 'Poppy', options: {} },
-  'timers.Clickers.megaFleshRestart': { label: 'Mega Flesh Restart', icon: 'etc/Bubbo_Upgrade_8', page: { pathname: '/account/clickers/bubba', label: 'Bubba' }, unit: 'Bubba', options: {} },
+  'timers.Clickers.megaFleshRestart': { label: 'Megaflesh Restart', icon: 'etc/Bubbo_Upgrade_8', page: { pathname: '/account/clickers/bubba', label: 'Bubba' }, unit: 'Bubba', options: {} },
   'timers.Clickers.smokerMax': { label: 'Smoker at max quality', icon: 'data/BubbaSmokedmeat4', page: { pathname: '/account/clickers/bubba', label: 'Bubba' }, unit: 'Bubba', options: {} },
 
   // Timers: World 3

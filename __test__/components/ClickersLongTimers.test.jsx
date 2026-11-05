@@ -55,7 +55,7 @@ const renderClickers = (days) => render(<ThemeProvider theme={darkTheme}>
   <Etc characters={[]} account={buildAccount(days)} lastUpdated={now} trackers={trackers}/>
 </ThemeProvider>);
 
-const longTimeCount = (container) => Array.from(container.querySelectorAll('p'))
+const longTimeCount = (container) => Array.from(container.querySelectorAll('a'))
   .filter(({ textContent }) => textContent === 'A long time').length;
 
 describe('dashboard Clickers long duration cutoff', () => {

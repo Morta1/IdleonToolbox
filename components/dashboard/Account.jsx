@@ -114,7 +114,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.General?.gemsFromBosses ?
                 <Alert target={'General.gemsFromBosses'} title={`You can kill ${formatNum(alerts?.General?.gemsFromBosses)} more bosses for gems`}
                        iconPath={'data/PremiumGem'}/> : null}
-              {alerts?.General?.etc?.freeCompanion ?
+              {alerts?.General?.etc?.freeCompanion && !failed('companions') ?
                 <Alert target={'General.etc.freeCompanion'} title={`You can claim a free companion`}
                        iconPath={'afk_targets/Dog'}/> : null}
               {alerts?.General?.etc?.petMartGems ?
@@ -631,7 +631,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 6.sneaking.remainingSymbolRolls'}
                   title={`${formatNum(alerts?.['World 6']?.sneaking?.remainingSymbolRolls.remaining)} symbol rolls remaining (${formatNum(alerts?.['World 6']?.sneaking?.remainingSymbolRolls.used)}/75 used)`}
                   iconPath={'data/NjTrP0'}/> : null}
-              {alerts?.['World 6']?.beanstalk?.readyToPlant?.length > 0
+              {alerts?.['World 6']?.beanstalk?.readyToPlant?.length > 0 && !failed('storage')
                 ?
                 alerts?.['World 6']?.beanstalk?.readyToPlant?.map(({ rawName, displayName, total, breakpoint }) =>
                   <Alert
@@ -894,7 +894,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   imgStyle={alerts?.['World 7']?.zenithMarket?.clusterFarming === 'OFF'
                     ? { filter: 'grayscale(1)' }
                     : undefined}/> : null}
-              {alerts?.['World 7']?.construction?.jeweledCogs ?
+              {alerts?.['World 7']?.construction?.jeweledCogs && !failed('legendTalents') ?
                 <Alert target={'World 7.construction.jeweledCogs'}
                   title={`You have ${formatNum(alerts?.['World 7']?.construction?.jeweledCogs?.available)} jeweled cog pull${alerts?.['World 7']?.construction?.jeweledCogs?.available > 1
                     ? 's'
