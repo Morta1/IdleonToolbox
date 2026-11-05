@@ -4,5 +4,7 @@
 import { spawn } from 'node:child_process';
 
 const port = process.env.E2E_PORT ?? '3002';
-const child = spawn('npx', ['serve@latest', 'out', '-l', port, '--no-clipboard'], { stdio: 'inherit', shell: true });
+// sirv, not serve: serve ran out of file handles (EMFILE) after about 1,200 views of a long kit run. --dev reads each
+// file when it is asked for, so nothing walks the 15,000 files of out/ first and a rebuild needs no restart.
+const child = spawn('npx', ['sirv', 'out', '--port', port, '--host', '0.0.0.0', '--dev', '--quiet'], { stdio: 'inherit', shell: true });
 child.on('exit', (code) => process.exit(code ?? 1));

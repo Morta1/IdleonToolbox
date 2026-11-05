@@ -7,7 +7,8 @@
 //
 // --sizes    widths, or WIDTHxHEIGHT; under 768 gets touch. Default 1920,1366,900,384.
 // --states   demo, guest. Default both.
-// --force    failed sections, as the parse Worker would report them: lab,hole or name:key1+key2.
+// --schemes  dark, light. Default dark. A light run's files end in -light.
+// --force    safeSection names that really throw in the parse Worker: farming,hole. A guest's parse fails the same way.
 // --setup    a module whose default export takes the browser context, for serving API replies with context.route.
 // --storage  JSON of localStorage entries.
 // --base     default http://localhost:$E2E_PORT, or 3002.
@@ -26,6 +27,7 @@ const { values: opts, positionals } = parseArgs({
   options: {
     sizes: { type: 'string', default: '1920,1366,900,384' },
     states: { type: 'string', default: 'demo,guest' },
+    schemes: { type: 'string', default: 'dark' },
     force: { type: 'string' },
     setup: { type: 'string' },
     storage: { type: 'string' },
@@ -43,6 +45,7 @@ const routes = positionals.map((route) => route.replace(/^[A-Za-z]:\/Program Fil
 const HEIGHTS = { 1920: 950, 1536: 730, 1366: 768, 1024: 768, 900: 800, 384: 832, 320: 700 };
 const MAX_SHOT_HEIGHT = 4000;
 const PHONE_SHOTS = 4;
+const MAX_LOW_CONTRAST = 40;
 const AD_NOISE = /rlcdn|Failed to load resource|nitro|googletag|gtag|adsbygoogle|doubleclick/i;
 
 const sizes = opts.sizes.split(',').map((text) => {
@@ -50,10 +53,8 @@ const sizes = opts.sizes.split(',').map((text) => {
   return { width, height: height || HEIGHTS[width] || 800 };
 });
 const states = opts.states.split(',');
-const force = opts.force?.split(',').map((text) => {
-  const [name, keys] = text.split(':');
-  return { name, keys: keys ? keys.split('+') : [name] };
-});
+const schemes = opts.schemes.split(',');
+const force = opts.force?.split(',');
 const storage = opts.storage ? JSON.parse(opts.storage) : null;
 const setup = opts.setup ? (await import(pathToFileURL(resolve(opts.setup)).href)).default : null;
 const consent = {
@@ -61,27 +62,12 @@ const consent = {
   origins: []
 };
 
-// The section's fallback and its name in failedSections, as safeSection does on a throw.
-const forceSections = (spec) => {
-  const Real = window.Worker;
-  window.Worker = class extends Real {
-    set onmessage(handler) {
-      super.onmessage = (event) => {
-        const account = event?.data?.result?.account;
-        if (account) {
-          spec.forEach(({ name, keys }) => {
-            keys.forEach((key) => {
-              account[key] = Array.isArray(account[key]) ? [] : {};
-            });
-            account.failedSections = [...(account.failedSections ?? []), name];
-          });
-        }
-        handler(event);
-      };
-    }
-    get onmessage() {
-      return super.onmessage;
-    }
+// parseData's options sit at args[7] (parsers/index.ts): failSections makes those safeSections throw inside the parse.
+const forceSections = (names) => {
+  const post = Worker.prototype.postMessage;
+  Worker.prototype.postMessage = function postWithFailures(message, ...rest) {
+    if (Array.isArray(message?.args)) message.args[7] = { ...message.args[7], failSections: names };
+    return post.call(this, message, ...rest);
   };
 };
 
@@ -98,11 +84,11 @@ const waitForRender = async (page, maxMs = 20000) => {
 };
 
 // Runs in the page, so it can't read this module.
-const scanPage = ({ maxLines, minGap }) => {
+const scanPage = ({ maxLines, minGap, maxLowContrast }) => {
   const main = document.querySelector('main') ?? document.body;
   const hits = {
     brokenWord: [], brokenPair: [], overlap: [], tooClose: [], outOfBox: [], cut: [], tallRow: [],
-    raw: [], emptyHeading: [], unnamed: [], titleAttr: []
+    raw: [], emptyHeading: [], unnamed: [], titleAttr: [], lowContrast: []
   };
   const add = (kind, text) => {
     if (!hits[kind].includes(text)) hits[kind].push(text);
@@ -252,6 +238,62 @@ const scanPage = ({ maxLines, minGap }) => {
   // MUI's own Autocomplete buttons carry a title we can't take off.
   main.querySelectorAll('[title]:not(.MuiAutocomplete-popupIndicator, .MuiAutocomplete-clearIndicator)').forEach((el) => add('titleAttr', el.getAttribute('title').slice(0, 40)));
 
+  // WCAG AA: 4.5, or 3 from 24 px, or from 18.66 px at 600 and up. The first opaque background up the tree, with what
+  // is see-through on the way laid over it. An element's own opacity stays out: a dimmed row is a state, not a color.
+  const rgba = (text) => {
+    const srgb = text.match(/^color\(srgb ([\d.e-]+) ([\d.e-]+) ([\d.e-]+)(?: \/ ([\d.e-]+))?\)/);
+    if (srgb) return [srgb[1] * 255, srgb[2] * 255, srgb[3] * 255, srgb[4] === undefined ? 1 : Number(srgb[4])];
+    if (!/^rgba?\(/.test(text)) return null;
+    const [r, g, b, a = 1] = text.match(/[\d.]+/g).map(Number);
+    return [r, g, b, a];
+  };
+  const over = ([r, g, b, a], [r2, g2, b2]) => [r * a + r2 * (1 - a), g * a + g2 * (1 - a), b * a + b2 * (1 - a), 1];
+  const luminance = ([r, g, b]) => {
+    const [lr, lg, lb] = [r, g, b].map((part) => {
+      const v = part / 255;
+      return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4;
+    });
+    return 0.2126 * lr + 0.7152 * lg + 0.0722 * lb;
+  };
+  const backgroundOf = (el) => {
+    const layers = [];
+    for (let node = el; node; node = node.parentElement) {
+      const color = rgba(style(node).backgroundColor);
+      if (color?.[3] > 0) layers.push(color);
+      if (color?.[3] === 1) break;
+    }
+    return layers.reduceRight((under, layer) => over(layer, under), [255, 255, 255, 1]);
+  };
+  // Text over art has no one background to read against, so a person looks at it.
+  const onArt = (el, box) => {
+    if (el.closest('[data-on-art]')) return true;
+    for (let node = el; node; node = node.parentElement) {
+      if (style(node).backgroundImage !== 'none') return true;
+      if (rgba(style(node).backgroundColor)?.[3] === 1) break;
+    }
+    return document.elementsFromPoint(box.left + box.width / 2, box.top + box.height / 2)
+      .some((under) => under !== el && !under.contains(el) && !el.contains(under) && under.matches('img, canvas, video'));
+  };
+  const contrastSeen = new Set();
+  const contrastWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
+  for (let node = contrastWalker.nextNode(); node && hits.lowContrast.length < maxLowContrast; node = contrastWalker.nextNode()) {
+    const el = node.parentElement;
+    if (!node.nodeValue?.trim() || !el || contrastSeen.has(el)) continue;
+    contrastSeen.add(el);
+    if (!shown(el) || el.closest('script, style, noscript, [aria-hidden="true"], [disabled], [aria-disabled="true"], .Mui-disabled')) continue;
+    const box = el.getBoundingClientRect();
+    if (box.width <= 2 || box.height <= 2) continue;
+    const color = rgba(style(el).color);
+    if (!color) continue;
+    const background = backgroundOf(el);
+    const [lighter, darker] = [luminance(over(color, background)), luminance(background)].sort((a, b) => b - a);
+    const ratio = (lighter + 0.05) / (darker + 0.05);
+    const size = parseFloat(style(el).fontSize);
+    const large = size >= 24 || (size >= 18.66 && Number(style(el).fontWeight) >= 600);
+    if (ratio >= (large ? 3 : 4.5) || onArt(el, box)) continue;
+    add('lowContrast', `${ratio.toFixed(2)}:1 ${style(el).color} on rgb(${background.slice(0, 3).map(Math.round).join(', ')}): ${node.nodeValue.trim().slice(0, 30)}`);
+  }
+
   return {
     hits,
     height: document.documentElement.scrollHeight,
@@ -285,12 +327,14 @@ const withQuery = (route, state) => {
   if (state !== 'demo') return route;
   return `${route}${route.includes('?') ? '&' : '?'}demo=true`;
 };
-const slugOf = (route, state) => `${route.replace(/^\//, '').replace(/[^a-zA-Z0-9-]+/g, '_') || 'home'}-${state}`;
+const slugOf = (route, state, scheme) => `${route.replace(/^\//, '').replace(/[^a-zA-Z0-9-]+/g, '_') || 'home'}-${state}${scheme === 'dark' ? '' : `-${scheme}`}`;
 
-const checkOne = async (browser, { route, state, size }) => {
+const checkOne = async (browser, { route, state, size, scheme }) => {
   const touch = size.width < 768;
   const context = await browser.newContext({ viewport: size, storageState: consent, ...(touch ? { isMobile: true, hasTouch: true } : {}) });
   if (force) await context.addInitScript(forceSections, force);
+  // MUI's colorSchemes reads this key once the theme has a light scheme; until then a light run draws dark.
+  if (scheme !== 'dark') await context.addInitScript((mode) => localStorage.setItem('mui-mode', mode), scheme);
   if (storage) {
     await context.addInitScript((entries) => entries.forEach(([key, value]) => localStorage.setItem(key, JSON.stringify(value))), Object.entries(storage));
   }
@@ -301,8 +345,8 @@ const checkOne = async (browser, { route, state, size }) => {
   page.on('console', (message) => {
     if (message.type() === 'error' && !AD_NOISE.test(message.text())) errors.push(message.text().slice(0, 200));
   });
-  const slug = slugOf(route, state);
-  const result = { route, state, size: `${size.width}x${size.height}`, shots: [] };
+  const slug = slugOf(route, state, scheme);
+  const result = { route, state, scheme, size: `${size.width}x${size.height}`, shots: [] };
   try {
     const response = await page.goto(opts.base + withQuery(route, state), { waitUntil: 'domcontentloaded', timeout: 30000 });
     if (response?.status() >= 400) throw new Error(`HTTP ${response.status()}: no such page in this export`);
@@ -311,7 +355,7 @@ const checkOne = async (browser, { route, state, size }) => {
       try {
         await waitForRender(page);
         await page.waitForTimeout(500);
-        return await page.evaluate(scanPage, { maxLines: Number(opts['max-lines']), minGap: Number(opts['min-gap']) });
+        return await page.evaluate(scanPage, { maxLines: Number(opts['max-lines']), minGap: Number(opts['min-gap']), maxLowContrast: MAX_LOW_CONTRAST });
       } catch (error) {
         if (attempts <= 1 || !/context was destroyed|reading 'innerText'/.test(error.message)) throw error;
         await page.waitForTimeout(1000);
@@ -367,28 +411,30 @@ if (!routes.length) {
 }
 mkdirSync(opts.out, { recursive: true });
 const browser = await chromium.launch();
-const jobs = routes.flatMap((route) => states.flatMap((state) => sizes.map((size) => ({ route, state, size }))));
+const jobs = routes.flatMap((route) => states.flatMap((state) => schemes.flatMap((scheme) => sizes.map((size) => ({ route, state, size, scheme })))));
 const results = [];
 let next = 0;
 await Promise.all(Array.from({ length: Number(opts.workers) }, async () => {
   while (next < jobs.length) results.push(await checkOne(browser, jobs[next++]));
 }));
 
-const order = (a, b) => a.route.localeCompare(b.route) || a.state.localeCompare(b.state) || parseInt(b.size) - parseInt(a.size);
+const order = (a, b) => a.route.localeCompare(b.route) || a.state.localeCompare(b.state) || a.scheme.localeCompare(b.scheme) || parseInt(b.size) - parseInt(a.size);
 results.sort(order);
 let hitCount = 0;
 for (const result of results) {
   const kinds = Object.entries(result.hits ?? {});
   hitCount += kinds.length + (result.failed ? 1 : 0);
-  console.log(`${result.route} ${result.state} ${result.size} height ${result.height ?? '?'}: ${result.failed ?? (kinds.map(([kind, list]) => `${kind} ${list.length}`).join(', ') || 'clean')}`);
+  console.log(`${result.route} ${result.state} ${result.scheme === 'dark' ? '' : `${result.scheme} `}${result.size} height ${result.height ?? '?'}: ${result.failed ?? (kinds.map(([kind, list]) => `${kind} ${list.length}`).join(', ') || 'clean')}`);
   for (const [kind, list] of kinds) console.log(`  ${kind}: ${list.slice(0, 5).join(' || ')}`);
 }
 if (!opts['no-shots']) {
   for (const route of routes) {
     for (const state of states) {
-      const slug = slugOf(route, state);
-      const sheet = await writeSheet(browser, slug, results.filter((r) => r.route === route && r.state === state).flatMap((r) => r.shots));
-      if (sheet) console.log(`sheet: ${sheet}`);
+      for (const scheme of schemes) {
+        const slug = slugOf(route, state, scheme);
+        const sheet = await writeSheet(browser, slug, results.filter((r) => r.route === route && r.state === state && r.scheme === scheme).flatMap((r) => r.shots));
+        if (sheet) console.log(`sheet: ${sheet}`);
+      }
     }
   }
 }

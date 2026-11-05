@@ -98,7 +98,7 @@ import { getBubba } from '@parsers/clickers/bubba';
 import { getHatRack } from '@parsers/world-3/hatRack';
 import { getCapeVine } from '@parsers/world-4/capeVine';
 import { getFriendBonusStats } from '@parsers/misc';
-import { safeSection, trackSectionFailures } from '@parsers/safeSection';
+import { forceSectionFailures, safeSection, trackSectionFailures } from '@parsers/safeSection';
 import type { IdleonData, Account, CompanionData, GuildData, ServerVars, TournamentData } from './types';
 import { resetSaveFields, saveField } from '@parsers/saveField';
 
@@ -107,6 +107,8 @@ export interface ParseOptions {
   simulatedCompanions?: number[];
   // Tests only: pass-convergence.test.js checks that one extra pass changes nothing.
   passes?: number;
+  // Tests and the kit only (tools/page-check.mjs --force): these safeSection names really throw.
+  failSections?: string[];
 }
 
 const DEFAULT_PASSES = 3;
@@ -114,6 +116,7 @@ const DEFAULT_PASSES = 3;
 export const parseData = (idleonData: IdleonData, charNames: string[], companion: CompanionData, guildData: GuildData | null, serverVars: ServerVars, accountCreateTime: number, tournament: TournamentData | null, options?: ParseOptions) => {
   try {
     resetSaveFields(idleonData);
+    forceSectionFailures(options?.failSections);
     const staticFailures = new Set<string>();
     trackSectionFailures(staticFailures);
     const staticData = getStaticData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, tournament, options);
@@ -151,6 +154,7 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
     return { account: { failedSections: ['*'] }, characters: [], parseFailed: true };
   } finally {
     trackSectionFailures(null);
+    forceSectionFailures();
   }
 };
 
