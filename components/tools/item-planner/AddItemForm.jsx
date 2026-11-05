@@ -65,7 +65,7 @@ const AddItemForm = ({ onAdd, submitLabel = 'Add', withCount = true }) => {
     />
     {withCount ? <QuantityStepper value={count} onChange={setCount} onEnter={submit}/> : null}
     <Button type={'submit'} variant={'contained'} disabled={!itemName}
-            sx={{ flex: { xs: withCount ? '1 1 auto' : '0 0 auto', sm: '0 0 auto' } }}>
+            sx={{ flex: { xs: '1 1 auto', sm: '0 0 auto' } }}>
       {submitLabel}
     </Button>
   </Box>;
