@@ -20,6 +20,8 @@ import IconTile from '@components/common/cards/IconTile';
 import Panel from '@components/common/cards/Panel';
 
 const itemName = (rawName) => cleanUnderscore(itemsTable?.[rawName]?.displayName ?? rawName);
+// An owner-approved exception to the decimals rule: a tile has no room for 264,736.87 beside its row, and its note keeps them.
+const tileValue = (value) => formatNum(value ?? 0, 'whole');
 
 // Printer Go Brrr's hours: the highest Maestro's level, or the max level's hours when nobody has a point in it
 const printerGoBrrr = (characters) => {
@@ -81,7 +83,7 @@ const Printer = () => {
           {slots?.map((slot, slotIndex) => !slot?.item || slot.item === 'Blank'
             ? <IconTile key={`blank-${slotIndex}`} status={'empty'}/>
             : <IconTile key={`${slot.item}-${slotIndex}`} icon={`data/${slot.item}.png`} alt={itemName(slot.item)}
-                        value={formatNum(slot.boostedValue ?? 0)} status={slot.active ? 'active' : undefined}
+                        value={tileValue(slot.boostedValue)} status={slot.active ? 'active' : undefined}
                         details={`${itemName(slot.item)}: ${slot.active ? 'printing' : 'stored'}, ${formatNum(slot.boostedValue ?? 0)} per hour from a ${formatNum(slot.value ?? 0)} sample`}/>)}
         </CardGrid>
       </Box>
@@ -106,7 +108,7 @@ const Printer = () => {
       <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1.5 }}>Printing per hour</Typography>
       <CardGrid size={'icon'} sx={{ mb: 3 }}>
         {Object.entries(totals).map(([item, total]) => <IconTile key={item} icon={`data/${item}.png`} alt={itemName(item)}
-                                                               value={formatNum(total?.boostedValue ?? 0)}
+                                                               value={tileValue(total?.boostedValue)}
                                                                mark={total?.atoms ? 'etc/Particle.png' : undefined}
                                                                markAlt={total?.atoms ? 'Makes particles' : undefined}
                                                                details={totalNote(item, total, brrr)}/>)}
