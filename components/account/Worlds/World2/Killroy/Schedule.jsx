@@ -1,15 +1,19 @@
 import { Box, Stack, Typography } from '@mui/material';
+import { visuallyHidden } from '@mui/utils';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import useFormatDate from '@hooks/useFormatDate';
 import Notice from '@components/common/Notice';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
-import StatusText from '@components/common/StatusText';
 
 // Under 100 kills is the equinox challenge threshold, same rule as the dashboard alert.
 const EQUINOX_KILLS = 100;
 const LINE_SX = { display: 'inline-flex', alignItems: 'center', gap: 0.5, whiteSpace: 'nowrap' };
+const DOT_SIZE = 8;
+const Dot = ({ sx }) => <Box component={'span'} aria-hidden={'true'} sx={{
+  display: 'inline-block', width: DOT_SIZE, height: DOT_SIZE, borderRadius: '50%', bgcolor: 'text.success', ...sx
+}}/>;
 
 // The weeks follow the save's game clock: a guest has none until they sign in, and a save can come without one
 const Schedule = ({ killroy, schedule, hasClock, guest, sectionFailed }) => {
@@ -26,12 +30,16 @@ const Schedule = ({ killroy, schedule, hasClock, guest, sectionFailed }) => {
     const monster = monsters?.[room];
     const name = cleanUnderscore(monster?.Name ?? '');
     const kills = Number(list.find((mob) => mob.name === monster?.Name)?.killRoyKills) || 0;
-    // A failed section's kills are unknown: no number and no Under 100. Where the room's class leaves no room for
-    // it (a Beginner row on a 1920 card), Under 100 takes a second line under the kills
-    const value = <Box component={'span'} sx={{ ...LINE_SX, columnGap: 0.5, rowGap: 0, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+    // A failed section's kills are unknown: no number and no dot. Every row keeps the dot's slot, so the numbers line up
+    const value = <Box component={'span'} sx={LINE_SX}>
       <GameIcon src={`data/Mface${monster?.MonsterFace}.png`} size={24} alt={name}/>
       {sectionFailed ? '-' : formatNum(kills, 'whole')}
-      {!sectionFailed && kills < EQUINOX_KILLS ? <StatusText status={'ready'}>Under 100</StatusText> : null}
+      <Box component={'span'} sx={{ display: 'inline-flex', width: DOT_SIZE }}>
+        {!sectionFailed && kills < EQUINOX_KILLS ? <>
+          <Dot/>
+          <Box component={'span'} sx={visuallyHidden}>Under 100</Box>
+        </> : null}
+      </Box>
     </Box>;
     const label = <Box component={'span'} sx={LINE_SX}>
       {`Room ${room + 1} · `}
@@ -43,10 +51,10 @@ const Schedule = ({ killroy, schedule, hasClock, guest, sectionFailed }) => {
 
   return <Stack gap={2}>
     {sectionFailed ? null : <Typography variant={'body2'} color={'text.secondary'}>
-      Rooms marked Under 100 still count for the Equinox challenge.
+      A green dot <Dot sx={{ mx: 0.25 }}/> marks a room under 100 kills: it still counts for the Equinox challenge.
     </Typography>}
     <CardGrid size={'m'}>
-      {schedule?.map(({ classes, date, monsters }, week) => <ItemCard key={`week-${week}`} title={formatDate(date)}
+      {schedule?.map(({ classes, date, monsters }, week) => <ItemCard key={`week-${week}`} title={formatDate(date, { showSeconds: false })}
                                                                       meta={week === 0 ? 'This week' : undefined}>
         <ItemCard.Facts rows={(classes ?? []).map((room, index) => roomRow(room, index, monsters))}/>
       </ItemCard>)}
