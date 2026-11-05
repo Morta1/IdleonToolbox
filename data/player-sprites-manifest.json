@@ -1,5 +1,5 @@
 {
-  "version": "2.3.550",
+  "version": "2.3.561",
   "frameW": 94,
   "frameH": 50,
   "hatFrameOffset": 2,
@@ -3584,6 +3584,19 @@
         "frameH": 74,
         "originX": 47,
         "originY": 74,
+        "durations": [
+          1
+        ]
+      },
+      "24": {
+        "file": "cape/24.png",
+        "across": 1,
+        "down": 1,
+        "numFrames": 1,
+        "frameW": 94,
+        "frameH": 50,
+        "originX": 47,
+        "originY": 50,
         "durations": [
           1
         ]
@@ -7885,27 +7898,32 @@
           "bottom": 63
         }
       },
-      "thermostat": {
-        "file": "companion/thermostat.png",
-        "frameW": 68,
-        "frameH": 68,
-        "across": 5,
+      "cathie": {
+        "file": "companion/cathie.png",
+        "frameW": 58,
+        "frameH": 70,
+        "across": 10,
         "down": 1,
-        "numFrames": 5,
+        "numFrames": 10,
         "durations": [
+          100,
+          100,
+          100,
+          100,
+          100,
           100,
           100,
           100,
           100,
           100
         ],
-        "originX": 34,
-        "originY": 68,
+        "originX": 29,
+        "originY": 70,
         "bounds": {
-          "left": 22,
-          "right": 47,
-          "top": 19,
-          "bottom": 68
+          "left": 0,
+          "right": 57,
+          "top": 16,
+          "bottom": 70
         }
       },
       "w4a2": {

@@ -12,7 +12,7 @@ import { getZenithBonus } from '@parsers/world-1/statues';
 import { getSlabBonus, isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
-import { getLoggedInSkillLevel, isCompanionBonusActive, isCompanionLvl2Active, getEventShopBonus, isBundlePurchased } from '@parsers/misc';
+import { getLoggedInSkillLevel, isCompanionBonusActive, isCompanionLvl2Active, getEventShopBonus, isBundlePurchased, isMasteryBonusUnlocked } from '@parsers/misc';
 import { calcCardBonus, getCardBonusByEffect, getCardLevel } from '@parsers/cards';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getMineheadBonusQTY, getMineheadGlimboTotalTrades } from '@parsers/world-7/minehead';
@@ -40,6 +40,10 @@ import { saveField } from '@parsers/saveField';
 import { OPT } from '@parsers/accountOptions';
 
 // Save key for Research: game may use idleonData.Research or similar
+// RiftStuff("RiftSkillBonus,19", tier): research is rift skill 19, its rank from the account's summed Research LV
+const getResearchMastery = (account: any, tier: number) =>
+  isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.research?.rank, tier);
+
 const getRawResearch = (idleonData: any) => {
   const raw = saveField(idleonData, 'Research') || idleonData?.Research;
   return Array.isArray(raw) ? raw : [];
@@ -114,7 +118,8 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
   const banKBundle = isBundlePurchased(account, 'ban_k') ? 1 : 0;
   // game: "ResearchStuff:Grid_PTSearned"
   const gridPTSearned = Math.floor(
-    researchLevel + (10 * companion153 + companion153Lvl2Bonus + Math.floor(researchLevel / 10) * Math.round(1 + (Math.min(1, Math.floor(researchLevel / 60)) + gridBonus50Lv)) + getSushiBonus(account, 3) + getSushiBonus(account, 13) + Math.min(10, Math.round(fangAcquired)) + meritBonus + getJellyBonus(account, 4) + getJellyBonus(account, 57) + 5 * banKBundle + getEventShopBonus(account, 64))
+    researchLevel + (10 * companion153 + companion153Lvl2Bonus + Math.floor(researchLevel / 10) * Math.round(1 + (Math.min(1, Math.floor(researchLevel / 60)) + gridBonus50Lv)) + getSushiBonus(account, 3) + getSushiBonus(account, 13) + Math.min(10, Math.round(fangAcquired)) + meritBonus + getJellyBonus(account, 4) + getJellyBonus(account, 57) + 5 * banKBundle + getEventShopBonus(account, 64)
+      + getResearchMastery(account, 2) + getResearchMastery(account, 4))
   );
   const gridPTSavailable = Math.round(gridPTSearned - gridPTSpent);
 
@@ -308,8 +313,11 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
     observations,
     occurrencesToBeFound,
     totalOccurrencesFound,
-    maxRoll: Math.floor(100 + gridBonus51Lv + getSushiBonus(account, 30) + getJellyBonus(account, 12)),
-    minRoll: Math.floor(1 + Math.min((optionsListAccount?.[514] ?? 0) * getResearchGridBonusInternal(account, research, 31, 1), getResearchGridBonusInternal(account, research, 31, 2))),
+    // game: "ResearchStuff:MaxRoll"
+    maxRoll: Math.floor(100 + gridBonus51Lv + getSushiBonus(account, 30) + getJellyBonus(account, 12) + getResearchMastery(account, 6)),
+    // game: "ResearchStuff:MinRoll"
+    minRoll: Math.floor(1 + Math.min((optionsListAccount?.[514] ?? 0) * getResearchGridBonusInternal(account, research, 31, 1), getResearchGridBonusInternal(account, research, 31, 2))
+      + getResearchMastery(account, 1)),
     rollsPerDay: Math.round(3 + gridBonus90Lv + 3 * (getEventShopBonus(account, 35) ? 1 : 0) + getSushiBonus(account, 2)),
     dailyRollsLeft,
     canLevelUpObservations: gridBonus91Lv >= 1 ? 1 : 0,
@@ -652,6 +660,8 @@ function getResearchEXPmulti(account: any, research: any, characters: any) {
   const arcade63 = getArcadeBonus(account?.arcade?.shop, RESEARCH_XP_ARCADE_BONUS)?.bonus ?? 0;
   // game: 25 * Breeding("PetArenaCrucBonus", "0", 2, 0) + 35 * Breeding("PetArenaCrucBonus", "0", 8, 0)
   const crucibleBonus = 25 * getPetArenaCrucBonus(account, 2) + 35 * getPetArenaCrucBonus(account, 8);
+  const masteryBonus = 10 * getResearchMastery(account, 0) + 15 * getResearchMastery(account, 3);
+  const masteryFactor = 1 + (10 * getResearchMastery(account, 5)) / 100;
   const clamWork9Factor = 1 + 0.25 * getClamWorkBonus(account, 9);
   const menagerieBoost3 = getMenagerieBoost(account, 3);
   const grid70 = getResearchGridBonusInternal(account, research, 70, 0);
@@ -685,7 +695,8 @@ function getResearchEXPmulti(account: any, research: any, characters: any) {
     grid94_2 +
     prehistoricSetBonus +
     spelunkingShopUpg63 +
-    crucibleBonus;
+    crucibleBonus +
+    masteryBonus;
 
   const additiveFactor = 1 + additive / 100;
   const grid70Factor = 1 + grid70 / 100;
@@ -702,7 +713,7 @@ function getResearchEXPmulti(account: any, research: any, characters: any) {
   const cglunkoFactor = 1 + getCglunkoBonus(account, 11) / 100; // Researchy (Crystal Glunko Cove)
   const outpostRogFactor = Math.max(1, getOutpostRogBonus(account, 1));
   const jellyFactor = [0, 23, 46, 54].reduce((product, index) => product * (1 + getJellyBonus(account, index) / 100), 1);
-  const value = additiveFactor * grid70Factor * nametagFactor * (1 + stickerMultiBonus / 100) * clamWork9Factor * nonstopFactor
+  const value = additiveFactor * grid70Factor * nametagFactor * (1 + stickerMultiBonus / 100) * masteryFactor * clamWork9Factor * nonstopFactor
     * companionFactor * (1 + getSushiBonus(account, 0) / 100) * (1 + getButtonBonus(account, 0) / 100)
     * (1 + arcade63 / 100) * killroyResearchBonus * greenWaterFactor * cglunkoFactor * jellyFactor
     * (1 + menagerieBoost3 / 100) * outpostRogFactor;
@@ -727,11 +738,13 @@ function getResearchEXPmulti(account: any, research: any, characters: any) {
       percent('Game Design 102', grid94_2),
       percent('Prehistoric Set', prehistoricSetBonus),
       percent('Spelunking Shop', spelunkingShopUpg63),
-      percent('Crucible', crucibleBonus)
+      percent('Crucible', crucibleBonus),
+      percent('Skill Mastery', masteryBonus)
     ]),
     multiplier('Takin\' Notes', grid70Factor),
     multiplier('Spooky Scary Nametag', nametagFactor),
     multiplier('Sticker', 1 + stickerMultiBonus / 100),
+    multiplier('Skill Mastery', masteryFactor),
     multiplier('Clam Work', clamWork9Factor),
     multiplier('Nonstop Studies', nonstopFactor),
     multiplier('Companions', companionFactor),

@@ -244,6 +244,8 @@ const PAGE_VALUES = [
   ['vialTotals', 'levels', 855, null],
   ['buildingTotals', 'levels', account.towers.totalLevels ?? 0, null],
   ['hatRackTotals', 'hats', account.hatRack.totalHats || 0, null],
+  ['capeVineTotals', 'capes', account.capeVine.totalCapes || 0, null],
+  ['capeVineTotals', 'goldenVines', account.capeVine.goldenVines || 0, null],
   ['equinoxTotals', 'upgradeLevels', 94, null],
   ['emperorTotals', 'showdown', account.emperor.highestEmperorShowdown || 0, null],
   ['friendsTotals', 'slots', account.friendBonusStats.slots, null],

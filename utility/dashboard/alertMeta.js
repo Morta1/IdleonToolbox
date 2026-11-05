@@ -5,6 +5,7 @@ export const alertAliases = {
   'account.World 3.printer': { atoms: 'includeResource' },
   'account.World 3.traps': { overdue: 'trapsOverdue' },
   'account.World 3.hatRack': { missingHats: 'hatsMissing' },
+  'account.World 4.capeVine': { missingCapes: 'capesMissing' },
   'account.World 5.hole': {
     motherlodeMaxed: 'motherlode',
     hiveMaxed: 'theHive',
@@ -489,6 +490,18 @@ export const alertMeta = {
     options: {
       chipsRotation: { label: 'Chip to claim in the repository' },
       jewelsRotation: { label: 'Jewel to claim in the repository' }
+    }
+  },
+  'account.World 4.capeVine': {
+    label: 'Cape vine',
+    icon: 'data/CapeHelpA',
+    page: { pathname: '/account/world-4/cape-vine' },
+    options: {
+      capesMissing: { label: 'Owned capes missing from the vine' },
+      goldenVine: {
+        label: 'Golden Vine ready to unlock',
+        help: 'Alerts when one of your characters has the class level Ask Cathie needs for the next Golden Vine.'
+      }
     }
   },
   'account.World 4.tome': {

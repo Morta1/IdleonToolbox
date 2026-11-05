@@ -124,6 +124,8 @@ declare module '@website-data' {
   export const bundles: Record<string, {
       message?: string;
       price: number | null;
+      image?: string;
+      starterOffer?: boolean;
       name?: string;
       gems?: number;
       petCrystals?: number;
@@ -938,6 +940,7 @@ declare module '@website-data' {
     scurgeUpgradeLevelReq: number[];
     coralKidDivinityLevelReq: number[];
     riftSpelunkingMasteryRewards: string[];
+    riftResearchMasteryRewards: string[];
     constructionCogTypes: string[];
     sneakingMasteryDrops: {
         mastery: number;
@@ -3392,6 +3395,9 @@ declare module '@website-data' {
       ban_n: {
         EquipmentHats147: number;
         Quest79: number;
+      };
+      ban_o: {
+        EquipmentCape23: number;
       };
       bon_w: {
         EquipmentCape10: number;

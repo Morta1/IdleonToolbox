@@ -820,6 +820,14 @@ export const getDailyResetAt = (account, fallbackSavedAt = Date.now()) => {
   return (Number.isFinite(savedAt) ? savedAt * 1000 : fallbackSavedAt) + account?.timeAway?.ShopRestock * 1000;
 };
 
+// Next reset after `clock`, `days` past the daily one; one the save already outlived rolls on by
+// `period`. Null without ShopRestock.
+export const getNextResetAt = (account, clock, { days = 0, period = 864e5, fallbackSavedAt = clock } = {}) => {
+  const resetAt = getDailyResetAt(account, fallbackSavedAt) + days * 864e5;
+  if (!Number.isFinite(resetAt)) return null;
+  return resetAt > clock ? resetAt : resetAt + (Math.floor((clock - resetAt) / period) + 1) * period;
+};
+
 export const totalHoursBetweenDates = (start, end) => {
   try {
     const duration = intervalToDuration({ start, end });

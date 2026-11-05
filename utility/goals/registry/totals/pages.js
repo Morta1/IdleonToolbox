@@ -720,6 +720,16 @@ export const hatRackTotals = totalsDescriptor({
   ]
 });
 
+export const capeVineTotals = totalsDescriptor({
+  system: 'capeVineTotals',
+  label: 'Cape Vine totals',
+  route: GOAL_ROUTES.capeVineTotals,
+  entries: [
+    { key: 'capes', name: 'Capes collected', value: ({ account }) => account?.capeVine?.totalCapes || 0 },
+    { key: 'goldenVines', name: 'Golden Vines', value: ({ account }) => account?.capeVine?.goldenVines || 0 }
+  ]
+});
+
 export const equinoxTotals = totalsDescriptor({
   system: 'equinoxTotals',
   label: 'Equinox totals',
@@ -763,5 +773,5 @@ export const PAGE_TOTALS = [researchTotals, spelunkingTotals, sushiTotals, compa
   generalTotals, storageTotals, questTotals, dungeonTotals, eventShopTotals, bubbaTotals, armoryTotals, achievementTotals, taskTotals,
   cookingTotals, breedingTotals, tomeTotals,
   summoningTotals, clamTotals, menagerieTotals, mineheadTotals, glimboTotals, legendTotals,
-  petsTotals, taskUnlockTotals, killroyTotals, sigilTotals, vialTotals, buildingTotals, hatRackTotals,
+  petsTotals, taskUnlockTotals, killroyTotals, sigilTotals, vialTotals, buildingTotals, hatRackTotals, capeVineTotals,
   equinoxTotals, emperorTotals, friendsTotals, sailingTotals];

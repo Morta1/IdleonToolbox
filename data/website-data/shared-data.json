@@ -2770,6 +2770,9 @@
     "ban_n": {
       "message": "BOO!_That's_a_SCARY_amount_of_items,_but_that's_perfect_if_you're_looking_to_treat_yourself!_Click_to_check_it_out!"
     },
+    "ban_o": {
+      "message": "Cathie's_Cape_Vine_is_ready_to_serve_you_in_World_4!_Celebrate_your_new_cape_fashion_freedom_with_this_lovely_little_pack_right_here,_click_to_check_it_out!"
+    },
     "bon_w": {
       "price": 6.99,
       "image": "OffersBG0",
@@ -4656,6 +4659,7 @@
         55,
         56,
         57,
+        105,
         109,
         116,
         126,
@@ -10203,6 +10207,15 @@
       "+3_DAILY_PAGE_READS",
       "+10%_STAMINA_REGEN_RATE",
       "1.50X_ALL_AMBER_GAIN"
+    ],
+    "riftResearchMasteryRewards": [
+      "+10%_RESEARCH_EXP",
+      "+1_MINIMUM_ROLL_FOR_OBSERVATIONS",
+      "+1_RESEARCH_PTS",
+      "+15%_RESEARCH_EXP",
+      "+1_RESEARCH_PTS",
+      "1.10X_RESEARCH_EXP",
+      "+1_MAX_ROLL_FOR_OBSERVATIONS"
     ],
     "constructionCogTypes": [
       "Flaggy",
@@ -16681,6 +16694,9 @@
       "ban_n": {
         "EquipmentHats147": 1,
         "Quest79": 500
+      },
+      "ban_o": {
+        "EquipmentCape23": 1
       },
       "bon_w": {
         "EquipmentCape10": 1
@@ -49758,7 +49774,8 @@
       "37": "Parchments_do_not_drop_from_AFK_Gains,_only_from_active_kills_while_online._Fighting_on_AUTO_works_of_course!",
       "46": "Royal_Guardians_only_get_Talent_Points_from_the_Royal_Armory,_other_Masterclasses,_and_several_other_small_sources._@_Importantly,_Class_LV_does_not_give_any_talent_points.",
       "53": "Top_of_list_resources_are_literally_the_resources_at_the_top_of_each_World_list,_like_Wheat_for_World_1!",
-      "73": "Each_rank_adds_a_new_stationary_unit!_These_are_not_adjustable,_and_the_type_of_unit_you_get_is_in_the_order_of_Worker,_Trader,_Guard,_then_Surveyor"
+      "73": "Each_rank_adds_a_new_stationary_unit!_These_are_not_adjustable,_and_the_type_of_unit_you_get_is_in_the_order_of_Worker,_Trader,_Guard,_then_Surveyor",
+      "75": "_@_*Regal_Intervention_spawns_+10_Regal_Mobs_when_triggered."
     }
   },
   "upgradeHelpPlaceholders": {

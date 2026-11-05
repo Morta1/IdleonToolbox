@@ -1,8 +1,7 @@
 import { Box, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
-import { formatGame } from '@utility/gameNotation';
+import { cleanUnderscore, formatDuration } from '@utility/helpers';
 import React from 'react';
-import { SUMMONING_COLOURS } from '@parsers/world-6/summoning';
+import { getSummoningUpgradeText, SUMMONING_COLOURS } from '@parsers/world-6/summoning';
 import useHydrated from '@hooks/useHydrated';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
@@ -11,8 +10,6 @@ import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 
 const UPGRADES_TOOLBAR = { sort: null, view: 'group' };
-// The upgrades that make every upgrade cheaper ("cost }% less Essence")
-const COST_UPGRADES = [49, 57, 72];
 
 const Upgrades = ({ upgrades, essences, familiarCostReset }) => {
   const hydrated = useHydrated();
@@ -24,16 +21,12 @@ const Upgrades = ({ upgrades, essences, familiarCostReset }) => {
     if (resetIn === null) return '';
     return resetIn > 0 ? line.replace('|', formatDuration(resetIn)) : 'Cost has reset since this save.';
   };
-  // The game's fill (N.js, the upgrade panel): every { is the bonus in commas (Summoning.SummUpgBonus), } the total
-  // in commas, except the cost upgrades, whose } is the share they take off the cost; | is the familiar cost's reset,
-  // here as the time left. A line whose } the parser has no total for is left out rather than printed empty.
-  const bonusText = (bonus, value, totalBonus, originalIndex) => {
-    const total = COST_UPGRADES.includes(originalIndex)
-      ? formatNum(100 * (1 - 1 / (1 + (value ?? 0) / 100)), 'pct', { bare: true })
-      : typeof totalBonus === 'number' ? formatGame(totalBonus, 'Summoning.SummUpgBonus') : null;
-    return bonus.split('@').filter((line) => total !== null || !line.includes('}')).map(resetLine).filter(Boolean).join('@')
-      .replaceAll('{', formatGame(value ?? 0, 'Summoning.SummUpgBonus'))
-      .replaceAll('}', total ?? '');
+  // The parser fills the game's text; | is the familiar cost's reset, here as the time left. A line whose } the parser
+  // has no total for is left out rather than printed empty.
+  const bonusText = (upgrade) => {
+    const bonus = typeof upgrade.totalBonus === 'number' ? upgrade.bonus
+      : (upgrade.bonus ?? '').split('@').filter((line) => !line.includes('}')).join('@');
+    return getSummoningUpgradeText({ ...upgrade, bonus }).split('\n').map(resetLine).filter(Boolean).join('@');
   };
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('summoning-upgrades', UPGRADES_TOOLBAR);
   const byCost = toolbar?.sort?.key === 'cost';
@@ -54,7 +47,7 @@ const Upgrades = ({ upgrades, essences, familiarCostReset }) => {
                      footer={<ItemCard.Cost icon={`data/SummC${colourIndex + 1}.png`}
                                             iconAlt={`${SUMMONING_COLOURS[colourIndex]} essence`}
                                             need={totalCost ?? 0} have={essences?.[colourIndex]}/>}>
-      <ItemCard.Desc text={bonusText(bonus, value, totalBonus, originalIndex)}/>
+      <ItemCard.Desc text={bonusText({ bonus, value, totalBonus, originalIndex })}/>
     </ItemCard>;
   };
 

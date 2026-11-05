@@ -3026,6 +3026,47 @@
     {
       "v": "2.3.492",
       "t": "added"
+    },
+    {
+      "v": "2.3.561",
+      "t": "changed",
+      "fields": [
+        {
+          "field": "name",
+          "from": "Thermister",
+          "to": "Catherine"
+        },
+        {
+          "field": "effect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "{10%_Cape_Vine_Bonus_Multi"
+        },
+        {
+          "field": "bonus",
+          "from": 1,
+          "to": 10
+        },
+        {
+          "field": "tourPower",
+          "from": 100,
+          "to": 180
+        },
+        {
+          "field": "upgradedTourPower",
+          "from": 99,
+          "to": 260
+        },
+        {
+          "field": "upgradedEffect",
+          "from": "Not_officially_in_the_game_and_may_never_be",
+          "to": "{20%_Cape_Vine_Bonus_Multi"
+        },
+        {
+          "field": "upgradedBonus",
+          "from": 1,
+          "to": 20
+        }
+      ]
     }
   ],
   "companions/106": [
@@ -9110,6 +9151,24 @@
   "bundles/ban_n": [
     {
       "v": "2.3.550",
+      "t": "added"
+    }
+  ],
+  "items/EquipmentCape23": [
+    {
+      "v": "2.3.561",
+      "t": "added"
+    }
+  ],
+  "monsters/cathie": [
+    {
+      "v": "2.3.561",
+      "t": "added"
+    }
+  ],
+  "bundles/ban_o": [
+    {
+      "v": "2.3.561",
       "t": "added"
     }
   ]

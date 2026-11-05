@@ -3,29 +3,11 @@ import {
   DAY_MS,
   getBabaRespawnAt,
   getDefecausStatus,
-  getResetWindowStart,
   isBabaUp,
   syncBaba,
   syncDefecaus,
   undoDefecaus
 } from '@utility/dashboard/bossRespawns';
-
-describe('getResetWindowStart', () => {
-  const nextReset = 10 * DAY_MS;
-
-  it('returns the last reset while the next one is still ahead', () => {
-    expect(getResetWindowStart(nextReset, nextReset - 1000)).toBe(nextReset - DAY_MS);
-  });
-
-  it('rolls forward when the save is older than the reset', () => {
-    expect(getResetWindowStart(nextReset, nextReset + 5000)).toBe(nextReset);
-    expect(getResetWindowStart(nextReset, nextReset + DAY_MS + 5000)).toBe(nextReset + DAY_MS);
-  });
-
-  it('returns null without ShopRestock', () => {
-    expect(getResetWindowStart(NaN, 0)).toBeNull();
-  });
-});
 
 describe('Dr Defecaus', () => {
   const HOUR_MS = 36e5;

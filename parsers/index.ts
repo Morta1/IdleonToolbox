@@ -96,6 +96,7 @@ import { getMenagerie, getMenagerieSave, getNightmarinerTotalLevels } from '@par
 import { getAdviceFish } from '@parsers/misc';
 import { getBubba } from '@parsers/clickers/bubba';
 import { getHatRack } from '@parsers/world-3/hatRack';
+import { getCapeVine } from '@parsers/world-4/capeVine';
 import { getFriendBonusStats } from '@parsers/misc';
 import { safeSection, trackSectionFailures } from '@parsers/safeSection';
 import type { IdleonData, Account, CompanionData, GuildData, ServerVars, TournamentData } from './types';
@@ -314,6 +315,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   }
   accountData.spelunking = safeSection<any>('spelunking', {}, () => getSpelunking(idleonData, accountData, charactersData));
   accountData.hatRack = safeSection<any>('hatRack', {}, () => getHatRack(idleonData, accountData));
+  accountData.capeVine = safeSection<any>('capeVine', {}, () => getCapeVine(idleonData, accountData));
   accountData.gaming = safeSection<any>('gaming', null, () => getGaming(idleonData, charactersData, accountData, serverVars));
   // reapply atoms
   accountData.atoms = safeSection<any>('atoms', {}, () => getAtoms(idleonData, accountData));

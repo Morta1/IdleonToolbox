@@ -69,6 +69,8 @@ const BUNDLES = {
   ban_m: { name: 'Pack of Magnificence', price: 34.99, gems: 8000, bonusGems: 4250 },
   // 2.3.550 (Halloween event), read off ban_n.png.
   ban_n: { name: 'Halloween Pack', price: 24.99, gems: 5700, bonusGems: 2700 },
+  // 2.3.561 (Cape Vine), read off ban_o.png.
+  ban_o: { name: "Cathie's Big Day Pack", price: 24.99, gems: 5600, bonusGems: 3000 },
   // The pet packs. Every one of these grants a companion and nothing else, so none of them appears
   // in the item extraction at all and none had a page here until pets got one. Read off the same
   // banners as the rest.

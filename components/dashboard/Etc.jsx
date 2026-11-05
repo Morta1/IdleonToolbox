@@ -1,8 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Library from '../account/Worlds/World3/Library';
 import NextLink from 'next/link';
 import { Box, Link, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum, getDuration, getNextCompanionClaim, splitTime } from '@utility/helpers';
+import { cleanUnderscore, formatNum, getDuration, getNextCompanionClaim, getNextResetAt, splitTime } from '@utility/helpers';
 import { fillVoteText, formatGame } from '@utility/gameNotation';
 import useFormatDate from '@hooks/useFormatDate';
 import { getMiniBossesData, getRandomEvents } from '@parsers/misc';
@@ -48,6 +48,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   // drifted by an extra refresh interval each time data updated. A row's time is then a real date, so its
   // Timer takes no lastUpdated, except the three the parsers anchor on their own clock (trap, salt, equinox).
   const now = lastUpdated ?? new Date().getTime();
+  const [mountedAt] = useState(() => Date.now());
   const emptyAlerts = Object.entries(trackers || {}).reduce((res, [alertName, data]) => {
     const allEmpty = Object.values(data || {}).every(({ checked }) => !checked);
     return { ...res, [alertName]: allEmpty };
@@ -85,15 +86,18 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const minibosses = getMiniBossesData(account).filter(({ rawName }) => showBoss(MINIBOSS_KEYS[rawName]));
   const showDefecaus = showBoss('drDefecaus');
   const showBaba = showBoss('babaYaga');
-  const dailyReset = now + account?.timeAway?.ShopRestock * 1000;
-  const weeklyReset = now + (account?.timeAway?.ShopRestock + 86400 * account?.accountOptions?.[OPT.daysUntilWeeklyReset]) * 1000;
+  // Absolute times off the save time, like the Bosses card, so their cards skip Timer's lastUpdated
+  // shift. Rolled on the wall clock: an old save's lastUpdated would leave them in the past.
+  const resetClock = Math.max(now, mountedAt);
+  const dailyReset = getNextResetAt(account, resetClock);
+  const weeklyReset = getNextResetAt(account, resetClock, { days: account?.accountOptions?.[OPT.daysUntilWeeklyReset], period: 7 * 864e5 });
   const crystalIsland = getIsland(account, 'Crystal');
   const crystalDays = crystalIsland?.unclaimedDays ?? 0;
   // Each daily reset adds a day. The day before the cap spawns the most mobs, so that day is the visit window.
   const crystalBestDays = CRYSTAL_ISLAND_MAX_DAYS - 1;
   const crystalInWindow = crystalDays === crystalBestDays;
   const crystalCapped = crystalDays >= CRYSTAL_ISLAND_MAX_DAYS;
-  const crystalIslandTime = dailyReset + Math.max(0, crystalBestDays - 1 - crystalDays) * 86400 * 1000;
+  const crystalIslandTime = dailyReset == null ? null : dailyReset + Math.max(0, crystalBestDays - 1 - crystalDays) * 86400 * 1000;
   const closestBuilding = account?.towers?.data?.reduce((closestBuilding, building) => {
     const trimmedSlots = getTotalGildedSlots(account);
     const isSlotTrimmed = building?.slot !== -1 && building?.slot < trimmedSlots;

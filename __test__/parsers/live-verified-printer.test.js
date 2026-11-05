@@ -10,11 +10,13 @@ import { GOD_SLOT } from '@parsers/world-5/divinity';
 // latest.json is that account's save (OptionsListAccount[340] matches). Caches were rebuilt first
 // (calcEtcBonuses, TalentCalc(-2), PaletteBonus(-1)). "NoDoot" = DNSM.CompanionBon[0] set to 0 in
 // try/finally, which is what a logged-in character under divinity 2 sees: Companions(0) returns 0.
+// 2.3.561 multiplies AdditionExtraPrinting by (1 + OptionsListAccount[479] * LegendPTS_bonus(17) / 100), which used to be
+// shown on the printer screen only. The two multis are the readings times that factor (20 days x 5% = x2).
 const GAME = {
-  // WorkbenchStuff("AdditionExtraPrinting", 0, 0)
-  printerMulti: 201.8144784429089,
-  // WorkbenchStuff("ExtraPrinting", char) for the Wind Walker (Wired In + Harriep)
-  samplePrinterMulti: 1210.8868706574533,
+  // WorkbenchStuff("AdditionExtraPrinting", 0, 0), 2.3.561 (201.8144784429089 before)
+  printerMulti: 403.6289568858178,
+  // WorkbenchStuff("ExtraPrinting", char) for the Wind Walker (Wired In + Harriep), 2.3.561 (1210.8868706574533 before)
+  samplePrinterMulti: 2421.7737413149066,
   // WorkbenchStuff("ExtraPrinting", t, 0) / AdditionExtraPrinting for every character
   extraPrintingFactor: Array(11).fill(6),
   extraPrintingFactorNoDoot: [2, 2, 2, 2, 6, 2, 2, 6, 2, 2, 2]
@@ -25,7 +27,7 @@ const { account, characters } = parseFixture(latest);
 const windWalker = characters.find(({ name }) => name === 'IAmTheHunterrr');
 
 describe('printer verified against the live game', () => {
-  it('printer multi: skill mastery and charm add in one factor, the legend talent is display only, King of the Remembered uses the active added levels', () => {
+  it('printer multi: skill mastery and charm add in one factor, the legend talent multiplies, King of the Remembered uses the active added levels', () => {
     within(getPrinterMulti(account, characters).value, GAME.printerMulti);
   });
 

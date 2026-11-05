@@ -5,6 +5,7 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
 import { getLoggedInSkillLevel } from '@parsers/misc';
 import { evaluateBreakdownNode, findBreakdownNode } from '@parsers/breakdown';
+import { getSummoningUpgradeText } from '@parsers/world-6/summoning';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
 // latest.json is that account's save (OptionsListAccount[340] matches).
@@ -13,7 +14,7 @@ const GAME = {
   summoningLevel: 146
 };
 // Summoning upgrades the game scales by Lv0[18]
-const LEVEL_SCALED_UPGRADES = [30, 40, 46, 52, 58, 65, 66, 67];
+const LEVEL_SCALED_UPGRADES = [30, 40, 52, 58, 65, 66, 67, 80];
 
 // Read on 2026-10-12, logged in as MortasNinth (Lv0[18] 166)
 const ESSENCE_GAME = {
@@ -60,6 +61,87 @@ const withLiveInputs = () => {
 const asMortasNinth = withLiveInputs();
 const essenceGain = asMortasNinth.account.summoning.essenceGain;
 
+// Read on 2026-11-02, logged in as MortasNinth: the upgrade panel's "Total bonus", each upgrade's own branch of
+// the panel's "}" expression, before CommaNotation
+const PANEL_GAME = {
+  totalBonus: {
+    // SummUpgBonus(27) x SummVictories(3), the blue circuit wins
+    27: 780360,
+    // SummUpgBonus(38) x SummVictories(4), the purple circuit wins
+    38: 593060,
+    // SummUpgBonus(46) x SummVictories(5), the red circuit wins
+    46: 527475,
+    // SummUpgBonus(73) x SummVictories(7), the teal circuit wins
+    73: 172076.4,
+    // SummUpgBonus(80) x Lv0[18]
+    80: 194376,
+    // round(SummUpgBonus(i) x GenINFO[170]), at the 441 the panel sets on open
+    60: 877260,
+    61: 871878,
+    // round(SummUpgBonus(i) x OptionsListAccount[319]), the endless wins
+    62: 474500,
+    63: 173448,
+    64: 484645,
+    // round(1e4 * (1 - 1 / (1 + SummUpgBonus(i) / 100))) / 100, the cost cut
+    49: 98.99,
+    57: 99.45,
+    72: 98.39,
+    // round(1e4 * (1 - 1 / (1 + SummUpgBonus(75) x GenINFO[170] / 100))) / 100, where opening the panel sets
+    // GenINFO[170] to floor(44151 upgrade levels / 100)
+    75: 98.95,
+    // UnitDMG(-1) x SummUpgBonus(68) / 100, with UnitDMG(-1) as armyDamage below
+    68: 7473648892457129
+  },
+  // UnitDMG(-1), read with the panel closed (GenINFO[170] 0) and its upgrade 60 factor moved to the 441 the panel
+  // sets on open; the battle-only terms (47 Seeing Red, 76 Hundredaire) were at their idle 0
+  armyDamage: 3061966933979485.5,
+  // Inputs that moved since the save was exported
+  drifted: {
+    upgradeLevels: [2920, 535, 0, 476, 817, 458, 1, 30, 1, 10, 517, 2727, 417, 863, 1, 332, 217, 10, 2749, 10, 461, 443,
+      30, 932, 3, 1, 20, 2787, 30, 269, 1364, 443, 3, 826, 1, 494, 30, 544, 2281, 100, 1496, 3, 286, 675, 849, 30, 1623, 10,
+      40, 644, 357, 332, 248, 687, 1566, 30, 327, 735, 221, 331, 163, 162, 325, 297, 272, 1338, 1598, 1425, 20, 30, 1, 1,
+      668, 1128, 276, 7, 83, 336, 16, 30, 1092, 240],
+    wonBattles: ['w7a10', 'rift4'],
+    // Holes[28], the gambit doublers
+    doubled: [60, 75, 65, 68],
+    // OptionsListAccount[319]
+    highestEndless: 73,
+    // MortasNinth's Lv0[18]
+    summoningLevel: 178,
+    // MortaWiiz's ABSOLUTE_STARDOM before added levels: getbonus2(1, 597, -1) read 189.1
+    absoluteStardom: 325
+  }
+};
+
+const withLivePanelInputs = () => {
+  const { upgradeLevels, wonBattles, doubled, highestEndless, summoningLevel, absoluteStardom } = PANEL_GAME.drifted;
+  const summon = JSON.parse(latest.data.Summon);
+  summon[0] = upgradeLevels;
+  summon[1] = [...summon[1], ...wonBattles];
+  const holes = JSON.parse(latest.data.Holes);
+  holes[28] = [...holes[28], ...doubled];
+  const options = [...latest.data.OptLacc];
+  options[319] = highestEndless;
+  const levels = [...latest.data.Lv0_8];
+  levels[18] = summoningLevel;
+  const talents = JSON.parse(latest.data.SL_4);
+  talents[597] = absoluteStardom;
+  return parseFixture({
+    ...latest,
+    data: {
+      ...latest.data,
+      Summon: JSON.stringify(summon),
+      Holes: JSON.stringify(holes),
+      OptLacc: options,
+      Lv0_8: levels,
+      SL_4: JSON.stringify(talents),
+      PTimeAway_8: Number(latest.data.PTimeAway_5) + 1
+    }
+  });
+};
+const panelSummoning = withLivePanelInputs().account.summoning;
+const panelUpgrades = Object.values(panelSummoning.upgrades).flat();
+
 describe('summoning verified against the live game', () => {
   it('upgrades scaled by Lv0[18] use the logged-in summoning level', () => {
     expect(getLoggedInSkillLevel(characters, 'summoning')).toBe(GAME.summoningLevel);
@@ -81,6 +163,28 @@ describe('summoning verified against the live game', () => {
 
   it.each(ESSENCE_GAME.essencePerHour.map((value, index) => [index, value]))('essence per hour of colour %i', (index, value) => {
     within(essenceGain[index].value, value);
+  });
+
+  it.each(Object.entries(PANEL_GAME.totalBonus))('the upgrade panel total bonus of upgrade %s', (index, value) => {
+    within(panelUpgrades.find(({ originalIndex }) => originalIndex === Number(index)).totalBonus, value);
+  });
+
+  // The panel's lines: CommaNotation for the bonus and most totals, the cost cuts as a plain %
+  it.each([
+    [46, '+40,575% Red Essence generated per hour for each Red circuit win.\nTotal bonus: +527,475%'],
+    [68, 'Spike damage is increased by 244% of your base unit damage.\nTotal Bonus Spike DMG: +7,474T'],
+    [75, 'Reduces the cost of all Summoning Upgrades by +21% for every 100 total summoning upgrades purchased.\n'
+      + 'Total bonus: 98.95% cost reduction']
+  ])('the upgrade panel text of upgrade %i', (index, text) => {
+    expect(getSummoningUpgradeText(panelUpgrades.find(({ originalIndex }) => originalIndex === index))).toBe(text);
+  });
+
+  it('the upgrade panel text fills every placeholder but the familiar cost reset', () => {
+    expect(panelUpgrades.map(getSummoningUpgradeText).filter((text) => /[{}>@]/.test(text))).toEqual([]);
+  });
+
+  it('army damage, every unit damage upgrade outside a battle', () => {
+    within(panelSummoning.armyDamage, PANEL_GAME.armyDamage);
   });
 });
 

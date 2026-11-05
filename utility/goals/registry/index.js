@@ -35,6 +35,7 @@ import equinoxChallenge from './equinoxChallenge';
 import totem from './totem';
 import deathNote from './deathNote';
 import hatRack from './hatRack';
+import capeVine from './capeVine';
 import armorSet from './armorSet';
 import pet from './pet';
 import petUpgrade from './petUpgrade';
@@ -167,7 +168,7 @@ export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory,
   postOffice, charLevel,
   statue, forge, owl, bribe, arcade, vial, sigil, cauldronUpgrade, killroyKills, killroyUpgrade, killroyShop, kangaroo, island,
   shrine, prayer, salt, saltLick, building, atom, equinoxUpgrade, equinoxChallenge, totem, deathNote, hatRack, armorSet,
-  pet, petUpgrade, meal, kitchen, chip, jewel, tome, card, achievement, task, merit, taskUnlock, rift,
+  pet, petUpgrade, capeVine, meal, kitchen, chip, jewel, tome, card, achievement, task, merit, taskUnlock, rift,
   god, fertilizer, gamingImport, superbit, logBook, palette, villager, majik, measurement, study, schematic, artifact, captain, boat, lootPile, slab,
   farmMarket, exoticMarket, landRank, crop, sticker, sneakUpgrade, jade, gemstone, pristineCharm, summonUpgrade, summonBattle, emperor,
   legendTalent, spelunkUpgrade, spelunkChapter, discovery, loreBoss, elixir, researchSquare, observation,

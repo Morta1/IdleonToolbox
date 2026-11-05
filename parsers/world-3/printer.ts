@@ -10,7 +10,7 @@ import { getCompassBonus } from '@parsers/class-specific/compass';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { items, refinery } from '@website-data';
 import type { IdleonData, Account } from '../types';
-import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, listGroup, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 import { OPT } from '@parsers/accountOptions';
 
 // The sample multipliers stacked on top of the printer multi
@@ -88,6 +88,7 @@ const parsePrinter = (rawPrinter: any[], rawExtraPrinter: any[], charactersData:
   });
 }
 
+// game: "AdditionExtraPrinting"
 export const getPrinterMulti = (accountData: Account, charactersData: any[]) => {
   const goldRelicBonus = getArtifactFormBonus(accountData?.sailing?.artifacts, 'Gold_Relic');
   const daysSinceLastSample = accountData?.accountOptions?.[OPT.daysSinceLastSample] ?? 0;
@@ -105,7 +106,6 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
   const companionBonus = 1 + Number(accountData?.accountOptions?.[OPT.printerCompanionDays] ?? 0) * isCompanionBonusActive(accountData, 17) / 100;
   const compassBonus = 1 + (Number(accountData?.accountOptions?.[OPT.printerCompassDays] ?? 0) * getCompassBonus(accountData, 43)) / 100;
   // Legend talent "Yet Another Printer Multi" (index 17): +x% printer output per day for 20 days, resets on sample.
-  // The printer screen lists it, but AdditionExtraPrinting (what the printing uses) never multiplies it in.
   const legendTalentDays = Number(accountData?.accountOptions?.[OPT.printerLegendTalentDays]) || 0;
   const legendTalentBonus = getLegendTalentBonus(accountData, 17) ?? 0;
   const yetAnotherPrinterMulti = 1 + (legendTalentDays * legendTalentBonus) / 100;
@@ -121,9 +121,7 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
     multiplier('Winter event', 1 + (2 * Number(accountData?.accountOptions?.[OPT.printerEventShopDays] ?? 0) * getEventShopBonus(accountData, 4)) / 100),
     multiplier('Companion', companionBonus),
     multiplier('Compass', compassBonus),
-    listGroup('Not applied by the game', [
-      multiplier('Yet Another Printer Multi (Legend talent)', yetAnotherPrinterMulti, { note: 'Game bug: shown on the printer screen, never applied to printing' })
-    ])
+    multiplier('Yet Another Printer Multi (Legend talent)', yetAnotherPrinterMulti)
   ]);
   const extraPrinting = evaluateBreakdownNode(multipliers);
 
@@ -150,7 +148,8 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
 * voteBonus
 * (1 + (2 * accountData?.accountOptions?.[OPT.printerEventShopDays] * getEventShopBonus(accountData, 4)) / 100)
 * companionBonus
-* compassBonus`
+* compassBonus
+* (1 + (legendTalentDays * legendTalentBonus) / 100)`
   }
 }
 export const calcTotals = (account: Account, showAlertWhenFull: any) => {

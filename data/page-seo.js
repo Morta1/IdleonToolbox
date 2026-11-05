@@ -57,6 +57,7 @@ export const PAGE_SEO = {
   "/account/world-3/traps": { title: "Traps | Idleon Toolbox", description: "Keep track of your traps timing, critters amounts and more" },
   "/account/world-3/worship": { title: "Worship | Idleon Toolbox", description: "Keep track of your worship charge and charge rate for all of your characters" },
   "/account/world-4/breeding": { title: "Breeding | Idleon Toolbox", description: "Keep track of your breeding upgrades, eggs and arena upgrades" },
+  "/account/world-4/cape-vine": { title: "Cape Vine | Idleon Toolbox", description: "Keep track of your Cape Vine bonuses, Golden Vines and every cape you still need" },
   "/account/world-4/cooking": { title: "Cooking | Idleon Toolbox", description: "Track your kitchen meal levels, cooking speed, and recipe bonuses for all meals in Legends of Idleon" },
   "/account/world-4/laboratory": { title: "Laboratory | Idleon Toolbox", description: "Keep track of your lab upgrades, lab connected players, chips and more" },
   "/account/world-4/rift": { title: "Rift | Idleon Toolbox", description: "Track your Rift bonuses, task completion, and skill upgrades in Legends of Idleon World 4" },

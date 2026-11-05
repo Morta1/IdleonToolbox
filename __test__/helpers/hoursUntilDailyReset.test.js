@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getDailyResetAt, hoursUntilDailyReset } from '@utility/helpers';
+import { getDailyResetAt, getNextResetAt, hoursUntilDailyReset } from '@utility/helpers';
 
 // timeAway.ShopRestock is a countdown in seconds captured when the save was taken, and
 // timeAway.GlobalTime is when that happened - so the live answer has to net the two off.
@@ -37,5 +37,23 @@ describe('getDailyResetAt', () => {
     expect(getDailyResetAt(save, 0)).toBe(getDailyResetAt(save, 9 * 36e5));
     expect(getDailyResetAt(save)).toBe((1000 + 5 * 3600) * 1000);
     expect(getDailyResetAt({ timeAway: { ShopRestock: 60 } }, 500)).toBe(60500);
+  });
+});
+
+describe('getNextResetAt', () => {
+  const DAY = 864e5;
+  const save = { timeAway: { GlobalTime: 0, ShopRestock: 10 * 86400 } };
+
+  it.each([
+    ['keeps a reset still ahead', 10 * DAY - 1000, {}, 10 * DAY],
+    ['rolls a passed reset by a day', 10 * DAY, {}, 11 * DAY],
+    ['rolls as many days as the save outlived', 11 * DAY + 5000, {}, 12 * DAY],
+    ['adds the weekly days and rolls by a week', 13 * DAY, { days: 2, period: 7 * DAY }, 19 * DAY]
+  ])('%s', (_, clock, options, expected) => {
+    expect(getNextResetAt(save, clock, options)).toBe(expected);
+  });
+
+  it('returns null without ShopRestock', () => {
+    expect(getNextResetAt({}, 0)).toBeNull();
   });
 });

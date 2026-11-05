@@ -1,4 +1,4 @@
-import { createRange, groupByKey, notateNumber, prefix, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, createRange, groupByKey, notateNumber, prefix, tryToParse } from '@utility/helpers';
 import { monsterImage } from '@utility/spriteImages';
 import {
   deathNote,
@@ -197,9 +197,9 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
     const { ceilBelow } = gameTables.summoningUpgradeCostDisplay;
     return { ...upgrade, totalCost: cost < ceilBelow ? Math.ceil(cost) : cost }
   });
-  upgrades = updateTotalBonuses(upgrades, careerWins, characters, highestEndlessLevel);
   const armyHealth = getArmyHealth(upgrades, totalUpgradesLevels, account);
   const armyDamage = getArmyDamage(upgrades, totalUpgradesLevels, account);
+  upgrades = updateTotalBonuses(upgrades, careerWins, characters, highestEndlessLevel, armyDamage);
   upgrades = groupByKey(upgrades, ({ colour }: any) => colour);
 
   const stoneMapsIds = {
@@ -399,7 +399,9 @@ const getArmyDamage = (upgrades: any, totalUpgradesLevels: any, account: any) =>
     const hpBonus = upgrades.find(({ originalIndex }: any) => originalIndex === bonusIndex) || {};
     return sum + hpBonus?.value
   }, 0);
-  const firstMulti = upgrades.find(({ originalIndex }: any) => originalIndex === 43)?.value || 0;
+  const firstMulti = [43, 74].reduce((sum, bonusIndex) => {
+    return sum + (upgrades.find(({ originalIndex }: any) => originalIndex === bonusIndex)?.value || 0);
+  }, 0);
   const secondMulti = upgrades.find(({ originalIndex }: any) => originalIndex === 51)?.value || 0;
   const moreAdditive = upgrades.find(({ originalIndex }: any) => originalIndex === 56)?.value || 0;
   const thirdMulti = upgrades.find(({ originalIndex }: any) => originalIndex === 47)?.value || 0;
@@ -448,8 +450,9 @@ export const getSummoningUpgradeBonus = (account: any, upgradeIndex: number) => 
   return 0;
 }
 
-// game: these upgrades scale by Lv0[18], the logged-in character's summoning level
-const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], highestEndlessLevel: any) => {
+// game: the upgrade panel's "}" (Total bonus). The level scaled upgrades read Lv0[18], the logged-in character's
+// summoning level.
+const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], highestEndlessLevel: any, armyDamage: number) => {
   const summoningLevel = characters?.length ? getLoggedInSkillLevel(characters, 'summoning') : 1;
   const allWins: any = Object.values(careerWins).reduce((sum: any, wins: any) => sum + wins, 0);
   const totalUpgrades = upgrades.reduce((sum: any, { level }: any) => sum + level, 0);
@@ -467,36 +470,53 @@ const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], h
         totalBonus = upgrade.value * careerWins[2];
         break;
       case 27:
-        totalBonus = upgrade.value * careerWins[2];
+        totalBonus = upgrade.value * careerWins[3];
         break;
       case 38:
-        totalBonus = upgrade.value * careerWins[3];
+        totalBonus = upgrade.value * careerWins[4];
+        break;
+      case 46:
+        totalBonus = upgrade.value * careerWins[5];
         break;
       case 54:
         totalBonus = upgrade.value * careerWins[6];
         break;
+      case 73:
+        totalBonus = upgrade.value * careerWins[7];
+        break;
+      // The cost cut, as the % the panel prints
       case 49:
       case 57:
-        totalBonus = upgrade.value;
+      case 72:
+        totalBonus = Math.round(1e4 * (1 - 1 / (1 + upgrade.value / 100))) / 100;
         break;
       case 30:
       case 40:
       case 65:
       case 66:
       case 67:
-      case 46:
       case 52:
       case 58:
+      case 80:
         totalBonus = upgrade.value * summoningLevel;
         break;
+      // Per full 100 upgrade levels
       case 60:
       case 61:
-        totalBonus = upgrade.value * (totalUpgrades / 100);
+        totalBonus = Math.round(upgrade.value * Math.floor(totalUpgrades / 100));
         break;
       case 62:
       case 63:
       case 64:
-        totalBonus = upgrade.value * highestEndlessLevel;
+        totalBonus = Math.round(upgrade.value * highestEndlessLevel);
+        break;
+      // Spike damage: a share of UnitDMG(-1)
+      case 68:
+        totalBonus = armyDamage * (upgrade.value / 100);
+        break;
+      // The cost cut per full 100 upgrade levels, as the % the panel prints
+      case 75:
+        totalBonus = Math.round(1e4 * (1 - 1 / (1 + upgrade.value * Math.floor(totalUpgrades / 100) / 100))) / 100;
         break;
       default:
         break;
@@ -506,6 +526,21 @@ const updateTotalBonuses = (upgrades: any, careerWins: any, characters: any[], h
       totalBonus
     }
   });
+}
+
+// The cost cuts, which the panel prints as an already rounded %
+const PLAIN_TOTAL_UPGRADES = [49, 57, 72, 75];
+
+// game: the upgrade panel's text, every occurrence replaced (StringTools.replace). { is CommaNotation(bonus),
+// > is round(100 + bonus) / 100, } is the total and "@" is a line break. "|" (the familiar cost reset) is left for
+// the page to fill.
+export const getSummoningUpgradeText = ({ bonus, value, totalBonus, originalIndex }: any): string => {
+  const total = PLAIN_TOTAL_UPGRADES.includes(originalIndex) ? totalBonus : commaNotation(totalBonus);
+  const text = String(bonus ?? '')
+    .split('{').join(commaNotation(value))
+    .split('>').join(String(Math.round(100 + value) / 100))
+    .split('}').join(String(total));
+  return (cleanUnderscore(text) ?? '').split('@').map((line) => line.trim()).join('\n');
 }
 
 // game: Summoning("SummRockEssGen", colour), essence per hour from each summoning rock

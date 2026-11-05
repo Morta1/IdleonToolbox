@@ -35,7 +35,7 @@ import { getCardBonusByEffect } from '@parsers/cards';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getTomeBubbleMulti } from '@parsers/world-4/tome';
 import LavaRand from '../../utility/lavaRand';
-import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, listGroup, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 import { saveField } from '@parsers/saveField';
 import { OPT } from '@parsers/accountOptions';
 
@@ -655,9 +655,8 @@ const getScoredPlotPrevRanks = (plots: any[] = []) => {
     .map(({ prevRank }: any) => prevRank);
 };
 
-// The game's collect adds rank EXP from the market and the Soil Exp land ranks only. The talent
-// and the Stableroot / Vigouroot exotics feed the farming screen's Land Rank EXP stat, which
-// nothing else reads.
+// The game's collect: market, the Soil Exp land ranks and max(1, LandRankEXPmulti), which since 2.3.561
+// is PlotRankGain (before it returned 1). PlotRankGain adds the market a second time.
 const getLandRankExpBreakdown = (account: any, characters: any) => {
   const talentBonus = getHighestTalentAcrossCharacters(characters, 'AGRICULTURAL_\'PRECIATION', getBestActiveCharacter(characters)) ?? 0;
   const marketBonus = getMarketBonus(account?.farming?.market, 'RANK_BOOST');
@@ -674,9 +673,25 @@ const getLandRankExpBreakdown = (account: any, characters: any) => {
   const avgPrevRank = prevRanks.reduce((sum: number, rank: number) => sum + rank, 0) / (prevRanks.length || 1);
   const soilExpBoostMulti = 1 + (soilExpBoost * avgPrevRank) / 100;
 
+  // game: "FarmingStuffs:PlotRankGain"
+  const plotRankGain = productGroup('Land Rank EXP multi', [
+    multiplier('Menagerie Boost', 1 + getMenagerieBoost(account, 19) / 100),
+    multiplier('Talent (Ag. Appreciation)', 1 + talentBonus / 100),
+    additiveGroup(NUMBERED_GROUP, [
+      percent('Rank Boost (Market)', marketBonus),
+      percent('Stableroot I (Exotic)', exotic9),
+      percent('Stableroot II (Exotic)', exotic10),
+      percent('Stableroot III (Exotic)', exotic11)
+    ]),
+    multiplier('Vigouroot I (Exotic)', 1 + exotic12 / 100),
+    multiplier('Vigouroot II (Exotic)', 1 + exotic13 / 100)
+  ]);
+  const landRankExpMulti = Math.max(1, evaluateBreakdownNode(plotRankGain));
+
   const value = (1 + marketBonus / 100)
     * soilExpBoostMulti
-    * (1 + (soilExpSuperboost + soilExpMegaboost) / 100);
+    * (1 + (soilExpSuperboost + soilExpMegaboost) / 100)
+    * landRankExpMulti;
 
   return createBreakdown('Land Rank EXP', value, [
     multiplier('Rank Boost (Market)', 1 + marketBonus / 100),
@@ -687,16 +702,7 @@ const getLandRankExpBreakdown = (account: any, characters: any) => {
       percent('Soil Exp Superboost (Land Rank)', soilExpSuperboost),
       percent('Soil Exp Megaboost (Land Rank)', soilExpMegaboost)
     ]),
-    // game: "FarmingStuffs:PlotRankGain" (the collect multiplies by LandRankEXPmulti, which is 1)
-    listGroup('Not applied by the game', [
-      multiplier('Menagerie Boost', 1 + getMenagerieBoost(account, 19) / 100),
-      multiplier('Talent (Ag. Appreciation)', 1 + talentBonus / 100),
-      percent('Stableroot I (Exotic)', exotic9),
-      percent('Stableroot II (Exotic)', exotic10),
-      percent('Stableroot III (Exotic)', exotic11),
-      multiplier('Vigouroot I (Exotic)', 1 + exotic12 / 100),
-      multiplier('Vigouroot II (Exotic)', 1 + exotic13 / 100)
-    ], { note: 'Game bug: listed on the farming screen, but never added to Land Rank EXP' })
+    plotRankGain
   ]);
 };
 

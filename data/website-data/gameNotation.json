@@ -165,6 +165,7 @@
   "FishingToolkit.EXP": "Round",
   "FishingToolkit.POW": "Round",
   "FishingToolkit.SPEED": "Round",
+  "Gallery.CapevineBonusMulti": "MultiplierInfo",
   "Gallery.GalleryBonusMulti": "MultiplierInfo",
   "Gallery.HatrackBonusMulti": "MultiplierInfo",
   "GamingStatType.AcornShopBonus": "Tenths",

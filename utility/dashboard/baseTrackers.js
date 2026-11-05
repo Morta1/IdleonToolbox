@@ -398,6 +398,13 @@ export const baseTrackers = {
             helperText: 'Alert when Tome ranking nametags are available to claim'
           }
         ]
+      },
+      capeVine: {
+        checked: true,
+        options: [
+          { name: 'capesMissing', checked: true },
+          { name: 'goldenVine', checked: true }
+        ]
       }
     },
     'World 5': {
