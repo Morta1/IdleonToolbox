@@ -1,12 +1,16 @@
 import React from 'react';
-import { Autocomplete, Stack, TextField, Typography } from '@mui/material';
-import { cleanUnderscore } from '@utility/helpers';
+import { Autocomplete, Box, Stack, TextField } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import AppDialog from '@components/common/Overlays/AppDialog';
-import { iconFor, itemsForSlot } from './slots';
+import GameIcon from '@components/common/GameIcon';
+import { DRAWN_SLOTS, iconFor, itemsForSlot } from './slots';
+
+const MUTED_SX = { color: 'text.secondary', fontSize: 12 };
 
 const ItemPickerDialog = ({ open, slot, value, onPick, onClose }) => {
   const options = slot ? itemsForSlot(slot) : [];
-  return <AppDialog open={open} onClose={onClose} size={'m'} title={`Pick a ${slot ?? ''}`}
+  const slotName = DRAWN_SLOTS.find((entry) => entry.slot === slot)?.label?.toLowerCase() ?? '';
+  return <AppDialog open={open} onClose={onClose} size={'m'} title={`Pick a ${slotName}`}
                     actions={[{
                       label: 'Clear slot', onClick: () => {
                         onPick(null);
@@ -22,13 +26,11 @@ const ItemPickerDialog = ({ open, slot, value, onPick, onClose }) => {
       onChange={(_, item) => { onPick(item ?? null); onClose(); }}
       renderOption={(props, item) => <li {...props} key={item.rawName}>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <img width={28} height={28} style={{ objectFit: 'contain' }} src={iconFor(slot, item)} alt=""/>
-          <Typography>{cleanUnderscore(item.displayName)}</Typography>
-          {item.lvReqToEquip == null
-            ? null
-            : <Typography variant={'caption'} color={'text.secondary'}>lv {item.lvReqToEquip}</Typography>}
+          <GameIcon src={iconFor(slot, item)} size={24} alt={''}/>
+          {cleanUnderscore(item.displayName)}
+          {item.lvReqToEquip == null ? null : <Box component={'span'} sx={MUTED_SX}>{formatNum(item.lvReqToEquip, 'level')}</Box>}
           {item.Class && item.Class !== 'ALL'
-            ? <Typography variant={'caption'} color={'text.secondary'}>{cleanUnderscore(item.Class.toLowerCase())}</Typography>
+            ? <Box component={'span'} sx={MUTED_SX}>{cleanUnderscore(item.Class.toLowerCase()).capitalize()}</Box>
             : null}
         </Stack>
       </li>}

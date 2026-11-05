@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
 import { companions, items } from '@website-data';
 import manifest from '../../data/player-sprites-manifest.json';
@@ -13,6 +13,7 @@ import SlotGrid from '@components/tools/wardrobe/SlotGrid';
 import ItemPickerDialog from '@components/tools/wardrobe/ItemPickerDialog';
 import PoseBar from '@components/tools/wardrobe/PoseBar';
 import CharacterSelect from '@components/tools/wardrobe/CharacterSelect';
+import Panel from '@components/common/cards/Panel';
 
 const SLOT_INDEX = { hat: 0, premiumHat: 8, weapon: 1, trophy: 10, cape: 12, nametag: 14, costume: 15 };
 // EquipOrder slot 8 is the premium (cosmetic) hat, verified in the game code; the game draws it
@@ -169,29 +170,25 @@ const Wardrobe = () => {
       title="Wardrobe | Idleon Toolbox"
       description="Dress a Legends of Idleon character in any hat, weapon, cape, costume, trophy, nametag or companion and watch it move the way the game draws it"
     />
-    <Typography variant={'body2'} sx={{ maxWidth: 600 }} mb={3}>
+    <Typography variant={'body2'} color={'text.secondary'} mb={3}>
       Dress a character in any hat, weapon, cape, costume, trophy, nametag or companion and watch it move the way the game draws it.
     </Typography>
     <Stack direction={'row'} gap={3} flexWrap={'wrap'} alignItems={'flex-start'}>
-      <Card sx={{ flex: '0 1 auto', minWidth: 0 }}>
-        <CardContent>
-          <Stack gap={2} alignItems={'center'}>
-            <PaperDollCanvas manifest={manifest} state={dollState} playing={playing} canvasRef={canvasRef}
-                             onUnsupported={setUnsupported}/>
-            <PoseBar poses={OUTFIT_POSES} pose={poseChoice} playing={playing} onPose={setPoseChoice}
-                     onTogglePlay={() => setPlaying((p) => !p)} onDownload={download}/>
-          </Stack>
-        </CardContent>
-      </Card>
-      <Card sx={{ flex: '1 1 420px', minWidth: 0 }}>
-        <CardContent>
-          <Stack gap={2}>
-            <CharacterSelect characters={characters} characterName={characterName}
-                             onPickCharacter={pickCharacter}/>
-            <SlotGrid loadout={loadout} unsupported={unsupported} onSlotClick={setPickerSlot}/>
-          </Stack>
-        </CardContent>
-      </Card>
+      <Panel title={'Preview'} sx={{ flex: '0 1 auto', minWidth: 0, maxWidth: '100%' }}>
+        <Stack gap={2} alignItems={'center'} sx={{ p: 2 }}>
+          <PaperDollCanvas manifest={manifest} state={dollState} playing={playing} canvasRef={canvasRef}
+                           onUnsupported={setUnsupported}/>
+          <PoseBar poses={OUTFIT_POSES} pose={poseChoice} playing={playing} onPose={setPoseChoice}
+                   onTogglePlay={() => setPlaying((p) => !p)} onDownload={download}/>
+        </Stack>
+      </Panel>
+      <Panel title={'Wardrobe'} sx={{ flex: '1 1 420px', minWidth: 0 }}>
+        <Stack gap={2} sx={{ p: 2 }}>
+          <CharacterSelect characters={characters} characterName={characterName}
+                           onPickCharacter={pickCharacter}/>
+          <SlotGrid loadout={loadout} unsupported={unsupported} onSlotClick={setPickerSlot}/>
+        </Stack>
+      </Panel>
     </Stack>
     <ItemPickerDialog open={!!pickerSlot} slot={pickerSlot} value={pickerSlot ? loadout[pickerSlot] : null}
                       onPick={(item) => setLoadout((l) => ({ ...l, [pickerSlot]: item }))}

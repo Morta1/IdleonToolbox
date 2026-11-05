@@ -1,7 +1,6 @@
 import { companions, itemsArray } from '@website-data';
 import { companionOption, SLOT_TYPES } from '@utility/wardrobeQuery';
-import { prefix } from '@utility/helpers';
-import { monsterImage } from '@utility/spriteImages';
+import { monsterSprite } from '@utility/spriteImages';
 
 // EquipOrder[0] indices, verified from a saved character and from the game's own code: 0 hat,
 // 1 weapon, 2 shirt, 3 pendant, 4 pants, 5 ring, 6 shoes, 7 ring, 8 premium (cosmetic) hat,
@@ -63,10 +62,11 @@ const slotItems = (slot) => {
 export const itemsForSlot = (slot) => (slot === 'companion' ? companionOptions() : slotItems(slot)
   .sort((a, b) => (a.lvReqToEquip ?? 0) - (b.lvReqToEquip ?? 0) || a.displayName.localeCompare(b.displayName)));
 
-// A companion's art comes from the monster it is a pet of; everything else is an item icon.
+// A companion's art comes from the monster it is a pet of; everything else is an item icon. A path under public/: GameIcon
+// adds the site prefix.
 export const iconFor = (slot, value) => (slot === 'companion'
-  ? monsterImage(value.rawName)
-  : `${prefix}data/${value.rawName}.png`);
+  ? monsterSprite(value.rawName)
+  : `data/${value.rawName}.png`);
 
 // The Wardrobe shows only what the game draws, in the order the design fixed (not slot order):
 // body layers first, then the two label decorations, then the companion. The companion has no

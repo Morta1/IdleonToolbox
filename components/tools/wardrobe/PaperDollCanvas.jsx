@@ -135,7 +135,7 @@ const PaperDollCanvas = ({ manifest, state, playing = true, scale = DEFAULT_SCAL
     return () => cancelAnimationFrame(frame);
   }, [manifest, scale, ref]);
 
-  return <Box sx={{ display: 'inline-block', lineHeight: 0, background: '#1f2833', borderRadius: 2 }}>
+  return <Box sx={{ display: 'inline-block', lineHeight: 0, bgcolor: 'background.default', borderRadius: 2 }}>
     {/* height auto keeps the aspect when a narrow viewport shrinks the width */}
     <canvas ref={ref} width={CANVAS.width * scale} height={CANVAS.height * scale}
             style={{ width: '100%', maxWidth: CANVAS.width * 3, height: 'auto', display: 'block' }}/>

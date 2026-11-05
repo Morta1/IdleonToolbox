@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { DRAWN_SLOTS, EQUIPMENT_SLOTS, iconFor, itemsForSlot } from '@components/tools/wardrobe/slots';
 import { SLOT_TYPES } from '@utility/wardrobeQuery';
-import { monsterImage } from '@utility/spriteImages';
+import { monsterSprite } from '@utility/spriteImages';
 import { companions, itemsArray } from '@website-data';
 
 describe('itemsForSlot', () => {
@@ -60,7 +60,7 @@ describe('the companion slot', () => {
     expect(options.length).toBe(companions.filter(({ name }) => name?.trim()).length - 1);
   });
   it('draws its icon from the monster the companion is a pet of', () => {
-    expect(iconFor('companion', { rawName: 'ram' })).toBe(monsterImage('ram'));
+    expect(iconFor('companion', { rawName: 'ram' })).toBe(monsterSprite('ram'));
   });
   it('draws every other slot from the item art', () => {
     expect(iconFor('hat', { rawName: 'EquipmentHats1' })).toMatch(/data\/EquipmentHats1\.png$/);
