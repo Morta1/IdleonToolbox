@@ -72,7 +72,7 @@ const Breeding = () => {
       <PageSummary>
         <StatTile label={'Time to next egg'}
                   info={'The game updates this timer only when you enter the World 4 town.'}
-                  value={sectionFailed ? '-' : <Timer type={'countdown'} stopAtZero lastUpdated={state?.lastUpdated}
+                  value={sectionFailed ? '-' : <Timer type={'countdown'} lastUpdated={state?.lastUpdated}
                                                      date={now + (timePerEgg - (breeding?.timeToNextEgg ?? 0))}/>}/>
         <StatTile label={'Time per egg'} value={sectionFailed ? '-' : <Duration seconds={timePerEgg / 1000}/>}/>
         <StatTile label={'Eggs'} icon={'data/PetEgg1.png'}

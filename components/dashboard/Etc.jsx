@@ -42,8 +42,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const failed = (section) => isSectionFailed(account, section);
   // Anchor timer math to `lastUpdated` (the data-fetch timestamp) rather than `new Date().getTime()`.
   // React Compiler hoists `new Date().getTime()` into a no-dep memo slot and never re-runs it, so timers
-  // drifted by an extra refresh interval each time data updated. <Timer> already compensates for the
-  // wall clock advancing between refreshes via its own `timePassed` calculation.
+  // drifted by an extra refresh interval each time data updated. A row's time is then a real date, so its
+  // Timer takes no lastUpdated, except the three the parsers anchor on their own clock (trap, salt, equinox).
   const now = lastUpdated ?? new Date().getTime();
   const emptyAlerts = Object.entries(trackers || {}).reduce((res, [alertName, data]) => {
     const allEmpty = Object.values(data || {}).every(({ checked }) => !checked);
@@ -267,14 +267,14 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
       {!emptyAlerts?.General && <Section title={'General'}>
         {trackers?.General?.daily?.checked && <TimerRow target="General.daily"
           message={`Daily reset: ${getRealDateInMs(dailyReset)}`}
-          lastUpdated={lastUpdated}
           time={dailyReset}
+          placeholder={'Passed'}
           icon={'etc/Daily.png'}
         />}
         {trackers?.General?.weekly?.checked && <TimerRow target="General.weekly"
           message={`Weekly reset: ${getRealDateInMs(weeklyReset)}`}
-          lastUpdated={lastUpdated}
           time={weeklyReset}
+          placeholder={'Passed'}
           icon={'etc/Weekly.png'}
         />}
         {trackers?.General?.serverWeekly?.checked && timeAway ? <TimerRow target="General.serverWeekly"
@@ -282,15 +282,15 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             <Typography variant="body2">Server weekly reset: {getRealDateInMs(serverWeeklyReset)}</Typography>
             <Typography variant="body2">Weekly bosses, jewel spinner, chip repo, exotic market</Typography>
           </Stack>}
-          lastUpdated={lastUpdated}
           time={serverWeeklyReset}
+          placeholder={'Passed'}
           icon={'etc/Server.png'}
         /> : null}
         {trackers?.General?.companions?.checked && <TimerRow target="General.companions"
           page={'/account/prem-currency/pets'}
           message={'Next companion claim: ' + getRealDateInMs(nextCompanionClaim)}
           failed={failed('companions')}
-          absolute time={nextCompanionClaim}
+          time={nextCompanionClaim}
           icon={'afk_targets/Dog.png'}
           placeholder={'Claim'}
         />}
@@ -304,7 +304,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
                 ? `Visit before it caps: ${getRealDateInMs(crystalIslandTime)}`
                 : `${crystalBestDays} days (${getCrystalIslandMobs(crystalBestDays)} mobs): ${getRealDateInMs(crystalIslandTime)}`}</Typography>
           </Stack>}
-          lastUpdated={lastUpdated} time={crystalIslandTime}
+          time={crystalIslandTime}
           icon={'afk_targets/Crystal_Carrot.png'}
           placeholder={crystalInWindow || crystalCapped ? 'Capped' : 'Visit'}
           placeholderStatus={crystalInWindow || crystalCapped ? 'problem' : 'ready'}
@@ -315,7 +315,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           <TimerRow target="General.syphonCharge"
             page={'/account/world-3/worship'}
             message={`Overflow syphon Charge (${bestWizard?.worship?.maxCharge + bestChargeSyphon}): ` + getRealDateInMs(timeToOverCharge)}
-            lastUpdated={lastUpdated} time={timeToOverCharge}
+          time={timeToOverCharge}
             icon={'data/UISkillIcon475.png'}
             placeholder={'Full'}
           />
@@ -329,7 +329,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
                 : 'All characters charge is full'}
               placeholder={'Full'}
               forcePlaceholder={!isFinite(closestWorshiper?.timeLeft)}
-              lastUpdated={lastUpdated} time={now + closestWorshiper?.timeLeft}
+          time={now + closestWorshiper?.timeLeft}
               icon={'data/WorshipSkull3.png'} /> : null}
           </>
           : null}
@@ -337,7 +337,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           <TimerRow target="General.dungeonHappyHour"
             page={'/account/misc/dungeons'}
             message={'Next happy hour: ' + getRealDateInMs(nextHappyHours?.[0])}
-            absolute time={nextHappyHours?.[0]}
+            time={nextHappyHours?.[0]}
             icon={'etc/Happy_Hour.png'}
             placeholder={'Claim'}
           />
@@ -345,14 +345,16 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {trackers?.General?.randomEvents?.checked && events?.length > 0 ? <TimerRow target="General.randomEvents"
           page={'/account/misc/random-events'}
           message={<RandomEvent {...nextEvent}/>}
-          absolute time={nextEvent?.date}
+          time={nextEvent?.date}
+          placeholder={'Started'}
           icon={`etc/${nextEvent?.eventName}.png`}
         /> : null}
         {trackers?.General?.sailingTrades?.checked && account?.finishedWorlds?.World4 && account?.sailing?.trades?.length > 0
           ? <TimerRow target="General.sailingTrades"
             page={'/account/world-5/sailing'} query={{ t: 'Trades' }}
             message={<Trade {...account?.sailing?.trades?.[0]}/>}
-            lastUpdated={lastUpdated} time={new Date(account?.sailing?.trades?.[0]?.date).getTime()}
+          time={new Date(account?.sailing?.trades?.[0]?.date).getTime()}
+            placeholder={'Open'}
             icon={`data/${account?.sailing?.trades?.[0]?.rawName}.png`}
           /> : null}
       </Section>}
@@ -362,7 +364,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           message={'Next feather restart: ' + getRealDateInMs(nextFeatherRestart)}
           long={longTimer(nextFeatherRestart, fLongDuration)}
           failed={failed('owl')}
-          lastUpdated={lastUpdated}
           time={nextFeatherRestart}
           icon={'etc/Owl_4.png'}
           placeholder={'Restart available'}
@@ -372,7 +373,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           message={'Next Megafeather: ' + getRealDateInMs(nextMegaFeatherRestart)}
           long={longTimer(nextMegaFeatherRestart, mfLongDuration)}
           failed={failed('owl')}
-          lastUpdated={lastUpdated}
           time={nextMegaFeatherRestart}
           icon={'etc/Owl_8.png'}
           placeholder={'Megafeather restart available'}
@@ -382,7 +382,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           message={'Next Fisheroo Reset: ' + getRealDateInMs(nextFisherooReset)}
           long={longTimer(nextFisherooReset, frLongDuration)}
           failed={failed('kangaroo')}
-          lastUpdated={lastUpdated}
           time={nextFisherooReset}
           icon={'etc/KUpga_6.png'}
           placeholder={'Restart available'}
@@ -392,7 +391,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           message={'Next Greatest Catch: ' + getRealDateInMs(nextGreatestCatch)}
           long={longTimer(nextGreatestCatch, gcLongDuration)}
           failed={failed('kangaroo')}
-          lastUpdated={lastUpdated}
           time={nextGreatestCatch}
           icon={'etc/KUpga_11.png'}
           placeholder={'Restart available'}
@@ -402,7 +400,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           message={'Next Megaflesh: ' + getRealDateInMs(nextMegaFleshRestart)}
           long={longTimer(nextMegaFleshRestart, cfLongDuration)}
           failed={failed('bubba')}
-          lastUpdated={lastUpdated}
           time={nextMegaFleshRestart}
           icon={'etc/Bubbo_Upgrade_8.png'}
           placeholder={'Megaflesh restart available'}
@@ -413,7 +410,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             <Typography variant="body2">Smoking for {splitTime((account?.bubba?.smokerSeconds ?? 0) / 3600)}</Typography>
             <Typography variant="body2">Max smoked meat quality: {getRealDateInMs(smokerMaxQuality)}</Typography>
           </Stack>}
-          lastUpdated={lastUpdated}
           time={smokerMaxQuality}
           icon={'data/BubbaSmokedmeat4.png'}
           placeholder={'Smoker ready'}
@@ -426,8 +422,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             {voteBallot?.selectedBonus?.[0] && <Typography variant="body2">{cleanUnderscore(fillVoteText(voteBallot.selectedBonus[0], voteBallot.selectedBonus?.bonus))}</Typography>}
             <Typography variant="body2">Next vote bonus week: {getRealDateInMs(nextVoteBonus)}</Typography>
           </Stack>}
-          lastUpdated={lastUpdated}
           time={nextVoteBonus}
+          placeholder={'New week'}
           icon={voteBallot?.selectedBonus?.icon ? `data/${voteBallot.selectedBonus.icon}` : 'etc/Weekly.png'}
           state={!hasVotedBonus && !failed('voteBallot') ? <StatusText status={'needs'}>Not voted</StatusText> : null}
         />}
@@ -437,8 +433,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             {voteBallot?.selectedMeritocracyBonus?.description && <Typography variant="body2">{cleanUnderscore(fillVoteText(voteBallot.selectedMeritocracyBonus.description, voteBallot.selectedMeritocracyBonus?.bonus))}</Typography>}
             <Typography variant="body2">Next meritocracy vote week: {getRealDateInMs(nextMeritocracyVote)}</Typography>
           </Stack>}
-          lastUpdated={lastUpdated}
           time={nextMeritocracyVote}
+          placeholder={'New week'}
           icon={voteBallot?.selectedMeritocracyBonus?.icon ? `data/${voteBallot.selectedMeritocracyBonus.icon}` : 'etc/Weekly.png'}
           state={!hasVotedMeritocracy && !failed('voteBallot') ? <StatusText status={'needs'}>Not voted</StatusText> : null}
         />}
@@ -447,7 +443,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {trackers?.['World 3']?.printer?.checked && account?.finishedWorlds?.World2 ? <TimerRow target="World 3.printer"
           page={'/account/world-3/printer'}
           message={'Next printer cycle: ' + getRealDateInMs(nextPrinterCycle)}
-          lastUpdated={lastUpdated} time={nextPrinterCycle} icon={'data/ConTower0.png'} /> : null}
+          time={nextPrinterCycle} icon={'data/ConTower0.png'} /> : null}
         {trackers?.['World 3']?.closestTrap?.checked && account?.finishedWorlds?.World2 && closestTrap !== 0 ?
           <TimerRow target="World 3.closestTrap"
             page={'/account/world-3/traps'}
@@ -458,14 +454,14 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           <TimerRow target="World 3.closestFlag"
             page={'/account/world-3/construction'}
             message={'Closest flag: ' + getRealDateInMs(now + closestFlag)}
-            lastUpdated={lastUpdated} time={now + closestFlag} icon={'data/CogFLflag.png'} />
+          time={now + closestFlag} icon={'data/CogFLflag.png'} />
           : null}
         {trackers?.['World 3']?.closestBuilding?.checked && account?.finishedWorlds?.World2 && closestBuilding?.timeLeft !== 0
           ?
           <TimerRow target="World 3.closestBuilding"
             page={'/account/world-3/buildings'}
             message={'Closest building: ' + getRealDateInMs(now + closestBuilding?.timeLeft)}
-            lastUpdated={lastUpdated} time={now + closestBuilding?.timeLeft}
+          time={now + closestBuilding?.timeLeft}
             icon={`data/${closestBuilding?.icon}.png`} />
           : null}
         {trackers?.['World 3']?.closestSalt?.checked && account?.finishedWorlds?.World2 && closestSalt && closestSalt?.timeLeft !== 0 ?
@@ -521,10 +517,9 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
               page={'/account/world-5/hole'}
               query={{ t: villagerTab }}
               message={`${villager?.name} level up: ` + (villager?.readyToLevel ? 'Ready' : getRealDateInMs(now + villager?.timeLeft))}
-              lastUpdated={lastUpdated}
               time={villager?.readyToLevel ? now : now + villager?.timeLeft}
               icon={`etc/Villager_${index}.png`}
-              placeholder={villager?.readyToLevel ? 'Ready to level' : ''}
+              placeholder={'Ready to level'}
               forcePlaceholder={villager?.readyToLevel}
             />
           })
@@ -533,7 +528,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           page={'/account/world-5/hole'}
           query={{ t: 'Explore', nt: 'The Fountain' }}
           message={`${cleanUnderscore(coinFillBar.name)}: ` + (coinFillIsFull ? 'Full' : getRealDateInMs(coinFillTime))}
-          lastUpdated={lastUpdated}
           time={coinFillTime}
           icon={'data/HoleFountainBar0.png'}
           placeholder={'Full'}
@@ -543,7 +537,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           page={'/account/world-5/hole'}
           query={{ t: 'Explore', nt: 'The Fountain' }}
           message={`${cleanUnderscore(marbleFillBar.name)}: ` + (marbleFillIsFull ? 'Full' : getRealDateInMs(marbleFillTime))}
-          lastUpdated={lastUpdated}
           time={marbleFillTime}
           icon={'data/HoleFountainBar1.png'}
           placeholder={'Full'}
@@ -557,7 +550,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           message={allCropsGrown
             ? 'All crops are fully grown'
             : 'Next crop fully grown: ' + getRealDateInMs(now + nextCropTimeLeft * 1000)}
-          lastUpdated={lastUpdated}
           time={allCropsGrown ? now : now + nextCropTimeLeft * 1000}
           icon={'data/FarmPlant6.png'}
           placeholder={'Crops ready'}
@@ -570,7 +562,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           <TimerRow target="World 7.researchLevelUp"
             page={'/account/world-7/research'}
             message={`Research Lv ${researchLevelUpTime.currentLevel + 1}: ${getRealDateInMs(researchLevelUpTime.time)}`}
-            lastUpdated={lastUpdated}
             time={researchLevelUpTime.time}
             icon={'data/ClassIcons61.png'}
           /> : null}
@@ -578,7 +569,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           <TimerRow target="World 7.sushiFuelFull"
             page={'/account/world-7/sushi-station'}
             message={sushiFuelIsFull ? 'Sushi fuel is full' : 'Sushi fuel full: ' + getRealDateInMs(sushiFuelFullTime)}
-            lastUpdated={lastUpdated}
             time={sushiFuelFullTime ?? now}
             icon={'etc/Fuel.png'}
             placeholder={'Full'}
@@ -590,7 +580,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             message={royalAllNodesEmpty
               ? 'Every connected resource is empty'
               : 'Next outpost resource runs out: ' + getRealDateInMs(royalNodeCapTime)}
-            lastUpdated={lastUpdated}
             time={royalNodeCapTime ?? now}
             icon={'data/UISkillIcon226.png'}
             placeholder={'Empty'}
@@ -604,7 +593,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
               + 1}: ${formatGame(spelunking.overstimEffectiveCurrent, 'Spelunk.OverstimQtyREQ', { ruleValue: spelunking.overstimEffectiveReq, whole: true })} / ${formatGame(spelunking.overstimEffectiveReq, 'Spelunk.OverstimQtyREQ', { whole: true })}${spelunking.overstimPendingLevels > 0
                 ? ` (${spelunking.overstimPendingLevels} level${spelunking.overstimPendingLevels > 1 ? 's' : ''} banked, they apply when you open spelunking)`
                 : ''}`}
-            lastUpdated={lastUpdated}
             time={overstimLevelUpTime}
             icon={'data/CaveShopUpg6.png'}
           /> : null}
@@ -614,7 +602,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
               key={`observation-insight-${obs.index}`}
               page={'/account/world-7/research'}
               message={`${cleanUnderscore(obs.name)} → insight Lv ${obs.insightLevel + 1}: ${getRealDateInMs(obs.time)}`}
-              lastUpdated={lastUpdated}
               time={obs.time}
               icon={'data/ResMagni1.png'}
             />)
@@ -654,18 +641,18 @@ const Section = ({ title, children }) => {
 
 // A timer: its icon opens the alert's quick edit (which shows the exact time), its countdown or its state links to the
 // page. The two are side by side, never one inside the other. placeholderStatus: "ready" for a state to act on, "problem"
-// for one that costs something. state sits beside a countdown it qualifies. absolute: the deadline is a date of its own,
-// not the save's clock plus a wait, so the save's age is not taken off it. failed: read from a failed section's default.
+// for one that costs something; past its time a row with none reads Ready. state sits beside a countdown it qualifies.
+// lastUpdated: only a time the parsers anchor on their own clock (see Timer). failed: read from a failed section's default.
 const TimerRow = ({
-  target, items, icon, message, page, query, time, placeholder, placeholderStatus = 'ready', forcePlaceholder, state,
-  absolute, lastUpdated, long, failed
+  target, items, icon, message, page, query, time, placeholder = 'Ready', placeholderStatus = 'ready', forcePlaceholder, state,
+  lastUpdated, long, failed
 }) => {
   const router = useRouter();
   const word = placeholder ? <StatusText status={placeholderStatus}>{placeholder}</StatusText> : null;
   const value = failed ? '-'
     : long ? <Typography variant={'body2'}>A long time</Typography>
       : forcePlaceholder ? word
-        : <Timer type={'countdown'} date={time} lastUpdated={absolute ? undefined : lastUpdated} component={'span'} placeholder={word}/>;
+        : <Timer type={'countdown'} date={time} lastUpdated={lastUpdated} component={'span'} placeholder={word}/>;
   const href = page ? { pathname: page, query: { ...sessionQuery(router.query), ...query } } : null;
   return <Stack direction={'row'} alignItems={'center'} gap={1.5} flexWrap={'wrap'} sx={{ px: 2, py: 1 }}>
     <AlertIcon configType={'timers'} target={target} extra={items ? { items } : undefined} message={failed ? undefined : message}
@@ -706,7 +693,7 @@ const MonumentRow = ({ page, query, currentMulti, maxMulti, timeUntilMax, icon, 
       ? `Max linear growth: ${formatDate(timeUntilMax, { showSeconds: false })}`
       : 'At max linear growth';
   return <TimerRow target={target} items={items} icon={icon} page={page} query={query} message={message} failed={failed}
-                   forcePlaceholder placeholder={isOverMax ? 'Fight' : undefined}
+                   forcePlaceholder placeholder={isOverMax ? 'Fight' : null}
                    state={isOverMax ? null : <Typography variant={'body2'} sx={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{current} / {max}</Typography>}/>;
 };
 

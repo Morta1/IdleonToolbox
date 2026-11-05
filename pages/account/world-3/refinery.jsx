@@ -145,7 +145,7 @@ const Refinery = () => {
                                                        lastUpdated={state?.lastUpdated}/>}/>
           <Panel.KV label={'Fuel lasts'} value={fuelTime ? <Timer type={'countdown'} component={'span'}
                                                                   date={new Date().getTime() + fuelTime * 1000}
-                                                                  lastUpdated={state?.lastUpdated}/> : 'Empty'}/>
+                                                                  lastUpdated={state?.lastUpdated} placeholder={'Empty'}/> : 'Empty'}/>
           <Panel.KV label={'Power per cycle'} value={formatNum(powerPerCycle)}/>
           <Panel.KV label={'Power per hour'} value={formatNum(saltPerHour)}/>
           <Box sx={{ px: 2, pt: 1, pb: 1 }}>

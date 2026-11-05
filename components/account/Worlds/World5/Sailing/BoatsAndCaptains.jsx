@@ -67,7 +67,8 @@ const cloudSection = (cloud, lastUpdated) => {
                        value={<Num value={progress ?? 0} system={'Sailing'}/>} max={<Num value={required ?? 0} system={'Sailing'}/>}/>
     <ItemCard.Facts rows={[tripsLeft > 0
       ? ['Clears in', <Stack key={'clears'} component={'span'} direction={'row'} gap={0.5} justifyContent={'flex-end'}>
-        <Timer type={'countdown'} lastUpdated={lastUpdated} date={new Date().getTime() + (timeLeft ?? 0)}/>
+        <Timer type={'countdown'} lastUpdated={lastUpdated} date={new Date().getTime() + (timeLeft ?? 0)}
+               placeholder={<StatusText status={'ready'}>Ready to clear</StatusText>}/>
         <span>({formatNum(tripsLeft)} {tripsLeft === 1 ? 'trip' : 'trips'})</span>
       </Stack>]
       : ['Clears in', <StatusText key={'ready'} status={'ready'}>Ready to clear</StatusText>]]}/>
@@ -173,7 +174,8 @@ const BoatsAndCaptains = ({
             ['Loot', formatGame(loot?.value ?? 0, 'Sailing.BoatValue')],
             ['Speed', formatGame(speed?.raw ?? 0, 'Sailing.BoatSpeed')],
             island ? ['Arrives in', <Timer key={'timer'} type={'countdown'} lastUpdated={lastUpdated}
-                                           date={new Date().getTime() + (timeLeft ?? 0)}/>] : null
+                                           date={new Date().getTime() + (timeLeft ?? 0)}
+                                           placeholder={<StatusText status={'ready'}>Arrived</StatusText>}/>] : null
           ].filter(Boolean)}/>
           {island ? <ItemCard.Progress label={`To ${cleanUnderscore(island.name)}`}
                                        percent={island.distance > 0 ? Math.min(100, 100 * (distanceTraveled ?? 0) / island.distance) : 100}

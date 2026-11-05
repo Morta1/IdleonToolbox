@@ -80,7 +80,7 @@ const BossRow = ({ icon, name, up, onKill, onUndo, waitLabel, waitDate, info }) 
     </Stack> : <Stack direction={'row'} alignItems={'center'} columnGap={1} flexWrap={'wrap'}>
       <Typography variant={'body2'} color={'text.secondary'}>Killed</Typography>
       <Typography variant={'body2'} component={'span'} color={'text.secondary'} noWrap>
-        {waitLabel} <Timer type={'countdown'} date={waitDate} stopAtZero component={'span'}/>
+        {waitLabel} <Timer type={'countdown'} date={waitDate} component={'span'}/>
       </Typography>
       <IconButton size={'small'} aria-label={'Undo kill'} onClick={onUndo} sx={{ '@media (pointer: coarse)': { width: 44, height: 44 } }}>
         <RestartAltIcon sx={{ fontSize: 18 }}/>

@@ -212,7 +212,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
                look={{ opacity: cooldown > 0 ? .5 : 1 }}
                label={`${cleanUnderscore(pascalCase(name))} ${cooldown > 0 ? 'is on cooldown' : 'is ready'}`}
                title={cooldown > 0
-                 ? <>{cleanUnderscore(pascalCase(name))} is ready in <Timer type={'countdown'} component={'span'}
+                 ? <>{cleanUnderscore(pascalCase(name))} cooldown: <Timer type={'countdown'} component={'span'}
                                                                              date={cooldown} lastUpdated={lastUpdated}/></>
                  : `${cleanUnderscore(pascalCase(name))} is ready`}
                iconPath={`data/UISkillIcon${skillIndex}`}/>

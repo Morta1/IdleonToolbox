@@ -78,7 +78,7 @@ const Forge = () => {
       // count the time since the save in red
       render: (row) => row.empty || !(row.ore?.timeTillEmpty > 0) ? null
         : <Timer type={'countdown'} lastUpdated={state?.lastUpdated}
-                 date={new Date().getTime() + row.ore.timeTillEmpty}/>
+                 date={new Date().getTime() + row.ore.timeTillEmpty} placeholder={'Empty'}/>
     }
   ];
 
