@@ -114,8 +114,8 @@ describe('formatStep', () => {
     expect(formatStep('multiplier', 14.9016)).toBe('14.91x');
     expect(formatStep('points', 2.311)).toBe('2.32 pts');
     expect(formatStep('points', 120.4)).toBe('120.40 pts');
-    // A step that really reaches: +117 would fall short of a 117.32 gap.
-    expect(formatStep('default', 117.32)).toBe('118');
+    // Its decimals kept, and a step that really reaches: +117.32 would fall short of a 117.321 gap.
+    expect(formatStep('default', 117.321)).toBe('117.33');
     expect(formatStep('default', 117.00000000001)).toBe('117');
     expect(formatStep('multiplier', 380.07)).toBe('380.07x');
     expect(formatStep('default', 2333, { scale: 1e8 })).toBe('2,333');

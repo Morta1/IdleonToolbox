@@ -150,9 +150,9 @@ export const formatExactValue = (notation, raw) => {
 
 export const rankText = (rank) => (rank == null ? '-' : `#${formatNum(rank, 'whole')}`);
 
-// A gap to the next rank, always rounded UP so it really reaches it: 117.32 reads +118, a 30,546,577 gap reads +30.6M,
-// 0.212 reads +0.22, points and multipliers round up at two decimals. A gap under 1 keeps two significant figures, so it
-// never reads +0.00.
+// A gap to the next rank, always rounded UP so it really reaches it: 1.58 reads +1.58, 117.321 reads +117.33, a 30,546,577
+// gap reads +30.6M, 0.212 reads +0.22, points and multipliers round up at two decimals. A gap under 1 keeps two significant
+// figures, so it never reads +0.00.
 export const formatStep = (notation, diff, { scale } = {}) => {
   const unit = unitOf(notation);
   if (notation === 'points') return `${formatNum(ceilDecimals(diff, 2), 'amount', { decimals: 2 })}${unit}`;
@@ -164,8 +164,7 @@ export const formatStep = (notation, diff, { scale } = {}) => {
     return `${decimals > 2 ? text.replace(/0+$/, '') : text}${unit}`;
   }
   if (notation === 'multiplier') return `${formatNum(ceilDecimals(diff, 2), 'amount', { decimals: 2 })}${unit}`;
-  // The epsilon keeps float noise (117.00000000001) from rounding a whole gap up.
-  return formatNum(Math.ceil(diff - 1e-9), 'whole');
+  return formatNum(ceilDecimals(diff, 2));
 };
 
 const GLOBAL_META = { key: GLOBAL_METRIC, label: 'Global ranking', section: '', notation: 'points', category: null };
