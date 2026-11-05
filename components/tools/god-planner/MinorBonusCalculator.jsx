@@ -93,7 +93,8 @@ const MinorBonusCalculator = ({ characters, account }) => {
   const handleOverride = (field) => (next) => setOverrides((prev) => ({ ...prev, [field]: next ?? 0 }));
   // A bonus and its cap carry the god's unit: a percent as its line reads, Arctis its talent levels
   const percent = gods?.[godSlot]?.minorBonus?.includes('{%') ? '%' : '';
-  const withTalents = (bonus) => (isTalentTarget ? `${precise(bonus)} (+${formatNum(Math.ceil(bonus), 'whole')} talent LV)` : `${precise(bonus)}${percent}`);
+  // No-break spaces: "talent LV" has letters, so the row would break inside its value
+  const withTalents = (bonus) => (isTalentTarget ? `${precise(bonus)} (+${formatNum(Math.ceil(bonus), 'whole')} talent LV)` : `${precise(bonus)}${percent}`);
 
   return <Panel title={'Bonus calculator'} meta={'What a god is worth now, and what a target costs.'}>
     <Stack gap={2} sx={{ p: 2 }}>
