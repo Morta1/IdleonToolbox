@@ -4,6 +4,7 @@ import OverlayHeader from './OverlayHeader';
 import OverlaySheet from './OverlaySheet';
 import OverlayActions from './OverlayActions';
 import NoticeSlot from './NoticeSlot';
+import SheetContext from '@components/common/cards/SheetContext';
 import { navBarHeight } from '@components/constants';
 
 // Detail beside the page (Overlays board): from the right, 420 px, on the card surface with a
@@ -63,11 +64,13 @@ const AppDrawer = ({ open, onClose, title, subtitle = null, icon = null, aside =
 
   if (isPhone) {
     // Edge to edge and 85% high: the sheet stands for a drawer that fills its side of the page.
-    return <OverlaySheet open={open} onClose={onClose} labelledBy={titleId} header={header} toolbar={toolbar}
-                         actions={phoneActions?.length ? <OverlayActions actions={phoneActions} onClose={onClose} sheet/> : null}
-                         onExited={onExited} gutters={false} fill>
-      {children}
-    </OverlaySheet>;
+    return <SheetContext value={null}>
+      <OverlaySheet open={open} onClose={onClose} labelledBy={titleId} header={header} toolbar={toolbar}
+                    actions={phoneActions?.length ? <OverlayActions actions={phoneActions} onClose={onClose} sheet/> : null}
+                    onExited={onExited} gutters={false} fill>
+        {children}
+      </OverlaySheet>
+    </SheetContext>;
   }
   if (!mounted) return null;
   // Beside the page, not over it (Decision 7: the page stays readable beside it): no backdrop, no scroll
@@ -75,34 +78,36 @@ const AppDrawer = ({ open, onClose, title, subtitle = null, icon = null, aside =
   // trigger opens that breakdown in its place. A click anywhere else closes it; a closing drawer drops
   // under the one opening.
   return <Portal>
-    <ClickAwayListener onClickAway={() => {
-      if (open) onClose();
-    }}>
-      <Drawer variant="persistent" anchor="right" open={open}
-              SlideProps={{
-                appear: true,
-                // The drawer's content exists from here on, and the focus is still on what opened it.
-                onEnter: () => {
-                  opener.current = document.activeElement;
-                  body.current?.focus({ preventScroll: true });
-                },
-                onExited: () => {
-                  setMounted(false);
-                  onExited?.();
-                }
-              }}
-              PaperProps={{
-                role: 'dialog', 'aria-labelledby': titleId,
-                sx: [PAPER_SX, { zIndex: (theme) => theme.zIndex.drawer + (open ? 2 : 1) }]
-              }}>
-        <Box ref={body} tabIndex={-1} sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, outline: 'none' }}>
-          {header}
-          {toolbar ? <Box sx={{ flexShrink: 0 }}>{toolbar}</Box> : null}
-          <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>{children}</Box>
-        </Box>
-        <NoticeSlot open={open}/>
-      </Drawer>
-    </ClickAwayListener>
+    <SheetContext value={null}>
+      <ClickAwayListener onClickAway={() => {
+        if (open) onClose();
+      }}>
+        <Drawer variant="persistent" anchor="right" open={open}
+                SlideProps={{
+                  appear: true,
+                  // The drawer's content exists from here on, and the focus is still on what opened it.
+                  onEnter: () => {
+                    opener.current = document.activeElement;
+                    body.current?.focus({ preventScroll: true });
+                  },
+                  onExited: () => {
+                    setMounted(false);
+                    onExited?.();
+                  }
+                }}
+                PaperProps={{
+                  role: 'dialog', 'aria-labelledby': titleId,
+                  sx: [PAPER_SX, { zIndex: (theme) => theme.zIndex.drawer + (open ? 2 : 1) }]
+                }}>
+          <Box ref={body} tabIndex={-1} sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, outline: 'none' }}>
+            {header}
+            {toolbar ? <Box sx={{ flexShrink: 0 }}>{toolbar}</Box> : null}
+            <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto' }}>{children}</Box>
+          </Box>
+          <NoticeSlot open={open}/>
+        </Drawer>
+      </ClickAwayListener>
+    </SheetContext>
   </Portal>;
 };
 

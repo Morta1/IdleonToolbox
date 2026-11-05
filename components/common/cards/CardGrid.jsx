@@ -1,5 +1,6 @@
 import { createContext, useContext } from 'react';
 import { Box } from '@mui/material';
+import { useSheet } from './SheetContext';
 import { CARD_MIN_WIDTH } from './tokens';
 
 const CardSize = createContext('m');
@@ -22,16 +23,31 @@ const columns = (size, count) => (size === 'icon'
 // fill: an icon grid that fits its Panel on a phone, its tiles sharing the row at 64 to 72 px each: General's Panels
 // at 384 held 3 tiles and an 86 px empty band where a fourth almost fit. From 600 px the tiles keep their 72 px.
 const FILL_SX = { gridTemplateColumns: { xs: 'repeat(auto-fill, minmax(64px, 1fr))', sm: 'repeat(auto-fill, 72px)' } };
-const CardGrid = ({ size = 'm', columns: count, withBorder, flow, fill, children, sx, ...rest }) => <CardSize.Provider value={size}>
-  <Box {...rest} sx={[
-    flow ? { columnWidth: CARD_MIN_WIDTH[size], columnGap: 2, '& > *': { breakInside: 'avoid', mb: 2 }, '& > :last-child': { mb: 0 } }
-      : { display: 'grid', gridTemplateColumns: columns(size, count), gap: size === 'icon' ? 1 : 2 },
-    !flow && fill && size === 'icon' && FILL_SX,
-    withBorder && { '& > *': { border: 1, borderColor: 'divider', borderRadius: '8px', p: 2 } },
-    ...(Array.isArray(sx) ? sx : [sx])
-  ]}>
-    {children}
-  </Box>
-</CardSize.Provider>;
+// An icon grid inside a sheet (the characters board's .g), 6 px apart. sheetColumns [wide, narrow]: the tiles share the
+// row, and a section under 340 px (a side-by-side column, a phone) takes the narrow count. sheetTile: fixed tiles instead,
+// each up to that wide, for a row whose count is the game's (obols). The query reads the section around it, not the window.
+const sheetGrid = (sheetColumns, sheetTile, count) => {
+  if (sheetTile) return { display: 'grid', gap: '6px', justifyContent: 'center', gridTemplateColumns: `repeat(${count}, minmax(0, ${sheetTile}px))` };
+  const [wide, narrow = wide] = sheetColumns ?? [count ?? 8];
+  return {
+    display: 'grid', gap: '6px', gridTemplateColumns: `repeat(${wide}, minmax(0, 1fr))`,
+    '@container (max-width: 339.95px)': { gridTemplateColumns: `repeat(${narrow}, minmax(0, 1fr))` }
+  };
+};
+const CardGrid = ({ size = 'm', columns: count, sheetColumns, sheetTile, withBorder, flow, fill, children, sx, ...rest }) => {
+  const sheet = useSheet();
+  return <CardSize.Provider value={size}>
+    <Box {...rest} sx={[
+      flow ? { columnWidth: CARD_MIN_WIDTH[size], columnGap: 2, '& > *': { breakInside: 'avoid', mb: 2 }, '& > :last-child': { mb: 0 } }
+        : { display: 'grid', gridTemplateColumns: columns(size, count), gap: size === 'icon' ? 1 : 2 },
+      !flow && fill && size === 'icon' && FILL_SX,
+      withBorder && { '& > *': { border: 1, borderColor: 'divider', borderRadius: '8px', p: 2 } },
+      ...(Array.isArray(sx) ? sx : [sx]),
+      sheet && size === 'icon' && sheetGrid(sheetColumns, sheetTile, count)
+    ]}>
+      {children}
+    </Box>
+  </CardSize.Provider>;
+};
 
 export default CardGrid;

@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import { Box, ButtonBase, ClickAwayListener } from '@mui/material';
 import { IconInfoCircle } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
+import SheetContext from '@components/common/cards/SheetContext';
 
 const TOUCH = '@media (pointer: coarse)';
 // A table note's widest: the viewport less the 16 px every note keeps from the screen's edges (NOTE_POPPER)
@@ -36,7 +37,7 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, p
     <Box component={'span'} sx={{ display: block ? 'flex' : 'inline-flex', verticalAlign: 'middle' }}>
       <Tooltip
         // A node title with describeChild: the note describes the trigger and never renames it
-        title={<span>{note}</span>}
+        title={<SheetContext value={null}><span>{note}</span></SheetContext>}
         describeChild
         maxWidth={table ? TABLE_NOTE_WIDTH : maxWidth}
         open={pinned || previewing}
