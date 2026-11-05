@@ -1709,34 +1709,24 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
     9: { decay: 200, cap: 3, format: 'mult' }
   };
 
-  const formatBonus = (value: number, format: 'mult' | 'addMult' | 'pct') => {
-    if (format === 'mult') return `${Math.floor(value * 100) / 100}x`;
-    if (format === 'addMult') return `+${(value / 100).toFixed(2)}x`;
-    return `+${Math.floor(value * 100) / 100}%`;
-  };
-
   // The curve is asymptotic, so the cap is never actually reached.
   // Inverting L/(decay+L) = percent gives the level needed for a given % of the cap.
-  // Game's skull shop description rounds shops 11-14 down and 16-19 up.
+  // Game's skull shop description rounds shops 11-14 down and 16-19 up, and the Gallery floors its whole percent.
   const roundUpDescription = new Set([6, 7, 8, 9]);
   const formatDescriptionBonus = (value: number, i: number) => {
     const round = roundUpDescription.has(i) ? Math.ceil : Math.floor;
     return String(round(value * 100) / 100);
   };
+  const formatBonus = (value: number, format: 'mult' | 'addMult' | 'pct', i: number) => {
+    if (format === 'addMult') return `+${Math.floor(value) / 100}x`;
+    return format === 'mult' ? `${formatDescriptionBonus(value, i)}x` : `+${formatDescriptionBonus(value, i)}%`;
+  };
 
-  // The game feeds these "x" bonuses in as percentages: 1.42x applies as x1.0142 / +1.42%.
-  const formatAppliedMulti = (value: number) => `x${Math.round((1 + value / 100) * 10000) / 10000}`;
-  const formatAppliedPct = (value: number) => `+${Math.round(value * 100) / 100}%`;
+  // game: AllMasterclassDropz and both World 7 skills read Math.max(1, KillroyBonuses(n)) as a multiplier
   const getAppliedBonuses = (i: number, bonus: number, cap: number) => {
-    if (i === 6) {
-      return [{ name: 'Masterclass drops', value: formatAppliedMulti(bonus), max: formatAppliedMulti(cap) }];
-    }
-    if (i === 7) {
-      return [
-        { name: 'Research EXP', value: formatAppliedMulti(bonus), max: formatAppliedMulti(cap) },
-        { name: 'Spelunking EXP', value: formatAppliedPct(bonus), max: formatAppliedPct(cap) }
-      ];
-    }
+    const applied = { value: Math.max(1, bonus), max: cap };
+    if (i === 6) return [{ name: 'Masterclass drops', ...applied }];
+    if (i === 7) return [{ name: 'Research EXP', ...applied }, { name: 'Spelunking EXP', ...applied }];
     return null;
   };
 
@@ -1751,8 +1741,8 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
     const level = levelOption !== null ? (accountData?.accountOptions?.[levelOption] ?? 0) : 0;
     const bonus = bonusIndex !== undefined ? getKillRoyShopBonus(accountData, bonusIndex) : 1;
     const progress = capInfo ? (level / (level + capInfo.decay)) * 100 : null;
-    const bonusDisplay = capInfo ? formatBonus(bonus, capInfo.format) : null;
-    const capDisplay = capInfo ? formatBonus(capInfo.cap, capInfo.format) : null;
+    const bonusDisplay = capInfo ? formatBonus(bonus, capInfo.format, i) : null;
+    const capDisplay = capInfo ? formatBonus(capInfo.cap, capInfo.format, i) : null;
 
     // 'mult' bonuses start at 1x, the additive ones at 0.
     const bonusBase = capInfo?.format === 'mult' ? 1 : 0;
@@ -1761,7 +1751,8 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
       return {
         percent,
         level: breakpointLevel,
-        bonusDisplay: formatBonus(bonusBase + (capInfo.cap - bonusBase) * (percent / 100), capInfo.format)
+        // Rounded first: a share of the cap's float error would tip the shop's round up to the next hundredth
+        bonusDisplay: formatBonus(Math.round((bonusBase + (capInfo.cap - bonusBase) * (percent / 100)) * 1e6) / 1e6, capInfo.format, i)
       };
     }) : null;
     const nextBreakpoint = breakpoints?.find((breakpoint) => breakpoint.level > level) ?? null;

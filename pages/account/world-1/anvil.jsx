@@ -8,6 +8,7 @@ import Timer from 'components/common/Timer';
 import {
   calcTotals,
   getAnvilProductCatalog,
+  getAnvilSlotPerHour,
   getAnvilTotalsBreakdowns,
   getAnvilFutureProduction,
   getPlayerAnvil,
@@ -79,8 +80,7 @@ const Anvil = () => {
     const future = getAnvilFutureProduction({ ...slot, stats, afkTime });
     const capacity = stats?.anvilCapacity;
     const percentOfCap = Math.round(future / capacity * 100);
-    // The Summary's rate for this character and product: a slot makes no more an hour than its cap holds
-    const perDay = 24 * Math.min((stats?.anvilSpeed ?? 0) * hammers / requiredAmount, capacity ?? 0);
+    const perDay = 24 * getAnvilSlotPerHour(stats, slot);
     const timeTillCap = getTimeTillCap({ ...slot, stats, afkTime });
     const timeFromZero = getTimeTillCap({
       ...slot,

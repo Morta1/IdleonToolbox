@@ -1,4 +1,5 @@
 import { owlData, gameTables } from '@website-data';
+import { gameFill } from '@utility/helpers';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
@@ -59,7 +60,7 @@ const parseOwl = (account: any) => {
     const bonus3 = Math.floor(1e4 * (1 - 1 / (1 + 10 * option254PlusI / 100))) / 100;
 
     description = description
-      .replace('{', '' + bonus1)
+      .replace('{', gameFill(bonus1, 'Big'))
       .replace('}', '' + bonus2)
       .replace('@', '' + bonus3);
 

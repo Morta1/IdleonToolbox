@@ -197,27 +197,11 @@ const parseKangaroo = (account: any) => {
   const totalResetPoints = resetBonuses.reduce((sum, { level }) => sum + level, 0);
   const totalResets = (account?.accountOptions?.[OPT.kangarooFisherooResetLevel] ?? 0) + (account?.accountOptions?.[OPT.kangarooMegaFish] ?? 0);
   const avgResetPoints = totalResets > 0 ? totalResetPoints / totalResets : 0;
-  let totalMulti: any = getShinyMulti(account, -1);
-  if (1E3 > getShinyMulti(account, -1)) {
-    totalMulti = notateNumber(totalMulti, 'MultiplierInfo');
-  }
-  else if (1E7 > getShinyMulti(account, -1)) {
-    totalMulti = commaNotation(totalMulti);
-  }
-  else {
-    totalMulti = notateNumber(totalMulti, 'MultiplierInfo');
-  }
-  const allMultipliers = [0, 1, 2, 3, 4, 5].map((index) => {
-    let amount = account?.accountOptions?.[281 + index];
-    const baseMulti = getShinyMulti(account, index);
-    const multi = ('' + (10 > baseMulti ? notateNumber(baseMulti, 'MultiplierInfo') : 100 > baseMulti
-      ? '' + Math.floor(10 * baseMulti) / 10
-      : '' + Math.floor(baseMulti))).replace('.00', '');
-    return {
-      multi,
-      amount: 1E4 > amount ? '' + Math.round(amount) : '' + notateNumber(amount, 'Big')
-    }
-  });
+  const totalMulti = getShinyMulti(account, -1);
+  const allMultipliers = [0, 1, 2, 3, 4, 5].map((index) => ({
+    multi: getShinyMulti(account, index),
+    amount: account?.accountOptions?.[281 + index] ?? 0
+  }));
 
   return {
     resetBonuses,

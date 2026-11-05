@@ -327,18 +327,6 @@ const getDailyPetHappinessFromUpg = (rawBubba: any) => {
   return (Math.min(1, totUpgBonus5) + (totUpgBonus5 / (totUpgBonus5 + 200)) * 2) * multiplier;
 };
 
-// Helper function to format timer display (seconds to HH:MM:SS)
-const formatTimerDisplay = (seconds: any) => {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
-
-  if (hours > 0) {
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  }
-  return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-};
-
 // The game renders @ as a line break
 const replaceLineBreaks = (description: any) => String(description ?? '').replace(/_*@_*/g, '\n');
 
@@ -391,23 +379,9 @@ const formatUpgradeDescription = (rawBubba: any, upgradeIndex: any) => {
     description = description.replace('$', '' + dollarValue);
   }
 
-  // Replace ~ with timer values
-  if (description.includes('~')) {
-    let timerValue = '';
-    if (upgradeIndex === 1 || upgradeIndex === 12) {
-      // Timer for 3600 - Bubba[0][13]
-      const timeRemaining = Math.max(0, 3600 - (rawBubba?.[0]?.[13] || 0));
-      timerValue = formatTimerDisplay(timeRemaining);
-    }
-    else if (upgradeIndex === 15) {
-      // Timer for Bubba[0][14]
-      const timeValue = rawBubba?.[0]?.[14] || 0;
-      timerValue = formatTimerDisplay(timeValue);
-    }
-    description = description.replace('~', timerValue);
-  }
-
-  return replaceLineBreaks(description);
+  // The game's ~ is a clock it runs live ("Your next pats come in ~"): frozen at the save's time it reads wrong, so its
+  // line goes
+  return replaceLineBreaks(description.split('@').filter((line: string) => !line.includes('~')).join('@'));
 };
 
 // game: "MeatsliceRate"

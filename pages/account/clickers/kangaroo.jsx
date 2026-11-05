@@ -17,8 +17,6 @@ import ItemCard from '@components/common/cards/ItemCard';
 import StatusText from '@components/common/StatusText';
 import { getKangaroo } from '@parsers/world-2/kangaroo';
 
-// The parser prints a shiny fish count itself; with no save it reads "NaNeNaN" (parsers/world-2/kangaroo.ts)
-const caught = (amount) => (/NaN/.test(`${amount}`) ? '0' : amount);
 const bonusText = ({ bonus, percentage }) => `${bonus > 0 ? '+' : ''}${poppyFill(bonus)}${percentage ? '%' : ''}`;
 
 const Kangaroo = () => {
@@ -77,12 +75,11 @@ const Kangaroo = () => {
           </Box>
         </Panel>
         <Panel title={'Shiny multi'}>
-          {/* The parser prints the total in Summoning.RooShinyMulti, as the game does ("1.00x") */}
-          <Panel.Row name={'Total multi'} value={failed ? '-' : `${kangaroo?.totalMulti ?? '1.00'}x`}/>
+          <Panel.Row name={'Total multi'} value={failed ? '-' : `${formatGame(kangaroo?.totalMulti ?? 1, 'Summoning.RooShinyMulti')}x`}/>
           {(kangaroo?.allMultipliers ?? []).map(({ multi, amount }, index) => <Panel.Row key={index}
                                                                                          icon={`data/RooFishS${index}.png`}
-                                                                                         name={failed ? `Shiny fish ${index + 1}` : `${caught(amount)} caught`}
-                                                                                         value={failed ? '-' : `${multi}x`}/>)}
+                                                                                         name={failed ? `Shiny fish ${index + 1}` : `${formatNum(amount, 'whole')} caught`}
+                                                                                         value={failed ? '-' : formatNum(multi, 'mult')}/>)}
         </Panel>
         <Panel title={'Reset bonuses'}>
           {(kangaroo?.resetBonuses ?? []).map(({ desc, level }, index) => <Panel.Row key={index}
