@@ -81,6 +81,12 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, p
   </ClickAwayListener>;
 };
 
+// A short value whose exact form opens from it (Info board, a value with a dotted underline). The underline is what says
+// there is more behind this number.
+export const DottedValue = ({ note, label, sx, children }) => <NoteTrigger note={note} label={label} sx={sx}>
+  <Box component={'span'} sx={{ textDecoration: 'underline dotted', textUnderlineOffset: 3, cursor: 'help' }}>{children}</Box>
+</NoteTrigger>;
+
 const INFO_SX = {
   // The box is the 16 px glyph, so the i takes the room of the icon it replaced and never pushes a
   // title onto a second line, whatever margin a caller adds. The 24 px click area and the 40 px tap

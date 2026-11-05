@@ -1,7 +1,6 @@
 import React from 'react';
-import { Box } from '@mui/material';
 import { formatNum, notateNumber } from '@utility/helpers';
-import { NoteTrigger } from '@components/common/InfoButton';
+import { DottedValue } from '@components/common/InfoButton';
 import { formatAmount } from '@utility/wiki/format-amount.mjs';
 
 // From a million up the digits stop being comparable at a glance, so an amount reads in the game's own notation
@@ -37,9 +36,7 @@ const exactText = (amount) => (Math.abs(amount) < EXACT_BELOW ? formatNum(Math.r
 const ShortAmount = ({ amount }) => {
   const short = Number.isFinite(amount) && Math.abs(amount) >= SHORT_FROM ? notateNumber(amount, 'Big') : null;
   if (!short) return formatAmount(amount);
-  return <NoteTrigger note={exactText(amount)} label={`${short}, exact amount`}>
-    <Box component={'span'} sx={{ textDecoration: 'underline dotted', textUnderlineOffset: 3, cursor: 'help' }}>{short}</Box>
-  </NoteTrigger>;
+  return <DottedValue note={exactText(amount)} label={`${short}, exact amount`}>{short}</DottedValue>;
 };
 
 export default ShortAmount;

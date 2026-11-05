@@ -4,7 +4,7 @@ import Box from '@mui/material/Box';
 import { visuallyHidden } from '@mui/utils';
 import { IconCheck } from '@tabler/icons-react';
 import GameIcon from '@components/common/GameIcon';
-import { NoteTrigger } from '@components/common/InfoButton';
+import { DottedValue } from '@components/common/InfoButton';
 import { formatMetricValue, profileUrl, rankText } from './format';
 
 // Whose row it is and which medal: the theme's identities, as sx callbacks.
@@ -24,10 +24,13 @@ const RankBadge = ({ rank, plain, strong, dim }) => {
   </Typography>;
 };
 
-// A value and the digits behind it: the digits open from the value, on a click, a tap or Enter. When they read the same
-// there is nothing to open.
-export const ExactValue = ({ text, exact }) => (exact && exact !== text
-  ? <NoteTrigger note={exact} label={`${text}, exact value`} sx={{ zIndex: 1, whiteSpace: 'nowrap' }}>{text}</NoteTrigger>
+// The digits a value's text spells, its commas and trailing zeros aside: "8,488.00 pts" and "8,488 pts" are one number.
+const digitsOf = (text) => String(text).replace(/,/g, '').replace(/(\.\d*?)0+(?=\D|$)/, (all, kept) => kept).replace(/\.(?=\D|$)/, '');
+
+// A value and the digits behind it: the digits open from the value, on a click, a tap or Enter. A value shown in full
+// has nothing to open.
+export const ExactValue = ({ text, exact }) => (exact && digitsOf(exact) !== digitsOf(text)
+  ? <DottedValue note={exact} label={`${text}, exact value`} sx={{ zIndex: 1, whiteSpace: 'nowrap' }}>{text}</DottedValue>
   : text);
 
 // plainRank: a maxed board's ten #1s are text, not ten trophies (D7).
