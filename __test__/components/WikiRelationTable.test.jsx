@@ -1,12 +1,14 @@
 // @vitest-environment jsdom
 import '../../polyfills';
 import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import RelationTable from '@components/wiki/RelationTable';
 import darkTheme from '../../styles/theme/darkTheme';
+
+vi.mock('@hooks/useProfileBannerState', () => ({ default: () => ({ isVisible: false }) }));
 
 // The table caps a long group behind a "Show more" link, so everything past the cap has to ship as a
 // hidden anchor or a crawler never reaches it.
@@ -38,16 +40,16 @@ describe('RelationTable anchors', () => {
 });
 
 describe('RelationTable on a phone', () => {
-  it('hides the Chance column below sm, since the rate beside it says the same thing', () => {
+  it('holds the Chance column back until the box around the table has room, since the rate beside it says the same thing', () => {
     render(<ThemeProvider theme={darkTheme}><RelationTable {...makeProps(3)}/></ThemeProvider>);
-    // jsdom resolves no media queries, so read the rules emotion emitted on the table for the heading's column.
+    // jsdom resolves no container queries, so read the rules emotion emitted on the table for the heading's column.
     const column = [...screen.getByText('Chance').closest('th').classList].find((name) => name.startsWith('col-'));
     const css = [...document.querySelectorAll('style')].map((style) => style.textContent);
     const displayRules = css.filter((rule) => rule.includes(`th.${column}{`) && rule.includes('display:'));
 
     expect(displayRules).toEqual([
-      expect.stringMatching(new RegExp(`^@media \\(min-width:0px\\)\\{\\.css-\\w+ th\\.${column}\\{[^}]*display:none;\\}\\}$`)),
-      expect.stringMatching(new RegExp(`^@media \\(min-width:600px\\)\\{\\.css-\\w+ th\\.${column}\\{[^}]*display:table-cell;\\}\\}$`))
+      expect.stringMatching(new RegExp(`^\\.css-\\w+ th\\.${column}\\{[^}]*display:none;[^}]*\\}$`)),
+      expect.stringMatching(new RegExp(`^@container \\(min-width:\\d+px\\)\\{\\.css-\\w+ th\\.${column}\\{[^}]*display:table-cell;[^}]*\\}\\}$`))
     ]);
   });
 });

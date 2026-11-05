@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Link, Stack, TextField, Typography } from '@mui/material';
 import TagLine from '@components/common/TagLine';
 import DataTable from '@components/common/DataTable';
+import usePageTop from '@hooks/usePageTop';
 import EntityIcon from './EntityIcon';
 import CoinAmount, { isCoin } from './CoinAmount';
 import Price from './Price';
@@ -9,6 +10,7 @@ import { entityName } from '@utility/wiki/names.mjs';
 import { dropTalentLabel, oneInOrNothing, percentLabel } from '@utility/wiki/drops';
 import { orderRows } from '@utility/wiki/relations';
 import { navigateOnPlainClick } from './links';
+import { captionWidth, coinRowWidth, relationRooms } from './listingRoom';
 import { formatNum } from '@utility/helpers';
 import { notateAmount } from '@utility/wiki/notate';
 
@@ -23,6 +25,10 @@ const FILTER_MIN = 15;
 
 // The rate may break between "1 in" and the number on a phone, where it is the only number.
 const RATE = { whiteSpace: 'nowrap' };
+// A row's 24 px art and its 10 px gap.
+const ROW_ART = 34;
+// A number a shop's art stands beside.
+const ART_NUMBER = 18;
 
 const rowAmount = (row) => row.edge?.meta?.quantity ?? row.edge?.meta?.amount;
 
@@ -48,6 +54,7 @@ const RowName = ({ row, hrefFor, onNavigate }) => {
 // instead of three short lists that each miss the threshold.
 const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
   const [filter, setFilter] = useState('');
+  const pageTop = usePageTop();
 
   const named = groups.map((group) => ({
     ...group,
@@ -78,6 +85,36 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
   // Counted before filtering, so typing cannot make the box that is being typed into disappear.
   const searchable = named.reduce((sum, group) => sum + group.rows.length, 0) >= FILTER_MIN;
 
+  // From the whole section, not the filtered view: the columns don't come and go as a reader types. The two a phone keeps
+  // first, as they did: beside the rail at 900 the box is narrower than a phone's.
+  const allRows = named.flatMap((group) => group.rows);
+  const rooms = relationRooms({
+    names: allRows.map((row) => [entityName(row.other), row.edge?.meta?.recipe ? 'Recipe' : '', dropTalentLabel(row.edge?.meta)].filter(Boolean).join(' ')),
+    rows: allRows,
+    art: ROW_ART,
+    phoneKeeps: ['price', 'rate'],
+    columns: [
+      ...(anyPrice ? [{
+        key: 'price',
+        label: 'Price',
+        width: (row) => (row.edge?.meta?.currency ? ART_NUMBER + captionWidth(notateAmount(row.edge?.meta?.price)) : coinRowWidth(row.edge?.meta?.price))
+      }] : []),
+      ...(showChance ? [{
+        key: 'rate',
+        label: anyMerged ? 'Per kill' : 'Rate',
+        note: anyMerged,
+        width: (row) => captionWidth(oneInOrNothing(row.combinedChance) || percentLabel(row.combinedChance))
+      }] : []),
+      ...(anyQuantity ? [{
+        key: 'qty',
+        label: 'Qty',
+        width: (row) => (isCoin(row.other) ? coinRowWidth(rowAmount(row)) : captionWidth(rowAmount(row) > 1 ? notateAmount(rowAmount(row)) : ''))
+      }] : []),
+      ...(anyMerged ? [{ key: 'tables', label: 'Tables', note: true, width: (row) => captionWidth(String(row.paths)) }] : []),
+      ...(showChance ? [{ key: 'chance', label: 'Chance', width: (row) => captionWidth(percentLabel(row.combinedChance)) }] : [])
+    ]
+  });
+
   const columns = [
     {
       key: 'name',
@@ -90,6 +127,7 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
       key: 'qty',
       label: 'Qty',
       numeric: true,
+      from: { room: rooms.at.qty },
       render: (row) => (isCoin(row.other)
         ? <Stack direction={'row'} justifyContent={'flex-end'} component={'span'}><CoinAmount amount={rowAmount(row)}/></Stack>
         : <Typography variant={'caption'} color={'text.secondary'}>{rowAmount(row) > 1 ? notateAmount(rowAmount(row)) : ''}</Typography>)
@@ -99,7 +137,7 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
       key: 'price',
       label: 'Price',
       numeric: true,
-      phone: true,
+      from: { room: rooms.at.price },
       render: (row) => <Stack direction={'row'} justifyContent={'flex-end'} component={'span'}>
         <Price price={row.edge?.meta?.price} currency={row.edge?.meta?.currency}/>
       </Stack>
@@ -108,6 +146,7 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
       key: 'tables',
       label: 'Tables',
       numeric: true,
+      from: { room: rooms.at.tables },
       info: 'How many separate drop tables reach it. Each is its own roll.',
       render: (row) => <Typography variant={'caption'} color={row.paths > 1 ? 'text.primary' : 'text.muted'}>{row.paths}</Typography>
     }] : []),
@@ -116,7 +155,7 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
       key: 'rate',
       label: anyMerged ? 'Per kill' : 'Rate',
       numeric: true,
-      phone: true,
+      from: { room: rooms.at.rate },
       cellSx: RATE,
       info: anyMerged ? 'The chance per kill of getting it from any of its tables, not from one of them.' : undefined,
       render: (row) => <Typography variant={'caption'} color={'text.secondary'}>
@@ -124,16 +163,17 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
       </Typography>
     }, {
       // The odds twice, deliberately: "1 in 618" is what a player quotes, a percentage is what the game's own drop
-      // tables are written in, and neither converts in the head. Below sm it goes: it repeats the rate beside it
-      // (DataTable shows the column after the phone's from sm).
+      // tables are written in, and neither converts in the head. It joins last: it repeats the rate beside it.
       key: 'chance',
       label: 'Chance',
       numeric: true,
+      from: { room: rooms.at.chance },
       render: (row) => <Typography variant={'caption'} color={'text.muted'}>{percentLabel(row.combinedChance)}</Typography>
     }] : [])
   ];
 
-  return <Stack gap={1} sx={{ mt: 1 }}>
+  // The container the columns read: the width beside the rail, not the window's.
+  return <Stack gap={1} sx={{ mt: 1, containerType: 'inline-size' }}>
     {searchable ? <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
       <TextField
         size={'small'}
@@ -160,6 +200,8 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
         const href = hrefFor?.(row.otherId);
         return href && row.other.navigable !== false ? { href, label: entityName(row.other) } : null;
       }}
+      stickyTop={pageTop}
+      sx={rooms.holds}
     />
   </Stack>;
 };

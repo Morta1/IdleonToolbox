@@ -11,6 +11,8 @@ import { entityHref, pageIndex } from '@utility/wiki/page-graph';
 import { entityName } from '@utility/wiki/names.mjs';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 
+vi.mock('@hooks/useProfileBannerState', () => ({ default: () => ({ isVisible: false }) }));
+
 const nodes = {
   'monster:sandgiant': {
     kind: 'monster',

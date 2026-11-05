@@ -610,15 +610,15 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
             <Typography variant={'body2'} sx={{ fontWeight: 'fontWeightMedium' }}>{label}</Typography>
             {odds ? <Typography variant={'caption'} color={'text.secondary'}>{odds}</Typography> : null}
           </Stack> : null}
-          {/* Two columns once there is room, which halves the scrolling on the long sections. A
-              short section stays in one: two entries spread across a 1200px row put the second one
-              half a screen from its own heading, which reads as a layout fault rather than density.
+          {/* Two columns once the column itself has room (beside the rail at 900 it is 262 px), which halves the
+              scrolling on the long sections. A short section stays in one: two entries spread across a 1200px row put the
+              second one half a screen from its own heading, which reads as a layout fault rather than density.
               A section rendering its own Row is a block per entry and never columnar. */}
           <Box sx={{
             display: 'grid',
             gridTemplateColumns: Row || size < COLUMN_MIN
               ? '1fr'
-              : { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
+              : 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))',
             columnGap: 3,
             rowGap: 0.5
           }}>

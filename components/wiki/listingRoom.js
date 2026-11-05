@@ -35,9 +35,10 @@ const HEAD_SCALE = 0.86;
 const SORT_ARROW = 26;
 const NOTE = 20;
 // A sentence's column: about 300 px, less when its longest fits on one line, more for one that would still stack past
-// this many lines. A name's the same lines.
+// this many lines. A name wraps with more waste around its long words, so it asks for a line fewer.
 const EFFECT = 300;
 const MAX_LINES = 4;
+const NAME_LINES = 3;
 // A phone's row stays its name and one column: the rest join from here, which no phone's box reaches.
 const PHONE_ROW = 450;
 
@@ -105,6 +106,10 @@ const columnWidths = (column, at, entries, labelOf) => {
   return { hold, full: hold };
 };
 
+const nameWidth = (names) => Math.max(...names.map(longestWord), ...names.map((name) => textWidth(name) / NAME_LINES), 0);
+
+const holdSx = (width) => ({ content: '""', display: 'block', height: 0, width: Math.ceil(width) });
+
 // at[i]: the box width from which column i joins the row, the primary first, then the secondary and the rest in the
 // list's order, a sentence last: it takes the most and every number fits beside the name without it. holds: the least
 // the name and a sentence take, as a table's own layout would squeeze them to their longest word. everyColumn: where the
@@ -116,7 +121,7 @@ export const listingRooms = ({ columns, entries, labelOf, sort }) => {
   const widths = columns.map((column, at) => columnWidths(column, at, entries, labelOf));
   const art = entries.some((entry) => entry.node?.icon) ? ART : 0;
   const names = entries.map((entry) => `${shownName(entry.label)} ${entry.disambig ?? ''}`.trim());
-  const nameHold = Math.max(...names.map(longestWord), ...names.map((name) => textWidth(name) / MAX_LINES), 0);
+  const nameHold = nameWidth(names);
 
   const queue = [primary, secondary, ...columns.keys()].filter((at, index, all) => at >= 0 && all.indexOf(at) === index);
   const order = [...queue.filter((at) => columns[at].type !== 'effect'), ...queue.filter((at) => columns[at].type === 'effect')];
@@ -129,7 +134,6 @@ export const listingRooms = ({ columns, entries, labelOf, sort }) => {
   });
   const everyColumn = Math.max(0, ...roomAt);
   const costAt = columns.findIndex((column) => column.type === 'cost');
-  const holdSx = (width) => ({ content: '""', display: 'block', height: 0, width: Math.ceil(width) });
   return {
     at: roomAt,
     everyColumn,
@@ -141,4 +145,22 @@ export const listingRooms = ({ columns, entries, labelOf, sort }) => {
         : [])))
     }
   };
+};
+
+// A relation table's rooms (an entity page's drops, recipes and shops), the same rule over cells it reads itself: names is
+// each row's words, columns [{ key, label, note, width(row) }] in the order they join, the ones a phone keeps first. A
+// caption's width is captionWidth, an amount of coins coinRowWidth.
+export const captionWidth = (text) => textWidth(text) * HEAD_SCALE;
+export const coinRowWidth = (amount) => coinsWidth(amount) / 2;
+export const relationRooms = ({ names, rows, art, columns, phoneKeeps }) => {
+  const nameHold = nameWidth(names);
+  const at = {};
+  let used = PADDING + art + Math.ceil(nameHold);
+  columns.forEach(({ key, label, note, width }, step) => {
+    const head = headWidth({ label, type: 'number', note });
+    used += PADDING + Math.ceil(Math.max(head, ...rows.map(width)));
+    const room = used + (step < columns.length - 1 ? CHEVRON : 0);
+    at[key] = phoneKeeps.includes(key) ? room : Math.max(room, PHONE_ROW);
+  });
+  return { at, holds: { '& th.name::after': holdSx(art + nameHold) } };
 };
