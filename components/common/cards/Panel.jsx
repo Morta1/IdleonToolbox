@@ -140,12 +140,17 @@ const KV = ({ label, value, kind }) => {
 
 // A tool's inputs (Controls board, "Heights in one card"): a row that wraps, each field at 40 px, 44 on touch, its label
 // above, Run last. The result is the Panel's next child, under its line. A switch's row is a field's height and its label a
-// field's size, so it sits on the fields' line. On a phone the fields share each row's width, as the Tools phone board's does.
+// field's size, so it sits on the fields' line. On a phone the fields share each row's width and the action (the contained
+// button, alone or with its Clear) takes a row, as the Tools phone board's does; on its own row it has no field to line up with.
 const INPUTS_SX = {
   p: 2,
   '& > .MuiFormControlLabel-root': { mr: 0, '@media (pointer: coarse)': { minHeight: 44 } },
   '& > .MuiFormControlLabel-root > .MuiFormControlLabel-label': { fontSize: 14 },
-  [PHONE]: { '& > .MuiFormControl-root, & > .MuiStack-root, & > .MuiStack-root > .MuiFormControl-root': { flexGrow: 1 } }
+  [PHONE]: {
+    '& > .MuiFormControl-root, & > .MuiStack-root, & > .MuiStack-root > .MuiFormControl-root': { flexGrow: 1 },
+    '& > .MuiButton-contained, & > .MuiStack-root:has(> .MuiButton-contained)': { flexBasis: '100%', mt: 0 },
+    '& > .MuiStack-root > .MuiButton-contained': { flexGrow: 1 }
+  }
 };
 const Inputs = ({ children, sx }) => <Stack direction={'row'} columnGap={1.5} rowGap={1.5} flexWrap={'wrap'} alignItems={'flex-end'}
                                             sx={[INPUTS_SX, ...(Array.isArray(sx) ? sx : [sx])]}>{children}</Stack>;
