@@ -12,6 +12,8 @@
 // --setup    a module whose default export takes the browser context, for serving API replies with context.route.
 // --storage  JSON of localStorage entries.
 // --settle   more ms after the page settles: a tool page's text stands still before its parse lands.
+// --click    a selector clicked once the page has rendered, before the scan: a drawer or a note that only opens on a tap.
+//            The first match. Its text joins the dump, and the shots catch it open.
 // --base     default http://localhost:$E2E_PORT, or 3002.
 // --no-shots scan only. --out default .page-check (gitignored). Exit 1 on any hit, 2 when the server is down.
 //
@@ -33,6 +35,7 @@ const { values: opts, positionals } = parseArgs({
     setup: { type: 'string' },
     storage: { type: 'string' },
     settle: { type: 'string', default: '0' },
+    click: { type: 'string' },
     base: { type: 'string', default: `http://localhost:${process.env.E2E_PORT ?? 3002}` },
     out: { type: 'string', default: '.page-check' },
     'no-shots': { type: 'boolean', default: false },
@@ -364,13 +367,18 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
         return scanned(attempts - 1);
       }
     };
+    if (opts.click) {
+      await waitForRender(page);
+      await page.locator(opts.click).first().click();
+      await page.waitForTimeout(500);
+    }
     const { hits, height, sideways } = await scanned();
     hits.hiddenHead = await hiddenHeads(page);
     hits.error = errors;
     if (sideways > 1) hits.sideways = [`${sideways}px`];
     result.height = height;
     result.hits = Object.fromEntries(Object.entries(hits).filter(([, list]) => list.length));
-    writeFileSync(join(opts.out, `${slug}-${size.width}.txt`), await page.locator('main').innerText().catch(() => ''));
+    writeFileSync(join(opts.out, `${slug}-${size.width}.txt`), await page.locator(opts.click ? 'body' : 'main').innerText().catch(() => ''));
     if (!opts['no-shots']) {
       if (touch) {
         for (let i = 0, y = 0; i < PHONE_SHOTS && y < height; i += 1, y += size.height - 80) {
