@@ -81,6 +81,19 @@ export const fieldLabel = (field) => {
 const NOTATE_ABOVE = 1e9;
 const formatNumber = (value) => formatNum(value, value >= NOTATE_ABOVE ? 'amount' : 'exact');
 
+// A stamp's description field is the game's whole table row: "NewPet,add,1,0,15,GalaxyA3,200,5,1000000,1.4,0,{}%_New_Pet_Chance,0".
+// Only its bonus text, second from the end, has a name a reader knows.
+const RAW_ROW_MIN_PARTS = 9;
+const isRawRow = (value) => typeof value === 'string' && value.split(',').length >= RAW_ROW_MIN_PARTS && !/ /.test(value);
+const rowBonus = (value) => (isRawRow(value) ? formatValue(value.split(',').at(-2)).replace(/^[^A-Za-z]+/, '') : '');
+
+// One change as the page prints it, on the entity page and the changelog alike.
+export const changeLine = ({ field, from, to }) => {
+  if (!isRawRow(from) && !isRawRow(to)) return `${fieldLabel(field)} went from ${formatValue(from)} to ${formatValue(to)}`;
+  const [was, now] = [rowBonus(from), rowBonus(to)];
+  return was && now && was !== now ? `Bonus went from ${was} to ${now}` : 'Stats changed';
+};
+
 export const formatValue = (value) => {
   if (value == null) return 'none';
   // The game writes "no bonus here" as a literal 0, and a bare 0 beside an arrow reads as a real

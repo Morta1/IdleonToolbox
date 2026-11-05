@@ -2,7 +2,7 @@ import React from 'react';
 import { Stack, Typography } from '@mui/material';
 import InfoButton from '@components/common/InfoButton';
 import StatusText from '@components/common/StatusText';
-import { CAVEAT, fieldLabel, formatValue } from '@utility/wiki/history';
+import { CAVEAT, changeLine } from '@utility/wiki/history';
 
 // The panel asks the same question the list answers, so it cannot draw while the empty state shows.
 export const entityHistoryShows = (node) => node?.history?.length > 0;
@@ -34,12 +34,12 @@ const EntityHistory = ({ node }) => {
         {event.t === 'added'
           ? <StatusText status={'info'} sx={{ alignSelf: 'flex-start' }}>Added</StatusText>
           : null}
-        {(event.fields || []).map(({ field, from, to }) => <Typography
-          key={field}
+        {(event.fields || []).map((change) => <Typography
+          key={change.field}
           variant={'body2'}
           color={'text.secondary'}
         >
-          {fieldLabel(field)} went from {formatValue(from)} to {formatValue(to)}
+          {changeLine(change)}
         </Typography>)}
       </Stack>
     </Stack>)}

@@ -7,7 +7,7 @@ import { NextSeo } from 'next-seo';
 import WikiRail from '@components/wiki/WikiRail';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { navigateOnPlainClick, useWikiGo } from '@components/wiki/links';
-import { CAVEAT, fieldLabel, formatValue } from '@utility/wiki/history';
+import { CAVEAT, changeLine } from '@utility/wiki/history';
 import { entityHref } from '@utility/wiki/page-graph';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 
@@ -47,8 +47,7 @@ const Changelog = ({ versions }) => {
               <Typography variant={'body2'} color={'text.secondary'} component={'div'} sx={{ minWidth: 0, overflowWrap: 'break-word' }}>
                 {entry.added
                   ? <StatusText status={'info'}>Added</StatusText>
-                  : entry.fields.map(({ field, from, to }) =>
-                    `${fieldLabel(field)} went from ${formatValue(from)} to ${formatValue(to)}`).join(', ')}
+                  : entry.fields.map(changeLine).join(', ')}
               </Typography>
             </Box>)}
           </Stack>)}
