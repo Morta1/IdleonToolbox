@@ -7,14 +7,15 @@ import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
 
 // A character's inventory, a Panel with its capacity. asc, and no slots to count: the active calculator's lists, which sit
-// under their own headings, so the grid alone (asc is the wider list).
-const Inventory = ({ inventory, inventoryLength, inventorySlots, amountKey = 'amount', asc, account }) => {
+// under their own headings, so the grid alone (asc is the wider list). ratesKnown false: those lists' rates have no time
+// to divide by (a snapshot newer than the save), so their tiles read "-".
+const Inventory = ({ inventory, inventoryLength, inventorySlots, amountKey = 'amount', asc, account, ratesKnown = true }) => {
   const capacity = inventorySlots ? `Capacity ${formatNum(inventoryLength || inventory?.length || 0)} / ${formatNum(inventorySlots)}` : null;
   const grid = <CardGrid size={'icon'} fill sheetColumns={[6]}>
     {inventory?.map((item, index) => <IconTile
       key={item?.rawName + '' + index} icon={`data/${item?.rawName}.png`} alt={cleanUnderscore(item?.displayName ?? item?.name ?? '')}
-      value={item?.perHour ? formatNum(item?.perHour, 'rate') : formatNum(item?.[amountKey], 'whole')}
-      details={item?.perHour ? <ExtraData {...item} amount={item?.[amountKey]}/> : <ItemDisplay {...item} account={account}/>}/>)}
+      value={!ratesKnown ? '-' : item?.perHour ? formatNum(item?.perHour, 'rate') : formatNum(item?.[amountKey], 'whole')}
+      details={ratesKnown && item?.perHour ? <ExtraData {...item} amount={item?.[amountKey]}/> : <ItemDisplay {...item} account={account}/>}/>)}
   </CardGrid>;
   return capacity && !asc
     ? <Panel title={'Inventory'} meta={capacity}>{grid}</Panel>

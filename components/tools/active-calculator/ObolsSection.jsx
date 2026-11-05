@@ -1,5 +1,5 @@
 import { Box, Stack, Typography } from '@mui/material';
-import { Section, SectionGroup } from '@components/tools/active-calculator/common';
+import { elapsedHours, Section, SectionGroup } from '@components/tools/active-calculator/common';
 import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { compareInventories, consolidateItems } from '@parsers/misc/activeCalculator';
@@ -37,7 +37,7 @@ const ObolsSection = ({ lastUpdated, resultsOnly }) => {
         </SectionGroup>}
       </> : null}
       <SectionGroup label={'Gained'}>
-        {difference.length ? <Inventory inventory={difference} amountKey={'difference'}/>
+        {difference.length ? <Inventory inventory={difference} amountKey={'difference'} ratesKnown={Boolean(elapsedHours(lastUpdated, snapshottedAcc?.snapshotTime))}/>
           : <Typography variant={'body2'} color={'text.secondary'}>
             {failed ? 'Obols failed to load, so there is nothing to compare.' : 'No obol has gone up since the snapshot.'}
           </Typography>}

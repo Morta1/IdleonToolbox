@@ -1,5 +1,5 @@
 import { Box, Stack, Typography } from '@mui/material';
-import { Section, SectionGroup } from '@components/tools/active-calculator/common';
+import { elapsedHours, Section, SectionGroup } from '@components/tools/active-calculator/common';
 import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { compareInventories, consolidateItems } from '@parsers/misc/activeCalculator';
@@ -35,7 +35,8 @@ const DropSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
           </SectionGroup>
         </> : null}
         <SectionGroup label={'Gained'}>
-          {difference.length ? <Inventory asc inventory={difference} amountKey={'difference'}/>
+          {/* A save older than the snapshot has no time to divide by: no rate, as Coins and Cards read */}
+          {difference.length ? <Inventory asc inventory={difference} amountKey={'difference'} ratesKnown={Boolean(elapsedHours(lastUpdated, snapshottedChar?.snapshotTime))}/>
             : <Typography variant={'body2'} color={'text.secondary'}>No item has gone up since the snapshot.</Typography>}
         </SectionGroup>
       </Stack>
