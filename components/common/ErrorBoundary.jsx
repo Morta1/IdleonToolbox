@@ -6,8 +6,9 @@ import { errorMessage, trackEvent } from '@utility/analytics';
 /**
  * Without a boundary anywhere in the tree, a single render error unmounts the entire React root -
  * the page goes blank and only a full refresh brings it back. In dev that also kills Fast Refresh,
- * since there is no tree left for it to patch. This keeps the failure contained to one subtree and
- * puts the actual error on screen instead of a white page.
+ * since there is no tree left for it to patch. This keeps the failure contained to one subtree instead of a white page.
+ * detail: the whole-page boundaries put the actual error on screen, for a report. A section's note reads the sentence
+ * alone: the raw text stays in the console.
  */
 class ErrorBoundary extends React.Component {
   // attempt keys the note, so a Try again that fails again is a new alert, read out again.
@@ -40,7 +41,7 @@ class ErrorBoundary extends React.Component {
     const { error } = this.state;
     if (!error) return this.props.children;
 
-    const { title = 'Something went wrong', gutters = false } = this.props;
+    const { title = 'Something went wrong', gutters = false, detail = false } = this.props;
     const tryAgain = () => this.setState(({ attempt }) => ({ error: null, attempt: attempt + 1 }));
 
     // The root boundary sits outside AppProvider: Notice reads AppContext's default there, which is fine. A page's
@@ -50,8 +51,8 @@ class ErrorBoundary extends React.Component {
         <Notice key={this.state.attempt} tone={'error'} action={{ label: 'Try again', onClick: tryAgain }}>
           {`${title}. That's a bug on my end.`}
         </Notice>
-        <Typography variant="caption" color="text.secondary">{error?.message || String(error)}</Typography>
-        {process.env.NODE_ENV !== 'production' && error?.stack ? (
+        {detail ? <Typography variant="caption" color="text.secondary">{error?.message || String(error)}</Typography> : null}
+        {detail && process.env.NODE_ENV !== 'production' && error?.stack ? (
           <Typography
             component="pre"
             variant="caption"

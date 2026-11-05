@@ -194,7 +194,7 @@ const MyApp = (props) => {
             <CssBaseline/>
             <RouteProgress/>
             {/* Outer net for the shell itself (providers, NavBar). Still beats a blank root. */}
-            <ErrorBoundary resetKey={asPath} title={'The app failed to load'} gutters>
+            <ErrorBoundary resetKey={asPath} title={'The app failed to load'} gutters detail>
             <PreferencesProvider>
             <AppProvider>
               <GoalsProvider>
@@ -249,7 +249,7 @@ const MyApp = (props) => {
                 <DynamicBreadcrumbs/>
                 {/* Contains a page-level crash to this slot. Without it React unmounts the whole
                     root and the app goes blank until a manual refresh. */}
-                <ErrorBoundary resetKey={asPath} title={'This page failed to render'}>
+                <ErrorBoundary resetKey={asPath} title={'This page failed to render'} detail>
                   <DataLoadingWrapper>
                     <Component {...pageProps} />
                   </DataLoadingWrapper>
