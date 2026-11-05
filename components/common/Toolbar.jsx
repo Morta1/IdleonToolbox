@@ -165,7 +165,8 @@ const Sort = ({ name = 'sort', options, sx }) => {
       <MenuItem value="">Default</MenuItem>
       {options.map(([key, label]) => <MenuItem key={key} value={key}>{label}</MenuItem>)}
     </TextField>
-    {sort ? <Tooltip title={flip} disableTouchListener>
+    {/* No tooltip in the phone panel: a tap's emulated hover would open it over the panel's Done */}
+    {sort ? <Tooltip title={placement === 'panel' ? '' : flip} disableTouchListener>
       <IconButton
         aria-label={flip}
         // sort?.key, not sort.key: React Compiler reads a closure's property paths during render.
