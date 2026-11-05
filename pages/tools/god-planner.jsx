@@ -23,8 +23,8 @@ import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
 import GameIcon from '@components/common/GameIcon';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
-import StatusText from '@components/common/StatusText';
-import { MissingSections } from '@components/common/styles';
+import Notice from '@components/common/Notice';
+import { isSectionFailed, MissingSections } from '@components/common/styles';
 
 const PLANNER_SETTINGS = { countBigP: true };
 const SECTION_NAMES = { divinity: 'Divinity', alchemy: 'Alchemy', coralReef: 'Coral Reef' };
@@ -33,10 +33,14 @@ const godSlotOf = (godName) => Number(String(godName)?.replace('DivGod', ''));
 
 // The bonus means nothing as a bare number, and each god words it differently: Arctis counts whole
 // talent levels, the rest are percentages.
-const formatMinorBonus = (bonus, godSlot, template) => {
-  if (godSlot === GOD_SLOT.Arctis) return `+${formatNum(Math.ceil(bonus), 'whole')} talent LV`;
-  return template?.includes('{%') ? `+${minorBonusText(bonus, false)}%` : `+${minorBonusText(bonus, false)}`;
+const withUnit = (text, godSlot, template) => {
+  if (godSlot === GOD_SLOT.Arctis) return `${text} talent LV`;
+  return template?.includes('{%') ? `${text}%` : text;
 };
+const formatMinorBonus = (bonus, godSlot, template) => withUnit(
+  `+${godSlot === GOD_SLOT.Arctis ? formatNum(Math.ceil(bonus), 'whole') : minorBonusText(bonus, false)}`, godSlot, template);
+// The god's line with no number to fill it: "accuracy and defence"
+const unknownSentence = (template) => cleanUnderscore(template?.replace(/\+?{%?_?/g, '') ?? '');
 
 // Only Arctis is ceiled into whole talent levels, so only it has steps to aim for.
 const nextTalentLine = (bonus, inputs) => {
@@ -48,7 +52,7 @@ const nextTalentLine = (bonus, inputs) => {
 
 // A plan is only useful next to what you have linked right now, so every entry is matched against
 // the character's current links: the ones already linked, and which link each swap would spend.
-const getPlanDetails = (build, characters, account, getInputs) => {
+const getPlanDetails = (build, characters, account, getInputs, { bonusKnown, linksKnown }) => {
   const remainingLinks = {};
   const matched = (build ?? []).map((entry) => {
     const charIndex = characters?.findIndex(({ name }) => name === entry?.charName);
@@ -74,15 +78,17 @@ const getPlanDetails = (build, characters, account, getInputs) => {
     const inputs = getInputs(character, godSlot);
     const bonus = getMinorDivinityBonusValue(inputs);
     const isArctis = godSlot === GOD_SLOT.Arctis;
+    // A plan outlives the save it was made on: with no character or a failed section behind it, no number and no link words
+    const known = bonusKnown && Boolean(character);
     return {
       ...entry,
       godLabel: deity?.name,
-      bonusLabel: formatMinorBonus(bonus, godSlot, deity?.minorBonus),
-      sentence: cleanUnderscore(deity?.minorBonus?.replace(/{/g, minorBonusText(bonus, isArctis)) ?? ''),
-      cap: getMinorDivinityBonusCap(inputs),
-      nextTalent: isArctis ? nextTalentLine(bonus, inputs) : null,
-      isLinked,
-      status: replaced ? `Swaps out ${replaced?.name}` : 'New link'
+      bonusLabel: known ? formatMinorBonus(bonus, godSlot, deity?.minorBonus) : '-',
+      sentence: known ? cleanUnderscore(deity?.minorBonus?.replace(/{/g, minorBonusText(bonus, isArctis)) ?? '') : unknownSentence(deity?.minorBonus),
+      cap: known ? withUnit(formatNum(getMinorDivinityBonusCap(inputs), 'amount', { precise: true }), godSlot, deity?.minorBonus) : '-',
+      nextTalent: known && isArctis ? nextTalentLine(bonus, inputs) : null,
+      isLinked: linksKnown && isLinked,
+      status: !linksKnown ? null : replaced ? `Swaps out ${replaced?.name}` : 'New link'
     };
   });
 };
@@ -131,9 +137,13 @@ const GodPlanner = () => {
     multiplier: getGodMinorBonusMultiplier(godSlot),
     coralKidUpgBonus
   });
-  const planDetails = getPlanDetails(build, characters, account, getInputs);
-  const swaps = planDetails?.filter(({ isLinked }) => !isLinked)?.length;
+  // The tiles and the plan's numbers read the bubble (while it counts) and Coral Kid; its link words read divinity
+  const bonusKnown = !(settings.countBigP && isSectionFailed(account, 'alchemy')) && !isSectionFailed(account, 'coralReef');
+  const linksKnown = !isSectionFailed(account, 'divinity') && Boolean(characters?.length);
+  const planDetails = getPlanDetails(build, characters, account, getInputs, { bonusKnown, linksKnown });
+  const swaps = linksKnown ? planDetails?.filter(({ isLinked }) => !isLinked)?.length : 0;
   const deities = account?.divinity?.deities;
+  const hasRows = Boolean(characters?.length && deities?.length);
 
   return <>
     <NextSeo
@@ -151,6 +161,7 @@ const GodPlanner = () => {
       ]
     )}/>
     <MissingSections account={account} names={SECTION_NAMES}/>
+    {state?.emptyAccount ? <Notice tone={'signin'} sx={{ mb: 2 }}>Every god on every character shows here once you sign in.</Notice> : null}
     {characters?.length ? <PageSettings state={settings} defaults={PLANNER_SETTINGS} onChange={setSettings} onReset={resetSettings}>
       <PageSettings.Toggle name={'countBigP'} label={'Count the BIG P bubble'}
                            help={'Multiplies every minor link bonus here by your BIG P bubble.'}/>
@@ -161,28 +172,27 @@ const GodPlanner = () => {
       <Panel title={'Planned links'} meta={swaps > 0 ? `${formatNum(swaps, 'whole')} of ${formatNum(planDetails?.length, 'whole')} not linked yet` : undefined}>
         <Stack ref={plannedRef} tabIndex={-1} gap={2} sx={{ p: 2, outline: 'none' }}>
           <Typography variant={'body2'} color={'text.secondary'}>
-            {planDetails?.length ? '' : 'Tap a god in a character\'s row to plan it. '}
+            {planDetails?.length || !hasRows ? '' : 'Tap a god in a character\'s row to plan it. '}
             An Elemental Sorcerer holds two. Saved on this device, changes nothing in game.
           </Typography>
           {planDetails?.length ? <CardGrid size={'s'}>
             {planDetails.map(({ charName, godName, godLabel, bonusLabel, sentence, cap, nextTalent, isLinked, status }, index) => <ItemCard
               key={charName + godName + index}
               icon={`data/${godName}.png`} title={godLabel} meta={charName}
-              status={isLinked ? 'active' : undefined} statusLabel={'Linked'}
-              aside={isLinked ? null : <StatusText status={'info'} wrap>{status}</StatusText>}
+              status={isLinked ? 'active' : status ? 'info' : undefined} statusLabel={isLinked ? 'Linked' : status}
               footer={<Box><Button size={'small'} data-plan-remove aria-label={`Remove ${godLabel} from ${charName}`}
                                    onClick={() => handleDelete(index)}>Remove</Button></Box>}>
               <ItemCard.Desc>{sentence}</ItemCard.Desc>
               <ItemCard.Facts rows={[
                 ['Bonus', bonusLabel],
-                ['Divinity levels alone top out at', formatNum(cap, 'amount', { precise: true })],
+                ['Divinity levels alone top out at', cap],
                 nextTalent ? ['Next talent LV', nextTalent] : null
               ]}/>
             </ItemCard>)}
           </CardGrid> : null}
         </Stack>
       </Panel>
-      {characters?.length && deities?.length ? <Stack gap={2}>
+      {hasRows ? <Stack gap={2}>
         <Stack gap={0.5}>
           <Typography variant={'sectionTitle'} component={'h2'}>Minor link bonus per character</Typography>
           <Typography variant={'body2'} color={'text.secondary'}>
@@ -208,7 +218,7 @@ const GodPlanner = () => {
                   const planned = build?.some((player) => player?.charName === charName && player?.godName === rawName);
                   const bonus = getMinorDivinityBonusValue(getInputs(characters[charIndex], godIndex));
                   return <IconTile key={rawName} icon={`data/${rawName}.png`} alt={`${name}${linked ? ', linked' : ''}`}
-                                   value={minorBonusText(bonus, godIndex === GOD_SLOT.Arctis)}
+                                   value={bonusKnown ? minorBonusText(bonus, godIndex === GOD_SLOT.Arctis) : '-'}
                                    status={linked ? 'active' : undefined} selected={planned}
                                    onSelect={() => handleClick({ charName, playerId, godName: rawName, maxGods })}/>;
                 })}

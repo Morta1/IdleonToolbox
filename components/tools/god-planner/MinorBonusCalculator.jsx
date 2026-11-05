@@ -91,7 +91,9 @@ const MinorBonusCalculator = ({ characters, account }) => {
 
   // An emptied field reads 0.
   const handleOverride = (field) => (next) => setOverrides((prev) => ({ ...prev, [field]: next ?? 0 }));
-  const withTalents = (bonus) => (isTalentTarget ? `${precise(bonus)} (+${formatNum(Math.ceil(bonus), 'whole')} talent LV)` : precise(bonus));
+  // A bonus and its cap carry the god's unit: a percent as its line reads, Arctis its talent levels
+  const percent = gods?.[godSlot]?.minorBonus?.includes('{%') ? '%' : '';
+  const withTalents = (bonus) => (isTalentTarget ? `${precise(bonus)} (+${formatNum(Math.ceil(bonus), 'whole')} talent LV)` : `${precise(bonus)}${percent}`);
 
   return <Panel title={'Bonus calculator'} meta={'What a god is worth now, and what a target costs.'}>
     <Stack gap={2} sx={{ p: 2 }}>
@@ -142,12 +144,12 @@ const MinorBonusCalculator = ({ characters, account }) => {
       </Stack>
       <Divider/>
       {reached
-        ? <StatusText status={'done'} wrap>Already there: {precise(currentBonus)} clears {formatNum(targetBonus)}.</StatusText>
+        ? <StatusText status={'done'} wrap>Already there: {precise(currentBonus)}{percent} clears {formatNum(targetBonus)}{percent}.</StatusText>
         : <Stack gap={1}>
           <Typography variant={'body2'} color={'text.secondary'}>
             {isTalentTarget
               ? `+${formatNum(target, 'whole')} talent LV needs a bonus above ${formatNum(targetBonus)}. Each line raises one thing, the others unchanged.`
-              : `Needs a bonus above ${formatNum(targetBonus)}. Each line raises one thing, the others unchanged.`}
+              : `Needs a bonus above ${formatNum(targetBonus)}${percent}. Each line raises one thing, the others unchanged.`}
           </Typography>
           <ItemCard.Facts rows={requirements.map(({ label, current, required, note }) => [label, required === null
             ? `Out of reach${note ? ` (${note})` : ''}`
