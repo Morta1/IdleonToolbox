@@ -5,17 +5,17 @@ import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { AppContext } from '@components/common/context/AppProvider';
 import { getHiddenCap } from '@parsers/misc/hiddenCaps';
 import { flatLines } from '@parsers/breakdown';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, titleCaseName } from '@utility/helpers';
 
 const formatAmount = (value, unit) => unit === 'percent'
   ? `${Math.round(value * 10) / 10}%`
   : Math.round(value);
 
 // The game writes some names in capitals (the Exotic Market's); their cards title them, so the cap does too, the
-// card's way (each word of the raw BUD_COURIER capitalized, then the underscores cleaned).
+// card's way.
 const sourceName = (name) => {
   const raw = name ?? '';
-  return cleanUnderscore(raw === raw.toUpperCase() ? raw.toLowerCase().capitalizeAll() : raw);
+  return raw === raw.toUpperCase() ? titleCaseName(cleanUnderscore(raw)) : cleanUnderscore(raw);
 };
 
 // A cap the game applies where the bonus is used. Past it the overshoot is not shown: nothing the player can undo.

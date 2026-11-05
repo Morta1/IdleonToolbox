@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import { getAllItems } from '@parsers/items';
@@ -54,7 +54,7 @@ const ZenithMarket = () => {
     <CardGrid size={'m'}>
       {market?.map((item, index) => {
         const maxed = item?.x3 > 0 && (item?.level ?? 0) >= item.x3;
-        return <ItemCard key={item?.name || index} title={cleanUnderscore(item?.name?.toLowerCase()?.capitalizeAll())}
+        return <ItemCard key={item?.name || index} title={titleCaseName(cleanUnderscore(item?.name))}
                          level={{ value: item?.level ?? 0, max: item?.x3 || null }}
                          status={maxed ? 'maxed' : undefined}
                          dimmed={!(item?.level > 0)}

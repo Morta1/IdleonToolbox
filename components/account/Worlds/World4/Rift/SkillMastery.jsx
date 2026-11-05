@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
 import { isMasteryBonusUnlocked, SKILL_MASTERY_THRESHOLDS as thresholds, SKILLS_WITHOUT_MASTERY as skillsWithoutMastery } from '../../../../../parsers/misc';
 import { gameTables } from '@website-data';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
@@ -66,7 +66,7 @@ const SkillMastery = ({ currentRift, totalSkillsLevels, characters }) => {
         <ItemCard.Facts rows={[['Total level', <Breakdown key={'levels'} asValue title={`${skillLabel} levels`}
                                                           data={levels} countNoun={'characters'}>{formatNum(level ?? 0)}</Breakdown>]]}/>
         <ItemCard.Desc text={defaultBonuses.map((_, bonusIndex) => `${isMasteryBonusUnlocked({ currentRift }, rank, bonusIndex)
-          ? '' : `Lv ${formatNum(thresholds[bonusIndex])}: `}${cleanUnderscore(getBonusText(skillName, bonusIndex).toLowerCase().capitalizeAll())}`)}/>
+          ? '' : `Lv ${formatNum(thresholds[bonusIndex])}: `}${titleCaseName(cleanUnderscore(getBonusText(skillName, bonusIndex)))}`)}/>
       </ItemCard>
     })}
   </CardGrid>

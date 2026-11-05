@@ -1,5 +1,5 @@
 import { Stack } from '@mui/material';
-import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
 import { DAY_MARKET_SIZE, sumMarketLevels } from '@parsers/world-6/farming';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -29,7 +29,7 @@ const Market = ({ market, crop }) => {
         const bonusText = cleanUnderscore(bonus.replace(/{/g, formatNum(amount, 'pct', { precise: true, bare: true }))
           .replace(/}/g, formatNum(amount, 'mult', { bare: true })));
         // The next cost leads, named, then the later steps: as a footer it sat unlabelled under them
-        return <ItemCard key={'upgrade' + marketIndex} title={cleanUnderscore(name.toLowerCase().capitalizeAll())}
+        return <ItemCard key={'upgrade' + marketIndex} title={titleCaseName(cleanUnderscore(name))}
                          level={{ value: level, max: maxLvl }} meta={isDay ? 'Day market' : 'Night market'}
                          status={level >= maxLvl ? 'maxed' : undefined}>
           <ItemCard.Desc text={bonusText}/>

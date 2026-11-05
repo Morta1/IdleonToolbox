@@ -1,5 +1,5 @@
 import { Stack, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import {
@@ -58,7 +58,7 @@ const Market = ({ market }) => {
       },
       marketIndex
     ) => {
-      const title = cleanUnderscore(name.toLowerCase().capitalizeAll());
+      const title = titleCaseName(cleanUnderscore(name));
       return <ItemCard key={'upgrade' + marketIndex} icon={`data/FarmCrop${x2}.png`} title={title}
                        level={{ value: level }}
                        aside={isOrganic ? <Stack direction={'row'} alignItems={'center'} gap={0.5}>

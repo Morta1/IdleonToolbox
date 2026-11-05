@@ -1,4 +1,4 @@
-import { cleanUnderscore, formatNum, number2letter, worldColor } from '@utility/helpers';
+import { cleanUnderscore, formatNum, number2letter, titleCaseName, worldColor } from '@utility/helpers';
 import { chartNum } from '@utility/chartScale';
 import { CAULDRON_INFO, cauldronsIndexMapping } from '@parsers/world-2/alchemy';
 import { cauldrons, deathNote, monsters, prayers, stamps } from '@website-data';
@@ -7,7 +7,7 @@ import { CLASSES, getBaseClass } from '@parsers/talents';
 
 const STAMP_TYPES = { combat: 'Combat', skills: 'Skills', misc: 'Misc' };
 const bubbleName = (cauldronIndex, bubbleIndex) =>
-  cleanUnderscore(cauldrons?.[cauldronsIndexMapping[cauldronIndex]]?.[bubbleIndex]?.bubbleName).toLowerCase().capitalizeAll();
+  titleCaseName(cleanUnderscore(cauldrons?.[cauldronsIndexMapping[cauldronIndex]]?.[bubbleIndex]?.bubbleName));
 
 // The worker's Total levels buckets (its visualizations pipeline): 100 wide to 800, then 1,000 wide, and 18,000+ past the
 // last. Mongo's $bucket leaves an empty one out, so a gap in the reply is a real zero. Below 500 the page leaves them out.
@@ -29,7 +29,7 @@ export const getVisualizationMap = (classes) => ({
         const type = monsters?.[activity]?.AFKtype;
         if (type) byType.set(type, (byType.get(type) ?? 0) + count);
       }
-      return [...byType].map(([type, value]) => ({ key: type, name: cleanUnderscore(type.toLowerCase().capitalizeAll()), value }));
+      return [...byType].map(([type, value]) => ({ key: type, name: titleCaseName(cleanUnderscore(type)), value }));
     }
   },
   totalLevels: {

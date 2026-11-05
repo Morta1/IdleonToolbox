@@ -1,5 +1,5 @@
 import { Autocomplete, Box, Divider, Stack, TextField, Typography } from '@mui/material';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, titleCaseName } from '@utility/helpers';
 import { isValid } from 'date-fns';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -16,7 +16,7 @@ import { isSectionFailed } from '@components/common/styles';
 const ROTATION_TOOLBAR = { weeks: 10 };
 const WEEKS = [10, 20, 30, 40, 50];
 
-const upgradeName = (upgrade) => (upgrade ? cleanUnderscore(upgrade?.name?.toLowerCase()?.capitalizeAll()) : '');
+const upgradeName = (upgrade) => (upgrade ? titleCaseName(cleanUnderscore(upgrade?.name)) : '');
 
 const ExoticMarketRotation = () => {
   const { state } = useContext(AppContext);
