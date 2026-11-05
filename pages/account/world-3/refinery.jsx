@@ -308,7 +308,7 @@ const SaltChainSummary = ({ balances }) => {
   if (!balances?.length) return null;
   return <DataTable columns={SALT_COLUMNS} rows={balances} rowKey={'rawName'}
                     rowLabel={(salt) => cleanUnderscore(salt.saltName)}
-                    muted={(salt) => (salt.unlocked ? null : 'Locked')} surface={'card'}/>;
+                    mutedWord={(salt) => (salt.unlocked ? null : 'Locked')} surface={'card'}/>;
 }
 
 // A cost cell: the amount, "short" when the stock and what comes in can't cover it, and with Show next level cost on,

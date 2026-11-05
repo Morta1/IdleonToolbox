@@ -112,7 +112,7 @@ const Forge = () => {
                   breakdown={capBreakdown ? { ...capBreakdown, totalValue: capText } : undefined}/>
         {slots.length ? <DataTable columns={slotColumns} rows={slots} rowKey={'index'}
                                    rowLabel={(row) => `Slot ${row.index + 1}`} stickyTop={pageTop}
-                                   muted={(row) => row.empty ? 'Empty' : false}/> : null}
+                                   mutedWord={(row) => (row.empty ? 'Empty' : null)}/> : null}
       </>
       <CardGrid size={'m'}>
         {upgrades.map(upgradeCard)}

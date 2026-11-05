@@ -25,31 +25,58 @@ import {
 import useStickyHeader from './useStickyHeader';
 import SortField from './SortField';
 
-// One table for rows of numbers people compare (Tables board). columns[0] is the row's name: always shown,
-// left-aligned, `icon` beside it. The rest are data columns: `numeric` ones right-align in tabular figures.
-// Each column renders its own cell (`render(row, { heading })`), or prints its `value(row)`, formatted by its
-// `kind` (Numbers board). `change` ('higher' or 'lower', the good way) signs and colors a change; `tone(row)`
-// overrides that color. `bands` are runs of rows under a heading (`label`, `accent`, `icon`, `meta`), or a function
-// naming each row's band; `rows` alone is one unlabelled band. `rankOf(row)` leads every row with a narrow # cell,
-// at every width: a list whose order is the point (an optimizer's plan, a guild's rank).
-// A page that passes onSortChange orders its own rows; any other table sorts itself from `defaultSort`, by each
-// column's `sortValue` or `value`. `muted(row)` dims a row (locked); a string also replaces its values with that
-// word. `surface="card"` draws the table on the card surface. `linkOf(row)` gives the anchors a collapsed band
-// still ships, so a crawler reaches every row; `rowLabel(row)` names a row for its phone Details button. `fits` is
-// a small table that fits a phone as it is (a note's): every column at every width, no chevron. `detail(row)` is
-// content under an opened row at every width (a per-row calculator), after the columns the phone hides; a column
-// with `details: false` stays out of that list (the detail slot already says it). `from` is the window width (a
-// breakpoint key, or px) where a column the phone hides joins the row: sm for the secondary column, md for the rest; or
-// { room: px }, the width of the container around the table, for a table whose width isn't the window's (the wiki's).
-// `stickyTop` is where the page's sticky toolbar ends: a long table's header sticks there. A table that hides columns
-// on a phone and has sortable ones draws a Sort field over itself there, or `sortField={false}` where the page's Toolbar
-// already holds one. `align: 'left'` keeps a number column to the left, beside the name (Constellations' Progress).
-// `detailLabel` is what the phone's detail list prints for a column whose heading is art. `bandNoun` says what a band's
-// count counts ("12 monsters"), where the bare number at the band's end would read as the last column's.
+// One table for rows of numbers people compare (Tables board). Its options by concern; a test named is the one that
+// proves the option.
+//
+// Rows and bands
+//   rows            one unlabelled band.
+//   bands           runs of rows under a heading (key, label, accent, icon, meta), or a function naming each row's band
+//                   (DataTable.test.jsx, bandRows).
+//   rowKey          a row's key: a field name, or a function.
+//   rankOf(row)     leads every row with a narrow # cell, at every width: a list whose order is the point.
+//   muted(row)      true dims the row (locked, not reached), and once sorted it follows the rest (DataTable.test.jsx, sortRows).
+//   mutedWord(row)  a word dims the row as muted does and says so in place of its values (DataTable.test.jsx, mutedWord).
+//   linkOf(row)     { href, label }: the anchors a collapsed band still ships, so a crawler reaches every row.
+//   bandNoun        what a band's count counts ("12 monsters"), where the bare number would read as the last column's.
+//
+// Columns (columns[0] is the row's name: always shown, left-aligned, icon(row) beside it; the rest are data columns)
+//   render(row, { heading })  a column's own cell.
+//   value(row)      what a column with no render prints. Null is the muted dash; a real 0 renders as 0.
+//   kind, format    a number column formatted by formatNum (Numbers board).
+//   numeric         right-aligned in tabular figures, which a kind column always is.
+//   align: 'left'   keeps a number column to the left, beside the name (Constellations' Progress).
+//   change          'higher' or 'lower', the good way: signs and colors a change (DataTable.test.jsx, changeTone).
+//   tone(row)       overrides that color: 'good', 'bad' or null.
+//   wrap(row, cell) puts the value inside a trigger (withBreakdown), so DataTable itself never loads what it opens.
+//   info            the heading's note, on an InfoButton.
+//   cellSx          a column's own cell style.
+//
+// Sorting
+//   sortable        a heading a click orders by, by the column's sortValue(row) or value(row) (DataTable.test.jsx, nextSort).
+//   firstOrder      the first click's way: numbers highest first, text A to Z by default.
+//   sort, onSortChange  a page that passes onSortChange orders its own rows (WikiEntityList.test.jsx).
+//   defaultSort     any other table sorts itself from here, band by band (DataTable.test.jsx, sortRows).
+//   sortField       a table that hides columns on a phone and has sortable ones draws a Sort field over itself there; false
+//                   where the page's Toolbar already holds one.
+//
+// Phone
+//   phone           a column kept beside the name, as the primary one is.
+//   from            a column the phone hides joins the row here: a breakpoint key or px of the window, or { room: px } of
+//                   the container (the wiki's). sm for the secondary column and md for the rest (DataTable.test.jsx, detailsUntil).
+//   details: false  a column stays out of the row's list (the detail slot already says it).
+//   detailLabel     what the list prints for a column whose heading is art.
+//   rowLabel(row)   names a row for its Details button.
+//   detail(row)     content under an opened row at every width (a per-row calculator), after the columns the phone hides.
+//   fits            a small table that fits a phone as it is (a note's): every column at every width, no chevron.
+//   dense           many narrow columns keep the phone's tighter padding at every width (Bone Joe's ten minibosses).
+//
+// Surface
+//   surface         'page', or 'card' to draw the table on the card surface.
+//   stickyTop       where the page's sticky toolbar ends: a long table's header sticks there.
+//   sx              on the table.
 
 // A small table (fits) keeps the phone's tighter padding at every width: it often sits inside a 260 px note, and so does
-// one with many narrow columns (dense: Bone Joe's ten minibosses across 1366). A table
-// that brings its columns in at sm keeps it until md (tightUntilMd).
+// one with many narrow columns (dense). A table that brings its columns in at sm keeps it until md (tightUntilMd).
 const TIGHT = { px: 0.75 };
 const TIGHT_UNTIL_MD = { px: { xs: 0.75, md: 1.5 } };
 const cellStyle = (column, tight) => ({ ...(column.numeric ? NUM : CELL), ...tight, ...(column.align === 'left' ? { textAlign: 'left' } : {}), ...column.cellSx });
@@ -79,10 +106,10 @@ const cellOf = (column, row, context) => {
 };
 
 // A data cell's content and color, the same in the row and in the phone's detail list.
-const dataCell = (column, i, row, context, mute, wordAt) => {
+const dataCell = (column, i, row, context, mute, word, wordAt) => {
   // A locked row says so once, in the first column a phone keeps (the word in a column it hides was only a dash
   // there), and has nothing else to show.
-  if (typeof mute === 'string') return { content: i === wordAt ? mute : <span className={'na'}>-</span>, tone: null };
+  if (word) return { content: i === wordAt ? word : <span className={'na'}>-</span>, tone: null };
   return { content: cellOf(column, row, context), tone: mute ? null : toneOf(column, row) };
 };
 
@@ -215,6 +242,7 @@ const DataTable = ({
                      defaultSort = null,
                      onSortChange,
                      muted,
+                     mutedWord,
                      rankOf,
                      linkOf,
                      stickyTop = null,
@@ -237,7 +265,8 @@ const DataTable = ({
   const controlled = onSortChange !== undefined;
   const sort = controlled ? sortProp : ownSort;
   const changeSort = controlled ? onSortChange : setOwnSort;
-  const ordered = (list) => (controlled ? list : sortRows(list, columns, sort, muted));
+  const dimmed = muted || mutedWord ? (row) => muted?.(row) || mutedWord?.(row) : undefined;
+  const ordered = (list) => (controlled ? list : sortRows(list, columns, sort, dimmed));
   const [name, ...data] = columns;
   const primary = primaryColumn(data, sort);
   const secondary = secondaryColumn(data, primary);
@@ -316,9 +345,10 @@ const DataTable = ({
             {shown.map((row, rowIndex) => {
               const key = keyOf(row);
               const open = Boolean(openRows[key]);
-              const mute = muted?.(row);
+              const word = mutedWord?.(row);
+              const mute = word || muted?.(row);
               // A locked row's word replaces its values, so a phone would open a list of dashes
-              const rowExpandable = expandable && typeof mute !== 'string';
+              const rowExpandable = expandable && !word;
               const firstShownMore = Boolean(expanded[band.key]) && rowIndex === BAND_PREVIEW;
               // Row keys can hold any character, so the id is built from positions.
               const detailId = `${baseId}-${bandIndex}-${rowIndex}`;
@@ -333,7 +363,7 @@ const DataTable = ({
                     </div>
                   </td>
                   {data.map((column, i) => {
-                    const { content, tone } = dataCell(column, i, row, { heading }, mute, wordAt);
+                    const { content, tone } = dataCell(column, i, row, { heading }, mute, word, wordAt);
                     return <td key={column.key} className={tone ? `col-${i} ${tone}` : `col-${i}`}>{content}</td>;
                   })}
                   {expandable ? <td className={'expand'}>
@@ -347,7 +377,7 @@ const DataTable = ({
                     <dl className={'detail-list'}>
                       {data.map((column, i) => {
                         if (phoneKeeps(column, i, primary) || column.details === false) return null;
-                        const { content, tone } = dataCell(column, i, row, { heading }, mute, wordAt);
+                        const { content, tone } = dataCell(column, i, row, { heading }, mute, word, wordAt);
                         return <div key={column.key} className={`detail-item detail-${i}`}>
                           {/* The column's note travels with its label: the heading that carries it is hidden here */}
                           {/* A heading that is art (a miniboss sprite) names itself in words in the phone's list */}
