@@ -1,7 +1,7 @@
 import { Box, Stack, Typography } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, formatNum, growth, round, shownPercent, titleCaseName } from 'utility/helpers';
+import { cleanUnderscore, formatNum, gameFill, growth, round, shownPercent, titleCaseName } from 'utility/helpers';
 import { formatGame, gameBonusText } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import {
@@ -10,6 +10,7 @@ import {
   getAlchemy,
   getBubbleParticleCost,
   getBubbleBonus,
+  getBubbleCurve,
   getBubbleUpgradeCost,
   getGrindTimeBubbleDaily,
   getKrukBubblesDaily,
@@ -21,6 +22,7 @@ import {
   isPrismaBubble,
   LIQUID_INFO
 } from '@parsers/world-2/alchemy';
+import { getBubbleDollarFills } from '@parsers/world-2/bubbleFills';
 import { getPrismaMulti } from '@parsers/class-specific/tesseract';
 import { getAchievementStatus } from '@parsers/achievements';
 import { OPT } from '@parsers/accountOptions';
@@ -237,8 +239,7 @@ const bubbleRow = (bubble, cauldronIndex, { account, prisma, failed, effThreshol
   const { level = 0, func = '', x1, x2 } = bubble;
   const isPrisma = !failed && isPrismaBubble(account, bubble.bubbleIndex);
   const multi = isPrisma ? prisma : 1;
-  // A bubble not found yet gives nothing, though some curves start above 0 (bigBase at x1, decayMulti at 1)
-  const bonus = level > 0 ? round(growth(func, level, x1, x2, false) * multi) : 0;
+  const bonus = round(getBubbleCurve(bubble) * multi);
   const placeholder = isPlaceholderBubble(bubble);
   const capped = getMaxBonus(func, x1);
   const maxBonus = capped ? capped * multi : null;
@@ -271,18 +272,22 @@ const prismaGlow = (row) => (row.isPrisma ? `data/aUpgradesGlow${row.cauldronInd
 // A bubble's details on a tap: its sentence filled as the game fills it, how far it is to its cap, the level that
 // reaches the efficiency threshold, and the next level's cost. A bubble at Lv 0 is not found yet (a cauldron's
 // unlocked bubbles stop at its first Lv 0 one), so it has no level to buy
-const bubbleNote = (row, { account, discounts, prismaText, effThreshold, showTargets }) => {
+const bubbleNote = (row, { account, discounts, prismaText, effThreshold, showTargets, dollarFills }) => {
   const { bubble, name, level, isPrisma, placeholder, bonusText, maxText, capPercent, target } = row;
   const threshold = formatNum(effThreshold, 'pct');
   // The sentence already holds the bonus where it fills one, so the line names only how far it is to the cap
   const sentenceHasBonus = (bubble.desc ?? '').includes('{');
   const capText = formatNum(capPercent, 'pct');
+  const dollarFill = dollarFills?.[bubble.bubbleName];
+  const dollarText = dollarFill?.percent ? `${gameFill(dollarFill.value, 'Big')}%` : gameBonusText(dollarFill?.value ?? 0);
   return <Stack gap={1}>
     <Stack gap={0.5}>
       <Typography variant={'body2'}>{`${name}, Lv ${formatNum(level)}`}</Typography>
       {isPrisma && !placeholder ? <Typography variant={'body2'} color={'text.secondary'}>
         {prismaText ? `Prisma: ${prismaText} bonus` : 'Prisma'}</Typography> : null}
-      <Typography variant={'body2'}>{cleanUnderscore((bubble.desc ?? '').replace(/{/g, bonusText))}</Typography>
+      <Typography variant={'body2'}>{cleanUnderscore((bubble.desc ?? '').replace(/{/g, bonusText).replace('$', dollarText))}</Typography>
+      {level > 0 && dollarFill?.character ? <Typography variant={'body2'} color={'text.secondary'}>
+        {`Best character: ${dollarFill.character}. The game fills this from the character you're logged in as.`}</Typography> : null}
       {level > 0 ? null : <StatusText status={'needs'}>Not found yet</StatusText>}
     </Stack>
     <ItemCard.Facts rows={[
@@ -376,6 +381,7 @@ const Bubbles = () => {
   const totalBubbles = cauldrons.reduce((sum, { total }) => sum + total, 0);
   const shownBubbles = cauldrons.reduce((sum, { shown }) => sum + shown.length, 0);
   const noteContext = {
+    dollarFills: hasBubbles ? getBubbleDollarFills(account, state?.characters) : null,
     account, discounts, prismaText: prismaFailed ? null : prismaText, effThreshold,
     showTargets: settings?.showTargets ?? BUBBLE_SETTINGS.showTargets
   };

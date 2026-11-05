@@ -389,8 +389,8 @@ describe('alchemy cauldrons (catalog-driven: save-length loops -> cauldronsIndex
       assertions += 3;
     });
     account.alchemy.p2w.liquids.forEach(({ regen, capacity }, index) => {
-      expect(regen.level).toBe(liquidsRaw[index * 2] ?? 0);
-      expect(capacity.level).toBe(liquidsRaw[index * 2 + 1] ?? 0);
+      expect(regen.savedLevel).toBe(liquidsRaw[index * 2] ?? 0);
+      expect(capacity.savedLevel).toBe(liquidsRaw[index * 2 + 1] ?? 0);
       assertions += 2;
     });
     expect(assertions).toBe(CAULDRON_NAMES.length * 3 + LIQUID_NAMES.length * 2);

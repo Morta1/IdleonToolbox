@@ -1051,7 +1051,7 @@ const getAccuracy = (character: Character, characters: Character[], account: Acc
     * (1 + (chipBonus + mealBonus + kangarooBonus + voteBonus + amarokSetBonus) / 100) * (1 + minorBonus / 100)
   return accuracy;
 }
-const getMaxMp = (character: Character, characters: Character[], account: Account) => {
+export const getMaxMp = (character: Character, characters: Character[], account: Account) => {
   // customBlock_PlayerMPmax
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Base_MP');
   const cardPercentBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_MP');
@@ -1073,7 +1073,7 @@ const getMaxMp = (character: Character, characters: Character[], account: Accoun
 
   return baseMp * percentageMp;
 }
-const getMaxHp = (character: Character, characters: Character[], account: Account) => {
+export const getMaxHp = (character: Character, characters: Character[], account: Account) => {
   // customBlock_PlayerHPmax
   const foodBonus = getFoodBonus(character, account, 'HpBaseBoosts');
   const statueBonus = getStatueBonus(account, 4, character?.flatTalents);

@@ -47,14 +47,13 @@ const levelValue = (level = 0, max) => (level >= max
   : formatNum(level, 'level', { max }));
 
 // One pay 2 win upgrade: its level and, while under its own max, what the next level and the rest cost. A failed
-// section's catalog has no cost. -1 is the save's mark for a liquid not found yet: it reads level 0, and the parser's
-// costs from -1 aren't the game's.
+// section's catalog and a liquid not found yet have no cost.
 const upgradeSection = (label, { level = 0, cost, costToMax } = {}, max, failed) => <ItemCard.Section key={label}
                                                                                                     label={label}>
   <ItemCard.Facts rows={[
-    ['Level', failed ? '-' : levelValue(Math.max(0, level), max)],
-    !failed && level >= 0 && level < max ? ['Next cost', <CoinDisplay key={'next'} dense money={getCoinsArray(cost ?? 0)}/>] : null,
-    !failed && level >= 0 && level < max
+    ['Level', failed ? '-' : levelValue(level, max)],
+    !failed && cost !== null && level < max ? ['Next cost', <CoinDisplay key={'next'} dense money={getCoinsArray(cost ?? 0)}/>] : null,
+    !failed && cost !== null && level < max
       ? ['Cost to max', <CoinDisplay key={'max'} dense money={getCoinsArray(costToMax ?? 0)}/>]
       : null
   ]}/>
