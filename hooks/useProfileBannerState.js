@@ -3,6 +3,10 @@ import { useRouter } from 'next/router';
 import { AppContext } from '@components/common/context/AppProvider';
 import { routeNeedsAccount } from '@utility/account-routes';
 
+// Routes that still pay for an empty account (account-routes.js) though no number on them reads it, so the guest's band
+// has nothing true to say there.
+const NO_GUEST_NUMBERS = new Set(['/guilds/detail', '/guilds/ecosystem', '/settings']);
+
 const useProfileBannerState = () => {
   const { state } = useContext(AppContext);
   const router = useRouter();
@@ -13,7 +17,8 @@ const useProfileBannerState = () => {
   const isProfileView = !isHomepage && !!(state?.profile && profileName);
   // "Numbers fill in once you sign in" only holds where the page shows account numbers. On static
   // pages it was also the largest text to arrive after hydration, which made it their LCP.
-  const isEmptyAccount = routeNeedsAccount(router?.pathname) && !isProfileView && !!state?.emptyAccount;
+  const guestBandFits = !NO_GUEST_NUMBERS.has(router?.pathname) || Boolean(state?.loginNotice?.message);
+  const isEmptyAccount = routeNeedsAccount(router?.pathname) && guestBandFits && !isProfileView && !!state?.emptyAccount;
   // Without it the sample account (?demo=true) reads like the player's own save.
   const isSample = routeNeedsAccount(router?.pathname) && !isProfileView && !!state?.demo;
   const simulatedCompanions = state?.account?.companions?.list?.filter((companion) => companion?.simulated)?.length ?? 0;
