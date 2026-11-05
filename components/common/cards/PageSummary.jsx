@@ -19,6 +19,7 @@ const PageSummary = ({ label = 'Summary', children }) => <Box component={'sectio
   borderRadius: { xs: `${CARD_RADIUS}px`, sm: 0 },
   '& [data-card-title-value]': {
     width: { xs: 'auto', sm: 'fit-content' },
+    alignSelf: { xs: 'start', sm: 'auto' },
     minHeight: { xs: 0, sm: 52 },
     px: { xs: 0, sm: 1.5 },
     bgcolor: { xs: 'transparent', sm: 'background.paper' },

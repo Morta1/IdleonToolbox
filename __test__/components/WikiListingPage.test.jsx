@@ -109,8 +109,8 @@ describe('WikiListingPage sort', () => {
   // Next keeps this page mounted between two listings, so a filter typed on one emptied the next.
   it('opens the next listing unfiltered', () => {
     const { rerender } = renderPage(npc);
-    fireEvent.change(screen.getByPlaceholderText(/^Search /), { target: { value: 'zzz' } });
+    fireEvent.change(screen.getByPlaceholderText(/^Search NPCs/), { target: { value: 'zzz' } });
     rerender(<ThemeProvider theme={darkTheme}><WikiListingPage {...listingProps('pet').props}/></ThemeProvider>);
-    expect(screen.getByPlaceholderText(/^Search /).value).toBe('');
+    expect(screen.getByPlaceholderText(/^Search pets/i).value).toBe('');
   });
 });
