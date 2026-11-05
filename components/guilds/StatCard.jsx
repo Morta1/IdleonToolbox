@@ -1,101 +1,30 @@
-import { Box, Card, Stack, Tooltip, Typography, useTheme } from '@mui/material';
-import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
-import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import RemoveIcon from '@mui/icons-material/Remove';
-import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
-import { numberWithCommas } from '@utility/helpers';
-import Sparkline from './Sparkline';
+import { Box, useTheme } from '@mui/material';
+import StatTile from '@components/common/cards/StatTile';
+import { formatNum } from '@utility/helpers';
 import { seriesColors } from '@utility/chartTheme';
-// StatCard keeps its own isFlat for a delta of 0.
 import { isFlat as neverMoved } from '@utility/chartScale';
+import Sparkline from './Sparkline';
 
-/**
- * StatCard: an ecosystem-level metric: value, optional delta, and a sparkline.
- * Text and sparkline sit side by side on a wide card; the sparkline wraps
- * below the text when the card is too narrow for both.
- *
- * Props:
- *   label         : metric name string
- *   value         : current numeric value (formatted with numberWithCommas)
- *   delta         : change vs the previous period (number | null). null: no delta shown.
- *   history       : chronological array of values for the sparkline (oldest to newest),
- *                   drawn only when it moved (Charts board, "One number")
- *   caption       : optional extra caption string rendered below the value
- *   goodDirection : 'up' (default) or 'down': which direction is positive for this
- *                   metric. 'down' flips the delta's green/red (e.g. "abandoned"
- *                   counts, where a rising number is bad news).
- *   deltaBelow    : when true, render the delta on its own line below the value
- *                   instead of inline beside it.
- *   deltaLabel    : optional text rendered after the delta (e.g. "vs last week").
- */
-export default function StatCard({
-  label, value, delta, history, caption, goodDirection = 'up', deltaBelow = false, deltaLabel, hint
-}) {
+const deltaWords = (delta) => (delta === 0
+  ? 'The same as last week'
+  : `${formatNum(Math.abs(delta), 'whole')} ${delta > 0 ? 'more' : 'fewer'} than last week`);
+
+// A tile on the Panel's card colour, filling its grid cell, its sparkline under the words.
+const TILE_SX = { width: 'auto', height: '100%', boxSizing: 'border-box', alignItems: 'flex-start', bgcolor: 'background.default' };
+
+// An ecosystem-level metric: its value, its change in words (the arrow and its colours went: the words carry it), a note
+// on a visible i, and a sparkline drawn only when the number moved (Charts board, "One number"). delta null: no change shown.
+export default function StatCard({ label, value, delta, history, caption, hint }) {
   const muiTheme = useTheme();
-  const isFlat = delta === 0;
-  const deltaIsGood = goodDirection === 'down' ? delta < 0 : delta > 0;
-  const deltaColor = isFlat ? 'text.secondary' : (deltaIsGood ? 'text.success' : 'text.error');
-
-  const deltaNode = delta == null ? null : (
-    <Stack direction="row" alignItems="center" component="span">
-      <Stack
-        direction="row"
-        alignItems="center"
-        component="span"
-        sx={{ color: deltaColor }}
-      >
-        {isFlat
-          ? <RemoveIcon fontSize="small" sx={{ mr: -0.25, fontSize: 16 }} />
-          : delta > 0
-            ? <ArrowDropUpIcon fontSize="small" sx={{ mr: -0.25 }} />
-            : <ArrowDropDownIcon fontSize="small" sx={{ mr: -0.25 }} />}
-        <Typography variant="caption" component="span" fontWeight={600} sx={{ fontVariantNumeric: 'tabular-nums' }}>
-          {isFlat ? '0' : numberWithCommas(Math.abs(delta))}
-        </Typography>
-      </Stack>
-      {deltaLabel && (
-        <Typography variant="caption" component="span" color="text.secondary" sx={{ ml: 0.5 }}>
-          {deltaLabel}
-        </Typography>
-      )}
-    </Stack>
-  );
-
-  return (
-    <Card sx={{ p: 2, height: '100%' }}>
-      <Box sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1.5 }}>
-        <Box sx={{ flex: '1 1 auto', minWidth: 200 }}>
-          <Stack direction="row" alignItems="center" gap={0.5}>
-            <Typography variant="groupLabel" component="div" color="text.secondary">
-              {label}
-            </Typography>
-            {hint && (
-              <Tooltip title={hint}>
-                <InfoOutlinedIcon sx={{ fontSize: 14, color: 'text.secondary', opacity: 0.6 }} />
-              </Tooltip>
-            )}
-          </Stack>
-          <Stack direction="row" alignItems="baseline" gap={0.75} sx={{ mt: 0.5 }}>
-            <Typography variant="heroValue" component="div">
-              {value != null ? numberWithCommas(value) : '-'}
-            </Typography>
-            {!deltaBelow && deltaNode}
-          </Stack>
-          {deltaBelow && deltaNode && (
-            <Box sx={{ mt: 0.5 }}>{deltaNode}</Box>
-          )}
-          {caption && (
-            <Typography variant="caption" color="text.secondary" sx={{ display: 'block', mt: 0.5 }}>
-              {caption}
-            </Typography>
-          )}
-        </Box>
-        {history?.length >= 2 && !neverMoved(history) && (
-          <Box sx={{ flexShrink: 0 }}>
-            <Sparkline values={history} width={200} height={56} color={seriesColors(muiTheme.palette.mode)[0]} />
-          </Box>
-        )}
-      </Box>
-    </Card>
-  );
+  const lines = [delta == null ? null : deltaWords(delta), caption].filter(Boolean);
+  const moved = history?.length >= 2 && !neverMoved(history);
+  return <StatTile
+    label={label}
+    value={formatNum(value, 'amount')}
+    info={hint}
+    cardSx={TILE_SX}
+    sub={lines.length || moved ? <>
+      {lines.map((line) => <div key={line}>{line}</div>)}
+      {moved ? <Box sx={{ mt: 1 }}><Sparkline values={history} width={200} height={56} color={seriesColors(muiTheme.palette.mode)[0]}/></Box> : null}
+    </> : undefined}/>;
 }
