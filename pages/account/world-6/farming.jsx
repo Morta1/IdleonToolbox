@@ -73,24 +73,24 @@ const Farming = () => {
     />
     {/* The picker and the gear work on a plot that didn't load */}
     {sectionFailed ? <MissingData name={'Farming'} failed/> : <>
-    {characters?.length ? <PageHeaderControl>
-      <TextField select value={selectedCharacter?.playerId ?? ''} onChange={(event) => setPickedId(event.target.value)}
-                 sx={{ minWidth: 180 }}
-                 slotProps={{
-                   select: {
-                     renderValue: (id) => <><Box component={'span'} sx={{ color: 'text.secondary', mr: 0.75 }}>Character</Box>
-                       {characters?.find((character) => character?.playerId === id)?.name}</>,
-                     SelectDisplayProps: { 'aria-label': 'Character' }
-                   }
-                 }}>
-        {characters?.map((character) => <MenuItem key={character?.playerId}
-                                                  value={character?.playerId}>{character?.name}</MenuItem>)}
-      </TextField>
-    </PageHeaderControl> : null}
-    {characters?.length ? <PageSettings state={settings} defaults={FARMING_SETTINGS} onChange={setSettings} onReset={resetSettings}>
-      <PageSettings.Toggle name={'forceNano'} label={'Force nano chip'}
-                           help={'Counts the nano chip in crop evo for any character, assuming Cropiovo Minor is active.'}/>
-    </PageSettings> : null}
+      {characters?.length ? <PageHeaderControl>
+        <TextField select value={selectedCharacter?.playerId ?? ''} onChange={(event) => setPickedId(event.target.value)}
+                   sx={{ minWidth: 180 }}
+                   slotProps={{
+                     select: {
+                       renderValue: (id) => <><Box component={'span'} sx={{ color: 'text.secondary', mr: 0.75 }}>Character</Box>
+                         {characters?.find((character) => character?.playerId === id)?.name}</>,
+                       SelectDisplayProps: { 'aria-label': 'Character' }
+                     }
+                   }}>
+          {characters?.map((character) => <MenuItem key={character?.playerId}
+                                                    value={character?.playerId}>{character?.name}</MenuItem>)}
+        </TextField>
+      </PageHeaderControl> : null}
+      {characters?.length ? <PageSettings state={settings} defaults={FARMING_SETTINGS} onChange={setSettings} onReset={resetSettings}>
+        <PageSettings.Toggle name={'forceNano'} label={'Force nano chip'}
+                             help={'Counts the nano chip in crop evo for any character, assuming Cropiovo Minor is active.'}/>
+      </PageSettings> : null}
     </>}
     <PageSummary failed={sectionFailed}>
       {/* breakdownTitle: the drawer takes the tile's name; the breakdown's own stays its link and pin key */}
