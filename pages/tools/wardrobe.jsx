@@ -14,6 +14,7 @@ import ItemPickerDialog from '@components/tools/wardrobe/ItemPickerDialog';
 import PoseBar from '@components/tools/wardrobe/PoseBar';
 import CharacterSelect from '@components/tools/wardrobe/CharacterSelect';
 import Panel from '@components/common/cards/Panel';
+import { MissingSections } from '@components/common/styles';
 
 const SLOT_INDEX = { hat: 0, premiumHat: 8, weapon: 1, trophy: 10, cape: 12, nametag: 14, costume: 15 };
 // EquipOrder slot 8 is the premium (cosmetic) hat, verified in the game code; the game draws it
@@ -170,6 +171,8 @@ const Wardrobe = () => {
       title="Wardrobe | Idleon Toolbox"
       description="Dress a Legends of Idleon character in any hat, weapon, cape, costume, trophy, nametag or companion and watch it move the way the game draws it"
     />
+    {/* Its character picker and the mannequin's pet read the save: a whole-parse failure takes both away */}
+    <MissingSections account={state?.account} names={{ companions: 'Companions' }}/>
     <Typography variant={'body2'} color={'text.secondary'} mb={3}>
       Dress a character in any hat, weapon, cape, costume, trophy, nametag or companion and watch it move the way the game draws it.
     </Typography>

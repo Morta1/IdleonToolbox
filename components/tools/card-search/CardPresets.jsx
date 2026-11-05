@@ -169,7 +169,7 @@ const CardPresets = ({
                                       if (e.key === 'Escape') cancelRename.current = true;
                                       if (e.key === 'Enter' || e.key === 'Escape') e.target.blur();
                                     }}/>
-               : preset ? <TextField select value={selected} sx={{ width: 140 }} onChange={(e) => onSelect(e.target.value)}
+               : preset ? <TextField select value={selected} sx={{ width: { xs: 100, md: 140 } }} onChange={(e) => onSelect(e.target.value)}
                                      slotProps={{ select: { SelectDisplayProps: { 'aria-label': 'Selected preset' } } }}>
                  {presets.map(({ name }, index) => <MenuItem key={`${name}-${index}`} value={index}>{name}</MenuItem>)}
                </TextField> : null}

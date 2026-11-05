@@ -211,7 +211,8 @@ export default function CardSearch() {
               {isCardSets ? <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1.25 }}>Card sets</Typography>
                 : <Box component={'img'} src={`${prefix}etc/${cardSet}_Card_Header.png`} alt={cleanUnderscore(cardSet)}
                        sx={{ display: 'block', maxWidth: '100%', mb: 1.25 }}/>}
-              <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: { md: 600 } }}>
+              {/* A star's frame hangs 6 px past its card: inside the column, it stays under a pinned Toolbar when it scrolls */}
+              <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ maxWidth: { md: 600 }, pl: '6px' }}>
                 {entries.map(({ card, isSkillMasteryPassive }) => {
                   const { displayName, name } = card;
                   const owned = (isCardSets ? cardSetsData?.[name] : state?.account?.cards?.[displayName]) ?? {};
