@@ -5,9 +5,11 @@ import ItemDisplay from 'components/common/ItemDisplay';
 import { NoteTrigger } from '@components/common/InfoButton';
 import { cleanUnderscore } from 'utility/helpers';
 
+// A character's name stays as its player typed it ("morta11"): only the parser's own words take a capital.
+const WORD_OWNERS = { storage: 'Storage', account: 'Account' };
 export const ownerName = (owner) => {
   const name = cleanUnderscore(owner);
-  return name.charAt(0).toUpperCase() + name.slice(1);
+  return WORD_OWNERS[name] ?? name;
 };
 
 // The item card used across the site, on a tap (a hover previews it), plus an optional line on where the item stands
