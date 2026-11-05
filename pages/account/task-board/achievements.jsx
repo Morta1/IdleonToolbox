@@ -21,12 +21,13 @@ import {
   getWorldAchievements,
   isRealAchievement
 } from '@parsers/achievements';
+import { gameGlyphs } from '@utility/wiki/game-glyphs.mjs';
 
 const TABS = getTabs(PAGES.ACCOUNT['task board'].categories, 'achievements');
 const ACHIEVEMENTS_TOOLBAR = { hideCompleted: false };
 
 // The game's font draws an end-of-line # and ^ and a 论 the site can't: the marks go, 论 reads + (Sneaking's +LV)
-const achievementText = (desc) => cleanUnderscore(`${desc ?? ''}`.replace(/_?[#^]$/, '').replace(/论/g, '+'));
+const achievementText = (desc) => cleanUnderscore(gameGlyphs(desc));
 
 const Achievements = () => {
   const { state } = useContext(AppContext);

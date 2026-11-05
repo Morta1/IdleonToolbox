@@ -91,7 +91,7 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
       label: 'Qty',
       numeric: true,
       render: (row) => (isCoin(row.other)
-        ? <Stack direction={'row'} justifyContent={'flex-end'} component={'span'}><CoinAmount amount={rowAmount(row)} size={16}/></Stack>
+        ? <Stack direction={'row'} justifyContent={'flex-end'} component={'span'}><CoinAmount amount={rowAmount(row)}/></Stack>
         : <Typography variant={'caption'} color={'text.secondary'}>{rowAmount(row) > 1 ? notateAmount(rowAmount(row)) : ''}</Typography>)
     }] : []),
     // A shop's price is what a phone keeps beside the name.
@@ -101,7 +101,7 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
       numeric: true,
       phone: true,
       render: (row) => <Stack direction={'row'} justifyContent={'flex-end'} component={'span'}>
-        <Price price={row.edge?.meta?.price} currency={row.edge?.meta?.currency} size={16}/>
+        <Price price={row.edge?.meta?.price} currency={row.edge?.meta?.currency}/>
       </Stack>
     }] : []),
     ...(anyMerged ? [{

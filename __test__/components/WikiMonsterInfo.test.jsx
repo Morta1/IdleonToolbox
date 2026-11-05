@@ -51,7 +51,7 @@ describe('MonsterInfo card ladder', () => {
   it('reads the card bonus at every tier', () => {
     render(<MonsterInfo node={{ kind: 'monster', name: 'Test', stats: null, location: null }} index={{ byId: {} }}
                         card={{ effect: '{%_Base_Damage', bonus: 4 }} cardId={'item:CardsA0'} onNavigate={() => {}}/>);
-    const box = within(screen.getByText('Card Info').parentElement);
+    const box = within(screen.getByText('Card info').closest('section'));
     expect([box.getAllByText(/^\d+$/).map((node) => node.textContent), box.getAllByRole('img').map((node) => node.getAttribute('alt'))]).toEqual([
       ['4', '8', '12', '16', '20', '24', '28'],
       ['1 star', '2 star', '3 star', '4 star', '5 star', '6 star']

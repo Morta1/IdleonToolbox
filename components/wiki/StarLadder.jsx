@@ -2,8 +2,8 @@ import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import { prefix } from '@utility/helpers';
 
-// The star images get wider as the tier climbs (Star6 draws six stars), and 'Base' is text rather
-// than an image. Without a fixed cell width and a fixed-height header row the numbers underneath
+// The star images get wider as the tier climbs (Star6 draws six stars, 56 x 28), so they stay art at their own shape:
+// a 16 px GameIcon box would shrink six stars to a smudge. 'Base' is text rather than an image. Without a fixed cell width and a fixed-height header row the numbers underneath
 // drift out of line with each other.
 const CELL_WIDTH = 42;
 const HEADER_HEIGHT = 18;
@@ -28,7 +28,7 @@ const StarLadder = ({ values, startTier = 0 }) => <Stack direction={'row'} flexW
             sx={{ maxWidth: '100%', maxHeight: 14, objectFit: 'contain' }}
           />}
       </Box>
-      <Typography variant={'caption'} fontWeight={600} lineHeight={1.4}>{value}</Typography>
+      <Typography variant={'caption'} lineHeight={1.4} sx={{ fontWeight: 'fontWeightMedium' }}>{value}</Typography>
     </Stack>;
   })}
 </Stack>;

@@ -1,6 +1,7 @@
 import React from 'react';
-import { Divider, Link, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { Box, Divider, Link, Stack, Typography } from '@mui/material';
+import GameIcon from '@components/common/GameIcon';
+import { cleanUnderscore } from '@utility/helpers';
 import { notateAmount } from '@utility/wiki/notate';
 import InfoBox from './InfoBox';
 import LevelledEffect, { CostAmount } from './LevelledEffect';
@@ -42,7 +43,7 @@ const fieldValue = ({ value, format, links, currency, currencyIcon }, ctx = {}) 
 const withCost = (field, ctx) => (field.cost
   ? <>
     {fieldValue(field, ctx)}
-    <Typography variant={'caption'} component={'div'} color={'text.secondary'} fontWeight={400}>
+    <Typography variant={'caption'} component={'div'} color={'text.secondary'}>
       <CostAmount amount={field.cost.value} currency={field.cost.currency} icon={field.cost.currencyIcon}/>
     </Typography>
   </>
@@ -50,21 +51,17 @@ const withCost = (field, ctx) => (field.cost
 
 // One sub-entry of a page (a merit, a trait): its art, its own level calculator or its sentence, and its fields.
 const RegistryEntry = ({ entry, ctx }) => <Stack direction={'row'} gap={1} alignItems={'flex-start'}>
-  {entry.icon ? <img
-    // The icon is rooted at `/`, and a slash after the prefix would read as a protocol-relative URL.
-    src={`${prefix}${entry.icon.replace(/^\//, '')}`}
-    alt={''}
-    width={32}
-    height={32}
-    style={{ objectFit: 'contain', flexShrink: 0 }}
-  /> : null}
+  {/* The icon is rooted at /, GameIcon's src under public/. */}
+  {entry.icon ? <GameIcon src={entry.icon.replace(/^\//, '')} size={32} alt={''}/> : null}
   <Stack gap={0.5} sx={{ minWidth: 0 }}>
     {entry.effect
       ? <LevelledEffect node={entry}/>
       : <Typography variant={'body2'}>{cleanUnderscore(entry.description)}</Typography>}
-    {(entry.fields || []).map((field) => <Typography key={field.label} variant={'caption'} component={'div'} color={'text.secondary'}>
-      {`${field.label}: `}{fieldValue(field, ctx)}
-    </Typography>)}
+    {(entry.fields || []).map((field) => <Stack key={field.label} direction={'row'} justifyContent={'space-between'} gap={1.5}
+                                                sx={{ typography: 'caption', color: 'text.secondary' }}>
+      <span>{field.label}</span>
+      <Box component={'span'} sx={{ textAlign: 'right' }}>{fieldValue(field, ctx)}</Box>
+    </Stack>)}
   </Stack>
 </Stack>;
 

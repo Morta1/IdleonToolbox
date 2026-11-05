@@ -453,7 +453,7 @@ describe('EntityPanel registry entries', () => {
     expect(screen.getByText('Merits')).toBeDefined();
     expect(screen.getByText('+2% faster')).toBeDefined();
     expect(screen.getByText('+5% slower')).toBeDefined();
-    expect(screen.getByText('Order: B, C')).toBeDefined();
+    expect(screen.getByText('B, C')).toBeDefined();
     expect([...container.querySelectorAll('img')].filter((img) => img.getAttribute('src').endsWith('data/TaskSa2.png'))).toHaveLength(2);
     const [first] = screen.getAllByLabelText('Purchases');
     fireEvent.change(first, { target: { value: '3' } });
@@ -494,9 +494,9 @@ describe('EntityPanel card set', () => {
 
   it('reads the set bonus and its ladder, and repeats no Set row', () => {
     renderPanel({ index: cardIndex, id: 'item:CardsA0' });
-    expect(screen.getByText('Card Set')).toBeDefined();
+    expect(screen.getByText('Card set')).toBeDefined();
     expect(screen.getByText('+8% EXP if below Lv 50')).toBeDefined();
-    const setGroup = screen.getByText('Card Set').parentElement;
+    const setGroup = screen.getByText('Card set').closest('section');
     expect(within(setGroup).getAllByText(/^\d+$/).map((node) => node.textContent)).toEqual(['8', '16', '24', '32', '40', '48', '56']);
     expect(screen.queryByText('Set')).toBe(null);
   });
@@ -504,9 +504,9 @@ describe('EntityPanel card set', () => {
   // One cell per card tier, Base to the cap (CardLv), and one requirement per tier-up after Base.
   it('reads the card bonus at every tier and the cards each tier-up needs', () => {
     renderPanel({ index: cardIndex, id: 'item:CardsA1' });
-    const cells = (title) => within(screen.getByText(title).parentElement).getAllByText(/^[\d.]+K?$/).map((node) => node.textContent);
-    const stars = (title) => within(screen.getByText(title).parentElement).getAllByRole('img').map((node) => node.getAttribute('alt'));
-    expect([cells('Card Bonus'), stars('Card Bonus'), cells('Tier Requirements'), stars('Tier Requirements')]).toEqual([
+    const cells = (title) => within(screen.getByText(title).closest('section')).getAllByText(/^[\d.]+K?$/).map((node) => node.textContent);
+    const stars = (title) => within(screen.getByText(title).closest('section')).getAllByRole('img').map((node) => node.getAttribute('alt'));
+    expect([cells('Card bonus'), stars('Card bonus'), cells('Tier requirements'), stars('Tier requirements')]).toEqual([
       ['5', '10', '15', '20', '25', '30', '35'],
       ['1 star', '2 star', '3 star', '4 star', '5 star', '6 star'],
       ['10', '30', '50', '160', '4.59K', '147K'],
@@ -516,8 +516,8 @@ describe('EntityPanel card set', () => {
 
   it('shows no Card Set box on a card without a set', () => {
     renderPanel({ index: cardIndex, id: 'item:CardsA1' });
-    expect(screen.getByText('Card Bonus')).toBeDefined();
-    expect(screen.queryByText('Card Set')).toBe(null);
+    expect(screen.getByText('Card bonus')).toBeDefined();
+    expect(screen.queryByText('Card set')).toBe(null);
   });
 });
 

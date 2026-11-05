@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Box, Card, CardContent, Link, Stack, Typography } from '@mui/material';
+import { Box, Link, Stack, Typography } from '@mui/material';
+import Notice from '@components/common/Notice';
 import TagLine from '@components/common/TagLine';
 import CardBonus, { cardBonusShows } from './CardBonus';
-import InfoBox, { visibleGroups } from './InfoBox';
+import InfoBox, { ROW_FROM, visibleGroups } from './InfoBox';
 import ItemStats, { itemStatsShows } from './ItemStats';
 import { monsterGroups } from './MonsterInfo';
 import QuestInfo, { questInfoShows } from './QuestInfo';
@@ -15,6 +16,7 @@ import SneakFloorInfo, { sneakFloorShows } from './SneakFloorInfo';
 import EntityHistory, { entityHistoryShows } from './EntityHistory';
 import { dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, percentLabel } from '@utility/wiki/drops';
 import { entityName } from '@utility/wiki/names.mjs';
+import { gameGlyphs, shownName } from '@utility/wiki/game-glyphs.mjs';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { notateAmount } from '@utility/wiki/notate';
 import { LISTED_KINDS, listingHref, wikiCrumbs } from '@utility/wiki/kinds.mjs';
@@ -43,9 +45,6 @@ export { EntityIcon, entityName, KIND_LABELS, KIND_PLURALS };
 // a broken layout rather than a short list.
 const COLUMN_MIN = 6;
 
-// The panel width from which the infobox rail sits beside the relations (see the row below).
-const ROW_FROM = 480 + 24 + 340;
-
 // Art that is a banner rather than an icon, and the width the game drew it at: a bundle's shop
 // strip is 711px, a world's map 811px. Shown at its own size at most, never blown up.
 const WIDE_HEADER = { bundle: 711, world: 811 };
@@ -56,7 +55,7 @@ const spawnLabel = (meta) => (meta?.count > 0 ? `${meta.count} spawns` : '');
 const orderLabel = (meta) => (meta?.order != null ? `#${meta.order}` : '');
 // What a container rolls. The pools are weighted and the weights are the game's own, so this is a
 // real rate rather than an even split across the list.
-const yieldLabel = (meta) => (meta?.chance > 0 ? `${meta.chance}%` : '');
+const yieldLabel = (meta) => (meta?.chance > 0 ? formatNum(meta.chance, 'pct') : '');
 // A skilling node's resource, and for a fishing spot the depths it is caught at.
 const gatherLabel = (meta) => [meta?.skill, meta?.depths?.length ? `Depth ${meta.depths.join(', ')}` : null].filter(Boolean).join(' · ');
 // What a trap map yields: the plain critter past an efficiency threshold, the shiny one by chance.
@@ -309,7 +308,7 @@ const AnimationTile = ({ src, alt }) => {
   const [broken, setBroken] = useState(false);
   if (broken) return null;
   return <Stack alignItems={'center'} gap={0.5}>
-    <img src={src} alt={alt} width={72} height={72} loading={'lazy'} style={{ objectFit: 'contain' }}
+    <img src={src} alt={''} width={72} height={72} loading={'lazy'} style={{ objectFit: 'contain' }}
          onError={() => setBroken(true)}/>
     <Typography variant={'caption'} color={'text.secondary'}>{alt}</Typography>
   </Stack>;
@@ -421,9 +420,7 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
   // a blank card instead of the empty state.
   const node = index?.byId && Object.hasOwn(index.byId, id) ? index.byId[id] : null;
   if (!node) {
-    return <Typography color={'text.secondary'}>
-      No entity matches this link. Use the search above to find one.
-    </Typography>;
+    return <Notice tone={'info'}>No entity matches this link. Use the search above to find one.</Notice>;
   }
 
   // Every monster's category is literally "Monster", which would print the kind chip twice.
@@ -548,11 +545,10 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
   return <Stack gap={1.5}>
     {/* The panel is reached from search, from a category listing, or from another entity's row, so it
         carries its own way back up rather than leaving browser history as the only route. */}
-    <WikiBreadcrumbs crumbs={wikiCrumbs({ kind: node.kind, page: entityName(node) })} onGo={onGo}/>
-    <Card variant={'outlined'}>
+    <WikiBreadcrumbs crumbs={wikiCrumbs({ kind: node.kind, page: shownName(entityName(node)) })} onGo={onGo}/>
     {/* The query container for the relations row below: block-level and full width, so its own width is known
         before its content's (a fit-content box would collapse to 0 under inline-size containment). */}
-    <CardContent sx={{ containerType: 'inline-size' }}>
+    <Box sx={{ containerType: 'inline-size' }}>
       {/* A bundle's banner is the shop art the game sells it with: wide, and carrying its name and
           contents. A world's is the island map the game draws when you pick where to travel, which
           is the same shape and the same job. Both read as a header rather than as an avatar, so
@@ -568,8 +564,8 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
             banner treatment would blow up to 711px. It takes the avatar every other kind uses. A
             Starter Pack offer's portrait card sits in the rail instead, see below. */}
         {node.icon && (!WIDE_HEADER[node.kind] || node.petMart)
-          ? <EntityIcon key={id} node={node} size={72}/> : null}
-        <Typography variant={'pageTitle'} component={'h2'}>{entityName(node)}</Typography>
+          ? <EntityIcon key={id} node={node} size={56}/> : null}
+        <Typography variant={'pageTitle'} component={'h2'}>{shownName(entityName(node))}</Typography>
         <TagLine variant={'body2'} tags={[kindChip, categoryChip, disambigChip]}/>
       </Stack>
       {/* Relations read as the main column; the stat infobox sits beside them once the panel itself has room for
@@ -585,15 +581,13 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
               each level, so the raw form with its braces never reaches the page. */}
           {showsDescription
             ? <Typography variant={'body2'} color={'text.secondary'}>
-              {cleanUnderscore(node.description)}
+              {cleanUnderscore(gameGlyphs(node.description))}
             </Typography>
             : null}
       <SneakFloorInfo key={id} node={node} index={index} hrefFor={hrefFor} onNavigate={onNavigate}/>
       {/* Only a blank page says this: no relation, no field link, no description, and no panel in
           the rail or below (stats, price, objectives, history, animations, a shop's catalog). */}
-      {!hasContent ? <Typography sx={{ mt: 2 }} color={'text.secondary'}>
-        Nothing is linked to this entity yet.
-      </Typography> : null}
+      {!hasContent ? <Box sx={{ mt: 2 }}><Notice tone={'info'}>Nothing is linked to this entity yet.</Notice></Box> : null}
       {sections.map(({ title, dir, rel, groups, size, show, note, Detail, Row, tabular, asKinds }) => <Stack key={`${title}|${dir}|${rel}`} sx={{ mt: 3 }} gap={0.5}>
         <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>
           {title}
@@ -613,7 +607,7 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
         /> : null}
         {asKinds || tabular ? null : groups.map(({ key, label, odds, edges }) => <Stack key={key} gap={0.5}>
           {label ? <Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'} sx={{ mt: 1 }}>
-            <Typography variant={'body2'} fontWeight={600}>{label}</Typography>
+            <Typography variant={'body2'} sx={{ fontWeight: 'fontWeightMedium' }}>{label}</Typography>
             {odds ? <Typography variant={'caption'} color={'text.secondary'}>{odds}</Typography> : null}
           </Stack> : null}
           {/* Two columns once there is room, which halves the scrolling on the long sections. A
@@ -665,7 +659,7 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
                 {/* A town shop's price is coins, so it is drawn as coins: 700 is 7 silver, and
                     printing the raw figure would be the wrong number rather than a big one. The
                     currency shops price in their own currency and say so with its icon. */}
-                <Price price={edge.meta?.price} currency={edge.meta?.currency} size={16}/>
+                <Price price={edge.meta?.price} currency={edge.meta?.currency}/>
                 {/* Quantity belongs to the item side of the edge, whichever end of it that is. */}
                 {Detail ? <Detail meta={edge.meta || {}} node={dir === 'from' ? other : node}/> : null}
               </Stack>
@@ -720,8 +714,7 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
           <AnimationsBox node={node}/>
         </Box>
       </Stack>
-    </CardContent>
-    </Card>
+    </Box>
   </Stack>;
 };
 

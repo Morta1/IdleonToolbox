@@ -7,6 +7,7 @@ import { sessionQuery } from '@utility/nav-query';
 import EntityIcon from './EntityIcon';
 import { KIND_LABELS } from '@utility/wiki/kind-labels.mjs';
 import { entityHref } from '@utility/wiki/page-graph';
+import { shownName } from '@utility/wiki/game-glyphs.mjs';
 
 // Loaded lazily and shaped by scripts/entity-graph/build.mjs: the slim index, not the full graph,
 // so every wiki page affords search without paying for edges it never reads.
@@ -44,7 +45,7 @@ const WikiSearchBar = ({ loadEntries = defaultLoadEntries }) => {
     options={options}
     // searchEntities already ranked and capped the list; MUI must not filter it again.
     filterOptions={(allOptions) => allOptions}
-    getOptionLabel={(option) => option.label}
+    getOptionLabel={(option) => shownName(option.label)}
     getOptionKey={(option) => option.id}
     loading={!entries && !failed}
     blurOnSelect
@@ -59,7 +60,7 @@ const WikiSearchBar = ({ loadEntries = defaultLoadEntries }) => {
       return <Stack key={key} {...optionProps} direction={'row'} gap={1.5} alignItems={'center'}>
         <EntityIcon node={option} size={24}/>
         <Typography variant={'body2'} sx={{ flexGrow: 1 }}>
-          {option.label}
+          {shownName(option.label)}
           {/* Tells a same-name option apart; the label alone is still what the input matches and shows. */}
           {option.disambig ? <>
             {' '}

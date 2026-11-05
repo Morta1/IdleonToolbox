@@ -1,8 +1,7 @@
 import React from 'react';
 import { Stack, Typography } from '@mui/material';
-import TagLine from '@components/common/TagLine';
-import Tooltip from '@components/Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
+import InfoButton from '@components/common/InfoButton';
+import StatusText from '@components/common/StatusText';
 import { CAVEAT, fieldLabel, formatValue } from '@utility/wiki/history';
 
 // The panel asks the same question the list answers, so it cannot draw while the empty state shows.
@@ -16,9 +15,7 @@ const EntityHistory = ({ node }) => {
       <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>
         Changes
       </Typography>
-      <Tooltip title={CAVEAT}>
-        <InfoIcon sx={{ fontSize: 14, cursor: 'pointer' }}/>
-      </Tooltip>
+      <InfoButton label={'changes'}>{CAVEAT}</InfoButton>
     </Stack>
     {node.history.map((event) => <Stack
       key={event.v}
@@ -35,14 +32,14 @@ const EntityHistory = ({ node }) => {
         lines rather than replacing them. */}
       <Stack gap={0.25}>
         {event.t === 'added'
-          ? <TagLine tags={['Added']} sx={{ alignSelf: 'flex-start' }}/>
+          ? <StatusText status={'info'} sx={{ alignSelf: 'flex-start' }}>Added</StatusText>
           : null}
         {(event.fields || []).map(({ field, from, to }) => <Typography
           key={field}
           variant={'body2'}
           color={'text.secondary'}
         >
-          {fieldLabel(field)}: {formatValue(from)} to {formatValue(to)}
+          {fieldLabel(field)} went from {formatValue(from)} to {formatValue(to)}
         </Typography>)}
       </Stack>
     </Stack>)}

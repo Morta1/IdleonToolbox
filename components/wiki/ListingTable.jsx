@@ -11,6 +11,7 @@ import { formatNum, prefix } from '@utility/helpers';
 import { formatAmount } from '@utility/wiki/effects.mjs';
 import { notateAmount, notateGame } from '@utility/wiki/notate';
 import { NAME_COLUMN, NO_MAX, isNumericColumn } from '@utility/wiki/listing-sort.mjs';
+import { gameGlyphs, shownName } from '@utility/wiki/game-glyphs.mjs';
 import { RAIL_SECONDARY_FROM, railFrom } from './WikiRail';
 
 // What tells a same-name page from the others, printed after the name they share. Not under a band heading
@@ -70,7 +71,7 @@ const costText = (costs) => costs.map((cost, i) => <React.Fragment key={i}>
 const cellContent = (column, value, labelOf) => {
   if (value == null) return null;
   if (column.type === 'facet') return labelOf(value);
-  if (column.type === 'effect' || column.type === 'text') return value;
+  if (column.type === 'effect' || column.type === 'text') return typeof value === 'string' ? gameGlyphs(value) : value;
   if (column.type === 'cost') return costText(value);
   if (column.type === 'max') return value === NO_MAX ? 'No max' : notateAmount(value);
   return formatted(value, column.format);
@@ -80,7 +81,7 @@ const cellContent = (column, value, labelOf) => {
 // was a third of what expanding Items cost; a row with no page falls back to the Link button.
 const RowLink = ({ entry, hrefFor, onNavigate, heading }) => {
   const href = hrefFor?.(entry.id);
-  const name = <>{entry.label}<Disambig entry={entry} band={heading}/></>;
+  const name = <>{shownName(entry.label)}<Disambig entry={entry} band={heading}/></>;
   if (!href) {
     return <Link {...linkProps(hrefFor, entry.id)} variant={'body2'} textAlign={'left'}
                  onClick={navigateOnPlainClick(onNavigate, entry.id, false)}>{name}</Link>;
@@ -123,7 +124,7 @@ const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onN
       rows: band.entries
     }))}
     rowKey={(entry) => entry.id}
-    rowLabel={(entry) => entry.label}
+    rowLabel={(entry) => shownName(entry.label)}
     sort={sort}
     onSortChange={onSortChange}
     linkOf={(entry) => {

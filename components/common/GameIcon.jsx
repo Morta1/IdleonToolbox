@@ -22,8 +22,8 @@ const placement = (allBounds, src, frame, size, fit) => {
 // look smaller than a hat. src and frame are paths under public/ with the extension; the frame is drawn
 // behind and shares the sprite's fit. alt is '' when a label sits beside the icon, the thing's name when
 // it stands alone. status="missing" (locked, not found) greys the sprite without shrinking it. fallback: a second
-// sprite tried before the missing-art box (a slab item that exists only as its _x1 copy).
-const GameIcon = ({ src, fallback, size = 40, alt = '', frame, status, fit = 'drawn' }) => {
+// sprite tried before the missing-art box (a slab item that exists only as its _x1 copy). loading: "lazy" in a long list.
+const GameIcon = ({ src, fallback, size = 40, alt = '', frame, status, fit = 'drawn', loading }) => {
   const allBounds = useSpriteBounds();
   const [failed, setFailed] = useState([]);
   const shown = failed.includes(src) && fallback ? fallback : src;
@@ -43,7 +43,7 @@ const GameIcon = ({ src, fallback, size = 40, alt = '', frame, status, fit = 'dr
   return <Box style={{ width: size, height: size }} data-status={status}
               data-fit={fit === 'drawn' && !allBounds ? 'pending' : undefined}>
     {frame ? <img src={`${prefix}${frame}`} alt={''} style={place}/> : null}
-    {shown ? <img key={shown} ref={checkFailed} src={`${prefix}${shown}`} alt={alt} style={place}
+    {shown ? <img key={shown} ref={checkFailed} src={`${prefix}${shown}`} alt={alt} style={place} loading={loading}
                   onError={fail}/> : null}
   </Box>;
 };

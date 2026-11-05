@@ -16,7 +16,7 @@ describe('ItemStats sell price', () => {
   // nothing: 1,496 items carry a sellPrice and only the 128 stamps ever showed one.
   it('shows a price for an item that has no stats', () => {
     const { getByText } = draw({ kind: 'item', rawName: 'Copper', category: 'MINING_ORE', sellPrice: 200 });
-    expect(getByText('Sell Price')).toBeDefined();
+    expect(getByText('Sell price')).toBeDefined();
   });
 
   it('shows the price alongside the stats when an item has both', () => {
@@ -24,7 +24,7 @@ describe('ItemStats sell price', () => {
       kind: 'item', rawName: 'Sword', category: 'WEAPON', sellPrice: 4000,
       stats: { Weapon_Power: 5, lvReqToEquip: 10 }
     });
-    expect(getByText('Sell Price')).toBeDefined();
+    expect(getByText('Sell price')).toBeDefined();
     expect(getByText('Level')).toBeDefined();
   });
 

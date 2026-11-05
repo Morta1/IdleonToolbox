@@ -15,7 +15,7 @@ const CURRENCY_ART = {
 
 const Price = ({ price, currency }) => {
   if (!(price > 0)) return null;
-  if (!currency) return <CoinAmount amount={price} size={16}/>;
+  if (!currency) return <CoinAmount amount={price}/>;
 
   const art = CURRENCY_ART[currency];
   return <Stack direction={'row'} gap={0.25} alignItems={'center'}>
