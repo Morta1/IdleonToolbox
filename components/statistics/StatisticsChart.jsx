@@ -51,13 +51,14 @@ const columnTable = (config, columns, rows) => {
     rowKey: 'key',
     rowLabel: (row) => row.range,
     columns: [
-      { key: 'range', label: config.nameLabel, render: (row) => row.range },
+      // The heading says "Slot", so a stacked table's row is its number: "Slot 1" took two lines and a column's room on a phone.
+      { key: 'range', label: config.nameLabel, render: (row) => (config.form === 'stacked' ? row.label : row.range) },
       ...(columns.length === 1
         ? [{ key: columns[0].key, label: config.unit, numeric: true, phone: true, render: (row) => <Num value={row.values[columns[0].key]}/> }]
         : [
           // The rare part leaves room for the ones the chart is about: it opens under a row until the table has room for it.
           ...columns.map((item) => ({ key: item.key, label: item.label, numeric: true, ...(item.key === OTHER_PART ? { from: 1500 } : { phone: true }), render: (row) => <Num value={row.values[item.key] ?? 0}/> })),
-          { key: 'total', label: 'Total', numeric: true, render: (row) => <Num value={total(row)}/> }
+          { key: 'total', label: 'Total', numeric: true, from: 1366, render: (row) => <Num value={total(row)}/> }
         ])
     ]
   };
