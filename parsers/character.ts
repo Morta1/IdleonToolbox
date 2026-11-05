@@ -141,7 +141,7 @@ import { getButtonBonus } from '@parsers/world-7/button';
 import { getGuaranteedCrystalMobs } from '@parsers/misc';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { ARMORY_TALENT_REATTAINMENT, getArmoryUpgradeBonus, getOrbletMarketBonus, getRoyalStatueBonus } from '@parsers/class-specific/royalGuardian';
-import { tryToParse, createIndexedArray, createArrayOfArrays, cashFormatter } from '@utility/helpers';
+import { tryToParse, createIndexedArray, createArrayOfArrays, gameFill } from '@utility/helpers';
 import type { IdleonData, Account } from './types';
 import { OPT } from '@parsers/accountOptions';
 import { saveField } from '@parsers/saveField';
@@ -2896,6 +2896,14 @@ final *= Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500));`
   };
 }
 
+// game: the MonsterCash label: NotateNumber Big past 1e16 (e notation from 1e21), its own B past 1e10 and M past 1e7
+const cashMultiLabel = (value: number) => {
+  if (value > 1e16) return gameFill(value, 'Big', { whole: true });
+  if (value > 1e10) return `${Math.floor(value / 1e8) / 10}B`;
+  if (value > 1e7) return `${Math.floor(value / 1e5) / 10}M`;
+  return gameFill(value, 'MultiplierInfo', { whole: true });
+};
+
 export const getCashMulti = (character: any, account: any, characters: any, playerInfo?: any) => {
   // ArbitraryCode("MonsterCash")
   // strength/agility/wisdom default to 0: a character with no stats data has none of these
@@ -3025,7 +3033,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
       + ninjaExtraCash
       + vault70 * cardsCollected) / 100);
 
-  const breakdown = createBreakdown('Cash multi', cashFormatter(cashMulti), [
+  const breakdown = createBreakdown('Cash multi', cashMultiLabel(cashMulti), [
     productGroup(NUMBERED_GROUP, [
       additiveGroup('Cash bubbles', [
         percent('Penny of Strength', cashStrBubble * Math.floor(strength / 250)),
@@ -3252,7 +3260,7 @@ export const getPlayerCrystalChance = (character: any, account: any, idleonData:
 
   // In percent points: the base chance times the multipliers, plus the event shop, less what the cap cuts off
   const breakdown = createBreakdown('Crystal Chance', notateNumber(effectiveValue * 100, 'MultiplierInfo'), [
-    listGroup('Crystal kills', [info('Remaining Crystal kills', Math.max(0, remainingCrystalKills))]),
+    listGroup('Crystal kills', [info('Remaining Crystal kills', Math.max(0, remainingCrystalKills), { formatted: gameFill(Math.max(0, remainingCrystalKills) || 0, 'Comma', { whole: true }) })]),
     productGroup(NUMBERED_GROUP, [
       flat('Base chance', 100 / CRYSTAL_SPAWN_DIVISOR, { formatted: `${100 / CRYSTAL_SPAWN_DIVISOR}%` }),
       productGroup(NUMBERED_GROUP, [

@@ -1,10 +1,11 @@
 import { DEATH_NOTE_RANKS, getDeathNoteRank, MINI_BOSS_DEATH_NOTE_RANKS } from '@parsers/world-3/deathNote';
-import { cleanUnderscore, kFormatter, worlds } from '@utility/helpers';
+import { cleanUnderscore, formatNum, worlds } from '@utility/helpers';
 import { GOAL_ROUTES } from '../routes';
 
 const MINI_BOSSES = 'miniBosses';
 const ranksFor = (row) => (row.world === MINI_BOSSES ? MINI_BOSS_DEATH_NOTE_RANKS : DEATH_NOTE_RANKS);
-const thousands = (kills) => kFormatter(kills, 0).toUpperCase();
+// A goal stores its rung's text, so it keeps reading 25K and 1M
+const thousands = (kills) => (kills >= 1e6 ? formatNum(kills) : kills >= 1e3 ? `${kills / 1e3}K` : String(kills));
 
 // One rung per kill threshold met. Mini bosses climb their own, much lower table in the same number of steps.
 const TIERS = ['None', ...DEATH_NOTE_RANKS.map(([kills], i) =>

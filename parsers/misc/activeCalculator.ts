@@ -35,8 +35,7 @@ export const getExpDiff = (snapshot: any, current: any, lastUpdated: any) => {
       expReq: currentChar.expReq,
       expPerMinute: 0,
       expPerHour: 0,
-      expToLevel: getExpToLevel(currentChar, currentChar.level + 1),
-      timeToLevel: 'N/A'
+      expToLevel: getExpToLevel(currentChar, currentChar.level + 1)
     };
   }
 
@@ -70,8 +69,7 @@ export const getExpDiff = (snapshot: any, current: any, lastUpdated: any) => {
       expReq: currentChar.expReq,
       expPerMinute: 0,
       expPerHour: 0,
-      expToLevel: getExpToLevel(currentChar, currentChar.level + 1),
-      timeToLevel: 'N/A'
+      expToLevel: getExpToLevel(currentChar, currentChar.level + 1)
     };
   }
 
@@ -82,20 +80,8 @@ export const getExpDiff = (snapshot: any, current: any, lastUpdated: any) => {
     expReq: currentChar.expReq,
     expPerMinute,
     expPerHour: expPerMinute * 60,
-    expToLevel,
-    timeToLevel: formatMinutesToTime(expToLevel / expPerMinute)
+    expToLevel
   };
-};
-
-// Format a duration in minutes as "0d:00h:00m", capped at 365 days
-export const formatMinutesToTime = (minutesValue: number) => {
-  if (!isFinite(minutesValue) || minutesValue <= 0) return 'N/A';
-  const totalMinutes = Math.ceil(minutesValue);
-  const cappedMinutes = Math.min(totalMinutes, 525600);
-  const days = Math.floor(cappedMinutes / (60 * 24));
-  const hours = Math.floor((cappedMinutes % (60 * 24)) / 60);
-  const minutes = cappedMinutes % 60;
-  return `${days}d:${hours.toString().padStart(2, '0')}h:${minutes.toString().padStart(2, '0')}m`;
 };
 
 export const consolidateItems = (items: any) => {
@@ -165,11 +151,11 @@ export const compareCards = (snapshot: any, current: any, lastUpdated: any, snap
     // Skip cards with no change if they existed in snapshot
     if (snapshotCard && difference === 0) return result;
 
-    const perHour = timeDiff > 0 ? (difference / timeDiff).toFixed(2) : 'N/A';
-    const hoursForNextLevel =
-      perHour !== 'N/A' && parseFloat(perHour) > 0 && card.nextLevelReq > card.amount
-        ? ((card.nextLevelReq - card.amount) / parseFloat(perHour)).toFixed(2)
-        : 'N/A';
+    // null: no time has passed, or nothing is coming in
+    const perHour = timeDiff > 0 ? difference / timeDiff : null;
+    const hoursForNextLevel = perHour !== null && perHour > 0 && card.nextLevelReq > card.amount
+      ? (card.nextLevelReq - card.amount) / perHour
+      : null;
 
     result.push({
       ...card,

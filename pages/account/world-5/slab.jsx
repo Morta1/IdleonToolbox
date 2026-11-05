@@ -79,7 +79,7 @@ const Slab = () => {
       <Toolbar.Show options={SHOWS.map(([value, label]) => [value, label, items.filter((item) => shouldDisplayItem(item, value)).length,
         value === 'unrealistic' ? UNREALISTIC_NOTE : undefined])}/>
     </Toolbar>}
-    {item ? <Panel icon={<GameIcon src={`data/${item.rawName}.png`} fallback={`data/${item.rawName}_x1.png`} size={24} alt={''}/>}
+    {item ? <Panel icon={<GameIcon src={`data/${item.rawName}.png`} size={24} alt={''}/>}
                    title={cleanUnderscore(item.name)}
                    sx={{ mb: 2, position: 'sticky', top: stickyTop, zIndex: (theme) => theme.zIndex.appBar - 2 }}>
       <Panel.KV label={'Looted'} value={item.obtained ? 'Yes' : 'No'}/>
@@ -92,7 +92,6 @@ const Slab = () => {
           items holds only missing ones, so it keeps their colours */}
       {shown.map(({ name, rawName, greenStacked, obtained }, index) => <IconTile
         key={`${rawName}-${index}`} icon={`data/${rawName}.png`}
-        fallback={`data/${rawName}_x1.png`}
         alt={cleanUnderscore(name)}
         status={!obtained && (toolbar?.show ?? 'missing') !== 'missing' ? 'missing' : undefined}
         mark={greenStacked ? 'data/GreenSymbol.png' : undefined}

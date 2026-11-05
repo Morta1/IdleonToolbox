@@ -15,8 +15,7 @@ const RandomEvents = () => {
   const { state } = useContext(AppContext);
   const formatDate = useFormatDate();
   const events = getRandomEvents(state?.account);
-  const saveTime = state?.account?.timeAway?.GlobalTime;
-  // The list reads the save's clock, not a section: only a whole-parse failure leaves it nothing to read
+  // The list reads the server's schedule, not a section: only a whole-parse failure leaves it nothing to read
   const parseFailed = state?.account?.failedSections?.includes('*');
 
   return <>
@@ -26,11 +25,8 @@ const RandomEvents = () => {
     />
     {parseFailed ? <MissingData name={'your save'} failed/> : state?.emptyAccount
       ? <Notice tone={'signin'}>The next random events show here once you sign in.</Notice>
-      // The schedule starts at the save's own clock, so a save older than its 100 hours lists nothing
       : !events?.length
-        ? <Notice>{Number.isFinite(saveTime)
-          ? `Your save is from ${formatDate(saveTime * 1000, { showSeconds: false })}, so its next 100 hours of events have passed. Open the game to refresh your save.`
-          : 'No random event is on the way in the next 100 hours.'}</Notice>
+        ? <Notice>No random event is on the way in the next 100 hours.</Notice>
         : <>
           <Typography variant={'body2'} color={'text.secondary'} sx={{ mb: 2 }}>
             Times shown are when events spawn, in your local timezone.

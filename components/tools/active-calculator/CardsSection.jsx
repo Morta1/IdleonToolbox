@@ -20,10 +20,7 @@ const CardsSection = ({ lastUpdated }) => {
         {failed ? 'Cards failed to load, so there is nothing to compare.' : 'No card has moved since the snapshot.'}
       </Typography> : <CardGrid size={'icon'}>
         {diff.map((card) => {
-          const { cardIndex, displayName, amount } = card;
-          // The parser's rates are strings ("12.35", "N/A"): a number or "-"
-          const perHour = Number(card?.perHour);
-          const hoursLeft = Number(card?.hoursForNextLevel);
+          const { cardIndex, displayName, amount, perHour, hoursForNextLevel: hoursLeft } = card;
           return <Stack key={cardIndex} gap={0.25}>
             {/* 16 px: a card's frame hangs below its art, and its gems reach the count */}
             <Box sx={{ position: 'relative', width: 'fit-content', mb: 2 }}>
@@ -32,8 +29,8 @@ const CardsSection = ({ lastUpdated }) => {
               <CardAndBorder {...card} amount={state?.account?.cards?.[displayName]?.amount} showInfo/>
             </Box>
             <Typography variant={'value'} component={'div'}>{formatNum(amount, 'whole')}</Typography>
-            <Typography variant={'caption'} component={'div'}>{Number.isFinite(perHour) ? formatNum(perHour, 'rate') : '-'}</Typography>
-            {Number.isFinite(hoursLeft) ? <Typography variant={'caption'} component={'div'} color={'text.secondary'}>
+            <Typography variant={'caption'} component={'div'}>{perHour === null ? '-' : formatNum(perHour, 'rate')}</Typography>
+            {hoursLeft !== null ? <Typography variant={'caption'} component={'div'} color={'text.secondary'}>
               Next star in <Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>{formatDuration(hoursLeft * 3600)}</Box>
             </Typography> : null}
           </Stack>;

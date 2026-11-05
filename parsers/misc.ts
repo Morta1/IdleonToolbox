@@ -1,4 +1,4 @@
-import { createRange, lavaLog, notateNumber, number2letter, tryToParse } from '@utility/helpers';
+import { createRange, formatDuration, lavaLog, notateNumber, number2letter, tryToParse } from '@utility/helpers';
 import { filteredGemShopItems, filteredLootyItems, keysMap, skillIndexMap, unrealisticGreenstackItems } from './parseMaps';
 import {
   bonuses,
@@ -362,11 +362,12 @@ const calcBookCount = (account: any, characters: any, idleonData: any) => {
   let afk = timeAway ? (new Date).getTime() / 1e3 - timeAway.GlobalTime : 0;
   let bookCount = baseBookCount;
   if (afk > 300) libTime += afk;
-  const { breakdown } = getTimeToNextBooks(bookCount, account, characters, idleonData);
   while (libTime > getTimeToNextBooks(bookCount, account, characters, idleonData)?.value) {
     libTime -= getTimeToNextBooks(bookCount, account, characters, idleonData)?.value;
     bookCount += 1;
   }
+  // At the books the wait has added: each one makes the next slower
+  const { breakdown } = getTimeToNextBooks(bookCount, account, characters, idleonData);
   return { bookCount, libTime, breakdown };
 }
 
@@ -415,7 +416,7 @@ export const getTimeToNextBooks = (bookCount: any, account: any, characters: any
       flat('Base time', LIBRARY_BASE_CHECKOUT_HOURS * 3600, { formatted: `${LIBRARY_BASE_CHECKOUT_HOURS}h` }),
       additiveGroup('Books checked out', [percent('Book count', 10 * Math.pow(bookCount, 1.4))],
         { note: 'Each book makes the next one slower' })
-    ], { unit: 'flat' }),
+    ], { unit: 'flat', formatted: formatDuration(LIBRARY_BASE_CHECKOUT_HOURS * 3600 * bookCountFactor) }),
     productGroup('Checkout speed', [
       multiplier('Meal Bonus', 1 + mealBonus / 100),
       multiplier('Atom Bonus', 1 + libraryBooker / 100),
@@ -477,19 +478,13 @@ export const getSlab = (idleonData: any) => {
   const greenStacks = tryToParse(idleonData?.GreenStacks) || idleonData?.GreenStacks || [];
   const greenStacksSet = new Set(greenStacks);
   const allItems = structuredClone((items)); // Deep clone
-  const forcedNames = {
-    'Motherlode': 'Motherlode_x1',
-    'Island0': 'Island0_x1',
-    'Dust0': 'Dust0_x1',
-    'Dust1': 'Dust1_x1',
-    'Dust2': 'Dust2_x1',
-    'Dust3': 'Dust3_x1',
-    'Dust4': 'Dust4_x1',
-    'Dust5': 'Dust5_x1'
-  }
+  // These ship only as their _x1 copy
+  const x1Names = new Set(['Motherlode', 'MotherlodeTREE', 'Island0', 'Dust0', 'Dust1', 'Dust2', 'Dust3', 'Dust4', 'Dust5',
+    'Bone0', 'Bone1', 'Bone2', 'Bone3', 'Tach0', 'Tach1', 'Tach2', 'Tach3', 'Tach4', 'Tach5',
+    'DungRNG0', 'DungRNG1', 'DungRNG2', 'DungRNG3', 'DungRNG4']);
   const slabItems = slab?.map((name) => ({
     name: allItems?.[name]?.displayName,
-    rawName: (forcedNames as Record<string, any>)?.[name] || name,
+    rawName: x1Names.has(name) ? `${name}_x1` : name,
     itemRawName: name,
     obtained: lootyRaw?.includes(name),
     greenStacked: greenStacksSet.has(name),
@@ -1094,11 +1089,13 @@ export const getGoldenFoodMultiplier = (foodName: any, character: any, account: 
 
 export const getRandomEvents = (account: any) => {
   if (!account) return [];
-  const { serverVars, timeAway } = account || {};
+  const randEventHour = account?.serverVars?.RandEvntHr;
+  // The schedule is the server's, not the save's: a save older than 100 hours still reads the hours ahead
+  if (!Number.isFinite(randEventHour)) return [];
   const eventList = []
-  const seed = Math.round(Math.floor(timeAway?.GlobalTime / 3600));
+  const seed = Math.floor(new Date().getTime() / 3600000);
   for (let i = 0; i < 100; i++) {
-    const actualSeed = seed + i + serverVars?.RandEvntHr;
+    const actualSeed = seed + i + randEventHour;
     const eventRng = new LavaRand(actualSeed);
     const eventRandom = eventRng.rand();
     const eventType = getEventType(eventRandom);

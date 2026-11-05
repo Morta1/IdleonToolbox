@@ -146,6 +146,15 @@ it('system ids are unique and GOAL_ROUTES has exactly the registered systems', (
   expect(Object.keys(GOAL_ROUTES).sort()).toEqual([...systems].sort());
 });
 
+describe('deathNote', () => {
+  // A stored goal reads its rung by this text: it must not move with the site's number rule
+  it('names its rungs as stored goals hold them', () => {
+    expect(getDescriptor('deathNote').metrics.rank.tiers).toEqual(['None',
+      '25K kills (mini boss 100)', '100K kills (mini boss 250)', '250K kills (mini boss 1K)', '500K kills (mini boss 5K)',
+      '1M kills (mini boss 25K)', '5M kills (mini boss 100K)', '100M kills (mini boss 1M)']);
+  });
+});
+
 describe('tab to system map', () => {
   const pageTabs = (route) => Object.entries(PAGES.ACCOUNT).flatMap(([category, { categories }]) => categories
     .filter(({ label }) => `/account/${kebab(category)}/${kebab(label)}` === route)
