@@ -3,6 +3,7 @@ import { Box, ButtonBase, ClickAwayListener } from '@mui/material';
 import { IconInfoCircle } from '@tabler/icons-react';
 import Tooltip from '@components/Tooltip';
 import SheetContext from '@components/common/cards/SheetContext';
+import { FOCUSABLE } from '@utility/focusable';
 
 const TOUCH = '@media (pointer: coarse)';
 // A table note's widest: the viewport less the 16 px every note keeps from the screen's edges (NOTE_POPPER)
@@ -11,10 +12,36 @@ const TABLE_NOTE_WIDTH = 'calc(100vw - 32px)';
 const NOTE_POPPER = { popperOptions: { modifiers: [{ name: 'preventOverflow', options: { padding: 16 } }] } };
 const PHONE_NOTE_POPPER = { ...NOTE_POPPER, sx: { display: { sm: 'none' } } };
 
+// A tile note sits 8 px under its tile, from its left edge (Info board): MUI's are 14 and 2 px
+const UNDER_TILE_NOTE = { sx: { '.MuiTooltip-popper[data-popper-placement*="bottom"] &': { mt: 1, ml: 0 } } };
+
+// A trigger's click stops at React's root, which a ClickAwayListener on the document never hears, so a pinned note would
+// stay pinned under the next one: pinning closes the last.
+let closePinned = null;
+const pinOne = (setPinned) => {
+  if (closePinned !== setPinned) closePinned?.(false);
+  closePinned = setPinned;
+};
+const forgetPin = (setPinned) => {
+  if (closePinned === setPinned) closePinned = null;
+};
+
+// A note pinned from the keyboard hands the focus to its first control, so its link or button can be reached. The effect
+// lives here because the note mounts a render after its trigger is pinned (the Popper's portal).
+const NoteBody = ({ bodyRef, takeFocus, children }) => {
+  useEffect(() => {
+    if (!takeFocus) return;
+    const controls = [...(bodyRef.current?.querySelectorAll(FOCUSABLE) ?? [])];
+    controls.find((control) => control.getAttribute('tabindex') !== '-1')?.focus({ preventScroll: true });
+  }, [takeFocus]);
+  return <span ref={bodyRef}>{children}</span>;
+};
+
 // A note that opens from its trigger (Info board). Hover or keyboard focus previews it; a click, a tap or
 // Enter keeps it open until a click elsewhere or Esc. The project Tooltip on its own needs a press and hold
 // on a phone and never takes focus. The trigger is ButtonBase as a span: the button role, the tab stop,
-// Enter and Space and the theme's focus ring, around any content. label names it when its content does not
+// Enter and Space and the theme's focus ring, around any content. One note is pinned at a time; pinned from the keyboard
+// it takes the focus onto its first control, and Esc hands it back. label names it when its content does not
 // (an icon); aria-expanded says it is pinned, which is also how a caller styles that state. block makes the trigger
 // as wide as its parent, for content that takes the width it is given (a progress bar). table is a note that holds a
 // table: it sizes to the table, up to the viewport less the page's gutters, so every column shows without a scroll.
@@ -23,7 +50,11 @@ const PHONE_NOTE_POPPER = { ...NOTE_POPPER, sx: { display: { sm: 'none' } } };
 export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, phoneOnly, buttonProps, underTile, children }) => {
   const [pinned, setPinned] = useState(false);
   const [previewing, setPreviewing] = useState(false);
+  const [pinnedByKey, setPinnedByKey] = useState(false);
   const triggerRef = useRef(null);
+  const noteRef = useRef(null);
+  // The focus Esc hands back to the trigger would open its preview again
+  const skipFocusPreview = useRef(false);
   // underTile: a StatTile's note opens under the whole tile, from its left edge, so the tile's own number stays readable
   // (Info board).
   const tileAnchor = underTile ? { anchorEl: () => triggerRef.current?.closest('[data-card-title-value]') ?? triggerRef.current } : {};
@@ -38,6 +69,10 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, p
     const closeOnEscape = (event) => {
       if (event.key !== 'Escape') return;
       event.stopPropagation();
+      if (noteRef.current?.contains(document.activeElement)) {
+        skipFocusPreview.current = true;
+        triggerRef.current?.focus();
+      }
       setPinned(false);
       setPreviewing(false);
     };
@@ -45,19 +80,27 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, p
     return () => document.removeEventListener('keydown', closeOnEscape, true);
   }, [open]);
 
+  useEffect(() => () => forgetPin(setPinned), []);
+
   return <ClickAwayListener onClickAway={() => setPinned(false)}>
     <Box component={'span'} sx={{ display: block ? 'flex' : 'inline-flex', verticalAlign: 'middle' }}>
       <Tooltip
         // A node title with describeChild: the note describes the trigger and never renames it
-        title={<SheetContext value={null}><span>{note}</span></SheetContext>}
+        title={<SheetContext value={null}><NoteBody bodyRef={noteRef} takeFocus={pinned && pinnedByKey}>{note}</NoteBody></SheetContext>}
         describeChild
         maxWidth={table ? TABLE_NOTE_WIDTH : maxWidth}
         open={open}
-        onOpen={() => setPreviewing(true)}
+        onOpen={(event) => {
+          if (event?.type === 'focus' && skipFocusPreview.current) {
+            skipFocusPreview.current = false;
+            return;
+          }
+          setPreviewing(true);
+        }}
         onClose={handleClose}
         disableTouchListener
         placement={underTile ? 'bottom-start' : 'bottom'}
-        slotProps={{ popper: { ...(phoneOnly ? PHONE_NOTE_POPPER : NOTE_POPPER), ...tileAnchor } }}
+        slotProps={{ popper: { ...(phoneOnly ? PHONE_NOTE_POPPER : NOTE_POPPER), ...tileAnchor }, ...(underTile ? { tooltip: UNDER_TILE_NOTE } : {}) }}
       >
         <ButtonBase
           ref={triggerRef}
@@ -70,7 +113,12 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, p
             // A note never triggers the card, row or sort header it sits in
             event.stopPropagation();
             onPick?.(event);
-            setPinned(!pinned);
+            const next = !pinned;
+            // A trigger inside another note leaves that note open: it sits on the note, not beside it
+            if (next && !event.currentTarget.closest('[role="tooltip"]')) pinOne(setPinned);
+            // A keyboard's click has no click count, and neither has Enter on this span
+            setPinnedByKey(event.detail === 0);
+            setPinned(next);
           }}
           sx={[block ? { width: '100%' } : null, ...(Array.isArray(sx) ? sx : [sx])]}
         >

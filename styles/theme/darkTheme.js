@@ -196,7 +196,10 @@ const darkTheme = createTheme({
           lineHeight: '20px',
           '& .MuiTypography-body1': { fontSize: 14, lineHeight: '20px' },
           [`.${SELECT_LIST} &`]: { paddingLeft: 36 },
-          [`.${SELECT_LIST} &.Mui-selected, .${SELECT_LIST} &.Mui-selected.Mui-focusVisible`]: { backgroundColor: 'transparent' },
+          [`.${SELECT_LIST} &.Mui-selected`]: { backgroundColor: 'transparent' },
+          // A list focuses its picked row by script as it opens, which reads as :focus-visible on a first mouse open: no ring
+          // on that row, keyboard only as the Controls board says. The arrows coming back to it still show on its tint.
+          [`.${SELECT_LIST} &.Mui-selected.Mui-focusVisible`]: { outline: 'none', backgroundColor: palette(theme).action.hover },
           [`.${SELECT_LIST} &.Mui-selected:hover`]: { backgroundColor: palette(theme).action.hover },
           [`.${SELECT_LIST} &.Mui-selected::before`]: {
             content: '""', position: 'absolute', left: 14, top: 'calc(50% - 7px)', width: 14, height: 14,

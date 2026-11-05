@@ -30,6 +30,7 @@ import { CLIPBOARD_ERROR_MESSAGE, copyText } from "@utility/clipboard";
 import { notify } from "@components/common/Overlays/notify";
 import AppDrawer from "@components/common/Overlays/AppDrawer";
 import Notice from "@components/common/Notice";
+import WithLastWord from "@components/common/WithLastWord";
 import { menuCheck } from "@components/common/Overlays/menuCheck";
 import useBreakdown from "./Breakdown.hook";
 import GameIconNotation from "@components/common/GameIconNotation";
@@ -379,10 +380,8 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
           asValue && VALUE_TRIGGER_SX
         ]}
       >
-        {children}
-        {asValue ? <Box component="span" aria-hidden sx={{ display: "inline-flex", ml: 0.5, color: "primary.main", verticalAlign: "-2px" }}>
-          <BreakdownGlyph/>
-        </Box> : null}
+        {/* A value in words wraps before its last word and the glyph, so the glyph never takes a line of its own */}
+        {asValue && typeof children === "string" ? <WithLastWord text={children}><ValueGlyph/></WithLastWord> : <>{children}{asValue ? <ValueGlyph/> : null}</>}
       </ButtonBase>
 
       <AppDrawer open={open} onClose={() => setOpen(false)} title={name} aside={total} toolbar={toolbar}>
@@ -404,6 +403,9 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
 const BreakdownGlyph = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" aria-hidden>
   <path d="M4 6h16M4 12h11M4 18h6"/>
 </svg>
+const ValueGlyph = () => <Box component="span" aria-hidden sx={{ display: "inline-flex", ml: 0.5, color: "primary.main", verticalAlign: "-2px" }}>
+  <BreakdownGlyph/>
+</Box>
 
 const indent = (depth: number, isMobile: boolean) => (isMobile ? 2 : 3) + depth * 2
 

@@ -39,7 +39,8 @@ describe('Killroy permanent upgrades', () => {
   it('shows the next decay breakpoint level for a capped upgrade', () => {
     renderUpgrades();
     expect(screen.getByText('Next breakpoint')).toBeDefined();
-    expect(screen.getByText('Lv 300 (1.5x)')).toBeDefined();
+    // A value in words keeps its last word with the glyph, in a span of their own
+    expect(screen.getByRole('button', { name: /next breakpoint/ }).textContent).toBe('Lv 300 (1.5x)');
   });
 
   it('renders flat unlocks without a breakpoint line', () => {

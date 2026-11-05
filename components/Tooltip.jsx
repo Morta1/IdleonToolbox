@@ -2,6 +2,7 @@ import { Tooltip, tooltipClasses } from '@mui/material';
 import styled from '@emotion/styled';
 
 const HtmlTooltip = styled(({ className, children, followCursor = true, dark, maxWidth, ...props }) => (
+  // Only the builds pages' tooltips still open on a press: NoteTrigger, AlertIcon and the charts pass disableTouchListener.
   <Tooltip enterTouchDelay={200} {...props}
            classes={{ popper: className }}>{children}</Tooltip>
 ), {

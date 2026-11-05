@@ -13,7 +13,7 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
-import { IconBook2, IconSearch } from '@tabler/icons-react';
+import { IconBook2, IconClock, IconHeartFilled, IconSearch } from '@tabler/icons-react';
 import { useHotkeys, useLocalStorage } from '@mantine/hooks';
 import { startTransition, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
@@ -62,7 +62,12 @@ const TAB_PILL_SX = {
   borderColor: 'divider', fontSize: 12.5, color: 'text.secondary', '&:hover': { color: 'text.primary', borderColor: 'outline' },
   '@media (pointer: coarse)': { '&::before': { content: '""', position: 'absolute', inset: '-9px 0' } }
 };
-const GroupTitle = ({ children }) => <Typography variant="groupLabel" component="div" color="text.secondary" sx={{ px: 2, py: '6px' }}>{children}</Typography>;
+// A group's label, with the Search board's 14 px glyph on the two groups of the empty box.
+const GroupTitle = ({ icon: Icon, children }) => <Typography variant="groupLabel" component="div" color="text.secondary"
+                                                             sx={{ px: 2, py: '6px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+  {Icon ? <Icon size={14} aria-hidden/> : null}
+  {children}
+</Typography>;
 // A key as a key cap (Search board).
 const Kbd = ({ sx, ...props }) => <Box component="kbd" {...props} sx={[{
   display: 'inline-flex', alignItems: 'center', height: 22, px: 0.75, border: 1, borderColor: 'outline', borderRadius: 1,
@@ -216,10 +221,10 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
     ]
     : [
       {
-        key: 'pinned', title: 'Pinned', rows: box.pins.slice(0, box.pins.length - pinsHidden),
+        key: 'pinned', title: 'Pinned', icon: IconHeartFilled, rows: box.pins.slice(0, box.pins.length - pinsHidden),
         more: pinsHidden ? { label: `Show ${pinsHidden} more pinned`, open: () => setShowAllPins(true) } : null
       },
-      { key: 'recent', title: 'Recent', rows: box.recent, more: null }
+      { key: 'recent', title: 'Recent', icon: IconClock, rows: box.recent, more: null }
     ].filter((group) => group.rows.length);
   // What the arrow keys move through, in display order: each row, and each group's expander.
   const targets = groups.flatMap((group) => [
@@ -427,7 +432,7 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
         </Typography> : null}
         {groups.map((group) => (
           <Box key={group.key} sx={{ pt: 1, pb: 0.5 }}>
-            <GroupTitle>{group.title}</GroupTitle>
+            <GroupTitle icon={group.icon}>{group.title}</GroupTitle>
             <Box component="ul" sx={{ p: 0, m: 0 }}>
               {group.rows.map((row) => <ResultRow key={row.key} row={row} selected={indexOf.get(row.key) === selectedIndex}
                                                   onOpen={onOpen} hrefFor={hrefFor}/>)}

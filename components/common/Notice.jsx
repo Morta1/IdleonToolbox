@@ -6,6 +6,7 @@ import LoginDialog from '@components/common/NavBar/LoginDialog';
 import { DISCORD_SERVER_URL } from '@components/discordLinks';
 import { navBarHeight, profileBannerHeight } from '@components/constants';
 import useProfileBannerState from '@hooks/useProfileBannerState';
+import { FOCUSABLE } from '@utility/focusable';
 
 // Every tone has its own glyph, so a tone never rests on color alone (Notices board). 2d's StatusText
 // imports these glyphs (Decision 6), so a state and a notice of the same tone look alike.
@@ -109,7 +110,6 @@ const actionsFor = (tone, action, signedIn, openLogin, bandSignIn) => {
 // failed again) or the first control of whatever took its place (the rows a Retry brought back); else the nearest
 // control after the note, where reading goes on (the one before a note at the top of a page is in the app bar or the
 // band), or before it when nothing follows. Never a text field on a touch screen, where focus pops the keyboard up.
-const FOCUSABLE = 'a[href], button, input, select, textarea, [tabindex]';
 const TEXT_FIELD = /^(text|search|email|password|number|url|tel)$/;
 
 const canTakeFocus = (element) => {

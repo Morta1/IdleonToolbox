@@ -40,6 +40,7 @@ import { openWikiEntity } from '@utility/wiki/item-page';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { focusRing } from '../../../styles/theme/darkTheme';
 import { createBreakdown, multiplier as multiplierLine } from '@parsers/breakdown';
 
 // The game's reducer grows by the Hydrogen atom's daily bonus up to 90% (Atom Collider): the what-if steps it can take
@@ -224,7 +225,10 @@ const Stamps = () => {
                               }}>
           {stampDetails(pickedStamp, detailsContext)}
         </Panel> : null}
-        <Stack gap={2}>
+        {/* On a phone a pick opens a note, so the first stamp's default pick draws no line until one is made: CSS, as the
+            Panel it stands for shows only from 600 px */}
+        <Stack gap={2} data-default-pick={pickedStamp?.rawName !== picked}
+               sx={{ '&[data-default-pick="true"] [aria-pressed="true"] > *': { '@media (max-width: 599.95px)': { borderColor: 'divider', boxShadow: 'none' } } }}>
           {categories.map(({ category, levels, shown }) => {
             // A category with no stamp in the picked state draws no Panel over nothing
             if (!shown.length) return null;
@@ -324,7 +328,8 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText, exaltedMul
   const owned = (keepGreenstacks ? greenStackOwnedMats : ownedMats) ?? 0;
   const boosts = level > 0 ? stampBoosts(stamp, { exaltedMulti, exaltedText, vaultBonus, charmBonus }) : [];
   const reducerText = level > 0 && atMax ? reducerLine(minReduction, reducer) : null;
-  return <Box sx={inNote ? { display: 'grid', gap: 2, maxHeight: '30vh', overflowY: 'auto' } : {
+  // A scroller the keyboard can reach: its ring draws inside, where its own edge clips it
+  return <Box tabIndex={0} role={'region'} aria-label={'Stamp details'} sx={[(theme) => ({ '&:focus-visible': focusRing(theme, -2) }), inNote ? { display: 'grid', gap: 2, maxHeight: '30vh', overflowY: 'auto' } : {
     display: 'grid',
     gap: 2,
     p: { xs: 1.5, sm: 2 },
@@ -334,7 +339,7 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText, exaltedMul
     // A narrow window keeps the grid in view under the pinned details: their body scrolls inside
     maxHeight: { xs: '30vh', md: 'none' },
     overflowY: { xs: 'auto', md: 'visible' }
-  }}>
+  }]}>
     <Stack gap={1}>
       <Typography variant={'body2'} component={'div'}>
         {`+${cleanUnderscore((effect ?? '').replace('+{', gameBonusText(bonus)))}`}</Typography>
