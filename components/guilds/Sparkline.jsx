@@ -26,7 +26,9 @@ const watch = (element, onSeen) => {
 // A tenth of a pixel is all the line needs.
 const tenth = (value) => Math.round(value * 10) / 10;
 
-export default function Sparkline({ values, width = 70, height = 22, color }) {
+// wide: a tile's line (Cards board, a hero with its number's history): the line alone, across the box it sits in, its
+// stroke unstretched. width is then only the drawing's shape.
+export default function Sparkline({ values, width = 70, height = 22, color, wide = false }) {
   const box = useRef(null);
   const [seen, setSeen] = useState(false);
   useEffect(() => (box.current ? watch(box.current, () => setSeen(true)) : undefined), []);
@@ -36,7 +38,7 @@ export default function Sparkline({ values, width = 70, height = 22, color }) {
   if (firstReal === -1) return null;
   const plotValues = values.slice(firstReal).map((v) => v ?? 0);
   if (plotValues.length < 2) return null;
-  if (!seen) return <span ref={box} style={{ display: 'block', width, height }}/>;
+  if (!seen) return <span ref={box} style={{ display: 'block', width: wide ? '100%' : width, height }}/>;
   const min = Math.min(...plotValues);
   const max = Math.max(...plotValues);
   const range = max - min || 1;
@@ -46,6 +48,11 @@ export default function Sparkline({ values, width = 70, height = 22, color }) {
     return [x, y];
   });
   const linePoints = coords.map(([x, y]) => `${tenth(x)},${tenth(y)}`).join(' ');
+  if (wide) {
+    return <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio={'none'} aria-hidden style={{ display: 'block', width: '100%', height }}>
+      <polyline points={linePoints} fill="none" stroke={color} strokeWidth="2" strokeLinejoin="round" strokeLinecap="round" vectorEffect="non-scaling-stroke"/>
+    </svg>;
+  }
   const baselineY = height - 1;
   const firstX = coords[0][0];
   const [lastX, lastY] = coords[coords.length - 1];

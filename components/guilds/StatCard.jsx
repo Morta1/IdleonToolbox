@@ -9,7 +9,7 @@ const deltaWords = (delta) => (delta === 0
   ? 'The same as last week'
   : `${formatNum(Math.abs(delta), 'whole')} ${delta > 0 ? 'more' : 'fewer'} than last week`);
 
-// A tile on the Panel's card colour, filling its grid cell, its sparkline under the words.
+// A tile on the Panel's card colour, filling its grid cell, its sparkline under the words and as wide as the tile.
 const TILE_SX = { width: 'auto', height: '100%', boxSizing: 'border-box', alignItems: 'flex-start', bgcolor: 'background.default' };
 
 // An ecosystem-level metric: its value, its change in words (the arrow and its colours went: the words carry it), a note
@@ -23,8 +23,9 @@ export default function StatCard({ label, value, delta, history, caption, hint }
     value={formatNum(value, 'amount')}
     info={hint}
     cardSx={TILE_SX}
+    stackProps={{ flex: 1 }}
     sub={lines.length || moved ? <>
       {lines.map((line) => <div key={line}>{line}</div>)}
-      {moved ? <Box sx={{ mt: 1 }}><Sparkline values={history} width={200} height={56} color={seriesColors(muiTheme.palette.mode)[0]}/></Box> : null}
+      {moved ? <Box sx={{ mt: 1 }}><Sparkline values={history} width={150} height={44} color={seriesColors(muiTheme.palette.mode)[0]} wide/></Box> : null}
     </> : undefined}/>;
 }
