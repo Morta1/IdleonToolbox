@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { Box, Link, Stack, Typography } from '@mui/material';
+import { Link, Stack, Typography } from '@mui/material';
 import NumberField from '@components/common/NumberField';
 import { firstLevel, levelMax, readLevel, termValue } from '@utility/wiki/effects.mjs';
 import { oneInOrNothing, percentLabel } from '@utility/wiki/odds.mjs';
 import { entityName } from '@utility/wiki/names.mjs';
 import EntityIcon from './EntityIcon';
 import ShortAmount from '@components/common/ShortAmount';
-import { CELL, NUM } from '@components/common/DataTable/parts';
+import Panel from '@components/common/cards/Panel';
 import DataTable from '@components/common/DataTable';
 import { linkProps, navigateOnPlainClick } from './links';
 
@@ -45,7 +45,7 @@ const SneakFloorInfo = ({ node, index, hrefFor, onNavigate }) => {
       <Link {...linkProps(hrefFor, id)} onClick={navigateOnPlainClick(onNavigate, id, Boolean(hrefFor?.(id)))}>
         {entityName(item)}
       </Link>
-      {need ? ` (needs a ${need})` : null}
+      {need ? `, which needs a ${need}` : null}
     </React.Fragment>;
   };
 
@@ -60,17 +60,9 @@ const SneakFloorInfo = ({ node, index, hrefFor, onNavigate }) => {
       help={node.effect?.noMax ? 'No max level' : undefined}
       sx={{ width: 200 }}
     />
-    {stats.length ? <Stack gap={0.5}>
-      <SectionTitle>Stats</SectionTitle>
-      <Box component={'table'} sx={{ borderCollapse: 'collapse', width: '100%' }}>
-        <tbody>
-        {stats.map(({ label, value }) => <tr key={label}>
-          <Box component={'th'} scope={'row'} sx={{ ...CELL, fontWeight: 400, textAlign: 'left', color: 'text.secondary' }}>{label}</Box>
-          <Box component={'td'} sx={NUM}><ShortAmount amount={value}/></Box>
-        </tr>)}
-        </tbody>
-      </Box>
-    </Stack> : null}
+    {stats.length ? <Panel title={'Stats'}>
+      {stats.map(({ label, value }) => <Panel.KV key={label} label={label} value={<ShortAmount amount={value}/>}/>)}
+    </Panel> : null}
     {step?.loot.length ? <Stack gap={0.5}>
       <SectionTitle>{`Loot at Ninja Mastery ${step.from === level ? level : `${level} (same as ${step.from})`}`}</SectionTitle>
       {/* Both numbers show on a phone: a likely drop (Straw Hat's 99.9%) has no odds worth quoting, so its row needs the percentage. */}
@@ -105,8 +97,8 @@ const SneakFloorInfo = ({ node, index, hrefFor, onNavigate }) => {
         {`The chances assume a ${need} on the account.`}
       </Typography>)}
       {later.map(({ from: mastery, added }) => <Typography key={mastery} variant={'caption'} color={'text.secondary'} data-mastery-adds>
-        {`Ninja Mastery ${mastery} adds: `}
-        {added.map((entry, at) => <React.Fragment key={entry.id}>{at ? ', ' : null}{itemLink(entry)}</React.Fragment>)}
+        {`Ninja Mastery ${mastery} adds `}
+        {added.map((entry, at) => <React.Fragment key={entry.id}>{at ? ', ' : null}{itemLink(entry)}</React.Fragment>)}.
       </Typography>)}
     </Stack> : null}
   </Stack>;

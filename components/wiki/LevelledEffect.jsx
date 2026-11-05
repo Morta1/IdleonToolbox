@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import NumberField from '@components/common/NumberField';
-import { notateGame } from '@utility/wiki/notate';
-import Tooltip from '@components/Tooltip';
+import GameIcon from '@components/common/GameIcon';
+import { NoteTrigger } from '@components/common/InfoButton';
 import CoinAmount from './CoinAmount';
 import ShortAmount from '@components/common/ShortAmount';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { cleanUnderscore } from '@utility/helpers';
 import { costCurrency, costsAt, costsToMax, firstLevel, formatAmount, levelMax, levelledLines, levelledText, readLevel, summaryLevel } from '@utility/wiki/effects.mjs';
 
 // One level field for every wiki page whose numbers depend on a level. A page has no save, so the
@@ -15,22 +15,22 @@ import { costCurrency, costsAt, costsToMax, firstLevel, formatAmount, levelMax, 
 const DEFAULT_COST_LABEL = 'Cost for this level';
 const DEFAULT_COST_NOTE = 'Base cost, before discounts.';
 
-// A currency's art drawn after its amount, in place of its name: the name is the image's alt text and its tooltip.
-export const CurrencyIcon = ({ icon, name }) => (icon ? <Tooltip title={name}>
-  <img
-    // The icon is rooted at `/`, and a slash after the prefix would read as a protocol-relative URL.
-    src={`${prefix}${icon.replace(/^\//, '')}`}
-    alt={name}
-    width={16}
-    height={16}
-    style={{ objectFit: 'contain', verticalAlign: 'middle', marginLeft: 4 }}
-  />
-</Tooltip> : null);
+// A currency's art drawn after its amount, in place of its name: the name opens from it on a tap, a click, a hover and
+// Enter. The icon is rooted at /, GameIcon's src under public/.
+export const CurrencyIcon = ({ icon, name }) => (icon ? <NoteTrigger note={name} label={name} sx={{ ml: 0.5 }}>
+  <GameIcon src={icon.replace(/^\//, '')} size={16} alt={name}/>
+</NoteTrigger> : null);
+
+// A label and its value on one row, the Panel.KV shape in a box that already holds the padding.
+const Line = ({ label, children }) => <Stack data-cost-line direction={'row'} justifyContent={'space-between'} columnGap={2} flexWrap={'wrap'}>
+  <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{label}</Typography>
+  <Typography variant={'body2'} component={'div'} sx={{ ml: 'auto', textAlign: 'right', fontWeight: 'fontWeightMedium' }}>{children}</Typography>
+</Stack>;
 
 // "59,000" and the art when the currency has art, "59,000 Feathers" when it has none. Coins read in their tiers,
 // the way the game prints them.
 export const CostAmount = ({ amount, currency, icon, prefix: amountPrefix = '' }) => (currency === 'Coins' && Number.isFinite(amount)
-  ? <CoinAmount amount={amount} size={16} inline/>
+  ? <CoinAmount amount={amount} inline/>
   : <>
     {amountPrefix}<ShortAmount amount={amount}/>{icon || !currency ? null : ` ${cleanUnderscore(currency)}`}
     <CurrencyIcon icon={icon} name={cleanUnderscore(currency ?? '')}/>
@@ -78,18 +78,15 @@ const LevelledEffect = ({ node }) => {
       {lineText}
     </Typography>)}
     {costs.map(({ label: costLabel, prefix: amountPrefix, value, total, rest, note, currencyIcon, currencyAt }, i) => <React.Fragment key={i}>
-      <Typography variant={'body2'} color={'text.secondary'}>
-        {`${costLabel}: `}
+      <Line label={costLabel}>
         <CostAmount amount={value} currency={currencyAt(value)} icon={currencyIcon} prefix={amountPrefix ?? ''}/>
-      </Typography>
-      {rest !== null ? <Typography variant={'body2'} color={'text.secondary'}>
-        {`From level ${level} to max: `}
+      </Line>
+      {rest !== null ? <Line label={`From level ${level} to max`}>
         <CostAmount amount={rest} currency={currencyAt(rest)} icon={currencyIcon}/>
-      </Typography> : null}
-      {total !== null ? <Typography variant={'body2'} color={'text.secondary'}>
-        {'Total to max: '}
+      </Line> : null}
+      {total !== null ? <Line label={'Total to max'}>
         <CostAmount amount={total} currency={currencyAt(total)} icon={currencyIcon}/>
-      </Typography> : null}
+      </Line> : null}
       {sharedNote ? null : <Typography variant={'caption'} color={'text.muted'}>{note}</Typography>}
     </React.Fragment>)}
     {/* Account discounts and bonuses are player data; the page shows only the part every player shares. */}

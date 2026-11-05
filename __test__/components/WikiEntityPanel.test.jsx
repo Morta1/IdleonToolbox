@@ -357,7 +357,7 @@ describe('EntityPanel bubble', () => {
   it('prices the material and the liquid together at the typed level, and links the material once', () => {
     const { container } = renderPanel({ index: bubbleIndex, id: 'bubble:aUpgradesG0' });
     fireEvent.change(screen.getByLabelText('Bubble level'), { target: { value: '10' } });
-    const lines = [...container.querySelectorAll('p')].map((p) => p.textContent).filter((text) => /for this level/.test(text));
+    const lines = [...container.querySelectorAll('[data-cost-line]')].map((row) => `${row.children[0].textContent}: ${row.children[1].textContent}`).filter((text) => /for this level/.test(text));
     expect([
       lines,
       screen.queryByText('Liquids'),

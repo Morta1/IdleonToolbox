@@ -22,7 +22,7 @@ import { notateAmount } from '@utility/wiki/notate';
 const FILTER_MIN = 15;
 
 // The rate may break between "1 in" and the number on a phone, where it is the only number.
-const RATE = { whiteSpace: { xs: 'normal', sm: 'nowrap' } };
+const RATE = { whiteSpace: 'nowrap' };
 
 const rowAmount = (row) => row.edge?.meta?.quantity ?? row.edge?.meta?.amount;
 
