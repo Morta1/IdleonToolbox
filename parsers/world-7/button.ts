@@ -9,6 +9,7 @@ import { isCompanionBonusActive, getGoldenFoodMulti, getLoggedInSkillLevel } fro
 import { getClassExpMulti, getDropRate } from '@parsers/character';
 import { getMaxDamage } from '@parsers/damage';
 import { OPT } from '@parsers/accountOptions';
+import { gameFill } from '@utility/helpers';
 
 /**
  * Parses a raw bonus name like "}x_Res._XP" or "+{%_Class_XP" into
@@ -66,9 +67,6 @@ export const getButton = (account: any, characters: any = []) => {
     name,
     value: bonusValues[index] ?? 0,
     displayFormat,
-    displayValue: displayFormat === 'multi'
-      ? `${Math.round(100 * (1 + (bonusValues[index] ?? 0) / 100)) / 100}x`
-      : `+${Math.round(100 * (bonusValues[index] ?? 0)) / 100}%`,
     bonusPerPress: bonusPerPress[index] ?? 0,
     level: boostCounts[index] ?? 0
   }));
@@ -112,7 +110,7 @@ export const getButton = (account: any, characters: any = []) => {
   }).filter(Boolean);
 
   // Rotation state: which bonus category is currently being filled and progress within it
-  const activeBonusIndex = Math.floor(totalPresses / 5) % 9;
+  const activeBonusIndex = Math.floor(totalPresses / 5) % categoryCount;
   const pressesIntoCurrentBonus = totalPresses % 5;
 
   return {
@@ -321,13 +319,10 @@ function formatTaskDescription(rawDescription: string, requirement: number): str
   return desc.trim();
 }
 
-/**
- * Formats large numbers with commas for display in task descriptions.
- */
+// game: CommaNotation under 1M, Big from there (the Button panel), so the sentence rounds as the page's progress does
 function formatLargeNumber(value: number): string {
   if (!Number.isFinite(value)) return '∞';
-  if (value >= 1e15) return value.toExponential(2);
-  return Math.floor(value).toLocaleString('en-US');
+  return gameFill(value, value < 1e6 ? 'Comma' : 'Big', { whole: true });
 }
 
 /**

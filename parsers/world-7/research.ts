@@ -347,7 +347,7 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
     gridPTSavailable,
     shapesOwned,
     canRotateShapes: researchLevel >= 90 ? 1 : 0,
-    postyNotesOwned: Math.min(14, Math.floor(researchLevel / 10)),
+    postyNotesOwned: Math.min(researchData?.[6]?.length ?? 0, Math.floor(researchLevel / 10)),
     postyNotes: (researchData?.[6] ?? []).map((desc: string, index: number) => ({
       index,
       description: desc,

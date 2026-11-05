@@ -1,7 +1,7 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
-import { parseFixture } from '../helpers/parsed-fixtures';
+import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
@@ -24,5 +24,20 @@ describe('minehead verified against the live game', () => {
 
   it('depth charges per opponent', () => {
     expect(account.minehead.opponents.slice(0, GAME.minesPerOpponent.length).map(({ minesCount }) => minesCount)).toEqual(GAME.minesPerOpponent);
+  });
+
+  it.each([['a guest', () => parseEmpty().account], ['a save', () => account]])('no sentence keeps a raw $ for %s', (_, read) => {
+    const { upgrades, opponents } = read().minehead;
+    expect([...upgrades.map(({ description }) => description), ...opponents.map(({ bonusDescription }) => bonusDescription)]
+      .filter((text) => text.includes('$'))).toEqual([]);
+  });
+
+  it('a tile not unlocked yet says so, as the panel does', () => {
+    const { upgrades } = parseEmpty().account.minehead;
+    expect([12, 17, 23].map((index) => upgrades[index].description)).toEqual([
+      'Unlocks the chance to reveal Multiplier Tiles instead of boring Number Tiles!',
+      'Unlocks the chance to reveal Additive Tiles!',
+      'Unlocks the chance to reveal JACKPOT Tiles! These are awesome!'
+    ]);
   });
 });
