@@ -1,7 +1,7 @@
 // The key's own file, not the @website-data barrel: the barrel builds itemsArray when it loads, so importing it
 // ships every table to any page that prints a Num (the wiki's included).
 import gameNotation from '../data/website-data/gameNotation.json';
-import { cleanUnderscore, commaNotation, formatNum, fullDigits, getBitIndex, multiplierDigits, notateNumber, SHORT_FROM } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, formatNum, fullDigits, gameFill, getBitIndex, notateNumber, SHORT_FROM } from '@utility/helpers';
 
 // Numbers board, lane A: a number the game shows, in the format the game's own call for that stat uses. z-processing
 // reads the rules from N.js (analysis/facts/gameNotation.js) into website-data's gameNotation, keyed
@@ -17,37 +17,13 @@ export const modeFor = (rule, value) => {
   return mode;
 };
 
-// The modes z-processing names for the game's plain arithmetic fills (analysis/facts/gameNotation.js): `Math.floor(x)`,
-// `Math.floor(10 * x) / 10`, `Math.round(x)`, `Math.ceil(x)`. A caller adds any offset the game adds (attack speed's 100).
-const PLAIN = {
-  Floor: (value) => String(Math.floor(value)),
-  Tenths: (value) => String(Math.floor(10 * value) / 10),
-  Round: (value) => String(Math.round(value)),
-  Ceil: (value) => String(Math.ceil(value))
-};
-
-// The game's own print of a value in one mode: what a whole thing keeps, and any value from 1M up
-const gamePrint = (magnitude, mode) => (PLAIN[mode] ? PLAIN[mode](magnitude)
-  : String(mode === 'Comma' ? commaNotation(magnitude) : notateNumber(magnitude, mode)));
-
-// The site's one rule (notes above formatNum): below 1M a value shows its decimals in every mode, so the mode only picks
-// the short form from 1M up. Whole prints a whole thing (a cost, a requirement, a count) as the game does, in its
-// mode's direction. Bits are a currency with tiers of their own, and Whole is a whole thing by name. The sign is drawn
-// outside the notation.
-const inMode = (value, mode, whole = false) => {
-  const magnitude = Math.abs(value);
-  const printsAsGame = whole || magnitude >= SHORT_FROM || mode === 'Bits' || mode === 'Whole';
-  const text = printsAsGame ? gamePrint(magnitude, mode) : mode === 'MultiplierInfo' ? multiplierDigits(magnitude) : fullDigits(magnitude);
-  return value < 0 ? `-${text}` : text;
-};
-
 // A stat with no rule (the game stopped printing it, or a typo) gets Big, the game's most common mode. The game draws
 // units outside its notation (its # glyph is the x), so the caller adds them. ruleValue: the number whose size picks
 // the mode, where the game switches a pair on one side (Sushi's knowledge "xp/req" on the requirement). whole: a cost,
 // a requirement or a count, as the game prints it (notes above formatNum).
 export const formatGame = (value, key, { ruleValue = value, whole = false } = {}) => {
   if (value == null || Number.isNaN(value)) return '-';
-  return inMode(value, modeFor(gameNotation?.[key] ?? 'Big', Math.abs(ruleValue ?? value)), whole);
+  return gameFill(value, modeFor(gameNotation?.[key] ?? 'Big', Math.abs(ruleValue ?? value)), { whole });
 };
 
 // The game's GamingUpg tooltip (N.js, the Superbits screen) fills a superbit's `{` with its total in that superbit's
@@ -56,7 +32,7 @@ const SUPERBIT_FILLS = {
   0: 'Big', 12: 'Round', 24: 'Smaller', 26: 'Smaller', 28: 'Round', 32: 'Smaller', 38: 'Comma', 42: 'Round', 45: 'Round',
   47: 'Floor', 55: 'Smaller'
 };
-export const superbitFill = (index, total) => inMode(total ?? 0, SUPERBIT_FILLS[index] ?? 'Big');
+export const superbitFill = (index, total) => gameFill(total ?? 0, SUPERBIT_FILLS[index] ?? 'Big');
 
 // Bits read in the game's Bits notation wherever they show: every Gaming cost rule is Bits (FertilizerUpgCosts,
 // ImportItemCOST, SuperbitCost, MutateUpgCosts), so the balance and the costs paid in bits elsewhere (Divinity's

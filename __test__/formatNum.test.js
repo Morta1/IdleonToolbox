@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { formatDuration, formatNum } from '@utility/helpers';
+import { formatDuration, formatNum, gameFill } from '@utility/helpers';
 
 // Lane B of the Numbers board: each expected string is the board's suggested value for that number.
 describe('formatNum', () => {
@@ -56,6 +56,32 @@ describe('formatNum', () => {
     [undefined, 'amount', {}, '-']
   ])('formatNum(%s, %s, %o) = %s', (value, kind, options, expected) => {
     expect(formatNum(value, kind, options)).toBe(expected);
+  });
+});
+
+// A game sentence's fill: the mode only picks the short form from 1M up; whole keeps a cost or a count as the game prints it.
+describe('gameFill', () => {
+  it.each([
+    [0.5, 'Big', {}, '0.5'],
+    [1877.53, 'Big', {}, '1,877.53'],
+    [1e6, 'Big', {}, '1M'],
+    [1e21, 'Big', {}, '10e20'],
+    [0.5, 'Small', {}, '0.5'],
+    [1877.53, 'Small', {}, '1,877.53'],
+    [1e6, 'Small', {}, '1M'],
+    [1e21, 'Small', {}, '10e20'],
+    [0.5, 'MultiplierInfo', {}, '0.50'],
+    [1877.53, 'MultiplierInfo', {}, '1,877.53'],
+    [1e6, 'MultiplierInfo', {}, '1000000.00'],
+    [1e21, 'MultiplierInfo', {}, '1000000000000000.00M'],
+    [0.5, 'Comma', {}, '0.5'],
+    [1877.53, 'Comma', {}, '1,877.53'],
+    [1e6, 'Comma', {}, '1,000,000'],
+    [1e21, 'Comma', {}, '1,000,000,000T'],
+    [1877.53, 'Big', { whole: true }, '1.88K'],
+    [-1877.53, 'Comma', {}, '-1,877.53']
+  ])('gameFill(%s, %s, %o) = %s', (value, mode, options, expected) => {
+    expect(gameFill(value, mode, options)).toBe(expected);
   });
 });
 

@@ -712,6 +712,30 @@ export const fullDigits = (value) => {
 // The rule's digits where the print is the game's own two decimals: 14.00 keeps its zeros
 export const multiplierDigits = (value) => (value > 0 && value < 0.01 ? fullDigits(value) : numberWithCommas(notateNumber(value, 'MultiplierInfo')));
 
+// The modes z-processing names for the game's plain arithmetic fills (analysis/facts/gameNotation.js): `Math.floor(x)`,
+// `Math.floor(10 * x) / 10`, `Math.round(x)`, `Math.ceil(x)`. A caller adds any offset the game adds (attack speed's 100).
+const PLAIN = {
+  Floor: (value) => String(Math.floor(value)),
+  Tenths: (value) => String(Math.floor(10 * value) / 10),
+  Round: (value) => String(Math.round(value)),
+  Ceil: (value) => String(Math.ceil(value))
+};
+
+// The game's own print of a value in one mode: what a whole thing keeps, and any value from 1M up
+const gamePrint = (magnitude, mode) => (PLAIN[mode] ? PLAIN[mode](magnitude)
+  : String(mode === 'Comma' ? commaNotation(magnitude) : notateNumber(magnitude, mode)));
+
+// The one way a parser or a page prints a number in a game sentence. The site's rule (notes above formatNum): below 1M a
+// value shows its decimals in every mode, so the mode only picks the short form from 1M up. whole prints a whole thing
+// (a cost, a requirement, a count) as the game does, in its mode's direction. Bits are a currency with tiers of their
+// own, and Whole is a whole thing by name. The sign is drawn outside the notation.
+export const gameFill = (value, mode, { whole = false } = {}) => {
+  const magnitude = Math.abs(value);
+  const printsAsGame = whole || magnitude >= SHORT_FROM || mode === 'Bits' || mode === 'Whole';
+  const text = printsAsGame ? gamePrint(magnitude, mode) : mode === 'MultiplierInfo' ? multiplierDigits(magnitude) : fullDigits(magnitude);
+  return value < 0 ? `-${text}` : text;
+};
+
 const KIND_FORMATS = {
   amount: (value, precise, decimals) => (SHORT_FROM <= value ? notateNumber(value, 'Big')
     : decimals != null ? fixedDigits(value, decimals) : precise ? numberWithCommas(preciseDigits(value)) : fullDigits(value)),
