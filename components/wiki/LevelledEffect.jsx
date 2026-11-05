@@ -54,7 +54,7 @@ const LevelledEffect = ({ node }) => {
     label: cost.label ?? DEFAULT_COST_LABEL,
     note: cost.note ?? DEFAULT_COST_NOTE,
     total: totals[i].value,
-    // Left out when it overflows: the total to max already reads ∞ there.
+    // Left out when it overflows: the total to max already reads No max there.
     rest: Number.isFinite(remaining?.[i]?.value) ? remaining[i].value : null,
     currencyAt: (amount) => costCurrency(cost, amount)
   })).filter(({ value }) => value !== null);
@@ -85,7 +85,7 @@ const LevelledEffect = ({ node }) => {
         <CostAmount amount={rest} currency={currencyAt(rest)} icon={currencyIcon}/>
       </Line> : null}
       {total !== null ? <Line label={'Total to max'}>
-        <CostAmount amount={total} currency={currencyAt(total)} icon={currencyIcon}/>
+        {Number.isFinite(total) ? <CostAmount amount={total} currency={currencyAt(total)} icon={currencyIcon}/> : 'No max'}
       </Line> : null}
       {sharedNote ? null : <Typography variant={'caption'} color={'text.muted'}>{note}</Typography>}
     </React.Fragment>)}

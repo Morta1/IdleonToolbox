@@ -166,7 +166,7 @@ describe('LevelledEffect', () => {
     ['capped at its cap', capped, '3', ['+6 Base Damage', 'Cost for this level: 40 Feathers', 'Total to max: 70 Feathers', 'Base cost, before discounts.']],
     ['points', { ...capped, effect: { ...capped.effect, cap: 4 }, cost: { formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Research_Points', currencyOne: 'Research_Point' } }, '2',
       ['+4 Base Damage', 'Cost for this level: 1 Research Point', 'From level 2 to max: 2 Research Points', 'Total to max: 4 Research Points', 'Base cost, before discounts.']],
-    ['overflowing', { ...capped, effect: { ...capped.effect, cap: 2000 } }, '2', ['+4 Base Damage', 'Cost for this level: 20 Feathers', 'Total to max: ∞ Feathers', 'Base cost, before discounts.']]
+    ['overflowing', { ...capped, effect: { ...capped.effect, cap: 2000 } }, '2', ['+4 Base Damage', 'Cost for this level: 20 Feathers', 'Total to max: No max', 'Base cost, before discounts.']]
   ])('adds the cost from the typed level to max below the cap (%s)', (name, node, typed, expected) => {
     const { container } = render(<LevelledEffect node={node}/>);
     fireEvent.change(screen.getByLabelText('Statue level'), { target: { value: typed } });
