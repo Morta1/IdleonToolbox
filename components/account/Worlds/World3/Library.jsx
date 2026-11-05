@@ -9,19 +9,23 @@ import Panel from '@components/common/cards/Panel';
 import StatusText from '@components/common/StatusText';
 
 // A wait, measured from now (the parse already counts the time since the save), and the date it ends on.
-const WaitRow = ({ name, time, staticTime }) => {
+const WaitRow = ({ name, time }) => {
   const formatDate = useFormatDate();
   const endDate = new Date().getTime() + time * 1000;
   return <Panel.Row name={name} sub={formatDate(endDate, { showSeconds: false })}
-                    value={<Timer type={'countdown'} staticTime={staticTime} date={endDate} component={'span'}/>}/>;
+                    value={<Timer type={'countdown'} date={endDate} component={'span'}/>}/>;
 };
 
 const Library = ({ libraryTimes, failed }) => {
   const [showMore, setShowMore] = useState(false);
   const { bookCount, next, breakpoints, breakdown } = libraryTimes || {};
-  const breakpointRow = ({ breakpoint, label, time }) => (time > 0
-    ? <WaitRow key={label ?? breakpoint} name={`${label || breakpoint} books in`} time={time} staticTime={breakpoint === 0}/>
-    : null);
+  // A labelled breakpoint ("0 to 20") is how long that many books take from none, not a wait: a duration, with no date.
+  const breakpointRow = ({ breakpoint, label, time }) => {
+    if (!(time > 0)) return null;
+    return label
+      ? <Panel.Row key={label} name={`${label.replace('0 to ', '')} books take`} value={formatDuration(time)}/>
+      : <WaitRow key={breakpoint} name={`${breakpoint} books in`} time={time}/>;
+  };
   const mainBreakpoints = breakpoints?.filter(({ label }) => !label || label === '0 to 20');
   const extraBreakpoints = breakpoints?.filter(({ label }) => label && label !== '0 to 20');
   // The parser's total is seconds: the drawer is headed as its value reads
@@ -36,7 +40,7 @@ const Library = ({ libraryTimes, failed }) => {
 
   return <Panel icon={'data/Libz.png'} title={'Library'}>
     <Panel.KV label={'Books ready'} value={formatNum(bookCount)}/>
-    {breakdown ? <Panel.KV label={'Checkout time'} value={<Breakdown asValue title={'Checkout time'}
+    {breakdown ? <Panel.KV label={'Checkout time at your last save'} value={<Breakdown asValue title={'Checkout time at your last save'}
                                                                      data={{ ...breakdown, totalValue: checkoutTime }}>{checkoutTime}</Breakdown>}/> : null}
     {next > 0 ? <WaitRow name={'Next book in'} time={next}/>
       : <Panel.Row name={'Next book in'} value={<StatusText status={'info'}>Wait for game update</StatusText>}/>}
