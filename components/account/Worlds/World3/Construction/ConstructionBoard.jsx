@@ -9,6 +9,7 @@ import { formatGame } from '@utility/gameNotation';
 import React from 'react';
 import { styled } from '@mui/material/styles';
 import { BOARD_SIZE, BOARD_X, getCogDisplayName } from '@parsers/world-3/construction';
+import { cogSlotLabel } from '@parsers/world-3/constructionOptimizer';
 import { NoteTrigger } from '@components/common/InfoButton';
 
 const SLOT_GAP = 8;
@@ -34,24 +35,21 @@ export const getCogViewValue = (cog, view) => {
   }
 };
 
-// The number a cog shows under its art, in the game's Big: its own row, never over the sprite. It may take half the
-// gap on each side, so a five character "87.4K" fits under a 30 px slot. One that still doesn't fit ("1.16QQ") never
-// cuts: it takes a second line, breaking before its suffix ("1.16" over "QQ"), and the row grows with it.
+// The number a cog shows under its art, in the game's Big: its own row, never over the sprite. One line, whatever it
+// holds, centred on the art: it may take half the gap on each side, and on a board's small slots a smaller size, so a six
+// character "1.16QQ" fits under a 30 px slot.
 export const CAPTION_HEIGHT = 16;
-const captionText = (value) => {
-  const text = String(formatGame(value, 'Big', { whole: true }));
-  const [, digits, suffix] = text.match(/^([\d.,]+)([A-Za-z].*)$/) ?? [];
-  return digits ? <>{digits}<wbr/>{suffix}</> : text;
-};
 export const CogCaption = ({ value, width }) => <Typography variant={'caption'} component={'div'} sx={{
   minHeight: CAPTION_HEIGHT,
   lineHeight: `${CAPTION_HEIGHT}px`,
   width: `calc(${width} + ${SLOT_GAP}px)`,
   mx: `-${SLOT_GAP / 2}px`,
-  textAlign: 'center',
-  overflowWrap: 'anywhere',
-  fontVariantNumeric: 'tabular-nums'
-}}>{value ? captionText(value) : null}</Typography>;
+  display: 'flex',
+  justifyContent: 'center',
+  whiteSpace: 'nowrap',
+  fontVariantNumeric: 'tabular-nums',
+  '@container (max-width: 600px)': { fontSize: 11, letterSpacing: '-0.2px' }
+}}>{value ? String(formatGame(value, 'Big', { whole: true })) : null}</Typography>;
 
 // The sprite a cog draws: a character's head, or the cog's own art
 export const cogSprite = (name) => (name?.includes('Player') ? 'headBIG' : name);
@@ -85,9 +83,8 @@ const cogNote = ({ currentAmount, requiredAmount, cog, affectedBy, affects, flag
     {stats.map(({ name, value }, statIndex) => <Typography key={`${name}-${statIndex}`} variant={'body2'}>
       {formatNum(value, 'mult', { bare: true })}{cleanUnderscore(name)}
     </Typography>)}
-    {cog?.originalIndex != null ? <Typography variant={'body2'} color={'text.secondary'}>{`Index ${cog.originalIndex}`}</Typography> : null}
-    {affectedBy?.length > 0 ? <Typography variant={'body2'} color={'text.secondary'}>{`Affected by: ${affectedBy.join(', ')}`}</Typography> : null}
-    {affects?.length > 0 ? <Typography variant={'body2'} color={'text.secondary'}>{`Affects: ${affects.join(', ')}`}</Typography> : null}
+    {affectedBy?.length > 0 ? <Typography variant={'body2'} color={'text.secondary'}>{`Affected by: ${affectedBy.map(cogSlotLabel).join(', ')}`}</Typography> : null}
+    {affects?.length > 0 ? <Typography variant={'body2'} color={'text.secondary'}>{`Affects: ${affects.map(cogSlotLabel).join(', ')}`}</Typography> : null}
   </Stack>;
 };
 
@@ -137,8 +134,8 @@ const ConstructionBoard = ({ view, board, leftColumn, rightColumn, markSpares, d
         display: 'grid',
         gap: `${SLOT_GAP}px`,
         gridTemplateColumns: `repeat(${cols}, var(--cog-slot))`,
-        // Each row holds the slot's art and the caption row under it, taller where a caption takes two lines. The
-        // strips beside the board are taller than it, so the rows keep their own height instead of sharing the slack.
+        // Each row holds the slot's art and the caption row under it. The strips beside the board are taller than it,
+        // so the rows keep their own height instead of sharing the slack.
         gridAutoRows: `minmax(calc(var(--cog-slot) + ${CAPTION_HEIGHT}px), auto)`,
         alignContent: 'start'
       }}
