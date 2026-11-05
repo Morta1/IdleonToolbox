@@ -1,7 +1,7 @@
 import StatTile from '@components/common/cards/StatTile';
 import ItemCard from '@components/common/cards/ItemCard';
 import StatusText from '@components/common/StatusText';
-import { cleanUnderscore, formatNum, getTabs, msToDate } from '@utility/helpers';
+import { cleanUnderscore, formatNum, gameFill, getTabs, msToDate } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { CURRENCY_NAMES } from '@parsers/world-5/caverns/the-fountain';
 import { PAGES } from '@components/constants';
@@ -35,10 +35,12 @@ export const opalsFoundTile = (hole, cavernIndex) => <StatTile label={'Opals fou
                                                                 value={hole?.holesObject?.opalsPerCavern?.[cavernIndex] ?? 0}
                                                                 kind={'amount'}/>;
 
-// One villager's five numbers, at the top of its tab. The EXP pair is the parser's text, already the game's rule
-// (Holes.VillagerExpREQ); the rate is the game's "Xp per Hr" (Holes.VillagerExpPerHour), and its drawer is named and
+// One villager's five numbers, at the top of its tab. The EXP pair reads one form, the game's rule on the larger side's
+// size (Holes.VillagerExpREQ); the rate is the game's "Xp per Hr" (Holes.VillagerExpPerHour), and its drawer is named and
 // headed as the tile.
 export const villagerTiles = (villager) => {
+  const ruleValue = Math.max(villager?.exp ?? 0, villager?.expReq ?? 0);
+  const expText = (value) => formatGame(value ?? 0, 'Holes.VillagerExpREQ', { ruleValue, whole: true });
   const rate = villager?.expRate?.value ?? 0;
   const rateText = `${formatGame(rate, 'Holes.VillagerExpPerHour')}/hr`;
   const breakdown = villager?.expRate?.breakdown;
@@ -46,7 +48,7 @@ export const villagerTiles = (villager) => {
     : rate > 0 && villager?.timeLeft >= 0 ? msToDate(villager.timeLeft) : '-';
   return <>
     <StatTile label={'Level'} value={villager?.level ?? 0} kind={'amount'}/>
-    <StatTile label={'EXP'} value={`${villager?.exp ?? 0} / ${villager?.expReq ?? 0}`}/>
+    <StatTile label={'EXP'} value={`${expText(villager?.exp)} / ${expText(villager?.expReq)}`}/>
     <StatTile label={'EXP rate'} value={rateText} breakdownTitle={'EXP rate'}
               breakdown={breakdown ? { ...breakdown, totalValue: rateText } : undefined}/>
     <StatTile label={'Time to level'} value={timeLeft}/>
@@ -94,11 +96,14 @@ export const monumentBonusCard = ({ description, level, bonus, cap, progression,
                            max={`${formatNum(cap, 'amount', { precise: true })} cap`} percent={progression ?? 0}/>}
   </ItemCard>);
 
-// A skilling cavern's numbers: the efficiency its layer asks for and what it has gathered of the layer's need (both the
-// parser's text: commas under 1e9, then Big), the layer, and the opals found there
-export const skillingTiles = ({ hole, cavernIndex, effLabel, eff, layerLabel = 'Layer', layer, resource, icon, done, required }) => <>
-  <StatTile label={effLabel} value={eff ?? 0}/>
-  <StatTile label={layerLabel} value={layer ?? 0} kind={'amount'}/>
-  <StatTile label={resource} icon={icon} value={`${done ?? 0} / ${required ?? 0}`}/>
-  {opalsFoundTile(hole, cavernIndex)}
-</>;
+// A skilling cavern's numbers: the efficiency its layer asks for and what it has gathered of the layer's need (the game's
+// panel: commas under 1e9, then Big, on the larger side's size so the pair reads one form), the layer, and the opals found there
+export const skillingTiles = ({ hole, cavernIndex, effLabel, eff, layerLabel = 'Layer', layer, resource, icon, done, required }) => {
+  const amount = (value) => gameFill(value ?? 0, Math.max(done ?? 0, required ?? 0) < 1e9 ? 'Comma' : 'Big', { whole: true });
+  return <>
+    <StatTile label={effLabel} value={gameFill(eff ?? 0, 'Big', { whole: true })}/>
+    <StatTile label={layerLabel} value={layer ?? 0} kind={'amount'}/>
+    <StatTile label={resource} icon={icon} value={`${amount(done)} / ${amount(required)}`}/>
+    {opalsFoundTile(hole, cavernIndex)}
+  </>;
+};

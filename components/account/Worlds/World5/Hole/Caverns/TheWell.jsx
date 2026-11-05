@@ -69,7 +69,7 @@ const TheWell = ({ hole }) => {
 
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
-      <StatTile label={'Opal cost'} icon={'data/HoleWellFill1.png'} value={theWell?.opalCost ?? 0}/>
+      <StatTile label={'Opal cost'} icon={'data/HoleWellFill1.png'} value={formatGame(theWell?.opalCost ?? 0, 'Holes.WellOpal_cost', { whole: true })}/>
       {opalsFoundTile(hole, 0)}
       <StatTile label={'Total bar expansions'} value={getHoleLeaderboardTotals(hole).barExpansions} kind={'amount'}/>
     </Stack>

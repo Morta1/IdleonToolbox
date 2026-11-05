@@ -96,8 +96,7 @@ const TheJars = ({ hole, sectionFailed }) => {
                     dimmed={!(level > 0)}
                     aside={doubled
                       ? <Typography variant={'caption'} color={'secondary'}>x2 Doubled</Typography> : null}>
-            {/* The parser turned the game's @ into \n: back to @, so ItemCard.Desc draws each line */}
-            <ItemCard.Desc text={(description ?? '').replaceAll('\n', '@')}/>
+            <ItemCard.Desc text={description}/>
           </ItemCard>)}
       </CardGrid>}
   </>;

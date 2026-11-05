@@ -1,4 +1,4 @@
-import { commaNotation, notateNumber } from '@utility/helpers';
+import { notateNumber } from '@utility/helpers';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { holesInfo } from '@website-data';
 
@@ -20,7 +20,7 @@ export const getTheDen = (holesObject: any) => {
   const ownedAmps = getAmpStonesOwned(holesObject);
 
   return {
-    bestScore: commaNotation(bestScore),
+    bestScore,
     nextOpalAt,
     ampMulti,
     amplifiers,

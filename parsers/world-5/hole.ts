@@ -1,4 +1,5 @@
-import { commaOrBig, lavaLog, notateNumber, numberWithCommas, tryToParse } from '@utility/helpers';
+import { lavaLog, notateNumber, numberWithCommas, tryToParse } from '@utility/helpers';
+import { gameGlyphs } from '@utility/wiki/game-glyphs.mjs';
 import { cosmoUpgrades, gods, holesBuildings, holesInfo, lampWishes } from '@website-data';
 import { getSchematicBonus, getTheWell } from '@parsers/world-5/caverns/the-well';
 import { getMotherlode } from '@parsers/world-5/caverns/motherlode';
@@ -175,8 +176,8 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
     return {
       index,
       name: (Object.keys(VILLAGERS)?.[index]?.toLowerCase() as any)?.camelToTitleCase(),
-      exp: commaOrBig(exp),
-      expReq: commaOrBig(expReq),
+      exp,
+      expReq,
       readyToLevel: exp >= expReq,
       level,
       opalInvested,
@@ -421,7 +422,7 @@ export const getEngineerTotalBonus = (upgrade: any, holesObject: any, index: any
 
     case 59:
       value = getSchematicBonus({ holesObject, t: index, i: 0 });
-      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Big'))
+      formattedDescription = gameGlyphs(formattedDescription).replace('{', String(notateNumber(value, 'Big')))
         .replace('!', numberWithCommas(Number(holesObject?.extraCalculations?.[33])))
         .replace('#', numberWithCommas(Number(holesObject?.extraCalculations?.[34])))
         .replace('$', numberWithCommas(Number(holesObject?.extraCalculations?.[35])))

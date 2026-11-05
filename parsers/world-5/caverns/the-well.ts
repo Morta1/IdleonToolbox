@@ -1,4 +1,4 @@
-import { fillArrayToLength, lavaLog, notateNumber } from '@utility/helpers';
+import { fillArrayToLength, lavaLog } from '@utility/helpers';
 import { holesInfo } from '@website-data';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
@@ -56,7 +56,7 @@ export const getTheWell = (holesObject: any, accountData: any) => {
     totalFillRate,
     goldenBucketsOwned,
     goldenBucketMulti,
-    opalCost: notateNumber(opalCost, 'TinyE'),
+    opalCost,
     expandWhenFull
   }
 }

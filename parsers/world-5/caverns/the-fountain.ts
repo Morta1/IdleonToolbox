@@ -271,8 +271,8 @@ const formatFountainDescription = (
     }
   }
 
-  // Green-tier glyph cleanup: 鉢 is the "Total Currency Multi" label glyph, @ is an in-game line break.
-  desc = desc.replaceAll('鉢', '').replaceAll('@', ' ');
+  // 鉢 is the "Total Currency Multi" label glyph. @ stays: it's the game's line break, which the card draws (gameLines).
+  desc = desc.replaceAll('鉢', '');
 
   return desc;
 };

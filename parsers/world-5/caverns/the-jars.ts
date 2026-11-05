@@ -3,7 +3,7 @@ import { getPaletteBonus, isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
-import { cleanUnderscore, commaNotation, createRange, lavaLog, notateNumber, numberWithCommas } from '@utility/helpers';
+import { cleanUnderscore, commaNotation, createRange, gameFill, lavaLog, notateNumber, numberWithCommas, titleCaseName } from '@utility/helpers';
 import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
@@ -84,11 +84,11 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
     return {
       level,
       bonus,
-      name: (cleanUnderscore(name) as any).toLowerCase().capitalizeAllWords(),
+      name: titleCaseName(cleanUnderscore(name)),
       bonusModifier,
       // @ is the game's line break
-      description: description.replace('{', String(bonus)).replace('}', String(1 + bonus / 100))
-        .replace('$', rupieValueText).replace(/@/g, '\n'),
+      description: description.replace('{', gameFill(bonus, 'Round')).replace('}', gameFill(1 + bonus / 100, 'MultiplierInfo'))
+        .replace('$', rupieValueText),
       // game: 0 <= Holes[11][62] and 1 <= its level, so a save that has picked none (-1, or no slot at all) doubles nothing
       doubled: level >= 1 && holesObject?.extraCalculations?.[62] === index
     }
@@ -326,15 +326,8 @@ export const getNewCollectibleChance = (holesObject: any, account: any) => {
   return (0.2 * multi) / ((1 + Math.pow(found, 1.9)) * Math.pow(1.5, Math.max(0, found - 16)));
 }
 
-// Format a probability (0-1) as a percentage string that stays useful even for
-// tiny values. The game floors anything under 0.01% to "0%"; we keep precision.
-const formatEnchantPercent = (chance: number) => {
-  const percentage = 100 * chance;
-  if (percentage === 0) return '0';
-  if (percentage >= 0.01) return notateNumber(percentage, 'Small');
-  // Below 0.01%: show meaningful precision via scientific notation.
-  return percentage.toExponential(4);
-}
+// A probability (0-1) as a percent. The game floors anything under 0.01% to "0%"; the shared rule keeps two figures.
+const formatEnchantPercent = (chance: number) => gameFill(100 * chance, 'Small');
 
 const getEnchantChance = ({ holesObject, account }: any) => {
   let enhancingLevels = 0;

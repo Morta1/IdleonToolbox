@@ -3,7 +3,6 @@ import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
-import { commaNotation, notateNumber } from '@utility/helpers';
 import { getMonumentMaxLinearTime } from '@parsers/world-5/caverns/bravery';
 import { getMotherlodeEffBase, getTotalOreReq, LAYER_CAVERN } from '@parsers/world-5/caverns/motherlode';
 import { getHarpExpGain, getHarpStringAllBonus } from '@parsers/world-5/caverns/the-harp';
@@ -100,14 +99,14 @@ describe('caverns part A verified against the live game', () => {
     expect(theWell.buckets.length).toBe(GAME_A.buckets);
     expect(theWell.goldenBucketsOwned).toBe(GAME_A.goldenBucketsOwned);
     within(theWell.goldenBucketMulti, GAME_A.goldenBucketMulti);
-    expect(theWell.opalCost).toBe(notateNumber(GAME_A.wellOpalCost, 'TinyE'));
+    within(theWell.opalCost, GAME_A.wellOpalCost);
   });
 
   it('layer requirement and efficiency of every layered cavern, Evertree including the Trench study', () => {
     GAME_A.totalOreReq.forEach((value, t) => within(getTotalOreReq(holesObject, account, t), value));
     GAME_A.motherlodeEffBase.forEach((value, t) => within(getMotherlodeEffBase(holesObject, t), value));
-    expect(caverns.evertree.logs.required).toBe(commaNotation(GAME_A.totalOreReq[LAYER_CAVERN.EVERTREE]));
-    expect(caverns.motherlode.ores.required).toBe(commaNotation(GAME_A.totalOreReq[LAYER_CAVERN.MOTHERLODE]));
+    within(caverns.evertree.logs.required, GAME_A.totalOreReq[LAYER_CAVERN.EVERTREE]);
+    within(caverns.motherlode.ores.required, GAME_A.totalOreReq[LAYER_CAVERN.MOTHERLODE]);
   });
 
   it('den amplifier debuffs as the game prints them', () => {
@@ -251,9 +250,9 @@ describe('caverns part B verified against the live game', () => {
   });
 
   it('hive and trench requirements and efficiency, the Trench study included and no extra quarter on the Trench', () => {
-    expect(caverns.theHive.bugs.required).toBe(commaNotation(GAME_A.totalOreReq[LAYER_CAVERN.HIVE]));
-    expect(caverns.theBottomlessTrench.fish.required).toBe(commaNotation(GAME_A.totalOreReq[LAYER_CAVERN.TRENCH]));
-    expect(caverns.theHive.fishingEff).toBe(notateNumber(0.25 * GAME_A.motherlodeEffBase[LAYER_CAVERN.HIVE], 'Big'));
-    expect(caverns.theBottomlessTrench.fishingEff).toBe(notateNumber(0.25 * GAME_A.motherlodeEffBase[LAYER_CAVERN.TRENCH], 'Big'));
+    within(caverns.theHive.bugs.required, GAME_A.totalOreReq[LAYER_CAVERN.HIVE]);
+    within(caverns.theBottomlessTrench.fish.required, GAME_A.totalOreReq[LAYER_CAVERN.TRENCH]);
+    within(caverns.theHive.fishingEff, 0.25 * GAME_A.motherlodeEffBase[LAYER_CAVERN.HIVE]);
+    within(caverns.theBottomlessTrench.fishingEff, 0.25 * GAME_A.motherlodeEffBase[LAYER_CAVERN.TRENCH]);
   });
 });
