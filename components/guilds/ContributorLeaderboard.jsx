@@ -84,20 +84,22 @@ export default function ContributorLeaderboard({ members }) {
   }));
   const totalGuildGp = sorted.reduce((sum, m) => sum + (m.gp_earned || 0), 0);
 
+  // Beside the menu and the ad column the panel is 400 px narrower than the window: each column joins the row once the
+  // panel holds it, so the table fits its box and its head can pin.
   const columns = [
     { key: 'member', label: 'Member', value: (m) => m.member_name, render: (m) => <MemberName member={m}/> },
     { key: 'gp_earned', label: 'GP', kind: 'amount', sortable: true, phone: true, value: (m) => m.gp_earned ?? 0 },
     {
-      key: 'share', label: '% Guild', kind: 'pct', format: { decimals: 2 }, info: 'Share of the guild\'s total weekly GP contributed by this member.',
+      key: 'share', label: '% Guild', kind: 'pct', format: { decimals: 2 }, from: { room: 400 }, info: 'Share of the guild\'s total weekly GP contributed by this member.',
       value: (m) => (totalGuildGp > 0 ? (m.gp_earned / totalGuildGp) * 100 : 0)
     },
     {
-      key: 'gp_lifetime', label: 'Lifetime', kind: 'amount', sortable: true,
+      key: 'gp_lifetime', label: 'Lifetime', kind: 'amount', sortable: true, from: { room: 530 },
       info: 'Total GP this member has contributed since they joined the guild (in-game lifetime, not just since tracking started).',
       value: (m) => m.gp_lifetime ?? null
     },
     {
-      key: 'weeks_since_contribution', label: 'Last contributed', numeric: true, sortable: true,
+      key: 'weeks_since_contribution', label: 'Last contributed', numeric: true, sortable: true, from: { room: 670 },
       info: 'Most recent week this member earned any GP. Based on the last 6 weeks of tracked history.',
       // No contributions in the window sorts as the most stale, not as this week.
       sortValue: (m) => m.weeks_since_contribution ?? Number.MAX_SAFE_INTEGER,
@@ -122,7 +124,7 @@ export default function ContributorLeaderboard({ members }) {
         <Toolbar.Search placeholder={'Search members'}/>
       </Toolbar>
       {/* Every member up to 80 rows; past that, 60 and "Show n more" (DataTable's band preview). */}
-      {filtered.length ? <Box sx={{ p: 2 }}><DataTable
+      {filtered.length ? <Box sx={{ p: 2, containerType: 'inline-size' }}><DataTable
         columns={columns}
         rows={filtered}
         rowKey={'member_name'}
