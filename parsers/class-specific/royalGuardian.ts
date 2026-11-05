@@ -499,6 +499,9 @@ export const getOutpostKillsReq = (mapIndex: number): number => {
 const getResourceNodeMax = (nodeIndex: number, baseMaxQuantity: number, nodeLevel: number): number =>
   5 * baseMaxQuantity * Math.pow(1.5, nodeLevel) * Math.pow(5, Math.floor(nodeIndex / RESOURCE_NODES_PER_WORLD));
 
+const GLORIFICATION_INDEX = 4;
+const GLORIFICATION_LINE = '10%_chance_to_Glorify_the_current_Outpost';
+
 // split/join, not regex .replace(): the replacement string can itself legitimately contain "$"
 // (see below), and String.replace treats "$" specially in its REPLACEMENT argument ($&, $1...),
 // which would corrupt exactly that value. Same fix already used in world-7/research.ts.
@@ -508,14 +511,14 @@ const replaceToken = (str: string, placeholder: string, value: string): string =
 // embeds (game: y.replace(str, "#", "")); this port never emits '#', so this is a defensive no-op.
 const stripApprox = (str: string): string => replaceToken(str, '#', '');
 
-const applyBonusTokens = (description: string, bonus: number, dollarValue?: string | null): string => {
+const applyBonusTokens = (description: string, bonus: number, dollarValue?: string | null, multiplierInfo?: boolean): string => {
   if (typeof description !== 'string') return '';
   let result = description;
   if (bonus >= 1e9) {
     result = replaceToken(result, '{', String(notateNumber(bonus, 'Big')));
-    result = replaceToken(result, '}', String(notateNumber(1 + bonus / 100, 'Big')));
+    result = replaceToken(result, '}', String(notateNumber(1 + bonus / 100, multiplierInfo ? 'MultiplierInfo' : 'Big')));
   } else {
-    const multiplier = bonus < 1e3
+    const multiplier = bonus < 1e3 || multiplierInfo
       ? notateNumber(1 + bonus / 100, 'MultiplierInfo')
       : commaNotation(Math.floor(1 + bonus / 100));
     result = replaceToken(result, '{', String(commaNotation(bonus)));
@@ -713,11 +716,11 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       bonusPerLevel: toNum(entry?.bonusPerLevel),
       cost: rawCost < 1e6 ? Math.floor(rawCost) : rawCost,
       maxed: maxLevel > 0 && level >= maxLevel,
-      // game: for GLORIFICATION (index 4) this "$" is overwritten with one of three strings that
-      // describe the CURRENT map's own outpost (no outpost / not glorified / glorified) - there is
-      // no account-wide value to substitute, so it is deliberately left unresolved (see task D9
-      // report). Every other orblet description's placeholders are the shared {/} bonus pair only.
-      description: applyBonusTokens(entry?.description, bonus)
+      // game: for GLORIFICATION (index 4) this "$" is overwritten with one of three strings about the CURRENT map's own
+      // outpost (no outpost / not glorified / glorified): the line that says what the upgrade does stands for them. Every
+      // other orblet description's placeholders are the shared {/} bonus pair only, so only this sentence leaves its bonus out.
+      description: applyBonusTokens(entry?.description, bonus, index === GLORIFICATION_INDEX ? GLORIFICATION_LINE : null),
+      bonusInSentence: index !== GLORIFICATION_INDEX
     };
   });
   const orbletBonus = (index: number): number => orbletUpgrades.find((u) => u.index === index)?.bonus ?? 0;
@@ -951,7 +954,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     return {
       index,
       rawName,
-      description: applyBonusTokens(rawName, bonus),
+      // game: the statue panel's } is always MultiplierInfo
+      description: applyBonusTokens(rawName, bonus, null, true),
       level,
       bonus,
       baseBonus,

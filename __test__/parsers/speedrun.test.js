@@ -52,8 +52,11 @@ describe('getSpeedrunStats', () => {
 });
 
 describe('getSpeedrunRoute', () => {
-  it('returns an empty route without a character', () => {
-    expect(getSpeedrunRoute(account, characters, undefined)).toEqual([]);
+  it('is the portal catalog without a character: requirements, no clear time', () => {
+    const route = getSpeedrunRoute(account, characters, undefined);
+    expect(route.map(({ mapIndex, portalIndex, reqKills }) => [mapIndex, portalIndex, reqKills]))
+      .toEqual(getSpeedrunRoute(account, characters, character).map(({ mapIndex, portalIndex, reqKills }) => [mapIndex, portalIndex, reqKills]));
+    expect(route.every(({ reachable, secondsToClear, multiCharLock }) => !reachable && secondsToClear === Infinity && multiCharLock === null)).toBe(true);
   });
 
   it('lists every portal on every fightable map, in game map order', () => {
@@ -245,9 +248,9 @@ describe('getSpeedrunBosses', () => {
 });
 
 describe('getSpeedrunPlan', () => {
-  it('never crashes without a character', () => {
+  it('lists the catalog with no boss portals without a character', () => {
     const plan = getSpeedrunPlan(account, characters, undefined);
-    expect(plan.portals).toEqual([]);
+    expect(plan.portals.length).toBe(getSpeedrunRoute(account, characters, character).length);
     expect(plan.bossPortals).toBe(0);
   });
 

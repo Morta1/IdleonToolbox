@@ -1,8 +1,9 @@
 import React from 'react';
 import { Stack, Typography } from '@mui/material';
 import { compass } from '@website-data';
-import { dustNames, getCompassTotalUpgradeCost } from '@parsers/class-specific/compass';
-import MasterclassUpgradeCard, { amountPair, formatNextLevelBonus, masterclassText } from '../MasterclassUpgradeCard';
+import { dustNames, getCompassDollar, getCompassTotalUpgradeCost } from '@parsers/class-specific/compass';
+import { formatNum } from '@utility/helpers';
+import MasterclassUpgradeCard, { formatNextLevelBonus, masterclassText } from '../MasterclassUpgradeCard';
 import CardGrid from '@components/common/cards/CardGrid';
 import GameIcon from '@components/common/GameIcon';
 import Toolbar from '@components/common/Toolbar';
@@ -17,7 +18,7 @@ const byCost = (order) => (a, b) => (order === 'desc' ? -1 : 1) * ((a.cost || 0)
 
 // costing: the page's Levels ahead and Daily Shopping Spree (its Page settings). sectionFailed: the catalog at zero
 // (the parser's empty save) by name, with no cost, state or Toolbar.
-const Upgrades = ({ account, upgrades, dusts, costing, sectionFailed }) => {
+const Upgrades = ({ account, upgrades, dusts, costing, dollarFills, sectionFailed }) => {
   const { levelsAhead = 1, forceLegendTalent, isOverridden } = costing ?? {};
   const [view, setView, resetView] = useToolbarState('compass-upgrades', UPGRADES_TOOLBAR);
   const catalog = (upgrades ?? []).flatMap(({ path, list }) => (list ?? []).map((upgrade) => ({ ...upgrade, path })))
@@ -39,7 +40,7 @@ const Upgrades = ({ account, upgrades, dusts, costing, sectionFailed }) => {
 
   const renderUpgradeCard = (upgrade) => {
     const {
-      name, cost, description, level, x4, extraData, x3, baseIconIndex, index, shapeIcon, unlocksAt, unlocked, path
+      name, cost, description, level, x4, killsProgress, x3, baseIconIndex, index, shapeIcon, unlocksAt, unlocked, path
     } = upgrade;
     const owned = dusts?.[x3]?.value || 0;
     const nextCost = isOverridden ? getCompassTotalUpgradeCost(account, upgrade, level + 1, forceLegendTalent) : cost;
@@ -53,10 +54,9 @@ const Upgrades = ({ account, upgrades, dusts, costing, sectionFailed }) => {
                                    frame={shapeIcon}
                                    level={level}
                                    maxLevel={x4}
-                                   // The $ the parser leaves is a number the toolbox can't compute: "?"
-                                   description={masterclassText(description)}
+                                   description={masterclassText(description, getCompassDollar(index, account, dollarFills))}
                                    nextLevelBonus={formatNextLevelBonus(upgrade, 'compass', compass?.[index]?.description)}
-                                   extraData={extraData ? amountPair(extraData) : extraData}
+                                   extraData={killsProgress ? `Kills: ${formatNum(killsProgress.kills, 'whole')} / ${formatNum(killsProgress.total, 'whole')}` : undefined}
                                    currencyIcon={`Dust${x3}_x1`}
                                    currencyName={dustNames[x3]}
                                    costGame={'Windwalker.CompassUpgCost'}

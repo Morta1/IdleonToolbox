@@ -14,7 +14,6 @@ const UpgradeOptimizer = ({ character, account, fishingEfficiency, sectionFailed
     resourceImagePrefix="Bone"
     upgradeImagePrefix="GrimoireUpg"
     getResourceType={upgrade => upgrade.boneType ?? upgrade.x3}
-    getResourceAmount={(bone, idx) => bone}
     optimizerOptions={{ fishingEfficiency, sharedFarmingTime: true }}
     costGame={'Summoning.GrimoireUpgCost'}
     characterLabel={'Death Bringer'}

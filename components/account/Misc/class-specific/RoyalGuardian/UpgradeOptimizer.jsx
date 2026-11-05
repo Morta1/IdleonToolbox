@@ -28,7 +28,6 @@ const UpgradeOptimizer = ({ character, account, sectionFailed }) => (
     getResourceType={(upgrade) => upgrade.costResourceIndex}
     // The shelf is laid out by display slot, not upgrade id.
     getGameOrder={(upgrade) => upgrade.slot}
-    getResourceAmount={(amount) => amount}
     // Unlike the other three masterclasses, RG income is passive: outposts bank a fixed rate off the
     // nodes they're wired to, so the rate can be derived instead of typed in. Manual entry stays
     // available as the "(manual)" method.

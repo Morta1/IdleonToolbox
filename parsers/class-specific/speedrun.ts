@@ -1,5 +1,6 @@
 import { mapEnemiesArray, mapMonsterCounts, mapNames, mapPortalDestinations, mapPortals, monsters } from '@website-data';
 import { getHighestTalentAcrossCharacters, getTalentBonus, getTalentCooldown } from '@parsers/talents';
+import { gameFill } from '@utility/helpers';
 import { getMaxDamage } from '@parsers/damage';
 import { getVialsBonusByStat } from '@parsers/world-2/alchemy';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
@@ -149,7 +150,7 @@ export const getPortalProgressBreakdown = (account: Account, killPerKill: number
     perKill,
     breakdown: createBreakdown('Portal progress per kill', perKill, [
       sumGroup('Kills credited', [
-        flat('Kill per kill', killPerKill),
+        flat('Kill per kill', killPerKill, { formatted: `${gameFill(killPerKill, 'MultiplierInfo')}x` }),
         flat('Seawater vial', vialKills)
       ], { unit: 'flat' }),
       productGroup(NUMBERED_GROUP, [
@@ -203,9 +204,8 @@ const getSpeedrunMaps = () => Object.entries(mapNames as any)
     && !PLACEHOLDER_MAP_NAMES.test(mapName))
   .map(([mapIndex, mapName]: any) => ({ mapIndex, mapName }));
 
-export const getSpeedrunRoute = (account: Account, characters: Character[], character: Character): SpeedrunRouteEntry[] => {
-  if (!character) return [];
-
+// With no character it is the portal catalog: maps and kill requirements, no clear time.
+export const getSpeedrunRoute = (account: Account, characters: Character[], character?: Character): SpeedrunRouteEntry[] => {
   // One cache per route: every per-map damage parse below differs only in mapIndex/targetMonster,
   // so getMaxDamage computes its map-invariant stats once and reuses them across all ~200 maps.
   const sharedDamageCache = {};
@@ -219,7 +219,7 @@ export const getSpeedrunRoute = (account: Account, characters: Character[], char
     // Re-run the damage parser as if the character were parked on this map: respawn rate, hit
     // chance and the multikill tiers all key off targetMonster / mapIndex.
     const onMap = { ...character, mapIndex: index, targetMonster: monsterRawName };
-    const playerInfo = getMaxDamage(onMap as Character, characters, account, sharedDamageCache);
+    const playerInfo = character ? getMaxDamage(onMap as Character, characters, account, sharedDamageCache) : null;
     const killsPerSecond = (playerInfo?.killsPerHour || 0) / 3600;
     const killPerKill = playerInfo?.killPerkill?.value || 1;
     const portalProgressPerKill = getPortalProgressPerKill(account, killPerKill);
@@ -246,7 +246,7 @@ export const getSpeedrunRoute = (account: Account, characters: Character[], char
 
     // The portal handler re-shuts door 0 on the killing blow while too few characters have cleared the
     // map, and the unlock does not score. The runner's own counter has just reached zero, so it counts.
-    const doorZeroLock = getMultiCharDoorLock(index, characters, character);
+    const doorZeroLock = character ? getMultiCharDoorLock(index, characters, character) : null;
     doors.forEach(({ portalIndex, reqKills, destinationMapIndex }: any) => {
       result.push({
         mapIndex: index,
@@ -337,7 +337,12 @@ export const getSpeedrunBosses = (idleonData: IdleonData): SpeedrunBoss[] => {
 export const getSpeedrunPlan = (account: Account, characters: Character[], character: Character): SpeedrunPlan => {
   const bosses: SpeedrunBoss[] = (account as any)?.speedrun?.bosses ?? [];
   if (!character) {
-    return { runUnlocked: false, portals: [], bosses, bossPortals: 0 };
+    const portals = getSpeedrunRoute(account, characters).map((entry) => ({
+      ...entry,
+      world: Math.floor(entry.mapIndex / 50) + 1,
+      buffedSecondsToClear: entry.secondsToClear
+    }));
+    return { runUnlocked: false, portals, bosses, bossPortals: 0 };
   }
 
   // The boss handlers check GetBuffBonuses(45, 1) > 0 (a run going) and GetTalentNumber(2, 47) > 0

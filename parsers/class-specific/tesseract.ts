@@ -1,4 +1,4 @@
-import { commaNotation, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
+import { commaNotation, gameFill, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
 import { getFilteredPortals, getMultiCharDoorLock } from '@parsers/portals';
 import { liveEntries } from '@parsers/catalog';
 import { mapEnemiesArray, mapPortals, monsterCoinQuantity, monsters, tesseract, items, gameTables } from '@website-data';
@@ -528,23 +528,40 @@ export const getArcanistStats = (upgrades: any, totalUpgradeLevels: any, charact
   }
 }
 
-const getDescription = (description: any, bonus: any) => {
-  if (bonus < 1e9) {
-    description = description.replace('{', commaNotation(bonus));
-    if (bonus < 1e3) {
-      const multiplier = 1 + bonus / 100;
-      description = description.replace('}', notateNumber(multiplier, 'MultiplierInfo'));
-    }
-    else {
-      const multiplier = Math.floor(1 + bonus / 100);
-      description = description.replace('}', commaNotation(multiplier));
-    }
+// game: { CommaNotation under 1e9, NotateNumber Big past it; } the CommaNotation of its floor from 1M up
+export const formatTesseractBonus = (bonus: number) => gameFill(bonus, bonus < 1e9 ? 'Comma' : 'Big');
+export const formatTesseractMulti = (bonus: number) => {
+  const multiplier = 1 + bonus / 100;
+  if (multiplier < 1e6) return gameFill(multiplier, 'MultiplierInfo');
+  return bonus < 1e9 ? commaNotation(Math.floor(multiplier)) : String(notateNumber(multiplier, 'Big'));
+};
+
+export const getDescription = (description: any, bonus: any) => description
+  .replace('{', formatTesseractBonus(bonus))
+  .replace('}', formatTesseractMulti(bonus));
+
+// game: the arcane panel's own "$" fills (the MenuType2 arcane draw). prismaChance and the Tenteyecle talent are the
+// picked Arcane Cultist's: the game reads the active character, so with none they have no number
+export const getArcaneDollar = (upgrade: any, { prismaChance, crystalChargeReq, bonusOf, character }: any) => {
+  const round2 = (value: number) => `${Math.round(100 * value) / 100}`;
+  switch (upgrade?.index) {
+    case 3:
+      if (prismaChance == null) return undefined;
+      return gameFill(prismaChance > 0 ? 1 / prismaChance : 1e4, 'Big', { whole: true });
+    case 7:
+      return character ? `${Math.round(Math.min(bonusOf(7), getTalentBonus(character?.flatTalents, 'TENTEYECLE')))}` : undefined;
+    case 13:
+      return crystalChargeReq == null ? undefined : gameFill(crystalChargeReq, 'Round', { whole: true });
+    case 40:
+      return round2(1.1 + bonusOf(40) / 100);
+    case 45:
+      return round2(2 + bonusOf(45) / 100);
+    case 58:
+      return round2(bonusOf(58));
+    default:
+      return undefined;
   }
-  else {
-    description = description.replace('{', notateNumber(bonus));
-  }
-  return description;
-}
+};
 
 const getCrystalChargeReq = (characters: any, upgrades: any) => {
   // game: GetTalentNumber(2, 599), BACKUP_ENERGY's y bonus (the "- charge" half), of the Arcane

@@ -13,11 +13,11 @@ const PORTALS_TOOLBAR = { reachable: false, detailed: false };
 
 // One section per portal. Maps with two get two, told apart by where each door leads.
 const portalSection = ({ portalIndex, reqKills, destinationName, secondsToClear, buffedSecondsToClear, reachable, multiCharLock },
-  showDoor, runUnlocked) => <ItemCard.Section key={portalIndex}
+  showDoor, runUnlocked, hasCharacter) => <ItemCard.Section key={portalIndex}
                                               label={showDoor ? destinationName ? `Door to ${cleanUnderscore(destinationName)}` : `Portal ${portalIndex + 1}` : undefined}>
   <ItemCard.Facts rows={[
     ['Kills needed', formatNum(reqKills, 'whole')],
-    ['Clear time', reachable ? formatDuration(secondsToClear) : 'Can\'t hit this monster'],
+    hasCharacter ? ['Clear time', reachable ? formatDuration(secondsToClear) : 'Can\'t hit this monster'] : null,
     reachable && runUnlocked ? ['With Void Radius', formatDuration(buffedSecondsToClear)] : null
   ]}/>
   <MultiCharLockText lock={multiCharLock}/>
@@ -25,12 +25,6 @@ const portalSection = ({ portalIndex, reqKills, destinationName, secondsToClear,
 
 const Portals = ({ character, plan, emptyAccount }) => {
   const [view, setView, resetView] = useToolbarState('speedrun-portals', PORTALS_TOOLBAR);
-
-  if (!character) {
-    return emptyAccount
-      ? <Notice tone={'signin'}>Your Voidwalker&apos;s portals and their clear times show here once you sign in.</Notice>
-      : <Notice tone={'locked'}>Create a Voidwalker to see your portal costs.</Notice>;
-  }
 
   const all = plan?.portals ?? [];
   const visible = all.filter(({ reachable }) => !view?.reachable || reachable);
@@ -50,20 +44,22 @@ const Portals = ({ character, plan, emptyAccount }) => {
   }, {});
 
   return <Stack gap={3}>
-    <Toolbar state={view} defaults={PORTALS_TOOLBAR} onChange={setView} onReset={resetView}
+    {character ? <Toolbar state={view} defaults={PORTALS_TOOLBAR} onChange={setView} onReset={resetView}
              total={all.length} shown={visible.length} noun={'portals'}>
       <Toolbar.Filter name={'reachable'} label={'Hide portals I can\'t hit'}/>
       <Toolbar.Filter name={'detailed'} label={'Detailed view'}/>
-    </Toolbar>
+    </Toolbar> : emptyAccount
+      ? <Notice tone={'signin'}>Your Voidwalker&apos;s clear times show here once you sign in.</Notice>
+      : <Notice tone={'locked'}>Create a Voidwalker to see your clear times.</Notice>}
     <Stack gap={3} aria-label="speedrun portals">
       {Object.entries(worlds).map(([world, maps]) => <Stack key={world} gap={1.5}>
         <Typography variant={'sectionTitle'} component={'h2'}>World {world}</Typography>
         <CardGrid size={'s'}>
           {[...maps.values()].map(({ mapIndex, mapName, monster, effectiveKillsPerSecond, reachable, portals }) => <ItemCard
             key={mapIndex} icon={`data/Mface${monster?.MonsterFace}.png`} title={cleanUnderscore(mapName ?? '')}
-            meta={reachable ? `${formatNum(effectiveKillsPerSecond)} portal progress per second` : 'Out of reach'}>
-            {view?.detailed
-              ? portals.map((portal) => portalSection(portal, portals.length > 1, plan?.runUnlocked))
+            meta={!character ? undefined : reachable ? `${formatNum(effectiveKillsPerSecond)} portal progress per second` : 'Out of reach'}>
+            {view?.detailed || !character
+              ? portals.map((portal) => portalSection(portal, portals.length > 1, plan?.runUnlocked, Boolean(character)))
               : portals.map(({ portalIndex, multiCharLock }) => <MultiCharLockText key={portalIndex} lock={multiCharLock}/>)}
           </ItemCard>)}
         </CardGrid>

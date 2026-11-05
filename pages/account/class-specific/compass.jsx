@@ -3,6 +3,7 @@ import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
+import { getDropRate } from '@parsers/character';
 import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import { PAGES } from '@components/constants';
@@ -76,6 +77,10 @@ const Compass = () => {
   const windWalkers = (state?.characters ?? []).filter((character) => checkCharClass(character?.class, CLASSES.Wind_Walker));
   const selectedWindWalker = windWalkers.find((character) => character?.playerId === selectedChar) ?? windWalkers[0];
   const tempestStats = getCompassStats(selectedWindWalker, state?.account);
+  const dollarFills = {
+    dropRate: selectedWindWalker ? getDropRate(selectedWindWalker, state?.account, state?.characters)?.dropRate : 0,
+    mapIndex: selectedWindWalker?.mapIndex
+  };
   const extraDust = getExtraDust(selectedWindWalker, state?.account);
   // Levels ahead and the Daily Shopping Spree price the Upgrades tab: in the page's gear, under the tab's name
   const { gear: costSettings, ...costing } = useMasterclassCostControls(state?.account, 'compass');
@@ -130,7 +135,7 @@ const Compass = () => {
       </Box>
     </Panel>
     <Tabber tabs={tabs}>
-      <Upgrades account={state?.account} upgrades={catalog?.groupedUpgrades ?? groupedUpgrades} dusts={dusts} costing={costing}
+      <Upgrades dollarFills={dollarFills} account={state?.account} upgrades={catalog?.groupedUpgrades ?? groupedUpgrades} dusts={dusts} costing={costing}
                 sectionFailed={sectionFailed}/>
       <UpgradeOptimizer character={selectedWindWalker} account={state?.account} sectionFailed={sectionFailed}/>
       <Abominations abominations={catalog?.abominations ?? abominations} sectionFailed={sectionFailed}/>

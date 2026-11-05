@@ -1,6 +1,7 @@
 import {
   commaNotation,
   excludedPortals,
+  gameFill,
   lavaLog,
   notateNumber,
   tryToParse
@@ -158,23 +159,21 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
       index
     }
   });
-  let topOfTheMorninKills;
   upgrades = upgrades.map((upgrade, index) => {
     const bonus = getLocalCompassBonus(upgrades, index);
     const nextLevelBonus = getCompassBonusAtLevel(upgrades, index, upgrade?.level + 1);
     const cost = getUpgradeCost(upgrades, index, serverVars, accountData);
     const isMulti = upgrade?.description.includes('}');
-    let extraData;
+    let killsProgress;
     if (upgrade?.name === 'Top_of_the_Mornin\'') {
       const killsLeft = Math.max(0, accountData?.accountOptions?.[OPT.topOfTheMorninKillsLeft] ?? 0);
-      const totalKills = getLocalCompassBonus(upgrades, 9) + getLocalCompassBonus(upgrades, 71);
-      topOfTheMorninKills = `${totalKills - killsLeft} / ${totalKills}`;
-      extraData = `Kills: ${topOfTheMorninKills}`
+      const total = getLocalCompassBonus(upgrades, 9) + getLocalCompassBonus(upgrades, 71);
+      killsProgress = { kills: total - killsLeft, total };
     }
     const smallNotation = upgrade?.x5 < SMALL_NOTATION_BELOW;
     let description = upgrade?.description
       .replace(/{/g, '' + formatCompassBonus(bonus, smallNotation))
-      .replace(/}/g, '' + notateNumber(1 + bonus / 100, 'MultiplierInfo'));
+      .replace(/}/g, '' + formatCompassMulti(bonus));
     const totalBonus = getTotalBonusText(index, bonus, accountData);
     if (totalBonus !== null) {
       description = description.replace(/\$/g, () => totalBonus);
@@ -188,7 +187,7 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
       isMulti,
       smallNotation,
       description,
-      extraData
+      killsProgress
     }
   });
 
@@ -219,8 +218,7 @@ const parseCompass = (compassRaw: any, charactersData: any, accountData: any, se
     usedExaltedStamps: exaltedStampsRaw?.length ?? 0,
     remainingExaltedStamps,
     totalUpgradeLevels,
-    totalDustsCollected,
-    topOfTheMorninKills
+    totalDustsCollected
   }
 }
 
@@ -562,10 +560,43 @@ const getTotalBonusText = (index: number, bonus: number, accountData: any): stri
 }
 
 // game: the panel fills `{` with NotateNumber(bonus, "Small") for rows whose bonus per level (x5)
-// is below 0.9, so fractional bonuses keep their decimals
+// is below 0.9, else CommaNotation; the mode only picks the short form from 1M up
 const SMALL_NOTATION_BELOW = 0.9;
-const formatCompassBonus = (bonus: number, smallNotation: boolean) =>
-  smallNotation ? notateNumber(bonus, 'Small') : commaNotation(bonus);
+export const formatCompassBonus = (bonus: number, smallNotation: boolean) => gameFill(bonus, smallNotation ? 'Small' : 'Comma');
+export const formatCompassMulti = (bonus: number) => gameFill(1 + bonus / 100, 'MultiplierInfo');
+
+// game: Windwalker("TempestAllDropBonus"). dropRate is TotalStats("Drop_Rarity"), the logged in character's: the page's
+// picked Wind Walker here
+const getTempestAllDropBonus = (account: any, dropRate: number) => (0 < (account?.accountOptions?.[365] ?? 0) ? 200 : 1)
+  * (1 + (getCompassBonus(account, 7) * Math.max(0, dropRate - 1)
+    + getCompassBonus(account, 111) + getCompassBonus(account, 115) + getCompassBonus(account, 116)) / 100);
+
+// game: the compass panel's "$" that read the character (the rest getTotalBonusText fills at the parse). 2's element and
+// 121's multi read the Tempest gear worn right now (EffectAmount, WWzWepAtk), so their sentences say that in words.
+export const getCompassDollar = (index: number, account: any, { dropRate = 0, mapIndex = 0 }: { dropRate?: number; mapIndex?: number } = {}) => {
+  const bonus = (upgradeIndex: number) => getCompassBonus(account, upgradeIndex);
+  const allDrop = getTempestAllDropBonus(account, dropRate);
+  const oneIn = (chance: number) => gameFill(1 / Math.max(1e-7, chance), 'Comma', { whole: true });
+  switch (index) {
+    case 2:
+      return 'the one your Tempest gear gives';
+    case 3:
+      return oneIn(625e-6 * allDrop * (1 + bonus(106) / 100));
+    case 4:
+      return oneIn(0.0025 * allDrop * (1 + (bonus(110) + bonus(113) + bonus(82)) / 100));
+    case 5:
+      return oneIn(allDrop * (1 / (5e3 * Math.pow(1 + Math.floor(mapIndex / 50), 3))) * (1 + (bonus(107) + bonus(72)) / 100)
+        * (1 + (account?.arcade?.shop?.[48]?.bonus ?? 0) / 100));
+    case 7:
+      return gameFill(bonus(7) * Math.max(0, dropRate - 1), 'Comma');
+    case 12:
+      return oneIn(5e-4 * allDrop * (1 + (bonus(112) + bonus(118)) / 100));
+    case 121:
+      return 'more';
+    default:
+      return undefined;
+  }
+};
 
 const getCompassBonusAtLevel =(upgrades: any[], index: number, levelOverride: number) => {
   const tempUpgrades = upgrades.map((u, i) =>

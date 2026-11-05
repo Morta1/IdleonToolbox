@@ -118,7 +118,7 @@ const Tesseract = () => {
     </Panel>
     <Tabber tabs={tabs}>
       <Upgrades account={state?.account} upgrades={catalog?.upgrades ?? upgrades} tachyons={tachyons} costing={costing}
-                prismaChance={sectionFailed ? undefined : prismaChance} sectionFailed={sectionFailed}/>
+                prismaChance={sectionFailed ? undefined : prismaChance} character={sectionFailed ? undefined : selectedArcanist} sectionFailed={sectionFailed}/>
       <UpgradeOptimizer account={state?.account} character={selectedArcanist} sectionFailed={sectionFailed}/>
       <Maps account={state?.account} character={selectedArcanist} characters={state?.characters} sectionFailed={sectionFailed}/>
     </Tabber>

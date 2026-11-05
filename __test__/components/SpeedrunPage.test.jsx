@@ -138,10 +138,11 @@ describe('Speedrun page', () => {
     expect(container.textContent).not.toMatch(/NaN|undefined|Infinity/);
   });
 
-  it('falls back to a prompt when the account has no voidwalker', () => {
+  it('says so above the portal catalog when the account has no voidwalker', () => {
     renderWith(characters.filter((c) => !checkCharClass(c?.class, CLASSES.Voidwalker)));
     expect(screen.getByText(/Create a Voidwalker/)).toBeTruthy();
-    expect(screen.queryByLabelText('speedrun portals')).toBeNull();
+    expect(screen.getByLabelText('speedrun portals').textContent).toMatch(/Kills needed/);
+    expect(screen.getByLabelText('speedrun portals').textContent).not.toMatch(/Clear time/);
   });
 
   it('renders on an empty account without crashing', () => {

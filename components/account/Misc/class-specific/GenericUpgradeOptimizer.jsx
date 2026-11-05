@@ -76,7 +76,6 @@ const GenericUpgradeOptimizer = ({
   // Position in the in-game upgrade list. The index matches it for linear lists; Compass (paths)
   // and the Royal Armory (shelf slots) lay out differently and pass their own.
   getGameOrder = (upgrade) => upgrade.index,
-  getResourceAmount,
   tooltipText,
   // A map of resourceType -> resource per hour the consumer derived itself. Royal Guardian income is
   // passive (outposts banking off nodes), so it can be computed; the other masterclasses can't and
@@ -215,35 +214,17 @@ const GenericUpgradeOptimizer = ({
   const holdRates = optimizedUpgrades.holdRates ?? [];
   const bestBuy = optimizedUpgrades[0];
 
-  // What is held of each resource, by its name
-  const heldByName = {};
-  const resourceArr = resourceKey.split('.').reduce((obj, key) => obj?.[key], account) || [];
-  resourceArr.forEach((resource, idx) => {
-    // A save's resource array can be sparse: Royal Guardian's RoyalG[1] carries nulls in the
-    // slots its kingdom has not unlocked, so neither the entry nor a name for it is guaranteed.
-    const name = resourceNames[idx] || resource?.name;
-    if (name) {
-      heldByName[name] = (getResourceAmount ? getResourceAmount(resource, idx, resourceNames) : resource?.value ?? resource) ?? 0;
-    }
-  });
   const usageName = (type) => resourceNames[type] || type;
   const rateOf = (type) => {
     const rph = Number(effectiveResourcePerHour?.[type]);
     return usesRph && rph > 0 ? rph : null;
   };
-  // One ready rule for every step, and so for every card, tile and band built from them: the hours until what is
-  // held covers the plan's spending on the step's resource up to it, (spent - held) / rate. 0 reads "ready now";
-  // with no rate there is no time at all. The parser's walk (All with a rate) counts the same way, adding the
-  // shared play time and the purchase that unlocks a row, so its hours stand.
-  const spentByType = {};
-  const plan = optimizedUpgrades.map((step) => {
-    const type = getResourceType(step);
-    spentByType[type] = (spentByType[type] ?? 0) + (step.cost ?? 0);
-    const rate = rateOf(type);
-    const held = Number(heldByName[usageName(type)]) || 0;
-    const readyHours = rate === null ? null : step.readyInHours ?? Math.max(0, spentByType[type] - held) / rate;
-    return { ...step, readyHours };
-  });
+  // One ready rule for every step, and so for every card, tile and band built from them: the parser's walk, for every
+  // category. 0 reads "ready now"; with no rate there is no time at all.
+  const plan = optimizedUpgrades.map((step) => ({
+    ...step,
+    readyHours: rateOf(getResourceType(step)) === null ? null : step.readyInHours ?? null
+  }));
 
   // Group upgrades by name if consolidation is enabled
   let displayUpgrades;

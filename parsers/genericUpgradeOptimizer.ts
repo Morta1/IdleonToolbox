@@ -463,6 +463,9 @@ export function getOptimizedGenericUpgrades({
           hoardingPercentChange: grossPercentChange - statChange.percentChange
         };
       });
+      const readyInHours = extraArgs.resourcePerHour ? hoursUntilReady(bestUpgrade, cost) : null;
+      if (sharedFarmingTime && readyInHours !== null) farmedHours = readyInHours;
+
       const totalHoardingChange = statChangesWithHoarding.reduce((sum: number, change: any) => sum + change.hoardingPercentChange, 0);
 
       results.push({
@@ -473,6 +476,7 @@ export function getOptimizedGenericUpgrades({
         totalStatChange: bestTotalChange,
         totalHoardingChange,
         cost,
+        readyInHours,
         hadReduction: reductionsRemaining > 0
       });
       reductionsRemaining = Math.max(0, reductionsRemaining - 1);

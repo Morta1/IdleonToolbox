@@ -7,12 +7,9 @@ import { getRoyalGuardian } from '@parsers/class-specific/royalGuardian';
 // this fix, was never substituted (32 of 83 armory tooltips, 1 of 10 orblet tooltips - one of them
 // ("GLORIFICATION") was literally the single character "$"). Two ids are a deliberate, documented
 // exception - see resolveArmoryDollarToken's comment in royalGuardian.ts and the task D9 report:
-// - Orblet id 4 "GLORIFICATION" describes whichever outpost the game's live UI currently has open;
-//   there is no single account-wide value, so it is left showing the raw "$" rather than a guess.
 // Armory id 41 "Royal_Marble" WAS on this list: it needed ArcadeBonus(71) and EtcBonuses("107"),
 // neither of which existed until 2.3.525 added them. Both are parsed now, so it resolves.
 const KNOWN_UNRESOLVED_ARMORY_IDS = [];
-const KNOWN_UNRESOLVED_ORBLET_IDS = [4];
 
 describe('Royal Armory and Orblet Market tooltips render fully (task D9)', () => {
   // { and } are the shared bonus/multiplier tokens (already substituted before this task); every
@@ -36,12 +33,12 @@ describe('Royal Armory and Orblet Market tooltips render fully (task D9)', () =>
     expect(offenders).toEqual(KNOWN_UNRESOLVED_ARMORY_IDS);
   });
 
-  it('leaves no orblet description with an unsubstituted "$", except the documented exception', () => {
+  it('leaves no orblet description with an unsubstituted "$"', () => {
     const { orbletMarket } = getRoyalGuardian(undefined, {}, []);
     const offenders = orbletMarket
       .filter((upgrade) => upgrade.description.includes('$'))
       .map((upgrade) => upgrade.index);
-    expect(offenders).toEqual(KNOWN_UNRESOLVED_ORBLET_IDS);
+    expect(offenders).toEqual([]);
   });
 
   it('breaks the line at the game\'s "@" instead of printing it', () => {
@@ -60,10 +57,10 @@ describe('Royal Armory and Orblet Market tooltips render fully (task D9)', () =>
     expect(marble.description).toContain('1_in_1,000');
   });
 
-  it('the one still-unresolved orblet description is GLORIFICATION, not a fresh regression', () => {
+  it('GLORIFICATION, whose $ is the open outpost in the game, reads what the upgrade does', () => {
     const { orbletMarket } = getRoyalGuardian(undefined, {}, []);
     const glorification = orbletMarket.find((upgrade) => upgrade.index === 4);
-    expect(glorification.description).toBe('$');
+    expect(glorification.description).toBe('10%_chance_to_Glorify_the_current_Outpost');
   });
 
   // task D9 also checked whether ^, &, or | (the other placeholders world-7/research.ts substitutes

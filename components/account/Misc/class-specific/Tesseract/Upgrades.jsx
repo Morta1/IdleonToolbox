@@ -3,7 +3,7 @@ import { Stack, Typography } from '@mui/material';
 import { formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { tesseract } from '@website-data';
-import { getPrismaMulti, getTesseractTotalUpgradeCost, tachyonNames } from '@parsers/class-specific/tesseract';
+import { getArcaneDollar, getPrismaMulti, getTesseractTotalUpgradeCost, tachyonNames } from '@parsers/class-specific/tesseract';
 import MasterclassUpgradeCard, { formatNextLevelBonus, masterclassText, unlockLine } from '../MasterclassUpgradeCard';
 import CardGrid from '@components/common/cards/CardGrid';
 import GameIcon from '@components/common/GameIcon';
@@ -19,32 +19,10 @@ const UPGRADES_TOOLBAR = { search: '', sort: null, view: 'list', hideMaxed: fals
 // The game's placeholder rows: listed in its data, never in its menu
 const PLACEHOLDER = 'These_pages_are_missing...';
 const byCost = (order) => (a, b) => (order === 'desc' ? -1 : 1) * ((a.cost || 0) - (b.cost || 0));
-const round2 = (value) => Math.round(100 * value) / 100;
-
-// The game's own $ fills on the arcane upgrade panel (N.js, the MenuType2 arcane draw), from values the toolbox has;
-// Tenteyecle (7) and any other read "?". prismaChance is the picked Arcane Cultist's (the game reads the active
-// character's drop rate), so with none the sentence reads "?" too.
-const arcaneDollar = (upgrade, { prismaChance, crystalChargeReq, bonusOf }) => {
-  switch (upgrade?.index) {
-    case 3:
-      if (prismaChance == null) return undefined;
-      return prismaChance > 0 ? formatGame(1 / prismaChance, 'ArcaneType.PrismaBubDropChance', { whole: true }) : formatGame(1e4, 'Big', { whole: true });
-    case 13:
-      return crystalChargeReq == null ? undefined : formatGame(crystalChargeReq, 'ArcaneType.CrystalChargeReq', { whole: true });
-    case 40:
-      return `${round2(1.1 + bonusOf(40) / 100)}`;
-    case 45:
-      return `${round2(2 + bonusOf(45) / 100)}`;
-    case 58:
-      return `${round2(bonusOf(58))}`;
-    default:
-      return undefined;
-  }
-};
 
 // costing: the page's Levels ahead and Daily Shopping Spree (its Page settings). sectionFailed: the catalog at zero
 // (the parser's empty save) by name, with no cost, state or Toolbar.
-const Upgrades = ({ account, upgrades, tachyons, prismaChance, costing, sectionFailed }) => {
+const Upgrades = ({ account, upgrades, tachyons, prismaChance, character, costing, sectionFailed }) => {
   const { levelsAhead = 1, forceLegendTalent, isOverridden } = costing ?? {};
   const [view, setView, resetView] = useToolbarState('tesseract-upgrades', UPGRADES_TOOLBAR);
   const accountOptions = account?.accountOptions;
@@ -56,6 +34,7 @@ const Upgrades = ({ account, upgrades, tachyons, prismaChance, costing, sectionF
   };
   const fills = {
     prismaChance,
+    character,
     crystalChargeReq: account?.tesseract?.crystalChargeReq,
     bonusOf: (index) => (upgrades ?? []).find((upgrade) => upgrade?.index === index)?.bonus ?? 0
   };
@@ -87,7 +66,7 @@ const Upgrades = ({ account, upgrades, tachyons, prismaChance, costing, sectionF
                                    helpIcon={<UpgradeHelpIcon label={cleanUpgradeName(name)} panel="arcane" index={index} values={helpValues}/>}
                                    level={level}
                                    maxLevel={x4}
-                                   description={masterclassText(description, arcaneDollar(upgrade, fills))}
+                                   description={masterclassText(description, getArcaneDollar(upgrade, fills))}
                                    nextLevelBonus={formatNextLevelBonus(upgrade, 'tesseract', tesseract?.[index]?.description)}
                                    extraData={extraData}
                                    currencyIcon={`Tach${x3}_x1`}
