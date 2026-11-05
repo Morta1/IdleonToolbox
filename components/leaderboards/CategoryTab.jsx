@@ -1,21 +1,14 @@
-import React, { useEffect, useId, useRef, useState } from 'react';
+import React, { useId, useRef, useState } from 'react';
 import { flushSync } from 'react-dom';
 import { Button, ButtonBase, Collapse, Stack, Typography, useMediaQuery } from '@mui/material';
 import Box from '@mui/material/Box';
-import { IconChevronDown, IconChevronRight, IconChevronsDown, IconChevronsUp, IconInfoCircle } from '@tabler/icons-react';
+import { IconChevronDown, IconChevronRight, IconChevronsDown, IconChevronsUp } from '@tabler/icons-react';
+import CardGrid from '@components/common/cards/CardGrid';
+import { formatNum } from '@utility/helpers';
 import MetricCard from './MetricCard';
 import { metaOf, rankText } from './format';
 import { bestInSection, countAtMax } from './standing';
 import Notice from '@components/common/Notice';
-
-const AnonymousNotice = () => (
-  <Stack direction="row" alignItems="center" gap={1.25} sx={{
-    fontSize: 12, color: 'text.secondary', bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: 2, px: 1.5, py: 1
-  }}>
-    <Box component={IconInfoCircle} aria-hidden size={16} sx={{ flexShrink: 0, color: 'text.muted' }}/>
-    Anonymous players hidden. Ranks still count everyone, so numbers can skip.
-  </Stack>
-);
 
 const BulkButton = ({ icon: Icon, disabled, onClick, buttonRef, children }) => (
   <Button ref={buttonRef} size="small" disabled={disabled} onClick={onClick} startIcon={<Icon size={14}/>}
@@ -30,11 +23,14 @@ const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onO
   const [collapsed, setCollapsed] = useState({});
   const baseId = useId();
   const reducedMotion = useMediaQuery('(prefers-reduced-motion: reduce)');
-  useEffect(() => {
-    if (!revealMetric) return;
+  const sections = index.categories[category]?.sections ?? [{ name: '', metrics: Object.keys(lists ?? {}) }];
+  // A board newly in the drawer opens its section once; the player can still fold it after. Adjusted during render.
+  const [revealed, setRevealed] = useState(null);
+  if (revealMetric !== revealed) {
+    setRevealed(revealMetric);
     const section = sections.find((entry) => entry.metrics.includes(revealMetric));
-    if (section && collapsed[section.name]) setCollapsed((current) => ({ ...current, [section.name]: false }));
-  }, [revealMetric]);
+    if (section && collapsed[section.name]) setCollapsed({ ...collapsed, [section.name]: false });
+  }
   const expandRef = useRef(null);
   const collapseRef = useRef(null);
   // The pressed button disables itself, which would drop keyboard focus on the page body: hand
@@ -43,7 +39,6 @@ const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onO
     flushSync(() => setCollapsed(next));
     focusRef.current?.focus();
   };
-  const sections = index.categories[category]?.sections ?? [{ name: '', metrics: Object.keys(lists ?? {}) }];
   // A tab the run left with no boards: a note in place of an empty grid.
   if (!sections.some((section) => section.metrics.length)) return <Notice>No boards in this tab yet.</Notice>;
   const showHeadings = sections.length > 1;
@@ -52,7 +47,7 @@ const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onO
   const allClosed = sections.every((section) => collapsed[section.name]);
   return (
     <Stack gap={2}>
-      {showAnonymous ? null : <AnonymousNotice/>}
+      {showAnonymous ? null : <Notice tone={'info'}>Anonymous players hidden. Ranks still count everyone, so numbers can skip.</Notice>}
       {showHeadings ? (
         <Stack direction="row" justifyContent="flex-end" gap={0.5}>
           <BulkButton icon={IconChevronsDown} disabled={allOpen} buttonRef={expandRef} onClick={() => setAll({}, collapseRef)}>Expand all</BulkButton>
@@ -67,7 +62,7 @@ const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onO
           const atMax = pinnedBase ? countAtMax(section.metrics, ranks, index) : 0;
           // Open sections breathe; a run of collapsed ones stays a tight list.
           const spaced = at > 0 && (open || !collapsed[sections[at - 1].name]);
-          const sub = `${section.metrics.length} ${section.metrics.length === 1 ? 'board' : 'boards'}${best ? ` · ${bestLabel}: ${metaOf(index, best.key).label} ${rankText(best.r)}` : ''}${atMax ? ` · ${atMax} at the max` : ''}`;
+          const sub = `${formatNum(section.metrics.length, 'whole')} ${section.metrics.length === 1 ? 'board' : 'boards'}${best ? ` · ${bestLabel}: ${metaOf(index, best.key).label} ${rankText(best.r)}` : ''}${atMax ? ` · ${formatNum(atMax, 'whole')} at the max` : ''}`;
           const panelId = `${baseId}-section-${at}`;
           const toggle = () => setCollapsed({ ...collapsed, [section.name]: open });
           return (
@@ -77,7 +72,7 @@ const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onO
                 // reader target, and its own click bubbles here, so a press toggles once.
                 <Stack direction="row" alignItems="center" columnGap={1.5} rowGap={0.25} flexWrap="wrap" onClick={toggle}
                        sx={{ cursor: 'pointer', ...(open ? { mb: 2 } : { py: 1.5, borderTop: 1, borderColor: 'divider' }) }}>
-                  <Typography component="h2" sx={{ fontSize: 15, fontWeight: 700, minWidth: 0 }}>
+                  <Typography variant="sectionTitle" component="h2" sx={{ minWidth: 0 }}>
                     <ButtonBase aria-label={`${open ? 'Collapse' : 'Expand'} ${section.name}`} aria-expanded={open} aria-controls={panelId}
                                 sx={{ gap: 1.5, font: 'inherit', textAlign: 'left', borderRadius: 1 }}>
                       <Box component="span" sx={{ width: 28, height: 28, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'text.secondary' }}>
@@ -87,17 +82,17 @@ const CategoryTab = ({ category, index, lists, ranks, highlight, pinnedBase, onO
                     </ButtonBase>
                   </Typography>
                   {/* On a phone the summary drops under the title, lined up with it, rather than breaking it mid-phrase. */}
-                  <Typography color="text.muted" sx={{ fontSize: 12, flexBasis: { xs: '100%', sm: 'auto' }, pl: { xs: 5, sm: 0 } }}>{sub}</Typography>
+                  <Typography variant="caption" color="text.muted" sx={{ flexBasis: { xs: '100%', sm: 'auto' }, pl: { xs: 5, sm: 0 } }}>{sub}</Typography>
                   {open ? <Box sx={{ flexGrow: 1, height: '1px', bgcolor: 'divider', display: { xs: 'none', sm: 'block' } }}/> : null}
                 </Stack>
               ) : null}
               <Collapse in={open} id={panelId} timeout={reducedMotion ? 0 : 'auto'}>
-                <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(min(100%, 22rem), 1fr))', gap: 2 }}>
+                <CardGrid size="m">
                   {section.metrics.map((key) => (
                     <MetricCard key={key} meta={metaOf(index, key)} entries={lists?.[key]} highlight={highlight} linkPlayer={linkPlayer}
                                 pinned={pinnedBase ? { ...pinnedBase, entry: ranks?.[key] } : null} onOpen={onOpen}/>
                   ))}
-                </Box>
+                </CardGrid>
               </Collapse>
             </Box>
           );

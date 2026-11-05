@@ -4,24 +4,27 @@ import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
 import AppDrawer from '@components/common/Overlays/AppDrawer';
 import Notice, { retryAction } from '@components/common/Notice';
-import { numberWithCommas } from '@utility/helpers';
+import { formatNum } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
-import { GLOBAL_METRIC, formatDistinctValues, formatMetricValue, formatStep, metaOf, rankText, showsFailure, staleUntilNextRun } from './format';
+import { GLOBAL_METRIC, formatDistinctValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, showsFailure, staleUntilNextRun } from './format';
 import { focusWithinRing } from '../../styles/theme/darkTheme';
 import MetricIcon from './MetricIcon';
 import RankRow from './RankRow';
 
 // At rank 15 or better the window would repeat the top of the Top 100 list.
 const AROUND_SKIP_RANK = 15;
+// A card lists a board's first ten: the drawer prints those the way the card did.
+const CARD_ROWS = 10;
+const NOWRAP_SX = { whiteSpace: 'nowrap' };
 
 const SectionHeading = ({ children, note, action, id, sx }) => (
   <Stack direction="row" alignItems="baseline" columnGap={1} flexWrap="wrap" sx={{ px: 2.5, pb: 0.75, ...sx }}>
     {/* The Top 100 link focuses this heading; when it is already on screen the ring is the only
         sign the link did anything. */}
-    <Typography component="h3" id={id} tabIndex={id ? -1 : undefined} color="text.secondary" sx={{
-      fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', borderRadius: 1, '&:focus': { outline: '2px solid var(--mui-palette-primary-main)', outlineOffset: '2px' }
+    <Typography variant="groupLabel" component="h3" id={id} tabIndex={id ? -1 : undefined} color="text.secondary" sx={{
+      borderRadius: 1, '&:focus': { outline: '2px solid var(--mui-palette-primary-main)', outlineOffset: '2px' }
     }}>{children}</Typography>
-    {note ? <Typography color="text.muted" sx={{ fontSize: 12 }}>{note}</Typography> : null}
+    {note ? <Typography variant="caption" color="text.muted">{note}</Typography> : null}
     {action ? <Box sx={{ ml: 'auto' }}>{action}</Box> : null}
   </Stack>
 );
@@ -54,7 +57,8 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
   });
   const { data, isLoading, isFetching, refetch, errorUpdateCount } = boardQuery;
   const isMe = (name) => Boolean(player) && name.toLowerCase() === player.toLowerCase();
-  const around = (data?.around ?? []).filter((row) => showAnonymous || isMe(row.mainChar) || !row.mainChar.startsWith('Anon#'));
+  // A row with no name has nothing to show or link to.
+  const around = (data?.around ?? []).filter((row) => row?.mainChar && (showAnonymous || isMe(row.mainChar) || !row.mainChar.startsWith('Anon#')));
   const mine = around.find((row) => isMe(row.mainChar)) ?? null;
   const myRank = mine?.rank ?? null;
   const showAround = myRank != null && myRank > AROUND_SKIP_RANK;
@@ -67,12 +71,12 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
     : showAround && rankEntry?.nv != null
       ? `+${formatStep(meta.notation, rankEntry.nv - rankEntry.v, { scale: meta.top })} to reach ${rankText(rankEntry.nr)}`
       : null;
-  const ties = showAround && rankEntry?.t > 1 ? `${numberWithCommas(rankEntry.t)} tied at ${rankText(myRank)}` : null;
+  const ties = showAround && rankEntry?.t > 1 ? `${formatNum(rankEntry.t, 'whole')} tied at ${rankText(myRank)}` : null;
   const step = [nextStep, ties].filter(Boolean).join(' · ') || null;
   const maxed = Boolean(meta.maxed);
   // With anonymous players hidden, an anonymous player in context is missing from the public top
   // 100; they still go in their place.
-  const top = data?.top ?? [];
+  const top = (data?.top ?? []).filter((row) => row?.mainChar);
   const topRows = mine && top.length && mine.rank < top[top.length - 1].rank && !top.some((row) => isMe(row.mainChar))
     ? [...top, mine].sort((a, b) => a.rank - b.rank)
     : top;
@@ -80,31 +84,38 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
   const first = topRows[0] ?? null;
   const players = (metricKey ?? GLOBAL_METRIC) === GLOBAL_METRIC ? index.totalPlayers : meta.players;
   const aroundTexts = formatDistinctValues(meta.notation, around.map((row) => row.value), { scale: meta.top });
-  // The drawer is the close look, and a phone has no hover for the exact figure: its list gets the
-  // same treatment, so ranks 16 to 20 never all read 104M.
-  const topTexts = formatDistinctValues(meta.notation, topRows.map((row) => row.value), { scale: meta.top });
+  // The list gets the card's treatment, so ranks 16 to 20 never all read 104M. Its first ten read as they do on the card
+  // ("12.20M" in both); the rest take the digits they need.
+  const topTexts = [
+    ...formatDistinctValues(meta.notation, topRows.slice(0, CARD_ROWS).map((row) => row.value), { scale: meta.top }),
+    ...formatDistinctValues(meta.notation, topRows.slice(CARD_ROWS).map((row) => row.value), { scale: meta.top })
+  ];
   const topHeadingId = `${titleId}-top`;
   const rowProps = (row, variant) => ({
-    rank: row.rank, name: row.mainChar, value: row.value, notation: meta.notation, scale: meta.top, variant,
+    rank: row.rank, name: row.mainChar, value: row.value, notation: meta.notation, scale: meta.top, variant, exact: formatExactValue(meta.notation, row.value),
     kind: isMe(row.mainChar) ? kind : null, plainRank: maxed, globalRank: maxed ? row.globalRank : null
   });
 
   // The header's caption line: the max when the board is maxed, else the leader and the player count.
-  const summary = maxed && meta.top != null
-    ? `${formatMetricValue(meta.notation, meta.top)} is the max · ${numberWithCommas(meta.topTies)} players have it`
-    : first || players != null ? (
-      <Stack direction="row" gap={2}>
-        {first ? <span>{`${rankText(first.rank)} ${first.mainChar} · ${topTexts[0] ?? formatMetricValue(meta.notation, first.value, { scale: meta.top })}`}</span> : null}
-        {players != null ? <span>{`${numberWithCommas(players)} players`}</span> : null}
-      </Stack>
-    ) : null;
+  // Each part is one group: on a phone they stack, and neither breaks inside ("17,369.52 / pts", "2,749 / players").
+  const summaryParts = maxed && meta.top != null
+    ? [`${formatMetricValue(meta.notation, meta.top, { scale: meta.top })} is the max`, `${formatNum(meta.topTies, 'whole')} players have it`]
+    : [
+      first ? `${rankText(first.rank)} ${first.mainChar} · ${topTexts[0] ?? formatMetricValue(meta.notation, first.value, { scale: meta.top })}` : null,
+      players != null ? `${formatNum(players, 'whole')} players` : null
+    ].filter(Boolean);
+  const summary = summaryParts.length ? (
+    <Stack direction="row" flexWrap="wrap" columnGap={2}>
+      {summaryParts.map((part) => <Box component="span" key={part} sx={NOWRAP_SX}>{part}</Box>)}
+    </Stack>
+  ) : null;
 
   return (
     <AppDrawer
       open={open}
       onClose={onClose}
       title={meta.label}
-      icon={<MetricIcon metric={meta.key} label={meta.label} size={26} maxed={maxed}/>}
+      icon={<MetricIcon metric={meta.key} label={meta.label}/>}
       subtitle={summary}
       // MUI hands focus back after onExited, so the check waits for that to land first.
       onExited={() => setTimeout(() => focusBoardLink(metricKey, focusBoardOnClose), 50)}>
@@ -124,9 +135,8 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
                     const heading = document.getElementById(topHeadingId);
                     heading?.scrollIntoView({ block: 'start', behavior: 'smooth' });
                     heading?.focus({ preventScroll: true });
-                  }}
-                          sx={{ p: 0, minWidth: 0, fontWeight: 600 }}>
-                    Top 100<Box component="span" aria-hidden sx={{ ml: 0.5 }}>↓</Box>
+                  }}>
+                    Back to the top 100
                   </Button>
                 }>
                   {kind === 'logged' ? 'Around you' : <>Around <Box component="span" sx={{ textTransform: 'none' }}>{mine.mainChar}</Box></>}
@@ -138,7 +148,9 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
             ) : null}
             <SectionHeading id={topHeadingId} sx={showAround ? { mt: 1.75, pt: 2.25, borderTop: 1, borderColor: 'divider', scrollMarginTop: 8 } : { pt: 1.75 }}>Top 100</SectionHeading>
             <Box sx={{ px: 1.5 }}>
-              {topRows.map((row, at) => <RankRow key={row.mainChar} {...rowProps(row, 'list')} display={topTexts[at]}/>)}
+              {topRows.length
+                ? topRows.map((row, at) => <RankRow key={row.mainChar} {...rowProps(row, 'list')} display={topTexts[at]}/>)
+                : <Typography variant="body2" color="text.secondary" sx={{ px: 1.25, py: 0.875 }}>No one on this board yet.</Typography>}
             </Box>
           </>
         )}

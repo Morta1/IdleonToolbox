@@ -33,7 +33,7 @@ describe('BoardDrawer', () => {
     renderDrawer();
     expect(await screen.findByText('Around you')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Top 100' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Top 100' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Back to the top 100' })).toBeTruthy();
     expect(fetchBoard).toHaveBeenCalledWith('mining', { around: 'me', publicOnly: false });
   });
 

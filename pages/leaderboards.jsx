@@ -26,6 +26,10 @@ const tabOf = (value) => {
 
 const signature = (query) => JSON.stringify(Object.entries(query).sort(([a], [b]) => (a < b ? -1 : 1)));
 
+// The drawer's width (AppDrawer) and the gap the cards keep from it.
+const DRAWER_WIDTH = 420;
+const DRAWER_GAP = 16;
+
 // Where the search note hands the focus once it goes (its x, or a retry that found the player).
 const findPlayerField = () => document.querySelector('input[aria-label="Find a player"]');
 
@@ -83,15 +87,31 @@ const Leaderboards = () => {
     staleTime: staleUntilNextRun,
     retry: false
   });
-  const playerData = playerQuery.data ?? null;
+  // A reply with no player is no player: the same note as a 404.
+  const playerData = playerQuery.data?.player ? playerQuery.data : null;
 
   // A metric that meta doesn't know (old link, typo) opens nothing. Without meta there is nothing to
   // check against, so boards stay reachable and the drawer falls back to the key-derived title.
-  const canOpen = (metric) => Boolean(metric) && (metaQuery.isError || Object.hasOwn(index.byKey, metric));
+  const knowsNoBoards = metaQuery.isError || (metaQuery.isSuccess && !Object.keys(index.categories).length);
+  const canOpen = (metric) => Boolean(metric) && (knowsNoBoards || Object.hasOwn(index.byKey, metric));
   const drawerMetric = canOpen(queryMetric) ? queryMetric : null;
   // The drawer slides out for a moment after drawerMetric clears, so it keeps showing the last board.
   const [shownMetric, setShownMetric] = useState(null);
   if (drawerMetric && drawerMetric !== shownMetric) setShownMetric(drawerMetric);
+
+  const boardsRef = useRef(null);
+  const [drawerRoom, setDrawerRoom] = useState(0);
+  const boardsShown = Boolean(drawerMetric) && selectedTab !== 'overview' && Boolean(tabQuery.data?.[selectedTab]) && !metaQuery.isPending;
+  useEffect(() => {
+    const boards = boardsRef.current;
+    if (!boardsShown || !boards || typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(() => {
+      const uncovered = document.documentElement.clientWidth - boards.getBoundingClientRect().right;
+      setDrawerRoom(Math.max(0, DRAWER_WIDTH + DRAWER_GAP - uncovered));
+    });
+    observer.observe(boards);
+    return () => observer.disconnect();
+  }, [boardsShown]);
 
   // What the visitor landed with, so URL-entry analytics fire once and never for in-page clicks.
   const urlEntry = useRef(null);
@@ -111,12 +131,12 @@ const Leaderboards = () => {
     const entry = urlEntry.current;
     if (!entry?.player || entry.playerTracked || queryPlayer !== entry.player || playerQuery.status !== 'success') return;
     entry.playerTracked = true;
-    trackLeaderboardEvent('lb_player_search', { result: playerQuery.data ? 'found' : 'not_found', via: 'url' });
+    trackLeaderboardEvent('lb_player_search', { result: playerData ? 'found' : 'not_found', via: 'url' });
   }, [queryPlayer, playerQuery.status, playerQuery.data]);
 
   // An unknown ?player (bot link to a renamed or private player): say so, fall back to plain Boards.
   useEffect(() => {
-    if (!queryPlayer || playerQuery.status !== 'success' || playerQuery.data !== null) return;
+    if (!queryPlayer || playerQuery.status !== 'success' || playerData) return;
     showSearchNote({ tone: 'info', text: `No player named ${queryPlayer} on the leaderboards.` });
     const { player, ...rest } = router.query;
     router.replace({ pathname: router.pathname, query: rest }, undefined, { shallow: true });
@@ -149,8 +169,8 @@ const Leaderboards = () => {
       showSearchNote({ tone: 'error', text: 'Could not reach the leaderboards.', retry: () => lookupPlayer(name, via, { retrying: true }) });
       return;
     }
-    trackLeaderboardEvent('lb_player_search', { result: data ? 'found' : 'not_found', via });
-    if (!data) {
+    trackLeaderboardEvent('lb_player_search', { result: data?.player ? 'found' : 'not_found', via });
+    if (!data?.player) {
       showSearchNote({ tone: 'info', text: `No player named ${name} on the leaderboards.` });
       return;
     }
@@ -224,7 +244,7 @@ const Leaderboards = () => {
   const statusCreatedAt = index.createdAt ?? tabQuery.data?.createdAt ?? null;
   const tabLabels = TABS.map((tab) => {
     const count = index.categories[tab.toLowerCase()]?.metrics.length;
-    return count ? <>{tab}<Box component="span" sx={{ ml: 0.75, fontSize: 11, color: 'text.muted', display: { xs: 'none', sm: 'inline' } }}>{count}</Box></> : tab;
+    return count ? <>{tab}<Box component="span" sx={{ ml: 0.75, typography: 'caption', color: 'text.muted', display: { xs: 'none', sm: 'inline' } }}>{count}</Box></> : tab;
   });
 
   // Picking a player changes the whole page without moving focus; this says what changed, and reads out the
@@ -237,6 +257,11 @@ const Leaderboards = () => {
       title="Leaderboards | Idleon Toolbox"
       description="View Legends of Idleon leaderboards for your account, characters, skills, combat and every world, with player rankings and stats"
     />
+    {showsFailure(metaQuery)
+      ? <Notice key={metaQuery.errorUpdateCount} tone={'error'} sx={{ mb: 2 }} action={retryAction(() => metaQuery.refetch(), metaQuery.isFetching)}>
+        Couldn't load the board list, so counts, tiles and board names are missing.
+      </Notice>
+      : null}
     <ControlBar
       index={index}
       totalPlayers={index.totalPlayers}
@@ -271,7 +296,7 @@ const Leaderboards = () => {
           showAnonymous={showAnonymous}
           highlight={highlight}
           self={self}
-          player={{ context, data: playerQuery.data, isLoading: playerQuery.isLoading, isError: showsFailure(playerQuery), refetch: playerQuery.refetch,
+          player={{ context, data: playerQuery.data === undefined ? undefined : playerData, isLoading: playerQuery.isLoading, isError: showsFailure(playerQuery), refetch: playerQuery.refetch,
             isFetching: playerQuery.isFetching, errorUpdateCount: playerQuery.errorUpdateCount }}
           onOpen={openBoard}
           onTab={openTab}
@@ -280,25 +305,30 @@ const Leaderboards = () => {
         />
       ) : showsFailure(tabQuery) ? (
         <Notice key={tabQuery.errorUpdateCount} tone={'error'} action={retryAction(() => tabQuery.refetch(), tabQuery.isFetching)}>Could not load these boards.</Notice>
-      ) : !tabData ? (
+      ) : !tabData && tabQuery.isSuccess ? (
         // A run with nothing for this tab answers too: a note, not a spinner that never stops.
-        tabQuery.isSuccess
-          ? <Notice>No boards in this tab yet.</Notice>
-          : <Stack alignItems="center" justifyContent="center" mt={3}><CircularProgress/></Stack>
+        <Notice>No boards in this tab yet.</Notice>
+      ) : !tabData || metaQuery.isPending ? (
+        // The cards wait for meta: without it they draw one unnamed section with key-derived titles, then regroup.
+        <Stack alignItems="center" justifyContent="center" mt={3}><CircularProgress/></Stack>
       ) : (
-        <CategoryTab
-          key={selectedTab}
-          category={selectedTab}
-          index={index}
-          lists={showAnonymous ? tabData.anonymous : tabData.public}
-          showAnonymous={showAnonymous}
-          ranks={playerData?.ranks}
-          highlight={highlight}
-          pinnedBase={pinnedBase}
-          onOpen={(metric) => openBoard(metric, 'card')}
-          revealMetric={drawerMetric}
-          linkPlayer={queryPlayer}
-        />
+        // An open board covers the page's right side by what the ad column beside it leaves: the cards make room, so every
+        // "Top 100" stays clickable. Measured, since that column comes and goes; a phone's drawer is a sheet.
+        <Box ref={boardsRef} sx={{ pr: { md: drawerMetric ? `${drawerRoom}px` : 0 } }}>
+          <CategoryTab
+            key={selectedTab}
+            category={selectedTab}
+            index={index}
+            lists={showAnonymous ? tabData.anonymous : tabData.public}
+            showAnonymous={showAnonymous}
+            ranks={playerData?.ranks}
+            highlight={highlight}
+            pinnedBase={pinnedBase}
+            onOpen={(metric) => openBoard(metric, 'card')}
+            revealMetric={drawerMetric}
+            linkPlayer={queryPlayer}
+          />
+        </Box>
       )}
     </Tabber>
     <BoardDrawer

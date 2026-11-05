@@ -6,19 +6,19 @@ import { useDebouncedValue } from '@mantine/hooks';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import useHydrated from '@hooks/useHydrated';
 import useFormatDate from '@hooks/useFormatDate';
-import { numberWithCommas } from '@utility/helpers';
+import { formatNum } from '@utility/helpers';
 import { searchNames } from '../../services/leaderboards';
 import { AGGREGATION_INTERVAL, GLOBAL_METRIC, rankText } from './format';
 import { HIGHLIGHT } from './RankRow';
 import Toolbar from '@components/common/Toolbar';
 
 const MIN_QUERY = 2;
-const FIELD_OUTLINE = 'rgba(255,255,255,0.23)';
 const fieldHeight = { xs: 44, sm: 40 };
 
 // Rows that say something instead of offering a player: Enter or a click on them does nothing, so the
 // typed text stays put.
 const NO_MATCH = { message: 'noMatch', mainChar: '' };
+const NAMES_FAILED = { message: 'failed', mainChar: '' };
 const ANON_HINT = { message: 'anon', mainChar: '' };
 const ANON_PREFIX = /^anon#/i;
 const ANON_ID = /^anon#[0-9a-f]{6}$/i;
@@ -41,7 +41,7 @@ const PlayerOption = ({ name, rank, query }) => {
       <Box component="span" sx={{ flexGrow: 1, minWidth: 0 }}>
         <b>{name.slice(0, matched)}</b>{name.slice(matched)}
       </Box>
-      {rank != null ? <Typography component="span" sx={{ fontSize: 12, color: 'text.muted', flexShrink: 0 }}>{rankText(rank)}</Typography> : null}
+      {rank != null ? <Typography component="span" variant="caption" sx={{ color: 'text.muted', flexShrink: 0 }}>{rankText(rank)}</Typography> : null}
     </Stack>
   );
 };
@@ -71,7 +71,7 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear, onEmpty }) => {
   const [debounced] = useDebouncedValue(typing ? text : '', 250);
   // Anon# ids are left out of the name search by design.
   const ready = debounced.length >= MIN_QUERY && !ANON_PREFIX.test(debounced);
-  const { data: players = [], isFetching } = useQuery({
+  const { data: players = [], isFetching, isError } = useQuery({
     queryKey: ['lb-names', debounced.toLowerCase()],
     queryFn: () => searchNames(debounced),
     enabled: ready,
@@ -109,6 +109,8 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear, onEmpty }) => {
         if (ANON_PREFIX.test(query)) return ANON_ID.test(query) ? [] : [ANON_HINT];
         const matches = matchesFor(options, query);
         const settled = ready && !isFetching && debounced === query;
+        // A failed search says so: "No players start with" would be false.
+        if (settled && isError) return [NAMES_FAILED];
         return matches.length || !settled ? matches : [NO_MATCH];
       }}
       value={null}
@@ -141,8 +143,9 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear, onEmpty }) => {
         const { key, ...optionProps } = props;
         if (option.message) {
           return <Box component="li" key={option.message} {...optionProps} sx={{ cursor: 'default !important', opacity: '1 !important' }}>
-            <Typography component="span" sx={{ fontSize: 13, color: 'text.secondary' }}>
-              {option.message === 'anon' ? 'Type the full Anon# id (Anon# and 6 characters), then search' : `No players start with "${debounced}"`}
+            <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
+              {option.message === 'anon' ? 'Type the full Anon# id (Anon# and 6 characters), then search'
+                : option.message === 'failed' ? 'Couldn\'t search names. Press Enter to look the name up.' : `No players start with "${debounced}"`}
             </Typography>
           </Box>;
         }
@@ -207,7 +210,7 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear, onEmpty }) => {
         '& .MuiOutlinedInput-root': { height: fieldHeight, py: 0, pr: '8px !important' },
         ...(showsViewed ? {
           '& .MuiOutlinedInput-notchedOutline': { borderColor: (theme) => `${HIGHLIGHT[viewing.kind](theme)} !important` },
-          '& .MuiInputBase-input': { fontWeight: 600 }
+          '& .MuiInputBase-input': { fontWeight: 500 }
         } : {})
       }}
     />
@@ -233,7 +236,7 @@ const filterBoards = (options, { inputValue }) => {
 const KeyHint = () => (
   <InputAdornment position="end">
     <Box aria-hidden component="span" sx={{
-      fontSize: 11, color: 'text.muted', border: `1px solid ${FIELD_OUTLINE}`, borderRadius: '4px', px: 0.75, lineHeight: '16px',
+      typography: 'caption', color: 'text.muted', border: 1, borderColor: 'outline', borderRadius: '4px', px: 0.75, lineHeight: '16px',
       // No keyboard shortcut to hint at on a touch screen.
       '@media (hover: none)': { display: 'none' }
     }}>/</Box>
@@ -287,8 +290,8 @@ export const LeaderboardStatus = ({ totalPlayers, createdAt }) => {
   const formatDate = useFormatDate();
   if (!hydrated || !createdAt) return null;
   return (
-    <Typography variant="caption" sx={{ fontSize: 12, color: 'text.muted', whiteSpace: 'nowrap' }}>
-      {`${totalPlayers ? `${numberWithCommas(totalPlayers)} players · ` : ''}updated ${formatDate(createdAt, { timeOnly: true, showSeconds: false })} · next ~${formatDate(createdAt + AGGREGATION_INTERVAL, { timeOnly: true, showSeconds: false })}`}
+    <Typography variant="caption" sx={{ color: 'text.muted', whiteSpace: 'nowrap' }}>
+      {`${totalPlayers ? `${formatNum(totalPlayers, 'whole')} players · ` : ''}updated ${formatDate(createdAt, { timeOnly: true, showSeconds: false })} · next about ${formatDate(createdAt + AGGREGATION_INTERVAL, { timeOnly: true, showSeconds: false })}`}
     </Typography>
   );
 };
@@ -322,7 +325,7 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
                        // Its input is invisible, so the ring goes on the switch itself.
                        sx={{ borderRadius: 2, '&:has(.Mui-focusVisible)': { outline: '2px solid var(--mui-palette-primary-main)', outlineOffset: '-4px' } }}/>}
       label="Show anonymous"
-      slotProps={{ typography: { sx: { fontSize: 13, color: 'text.secondary' } } }}
+      slotProps={{ typography: { variant: 'body2', sx: { color: 'text.secondary' } } }}
       sx={{ minHeight: fieldHeight, my: 0 }}
     />
   );

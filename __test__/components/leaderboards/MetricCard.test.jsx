@@ -96,10 +96,10 @@ describe('MetricCard', () => {
     expect(onOpen).not.toHaveBeenCalled();
   });
 
-  it('keeps the full label in a title attribute for a clamped heading', () => {
+  it('keeps the full label in a clamped heading, with no hover title', () => {
     const label = 'Highest Construction Experience Gained Per Hour Across All Characters';
     renderCard({ meta: { ...mining, label }, entries: [row('A', 300, 1)] });
-    expect(screen.getByRole('heading', { name: label }).getAttribute('title')).toBe(label);
+    expect(screen.getByRole('heading', { name: label }).getAttribute('title')).toBeNull();
   });
 
   it('adds (you) to the pinned row of the logged-in player only', () => {
@@ -125,6 +125,6 @@ describe('MetricCard', () => {
 
   it('says so when a board is empty', () => {
     renderCard({ meta: mining, entries: [] });
-    expect(screen.getByText('Nothing here yet')).toBeTruthy();
+    expect(screen.getByText('No one on this board yet.')).toBeTruthy();
   });
 });

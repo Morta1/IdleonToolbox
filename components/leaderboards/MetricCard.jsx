@@ -1,7 +1,9 @@
 import React from 'react';
-import { Card, Chip, Link, Stack, Typography } from '@mui/material';
+import { Link, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
-import { numberWithCommas } from '@utility/helpers';
+import ItemCard from '@components/common/cards/ItemCard';
+import StatusText from '@components/common/StatusText';
+import { formatNum } from '@utility/helpers';
 import { TABS, formatDistinctValues, formatMetricValue } from './format';
 import MetricIcon from './MetricIcon';
 import RankRow from './RankRow';
@@ -18,8 +20,11 @@ export const openOnPlainClick = (onOpen, key) => (event) => {
   onOpen(key);
 };
 
+// A board's name takes two lines, then an ellipsis: its full name is its drawer's title.
+const TITLE_CLAMP_SX = { overflow: 'hidden', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' };
+
 const MetricCard = ({ meta, entries, highlight, pinned, onOpen, linkPlayer = null }) => {
-  const listed = entries ?? [];
+  const listed = (entries ?? []).filter((row) => row?.mainChar);
   const maxed = Boolean(meta.maxed);
   const missing = Boolean(pinned?.entry) && !listed.some((row) => row.mainChar === pinned.mainChar);
   // A player missing from a list that runs past their rank (an anonymous player while anonymous
@@ -33,41 +38,32 @@ const MetricCard = ({ meta, entries, highlight, pinned, onOpen, linkPlayer = nul
   // to 12.19M rather than 12.2M twice, which looks like a tie.
   const texts = formatDistinctValues(meta.notation, [...rows.map((row) => row[meta.key]), ...(showPinned ? [pinned.entry.v] : [])], { scale: meta.top });
   return (
-    // The card's own border closes the list, so its last row draws none.
-    <Card variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', '& > [data-testid="rank-row"]:last-child': { borderBottom: 0 } }}>
-      <Stack direction="row" alignItems="center" gap={1} sx={{ px: 1.75, py: 1.5, borderBottom: 1, borderColor: 'divider' }}>
-        <MetricIcon metric={meta.key} label={meta.label} maxed={maxed}/>
-        <Typography variant="subtitle2" component="h3" title={meta.label} sx={{
-          minWidth: 0, fontSize: { xs: 14, lg: 15 }, fontWeight: 600, lineHeight: 1.3, overflow: 'hidden',
-          display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical'
-        }}>{meta.label}</Typography>
-        {maxed ? (
-          <Chip size="small" label="Maxed" sx={{
-            height: 19, bgcolor: '#2a2440', color: '#b9a6f2', fontSize: 11, fontWeight: 700, '& .MuiChip-label': { px: 1 }
-          }}/>
-        ) : null}
-        <Box sx={{ flexGrow: 1 }}/>
-        <Link href={boardHref(meta, linkPlayer)} onClick={openOnPlainClick(onOpen, meta.key)} data-board-link={meta.key} aria-label={`Top 100: ${meta.label}`}
-              sx={{ fontSize: 12, fontWeight: 600, whiteSpace: 'nowrap', flexShrink: 0 }}>Top 100 ›</Link>
-      </Stack>
+    <ItemCard
+      icon={<MetricIcon metric={meta.key} label={meta.label}/>}
+      title={<Box component="span" sx={TITLE_CLAMP_SX}>{meta.label}</Box>}
+      status={maxed ? 'maxed' : undefined}
+      aside={<Link href={boardHref(meta, linkPlayer)} onClick={openOnPlainClick(onOpen, meta.key)} data-board-link={meta.key} aria-label={`Top 100: ${meta.label}`}
+                   variant="body2" sx={{ display: 'inline-flex', alignItems: 'center', minHeight: 40, whiteSpace: 'nowrap' }}>Top 100</Link>}>
       {maxed ? (
-        <Typography variant="caption" component="p" color="text.secondary" sx={{ px: 1.75, py: 1.25, lineHeight: 1.5, borderBottom: 1, borderColor: 'divider' }}>
-          <Box component="b" sx={{ color: 'text.primary' }}>{formatMetricValue(meta.notation, meta.top, { scale: meta.top })}</Box>
-          {` is the max · ${numberWithCommas(meta.topTies)} players have it, all tied at #1 · listed by global rank`}
+        <Typography variant="caption" component="p" color="text.secondary">
+          <Box component="b" sx={{ color: 'text.primary', fontWeight: 500 }}>{formatMetricValue(meta.notation, meta.top, { scale: meta.top })}</Box>
+          {` is the max · ${formatNum(meta.topTies, 'whole')} players have it, all tied at #1 · listed by global rank`}
         </Typography>
       ) : null}
-      {rows.length === 0
-        ? <Typography variant="body2" color="text.secondary" sx={{ p: 2, textAlign: 'center' }}>Nothing here yet</Typography>
-        : rows.map((row, at) => (
+      {rows.length === 0 && !showPinned ? <StatusText status="info" wrap>No one on this board yet.</StatusText> : null}
+      {/* The card's own border closes the list, so its last row draws none. The rows reach the card's edges, less the room their highlight's bar needs. */}
+      <Box sx={{ mx: -1.25, '& > [data-testid="rank-row"]': { px: 1.25 }, '& > [data-testid="rank-row"]:last-child': { borderBottom: 0 } }}>
+        {rows.map((row, at) => (
           <RankRow key={row.mainChar} rank={row.rank} name={row.mainChar} value={row[meta.key]} notation={meta.notation} scale={meta.top} display={texts[at]}
                    kind={highlight[row.mainChar] ?? (inPlace && row.mainChar === pinned.mainChar ? pinned.kind : null)}
                    plainRank={maxed} globalRank={maxed ? row.globalRank : null}/>
         ))}
-      {showPinned ? (
-        <RankRow pinned rank={pinned.entry.r} name={pinned.mainChar} value={pinned.entry.v} notation={meta.notation} scale={meta.top} display={texts[rows.length]} kind={pinned.kind}
-                 plainRank={maxed} globalRank={maxed ? pinned.globalRank : null} maxCheck={maxed && pinned.entry.v >= meta.top}/>
-      ) : null}
-    </Card>
+        {showPinned ? (
+          <RankRow pinned rank={pinned.entry.r} name={pinned.mainChar} value={pinned.entry.v} notation={meta.notation} scale={meta.top} display={texts[rows.length]} kind={pinned.kind}
+                   plainRank={maxed} globalRank={maxed ? pinned.globalRank : null} maxCheck={maxed && pinned.entry.v >= meta.top}/>
+        ) : null}
+      </Box>
+    </ItemCard>
   );
 };
 
