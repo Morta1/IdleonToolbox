@@ -231,11 +231,12 @@ const Dashboard = () => {
                                                                  handleOpenSettings(null, null, 'note');
                                                                }}
                                                                onDismiss={() => setDefaultsNoteDismissed(true)}/> : null}
-      <Toolbar noun={'sections'} onStickyBottom={setSectionsBarBottom}>
+      {/* With no save no section draws, so there is nothing for its pills to show */}
+      {noSave ? null : <Toolbar noun={'sections'} onStickyBottom={setSectionsBarBottom}>
         <Toolbar.Lead>
           <SectionToggles order={sectionOrder} filters={filters} onFilters={handleFilters} onReorder={setSavedOrder}/>
         </Toolbar.Lead>
-      </Toolbar>
+      </Toolbar>}
       <PageSettings onOpen={() => handleOpenSettings(null, null, 'button')} label={'Configure alerts'}
                     changed={Object.keys(diffTrackers(baseTrackers, config)).length > 0}/>
       {/* A section's own Toolbar pins right under the page's, the way a pinned tab strip takes this variable. Its own
