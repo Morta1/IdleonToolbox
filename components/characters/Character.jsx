@@ -27,11 +27,35 @@ const TITLES = { Cards: 'Equipped cards', 'Obols Stats': 'Obol stats', 'Star Sig
 
 const ONE_LINE_SX = { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
 
+const SIDE_NAME_HEIGHT = 64;
+
+// Side by side, the name stays in view. A sticky item sticks only inside its grid area, so it spans every row of the card,
+// with a spacer holding its room in the first one. Its line sits on the first section's own, 1 px down, drawn over the
+// page color so the two never add up; while pinned it's the only line under the name. A phone doesn't pin.
+const pinnedNameSx = (pinTop) => ({
+  gridRow: '1 / -1',
+  gridColumn: 1,
+  alignSelf: 'start',
+  height: SIDE_NAME_HEIGHT + 1,
+  mb: '-1px',
+  borderBottom: 1,
+  borderColor: 'divider',
+  bgcolor: 'background.paper',
+  borderRadius: '8px 8px 0 0',
+  zIndex: (theme) => theme.zIndex.appBar - 2,
+  position: { xs: 'static', sm: 'sticky' },
+  top: pinTop,
+  '@media (max-height: 500px)': { position: 'static' }
+});
+
 // A character's name row: class sprite, name, class and level on one muted line, the trophy at the right
-const NameRow = ({ character }) => {
+const NameRow = ({ character, side, pinTop }) => {
   const { name, classIndex, class: className, level, equipment } = character;
   const trophy = equipment?.reduce((res, { rawName }) => (!res && rawName?.includes('Trophy') ? rawName : res), '');
-  return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={{ px: 2, py: '12px', minHeight: 68, boxSizing: 'border-box' }}>
+  return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={[
+    { boxSizing: 'border-box' },
+    side ? { px: '12px', py: '10px', ...pinnedNameSx(pinTop) } : { px: 2, py: '12px', minHeight: 68 }
+  ]}>
     <GameIcon src={`data/ClassIcons${classIndex}.png`} size={40} alt={''}/>
     <Stack sx={{ minWidth: 0, flex: 1 }}>
       <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1} sx={{ minWidth: 0 }}>
@@ -47,13 +71,24 @@ const NameRow = ({ character }) => {
 };
 
 // One card per character, its sections in the one order (helpers' sections), each failing alone and keeping its place.
-// One character is a sheet: the card fills the page and its sections flow down columns, each whole.
+// One character is a sheet: the card fills the page and its sections flow down columns, each whole. Side by side, the card
+// takes its rows from the page's grid (SIDE_BY_SIDE_SX there), and each section keeps its row by its index.
 const FLOW_SX = (theme) => ({
   columnWidth: 340,
   columnGap: 0,
   columnRule: `1px solid ${(theme.vars || theme).palette.divider}`
 });
+const sideCardSx = (rows) => ({
+  gridRow: `span ${rows}`,
+  display: 'grid',
+  gridTemplateColumns: 'minmax(0, 1fr)',
+  gridTemplateRows: 'subgrid',
+  minWidth: 0,
+  // A character past a row's columns starts a new row, and a phone stacks them: the row gap stays 0, so the lines stay shared
+  mb: 2
+});
 const SHEET = { side: false };
+const SIDE_SHEET = { side: true };
 
 const Character = ({
   character,
@@ -61,6 +96,8 @@ const Character = ({
   lastUpdated,
   filters,
   characters,
+  side,
+  pinTop,
   showSkillsRankOneOnly,
   showUnmaxedBoxesOnly
 }) => {
@@ -103,13 +140,16 @@ const Character = ({
     'Post Office': <PostOffice {...postOffice} showUnmaxedBoxesOnly={showUnmaxedBoxesOnly}/>
   };
 
-  return <SheetContext value={SHEET}>
-    <Box data-character-card sx={(theme) => cardSurface(theme)}>
-      <NameRow character={character}/>
-      <Box sx={FLOW_SX}>
-        {sections.filter((section) => filters?.[section.name]).map((section) => {
+  const shown = sections.filter((section) => filters?.[section.name]);
+
+  return <SheetContext value={side ? SIDE_SHEET : SHEET}>
+    <Box data-character-card sx={[(theme) => cardSurface(theme), side && sideCardSx(shown.length + 1)]}>
+      {side ? <Box sx={{ gridRow: 1, gridColumn: 1, height: SIDE_NAME_HEIGHT }}/> : null}
+      <NameRow character={character} side={side} pinTop={pinTop}/>
+      <Box sx={side ? { display: 'contents' } : FLOW_SX}>
+        {shown.map((section, index) => {
           const title = TITLES[section.name] ?? section.name;
-          return <Box key={section.name} sx={{ breakInside: 'avoid', minWidth: 0 }}>
+          return <Box key={section.name} sx={side ? { gridRow: index + 2, gridColumn: 1, minWidth: 0 } : { breakInside: 'avoid', minWidth: 0 }}>
             <ErrorBoundary note={`${title} didn't load.`} tone={'missing'} resetKey={lastUpdated}
                            wrap={(note) => <Panel title={title}>{note}</Panel>}>
               {views[section.name]}

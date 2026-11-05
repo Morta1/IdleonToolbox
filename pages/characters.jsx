@@ -1,5 +1,5 @@
 import React, { useContext, useDeferredValue, useRef, useState } from 'react';
-import { CircularProgress, Grid, Stack } from '@mui/material';
+import { Box, CircularProgress, Stack } from '@mui/material';
 import Character from '@components/characters/Character';
 import Notice from '@components/common/Notice';
 import Toolbar from '@components/common/Toolbar';
@@ -7,8 +7,13 @@ import { MissingData } from '@components/common/styles';
 import { CharactersPicker } from '@components/characters/CharactersList';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 import { AppContext, shownCharacters, shownFilters } from 'components/common/context/AppProvider';
+import usePageTop from '@hooks/usePageTop';
 import { sections } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
+
+// Two or more characters: one column each. Every card spans as many rows as it has sections, on subgrid (Character), so
+// a section starts on the same line across the columns. The ones past a row's columns start a new row.
+const SIDE_BY_SIDE_SX = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', columnGap: 2, rowGap: 0 };
 
 const Characters = () => {
   const { state, dispatch } = useContext(AppContext);
@@ -16,8 +21,7 @@ const Characters = () => {
   const deferredDisplayed = useDeferredValue(displayed);
   const isPending = deferredDisplayed !== displayed;
   const numberOfCharacters = state?.characters?.filter((_, index) => displayed?.[index])?.length ?? 0;
-  const deferredCount = state?.characters?.filter((_, index) => deferredDisplayed?.[index])?.length ?? 0;
-  const characterCols = Math.max(3, 12 / deferredCount);
+  const sideBySide = (state?.characters?.filter((_, index) => deferredDisplayed?.[index])?.length ?? 0) > 1;
   const hasCharacters = !!state?.characters?.length;
   const filters = shownFilters(state);
   const hasSkillsFilter = filters?.Skills;
@@ -26,6 +30,10 @@ const Characters = () => {
   const failedSections = state?.account?.failedSections;
   const toolbarState = { showRankOneOnly: Boolean(state?.showRankOneOnly), showUnmaxedBoxesOnly: Boolean(state?.showUnmaxedBoxesOnly) };
   const setToolbar = (patch) => Object.entries(patch).forEach(([type, data]) => dispatch({ type, data }));
+  // A side-by-side card's name pins under the bar and the pinned Toolbar, when there is one
+  const pageTop = usePageTop();
+  const [toolbarBottom, setToolbarBottom] = useState(null);
+  const pinTop = !isPending && (hasSkillsFilter || hasPostOfficeFilter) ? toolbarBottom ?? pageTop : pageTop;
   // The picker's drawer opens from its header control or from a note below, which hands it the control's focus first,
   // so closing the drawer returns there even after a tick has taken the note away
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -50,27 +58,28 @@ const Characters = () => {
       <>
         {!isPending && (hasSkillsFilter || hasPostOfficeFilter)
           ? <Toolbar state={toolbarState} defaults={{ showRankOneOnly: false, showUnmaxedBoxesOnly: false }} onChange={setToolbar}
-                     onReset={() => setToolbar({ showRankOneOnly: false, showUnmaxedBoxesOnly: false })} counted={false}>
+                     onReset={() => setToolbar({ showRankOneOnly: false, showUnmaxedBoxesOnly: false })} counted={false}
+                     onStickyBottom={setToolbarBottom}>
             {hasSkillsFilter ? <Toolbar.Filter name={'showRankOneOnly'} label={'Show rank 1 only'}/> : null}
             {hasPostOfficeFilter ? <Toolbar.Filter name={'showUnmaxedBoxesOnly'} label={'Show unmaxed boxes only'}/> : null}
           </Toolbar> : null}
         {isPending ? <Stack alignItems={'center'} mt={1} mb={1}><CircularProgress size={24}/></Stack> : null}
-        <Grid container sx={{ columnGap: 2, rowGap: 5 }} columns={deferredCount === 1 ? 12 : 12.5}>
+        <Box sx={sideBySide ? SIDE_BY_SIDE_SX : undefined}>
           {state?.characters?.map((character, index) => {
             return deferredDisplayed?.[index]
-              ? <Grid item xs={deferredCount === 1 ? 12 : 12.5} md={Math.max(characterCols, 6)} lg={Math.max(characterCols, 4)} xl={characterCols}
-                      key={`${character?.name}-${index}`}>
-                <Character filters={filters}
+              ? <Character filters={filters}
                            account={state?.account}
                            character={character}
                            characters={state?.characters}
                            lastUpdated={state?.lastUpdated}
+                           side={sideBySide}
+                           pinTop={pinTop}
                            showSkillsRankOneOnly={state.showRankOneOnly}
-                           showUnmaxedBoxesOnly={state.showUnmaxedBoxesOnly}/>
-              </Grid>
+                           showUnmaxedBoxesOnly={state.showUnmaxedBoxesOnly}
+                           key={`${character?.name}-${index}`}/>
               : null;
           })}
-        </Grid>
+        </Box>
       </>
     ) : hasCharacters
       ? <Notice action={{ label: 'Choose characters', onClick: choose }}>

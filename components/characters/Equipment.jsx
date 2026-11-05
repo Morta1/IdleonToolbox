@@ -17,7 +17,7 @@ const Equipment = ({ equipment, tools, food, account, character, characters }) =
   ];
   return <Panel title={'Equipment'}>
     {groups.map(([label, items]) => <Panel.Group key={label} label={label}>
-      <CardGrid size={'icon'} sheetColumns={[8, 6]}>
+      <CardGrid size={'icon'} sheetColumns={[8, 4]}>
         {items?.slice(0, SLOTS_PER_GROUP).map((item, itemIndex) => {
           const { rawName, displayName, amount } = item;
           // A slot with nothing in it has nothing to read: no note, no tab stop
