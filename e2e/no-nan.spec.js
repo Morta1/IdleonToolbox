@@ -83,6 +83,25 @@ const isAllowed = (text) => ALLOWED_NAN_TEXT.has(text)
   || ALLOWED_UNDEFINED_TEXT.has(text)
   || ALLOWED_INFINITY_TEXT.has(text);
 
+// A page's first tab hid the guest faults 5g found on the others. Two levels: the page's own strip, and the tabs each of
+// its tabs opens. A sprite-only tab goes by its aria-label.
+const readTabs = async (page, offending, above) => {
+  const tabs = above
+    ? page.locator('main [role="tab"]:visible:not([disabled])')
+    : page.locator('main [role="tablist"]:visible').first().locator('[role="tab"]:not([disabled])');
+  const listed = await tabs.evaluateAll((list) => list.map((tab) => (tab.getAttribute('aria-label') || tab.innerText).replace(/\s+/g, ' ').trim()));
+  const names = [...new Set(listed)].filter((name) => name && !above?.includes(name));
+  for (const name of names) {
+    const tab = page.locator('main').getByRole('tab', { name, exact: true }).first();
+    if (!await tab.isVisible()) continue;
+    await tab.click();
+    await waitForRender(page);
+    const hits = (await findOffendingTextNodes(page)).filter((text) => !isAllowed(text));
+    offending.push(...hits.map((text) => `[${name}] ${text.slice(0, 200)}`));
+    if (!above) await readTabs(page, offending, names);
+  }
+};
+
 const routes = discoverRoutes();
 
 // Account pages once bounced a logged-out visitor to the landing page or left them on the loader.
@@ -104,6 +123,7 @@ test.describe('No "NaN"/"undefined"/crash fallback reaches the rendered page for
 
     const runner = EXPECTED_DIRTY_ROUTES.includes(route) ? test.fail : test;
     runner(`${route} renders no NaN/undefined/crash fallback`, async ({ page }) => {
+      test.setTimeout(120_000);
       const pageErrors = [];
       page.on('pageerror', (err) => pageErrors.push(err.message));
 
@@ -124,13 +144,15 @@ test.describe('No "NaN"/"undefined"/crash fallback reaches the rendered page for
       const offending = hits
         .filter((text) => !isAllowed(text))
         .map((text) => text.slice(0, 200));
+      await readTabs(page, offending);
 
       for (const errorText of ERROR_BOUNDARY_TEXT) {
         const count = await page.getByText(errorText, { exact: true }).count();
         if (count > 0) offending.push(`[ErrorBoundary fallback] ${errorText}`);
       }
 
-      expect(offending, `Bad text found on ${route}:\n${offending.join('\n')}`).toEqual([]);
+      const unique = [...new Set(offending)];
+      expect(unique, `Bad text found on ${route}:\n${unique.join('\n')}`).toEqual([]);
     });
   }
 });

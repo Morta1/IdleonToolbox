@@ -10,6 +10,7 @@ import Num from '@components/common/Num';
 import StatTile from '@components/common/cards/StatTile';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import { MissingData, isSectionFailed } from '@components/common/styles';
+import Notice from '@components/common/Notice';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World7/Spelunking/Upgrades';
 import Lore from '@components/account/Worlds/World7/Spelunking/Lore';
@@ -54,6 +55,8 @@ const Spelunking = () => {
   // The game's amber line: the save's amount over the denominator, commas under 1e9 and Big past it
   // (Spelunk.AmberDenominator). Dividing first also turns a save's text number past 1e21 into a number.
   const amber = Number(currentAmber ?? 0) / denominator;
+  // A save from before World 7 has no Spelunk at all, and the parser still fills every tile
+  const reached = amber > 0 || upgrades?.some(({ level }) => level > 0);
   // The drawer totals the tile's own text, so both read 30.987 (the parser's total is in MultiplierInfo)
   const staminaRegenText = formatNum(staminaRegenRate?.value, 'amount', { precise: true });
   const staminaRegenDrawer = staminaRegenRate?.breakdown ? { ...staminaRegenRate.breakdown, totalValue: staminaRegenText } : undefined;
@@ -63,7 +66,8 @@ const Spelunking = () => {
       title="Spelunking | Idleon Toolbox"
       description="Keep track of your spelunking levels, upgrades and stats"
     />
-    {sectionFailed ? <MissingData name={'Spelunking'} failed/> : null}
+    {sectionFailed ? <MissingData name={'Spelunking'} failed/>
+      : reached || state?.emptyAccount ? null : <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached Spelunking yet.</Notice>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Power'} icon={'data/CaveShopUpg17.png'}
                 value={<Num value={power?.value} game={'Spelunk.POW'}/>} breakdown={power?.breakdown}/>

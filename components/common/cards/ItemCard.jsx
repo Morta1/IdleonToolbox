@@ -201,7 +201,8 @@ const Cost = ({ icon, iconAlt = '', need, have, game = 'Big', format, needBelow 
       </Box>
     </Typography>
   </>;
-  const needLine = short ? <Typography variant={'body2'} component={'span'} color={'text.secondary'}>
+  // Under one whole unit of gap there's no amount to name: "need 0 more" on Spelunking's first upgrade, which costs 0.18
+  const needLine = short && need - have >= 1 ? <Typography variant={'body2'} component={'span'} color={'text.secondary'}>
     need {amount(need - have)} more
   </Typography> : null;
   return needBelow

@@ -337,7 +337,11 @@ const UpgradeOptimizer = ({ character, account }) => {
           ? 'Recommended upgrade sequence'
           : `Recommended ${optimizationCategory === 'Amber Gain' ? 'Amber Gain' : 'Power'} upgrade sequence`}
       </Typography>
-      {displayUpgrades.length > 0 ? (
+      {!character ? (
+        <Notice tone={state?.emptyAccount ? 'signin' : 'locked'}>{state?.emptyAccount
+          ? 'Your character\'s upgrade plan shows here once you sign in.'
+          : 'The plan needs a character on this account.'}</Notice>
+      ) : displayUpgrades.length > 0 ? (
         viewMode === 'grid' ? (
           <CardGrid size={'m'}>{displayUpgrades.map(renderUpgradeCard)}</CardGrid>
         ) : (
