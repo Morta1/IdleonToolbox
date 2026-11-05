@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { cashFormatter, commaNotation, notateNumber, notateProgress } from '@utility/helpers';
+import { cashFormatter, commaNotation, GAME_LN10, notateNumber, notateProgress } from '@utility/helpers';
+import GAME from '@utility/wiki/game-constants.mjs';
 
 /**
  * These are not invented expectations - every one was read back from the running game by calling
@@ -127,6 +128,47 @@ describe('notateNumber exponent letter', () => {
     ['TinyE', '1.2e25']
   ])('mode %s prints %s', (mode, expected) => {
     expect(notateNumber(1.234e25, mode)).toBe(expected);
+  });
+});
+
+// The table z-processing reads from N.js is the oracle: a game update that moves the ladder changes the table and fails
+// here, instead of the port drifting from the game.
+describe('notateNumber against the game table', () => {
+  const { small, big, exponential } = GAME.notateNumber;
+  // The double right below `value`: from 1e16 up, `value - 1` is `value` itself.
+  const nextDown = (value) => {
+    const bits = new BigInt64Array(new Float64Array([value]).buffer);
+    bits[0] -= 1n;
+    return new Float64Array(bits.buffer)[0];
+  };
+  const prints = (mode, rows) => [rows.map(([value]) => String(notateNumber(value, mode))), rows.map(([, print]) => print)];
+
+  it('walks both edges of every rung', () => {
+    const rows = big.flatMap(({ below, divisor, scale, suffix }, at) => [at ? big[at - 1].below : small.floorBelow, nextDown(below)]
+      .map((value) => [value, `${Math.ceil(value / divisor) / scale}${suffix}`]));
+    const [port, game] = prints('Big', rows);
+    expect(port).toEqual(game);
+  });
+
+  it('walks the arm below the ladder', () => {
+    const { hundredthsBelow, tenthsBelow, floorBelow } = small;
+    const [port, game] = prints('Small', [
+      [hundredthsBelow / 2 - 0.006, String(Math.round(100 * (hundredthsBelow / 2 - 0.006)) / 100)],
+      [hundredthsBelow, String(Math.round(10 * hundredthsBelow) / 10)],
+      [tenthsBelow - 0.26, String(Math.round(10 * (tenthsBelow - 0.26)) / 10)],
+      [tenthsBelow + 0.9, String(Math.floor(tenthsBelow + 0.9))],
+      [floorBelow - 0.5, String(Math.floor(floorBelow - 0.5))]
+    ]);
+    expect(port).toEqual(game);
+  });
+
+  it('walks the tail past the ladder', () => {
+    const tail = (value) => {
+      const power = Math.floor(Math.log(value) / GAME.gameLog.divisor);
+      return `${Math.floor((value / Number(`1e${power}`)) * exponential.mantissaScale) / exponential.mantissaScale}${exponential.letter}${power}`;
+    };
+    const [port, game] = prints('Big', [big.at(-1).below, 1.2345e23, 5e23, 4.2e150].map((value) => [value, tail(value)]));
+    expect([GAME_LN10, port]).toEqual([GAME.gameLog.divisor, game]);
   });
 });
 

@@ -68,7 +68,7 @@ const numberWidth = (value, format) => {
   if (format === 'gems' || format === 'crystals') return CURRENCY_ART + textWidth(notateAmount(value));
   if (format === 'cost') return amountWidth(value);
   if (format === 'usd') return textWidth(formatNum(value, 'price'));
-  if (format === 'notate') return textWidth(notateGame(value) ?? '');
+  if (format === 'notate') return textWidth(notateGame(value));
   if (format === 'amount') return textWidth(value >= 1e9 ? notateAmount(value) : formatAmount(value));
   return textWidth(notateAmount(value));
 };

@@ -47,7 +47,7 @@ const formatted = (value, format) => {
   if (format === 'coins') return <Coins amount={value}/>;
   // Past a billion a column's digits read as the site's short form, never "1.00e9" beside "1B".
   if (format === 'amount') return value >= 1e9 ? notateAmount(value) : formatAmount(value);
-  if (format === 'notate') return notateGame(value) ?? '';
+  if (format === 'notate') return notateGame(value);
   if (format === 'usd') return formatNum(value, 'price');
   // A field priced in a currency with art (a superbit's bits): the amount in the game's notation, the art left to the page.
   if (format === 'cost') return <CostAmount amount={value}/>;
