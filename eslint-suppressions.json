@@ -143,11 +143,6 @@
       "count": 1
     }
   },
-  "components/tools/wardrobe/PaperDollCanvas.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/wiki/EntityList.jsx": {
     "no-restricted-syntax": {
       "count": 4
@@ -191,11 +186,6 @@
       "count": 1
     }
   },
-  "pages/tools/active-stuff-calculator.jsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
   "pages/tools/builds.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
@@ -214,16 +204,6 @@
   "pages/tools/builds/new.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
-    }
-  },
-  "pages/tools/god-planner.jsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "pages/tools/item-browser.jsx": {
-    "react-hooks/set-state-in-effect": {
-      "count": 3
     }
   },
   "pages/tools/wardrobe.jsx": {
