@@ -59,7 +59,7 @@ describe('Overview', () => {
   it('asks a visitor with no player to sign in or search', async () => {
     renderOverview({ player: { context: null } });
     expect(await screen.findByText(/^Your standing shows here once you sign in/)).toBeTruthy();
-    // Settings renders nothing for a guest, so the prompt never sends one there.
+    // Signing in is the way onto the boards, so the prompt offers that and not Settings.
     expect(screen.queryByRole('link', { name: 'Settings' })).toBeNull();
     fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
     expect(await screen.findByRole('dialog')).toBeTruthy();

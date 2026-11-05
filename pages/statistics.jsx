@@ -66,7 +66,7 @@ const Statistics = () => {
           Counted from every profile players have uploaded to Idleon Toolbox, refreshed every 30 minutes.
         </Typography>
         {/* Two columns at most: a chart's table twin needs the width, and three at 1920 cut its last column. */}
-        {charts.length ? <CardGrid size={'l'} sx={{ gridTemplateColumns: { xs: 'minmax(0, 1fr)', lg: 'repeat(2, minmax(0, 1fr))' } }}>
+        {charts.length ? <CardGrid size={'l'} sx={{ gridTemplateColumns: 'minmax(0, 1fr)', '@media (min-width:1300px)': { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' } }}>
           {charts.map(([key, config, raw]) => <Panel key={key} title={config.title} meta={config.subtitle} sx={{ height: '100%', boxSizing: 'border-box' }}>
             <Box sx={{ p: { xs: 1.5, sm: 2 } }}>
               <ErrorBoundary title={'This chart didn\'t load'}><StatisticsChart config={config} raw={raw}/></ErrorBoundary>

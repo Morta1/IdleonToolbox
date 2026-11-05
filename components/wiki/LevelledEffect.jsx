@@ -6,7 +6,7 @@ import { NoteTrigger } from '@components/common/InfoButton';
 import CoinAmount from './CoinAmount';
 import ShortAmount from '@components/common/ShortAmount';
 import { cleanUnderscore } from '@utility/helpers';
-import { costCurrency, costsAt, costsToMax, firstLevel, formatAmount, levelMax, levelledLines, levelledText, readLevel, summaryLevel } from '@utility/wiki/effects.mjs';
+import { costCurrency, costsAt, costsToMax, firstLevel, levelMax, levelledLines, levelledText, readLevel, summaryLevel } from '@utility/wiki/effects.mjs';
 
 // One level field for every wiki page whose numbers depend on a level. A page has no save, so the
 // reader picks the level; the static HTML renders the effect's first level, a real sentence rather than a blank.

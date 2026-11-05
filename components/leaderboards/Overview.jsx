@@ -90,7 +90,7 @@ const YouSlot = ({ player, self, index, onClearPlayer, nextRun }) => {
   if (!player.context) {
     // A signed-in account that is still loading has no name yet; the sign-in prompt would flash at them.
     if (self.pending) return <Skeleton variant="rounded" height={180}/>;
-    // A guest: the way onto the boards starts at signing in, right here (Settings has nothing to show them).
+    // A guest: the way onto the boards starts at signing in, right here.
     return <Notice tone={'signin'}>
       Your standing shows here once you sign in and upload with leaderboards on, or search for any player above.
     </Notice>;
