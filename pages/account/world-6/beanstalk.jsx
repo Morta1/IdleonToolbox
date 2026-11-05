@@ -65,7 +65,8 @@ const Beanstalk = () => {
       <StatTile label={'Total golden food bonus'} value={bestBonusText} breakdown={totalBreakdowns}
                 breakdownTitle={'Total golden food bonus'}/>
     </PageSummary>
-    <CardGrid size={'s'}>
+    {/* A failed section has no ranks, so every target would read the first breakpoint's */}
+    {sectionFailed ? null : <CardGrid size={'s'}>
       {beanstalkGoldenFoods?.map((item) => {
         const { displayName, rawName, rank } = item;
         const goldenFoods = findItem(displayName);
@@ -95,7 +96,7 @@ const Beanstalk = () => {
             : <ItemCard.Facts rows={[['Owned', owned]]}/>}
         </ItemCard>;
       })}
-    </CardGrid>
+    </CardGrid>}
   </>
 };
 
