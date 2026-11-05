@@ -2,9 +2,10 @@
 import { test as base, expect } from '@playwright/test';
 import { getAllTestCases, clientNavigate } from './smoke-helpers.js';
 import { waitForRender } from './wait-helpers';
+import { fixClock } from './fixed-clock.mjs';
 
 // One fixed clock for every screenshot, so "updated 4 minutes ago" and countdowns read the same on
-// every run. Timers keep running, so the app still works.
+// every run, in the parse worker too: traps and Equinox's time to full are worked out in there.
 const FIXED_TIME = new Date('2026-11-01T12:00:00Z');
 
 // Ad slots are filled by Nitro and change on every load. Nitro moves its rail and anchor divs to <body>, so they are
@@ -29,8 +30,8 @@ const test = base.extend({
     const { viewport, isMobile, hasTouch, deviceScaleFactor, storageState } = workerInfo.project.use;
     const context = await browser.newContext({ viewport, isMobile, hasTouch, deviceScaleFactor, storageState });
     await blockNitro(context);
+    await fixClock(context, FIXED_TIME);
     const page = await context.newPage();
-    await page.clock.setFixedTime(FIXED_TIME);
     await page.goto('/dashboard?demo=true');
     await waitForRender(page);
     await use(page);
@@ -92,7 +93,7 @@ const shoot = async (page, name) => {
 for (const path of STATIC_ROUTES) {
   test(path, async ({ page }) => {
     await blockNitro(page);
-    await page.clock.setFixedTime(FIXED_TIME);
+    await fixClock(page.context(), FIXED_TIME);
     await page.goto(path);
     await waitForRender(page);
     await shoot(page, path);

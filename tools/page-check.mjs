@@ -14,6 +14,7 @@
 // --settle   more ms after the page settles: a tool page's text stands still before its parse lands.
 // --click    a selector clicked once the page has rendered, before the scan: a drawer or a note that only opens on a tap.
 //            The first match. Its text joins the dump, and the shots catch it open.
+// --clock    an ISO time that the page and the parse Worker read as now, so two runs an hour apart compare with `diff -r`.
 // --base     default http://localhost:$E2E_PORT, or 3002.
 // --no-shots scan only. --out default .page-check (gitignored). Exit 1 on any hit, 2 when the server is down.
 //
@@ -24,6 +25,7 @@ import { mkdirSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { pathToFileURL } from 'node:url';
 import { parseArgs } from 'node:util';
+import { fixClock } from '../e2e/fixed-clock.mjs';
 
 const { values: opts, positionals } = parseArgs({
   allowPositionals: true,
@@ -36,6 +38,7 @@ const { values: opts, positionals } = parseArgs({
     storage: { type: 'string' },
     settle: { type: 'string', default: '0' },
     click: { type: 'string' },
+    clock: { type: 'string' },
     base: { type: 'string', default: `http://localhost:${process.env.E2E_PORT ?? 3002}` },
     out: { type: 'string', default: '.page-check' },
     'no-shots': { type: 'boolean', default: false },
@@ -344,6 +347,7 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
     await context.addInitScript((entries) => entries.forEach(([key, value]) => localStorage.setItem(key, JSON.stringify(value))), Object.entries(storage));
   }
   if (setup) await setup(context);
+  if (opts.clock) await fixClock(context, opts.clock);
   const page = await context.newPage();
   const errors = [];
   page.on('pageerror', (error) => errors.push(String(error).slice(0, 200)));
