@@ -14,6 +14,7 @@ import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import usePageTop from '@hooks/usePageTop';
 
 const getCost = (level, costMulti) => {
   if (!costMulti) {
@@ -48,6 +49,7 @@ const materialCell = (material) => isBlank(material) ? null
 
 const Forge = () => {
   const { state } = useContext(AppContext);
+  const pageTop = usePageTop();
   const forgeFailed = isSectionFailed(state?.account, 'forge');
   const forge = state?.account?.forge ?? {};
   // A failed section's slots are unknown (every one "Empty" would be false): no table. The upgrades list at zero by
@@ -109,7 +111,7 @@ const Forge = () => {
         <StatTile label={'Max ore capacity'} value={capText} cardSx={{ mb: 2 }}
                   breakdown={capBreakdown ? { ...capBreakdown, totalValue: capText } : undefined}/>
         {slots.length ? <DataTable columns={slotColumns} rows={slots} rowKey={'index'}
-                                   rowLabel={(row) => `Slot ${row.index + 1}`}
+                                   rowLabel={(row) => `Slot ${row.index + 1}`} stickyTop={pageTop}
                                    muted={(row) => row.empty ? 'Empty' : false}/> : null}
       </>
       <CardGrid size={'m'}>

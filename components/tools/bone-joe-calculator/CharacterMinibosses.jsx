@@ -22,6 +22,7 @@ import {
   getPrayerHpMulti
 } from '@parsers/misc/boneJoeCalculator';
 import { monsterSprite } from '@utility/spriteImages';
+import usePageTop from '@hooks/usePageTop';
 
 const hitsLabel = (hits) => {
   if (!isFinite(hits)) return 'no damage';
@@ -44,6 +45,7 @@ const rangeLabel = (skillHits, basicHits) => {
 };
 
 const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti, targetHits }) => {
+  const pageTop = usePageTop();
   const minibosses = getMinibosses();
   // Both are null together, but the pair is read rather than the toggle so this component never
   // has to know the toggle exists.
@@ -118,7 +120,7 @@ const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti,
       : 'Both are using each character\'s own equipped prayers and carried pickles.'}
     </Typography>
     <DataTable columns={columns} rows={rows} rowKey={(row) => row.character?.name} dense
-               rowLabel={(row) => row.character?.name}/>
+               rowLabel={(row) => row.character?.name} stickyTop={pageTop}/>
   </>;
 };
 
