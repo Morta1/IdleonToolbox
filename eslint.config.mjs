@@ -13,6 +13,7 @@ const NUMBER_MESSAGE = 'Raw number formatting: use formatNum or <Num> (Numbers b
 const SHADE = '/^(success|error|warning|info)\\.(light|dark)$/'
 const SHADE_MESSAGE = 'Status shade in a component: words take the role (text.success), fills and edges the main shade (success.main). Foundations board.'
 const TYPE_MESSAGE = 'h1 to h6 are not titles: use pageTitle, sectionTitle, cardTitle or groupLabel (Foundations board, Type).'
+const LEGACY_FORMATTERS = { names: ['kFormatter', 'cashFormatter', 'numberWithCommas'], message: NUMBER_MESSAGE }
 
 const eslintConfig = defineConfig([
   ...nextVitals,
@@ -37,6 +38,12 @@ const eslintConfig = defineConfig([
         { selector: "MemberExpression[property.name=/^(light|dark)$/][object.property.name=/^(success|error|warning|info)$/]", message: SHADE_MESSAGE },
         { selector: "JSXAttribute[name.name='variant'] Literal[value=/^h[1-6]$/]", message: TYPE_MESSAGE },
       ],
+      'no-restricted-imports': ['error', {
+        paths: [
+          { name: '@utility/helpers', importNames: LEGACY_FORMATTERS.names, message: LEGACY_FORMATTERS.message },
+          { name: 'utility/helpers', importNames: LEGACY_FORMATTERS.names, message: LEGACY_FORMATTERS.message },
+        ],
+      }],
     },
   },
   // An undefined name in a .js or .jsx file passes tsc, the build and the hook, and crashes the page that reaches

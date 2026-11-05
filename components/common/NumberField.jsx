@@ -1,13 +1,13 @@
 import React, { useId, useRef, useState } from 'react';
 import { InputAdornment, TextField } from '@mui/material';
-import { notateNumber, numberWithCommas, parseShorthandNumber } from '@utility/helpers';
+import { groupDigits, notateNumber, parseShorthandNumber } from '@utility/helpers';
 
 // One field for every number a player types (Controls board). A text field, not type="number": no spinner, and the
 // mouse wheel never changes it. It reads game notation (1.5B, 3.2e12, 45%) and shows the value it read.
 
 // Exact digits while they stay readable, the game's notation past that. Exported for text that sits beside a field and
 // names one of its numbers (a default), so the two read alike.
-export const fieldNumber = (n) => (Math.abs(n) < 1e15 ? numberWithCommas(Math.round(n * 1e4) / 1e4) : notateNumber(n, 'Big'));
+export const fieldNumber = (n) => (Math.abs(n) < 1e15 ? groupDigits(Math.round(n * 1e4) / 1e4) : notateNumber(n, 'Big'));
 
 export const rangeText = (min, max) => {
   if (min != null && max != null) return `${fieldNumber(min)} to ${fieldNumber(max)}`;

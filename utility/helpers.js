@@ -430,6 +430,9 @@ function applyThousandSeparator(
   );
 }
 
+// Every digit a typed number has, grouped: for a field's own text, which isn't a number being shown (formatNum).
+export const groupDigits = (value) => numberWithCommas(value);
+
 export const numberWithCommas = (numStr, isFloat = true) => {
   // Number#toString switches to exponential notation at 1e21, which the grouping below would mangle
   numStr = typeof numStr === 'number' && Number.isFinite(numStr) && Math.abs(numStr) >= 1e21

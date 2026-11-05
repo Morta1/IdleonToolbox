@@ -1,6 +1,6 @@
 import React, { useId, useRef, useState } from 'react';
 import { Box, Link, Stack, TableSortLabel, Typography } from '@mui/material';
-import { formatNum, numberWithCommas } from '@utility/helpers';
+import { formatNum } from '@utility/helpers';
 import InfoButton from '@components/common/InfoButton';
 import { CARD_RADIUS, DIM, cardSurface } from '@components/common/cards/tokens';
 import { CELL, HEAD, NUM } from './parts';
@@ -337,7 +337,7 @@ const DataTable = ({
                   <Typography variant={'groupLabel'} component={'span'} color={'text.secondary'}>{heading}</Typography>
                   {band.meta ? <Typography variant={'caption'} color={'text.secondary'}>{band.meta}</Typography> : null}
                   <Typography variant={'caption'} color={'text.secondary'} sx={{ ml: 'auto' }}>
-                    {numberWithCommas(band.rows.length)}{bandNoun ? ` ${bandNoun}` : ''}
+                    {formatNum(band.rows.length, 'whole')}{bandNoun ? ` ${bandNoun}` : ''}
                   </Typography>
                 </Stack>
               </Box>
@@ -406,7 +406,7 @@ const DataTable = ({
                     setExpanded({ ...expanded, [band.key]: true });
                   }}
                 >
-                  Show {numberWithCommas(more)} more{heading ? ` in ${heading}` : ''}
+                  Show {formatNum(more, 'whole')} more{heading ? ` in ${heading}` : ''}
                 </Link>
               </Box>
             </Box> : null}

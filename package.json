@@ -65,7 +65,6 @@
     "next-seo": "^5.15.0",
     "react": "^19.2.4",
     "react-cookie-consent": "^10.0.1",
-    "react-countdown-circle-timer": "^3.0.9",
     "react-dom": "^19.2.4",
     "react-process-string": "^1.2.0",
     "react-syntax-highlighter": "^16.1.1",

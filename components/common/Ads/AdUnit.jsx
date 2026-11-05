@@ -1,15 +1,8 @@
 import { useEffect, useRef } from 'react';
 import { Box, useMediaQuery } from '@mui/material';
-import { GoogleBottomBannerAd, GoogleHomeSideAds, GoogleSidebarAd } from '@components/common/Ads/GoogleAdUnit';
 import { NitroBottomBannerAd, NitroRailAd, NitroSideAd } from '@components/common/Ads/NitroAdUnits';
 import { useSidebarAdBlocked } from '@hooks/useSidebarAd';
 import { adBoxSx, adGutterSx, CENTERED, ONE_AD } from '@components/common/NavBar/frame';
-
-export const AD_PROVIDERS = {
-  GOOGLE: 'GOOGLE',
-  NITRO: 'NITRO'
-}
-export const AD_PROVIDER = AD_PROVIDERS.NITRO;
 
 const NITRO_SIDE_AD_SIZES = [['300', '600'], ['300', '250'], ['160', '600']];
 const NITRO_HOME_AD_SIZES = [['160', '600']];
@@ -60,55 +53,36 @@ export const SideAds = () => {
   const one = useMediaQuery(ONE_AD);
   const two = useMediaQuery(CENTERED);
   if (blocked) return null;
-  const nitro = AD_PROVIDER === AD_PROVIDERS.NITRO;
   return <>
     <Box sx={adGutterSx('left')}>
       <Box data-shell="side-ad" data-side="left" sx={adBoxSx}>
         {DEV_PLACEHOLDERS ? <SidePlaceholder/> : null}
-        {nitro && two ? <NitroSideAd id="nitro-side-left" sizes={NITRO_PAIR_SIZES} side="left"/> : null}
+        {two ? <NitroSideAd id="nitro-side-left" sizes={NITRO_PAIR_SIZES} side="left"/> : null}
       </Box>
     </Box>
     <Box sx={adGutterSx('right')}>
       <Box data-shell="side-ad" data-side="right" sx={adBoxSx}>
         {DEV_PLACEHOLDERS ? <SidePlaceholder/> : null}
-        {nitro && one ? <NitroSideAd id="nitro-side-ad" sizes={NITRO_SIDE_AD_SIZES} side="right"/> : null}
-        {nitro && two ? <NitroSideAd id="nitro-side-right" sizes={NITRO_PAIR_SIZES} side="right"/> : null}
-        {AD_PROVIDER === AD_PROVIDERS.GOOGLE ? <GoogleSidebarAd/> : null}
+        {one ? <NitroSideAd id="nitro-side-ad" sizes={NITRO_SIDE_AD_SIZES} side="right"/> : null}
+        {two ? <NitroSideAd id="nitro-side-right" sizes={NITRO_PAIR_SIZES} side="right"/> : null}
       </Box>
     </Box>
   </>;
 };
 
-export const BottomBannerAd = ({ displayDrawer }) => {
-  if (AD_PROVIDER === AD_PROVIDERS.GOOGLE) {
-    return <GoogleBottomBannerAd displayDrawer={displayDrawer}/>
-  }
-  if (AD_PROVIDER === AD_PROVIDERS.NITRO) {
-    return <>
-      <NitroBottomBannerAd/>
-      {DEV_PLACEHOLDERS ? <AnchorPlaceholder/> : null}
-    </>
-  }
+export const BottomBannerAd = () => <>
+  <NitroBottomBannerAd/>
+  {DEV_PLACEHOLDERS ? <AnchorPlaceholder/> : null}
+</>;
 
-  return null;
-}
-
-export const HomeSidebarAds = () => {
-  if (AD_PROVIDER === AD_PROVIDERS.GOOGLE) {
-    return <GoogleHomeSideAds/>
-  }
-  if (AD_PROVIDER === AD_PROVIDERS.NITRO) {
-    // NitroAds relocates rails into a body > div, so both must sit behind a React-owned wrapper. A bare fragment leaves the relocated divs as the nodes React
-    // itself removes on unmount, which throws NotFoundError and takes the whole tree down.
-    // teardownOnNavigate: these two are the only route-scoped rails, so they are the only ones that
-    // have to be destroyed on the way out of the page rather than on unmount. SideAds above stays
-    // mounted across navigation and has no teardown.
-    return <div>
-      <NitroRailAd id={'nitro-home-right-side-ad'} alignment={'right'} sizes={NITRO_HOME_AD_SIZES}
-                   mediaQuery={'(min-width: 1650px)'} teardownOnNavigate/>
-      <NitroRailAd id={'nitro-home-left-side-ad'} alignment={'left'} sizes={NITRO_HOME_AD_SIZES}
-                   mediaQuery={'(min-width: 1650px)'} teardownOnNavigate/>
-    </div>;
-  }
-  return null;
-}
+// NitroAds relocates rails into a body > div, so both must sit behind a React-owned wrapper. A bare fragment leaves the relocated divs as the nodes React
+// itself removes on unmount, which throws NotFoundError and takes the whole tree down.
+// teardownOnNavigate: these two are the only route-scoped rails, so they are the only ones that
+// have to be destroyed on the way out of the page rather than on unmount. SideAds above stays
+// mounted across navigation and has no teardown.
+export const HomeSidebarAds = () => <div>
+  <NitroRailAd id={'nitro-home-right-side-ad'} alignment={'right'} sizes={NITRO_HOME_AD_SIZES}
+               mediaQuery={'(min-width: 1650px)'} teardownOnNavigate/>
+  <NitroRailAd id={'nitro-home-left-side-ad'} alignment={'left'} sizes={NITRO_HOME_AD_SIZES}
+               mediaQuery={'(min-width: 1650px)'} teardownOnNavigate/>
+</div>;
