@@ -132,6 +132,9 @@ test.describe('static export ships crawlable head tags', () => {
   }
 });
 
+// A moved address on a static route draws in the export, so its own NextSeo ships: noindex, and the canonical of where it went.
+const MOVED_NOINDEX = { '/tools/active-exp-calculator': '/tools/active-stuff-calculator' };
+
 // A data page renders a loader at build time rather than its own <NextSeo canonical>, so the
 // exported canonical can only come from _app's <Head>.
 test.describe('static export ships canonicals', () => {
@@ -144,7 +147,8 @@ test.describe('static export ships canonicals', () => {
       // A noindex page is deliberately exempt - it has nothing to consolidate, and
       // /tools/builds/view cannot name its own URL without the ?id= it renders from.
       if (/content="noindex/.test(html)) {
-        expect(canonicals, `${route} is noindex and should not claim a canonical`).toHaveLength(0);
+        expect(canonicals, `${route} is noindex and should not claim a canonical`)
+          .toEqual(MOVED_NOINDEX[route] ? [`https://idleontoolbox.com${MOVED_NOINDEX[route]}`] : []);
         return;
       }
 
