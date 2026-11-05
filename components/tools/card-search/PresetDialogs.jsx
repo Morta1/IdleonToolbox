@@ -2,15 +2,14 @@ import React, { useState } from 'react';
 import {
   Button,
   MenuItem,
-  Select,
   Stack,
   TextField,
   Typography
 } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import { cleanUnderscore, prefix } from 'utility/helpers';
+import { cleanUnderscore } from 'utility/helpers';
 import { getCharacterLoadouts, textToPreset } from './presetUtils';
 import AppDialog from '@components/common/Overlays/AppDialog';
+import GameIcon from '@components/common/GameIcon';
 
 // open and onExited: the caller keeps a dialog mounted until it has closed, to hand focus back where it came from
 export const ImportFromCharacterDialog = ({ characters, getCard, getCardSet, onImport, onClose, open = true, onExited }) => {
@@ -19,26 +18,24 @@ export const ImportFromCharacterDialog = ({ characters, getCard, getCardSet, onI
   const loadouts = getCharacterLoadouts(character);
 
   return <AppDialog open={open} onClose={onClose} onExited={onExited} size="m" title="Import from a character">
-    <Select size={'small'} fullWidth value={characterIndex} sx={{ mt: 1 }}
-            inputProps={{ 'aria-label': 'Character' }}
-            onChange={(e) => setCharacterIndex(e.target.value)}>
+    <TextField select fullWidth value={characterIndex} sx={{ mt: 1 }}
+               slotProps={{ select: { SelectDisplayProps: { 'aria-label': 'Character' } } }}
+               onChange={(e) => setCharacterIndex(e.target.value)}>
       {characters?.map(({ name }, index) => <MenuItem key={`${name}-${index}`} value={index}>{name}</MenuItem>)}
-    </Select>
+    </TextField>
     <Stack gap={1.5} mt={2}>
       {loadouts.length ? loadouts.map((loadout) => {
         const cardSet = loadout.cardSet ? getCardSet(loadout.cardSet) : null;
         return <Stack key={loadout.label} direction={'row'} alignItems={'center'} gap={1}>
           <Stack sx={{ minWidth: 0, flex: 1 }}>
             <Typography variant={'body2'}>{loadout.label}</Typography>
-            <MiniRow direction={'row'} gap={0.5}>
-              {cardSet ? <img src={`${prefix}data/${cardSet.rawName}.png`} alt={cleanUnderscore(cardSet.name)}/> : null}
-              {loadout.cards.map((displayName, index) => displayName
-                ? <img key={`${displayName}-${index}`} alt={cleanUnderscore(displayName)}
-                       src={`${prefix}data/2Cards${getCard(displayName)?.cardIndex}.png`}/>
-                : <span key={`empty-${index}`} className={'empty'}/>)}
-            </MiniRow>
+            <Stack direction={'row'} gap={0.5} flexWrap={'wrap'} sx={{ mt: 0.5 }}>
+              {cardSet ? <GameIcon src={`data/${cardSet.rawName}.png`} size={24} alt={cleanUnderscore(cardSet.name)}/> : null}
+              {loadout.cards.filter(Boolean).map((displayName, index) => <GameIcon key={`${displayName}-${index}`} size={24} alt={cleanUnderscore(displayName)}
+                                                                                   src={`data/2Cards${getCard(displayName)?.cardIndex}.png`}/>)}
+            </Stack>
           </Stack>
-          <Button size={'small'} variant={'outlined'}
+          <Button variant={'outlined'} aria-label={`Import ${loadout.label}`}
                   onClick={() => onImport({
                     name: `${character.name} ${loadout.label.toLowerCase()}`,
                     cardSet: loadout.cardSet,
@@ -47,7 +44,7 @@ export const ImportFromCharacterDialog = ({ characters, getCard, getCardSet, onI
             Import
           </Button>
         </Stack>
-      }) : <Typography color={'text.secondary'}>{character?.name} has no cards equipped</Typography>}
+      }) : <Typography variant={'body2'} color={'text.secondary'}>{character?.name} has no cards equipped</Typography>}
     </Stack>
   </AppDialog>
 };
@@ -79,9 +76,3 @@ export const PasteTextDialog = ({ catalogCards, cardSetsData, onImport, onClose,
                }}/>
   </AppDialog>
 };
-
-const MiniRow = styled(Stack)(({ theme }) => ({
-  marginTop: 4,
-  'img, .empty': { width: 24, height: 31, objectFit: 'contain' },
-  '.empty': { border: `1px dashed ${theme.palette.divider}`, borderRadius: 3 }
-}));

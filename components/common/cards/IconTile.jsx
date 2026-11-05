@@ -38,13 +38,15 @@ const Badge = ({ badge }) => (badge === 'up'
 // carries a badge or a mark, not both. fallback is a second sprite GameIcon tries first if the icon is missing.
 // onSelect makes the tile a button that picks it, for a grid too large to draw a note per tile (the Slab's 1,935
 // items): the page shows the picked one's details once, and selected draws the selected line. An empty slot draws no
-// sprite, so its alt names it ("Empty slot" by default) when it has details to open; one with none is not a button.
+// sprite, so its alt names it ("Empty slot" by default) when it has details to open or can be picked; one with neither
+// is not a button.
 // phoneDetails go with onSelect: below 600 px, where the page's details Panel does not show, a pick also pins the
 // picked tile's details as its note (sized to a table), so the grid keeps the screen.
 const IconTile = ({ icon, fallback, alt = '', value, kind, frame, badge, mark, markAlt, status, details, onSelect, selected,
   phoneDetails }) => {
   const empty = status === 'empty';
   const hasValue = value !== undefined && !empty;
+  const emptyName = empty ? alt || 'Empty slot' : undefined;
   const tile = <Box sx={[
     (theme) => cardSurface(theme),
     (theme) => cardState(theme, selected ? 'selected' : status),
@@ -80,16 +82,16 @@ const IconTile = ({ icon, fallback, alt = '', value, kind, frame, badge, mark, m
       </Box> : null}
   </Box>;
   if (onSelect && phoneDetails) {
-    return <NoteTrigger note={phoneDetails} table phoneOnly onPick={onSelect} block
+    return <NoteTrigger note={phoneDetails} label={emptyName} table phoneOnly onPick={onSelect} block
                         buttonProps={{ 'aria-pressed': Boolean(selected) }}
                         sx={{ maxWidth: 72, borderRadius: '8px' }}>{tile}</NoteTrigger>;
   }
   if (onSelect) {
-    return <ButtonBase component={'span'} disableRipple aria-pressed={Boolean(selected)} onClick={onSelect}
+    return <ButtonBase component={'span'} disableRipple aria-label={emptyName} aria-pressed={Boolean(selected)} onClick={onSelect}
                        sx={{ display: 'flex', width: '100%', maxWidth: 72, borderRadius: '8px' }}>{tile}</ButtonBase>;
   }
   // block: the trigger fills the grid cell, so the tile's width follows the cell
-  return details ? <NoteTrigger note={details} label={empty ? alt || 'Empty slot' : undefined} block>{tile}</NoteTrigger> : tile;
+  return details ? <NoteTrigger note={details} label={emptyName} block>{tile}</NoteTrigger> : tile;
 };
 
 export default IconTile;
