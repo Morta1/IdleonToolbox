@@ -5,7 +5,7 @@ import DataTable from '@components/common/DataTable';
 import GameIcon, { MissingArt } from '@components/common/GameIcon';
 import StatusText from '@components/common/StatusText';
 import TagLine from '@components/common/TagLine';
-import { getGuildLevel } from '@parsers/guild';
+import { getGuildLevel } from '@parsers/guildLevel';
 import { seriesColors } from '@utility/chartTheme';
 import { formatNum } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';

@@ -12,7 +12,7 @@ import { isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
 import useHydrated from '@hooks/useHydrated';
 import { formatNum } from '@utility/helpers';
-import { getGuildLevel } from '../../parsers/guild';
+import { getGuildLevel } from '../../parsers/guildLevel';
 import WeeklyProgressChart from '@components/guilds/WeeklyProgressChart';
 import TrendChart from '@components/guilds/TrendChart';
 import RankHistoryChart from '@components/guilds/RankHistoryChart';

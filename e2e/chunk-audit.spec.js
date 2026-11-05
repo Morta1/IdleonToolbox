@@ -85,6 +85,18 @@ test.describe('firebase loads only when a session might exist', () => {
   });
 });
 
+// The guild pages read one pure helper from the parsers (parsers/guildLevel.ts): the data barrel (1.67 MB) was theirs
+// for a guest until it left parsers/guild.ts.
+for (const route of ['/guilds', '/guilds/detail']) {
+  test(`a guest on ${route} fetches no game-data chunk`, async ({ page, request }) => {
+    await page.addInitScript(() => localStorage.setItem('authHint', 'no'));
+    await page.goto(route);
+    await waitForRender(page);
+    await page.waitForTimeout(1500);
+    expect(offenders(await loadedScripts(page, request), ITEMS_MARKER)).toEqual([]);
+  });
+}
+
 // The first GameIcon that mounts starts the sprite-bounds download, not the module's import: a page that imports a
 // card with an icon slot but draws no icon (Statistics' Panels) never asks for it.
 test('a page with no game icon never downloads the sprite bounds', async ({ page, request }) => {

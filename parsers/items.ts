@@ -1,5 +1,5 @@
 import { bonuses, items, itemsArray } from '@website-data';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, titleCaseName } from '@utility/helpers';
 import { getGalleryBonus, isGalleryActive } from './world-7/gallery';
 import { getHatRackBonus, isHatRackActive } from './world-3/hatRack';
 import { CAPE_SLOT, getCapeVineBonus, isCapeVineActive } from './world-4/capeVine';
@@ -127,7 +127,7 @@ export const getStatsFromGear = (character: any, bonusIndex: any, account: any, 
     value,
     breakdown: [
       { name: '' },
-      { title: (cleanUnderscore(bonusName)?.toLowerCase() as any)?.capitalizeAllWords() },
+      { title: titleCaseName(cleanUnderscore(bonusName)) },
       { name: '' },
       { name: 'Equipment', value: gearTotal },
       { name: 'Gallery', value: galleryBonus },
@@ -136,7 +136,7 @@ export const getStatsFromGear = (character: any, bonusIndex: any, account: any, 
       { name: '' }
     ],
     newBreakdown: {
-      name: (cleanUnderscore(bonusName)?.toLowerCase() as any)?.capitalizeAllWords(),
+      name: titleCaseName(cleanUnderscore(bonusName)),
       sources: [
         { name: 'Equipment', value: gearTotal },
         { name: 'Gallery', value: galleryBonus },
