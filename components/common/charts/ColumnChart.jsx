@@ -8,7 +8,9 @@ import { focusRing } from '../../../styles/theme/darkTheme';
 import { ChartTooltipContent } from './ChartTooltip';
 import useMarkFocus from './useMarkFocus';
 
-const PLOT_HEIGHT = { xs: 180, sm: 220 };
+const PLOT_ROWS = { xs: 'minmax(180px, 1fr) auto', sm: 'minmax(220px, 1fr) auto' };
+// A host's spare height grows the plot up to this, axis labels included: past it a table twin beside it would stretch it.
+const TALLEST_CHART = 520;
 // The room an x label needs, as LineChart's X_LABEL_ROOM: about one 12 px digit or comma a character, and a gap.
 // Labels are never rotated: when the columns are narrower than that, every second (third, ...) one prints,
 // from the first.
@@ -69,14 +71,14 @@ const ColumnChart = ({ label, series, rows }) => {
     show(Math.max(0, Math.min(rows.length - 1, Math.floor(((event.clientX - box.left) / box.width) * rows.length))));
   };
 
-  return <Box sx={{ display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr)', columnGap: 1, pt: 2 }}>
-    <Box aria-hidden sx={{ position: 'relative', height: PLOT_HEIGHT, minWidth: 28 }}>
+  return <Box sx={{ display: 'grid', gridTemplateColumns: 'auto minmax(0, 1fr)', gridTemplateRows: PLOT_ROWS, columnGap: 1, pt: 2, flexGrow: 1, maxHeight: TALLEST_CHART }}>
+    <Box aria-hidden sx={{ position: 'relative', minWidth: 28 }}>
       {ticks.map((tick) => <Box key={tick} sx={{
         position: 'absolute', right: 0, bottom: height(tick), transform: 'translateY(50%)',
         typography: 'caption', lineHeight: 1, color: 'text.muted', fontVariantNumeric: 'tabular-nums'
       }}>{chartNum(tick)}</Box>)}
     </Box>
-    <Box ref={plot} sx={{ position: 'relative', height: PLOT_HEIGHT, borderBottom: `1px solid ${edge}` }}>
+    <Box ref={plot} sx={{ position: 'relative', borderBottom: `1px solid ${edge}` }}>
       {ticks.filter((tick) => tick > 0).map((tick) => <Box key={tick} aria-hidden sx={{
         position: 'absolute', left: 0, right: 0, bottom: height(tick), borderTop: `1px solid ${grid}`
       }}/>)}

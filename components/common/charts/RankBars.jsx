@@ -7,6 +7,8 @@ import useMarkFocus from './useMarkFocus';
 
 // The room the tip value keeps past the longest bar.
 const TIP_ROOM = 64;
+// A host's spare height spreads the rows up to this pitch: past it a list stops reading as one.
+const WIDEST_ROW = 44;
 
 // Rank a list, or a share past six parts (Charts board, "Form by job"; a donut is for six parts or fewer, and no
 // chart has that few today): sorted bars in one color (slot 1, an Other row in grey), the value at the tip and no
@@ -25,7 +27,9 @@ const RankBars = ({ label, rows }) => {
 
   return <Box component={'ol'} aria-label={label} sx={{
     m: 0, p: 0, listStyle: 'none', display: 'grid',
-    gridTemplateColumns: { xs: '1fr', sm: 'fit-content(40%) minmax(0, 1fr)' }
+    gridTemplateColumns: { xs: '1fr', sm: 'fit-content(40%) minmax(0, 1fr)' },
+    // min-content outranks the max: rows whose names wrap are never squeezed under their own height
+    flexGrow: 1, alignContent: 'space-between', minHeight: 'min-content', maxHeight: rows.length * WIDEST_ROW
   }}>
     {rows.map((row, index) => <Box component={'li'} key={row.key} {...markProps(index)} sx={{
         display: 'grid',
