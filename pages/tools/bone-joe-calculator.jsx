@@ -6,7 +6,7 @@ import StructuredData, { createHowToData } from '@components/common/StructuredDa
 import MinibossHp from '@components/tools/bone-joe-calculator/MinibossHp';
 import CharacterMinibosses from '@components/tools/bone-joe-calculator/CharacterMinibosses';
 import { useBoneJoeConfig } from '@hooks/useBoneJoeConfig';
-import { MissingSections } from '@components/common/styles';
+import { isSectionFailed, MissingSections } from '@components/common/styles';
 
 // The damage column reads the last three too: without them it says "-" and the page says why
 const SECTION_NAMES = { prayers: 'Prayers', hole: 'The Hole', alchemy: 'Alchemy', breeding: 'Breeding', legendTalents: 'Legend Talents' };
@@ -45,15 +45,13 @@ const BoneJoeCalculator = () => {
         kill count as one extra Deathnote kill on the page the Revenge of the Pickle equinox upgrade unlocks. Big Brain
         Time, Midas Minded and Jawbreaker stack on top of that, since all three curse monster HP.
       </Typography>
-      <MinibossHp {...config}/>
+      <MinibossHp {...config} targetHits={targetHits} setTargetHits={setTargetHits} maxTargetHits={maxTargetHits}
+                  showTargetHits={Boolean(state?.characters?.length) && !isSectionFailed(state?.account, 'hole')}/>
       <CharacterMinibosses
         characters={state?.characters}
         account={state?.account}
         overridePickles={overridePickles}
         overrideHpMulti={overrideHpMulti}
-        targetHits={targetHits}
-        setTargetHits={setTargetHits}
-        maxTargetHits={maxTargetHits}
         debouncedTargetHits={debouncedTargetHits}
       />
     </Stack>

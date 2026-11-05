@@ -1,6 +1,5 @@
 import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
-import NumberField from '@components/common/NumberField';
 import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
 import InfoButton from '@components/common/InfoButton';
@@ -31,11 +30,17 @@ const hitsLabel = (hits) => {
 };
 
 // Best case to worst case. They collapse to one number when nothing widens the gap, which is either
-// a character with no attack equipped or a miniboss that dies in a single hit either way.
+// a character with no attack equipped or a miniboss that dies in a single hit either way. Two lines, and in the table no
+// "hits" (the line above the table says what they count): one line of six digit ends took ten columns past 1366.
 const rangeLabel = (skillHits, basicHits) => {
   if (!isFinite(skillHits) || !isFinite(basicHits)) return 'no damage';
   if (Math.ceil(skillHits) === Math.ceil(basicHits)) return hitsLabel(basicHits);
-  return `${formatNum(skillHits, 'whole')} to ${hitsLabel(basicHits)}`;
+  return <>
+    <Box component={'span'} sx={{ display: 'block' }}>{formatNum(skillHits, 'whole')} to </Box>
+    <Box component={'span'} sx={{ display: 'block' }}>
+      {formatNum(basicHits, 'whole')}<Box component={'span'} sx={{ display: { md: 'none' } }}> hits</Box>
+    </Box>
+  </>;
 };
 
 const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti, targetHits }) => {
@@ -89,6 +94,7 @@ const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti,
         {cleanUnderscore(name)}
       </Stack>,
       numeric: true,
+      cellSx: { px: 0.5 },
       render: ({ carried, bosses }) => {
         const { cap, hits, skillHits, known } = bosses[rawName];
         if (!known) return null;
@@ -111,7 +117,7 @@ const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti,
       ? 'Both are using the configuration above, not what each character actually has.'
       : 'Both are using each character\'s own equipped prayers and carried pickles.'}
     </Typography>
-    <DataTable columns={columns} rows={rows} rowKey={(row) => row.character?.name}
+    <DataTable columns={columns} rows={rows} rowKey={(row) => row.character?.name} dense
                rowLabel={(row) => row.character?.name}/>
   </>;
 };
@@ -126,26 +132,13 @@ const CharacterMinibosses = ({
                                account,
                                overridePickles,
                                overrideHpMulti,
-                               targetHits,
-                               setTargetHits,
-                               maxTargetHits,
                                debouncedTargetHits
                              }) => {
   const hasCharacters = Boolean(characters?.length);
   // The damage chain reads the hole's schematics and throws without them, so it is never asked
   const holeFailed = isSectionFailed(account, 'hole');
   const wholeParseFailed = account?.failedSections?.includes('*');
-  return <Panel title={'Your characters'}
-                aside={hasCharacters && !holeFailed ? <NumberField
-                  label={'Target hits'}
-                  sx={{ width: 120 }}
-                  min={1}
-                  max={maxTargetHits}
-                  integer
-                  help={false}
-                  value={targetHits}
-                  onChange={(next) => setTargetHits(next ?? 1)}
-                /> : null}>
+  return <Panel title={'Your characters'}>
     {holeFailed && hasCharacters ? <Typography variant={'body2'} color={'text.secondary'} sx={{ p: 2 }}>
       Couldn't work out your characters' damage: the hole section failed to load.
     </Typography> : null}

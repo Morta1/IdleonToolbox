@@ -24,7 +24,11 @@ const MinibossHp = ({
                       curse,
                       hpMulti,
                       applyToCharacters,
-                      setApplyToCharacters
+                      setApplyToCharacters,
+                      showTargetHits,
+                      targetHits,
+                      setTargetHits,
+                      maxTargetHits
                     }) => {
   const minibosses = getMinibosses();
   const killCredit = getKillCredit(pickles);
@@ -73,6 +77,17 @@ const MinibossHp = ({
               : undefined}
           />;
         })}
+        {/* It only moves the characters' table, but it is one of this tool's inputs: they share one row */}
+        {showTargetHits ? <NumberField
+          label={'Target hits'}
+          sx={{ flex: '1 1 120px', minWidth: 0 }}
+          min={1}
+          max={maxTargetHits}
+          integer
+          help={false}
+          value={targetHits}
+          onChange={(next) => setTargetHits(next ?? 1)}
+        /> : null}
       </Stack>
       <FormControlLabel
         sx={{ width: 'fit-content' }}

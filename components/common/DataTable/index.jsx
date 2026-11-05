@@ -45,7 +45,8 @@ import SortField from './SortField';
 // already holds one. `align: 'left'` keeps a number column to the left, beside the name (Constellations' Progress).
 // `detailLabel` is what the phone's detail list prints for a column whose heading is art.
 
-// A small table (fits) keeps the phone's tighter padding at every width: it often sits inside a 260 px note. A table
+// A small table (fits) keeps the phone's tighter padding at every width: it often sits inside a 260 px note, and so does
+// one with many narrow columns (dense: Bone Joe's ten minibosses across 1366). A table
 // that brings its columns in at sm keeps it until md (tightUntilMd).
 const TIGHT = { px: 0.75 };
 const TIGHT_UNTIL_MD = { px: { xs: 0.75, md: 1.5 } };
@@ -215,6 +216,7 @@ const DataTable = ({
                      stickyTop = null,
                      surface = 'page',
                      fits = false,
+                     dense = false,
                      detail,
                      sortField = true,
                      sx
@@ -237,7 +239,7 @@ const DataTable = ({
   // A phone hides every data column but the ones it keeps: when that hides any, each row opens the rest under it.
   const expandable = !fits && (Boolean(detail) || data.some((column, i) => !phoneKeeps(column, i, primary)));
   const until = detailsUntil(data, primary, secondary);
-  const tight = fits ? TIGHT : tightUntilMd(data, primary) ? TIGHT_UNTIL_MD : {};
+  const tight = fits || dense ? TIGHT : tightUntilMd(data, primary) ? TIGHT_UNTIL_MD : {};
   const sortable = columns.filter((column) => column.sortable);
   // Where a locked row's word goes: the first data column a phone shows.
   const wordAt = Math.max(0, data.findIndex((column, i) => phoneKeeps(column, i, primary)));
