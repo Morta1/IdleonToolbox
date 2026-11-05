@@ -54,6 +54,9 @@ const smallTileSx = (hasValue, empty) => ({
   ...(empty ? { minHeight: 44 } : {})
 });
 
+// A fill grid lifts this, so a tile fills its column.
+const TILE_MAX = 'var(--tile-max, 72px)';
+
 // IconTile (Cards board): a sprite and one number, packed tight, for grids scanned at a glance. 72 px
 // square, the sprite in a 40 px box, game frames behind it; narrower only where its grid keeps a fixed column
 // count (CardGrid columns), as wide as its cell. Missing greys the sprite, empty is a dashed slot, active and
@@ -80,7 +83,7 @@ const IconTile = ({ icon, fallback, alt = '', value, kind, sub, frame, badge, ma
     small ? smallTileSx(hasValue, empty) : {
       position: 'relative',
       width: '100%',
-      maxWidth: 72,
+      maxWidth: TILE_MAX,
       height: 72,
       px: 0.5,
       pt: 0.75,
@@ -120,12 +123,12 @@ const IconTile = ({ icon, fallback, alt = '', value, kind, sub, frame, badge, ma
   if (onSelect && phoneDetails) {
     return <NoteTrigger note={phoneDetails} label={emptyName} table phoneOnly onPick={onSelect} block
                         buttonProps={{ 'aria-pressed': Boolean(selected) }}
-                        sx={{ maxWidth: 72, borderRadius: '8px' }}>{tile}</NoteTrigger>;
+                        sx={{ maxWidth: TILE_MAX, borderRadius: '8px' }}>{tile}</NoteTrigger>;
   }
   if (onSelect) {
     return <ButtonBase component={'span'} disableRipple aria-label={emptyName} aria-pressed={Boolean(selected)} onClick={onSelect}
                        sx={small ? { display: 'flex', width: '100%', alignItems: 'stretch', borderRadius: '6px' }
-                         : { display: 'flex', width: '100%', maxWidth: 72, borderRadius: '8px' }}>{tile}</ButtonBase>;
+                         : { display: 'flex', width: '100%', maxWidth: TILE_MAX, borderRadius: '8px' }}>{tile}</ButtonBase>;
   }
   // block: the trigger fills the grid cell, so the tile's width follows the cell, and inside a sheet its row's height
   return details ? <NoteTrigger note={details} label={emptyName} block sx={small ? { alignItems: 'stretch', borderRadius: '6px' } : undefined}>{tile}</NoteTrigger> : tile;

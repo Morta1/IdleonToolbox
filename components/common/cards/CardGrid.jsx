@@ -20,9 +20,9 @@ const columns = (size, count) => (size === 'icon'
 // flow: the cards flow down columns of the size's width, each kept whole, for Panels of very different heights
 // (General): a tall one never sets a row's height for the short ones beside it, so it leaves no empty band.
 // Any other prop goes to the grid's own element (a list's component and name).
-// fill: an icon grid that fits its Panel on a phone, its tiles sharing the row at 64 to 72 px each: General's Panels
-// at 384 held 3 tiles and an 86 px empty band where a fourth almost fit. From 600 px the tiles keep their 72 px.
-const FILL_SX = { gridTemplateColumns: { xs: 'repeat(auto-fill, minmax(64px, 1fr))', sm: 'repeat(auto-fill, 72px)' } };
+// fill: an icon grid whose tiles share the row at every width, 64 px up, so a full row never ends in an empty band: 72 px
+// columns left a General Panel about 64 px unused, where 4 tiles now fit at about 68 px. --tile-max lifts IconTile's cap.
+const FILL_SX = { gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))', '--tile-max': 'none' };
 // An icon grid inside a sheet (the characters board's .g), 6 px apart. sheetColumns [wide, narrow]: the tiles share the
 // row, and a section under 340 px (a side-by-side column, a phone) takes the narrow count. A tile is never narrower than
 // its longest value, every digit below 1M kept: 44 px holds "99,934" at 13 px and "451,025" at IconTile's 11 px, and a
