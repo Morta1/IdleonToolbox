@@ -75,17 +75,18 @@ const Panel = ({ icon, iconAlt = '', title, meta, aside, asideOwnRow, collapsibl
   return <Box component={'section'} sx={[(theme) => cardSurface(theme), ...(Array.isArray(sx) ? sx : [sx])]}>
     <Stack direction={'row'} alignItems={'center'} gap={1.5} flexWrap={asideOwnRow ? { xs: 'wrap', sm: 'nowrap' } : undefined}
            sx={{ minHeight: 56, py: 1, pl: 2, pr: 1.5, borderBottom: shown ? 1 : 0, borderColor: 'divider' }}>
+      {/* First, as the board's collapsed Panel draws it: its glyph on the Panel's 16 px side */}
+      {collapsible ? <IconButton size={'small'} aria-expanded={open} aria-controls={bodyId} sx={{ ml: -0.75 }}
+                                 aria-label={`${open ? 'Collapse' : 'Expand'} ${name}`.trim()}
+                                 onClick={() => setOpen(!open)}>
+        <IconChevronDown size={20} style={{ transform: open ? 'none' : 'rotate(-90deg)' }}/>
+      </IconButton> : null}
       {typeof icon === 'string' ? <GameIcon src={icon} size={24} alt={iconAlt}/> : icon}
       <Stack sx={{ minWidth: 0, flex: 1 }}>
         <Typography variant={'cardTitle'} component={'h2'}>{title}</Typography>
         {meta ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{meta}</Typography> : null}
       </Stack>
       {aside ? <Box sx={{ flexShrink: 0, ...(asideOwnRow ? { flexBasis: { xs: '100%', sm: 'auto' } } : {}) }}>{aside}</Box> : null}
-      {collapsible ? <IconButton size={'small'} aria-expanded={open} aria-controls={bodyId}
-                                 aria-label={`${open ? 'Collapse' : 'Expand'} ${name}`.trim()}
-                                 onClick={() => setOpen(!open)}>
-        <IconChevronDown size={20} style={{ transform: open ? 'none' : 'rotate(-90deg)' }}/>
-      </IconButton> : null}
     </Stack>
     <Box id={bodyId} hidden={!shown} sx={ROWS_SX}>{children}</Box>
   </Box>;
