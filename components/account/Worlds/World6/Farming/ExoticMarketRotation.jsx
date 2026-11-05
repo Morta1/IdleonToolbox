@@ -11,6 +11,7 @@ import useToolbarState from '@hooks/useToolbarState';
 import Notice from '@components/common/Notice';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import { isSectionFailed } from '@components/common/styles';
 
 const ROTATION_TOOLBAR = { weeks: 10 };
 const WEEKS = [10, 20, 30, 40, 50];
@@ -24,6 +25,8 @@ const ExoticMarketRotation = () => {
   const [filter, setFilter] = useState([]);
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('farming-exotic-rotation', ROTATION_TOOLBAR);
   const weeks = toolbar?.weeks ?? 10;
+  // The forecast comes from the date, so a failed section keeps each week's names; their levels and effects are gone
+  const sectionFailed = isSectionFailed(state?.account, 'farming');
 
   // Get all valid exotic market upgrades for the filter dropdown (use processed data for actual values)
   const processedMarket = state?.account?.farming?.exoticMarket || [];
@@ -115,10 +118,10 @@ const ExoticMarketRotation = () => {
                   const isHighlighted = filter.length > 0 && filter.some(f => f.name === upgrade.name);
                   return <ItemCard key={'upgrade-' + rotationIndex + '-' + upgradeIndex}
                                    icon={`data/FarmCrop${upgrade.x2}.png`} title={upgradeName(upgrade)}
-                                   level={{ value: upgrade.level || 0 }}
+                                   level={sectionFailed ? undefined : { value: upgrade.level || 0 }}
                                    status={isHighlighted ? 'selected' : undefined} statusLabel={'Matches filter'}
                                    footer={<ExoticReturnsIn weeks={returnsIn(upgrade.index, rotation.weekOffset)}/>}>
-                    <ItemCard.Desc text={upgrade.displayText}/>
+                    {sectionFailed ? null : <ItemCard.Desc text={upgrade.displayText}/>}
                   </ItemCard>;
                 })}
               </CardGrid>
