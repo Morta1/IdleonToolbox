@@ -1,4 +1,4 @@
-import { commaNotation, notateNumber } from '@utility/helpers';
+import { gameFill } from '@utility/helpers';
 import { mineheadUpgrades, upgradeVault, research as researchData, researchGridSquares, items, gameTables } from '@website-data';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
@@ -356,9 +356,9 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any, char
     if (idx === 1) return Math.floor(account?.research?.researchAFKrate ?? 0);
     if (idx === 4) {
       const weaponPower = getBestActiveCharacter(characters)?.equipment?.[1]?.Weapon_Power ?? 0;
-      return String(notateNumber(1 + (getBonusQTY(4) * weaponPower) / 100, 'MultiplierInfo'));
+      return gameFill(1 + (getBonusQTY(4) * weaponPower) / 100, 'MultiplierInfo');
     }
-    if (idx === 18) return String(notateNumber(getGildedBoostioBonus(account), 'MultiplierInfo'));
+    if (idx === 18) return gameFill(getGildedBoostioBonus(account), 'MultiplierInfo');
     return null;
   };
 
@@ -474,10 +474,10 @@ function formatOpponentDescription(template: any, bonusValue: any, dollarValue: 
   let desc = template;
 
   // Replace { with flat bonus value
-  desc = desc.split('{').join(commaNotation(bonusValue));
+  desc = desc.split('{').join(gameFill(bonusValue, 'Comma'));
 
   // Replace } with multiplier notation (no x - the template appends x where needed)
-  const multStr = (notateNumber(1 + bonusValue / 100, 'MultiplierInfo') as string).replace(/#/g, '');
+  const multStr = gameFill(1 + bonusValue / 100, 'MultiplierInfo');
   desc = desc.split('}').join(multStr);
 
   if (dollarValue !== null) desc = desc.split('$').join(String(dollarValue));
@@ -493,7 +493,7 @@ function formatOpponentDescription(template: any, bonusValue: any, dollarValue: 
 
 /**
  * Formats a minehead upgrade description, resolving game placeholders:
- *   { → commaNotation(upgradeQTY)
+ *   { → upgradeQTY
  *   } → multiplier string (1 + upgradeQTY/100)
  *   $ → upgrade-specific special value (handled per index)
  *   @ → stripped (in-game annotation marker)
@@ -514,10 +514,10 @@ function formatUpgradeDescription(
   let desc = getPanelSentence(idx, level, getUpgradeQTY) ?? template;
 
   // Replace { with current upgrade qty
-  desc = desc.split('{').join(commaNotation(upgradeQTY));
+  desc = desc.split('{').join(gameFill(upgradeQTY, 'Comma'));
 
   // Replace } with multiplier notation
-  const multStr = (notateNumber(1 + upgradeQTY / 100, 'MultiplierInfo') as string).replace(/#/g, '');
+  const multStr = gameFill(1 + upgradeQTY / 100, 'MultiplierInfo');
   desc = desc.split('}').join(multStr);
 
   // Replace $ with upgrade-specific value
@@ -587,7 +587,7 @@ function getDollarValue(idx: any, getUpgradeQTY: any, getBluecrownMulti: any, ge
     case 14: {
       // Bluecrown upgrade: shows current bluecrown multiplier
       const multi = getBluecrownMulti();
-      return (notateNumber(multi, 'MultiplierInfo') as string).replace(/#/g, '') + 'x';
+      return gameFill(multi, 'MultiplierInfo') + 'x';
     }
 
     case 17: {
@@ -617,7 +617,7 @@ function getDollarValue(idx: any, getUpgradeQTY: any, getBluecrownMulti: any, ge
       // Miney_Farmey_III: shows per-power-10 bonus and current total
       const qty28 = getUpgradeQTY(28);
       const logBestHit = Math.log10(Math.max(1, bestHit));
-      return `+${commaNotation(qty28)}% Mine Currency per POW 10 of your best ever hit, so +${notateNumber(qty28 * logBestHit, 'Big')}% total`;
+      return `+${gameFill(qty28, 'Comma')}% Mine Currency per POW 10 of your best ever hit, so +${gameFill(qty28 * logBestHit, 'Big')}% total`;
     }
 
     default:

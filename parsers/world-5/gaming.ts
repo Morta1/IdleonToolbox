@@ -1,5 +1,5 @@
 import { gamingImports, gamingPalette, gamingUpgrades, randomList2, superbitsUpgrades } from '@website-data';
-import { commaNotation, gameFill, notateNumber, number2letter, tryToParse } from '@utility/helpers';
+import { gameFill, notateNumber, number2letter, tryToParse } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { getAccountMinorDivinityBonus, GOD_INDEX } from '@parsers/world-5/divinity';
 import { getHighestLevelCharacter, getLoggedInSkillLevel, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
@@ -521,7 +521,7 @@ const calcImportCost = (index: any, gamingImportsValues: any) => {
 const calcFertilizerBonus = (index: any, gamingRaw: any, gamingSproutRaw: any, characters: any, account: any, acornShop: any, imports: any) => {
   if (index === 0) {
     const baseValue = gamingRaw?.[1];
-    return notateNumber((1 + 4 * baseValue) * Math.pow(1.065, baseValue), 'bits');
+    return gameFill((1 + 4 * baseValue) * Math.pow(1.065, baseValue), 'Bits');
   }
   else if (index === 1) {
     const baseValue = gamingRaw?.[2];
@@ -541,7 +541,7 @@ const calcFertilizerBonus = (index: any, gamingRaw: any, gamingSproutRaw: any, c
   else if (index === 2) {
     const baseValue = gamingRaw?.[3];
     const maxSprouts = account?.gemShopPurchases?.find((value: any, index: any) => index === 133) ?? 0;
-    return notateNumber(Math.round(Math.min(24, 3 + baseValue + (maxSprouts))));
+    return gameFill(Math.round(Math.min(24, 3 + baseValue + (maxSprouts))), 'Big', { whole: true });
   }
 }
 
@@ -767,9 +767,9 @@ const getPalette = (account: any, ratKing: any, spelunkRaw: any, characters: any
       const template = gamingPalette?.[i]?.description || '';
       if (!template) return template;
       return template
-        .replace(/\{/g, commaNotation(value))
+        .replace(/\{/g, gameFill(value, 'Comma'))
         .replace(/#/g, '' + (Math.floor(100 * value) / 100))
-        .replace(/\}/g, String(notateNumber(1 + value / 100, 'MultiplierInfo')));
+        .replace(/\}/g, gameFill(1 + value / 100, 'MultiplierInfo'));
     };
     const description = formatDescription(bonus);
     // game: "CanWeDoubleBlackstar" is always 1, so any colour takes up to 2 stars

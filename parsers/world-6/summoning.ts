@@ -1,4 +1,4 @@
-import { cleanUnderscore, commaNotation, createRange, groupByKey, notateNumber, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, createRange, gameFill, groupByKey, tryToParse } from '@utility/helpers';
 import { monsterSprite } from '@utility/spriteImages';
 import {
   deathNote,
@@ -274,7 +274,7 @@ export const getEndlessBattles = (battles = 100, highestEndlessLevel: any, winne
     const actualBonus = bonus?.bonus?.includes('<')
       ? (1 + bonusQty / 100)
       : (bonusQty);
-    bonus.bonus = bonus?.bonus?.replace(/[<{]/, actualBonus.toFixed(2).replace('.00', ''));
+    bonus.bonus = bonus?.bonus?.replace(/[<{]/, gameFill(actualBonus, bonus?.bonus?.includes('<') ? 'MultiplierInfo' : 'Big'));
     const riftIndex = summoningEnemies.findIndex((enemy) => enemy.enemyId.includes('rift1'));
     const monsterId = Math.round(riftIndex + Math.min(4, Math.floor(i / 20)));
     const [name, ...rest] = summoningEndless.difficultiesText?.[difficultyIndex].split('|');
@@ -424,7 +424,7 @@ const getBattleData = (enemyId: any, monsterData: any, wonBattles: any) => {
   const won = wonBattles?.includes(enemyId);
   const { bonus, bonusId } = summoningBonuses.find((bonus) => bonus.bonusId === monsterData.bonusId)!;
   const base = 3.5 * monsterData?.bonusQty;
-  const actualBonus = bonus.includes('<') ? notateNumber(1 + base / 100, 'MultiplierInfo') : notateNumber(base, 'Big');
+  const actualBonus = bonus.includes('<') ? gameFill(1 + base / 100, 'MultiplierInfo') : gameFill(base, 'Big');
   const resultBonus = { bonusId, bonus: bonus.replace(/[<{]/, '' + actualBonus) };
   return {
     bonus: resultBonus,
@@ -532,9 +532,9 @@ const PLAIN_TOTAL_UPGRADES = [49, 57, 72, 75];
 // > is round(100 + bonus) / 100, } is the total and "@" is a line break. "|" (the familiar cost reset) is left for
 // the page to fill.
 export const getSummoningUpgradeText = ({ bonus, value, totalBonus, originalIndex }: any): string => {
-  const total = PLAIN_TOTAL_UPGRADES.includes(originalIndex) ? totalBonus : commaNotation(totalBonus);
+  const total = PLAIN_TOTAL_UPGRADES.includes(originalIndex) ? totalBonus : gameFill(totalBonus, 'Comma');
   const text = String(bonus ?? '')
-    .split('{').join(commaNotation(value))
+    .split('{').join(gameFill(value, 'Comma'))
     .split('>').join(String(Math.round(100 + value) / 100))
     .split('}').join(String(total));
   return (cleanUnderscore(text) ?? '').split('@').map((line) => line.trim()).join('\n');

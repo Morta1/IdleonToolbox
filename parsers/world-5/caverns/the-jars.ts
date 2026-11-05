@@ -3,7 +3,7 @@ import { getPaletteBonus, isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
-import { cleanUnderscore, commaNotation, createRange, gameFill, lavaLog, notateNumber, numberWithCommas, titleCaseName } from '@utility/helpers';
+import { cleanUnderscore, createRange, gameFill, lavaLog, notateNumber, numberWithCommas, titleCaseName } from '@utility/helpers';
 import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
@@ -43,8 +43,8 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
   const jarAesthetic = getJarAesthetic({ holesObject });
   const jarInventory = getJarInventory(jarsRaw);
   const jars = jarNames.map((name, index) => {
-    const bonus = index === 1 ? notateNumber(100 * opalChance, 'Small') : index === 2
-      ? notateNumber(100 * newCollectibleChance, 'Small')
+    const bonus = index === 1 ? gameFill(100 * opalChance, 'Small') : index === 2
+      ? gameFill(100 * newCollectibleChance, 'Small')
       : index === 4 ? enchant.label : ''
     return {
       name,
@@ -75,9 +75,7 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
   rupies = [...rupies, ...whiteDarkRupies];
 
   // game: $ (only the first collectible has one) is JarRupieValue, Small under 1e3, with commas under 1e9, Big past that
-  const rupieValueText = String(rupieValue.value < 1e3
-    ? notateNumber(rupieValue.value, 'Small')
-    : rupieValue.value < 1e9 ? commaNotation(rupieValue.value) : notateNumber(rupieValue.value, 'Big'));
+  const rupieValueText = gameFill(rupieValue.value, rupieValue.value < 1e3 ? 'Small' : rupieValue.value < 1e9 ? 'Comma' : 'Big');
   const collectibles = Array.from({ length: 40 }, (_, index) => holesObject?.jarStuff?.[index]).map((level: any, index: any) => {
     const [name, bonusModifier, , description] = holesInfo?.[67]?.[index]?.split('|') ?? [];
     const bonus = getJarBonus({ holesObject, i: index, account: accountData });

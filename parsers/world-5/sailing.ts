@@ -980,7 +980,7 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
     const daysSinceLastSample = account?.accountOptions?.[OPT.daysSinceLastSample];
     const goldRelicBonus = upgradedForm ? artifact?.[multiplierType] : 0;
     const daysBonus = 1 + ((daysSinceLastSample) * (2 + goldRelicBonus)) / 100;
-    additionalData = `Days passed: ${daysSinceLastSample}. Bonus: ${String(notateNumber(daysBonus, 'MultiplierInfo')).replace('#', '')}x`;
+    additionalData = `Days passed: ${daysSinceLastSample}. Bonus: ${gameFill(daysBonus, 'MultiplierInfo')}x`;
   }
   else if (artifact?.name === 'Crystal_Steak') {
     const mainStats = charactersData?.map(({ name, class: className, stats }: any) => {

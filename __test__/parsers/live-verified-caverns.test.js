@@ -43,8 +43,9 @@ const GAME_A = {
   motherlodeEffBase: [74962673.51641624, 2203992.1152000003, 41645929.731342345, 1285368201.5846403],
   // Holes("HoundNextOpalScoreReq" / "AmpStonesOwned" / "AmpMulti")
   den: { nextOpalAt: 17982988.396270752, ownedAmps: 8, ampMulti: 4.1899999999999995 },
-  // NotateNumber(Holes("AmpDebuff", t), t == 7 ? "Small" : "Big"), as the amplifier panel prints it
-  ampDebuffText: ['68K', '96.6K', '15', '4', '2', '2', '4', '0.1'],
+  // NotateNumber(Holes("AmpDebuff", t), t == 7 ? "Small" : "Big"): the amplifier panel prints 68K 96.6K 15 4 2 2 4 0.1.
+  // Below 1M the site's sentences keep their decimals (Decision 9)
+  ampDebuffText: ['67,949.3', '96,536.18', '15', '4.63', '2.14', '2', '4', '0.1'],
   // Holes2("Fountain_BonTOT", t, i) after a -1 rebuild, Holes2("Cost_FountainUPG", t, i), Holes2("Fountain_UpgUnlocked", t, i)
   fountainBonus: [
     [10, 220, 136, 60, 59, 925, 900, 280, 64, 144, 5, 9, 720, 10, 122, 295, 56, 90, 200, 75],
@@ -109,7 +110,7 @@ describe('caverns part A verified against the live game', () => {
     within(caverns.motherlode.ores.required, GAME_A.totalOreReq[LAYER_CAVERN.MOTHERLODE]);
   });
 
-  it('den amplifier debuffs as the game prints them', () => {
+  it('den amplifier debuffs', () => {
     expect(caverns.theDen.amplifiers.map(({ bonus }) => bonus)).toEqual(GAME_A.ampDebuffText);
   });
 

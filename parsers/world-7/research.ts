@@ -1,4 +1,4 @@
-import { commaNotation, notateNumber } from '@utility/helpers';
+import { gameFill, notateNumber } from '@utility/helpers';
 import {
   mapEnemiesArray,
   mapNames,
@@ -469,10 +469,10 @@ export function getResearchGridSquareDescription(account: any, research: any, gr
   const level = Math.round(getResearchGridBonusInternal(account, research, gridIndex, 1));
   const opt499 = research?.optionsListAccount?.[OPT.researchMasterclassCostReduction] ?? 0;
 
-  const bonus0Str = bonus0 > 100 ? commaNotation(bonus0) : notateNumber(bonus0, 'Small');
-  const mult0Str = (notateNumber(1 + bonus0 / 100, 'MultiplierInfo') as string).replace(/#/g, '');
-  const bonus2Str = commaNotation(bonus2);
-  const mult2Str = (notateNumber(1 + bonus2 / 100, 'MultiplierInfo') as string).replace(/#/g, '');
+  const bonus0Str = bonus0 > 100 ? gameFill(bonus0, 'Comma') : gameFill(bonus0, 'Small');
+  const mult0Str = gameFill(1 + bonus0 / 100, 'MultiplierInfo');
+  const bonus2Str = gameFill(bonus2, 'Comma');
+  const mult2Str = gameFill(1 + bonus2 / 100, 'MultiplierInfo');
   const opt499Str = Math.floor(10000 * (1 - 1 / (1 + opt499 / 100))) / 100;
   const levelStr = level;
 

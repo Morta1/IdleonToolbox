@@ -1,4 +1,4 @@
-import { tryToParse, commaNotation, notateNumber, lavaLog, lavaLog2, GAME_LN10 } from '@utility/helpers';
+import { gameFill, tryToParse, lavaLog, lavaLog2, GAME_LN10 } from '@utility/helpers';
 import { sumSaveArray } from '@parsers/world-7/saveTotals';
 import { research as researchData, superbitsUpgrades, sushiUpgrades as sushiUpgradesData } from '@website-data';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
@@ -149,9 +149,8 @@ export const getSushiStation = (idleonData: any, account: any) => {
     const rawDesc = upgrade?.slice?.(5)?.join?.(' ') ?? '';
     const formatDesc = (qty: number) => rawDesc
       .replace(/_/g, ' ')
-      .replace(/\{/g, '' + commaNotation(qty))
-      .replace(/\}/g, '' + notateNumber(1 + qty / 100, 'MultiplierInfo'))
-      .replace(/@/g, '\n');
+      .replace(/\{/g, gameFill(qty, 'Comma'))
+      .replace(/\}/g, gameFill(1 + qty / 100, 'MultiplierInfo'));
     const desc = formatDesc(upgradeQTY);
     const doublerEligible = isDoublerEligible('sushi', idx);
     const doubledDescription = doublerEligible && !doubled && upgradeQTY > 0 ? formatDesc(2 * upgradeQTY) : null;
@@ -292,6 +291,29 @@ export const getSushiStation = (idleonData: any, account: any) => {
   const fireplaceEffectBase = (1 + (knowledgeTotals[9] ?? 0) / 100)
     * (1 + fireplaceSparkMulti / 100);
 
+  // game: the upgrade panel's $ (each upgrade's own line). 识 and 蒲 are the font's overtuned fuel and spark art.
+  const panelAmount = (value: number, rule: number, options?: { whole: boolean }) => gameFill(value, rule < 1e7 ? 'Comma' : 'Big', options);
+  const panelMulti = (percent: number) => gameFill(1 + percent / 100, 'Small');
+  const getUpgradeDollar = (idx: number, qty: number): string => {
+    if ([2, 3, 4, 5, 9, 10, 11, 12].includes(idx)) return panelMulti(Number(upgradeLevels?.[idx]) || 0);
+    if (idx === 6) return `${Math.round(qty) + 1}`;
+    if (idx === 8) return `${panelAmount(fuelGen, fuelGen)} Fuel/hr. Max Cap is ${panelAmount(fuelCap, fuelGen, { whole: true })}`;
+    if (idx === 14) return panelMulti(50 * slotEffectBase);
+    if (idx === 15) return gameFill(0.2 * slotEffectBase, 'Small');
+    if (idx === 16) return gameFill(slotEffectBase, 'Small');
+    if (idx === 22) return `${Math.round(1 + qty)}`;
+    if (idx === 25) return `You have: ${gameFill(sparks, 'Big')} Sparks. This boosts all Fireplace bonuses by ${panelMulti(fireplaceSparkMulti)}x`;
+    if (idx === 26) return panelMulti(100 * fireplaceEffectBase);
+    if (idx === 27) return panelMulti(150 * fireplaceEffectBase);
+    if (idx === 28) return `You have: ${gameFill(overtunedValue, 'Big')} Overtuned Fuel. This boosts all Bucks gained by ${panelMulti(overtunedMulti)}x`;
+    if (idx === 29) return `${Math.max(0, uniqueSushi - 6)}`;
+    if (idx === 36) return gameFill(100 * (1 - 1 / (1 + qty / 100)), 'Small');
+    if (idx === 37) return gameFill(1 + qty / 10, 'Small');
+    return '$';
+  };
+  const fillUpgradeText = (text: string, idx: number, qty: number) => text.replace('$', () => getUpgradeDollar(idx, qty))
+    .replace(/识/g, 'Overtuned Fuel').replace(/蒲/g, ' Spark');
+
   // Currency per slot
   const getCurrencyPerSlot = (slotIdx: number) => {
     const tier = slotTiers[slotIdx] ?? -1;
@@ -338,9 +360,9 @@ export const getSushiStation = (idleonData: any, account: any) => {
     const bonus = getKnowledgeBonusSpecific(i);
     const catDesc = String(knowledgeCategoryDescriptions?.[cat] ?? '')
       .replace(/_/g, ' ')
-      .replace(/\{/g, '' + commaNotation(bonus))
-      .replace(/\}/g, '' + notateNumber(1 + bonus / 100, 'MultiplierInfo'))
-      .replace(/\^/g, '' + commaNotation(bonus));
+      .replace(/\{/g, gameFill(bonus, 'Comma'))
+      .replace(/\}/g, gameFill(1 + bonus / 100, 'MultiplierInfo'))
+      .replace(/\^/g, gameFill(bonus, 'Comma'));
     return {
       name: String(name ?? '').replace(/_/g, ' '),
       rawName: name,
@@ -362,9 +384,9 @@ export const getSushiStation = (idleonData: any, account: any) => {
     const total = knowledgeTotals[i] ?? 0;
     const label = String(desc ?? '')
       .replace(/_/g, ' ')
-      .replace(/\{/g, '' + commaNotation(total))
-      .replace(/\}/g, '' + notateNumber(1 + total / 100, 'MultiplierInfo'))
-      .replace(/\^/g, '' + commaNotation(total));
+      .replace(/\{/g, gameFill(total, 'Comma'))
+      .replace(/\}/g, gameFill(1 + total / 100, 'MultiplierInfo'))
+      .replace(/\^/g, gameFill(total, 'Comma'));
     const sources: { index: number; name: string; bonus: number; level: number; perfecto: boolean }[] = [];
     for (let s = 0; s <= MAX_TIER; s++) {
       if ((Number(knowledgeCategories?.[s]) || 0) === i && (uniqueSushiTracking[s] ?? -1) >= 0) {
@@ -385,8 +407,8 @@ export const getSushiStation = (idleonData: any, account: any) => {
     const rawVal = Number(rogValues?.[i]) || 0;
     const bonusDesc = String(desc ?? '')
       .replace(/_/g, ' ')
-      .replace(/\{/g, '' + commaNotation(rawVal))
-      .replace(/\}/g, '' + notateNumber(1 + rawVal / 100, 'MultiplierInfo'))
+      .replace(/\{/g, gameFill(rawVal, 'Comma'))
+      .replace(/\}/g, gameFill(1 + rawVal / 100, 'MultiplierInfo'))
       .replace(/@/g, '\n');
     return {
       index: i,
@@ -436,7 +458,13 @@ export const getSushiStation = (idleonData: any, account: any) => {
       nextBreakpoints: getNextBreakpoints(fireplaceSparkMulti, SPARK_COEFFICIENT, 1, sparks, sparksPerHr)
     },
     slots,
-    upgrades,
+    upgrades: upgrades.map((upgrade: any) => ({
+      ...upgrade,
+      description: fillUpgradeText(upgrade.description, upgrade.upgradeIndex, upgrade.upgradeQTY),
+      doubledDescription: upgrade.doubledDescription
+        ? fillUpgradeText(upgrade.doubledDescription, upgrade.upgradeIndex, 2 * upgrade.upgradeQTY)
+        : null
+    })),
     knowledge,
     knowledgeTotals,
     rogBonuses,

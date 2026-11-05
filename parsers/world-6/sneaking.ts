@@ -1,4 +1,4 @@
-import { cleanUnderscore, commaNotation, notateNumber, number2letter, tryToParse } from "@utility/helpers";
+import { cleanUnderscore, commaNotation, gameFill, notateNumber, number2letter, tryToParse } from "@utility/helpers";
 import {
   additiveGroup,
   createBreakdown,
@@ -97,12 +97,12 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     const displayMaxBonus = isDiminishing ? 100 * (1 - 1 / (1 + maxBonus / 100)) : maxBonus;
 
     if (data.description.includes('}')) {
-      notatedBonus = notateNumber(bonus, 'Big');
+      notatedBonus = gameFill(bonus, 'Big');
       description = description.replace('}', notatedBonus);
     }
 
     if (isDiminishing) {
-      notatedBonus = notateNumber(displayBonus, 'Big');
+      notatedBonus = gameFill(displayBonus, 'Big');
       description = description.replace('$', notatedBonus);
     }
 

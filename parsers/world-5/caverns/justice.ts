@@ -1,4 +1,4 @@
-import { lavaLog2, notateNumber } from '@utility/helpers';
+import { gameFill, lavaLog2 } from '@utility/helpers';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import {
   applyMonumentFountain,
@@ -40,7 +40,7 @@ export const getJustice = (holesObject: any, accountData: any) => {
         description: description.replace(/_/g, ' ')
           .replace(/\|/g, ' ')
           .replace('{', Math.round(bonus))
-          .replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo')),
+          .replace('}', gameFill(1 + bonus / 100, 'MultiplierInfo')),
         level,
         bonus,
         scalingValue,

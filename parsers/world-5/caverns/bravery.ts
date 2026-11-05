@@ -1,7 +1,7 @@
 import { holesInfo } from '@website-data';
 import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
-import { fillArrayToLength, MAX_CHARACTERS, notateNumber } from '@utility/helpers';
+import { fillArrayToLength, gameFill, MAX_CHARACTERS, notateNumber } from '@utility/helpers';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
@@ -61,7 +61,7 @@ export const getBravery = (holesObject: any, accountData: any) => {
       const capMultiplier = index === 9 ? selfMultiplier : multiplier;
       const effectiveCap = isSoftCap ? scalingValue * capMultiplier : null;
       return {
-        description: description.replace(/_/g, ' ').replace(/\|/g, ' ').replace('{', Math.round(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo')),
+        description: description.replace(/_/g, ' ').replace(/\|/g, ' ').replace('{', Math.round(bonus)).replace('}', gameFill(1 + bonus / 100, 'MultiplierInfo')),
         level,
         bonus,
         scalingValue,

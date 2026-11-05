@@ -1,4 +1,4 @@
-import { lavaLog, notateNumber, numberWithCommas, tryToParse } from '@utility/helpers';
+import { gameFill, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { gameGlyphs } from '@utility/wiki/game-glyphs.mjs';
 import { cosmoUpgrades, gods, holesBuildings, holesInfo, lampWishes } from '@website-data';
 import { getSchematicBonus, getTheWell } from '@parsers/world-5/caverns/the-well';
@@ -368,12 +368,12 @@ export const getEngineerTotalBonus = (upgrade: any, holesObject: any, index: any
   switch (index) {
     case 14:
       value = getSchematicBonus({ holesObject, t: index, i: 0 });
-      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Big'));
+      formattedDescription = formattedDescription.replace('{', gameFill(value, 'Big'));
       break;
 
     case 15:
       value = Math.pow(1.1, Number(holesObject?.extraCalculations?.[1]));
-      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      formattedDescription = formattedDescription.replace('{', gameFill(value, 'Small'));
       break;
 
     case 38:
@@ -385,12 +385,12 @@ export const getEngineerTotalBonus = (upgrade: any, holesObject: any, index: any
 
     case 41:
       value = Math.pow(1.1, Number(holesObject?.extraCalculations?.[3]));
-      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      formattedDescription = formattedDescription.replace('{', gameFill(value, 'Small'));
       break;
 
     case 45:
       value = getSchematicBonus({ holesObject, t: index, i: 0 });
-      formattedDescription = formattedDescription.replace('}', notateNumber(value, value < 1000 ? 'Small' : 'Big'));
+      formattedDescription = formattedDescription.replace('}', gameFill(value, value < 1000 ? 'Small' : 'Big'));
       break;
 
     case 46:
@@ -400,58 +400,58 @@ export const getEngineerTotalBonus = (upgrade: any, holesObject: any, index: any
     case 55:
     case 57:
       value = getSchematicBonus({ holesObject, t: index, i: 0 });
-      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Big'));
+      formattedDescription = formattedDescription.replace('{', gameFill(value, 'Big'));
       break;
 
     case 53:
       value = 1 + getSchematicBonus({ holesObject, t: index, i: 0 }) / 100;
-      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      formattedDescription = formattedDescription.replace('{', gameFill(value, 'Small'));
       break;
 
     case 54:
     case 56:
       value = getSchematicBonus({ holesObject, t: index, i: 0 });
-      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      formattedDescription = formattedDescription.replace('{', gameFill(value, 'Small'));
       break;
 
     case 58:
       value = getSchematicBonus({ holesObject, t: index, i: 0 });
-      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Big'))
-        .replace('#', notateNumber(holesObject?.extraCalculations?.[32], 'Big'));
+      formattedDescription = formattedDescription.replace('{', gameFill(value, 'Big'))
+        .replace('#', gameFill(holesObject?.extraCalculations?.[32], 'Big', { whole: true }));
       break;
 
     case 59:
       value = getSchematicBonus({ holesObject, t: index, i: 0 });
-      formattedDescription = gameGlyphs(formattedDescription).replace('{', String(notateNumber(value, 'Big')))
-        .replace('!', numberWithCommas(Number(holesObject?.extraCalculations?.[33])))
-        .replace('#', numberWithCommas(Number(holesObject?.extraCalculations?.[34])))
-        .replace('$', numberWithCommas(Number(holesObject?.extraCalculations?.[35])))
-        .replace('%', numberWithCommas(Number(holesObject?.extraCalculations?.[36])));
+      formattedDescription = gameGlyphs(formattedDescription).replace('{', gameFill(value, 'Big'))
+        .replace('!', gameFill(Number(holesObject?.extraCalculations?.[33]), 'Comma', { whole: true }))
+        .replace('#', gameFill(Number(holesObject?.extraCalculations?.[34]), 'Comma', { whole: true }))
+        .replace('$', gameFill(Number(holesObject?.extraCalculations?.[35]), 'Comma', { whole: true }))
+        .replace('%', gameFill(Number(holesObject?.extraCalculations?.[36]), 'Comma', { whole: true }));
       break;
 
     case 72:
       value = 10 * lavaLog(Number(holesObject?.extraCalculations?.[38]));
-      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      formattedDescription = formattedDescription.replace('{', gameFill(value, 'Small'));
       break;
 
     case 73:
       value = Math.pow(1.1, lavaLog(Number(holesObject?.extraCalculations?.[39])));
-      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      formattedDescription = formattedDescription.replace('{', gameFill(value, 'Small'));
       break;
 
     case 76:
       value = Math.pow(1.02, getSchematicBonus({ holesObject, t: index, i: 1 }) === 1 ? getRupieDigits(holesObject) : 0);
-      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      formattedDescription = formattedDescription.replace('{', gameFill(value, 'Small'));
       break;
 
     case 80:
       value = Math.pow(1.1, Number(holesObject?.extraCalculations?.[5]));
-      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      formattedDescription = formattedDescription.replace('{', gameFill(value, 'Small'));
       break;
 
     case 94:
       value = Math.pow(1.1, Number(holesObject?.extraCalculations?.[7]));
-      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      formattedDescription = formattedDescription.replace('{', gameFill(value, 'Small'));
       break;
 
     case 82:
@@ -459,7 +459,7 @@ export const getEngineerTotalBonus = (upgrade: any, holesObject: any, index: any
     case 84:
       const paramIndex = index === 82 ? 20 : index === 83 ? 40 : 100;
       value = getSchematicBonus({ holesObject, t: index, i: paramIndex });
-      formattedDescription = formattedDescription.replace('{', notateNumber(value, 'Small'));
+      formattedDescription = formattedDescription.replace('{', gameFill(value, 'Small'));
       break;
 
     default:

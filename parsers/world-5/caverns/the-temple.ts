@@ -1,4 +1,4 @@
-import { lavaLog2, notateNumber, numberWithCommas } from '@utility/helpers';
+import { gameFill, lavaLog2, numberWithCommas } from '@utility/helpers';
 import { getStudyBonus } from '@parsers/world-5/hole';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
@@ -14,7 +14,7 @@ export const getTheTemple = (holesObject: any) => {
   const bonuses = bonusNames.map((data, index) => {
     const rawBonus = getTorchBonus(holesObject, index);
     const bonus = index === 0 ? Math.round(100 * rawBonus) / 100 : index === 1
-      ? notateNumber(100 * Math.min(1, rawBonus), 'Small')
+      ? gameFill(100 * Math.min(1, rawBonus), 'Small')
       : Math.round(rawBonus);
     return {
       ...data,

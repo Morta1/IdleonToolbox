@@ -1,5 +1,5 @@
 import { emperorBonuses, gameTables } from '@website-data';
-import { commaNotation, notateNumber } from '@utility/helpers';
+import { gameFill } from '@utility/helpers';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
@@ -56,8 +56,8 @@ export const getEmperor = (idleonData: any, account: any) => {
   const jellyBonus = getJellyBonus(account, 28);
   const multiTotal = 1 + (tesseractBonus + arcadeBonus + jellyBonus) / 100;
   const formatBonusName = (name: string, total: number) => name
-    .replace('{', '' + commaNotation(total))
-    .replace('}', '' + notateNumber(1 + total / 100, 'MultiplierInfo'))
+    .replace('{', gameFill(total, 'Comma'))
+    .replace('}', gameFill(1 + total / 100, 'MultiplierInfo'))
     .replace('$', '' + Math.floor((total + 4) / (total + 100) * 1000) / 10);
   bonuses = bonuses.map((rawBonus) => {
     const baseTotal = totalBonuses[`${rawBonus.name}|${rawBonus.index}`] ?? 0;
@@ -120,7 +120,7 @@ export const getEmperor = (idleonData: any, account: any) => {
 const UPCOMING_BONUSES = 10;
 
 const formatPerLevelBonus = (name: string, value: number) => name
-  .replace('{', '' + commaNotation(value))
+  .replace('{', gameFill(value, 'Comma'))
   .replace('}', '' + value / 100)
   .replace('$', '' + Math.floor((value + 4) / (value + 100) * 1000) / 10);
 

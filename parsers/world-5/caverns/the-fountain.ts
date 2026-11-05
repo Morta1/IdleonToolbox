@@ -1,5 +1,5 @@
 import { holeFountUpg } from '@website-data';
-import { commaNotation, lavaLog, notateNumber } from '@utility/helpers';
+import { gameFill, lavaLog } from '@utility/helpers';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
@@ -57,7 +57,7 @@ const timerDisplay = (totalSeconds: number) => {
   return `${h}h_${m}min_${s}s`;
 };
 
-const moneyFmt = (v: number): string => (v < 1e6 ? String(commaNotation(Math.round(v))) : String(notateNumber(v, 'Big')));
+const moneyFmt = (v: number): string => gameFill(v, v < 1e6 ? 'Comma' : 'Big');
 
 // Fountain helper formulas (mirror N.js customBlock_Holes2 handlers)
 const getFountainBarReq = (t: number) => (t === 0 ? 7200 : t === 1 ? 36000 : 90000);
@@ -178,8 +178,8 @@ const formatFountainDescription = (
 ): string => {
   let desc = rawDescription;
   // Universal { → bonus value, } → 1 + bonus/100 multiplier
-  desc = desc.replaceAll('{', String(commaNotation(bonus)));
-  desc = desc.replaceAll('}', String(notateNumber(1 + bonus / 100, 'MultiplierInfo')).replace('#', ''));
+  desc = desc.replaceAll('{', gameFill(bonus, 'Comma'));
+  desc = desc.replaceAll('}', gameFill(1 + bonus / 100, 'MultiplierInfo'));
 
   // Yellow Water tier-specific substitutions
   if (t === 0) {
@@ -189,7 +189,7 @@ const formatFountainDescription = (
     }
     if (i === 2) {
       const allMulti = getFountCurrencyAllMulti(holesObject, accountData);
-      desc = desc.replaceAll('^', `${allMulti > 1e3 ? notateNumber(allMulti, 'Big') : Math.round(100 * allMulti) / 100}x`);
+      desc = desc.replaceAll('^', `${gameFill(allMulti, 'Big')}x`);
     }
     if (i === 8) {
       desc = desc.replaceAll('$', String(Math.round(10000 * getFountCurrencyKeep(holesObject)) / 100));
@@ -229,13 +229,13 @@ const formatFountainDescription = (
       desc = desc.replaceAll('$', moneyFmt(value));
     }
     if (i === 8) {
-      desc = desc.replaceAll('$', String(commaNotation(Math.round(1 / getFountRoyalChance(holesObject)))));
+      desc = desc.replaceAll('$', gameFill(Math.round(1 / getFountRoyalChance(holesObject)), 'Comma', { whole: true }));
     }
     if (i === 9) {
       desc = desc.replaceAll('$', String(Math.round(100 * getFountRoyalMulti(holesObject)) / 100));
     }
     if (i === 10) {
-      desc = desc.replaceAll('$', String(commaNotation(Math.round(getFountMarblePerFill(holesObject)))));
+      desc = desc.replaceAll('$', gameFill(Math.round(getFountMarblePerFill(holesObject)), 'Comma', { whole: true }));
     }
     if (i === 19) {
       const sharpLog = lavaLog(holesObject?.wellSediment?.[16] ?? 0);
@@ -250,24 +250,22 @@ const formatFountainDescription = (
       const value = getFountCurrencyBaseValue(holesObject, i + 4);
       desc = desc.replaceAll('$', moneyFmt(value));
       // Water 2 currencies only get the square root of the total currency multi
-      desc = desc.replaceAll('^', `${notateNumber(Math.pow(getFountCurrencyAllMulti(holesObject, accountData), 0.5), 'Big')}x`);
+      desc = desc.replaceAll('^', `${gameFill(Math.pow(getFountCurrencyAllMulti(holesObject, accountData), 0.5), 'Big')}x`);
     }
     if (i === 8) {
       const firstLuckyChance = Math.max(0.001, getFountLuckyCoinChance(holesObject, 0))
         / Math.pow(0.25, getLuckyCoins(holesObject, 0));
-      desc = desc.replaceAll('$', String(commaNotation(1 / firstLuckyChance)));
+      desc = desc.replaceAll('$', gameFill(1 / firstLuckyChance, 'Comma', { whole: true }));
     }
     if (i === 9) {
-      desc = desc.replaceAll('$', String(commaNotation(getFountLuckyCoinValuePer(holesObject))));
+      desc = desc.replaceAll('$', gameFill(getFountLuckyCoinValuePer(holesObject), 'Comma'));
     }
     if (i === 11) {
       const duckMulti = getFountDuckMulti(holesObject, accountData);
-      desc = desc.replaceAll('$', duckMulti < 1e3
-        ? String(notateNumber(duckMulti, 'MultiplierInfo')).replace('#', '')
-        : String(commaNotation(duckMulti)));
+      desc = desc.replaceAll('$', gameFill(duckMulti, duckMulti < 1e3 ? 'MultiplierInfo' : 'Comma'));
     }
     if (i === 12) {
-      desc = desc.replaceAll('$', String(commaNotation(1 / getFountDuckChance(holesObject, accountData))));
+      desc = desc.replaceAll('$', gameFill(1 / getFountDuckChance(holesObject, accountData), 'Comma', { whole: true }));
     }
   }
 
