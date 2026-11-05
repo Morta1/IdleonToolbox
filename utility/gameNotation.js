@@ -79,6 +79,10 @@ export const formatSystem = (value, kind = 'amount', system, options = {}) => {
   return kind === 'rate' ? `${value > 0 ? '+' : ''}${text}/${options.per ?? 'hr'}` : text;
 };
 
+// The game's Cash multi fill (N.js, the stat screen): Big past 1e16, its own B past 1e10 and M past 1e7, MultiplierInfo under.
+export const cashMultiText = (value) => (value > 1e16 || value <= 1e7 ? formatGame(value, 'ArbitraryCode.MonsterCash')
+  : value > 1e10 ? `${Math.floor(value / 1e8) / 10}B` : `${Math.floor(value / 1e5) / 10}M`);
+
 // The game's Minor Link Bonus line (N.js, the Divinity panel): Arctis counts whole talent levels (Math.ceil), so its
 // stays whole; every other god's is a bonus, with its decimals.
 export const minorBonusText = (bonus, isArctis) => (isArctis ? String(Math.ceil(bonus)) : formatGame(bonus, 'Divinity.DivMinorBonus'));

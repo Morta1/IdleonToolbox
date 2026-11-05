@@ -1,13 +1,25 @@
-import { Autocomplete, Button, Chip, createFilterOptions, Stack, TextField, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { Autocomplete, Box, Button, createFilterOptions, Divider, Stack, TextField, Typography } from '@mui/material';
+import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
 import React, { useEffect, useState } from 'react';
 import { NextSeo } from 'next-seo';
 import StructuredData, { createHowToData } from '@components/common/StructuredData';
+import GameIcon from '@components/common/GameIcon';
+import NumberField from '@components/common/NumberField';
+import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
 
 const filterOptions = createFilterOptions({
   trim: true,
   limit: 250
 });
+
+const FIELD_SX = { flex: '1 1 160px', minWidth: 0 };
+const FIELDS = [
+  ['dropRate', 'Drop rate', 'Enter your drop rate'],
+  ['killsWithMultikill', 'Kills with multikill', 'Enter your kills'],
+  ['multiKillBonus', 'Multikill bonus', 'Enter your multikill bonus']
+];
+
 const GuaranteedDropCalculator = () => {
   const [value, setValue] = useState(null);
   // monsterDrops is 2.08MB and feeds one Autocomplete on this page alone. Imported statically
@@ -33,42 +45,19 @@ const GuaranteedDropCalculator = () => {
     return acc;
   }, {});
 
-  const [values, setValues] = useState({
-    dropRate: '',
-    killsWithMultikill: '',
-    multiKillBonus: ''
-  });
+  const [values, setValues] = useState({ dropRate: null, killsWithMultikill: null, multiKillBonus: null });
   const [errors, setErrors] = useState({});
   const [results, setResults] = useState([]);
-  const handleChange = ({ target }) => {
-    const { name, value } = target;
-    const temp = value.replace(/,/g, '');
-    setErrors(prev => ({ ...prev, [name]: false }))
-    setValues(prev => ({ ...prev, [name]: numberWithCommas(temp) }))
-  }
   const handleCalc = () => {
     const tempErrors = {};
-    if (!value) {
-      tempErrors.material = true;
-    }
-    const dr = parseFloat(values.dropRate?.replace(/,/g, ''));
-    const killsMK = parseFloat(values.killsWithMultikill?.replace(/,/g, ''));
-    const mkBonus = parseFloat(values.multiKillBonus?.replace(/,/g, ''));
-    if (isNaN(dr) || values.dropRate === '') {
-      tempErrors.dropRate = true;
-    }
-    if (isNaN(killsMK) || values.killsWithMultikill === '') {
-      tempErrors.killsWithMultikill = true;
-    }
-    if (isNaN(mkBonus) || values.multiKillBonus === '') {
-      tempErrors.multiKillBonus = true;
-    }
-    if (tempErrors?.material || tempErrors.dropRate || tempErrors.killsWithMultikill || tempErrors.multiKillBonus) {
-      setErrors(tempErrors);
-      return;
-    }
-    const kills = Math.round(killsMK / (1 + (mkBonus / 100)));
-    const variable = kills * parseFloat(value?.chance) * dr;
+    if (!value) tempErrors.material = true;
+    FIELDS.forEach(([name]) => {
+      if (values[name] === null) tempErrors[name] = true;
+    });
+    setErrors(tempErrors);
+    if (Object.keys(tempErrors).length) return;
+    const kills = Math.round(values.killsWithMultikill / (1 + (values.multiKillBonus / 100)));
+    const variable = kills * parseFloat(value?.chance) * values.dropRate;
     if (!isNaN(variable)) {
       const breakpoints = [2, 3, 4, 5, 6, 7, 8, 9, 10];
       const chances = [2, 2.51, 3.51, 4.51, 5.51, 6.51, 7.51, 8.51, 9.51];
@@ -96,99 +85,62 @@ const GuaranteedDropCalculator = () => {
         'Review the results showing guaranteed drop thresholds for each item'
       ]
     )}/>
-    <Stack direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
-      <Autocomplete
-        id="drop calc"
-        value={value}
-        onChange={(event, newValue) => {
-          setValue(newValue);
-          setErrors({ ...errors, material: false })
-        }}
-        options={Object.values(groupedItems).flat()}
-        groupBy={(option) => option?.monsterDisplayName || option?.monsterRawName}
-        filterSelectedOptions
-        filterOptions={filterOptions}
-        getOptionLabel={(option) => {
-          return option?.displayName ? option?.displayName?.replace(/_/g, ' ') : '';
-        }}
-        sx={{ width: 300 }}
-        renderTags={(tag, getTagProps) => {
-          return tag.map((option, index) => (
-            <Chip
-              key={index}
-              icon={<img width={24} height={24} src={`${prefix}data/${option?.rawName}.png`} alt={option?.rawName}/>}
-              label={option?.displayName?.replace(/_/g, ' ')}
-              {...getTagProps({ index })}
-            />
-          ));
-        }}
-        renderGroup={(params) => (
-          <li key={params.key}>
-            <Typography
-              sx={{
-                px: 2,
-                py: 1,
-                fontWeight: 'bold',
-                backgroundColor: 'background.default',
-                position: 'sticky',
-                top: -8,
-                zIndex: 1
-              }}
-            >
-              Monster: {cleanUnderscore(params.group)}
-            </Typography>
-            <ul style={{ padding: 0 }}>{params.children}</ul>
-          </li>
-        )}
-        renderOption={(props, option) => {
-          if (!option) return null;
-          return (
-            <Stack {...props} key={props.id} sx={{ alignItems: 'flex-start !important', pl: 4 }}>
-              <Stack direction={'row'} gap={2}>
-                <img
-                  key={`img-${props.id}`}
-                  width={24}
-                  height={24}
-                  src={`${prefix}data/${option?.rawName}.png`}
-                  alt="item-icon"
-                />
-                <Typography key={`text-${props.id}`}>
-                  {option?.displayName?.replace(/_/g, ' ')}
-                  <Typography variant={'caption'}> (1 / {Math.ceil(1 / option?.chance)})</Typography>
-                </Typography>
-              </Stack>
-            </Stack>
-          );
-        }}
-        renderInput={(params) => (
-          <TextField {...params}
-                     size={'small'}
-                     error={errors?.material}
-                     label="Material name"
-                     variant="outlined"/>
-        )}
-      />
-      <TextField size={'small'} error={errors?.dropRate} onChange={handleChange} name={'dropRate'}
-                 value={values.dropRate}
-                 label={'Drop rate'}/>
-      <TextField size={'small'} error={errors?.killsWithMultikill} onChange={handleChange} name={'killsWithMultikill'}
-                 value={values.killsWithMultikill}
-                 label={'Kills with multi kill'}/>
-      <TextField size={'small'} error={errors?.multiKillBonus} onChange={handleChange} name={'multiKillBonus'}
-                 value={values.multiKillBonus}
-                 label={'Multikill bonus %'}/>
-      <Button variant={'contained'} onClick={handleCalc}>Run</Button>
-    </Stack>
-    <Typography mt={1} variant={'caption'}>* This does not include values from the 2x kills lab bonus or the god bonus
-      in W5
-      (divide the kills input by 4 if both bonuses apply), kill-per-kill talents, prayers, or bubbles.</Typography>
-    {results?.length > 0 ? <Stack mt={2}>
-      <Typography variant={'sectionTitle'} component={'h2'}>Results</Typography>
-      {results.map(({ breakpoint, hours }) => <Stack key={'result-' + breakpoint}>
-        <Typography>x{breakpoint} drop in {notateNumber(hours, 'MultiplierInfo')} hours</Typography>
-      </Stack>)}
-    </Stack> : null
-    }    </>);
+    <Panel title={'Guaranteed drop'}>
+      <Stack gap={2} sx={{ p: 2 }}>
+        <Typography variant={'body2'} color={'text.secondary'}>
+          This does not include values from the 2x kills lab bonus or the god bonus in W5 (divide the kills input by 4 if
+          both bonuses apply), kill-per-kill talents, prayers, or bubbles.
+        </Typography>
+        <Stack direction={'row'} columnGap={1.5} rowGap={1.5} flexWrap={'wrap'} alignItems={'flex-start'}>
+          <Autocomplete
+            value={value}
+            onChange={(event, newValue) => {
+              setValue(newValue);
+              setErrors({ ...errors, material: false });
+            }}
+            options={Object.values(groupedItems).flat()}
+            loading={monsterDrops === null}
+            loadingText={'Loading monster drops'}
+            groupBy={(option) => option?.monsterDisplayName || option?.monsterRawName}
+            filterSelectedOptions
+            filterOptions={filterOptions}
+            getOptionLabel={(option) => cleanUnderscore(option?.displayName ?? '')}
+            sx={{ flex: '2 1 280px', minWidth: 0 }}
+            renderGroup={(params) => <li key={params.key}>
+              <Typography variant={'groupLabel'} component={'div'} color={'text.secondary'}
+                          sx={{ px: 2, py: 1, bgcolor: 'background.default', position: 'sticky', top: -8, zIndex: 1 }}>
+                {cleanUnderscore(params.group)}
+              </Typography>
+              <ul style={{ padding: 0 }}>{params.children}</ul>
+            </li>}
+            renderOption={({ key, ...props }, option) => <Stack component={'li'} key={key} {...props} direction={'row'} gap={1.5}>
+              <GameIcon src={`data/${option?.rawName}.png`} fallback={`data/${option?.rawName}_x1.png`} size={24} alt={''}/>
+              <span>
+                {cleanUnderscore(option?.displayName ?? '')}
+                <Box component={'span'} sx={{ color: 'text.secondary', ml: 0.75 }}>{formatNum(option?.chance, 'odds')}</Box>
+              </span>
+            </Stack>}
+            renderInput={(params) => <TextField {...params} label={'Material'} error={Boolean(errors?.material)}
+                                                helperText={errors?.material ? 'Pick a material' : undefined}/>}
+          />
+          {FIELDS.map(([name, label, ask]) => <NumberField
+            key={name} label={label} sx={FIELD_SX} min={0} help={false} value={values[name]}
+            unit={name === 'multiKillBonus' ? '%' : undefined}
+            error={errors?.[name] ? ask : null}
+            onChange={(next) => {
+              setValues((prev) => ({ ...prev, [name]: next }));
+              setErrors((prev) => ({ ...prev, [name]: false }));
+            }}/>)}
+          {/* The fields carry their labels above: the button lines up with their boxes */}
+          <Button variant={'contained'} onClick={handleCalc} sx={{ mt: '24px' }}>Run</Button>
+        </Stack>
+        {results?.length > 0 ? <>
+          <Divider/>
+          <ItemCard.Facts rows={results.map(({ breakpoint, hours }) => [`x${breakpoint} drop`, formatDuration(hours * 3600)])}/>
+        </> : null}
+      </Stack>
+    </Panel>
+  </>);
 };
 
 export default GuaranteedDropCalculator;

@@ -4,7 +4,7 @@ import { formatNum, getCoinsArray } from 'utility/helpers';
 import Timer from '../common/Timer';
 import { getAfkGain, getCashMulti, getClassExpMulti, getDropRate, getRespawnRate, notateExpMulti } from '../../parsers/character';
 import { getGoldenFoodMulti } from '../../parsers/misc';
-import { formatGame } from '@utility/gameNotation';
+import { formatGame, cashMultiText } from '@utility/gameNotation';
 import React from 'react';
 import { getMaxDamage, notateDamage } from '../../parsers/damage';
 import CoinDisplay from '../common/CoinDisplay';
@@ -22,10 +22,6 @@ const CRIT_CHANCE_DISPLAY_CAP = 200;
 
 const STAT_LABELS = { strength: 'STR', agility: 'AGI', wisdom: 'WIS', luck: 'LUK' };
 const STAT_KEYS = { strength: 'TotalStats.STR', agility: 'TotalStats.AGI', wisdom: 'TotalStats.WIS', luck: 'TotalStats.LUK' };
-
-// The game's Cash multi fill: Big past 1e16, its own B past 1e10 and M past 1e7, MultiplierInfo under.
-const cashMultiText = (value) => (value > 1e16 || value <= 1e7 ? formatGame(value, 'ArbitraryCode.MonsterCash')
-  : value > 1e10 ? `${Math.floor(value / 1e8) / 10}B` : `${Math.floor(value / 1e5) / 10}M`);
 
 // The stats /characters and the dashboard's cards both show, in one label and one format each: { label, value, breakdown,
 // notation } (notation: the breakdown's own number rule). The game's rule where gameNotation names the stat.
