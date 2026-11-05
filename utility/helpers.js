@@ -4,7 +4,7 @@ import { readLocalStorageValue } from '@mantine/hooks';
 import merge from 'lodash.merge';
 import { copyText } from '@utility/clipboard';
 import { errorMessage, trackEvent } from '@utility/analytics';
-import { notateNumber } from './notate.mjs';
+import { fullDigits, notateNumber, numberWithCommas, preciseDigits } from './notate.mjs';
 
 export const getTabs = (array, label, tabName, nestedTabName) => {
   const navItem = array.find((item) => item.label === label);
@@ -279,7 +279,7 @@ export const createIndexedArray = (object) => {
 };
 
 export { growth } from './wiki/growth.mjs';
-export { GAME_LN10, lavaLog, notateNumber, notateProgress } from './notate.mjs';
+export { fullDigits, GAME_LN10, lavaLog, notateNumber, notateProgress, numberWithCommas } from './notate.mjs';
 
 export const lavaLog2 = (num) => {
   return Math.log(Math.max(num, 1)) / Math.log(2);
@@ -395,50 +395,8 @@ export const cashFormatter = (value) => {
   return notateNumber(value, 'MultiplierInfo');
 }
 
-function splitDecimal(numStr, allowNegative = true) {
-  const hasNegation = numStr[0] === '-';
-  const addNegation = hasNegation && allowNegative;
-  numStr = numStr.replace('-', '');
-
-  const parts = numStr.split('.');
-  const beforeDecimal = parts[0];
-  const afterDecimal = parts[1] || '';
-
-  return {
-    beforeDecimal,
-    afterDecimal,
-    hasNegation,
-    addNegation
-  };
-}
-
-function applyThousandSeparator(
-  str,
-  thousandSeparator
-) {
-  const thousandsGroupRegex = /(\d)(?=(\d{3})+(?!\d))/g;
-  let index = str.search(/[1-9]/);
-  index = index === -1 ? str.length : index;
-  return (
-    str.substring(0, index) +
-    str.substring(index, str.length).replace(thousandsGroupRegex, '$1' + thousandSeparator)
-  );
-}
-
 // Every digit a typed number has, grouped: for a field's own text, which isn't a number being shown (formatNum).
 export const groupDigits = (value) => numberWithCommas(value);
-
-export const numberWithCommas = (numStr, isFloat = true) => {
-  // Number#toString switches to exponential notation at 1e21, which the grouping below would mangle
-  numStr = typeof numStr === 'number' && Number.isFinite(numStr) && Math.abs(numStr) >= 1e21
-    ? BigInt(Math.round(numStr)).toString()
-    : String(numStr);
-  const hasDecimalSeparator = numStr.indexOf('.') !== -1;
-  let { beforeDecimal, afterDecimal, addNegation } = splitDecimal(numStr); // eslint-disable-line prefer-const
-  beforeDecimal = applyThousandSeparator(beforeDecimal, ',');
-  numStr = (addNegation ? '-' : '') + beforeDecimal + ((isFloat && hasDecimalSeparator && '.') || '') + (isFloat ? afterDecimal : '');
-  return numStr;
-}
 
 export const pascalCase = (str) => {
   return str
@@ -582,22 +540,10 @@ export const shownPercent = (partText, wholeText) => {
 // and values endgamers push), decimals (exactly that many, zeros kept, below 1M, for a column whose values line up:
 // 15.0%, 4.0%), bare (no % or x: the game's own sentence carries it), max and next (level), per (rate, default hr).
 
-// Precise: up to three decimals (the toolbox's ThreeDecimals) and two significant digits under 0.01, so a small but
-// real gain never prints as 0 (0.0012%, not 0%).
-const preciseDigits = (value) => (value > 0 && value < 0.01
-  ? String(Number(value.toPrecision(2)))
-  : notateNumber(value, 'ThreeDecimals'));
-
 const fixedDigits = (value, decimals) => numberWithCommas(value.toFixed(decimals));
 
 // Where the rule hands over to the short form, every kind and mode alike.
 export const SHORT_FROM = 1e6;
-
-// The rule's digits, for a magnitude below SHORT_FROM. Under a millionth is noise too, not a very small value.
-export const fullDigits = (value) => {
-  if (value > 0 && value < 0.01) return value < 1e-6 ? '0' : preciseDigits(value);
-  return numberWithCommas(String(Math.round(100 * value) / 100));
-};
 
 // The rule's digits where the print is the game's own two decimals: 14.00 keeps its zeros
 export const multiplierDigits = (value) => (value > 0 && value < 0.01 ? fullDigits(value) : numberWithCommas(notateNumber(value, 'MultiplierInfo')));

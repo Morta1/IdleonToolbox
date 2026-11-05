@@ -300,8 +300,8 @@ describe('rift levels', () => {
     ['Rift_1', '5,000,000'],
     ['Rift_2', '5,560,000'],
     ['Rift_10', '14,782,637'],
-    ['Rift_30', '5.93e9'],
-    ['Rift_65', '7.11e15']
+    ['Rift_30', '5.93B'],
+    ['Rift_65', '7.12Q']
   ])('show %s monster HP as %s', (name, hp) => {
     expect({ value: typeof fieldOf(name, 'Monster HP'), text: formatAmount(fieldOf(name, 'Monster HP')) }).toEqual({ value: 'number', text: hp });
   });
@@ -419,8 +419,12 @@ describe('tome entries', () => {
     const line = barLines(node).find((entry) => entry.startsWith(`${bar}: `));
     return line.slice(bar.length + 2);
   };
-  // "1,889" and "40x" and "30 or less" are whole numbers; "1.34e62" is not.
-  const numberOf = (text) => Number(text.replace(/,/g, '').replace(/x$| or less$/, ''));
+  // "1,889" and "40x" and "30 or less" are whole numbers; "682QQ" and "1.33e62" are the game's Big.
+  const SUFFIXES = { B: 1e9, T: 1e12, Q: 1e15, QQ: 1e18 };
+  const numberOf = (text) => {
+    const [, digits, suffix] = text.replace(/,/g, '').replace(/x$| or less$/, '').match(/^(.*?)(B|T|QQ|Q)?$/);
+    return Number(digits) * (SUFFIXES[suffix] ?? 1);
+  };
 
   it('build one page per tome entry, named uniquely', () => {
     expect(entries).toHaveLength(data.tomeData.length);
@@ -454,8 +458,8 @@ describe('tome entries', () => {
       const text = quantityOf(entries[index], bar);
       const q = numberOf(text);
       const lowerIsBetter = entry.x2 === 3;
-      // Past a billion the page prints three significant digits, so both sides of the check allow that rounding.
-      const slack = q >= 1e9 ? q * 0.006 : 0;
+      // Past a billion the page prints the game's three digits, ceiled or floored, so both sides of the check allow that.
+      const slack = q >= 1e9 ? q * 0.011 : 0;
       const direction = lowerIsBetter ? -1 : 1;
       const crosses = gamePct(entry, q + direction * slack) >= target && gamePct(entry, q - direction * Math.max(slack, 1)) < target;
       const suffixes = text.endsWith(' or less') === lowerIsBetter && text.endsWith('x') === (entry.x4 === 1);

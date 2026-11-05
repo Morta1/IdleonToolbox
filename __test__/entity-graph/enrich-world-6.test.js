@@ -48,7 +48,7 @@ describe('jade emporium', () => {
     expect(priced).toEqual([
       ['MSA_Expander_I', 2, '2,019 Jade Coins'],
       ['Level_Exemption', 3, '8,306 Jade Coins'],
-      ['Emperor_Season_Pass', 40, '1.30e28 Jade Coins'],
+      ['Emperor_Season_Pass', 40, '1.3e28 Jade Coins'],
       // 2.3.540 added the 300^max(0, row - 44) tier (EmporiumCost), so row 47 (index 46) is 300^2 x the old price.
       ['Optimal_Optometry', 47, '7.97e54 Jade Coins']
     ]);
@@ -86,7 +86,7 @@ describe('Emperor showdown rewards', () => {
           'Wins 36, 40: a bonus not released yet'
         ]
       },
-      { label: 'Showdown HP', value: '1.35e14, x1.52 per showdown won' }
+      { label: 'Showdown HP', value: '135T, x1.52 per showdown won' }
     ]);
   });
 });

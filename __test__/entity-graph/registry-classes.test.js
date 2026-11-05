@@ -98,10 +98,10 @@ describe('grimoire upgrades', () => {
   });
 
   it.each([
-    ['Ribbon Winning', '1.34e13'],
-    ['Land Rank Database Maxim', '5.68e11'],
-    ['Writhing Grimoire', '3.08e10'],
-    ['Skull of Major Talent', '6.12e12'],
+    ['Ribbon Winning', '13.5T'],
+    ['Land Rank Database Maxim', '569B'],
+    ['Writhing Grimoire', '30.9B'],
+    ['Skull of Major Talent', '6.12T'],
     ['Supreme Head Chef Status', '276,211,047']
   ])('total %s to its cap at %s', (name, expected) => {
     expect(costToMax(name)).toBe(expected);
@@ -201,9 +201,9 @@ describe('tesseract upgrades', () => {
   });
 
   it.each([
-    ['Arcane Charging', '1.40e17'],
+    ['Arcane Charging', '140Q'],
     ['Pinnacle of Prisma', '4.97e35'],
-    ['Universe Talent', '5.27e18']
+    ['Universe Talent', '5.28QQ']
   ])('total %s to its cap at %s', (name, expected) => {
     expect(costToMax(name)).toBe(expected);
   });
@@ -357,9 +357,9 @@ describe('compass upgrades', () => {
   });
 
   it.each([
-    ['Elemental Path', '2.75e13'],
-    ['Moon of Print', '2.45e11'],
-    ['Can\'t Touch This', '2.53e13'],
+    ['Elemental Path', '27.5T'],
+    ['Moon of Print', '246B'],
+    ['Can\'t Touch This', '25.4T'],
     ['Stone Failsafe', '256,477,425']
   ])('total %s to its cap at %s', (name, expected) => {
     expect(costToMax(name)).toBe(expected);
@@ -459,12 +459,12 @@ describe('royal armory upgrades', () => {
   it('price Royal Talent Points I from slot 1', () => {
     const node = byName('Royal Talent Points I');
     expect([fieldOf(node, 'Unlocks at'), costsAt(node, 1)[0].currencyIcon, node.icon, costAt('Royal Talent Points I', 10), costToMax('Royal Talent Points I')])
-      .toEqual(['1 total Armory upgrade level', '/data/RGres0.png', '/data/RAupg46.png', '149', '1.57e13']);
+      .toEqual(['1 total Armory upgrade level', '/data/RGres0.png', '/data/RAupg46.png', '149', '15.8T']);
   });
 
   it('cap the 1,000 level upgrades and price Solo Militia Status', () => {
     expect([byName('Solo Militia Status').effect.cap, byName('Resource Replenish').effect.cap, byName('Blunder Outpost PTS').effect.cap]).toEqual([1000, 1000, 999999]);
-    expect([costAt('Solo Militia Status', 1), costAt('Solo Militia Status', 2), costToMax('Solo Militia Status')]).toEqual(['3', '57', '8.97e66']);
+    expect([costAt('Solo Militia Status', 1), costAt('Solo Militia Status', 2), costToMax('Solo Militia Status')]).toEqual(['3', '57', '8.96e66']);
   });
 
   it.each([
@@ -495,7 +495,7 @@ describe('royal armory upgrades', () => {
   });
 
   it.each([
-    ['Trading Rank', '1.55e39'],
+    ['Trading Rank', '1.54e39'],
     ['Support Camps', '6.49e24'],
     ['Collect Resources Tool', '0']
   ])('total %s to its cap at %s', (name, expected) => {
@@ -603,7 +603,7 @@ describe('orblet market upgrades', () => {
     ['Hydration', '181,480,393'],
     ['Bargain', '5,050,323'],
     ['Long Range', '12,308'],
-    ['Parchmore', '3.91e9'],
+    ['Parchmore', '3.92B'],
     ['Glorification', '25']
   ])('total %s to its cap at %s', (name, expected) => {
     expect(costToMax(name)).toBe(expected);

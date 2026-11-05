@@ -26,6 +26,13 @@ describe('assignSlugs', () => {
     expect(nodes['monster:sandgiant'].slug).toBe('sand-giant');
   });
 
+  it('keeps a published URL when the name\'s print moves', () => {
+    const nodes = assignSlugs({
+      'menageriemission:MenaMission24': { kind: 'menageriemission', rawName: 'MenaMission24', name: 'Own at least 10e79 Gaming Bits' }
+    });
+    expect(nodes['menageriemission:MenaMission24'].slug).toBe('own-at-least-1-00e80-gaming-bits');
+  });
+
   // The Crow Perch is a hat and a dungeon hat. Both take the suffix: suffixing only the loser would
   // make the winner depend on iteration order, and the clean URL would move between builds.
   it('suffixes every member of a colliding group, not just the later one', () => {

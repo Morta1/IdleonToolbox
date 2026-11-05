@@ -1,13 +1,12 @@
 import React from 'react';
-import { formatNum, notateNumber } from '@utility/helpers';
+import { formatNum, notateNumber, SHORT_FROM } from '@utility/helpers';
 import { DottedValue } from '@components/common/InfoButton';
 import { formatAmount } from '@utility/wiki/format-amount.mjs';
 
 // From a million up the digits stop being comparable at a glance, so an amount reads in the game's own notation
 // ("45.5M", ceil-based like the game's) under a dotted underline whose note is the exact amount: a hover previews
 // it, a click or a tap pins it (Info board, a value with a dotted underline).
-// Both helpers are data-free: the wiki's notateGame and effects.mjs would ship the wiki's client tables to app pages.
-const SHORT_FROM = 1e6;
+// format-amount.mjs is data-free: effects.mjs would ship the wiki's client tables to app pages.
 // Exact digits only while they are exact: past 2^53 a float's digits are noise, so the note goes scientific with four
 // significant digits, rounded as the short number's Big rounds: up from K to QQ ("151QQ" opens "1.501e20", never
 // "1.500e20"), down in its e-notation from 1e21. The 1e-9 keeps a division's last-bit noise (7.77e22 / 1e19 is

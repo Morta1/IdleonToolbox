@@ -42,6 +42,7 @@ const eslintConfig = defineConfig([
         paths: [
           { name: '@utility/helpers', importNames: LEGACY_FORMATTERS.names, message: LEGACY_FORMATTERS.message },
           { name: 'utility/helpers', importNames: LEGACY_FORMATTERS.names, message: LEGACY_FORMATTERS.message },
+          { name: '@utility/notate.mjs', importNames: LEGACY_FORMATTERS.names, message: LEGACY_FORMATTERS.message },
         ],
       }],
     },

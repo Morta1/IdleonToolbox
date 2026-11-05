@@ -1,5 +1,6 @@
-// The game's NotateNumber, the one copy the toolbox and the wiki print through. Data-free and .mjs, so scripts/ can import
-// it too; utility/helpers.js re-exports it. __test__/notateNumber.test.js walks it against the game's table.
+// The game's NotateNumber, the one copy the toolbox and the wiki print through, and the site's digit rule below it (notes
+// above formatNum). Data-free and .mjs, so scripts/ can import it too; utility/helpers.js re-exports it.
+// __test__/notateNumber.test.js walks it against the game's table.
 
 // game: _customBlock_getLOG divides by ln(10) truncated to 2.30259, not the exact 2.302585...
 // Dividing by a slightly larger number gives a slightly smaller answer, so getLOG(1e23) lands at 22.99997 and floors to 22:
@@ -115,10 +116,67 @@ export const notateNumber = (e, s) => {
                                       : '' + Math.floor(e / pow10(Math.floor(lavaLog(e))) * 100) / 100 + (('LargeE' === s ? 'E' : 'e') + Math.floor(lavaLog(e)))
 }
 
+// Below this NotateNumber prints plain digits in every mode; from it, K and up.
+export const PLAIN_BELOW = 1e3;
+
 // notateNumber rounds up like the game, so 9,997,104 of a 10M target would read as 10M / 10M.
 // A progress amount floors to the three digits the ladder shows first.
 export const notateProgress = (n) => {
   if (!Number.isFinite(n) || n < 1e3) return notateNumber(n);
   const step = Math.pow(10, Math.floor(Math.log10(n)) - 2);
   return notateNumber(Math.floor(n / step) * step);
+};
+
+function splitDecimal(numStr, allowNegative = true) {
+  const hasNegation = numStr[0] === '-';
+  const addNegation = hasNegation && allowNegative;
+  numStr = numStr.replace('-', '');
+
+  const parts = numStr.split('.');
+  const beforeDecimal = parts[0];
+  const afterDecimal = parts[1] || '';
+
+  return {
+    beforeDecimal,
+    afterDecimal,
+    hasNegation,
+    addNegation
+  };
+}
+
+function applyThousandSeparator(
+  str,
+  thousandSeparator
+) {
+  const thousandsGroupRegex = /(\d)(?=(\d{3})+(?!\d))/g;
+  let index = str.search(/[1-9]/);
+  index = index === -1 ? str.length : index;
+  return (
+    str.substring(0, index) +
+    str.substring(index, str.length).replace(thousandsGroupRegex, '$1' + thousandSeparator)
+  );
+}
+
+export const numberWithCommas = (numStr, isFloat = true) => {
+  // Number#toString switches to exponential notation at 1e21, which the grouping below would mangle
+  numStr = typeof numStr === 'number' && Number.isFinite(numStr) && Math.abs(numStr) >= 1e21
+    ? BigInt(Math.round(numStr)).toString()
+    : String(numStr);
+  const hasDecimalSeparator = numStr.indexOf('.') !== -1;
+  let { beforeDecimal, afterDecimal, addNegation } = splitDecimal(numStr); // eslint-disable-line prefer-const
+  beforeDecimal = applyThousandSeparator(beforeDecimal, ',');
+  numStr = (addNegation ? '-' : '') + beforeDecimal + ((isFloat && hasDecimalSeparator && '.') || '') + (isFloat ? afterDecimal : '');
+  return numStr;
+}
+
+// Precise: up to three decimals (the toolbox's ThreeDecimals) and two significant digits under 0.01, so a small but
+// real gain never prints as 0 (0.0012%, not 0%).
+export const preciseDigits = (value) => (value > 0 && value < 0.01
+  ? String(Number(value.toPrecision(2)))
+  : notateNumber(value, 'ThreeDecimals'));
+
+// The rule's digits, for a magnitude below SHORT_FROM. Under a millionth is noise too, not a very small value.
+export const fullDigits = (value) => {
+  if (value > 0 && value < 0.01) return value < 1e-6 ? '0' : preciseDigits(value);
+  return numberWithCommas(String(Math.round(100 * value) / 100));
 };

@@ -12,7 +12,7 @@ export const READS = {
   formatBonuses: () => [FORMULAS.formatBonuses(10, { ...linear, func: 'add', x2: 0 }), FORMULAS.familyBonus(15, { func: 'add', x1: 2, x2: 0, offset: 10 })],
   // The port's oracle (__test__/notateNumber.test.js): it prints through utility/notate.mjs, which reads no table.
   gameLog: () => [GAME.gameLog?.divisor ?? null],
-  notateNumber: () => [FORMULAS.notateBig(10, linear), FORMULAS.notateSmall(10, linear)]
+  notateNumber: () => [GAME.notateNumber?.small?.floorBelow ?? null]
 };
 
 export const PRESENT = {
@@ -20,5 +20,5 @@ export const PRESENT = {
   carryCapacityBase: [1000],
   formatBonuses: [35, 10],
   gameLog: [2.30259],
-  notateNumber: [35, 35]
+  notateNumber: [1000]
 };

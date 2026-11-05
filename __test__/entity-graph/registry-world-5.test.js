@@ -129,8 +129,8 @@ describe('gaming imports', () => {
 
   it('print the King Rat box and first level in exponent form', () => {
     const node = byName('King_Rat_of_Olde');
-    expect(fieldOf(node, 'Box cost')).toBe('1.00e50 Bits');
-    expect(formatAmount(costsAt(node, 1)[0].value)).toBe('2.50e49');
+    expect(fieldOf(node, 'Box cost')).toBe('10e49 Bits');
+    expect(formatAmount(costsAt(node, 1)[0].value)).toBe('2.5e49');
   });
 
   it('draw the Elegant Seashell at shell rank 0', () => {
@@ -248,7 +248,7 @@ describe('sailing islands', () => {
   it('list The Maw artifacts from artifactIslands, Fang of the Gods to Bloodclot', () => {
     const maw = byName('The Maw');
     const found = fieldOf(maw, 'Artifacts found here');
-    expect(fieldOf(maw, 'Distance')).toBe('2.00e11 m');
+    expect(fieldOf(maw, 'Distance')).toBe('200B m');
     expect(found).toEqual(artifactsOn('The_Maw'));
     expect([found[0], found.at(-1)]).toEqual(['Fang of the Gods', 'Bloodclot']);
   });
@@ -283,11 +283,11 @@ describe('engineer schematics', () => {
     ["Cavern 'Porting", '60 Well sediment 1', 2],
     ['Heavy Redstone Seasoning', '14,615 Well sediment 3', 6],
     ['Fractalfly ~ Harp Synergy', '23,190 Harp note 4', 10],
-    ['White Amplifier', '2.62e9 Well sediment 7', 17],
+    ['White Amplifier', '2.62B Well sediment 7', 17],
     ['Dark Luck', '22,674,881 Jar rupie 8', 25],
     // The coin name comes from the game's "You can now find Credit Bills" unlock text.
-    ['Glunko Conglomeration', '4.30e10 Credit Bills', 31],
-    ['Rift Guy', '8.37e16 Well sediment 1', 33]
+    ['Glunko Conglomeration', '43.1B Credit Bills', 31],
+    ['Rift Guy', '83.8Q Well sediment 1', 33]
   ])('price %s at %s', (name, cost, level) => {
     expect(byName(name).fields).toEqual([
       { label: COST, value: cost },
@@ -450,8 +450,8 @@ describe('fountain upgrades', () => {
     expect(prices[2].value).toBeCloseTo(16.89);
   });
 
-  it('price Extra Space at 5, 100 and 2.56e12', () => {
-    expect([1, 2, 10].map((level) => formatAmount(priceAt('Extra Space', level).value))).toEqual(['5', '100', '2.56e12']);
+  it('price Extra Space at 5, 100 and 2.56T', () => {
+    expect([1, 2, 10].map((level) => formatAmount(priceAt('Extra Space', level).value))).toEqual(['5', '100', '2.56T']);
   });
 
   // Oracles: Holes2.js:222-238 Fountain_BonTOT with no marbles ({ = L * bonusPerLevel) and the-fountain.ts helpers

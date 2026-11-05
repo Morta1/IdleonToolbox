@@ -80,7 +80,7 @@ describe('summoning upgrades', () => {
     ['Unit_Health', 2, '13'],
     ['Unit_Health', 10, '107'],
     ['Vrumbi', 10, '750,846,863'],
-    ['Glombolic_Units', 2, '2.84e9']
+    ['Glombolic_Units', 2, '2.84B']
   ])('price %s at level %i at %s', (name, level, expected) => {
     expect(costAt(name, level)).toBe(expected);
   });
@@ -345,7 +345,7 @@ describe('exotic market upgrades', () => {
   // Datadigging at 0, 1 and 1000 is pinned with the formula; these are the levels it has not been run at.
   it.each([
     ['Sproutluck I', ['1x crop', '1.05x crop', '1.45x crop', '3.5x crop']],
-    ['Geneology I', ['+0.01% crop', '+0.06% crop', '+0.55% crop', '+3% crop']],
+    ['Geneology I', ['+0.006% crop', '+0.06% crop', '+0.55% crop', '+3% crop']],
     ['Better Day I', ['+0.04% cheaper', '+0.4% cheaper', '+3.64% cheaper', '+20% cheaper']],
     ['Briar Patch', ['+1% Total', '+10% Total', '+100% Total', '+1,000% Total']],
     ['Snapegrass', ['1.01x Jade', '1.15x Jade', '2.36x Jade', '8.5x Jade']]
@@ -490,16 +490,16 @@ describe('ninja knowledge upgrades', () => {
 
   // Oracle: Ninja.js:187-273 JadeUpgCost (the parser's cost is inside getSneaking), display N.js:109130-109132.
   it.each([
-    ['Centurion Lineage', 'costs 1.05x less every 100th level', 'costs 1.5x less every 100th level', ['2.00e45', '2.62e45', '2.27e46']],
+    ['Centurion Lineage', 'costs 1.05x less every 100th level', 'costs 1.5x less every 100th level', ['2e45', '2.62e45', '2.27e46']],
     ['Way of Bargain', 'by 1.01x', 'by 1.1x', ['100,000,000', '113,000,000', '300,404,194']],
     // 2.3.540 renamed Respect for the Art (NinjaUpg[2]).
     ['Respectful Minded', '+3% bonus', '+30% bonus', ['8,500', '9,520', '23,571']],
     ['Way of Stealth', '+1 Stealth per Sneaking Lv', '+10 Stealth per Sneaking Lv', ['50', '54', '99']],
-    ['Star Sweeping', 'up to 1 times a day', 'up to 10 times a day', ['25,000', '625,000', '9.54e16']],
-    ['Strange Symbols', 'successful 1.02x more often', 'successful 1.2x more often', ['1.00e17', '3.10e17', '2.64e21']],
-    ['Jadevalanche', '1.03x higher Jade Gain', '1.3x higher Jade Gain', ['1.00e44', '1.25e44', '7.45e44']],
+    ['Star Sweeping', 'up to 1 times a day', 'up to 10 times a day', ['25,000', '625,000', '95.4Q']],
+    ['Strange Symbols', 'successful 1.02x more often', 'successful 1.2x more often', ['100Q', '310Q', '2.64e21']],
+    ['Jadevalanche', '1.03x higher Jade Gain', '1.3x higher Jade Gain', ['10e43', '1.25e44', '7.45e44']],
     // 2.3.540's fixed row 31: 10^55 x x7 x x8^L, not the 10^floor(2 (t - 15)) of the other Coral Reef rows.
-    ['Omnijade Usable', 'Get +1 Omnijade', 'Get +10 Omnijade', ['1.00e75', '1.00e90', '1.00e210']]
+    ['Omnijade Usable', 'Get +1 Omnijade', 'Get +10 Omnijade', ['10e74', '10e89', '9.99e209']]
   ])('fill and price %s', (name, atOne, atTen, costs) => {
     expect(textAt(name, 1)).toContain(atOne);
     expect(textAt(name, 10)).toContain(atTen);
@@ -626,7 +626,7 @@ describe('sneaking items', () => {
     ['Silk Veil', 1000, 'Gives you 15.99x Total Stealth'],
     ['Gold Star', 1, "If in Inventory, charms found have a +2 higher Max LV. Doesn't stack with other Gold Stars"],
     ['Wood Nunchaku', 10, 'When equipped, deal damage to the door to unlock the next floor. Base Damage: 79'],
-    ['Wood Nunchaku', 200, 'When equipped, deal damage to the door to unlock the next floor. Base Damage: 1.65e12'],
+    ['Wood Nunchaku', 200, 'When equipped, deal damage to the door to unlock the next floor. Base Damage: 1.65T'],
     ['Basic Kunai', 1, 'When equipped, untie any trapped ninja on the same floor. Base Rate: 6'],
     ['Basic Kunai', 100, 'When equipped, untie any trapped ninja on the same floor. Base Rate: 923,076,501'],
     ['Leather Gloves', 10, 'When equipped, you search for Jade and Items faster. Base Rate: 20%'],
@@ -742,7 +742,7 @@ describe('sneaking floors', () => {
 
   it.each([
     [0, 'Door HP: 800. Stealth for 0% detection: 800. Base Jade Coins per action: 300. Base EXP per action: 150.'],
-    [1, 'Door HP: 3.20e11. Stealth for 0% detection: 1.60e9. Base Jade Coins per action: 1.80e9. Base EXP per action: 375,000,000.']
+    [1, 'Door HP: 320B. Stealth for 0% detection: 1.6B. Base Jade Coins per action: 1.8B. Base EXP per action: 375,000,000.']
   ])('read Floor 3 at Ninja Mastery %i', (mastery, text) => {
     expect(levelledText(nodes['sneakfloor:SneakFloor2'], mastery)).toBe(text);
   });

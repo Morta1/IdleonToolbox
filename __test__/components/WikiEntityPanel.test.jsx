@@ -271,7 +271,7 @@ describe('EntityPanel field values', () => {
 
   it.each([
     [5000000, '5,000,000'],
-    [43700000000, '4.37e10']
+    [43700000000, '43.7B']
   ])('prints an amount field of %s as %s', (value, text) => {
     const amountNodes = {
       'rift:Rift1': {

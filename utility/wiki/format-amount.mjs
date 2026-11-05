@@ -1,22 +1,23 @@
-// How the wiki prints a plain number, kept free of game data: app pages (ShortAmount on the Item
-// Planner) print amounts the same way without loading the wiki's client tables (game-constants.mjs).
+// How the wiki prints a plain number, on the site's digit rule. No game data: app pages (ShortAmount on the Item Planner)
+// print amounts the same way without loading the wiki's client tables (game-constants.mjs). An .mjs reading only .mjs,
+// because the graph build runs it in Node, where utility/helpers.js can't load.
+import { fullDigits, notateNumber } from '../notate.mjs';
 
-const roundTwoDecimals = (value) => Math.round(value * 100) / 100;
+// Past a billion the digits stop being readable (costs run to 1e11 feathers, Feather Restart's multiplier to 1e19).
+const BIG_FROM = 1e9;
 
-// Every number the wiki prints. Past a billion the digits stop being readable (costs run to 1e11
-// feathers, Feather Restart's multiplier to 1e19), and an overflowed formula reads as infinite
-// rather than leaving its placeholder behind.
-export const formatNumber = (value) => {
-  if (value === Infinity) return '∞';
-  if (value === -Infinity) return '-∞';
-  if (Math.abs(value) >= 1e9) return value.toExponential(2).replace('e+', 'e');
-  // `|| 0` folds -0, which toLocaleString would print as "-0".
-  return (roundTwoDecimals(value) || 0).toLocaleString('en-US', { maximumFractionDigits: 2 });
+const signed = (value, digits) => {
+  const text = digits(Math.abs(value));
+  return value < 0 && text !== '0' ? `-${text}` : text;
 };
+
+// Every number the wiki prints: the rule's decimals, the game's Big from a billion. An overflowed formula reads as
+// infinite rather than leaving its placeholder behind.
+export const formatNumber = (value) => signed(value, (magnitude) => (magnitude >= BIG_FROM ? notateNumber(magnitude, 'Big') : fullDigits(magnitude)));
 
 // A cost is a whole amount below a billion. A value that is not a number reads as blank, not "0"; an overflow reads as ∞.
 export const formatAmount = (value) => {
   if (value === Infinity || value === -Infinity) return formatNumber(value);
   if (!Number.isFinite(value)) return '';
-  return formatNumber(Math.abs(value) >= 1e9 ? value : Math.round(value));
+  return formatNumber(Math.abs(value) >= BIG_FROM ? value : Math.round(value));
 };

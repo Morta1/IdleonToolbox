@@ -224,14 +224,14 @@ describe('LevelledEffect', () => {
 
     // A cost whose client table is absent from game-constants.mjs prices to null: its lines go, the other cost's stay.
     it('drops a cost that cannot be priced and keeps the others', () => {
-      const node = { ...twoCosts, cost: [{ ...twoCosts.cost[0], formula: 'notateBig', args: { formula: 'pow', args: twoCosts.cost[0].args } }, twoCosts.cost[1]] };
-      const table = GAME.notateNumber;
-      delete GAME.notateNumber;
+      const node = { ...twoCosts, cost: [{ ...twoCosts.cost[0], formula: 'spelunkShopCost', args: { base: 1, rate: 1.1, below: 1e6 } }, twoCosts.cost[1]] };
+      const table = GAME.spelunkShopCost;
+      delete GAME.spelunkShopCost;
       try {
         const { container } = render(<LevelledEffect node={node}/>);
         expect(lines(container)).toEqual(['+2 Base Damage', 'Cost for this level: 3 Dead Cells', 'Total to max: 18 Dead Cells', 'Base cost, before discounts.']);
       } finally {
-        GAME.notateNumber = table;
+        GAME.spelunkShopCost = table;
       }
     });
 

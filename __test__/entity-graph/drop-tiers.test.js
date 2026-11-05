@@ -39,7 +39,7 @@ describe('oneIn', () => {
 describe('dropQuantityLabel', () => {
   it('shows a real bulk quantity', () => {
     expect(dropQuantityLabel({ quantity: 6 })).toBe('x6');
-    expect(dropQuantityLabel({ quantity: 30000 })).toBe('x30K');
+    expect(dropQuantityLabel({ quantity: 30000 })).toBe('x30,000');
   });
 
   it('stays quiet for a single drop', () => {

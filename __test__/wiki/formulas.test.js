@@ -126,7 +126,7 @@ describe('levelledText', () => {
   it.each([
     ['linear', { perLevel: 1234.567 }, 1, 'X 1,234.57'],
     ['linear', { perLevel: 999999999 }, 1, 'X 999,999,999'],
-    ['pow', { base: 3, rate: 3 }, 40, 'X 3.65e19'],
+    ['pow', { base: 3, rate: 3 }, 40, 'X 36.5QQ'],
     ['pow', { base: 3, rate: 3 }, 700, 'X ∞']
   ])('formats a %s value (%o at level %s) as %s', (formula, args, level, expected) => {
     const big = { description: 'X_{', effect: { terms: [{ token: '{', formula, args }] } };
@@ -239,7 +239,7 @@ describe('costs', () => {
 
   it.each([
     [1234.4, '1,234'],
-    [2.5e11, '2.50e11'],
+    [2.5e11, '250B'],
     // A value that is not a finite number reads as blank, never as a made-up "0".
     [null, ''],
     [undefined, ''],
@@ -293,7 +293,7 @@ describe('World 4 formulas', () => {
     [0, '10'],
     [1, '15'],
     [10, '24,191.93'],
-    [29, '1.65e15']
+    [29, '1.66Q']
   ])('mealCost at level %s is %s, as the game prices it', (level, shown) => {
     const cost = FORMULAS.mealCost(level);
     expect(cost).toBe(getMealLevelCost(level, undefined));

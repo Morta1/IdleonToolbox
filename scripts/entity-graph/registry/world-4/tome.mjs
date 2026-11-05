@@ -1,3 +1,4 @@
+import { formatAmount } from '../../../../utility/wiki/effects.mjs';
 import { sentence } from '../text.mjs';
 import { gameTable } from '../data.mjs';
 
@@ -43,11 +44,9 @@ const limitOf = (curve) => {
   return null;
 };
 
-// Quantities run to 1e62 (Most Money held), so past a billion they print as 1.34e62.
-// UPKEEP: the billion switch-over matches the wiki's formatAmount, so a tome quantity reads like every other large number.
-const big = (value) => (value >= 1e9 ? value.toExponential(2).replace('e+', 'e') : value.toLocaleString('en-US'));
 // UPKEEP: x4 is 1 only on Highest Drop Rate Multi, whose quantity the screen prints as "Nx".
-const amount = (entry, curve, value) => `${big(value)}${entry.x4 === 1 ? 'x' : ''}${curve.form === 'lowerIsBetter' ? ' or less' : ''}`;
+// Quantities run to 1e62 (Most Money held): formatAmount, so a tome quantity reads like every other large number.
+const amount = (entry, curve, value) => `${formatAmount(value)}${entry.x4 === 1 ? 'x' : ''}${curve.form === 'lowerIsBetter' ? ' or less' : ''}`;
 
 export default {
   kind: 'tome',
