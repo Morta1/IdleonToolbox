@@ -16,6 +16,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
 import NumberField from '@components/common/NumberField';
+import { stepLevels, stepMeta } from '@components/account/Misc/class-specific/upgradeSteps';
 
 const pointsOptions = [10, 25, 50, 100, 250, 500, 1000];
 const groupModes = ['None', 'Upgrade', 'Summary'];
@@ -93,10 +94,10 @@ const UpgradeOptimizer = () => {
     optimizedUpgrades.forEach((upgrade, index) => {
       if (!currentGroup || currentGroup.name !== upgrade.name) {
         if (currentGroup) consolidated.push(currentGroup);
-        currentGroup = { ...upgrade, upgradeIndex: index, sequence: [upgrade], startLevel: upgrade.level, contiguous: true };
+        currentGroup = { ...upgrade, upgradeIndex: index, sequence: [{ ...upgrade, upgradeIndex: index }], startLevel: upgrade.level };
         return;
       }
-      currentGroup.sequence.push(upgrade);
+      currentGroup.sequence.push({ ...upgrade, upgradeIndex: index });
     });
     if (currentGroup) consolidated.push(currentGroup);
     displayUpgrades = consolidated.map((upgrade) => ({
@@ -114,7 +115,7 @@ const UpgradeOptimizer = () => {
         grouped[upgrade.name] = { ...upgrade, upgradeIndex: index, startLevel: upgrade.level, sequence: [] };
       }
       const group = grouped[upgrade.name];
-      group.sequence.push(upgrade);
+      group.sequence.push({ ...upgrade, upgradeIndex: index });
       group.finalLevel = upgrade.newLevel;
       group.bonusAfter = upgrade.bonusAfter;
       group.totalCost = group.sequence.length;
@@ -152,23 +153,18 @@ const UpgradeOptimizer = () => {
     return <StatusText status={'maxed'}/>;
   };
 
-  // Summary lumps together points that aren't next to each other in the plan, so a "#1 to #63"
-  // range would claim an order the steps never had.
-  const groupLabel = (upgrade) => {
-    if (!(upgrade.sequence?.length > 1)) return `Upgrade #${upgrade.upgradeIndex + 1}`;
-    if (!upgrade.contiguous) return `${upgrade.sequence.length} points across the plan`;
-    return `Upgrade Group (#${upgrade.upgradeIndex + 1} to #${upgrade.upgradeIndex + upgrade.sequence.length})`;
-  };
+  // The shared step rows read a step's level as the one it buys to, and this plan's as the one it buys from
+  const asStep = (upgrade) => ({ ...upgrade, level: upgrade.newLevel, startLevel: upgrade.startLevel + 1 });
 
   const renderUpgradeCard = (upgrade) => {
     const hasSequence = upgrade.sequence?.length > 1;
     return <ItemCard key={upgrade.upgradeIndex} icon={`data/RankUpg${upgrade.index}.png`} title={cleanUnderscore(upgrade.name)}
-                     level={{ value: upgrade.level, max: upgrade.maxLevel || null }} meta={groupLabel(upgrade)}
+                     meta={stepMeta(asStep(upgrade), { max: upgrade.maxLevel || null })}
                      aside={renderCapStatus(upgrade)}
                      footer={<ItemCard.Facts rows={[[hasSequence ? 'Total cost' : 'Cost',
                        points(hasSequence ? upgrade.totalCost : upgrade.cost)]]}/>}>
       {hasSequence
-        ? <ItemCard.Section label={`Total benefits (Lv ${upgrade.startLevel} → ${upgrade.finalLevel})`}>
+        ? <ItemCard.Section label={'Total benefits'}>
           {renderStatChange(upgrade)}
         </ItemCard.Section>
         : renderStatChange(upgrade)}
@@ -190,9 +186,7 @@ const UpgradeOptimizer = () => {
       key: 'level',
       label: 'Level',
       cellSx: { whiteSpace: 'nowrap' },
-      render: (upgrade) => `${upgrade.sequence?.length > 1
-        ? `${upgrade.startLevel} → ${upgrade.finalLevel}`
-        : `${upgrade.level} → ${upgrade.newLevel}`}${upgrade.maxLevel ? ` / ${upgrade.maxLevel}` : ''}`
+      render: (upgrade) => stepLevels(asStep(upgrade), upgrade.maxLevel || null)
     },
     { key: 'stats', label: 'Stat changes', render: (upgrade) => renderStatChange(upgrade) },
     {
