@@ -61,8 +61,9 @@ const NameRow = ({ character, side, pinTop }) => {
     <Stack sx={{ minWidth: 0, flex: 1 }}>
       <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1} sx={{ minWidth: 0 }}>
         <Typography variant={'cardTitle'} component={'h2'} sx={ONE_LINE_SX}>{name}</Typography>
+        {/* A long name wins: the trophy takes nearly all of any shortfall (a name that lost a fraction of a pixel would still draw its ellipsis), down to 64 px */}
         {trophy ? <Box component={'img'} src={`${prefix}data/${trophy.replace('Replica', '')}disp.png`} alt={''}
-                       sx={{ width: 102, height: 19, objectFit: 'contain', display: 'block', flexShrink: 0 }}/> : null}
+                       sx={{ flex: '0 10000 102px', minWidth: 64, height: 19, objectFit: 'contain', objectPosition: 'right', display: 'block' }}/> : null}
       </Stack>
       <Typography color={'text.secondary'} component={'div'} sx={{ ...ONE_LINE_SX, fontSize: 13, lineHeight: '18px' }}>
         {cleanUnderscore(className ?? '')} · {formatNum(level ?? 0, 'level')}
@@ -98,6 +99,7 @@ const Character = ({
   filters,
   characters,
   side,
+  obolStatOrder,
   pinTop,
   openSections,
   onToggleSection,
@@ -128,7 +130,7 @@ const Character = ({
     Skills: <Skills skills={skillsInfo} account={account} characters={characters} character={character} charName={name} showSkillsRankOneOnly={showSkillsRankOneOnly}/>,
     Equipment: <Equipment {...{ charName: name, equipment, tools, food, character, characters, account }}/>,
     Obols: <ObolsView obols={obols} characters={characters}/>,
-    'Obols Stats': <ObolsView obols={obols} obolStats characters={characters} account={account}/>,
+    'Obols Stats': <ObolsView obols={obols} obolStats statOrder={obolStatOrder} characters={characters} account={account}/>,
     Inventory: <Inventory inventory={inventory} inventorySlots={inventorySlots} account={account}/>,
     Bags: <Bags {...{ bags: invBagsUsed, capBags: carryCapBags }}/>,
     Prayers: <Prayers prayers={activePrayers}/>,
@@ -136,7 +138,9 @@ const Character = ({
     'Equipped Bubbles': <PlayerBubbles bubbles={equippedBubbles}/>,
     // A Panel here, not in Chips: Console draws Chips too
     Chips: <Panel title={'Chips'}>
-      <Chips playerLabLevel={skillsInfo?.laboratory?.level ?? 0} playerChips={account?.lab?.playersChips?.[playerId]}/>
+      {account?.lab?.playersChips?.[playerId]?.length
+        ? <Chips playerLabLevel={skillsInfo?.laboratory?.level ?? 0} playerChips={account?.lab?.playersChips?.[playerId]}/>
+        : <Typography variant={'body2'} color={'text.secondary'}>No chips to show</Typography>}
     </Panel>,
     Divinity: <Divinity character={character} account={account}/>,
     'Anvil Details': <AnvilDetails characters={characters} character={character} account={account}/>,

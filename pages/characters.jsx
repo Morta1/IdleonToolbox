@@ -24,6 +24,10 @@ const Characters = () => {
   const numberOfCharacters = state?.characters?.filter((_, index) => displayed?.[index])?.length ?? 0;
   const sideBySide = (state?.characters?.filter((_, index) => deferredDisplayed?.[index])?.length ?? 0) > 1;
   const hasCharacters = !!state?.characters?.length;
+  // Each character's list follows its own obols: side by side they share one order, so a section's rows line up
+  const obolStatOrder = sideBySide
+    ? [...new Set(state?.characters?.filter((_, index) => deferredDisplayed?.[index]).flatMap(({ obols }) => Object.keys(obols?.stats ?? {})))]
+    : undefined;
   const filters = shownFilters(state);
   const hasSkillsFilter = filters?.Skills;
   const hasPostOfficeFilter = filters?.['Post Office'];
@@ -77,6 +81,7 @@ const Characters = () => {
                            characters={state?.characters}
                            lastUpdated={state?.lastUpdated}
                            side={sideBySide}
+                           obolStatOrder={obolStatOrder}
                            pinTop={pinTop}
                            openSections={openSections}
                            onToggleSection={toggleSection}

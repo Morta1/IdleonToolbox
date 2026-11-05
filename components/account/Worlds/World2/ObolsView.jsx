@@ -70,12 +70,13 @@ const statName = (stat) => cleanUnderscore(stat).toLowerCase()
   .replace(/^(%? ?)(\w)/, (_, sign, letter) => sign + letter.toUpperCase())
   .replace(/\b(str|agi|wis|luk|xp)\b/gi, (word) => word.toUpperCase());
 
-const ObolsView = ({ obols, type = 'character', obolStats, characters, account }) => {
+// statOrder: side by side, the shown characters' stats in one order, a stat this one lacks reading "-", so the rows line up.
+const ObolsView = ({ obols, type = 'character', obolStats, statOrder, characters, account }) => {
   const totalLevels = characters?.reduce((res, { level }) => res + (level || 0), 0);
   const sheet = useSheet();
   if (!obols) return null;
   if (obolStats) {
-    const stats = Object.entries(obols?.stats ?? {});
+    const stats = statOrder ? statOrder.map((stat) => [stat, obols?.stats?.[stat]]) : Object.entries(obols?.stats ?? {});
     return <Panel title={'Obol stats'}>
       {stats.length
         ? <Box component={'table'} sx={STATS_TABLE_SX}>
@@ -94,9 +95,9 @@ const ObolsView = ({ obols, type = 'character', obolStats, characters, account }
               const family = (value?.familyBonus ?? 0) * multi;
               return <tr key={`${stat}-${index}`}>
                 <th scope={'row'}>{statName(stat)}</th>
-                <td>{formatNum(personal + family)}</td>
-                <td>{formatNum(personal)}</td>
-                <td>{formatNum(family)}</td>
+                <td>{value ? formatNum(personal + family) : '-'}</td>
+                <td>{value ? formatNum(personal) : '-'}</td>
+                <td>{value ? formatNum(family) : '-'}</td>
               </tr>;
             })}
           </tbody>
