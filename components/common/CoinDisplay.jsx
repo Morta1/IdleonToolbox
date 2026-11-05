@@ -1,6 +1,7 @@
 import { formatNum } from 'utility/helpers';
 import { Box, Stack, Typography } from '@mui/material';
 import GameIcon from '@components/common/GameIcon';
+import { useSheet } from '@components/common/cards/SheetContext';
 
 // The top tier's amount can run past 100 at the last coin; anything else is two digits
 const coinAmount = (coin, index) => (index === 0 && coin > 10000 ? formatNum(coin) : coin);
@@ -27,19 +28,22 @@ const CoinDisplay = ({
                        maxCoins = 5,
                        dense = false
                      }) => {
+  // Inside a sheet the tiers draw small, on a row of their own height (the characters board's .coins)
+  const small = Boolean(useSheet());
   if (dense) return <DenseCoins money={money} maxCoins={maxCoins} style={style}/>;
   return <div style={style}>
     {title ? <Typography variant={'body2'} style={{ textAlign: centered ? 'center' : 'left' }}>{title}</Typography> : null}
-    <Stack flexWrap={'wrap'} justifyContent={centered ? 'center' : 'flex-start'} direction={'row'}
-           gap={variant === 'vertical' ? 2.3 : 1}>
+    <Stack flexWrap={'wrap'} justifyContent={small ? 'flex-end' : centered ? 'center' : 'flex-start'} direction={'row'}
+           gap={small ? 1 : variant === 'vertical' ? 2.3 : 1} sx={small ? { py: '1px' } : undefined}>
       {money?.map(([coinIndex, coin], index) => {
         return index < maxCoins ?
           <Stack direction={variant === 'vertical' ? 'column' : 'row'} gap={variant === 'vertical' ? 0 : .5}
                  justifyContent={'center'} alignItems={'center'}
                  key={coin + '' + coinIndex}>
             {/* A coin's value is beside it */}
-            <GameIcon src={`data/Coins${coinIndex}.png`} size={24} alt={''}/>
-            <Typography variant={'body2'} component={'span'} className={'coin-value'}>{coinAmount(coin, index)}</Typography>
+            <GameIcon src={`data/Coins${coinIndex}.png`} size={small ? 20 : 24} alt={''}/>
+            <Typography variant={'body2'} component={'span'} className={'coin-value'}
+                        sx={small ? { fontSize: 12, lineHeight: '14px', fontWeight: 500 } : undefined}>{coinAmount(coin, index)}</Typography>
           </Stack> : null
       })}
     </Stack>

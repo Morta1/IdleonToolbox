@@ -86,7 +86,7 @@ const Row = ({ icon, iconAlt = '', name, sub, value, valueSub, kind, sx }) => {
 const Group = ({ label, children }) => {
   const sheet = useSheet();
   if (sheet) {
-    return <Box sx={{ '&:not(:first-child)': { mt: '10px' } }}>
+    return <Box sx={{ '& + &': { mt: '10px' } }}>
       <Typography variant={'groupLabel'} color={'text.secondary'} sx={{ lineHeight: '18px', letterSpacing: '1px', mb: '4px' }}>{label}</Typography>
       <Box>{children}</Box>
     </Box>;
@@ -103,7 +103,7 @@ const Group = ({ label, children }) => {
 const KV = ({ label, value, kind }) => {
   const sheet = useSheet();
   return <Stack direction={'row'} justifyContent={'space-between'} alignItems={sheet ? 'center' : undefined} gap={sheet ? 1 : 2}
-                sx={sheet ? { ...SHEET_LINE, minHeight: 26 } : { px: 2, py: 0.75 }}>
+                sx={sheet ? { ...SHEET_LINE, minHeight: 26, boxSizing: 'content-box' } : { px: 2, py: 0.75 }}>
     <Typography variant={'body2'} color={'text.secondary'} component={'div'} sx={sheet ? { whiteSpace: 'nowrap' } : undefined}>{label}</Typography>
     <Typography variant={'body2'} component={'div'} sx={sheet ? SHEET_VALUE_SX : VALUE_SX}>{numOrNode(value, kind)}</Typography>
   </Stack>;

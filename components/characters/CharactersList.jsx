@@ -3,6 +3,7 @@ import {
   Button,
   Checkbox,
   Divider,
+  IconButton,
   Link,
   List,
   ListItem,
@@ -19,7 +20,7 @@ import { formatNum, sections } from 'utility/helpers';
 import AppDrawer from '@components/common/Overlays/AppDrawer';
 import GameIcon from '@components/common/GameIcon';
 import { FilterPill } from '@components/common/Toolbar';
-import { IconChevronDown } from '@tabler/icons-react';
+import { IconChevronDown, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 
 // Ensure the saved selection has an entry for every current character. Characters created after
 // the selection was last saved (e.g. the 11th slot) are missing from the persisted object, which
@@ -50,6 +51,15 @@ const ONLY_SX = {
     '&::after': { content: '""', position: 'absolute', left: -8, right: -8, top: -10, bottom: -10 }
   }
 };
+
+// Exactly one character shown, as "Only" and the steps beside the picker store it
+const onlyCharacter = (length, charIndex) => ({
+  ...Array(length).fill(false).reduce((res, _, index) => ({
+    ...res,
+    [index]: index === charIndex
+  }), {}),
+  all: false
+});
 
 const CharactersList = () => {
   const { state, dispatch } = useContext(AppContext);
@@ -95,13 +105,7 @@ const CharactersList = () => {
   const handleCharacterChange = (event, _, charIndex) => {
     let newState;
     if (charIndex !== undefined && charIndex !== null) {
-      newState = {
-        ...Array(state?.characters?.length).fill(false).reduce((res, _, index) => ({
-          ...res,
-          [index]: index === charIndex
-        }), {}),
-        all: false
-      }
+      newState = onlyCharacter(state?.characters?.length, charIndex);
     } else {
       if (event === 'all') {
         const newAllState = !checked.all;
@@ -263,15 +267,28 @@ const CharactersList = () => {
 
 const classIconOf = (classIndex) => (classIndex !== undefined ? `data/ClassIcons${classIndex}.png` : 'afk_targets/Nothing.png');
 
+// While one character shows, a step to the one before or after it, wrapping round. 40 px, 44 on touch.
+const STEP_SX = {
+  width: 40, height: 40, border: 1, borderColor: 'outline', borderRadius: '6px', color: 'text.primary',
+  '@media (pointer: coarse)': { width: 44, height: 44 }
+};
+
 // The characters to show and the sections to show them with, behind one control (phase 4 Decision 9): the shown
 // characters' class icons and how many of all, opening this list in a drawer beside the page, or a sheet with Done
 // on a phone. Not modal on desktop, so a tick shows on the page at once. The page owns open, so its note can open it.
+// Before Pin from 600 px: the header's control slot is display: contents there, so order reaches its row.
 export const CharactersPicker = ({ open, onOpenChange, buttonRef }) => {
-  const { state } = useContext(AppContext);
+  const { state, dispatch } = useContext(AppContext);
   const characters = state?.characters ?? [];
   if (!characters.length) return null;
-  const shown = characters.filter((_, index) => shownCharacters(state)?.[index]);
-  return <>
+  const displayed = shownCharacters(state);
+  const shown = characters.filter((_, index) => displayed?.[index]);
+  const step = (by) => {
+    const from = characters.findIndex((_, index) => displayed?.[index]);
+    const data = onlyCharacter(characters.length, (from + by + characters.length) % characters.length);
+    startTransition(() => dispatch({ type: 'displayedCharacters', data }));
+  };
+  return <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, order: { sm: -1 } }}>
     <Button ref={buttonRef} variant="outlined" onClick={() => onOpenChange(true)} aria-haspopup="dialog" aria-expanded={open}
             endIcon={<IconChevronDown size={18} aria-hidden/>}
             sx={{ color: 'text.primary', bgcolor: 'primary.soft', borderColor: 'primary.edge', fontWeight: 600 }}>
@@ -284,10 +301,14 @@ export const CharactersPicker = ({ open, onOpenChange, buttonRef }) => {
       </Box> : null}
       Characters: {shown.length} of {characters.length}
     </Button>
+    {shown.length === 1 && characters.length > 1 ? <Stack direction={'row'} gap={0.5}>
+      <IconButton aria-label={'Previous character'} onClick={() => step(-1)} sx={STEP_SX}><IconChevronLeft size={18}/></IconButton>
+      <IconButton aria-label={'Next character'} onClick={() => step(1)} sx={STEP_SX}><IconChevronRight size={18}/></IconButton>
+    </Stack> : null}
     <AppDrawer open={open} onClose={() => onOpenChange(false)} title="Characters" phoneActions={[{ label: 'Done', main: true }]}>
       <CharactersList/>
     </AppDrawer>
-  </>;
+  </Box>;
 };
 
 export default CharactersList;

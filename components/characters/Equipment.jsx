@@ -10,7 +10,7 @@ const SLOTS_PER_GROUP = 8;
 
 const Equipment = ({ equipment, tools, food, account, character, characters }) => {
   const groups = [
-    ['Equipment', equipment?.slice(0, SLOTS_PER_GROUP)],
+    ['Worn', equipment?.slice(0, SLOTS_PER_GROUP)],
     ['More equipment', equipment?.slice(SLOTS_PER_GROUP)],
     ['Tools', tools],
     ['Food', food]

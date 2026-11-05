@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack } from '@mui/material';
+import { Box, Stack } from '@mui/material';
 import { obols as obolSlots } from '@website-data';
 import { cleanUnderscore, formatNum } from 'utility/helpers';
 import { getObolStatMulti } from '@parsers/world-7/menagerie';
@@ -52,6 +52,24 @@ const obolTile = (item, index, type, totalLevels) => {
                    </Stack>}/>;
 };
 
+// A plain table: the DataTable's rows, sort and phone form are for lists people compare, and this is 15 short rows in a
+// narrow column.
+const STATS_TABLE_SX = {
+  width: '100%',
+  borderCollapse: 'collapse',
+  fontSize: 13,
+  '& th': { fontWeight: 400, textAlign: 'left', color: 'text.secondary', whiteSpace: 'nowrap' },
+  '& thead th': { fontSize: 12, fontWeight: 500, p: '0 0 4px' },
+  '& td, & thead th + th': { textAlign: 'right', fontVariantNumeric: 'tabular-nums' },
+  '& td': { fontWeight: 500, pl: '10px' },
+  '& tbody tr': { borderTop: 1, borderColor: 'background.tint' },
+  '& tbody th, & tbody td': { height: 28 }
+};
+// The game writes these in capitals: "% XP FROM MONSTERS" reads "% XP from monsters"
+const statName = (stat) => cleanUnderscore(stat).toLowerCase()
+  .replace(/^(%? ?)(\w)/, (_, sign, letter) => sign + letter.toUpperCase())
+  .replace(/\b(str|agi|wis|luk|xp)\b/gi, (word) => word.toUpperCase());
+
 const ObolsView = ({ obols, type = 'character', obolStats, characters, account }) => {
   const totalLevels = characters?.reduce((res, { level }) => res + (level || 0), 0);
   const sheet = useSheet();
@@ -60,14 +78,30 @@ const ObolsView = ({ obols, type = 'character', obolStats, characters, account }
     const stats = Object.entries(obols?.stats ?? {});
     return <Panel title={'Obol stats'}>
       {stats.length
-        ? stats.map(([stat, value], index) => {
-          const multi = getObolStatMulti(account, stat);
-          const personal = (value?.personalBonus ?? 0) * multi;
-          const family = (value?.familyBonus ?? 0) * multi;
-          return <Panel.KV key={`${stat}-${index}`} label={cleanUnderscore(stat)}
-                           value={`${formatNum(personal + family)} (personal ${formatNum(personal)}, family ${formatNum(family)})`}/>;
-        })
-        : <Notice sx={{ m: 2 }}>No stats from obols yet.</Notice>}
+        ? <Box component={'table'} sx={STATS_TABLE_SX}>
+          <thead>
+            <tr>
+              <th scope={'col'}>Stat</th>
+              <th scope={'col'}>Total</th>
+              <th scope={'col'}>Personal</th>
+              <th scope={'col'}>Family</th>
+            </tr>
+          </thead>
+          <tbody>
+            {stats.map(([stat, value], index) => {
+              const multi = getObolStatMulti(account, stat);
+              const personal = (value?.personalBonus ?? 0) * multi;
+              const family = (value?.familyBonus ?? 0) * multi;
+              return <tr key={`${stat}-${index}`}>
+                <th scope={'row'}>{statName(stat)}</th>
+                <td>{formatNum(personal + family)}</td>
+                <td>{formatNum(personal)}</td>
+                <td>{formatNum(family)}</td>
+              </tr>;
+            })}
+          </tbody>
+        </Box>
+        : <Notice>No stats from obols yet.</Notice>}
     </Panel>;
   }
   const slots = obols?.list?.length ? obols.list : type === 'account' ? guestBoard() : [];

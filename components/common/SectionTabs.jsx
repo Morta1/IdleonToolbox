@@ -3,6 +3,7 @@ import { Box, Button, Tab, Tabs } from '@mui/material';
 import { IconChevronDown } from '@tabler/icons-react';
 import { prefix } from '@utility/helpers';
 import AppDialog from '@components/common/Overlays/AppDialog';
+import { useSheet } from '@components/common/cards/SheetContext';
 
 // Level 2 tabs (Tabs board): a part of a tab, at the top of its content. Up to PICKER_AFTER choices they
 // are pills that wrap, never a second underline and never behind scroll arrows.
@@ -39,23 +40,32 @@ const PILL = {
   ...OUTER_RING
 };
 
+// Inside a sheet a sprite-only pill is a 32 px circle with a 20 px sprite, 4 px apart, and the row keeps no margin
+// (the characters board's .pg).
+const SHEET_PILLS = { ...PILLS, '& .MuiTabs-flexContainer': { flexWrap: 'wrap', gap: '4px' }, mb: 0 };
+const SHEET_PILL = { ...PILL, minWidth: 32, width: 32, px: 0, '& .MuiTab-icon': { m: 0 } };
+const SHEET_SPRITE = { width: 20, height: 20, objectFit: 'contain' };
+
 // names: what a reader sees and hears. A sprite-only pill (iconsOnly) shows its sprite, or the caller's
 // own node (components), and carries its name as aria-label.
-export const SectionPills = ({ tabs, names, icons, iconsOnly, components, selectedTab, onSelect, label }) => <Tabs
-  value={selectedTab}
-  onChange={(event, index) => onSelect(index)}
-  aria-label={label}
-  sx={PILLS}
->
-  {tabs.map((tab, index) => <Tab
-    key={`${tab}-${index}`}
-    iconPosition="start"
-    icon={sprite(icons?.[index], SPRITE_BOX)}
-    label={iconsOnly ? (components?.[index] ?? '') : (components?.[index] ?? names[index])}
-    {...(iconsOnly ? { 'aria-label': names[index] } : {})}
-    sx={iconsOnly ? { ...PILL, px: 1 } : PILL}
-  />)}
-</Tabs>;
+export const SectionPills = ({ tabs, names, icons, iconsOnly, components, selectedTab, onSelect, label }) => {
+  const small = Boolean(useSheet()) && iconsOnly;
+  return <Tabs
+    value={selectedTab}
+    onChange={(event, index) => onSelect(index)}
+    aria-label={label}
+    sx={small ? SHEET_PILLS : PILLS}
+  >
+    {tabs.map((tab, index) => <Tab
+      key={`${tab}-${index}`}
+      iconPosition="start"
+      icon={sprite(icons?.[index], small ? SHEET_SPRITE : SPRITE_BOX)}
+      label={iconsOnly ? (components?.[index] ?? '') : (components?.[index] ?? names[index])}
+      {...(iconsOnly ? { 'aria-label': names[index] } : {})}
+      sx={small ? SHEET_PILL : iconsOnly ? { ...PILL, px: 1 } : PILL}
+    />)}
+  </Tabs>;
+};
 
 // A picker cell: the Tabs board's 56 px tile, its sprite in a 64 by 40 box (the cavern banners are about 60 by
 // 38, with the name drawn in), drawn at its own size unless that is bigger. The open one: a primary edge, a

@@ -34,6 +34,10 @@ const Badge = ({ badge, small }) => (badge === 'up'
   }}>{badge}</Box>);
 
 // The small tile, inside a sheet (the characters board's .t): as wide as its column, a 28 px sprite, no surface of its own.
+// Its tile is as narrow as 41 px, where a value of seven characters (451,025) would run into the next one: such a tile
+// is a container, and its value draws smaller only while the tile is too narrow for it.
+const LONG_VALUE = 7;
+const LONG_VALUE_SX = { '@container (max-width: 49.95px)': { fontSize: 11 } };
 const smallTileSx = (hasValue, empty) => ({
   position: 'relative',
   width: '100%',
@@ -69,6 +73,7 @@ const IconTile = ({ icon, fallback, alt = '', value, kind, sub, frame, badge, ma
   const empty = status === 'empty';
   const hasValue = value !== undefined && !empty;
   const emptyName = empty ? alt || 'Empty slot' : undefined;
+  const longValue = small && hasValue && value?.length >= LONG_VALUE;
   const tile = <Box sx={[
     (theme) => cardSurface(theme),
     (theme) => cardState(theme, selected ? 'selected' : status),
@@ -87,11 +92,13 @@ const IconTile = ({ icon, fallback, alt = '', value, kind, sub, frame, badge, ma
     },
     // A tile with no number keeps no room for one: its sprite sits in the middle
     !small && !hasValue && { py: 0.5, justifyContent: 'center' },
+    longValue && { containerType: 'inline-size' },
     empty && { bgcolor: 'transparent', borderStyle: 'dashed', borderColor: 'action.disabled' }
   ]}>
     {icon && !empty ? <GameIcon src={icon} fallback={fallback} size={small ? 28 : 40} alt={alt} frame={frame}
                                 status={status === 'missing' ? 'missing' : undefined}/> : null}
     {hasValue ? <Typography component={'div'} variant={'caption'} sx={{
+      ...(longValue ? LONG_VALUE_SX : {}),
       fontSize: 13,
       fontWeight: 500,
       lineHeight: '16px',

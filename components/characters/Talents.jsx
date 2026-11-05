@@ -19,8 +19,10 @@ const LOCK = 'data/UISkillIconLocke.png';
 const STAR_PAGE_SIZE = 13;
 const STAR_PAGES = 5;
 const STAR_ARROW_SLOTS = [10, 14];
-// A pair never breaks in its tile: five tiles share a phone's column, so there its spaces close up
-const PAIR_SX = { whiteSpace: 'nowrap', wordSpacing: { xs: '-0.2em', sm: 0 } };
+// Preset and page tabs in one block, and the two numbers on one row: an added-levels glyph keeps its slot in each
+const CONTROLS_SX = { display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 1, mb: '6px' };
+const PRESET_SX = { '& .MuiToggleButton-root': { px: '10px', height: 32, fontSize: 13 } };
+const POINTS_SX = { display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: '12px', mb: 1, '& > *': { borderTop: 0 } };
 
 const getStarTalentPage = (talents, index) => {
   const page = talents.slice(index * STAR_PAGE_SIZE, (index + 1) * STAR_PAGE_SIZE);
@@ -29,7 +31,7 @@ const getStarTalentPage = (talents, index) => {
 };
 
 // The game's arrow, in its slot on the star pages
-const ArrowSlot = ({ label, src, onClick }) => <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: 72 }}>
+const ArrowSlot = ({ label, src, onClick }) => <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 44 }}>
   {onClick ? <IconButton aria-label={label} onClick={onClick} sx={{ width: 44, height: 44 }}><GameIcon src={src} size={32} alt={''}/></IconButton> : null}
 </Box>;
 
@@ -104,12 +106,12 @@ const Talents = ({
   const addedText = formatNum(effectiveAddedLevels ?? 0);
 
   return <Panel title={'Talents'} meta={isStarTab ? `Specials ${specialsTab + 1}` : cleanUnderscore(talents?.[activeTab]?.name)}>
-    <Stack gap={1}>
+    <Box sx={CONTROLS_SX}>
       <ViewSwitch
         label={'Talent preset'}
         value={preset}
         onChange={setSelectedPreset}
-        sx={{ alignSelf: 'flex-start' }}
+        sx={PRESET_SX}
         // The game's active preset glows, as it did on the old tabs.
         options={[0, 1].map((index) => [index, <span key={index} style={{ textShadow: selectedTalentPreset === index ? 'cyan 1px 0 10px' : '' }}>
           Preset {index + 1}
@@ -125,8 +127,8 @@ const Talents = ({
         activeTab={isStarTab ? starPosition : activeTab}
         onTabChange={changeTab}
       />
-    </Stack>
-    <Box>
+    </Box>
+    <Box sx={POINTS_SX}>
       <Panel.KV label={'Points spent'} value={formatNum(spentTalentPoints ?? 0)}/>
       <Panel.KV label={'Added levels'} value={effectiveAddedLevelsBreakdown
         ? <Breakdown asValue title={'Added levels'} valueNotation={'Big'} data={{ ...effectiveAddedLevelsBreakdown, totalValue: addedText }}>{addedText}</Breakdown>
@@ -150,7 +152,8 @@ const Talents = ({
         const libraryCanRaise = isMaxed && isBookEligibleTalent(talentId) && maxLevel < maxBookLv;
         return <IconTile key={slotKey} icon={`data/UISkillIcon${talentId}.png`} alt={cleanUnderscore(name)}
                          frame={isSuperTalent ? `etc/Super_Talent_${isActiveTalent ? 'Active' : 'Passive'}_Border.png` : undefined}
-                         value={level >= 0 && maxLevel >= 0 ? <Box component={'span'} sx={PAIR_SX}>{`${level} / ${maxLevel}`}</Box> : undefined}
+                         value={level >= 0 && maxLevel >= 0 ? formatNum(level, 'whole') : undefined}
+                         sub={level >= 0 && maxLevel >= 0 ? `/ ${formatNum(maxLevel, 'whole')}` : undefined}
                          badge={libraryCanRaise ? 'up' : undefined}
                          details={<Stack gap={0.5}>
                            <TalentTooltip {...talentDetails}/>

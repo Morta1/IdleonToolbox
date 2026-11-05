@@ -14,6 +14,7 @@ import { groupOf } from '@utility/navMenu';
 import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
+import { PHONE_SIDES } from '@components/common/NavBar/frame';
 
 // Parser-heavy popover: kept out of every page's bundle, fetched only on routes that have goals
 const AddGoalButton = dynamic(() => import('@components/goals/AddGoalButton'), { ssr: false });
@@ -138,19 +139,25 @@ const PageHeader = ({ onOpenGroup }) => {
   const pathname = router?.pathname ?? '';
   const icon = headerIconFor(pathname);
   const title = titleOf(pathname);
-  const showPin = pathname.includes('account') || pathname.includes('tools');
+  const isCharacters = pathname === '/characters';
+  const showPin = pathname.includes('account') || pathname.includes('tools') || isCharacters;
   const goals = hasGoals(pathname);
   const group = groupOf(pathname);
   if (!title && !showPin && !goals) return null;
   return <Stack data-shell="header" direction="row" alignItems={{ xs: 'flex-end', sm: 'center' }} columnGap={{ xs: 1, sm: 2 }} rowGap={0.5} flexWrap="wrap"
                 sx={{ minHeight: 48, mb: 2, mt: { xs: -1, sm: 0 } }}>
-    {title ? <Stack direction="row" alignItems="center" columnGap={2} sx={{ minWidth: 0, maxWidth: '100%' }}>
+    {title ? <Stack direction="row" alignItems="center" columnGap={2} sx={{ minWidth: 0, maxWidth: '100%', ...(isCharacters ? { [PHONE_SIDES]: { flexGrow: 1 } } : {}) }}>
       {icon ? <TitleIcon icon={icon} sx={{ width: { xs: 32, sm: 40 }, height: { xs: 32, sm: 40 }, display: { xs: group ? 'none' : 'block', sm: 'block' } }}/> : null}
       <TitleOrSwitcher title={title} group={group} icon={icon} pathname={pathname} onOpenGroup={onOpenGroup}/>
     </Stack> : null}
-    {/* One group, so the buttons wrap together, the gear at its end; gone while it holds nothing. */}
+    {/* One group, so the buttons wrap together, the gear at its end; gone while it holds nothing. The characters page's
+        control is wider than the group's line, which would take Pin and Add goal under the title with it: on a phone
+        the group opens into the row, so they stay beside the title and the control takes its own row. */}
     <Stack direction="row" alignItems="center" columnGap={{ xs: 0.5, sm: 2 }} rowGap={1} flexWrap="wrap"
-           sx={{ flex: '1 1 auto', minWidth: 0, maxWidth: '100%', '&:not(:has(> :not(:empty)))': { display: 'none' } }}>
+           sx={{
+             flex: '1 1 auto', minWidth: 0, maxWidth: '100%', '&:not(:has(> :not(:empty)))': { display: 'none' },
+             ...(isCharacters ? { [PHONE_SIDES]: { display: 'contents', '& > :empty': { display: 'none' } } } : {})
+           }}>
       {showPin ? <Pin/> : null}
       <ControlSlot/>
       {/* Add goal's room on a phone is held while it loads, so its arrival never wraps the row */}
