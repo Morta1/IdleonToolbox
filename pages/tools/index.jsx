@@ -20,8 +20,9 @@ const Index = () => {
       {MENUS.tools.map(({ key, label, pages }) => <Stack key={key} component={'section'} aria-labelledby={`tools-${key}`} gap={1.5}>
         <Typography id={`tools-${key}`} variant={'sectionTitle'} component={'h2'}>{label}</Typography>
         <CardGrid size={'s'}>
-          {pages.map(({ url, label: name, icon }) => <ItemCard key={url} href={{ pathname: url, query }} icon={`${icon}.png`}
-                                                               title={name} meta={PAGE_SEO[url]?.description}/>)}
+          {pages.map(({ url, label: name, icon }) => <ItemCard key={url} href={{ pathname: url, query }} icon={`${icon}.png`} iconSize={40} title={name}>
+            <ItemCard.Desc>{PAGE_SEO[url]?.description}</ItemCard.Desc>
+          </ItemCard>)}
         </CardGrid>
       </Stack>)}
     </Stack>
