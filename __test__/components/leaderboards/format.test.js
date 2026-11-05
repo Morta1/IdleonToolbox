@@ -1,6 +1,6 @@
 import '../../../polyfills';
 import { describe, expect, it, vi } from 'vitest';
-import { AGGREGATION_INTERVAL, buildMetaIndex, formatDistinctValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, TABS, untilNextRun } from '@components/leaderboards/format';
+import { AGGREGATION_INTERVAL, buildMetaIndex, formatBoardValues, formatDistinctValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, TABS, untilNextRun } from '@components/leaderboards/format';
 
 const meta = {
   createdAt: 100,
@@ -197,6 +197,16 @@ describe('formatDistinctValues', () => {
 
   it('lets equal values read the same', () => {
     expect(formatDistinctValues('default', [500, 500, 400], { scale: 900 })).toEqual(['500', '500', '400']);
+  });
+
+  it('gives a group\'s values one count of decimals', () => {
+    expect(formatDistinctValues('default', [11624.65, 10994.1], { scale: 11_666 })).toEqual(['11,624.65', '10,994.10']);
+  });
+
+  it('gives a board\'s full values one count of decimals across its groups, and leaves short values their own digits', () => {
+    expect(formatBoardValues('default', [[11624.6, 11483.306], [10994.1, 10000], [12.2e6, 12.1e6]], { scale: 1e8 }))
+      .toEqual([['11,624.60', '11,483.31'], ['10,994.10', '10,000.00'], ['12.2M', '12.1M']]);
+    expect(formatBoardValues('default', [[500, 400], [300]], { scale: 900 })).toEqual([['500', '400'], ['300']]);
   });
 });
 

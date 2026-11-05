@@ -538,12 +538,31 @@ export const shownPercent = (partText, wholeText) => {
 //   exact   the digits behind a short number (a note): commas, up to 3 decimals, Big past 2^53   1,234.568
 // Options: signed (a change: +144%), precise (up to 3 decimals, the toolbox's ThreeDecimals, for breakdown totals
 // and values endgamers push), decimals (exactly that many, zeros kept, below 1M, for a column whose values line up:
-// 15.0%, 4.0%), bare (no % or x: the game's own sentence carries it), max and next (level), per (rate, default hr).
+// 15.0%, 4.0%), significant (that many significant figures, zeros kept, at any size, for a ranking whose rows must tell
+// neighbours apart: 35.0M, 0.20), bare (no % or x: the game's own sentence carries it), max and next (level), per (rate,
+// default hr).
 
 const fixedDigits = (value, decimals) => numberWithCommas(value.toFixed(decimals));
 
 // Where the rule hands over to the short form, every kind and mode alike.
 export const SHORT_FROM = 1e6;
+
+const SHORT_SUFFIXES = [[1e18, 'QQ'], [1e15, 'Q'], [1e12, 'T'], [1e9, 'B'], [SHORT_FROM, 'M']];
+// Past QQ the short form is a power of ten.
+const SCIENTIFIC_FROM = 1e21;
+
+// Rounded on the value's own digits before it is scaled, so 999.6M moves on to 1.00B.
+const significantDigits = (value, significant) => {
+  if (value === 0 || value === Infinity) return String(notateNumber(value));
+  const rounded = Number(value.toPrecision(significant));
+  if (rounded >= SCIENTIFIC_FROM) {
+    const [mantissa, exponent] = rounded.toExponential(significant - 1).split('e');
+    return `${mantissa}e${Number(exponent)}`;
+  }
+  const [base, suffix] = SHORT_SUFFIXES.find(([power]) => rounded >= power) ?? [1, ''];
+  const scaled = rounded / base;
+  return `${fixedDigits(scaled, Math.max(0, significant - Math.floor(Math.log10(scaled)) - 1))}${suffix}`;
+};
 
 // The rule's digits where the print is the game's own two decimals: 14.00 keeps its zeros
 export const multiplierDigits = (value) => (value > 0 && value < 0.01 ? fullDigits(value) : numberWithCommas(notateNumber(value, 'MultiplierInfo')));
@@ -599,7 +618,7 @@ const UNITS = { mult: 'x', pct: '%' };
 
 const signOf = (value, signed) => (value < 0 ? '-' : signed && value > 0 ? '+' : '');
 
-export const formatNum = (value, kind = 'amount', { signed = false, precise = false, decimals, bare = false, max, next, per = 'hr' } = {}) => {
+export const formatNum = (value, kind = 'amount', { signed = false, precise = false, decimals, significant, bare = false, max, next, per = 'hr' } = {}) => {
   if (value == null || Number.isNaN(value)) return '-';
   if (kind === 'level') {
     const level = `Lv ${commaNotation(value)}`;
@@ -609,7 +628,7 @@ export const formatNum = (value, kind = 'amount', { signed = false, precise = fa
   if (kind === 'odds') return value > 0 ? `1 in ${commaNotation(1 / value)}` : '-';
   const magnitude = Math.abs(value);
   if (kind === 'rate') return `${signOf(value, true)}${KIND_FORMATS.amount(magnitude, precise, decimals)}/${per}`;
-  const text = (KIND_FORMATS[kind] ?? KIND_FORMATS.amount)(magnitude, precise, decimals);
+  const text = significant != null ? significantDigits(magnitude, significant) : (KIND_FORMATS[kind] ?? KIND_FORMATS.amount)(magnitude, precise, decimals);
   return `${signOf(value, signed)}${text}${bare ? '' : UNITS[kind] ?? ''}`;
 };
 

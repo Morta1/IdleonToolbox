@@ -35,7 +35,6 @@ export const showsFailure = (query) => query.isError || (query.isFetching && que
 const unitOf = (notation) => (notation === 'points' ? ' pts' : notation === 'multiplier' ? 'x' : '');
 // Past QQ a value reads as a power of ten.
 const SCIENTIFIC_FROM = 1e21;
-const SUFFIXES = [[1e18, 'QQ'], [1e15, 'Q'], [1e12, 'T'], [1e9, 'B'], [1e6, 'M'], [1e3, 'K']];
 // Below this a value's exact form lists four decimals: a note still tells 8.6708 from 8.6656.
 const SMALL = 1000;
 // From this a value's exact form is its mantissa: a double has no more digits to list.
@@ -67,15 +66,7 @@ const scientific = (value, precision) => {
 // before it is scaled, so 999.6M moves on to 1.00B. `up` rounds up instead, for steps.
 const shortNumber = (value, from, precision = 3, up = false) => {
   const target = up ? Math.sign(value) * ceilSignificant(Math.abs(value), precision) : Number(value.toPrecision(precision));
-  const abs = Math.abs(target);
-  if (abs >= from) return scientific(target, precision);
-  for (const [base, suffix] of SUFFIXES) {
-    if (abs < base) continue;
-    const scaled = target / base;
-    const wholeDigits = Math.floor(Math.log10(Math.abs(scaled))) + 1;
-    return `${scaled.toFixed(Math.max(0, precision - wholeDigits))}${suffix}`;
-  }
-  return formatNum(Math.round(target), 'whole');
+  return Math.abs(target) >= from ? scientific(target, precision) : formatNum(target, 'amount', { significant: precision });
 };
 
 // How many of a short value's decimals are trailing zeros ("35.0M": 1, "94.60M": 1, "990M": none to give).
@@ -103,19 +94,23 @@ export const formatMetricValue = (notation, raw, options = {}) => {
 
 const MAX_PRECISION = 8;
 
+const decimalsOf = (text) => /\.(\d+)/.exec(text)?.[1].length ?? 0;
+
 // A group of rows with just enough figures that two different values never read the same: more significant figures for
 // short values (94.68M next to 94.65M), more decimals for full ones (8.671x next to 8.666x), and every full value with
 // the same decimals so the column lines up (8,488.00 next to 8,487.60). Short values share their zeros too: 35.0M above
-// 34.9M, but 35M above 36M. Returns one string per value; the exact figure is the last resort.
-const distinctDigits = (notation, values, scale) => {
+// 34.9M, but 35M above 36M. minDecimals holds a full value to a board's count. Returns one string per value; the exact
+// figure is the last resort.
+const distinctDigits = (notation, values, scale, minDecimals = 0) => {
   // Float noise is not a difference: 11,444.999999996 and 11,445 are the same score.
   const same = (a, b) => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a));
   const distinct = (texts) => values.every((value, at) => values.every((other, to) => same(value, other) || texts[at] !== texts[to]));
-  const aligned = (texts) => new Set(texts.filter((text, at) => isFull(values[at])).map((text) => text.includes('.'))).size <= 1;
+  const aligned = (texts) => new Set(texts.filter((text, at) => isFull(values[at])).map(decimalsOf)).size <= 1;
   const unit = unitOf(notation);
   for (let step = 0; step <= MAX_PRECISION - 3 + 3; step++) {
     const level = step <= MAX_PRECISION - 3 ? { precision: step + 3 } : { precision: MAX_PRECISION, decimals: step - (MAX_PRECISION - 3) + 1 };
-    const texts = values.map((value) => digitsOf(notation, value, { scale, ...level }));
+    const decimals = Math.max(level.decimals ?? 0, minDecimals) || undefined;
+    const texts = values.map((value) => digitsOf(notation, value, { scale, precision: level.precision, decimals }));
     if (distinct(texts) && aligned(texts)) {
       const shortTexts = texts.filter((text, at) => !isFull(values[at]) && text.includes('.'));
       const shared = shortTexts.length ? Math.min(...shortTexts.map(trailingZeros)) : 0;
@@ -124,15 +119,23 @@ const distinctDigits = (notation, values, scale) => {
   }
   // Last resort, still aligned: full values share two decimals when any of them has some.
   const fractional = values.some((value) => isFull(value) && !isWhole(value));
-  return values.map((value) => (isFull(value) && fractional ? `${digitsOf(notation, value, { decimals: 2 })}${unit}` : formatExactValue(notation, value)));
+  return values.map((value) => (isFull(value) && fractional ? `${digitsOf(notation, value, { decimals: Math.max(2, minDecimals) })}${unit}` : formatExactValue(notation, value)));
 };
 
 // A value that isn't a number reads "-" and takes no part in the group.
-export const formatDistinctValues = (notation, raws, { scale } = {}) => {
+export const formatDistinctValues = (notation, raws, { scale, decimals } = {}) => {
   const values = raws.map(numeric);
-  const texts = distinctDigits(notation, values.filter(Number.isFinite), scale);
+  const texts = distinctDigits(notation, values.filter(Number.isFinite), scale, decimals);
   let at = 0;
   return values.map((value) => (Number.isFinite(value) ? texts[at++] : '-'));
+};
+
+// A board's groups of rows (a drawer's around rows, its first ten, the rest): each takes the digits it needs, and every
+// full value on the board shows the most decimals any group took, so 10,994.10 reads one way beside 11,624.60.
+export const formatBoardValues = (notation, groups, { scale } = {}) => {
+  const texts = groups.map((raws) => formatDistinctValues(notation, raws, { scale }));
+  const decimals = Math.max(0, ...groups.flatMap((raws, group) => raws.map((raw, row) => (isFull(numeric(raw)) ? decimalsOf(texts[group][row]) : 0))));
+  return decimals ? groups.map((raws) => formatDistinctValues(notation, raws, { scale, decimals })) : texts;
 };
 
 // Every digit a value has, for the note behind a short one.
@@ -159,9 +162,8 @@ export const formatStep = (notation, diff, { scale } = {}) => {
   if (!isFull(diff)) return `${dropZeros(shortNumber(diff, scientificFrom(scale), 3, true))}${unit}`;
   if (diff > 0 && diff < 1) {
     const step = ceilSignificant(diff, 2);
-    const decimals = Math.max(2, 1 - Math.floor(Math.log10(step)));
-    const text = step.toFixed(decimals);
-    return `${decimals > 2 ? text.replace(/0+$/, '') : text}${unit}`;
+    const text = formatNum(step, 'amount', { significant: 2 });
+    return `${step < 0.1 ? text.replace(/0+$/, '') : text}${unit}`;
   }
   if (notation === 'multiplier') return `${formatNum(ceilDecimals(diff, 2), 'amount', { decimals: 2 })}${unit}`;
   return formatNum(ceilDecimals(diff, 2));

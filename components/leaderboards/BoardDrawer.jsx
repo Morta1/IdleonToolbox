@@ -6,7 +6,7 @@ import AppDrawer from '@components/common/Overlays/AppDrawer';
 import Notice, { retryAction } from '@components/common/Notice';
 import { formatNum } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
-import { GLOBAL_METRIC, formatDistinctValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, showsFailure, staleUntilNextRun } from './format';
+import { GLOBAL_METRIC, formatBoardValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, showsFailure, staleUntilNextRun } from './format';
 import { focusWithinRing } from '../../styles/theme/darkTheme';
 import MetricIcon from './MetricIcon';
 import RankRow from './RankRow';
@@ -83,13 +83,11 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
   // The header names the same #1 as the list under it.
   const first = topRows[0] ?? null;
   const players = (metricKey ?? GLOBAL_METRIC) === GLOBAL_METRIC ? index.totalPlayers : meta.players;
-  const aroundTexts = formatDistinctValues(meta.notation, around.map((row) => row.value), { scale: meta.top });
   // The list gets the card's treatment, so ranks 16 to 20 never all read 104M. Its first ten read as they do on the card
-  // ("12.20M" in both); the rest take the digits they need.
-  const topTexts = [
-    ...formatDistinctValues(meta.notation, topRows.slice(0, CARD_ROWS).map((row) => row.value), { scale: meta.top }),
-    ...formatDistinctValues(meta.notation, topRows.slice(CARD_ROWS).map((row) => row.value), { scale: meta.top })
-  ];
+  // ("12.20M" in both); the rest take the digits they need. A value below 1M shows the board's one count of decimals.
+  const [aroundTexts, cardTexts, restTexts] = formatBoardValues(meta.notation,
+    [around, topRows.slice(0, CARD_ROWS), topRows.slice(CARD_ROWS)].map((rows) => rows.map((row) => row.value)), { scale: meta.top });
+  const topTexts = [...cardTexts, ...restTexts];
   const topHeadingId = `${titleId}-top`;
   const rowProps = (row, variant) => ({
     rank: row.rank, name: row.mainChar, value: row.value, notation: meta.notation, scale: meta.top, variant, exact: formatExactValue(meta.notation, row.value),

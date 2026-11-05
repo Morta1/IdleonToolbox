@@ -14,6 +14,13 @@ describe('formatNum', () => {
     [7.004, 'amount', {}, '7'],
     [999999.25, 'amount', {}, '999,999.25'],
     [1e6, 'amount', {}, '1M'],
+    // Significant figures keep their zeros, at any size, and round on the value's own digits.
+    [35e6, 'amount', { significant: 3 }, '35.0M'],
+    [999.6e6, 'amount', { significant: 3 }, '1.00B'],
+    [94_681_382, 'amount', { significant: 4 }, '94.68M'],
+    [1.3176e62, 'amount', { significant: 3 }, '1.32e62'],
+    [0.2, 'amount', { significant: 2 }, '0.20'],
+    [0.00028, 'mult', { significant: 2 }, '0.00028x'],
     // What stays whole, as the game prints it: a cost, a requirement, a count.
     [362.4, 'whole', {}, '362'],
     [21146.5, 'whole', {}, '21,147'],
