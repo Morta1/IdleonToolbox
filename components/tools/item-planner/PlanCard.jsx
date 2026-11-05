@@ -100,7 +100,7 @@ const PlanCard = ({
   const menuButton = useRef(null);
   const [pendingRename, setPendingRename] = useState(false);
   const items = withCurrentSprites(plan?.items);
-  // A failed storage section can't say what is short, so every material shows
+  // A guest or a failed storage section can't say what is short, so every material shows
   const craftNext = showAll || unknown ? view.craftNext : view.craftNext.filter(({ state }) => state !== 'ready');
   const gather = showAll || unknown ? view.gather : view.gather.filter(({ state }) => state === 'short');
   const shortCount = view.gather.filter(({ state }) => state === 'short').length;

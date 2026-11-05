@@ -9,6 +9,9 @@ import ShortAmount from '@components/common/ShortAmount';
 import ItemTooltip, { ownerName } from './ItemTooltip';
 
 const COMPACT_FROM = 12;
+// The wide row's fixed columns take 460 px plus their gaps: under this much list a name would break one word a line, so
+// the row keeps its compact form. The list's own width decides, not the window's.
+const WIDE_ROW = '@container (min-width: 760px)';
 
 export const GroupTitle = ({ title, count }) => <Stack direction={'row'} alignItems={'baseline'} gap={1}
                                                        sx={{ px: { xs: 0, md: 1.5 } }}>
@@ -29,7 +32,8 @@ const rowStatus = ({ type, state, required, owned }) => {
     : { status: 'problem', text: <>Short&nbsp;<ShortAmount amount={required - owned}/></> };
 };
 
-// unknown: a failed storage section, so nothing here can say what the player owns: the name and the requirement stay
+// unknown: a guest or a failed storage section, so nothing here can say what the player owns: the name and the
+// requirement stay
 const MaterialRow = ({ row, compact, unknown }) => {
   const { itemName, rawName, required, owned, owners, state } = row;
   const status = rowStatus(row);
@@ -37,10 +41,8 @@ const MaterialRow = ({ row, compact, unknown }) => {
   const wide = !compact;
   return <Box sx={{
     display: 'grid',
-    gridTemplateColumns: {
-      xs: '32px minmax(0, 1fr) auto',
-      md: wide ? '32px minmax(0, 1fr) 190px 120px 150px' : '32px minmax(0, 1fr) auto'
-    },
+    gridTemplateColumns: '32px minmax(0, 1fr) auto',
+    ...(wide ? { [WIDE_ROW]: { gridTemplateColumns: '32px minmax(0, 1fr) 190px 120px 150px' } } : {}),
     alignItems: 'center',
     columnGap: { xs: 1.5, md: 2 },
     rowGap: 0.5,
@@ -63,16 +65,18 @@ const MaterialRow = ({ row, compact, unknown }) => {
       </Typography>}
     </Box>
     <Typography variant={'body2'} color={'text.secondary'} sx={{
-      gridColumn: { xs: '2 / 4', md: wide ? 'auto' : '2 / 4' },
-      gridRow: { xs: 2, md: wide ? 'auto' : 2 },
-      textAlign: { xs: 'left', md: wide ? 'right' : 'left' },
-      fontVariantNumeric: 'tabular-nums'
+      gridColumn: '2 / 4',
+      gridRow: 2,
+      textAlign: 'left',
+      fontVariantNumeric: 'tabular-nums',
+      ...(wide ? { [WIDE_ROW]: { gridColumn: 'auto', gridRow: 'auto', textAlign: 'right' } } : {})
     }}>
       <Box component={'span'} sx={{ color: 'text.primary', fontWeight: 500 }}>{unknown ? '-' : <ShortAmount amount={owned}/>}</Box>
       {' / '}<ShortAmount amount={required}/>
     </Typography>
     <Box sx={{
-      display: { xs: 'none', md: wide && !unknown ? 'block' : 'none' },
+      display: 'none',
+      ...(wide && !unknown ? { [WIDE_ROW]: { display: 'block' } } : {}),
       height: 6,
       borderRadius: 999,
       bgcolor: 'action.hover',
@@ -85,7 +89,7 @@ const MaterialRow = ({ row, compact, unknown }) => {
         bgcolor: state === 'short' ? 'error.main' : state === 'ready' || state === 'covered' ? 'success.main' : 'primary.main'
       }}/>
     </Box>
-    <Box sx={{ gridColumn: { xs: 3, md: 'auto' }, gridRow: { xs: 1, md: 'auto' }, justifySelf: 'end' }}>
+    <Box sx={{ gridColumn: 3, gridRow: 1, justifySelf: 'end', ...(wide ? { [WIDE_ROW]: { gridColumn: 'auto', gridRow: 'auto' } } : {}) }}>
       {unknown ? null : <StatusText status={status.status} icon={status.icon}>{status.text}</StatusText>}
     </Box>
   </Box>;
@@ -93,12 +97,14 @@ const MaterialRow = ({ row, compact, unknown }) => {
 
 export const MaterialRows = ({ rows, unknown }) => {
   const compact = rows.length > COMPACT_FROM;
-  return <Box sx={{
-    display: 'grid',
-    gridTemplateColumns: { xs: 'minmax(0, 1fr)', lg: compact ? 'repeat(2, minmax(0, 1fr))' : 'minmax(0, 1fr)' },
-    columnGap: 2
-  }}>
-    {rows.map((row) => <MaterialRow key={row.itemName} row={row} compact={compact} unknown={unknown}/>)}
+  return <Box sx={{ containerType: 'inline-size' }}>
+    <Box sx={{
+      display: 'grid',
+      gridTemplateColumns: { xs: 'minmax(0, 1fr)', lg: compact ? 'repeat(2, minmax(0, 1fr))' : 'minmax(0, 1fr)' },
+      columnGap: 2
+    }}>
+      {rows.map((row) => <MaterialRow key={row.itemName} row={row} compact={compact} unknown={unknown}/>)}
+    </Box>
   </Box>;
 };
 

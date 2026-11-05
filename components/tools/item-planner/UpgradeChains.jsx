@@ -27,7 +27,7 @@ const ChainStatus = ({ next, shortFor }) => {
   </StatusText>;
 };
 
-// Where a tier stands, in its note and its alt. unknown: a failed storage section can't say, so neither does the note.
+// Where a tier stands, in its note and its alt. unknown: a guest or a failed storage section can't say, so neither does the note.
 const TierNote = ({ state, ownedTier }) => {
   if (state === 'covered') return <StatusText status={'done'} wrap>Covered by {cleanUnderscore(ownedTier)}</StatusText>;
   if (state === 'owned') return <StatusText status={'done'}>Owned</StatusText>;
@@ -35,10 +35,16 @@ const TierNote = ({ state, ownedTier }) => {
   return 'Not owned';
 };
 
+// The tracked tier wears the selected line, so it reads apart from an owned one without a tap. A plan knows what it
+// tracks with or without a save.
+const trackedRing = (theme) => ({ borderRadius: '8px', boxShadow: `0 0 0 2px ${(theme.vars || theme).palette.primary.main}` });
+
 const Tier = ({ itemName, rawName, state, ownedTier, unknown }) => <ItemTooltip rawName={rawName}
                                                                                note={unknown ? null : <TierNote state={state} ownedTier={ownedTier}/>}>
-  <GameIcon src={`data/${rawName}.png`} size={40} status={!unknown && state === 'covered' ? 'missing' : undefined}
-            alt={unknown ? cleanUnderscore(itemName) : `${cleanUnderscore(itemName)}, ${TIER_LABEL[state]}`}/>
+  <Box component={'span'} sx={[{ display: 'inline-flex' }, state === 'goal' && trackedRing]}>
+    <GameIcon src={`data/${rawName}.png`} size={40} status={!unknown && state === 'covered' ? 'missing' : undefined}
+              alt={unknown ? cleanUnderscore(itemName) : `${cleanUnderscore(itemName)}, ${TIER_LABEL[state]}`}/>
+  </Box>
 </ItemTooltip>;
 
 // Tiers below the owned one are history for most players, so the ladder starts at the owned tier;

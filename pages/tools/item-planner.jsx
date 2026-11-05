@@ -184,6 +184,10 @@ const ItemPlanner = () => {
         <StatTile label={'Plans'} value={formatNum(sections.length, 'whole')}/>
         {loggedIn ? <StatTile label={'Equipped items'} value={includeEquipped ? 'Counted as owned' : 'Not counted'}/> : null}
       </PageSummary> : null}
+      {/* Before Page settings, which is last on every page. Always mounted, hidden while there are plans: a portal joins
+          its slot's end when it mounts, so Import arriving after a last delete would land past the gear. */}
+      {headerSlot ? createPortal(<Button startIcon={<IconUpload size={18}/>} onClick={() => inputRef.current.click()}
+                                         sx={[headerActionSx, { display: sections.length ? 'none' : undefined, '&:not(:last-child)': { mr: 1 } }]}>Import</Button>, headerSlot) : null}
       {/* In the header row's settings slot (Decision 6) */}
       {loggedIn ? <PageSettings state={settings} defaults={PLANNER_SETTINGS} onChange={setSettings} onReset={resetSettings}>
         <PageSettings.Toggle name={'countEquipped'} label={'Count equipped items'}
@@ -209,7 +213,7 @@ const ItemPlanner = () => {
             view={planViews[index]}
             defaultExpanded={index === 0 || index === newestPlan}
             showAll={showAll}
-            unknown={storageFailed}
+            unknown={storageFailed || !loggedIn}
             onAddItem={(itemName, count) => handleAddItem(index, itemName, count)}
             startRenaming={index === namingPlan}
             onSetCount={(itemName, count) => handleSetCount(index, itemName, count)}
@@ -217,26 +221,21 @@ const ItemPlanner = () => {
             onRemove={(trigger) => askDelete('plan', index, trigger)}
           />)}
         </Stack>
-      </Box> : <>
-        {/* Before Page settings in the header's end slot: the board's Import sits at the header row's right */}
-        {headerSlot ? createPortal(<Button startIcon={<IconUpload size={18}/>} onClick={() => inputRef.current.click()}
-                                           sx={[headerActionSx, { ml: 1 }]}>Import</Button>, headerSlot) : null}
-        <Box ref={emptyState} sx={[(theme) => cardSurface(theme), { px: 3, py: 5 }]}>
-          <Stack alignItems={'center'} gap={2} sx={{ textAlign: 'center' }}>
-            <Stack direction={'row'} gap={1.5} aria-hidden>
-              {EMPTY_STATE_SPRITES.map((rawName) => <GameIcon key={rawName} src={`data/${rawName}.png`} size={40} alt={''}/>)}
-            </Stack>
-            <Typography component={'h2'} variant={'sectionTitle'}>Plan your next craft</Typography>
-            <Typography variant={'body2'} color={'text.secondary'} sx={{ maxWidth: 460 }}>
-              Pick an item and the planner lists every material it needs, checks your storage and characters, and shows
-              what you are still short.
-            </Typography>
-            <Box sx={{ width: '100%', maxWidth: 460 }}>
-              <AddItemForm onAdd={handleStartPlan} submitLabel={'Start a plan'} withCount={false}/>
-            </Box>
+      </Box> : <Box ref={emptyState} sx={[(theme) => cardSurface(theme), { px: 3, py: 5 }]}>
+        <Stack alignItems={'center'} gap={2} sx={{ textAlign: 'center' }}>
+          <Stack direction={'row'} gap={1.5} aria-hidden>
+            {EMPTY_STATE_SPRITES.map((rawName) => <GameIcon key={rawName} src={`data/${rawName}.png`} size={40} alt={''}/>)}
           </Stack>
-        </Box>
-      </>}
+          <Typography component={'h2'} variant={'sectionTitle'}>Plan your next craft</Typography>
+          <Typography variant={'body2'} color={'text.secondary'} sx={{ maxWidth: 460 }}>
+            Pick an item and the planner lists every material it needs, checks your storage and characters, and shows
+            what you are still short.
+          </Typography>
+          <Box sx={{ width: '100%', maxWidth: 460 }}>
+            <AddItemForm onAdd={handleStartPlan} submitLabel={'Start a plan'} withCount={false}/>
+          </Box>
+        </Stack>
+      </Box>}
     </>}
 
     <AppDialog open={confirm.open} onClose={() => setConfirm({ ...confirm, open: false })} size="s"
