@@ -10,8 +10,8 @@ const Gaming = () => {
   // A whole-parse failure has no gaming section
   const gaming = state?.account?.gaming ?? {};
   const sectionFailed = isSectionFailed(state?.account, 'gaming');
-  // unlocked also needs the World 7 Spelunk save (gaming.ts), so bits say the account has played Gaming
-  const reached = gaming?.unlocked || (gaming?.bits ?? 0) > 0;
+  // A save holds Gaming's lists before its player gets there (unlocked says only that), so bits say the account has played it
+  const reached = (gaming?.bits ?? 0) > 0;
   return <>
     <NextSeo
       title="Gaming | Idleon Toolbox"

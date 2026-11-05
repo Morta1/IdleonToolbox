@@ -15,7 +15,7 @@ const lockedConditions = (data, guildData) => ({
   guild: !guildData,
   divinity: !raw(data, 'Divinity'),
   equinox: !raw(data, 'WeeklyBoss') || !raw(data, 'Dream'),
-  gaming: !raw(data, 'Gaming') || !raw(data, 'GamingSprout') || !raw(data, 'Spelunk'),
+  gaming: !raw(data, 'Gaming') || !raw(data, 'GamingSprout'),
   sailing: !raw(data, 'Sailing') || !raw(data, 'Captains') || !raw(data, 'Boats') || !raw(data, 'SailChests'),
   sushiStation: !Array.isArray(raw(data, 'Sushi')) || raw(data, 'Sushi').length === 0
 });

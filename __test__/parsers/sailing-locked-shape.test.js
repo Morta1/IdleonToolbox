@@ -113,7 +113,7 @@ describe('divinity locked shape', () => {
 });
 
 describe('gaming locked shape', () => {
-  const lockedFixtures = Object.entries({ first, second, third, fourth })
+  const oldSaves = Object.entries({ first, second, third, fourth })
     .map(([name, fixture]) => [name, parseFixture(fixture).account]);
 
   it('is an object reporting unlocked: false, carrying every catalog', () => {
@@ -129,27 +129,16 @@ describe('gaming locked shape', () => {
   });
 
   it.each([['empty'], ['first'], ['second'], ['third'], ['fourth']])(
-    'has no NaN anywhere in the account for %s, whose gaming is locked', (name) => {
-      const account = name === 'empty' ? parseEmpty().account : lockedFixtures.find(([n]) => n === name)[1];
-      expect(account.gaming.unlocked, `${name} should have gaming locked for this test to mean anything`).toBe(false);
+    'has no NaN anywhere in the account for %s, a save from before World 7 or none', (name) => {
+      const account = name === 'empty' ? parseEmpty().account : oldSaves.find(([n]) => n === name)[1];
       expect(findNaN(account)).toEqual([]);
     });
 
   it('keeps palette luck finite - the single root that poisoned 37 chances plus button', () => {
-    for (const [name, account] of lockedFixtures) {
+    for (const [name, account] of oldSaves) {
       expect(Number.isFinite(account.gaming.paletteLuck.value), `${name} paletteLuck`).toBe(true);
       expect(account.gaming.palette.every(({ chance }) => chance === undefined || Number.isFinite(chance))).toBe(true);
       expect(account.button.taskSequence.every(({ progress }) => progress === undefined || Number.isFinite(progress))).toBe(true);
-    }
-  });
-
-  it('needs the dashboard unlocked gate - the sprout comparison really does trip when locked', () => {
-    const wouldTrip = lockedFixtures.filter(([, account]) =>
-      account.gaming.availableSprouts >= account.gaming.sproutsCapacity);
-    expect(wouldTrip.length, 'expected at least one locked fixture to trip the raw comparison')
-      .toBeGreaterThan(0);
-    for (const [name, account] of wouldTrip) {
-      expect(account.gaming.unlocked, `${name} must report locked so the dashboard gate suppresses it`).toBe(false);
     }
   });
 
@@ -160,9 +149,10 @@ describe('gaming locked shape', () => {
     expect(Number.isFinite(getBitsMulti(account, []).value)).toBe(true);
   });
 
-  it('reports unlocked: true for a real save that has it', () => {
+  it('reports unlocked: true for a real save that has it, World 7 or not', () => {
     const { gaming } = parseReal().account;
     expect(gaming.unlocked).toBe(true);
+    expect(oldSaves.filter(([, account]) => !account.gaming.unlocked)).toEqual([]);
     expect(findNaN(gaming)).toEqual([]);
   });
 });
