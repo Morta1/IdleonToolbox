@@ -328,8 +328,9 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText, exaltedMul
   const owned = (keepGreenstacks ? greenStackOwnedMats : ownedMats) ?? 0;
   const boosts = level > 0 ? stampBoosts(stamp, { exaltedMulti, exaltedText, vaultBonus, charmBonus }) : [];
   const reducerText = level > 0 && atMax ? reducerLine(minReduction, reducer) : null;
-  // A scroller the keyboard can reach: its ring draws inside, where its own edge clips it
-  return <Box tabIndex={0} role={'region'} aria-label={'Stamp details'} sx={[(theme) => ({ '&:focus-visible': focusRing(theme, -2) }), inNote ? { display: 'grid', gap: 2, maxHeight: '30vh', overflowY: 'auto' } : {
+  // A phone's note is all there, and scrolls with the page. The pinned Panel's body is a scroller the keyboard can reach:
+  // its ring draws inside, where its own edge clips it
+  return <Box {...(inNote ? {} : { tabIndex: 0, role: 'region', 'aria-label': 'Stamp details' })} sx={inNote ? { display: 'grid', gap: 2 } : [(theme) => ({ '&:focus-visible': focusRing(theme, -2) }), {
     display: 'grid',
     gap: 2,
     p: { xs: 1.5, sm: 2 },
