@@ -248,8 +248,8 @@ const Stamps = () => {
   );
 };
 
-// A stamp as a tile (Decision 3): its level, the exalted frame, grey until found, the ▲ while it can level up (at
-// the reducer in use or the step below), and the levels gained since the snapshot as a count, which wins over the ▲.
+// A stamp as a tile (Decision 3): its level, the exalted frame, grey until found, the triangle while it can level up (at
+// the reducer in use or the step below), and the levels gained since the snapshot as a count, which wins over it.
 // A tap picks it for the details Panel, or below 600 px pins its details as its note
 const stampTile = (stamp, { failed, selected, onSelect, phoneDetails }) => <IconTile
   key={stamp.rawName}

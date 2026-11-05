@@ -3,28 +3,32 @@ import { visuallyHidden } from '@mui/utils';
 import GameIcon from '@components/common/GameIcon';
 import { NoteTrigger } from '@components/common/InfoButton';
 import { numOrNode } from '@components/common/Num';
+import UpTriangle from '@components/common/UpTriangle';
 import { cardState, cardSurface } from './tokens';
 
-// A count, or a green ▲ when the thing can level up.
-const Badge = ({ badge }) => <Box component={'span'} sx={{
-  position: 'absolute',
-  top: 3,
-  right: 3,
-  minWidth: 16,
-  height: 16,
-  px: badge === 'up' ? 0 : 0.5,
-  borderRadius: '8px',
-  display: 'inline-flex',
-  alignItems: 'center',
-  justifyContent: 'center',
-  fontSize: 11,
-  fontWeight: 700,
-  lineHeight: '16px',
-  color: 'background.default',
-  bgcolor: badge === 'up' ? 'success.main' : 'text.secondary'
-}}>
-  {badge === 'up' ? <><span aria-hidden={'true'}>▲</span><Box component={'span'} sx={visuallyHidden}>Can level up</Box></> : badge}
-</Box>;
+// A count on a disc, or a plain green triangle in the corner when the thing can level up.
+const Badge = ({ badge }) => (badge === 'up'
+  ? <Box component={'span'} sx={{ position: 'absolute', top: 4, right: 4, display: 'inline-flex' }}>
+    <UpTriangle/>
+    <Box component={'span'} sx={visuallyHidden}>Can level up</Box>
+  </Box>
+  : <Box component={'span'} sx={{
+    position: 'absolute',
+    top: 3,
+    right: 3,
+    minWidth: 16,
+    height: 16,
+    px: 0.5,
+    borderRadius: '8px',
+    display: 'inline-flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    fontSize: 11,
+    fontWeight: 700,
+    lineHeight: '16px',
+    color: 'background.default',
+    bgcolor: 'text.secondary'
+  }}>{badge}</Box>);
 
 // IconTile (Cards board): a sprite and one number, packed tight, for grids scanned at a glance. 72 px
 // square, the sprite in a 40 px box, game frames behind it; narrower only where its grid keeps a fixed column
