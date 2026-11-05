@@ -77,7 +77,8 @@ const CardTooltip = ({ displayName, cardName, effect, bonus, stars, showInfo, ne
         </Stack>
       })}
     </Stack> : null}
-    {amount >= nextLevelReq ? <Typography variant={'body2'}>You've collected {cardCount(amount)} cards</Typography> : nextLevelReq > 0 ?
+    {/* The game's line (N.js): commas up to 1M, its short form past it. Not CardsTillNextLV's 100M: that rule is its "more cards to Lv Up" */}
+    {amount >= nextLevelReq ? <Typography variant={'body2'}>You've collected {formatNum(amount, 'whole')} cards</Typography> : nextLevelReq > 0 ?
       <ItemCard.Facts rows={[['Progress', `${cardCount(amount)} / ${cardCount(nextLevelReq)}`]]}/> : null}
   </>
 }
