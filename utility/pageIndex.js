@@ -50,7 +50,7 @@ export const getPageIcon = ({ url, tab, nestedTab } = {}) => {
 
 // The icon at the start of a route's header row: its page's, else its section's by URL (an account page's folder, a
 // tool's: the item browser's, every wiki page the wiki's book, a guild's page the guilds' banner, the two general pages
-// PAGES has no entry for), so a titled route outside the menus (World 7 Skill 3, the old item database) has one too and
+// PAGES has no entry for), so a titled route outside the menus (World 7 Skill 3) has one too and
 // the title never jumps 48 px between pages. PageTitle's test checks every titled route.
 const SECTION_ICONS = {
   tools: PAGES.TOOLS.itemBrowser.icon,

@@ -184,8 +184,8 @@ const MyApp = (props) => {
       />
       {/* No WebSite/SearchAction block here on purpose. Google retired the sitelinks search box in
           2024, so the SearchAction bought nothing - and its urlTemplate was the only reason
-          Googlebot ever fetched /tools/item-database?q=%7Bsearch_term_string%7D, which it then
-          reported as a crawled-not-indexed URL. */}
+          Googlebot ever fetched the search page with a literal ?q=%7Bsearch_term_string%7D, which
+          it then reported as a crawled-not-indexed URL. */}
       <QueryClientProvider client={queryClient}>
       <CacheProvider value={emotionCache}>
         <ThemeProvider theme={darkTheme}>

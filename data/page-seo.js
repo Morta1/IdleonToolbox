@@ -111,7 +111,6 @@ export const PAGE_SEO = {
   "/tools/guaranteed-drop-calculator": { title: "Guaranteed Drop Calculator | Idleon Toolbox", description: "Calculate guaranteed drop rates and required kills for any monster drop in Legends of Idleon with multikill bonuses" },
   "/tools": { title: "Tools | Idleon Toolbox", description: "Calculators, planners and browsers for Legends of Idleon - card search, item planner, build planner and more." },
   "/tools/item-browser": { title: "Item Browser | Idleon Toolbox", description: "Browse all of your existing items with a handy search" },
-  "/tools/item-database": { title: "Item Database | Idleon Toolbox", description: "Browse and search the complete Legends of Idleon item database with filters by type, stats, and crafting recipes" },
   "/tools/item-planner": { title: "Item Planner | Idleon Toolbox", description: "Useful tool to keep track of your crafting projects by tracking existing and missing materials" },
   "/tools/material-tracker": { title: "Material Tracker | Idleon Toolbox", description: "Add a material, set your own threshold and keep track of your inventory." },
   "/tools/sampling-companion": { title: "Sampling Companion | Idleon Toolbox", description: "Find out what your character needs for optimal sampling setups" },

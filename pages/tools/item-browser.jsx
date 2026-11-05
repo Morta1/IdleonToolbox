@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useDeferredValue, useState } from 'react';
 import { itemsArray } from '@website-data';
 import {
   addEquippedItems,
@@ -7,245 +7,139 @@ import {
   getAllItems,
   mergeItemsByOwner
 } from 'parsers/items';
-import {
-  Autocomplete,
-  Box,
-  Card,
-  CardContent,
-  Checkbox,
-  createFilterOptions,
-  FormControl,
-  FormControlLabel,
-  FormLabel,
-  InputAdornment,
-  Radio,
-  RadioGroup,
-  Stack,
-  TextField,
-  Typography
-} from '@mui/material';
-import { kFormatter, prefix } from 'utility/helpers';
-import { styled } from '@mui/material/styles';
+import { Autocomplete, Box, createFilterOptions, Stack, TextField, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum } from 'utility/helpers';
 import ItemDisplay from 'components/common/ItemDisplay';
 import { AppContext } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import SearchIcon from '@mui/icons-material/Search';
-import debounce from 'lodash.debounce';
-import HtmlTooltip from '../../components/Tooltip';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
+import GameIcon from '@components/common/GameIcon';
+import Notice from '@components/common/Notice';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
+import ShortAmount from '@components/common/ShortAmount';
+import Toolbar from '@components/common/Toolbar';
+import { isSectionFailed, MissingData } from '@components/common/styles';
+import { ownerName } from '@components/tools/item-planner/ItemTooltip';
+import useToolbarState from '@hooks/useToolbarState';
 
-const filterOptions = createFilterOptions({
-  trim: true,
-  limit: 250
-});
+const filterOptions = createFilterOptions({ trim: true, limit: 250 });
+// A description a whole catalog shares ("a") would draw every item's card: the name list has the same limit.
+const RESULT_LIMIT = 250;
 
-const ItemBrowser = ({}) => {
+const BROWSER_SETTINGS = { countEquipped: true };
+const BROWSER_TOOLBAR = { by: 'name', search: '' };
+
+const itemLabel = (item) => cleanUnderscore(item?.displayName ?? '');
+// The catalog keeps its words in lines: with no save to read, a search reads the words an item's card shows
+const catalogForSearch = () => itemsArray.map((item) => ({
+  ...item,
+  description: [1, 2, 3, 4, 5, 6, 7, 8].map((line) => item?.[`desc_line${line}`]).filter((line) => line && line !== 'Filler').join(' '),
+  misc: [item?.UQ1txt, item?.UQ2txt].filter(Boolean).join(' ')
+}));
+const ownerEntries = (owners) => Object.entries(owners ?? {}).filter(([owner]) => owner && owner !== 'undefined');
+
+const ItemBrowser = () => {
   const { state } = useContext(AppContext);
-  const [value, setValue] = useState('');
-  const [items, setItems] = useState();
-  const [labels, setLabels] = useState();
-  const [result, setResult] = useState();
-  const [searchBy, setSearchBy] = useState('name');
-  const [includeEquippedItems, setIncludeEquippedItems] = useState(false);
-  const equippedItems = addEquippedItems(state?.characters, includeEquippedItems);
-  const totalItems = getAllItems(state?.characters, state?.account);
-  const totalAmount = Object.values(result || {}).reduce((res, { amount }) => res + amount, 0);
-
-  useEffect(() => {
-    setLabels(itemsArray);
-    if (!state?.characters && !state?.account) {
-      setItems(itemsArray);
+  const [settings, setSettings, resetSettings] = usePageSettings('item-browser', BROWSER_SETTINGS);
+  const [toolbar, setToolbar] = useToolbarState('item-browser', BROWSER_TOOLBAR);
+  const [picked, setPicked] = useState(null);
+  const search = useDeferredValue(toolbar.search.trim());
+  const failed = isSectionFailed(state?.account, 'storage');
+  const isGuest = Boolean(state?.emptyAccount);
+  // What the page can say about owners: a guest owns nothing and a failed storage section can't say
+  const knowsOwners = Boolean(state?.account) && !isGuest && !failed;
+  const owned = knowsOwners ? mergeItemsByOwner([
+    ...(getAllItems(state?.characters, state?.account) || []),
+    ...addEquippedItems(state?.characters, settings.countEquipped)
+  ]) : [];
+  const owners = ownerEntries(findItemInInventory(owned, picked?.displayName));
+  const totalAmount = owners.reduce((sum, [, { amount }]) => sum + amount, 0);
+  const found = toolbar.by === 'description' && search ? findItemByDescriptionInInventory(knowsOwners ? owned : catalogForSearch(), search) : [];
+  const results = Array.isArray(found) ? found : [];
+  const changeToolbar = (patch) => {
+    if (patch.by && patch.by !== toolbar.by) {
+      setPicked(null);
+      setToolbar({ ...patch, search: '' });
     } else {
-      setItems(includeEquippedItems ? mergeItemsByOwner([...(totalItems || []), ...(equippedItems || [])]) : mergeItemsByOwner(totalItems));
+      setToolbar(patch);
     }
-  }, [state, includeEquippedItems]);
+  };
 
-  useEffect(() => {
-    if (value && searchBy === 'name') {
-      const findings = findItemInInventory(items, value?.displayName);
-      setResult(findings);
-    } else if (value && searchBy === 'description') {
-      const findings = findItemByDescriptionInInventory(items, value);
-      setResult(findings);
-    } else {
-      setResult([]);
-    }
-  }, [value, includeEquippedItems, items]);
-
-  useEffect(() => {
-    setValue('')
-  }, [searchBy]);
-
-  const handleValueChange = debounce((e) => {
-    setValue(e.target.value);
-  }, 100)
-  return (
-    (<ItemBrowserStyle>
-      <NextSeo
-        title="Item Browser | Idleon Toolbox"
-        description="Browse all of your existing items with a handy search"
-      />
-      <Typography variant={'subtitle1'}>Browse all items in your account!</Typography>
-      <Typography mb={4} variant={'subtitle1'}>The amount of items you own will be displayed below the item&apos;s
-        display</Typography>
-      <Stack>
-        <FormControl>
-          <FormLabel id="demo-radio-buttons-group-label">Search by</FormLabel>
-          <RadioGroup
-            row
-            aria-labelledby="demo-radio-buttons-group-label"
-            defaultValue="name"
-            name="radio-buttons-group"
-            onChange={(e) => setSearchBy(e.target.value)}
-          >
-            <FormControlLabel value="name" control={<Radio/>} label="Item Name"/>
-            <FormControlLabel value="description" control={<Radio/>} label="Item Description"/>
-          </RadioGroup>
-        </FormControl>
-      </Stack>
-      <Stack direction={'row'} alignItems={'center'} gap={2}>
-        {searchBy === 'name' && labels?.length > 0 ? (
+  return <>
+    <NextSeo
+      title="Item Browser | Idleon Toolbox"
+      description="Browse all of your existing items with a handy search"
+    />
+    {failed ? <MissingData name={state?.account?.failedSections?.includes('*') ? 'your save' : 'Storage'} failed/>
+      : isGuest ? <Notice tone={'signin'} sx={{ mb: 2 }}>Who owns an item shows here once you sign in.</Notice> : null}
+    {state?.characters?.length ? <PageSettings state={settings} defaults={BROWSER_SETTINGS} onChange={setSettings} onReset={resetSettings}>
+      <PageSettings.Toggle name={'countEquipped'} label={'Count equipped items'}
+                           help={'Counts gear your characters are wearing, tools and food in their slots as owned.'}/>
+    </PageSettings> : null}
+    <Typography variant={'body2'} color={'text.secondary'}>Find an item and see who owns it, and how many.</Typography>
+    <Box>
+      {/* Search by picks how to search, not which items show: its default follows it, so it counts as no filter */}
+      <Toolbar state={toolbar} defaults={{ ...BROWSER_TOOLBAR, by: toolbar.by }} onChange={changeToolbar}
+               onReset={() => setToolbar({ search: '' })}
+               total={knowsOwners ? owned.length : itemsArray.length} shown={results.length} noun={'items'}>
+        {toolbar.by === 'name' ? <Toolbar.Lead>
           <Autocomplete
-            id="item-browser"
-            value={value}
-            onChange={(event, newValue) => {
-              setValue(newValue);
-            }}
+            value={picked}
+            onChange={(event, next) => setPicked(next)}
             autoComplete
-            options={[value, ...labels]}
-            filterSelectedOptions
+            options={itemsArray}
             filterOptions={filterOptions}
-            getOptionLabel={(option) => {
-              return option?.displayName ? option?.displayName?.replace(/_/g, ' ') : '';
-            }}
-            renderOption={(props, option) => {
-              return (
-                (<Stack {...props} key={props.id} gap={2} direction={'row'}>
-                  <img
-                    key={`img-${props.id}`}
-                    width={24}
-                    height={24}
-                    src={`${prefix}data/${option?.rawName}.png`}
-                    alt="item-icon"
-                  />
-                  <Typography key={`text-${props.id}`}>{option?.displayName?.replace(/_/g, ' ')}</Typography>
-                </Stack>)
-              );
-            }}
-            style={{ width: 300 }}
-            renderInput={(params) => (
-              <StyledTextField   {...params} label="Item Name" variant="outlined"
-              />
-            )}
+            isOptionEqualToValue={(option, value) => option?.rawName === value?.rawName}
+            getOptionLabel={itemLabel}
+            noOptionsText={'No item matches'}
+            sx={{ flex: { xs: '1 1 auto', sm: '0 0 auto' }, width: { sm: 320 }, minWidth: 0 }}
+            renderOption={({ key, ...props }, option) => <Stack component={'li'} key={key} {...props} direction={'row'} gap={1.5}>
+              <GameIcon src={`data/${option?.rawName}.png`} fallback={`data/${option?.rawName}_x1.png`} size={24} alt={''}/>
+              {itemLabel(option)}
+            </Stack>}
+            // The label sits inside, as the bar's own fields put theirs: "Item: Any", Any read as the value it is
+            renderInput={(params) => <TextField {...params} placeholder={picked ? undefined : 'Any'}
+                                                sx={{ '& input::placeholder': { color: 'text.primary', opacity: 1 } }}
+                                                slotProps={{
+                                                  htmlInput: { ...params.inputProps, 'aria-label': 'Item' },
+                                                  input: {
+                                                    ...params.InputProps,
+                                                    startAdornment: <Box component={'span'} sx={{ color: 'text.secondary', mr: 0.75 }}>Item:</Box>
+                                                  }
+                                                }}/>}
           />
-        ) : null}
-        {searchBy === 'description' ?
-          <TextField sx={{ mt: 1 }} placeholder={'Type anything'}
-                     onChange={(e) => handleValueChange(e)}
-                     InputProps={{
-                       endAdornment: <InputAdornment position="end">
-                         <SearchIcon/>
-                       </InputAdornment>
-                     }}/> : null}
-        <FormControlLabel
-          control={
-            <StyledCheckbox
-              checked={includeEquippedItems}
-              onChange={() => setIncludeEquippedItems(!includeEquippedItems)}
-              name="Include Equipped Items"
-              color="default"
-            />
-          }
-          label={'Include Equipped Items'}
-        />
-      </Stack>
-      {searchBy === 'name' ?
-        <Typography component={'div'} variant={'caption'} sx={{ width: 300, mt: 1 }}>Start to write to narrow down the
-          results (max of 250
-          items)</Typography> : null}
-      {value && searchBy === 'name' ? <Card sx={{ my: 2, width: 'fit-content' }}>
-        <CardContent>
-          <ItemDisplay style={{ marginTop: 15 }} {...value}/>
-        </CardContent>
-      </Card> : null}
-      {value && searchBy === 'description' ?
-        <Stack direction={'row'} gap={3} flexWrap={'wrap'} flexShrink={0} flexGrow={0}>
-          {Array.isArray(result) && result?.map((item, index) => {
-            return <Box key={item?.rawName + index} sx={{ width: 200, height: 'fit-content' }}>
-              <HtmlTooltip title={item?.owners?.join(', ')}>
-                <Card sx={{ my: 2 }}>
-                  <CardContent>
-                    <ItemDisplay style={{ marginTop: 15 }} {...item}/>
-                  </CardContent>
-                </Card>
-              </HtmlTooltip>
-            </Box>
-          })}
-        </Stack>
+        </Toolbar.Lead> : <Toolbar.Search placeholder={'Search item descriptions'}/>}
+        <Toolbar.Show name={'by'} label={'Search by'} options={[['name', 'Name'], ['description', 'Description']]}/>
+      </Toolbar>
+      {toolbar.by === 'name' && picked ? <CardGrid size={'m'}>
+        <ItemCard><Box><ItemDisplay {...picked}/></Box></ItemCard>
+        {knowsOwners ? <Panel title={'Owned by'}
+                              meta={owners.length > 1 ? <>Total <ShortAmount amount={totalAmount}/></> : undefined}>
+          {owners.length
+            ? owners.map(([owner, { amount }]) => <Panel.Row key={owner} name={ownerName(owner)} value={<ShortAmount amount={amount}/>}/>)
+            : <Typography variant={'body2'} color={'text.secondary'} sx={{ px: 2, py: 1.25 }}>No one has this yet.</Typography>}
+        </Panel> : null}
+      </CardGrid> : null}
+      {toolbar.by === 'description' && !toolbar.search.trim()
+        ? <Typography variant={'body2'} color={'text.secondary'}>Type part of a description to find items.</Typography>
         : null}
-      {searchBy === 'name' && result && Object.keys(result)?.length > 0 ? (
-        <Card sx={{ my: 2, width: 'fit-content' }}>
-          <CardContent>
-            {Object.keys(result)?.map((ownerName, index) => (
-              <Stack direction={'row'} gap={2} key={ownerName + index}>
-                <span className={'owner-name'}>{ownerName}</span>
-                {result?.[ownerName]?.amount ? (
-                  <Typography color={'text.success'} className={'amount'}>
-                    ({kFormatter(result?.[ownerName]?.amount)})
-                  </Typography>
-                ) : (
-                  ''
-                )}
-              </Stack>
-            ))}
-            {Object.keys(result).length > 1 ? <Typography>
-              Total:
-              <Typography component={'span'} color={'text.success'} mt={1}> {kFormatter(totalAmount)}</Typography>
-            </Typography> : null}
-          </CardContent>
-        </Card>
-      ) : null}
-    </ItemBrowserStyle>)
-  );
+      {results.length ? <>
+        {results.length > RESULT_LIMIT ? <Notice sx={{ mb: 2 }}>{`The first ${RESULT_LIMIT} are shown: type more to narrow them.`}</Notice> : null}
+        <CardGrid size={'s'}>
+          {results.slice(0, RESULT_LIMIT).map((item, index) => {
+            const itemOwners = ownerEntries(findItemInInventory(owned, item?.name ?? item?.displayName));
+            return <ItemCard key={`${item?.rawName}-${index}`} footer={itemOwners.length ? <Typography variant={'body2'} color={'text.secondary'}>
+              {itemOwners.map(([owner, { amount }]) => `${ownerName(owner)} ${formatNum(amount, 'whole')}`).join(' · ')}
+            </Typography> : null}>
+              <Box><ItemDisplay {...item} owners={undefined}/></Box>
+            </ItemCard>;
+          })}
+        </CardGrid>
+      </> : null}
+    </Box>
+  </>;
 };
-
-const ItemBrowserStyle = styled('div')`
-
-  .main-header {
-    font-size: 22px;
-    font-weight: bold;
-  }
-
-  .sub-header {
-    margin-top: 15px;
-    margin-bottom: 2em;
-  }
-
-  .results {
-    margin-top: 15px;
-    padding-left: 15px;
-    display: grid;
-    grid-template-columns: repeat(2, 250px);
-
-    & .owner-name {
-      display: inline-block;
-      width: 150px;
-    }
-
-    & .amount {
-      color: var(--mui-palette-text-success);
-    }
-  }
-`;
-
-const StyledTextField = styled(TextField)`
-  && label.Mui-focused {
-    color: rgba(255, 255, 255, 0.7);
-  }
-`;
-const StyledCheckbox = styled(Checkbox)`
-  && {
-    color: white;
-  }
-`;
 
 export default ItemBrowser;
