@@ -13,13 +13,14 @@ const BUTTON_SX = { cursor: 'pointer', '&:focus-visible': { outline: '2px solid'
 // leads with the same words (message) a desktop hover previews, so a tap and a keyboard reach them too. look: a state
 // the sprite itself shows (a tint, a dim, the salt alerts' edge), never one without words in its message. badge and
 // children: what sits on the sprite's corners. label names the icon when its message is not plain text. size: GameIcon's.
-const AlertIcon = ({ configType, target, extra, message, label, icon, frame, fallback, alt = '', size = 32, look, badge, maxWidth, children }) => {
+// icon: a sprite's path, or a node for art one sprite can't draw (VialArt).
+const AlertIcon = ({ configType, target, extra, message, label, icon, fallback, alt = '', size = 32, look, badge, maxWidth, children }) => {
   const settings = useAlertSettingsProps(configType, target, extra, message);
   const name = label ?? (typeof message === 'string' ? message : undefined);
   const sprite = <Box component={'span'} {...settings} aria-label={target ? name ?? settings['aria-label'] : undefined}
                       sx={[{ position: 'relative', display: 'inline-flex', borderRadius: 1, flexShrink: 0 }, target && BUTTON_SX]}>
     <Box component={'span'} sx={{ display: 'inline-flex', borderRadius: 1, ...look }}>
-      <GameIcon src={icon} frame={frame} fallback={fallback} size={size} alt={alt}/>
+      {typeof icon === 'string' ? <GameIcon src={icon} fallback={fallback} size={size} alt={alt}/> : icon}
     </Box>
     {badge}
     {children}

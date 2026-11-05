@@ -18,6 +18,7 @@ import StatusText from '@components/common/StatusText';
 import { isSectionFailed } from '@components/common/styles';
 import Notice from '@components/common/Notice';
 import GameIcon from '@components/common/GameIcon';
+import VialArt from '@components/common/VialArt';
 import Panel from '@components/common/cards/Panel';
 import ItemCard from '@components/common/cards/ItemCard';
 import AlertIcon, { counted } from './AlertIcon';
@@ -43,7 +44,6 @@ import { monsterSprite } from '@utility/spriteImages';
 import { pickerItemLabel } from '@utility/dashboard/quickEdit';
 import { formatArcadeEffect } from '@parsers/world-2/arcade';
 import { BASE_MAX_SHINY_LEVEL } from '@parsers/world-4/breeding';
-import { MAX_VIAL_LEVEL } from '@parsers/world-2/alchemy';
 
 // Every refinery alert draws the same salt icon, and one salt can raise several of them at once,
 // so a corner glyph says which condition fired without having to hover each copy.
@@ -1155,8 +1155,8 @@ const AffordableStampLevels = ({ count, names = [], totalCost, percentOfMoney, s
 const Alert = ({ title, iconPath, vial, atom, breedability, imgStyle, badge, target, items, worlds, maxWidth, ariaLabel, label }) => {
   const { Icon: BadgeIcon, color, border, size } = alertBadges[badge] || {};
   return <AlertIcon configType={'account'} target={target} extra={items || worlds ? { items, worlds } : undefined}
-                    message={title} label={ariaLabel ?? label} icon={`${iconPath}.png`} maxWidth={maxWidth}
-                    frame={vial ? `data/aVials${Math.min(vial?.level, MAX_VIAL_LEVEL) || 1}.png` : undefined}
+                    message={title} label={ariaLabel ?? label} maxWidth={maxWidth}
+                    icon={vial ? <VialArt level={vial?.level} material={`${iconPath}.png`} size={32}/> : `${iconPath}.png`}
                     look={{ ...(border ? { outline: '1px solid', outlineColor: border } : {}), ...imgStyle }}
                     badge={BadgeIcon ? <Box component={'span'} sx={{ ...BADGE_SX, color }}><BadgeIcon sx={{ fontSize: size }}/></Box> : null}>
     {atom || breedability ? <Box component={'span'} sx={MARK_SX}>

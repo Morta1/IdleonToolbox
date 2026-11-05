@@ -19,10 +19,14 @@ import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
 import StatusText from '@components/common/StatusText';
+import VialArt from '@components/common/VialArt';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 
 const VIALS_TOOLBAR = { hideMaxed: false };
+// The bottle needs more room than a 72 px tile: a fill grid with a higher floor keeps 4 across at 384.
+const VIAL_TILE_HEIGHT = 88;
+const VIAL_GRID_SX = { gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))' };
 
 // The sections the page reads, in the order the note names the first that failed: the vials, and what the vial bonus
 // reads besides them (My First Chemistry Set, the Upgrade Vault, the meritocracy bonus and Vial Mastery)
@@ -94,12 +98,12 @@ const Vials = () => {
                                        noun={'vials'}>
         <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
       </Toolbar>}
-      <CardGrid size={'icon'}>
+      <CardGrid size={'icon'} fill sx={VIAL_GRID_SX}>
         {shown.map((vial) => {
           const level = vial?.level ?? 0;
-          return <IconTile key={vial.name} icon={`data/${vial.mainItem}.png`} alt={vialName(vial)}
-                           value={formatNum(level)} frame={`data/aVials${Math.min(level, MAX_VIAL_LEVEL) || 1}.png`}
-                           status={alchemyFailed || level > 0 ? undefined : 'missing'}
+          const status = alchemyFailed || level > 0 ? undefined : 'missing';
+          return <IconTile key={vial.name} height={VIAL_TILE_HEIGHT} value={formatNum(level)} status={status}
+                           icon={<VialArt level={level} material={`data/${vial.mainItem}.png`} alt={vialName(vial)} status={status}/>}
                            details={alchemyFailed ? undefined : vialNote(vial, failedSection ? null : multiplierText)}/>;
         })}
       </CardGrid>

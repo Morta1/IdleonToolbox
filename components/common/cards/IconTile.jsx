@@ -59,7 +59,8 @@ const TILE_MAX = 'var(--tile-max, 72px)';
 
 // IconTile (Cards board): a sprite and one number, packed tight, for grids scanned at a glance. 72 px
 // square, the sprite in a 40 px box, game frames behind it; narrower only where its grid keeps a fixed column
-// count (CardGrid columns), as wide as its cell. Missing greys the sprite, empty is a dashed slot, active and
+// count (CardGrid columns), as wide as its cell. icon is a sprite's path, or a node for art a sprite and a frame can't
+// draw (VialArt), with height the tile's own for it. Missing greys the sprite, empty is a dashed slot, active and
 // selected are the ItemCard lines. details open on click, tap, Enter or hover. mark is a game mark on the sprite's
 // corner (the Rat King's crown on a crowned plant, the greenstack symbol), named for a screen reader by markAlt; a tile
 // carries a badge or a mark, not both. fallback is a second sprite GameIcon tries first if the icon is missing.
@@ -70,7 +71,7 @@ const TILE_MAX = 'var(--tile-max, 72px)';
 // phoneDetails go with onSelect: below 600 px, where the page's details Panel does not show, a pick also pins the
 // picked tile's details as its note (sized to a table), so the grid keeps the screen.
 // sub: a dimmer line under the value, inside a sheet (a talent's "/ max").
-const IconTile = ({ icon, fallback, alt = '', value, kind, sub, frame, badge, mark, markAlt, status, details, onSelect, selected,
+const IconTile = ({ icon, fallback, alt = '', value, kind, sub, frame, height = 72, badge, mark, markAlt, status, details, onSelect, selected,
   phoneDetails }) => {
   const small = Boolean(useSheet());
   const empty = status === 'empty';
@@ -84,7 +85,7 @@ const IconTile = ({ icon, fallback, alt = '', value, kind, sub, frame, badge, ma
       position: 'relative',
       width: '100%',
       maxWidth: TILE_MAX,
-      height: 72,
+      height,
       px: 0.5,
       pt: 0.75,
       pb: 0.5,
@@ -98,8 +99,10 @@ const IconTile = ({ icon, fallback, alt = '', value, kind, sub, frame, badge, ma
     longValue && { containerType: 'inline-size' },
     empty && emptySlot
   ]}>
-    {icon && !empty ? <GameIcon src={icon} fallback={fallback} size={small ? 28 : 40} alt={alt} frame={frame}
-                                status={status === 'missing' ? 'missing' : undefined}/> : null}
+    {icon && !empty ? (typeof icon === 'string'
+      ? <GameIcon src={icon} fallback={fallback} size={small ? 28 : 40} alt={alt} frame={frame}
+                  status={status === 'missing' ? 'missing' : undefined}/>
+      : icon) : null}
     {hasValue ? <Typography component={'div'} variant={'caption'} sx={{
       ...(longValue ? LONG_VALUE_SX : {}),
       fontSize: 13,
