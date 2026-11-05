@@ -14,7 +14,7 @@ import { itemsArray } from '@website-data';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import StructuredData, { createHowToData } from '@components/common/StructuredData';
-import { MissingSections } from '@components/common/styles';
+import { isSectionFailed, MissingSections } from '@components/common/styles';
 import Panel from '@components/common/cards/Panel';
 import NumberField from '@components/common/NumberField';
 import { IconTrash } from '@tabler/icons-react';
@@ -41,6 +41,12 @@ const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr
 
 const SOURCE = 'material-tracker';
 const SECTION_NAMES = { looty: 'Slab', storage: 'Storage' };
+// Each button's list comes from these sections: with one failed it would come up short, without a word
+const TRACK_MY_READS = ['looty', 'storage'];
+const TRACK_MISSING_READS = ['looty'];
+
+// A goal over a failed section: its amount reads "-", and nothing says short, reached or gone from the game.
+const unknownAmount = (view) => ({ ...view, status: 'ok', value: null, met: null, total: null, short: [], progress: null });
 
 const MaterialTracker = () => {
   const { state } = useContext(AppContext);
@@ -61,9 +67,18 @@ const MaterialTracker = () => {
   const itemGoals = goals.filter(({ system }) => system === 'item');
   // "Track my greenstacks" is the All greenstacks goal, not a single greenstack entry goal
   const greenstack = goals.find(({ system, kind }) => system === 'greenstack' && kind === 'all');
-  const greenstackView = greenstack ? resolveGoal(greenstack, ctx) : null;
+  const failed = (names) => names.find((name) => isSectionFailed(state?.account, name));
+  const greenstackGoalView = greenstack ? resolveGoal(greenstack, ctx) : null;
+  const greenstackView = greenstackGoalView && failed(TRACK_MY_READS) ? unknownAmount(greenstackGoalView) : greenstackGoalView;
   // A lower and an upper goal on one item read as one range row
-  const itemViews = pairRanges(resolveGoals(itemGoals, ctx));
+  const itemRows = pairRanges(resolveGoals(itemGoals, ctx));
+  const itemViews = failed(['storage']) ? itemRows.map(unknownAmount) : itemRows;
+  const offReason = (names) => {
+    const first = failed(names);
+    return first ? `Off for now: ${state?.account?.failedSections?.includes('*') ? 'your save' : SECTION_NAMES[first]} didn't load, so this list would come up short.` : null;
+  };
+  const trackMyOff = offReason(TRACK_MY_READS);
+  const trackMissingOff = offReason(TRACK_MISSING_READS);
   const pageGoals = goals.filter(isItemGoal);
   // One goal: the confirm names it (its item, or All greenstacks), or at least its kind.
   const onlyGoal = pageGoals.length === 1 ? pageGoals[0] : null;
@@ -184,9 +199,10 @@ const MaterialTracker = () => {
       <Stack sx={{ p: 2 }} gap={2} direction={{ xs: 'column', md: 'row' }}
              divider={<Divider orientation={'vertical'} flexItem sx={{ display: { xs: 'none', md: 'block' } }}/>}>
         <Stack role={'group'} aria-label={'Track my greenstacks'} gap={1.5} sx={{ flex: 1, minWidth: 0 }}>
-          <Button onClick={handleTrackOwned} variant={'contained'} sx={{ alignSelf: 'flex-start' }}>
+          <Button onClick={handleTrackOwned} variant={'contained'} disabled={Boolean(trackMyOff)} sx={{ alignSelf: 'flex-start' }}>
             Track my greenstacks
           </Button>
+          {trackMyOff ? <Typography variant={'body2'} color={'text.secondary'}>{trackMyOff}</Typography> : null}
           <Typography variant={'caption'} color={'text.secondary'}>
             One goal per greenstack you own, with the bounds and note below. No bounds: the dashboard always shows
             the amount.
@@ -203,10 +219,11 @@ const MaterialTracker = () => {
           />
         </Stack>
         <Stack role={'group'} aria-label={'Track missing greenstacks'} gap={1.5} sx={{ flex: { md: '0 0 240px' } }}>
-          <Button onClick={handleTrackMissing} variant={'outlined'}
+          <Button onClick={handleTrackMissing} variant={'outlined'} disabled={Boolean(trackMissingOff)}
                   sx={{ alignSelf: 'flex-start' }}>
             Track missing greenstacks
           </Button>
+          {trackMissingOff ? <Typography variant={'body2'} color={'text.secondary'}>{trackMissingOff}</Typography> : null}
           <Typography variant={'caption'} color={'text.secondary'}>
             One goal for every greenstack you still need.
           </Typography>
