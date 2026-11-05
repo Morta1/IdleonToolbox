@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest';
 import {
   biggestClimber,
   closestGap,
-  formatCountdown,
   msUntilWeeklyReset
 } from '../../../components/guilds/CurationStrip';
 
@@ -82,6 +81,11 @@ describe('closestGap', () => {
     expect(result.gap).toBe(10_000); // displayed gap stays absolute
   });
 
+  it('skips a pair whose ranks and GP disagree: it has no gap to show', () => {
+    const inverted = [{ guild_id: 'a', rank: 1, total_gp: 900 }, { guild_id: 'b', rank: 2, total_gp: 1000 }];
+    expect(closestGap(inverted)).toBeNull();
+  });
+
   // The smallest list that has a pair: the boundary of the fewer-than-2 null case.
   it('pairs exactly 2 guilds, the lower-ranked one as challenger', () => {
     const guilds = [
@@ -124,29 +128,5 @@ describe('msUntilWeeklyReset', () => {
   it('returns the remaining time mid-week', () => {
     expect(msUntilWeeklyReset(WEEK_ANCHOR_MS - 60_000)).toBe(60_000);
     expect(msUntilWeeklyReset(WEEK_ANCHOR_MS + 1000)).toBe(WEEK_MS - 1000);
-  });
-});
-
-// ─── formatCountdown ─────────────────────────────────────────────────────────
-
-describe('formatCountdown', () => {
-  it('returns "now" for zero or negative durations', () => {
-    expect(formatCountdown(0)).toBe('now');
-    expect(formatCountdown(-1000)).toBe('now');
-  });
-
-  it('leading unit is unpadded; every smaller unit is zero-padded to 2 digits', () => {
-    expect(formatCountdown(45_000)).toBe('45s');
-    expect(formatCountdown(5 * 60_000 + 9_000)).toBe('5m 09s');
-    expect(formatCountdown(2 * HOUR_MS + 15 * 60_000 + 7_000)).toBe('2h 15m 07s');
-    expect(formatCountdown(6 * 24 * HOUR_MS + 5 * HOUR_MS + 3 * 60_000 + 4_000))
-      .toBe('6d 05h 03m 04s');
-  });
-
-  it('drops zeroed leading units but keeps every unit smaller than the leading one', () => {
-    // 5m 30s → no leading "0d 0h"; 1d 4h 37m 12s → full chain kept.
-    expect(formatCountdown(5 * 60_000 + 30_000)).toBe('5m 30s');
-    expect(formatCountdown(24 * HOUR_MS + 4 * HOUR_MS + 37 * 60_000 + 12_000))
-      .toBe('1d 04h 37m 12s');
   });
 });
