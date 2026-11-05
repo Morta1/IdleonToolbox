@@ -1,20 +1,18 @@
 import React, { useContext, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import {
   Box,
   Button,
-  Card,
   FormControlLabel,
   Radio,
   RadioGroup,
   Stack,
-  ToggleButton,
-  ToggleButtonGroup,
   Typography
 } from '@mui/material';
 import { IconDownload, IconPlus, IconUpload } from '@tabler/icons-react';
 import { NextSeo } from 'next-seo';
 import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, downloadFile, prefix, tryToParse } from 'utility/helpers';
+import { cleanUnderscore, downloadFile, formatNum, tryToParse } from 'utility/helpers';
 import { addEquippedItems, getAllItems } from 'parsers/items';
 import StructuredData, { createHowToData } from '@components/common/StructuredData';
 import SimpleLoader from '@components/common/SimpleLoader';
@@ -25,6 +23,15 @@ import { notify } from '@components/common/Overlays/notify';
 import AppDialog from '@components/common/Overlays/AppDialog';
 import Notice from '@components/common/Notice';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
+import GameIcon from '@components/common/GameIcon';
+import Toolbar from '@components/common/Toolbar';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import { cardSurface } from '@components/common/cards/tokens';
+import { isSectionFailed, MissingData } from '@components/common/styles';
+import { usePageHeaderSlot } from '@components/common/NavBar/PageHeader';
+import { headerActionSx } from '@components/common/NavBar/headerAction';
+import useToolbarState from '@hooks/useToolbarState';
 import {
   addItemToPlan,
   addPlan,
@@ -41,6 +48,7 @@ const planCount = (count) => `${count} plan${count === 1 ? '' : 's'}`;
 
 // The page's settings (Page settings in the header row), remembered in this browser.
 const PLANNER_SETTINGS = { countEquipped: true };
+const PLANNER_TOOLBAR = { show: 'needed' };
 
 const ItemPlanner = () => {
   const { state, dispatch } = useContext(AppContext);
@@ -48,7 +56,10 @@ const ItemPlanner = () => {
   // A logged-out visitor still gets a parsed empty account, which owns nothing
   const loggedIn = !state?.emptyAccount && Boolean(state?.characters || state?.account);
   const waiting = Boolean(state?.isLoading) || state?.storageHydrated === false;
-  const [showAll, setShowAll] = useState(false);
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('item-planner', PLANNER_TOOLBAR);
+  const showAll = toolbar.show === 'all';
+  const storageFailed = isSectionFailed(state?.account, 'storage');
+  const headerSlot = usePageHeaderSlot('settings');
   // Tools and gear nearly always sit in an equip slot, so leaving them out made gear plans start from scratch
   const [settings, setSettings, resetSettings] = usePageSettings('item-planner', PLANNER_SETTINGS);
   const includeEquipped = settings.countEquipped;
@@ -104,7 +115,7 @@ const ItemPlanner = () => {
     if (!fileObject) return;
     const content = tryToParse(await fileObject.text());
     const imported = getValidPlannerSections(content);
-    if (!Array.isArray(content?.sections) || (content.sections.length > 0 && imported.length === 0)) {
+    if (!Array.isArray(content?.sections) || !imported.length) {
       notify('That file doesn\'t contain item planner plans');
       return;
     }
@@ -117,10 +128,14 @@ const ItemPlanner = () => {
     applyImport(imported);
   };
 
-  const applyImport = (next) => {
+  // As the goals import does: say what came in, and offer the plans that were there before. added: how many came from
+  // the file, where they joined the plans already here.
+  const applyImport = (next, added = next.length) => {
+    const before = sections;
     save(next);
     setImportOpen(false);
     trackEvent('planner_import', { plan_count: next.length });
+    notify(`Imported ${planCount(added)}`, { undo: () => save(before) });
   };
 
   // A plan's Delete comes from its menu, whose row is gone by the time the dialog closes: focus goes back
@@ -139,6 +154,11 @@ const ItemPlanner = () => {
     setConfirm({ ...confirm, open: false });
   };
 
+  const planViews = sections.map((plan) => buildPlanView({ items: plan.items, inventoryItems, account: state?.account }));
+  const materialTotal = planViews.reduce((sum, { craftNext, gather }) => sum + craftNext.length + gather.length, 0);
+  const materialShort = planViews.reduce((sum, { craftNext, gather }) => sum + craftNext.filter(({ state: row }) => row !== 'ready').length
+    + gather.filter(({ state: row }) => row === 'short').length, 0);
+
   return <>
     <NextSeo
       title="Item Planner | Idleon Toolbox"
@@ -155,68 +175,69 @@ const ItemPlanner = () => {
       ]
     )}/>
     {/* Plans are measured against the save, so they wait for it rather than showing everything missing first */}
-    {waiting ? <SimpleLoader message={'Loading your plans...'}/> : <Stack gap={3}>
-      <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-        {sections.length ? <>
-          {/* Small, as the toggles beside it: one height for the row, 44 on a phone like theirs. */}
-          <Button variant={'contained'} size={'small'} startIcon={<IconPlus size={18}/>} onClick={handleNewPlan}
-                  sx={{ minHeight: { xs: 44, sm: 32 } }}>
-            New plan
-          </Button>
-          <ToggleButtonGroup size={'small'} exclusive value={showAll ? 'all' : 'needed'}
-                             onChange={(_, value) => value && setShowAll(value === 'all')}
-                             aria-label={'Materials shown'}>
-            <ToggleButton value={'needed'} sx={{ minHeight: { xs: 44, sm: 32 }, px: 1.75 }}>Still needed</ToggleButton>
-            <ToggleButton value={'all'} sx={{ minHeight: { xs: 44, sm: 32 }, px: 1.75 }}>All materials</ToggleButton>
-          </ToggleButtonGroup>
-        </> : null}
-        <Box sx={{ flexGrow: 1 }}/>
-        {/* In the header row's settings slot (Decision 6) */}
-        {loggedIn ? <PageSettings state={settings} defaults={PLANNER_SETTINGS} onChange={setSettings} onReset={resetSettings}>
-          <PageSettings.Toggle name={'countEquipped'} label={'Count equipped items'}
-                               help={'Counts gear your characters are wearing, tools and food in their slots as owned.'}/>
-        </PageSettings> : null}
-        {sections.length ? <Button startIcon={<IconDownload size={18}/>} onClick={handleExport}>Export</Button> : null}
-        <Button startIcon={<IconUpload size={18}/>} onClick={() => inputRef.current.click()}>Import</Button>
-        <input type="file" ref={inputRef} style={{ display: 'none' }} accept=".json" onChange={handleFileChange}/>
-        {sections.length ? <Button color={'inherit'} onClick={() => askDelete('all')}
-                                   sx={{ color: 'text.secondary' }}>
-          Delete all plans
-        </Button> : null}
-      </Stack>
-
-      {sections.length ? sections.map((plan, index) => <PlanCard
-        key={index}
-        plan={plan}
-        view={buildPlanView({ items: plan.items, inventoryItems, account: state?.account })}
-        defaultExpanded={index === 0 || index === newestPlan}
-        showAll={showAll}
-        onAddItem={(itemName, count) => handleAddItem(index, itemName, count)}
-        startRenaming={index === namingPlan}
-        onSetCount={(itemName, count) => handleSetCount(index, itemName, count)}
-        onRename={(name) => save(renamePlan(sections, index, name))}
-        onRemove={(trigger) => askDelete('plan', index, trigger)}
-      />) : <Card ref={emptyState} variant={'outlined'} sx={{ px: 3, py: 6 }}>
-        <Stack alignItems={'center'} gap={2} sx={{ textAlign: 'center' }}>
-          <Stack direction={'row'} gap={1} aria-hidden>
-            {EMPTY_STATE_SPRITES.map((rawName) => <Box key={rawName} component={'img'} src={`${prefix}data/${rawName}.png`}
-                                                       alt="" sx={{ width: 48, height: 48, objectFit: 'contain' }}/>)}
-          </Stack>
-          <Typography component={'h2'} variant={'sectionTitle'}>Plan your next craft</Typography>
-          <Typography variant={'body2'} color={'text.secondary'} sx={{ maxWidth: 460 }}>
-            Pick an item and the planner lists every material it needs, checks your storage and characters, and shows
-            what you are still short.
-          </Typography>
-          <Box sx={{ width: '100%', maxWidth: 460, mt: 1 }}>
-            <AddItemForm onAdd={handleStartPlan} submitLabel={'Start a plan'} withCount={false}/>
-          </Box>
-          {/* The form's width and its own left alignment inside the centred card, like every other note */}
-          {!loggedIn ? <Notice tone={'signin'} sx={{ width: '100%', maxWidth: 460, textAlign: 'left' }}>
-            Plans compare against what you own once you sign in, and stay saved in this browser.
-          </Notice> : null}
+    {waiting ? <SimpleLoader message={'Loading your plans...'}/> : <>
+      {storageFailed ? <MissingData name={state?.account?.failedSections?.includes('*') ? 'your save' : 'Storage'} failed/>
+        : !loggedIn ? <Notice tone={'signin'} sx={{ mb: 2 }}>
+          Plans compare against what you own once you sign in, and stay saved in this browser.
+        </Notice> : null}
+      {sections.length ? <PageSummary>
+        <StatTile label={'Plans'} value={formatNum(sections.length, 'whole')}/>
+        {loggedIn ? <StatTile label={'Equipped items'} value={includeEquipped ? 'Counted as owned' : 'Not counted'}/> : null}
+      </PageSummary> : null}
+      {/* In the header row's settings slot (Decision 6) */}
+      {loggedIn ? <PageSettings state={settings} defaults={PLANNER_SETTINGS} onChange={setSettings} onReset={resetSettings}>
+        <PageSettings.Toggle name={'countEquipped'} label={'Count equipped items'}
+                             help={'Counts gear your characters are wearing, tools and food in their slots as owned.'}/>
+      </PageSettings> : null}
+      <input type="file" ref={inputRef} style={{ display: 'none' }} accept=".json" onChange={handleFileChange}/>
+      {sections.length ? <Box>
+        <Toolbar state={toolbar} defaults={PLANNER_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+                 total={materialTotal} shown={showAll ? materialTotal : materialShort} noun={'materials'}>
+          <Toolbar.Show options={[['needed', 'Still needed'], ['all', 'All materials']]}/>
+        </Toolbar>
+        <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'} sx={{ mb: 2 }}>
+          <Button variant={'contained'} startIcon={<IconPlus size={18}/>} onClick={handleNewPlan}>New plan</Button>
+          <Box sx={{ flexGrow: 1 }}/>
+          <Button startIcon={<IconDownload size={18}/>} onClick={handleExport}>Export</Button>
+          <Button startIcon={<IconUpload size={18}/>} onClick={() => inputRef.current.click()}>Import</Button>
+          <Button color={'inherit'} onClick={() => askDelete('all')} sx={{ color: 'text.secondary' }}>Delete all plans</Button>
         </Stack>
-      </Card>}
-    </Stack>}
+        <Stack gap={3}>
+          {sections.map((plan, index) => <PlanCard
+            key={index}
+            plan={plan}
+            view={planViews[index]}
+            defaultExpanded={index === 0 || index === newestPlan}
+            showAll={showAll}
+            unknown={storageFailed}
+            onAddItem={(itemName, count) => handleAddItem(index, itemName, count)}
+            startRenaming={index === namingPlan}
+            onSetCount={(itemName, count) => handleSetCount(index, itemName, count)}
+            onRename={(name) => save(renamePlan(sections, index, name))}
+            onRemove={(trigger) => askDelete('plan', index, trigger)}
+          />)}
+        </Stack>
+      </Box> : <>
+        {/* Before Page settings in the header's end slot: the board's Import sits at the header row's right */}
+        {headerSlot ? createPortal(<Button startIcon={<IconUpload size={18}/>} onClick={() => inputRef.current.click()}
+                                           sx={[headerActionSx, { ml: 1 }]}>Import</Button>, headerSlot) : null}
+        <Box ref={emptyState} sx={[(theme) => cardSurface(theme), { px: 3, py: 5 }]}>
+          <Stack alignItems={'center'} gap={2} sx={{ textAlign: 'center' }}>
+            <Stack direction={'row'} gap={1.5} aria-hidden>
+              {EMPTY_STATE_SPRITES.map((rawName) => <GameIcon key={rawName} src={`data/${rawName}.png`} size={40} alt={''}/>)}
+            </Stack>
+            <Typography component={'h2'} variant={'sectionTitle'}>Plan your next craft</Typography>
+            <Typography variant={'body2'} color={'text.secondary'} sx={{ maxWidth: 460 }}>
+              Pick an item and the planner lists every material it needs, checks your storage and characters, and shows
+              what you are still short.
+            </Typography>
+            <Box sx={{ width: '100%', maxWidth: 460 }}>
+              <AddItemForm onAdd={handleStartPlan} submitLabel={'Start a plan'} withCount={false}/>
+            </Box>
+          </Stack>
+        </Box>
+      </>}
+    </>}
 
     <AppDialog open={confirm.open} onClose={() => setConfirm({ ...confirm, open: false })} size="s"
                onExited={() => (emptyState.current?.querySelector('input, button') ?? returnFocus.current)?.focus()}
@@ -228,7 +249,7 @@ const ItemPlanner = () => {
                    main: true, danger: true, onClick: confirmDelete
                  }
                ]}>
-      <Typography color="text.secondary">
+      <Typography variant={'body2'} color="text.secondary">
         {confirm.type === 'plan'
           ? `${confirm.name ? `"${confirm.name}"` : 'This plan'} goes for good.`
           : 'Every plan goes for good.'}
@@ -239,9 +260,9 @@ const ItemPlanner = () => {
                  { label: 'Cancel' },
                  {
                    label: `Import ${planCount(pendingImport?.plans.length ?? 0)}`, main: true,
-                   onClick: () => applyImport(importMode === 'replace'
-                     ? pendingImport.plans
-                     : [...sections, ...pendingImport.plans])
+                   onClick: () => (importMode === 'replace'
+                     ? applyImport(pendingImport.plans)
+                     : applyImport([...sections, ...pendingImport.plans], pendingImport.plans.length))
                  }
                ]}>
       <RadioGroup value={importMode} onChange={(event) => setImportMode(event.target.value)}>

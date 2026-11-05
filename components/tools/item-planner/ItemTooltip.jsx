@@ -1,8 +1,8 @@
 import React from 'react';
 import { Divider, Typography } from '@mui/material';
 import { items } from '@website-data';
-import Tooltip from 'components/Tooltip';
 import ItemDisplay from 'components/common/ItemDisplay';
+import { NoteTrigger } from '@components/common/InfoButton';
 import { cleanUnderscore } from 'utility/helpers';
 
 export const ownerName = (owner) => {
@@ -10,21 +10,21 @@ export const ownerName = (owner) => {
   return name.charAt(0).toUpperCase() + name.slice(1);
 };
 
-// The item card used across the site, plus an optional line on where the item stands in this plan
+// The item card used across the site, on a tap (a hover previews it), plus an optional line on where the item stands
+// in this plan. note is that line, a node when it carries a state.
 const ItemTooltip = ({ rawName, owners, note, children }) => {
   const item = items[rawName];
   if (!item) return children;
-  // Not interactive: a card that follows the cursor would otherwise catch it and stay open
-  return <Tooltip disableInteractive title={<ItemDisplay
+  return <NoteTrigger label={`${cleanUnderscore(item.displayName ?? rawName)} details`} note={<ItemDisplay
     {...item}
     owners={owners?.map(ownerName)}
     additionalInfo={note ? <>
       <Divider sx={{ my: 1 }}/>
-      <Typography variant={'body2'} fontWeight={500}>{note}</Typography>
+      <Typography variant={'body2'} component={'div'}>{note}</Typography>
     </> : null}
   />}>
     {children}
-  </Tooltip>;
+  </NoteTrigger>;
 };
 
 export default ItemTooltip;

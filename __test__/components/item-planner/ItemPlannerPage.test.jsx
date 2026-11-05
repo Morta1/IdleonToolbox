@@ -12,6 +12,7 @@ import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 import { PageHeaderSlots, SettingsSlot } from '@components/common/NavBar/PageHeader';
 
 vi.mock('next-seo', () => ({ NextSeo: () => null }));
+vi.mock('next/router', () => ({ useRouter: () => ({ query: {}, pathname: '/tools/item-planner' }) }));
 
 const militia = { itemName: 'Militia_Helm', rawName: crafts.Militia_Helm.rawName, itemQuantity: 1 };
 const defaultPlans = [

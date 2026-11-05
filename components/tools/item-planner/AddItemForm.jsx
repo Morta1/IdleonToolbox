@@ -2,7 +2,8 @@ import React, { useState } from 'react';
 import { Autocomplete, Box, Button, createFilterOptions, InputAdornment, Stack, TextField } from '@mui/material';
 import { IconSearch } from '@tabler/icons-react';
 import { crafts } from '@website-data';
-import { cleanUnderscore, prefix } from 'utility/helpers';
+import { cleanUnderscore } from 'utility/helpers';
+import GameIcon from '@components/common/GameIcon';
 import QuantityStepper from './QuantityStepper';
 
 const craftNames = Object.keys(crafts);
@@ -45,8 +46,7 @@ const AddItemForm = ({ onAdd, submitLabel = 'Add', withCount = true }) => {
       }}
       renderOption={({ key, ...props }, option) => <Stack component={'li'} key={key} {...props} direction={'row'}
                                                           gap={1.5}>
-        <img width={24} height={24} style={{ objectFit: 'contain' }} src={`${prefix}data/${crafts[option]?.rawName}.png`}
-             alt=""/>
+        <GameIcon src={`data/${crafts[option]?.rawName}.png`} size={24} alt={''}/>
         {cleanUnderscore(option)}
       </Stack>}
       renderInput={(params) => <TextField
@@ -57,8 +57,7 @@ const AddItemForm = ({ onAdd, submitLabel = 'Add', withCount = true }) => {
           ...params.InputProps,
           startAdornment: <InputAdornment position={'start'} sx={{ color: 'text.muted' }}>
             {itemName
-              ? <img width={24} height={24} style={{ objectFit: 'contain' }}
-                     src={`${prefix}data/${crafts[itemName]?.rawName}.png`} alt=""/>
+              ? <GameIcon src={`data/${crafts[itemName]?.rawName}.png`} size={24} alt={''}/>
               : <IconSearch size={18}/>}
           </InputAdornment>
         }}
