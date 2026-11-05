@@ -42,14 +42,14 @@ const ZenithMarket = () => {
       description="Keep track of your zenith market upgrades and bonuses"
     />
     {!section || sectionFailed ? <MissingData name={'Zenith Market'} failed={sectionFailed}/> : null}
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       {/* The market's own print, so the balance reads as its costs do */}
       <StatTile label={'Zenith clusters'} icon={CLUSTER_ICON}
                 value={<Num value={clusters ?? 0} game={'Thingies.ZenithMarketCost'} whole/>}/>
-      <StatTile label={'Clusters in inventories'} value={totalInventoryClusters} kind={'whole'}
+      <StatTile label={'Clusters in inventories'} value={totalInventoryClusters} kind={'whole'} failed={false}
                 breakdown={inventoryBreakdown} breakdownTitle={'Clusters in inventories'}/>
       <StatTile label={'Total upgrade LV'} value={account?.spelunking?.saveTotals?.zenithMarketUpgradeLevels ?? 0}
-                kind={'amount'}/>
+                kind={'amount'} failed={false}/>
     </PageSummary>
     <CardGrid size={'m'}>
       {market?.map((item, index) => {

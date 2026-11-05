@@ -85,7 +85,7 @@ const legendItem = (color, label) => <Stack key={label} direction={'row'} alignI
   <Typography variant={'caption'} sx={{ color: 'text.secondary' }}>{label}</Typography>
 </Stack>;
 
-const ConstructionMain = () => {
+const ConstructionMain = ({ sectionFailed }) => {
   const { state } = useContext(AppContext);
   // Under the bar and the band while it shows, and under the View toolbar once it pins
   const pageTop = usePageTop();
@@ -210,6 +210,9 @@ const ConstructionMain = () => {
     ...previous,
     [key]: Math.max(0, Number(value) || 0)
   }));
+
+  // A section that failed to load has no board to view or plan: the page's note and the tiles' dashes
+  if (sectionFailed) return <ConstructionStats construction={state?.account?.construction}/>;
 
   return (
     <>

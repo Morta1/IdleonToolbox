@@ -130,7 +130,7 @@ const Other = ({ pets, fencePets, isShiny, multi, killPetTimeUnlocked, sectionFa
                                        info={'Enhanced Whale Wallop: every monster you kill has a 50% chance to add 3s to all fenced pets (shiny, breedability and trekking). Only real kills while playing count, crystals and other spawned mobs included. Multikill and AFK gains add nothing.'}/> : null}
     </Stack>
     <Box>
-      <Toolbar state={toolbar} defaults={MOBS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+      {sectionFailed ? null : <Toolbar state={toolbar} defaults={MOBS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
                total={list.length} shown={shown.length} noun={'mobs'}>
         <Toolbar.Filter name={'fenced'} label={'On the fence'}/>
         <Toolbar.Show name={'below'} label={'Level'} options={[['all', 'Every level', list.length],
@@ -139,7 +139,7 @@ const Other = ({ pets, fencePets, isShiny, multi, killPetTimeUnlocked, sectionFa
           ...passives.map((passive) => [passive, passive, list.filter((pet) => passiveOf(pet) === passive).length])]}/> : null}
         <Toolbar.Sort options={[['time', 'Time to next level', 'asc']]}/>
         {isShiny ? <Toolbar.View options={[['cards', 'All'], ['grouped', 'By passive']]}/> : null}
-      </Toolbar>
+      </Toolbar>}
       {groups ? groups.map(([passive, group]) => <Stack key={passive} gap={1} sx={{ mb: 3 }}>
         <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>{passive}</Typography>
         <CardGrid size={'m'}>{group.map((pet) => petCard(pet, cardOptions))}</CardGrid>

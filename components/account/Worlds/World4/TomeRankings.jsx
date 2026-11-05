@@ -91,7 +91,7 @@ function ordinal(n) {
   }
 }
 
-const TomeRankings = () => {
+const TomeRankings = ({ sectionFailed }) => {
   const { state } = useContext(AppContext);
   const [percentileData, setPercentileData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -274,14 +274,14 @@ const TomeRankings = () => {
       </Stack>
 
       <Box>
-        <Toolbar state={toolbar} defaults={RANKINGS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+        {sectionFailed ? null : <Toolbar state={toolbar} defaults={RANKINGS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
                  total={rows.length} shown={filtered.length} noun={'metrics'} onStickyBottom={setToolbarBottom}>
           <Toolbar.Search placeholder={'Search metrics'}/>
           <Toolbar.Sort options={[['lowest', 'Lowest percentile', 'asc'], ['gap', targetLabel('Smallest gap to target'), 'asc'],
             ['highest_gap', targetLabel('Largest gap to target'), 'asc'], ['efficiency', targetLabel('Best points per percentile'), 'asc']]}/>
           <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
           <Toolbar.View options={[['none', 'List'], ['tier', 'By tier'], ['type', 'By type']]}/>
-        </Toolbar>
+        </Toolbar>}
 
         {hasUserData && groupMode === 'none' ? <Stack direction="row" gap={1} flexWrap="wrap" mb={2}>
           <StatTile label={'Below 25th'} value={below25} kind={'amount'} status={'problem'}/>

@@ -31,7 +31,7 @@ const CoralReef = () => {
       description="Keep track of your coral reef upgrades, coral kid upgrades, and dancing coral"
     />
     {!section || sectionFailed ? <MissingData name={'Coral Reef'} failed={sectionFailed}/> : null}
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       {/* The game prints every reef cost in Big (Decision 13), so the balance beside them does too */}
       <StatTile label={'Coral'} icon={'data/Coral0.png'} value={<Num value={ownedCorals ?? 0} game={'Big'} whole/>}/>
       <StatTile label={'Reef day gains'} icon={'data/Coral0.png'} value={reefGainsText}

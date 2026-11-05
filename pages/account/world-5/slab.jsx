@@ -65,7 +65,7 @@ const Slab = () => {
       description="Track your Slab item collection progress and discover missing items in Legends of Idleon World 5"
     />
     {sectionFailed ? <MissingData name={'the Slab'} failed/> : null}
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       <StatTile label={'Looted items'} value={`${formatNum(looty?.lootedItems ?? 0)} / ${formatNum(looty?.totalItems ?? 0)}`}/>
       <StatTile label={'Missing items'} value={looty?.missingItems ?? 0} kind={'amount'}/>
       <StatTile label={'Greenstacks'}
@@ -73,12 +73,12 @@ const Slab = () => {
       {SLAB_BONUSES.map(({ name, icon, value }) => <StatTile key={name} label={name} icon={`data/${icon}.png`}
                                                               value={value(state?.account) ?? 0} kind={'pct'}/>)}
     </PageSummary>
-    <Toolbar state={toolbar} defaults={SLAB_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+    {sectionFailed ? null : <Toolbar state={toolbar} defaults={SLAB_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
              total={items.length} shown={shown.length} noun={'items'} onStickyBottom={setStickyTop}>
       <Toolbar.Search placeholder={'Search items'}/>
       <Toolbar.Show options={SHOWS.map(([value, label]) => [value, label, items.filter((item) => shouldDisplayItem(item, value)).length,
         value === 'unrealistic' ? UNREALISTIC_NOTE : undefined])}/>
-    </Toolbar>
+    </Toolbar>}
     {item ? <Panel icon={<GameIcon src={`data/${item.rawName}.png`} fallback={`data/${item.rawName}_x1.png`} size={24} alt={''}/>}
                    title={cleanUnderscore(item.name)}
                    sx={{ mb: 2, position: 'sticky', top: stickyTop, zIndex: (theme) => theme.zIndex.appBar - 2 }}>

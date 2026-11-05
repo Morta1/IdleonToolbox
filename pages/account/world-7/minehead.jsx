@@ -41,7 +41,7 @@ const Minehead = () => {
       description="Track your Minehead upgrade levels, opponent stats, and bonus progression in Legends of Idleon World 7"
     />
     {!section || sectionFailed ? <MissingData name={'Minehead'} failed={sectionFailed}/> : null}
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       {/* The upgrade panel prints the balance beside each cost in its rule (Minehead.UpgCost), so the Summary does too */}
       <StatTile label={'Mine currency'} icon={MINE_CURRENCY_ICON}
                 value={<Num value={mineCurrency ?? 0} game={'Minehead.UpgCost'} whole/>}/>

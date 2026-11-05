@@ -17,8 +17,9 @@ import { CLASSES, getCharacterByHighestTalent } from '@parsers/talents';
 import { getPlayerLabChipBonus } from '@parsers/world-4/lab';
 import MenuItem from '@mui/material/MenuItem';
 import { getSkillExpMulti } from '@parsers/character';
-import PageSummary from '@components/common/cards/PageSummary';
+import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
+import { MissingData, isSectionFailed } from '@components/common/styles';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 
@@ -27,6 +28,7 @@ const FARMING_SETTINGS = { forceNano: false };
 const Farming = () => {
   const { state } = useContext(AppContext);
   const farming = state?.account?.farming || {};
+  const sectionFailed = isSectionFailed(state?.account, 'farming');
   const characters = state?.characters;
   const account = state?.account;
   const {
@@ -64,11 +66,13 @@ const Farming = () => {
   // the number instead, so it reads like the tile and every other drawer (×516B)
   const farmingExpBreakdown = farmingExp?.breakdown ? { ...farmingExp.breakdown, totalValue: farmingExp?.value } : undefined;
 
-  return <>
+  return <SummaryFailed value={sectionFailed}>
     <NextSeo
       title="Farming | Idleon Toolbox"
       description="Track your farming garden plots, crop progress, OG bonuses, and evolution upgrades in Legends of Idleon"
     />
+    {/* The picker and the gear work on a plot that didn't load */}
+    {sectionFailed ? <MissingData name={'Farming'} failed/> : <>
     {characters?.length ? <PageHeaderControl>
       <TextField select value={selectedCharacter?.playerId ?? ''} onChange={(event) => setPickedId(event.target.value)}
                  sx={{ minWidth: 180 }}
@@ -87,7 +91,8 @@ const Farming = () => {
       <PageSettings.Toggle name={'forceNano'} label={'Force nano chip'}
                            help={'Counts the nano chip in crop evo for any character, assuming Cropiovo Minor is active.'}/>
     </PageSettings> : null}
-    <PageSummary>
+    </>}
+    <PageSummary failed={sectionFailed}>
       {/* breakdownTitle: the drawer takes the tile's name; the breakdown's own stays its link and pin key */}
       <StatTile label={'Bean Trade'} icon={'data/Quest80_x1.png'} value={formatNum(Math.round(beanTrade ?? 0))}
                 breakdown={stats?.magicBean} breakdownTitle={'Bean Trade'}/>
@@ -110,20 +115,20 @@ const Farming = () => {
       </> : null}
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'farming')}>
-      <Plot plot={plot} crop={crop} market={market} ranks={ranks} lastUpdated={state?.lastUpdated}
+      {sectionFailed ? null : <Plot plot={plot} crop={crop} market={market} ranks={ranks} lastUpdated={state?.lastUpdated}
             characters={characters}
             account={account}
             selectedCharacter={selectedCharacter}
-            enableNano={enableNano}/>
+            enableNano={enableNano}/>}
       <Market market={market} crop={crop}/>
-      <ExoticMarket market={exoticMarket} crop={crop}/>
+      {sectionFailed ? null : <ExoticMarket market={exoticMarket} crop={crop}/>}
       <ExoticMarketRotation/>
       <RankDatabase ranks={ranks} hasLandRank={hasLandRank}/>
-      <LandRankOptimizer/>
+      {sectionFailed ? null : <LandRankOptimizer/>}
       <Crop crop={crop} maxTimes={maxTimes} cropDepot={cropDepot}/>
       <Stickers/>
     </Tabber>
-  </>
+  </SummaryFailed>
 };
 
 export default Farming;

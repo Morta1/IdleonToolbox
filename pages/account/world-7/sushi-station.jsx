@@ -4,8 +4,9 @@ import { NextSeo } from 'next-seo';
 import { createBreakdown, info, listGroup } from '@parsers/breakdown';
 import { formatNum, getTabs, secondsToCoarseDuration } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
-import PageSummary from '@components/common/cards/PageSummary';
+import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
+import { MissingData, isSectionFailed } from '@components/common/styles';
 import Num from '@components/common/Num';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
@@ -32,6 +33,7 @@ const buildMultiBreakdown = ({ statName, multi, generationLabel, rawLabel, raw, 
 const SushiStation = () => {
   const { state } = useContext(AppContext);
   const sushiStation = state?.account?.sushiStation;
+  const sectionFailed = isSectionFailed(state?.account, 'sushiStation');
 
   const {
     uniqueSushi,
@@ -89,13 +91,14 @@ const SushiStation = () => {
     ]
   });
 
-  return <>
+  return <SummaryFailed value={sectionFailed}>
     <NextSeo
       title="Sushi Station | Idleon Toolbox"
       description="Track your Sushi Station upgrades, sushi collection, fuel, and Ring of Gains bonuses in Legends of Idleon World 7"
     />
 
-    <PageSummary>
+    {sectionFailed ? <MissingData name={'Sushi Station'} failed/> : null}
+    <PageSummary failed={sectionFailed}>
       <StatTile label={'Unique sushi'} value={uniqueSushi ?? 0} kind={'amount'}/>
       {/* The upgrade panel's own print, so the balance reads as Upgrades' costs do */}
       <StatTile label={'Bucks'} icon={'etc/Bucks.png'}
@@ -135,7 +138,7 @@ const SushiStation = () => {
                totalKnowledgeLevels={saveTotals?.knowledgeLevels} totalPerfectos={saveTotals?.perfectos}/>
       <SushiBonuses knowledgeSummary={knowledgeSummary} knowledge={knowledge}/>
     </Tabber>
-  </>;
+  </SummaryFailed>;
 };
 
 export default SushiStation;

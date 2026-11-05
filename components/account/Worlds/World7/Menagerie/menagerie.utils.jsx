@@ -27,7 +27,8 @@ export const DoublerUsageCard = ({ title, doubler, icon }) => {
   const owned = doubler?.owned ?? 0;
   if (!(owned > 0)) return null;
   const used = owned - Math.max(0, doubler?.left ?? 0);
-  return <StatTile label={title} icon={icon} value={`${formatNum(used)} / ${formatNum(owned)}`}/>;
+  // Doublers are the Menagerie's, whichever page's Summary this sits in
+  return <StatTile label={title} icon={icon} value={`${formatNum(used)} / ${formatNum(owned)}`} failed={false}/>;
 };
 
 // A hidden unlock or boost shows the Lumi Rank it appears at, like the game's "Lumi Rank N Required"

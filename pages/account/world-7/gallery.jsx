@@ -72,7 +72,7 @@ const Gallery = () => {
       title="Gallery | Idleon Toolbox"
       description="Keep track of your gallery bonuses, podiums, and trophies"
     />
-    {state?.characters?.length ? <PageHeaderControl>
+    {state?.characters?.length && !sectionFailed ? <PageHeaderControl>
       <TextField select value={pickedId} onChange={(event) => setPickedId(event.target.value)} sx={{ minWidth: 200 }}
                  slotProps={{
                    select: {
@@ -87,7 +87,7 @@ const Gallery = () => {
       </TextField>
     </PageHeaderControl> : null}
     {!section || sectionFailed ? <MissingData name={'Gallery'} failed={sectionFailed}/> : null}
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       <StatTile label={'Podiums'} value={podiumsOwned ?? 0} kind={'amount'}/>
       <StatTile label={'Bonus multi'} value={<Num value={bonusMulti ?? 1} game={'Gallery.GalleryBonusMulti'} unit={'x'}/>}/>
       <StatTile label={'Level 2 podiums'} icon={'data/GalleryPod1.png'} value={lv2PodiumsOwned ?? 0} kind={'amount'}/>

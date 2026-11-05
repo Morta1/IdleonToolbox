@@ -1,3 +1,4 @@
+import { createContext } from 'react';
 import { Box } from '@mui/material';
 import { CARD_RADIUS } from './tokens';
 
@@ -5,8 +6,11 @@ import { CARD_RADIUS } from './tokens';
 // below 600 px a two-column list in one panel, with no boxes and no sprites, so a page's numbers take about a third of
 // the height and none hides (the board's Spelunking: 11 numbers in about 300 px instead of 800). The phone rows are
 // apart by spacing alone: a line under every number read as a row of input fields. CSS only, so the export matches
-// every width. The tiles keep their breakdowns and notes; label is the region's name for a screen reader.
-const PageSummary = ({ label = 'Summary', children }) => <Box component={'section'} aria-label={label} data-page-summary sx={{
+// every width. The tiles keep their breakdowns and notes; label is the region's name for a screen reader. failed: the
+// section these numbers read failed to parse, so its tiles print no number; a tile fed by another section passes
+// failed={false}. A page whose tabs' own tiles read that section too wraps itself in SummaryFailed.
+export const SummaryFailed = createContext(false);
+const PageSummary = ({ label = 'Summary', failed = false, children }) => <SummaryFailed value={failed}><Box component={'section'} aria-label={label} data-page-summary sx={{
   display: { xs: 'grid', sm: 'flex' },
   gridTemplateColumns: '1fr 1fr',
   flexWrap: 'wrap',
@@ -28,6 +32,6 @@ const PageSummary = ({ label = 'Summary', children }) => <Box component={'sectio
   '& [data-tile-icon]': { display: { xs: 'none', sm: 'inline-flex' } }
 }}>
   {children}
-</Box>;
+</Box></SummaryFailed>;
 
 export default PageSummary;

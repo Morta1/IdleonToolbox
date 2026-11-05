@@ -19,7 +19,7 @@ const VIEWS = getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore', 'T
 // A drawer headed with its tile's own text
 const withText = (breakdown, text) => (breakdown ? { ...breakdown, totalValue: text } : undefined);
 
-const TheJars = ({ hole }) => {
+const TheJars = ({ hole, sectionFailed }) => {
   const [view] = useTabIndex(VIEWS, { queryKey: 'dnt' });
   const theJars = hole?.caverns?.theJars;
   const perHour = theJars?.perHour?.value ?? 0;
@@ -84,10 +84,10 @@ const TheJars = ({ hole }) => {
         value={`${formatNum(Math.floor(progress ?? 0))} / ${formatNum(Math.floor(req ?? 0))}`}/>)}
     </Stack> : null}
     {/* How this cavern shows (Tabs board, level 3): a switch in its title row, still ?dnt= in the URL. */}
-    <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} mb={2}>
+    {sectionFailed ? null : <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} mb={2}>
       <Typography variant={'sectionTitle'} component={'h2'}>The Jars</Typography>
       <ViewSwitch options={VIEWS.map((name) => [name, name])} queryKey={'dnt'} label={'The Jars view'} sx={{ ml: 'auto' }}/>
-    </Stack>
+    </Stack>}
     {view === 0
       ? <CardGrid size={'m'}>{(theJars?.jars ?? []).map(jarCard)}</CardGrid>
       : <CardGrid size={'m'}>

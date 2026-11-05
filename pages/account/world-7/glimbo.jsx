@@ -23,9 +23,10 @@ const Glimbo = () => {
       description="Track your Glimbo Swap Meet trades, max level bonuses, and currency costs in Legends of Idleon World 7"
     />
     {!section || sectionFailed ? <MissingData name={'Glimbo'} failed={sectionFailed}/> : null}
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       <StatTile label={'Total trades'} value={formatGame(glimboTotalTrades ?? 0, 'Minehead.GlimboTotalTrades', { whole: true })}/>
-      <StatTile label={'Drop rate bonus'}
+      {/* Reads the Research grid */}
+      <StatTile label={'Drop rate bonus'} failed={false}
                 value={<Num value={1 + (dropRateBonus ?? 0) / 100} game={'Minehead.GlimboDRmulti'} unit={'x'}/>}/>
     </PageSummary>
     <GlimboTrades glimbo={glimbo}/>

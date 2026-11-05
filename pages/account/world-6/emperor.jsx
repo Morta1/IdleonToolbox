@@ -5,6 +5,7 @@ import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
+import { MissingData, isSectionFailed } from '@components/common/styles';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 
@@ -20,6 +21,7 @@ const Emperor = () => {
     maxAttempts,
     dailyAttempts
   } = state?.account?.emperor || {};
+  const sectionFailed = isSectionFailed(state?.account, 'emperor');
   const nextLevelBonus = upcomingBonuses?.[0];
   // Info 5: the lists that sat in notes open as breakdowns, read from the current level
   const bossHpBreakdown = createBreakdown('Boss HP', formatNum(bossHp?.[0]),
@@ -42,7 +44,8 @@ const Emperor = () => {
       title="Emperor | Idleon Toolbox"
       description="Track your Emperor showdown progress, boss HP, attempt counts, and bonus rewards in Legends of Idleon"
     />
-    <PageSummary>
+    {sectionFailed ? <MissingData name={'the Emperor'} failed/> : null}
+    <PageSummary failed={sectionFailed}>
       <StatTile label={'Highest showdown'} value={highestEmperorShowdown ?? 0} kind={'amount'}/>
       <StatTile label={'Daily attempts'} icon={'data/GemP45.png'} value={dailyAttempts ?? 0} kind={'amount'}/>
       <StatTile label={'Attempts'} icon={'data/GemP45.png'} value={`${attempts} / ${maxAttempts}`}/>

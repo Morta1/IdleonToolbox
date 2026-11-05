@@ -61,7 +61,7 @@ const Cooking = () => {
         title="Cooking | Idleon Toolbox"
         description="Track your kitchen meal levels, cooking speed, and recipe bonuses for all meals in Legends of Idleon"
       />
-      {characters?.length ? <PageHeaderControl>
+      {characters?.length && !sectionFailed ? <PageHeaderControl>
         <TextField select value={selectedCharacter?.playerId ?? ''} onChange={(event) => setPickedId(event.target.value)}
                    sx={{ minWidth: 180 }}
                    slotProps={{
@@ -75,7 +75,7 @@ const Cooking = () => {
                                                     value={character?.playerId}>{character?.name}</MenuItem>)}
         </TextField>
       </PageHeaderControl> : null}
-      {characters?.length ? <PageSettings {...joinSettings({ state: settings, defaults: COOKING_SETTINGS, set: setSettings },
+      {characters?.length && !sectionFailed ? <PageSettings {...joinSettings({ state: settings, defaults: COOKING_SETTINGS, set: setSettings },
         { state: mealSettings, defaults: MEALS_GEAR, set: setMealSettings })}>
         <PageSettings.Toggle name={'forceNano'} label={'Force nano chip'}
                              help={'Counts the nano chip in meal speed for any character, assuming Gordonius Major is active.'}/>
@@ -99,6 +99,7 @@ const Cooking = () => {
                mealMaxLevel={cooking?.mealMaxLevel}
                equinoxUpgrades={account?.equinox?.upgrades}
                kitchensFailed={kitchensFailed}
+               sectionFailed={sectionFailed}
         />
         <Kitchens {...cooking}
                   kitchens={kitchens}

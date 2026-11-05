@@ -18,9 +18,9 @@ const AdviceFish = () => {
       description="Track your Advice Fish upgrade levels, bonuses, and unlock progression in Legends of Idleon World 7"
     />
     {!section || sectionFailed ? <MissingData name={'Advice Fish'} failed={sectionFailed}/> : null}
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       <StatTile label={'Total upgrade LV'} value={state?.account?.spelunking?.saveTotals?.adviceFishUpgradeLevels ?? 0}
-                kind={'amount'}/>
+                kind={'amount'} failed={false}/>
     </PageSummary>
     <Upgrades upgrades={upgrades}/>
   </>;

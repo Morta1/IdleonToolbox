@@ -200,7 +200,7 @@ const FountainList = ({ water, t, currencies }) => <Stack gap={2} sx={{ mt: 1 }}
   </Stack>)}
 </Stack>;
 
-const TheFountain = ({ hole }) => {
+const TheFountain = ({ hole, sectionFailed }) => {
   const fountain = hole?.caverns?.theFountain;
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const [shown, setShown] = useToolbarState('hole-fountain', isPhone ? FOUNTAIN_VIEW_PHONE : FOUNTAIN_VIEW);
@@ -237,8 +237,8 @@ const TheFountain = ({ hole }) => {
     {visibleWaters.length ? <>
       <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} mb={2}>
         <Typography variant={'sectionTitle'} component={'h2'}>Upgrades</Typography>
-        <ViewSwitch options={[['graph', 'Graph'], ['list', 'List']]} value={shown?.view}
-                    onChange={(view) => setShown({ view })} label={'The Fountain view'} sx={{ ml: 'auto' }}/>
+        {sectionFailed ? null : <ViewSwitch options={[['graph', 'Graph'], ['list', 'List']]} value={shown?.view}
+                    onChange={(view) => setShown({ view })} label={'The Fountain view'} sx={{ ml: 'auto' }}/>}
       </Stack>
       <Stack gap={3}>
         {visibleWaters.map((water) => <Stack key={`water-${water.tier}`}>

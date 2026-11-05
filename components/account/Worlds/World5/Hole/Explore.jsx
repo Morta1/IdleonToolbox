@@ -23,7 +23,7 @@ import { CAVERN_LABELS, CAVERN_TABS, villagerTiles } from '@components/account/W
 
 const CAVERN_ICONS = CAVERN_TABS.map((tab, index) => `etc/Cavern_${index}`);
 
-const Explore = ({ hole }) => {
+const Explore = ({ hole, sectionFailed }) => {
   const explore = hole?.villagers?.[0];
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>{villagerTiles(explore)}</Stack>
@@ -45,12 +45,12 @@ const Explore = ({ hole }) => {
       <TheHive hole={hole}/>
       <Grotto hole={hole}/>
       <Justice hole={hole}/>
-      <TheJars hole={hole}/>
+      <TheJars hole={hole} sectionFailed={sectionFailed}/>
       <Evertree hole={hole}/>
       <Wisdom hole={hole}/>
       <Gambit hole={hole}/>
       <TheTemple hole={hole}/>
-      <TheFountain hole={hole}/>
+      <TheFountain hole={hole} sectionFailed={sectionFailed}/>
       <TheBottomlessTrench hole={hole}/>
       <CrystalGlunkoCove hole={hole}/>
     </Tabber>

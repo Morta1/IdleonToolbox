@@ -18,7 +18,7 @@ const Construction = () => {
     />
     {failed ? <MissingData name={'Construction'} failed/> : null}
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 3'].categories, 'construction')}>
-      <ConstructionMain/>
+      <ConstructionMain sectionFailed={failed}/>
       <CogStatCalculator/>
     </Tabber>
   </>

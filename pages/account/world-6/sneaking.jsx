@@ -13,6 +13,7 @@ import Detection from '@components/account/Worlds/World6/Sneaking/Detection';
 import { PAGES } from '@components/constants';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
+import { MissingData, isSectionFailed } from '@components/common/styles';
 
 const Sneaking = () => {
   const { state } = useContext(AppContext);
@@ -35,13 +36,15 @@ const Sneaking = () => {
     pristineCharmChance,
     detection
   } = state?.account?.sneaking || {};
+  const sectionFailed = isSectionFailed(state?.account, 'sneaking');
 
   return <>
     <NextSeo
       title="Sneaking | Idleon Toolbox"
       description="Keep track of your ninja and jade upgrades and much more bonuses"
     />
-    <PageSummary>
+    {sectionFailed ? <MissingData name={'Sneaking'} failed/> : null}
+    <PageSummary failed={sectionFailed}>
       {/* The save keeps the coins as text past 1e21 ("5.385403851749856e+79") */}
       <StatTile label={'Jade coins'} icon={'etc/jade_coin.png'} value={Number(jadeCoins ?? 0)} kind={'whole'}/>
       <StatTile label={'Daily charm rolls used'} value={`${formatNum(dailyCharmRollCount ?? 0)} / 120`}/>
@@ -51,21 +54,21 @@ const Sneaking = () => {
       <StatTile label={'Items max level'} breakdown={itemsMaxLevelBreakdown}/>
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'sneaking')}>
-      <PlayersInventory players={players}
+      {sectionFailed ? null : <PlayersInventory players={players}
                         dropList={dropList}
                         inventory={inventory}
                         characters={state?.characters}
                         account={state?.account}
                         doorsCurrentHp={doorsCurrentHp}
                         emptyAccount={state?.emptyAccount}
-      />
+      />}
       <JadeEmporium upgrades={jadeEmporium} jadeCoins={jadeCoins}/>
       <Upgrades upgrades={upgrades} omnijade={state?.account?.menagerie?.doublers?.omnijade}/>
       <Charms charms={pristineCharms}/>
       <Mastery masteryBonuses={ninjaMasteryBonuses} masteryLevel={ninjaMastery}/>
       <Gemstones gemStones={gemStones}/>
-      <Detection detection={detection} characters={state?.characters} ninjaMastery={ninjaMastery}
-                 emptyAccount={state?.emptyAccount}/>
+      {sectionFailed ? null : <Detection detection={detection} characters={state?.characters} ninjaMastery={ninjaMastery}
+                 emptyAccount={state?.emptyAccount}/>}
     </Tabber>
   </>
 };

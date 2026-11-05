@@ -217,7 +217,7 @@ const Tome = () => {
           </CardGrid>
         </Box>
       </>
-      <TomeRankings/>
+      <TomeRankings sectionFailed={sectionFailed}/>
     </Tabber>
   </>
 };

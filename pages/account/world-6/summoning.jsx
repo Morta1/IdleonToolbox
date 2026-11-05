@@ -21,6 +21,7 @@ import {
 import useHydrated from '@hooks/useHydrated';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
+import { MissingData, isSectionFailed } from '@components/common/styles';
 
 const Summoning = () => {
   const { state } = useContext(AppContext);
@@ -38,6 +39,7 @@ const Summoning = () => {
     familiarExp,
     familiarCostResetSeconds
   } = state?.account?.summoning || {};
+  const sectionFailed = isSectionFailed(state?.account, 'summoning');
   // Date.now() differs between the build and the client, so the elapsed time waits for hydration
   const hydrated = useHydrated();
   const pendingExp = getPendingFamiliarExp(familiarExp, hydrated ? state?.lastUpdated : undefined);
@@ -62,7 +64,8 @@ const Summoning = () => {
       title="Summoning | Idleon Toolbox"
       description="View your summoning upgrades, winner bonuses, and battle rewards in Legends of Idleon"
     />
-    <PageSummary>
+    {sectionFailed ? <MissingData name={'Summoning'} failed/> : null}
+    <PageSummary failed={sectionFailed}>
       <StatTile icon={'etc/Endless_Summoning.png'} label={'Highest endless level'} value={highestEndlessLevel ?? 0}
                 kind={'amount'}/>
       {/* Each tile opens its own number: the unclaimed EXP has no breakdown, the multi behind it is its own tile */}
@@ -83,11 +86,11 @@ const Summoning = () => {
       <StatTile label={'Total upgrades'} value={totalUpgradesLevels ?? 0} kind={'amount'}/>
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'summoning')}>
-      <Upgrades upgrades={upgrades} essences={essences}
-                familiarCostReset={state?.lastUpdated + familiarCostResetSeconds * 1000}/>
+      {sectionFailed ? null : <Upgrades upgrades={upgrades} essences={essences}
+                familiarCostReset={state?.lastUpdated + familiarCostResetSeconds * 1000}/>}
       <WinnerBonuses winnerBonuses={winnerBonuses}/>
-      <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage}
-               highestEndlessLevel={highestEndlessLevel} winnerBonuses={winnerBonuses}/>
+      {sectionFailed ? null : <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage}
+               highestEndlessLevel={highestEndlessLevel} winnerBonuses={winnerBonuses}/>}
       <Stones stones={summoningStones}/>
     </Tabber>
   </>

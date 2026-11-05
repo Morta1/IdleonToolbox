@@ -72,7 +72,7 @@ const ClamWork = () => {
       title="Clam Work | Idleon Toolbox"
       description="Track your Clam Work upgrade levels, pearl bonuses, and progression in Legends of Idleon World 7"
     />
-    {characters?.length ? <PageHeaderControl>
+    {characters?.length && !sectionFailed ? <PageHeaderControl>
       <TextField select value={character?.playerId ?? ''} onChange={(event) => setSelectedChar(event.target.value)}
                  sx={{ minWidth: 180 }}
                  slotProps={{
@@ -85,12 +85,12 @@ const ClamWork = () => {
         {characters?.map((char) => <MenuItem key={char?.playerId} value={char?.playerId}>{char?.name}</MenuItem>)}
       </TextField>
     </PageHeaderControl> : null}
-    <PageSettings state={settings} defaults={CLAM_SETTINGS} onChange={setSettings} onReset={resetSettings}>
+    {sectionFailed ? null : <PageSettings state={settings} defaults={CLAM_SETTINGS} onChange={setSettings} onReset={resetSettings}>
       <PageSettings.Number name={'multiKill'} label={'Multikill'} defaultValue={suggestedMultiKill} min={0} integer
                            help={`Multi-Scalping reads the multikill of the character at the Clamworks: ${formatNum(suggestedMultiKill)} for ${character?.name ?? 'your first character'}. Type the number the game shows there to use it instead.`}/>
-    </PageSettings>
+    </PageSettings>}
     {!section || sectionFailed ? <MissingData name={'Clam Work'} failed={sectionFailed}/> : null}
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       <StatTile label={'Worker class'} value={formatNum(workerClass, 'level')}/>
       {/* Every pearl cost prints in this rule (Thingies.Clam_Cost), so the balance does too */}
       <StatTile label={'Pearls'} icon={'data/ClamPearl0.png'}
@@ -110,9 +110,9 @@ const ClamWork = () => {
     <Tabber tabs={['Upgrades', 'Upgrade Optimizer', 'Scurge', 'Scurge Optimizer', 'Compensations']}>
       <Upgrades upgrades={upgrades} ownedPearls={ownedPearls ?? 0}/>
       <UpgradeOptimizer character={character} account={optimizerAccount} multiKill={multiKill} sectionFailed={sectionFailed}/>
-      <Scurge scurge={scurge}/>
+      {sectionFailed ? null : <Scurge scurge={scurge}/>}
       <ScurgeOptimizer character={character} account={optimizerAccount} multiKill={multiKill} sectionFailed={sectionFailed}/>
-      <Compensations compensations={compensations}/>
+      {sectionFailed ? null : <Compensations compensations={compensations}/>}
     </Tabber>
   </>;
 };

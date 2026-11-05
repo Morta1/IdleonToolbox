@@ -26,7 +26,7 @@ const Sailing = () => {
     />
     {sectionFailed ? <MissingData name={'Sailing'} failed/>
       : sailing?.unlocked === false ? <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached Sailing yet.</Notice> : null}
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       <StatTile label={'Chests'} icon={'npcs/Chesty.png'}
                 value={`${formatNum(sailing?.chests?.length ?? 0)} / ${formatNum(sailing?.maxChests ?? 0)}`}/>
       <StatTile label={'Captains'} icon={'npcs/Captain.gif'} value={sailing?.captains?.length ?? 0} kind={'amount'}/>

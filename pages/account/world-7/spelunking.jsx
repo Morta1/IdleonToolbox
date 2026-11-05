@@ -8,7 +8,8 @@ import { formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
 import StatTile from '@components/common/cards/StatTile';
-import PageSummary from '@components/common/cards/PageSummary';
+import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
+import { MissingData, isSectionFailed } from '@components/common/styles';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World7/Spelunking/Upgrades';
 import Lore from '@components/account/Worlds/World7/Spelunking/Lore';
@@ -48,6 +49,7 @@ const Spelunking = () => {
     spelunkingEfficiencyBreakdown,
     saveTotals
   } = state?.account?.spelunking || {};
+  const sectionFailed = isSectionFailed(state?.account, 'spelunking');
   const denominator = getAmberDenominator(state?.account);
   // The game's amber line: the save's amount over the denominator, commas under 1e9 and Big past it
   // (Spelunk.AmberDenominator). Dividing first also turns a save's text number past 1e21 into a number.
@@ -56,12 +58,13 @@ const Spelunking = () => {
   const staminaRegenText = formatNum(staminaRegenRate?.value, 'amount', { precise: true });
   const staminaRegenDrawer = staminaRegenRate?.breakdown ? { ...staminaRegenRate.breakdown, totalValue: staminaRegenText } : undefined;
 
-  return <>
+  return <SummaryFailed value={sectionFailed}>
     <NextSeo
       title="Spelunking | Idleon Toolbox"
       description="Keep track of your spelunking levels, upgrades and stats"
     />
-    <PageSummary>
+    {sectionFailed ? <MissingData name={'Spelunking'} failed/> : null}
+    <PageSummary failed={sectionFailed}>
       <StatTile label={'Power'} icon={'data/CaveShopUpg17.png'}
                 value={<Num value={power?.value} game={'Spelunk.POW'}/>} breakdown={power?.breakdown}/>
       <StatTile label={'Amber Found'} value={formatGame(amber, 'Spelunk.AmberDenominator', { whole: true })} icon={`data/CaveAmber${getAmberIndex(state?.account)}.png`}/>
@@ -88,7 +91,7 @@ const Spelunking = () => {
     </PageSummary>
 
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'spelunking')} clearOnChange={['nt']}>
-      <Upgrades upgrades={upgrades} totalUpgradeLevels={saveTotals?.upgradeLevels} amber={amber} denominator={denominator} amberIndex={getAmberIndex(state?.account)} />
+      {sectionFailed ? null : <Upgrades upgrades={upgrades} totalUpgradeLevels={saveTotals?.upgradeLevels} amber={amber} denominator={denominator} amberIndex={getAmberIndex(state?.account)} />}
       <Lore
         chapters={chapters}
         loreBosses={loreBosses}
@@ -96,9 +99,9 @@ const Spelunking = () => {
         account={state?.account}
       />
       <Elixirs elixirs={elixirs} ownedElixirs={ownedElixirs} ownedSlots={ownedSlots} maxElixirDuplicates={maxElixirDuplicates} />
-      <UpgradeOptimizer character={state?.characters?.[0]} account={state?.account} />
+      {sectionFailed ? null : <UpgradeOptimizer character={state?.characters?.[0]} account={state?.account} />}
     </Tabber>
-  </>
+  </SummaryFailed>
 }
 
 export default Spelunking;

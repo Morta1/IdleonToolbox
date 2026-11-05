@@ -13,7 +13,7 @@ import useToolbarState from '@hooks/useToolbarState';
 
 const STUDY_TOOLBAR = { sort: null };
 
-const Study = ({ account }) => {
+const Study = ({ account, sectionFailed }) => {
   const hole = account?.hole;
   const study = hole?.villagers?.[4];
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('hole-studies', STUDY_TOOLBAR);
@@ -54,10 +54,10 @@ const Study = ({ account }) => {
       {villagerTiles(study)}
     </Stack>
     <Box>
-      <Toolbar state={toolbar} defaults={STUDY_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+      {sectionFailed ? null : <Toolbar state={toolbar} defaults={STUDY_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
                total={studies.length} shown={studies.length} noun={'studies'}>
         <Toolbar.Sort options={[['time', 'Time to next level', 'asc']]}/>
-      </Toolbar>
+      </Toolbar>}
       {byTime
         ? <CardGrid size={'m'}>{sorted.map(studyCard)}</CardGrid>
         : <Stack gap={3}>{lists.map((list) => <Stack key={list} gap={1}>

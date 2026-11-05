@@ -45,7 +45,7 @@ const getUnlockLevelByIndex = (schematicIndex) => {
   return level - 1;
 }
 
-const Engineer = ({ hole }) => {
+const Engineer = ({ hole, sectionFailed }) => {
   const engineer = hole?.villagers?.[1];
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('hole-schematics', SCHEMATICS_TOOLBAR);
   // A schematic's place in the game's list says when it unlocks, so it is kept before the list is filtered
@@ -79,11 +79,11 @@ const Engineer = ({ hole }) => {
                           value={`${formatNum(hole?.unlockedSchematics ?? 0)} / ${formatNum(hole?.totalSchematics ?? 0)}`}/> : null}
     </Stack>
     <Box>
-      <Toolbar state={toolbar} defaults={SCHEMATICS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+      {sectionFailed ? null : <Toolbar state={toolbar} defaults={SCHEMATICS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
                total={schematics.length} shown={shown.length} noun={'schematics'}>
         <Toolbar.Show options={[['todo', 'To create', count('todo')], ['all', 'All schematics', count('all')],
           ['scaling', 'Scaling schematics', count('scaling')]]}/>
-      </Toolbar>
+      </Toolbar>}
       {listed && shown.length === 0 && (toolbar?.show ?? 'todo') === 'todo' ? <Notice>Every schematic is created.</Notice> : null}
       <CardGrid size={'m'}>{shown.map(schematicCard)}</CardGrid>
     </Box>

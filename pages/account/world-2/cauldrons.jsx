@@ -51,7 +51,7 @@ const levelValue = (level = 0, max) => (level >= max
 const upgradeSection = (label, { level = 0, cost, costToMax } = {}, max, failed) => <ItemCard.Section key={label}
                                                                                                     label={label}>
   <ItemCard.Facts rows={[
-    ['Level', levelValue(level, max)],
+    ['Level', failed ? '-' : levelValue(level, max)],
     !failed && level < max ? ['Next cost', <CoinDisplay key={'next'} dense money={getCoinsArray(cost ?? 0)}/>] : null,
     !failed && level < max
       ? ['Cost to max', <CoinDisplay key={'max'} dense money={getCoinsArray(costToMax ?? 0)}/>]
@@ -82,8 +82,8 @@ const getNewBubbleBreakdown = (displayName, cauldron) => {
 // A brew boost: its level and the brew toward the next one (the game floors it first), Maxed at the cap. A failed
 // section's catalog has no brew: the pair reads "-" with no bar
 const boostRow = ([statName, label], { level = 0, progress = 0, req = 0 } = {}, failed) => {
+  if (failed) return <ItemCard.Facts key={statName} rows={[[label, '-']]}/>;
   const name = `${label} · ${formatNum(level, 'level', { max: CAULDRONS_MAX_LEVELS.brewing })}`;
-  if (failed) return <ItemCard.Facts key={statName} rows={[[name, '-']]}/>;
   return level >= CAULDRONS_MAX_LEVELS.brewing
     ? <ItemCard.Facts key={statName} rows={[[name, <StatusText key={'maxed'} status={'maxed'}/>]]}/>
     : <ItemCard.Progress key={statName} label={name} value={brewReq(Math.floor(progress))} max={brewReq(req)}
@@ -210,10 +210,10 @@ const Cauldrons = () => {
 
       <CardGrid size={'m'} sx={{ mt: 4 }}>
         <Panel title={'Player and vials'}>
-          <Panel.KV label={'Alchemy speed'} value={formatNum(player?.speedLv ?? 0, 'level')}/>
-          <Panel.KV label={'Extra EXP'} value={formatNum(player?.extraExpLv ?? 0, 'level')}/>
-          <Panel.KV label={'Vial attempts'} value={levelValue(vials?.attempts ?? 0, CAULDRONS_MAX_LEVELS.vialsAttempts)}/>
-          <Panel.KV label={'Vial RNG'} value={levelValue(vials?.rng ?? 0, CAULDRONS_MAX_LEVELS.vialsRng)}/>
+          <Panel.KV label={'Alchemy speed'} value={alchemyFailed ? '-' : formatNum(player?.speedLv ?? 0, 'level')}/>
+          <Panel.KV label={'Extra EXP'} value={alchemyFailed ? '-' : formatNum(player?.extraExpLv ?? 0, 'level')}/>
+          <Panel.KV label={'Vial attempts'} value={alchemyFailed ? '-' : levelValue(vials?.attempts ?? 0, CAULDRONS_MAX_LEVELS.vialsAttempts)}/>
+          <Panel.KV label={'Vial RNG'} value={alchemyFailed ? '-' : levelValue(vials?.rng ?? 0, CAULDRONS_MAX_LEVELS.vialsRng)}/>
         </Panel>
       </CardGrid>
     </>

@@ -51,7 +51,7 @@ const JellyOperator = () => {
     {sectionFailed ? <MissingData name={'Jelly Operator'} failed/> : null}
     {state?.emptyAccount ? <Notice tone={'signin'} sx={{ mb: 2 }}>Your Jelly Operator shows here once you sign in.</Notice> : null}
     {locked ? <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached the Jelly Operator yet.</Notice> : null}
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       <StatTile label={'Obstructions removed'}
                 value={`${formatNum(obstructionsDefeated ?? 0)} / ${formatNum(maxObstructionsDefeated ?? 0)}`}/>
       <StatTile label={'Operations left'} value={operationsLeft ?? 0} kind={'amount'}

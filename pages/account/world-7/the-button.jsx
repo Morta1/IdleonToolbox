@@ -33,7 +33,7 @@ const TheButton = () => {
       description="Track your Button presses, task progress, and bonus multipliers in Legends of Idleon World 7"
     />
     {!section || sectionFailed ? <MissingData name={'The Button'} failed={sectionFailed}/> : null}
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       <StatTile label={'Total presses'} value={totalPresses ?? 0} kind={'amount'}/>
       <StatTile label={'Insta skips left'} value={instaSkipsLeft ?? 0} kind={'amount'}/>
       <StatTile label={'Insta skips per week'} value={instaSkipsPerWeek ?? 0} kind={'amount'}/>
@@ -46,8 +46,8 @@ const TheButton = () => {
     </PageSummary>
     <Stack gap={3}>
       <Bonuses bonuses={bonuses} activeBonusIndex={activeBonusIndex} pressesIntoCurrentBonus={pressesIntoCurrentBonus}/>
-      <Tasks taskSequence={taskSequence} bonuses={bonuses} totalPresses={totalPresses} cycleLength={cycleLength}
-             pressesIntoCurrentBonus={pressesIntoCurrentBonus}/>
+      {sectionFailed ? null : <Tasks taskSequence={taskSequence} bonuses={bonuses} totalPresses={totalPresses} cycleLength={cycleLength}
+             pressesIntoCurrentBonus={pressesIntoCurrentBonus}/>}
     </Stack>
   </>;
 };

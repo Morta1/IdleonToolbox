@@ -10,7 +10,7 @@ import { formatNum, getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import Study from '@components/account/Worlds/World5/Hole/Study';
-import PageSummary from '@components/common/cards/PageSummary';
+import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import Notice from '@components/common/Notice';
 import { MissingData, isSectionFailed } from '@components/common/styles';
@@ -30,14 +30,14 @@ const Hole = () => {
   // The tile and its drawer read one text: the parser heads the drawer in MultiplierInfo
   const afkText = formatNum(afk?.effectiveValue ?? 0, 'pct');
 
-  return <>
+  return <SummaryFailed value={sectionFailed}>
     <NextSeo
       title="Hole | Idleon Toolbox"
       description="Keep track of your hole progress, exp, upgrades, bonuses, schemas and more"
     />
     {sectionFailed ? <MissingData name={'the Hole'} failed/>
       : reached ? null : <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached the Hole yet.</Notice>}
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       <StatTile label={'Unlocked caverns'} value={`${formatNum(hole?.unlockedCaverns ?? 0)} / ${formatNum(CAVERN_COUNT)}`}/>
       <StatTile label={'Total opals invested'} icon={'data/Opal.png'} value={totals?.opalsInvested ?? 0} kind={'amount'}/>
       <StatTile label={'Total villager EXP rate'}
@@ -51,13 +51,13 @@ const Hole = () => {
       tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole')}
       icons={['etc/Villager_0','etc/Villager_1', 'etc/Villager_2', 'etc/Villager_3', 'etc/Villager_4']}
     >
-      <Explore hole={hole}/>
-      <Engineer hole={hole}/>
+      <Explore hole={hole} sectionFailed={sectionFailed}/>
+      <Engineer hole={hole} sectionFailed={sectionFailed}/>
       <Bonuses hole={hole}/>
       <Measure hole={hole}/>
-      <Study account={state?.account}/>
+      <Study account={state?.account} sectionFailed={sectionFailed}/>
     </Tabber>
-  </>;
+  </SummaryFailed>;
 };
 
 export default Hole;

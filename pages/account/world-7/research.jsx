@@ -64,7 +64,7 @@ const Research = () => {
       description="Keep track of your research level, observations and grid bonuses"
     />
     {!section || sectionFailed ? <MissingData name={'Research'} failed={sectionFailed}/> : null}
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       <StatTile label={'Research level'}
                 value={`${formatNum(researchLevel ?? 0)} (${formatNum(researchEXPpercent ?? 0, 'pct')})`}/>
       <StatTile label={'Time to level'} value={timeText(timeToLevel)}/>
@@ -91,25 +91,25 @@ const Research = () => {
       {/* Decision 6: the numbers that count one tab's list sit at that tab's top */}
       <Stack gap={3}>
         <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-          <StatTile label={'Grid points'} value={`${formatNum(gridPTSpent ?? 0)} / ${formatNum(gridPTSearned ?? 0)}`}/>
-          <StatTile label={'Shapes owned'} value={shapesOwned ?? 0} kind={'amount'}/>
-          <StatTile label={'Lenses'} value={magnifiersOwned ?? 0} kind={'amount'}/>
+          <StatTile label={'Grid points'} value={`${formatNum(gridPTSpent ?? 0)} / ${formatNum(gridPTSearned ?? 0)}`} failed={sectionFailed}/>
+          <StatTile label={'Shapes owned'} value={shapesOwned ?? 0} kind={'amount'} failed={sectionFailed}/>
+          <StatTile label={'Lenses'} value={magnifiersOwned ?? 0} kind={'amount'} failed={sectionFailed}/>
           <StatTile label={'Magnifying Glasses'} icon={'data/ResMagni0.png'} value={magnifyingGlassOwned ?? 0}
-                    kind={'amount'}/>
+                    kind={'amount'} failed={sectionFailed}/>
           <StatTile label={'Optical Monocles'} icon={'data/ResMagni1.png'} value={opticalMonocleOwned ?? 0}
-                    kind={'amount'}/>
-          <StatTile label={'Kaleidoscopes'} icon={'data/ResMagni2.png'} value={kaleidoscopeOwned ?? 0} kind={'amount'}/>
+                    kind={'amount'} failed={sectionFailed}/>
+          <StatTile label={'Kaleidoscopes'} icon={'data/ResMagni2.png'} value={kaleidoscopeOwned ?? 0} kind={'amount'} failed={sectionFailed}/>
         </Stack>
-        <Grid gridSquares={gridSquares}/>
+        {sectionFailed ? null : <Grid gridSquares={gridSquares}/>}
       </Stack>
       <Stack gap={3}>
         <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-          <StatTile label={'Observations found'}
+          <StatTile label={'Observations found'} failed={sectionFailed}
                     value={`${formatNum(totalOccurrencesFound ?? 0)} / ${formatNum(occurrencesToBeFound ?? 0)}`}/>
-          <StatTile label={'Max roll'} value={maxRoll ?? 0} kind={'amount'}/>
-          <StatTile label={'Rolls per day'} value={rollsPerDay ?? 3} kind={'amount'}/>
+          <StatTile label={'Max roll'} value={maxRoll ?? 0} kind={'amount'} failed={sectionFailed}/>
+          <StatTile label={'Rolls per day'} value={rollsPerDay ?? 3} kind={'amount'} failed={sectionFailed}/>
         </Stack>
-        <Observations observations={observations}/>
+        {sectionFailed ? null : <Observations observations={observations}/>}
       </Stack>
       <PostyNotes postyNotes={postyNotes}/>
     </Tabber>

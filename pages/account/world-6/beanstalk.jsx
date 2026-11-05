@@ -9,6 +9,7 @@ import { createBreakdown, evaluateBreakdownNode, flatLines, sumGroup } from '@pa
 import ItemDisplay from '@components/common/ItemDisplay';
 import { BEANSTALK_BREAKPOINTS, getBeanstalkFoods, getGoldenFoodMulti, getGoldenFoodBonus } from '@parsers/misc';
 import Notice from '@components/common/Notice';
+import { MissingData, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -20,6 +21,7 @@ import Num from '@components/common/Num';
 const Beanstalk = () => {
   const { state } = useContext(AppContext);
   const beanstalkData = state?.account?.sneaking?.beanstalkData;
+  const sectionFailed = isSectionFailed(state?.account, 'sneaking');
   const beanstalkGoldenFoods = getBeanstalkFoods(beanstalkData);
   const unlocked = isJadeBonusUnlocked(state?.account, 'Gold_Food_Beanstalk');
   const findItem = (name) => {
@@ -56,10 +58,10 @@ const Beanstalk = () => {
       title="Beanstalk | Idleon Toolbox"
       description="Keep track on your golden food bonuses on the beanstalk"
     />
-    {!unlocked ? <Notice tone={'locked'} sx={{ mb: 2 }}>
+    {sectionFailed ? <MissingData name={'the Beanstalk'} failed/> : !unlocked ? <Notice tone={'locked'} sx={{ mb: 2 }}>
       The beanstalk bonuses need Gold Food Beanstalk from the Jade Emporium.
     </Notice> : null}
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       <StatTile label={'Total golden food bonus'} value={bestBonusText} breakdown={totalBreakdowns}
                 breakdownTitle={'Total golden food bonus'}/>
     </PageSummary>

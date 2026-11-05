@@ -114,7 +114,8 @@ const Meals = ({
                  mealMaxLevel,
                  achievements,
                  equinoxUpgrades,
-                 kitchensFailed
+                 kitchensFailed,
+                 sectionFailed
                }) => {
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('cooking-meals', MEALS_TOOLBAR);
   // With the kitchens failed the meal speed is unknown, so a time it never reaches reads "-", not "Never"
@@ -249,12 +250,12 @@ const Meals = ({
                   value={cleanUnderscore(noMealLeftBehind.name)}/>
       </Stack> : null}
       <Box>
-        <Toolbar state={toolbar} defaults={MEALS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+        {sectionFailed ? null : <Toolbar state={toolbar} defaults={MEALS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
                  total={meals?.length ?? 0} shown={visibleMeals.length} noun={'meals'}>
           <Toolbar.Sort options={SORTS}/>
           <Toolbar.Filter name={'hideCapped'} label={'Hide capped'}/>
           <Toolbar.View options={[['cards', 'Cards'], ['compact', 'Compact']]}/>
-        </Toolbar>
+        </Toolbar>}
         {allPast ? <Notice tone={'info'} sx={{ mb: 2 }}>{`Every meal has reached Lv ${formatNum(target)}.`}</Notice> : null}
         {bestSpeedMeals.length ? <Stack gap={1} my={2}>
           <Typography variant={'sectionTitle'} component={'h2'}>Best meal speed contribution</Typography>

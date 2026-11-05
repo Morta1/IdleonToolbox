@@ -80,14 +80,14 @@ const LegendTalents = () => {
       description="View your Legend talent levels, bonus effects, and upgrade costs in Legends of Idleon World 7"
     />
     {!section || sectionFailed ? <MissingData name={'Legend Talents'} failed={sectionFailed}/> : null}
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       <StatTile label={'Legend points'} value={pointsOwned?.value ?? 0} kind={'amount'}
                 breakdown={pointsOwned?.breakdown} breakdownTitle={'Legend points'}/>
       <StatTile label={'Points spent'} value={pointsSpent ?? 0} kind={'amount'}
                 sub={`${formatNum(Math.max(0, pointsLeftToSpend ?? 0))} unspent`}/>
     </PageSummary>
     <Box>
-      <Toolbar state={toolbar} defaults={TALENTS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+      {sectionFailed ? null : <Toolbar state={toolbar} defaults={TALENTS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
                total={list.length} shown={shown.length} noun={'talents'}>
         <Toolbar.Search placeholder={'Search talents'}/>
         <Toolbar.Lead>
@@ -105,7 +105,7 @@ const LegendTalents = () => {
             list.filter((talent) => hasSource(talent, source)).length])
         ]}/>
         <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
-      </Toolbar>
+      </Toolbar>}
       <CardGrid size={'m'}>{shown.map(talentCard)}</CardGrid>
     </Box>
   </>;

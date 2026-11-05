@@ -1,3 +1,4 @@
+import { useContext } from 'react';
 import { Box, Typography } from '@mui/material';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import StatusText from '@components/common/StatusText';
@@ -6,6 +7,7 @@ import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
 import { numOrNode } from '@components/common/Num';
 import { formatNum } from '@utility/helpers';
 import { CARD_RADIUS } from './tokens';
+import { SummaryFailed } from './PageSummary';
 import { touchTarget } from '../../../styles/theme/darkTheme';
 
 const isShown = (value) => value !== undefined && value !== null && value !== '';
@@ -32,7 +34,8 @@ const LABEL_SX = { display: 'flex', alignItems: 'center', gap: 0.5, fontSize: 12
 // title is label, tooltipTitle is info, cardSx, stackProps, variant, imgStyle and imgOnly as before.
 // The old names and the title and tooltipTitle aliases go in phase 6 (__test__/legacy-tile-names.test.js).
 // breakdownTitle names the drawer when the breakdown's own name differs from the tile's label; breakdownNoun is what a
-// list breakdown's lines count as ("11 characters", sources by default).
+// list breakdown's lines count as ("11 characters", sources by default). failed: the section behind the number failed to
+// parse, so the value reads "-" with no drawer, sub or state (PageSummary's failed by default); its label and info stay.
 const StatTile = ({
                     title,
                     label = title,
@@ -45,18 +48,24 @@ const StatTile = ({
                     imgStyle,
                     info,
                     tooltipTitle,
-                    breakdown,
+                    breakdown: breakdownData,
                     breakdownTitle,
                     breakdownNoun,
                     skipNotation,
-                    sub,
-                    status,
+                    sub: subLine,
+                    status: statusName,
+                    failed,
                     size = 'compact',
                     variant,
                     cardSx,
                     stackProps
                   }) => {
-  const shown = isShown(value) ? value : breakdown ? breakdownTotal(breakdown) : undefined;
+  const summaryFailed = useContext(SummaryFailed);
+  const isFailed = failed ?? summaryFailed;
+  const breakdown = isFailed ? undefined : breakdownData;
+  const sub = isFailed ? undefined : subLine;
+  const status = isFailed ? undefined : statusName;
+  const shown = isFailed ? '-' : isShown(value) ? value : breakdown ? breakdownTotal(breakdown) : undefined;
   const hero = size === 'hero';
   const note = info ?? (imgOnly ? undefined : tooltipTitle);
   const name = typeof label === 'string' && label ? label : undefined;
