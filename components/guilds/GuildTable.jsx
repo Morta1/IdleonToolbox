@@ -8,6 +8,7 @@ import TagLine from '@components/common/TagLine';
 import { getGuildLevel } from '@parsers/guild';
 import { seriesColors } from '@utility/chartTheme';
 import { formatNum } from '@utility/helpers';
+import { sessionQuery } from '@utility/nav-query';
 import { focusRing } from '../../styles/theme/darkTheme';
 import Sparkline from './Sparkline';
 
@@ -57,9 +58,9 @@ const PinButton = styled('button')(({ theme }) => ({
 }));
 
 // The guild's name opens its page through the router, with no href: every ?id= address is a copy of one
-// canonical page, so they stay out of Search Console (Decision 6).
+// canonical page, so they stay out of Search Console (Decision 6). The session (demo, profile) rides along.
 export const GuildLink = ({ guild, router }) => <NameButton type={'button'}
-                                                            onClick={() => router.push(`/guilds/detail?id=${encodeURIComponent(guild.guild_id)}`)}>
+                                                            onClick={() => router.push({ pathname: '/guilds/detail', query: { id: guild.guild_id, ...sessionQuery(router.query) } })}>
   {guild.guild_name ?? UNNAMED}
 </NameButton>;
 

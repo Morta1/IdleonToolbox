@@ -1,6 +1,8 @@
 // pages/guilds/ecosystem.jsx: ecosystem-wide guild statistics.
 // Static sub-page (no query param); not registered in constants.jsx.
 import NextLink from 'next/link';
+import { useRouter } from 'next/router';
+import { sessionQuery } from '@utility/nav-query';
 import { useGlobalSnapshots } from '@hooks/useGuildHistory';
 import { Box, Button, Typography } from '@mui/material';
 import { IconArrowLeft } from '@tabler/icons-react';
@@ -19,9 +21,13 @@ const EcosystemSection = ({ title, children }) => <Panel title={title} sx={{ mb:
   <CardGrid size={'s'} sx={{ p: 2 }}>{children}</CardGrid>
 </Panel>;
 
-const BackToGuilds = () => <Button size={'small'} startIcon={<IconArrowLeft size={18}/>} component={NextLink} href={'/guilds'} prefetch={false} sx={{ mb: 2 }}>
-  Back to guilds
-</Button>;
+const BackToGuilds = () => {
+  const router = useRouter();
+  return <Button size={'small'} startIcon={<IconArrowLeft size={18}/>} component={NextLink}
+                 href={{ pathname: '/guilds', query: sessionQuery(router.query) }} prefetch={false} sx={{ mb: 2 }}>
+    Back to guilds
+  </Button>;
+};
 
 export default function GuildEcosystem() {
   const formatDate = useFormatDate();

@@ -2,6 +2,7 @@
 // builds with Next.js output: 'export'.
 import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/router';
+import { sessionQuery } from '@utility/nav-query';
 import NextLink from 'next/link';
 import { useGuildDetail } from '@hooks/useGuildHistory';
 import { Box, Button, Stack, Typography } from '@mui/material';
@@ -55,9 +56,13 @@ const paceWords = (change) => {
   return `${formatNum(Math.abs(change) * 100, 'pct', { decimals: 2 })} ${change > 0 ? 'ahead of' : 'behind'} last week at this hour`;
 };
 
-const BackToGuilds = () => <Button size={'small'} startIcon={<IconArrowLeft size={18}/>} component={NextLink} href={'/guilds'} sx={{ mb: 2 }}>
-  Back to guilds
-</Button>;
+const BackToGuilds = () => {
+  const router = useRouter();
+  return <Button size={'small'} startIcon={<IconArrowLeft size={18}/>} component={NextLink}
+                 href={{ pathname: '/guilds', query: sessionQuery(router.query) }} sx={{ mb: 2 }}>
+    Back to guilds
+  </Button>;
+};
 
 export default function GuildDetail() {
   const router = useRouter();

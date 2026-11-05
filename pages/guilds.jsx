@@ -5,6 +5,7 @@ import { isToday, isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
 import { useGlobalSnapshots, useGuildIndex } from '@hooks/useGuildHistory';
 import { useRouter } from 'next/router';
+import { sessionQuery } from '@utility/nav-query';
 import NextLink from 'next/link';
 import { biggestClimber, closestGap, nextWeeklyReset } from '@components/guilds/CurationStrip';
 import GuildTable, { GuildLink } from '@components/guilds/GuildTable';
@@ -90,7 +91,7 @@ const Guilds = () => {
           : 'Updated hourly'}
       </Typography>
       {snapshotsFailed ? <Typography variant={'caption'} color={'text.secondary'}>Ecosystem numbers didn't load.</Typography> : null}
-      <Link component={NextLink} href={'/guilds/ecosystem'} variant={'caption'} sx={{ verticalAlign: 'baseline' }}>Ecosystem stats</Link>
+      <Link component={NextLink} href={{ pathname: '/guilds/ecosystem', query: sessionQuery(router.query) }} variant={'caption'} sx={{ verticalAlign: 'baseline' }}>Ecosystem stats</Link>
     </Stack>
     <Toolbar state={{ search: query }} defaults={{ search: '' }} onChange={({ search }) => setQuery(search ?? '')} onReset={() => setQuery('')}
              total={guilds.length} shown={filteredGuilds?.length ?? 0} noun={'guilds'} onStickyBottom={setToolbarBottom}>

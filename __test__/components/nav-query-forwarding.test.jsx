@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import darkTheme from '../../styles/theme/darkTheme';
 
@@ -29,6 +29,7 @@ vi.mock('@components/common/context/AppProvider', () => ({
 }));
 
 const { NavMenuPanel } = await import('@components/common/NavBar/NavMenu');
+const { GuildLink } = await import('@components/guilds/GuildTable');
 
 const renderMenu = (menu) => render(
   <ThemeProvider theme={darkTheme}>
@@ -56,4 +57,10 @@ describe.each([
     expect(params.length).toBeGreaterThan(0);
     params.forEach((keys) => expect(keys.sort()).toEqual(['demo']));
   });
+});
+
+it('a guild name keeps the session and nothing else, with no href for a crawler', () => {
+  render(<ThemeProvider theme={darkTheme}><GuildLink guild={{ guild_id: 'g 1', guild_name: 'Guild' }} router={{ push, query }}/></ThemeProvider>);
+  fireEvent.click(screen.getByRole('button', { name: 'Guild' }));
+  expect(push.mock.calls).toEqual([[{ pathname: '/guilds/detail', query: { id: 'g 1', demo: 'true' } }]]);
 });
