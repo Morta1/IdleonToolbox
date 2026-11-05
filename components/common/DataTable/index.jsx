@@ -43,6 +43,7 @@ import SortField from './SortField';
 // `stickyTop` is where the page's sticky toolbar ends: a long table's header sticks there. A table that hides columns
 // on a phone and has sortable ones draws a Sort field over itself there, or `sortField={false}` where the page's Toolbar
 // already holds one. `align: 'left'` keeps a number column to the left, beside the name (Constellations' Progress).
+// `detailLabel` is what the phone's detail list prints for a column whose heading is art.
 
 // A small table (fits) keeps the phone's tighter padding at every width: it often sits inside a 260 px note. A table
 // that brings its columns in at sm keeps it until md (tightUntilMd).
@@ -340,10 +341,11 @@ const DataTable = ({
                         const { content, tone } = dataCell(column, i, row, { heading }, mute, wordAt);
                         return <div key={column.key} className={`detail-item detail-${i}`}>
                           {/* The column's note travels with its label: the heading that carries it is hidden here */}
+                          {/* A heading that is art (a miniboss sprite) names itself in words in the phone's list */}
                           <dt>{column.info ? <span className={'head-note'}>
-                            {column.label}
+                            {column.detailLabel ?? column.label}
                             <InfoButton label={headName(column)}>{column.info}</InfoButton>
-                          </span> : column.label}</dt>
+                          </span> : column.detailLabel ?? column.label}</dt>
                           <dd className={tone ?? undefined}>{content}</dd>
                         </div>;
                       })}

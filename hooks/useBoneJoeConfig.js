@@ -24,12 +24,13 @@ const APPLY_DELAY = 300;
 
 const emptyLevels = () => HP_CURSE_PRAYERS.reduce((res, name) => ({ ...res, [name]: 0 }), {});
 
-export const useBoneJoeConfig = (account) => {
+export const useBoneJoeConfig = (account, characters) => {
   const [pickles, setPickles] = useLocalStorage({
     key: 'boneJoeCalculator:pickles',
     defaultValue: 0
   });
-  // Typed levels, only for a visitor with no account to read them from.
+  // Typed levels, only for a visitor with no save to read them from: a guest, whose parsed empty account has every
+  // prayer at 0, and a failed prayers section.
   const [prayerLevels, setPrayerLevels] = useLocalStorage({
     key: 'boneJoeCalculator:prayerLevels',
     defaultValue: emptyLevels()
@@ -53,7 +54,7 @@ export const useBoneJoeConfig = (account) => {
     defaultValue: 1
   });
 
-  const levelsFromAccount = !!account?.prayers?.length;
+  const levelsFromAccount = !!characters?.length && !!account?.prayers?.length;
   const activePrayers = HP_CURSE_PRAYERS.map((name) => {
     const prayer = prayers?.find(({ name: prayerName }) => prayerName === name);
     const accountLevel = account?.prayers?.find(({ name: prayerName }) => prayerName === name)?.level ?? 0;
