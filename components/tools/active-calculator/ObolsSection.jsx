@@ -1,58 +1,49 @@
-import { Divider, Stack, Typography } from '@mui/material';
-import { Section } from '@components/tools/active-calculator/common';
+import { Box, Stack, Typography } from '@mui/material';
+import { Section, SectionGroup } from '@components/tools/active-calculator/common';
 import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { compareInventories, consolidateItems } from '@parsers/misc/activeCalculator';
 import { AppContext } from '@components/common/context/AppProvider';
 import Inventory from '@components/characters/Inventory';
-import Tooltip from '@components/Tooltip';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import Notice from '@components/common/Notice';
+import { isSectionFailed } from '@components/common/styles';
 import { items } from '@website-data';
 
-const DropSection = ({ lastUpdated, resultsOnly }) => {
+const flattenObols = (inventory) => inventory?.flat()
+  .filter((name) => name !== 'Blank' && name !== 'LockedInvSpace')
+  .map((name) => ({ ...items[name], rawName: name, amount: 1 }));
+
+const ObolsSection = ({ lastUpdated, resultsOnly }) => {
   const { state } = useContext(AppContext);
   const [snapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
-  const flattenSnapshot = snapshottedAcc?.obols?.inventory?.flat().filter((name) => name !== 'Blank' && name !== 'LockedInvSpace').map((name) => ({ ...items[name], rawName: name, amount: 1 }));
-  const flattenCurrent = state?.account?.obols?.inventory?.flat().filter((name) => name !== 'Blank' && name !== 'LockedInvSpace').map((name) => ({ ...items[name], rawName: name, amount: 1 }));
-  const difference = compareInventories(flattenSnapshot, flattenCurrent, lastUpdated, snapshottedAcc?.snapshotTime);
+  const failed = isSectionFailed(state?.account, 'obols');
+  const flattenSnapshot = flattenObols(snapshottedAcc?.obols?.inventory);
+  const flattenCurrent = flattenObols(state?.account?.obols?.inventory);
+  const difference = failed ? [] : compareInventories(flattenSnapshot, flattenCurrent, lastUpdated, snapshottedAcc?.snapshotTime);
 
   if (!snapshottedAcc?.obols?.inventory) {
-    return <Section title={'Total Obols'}><Typography variant={'body1'}>Current snapshot is missing obols inventory, please
-      re-save a snapshot</Typography></Section>
+    return <Section title={'Obols'}>
+      <Box sx={{ p: 2 }}><Notice>This snapshot has no obols: save a new one to compare them.</Notice></Box>
+    </Section>;
   }
-  return <Section title={'Total Obols'}
-                  tooltip={'This is a consolidated view of your items, where identical items have been combined and their total quantities summed.'}
-  >
-    {!resultsOnly ? <>
-      <Stack>
-        <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Snapshot</Typography>
-        <Inventory
-          inventory={consolidateItems(flattenSnapshot)}
-          inventoryLength={flattenSnapshot?.length}
-        />
-      </Stack>
-      <Divider flexItem orientation={'vertical'} sx={{ mx: 2 }}/>
-      <Stack>
-        <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Current</Typography>
-        <Inventory
-          inventory={consolidateItems(flattenCurrent)}
-          inventoryLength={flattenCurrent?.length}
-        />
-      </Stack>
-    </> : null}
-    <Stack>
-      <Stack direction={'row'} alignItems={'center'} gap={1}>
-        <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Result</Typography>
-        <Tooltip
-          title={<Stack>
-            <Typography variant={'body1'}>Hover over each item to see more stats</Typography>
-          </Stack>}>
-          <IconInfoCircleFilled size={18}/>
-        </Tooltip>
-      </Stack>
-      <Inventory inventory={difference} amountKey={'difference'}/>
+  return <Section title={'Obols'} info={'Identical items are combined and their amounts summed.'}>
+    <Stack direction={'row'} flexWrap={'wrap'} gap={3} sx={{ p: 2 }}>
+      {!resultsOnly ? <>
+        <SectionGroup label={'Snapshot'}>
+          <Inventory inventory={consolidateItems(flattenSnapshot)} inventoryLength={flattenSnapshot?.length}/>
+        </SectionGroup>
+        {failed ? null : <SectionGroup label={'Now'}>
+          <Inventory inventory={consolidateItems(flattenCurrent)} inventoryLength={flattenCurrent?.length}/>
+        </SectionGroup>}
+      </> : null}
+      <SectionGroup label={'Gained'}>
+        {difference.length ? <Inventory inventory={difference} amountKey={'difference'}/>
+          : <Typography variant={'body2'} color={'text.secondary'}>
+            {failed ? 'Obols failed to load, so there is nothing to compare.' : 'No obol has gone up since the snapshot.'}
+          </Typography>}
+      </SectionGroup>
     </Stack>
-  </Section>
+  </Section>;
 };
 
-export default DropSection;
+export default ObolsSection;
