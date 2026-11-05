@@ -18,14 +18,14 @@ describe('MetricCard', () => {
     renderCard({ meta: mining, entries: [row('A', 300, 1), row('B', 250, 2), row('C', 250, 2), row('D', 200, 4)] });
     expect(screen.getAllByAltText('Rank 2')).toHaveLength(2);
     expect(screen.queryByAltText('Rank 3')).toBeNull();
-    expect(screen.getByText('4')).toBeTruthy();
+    expect(screen.getByText('#4')).toBeTruthy();
   });
 
   it('shows real ranks with gaps when anonymous players are hidden', () => {
     renderCard({ meta: mining, entries: [row('A', 300, 1), row('B', 250, 2), row('D', 200, 4), row('E', 190, 5)] });
-    expect(screen.getByText('4')).toBeTruthy();
-    expect(screen.getByText('5')).toBeTruthy();
-    expect(screen.queryByText('3')).toBeNull();
+    expect(screen.getByText('#4')).toBeTruthy();
+    expect(screen.getByText('#5')).toBeTruthy();
+    expect(screen.queryByText('#3')).toBeNull();
   });
 
   it('renders a maxed board with the max line, plain #1s and global ranks', () => {
@@ -34,7 +34,7 @@ describe('MetricCard', () => {
     expect(screen.getByText('Maxed')).toBeTruthy();
     expect(screen.getByText(/is the max · 146 players have it, all tied at #1 · listed by global rank/)).toBeTruthy();
     expect(screen.queryByAltText('Rank 1')).toBeNull();
-    expect(screen.getAllByText('1')).toHaveLength(2);
+    expect(screen.getAllByText('#1')).toHaveLength(2);
     expect(screen.getByText('global #2')).toBeTruthy();
   });
 
@@ -48,7 +48,7 @@ describe('MetricCard', () => {
     cleanup();
     renderCard({ meta: breed, entries, pinned: { mainChar: 'Baker333', kind: 'logged', globalRank: 91, entry: { r: 150, v: 600, p: 9, t: 2, nr: 1, nv: 612 } } });
     expect(screen.queryByLabelText('Has the max')).toBeNull();
-    expect(screen.getByText('150')).toBeTruthy();
+    expect(screen.getByText('#150')).toBeTruthy();
   });
 
   it('does not pin a player already in the list, and skips a player with no entry', () => {

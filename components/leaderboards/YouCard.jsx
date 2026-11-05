@@ -5,10 +5,8 @@ import InfoIcon from '@mui/icons-material/Info';
 import Tooltip from '@components/Tooltip';
 import { numberWithCommas } from '@utility/helpers';
 import { countStanding, firstPlaces, topPercentLabel } from './standing';
-import { HIGHLIGHT } from './RankRow';
+import { HIGHLIGHT, LABEL_COLOR } from './RankRow';
 import { formatMetricValue, rankText } from './format';
-
-const LABEL_COLOR = { logged: '#4fc3c9', searched: '#cd861b' };
 
 const Stat = ({ label, value, sub, info }) => (
   <Box data-stat sx={{ bgcolor: 'background.paper', borderRadius: 2, p: 1.25 }}>
@@ -56,7 +54,7 @@ const YouCard = ({ data, kind, index, onSeeAll, onClear, clearLabel = 'Clear' })
   const of = [`of ${numberWithCommas(player.totalUsers)}`, topPercent, formatMetricValue('points', player.compositeScore)].filter(Boolean).join(' · ');
   return (
     <Card variant="outlined" sx={{
-      height: '100%', boxSizing: 'border-box', p: { xs: '14px', md: '18px 20px' }, borderRadius: 2, bgcolor: '#12141c', border: '2px solid', borderColor: HIGHLIGHT[kind], boxShadow: 'none'
+      height: '100%', boxSizing: 'border-box', p: { xs: '14px', md: '18px 20px' }, borderRadius: 2, bgcolor: 'action.selected', border: '2px solid', borderColor: HIGHLIGHT[kind], boxShadow: 'none'
     }}>
       <Stack gap={1.5}>
         <Stack direction="row" alignItems="center" gap={1}>

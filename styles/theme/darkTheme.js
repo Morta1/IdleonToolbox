@@ -110,7 +110,9 @@ const darkTheme = createTheme({
       // The Tome's point tiers, the game's: bronze, silver, gold, blue
       tomeTiers: { bronze: '#ffc277', silver: '#d6dbe0', gold: '#ffd700', blue: '#56ccff' },
       // The kingdom screen's own outpost modes: yellow Resource Depot, cyan Support Camp, pink Savage Stronghold
-      outpostModes: ['#f7de2a', '#31cef0', '#f8b4f8']
+      outpostModes: ['#f7de2a', '#31cef0', '#f8b4f8'],
+      // The leaderboards' identities: whose row it is (you, a searched player) and the podium's medals
+      leaderboard: { you: '#007E85', youText: '#4fc3c9', searched: '#cd861b', gold: '#f0b849', silver: '#9aa3ad', bronze: '#b8783a' }
     }
   },
   // The Foundations type scale. body and caption are MUI's body2 and caption. pageTitle, sectionTitle,

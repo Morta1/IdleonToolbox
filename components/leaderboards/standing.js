@@ -1,3 +1,5 @@
+import { formatNum } from '@utility/helpers';
+
 // Counters for the You card and the report card header. Holding the max on a maxed board is
 // shared with everyone else who has it, so it counts once, as "tied at the max", and never as a
 // first place or a top 25 / top 100 finish.
@@ -59,4 +61,4 @@ export const medianRank = (keys, ranks) => {
 
 // "top 3.5%" reads as a brag only for the upper half: past 50% it is just noise.
 export const TOP_PERCENT_LIMIT = 50;
-export const topPercentLabel = (percent) => (Number.isFinite(percent) && percent <= TOP_PERCENT_LIMIT ? `top ${percent}%` : null);
+export const topPercentLabel = (percent) => (Number.isFinite(percent) && percent <= TOP_PERCENT_LIMIT ? `top ${formatNum(percent, 'pct')}` : null);

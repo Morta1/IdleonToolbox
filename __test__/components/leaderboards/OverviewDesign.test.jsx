@@ -80,7 +80,7 @@ describe('Overview podium', () => {
     renderOverview({ player: { context: { name: 'Anon#abc123', kind: 'searched' }, data: anon }, highlight: { 'Anon#abc123': 'searched' } });
     await screen.findByText('P10');
     const row = screen.getAllByText('Anon#abc123').map((el) => el.closest('[data-testid="rank-row"]')).find(Boolean);
-    expect(row.textContent).toMatch(/^9Anon#abc123/);
+    expect(row.textContent).toMatch(/^#9Anon#abc123/);
   });
 
   it('outlines the viewed player slot in their colour', async () => {

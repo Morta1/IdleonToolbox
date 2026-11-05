@@ -1,4 +1,4 @@
-import { numberWithCommas } from '@utility/helpers';
+import { SHORT_FROM, formatNum } from '@utility/helpers';
 
 // Display tabs; a tab's key (meta.tabs[].key, the v=3 tab list) is its label lowercased.
 export const TABS = ['Overview', 'Account', 'Character', 'Skills', 'Combat', 'Worlds'];
@@ -29,15 +29,23 @@ export const RUN_QUERY_KEYS = ['leaderboard', 'lb-player', 'lb-board', 'lb-podiu
 // failure is a new note (keyed on errorUpdateCount), read out again.
 export const showsFailure = (query) => query.isError || (query.isFetching && query.errorUpdateCount > 0 && query.data === undefined);
 
-// Exact figures read better than K/M below a million; the short form takes over from there.
-const EXACT_BELOW = 1e6;
+// A ranking's values, in the site's rule: below 1M the decimals a value has (formatNum), from 1M up the short form, with
+// the fewest digits that still tell neighbours apart (formatDistinctValues): the amount kind's Big rule rounds up, so
+// 56,831,731 and 56,849,000 would both read 56.9M. A multiplier ends in x and points in pts, as the site writes them.
+const unitOf = (notation) => (notation === 'points' ? ' pts' : notation === 'multiplier' ? 'x' : '');
 // Past QQ a value reads as a power of ten.
 const SCIENTIFIC_FROM = 1e21;
 const SUFFIXES = [[1e18, 'QQ'], [1e15, 'Q'], [1e12, 'T'], [1e9, 'B'], [1e6, 'M'], [1e3, 'K']];
-// Below this a value that is not whole keeps two decimals: 1.30 never reads 1.
+// Below this a value's exact form lists four decimals: a note still tells 8.6708 from 8.6656.
 const SMALL = 1000;
+// From this a value's exact form is its mantissa: a double has no more digits to list.
+const EXACT_BELOW = 1e15;
 
 const isWhole = (value) => Math.abs(value - Math.round(value)) < 0.005;
+// The API can send a number as a string.
+const numeric = (value) => (typeof value === 'string' ? Number(value) : value);
+const isFull = (value) => Math.abs(value) < SHORT_FROM;
+const scientificFrom = (scale) => (scale >= SCIENTIFIC_FROM ? SHORT_FROM : SCIENTIFIC_FROM);
 
 // Rounded up to `precision` significant figures, for steps that must really reach the next rank.
 const ceilSignificant = (value, precision) => {
@@ -49,118 +57,125 @@ const ceilSignificant = (value, precision) => {
 // The tolerance keeps float noise (1.8000000001) from rounding a step up past its real value.
 const ceilDecimals = (value, decimals) => Math.ceil(value * 10 ** decimals - 1e-6) / 10 ** decimals;
 
-// `precision` significant figures on the mantissa, trailing zeros kept, so a column lines up.
+// `precision` significant figures on the mantissa.
 const scientific = (value, precision) => {
   const [mantissa, exponent] = value.toExponential(precision - 1).split('e');
   return `${mantissa}e${Number(exponent)}`;
 };
 
-// `precision` significant figures, trailing zeros kept (35.0M, 1.90M). The value is rounded on its own
-// digits before it is scaled, so an exact half rounds up (2,295 reads 2.30K, never 2.29K from the
-// float error of 2.295) and 999.6M moves on to 1.00B. `up` rounds up instead, for steps.
-const shortNumber = (value, scientificFrom, precision = 3, up = false) => {
+// `precision` significant figures, trailing zeros kept for now (35.0M, 1.90M). The value is rounded on its own digits
+// before it is scaled, so 999.6M moves on to 1.00B. `up` rounds up instead, for steps.
+const shortNumber = (value, from, precision = 3, up = false) => {
   const target = up ? Math.sign(value) * ceilSignificant(Math.abs(value), precision) : Number(value.toPrecision(precision));
   const abs = Math.abs(target);
-  if (abs >= scientificFrom) return scientific(target, precision);
+  if (abs >= from) return scientific(target, precision);
   for (const [base, suffix] of SUFFIXES) {
     if (abs < base) continue;
     const scaled = target / base;
     const wholeDigits = Math.floor(Math.log10(Math.abs(scaled))) + 1;
     return `${scaled.toFixed(Math.max(0, precision - wholeDigits))}${suffix}`;
   }
-  return numberWithCommas(Math.round(target));
+  return formatNum(Math.round(target), 'whole');
 };
 
-// Bits are compared as plain numbers: the game's own bit tiers mean nothing without their icon.
-const plainNotation = (notation) => (notation === 'bits' ? 'default' : notation);
+// How many of a short value's decimals are trailing zeros ("35.0M": 1, "94.60M": 1, "990M": none to give).
+const trailingZeros = (text) => /\.\d*?(0*)(?=\D|$)/.exec(text)?.[1].length ?? 0;
+const dropZeros = (text, count = trailingZeros(text)) => (count
+  ? text.replace(/(\.\d*?)(0+)(?=\D|$)/, (all, kept, zeros) => `${kept}${zeros.slice(count)}`).replace(/\.(?=\D|$)/, '')
+  : text);
 
-// Below this a board's values print in full rather than short.
-const plainBelow = (scale) => (scale >= EXACT_BELOW ? SMALL : EXACT_BELOW);
-
-// `scale` is the board's top value, so every row of a board shares one style: a board that reaches a
-// million shows each value short (870K, never 870,329.13 under 2.97M), and one that reaches E
-// notation uses it for every value from a million up. Whole values round to the nearest, the same
-// rule as the exact hover; multipliers and small fractional values keep two decimals.
-// `decimals` forces that many decimals on every full value (a group of rows that must line up).
-export const formatMetricValue = (notation, value, { scale, precision = 3, decimals } = {}) => {
-  if (!Number.isFinite(value)) return '-';
-  if (notation === 'points') return `${numberWithCommas(value.toFixed(2))} pts`;
-  const kind = plainNotation(notation);
-  const abs = Math.abs(value);
-  if (abs < plainBelow(scale)) {
-    if (decimals != null) return numberWithCommas(value.toFixed(decimals));
-    if (kind === 'multiplier' || (abs < SMALL && !isWhole(value))) return numberWithCommas(value.toFixed(2));
-    return numberWithCommas(Math.round(value));
+// One value's digits, without its unit. A board that reaches E notation uses it for every value from a million up.
+// `decimals` forces that many on a full value (a group of rows that must line up).
+const digitsOf = (notation, value, { scale, precision = 3, decimals } = {}) => {
+  if (isFull(value)) {
+    if (notation === 'points') return formatNum(value, 'amount', { decimals: decimals ?? 2 });
+    return formatNum(value, notation === 'multiplier' ? 'mult' : 'amount', { decimals, bare: true });
   }
-  return shortNumber(value, scale >= SCIENTIFIC_FROM ? EXACT_BELOW : SCIENTIFIC_FROM, precision);
+  return shortNumber(value, scientificFrom(scale), precision);
+};
+
+export const formatMetricValue = (notation, raw, options = {}) => {
+  const value = numeric(raw);
+  if (!Number.isFinite(value)) return '-';
+  const digits = digitsOf(notation, value, options);
+  return `${isFull(value) ? digits : dropZeros(digits)}${unitOf(notation)}`;
 };
 
 const MAX_PRECISION = 8;
 
-// A group of rows in the board's own style, with just enough figures that two different values never
-// read the same: more significant figures for short values (94.68M next to 94.65M), more decimals for
-// full ones (8.671 next to 8.666), and every full value with the same decimals so the column lines
-// up (8,488.00 next to 8,487.60). Returns one string per value; the exact figure is the last resort.
-export const formatDistinctValues = (notation, values, { scale } = {}) => {
-  const full = (value) => notation !== 'points' && Math.abs(value) < plainBelow(scale);
+// A group of rows with just enough figures that two different values never read the same: more significant figures for
+// short values (94.68M next to 94.65M), more decimals for full ones (8.671x next to 8.666x), and every full value with
+// the same decimals so the column lines up (8,488.00 next to 8,487.60). Short values share their zeros too: 35.0M above
+// 34.9M, but 35M above 36M. Returns one string per value; the exact figure is the last resort.
+const distinctDigits = (notation, values, scale) => {
   // Float noise is not a difference: 11,444.999999996 and 11,445 are the same score.
   const same = (a, b) => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a));
   const distinct = (texts) => values.every((value, at) => values.every((other, to) => same(value, other) || texts[at] !== texts[to]));
-  const aligned = (texts) => new Set(texts.filter((text, at) => full(values[at])).map((text) => text.includes('.'))).size <= 1;
-  const levels = [];
-  for (let precision = 3; precision <= MAX_PRECISION; precision++) levels.push({ precision });
-  for (let decimals = 2; decimals <= 4; decimals++) levels.push({ precision: MAX_PRECISION, decimals });
-  for (const level of levels) {
-    const texts = values.map((value) => formatMetricValue(notation, value, { scale, ...level }));
-    if (distinct(texts) && aligned(texts)) return texts;
+  const aligned = (texts) => new Set(texts.filter((text, at) => isFull(values[at])).map((text) => text.includes('.'))).size <= 1;
+  const unit = unitOf(notation);
+  for (let step = 0; step <= MAX_PRECISION - 3 + 3; step++) {
+    const level = step <= MAX_PRECISION - 3 ? { precision: step + 3 } : { precision: MAX_PRECISION, decimals: step - (MAX_PRECISION - 3) + 1 };
+    const texts = values.map((value) => digitsOf(notation, value, { scale, ...level }));
+    if (distinct(texts) && aligned(texts)) {
+      const shortTexts = texts.filter((text, at) => !isFull(values[at]) && text.includes('.'));
+      const shared = shortTexts.length ? Math.min(...shortTexts.map(trailingZeros)) : 0;
+      return texts.map((text, at) => `${isFull(values[at]) || !text.includes('.') ? text : dropZeros(text, shared)}${unit}`);
+    }
   }
   // Last resort, still aligned: full values share two decimals when any of them has some.
-  const fractional = values.some((value) => full(value) && !isWhole(value));
-  return values.map((value) => (full(value) && fractional ? numberWithCommas(value.toFixed(2)) : formatExactValue(notation, value)));
+  const fractional = values.some((value) => isFull(value) && !isWhole(value));
+  return values.map((value) => (isFull(value) && fractional ? `${digitsOf(notation, value, { decimals: 2 })}${unit}` : formatExactValue(notation, value)));
 };
 
-// Full precision, for the hover title on every value.
-export const formatExactValue = (notation, value) => {
+// A value that isn't a number reads "-" and takes no part in the group.
+export const formatDistinctValues = (notation, raws, { scale } = {}) => {
+  const values = raws.map(numeric);
+  const texts = distinctDigits(notation, values.filter(Number.isFinite), scale);
+  let at = 0;
+  return values.map((value) => (Number.isFinite(value) ? texts[at++] : '-'));
+};
+
+// Every digit a value has, for the note behind a short one.
+export const formatExactValue = (notation, raw) => {
+  const value = numeric(raw);
   if (!Number.isFinite(value)) return '-';
-  if (notation === 'points') return `${numberWithCommas(value.toFixed(2))} pts`;
   const abs = Math.abs(value);
-  // Small values keep up to four decimals, so a hover still tells 8.6708 from 8.6656.
-  if (abs < SMALL) return numberWithCommas(String(Number(value.toFixed(4))));
-  if (notation === 'multiplier' && abs < 1e12) return numberWithCommas(value.toFixed(2));
-  if (abs < 1e15) {
-    // Some boards store fractional scores (Colosseums): two players a fifth of a point apart would
-    // both read 498,506, so a value that is not whole keeps two decimals. Past a trillion a double
-    // has no real decimals left to show.
-    return abs >= 1e12 || isWhole(value) ? numberWithCommas(Math.round(value)) : numberWithCommas(value.toFixed(2));
-  }
-  return value.toExponential(5).replace('e+', 'e');
+  if (abs >= EXACT_BELOW) return `${value.toExponential(5).replace('e+', 'e')}${unitOf(notation)}`;
+  const digits = abs < SMALL
+    ? formatNum(value, 'amount', { decimals: 4 }).replace(/\.?0+$/, '')
+    // Past a trillion a double has no real decimals left to show.
+    : formatNum(abs >= 1e12 ? Math.round(value) : value, 'exact');
+  return `${digits}${unitOf(notation)}`;
 };
 
-export const rankText = (rank) => (rank == null ? '#-' : `#${numberWithCommas(rank)}`);
+export const rankText = (rank) => (rank == null ? '-' : `#${formatNum(rank, 'whole')}`);
 
-// A gap to the next rank, always rounded UP so it really reaches it: 117.32 reads +118, a 30,546,577
-// gap reads +30.6M, 0.212 reads +0.22, points and multipliers round up at two decimals. A gap under 1
-// keeps two significant figures, so it never reads +0.00. Exact below a million whatever the
-// board's style ("+2,333").
+// A gap to the next rank, always rounded UP so it really reaches it: 117.32 reads +118, a 30,546,577 gap reads +30.6M,
+// 0.212 reads +0.22, points and multipliers round up at two decimals. A gap under 1 keeps two significant figures, so it
+// never reads +0.00.
 export const formatStep = (notation, diff, { scale } = {}) => {
-  const kind = plainNotation(notation);
-  if (kind === 'points') return `${numberWithCommas(ceilDecimals(diff, 2).toFixed(2))} pts`;
-  if (Math.abs(diff) >= EXACT_BELOW) return shortNumber(diff, scale >= SCIENTIFIC_FROM ? EXACT_BELOW : SCIENTIFIC_FROM, 3, true);
+  const unit = unitOf(notation);
+  if (notation === 'points') return `${formatNum(ceilDecimals(diff, 2), 'amount', { decimals: 2 })}${unit}`;
+  if (!isFull(diff)) return `${dropZeros(shortNumber(diff, scientificFrom(scale), 3, true))}${unit}`;
   if (diff > 0 && diff < 1) {
     const step = ceilSignificant(diff, 2);
     const decimals = Math.max(2, 1 - Math.floor(Math.log10(step)));
     const text = step.toFixed(decimals);
-    return decimals > 2 ? text.replace(/0+$/, '') : text;
+    return `${decimals > 2 ? text.replace(/0+$/, '') : text}${unit}`;
   }
-  if (kind === 'multiplier') return numberWithCommas(ceilDecimals(diff, 2).toFixed(2));
+  if (notation === 'multiplier') return `${formatNum(ceilDecimals(diff, 2), 'amount', { decimals: 2 })}${unit}`;
   // The epsilon keeps float noise (117.00000000001) from rounding a whole gap up.
-  return numberWithCommas(Math.ceil(diff - 1e-9));
+  return formatNum(Math.ceil(diff - 1e-9), 'whole');
 };
 
 const GLOBAL_META = { key: GLOBAL_METRIC, label: 'Global ranking', section: '', notation: 'points', category: null };
 
-// meta.tabs is the display grouping: (tab key, metrics with their section), in layout order.
-const tabsOf = (meta) => (meta?.tabs ?? []).map(({ key, sections }) => ({ key, metrics: sections.flatMap((section) => section.metrics) }));
+// meta.tabs is the display grouping: (tab key, metrics with their section), in layout order. A partial reply reads as
+// fewer boards, never a crash: a tab with no sections, a section with no metrics, a metric with no key.
+const tabsOf = (meta) => (meta?.tabs ?? []).map((tab) => ({
+  key: tab?.key,
+  metrics: (tab?.sections ?? []).flatMap((section) => (section?.metrics ?? []).filter((metric) => metric?.key))
+}));
 
 // Without meta (fetch failed) every lookup falls back to metaOf's title-cased key and the tab shows
 // one unnamed section, so cards still render.
@@ -186,7 +201,5 @@ export const buildMetaIndex = (meta) => {
 
 export const metaOf = (index, key) => index.byKey[key]
   ?? { key, label: key.camelToTitleCase(), section: '', notation: 'default', category: null };
-
-// MUI's ripple is the only focus cue on its buttons, and too faint on this background.
 
 export const profileUrl = (name) => `${process.env.NEXT_PUBLIC_IT_URL}/account/misc/general?profile=${encodeURIComponent(name)}`;

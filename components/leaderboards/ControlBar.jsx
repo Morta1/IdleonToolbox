@@ -206,7 +206,7 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear, onEmpty }) => {
         flex: '1 1 240px', minWidth: 200, maxWidth: { xs: 'none', sm: 360 },
         '& .MuiOutlinedInput-root': { height: fieldHeight, py: 0, pr: '8px !important' },
         ...(showsViewed ? {
-          '& .MuiOutlinedInput-notchedOutline': { borderColor: `${HIGHLIGHT[viewing.kind]} !important` },
+          '& .MuiOutlinedInput-notchedOutline': { borderColor: (theme) => `${HIGHLIGHT[viewing.kind](theme)} !important` },
           '& .MuiInputBase-input': { fontWeight: 600 }
         } : {})
       }}
