@@ -59,8 +59,10 @@ const darkTheme = createTheme({
     // soft: primary at 14%, the fill of a pinned note or a pressed filter. A fixed value, not alpha() over the
     // role: with cssVariables a role is a var() string.
     // edge: primary at 50%, the outline of a primary button on the banner or a pressed filter.
+    // hover: a contained button under the pointer (Controls board). MUI's own, primary.dark, reads as the board's Disabled.
     primary: {
       main: '#90caf9',
+      hover: '#a9d4fb',
       contrastText: '#141A21',
       soft: 'rgba(144, 202, 249, 0.14)',
       edge: 'rgba(144, 202, 249, 0.5)'
@@ -264,7 +266,10 @@ const darkTheme = createTheme({
         sizeSmall: {
           minHeight: 32,
           [TOUCH]: { minHeight: 32 }
-        }
+        },
+        containedPrimary: ({ theme }) => ({
+          '&:hover': { '@media (hover: hover)': { '--variant-containedBg': palette(theme).primary.hover } }
+        })
       }
     },
     MuiIconButton: {
