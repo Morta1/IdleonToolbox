@@ -216,16 +216,20 @@ const scanPage = ({ maxLines, minGap }) => {
     for (const match of pageText.match(re) ?? []) add('raw', match.trim());
   };
   raw(/.{0,30}[{}$@₣—^].{0,30}/g);
-  raw(/.{0,30}(?<!\d)~.{0,30}/g);
-  raw(/.{0,30}#[A-Za-z{].{0,30}/g);
+  // "~13d" is a page's own "about", and "Anon#f95d09" a real player's id.
+  raw(/.{0,30}(?<!\d)~(?!\d).{0,30}/g);
+  raw(/.{0,30}(?<!Anon)#[A-Za-z{].{0,30}/g);
   raw(/.{0,30}<[A-Za-z].{0,30}/g);
   raw(/.{0,20}[぀-鿿가-힯].{0,20}/g);
   raw(/.{0,30}∞.{0,30}/g);
-  raw(/.{0,20}\d+\.\d{4,}.{0,20}/g);
+  // A small percent to three figures is a wiki's drop rate ("0.000120%"), not a raw float.
+  raw(/.{0,20}(?!\b0\.0*\d{1,3}%)\b\d+\.\d{4,}.{0,20}/g);
   raw(/.{0,25}\b(NaN|undefined|Infinity)\b.{0,25}/g);
 
-  // Nothing drawn after a heading, up to its card: a folded section's heading sits in its button and isn't empty.
-  const hasContent = (el) => el.getBoundingClientRect().height >= 4 && (el.innerText?.trim() || el.querySelector('img, svg, canvas'));
+  // Nothing drawn after a heading, up to its card: a folded section's heading sits in its button and isn't empty. The i
+  // beside a heading is the heading's, so it isn't what the heading heads.
+  const hasContent = (el) => el.getBoundingClientRect().height >= 4 && !el.matches('[aria-expanded].MuiButtonBase-root, :has(> [aria-expanded].MuiButtonBase-root:only-child)')
+    && (el.innerText?.trim() || el.querySelector('img, svg, canvas'));
   main.querySelectorAll('h2, h3, h4, h5, h6').forEach((heading) => {
     if (!heading.getBoundingClientRect().height || heading.closest('button, summary, [aria-expanded], [role="button"]')) return;
     const card = cardOf(heading);
@@ -255,13 +259,17 @@ const scanPage = ({ maxLines, minGap }) => {
   };
 };
 
-// A sticky head only shows it's hidden once the page has scrolled under whatever pins above it.
+// A sticky head only shows it's hidden once the page has scrolled under whatever pins above it. A long table is
+// useStickyHeader's: past 80% of the height under the toolbar. A pinned head knows its top; any other goes by the bar's.
 const hiddenHeads = (page) => page.evaluate(async () => {
   const main = document.querySelector('main') ?? document.body;
   const hidden = [];
   for (const table of main.querySelectorAll('table')) {
     const head = table.querySelector('thead th');
-    if (!head?.getBoundingClientRect().width || table.getBoundingClientRect().height < innerHeight * 0.8) continue;
+    if (!head?.getBoundingClientRect().width) continue;
+    const pinned = getComputedStyle(head).position === 'sticky';
+    const top = pinned ? parseFloat(getComputedStyle(head).top) : document.querySelector('header')?.getBoundingClientRect().bottom ?? 0;
+    if (table.getBoundingClientRect().height <= (innerHeight - top) * 0.8) continue;
     window.scrollTo(0, table.getBoundingClientRect().top + scrollY + innerHeight * 0.4);
     await new Promise((done) => setTimeout(done, 200));
     const r = head.getBoundingClientRect();
