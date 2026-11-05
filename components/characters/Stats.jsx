@@ -2,14 +2,12 @@ import { Box, Stack, Typography } from '@mui/material';
 import { differenceInHours, differenceInMinutes } from 'date-fns';
 import { formatNum, getCoinsArray } from 'utility/helpers';
 import Timer from '../common/Timer';
-import { getAfkGain, getCashMulti, getClassExpMulti, getDropRate, getRespawnRate, notateExpMulti } from '../../parsers/character';
-import { getGoldenFoodMulti } from '../../parsers/misc';
-import { formatGame, cashMultiText } from '@utility/gameNotation';
+import { formatGame } from '@utility/gameNotation';
 import React from 'react';
-import { getMaxDamage, notateDamage } from '../../parsers/damage';
+import { getMaxDamage } from '../../parsers/damage';
 import CoinDisplay from '../common/CoinDisplay';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import GameIconNotation from '@components/common/GameIconNotation';
+import { characterPanelFacts, characterStatFacts } from './statFacts';
 import MultiCharLockText from '@components/common/MultiCharLockText';
 import GameIcon from '@components/common/GameIcon';
 import InfoButton from '@components/common/InfoButton';
@@ -17,41 +15,8 @@ import StatusText from '@components/common/StatusText';
 import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
 
-// The character screen shows crit chance as 200% once it passes 199 (display only)
-const CRIT_CHANCE_DISPLAY_CAP = 200;
-
 const STAT_LABELS = { strength: 'STR', agility: 'AGI', wisdom: 'WIS', luck: 'LUK' };
 const STAT_KEYS = { strength: 'TotalStats.STR', agility: 'TotalStats.AGI', wisdom: 'TotalStats.WIS', luck: 'TotalStats.LUK' };
-
-// The stats /characters and the dashboard's cards both show, in one label and one format each: { label, value, breakdown,
-// notation } (notation: the breakdown's own number rule). The game's rule where gameNotation names the stat.
-export const characterStatFacts = (character, characters, account, playerInfo = getMaxDamage(character, characters, account) || {}) => {
-  const { crystalSpawnChance, nonConsumeChance } = character || {};
-  const { cashMulti, breakdown: cashBreakdown } = getCashMulti(character, account, characters, playerInfo) || {};
-  const { dropRate, breakdown: dropBreakdown } = getDropRate(character, account, characters) || {};
-  const { respawnRate, breakdown: respawnBreakdown } = getRespawnRate(character, account) || {};
-  const { afkGains, breakdown: afkBreakdown } = getAfkGain(character, characters, account) || {};
-  const guaranteed = crystalSpawnChance?.guaranteedLeft > 0;
-  return [
-    { label: 'Damage', value: <GameIconNotation value={notateDamage(playerInfo)} sx={{ typography: 'body2', fontWeight: 500, display: 'inline-flex', flexWrap: 'wrap', justifyContent: 'flex-end' }}/>, breakdown: playerInfo?.damageBreakdown, notation: 'ThreeDecimals' },
-    { label: 'HP', value: formatNum(playerInfo?.maxHp) },
-    { label: 'MP', value: formatNum(playerInfo?.maxMp) },
-    { label: 'Accuracy', value: formatNum(playerInfo?.accuracy) },
-    { label: 'Movement speed', value: formatNum(playerInfo?.movementSpeed, 'pct') },
-    { label: 'Cash multi', value: cashMulti == null ? '-' : `${cashMultiText(cashMulti)}x`, breakdown: cashBreakdown, notation: 'Smaller' },
-    { label: 'Drop rate', value: dropRate == null ? '-' : `${formatGame(dropRate, 'TotalStats.Drop_Rarity')}x`, breakdown: dropBreakdown, notation: 'ThreeDecimals' },
-    { label: 'Respawn time', value: formatNum(respawnRate, 'pct'), breakdown: respawnBreakdown, notation: 'Smaller' },
-    { label: 'AFK gains', value: afkGains == null ? '-' : `${formatGame(afkGains * 100, 'AFKgainrates.Fighting')}%`, breakdown: afkBreakdown },
-    // effectiveValue, not value: the game rolls min(cap, chance), so the raw number overstates how often a crystal spawns
-    guaranteed
-      ? { label: 'Crystal guaranteed', value: `${formatGame(crystalSpawnChance.guaranteedLeft, 'Thingies.GuaranteedCrystalMobs', { whole: true })} left` }
-      : { label: 'Crystal chance', value: formatNum(crystalSpawnChance?.effectiveValue, 'odds'), breakdown: crystalSpawnChance?.breakdown,
-        rowText: crystalSpawnChance?.effectiveValue > 0
-          ? `${formatNum(crystalSpawnChance.effectiveValue, 'odds')} (${formatNum(crystalSpawnChance.effectiveValue * 100, 'pct')})`
-          : undefined },
-    { label: 'Non consume chance', value: formatNum(nonConsumeChance, 'pct') }
-  ];
-};
 
 // A row of the panel. A value in text heads its own drawer, so the two read alike; a drawer is named as the row is.
 const Fact = ({ label, value, breakdown, notation }) => <Panel.KV label={label} value={breakdown
@@ -60,18 +25,18 @@ const Fact = ({ label, value, breakdown, notation }) => <Panel.KV label={label} 
 
 const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => {
   if (!statsFilter) return null;
-  const { stats, afkTime, crystalSpawnChance, nextPortal } = character;
+  const { stats, afkTime, nextPortal } = character;
   const portalLock = nextPortal?.multiCharLock;
-  const { value: classExp, breakdown: classExpBreakdown } = getClassExpMulti(character, account, characters);
-  const { value: goldenFoodMulti, breakdown: goldenFoodBreakdown } = getGoldenFoodMulti(character, account, characters);
   const playerInfo = getMaxDamage(character, characters, account);
-  const facts = Object.fromEntries(characterStatFacts(character, characters, account, playerInfo).map((fact) => [fact.label, fact]));
+  const facts = Object.fromEntries([
+    ...characterStatFacts(character, characters, account, playerInfo),
+    ...characterPanelFacts(character, characters, account, playerInfo)
+  ].map((fact) => [fact.label, fact]));
   const isActive = differenceInMinutes(lastUpdated, afkTime) <= 5;
   const isOvertime = character?.activePrayers?.find(({ name }) => name === 'Unending_Energy') && differenceInHours(lastUpdated, afkTime) > 10;
   const totalStats = Object.entries(stats || {}).reduce((sum, [statName, statValue]) => sum + (statName !== 'level' ? statValue : 0), 0);
   const classSkill = character?.skillsInfo?.character;
-  const guaranteed = crystalSpawnChance?.guaranteedLeft > 0;
-  const crystalPercent = crystalSpawnChance?.effectiveValue * 100;
+  const crystal = facts['Crystal guaranteed'] ?? facts['Crystal chance'];
 
   return <Panel title={'Stats'}>
     <Box sx={{ py: 0.75 }}>
@@ -80,14 +45,14 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
         ? <Panel.KV key={statName} label={STAT_LABELS[statName] ?? statName} value={STAT_KEYS[statName] ? formatGame(statValue, STAT_KEYS[statName]) : formatNum(statValue)}/>
         : null))}
       <Fact {...facts['Cash multi']}/>
-      <Fact label={'Golden food'} value={formatNum(Math.max(0, 100 * (goldenFoodMulti - 1)), 'pct')} breakdown={goldenFoodBreakdown} notation={'Smaller'}/>
+      <Fact {...facts['Golden food']}/>
       <Fact {...facts.HP}/>
       <Fact {...facts.MP}/>
-      <Fact label={'Kills per hour'} value={formatNum(Math.floor(playerInfo?.finalKillsPerHour))}/>
-      <Fact label={'Kill per kill'} value={formatNum(playerInfo?.killPerkill?.value, 'mult')} breakdown={playerInfo?.killPerkill?.breakdown} notation={'ThreeDecimals'}/>
-      <Fact label={'Defence'} value={formatGame(playerInfo?.defence?.value, 'TotalStats.Defence')} breakdown={playerInfo?.defence?.breakdown}/>
-      <Fact label={'Crit chance'} value={formatNum(Math.min(CRIT_CHANCE_DISPLAY_CAP, playerInfo?.critChance ?? 0), 'pct')}/>
-      <Fact label={'Crit damage'} value={formatNum(playerInfo?.critDamage, 'mult')}/>
+      <Fact {...facts['Kills per hour']}/>
+      <Fact {...facts['Kill per kill']}/>
+      <Fact {...facts.Defence}/>
+      <Fact {...facts['Crit chance']}/>
+      <Fact {...facts['Crit damage']}/>
       <Fact {...facts.Accuracy}/>
       <Fact {...facts['Movement speed']}/>
       <Fact {...facts.Damage}/>
@@ -99,8 +64,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
         <ItemCard.Progress label={'EXP'} value={formatNum(classSkill?.exp, 'whole')} max={formatNum(classSkill?.expReq, 'whole')}
                            percent={Math.min(100, (classSkill?.exp / classSkill?.expReq * 100) || 0)}/>
       </Box>
-      <Fact label={'EXP multi'} value={<GameIconNotation value={notateExpMulti(classExp)} sx={{ typography: 'body2', fontWeight: 500, display: 'inline-flex' }}/>}
-            breakdown={classExpBreakdown} notation={'Smaller'}/>
+      <Fact {...facts['EXP multi']}/>
       <Panel.KV label={'Money'} value={<CoinDisplay title={''} money={getCoinsArray(character?.money ? character?.money : 0)}/>}/>
       {nextPortal?.goal > 10 && (nextPortal?.current < nextPortal?.goal || portalLock?.open === false) ? <Box>
         {nextPortal?.current < nextPortal?.goal ? <Panel.KV label={'Next portal'} value={<Stack direction={'row'} alignItems={'center'} gap={0.5}>
@@ -109,16 +73,15 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
         </Stack>}/> : <Panel.KV label={'Next portal'} value={''}/>}
         <Box sx={{ px: 2 }}><MultiCharLockText lock={portalLock}/></Box>
       </Box> : null}
-      {/* While guaranteed crystal kills remain the game shows how many are left instead of the chance */}
-      <Panel.KV label={facts['Crystal guaranteed']?.label ?? 'Crystal chance'} value={guaranteed ? facts['Crystal guaranteed'].value : <Stack alignItems={'flex-end'}>
+      <Panel.KV label={crystal.label} value={crystal.breakdown ? <Stack alignItems={'flex-end'}>
         {/* The game rolls min(cap, chance), so past the cap this number stops improving and the overflow turns into
             Crystal Embiggener instead. */}
-        <Breakdown asValue title={'Crystal chance'} data={crystalSpawnChance?.breakdown && { ...crystalSpawnChance.breakdown, totalValue: facts['Crystal chance'].value }}>
-          {facts['Crystal chance'].value}
+        <Breakdown asValue title={crystal.label} data={{ ...crystal.breakdown, totalValue: crystal.value }}>
+          {crystal.value}
         </Breakdown>
-        <Typography variant={'caption'} color={'text.secondary'}>{formatNum(crystalPercent, 'pct')}</Typography>
-        {crystalSpawnChance?.capped ? <StatusText status={'info'}>Capped</StatusText> : null}
-      </Stack>}/>
+        <Typography variant={'caption'} color={'text.secondary'}>{crystal.percent}</Typography>
+        {crystal.capped ? <StatusText status={'info'}>Capped</StatusText> : null}
+      </Stack> : crystal.value}/>
       <Panel.KV label={<Stack direction={'row'} alignItems={'center'} gap={0.5} component={'span'}>
         AFK time
         {isOvertime ? <InfoButton label={'AFK time'}>This character has been AFK more than 10 hours with Unending Energy equipped.</InfoButton> : null}

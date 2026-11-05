@@ -146,7 +146,7 @@ describe('older categories shape', () => {
     expect(category.children.map(({ name, display, pinKey }) => [name, display, pinKey])).toEqual([
       ['Luck', '1.40', '0-Luck'],
       ['Card', '0%', '0-Card'],
-      ['Gear', '1 sources', expect.any(String)]
+      ['Gear', '1 source', expect.any(String)]
     ]);
     expect(category.children[2].children[0].pinKey).toBe('0-0-Equipment');
     expect(hasInactiveNodes(toBreakdownTree(legacy, 'MultiplierInfo'))).toBe(false);

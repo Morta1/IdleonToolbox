@@ -9,7 +9,7 @@ import StatusText from '@components/common/StatusText';
 import Toolbar from '@components/common/Toolbar';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
-import { characterStatFacts } from '@components/characters/Stats';
+import { characterStatFacts } from '@components/characters/statFacts';
 import AlertIcon from './AlertIcon';
 import {
   alchemyAlerts,

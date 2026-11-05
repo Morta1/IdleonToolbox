@@ -91,7 +91,10 @@ export const countLines = (node: BreakdownNode): number =>
 const displayOf = (node: BreakdownNode, { valueNotation, skipNotation, countNoun = 'sources' }: ViewOptions) => {
   if (isBreakdownGroup(node)) {
     if (node.formatted) return node.formatted;
-    if (node.combine === 'list') return `${countLines(node)} ${countNoun}`;
+    if (node.combine === 'list') {
+      const count = countLines(node);
+      return `${count} ${count === 1 ? countNoun.replace(/s$/, '') : countNoun}`;
+    }
     return formatBreakdownValue(evaluateBreakdownNode(node), getBreakdownNodeUnit(node));
   }
   if (node.formatted) return node.formatted;
