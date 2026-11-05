@@ -1,10 +1,10 @@
 import { Box, Stack, Typography } from '@mui/material';
-import { formatDuration, formatNum, getCoinsArray, prefix } from '@utility/helpers';
-import { useSpriteBounds } from '@utility/spriteBounds';
+import { formatDuration, formatNum, getCoinsArray } from '@utility/helpers';
 import { bitsIcon, formatBits, formatGame } from '@utility/gameNotation';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import React from 'react';
 import CoinDisplay from '@components/common/CoinDisplay';
+import GameIcon from '@components/common/GameIcon';
 import StatTile from '@components/common/cards/StatTile';
 import StatusText from '@components/common/StatusText';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -20,17 +20,11 @@ const BELL_COSTS = {
   rupie: ['data/HoleJarR5.png', 'Rupie tier 6']
 };
 
-// Decision 5 (b): a bell's word art ("RING BELL") across the card's top, cropped to the letters it draws in its 133 x 26
-// canvas and at their own size (18 px tall: GameIcon's square would shrink it, and pixel art never scales up), its name
-// in words under it. Until the bounds arrive it draws its whole canvas, pending as a GameIcon is.
-const BellArt = ({ index }) => {
-  const src = `data/HoleBellAction${index}.png`;
-  const bounds = useSpriteBounds();
-  const [, , x0, y0, x1, y1] = bounds?.[src] ?? [133, 26, 0, 0, 133, 26];
-  return <Box component={'img'} src={`${prefix}${src}`} alt={''} data-fit={bounds ? undefined : 'pending'}
-              sx={{ display: 'block', mb: 0.5, width: x1 - x0, height: y1 - y0, objectFit: 'none',
-                objectPosition: `${-x0}px ${-y0}px` }}/>;
-};
+// Decision 5 (b): a bell's word art ("RING BELL") across the card's top at its own size (18 px tall: pixel art never
+// scales up), its name in words under it.
+const BellArt = ({ index }) => <Box component={'span'} sx={{ display: 'flex', mb: 0.5 }}>
+  <GameIcon src={`data/HoleBellAction${index}.png`} fit={'bounds'} size={[133, 26]} alt={''}/>
+</Box>;
 
 const BellMethodCost = ({ costType, cost, owned }) => {
   if (costType === 'money') return <CoinDisplay title={''} noShadow money={getCoinsArray(cost)}/>;

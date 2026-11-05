@@ -14,8 +14,30 @@ const placement = (allBounds, src, frame, size, fit) => {
   return drawn ? fitSprite(drawn, size) : WHOLE;
 };
 
+// The box a sprite takes and where its img sits in it.
+const layoutOf = (allBounds, src, { frame, size, fit, side, cover, height }) => {
+  if (fit === 'bounds') {
+    const [canvasWidth, canvasHeight] = size;
+    const [, , x0, y0, x1, y1] = allBounds?.[src] ?? [canvasWidth, canvasHeight, 0, 0, canvasWidth, canvasHeight];
+    return {
+      box: { width: x1 - x0, height: y1 - y0 },
+      place: { ...CANVAS, objectFit: 'none', objectPosition: `${-x0}px ${-y0}px` }
+    };
+  }
+  if (fit === 'strip') {
+    return {
+      box: { width: size, height: size },
+      place: { ...CANVAS, objectFit: cover ? 'cover' : 'none', objectPosition: side === 'right' ? '100% 50%' : '0 50%' }
+    };
+  }
+  if (height) return { box: { width: 'auto', height }, place: { position: 'static', display: 'block', width: 'auto', height } };
+  return { box: { width: size, height: size }, place: placement(allBounds, src, frame, size, fit) };
+};
+
 // One game sprite in a fixed square box (Icons board). size is one of 16 (in text), 24 (cost lines,
-// tiles, toolbars), 32 (rows), 40 (cards), 56 (large); anything else is a bug. By default the pixels the
+// tiles, toolbars), 32 (rows), 40 (cards), 56 (large); anything else is a bug, except that fit="canvas" may take a game
+// screen's own size (the palette's 96 px hex). Construction's board keeps its own art (SLOT_ART_SX: the board is the
+// game's picture). By default the pixels the
 // sprite draws (data/sprite-bounds.json) fill 90% of the box, centered, so a padded canvas (copper ore,
 // a tachyon) reads at the size of a full one (a stamp) and no page nudges it. fit="canvas" keeps the
 // whole canvas, for spots that copy an in-game screen (inventory, equipment), where a ring is meant to
@@ -23,13 +45,18 @@ const placement = (allBounds, src, frame, size, fit) => {
 // behind and shares the sprite's fit. alt is '' when a label sits beside the icon, the thing's name when
 // it stands alone. status="missing" (locked, not found) greys the sprite without shrinking it. fallback: a second
 // sprite tried before the missing-art box (a slab item that exists only as its _x1 copy). loading: "lazy" in a long list.
-const GameIcon = ({ src, fallback, size = 40, alt = '', frame, status, fit = 'drawn', loading }) => {
+// Art that isn't an icon keeps the same missing-art box, alt, loading and pending mark. fit="bounds": word art and game
+// labels, at the game's own pixels, cropped to what they draw; size is the canvas, [width, height], until the bounds
+// arrive. fit="strip": one end of a long UI strip as a square of size, at its own pixels, or its whole height with cover;
+// side is 'left' or 'right'. height (with fit="bounds" absent): a banner at a fixed height, its width following.
+const GameIcon = ({ src, fallback, size = 40, alt = '', frame, status, fit = 'drawn', loading, side = 'left', cover, height }) => {
   const allBounds = useSpriteBounds();
   const [failed, setFailed] = useState([]);
   const shown = failed.includes(src) && fallback ? fallback : src;
 
+  const { box, place } = layoutOf(allBounds, shown, { frame, size, fit, side, cover, height });
   if (shown && failed.includes(shown)) {
-    return <MissingArt style={{ width: size, height: size, fontSize: Math.max(10, size / 2) }}
+    return <MissingArt style={{ width: box.width === 'auto' ? box.height : box.width, height: box.height, fontSize: Math.max(10, box.height / 2) }}
                        role={alt ? 'img' : undefined} aria-label={alt || undefined}
                        aria-hidden={alt ? undefined : true}>?</MissingArt>;
   }
@@ -39,9 +66,8 @@ const GameIcon = ({ src, fallback, size = 40, alt = '', frame, status, fit = 'dr
   const checkFailed = (img) => {
     if (img?.complete && img.naturalWidth === 0) fail();
   };
-  const place = placement(allBounds, shown, frame, size, fit);
-  return <Box style={{ width: size, height: size }} data-status={status}
-              data-fit={fit === 'drawn' && !allBounds ? 'pending' : undefined}>
+  return <Box style={box} data-status={status}
+              data-fit={(fit === 'drawn' || fit === 'bounds') && !allBounds ? 'pending' : undefined}>
     {frame ? <img src={`${prefix}${frame}`} alt={''} style={place}/> : null}
     {shown ? <img key={shown} ref={checkFailed} src={`${prefix}${shown}`} alt={alt} style={place} loading={loading}
                   onError={fail}/> : null}

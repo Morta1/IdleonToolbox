@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import GameIcon from '@components/common/GameIcon';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { cleanUnderscore } from '@utility/helpers';
 import { notateAmount } from '@utility/wiki/notate';
 import Price from './Price';
 
@@ -19,11 +19,10 @@ const ShopCatalog = ({ node }) => {
       Also sold
     </Typography>
     {rows.map((row, index) => <Stack key={`${row.text}-${index}`} direction={'row'} gap={1} alignItems={'center'}>
-      {/* A UI skin is a long strip whose right end is the pattern alone, so that is the square shown: art GameIcon's box
-          can't crop. The icon is rooted at /, and a slash after the prefix would read as a protocol-relative URL. */}
+      {/* A UI skin is a long strip whose right end is the pattern alone, so that is the square shown. The icon is rooted
+          at /, and a slash after the prefix would read as a protocol-relative URL. */}
       {row.icon && row.iconFit === 'cover'
-        ? <img src={`${prefix}${row.icon.replace(/^\//, '')}`} alt={''} width={24} height={24} loading={'lazy'}
-               style={{ objectFit: 'cover', objectPosition: 'right center', flexShrink: 0 }}/>
+        ? <GameIcon src={row.icon.replace(/^\//, '')} fit={'strip'} side={'right'} cover size={24} alt={''} loading={'lazy'}/>
         : row.icon ? <GameIcon src={row.icon.replace(/^\//, '')} size={24} alt={''} loading={'lazy'}/>
           : <Box sx={{ width: 24, flexShrink: 0 }}/>}
       <Typography variant={'body2'}>

@@ -1,20 +1,18 @@
-import { Box, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { isValid } from 'date-fns';
-import { cleanUnderscore, formatNum, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { getTaskQuantity } from '@parsers/world-2/weeklyBosses';
 import useFormatDate from '@hooks/useFormatDate';
 import { OPT } from '@parsers/accountOptions';
 import Panel from '@components/common/cards/Panel';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
 
 export const TROPHY_ICON = 'data/Trophie.png';
 
-// A UI skin is a 960 x 66 strip of the game's top bar, which GameIcon would fit whole: the game's art stays, cropped
-// to the strip's left end, beside the skin's name
-const skinIcon = (src) => <Box component={'img'} src={`${prefix}${src}`} alt={''} sx={{
-  display: 'block', flexShrink: 0, width: 32, height: 32, objectFit: 'none', objectPosition: '0 50%'
-}}/>;
+// A UI skin is a 960 x 66 strip of the game's top bar: its left end, beside the skin's name
+const skinIcon = (src) => <GameIcon src={src} fit={'strip'} side={'left'} size={32} alt={''}/>;
 
 // One week: its shop priced in trophies, and the turn each character takes (only this week has a current turn)
 const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, characters, trophies }) => {

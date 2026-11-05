@@ -1,7 +1,8 @@
 import { useContext } from 'react';
 import { Box, Typography } from '@mui/material';
 import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, formatNum, prefix } from 'utility/helpers';
+import { cleanUnderscore, formatNum } from 'utility/helpers';
+import GameIcon from '@components/common/GameIcon';
 import { formatGame } from '@utility/gameNotation';
 import {
   ARCADE_MAX_LEVEL,
@@ -68,13 +69,12 @@ const getCostToMax = (level, upgradeIndex, stampMath) => {
   return total;
 };
 
-// The level's word beside the game's banner art for it, kept as the game draws it (GameIcon fits a square): 14 px tall
-// on the game's screen, stored at twice that. On the meta line, where the game draws it under the name, so a long name
+// The level's word beside the game's banner art for it, kept as the game draws it: 14 px tall on the game's screen,
+// stored at twice that. On the meta line, where the game draws it under the name, so a long name
 // keeps the card's width.
 const levelMeta = (isOmega) => <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
   {isOmega ? 'Omega' : 'Super'}
-  <Box component={'img'} src={`${prefix}${isOmega ? ARCADE_OMEGA_BANNER : ARCADE_SUPER_BANNER}`}
-       alt={isOmega ? 'Omega' : 'Super'} sx={{ display: 'block', height: 14, width: 'auto' }}/>
+  <GameIcon src={isOmega ? ARCADE_OMEGA_BANNER : ARCADE_SUPER_BANNER} height={14} alt={isOmega ? 'Omega' : 'Super'}/>
 </Box>;
 
 const ArcadeShop = () => {

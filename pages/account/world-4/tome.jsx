@@ -2,8 +2,8 @@ import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Box, Stack } from '@mui/material';
-import { cleanUnderscore, formatNum, getTabs, prefix } from '@utility/helpers';
-import { useSpriteBounds } from '@utility/spriteBounds';
+import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
+import GameIcon from '@components/common/GameIcon';
 import { formatGame, tomeQuantity } from '@utility/gameNotation';
 import Tabber from '../../../components/common/Tabber';
 import { PAGES } from '@components/constants';
@@ -29,17 +29,9 @@ const RANKS = ['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '8
 const TOME_TOOLBAR = { search: '', hideMaxed: false, view: 'cards' };
 const TIERS = ['bronze', 'silver', 'gold', 'blue'];
 
-// The rank's word art ("TOP 25%", a 102 x 17 canvas) beside its words at its own size, cropped to the letters it draws:
-// StatTile's 24 px icon shrank it past reading, and pixel art never scales up (5e's Bell). Until the bounds arrive it
-// draws its whole canvas and reads as pending, as a GameIcon does.
-const RankBadge = ({ top }) => {
-  const src = `data/TomeTop${top}.png`;
-  const bounds = useSpriteBounds();
-  const [, , x0, y0, x1, y1] = bounds?.[src] ?? [102, 17, 0, 0, 102, 17];
-  return <Box component={'img'} src={`${prefix}${src}`} alt={''} data-fit={bounds ? undefined : 'pending'}
-              sx={{ display: 'block', flexShrink: 0, width: x1 - x0, height: y1 - y0, objectFit: 'none',
-                objectPosition: `${-x0}px ${-y0}px` }}/>;
-};
+// The rank's word art ("TOP 25%") beside its words at its own size: StatTile's 24 px icon shrank it past reading, and
+// pixel art never scales up (5e's Bell).
+const RankBadge = ({ top }) => <GameIcon src={`data/TomeTop${top}.png`} fit={'bounds'} size={[102, 17]} alt={''}/>;
 
 // The tier the parser picked, read back off its colour; its word and the theme's colour for it
 const tierOf = (color) => Object.keys(segmentColors).find((tier) => segmentColors[tier] === color) ?? 'bronze';
