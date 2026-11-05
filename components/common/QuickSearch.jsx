@@ -360,15 +360,15 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
         is announced through aria-keyshortcuts. */}
     <ButtonBase onClick={handleSearchOpen} aria-label="Search" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K"
                 sx={{
-                  flexShrink: 0, height: 32, border: '1px solid rgba(255, 255, 255, 0.23)', borderRadius: '16px',
+                  flexShrink: 0, height: 32, border: 1, borderColor: 'outline', borderRadius: '16px',
                   // 44 px to tap, the app bar's other buttons' size on a touch screen
                   '@media (pointer: coarse)': { height: 44, minWidth: 44 },
                   padding: '4px 12px',
                   '@media (max-width: 1365px)': { borderRadius: '8px', padding: '4px 8px' }
                 }}>
-      <IconSearch stroke={'grey'} size={16}/>
+      <IconSearch color={'var(--mui-palette-text-secondary)'} size={16}/>
       <Box aria-hidden sx={{ display: 'flex', alignItems: 'center', height: '100%', '@media (max-width: 1365px)': { display: 'none' } }}>
-        <Divider orientation={'vertical'} sx={{ mx: 1, bgcolor: 'grey', height: '80%' }}/>
+        <Divider orientation={'vertical'} sx={{ mx: 1, bgcolor: 'divider', height: '80%' }}/>
         <Typography sx={{ lineHeight: '11px' }} variant={'caption'} color={'text.secondary'}>Ctrl + K</Typography>
       </Box>
     </ButtonBase>
@@ -416,7 +416,7 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
             }}
             slotProps={{
               htmlInput: { 'aria-label': 'Search' },
-              input: { startAdornment: <IconSearch stroke={'grey'}/> }
+              input: { startAdornment: <IconSearch color={'var(--mui-palette-text-secondary)'}/> }
             }}
           />
           <Kbd aria-hidden sx={{ display: { xs: 'none', sm: 'inline-flex' } }}>Esc</Kbd>

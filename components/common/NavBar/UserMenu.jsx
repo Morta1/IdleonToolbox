@@ -89,7 +89,8 @@ const UserMenu = () => {
                 sx={{
                   ml: 1, flexShrink: 0,
                   width: 'fit-content',
-                  border: '1px solid rgba(255, 255, 255, 0.23)',
+                  border: 1,
+                  borderColor: 'outline',
                   borderRadius: '16px',
                   height: '32px',
                   padding: '4px 8px'
@@ -97,7 +98,7 @@ const UserMenu = () => {
                 aria-controls={open ? 'account-menu' : undefined}
                 aria-haspopup="true"
                 aria-expanded={open ? 'true' : undefined}>
-      <IconUser stroke={'grey'} size={16}/>
+      <IconUser color={'var(--mui-palette-text-secondary)'} size={16}/>
       {/*<IconChevronDown size={14} style={{ transition: 'transform 0.2s', transform: open ? 'rotate(180deg)' : 'rotate(0deg)' }}/>*/}
     </IconButton>
     <Menu
