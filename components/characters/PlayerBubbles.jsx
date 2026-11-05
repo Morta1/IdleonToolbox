@@ -9,7 +9,7 @@ import StatusText from '@components/common/StatusText';
 const PlayerBubbles = ({ bubbles }) => {
   const equipped = bubbles?.filter(({ bubbleName }) => bubbleName) ?? [];
   return <Panel title={'Equipped bubbles'}>
-    {equipped.length ? <CardGrid size={'icon'} sheetColumns={[8, 6]}>
+    {equipped.length ? <CardGrid size={'icon'} sheetColumns={[8, 6]} sheetBare>
       {equipped.map((bubble, index) => {
         const name = bubble.bubbleName === 'BUG]' ? 'Bug2' : bubble.bubbleName;
         return <IconTile key={`${name}-${index}`} icon={`data/${bubble.rawName}.png`} alt={cleanUnderscore(name)}

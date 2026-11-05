@@ -8,7 +8,7 @@ import IconTile from '@components/common/cards/IconTile';
 
 const Bags = ({ bags, capBags }) => <Panel title={'Bags'}>
   <Panel.Group label={'Inventory bags'}>
-    <CardGrid size={'icon'} sheetColumns={[8, 6]}>
+    <CardGrid size={'icon'} sheetColumns={[8, 6]} sheetBare>
       {bags?.filter((bag) => bag?.displayName !== HIDDEN_INVENTORY_BAG).map((bag, index) => <IconTile
         key={bag?.displayName + index} icon={`data/${bag?.rawName}.png`} alt={cleanUnderscore(bag?.displayName ?? '')}
         status={bag?.acquired ? undefined : 'missing'} details={<ItemDisplay {...bag}/>}/>)}

@@ -18,7 +18,7 @@ export const chipDetails = (chip) => <ItemCard.Desc text={[titleCase(chip?.name)
 // A character's chip slots (drawn by Console and by /characters): a chip opens its text on a tap, a locked slot says
 // when it opens, and an open empty one is only the dashed slot
 const Chips = ({ playerChips, playerLabLevel }) => {
-  return <CardGrid size={'icon'} columns={7} sheetColumns={[8, 6]}>
+  return <CardGrid size={'icon'} columns={7} sheetColumns={[8, 6]} sheetBare>
     {playerChips?.map((chip, chipIndex) => chip !== -1
       ? <IconTile key={chipIndex} icon={`data/ConsoleChip${chip?.index}.png`} alt={titleCase(chip?.name)}
                   details={chipDetails(chip)}/>

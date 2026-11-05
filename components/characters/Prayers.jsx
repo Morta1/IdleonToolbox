@@ -10,7 +10,7 @@ import ItemCard from '@components/common/cards/ItemCard';
 import StatusText from '@components/common/StatusText';
 
 const Prayers = ({ prayers }) => <Panel title={'Prayers'}>
-  {prayers?.length ? <CardGrid size={'icon'} sheetColumns={[8, 6]}>
+  {prayers?.length ? <CardGrid size={'icon'} sheetColumns={[8, 6]} sheetBare>
     {prayers.map((prayer) => <IconTile key={prayer?.prayerIndex} icon={`data/Prayer${prayer?.prayerIndex}.png`}
                                        alt={cleanUnderscore(prayer?.name ?? '')} details={<PrayerDetails {...prayer}/>}/>)}
   </CardGrid> : <Typography variant={'body2'} color={'text.secondary'}>No prayers equipped</Typography>}
