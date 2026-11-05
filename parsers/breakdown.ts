@@ -1,4 +1,4 @@
-import { notateNumber } from '@utility/helpers';
+import { gameFill } from '@utility/helpers';
 
 // Breakdown trees read by components/common/Breakdown/Breakdown.tsx. Kept free of game data so the
 // component can import it.
@@ -129,7 +129,7 @@ const SMALL_AMOUNT_DIGITS = 3;
 
 const formatAmount = (value: number) => {
   if (value > 0 && value < SMALL_AMOUNT) return String(Number(value.toPrecision(SMALL_AMOUNT_DIGITS)));
-  return value < 1e3 ? String(parseFloat(value.toFixed(2))) : String(notateNumber(value));
+  return gameFill(value, 'Big');
 }
 
 export const formatBreakdownValue = (value: number, unit?: BreakdownUnit) => {

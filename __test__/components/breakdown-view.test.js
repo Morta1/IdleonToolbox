@@ -52,6 +52,9 @@ describe('breakdown tree', () => {
     expect(formatBreakdownValue(-1.06, 'percent')).toBe('-1.06%');
     expect(formatBreakdownValue(1.9, 'multiplier')).toBe('×1.9');
     expect(formatBreakdownValue(1330000, 'flat')).toBe('1.33M');
+    // Below 1M a line shows its decimals, as the row it explains does.
+    expect(formatBreakdownValue(2830.12, 'percent')).toBe('+2,830.12%');
+    expect(formatBreakdownValue(39725.93, 'multiplier')).toBe('×39,725.93');
   });
 });
 
