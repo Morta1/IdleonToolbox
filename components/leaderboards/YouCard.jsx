@@ -23,7 +23,7 @@ const YouCard = ({ data, kind, index, onClear, clearLabel = 'Clear' }) => {
   // A maxed board is shared by everyone who reached the max, so it is counted apart from the firsts.
   const firsts = firstPlaces(ranks, index);
   const atMax = firsts.atMax.length;
-  // One line per part: the tile is narrow, and a wrap mid-part splits "+3 at the / max".
+  // One line per part, and the tile as wide as its longest: a wrap mid-part splits "+3 at the / max".
   const firstsSub = [firsts.tied.length ? `${formatNum(firsts.tied.length, 'whole')} tied` : null, atMax ? `+${formatNum(atMax, 'whole')} at the max` : null].filter(Boolean);
   const topPercent = topPercentLabel(Math.max(0.1, (player.rank / player.totalUsers) * 100));
   const of = [player.totalUsers != null ? `of ${formatNum(player.totalUsers, 'whole')}` : null, topPercent, formatMetricValue('points', player.compositeScore)].filter(Boolean).join(' · ');
@@ -48,8 +48,8 @@ const YouCard = ({ data, kind, index, onClear, clearLabel = 'Clear' }) => {
           <Typography variant="body2" color="text.secondary">{of}</Typography>
         </Stack>
         <Stack direction="row" flexWrap="wrap" gap={1}>
-          <StatTile label="First places" value={counts.firsts} cardSx={TILE_SX}
-                    sub={firstsSub.length ? firstsSub.map((line) => <div key={line}>{line}</div>) : null}/>
+          <StatTile label="First places" value={counts.firsts} cardSx={{ ...TILE_SX, minWidth: 'min-content' }}
+                    sub={firstsSub.length ? firstsSub.map((line) => <Box key={line} sx={LABEL_SX}>{line}</Box>) : null}/>
           <StatTile label="Top 25" value={counts.top25} cardSx={TILE_SX}/>
           <StatTile label="Top 100" value={counts.top100} cardSx={TILE_SX}/>
         </Stack>

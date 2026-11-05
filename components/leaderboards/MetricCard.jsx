@@ -42,6 +42,7 @@ const MetricCard = ({ meta, entries, highlight, pinned, onOpen, linkPlayer = nul
       icon={<MetricIcon metric={meta.key} label={meta.label}/>}
       title={<Box component="span" sx={TITLE_CLAMP_SX}>{meta.label}</Box>}
       status={maxed ? 'maxed' : undefined}
+      statusOwnLine
       aside={<Link href={boardHref(meta, linkPlayer)} onClick={openOnPlainClick(onOpen, meta.key)} data-board-link={meta.key} aria-label={`Top 100: ${meta.label}`}
                    variant="body2" sx={{ display: 'inline-flex', alignItems: 'center', minHeight: 40, whiteSpace: 'nowrap' }}>Top 100</Link>}>
       {maxed ? (

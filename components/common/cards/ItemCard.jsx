@@ -51,6 +51,7 @@ const isNumberLike = (value, kind) => {
 const TITLE_ROW_SX = { minWidth: 0, flex: 1, alignSelf: 'stretch', display: 'flex', flexWrap: 'wrap', columnGap: 1.5, rowGap: 0.5 };
 const TITLE_BLOCK_SX = { minWidth: 0, flex: '1 1 auto', alignSelf: 'center' };
 const STATUS_SX = { alignSelf: 'flex-start', flexShrink: 0 };
+const STATUS_OWN_LINE_SX = { ...STATUS_SX, flexBasis: '100%' };
 // The marker group after the state: none when the marker draws nothing (a doubler tag with nothing to say), and 8 px
 // from a shown state (a span in the title row) as when the two shared one group
 const HEADER_SX = { '& > [data-title-row]:has(> span) + [data-aside]': { ml: -0.5 } };
@@ -63,8 +64,9 @@ const levelLine = ({ value, max }) => {
 };
 
 // Icon, title, one muted meta line at 13/400 (the level always as "Lv 458 / 999,999"), and at the top right the
-// state, a marker or the › of a link card. MealHeader uses it on its own.
-export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title, level, meta, status, statusLabel, aside, link }) => {
+// state, a marker or the › of a link card. MealHeader uses it on its own. statusOwnLine: the state under the title at every
+// width, for a grid of one kind of card where some have it (the leaderboards' boards): their titles stay level.
+export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title, level, meta, status, statusLabel, statusOwnLine, aside, link }) => {
   const metaParts = [level ? levelLine(level) : null, meta].filter(Boolean);
   return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={{ ...HEADER_SX, minHeight: icon || title ? 40 : undefined }}>
     {typeof icon === 'string' ? <GameIcon src={icon} size={iconSize ?? ICON_SIZE[size]} alt={iconAlt}/> : icon}
@@ -75,7 +77,7 @@ export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title
           {metaParts.map((part, index) => <Fragment key={index}>{index ? ' · ' : null}{part}</Fragment>)}
         </Typography> : null}
       </Stack>
-      {status ? <StatusText status={status} sx={STATUS_SX}>{statusLabel}</StatusText> : null}
+      {status ? <StatusText status={status} sx={statusOwnLine ? STATUS_OWN_LINE_SX : STATUS_SX}>{statusLabel}</StatusText> : null}
     </Box>
     {aside || link ? <Stack data-aside direction={'row'} alignItems={'center'} gap={1} sx={ASIDE_SX}>
       {aside}

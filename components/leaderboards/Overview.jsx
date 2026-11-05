@@ -61,6 +61,8 @@ const Podium = ({ rows, highlight, onOpen, linkPlayer, index }) => (
               at 320px. Two columns read down, then across: 4 to 7, then 8 to 10. */}
           <Box sx={{
             display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', columnGap: 3, '& > *': { minWidth: 0 },
+            // The Panel closes the list, as the board cards' own border does: no line under the last row of a column.
+            clipPath: 'inset(0 0 1px 0)', '& > :last-child [data-testid="rank-row"]': { borderBottom: 0 },
             '@container (min-width: 520px)': {
               gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gridTemplateRows: `repeat(${Math.ceil(rows.slice(3).length / 2)}, auto)`, gridAutoFlow: 'column'
             }
