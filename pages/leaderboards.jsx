@@ -166,7 +166,7 @@ const Leaderboards = () => {
     try {
       data = await queryClient.fetchQuery({ queryKey: ['lb-player', name.toLowerCase()], queryFn: () => fetchPlayer(name), staleTime: staleUntilNextRun });
     } catch {
-      showSearchNote({ tone: 'error', text: 'Could not reach the leaderboards.', retry: () => lookupPlayer(name, via, { retrying: true }) });
+      showSearchNote({ tone: 'error', text: 'Couldn\'t reach the leaderboards.', retry: () => lookupPlayer(name, via, { retrying: true }) });
       return;
     }
     trackLeaderboardEvent('lb_player_search', { result: data?.player ? 'found' : 'not_found', via });
@@ -304,7 +304,7 @@ const Leaderboards = () => {
           linkPlayer={queryPlayer}
         />
       ) : showsFailure(tabQuery) ? (
-        <Notice key={tabQuery.errorUpdateCount} tone={'error'} action={retryAction(() => tabQuery.refetch(), tabQuery.isFetching)}>Could not load these boards.</Notice>
+        <Notice key={tabQuery.errorUpdateCount} tone={'error'} action={retryAction(() => tabQuery.refetch(), tabQuery.isFetching)}>Couldn't load these boards.</Notice>
       ) : !tabData && tabQuery.isSuccess ? (
         // A run with nothing for this tab answers too: a note, not a spinner that never stops.
         <Notice>No boards in this tab yet.</Notice>

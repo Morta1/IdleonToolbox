@@ -76,7 +76,7 @@ const Leaderboard = ({ tournament }) => {
         <CircularProgress size={24} />
       ) : failed ? (
         <Notice key={result.request} tone={'error'} action={retryAction(() => setAttempt((count) => count + 1), !answered)}>
-          Could not load this division.
+          Couldn't load this division.
         </Notice>
       ) : !result.entries.length ? (
         <Notice>No data for this division.</Notice>

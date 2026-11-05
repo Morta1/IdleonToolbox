@@ -64,7 +64,7 @@ const Statistics = () => {
       ? <Notice key={failed} tone={'error'} action={retryAction(() => {
         setRetrying(true);
         load();
-      }, retrying)}>Could not load the statistics.</Notice>
+      }, retrying)}>Couldn't load the statistics.</Notice>
       : <>
         <Typography variant={'body2'} color={'text.secondary'} sx={{ mb: 3 }}>
           Counted from every profile players have uploaded to Idleon Toolbox, refreshed every 30 minutes.

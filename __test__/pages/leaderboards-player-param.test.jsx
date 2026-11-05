@@ -145,7 +145,7 @@ describe('leaderboards ?player= deep link', () => {
     fetchTab.mockRejectedValueOnce(new Error('boom'));
     routerState.query = { t: 'skills' };
     renderPage();
-    expect(await screen.findByText('Could not load these boards.')).toBeTruthy();
+    expect(await screen.findByText('Couldn\'t load these boards.')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(await screen.findByText('Mining')).toBeTruthy();
     expect(fetchTab).toHaveBeenCalledTimes(2);

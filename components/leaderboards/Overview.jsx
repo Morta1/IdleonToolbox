@@ -99,7 +99,7 @@ const YouSlot = ({ player, self, index, onClearPlayer, nextRun }) => {
   }
   if (player.isError) {
     return <Notice key={player.errorUpdateCount} tone={'error'} action={retryAction(() => player.refetch(), player.isFetching)}>
-      {player.context.kind === 'searched' ? 'Could not load this player.' : 'Could not load your standing.'}
+      {player.context.kind === 'searched' ? 'Couldn\'t load this player.' : 'Couldn\'t load your standing.'}
     </Notice>;
   }
   if (player.isLoading || player.data === undefined) {
@@ -188,7 +188,7 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab
         </Box>
         {showsFailure(podium)
           ? <Notice key={podium.errorUpdateCount} tone={'error'} action={retryAction(() => podium.refetch(), podium.isFetching)}>
-            Could not load the global ranking.
+            Couldn't load the global ranking.
           </Notice>
           : podium.data
             ? <Podium rows={rows} highlight={highlight} onOpen={onOpen} linkPlayer={linkPlayer} index={index}/>

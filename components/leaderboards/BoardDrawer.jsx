@@ -121,7 +121,7 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
       onExited={() => setTimeout(() => focusBoardLink(metricKey, focusBoardOnClose), 50)}>
       <Box sx={[{ pb: 2 }, focusWithinRing]}>
         {showsFailure(boardQuery) ? (
-          <Notice key={errorUpdateCount} tone={'error'} sx={{ m: 2 }} action={retryAction(() => refetch(), isFetching)}>Could not load this board.</Notice>
+          <Notice key={errorUpdateCount} tone={'error'} sx={{ m: 2 }} action={retryAction(() => refetch(), isFetching)}>Couldn't load this board.</Notice>
         ) : isLoading ? (
           <Stack alignItems="center" sx={{ p: 4 }}><CircularProgress/></Stack>
         ) : (

@@ -43,7 +43,7 @@ const NewBuild = () => {
       })
       .catch((err) => {
         if (cancelled) return;
-        setTemplateError(err?.message || 'Could not load template.');
+        setTemplateError(err?.message || 'Couldn\'t load the template.');
         setTemplateLoading(false);
       });
     return () => {

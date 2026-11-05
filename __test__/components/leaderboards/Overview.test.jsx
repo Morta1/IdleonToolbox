@@ -103,14 +103,14 @@ describe('Overview', () => {
   it('offers a retry when the player fetch fails', async () => {
     const refetch = vi.fn();
     renderOverview({ player: { context: { name: 'Me', kind: 'logged' }, isError: true, refetch } });
-    expect(await screen.findByText('Could not load your standing.')).toBeTruthy();
+    expect(await screen.findByText('Couldn\'t load your standing.')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(refetch).toHaveBeenCalled();
   });
 
   it('words the error for a searched player as theirs, not yours', async () => {
     renderOverview({ player: { context: { name: 'Other', kind: 'searched' }, isError: true, refetch: () => {} } });
-    expect(await screen.findByText('Could not load this player.')).toBeTruthy();
-    expect(screen.queryByText('Could not load your standing.')).toBeNull();
+    expect(await screen.findByText('Couldn\'t load this player.')).toBeTruthy();
+    expect(screen.queryByText('Couldn\'t load your standing.')).toBeNull();
   });
 });
