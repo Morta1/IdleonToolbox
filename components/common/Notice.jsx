@@ -1,4 +1,5 @@
 import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
+import NextLink from 'next/link';
 import { Box, Button, ButtonBase, CircularProgress, IconButton, Link, Stack, Typography } from '@mui/material';
 import { IconAlertTriangle, IconCircleX, IconInfoCircle, IconLock, IconLogin2, IconX } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -90,6 +91,12 @@ const bannerButtonSx = (tone, color) => ({
   borderColor: tone === 'info' || tone === 'signin' ? 'primary.edge' : color,
   '&:hover': { borderColor: color, color: 'text.primary' }
 });
+
+// An action's link: the site's own paths stay in the tab through the router, a link leaving the site opens a new one.
+const leavesSite = (href) => /^https?:/.test(`${href}`);
+const hrefProps = (href) => (leavesSite(href)
+  ? { component: 'a', href, target: '_blank', rel: 'noreferrer' }
+  : { component: NextLink, href });
 
 const REPORT = { label: 'Report on Discord', href: DISCORD_SERVER_URL };
 const RELOAD = { label: 'Reload', onClick: () => window.location.reload() };
@@ -221,8 +228,8 @@ const NoticeBody = ({ tone = 'info', placement = 'note', icon, action, onDismiss
       {/* One row at every width: a long line ends in an ellipsis instead of wrapping out of the 40 px band */}
       <Typography noWrap variant={'body2'} sx={{ minWidth: 0 }}>{children}</Typography>
       {actions.map((entry) => (
-        <Button key={entry.label} size="small" variant="outlined" onClick={own('action', entry.onClick, entry.label, entry.busy)} href={entry.href}
-                aria-disabled={entry.busy || undefined} data-notice-action={entry.label} sx={bannerButtonSx(tone, color)}>
+        <Button key={entry.label} size="small" variant="outlined" onClick={own('action', entry.onClick, entry.label, entry.busy)}
+                {...(entry.href ? hrefProps(entry.href) : {})} aria-disabled={entry.busy || undefined} data-notice-action={entry.label} sx={bannerButtonSx(tone, color)}>
           {actionText(entry)}
         </Button>
       ))}
@@ -243,11 +250,7 @@ const NoticeBody = ({ tone = 'info', placement = 'note', icon, action, onDismiss
         <React.Fragment key={entry.label}>
           {index > 0 ? <Box component="span" aria-hidden sx={{ mx: 0.75, color: 'text.muted' }}>·</Box> : ' '}
           <Link
-            component={entry.href ? 'a' : 'button'}
-            type={entry.href ? undefined : 'button'}
-            href={entry.href}
-            target={entry.href ? '_blank' : undefined}
-            rel={entry.href ? 'noreferrer' : undefined}
+            {...(entry.href ? hrefProps(entry.href) : { component: 'button', type: 'button' })}
             onClick={own('action', entry.onClick, entry.label, entry.busy)}
             aria-disabled={entry.busy || undefined}
             data-notice-action={entry.label}

@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import Notice from '@components/common/Notice';
+import { sessionQuery } from '@utility/nav-query';
 
 // The page moved to /account/class-specific/royal-armory: every other class-specific entry is named
 // after the skill it tracks (Grimoire, Compass, Tesseract), and the in-game skill here is the Royal
@@ -35,7 +36,7 @@ const RoyalGuardianRedirect = () => {
       noindex
     />
     {/* A real link, so the way on works before the page's script has run */}
-    <Notice tone={'info'} action={{ label: 'Continue to Royal Armory', href: ROYAL_ARMORY_PATH }}>This page moved to Royal Armory.</Notice>
+    <Notice tone={'info'} action={{ label: 'Continue to Royal Armory', href: { pathname: ROYAL_ARMORY_PATH, query: sessionQuery(router.query) } }}>This page moved to Royal Armory.</Notice>
   </>;
 };
 

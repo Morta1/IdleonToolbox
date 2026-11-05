@@ -83,7 +83,9 @@ const ItemDisplay = ({
                        characters
                      }) => {
 
-  const allDesc = [desc_line1, desc_line2, desc_line3, desc_line4, desc_line5, desc_line6, desc_line7, desc_line8];
+  // A stamp's desc_line1 is the game's data row ("BaseDmg,add,1,0,5,...,{}_Base_Damage,3"): its sentence is the twelfth field.
+  const stampEffect = Type === 'STAMP' ? `${desc_line1 ?? ''}`.split(',')[11]?.replace('{}', '').replace(/^_+/, '') : null;
+  const allDesc = stampEffect ? [stampEffect] : [desc_line1, desc_line2, desc_line3, desc_line4, desc_line5, desc_line6, desc_line7, desc_line8];
   let goldenFoodBonus = 0, isGoldenFood = displayName?.includes('Golden');
   if (isGoldenFood) {
     goldenFoodBonus = getGoldenFoodBonus(displayName, character, account, characters)

@@ -195,10 +195,11 @@ const ItemPlanner = () => {
       </PageSettings> : null}
       <input type="file" ref={inputRef} style={{ display: 'none' }} accept=".json" onChange={handleFileChange}/>
       {sections.length ? <Box>
-        <Toolbar state={toolbar} defaults={PLANNER_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
-                 total={materialTotal} shown={showAll ? materialTotal : materialShort} noun={'materials'}>
+        {/* A guest or a failed storage section can't say what is short, so every material shows: Show has nothing to pick */}
+        {!storageFailed && loggedIn ? <Toolbar state={toolbar} defaults={PLANNER_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+                                               total={materialTotal} shown={showAll ? materialTotal : materialShort} noun={'materials'}>
           <Toolbar.Show options={[['needed', 'Still needed'], ['all', 'All materials']]}/>
-        </Toolbar>
+        </Toolbar> : null}
         <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'} sx={{ mb: 2 }}>
           <Button variant={'contained'} startIcon={<IconPlus size={18}/>} onClick={handleNewPlan}>New plan</Button>
           <Box sx={{ flexGrow: 1 }}/>

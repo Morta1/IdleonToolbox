@@ -59,8 +59,13 @@ const ItemBrowser = () => {
   const totalAmount = owners.reduce((sum, [, { amount }]) => sum + amount, 0);
   const found = toolbar.by === 'description' && search ? findItemByDescriptionInInventory(knowsOwners ? owned : catalogForSearch(), search) : [];
   const results = Array.isArray(found) ? found : [];
-  // A golden food's card fills its bonus from a character: the first one, as the page has no pick
-  const goldenFood = { character: state?.characters?.[0], account: state?.account, characters: state?.characters, getGoldenFoodBonus };
+  // A golden food's card fills its bonus from a character, as the page has no pick: the first who wears one of its
+  // effect, failing that the first. Nobody wearing it reads 0%, which is true.
+  const goldenFood = { account: state?.account, characters: state?.characters, getGoldenFoodBonus };
+  const goldenFoodFor = (item) => ({
+    ...goldenFood,
+    character: state?.characters?.find((character) => character?.food?.some((food) => food?.Type === 'GOLDEN_FOOD' && food?.Effect === item?.Effect)) ?? state?.characters?.[0]
+  });
   const changeToolbar = (patch) => {
     if (patch.by && patch.by !== toolbar.by) {
       setPicked(null);
@@ -117,7 +122,7 @@ const ItemBrowser = () => {
         <Toolbar.Show name={'by'} label={'Search by'} options={[['name', 'Name'], ['description', 'Description']]}/>
       </Toolbar>
       {toolbar.by === 'name' && picked ? <CardGrid size={'m'}>
-        <ItemCard><Box><ItemDisplay {...picked} {...goldenFood}/></Box></ItemCard>
+        <ItemCard><Box><ItemDisplay {...picked} {...goldenFoodFor(picked)}/></Box></ItemCard>
         {knowsOwners ? <Panel title={'Owned by'}
                               meta={owners.length > 1 ? <>Total <ShortAmount amount={totalAmount}/></> : undefined}>
           {owners.length
@@ -138,7 +143,7 @@ const ItemBrowser = () => {
             return <ItemCard key={`${item?.rawName}-${index}`} footer={itemOwners.length ? <Typography variant={'body2'} color={'text.secondary'}>
               {itemOwners.map(([owner, { amount }]) => `${ownerName(owner)} ${formatNum(amount, 'whole')}`).join(' · ')}
             </Typography> : null}>
-              <Box><ItemDisplay {...item} owners={undefined} {...goldenFood}/></Box>
+              <Box><ItemDisplay {...item} owners={undefined} {...goldenFoodFor(item)}/></Box>
             </ItemCard>;
           })}
         </CardGrid>

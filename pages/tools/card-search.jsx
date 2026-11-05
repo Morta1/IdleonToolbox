@@ -87,7 +87,7 @@ const PICK_SX = {
 const PICK_REMOVE_SX = { bgcolor: 'error.main', color: 'error.contrastText' };
 const SLOT_LABEL_SX = {
   position: 'absolute', top: -6, left: -6, zIndex: 1, minWidth: 18, height: 18, px: 0.5, borderRadius: '9px', textAlign: 'center',
-  bgcolor: 'primary.main', color: 'primary.contrastText', fontSize: 12, fontWeight: 700, lineHeight: '18px', pointerEvents: 'none'
+  bgcolor: 'primary.main', color: 'primary.contrastText', fontSize: 12, fontWeight: 500, lineHeight: '18px', pointerEvents: 'none'
 };
 const IN_PRESET_SX = { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 2, borderRadius: '6px' };
 
@@ -195,7 +195,7 @@ export default function CardSearch() {
                 {presets.length ? `Card presets (${presets.length})` : 'Card presets'}
               </Button>
             </Toolbar.Lead>
-            <Toolbar.Show name={'stat'} label={'Stat'} options={[['all', 'Any stat'], ...STAT_PRESETS.map((stat) => [stat, stat, countFor(stat)])]}/>
+            <Toolbar.Show name={'stat'} label={'Stat'} options={[['all', 'Any stat'], ...STAT_PRESETS.map((stat) => [stat, stat.replace(/\bExp\b/, 'EXP'), countFor(stat)])]}/>
             <Toolbar.Filter name={'hidePassives'} label={'Hide passive cards'}/>
           </Toolbar>
           {picking ? <Notice action={{ label: 'Done', onClick: () => setPresetsOpen(false) }} sx={{ mb: 2 }}>

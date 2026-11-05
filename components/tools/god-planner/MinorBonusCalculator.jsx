@@ -102,7 +102,7 @@ const MinorBonusCalculator = ({ characters, account }) => {
           Minor link bonus = div lv / (60 + div lv) × BIG P bubble × god multi × (1 + Coral Kid / 100)
         </Typography>
         <Typography variant={'body2'} color={'text.secondary'}>
-          Fields start from your save. Change any of them to test a setup.
+          {characters?.length ? 'Fields start from your save. Change any of them to test a setup.' : 'Change any field to test a setup.'}
         </Typography>
       </Stack>
       <Panel.Inputs sx={{ p: 0 }}>

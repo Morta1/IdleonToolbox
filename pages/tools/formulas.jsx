@@ -5,7 +5,7 @@ import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import DataLoadingWrapper from '@components/common/DataLoadingWrapper';
-import { getCashMulti, getClassExpMulti, getDropRate, getRespawnRate } from '@parsers/character';
+import { getCashMulti, getClassExpMulti, getDropRate, getRespawnRate, notateExpMulti } from '@parsers/character';
 import Highlighter from '@components/common/Highlighter';
 import { getCropEvolution } from '@parsers/world-6/farming';
 import { getPrinterMulti } from '@parsers/world-3/printer';
@@ -19,6 +19,7 @@ import {
   getDoubleStatueDropSize
 } from '@parsers/misc';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import GameIconNotation from '@components/common/GameIconNotation';
 import Notice from '@components/common/Notice';
 import Toolbar from '@components/common/Toolbar';
 import Panel from '@components/common/cards/Panel';
@@ -111,7 +112,7 @@ const Formulas = () => {
       formula: expMulti?.expression,
       value: expMulti?.value,
       breakdown: expMulti?.breakdown,
-      renderValue: (value) => formatNum(value, 'mult'),
+      renderValue: (value) => <GameIconNotation value={notateExpMulti(value)} sx={{ typography: 'value', display: 'inline-flex' }}/>,
       description: 'Exp bonuses from all sources'
     },
     {
@@ -239,9 +240,10 @@ const Formulas = () => {
             const value = typeof rawValue === 'string' ? Number(rawValue) : rawValue;
             const known = Number.isFinite(value);
             const text = known ? renderValue(value) : '-';
-            // The drawer is headed with the value's own text, so the two read alike
+            // The drawer is headed with the value's own text, so the two read alike. A drawn value's breakdown already
+            // holds the same notation as its total.
             const shownBreakdown = drawer ? drawer(breakdown, text) : breakdown;
-            const shown = known && breakdown ? <Breakdown data={{ ...shownBreakdown, totalValue: text }} skipNotation title={name} asValue>{text}</Breakdown> : text;
+            const shown = known && breakdown ? <Breakdown data={typeof text === 'string' ? { ...shownBreakdown, totalValue: text } : shownBreakdown} skipNotation title={name} asValue>{text}</Breakdown> : text;
             return <Panel key={id} collapsible defaultOpen={false} title={name} meta={description}
                           aside={<Typography variant={'value'} component={'div'} sx={{ textAlign: 'right' }}>{shown}</Typography>}>
               <Stack gap={1} sx={{ p: 2 }}>
