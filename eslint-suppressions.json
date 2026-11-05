@@ -6,7 +6,7 @@
   },
   "components/DiscordBotSection.jsx": {
     "no-restricted-syntax": {
-      "count": 16
+      "count": 9
     }
   },
   "components/account/Pets/PetCollection.jsx": {
@@ -49,47 +49,14 @@
       "count": 1
     }
   },
-  "components/guilds/TrendChart.jsx": {
-    "react-hooks/purity": {
-      "count": 1
-    }
-  },
-  "components/leaderboards/CategoryTab.jsx": {
-    "react-hooks/immutability": {
-      "count": 1
-    },
-    "react-hooks/set-state-in-effect": {
-      "count": 1
-    }
-  },
-  "components/leaderboards/MetricCard.jsx": {
-    "no-restricted-syntax": {
-      "count": 2
-    }
-  },
-  "components/leaderboards/MetricIcon.jsx": {
-    "no-restricted-syntax": {
-      "count": 1
-    }
-  },
   "components/leaderboards/Overview.jsx": {
     "react-hooks/purity": {
       "count": 1
     }
   },
-  "components/leaderboards/RankRow.jsx": {
-    "no-restricted-syntax": {
-      "count": 6
-    }
-  },
-  "components/leaderboards/YouCard.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
   "components/leaderboards/format.js": {
     "no-restricted-syntax": {
-      "count": 12
+      "count": 2
     }
   },
   "components/tools/builds/BuildCard.jsx": {
@@ -143,16 +110,6 @@
       "count": 1
     }
   },
-  "components/wiki/EntityList.jsx": {
-    "no-restricted-syntax": {
-      "count": 4
-    }
-  },
-  "components/wiki/ItemStats.jsx": {
-    "no-restricted-syntax": {
-      "count": 3
-    }
-  },
   "hooks/useAlerts.jsx": {
     "react-hooks/set-state-in-effect": {
       "count": 1
@@ -170,7 +127,7 @@
   },
   "pages/index.jsx": {
     "no-restricted-syntax": {
-      "count": 2
+      "count": 1
     },
     "react-hooks/set-state-in-effect": {
       "count": 1
