@@ -192,6 +192,11 @@ const UnresolvedRow = ({ view, face, onEdit, onRemove }) => (
     </Box>
     <Box component="span" sx={{ gridArea: 'name', display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
       <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, ...WRAP_ON_PHONE_SX, fontWeight: 500 }}>{displayTitle(view)}</Box>
+      {view.note ? (
+        <Box component="span" sx={{ display: 'inline-flex', color: 'text.secondary', flexShrink: 0 }}>
+          <IconNote size={14} aria-label="Has a note" role="img"/>
+        </Box>
+      ) : null}
     </Box>
     {/* the reason and the entry's current amount share one line */}
     <Box component="span" data-goal-reason sx={{ ...SUB_LINE_SX, ...WRAP_ON_PHONE_SX, gridArea: 'reason' }}>
