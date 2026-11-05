@@ -112,7 +112,9 @@ const darkTheme = createTheme({
       // The kingdom screen's own outpost modes: yellow Resource Depot, cyan Support Camp, pink Savage Stronghold
       outpostModes: ['#f7de2a', '#31cef0', '#f8b4f8'],
       // The leaderboards' identities: whose row it is (you, a searched player) and the podium's medals
-      leaderboard: { you: '#007E85', youText: '#4fc3c9', searched: '#cd861b', gold: '#f0b849', silver: '#9aa3ad', bronze: '#b8783a' }
+      leaderboard: { you: '#007E85', youText: '#4fc3c9', searched: '#cd861b', gold: '#f0b849', silver: '#9aa3ad', bronze: '#b8783a' },
+      // Discord's brand colour, on the two Discord buttons
+      discord: { main: '#5865F2', hover: '#4752c4', text: '#ffffff' }
     }
   },
   // The Foundations type scale. body and caption are MUI's body2 and caption. pageTitle, sectionTitle,

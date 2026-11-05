@@ -3,11 +3,15 @@ import Box from '@mui/material/Box';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
 import Button from '@mui/material/Button';
+import GameIcon from '@components/common/GameIcon';
 import TagLine from '@components/common/TagLine';
 import { prefix } from '@utility/helpers';
 import { DISCORD_BOT_INSTALL_URL, trackBotInstallClick } from '@components/discordLinks';
 
 const COMMANDS = ['/wiki', '/build', '/profile', '/guild'];
+
+// The picture of a Discord message keeps Discord's own colours, as the game's art keeps the game's.
+const DISCORD_CLIENT = { bg: '#313338', avatar: '#242429', muted: '#b5bac1', mention: '#c9cdfb', text: '#f2f3f5', embed: '#2b2d31', edge: '#5DCAA5', footer: '#949ba4', button: '#4e5058' };
 
 export const DiscordSvg = ({ size = 20 }) => (
   <svg viewBox="0 -2 127.14 96.36" width={size} height={size} aria-hidden="true">
@@ -19,7 +23,7 @@ export const DiscordSvg = ({ size = 20 }) => (
 
 const FakeButton = ({ children }) => (
   <Box component={'span'} sx={{
-    backgroundColor: '#4e5058', color: '#f2f3f5', fontSize: 13, fontWeight: 500,
+    backgroundColor: DISCORD_CLIENT.button, color: DISCORD_CLIENT.text, fontSize: 13, fontWeight: 500,
     px: 1.5, py: 0.5, borderRadius: 1
   }}>{children}</Box>
 );
@@ -28,25 +32,25 @@ const FakeButton = ({ children }) => (
 // Decorative: the buttons are spans, so nothing in it is focusable.
 const MessagePreview = () => (
   <Stack direction={'row'} gap={{ xs: 1, sm: 2 }}
-         sx={{ backgroundColor: '#313338', borderRadius: 2, p: { xs: 1, sm: 2 }, width: '100%', maxWidth: 580 }}>
+         sx={{ backgroundColor: DISCORD_CLIENT.bg, borderRadius: 2, p: { xs: 1, sm: 2 }, width: '100%', maxWidth: 580 }}>
     <Box sx={{
-      width: 40, height: 40, flexShrink: 0, borderRadius: '50%', backgroundColor: '#242429',
+      width: 40, height: 40, flexShrink: 0, borderRadius: '50%', backgroundColor: DISCORD_CLIENT.avatar,
       display: { xs: 'none', sm: 'flex' }, alignItems: 'center', justifyContent: 'center'
     }}>
-      <img src={`${prefix}data/Coins5.png`} width={21} height={21} alt={''}/>
+      <GameIcon src={'data/Coins5.png'} size={24} alt={''}/>
     </Box>
     <Box sx={{ minWidth: 0, flex: 1, textAlign: 'left' }}>
-      <Typography variant={'caption'} sx={{ color: '#b5bac1', display: 'block' }}>
-        used <Box component={'span'} sx={{ color: '#c9cdfb' }}>/guild Idle Legends</Box>
+      <Typography variant={'caption'} sx={{ color: DISCORD_CLIENT.muted, display: 'block' }}>
+        used <Box component={'span'} sx={{ color: DISCORD_CLIENT.mention }}>/guild Idle Legends</Box>
       </Typography>
       <Stack direction={'row'} alignItems={'center'} gap={1} mb={1}>
-        <Typography sx={{ fontWeight: 600, color: '#f2f3f5' }}>Idleon Toolbox</Typography>
+        <Typography variant={'body2'} sx={{ fontWeight: 600, color: DISCORD_CLIENT.text }}>Idleon Toolbox</Typography>
         <Box component={'span'} sx={{
-          backgroundColor: '#5865F2', color: '#fff', fontSize: 10, fontWeight: 700,
+          backgroundColor: 'identity.discord.main', color: 'identity.discord.text', fontSize: 10, fontWeight: 700,
           px: 0.5, borderRadius: 0.5, lineHeight: '16px'
         }}>APP</Box>
       </Stack>
-      <Box sx={{ borderLeft: '4px solid #5DCAA5', backgroundColor: '#2b2d31', borderRadius: 1, p: { xs: 0.5, sm: 1 } }}>
+      <Box sx={{ borderLeft: `4px solid ${DISCORD_CLIENT.edge}`, backgroundColor: DISCORD_CLIENT.embed, borderRadius: 1, p: { xs: 0.5, sm: 1 } }}>
         <img src={`${prefix}etc/discord-bot-guild-card.webp`} width={1120} height={462} loading={'lazy'}
              style={{ width: '100%', height: 'auto', display: 'block', borderRadius: 6 }}
              alt={'Example /guild card: guild rank, level, total GP, GP this week, active members and top contributors'}/>
@@ -54,7 +58,7 @@ const MessagePreview = () => (
           <FakeButton>Full history</FakeButton>
           <FakeButton>All contributors</FakeButton>
         </Stack>
-        <Typography sx={{ color: '#949ba4', fontSize: 12, mt: 1 }}>idleontoolbox.com</Typography>
+        <Typography variant={'caption'} component={'p'} sx={{ color: DISCORD_CLIENT.footer, mt: 1 }}>idleontoolbox.com</Typography>
       </Box>
     </Box>
   </Stack>
@@ -70,7 +74,7 @@ const DiscordBotSection = () => (
     <Stack direction={{ xs: 'column', md: 'row' }} gap={4} alignItems={'center'}>
       <Stack gap={2} sx={{ flex: 1, alignItems: { xs: 'center', md: 'flex-start' }, textAlign: { xs: 'center', md: 'left' } }}>
         <Typography variant={'sectionTitle'} component={'h2'}>Idleon Toolbox in Discord</Typography>
-        <Typography sx={{ color: '#e3e3e3' }}>
+        <Typography variant={'body2'} color={'text.secondary'}>
           Look up items, monsters and talents, find the top class builds, and check player and guild rankings
           without leaving Discord.
         </Typography>
@@ -78,7 +82,7 @@ const DiscordBotSection = () => (
                  sx={{ fontFamily: 'monospace', justifyContent: { xs: 'center', md: 'flex-start' } }}/>
         <Button variant={'contained'} startIcon={<DiscordSvg/>} href={DISCORD_BOT_INSTALL_URL}
                 target={'_blank'} rel={'noopener noreferrer'} onClick={() => trackBotInstallClick('home_section')}
-                sx={{ backgroundColor: '#5865F2', color: '#fff', '&:hover': { backgroundColor: '#4752c4' } }}>
+                sx={{ backgroundColor: 'identity.discord.main', color: 'identity.discord.text', '&:hover': { backgroundColor: 'identity.discord.hover' } }}>
           Add bot to Discord
         </Button>
       </Stack>

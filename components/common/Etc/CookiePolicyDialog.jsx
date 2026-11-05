@@ -15,61 +15,61 @@ export default function CookiePolicyDialog({ open, onClose }) {
   };
 
   return (
-    <AppDialog open={open} onClose={onClose} size="l" title="Cookie Policy">
-      <Typography>
-        This Cookie Policy explains how <strong>Idleon Toolbox</strong> uses cookies, localStorage, and similar
-        technologies to enhance your experience when you visit our website.
+    <AppDialog open={open} onClose={onClose} size="l" title="Cookie policy">
+      <Typography variant="body2">
+        This policy explains how <strong>Idleon Toolbox</strong> uses cookies, local storage and similar
+        technologies to enhance your experience when you visit this site.
       </Typography>
 
       <Typography variant="cardTitle" component="h3" gutterBottom mt={3}>
-        What Are Cookies and LocalStorage?
+        What cookies and local storage are
       </Typography>
-      <Typography>
+      <Typography variant="body2">
         Cookies are small data files placed on your device to help websites function and gather usage data.
-        LocalStorage stores data in your browser to remember your preferences, even after closing the browser.
+        Local storage keeps data in your browser to remember your preferences, even after closing the browser.
       </Typography>
 
       <Typography variant="cardTitle" component="h3" gutterBottom mt={3}>
-        How We Use Cookies and LocalStorage
+        How I use cookies and local storage
       </Typography>
       <List dense>
         <ListItem>
           <ListItemText
-            primary="Local Storage"
-            secondary="We use localStorage to store your preferences, such as login state and settings, to provide a more seamless experience. This data does not contain personally identifiable information and is stored locally on your device."
+            primary="Local storage"
+            secondary="I use local storage to keep your preferences, such as your sign-in state and settings, to provide a more seamless experience. This data does not contain personally identifiable information and is stored locally on your device."
           />
         </ListItem>
         <ListItem>
           <ListItemText
-            primary="Analytics Storage"
-            secondary="These cookies allow us to measure traffic and usage trends using tools like Google Analytics. Requires user consent."
+            primary="Analytics storage"
+            secondary="These cookies let me measure traffic and usage trends with tools like Google Analytics. They need your consent."
           />
         </ListItem>
         <ListItem>
           <ListItemText
-            primary="Ad Storage"
-            secondary="Used by Google Ads to store ad-related data such as frequency capping and ad delivery. Requires user consent."
+            primary="Ad storage"
+            secondary="Used by Google Ads to store ad-related data such as frequency capping and ad delivery. It needs your consent."
           />
         </ListItem>
         <ListItem>
           <ListItemText
-            primary="Ad User Data"
-            secondary="Allows Google to use personal data for ads, such as demographic targeting and reporting. Requires user consent."
+            primary="Ad user data"
+            secondary="Allows Google to use personal data for ads, such as demographic targeting and reporting. It needs your consent."
           />
         </ListItem>
         <ListItem>
           <ListItemText
-            primary="Ad Personalisation"
-            secondary="Enables personalized ad experiences based on your browsing history and preferences. Requires user consent."
+            primary="Ad personalisation"
+            secondary="Enables personalized ad experiences based on your browsing history and preferences. It needs your consent."
           />
         </ListItem>
       </List>
 
       <Typography variant="cardTitle" component="h3" gutterBottom>
-        Managing Preferences
+        Managing your choices
       </Typography>
-      <Typography>
-        You can revoke your consent by clicking the button below, which will remove both cookie and localStorage
+      <Typography variant="body2">
+        You can revoke your consent with the button below, which removes both the cookie and the local storage
         preferences.
       </Typography>
 
@@ -77,8 +77,8 @@ export default function CookiePolicyDialog({ open, onClose }) {
         Revoke Consent
       </Button>
 
-      <Typography mt={3}>
-        For more details, please see our{' '}
+      <Typography variant="body2" mt={3}>
+        More detail is in the{' '}
         <MuiLink href={`${process.env.NEXT_PUBLIC_IT_URL}/privacy-policy.html`} target="_blank" rel="noopener noreferrer">
           Privacy Policy
         </MuiLink>.

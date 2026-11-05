@@ -199,14 +199,14 @@ const Home = () => {
       <PatchNotesSection transition={{ duration: .8 }}
                          initial={{ y: 50, opacity: 0 }}
                          animate={{ y: 0, opacity: 1 }}>
-        <Typography variant={'sectionTitle'} component={'h2'} mt={2}>IT Patch Notes</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'} mt={2}>Patch notes</Typography>
         <Link to={{ pathname: '/patch-notes', query: session }}
               onMouseEnter={() => handleAnimation(true)}
               onMouseLeave={() => handleAnimation()}
               sx={{ my: 2, display: 'inline-flex', alignItems: 'center', gap: 1 }}
               underline={'none'}
               component={NextLinkComposed}
-              noWrap variant="body1">
+              noWrap variant="body2">
           More patch notes <svg
           width={24} height={24} fill={'var(--mui-palette-primary-main)'}>
           <g>
@@ -229,15 +229,15 @@ const Home = () => {
                             }}>
             <AccordionSummary
               sx={{
-                flexDirection: 'row-reverse', gap: 2, fontWeight: 500,
+                flexDirection: 'row-reverse', gap: 2, fontWeight: 'fontWeightMedium',
                 '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': { transform: 'rotate(90deg)' }
               }}
               expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }}/>}
             >
               {question}
             </AccordionSummary>
-            <AccordionDetails sx={{ backgroundColor: 'rgb(22, 22, 22)', p: 3 }}>
-              <Typography variant={'body1'}>{answer}</Typography>
+            <AccordionDetails sx={{ backgroundColor: 'background.paper', p: 3 }}>
+              <Typography variant={'body2'}>{answer}</Typography>
             </AccordionDetails>
           </Accordion>
         })}
@@ -248,15 +248,12 @@ const Home = () => {
   );
 };
 
-const DiscordButton = styled(Button)`
-  width: fit-content;
-  background-color: #5865f2;
-  color: #ffffff;
-
-  &:hover {
-    background-color: hsl(235 51.4% 52.4%);
-  }
-`
+const DiscordButton = styled(Button)(({ theme }) => ({
+  width: 'fit-content',
+  backgroundColor: theme.palette.identity.discord.main,
+  color: theme.palette.identity.discord.text,
+  '&:hover': { backgroundColor: theme.palette.identity.discord.hover }
+}));
 
 // Inline style can't hold a media query, so the wide-screen top margin lives in CSS rather than
 // behind a useMediaQuery, which would differ between the export and the first client render.
