@@ -296,9 +296,19 @@ const checkOne = async (browser, { route, state, size }) => {
   try {
     const response = await page.goto(opts.base + withQuery(route, state), { waitUntil: 'domcontentloaded', timeout: 30000 });
     if (response?.status() >= 400) throw new Error(`HTTP ${response.status()}: no such page in this export`);
-    await waitForRender(page);
-    await page.waitForTimeout(500);
-    const { hits, height, sideways } = await page.evaluate(scanPage, { maxLines: Number(opts['max-lines']), minGap: Number(opts['min-gap']) });
+    // A moved URL forwards once the page is up: a scan that lands in that navigation is asked again, on where it landed.
+    const scanned = async (attempts = 3) => {
+      try {
+        await waitForRender(page);
+        await page.waitForTimeout(500);
+        return await page.evaluate(scanPage, { maxLines: Number(opts['max-lines']), minGap: Number(opts['min-gap']) });
+      } catch (error) {
+        if (attempts <= 1 || !/context was destroyed|reading 'innerText'/.test(error.message)) throw error;
+        await page.waitForTimeout(1000);
+        return scanned(attempts - 1);
+      }
+    };
+    const { hits, height, sideways } = await scanned();
     hits.hiddenHead = await hiddenHeads(page);
     hits.error = errors;
     if (sideways > 1) hits.sideways = [`${sideways}px`];
