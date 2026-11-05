@@ -26,6 +26,15 @@ const GroupTitle = ({ children }) => <Typography
 // and the layout is CSS-only: the Encyclopedia keeps its big tiles, and every other group is one
 // card in a masonry of columns, which reads as a dense list on a phone and as three columns on a desktop.
 // `counts` is rows per kind, worked out at build time (wikiHomeProps), so the export carries every link.
+// The columns follow the width beside the rail, not the window's. A column holds a row's art, its longest word
+// ("Constellations") and its count from 205 px, so a name wraps between words and never reaches its count.
+const COLUMNS_SX = {
+  columnCount: 1,
+  columnGap: 2,
+  '@container (min-width:426px)': { columnCount: 2 },
+  '@container (min-width:647px)': { columnCount: 3 }
+};
+
 const CategoryTiles = ({ counts, onGo }) => {
   const goTo = goOnPlainClick(onGo);
 
@@ -47,7 +56,7 @@ const CategoryTiles = ({ counts, onGo }) => {
         {group.kinds.filter((kind) => counts[kind]).map((kind) => <KindTile key={kind} kind={kind} count={counts[kind]} go={goTo}/>)}
       </CardGrid>
     </Stack>)}
-    <Box sx={{ columnCount: { xs: 1, sm: 2, lg: 3 }, columnGap: 2 }}>
+    <Box sx={{ containerType: 'inline-size' }}><Box sx={COLUMNS_SX}>
       {groups.filter((group) => group.collapsible).map((group) => {
         const loose = group.entries.filter((entry) => typeof entry === 'string' && counts[entry]);
         const systems = systemsWithRows(counts).filter((system) => system.group === group.label);
@@ -67,7 +76,7 @@ const CategoryTiles = ({ counts, onGo }) => {
           </List>
         </Panel>;
       })}
-    </Box>
+    </Box></Box>
   </Stack>;
 };
 
