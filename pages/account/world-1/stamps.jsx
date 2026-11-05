@@ -223,7 +223,7 @@ const Stamps = () => {
                                 display: { xs: 'none', sm: 'block' },
                                 mb: 2, position: 'sticky', top: stickyTop, zIndex: (theme) => theme.zIndex.appBar - 2
                               }}>
-          {stampDetails(pickedStamp, detailsContext)}
+          <Box sx={{ containerType: 'inline-size' }}>{stampDetails(pickedStamp, detailsContext)}</Box>
         </Panel> : null}
         {/* On a phone a pick opens a note, so the first stamp's default pick draws no line until one is made: CSS, as the
             Panel it stands for shows only from 600 px */}
@@ -334,11 +334,13 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText, exaltedMul
     gap: 2,
     p: { xs: 1.5, sm: 2 },
     alignItems: 'start',
-    // The table takes its own width beside the two text columns
-    gridTemplateColumns: { xs: 'minmax(0, 1fr)', md: 'minmax(0, 1fr) auto minmax(0, 1fr)' },
-    // A narrow window keeps the grid in view under the pinned details: their body scrolls inside
-    maxHeight: { xs: '30vh', md: 'none' },
-    overflowY: { xs: 'auto', md: 'visible' }
+    gridTemplateColumns: 'minmax(0, 1fr)',
+    // A narrow Panel keeps the grid in view under the pinned details: their body scrolls inside
+    maxHeight: '30vh',
+    overflowY: 'auto',
+    // The Panel's width, not the window's: at 900 px a side ad leaves it 540 px. The table takes its own width beside the
+    // two text columns.
+    '@container (min-width: 760px)': { gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)', maxHeight: 'none', overflowY: 'visible' }
   }]}>
     <Stack gap={1}>
       <Typography variant={'body2'} component={'div'}>

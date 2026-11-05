@@ -17,9 +17,17 @@ const MsaTotalizer = () => {
   const unlocked = isSuperbitUnlocked(state?.account, 'MSA_Totalizer');
   return <Panel title={'MSA Totalizer'} meta={unlocked ? undefined : 'Unlocks with the MSA Totalizer superbit in Gaming.'}
                 sx={{ mb: 3 }}>
-    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', md: 'repeat(3, 1fr)' } }}>
-      {bonuses.map(([stat, { name, value }], index) => <Panel.Row key={stat} icon={SKILL_ICONS[stat] ?? `etc/MSA_${index}.png`}
-                                                                  name={name} value={formatNum(value ?? 0, 'pct')}/>)}
+    {/* The Panel's width, not the window's: at 900 px a side ad leaves it 540 px, and three columns ran past its edge */}
+    <Box sx={{ containerType: 'inline-size' }}>
+      <Box sx={{
+        display: 'grid',
+        gridTemplateColumns: '1fr',
+        '@container (min-width: 480px)': { gridTemplateColumns: 'repeat(2, 1fr)' },
+        '@container (min-width: 760px)': { gridTemplateColumns: 'repeat(3, 1fr)' }
+      }}>
+        {bonuses.map(([stat, { name, value }], index) => <Panel.Row key={stat} icon={SKILL_ICONS[stat] ?? `etc/MSA_${index}.png`}
+                                                                    name={name} value={formatNum(value ?? 0, 'pct')}/>)}
+      </Box>
     </Box>
   </Panel>;
 };
