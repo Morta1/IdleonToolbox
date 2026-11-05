@@ -1,6 +1,6 @@
 import React from 'react';
 import { Typography } from '@mui/material';
-import { cleanUnderscore, growth } from '@utility/helpers';
+import { cleanUnderscore, growth, talentText } from '@utility/helpers';
 import { formatTalentName } from '@utility/builds/itemRefs';
 
 // Shared chip + talent-tooltip primitives used by both the editor's inline
@@ -45,11 +45,7 @@ export const TalentTooltipBody = ({ talent, level = 100 }) => {
         </Typography>
       )}
       <Typography variant="body2" sx={{ mt: 0.5 }}>
-        {cleanUnderscore(
-          cleanUnderscore(description || '')
-            .replace('{', mainStat)
-            .replace('}', secondaryStat)
-        )}
+        {talentText(description, mainStat, secondaryStat)}
       </Typography>
     </>
   );

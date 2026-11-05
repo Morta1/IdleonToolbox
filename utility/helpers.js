@@ -361,10 +361,17 @@ export const gameLines = (text, { keepBlank = false, sentences = false } = {}) =
 // Star sign bonuses use "{" as a value placeholder, but decimal-valued bonuses
 // use the "{.{" token pair instead, so both have to be substituted. The game data writes a sign's level condition
 // with a glyph its font draws: "(If_Lv&60)" means at least 60 (the parser counts the sign from classLevel >= 60).
+// A curse's line writes its own minus ("-{%_Total_HP") over a negative bonus, where the game's list has one ("-80%_Total_HP").
 export const formatStarSignBonus = (rawName, bonus) => {
   if (!rawName) return '';
-  return String(rawName).replace('{.{', bonus).replace(/{/g, bonus).replace(/&/g, '≥');
+  const value = String(rawName).includes('-{') ? Math.abs(bonus) : bonus;
+  return String(rawName).replace('{.{', value).replace(/{/g, value).replace(/&/g, '≥');
 };
+
+// A talent's line as the game fills it (N.js's StringTools.replace takes every "{" and "}": a line can hold two), its "@"
+// breaks mid-sentence ("Getting_4@kills_in_4@sec") joined.
+export const talentText = (description, mainStat, secondaryStat) => gameLines(`${description ?? ''}`.replace(/{/g, mainStat).replace(/}/g, secondaryStat),
+  { sentences: true }).join(' ');
 
 export const getNumberWithOrdinal = (n) => {
   const s = ['th', 'st', 'nd', 'rd'], v = n % 100;

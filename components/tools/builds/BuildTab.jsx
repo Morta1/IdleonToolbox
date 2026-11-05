@@ -3,7 +3,7 @@ import { Box, Button, Card, CardContent, InputBase, Stack, Typography } from '@m
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import Tooltip from '@components/Tooltip';
 import ItemRefRenderer from './ItemRefRenderer';
-import { cleanUnderscore, growth, prefix } from '@utility/helpers';
+import { cleanUnderscore, growth, prefix, talentText } from '@utility/helpers';
 import { SUPER_TALENT_MAX_POINTS, isSuperTalentEligible } from '@utility/builds/superTalents';
 import { styled } from '@mui/material/styles';
 
@@ -194,7 +194,7 @@ const TalentTooltip = ({ name, skill, level, isSuperTalent, createMode, eligible
     <>
       <Typography variant="cardTitle" component="div">{cleanUnderscore(name)}</Typography>
       <Typography variant="body1">
-        {cleanUnderscore(cleanUnderscore(description).replace('{', mainStat).replace('}', secondaryStat))}
+        {talentText(description, mainStat, secondaryStat)}
       </Typography>
       {superHint ? <Typography variant="caption"
                                sx={{ display: 'block', mt: 1, color: isSuperTalent ? '#ffd75e' : 'text.secondary' }}>
