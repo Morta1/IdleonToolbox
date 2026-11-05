@@ -2,9 +2,13 @@ import React from 'react';
 import { Box, Button } from '@mui/material';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import { CARD_RADIUS, emptySlot } from '@components/common/cards/tokens';
 import StatusText from '@components/common/StatusText';
 import { cleanUnderscore } from '@utility/helpers';
 import { DRAWN_SLOTS, iconFor } from './slots';
+
+// An empty slot in the sprite's place, so a card with nothing on it doesn't read as a sprite that failed
+const EMPTY_ICON = <Box sx={[emptySlot, { width: 32, height: 32, flexShrink: 0, boxSizing: 'border-box', borderRadius: `${CARD_RADIUS}px` }]}/>;
 
 // One card per slot the game draws (see slots.js DRAWN_SLOTS), its Change button opening the picker.
 const SlotGrid = ({ loadout, unsupported = [], onSlotClick }) => <CardGrid size={'s'}>
@@ -12,7 +16,7 @@ const SlotGrid = ({ loadout, unsupported = [], onSlotClick }) => <CardGrid size=
     const item = loadout[slot];
     const noArt = item && unsupported.includes(item.rawName);
     return <ItemCard key={slot}
-                     icon={item ? iconFor(slot, item) : <Box sx={{ width: 32, height: 32, flexShrink: 0 }}/>}
+                     icon={item ? iconFor(slot, item) : EMPTY_ICON}
                      title={item ? cleanUnderscore(item.displayName) : <Box component={'span'} sx={{ color: 'text.secondary' }}>None</Box>}
                      meta={label}
                      footer={<Box><Button size={'small'} aria-label={`${label} slot`} onClick={() => onSlotClick(slot)}>Change</Button></Box>}>

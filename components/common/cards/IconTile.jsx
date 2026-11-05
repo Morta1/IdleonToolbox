@@ -5,7 +5,7 @@ import { NoteTrigger } from '@components/common/InfoButton';
 import { numOrNode } from '@components/common/Num';
 import UpTriangle from '@components/common/UpTriangle';
 import { useSheet } from './SheetContext';
-import { cardState, cardSurface } from './tokens';
+import { cardState, cardSurface, emptySlot } from './tokens';
 
 // A count on a disc, or a plain green triangle in the corner when the thing can level up.
 const Badge = ({ badge, small }) => (badge === 'up'
@@ -93,7 +93,7 @@ const IconTile = ({ icon, fallback, alt = '', value, kind, sub, frame, badge, ma
     // A tile with no number keeps no room for one: its sprite sits in the middle
     !small && !hasValue && { py: 0.5, justifyContent: 'center' },
     longValue && { containerType: 'inline-size' },
-    empty && { bgcolor: 'transparent', borderStyle: 'dashed', borderColor: 'action.disabled' }
+    empty && emptySlot
   ]}>
     {icon && !empty ? <GameIcon src={icon} fallback={fallback} size={small ? 28 : 40} alt={alt} frame={frame}
                                 status={status === 'missing' ? 'missing' : undefined}/> : null}

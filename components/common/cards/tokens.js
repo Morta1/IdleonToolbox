@@ -18,6 +18,10 @@ export const cardSurface = (theme) => ({
   borderRadius: `${CARD_RADIUS}px`
 });
 
+// An empty slot, on a tile or as a card's icon: no surface, a dashed line in the quietest edge, so it reads lighter than
+// the filled tiles beside it.
+export const emptySlot = (theme) => ({ backgroundColor: 'transparent', border: `1px dashed ${palette(theme).divider}` });
+
 // One look per state; the word beside it comes from StatusText. Maxed changes no surface: its word
 // and the missing cost say it. Lines are full-strength roles: alpha() cannot take a CSS variable.
 export const cardState = (theme, state) => {
