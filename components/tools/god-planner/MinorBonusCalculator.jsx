@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Divider, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { minorBonusText } from '@utility/gameNotation';
 import NumberField from '@components/common/NumberField';
 import Panel from '@components/common/cards/Panel';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -141,7 +142,7 @@ const MinorBonusCalculator = ({ characters, account }) => {
           ['Current bonus', withTalents(currentBonus)],
           ['Divinity levels alone top out at', withTalents(cap)]
         ]}/>
-        <Typography variant={'body2'} color={'text.secondary'}>{cleanUnderscore(gods?.[godSlot]?.minorBonus?.replace(/{/g, ''))}</Typography>
+        <Typography variant={'body2'} color={'text.secondary'}>{cleanUnderscore(gods?.[godSlot]?.minorBonus?.replace(/{/g, minorBonusText(currentBonus, isTalentTarget)))}</Typography>
       </Stack>
       <Divider/>
       {reached
