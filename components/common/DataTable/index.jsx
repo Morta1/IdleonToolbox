@@ -44,7 +44,8 @@ import SortField from './SortField';
 // `stickyTop` is where the page's sticky toolbar ends: a long table's header sticks there. A table that hides columns
 // on a phone and has sortable ones draws a Sort field over itself there, or `sortField={false}` where the page's Toolbar
 // already holds one. `align: 'left'` keeps a number column to the left, beside the name (Constellations' Progress).
-// `detailLabel` is what the phone's detail list prints for a column whose heading is art.
+// `detailLabel` is what the phone's detail list prints for a column whose heading is art. `bandNoun` says what a band's
+// count counts ("12 monsters"), where the bare number at the band's end would read as the last column's.
 
 // A small table (fits) keeps the phone's tighter padding at every width: it often sits inside a 260 px note, and so does
 // one with many narrow columns (dense: Bone Joe's ten minibosses across 1366). A table
@@ -145,6 +146,8 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, 
   '& td.bad, & dd.bad': { color: 'text.error' },
   // Locked, not found, not reached: the Cards board's one look for it.
   '& tr.muted > td': { opacity: DIM },
+  // A word in a row's place: nothing to open
+  '& tr.word': { cursor: 'auto' },
   // The first row a Show more brings in takes the focus from the link it replaces.
   '& tr.row:focus-visible': { outline: '2px solid var(--mui-palette-primary-main)', outlineOffset: -2 },
   ...sx,
@@ -220,6 +223,7 @@ const DataTable = ({
                      dense = false,
                      detail,
                      sortField = true,
+                     bandNoun,
                      sx
                    }) => {
   const [expanded, setExpanded] = useState({});
@@ -304,7 +308,7 @@ const DataTable = ({
                   <Typography variant={'groupLabel'} component={'span'} color={'text.secondary'}>{heading}</Typography>
                   {band.meta ? <Typography variant={'caption'} color={'text.secondary'}>{band.meta}</Typography> : null}
                   <Typography variant={'caption'} color={'text.secondary'} sx={{ ml: 'auto' }}>
-                    {numberWithCommas(band.rows.length)}
+                    {numberWithCommas(band.rows.length)}{bandNoun ? ` ${bandNoun}` : ''}
                   </Typography>
                 </Stack>
               </Box>
@@ -313,11 +317,13 @@ const DataTable = ({
               const key = keyOf(row);
               const open = Boolean(openRows[key]);
               const mute = muted?.(row);
+              // A locked row's word replaces its values, so a phone would open a list of dashes
+              const rowExpandable = expandable && typeof mute !== 'string';
               const firstShownMore = Boolean(expanded[band.key]) && rowIndex === BAND_PREVIEW;
               // Row keys can hold any character, so the id is built from positions.
               const detailId = `${baseId}-${bandIndex}-${rowIndex}`;
               return <React.Fragment key={key}>
-                <tr className={mute ? 'row muted' : 'row'} onClick={expandable ? rowTap(key) : undefined}
+                <tr className={`row${mute ? ' muted' : ''}${expandable && !rowExpandable ? ' word' : ''}`} onClick={rowExpandable ? rowTap(key) : undefined}
                     tabIndex={firstShownMore ? -1 : undefined} ref={firstShownMore ? takeFocus(band.key) : undefined}>
                   {rankOf ? <td className={'rank'}>{rankOf(row) ?? <span className={'na'}>-</span>}</td> : null}
                   <td className={'name'}>
@@ -331,12 +337,12 @@ const DataTable = ({
                     return <td key={column.key} className={tone ? `col-${i} ${tone}` : `col-${i}`}>{content}</td>;
                   })}
                   {expandable ? <td className={'expand'}>
-                    <button type={'button'} className={'expand-button'} aria-expanded={open}
-                            aria-controls={open ? detailId : undefined} aria-label={`Details for ${labelOf(row)}`}
-                            onClick={() => toggle(key)}/>
+                    {rowExpandable ? <button type={'button'} className={'expand-button'} aria-expanded={open}
+                                             aria-controls={open ? detailId : undefined} aria-label={`Details for ${labelOf(row)}`}
+                                             onClick={() => toggle(key)}/> : null}
                   </td> : null}
                 </tr>
-                {open ? <tr className={'detail'} id={detailId}>
+                {open && rowExpandable ? <tr className={'detail'} id={detailId}>
                   <td colSpan={span}>
                     <dl className={'detail-list'}>
                       {data.map((column, i) => {

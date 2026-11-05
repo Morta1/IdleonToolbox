@@ -131,7 +131,7 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, p
 
 // A short value whose exact form opens from it (Info board, a value with a dotted underline). The underline is what says
 // there is more behind this number.
-export const DottedValue = ({ note, label, sx, children }) => <NoteTrigger note={note} label={label} sx={sx}>
+export const DottedValue = ({ note, label, table, sx, children }) => <NoteTrigger note={note} label={label} table={table} sx={sx}>
   <Box component={'span'} sx={{ textDecoration: 'underline dotted', textUnderlineOffset: 3, cursor: 'help' }}>{children}</Box>
 </NoteTrigger>;
 

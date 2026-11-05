@@ -28,13 +28,14 @@ import { goalsFileName, useGoalsFileImport, useGoalsUndo } from '@components/goa
 
 const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr: false });
 
-// A few places to start; every page with goals has the Add goal button
+// A few places to start; every page with goals has the Add goal button. The fourth names the system a page with several
+// opens Add goal on
 const STARTER_PAGES = [
   ['Stamps', GOAL_ROUTES.stamp, 'data/StampA34'],
   ['Bubbles', GOAL_ROUTES.bubble, 'data/aUpgradesG0'],
   ['Meals', GOAL_ROUTES.meal, 'data/ClassIcons51'],
   ['Bribes', GOAL_ROUTES.bribe, 'etc/Bribe'],
-  ['Talents', GOAL_ROUTES.talent, 'data/UISkillIcon1']
+  ['Talents', GOAL_ROUTES.talent, 'data/UISkillIcon1', 'talent']
 ];
 
 const SORTS = [
@@ -64,8 +65,8 @@ const AddGoalReplica = () => (
 
 const StarterLinks = ({ query }) => (
   <Stack direction="row" columnGap={2} rowGap={1} flexWrap="wrap" alignItems="center">
-    {STARTER_PAGES.map(([label, route, icon]) => (
-      <Link key={route} component={NextLink} href={{ pathname: route, query: sessionQuery(query) }} variant="body2"
+    {STARTER_PAGES.map(([label, route, icon, goal]) => (
+      <Link key={route} component={NextLink} href={{ pathname: route, query: { ...sessionQuery(query), ...(goal ? { goal } : {}) } }} variant="body2"
             sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75, minHeight: { xs: 44, sm: 'auto' } }}>
         <GoalIcon src={icon} alt="" size={24}/>{label}
       </Link>

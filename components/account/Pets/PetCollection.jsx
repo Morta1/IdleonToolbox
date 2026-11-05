@@ -25,6 +25,17 @@ export const petCrystalIcon = (size) => <Box component={'span'} sx={{ display: '
   <GameIcon src={'data/PremiumGem.png'} size={size} alt={'Pet Crystals'}/>
 </Box>;
 
+// The clock, read once per render after the data loader (the export is the loader). Pet Mart sightings: the worker's log
+// plus today's stock from the account, read from the counter that sells what the view shows (the pet itself, or its +
+// upgrade). Today's rotation is the one open now (the Pet Mart tab's): the save's copy only while the save is today's
+const readSightings = (days, petMart, lastUpdated, plusView) => {
+  const now = Date.now();
+  return {
+    lastSeenOf: getPetMartLastSeen(mergePetMartHistory(days, petMart, now), plusView ? 'plus' : 'base'),
+    today: getPetMartToday(days, petMart, lastUpdated, now)
+  };
+};
+
 // The game's effect text draws its + as {: every one, in both views
 export const effectText = (text) => cleanUnderscore(`${text ?? ''}`.replaceAll('{', '+'));
 
@@ -93,14 +104,8 @@ const PetCollection = ({ companions, sectionFailed, tournamentFailed }) => {
 
   const { groups, unreleasedIndices } = getCompanionSets(indexedCompanions);
   const released = groups.flatMap((group) => group.indices).map((i) => indexedCompanions[i]).filter(Boolean);
-  // Pet Mart sightings: the worker's log plus today's stock from the account, read from the counter
-  // that sells what the view shows (the pet itself, or its + upgrade).
   const petMart = tournamentFailed ? null : state?.account?.tournament?.petMart;
-  const now = Date.now();
-  const history = mergePetMartHistory(historyData?.days, petMart, now);
-  const lastSeenOf = getPetMartLastSeen(history, plusView ? 'plus' : 'base');
-  // Today's rotation is the one open now (the Pet Mart tab's): the save's copy only while the save is today's
-  const today = getPetMartToday(historyData?.days, petMart, state?.lastUpdated, now);
+  const { lastSeenOf, today } = readSightings(historyData?.days, petMart, state?.lastUpdated, plusView);
   const todayOffers = new Set(((plusView ? today?.plus : today?.base) ?? []).map((offer) => offer.index));
   const salesOf = (index) => ({ lastSeen: lastSeenOf.get(index), inToday: todayOffers.has(index), historyLoaded });
   // Ascending puts pets never in the Pet Mart first; descending puts today's offers first and them last.

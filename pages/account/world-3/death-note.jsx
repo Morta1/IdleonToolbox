@@ -85,7 +85,7 @@ const DeathNote = () => {
       />
       {sectionFailed ? <MissingData name={'Death Note'} failed/> : null}
       {/* An empty table draws no header */}
-      {bands.length ? <DataTable columns={COLUMNS} bands={bands} rowKey={'rawName'}
+      {bands.length ? <DataTable columns={COLUMNS} bands={bands} bandNoun={'monsters'} rowKey={'rawName'}
                                  rowLabel={(mob) => cleanUnderscore(mob.displayName)} surface={'card'} stickyTop={pageTop}/> : null}
     </>
   );

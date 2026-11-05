@@ -247,7 +247,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
 
   return (
     <Stack direction="column" gap={3}>
-      <Stack direction="row" gap={2} flexWrap="wrap">
+      <Stack direction="row" gap={1} flexWrap="wrap">
         {/* Outposts built is the page Summary's: one tile per number */}
         <StatTile label={'Collection rate'} value={shown(`${formatGame(totalRate, 'RoyalG.OutpostResourceRate')}/hr`)}/>
         <StatTile label={'Unspent PTS'} value={shown(formatNum(unspentPts, 'whole'))}/>

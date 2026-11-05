@@ -499,8 +499,10 @@ describe('Dashboard goals', () => {
       '/account/world-1/stamps', '/account/world-2/bubbles', '/account/world-4/cooking',
       '/account/world-1/bribes', '/characters'
     ]);
+    expect(links.map((link) => link.getAttribute('href').split('?')[1])).toEqual([
+      'demo=true', 'demo=true', 'demo=true', 'demo=true', 'demo=true&goal=talent'
+    ]);
     for (const link of links) {
-      expect(link.getAttribute('href').endsWith('?demo=true')).toBe(true);
       expect(link.querySelector('img')).toBeTruthy();
     }
     expect(screen.getByText('Items from the material tracker show up here automatically.')).toBeTruthy();

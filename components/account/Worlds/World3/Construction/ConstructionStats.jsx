@@ -20,7 +20,7 @@ const ConstructionStats = ({ construction, optimized }) => {
     return <StatTile key={key} label={label} value={current == null ? '-' : `${formatNum(next ?? current)}/hr`}
                      sub={delta == null ? undefined : `${formatNum(delta, 'amount', { signed: true })} from ${formatNum(current)}`}/>;
   };
-  return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
+  return <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
     {ROWS.map(statTile)}
     <StatTile label={'Player XP bonus'} value={construction?.totalExpRate == null ? '-' : formatNum(construction.totalExpRate, 'pct')}/>
   </Stack>;

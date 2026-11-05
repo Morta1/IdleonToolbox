@@ -177,6 +177,8 @@ describe('tab to system map', () => {
 
   it.each([
     ['a mapped tab', { t: 'Measure' }, 'measurement'],
+    ['a tab link in another case', { t: 'measure' }, 'measurement'],
+    ['a link naming its system over the tab', { t: 'Measure', goal: 'villager' }, 'villager'],
     ['an unknown tab', { t: 'Nope' }, 'villager'],
     ['no tab', {}, 'villager']
   ])('on the Hole page %s opens %s', (_, query, system) => {

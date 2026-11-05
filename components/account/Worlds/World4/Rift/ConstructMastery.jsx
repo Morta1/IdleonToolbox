@@ -17,10 +17,12 @@ const defaultBonuses = [
   '+30_MAX_LV_FOR_ALL_WIZARD_TOWERS',
 ];
 
-// The mastery unlocks from the Rift: in a failed section its bonuses read "-" and none reads Reached, while the
-// building levels (the towers') stay
+// The mastery unlocks from the Rift: below it no level reads Reached; in a failed section its bonuses read "-" and none
+// reads Reached, while the building levels (the towers') stay
 const ConstructMastery = ({ totalLevels, account, sectionFailed }) => {
   const levels = totalLevels ?? 0;
+  // At any level the refinery tier pays once the Rift has opened the mastery
+  const riftReached = getConstructionMasteryBonus(account, CONSTRUCT_MASTERY.REFINERY_SPEED, Infinity) > 0;
   const masteryBonus = (bonus) => (sectionFailed ? '-' : formatNum(getConstructionMasteryBonus(account, bonus), 'pct'));
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
@@ -36,7 +38,7 @@ const ConstructMastery = ({ totalLevels, account, sectionFailed }) => {
       {defaultBonuses.map((bonus, bonusIndex) => {
         const threshold = constructionMasteryThresholds?.[bonusIndex];
         return <Panel.KV key={`bonus-${bonusIndex}`} label={`Lv ${formatNum(threshold ?? 0)}`}
-                         value={<>{sentenceCase(cleanUnderscore(bonus))}{!sectionFailed && levels >= threshold
+                         value={<>{sentenceCase(cleanUnderscore(bonus))}{!sectionFailed && riftReached && levels >= threshold
                            ? <StatusText status={'done'} sx={{ ml: 1 }}>Reached</StatusText> : null}</>}/>;
       })}
     </Panel>

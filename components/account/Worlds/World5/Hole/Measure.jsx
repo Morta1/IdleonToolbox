@@ -16,7 +16,7 @@ const measureText = (description, value) => cleanUnderscore((description ?? '').
 const Measure = ({ hole }) => {
   const measure = hole?.villagers?.[3];
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       {villagerTiles(measure)}
       <StatTile label={'Total measurement levels'} value={getHoleLeaderboardTotals(hole).measurementLevels} kind={'amount'}/>
     </Stack>

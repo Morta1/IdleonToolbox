@@ -1,7 +1,7 @@
 import { Box, Stack, Typography } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, formatNum, growth, round, shownPercent } from 'utility/helpers';
+import { cleanUnderscore, formatNum, growth, round, shownPercent, titleCaseName } from 'utility/helpers';
 import { formatGame, gameBonusText } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import {
@@ -98,7 +98,7 @@ const futureBubbles = (cauldrons, fromMost) => {
 };
 
 // The page's one name style for a bubble ("Roid Ragin")
-const bubbleTitle = (name) => cleanUnderscore((name ?? '').toLowerCase().capitalizeAll());
+const bubbleTitle = (name) => titleCaseName(cleanUnderscore(name ?? ''));
 
 // The game draws these materials with their _x1 art
 const X1_MATERIALS = ['sail', 'bits', 'w6item', 'w7item', 'liquid'];

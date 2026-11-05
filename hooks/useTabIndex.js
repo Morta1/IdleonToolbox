@@ -11,7 +11,9 @@ const useTabIndex = (tabs, { queryKey = 't', disableQuery = false, clearOnChange
   // Only used by tabs that deliberately stay out of the URL.
   const [localTab, setLocalTab] = useState(0);
 
-  const queryIndex = tabs?.findIndex((tab) => tab === router.query?.[queryKey]) ?? -1;
+  const query = router.query?.[queryKey];
+  // A hand-typed or shared link may not match a tab's case
+  const queryIndex = tabs?.findIndex((tab) => tab === query || `${tab}`.toLowerCase() === `${query ?? ''}`.toLowerCase()) ?? -1;
   const selectedTab = disableQuery ? localTab : (queryIndex >= 0 ? queryIndex : 0);
 
   const selectTab = (index) => {

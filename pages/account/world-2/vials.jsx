@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Box, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum, growth } from 'utility/helpers';
+import { cleanUnderscore, formatNum, growth, titleCaseName } from 'utility/helpers';
 import { gameBonusText } from '@utility/gameNotation';
 import {
   LIQUID_INFO,
@@ -31,7 +31,7 @@ const SECTION_NAMES = {
 };
 
 // The page's one name style for a vial ("Copper Corona")
-const vialName = (vial) => cleanUnderscore((vial?.name ?? '').toLowerCase().capitalizeAll());
+const vialName = (vial) => titleCaseName(cleanUnderscore(vial?.name ?? ''));
 
 const isMaterial = (item) => Boolean(item?.name) && item.name !== 'Blank' && item.name !== 'ERROR';
 const materialName = ({ rawName = '', name }) => {

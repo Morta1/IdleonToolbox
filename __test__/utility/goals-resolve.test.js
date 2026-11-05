@@ -384,6 +384,7 @@ describe('row text', () => {
     ['tier: the current tier, the goal as a caption', { metric: 'tier', target: 2 }, 'Good · Goal: Great'],
     ['at most tier', { metric: 'tier', op: '<=', target: 2 }, 'Good · Goal: At most Great'],
     ['a big amount reads short on the face', { metric: 'big', target: 1e12 }, '1.04B of 1T'],
+    ['a hair short prints every digit, never a reached look', { metric: 'big', target: 1038000000 }, '1,037,885,100 of 1.04B'],
     ['a big at most amount reads short on the face', { metric: 'big', op: '<=', target: 5e6 }, '1.04B · At most 5M'],
     ['at most percent of max', { unit: 'percentOfMax', op: '<=', target: 50 }, '9% · At most 50%'],
     ['watch says what you have, then Tracking', { metric: 'qty', target: 0, watch: true }, 'You have 2,052 · Tracking'],

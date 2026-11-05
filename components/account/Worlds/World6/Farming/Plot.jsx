@@ -69,9 +69,9 @@ const Plot = ({ plot, market, ranks, lastUpdated, account, characters, selectedC
               ? <>{' '}<NoteTrigger note={'Average wait for this plot to double again.'} label={'About the wait'}>
                 (~{secondsToCoarseDuration(nextOGEta)})</NoteTrigger></> : null}</>],
             ['Max time', formatDuration(maxTimeLeft)],
-            // The Timer draws a text placeholder at body1, so Ready comes as the state word itself
-            ['Next crop', <Timer key={'next'} type={'countdown'} lastUpdated={lastUpdated} placeholder={<StatusText status={'ready'}/>}
-                                 date={new Date().getTime() + timeLeft * 1000}/>]
+            // The time left is as of the save: a date of its own
+            ['Next crop', <Timer key={'next'} type={'countdown'} placeholder={<StatusText status={'ready'}/>}
+                                 date={lastUpdated + timeLeft * 1000}/>]
           ]}/>
         </ItemCard>
       })}

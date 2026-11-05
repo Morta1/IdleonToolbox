@@ -14,7 +14,7 @@ import ItemCard from '@components/common/cards/ItemCard';
 import Toolbar from '@components/common/Toolbar';
 import Notice from '@components/common/Notice';
 import StatusText from '@components/common/StatusText';
-import { Duration } from '@components/common/Num';
+import Timer from '@components/common/Timer';
 import useToolbarState from '@hooks/useToolbarState';
 
 // One key for both tabs, as the one checkbox was
@@ -77,7 +77,9 @@ const VoteBallot = () => {
       <Stack direction={'row'} gap={1} flexWrap={'wrap'} sx={{ mb: 2 }}>
         <StatTile label={label} value={multiText}
                   breakdown={!ballotFailed && breakdown ? { ...breakdown, totalValue: multiText } : undefined}/>
-        {hasClock ? <StatTile label={'Next week in'} value={<Duration seconds={timeLeft}/>}/> : null}
+        {/* The week's end is the save's clock plus what was left at the save: a date of its own */}
+        {hasClock ? <StatTile label={'Next week in'}
+                              value={<Timer type={'countdown'} date={state?.lastUpdated + timeLeft * 1000} placeholder={'New week'}/>}/> : null}
       </Stack>
       <Box>
         {hasBallot ? <Toolbar state={toolbar} defaults={BALLOT_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}

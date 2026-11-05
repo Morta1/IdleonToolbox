@@ -9,7 +9,7 @@ import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 const TheDen = ({ hole }) => {
   const theDen = hole?.caverns?.theDen;
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       {/* The best score is the parser's text, in commas */}
       <StatTile label={'Best score'} icon={'etc/Amp_Best_Score.png'} value={theDen?.bestScore ?? 0}/>
       <StatTile label={'Next opal at'} icon={'data/Opal.png'}

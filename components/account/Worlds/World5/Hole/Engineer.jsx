@@ -73,7 +73,7 @@ const Engineer = ({ hole, sectionFailed }) => {
   };
 
   return <>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       {villagerTiles(engineer)}
       {listed ? <StatTile label={'Unlocked schematics'}
                           value={`${formatNum(hole?.unlockedSchematics ?? 0)} / ${formatNum(hole?.totalSchematics ?? 0)}`}/> : null}

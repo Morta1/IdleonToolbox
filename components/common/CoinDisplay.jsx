@@ -35,17 +35,16 @@ const CoinDisplay = ({
     {title ? <Typography variant={'body2'} style={{ textAlign: centered ? 'center' : 'left' }}>{title}</Typography> : null}
     <Stack flexWrap={'wrap'} justifyContent={small ? 'flex-end' : centered ? 'center' : 'flex-start'} direction={'row'}
            gap={small ? 1 : variant === 'vertical' ? 2.3 : 1} sx={small ? { py: '1px' } : undefined}>
-      {money?.map(([coinIndex, coin], index) => {
-        return index < maxCoins ?
-          <Stack direction={variant === 'vertical' ? 'column' : 'row'} gap={variant === 'vertical' ? 0 : .5}
-                 justifyContent={'center'} alignItems={'center'}
-                 key={coin + '' + coinIndex}>
-            {/* A coin's value is beside it */}
-            <GameIcon src={`data/Coins${coinIndex}.png`} size={small ? 20 : 24} alt={''}/>
-            <Typography variant={'body2'} component={'span'} className={'coin-value'}
-                        sx={small ? { fontSize: 12, lineHeight: '14px', fontWeight: 500 } : undefined}>{coinAmount(coin, index)}</Typography>
-          </Stack> : null
-      })}
+      {money?.slice(0, maxCoins).filter(([, coin], index, shown) => coin > 0 || shown.length === 1).map(([coinIndex, coin], index) => (
+        <Stack direction={variant === 'vertical' ? 'column' : 'row'} gap={variant === 'vertical' ? 0 : .5}
+               justifyContent={'center'} alignItems={'center'}
+               key={coin + '' + coinIndex}>
+          {/* A coin's value is beside it */}
+          <GameIcon src={`data/Coins${coinIndex}.png`} size={small ? 20 : 24} alt={''}/>
+          <Typography variant={'body2'} component={'span'} className={'coin-value'}
+                      sx={small ? { fontSize: 12, lineHeight: '14px', fontWeight: 500 } : undefined}>{coinAmount(coin, index)}</Typography>
+        </Stack>
+      ))}
     </Stack>
   </div>
 };

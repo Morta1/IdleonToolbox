@@ -266,6 +266,11 @@ const darkTheme = createTheme({
           minHeight: 40,
           [TOUCH]: { minHeight: 44 }
         },
+        // A short text button is as wide as its word: MUI's 64 px floor set "Shop" off its card's edge. A touch target stays 44.
+        text: {
+          minWidth: 0,
+          [TOUCH]: { minWidth: 44 }
+        },
         sizeSmall: {
           minHeight: 32,
           [TOUCH]: { minHeight: 32 }

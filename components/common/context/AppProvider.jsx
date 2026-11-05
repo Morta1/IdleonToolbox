@@ -29,8 +29,6 @@ export const ACTION_TYPES = {
   TRACKERS: 'trackers',
   GOD_PLANNER: 'godPlanner',
   LOGIN_ERROR: 'loginError',
-  SHOW_RANK_ONE_ONLY: 'showRankOneOnly',
-  SHOW_UNMAXED_BOXES_ONLY: 'showUnmaxedBoxesOnly',
   SET_LOADING: 'setLoading',
   SETTINGS: 'settings',
   HYDRATE_STORAGE: 'hydrateStorage'
@@ -61,11 +59,9 @@ export function appReducer(state, action) {
     // user's uid and token. A whitelist drops any future session key by default. storageHydrated
     // rides along too, or the persist effect would skip every write after a logout.
     [ACTION_TYPES.LOGOUT]: () => {
-      const { filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings,
-        showRankOneOnly, showUnmaxedBoxesOnly, storageHydrated } = state;
+      const { filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings, storageHydrated } = state;
       return {
         filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings,
-        showRankOneOnly, showUnmaxedBoxesOnly,
         storageHydrated,
         signedIn: false,
         isLoading: false
@@ -83,8 +79,6 @@ export function appReducer(state, action) {
     [ACTION_TYPES.TRACKERS]: () => ({ ...state, trackers: action.data }),
     [ACTION_TYPES.GOD_PLANNER]: () => ({ ...state, godPlanner: action.data }),
     [ACTION_TYPES.LOGIN_ERROR]: () => ({ ...state, loginError: action.data }),
-    [ACTION_TYPES.SHOW_RANK_ONE_ONLY]: () => ({ ...state, showRankOneOnly: action.data }),
-    [ACTION_TYPES.SHOW_UNMAXED_BOXES_ONLY]: () => ({ ...state, showUnmaxedBoxesOnly: action.data }),
     [ACTION_TYPES.SET_LOADING]: () => ({ ...state, isLoading: action.data }),
     [ACTION_TYPES.SETTINGS]: () => ({ ...state, settings: action.data })
   };
@@ -113,8 +107,6 @@ const STORAGE_KEYS = [
 // (localStorage) is merged by HYDRATE_STORAGE in an effect, which the init and persist effects
 // wait for via storageHydrated.
 export const DEFAULT_STATE = {
-  showRankOneOnly: false,
-  showUnmaxedBoxesOnly: false,
   isLoading: true,
   pinnedPages: [],
   storageHydrated: false

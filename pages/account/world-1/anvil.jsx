@@ -13,6 +13,7 @@ import {
   getPlayerAnvil,
   getTimeTillCap
 } from '@parsers/world-1/anvil';
+import { isCompanionBonusActive } from '@parsers/misc';
 import { items } from '@website-data';
 import { NextSeo } from 'next-seo';
 import { MissingData, isSectionFailed } from '@components/common/styles';
@@ -34,6 +35,14 @@ const SECTION_NAMES = {
 const SPEED_SECTIONS = Object.keys(SECTION_NAMES);
 
 const itemName = (rawName) => cleanUnderscore(items?.[rawName]?.displayName ?? rawName);
+
+// game: the count it sets as the anvil opens: one, one with Hammer Hammer equipped (Sheepie counts every big bubble as
+// equipped), and one from the gem shop
+const SHEEPIE = 4;
+const THIRD_HAMMER_GEM_ITEM = 103;
+const hammersOwned = (character, account) => 1
+  + (character?.equippedBubbles?.some(({ bubbleName }) => bubbleName === 'HAMMER_HAMMER') || isCompanionBonusActive(account, SHEEPIE) ? 1 : 0)
+  + (account?.gemShopPurchases?.[THIRD_HAMMER_GEM_ITEM] === 1 ? 1 : 0);
 
 // One line of parts, each kept whole ("Points 300 / 320" never breaks inside its pair)
 const metaLine = (parts) => parts.filter(Boolean).map((part, index) => <Fragment key={index}>
@@ -110,11 +119,11 @@ const Anvil = () => {
     const { stats, production } = getPlayerAnvil(character, state?.characters, state?.account);
     const { availablePoints = 0, pointsFromCoins = 0, pointsFromMats = 0 } = stats ?? {};
     const totalPoints = pointsFromCoins + pointsFromMats + smithing;
-    const hammerBubble = character?.equippedBubbles?.find(({ bubbleName }) => bubbleName === 'HAMMER_HAMMER');
-    const maxProducts = hammerBubble ? 3 : 2;
     const working = production?.filter(({ hammers }) => hammers > 0) ?? [];
-    const numOfHammers = working.reduce((res, { hammers }) => res + hammers, 0);
-    const slots = numOfHammers >= maxProducts ? working : fillArrayToLength(numOfHammers, working);
+    const placed = working.reduce((res, { hammers }) => res + hammers, 0);
+    // An Empty slot is a free hammer. Hammers stack on a product, so a card per hammer would draw blanks for a full anvil
+    const free = Math.max(0, hammersOwned(character, state?.account) - placed);
+    const slots = fillArrayToLength(working.length + free, working);
     const meta = metaLine([`Smithing ${formatNum(smithing, 'level')}`,
       `Points ${formatNum(totalPoints - availablePoints)} / ${formatNum(totalPoints)}`,
       availablePoints > 0 ? `${formatNum(availablePoints)} unspent` : null]);

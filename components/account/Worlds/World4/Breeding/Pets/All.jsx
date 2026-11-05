@@ -16,7 +16,7 @@ const All = ({ pets }) => {
 
   return <Stack gap={3}>
     {pets?.map((list, worldIndex) => <Stack key={`world-${worldIndex}`} gap={1}>
-      <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
+      <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
         <Typography variant={'sectionTitle'} component={'h2'}>World {worldIndex + 1}</Typography>
         <StatTile label={'Cells'} icon={`data/Genetic${worldIndex}.png`}
                   value={formatGame(genetics?.[worldIndex] ?? 0, 'Breeding.GeneticCost', { whole: true })}/>

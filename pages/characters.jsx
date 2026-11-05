@@ -9,6 +9,7 @@ import { CharactersPicker } from '@components/characters/CharactersList';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 import { AppContext, shownCharacters, shownFilters } from 'components/common/context/AppProvider';
 import usePageTop from '@hooks/usePageTop';
+import useToolbarState from '@hooks/useToolbarState';
 import { sections } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
 
@@ -16,8 +17,10 @@ import { NextSeo } from 'next-seo';
 // a section starts on the same line across the columns. The ones past a row's columns start a new row.
 const SIDE_BY_SIDE_SX = { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', columnGap: 2, rowGap: 0 };
 
+const CHARACTERS_TOOLBAR = { showRankOneOnly: false, showUnmaxedBoxesOnly: false };
+
 const Characters = () => {
-  const { state, dispatch } = useContext(AppContext);
+  const { state } = useContext(AppContext);
   const displayed = shownCharacters(state);
   const deferredDisplayed = useDeferredValue(displayed);
   const isPending = deferredDisplayed !== displayed;
@@ -33,8 +36,7 @@ const Characters = () => {
   const hasPostOfficeFilter = filters?.['Post Office'];
   const hasSection = sections.some(({ name }) => filters?.[name]);
   const failedSections = state?.account?.failedSections;
-  const toolbarState = { showRankOneOnly: Boolean(state?.showRankOneOnly), showUnmaxedBoxesOnly: Boolean(state?.showUnmaxedBoxesOnly) };
-  const setToolbar = (patch) => Object.entries(patch).forEach(([type, data]) => dispatch({ type, data }));
+  const [toolbarState, setToolbar, resetToolbar] = useToolbarState('characters', CHARACTERS_TOOLBAR);
   // A side-by-side card's name pins under the bar and the pinned Toolbar, when there is one
   const pageTop = usePageTop();
   const [toolbarBottom, setToolbarBottom] = useState(null);
@@ -65,8 +67,7 @@ const Characters = () => {
     </Notice> : numberOfCharacters > 0 ? (
       <>
         {!isPending && (hasSkillsFilter || hasPostOfficeFilter)
-          ? <Toolbar state={toolbarState} defaults={{ showRankOneOnly: false, showUnmaxedBoxesOnly: false }} onChange={setToolbar}
-                     onReset={() => setToolbar({ showRankOneOnly: false, showUnmaxedBoxesOnly: false })} counted={false}
+          ? <Toolbar state={toolbarState} defaults={CHARACTERS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar} counted={false}
                      onStickyBottom={setToolbarBottom}>
             {hasSkillsFilter ? <Toolbar.Filter name={'showRankOneOnly'} label={'Show rank 1 only'}/> : null}
             {hasPostOfficeFilter ? <Toolbar.Filter name={'showUnmaxedBoxesOnly'} label={'Show unmaxed boxes only'}/> : null}
@@ -85,8 +86,8 @@ const Characters = () => {
                            pinTop={pinTop}
                            openSections={openSections}
                            onToggleSection={toggleSection}
-                           showSkillsRankOneOnly={state.showRankOneOnly}
-                           showUnmaxedBoxesOnly={state.showUnmaxedBoxesOnly}
+                           showSkillsRankOneOnly={toolbarState.showRankOneOnly}
+                           showUnmaxedBoxesOnly={toolbarState.showUnmaxedBoxesOnly}
                            key={`${character?.name}-${index}`}/>
               : null;
           })}

@@ -7,6 +7,12 @@ import { getDescriptor } from '@utility/goals/registry';
 // goal's face and its details alike
 export const formatNumber = (n) => formatNum(n, 'whole');
 
+// Where the short forms match, every digit: a goal a hair short never reads as reached.
+export const formatHave = (value, target) => {
+  const short = formatNumber(value);
+  return value < target && short === formatNumber(target) ? formatNum(Math.floor(value), 'exact') : short;
+};
+
 // Floored so 89.99% never reads as a reached 90%
 export const formatPercent = (n) => `${Math.floor(n)}%`;
 
@@ -72,7 +78,7 @@ export const valueColor = (status) => {
 export const costAmount = (cost, n) => (cost.format ? cost.format(n) : formatNumber(n));
 
 // "1.2M of 5M coins"
-export const costText = (cost) => `${costAmount(cost, cost.have)} of ${costAmount(cost, cost.price)} ${cost.label}`;
+export const costText = (cost) => `${cost.format ? cost.format(cost.have) : formatHave(cost.have, cost.price)} of ${costAmount(cost, cost.price)} ${cost.label}`;
 
 // Enough in the purse for the price; the goal is still open until it is bought
 export const canBuy = (cost) => cost.have >= cost.price;
@@ -143,12 +149,13 @@ export const goalText = (view) => {
 // ("At most 10") and a watch goal has no target
 const amountParts = (view) => {
   const percent = view.unit === 'percentOfMax';
-  const value = percent ? formatPercent(view.value) : `${unitOf(metricOf(view))}${formatNumber(view.value)}`;
+  const amount = (text) => (percent ? formatPercent(view.value) : `${unitOf(metricOf(view))}${text}`);
+  const value = amount(formatNumber(view.value));
   if (view.watch) return { value: percent ? value : `${value}${suffixOf(view.metricLabel)}`, target: '' };
-  if (view.range) return { value, target: `of ${goalText(view)}` };
+  if (view.range) return { value: amount(formatHave(view.value, view.range.lower.targetValue)), target: `of ${goalText(view)}` };
   const suffix = percent ? '' : suffixOf(view.metricLabel);
   if (view.op === '<=') return { value, target: `${directionOf(view.op)} ${targetText(view)}${suffix}` };
-  return { value, target: `of ${targetText(view)}${suffix}` };
+  return { value: amount(formatHave(view.value, view.targetValue ?? view.target)), target: `of ${targetText(view)}${suffix}` };
 };
 
 // One entry's amount in its goal's unit: "Lv 148", the tier name; a yes/no entry has none
@@ -259,5 +266,5 @@ export const cardLabel = (view) => {
 export const entryProgressText = (view, entry) => {
   if (view.boolean) return entry.cost ? costFaceText(entry.cost) : booleanWords(view).open;
   if (view.tierName !== undefined) return `${shortTier(entry.valueTierName)} · ${entry.value}/${entry.targetValue}`;
-  return `${amountText(view, entry.value)} of ${amountText(view, entry.targetValue)}`;
+  return `${amountText(view, entry.value, (n) => formatHave(n, entry.targetValue))} of ${amountText(view, entry.targetValue)}`;
 };
