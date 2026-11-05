@@ -6,6 +6,7 @@ import { renderToString } from 'react-dom/server';
 import { fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import EntityList from '@components/wiki/EntityList';
+import { railFrom } from '@components/wiki/WikiRail';
 import darkTheme from '../../styles/theme/darkTheme';
 import { listingCells, listingColumns } from '@utility/wiki/listing.mjs';
 
@@ -106,7 +107,7 @@ describe('EntityList Pet Mart card', () => {
       />
     </ThemeProvider>);
     const gems = [...container.querySelector('a[href="/wiki/bundle/blob-pack"]').querySelectorAll('img')].filter((img) => img.getAttribute('src').endsWith('PremiumGem.png'));
-    expect(gems.map((img) => img.nextSibling.textContent)).toEqual(['1.2K', '35']);
+    expect(gems.map((img) => img.closest('.MuiStack-root').textContent)).toEqual(['1.2K', '35']);
   });
 });
 
@@ -334,8 +335,8 @@ describe('EntityList table', () => {
 
   // jsdom resolves no media queries, so read the rules emotion emitted for a cell's classes.
   // The cells carry no style of their own (the table styles each column once), so the rules are the table's,
-  // scoped to a column's class. The Sort by select stays until md, where every header shows.
-  it('shows the name and the primary column on a phone, the third data column from md', () => {
+  // scoped to a column's class. The Sort by select stays until railFrom, where every header shows.
+  it('shows the name and the primary column on a phone, the third data column from railFrom', () => {
     const { container, getByRole } = renderTable();
     const css = [...document.querySelectorAll('style')].map((style) => style.textContent);
     const classOf = (element) => [...element.classList].find((name) => name.startsWith('css-'));
@@ -353,11 +354,11 @@ describe('EntityList table', () => {
       cells: ['name', 'col-0', 'col-1', 'col-2', 'col-3', 'expand'],
       primary: [],
       third: [
-        expect.stringMatching(/^@media \(min-width:0px\)\{\.css-\w+ td\.col-3\{[^}]*display:none;[^}]*\}\}$/),
-        expect.stringMatching(/^@media \(min-width:900px\)\{\.css-\w+ td\.col-3\{[^}]*display:table-cell;[^}]*\}\}$/)
+        expect.stringMatching(/^\.css-\w+ td\.col-3\{[^}]*display:none;[^}]*\}$/),
+        expect.stringMatching(new RegExp(`^@media \\(min-width:${railFrom(4)}px\\)\\{\\.css-\\w+ td\\.col-3\\{[^}]*display:table-cell;[^}]*\\}\\}$`))
       ],
       sortControl: [
-        expect.stringMatching(/^@media \(min-width:900px\)\{\.css-[\w-]+\{[^}]*display:none;[^}]*\}\}$/)
+        expect.stringMatching(new RegExp(`^@media \\(min-width:${railFrom(4)}px\\)\\{\\.css-[\\w-]+\\{[^}]*display:none;[^}]*\\}\\}$`))
       ]
     });
   });
@@ -393,7 +394,7 @@ describe('EntityList bundle cards', () => {
     expect({
       table: container.querySelector('table'),
       hrefs: cards.map((card) => card.getAttribute('href')),
-      gems: [...petMart.querySelectorAll('img')].filter((img) => img.getAttribute('src').endsWith('PremiumGem.png')).map((img) => img.nextSibling.textContent)
+      gems: [...petMart.querySelectorAll('img')].filter((img) => img.getAttribute('src').endsWith('PremiumGem.png')).map((img) => img.closest('.MuiStack-root').textContent)
     }).toEqual({
       table: null,
       hrefs: [...nodes].sort((a, b) => b.price - a.price).map((node) => `/wiki/bundle/${node.slug}`),

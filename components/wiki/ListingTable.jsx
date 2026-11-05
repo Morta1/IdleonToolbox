@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, Typography } from '@mui/material';
 import DataTable from '@components/common/DataTable';
+import { primaryColumn, secondaryColumn } from '@components/common/DataTable/layout';
 import EntityIcon from './EntityIcon';
 import GemCount from './GemCount';
 import { coinsOf } from './CoinAmount';
@@ -10,6 +11,7 @@ import { formatNum, prefix } from '@utility/helpers';
 import { formatAmount } from '@utility/wiki/effects.mjs';
 import { notateAmount, notateGame } from '@utility/wiki/notate';
 import { NAME_COLUMN, NO_MAX, isNumericColumn } from '@utility/wiki/listing-sort.mjs';
+import { RAIL_SECONDARY_FROM, railFrom } from './WikiRail';
 
 // What tells a same-name page from the others, printed after the name they share. Not under a band heading
 // that already says it ("Trophy" over a trophy).
@@ -24,6 +26,8 @@ const EFFECT = { color: 'text.secondary' };
 
 // The wiki's own cell markup, styled once on the table like the rest.
 const WIKI_CELLS = {
+  // Just past md the box beside the rail is 262 px: a long name may break there rather than scroll the table.
+  '@media (max-width: 960px)': { '& td.name': { overflowWrap: 'anywhere' } },
   '& .end': { display: 'flex', justifyContent: 'flex-end' },
   '& .coins': { display: 'flex', gap: 0.75, flexWrap: 'wrap', justifyContent: 'flex-end', alignItems: 'center' },
   '& .coin': { display: 'flex', gap: 0.25, alignItems: 'center', typography: 'caption', color: 'text.secondary' }
@@ -33,7 +37,8 @@ const WIKI_CELLS = {
 const RightAligned = ({ children }) => <div className={'end'}>{children}</div>;
 
 // CoinAmount's denominations as plain markup the table styles once: a coin column is 1,528 Item cells, and
-// CoinAmount's styled stacks per cell were most of what an expanded Items list cost.
+// CoinAmount's styled stacks per cell were most of what an expanded Items list cost. A plain img for the same reason:
+// a GameIcon per coin took Show 2,360 more from 374 ms to 478.
 const Coins = ({ amount }) => <span className={'coins'}>
   {coinsOf(amount).map(([coinIndex, quantity]) => <span key={coinIndex} className={'coin'}>
     <img src={`${prefix}data/Coins${coinIndex}.png`} alt={''} width={16} height={16} style={{ objectFit: 'contain' }}/>
@@ -43,7 +48,8 @@ const Coins = ({ amount }) => <span className={'coins'}>
 
 const formatted = (value, format) => {
   if (format === 'coins') return <Coins amount={value}/>;
-  if (format === 'amount') return formatAmount(value);
+  // Past a billion a column's digits read as the site's short form, never "1.00e9" beside "1B".
+  if (format === 'amount') return value >= 1e9 ? notateAmount(value) : formatAmount(value);
   if (format === 'notate') return notateGame(value) ?? '';
   if (format === 'usd') return formatNum(value, 'price');
   // A field priced in a currency with art (a superbit's bits): the amount in the game's notation, the art left to the page.
@@ -85,7 +91,7 @@ const RowLink = ({ entry, hrefFor, onNavigate, heading }) => {
 // A listing as one table: the bands become full-width rows inside it, so the columns line up across them,
 // which is the pattern RelationTable uses for a monster's drop tables. The wiki's cell types live here;
 // DataTable draws the table.
-const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onNavigate, labelOf, colourOf, stickyTop }) => {
+const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onNavigate, labelOf, stickyTop }) => {
   // A kind the game draws no art for (superbits, cove upgrades) keeps no empty icon slot on every row.
   const drawsIcons = bands.some((band) => band.entries.some((entry) => entry.node?.icon));
   const name = {
@@ -102,14 +108,18 @@ const ListingTable = ({ columns, bands, sorted, sort, onSortChange, hrefFor, onN
     cellSx: column.type === 'cost' ? COST : column.type === 'effect' ? EFFECT : undefined,
     render: (entry) => cellContent(column, entry.cells?.[i] ?? null, labelOf)
   }));
+  // A column waits until the table holds it beside the rail (WikiRail's widths); the primary is always there.
+  const primary = primaryColumn(data, sort);
+  const secondary = secondaryColumn(data, primary);
+  const allFrom = railFrom(data.length);
+  const placed = data.map((column, i) => (i === primary ? column : { ...column, from: i === secondary ? RAIL_SECONDARY_FROM : allFrom }));
   // The listing's Toolbar holds the phone's Sort
   return <DataTable
     sortField={false}
-    columns={[name, ...data]}
-    bands={bands.map((band, bandIndex) => ({
+    columns={[name, ...placed]}
+    bands={bands.map((band) => ({
       key: band.key,
       label: band.label && !sorted ? labelOf(band.label) : null,
-      accent: colourOf(bandIndex),
       rows: band.entries
     }))}
     rowKey={(entry) => entry.id}

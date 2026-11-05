@@ -1,7 +1,7 @@
 import React from 'react';
 import { Stack, Typography } from '@mui/material';
+import GameIcon from '@components/common/GameIcon';
 import CoinAmount from './CoinAmount';
-import { prefix } from '@utility/helpers';
 import { notateAmount } from '@utility/wiki/notate';
 
 // Not every shop takes coins. The nine town shops do, and their price goes through CoinAmount so it
@@ -13,19 +13,13 @@ const CURRENCY_ART = {
   token: 'data/Trophie.png'
 };
 
-const Price = ({ price, currency, size = 16 }) => {
+const Price = ({ price, currency }) => {
   if (!(price > 0)) return null;
-  if (!currency) return <CoinAmount amount={price} size={size}/>;
+  if (!currency) return <CoinAmount amount={price} size={16}/>;
 
   const art = CURRENCY_ART[currency];
   return <Stack direction={'row'} gap={0.25} alignItems={'center'}>
-    {art ? <img
-      src={`${prefix}${art}`}
-      alt={''}
-      width={size}
-      height={size}
-      style={{ objectFit: 'contain' }}
-    /> : null}
+    {art ? <GameIcon src={art} size={16} alt={''}/> : null}
     <Typography variant={'caption'} color={'text.secondary'}>{notateAmount(price)}</Typography>
   </Stack>;
 };

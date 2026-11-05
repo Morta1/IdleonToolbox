@@ -1,5 +1,5 @@
 import React from 'react';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { KindArt } from './kind-art';
 import { formatNum } from '@utility/helpers';
@@ -21,29 +21,18 @@ const BLURB = {
   bubble: 'Every cauldron bubble, its ingredients and its effect.'
 };
 
-const CategoryHeader = ({ kind, count }) => <Card variant={'outlined'}>
-  <CardContent>
-    {/* Below sm the count wraps onto its own line under the name, so a long name keeps the width */}
-    <Stack direction={'row'} gap={2} alignItems={'center'} sx={{ flexWrap: { xs: 'wrap', sm: 'nowrap' }, rowGap: { xs: 1, sm: 2 } }}>
-      <KindArt kind={kind} size={56}/>
-      <Stack sx={{ minWidth: 0, flex: { xs: '1 1 0', sm: '0 1 auto' } }}>
-        <Typography variant={'pageTitle'} component={'h2'}>{KIND_PLURALS[kind] || kind}</Typography>
-        <Typography variant={'caption'} color={'text.secondary'}>{BLURB[kind]}</Typography>
-      </Stack>
-      <Stack sx={{
-        ml: { xs: 0, sm: 'auto' }, pl: { xs: 9, sm: 0 }, flexBasis: { xs: '100%', sm: 'auto' }, flexShrink: 0,
-        flexDirection: { xs: 'row', sm: 'column' }, alignItems: { xs: 'baseline', sm: 'stretch' }, gap: { xs: 1, sm: 0 },
-        textAlign: { xs: 'left', sm: 'right' }
-      }}>
-        <Typography variant={'heroValue'} component={'div'}>
-          {formatNum(count, 'amount')}
-        </Typography>
-        <Typography variant={'groupLabel'} component={'div'} color={'text.secondary'}>
-          {(KIND_PLURALS[kind] || kind).toLowerCase()}
-        </Typography>
-      </Stack>
-    </Stack>
-  </CardContent>
-</Card>;
+// A plural inside a sentence: lowercase word by word, but an acronym stays as written ("NPCs", "dungeon RNG items").
+export const pluralInSentence = (plural) => plural.split(' ').map((word) => (/[A-Z].*[A-Z]/.test(word) ? word : word.toLowerCase())).join(' ');
+
+const CategoryHeader = ({ kind, count }) => <Stack direction={'row'} gap={2} alignItems={'center'}>
+  <KindArt kind={kind} size={56}/>
+  <Stack sx={{ minWidth: 0 }}>
+    <Typography variant={'pageTitle'} component={'h2'}>{KIND_PLURALS[kind] || kind}</Typography>
+    <Typography variant={'body2'} color={'text.secondary'}>
+      {formatNum(count, 'whole')} {pluralInSentence(KIND_PLURALS[kind] || kind)}
+    </Typography>
+    {BLURB[kind] ? <Typography variant={'caption'} color={'text.secondary'}>{BLURB[kind]}</Typography> : null}
+  </Stack>
+</Stack>;
 
 export default CategoryHeader;
