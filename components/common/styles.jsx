@@ -1,5 +1,5 @@
 import React, { forwardRef, useContext, useEffect } from 'react';
-import { cleanUnderscore, formatNum, growth, prefix, talentText } from 'utility/helpers';
+import { cleanUnderscore, formatNum, growth, prefix, talentText, titleCaseName } from 'utility/helpers';
 import { Stack, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Notice from '@components/common/Notice';
@@ -84,7 +84,7 @@ export const TalentTooltip = ({ level, funcX, x1, x2, funcY, y1, y2, description
   return <>
     <Stack direction={'row'} alignItems={'center'} gap={1}>
       <GameIcon src={`data/UISkillIcon${talentId}.png`} size={32} alt=""/>
-      <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(name)}</Typography>
+      <Typography variant={'cardTitle'} component={'div'} color={'text.primary'}>{titleCaseName(cleanUnderscore(name))}</Typography>
     </Stack>
     <Typography variant={'body2'}>{talentText(description, mainStat, secondaryStat)}</Typography>
   </>
