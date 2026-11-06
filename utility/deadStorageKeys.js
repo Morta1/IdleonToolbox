@@ -34,7 +34,26 @@ const DEAD_KEYS = [
   ["checkbox-Hide portals I can't hit", 'b50f4d9d7d'],
   ['checkbox-Detailed view', 'b50f4d9d7d'],
   ['checkbox-Hide unlocked maps', '987097fd01'],
-  ['checkbox-Hide owned event shop bonuses', 'ee21ca2255']
+  ['checkbox-Hide owned event shop bonuses', 'ee21ca2255'],
+  ['checkbox-Show all pets', '5e4d354ae4'],
+  ['checkbox-Order by time', '5e4d354ae4'],
+  ['checkbox-Apply threshold', '96c4862ecd'],
+  ['checkbox-Group by stat', '5e4d354ae4'],
+  ['checkbox-Hide maxed', '9079c90fad'],
+  ['checkbox-Compact view', 'ae7e28468f'],
+  ['checkbox-Hide purchased unlocks', '6633b3709a'],
+  ['checkbox-Show level-up indicator', 'ae508d2393'],
+  ['checkbox-Hide maxed vials', '9e731ff458'],
+  ['checkbox-Hide unlocked', 'f1c45e7e95'],
+  ['checkbox-Show bonus only', 'f1c45e7e95'],
+  ['checkbox-Hide maxed buildings', '82427c2925'],
+  ['checkbox-Show quantity thresholds', '310e055c76'],
+  ['checkbox-Hide capped', '310e055c76'],
+  ['checkbox-Show progress bars', '310e055c76'],
+  ['checkbox-Show quantity calculator', '310e055c76'],
+  ['checkbox-Force nano chip', 'e3dae21fca'],
+  ['breeding:shinyLevelThreshold', '5e4d354ae4'],
+  ['meals-nmlb-procs', 'd0ad9196cc']
 ];
 
 // Call only from an effect. A visitor with site data blocked gets a SecurityError from every touch of localStorage.
