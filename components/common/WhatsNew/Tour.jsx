@@ -44,7 +44,7 @@ const STOPS = [
 const PAGE_STOP = {
   step: 'page_actions', title: 'Inside a page', route: STAMPS,
   text: 'Pin keeps a page in your menu. Add goal tracks a target from here. Page settings holds the options that change this page\'s numbers.',
-  targets: ['[data-tour="page-actions"]'], pad: 6, place: ['below', 'left', 'right', 'above']
+  targets: ['[data-tour="page-actions"]'], pad: 6, atTop: true, place: ['below', 'left', 'right', 'above']
 };
 const THEME_STOP = {
   step: 'theme', title: 'Theme', route: STAMPS, text: 'Pick dark, light or your system\'s setting here, or from Settings.', pad: 6, theme: true
@@ -89,9 +89,22 @@ const pinnedBottom = (pageTop) => {
 
 const smoothly = () => (window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth');
 
+// A smooth scroll still running when Next is pressed runs on the compositor, and its last frame can land after a jump made on
+// the main thread: stopped here, frames ahead of the jump, a page's first row stays in view.
+const stopScrolling = async () => {
+  window.scrollTo({ top: window.scrollY, behavior: 'auto' });
+  await new Promise((resolve) => {
+    requestAnimationFrame(() => requestAnimationFrame(resolve));
+  });
+};
+
 // The window's edge stops the cut, and on the page the pinned bars do: the dim covers them. A target that fits stays where
 // it is; one that doesn't parks its top under the pinned bars, which a plain scrollIntoView would put it behind.
 const bringIntoView = (stop, pageTop) => {
+  if (stop.atTop) {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+    return;
+  }
   if (stop.atEnd) {
     window.scrollTo({ top: document.documentElement.scrollHeight, behavior: smoothly() });
     return;
@@ -265,6 +278,7 @@ const Tour = ({ onEnd }) => {
     let gone = false;
     const arrive = async () => {
       const route = stop.route ?? DASHBOARD;
+      if (stop.atTop) await stopScrolling();
       if (Router.pathname !== route) await goTo(route, ownRoute, pushes);
       await until(noLoader, PAGE_WAIT_MS);
       const found = await until(() => isHere(stop), ARRIVAL_WAIT_MS);

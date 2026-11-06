@@ -221,9 +221,26 @@ test.describe('the tour', () => {
     for (const name of [/Pin/, /Add goal/, /Page settings/]) await expect(group.getByRole('button', { name })).toBeVisible();
     const box = await card(page).boundingBox();
     const buttons = await group.boundingBox();
+    // Clear of the bar and the band: a scroll left over from the stop before can put them under it.
+    expect(buttons.y).toBeGreaterThanOrEqual(96);
     expect(box.y).toBeGreaterThan(buttons.y + buttons.height);
     expect(box.x + box.width).toBeLessThanOrEqual(1366);
     expect(box.y + box.height).toBeLessThanOrEqual(768);
+  });
+
+  test('Back from the theme at the page\'s end brings the buttons into view again', async ({ page }) => {
+    await open(page);
+    await page.goto('/dashboard?demo=true');
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await startTour(page);
+    await toPageStop(page);
+    await next(page);
+    await atStop(page, 'Theme');
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
+    await card(page).getByRole('button', { name: 'Back' }).click();
+    await atStop(page, 'Inside a page');
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
+    expect((await page.locator('[data-tour="page-actions"]').boundingBox()).y).toBeGreaterThanOrEqual(96);
   });
 
   test('started on the Dashboard, Done from the page goes back to the Dashboard', async ({ page }) => {
