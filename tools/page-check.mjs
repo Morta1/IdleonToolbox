@@ -17,6 +17,8 @@
 //            The first match. Its text joins the dump, and the shots catch it open. Repeat it for a step inside what opened:
 //            --click 'button:has-text("Sign in")' --click 'button:has-text("Continue with email")'
 // --clock    an ISO time that the page and the parse Worker read as now, so two runs an hour apart compare with `diff -r`.
+// --watch   a selector: every frame from the first paint on, the box of each match while it's visible. One that moves or
+//            resizes after it first showed is a hit, so a late arrival can't push what is already on screen.
 // --on-art   lists the text the contrast scan skips because art sits under it, unless it's marked data-on-art: a person reads
 //            these, because text in the page's ink over a dark sprite vanishes in one scheme.
 // --base     default http://localhost:$E2E_PORT, or 3002.
@@ -43,6 +45,7 @@ const { values: opts, positionals } = parseArgs({
     settle: { type: 'string', default: '0' },
     click: { type: 'string', multiple: true },
     clock: { type: 'string' },
+    watch: { type: 'string' },
     'on-art': { type: 'boolean', default: false },
     base: { type: 'string', default: `http://localhost:${process.env.E2E_PORT ?? 3002}` },
     out: { type: 'string', default: '.page-check' },
@@ -85,6 +88,28 @@ const forceSections = (names) => {
     if (Array.isArray(message?.args)) message.args[7] = { ...message.args[7], failSections: names };
     return post.call(this, message, ...rest);
   };
+};
+
+// Top frame only, as an ad frame has none of the page's boxes. Boxes are in page coordinates, so a scroll is no move.
+const watchBoxes = (selector) => {
+  if (window !== window.top) return;
+  const seen = new Map();
+  const watch = { frames: 0, shown: 0, moved: [] };
+  window.__watch = watch;
+  const tick = () => {
+    watch.frames += 1;
+    document.querySelectorAll(selector).forEach((el) => {
+      const r = el.getBoundingClientRect();
+      if (!r.width || getComputedStyle(el).visibility !== 'visible') return;
+      const box = [r.left + scrollX, r.top + scrollY, r.width, r.height].map(Math.round).join(' ');
+      const was = seen.get(el);
+      if (was === undefined) watch.shown += 1;
+      else if (was !== box) watch.moved.push(`${el.getAttribute('aria-label') ?? el.innerText?.trim().slice(0, 30)}: ${was} to ${box}`);
+      seen.set(el, box);
+    });
+    requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
 };
 
 const waitForRender = async (page, maxMs = 20000) => {
@@ -365,6 +390,7 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
   const touch = size.width < 768;
   const context = await browser.newContext({ viewport: size, storageState: consent, ...(touch ? { isMobile: true, hasTouch: true } : {}) });
   if (force) await context.addInitScript(forceSections, force);
+  if (opts.watch) await context.addInitScript(watchBoxes, opts.watch);
   // Top frame only: an init script runs in every frame, and a sandboxed ad frame throws on localStorage.
   if (scheme !== 'dark') await context.addInitScript((mode) => { if (window === window.top) localStorage.setItem('mui-mode', mode); }, scheme);
   if (storage) {
@@ -411,6 +437,11 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
       }
     }
     const { hits, height, sideways } = await scanned();
+    if (opts.watch) {
+      const { moved, frames, shown } = await page.evaluate(() => window.__watch);
+      hits.moved = moved;
+      result.watched = `${shown} boxes over ${frames} frames`;
+    }
     hits.hiddenHead = await hiddenHeads(page);
     hits.error = errors;
     if (sideways > 1) hits.sideways = [`${sideways}px`];
@@ -472,7 +503,7 @@ let hitCount = 0;
 for (const result of results) {
   const kinds = Object.entries(result.hits ?? {});
   hitCount += kinds.length + (result.failed ? 1 : 0);
-  console.log(`${result.route} ${result.state} ${result.scheme === 'dark' ? '' : `${result.scheme} `}${result.size} height ${result.height ?? '?'}: ${result.failed ?? (kinds.map(([kind, list]) => `${kind} ${list.length}`).join(', ') || 'clean')}`);
+  console.log(`${result.route} ${result.state} ${result.scheme === 'dark' ? '' : `${result.scheme} `}${result.size} height ${result.height ?? '?'}${result.watched ? ` (${result.watched})` : ''}: ${result.failed ?? (kinds.map(([kind, list]) => `${kind} ${list.length}`).join(', ') || 'clean')}`);
   for (const [kind, list] of kinds) console.log(`  ${kind}: ${list.slice(0, 5).join(' || ')}`);
 }
 if (!opts['no-shots']) {
