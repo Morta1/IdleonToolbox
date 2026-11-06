@@ -35,6 +35,6 @@ if [ "$QUICK_COMMIT" = "1" ]; then
 else
   npm test
 fi
-# Lint only what is being committed. Existing violations are in eslint-suppressions.json.
+# Lint only what is being committed.
 files=$(git diff --cached --name-only --diff-filter=ACMR -- '*.js' '*.jsx' '*.mjs' '*.ts' '*.tsx')
 [ -z "$files" ] || npx eslint --no-warn-ignored --pass-on-unpruned-suppressions $files

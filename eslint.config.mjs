@@ -2,14 +2,12 @@ import { defineConfig, globalIgnores } from 'eslint/config'
 import nextVitals from 'eslint-config-next/core-web-vitals'
 
 // Redesign guard: components read theme roles and format numbers through the game's notation.
-// Today's violations live in eslint-suppressions.json, which only ever shrinks: a commit that fixes
-// some runs `npx eslint . --prune-suppressions`, nobody runs --suppress-all again.
+// The baseline of old violations is gone: the guard stands at error with nothing excused, and a new one is a fix, not a suppression.
 const HEX = '/#([0-9a-fA-F]{8}|[0-9a-fA-F]{6}|[0-9a-fA-F]{3})\\b/'
 const HEX_MESSAGE = 'Hex color in a component: use a theme role (Foundations board). Game and data colors belong in their own set outside components/.'
 const NUMBER_MESSAGE = 'Raw number formatting: use formatNum or <Num> (Numbers board). Dates use the date helpers.'
 // Status colors by job (Foundations board, Decision 3): words take text.success and kin, fills and edges success.main
-// and kin; never a light or dark shade. The data colour sets and the identity edges the owner keeps (phase 5) sit in
-// the suppressions.
+// and kin; never a light or dark shade. Data colour sets live outside components/.
 const SHADE = '/^(success|error|warning|info)\\.(light|dark)$/'
 const SHADE_MESSAGE = 'Status shade in a component: words take the role (text.success), fills and edges the main shade (success.main). Foundations board.'
 const TYPE_MESSAGE = 'h1 to h6 are not titles: use pageTitle, sectionTitle, cardTitle or groupLabel (Foundations board, Type).'

@@ -12,7 +12,7 @@ const BUILD = [/^components\//, /^pages\//, /^hooks\//, /^utility\//, /^styles\/
 // Tests, docs and the config of tools that never reach out/.
 const NO_BUILD = [
   /^__test__\//, /^e2e\//, /^docs\//, /^tools\//, /^\.husky\//, /^\.claude\//, /^\.github\//, /\.md$/,
-  /^eslint\.config\.mjs$/, /^eslint-suppressions\.json$/, /^vitest\.config\.js$/, /^playwright(\.screens)?\.config\.js$/,
+  /^eslint\.config\.mjs$/, /^vitest\.config\.js$/, /^playwright(\.screens)?\.config\.js$/,
   /^\.gitignore$/, /^LICENSE$/,
 ];
 
