@@ -43,6 +43,22 @@ Audited on 2026-11-06, by reading the code rather than running each page: of the
 **Found since:**
 - For `main`'s list, last: golden food's note says "Increases Mining Efficiency by 0%" (Storage tiles, same default in `ItemDisplay`); the Charge Syphon NaN is on `main` too.
 
+## From the board sync (2026-11-06)
+
+Seen while redrawing the boards from the code, on the preview. Read in the code by that session only, so check each first.
+
+- Raw toggle groups are grey where `ViewSwitch` is blue: `pages/settings.jsx:297`, `components/goals/parts/AppliesTo.jsx:35`, `MetricChips.jsx`
+- Refinery at 384 wide, Sort: Rank, scrolls sideways 4 px inside its card: `pages/account/world-3/refinery.jsx:284`, `components/common/DataTable/index.jsx:187`
+- `New week` and `Empty` past a timer's end are plain, while the dashboard's are in the ready tone: `vote-ballot.jsx:93`, `forge.jsx:93`, `refinery.jsx:147`
+- A plain-string Stats value with a breakdown sits 2 px right of the others: `Panel.jsx:37` against `Breakdown.tsx`
+- Column chart ticks: "10,000" hangs about 10 px past the chart's left edge: `ColumnChart.jsx:75`
+- Exact digits with no dotted underline on Buildings and Meals, from a bare `NoteTrigger`: `pages/account/world-3/buildings.jsx:91`, `World4/Meals.jsx`
+- A stat's "Capped" is a plain coloured word, not `StatusText`: `components/characters/Stats.jsx:88`
+- `GameIcon` at 28 on clickers' next bonus looks like a slip: `components/account/clickers/NextBonus.jsx:10`
+- Dark `identity.builds.main` words are 4.2:1 (joins `identity.stats` above); the phone sheet keeps MUI's shadow instead of the floating one
+- Small: the search field's Esc chip inherits bold (`QuickSearch.jsx:402,433`); tile row gap 16 against 8 on the Hole (`Hole/Explore.jsx:29`); Forge's `mb: 2` (`forge.jsx:122`); the phone select's edge is `action.disabled`, not `outline` (`SectionTabs.jsx:136`); a plain table heading sits 1 px above a sortable one (`DataTable/index.jsx:166`); a stuck head's corner rounding (`DataTable/index.jsx:207`); the checkbox focus ring overlaps its label about 4 px (`theme.js:249`); `orientation` on `Tabber` never reaches MUI's Tabs (`Tabber.jsx:44,180`); `GameIcon.jsx:46` says inventory and equipment use `fit="canvas"`, but they use `IconTile`'s drawn fit; `IconTile` still takes `buttonProps` (`stamps.jsx:341`)
+- Open: `valueTicks`' 2.5 step; Total levels doesn't print its 18,000+ end label at 390 or 1300 wide; `StatTile size="hero"` has no users
+
 ## Older list, not re-checked (2026-11-01)
 
 **Update 2026-11-02:** the five items below and the Traps icon are FIXED on `origin/main` (side sessions, pushed 2026-11-01); `feat/redesign` does not have them until `origin/main` is merged in (an owner decision). Still open on main: the raw `@`/`$` placeholders below, the guild page title race (3h), the sign-in bugs 3e found (GA login method, Google unmount, email Enter and autocomplete), and `usePin.jsx` lines 24 to 29 (a parenthesis bug: unpinning one page drops every pin with a different deep tab; found by the phase 4 draft).
