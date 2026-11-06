@@ -362,7 +362,8 @@ const calcBookCount = (account: any, characters: any, idleonData: any) => {
   let libTime = timeAway?.BookLib ?? 0;
   let afk = timeAway ? (new Date).getTime() / 1e3 - timeAway.GlobalTime : 0;
   let bookCount = baseBookCount;
-  if (afk > 300) libTime += afk;
+  // AwayTimers only pays out 0 < away < 1e8 (N.js:80445).
+  if (afk > 300 && afk < 1e8) libTime += afk;
   while (libTime > getTimeToNextBooks(bookCount, account, characters, idleonData)?.value) {
     libTime -= getTimeToNextBooks(bookCount, account, characters, idleonData)?.value;
     bookCount += 1;
@@ -602,7 +603,7 @@ export const enhanceKeysObject = (keysAll: any, characters: any, account: any) =
     2: { name: 'Bellows', dialogThreshold: 8.5, daysSinceIndex: 80 },
     3: {}
   }
-  return keysAll.map((key: any, keyIndex: any) => {
+  return keysAll?.map((key: any, keyIndex: any) => {
     const amountPerDay = getAmountPerDay((npcs as Record<string, any>)?.[keyIndex], characters);
     const daysSincePickup = account?.accountOptions?.[(npcs as Record<string, any>)?.[keyIndex]?.daysSinceIndex];
     const totalAmount = Math.min(daysSincePickup ?? 0, 3) * amountPerDay;
