@@ -49,7 +49,7 @@ describe('listingColumns', () => {
   it('derives the columns from the graph', () => {
     const kinds = ['item', 'monster', 'pet', 'bundle', 'world', 'talent', 'vault', 'sushiupgrade', 'tome', 'armorset', 'totem', 'summoningupgrade', 'rift', 'mineheadopponent', 'observation', 'advicefish'];
     expect(Object.fromEntries(kinds.map((kind) => [kind, listingEntries(graph, kind).columns.map((column) => column.label)]))).toEqual({
-      item: ['Type', 'Level', 'Sell Price'],
+      item: ['Type', 'Level', 'Sell price'],
       monster: ['Section', 'Health', 'Experience', 'Attack', 'Def for 0'],
       pet: ['Category', 'Power', 'Upgraded power', 'Pet Mart+ cost'],
       bundle: ['Category', 'Price', 'Gems'],

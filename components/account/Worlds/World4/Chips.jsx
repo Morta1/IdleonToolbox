@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, titleCaseName } from '@utility/helpers';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import IconTile from '@components/common/cards/IconTile';
@@ -7,8 +7,8 @@ import IconTile from '@components/common/cards/IconTile';
 // The Lab level each of a character's seven chip slots opens at
 export const CHIP_SLOT_LEVELS = [5, 10, 15, 25, 35, 50, 75];
 
-// The game writes chip, jewel and lab bonus names in capitals: "GROUNDED_NANOCHIP" reads "Grounded nanochip"
-export const titleCase = (name) => cleanUnderscore(name?.toLowerCase()?.capitalize());
+// The game writes chip, jewel and lab bonus names in capitals: "GROUNDED_NANOCHIP" reads "Grounded Nanochip"
+export const titleCase = (name) => titleCaseName(cleanUnderscore(name));
 
 // A chip's bonus with its { filled by its base value
 export const chipText = (chip) => cleanUnderscore(chip?.bonus?.replace(/{/g, chip?.baseVal ?? 0));

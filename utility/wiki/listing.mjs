@@ -30,7 +30,7 @@ export const KIND_COLUMNS = {
     facet: 'Type',
     columns: [
       { key: 'level', label: 'Level', format: 'amount', value: (node) => node.stats?.lvReqToEquip || null },
-      { key: 'sell-price', label: 'Sell Price', format: 'coins', value: (node) => node.sellPrice || null }
+      { key: 'sell-price', label: 'Sell price', format: 'coins', value: (node) => node.sellPrice || null }
     ]
   },
   monster: {

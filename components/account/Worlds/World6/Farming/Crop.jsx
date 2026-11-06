@@ -1,5 +1,5 @@
 import { Stack, Typography } from '@mui/material';
-import { createRange, formatDuration, formatNum } from '@utility/helpers';
+import { createRange, formatDuration, formatNum, titleCaseName } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { seedInfo } from '@website-data';
 import React from 'react';
@@ -26,7 +26,7 @@ const Crop = ({ crop, maxTimes, cropDepot }) => {
       {seedInfo.map(({ name, seedId, cropIdMin, cropIdMax }, index) => {
         const array = createRange(cropIdMin, cropIdMax);
         const img = name === 'MEDAL' ? `data/FarmCrop230.png` : `etc/Seed_${seedId}.png`;
-        const label = name.toLowerCase().capitalize();
+        const label = titleCaseName(name);
         return <Stack key={name} gap={1}>
           <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
             <GameIcon src={img} size={24} alt={''}/>

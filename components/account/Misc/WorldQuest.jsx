@@ -109,7 +109,7 @@ const questNote = ({ Name, customArray, itemReq, rewards }) => <Stack gap={1.5}>
 
 const questSub = (quest, characters) => {
   const working = quest?.inProgress ? quest.progress.filter(({ status }) => status === 0)
-    .map(({ charIndex }) => characters?.[charIndex]?.name).filter(Boolean) : [];
+    .map(({ charIndex }) => cleanUnderscore(characters?.[charIndex]?.name)).filter(Boolean) : [];
   if (!working.length && !quest?.missableDrops?.length) return undefined;
   return <Stack gap={0.5} component={'span'}>
     {working.length ? <span>{`In progress for ${working.join(', ')}`}</span> : null}

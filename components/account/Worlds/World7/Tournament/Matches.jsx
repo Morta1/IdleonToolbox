@@ -59,7 +59,7 @@ const MatchCard = ({ match, companionList, companionsFailed }) => {
   const [showBattle, setShowBattle] = useState(false);
   const hasBattle = match.battleRounds?.length > 0;
   const result = match.result === 'win' ? 'done' : match.result === 'loss' ? 'problem' : undefined;
-  return <ItemCard title={`vs ${match.opponentName}`} meta={match.roundName ?? 'Qualifying'}
+  return <ItemCard title={`vs ${cleanUnderscore(match.opponentName)}`} meta={match.roundName ?? 'Qualifying'}
                    status={result} statusLabel={match.result === 'win' ? 'Win' : 'Loss'}>
     {match.isQualifying ? <ItemCard.Facts rows={[['Lives', formatNum(match.playerLives ?? 0)]]}/> : null}
     <Team label={'Your team'} pets={match.playerPets} companions={companionList} companionsFailed={companionsFailed}/>

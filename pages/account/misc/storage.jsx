@@ -1,7 +1,7 @@
 import { AppContext } from 'components/common/context/AppProvider';
 import React, { useContext } from 'react';
 import { Box, Link, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum, getCoinsArray, getTabs, groupByKey } from 'utility/helpers';
+import { cleanUnderscore, formatNum, getCoinsArray, getTabs, groupByKey, titleCaseName } from 'utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import { openWikiEntity } from '@utility/wiki/item-page';
@@ -97,7 +97,7 @@ const Looty = () => {
               ? 'Your storage items show here once you sign in.' : 'Your storage chest is empty.'}</Notice>
             : view.view === 'type'
               ? <Stack gap={2}>{groups.map(([type, items]) => <Panel key={type}
-                                                                     title={cleanUnderscore(type).toLowerCase().capitalize()}
+                                                                     title={titleCaseName(cleanUnderscore(type))}
                                                                      meta={`${formatNum(items.length)} ${items.length === 1 ? 'item' : 'items'}`}>
                 <Box sx={{ p: 1.5 }}><CardGrid size={'icon'}>{items.map(itemTile)}</CardGrid></Box>
               </Panel>)}</Stack>
