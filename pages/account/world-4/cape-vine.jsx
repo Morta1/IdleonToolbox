@@ -37,7 +37,7 @@ const CapeVinePage = () => {
         <StatTile label={'Golden Vines'} value={goldenVines ?? 0} kind={'amount'}/>
         <StatTile label={'Next Golden Vine'} value={`Class Lv ${formatNum(nextGoldenVineClassLevel ?? 0)}`}/>
       </PageSummary>
-      {parseFailed ? null : <CapeVine capesUsed={capesUsed} capeBonuses={capeBonuses} allCapes={allCapes}/>}
+      {parseFailed ? null : <CapeVine capesUsed={capesUsed} capeBonuses={capeBonuses} allCapes={allCapes} sectionFailed={sectionFailed}/>}
     </>
   );
 };

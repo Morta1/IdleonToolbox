@@ -60,14 +60,14 @@ const catalogAtZero = () => (ARTIFACTS ?? []).map((artifact, index) => ({
     .replace('$', gameTables?.artifactFormText?.forms?.[0] ?? '')
 }));
 
-const Artifacts = ({ artifacts }) => <CardGrid size={'m'}>
+const Artifacts = ({ artifacts, sectionFailed }) => <CardGrid size={'m'}>
   {(artifacts ?? catalogAtZero()).map((artifact, index) => {
     const { name, rawName, acquired, additionalData } = artifact;
     const tier = acquired ?? 0;
     const current = tier >= 2 ? getTierDescription(artifact, tier) : '';
     const next = tier >= 1 && tier < TIERS.length ? getTierDescription(artifact, tier + 1) : '';
     return <ItemCard key={`${name}-${index}`} icon={artifactIcon(rawName, tier)} title={cleanUnderscore(name)} dimmed={!tier}
-                     meta={tier ? `Tier ${tier} of ${TIERS.length} · ${TIERS[tier - 1]?.full}` : 'Not acquired'}>
+                     meta={tier ? `Tier ${tier} of ${TIERS.length} · ${TIERS[tier - 1]?.full}` : sectionFailed ? undefined : 'Not acquired'}>
       <ItemCard.Desc text={withTotalLine(artifact?.description)}/>
       {/* The tier is the meta line's; the rows say what it gives now and what the next one would */}
       <ItemCard.Facts rows={[

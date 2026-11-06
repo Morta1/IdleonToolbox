@@ -9,6 +9,7 @@ import Panel from '@components/common/cards/Panel';
 import StatusText from '@components/common/StatusText';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
+import { SummaryFailed } from '@components/common/cards/PageSummary';
 import { PRESSES_PER_BONUS } from './Bonuses';
 
 const TASKS_TOOLBAR = { cycle: 0, hideReady: false };
@@ -31,6 +32,7 @@ const upcoming = (task) => createBreakdown('Upcoming requirements', amount(task.
 
 const Tasks = ({ taskSequence, bonuses, totalPresses, cycleLength, pressesIntoCurrentBonus }) => {
   const { state } = useContext(AppContext);
+  const failed = useContext(SummaryFailed);
   const characters = state?.characters;
   const account = state?.account;
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('the-button-tasks', TASKS_TOOLBAR);
@@ -65,7 +67,7 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, cycleLength, pressesIntoCu
   // Each task's best progress over the characters, once per task: four of them read a character's drop rate or damage
   const best = Object.fromEntries([...new Set(rows.map(({ index }) => index))]
     .map((index) => [index, getBestProgress(rows.find((task) => task.index === index))]));
-  const isReady = (task) => (best[task.index]?.progress ?? 0) >= task.requirement;
+  const isReady = (task) => !failed && (best[task.index]?.progress ?? 0) >= task.requirement;
   const shownRows = toolbar?.hideReady ? rows.filter((task) => !isReady(task)) : rows;
   // The cycle's presses in runs of one bonus, in order
   const groups = shownRows.reduce((list, task) => (list.at(-1)?.bonusIdx === task.bonusIdx
@@ -91,7 +93,7 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, cycleLength, pressesIntoCu
                         : null}>
           {tasks.map((task) => {
             const { progress, bestChar } = best[task.index] ?? {};
-            const first = cycle === 0 && task.pressNumber === rows[0]?.pressNumber;
+            const first = !failed && cycle === 0 && task.pressNumber === rows[0]?.pressNumber;
             const sub = [first ? 'Next press' : null, bestChar ? `Best: ${bestChar.name}` : null].filter(Boolean).join(' · ');
             return <Panel.Row key={task.pressNumber} name={task.description} sub={sub || undefined}
                               value={isReady(task)

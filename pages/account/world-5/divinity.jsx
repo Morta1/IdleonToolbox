@@ -21,7 +21,7 @@ import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
 import CoralKidUpgrades from '@components/account/Worlds/World7/CoralReef/CoralKidUpgrades';
 import DivinityStyles from '@components/account/Worlds/World5/DivinityStyles';
-import PageSummary from '@components/common/cards/PageSummary';
+import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -130,7 +130,7 @@ const Divinity = () => {
     return [{ name, classIndex, value: bonus, bonus: String(minorBonus ?? '').replace(/{/g, bonus) }];
   });
 
-  return <>
+  return <SummaryFailed value={sectionFailed}>
     <NextSeo
       title="Divinity | Idleon Toolbox"
       description="Keep track of your characters' gods connections and upgrades"
@@ -140,7 +140,7 @@ const Divinity = () => {
     <PageSummary failed={sectionFailed}>
       {/* The game's rank is max(0, unlocked gods - 10), so a guest reads 0 */}
       <StatTile label={'God rank'} value={godRank ?? 0} kind={'amount'}/>
-      <StatTile label={'Total Divinity LV'} value={getTotalDivinityLevel(state?.characters)} kind={'amount'} failed={false}/>
+      <StatTile label={'Total Divinity LV'} value={getTotalDivinityLevel(state?.characters)} kind={'amount'} failed={isParseFailed(state?.account)}/>
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'divinity')}>
       <div>
@@ -179,7 +179,7 @@ const Divinity = () => {
       <CoralKidUpgrades coralKidUpgrades={coralKidUpgrades}/>
       <DivinityStyles characters={state?.characters}/>
     </Tabber>
-  </>;
+  </SummaryFailed>;
 };
 
 export default Divinity;

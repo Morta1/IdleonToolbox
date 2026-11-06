@@ -5,7 +5,7 @@ import { formatNum, getTabs } from '@utility/helpers';
 import Notice from '@components/common/Notice';
 import { isParseFailed, isSectionFailed, MissingData } from '@components/common/styles';
 import Num from '@components/common/Num';
-import PageSummary from '@components/common/cards/PageSummary';
+import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
@@ -44,7 +44,7 @@ const JellyOperator = () => {
   // A guest has nothing to reach yet, and a failed section says nothing about where the account is
   const locked = !unlocked && !state?.emptyAccount && !sectionFailed;
 
-  return <>
+  return <SummaryFailed value={sectionFailed}>
     <NextSeo
       title="Jelly Operator | Idleon Toolbox"
       description="Track your Jelly Operator obstructions, cell upgrades, bloodcells and bonuses in Legends of Idleon World 7 Research"
@@ -80,7 +80,7 @@ const JellyOperator = () => {
       <UpgradeOptimizer account={state?.account} characters={state?.characters} sectionFailed={sectionFailed} locked={locked}/>
       <Cells cells={cells}/>
     </Tabber>
-  </>;
+  </SummaryFailed>;
 };
 
 export default JellyOperator;

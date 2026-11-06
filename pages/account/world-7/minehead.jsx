@@ -5,7 +5,7 @@ import { MissingData, isParseFailed, isSectionFailed } from '@components/common/
 import { formatNum, getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
-import PageSummary from '@components/common/cards/PageSummary';
+import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
@@ -35,7 +35,7 @@ const Minehead = () => {
   // the tile's own text
   const perHourText = formatNum(currencyGain ?? 0);
 
-  return <>
+  return <SummaryFailed value={sectionFailed}>
     <NextSeo
       title="Minehead | Idleon Toolbox"
       description="Track your Minehead upgrade levels, opponent stats, and bonus progression in Legends of Idleon World 7"
@@ -59,7 +59,7 @@ const Minehead = () => {
                 doublersOwned={account?.menagerie?.doublers?.minehead?.owned ?? 0}/>
       <Opponents opponents={opponents}/>
     </Tabber>
-  </>;
+  </SummaryFailed>;
 };
 
 export default Minehead;

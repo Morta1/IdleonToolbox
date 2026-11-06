@@ -5,6 +5,8 @@ import { describe, expect, it } from 'vitest';
 import { render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import StatTile from '@components/common/cards/StatTile';
+import { SummaryFailed } from '@components/common/cards/PageSummary';
+import StatusText from '@components/common/StatusText';
 import darkTheme from '../../styles/theme/darkTheme';
 
 const renderCard = (ui) => render(<ThemeProvider theme={darkTheme}>{ui}</ThemeProvider>);
@@ -41,4 +43,11 @@ describe('StatTile', () => {
       expect(Boolean(slot && within(slot).queryByRole('button'))).toBe(drawer);
       expect(Boolean(screen.queryByText('from children'))).toBe(kids);
     });
+});
+
+describe('StatusText', () => {
+  it('says no state over a failed section', () => {
+    const { container } = renderCard(<SummaryFailed value={true}><StatusText status={'locked'}/></SummaryFailed>);
+    expect(container.textContent).toBe('');
+  });
 });

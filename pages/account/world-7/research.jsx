@@ -6,7 +6,7 @@ import { MissingData, isParseFailed, isSectionFailed } from '@components/common/
 import { formatDuration, formatNum, getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
-import PageSummary from '@components/common/cards/PageSummary';
+import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
@@ -59,7 +59,7 @@ const Research = () => {
   const registrantNote = 'Research Registrant banks 12 hours of research gains each time you register for the tournament: '
     + `registering daily is a flat 1.5x rate.${researchRegistrantOwned ? '' : " You don't own it yet."}`;
 
-  return <>
+  return <SummaryFailed value={sectionFailed}>
     <NextSeo
       title="Research | Idleon Toolbox"
       description="Keep track of your research level, observations and grid bonuses"
@@ -114,7 +114,7 @@ const Research = () => {
       </Stack>
       <PostyNotes postyNotes={postyNotes}/>
     </Tabber>
-  </>;
+  </SummaryFailed>;
 };
 
 export default Research;

@@ -604,7 +604,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
         {minibosses?.map((miniboss) => <MinibossRow key={`miniboss-timer-${miniboss.rawName}`} {...miniboss}/>)}
       </Section>}
       {trackers?.Etc?.library?.checked && account?.finishedWorlds?.World2
-        ? <Library libraryTimes={account?.libraryTimes} failed={failed('libraryTimes')}/> : null}
+        ? <Library libraryTimes={account?.libraryTimes} failed={account?.failedSections?.length > 0}/> : null}
     </CardGrid>
   </>
 };

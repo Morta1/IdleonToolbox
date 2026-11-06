@@ -68,7 +68,7 @@ const Summoning = () => {
       title="Summoning | Idleon Toolbox"
       description="View your summoning upgrades, winner bonuses, and battle rewards in Legends of Idleon"
     />
-    {sectionFailed ? <MissingData name={'Summoning'} failed atZero={!parseFailed && tabs[tabIndex] !== 'Stones'}/> : null}
+    {sectionFailed ? <MissingData name={'Summoning'} failed atZero={!parseFailed}/> : null}
     <PageSummary failed={sectionFailed}>
       <StatTile icon={'etc/Endless_Summoning.png'} label={'Highest endless level'} value={highestEndlessLevel ?? 0}
                 kind={'amount'}/>

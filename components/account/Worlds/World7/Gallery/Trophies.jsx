@@ -54,7 +54,7 @@ const trophyMeta = (trophy) => {
     : `Inventory · ${formatNum(trophy?.inventoryMultiplier, 'mult')}`;
 };
 
-const Trophies = ({ trophiesUsed, bonusRows, inventoryTrophies, allTrophies }) => <>
+const Trophies = ({ trophiesUsed, bonusRows, inventoryTrophies, allTrophies, sectionFailed }) => <>
   {inventoryTrophies?.length ? <Stack gap={1} sx={{ my: 3 }}>
     <Typography variant={'sectionTitle'} component={'h2'}>Inventory trophies</Typography>
     <CardGrid size={'icon'}>
@@ -81,7 +81,7 @@ const Trophies = ({ trophiesUsed, bonusRows, inventoryTrophies, allTrophies }) =
   </Stack> : null}
   {allTrophies?.length ? <Stack gap={1} sx={{ my: 3 }}>
     <Typography variant={'sectionTitle'} component={'h2'}>All trophies</Typography>
-    <CardGrid size={'s'}>{allTrophies.map((trophy) => catalogCard(trophy, trophyMeta(trophy)))}</CardGrid>
+    <CardGrid size={'s'}>{allTrophies.map((trophy) => catalogCard(trophy, sectionFailed ? undefined : trophyMeta(trophy)))}</CardGrid>
   </Stack> : null}
   {/* A guest has no bonus: no Panel, no heading */}
   {bonusRows?.length ? <Panel title={'Bonuses'} sx={{ my: 3 }}>

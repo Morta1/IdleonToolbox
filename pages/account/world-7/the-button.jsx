@@ -4,7 +4,7 @@ import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
 import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { formatNum } from '@utility/helpers';
-import PageSummary from '@components/common/cards/PageSummary';
+import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import Tasks from '@components/account/Worlds/World7/TheButton/Tasks';
 import Bonuses, { PRESSES_PER_BONUS } from '@components/account/Worlds/World7/TheButton/Bonuses';
@@ -28,7 +28,7 @@ const TheButton = () => {
   const cycleLength = PRESSES_PER_BONUS * (bonuses?.length ?? 0);
   const activeBonus = bonuses?.[activeBonusIndex];
 
-  return <>
+  return <SummaryFailed value={sectionFailed}>
     <NextSeo
       title="The Button | Idleon Toolbox"
       description="Track your Button presses, task progress, and bonus multipliers in Legends of Idleon World 7"
@@ -50,7 +50,7 @@ const TheButton = () => {
       {parseFailed ? null : <Tasks taskSequence={taskSequence} bonuses={bonuses} totalPresses={totalPresses} cycleLength={cycleLength}
              pressesIntoCurrentBonus={pressesIntoCurrentBonus}/>}
     </Stack>
-  </>;
+  </SummaryFailed>;
 };
 
 export default TheButton;

@@ -351,7 +351,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
 
     </>,
     'World 3': <>
-              {alerts?.['World 3']?.library?.books ?
+              {alerts?.['World 3']?.library?.books && !anyFailed ?
                 <Alert target={'World 3.library.books'}
                   title={`Library has ${counted(account?.libraryTimes?.bookCount, 'book')} ready`}
                   iconPath={'data/Libz'}/> : null}

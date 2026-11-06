@@ -39,7 +39,7 @@ const Sailing = () => {
       <StatTile label={'Boats'} icon={'npcs/Boat.gif'} value={sailing?.boats?.length ?? 0} kind={'amount'}/>
     </PageSummary>
     <Tabber tabs={tabs}>
-      <Artifacts artifacts={sailing?.artifacts}/>
+      <Artifacts artifacts={sailing?.artifacts} sectionFailed={sectionFailed}/>
       <Trades trades={sailing?.trades} hasBoats={(sailing?.boats?.length ?? 0) > 0} sectionFailed={sectionFailed}/>
       <BoatsAndCaptains boats={sailing?.boats} captains={sailing?.captains}
                         lootPile={sailing?.lootPile}

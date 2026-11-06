@@ -100,11 +100,13 @@ const Gallery = () => {
         bonusRows={bonusRows(trophyBonuses)}
         inventoryTrophies={inventoryTrophies}
         allTrophies={allTrophies}
+        sectionFailed={sectionFailed}
       />
       <Nametags
         nametagsUsed={nametagsUsed}
         bonusRows={bonusRows(nametagBonuses)}
         allNametags={allNametags}
+        sectionFailed={sectionFailed}
       />
     </Tabber>
   </>;

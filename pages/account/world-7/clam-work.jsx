@@ -6,7 +6,7 @@ import { MissingData, isParseFailed, isSectionFailed } from '@components/common/
 import { formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
-import PageSummary from '@components/common/cards/PageSummary';
+import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
@@ -71,7 +71,7 @@ const ClamWork = () => {
   // The optimizer walks account.clamWork.upgrades, so it has to see the multikill-aware levels too.
   const optimizerAccount = { ...account, clamWork: { ...section, upgrades, scurge } };
 
-  return <>
+  return <SummaryFailed value={sectionFailed}>
     <NextSeo
       title="Clam Work | Idleon Toolbox"
       description="Track your Clam Work upgrade levels, pearl bonuses, and progression in Legends of Idleon World 7"
@@ -118,7 +118,7 @@ const ClamWork = () => {
       <ScurgeOptimizer character={character} account={optimizerAccount} multiKill={multiKill} sectionFailed={sectionFailed}/>
       {parseFailed ? null : <Compensations compensations={compensations}/>}
     </Tabber>
-  </>;
+  </SummaryFailed>;
 };
 
 export default ClamWork;

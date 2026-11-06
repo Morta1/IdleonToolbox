@@ -2,7 +2,7 @@ import { Stack, Typography } from '@mui/material';
 import { formatDuration, formatNum, secondsToCoarseDuration } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Timer from '@components/common/Timer';
-import React from 'react';
+import React, { useContext } from 'react';
 import { getCropEvolution, getProductDoubler, getTotalCrop } from '@parsers/world-6/farming';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -11,8 +11,10 @@ import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
 import StatusText from '@components/common/StatusText';
+import { SummaryFailed } from '@components/common/cards/PageSummary';
 
 const Plot = ({ plot, market, ranks, lastUpdated, account, characters, selectedCharacter, enableNano }) => {
+  const failed = useContext(SummaryFailed);
   const { productDoubler, percent, multi } = getProductDoubler(market) || {};
   const totals = getTotalCrop(plot, market, ranks, account);
   const doublerNote = productDoubler < 100
@@ -63,14 +65,14 @@ const Plot = ({ plot, market, ranks, lastUpdated, account, characters, selectedC
             account?.farming?.hasLandRank ? ['Rank', formatNum(rank || 0)] : null,
             ['Rank EXP', `${formatGame(rankProgress || 0, 'FarmingStuffs.LankRankEXPreq', { whole: true })} / ${formatGame(rankRequirement || 0, 'FarmingStuffs.LankRankEXPreq', { whole: true })}`],
             ['Crop evo', <Breakdown key={'evo'} asValue data={nextEvoChance?.breakdown}>
-              {nextEvoChance?.isLocked ? 'Locked' : formatNum(nextEvoChance?.value, 'pct')}</Breakdown>],
+              {failed ? '-' : nextEvoChance?.isLocked ? 'Locked' : formatNum(nextEvoChance?.value, 'pct')}</Breakdown>],
             ['Current OG', `${currentOG} (x${formatGame(ogMulti, 'FarmingStuffs.OGmulti')})`],
             ['Next OG', <>{formatNum(nextOGChance, 'pct', { precise: true })}{nextOGEta
               ? <>{' '}<NoteTrigger note={'Average wait for this plot to double again.'} label={'About the wait'}>
                 (~{secondsToCoarseDuration(nextOGEta)})</NoteTrigger></> : null}</>],
             ['Max time', formatDuration(maxTimeLeft)],
             // The time left is as of the save: a date of its own
-            ['Next crop', <Timer key={'next'} type={'countdown'} placeholder={<StatusText status={'ready'}/>}
+            ['Next crop', failed ? '-' : <Timer key={'next'} type={'countdown'} placeholder={<StatusText status={'ready'}/>}
                                  date={lastUpdated + timeLeft * 1000}/>]
           ]}/>
         </ItemCard>

@@ -194,11 +194,11 @@ const Refinery = () => {
                                                                                      placeholder={<StatusText status={'ready'}/>}/>}/>)}
       </Box>
     </Panel> : null}
-    <SaltChainSummary balances={saltsBalance}/>
+    <SaltChainSummary balances={saltsBalance} failed={sectionFailed}/>
     {unlockedSalts.length ? <Stack gap={2} sx={{ mt: 3 }}>
       {salts.map((salt, saltIndex) => (salt?.unlocked === false ? null : saltPanel(salt, saltIndex)))}
     </Stack> : null}
-    {lockedSalts.length ? <Panel title={'Locked salts'} sx={{ mt: 3 }}>
+    {lockedSalts.length && !sectionFailed ? <Panel title={'Locked salts'} sx={{ mt: 3 }}>
       <Box sx={{ p: 2 }}>
         <CardGrid size={'icon'}>
           {lockedSalts.map(({ saltName, rawName }) => <IconTile key={rawName} icon={`data/${rawName}.png`}
@@ -303,11 +303,11 @@ const SALT_COLUMNS = [
   }
 ];
 
-const SaltChainSummary = ({ balances }) => {
+const SaltChainSummary = ({ balances, failed }) => {
   if (!balances?.length) return null;
   return <DataTable columns={SALT_COLUMNS} rows={balances} rowKey={'rawName'}
                     rowLabel={(salt) => cleanUnderscore(salt.saltName)}
-                    mutedWord={(salt) => (salt.unlocked ? null : 'Locked')} surface={'card'}/>;
+                    mutedWord={(salt) => (salt.unlocked ? null : failed ? '-' : 'Locked')} surface={'card'}/>;
 }
 
 // A cost cell: the amount, "short" when the stock and what comes in can't cover it, and with Show next level cost on,

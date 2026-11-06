@@ -23,7 +23,7 @@ const vineMeta = ({ golden, capeMultiplier }) => {
 };
 
 // Hat Rack's and Gallery's catalog cards: the title opens the wiki page, a cape not on the vine takes the card's dim
-const CapeVine = ({ capesUsed, capeBonuses, allCapes }) => {
+const CapeVine = ({ capesUsed, capeBonuses, allCapes, sectionFailed }) => {
   const shownBonuses = (capeBonuses || []).filter(({ name, value }) => !BASE_STATS.includes(name) || value > 0);
   return <>
     {shownBonuses.length ? <Panel title={'Bonuses'} sx={{ mb: 3 }} aside={<InfoButton label={'Bonuses'}>
@@ -44,7 +44,7 @@ const CapeVine = ({ capesUsed, capeBonuses, allCapes }) => {
     {allCapes?.length ? <Stack gap={1.5} sx={{ mb: 3 }}>
       <Typography variant={'sectionTitle'} component={'h2'}>All capes</Typography>
       <CardGrid size={'s'}>
-        {allCapes.map((cape) => catalogCard(cape, cape.isAcquired ? 'On the vine' : 'Not on the vine'))}
+        {allCapes.map((cape) => catalogCard(cape, sectionFailed ? undefined : cape.isAcquired ? 'On the vine' : 'Not on the vine'))}
       </CardGrid>
     </Stack> : null}
   </>;

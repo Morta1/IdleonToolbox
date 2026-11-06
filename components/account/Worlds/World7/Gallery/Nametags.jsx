@@ -10,10 +10,10 @@ const nametagMeta = (nametag) => (nametag?.isAcquired
   : 'Not acquired');
 
 // The nametags are worn, not placed: the catalog alone, then their bonuses
-const Nametags = ({ bonusRows, allNametags }) => <>
+const Nametags = ({ bonusRows, allNametags, sectionFailed }) => <>
   {allNametags?.length ? <Stack gap={1} sx={{ my: 3 }}>
     <Typography variant={'sectionTitle'} component={'h2'}>All nametags</Typography>
-    <CardGrid size={'s'}>{allNametags.map((nametag) => catalogCard(nametag, nametagMeta(nametag)))}</CardGrid>
+    <CardGrid size={'s'}>{allNametags.map((nametag) => catalogCard(nametag, sectionFailed ? undefined : nametagMeta(nametag)))}</CardGrid>
   </Stack> : null}
   {/* A guest has no bonus: no Panel, no heading */}
   {bonusRows?.length ? <Panel title={'Bonuses'} sx={{ my: 3 }}>

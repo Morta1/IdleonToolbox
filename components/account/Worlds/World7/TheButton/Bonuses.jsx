@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import { formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import InfoButton from '@components/common/InfoButton';
+import { SummaryFailed } from '@components/common/cards/PageSummary';
 
 // The game boosts the next bonus in the rotation every 5 presses
 export const PRESSES_PER_BONUS = 5;
@@ -14,7 +15,8 @@ const bonusText = ({ value, displayFormat }) => (displayFormat === 'multi'
   : `+${formatGame(value ?? 0, 'Minehead.Button_Bonuses')}%`);
 
 const Bonuses = ({ bonuses, activeBonusIndex, pressesIntoCurrentBonus }) => {
-  const nextIndex = bonuses?.length ? ((activeBonusIndex ?? 0) + 1) % bonuses.length : -1;
+  const failed = useContext(SummaryFailed);
+  const nextIndex = bonuses?.length && !failed ? ((activeBonusIndex ?? 0) + 1) % bonuses.length : -1;
   return <CardGrid size={'s'}>
     {bonuses?.map((bonus, index) => {
       const isActive = index === activeBonusIndex;
