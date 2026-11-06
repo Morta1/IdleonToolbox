@@ -353,6 +353,7 @@ export const alertMeta = {
   'account.World 3.library': {
     label: 'Talent library',
     icon: 'data/Libz',
+    page: { pathname: '/account/misc/general', label: 'General' },
     inline: 'books',
     options: {
       books: { label: 'Books ready', help: 'Alerts when the library has this many books ready.', unit: 'books' }
@@ -1252,6 +1253,7 @@ export const alertMeta = {
   'timers.Etc.library': {
     label: 'Library books',
     icon: 'data/Libz',
+    page: { pathname: '/account/misc/general', label: 'General' },
     unit: 'Ready at the number set in World 3, Talent library',
     // The row reads the alert's number, so its quick edit holds that number too.
     numberFrom: { tracker: 'account.World 3.library', option: 'books', help: 'The Library row is ready at this number. The Talent library alert uses the same one, on or off.' },

@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState } from 'react';
-import Library from '../account/Worlds/World3/Library';
 import NextLink from 'next/link';
 import { Box, Button, Collapse, Link, Stack, Typography } from '@mui/material';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
@@ -496,6 +495,7 @@ const Etc = ({ characters, account, lastUpdated, trackers, bookAlert }) => {
     ...inWorld('World 3', trackers?.Etc?.library?.checked && account?.finishedWorlds?.World2 && Number.isFinite(booksWanted) && <>
         <TimerRow target="Etc.library"
           name={'Library'}
+          page={'/account/misc/general'}
           failed={account?.failedSections?.length > 0 || !Number.isFinite(books)}
           sub={booksShort ? `${formatNum(books, 'whole')} / ${formatNum(booksWanted, 'whole')} books` : undefined}
           message={(when, over) => (over ? `Library: ${counted(Math.max(books, booksWanted), 'book')}` : `${counted(booksWanted, 'book')} in the library: ${when}`)}
@@ -629,8 +629,6 @@ const Etc = ({ characters, account, lastUpdated, trackers, bookAlert }) => {
 
   return <TimerBoard rows={rows}>
     <Resets account={account} trackers={trackers} lastUpdated={lastUpdated}/>
-    {trackers?.Etc?.library?.checked && account?.finishedWorlds?.World2
-      ? <Library libraryTimes={account?.libraryTimes} failed={account?.failedSections?.length > 0}/> : null}
   </TimerBoard>;
 };
 

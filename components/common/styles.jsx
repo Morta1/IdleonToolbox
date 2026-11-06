@@ -119,7 +119,7 @@ export const fedBy = (account, ...sections) => sections.some((name) => isSection
 const yourName = (name) => (/^(the|your)\b/i.test(name) ? name : `your ${name}`);
 
 // The parse's own section keys as a player reads them: "printer" is "Printer", "cooking.kitchens" "Cooking kitchens".
-const sectionName = (key) => {
+export const sectionName = (key) => {
   const words = `${key}`.replace(/\./g, ' ').replace(/([a-z])([A-Z])/g, (_, a, b) => `${a} ${b}`).toLowerCase();
   return `${words.charAt(0).toUpperCase()}${words.slice(1)}`;
 };

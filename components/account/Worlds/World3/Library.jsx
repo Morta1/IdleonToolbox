@@ -15,15 +15,15 @@ const WaitRow = ({ name, time }) => {
                     value={<Timer type={'countdown'} date={endDate} component={'span'}/>}/>;
 };
 
-const Library = ({ libraryTimes, failed }) => {
+// live: a save to count from. A guest's library has books to count up to but no clock to count on, so it prints only the spans.
+const Library = ({ libraryTimes, failed, live }) => {
   const [showMore, setShowMore] = useState(false);
   const { bookCount, next, breakpoints, breakdown } = libraryTimes || {};
   // A labelled breakpoint ("0 to 20") is how long that many books take from none, not a wait: a duration, with no date.
   const breakpointRow = ({ breakpoint, label, time }) => {
     if (!(time > 0)) return null;
-    return label
-      ? <Panel.Row key={label} name={`First ${label.replace('0 to ', '')} books take`} value={formatDuration(time)}/>
-      : <WaitRow key={breakpoint} name={`${breakpoint} books in`} time={time}/>;
+    if (label) return <Panel.Row key={label} name={`First ${label.replace('0 to ', '')} books take`} value={formatDuration(time)}/>;
+    return live ? <WaitRow key={breakpoint} name={`${breakpoint} books in`} time={time}/> : null;
   };
   const mainBreakpoints = breakpoints?.filter(({ label }) => !label || label === '0 to 20');
   const extraBreakpoints = breakpoints?.filter(({ label }) => label && label !== '0 to 20');
@@ -41,7 +41,7 @@ const Library = ({ libraryTimes, failed }) => {
     <Panel.KV label={'Books ready'} value={formatNum(bookCount)}/>
     {breakdown ? <Panel.Row name={'Checkout time'}
                             value={<Breakdown asValue title={'Checkout time'} data={{ ...breakdown, totalValue: checkoutTime }}>{checkoutTime}</Breakdown>}/> : null}
-    {next > 0 ? <WaitRow name={'Next book in'} time={next}/> : null}
+    {live && next > 0 ? <WaitRow name={'Next book in'} time={next}/> : null}
     {mainBreakpoints?.map(breakpointRow)}
     {extraBreakpoints?.length > 0 ? <Button size={'small'} aria-expanded={showMore} onClick={() => setShowMore(!showMore)}
                                             endIcon={showMore ? <IconChevronUp size={16}/> : <IconChevronDown size={16}/>}
