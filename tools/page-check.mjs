@@ -21,6 +21,9 @@
 //            resizes after it first showed is a hit, so a late arrival can't push what is already on screen.
 // --on-art   lists the text the contrast scan skips because art sits under it, unless it's marked data-on-art: a person reads
 //            these, because text in the page's ink over a dark sprite vanishes in one scheme.
+// --pins     lists what stays on screen, at rest and scrolled 40% down: each sticky or fixed box's top and bottom, with its gap to
+//            the nearest box above it in its column, and saves <slug>-<width>-pinned.png of the scrolled window. A negative gap is an
+//            overlap: a lead, since a drawer over the band is meant.
 // --base     default http://localhost:$E2E_PORT, or 3002.
 // --no-shots scan only. --out default .page-check (gitignored). Exit 1 on any hit, 2 when the server is down.
 //
@@ -47,6 +50,7 @@ const { values: opts, positionals } = parseArgs({
     clock: { type: 'string' },
     watch: { type: 'string' },
     'on-art': { type: 'boolean', default: false },
+    pins: { type: 'boolean', default: false },
     base: { type: 'string', default: `http://localhost:${process.env.E2E_PORT ?? 3002}` },
     out: { type: 'string', default: '.page-check' },
     'no-shots': { type: 'boolean', default: false },
@@ -380,6 +384,27 @@ const hiddenHeads = (page) => page.evaluate(async () => {
   return hidden;
 });
 
+// Runs in the page, so it can't read this module.
+const readPins = () => {
+  const boxes = [];
+  for (const element of document.querySelectorAll('body *')) {
+    const { position, visibility, top: cssTop } = getComputedStyle(element);
+    if ((position !== 'sticky' && position !== 'fixed') || visibility === 'hidden' || cssTop === 'auto') continue;
+    const { top, bottom, left, right, width, height } = element.getBoundingClientRect();
+    if (!width || !height || bottom <= 0 || top >= innerHeight) continue;
+    // A sticky table head is a run of cells: one line is enough
+    if (element.tagName === 'TH' && boxes.some((other) => other.head && other.top === top)) continue;
+    const name = element.dataset.shell ?? `${element.tagName.toLowerCase()} "${element.innerText.trim().slice(0, 16).replace(/\s+/g, ' ')}"`;
+    boxes.push({ name, top, bottom, left, right, head: element.tagName === 'TH' });
+  }
+  boxes.sort((a, b) => a.top - b.top);
+  return boxes.map(({ name, top, bottom, left, right }, index) => {
+    const above = boxes.slice(0, index).filter((other) => other.left < right && left < other.right);
+    const gap = above.length ? Math.round(top - Math.max(...above.map((other) => other.bottom))) : null;
+    return `${name} ${Math.round(top)}-${Math.round(bottom)}${gap === null ? '' : ` (${gap >= 0 ? '+' : ''}${gap})`}`;
+  }).join(' | ');
+};
+
 const withQuery = (route, state) => {
   if (state !== 'demo') return route;
   return `${route}${route.includes('?') ? '&' : '?'}demo=true`;
@@ -463,6 +488,16 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
         result.shots.push(file);
       }
     }
+    if (opts.pins) {
+      // A phone's shots leave the page scrolled
+      await page.evaluate(() => window.scrollTo(0, 0));
+      await page.waitForTimeout(300);
+      result.pins = { rest: await page.evaluate(readPins) };
+      await page.evaluate(() => window.scrollTo(0, (document.documentElement.scrollHeight - innerHeight) * 0.4));
+      await page.waitForTimeout(300);
+      result.pins.scrolled = await page.evaluate(readPins);
+      if (!opts['no-shots']) await page.screenshot({ path: join(opts.out, `${slug}-${size.width}-pinned.png`) });
+    }
   } catch (error) {
     result.failed = error.message.split('\n')[0].slice(0, 160);
   }
@@ -505,6 +540,7 @@ for (const result of results) {
   hitCount += kinds.length + (result.failed ? 1 : 0);
   console.log(`${result.route} ${result.state} ${result.scheme === 'dark' ? '' : `${result.scheme} `}${result.size} height ${result.height ?? '?'}${result.watched ? ` (${result.watched})` : ''}: ${result.failed ?? (kinds.map(([kind, list]) => `${kind} ${list.length}`).join(', ') || 'clean')}`);
   for (const [kind, list] of kinds) console.log(`  ${kind}: ${list.slice(0, 5).join(' || ')}`);
+  for (const [at, line] of Object.entries(result.pins ?? {})) console.log(`  pins ${at}: ${line}`);
 }
 if (!opts['no-shots']) {
   for (const route of routes) {
