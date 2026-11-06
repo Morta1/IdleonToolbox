@@ -252,9 +252,8 @@ describe('costs', () => {
   });
 });
 
-// Oracles: parsers/world-2/kangaroo.ts with no account (every discount 1). Read the parser lines the
-// research cites (docs/superpowers/research/2026-10-14-world-2-wiki-kinds.md sections 1-2) and copy
-// each expression verbatim as the `game` value below.
+// Oracles: parsers/world-2/kangaroo.ts with no account (every discount 1). Each `game` value below is
+// the parser's expression, copied verbatim.
 describe('Poppy formulas', () => {
   it('linearPowFromOne matches the Tasty Fishbait cost', () => {
     const { x1, x2 } = poppyBonuses[0];
@@ -354,7 +353,7 @@ describe('bubble cost formulas', () => {
 });
 
 // Oracles: the parser helpers for these are unexported, so the values are pinned by hand against the
-// game lines (docs/superpowers/research/2026-10-14-world-5-wiki-kinds.md sections 1, 2, 6, 8, 9, 11, 15).
+// game lines.
 describe('World 5 formulas', () => {
   // Holes.js:797 LampWishCost (the-lamp.ts:57 getWishCost): wish 0, wish 2, then a plain affine wish.
   it.each([
