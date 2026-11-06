@@ -372,7 +372,15 @@ const theme = createTheme({
         }),
         containedPrimary: ({ theme }) => ({
           '&:hover': { '@media (hover: hover)': { '--variant-containedBg': palette(theme).primary.hover } }
-        })
+        }),
+        // Dark's error.main is 3.7:1 under its white text and 4.2:1 as words on a card. There a destructive button takes the
+        // words' red, with the primary button's dark text when filled, as the consent banner's Decline does. Light's red passes.
+        containedError: ({ theme }) => theme.applyStyles('dark', {
+          '--variant-containedBg': palette(theme).text.error,
+          '--variant-containedColor': palette(theme).primary.contrastText,
+          '&:hover': { '@media (hover: hover)': { '--variant-containedBg': '#ef9a9a' } }
+        }),
+        textError: ({ theme }) => theme.applyStyles('dark', { '--variant-textColor': palette(theme).text.error })
       }
     },
     MuiIconButton: {

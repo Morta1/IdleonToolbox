@@ -169,7 +169,7 @@ const MyApp = (props) => {
         {/* One short line at the buttons' 12px: the full detail is behind Learn more. The notice paints after
             hydration, and at any larger size its text outweighed a wiki page's own content (a 72px item icon
             is 5,184px²), which made this banner every static page's LCP on mobile. */}
-        We use cookies for analytics and personalized ads.{' '}
+        I use cookies for analytics and personalized ads.{' '}
         {/* The banner sits outside the ThemeProvider, so this button gets MUI's default theme (a dark blue in
             capitals): its case and the theme's primary color, over 5:1 on the banner in both schemes, are written here. */}
         <Button variant={'text'} sx={{ height: 24, px: 1, fontSize: 12, textTransform: 'none', color: 'var(--mui-palette-primary-main)' }}

@@ -23,9 +23,8 @@ import {
 } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SearchIcon from "@mui/icons-material/Search";
-import StarIcon from "@mui/icons-material/Star";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import { IconPin, IconPinFilled } from "@tabler/icons-react";
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from "@utility/clipboard";
 import { notify } from "@components/common/Overlays/notify";
 import AppDrawer from "@components/common/Overlays/AppDrawer";
@@ -410,9 +409,9 @@ const ValueGlyph = () => <Box component="span" aria-hidden sx={{ display: "inlin
 
 const indent = (depth: number, isMobile: boolean) => (isMobile ? 2 : 3) + depth * 2
 
-// A phone's rows are the board's 34 px, about 12 lines on screen. A row's star keeps a 44 px wide tap target as tall as
+// A phone's rows are the board's 34 px, about 12 lines on screen. A row's pin keeps a 44 px wide tap target as tall as
 // its row: the theme's 40 px touch minimum would make each row 60 px.
-const STAR_TOUCH = { "@media (pointer: coarse)": { minWidth: 24, minHeight: 24, "&::before": { content: '""', position: "absolute", inset: "-5px -10px" } } }
+const PIN_TOUCH = { "@media (pointer: coarse)": { minWidth: 24, minHeight: 24, "&::before": { content: '""', position: "absolute", inset: "-5px -10px" } } }
 
 // A fixed width keeps every row's value in one column
 const InsightCell = ({ node, insight }: { node: ViewNode, insight: RowInsight }) => {
@@ -547,9 +546,9 @@ const LineRow = ({ node, pinned, onPin, isMobile, insight }: {
       minHeight: isMobile ? 34 : "auto",
       opacity: node.inactive ? 0.5 : 1,
       transition: "background-color 0.2s",
-      bgcolor: pinned ? "identity.pinSoft" : "transparent",
+      bgcolor: pinned ? "primary.soft" : "transparent",
       "&:hover": {
-        bgcolor: pinned ? "identity.pinSoftHover" : "background.tint",
+        bgcolor: pinned ? "primary.soft" : "background.tint",
       },
     }}
   >
@@ -561,17 +560,17 @@ const LineRow = ({ node, pinned, onPin, isMobile, insight }: {
         aria-pressed={pinned}
         sx={{
           p: 0.5,
-          color: pinned ? "identity.pin" : "text.secondary",
+          color: pinned ? "primary.main" : "text.secondary",
           opacity: pinned ? 1 : 0.3,
           transition: "opacity 0.2s, color 0.2s",
           "&:hover": {
             opacity: 1,
             bgcolor: "transparent",
           },
-          ...STAR_TOUCH,
+          ...PIN_TOUCH,
         }}
       >
-        {pinned ? <StarIcon sx={{ fontSize: 16 }}/> : <StarBorderIcon sx={{ fontSize: 16 }}/>}
+        {pinned ? <IconPinFilled size={16}/> : <IconPin size={16}/>}
       </IconButton>
       <Box sx={{ minWidth: 0 }}>
         <Typography variant="body2" color="text.primary" sx={{ opacity: 0.8 }}>
