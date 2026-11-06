@@ -46,9 +46,9 @@ export default function WeeklyProgressChart({ detail }) {
   const formatDate = useFormatDate();
   const [thisWeek, lastWeek] = transformForChart(detail);
   const series = [
-    { ...thisWeek, label: 'This week', color: seriesColors(theme.palette.mode)[0] },
+    { ...thisWeek, label: 'This week', color: seriesColors(theme)[0] },
     // The earlier period in grey behind it (Charts board, "Change over time").
-    { ...lastWeek, label: 'Last week', color: theme.palette.text.muted }
+    { ...lastWeek, label: 'Last week', color: (theme.vars || theme).palette.text.muted }
   ].filter((item) => item.data.length > 0);
   if (series.length === 0) return <Notice tone={'info'}>No hourly snapshots yet: the chart fills in as they arrive.</Notice>;
   // Last week's hours land on this week's clock: the chart compares the same hour of the week.

@@ -10,4 +10,4 @@ export const ARTIFACT_TIERS = [
 ];
 
 // A form's colour, the theme's (palette.identity.artifactTiers), as an sx callback: { color: artifactTierColor(3) }
-export const artifactTierColor = (tier) => (theme) => theme.palette.identity.artifactTiers[Math.max(0, (tier || 1) - 1)];
+export const artifactTierColor = (tier) => (theme) => (theme.vars || theme).palette.identity.artifactTiers[Math.max(0, (tier || 1) - 1)];

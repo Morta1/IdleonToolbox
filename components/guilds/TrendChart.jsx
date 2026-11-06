@@ -25,7 +25,7 @@ const clockNow = () => Date.now();
 // This assumes one point per consecutive day, as the sparkline does; for the
 // hourly-snapshotted cohort every day has data so the dates line up.
 export default function TrendChart({ values, lastUpdatedMs }) {
-  const { mode } = useTheme().palette;
+  const theme = useTheme();
 
   if (!values || values.length < 2) return null;
 
@@ -44,7 +44,7 @@ export default function TrendChart({ values, lastUpdatedMs }) {
     ]
   }}>
     <LineChart label={'GP gained per day'}
-               series={[{ id: 'Daily GP', label: 'GP gained', color: seriesColors(mode)[0], data }]}
+               series={[{ id: 'Daily GP', label: 'GP gained', color: seriesColors(theme)[0], data }]}
                xTicks={labelIndexes(n, 4).map((i) => data[i].x)} formatX={dayLabel} tooltipTitle={dayLabel}/>
   </ChartFrame>;
 }

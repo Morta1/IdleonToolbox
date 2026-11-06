@@ -80,7 +80,8 @@ const LineChart = ({
     .map((item) => ({ item, point: item.data.find((point) => point.x === hoverX && point.y != null) }))
     .filter(({ point }) => point);
   const text12 = (fill) => ({ fill, fontSize: 12, fontFamily: theme.typography.fontFamily });
-  const tickText = text12(theme.palette.text.muted);
+  const roles = (theme.vars || theme).palette;
+  const tickText = text12(roles.text.muted);
 
   return <ClickAwayListener onClickAway={() => setHoverX(null)}>
     <Box ref={box} sx={{ position: 'relative', height }}>
@@ -100,9 +101,9 @@ const LineChart = ({
         {last ? <g transform={`translate(${px(last.x)}, ${py(last.y)})`}>
           {/* A plate in the card color from the dot past the label: a line that runs behind it (last week's) stops short
               of the digits, where a stroke of it between the dot and the label read as a minus sign. */}
-          <rect x={5} y={-9} width={endRoom - 5} height={18} fill={theme.palette.background.paper}/>
-          <circle r={4} fill={main.color} stroke={theme.palette.background.paper} strokeWidth={2}/>
-          <text x={10} dominantBaseline={'central'} style={{ ...text12(theme.palette.text.secondary), fontWeight: 500 }}>
+          <rect x={5} y={-9} width={endRoom - 5} height={18} fill={roles.background.paper}/>
+          <circle r={4} fill={main.color} stroke={roles.background.paper} strokeWidth={2}/>
+          <text x={10} dominantBaseline={'central'} style={{ ...text12(roles.text.secondary), fontWeight: 500 }}>
             {formatValue(last.y)}
           </text>
         </g> : null}

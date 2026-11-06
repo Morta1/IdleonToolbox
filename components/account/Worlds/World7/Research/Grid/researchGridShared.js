@@ -4,7 +4,7 @@
  */
 
 export const getShapeColor = (theme, shapeIndex) => {
-  const shapes = theme.palette.identity.researchShapes;
+  const shapes = (theme.vars || theme).palette.identity.researchShapes;
   return shapes[Math.min(shapeIndex ?? 0, shapes.length - 1)] ?? shapes[0];
 };
 

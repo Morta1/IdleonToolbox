@@ -93,7 +93,7 @@ const membersText = ({ members_count, total_gp }) => {
 
 export default function GuildTable({ guilds, hoistedRows, showHoistedSection, isPinned, onTogglePin, router, stickyTop }) {
   const muiTheme = useTheme();
-  const sparkColor = seriesColors(muiTheme.palette.mode)[0];
+  const sparkColor = seriesColors(muiTheme)[0];
   const columns = [
     {
       key: 'guild',

@@ -10,7 +10,7 @@ import { seriesColors } from '@utility/chartTheme';
 import { transformRankHistory } from './rankHistory';
 
 export default function RankHistoryChart({ rankHistory }) {
-  const { mode } = useTheme().palette;
+  const theme = useTheme();
   // The player's date and time preference.
   const formatDate = useFormatDate();
   const data = transformRankHistory(rankHistory).map((point) => ({ x: point.ts, y: point.y }));
@@ -32,7 +32,7 @@ export default function RankHistoryChart({ rankHistory }) {
       { key: 'y', label: 'Rank', numeric: true, phone: true, render: (row) => rankText(row.y) }
     ]
   }}>
-    <LineChart label={'Rank history'} series={[{ id: 'Rank', label: 'Rank', color: seriesColors(mode)[0], data }]}
+    <LineChart label={'Rank history'} series={[{ id: 'Rank', label: 'Rank', color: seriesColors(theme)[0], data }]}
                reverse axis={axis} formatTick={rankText} formatValue={rankText}
                xTicks={labelIndexes(data.length, 4).map((i) => data[i].x)} formatX={(x) => format(new Date(x), 'MMM d')}
                tooltipTitle={when}/>

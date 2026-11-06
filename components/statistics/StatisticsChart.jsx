@@ -66,7 +66,7 @@ const columnTable = (config, columns, rows) => {
 
 // One chart from its entry in the statistics map and the API's raw answer for it.
 const StatisticsChart = ({ config, raw }) => {
-  const series = seriesColors(useTheme().palette.mode);
+  const series = seriesColors(useTheme());
 
   if (config.form === 'rank' || config.form === 'share') {
     const rows = barRows(config, raw);

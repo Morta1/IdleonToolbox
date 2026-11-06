@@ -1,6 +1,7 @@
 import { createElement } from 'react';
 import { createTheme } from '@mui/material/styles';
 import { IconChevronDown } from '@tabler/icons-react';
+import { SERIES } from '../../utility/chartTheme';
 
 // Values are read through theme.vars, so both schemes share this file's rules.
 const palette = (theme) => (theme.vars || theme).palette;
@@ -119,6 +120,7 @@ const darkPalette = {
   divider: 'rgba(255, 255, 255, 0.12)',
   // The edge of a control that stands on its own (a field's own rest border): an outlined button, a filter pill, More.
   outline: 'rgba(255, 255, 255, 0.23)',
+  series: SERIES.dark,
   identity
 };
 
@@ -153,6 +155,7 @@ const lightPalette = {
   divider: 'rgba(0, 0, 0, 0.12)',
   outline: 'rgba(0, 0, 0, 0.23)',
   action: { hover: 'rgba(0, 0, 0, 0.04)', selected: 'rgba(0, 0, 0, 0.08)' },
+  series: SERIES.light,
   identity
 };
 

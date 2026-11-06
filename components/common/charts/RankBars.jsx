@@ -20,7 +20,7 @@ const WIDEST_ROW = 44;
 // a mark (Decision 4). The focus ring sits inside the row, clear of its neighbours.
 const RankBars = ({ label, rows }) => {
   const theme = useTheme();
-  const color = seriesColors(theme.palette.mode)[0];
+  const color = seriesColors(theme)[0];
   const { edge } = chartLines(theme);
   const max = Math.max(0, ...rows.map((row) => row.value));
   const { open, markProps } = useMarkFocus(rows.length);

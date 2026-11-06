@@ -8,7 +8,7 @@ import { DottedValue } from '@components/common/InfoButton';
 import { formatMetricValue, profileUrl, rankText } from './format';
 
 // Whose row it is and which medal: the theme's identities, as sx callbacks.
-const leaderboardColor = (name) => (theme) => theme.palette.identity?.leaderboard?.[name];
+const leaderboardColor = (name) => (theme) => (theme.vars || theme).palette.identity?.leaderboard?.[name];
 export const HIGHLIGHT = { logged: leaderboardColor('you'), searched: leaderboardColor('searched') };
 export const LABEL_COLOR = { logged: leaderboardColor('youText'), searched: leaderboardColor('searched') };
 export const MEDAL = { 1: leaderboardColor('gold'), 2: leaderboardColor('silver'), 3: leaderboardColor('bronze') };

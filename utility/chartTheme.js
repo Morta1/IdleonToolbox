@@ -6,10 +6,11 @@ export const SERIES = {
   light: ['#1565c0', '#eb6834', '#1baf7a', '#eda100', '#e87ba4', '#008300', '#6250d6', '#e34948']
 };
 
-export const seriesColors = (mode) => SERIES[mode] ?? SERIES.dark;
+// The theme's series role: CSS variables, so a chart follows the scheme with no hook. Never compute with one.
+export const seriesColors = (theme) => (theme.vars || theme).palette.series;
 
 // The chart's two lines (Charts board, "Marks and chrome"): the 8% grid and the 23% edge the marks stand on.
 export const chartLines = (theme) => {
-  const ink = theme.palette.mode === 'dark' ? '255, 255, 255' : '0, 0, 0';
-  return { grid: `rgba(${ink}, 0.08)`, edge: `rgba(${ink}, 0.23)` };
+  const ink = (theme.vars || theme).palette.common.onBackgroundChannel;
+  return { grid: `rgba(${ink} / 0.08)`, edge: `rgba(${ink} / 0.23)` };
 };

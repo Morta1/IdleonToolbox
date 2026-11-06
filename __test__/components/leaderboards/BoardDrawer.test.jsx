@@ -205,7 +205,7 @@ describe('BoardDrawer header and steps', () => {
     renderDrawer();
     const rowOf = (name) => screen.getByText(name).closest('[data-testid="rank-row"]');
     await screen.findByText('Me');
-    expect(getComputedStyle(rowOf('Me')).borderTopColor).toBe('rgb(0, 126, 133)');
-    expect(getComputedStyle(rowOf('N0')).borderTopColor).not.toBe('rgb(0, 126, 133)');
+    expect(getComputedStyle(rowOf('Me')).borderColor).toBe('var(--mui-palette-identity-leaderboard-you)');
+    expect(getComputedStyle(rowOf('N0')).borderColor).not.toBe('var(--mui-palette-identity-leaderboard-you)');
   });
 });

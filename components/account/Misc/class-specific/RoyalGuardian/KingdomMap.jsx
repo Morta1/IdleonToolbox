@@ -42,9 +42,9 @@ const KingdomMap = ({ outposts, resources }) => {
   const theme = useTheme();
   // The colours the kingdom screen itself draws each outpost mode in (the theme's outpostModes), so the map reads the
   // same way as the game's. The game colours a connection line by the mode of the outpost it leaves, and so does this.
-  const MODE_MAP_COLOR = theme.palette.identity.outpostModes;
+  const MODE_MAP_COLOR = (theme.vars || theme).palette.identity.outpostModes;
   // The markers' and labels' outline: the page's own background, so they lift off any line under them
-  const OUTLINE = theme.palette.background.default;
+  const OUTLINE = (theme.vars || theme).palette.background.default;
   const [world, setWorld] = useState(null);
   const [selected, setSelected] = useState(null);
   const [hovered, setHovered] = useState(null);

@@ -43,7 +43,7 @@ const PatchNotes = ({ patchNotes: pNotes }) => {
                       disableGutters
                       sx={{
                         '&:before': { display: 'none' },
-                        border: `1px solid ${theme.palette.divider}`,
+                        border: `1px solid ${(theme.vars || theme).palette.divider}`,
                         '&:not(:last-child)': {
                           borderBottom: 0,
                         },

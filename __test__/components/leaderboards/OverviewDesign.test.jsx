@@ -56,9 +56,9 @@ describe('Overview podium', () => {
     renderOverview({ player: { context: null } });
     await screen.findByText('G1');
     expect(screen.getAllByTestId('podium-slot').map((slot) => slot.textContent.slice(0, 2))).toEqual(['G2', 'G1', 'G3']);
-    expect(getComputedStyle(slotOf('G1')).borderTopColor).toBe('rgb(240, 184, 73)');
-    expect(getComputedStyle(slotOf('G2')).borderTopColor).toBe('rgb(154, 163, 173)');
-    expect(getComputedStyle(slotOf('G3')).borderTopColor).toBe('rgb(184, 120, 58)');
+    expect(getComputedStyle(slotOf('G1')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-gold)');
+    expect(getComputedStyle(slotOf('G2')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-silver)');
+    expect(getComputedStyle(slotOf('G3')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-bronze)');
   });
 
   it('gives each tied first place a trophy and gold, and a slot ranked past 3 neither', async () => {
@@ -68,8 +68,8 @@ describe('Overview podium', () => {
     await screen.findByText('M0');
     expect(screen.getAllByAltText('Rank 1')).toHaveLength(2);
     expect(screen.queryByAltText('Rank 5')).toBeNull();
-    expect(getComputedStyle(slotOf('M0')).borderTopColor).toBe('rgb(240, 184, 73)');
-    expect(getComputedStyle(slotOf('M1')).borderTopColor).toBe('rgb(240, 184, 73)');
+    expect(getComputedStyle(slotOf('M0')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-gold)');
+    expect(getComputedStyle(slotOf('M1')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-gold)');
     expect(getComputedStyle(slotOf('M2')).borderTopWidth).toBe('1px');
   });
 
@@ -86,8 +86,8 @@ describe('Overview podium', () => {
   it('outlines the viewed player slot in their colour', async () => {
     renderOverview({ player: { context: null }, highlight: { G2: 'logged' } });
     await screen.findByText('G1');
-    expect(getComputedStyle(slotOf('G2')).borderRightColor).toBe('rgb(0, 126, 133)');
-    expect(getComputedStyle(slotOf('G1')).borderRightColor).not.toBe('rgb(0, 126, 133)');
+    expect(getComputedStyle(slotOf('G2')).borderColor).toBe('var(--mui-palette-identity-leaderboard-you)');
+    expect(getComputedStyle(slotOf('G1')).borderColor).not.toBe('var(--mui-palette-identity-leaderboard-you)');
   });
 });
 
@@ -133,7 +133,7 @@ describe('Overview You card', () => {
     renderOverview({ player: { context: { name: 'Baker333', kind: 'searched' }, data } });
     const label = await screen.findByText('Searched player');
     expect(label.parentElement.textContent).toBe('Searched player · Baker333');
-    expect(getComputedStyle(label.parentElement).color).toBe('rgb(205, 134, 27)');
+    expect(getComputedStyle(label.parentElement).color).toBe('var(--mui-palette-identity-leaderboard-searched)');
     expect(screen.queryByText(/tied at the max/)).toBeNull();
   });
 

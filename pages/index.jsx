@@ -223,7 +223,7 @@ const Home = () => {
                             disableGutters
                             sx={{
                               '&:before': { display: 'none' },
-                              border: `1px solid ${theme.palette.divider}`,
+                              border: `1px solid ${(theme.vars || theme).palette.divider}`,
                               '&:not(:last-child)': { borderBottom: 0 }
                             }}>
             <AccordionSummary
@@ -249,9 +249,9 @@ const Home = () => {
 
 const DiscordButton = styled(Button)(({ theme }) => ({
   width: 'fit-content',
-  backgroundColor: theme.palette.identity.discord.main,
-  color: theme.palette.identity.discord.text,
-  '&:hover': { backgroundColor: theme.palette.identity.discord.hover }
+  backgroundColor: (theme.vars || theme).palette.identity.discord.main,
+  color: (theme.vars || theme).palette.identity.discord.text,
+  '&:hover': { backgroundColor: (theme.vars || theme).palette.identity.discord.hover }
 }));
 
 // Inline style can't hold a media query, so the wide-screen top margin lives in CSS rather than
