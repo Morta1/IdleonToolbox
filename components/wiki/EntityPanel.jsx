@@ -25,6 +25,7 @@ import { KIND_LABELS, KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { categoryLabel } from '@utility/wiki/categories.mjs';
 import { formatAmount, starterBundleCapacity } from '@utility/wiki/effects.mjs';
 import { collapseRows, tableThreshold } from '@utility/wiki/relations';
+import usePageTop from '@hooks/usePageTop';
 import RelationTable from './RelationTable';
 import NpcQuestRow from './NpcQuestRow';
 import CoinAmount, { isCoin } from './CoinAmount';
@@ -416,6 +417,7 @@ const achievementGroups = (node) => [{
 const KIND_BOXES = { bundle: bundleGroups, pet: petGroups, achievement: achievementGroups };
 
 const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
+  const pageTop = usePageTop();
   // byId is a plain object, so ?e=__proto__ would otherwise resolve to Object.prototype and render
   // a blank card instead of the empty state.
   const node = index?.byId && Object.hasOwn(index.byId, id) ? index.byId[id] : null;
@@ -682,7 +684,8 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
           flexShrink: 0,
           width: '100%',
           [`@container (min-width: ${ROW_FROM}px)`]: { width: 'auto', position: 'sticky' },
-          top: 16,
+          // Clears the bar and the band while it shows, as WikiRail beside it does
+          top: pageTop + 8,
           '&:empty': { display: 'none' }
         }}>
           {node.stamp

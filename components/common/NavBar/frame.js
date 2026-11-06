@@ -1,3 +1,5 @@
+import { navBarHeight } from '@components/constants';
+
 // The page frame (Layout boards; phase 4 Task 8). An inner page and its side ads are one centred group, each ad right
 // beside the page, never at the window's edge:
 // - CENTERED: two ads, one each side of a 1260 px page, where both fit by width and a 600 px ad fits by height;
@@ -13,9 +15,9 @@ const AD_TALL = 600;
 // the boards' 1920 to the pixel (15 + 300 + 15 + 1260 + 15 + 300 + 15).
 const AD_GAP = 16;
 const PAIR_GAP = 15;
-// The ads stick under the bar (70), the group row (52) and 24 px, where the boards draw them, clear of the band (70 to
-// 110). A 600 px ad there ends at 746, where the 90 px anchor starts on an 836 px window.
-const AD_TOP = 146;
+// The ads stick under the bar, the group row (52) and 24 px, where the boards draw them, clear of the band under the
+// bar. A 600 px ad there ends at 732, 14 px above where the 90 px anchor starts on an 836 px window.
+const AD_TOP = navBarHeight + 52 + 24;
 export const TALL = '(min-height: 836px)';
 const SHORT = '@media (max-height: 835.98px)';
 // Two ads and the page take 1890 px. From 1900 the page keeps 1260; a 17 px scrollbar, which media queries count and
@@ -24,8 +26,8 @@ export const CENTERED = `@media (min-width: 1900px) and ${TALL}`;
 export const ONE_AD = '@media (min-width: 850px) and (max-width: 1899.98px), (min-width: 850px) and (max-height: 835.98px)';
 // The bar's links show from lg (1200) in one row that never wraps. Below 1440 the gaps between them go (a signed-in
 // bar at 1366 with a 17 px scrollbar is a pixel short without), and below 1280 the items' own padding, the logo's
-// margin and the bar's sides tighten too, so 1200 with a scrollbar holds it, signed in. The name and save time are
-// the last to give, with an ellipsis.
+// margin, the links' margin from it and the bar's sides tighten too, so 1200 with a scrollbar holds it, signed in. The
+// name and save time are the last to give, with an ellipsis.
 export const BAR_SNUG = '@media (min-width: 1200px) and (max-width: 1439.95px)';
 export const BAR_TIGHT = '@media (min-width: 1200px) and (max-width: 1279.95px)';
 

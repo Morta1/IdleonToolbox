@@ -90,10 +90,10 @@ describe('ControlBar', () => {
   it('sticks right below the navbar, and below the profile banner when it shows', () => {
     const stickyTop = ({ container }) => getComputedStyle(container.firstChild).top;
     // Plus a pinned tab strip's height, which no Tabber here sets
-    expect(stickyTop(renderBar())).toBe('calc(70px + var(--page-tabs-pinned, 0px))');
+    expect(stickyTop(renderBar())).toBe('calc(56px + var(--page-tabs-pinned, 0px))');
     cleanup();
     bannerState.isVisible = true;
-    expect(stickyTop(renderBar())).toBe('calc(110px + var(--page-tabs-pinned, 0px))');
+    expect(stickyTop(renderBar())).toBe('calc(96px + var(--page-tabs-pinned, 0px))');
   });
 
   it('picks the highlighted suggestion on Enter, so a partial name finds the player', async () => {

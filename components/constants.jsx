@@ -1,4 +1,4 @@
-export const navBarHeight = 70;
+export const navBarHeight = 56;
 export const profileBannerHeight = 40;
 export const simulatedCompanionsKey = 'simulatedCompanions';
 export const petsViewKey = 'petsView';

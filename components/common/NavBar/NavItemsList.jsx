@@ -18,9 +18,10 @@ const NavItemsList = ({ openMenu, onMenu }) => {
   const updateQuery = sessionQuery(router?.query);
   const prefetch = useNavPrefetch();
   return (
-    // Grows from its content's width, so the bar shrinks something only when it truly runs out of room
-    <Stack direction={'row'} justifyContent={'center'} sx={{ flex: '1 1 auto' }}>
-      {/* No label wraps: the bar is one row of 70, and below 1440 its gaps tighten instead (frame.js) */}
+    // Beside the logo, at one x from 1280 up. Grows from its content's width, which holds the search and the user block at
+    // the right edge, so the bar shrinks something only when it truly runs out of room.
+    <Stack direction={'row'} sx={{ flex: '1 1 auto', ml: { lg: 3 }, [BAR_TIGHT]: { ml: 1 } }}>
+      {/* No label wraps: the bar is one row, and below 1440 its gaps tighten instead (frame.js) */}
       <Stack component={'nav'} aria-label="Main" direction={'row'} sx={{
         display: { xs: 'none', lg: 'flex' }, gap: 1,
         [`& .${listItemButtonClasses.root}`]: { whiteSpace: 'nowrap' },

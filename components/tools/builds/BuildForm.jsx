@@ -1,5 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import useHydrated from '@hooks/useHydrated';
+import usePageTop from '@hooks/usePageTop';
 import {
   Alert,
   Box,
@@ -58,6 +59,7 @@ const BuildForm = ({
 }) => {
   const router = useRouter();
   const { state } = useContext(AppContext);
+  const pageTop = usePageTop();
   const signedIn = !!state?.signedIn;
 
   // Core form state
@@ -307,7 +309,7 @@ const BuildForm = ({
           gap: 2,
           alignItems: { md: 'center' },
           position: 'sticky',
-          top: 0,
+          top: pageTop,
           zIndex: 2,
           py: 1.5,
           px: 2

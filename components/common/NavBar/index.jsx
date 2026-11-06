@@ -25,6 +25,7 @@ import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
 import { NavMenuPanel } from './NavMenu';
 import { BAR_TIGHT, capPageWidth, pageColumnSx, PHONE_SIDES } from './frame';
+import { touchTarget } from '../../../styles/theme/theme';
 import useFrame from './useFrame';
 import GroupRow from './GroupRow';
 import PageHeader, { PageHeaderSlots } from './PageHeader';
@@ -66,7 +67,7 @@ const NavBar = ({ children }) => {
         {state?.signedIn || state?.profile ? <UserMenu/> : <LoginButton/>}
         {/* The one part of the bar that gives when a long name meets a narrow bar: an ellipsis, never a second row */}
         {state?.signedIn ? (
-          <Stack sx={{ p: 1, minWidth: 0 }}>
+          <Stack sx={{ px: 1, minWidth: 0 }}>
             <Typography variant={'body2'} noWrap sx={{ fontWeight: 'bold' }}>{state?.characters?.[0]?.name}</Typography>
             {state?.lastUpdated ? (
               <Typography variant={'caption'} noWrap>
@@ -84,13 +85,15 @@ const NavBar = ({ children }) => {
         theme's bottom border included, so every sticky top that reads navBarHeight sits right under it. */}
     <MuiAppBar position="sticky" data-shell="bar"
                sx={{ zIndex: (theme) => theme.zIndex.drawer + 1, height: navBarHeight, boxSizing: 'border-box' }}>
-      <Toolbar sx={{ height: '100%', minHeight: 0, [BAR_TIGHT]: { px: 2 } }}>
+      {/* Dense: the regular variant's 64 px floor sits in a media query that minHeight here does not reach, and from 600 px
+          it held the row lower than the bar */}
+      <Toolbar variant="dense" sx={{ height: '100%', minHeight: 0, [BAR_TIGHT]: { px: 2 } }}>
         <PhoneMenu at={phoneMenuAt} onOpen={(group) => setPhoneMenuAt({ group })} onClose={() => setPhoneMenuAt(null)}/>
         {/* The logo: one link home, the image decorative beside the name. The name takes the type scale's
             sectionTitle (18/26/600), the nearest step to the boards' 20/700; phones read "IT". */}
         <Link component={NextLink} href={{ pathname: '/', query: sessionQuery(router.query) }} prefetch={prefetch}
               underline="none" color="inherit"
-              sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1.25, flexShrink: 0, [BAR_TIGHT]: { mr: 1 } }}>
+              sx={{ mr: 2, display: 'flex', alignItems: 'center', gap: 1.25, flexShrink: 0, [BAR_TIGHT]: { mr: 1 }, ...touchTarget }}>
           <img src={`${prefix}data/Coins5.png`} alt="" width={28} height={28}/>
           <Typography component="span" variant="sectionTitle" sx={{ display: { xs: 'none', sm: 'inline' } }}>Idleon Toolbox</Typography>
           <Typography component="span" variant="sectionTitle" sx={{ display: { xs: 'inline', sm: 'none' } }}>IT</Typography>
