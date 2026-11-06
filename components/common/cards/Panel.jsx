@@ -110,6 +110,10 @@ const Row = ({ icon, iconAlt = '', name, sub, value, valueSub, kind, sx }) => {
   </Stack>;
 };
 
+// Rows in two columns from md, for a list that would leave half of a full width Panel empty.
+const COLUMNS_SX = { display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' } };
+const Columns = ({ children }) => <Box sx={COLUMNS_SX}>{children}</Box>;
+
 // A banded group title over label and value rows, for info boxes (the wiki InfoBox's shape).
 const Group = ({ label, children }) => {
   const sheet = useSheet();
@@ -165,6 +169,7 @@ const InputGroup = ({ label, children }) => <Stack sx={{ minWidth: 0 }}>
 export const FIELD_INFO_SX = { mb: '12px', '@media (pointer: coarse)': { mb: '14px' } };
 
 Panel.Row = Row;
+Panel.Columns = Columns;
 Panel.Group = Group;
 Panel.KV = KV;
 Panel.Inputs = Inputs;

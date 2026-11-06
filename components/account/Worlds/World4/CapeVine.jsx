@@ -31,9 +31,9 @@ const CapeVine = ({ capesUsed, capeBonuses, allCapes, sectionFailed }) => {
       cape&apos;s stats, so the Hat Rack&apos;s base stats count twice. The other bonuses add up every cape. The numbers here match
       the game.
     </InfoButton>}>
-      <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' } }}>
+      <Panel.Columns>
         {shownBonuses.map((bonus) => <Panel.Row key={bonus.name} name={bonusText(bonus)}/>)}
-      </Box>
+      </Panel.Columns>
     </Panel> : null}
     {capesUsed?.length ? <Stack gap={1.5} sx={{ mb: 3 }}>
       <Typography variant={'sectionTitle'} component={'h2'}>On the vine</Typography>

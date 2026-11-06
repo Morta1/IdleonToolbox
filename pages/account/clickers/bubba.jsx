@@ -44,25 +44,25 @@ const Bubba = () => {
       <StatTile label={'Meat slices per minute'} value={slices(bubba?.meatsliceRate, 'Bubbastuff.MeatsliceRate')}/>
       <StatTile label={'Next upgrade'} value={failed ? '-' : `${slices(bubba?.progress, 'Bubbastuff.MeatProdREQ')} / ${slices(bubba?.progressReq, 'Bubbastuff.MeatProdREQ')}`}/>
     </PageSummary>
-    <CardGrid size={'m'} sx={{ mb: 3, alignItems: 'start' }}>
-      <Panel title={"Bubba's bonuses"}>
+    <Panel title={'Megaflesh'} sx={{ mb: 2 }}>
+      <Box sx={{ p: 1.5 }}>
+        <CardGrid size={'icon'} evenRows>
+          {(bubba?.megaFlesh ?? []).map((entry, index) => <IconTile key={index} icon={`data/BubbaMF${index}.png`}
+                                                                   alt={`Megaflesh ${index + 1}`}
+                                                                   status={entry?.unlocked ? undefined : 'missing'}
+                                                                   value={!failed && entry?.amount > 0 ? formatNum(entry.amount, 'whole') : undefined}
+                                                                   details={<ItemCard.Desc text={megafleshText(entry).split('\n')}/>}/>)}
+        </CardGrid>
+      </Box>
+    </Panel>
+    <Panel title={"Bubba's bonuses"} sx={{ mb: 3 }}>
+      <Panel.Columns>
         {Object.values(bubba?.bonuses ?? {}).map((entry, index) => <Panel.Row key={entry.name}
                                                                                                   icon={`etc/Bubba_${index + 1}.png`}
                                                                                                   name={entry.name}
                                                                                                   value={failed ? '-' : bonusText(entry)}/>)}
-      </Panel>
-      <Panel title={'Megaflesh'}>
-        <Box sx={{ p: 1.5 }}>
-          <CardGrid size={'icon'}>
-            {(bubba?.megaFlesh ?? []).map((entry, index) => <IconTile key={index} icon={`data/BubbaMF${index}.png`}
-                                                                     alt={`Megaflesh ${index + 1}`}
-                                                                     status={entry?.unlocked ? undefined : 'missing'}
-                                                                     value={!failed && entry?.amount > 0 ? formatNum(entry.amount, 'whole') : undefined}
-                                                                     details={<ItemCard.Desc text={megafleshText(entry).split('\n')}/>}/>)}
-          </CardGrid>
-        </Box>
-      </Panel>
-    </CardGrid>
+      </Panel.Columns>
+    </Panel>
     <Upgrades upgrades={bubba?.upgrades} failed={failed} meatSlices={bubba?.meatSlices ?? 0}/>
   </>
 };

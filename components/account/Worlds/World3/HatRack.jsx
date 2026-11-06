@@ -1,5 +1,4 @@
 import React from 'react';
-import { Box } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { gameTables, items } from '@website-data';
@@ -25,9 +24,9 @@ const baseHelmet = (hat) => ({
 const HatRack = ({ bonusMulti, hatBonuses, allPremiumHelmets, sectionFailed }) => <>
   {hatBonuses?.length ? <Panel title={'Bonuses'} sx={{ mb: 3 }}
                                meta={`Totals with the hat rack multi ${formatGame(bonusMulti ?? 1, 'Gallery.HatrackBonusMulti')}x`}>
-    <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' } }}>
+    <Panel.Columns>
       {hatBonuses.map((bonus, index) => <Panel.Row key={`bonus-${index}`} name={bonusText(bonus)}/>)}
-    </Box>
+    </Panel.Columns>
   </Panel> : null}
   <CatalogList page={'hat-rack'} title={'Premium helmets'} noun={'helmets'} items={allPremiumHelmets?.map(baseHelmet)} failed={sectionFailed}/>
 </>;

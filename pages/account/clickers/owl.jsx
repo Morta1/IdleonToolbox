@@ -45,26 +45,26 @@ const Owl = () => {
         ? `${formatGame(owl.progress, 'Save.OwlFeathersProduced', { whole: true })} / ${formatGame(owl.nextLvReq, 'Summoning.OwlNextUpgReq', { whole: true })}`
         : <StatusText status={'done'}>All unlocked</StatusText>}/>
     </PageSummary>
-    <CardGrid size={'m'} sx={{ mb: 3, alignItems: 'start' }}>
-      <Panel title={'Bonuses of Orion'}>
+    <Panel title={'Megafeathers'} sx={{ mb: 2 }}>
+      <Box sx={{ p: 1.5 }}>
+        <CardGrid size={'icon'} evenRows>
+          {(owl?.megaFeathers ?? []).map(({ description, unlocked, amount, totalBonus }, index) => <IconTile key={index}
+                                                                                                          icon={`data/Feaz${index}.png`}
+                                                                                                          alt={`Megafeather ${index + 1}`}
+                                                                                                          status={unlocked ? undefined : 'missing'}
+                                                                                                          value={!failed && amount > 0 ? formatGame(amount, 'Summoning.OwlMegafeather', { whole: true }) : undefined}
+                                                                                                          details={<ItemCard.Desc
+                                                                                                            text={cleanUnderscore(`${description ?? ''}`.replace('{', () => formatNum(totalBonus ?? 1, 'mult', { bare: true })))}/>}/>)}
+        </CardGrid>
+      </Box>
+    </Panel>
+    <Panel title={'Bonuses of Orion'} sx={{ mb: 3 }}>
+      <Panel.Columns>
         {(owl?.bonuses ?? []).slice(1).map((bonus, index) => <Panel.Row key={bonus.name} icon={`etc/Owlb_${index + 1}.png`}
                                                                         name={bonus.name}
                                                                         value={failed ? '-' : bonusText(bonus)}/>)}
-      </Panel>
-      <Panel title={'Megafeathers'}>
-        <Box sx={{ p: 1.5 }}>
-          <CardGrid size={'icon'}>
-            {(owl?.megaFeathers ?? []).map(({ description, unlocked, amount, totalBonus }, index) => <IconTile key={index}
-                                                                                                            icon={`data/Feaz${index}.png`}
-                                                                                                            alt={`Megafeather ${index + 1}`}
-                                                                                                            status={unlocked ? undefined : 'missing'}
-                                                                                                            value={!failed && amount > 0 ? formatGame(amount, 'Summoning.OwlMegafeather', { whole: true }) : undefined}
-                                                                                                            details={<ItemCard.Desc
-                                                                                                              text={cleanUnderscore(`${description ?? ''}`.replace('{', () => formatNum(totalBonus ?? 1, 'mult', { bare: true })))}/>}/>)}
-          </CardGrid>
-        </Box>
-      </Panel>
-    </CardGrid>
+      </Panel.Columns>
+    </Panel>
     <CardGrid size={'m'}>
       {(owl?.upgrades ?? []).map(({ name, desc, level, cost, unlocked, x3 }, index) => <ItemCard key={index}
                                                                                                icon={`etc/Owl_${index}.png`}

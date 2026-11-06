@@ -1,7 +1,7 @@
 import { NextSeo } from 'next-seo';
 import { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Box } from '@mui/material';
+import { Box, Stack } from '@mui/material';
 import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { MissingData, isSectionFailed } from '@components/common/styles';
@@ -20,6 +20,13 @@ import { getKangaroo } from '@parsers/world-2/kangaroo';
 const bonusText = ({ bonus, percentage }) => `${bonus > 0 ? '+' : ''}${formatGame(bonus ?? 0, 'Summoning.RooBonuses')}${percentage ? '%' : ''}`;
 // The game's fish line rounds up before its commas (N.js, the Poppy panel), a step its rule's Comma doesn't hold
 const fishText = (key) => (value) => formatGame(Math.ceil(value), key, { whole: true });
+
+// Poppy's three lists share a row at equal widths where each gets 280 px, and stack where not: a phone, and 900 px beside
+// the side ad, where three columns ran a row's name into its value.
+const LISTS_SX = {
+  display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 2, alignItems: 'start',
+  '@container (min-width: 872px)': { gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }
+};
 
 const Kangaroo = () => {
   const { state } = useContext(AppContext);
@@ -56,16 +63,10 @@ const Kangaroo = () => {
     <Tabber tabs={getTabs(PAGES.ACCOUNT['clickers'].categories, 'kangaroo')}>
       <Upgrades upgrades={kangaroo?.upgrades} failed={failed} fish={kangaroo?.totalFish ?? 0}/>
       <Upgrades upgrades={kangaroo?.tarUpgrades} isTar failed={failed} tarFish={kangaroo?.totalTarFishOwned ?? 0}/>
-      <CardGrid size={'m'} sx={{ alignItems: 'start' }}>
-        <Panel title={"Poppy's bonuses"}>
-          {(kangaroo?.bonuses ?? []).slice(1).map((entry, index) => <Panel.Row key={entry.name}
-                                                                       icon={`etc/Kangaroob_${index + 1}.png`}
-                                                                       name={entry.name}
-                                                                       value={failed ? '-' : bonusText(entry)}/>)}
-        </Panel>
+      <Stack gap={2}>
         <Panel title={'Megafish'}>
           <Box sx={{ p: 1.5 }}>
-            <CardGrid size={'icon'}>
+            <CardGrid size={'icon'} evenRows>
               {(kangaroo?.megaFish ?? []).map(({ description, unlocked, amount, totalBonus }, index) => <IconTile key={index}
                                                                                                                 icon={`data/RooMG${index}.png`}
                                                                                                                 alt={`Megafish ${index + 1}`}
@@ -76,20 +77,30 @@ const Kangaroo = () => {
             </CardGrid>
           </Box>
         </Panel>
-        <Panel title={'Shiny multi'}>
-          <Panel.Row name={'Total multi'} value={failed ? '-' : `${formatGame(kangaroo?.totalMulti ?? 1, 'Summoning.RooShinyMulti')}x`}/>
-          {(kangaroo?.allMultipliers ?? []).map(({ multi, amount }, index) => <Panel.Row key={index}
-                                                                                         icon={`data/RooFishS${index}.png`}
-                                                                                         name={failed ? `Shiny fish ${index + 1}` : `${formatNum(amount, 'whole')} caught`}
-                                                                                         value={failed ? '-' : `${formatGame(multi, 'Summoning.RooShinyMulti_Fish')}x`}/>)}
-        </Panel>
-        <Panel title={'Reset bonuses'}>
-          {(kangaroo?.resetBonuses ?? []).map(({ desc, level }, index) => <Panel.Row key={index}
-                                                                                     icon={`data/RooReset${index}.png`}
-                                                                                     name={cleanUnderscore(desc)}
-                                                                                     value={failed ? '-' : formatNum(level ?? 0, 'level')}/>)}
-        </Panel>
-      </CardGrid>
+        <Box sx={{ containerType: 'inline-size' }}>
+          <Box sx={LISTS_SX}>
+            <Panel title={"Poppy's bonuses"}>
+              {(kangaroo?.bonuses ?? []).slice(1).map((entry, index) => <Panel.Row key={entry.name}
+                                                                           icon={`etc/Kangaroob_${index + 1}.png`}
+                                                                           name={entry.name}
+                                                                           value={failed ? '-' : bonusText(entry)}/>)}
+            </Panel>
+            <Panel title={'Shiny multi'}>
+              <Panel.Row name={'Total multi'} value={failed ? '-' : `${formatGame(kangaroo?.totalMulti ?? 1, 'Summoning.RooShinyMulti')}x`}/>
+              {(kangaroo?.allMultipliers ?? []).map(({ multi, amount }, index) => <Panel.Row key={index}
+                                                                                             icon={`data/RooFishS${index}.png`}
+                                                                                             name={failed ? `Shiny fish ${index + 1}` : `${formatNum(amount, 'whole')} caught`}
+                                                                                             value={failed ? '-' : `${formatGame(multi, 'Summoning.RooShinyMulti_Fish')}x`}/>)}
+            </Panel>
+            <Panel title={'Reset bonuses'}>
+              {(kangaroo?.resetBonuses ?? []).map(({ desc, level }, index) => <Panel.Row key={index}
+                                                                                         icon={`data/RooReset${index}.png`}
+                                                                                         name={cleanUnderscore(desc)}
+                                                                                         value={failed ? '-' : formatNum(level ?? 0, 'level')}/>)}
+            </Panel>
+          </Box>
+        </Box>
+      </Stack>
     </Tabber>
   </>
 };
