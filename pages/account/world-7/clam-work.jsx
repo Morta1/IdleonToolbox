@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Box, MenuItem, TextField } from '@mui/material';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
@@ -19,6 +19,7 @@ import ScurgeOptimizer from '@components/account/Worlds/World7/ClamWork/ScurgeOp
 import { DEFAULT_CLAM_MULTIKILL, getClamHp, parseClamWork } from '@parsers/world-7/clamWork';
 import { getClamworksMultiKill, getMaxDamage } from '@parsers/damage';
 import { useLocalStorage } from '@mantine/hooks';
+import useTabIndex from '@hooks/useTabIndex';
 
 const CLAMWORKS_MAP_INDEX = 306;
 const CLAM_SETTINGS = { multiKill: null };
@@ -34,6 +35,9 @@ const ClamWork = () => {
   const [settings, setSettings, resetSettings] = usePageSettings('clam-work', CLAM_SETTINGS);
   const section = account?.clamWork;
   const sectionFailed = isSectionFailed(account, 'clamWork');
+  const parseFailed = isParseFailed(account);
+  const tabs = ['Upgrades', 'Upgrade Optimizer', 'Scurge', 'Scurge Optimizer', 'Compensations'];
+  const [tabIndex] = useTabIndex(tabs);
   // The page re-runs the parser for the multikill it shows: a section that failed to parse would fail here too
   const parsed = Boolean(section) && !sectionFailed;
 
@@ -49,7 +53,7 @@ const ClamWork = () => {
     ? getClamworksMultiKill(character, characters, account, getClamHp(workerClass), playerInfo.maxDamage)
     : DEFAULT_CLAM_MULTIKILL;
   const multiKill = settings?.multiKill ?? suggestedMultiKill;
-  const clam = parsed ? parseClamWork(account, null, multiKill) : {};
+  const clam = parsed ? parseClamWork(account, null, multiKill) : section ?? {};
   const {
     promotionChance,
     promotionCost,
@@ -89,7 +93,7 @@ const ClamWork = () => {
       <PageSettings.Number name={'multiKill'} label={'Multikill'} defaultValue={suggestedMultiKill} min={0} integer
                            help={`Multi-Scalping reads the multikill of the character at the Clamworks: ${formatNum(suggestedMultiKill)} for ${character?.name ?? 'your first character'}. Type the number the game shows there to use it instead.`}/>
     </PageSettings>}
-    {!section || sectionFailed ? <MissingData name={'Clam Work'} failed={sectionFailed}/> : null}
+    {!section || sectionFailed ? <MissingData name={'Clam Work'} failed={sectionFailed} atZero={!parseFailed && !tabs[tabIndex].includes('Optimizer')}/> : null}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Worker class'} value={formatNum(workerClass, 'level')}/>
       {/* Every pearl cost prints in this rule (Thingies.Clam_Cost), so the balance does too */}
@@ -107,12 +111,12 @@ const ClamWork = () => {
                 sub={settings?.multiKill != null ? `Yours, auto ${formatNum(suggestedMultiKill)}` : 'Auto'}
                 info={'Multi-Scalping scales with the multikill of the character farming the Clamworks. Page settings takes the number the game shows there.'}/>
     </PageSummary>
-    <Tabber tabs={['Upgrades', 'Upgrade Optimizer', 'Scurge', 'Scurge Optimizer', 'Compensations']}>
+    <Tabber tabs={tabs}>
       <Upgrades upgrades={upgrades} ownedPearls={ownedPearls ?? 0}/>
       <UpgradeOptimizer character={character} account={optimizerAccount} multiKill={multiKill} sectionFailed={sectionFailed}/>
-      {sectionFailed ? null : <Scurge scurge={scurge}/>}
+      {parseFailed ? null : <Scurge scurge={scurge}/>}
       <ScurgeOptimizer character={character} account={optimizerAccount} multiKill={multiKill} sectionFailed={sectionFailed}/>
-      {sectionFailed ? null : <Compensations compensations={compensations}/>}
+      {parseFailed ? null : <Compensations compensations={compensations}/>}
     </Tabber>
   </>;
 };

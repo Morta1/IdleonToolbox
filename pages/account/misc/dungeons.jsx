@@ -48,7 +48,7 @@ const Dungeons = () => {
         title="Dungeons | Idleon Toolbox"
         description="Dungeon information including happy hour times, currency, upgrades and more"
       />
-      {dungeonsFailed ? <MissingData name={'Dungeons'} failed/> : null}
+      {dungeonsFailed ? <MissingData name={'Dungeons'} failed atZero/> : null}
       <PageSummary>
         <StatTile label={'Rank'} icon={dungeonsFailed ? undefined : `data/Dung_Rank${rank}.png`} value={shown(formatNum(rank ?? 0))}
                   sub={dungeonsFailed ? undefined : `${formatNum(progress ?? 0, 'whole')} / ${formatNum(Number(rankReq) || 0, 'whole')} EXP`}/>

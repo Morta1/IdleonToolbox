@@ -62,7 +62,7 @@ const Achievements = () => {
         title="Achievements | Idleon Toolbox"
         description="Track your achievement completion, reward tiers, and unlockable bonuses in Legends of Idleon"
       />
-      {failed ? <MissingData name={'Achievements'} failed/> : null}
+      {failed ? <MissingData name={'Achievements'} failed atZero/> : null}
       <PageSummary>
         {worldTotals.map(({ worldName, completed, total }) => <StatTile key={worldName} label={worldName}
                                                                         value={pair(completed, total)}/>)}

@@ -5,7 +5,7 @@ import LootPile from '@components/account/Worlds/World5/Sailing/LootPile';
 import { formatNum, getTabs } from '@utility/helpers';
 import Chests from '@components/account/Worlds/World5/Sailing/Chests';
 import BoatsAndCaptains from '@components/account/Worlds/World5/Sailing/BoatsAndCaptains';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import Trades from '@components/account/Worlds/World5/Sailing/Trades';
 import Tabber from '../../../components/common/Tabber';
@@ -30,7 +30,7 @@ const Sailing = () => {
       title="Sailing | Idleon Toolbox"
       description="Keep track of your artiacts, boats and captains and their bonuses"
     />
-    {sectionFailed ? <MissingData name={'Sailing'} failed atZero={AT_ZERO_TABS.includes(tabs[tabIndex])}/>
+    {sectionFailed ? <MissingData name={'Sailing'} failed atZero={!isParseFailed(state?.account) && AT_ZERO_TABS.includes(tabs[tabIndex])}/>
       : sailing?.unlocked === false ? <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached Sailing yet.</Notice> : null}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Chests'} icon={'npcs/Chesty.png'}

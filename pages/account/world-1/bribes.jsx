@@ -20,7 +20,7 @@ const Bribes = () => {
         title="Bribes | Idleon Toolbox"
         description="Track your bribe status, costs, and bonus effects across all Legends of Idleon worlds"
       />
-      {bribesFailed ? <MissingData name={'Bribes'} failed/> : null}
+      {bribesFailed ? <MissingData name={'Bribes'} failed atZero/> : null}
       <CardGrid size={'s'}>
         {bribes?.map(({ name, desc, price, done, value }) => {
           const purchased = !bribesFailed && done;

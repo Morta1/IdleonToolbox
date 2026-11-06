@@ -26,6 +26,7 @@ import Maps from '@components/account/Misc/class-specific/Tesseract/Maps';
 import { getDropRate } from '@parsers/character';
 import UpgradeOptimizer from '@components/account/Misc/class-specific/Tesseract/UpgradeOptimizer';
 import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
+import useTabIndex from '@hooks/useTabIndex';
 
 // The Arcanist Form stat panel's rows, in the game's names, each in its game rule (ArcaneType.Arcane_*)
 const arcanistRows = (stats) => [
@@ -52,6 +53,8 @@ const zeroTesseract = () => {
 
 const Tesseract = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['class-specific'].categories, 'tesseract');
+  const [tabIndex] = useTabIndex(tabs);
   const sectionFailed = isSectionFailed(state?.account, 'tesseract');
   const { upgrades, totalUpgradeLevels, tachyons } = state?.account?.tesseract || {};
   const catalog = sectionFailed ? zeroTesseract() : null;
@@ -82,7 +85,7 @@ const Tesseract = () => {
       title="Tesseract | Idleon Toolbox"
       description="Keep track of your tesseract upgrades, tachyons and arcanist stats"
     />
-    {sectionFailed ? <MissingData name={'Tesseract'} failed/> : null}
+    {sectionFailed ? <MissingData name={'Tesseract'} failed atZero={tabs[tabIndex] !== 'Upgrade Optimizer'}/> : null}
     {upgrades?.length ? costSettings : null}
     {arcanists.length > 1 ? <PageHeaderControl>
       <TextField select value={selectedArcanist?.playerId ?? ''} onChange={(event) => setSelectedChar(event.target.value)}
@@ -113,7 +116,7 @@ const Tesseract = () => {
                                                                        value={selectedArcanist && !sectionFailed ? value : '-'}/>)}
       </Box>
     </Panel>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'tesseract')}>
+    <Tabber tabs={tabs}>
       <Upgrades account={state?.account} upgrades={catalog?.upgrades ?? upgrades} tachyons={tachyons} costing={costing}
                 prismaChance={sectionFailed ? undefined : prismaChance} sectionFailed={sectionFailed}/>
       <UpgradeOptimizer account={state?.account} character={selectedArcanist} sectionFailed={sectionFailed}/>

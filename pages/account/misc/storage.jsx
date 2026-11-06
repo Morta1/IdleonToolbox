@@ -19,6 +19,7 @@ import Panel from '@components/common/cards/Panel';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 import { MissingData, isSectionFailed } from '@components/common/styles';
+import useTabIndex from '@hooks/useTabIndex';
 
 // The exact digits only while a double holds them (2^53); past that the coins already say it, and under 100 (one coin
 // tier) they repeat it
@@ -41,6 +42,8 @@ const chestDetails = (chest) => <Stack gap={0.5} alignItems={'flex-start'}>
 
 const Looty = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT.misc.categories, 'storage');
+  const [tabIndex] = useTabIndex(tabs);
   const storageFailed = isSectionFailed(state?.account, 'storage');
   // The money tiles read the currencies section: a failed one dashes them, named in the page's one note
   const currenciesFailed = isSectionFailed(state?.account, 'currencies');
@@ -73,7 +76,7 @@ const Looty = () => {
         title="Storage | Idleon Toolbox"
         description="Browse your full storage inventory with item counts, chest slots, and capacity in Legends of Idleon"
       />
-      {failedNames.length ? <MissingData name={failedNames.join(' and ')} failed/> : null}
+      {failedNames.length ? <MissingData name={failedNames.join(' and ')} failed atZero={storageFailed && tabs[tabIndex] === 'Slots'}/> : null}
       <PageSummary>
         <StatTile label={'Storage money'} value={currenciesFailed ? '-' : moneyValue(bankMoney)}
                   sub={currenciesFailed ? undefined : exactCoins(bankMoney)}/>
@@ -81,7 +84,7 @@ const Looty = () => {
                   sub={currenciesFailed ? undefined : exactCoins(rawMoney)}
                   info={'Your storage and every character\'s coins together.'}/>
       </PageSummary>
-      <Tabber tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'storage')}>
+      <Tabber tabs={tabs}>
         <Box>
           {list.length ? <Toolbar state={view} defaults={ITEMS_TOOLBAR} onChange={setView} onReset={resetView}
                                   total={list.length} shown={shown.length} noun={'items'}>
@@ -103,14 +106,14 @@ const Looty = () => {
         <Stack gap={2}>
           <StatTile label={'Slots owned'} icon={'data/InvStorage1.png'} value={slotsText} breakdownTitle={'Slots owned'}
                     breakdown={!storageFailed && slots?.breakdown ? { ...slots.breakdown, totalValue: slotsText } : undefined}/>
-          {storageFailed ? null : <CardGrid size={'icon'}>
+          <CardGrid size={'icon'}>
             {(state?.account?.storage?.storageChests ?? []).map((chest) => <IconTile key={chest?.rawName}
                                                                                    icon={`data/${chest?.rawName}.png`}
                                                                                    alt={cleanUnderscore(chest?.displayName)}
                                                                                    value={`+${formatNum((chest?.amount || chest?.capacity) ?? 0)}`}
                                                                                    status={chest?.unlocked ? undefined : 'missing'}
                                                                                    details={chestDetails(chest)}/>)}
-          </CardGrid>}
+          </CardGrid>
         </Stack>
       </Tabber>
     </>

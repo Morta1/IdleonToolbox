@@ -46,7 +46,7 @@ const AtomCollider = () => {
       title="Atom Collider | Idleon Toolbox"
       description="Track your Atom Collider upgrade levels, stamp bonuses, and particle costs in Legends of Idleon"
     />
-    {sectionFailed ? <MissingData name={'Atom Collider'} failed/> : printerFailed ? <MissingData name={'Printer'} failed/> : null}
+    {sectionFailed ? <MissingData name={'Atom Collider'} failed atZero/> : printerFailed ? <MissingData name={'Printer'} failed/> : null}
     <PageSummary>
       {/* Every atom cost prints in this rule (AtomCollider.AtomCost), so the balance does too */}
       <StatTile label={'Particles'} icon={'etc/Particle.png'}

@@ -29,7 +29,7 @@ const FriendsStats = () => {
         title="Friends Stats | Idleon Toolbox"
         description="View all friendship bonuses and their effects on your Legends of Idleon account progression"
       />
-      {failed ? <MissingData name={'Friends Stats'} failed/> : null}
+      {failed ? <MissingData name={'Friends Stats'} failed atZero/> : null}
       <PageSummary>
         <StatTile label={'Slots'} value={failed ? '-' : formatNum(slots ?? 0)}/>
         <StatTile label={'Multiplier'} value={failed ? '-' : formatNum(multiplier ?? 1, 'mult')}/>

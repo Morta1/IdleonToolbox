@@ -13,7 +13,7 @@ import Study from '@components/account/Worlds/World5/Hole/Study';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import Notice from '@components/common/Notice';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 
 const CAVERN_COUNT = getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore').length;
@@ -35,7 +35,7 @@ const Hole = () => {
       title="Hole | Idleon Toolbox"
       description="Keep track of your hole progress, exp, upgrades, bonuses, schemas and more"
     />
-    {sectionFailed ? <MissingData name={'the Hole'} failed/>
+    {sectionFailed ? <MissingData name={'the Hole'} failed atZero={!isParseFailed(state?.account)}/>
       : reached ? null : <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached the Hole yet.</Notice>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Unlocked caverns'} value={`${formatNum(hole?.unlockedCaverns ?? 0)} / ${formatNum(CAVERN_COUNT)}`}/>

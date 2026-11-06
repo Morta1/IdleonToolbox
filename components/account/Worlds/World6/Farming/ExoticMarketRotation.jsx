@@ -57,7 +57,7 @@ const ExoticMarketRotation = () => {
                  setFilter([]);
                }}
                total={rotations?.length ?? 0} shown={filteredRotations?.length ?? 0} noun={'weeks'}>
-        <Toolbar.Lead>
+        {sectionFailed ? null : <Toolbar.Lead>
           <Autocomplete
             multiple
             limitTags={2}
@@ -95,7 +95,7 @@ const ExoticMarketRotation = () => {
                                                   }
                                                 }}/>}
           />
-        </Toolbar.Lead>
+        </Toolbar.Lead>}
         <Toolbar.Show name={'weeks'} options={WEEKS.map((count) => [count, `${count} weeks`])}/>
       </Toolbar>
 

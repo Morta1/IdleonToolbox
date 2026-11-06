@@ -34,7 +34,7 @@ const Bubba = () => {
       title="Bubba | Idleon Toolbox"
       description="Track your Bubba minigame upgrades, candy progress, and bonus effects in Legends of Idleon"
     />
-    {failed ? <MissingData name={'Bubba'} failed/> : null}
+    {failed ? <MissingData name={'Bubba'} failed atZero/> : null}
     <PageSummary>
       <StatTile label={'Meat slices'} icon={'etc/Bubba_0.png'} value={slices(bubba?.meatSlices)}/>
       <StatTile label={'Meat slices per minute'} value={slices(bubba?.meatsliceRate)}/>

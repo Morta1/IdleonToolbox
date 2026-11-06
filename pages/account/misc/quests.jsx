@@ -10,7 +10,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import Toolbar from '@components/common/Toolbar';
 import InfoButton from '@components/common/InfoButton';
 import useToolbarState from '@hooks/useToolbarState';
-import { MissingData, isSectionFailed, joinNames } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed, joinNames } from '@components/common/styles';
 
 const WORLDS = ['Blunder_Hills', 'Yum_Yum_Desert', 'Frostbite_Tundra', 'Hyperion_Nebula', 'Smolderin\'_Plateau',
   'Spirited_Valley', 'Shimmerfin_Deep'];
@@ -22,6 +22,7 @@ const SECTIONS = [['quests', 'Quests'], ['totalQuestsCompleted', 'Unique quests 
 
 const Quests = () => {
   const { state } = useContext(AppContext);
+  const parseFailed = isParseFailed(state?.account);
   const questsFailed = isSectionFailed(state?.account, 'quests');
   const totalFailed = isSectionFailed(state?.account, 'totalQuestsCompleted');
   // A failed looty section has no greenstack list: no drop is called missable and the filter goes
@@ -32,9 +33,9 @@ const Quests = () => {
   const characters = state?.characters ?? [];
   const picked = Number(view.show);
   // No character (a guest): nobody to finish a quest, so nothing is done and nothing is at risk
-  const selected = !characters.length ? [] : view.show === 'all' ? characters.map((_, index) => index)
+  const selected = !characters.length || questsFailed ? [] : view.show === 'all' ? characters.map((_, index) => index)
     : [Number.isInteger(picked) && picked >= 0 && picked < characters.length ? picked : 0];
-  const worlds = questsFailed ? {} : shapeQuests(state?.account?.quests ?? {}, selected, view.doneByAny,
+  const worlds = parseFailed ? {} : shapeQuests(state?.account?.quests ?? {}, selected, view.doneByAny,
     lootyFailed ? null : new Set(state?.account?.looty?.greenStacks ?? []));
   const shownOf = (world) => (worlds?.[world] ?? []).filter((npc) => (!view.hideCompleted || npc?.status !== 1)
     && (!view.missable || lootyFailed || npc?.missablePending));
@@ -47,13 +48,13 @@ const Quests = () => {
         title="Quests | Idleon Toolbox"
         description="Track quest completion progress across all NPCs and characters in Legends of Idleon"
       />
-      {failedNames ? <MissingData name={failedNames} failed/> : null}
+      {failedNames ? <MissingData name={failedNames} failed atZero={questsFailed && !parseFailed}/> : null}
       <PageSummary>
         <StatTile label={'Unique quests completed'}
                   value={totalFailed ? '-' : formatNum(state?.account?.totalQuestsCompleted ?? 0)}
                   info={'Every quest counts once, however many characters finished it. The QUEST KAPOW! and QUEST CHUNGUS star talents scale with it.'}/>
       </PageSummary>
-      {questsFailed ? null : <Box>
+      {parseFailed ? null : <Box>
         <Toolbar state={view} defaults={QUESTS_TOOLBAR} onChange={setView} onReset={resetView}
                  total={npcCount} shown={shownCount} noun={'NPCs'}>
           <Toolbar.Lead>
@@ -61,7 +62,7 @@ const Quests = () => {
               {'Done by any counts a quest once any picked character finished it, so All characters with it finds the quests no one has done. Missable greenstacks keeps the NPCs with a quest whose item drops stop once it is finished and whose item is not greenstacked yet: keep one character on that quest until it is.'}
             </InfoButton>
           </Toolbar.Lead>
-          {characters.length ? <Toolbar.Show options={[['all', 'All characters'],
+          {characters.length && !questsFailed ? <Toolbar.Show options={[['all', 'All characters'],
             ...characters.map((character, index) => [`${index}`, character?.name])]}/> : null}
           <Toolbar.Filter name={'hideCompleted'} label={'Hide completed'}/>
           <Toolbar.Filter name={'doneByAny'} label={'Done by any'}/>

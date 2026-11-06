@@ -15,6 +15,7 @@ import GameIcon from '@components/common/GameIcon';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import usePageTop from '@hooks/usePageTop';
+import useTabIndex from '@hooks/useTabIndex';
 
 const getCost = (level, costMulti) => {
   if (!costMulti) {
@@ -49,6 +50,8 @@ const materialCell = (material) => isBlank(material) ? null
 
 const Forge = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['world 1'].categories, 'forge');
+  const [tabIndex] = useTabIndex(tabs);
   const pageTop = usePageTop();
   const forgeFailed = isSectionFailed(state?.account, 'forge');
   const forge = state?.account?.forge ?? {};
@@ -105,8 +108,8 @@ const Forge = () => {
       title="Forge | Idleon Toolbox"
       description="Monitor your forge ore production, upgrade levels, and crafting progress in Legends of Idleon"
     />
-    {forgeFailed ? <MissingData name={'Forge'} failed/> : null}
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 1'].categories, 'forge')}>
+    {forgeFailed ? <MissingData name={'Forge'} failed atZero={tabs[tabIndex] === 'Upgrades'}/> : null}
+    <Tabber tabs={tabs}>
       <>
         <StatTile label={'Max ore capacity'} value={capText} sx={{ mb: 2 }}
                   breakdown={capBreakdown ? { ...capBreakdown, totalValue: capText } : undefined}/>

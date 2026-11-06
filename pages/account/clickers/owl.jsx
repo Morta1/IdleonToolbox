@@ -34,7 +34,7 @@ const Owl = () => {
       title="Owl | Idleon Toolbox"
       description="Track your Owl minigame upgrades, feather progress, and bonus multipliers in Legends of Idleon"
     />
-    {failed ? <MissingData name={'Owl'} failed/> : null}
+    {failed ? <MissingData name={'Owl'} failed atZero/> : null}
     <PageSummary>
       <StatTile label={'Feathers'} icon={'etc/Owlb_0.png'} value={failed ? '-' : clickerAmount(feathers)}/>
       <StatTile label={'Feathers per second'} value={failed ? '-' : formatGame(featherRate, 'Summoning.OwlFeatherRate')}/>

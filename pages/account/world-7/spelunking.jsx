@@ -9,7 +9,7 @@ import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
 import StatTile from '@components/common/cards/StatTile';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import Notice from '@components/common/Notice';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World7/Spelunking/Upgrades';
@@ -17,9 +17,12 @@ import Lore from '@components/account/Worlds/World7/Spelunking/Lore';
 import Elixirs from '@components/account/Worlds/World7/Spelunking/Elixirs';
 import UpgradeOptimizer from '@components/account/Worlds/World7/Spelunking/UpgradeOptimizer';
 import { OPT } from '@parsers/accountOptions';
+import useTabIndex from '@hooks/useTabIndex';
 
 const Spelunking = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['world 7'].categories, 'spelunking');
+  const [tabIndex] = useTabIndex(tabs);
   const { upgrades,
     chapters,
     currentAmber,
@@ -51,6 +54,7 @@ const Spelunking = () => {
     saveTotals
   } = state?.account?.spelunking || {};
   const sectionFailed = isSectionFailed(state?.account, 'spelunking');
+  const parseFailed = isParseFailed(state?.account);
   const denominator = getAmberDenominator(state?.account);
   // The game's amber line: the save's amount over the denominator, commas under 1e9 and Big past it
   // (Spelunk.AmberDenominator). Dividing first also turns a save's text number past 1e21 into a number.
@@ -66,7 +70,7 @@ const Spelunking = () => {
       title="Spelunking | Idleon Toolbox"
       description="Keep track of your spelunking levels, upgrades and stats"
     />
-    {sectionFailed ? <MissingData name={'Spelunking'} failed/>
+    {sectionFailed ? <MissingData name={'Spelunking'} failed atZero={!parseFailed && tabs[tabIndex] !== 'Upgrade Optimizer'}/>
       : reached || state?.emptyAccount ? null : <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached Spelunking yet.</Notice>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Power'} icon={'data/CaveShopUpg17.png'}
@@ -94,8 +98,8 @@ const Spelunking = () => {
                 status={manicModeActive ? 'active' : undefined}/>
     </PageSummary>
 
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'spelunking')} clearOnChange={['nt']}>
-      {sectionFailed ? null : <Upgrades upgrades={upgrades} totalUpgradeLevels={saveTotals?.upgradeLevels} amber={amber} denominator={denominator} amberIndex={getAmberIndex(state?.account)} />}
+    <Tabber tabs={tabs} clearOnChange={['nt']}>
+      {parseFailed ? null : <Upgrades upgrades={upgrades} totalUpgradeLevels={saveTotals?.upgradeLevels} amber={amber} denominator={denominator} amberIndex={getAmberIndex(state?.account)} />}
       <Lore
         chapters={chapters}
         loreBosses={loreBosses}

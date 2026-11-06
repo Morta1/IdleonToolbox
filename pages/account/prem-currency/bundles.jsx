@@ -81,7 +81,7 @@ const Bundles = () => {
       title="Bundles | Idleon Toolbox"
       description="Track your purchased premium bundles and their bonuses in Legends of Idleon"
     />
-    {failed ? <MissingData name={'Bundles'} failed/> : null}
+    {failed ? <MissingData name={'Bundles'} failed atZero/> : null}
     <PageSummary>
       <StatTile label={'Bundles'} value={ownedOf(classic)}/>
       <StatTile label={'Pet Mart packs'} value={ownedOf(packs)}/>

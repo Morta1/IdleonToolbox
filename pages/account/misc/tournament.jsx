@@ -12,9 +12,12 @@ import StatTile from '@components/common/cards/StatTile';
 import Companions from '@components/account/Worlds/World7/Tournament/Companions';
 import Matches from '@components/account/Worlds/World7/Tournament/Matches';
 import Leaderboard from '@components/account/Worlds/World7/Tournament/Leaderboard';
+import useTabIndex from '@hooks/useTabIndex';
 
 const Tournament = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['misc'].categories, 'tournament');
+  const [tabIndex] = useTabIndex(tabs);
   const router = useRouter();
 
   // The Pet Mart tab moved to the Pets page; old bookmarks and search results still carry ?t=Pet Mart.
@@ -38,7 +41,7 @@ const Tournament = () => {
       title="Tournament | Idleon Toolbox"
       description="Track your companion tournament division, team lineup, match results, and rankings in Legends of Idleon"
     />
-    {failedNames.length ? <MissingData name={failedNames.join(' and ')} failed/> : null}
+    {failedNames.length ? <MissingData name={failedNames.join(' and ')} failed atZero={companionsFailed && tabs[tabIndex] === 'Companions'}/> : null}
     <PageSummary>
       <StatTile label={'Division'} value={tournament?.divisionName ?? '-'}/>
       <StatTile label={'Match day'} value={shown(tournament?.matchDay)}/>
@@ -46,7 +49,7 @@ const Tournament = () => {
       <StatTile label={'Registrations'} value={shown(tournament?.registrationCount)}/>
     </PageSummary>
 
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['misc'].categories, 'tournament')}>
+    <Tabber tabs={tabs}>
       <Companions companions={companions} sectionFailed={companionsFailed}/>
       <Matches tournament={tournament} companions={companions} sectionFailed={tournamentFailed} companionsFailed={companionsFailed}/>
       <Leaderboard tournament={tournament ?? { divisionNames: tournyStuff?.divisionNames ?? [] }}/>

@@ -21,10 +21,13 @@ import {
 import useHydrated from '@hooks/useHydrated';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import useTabIndex from '@hooks/useTabIndex';
 
 const Summoning = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['world 6'].categories, 'summoning');
+  const [tabIndex] = useTabIndex(tabs);
   const {
     winnerBonuses,
     upgrades,
@@ -40,6 +43,7 @@ const Summoning = () => {
     familiarCostResetSeconds
   } = state?.account?.summoning || {};
   const sectionFailed = isSectionFailed(state?.account, 'summoning');
+  const parseFailed = isParseFailed(state?.account);
   // Date.now() differs between the build and the client, so the elapsed time waits for hydration
   const hydrated = useHydrated();
   const pendingExp = getPendingFamiliarExp(familiarExp, hydrated ? state?.lastUpdated : undefined);
@@ -64,7 +68,7 @@ const Summoning = () => {
       title="Summoning | Idleon Toolbox"
       description="View your summoning upgrades, winner bonuses, and battle rewards in Legends of Idleon"
     />
-    {sectionFailed ? <MissingData name={'Summoning'} failed/> : null}
+    {sectionFailed ? <MissingData name={'Summoning'} failed atZero={!parseFailed && tabs[tabIndex] !== 'Stones'}/> : null}
     <PageSummary failed={sectionFailed}>
       <StatTile icon={'etc/Endless_Summoning.png'} label={'Highest endless level'} value={highestEndlessLevel ?? 0}
                 kind={'amount'}/>
@@ -85,11 +89,11 @@ const Summoning = () => {
       {/* Decision 2: the number the disabled toggle showed */}
       <StatTile label={'Total upgrades'} value={totalUpgradesLevels ?? 0} kind={'amount'}/>
     </PageSummary>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'summoning')}>
-      {sectionFailed ? null : <Upgrades upgrades={upgrades} essences={essences}
+    <Tabber tabs={tabs}>
+      {parseFailed ? null : <Upgrades upgrades={upgrades} essences={essences}
                 familiarCostReset={state?.lastUpdated + familiarCostResetSeconds * 1000}/>}
       <WinnerBonuses winnerBonuses={winnerBonuses}/>
-      {sectionFailed ? null : <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage}
+      {parseFailed ? null : <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage}
                highestEndlessLevel={highestEndlessLevel} winnerBonuses={winnerBonuses}/>}
       <Stones stones={summoningStones}/>
     </Tabber>

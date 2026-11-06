@@ -21,6 +21,7 @@ import { checkCharClass, CLASSES } from '@parsers/talents';
 import { getRoyalGuardian } from '@parsers/class-specific/royalGuardian';
 import { createBreakdown, flatLines, info } from '@parsers/breakdown';
 import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
+import useTabIndex from '@hooks/useTabIndex';
 
 // The game's "1 in N" for a marble's chance per kill
 const marbleText = (chance) => (chance > 0 ? `1 in ${formatGame(1 / chance, 'RoyalG.MarbleDrop', { whole: true })}` : '-');
@@ -34,8 +35,13 @@ const zeroRoyalGuardian = () => {
   }
 };
 
+// The kingdom's own lists: no catalog to draw at zero
+const BLANK_WHEN_FAILED = ['Outposts', 'Resources', 'Upgrade Optimizer'];
+
 const RoyalArmory = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['class-specific'].categories, 'royalArmory');
+  const [tabIndex] = useTabIndex(tabs);
   const sectionFailed = isSectionFailed(state?.account, 'royalGuardian');
   const royalGuardian = state?.account?.royalGuardian;
   const catalog = sectionFailed ? zeroRoyalGuardian() : null;
@@ -66,7 +72,7 @@ const RoyalArmory = () => {
       title="Royal Armory | Idleon Toolbox"
       description="Keep track of your Royal Guardian's armory, royal statues, statue flair and orblet market"
     />
-    {sectionFailed ? <MissingData name={'Royal Armory'} failed/> : null}
+    {sectionFailed ? <MissingData name={'Royal Armory'} failed atZero={!BLANK_WHEN_FAILED.includes(tabs[tabIndex])}/> : null}
     {armory?.upgrades?.length ? costSettings : null}
     {royalGuardians.length > 1 ? <PageHeaderControl>
       <TextField select value={selectedRoyalGuardian?.playerId ?? ''} onChange={(event) => setSelectedChar(event.target.value)}
@@ -94,7 +100,7 @@ const RoyalArmory = () => {
         ? <StatTile label={selectedRogBonus.name} value={`${formatGame(selectedRogBonus.value ?? 1, 'RoyalG.OutpostROGbon')}x`}/>
         : null}
     </PageSummary>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'royalArmory')}>
+    <Tabber tabs={tabs}>
       <Armory account={state?.account} upgrades={catalog?.armory?.upgrades ?? armory?.upgrades} resourceStorage={raw?.[1]}
               resourcePerHour={royalGuardian?.resourcePerHour} costing={costing} sectionFailed={sectionFailed}/>
       <Outposts outposts={royalGuardian?.outposts} outpostStats={outpostStats}

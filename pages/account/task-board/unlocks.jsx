@@ -49,7 +49,7 @@ const Unlocks = () => {
       title="Task Unlocks | Idleon Toolbox"
       description="Track your task board unlock progression, merit rewards, and task tier requirements in Legends of Idleon"
     />
-    {failed ? <MissingData name={'Unlocks'} failed/> : null}
+    {failed ? <MissingData name={'Unlocks'} failed atZero/> : null}
     <PageSummary>
       <StatTile label={'Available unlocks'}
                 value={hasPoints ? formatNum(Math.max(0, unlocks.unlockPointsOwned - unlocks.unlockedRecipes)) : '-'}/>

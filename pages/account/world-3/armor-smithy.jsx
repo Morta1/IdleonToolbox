@@ -2,7 +2,7 @@ import { useContext } from 'react';
 import { NextSeo } from 'next-seo';
 import { Box } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { items } from '@website-data';
 import ItemDisplay from '@components/common/ItemDisplay';
@@ -55,7 +55,7 @@ const ArmorSmithy = () => {
       title="Armor Smithy | Idleon Toolbox"
       description="Track your armor smithy set completion progress, set bonuses, and required items in Legends of Idleon"
     />
-    {sectionFailed ? <MissingData name={'Armor Smithy'} failed/> : null}
+    {sectionFailed ? <MissingData name={'Armor Smithy'} failed atZero={!isParseFailed(state?.account)}/> : null}
     <PageSummary>
       <StatTile label={'Completed sets'} value={sectionFailed ? '-' : `${formatNum(completed)} / ${formatNum(sets.length)}`}/>
       {!isSmithyUnlocked && !sectionFailed

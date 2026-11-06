@@ -66,7 +66,7 @@ const Merits = () => {
       title="Merits | Idleon Toolbox"
       description="Track your merit shop purchases, point spending, and available upgrades in Legends of Idleon"
     />
-    {failed ? <MissingData name={'Merits'} failed/> : null}
+    {failed ? <MissingData name={'Merits'} failed atZero/> : null}
     <PageSummary>
       {worldsArray.map((name, index) => <StatTile key={name} label={name} icon={`etc/Merit_${index}.png`}
                                                   value={failed ? '-' : formatNum(meritsOf(index))}/>)}

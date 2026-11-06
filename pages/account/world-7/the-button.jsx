@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { formatNum } from '@utility/helpers';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -13,6 +13,7 @@ const TheButton = () => {
   const { state } = useContext(AppContext);
   const section = state?.account?.button;
   const sectionFailed = isSectionFailed(state?.account, 'button');
+  const parseFailed = isParseFailed(state?.account);
   const {
     totalPresses,
     instaSkipsLeft,
@@ -32,7 +33,7 @@ const TheButton = () => {
       title="The Button | Idleon Toolbox"
       description="Track your Button presses, task progress, and bonus multipliers in Legends of Idleon World 7"
     />
-    {!section || sectionFailed ? <MissingData name={'The Button'} failed={sectionFailed}/> : null}
+    {!section || sectionFailed ? <MissingData name={'The Button'} failed={sectionFailed} atZero={!parseFailed}/> : null}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Total presses'} value={totalPresses ?? 0} kind={'amount'}/>
       <StatTile label={'Insta skips left'} value={instaSkipsLeft ?? 0} kind={'amount'}/>
@@ -46,7 +47,7 @@ const TheButton = () => {
     </PageSummary>
     <Stack gap={3}>
       <Bonuses bonuses={bonuses} activeBonusIndex={activeBonusIndex} pressesIntoCurrentBonus={pressesIntoCurrentBonus}/>
-      {sectionFailed ? null : <Tasks taskSequence={taskSequence} bonuses={bonuses} totalPresses={totalPresses} cycleLength={cycleLength}
+      {parseFailed ? null : <Tasks taskSequence={taskSequence} bonuses={bonuses} totalPresses={totalPresses} cycleLength={cycleLength}
              pressesIntoCurrentBonus={pressesIntoCurrentBonus}/>}
     </Stack>
   </>;

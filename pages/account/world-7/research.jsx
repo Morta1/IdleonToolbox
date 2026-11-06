@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { formatDuration, formatNum, getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
@@ -21,6 +21,7 @@ const Research = () => {
   const { state } = useContext(AppContext);
   const section = state?.account?.research;
   const sectionFailed = isSectionFailed(state?.account, 'research');
+  const parseFailed = isParseFailed(state?.account);
   const {
     occurrencesToBeFound,
     totalOccurrencesFound,
@@ -63,7 +64,7 @@ const Research = () => {
       title="Research | Idleon Toolbox"
       description="Keep track of your research level, observations and grid bonuses"
     />
-    {!section || sectionFailed ? <MissingData name={'Research'} failed={sectionFailed}/> : null}
+    {!section || sectionFailed ? <MissingData name={'Research'} failed={sectionFailed} atZero={!parseFailed}/> : null}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Research level'}
                 value={`${formatNum(researchLevel ?? 0)} (${formatNum(researchEXPpercent ?? 0, 'pct')})`}/>
@@ -100,7 +101,7 @@ const Research = () => {
                     kind={'amount'} failed={sectionFailed}/>
           <StatTile label={'Kaleidoscopes'} icon={'data/ResMagni2.png'} value={kaleidoscopeOwned ?? 0} kind={'amount'} failed={sectionFailed}/>
         </Stack>
-        {sectionFailed ? null : <Grid gridSquares={gridSquares}/>}
+        {parseFailed ? null : <Grid gridSquares={gridSquares}/>}
       </Stack>
       <Stack gap={3}>
         <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
@@ -109,7 +110,7 @@ const Research = () => {
           <StatTile label={'Max roll'} value={maxRoll ?? 0} kind={'amount'} failed={sectionFailed}/>
           <StatTile label={'Rolls per day'} value={rollsPerDay ?? 3} kind={'amount'} failed={sectionFailed}/>
         </Stack>
-        {sectionFailed ? null : <Observations observations={observations}/>}
+        {parseFailed ? null : <Observations observations={observations}/>}
       </Stack>
       <PostyNotes postyNotes={postyNotes}/>
     </Tabber>

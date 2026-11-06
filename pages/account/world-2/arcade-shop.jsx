@@ -139,7 +139,7 @@ const ArcadeShop = () => {
       title="Arcade Shop | Idleon Toolbox"
       description="Track your arcade shop upgrades, ball counts, golden balls, and bonus effects in Legends of Idleon"
     />
-    {failedSection ? <MissingData name={SECTION_NAMES[failedSection]} failed/> : null}
+    {failedSection ? <MissingData name={SECTION_NAMES[failedSection]} failed atZero={arcadeFailed}/> : null}
     <PageSummary>
       <StatTile label={'Balls'} icon={'data/PachiBall0.png'} value={arcadeFailed ? '-' : formatNum(balls ?? 0, 'whole')}/>
       <StatTile label={'Gold balls'} icon={GOLD_BALL_ICON} value={ballsText(goldBalls)}/>

@@ -9,9 +9,12 @@ import { getTabs } from '@utility/helpers';
 import { PAGES } from '@components/constants';
 import { AppContext } from '@components/common/context/AppProvider';
 import { MissingData, isSectionFailed } from '@components/common/styles';
+import useTabIndex from '@hooks/useTabIndex';
 
 const Worship = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['world 3'].categories, 'worship');
+  const [tabIndex] = useTabIndex(tabs);
   const failed = ['msaTotalizer', 'totems', 'towers'].filter((section) => isSectionFailed(state?.account, section));
   // The Totems tab's settings
   const [settings, setSettings, resetSettings] = usePageSettings('worship', TOTEMS_SETTINGS);
@@ -26,9 +29,9 @@ const Worship = () => {
                                                                                onChange={setSettings} onReset={resetSettings}>
         <TotemsSettings characters={state?.characters}/>
       </PageSettings> : null}
-      {failed.length ? <MissingData name={'Worship'} failed/> : null}
+      {failed.length ? <MissingData name={'Worship'} failed atZero={failed.includes('totems') && tabs[tabIndex] === 'Totems'}/> : null}
       <MsaTotalizer/>
-      <Tabber tabs={getTabs(PAGES.ACCOUNT['world 3'].categories, 'worship')}>
+      <Tabber tabs={tabs}>
         <Charge/>
         <Totems totemsFailed={failed.includes('totems')} towersFailed={failed.includes('towers')}/>
       </Tabber>

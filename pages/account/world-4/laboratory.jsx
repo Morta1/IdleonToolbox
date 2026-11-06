@@ -8,10 +8,13 @@ import LabRotation, { canRotate, ROTATION_SETTINGS, RotationSettings } from '../
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { getTabs } from '@utility/helpers';
 import { PAGES } from '@components/constants';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import useTabIndex from '@hooks/useTabIndex';
 
 const Laboratory = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['world 4'].categories, 'laboratory');
+  const [tabIndex] = useTabIndex(tabs);
   const lab = state?.account?.lab ?? {};
   const sectionFailed = isSectionFailed(state?.account, 'lab');
   // The rotation tab's setting, kept under the tab's own key
@@ -27,8 +30,8 @@ const Laboratory = () => {
                                                                 onChange={setRotationSettings} onReset={resetRotationSettings}>
         <RotationSettings/>
       </PageSettings> : null}
-      {sectionFailed ? <MissingData name={'the Laboratory'} failed/> : null}
-      <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'laboratory')}>
+      {sectionFailed ? <MissingData name={'the Laboratory'} failed atZero={!isParseFailed(state?.account) && tabs[tabIndex] !== 'Chips And Jewels Rotation'}/> : null}
+      <Tabber tabs={tabs}>
         <Mainframe {...lab} characters={state?.characters} account={state?.account} sectionFailed={sectionFailed}/>
         <Console {...lab} characters={state?.characters}/>
         <LabRotation sectionFailed={sectionFailed}/>

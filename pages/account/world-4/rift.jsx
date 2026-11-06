@@ -8,7 +8,7 @@ import ConstructMastery from '../../../components/account/Worlds/World4/Rift/Con
 import Tabber from '../../../components/common/Tabber';
 import { getTabs } from '@utility/helpers';
 import { PAGES } from '@components/constants';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 
 const Rift = () => {
   const { state } = useContext(AppContext);
@@ -23,7 +23,7 @@ const Rift = () => {
       title="Rift | Idleon Toolbox"
       description="Track your Rift bonuses, task completion, and skill upgrades in Legends of Idleon World 4"
     />
-    {sectionFailed ? <MissingData name={'the Rift'} failed/> : null}
+    {sectionFailed ? <MissingData name={'the Rift'} failed atZero={!isParseFailed(state?.account)}/> : null}
     <Tabber tabs={tabs}>
       <Tasks {...rift} characters={state?.characters}/>
       <Bonuses {...rift} account={state?.account}/>

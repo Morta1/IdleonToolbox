@@ -14,11 +14,12 @@ import { calcTotalMeals, getTotalMealSpeed, parseKitchens } from '@parsers/world
 import MenuItem from '@mui/material/MenuItem';
 import { getPlayerLabChipBonus } from '@parsers/world-4/lab';
 import { PAGES } from '@components/constants';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import PageSettings, { joinSettings, usePageSettings } from '@components/common/PageSettings';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
+import useTabIndex from '@hooks/useTabIndex';
 
 const COOKING_SETTINGS = { forceNano: false };
 
@@ -28,6 +29,8 @@ const gordoniusInfinite = (account) => account?.starSigns?.find(({ starName, isI
 
 const Cooking = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['world 4'].categories, 'cooking');
+  const [tabIndex] = useTabIndex(tabs);
   const account = state?.account;
   const characters = state?.characters;
   const { achievements, sailing } = account || {};
@@ -81,14 +84,14 @@ const Cooking = () => {
                              help={'Counts the nano chip in meal speed for any character, assuming Gordonius Major is active.'}/>
         <MealsSettings account={account} characters={characters}/>
       </PageSettings> : null}
-      {sectionFailed ? <MissingData name={'Cooking'} failed/> : kitchensFailed ? <MissingData name={'Kitchens'} failed/> : null}
+      {sectionFailed ? <MissingData name={'Cooking'} failed atZero={!isParseFailed(account) && tabs[tabIndex] === 'Meals'}/> : kitchensFailed ? <MissingData name={'Kitchens'} failed/> : null}
       <PageSummary>
         <StatTile label={'Meal speed'} value={kitchensFailed ? '-' : `${formatGame(totalMealSpeed, 'CookingR.CookingSPEED')}/hr`}
                   sub={enableNanoChip && !kitchensFailed ? 'Nano chip counted' : undefined}/>
         <StatTile label={'Meal max level'} value={sectionFailed ? '-' : cooking?.mealMaxLevel ?? 0} kind={'amount'}/>
         <StatTile label={'Total meal levels'} value={sectionFailed ? '-' : calcTotalMeals(cooking?.meals) ?? 0} kind={'amount'}/>
       </PageSummary>
-      <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'cooking')}>
+      <Tabber tabs={tabs}>
         <Meals characters={characters}
                {...cooking}
                kitchens={kitchens}

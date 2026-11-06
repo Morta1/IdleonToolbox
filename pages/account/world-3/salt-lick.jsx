@@ -29,7 +29,7 @@ const SaltLick = () => {
       title="Salt Lick | Idleon Toolbox"
       description="Track your Salt Lick upgrade levels, bonus effects, and material costs in Legends of Idleon World 3"
     />
-    {sectionFailed ? <MissingData name={'Salt Lick'} failed/> : null}
+    {sectionFailed ? <MissingData name={'Salt Lick'} failed atZero/> : null}
     <CardGrid>
       {saltLick.map((bonus, index) => {
         const { desc, name, level = 0, maxLevel, rawName, totalAmount, unlocked } = bonus;

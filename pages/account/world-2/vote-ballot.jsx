@@ -106,7 +106,7 @@ const VoteBallot = () => {
       title="Vote Ballot | Idleon Toolbox"
       description="Track your active vote ballot bonuses and their effects on gameplay in Legends of Idleon"
     />
-    {ballotFailed ? <MissingData name={'Vote Ballot'} failed/> : null}
+    {ballotFailed ? <MissingData name={'Vote Ballot'} failed atZero/> : null}
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 2'].categories, 'voteBallot')}>
       {ballotTab({
         label: 'Bonus multi',

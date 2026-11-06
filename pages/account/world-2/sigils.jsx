@@ -124,7 +124,7 @@ const Sigils = () => {
       title="Sigils | Idleon Toolbox"
       description="View your sigil levels, unlock progress, and bonus effects for alchemy in Legends of Idleon"
     />
-    {failedSection ? <MissingData name={SECTION_NAMES[failedSection]} failed/> : null}
+    {failedSection ? <MissingData name={SECTION_NAMES[failedSection]} failed atZero={alchemyFailed}/> : null}
     <PageSummary>
       <StatTile label={'Sigil speed'} value={speedText}
                 breakdown={!progressionFailed && sigilSpeed?.breakdown ? { ...sigilSpeed.breakdown, totalValue: speedText } : undefined}

@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Stack } from '@mui/material';
 import { cleanUnderscore, formatNum, gameLines, getCoinsArray, getTabs } from '@utility/helpers';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import {
   getMinorDivinityBonus,
@@ -135,7 +135,7 @@ const Divinity = () => {
       title="Divinity | Idleon Toolbox"
       description="Keep track of your characters' gods connections and upgrades"
     />
-    {sectionFailed ? <MissingData name={'Divinity'} failed/>
+    {sectionFailed ? <MissingData name={'Divinity'} failed atZero={!isParseFailed(state?.account)}/>
       : divinity?.unlocked === false ? <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached Divinity yet.</Notice> : null}
     <PageSummary failed={sectionFailed}>
       {/* The game's rank is max(0, unlocked gods - 10), so a guest reads 0 */}

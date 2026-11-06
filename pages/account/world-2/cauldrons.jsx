@@ -175,7 +175,7 @@ const Cauldrons = () => {
         title="Cauldrons | Idleon Toolbox"
         description="Track your alchemy cauldron levels, brewing speed, and liquid capacity in Legends of Idleon"
       />
-      {failedSection ? <MissingData name={SECTION_NAMES[failedSection]} failed/> : null}
+      {failedSection ? <MissingData name={SECTION_NAMES[failedSection]} failed atZero={alchemyFailed}/> : null}
       <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1.5 }}>Brewing</Typography>
       <CardGrid size={'l'}>
         {CAULDRON_INFO.map((cauldron, index) => brewingCard(cauldron, index, alchemy?.cauldrons?.[cauldron.name],

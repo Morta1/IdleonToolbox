@@ -66,7 +66,7 @@ const EventShop = () => {
       title="Event Shop | Idleon Toolbox"
       description="Track your event shop purchases, star currency, and bonus progression in Legends of Idleon"
     />
-    {parseFailed ? <MissingData name={'your save'} failed/> : null}
+    {parseFailed ? <MissingData name={'your save'} failed atZero/> : null}
     <PageSummary>
       <StatTile label={'Stars'} icon={'etc/Event_Currency.png'} value={parseFailed ? '-' : formatNum(stars)}/>
       <StatTile label={'Bonuses owned'} value={parseFailed ? '-' : `${formatNum(owned)} / ${formatNum(total)}`}/>

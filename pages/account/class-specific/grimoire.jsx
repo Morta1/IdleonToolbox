@@ -21,6 +21,7 @@ import { checkCharClass, CLASSES } from '@parsers/talents';
 import { getMaxDamage } from '@parsers/damage';
 import { getSkillEfficiency } from '@parsers/efficiency';
 import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
+import useTabIndex from '@hooks/useTabIndex';
 
 // The Wraith Form stat panel's rows, in the game's names, each in its game rule (Summoning.Grimoire_*)
 const wraithRows = (stats) => [
@@ -45,6 +46,8 @@ const zeroGrimoire = () => {
 
 const Grimoire = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['class-specific'].categories, 'grimoire');
+  const [tabIndex] = useTabIndex(tabs);
   const sectionFailed = isSectionFailed(state?.account, 'grimoire');
   const { bones, upgrades, monsterDrops, totalUpgradeLevels, nextUnlock, totalBonesCollected } = state?.account?.grimoire || {};
   const catalog = sectionFailed ? zeroGrimoire() : null;
@@ -71,7 +74,7 @@ const Grimoire = () => {
       title="Grimoire | Idleon Toolbox"
       description="Keep track of your grimoire levels, upgrades and wraith stats"
     />
-    {sectionFailed ? <MissingData name={'Grimoire'} failed/> : null}
+    {sectionFailed ? <MissingData name={'Grimoire'} failed atZero={tabs[tabIndex] !== 'Upgrade Optimizer'}/> : null}
     {upgrades?.length ? costSettings : null}
     {deathBringers.length > 1 ? <PageHeaderControl>
       <TextField select value={selectedCharacter?.playerId ?? ''} onChange={(event) => setSelectedChar(event.target.value)}
@@ -107,7 +110,7 @@ const Grimoire = () => {
                                                                    value={selectedCharacter && !sectionFailed ? value : '-'}/>)}
       </Box>
     </Panel>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'grimoire')}>
+    <Tabber tabs={tabs}>
       <Upgrades account={state?.account} upgrades={catalog?.upgrades ?? upgrades} bones={bones} costing={costing}
                 sectionFailed={sectionFailed}/>
       <UpgradeOptimizer account={state?.account} character={selectedCharacter}

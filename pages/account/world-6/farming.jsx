@@ -19,7 +19,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { getSkillExpMulti } from '@parsers/character';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 import useTabIndex from '@hooks/useTabIndex';
@@ -30,6 +30,7 @@ const Farming = () => {
   const { state } = useContext(AppContext);
   const farming = state?.account?.farming || {};
   const sectionFailed = isSectionFailed(state?.account, 'farming');
+  const parseFailed = isParseFailed(state?.account);
   const tabs = getTabs(PAGES.ACCOUNT['world 6'].categories, 'farming');
   const [tabIndex] = useTabIndex(tabs);
   const characters = state?.characters;
@@ -75,7 +76,7 @@ const Farming = () => {
       description="Track your farming garden plots, crop progress, OG bonuses, and evolution upgrades in Legends of Idleon"
     />
     {/* The picker and the gear work on a plot that didn't load */}
-    {sectionFailed ? <MissingData name={'Farming'} failed atZero={tabs[tabIndex] === 'Crop'}/> : <>
+    {sectionFailed ? <MissingData name={'Farming'} failed atZero={!parseFailed && tabs[tabIndex] !== 'Rank Optimizer'}/> : <>
       {characters?.length ? <PageHeaderControl>
         <TextField select value={selectedCharacter?.playerId ?? ''} onChange={(event) => setPickedId(event.target.value)}
                    sx={{ minWidth: 180 }}
@@ -118,13 +119,13 @@ const Farming = () => {
       </> : null}
     </PageSummary>
     <Tabber tabs={tabs}>
-      {sectionFailed ? null : <Plot plot={plot} crop={crop} market={market} ranks={ranks} lastUpdated={state?.lastUpdated}
+      {parseFailed ? null : <Plot plot={plot} crop={crop} market={market} ranks={ranks} lastUpdated={state?.lastUpdated}
             characters={characters}
             account={account}
             selectedCharacter={selectedCharacter}
             enableNano={enableNano}/>}
       <Market market={market} crop={crop}/>
-      {sectionFailed ? null : <ExoticMarket market={exoticMarket} crop={crop}/>}
+      {parseFailed ? null : <ExoticMarket market={exoticMarket} crop={crop}/>}
       <ExoticMarketRotation/>
       <RankDatabase ranks={ranks} hasLandRank={hasLandRank}/>
       {sectionFailed ? null : <LandRankOptimizer/>}

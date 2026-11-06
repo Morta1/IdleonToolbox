@@ -66,7 +66,7 @@ const CoralKidUpgrades = ({ coralKidUpgrades }) => {
   const singularityUnlocked = isMenagerieUnlockOwned(state?.account, SINGULARITY_MENAGERIE_UNLOCK);
 
   return <Box>
-    {failed ? <MissingData name={'Coral Kid upgrades'} failed/> : null}
+    {failed ? <MissingData name={'Coral Kid upgrades'} failed atZero={upgrades.length > 0}/> : null}
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Total upgrade LV'} value={totalLevels} kind={'amount'}/>
     </Stack>

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { formatNum, getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
@@ -40,7 +40,7 @@ const Minehead = () => {
       title="Minehead | Idleon Toolbox"
       description="Track your Minehead upgrade levels, opponent stats, and bonus progression in Legends of Idleon World 7"
     />
-    {!section || sectionFailed ? <MissingData name={'Minehead'} failed={sectionFailed}/> : null}
+    {!section || sectionFailed ? <MissingData name={'Minehead'} failed={sectionFailed} atZero={!isParseFailed(account)}/> : null}
     <PageSummary failed={sectionFailed}>
       {/* The upgrade panel prints the balance beside each cost in its rule (Minehead.UpgCost), so the Summary does too */}
       <StatTile label={'Mine currency'} icon={MINE_CURRENCY_ICON}

@@ -3,7 +3,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { formatNum, getTabs } from '@utility/helpers';
 import Notice from '@components/common/Notice';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { formatGame } from '@utility/gameNotation';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -24,6 +24,7 @@ const Menagerie = () => {
   const { state } = useContext(AppContext);
   const menagerie = state?.account?.menagerie;
   const sectionFailed = isSectionFailed(state?.account, 'menagerie');
+  const parseFailed = isParseFailed(state?.account);
   const {
     unlocked,
     rank,
@@ -54,7 +55,7 @@ const Menagerie = () => {
     {boosts?.some(({ visible }) => visible) ? <PageSettings state={settings} defaults={BOOSTS_SETTINGS} onChange={setSettings} onReset={resetSettings}>
       <BoostsSettings/>
     </PageSettings> : null}
-    {sectionFailed ? <MissingData name={'the Luminous Menagerie'} failed/> : !unlocked ? <Notice tone={'locked'} sx={{ mb: 2 }}>
+    {sectionFailed ? <MissingData name={'the Luminous Menagerie'} failed atZero={!parseFailed}/> : !unlocked ? <Notice tone={'locked'} sx={{ mb: 2 }}>
       Your account hasn't reached the Luminous Menagerie yet. It's in the Molten Edge map in World 7.
     </Notice> : null}
     <PageSummary failed={sectionFailed}>
@@ -69,7 +70,7 @@ const Menagerie = () => {
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'menagerie')}>
       <Missions missions={missions} unlocked={unlocked}/>
-      {sectionFailed ? null : <Unlocks unlocks={unlocks} menagerie={menagerie}/>}
+      {parseFailed ? null : <Unlocks unlocks={unlocks} menagerie={menagerie}/>}
       <Boosts account={state?.account} boosts={boosts} doublers={menagerie?.doublers} lumi={lumi}
               levelsAhead={settings?.levelsAhead ?? 1}/>
       <Jellies jellies={menagerie?.jellies}

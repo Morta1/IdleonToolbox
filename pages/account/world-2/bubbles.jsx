@@ -386,7 +386,7 @@ const Bubbles = () => {
         title="Bubbles | Idleon Toolbox"
         description="Keep track of your bubbles level and requirements with a handy calculator"
       />
-      {failedSection ? <MissingData name={SECTION_NAMES[failedSection]} failed/> : null}
+      {failedSection ? <MissingData name={SECTION_NAMES[failedSection]} failed atZero={alchemyFailed}/> : null}
       {/* A failed alchemy section has no costs, targets or cauldrons for the settings to change */}
       {alchemyFailed ? null : <PageSettings state={settings} defaults={BUBBLE_SETTINGS} onChange={setSettings}
                                             onReset={resetSettings}>

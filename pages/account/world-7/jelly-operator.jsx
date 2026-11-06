@@ -3,7 +3,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { formatNum, getTabs } from '@utility/helpers';
 import Notice from '@components/common/Notice';
-import { isSectionFailed, MissingData } from '@components/common/styles';
+import { isParseFailed, isSectionFailed, MissingData } from '@components/common/styles';
 import Num from '@components/common/Num';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -15,9 +15,12 @@ import Cells from '@components/account/Worlds/World7/JellyOperator/Cells';
 import Layout from '@components/account/Worlds/World7/JellyOperator/Layout';
 import UpgradeOptimizer from '@components/account/Worlds/World7/JellyOperator/UpgradeOptimizer';
 import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+import useTabIndex from '@hooks/useTabIndex';
 
 const JellyOperator = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['world 7'].categories, 'jellyOperator');
+  const [tabIndex] = useTabIndex(tabs);
   const {
     unlocked,
     obstructionsDefeated,
@@ -48,7 +51,7 @@ const JellyOperator = () => {
     />
 
     {/* Decision 13: the parser knows whether the account has reached it; a guest or a new account sees why it's zero */}
-    {sectionFailed ? <MissingData name={'Jelly Operator'} failed/> : null}
+    {sectionFailed ? <MissingData name={'Jelly Operator'} failed atZero={!isParseFailed(state?.account) && tabs[tabIndex] !== 'Upgrade Optimizer'}/> : null}
     {state?.emptyAccount ? <Notice tone={'signin'} sx={{ mb: 2 }}>Your Jelly Operator shows here once you sign in.</Notice> : null}
     {locked ? <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached the Jelly Operator yet.</Notice> : null}
     <PageSummary failed={sectionFailed}>
@@ -69,7 +72,7 @@ const JellyOperator = () => {
       <DoublerUsageCard title={'Doublers'} doubler={state?.account?.menagerie?.doublers?.jellyOperator}
                         icon={DOUBLER_ICONS.jellyOperator}/>
     </PageSummary>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'jellyOperator')}>
+    <Tabber tabs={tabs}>
       <Layout layout={layout} cells={cells}/>
       <Obstructions obstructions={obstructions}/>
       <Upgrades upgrades={upgrades} characters={state?.characters} bloodcells={bloodcells}

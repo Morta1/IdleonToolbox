@@ -10,7 +10,7 @@ import { PAGES } from '@components/constants';
 import TomeRankings, { isTomeEntryLocked, RANKINGS_SETTINGS, RankingsSettings } from '@components/account/Worlds/World4/TomeRankings';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import useRealDate from '@hooks/useRealDate';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import NumberField from '@components/common/NumberField';
 import Timer from '@components/common/Timer';
 import { segmentColors } from '@parsers/world-4/tome';
@@ -24,6 +24,7 @@ import Num from '@components/common/Num';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 import { quantityForPoints } from '@components/account/Worlds/World4/tomeQuantity';
+import useTabIndex from '@hooks/useTabIndex';
 
 const RANKS = ['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '80%', '90%', '95%'];
 const TOME_TOOLBAR = { search: '', hideMaxed: false, view: 'cards' };
@@ -114,6 +115,8 @@ const detailsSection = (bonus, tier) => {
 
 const Tome = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['world 4'].categories, 'tome');
+  const [tabIndex] = useTabIndex(tabs);
   const getRealDateInMs = useRealDate();
   const tome = state?.account?.tome ?? {};
   const sectionFailed = isSectionFailed(state?.account, 'tome');
@@ -162,7 +165,7 @@ const Tome = () => {
                                           onReset={resetRankSettings}>
       <RankingsSettings/>
     </PageSettings>}
-    {sectionFailed ? <MissingData name={'the Tome'} failed/> : null}
+    {sectionFailed ? <MissingData name={'the Tome'} failed atZero={!isParseFailed(state?.account) && tabs[tabIndex] === 'Overview'}/> : null}
     <PageSummary>
       <StatTile label={'Total points'} value={sectionFailed ? '-' : formatGame(tome?.totalPoints ?? 0, 'Summoning.TomePTS', { whole: true })}/>
       <StatTile label={'Rank'} value={tome?.top >= 0 && !sectionFailed
@@ -173,7 +176,7 @@ const Tome = () => {
       <StatTile label={'Nametag reward reset'} value={<Timer type={'countdown'} date={nextResetTime}/>}
                 breakdown={resets} breakdownTitle={'Nametag reward reset'} breakdownNoun={'resets'}/>
     </PageSummary>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'tome')}>
+    <Tabber tabs={tabs}>
       <>
         <CardGrid size={'l'} sx={{ mb: 3 }}>
           {tome?.bonuses?.length ? <Panel title={'Tome bonuses'}>

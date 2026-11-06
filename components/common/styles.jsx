@@ -108,6 +108,12 @@ export const isSectionFailed = (account, section) => {
   return !!failed?.includes(section) || !!failed?.includes('*');
 };
 
+// The whole parse failed: a failed section comes back as its catalog at zero (parsers/index.ts), and here none did.
+export const isParseFailed = (account) => !!account?.failedSections?.includes('*');
+
+// "your Hat Rack", but a name that carries its own word stands alone: "the Hole", "The Button", "your save".
+const yourName = (name) => (/^(the|your)\b/i.test(name) ? name : `your ${name}`);
+
 // The parse's own section keys as a player reads them: "printer" is "Printer", "cooking.kitchens" "Cooking kitchens".
 const sectionName = (key) => {
   const words = `${key}`.replace(/\./g, ' ').replace(/([a-z])([A-Z])/g, (_, a, b) => `${a} ${b}`).toLowerCase();
@@ -132,7 +138,7 @@ export const MissingData = ({ name, failed, sections, atZero }) => {
   // The name leads (or stands alone): some names carry their own article ("The Button").
   return isFailed
     ? <Notice tone={'error'} sx={{ mb: 2 }}>{atZero
-      ? `Couldn't load your ${shownName}, so everything shows at zero. That's a bug on my end.`
+      ? `Couldn't load ${yourName(shownName)}, so everything shows at zero. That's a bug on my end.`
       : `Couldn't load ${shownName}. That's a bug on my end.`}</Notice>
     : <Notice tone={'missing'} sx={{ mb: 2 }}>{`${shownName} has no data in your save yet: it shows up here once it does.`}</Notice>;
 };

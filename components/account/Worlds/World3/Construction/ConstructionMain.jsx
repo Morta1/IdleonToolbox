@@ -212,7 +212,7 @@ const ConstructionMain = ({ sectionFailed }) => {
   }));
 
   // A section that failed to load has no board to view or plan: the page's note and the tiles' dashes
-  if (sectionFailed) return <ConstructionStats construction={state?.account?.construction}/>;
+  if (sectionFailed) return <ConstructionStats/>;
 
   return (
     <>

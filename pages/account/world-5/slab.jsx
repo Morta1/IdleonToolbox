@@ -4,7 +4,7 @@ import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
 import { getSlabBonus } from '@parsers/world-5/sailing';
 import { isMissingGreenstack } from '@parsers/misc';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -64,7 +64,7 @@ const Slab = () => {
       title="Slab | Idleon Toolbox"
       description="Track your Slab item collection progress and discover missing items in Legends of Idleon World 5"
     />
-    {sectionFailed ? <MissingData name={'the Slab'} failed/> : null}
+    {sectionFailed ? <MissingData name={'the Slab'} failed atZero={!isParseFailed(state?.account)}/> : null}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Looted items'} value={`${formatNum(looty?.lootedItems ?? 0)} / ${formatNum(looty?.totalItems ?? 0)}`}/>
       <StatTile label={'Missing items'} value={looty?.missingItems ?? 0} kind={'amount'}/>

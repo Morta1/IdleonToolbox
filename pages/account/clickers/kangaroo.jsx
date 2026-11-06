@@ -38,7 +38,7 @@ const Kangaroo = () => {
       title="Poppy The Kangaroo | Idleon Toolbox"
       description="Track your Kangaroo minigame upgrades, jump progress, and bonus rewards in Legends of Idleon"
     />
-    {failed ? <MissingData name={'Kangaroo'} failed/> : null}
+    {failed ? <MissingData name={'Kangaroo'} failed atZero/> : null}
     <PageSummary>
       <StatTile label={'Fish'} icon={'etc/KFish.png'} value={number(kangaroo?.totalFish, clickerAmount)}/>
       <StatTile label={'Fish per minute'} value={number(fishRate, formatNum)}/>

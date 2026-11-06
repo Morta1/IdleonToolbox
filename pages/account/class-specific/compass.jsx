@@ -21,6 +21,7 @@ import UpgradeOptimizer from '@components/account/Misc/class-specific/Compass/Up
 import { dustNames, getCompass, getCompassStats, getExtraDust } from '@parsers/class-specific/compass';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
+import useTabIndex from '@hooks/useTabIndex';
 
 // The Tempest Form stat panel's rows, in the game's names, each in its game rule (Windwalker.Compass_*)
 const tempestRows = (stats) => [
@@ -53,6 +54,8 @@ const FORM_GRID_SX = { display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'r
 
 const Compass = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['class-specific'].categories, 'compass');
+  const [tabIndex] = useTabIndex(tabs);
   const sectionFailed = isSectionFailed(state?.account, 'compass');
   const {
     groupedUpgrades,
@@ -88,7 +91,7 @@ const Compass = () => {
       title="Compass | Idleon Toolbox"
       description="Keep track of your compass levels, upgrades and compass stats"
     />
-    {sectionFailed ? <MissingData name={'Compass'} failed/> : null}
+    {sectionFailed ? <MissingData name={'Compass'} failed atZero={tabs[tabIndex] !== 'Upgrade Optimizer'}/> : null}
     {groupedUpgrades?.length ? costSettings : null}
     {windWalkers.length > 1 ? <PageHeaderControl>
       <TextField select value={selectedWindWalker?.playerId ?? ''} onChange={(event) => setSelectedChar(event.target.value)}
@@ -126,7 +129,7 @@ const Compass = () => {
                                                                      value={selectedWindWalker && !sectionFailed ? value : '-'}/>)}
       </Box>
     </Panel>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'compass')}>
+    <Tabber tabs={tabs}>
       <Upgrades account={state?.account} upgrades={catalog?.groupedUpgrades ?? groupedUpgrades} dusts={dusts} costing={costing}
                 sectionFailed={sectionFailed}/>
       <UpgradeOptimizer character={selectedWindWalker} account={state?.account} sectionFailed={sectionFailed}/>

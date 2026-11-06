@@ -41,7 +41,7 @@ const Constellations = () => {
       title="Constellations | Idleon Toolbox"
       description="Explore all constellation completions and star sign bonuses for your Legends of Idleon characters"
     />
-    {failedNames.length ? <MissingData name={failedNames.join(' and ')} failed/> : null}
+    {failedNames.length ? <MissingData name={failedNames.join(' and ')} failed atZero/> : null}
     <Tabber tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'constellations')} clearOnChange={['nt']}>
       <ConstellationsComp constellations={constellations ?? []} characters={state?.characters}
                           sectionFailed={constellationsFailed}/>

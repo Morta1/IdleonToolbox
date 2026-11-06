@@ -8,7 +8,7 @@ import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World3/Equinox/Upgrades';
 import Challenges from '@components/account/Worlds/World3/Equinox/Challenges';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import Notice from '@components/common/Notice';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -26,7 +26,7 @@ const Equinox = () => {
         title="Equinox | Idleon Toolbox"
         description="Track your Equinox upgrades, dream bonuses, and unlockable perks for all your Legends of Idleon characters"
       />
-      {sectionFailed ? <MissingData name={'Equinox'} failed/> : !equinox?.unlocked
+      {sectionFailed ? <MissingData name={'Equinox'} failed atZero={!isParseFailed(state?.account)}/> : !equinox?.unlocked
         ? <Notice tone={'locked'} sx={{ mb: 2 }}>Equinox isn&apos;t unlocked in this save yet: its upgrades and challenges show at zero.</Notice>
         : null}
       {equinox?.unlocked && !sectionFailed ? <PageSummary>

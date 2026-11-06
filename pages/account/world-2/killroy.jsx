@@ -28,7 +28,7 @@ const Killroy = () => {
       title="Killroy | Idleon Toolbox"
       description="Track your Killroy skull kills, progression tiers, and bonus rewards in Legends of Idleon"
     />
-    {killroyFailed ? <MissingData name={'Killroy'} failed/> : null}
+    {killroyFailed ? <MissingData name={'Killroy'} failed atZero/> : null}
     <PageSummary>
       <StatTile label={'Skulls'} icon={'etc/Killroy_Skull.png'} value={tile(formatNum(killroy?.skulls ?? 0, 'whole'))}/>
       <StatTile label={'Total kills'} value={tile(formatNum(killroy?.totalKills ?? 0, 'whole'))}/>

@@ -119,7 +119,7 @@ const Buildings = () => {
       title="Buildings | Idleon Toolbox"
       description="Keep track of your towers levels, bonuses and required materials for upgrades"
     />
-    {towersFailed || constructionFailed ? <MissingData name={'Buildings'} failed/> : null}
+    {towersFailed || constructionFailed ? <MissingData name={'Buildings'} failed atZero={towersFailed}/> : null}
     <PageSummary>
       <StatTile label={'Total building levels'} value={towersFailed ? '-' : state?.account?.towers?.totalLevels ?? 0}
                 kind={'amount'}/>

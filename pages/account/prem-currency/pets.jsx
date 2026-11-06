@@ -28,7 +28,7 @@ const Pets = () => {
       title="Pets | Idleon Toolbox"
       description="View your pet collection, Pet Mart+ upgrades and bonuses, trade offers, and the daily Pet Mart rotation in Legends of Idleon"
     />
-    {failedNames.length ? <MissingData name={failedNames.join(' and ')} failed/> : null}
+    {failedNames.length ? <MissingData name={failedNames.join(' and ')} failed atZero/> : null}
     <PageSummary>
       <StatTile label={'Pet crystals'} icon={'data/PremiumGem.png'} imgStyle={PET_CRYSTAL_LOOK} value={count(companions?.petCrystals)}/>
       <StatTile label={'Boxes opened'} value={count(companions?.totalBoxesOpened)}/>

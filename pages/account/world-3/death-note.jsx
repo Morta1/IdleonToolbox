@@ -83,7 +83,7 @@ const DeathNote = () => {
         title="Death Note | Idleon Toolbox"
         description="Track your Death Note monster kill counts, multikill progress, and world completion in Legends of Idleon"
       />
-      {sectionFailed ? <MissingData name={'Death Note'} failed/> : null}
+      {sectionFailed ? <MissingData name={'Death Note'} failed atZero/> : null}
       {/* An empty table draws no header */}
       {bands.length ? <DataTable columns={COLUMNS} bands={bands} bandNoun={'monsters'} rowKey={'rawName'}
                                  rowLabel={(mob) => cleanUnderscore(mob.displayName)} surface={'card'} stickyTop={pageTop}/> : null}

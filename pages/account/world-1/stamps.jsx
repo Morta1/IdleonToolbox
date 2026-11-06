@@ -167,7 +167,7 @@ const Stamps = () => {
         title="Stamps | Idleon Toolbox"
         description="Track your stamp levels, upgrade costs, and bonus effects across all stamp categories in Legends of Idleon"
       />
-      {failedName ? <MissingData name={failedName} failed/> : null}
+      {failedName ? <MissingData name={failedName} failed atZero={stampsFailed}/> : null}
       {/* A failed section's settings would price nothing, and its snapshot would save every level as 0 */}
       {stampsFailed ? null : <PageSettings state={settings} defaults={stampDefaults} onChange={setSettings}
                                            onReset={resetSettings}>

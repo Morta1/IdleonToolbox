@@ -33,7 +33,7 @@ const General = ({ account, gaming, sectionFailed, characters, lastUpdated }) =>
   const bitMultiText = formatNum(bitMulti?.value ?? 1, 'mult');
 
   return <>
-    <PageSummary>
+    <PageSummary failed={sectionFailed}>
       {/* The notation divides by 1e18 per tier, so the balance carries its tier's sprite, as the costs do: at every size */}
       <StatTile label={'Bits'} value={<Stack component={'span'} direction={'row'} gap={0.5} alignItems={'center'}>
         {formatBits(bits ?? 0)}<GameIcon src={bitsIcon(bits)} size={16} alt={''}/>

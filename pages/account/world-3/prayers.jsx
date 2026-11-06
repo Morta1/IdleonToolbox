@@ -31,7 +31,7 @@ const Prayers = () => {
         title="Prayers | Idleon Toolbox"
         description="View your active prayers, curse penalties, and soul bonuses to optimize worship in Legends of Idleon"
       />
-      {sectionFailed ? <MissingData name={'Prayers'} failed/> : null}
+      {sectionFailed ? <MissingData name={'Prayers'} failed atZero/> : null}
       <CardGrid size={'m'}>
         {prayers.map((prayer, index) => {
           const { name, x1, x2, level = 0, prayerIndex, effect, curse, soul, maxLevel, totalAmount, unlockWave, unlockZone } = prayer;

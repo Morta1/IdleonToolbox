@@ -15,7 +15,7 @@ import Timer from '../../../components/common/Timer';
 import Tabber from '../../../components/common/Tabber';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { PAGES } from '@components/constants';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -67,7 +67,7 @@ const Breeding = () => {
         title="Breeding | Idleon Toolbox"
         description="Keep track of your breeding upgrades, eggs and arena upgrades"
       />
-      {sectionFailed ? <MissingData name={'Breeding'} failed/> : null}
+      {sectionFailed ? <MissingData name={'Breeding'} failed atZero={!isParseFailed(state?.account)}/> : null}
       {/* In a failed section every tile reads "-": even the egg time takes the shiny pets' meal bonus */}
       <PageSummary>
         <StatTile label={'Time to next egg'}

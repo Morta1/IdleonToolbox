@@ -85,7 +85,7 @@ const Vials = () => {
       title="Vials | Idleon Toolbox"
       description="View your vial levels, upgrade costs, and bonus effects for alchemy progression in Legends of Idleon"
     />
-    {failedSection ? <MissingData name={SECTION_NAMES[failedSection]} failed/> : null}
+    {failedSection ? <MissingData name={SECTION_NAMES[failedSection]} failed atZero={alchemyFailed}/> : null}
     <PageSummary>
       <StatTile label={'Vial bonus'} value={vialText}
                 breakdown={!failedSection && breakdown ? { ...breakdown, totalValue: vialText } : undefined}/>

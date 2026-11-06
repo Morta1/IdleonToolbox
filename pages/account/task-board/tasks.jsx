@@ -80,7 +80,7 @@ const Tasks = () => {
       title="Tasks | Idleon Toolbox"
       description="Track your task board completion, rewards, and progression across all task categories in Legends of Idleon"
     />
-    {failed ? <MissingData name={'Tasks'} failed/> : null}
+    {failed ? <MissingData name={'Tasks'} failed atZero/> : null}
     <PageSummary>
       {worlds.map(({ name, totalLevels, maxLevels }) => <StatTile key={name} label={name} value={ranks(totalLevels, maxLevels)}/>)}
       <StatTile label={'Total'} value={ranks(sumOf(worlds, 'totalLevels'), sumOf(worlds, 'maxLevels'))}/>

@@ -12,7 +12,7 @@ import Timer from 'components/common/Timer';
 import { NextSeo } from 'next-seo';
 import { calcTotals } from '@parsers/world-3/printer';
 import Box from '@mui/material/Box';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import Panel from '@components/common/cards/Panel';
@@ -174,7 +174,7 @@ const Refinery = () => {
       <PageSettings.Toggle name={'nextLevelCost'} label={'Show next level cost'}
                            help={'Each cost also shows what the next rank costs.'}/>
     </PageSettings> : null}
-    {sectionFailed ? <MissingData name={'Refinery'} failed/> : printerFailed ? <MissingData name={'Printer'} failed/> : null}
+    {sectionFailed ? <MissingData name={'Refinery'} failed atZero={!isParseFailed(state?.account)}/> : printerFailed ? <MissingData name={'Printer'} failed/> : null}
     <PageSummary>
       {cycles.map(({ name, time, breakdown }) => {
         const text = formatDuration(time);

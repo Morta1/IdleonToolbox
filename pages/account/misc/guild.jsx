@@ -17,10 +17,13 @@ import Notice from '@components/common/Notice';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import Panel from '@components/common/cards/Panel';
+import useTabIndex from '@hooks/useTabIndex';
 
 const Guild = () => {
   const { state } = useContext(AppContext);
   const formatDate = useFormatDate();
+  const tabs = ['Members', 'Bonuses'];
+  const [tabIndex] = useTabIndex(tabs);
   const guildFailed = isSectionFailed(state?.account, 'guild');
   const guild = guildFailed ? getLockedGuild() : state?.account?.guild;
   const members = (guild?.members ?? []).filter((member) => member?.name);
@@ -67,14 +70,14 @@ const Guild = () => {
 
   return <>
     <GuildSeo/>
-    {guildFailed ? <MissingData name={'Guild'} failed/> : null}
+    {guildFailed ? <MissingData name={'Guild'} failed atZero={tabs[tabIndex] === 'Bonuses'}/> : null}
     {hasMembers ? <PageSummary>
       <StatTile label={'Guild'} icon={`data/G2icon${state?.account?.accountOptions?.[OPT.guildIcon]}.png`}
                 value={state?.account?.accountOptions?.[OPT.guildName]}/>
       <StatTile label={'Members'} value={`${formatNum(members.length)} / ${formatNum(guild?.maxMembers ?? 0)}`}/>
       <StatTile label={'Guild GP'} value={`${formatNum(guild?.totalGp ?? 0)} / ${formatNum(Math.round(guild?.levelReq ?? 0))}`}/>
     </PageSummary> : null}
-    <Tabber tabs={['Members', 'Bonuses']}>
+    <Tabber tabs={tabs}>
       {membersTab}
       <GuildBonuses bonuses={guild?.guildBonuses} sectionFailed={guildFailed}/>
     </Tabber>

@@ -128,7 +128,7 @@ const Islands = () => {
       title="Islands | Idleon Toolbox"
       description="Track your island exploration progress, available upgrades, and trash island bonuses in Legends of Idleon"
     />
-    {failed ? <MissingData name={'Islands'} failed/> : null}
+    {failed ? <MissingData name={'Islands'} failed atZero/> : null}
     <PageSummary>
       <StatTile label={'Bottles'} value={failed ? '-' : formatNum(bottles)}/>
       <StatTile label={'Bottles per day'} value={tile(islands?.bottlesPerDay)}/>

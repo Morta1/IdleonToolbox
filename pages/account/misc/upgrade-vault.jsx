@@ -46,7 +46,7 @@ const UpgradeVault = () => {
       title="Upgrade Vault | Idleon Toolbox"
       description="Keep track of your upgrade vault progress, upgrade, levels, cost to upgrade and more"
     />
-    {vaultFailed ? <MissingData name={'Upgrade Vault'} failed/> : null}
+    {vaultFailed ? <MissingData name={'Upgrade Vault'} failed atZero/> : null}
     <PageSummary>
       <StatTile label={'Total levels'} value={vaultFailed ? '-' : formatNum(totalUpgradeLevels ?? 0)}/>
       {vaultFailed ? <StatTile label={'Vault cost reduction'} value={'-'}/>
