@@ -26,7 +26,7 @@ const vineMeta = ({ golden, capeMultiplier }) => {
 const CapeVine = ({ capesUsed, capeBonuses, allCapes, sectionFailed }) => {
   const shownBonuses = (capeBonuses || []).filter(({ name, value }) => !BASE_STATS.includes(name) || value > 0);
   return <>
-    {shownBonuses.length ? <Panel title={'Bonuses'} sx={{ mb: 3 }} aside={<InfoButton label={'Bonuses'}>
+    {shownBonuses.length ? <Panel title={'Bonuses'} sx={{ mb: 3 }} foldOnPhone aside={<InfoButton label={'Bonuses'}>
       Game bug: the base stats (Weapon Power, STR, AGI, WIS, LUK, Defence) are your Hat Rack totals plus only the last
       cape&apos;s stats, so the Hat Rack&apos;s base stats count twice. The other bonuses add up every cape. The numbers here match
       the game.

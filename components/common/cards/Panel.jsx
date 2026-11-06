@@ -61,12 +61,19 @@ const SheetSection = ({ side, fold, bodyId, title, meta, aside, children, sx }) 
   </Box>
 </Box>;
 
+// foldOnPhone's parts: the button covers the header, so its words stay the header's at every width and an aside can sit on top.
+const FOLD_BUTTON_SX = { display: 'none', [PHONE]: { display: 'block' }, position: 'absolute', inset: 0, borderRadius: '8px' };
+const FOLD_CHEVRON_SX = { display: 'none', [PHONE]: { display: 'inline-flex' }, flexShrink: 0, color: 'text.secondary', pointerEvents: 'none' };
+
 // Panel (Cards board): a titled box around a list, a table, a chart or a form. The title lives in the
 // 56 px header band, never as a heading above a card. A collapsed panel keeps its rows in the page
 // (hidden), so the static export still carries them. asideOwnRow: on a phone the aside takes its own row under the title,
 // so a long meta never wraps beside it; a breakpoint's name does the same below that breakpoint, for a wide aside.
-const Panel = ({ icon, iconAlt = '', title, meta, aside, asideOwnRow, collapsible, defaultOpen = true, children, sx }) => {
+// foldOnPhone: below 600 px the header is a row to tap, closed at first, so what follows the Panel comes first; from 600 px
+// it is an ordinary Panel, no button. CSS picks, so the first render matches the export and the words stay in the page.
+const Panel = ({ icon, iconAlt = '', title, meta, aside, asideOwnRow, collapsible, defaultOpen = true, foldOnPhone, children, sx }) => {
   const [open, setOpen] = useState(defaultOpen);
+  const [foldOpen, setFoldOpen] = useState(false);
   const bodyId = useId();
   const sheet = useSheet();
   if (sheet) return <SheetSection side={sheet.side} fold={sheet.fold} bodyId={bodyId} title={title} meta={meta} aside={aside} sx={sx}>{children}</SheetSection>;
@@ -75,7 +82,12 @@ const Panel = ({ icon, iconAlt = '', title, meta, aside, asideOwnRow, collapsibl
   const ownRowFrom = asideOwnRow === true ? 'sm' : asideOwnRow;
   return <Box component={'section'} sx={[(theme) => cardSurface(theme), ...(Array.isArray(sx) ? sx : [sx])]}>
     <Stack direction={'row'} alignItems={'center'} gap={1.5} flexWrap={ownRowFrom ? { xs: 'wrap', [ownRowFrom]: 'nowrap' } : undefined}
-           sx={{ minHeight: 56, py: 1, pl: 2, pr: 1.5, borderBottom: shown ? 1 : 0, borderColor: 'divider' }}>
+           sx={{
+             minHeight: 56, py: 1, pl: 2, pr: 1.5, borderBottom: shown ? 1 : 0, borderColor: 'divider',
+             ...(foldOnPhone ? { position: 'relative', ...(foldOpen ? {} : { [PHONE]: { borderBottom: 0 } }) } : {})
+           }}>
+      {foldOnPhone ? <ButtonBase disableRipple aria-expanded={foldOpen} aria-controls={bodyId} aria-label={name}
+                                 onClick={() => setFoldOpen(!foldOpen)} sx={FOLD_BUTTON_SX}/> : null}
       {/* First, as the board's collapsed Panel draws it: its glyph on the Panel's 16 px side */}
       {collapsible ? <IconButton size={'small'} aria-expanded={open} aria-controls={bodyId} sx={{ ml: -0.75 }}
                                  aria-label={`${open ? 'Collapse' : 'Expand'} ${name}`.trim()}
@@ -87,9 +99,12 @@ const Panel = ({ icon, iconAlt = '', title, meta, aside, asideOwnRow, collapsibl
         <Typography variant={'cardTitle'} component={'h2'}>{title}</Typography>
         {meta ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{meta}</Typography> : null}
       </Stack>
-      {aside ? <Box sx={{ flexShrink: 0, ...(ownRowFrom ? { flexBasis: { xs: '100%', [ownRowFrom]: 'auto' } } : {}) }}>{aside}</Box> : null}
+      {aside ? <Box sx={{ flexShrink: 0, ...(foldOnPhone ? { position: 'relative' } : {}), ...(ownRowFrom ? { flexBasis: { xs: '100%', [ownRowFrom]: 'auto' } } : {}) }}>{aside}</Box> : null}
+      {foldOnPhone ? <Box component={'span'} sx={FOLD_CHEVRON_SX}>
+        <IconChevronDown size={20} aria-hidden style={{ transform: foldOpen ? 'rotate(180deg)' : 'none' }}/>
+      </Box> : null}
     </Stack>
-    <Box id={bodyId} hidden={!shown} sx={ROWS_SX}>{children}</Box>
+    <Box id={bodyId} hidden={!shown} sx={[ROWS_SX, foldOnPhone && !foldOpen && { [PHONE]: { display: 'none' } }]}>{children}</Box>
   </Box>;
 };
 

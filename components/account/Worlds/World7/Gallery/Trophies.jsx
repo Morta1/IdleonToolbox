@@ -85,7 +85,7 @@ const trophyMeta = (trophy) => {
 
 const Trophies = ({ trophiesUsed, bonusRows, inventoryTrophies, allTrophies, sectionFailed }) => <>
   {/* A guest has no bonus: no Panel, no heading */}
-  {bonusRows?.length ? <Panel title={'Bonuses'} sx={{ my: 3 }}>
+  {bonusRows?.length ? <Panel title={'Bonuses'} sx={{ my: 3 }} foldOnPhone>
     {bonusRows.map(([label, value], index) => <Panel.KV key={`${label}-${index}`} label={label} value={value}/>)}
   </Panel> : null}
   {inventoryTrophies?.length ? <Stack gap={1} sx={{ my: 3 }}>

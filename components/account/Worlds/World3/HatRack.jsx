@@ -22,7 +22,7 @@ const baseHelmet = (hat) => ({
 // The rack's multi shows once, on the Bonuses panel, whose totals hold it. sectionFailed: the catalog at zero with no
 // state words
 const HatRack = ({ bonusMulti, hatBonuses, allPremiumHelmets, sectionFailed }) => <>
-  {hatBonuses?.length ? <Panel title={'Bonuses'} sx={{ mb: 3 }}
+  {hatBonuses?.length ? <Panel title={'Bonuses'} sx={{ mb: 3 }} foldOnPhone
                                meta={`Totals with the hat rack multi ${formatGame(bonusMulti ?? 1, 'Gallery.HatrackBonusMulti')}x`}>
     <Panel.Columns>
       {hatBonuses.map((bonus, index) => <Panel.Row key={`bonus-${index}`} name={bonusText(bonus)}/>)}
