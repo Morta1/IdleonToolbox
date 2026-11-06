@@ -32,12 +32,12 @@ const destroyRail = (id) => {
   // Removes a relocated rail, and a side ad's display holder too, if Nitro ever moved it.
   // Anything still inside the app root belongs to React: with the ads script blocked (Firefox ETP,
   // any ad blocker) window.nitroAds never exists, createRail bails, and the div is never relocated.
-  // It has to be left alone — removing it leaves React holding a node it no longer owns, which
+  // It has to be left alone: removing it leaves React holding a node it no longer owns, which
   // throws NotFoundError on unmount. Matching on `body > div:has(#id)` used to match #__next itself
   // in exactly this case and delete the whole app root, silently blanking the page on every
   // navigation off the home page until a manual refresh.
   if (document.getElementById('__next')?.contains(el)) return;
-  // Relocated: rail ads are wrapped in a body > div created by NitroAds — remove the wrapper to
+  // Relocated: rail ads are wrapped in a body > div created by NitroAds. Remove the wrapper to
   // fully clean up, or the bare node if there is no wrapper around it.
   (el.closest('body > div') || el).remove();
 };
@@ -71,7 +71,7 @@ export const NitroRailAd = ({
   // Route-scoped rails have to be gone before Next commits the new URL. NitroAds polls
   // location.href every 100ms and calls onNavigate() on every unit whose element it still finds,
   // which for a rail is a full refresh. That render resolves after React's unmount cleanup, builds
-  // a fresh container in body and arms a new refresh timer nothing will ever clear — so the ad
+  // a fresh container in body and arms a new refresh timer nothing will ever clear, so the ad
   // returns one refreshTime later, on top of whichever page the user is on now.
   useEffect(() => {
     if (!teardownOnNavigate) return;

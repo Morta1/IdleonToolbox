@@ -90,6 +90,8 @@ const darkTheme = createTheme({
     // pin: the breakdown's pinned star, gold as "pinned" reads elsewhere.
     identity: {
       pin: '#FFD700',
+      // An item's stat labels: what main's item card and wiki wore (MUI's error, success, secondary and warning .dark)
+      stats: { STR: '#d32f2f', AGI: '#388e3c', WIS: '#ab47bc', LUK: '#f57c00' },
       // The game's font colors for the damage tiers (GameIconNotation): plain is font 33, under 9,999,999.
       damage: {
         blue: '#5fc5e8',

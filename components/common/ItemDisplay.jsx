@@ -124,13 +124,13 @@ const ItemDisplay = ({
         {(allowNegativeValues || Speed >= 0) && Speed ? <ItemLine title={'Speed'} value={Speed}/> : null}
         {(allowNegativeValues || Weapon_Power >= 0) && Weapon_Power ? <ItemLine
           title={getPowerType(UQ1txt || rawName, Type)} value={Weapon_Power}/> : null}
-        {(allowNegativeValues || STR >= 0) && STR ? <ItemLine titleStyle={{ color: 'error.dark' }} title={'STR'}
+        {(allowNegativeValues || STR >= 0) && STR ? <ItemLine titleStyle={{ color: 'identity.stats.STR' }} title={'STR'}
                                                                    value={STR}/> : null}
-        {(allowNegativeValues || AGI >= 0) && AGI ? <ItemLine titleStyle={{ color: 'success.dark' }} title={'AGI'}
+        {(allowNegativeValues || AGI >= 0) && AGI ? <ItemLine titleStyle={{ color: 'identity.stats.AGI' }} title={'AGI'}
                                                                    value={AGI}/> : null}
-        {(allowNegativeValues || WIS >= 0) && WIS ? <ItemLine titleStyle={{ color: 'secondary.dark' }}
+        {(allowNegativeValues || WIS >= 0) && WIS ? <ItemLine titleStyle={{ color: 'identity.stats.WIS' }}
                                                                    title={'WIS'} value={WIS}/> : null}
-        {(allowNegativeValues || LUK >= 0) && LUK ? <ItemLine titleStyle={{ color: 'warning.dark' }} title={'LUK'}
+        {(allowNegativeValues || LUK >= 0) && LUK ? <ItemLine titleStyle={{ color: 'identity.stats.LUK' }} title={'LUK'}
                                                                    value={LUK}/> : null}
         {(allowNegativeValues || Defence >= 0) && Defence ? <ItemLine title={'Defence'} value={Defence}/> : null}
         {(allowNegativeValues || Reach >= 0) && Reach ? <ItemLine title={'Reach'} value={Reach}/> : null}

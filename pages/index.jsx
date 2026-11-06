@@ -182,7 +182,7 @@ const Home = () => {
                       left: '50%',
                       transform: 'translateX(-50%)',
                       borderRadius: 10,
-                      boxShadow: '0 10px 15px -3px #000000'
+                      boxShadow: (theme.vars || theme).shadows[8]
                     }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}

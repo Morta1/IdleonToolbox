@@ -6,12 +6,10 @@ import Button from '@mui/material/Button';
 import GameIcon from '@components/common/GameIcon';
 import TagLine from '@components/common/TagLine';
 import { prefix } from '@utility/helpers';
+import { DISCORD_CLIENT } from '@utility/colorSets';
 import { DISCORD_BOT_INSTALL_URL, trackBotInstallClick } from '@components/discordLinks';
 
 const COMMANDS = ['/wiki', '/build', '/profile', '/guild'];
-
-// The picture of a Discord message keeps Discord's own colours, as the game's art keeps the game's.
-const DISCORD_CLIENT = { bg: '#313338', avatar: '#242429', muted: '#b5bac1', mention: '#c9cdfb', text: '#f2f3f5', embed: '#2b2d31', edge: '#5DCAA5', footer: '#949ba4', button: '#4e5058' };
 
 export const DiscordSvg = ({ size = 20 }) => (
   <svg viewBox="0 -2 127.14 96.36" width={size} height={size} aria-hidden="true">
