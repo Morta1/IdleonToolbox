@@ -27,6 +27,9 @@ const SelectChevron = (props) => createElement(IconChevronDown, { size: 16, ...p
 // A select's open list marks the current row with a small blue check before it, not a tint (Controls board). Drawn by the
 // theme so every select has it: a class on the list, and a check masked out of the primary color.
 const SELECT_LIST = 'select-list';
+// The same look on one row of a menu whose other rows have icons (Theme, in the user menu).
+export const SELECT_ROW = 'select-row';
+const selectRow = (state = '') => `.${SELECT_LIST} &${state}, &.${SELECT_ROW}${state}`;
 const CHECK_MARK = 'url("data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' viewBox=\'0 0 24 24\' fill=\'none\' stroke=\'black\' stroke-width=\'2.5\' stroke-linecap=\'round\' stroke-linejoin=\'round\'%3E%3Cpath d=\'M5 12l5 5l10 -10\'/%3E%3C/svg%3E")';
 
 // A small button or a link that is a tap target on its own takes the 44 px touch height every other control
@@ -241,13 +244,13 @@ const theme = createTheme({
           fontSize: 14,
           lineHeight: '20px',
           '& .MuiTypography-body1': { fontSize: 14, lineHeight: '20px' },
-          [`.${SELECT_LIST} &`]: { paddingLeft: 36 },
-          [`.${SELECT_LIST} &.Mui-selected`]: { backgroundColor: 'transparent' },
+          [selectRow()]: { paddingLeft: 36 },
+          [selectRow('.Mui-selected')]: { backgroundColor: 'transparent' },
           // A list focuses its picked row by script as it opens, which reads as :focus-visible on a first mouse open: no ring
           // on that row, keyboard only as the Controls board says. The arrows coming back to it still show on its tint.
-          [`.${SELECT_LIST} &.Mui-selected.Mui-focusVisible`]: { outline: 'none', backgroundColor: palette(theme).action.hover },
-          [`.${SELECT_LIST} &.Mui-selected:hover`]: { backgroundColor: palette(theme).action.hover },
-          [`.${SELECT_LIST} &.Mui-selected::before`]: {
+          [selectRow('.Mui-selected.Mui-focusVisible')]: { outline: 'none', backgroundColor: palette(theme).action.hover },
+          [selectRow('.Mui-selected:hover')]: { backgroundColor: palette(theme).action.hover },
+          [selectRow('.Mui-selected::before')]: {
             content: '""', position: 'absolute', left: 14, top: 'calc(50% - 7px)', width: 14, height: 14,
             backgroundColor: palette(theme).primary.main, maskImage: CHECK_MARK, maskSize: 'contain', maskRepeat: 'no-repeat'
           },

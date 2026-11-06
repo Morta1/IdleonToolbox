@@ -12,6 +12,7 @@ import { Link, Stack, Typography } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import QuickSearch from '@components/common/QuickSearch';
 import UserMenu from '@components/common/NavBar/UserMenu';
+import { ThemeLink } from '@components/common/NavBar/ThemeRows';
 
 import useFormatDate from '@hooks/useFormatDate';
 import AuthSkeleton from './AuthSkeleton';
@@ -118,7 +119,7 @@ const NavBar = ({ children }) => {
           </Frame>
         </PageHeaderSlots>
       </Box>
-      {/* Two pairs of whole links: one line where all four fit, else a pair per line, so no dot ever ends a line */}
+      {/* Two groups of whole links: one line where all five fit, else a group per line, so no dot ever ends a line */}
       <Stack data-shell="footer" direction="row" justifyContent="center" alignItems="center" flexWrap="wrap" useFlexGap
              columnGap={1} rowGap={0.5}
              sx={{
@@ -156,6 +157,8 @@ const NavBar = ({ children }) => {
                 onClick={openCookiePolicy}>
             Cookie Policy
           </Link>
+          <FooterDot/>
+          <ThemeLink/>
         </Stack>
       </Stack>
     </Box>
@@ -166,8 +169,8 @@ const NavBar = ({ children }) => {
 // SimpleLoader, a page's whole body while it loads
 const PAGE_LOADER = '[data-testid="page-loader"]';
 
-// The footer's links in two pairs: below 480 px (all four need about 340 px of the footer's 400) each pair takes its own
-// line and the dot between the pairs goes.
+// The footer's links in two groups: below 480 px (all five need about 390 px of the footer's 400) each group takes its own
+// line and the dot between the groups goes.
 const FOOTER_TWO_LINES = '@media (max-width: 479.95px)';
 const FOOTER_PAIR_SX = { alignItems: 'center', columnGap: 1, [FOOTER_TWO_LINES]: { flexBasis: '100%', justifyContent: 'center' } };
 const FooterDot = ({ sx }) => <Typography color="text.secondary" variant="caption" aria-hidden sx={sx}>&middot;</Typography>;

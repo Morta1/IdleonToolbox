@@ -3,6 +3,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { PreferencesContext } from '@components/common/context/PreferencesProvider';
 import useFormatDate from '@hooks/useFormatDate';
 import useNow from '@hooks/useNow';
+import { useThemeMode } from '@components/common/NavBar/ThemeRows';
 import {
   Button,
   Checkbox,
@@ -105,6 +106,7 @@ const Settings = () => {
   const router = useRouter();
   const { state } = useContext(AppContext);
   const { dateFormat, setDateFormat, timeFormat, setTimeFormat } = useContext(PreferencesContext);
+  const { mode, setMode } = useThemeMode();
   const formatDate = useFormatDate();
 
   // Profile management state
@@ -456,9 +458,21 @@ const Settings = () => {
           </Stack>
 
         </Stack> : null}
-        {/* Formatting */}
+        {/* Display */}
         <Stack spacing={1.5}>
-          <SectionHeader icon={IconCalendarTime} title="Formatting" description="Date and time display preferences"/>
+          <SectionHeader icon={IconCalendarTime} title="Display" description="Theme, date and time preferences"/>
+          <SettingRow label="Theme" description="Dark is the default. System follows your device">
+            <ToggleButtonGroup
+              value={mode}
+              exclusive
+              onChange={(_, val) => { if (val) setMode(val); }}
+              size="small"
+            >
+              <ToggleButton value="dark">Dark</ToggleButton>
+              <ToggleButton value="light">Light</ToggleButton>
+              <ToggleButton value="system">System</ToggleButton>
+            </ToggleButtonGroup>
+          </SettingRow>
           <SettingRow label="Date format" description="How dates appear across the site">
             <ToggleButtonGroup
               value={dateFormat}

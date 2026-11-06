@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import Router, { useRouter } from 'next/router';
 import { CacheProvider, ThemeProvider as EmotionThemeProvider } from '@emotion/react';
 import { CssBaseline, ThemeProvider } from '@mui/material';
+import { useColorScheme } from '@mui/material/styles';
 import '../polyfills';
 import createEmotionCache from '../utility/createEmotionCache';
 import darkTheme from '../styles/theme/darkTheme';
@@ -52,6 +53,16 @@ const preConnections = [
   'https://adservice.google.com',
   'https://s.nitropay.com'
 ];
+
+// The phone's browser bar follows the scheme. _document's tag holds the default, and colorScheme is undefined until mount.
+const ThemeColorMeta = () => {
+  const { colorScheme } = useColorScheme();
+  useEffect(() => {
+    if (!colorScheme) return;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', darkTheme.colorSchemes[colorScheme].palette.background.default);
+  }, [colorScheme]);
+  return null;
+};
 
 const MyApp = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
@@ -190,6 +201,7 @@ const MyApp = (props) => {
           <EmotionThemeProvider theme={darkTheme}>
             <CookiePolicyDialog/>
             <CssBaseline enableColorScheme/>
+            <ThemeColorMeta/>
             <RouteProgress/>
             {/* Outer net for the shell itself (providers, NavBar). Still beats a blank root. */}
             <ErrorBoundary resetKey={asPath} title={'The app failed to load'} gutters detail>
