@@ -6,8 +6,8 @@ import OverlaySheet from './OverlaySheet';
 import NoticeSlot from './NoticeSlot';
 
 // Picked by content, not per page: S a confirm or one field, M forms, pickers and sign in, L a list
-// or table to review.
-const WIDTH = { s: 400, m: 560, l: 800 };
+// or table to review, XL a list beside one big picture.
+const WIDTH = { s: 400, m: 560, l: 800, xl: 960 };
 
 // A full-screen phone form drops the floating surface's corners and edge (phase 1's floating(theme)).
 const FULL_PAPER_SX = { borderRadius: 0, border: 0 };
