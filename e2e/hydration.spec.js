@@ -65,7 +65,7 @@ const SAMPLES = [
     route: '/characters?demo=true',
     seed: {
       filters: JSON.stringify({ Inventory: true }),
-      pinnedPages: JSON.stringify([{ href: '/account/world-1/stamps', label: 'Stamps' }])
+      pinnedPages: JSON.stringify([{ name: 'stamps', url: '/account/world-1/stamps' }])
     }
   }
   // Without out/ the exported-route readers fall back to /wiki, and a repeated test title fails collection.
