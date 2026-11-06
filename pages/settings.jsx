@@ -5,11 +5,11 @@ import useFormatDate from '@hooks/useFormatDate';
 import useNow from '@hooks/useNow';
 import { useThemeMode } from '@components/common/NavBar/ThemeRows';
 import {
+  Box,
   Button,
   Checkbox,
   Collapse,
   Container,
-  Divider,
   FormControlLabel,
   Stack,
   Switch,
@@ -19,8 +19,8 @@ import {
 } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import {
-  IconCalendarTime,
   IconDatabase,
+  IconPalette,
   IconUserCircle
 } from '@tabler/icons-react';
 import { styled } from '@mui/material/styles';
@@ -48,19 +48,14 @@ const WAIT_TIME = 1000 * 60 * 60 * HOURS;
 
 const ACCESS_LABELS = { off: 'Off', public: 'Public', anonymous: 'Anonymous' };
 
-const SectionHeader = ({ icon: Icon, title, description }) => (
-  <>
-    <Stack direction="row" alignItems="center" gap={1}>
-      <Icon size={22}/>
-      <Typography variant={'sectionTitle'} component={'h2'}>{title}</Typography>
-    </Stack>
-    <Typography variant="body2" color="text.secondary">{description}</Typography>
-  </>
-);
+// A light line between options gives the eye a path from a label across to its control at the panel's far side.
+const OPTIONS_SX = { px: 2, '& > * + *': { borderTop: 1, borderColor: 'divider' } };
+// The options that belong to the row above them: on a rail, split the same way.
+const RAIL_SX = { pl: 2, mb: 1.5, borderLeft: '2px solid', borderColor: 'divider', '& > * + *': { borderTop: 1, borderColor: 'divider' } };
 
 const SettingRow = ({ label, description, children }) => (
   <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'flex-start', sm: 'center' }}
-         justifyContent="space-between" gap={1} sx={{ py: 0.5 }}>
+         justifyContent="space-between" gap={1} sx={{ py: 1.5 }}>
     <Stack sx={{ minWidth: 0 }}>
       <Typography variant="body2" component="div" sx={{ fontWeight: 'fontWeightMedium' }}>{label}</Typography>
       {description && <Typography variant="body2" color="text.secondary" component="div">{description}</Typography>}
@@ -290,16 +285,53 @@ const Settings = () => {
   return <>
     <NextSeo title="Settings | Idleon Toolbox" description="Configure your Idleon Toolbox preferences and manage your profile"/>
     {/* Its title's box 14 px under whatever is above it, as on every page: main's 24 px padding less 10 */}
-    <Container maxWidth="md" disableGutters sx={{ mt: '-10px', mb: 3 }}>
+    <Container maxWidth="md" disableGutters sx={{ mt: '-10px', mb: 3, mx: 0 }}>
       <Typography variant="pageTitle" component="h1" sx={{ mb: 3 }}>Settings</Typography>
       {!hasAccount && !state?.isLoading
         ? <Notice tone={'signin'} sx={{ mb: 3 }}>Your profile and data settings show here once you sign in.</Notice>
         : null}
-      <Stack divider={<Divider/>} spacing={3}>
-        {/* Profile: only for the account owner, not public profiles */}
-        {hasAccount && state?.characters && !router.query.profile ? <Stack spacing={1.5}>
-          <SectionHeader icon={IconUserCircle} title="Profile" description="Manage your public profile and leaderboard participation"/>
+      <Stack gap={2}>
+        <Panel icon={<IconPalette size={22}/>} title="Display">
+          <Box sx={OPTIONS_SX}>
+            <SettingRow label="Theme" description="Dark is the default. System follows your device">
+              <ToggleButtonGroup
+                value={mode}
+                exclusive
+                onChange={(_, val) => { if (val) setMode(val); }}
+                size="small"
+              >
+                <ToggleButton value="dark">Dark</ToggleButton>
+                <ToggleButton value="light">Light</ToggleButton>
+                <ToggleButton value="system">System</ToggleButton>
+              </ToggleButtonGroup>
+            </SettingRow>
+            <SettingRow label="Date format" description="How dates appear across the site">
+              <ToggleButtonGroup
+                value={dateFormat}
+                exclusive
+                onChange={(_, val) => { if (val) setDateFormat(val); }}
+                size="small"
+              >
+                <ToggleButton value="DMY">DD/MM</ToggleButton>
+                <ToggleButton value="MDY">MM/DD</ToggleButton>
+              </ToggleButtonGroup>
+            </SettingRow>
+            <SettingRow label="Time format" description="12-hour or 24-hour clock">
+              <ToggleButtonGroup
+                value={timeFormat}
+                exclusive
+                onChange={(_, val) => { if (val) setTimeFormat(val); }}
+                size="small"
+              >
+                <ToggleButton value="24h">24h</ToggleButton>
+                <ToggleButton value="12h">12h</ToggleButton>
+              </ToggleButtonGroup>
+            </SettingRow>
+          </Box>
+        </Panel>
 
+        {/* Profile: only for the account owner, not public profiles */}
+        {hasAccount && state?.characters && !router.query.profile ? <Panel icon={<IconUserCircle size={22}/>} title="Profile"><Box sx={OPTIONS_SX}>
           <SettingRow label="Profile link" description="Share this link so others can view your profile">
             <ButtonStyle component="span" variant="outlined" size="small" startIcon={<FileCopyIcon/>}
                          onClick={handleCopyLink}>
@@ -307,7 +339,7 @@ const Settings = () => {
             </ButtonStyle>
           </SettingRow>
 
-          <Stack spacing={1}>
+          <Box>
             <SettingRow
               label="Upload profile"
               description={<Stack alignItems="flex-start" gap={0.25} component="span">
@@ -334,14 +366,14 @@ const Settings = () => {
                 {uploaded && <CheckCircleIcon fontSize="small" sx={{ color: 'text.success' }}/>}
               </Stack>
             </SettingRow>
-            {error ? <Notice tone={'error'}>{errorMessage(error)}</Notice> : null}
+            {error ? <Notice tone={'error'} sx={{ mb: 1.5 }}>{errorMessage(error)}</Notice> : null}
             <AppDialog open={statsOpen} onClose={() => setStatsOpen(false)} size="l" title="Calculated stats">
               {statsOpen ? <ErrorBoundary title={'The calculated stats didn\'t load'}>
                 <StatsDialogBody account={state?.account} characters={state?.characters}/>
               </ErrorBoundary> : null}
             </AppDialog>
 
-            <Stack sx={{ pl: 2, borderLeft: '2px solid', borderColor: 'divider' }} spacing={1}>
+            <Box sx={RAIL_SX}>
               <SettingRow label="Hide gem info" description="Remove gems and bundle data from uploads">
                 <Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)} inputProps={{ 'aria-label': 'Hide gem info' }}/>
               </SettingRow>
@@ -381,14 +413,12 @@ const Settings = () => {
                   }}
                 />
               </SettingRow>
-            </Stack>
-          </Stack>
-        </Stack> : null}
+            </Box>
+          </Box>
+        </Box></Panel> : null}
 
         {/* Data */}
-        {hasAccount ? <Stack spacing={1.5}>
-          <SectionHeader icon={IconDatabase} title="Data" description="Support data and local storage management"/>
-
+        {hasAccount ? <Panel icon={<IconDatabase size={22}/>} title="Data"><Box sx={OPTIONS_SX}>
           <SettingRow label="Support data" description="Copy Idleon Toolbox formatted data for troubleshooting">
             <ButtonStyle component="span" variant="outlined" size="small" startIcon={<FileCopyIcon/>}
                          onClick={handleCopyITRaw}>
@@ -410,7 +440,7 @@ const Settings = () => {
             </div>
           </AppDialog>
 
-          <Stack spacing={1}>
+          <Box>
             <SettingRow label="Clear local data" description="Remove locally stored configurations">
               <ButtonStyle size="small" variant="outlined"
                            onClick={() => { setShowClearOptions(!showClearOptions); setSelectedKeys([]); }}>
@@ -418,7 +448,7 @@ const Settings = () => {
               </ButtonStyle>
             </SettingRow>
             <Collapse in={showClearOptions}>
-              <Stack sx={{ pl: 2, borderLeft: '2px solid', borderColor: 'divider' }}>
+              <Stack sx={{ pl: 2, mb: 1.5, borderLeft: '2px solid', borderColor: 'divider' }}>
                 {[
                   { key: 'filters', label: 'Character filters' },
                   { key: 'trackers', label: 'Dashboard config' },
@@ -456,47 +486,8 @@ const Settings = () => {
                 </Stack>
               </Stack>
             </Collapse>
-          </Stack>
-
-        </Stack> : null}
-        {/* Display */}
-        <Stack spacing={1.5}>
-          <SectionHeader icon={IconCalendarTime} title="Display" description="Theme, date and time preferences"/>
-          <SettingRow label="Theme" description="Dark is the default. System follows your device">
-            <ToggleButtonGroup
-              value={mode}
-              exclusive
-              onChange={(_, val) => { if (val) setMode(val); }}
-              size="small"
-            >
-              <ToggleButton value="dark">Dark</ToggleButton>
-              <ToggleButton value="light">Light</ToggleButton>
-              <ToggleButton value="system">System</ToggleButton>
-            </ToggleButtonGroup>
-          </SettingRow>
-          <SettingRow label="Date format" description="How dates appear across the site">
-            <ToggleButtonGroup
-              value={dateFormat}
-              exclusive
-              onChange={(_, val) => { if (val) setDateFormat(val); }}
-              size="small"
-            >
-              <ToggleButton value="DMY">DD/MM</ToggleButton>
-              <ToggleButton value="MDY">MM/DD</ToggleButton>
-            </ToggleButtonGroup>
-          </SettingRow>
-          <SettingRow label="Time format" description="12-hour or 24-hour clock">
-            <ToggleButtonGroup
-              value={timeFormat}
-              exclusive
-              onChange={(_, val) => { if (val) setTimeFormat(val); }}
-              size="small"
-            >
-              <ToggleButton value="24h">24h</ToggleButton>
-              <ToggleButton value="12h">12h</ToggleButton>
-            </ToggleButtonGroup>
-          </SettingRow>
-        </Stack>
+          </Box>
+        </Box></Panel> : null}
       </Stack>
     </Container>
   </>;
