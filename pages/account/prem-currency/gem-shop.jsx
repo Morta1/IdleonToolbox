@@ -3,6 +3,7 @@ import { AppContext } from '../../../components/common/context/AppProvider';
 import { gemShop } from '@website-data';
 import { Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
@@ -65,6 +66,8 @@ const TIERS = [['all', 'All tiers'], ['S', 'S tier'], ['A', 'A tier'], ['B', 'B 
 const TIER_NAME = { S: 'S tier', A: 'A tier', B: 'B tier', C: 'C tier' };
 const PAST_CATEGORY = 'past_limited_specials';
 const isRealItem = ({ rawName, displayName }) => rawName !== 'Blank' && displayName !== 'NAME_OF_ITEM';
+// Every digit, as the game and General print them; a card's cost reads the same way beside it
+const gemCount = (value) => formatGame(value, 'Save.Gems', { whole: true });
 const itemTitle = (displayName) => titleCaseName(cleanUnderscore(displayName));
 
 const GemShop = () => {
@@ -106,7 +109,7 @@ const GemShop = () => {
                      title={itemTitle(displayName)} meta={TIER_NAME[getPriority(category, globalIndex)]}
                      status={maxed ? 'maxed' : undefined}
                      footer={bought == null ? null : <ItemCard.Cost icon={'data/PremiumGem.png'} iconAlt={'Gems'} need={nextCost}
-                                                                    have={gems} format={(value) => formatNum(value, 'whole')}/>}>
+                                                                    have={gems} format={gemCount}/>}>
       <ItemCard.Desc text={cleanUnderscore(desc ?? '')}/>
       <ItemCard.Facts rows={[
         bought == null ? ['Cost', formatNum(cost, 'whole')] : ['Bought', `${formatNum(bought, 'whole')} / ${formatNum(maxPurchases, 'whole')}`],
@@ -124,7 +127,7 @@ const GemShop = () => {
     />
     {failed ? <MissingData name={'Gem Shop'} failed atZero/> : null}
     <PageSummary>
-      <StatTile label={'Gems'} icon={'data/PremiumGem.png'} value={gems == null ? '-' : formatNum(gems)}/>
+      <StatTile label={'Gems'} icon={'data/PremiumGem.png'} value={gems == null ? '-' : gemCount(gems)}/>
     </PageSummary>
     <Toolbar state={toolbar} defaults={SHOP_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
              total={allItems.length} shown={shownCount} noun={'items'}>
