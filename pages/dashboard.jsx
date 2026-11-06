@@ -213,7 +213,7 @@ const Dashboard = () => {
     account: <Account trackers={config?.account} characters={characters} account={account} lastUpdated={lastUpdated}/>,
     characters: <Characters trackers={config?.characters} characters={characters} account={account}
                             lastUpdated={lastUpdated} hideAlertless={hideAlertless} onHideAlertless={setHideAlertless}/>,
-    timers: <Etc characters={characters} account={account} trackers={config?.timers} bookAlert={config?.account?.['World 3']?.library} lastUpdated={lastUpdated}/>
+    timers: <Etc characters={characters} account={account} trackers={config?.timers} bookAlert={config?.account?.['World 3']?.library} bossAlert={config?.account?.General?.etc} lastUpdated={lastUpdated}/>
   };
 
   return <>

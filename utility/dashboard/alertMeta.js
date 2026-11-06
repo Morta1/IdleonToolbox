@@ -89,7 +89,7 @@ export const alertMeta = {
       },
       miniBosses: {
         label: 'Miniboss kills stacked',
-        help: 'Alerts when a miniboss has this many kills available. The lowest value is 2.',
+        help: 'Alerts when a miniboss has this many kills available, or is maxed. The lowest value is 2. In the timers, a miniboss moves to Ready now at the same number.',
         unit: 'kills',
         group: 'Account',
         page: { pathname: '/account/world-3/death-note', label: 'Death note' }
@@ -1263,6 +1263,14 @@ export const alertMeta = {
     label: 'Boss and miniboss respawns',
     icon: 'monsters/poopBig/static',
     page: { pathname: '/account/world-3/death-note', label: 'Death note' },
+    unit: 'Minibosses are ready at the number set in General, Miniboss kills stacked',
+    // A miniboss row reads the alert's number, so its quick edit holds that number too. Dr Defecaus and Baba Yaga have no number.
+    numberFrom: {
+      tracker: 'account.General.etc',
+      option: 'miniBosses',
+      help: 'A miniboss moves to Ready now at this many kills, or when it is maxed. The Miniboss kills stacked alert uses the same number, on or off.',
+      forItems: ['dilapidatedSlush', 'mutatedMush', 'domeoMagmus', 'dementedSpiritlord']
+    },
     options: {
       bosses: {
         label: 'Bosses to show',

@@ -36,7 +36,7 @@ import { isHatRackEligible } from '@parsers/world-3/hatRack';
 import { isCapeVineEligible } from '@parsers/world-4/capeVine';
 import { getGoldCostToMaxLevel, getStampsPerDay } from '@parsers/world-1/stamps';
 import { getTomeWishPity } from '@parsers/world-4/tome';
-import { BOSS_RESPAWN_ALERTS } from './bossRespawns';
+import { BOSS_RESPAWN_ALERTS, isMinibossReady } from './bossRespawns';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getIdleGuards, getMissingWorkers, getSpareWorkers } from '@parsers/class-specific/royalGuardian';
 import { getCompassBonus } from '@parsers/class-specific/compass';
@@ -219,7 +219,7 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
       }
     }
     if (options?.etc?.miniBosses?.checked) {
-      const minibosses = getMiniBossesData(account).filter(({ current }) => current >= options?.etc?.miniBosses?.props?.value);
+      const minibosses = getMiniBossesData(account).filter((miniboss) => isMinibossReady(miniboss, options?.etc?.miniBosses?.props?.value));
       if (minibosses.length > 0) {
         etc.miniBosses = minibosses;
       }

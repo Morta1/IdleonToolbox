@@ -24,6 +24,7 @@ import RandomEvent from '@components/account/Misc/RandomEvent';
 import Trade from '@components/account/Worlds/World5/Sailing/Trade';
 import { BabaNote, DefecausNote, KilledButton, UndoKill } from './BossRespawns';
 import useBossRespawns from '@hooks/useBossRespawns';
+import { isMinibossReady } from '@utility/dashboard/bossRespawns';
 import { useRouter } from 'next/router';
 import { calcCost, calcTimeToRankUp, getRefineryCycles } from '@parsers/world-3/refinery';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
@@ -51,8 +52,8 @@ const BUILDING_SECTIONS = ['towers', 'construction', 'hole', 'lab', 'atoms', 'mi
 const SALT_SECTIONS = ['refinery', 'alchemy', 'arcade', 'atoms', 'breeding', 'compass', 'gaming', 'lab', 'legendTalents', 'research', 'rift', 'saltLick',
   'sneaking', 'spelunking', 'stamps', 'sushiStation', 'towers'];
 const MONUMENT_SECTIONS = ['hole', 'gaming', 'legendTalents'];
-// bookAlert: the Talent library alert's tracker, whose number the Library row reads, the alert on or off.
-const Etc = ({ characters, account, lastUpdated, trackers, bookAlert }) => {
+// bookAlert, bossAlert: the Talent library and Miniboss kills stacked alerts' trackers, whose numbers the rows read, the alert on or off.
+const Etc = ({ characters, account, lastUpdated, trackers, bookAlert, bossAlert }) => {
   const failed = (section) => isSectionFailed(account, section);
   const failedAny = (sections) => sections.some(failed);
   // Anchor timer math to `lastUpdated` (the data-fetch timestamp) rather than `new Date().getTime()`.
@@ -96,6 +97,7 @@ const Etc = ({ characters, account, lastUpdated, trackers, bookAlert }) => {
   const bossSelection = bossOption?.checked ? bossOption?.props?.value : null;
   const showBoss = (key) => bossSelection?.[key] ?? true;
   const minibosses = getMiniBossesData(account).filter(({ rawName }) => showBoss(MINIBOSS_KEYS[rawName]));
+  const killsWanted = bossAlert?.options?.find(({ name }) => name === 'miniBosses')?.props?.value;
   const {
     tracked,
     nextReset,
@@ -382,7 +384,7 @@ const Etc = ({ characters, account, lastUpdated, trackers, bookAlert }) => {
           name={cleanUnderscore(miniboss.name)}
           page={DEATH_NOTE}
           icon={`etc/${miniboss.rawName}.png`}
-          {...minibossProps(miniboss, dailyReset)}
+          {...minibossProps(miniboss, dailyReset, killsWanted)}
         />)}
     </>),
     ...inWorld('Clickers', !emptyAlerts?.Clickers && <>
@@ -930,14 +932,17 @@ const bossProps = ({ name, up, onKill, onUndo, waitDate }) => ({
   message: (when, over) => (over ? `${name} is up` : `${name} is back: ${when}`)
 });
 
-// A miniboss, as a row's props: maxed it waits in Ready now. Below that its next one comes on a daily reset, so that reset is
-// its place in the list, and it prints the days as the save has them.
-const minibossProps = ({ current, daysTillNext, maxed }, dailyReset) => {
+// A miniboss, as a row's props: maxed or at the player's number it waits in Ready now. Below that its next one comes on a daily
+// reset, so that reset is its place in the list, and it prints the days as the save has them.
+const minibossProps = (miniboss, dailyReset, killsWanted) => {
+  const { current, daysTillNext, maxed } = miniboss;
   const count = `Current ${formatNum(current)}`;
   const next = `+1 in ${formatNum(daysTillNext)} day${daysTillNext === 1 ? '' : 's'}`;
-  return maxed
-    ? { placeholder: `Maxed (${formatNum(current)})`, forcePlaceholder: true }
-    : { sub: count, value: next, time: dailyReset == null ? undefined : dailyReset + (daysTillNext - 1) * DAY, message: () => `${count}, ${next}` };
+  if (maxed) return { placeholder: `Maxed (${formatNum(current)})`, forcePlaceholder: true };
+  if (isMinibossReady(miniboss, killsWanted)) {
+    return { sub: next, placeholder: `${formatNum(current)} kills`, forcePlaceholder: true, message: () => `${count}, ${next}` };
+  }
+  return { sub: count, value: next, time: dailyReset == null ? undefined : dailyReset + (daysTillNext - 1) * DAY, message: () => `${count}, ${next}` };
 };
 
 // A monument's reward multi against its max linear growth, as a row's props. Past that max it's time to fight. Below it the

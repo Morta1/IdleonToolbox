@@ -91,7 +91,8 @@ export const buildQuickEdit = (config, model, configType, target, { items = [], 
     : option;
   // A timer that reads a number another tracker holds: its quick edit holds that number too
   const numberFrom = alertMeta[path]?.numberFrom;
-  const numberTracker = numberFrom ? allTrackers(model).find((candidate) => candidate.path === numberFrom.tracker) ?? null : null;
+  const readsNumber = numberFrom && (!numberFrom.forItems || items.some(({ key }) => numberFrom.forItems.includes(key)));
+  const numberTracker = readsNumber ? allTrackers(model).find((candidate) => candidate.path === numberFrom.tracker) ?? null : null;
 
   return {
     kind,

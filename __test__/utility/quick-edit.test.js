@@ -44,6 +44,15 @@ describe('buildQuickEdit', () => {
     expect(result.option.name).toBe('miniBosses');
   });
 
+  it.each([
+    ['dilapidatedSlush', 'miniBosses'],
+    ['drDefecaus', undefined]
+  ])('the %s timer holds the alert number it reads', (key, number) => {
+    const result = quick('timers', 'Etc.minibosses', { items: [{ key, label: key }] });
+    expect(result.kind).toBe('pickerItems');
+    expect(result.linkedNumber?.option?.name).toBe(number);
+  });
+
   it('a picker alert with its item key watches that item', () => {
     const result = quick('account', 'World 3.construction.saltDeficit', { items: [{ key: 'Refinery2', label: 'Frigid Soul' }] });
     expect(result.kind).toBe('pickerItems');

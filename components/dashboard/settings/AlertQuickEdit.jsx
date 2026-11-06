@@ -69,6 +69,11 @@ const Folded = ({ quickEdit, onAction, disabled }) => quickEdit.folded.map((fold
   {folded.type === 'array' ? <ToggleChips option={folded} tracker={quickEdit.tracker} onAction={onAction} disabled={disabled}/> : null}
 </Box>);
 
+const LinkedNumber = ({ linkedNumber, onAction }) => (linkedNumber ? <>
+  <OptionNumberField option={linkedNumber.option} tracker={linkedNumber.tracker} onAction={onAction} label={linkedNumber.option.label}/>
+  <Help text={linkedNumber.help} clamp={false}/>
+</> : null);
+
 const Body = ({ quickEdit, onAction }) => {
   const { kind, tracker, option, parent, items, worlds, trackerSwitch, linkedNumber } = quickEdit;
   if (kind === 'tracker') {
@@ -76,8 +81,7 @@ const Body = ({ quickEdit, onAction }) => {
       <TrackerToggle tracker={tracker} onAction={onAction}/>
       {option?.type === 'input' ? <OptionNumberField option={option} tracker={tracker} onAction={onAction} label={option.label}/> : null}
       <Help text={option?.help} clamp={false}/>
-      {linkedNumber ? <OptionNumberField option={linkedNumber.option} tracker={linkedNumber.tracker} onAction={onAction} label={linkedNumber.option.label}/> : null}
-      <Help text={linkedNumber?.help} clamp={false}/>
+      <LinkedNumber linkedNumber={linkedNumber} onAction={onAction}/>
     </>;
   }
   const { disabledReason } = optionExtras(tracker, option);
@@ -108,6 +112,7 @@ const Body = ({ quickEdit, onAction }) => {
     <Folded quickEdit={quickEdit} onAction={onAction} disabled={locked}/>
     <Help text={option.help} clamp={false}/>
     <Dependents quickEdit={quickEdit} onAction={onAction}/>
+    <LinkedNumber linkedNumber={linkedNumber} onAction={onAction}/>
   </>;
 };
 

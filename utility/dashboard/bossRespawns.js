@@ -51,6 +51,10 @@ export const isBabaUp = (stored, clock) => {
   return !respawnAt || respawnAt <= clock;
 };
 
+// The player's number is the Miniboss kills stacked alert's. The alert and the timers' row both ask here, so they can't disagree.
+// Maxed counts whatever the number: 10 would otherwise never fire on a boss that stops at 6, the moment kills start going to waste.
+export const isMinibossReady = ({ current, maxed }, wanted) => Boolean(maxed) || current >= Math.max(2, Number(wanted));
+
 // General alert per tracked boss, keyed by the bossRespawns option's per-boss toggle.
 export const BOSS_RESPAWN_ALERTS = {
   drDefecaus: { name: 'Dr Defecaus', icon: 'monsters/poopBig/static' },
