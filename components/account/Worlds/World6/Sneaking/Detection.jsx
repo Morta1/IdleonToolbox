@@ -86,7 +86,7 @@ const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
       </CardGrid>
     </Stack>
 
-    <Panel title={'What if'} sx={{ maxWidth: 900 }} aside={<InfoButton label={'What if'}>
+    <Panel title={'What if'} aside={<InfoButton label={'What if'}>
       Preview any mastery and floor without moving there. Funeral Flower stacks are per floor and reset when you
       change mastery, so &quot;Current&quot; stacks only count on the mastery you are on.
     </InfoButton>}>
