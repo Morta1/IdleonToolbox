@@ -1,16 +1,16 @@
-import React, { useState } from 'react';
+import React, { createContext, useContext, useState } from 'react';
 import Library from '../account/Worlds/World3/Library';
 import NextLink from 'next/link';
-import { Box, Link, Stack, Typography } from '@mui/material';
+import { Box, Button, Collapse, Link, Stack, Typography } from '@mui/material';
+import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { cleanUnderscore, formatNum, getDuration, getNextCompanionClaim, getNextResetAt, splitTime } from '@utility/helpers';
 import { fillVoteText, formatGame } from '@utility/gameNotation';
 import useFormatDate from '@hooks/useFormatDate';
-import useInterval from '@hooks/useInterval';
+import useNow from '@hooks/useNow';
 import { getMiniBossesData, getRandomEvents } from '@parsers/misc';
 import Timer from '../common/Timer';
 import StatusText from '@components/common/StatusText';
 import { isSectionFailed } from '@components/common/styles';
-import CardGrid from '@components/common/cards/CardGrid';
 import Panel from '@components/common/cards/Panel';
 import AlertIcon from './AlertIcon';
 import { alertMeta } from '@utility/dashboard/alertMeta';
@@ -32,7 +32,10 @@ import { OPT } from '@parsers/accountOptions';
 import { sessionQuery } from '@utility/nav-query';
 
 const maxTimeValue = 9.007199254740992e+15;
+const SECOND = 1000;
 const MINUTE = 60 * 1000;
+const DAY = 864e5;
+const WEEK = 7 * DAY;
 const SERVER_WEEK = 604800 * 1000;
 const VILLAGER_TABS = ['Explore', 'Engineer', 'Bonuses', 'Measure', 'Study'];
 // Keys align with villager index (0-4) and match the `villagers` timer array option in baseTrackers.
@@ -51,8 +54,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   // drifted by an extra refresh interval each time data updated. A row's time is then a real date, so its
   // Timer takes no lastUpdated, except the three the parsers anchor on their own clock (trap, salt, equinox).
   const now = lastUpdated ?? new Date().getTime();
-  const [wallClock, setWallClock] = useState(() => Date.now());
-  useInterval(() => setWallClock(Date.now()), MINUTE);
+  const wallClock = useNow(MINUTE);
   const emptyAlerts = Object.entries(trackers || {}).reduce((res, [alertName, data]) => {
     const allEmpty = Object.values(data || {}).every(({ checked }) => !checked);
     return { ...res, [alertName]: allEmpty };
@@ -90,11 +92,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const minibosses = getMiniBossesData(account).filter(({ rawName }) => showBoss(MINIBOSS_KEYS[rawName]));
   const showDefecaus = showBoss('drDefecaus');
   const showBaba = showBoss('babaYaga');
-  // Absolute times off the save time, like the Bosses card, so their cards skip Timer's lastUpdated
-  // shift. Rolled on the wall clock: an old save's lastUpdated would leave them in the past, and so would a tab left open.
-  const resetClock = Math.max(now, wallClock);
-  const dailyReset = getNextResetAt(account, resetClock);
-  const weeklyReset = getNextResetAt(account, resetClock, { days: account?.accountOptions?.[OPT.daysUntilWeeklyReset], period: 7 * 864e5 });
+  const dailyReset = getNextResetAt(account, Math.max(now, wallClock));
   const crystalIsland = getIsland(account, 'Crystal');
   const crystalDays = crystalIsland?.unclaimedDays ?? 0;
   // Each daily reset adds a day. The day before the cap spawns the most mobs, so that day is the visit window.
@@ -174,10 +172,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const { timeAway, voteBallot } = account || {};
   const bonusTimeLeft = timeAway ? (604800 - (timeAway?.GlobalTime + 197860 - 604800 * Math.floor((timeAway?.GlobalTime + 197860) / 604800))) * 1000 : 0;
   const meritocracyTimeLeft = timeAway ? (604800 - (timeAway?.GlobalTime + 543460 - 604800 * Math.floor((timeAway?.GlobalTime + 543460) / 604800))) * 1000 : 0;
-  // Server-wide weekly boundary (weekly bosses, jewel spinner / chip repo, exotic market). Those all
-  // roll on floor(GlobalTime / 604800), which is unrelated to the account's own weekly reset: the same
-  // moment for every save, so it reads the clock, not how old this save is.
-  const serverWeeklyReset = (Math.floor(resetClock / SERVER_WEEK) + 1) * SERVER_WEEK;
   const nextVoteBonus = now + bonusTimeLeft;
   const nextMeritocracyVote = now + meritocracyTimeLeft;
   const hasVotedBonus = !!voteBallot?.selectedBonus?.[0];
@@ -273,25 +267,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
     ? now + ((sushiFuel.cap - sushiFuel.current) / sushiFuel.generation) * 3600 * 1000
     : null;
 
-  return <>
-    <CardGrid size={'s'} flow>
-      {!emptyAlerts?.General && <Section title={'General'}>
-        {trackers?.General?.daily?.checked && <TimerRow target="General.daily"
-          time={dailyReset}
-          icon={'etc/Daily.png'}
-        />}
-        {trackers?.General?.weekly?.checked && <TimerRow target="General.weekly"
-          time={weeklyReset}
-          icon={'etc/Weekly.png'}
-        />}
-        {trackers?.General?.serverWeekly?.checked && timeAway ? <TimerRow target="General.serverWeekly"
-          message={(when) => <Stack gap={0.5}>
-            <Typography variant="body2">Server weekly reset: {when}</Typography>
-            <Typography variant="body2">Weekly bosses, jewel spinner, chip repo, exotic market</Typography>
-          </Stack>}
-          time={serverWeeklyReset}
-          icon={'etc/Server.png'}
-        /> : null}
+  const rows = [
+    ...inWorld('General', !emptyAlerts?.General && <>
         {trackers?.General?.companions?.checked && <TimerRow target="General.companions"
           page={'/account/prem-currency/pets'}
           failed={failed('companions')}
@@ -316,6 +293,7 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           placeholderStatus={crystalInWindow || crystalCapped ? 'problem' : 'ready'}
           forcePlaceholder={crystalCapped}
           state={crystalInWindow ? <StatusText status={'ready'}>Visit</StatusText> : null}
+          actNow={crystalInWindow}
         /> : null}
         {trackers?.General?.syphonCharge?.checked && account?.finishedWorlds?.World2 ? <TimerRow target="General.syphonCharge"
           page={'/account/world-3/worship'}
@@ -358,8 +336,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             placeholder={'Open'}
             icon={`data/${account?.sailing?.trades?.[0]?.rawName}.png`}
           /> : null}
-      </Section>}
-      {!emptyAlerts?.Clickers && <Section title={'Clickers'}>
+    </>),
+    ...inWorld('Clickers', !emptyAlerts?.Clickers && <>
         {trackers?.Clickers?.featherRestart?.checked && account?.accountOptions?.[OPT.owlFeathers] > 0 ? <TimerRow target="Clickers.featherRestart"
           page={'/account/clickers/owl'}
           long={longTimer(nextFeatherRestart, fLongDuration)}
@@ -410,8 +388,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           icon={'data/BubbaSmokedmeat4.png'}
           placeholder={'Smoker ready'}
         /> : null}
-      </Section>}
-      {(trackers?.Etc?.bonusTimeLeft?.checked || trackers?.Etc?.meritocracyTimeLeft?.checked) && timeAway && <Section title={'Vote'}>
+    </>),
+    ...inWorld('Vote', (trackers?.Etc?.bonusTimeLeft?.checked || trackers?.Etc?.meritocracyTimeLeft?.checked) && timeAway && <>
         {trackers?.Etc?.bonusTimeLeft?.checked && <TimerRow target="Etc.bonusTimeLeft"
           page={'/account/world-2/vote-ballot'}
           message={(when) => <Stack gap={0.5}>
@@ -434,8 +412,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           icon={voteBallot?.selectedMeritocracyBonus?.icon ? `data/${voteBallot.selectedMeritocracyBonus.icon}` : 'etc/Weekly.png'}
           state={!hasVotedMeritocracy && !failed('voteBallot') ? <StatusText status={'needs'}>Not voted</StatusText> : null}
         />}
-      </Section>}
-      {!emptyAlerts?.['World 3'] && account?.finishedWorlds?.World2 && <Section title={'World 3'}>
+    </>),
+    ...inWorld('World 3', !emptyAlerts?.['World 3'] && account?.finishedWorlds?.World2 && <>
         {trackers?.['World 3']?.printer?.checked && account?.finishedWorlds?.World2 ? <TimerRow target="World 3.printer"
           page={'/account/world-3/printer'}
           time={nextPrinterCycle} icon={'data/ConTower0.png'}/> : null}
@@ -469,34 +447,28 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           failed={failed('equinox')}
           message={(when, over) => (over ? 'The Equinox bar is full' : `Equinox bar full: ${when}`)}
           lastUpdated={lastUpdated} time={account?.equinox?.timeToFull} icon={'data/Quest78.png'}/> : null}
-      </Section>}
-      {!emptyAlerts?.['World 5'] && account?.finishedWorlds?.World4 && <Section title={'World 5'}>
+    </>),
+    ...inWorld('World 5', !emptyAlerts?.['World 5'] && account?.finishedWorlds?.World4 && <>
         {trackers?.['World 5']?.bravery?.checked && account?.finishedWorlds?.World4 ?
-          <MonumentRow target="World 5.bravery"
+          <TimerRow target="World 5.bravery"
             page={'/account/world-5/hole'}
             query={{ t: 'Explore', nt: 'Bravery' }}
             failed={failedAny(MONUMENT_SECTIONS)}
-            currentMulti={account?.hole?.caverns?.bravery?.rewardMulti || 0}
-            maxMulti={getMonumentMultiInfo?.bravery?.maxLinearMulti || 0}
-            timeUntilMax={getMonumentMultiInfo?.bravery?.timeUntilMaxDate}
+            {...monumentProps(account?.hole?.caverns?.bravery?.rewardMulti || 0, getMonumentMultiInfo?.bravery)}
             icon={`etc/Bravery_Statue.png`}/> : null}
         {trackers?.['World 5']?.justice?.checked && account?.finishedWorlds?.World4 ?
-          <MonumentRow target="World 5.justice"
+          <TimerRow target="World 5.justice"
             page={'/account/world-5/hole'}
             query={{ t: 'Explore', nt: 'Justice' }}
             failed={failedAny(MONUMENT_SECTIONS)}
-            currentMulti={account?.hole?.caverns?.justice?.rewardMulti || 0}
-            maxMulti={getMonumentMultiInfo?.justice?.maxLinearMulti || 0}
-            timeUntilMax={getMonumentMultiInfo?.justice?.timeUntilMaxDate}
+            {...monumentProps(account?.hole?.caverns?.justice?.rewardMulti || 0, getMonumentMultiInfo?.justice)}
             icon={`data/Justice_Monument_x1.png`}/> : null}
         {trackers?.['World 5']?.wisdom?.checked && account?.finishedWorlds?.World4 ?
-          <MonumentRow target="World 5.wisdom"
+          <TimerRow target="World 5.wisdom"
             page={'/account/world-5/hole'}
             query={{ t: 'Explore', nt: 'Wisdom' }}
             failed={failedAny(MONUMENT_SECTIONS)}
-            currentMulti={account?.hole?.caverns?.wisdom?.rewardMulti || 0}
-            maxMulti={getMonumentMultiInfo?.wisdom?.maxLinearMulti || 0}
-            timeUntilMax={getMonumentMultiInfo?.wisdom?.timeUntilMaxDate}
+            {...monumentProps(account?.hole?.caverns?.wisdom?.rewardMulti || 0, getMonumentMultiInfo?.wisdom)}
             icon={`data/Wisdom_Monument_x1.png`}/> : null}
         {trackers?.['World 5']?.villagers?.checked && account?.finishedWorlds?.World4 && account?.hole?.villagers?.length > 0 ?
           account?.hole?.villagers?.map((villager, index) => {
@@ -535,9 +507,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           placeholder={'Full'}
           forcePlaceholder={marbleFillIsFull}
         /> : null}
-      </Section>}
-
-      {!emptyAlerts?.['World 6'] && account?.finishedWorlds?.World5 && <Section title={'World 6'}>
+    </>),
+    ...inWorld('World 6', !emptyAlerts?.['World 6'] && account?.finishedWorlds?.World5 && <>
         {trackers?.['World 6']?.cropsReady?.checked && (nextCropTimeLeft !== null || allCropsGrown) ? <TimerRow target="World 6.cropsReady"
           page={'/account/world-6/farming'}
           message={(when, over) => (over ? 'All crops are fully grown' : `Next crop fully grown: ${when}`)}
@@ -546,9 +517,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           placeholder={'Crops ready'}
           forcePlaceholder={allCropsGrown}
         /> : null}
-      </Section>}
-
-      {!emptyAlerts?.['World 7'] && account?.finishedWorlds?.World6 && <Section title={'World 7'}>
+    </>),
+    ...inWorld('World 7', !emptyAlerts?.['World 7'] && account?.finishedWorlds?.World6 && <>
         {trackers?.['World 7']?.researchLevelUp?.checked && researchLevelUpTime ?
           <TimerRow target="World 7.researchLevelUp"
             page={'/account/world-7/research'}
@@ -596,18 +566,20 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
               icon={'data/ResMagni1.png'}
             />)
           : null}
-      </Section>}
+    </>)
+  ];
 
-      {trackers?.Etc?.minibosses?.checked && <Section title={'Bosses'}>
-        {showDefecaus || showBaba
-          ? <BossRespawns account={account} characters={characters} lastUpdated={lastUpdated} showDefecaus={showDefecaus} showBaba={showBaba}/>
-          : null}
-        {minibosses?.map((miniboss) => <MinibossRow key={`miniboss-timer-${miniboss.rawName}`} {...miniboss}/>)}
-      </Section>}
-      {trackers?.Etc?.library?.checked && account?.finishedWorlds?.World2
-        ? <Library libraryTimes={account?.libraryTimes} failed={account?.failedSections?.length > 0}/> : null}
-    </CardGrid>
-  </>
+  return <TimerBoard rows={rows}>
+    <Resets account={account} trackers={trackers} lastUpdated={lastUpdated}/>
+    {trackers?.Etc?.minibosses?.checked && <Section title={'Bosses'}>
+      {showDefecaus || showBaba
+        ? <BossRespawns account={account} characters={characters} lastUpdated={lastUpdated} showDefecaus={showDefecaus} showBaba={showBaba}/>
+        : null}
+      {minibosses?.map((miniboss) => <MinibossRow key={`miniboss-timer-${miniboss.rawName}`} {...miniboss}/>)}
+    </Section>}
+    {trackers?.Etc?.library?.checked && account?.finishedWorlds?.World2
+      ? <Library libraryTimes={account?.libraryTimes} failed={account?.failedSections?.length > 0}/> : null}
+  </TimerBoard>;
 };
 
 const MINIBOSS_KEYS = {
@@ -621,6 +593,7 @@ const MINIBOSS_KEYS = {
 const longTimer = (time, long) => !isFinite(time) || (!isPast(time) && long);
 
 const TIMER_ICON_SIZE = 32;
+const LIST_ICON_SIZE = 24;
 
 // A row with nothing to say isn't drawn: no time (its data is missing), and no word or value in its place.
 const hasValue = ({ long, forcePlaceholder, value, time }) => long || forcePlaceholder || value !== undefined || Number.isFinite(time);
@@ -633,32 +606,48 @@ const Section = ({ title, children }) => {
   return <Panel title={title}>{rows}</Panel>;
 };
 
+// A world's rows off its fragment, tagged with the world and keyed to stay apart from the other worlds' in one list.
+const inWorld = (world, rows) => (rows ? React.Children.toArray(rows.props.children)
+  .filter(({ props }) => hasValue(props))
+  .map((row) => React.cloneElement(row, { world, key: `${world}${row.key}` })) : []);
+
 // When a row's time ends. A time the parsers anchored on their own clock has the save's age off it, as its Timer takes.
 // Plain functions so React Compiler reads the clock each time the row's values change, never only once.
 const deadlineOf = (time, lastUpdated) => (lastUpdated ? time - (Date.now() - lastUpdated) : time);
 const isOver = (deadline) => deadline <= Date.now();
 
-// A timer as the Cards board draws a Panel row: its icon, which opens the alert's quick edit, its name (the alert's, or
-// name), one muted line, and at the right its countdown or its state, a link to the page. The muted line is sub, or state
-// (what qualifies a countdown), or the exact time while it counts. message(when, over): the quick edit's words, with when
-// the row's own state (the exact time, its word, or "A long time"), so they never contradict it.
-// placeholderStatus: "ready" for a state to act on, "problem" for one that costs something; past its time a row with no
-// word reads Ready. lastUpdated: only a time the parsers anchor on their own clock (see Timer). failed: read from a failed
-// section's default. value: a row that shows something else than a countdown.
-const TimerRow = ({
-  target, items, name, sub, icon, message, page, query, time, placeholder = 'Ready', placeholderStatus = 'ready', forcePlaceholder,
-  state, value: ownValue, lastUpdated, long, failed
-}) => {
-  const router = useRouter();
-  const formatDate = useFormatDate();
-  const title = name ?? alertMeta[`timers.${target}`]?.label;
-  const word = <StatusText status={placeholderStatus}>{placeholder}</StatusText>;
+// What a row's props say right now, read by the row and by the board that places it, so the two never disagree.
+const readRow = ({ failed, time, value, forcePlaceholder, long, lastUpdated }) => {
   // No time to count to (a save with no reset countdown): the row says what a failed one says, never a state
-  const noTime = failed || (time == null && ownValue === undefined && !forcePlaceholder);
+  const noTime = failed || (time == null && value === undefined && !forcePlaceholder);
   const deadline = deadlineOf(time, lastUpdated);
   // A date past what a Date can hold has no exact time either
   const farOff = long || (Number.isFinite(deadline) && !isValid(new Date(deadline)));
   const over = !farOff && (forcePlaceholder || isOver(deadline));
+  return { noTime, deadline, farOff, over };
+};
+
+// The shape a TimerRow draws, from the list that holds it: a Panel row, a Ready now cell, a Coming up row.
+const RowShape = createContext('panel');
+
+// A timer: its icon, which opens the alert's quick edit, its name (the alert's, or name), a muted line, and at the right
+// its countdown or its state, a link to the page. The muted line is sub, or state (what qualifies a countdown), or the exact
+// time while it counts. message(when, over): the quick edit's words, with when the row's own state (the exact time, its
+// word, or "A long time"), so they never contradict it. placeholderStatus: "ready" for a state to act on, "problem" for one
+// that costs something; past its time a row with no word reads Ready. lastUpdated: only a time the parsers anchor on their
+// own clock (see Timer). failed: read from a failed section's default. value: a row that shows something else than a
+// countdown. world: the label it carries in Coming up. actNow: ready while it still counts, reading its state (a window to
+// visit in).
+const TimerRow = ({
+  target, items, name, sub, icon, message, page, query, time, placeholder = 'Ready', placeholderStatus = 'ready', forcePlaceholder,
+  state, value: ownValue, lastUpdated, long, failed, world, actNow
+}) => {
+  const shape = useContext(RowShape);
+  const router = useRouter();
+  const formatDate = useFormatDate();
+  const title = name ?? alertMeta[`timers.${target}`]?.label;
+  const word = <StatusText status={placeholderStatus}>{placeholder}</StatusText>;
+  const { noTime, deadline, farOff, over } = readRow({ failed, time, value: ownValue, forcePlaceholder, long, lastUpdated });
   const when = farOff ? 'A long time' : over ? placeholder : formatDate(deadline, { showSeconds: false });
   const words = noTime ? undefined : message ? message(when, over) : `${title}: ${when}`;
   const shown = noTime ? '-'
@@ -667,11 +656,194 @@ const TimerRow = ({
         : forcePlaceholder ? word
           : <Timer type={'countdown'} date={time} lastUpdated={lastUpdated} component={'span'} placeholder={word}/>;
   const href = page ? { pathname: page, query: { ...sessionQuery(router.query), ...query } } : null;
+  const linked = (node) => (href && !noTime ? <Link component={NextLink} href={href} color={'inherit'} variant={'body2'} sx={{ fontWeight: 'inherit' }}>{node}</Link> : node);
+  const sprite = <AlertIcon configType={'timers'} target={target} extra={items ? { items } : undefined} message={words}
+                            label={typeof words === 'string' ? undefined : title} icon={icon}
+                            size={shape === 'panel' ? TIMER_ICON_SIZE : LIST_ICON_SIZE}/>;
+  if (shape === 'ready') return <ReadyCell icon={sprite} name={title} sub={sub} value={linked(actNow && !over ? state : word)}/>;
+  if (shape === 'coming') {
+    return <ComingRow icon={sprite} name={title} sub={noTime ? null : state ?? sub} world={world}
+                      date={noTime || farOff || over ? null : when} value={linked(shown)}/>;
+  }
   const line = noTime ? null : state ?? sub ?? (farOff || over ? null : when);
-  return <Panel.Row name={title} sub={line}
-                    icon={<AlertIcon configType={'timers'} target={target} extra={items ? { items } : undefined} message={words}
-                                     label={typeof words === 'string' ? undefined : title} icon={icon} size={TIMER_ICON_SIZE}/>}
-                    value={href && !noTime ? <Link component={NextLink} href={href} color={'inherit'} variant={'body2'}>{shown}</Link> : shown}/>;
+  return <Panel.Row name={title} sub={line} icon={sprite} value={linked(shown)}/>;
+};
+
+// Ready now fills the Panel's width in as many columns as its names and words hold. The board's width, not the window's:
+// a side ad leaves it 540 px at 900. One across also caps the block, so a stale save never buries Coming up.
+const ONE_ACROSS = '@container (max-width: 619.95px)';
+const TWO_ACROSS = '@container (min-width: 620px)';
+const THREE_ACROSS = '@container (min-width: 960px)';
+const READY_CAP = 6;
+const READY_GRID_SX = {
+  display: 'grid', gap: '1px', bgcolor: 'divider', gridTemplateColumns: 'minmax(0, 1fr)',
+  [TWO_ACROSS]: { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' },
+  [THREE_ACROSS]: { gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }
+};
+const READY_CAPPED_SX = { [ONE_ACROSS]: { [`& > :nth-of-type(n+${READY_CAP + 1})`]: { display: 'none' } } };
+const READY_CELL_SX = {
+  minHeight: 39, pl: 1.5, pr: '14px', minWidth: 0, bgcolor: 'background.paper',
+  [ONE_ACROSS]: { minHeight: 43 }
+};
+const READY_SUB_SX = { fontSize: 13, minWidth: 0, fontVariantNumeric: 'tabular-nums' };
+// A row with a sub gives its room from there: any shrink at all puts an ellipsis on the name
+const ReadyCell = ({ icon, name, sub, value }) => <Stack direction={'row'} alignItems={'center'} gap={'10px'} sx={READY_CELL_SX}>
+  {icon}
+  <Typography variant={'body2'} component={'div'} noWrap sx={{ fontWeight: 500, minWidth: 0, flexShrink: sub ? 0 : 1 }}>{name}</Typography>
+  {sub ? <Typography variant={'body2'} component={'div'} color={'text.secondary'} noWrap sx={READY_SUB_SX}>{sub}</Typography> : null}
+  <Box sx={{ flex: 1 }}/>
+  <Box sx={{ flexShrink: 0, display: 'inline-flex' }}>{value}</Box>
+</Stack>;
+
+// Blank cells close the block's last row, so its lines run to the Panel's edge: as many as each column count leaves open.
+const blanksLeft = (count, across) => (across - (count % across)) % across;
+const blankCell = (index, count) => <Box key={`blank-${index}`} aria-hidden sx={{
+  bgcolor: 'background.paper', display: 'none',
+  [TWO_ACROSS]: { display: index < blanksLeft(count, 2) ? 'block' : 'none' },
+  [THREE_ACROSS]: { display: index < blanksLeft(count, 3) ? 'block' : 'none' }
+}}/>;
+
+// Coming up's own width: beside the right column at 1002 it holds the row's five cells, under 580 px its two lines.
+const COMING_NARROW = '@container (max-width: 579.95px)';
+const COMING_ROW_SX = {
+  display: 'grid', columnGap: 1.5, alignItems: 'center', minHeight: 39, pl: 1.5, pr: 2,
+  gridTemplateColumns: '24px minmax(0, 1fr) 64px 136px 92px',
+  [COMING_NARROW]: { gridTemplateColumns: '24px minmax(0, 1fr) auto', minHeight: 51, pr: 1.5 }
+};
+const COMING_SUB_SX = { ml: 1, fontWeight: 400, color: 'text.secondary', [COMING_NARROW]: { display: 'none' } };
+const COMING_LINE_SX = { display: 'none', fontSize: 13, lineHeight: '18px', [COMING_NARROW]: { display: 'block' } };
+const COMING_WORLD_SX = { fontSize: 12, lineHeight: '16px', color: 'text.muted', whiteSpace: 'nowrap', [COMING_NARROW]: { display: 'none' } };
+const COMING_DATE_SX = {
+  fontSize: 13, lineHeight: '18px', color: 'text.secondary', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums',
+  [COMING_NARROW]: { display: 'none' }
+};
+const COMING_TIME_SX = { typography: 'body2', fontWeight: 500, textAlign: 'right', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' };
+// A row with no date lends its cell to what it prints instead (a monument's ratio, "A long time")
+const COMING_TIME_WIDE_SX = { ...COMING_TIME_SX, gridColumn: 'span 2', [COMING_NARROW]: { gridColumn: 'auto' } };
+const ComingRow = ({ icon, name, sub, world, date, value }) => <Box sx={COMING_ROW_SX}>
+  {icon}
+  <Box sx={{ minWidth: 0 }}>
+    <Typography variant={'body2'} component={'div'} noWrap sx={{ fontWeight: 500 }}>
+      {name}{sub ? <Box component={'span'} sx={COMING_SUB_SX}>{sub}</Box> : null}
+    </Typography>
+    <Typography variant={'body2'} component={'div'} color={'text.secondary'} noWrap sx={COMING_LINE_SX}>
+      {sub ? <>{sub}{' · '}</> : null}{world}{date ? ` · ${date}` : ''}
+    </Typography>
+  </Box>
+  <Box sx={COMING_WORLD_SX}>{world}</Box>
+  {date ? <Box sx={COMING_DATE_SX}>{date}</Box> : null}
+  <Box sx={date ? COMING_TIME_SX : COMING_TIME_WIDE_SX}>{value}</Box>
+</Box>;
+
+// A band of Coming up: its label on the tint, every row under its own line.
+const BAND_LABEL_SX = { display: 'flex', alignItems: 'center', minHeight: 28, pl: 1.5, pr: 2, bgcolor: 'background.tint' };
+const BAND_ROWS_SX = { '& > *': { borderTop: 1, borderColor: 'divider' } };
+const Band = ({ label, children }) => <Box>
+  <Typography variant={'groupLabel'} color={'text.secondary'} sx={BAND_LABEL_SX}>{label}</Typography>
+  <Box sx={BAND_ROWS_SX}>{children}</Box>
+</Box>;
+
+// Where a row sits right now. A monument's ratio, or anything else with no time left to count, waits at the end of Later.
+const placeOf = ({ props }, clock) => {
+  const { noTime, deadline, farOff, over } = readRow(props);
+  if (noTime) return 'unread';
+  if (over || props.actNow) return 'ready';
+  if (farOff || props.value !== undefined || !(deadline - clock < WEEK)) return 'later';
+  return deadline - clock < DAY ? 'next' : 'week';
+};
+const soonestKey = ({ props }) => {
+  const { deadline, farOff } = readRow(props);
+  return farOff || !Number.isFinite(deadline) ? Infinity : deadline;
+};
+// Infinity less Infinity is NaN, and two rows with no time keep their order
+const soonestFirst = (a, b) => soonestKey(a) - soonestKey(b) || 0;
+const problemFirst = (a, b) => (b.props.placeholderStatus === 'problem') - (a.props.placeholderStatus === 'problem');
+
+const DENSE_PANEL_SX = { overflow: 'hidden', '& > :first-of-type': { minHeight: 48 } };
+const PanelNote = ({ children }) => <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{children}</Typography>;
+const FOLD_BUTTON_SX = { mx: 1, my: 0.5, minHeight: { xs: 44, sm: 'auto' } };
+
+// The timers as what they ask of the player: everything to act on now, then one list of what's next across all worlds,
+// beside the panels that keep their own controls. It ticks by the second, apart from Etc's heavy reads, so a row that hits
+// zero moves to Ready now on the next tick, and a list with nothing in it draws no heading.
+const TimerBoard = ({ rows, children }) => {
+  const clock = useNow(SECOND);
+  const [readyOpen, setReadyOpen] = useState(false);
+  const [laterOpen, setLaterOpen] = useState(false);
+  const at = (place) => rows.filter((row) => placeOf(row, clock) === place);
+  const ready = at('ready').sort(problemFirst);
+  const next = at('next').sort(soonestFirst);
+  const week = at('week').sort(soonestFirst);
+  const later = at('later').sort(soonestFirst);
+  const unread = at('unread');
+  const coming = next.length + week.length + later.length + unread.length > 0;
+  return <Stack gap={1.5} sx={{ containerType: 'inline-size' }}>
+    {ready.length ? <Panel title={'Ready now'} aside={<PanelNote>{`${formatNum(ready.length, 'whole')} to act on`}</PanelNote>} sx={DENSE_PANEL_SX}>
+      <Box sx={[READY_GRID_SX, !readyOpen && READY_CAPPED_SX]}>
+        <RowShape value={'ready'}>{ready}</RowShape>
+        {[0, 1].map((index) => blankCell(index, ready.length))}
+      </Box>
+      {ready.length > READY_CAP ? <Stack alignItems={'center'} sx={{ display: 'none', [ONE_ACROSS]: { display: 'flex' } }}>
+        <Button size={'small'} aria-expanded={readyOpen} onClick={() => setReadyOpen(!readyOpen)}
+                endIcon={readyOpen ? <IconChevronUp size={16}/> : <IconChevronDown size={16}/>} sx={FOLD_BUTTON_SX}>
+          {readyOpen ? 'Show fewer' : `Show ${formatNum(ready.length - READY_CAP, 'whole')} more`}
+        </Button>
+      </Stack> : null}
+    </Panel> : null}
+    <Box sx={{
+      display: 'grid', gap: 1.5, alignItems: 'start', gridTemplateColumns: 'minmax(0, 1fr)',
+      '@container (min-width: 800px)': { gridTemplateColumns: coming ? 'minmax(0, 1fr) minmax(320px, 32%)' : 'repeat(auto-fill, minmax(320px, 1fr))' }
+    }}>
+      {coming ? <Box sx={{ containerType: 'inline-size', minWidth: 0 }}>
+        <Panel title={'Coming up'} aside={<PanelNote>Soonest first, all worlds</PanelNote>} sx={DENSE_PANEL_SX}>
+          <RowShape value={'coming'}>
+            {next.length ? <Band label={'Next 24 hours'}>{next}</Band> : null}
+            {week.length ? <Band label={'This week'}>{week}</Band> : null}
+            {later.length ? <Band label={'Later'}>
+              <Box>
+                <Button size={'small'} aria-expanded={laterOpen} onClick={() => setLaterOpen(!laterOpen)}
+                        endIcon={laterOpen ? <IconChevronUp size={16}/> : <IconChevronDown size={16}/>} sx={FOLD_BUTTON_SX}>
+                  {laterOpen ? 'Hide later' : `Show ${formatNum(later.length, 'whole')} later`}
+                </Button>
+                <Collapse in={laterOpen}><Box sx={BAND_ROWS_SX}>{later}</Box></Collapse>
+              </Box>
+            </Band> : null}
+            {unread.length ? <Band label={'No reading'}>{unread}</Band> : null}
+          </RowShape>
+        </Panel>
+      </Box> : null}
+      <Stack gap={1.5} sx={coming ? { minWidth: 0 } : { display: 'contents' }}>{children}</Stack>
+    </Box>
+  </Stack>;
+};
+
+// The account's own resets come round on a fixed schedule, so they hold a fixed place instead of reordering a list. Absolute
+// times off the save time, like the Bosses card, so they skip Timer's lastUpdated shift. Rolled on the clock by the second,
+// so a reset goes straight to the next one: an old save's lastUpdated would leave them in the past, and so would a tab left open.
+const Resets = ({ account, trackers, lastUpdated }) => {
+  const clock = Math.max(lastUpdated ?? 0, useNow(SECOND));
+  // Server-wide weekly boundary (weekly bosses, jewel spinner / chip repo, exotic market). Those all
+  // roll on floor(GlobalTime / 604800), which is unrelated to the account's own weekly reset: the same
+  // moment for every save, so it reads the clock, not how old this save is.
+  const serverWeeklyReset = (Math.floor(clock / SERVER_WEEK) + 1) * SERVER_WEEK;
+  return <Section title={'Resets'}>
+    {trackers?.General?.daily?.checked && <TimerRow target="General.daily"
+      time={getNextResetAt(account, clock, { fallbackSavedAt: lastUpdated })}
+      icon={'etc/Daily.png'}
+    />}
+    {trackers?.General?.weekly?.checked && <TimerRow target="General.weekly"
+      time={getNextResetAt(account, clock, { fallbackSavedAt: lastUpdated, days: account?.accountOptions?.[OPT.daysUntilWeeklyReset], period: WEEK })}
+      icon={'etc/Weekly.png'}
+    />}
+    {trackers?.General?.serverWeekly?.checked && account?.timeAway ? <TimerRow target="General.serverWeekly"
+      message={(when) => <Stack gap={0.5}>
+        <Typography variant="body2">Server weekly reset: {when}</Typography>
+        <Typography variant="body2">Weekly bosses, jewel spinner, chip repo, exotic market</Typography>
+      </Stack>}
+      time={serverWeeklyReset}
+      icon={'etc/Server.png'}
+    /> : null}
+  </Section>;
 };
 
 // A miniboss: its icon opens the alert's quick edit, its name links to the Death Note, and it reads how many wait.
@@ -692,19 +864,20 @@ const MinibossRow = ({ rawName, name, current, daysTillNext, maxed }) => {
   </Stack>;
 };
 
-// A monument's reward multi against its max linear growth; past that max it's time to fight.
-const MonumentRow = ({ page, query, currentMulti, maxMulti, timeUntilMax, icon, target, items, failed }) => {
-  const formatDate = useFormatDate();
-  const current = formatNum(currentMulti, 'mult');
-  const max = formatNum(maxMulti, 'mult');
-  const isOverMax = Math.round(100 * currentMulti) > Math.round(100 * maxMulti);
-  const line = timeUntilMax
-    ? `Max linear growth: ${formatDate(timeUntilMax, { showSeconds: false })}`
-    : 'At max linear growth';
-  const pair = `${current} / ${max}`;
-  return <TimerRow target={target} items={items} icon={icon} page={page} query={query} failed={failed}
-                   message={() => (isOverMax ? `Past its max linear growth: ${pair}` : line)} sub={isOverMax ? pair : line}
-                   value={isOverMax ? <StatusText status={'ready'}>Fight</StatusText> : <Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>{pair}</Box>}/>;
+// A monument's reward multi against its max linear growth, as a row's props. Past that max it's time to fight. Below it the
+// date it gets there is a deadline like any other, so it sorts with them and counts down to it, with the ratio as its muted
+// line, and at zero it moves to Ready now. One with neither (no date, not past it) has nothing to count and nothing to act on.
+const monumentProps = (currentMulti, { maxLinearMulti, timeUntilMaxDate } = {}) => {
+  const maxMulti = maxLinearMulti || 0;
+  const pair = `${formatNum(currentMulti, 'mult')} / ${formatNum(maxMulti, 'mult')}`;
+  const past = `Past its max linear growth: ${pair}`;
+  if (Math.round(100 * currentMulti) > Math.round(100 * maxMulti)) {
+    return { sub: pair, placeholder: 'Fight', forcePlaceholder: true, message: () => past };
+  }
+  if (timeUntilMaxDate) {
+    return { sub: pair, placeholder: 'Fight', time: timeUntilMaxDate, message: (when, over) => (over ? past : `Max linear growth: ${when}`) };
+  }
+  return { sub: 'At max linear growth', value: pair, message: () => 'At max linear growth' };
 };
 
 export default Etc;
