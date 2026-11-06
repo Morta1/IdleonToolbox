@@ -54,10 +54,10 @@ export const characterStatFacts = (character, characters, account, playerInfo = 
   return [
     stat('Damage', playerInfo?.maxDamage, () => <GameIconNotation value={notateDamage(playerInfo)} sx={{ typography: 'body2', fontWeight: 500, display: 'inline-flex', flexWrap: 'wrap', justifyContent: 'flex-end' }}/>,
       { breakdown: playerInfo?.damageBreakdown, notation: 'ThreeDecimals' }),
-    stat('HP', playerInfo?.maxHp, formatNum),
-    stat('MP', playerInfo?.maxMp, formatNum),
-    stat('Accuracy', playerInfo?.accuracy, formatNum),
-    stat('Movement speed', playerInfo?.movementSpeed, (speed) => formatNum(speed, 'pct')),
+    stat('HP', playerInfo?.maxHp, (hp) => formatGame(hp, 'PlayerHPmax')),
+    stat('MP', playerInfo?.maxMp, (mp) => formatGame(mp, 'PlayerMPmax')),
+    stat('Accuracy', playerInfo?.accuracy, (accuracy) => formatGame(accuracy, 'PlayerAccTot')),
+    stat('Movement speed', playerInfo?.movementSpeed, (speed) => `${formatGame(speed, 'PlayerSpeedBonus')}%`),
     stat('Cash multi', cashMulti, (multi) => `${cashMultiText(multi)}x`, { breakdown: cashBreakdown, notation: 'Smaller' }),
     stat('Drop rate', dropRate, (rate) => `${formatGame(rate, 'TotalStats.Drop_Rarity')}x`, { breakdown: dropBreakdown, notation: 'ThreeDecimals' }),
     respawnFact(getRespawnRate(character, account) || {}),
@@ -73,7 +73,8 @@ export const characterPanelFacts = (character, characters, account, playerInfo) 
   const { value: goldenFoodMulti, breakdown: goldenFoodBreakdown } = getGoldenFoodMulti(character, account, characters);
   return [
     stat('Golden food', goldenFoodMulti, (multi) => formatNum(Math.max(0, 100 * (multi - 1)), 'pct'), { breakdown: goldenFoodBreakdown, notation: 'Smaller' }),
-    stat('Kills per hour', playerInfo?.finalKillsPerHour, (kills) => formatNum(Math.floor(kills))),
+    // The game's AFK line prints this whole product (N.js:66109), and the reader keys a product by its last block
+    stat('Kills per hour', playerInfo?.finalKillsPerHour, (kills) => formatGame(Math.floor(kills), 'ArbitraryCode.KillPerKill')),
     stat('Kill per kill', playerInfo?.killPerkill?.value, (kills) => formatNum(kills, 'mult'), { breakdown: playerInfo?.killPerkill?.breakdown, notation: 'ThreeDecimals' }),
     stat('Defence', playerInfo?.defence?.value, (defence) => formatGame(defence, 'TotalStats.Defence'), { breakdown: playerInfo?.defence?.breakdown }),
     stat('Crit chance', playerInfo?.critChance, (chance) => formatNum(Math.min(CRIT_CHANCE_DISPLAY_CAP, chance), 'pct')),

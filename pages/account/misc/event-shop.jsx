@@ -53,9 +53,8 @@ const EventShop = () => {
     const ownedNow = !parseFailed && isOwned;
     return <ItemCard key={`event-bonus-${index}`} icon={`data/EventShopBuy${index}.png`} title={titleCaseName(cleanUnderscore(name))}
                      dimmed={locked} status={ownedNow ? 'done' : undefined} statusLabel={'Owned'}
-                     footer={ownedNow ? null : <ItemCard.Cost icon={'etc/Event_Currency.png'} iconAlt={'Stars'} need={price}
-                                                              have={parseFailed ? undefined : stars}
-                                                              format={(value) => formatNum(value, 'whole')}/>}>
+                     footer={ownedNow ? null : <ItemCard.Cost icon={'etc/Event_Currency.png'} iconAlt={'Stars'} game={'Save.EventShopCurrency'} need={price}
+                                                              have={parseFailed ? undefined : stars}/>}>
       <ItemCard.Desc text={cleanUnderscore(description ?? '')}/>
       {off ? <ItemCard.Facts rows={[['Last sold', lastSoldText(lastSold)]]}/> : null}
     </ItemCard>;
@@ -68,7 +67,7 @@ const EventShop = () => {
     />
     {parseFailed ? <MissingData name={'your save'} failed atZero/> : null}
     <PageSummary>
-      <StatTile label={'Stars'} icon={'etc/Event_Currency.png'} value={parseFailed ? '-' : formatNum(stars)}/>
+      <StatTile label={'Stars'} icon={'etc/Event_Currency.png'} value={parseFailed ? '-' : stars} kind={{ game: 'Save.EventShopCurrency', whole: true }}/>
       <StatTile label={'Bonuses owned'} value={parseFailed ? '-' : `${formatNum(owned)} / ${formatNum(total)}`}/>
       <StatTile label={'Stars to finish the rotation'} value={parseFailed ? '-' : formatNum(starsToFinish ?? 0)}/>
     </PageSummary>

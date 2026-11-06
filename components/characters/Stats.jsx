@@ -96,7 +96,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
       <Panel.KV label={'Money'} value={<CoinDisplay title={''} money={getCoinsArray(character?.money ? character?.money : 0)}/>}/>
       {nextPortal?.goal > 10 && nextPortal?.current < nextPortal?.goal ? <Panel.KV label={'Next portal'} value={<Stack direction={'row'} alignItems={'center'} gap={0.5} justifyContent={'flex-end'}>
         <GameIcon src={`data/${nextPortal?.currentIcon}.png`} size={16} alt={''}/>
-        {formatNum(nextPortal?.current, 'whole')} / {formatNum(nextPortal?.goal, 'whole')}
+        {formatGame(nextPortal?.current, 'Save.PortalKills', { whole: true })} / {formatGame(nextPortal?.goal, 'Save.PortalKills', { whole: true })}
       </Stack>}/> : nextPortal?.goal > 10 && portalLock?.open === false ? <Panel.KV label={'Next portal'} value={''}/> : null}
       {nextPortal?.goal > 10 && (nextPortal?.current < nextPortal?.goal || portalLock?.open === false) ? <MultiCharLockText lock={portalLock}/> : null}
     </Panel.Group>

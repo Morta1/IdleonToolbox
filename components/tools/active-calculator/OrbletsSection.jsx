@@ -22,7 +22,7 @@ const OrbletsSection = ({ lastUpdated, resultsOnly }) => {
   return <Section title={'Orblets'}
                   info={'Buying Orblet Market upgrades spends orblets, so the result is your net change since the snapshot, not everything the Orb dropped.'}>
     <CounterTable hours={elapsedHours(lastUpdated, snapshottedAcc?.snapshotTime)} resultsOnly={resultsOnly}
-                  rows={[counter('Orblets', snapshotOrblets, state?.account?.royalGuardian?.orblets, { icon: 'data/Orblet.png' })]}/>
+                  rows={[counter('Orblets', snapshotOrblets, state?.account?.royalGuardian?.orblets, { icon: 'data/Orblet.png', game: 'Save.Orblets' })]}/>
   </Section>;
 };
 

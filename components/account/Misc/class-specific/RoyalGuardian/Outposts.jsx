@@ -194,7 +194,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
         const filteredRank = isRankFiltered && bar.type === rankType ? ` (filter: ${formatRankRange(minRank, maxRank)})` : '';
         return <ItemCard.Progress key={bar.type} label={`${bar.name} rank ${formatNum(bar.rank ?? 0)}${time}${filteredRank}`}
                                   percent={100 * (bar.progress ?? 0)}
-                                  value={formatGame(bar.exp ?? 0, 'RoyalG.OutpostEXPreq', { whole: true })} max={formatGame(bar.required ?? 0, 'RoyalG.OutpostEXPreq', { whole: true })}/>;
+                                  value={formatGame(bar.exp ?? 0, 'RoyalG.OutpostEXPreq', { ruleValue: bar.required ?? 0, whole: true })} max={formatGame(bar.required ?? 0, 'RoyalG.OutpostEXPreq', { whole: true })}/>;
       })}
       <ItemCard.Section label={'Units'}>
         <CardGrid size={'icon'}>

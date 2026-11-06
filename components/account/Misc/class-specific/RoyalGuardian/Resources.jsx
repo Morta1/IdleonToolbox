@@ -14,8 +14,10 @@ import { AppContext } from '@components/common/context/AppProvider';
 
 // A saved checkbox from before resets once ("Hide unused slots", "Only unconnected")
 const RESOURCES_TOOLBAR = { world: 'all', hideUnused: false, unconnected: false };
-// Every resource amount on the page prints in the armory costs' rule, which these pay
+// A node's amounts print in the armory costs' rule, which these pay
 const amount = (value) => formatGame(value ?? 0, 'RoyalG.ArmoryUpgCost', { whole: true });
+// A balance, as the armory's resource list prints it (N.js:122791, floored): the key is named for a level, but RoyalG[1] holds these
+export const resourceBalance = (value) => formatGame(Math.floor(value ?? 0), 'Save.ArmoryLevel', { whole: true });
 // One to three columns of rows, as wide as the page allows
 const ROWS_GRID_SX = { display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' } };
 
@@ -57,7 +59,7 @@ const Resources = ({ resources, outposts, resourcePerHour, sectionFailed }) => {
         <Box sx={ROWS_GRID_SX}>
           {totals.map(({ resourceIndex, rawName, stored, dailyIncome }) => <Panel.Row
             key={resourceIndex} icon={`data/${rawName}.png`} name={ROYAL_RESOURCE_NAMES[resourceIndex] ?? `Resource ${resourceIndex}`}
-            value={amount(stored)}
+            value={resourceBalance(stored)}
             valueSub={dailyIncome > 0 ? `+${formatGame(dailyIncome, 'RoyalG.OutpostResourceRate')} a day` : 'Not collected'}/>)}
         </Box>
       </Panel> : null}
@@ -89,7 +91,7 @@ const Resources = ({ resources, outposts, resourcePerHour, sectionFailed }) => {
                                                          value={amount(collected)} max={amount(maxQuantity)}/>}
                   <ItemCard.Facts rows={[
                     hoursToEmpty != null ? ['Empties in', formatDuration(hoursToEmpty * 3600)] : null,
-                    ['In storage', amount(stored)]
+                    ['In storage', resourceBalance(stored)]
                   ]}/>
                 </>}
                 <ItemCard.Facts rows={[connected

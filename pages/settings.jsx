@@ -70,8 +70,8 @@ const SettingRow = ({ label, description, children }) => (
 
 
 // Computed only while its dialog is open: it runs getMaxDamage per character, and a section that throws there stays inside
-// the dialog. Lane A where the game has a key for the number (TotalStats, the villagers' Holes.VillagerExpPerHour,
-// Summoning.TomePTS: each read in N.js); the amount kind for the rest, whole for what the game counts.
+// the dialog. Lane A where the game has a key for the number (TotalStats, Player*, the villagers'
+// Holes.VillagerExpPerHour, Summoning.TomePTS: each read in N.js); whole for what the game counts.
 const StatsDialogBody = ({ account, characters }) => {
   const {
     dropRate, defence, accuracy, hp, mp, logBook, totalShinyLevels, slab, greenMushroomKills, totalBoats, totalTomePoints,
@@ -80,9 +80,9 @@ const StatsDialogBody = ({ account, characters }) => {
   const rows = [
     ['Drop rate', `${formatGame(dropRate, 'TotalStats.Drop_Rarity')}x`],
     ['Defence', formatGame(defence, 'TotalStats.Defence')],
-    ['Accuracy', formatNum(accuracy, 'amount')],
-    ['HP', formatNum(hp, 'amount')],
-    ['MP', formatNum(mp, 'amount')],
+    ['Accuracy', formatGame(accuracy, 'PlayerAccTot')],
+    ['HP', formatGame(hp, 'PlayerHPmax')],
+    ['MP', formatGame(mp, 'PlayerMPmax')],
     ['Log book', formatNum(logBook, 'whole')],
     ['Total shiny levels', formatNum(totalShinyLevels, 'whole')],
     ['Slab', formatNum(slab, 'whole')],

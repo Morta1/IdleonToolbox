@@ -674,7 +674,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/FarmPlant1'}/> : null}
               {alerts?.['World 6']?.farming?.plots?.length > 0 ?
                 <Alert target={'World 6.farming.plots'}
-                  title={`${counted(alerts?.['World 6']?.farming?.plots?.length, 'plot')} reached the threshold of ${formatNum(alerts?.['World 6']?.farming?.plots?.[0]?.threshold)} OGs (${formatNum(Math.min(1e9, Math.max(1, Math.pow(2, alerts?.['World 6']?.farming?.plots?.[0]?.threshold))), 'mult')})`}
+                  title={`${counted(alerts?.['World 6']?.farming?.plots?.length, 'plot')} reached the threshold of ${formatNum(alerts?.['World 6']?.farming?.plots?.[0]?.threshold)} OGs (${formatGame(Math.min(1e9, Math.max(1, Math.pow(2, alerts?.['World 6']?.farming?.plots?.[0]?.threshold))), 'FarmingStuffs.OGmulti')}x)`}
                   iconPath={'data/ClassIcons57'}/> : null}
               {alerts?.['World 6']?.farming?.finishedPlots ?
                 <Alert target={'World 6.farming.finishedPlots'}
@@ -1012,7 +1012,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/MenaJelly2'}/> : null}
               {alerts?.['World 7']?.menagerie?.redJelly ?
                 <Alert target={'World 7.menagerie.redJelly'}
-                  title={`Red jelly reading ready: ${formatNum(alerts?.['World 7']?.menagerie?.redJelly?.daysRested)} days rested, ${formatNum(alerts?.['World 7']?.menagerie?.redJelly?.readingMulti, 'mult')} gains`}
+                  title={`Red jelly reading ready: ${formatNum(alerts?.['World 7']?.menagerie?.redJelly?.daysRested)} days rested, ${formatGame(alerts?.['World 7']?.menagerie?.redJelly?.readingMulti, 'MenagerieStuff.RedJellyReadingMulti')}x gains`}
                   iconPath={'data/MenaJelly3'}/> : null}
               {alerts?.['World 7']?.menagerie?.silverJelly?.map((upgrade) =>
                 <Alert target={'World 7.menagerie.silverJelly'}

@@ -63,7 +63,7 @@ const Currencies = ({
                     {(ColosseumTickets?.allTickets ?? []).map((ticket, index) => pickupFacts(ticket, `Ticket ${index + 1}`))}
                   </Stack>}/>
         <IconTile icon={'data/SilverPen.png'} alt={'Silver Pens'} value={count(SilverPens)} details={'Silver Pens'}/>
-        <IconTile icon={'data/PremiumGem.png'} alt={'Gems'} value={count(gems)} details={'Gems'}/>
+        <IconTile icon={'data/PremiumGem.png'} alt={'Gems'} value={Number(gems) || 0} kind={{ game: 'Save.Gems', whole: true }} details={'Gems'}/>
         <IconTile icon={'data/MGp.png'} alt={'Minigame Plays'} value={count(minigamePlays)} details={'Minigame Plays'}/>
         {keys.map((key) => <IconTile key={key?.rawName} icon={`data/${key?.rawName}.png`} alt={cleanUnderscore(key?.name)}
                                      value={keysFailed ? '-' : count(key?.amount)}

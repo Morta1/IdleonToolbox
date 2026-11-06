@@ -6,6 +6,7 @@ import GameIcon from '@components/common/GameIcon';
 import InfoButton from '@components/common/InfoButton';
 import Notice from '@components/common/Notice';
 import ViewSwitch from '@components/common/ViewSwitch';
+import { resourceBalance } from './Resources';
 
 const MODE_LABELS = ['Resource Depot', 'Support Camp', 'Savage Stronghold'];
 // Straight up first, then fanning out to either side in 15 degree steps.
@@ -27,7 +28,7 @@ const distance = (ax, ay, bx, by) => Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(a
 // The catalog has no real names for resources, only "Resource 4" placeholders, so the sprite is
 // the only thing that identifies a node to the player.
 const NodeIcon = ({ node, size = 16 }) => <GameIcon src={`data/${node.rawName}.png`} size={size} alt={''}/>;
-// A node's amounts, in the rule every resource amount on the page prints in
+// A node's amounts, in the armory costs' rule
 const amount = (value) => formatGame(value ?? 0, 'RoyalG.ArmoryUpgCost', { whole: true });
 // Enter or Space on a focused marker does what its click does
 const onActivate = (action) => (event) => {
@@ -235,7 +236,7 @@ const KingdomMap = ({ outposts, resources }) => {
             <Divider sx={{ my: 1 }}/>
             <Typography variant="caption" sx={{ display: 'block' }}>
               {/* Account-wide storage of this resource, not this node's own pile. */}
-              {`In storage: ${amount(focusedNode.stored)}`}
+              {`In storage: ${resourceBalance(focusedNode.stored)}`}
             </Typography>
             <Typography variant="caption" sx={{ display: 'block' }}>
               {focusedNode.connected

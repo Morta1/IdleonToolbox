@@ -5,6 +5,7 @@ import GameIcon from '@components/common/GameIcon';
 import InfoButton from '@components/common/InfoButton';
 import Panel from '@components/common/cards/Panel';
 import { formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 
 // One section of the calculator: a Panel, its note on an i, its meta a line under its title.
 export const Section = ({ title, info, meta, children }) => <Panel title={title} meta={meta}
@@ -27,16 +28,18 @@ export const elapsedHours = (lastUpdated, snapshotTime) => {
 const finite = (value) => (Number.isFinite(value) ? value : null);
 
 // A counter's row: a number the save does not hold (a failed section, an older snapshot) reads "-", and so does what it
-// feeds. kind: how its amounts read, whole by default (kills, orbs, bones). noRate: a counter with no rate (a level).
+// feeds. kind: how its amounts read, whole by default (kills, orbs, bones). game: a balance the game has its own rule for,
+// which takes the amounts' place of kind. noRate: a counter with no rate (a level).
 export const counter = (label, snapshot, now, options = {}) => {
   const before = finite(snapshot);
   const after = finite(now);
   return { key: label, label, snapshot: before, now: after, gained: before !== null && after !== null ? after - before : null, ...options };
 };
 
-const inKind = (row, value) => (value === null || value === undefined ? null : formatNum(value, row.kind ?? 'whole'));
+const inKind = (row, value) => (value === null || value === undefined ? null
+  : row.game ? formatGame(value, row.game, { whole: true }) : formatNum(value, row.kind ?? 'whole'));
 const gainedText = (row) => (row.gained === null || row.gained === undefined ? null
-  : formatNum(row.gained, row.kind === 'level' ? 'whole' : row.kind ?? 'whole'));
+  : row.game ? inKind(row, row.gained) : formatNum(row.gained, row.kind === 'level' ? 'whole' : row.kind ?? 'whole'));
 const rateText = (row, hours, per) => {
   if (row.noRate || !hours || row.gained === null || row.gained === undefined) return null;
   const perHour = row.gained / hours;
