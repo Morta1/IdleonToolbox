@@ -23,7 +23,7 @@ import { DISCORD_BOT_INSTALL_URL, DISCORD_SERVER_URL, trackBotInstallClick } fro
 import NextLink from 'next/link';
 import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
-import { NavMenuPanel } from './NavMenu';
+import { NavMenuPanel, useBarMenu } from './NavMenu';
 import { BAR_TIGHT, capPageWidth, pageColumnSx, PHONE_SIDES } from './frame';
 import { touchTarget } from '../../../styles/theme/theme';
 import useFrame from './useFrame';
@@ -35,9 +35,9 @@ const NavBar = ({ children }) => {
   const router = useRouter();
   const formatDate = useFormatDate();
   const prefetch = useNavPrefetch();
-  // The bar's open menu (a key of MENUS or null) and the phone menu (null, or { group } it opened at). A page
-  // change closes both; a query-only change (a page writing its own state to the URL, Wardrobe's companion) does not.
-  const [openMenu, setOpenMenu] = useState(null);
+  // The bar's open menu and the phone menu (null, or { group } it opened at). A page change closes both; a query-only
+  // change (a page writing its own state to the URL, Wardrobe's companion) does not.
+  const { openMenu, setOpenMenu, toggleMenu, restOn, endRest } = useBarMenu();
   const [phoneMenuAt, setPhoneMenuAt] = useState(null);
   useEffect(() => {
     const close = (url) => {
@@ -48,7 +48,6 @@ const NavBar = ({ children }) => {
     router?.events?.on('routeChangeStart', close);
     return () => router?.events?.off('routeChangeStart', close);
   }, [router?.events]);
-  const toggleMenu = (menu) => setOpenMenu((current) => (current === menu ? null : menu));
   // A group row's name: the bar's panel from lg, where the bar has its menus; the phone menu at that group below it.
   const openGroupMenu = (group) => {
     if (window.matchMedia('(min-width: 1200px)').matches) toggleMenu(group.menu);
@@ -98,7 +97,7 @@ const NavBar = ({ children }) => {
           <Typography component="span" variant="sectionTitle" sx={{ display: { xs: 'none', sm: 'inline' } }}>Idleon Toolbox</Typography>
           <Typography component="span" variant="sectionTitle" sx={{ display: { xs: 'inline', sm: 'none' } }}>IT</Typography>
         </Link>
-        <NavItemsList openMenu={openMenu} onMenu={toggleMenu}/>
+        <NavItemsList openMenu={openMenu} onMenu={toggleMenu} onMenuRest={restOn} onMenuRestEnd={endRest}/>
         <QuickSearch/>
         {renderAuthSection()}
       </Toolbar>

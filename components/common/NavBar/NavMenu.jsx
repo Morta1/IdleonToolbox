@@ -21,11 +21,45 @@ export const MENU_BUTTON = 'data-nav-menu-button';
 const TAB_STOPS = 'a[href], button:not([disabled]), input:not([disabled]), select, textarea, [tabindex]:not([tabindex="-1"])';
 const tabStops = (root) => [...(root?.querySelectorAll(TAB_STOPS) ?? [])].filter((node) => node.getClientRects().length);
 
-// The bar item for a menu (Decision 11): a click, a tap or Enter opens its panel; no opening on hover.
-export const NavMenuButton = ({ menu, open, selected, onToggle }) => (
+// While a panel is open, a mouse resting this long on another menu's bar item swaps to it, so a wrong guess costs one
+// move: long enough that crossing the bar swaps nothing.
+const REST_SWAP_MS = 120;
+// A click this soon after a rest swapped a panel in was already on its way to open it, so it doesn't close it.
+const SWAP_CLICK_GRACE_MS = 400;
+
+// The bar's open menu (a key of MENUS or null).
+export const useBarMenu = () => {
+  const [openMenu, setOpenMenu] = useState(null);
+  const restTimer = useRef(null);
+  const swappedAt = useRef(0);
+  useEffect(() => () => clearTimeout(restTimer.current), []);
+  const endRest = () => clearTimeout(restTimer.current);
+  const toggleMenu = (menu) => {
+    endRest();
+    if (menu !== openMenu) setOpenMenu(menu);
+    else if (Date.now() - swappedAt.current >= SWAP_CLICK_GRACE_MS) setOpenMenu(null);
+  };
+  const restOn = (menu) => {
+    endRest();
+    if (!openMenu || menu === openMenu) return;
+    restTimer.current = setTimeout(() => {
+      swappedAt.current = Date.now();
+      setOpenMenu((current) => (current ? menu : current));
+    }, REST_SWAP_MS);
+  };
+  return { openMenu, setOpenMenu, toggleMenu, restOn, endRest };
+};
+
+// The bar item for a menu (Decision 11): a click, a tap or Enter opens its panel; no opening on hover, only the swap
+// above, for a mouse: a tap's compatibility events must not count as a rest.
+export const NavMenuButton = ({ menu, open, selected, onToggle, onRest, onRestEnd }) => (
   <ListItemButton id={buttonId(menu)} {...{ [MENU_BUTTON]: '' }} data-cy={`nav-item-${menu}`}
                   selected={selected} aria-expanded={open} aria-controls={open ? navMenuId(menu) : undefined}
-                  onClick={() => onToggle(menu)} dense size="medium" sx={[{ borderRadius: 2, p: '0 8px' }, open ? { bgcolor: 'action.hover' } : {}]}>
+                  onClick={() => onToggle(menu)} onPointerLeave={onRestEnd}
+                  onPointerEnter={(event) => {
+                    if (event.pointerType === 'mouse') onRest(menu);
+                  }}
+                  dense size="medium" sx={[{ borderRadius: 2, p: '0 8px' }, open ? { bgcolor: 'action.hover' } : {}]}>
     <ListItemText component="span" disableTypography sx={{ fontWeight: 600, fontSize: 16 }}>
       {topNavLabel(menu)}
     </ListItemText>
