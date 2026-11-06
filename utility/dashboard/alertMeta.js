@@ -356,7 +356,7 @@ export const alertMeta = {
     page: { pathname: '/account/misc/general', label: 'General' },
     inline: 'books',
     options: {
-      books: { label: 'Books ready', help: 'Alerts when the library has this many books ready.', unit: 'books' }
+      books: { label: 'Books ready', help: 'Alerts when the library has this many books ready. The Library row in the timers reads the same number, with this alert on or off.', unit: 'books' }
     }
   },
   'account.World 3.construction': {

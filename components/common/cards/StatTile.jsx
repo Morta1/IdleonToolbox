@@ -34,6 +34,7 @@ const LABEL_SX = { display: 'flex', alignItems: 'center', gap: 0.5, fontSize: 12
 // breakdownTitle names the drawer when the breakdown's own name differs from the tile's label; breakdownNoun is what a
 // list breakdown's lines count as ("11 characters", sources by default). failed: the section behind the number failed to
 // parse, so the value reads "-" with no drawer, sub or state (PageSummary's failed by default); its label and info stay.
+// icon: a sprite's path, or a node for a sprite that does something (a dashboard AlertIcon).
 const StatTile = ({
                     label,
                     value,
@@ -64,8 +65,8 @@ const StatTile = ({
   const number = numOrNode(shown, kind);
   const text = status ? <StatusText status={status}>{number}</StatusText> : number;
   const look = iconLook(imgStyle);
-  const sprite = icon ? <GameIcon src={icon} size={24}
-                                  alt={name ? '' : (iconAlt ?? icon.split('/').pop().replace(/\.\w+$/, ''))}/> : null;
+  const sprite = typeof icon === 'string' ? <GameIcon src={icon} size={24}
+                                                      alt={name ? '' : (iconAlt ?? icon.split('/').pop().replace(/\.\w+$/, ''))}/> : icon;
   const iconNode = sprite && look ? <Box component={'span'} sx={{ display: 'inline-flex', ...look }}>{sprite}</Box> : sprite;
   // data-tile-icon lets a container hide the sprite (PageSummary's phone list).
   const tileIcon = iconNode

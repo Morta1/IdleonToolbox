@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 import NextLink from 'next/link';
 import { Box, Button, Collapse, Link, Stack, Typography } from '@mui/material';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
-import { cleanUnderscore, formatNum, getDuration, getNextCompanionClaim, getNextResetAt, splitTime } from '@utility/helpers';
+import { cleanUnderscore, formatDuration, formatNum, getDuration, getNextCompanionClaim, getNextResetAt, splitTime } from '@utility/helpers';
 import { fillVoteText, formatGame } from '@utility/gameNotation';
 import useFormatDate from '@hooks/useFormatDate';
 import useNow from '@hooks/useNow';
@@ -10,7 +10,8 @@ import { getBooksReachedAt, getMiniBossesData, getRandomEvents } from '@parsers/
 import Timer from '../common/Timer';
 import StatusText from '@components/common/StatusText';
 import { isSectionFailed } from '@components/common/styles';
-import Panel from '@components/common/cards/Panel';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
 import { cardSurface } from '@components/common/cards/tokens';
 import InfoButton from '@components/common/InfoButton';
 import AlertIcon, { counted } from './AlertIcon';
@@ -493,17 +494,17 @@ const Etc = ({ characters, account, lastUpdated, trackers, bookAlert }) => {
           lastUpdated={lastUpdated} time={account?.equinox?.timeToFull} icon={'data/Quest78.png'}/> : null}
     </>),
     ...inWorld('World 3', trackers?.Etc?.library?.checked && account?.finishedWorlds?.World2 && Number.isFinite(booksWanted) && <>
-        <TimerRow target="Etc.library"
+        <TimerRow target="Etc.library" key={'library'}
           name={'Library'}
           page={'/account/misc/general'}
           failed={account?.failedSections?.length > 0 || !Number.isFinite(books)}
-          sub={booksShort ? `${formatNum(books, 'whole')} / ${formatNum(booksWanted, 'whole')} books` : undefined}
+          state={booksShort ? `${formatNum(books, 'whole')} / ${formatNum(booksWanted, 'whole')} books` : null}
           message={(when, over) => (over ? `Library: ${counted(Math.max(books, booksWanted), 'book')}` : `${counted(booksWanted, 'book')} in the library: ${when}`)}
           time={booksAt}
           icon={'data/Libz.png'}
           placeholder={counted(Math.max(books, booksWanted), 'book')}
           forcePlaceholder={!booksShort}
-          long={booksShort && !(booksAt - now < YEAR)}
+          long={booksShort && !(booksAt - Math.max(now, wallClock) < YEAR)}
         />
     </>),
     ...inWorld('World 5', !emptyAlerts?.['World 5'] && account?.finishedWorlds?.World4 && <>
@@ -642,19 +643,10 @@ const MINIBOSS_KEYS = {
 // Past a year (or never) a countdown says so instead of counting: the same cut-off for every Clickers timer.
 const longTimer = (time, long) => !isFinite(time) || (!isPast(time) && long);
 
-const TIMER_ICON_SIZE = 32;
-const LIST_ICON_SIZE = 24;
+const ROW_ICON_SIZE = 24;
 
 // A row with nothing to say isn't drawn: no time (its data is missing), and no word or value in its place.
 const hasValue = ({ long, forcePlaceholder, value, time }) => long || forcePlaceholder || value !== undefined || Number.isFinite(time);
-
-// A group of timers under its title. Draws nothing when no timer renders (toArray strips null, false and true), so
-// checked alerts whose data yields nothing never leave a bare title.
-const Section = ({ title, children }) => {
-  const rows = React.Children.toArray(children).filter((child) => child.type !== TimerRow || hasValue(child.props));
-  if (!rows.length) return null;
-  return <Panel title={title}>{rows}</Panel>;
-};
 
 // A world's rows off its fragment, tagged with the world and keyed to stay apart from the other worlds' in one list.
 const inWorld = (world, rows) => (rows ? React.Children.toArray(rows.props.children)
@@ -677,18 +669,18 @@ const readRow = ({ failed, time, value, forcePlaceholder, long, lastUpdated }) =
   return { noTime, deadline, farOff, over };
 };
 
-// The shape a TimerRow draws, from the list that holds it: a Panel row, a Ready now cell, a Coming up row.
-const RowShape = createContext('panel');
+// The shape a TimerRow draws, from the band that holds it: a Ready now cell or a Coming up row.
+const RowShape = createContext('coming');
 
-// A timer: its icon, which opens the alert's quick edit, its name (the alert's, or name), a muted line, and at the right
-// its countdown or its state, a link to the page. The muted line is sub, or state (what qualifies a countdown), or the exact
-// time while it counts. message(when, over): the quick edit's words, with when the row's own state (the exact time, its
+// A timer: its icon, which opens the alert's quick edit, its name (the alert's, or name), a muted sub, or a state (what qualifies a
+// countdown, gone once it reads its word), and its countdown or its word, a link to the page. Counting, it carries its exact
+// time too. message(when, over): the quick edit's words, with when the row's own state (the exact time, its
 // word, or "A long time"), so they never contradict it. placeholderStatus: "ready" for a state to act on, "problem" for one
 // that costs something; past its time a row with no word reads Ready. lastUpdated: only a time the parsers anchor on their
 // own clock (see Timer). failed: read from a failed section's default. value: a row that shows something else than a
 // countdown. world: the label it carries in Coming up. actNow: ready while it still counts, reading its state (a window to
 // visit in). info: a note off a button beside its name. control: a button that moves the row, beside its word or its time.
-// look: a state the sprite shows (AlertIcon's), with its word in sub.
+// look: a state the sprite shows (AlertIcon's), with its word in state.
 const TimerRow = ({
   target, items, name, sub, icon, message, page, query, time, placeholder = 'Ready', placeholderStatus = 'ready', forcePlaceholder,
   state, value: ownValue, lastUpdated, long, failed, world, actNow, info, control, look
@@ -710,17 +702,13 @@ const TimerRow = ({
   const linked = (node) => (href && !noTime ? <Link component={NextLink} href={href} color={'inherit'} variant={'body2'} sx={{ fontWeight: 'inherit' }}>{node}</Link> : node);
   const sprite = <AlertIcon configType={'timers'} target={target} extra={items ? { items } : undefined} message={words}
                             label={typeof words === 'string' ? undefined : title} icon={icon} look={look}
-                            size={shape === 'panel' ? TIMER_ICON_SIZE : LIST_ICON_SIZE}/>;
+                            size={ROW_ICON_SIZE}/>;
   const note = info ? <InfoButton label={title}><Stack gap={1}>{info}</Stack></InfoButton> : null;
   if (shape === 'ready') {
     return <ReadyCell icon={sprite} name={title} note={note} sub={sub} value={linked(actNow && !over ? state : word)} control={control}/>;
   }
-  if (shape === 'coming') {
-    return <ComingRow icon={sprite} name={title} note={note} sub={noTime ? null : state ?? sub} world={world}
-                      date={noTime || farOff || over ? null : when} value={linked(shown)} control={control}/>;
-  }
-  const line = noTime ? null : state ?? sub ?? (farOff || over ? null : when);
-  return <Panel.Row name={title} sub={line} icon={sprite} value={linked(shown)}/>;
+  return <ComingRow icon={sprite} name={title} note={note} sub={noTime ? null : state ?? sub} world={world}
+                    date={noTime || farOff || over ? null : when} value={linked(shown)} control={control}/>;
 };
 
 // The board's width sets its columns, not the window's: a side ad leaves it 540 px at 900. Ready now's first column and a
@@ -849,6 +837,7 @@ const TimerBoard = ({ rows, children }) => {
   // A cap that hides one row costs more than the row: its button takes the room of the row it hides
   const capped = ready.length > READY_CAP + 1;
   return <Stack gap={1.5} sx={{ containerType: 'inline-size' }}>
+    {children}
     {rows.length ? <Box component={'section'} aria-label={'Timers'} sx={[(theme) => cardSurface(theme), BOARD_SX]}>
       {ready.length ? <Band label={'Ready now'} note={`${formatNum(ready.length, 'whole')} to act on`}>
         <Box sx={[READY_GRID_SX, capped && !readyOpen && READY_CAPPED_SX]}>
@@ -877,43 +866,59 @@ const TimerBoard = ({ rows, children }) => {
         {unread.length ? <Band label={'No reading'}>{unread}</Band> : null}
       </RowShape>
     </Box> : null}
-    <Box sx={{ display: 'grid', gap: 1.5, alignItems: 'start', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>{children}</Box>
   </Stack>;
 };
 
-// The account's own resets come round on a fixed schedule, so they hold a fixed place instead of reordering a list. Absolute
-// times off the save time, like the Bosses card, so they skip Timer's lastUpdated shift. Rolled on the clock by the second,
-// so a reset goes straight to the next one: an old save's lastUpdated would leave them in the past, and so would a tab left open.
+// The account's own resets come round on a fixed schedule, so they hold a fixed place above the table. Absolute times off the
+// save time, rolled on the clock by the second, so a reset goes straight to the next one and its tile never reads Ready: an old
+// save's lastUpdated would leave them in the past, and so would a tab left open. A phone's three share a row, as the summary's
+// list does its two, with the date free to wrap at its space.
+const RESET_STRIP_SX = { mb: 0, columnGap: { xs: 1 } };
 const Resets = ({ account, trackers, lastUpdated }) => {
   const clock = Math.max(lastUpdated ?? 0, useNow(SECOND));
+  const formatDate = useFormatDate();
   // Server-wide weekly boundary (weekly bosses, jewel spinner / chip repo, exotic market). Those all
   // roll on floor(GlobalTime / 604800), which is unrelated to the account's own weekly reset: the same
   // moment for every save, so it reads the clock, not how old this save is.
   const serverWeeklyReset = (Math.floor(clock / SERVER_WEEK) + 1) * SERVER_WEEK;
-  return <Section title={'Resets'}>
-    {trackers?.General?.daily?.checked && <TimerRow target="General.daily"
-      time={getNextResetAt(account, clock, { fallbackSavedAt: lastUpdated })}
-      icon={'etc/Daily.png'}
-    />}
-    {trackers?.General?.weekly?.checked && <TimerRow target="General.weekly"
-      time={getNextResetAt(account, clock, { fallbackSavedAt: lastUpdated, days: account?.accountOptions?.[OPT.daysUntilWeeklyReset], period: WEEK })}
-      icon={'etc/Weekly.png'}
-    />}
-    {trackers?.General?.serverWeekly?.checked && account?.timeAway ? <TimerRow target="General.serverWeekly"
-      message={(when) => <Stack gap={0.5}>
-        <Typography variant="body2">Server weekly reset: {when}</Typography>
-        <Typography variant="body2">Weekly bosses, jewel spinner, chip repo, exotic market</Typography>
-      </Stack>}
-      time={serverWeeklyReset}
-      icon={'etc/Server.png'}
-    /> : null}
-  </Section>;
+  const tiles = [
+    trackers?.General?.daily?.checked && {
+      target: 'General.daily', label: 'Daily', icon: 'etc/Daily.png',
+      time: getNextResetAt(account, clock, { fallbackSavedAt: lastUpdated })
+    },
+    trackers?.General?.weekly?.checked && {
+      target: 'General.weekly', label: 'Weekly', icon: 'etc/Weekly.png',
+      time: getNextResetAt(account, clock, { fallbackSavedAt: lastUpdated, days: account?.accountOptions?.[OPT.daysUntilWeeklyReset], period: WEEK })
+    },
+    trackers?.General?.serverWeekly?.checked && account?.timeAway && {
+      target: 'General.serverWeekly', label: 'Server weekly', icon: 'etc/Server.png', time: serverWeeklyReset,
+      resets: 'Weekly bosses, jewel spinner, chip repo, exotic market'
+    }
+  ].filter(Boolean);
+  if (!tiles.length) return null;
+  return <PageSummary label={'Resets'} sx={[RESET_STRIP_SX, { gridTemplateColumns: { xs: `repeat(${tiles.length}, minmax(0, 1fr))` } }]}>
+    {tiles.map(({ target, label, icon, time, resets }) => {
+      const noTime = time == null;
+      const title = alertMeta[`timers.${target}`]?.label;
+      const date = noTime ? undefined : formatDate(time, { showSeconds: false });
+      const words = noTime ? undefined : resets
+        ? <Stack gap={0.5}>
+          <Typography variant={'body2'}>{title}: {date}</Typography>
+          <Typography variant={'body2'}>{resets}</Typography>
+        </Stack>
+        : `${title}: ${date}`;
+      return <StatTile key={target} label={label} failed={noTime} sub={date}
+                       value={formatDuration(Math.ceil((time - clock) / SECOND))}
+                       icon={<AlertIcon configType={'timers'} target={target} message={words} icon={icon} size={24}
+                                        label={typeof words === 'string' ? undefined : title}/>}/>;
+    })}
+  </PageSummary>;
 };
 
 // A boss that respawns, as a row's props: up it waits in Ready now with its Killed button, killed it counts down in Coming up
 // with its undo. The sprite dims with the word beside it.
 const bossProps = ({ name, up, onKill, onUndo, waitDate }) => ({
-  sub: up ? undefined : 'Killed',
+  state: up ? null : 'Killed',
   look: up ? undefined : { opacity: 0.45 },
   time: waitDate,
   placeholder: 'Up',

@@ -9,9 +9,9 @@ import { CARD_RADIUS } from './tokens';
 // every width. The tiles keep their breakdowns and notes; label is the region's name for a screen reader. failed: the
 // section these numbers read failed to parse, so its tiles print no number; a tile fed by another section passes
 // failed={false}. A page whose tabs' own tiles read that section too wraps itself in SummaryFailed. data-stat-tile is
-// StatTile's mark.
+// StatTile's mark. sx: where a page's tiles sit otherwise.
 export const SummaryFailed = createContext(false);
-const PageSummary = ({ label = 'Summary', failed = false, children }) => <SummaryFailed value={failed}><Box component={'section'} aria-label={label} data-page-summary sx={{
+const PageSummary = ({ label = 'Summary', failed = false, sx, children }) => <SummaryFailed value={failed}><Box component={'section'} aria-label={label} data-page-summary sx={[{
   display: { xs: 'grid', sm: 'flex' },
   gridTemplateColumns: '1fr 1fr',
   flexWrap: 'wrap',
@@ -31,7 +31,7 @@ const PageSummary = ({ label = 'Summary', failed = false, children }) => <Summar
     borderRadius: { xs: 0, sm: `${CARD_RADIUS}px` }
   },
   '& [data-tile-icon]': { display: { xs: 'none', sm: 'inline-flex' } }
-}}>
+}, ...(Array.isArray(sx) ? sx : [sx])]}>
   {children}
 </Box></SummaryFailed>;
 
