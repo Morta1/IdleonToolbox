@@ -70,12 +70,14 @@ const Folded = ({ quickEdit, onAction, disabled }) => quickEdit.folded.map((fold
 </Box>);
 
 const Body = ({ quickEdit, onAction }) => {
-  const { kind, tracker, option, parent, items, worlds, trackerSwitch } = quickEdit;
+  const { kind, tracker, option, parent, items, worlds, trackerSwitch, linkedNumber } = quickEdit;
   if (kind === 'tracker') {
     return <>
       <TrackerToggle tracker={tracker} onAction={onAction}/>
       {option?.type === 'input' ? <OptionNumberField option={option} tracker={tracker} onAction={onAction} label={option.label}/> : null}
       <Help text={option?.help} clamp={false}/>
+      {linkedNumber ? <OptionNumberField option={linkedNumber.option} tracker={linkedNumber.tracker} onAction={onAction} label={linkedNumber.option.label}/> : null}
+      <Help text={linkedNumber?.help} clamp={false}/>
     </>;
   }
   const { disabledReason } = optionExtras(tracker, option);

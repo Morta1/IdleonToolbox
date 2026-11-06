@@ -7,13 +7,14 @@ import { cleanUnderscore, formatNum, getDuration, getNextCompanionClaim, getNext
 import { fillVoteText, formatGame } from '@utility/gameNotation';
 import useFormatDate from '@hooks/useFormatDate';
 import useNow from '@hooks/useNow';
-import { getMiniBossesData, getRandomEvents } from '@parsers/misc';
+import { getBooksReachedAt, getMiniBossesData, getRandomEvents } from '@parsers/misc';
 import Timer from '../common/Timer';
 import StatusText from '@components/common/StatusText';
 import { isSectionFailed } from '@components/common/styles';
 import Panel from '@components/common/cards/Panel';
 import { cardSurface } from '@components/common/cards/tokens';
-import AlertIcon from './AlertIcon';
+import InfoButton from '@components/common/InfoButton';
+import AlertIcon, { counted } from './AlertIcon';
 import { alertMeta } from '@utility/dashboard/alertMeta';
 import { calcHappyHours } from '@parsers/dungeons';
 import { getBuildCost, getGildedBoostioBonus, getTotalGildedSlots } from '@parsers/world-3/construction';
@@ -21,7 +22,8 @@ import { getChargeWithSyphon, getClosestWorshiper } from '@parsers/world-3/worsh
 import { isPast, isValid } from 'date-fns';
 import RandomEvent from '@components/account/Misc/RandomEvent';
 import Trade from '@components/account/Worlds/World5/Sailing/Trade';
-import BossRespawns from './BossRespawns';
+import { BabaNote, DefecausNote, KilledButton, UndoKill } from './BossRespawns';
+import useBossRespawns from '@hooks/useBossRespawns';
 import { useRouter } from 'next/router';
 import { calcCost, calcTimeToRankUp, getRefineryCycles } from '@parsers/world-3/refinery';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
@@ -37,6 +39,8 @@ const SECOND = 1000;
 const MINUTE = 60 * 1000;
 const DAY = 864e5;
 const WEEK = 7 * DAY;
+const YEAR = 365 * DAY;
+const DEATH_NOTE = '/account/world-3/death-note';
 const SERVER_WEEK = 604800 * 1000;
 const VILLAGER_TABS = ['Explore', 'Engineer', 'Bonuses', 'Measure', 'Study'];
 // Keys align with villager index (0-4) and match the `villagers` timer array option in baseTrackers.
@@ -47,7 +51,8 @@ const BUILDING_SECTIONS = ['towers', 'construction', 'hole', 'lab', 'atoms', 'mi
 const SALT_SECTIONS = ['refinery', 'alchemy', 'arcade', 'atoms', 'breeding', 'compass', 'gaming', 'lab', 'legendTalents', 'research', 'rift', 'saltLick',
   'sneaking', 'spelunking', 'stamps', 'sushiStation', 'towers'];
 const MONUMENT_SECTIONS = ['hole', 'gaming', 'legendTalents'];
-const Etc = ({ characters, account, lastUpdated, trackers }) => {
+// bookAlert: the Talent library alert's tracker, whose number the Library row reads, the alert on or off.
+const Etc = ({ characters, account, lastUpdated, trackers, bookAlert }) => {
   const failed = (section) => isSectionFailed(account, section);
   const failedAny = (sections) => sections.some(failed);
   // Anchor timer math to `lastUpdated` (the data-fetch timestamp) rather than `new Date().getTime()`.
@@ -91,9 +96,24 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const bossSelection = bossOption?.checked ? bossOption?.props?.value : null;
   const showBoss = (key) => bossSelection?.[key] ?? true;
   const minibosses = getMiniBossesData(account).filter(({ rawName }) => showBoss(MINIBOSS_KEYS[rawName]));
-  const showDefecaus = showBoss('drDefecaus');
-  const showBaba = showBoss('babaYaga');
+  const {
+    tracked,
+    nextReset,
+    defecausStatus,
+    babaUp,
+    babaRespawnAt,
+    babaKilledAt,
+    killDefecaus,
+    undoDefecaus,
+    killBaba,
+    undoBaba
+  } = useBossRespawns({ account, characters, lastUpdated });
+  const defecausUp = defecausStatus === 'up';
   const dailyReset = getNextResetAt(account, Math.max(now, wallClock));
+  const books = account?.libraryTimes?.bookCount;
+  const booksWanted = Number(bookAlert?.options?.find(({ name }) => name === 'books')?.props?.value);
+  const booksShort = books < booksWanted;
+  const booksAt = booksShort ? getBooksReachedAt(account, booksWanted) : null;
   const crystalIsland = getIsland(account, 'Crystal');
   const crystalDays = crystalIsland?.unclaimedDays ?? 0;
   // Each daily reset adds a day. The day before the cap spawns the most mobs, so that day is the visit window.
@@ -338,6 +358,30 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             icon={`data/${account?.sailing?.trades?.[0]?.rawName}.png`}
           /> : null}
     </>),
+    ...inWorld('Bosses', trackers?.Etc?.minibosses?.checked && <>
+        {showBoss('drDefecaus') ? <TimerRow target="Etc.minibosses" items={[{ key: 'drDefecaus', label: 'Dr Defecaus' }]}
+          name={'Dr Defecaus'}
+          page={DEATH_NOTE}
+          icon={'monsters/poopBig/static.png'}
+          info={<DefecausNote tracked={tracked}/>}
+          {...bossProps({ name: 'Dr Defecaus', up: defecausUp, onKill: killDefecaus, onUndo: undoDefecaus, waitDate: nextReset })}
+        /> : null}
+        {showBoss('babaYaga') ? <TimerRow target="Etc.minibosses" items={[{ key: 'babaYaga', label: 'Baba Yaga' }]}
+          name={'Baba Yaga'}
+          page={DEATH_NOTE}
+          icon={'monsters/babayaga/static.png'}
+          info={<BabaNote tracked={tracked} up={babaUp} killedAt={babaKilledAt}/>}
+          {...bossProps({ name: 'Baba Yaga', up: babaUp, onKill: killBaba, onUndo: undoBaba, waitDate: babaRespawnAt })}
+        /> : null}
+        {minibosses?.map((miniboss) => <TimerRow target="Etc.minibosses"
+          key={`miniboss-timer-${miniboss.rawName}`}
+          items={[{ key: MINIBOSS_KEYS[miniboss.rawName], label: cleanUnderscore(miniboss.name) }]}
+          name={cleanUnderscore(miniboss.name)}
+          page={DEATH_NOTE}
+          icon={`etc/${miniboss.rawName}.png`}
+          {...minibossProps(miniboss, dailyReset)}
+        />)}
+    </>),
     ...inWorld('Clickers', !emptyAlerts?.Clickers && <>
         {trackers?.Clickers?.featherRestart?.checked && account?.accountOptions?.[OPT.owlFeathers] > 0 ? <TimerRow target="Clickers.featherRestart"
           page={'/account/clickers/owl'}
@@ -448,6 +492,19 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
           failed={failed('equinox')}
           message={(when, over) => (over ? 'The Equinox bar is full' : `Equinox bar full: ${when}`)}
           lastUpdated={lastUpdated} time={account?.equinox?.timeToFull} icon={'data/Quest78.png'}/> : null}
+    </>),
+    ...inWorld('World 3', trackers?.Etc?.library?.checked && account?.finishedWorlds?.World2 && Number.isFinite(booksWanted) && <>
+        <TimerRow target="Etc.library"
+          name={'Library'}
+          failed={account?.failedSections?.length > 0 || !Number.isFinite(books)}
+          sub={booksShort ? `${formatNum(books, 'whole')} / ${formatNum(booksWanted, 'whole')} books` : undefined}
+          message={(when, over) => (over ? `Library: ${counted(Math.max(books, booksWanted), 'book')}` : `${counted(booksWanted, 'book')} in the library: ${when}`)}
+          time={booksAt}
+          icon={'data/Libz.png'}
+          placeholder={counted(Math.max(books, booksWanted), 'book')}
+          forcePlaceholder={!booksShort}
+          long={booksShort && !(booksAt - now < YEAR)}
+        />
     </>),
     ...inWorld('World 5', !emptyAlerts?.['World 5'] && account?.finishedWorlds?.World4 && <>
         {trackers?.['World 5']?.bravery?.checked && account?.finishedWorlds?.World4 ?
@@ -572,12 +629,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
 
   return <TimerBoard rows={rows}>
     <Resets account={account} trackers={trackers} lastUpdated={lastUpdated}/>
-    {trackers?.Etc?.minibosses?.checked && <Section title={'Bosses'}>
-      {showDefecaus || showBaba
-        ? <BossRespawns account={account} characters={characters} lastUpdated={lastUpdated} showDefecaus={showDefecaus} showBaba={showBaba}/>
-        : null}
-      {minibosses?.map((miniboss) => <MinibossRow key={`miniboss-timer-${miniboss.rawName}`} {...miniboss}/>)}
-    </Section>}
     {trackers?.Etc?.library?.checked && account?.finishedWorlds?.World2
       ? <Library libraryTimes={account?.libraryTimes} failed={account?.failedSections?.length > 0}/> : null}
   </TimerBoard>;
@@ -638,10 +689,11 @@ const RowShape = createContext('panel');
 // that costs something; past its time a row with no word reads Ready. lastUpdated: only a time the parsers anchor on their
 // own clock (see Timer). failed: read from a failed section's default. value: a row that shows something else than a
 // countdown. world: the label it carries in Coming up. actNow: ready while it still counts, reading its state (a window to
-// visit in).
+// visit in). info: a note off a button beside its name. control: a button that moves the row, beside its word or its time.
+// look: a state the sprite shows (AlertIcon's), with its word in sub.
 const TimerRow = ({
   target, items, name, sub, icon, message, page, query, time, placeholder = 'Ready', placeholderStatus = 'ready', forcePlaceholder,
-  state, value: ownValue, lastUpdated, long, failed, world, actNow
+  state, value: ownValue, lastUpdated, long, failed, world, actNow, info, control, look
 }) => {
   const shape = useContext(RowShape);
   const router = useRouter();
@@ -659,12 +711,15 @@ const TimerRow = ({
   const href = page ? { pathname: page, query: { ...sessionQuery(router.query), ...query } } : null;
   const linked = (node) => (href && !noTime ? <Link component={NextLink} href={href} color={'inherit'} variant={'body2'} sx={{ fontWeight: 'inherit' }}>{node}</Link> : node);
   const sprite = <AlertIcon configType={'timers'} target={target} extra={items ? { items } : undefined} message={words}
-                            label={typeof words === 'string' ? undefined : title} icon={icon}
+                            label={typeof words === 'string' ? undefined : title} icon={icon} look={look}
                             size={shape === 'panel' ? TIMER_ICON_SIZE : LIST_ICON_SIZE}/>;
-  if (shape === 'ready') return <ReadyCell icon={sprite} name={title} sub={sub} value={linked(actNow && !over ? state : word)}/>;
+  const note = info ? <InfoButton label={title}><Stack gap={1}>{info}</Stack></InfoButton> : null;
+  if (shape === 'ready') {
+    return <ReadyCell icon={sprite} name={title} note={note} sub={sub} value={linked(actNow && !over ? state : word)} control={control}/>;
+  }
   if (shape === 'coming') {
-    return <ComingRow icon={sprite} name={title} sub={noTime ? null : state ?? sub} world={world}
-                      date={noTime || farOff || over ? null : when} value={linked(shown)}/>;
+    return <ComingRow icon={sprite} name={title} note={note} sub={noTime ? null : state ?? sub} world={world}
+                      date={noTime || farOff || over ? null : when} value={linked(shown)} control={control}/>;
   }
   const line = noTime ? null : state ?? sub ?? (farOff || over ? null : when);
   return <Panel.Row name={title} sub={line} icon={sprite} value={linked(shown)}/>;
@@ -687,12 +742,16 @@ const READY_CAPPED_SX = { [ONE_ACROSS]: { [`& > :nth-of-type(n+${READY_CAP + 1})
 const LEAD_CELL_SX = { minHeight: 39, pl: 1.5, pr: '14px', minWidth: 0 };
 const READY_CELL_SX = { ...LEAD_CELL_SX, bgcolor: 'background.paper', [ONE_ACROSS]: { minHeight: 43 } };
 const READY_SUB_SX = { fontSize: 13, minWidth: 0, fontVariantNumeric: 'tabular-nums' };
+const RowName = ({ name, note, sx }) => <Stack direction={'row'} alignItems={'center'} gap={0.5} sx={[{ minWidth: 0 }, sx]}>
+  <Typography variant={'body2'} component={'div'} noWrap sx={{ fontWeight: 500, minWidth: 0 }}>{name}</Typography>
+  {note}
+</Stack>;
 // A row with a sub gives its room from there: any shrink at all puts an ellipsis on the name
-const ReadyCell = ({ icon, name, sub, value }) => <Stack direction={'row'} alignItems={'center'} gap={'10px'} sx={READY_CELL_SX}>
+const ReadyCell = ({ icon, name, note, sub, value, control }) => <Stack direction={'row'} alignItems={'center'} gap={'10px'} sx={READY_CELL_SX}>
   {icon}
-  <Typography variant={'body2'} component={'div'} noWrap sx={{ fontWeight: 500, minWidth: 0, flexShrink: sub ? 0 : 1 }}>{name}</Typography>
+  <RowName name={name} note={note} sx={{ flexShrink: sub ? 0 : 1 }}/>
   {sub ? <Typography variant={'body2'} component={'div'} color={'text.secondary'} noWrap sx={READY_SUB_SX}>{sub}</Typography> : null}
-  <Box sx={{ flexShrink: 0, display: 'inline-flex', ml: 'auto' }}>{value}</Box>
+  <Stack direction={'row'} alignItems={'center'} gap={1} sx={{ flexShrink: 0, ml: 'auto' }}>{value}{control}</Stack>
 </Stack>;
 
 // Blank cells close the block's last row, so its lines run to the board's edge: as many as each column count leaves open.
@@ -714,7 +773,7 @@ const COMING_LEAD_SX = { ...LEAD_CELL_SX, [ONE_ACROSS]: { minHeight: 51 } };
 const COMING_LINE_SX = { fontSize: 13, lineHeight: '18px', [TWO_ACROSS]: { display: 'none' } };
 // Each part whole: a line with a sub and a date wraps between them, and never cuts the date
 const COMING_PART_SX = { whiteSpace: 'nowrap' };
-const COMING_TIME_SX = { typography: 'body2', fontWeight: 500, ml: 'auto', flexShrink: 0, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' };
+const COMING_TIME_SX = { typography: 'body2', fontWeight: 500, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' };
 const WIDE_ONLY_SX = { display: 'none', [TWO_ACROSS]: { display: 'block' } };
 const COMING_SUB_SX = { ...WIDE_ONLY_SX, ...READY_SUB_SX, color: 'text.secondary', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' };
 const COMING_WORLD_SX = { ...WIDE_ONLY_SX, fontSize: 12, lineHeight: '16px', color: 'text.muted', whiteSpace: 'nowrap' };
@@ -722,18 +781,21 @@ const COMING_DATE_SX = {
   ...WIDE_ONLY_SX, fontSize: 13, lineHeight: '18px', color: 'text.secondary', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums',
   textAlign: 'right', pr: '14px'
 };
-const ComingRow = ({ icon, name, sub, world, date, value }) => <Box sx={COMING_ROW_SX}>
+const ComingRow = ({ icon, name, note, sub, world, date, value, control }) => <Box sx={COMING_ROW_SX}>
   <Stack direction={'row'} alignItems={'center'} gap={'10px'} sx={COMING_LEAD_SX}>
     {icon}
     <Box sx={{ minWidth: 0 }}>
-      <Typography variant={'body2'} component={'div'} noWrap sx={{ fontWeight: 500 }}>{name}</Typography>
+      <RowName name={name} note={note}/>
       <Typography variant={'body2'} component={'div'} color={'text.secondary'} sx={COMING_LINE_SX}>
         {sub ? <><Box component={'span'} sx={COMING_PART_SX}>{sub}</Box>{' · '}</> : null}
         <Box component={'span'} sx={COMING_PART_SX}>{world}</Box>
         {date ? <>{' · '}<Box component={'span'} sx={COMING_PART_SX}>{date}</Box></> : null}
       </Typography>
     </Box>
-    <Box sx={COMING_TIME_SX}>{value}</Box>
+    <Stack direction={'row'} alignItems={'center'} gap={0.5} sx={{ flexShrink: 0, ml: 'auto' }}>
+      {control}
+      <Box sx={COMING_TIME_SX}>{value}</Box>
+    </Stack>
   </Stack>
   <Box sx={COMING_SUB_SX}>{sub}</Box>
   <Box sx={COMING_WORLD_SX}>{world}</Box>
@@ -752,12 +814,13 @@ const Band = ({ label, note, children }) => <Box>
   <Box sx={BAND_ROWS_SX}>{children}</Box>
 </Box>;
 
-// Where a row sits right now. A monument's ratio, or anything else with no time left to count, waits at the end of Later.
+// Where a row sits right now. A monument's ratio, or anything else with no time left to count, waits at the end of Later. A
+// row that prints a value never reads Ready: a miniboss's +1 keeps its place until the next reset moves it on.
 const placeOf = ({ props }, clock) => {
   const { noTime, deadline, farOff, over } = readRow(props);
   if (noTime) return 'unread';
-  if (over || props.actNow) return 'ready';
-  if (farOff || props.value !== undefined || !(deadline - clock < WEEK)) return 'later';
+  if ((over && props.value === undefined) || props.actNow) return 'ready';
+  if (farOff || !(deadline - clock < WEEK)) return 'later';
   return deadline - clock < DAY ? 'next' : 'week';
 };
 const soonestKey = ({ props }) => {
@@ -849,22 +912,26 @@ const Resets = ({ account, trackers, lastUpdated }) => {
   </Section>;
 };
 
-// A miniboss: its icon opens the alert's quick edit, its name links to the Death Note, and it reads how many wait.
-const MinibossRow = ({ rawName, name, current, daysTillNext, maxed }) => {
-  const router = useRouter();
-  return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={{ px: 2, py: 1.25 }}>
-    <AlertIcon configType={'timers'} target="Etc.minibosses" extra={{ items: [{ key: MINIBOSS_KEYS[rawName] }] }}
-               icon={`etc/${rawName}.png`} size={TIMER_ICON_SIZE}/>
-    <Stack sx={{ minWidth: 0 }}>
-      <Link component={NextLink} href={{ pathname: '/account/world-3/death-note', query: sessionQuery(router.query) }}
-            color={'inherit'} variant={'body2'} sx={{ fontWeight: 500 }}>{cleanUnderscore(name)}</Link>
-      {maxed
-        ? <StatusText status={'ready'}>{`Maxed (${formatNum(current)})`}</StatusText>
-        : <Typography variant={'body2'} color={'text.secondary'}>
-          {`Current ${formatNum(current)} · +1 in ${formatNum(daysTillNext)} day${daysTillNext === 1 ? '' : 's'}`}
-        </Typography>}
-    </Stack>
-  </Stack>;
+// A boss that respawns, as a row's props: up it waits in Ready now with its Killed button, killed it counts down in Coming up
+// with its undo. The sprite dims with the word beside it.
+const bossProps = ({ name, up, onKill, onUndo, waitDate }) => ({
+  sub: up ? undefined : 'Killed',
+  look: up ? undefined : { opacity: 0.45 },
+  time: waitDate,
+  placeholder: 'Up',
+  forcePlaceholder: up,
+  control: up ? <KilledButton onClick={onKill}/> : <UndoKill onClick={onUndo}/>,
+  message: (when, over) => (over ? `${name} is up` : `${name} is back: ${when}`)
+});
+
+// A miniboss, as a row's props: maxed it waits in Ready now. Below that its next one comes on a daily reset, so that reset is
+// its place in the list, and it prints the days as the save has them.
+const minibossProps = ({ current, daysTillNext, maxed }, dailyReset) => {
+  const count = `Current ${formatNum(current)}`;
+  const next = `+1 in ${formatNum(daysTillNext)} day${daysTillNext === 1 ? '' : 's'}`;
+  return maxed
+    ? { placeholder: `Maxed (${formatNum(current)})`, forcePlaceholder: true }
+    : { sub: count, value: next, time: dailyReset == null ? undefined : dailyReset + (daysTillNext - 1) * DAY, message: () => `${count}, ${next}` };
 };
 
 // A monument's reward multi against its max linear growth, as a row's props. Past that max it's time to fight. Below it the

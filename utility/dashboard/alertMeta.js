@@ -96,7 +96,7 @@ export const alertMeta = {
       },
       bossRespawns: {
         label: 'Dr Defecaus or Baba Yaga up',
-        help: 'Alerts while the Bosses timer shows Dr Defecaus or Baba Yaga as up. Each boss can be turned off on its own.',
+        help: 'Alerts while the timers show Dr Defecaus or Baba Yaga as up. Each boss can be turned off on its own.',
         group: 'Daily',
         page: { pathname: '/account/world-3/death-note', label: 'Death note' },
         itemIcons: { drDefecaus: 'monsters/poopBig/static', babaYaga: 'monsters/babayaga/static' }
@@ -1249,7 +1249,14 @@ export const alertMeta = {
   'timers.General.sailingTrades': { label: 'Next sailing trade', icon: 'etc/Blob_Trade', page: { pathname: '/account/world-5/sailing', query: { t: 'Trades' }, label: 'Sailing trades' }, options: {} },
 
   // Timers: Other
-  'timers.Etc.library': { label: 'Library books', icon: 'data/Libz', options: {} },
+  'timers.Etc.library': {
+    label: 'Library books',
+    icon: 'data/Libz',
+    unit: 'Ready at the number set in World 3, Talent library',
+    // The row reads the alert's number, so its quick edit holds that number too.
+    numberFrom: { tracker: 'account.World 3.library', option: 'books', help: 'The Library row is ready at this number. The Talent library alert uses the same one, on or off.' },
+    options: {}
+  },
   'timers.Etc.minibosses': {
     label: 'Boss and miniboss respawns',
     icon: 'monsters/poopBig/static',
@@ -1257,7 +1264,7 @@ export const alertMeta = {
     options: {
       bosses: {
         label: 'Bosses to show',
-        help: 'Only the ticked bosses appear in the Bosses timer.',
+        help: 'Only the ticked bosses appear in the timers.',
         itemIcons: {
           drDefecaus: 'monsters/poopBig/static',
           babaYaga: 'monsters/babayaga/static',

@@ -225,7 +225,7 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
       }
     }
     if (options?.etc?.bossRespawns?.checked) {
-      // Up/killed state comes from the Bosses card tracker (useBossRespawns), not the save.
+      // Up/killed state comes from the timers' tracker (useBossRespawns), not the save.
       const enabledBosses = options?.etc?.bossRespawns?.props?.value || {};
       const upBosses = Object.keys(BOSS_RESPAWN_ALERTS).filter((boss) => bossesUp?.[boss] && enabledBosses?.[boss] !== false);
       if (upBosses.length > 0) {

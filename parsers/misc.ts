@@ -335,7 +335,7 @@ export const getBookLvRange = (account: any) => {
 }
 
 export const getLibraryBookTimes = (idleonData: any, characters: any, account: any) => {
-  const { bookCount, libTime, breakdown } = calcBookCount(account, characters, idleonData);
+  const { bookCount, libTime, breakdown, baseFactor } = calcBookCount(account, characters, idleonData);
   let breakpoints = [16, 18, 20].map((maxCount) => {
     return {
       breakpoint: maxCount,
@@ -352,8 +352,23 @@ export const getLibraryBookTimes = (idleonData: any, characters: any, account: a
     bookCount,
     next: getTimeToNextBooks(bookCount, account, characters, idleonData)?.value - libTime,
     breakdown,
-    breakpoints
+    breakpoints,
+    baseFactor
   }
+}
+
+const MAX_BOOKS_AHEAD = 10000;
+
+// When the library reaches a book count, on the clock: from the save's own time, less what it had built toward its books then,
+// every book's wait at today's speed. The sum calcTimeToXBooks does from the parse's moment, so it holds however old the save is.
+export const getBooksReachedAt = (account: any, target: number) => {
+  const start = account?.accountOptions?.[OPT.libraryBooks] ?? 0;
+  if (!(target - start <= MAX_BOOKS_AHEAD)) return Infinity;
+  let seconds = -(account?.timeAway?.BookLib ?? 0);
+  for (let count = start; count < target; count++) {
+    seconds += bookWait(account?.libraryTimes?.baseFactor, count);
+  }
+  return ((account?.timeAway?.GlobalTime ?? 0) + seconds) * 1000;
 }
 
 const calcBookCount = (account: any, characters: any, idleonData: any) => {
@@ -369,8 +384,8 @@ const calcBookCount = (account: any, characters: any, idleonData: any) => {
     bookCount += 1;
   }
   // At the books the wait has added: each one makes the next slower
-  const { breakdown } = getTimeToNextBooks(bookCount, account, characters, idleonData);
-  return { bookCount, libTime, breakdown };
+  const { breakdown, baseFactor } = getTimeToNextBooks(bookCount, account, characters, idleonData);
+  return { bookCount, libTime, breakdown, baseFactor };
 }
 
 const calcTimeToXBooks = (bookCount: any, maxCount: any, account: any, characters: any, idleonData: any) => {
@@ -382,6 +397,8 @@ const calcTimeToXBooks = (bookCount: any, maxCount: any, account: any, character
 }
 
 const LIBRARY_BASE_CHECKOUT_HOURS = 4;
+// One book's wait in seconds: the base time over the speed, longer with each book already out.
+const bookWait = (baseFactor: any, bookCount: any) => Math.round(baseFactor * (1 + 10 * Math.pow(bookCount, 1.4) / 100));
 
 //  "BookReqTime"
 // game: "BookReqTime"
@@ -409,8 +426,7 @@ export const getTimeToNextBooks = (bookCount: any, account: any, characters: any
           + superbitBonus))) / 100);
   const baseFactor = LIBRARY_BASE_CHECKOUT_HOURS * (3600 / bonusMultiplier);
   const bookCountFactor = 1 + 10 * Math.pow(bookCount, 1.4) / 100;
-  const unrounded = baseFactor * bookCountFactor;
-  const math = Math.round(unrounded)
+  const math = bookWait(baseFactor, bookCount);
 
   // The base time over the speed, times the book count factor, rounded
   const breakdown = createBreakdown('Library Checkout Time', math, [

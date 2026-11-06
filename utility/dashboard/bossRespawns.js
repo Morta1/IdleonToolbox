@@ -1,4 +1,4 @@
-// Dr Defecaus and Baba Yaga respawn tracking for the dashboard Bosses card.
+// Dr Defecaus and Baba Yaga respawn tracking for the dashboard timers.
 // The game keeps both respawn timers in MonsterRespawnTime, a per-device array that never
 // reaches the cloud save, so Toolbox can only infer them:
 // - Defecaus: the daily reset loop re-arms his slot (MonsterRespawnTime[149] = 2), so he is up
