@@ -316,7 +316,7 @@ const Etc = ({ characters, account, lastUpdated, trackers, bookAlert }) => {
           state={crystalInWindow ? <StatusText status={'ready'}>Visit</StatusText> : null}
           actNow={crystalInWindow}
         /> : null}
-        {trackers?.General?.syphonCharge?.checked && account?.finishedWorlds?.World2 ? <TimerRow target="General.syphonCharge"
+        {trackers?.General?.syphonCharge?.checked && account?.finishedWorlds?.World2 && bestWizard ? <TimerRow target="General.syphonCharge"
           page={'/account/world-3/worship'}
           message={(when) => `Charge Syphon overflows at ${formatNum(bestWizard?.worship?.maxCharge + bestChargeSyphon, 'whole')} charge: ${when}`}
           time={timeToOverCharge}
