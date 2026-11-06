@@ -1,6 +1,6 @@
 import React from 'react';
 import { Stack } from '@mui/material';
-import { cleanUnderscore, formatNum, number2letter } from '@utility/helpers';
+import { cleanUnderscore, formatNum, gameLines, number2letter } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { getAmberDenominator, getAmberIndex, MAX_GRAND_DISCOVERIES } from '@parsers/world-7/spelunking';
 import StatTile from '@components/common/cards/StatTile';
@@ -35,7 +35,7 @@ const LoreBosses = ({ loreBosses, account }) => {
         {chance < 0.5 && percent !== '0%' ? `${percent} (${formatNum(chance, 'odds')})` : percent}
         <InfoButton label={'Next grand discovery'}>Uses your highest Spelunking character and leaves out every elixir bonus.</InfoButton>
       </Stack>] : null;
-    return <ItemCard key={boss.index} title={cleanUnderscore(boss.description)} dimmed={!hasAnyDiscovery}
+    return <ItemCard key={boss.index} title={gameLines(boss.description).join(' ')} dimmed={!hasAnyDiscovery}
                      icon={<GameIcon src={`data/CaveBoss${boss.index}.png`} size={56} alt={''}
                                      status={boss.defeated ? undefined : 'missing'}/>}>
       <ItemCard.Facts rows={[
