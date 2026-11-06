@@ -34,19 +34,21 @@ const statLines = (item) => {
   ].filter(Boolean);
 };
 
-// One catalog item (Decision 1): its sprite, its name opening its wiki page, its state in the meta line; a not
-// acquired one takes the card's own dim, with its words outside the dim, in text.secondary
-export const catalogCard = (item, meta) => {
+// One catalog item (Decision 1): its sprite, its name opening its wiki page. An acquired one has the done state in the
+// words given (acquired null: a list where all are, nothing to tell apart), and meta is its other facts; a not acquired
+// one takes the card's own dim, with its words outside the dim, in text.secondary. failed: the catalog at zero, no state.
+export const catalogCard = (item, { meta, acquired = 'Acquired', notAcquired = 'Not acquired', failed } = {}) => {
   const lines = statLines(item);
+  const state = item?.isAcquired ? { status: acquired ? 'done' : undefined, statusLabel: acquired, meta } : { meta: notAcquired };
   return <ItemCard key={item?.rawName} icon={`data/${item?.rawName}.png`} dimmed={!item?.isAcquired} keepMeta
                    title={<ItemCard.TitleLink text={itemName(item)} onClick={() => openItemWikiPage(item?.rawName)}/>}
-                   meta={meta}>
+                   {...(failed ? {} : state)}>
     {lines.length ? <ItemCard.Desc text={lines}/> : null}
   </ItemCard>;
 };
 
 const trophyMeta = (trophy) => {
-  if (!trophy?.isAcquired) return 'Not acquired';
+  if (!trophy?.isAcquired) return null;
   return trophy?.podiumLevel
     ? `Podium LV ${formatNum(trophy.podiumLevel)} · ${formatNum(trophy?.podiumMultiplier, 'mult')}`
     : `Inventory · ${formatNum(trophy?.inventoryMultiplier, 'mult')}`;
@@ -79,7 +81,7 @@ const Trophies = ({ trophiesUsed, bonusRows, inventoryTrophies, allTrophies, sec
   </Stack> : null}
   {allTrophies?.length ? <Stack gap={1} sx={{ my: 3 }}>
     <Typography variant={'sectionTitle'} component={'h2'}>All trophies</Typography>
-    <CardGrid size={'s'}>{allTrophies.map((trophy) => catalogCard(trophy, sectionFailed ? undefined : trophyMeta(trophy)))}</CardGrid>
+    <CardGrid size={'s'}>{allTrophies.map((trophy) => catalogCard(trophy, { meta: trophyMeta(trophy), failed: sectionFailed }))}</CardGrid>
   </Stack> : null}
   {/* A guest has no bonus: no Panel, no heading */}
   {bonusRows?.length ? <Panel title={'Bonuses'} sx={{ my: 3 }}>

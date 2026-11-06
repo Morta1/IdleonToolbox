@@ -7,13 +7,13 @@ import { catalogCard } from '@components/account/Worlds/World7/Gallery/Trophies'
 
 const nametagMeta = (nametag) => (nametag?.isAcquired
   ? `Lv ${formatNum(nametag?.level ?? 0)} · ${formatNum(nametag?.nametagMultiplier, 'mult')}`
-  : 'Not acquired');
+  : null);
 
 // The nametags are worn, not placed: the catalog alone, then their bonuses
 const Nametags = ({ bonusRows, allNametags, sectionFailed }) => <>
   {allNametags?.length ? <Stack gap={1} sx={{ my: 3 }}>
     <Typography variant={'sectionTitle'} component={'h2'}>All nametags</Typography>
-    <CardGrid size={'s'}>{allNametags.map((nametag) => catalogCard(nametag, sectionFailed ? undefined : nametagMeta(nametag)))}</CardGrid>
+    <CardGrid size={'s'}>{allNametags.map((nametag) => catalogCard(nametag, { meta: nametagMeta(nametag), failed: sectionFailed }))}</CardGrid>
   </Stack> : null}
   {/* A guest has no bonus: no Panel, no heading */}
   {bonusRows?.length ? <Panel title={'Bonuses'} sx={{ my: 3 }}>

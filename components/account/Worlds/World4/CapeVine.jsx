@@ -38,13 +38,13 @@ const CapeVine = ({ capesUsed, capeBonuses, allCapes, sectionFailed }) => {
     {capesUsed?.length ? <Stack gap={1.5} sx={{ mb: 3 }}>
       <Typography variant={'sectionTitle'} component={'h2'}>On the vine</Typography>
       <CardGrid size={'s'}>
-        {capesUsed.map((cape) => catalogCard({ ...cape, isAcquired: true }, vineMeta(cape)))}
+        {capesUsed.map((cape) => catalogCard({ ...cape, isAcquired: true }, { meta: vineMeta(cape), acquired: null }))}
       </CardGrid>
     </Stack> : null}
     {allCapes?.length ? <Stack gap={1.5} sx={{ mb: 3 }}>
       <Typography variant={'sectionTitle'} component={'h2'}>All capes</Typography>
       <CardGrid size={'s'}>
-        {allCapes.map((cape) => catalogCard(cape, sectionFailed ? undefined : cape.isAcquired ? 'On the vine' : 'Not on the vine'))}
+        {allCapes.map((cape) => catalogCard(cape, { acquired: 'On the vine', notAcquired: 'Not on the vine', failed: sectionFailed }))}
       </CardGrid>
     </Stack> : null}
   </>;

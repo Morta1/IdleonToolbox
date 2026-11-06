@@ -27,9 +27,7 @@ const HatRack = ({ bonusMulti, hatBonuses, allPremiumHelmets, sectionFailed }) =
   {allPremiumHelmets?.length ? <Stack gap={1.5} sx={{ mb: 3 }}>
     <Typography variant={'sectionTitle'} component={'h2'}>Premium helmets</Typography>
     <CardGrid size={'s'}>
-      {allPremiumHelmets.map((hat) => catalogCard(baseHelmet(hat), sectionFailed ? undefined : hat?.isAcquired
-        ? 'Acquired'
-        : 'Not acquired'))}
+      {allPremiumHelmets.map((hat) => catalogCard(baseHelmet(hat), { failed: sectionFailed }))}
     </CardGrid>
   </Stack> : null}
   {hatBonuses?.length ? <Panel title={'Bonuses'}
