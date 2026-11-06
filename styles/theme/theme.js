@@ -56,7 +56,6 @@ export const focusWithinRing = (theme) => ({ '& :focus-visible': focusRing(theme
 
 // Identity colors: a thing's own color that reads the same everywhere, not a state or a role (3b Decision 3).
 const identity = {
-  pinSoftHover: 'rgba(255, 215, 0, 0.15)',
   // An item's stat labels: what main's item card and wiki wore (MUI's error, success, secondary and warning .dark)
   stats: { STR: '#d32f2f', AGI: '#388e3c', WIS: '#ab47bc', LUK: '#f57c00' },
   // A Super Talent's words in a build, gold like the game's border around its icon
