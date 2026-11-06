@@ -308,7 +308,8 @@ for (const route of ['/leaderboards?player=Baker333', '/leaderboards?t=skills&m=
 // One shared copy keeps the export under GitHub Pages' 1 GB: inline, these variables cost 30 KB on each of 8,600 pages.
 test('the theme variables come from a shared stylesheet, and the first paint waits for it', async ({ page, request }) => {
   const html = await (await request.get('/patch-notes')).text();
-  expect(html).not.toContain('--mui-palette-background-default');
+  // Components read it as var(--name, ...): a colon is where it would be defined.
+  expect(html).not.toMatch(/--mui-palette-background-default\s*:/);
   const head = html.slice(0, html.indexOf('</head>'));
   const sheets = [...head.matchAll(/<link[^>]+rel="stylesheet"[^>]*href="([^"]+)"/g)].map((match) => match[1]).filter((href) => href.includes('/_next/'));
   expect(sheets.length).toBeGreaterThan(0);
