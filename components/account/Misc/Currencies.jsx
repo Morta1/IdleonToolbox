@@ -53,6 +53,7 @@ const Currencies = ({
   const keys = keysFailed ? Object.values(keysMap) : KeysAll ?? [];
   return <Panel title={'Currencies'}>
     <Panel.Row name={'Total money'} value={<CoinDisplay dense money={money}/>}/>
+    <Panel.Row icon={'data/PremiumGem.png'} name={'Gems'} value={Number(gems) || 0} kind={{ game: 'Save.Gems', whole: true }}/>
     <Box sx={{ p: 1.5 }}>
       <CardGrid size={'icon'} fill>
         <IconTile icon={'data/rtt0.png'} alt={'World Teleports'} value={count(WorldTeleports)} details={'World Teleports'}/>
@@ -63,7 +64,6 @@ const Currencies = ({
                     {(ColosseumTickets?.allTickets ?? []).map((ticket, index) => pickupFacts(ticket, `Ticket ${index + 1}`))}
                   </Stack>}/>
         <IconTile icon={'data/SilverPen.png'} alt={'Silver Pens'} value={count(SilverPens)} details={'Silver Pens'}/>
-        <IconTile icon={'data/PremiumGem.png'} alt={'Gems'} value={Number(gems) || 0} kind={{ game: 'Save.Gems', whole: true }} details={'Gems'}/>
         <IconTile icon={'data/MGp.png'} alt={'Minigame Plays'} value={count(minigamePlays)} details={'Minigame Plays'}/>
         {keys.map((key) => <IconTile key={key?.rawName} icon={`data/${key?.rawName}.png`} alt={cleanUnderscore(key?.name)}
                                      value={keysFailed ? '-' : count(key?.amount)}
