@@ -484,6 +484,12 @@ export function getResearchGridSquareDescription(account: any, research: any, gr
   result = replacePlaceholder(result, '^', mult2Str);
   result = replacePlaceholder(result, '&', opt499Str);
   result = replacePlaceholder(result, '|', levelStr);
+  // Divine Design opens on a sentence of its own, by King Doot (N.js:121917). The game prints two periods after one of them.
+  if (gridIndex === 173) {
+    result = replacePlaceholder(result, '<.', research?.kingDootActive
+      ? 'Arctis_nods_in_approval..._all_Research_Grid_bonuses_are_1.05x_higher.'
+      : 'You_are_now_permanently_linked_to_Arctis_on_all_characters.');
+  }
   return result;
 }
 
