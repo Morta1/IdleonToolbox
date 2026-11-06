@@ -243,7 +243,9 @@ const scanPage = ({ maxLines, minGap, maxLowContrast, listOnArt }) => {
     .forEach(([cell, lines]) => add('tallRow', `${lines.size} lines @ ${where(cell)}`));
 
   const pageText = main.innerText;
+  // Old patch notes are hand-written prose: they quote marks, and shipped entries keep their em dashes.
   const raw = (re) => {
+    if (location.pathname === '/patch-notes') return;
     for (const match of pageText.match(re) ?? []) add('raw', match.trim());
   };
   // "$19.99" is a real price.
