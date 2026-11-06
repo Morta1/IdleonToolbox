@@ -1,11 +1,13 @@
 import React from 'react';
-import { Divider, Stack, Typography } from '@mui/material';
+import { Box, Divider, Stack, Typography } from '@mui/material';
 import { formatNum } from '@utility/helpers';
 import ItemDisplay, { ItemLine } from '@components/common/ItemDisplay';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 import { openItemWikiPage } from '@utility/wiki/item-page';
 
 const PODIUM_ICONS = { 1: 'GalleryPod0.png', 2: 'GalleryPod1.png', 3: 'GalleryPod2.png', 4: 'GalleryPod3.png' };
@@ -47,6 +49,33 @@ export const catalogCard = (item, { meta, acquired = 'Acquired', notAcquired = '
   </ItemCard>;
 };
 
+const CATALOG_TOOLBAR = { search: '', show: 'all' };
+
+// A catalog under its filter, Slab's Search and Show. The default shows everything, so a guest sees the whole catalog.
+// The bar pins within this box and leaves with its cards. A failed section has no bar and shows every card: nothing on
+// the page could take back a filter it remembers. meta: an acquired item's other facts.
+export const CatalogList = ({ page, title, noun, items, meta, acquired = 'Acquired', notAcquired = 'Not acquired', failed }) => {
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState(page, CATALOG_TOOLBAR);
+  if (!items?.length) return null;
+  const searchTerm = (toolbar?.search ?? '').trim().toLowerCase();
+  const inShow = (item) => toolbar?.show === 'all' || (toolbar?.show === 'acquired') === Boolean(item?.isAcquired);
+  const shown = failed ? items : items.filter(inShow).filter((item) => !searchTerm || itemName(item)?.toLowerCase().includes(searchTerm));
+  const acquiredCount = items.filter((item) => item?.isAcquired).length;
+  return <Box sx={{ mb: 3 }}>
+    {failed ? null : <Toolbar state={toolbar} defaults={CATALOG_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+                              total={items.length} shown={shown.length} noun={noun}>
+      <Toolbar.Search placeholder={`Search ${noun}`}/>
+      <Toolbar.Show options={[['all', 'All', items.length], ['acquired', acquired, acquiredCount], ['missing', notAcquired, items.length - acquiredCount]]}/>
+    </Toolbar>}
+    {shown.length ? <Stack gap={1.5}>
+      <Typography variant={'sectionTitle'} component={'h2'}>{title}</Typography>
+      <CardGrid size={'s'}>
+        {shown.map((item) => catalogCard(item, { meta: meta?.(item), acquired, notAcquired, failed }))}
+      </CardGrid>
+    </Stack> : null}
+  </Box>;
+};
+
 const trophyMeta = (trophy) => {
   if (!trophy?.isAcquired) return null;
   return trophy?.podiumLevel
@@ -79,10 +108,7 @@ const Trophies = ({ trophiesUsed, bonusRows, inventoryTrophies, allTrophies, sec
       })}
     </CardGrid>
   </Stack> : null}
-  {allTrophies?.length ? <Stack gap={1} sx={{ my: 3 }}>
-    <Typography variant={'sectionTitle'} component={'h2'}>All trophies</Typography>
-    <CardGrid size={'s'}>{allTrophies.map((trophy) => catalogCard(trophy, { meta: trophyMeta(trophy), failed: sectionFailed }))}</CardGrid>
-  </Stack> : null}
+  <CatalogList page={'gallery-trophies'} title={'All trophies'} noun={'trophies'} items={allTrophies} meta={trophyMeta} failed={sectionFailed}/>
   {/* A guest has no bonus: no Panel, no heading */}
   {bonusRows?.length ? <Panel title={'Bonuses'} sx={{ my: 3 }}>
     {bonusRows.map(([label, value], index) => <Panel.KV key={`${label}-${index}`} label={label} value={value}/>)}

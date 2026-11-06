@@ -1,11 +1,10 @@
 import React from 'react';
-import { Box, Stack, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { gameTables, items } from '@website-data';
-import CardGrid from '@components/common/cards/CardGrid';
 import Panel from '@components/common/cards/Panel';
-import { catalogCard } from '@components/account/Worlds/World7/Gallery/Trophies';
+import { CatalogList } from '@components/account/Worlds/World7/Gallery/Trophies';
 
 const BASE_STATS = gameTables.galleryBonusStats;
 
@@ -24,12 +23,7 @@ const baseHelmet = (hat) => ({
 // The rack's multi shows once, on the Bonuses panel, whose totals hold it. sectionFailed: the catalog at zero with no
 // state words
 const HatRack = ({ bonusMulti, hatBonuses, allPremiumHelmets, sectionFailed }) => <>
-  {allPremiumHelmets?.length ? <Stack gap={1.5} sx={{ mb: 3 }}>
-    <Typography variant={'sectionTitle'} component={'h2'}>Premium helmets</Typography>
-    <CardGrid size={'s'}>
-      {allPremiumHelmets.map((hat) => catalogCard(baseHelmet(hat), { failed: sectionFailed }))}
-    </CardGrid>
-  </Stack> : null}
+  <CatalogList page={'hat-rack'} title={'Premium helmets'} noun={'helmets'} items={allPremiumHelmets?.map(baseHelmet)} failed={sectionFailed}/>
   {hatBonuses?.length ? <Panel title={'Bonuses'}
                                meta={`Totals with the hat rack multi ${formatGame(bonusMulti ?? 1, 'Gallery.HatrackBonusMulti')}x`}>
     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' } }}>

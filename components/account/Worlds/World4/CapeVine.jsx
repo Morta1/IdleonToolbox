@@ -6,7 +6,7 @@ import { gameTables } from '@website-data';
 import CardGrid from '@components/common/cards/CardGrid';
 import Panel from '@components/common/cards/Panel';
 import InfoButton from '@components/common/InfoButton';
-import { catalogCard } from '@components/account/Worlds/World7/Gallery/Trophies';
+import { CatalogList, catalogCard } from '@components/account/Worlds/World7/Gallery/Trophies';
 
 const BASE_STATS = gameTables.galleryBonusStats;
 
@@ -41,12 +41,7 @@ const CapeVine = ({ capesUsed, capeBonuses, allCapes, sectionFailed }) => {
         {capesUsed.map((cape) => catalogCard({ ...cape, isAcquired: true }, { meta: vineMeta(cape), acquired: null }))}
       </CardGrid>
     </Stack> : null}
-    {allCapes?.length ? <Stack gap={1.5} sx={{ mb: 3 }}>
-      <Typography variant={'sectionTitle'} component={'h2'}>All capes</Typography>
-      <CardGrid size={'s'}>
-        {allCapes.map((cape) => catalogCard(cape, { acquired: 'On the vine', notAcquired: 'Not on the vine', failed: sectionFailed }))}
-      </CardGrid>
-    </Stack> : null}
+    <CatalogList page={'cape-vine'} title={'All capes'} noun={'capes'} items={allCapes} acquired={'On the vine'} notAcquired={'Not on the vine'} failed={sectionFailed}/>
   </>;
 };
 
