@@ -55,6 +55,8 @@ const MAX_SHOT_HEIGHT = 4000;
 const PHONE_SHOTS = 4;
 const MAX_LOW_CONTRAST = 40;
 const AD_NOISE = /rlcdn|Failed to load resource|nitro|googletag|gtag|adsbygoogle|doubleclick/i;
+// What --force asked for, logged by the parse on every pass: a real failure beside it still reports.
+const FORCED_LOG = /Error: forced: /;
 
 const sizes = opts.sizes.split(',').map((text) => {
   const [width, height] = text.split('x').map(Number);
@@ -361,7 +363,7 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
   const errors = [];
   page.on('pageerror', (error) => errors.push(String(error).slice(0, 200)));
   page.on('console', (message) => {
-    if (message.type() === 'error' && !AD_NOISE.test(message.text())) errors.push(message.text().slice(0, 200));
+    if (message.type() === 'error' && !AD_NOISE.test(message.text()) && !(force && FORCED_LOG.test(message.text()))) errors.push(message.text().slice(0, 200));
   });
   const slug = slugOf(route, state, scheme);
   const result = { route, state, scheme, size: `${size.width}x${size.height}`, shots: [] };
