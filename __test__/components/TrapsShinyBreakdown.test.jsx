@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import raw from '../../data/raw.json';
 import { getTrapsBonuses } from '@parsers/world-3/traps';
@@ -27,7 +27,7 @@ const { characters, account } = parseFixture(raw);
 const tileText = (label) => screen.getByText(label).closest('[data-stat-tile]').textContent;
 
 const renderPage = (state) => render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <AppContext.Provider value={{ state }}>
       <Traps/>
     </AppContext.Provider>

@@ -6,7 +6,7 @@ import { renderToString } from 'react-dom/server';
 import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import RelationTable from '@components/wiki/RelationTable';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 vi.mock('@hooks/useProfileBannerState', () => ({ default: () => ({ isVisible: false }) }));
 
@@ -33,7 +33,7 @@ const makeProps = (count) => {
 describe('RelationTable anchors', () => {
   it('ships one real link per row in the export, the rows past the cap included', () => {
     const props = makeProps(90);
-    const html = renderToString(<ThemeProvider theme={darkTheme}><RelationTable {...props}/></ThemeProvider>);
+    const html = renderToString(<ThemeProvider theme={theme}><RelationTable {...props}/></ThemeProvider>);
     const hrefs = [...html.matchAll(/href="(\/wiki\/item\/item-\d+)"/g)].map((match) => match[1]);
     expect(new Set(hrefs).size).toBe(90);
   });
@@ -41,7 +41,7 @@ describe('RelationTable anchors', () => {
 
 describe('RelationTable on a phone', () => {
   it('holds the Chance column back until the box around the table has room, since the rate beside it says the same thing', () => {
-    render(<ThemeProvider theme={darkTheme}><RelationTable {...makeProps(3)}/></ThemeProvider>);
+    render(<ThemeProvider theme={theme}><RelationTable {...makeProps(3)}/></ThemeProvider>);
     // jsdom resolves no container queries, so read the rules emotion emitted on the table for the heading's column.
     const column = [...screen.getByText('Chance').closest('th').classList].find((name) => name.startsWith('col-'));
     const css = [...document.querySelectorAll('style')].map((style) => style.textContent);

@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { AppContext } from '@components/common/context/AppProvider';
 
 const { getSteamParams } = vi.hoisted(() => ({ getSteamParams: vi.fn(async () => 'token') }));
@@ -16,7 +16,7 @@ const SSO = 'https://www.legendsofidleon.com/steamsso/?openid.claimed_id=x%2F765
 const renderSteam = () => {
   const dispatch = vi.fn();
   render(
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <AppContext.Provider value={{ state: {}, dispatch, waitingForAuth: false, setWaitingForAuth: vi.fn() }}>
         <SteamLogin/>
       </AppContext.Provider>

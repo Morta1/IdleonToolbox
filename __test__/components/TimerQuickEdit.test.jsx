@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { DashboardSettingsProvider } from '@components/common/context/DashboardSettingsProvider';
 
 const push = vi.fn();
@@ -17,7 +17,7 @@ const trackers = { General: { daily: { checked: true, options: [] }, weekly: { c
 describe('timer icons', () => {
   it('open the quick edit with the timer target and do not navigate', () => {
     const onOpenAlert = vi.fn();
-    const { container } = render(<ThemeProvider theme={darkTheme}>
+    const { container } = render(<ThemeProvider theme={theme}>
       <DashboardSettingsProvider onOpenAlert={onOpenAlert}>
         <Etc characters={[]} account={{ finishedWorlds: {}, timeAway: { ShopRestock: 3600 } }} trackers={trackers} lastUpdated={Date.now()}/>
       </DashboardSettingsProvider>

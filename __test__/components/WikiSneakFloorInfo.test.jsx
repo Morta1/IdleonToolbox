@@ -4,14 +4,14 @@ import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import graph from '../../data/entity-graph.json';
 import SneakFloorInfo from '@components/wiki/SneakFloorInfo';
 import { registryInfoShows } from '@components/wiki/RegistryInfo';
 
 const floor = graph.nodes['sneakfloor:SneakFloor4'];
 const index = { byId: graph.nodes };
-const renderFloor = () => render(<ThemeProvider theme={darkTheme}>
+const renderFloor = () => render(<ThemeProvider theme={theme}>
   <SneakFloorInfo node={floor} index={index} hrefFor={(id) => `/wiki/${id}`} onNavigate={() => {}}/>
 </ThemeProvider>);
 

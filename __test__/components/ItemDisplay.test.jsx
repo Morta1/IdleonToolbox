@@ -6,7 +6,7 @@ import { render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import ItemDisplay from '@components/common/ItemDisplay';
 import { items } from '@website-data';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 const account = {
   forge: { list: [{ speed: 2 }] },
@@ -19,7 +19,7 @@ const character = {};
 const getPlayerFoodBonus = (_, __, isHealth) => (isHealth ? 3.5 : 2.5);
 
 const textOf = (rawName, props = {}) => render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <ItemDisplay {...items[rawName]} rawName={rawName} {...props}/>
   </ThemeProvider>
 ).container.textContent;

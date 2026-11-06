@@ -11,7 +11,7 @@ import { hydrate } from '@utility/builds/hydrate';
 import { cleanUnderscore } from '@utility/helpers';
 import useFormatDate from '@hooks/useFormatDate';
 import useHydrated from '@hooks/useHydrated';
-import { ink } from '../../../styles/theme/darkTheme';
+import { ink } from '../../../styles/theme/theme';
 
 // Render a stored (compact) build. hydrate() derives tab/talent metadata from
 // the shared @website-data + talentPagesMap, so no extra data file is needed.

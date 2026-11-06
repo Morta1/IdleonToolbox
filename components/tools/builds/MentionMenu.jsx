@@ -9,7 +9,7 @@ import {
 } from '@mui/material';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import { formatTalentName } from '@utility/builds/itemRefs';
-import { ink } from '../../../styles/theme/darkTheme';
+import { ink } from '../../../styles/theme/theme';
 
 // Inline @-mention menu. Anchored to a virtual element at the caret's pixel
 // coordinates so the menu pops up right below the current character: not

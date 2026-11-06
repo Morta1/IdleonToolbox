@@ -7,7 +7,7 @@ import Notice, { retryAction } from '@components/common/Notice';
 import { formatNum } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
 import { GLOBAL_METRIC, formatBoardValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, showsFailure, staleUntilNextRun } from './format';
-import { focusWithinRing } from '../../styles/theme/darkTheme';
+import { focusWithinRing } from '../../styles/theme/theme';
 import MetricIcon from './MetricIcon';
 import RankRow from './RankRow';
 

@@ -53,7 +53,7 @@ export const FAMILY_THEME = {
 
 // Accent tokens used for chip tints, filter-pill active state, and the small
 // glowing bits in the page header. Aligned with the `multi` palette value in
-// darkTheme.js. Buttons themselves stay on plain MUI defaults to match the
+// theme.js. Buttons themselves stay on plain MUI defaults to match the
 // other tool pages in the app (active-stuff-calculator, material-tracker, etc).
 export const ACCENT = {
   // A hex for the class strip's `${color}22` fills, the one place that appends an alpha. The rest follow the scheme.

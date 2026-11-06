@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 
 const searchNames = vi.fn(async () => [{ mainChar: 'Baker333', rank: 75 }]);
 vi.mock('../../../services/leaderboards', () => ({ searchNames }));
@@ -17,7 +17,7 @@ const { buildMetaIndex } = await import('@components/leaderboards/format');
 const index = buildMetaIndex({ tabs: [{ key: 'skills', label: 'Skills', sections: [{ name: 'Skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] }] });
 const renderBar = (props = {}) => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <ControlBar index={index} totalPlayers={2608} createdAt={null} showAnonymous onToggleAnonymous={() => {}} onPlayer={() => {}} onMetric={() => {}} {...props}/>
     </ThemeProvider>
   </QueryClientProvider>

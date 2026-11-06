@@ -19,7 +19,7 @@ import {
 } from '@utility/builds/classes';
 import AuthorChip from './AuthorChip';
 import { SurfaceCard, TagChip } from './styled';
-import { ink } from '../../../styles/theme/darkTheme';
+import { ink } from '../../../styles/theme/theme';
 
 // Calm text-first card. Family color shows as a thin left accent bar plus a
 // subdued class breadcrumb: no gradient hero, no heavy uppercase labels.

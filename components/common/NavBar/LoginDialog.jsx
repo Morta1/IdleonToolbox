@@ -16,7 +16,7 @@ import SteamLogin from '../Logins/SteamLogin';
 import { fieldEdge } from '../Logins/look';
 import { AppContext } from '../context/AppProvider';
 import { routeNeedsAccount } from '@utility/account-routes';
-import { touchTarget } from '../../../styles/theme/darkTheme';
+import { touchTarget } from '../../../styles/theme/theme';
 
 // The four ways into the game's account (Sign in board). The ids are AppProvider's loginType values.
 const METHODS = [

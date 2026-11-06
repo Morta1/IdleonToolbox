@@ -5,7 +5,7 @@ import { cleanUnderscore, prefix } from '@utility/helpers';
 import { classes } from '@website-data';
 import { ACCENT, CLASS_KEYS, FAMILY_ORDER, FAMILY_THEME, familyOf } from '@utility/builds/classes';
 import { classToSlug, slugToClassKey } from '@utility/builds/class-paths.mjs';
-import { ink } from '../../../styles/theme/darkTheme';
+import { ink } from '../../../styles/theme/theme';
 
 // Row one is the four families plus All; row two appears only once a family is active and holds
 // that family's subclasses. Every pill is a real <a href> rather than a menu item, so changing

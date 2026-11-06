@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import Talents from '@components/characters/Talents';
 
 // Tabber reads the router even with disableQuery.
@@ -28,7 +28,7 @@ const royalGuardianPage = (addedLevels) => ({
 });
 
 const renderTalents = ({ addedLevels, cap }) => render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <Talents
       talents={{ 0: royalGuardianPage(Math.min(addedLevels, cap)) }}
       starTalents={{ orderedTalents: [] }}

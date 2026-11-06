@@ -8,7 +8,7 @@ import { numOrNode } from '@components/common/Num';
 import { formatNum } from '@utility/helpers';
 import { CARD_RADIUS } from './tokens';
 import { SummaryFailed } from './PageSummary';
-import { touchTarget } from '../../../styles/theme/darkTheme';
+import { touchTarget } from '../../../styles/theme/theme';
 
 const isShown = (value) => value !== undefined && value !== null && value !== '';
 

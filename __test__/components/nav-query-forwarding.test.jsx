@@ -4,7 +4,7 @@ import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 // A visitor who arrived on a build page in demo mode: `demo` names the save being viewed, the rest
 // describes the page they are on. Every one of these params was observed riding the nav in Search
@@ -32,7 +32,7 @@ const { NavMenuPanel } = await import('@components/common/NavBar/NavMenu');
 const { GuildLink } = await import('@components/guilds/GuildTable');
 
 const renderMenu = (menu) => render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <NavMenuPanel menu={menu} onClose={() => {}}/>
   </ThemeProvider>
 );
@@ -60,7 +60,7 @@ describe.each([
 });
 
 it('a guild name keeps the session and nothing else, with no href for a crawler', () => {
-  render(<ThemeProvider theme={darkTheme}><GuildLink guild={{ guild_id: 'g 1', guild_name: 'Guild' }} router={{ push, query }}/></ThemeProvider>);
+  render(<ThemeProvider theme={theme}><GuildLink guild={{ guild_id: 'g 1', guild_name: 'Guild' }} router={{ push, query }}/></ThemeProvider>);
   fireEvent.click(screen.getByRole('button', { name: 'Guild' }));
   expect(push.mock.calls).toEqual([[{ pathname: '/guilds/detail', query: { id: 'g 1', demo: 'true' } }]]);
 });

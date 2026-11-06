@@ -6,7 +6,7 @@ import { render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import DataTable from '@components/common/DataTable';
 import { bandRows, changeTone, detailsUntil, nextSort, sortRows } from '@components/common/DataTable/layout';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 const COST = { key: 'cost', sortable: true, numeric: true };
 const NAME = { key: 'name', sortable: true };
@@ -75,7 +75,7 @@ describe('DataTable mutedWord', () => {
   const rows = [{ n: 'live', v: 1, w: 2 }, { n: 'locked', v: 3, w: 4 }, { n: 'word', v: 5, w: 6 }];
 
   it('dims a row by muted or by a word, and only the word replaces its values and its way in', () => {
-    const { container } = render(<ThemeProvider theme={darkTheme}>
+    const { container } = render(<ThemeProvider theme={theme}>
       <DataTable columns={columns} rows={rows} rowKey={'n'} muted={(row) => row.n === 'locked'}
                  mutedWord={(row) => (row.n === 'word' ? 'Empty' : null)}/>
     </ThemeProvider>);

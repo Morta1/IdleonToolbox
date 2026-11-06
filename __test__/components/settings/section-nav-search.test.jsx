@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import { buildModel, searchModel } from '@utility/dashboard/settingsModel';
@@ -16,7 +16,7 @@ const modelFor = (edits = {}) => {
   const config = resolveTrackers(baseTrackers, edits);
   return buildModel(config, baseTrackers, diffTrackers(baseTrackers, config));
 };
-const renderIn = (node) => render(<ThemeProvider theme={darkTheme}>{node}</ThemeProvider>).container;
+const renderIn = (node) => render(<ThemeProvider theme={theme}>{node}</ThemeProvider>).container;
 const world3 = (model) => model[0].sections.find(({ section }) => section === 'World 3');
 
 describe('SectionPane', () => {

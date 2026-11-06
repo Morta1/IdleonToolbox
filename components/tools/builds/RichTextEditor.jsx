@@ -15,7 +15,7 @@ import { docToText, textToDoc } from '@utility/builds/tiptapDoc';
 import MentionMenu from './MentionMenu';
 import EditorToolbar from './EditorToolbar';
 import { CHIP_SX, MISSING_CHIP_SX, TalentTooltipBody } from './chipCommon';
-import { ink } from '../../../styles/theme/darkTheme';
+import { ink } from '../../../styles/theme/theme';
 
 // Module-level lookups built once. Flatten talents into a searchable array
 // and a skillIndex → talent map so the mention NodeView can hydrate without

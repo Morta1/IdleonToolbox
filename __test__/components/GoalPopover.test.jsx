@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { createFilterOptions, ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -34,7 +34,7 @@ const Probe = () => {
 };
 
 const mount = (props) => render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <AppContext.Provider value={{ state: { uid: ACCOUNT_KEY, characters, account } }}>
       <GoalsProvider>
         <Probe/>

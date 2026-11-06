@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import raw from '../../data/raw.json';
@@ -42,7 +42,7 @@ const windWalker = characters.find((c) => checkCharClass(c?.class, CLASSES.Wind_
 const nonWindWalker = characters[0];
 
 const renderWith = (chars) => render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <AppContext.Provider value={{ state: { characters: chars, account } }}>
       <Compass/>
     </AppContext.Provider>

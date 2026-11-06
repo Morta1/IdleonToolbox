@@ -20,7 +20,7 @@ import Tooltip from '@components/Tooltip';
 import { commaNotation } from '@utility/helpers';
 import AppDialog from '@components/common/Overlays/AppDialog';
 import ViewSwitch from '@components/common/ViewSwitch';
-import { focusWithinRing } from '../../styles/theme/darkTheme';
+import { focusWithinRing } from '../../styles/theme/theme';
 
 // What the slots read: the page's state and defaults, the change callback (a patch), and whether the slot
 // sits in the bar ('row') or in the phone panel ('panel').

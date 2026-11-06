@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, asPath: '/' }) }));
 
@@ -51,7 +51,7 @@ const trackers = {
   }
 };
 
-const renderClickers = (days) => render(<ThemeProvider theme={darkTheme}>
+const renderClickers = (days) => render(<ThemeProvider theme={theme}>
   <Etc characters={[]} account={buildAccount(days)} lastUpdated={now} trackers={trackers}/>
 </ThemeProvider>);
 

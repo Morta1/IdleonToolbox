@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import Account from '@components/dashboard/Account';
 
 // useAlerts keys trackers by dashboard section, then by tracker within it.
@@ -42,14 +42,14 @@ const account = {
   }
 };
 
-const renderDashboard = () => render(<ThemeProvider theme={darkTheme}>
+const renderDashboard = () => render(<ThemeProvider theme={theme}>
   <Account account={account} characters={[]} lastUpdated={0} trackers={trackers}/>
 </ThemeProvider>);
 
 describe('royal guardian alert list', () => {
   // The printer section's failed default ({}) throws in its alerts: that row says so, and World 7's alerts stay.
   it('a family that throws takes only its own row', async () => {
-    render(<ThemeProvider theme={darkTheme}>
+    render(<ThemeProvider theme={theme}>
       <Account account={{ ...account, finishedWorlds: { World2: true, World6: true }, printer: {} }} characters={[]} lastUpdated={0}
                trackers={{ ...trackers, 'World 3': { printer: { checked: true, options: [{ name: 'includeResource', checked: true, props: { value: {} } }] } } }}/>
     </ThemeProvider>);
@@ -130,7 +130,7 @@ describe('royal guardian unit alerts', () => {
       }
     }
   };
-  const renderUnits = () => render(<ThemeProvider theme={darkTheme}>
+  const renderUnits = () => render(<ThemeProvider theme={theme}>
     <Account account={unitAccount} characters={[]} lastUpdated={0} trackers={unitTrackers}/>
   </ThemeProvider>);
 
@@ -158,7 +158,7 @@ describe('royal guardian unit alerts', () => {
   const renderWithCommand = (props) => {
     const trackers = structuredClone(unitTrackers);
     trackers['World 7'].royalGuardian.options[1].props = props;
-    return render(<ThemeProvider theme={darkTheme}>
+    return render(<ThemeProvider theme={theme}>
       <Account account={unitAccount} characters={[]} lastUpdated={0} trackers={trackers}/>
     </ThemeProvider>);
   };

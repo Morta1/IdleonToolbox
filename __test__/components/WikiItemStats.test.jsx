@@ -5,10 +5,10 @@ import { describe, expect, it } from 'vitest';
 import { render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import ItemStats from '@components/wiki/ItemStats';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 const draw = (node) => render(
-  <ThemeProvider theme={darkTheme}><ItemStats node={node}/></ThemeProvider>
+  <ThemeProvider theme={theme}><ItemStats node={node}/></ThemeProvider>
 );
 
 describe('ItemStats sell price', () => {

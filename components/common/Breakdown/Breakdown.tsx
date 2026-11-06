@@ -57,7 +57,7 @@ import {
   formatShare,
   GAIN_STEP
 } from "./breakdownInsights";
-import { ink } from '../../../styles/theme/darkTheme';
+import { ink } from '../../../styles/theme/theme';
 
 // More notes than this bury the groups worth upgrading under near-zero ones
 const TOP_GAINS_SHOWN = 3

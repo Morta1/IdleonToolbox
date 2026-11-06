@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import { allTrackers, buildModel } from '@utility/dashboard/settingsModel';
@@ -17,7 +17,7 @@ const trackerFor = (path, edits = {}) => {
 const renderRow = (tracker, optionName, extra = {}) => {
   const onAction = vi.fn();
   const option = tracker.options.find(({ name }) => name === optionName);
-  const { container } = render(<ThemeProvider theme={darkTheme}>
+  const { container } = render(<ThemeProvider theme={theme}>
     <OptionRow option={option} tracker={tracker} onAction={onAction} {...extra}/>
   </ThemeProvider>);
   return { container, onAction };

@@ -4,7 +4,7 @@ import Tooltip from '@components/Tooltip';
 import { chartLines } from '@utility/chartTheme';
 import { chartNum, labelIndexes, valueTicks } from '@utility/chartScale';
 import { formatNum } from '@utility/helpers';
-import { focusRing } from '../../../styles/theme/darkTheme';
+import { focusRing } from '../../../styles/theme/theme';
 import { ChartTooltipContent } from './ChartTooltip';
 import useMarkFocus from './useMarkFocus';
 

@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import ChartFrame from '@components/common/charts/ChartFrame';
 import RankBars from '@components/common/charts/RankBars';
 
@@ -26,7 +26,7 @@ const TABLE = {
 
 describe('RankBars in a ChartFrame', () => {
   it('is one tab stop, moves with the arrows to the exact value, and swaps to its table', async () => {
-    render(<ThemeProvider theme={darkTheme}>
+    render(<ThemeProvider theme={theme}>
       <ChartFrame table={TABLE}><RankBars label={'Top prayers'} rows={ROWS}/></ChartFrame>
     </ThemeProvider>);
     const bars = within(screen.getByRole('list', { name: 'Top prayers' })).getAllByRole('listitem');

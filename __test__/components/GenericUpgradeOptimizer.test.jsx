@@ -5,7 +5,7 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import GenericUpgradeOptimizer from '@components/account/Misc/class-specific/GenericUpgradeOptimizer';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 const resourceNames = { 0: 'Purple', 1: 'Brown' };
 
@@ -28,7 +28,7 @@ const buildRow = ({ hoardingPercentChange = 0, grossPercentChange = 1, cost = 1e
 });
 
 const renderOptimizer = (rows) => render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <GenericUpgradeOptimizer
       character={{ name: 'Tester' }}
       account={{ tesseract: { tachyons: [{ name: 'Purple', value: 1e9 }, { name: 'Brown', value: 1e9 }] } }}
@@ -214,7 +214,7 @@ const buildReductionAccount = ({ bonus, spent }) => ({
 const renderWithReductions = ({ bonus, spent, usesMasterclassReduction = true }) => {
   const calls = [];
   render(
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <GenericUpgradeOptimizer
         character={{ name: 'Tester' }}
         account={buildReductionAccount({ bonus, spent })}
@@ -359,7 +359,7 @@ describe('GenericUpgradeOptimizer game order', () => {
 const renderWithAutoRph = (autoResourcePerHour, rows = []) => {
   const calls = [];
   const view = render(
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <GenericUpgradeOptimizer
         character={{ name: 'Tester' }}
         account={{ tesseract: { tachyons: [{ name: 'Purple', value: 1e9 }, { name: 'Brown', value: 1e9 }] } }}

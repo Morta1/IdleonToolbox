@@ -1,7 +1,7 @@
 import { Box, useTheme } from '@mui/material';
 import Tooltip from '@components/Tooltip';
 import { chartLines, seriesColors } from '@utility/chartTheme';
-import { focusRing } from '../../../styles/theme/darkTheme';
+import { focusRing } from '../../../styles/theme/theme';
 import { ChartTooltipContent } from './ChartTooltip';
 import useMarkFocus from './useMarkFocus';
 

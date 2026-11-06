@@ -19,7 +19,7 @@ import useToolbarState from '@hooks/useToolbarState';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { CLASSIFICATION_TYPES, CLASSIFICATIONS_KEY, classificationsOf, withClassification } from './tomeClassifications';
 import { quantityForPoints } from './tomeQuantity';
-import { ink } from '../../../../styles/theme/darkTheme';
+import { ink } from '../../../../styles/theme/theme';
 
 const RANK_OPTIONS = [
   { label: 'All players', value: 'all' },

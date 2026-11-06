@@ -5,7 +5,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import { useColorScheme } from '@mui/material/styles';
 import '../polyfills';
 import createEmotionCache from '../utility/createEmotionCache';
-import darkTheme from '../styles/theme/darkTheme';
+import theme from '../styles/theme/theme';
 import '../styles/globals.css';
 import Head from 'next/head';
 import AppProvider from '../components/common/context/AppProvider';
@@ -59,7 +59,7 @@ const ThemeColorMeta = () => {
   const { colorScheme } = useColorScheme();
   useEffect(() => {
     if (!colorScheme) return;
-    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', darkTheme.colorSchemes[colorScheme].palette.background.default);
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme.colorSchemes[colorScheme].palette.background.default);
   }, [colorScheme]);
   return null;
 };
@@ -135,7 +135,7 @@ const MyApp = (props) => {
           borderTop: '1px solid var(--mui-palette-divider)'
         }}
         // The banner sits outside the ThemeProvider, so its text reads the theme's caption (12 px) directly.
-        contentStyle={{ margin: '8px 15px', ...darkTheme.typography.caption }}
+        contentStyle={{ margin: '8px 15px', ...theme.typography.caption }}
         buttonStyle={{
           margin: '0 15px 0 0',
           borderRadius: '8px',
@@ -209,8 +209,8 @@ const MyApp = (props) => {
           it then reported as a crawled-not-indexed URL. */}
       <QueryClientProvider client={queryClient}>
       <CacheProvider value={emotionCache}>
-        <ThemeProvider theme={darkTheme} defaultMode="dark">
-          <EmotionThemeProvider theme={darkTheme}>
+        <ThemeProvider theme={theme} defaultMode="dark">
+          <EmotionThemeProvider theme={theme}>
             <CookiePolicyDialog/>
             <CssBaseline enableColorScheme/>
             <ThemeColorMeta/>

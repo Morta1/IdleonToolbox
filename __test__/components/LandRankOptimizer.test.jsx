@@ -4,7 +4,7 @@ import React from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { render, screen, fireEvent, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import raw from '../../data/raw.json';
 
@@ -14,7 +14,7 @@ const UpgradeOptimizer = (await import('@components/account/Worlds/World6/Farmin
 const { characters, account } = parseFixture(raw);
 
 const renderOptimizer = (state = { characters, account }) => render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <AppContext.Provider value={{ state }}>
       <UpgradeOptimizer/>
     </AppContext.Provider>

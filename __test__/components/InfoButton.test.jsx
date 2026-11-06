@@ -3,7 +3,7 @@ import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import InfoButton from '@components/common/InfoButton';
 
 afterEach(() => {
@@ -14,7 +14,7 @@ describe('InfoButton', () => {
   it('pins its note on click, keeps it after the pointer leaves, and closes on Escape', () => {
     vi.useFakeTimers();
     render(
-      <ThemeProvider theme={darkTheme}>
+      <ThemeProvider theme={theme}>
         <InfoButton label="Overstim Rate">Every character feeds overstim.</InfoButton>
       </ThemeProvider>
     );

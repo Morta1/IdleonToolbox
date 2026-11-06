@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { hubProps } from '@utility/wiki/static-pages.mjs';
 import { listingCounts } from '@utility/wiki/kinds.mjs';
 import searchIndex from '../../data/wiki-search-index.json';
@@ -17,7 +17,7 @@ const WikiSystemPage = (await import('@components/wiki/WikiSystemPage')).default
 const counts = listingCounts(searchIndex);
 const { props } = hubProps('equinox');
 
-const renderPage = () => render(<ThemeProvider theme={darkTheme}><WikiSystemPage {...props}/></ThemeProvider>);
+const renderPage = () => render(<ThemeProvider theme={theme}><WikiSystemPage {...props}/></ThemeProvider>);
 
 // The rail carries its own hundred-odd anchors; only the page's own links are under test.
 const pageLinks = (container) => [...container.querySelectorAll('a')]

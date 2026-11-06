@@ -25,7 +25,7 @@ import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 import { quantityForPoints } from '@components/account/Worlds/World4/tomeQuantity';
 import useTabIndex from '@hooks/useTabIndex';
-import { ink } from '../../../styles/theme/darkTheme';
+import { ink } from '../../../styles/theme/theme';
 
 const RANKS = ['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '80%', '90%', '95%'];
 const TOME_TOOLBAR = { search: '', hideMaxed: false, view: 'cards' };

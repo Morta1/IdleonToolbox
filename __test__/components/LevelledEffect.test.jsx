@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { atomsInfo } from '@website-data';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import LevelledEffect from '../../components/wiki/LevelledEffect';
 import { levelledText } from '../../utility/wiki/effects.mjs';
 import GAME from '../../utility/wiki/game-constants.mjs';
@@ -112,7 +112,7 @@ describe('LevelledEffect', () => {
     plain.unmount();
     const withIcon = { ...capped, cost: { ...capped.cost, currencyIcon: '/data/RGres3.png' } };
     // The art carries the project's Tooltip, which reads the theme.
-    const { container } = render(<ThemeProvider theme={darkTheme}><LevelledEffect node={withIcon}/></ThemeProvider>);
+    const { container } = render(<ThemeProvider theme={theme}><LevelledEffect node={withIcon}/></ThemeProvider>);
     expect({
       lines: lines(container),
       art: Array.from(container.querySelectorAll('img')).map((img) => [img.getAttribute('src').endsWith('data/RGres3.png'), img.getAttribute('alt')])
@@ -127,7 +127,7 @@ describe('LevelledEffect', () => {
     [2.17e9, '2.17B', '2,170,000,000']
   ])('prints a cost of %s as %s', (base, shown, exact) => {
     const node = { ...capped, cost: { formula: 'pow', args: { base, rate: 1 }, currency: 'Feathers' } };
-    const { container } = render(<ThemeProvider theme={darkTheme}><LevelledEffect node={node}/></ThemeProvider>);
+    const { container } = render(<ThemeProvider theme={theme}><LevelledEffect node={node}/></ThemeProvider>);
     const line = [...container.querySelectorAll('[data-cost-line]')].find((row) => row.textContent.startsWith('Cost for this level'));
     // The exact amount is the short one's note: a click pins it.
     const trigger = line.querySelector('[role="button"]');
@@ -139,7 +139,7 @@ describe('LevelledEffect', () => {
 
   it('draws a coin cost in its tiers', () => {
     const coins = { ...capped, cost: { formula: 'pow', args: { base: 150, rate: 1 }, currency: 'Coins' } };
-    const { container } = render(<ThemeProvider theme={darkTheme}><LevelledEffect node={coins}/></ThemeProvider>);
+    const { container } = render(<ThemeProvider theme={theme}><LevelledEffect node={coins}/></ThemeProvider>);
     const line = [...container.querySelectorAll('[data-cost-line]')].find((row) => row.textContent.startsWith('Cost for this level'));
     expect([line.textContent, [...line.querySelectorAll('img')].map((img) => img.getAttribute('src').split('/').pop())])
       .toEqual(['Cost for this level150', ['Coins2.png', 'Coins1.png']]);
@@ -181,7 +181,7 @@ describe('LevelledEffect', () => {
 
   it('renders a real single-cost registry page line for line as before', () => {
     const hydrogen = registryNodes({ atomsInfo }, [atom])['atom:Atom0'];
-    const { container } = render(<ThemeProvider theme={darkTheme}><LevelledEffect node={hydrogen}/></ThemeProvider>);
+    const { container } = render(<ThemeProvider theme={theme}><LevelledEffect node={hydrogen}/></ThemeProvider>);
     fireEvent.change(screen.getByLabelText('Atom level'), { target: { value: '10' } });
     // Particles draw as their art, the word kept as its alt text.
     expect([lines(container), container.querySelector('img')?.getAttribute('alt')])

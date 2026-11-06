@@ -8,7 +8,7 @@ import LoginErrorAlert from './LoginErrorAlert';
 import SignInSteps from './SignInSteps';
 import FlowAction, { ActionButton } from './FlowAction';
 import { FIELD_SX, FLOW_SX } from './look';
-import { touchTarget } from '../../../styles/theme/darkTheme';
+import { touchTarget } from '../../../styles/theme/theme';
 
 const STEAM_OPENID_URL = 'https://steamcommunity.com/openid/login?' +
   'openid.ns=http://specs.openid.net/auth/2.0&' +

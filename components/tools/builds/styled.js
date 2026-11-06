@@ -6,7 +6,7 @@
 import { styled } from '@mui/material/styles';
 import { Box, Chip, TextField } from '@mui/material';
 import { ACCENT } from '@utility/builds/classes';
-import { ink } from '../../../styles/theme/darkTheme';
+import { ink } from '../../../styles/theme/theme';
 
 // Paper surface: BuildCard, tab cards, sticky form toolbar, etc.
 // Based on Box so callers can compose layout (flex row / column / grid)

@@ -26,7 +26,7 @@ import {
 import { AppContext, shownCharacters, shownFilters } from '@components/common/context/AppProvider';
 import usePin from '@components/common/favorites/usePin';
 import EntityIcon from '@components/wiki/EntityIcon';
-import { touchTarget } from '../../styles/theme/darkTheme';
+import { touchTarget } from '../../styles/theme/theme';
 import Notice from '@components/common/Notice';
 import { isModifiedClick } from '@components/wiki/links';
 

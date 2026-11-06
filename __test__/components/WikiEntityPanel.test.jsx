@@ -5,7 +5,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import EntityPanel from '@components/wiki/EntityPanel';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { staticNeighbourhood } from '@utility/wiki/static-graph.mjs';
 import { entityHref, pageIndex } from '@utility/wiki/page-graph';
 import { entityName } from '@utility/wiki/names.mjs';
@@ -44,7 +44,7 @@ const index = {
 };
 
 const renderPanel = (props) => render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <EntityPanel index={index} id={'monster:sandgiant'} onNavigate={() => {}} {...props}/>
   </ThemeProvider>
 );
@@ -53,7 +53,7 @@ describe('EntityPanel breadcrumb', () => {
   const crumbLinks = (container) => [...container.querySelectorAll('nav[aria-label="breadcrumb"] a')]
     .map((link) => [link.textContent, link.getAttribute('href')]);
   const renderNode = (node, props) => render(
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <EntityPanel index={{ byId: { [node.id]: node }, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] }}
                    id={node.id} onNavigate={() => {}} {...props}/>
     </ThemeProvider>
@@ -416,7 +416,7 @@ describe('EntityPanel family bonus', () => {
 
   // The page keeps one EntityPanel across client-side navigation, so the typed level must not follow.
   it('resets the level when the panel moves to another class', () => {
-    const panel = (id) => <ThemeProvider theme={darkTheme}>
+    const panel = (id) => <ThemeProvider theme={theme}>
       <EntityPanel index={classIndex} id={id} onNavigate={() => {}}/>
     </ThemeProvider>;
     const { rerender } = render(panel('class:Blood_Berserker'));

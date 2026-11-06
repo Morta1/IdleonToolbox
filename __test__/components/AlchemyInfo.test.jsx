@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import AlchemyInfo from '../../components/wiki/AlchemyInfo';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 const terms = [{ token: '{', formula: 'growth', args: { func: 'add', x1: 3, x2: 0 } }];
 const liquids = [{ name: 'Water Drops', icon: '/data/Liquid1_x1.png', cost: 5 }];
@@ -30,7 +30,7 @@ afterEach(() => {
 describe('AlchemyInfo markup', () => {
   it.each([['vial', vial], ['bubble', bubble]])('renders a %s without a DOM nesting warning', (_, node) => {
     const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
-    render(<ThemeProvider theme={darkTheme}><AlchemyInfo node={node} materialName={'Copper Ore'}/></ThemeProvider>);
+    render(<ThemeProvider theme={theme}><AlchemyInfo node={node} materialName={'Copper Ore'}/></ThemeProvider>);
     const nesting = errors.mock.calls.map((call) => call.join(' ')).filter((line) => /cannot be a descendant of|cannot contain a nested|validateDOMNesting/.test(line));
     expect(nesting).toEqual([]);
   });
@@ -40,7 +40,7 @@ describe('AlchemyInfo markup', () => {
 // it in a group of its own.
 describe('AlchemyInfo groups', () => {
   it.each([['vial', vial], ['bubble', bubble]])('gives a %s no separate Liquids group', (_, node) => {
-    render(<ThemeProvider theme={darkTheme}><AlchemyInfo node={node} materialName={'Copper Ore'}/></ThemeProvider>);
+    render(<ThemeProvider theme={theme}><AlchemyInfo node={node} materialName={'Copper Ore'}/></ThemeProvider>);
     expect(screen.queryByText('Liquids')).toBeNull();
   });
 });

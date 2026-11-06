@@ -6,7 +6,7 @@ import { describeLoginError, toLoginError } from '@utility/loginErrors';
 import LoginErrorAlert from './LoginErrorAlert';
 import FlowAction from './FlowAction';
 import { FIELD_SX, FLOW_SX } from './look';
-import { touchTarget } from '../../../styles/theme/darkTheme';
+import { touchTarget } from '../../../styles/theme/theme';
 
 const EmailLogin = ({ onStart }) => {
   const { state, dispatch, waitingForAuth, setWaitingForAuth } = useContext(AppContext);

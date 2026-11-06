@@ -4,7 +4,7 @@ import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 const router = vi.hoisted(() => ({ push: vi.fn(), query: {}, pathname: '/test' }));
 vi.mock('next/router', () => ({ useRouter: () => router }));
@@ -17,7 +17,7 @@ const Tabber = (await import('@components/common/Tabber')).default;
 const ViewSwitch = (await import('@components/common/ViewSwitch')).default;
 
 const renderTabber = (count, props = {}) => render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <Tabber tabs={Array.from({ length: count }, (_, index) => `tab${index}`)} {...props}><div/></Tabber>
   </ThemeProvider>
 );
@@ -93,7 +93,7 @@ describe('Tabber', () => {
 describe('ViewSwitch', () => {
   it('shows the view in the URL and writes a pick back, keeping the levels above', () => {
     router.query = { t: 'Explore', nt: 'The Jars', dnt: 'Collectibles' };
-    render(<ThemeProvider theme={darkTheme}>
+    render(<ThemeProvider theme={theme}>
       <ViewSwitch options={[['Jars', 'Jars'], ['Collectibles', 'Collectibles']]} queryKey="dnt"/>
     </ThemeProvider>);
     expect(screen.getByRole('button', { name: 'Collectibles' }).getAttribute('aria-pressed')).toBe('true');

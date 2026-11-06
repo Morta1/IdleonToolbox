@@ -4,7 +4,7 @@ import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 const push = vi.fn();
 vi.mock('next/router', () => ({ useRouter: () => ({ push, query: {}, pathname: '/' }) }));
@@ -17,7 +17,7 @@ const searchEvents = () => window.dataLayer
 
 // An empty wiki index: opening the panel never parses the real one here.
 const renderSearch = () => render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <QuickSearch loadWikiEntries={async () => []}/>
   </ThemeProvider>
 );

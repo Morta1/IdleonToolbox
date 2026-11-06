@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import DashboardSettings from '@components/common/DashboardSettings';
@@ -17,7 +17,7 @@ const Harness = ({ target = null, edits = {}, open = true, initialFilter }) => {
   useEffect(() => {
     latest = config;
   });
-  return <ThemeProvider theme={darkTheme}>
+  return <ThemeProvider theme={theme}>
     <DashboardSettings open={open} onClose={() => {}} config={config} onChange={setConfig} onFileUpload={() => {}}
                        target={target}
                        initialFilter={initialFilter}/>

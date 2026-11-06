@@ -6,7 +6,7 @@ import { cleanup, fireEvent, render, screen, within } from '@testing-library/rea
 import { ThemeProvider } from '@mui/material';
 import { crafts } from '@website-data';
 import PlanCard from '../../../components/tools/item-planner/PlanCard';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 import { buildPlanView } from '@utility/itemPlanner';
 
 const owned = (name, amount) => ({ name, owner: 'Bob', amount });
@@ -19,7 +19,7 @@ const crownView = buildPlanView({
 
 const renderCard = (props = {}) => {
   const handlers = { onAddItem: vi.fn(), onSetCount: vi.fn(), onRename: vi.fn(), onRemove: vi.fn() };
-  render(<ThemeProvider theme={darkTheme}>
+  render(<ThemeProvider theme={theme}>
     <PlanCard plan={{ name: 'Gods', items: [crown] }} view={crownView} defaultExpanded showAll {...handlers} {...props}/>
   </ThemeProvider>);
   return handlers;
@@ -121,7 +121,7 @@ describe('PlanCard', () => {
 
   it('draws tracked sprites from the current recipe, not the stored rawName', () => {
     const items = [{ itemName: 'Crown_of_the_Gods', itemQuantity: 1 }];
-    const { container } = render(<ThemeProvider theme={darkTheme}>
+    const { container } = render(<ThemeProvider theme={theme}>
       <PlanCard plan={{ name: 'No sprite', items }} view={buildPlanView({ items })} defaultExpanded showAll
                 onAddItem={vi.fn()} onSetCount={vi.fn()} onRename={vi.fn()} onRemove={vi.fn()}/>
     </ThemeProvider>);

@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import { buildModel } from '@utility/dashboard/settingsModel';
@@ -16,7 +16,7 @@ const quickFor = (configType, target, extra, edits = {}) => {
   return buildQuickEdit(config, buildModel(config, baseTrackers, diffTrackers(baseTrackers, config)), configType, target, extra);
 };
 const open = (quickEdit, props = {}) => {
-  render(<ThemeProvider theme={darkTheme}>
+  render(<ThemeProvider theme={theme}>
     <AlertQuickEdit quickEdit={quickEdit} open anchorPosition={{ top: 10, left: 10 }} onClose={() => {}}
                     onAction={props.onAction ?? (() => {})} onOpenAll={props.onOpenAll ?? (() => {})} onUndo={props.onUndo} iconSrc={props.iconSrc}
                     pageHref={props.pageHref} message={props.message}/>

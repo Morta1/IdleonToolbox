@@ -5,11 +5,11 @@ import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import NumberField from '@components/common/NumberField';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 const renderField = (props) => {
   const onChange = vi.fn();
-  render(<ThemeProvider theme={darkTheme}><NumberField label="Threshold" onChange={onChange} {...props}/></ThemeProvider>);
+  render(<ThemeProvider theme={theme}><NumberField label="Threshold" onChange={onChange} {...props}/></ThemeProvider>);
   return { onChange, input: screen.getByLabelText('Threshold') };
 };
 
@@ -65,7 +65,7 @@ describe('NumberField', () => {
 
   it('names itself without a label, can leave the range out, and reports the value it is left with', () => {
     const onCommit = vi.fn();
-    render(<ThemeProvider theme={darkTheme}>
+    render(<ThemeProvider theme={theme}>
       <NumberField ariaLabel="World 3 value" value={15} min={0} max={100} help={false} onCommit={onCommit}/>
     </ThemeProvider>);
     const input = screen.getByLabelText('World 3 value');

@@ -4,7 +4,7 @@ import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { listingProps, slugProps } from '@utility/wiki/static-pages.mjs';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 
@@ -15,7 +15,7 @@ vi.mock('next/router', () => ({ useRouter: () => ({ pathname: '/wiki/[kind]', ..
 
 const WikiListingPage = (await import('@components/wiki/WikiListingPage')).default;
 
-const renderPage = (props) => render(<ThemeProvider theme={darkTheme}><WikiListingPage {...props}/></ThemeProvider>);
+const renderPage = (props) => render(<ThemeProvider theme={theme}><WikiListingPage {...props}/></ThemeProvider>);
 const npc = listingProps('npc').props;
 
 describe('WikiListingPage', () => {
@@ -111,7 +111,7 @@ describe('WikiListingPage sort', () => {
   it('opens the next listing unfiltered', () => {
     const { rerender } = renderPage(npc);
     fireEvent.change(screen.getByPlaceholderText(/^Search NPCs/), { target: { value: 'zzz' } });
-    rerender(<ThemeProvider theme={darkTheme}><WikiListingPage {...listingProps('pet').props}/></ThemeProvider>);
+    rerender(<ThemeProvider theme={theme}><WikiListingPage {...listingProps('pet').props}/></ThemeProvider>);
     expect(screen.getByPlaceholderText(/^Search pets/i).value).toBe('');
   });
 });

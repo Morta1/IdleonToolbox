@@ -4,7 +4,7 @@ import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import raw from '../../data/raw.json';
@@ -24,7 +24,7 @@ const voidwalker = characters.find((c) => checkCharClass(c?.class, CLASSES.Voidw
 const renderWith = (chars, acc = account, query = {}) => {
   routerQuery.current = query;
   return render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <AppContext.Provider value={{ state: { characters: chars, account: acc } }}>
       <Speedrun/>
     </AppContext.Provider>

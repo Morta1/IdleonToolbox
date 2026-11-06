@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import PermanentUpgrades from '@components/account/Worlds/World2/Killroy/PermanentUpgrades';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 const killroy = {
   permanentUpgrades: [
@@ -33,7 +33,7 @@ const killroy = {
   ]
 };
 
-const renderUpgrades = () => render(<ThemeProvider theme={darkTheme}><PermanentUpgrades killroy={killroy}/></ThemeProvider>);
+const renderUpgrades = () => render(<ThemeProvider theme={theme}><PermanentUpgrades killroy={killroy}/></ThemeProvider>);
 
 describe('Killroy permanent upgrades', () => {
   it('shows the next decay breakpoint level for a capped upgrade', () => {

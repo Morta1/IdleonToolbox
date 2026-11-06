@@ -10,7 +10,7 @@ import {
   FAMILY_THEME,
   familyOf
 } from '@utility/builds/classes';
-import { ink } from '../../../styles/theme/darkTheme';
+import { ink } from '../../../styles/theme/theme';
 
 const CLASS_OPTIONS = FAMILY_ORDER.flatMap((fam) =>
   CLASS_KEYS.filter((k) => familyOf(k) === fam)

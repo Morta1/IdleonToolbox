@@ -2,11 +2,11 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 import { noticeSnapshot, notify } from '@components/common/Overlays/notify';
 
-const renderHost = () => render(<ThemeProvider theme={darkTheme}><SnackbarHost/></ThemeProvider>);
+const renderHost = () => render(<ThemeProvider theme={theme}><SnackbarHost/></ThemeProvider>);
 
 afterEach(() => {
   vi.useRealTimers();

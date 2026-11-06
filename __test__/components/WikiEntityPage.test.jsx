@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { entityPageProps } from '@utility/wiki/static-pages.mjs';
 
 vi.mock('next/router', () => ({
@@ -13,7 +13,7 @@ vi.mock('next/router', () => ({
 
 const WikiEntityPage = (await import('@components/wiki/WikiEntityPage')).default;
 
-const page = (props) => <ThemeProvider theme={darkTheme}><WikiEntityPage {...props}/></ThemeProvider>;
+const page = (props) => <ThemeProvider theme={theme}><WikiEntityPage {...props}/></ThemeProvider>;
 
 describe('WikiEntityPage', () => {
   // Next keeps the page component mounted between two pages of one route, so a level typed on one

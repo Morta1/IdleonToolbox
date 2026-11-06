@@ -2,7 +2,7 @@ import React from 'react';
 import { Typography } from '@mui/material';
 import { cleanUnderscore, growth, talentText } from '@utility/helpers';
 import { formatTalentName } from '@utility/builds/itemRefs';
-import { ink } from '../../../styles/theme/darkTheme';
+import { ink } from '../../../styles/theme/theme';
 
 // Shared chip + talent-tooltip primitives used by both the editor's inline
 // mention chip (RichTextEditor.jsx) and the published-view renderer

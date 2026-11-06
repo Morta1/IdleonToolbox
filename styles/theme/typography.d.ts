@@ -1,4 +1,4 @@
-// The theme's own type styles (darkTheme.js), known to MUI's types so .tsx files can name them.
+// The theme's own type styles (theme.js), known to MUI's types so .tsx files can name them.
 import type { CSSProperties } from 'react';
 import '@mui/material/styles';
 import '@mui/material/Typography';

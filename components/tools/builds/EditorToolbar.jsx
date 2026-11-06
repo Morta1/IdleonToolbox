@@ -19,7 +19,7 @@ import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
-import { ink } from '../../../styles/theme/darkTheme';
+import { ink } from '../../../styles/theme/theme';
 
 // Small, icon-only formatting toolbar for RichTextEditor. TipTap is headless,
 // so we provide the buttons ourselves: `editor.chain().focus().<cmd>().run()`

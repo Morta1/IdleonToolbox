@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 
 const fetchBoard = vi.fn();
 vi.mock('../../../services/leaderboards', () => ({ fetchBoard }));
@@ -19,7 +19,7 @@ const aroundAt = (rank) => Array.from({ length: 11 }, (_, i) => ({ mainChar: i =
 const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 const renderDrawer = (props = {}) => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <BoardDrawer open metricKey="mining" index={index} player="me" kind="logged" showAnonymous onClose={() => {}} {...props}/>
     </ThemeProvider>
   </QueryClientProvider>
@@ -120,7 +120,7 @@ describe('BoardDrawer', () => {
     fetchBoard.mockReturnValueOnce(new Promise(() => {}));
     const tree = (player) => (
       <QueryClientProvider client={client}>
-        <ThemeProvider theme={darkTheme}>
+        <ThemeProvider theme={theme}>
           <BoardDrawer open metricKey="mining" index={index} player={player} kind="logged" showAnonymous onClose={() => {}}/>
         </ThemeProvider>
       </QueryClientProvider>
@@ -138,7 +138,7 @@ describe('BoardDrawer', () => {
     fetchBoard.mockReturnValueOnce(new Promise(() => {}));
     const tree = (metricKey) => (
       <QueryClientProvider client={client}>
-        <ThemeProvider theme={darkTheme}>
+        <ThemeProvider theme={theme}>
           <BoardDrawer open metricKey={metricKey} index={index} player="me" kind="logged" showAnonymous onClose={() => {}}/>
         </ThemeProvider>
       </QueryClientProvider>

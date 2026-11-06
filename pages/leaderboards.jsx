@@ -10,7 +10,7 @@ import { fetchMeta, fetchPlayer, fetchTab } from '../services/leaderboards';
 import { trackLeaderboardEvent } from '@components/leaderboards/analytics';
 import useLeaderboardSelf from '@hooks/useLeaderboardSelf';
 import { RUN_QUERY_KEYS, TABS, buildMetaIndex, rankText, showsFailure, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
-import { focusWithinRing } from '../styles/theme/darkTheme';
+import { focusWithinRing } from '../styles/theme/theme';
 import ControlBar from '@components/leaderboards/ControlBar';
 import Overview from '@components/leaderboards/Overview';
 import CategoryTab from '@components/leaderboards/CategoryTab';

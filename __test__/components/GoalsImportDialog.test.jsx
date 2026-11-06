@@ -4,7 +4,7 @@ import React, { useEffect } from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -33,7 +33,7 @@ const Probe = () => {
   return null;
 };
 const mount = (ui) => render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <AppContext.Provider value={{ state: { uid: KEY, account, characters }, dispatch: vi.fn() }}>
       <GoalsProvider><Probe/>{ui}</GoalsProvider>
       <SnackbarHost/>

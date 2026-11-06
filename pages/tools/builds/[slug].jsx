@@ -23,7 +23,7 @@ import {
 } from '@utility/builds/build-pages.mjs';
 import { filterAndSortBuilds } from '@utility/builds/filter-builds';
 import { CLASS_KEYS, resolveHierarchy } from '@utility/builds/classes';
-import { ink } from '../../../styles/theme/darkTheme';
+import { ink } from '../../../styles/theme/theme';
 
 // One route, two kinds of page: /tools/builds/barbarian browses a class, /tools/builds/<id>-<title>
 // is a single build. They share a route because Next's pages router refuses two dynamic siblings

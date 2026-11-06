@@ -7,7 +7,7 @@ import { ThemeProvider } from '@mui/material';
 import { crafts } from '@website-data';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import ItemPlanner from '../../../pages/tools/item-planner';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 import { PageHeaderSlots, SettingsSlot } from '@components/common/NavBar/PageHeader';
 
@@ -28,7 +28,7 @@ const Harness = ({ plans = defaultPlans, account, isLoading, storageHydrated, em
     latestState = state;
   });
   const dispatch = ({ type, data }) => type === 'planner' && setState((prev) => ({ ...prev, planner: data }));
-  return <ThemeProvider theme={darkTheme}>
+  return <ThemeProvider theme={theme}>
     <AppContext.Provider value={{ state, dispatch }}>
       <PageHeaderSlots><SettingsSlot/><ItemPlanner/></PageHeaderSlots>
     </AppContext.Provider>

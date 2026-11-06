@@ -41,7 +41,7 @@ import { openWikiEntity } from '@utility/wiki/item-page';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { focusRing } from '../../../styles/theme/darkTheme';
+import { focusRing } from '../../../styles/theme/theme';
 import { createBreakdown, multiplier as multiplierLine } from '@parsers/breakdown';
 
 // The game's reducer grows by the Hydrogen atom's daily bonus up to 90% (Atom Collider): the what-if steps it can take

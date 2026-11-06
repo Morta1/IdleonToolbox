@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 
 const fetchBoard = vi.fn(async () => ({ metric: 'globalRanking', createdAt: 1, around: [],
   top: Array.from({ length: 10 }, (_, i) => ({ mainChar: `G${i + 1}`, value: 20000 - i, rank: i + 1, globalRank: i + 1 })) }));
@@ -33,7 +33,7 @@ const self = { name: null, pending: false, participation: null, lastUpload: null
 const logged = { name: 'Baker333', kind: 'logged' };
 const renderOverview = (props) => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <Overview index={index} showAnonymous highlight={{}} self={self} onOpen={() => {}} onTab={() => {}} {...props}/>
     </ThemeProvider>
   </QueryClientProvider>

@@ -6,7 +6,7 @@ import { renderToString } from 'react-dom/server';
 import { fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import EntityList from '@components/wiki/EntityList';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { listingCells, listingColumns } from '@utility/wiki/listing.mjs';
 
 // The toolbar sticks under the profile banner, which reads the router; no page mounts one here.
@@ -30,7 +30,7 @@ const makeIndex = (count) => {
 const renderList = (count, method) => {
   const index = makeIndex(count);
   const onNavigate = vi.fn();
-  const ui = <ThemeProvider theme={darkTheme}>
+  const ui = <ThemeProvider theme={theme}>
     <EntityList
       index={index}
       kind={'npc'}
@@ -72,7 +72,7 @@ describe('EntityList same-name rows', () => {
       { id: 'mineheadopponent:MineheadOpp20', kind: 'mineheadopponent', label: 'Brainhead', disambig: '#21' },
       { id: 'mineheadopponent:MineheadOpp21', kind: 'mineheadopponent', label: 'Brainhead', disambig: '#22' }
     ];
-    const { getAllByRole } = render(<ThemeProvider theme={darkTheme}>
+    const { getAllByRole } = render(<ThemeProvider theme={theme}>
       <EntityList
         index={{ byId, searchList }}
         kind={'mineheadopponent'}
@@ -97,7 +97,7 @@ describe('EntityList Pet Mart card', () => {
         petMart: true, petName: 'Mr_Blob', price: 4.99, gems: 1200, petCrystals: 35
       }
     };
-    const { container } = render(<ThemeProvider theme={darkTheme}>
+    const { container } = render(<ThemeProvider theme={theme}>
       <EntityList
         index={{ byId, searchList: [{ id: 'bundle:petMart1', kind: 'bundle', label: 'Blob Pack' }] }}
         kind={'bundle'}
@@ -121,7 +121,7 @@ describe('EntityList item categories', () => {
       { id: 'item:A', kind: 'item', label: 'Alpha' },
       { id: 'item:B', kind: 'item', label: 'Beta' }
     ];
-    const { getAllByText, getByRole, getAllByRole, queryByText } = render(<ThemeProvider theme={darkTheme}>
+    const { getAllByText, getByRole, getAllByRole, queryByText } = render(<ThemeProvider theme={theme}>
       <EntityList
         index={{ byId, searchList }}
         kind={'item'}
@@ -157,7 +157,7 @@ describe('EntityList item category bands and picker', () => {
         searchList.push({ id, kind: 'item', label, ...(disambig ? { disambig } : {}) });
       }
     }
-    return render(<ThemeProvider theme={darkTheme}>
+    return render(<ThemeProvider theme={theme}>
       <EntityList index={{ byId, searchList }} kind={'item'} onNavigate={() => {}}
                   hrefFor={(id) => `/wiki/item/${byId[id].slug}`}/>
     </ThemeProvider>);
@@ -228,7 +228,7 @@ describe('EntityList table', () => {
 
   const renderTable = ({ count = 3, categoryOf, sort = null, onSortChange = () => {}, method = render } = {}) => {
     const { columns, index } = sushi(count, categoryOf);
-    return method(<ThemeProvider theme={darkTheme}>
+    return method(<ThemeProvider theme={theme}>
       <EntityList
         index={index}
         kind={'sushiupgrade'}
@@ -264,7 +264,7 @@ describe('EntityList table', () => {
   // A reader who expanded the list and then sorts it is still looking at the whole list.
   it('keeps an expanded list expanded when it is sorted', () => {
     const { columns, index } = sushi(150);
-    const list = (sort) => <ThemeProvider theme={darkTheme}>
+    const list = (sort) => <ThemeProvider theme={theme}>
       <EntityList index={index} kind={'sushiupgrade'} columns={columns} sort={sort} onSortChange={() => {}}
                   onNavigate={() => {}} hrefFor={(id) => `/wiki/sushiupgrade/${index.byId[id].slug}`}/>
     </ThemeProvider>;
@@ -375,7 +375,7 @@ describe('EntityList bundle cards', () => {
     const searchList = nodes.map((node) => ({
       id: `bundle:${node.rawName}`, kind: 'bundle', label: node.name.replace(/_/g, ' '), cells: listingCells(columns, node)
     }));
-    const { container } = render(<ThemeProvider theme={darkTheme}>
+    const { container } = render(<ThemeProvider theme={theme}>
       <EntityList
         index={{ byId, searchList }}
         kind={'bundle'}
@@ -409,7 +409,7 @@ describe('EntityList bundle cards', () => {
     const columns = listingColumns('compassupgrade', nodes);
     const byId = Object.fromEntries(nodes.map((n) => [`compassupgrade:${n.rawName}`, n]));
     const searchList = nodes.map((n) => ({ id: `compassupgrade:${n.rawName}`, kind: 'compassupgrade', label: n.name, cells: listingCells(columns, n) }));
-    const { container } = render(<ThemeProvider theme={darkTheme}>
+    const { container } = render(<ThemeProvider theme={theme}>
       <EntityList index={{ byId, searchList }} kind={'compassupgrade'} columns={columns} sort={null} onSortChange={() => {}}
                   onNavigate={() => {}} hrefFor={(id) => `/wiki/compassupgrade/${byId[id].slug}`}/>
     </ThemeProvider>);

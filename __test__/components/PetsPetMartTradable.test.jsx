@@ -4,7 +4,7 @@ import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { getCompanions } from '@parsers/misc';
 
 vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, asPath: '/' }) }));
@@ -20,7 +20,7 @@ const Pets = (await import('../../pages/account/prem-currency/pets')).default;
 const renderPets = (copies, { plusView = false, filter, petMart } = {}) => {
   const companions = getCompanions({ l: copies }, []);
   const { container } = render(
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <AppContext.Provider value={{ state: { account: { companions, tournament: { petMart } }, lastUpdated: Date.now() }, reparseOwnAccount: vi.fn() }}>
         <Pets/>
       </AppContext.Provider>
@@ -202,7 +202,7 @@ describe('Pet Mart tab: Past rotations', () => {
   const sectionText = async (days) => {
     Object.assign(petMartHistory, { data: { days }, isSuccess: true });
     const PetMart = (await import('@components/account/Pets/PetMart')).default;
-    const { container } = render(<ThemeProvider theme={darkTheme}>
+    const { container } = render(<ThemeProvider theme={theme}>
       <PetMart petMart={petMart} companions={getCompanions({ l: [] }, []).list} lastUpdated={Date.now()}/>
     </ThemeProvider>);
     const text = container.textContent;

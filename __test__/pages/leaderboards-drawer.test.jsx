@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 Element.prototype.scrollIntoView = vi.fn();
 const routerState = { isReady: true, query: {}, push: vi.fn(), replace: vi.fn(), back: vi.fn(), asPath: '/leaderboards', pathname: '/leaderboards' };
@@ -28,7 +28,7 @@ const client = new QueryClient({ defaultOptions: { queries: { retry: false } } }
 const renderPage = (state = {}) => {
   const page = () => (
     <QueryClientProvider client={client}>
-      <ThemeProvider theme={darkTheme}>
+      <ThemeProvider theme={theme}>
         <AppContext.Provider value={{ state }}>
           <Leaderboards/>
         </AppContext.Provider>

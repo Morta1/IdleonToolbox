@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Link, Menu, MenuItem, Typography } from '@mui/material';
 import { useColorScheme } from '@mui/material/styles';
 import useHydrated from '@hooks/useHydrated';
-import { SELECT_ROW } from '../../../styles/theme/darkTheme';
+import { SELECT_ROW } from '../../../styles/theme/theme';
 
 // A line of text in a menu, not an item: the arrow keys skip it (MenuList reads muiSkipListHighlight).
 export const MenuCaption = ({ children }) => <Typography variant="caption" color="text.secondary" component="li" role="none"

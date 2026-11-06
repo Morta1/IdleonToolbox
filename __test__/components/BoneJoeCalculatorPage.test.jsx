@@ -4,7 +4,7 @@ import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import raw from '../../data/raw.json';
 import { formatNum } from '@utility/helpers';
@@ -38,7 +38,7 @@ const bossDamage = (playerInfo, rawName, character, price = getEffectiveDamage) 
   price(getMinibossPlayerInfo(playerInfo, rawName, account), character);
 
 const renderPage = (state) => render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <AppContext.Provider value={{ state }}>
       <BoneJoeCalculator/>
     </AppContext.Provider>

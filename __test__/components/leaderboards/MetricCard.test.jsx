@@ -4,10 +4,10 @@ import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 import MetricCard from '@components/leaderboards/MetricCard';
 
-const renderCard = (props) => render(<ThemeProvider theme={darkTheme}><MetricCard highlight={{}} pinned={null} onOpen={() => {}} {...props}/></ThemeProvider>);
+const renderCard = (props) => render(<ThemeProvider theme={theme}><MetricCard highlight={{}} pinned={null} onOpen={() => {}} {...props}/></ThemeProvider>);
 const mining = { key: 'mining', label: 'Mining', notation: 'default', maxed: false };
 const row = (mainChar, mining, rank, globalRank = null) => ({ mainChar, mining, rank, globalRank });
 

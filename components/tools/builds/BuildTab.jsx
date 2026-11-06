@@ -6,7 +6,7 @@ import ItemRefRenderer from './ItemRefRenderer';
 import { cleanUnderscore, growth, prefix, talentText } from '@utility/helpers';
 import { SUPER_TALENT_MAX_POINTS, isSuperTalentEligible } from '@utility/builds/superTalents';
 import { styled } from '@mui/material/styles';
-import { ink } from '../../../styles/theme/darkTheme';
+import { ink } from '../../../styles/theme/theme';
 
 // Fully controlled: talent values come straight from the parent
 // (BuildForm or BuildDetail). No local mirrors, no useEffect resync needed.

@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import raw from '../../data/raw.json';
 
@@ -26,7 +26,7 @@ const ClamWork = (await import('../../pages/account/world-7/clam-work')).default
 const { characters, account } = parseFixture(raw);
 
 const renderPage = () => render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <AppContext.Provider value={{ state: { characters, account } }}>
       <ClamWork/>
     </AppContext.Provider>

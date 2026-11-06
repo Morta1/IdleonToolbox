@@ -6,9 +6,9 @@ import { render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import ItemCard from '@components/common/cards/ItemCard';
 import { notateNumber } from '@utility/helpers';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
-const renderCard = (ui) => render(<ThemeProvider theme={darkTheme}>{ui}</ThemeProvider>);
+const renderCard = (ui) => render(<ThemeProvider theme={theme}>{ui}</ThemeProvider>);
 
 describe('ItemCard', () => {
   it("turns the game's @ into lines, joining a mid-sentence one", () => {

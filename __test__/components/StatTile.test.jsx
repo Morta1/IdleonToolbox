@@ -7,9 +7,9 @@ import { ThemeProvider } from '@mui/material';
 import StatTile from '@components/common/cards/StatTile';
 import { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatusText from '@components/common/StatusText';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
-const renderCard = (ui) => render(<ThemeProvider theme={darkTheme}>{ui}</ThemeProvider>);
+const renderCard = (ui) => render(<ThemeProvider theme={theme}>{ui}</ThemeProvider>);
 
 const TOTALLED = { statName: 'Enemy HP', totalValue: 'Lv. 1: 10', tree: [] };
 const UNTOTALLED = { statName: 'Enemy HP', tree: [] };

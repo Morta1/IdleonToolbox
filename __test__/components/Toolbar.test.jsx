@@ -4,14 +4,14 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 vi.mock('@hooks/useProfileBannerState', () => ({ default: () => ({ isVisible: false }) }));
 const Toolbar = (await import('@components/common/Toolbar')).default;
 
 const DEFAULTS = { search: '', show: 'all', hideMaxed: false, sort: null };
 
-const bar = (props) => <ThemeProvider theme={darkTheme}>
+const bar = (props) => <ThemeProvider theme={theme}>
   <Toolbar defaults={DEFAULTS} total={120} shown={120} noun={'upgrades'} {...props}>
     <Toolbar.Sort options={[['cost', 'Cost'], ['name', 'Name', 'asc']]}/>
     <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
@@ -71,7 +71,7 @@ describe('Toolbar', () => {
     const toolbarWarnings = () => warn.mock.calls.filter(([message]) => String(message).startsWith('Toolbar:')).length;
     render(bar({ state: DEFAULTS, onChange: () => {} }));
     const direct = toolbarWarnings();
-    render(<ThemeProvider theme={darkTheme}>
+    render(<ThemeProvider theme={theme}>
       <Toolbar defaults={DEFAULTS} state={DEFAULTS}>
         <><Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/></>
       </Toolbar>

@@ -4,7 +4,7 @@ import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 // This project does not load jest-dom, so assertions use plain DOM properties.
 vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, pathname: '/' }) }));
@@ -26,7 +26,7 @@ const pins = [
 const renderPinned = (pinnedPages) => {
   localStorage.setItem('pinnedPages', JSON.stringify(pinnedPages));
   return render(
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <PinnedPages/>
       <SnackbarHost/>
     </ThemeProvider>

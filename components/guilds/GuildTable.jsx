@@ -9,7 +9,7 @@ import { getGuildLevel } from '@parsers/guildLevel';
 import { seriesColors } from '@utility/chartTheme';
 import { formatNum } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
-import { focusRing } from '../../styles/theme/darkTheme';
+import { focusRing } from '../../styles/theme/theme';
 import Sparkline from './Sparkline';
 
 const VS_LAST_WEEK_NOTE = 'This week\'s GP vs last week\'s GP at the same hour-of-week. Positive = faster pace than last week at this point.';
