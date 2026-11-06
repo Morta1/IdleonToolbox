@@ -94,10 +94,10 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
         </ItemCard>;
       })}
     </CardGrid>
-    <Stack gap={1}>
+    {inventory?.length ? <Stack gap={1}>
       <Typography variant={'sectionTitle'} component={'h2'}>Inventory</Typography>
-      <CardGrid size={'icon'}>{inventory?.map((item, index) => slotTile(item, 'inventory-' + index))}</CardGrid>
-    </Stack>
+      <CardGrid size={'icon'}>{inventory.map((item, index) => slotTile(item, 'inventory-' + index))}</CardGrid>
+    </Stack> : null}
   </Stack>
 };
 
