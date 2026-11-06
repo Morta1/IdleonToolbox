@@ -6,6 +6,7 @@ import Panel from '@components/common/cards/Panel';
 import GameIcon from '@components/common/GameIcon';
 import Num from '@components/common/Num';
 import { NoteTrigger } from '@components/common/InfoButton';
+import { ON_ART } from '@utility/colorSets';
 
 const place = ({ col, row, colSpan = 1, rowSpan = 1 }) => ({
   gridColumn: `${col + 1} / span ${colSpan}`,
@@ -115,11 +116,11 @@ const Layout = ({ layout, cells }) => {
                   alt={boss.name}
                   style={{ width: '65%', minHeight: 0, flex: '0 1 auto', objectFit: 'contain' }}
                 />
-                <Stack alignItems="center" sx={{ bgcolor: 'rgba(0, 0, 0, 0.65)', borderRadius: 1, px: 1, py: 0.25 }}>
-                  <Typography variant="caption" sx={{ color: 'common.white', lineHeight: 1.2, textAlign: 'center' }}>
+                <Stack data-on-art alignItems="center" sx={{ bgcolor: ON_ART.plate, borderRadius: 1, px: 1, py: 0.25 }}>
+                  <Typography variant="caption" sx={{ color: ON_ART.text, lineHeight: 1.2, textAlign: 'center' }}>
                     {boss.name}
                   </Typography>
-                  <Typography variant="caption" sx={{ color: 'text.error', lineHeight: 1.2 }}>
+                  <Typography variant="caption" sx={{ color: ON_ART.error, lineHeight: 1.2 }}>
                     {formatNum(boss.hp ?? 0)} HP
                   </Typography>
                 </Stack>

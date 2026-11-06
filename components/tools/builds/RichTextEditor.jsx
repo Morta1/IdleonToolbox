@@ -15,6 +15,7 @@ import { docToText, textToDoc } from '@utility/builds/tiptapDoc';
 import MentionMenu from './MentionMenu';
 import EditorToolbar from './EditorToolbar';
 import { CHIP_SX, MISSING_CHIP_SX, TalentTooltipBody } from './chipCommon';
+import { ink } from '../../../styles/theme/darkTheme';
 
 // Module-level lookups built once. Flatten talents into a searchable array
 // and a skillIndex → talent map so the mention NodeView can hydrate without
@@ -322,14 +323,14 @@ const RichTextEditor = ({
           '& .ProseMirror': {
             minHeight: `${Math.max(1, minRows) * 24}px`,
             padding: '10.5px 14px',
-            border: '1px solid rgba(255,255,255,0.23)',
+            border: `1px solid ${ink(0.23)}`,
             borderRadius: '4px',
             color: 'text.primary',
             fontSize: 14,
             outline: 'none',
             whiteSpace: 'pre-wrap'
           },
-          '& .ProseMirror:hover': { borderColor: 'rgba(255,255,255,0.5)' },
+          '& .ProseMirror:hover': { borderColor: ink(0.5) },
           '& .ProseMirror.ProseMirror-focused': {
             borderColor: 'primary.main',
             borderWidth: '2px',
@@ -365,7 +366,7 @@ const RichTextEditor = ({
           '& .ProseMirror p.is-editor-empty:first-of-type::before': {
             content: 'attr(data-placeholder)',
             float: 'left',
-            color: 'rgba(255,255,255,0.35)',
+            color: ink(0.35),
             pointerEvents: 'none',
             height: 0
           }

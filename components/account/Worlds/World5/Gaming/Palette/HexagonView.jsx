@@ -8,12 +8,13 @@ import { NoteTrigger } from '@components/common/InfoButton';
 import GameIcon from '@components/common/GameIcon';
 import ItemCard from '@components/common/cards/ItemCard';
 import { colourName, paletteOdds } from './CardView';
+import { GAME_HEX } from '@utility/colorSets';
 
 const HEX_CLIP = 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)';
 // The board's glows for the active colours and the fastest to level, on the theme's primary and warning channels
 const glow = (channel) => `drop-shadow(0 0 8px rgba(var(--mui-palette-${channel}-mainChannel) / 0.8)) drop-shadow(0 0 4px rgba(var(--mui-palette-${channel}-mainChannel) / 1))`;
 // Dark text on the colour's own fill, with a light halo, as the game's board draws it
-const ON_FILL_SX = { position: 'relative', textShadow: '1px 1px 2px rgba(255, 255, 255, 0.8)', pointerEvents: 'none', zIndex: 2, color: 'common.black' };
+const ON_FILL_SX = { position: 'relative', textShadow: `1px 1px 2px ${GAME_HEX.halo}`, pointerEvents: 'none', zIndex: 2, color: GAME_HEX.text };
 
 // A hex's details, the card's content: a click, a tap or Enter pins it
 const hexNote = (item, isTop3, blackStarsOwned) => {
@@ -107,7 +108,7 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
                 pointerEvents: 'none'
               }}/> : null}
               {/* Inner hexagon (main content) */}
-              <Box sx={{
+              <Box data-on-art sx={{
                 position: 'absolute',
                 top: ring ? '4%' : 0,
                 left: ring ? '4%' : 0,
@@ -115,8 +116,8 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
                 height: ring ? '92%' : '100%',
                 clipPath: HEX_CLIP,
                 border: 1,
-                borderColor: active ? 'primary.main' : isTop3 ? 'warning.main' : 'common.black',
-                bgcolor: 'common.white',
+                borderColor: active ? 'primary.main' : isTop3 ? 'warning.main' : GAME_HEX.edge,
+                bgcolor: GAME_HEX.fill,
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center'

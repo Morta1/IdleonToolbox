@@ -23,6 +23,7 @@ import {
 } from '@utility/builds/build-pages.mjs';
 import { filterAndSortBuilds } from '@utility/builds/filter-builds';
 import { CLASS_KEYS, resolveHierarchy } from '@utility/builds/classes';
+import { ink } from '../../../styles/theme/darkTheme';
 
 // One route, two kinds of page: /tools/builds/barbarian browses a class, /tools/builds/<id>-<title>
 // is a single build. They share a route because Next's pages router refuses two dynamic siblings
@@ -174,7 +175,7 @@ const BuildClassPage = ({
       />
 
       {siblings?.length > 0 && (
-        <Typography variant="body2" sx={{ mt: 4, color: 'rgba(255,255,255,0.55)' }}>
+        <Typography variant="body2" sx={{ mt: 4, color: ink(0.55) }}>
           {`Other ${family} builds: `}
           {siblings.map((other, i) => (
             <React.Fragment key={other}>

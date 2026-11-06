@@ -9,6 +9,7 @@ import {
 } from '@mui/material';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import { formatTalentName } from '@utility/builds/itemRefs';
+import { ink } from '../../../styles/theme/darkTheme';
 
 // Inline @-mention menu. Anchored to a virtual element at the caret's pixel
 // coordinates so the menu pops up right below the current character: not
@@ -67,7 +68,7 @@ const MentionMenu = ({ open, coords, items, selectedIdx, onSelect }) => {
           overflow: 'auto',
           minWidth: 280,
           maxWidth: 360,
-          border: '1px solid rgba(255,255,255,0.08)'
+          border: `1px solid ${ink(0.08)}`
         }}
       >
         <MenuList dense disablePadding>

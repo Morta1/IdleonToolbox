@@ -5,6 +5,7 @@ import { cleanUnderscore, prefix } from '@utility/helpers';
 import { classes } from '@website-data';
 import { ACCENT, CLASS_KEYS, FAMILY_ORDER, FAMILY_THEME, familyOf } from '@utility/builds/classes';
 import { classToSlug, slugToClassKey } from '@utility/builds/class-paths.mjs';
+import { ink } from '../../../styles/theme/darkTheme';
 
 // Row one is the four families plus All; row two appears only once a family is active and holds
 // that family's subclasses. Every pill is a real <a href> rather than a menu item, so changing
@@ -36,10 +37,10 @@ const Pill = ({ href, label, iconIndex, active, color, textColor = color, isClas
       fontSize: 13,
       fontWeight: 600,
       whiteSpace: 'nowrap',
-      color: active ? textColor : 'rgba(255,255,255,0.75)',
-      background: active ? `${color}22` : 'rgba(255,255,255,0.04)',
-      border: `1px solid ${active ? `${color}88` : 'rgba(255,255,255,0.08)'}`,
-      '&:hover': { background: active ? `${color}33` : 'rgba(255,255,255,0.07)' }
+      color: active ? textColor : ink(0.75),
+      background: active ? `${color}22` : ink(0.04),
+      border: `1px solid ${active ? `${color}88` : ink(0.08)}`,
+      '&:hover': { background: active ? `${color}33` : ink(0.07) }
     }}
   >
     {iconIndex >= 0 && (
@@ -63,7 +64,7 @@ const Row = ({ children }) => (
       overflowX: 'auto',
       pb: 0.5,
       '&::-webkit-scrollbar': { height: 4 },
-      '&::-webkit-scrollbar-thumb': { background: 'rgba(255,255,255,0.15)', borderRadius: 999 }
+      '&::-webkit-scrollbar-thumb': { background: ink(0.15), borderRadius: 999 }
     }}
   >
     {children}

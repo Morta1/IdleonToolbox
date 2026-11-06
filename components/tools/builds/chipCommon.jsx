@@ -2,6 +2,7 @@ import React from 'react';
 import { Typography } from '@mui/material';
 import { cleanUnderscore, growth, talentText } from '@utility/helpers';
 import { formatTalentName } from '@utility/builds/itemRefs';
+import { ink } from '../../../styles/theme/darkTheme';
 
 // Shared chip + talent-tooltip primitives used by both the editor's inline
 // mention chip (RichTextEditor.jsx) and the published-view renderer
@@ -15,15 +16,15 @@ export const CHIP_SX = {
   verticalAlign: 'middle',
   padding: '1px 6px 1px 2px',
   borderRadius: 1,
-  background: 'rgba(255,255,255,0.05)',
-  border: '1px solid rgba(255,255,255,0.08)',
+  background: ink(0.05),
+  border: `1px solid ${ink(0.08)}`,
   lineHeight: 1.3,
   cursor: 'help'
 };
 
 export const MISSING_CHIP_SX = {
   ...CHIP_SX,
-  color: 'rgba(255,255,255,0.5)',
+  color: ink(0.5),
   fontStyle: 'italic',
   cursor: 'default'
 };

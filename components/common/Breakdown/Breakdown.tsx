@@ -57,6 +57,7 @@ import {
   formatShare,
   GAIN_STEP
 } from "./breakdownInsights";
+import { ink } from '../../../styles/theme/darkTheme';
 
 // More notes than this bury the groups worth upgrading under near-zero ones
 const TOP_GAINS_SHOWN = 3
@@ -483,7 +484,7 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, insight, children }: {
           pr: isMobile ? 2 : 3,
           py: isMobile ? "7px" : topLevel ? 1.5 : 1,
           minHeight: isMobile ? 34 : "auto",
-          bgcolor: isBest ? "rgba(102, 187, 106, 0.1)" : topLevel ? "transparent" : "rgba(255, 255, 255, 0.03)",
+          bgcolor: isBest ? "rgba(var(--mui-palette-success-mainChannel) / 0.1)" : topLevel ? "transparent" : ink(0.03),
           boxShadow: isBest ? 'inset 3px 0 0 var(--mui-palette-success-main)' : 'none',
           border: "none",
           cursor: "pointer",
@@ -491,7 +492,7 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, insight, children }: {
           color: "text.primary",
           transition: "background-color 0.2s",
           "&:hover": {
-            bgcolor: "rgba(255, 255, 255, 0.06)",
+            bgcolor: ink(0.06),
           },
           // The CssBaseline ring is drawn outside, and the scrolling list clips it
           "&:focus-visible": { outlineOffset: -2 },
@@ -546,9 +547,9 @@ const LineRow = ({ node, pinned, onPin, isMobile, insight }: {
       minHeight: isMobile ? 34 : "auto",
       opacity: node.inactive ? 0.5 : 1,
       transition: "background-color 0.2s",
-      bgcolor: pinned ? "rgba(255, 215, 0, 0.1)" : "transparent",
+      bgcolor: pinned ? "identity.pinSoft" : "transparent",
       "&:hover": {
-        bgcolor: pinned ? "rgba(255, 215, 0, 0.15)" : "rgba(255, 255, 255, 0.05)",
+        bgcolor: pinned ? "identity.pinSoftHover" : "background.tint",
       },
     }}
   >

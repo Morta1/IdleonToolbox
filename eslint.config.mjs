@@ -11,6 +11,14 @@ const NUMBER_MESSAGE = 'Raw number formatting: use formatNum or <Num> (Numbers b
 const SHADE = '/^(success|error|warning|info)\\.(light|dark)$/'
 const SHADE_MESSAGE = 'Status shade in a component: words take the role (text.success), fills and edges the main shade (success.main). Foundations board.'
 const TYPE_MESSAGE = 'h1 to h6 are not titles: use pageTitle, sectionTitle, cardTitle or groupLabel (Foundations board, Type).'
+// What the hex rule can't see: colors written any other way, and palette reads that stay on the default scheme.
+const LITERAL_MESSAGE = "A color that can't follow the scheme: use a theme role (Foundations board). One that keeps its own place in both schemes, a picture or a game's color, belongs in utility/colorSets.js."
+const STATIC_MESSAGE = 'theme.palette stays on the default scheme: read (theme.vars || theme).palette, or a role name in sx.'
+const RGB = '/\\b(rgb|hsl)a?\\(\\s*\\d/'
+const NAMED_COLOR = '/(?<![.-])\\b(white|black|gr[ae]y|red|green|blue|yellow|orange|purple|pink|cyan|magenta|gold|silver|lime|teal|navy|maroon|brown|violet|indigo|crimson|coral|salmon|tomato|turquoise|lavender)\\b/'
+const STYLE_KEY = '/^(color|bgcolor|background|backgroundColor|border[A-Za-z]*|outline[A-Za-z]*|fill|stroke|boxShadow|textShadow|filter|caretColor|accentColor|textDecorationColor)$/'
+const COLOR_ATTR = '/^(color|bgcolor|fill|stroke|stopColor)$/'
+const FIXED_ROLE = '/^(grey\\.\\d+|common\\.(white|black))$|--mui-palette-(grey-\\d|common-(white|black)\\b)/'
 const LEGACY_FORMATTERS = { names: ['numberWithCommas'], message: NUMBER_MESSAGE }
 
 const eslintConfig = defineConfig([
@@ -35,6 +43,16 @@ const eslintConfig = defineConfig([
         { selector: `Literal[value=${SHADE}]`, message: SHADE_MESSAGE },
         { selector: "MemberExpression[property.name=/^(light|dark)$/][object.property.name=/^(success|error|warning|info)$/]", message: SHADE_MESSAGE },
         { selector: "JSXAttribute[name.name='variant'] Literal[value=/^h[1-6]$/]", message: TYPE_MESSAGE },
+        { selector: `Literal[value=${RGB}]`, message: LITERAL_MESSAGE },
+        { selector: `TemplateElement[value.raw=${RGB}]`, message: LITERAL_MESSAGE },
+        { selector: `Property[key.name=${STYLE_KEY}] Literal[value=${NAMED_COLOR}]`, message: LITERAL_MESSAGE },
+        { selector: `Property[key.name=${STYLE_KEY}] TemplateElement[value.raw=${NAMED_COLOR}]`, message: LITERAL_MESSAGE },
+        { selector: `JSXAttribute[name.name=${COLOR_ATTR}] Literal[value=${NAMED_COLOR}]`, message: LITERAL_MESSAGE },
+        { selector: `Literal[value=${FIXED_ROLE}]`, message: LITERAL_MESSAGE },
+        { selector: `TemplateElement[value.raw=${FIXED_ROLE}]`, message: LITERAL_MESSAGE },
+        { selector: "MemberExpression[property.name=/^(white|black)$/][object.property.name='common']", message: LITERAL_MESSAGE },
+        { selector: "MemberExpression[property.name='palette'][object.name=/^(theme|muiTheme)$/]", message: STATIC_MESSAGE },
+        { selector: "MemberExpression[property.name='palette'][object.callee.name='useTheme']", message: STATIC_MESSAGE },
       ],
       'no-restricted-imports': ['error', {
         paths: [

@@ -183,7 +183,7 @@ const PinnedPages = () => {
         disableGutters={!isXs}
         disableRipple
         sx={{
-          color: 'white',
+          color: 'text.primary',
           borderRadius: '8px',
           ...(!isXs ? { p: '0 8px' } : { minHeight: 46 })
         }}

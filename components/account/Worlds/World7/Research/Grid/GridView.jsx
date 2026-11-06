@@ -17,15 +17,15 @@ function getCellColors(theme, sq) {
 
   if (hasShape(sq)) {
     const { line, tint } = getShapeColor(theme, sq.placementShapeIndex);
-    return { borderColor: line, fillColor: line, unfilledBg: 'grey.700', affectedTint: hasLevel ? null : tint };
+    return { borderColor: line, fillColor: line, unfilledBg: 'identity.researchGrid.unfilled', affectedTint: hasLevel ? null : tint };
   }
   if (hasLevel) {
-    return { borderColor: 'grey.500', fillColor: 'grey.500', unfilledBg: 'grey.700', affectedTint: null };
+    return { borderColor: 'identity.researchGrid.levelled', fillColor: 'identity.researchGrid.levelled', unfilledBg: 'identity.researchGrid.unfilled', affectedTint: null };
   }
   return {
-    borderColor: 'grey.600',
-    fillColor: 'grey.700',
-    unfilledBg: canSelect ? 'grey.800' : 'grey.900',
+    borderColor: 'identity.researchGrid.edge',
+    fillColor: 'identity.researchGrid.unfilled',
+    unfilledBg: canSelect ? 'identity.researchGrid.open' : 'identity.researchGrid.closed',
     affectedTint: null
   };
 }

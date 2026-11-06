@@ -56,14 +56,16 @@ export const ACCENT = {
   primaryHover: '#3a95ee',
   primarySoft: 'rgba(32, 135, 232, 0.16)',
   primaryBorder: 'rgba(32, 135, 232, 0.55)',
+  headerLine: 'linear-gradient(90deg, rgba(32,135,232,0.35) 0%, rgba(32,135,232,0) 40%)',
+  emptyGlow: 'radial-gradient(600px 200px at 50% 0%, rgba(32,135,232,0.06), transparent 70%)',
   // Words in an active pill or chip: the blue itself reads 3.5:1 on its own soft fill.
   text: 'var(--mui-palette-primary-main)'
 };
 
 // Muted text shades reused across cards / meta rows.
-export const TEXT_MUTED = 'rgba(255,255,255,0.55)';
-export const TEXT_SUBTLE = 'rgba(255,255,255,0.7)';
-export const TEXT_STRONG = 'rgba(255,255,255,0.85)';
+export const TEXT_MUTED = 'rgba(var(--mui-palette-common-onBackgroundChannel) / 0.55)';
+export const TEXT_SUBTLE = 'rgba(var(--mui-palette-common-onBackgroundChannel) / 0.7)';
+export const TEXT_STRONG = 'rgba(var(--mui-palette-common-onBackgroundChannel) / 0.85)';
 
 // 3-px left accent strip used on BuildCard and per-tab cards in BuildForm.
 // Kept as a helper because the color is a runtime value (per family): a

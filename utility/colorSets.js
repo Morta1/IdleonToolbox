@@ -3,6 +3,12 @@
 // A mock of Discord's own client, dark whatever the site's scheme, as the game's art keeps the game's.
 export const DISCORD_CLIENT = { bg: '#313338', avatar: '#242429', muted: '#b5bac1', mention: '#c9cdfb', text: '#f2f3f5', embed: '#2b2d31', edge: '#5DCAA5', footer: '#949ba4', button: '#4e5058' };
 
+// The Palette's hexes, the game's board: dark words with a light halo on white, tinted by the color's own fill.
+export const GAME_HEX = { fill: '#fff', edge: '#000', text: '#000', halo: 'rgba(255, 255, 255, 0.8)' };
+
+// Words and marks sitting on a game sprite: the plate under a boss's name, and the dark edge around a glyph on an icon.
+export const ON_ART = { plate: 'rgba(0, 0, 0, 0.65)', text: '#fff', error: '#e57373', outline: '#000' };
+
 // The breakdown drawer's copy-as-image, a canvas picture players post: it reads the same whoever posts it.
 export const SHARE_IMAGE = {
   page: '#141A21',

@@ -45,6 +45,10 @@ export const focusRing = (theme, offset = 2) => ({
   outlineOffset: offset
 });
 
+// The page's ink at an alpha of its own: for the row tints that sit between the roles, and the builds pages, which keep
+// their look until their own pass (Decision 6). White in dark, black in light.
+export const ink = (alpha) => `rgba(var(--mui-palette-common-onBackgroundChannel) / ${alpha})`;
+
 // The same ring on every focus target inside a box whose controls are not all MUI buttons (a phone panel, a
 // drawer's list): keyboard only, because :focus-visible.
 export const focusWithinRing = (theme) => ({ '& :focus-visible': focusRing(theme) });
@@ -53,6 +57,8 @@ export const focusWithinRing = (theme) => ({ '& :focus-visible': focusRing(theme
 // pin: the breakdown's pinned star, gold as "pinned" reads elsewhere.
 const identity = {
   pin: '#FFD700',
+  pinSoft: 'rgba(255, 215, 0, 0.1)',
+  pinSoftHover: 'rgba(255, 215, 0, 0.15)',
   // An item's stat labels: what main's item card and wiki wore (MUI's error, success, secondary and warning .dark)
   stats: { STR: '#d32f2f', AGI: '#388e3c', WIS: '#ab47bc', LUK: '#f57c00' },
   // A Super Talent's words in a build, gold like the game's border around its icon
@@ -74,6 +80,8 @@ const identity = {
     { line: '#ffb74d', tint: 'rgba(255, 183, 77, 0.25)' }, { line: '#a5d6a7', tint: 'rgba(165, 214, 167, 0.25)' },
     { line: '#ef9a9a', tint: 'rgba(239, 154, 154, 0.25)' }, { line: '#ce93d8', tint: 'rgba(206, 147, 216, 0.25)' }
   ],
+  // Research's grid cells, the game's greys: a levelled cell, a cell's edge, its unfilled part, an open cell, a closed one
+  researchGrid: { levelled: '#9e9e9e', edge: '#757575', unfilled: '#616161', open: '#424242', closed: '#212121' },
   // Sailing's artifact forms, the game's: Base, Ancient, Eldritch, Sovereign, Omnipotent, Transcendent, Verisimilitude
   artifactTiers: ['#ffffff', '#ffd700', '#ffa092', '#67da80', '#00ffde', '#b388ff', '#ff7eb6'],
   // The Tome's point tiers, the game's: bronze, silver, gold, blue

@@ -67,7 +67,7 @@ class ErrorBoundary extends React.Component {
               maxHeight: 260,
               overflow: 'auto',
               borderRadius: 1,
-              bgcolor: 'rgba(0, 0, 0, .35)',
+              bgcolor: 'background.default',
               whiteSpace: 'pre-wrap',
               wordBreak: 'break-word'
             }}

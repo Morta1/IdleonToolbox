@@ -62,7 +62,7 @@ const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
 };
 
 // The game's active preset glows around the sprite's own shape, so it never fills the pill the way the open one does.
-const TabIcon = ({ src, alt, selected }) => <Box component={'span'} sx={{ display: 'inline-flex', filter: selected ? 'drop-shadow(0 0 3px cyan)' : 'none' }}>
+const TabIcon = ({ src, alt, selected }) => <Box component={'span'} sx={{ display: 'inline-flex', filter: selected ? 'drop-shadow(0 0 3px var(--mui-palette-primary-main))' : 'none' }}>
   <GameIcon src={src} size={20} alt={alt}/>
 </Box>;
 

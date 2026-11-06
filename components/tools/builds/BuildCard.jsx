@@ -19,6 +19,7 @@ import {
 } from '@utility/builds/classes';
 import AuthorChip from './AuthorChip';
 import { SurfaceCard, TagChip } from './styled';
+import { ink } from '../../../styles/theme/darkTheme';
 
 // Calm text-first card. Family color shows as a thin left accent bar plus a
 // subdued class breadcrumb: no gradient hero, no heavy uppercase labels.
@@ -34,7 +35,7 @@ const Separator = () => (
       width: 3,
       height: 3,
       borderRadius: '50%',
-      background: 'rgba(255,255,255,0.25)',
+      background: ink(0.25),
       flexShrink: 0
     }}
   />
@@ -51,7 +52,7 @@ const ClassCrumb = ({ classKey, children }) => (
     sx={{
       ...breadcrumbSx,
       textDecoration: 'none',
-      '&:hover': { color: 'rgba(255,255,255,0.9)', textDecoration: 'underline' }
+      '&:hover': { color: ink(0.9), textDecoration: 'underline' }
     }}
     noWrap
   >
@@ -83,7 +84,7 @@ const BuildCard = ({ build, staticIds }) => {
         ...familyAccentBar(theme.primary),
         '&:hover': {
           transform: 'translateY(-1px)',
-          borderColor: 'rgba(255,255,255,0.12)'
+          borderColor: ink(0.12)
         }
       }}
     >
@@ -192,8 +193,8 @@ const iconTileSx = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.05)'
+  background: ink(0.03),
+  border: `1px solid ${ink(0.05)}`
 };
 
 const titleSx = { fontWeight: 600, lineHeight: 1.25 };

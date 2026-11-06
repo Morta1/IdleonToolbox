@@ -19,6 +19,7 @@ import InsertLinkIcon from '@mui/icons-material/InsertLink';
 import LinkOffIcon from '@mui/icons-material/LinkOff';
 import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
+import { ink } from '../../../styles/theme/darkTheme';
 
 // Small, icon-only formatting toolbar for RichTextEditor. TipTap is headless,
 // so we provide the buttons ourselves: `editor.chain().focus().<cmd>().run()`
@@ -142,10 +143,10 @@ const EditorToolbar = ({ editor }) => {
       alignItems="center"
       sx={{
         flexWrap: 'wrap',
-        border: '1px solid rgba(255,255,255,0.12)',
+        border: `1px solid ${ink(0.12)}`,
         borderRadius: 1,
         p: 0.5,
-        background: 'rgba(255,255,255,0.02)'
+        background: ink(0.02)
       }}
     >
       <ToggleButtonGroup size="small" sx={{ gap: 0.25 }}>
@@ -234,10 +235,10 @@ const TB_SX = {
   height: 30,
   color: 'text.secondary',
   '&.Mui-selected': {
-    background: 'rgba(255,255,255,0.1)',
+    background: ink(0.1),
     color: 'text.primary'
   },
-  '&:hover': { background: 'rgba(255,255,255,0.06)' },
+  '&:hover': { background: ink(0.06) },
   '&.Mui-focusVisible': { background: 'transparent' },
   '&:focus:not(.Mui-selected)': { background: 'transparent' },
   // Disabled styling: keep the flat/borderless look. MUI's default adds a
@@ -246,7 +247,7 @@ const TB_SX = {
   '&.Mui-disabled': {
     border: 0,
     background: 'transparent',
-    color: 'rgba(255,255,255,0.2)'
+    color: ink(0.2)
   }
 };
 
@@ -277,7 +278,7 @@ const ToolbarDivider = () => (
     style={{
       width: 1,
       height: 20,
-      background: 'rgba(255,255,255,0.1)',
+      background: ink(0.1),
       margin: '0 2px'
     }}
   />
@@ -319,7 +320,7 @@ const LinkPopover = ({ anchorEl, initialUrl, hasExistingLink, onClose, onSave, o
             mt: 0.5,
             p: 1,
             minWidth: 320,
-            border: '1px solid rgba(255,255,255,0.08)'
+            border: `1px solid ${ink(0.08)}`
           }
         }
       }}

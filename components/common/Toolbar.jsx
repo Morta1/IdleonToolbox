@@ -347,7 +347,7 @@ const Toolbar = ({
           {ofType(Lead)}
           {hasPanel ? (panelIconOnly
             ? <IconButton aria-label={buttonLabel} {...panelButton}
-                          sx={{ ...phoneOnly, width: 44, height: 44, bgcolor: 'action.hover', color: 'common.white' }}>
+                          sx={{ ...phoneOnly, width: 44, height: 44, bgcolor: 'action.hover', color: 'text.primary' }}>
               {panelIcon}
             </IconButton>
             : <Button variant="outlined" startIcon={panelIcon ?? <IconAdjustmentsHorizontal size={18}/>} {...panelButton}

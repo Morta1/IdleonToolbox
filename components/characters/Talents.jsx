@@ -108,7 +108,7 @@ const Talents = ({
         onChange={setSelectedPreset}
         sx={PRESET_SX}
         // The game's active preset glows, as it did on the old tabs.
-        options={[0, 1].map((index) => [index, <span key={index} style={{ textShadow: selectedTalentPreset === index ? 'cyan 1px 0 10px' : '' }}>
+        options={[0, 1].map((index) => [index, <span key={index} style={{ textShadow: selectedTalentPreset === index ? 'var(--mui-palette-primary-main) 1px 0 10px' : '' }}>
           Preset {index + 1}
         </span>])}
       />

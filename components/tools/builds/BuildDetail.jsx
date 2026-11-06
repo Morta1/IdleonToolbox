@@ -11,6 +11,7 @@ import { hydrate } from '@utility/builds/hydrate';
 import { cleanUnderscore } from '@utility/helpers';
 import useFormatDate from '@hooks/useFormatDate';
 import useHydrated from '@hooks/useHydrated';
+import { ink } from '../../../styles/theme/darkTheme';
 
 // Render a stored (compact) build. hydrate() derives tab/talent metadata from
 // the shared @website-data + talentPagesMap, so no extra data file is needed.
@@ -98,7 +99,7 @@ const BuildDetail = ({ build, actions = null, backHref = null }) => {
               width: 3,
               height: 3,
               borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.7)',
+              background: ink(0.7),
               flexShrink: 0
             }}
           />
@@ -141,8 +142,8 @@ const BuildDetail = ({ build, actions = null, backHref = null }) => {
           flexWrap="wrap"
           sx={{
             py: 1.5,
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-            borderBottom: '1px solid rgba(255,255,255,0.06)'
+            borderTop: `1px solid ${ink(0.06)}`,
+            borderBottom: `1px solid ${ink(0.06)}`
           }}
         >
           {actions}

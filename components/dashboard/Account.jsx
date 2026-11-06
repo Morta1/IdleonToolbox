@@ -44,6 +44,7 @@ import { monsterSprite } from '@utility/spriteImages';
 import { pickerItemLabel } from '@utility/dashboard/quickEdit';
 import { formatArcadeEffect } from '@parsers/world-2/arcade';
 import { BASE_MAX_SHINY_LEVEL } from '@parsers/world-4/breeding';
+import { ON_ART } from '@utility/colorSets';
 
 // Every refinery alert draws the same salt icon, and one salt can raise several of them at once,
 // so a corner glyph says which condition fired without having to hover each copy.
@@ -1192,7 +1193,7 @@ const BADGE_SX = {
   bottom: 0,
   transform: 'translate(40%, 40%)',
   display: 'flex',
-  filter: 'drop-shadow(0 0 1px var(--mui-palette-common-black)) drop-shadow(0 0 2px var(--mui-palette-common-black))'
+  filter: `drop-shadow(0 0 1px ${ON_ART.outline}) drop-shadow(0 0 2px ${ON_ART.outline})`
 };
 const MARK_SX = { position: 'absolute', left: -5, bottom: '30%', display: 'inline-flex' };
 

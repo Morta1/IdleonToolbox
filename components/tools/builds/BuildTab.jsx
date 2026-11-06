@@ -6,6 +6,7 @@ import ItemRefRenderer from './ItemRefRenderer';
 import { cleanUnderscore, growth, prefix, talentText } from '@utility/helpers';
 import { SUPER_TALENT_MAX_POINTS, isSuperTalentEligible } from '@utility/builds/superTalents';
 import { styled } from '@mui/material/styles';
+import { ink } from '../../../styles/theme/darkTheme';
 
 // Fully controlled: talent values come straight from the parent
 // (BuildForm or BuildDetail). No local mirrors, no useEffect resync needed.
@@ -117,7 +118,7 @@ const BuildTab = ({
   // legacy note, renders read-only with a Remove button so the author can
   // delete it and migrate the content into the main description manually.
   const noteBlock = note ? (
-    <Card variant="outlined" sx={{ bgcolor: 'rgba(255,255,255,0.02)', width: '100%' }}>
+    <Card variant="outlined" sx={{ bgcolor: ink(0.02), width: '100%' }}>
       <CardContent>
         {createMode && (
           <Stack direction="row" alignItems="center" gap={1} sx={{ mb: 1 }}>

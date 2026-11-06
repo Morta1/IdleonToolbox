@@ -6,13 +6,14 @@
 import { styled } from '@mui/material/styles';
 import { Box, Chip, TextField } from '@mui/material';
 import { ACCENT } from '@utility/builds/classes';
+import { ink } from '../../../styles/theme/darkTheme';
 
 // Paper surface: BuildCard, tab cards, sticky form toolbar, etc.
 // Based on Box so callers can compose layout (flex row / column / grid)
 // without needing a semantically-wrong Card wrapper.
 export const SurfaceCard = styled(Box)(({ theme }) => ({
   background: (theme.vars || theme).palette.background.paper,
-  border: '1px solid rgba(255,255,255,0.05)',
+  border: `1px solid ${ink(0.05)}`,
   borderRadius: 8,
   boxShadow: 'none'
 }));
@@ -25,18 +26,18 @@ export const TagChip = styled(Chip)({
   fontWeight: 600,
   letterSpacing: 0.3,
   textTransform: 'uppercase',
-  backgroundColor: 'rgba(255,255,255,0.05)',
-  color: 'rgba(255,255,255,0.7)',
-  border: '1px solid rgba(255,255,255,0.07)',
+  backgroundColor: ink(0.05),
+  color: ink(0.7),
+  border: `1px solid ${ink(0.07)}`,
   '& .MuiChip-label': { padding: '0 6px' }
 });
 
 // Pill-shaped inputs (used in the list filter bar and the form sticky toolbar).
 const pillFieldMixin = {
   borderRadius: 999,
-  background: 'rgba(255,255,255,0.04)',
-  '& fieldset': { borderColor: 'rgba(255,255,255,0.08)' },
-  '&:hover fieldset': { borderColor: 'rgba(255,255,255,0.16)' },
+  background: ink(0.04),
+  '& fieldset': { borderColor: ink(0.08) },
+  '&:hover fieldset': { borderColor: ink(0.16) },
   '&.Mui-focused fieldset': {
     borderColor: ACCENT.primary,
     boxShadow: `0 0 0 3px ${ACCENT.primarySoft}`
