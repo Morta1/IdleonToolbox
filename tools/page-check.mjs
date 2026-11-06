@@ -56,7 +56,8 @@ const HEIGHTS = { 1920: 950, 1536: 730, 1366: 768, 1024: 768, 900: 800, 384: 832
 const MAX_SHOT_HEIGHT = 4000;
 const PHONE_SHOTS = 4;
 const MAX_LOW_CONTRAST = 40;
-const AD_NOISE = /rlcdn|Failed to load resource|nitro|googletag|gtag|adsbygoogle|doubleclick/i;
+// The last two come from an ad's sandboxed frame on a plain http origin.
+const AD_NOISE = /rlcdn|Failed to load resource|nitro|googletag|gtag|adsbygoogle|doubleclick|Cross-Origin-Opener-Policy header has been ignored|Blocked script execution in 'about:blank'/i;
 // What --force asked for, logged by the parse on every pass: a real failure beside it still reports.
 const FORCED_LOG = /Error: forced: /;
 
@@ -354,9 +355,10 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
   const touch = size.width < 768;
   const context = await browser.newContext({ viewport: size, storageState: consent, ...(touch ? { isMobile: true, hasTouch: true } : {}) });
   if (force) await context.addInitScript(forceSections, force);
-  if (scheme !== 'dark') await context.addInitScript((mode) => localStorage.setItem('mui-mode', mode), scheme);
+  // Top frame only: an init script runs in every frame, and a sandboxed ad frame throws on localStorage.
+  if (scheme !== 'dark') await context.addInitScript((mode) => { if (window === window.top) localStorage.setItem('mui-mode', mode); }, scheme);
   if (storage) {
-    await context.addInitScript((entries) => entries.forEach(([key, value]) => localStorage.setItem(key, JSON.stringify(value))), Object.entries(storage));
+    await context.addInitScript((entries) => { if (window === window.top) entries.forEach(([key, value]) => localStorage.setItem(key, JSON.stringify(value))); }, Object.entries(storage));
   }
   if (setup) await setup(context);
   if (opts.clock) await fixClock(context, opts.clock);
