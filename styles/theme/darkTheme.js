@@ -156,6 +156,8 @@ const darkPalette = {
 const lightPalette = {
   primary: {
     main: '#1565c0',
+    // MUI lightens main, which writes a breakdown's values at 3.9:1.
+    light: '#1565c0',
     hover: '#0f4f99',
     contrastText: '#ffffff',
     soft: 'rgba(21, 101, 192, 0.08)',
@@ -184,7 +186,9 @@ const lightPalette = {
   outline: 'rgba(0, 0, 0, 0.23)',
   backdrop: 'rgba(16, 24, 40, 0.45)',
   shadow: { floating: '0 2px 4px rgba(16, 24, 40, 0.06), 0 12px 24px -4px rgba(16, 24, 40, 0.14)' },
-  action: { hover: 'rgba(0, 0, 0, 0.04)', selected: 'rgba(0, 0, 0, 0.08)' },
+  // active: an unpressed toggle's label and an icon, full ink in dark, where MUI's 54% sits under text.muted.
+  // disabled: MUI's 26% is 1.9:1 on white; 38% is what dark's reads at (2.7:1).
+  action: { active: 'rgba(0, 0, 0, 0.87)', hover: 'rgba(0, 0, 0, 0.04)', selected: 'rgba(0, 0, 0, 0.08)', disabled: 'rgba(0, 0, 0, 0.38)' },
   series: SERIES.light,
   identity: lightIdentity
 };
@@ -389,7 +393,9 @@ const theme = createTheme({
       },
       styleOverrides: {
         listbox: { fontSize: 14 },
-        popupIndicator: ({ theme }) => ({ color: palette(theme).text.primary })
+        popupIndicator: ({ theme }) => ({ color: palette(theme).text.primary }),
+        // On white, a list with no edge runs into the card under it.
+        paper: ({ theme }) => theme.applyStyles('light', { border: `1px solid ${palette(theme).divider}`, boxShadow: palette(theme).shadow.floating })
       }
     },
     MuiSelect: {
@@ -501,6 +507,12 @@ const theme = createTheme({
         })
       }
     },
+    // An accordion sits in the page like a card: on white, Paper's own elevation shows as a line under the last row.
+    MuiAccordion: {
+      styleOverrides: {
+        root: ({ theme }) => theme.applyStyles('light', { boxShadow: 'none' })
+      }
+    },
     MuiAccordionSummary: {
       styleOverrides: {
         // AccordionSummary renders a ButtonBase, which neither MUI nor CssBaseline resets,
@@ -514,7 +526,8 @@ const theme = createTheme({
       styleOverrides: {
         // The nav drawer keeps the page color; AppDrawer and OverlaySheet set their own surface.
         paper: ({ theme }) => ({
-          backgroundColor: palette(theme).background.default
+          backgroundColor: palette(theme).background.default,
+          ...theme.applyStyles('light', { boxShadow: palette(theme).shadow.floating })
         })
       }
     },

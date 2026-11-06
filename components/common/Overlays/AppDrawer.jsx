@@ -19,7 +19,7 @@ const PAPER_SX = (theme) => ({
   flexDirection: 'column',
   backgroundColor: (theme.vars || theme).palette.background.paper,
   borderLeft: `1px solid ${(theme.vars || theme).palette.divider}`,
-  boxShadow: (theme.vars || theme).shadows[8]
+  boxShadow: (theme.vars || theme).palette.shadow.floating
 });
 
 // aside: beside the title, before the close (a breakdown's total). toolbar: rows that stay put under
