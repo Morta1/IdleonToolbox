@@ -3,6 +3,7 @@ import { Fragment, useContext, useState } from 'react';
 import { Box, Button, Typography } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, formatNum } from 'utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import AppDialog from '@components/common/Overlays/AppDialog';
 import PageSummary from '@components/common/cards/PageSummary';
@@ -22,6 +23,8 @@ const SPRITE = /^(data|etc)\//;
 
 // Island trash, Shimmer and the other counts can come from the save as numeric strings. A balance or a price, so whole.
 const count = (value) => formatNum(Number(value) || 0, 'whole');
+// What the save holds: garbage, bottles, Shimmer and the Fractal hours
+const balance = (value) => formatGame(Number(value) || 0, 'Save.IslandCount', { whole: true });
 
 // The parser builds a level the save does not hold yet into its text as "undefined" (parsers/world-2/islands.ts:227 and
 // :231, Rando's "5% Loot (" + level + ")", and :261, the Shimmer shop's "+{" replaced with its bonus), so a guest's shop
@@ -87,14 +90,14 @@ const Islands = () => {
     if (!unlocked) return null;
     return <>
       <ItemCard.Facts rows={[
-        Object.hasOwn(island, 'trash') ? [currencyLabel('etc/Trash_Currency.png', 'Garbage'), count(Math.floor(Number(trash) || 0))] : null,
-        currentTrial ? [currencyLabel('etc/Shimmer_Currency.png', 'Shimmer'), count(shimmerCurrency)] : null,
+        Object.hasOwn(island, 'trash') ? [currencyLabel('etc/Trash_Currency.png', 'Garbage'), balance(Math.floor(Number(trash) || 0))] : null,
+        currentTrial ? [currencyLabel('etc/Shimmer_Currency.png', 'Shimmer'), balance(shimmerCurrency)] : null,
         currentTrial ? ['Best DPS ever', cleanUnderscore(bestDpsEver)] : null,
         Object.hasOwn(island, 'unclaimedDays') ? ['Mobs waiting', count(mobsWaiting)] : null,
         Object.hasOwn(island, 'unclaimedDays') ? [<Fragment key={'days'}>Unclaimed days <InfoButton label={'Unclaimed days'}>
           {`One unclaimed day is added per daily reset, up to ${maxDays}. A capped island spawns only 15 mobs while 13 days spawns 27, so visit before it caps.`}
         </InfoButton></Fragment>, `${count(unclaimedDays)} / ${count(maxDays)}`] : null,
-        Object.hasOwn(island, 'hoursAfk') ? ['Hours AFK', count(hoursAfk)] : null
+        Object.hasOwn(island, 'hoursAfk') ? ['Hours AFK', balance(hoursAfk)] : null
       ]}/>
       {/* The week's trial is a sentence: as a Fact's value it squeezed its label onto two lines */}
       {currentTrial ? <ItemCard.Section label={'Current trial'}>
@@ -114,7 +117,7 @@ const Islands = () => {
                                            sx={{ alignSelf: 'flex-start' }}>Shop</Button> : null;
     const footer = !unlocked || shopButton ? <>
       {!unlocked ? <ItemCard.Cost icon={BOTTLE_ICON} iconAlt={'Bottles'} need={cost} have={bottles}
-                                  format={(value) => formatNum(value)}/> : null}
+                                  format={balance}/> : null}
       {shopButton}
     </> : null;
     return <ItemCard key={name} icon={`data/IslandSail${index}.png`} title={name} dimmed={!unlocked} footer={footer}>
@@ -130,7 +133,7 @@ const Islands = () => {
     />
     {failed ? <MissingData name={'Islands'} failed atZero/> : null}
     <PageSummary>
-      <StatTile label={'Bottles'} value={failed ? '-' : formatNum(bottles)}/>
+      <StatTile label={'Bottles'} value={failed ? '-' : balance(bottles)}/>
       <StatTile label={'Bottles per day'} value={tile(islands?.bottlesPerDay)}/>
       <StatTile label={'Trash per day'} value={tile(islands?.trashPerDay)} info={failed ? undefined : ESTIMATE}/>
       <StatTile label={'Unclaimed trash days'} value={tile(islands?.numberOfDaysAfk)}/>

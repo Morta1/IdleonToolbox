@@ -46,9 +46,9 @@ const Tasks = ({ list, currentRift = 0, currentProgress, characters, chars }) =>
     <CardGrid size={'m'}>
       {shown.map(({ monsterName, task, icon, riftIndex }) => {
         const isCurrent = currentRift === riftIndex;
-        // The current task fills its { with your progress (RiftStuff.Task); the others show their first sentence
+        // The current task fills its { with your progress; the others show their first sentence
         const taskText = isCurrent
-          ? taskSentence(cleanUnderscore(task), formatGame(Number(currentProgress) || 0, 'RiftStuff.Task', { whole: true }))
+          ? taskSentence(cleanUnderscore(task), formatGame(Number(currentProgress) || 0, 'Save.RiftProgress', { whole: true }))
           : taskSentence(cleanUnderscore(task?.split('.')?.[0]));
         return <ItemCard key={`${monsterName}-${riftIndex}`} icon={`data/${icon}.png`} iconAlt={''}
                          title={cleanUnderscore(monsterName)} meta={`Rift ${riftIndex + 1}`} dimmed={riftIndex > currentRift}

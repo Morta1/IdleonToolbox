@@ -32,6 +32,7 @@ const ARCADE_OMEGA_BANNER = 'etc/ArcadeOmega.png';
 // The game draws every arcade cost "Cost:_" + CommaNotation(ArcadeCost), the cap's Royal and Omega balls included, so
 // the balls that pay for them read in the same rule
 const COST_RULE = 'DungeonCalc.ArcadeCost';
+const BALLS_RULE = 'Save.ArcadeBalls';
 
 const ARCADE_TOOLBAR = { hideMaxed: false, hideSuper: false, hideOmega: false };
 
@@ -109,7 +110,7 @@ const ArcadeShop = () => {
   const multiFailed = fedBy(account, 'arcade', 'gaming', 'tesseract', 'farming', 'coralReef', 'companions');
   const costFailed = arcadeFailed || stampsFailed;
   const multiText = multiFailed ? '-' : formatNum(goldBallMulti?.value ?? 1, 'mult');
-  const ballsText = (value) => (arcadeFailed ? '-' : formatGame(value ?? 0, COST_RULE, { whole: true }));
+  const ballsText = (value) => (arcadeFailed ? '-' : formatGame(value ?? 0, BALLS_RULE, { whole: true }));
 
   // An upgrade below Lv 100 costs gold balls; Lv 100 to Super costs Royal balls and Super to Omega Omega balls, where
   // the game shows no more cost. The cost line stands alone, as the game's "Cost:" line does.
@@ -147,7 +148,7 @@ const ArcadeShop = () => {
     />
     {failedSection ? <MissingData name={SECTION_NAMES[failedSection]} failed atZero={arcadeFailed}/> : null}
     <PageSummary>
-      <StatTile label={'Balls'} icon={'data/PachiBall0.png'} value={arcadeFailed ? '-' : formatNum(balls ?? 0, 'whole')}/>
+      <StatTile label={'Balls'} icon={'data/PachiBall0.png'} value={ballsText(balls)}/>
       <StatTile label={'Gold balls'} icon={GOLD_BALL_ICON} value={ballsText(goldBalls)}/>
       <StatTile label={'Gold ball multi'} value={multiText}
                 breakdown={!multiFailed && goldBallMulti?.breakdown ? { ...goldBallMulti.breakdown, totalValue: multiText } : undefined}/>

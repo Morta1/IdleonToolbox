@@ -1,6 +1,7 @@
 import { Box, Stack, Typography } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
-import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { cleanUnderscore } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import useFormatDate from '@hooks/useFormatDate';
 import Notice from '@components/common/Notice';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -35,7 +36,7 @@ const Schedule = ({ killroy, schedule, guest, sectionFailed }) => {
     // A failed section's kills are unknown: no number and no dot. Every row keeps the dot's slot, so the numbers line up
     const value = <Box component={'span'} sx={LINE_SX}>
       <GameIcon src={`data/Mface${monster?.MonsterFace}.png`} size={24} alt={name}/>
-      {sectionFailed ? '-' : formatNum(kills, 'whole')}
+      {sectionFailed ? '-' : formatGame(kills, 'Save.KillroyBest', { whole: true })}
       <Box component={'span'} sx={{ display: 'inline-flex', width: DOT_SIZE }}>
         {!sectionFailed && kills < EQUINOX_KILLS ? <>
           <Dot/>

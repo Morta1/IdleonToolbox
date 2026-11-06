@@ -2,7 +2,7 @@ import { Box, Stack, Typography } from '@mui/material';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { formatNum, getCoinsArray, notateNumber } from '@utility/helpers';
+import { formatNum, gameFill, getCoinsArray } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { MissingData, PlayersList, isSectionFailed } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
@@ -36,8 +36,8 @@ const formatChance = (chance) => formatNum(Math.min(chance, 100), 'pct', { preci
 // The game draws a brew boost's and a liquid's Cap and Rate pair in Big on both sides (CauldronStats.CauldronLvsBrewREQ)
 const brewReq = (value) => formatGame(value, 'CauldronStats.CauldronLvsBrewREQ', { whole: true });
 // The game draws the liquid in its jar in Small beside the cap in Big: NotateNumber(CauldronInfo[6][i], "Small"), a
-// save field with no gameNotation key, so its fill is copied. A balance a bubble's cost spends, so it stays as the game prints it
-const liquidAmount = (value) => notateNumber(value, 'Small');
+// save field with no gameNotation key, so the mode is named here. A balance a bubble's cost spends, so it stays as the game prints it
+const liquidAmount = (value) => gameFill(value, 'Small', { whole: true });
 
 // A level against its max, with the Maxed word once it is there
 const levelValue = (level = 0, max) => (level >= max

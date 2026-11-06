@@ -187,7 +187,7 @@ const Tome = () => {
           {state?.account?.spelunking?.loreBonuses?.length ? <Panel title={'Lore bonuses'}>
             {state.account.spelunking.loreBonuses.filter((upgrade) => upgrade?.name !== 'filler').map((upgrade) => <Panel.Row
               key={upgrade?.name} icon={`etc/Tome_${upgrade?.index + 6}.png`} name={cleanUnderscore(upgrade?.name)}
-              value={upgrade?.isMulti ? formatNum(1 + (upgrade?.bonus ?? 0) / 100, 'mult') : formatNum(upgrade?.bonus ?? 0, 'pct')}/>)}
+              value={upgrade?.isMulti ? `${formatGame(1 + (upgrade?.bonus ?? 0) / 100, 'Thingies.LoreEpiBon')}x` : formatNum(upgrade?.bonus ?? 0, 'pct')}/>)}
           </Panel> : null}
         </CardGrid>
         <Box>

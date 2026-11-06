@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Box, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, formatNum, titleCaseName } from 'utility/helpers';
-import { gameBonusText } from '@utility/gameNotation';
+import { cleanUnderscore, formatNum, titleCaseName } from 'utility/helpers';
+import { formatGame, gameBonusText } from '@utility/gameNotation';
 import { MissingData, PlayersList, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { calcSigilsLevels, getAlchemy, getSigilNextCost, getSigilTierUnlocks } from '@parsers/world-2/alchemy';
@@ -43,11 +43,11 @@ const TIER_WORDS = { [UNDISCOVERED]: 'Undiscovered', 0: 'Unlocked', 1: 'Boosted'
 // The catalog's bonus for each tier, before Chilled Yarn and the meritocracy bonus
 const TIER_BONUS = { 0: 'unlockBonus', 1: 'boostBonus', 2: 'jadeBonus', 3: 'etherealBonus', 4: 'eclecticBonus' };
 
-// The game draws the progress in CommaNotation, an undiscovered sigil's under 10 to two decimals (floored). No
-// gameNotation key holds it, so the fill is copied.
+// The game draws the progress in CommaNotation, an undiscovered sigil's under 10 to two decimals (floored), which no
+// gameNotation rule holds.
 const sigilProgress = (progress, unlocked) => (unlocked === UNDISCOVERED && progress < 10
   ? String(Math.floor(100 * progress) / 100)
-  : commaNotation(progress));
+  : formatGame(progress, 'Save.SigilProgress', { whole: true }));
 
 const ready = <StatusText status={'ready'}>Ready to level up</StatusText>;
 
@@ -81,7 +81,7 @@ const sigilCard = (sigil, { failed, progressionFailed, tierGatesFailed, tierUnlo
                    dimmed={unlocked === UNDISCOVERED} status={maxed ? 'maxed' : charging.length ? 'active' : undefined}
                    statusLabel={maxed ? undefined : 'Charging'}
                    footer={maxed ? null : gateUnknown ? <ItemCard.Facts rows={[['Next tier', '-']]}/> : <ItemCard.Facts rows={[
-                     ['Progress', `${sigilProgress(progress, unlocked)} / ${commaNotation(nextCost)}`],
+                     ['Progress', `${sigilProgress(progress, unlocked)} / ${formatGame(nextCost, 'Save.SigilCost', { whole: true })}`],
                      nextRow
                    ]}/>}>
     <ItemCard.Desc text={unlocked === UNDISCOVERED ? 'Discover it to see its bonus.'
@@ -110,7 +110,7 @@ const Sigils = () => {
   const { sigilSpeed, totalEtherealSigils: etherealSigils = 0, totalEclecticSigils: eclecticSigils = 0 } = account?.alchemy?.p2w ?? {};
   const prismaCapped = !prismaFailed && (getPrismaMulti(account)?.value ?? 0) >= PRISMA_CAP;
   const research = account?.research;
-  const speedText = progressionFailed ? '-' : sigilSpeed?.display ?? '-';
+  const speedText = progressionFailed || sigilSpeed?.value == null ? '-' : `${formatGame(sigilSpeed.value, 'CauldronStats.ResearchSpeed')}x`;
   // The boost's sources by name: both when one of them could not be read
   const yarn = Boolean(isArtifactAcquired(account?.sailing?.artifacts, 'Chilled_Yarn'));
   const merit = getMeritocracyBonus(account, 21) > 0;

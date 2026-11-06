@@ -10,6 +10,7 @@ import {
   MINI_BOSS_DEATH_NOTE_RANKS
 } from '@parsers/world-3/deathNote';
 import { cleanUnderscore, formatNum, worldColor, worlds } from 'utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import DataTable from '@components/common/DataTable';
@@ -45,7 +46,8 @@ const RANK_LEGEND = <Stack gap={1}>
 
 const COLUMNS = [
   { key: 'monster', label: 'Monster', value: (mob) => cleanUnderscore(mob.displayName) },
-  { key: 'kills', label: 'Kills', numeric: true, sortable: true, phone: true, value: (mob) => mob.kills, kind: 'whole' },
+  { key: 'kills', label: 'Kills', numeric: true, sortable: true, phone: true, value: (mob) => mob.kills,
+    render: (mob) => formatGame(mob.kills, 'Save.DeathNoteKills', { whole: true }) },
   {
     // On the phone row too, beside the kills: the name and two short cells fit 336 px
     key: 'rank', label: 'Rank', numeric: true, sortable: true, phone: true, info: RANK_LEGEND, value: (mob) => mob.noteRank,
