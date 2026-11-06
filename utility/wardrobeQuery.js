@@ -26,6 +26,35 @@ export const MAX_NAME_LENGTH = 16;
 export const DEFAULT_NAME = 'Mannequin';
 export const sanitiseName = (value) => String(value ?? '').replace(/[^A-Za-z0-9]/g, '').slice(0, MAX_NAME_LENGTH);
 
+const SLOT_INDEX = { hat: 0, premiumHat: 8, weapon: 1, trophy: 10, cape: 12, nametag: 14, costume: 15 };
+// EquipOrder slot 8 is the premium (cosmetic) hat, verified in the game code; the game draws it
+// instead of slot 0's normal hat whenever it's actually equipped, both using frame ID + 2 on the
+// same hat sheet (see components/tools/wardrobe/slots.js).
+const BLANK_HAT_NAMES = new Set(['Blank', 'EquipmentHats38']); // EquipmentHats38 = Invisible Hat
+
+// items is the catalog, passed in so these helpers stay free of the game data.
+export const loadoutFromCharacter = (character, items, companion = null) => {
+  const slotItem = (equipped) => {
+    const item = items[equipped?.rawName];
+    return item && Number.isFinite(item.ID) ? item : null;
+  };
+  const premiumHat = character.equipment?.[SLOT_INDEX.premiumHat];
+  const premiumHatItem = premiumHat?.rawName && !BLANK_HAT_NAMES.has(premiumHat.rawName)
+    ? slotItem(premiumHat)
+    : null;
+  return {
+    pose: '0',
+    name: sanitiseName(character.name) || DEFAULT_NAME,
+    hat: premiumHatItem ?? slotItem(character.equipment?.[SLOT_INDEX.hat]),
+    weapon: slotItem(character.equipment?.[SLOT_INDEX.weapon]),
+    cape: slotItem(character.equipment?.[SLOT_INDEX.cape]),
+    costume: slotItem(character.equipment?.[SLOT_INDEX.costume]),
+    trophy: slotItem(character.equipment?.[SLOT_INDEX.trophy]),
+    nametag: slotItem(character.equipment?.[SLOT_INDEX.nametag]),
+    companion
+  };
+};
+
 const first = (value) => (Array.isArray(value) ? value[0] : value);
 
 // Every default is omitted so a bare /tools/wardrobe encodes to an empty query: the page's

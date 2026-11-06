@@ -6,7 +6,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { companions, items } from '@website-data';
 import manifest from '../../data/player-sprites-manifest.json';
 import { attackPoseForType, OUTFIT_POSES } from '@utility/paperDoll';
-import { companionOption, decodeLoadout, DEFAULT_NAME, encodeLoadout, LOADOUT_PARAMS, sanitiseName } from '@utility/wardrobeQuery';
+import { companionOption, decodeLoadout, encodeLoadout, LOADOUT_PARAMS, loadoutFromCharacter, sanitiseName } from '@utility/wardrobeQuery';
 import { sessionQuery } from '@utility/nav-query';
 import PaperDollCanvas from '@components/tools/wardrobe/PaperDollCanvas';
 import SlotGrid from '@components/tools/wardrobe/SlotGrid';
@@ -16,43 +16,14 @@ import CharacterSelect from '@components/tools/wardrobe/CharacterSelect';
 import Panel from '@components/common/cards/Panel';
 import { MissingSections } from '@components/common/styles';
 
-const SLOT_INDEX = { hat: 0, premiumHat: 8, weapon: 1, trophy: 10, cape: 12, nametag: 14, costume: 15 };
-// EquipOrder slot 8 is the premium (cosmetic) hat, verified in the game code; the game draws it
-// instead of slot 0's normal hat whenever it's actually equipped, both using frame ID + 2 on the
-// same hat sheet (see components/tools/wardrobe/slots.js).
-const BLANK_HAT_NAMES = new Set(['Blank', 'EquipmentHats38']); // EquipmentHats38 = Invisible Hat
-
 // Compares only the loadout's URL-facing params, as strings, so the mirror-to-URL effect can skip
 // a no-op router.replace (see pages/tools/builds.jsx's queriesEqual for the same guard).
 const queriesEqual = (a, b) => LOADOUT_PARAMS.every((key) => String(a[key] ?? '') === String(b[key] ?? ''));
-
-const slotItem = (equipped) => {
-  const item = items[equipped?.rawName];
-  return item && Number.isFinite(item.ID) ? item : null;
-};
 
 // currentCompanion comes from the account, not the character, and the picker's options are the
 // roster's own objects: resolve through the roster so a seeded loadout and a picked one compare
 // equal in the Autocomplete.
 const companionByRawName = (rawName) => companionOption(companions.find((companion) => companion.rawName === rawName));
-
-const loadoutFromCharacter = (character, currentCompanion) => {
-  const premiumHat = character.equipment?.[SLOT_INDEX.premiumHat];
-  const premiumHatItem = premiumHat?.rawName && !BLANK_HAT_NAMES.has(premiumHat.rawName)
-    ? slotItem(premiumHat)
-    : null;
-  return {
-    pose: '0',
-    name: sanitiseName(character.name) || DEFAULT_NAME,
-    hat: premiumHatItem ?? slotItem(character.equipment?.[SLOT_INDEX.hat]),
-    weapon: slotItem(character.equipment?.[SLOT_INDEX.weapon]),
-    cape: slotItem(character.equipment?.[SLOT_INDEX.cape]),
-    costume: slotItem(character.equipment?.[SLOT_INDEX.costume]),
-    trophy: slotItem(character.equipment?.[SLOT_INDEX.trophy]),
-    nametag: slotItem(character.equipment?.[SLOT_INDEX.nametag]),
-    companion: companionByRawName(currentCompanion?.rawName)
-  };
-};
 
 const Wardrobe = () => {
   const router = useRouter();
@@ -139,7 +110,7 @@ const Wardrobe = () => {
       return;
     }
     setCharacterName(character.name);
-    setLoadout(loadoutFromCharacter(character, currentCompanion));
+    setLoadout(loadoutFromCharacter(character, items, companionByRawName(currentCompanion?.rawName)));
   };
 
   const download = () => {
