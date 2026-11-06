@@ -12,7 +12,7 @@ const Obols = ({ obols, character }) => <Panel title={'Obols'}>
       {obols?.map((obol, index) => {
         const { displayName, rawName } = obol || {};
         const isEquipped = character?.obols?.list?.filter(({ displayName: dName }) => dName === displayName)?.length > 0;
-        return <IconTile key={`${displayName}-${index}`} icon={`data/${rawName}.png`} fallback={`data/${rawName}_x1.png`}
+        return <IconTile key={`${displayName}-${index}`} icon={`data/${rawName}.png`}
                          alt={cleanUnderscore(displayName ?? '')} status={isEquipped ? undefined : 'missing'}
                          details={<ItemDisplay {...obol}/>}/>;
       })}

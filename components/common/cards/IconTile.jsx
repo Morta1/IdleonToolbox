@@ -63,7 +63,7 @@ const TILE_MAX = 'var(--tile-max, 72px)';
 // draw (VialArt), with height the tile's own for it. Missing greys the sprite, empty is a dashed slot, active and
 // selected are the ItemCard lines. details open on click, tap, Enter or hover. mark is a game mark on the sprite's
 // corner (the Rat King's crown on a crowned plant, the greenstack symbol), named for a screen reader by markAlt; a tile
-// carries a badge or a mark, not both. fallback is a second sprite GameIcon tries first if the icon is missing.
+// carries a badge or a mark, not both.
 // onSelect makes the tile a button that picks it, for a grid too large to draw a note per tile (the Slab's 1,935
 // items): the page shows the picked one's details once, and selected draws the selected line. An empty slot draws no
 // sprite, so its alt names it ("Empty slot" by default) when it has details to open or can be picked; one with neither
@@ -71,7 +71,7 @@ const TILE_MAX = 'var(--tile-max, 72px)';
 // phoneDetails go with onSelect: below 600 px, where the page's details Panel does not show, a pick also pins the
 // picked tile's details as its note (sized to a table), so the grid keeps the screen.
 // sub: a dimmer line under the value, inside a sheet (a talent's "/ max"). kind is what numOrNode takes.
-const IconTile = ({ icon, fallback, alt = '', value, kind, sub, frame, height = 72, badge, mark, markAlt, status, details, onSelect, selected,
+const IconTile = ({ icon, alt = '', value, kind, sub, frame, height = 72, badge, mark, markAlt, status, details, onSelect, selected,
   phoneDetails }) => {
   const small = Boolean(useSheet());
   const empty = status === 'empty';
@@ -100,7 +100,7 @@ const IconTile = ({ icon, fallback, alt = '', value, kind, sub, frame, height = 
     empty && emptySlot
   ]}>
     {icon && !empty ? (typeof icon === 'string'
-      ? <GameIcon src={icon} fallback={fallback} size={small ? 28 : 40} alt={alt} frame={frame}
+      ? <GameIcon src={icon} size={small ? 28 : 40} alt={alt} frame={frame}
                   status={status === 'missing' ? 'missing' : undefined}/>
       : icon) : null}
     {hasValue ? <Typography component={'div'} variant={'caption'} sx={{

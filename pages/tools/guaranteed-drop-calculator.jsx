@@ -114,7 +114,7 @@ const GuaranteedDropCalculator = () => {
               <ul style={{ padding: 0 }}>{params.children}</ul>
             </li>}
             renderOption={({ key, ...props }, option) => <Stack component={'li'} key={key} {...props} direction={'row'} gap={1.5}>
-              <GameIcon src={`data/${option?.rawName}.png`} fallback={`data/${option?.rawName}_x1.png`} size={24} alt={''}/>
+              <GameIcon src={`data/${option?.rawName}.png`} size={24} alt={''}/>
               <span>
                 {cleanUnderscore(option?.displayName ?? '')}
                 <Box component={'span'} sx={{ color: 'text.secondary', ml: 0.75 }}>{formatNum(option?.chance, 'odds')}</Box>

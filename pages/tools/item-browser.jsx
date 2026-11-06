@@ -105,7 +105,7 @@ const ItemBrowser = () => {
             noOptionsText={'No item matches'}
             sx={{ flex: { xs: '1 1 auto', sm: '0 0 auto' }, width: { sm: 320 }, minWidth: 0 }}
             renderOption={({ key, ...props }, option) => <Stack component={'li'} key={key} {...props} direction={'row'} gap={1.5}>
-              <GameIcon src={`data/${option?.rawName}.png`} fallback={`data/${option?.rawName}_x1.png`} size={24} alt={''}/>
+              <GameIcon src={`data/${option?.rawName}.png`} size={24} alt={''}/>
               {itemLabel(option)}
             </Stack>}
             // The label sits inside, as the bar's own fields put theirs: "Item: Any", Any read as the value it is

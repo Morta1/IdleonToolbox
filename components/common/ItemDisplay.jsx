@@ -133,7 +133,7 @@ const ItemDisplay = ({
   return displayName && displayName !== 'Empty' && displayName !== 'Locked' ? <>
     {/* An item card's header: the M card's 40 px icon, named by the title beside it */}
     <Stack gap={1} direction={'row'} alignItems={'center'}>
-      <GameIcon src={`data/${rawName}.png`} fallback={`data/${rawName}_x1.png`} size={40} alt={''}/>
+      <GameIcon src={`data/${rawName}.png`} size={40} alt={''}/>
       <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(displayName)}</Typography>
     </Stack>
     {showRawName ? <Typography variant={'caption'} color={'text.secondary'}>{rawName}</Typography> : null}

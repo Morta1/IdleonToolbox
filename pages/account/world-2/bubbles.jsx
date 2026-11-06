@@ -102,11 +102,8 @@ const futureBubbles = (cauldrons, fromMost) => {
 // The page's one name style for a bubble ("Roid Ragin")
 const bubbleTitle = (name) => titleCaseName(cleanUnderscore(name ?? ''));
 
-// The game draws these materials with their _x1 art
-const X1_MATERIALS = ['sail', 'bits', 'w6item', 'w7item', 'liquid'];
-const materialSprite = (rawName = '') => (X1_MATERIALS.some((part) => rawName.toLowerCase().includes(part))
-  ? `${rawName}_x1`
-  : rawName);
+// A liquid isn't an item: its only art is the _x1 sprite
+const materialSprite = (rawName = '') => (rawName.startsWith('Liquid') ? `${rawName}_x1` : rawName);
 
 // The item data names the sailing, World 6 and World 7 materials "Strung Jewels" (Leftovers): a treasure takes the
 // Sailing page's name, the rest none

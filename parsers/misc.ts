@@ -479,13 +479,9 @@ export const getSlab = (idleonData: any) => {
   const greenStacks = tryToParse(idleonData?.GreenStacks) || idleonData?.GreenStacks || [];
   const greenStacksSet = new Set(greenStacks);
   const allItems = structuredClone((items)); // Deep clone
-  // These ship only as their _x1 copy
-  const x1Names = new Set(['Motherlode', 'MotherlodeTREE', 'Island0', 'Dust0', 'Dust1', 'Dust2', 'Dust3', 'Dust4', 'Dust5',
-    'Bone0', 'Bone1', 'Bone2', 'Bone3', 'Tach0', 'Tach1', 'Tach2', 'Tach3', 'Tach4', 'Tach5',
-    'DungRNG0', 'DungRNG1', 'DungRNG2', 'DungRNG3', 'DungRNG4']);
   const slabItems = slab?.map((name) => ({
     name: allItems?.[name]?.displayName ?? slabItemNames?.[name as keyof typeof slabItemNames],
-    rawName: x1Names.has(name) ? `${name}_x1` : name,
+    rawName: name,
     itemRawName: name,
     obtained: lootyRaw?.includes(name),
     greenStacked: greenStacksSet.has(name),

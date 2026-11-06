@@ -56,7 +56,6 @@ const EquipmentPage = ({ allAccountItems, items, character, account, characters,
       return <IconTile
         key={`${rawName}-${itemIndex}`}
         icon={`data/${rawName}.png`}
-        fallback={`data/${rawName}_x1.png`}
         alt={known ? cleanUnderscore(displayName) : rawName}
         status={isEquipped ? undefined : 'missing'}
         value={known && rawName !== 'Blank' && amount !== undefined ? formatNum(Number(amount), 'whole') : undefined}
