@@ -21,6 +21,7 @@ const open = (page, { anyView = true, regular = true, storage = {} } = {}) => pa
 }, [anyView, regular, storage]);
 
 const dialog = (page) => page.getByRole('dialog', { name: 'What\'s new' });
+const replayLink = (page) => page.getByRole('button', { name: 'Watch the story again' });
 const atSlide = (page, step) => expect(dialog(page)).toHaveAttribute('data-step', step, { timeout: 15_000 });
 // The last slide is two layers with the same words: only the one showing can be reached.
 const action = (page, name) => dialog(page).locator('button:not([inert] *)', { hasText: name });
@@ -235,6 +236,34 @@ test.describe('the story', () => {
     await expect(dialog(page)).toHaveCount(0);
     await expect(page).toHaveURL(/\/patch-notes\?demo=true$/);
   });
+
+  test('the patch note\'s link replays it past the end date, as often as asked, and counts apart', async ({ page }) => {
+    await page.addInitScript(() => {
+      if (window !== window.top) return;
+      window.__whatsNewKit = { until: '2000-01-01T00:00:00Z' };
+      localStorage.setItem('whatsNew', '"shown"');
+    });
+    await page.goto('/patch-notes');
+    await staysShut(page);
+    await replayLink(page).click();
+    await atSlide(page, 'hello');
+    await page.keyboard.press('Escape');
+    await expect(dialog(page)).toHaveCount(0);
+    await replayLink(page).click();
+    await atSlide(page, 'hello');
+    expect(await mark(page)).toBe('"shown"');
+    const counted = await page.evaluate(() => window.dataLayer.filter((entry) => /^whats_new_(open|replay)$/.test(entry[1])).map((entry) => entry[1]));
+    expect(counted).toEqual(['whats_new_replay', 'whats_new_replay']);
+  });
+
+  test('Home carries the link, for a stranger too', async ({ page }) => {
+    await open(page, { regular: false });
+    await page.goto('/');
+    await staysShut(page);
+    await replayLink(page).click();
+    await expect(dialog(page).getByRole('heading')).toHaveText('The Toolbox got rebuilt.', { timeout: 15_000 });
+    expect(await mark(page)).toBe('"skipped"');
+  });
 });
 
 test.describe('who waits', () => {
@@ -289,6 +318,25 @@ test.describe('who waits', () => {
       expect(await mark(page)).toBeNull();
       await banner.getByRole('button', { name: 'Accept' }).click();
       await expect(dialog(page)).toBeVisible({ timeout: 10_000 });
+    });
+
+    test('started by hand while it waits, it doesn\'t open again', async ({ page }) => {
+      await open(page, { anyView: false, storage: { authHint: 'no' } });
+      await page.route('**/s.nitropay.com/**', (route) => route.abort());
+      await page.addInitScript(() => {
+        if (window === window.top) window.nitroAds = { loaded: true, createAd: () => Promise.resolve(), queue: [] };
+      });
+      await page.goto('/patch-notes');
+      const banner = page.locator('.CookieConsent');
+      await expect(banner).toBeVisible({ timeout: 30_000 });
+      await replayLink(page).click();
+      await atSlide(page, 'hello');
+      await page.keyboard.press('Escape');
+      await expect(dialog(page)).toHaveCount(0);
+      await banner.getByRole('button', { name: 'Accept' }).click();
+      await staysShut(page);
+      await page.reload();
+      await staysShut(page);
     });
   });
 });

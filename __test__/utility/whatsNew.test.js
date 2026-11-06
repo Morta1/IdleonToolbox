@@ -97,6 +97,26 @@ describe('startWhatsNew: who is a regular, read at page start', () => {
   });
 });
 
+describe('replayWhatsNew: a click, whatever the mark', () => {
+  it.each([
+    ['no mark: it counts as had', null, '"shown"'],
+    ['skipped', '"skipped"', '"skipped"'],
+    ['shown', '"shown"', '"shown"']
+  ])('%s', async (_, before, after) => {
+    if (before) seed({ whatsNew: before });
+    const { claimWhatsNew, replayWhatsNew, subscribeWhatsNewReplay } = await newPageLoad();
+    const listener = vi.fn();
+    const stop = subscribeWhatsNewReplay(listener);
+    replayWhatsNew();
+    expect(listener).toHaveBeenCalledOnce();
+    expect(stored()).toBe(after);
+    expect(claimWhatsNew(NOW)).toBe(false);
+    stop();
+    replayWhatsNew();
+    expect(listener).toHaveBeenCalledOnce();
+  });
+});
+
 describe('the end date', () => {
   it('past the end nothing shows and nothing is written, so a visit before the release leaves no mark', async () => {
     seed({ authHint: 'yes' });

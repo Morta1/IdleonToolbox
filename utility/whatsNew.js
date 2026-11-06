@@ -58,6 +58,19 @@ export const claimWhatsNew = (now = Date.now()) => {
   return read(WHATS_NEW_KEY) === WHATS_NEW_SHOWN;
 };
 
+const replayListeners = new Set();
+export const subscribeWhatsNewReplay = (listener) => {
+  replayListeners.add(listener);
+  return () => replayListeners.delete(listener);
+};
+
+// The patch note's link, for whoever closed it early or never got it. Only ever a click, so the end date doesn't stop it.
+// Starting it by hand before it opened by itself counts as having had it, or it would follow them straight after.
+export const replayWhatsNew = () => {
+  if (!read(WHATS_NEW_KEY)) save(WHATS_NEW_SHOWN);
+  replayListeners.forEach((listener) => listener());
+};
+
 // An ad blocker keeps Nitro away, and with it the only thing that knows the region: no banner ever comes. Nitro answers
 // well inside this, so past it nothing is on its way.
 export const NO_BANNER_AFTER_MS = 10000;

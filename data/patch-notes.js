@@ -1,8 +1,32 @@
 import { Link, Typography } from '@mui/material';
 import React from 'react';
+import { replayWhatsNew } from '@utility/whatsNew';
 
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
+  {
+    'ver': '4.0.0',
+    'gameVer': '2.3.561',
+    'date': '07/11/2026',
+    'features': [
+      'The whole site is rebuilt, every page: new cards, tables and dialogs, and it all fits a phone',
+      <>The first visit after this update opens a short story of what changed, with your own characters, and a tour of the new layout. <Link component={'button'} type={'button'} onClick={replayWhatsNew} sx={{ verticalAlign: 'baseline' }}>Watch the story again</Link></>,
+      'The left menu is gone: Worlds, Account and Tools in the top bar open every page',
+      'A theme switch: Dark, Light or System, in the user menu, Settings and the footer',
+      'Dashboard: timers are one table from Ready now to Later, and tapping an alert or timer shows its meaning and settings',
+      'Characters opens on your first character, and two or more line up section by section',
+      'Settings that change a page\'s numbers moved behind one button beside the page title',
+      'Long lists have a toolbar to search, filter, sort and switch views',
+      'Numbers follow one rule: below 1M they show their decimals, from 1M up the game\'s short form',
+      'Sign in and Search are rebuilt: pick how you sign in and follow short steps; Search shows pinned and recent pages, and finds the closest match for a typo'
+    ],
+    'fixes': [
+      'Part of your save failing to load now shows that page at zero with one note, and numbers that rely on it show - instead of a wrong number',
+      'Signed-out pages no longer show NaN, undefined or repeated weeks',
+      'Game text and numbers now read as in the game on many pages, including Gaming, Sailing, Compass, Tesseract and Minehead',
+      'Dashboard timers no longer count the save\'s age twice, and a goal just short of its target no longer reads as reached'
+    ]
+  },
   {
     'ver': '3.3.107',
     'gameVer': '2.3.561',
