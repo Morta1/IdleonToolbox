@@ -29,7 +29,7 @@ const OFF_THE_MAP = {
   src: `${prefix}etc/LostOffTheMap.png`, width: 1200, height: 460, focus: 1,
   alt: 'A lost player and a corgi where the map breaks off, under a wooden 404 sign'
 };
-const MISSING_PROFILE = {
+const PROFILE_SHORE = {
   src: `${prefix}etc/LostProfile.png`, width: 1200, height: 360, focus: 0.71,
   alt: 'A telescope on a frozen shore, aimed at the shadow of a player who is not there'
 };
@@ -107,14 +107,16 @@ const Help = ({ title, children }) => <Box sx={{ p: '10px 14px', border: 1, bord
   <Typography variant="body2" color="text.secondary">{children}</Typography>
 </Box>;
 
+const ProfileScene = ({ name }) => <Scene scene={PROFILE_SHORE}>
+  <Box data-on-art sx={{
+    position: 'absolute', left: '77.8%', top: '60%', transform: 'translateX(-50%)', px: 1, color: ON_ART.text, fontSize: 18, lineHeight: '24px',
+    fontWeight: 700, maxWidth: '44%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textShadow: `0 0 3px ${ON_ART.outline}, 0 1px 2px ${ON_ART.outline}, 0 0 1px ${ON_ART.outline}`,
+    [PHONE_SIDES]: { fontSize: 15, lineHeight: '20px', maxWidth: 200 }
+  }}>{name}</Box>
+</Scene>;
+
 const MissingProfile = ({ name, query }) => <>
-  <Scene scene={MISSING_PROFILE}>
-    <Box data-on-art sx={{
-      position: 'absolute', left: '77.8%', top: '60%', transform: 'translateX(-50%)', px: 1, color: ON_ART.text, fontSize: 18, lineHeight: '24px',
-      fontWeight: 700, maxWidth: '44%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textShadow: `0 0 3px ${ON_ART.outline}, 0 1px 2px ${ON_ART.outline}, 0 0 1px ${ON_ART.outline}`,
-      [PHONE_SIDES]: { fontSize: 15, lineHeight: '20px', maxWidth: 200 }
-    }}>{name}</Box>
-  </Scene>
+  <ProfileScene name={name}/>
   <Message title={`No sign of ${name}`} lead={`No profile named "${name}" was found. The player may not have uploaded it yet.`}>
     <LookUpPlayer/>
     <Box sx={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 1.5, width: '100%', mt: '14px', textAlign: 'left', [PHONE_SIDES]: { gridTemplateColumns: '1fr', gap: 1, mt: 1.25 } }}>
@@ -125,16 +127,18 @@ const MissingProfile = ({ name, query }) => <>
   </Message>
 </>;
 
-// The profile may well exist: the request for it failed. No scene: nobody is lost. The address is still the link the
-// visitor followed (AppProvider), so a reload asks again. The tab says so too; NextSeo above stays the page's one, for
-// the generator that reads its title.
+// The profile may well exist: the request failed, or a step after a good answer did (AppProvider), so the words can't name
+// the request. No Look up or name help, which would send them to fix a problem they don't have. The address is still the
+// link the visitor followed, so a reload asks again. The tab says so too; NextSeo above stays the page's one, for the
+// generator that reads its title.
 const FailedProfile = ({ name, query }) => <>
   <Head>
     <title>Couldn&apos;t load this profile | Idleon Toolbox</title>
   </Head>
+  <ProfileScene name={name}/>
   <Message title="Couldn't load this profile">
     <Notice tone="error" action={retryAction(() => window.location.reload())} sx={{ justifyContent: 'center', mt: 1, textAlign: 'left' }}>
-      {`The request for "${name}" failed. The profile itself may be fine.`}
+      Something went wrong. The profile itself may be fine.
     </Notice>
     <Ways places={[PLACES.leaderboards, PLACES.dashboard, PLACES.home]} query={query}/>
   </Message>
