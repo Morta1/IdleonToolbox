@@ -8,9 +8,10 @@
 // --sizes    widths, or WIDTHxHEIGHT; under 768 gets touch. Default 1920,1366,900,384.
 // --states   demo, guest. Default both.
 // --schemes  dark, light. Default dark. A light run's files end in -light.
-// --force    safeSection names that really throw in the parse Worker: farming,hole. A guest's parse fails the same way.
+// --force    safeSection names that really throw in the parse Worker: farming,hole. * fails the whole parse. A guest's parse fails the same way.
 // --setup    a module whose default export takes the browser context, for serving API replies with context.route.
 // --storage  JSON of localStorage entries.
+// --settle   more ms after the page settles: a tool page's text stands still before its parse lands.
 // --base     default http://localhost:$E2E_PORT, or 3002.
 // --no-shots scan only. --out default .page-check (gitignored). Exit 1 on any hit, 2 when the server is down.
 //
@@ -31,6 +32,7 @@ const { values: opts, positionals } = parseArgs({
     force: { type: 'string' },
     setup: { type: 'string' },
     storage: { type: 'string' },
+    settle: { type: 'string', default: '0' },
     base: { type: 'string', default: `http://localhost:${process.env.E2E_PORT ?? 3002}` },
     out: { type: 'string', default: '.page-check' },
     'no-shots': { type: 'boolean', default: false },
@@ -354,7 +356,7 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
     const scanned = async (attempts = 3) => {
       try {
         await waitForRender(page);
-        await page.waitForTimeout(500);
+        await page.waitForTimeout(500 + Number(opts.settle));
         return await page.evaluate(scanPage, { maxLines: Number(opts['max-lines']), minGap: Number(opts['min-gap']), maxLowContrast: MAX_LOW_CONTRAST });
       } catch (error) {
         if (attempts <= 1 || !/context was destroyed|reading 'innerText'/.test(error.message)) throw error;
