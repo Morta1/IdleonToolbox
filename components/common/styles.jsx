@@ -1,8 +1,9 @@
-import React, { forwardRef, useEffect } from 'react';
+import React, { forwardRef, useContext, useEffect } from 'react';
 import { cleanUnderscore, formatNum, growth, prefix, talentText } from 'utility/helpers';
 import { Stack, Typography } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import Notice from '@components/common/Notice';
+import { AppContext } from '@components/common/context/AppProvider';
 import GameIcon from '@components/common/GameIcon';
 import { NoteTrigger } from '@components/common/InfoButton';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -154,6 +155,14 @@ export const MissingSections = ({ account, names }) => {
   if (!names) return failed?.length ? <MissingData sections={failed}/> : null;
   const first = failed?.includes('*') ? 'your save' : names?.[Object.keys(names ?? {}).find((key) => failed?.includes(key))];
   return first ? <MissingData name={first} failed/> : null;
+};
+
+// A save that hasn't got to this page: its catalog reads zero under this. reached is something the save can only have
+// once there. A guest has no save to say it of, and their band already says why the numbers are zero.
+export const NotReached = ({ name, reached, children }) => {
+  const { state } = useContext(AppContext);
+  if (reached || state?.emptyAccount) return null;
+  return <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached {name} yet.{children ? <> {children}</> : null}</Notice>;
 };
 
 export const CenteredStack = ({ direction = 'row', children }) => {

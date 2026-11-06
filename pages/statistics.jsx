@@ -16,7 +16,9 @@ const API_URL = process.env.NEXT_PUBLIC_PROFILES_URL;
 const COLUMN_SX = { display: 'flex', flexDirection: 'column' };
 const CHART_PANEL_SX = { ...COLUMN_SX, height: '100%', boxSizing: 'border-box', '& > :last-child': { ...COLUMN_SX, flexGrow: 1 } };
 
-const fetchVisualizations = () => fetch(`${API_URL}/visualizations`).then((res) => {
+const REQUEST_TIMEOUT = 20000;
+
+const fetchVisualizations = () => fetch(`${API_URL}/visualizations`, { signal: AbortSignal.timeout?.(REQUEST_TIMEOUT) }).then((res) => {
   if (!res.ok) throw new Error('Failed to fetch');
   return res.json();
 });

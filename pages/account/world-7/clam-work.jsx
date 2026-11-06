@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Box, MenuItem, TextField } from '@mui/material';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
@@ -93,7 +93,8 @@ const ClamWork = () => {
       <PageSettings.Number name={'multiKill'} label={'Multikill'} defaultValue={suggestedMultiKill} min={0} integer
                            help={`Multi-Scalping reads the multikill of the character at the Clamworks: ${formatNum(suggestedMultiKill)} for ${character?.name ?? 'your first character'}. Type the number the game shows there to use it instead.`}/>
     </PageSettings>}
-    {!section || sectionFailed ? <MissingData name={'Clam Work'} failed={sectionFailed} atZero={!parseFailed && !tabs[tabIndex].includes('Optimizer')}/> : null}
+    {!section || sectionFailed ? <MissingData name={'Clam Work'} failed={sectionFailed} atZero={!parseFailed && !tabs[tabIndex].includes('Optimizer')}/>
+      : <NotReached name={'Clam Work'} reached={ownedPearls > 0 || upgrades?.some(({ level }) => level > 0)}/>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Worker class'} value={formatNum(workerClass, 'level')}/>
       {/* Every pearl cost prints in this rule (Thingies.Clam_Cost), so the balance does too */}

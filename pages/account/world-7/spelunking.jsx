@@ -9,8 +9,7 @@ import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
 import StatTile from '@components/common/cards/StatTile';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
-import Notice from '@components/common/Notice';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World7/Spelunking/Upgrades';
 import Lore from '@components/account/Worlds/World7/Spelunking/Lore';
@@ -73,7 +72,7 @@ const Spelunking = () => {
       description="Keep track of your spelunking levels, upgrades and stats"
     />
     {sectionFailed ? <MissingData name={'Spelunking'} failed atZero={!parseFailed && tabs[tabIndex] !== 'Upgrade Optimizer'}/>
-      : reached || state?.emptyAccount ? null : <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached Spelunking yet.</Notice>}
+      : <NotReached name={'Spelunking'} reached={reached}/>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Power'} icon={'data/CaveShopUpg17.png'}
                 value={<Num value={power?.value} game={'Spelunk.POW'}/>} breakdown={power?.breakdown}/>

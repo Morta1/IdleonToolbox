@@ -13,7 +13,7 @@ const usePageDataLoading = () => {
   const { state } = useContext(AppContext);
 
   // Determine the page type
-  const isAccountPage = router.pathname.includes('/account');
+  const isAccountPage = router.pathname.includes('/account') && routeNeedsAccount(router.pathname);
   // The hub (/tools) lists the tools and reads no save; only a tool under it can wait for one, and a route audited to
   // need no account never gets one to wait for: a guest doesn't parse there.
   const isToolPage = router.pathname.startsWith('/tools/') && routeNeedsAccount(router.pathname);

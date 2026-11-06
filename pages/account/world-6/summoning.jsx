@@ -21,7 +21,7 @@ import {
 import useHydrated from '@hooks/useHydrated';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import useTabIndex from '@hooks/useTabIndex';
 
 const Summoning = () => {
@@ -68,7 +68,8 @@ const Summoning = () => {
       title="Summoning | Idleon Toolbox"
       description="View your summoning upgrades, winner bonuses, and battle rewards in Legends of Idleon"
     />
-    {sectionFailed ? <MissingData name={'Summoning'} failed atZero={!parseFailed}/> : null}
+    {sectionFailed ? <MissingData name={'Summoning'} failed atZero={!parseFailed}/>
+      : <NotReached name={'Summoning'} reached={totalUpgradesLevels > 0}/>}
     <PageSummary failed={sectionFailed}>
       <StatTile icon={'etc/Endless_Summoning.png'} label={'Highest endless level'} value={highestEndlessLevel ?? 0}
                 kind={'amount'}/>

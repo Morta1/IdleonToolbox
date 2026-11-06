@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
 import PageSummary from '@components/common/cards/PageSummary';
@@ -22,7 +22,8 @@ const Glimbo = () => {
       title="Glimbo | Idleon Toolbox"
       description="Track your Glimbo Swap Meet trades, max level bonuses, and currency costs in Legends of Idleon World 7"
     />
-    {!section || sectionFailed ? <MissingData name={'Glimbo'} failed={sectionFailed} atZero={!isParseFailed(account)}/> : null}
+    {!section || sectionFailed ? <MissingData name={'Glimbo'} failed={sectionFailed} atZero={!isParseFailed(account)}/>
+      : <NotReached name={'Glimbo'} reached={glimboTotalTrades > 0}/>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Total trades'} value={formatGame(glimboTotalTrades ?? 0, 'Minehead.GlimboTotalTrades', { whole: true })}/>
       {/* Reads the Research grid */}

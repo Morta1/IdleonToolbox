@@ -133,7 +133,10 @@ test.describe('static export ships crawlable head tags', () => {
 });
 
 // A moved address on a static route draws in the export, so its own NextSeo ships: noindex, and the canonical of where it went.
-const MOVED_NOINDEX = { '/tools/active-exp-calculator': '/tools/active-stuff-calculator' };
+const MOVED_NOINDEX = {
+  '/tools/active-exp-calculator': '/tools/active-stuff-calculator',
+  '/account/class-specific/royal-guardian': '/account/class-specific/royal-armory'
+};
 
 // A data page renders a loader at build time rather than its own <NextSeo canonical>, so the
 // exported canonical can only come from _app's <Head>.

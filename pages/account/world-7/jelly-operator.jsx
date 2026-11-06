@@ -3,7 +3,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { formatNum, getTabs } from '@utility/helpers';
 import Notice from '@components/common/Notice';
-import { isParseFailed, isSectionFailed, MissingData } from '@components/common/styles';
+import { isParseFailed, isSectionFailed, MissingData, NotReached } from '@components/common/styles';
 import Num from '@components/common/Num';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -53,7 +53,7 @@ const JellyOperator = () => {
     {/* Decision 13: the parser knows whether the account has reached it; a guest or a new account sees why it's zero */}
     {sectionFailed ? <MissingData name={'Jelly Operator'} failed atZero={!isParseFailed(state?.account) && tabs[tabIndex] !== 'Upgrade Optimizer'}/> : null}
     {state?.emptyAccount ? <Notice tone={'signin'} sx={{ mb: 2 }}>Your Jelly Operator shows here once you sign in.</Notice> : null}
-    {locked ? <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached the Jelly Operator yet.</Notice> : null}
+    {sectionFailed ? null : <NotReached name={'the Jelly Operator'} reached={unlocked}/>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Obstructions removed'}
                 value={`${formatNum(obstructionsDefeated ?? 0)} / ${formatNum(maxObstructionsDefeated ?? 0)}`}/>

@@ -13,7 +13,7 @@ import Detection from '@components/account/Worlds/World6/Sneaking/Detection';
 import { PAGES } from '@components/constants';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import useTabIndex from '@hooks/useTabIndex';
 
 // Each character's own: no catalog to draw at zero
@@ -49,7 +49,8 @@ const Sneaking = () => {
       title="Sneaking | Idleon Toolbox"
       description="Keep track of your ninja and jade upgrades and much more bonuses"
     />
-    {sectionFailed ? <MissingData name={'Sneaking'} failed atZero={!isParseFailed(state?.account) && !BLANK_WHEN_FAILED.includes(tabs[tabIndex])}/> : null}
+    {sectionFailed ? <MissingData name={'Sneaking'} failed atZero={!isParseFailed(state?.account) && !BLANK_WHEN_FAILED.includes(tabs[tabIndex])}/>
+      : <NotReached name={'Sneaking'} reached={state?.account?.sneaking?.totalNinjaUpgradeLevels > 0}/>}
     <PageSummary failed={sectionFailed}>
       {/* The save keeps the coins as text past 1e21 ("5.385403851749856e+79") */}
       <StatTile label={'Jade coins'} icon={'etc/jade_coin.png'} value={Number(jadeCoins ?? 0)} kind={'whole'}/>

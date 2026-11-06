@@ -3,7 +3,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { Box, MenuItem, TextField } from '@mui/material';
 import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import Num from '@components/common/Num';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -86,7 +86,8 @@ const Gallery = () => {
         {state?.characters?.map((char) => <MenuItem key={char?.playerId} value={char?.playerId}>{char?.name}</MenuItem>)}
       </TextField>
     </PageHeaderControl> : null}
-    {!section || sectionFailed ? <MissingData name={'Gallery'} failed={sectionFailed} atZero={!isParseFailed(account)}/> : null}
+    {!section || sectionFailed ? <MissingData name={'Gallery'} failed={sectionFailed} atZero={!isParseFailed(account)}/>
+      : <NotReached name={'the Gallery'} reached={section?.trophiesUsed?.length > 0 || section?.nametagsUsed?.length > 0}/>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Podiums'} value={podiumsOwned ?? 0} kind={'amount'}/>
       <StatTile label={'Bonus multi'} value={<Num value={bonusMulti ?? 1} game={'Gallery.GalleryBonusMulti'} unit={'x'}/>}/>

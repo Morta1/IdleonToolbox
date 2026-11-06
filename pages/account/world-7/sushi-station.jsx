@@ -6,7 +6,7 @@ import { formatNum, getTabs, secondsToCoarseDuration } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import Num from '@components/common/Num';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
@@ -96,7 +96,8 @@ const SushiStation = () => {
       description="Track your Sushi Station upgrades, sushi collection, fuel, and Ring of Gains bonuses in Legends of Idleon World 7"
     />
 
-    {sectionFailed ? <MissingData name={'Sushi Station'} failed atZero={!isParseFailed(state?.account)}/> : null}
+    {sectionFailed ? <MissingData name={'Sushi Station'} failed atZero={!isParseFailed(state?.account)}/>
+      : <NotReached name={'the Sushi Station'} reached={uniqueSushi > 0}/>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Unique sushi'} value={uniqueSushi ?? 0} kind={'amount'}/>
       {/* The upgrade panel's own print, so the balance reads as Upgrades' costs do */}

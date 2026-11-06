@@ -19,7 +19,7 @@ import MenuItem from '@mui/material/MenuItem';
 import { getSkillExpMulti } from '@parsers/character';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 import useTabIndex from '@hooks/useTabIndex';
@@ -96,6 +96,8 @@ const Farming = () => {
                              help={'Counts the nano chip in crop evo for any character, assuming Cropiovo Minor is active.'}/>
       </PageSettings> : null}
     </>}
+    {/* A plot the save has seeded, or a crop it has found: an empty plot reads -1, and every save has one */}
+    {sectionFailed ? null : <NotReached name={'Farming'} reached={farming?.cropsFound > 0 || plot?.some(({ seedType }) => seedType !== -1)}/>}
     <PageSummary failed={sectionFailed}>
       {/* breakdownTitle: the drawer takes the tile's name; the breakdown's own stays its link and pin key */}
       <StatTile label={'Bean Trade'} icon={'data/Quest80_x1.png'} value={formatNum(Math.round(beanTrade ?? 0))}

@@ -6,7 +6,6 @@ import useFormatDate from '@hooks/useFormatDate';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import Panel from '@components/common/cards/Panel';
-import StatusText from '@components/common/StatusText';
 
 // A wait, measured from now (the parse already counts the time since the save), and the date it ends on.
 const WaitRow = ({ name, time }) => {
@@ -42,8 +41,7 @@ const Library = ({ libraryTimes, failed }) => {
     <Panel.KV label={'Books ready'} value={formatNum(bookCount)}/>
     {breakdown ? <Panel.Row name={'Checkout time'}
                             value={<Breakdown asValue title={'Checkout time'} data={{ ...breakdown, totalValue: checkoutTime }}>{checkoutTime}</Breakdown>}/> : null}
-    {next > 0 ? <WaitRow name={'Next book in'} time={next}/>
-      : <Panel.Row name={'Next book in'} value={<StatusText status={'info'}>Wait for game update</StatusText>}/>}
+    {next > 0 ? <WaitRow name={'Next book in'} time={next}/> : null}
     {mainBreakpoints?.map(breakpointRow)}
     {extraBreakpoints?.length > 0 ? <Button size={'small'} aria-expanded={showMore} onClick={() => setShowMore(!showMore)}
                                             endIcon={showMore ? <IconChevronUp size={16}/> : <IconChevronDown size={16}/>}

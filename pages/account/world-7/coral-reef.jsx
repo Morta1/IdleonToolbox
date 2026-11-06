@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { calcTotalItemOwned } from '@parsers/storage';
@@ -30,7 +30,8 @@ const CoralReef = () => {
       title="Coral Reef | Idleon Toolbox"
       description="Keep track of your coral reef upgrades, coral kid upgrades, and dancing coral"
     />
-    {!section || sectionFailed ? <MissingData name={'Coral Reef'} failed={sectionFailed} atZero={!isParseFailed(state?.account)}/> : null}
+    {!section || sectionFailed ? <MissingData name={'Coral Reef'} failed={sectionFailed} atZero={!isParseFailed(state?.account)}/>
+      : <NotReached name={'the Coral Reef'} reached={ownedCorals > 0 || reefUpgrades?.some(({ level }) => level > 0)}/>}
     <PageSummary failed={sectionFailed}>
       {/* The game prints every reef cost in Big (Decision 13), so the balance beside them does too */}
       <StatTile label={'Coral'} icon={'data/Coral0.png'} value={<Num value={ownedCorals ?? 0} game={'Big'} whole/>}/>

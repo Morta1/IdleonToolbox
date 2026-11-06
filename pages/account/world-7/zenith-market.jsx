@@ -3,7 +3,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { getAllItems } from '@parsers/items';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 import Num from '@components/common/Num';
@@ -41,7 +41,8 @@ const ZenithMarket = () => {
       title="Zenith Market | Idleon Toolbox"
       description="Keep track of your zenith market upgrades and bonuses"
     />
-    {!section || sectionFailed ? <MissingData name={'Zenith Market'} failed={sectionFailed} atZero={!isParseFailed(account)}/> : null}
+    {!section || sectionFailed ? <MissingData name={'Zenith Market'} failed={sectionFailed} atZero={!isParseFailed(account)}/>
+      : <NotReached name={'the Zenith Market'} reached={clusters > 0 || market?.some(({ level }) => level > 0)}/>}
     <PageSummary failed={sectionFailed}>
       {/* The market's own print, so the balance reads as its costs do */}
       <StatTile label={'Zenith clusters'} icon={CLUSTER_ICON}

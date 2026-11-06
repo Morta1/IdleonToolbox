@@ -5,7 +5,7 @@ import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 
@@ -44,7 +44,8 @@ const Emperor = () => {
       title="Emperor | Idleon Toolbox"
       description="Track your Emperor showdown progress, boss HP, attempt counts, and bonus rewards in Legends of Idleon"
     />
-    {sectionFailed ? <MissingData name={'the Emperor'} failed atZero={!isParseFailed(state?.account)}/> : null}
+    {sectionFailed ? <MissingData name={'the Emperor'} failed atZero={!isParseFailed(state?.account)}/>
+      : <NotReached name={'the Emperor'} reached={highestEmperorShowdown > 0}/>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Highest showdown'} value={highestEmperorShowdown ?? 0} kind={'amount'}/>
       <StatTile label={'Daily attempts'} icon={'data/GemP45.png'} value={dailyAttempts ?? 0} kind={'amount'}/>

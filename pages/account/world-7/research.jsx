@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { formatDuration, formatNum, getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
@@ -64,7 +64,8 @@ const Research = () => {
       title="Research | Idleon Toolbox"
       description="Keep track of your research level, observations and grid bonuses"
     />
-    {!section || sectionFailed ? <MissingData name={'Research'} failed={sectionFailed} atZero={!parseFailed}/> : null}
+    {!section || sectionFailed ? <MissingData name={'Research'} failed={sectionFailed} atZero={!parseFailed}/>
+      : <NotReached name={'Research'} reached={section?.researchLevel > 0}/>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Research level'}
                 value={`${formatNum(researchLevel ?? 0)} (${formatNum(researchEXPpercent ?? 0, 'pct')})`}/>

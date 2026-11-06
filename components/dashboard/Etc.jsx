@@ -5,6 +5,7 @@ import { Box, Link, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum, getDuration, getNextCompanionClaim, getNextResetAt, splitTime } from '@utility/helpers';
 import { fillVoteText, formatGame } from '@utility/gameNotation';
 import useFormatDate from '@hooks/useFormatDate';
+import useInterval from '@hooks/useInterval';
 import { getMiniBossesData, getRandomEvents } from '@parsers/misc';
 import Timer from '../common/Timer';
 import StatusText from '@components/common/StatusText';
@@ -31,6 +32,8 @@ import { OPT } from '@parsers/accountOptions';
 import { sessionQuery } from '@utility/nav-query';
 
 const maxTimeValue = 9.007199254740992e+15;
+const MINUTE = 60 * 1000;
+const SERVER_WEEK = 604800 * 1000;
 const VILLAGER_TABS = ['Explore', 'Engineer', 'Bonuses', 'Measure', 'Study'];
 // Keys align with villager index (0-4) and match the `villagers` timer array option in baseTrackers.
 const VILLAGER_KEYS = ['explore', 'engineer', 'bonuses', 'measure', 'studies'];
@@ -48,7 +51,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   // drifted by an extra refresh interval each time data updated. A row's time is then a real date, so its
   // Timer takes no lastUpdated, except the three the parsers anchor on their own clock (trap, salt, equinox).
   const now = lastUpdated ?? new Date().getTime();
-  const [mountedAt] = useState(() => Date.now());
+  const [wallClock, setWallClock] = useState(() => Date.now());
+  useInterval(() => setWallClock(Date.now()), MINUTE);
   const emptyAlerts = Object.entries(trackers || {}).reduce((res, [alertName, data]) => {
     const allEmpty = Object.values(data || {}).every(({ checked }) => !checked);
     return { ...res, [alertName]: allEmpty };
@@ -87,8 +91,8 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const showDefecaus = showBoss('drDefecaus');
   const showBaba = showBoss('babaYaga');
   // Absolute times off the save time, like the Bosses card, so their cards skip Timer's lastUpdated
-  // shift. Rolled on the wall clock: an old save's lastUpdated would leave them in the past.
-  const resetClock = Math.max(now, mountedAt);
+  // shift. Rolled on the wall clock: an old save's lastUpdated would leave them in the past, and so would a tab left open.
+  const resetClock = Math.max(now, wallClock);
   const dailyReset = getNextResetAt(account, resetClock);
   const weeklyReset = getNextResetAt(account, resetClock, { days: account?.accountOptions?.[OPT.daysUntilWeeklyReset], period: 7 * 864e5 });
   const crystalIsland = getIsland(account, 'Crystal');
@@ -171,9 +175,9 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
   const bonusTimeLeft = timeAway ? (604800 - (timeAway?.GlobalTime + 197860 - 604800 * Math.floor((timeAway?.GlobalTime + 197860) / 604800))) * 1000 : 0;
   const meritocracyTimeLeft = timeAway ? (604800 - (timeAway?.GlobalTime + 543460 - 604800 * Math.floor((timeAway?.GlobalTime + 543460) / 604800))) * 1000 : 0;
   // Server-wide weekly boundary (weekly bosses, jewel spinner / chip repo, exotic market). Those all
-  // roll on floor(GlobalTime / 604800), which is unrelated to the account's own weekly reset.
-  const serverWeeklyTimeLeft = timeAway ? (604800 - (timeAway?.GlobalTime - 604800 * Math.floor(timeAway?.GlobalTime / 604800))) * 1000 : 0;
-  const serverWeeklyReset = now + serverWeeklyTimeLeft;
+  // roll on floor(GlobalTime / 604800), which is unrelated to the account's own weekly reset: the same
+  // moment for every save, so it reads the clock, not how old this save is.
+  const serverWeeklyReset = (Math.floor(resetClock / SERVER_WEEK) + 1) * SERVER_WEEK;
   const nextVoteBonus = now + bonusTimeLeft;
   const nextMeritocracyVote = now + meritocracyTimeLeft;
   const hasVotedBonus = !!voteBallot?.selectedBonus?.[0];
@@ -274,12 +278,10 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
       {!emptyAlerts?.General && <Section title={'General'}>
         {trackers?.General?.daily?.checked && <TimerRow target="General.daily"
           time={dailyReset}
-          placeholder={'Passed'}
           icon={'etc/Daily.png'}
         />}
         {trackers?.General?.weekly?.checked && <TimerRow target="General.weekly"
           time={weeklyReset}
-          placeholder={'Passed'}
           icon={'etc/Weekly.png'}
         />}
         {trackers?.General?.serverWeekly?.checked && timeAway ? <TimerRow target="General.serverWeekly"
@@ -288,7 +290,6 @@ const Etc = ({ characters, account, lastUpdated, trackers }) => {
             <Typography variant="body2">Weekly bosses, jewel spinner, chip repo, exotic market</Typography>
           </Stack>}
           time={serverWeeklyReset}
-          placeholder={'Passed'}
           icon={'etc/Server.png'}
         /> : null}
         {trackers?.General?.companions?.checked && <TimerRow target="General.companions"
@@ -652,23 +653,25 @@ const TimerRow = ({
   const formatDate = useFormatDate();
   const title = name ?? alertMeta[`timers.${target}`]?.label;
   const word = <StatusText status={placeholderStatus}>{placeholder}</StatusText>;
+  // No time to count to (a save with no reset countdown): the row says what a failed one says, never a state
+  const noTime = failed || (time == null && ownValue === undefined && !forcePlaceholder);
   const deadline = deadlineOf(time, lastUpdated);
   // A date past what a Date can hold has no exact time either
   const farOff = long || (Number.isFinite(deadline) && !isValid(new Date(deadline)));
   const over = !farOff && (forcePlaceholder || isOver(deadline));
   const when = farOff ? 'A long time' : over ? placeholder : formatDate(deadline, { showSeconds: false });
-  const words = failed ? undefined : message ? message(when, over) : `${title}: ${when}`;
-  const shown = failed ? '-'
+  const words = noTime ? undefined : message ? message(when, over) : `${title}: ${when}`;
+  const shown = noTime ? '-'
     : ownValue !== undefined ? ownValue
       : farOff ? 'A long time'
         : forcePlaceholder ? word
           : <Timer type={'countdown'} date={time} lastUpdated={lastUpdated} component={'span'} placeholder={word}/>;
   const href = page ? { pathname: page, query: { ...sessionQuery(router.query), ...query } } : null;
-  const line = failed ? null : state ?? sub ?? (farOff || over ? null : when);
+  const line = noTime ? null : state ?? sub ?? (farOff || over ? null : when);
   return <Panel.Row name={title} sub={line}
                     icon={<AlertIcon configType={'timers'} target={target} extra={items ? { items } : undefined} message={words}
                                      label={typeof words === 'string' ? undefined : title} icon={icon} size={TIMER_ICON_SIZE}/>}
-                    value={href && !failed ? <Link component={NextLink} href={href} color={'inherit'} variant={'body2'}>{shown}</Link> : shown}/>;
+                    value={href && !noTime ? <Link component={NextLink} href={href} color={'inherit'} variant={'body2'}>{shown}</Link> : shown}/>;
 };
 
 // A miniboss: its icon opens the alert's quick edit, its name links to the Death Note, and it reads how many wait.

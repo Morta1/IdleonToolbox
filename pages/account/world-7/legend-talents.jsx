@@ -3,7 +3,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { Box } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -79,7 +79,9 @@ const LegendTalents = () => {
       title="Legend Talents | Idleon Toolbox"
       description="View your Legend talent levels, bonus effects, and upgrade costs in Legends of Idleon World 7"
     />
-    {!section || sectionFailed ? <MissingData name={'Legend Talents'} failed={sectionFailed} atZero={!isParseFailed(state?.account)}/> : null}
+    {/* Spent points, not owned ones: character levels pay points on a save that has never been here */}
+    {!section || sectionFailed ? <MissingData name={'Legend Talents'} failed={sectionFailed} atZero={!isParseFailed(state?.account)}/>
+      : <NotReached name={'Legend Talents'} reached={pointsSpent > 0}/>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Legend points'} value={pointsOwned?.value ?? 0} kind={'amount'}
                 breakdown={pointsOwned?.breakdown} breakdownTitle={'Legend points'}/>

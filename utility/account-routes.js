@@ -6,6 +6,7 @@
 const STATIC_ROUTES = new Set([
   '/',
   '/404',
+  '/account/class-specific/royal-guardian',
   '/guilds',
   '/guilds/detail',
   '/guilds/ecosystem',

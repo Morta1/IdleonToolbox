@@ -1,5 +1,6 @@
 import { Box, Stack, Typography } from '@mui/material';
-import React, { useContext, useState } from 'react';
+import { IconChevronDown } from '@tabler/icons-react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, formatNum, getCoinsArray } from '@utility/helpers';
 import { formatGame, gameBonusText } from '@utility/gameNotation';
@@ -302,6 +303,55 @@ const stampBoosts = ({ category, multiplier, stat, exalted }, { exaltedMulti, ex
   exalted ? { name: 'Exalted Stamps', value: exaltedText ? exaltedMulti : null } : null
 ].filter(Boolean);
 
+// The fade the phone's tab strip draws at the edge where more waits, on the Panel's surface
+const MORE_BELOW_SX = {
+  position: 'absolute', left: 0, right: 0, bottom: 0, height: 32, display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
+  color: 'text.secondary', pointerEvents: 'none',
+  background: 'linear-gradient(to bottom, transparent, var(--mui-palette-background-paper) 70%)'
+};
+
+// The pinned Panel's body. A narrow Panel keeps the grid in view under it, so its body scrolls inside: only there is it a
+// stop for the keyboard, and only there is there anything for the cue to say. A container query can't set a tabIndex.
+const PinnedDetails = ({ children }) => {
+  const bodyRef = useRef(null);
+  const [scrolls, setScrolls] = useState(false);
+  const [moreBelow, setMoreBelow] = useState(false);
+  useEffect(() => {
+    const body = bodyRef.current;
+    if (!body || typeof ResizeObserver === 'undefined') return;
+    const measure = () => {
+      setScrolls(body.scrollHeight > body.clientHeight + 1);
+      setMoreBelow(body.scrollTop + body.clientHeight < body.scrollHeight - 1);
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(body);
+    body.addEventListener('scroll', measure, { passive: true });
+    return () => {
+      observer.disconnect();
+      body.removeEventListener('scroll', measure);
+    };
+  }, [children]);
+  // Its ring draws inside, where its own edge clips it
+  return <Box sx={{ position: 'relative' }}>
+    <Box ref={bodyRef} {...(scrolls ? { tabIndex: 0, role: 'region', 'aria-label': 'Stamp details' } : {})}
+         sx={[(theme) => ({ '&:focus-visible': focusRing(theme, -2) }), {
+           display: 'grid',
+           gap: 2,
+           p: { xs: 1.5, sm: 2 },
+           alignItems: 'start',
+           gridTemplateColumns: 'minmax(0, 1fr)',
+           maxHeight: '30vh',
+           overflowY: 'auto',
+           // The Panel's width, not the window's: at 900 px a side ad leaves it 540 px. The table takes its own width beside the
+           // two text columns.
+           '@container (min-width: 760px)': { gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)', maxHeight: 'none', overflowY: 'visible' }
+         }]}>
+      {children}
+    </Box>
+    {moreBelow ? <Box aria-hidden sx={MORE_BELOW_SX}><IconChevronDown size={16}/></Box> : null}
+  </Box>;
+};
+
 // Up to two factors read as words; more open as a breakdown from their product, each factor named on the line
 const boostLine = (boosts, stampName) => {
   const known = boosts.every(({ value }) => value != null);
@@ -332,21 +382,7 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, reducerUnknown, exalted
   const boosts = level > 0 ? stampBoosts(stamp, { exaltedMulti, exaltedText, vaultBonus, charmBonus }) : [];
   const costUnknown = atMax && reducerUnknown;
   const reducerText = level > 0 && atMax && !costUnknown ? reducerLine(minReduction, reducer) : null;
-  // A phone's note is all there, and scrolls with the page. The pinned Panel's body is a scroller the keyboard can reach:
-  // its ring draws inside, where its own edge clips it
-  return <Box {...(inNote ? {} : { tabIndex: 0, role: 'region', 'aria-label': 'Stamp details' })} sx={inNote ? { display: 'grid', gap: 2 } : [(theme) => ({ '&:focus-visible': focusRing(theme, -2) }), {
-    display: 'grid',
-    gap: 2,
-    p: { xs: 1.5, sm: 2 },
-    alignItems: 'start',
-    gridTemplateColumns: 'minmax(0, 1fr)',
-    // A narrow Panel keeps the grid in view under the pinned details: their body scrolls inside
-    maxHeight: '30vh',
-    overflowY: 'auto',
-    // The Panel's width, not the window's: at 900 px a side ad leaves it 540 px. The table takes its own width beside the
-    // two text columns.
-    '@container (min-width: 760px)': { gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)', maxHeight: 'none', overflowY: 'visible' }
-  }]}>
+  const body = <>
     <Stack gap={1}>
       <Typography variant={'body2'} component={'div'}>
         {`+${cleanUnderscore((effect ?? '').replace('+{', gameBonusText(bonus)))}`}</Typography>
@@ -379,7 +415,9 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, reducerUnknown, exalted
         gained > 0 ? ['Levels gained since your snapshot', formatNum(gained)] : null
       ]}/>
     </ItemCard.Section> : null}
-  </Box>;
+  </>;
+  // A phone's note is all there, and scrolls with the page
+  return inNote ? <Box sx={{ display: 'grid', gap: 2 }}>{body}</Box> : <PinnedDetails>{body}</PinnedDetails>;
 };
 
 // Absent entirely when a caller skipped the calculation, versus present with a null reduction,

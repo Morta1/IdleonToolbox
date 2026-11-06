@@ -1,9 +1,8 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import General from '@components/account/Worlds/World5/Gaming/General';
-import Notice from '@components/common/Notice';
 
 const Gaming = () => {
   const { state } = useContext(AppContext);
@@ -18,7 +17,7 @@ const Gaming = () => {
       description="Keep track of your gaming upgrades including dirty shovel and autumn squirrel timers"
     />
     {sectionFailed ? <MissingData name={'Gaming'} failed atZero={!isParseFailed(state?.account)}/>
-      : reached ? null : <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached Gaming yet.</Notice>}
+      : <NotReached name={'Gaming'} reached={reached}/>}
     <General account={state?.account} gaming={gaming} sectionFailed={sectionFailed} characters={state?.characters}
              lastUpdated={state?.lastUpdated}/>
   </>;

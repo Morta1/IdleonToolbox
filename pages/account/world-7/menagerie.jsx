@@ -2,8 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { formatNum, getTabs } from '@utility/helpers';
-import Notice from '@components/common/Notice';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { formatGame } from '@utility/gameNotation';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -55,9 +54,8 @@ const Menagerie = () => {
     {boosts?.some(({ visible }) => visible) ? <PageSettings state={settings} defaults={BOOSTS_SETTINGS} onChange={setSettings} onReset={resetSettings}>
       <BoostsSettings/>
     </PageSettings> : null}
-    {sectionFailed ? <MissingData name={'the Luminous Menagerie'} failed atZero={!parseFailed}/> : !unlocked ? <Notice tone={'locked'} sx={{ mb: 2 }}>
-      Your account hasn't reached the Luminous Menagerie yet. It's in the Molten Edge map in World 7.
-    </Notice> : null}
+    {sectionFailed ? <MissingData name={'the Luminous Menagerie'} failed atZero={!parseFailed}/>
+      : <NotReached name={'the Luminous Menagerie'} reached={unlocked}>It&apos;s in the Molten Edge map in World 7.</NotReached>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Menagerie rank'} value={rank ?? 0} kind={'amount'}/>
       <StatTile label={'Shells'} icon={SHELL_ICON} value={`${formatNum(shells ?? 0)} / ${formatNum(shellReq ?? 0)}`}/>

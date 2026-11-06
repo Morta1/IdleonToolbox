@@ -14,10 +14,9 @@ import { sessionQuery } from '@utility/nav-query';
 // The whole query rides along verbatim - unlike a cross-page hop, these params (`t`, `profile`,
 // `demo`) all belong to the page being reopened.
 //
-// No <meta http-equiv="refresh"> fallback: this is a data page, so its <NextSeo> never runs
-// during the export and the noindex reaches the HTML only because generate-page-seo.mjs lifts it
-// into _app via PAGE_SEO. A refresh tag would also fire before hydration, dropping the query a
-// shared ?profile= link needs, so the redirect has to stay client-side.
+// No <meta http-equiv="refresh"> fallback: it would fire before hydration, dropping the query a
+// shared ?profile= link needs, so the redirect has to stay client-side. It needs no account
+// (account-routes.js), so its export is the Notice: with JS off the link below is the way on.
 export const ROYAL_ARMORY_PATH = '/account/class-specific/royal-armory';
 
 const RoyalGuardianRedirect = () => {

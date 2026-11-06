@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
-import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { formatNum } from '@utility/helpers';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -33,7 +33,8 @@ const TheButton = () => {
       title="The Button | Idleon Toolbox"
       description="Track your Button presses, task progress, and bonus multipliers in Legends of Idleon World 7"
     />
-    {!section || sectionFailed ? <MissingData name={'The Button'} failed={sectionFailed} atZero={!parseFailed}/> : null}
+    {!section || sectionFailed ? <MissingData name={'The Button'} failed={sectionFailed} atZero={!parseFailed}/>
+      : <NotReached name={'the Button'} reached={totalPresses > 0}/>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Total presses'} value={totalPresses ?? 0} kind={'amount'}/>
       <StatTile label={'Insta skips left'} value={instaSkipsLeft ?? 0} kind={'amount'}/>
