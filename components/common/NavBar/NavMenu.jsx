@@ -3,7 +3,7 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { Box, ButtonBase, ClickAwayListener, ListItemButton, ListItemText, Typography, useMediaQuery } from '@mui/material';
 import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
-import { groupOf, MENUS } from '@utility/navMenu';
+import { groupOf, MENUS, topNavLabel } from '@utility/navMenu';
 import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
@@ -11,7 +11,6 @@ import usePageTop from '@hooks/usePageTop';
 import useFrame from './useFrame';
 import { capPageWidth, TALL } from './frame';
 
-const LABELS = { account: 'Account', tools: 'Tools' };
 export const navMenuId = (menu) => `nav-menu-${menu}`;
 const buttonId = (menu) => `nav-menu-${menu}-button`;
 // The buttons that open a menu (the bar's, a group row's name): a click outside the panel that lands on one swaps or
@@ -26,17 +25,18 @@ const tabStops = (root) => [...(root?.querySelectorAll(TAB_STOPS) ?? [])].filter
 export const NavMenuButton = ({ menu, open, selected, onToggle }) => (
   <ListItemButton id={buttonId(menu)} {...{ [MENU_BUTTON]: '' }} data-cy={`nav-item-${menu}`}
                   selected={selected} aria-expanded={open} aria-controls={open ? navMenuId(menu) : undefined}
-                  onClick={() => onToggle(menu)} dense size="medium" sx={{ borderRadius: 2, p: '0 8px' }}>
+                  onClick={() => onToggle(menu)} dense size="medium" sx={[{ borderRadius: 2, p: '0 8px' }, open ? { bgcolor: 'action.hover' } : {}]}>
     <ListItemText component="span" disableTypography sx={{ fontWeight: 600, fontSize: 16 }}>
-      {LABELS[menu]}
+      {topNavLabel(menu)}
     </ListItemText>
     <IconChevronDown size={16} aria-hidden
                      style={{ marginLeft: 4, transform: open ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }}/>
   </ListItemButton>
 );
 
-// The panel's three forms (Decision 3): full where the whole grid fits, compact on a 1366x768 class screen, and
-// two panes (the groups, then the open group's pages) below that. Rows and heads per form.
+// The panel's forms (Decision 3): full where a tall window gives the grid room, compact where it only just fits.
+// Worlds' seven columns are the only grid that outgrows a window: below 1280 wide, or 600 tall (its 383 px under the bar
+// and band, over a 90 px anchor ad), they take two panes, the groups and then the open group's pages. Rows and heads per form.
 const FORMS = {
   full: { row: 26, head: 38, headIcon: 28, pad: 3 },
   compact: { row: 23, head: 32, headIcon: 24, pad: 1.5 }
@@ -79,17 +79,13 @@ const GroupColumn = ({ group, form, pathname, nav }) => {
 
 const GridForm = ({ menu, form, pathname, nav }) => {
   const groups = MENUS[menu];
-  const rows = menu === 'account'
-    ? [['Worlds', groups.filter(({ row }) => row === 'worlds')], ['Account-wide', groups.filter(({ row }) => row === 'account')]]
-    : [[null, groups]];
-  return rows.map(([label, rowGroups], index) => <Box key={label ?? 'tools'} sx={{ mt: index ? 2 : 0 }}>
-    {label ? <Typography variant="groupLabel" color="text.secondary" sx={{ mb: 0.5 }}>{label}</Typography> : null}
-    {/* Columns as wide as their longest name, the rest shared out: a 1366 screen holds every name on one line, and a
-        narrower one wraps the longest names rather than cutting them */}
-    <Box sx={{ display: 'grid', gridTemplateColumns: `repeat(${rowGroups.length}, auto)`, columnGap: 2 }}>
-      {rowGroups.map((group) => <GroupColumn key={group.key} group={group} form={form} pathname={pathname} nav={nav}/>)}
-    </Box>
-  </Box>);
+  // Columns as wide as their longest name, the rest shared out. Below 1366 the gaps tighten: with a 17 px scrollbar a 1280
+  // window holds Worlds' names on one line and a 1200 window Account's; narrower still wraps the longest, never cuts them
+  return <Box sx={{
+    display: 'grid', gridTemplateColumns: `repeat(${groups.length}, auto)`, columnGap: 2, '@media (max-width: 1365.95px)': { columnGap: 1 }
+  }}>
+    {groups.map((group) => <GroupColumn key={group.key} group={group} form={form} pathname={pathname} nav={nav}/>)}
+  </Box>;
 };
 
 // A pointer crossing other groups on its way to the open group's pages leaves them shut: hover opens a group only
@@ -113,40 +109,31 @@ const PaneForm = ({ menu, pathname, nav }) => {
     clearTimeout(hoverTimer.current);
     hoverTimer.current = setTimeout(() => setOpenKey(key), HOVER_OPEN_MS);
   };
-  const entries = menu === 'account'
-    ? [{ label: 'Worlds' }, ...groups.filter(({ row }) => row === 'worlds'), { label: 'Account-wide' },
-      ...groups.filter(({ row }) => row === 'account')]
-    : groups;
   const pagesId = `${navMenuId(menu)}-pages`;
   return <Box sx={{
-    display: 'grid', gridTemplateColumns: '240px minmax(0, 1fr)', columnGap: 3,
-    gridTemplateRows: entries.map((entry) => (entry.key ? '32px' : '28px')).join(' ')
+    display: 'grid', gridTemplateColumns: '240px minmax(0, 1fr)', columnGap: 3, gridTemplateRows: `repeat(${groups.length}, 32px)`
   }}>
-    {entries.map((entry, index) => {
-      if (!entry.key) {
-        return <Typography key={entry.label} variant="groupLabel" color="text.secondary"
-                           sx={{ gridColumn: 1, gridRow: index + 1, alignSelf: 'end' }}>{entry.label}</Typography>;
-      }
-      const open = entry.key === openKey;
-      return <React.Fragment key={entry.key}>
+    {groups.map((group, index) => {
+      const open = group.key === openKey;
+      return <React.Fragment key={group.key}>
         <ButtonBase aria-expanded={open} aria-controls={open ? pagesId : undefined}
-                    onClick={() => openNow(entry.key)} onFocus={() => openNow(entry.key)}
-                    onMouseEnter={() => openAfterRest(entry.key)} onMouseLeave={() => clearTimeout(hoverTimer.current)}
+                    onClick={() => openNow(group.key)} onFocus={() => openNow(group.key)}
+                    onMouseEnter={() => openAfterRest(group.key)} onMouseLeave={() => clearTimeout(hoverTimer.current)}
                     sx={{
                       gridColumn: 1, gridRow: index + 1, justifyContent: 'flex-start', gap: 1, px: 1, borderRadius: 1,
                       typography: 'body2', color: open ? 'text.primary' : 'text.secondary',
                       bgcolor: open ? 'action.selected' : 'transparent'
                     }}>
-          <Box component="img" src={`${prefix}${entry.icon}.png`} alt="" style={entry.style}
+          <Box component="img" src={`${prefix}${group.icon}.png`} alt="" style={group.style}
                sx={{ width: 22, height: 22, objectFit: 'contain', flexShrink: 0 }}/>
-          <Box component="span" sx={{ flex: 1, textAlign: 'left' }}>{entry.label}</Box>
+          <Box component="span" sx={{ flex: 1, textAlign: 'left' }}>{group.label}</Box>
           <IconChevronRight size={16} aria-hidden/>
         </ButtonBase>
-        {open ? <Box component="ul" id={pagesId} aria-label={entry.label} sx={{
+        {open ? <Box component="ul" id={pagesId} aria-label={group.label} sx={{
           gridColumn: 2, gridRow: '1 / -1', alignSelf: 'start', m: 0, p: 0,
           display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: 2
         }}>
-          {entry.pages.map((page) => <PageLink key={page.url} page={page} current={page.url === pathname} height={30}
+          {group.pages.map((page) => <PageLink key={page.url} page={page} current={page.url === pathname} height={30}
                                                nav={nav}/>)}
         </Box> : null}
       </React.Fragment>;
@@ -154,7 +141,10 @@ const PaneForm = ({ menu, pathname, nav }) => {
   </Box>;
 };
 
-// The Account or Tools pages under the bar (Layout boards). Not modal: another bar item swaps it, and a click outside
+// A grid that ends where its columns do. Worlds and the panes fill the page's column.
+const GRID_WIDTH = { account: 'fit-content', tools: 820 };
+
+// A menu's pages under the bar (Layout boards). Not modal: another bar item swaps it, and a click outside
 // or Esc closes it, focus back on its button (3d and 3e's rule for desktop panels). No dim and no scroll lock:
 // the panel takes the page's frame (frame.js), so its edges are the page's and it never covers a side ad.
 export const NavMenuPanel = ({ menu, onClose }) => {
@@ -164,8 +154,8 @@ export const NavMenuPanel = ({ menu, onClose }) => {
   const openerRef = useRef(null);
   // The panel exists only after a click, so the media queries are read on a mounted client.
   const full = useMediaQuery(`(min-width: 1440px) and ${TALL}`);
-  const compact = useMediaQuery('(min-width: 1366px) and (min-height: 700px)');
-  const form = full ? 'full' : compact ? 'compact' : 'pane';
+  const worldsFit = useMediaQuery('(min-width: 1280px) and (min-height: 600px)');
+  const form = menu === 'worlds' && !worldsFit ? 'pane' : full ? 'full' : 'compact';
   const pathname = router?.pathname ?? '';
   const top = usePageTop();
   // The page's own frame: a panel's edges are the page's, with or without the rail's gutter
@@ -240,12 +230,12 @@ export const NavMenuPanel = ({ menu, onClose }) => {
              sx={[{
                gridArea: 'page',
                pointerEvents: 'auto', outline: 'none', color: 'text.primary',
-               width: menu === 'tools' && form !== 'pane' ? 820 : '100%', maxWidth: '100%',
+               width: (form !== 'pane' && GRID_WIDTH[menu]) || '100%', maxWidth: '100%',
                p: FORMS[form]?.pad ?? 2, bgcolor: 'background.paper', border: 1, borderTop: 0, borderColor: 'divider',
                borderRadius: '0 0 8px 8px', boxShadow: (theme) => (theme.vars || theme).palette.shadow.floating,
                maxHeight: `calc(100vh - ${top}px - var(--nitro-ad-height, 0px))`, overflowY: 'auto'
              }, frame.cap ? capPageWidth(frame.cap) : null]}>
-          <nav aria-label={`${LABELS[menu]} pages`}>
+          <nav aria-label={`${topNavLabel(menu)} pages`}>
             {form === 'pane'
               ? <PaneForm menu={menu} pathname={pathname} nav={nav}/>
               : <GridForm menu={menu} form={form} pathname={pathname} nav={nav}/>}

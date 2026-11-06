@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
-import { Box, ButtonBase, Collapse, Drawer, IconButton, Link, Typography } from '@mui/material';
+import { Box, ButtonBase, Collapse, Drawer, IconButton, Link } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import CloseIcon from '@mui/icons-material/Close';
 import { IconChevronDown } from '@tabler/icons-react';
@@ -10,16 +10,14 @@ import PinnedPages from '@components/common/favorites/PinnedPages';
 import NoticeSlot from '@components/common/Overlays/NoticeSlot';
 import usePageTop from '@hooks/usePageTop';
 import useNavPrefetch from '@hooks/useNavPrefetch';
-import { groupByKey, groupOf, MENUS, TOP_NAV } from '@utility/navMenu';
+import { groupByKey, groupOf, MENUS, menuOfRoute, TOP_NAV, topNavLabel } from '@utility/navMenu';
 import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
 
 const MENU_ID = 'phone-menu';
-const LABELS = { account: 'Account', tools: 'Tools' };
-const capitalize = (word) => word.charAt(0).toUpperCase() + word.slice(1);
 
-// A pill for a section (Layout3PhoneMenu): Account and Tools pick the list below; the rest are links to their page.
+// A pill for a section (Layout3PhoneMenu): Worlds, Account and Tools pick the list below; the rest are links to their page.
 // 32 px drawn in the one strip, with a 44 px tap target that stays inside the strip's padding (a scroller clips the rest).
 const PILL_SX = {
   position: 'relative', flexShrink: 0, height: 32, px: 1.25, borderRadius: 999, fontSize: 13, lineHeight: '20px', fontWeight: 600,
@@ -67,29 +65,20 @@ const Group = ({ group, open, onToggle, pathname, nav }) => {
   </Box>;
 };
 
-const GroupList = ({ menu, openGroups, onToggle, pathname, nav }) => {
-  const groups = MENUS[menu];
-  const rows = menu === 'account'
-    ? [['Worlds', groups.filter(({ row }) => row === 'worlds')], ['Account-wide', groups.filter(({ row }) => row === 'account')]]
-    : [[null, groups]];
-  return rows.map(([label, rowGroups]) => <Box key={label ?? 'tools'}>
-    {label ? <Typography variant="groupLabel" color="text.secondary" sx={{ px: 2, pt: '6px', pb: '2px' }}>{label}</Typography> : null}
-    <Box component="ul" sx={{ m: 0, p: 0 }}>
-      {rowGroups.map((group) => <Group key={group.key} group={group} open={Boolean(openGroups[group.key])}
-                                       onToggle={onToggle} pathname={pathname} nav={nav}/>)}
-    </Box>
-  </Box>);
-};
+const GroupList = ({ menu, openGroups, onToggle, pathname, nav }) => <Box component="ul" sx={{ m: 0, p: 0 }}>
+  {MENUS[menu].map((group) => <Group key={group.key} group={group} open={Boolean(openGroups[group.key])}
+                                     onToggle={onToggle} pathname={pathname} nav={nav}/>)}
+</Box>;
 
 // The menu's content, mounted each time it opens: on the group it was opened at (a group row's name), else the current
-// page's, else World 1's list; Tools on a tool page, Account everywhere else.
+// page's menu with its group open, else the Worlds list, where most of the clicks go.
 const PhoneMenuBody = ({ group, onClose }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
   const pathname = router?.pathname ?? '';
   const prefetch = useNavPrefetch();
   const target = (group ? groupByKey(group) : null) ?? groupOf(pathname);
-  const [menu, setMenu] = useState(target?.menu ?? 'account');
+  const [menu, setMenu] = useState(target?.menu ?? menuOfRoute(pathname) ?? 'worlds');
   const [openGroups, setOpenGroups] = useState(target ? { [target.key]: true } : {});
   // The strip scrolls by itself when its sections outrun a phone: it opens with the current one in view
   const stripRef = useRef(null);
@@ -114,16 +103,16 @@ const PhoneMenuBody = ({ group, onClose }) => {
     }}>
       {TOP_NAV.map((item) => {
         if (state?.profile && item === 'guilds') return null;
-        if (item === 'account' || item === 'tools') {
+        if (MENUS[item]) {
           const picked = menu === item;
           return <ButtonBase key={item} aria-pressed={picked} onClick={() => setMenu(item)}
-                             sx={[PILL_SX, picked ? PICKED_SX : {}]}>{LABELS[item]}</ButtonBase>;
+                             sx={[PILL_SX, picked ? PICKED_SX : {}]}>{topNavLabel(item)}</ButtonBase>;
         }
         const current = pathname.includes(item);
         return <ButtonBase key={item} component={NextLink} href={{ pathname: `/${item}`, query: nav.query }}
                            prefetch={prefetch} aria-current={current ? 'page' : undefined}
                            onClick={() => nav.onNavigate(`/${item}`)} sx={[PILL_SX, current ? PICKED_SX : {}]}>
-          {capitalize(item)}
+          {topNavLabel(item)}
         </ButtonBase>;
       })}
     </Box>

@@ -60,7 +60,7 @@ const ITEM_SX = {
   '@media (pointer: coarse)': { mb: '6px', '&::before': { content: '""', position: 'absolute', inset: '-3px 0' } }
 };
 const MENU_PAPER = { width: 'calc(100vw - 32px)', maxWidth: 'none', maxHeight: 'calc(100% - 32px)' };
-const ALL_LABEL = { account: 'All account pages', tools: 'All tools' };
+const ALL_LABEL = { worlds: 'All worlds', account: 'All account pages', tools: 'All tools' };
 
 // A phone's title opens the other pages of its group (Layout3Phone, ToolsPhone): a dropdown across the gutters, or a sheet
 // past 8, ending with every page of the group in the phone menu.

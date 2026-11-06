@@ -37,14 +37,14 @@ async function gotoHomeAndWait(page) {
 test.describe.configure({ mode: 'serial' });
 
 test.describe('Logged-out visitors reach gated pages by clicking, not just by URL', () => {
-  test('homepage -> Account menu -> Prayers, purely by clicking', async ({ browser }) => {
+  test('homepage -> Worlds menu -> Prayers, purely by clicking', async ({ browser }) => {
     const context = await browser.newContext({ viewport: DESKTOP_VIEWPORT });
     const page = await context.newPage();
     const errors = collectErrors(page);
 
     await gotoHomeAndWait(page);
 
-    await click(page.locator('[data-cy="nav-item-account"]'));
+    await click(page.locator('[data-cy="nav-item-worlds"]'));
     await clickUntilPath(page, page.locator('[data-cy="prayers"]'), '/account/world-3/prayers');
 
     const bodyText = await page.locator('body').innerText();

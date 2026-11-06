@@ -35,7 +35,7 @@ const NavBar = ({ children }) => {
   const router = useRouter();
   const formatDate = useFormatDate();
   const prefetch = useNavPrefetch();
-  // The bar's open menu ('account', 'tools' or null) and the phone menu (null, or { group } it opened at). A page
+  // The bar's open menu (a key of MENUS or null) and the phone menu (null, or { group } it opened at). A page
   // change closes both; a query-only change (a page writing its own state to the URL, Wardrobe's companion) does not.
   const [openMenu, setOpenMenu] = useState(null);
   const [phoneMenuAt, setPhoneMenuAt] = useState(null);

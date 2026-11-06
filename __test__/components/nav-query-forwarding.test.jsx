@@ -47,6 +47,7 @@ const linkParams = () => screen.getAllByRole('link')
 beforeEach(() => push.mockClear());
 
 describe.each([
+  ['Worlds menu', 'worlds'],
   ['Account menu', 'account'],
   ['Tools menu', 'tools']
 ])('%s links', (_name, menu) => {

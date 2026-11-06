@@ -1,28 +1,30 @@
 import { PAGES } from '@components/constants';
 import { PAGE_BY_URL, PAGE_INDEX } from '@utility/pageIndex';
 
-// The Account menu's groups (Layout boards): the seven worlds in game order, then the account-wide groups. Misc is
-// two groups in the menu, Basics and Activities; their URLs stay /account/misc/... .
+// The bar's two menus over /account (Layout boards): Worlds is the seven worlds in game order, Account the groups that
+// span them, Classes first: the largest of them, and the one the word "Account" doesn't predict. Misc is two groups in
+// the menu, Basics and Activities; their URLs stay /account/misc/... .
 const BASICS = ['general', 'storage', 'quests', 'constellations', 'upgrade-vault'];
 const inFolder = (folder) => PAGE_INDEX.filter(({ url }) => url.startsWith(`/account/${folder}/`));
 const lastSegment = (url) => url.split('/').at(-1);
 
+const WORLD_GROUPS = [1, 2, 3, 4, 5, 6, 7].map((n) => ({
+  key: `world-${n}`, label: `World ${n}`, icon: PAGES.ACCOUNT[`world ${n}`].icon, pages: inFolder(`world-${n}`), menu: 'worlds'
+}));
+
 const ACCOUNT_GROUPS = [
-  ...[1, 2, 3, 4, 5, 6, 7].map((n) => ({
-    key: `world-${n}`, label: `World ${n}`, row: 'worlds', icon: PAGES.ACCOUNT[`world ${n}`].icon, pages: inFolder(`world-${n}`)
-  })),
+  { key: 'classes', label: 'Classes', icon: PAGES.ACCOUNT['class-specific'].icon, pages: inFolder('class-specific') },
   {
-    key: 'basics', label: 'Basics', row: 'account', icon: PAGES.ACCOUNT.misc.icon,
+    key: 'basics', label: 'Basics', icon: PAGES.ACCOUNT.misc.icon,
     pages: inFolder('misc').filter(({ url }) => BASICS.includes(lastSegment(url)))
   },
   {
-    key: 'activities', label: 'Activities', row: 'account', icon: 'data/DungeonA7',
+    key: 'activities', label: 'Activities', icon: 'data/DungeonA7',
     pages: inFolder('misc').filter(({ url }) => !BASICS.includes(lastSegment(url)))
   },
-  { key: 'classes', label: 'Classes', row: 'account', icon: PAGES.ACCOUNT['class-specific'].icon, pages: inFolder('class-specific') },
-  { key: 'task-board', label: 'Task Board', row: 'account', icon: PAGES.ACCOUNT['task board'].icon, pages: inFolder('task-board') },
-  { key: 'clickers', label: 'Clickers', row: 'account', icon: PAGES.ACCOUNT.clickers.icon, pages: inFolder('clickers') },
-  { key: 'premium', label: 'Premium', row: 'account', icon: PAGES.ACCOUNT['prem-currency'].icon, pages: inFolder('prem-currency') }
+  { key: 'task-board', label: 'Task Board', icon: PAGES.ACCOUNT['task board'].icon, pages: inFolder('task-board') },
+  { key: 'clickers', label: 'Clickers', icon: PAGES.ACCOUNT.clickers.icon, pages: inFolder('clickers') },
+  { key: 'premium', label: 'Premium', icon: PAGES.ACCOUNT['prem-currency'].icon, pages: inFolder('prem-currency') }
 ].map((group) => ({ ...group, menu: 'account' }));
 
 // Grouped by purpose (phase 4 Decision 2).
@@ -36,21 +38,31 @@ const TOOLS_GROUPS = [
   { key: 'browse', label: 'Browse', pages: tools(['card-search', 'item-browser', 'builds']) }
 ].map((group) => ({ ...group, menu: 'tools', icon: group.pages[0].icon }));
 
-export const MENUS = { account: ACCOUNT_GROUPS, tools: TOOLS_GROUPS };
+export const MENUS = { worlds: WORLD_GROUPS, account: ACCOUNT_GROUPS, tools: TOOLS_GROUPS };
+const ALL_GROUPS = Object.values(MENUS).flat();
 
-// The bar, left to right. account and tools open their menu; the rest are links.
-export const TOP_NAV = ['dashboard', 'characters', 'account', 'tools', 'guilds', 'statistics', 'leaderboards', 'wiki'];
+// The bar, left to right. A key of MENUS opens that menu; the rest are links.
+export const TOP_NAV = ['dashboard', 'characters', 'worlds', 'account', 'tools', 'guilds', 'statistics', 'leaderboards', 'wiki'];
+
+// What the bar and the phone menu call an item.
+export const topNavLabel = (item) => item.charAt(0).toUpperCase() + item.slice(1);
+
+// The menu a route lights, by URL, so a route outside the groups lights it too (World 7's s3, a build's page).
+export const menuOfRoute = (pathname = '') => {
+  if (pathname.startsWith('/account/world-')) return 'worlds';
+  if (pathname.startsWith('/account')) return 'account';
+  return pathname.startsWith('/tools') ? 'tools' : null;
+};
 
 // A group row's label where the page's own name does not fit; the link's accessible name holds it and the full name.
 export const SHORT_LABELS = { '/account/world-7/legend-talents': 'Legends', '/account/world-7/zenith-market': 'Zenith' };
 
-const GROUP_BY_URL = Object.fromEntries([...ACCOUNT_GROUPS, ...TOOLS_GROUPS]
-  .flatMap((group) => group.pages.map(({ url }) => [url, group])));
+const GROUP_BY_URL = Object.fromEntries(ALL_GROUPS.flatMap((group) => group.pages.map(({ url }) => [url, group])));
 
 // The group a route belongs to (router.pathname), or null off the account and tool pages.
 export const groupOf = (pathname) => GROUP_BY_URL[pathname] ?? null;
 
-export const groupByKey = (key) => [...ACCOUNT_GROUPS, ...TOOLS_GROUPS].find((group) => group.key === key) ?? null;
+export const groupByKey = (key) => ALL_GROUPS.find((group) => group.key === key) ?? null;
 
 // A group row's split by the room it has, from an estimate of each part that never comes out short of the real one: a
 // pill is its label (Roboto 500 at 14 px, body2's 0.15 px letter spacing), a 22 px icon and 8 px to it, 12 px of

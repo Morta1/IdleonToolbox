@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { NextLinkComposed } from '../NextLinkComposed';
-import { TOP_NAV } from '@utility/navMenu';
+import { MENUS, menuOfRoute, TOP_NAV, topNavLabel } from '@utility/navMenu';
 import { useRouter } from 'next/router';
 import { ListItemButton, listItemButtonClasses, ListItemText, Stack } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
@@ -10,8 +10,8 @@ import useNavPrefetch from '@hooks/useNavPrefetch';
 import { NavMenuButton } from './NavMenu';
 import { BAR_SNUG, BAR_TIGHT } from './frame';
 
-// The bar's sections from lg (below it PhoneMenu holds them): Account and Tools open their menu (Decision 11), the
-// rest are links.
+// The bar's sections from lg (below it PhoneMenu holds them): Worlds, Account and Tools open their menu (Decision 11),
+// the rest are links.
 const NavItemsList = ({ openMenu, onMenu }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
@@ -31,9 +31,9 @@ const NavItemsList = ({ openMenu, onMenu }) => {
         {TOP_NAV.map((navItem, index) => {
           if (state?.profile && navItem === 'guilds') return null;
 
-          if (navItem === 'account' || navItem === 'tools') {
+          if (MENUS[navItem]) {
             return <NavMenuButton key={navItem} menu={navItem} open={openMenu === navItem}
-                                  selected={router?.pathname.includes(navItem)} onToggle={onMenu}/>;
+                                  selected={menuOfRoute(router?.pathname) === navItem} onToggle={onMenu}/>;
           }
 
           const selected = router?.pathname.includes(navItem);
@@ -55,7 +55,7 @@ const NavItemsList = ({ openMenu, onMenu }) => {
                 disableTypography
                 sx={{ fontWeight: 600, fontSize: 16 }}
               >
-                {navItem.capitalize()}
+                {topNavLabel(navItem)}
               </ListItemText>
             </ListItemButton>
           );
