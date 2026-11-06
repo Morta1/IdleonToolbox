@@ -197,7 +197,7 @@ const Goals = () => {
   ) : rows(label, list));
 
   return (
-    <Box data-section="goals">
+    <Box data-section="goals" data-tour="goals">
       <Panel icon={<Box component="span" sx={{ display: 'inline-flex', color: 'primary.main' }}><IconTargetArrow size={24}/></Box>}
              title={'Goals'} meta={views.length ? `${plural(views.length, 'goal')} · ${formatNumber(reached.length)} reached` : undefined}
              asideOwnRow

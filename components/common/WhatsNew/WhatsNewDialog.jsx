@@ -3,6 +3,7 @@ import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { Box, Link, useMediaQuery } from '@mui/material';
 import AppDialog from '@components/common/Overlays/AppDialog';
+import { trackEvent } from '@utility/analytics';
 import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
 
@@ -58,13 +59,21 @@ const WhatsNewItem = ({ item, phone }) => <Box>
 const WhatsNewDialog = ({ onDone }) => {
   const router = useRouter();
   const [open, setOpen] = useState(true);
+  const [next, setNext] = useState(null);
   const phone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const above = useMediaQuery((theme) => theme.breakpoints.down('md'));
   const burger = useMediaQuery((theme) => theme.breakpoints.down('lg'));
   const touch = useMediaQuery('(pointer: coarse)');
   const close = () => setOpen(false);
-  const actions = [{ label: 'Got it', main: true }];
-  return <AppDialog open={open} onClose={close} onExited={onDone} title="What's new" size="l" actions={actions}>
+  const showAround = () => {
+    trackEvent('whats_new_tour_start');
+    setNext('tour');
+    close();
+  };
+  const actions = burger
+    ? [{ label: 'Got it', main: true }]
+    : [{ label: 'Got it' }, { label: 'Show me around', main: true, onClick: showAround }];
+  return <AppDialog open={open} onClose={close} onExited={() => onDone(next)} title="What's new" size="l" actions={actions}>
     <Box component="p" sx={{ m: 0, mb: 1.5, typography: 'body2', color: 'text.secondary' }}>
       I rebuilt the site&apos;s layout, so a few things moved. Here&apos;s where they went.
     </Box>

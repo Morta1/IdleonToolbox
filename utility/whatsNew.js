@@ -103,3 +103,16 @@ export const whenPageIsFree = (onFree) => {
   check();
   return stop;
 };
+
+// Which menu the tour's theme stop holds open ('user', 'footer' or null): UserMenu and ThemeLink read it where they live.
+let tourMenu = null;
+const tourMenuListeners = new Set();
+export const getTourMenu = () => tourMenu;
+export const setTourMenu = (menu) => {
+  tourMenu = menu;
+  tourMenuListeners.forEach((listener) => listener());
+};
+export const subscribeTourMenu = (listener) => {
+  tourMenuListeners.add(listener);
+  return () => tourMenuListeners.delete(listener);
+};

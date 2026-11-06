@@ -66,7 +66,7 @@ const SectionToggles = ({ order, filters, onFilters, onReorder }) => {
 
   return <DndContext id={'dashboard-sections'} sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
     <SortableContext items={order} strategy={horizontalListSortingStrategy}>
-      <Stack role={'group'} aria-label={'Sections to show'} direction={'row'} gap={{ xs: 0.5, sm: '10px' }} flexWrap={'wrap'}>
+      <Stack data-tour={'pills'} role={'group'} aria-label={'Sections to show'} direction={'row'} gap={{ xs: 0.5, sm: '10px' }} flexWrap={'wrap'}>
         {order.map((id) => <SortableToggle key={id} value={id} label={SECTION_LABELS[id]} on={filters.includes(id)}
                                            onToggle={(event) => toggle(event, id)} onMove={handleMove}/>)}
       </Stack>

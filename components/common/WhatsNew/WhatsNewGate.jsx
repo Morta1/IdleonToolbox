@@ -6,9 +6,10 @@ import { trackEvent } from '@utility/analytics';
 import { claimWhatsNew, startWhatsNew, whenPageIsFree } from '@utility/whatsNew';
 
 const WhatsNewDialog = dynamic(() => import('./WhatsNewDialog'), { ssr: false, loading: () => null });
+const Tour = dynamic(() => import('./Tour'), { ssr: false, loading: () => null });
 
-// Beside SnackbarHost in _app, for its layer. Null at build and on the first render, and
-// the chunk loads only for the visitor who gets the dialog.
+// Beside SnackbarHost in _app, so the tour's layer survives its own router.push. Null at build and on the first render, and
+// the chunks load only for the visitor who gets the dialog.
 const WhatsNewGate = () => {
   const router = useRouter();
   const { state } = useContext(AppContext);
@@ -29,7 +30,10 @@ const WhatsNewGate = () => {
     });
   }, [appReady]);
 
-  return stage === 'dialog' ? <WhatsNewDialog onDone={() => setStage(null)}/> : null;
+  if (stage === 'dialog') {
+    return <WhatsNewDialog onDone={(next) => setStage(next)}/>;
+  }
+  return stage === 'tour' ? <Tour onEnd={() => setStage(null)}/> : null;
 };
 
 export default WhatsNewGate;

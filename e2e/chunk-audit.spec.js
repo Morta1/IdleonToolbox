@@ -85,6 +85,20 @@ test.describe('firebase loads only when a session might exist', () => {
   });
 });
 
+// The What's new dialog and tour load only for the visitor who gets them. The gate's end date keeps them shut here, so a guest's
+// whole visit fetches neither.
+const WHATS_NEW_MARKER = 'Show me around';
+
+test('a guest never downloads the What\'s new dialog', async ({ page, request }) => {
+  // A marker that left the dialog would make this pass vacuously.
+  expect(offenders(exportedChunks(path.join(process.cwd(), 'out', '_next', 'static')), WHATS_NEW_MARKER).length).toBeGreaterThan(0);
+  await page.addInitScript(() => localStorage.setItem('authHint', 'no'));
+  await page.goto('/');
+  await waitForRender(page);
+  await page.waitForTimeout(1500);
+  expect(offenders(await loadedScripts(page, request), WHATS_NEW_MARKER)).toEqual([]);
+});
+
 // The guild pages read one pure helper from the parsers (parsers/guildLevel.ts): the data barrel (1.67 MB) was theirs
 // for a guest until it left parsers/guild.ts.
 for (const route of ['/guilds', '/guilds/detail']) {

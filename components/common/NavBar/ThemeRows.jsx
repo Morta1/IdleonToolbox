@@ -1,7 +1,8 @@
-import { useState } from 'react';
-import { Link, Menu, MenuItem, Typography } from '@mui/material';
+import { useState, useSyncExternalStore } from 'react';
+import { Box, Link, Menu, MenuItem, MenuList, Popper, Typography } from '@mui/material';
 import { useColorScheme } from '@mui/material/styles';
 import useHydrated from '@hooks/useHydrated';
+import { getTourMenu, subscribeTourMenu } from '@utility/whatsNew';
 import { SELECT_ROW } from '../../../styles/theme/theme';
 
 // A line of text in a menu, not an item: the arrow keys skip it (MenuList reads muiSkipListHighlight).
@@ -36,17 +37,37 @@ export const useThemeRows = (onPick) => {
   ];
 };
 
+const noServerMenu = () => null;
+// Whether the What's new tour's theme stop holds this menu open.
+export const useTourMenu = (menu) => useSyncExternalStore(subscribeTourMenu, getTourMenu, noServerMenu) === menu;
+
+// The menu's rows for that stop. A plain list, not a Menu: a Menu is a modal, whose focus trap and aria-hidden on the rest of
+// the page would fight the tour's card, which holds the focus. It stands above the tour's dim, so its theme rows work, and
+// under the card. Only those: the tour isn't the time to leave the page or log out.
+export const TourMenu = ({ anchorEl, placement, children }) => <Popper open anchorEl={anchorEl} placement={placement}
+                                                                       sx={{ zIndex: (theme) => theme.zIndex.modal + 1 }}>
+  <Box data-tour="theme-menu" sx={{
+    my: '4px', bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: '8px',
+    boxShadow: (theme) => (theme.vars || theme).palette.shadow.floating
+  }}>
+    <MenuList sx={{ '& > .MuiMenuItem-root:not([role="menuitemradio"])': { pointerEvents: 'none' } }}>{children}</MenuList>
+  </Box>
+</Popper>;
+
 // The footer's way in, for a guest, who has no user menu. It sits at the page's end, so its menu opens upward.
 export const ThemeLink = () => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [link, setLink] = useState(null);
+  const tourOpen = useTourMenu('footer');
   const close = () => setAnchorEl(null);
   const rows = useThemeRows(close);
   return <>
-    <Link component="button" variant="caption" color="text.secondary" sx={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
+    <Link ref={setLink} data-tour="theme-link" component="button" variant="caption" color="text.secondary" sx={{ cursor: 'pointer', whiteSpace: 'nowrap' }}
           aria-haspopup="true" aria-expanded={anchorEl ? 'true' : undefined}
           onClick={(event) => setAnchorEl(event.currentTarget)}>
       Theme
     </Link>
+    {tourOpen ? <TourMenu anchorEl={link} placement="top">{rows}</TourMenu> : null}
     <Menu anchorEl={anchorEl} open={Boolean(anchorEl)} onClose={close}
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
           transformOrigin={{ vertical: 'bottom', horizontal: 'center' }}
