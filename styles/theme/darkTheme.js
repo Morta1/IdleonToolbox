@@ -91,7 +91,23 @@ const identity = {
   // The leaderboards' identities: whose row it is (you, a searched player) and the podium's medals
   leaderboard: { you: '#007E85', youText: '#4fc3c9', searched: '#cd861b', gold: '#f0b849', silver: '#9aa3ad', bronze: '#b8783a' },
   // Discord's brand colour, on the two Discord buttons
-  discord: { main: '#5865F2', hover: '#4752c4', text: '#ffffff' }
+  discord: { main: '#5865F2', hover: '#4752c4', text: '#ffffff' },
+  // The surface of a picture of the game (Research's grid, the kingdom map): dark in both schemes, its words pinned to it
+  frame: { surface: '#141A21', edge: 'rgba(255, 255, 255, 0.12)', text: '#ffffff', accent: '#90caf9' }
+};
+
+// Game colors that write words, in light only: the same hue darkened to 4.5:1 on the card and the page (Decision 4). Dots,
+// edges and the game's pictures keep the set above.
+const lightIdentity = {
+  ...identity,
+  pin: '#836f00',
+  stats: { STR: '#d32f2f', AGI: '#328036', WIS: '#a946ba', LUK: '#b05900' },
+  superTalent: '#836f30',
+  damage: { blue: '#3a788e', purple: '#9a51b8', yellow: '#7f7039', plain: '#73715a' },
+  fever: { yellow: '#846f00', red: '#bc4c42', brown: '#916846', green: '#3f7d3f', menagerie: '#3675a7' },
+  artifactTiers: ['#707070', '#836f00', '#9c6259', '#3c7e4a', '#007f6f', '#7f61b5', '#ab547a'],
+  tomeTiers: { bronze: '#8c6b41', silver: '#6d7072', gold: '#836f00', blue: '#337896' },
+  leaderboard: { ...identity.leaderboard, youText: '#327b7f', searched: '#9a6414' }
 };
 
 // The roles from the redesign's Foundations board. Components ask for a role by its job
@@ -170,7 +186,7 @@ const lightPalette = {
   shadow: { floating: '0 2px 4px rgba(16, 24, 40, 0.06), 0 12px 24px -4px rgba(16, 24, 40, 0.14)' },
   action: { hover: 'rgba(0, 0, 0, 0.04)', selected: 'rgba(0, 0, 0, 0.08)' },
   series: SERIES.light,
-  identity
+  identity: lightIdentity
 };
 
 const theme = createTheme({

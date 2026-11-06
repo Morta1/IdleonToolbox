@@ -36,10 +36,10 @@ const gridContainerSx = {
   gridAutoRows: `${CELL_SIZE}px`,
   gap: 1,
   p: 1.5,
-  bgcolor: 'background.default',
+  bgcolor: 'identity.frame.surface',
   borderRadius: 1,
   border: '1px solid',
-  borderColor: 'divider',
+  borderColor: 'identity.frame.edge',
   maxWidth: '100%',
   overflow: 'auto'
 };
@@ -78,7 +78,7 @@ const GridCell = ({ sq, selected, onPick }) => {
   const look = (theme) => ({ ...CELL_BOX, borderColor: getCellColors(theme, sq).borderColor });
   if (!canSelect) return <Box sx={look}>{inner}</Box>;
   return <ButtonBase aria-label={cleanUnderscore(sq?.name)} aria-pressed={selected} onClick={onPick}
-                     sx={[look, selected && { outline: '2px solid', outlineColor: 'primary.main', outlineOffset: 1 }]}>
+                     sx={[look, selected && { outline: '2px solid', outlineColor: 'identity.frame.accent', outlineOffset: 1 }]}>
     {inner}
   </ButtonBase>;
 };
