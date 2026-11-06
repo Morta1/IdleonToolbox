@@ -14,7 +14,8 @@
 // --storage  JSON of localStorage entries.
 // --settle   more ms after the page settles: a tool page's text stands still before its parse lands.
 // --click    a selector clicked once the page has rendered, before the scan: a drawer or a note that only opens on a tap.
-//            The first match. Its text joins the dump, and the shots catch it open.
+//            The first match. Its text joins the dump, and the shots catch it open. Repeat it for a step inside what opened:
+//            --click 'button:has-text("Sign in")' --click 'button:has-text("Continue with email")'
 // --clock    an ISO time that the page and the parse Worker read as now, so two runs an hour apart compare with `diff -r`.
 // --base     default http://localhost:$E2E_PORT, or 3002.
 // --no-shots scan only. --out default .page-check (gitignored). Exit 1 on any hit, 2 when the server is down.
@@ -38,7 +39,7 @@ const { values: opts, positionals } = parseArgs({
     setup: { type: 'string' },
     storage: { type: 'string' },
     settle: { type: 'string', default: '0' },
-    click: { type: 'string' },
+    click: { type: 'string', multiple: true },
     clock: { type: 'string' },
     base: { type: 'string', default: `http://localhost:${process.env.E2E_PORT ?? 3002}` },
     out: { type: 'string', default: '.page-check' },
@@ -386,8 +387,10 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
     };
     if (opts.click) {
       await waitForRender(page);
-      await page.locator(opts.click).first().click();
-      await page.waitForTimeout(500);
+      for (const selector of opts.click) {
+        await page.locator(selector).first().click();
+        await page.waitForTimeout(500);
+      }
     }
     const { hits, height, sideways } = await scanned();
     hits.hiddenHead = await hiddenHeads(page);
