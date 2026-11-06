@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { getPetMartLastSeen, getPetMartRotationDate, getPetMartToday, mergePetMartHistory } from '@utility/petMartHistory';
+import { getPetMartLastSeen, getPetMartLoggedPets, getPetMartRotationDate, getPetMartSightings, getPetMartToday, mergePetMartHistory } from '@utility/petMartHistory';
 
 const NOON_OCT_20 = Date.UTC(2026, 9, 20, 12);
 const live = (date, shopDay, plus, base = []) => ({
@@ -52,5 +52,23 @@ describe('getPetMartLastSeen', () => {
     const history = [live('2026-10-10', 225, [1], [2]), live('2026-09-30', 215, [1, 2])];
     expect(Object.fromEntries(getPetMartLastSeen(history, 'plus'))).toEqual({ 1: '2026-10-10', 2: '2026-09-30' });
     expect(Object.fromEntries(getPetMartLastSeen(history, 'base'))).toEqual({ 2: '2026-10-10' });
+  });
+});
+
+describe('getPetMartSightings', () => {
+  const day = (date, plus, base = []) => ({ date, plus, base });
+  const history = [
+    day('2026-10-12', [{ index: 1, list: 100, price: 100 }]),
+    day('2026-10-11', [{ index: 1, list: 100, price: 50 }], [{ index: 2, list: 9, price: 9 }]),
+    day('2026-10-10', [{ index: 1, list: 100, price: 50 }])
+  ];
+  it('reads the newest offer, the newest of the cheapest and the days', () => {
+    expect(getPetMartSightings(history, 1, 'plus')).toEqual({
+      last: { index: 1, list: 100, price: 100, date: '2026-10-12' },
+      lowest: { index: 1, list: 100, price: 50, date: '2026-10-11' },
+      days: 3
+    });
+    expect(getPetMartSightings(history, 1, 'base')).toBeNull();
+    expect(getPetMartLoggedPets(history)).toEqual([1, 2]);
   });
 });

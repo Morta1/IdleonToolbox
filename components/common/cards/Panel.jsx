@@ -64,7 +64,7 @@ const SheetSection = ({ side, fold, bodyId, title, meta, aside, children, sx }) 
 // Panel (Cards board): a titled box around a list, a table, a chart or a form. The title lives in the
 // 56 px header band, never as a heading above a card. A collapsed panel keeps its rows in the page
 // (hidden), so the static export still carries them. asideOwnRow: on a phone the aside takes its own row under the title,
-// so a long meta never wraps beside it.
+// so a long meta never wraps beside it; a breakpoint's name does the same below that breakpoint, for a wide aside.
 const Panel = ({ icon, iconAlt = '', title, meta, aside, asideOwnRow, collapsible, defaultOpen = true, children, sx }) => {
   const [open, setOpen] = useState(defaultOpen);
   const bodyId = useId();
@@ -72,8 +72,9 @@ const Panel = ({ icon, iconAlt = '', title, meta, aside, asideOwnRow, collapsibl
   if (sheet) return <SheetSection side={sheet.side} fold={sheet.fold} bodyId={bodyId} title={title} meta={meta} aside={aside} sx={sx}>{children}</SheetSection>;
   const shown = !collapsible || open;
   const name = typeof title === 'string' ? title : '';
+  const ownRowFrom = asideOwnRow === true ? 'sm' : asideOwnRow;
   return <Box component={'section'} sx={[(theme) => cardSurface(theme), ...(Array.isArray(sx) ? sx : [sx])]}>
-    <Stack direction={'row'} alignItems={'center'} gap={1.5} flexWrap={asideOwnRow ? { xs: 'wrap', sm: 'nowrap' } : undefined}
+    <Stack direction={'row'} alignItems={'center'} gap={1.5} flexWrap={ownRowFrom ? { xs: 'wrap', [ownRowFrom]: 'nowrap' } : undefined}
            sx={{ minHeight: 56, py: 1, pl: 2, pr: 1.5, borderBottom: shown ? 1 : 0, borderColor: 'divider' }}>
       {/* First, as the board's collapsed Panel draws it: its glyph on the Panel's 16 px side */}
       {collapsible ? <IconButton size={'small'} aria-expanded={open} aria-controls={bodyId} sx={{ ml: -0.75 }}
@@ -86,7 +87,7 @@ const Panel = ({ icon, iconAlt = '', title, meta, aside, asideOwnRow, collapsibl
         <Typography variant={'cardTitle'} component={'h2'}>{title}</Typography>
         {meta ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{meta}</Typography> : null}
       </Stack>
-      {aside ? <Box sx={{ flexShrink: 0, ...(asideOwnRow ? { flexBasis: { xs: '100%', sm: 'auto' } } : {}) }}>{aside}</Box> : null}
+      {aside ? <Box sx={{ flexShrink: 0, ...(ownRowFrom ? { flexBasis: { xs: '100%', [ownRowFrom]: 'auto' } } : {}) }}>{aside}</Box> : null}
     </Stack>
     <Box id={bodyId} hidden={!shown} sx={ROWS_SX}>{children}</Box>
   </Box>;

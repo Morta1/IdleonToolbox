@@ -55,6 +55,21 @@ export const getPetMartLastSeen = (history, counter) => {
   return lastSeen;
 };
 
+// Every pet the log holds, on either counter, by companion index.
+export const getPetMartLoggedPets = (history) => [...new Set((history ?? []).flatMap((day) => [...(day.plus ?? []), ...(day.base ?? [])].map(({ index }) => index)))];
+
+// One pet on one counter: its newest offer, its cheapest (the newest of a tie) and how many days it was there. null when it
+// never was.
+export const getPetMartSightings = (history, index, counter) => {
+  const offers = (history ?? []).flatMap((day) => (day[counter] ?? []).filter((offer) => offer.index === index).map((offer) => ({ ...offer, date: day.date })));
+  if (!offers.length) return null;
+  return {
+    last: offers.reduce((newest, offer) => (offer.date > newest.date ? offer : newest)),
+    lowest: offers.reduce((low, offer) => (offer.price < low.price || (offer.price === low.price && offer.date > low.date) ? offer : low)),
+    days: new Set(offers.map(({ date }) => date)).size
+  };
+};
+
 // Sort key for "Last in the Pet Mart": ascending puts never-seen pets first and today's offers last.
 export const lastInPetMartKey = (lastSeen, inToday) => {
   if (inToday) return '9999-12-31';

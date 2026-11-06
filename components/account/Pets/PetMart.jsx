@@ -1,6 +1,4 @@
-import { useState } from 'react';
-import { Box, Button, Stack, Typography } from '@mui/material';
-import { format, parseISO } from 'date-fns';
+import { Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum, getNextPetMartRestock, titleCaseName } from '@utility/helpers';
 import { monsterSprite } from '@utility/spriteImages';
 import Timer from '@components/common/Timer';
@@ -9,21 +7,17 @@ import useFormatDate from '@hooks/useFormatDate';
 import { getPetMartRotationDate, getPetMartToday, mergePetMartHistory } from '@utility/petMartHistory';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
-import Panel from '@components/common/cards/Panel';
 import StatTile from '@components/common/cards/StatTile';
-import GameIcon from '@components/common/GameIcon';
 import Notice from '@components/common/Notice';
 import StatusText from '@components/common/StatusText';
 import { effectText, petCrystalIcon } from '@components/account/Pets/PetCollection';
+import PastRotations from '@components/account/Pets/PastRotations';
 
 // The tournament's Pet Mart: two counters that each restock daily with five pets. The base counter
 // sells the pet itself, the + counter sells the Pet Mart+ upgrade of a pet you already own. Both
 // price in Pet Crystals, and a day's discount shows as a struck list price beside the real one.
 // The full + price list lives in the Pets tab's Pet Mart+ view; this tab is today's stock and the
 // log of past rotations.
-
-// Rows shown before "Show older days".
-const RECENT_DAYS = 14;
 
 const priceLine = ({ list, price }, size = 16) => {
   const discounted = list > price;
@@ -44,6 +38,8 @@ const readRotations = (data, petMart, lastUpdated) => {
   const todayDate = getPetMartRotationDate(now);
   return {
     today: getPetMartToday(data?.days, petMart, lastUpdated, now),
+    todayDate,
+    history,
     pastDays: history.filter((day) => day.date !== todayDate),
     loggingSince: history.at(-1)?.date
   };
@@ -52,13 +48,11 @@ const readRotations = (data, petMart, lastUpdated) => {
 const PetMart = ({ petMart, companions, lastUpdated, sectionFailed, companionsFailed, guest }) => {
   const { data, isPending, isError, refetch } = usePetMartHistory();
   const formatDate = useFormatDate();
-  const [showAll, setShowAll] = useState(false);
   const savePetMart = sectionFailed ? null : petMart;
-  const { today, pastDays, loggingSince } = readRotations(data, savePetMart, lastUpdated);
+  const { today, todayDate, history, pastDays, loggingSince } = readRotations(data, savePetMart, lastUpdated);
   const saveIsToday = today?.source === 'save';
   const waiting = !today && isPending;
   const gems = savePetMart?.gems;
-  const shownDays = showAll ? pastDays : pastDays.slice(0, RECENT_DAYS);
 
   const offerCard = (offer, plus) => {
     const companion = companions?.[offer.index];
@@ -89,22 +83,6 @@ const PetMart = ({ petMart, companions, lastUpdated, sectionFailed, companionsFa
     ? guest ? null : `Today's rotation isn't known: your save is from ${formatDate(lastUpdated, { showSeconds: false })}.`
     : "Today's rotation isn't logged yet: it shows here within the hour.";
 
-  const pastCounter = (label, offers, plus) => (offers?.length ? <Stack direction={'row'} gap={1} alignItems={'baseline'}>
-    <Typography variant={'body2'} color={'text.secondary'} sx={{ flexShrink: 0 }}>{label}</Typography>
-    <Stack direction={'row'} columnGap={2} rowGap={0.5} flexWrap={'wrap'} sx={{ minWidth: 0 }}>
-      {offers.map((offer) => {
-        const name = companions?.[offer.index]?.name;
-        if (!name) return null;
-        // A name stays on one line; on a narrow row its price moves under it
-        return <Stack key={offer.index} direction={'row'} columnGap={0.5} alignItems={'center'} flexWrap={'wrap'}>
-          <GameIcon src={monsterSprite(name)} size={16} alt={''}/>
-          <Typography variant={'body2'} color={'text.primary'} sx={{ whiteSpace: 'nowrap' }}>{cleanUnderscore(name)}{plus ? '+' : ''}</Typography>
-          {offer.price != null ? priceLine({ list: offer.list ?? offer.price, price: offer.price }) : null}
-        </Stack>;
-      })}
-    </Stack>
-  </Stack> : null);
-
   return <Stack gap={3}>
     {isError ? <Notice tone={'error'} action={{ label: 'Retry', onClick: () => refetch() }}>
       Couldn&apos;t load the Pet Mart history.
@@ -128,24 +106,8 @@ const PetMart = ({ petMart, companions, lastUpdated, sectionFailed, companionsFa
         : waiting ? <Typography variant={'body2'} color={'text.secondary'}>Loading today&apos;s rotation</Typography>
           : <Typography variant={'body2'} color={'text.secondary'}>{todayMissing}</Typography>}
     </Stack> : null}
-    {isError ? null : <Box>
-      <Panel title={'Past rotations'} meta={loggingSince ? `Logged daily since ${format(parseISO(loggingSince), 'MMM d')}` : undefined}>
-        {isPending ? <Panel.Row name={<Typography variant={'body2'} component={'span'} color={'text.secondary'}>Loading past rotations</Typography>}/>
-          : !pastDays.length
-            ? <Panel.Row name={<Typography variant={'body2'} component={'span'} color={'text.secondary'}>
-              Past rotations show up here after the next restock.
-            </Typography>}/>
-            : shownDays.map((day) => <Panel.Row key={`${day.date}-${day.shopDay}`} name={format(parseISO(day.date), 'MMM d, yyyy')}
-                                                sub={<Stack gap={0.5}>
-                                                  {day.shopDay != null ? <Typography variant={'caption'} component={'div'} color={'text.secondary'}>Shop day {day.shopDay}</Typography> : null}
-                                                  {pastCounter('Pet Mart+', day.plus, true)}
-                                                  {pastCounter('Pet Mart', day.base, false)}
-                                                </Stack>}/>)}
-      </Panel>
-      {pastDays.length > RECENT_DAYS ? <Button size={'small'} sx={{ mt: 1 }} onClick={() => setShowAll(!showAll)}>
-        {showAll ? 'Show fewer days' : `Show ${pastDays.length - RECENT_DAYS} older ${pastDays.length - RECENT_DAYS === 1 ? 'day' : 'days'}`}
-      </Button> : null}
-    </Box>}
+    {isError ? null : <PastRotations history={history} pastDays={pastDays} todayDate={todayDate} loggingSince={loggingSince}
+                                     companions={companions} isPending={isPending}/>}
   </Stack>;
 };
 
