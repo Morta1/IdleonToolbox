@@ -42,7 +42,6 @@ export const PAGES = {
       ]
     },
     'prem-currency': {
-      style: { filter: 'hue-rotate(180deg)' },
       icon: 'data/PremiumGem',
       categories: [
         { label: 'gemShop', icon: 'data/PremiumGem' },

@@ -22,10 +22,7 @@ const ACCOUNT_GROUPS = [
   { key: 'classes', label: 'Classes', row: 'account', icon: PAGES.ACCOUNT['class-specific'].icon, pages: inFolder('class-specific') },
   { key: 'task-board', label: 'Task Board', row: 'account', icon: PAGES.ACCOUNT['task board'].icon, pages: inFolder('task-board') },
   { key: 'clickers', label: 'Clickers', row: 'account', icon: PAGES.ACCOUNT.clickers.icon, pages: inFolder('clickers') },
-  {
-    key: 'premium', label: 'Premium', row: 'account', icon: PAGES.ACCOUNT['prem-currency'].icon,
-    style: PAGES.ACCOUNT['prem-currency'].style, pages: inFolder('prem-currency')
-  }
+  { key: 'premium', label: 'Premium', row: 'account', icon: PAGES.ACCOUNT['prem-currency'].icon, pages: inFolder('prem-currency') }
 ].map((group) => ({ ...group, menu: 'account' }));
 
 // Grouped by purpose (phase 4 Decision 2).
