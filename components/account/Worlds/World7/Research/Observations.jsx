@@ -16,16 +16,10 @@ const LENSES = {
   2: { src: 'data/ResMagni2.png', name: 'Kaleidoscope' }
 };
 
-// Observation insight level colors from game (N.js Research UI: semicolon-separated RGB list indexed by level)
-const OBSERVATION_LEVEL_RGB = '149,148,148;152,116,99;116,187,207;204,167,93;77,115,239;202,47,225;225,47,47;44,151,69;255,138,195;255,137,46;118,104,121'
-  .split(';')
-  .map((s) => s.trim());
-// Game indexes color list by insight level (level 1 → index 1, level 6 → index 6 = red)
-const getObservationLevelColor = (level) => {
-  if (level < 1) return null;
-  const i = Math.min(level, OBSERVATION_LEVEL_RGB.length - 1);
-  const rgb = OBSERVATION_LEVEL_RGB[i];
-  return rgb ? `rgb(${rgb})` : null;
+// Game indexes color list by insight level (level 1 → index 1, level 6 → index 6 = red); a level past the list keeps its last
+const observationLevelColor = (level) => (theme) => {
+  const colors = (theme.vars || theme).palette.identity.insightLevels;
+  return colors[Math.min(level, colors.length - 1)];
 };
 
 const OBSERVATIONS_TOOLBAR = { hideFound: false };
@@ -36,11 +30,11 @@ const insightRate = (value) => formatNum(value ?? 0, 'amount', { precise: (value
 const observationCard = (obs) => {
   const name = cleanUnderscore(obs?.name ?? `Observation ${(obs?.index ?? 0) + 1}`);
   // Decision 8: the insight colors stay the game's own list on the name, the level beside it in words
-  const color = getObservationLevelColor(obs?.insightLevel ?? 0);
+  const level = obs?.insightLevel ?? 0;
   const lenses = (obs?.lensTypes ?? []).map((type) => LENSES[type]).filter(Boolean);
   const showMob = obs?.mapMob && obs.mapMob !== '_' && obs?.mapMobFace !== 0;
   return <ItemCard key={obs?.index} icon={`data/ResObj${obs?.index}.png`}
-                   title={color ? <Box component={'span'} sx={{ color }}>{name}</Box> : name}
+                   title={level >= 1 ? <Box component={'span'} sx={{ color: observationLevelColor(level) }}>{name}</Box> : name}
                    status={obs?.found ? 'done' : undefined} statusLabel={'Found'} dimmed={!obs?.unlocked}>
     {obs?.description ? <ItemCard.Desc text={obs.description}/> : null}
     <ItemCard.Facts rows={[

@@ -8,7 +8,7 @@ import { NoteTrigger } from '@components/common/InfoButton';
 import GameIcon from '@components/common/GameIcon';
 import ItemCard from '@components/common/cards/ItemCard';
 import { colourName, paletteOdds } from './CardView';
-import { GAME_HEX } from '@utility/colorSets';
+import { GAME_HEX, ON_ART } from '@utility/colorSets';
 
 const HEX_CLIP = 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)';
 // The board's glows for the active colours and the fastest to level, on the theme's primary and warning channels
@@ -146,7 +146,7 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
                 : isTop3 ? { filter: glow('warning'), '& img': { filter: 'brightness(1.2)' } } : {})
             }}>
               <GameIcon src={'data/GamingHexB.png'} size={hexagonSize} fit={'canvas'} alt={''}/>
-              <Stack sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center' }}>
+              <Stack data-on-art sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', color: ON_ART.text }}>
                 {odds ? <Typography variant={'caption'}>{odds}</Typography> : null}
               </Stack>
             </Box>}

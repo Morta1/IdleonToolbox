@@ -25,6 +25,7 @@ import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 import { quantityForPoints } from '@components/account/Worlds/World4/tomeQuantity';
 import useTabIndex from '@hooks/useTabIndex';
+import { ink } from '../../../styles/theme/darkTheme';
 
 const RANKS = ['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '80%', '90%', '95%'];
 const TOME_TOOLBAR = { search: '', hideMaxed: false, view: 'cards' };
@@ -93,7 +94,7 @@ const detailsSection = (bonus, tier) => {
       ]}/>
       <Stack direction={'row'} gap={0.5} aria-hidden>
         {fills.map((fill, index) => <Box key={TIERS[index]} sx={{
-          position: 'relative', flex: 1, height: 8, overflow: 'hidden', bgcolor: 'action.hover',
+          position: 'relative', flex: 1, height: 8, overflow: 'hidden', bgcolor: ink(0.08),
           borderRadius: index === 0 ? '4px 0 0 4px' : index === 2 ? '0 4px 4px 0' : 0
         }}>
           <Box sx={{ position: 'absolute', inset: 0, width: `${fill * 100}%`, bgcolor: tierColor(tier) }}/>

@@ -78,6 +78,7 @@ const GameIcon = ({ src, size = 40, alt = '', frame, status, fit = 'drawn', load
   </Box>;
 };
 
+// On white a fade takes a sprite's body and leaves its outline: a shade keeps the silhouette the fade shows on dark.
 const Box = styled('span')`
   position: relative;
   display: inline-block;
@@ -94,6 +95,8 @@ const Box = styled('span')`
     opacity: .35;
     filter: grayscale(1);
   }
+
+  ${({ theme }) => theme.applyStyles('light', { '&[data-status=\'missing\'] img': { opacity: 0.45, filter: 'grayscale(1) brightness(.8)' } })}
 `;
 
 // No sprite to draw: a dashed box the icon's size with a ?, never the browser's broken image. The edge is

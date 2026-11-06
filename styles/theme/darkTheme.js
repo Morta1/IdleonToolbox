@@ -82,6 +82,8 @@ const identity = {
   ],
   // Research's grid cells, the game's greys: a levelled cell, a cell's edge, its unfilled part, an open cell, a closed one
   researchGrid: { levelled: '#9e9e9e', edge: '#757575', unfilled: '#616161', open: '#424242', closed: '#212121' },
+  // Research's insight colors, the game's (N.js Research UI), by Insight LV
+  insightLevels: ['#959494', '#987463', '#74bbcf', '#cca75d', '#4d73ef', '#ca2fe1', '#e12f2f', '#2c9745', '#ff8ac3', '#ff892e', '#766879'],
   // Sailing's artifact forms, the game's: Base, Ancient, Eldritch, Sovereign, Omnipotent, Transcendent, Verisimilitude
   artifactTiers: ['#ffffff', '#ffd700', '#ffa092', '#67da80', '#00ffde', '#b388ff', '#ff7eb6'],
   // The Tome's point tiers, the game's: bronze, silver, gold, blue
@@ -111,6 +113,7 @@ const lightIdentity = {
   fever: { yellow: '#846f00', red: '#bc4c42', brown: '#916846', green: '#3f7d3f', menagerie: '#3675a7' },
   artifactTiers: ['#707070', '#836f00', '#9c6259', '#3c7e4a', '#007f6f', '#7f61b5', '#ab547a'],
   tomeTiers: { bronze: '#8c6b41', silver: '#6d7072', gold: '#836f00', blue: '#337896' },
+  insightLevels: ['#717070', '#8b6a5a', '#4a7784', '#856d3d', '#4669da', '#b92bcf', '#d72d2d', '#26813b', '#a4597e', '#ac5c1f', '#766879'],
   leaderboard: { ...identity.leaderboard, youText: '#327b7f', searched: '#9a6414' },
   builds: { main: '#1565c0', onMain: '#ffffff', soft: 'rgba(21, 101, 192, 0.08)', edge: 'rgba(21, 101, 192, 0.5)' },
   family: { Beginner: '#8d6107', Warrior: '#b33315', Archer: '#317234', Mage: '#0966b7' }
@@ -152,6 +155,7 @@ const darkPalette = {
   // The edge of a control that stands on its own (a field's own rest border): an outlined button, a filter pill, More.
   outline: 'rgba(255, 255, 255, 0.23)',
   backdrop: 'rgba(0, 0, 0, 0.5)',
+  dimOpacity: 0.55,
   shadow: { floating: shadows[8] },
   series: SERIES.dark,
   identity
@@ -191,6 +195,7 @@ const lightPalette = {
   divider: 'rgba(0, 0, 0, 0.12)',
   outline: 'rgba(0, 0, 0, 0.23)',
   backdrop: 'rgba(16, 24, 40, 0.45)',
+  dimOpacity: 0.7,
   shadow: { floating: '0 2px 4px rgba(16, 24, 40, 0.06), 0 12px 24px -4px rgba(16, 24, 40, 0.14)' },
   // active: an unpressed toggle's label and an icon, full ink in dark, where MUI's 54% sits under text.muted.
   // disabled: MUI's 26% is 1.9:1 on white; 38% is what dark's reads at (2.7:1).

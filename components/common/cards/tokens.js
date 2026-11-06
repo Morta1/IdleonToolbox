@@ -4,8 +4,8 @@ import { isValidElement } from 'react';
 // pages never do. Every color is a theme role, so the light scheme needs nothing here.
 const palette = (theme) => (theme.vars || theme).palette;
 
-// Locked, not found, not reached: the whole card at .55, nothing else.
-export const DIM = 0.55;
+// Locked, not found, not reached: the whole card at .55, nothing else. A role: white takes .7, which reads as .55 does on dark.
+export const DIM = 'var(--mui-palette-dimOpacity)';
 export const CARD_RADIUS = 8;
 // The grid's minimum column for each card size (S bonus text, M upgrade, L rich cards).
 export const CARD_MIN_WIDTH = { s: 240, m: 300, l: 360 };
@@ -38,8 +38,8 @@ export const cardState = (theme, state) => {
 // A dimmed card whose state words must read at AA (Gallery's "Not acquired"): its surface and contents at DIM, its
 // meta line at full strength. opacity can't be undone inside a parent, so it goes on each part, not on the card.
 export const dimKeepingMeta = (theme) => ({
-  backgroundColor: `color-mix(in srgb, ${palette(theme).background.paper} ${DIM * 100}%, transparent)`,
-  borderColor: `color-mix(in srgb, ${palette(theme).divider} ${DIM * 100}%, transparent)`,
+  backgroundColor: `color-mix(in srgb, ${palette(theme).background.paper} calc(${DIM} * 100%), transparent)`,
+  borderColor: `color-mix(in srgb, ${palette(theme).divider} calc(${DIM} * 100%), transparent)`,
   '& > :not([data-card-header]), & [data-card-header] > :not([data-title-row]), & [data-title-row] > :not([data-title-block]), & [data-title-block] > :not([data-card-meta])': { opacity: DIM }
 });
 

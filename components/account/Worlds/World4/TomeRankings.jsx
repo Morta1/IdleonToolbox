@@ -19,6 +19,7 @@ import useToolbarState from '@hooks/useToolbarState';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { CLASSIFICATION_TYPES, CLASSIFICATIONS_KEY, classificationsOf, withClassification } from './tomeClassifications';
 import { quantityForPoints } from './tomeQuantity';
+import { ink } from '../../../../styles/theme/darkTheme';
 
 const RANK_OPTIONS = [
   { label: 'All players', value: 'all' },
@@ -227,7 +228,7 @@ const TomeRankings = ({ sectionFailed }) => {
           <Typography variant={'value'} component={'div'} sx={{ color: toneText(tone) }}>
             {percentile != null ? ordinal(Math.round(percentile)) : '-'}
           </Typography>
-          <Box sx={{ height: 6, mt: 0.5, bgcolor: 'action.hover', borderRadius: 1, overflow: 'hidden' }}>
+          <Box sx={{ height: 6, mt: 0.5, bgcolor: ink(0.08), borderRadius: 1, overflow: 'hidden' }}>
             <Box sx={{ width: `${percentile != null ? Math.max(1, percentile) : 0}%`, height: '100%', bgcolor: toneFill(tone), borderRadius: 1 }}/>
           </Box>
         </Box>;
