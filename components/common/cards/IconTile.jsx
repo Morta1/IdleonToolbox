@@ -1,7 +1,7 @@
 import { Box, ButtonBase, Typography } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
 import GameIcon from '@components/common/GameIcon';
-import { NoteTrigger } from '@components/common/InfoButton';
+import { NOTE_ANCHOR, NoteTrigger, SHARED_NOTE_ID } from '@components/common/InfoButton';
 import { numOrNode } from '@components/common/Num';
 import UpTriangle from '@components/common/UpTriangle';
 import { useSheet } from './SheetContext';
@@ -64,15 +64,16 @@ const TILE_MAX = 'var(--tile-max, 72px)';
 // selected are the ItemCard lines. details open on click, tap, Enter or hover. mark is a game mark on the sprite's
 // corner (the Rat King's crown on a crowned plant, the greenstack symbol), named for a screen reader by markAlt; a tile
 // carries a badge or a mark, not both.
-// onSelect makes the tile a button that picks it, for a grid too large to draw a note per tile (the Slab's 1,935
-// items): the page shows the picked one's details once, and selected draws the selected line. An empty slot draws no
-// sprite, so its alt names it ("Empty slot" by default) when it has details to open or can be picked; one with neither
-// is not a button.
+// onSelect makes the tile a button that picks it, for a grid too large to draw a note per tile: the page shows the
+// picked one's details once, and selected draws the selected line. An empty slot draws no sprite, so its alt names it
+// ("Empty slot" by default) when it has details to open or can be picked; one with neither is not a button.
+// sharedNote goes with onSelect: the tile opens the note its page shares across the grid (InfoButton's SharedNote),
+// handed event.currentTarget as the anchor, and selected says that note is open on it (the Slab's 1,938 items).
 // phoneDetails go with onSelect: below 600 px, where the page's details Panel does not show, a pick also pins the
 // picked tile's details as its note (sized to a table), so the grid keeps the screen.
 // sub: a dimmer line under the value, inside a sheet (a talent's "/ max"). kind is what numOrNode takes.
 const IconTile = ({ icon, alt = '', value, kind, sub, frame, height = 72, badge, mark, markAlt, status, details, onSelect, selected,
-  phoneDetails }) => {
+  sharedNote, phoneDetails }) => {
   const small = Boolean(useSheet());
   const empty = status === 'empty';
   const hasValue = value !== undefined && !empty;
@@ -129,7 +130,10 @@ const IconTile = ({ icon, alt = '', value, kind, sub, frame, height = 72, badge,
                         sx={{ maxWidth: TILE_MAX, borderRadius: '8px' }}>{tile}</NoteTrigger>;
   }
   if (onSelect) {
-    return <ButtonBase component={'span'} disableRipple aria-label={emptyName} aria-pressed={Boolean(selected)} onClick={onSelect}
+    return <ButtonBase component={'span'} disableRipple aria-label={emptyName} onClick={onSelect}
+                       {...(sharedNote
+                         ? { [NOTE_ANCHOR]: '', 'aria-expanded': Boolean(selected), 'aria-describedby': selected ? SHARED_NOTE_ID : undefined }
+                         : { 'aria-pressed': Boolean(selected) })}
                        sx={small ? { display: 'flex', width: '100%', alignItems: 'stretch', borderRadius: '6px' }
                          : { display: 'flex', width: '100%', maxWidth: TILE_MAX, borderRadius: '8px' }}>{tile}</ButtonBase>;
   }

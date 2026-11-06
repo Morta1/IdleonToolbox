@@ -1,5 +1,6 @@
 import { AppContext } from '@components/common/context/AppProvider';
 import React, { useContext, useState } from 'react';
+import { Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
 import { getSlabBonus } from '@parsers/world-5/sailing';
@@ -11,8 +12,8 @@ import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
-import Panel from '@components/common/cards/Panel';
-import GameIcon from '@components/common/GameIcon';
+import ItemCard from '@components/common/cards/ItemCard';
+import { SharedNote } from '@components/common/InfoButton';
 
 const SLAB_TOOLBAR = { search: '', show: 'missing' };
 const UNREALISTIC_NOTE = 'Items you can loot but not reasonably greenstack: one-off quest rewards, shop items with a daily stock of 1 to 30, gem shop only items and event boxes. They stay out of Missing greenstacks and the greenstack total, unless you have greenstacked one.';
@@ -43,6 +44,18 @@ const shouldDisplayItem = (item, itemDisplay) => {
   else if (itemDisplay === 'unrealistic' && item?.unrealisticGreenstack) return true;
 }
 
+// Its own component so the compiler keeps each tile's markup: opening the note redraws the tile it opens on and the one
+// it leaves, not all 1,938.
+const SlabTile = ({ item: { name, rawName, greenStacked, obtained }, dimMissing, open, onToggle }) => <IconTile
+  icon={`data/${rawName}.png`}
+  alt={cleanUnderscore(name)}
+  status={!obtained && dimMissing ? 'missing' : undefined}
+  mark={greenStacked ? 'data/GreenSymbol.png' : undefined}
+  markAlt={greenStacked ? 'Greenstacked' : undefined}
+  selected={open}
+  sharedNote
+  onSelect={(event) => onToggle(rawName, event.currentTarget)}/>;
+
 const Slab = () => {
   const { state } = useContext(AppContext);
   const looty = state?.account?.looty ?? {};
@@ -53,12 +66,12 @@ const Slab = () => {
   const searchTerm = (toolbar?.search ?? '').trim().toLowerCase();
   const shown = items.filter((item) => shouldDisplayItem(item, toolbar?.show ?? 'missing'))
     .filter((item) => !searchTerm || cleanUnderscore(item?.name)?.toLowerCase().includes(searchTerm));
-  // Decision 13 (b): a note per tile took past 500 ms to draw "All items", so one Panel shows the picked item (the
-  // first one shown until a tile is picked)
-  const [picked, setPicked] = useState(null);
-  const item = shown.find(({ rawName }) => rawName === picked) ?? shown[0];
-  // The Panel pins under the Toolbar, so a tile picked far down the grid shows its details in view
-  const [stickyTop, setStickyTop] = useState(0);
+  // Decision 13 (b): a note per tile took past 500 ms to draw "All items", so the grid shares one note, opened on the
+  // clicked tile so the eye stays on it. Gone with the item if a filter takes the tile away.
+  const [note, setNote] = useState(null);
+  const toggleNote = (rawName, anchor) => setNote((open) => (open?.rawName === rawName ? null : { rawName, anchor }));
+  const closeNote = () => setNote(null);
+  const item = note ? shown.find(({ rawName }) => rawName === note.rawName) : null;
 
   return <>
     <NextSeo
@@ -76,30 +89,30 @@ const Slab = () => {
                                                               value={value(state?.account) ?? 0} kind={'pct'}/>)}
     </PageSummary>
     {sectionFailed ? null : <Toolbar state={toolbar} defaults={SLAB_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
-             total={items.length} shown={shown.length} noun={'items'} onStickyBottom={setStickyTop}>
+             total={items.length} shown={shown.length} noun={'items'}>
       <Toolbar.Search placeholder={'Search items'}/>
       <Toolbar.Show options={SHOWS.map(([value, label]) => [value, label, items.filter((item) => shouldDisplayItem(item, value)).length,
         value === 'unrealistic' ? UNREALISTIC_NOTE : undefined])}/>
     </Toolbar>}
-    {item ? <Panel icon={<GameIcon src={`data/${item.rawName}.png`} size={24} alt={''}/>}
-                   title={cleanUnderscore(item.name)}
-                   sx={{ mb: 2, position: 'sticky', top: stickyTop, zIndex: (theme) => theme.zIndex.appBar - 2 }}>
-      <Panel.KV label={'Looted'} value={item.obtained ? 'Yes' : 'No'}/>
-      <Panel.KV label={'Greenstacked'} value={item.greenStacked ? 'Yes' : 'No'}/>
-      {item.onRotation ? <Panel.KV label={'GemShop rotation'} value={'Yes'}/> : null}
-      {item.unobtainable ? <Panel.KV label={'Unobtainable'} value={'Yes'}/> : null}
-    </Panel> : null}
+    <SharedNote anchor={item ? note.anchor : null} onClose={closeNote}>
+      {item ? <Stack gap={1}>
+        <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(item.name)}</Typography>
+        <ItemCard.Section>
+          <ItemCard.Facts rows={[
+            ['Looted', item.obtained ? 'Yes' : 'No'],
+            ['Greenstacked', item.greenStacked ? 'Yes' : 'No'],
+            item.onRotation ? ['GemShop rotation', 'Yes'] : null,
+            item.unobtainable ? ['Unobtainable', 'Yes'] : null
+          ]}/>
+        </ItemCard.Section>
+      </Stack> : null}
+    </SharedNote>
     <CardGrid size={'icon'}>
       {/* Where a view holds looted and missing items, a missing one greys as a not-found tile does elsewhere; Missing
           items holds only missing ones, so it keeps their colours */}
-      {shown.map(({ name, rawName, greenStacked, obtained }, index) => <IconTile
-        key={`${rawName}-${index}`} icon={`data/${rawName}.png`}
-        alt={cleanUnderscore(name)}
-        status={!obtained && (toolbar?.show ?? 'missing') !== 'missing' ? 'missing' : undefined}
-        mark={greenStacked ? 'data/GreenSymbol.png' : undefined}
-        markAlt={greenStacked ? 'Greenstacked' : undefined}
-        selected={rawName === item?.rawName}
-        onSelect={() => setPicked(rawName)}/>)}
+      {shown.map((entry, index) => <SlabTile key={`${entry.rawName}-${index}`} item={entry}
+                                             dimMissing={(toolbar?.show ?? 'missing') !== 'missing'}
+                                             open={entry.rawName === item?.rawName} onToggle={toggleNote}/>)}
     </CardGrid>
   </>;
 };

@@ -130,6 +130,41 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, p
   </ClickAwayListener>;
 };
 
+// A note with no trigger of its own, for a grid too large to draw one per tile (the Slab's 1,938 items): the page holds
+// which tile is open and hands it over as anchor, so one note moves between them, the look and the placing a NoteTrigger's.
+// A tile (IconTile's sharedNote, NOTE_ANCHOR) toggles in its own click; any other click closes it, heard in the capture
+// phase since a NoteTrigger's click stops at React's root. Esc closes it and hands the focus back to the tile. Nothing in
+// it takes the focus, so Tab moves on from the tile and takes the note away with it.
+export const NOTE_ANCHOR = 'data-note-anchor';
+export const SHARED_NOTE_ID = 'shared-note';
+const SHARED_NOTE_TRANSITION = { timeout: { exit: 0 } };
+export const SharedNote = ({ anchor, onClose, children }) => {
+  useEffect(() => {
+    if (!anchor) return undefined;
+    const closeOnKey = (event) => {
+      if (event.key === 'Tab') onClose();
+      if (event.key !== 'Escape') return;
+      event.stopPropagation();
+      anchor.focus({ preventScroll: true });
+      onClose();
+    };
+    const closeOnClick = (event) => {
+      if (!event.target.closest?.(`[${NOTE_ANCHOR}], [role="tooltip"]`)) onClose();
+    };
+    document.addEventListener('keydown', closeOnKey, true);
+    document.addEventListener('click', closeOnClick, true);
+    return () => {
+      document.removeEventListener('keydown', closeOnKey, true);
+      document.removeEventListener('click', closeOnClick, true);
+    };
+  }, [anchor, onClose]);
+  return <Tooltip id={SHARED_NOTE_ID} title={anchor ? <SheetContext value={null}>{children}</SheetContext> : ''} describeChild
+                  open={Boolean(anchor)} disableHoverListener disableFocusListener disableTouchListener placement={'bottom'}
+                  slotProps={{ popper: { ...NOTE_POPPER, anchorEl: anchor }, transition: SHARED_NOTE_TRANSITION }}>
+    <Box component={'span'} sx={{ display: 'none' }}/>
+  </Tooltip>;
+};
+
 // A short value whose exact form opens from it (Info board, a value with a dotted underline). The underline is what says
 // there is more behind this number.
 export const DottedValue = ({ note, label, table, sx, children }) => <NoteTrigger note={note} label={label} table={table} sx={sx}>
