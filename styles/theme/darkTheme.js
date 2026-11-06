@@ -181,8 +181,8 @@ const lightPalette = {
   },
   text: {
     primary: 'rgba(0, 0, 0, 0.87)',
-    secondary: 'rgba(0, 0, 0, 0.6)',
-    muted: 'rgba(0, 0, 0, 0.55)',
+    secondary: 'rgba(0, 0, 0, 0.7)',
+    muted: 'rgba(0, 0, 0, 0.6)',
     success: '#2e7d32',
     error: '#c62828',
     warning: '#b45309',
