@@ -13,6 +13,7 @@ import { isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import { cardSurface } from '@components/common/cards/tokens';
+import { LinkMark } from '@components/common/cards/ItemCard';
 import InfoButton from '@components/common/InfoButton';
 import AlertIcon, { counted } from './AlertIcon';
 import { alertMeta } from '@utility/dashboard/alertMeta';
@@ -677,8 +678,9 @@ const readRow = ({ failed, time, value, forcePlaceholder, long, lastUpdated }) =
 // The shape a TimerRow draws, from the band that holds it: a Ready now cell or a Coming up row.
 const RowShape = createContext('coming');
 
-// A timer: its icon, which opens the alert's quick edit, its name (the alert's, or name), a muted sub, or a state (what qualifies a
-// countdown, gone once it reads its word), and its countdown or its word, a link to the page. Counting, it carries its exact
+// A timer: its icon, which opens the alert's quick edit, its name (the alert's, or name), which is the link to the page and says
+// so with a mark, a muted sub, or a state (what qualifies a countdown, gone once it reads its word), and its countdown or its
+// word, plain: a state reads as a state, and nobody expects one to leave the page. Counting, it carries its exact
 // time too. message(when, over): the quick edit's words, with when the row's own state (the exact time, its
 // word, or "A long time"), so they never contradict it. placeholderStatus: "ready" for a state to act on, "problem" for one
 // that costs something; past its time a row with no word reads Ready. lastUpdated: only a time the parsers anchor on their
@@ -704,16 +706,18 @@ const TimerRow = ({
         : forcePlaceholder ? word
           : <Timer type={'countdown'} date={time} lastUpdated={lastUpdated} component={'span'} placeholder={word}/>;
   const href = page ? { pathname: page, query: { ...sessionQuery(router.query), ...query } } : null;
-  const linked = (node) => (href && !noTime ? <Link component={NextLink} href={href} color={'inherit'} variant={'body2'} sx={{ fontWeight: 'inherit' }}>{node}</Link> : node);
+  const label = href && !noTime
+    ? <Link component={NextLink} href={href} color={'inherit'} underline={'hover'} variant={'body2'} sx={{ fontWeight: 'inherit' }}>{title}<LinkMark sx={{ ml: 0.5 }}/></Link>
+    : title;
   const sprite = <AlertIcon configType={'timers'} target={target} extra={items ? { items } : undefined} message={words}
                             label={typeof words === 'string' ? undefined : title} icon={icon} look={look}
                             size={ROW_ICON_SIZE}/>;
   const note = info ? <InfoButton label={title}><Stack gap={1}>{info}</Stack></InfoButton> : null;
   if (shape === 'ready') {
-    return <ReadyCell icon={sprite} name={title} note={note} sub={sub} value={linked(actNow && !over ? state : word)} control={control}/>;
+    return <ReadyCell icon={sprite} name={label} note={note} sub={sub} value={actNow && !over ? state : word} control={control}/>;
   }
-  return <ComingRow icon={sprite} name={title} note={note} sub={noTime ? null : state ?? sub} world={world}
-                    date={noTime || farOff || over ? null : when} value={linked(shown)} control={control}/>;
+  return <ComingRow icon={sprite} name={label} note={note} sub={noTime ? null : state ?? sub} world={world}
+                    date={noTime || farOff || over ? null : when} value={shown} control={control}/>;
 };
 
 // The board's width sets its columns, not the window's: a side ad leaves it 540 px at 900. Ready now's first column and a

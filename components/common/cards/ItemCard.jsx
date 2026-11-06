@@ -44,7 +44,7 @@ const HEADER_SX = { '& > [data-title-row]:has(> span) + [data-aside]': { ml: -0.
 const ASIDE_SX = { alignSelf: 'flex-start', flexShrink: 0, '&:empty': { display: 'none' } };
 
 // The › of a thing that opens a page: at a link card's top right, and after a title that is a link.
-const LinkMark = ({ sx }) => <Box component={'span'} aria-hidden={'true'} sx={{ color: 'text.muted', ...sx }}>›</Box>;
+export const LinkMark = ({ sx }) => <Box component={'span'} aria-hidden={'true'} sx={{ color: 'text.muted', ...sx }}>›</Box>;
 
 // "Lv 458" with its cap a step dimmer (Cards board).
 const levelLine = ({ value, max }) => {

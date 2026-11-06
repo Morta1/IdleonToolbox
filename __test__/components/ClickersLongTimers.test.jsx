@@ -55,8 +55,8 @@ const renderClickers = (days) => render(<ThemeProvider theme={theme}>
   <Etc characters={[]} account={buildAccount(days)} lastUpdated={now} trackers={trackers}/>
 </ThemeProvider>);
 
-const longTimeCount = (container) => Array.from(container.querySelectorAll('a'))
-  .filter(({ textContent }) => textContent === 'A long time').length;
+const longTimeCount = (container) => Array.from(container.querySelectorAll('*'))
+  .filter(({ children, textContent }) => children.length === 0 && textContent === 'A long time').length;
 
 describe('dashboard Clickers long duration cutoff', () => {
   it('collapses every Clickers timer past 365 days to "A long time"', () => {
