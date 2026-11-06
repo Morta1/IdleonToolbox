@@ -223,7 +223,7 @@ const onSentence = (filters, search) => {
 // The result line's tokens and Reset (Toolbar board): 26 px drawn, with the 44 px tap target on a phone's coarse pointer.
 const LINE_TAP = { position: 'relative', '@media (pointer: coarse)': { '&::before': { content: '""', position: 'absolute', inset: '-9px 0' } } };
 const TOKEN_SX = {
-  ...LINE_TAP, height: 26, gap: 0.5, pl: 1.25, pr: 0.75, borderRadius: 999, bgcolor: 'action.hover', color: 'text.primary', fontSize: 12.5, fontWeight: 400
+  ...LINE_TAP, height: 26, gap: 0.5, pl: 1.25, pr: 0.75, borderRadius: 999, bgcolor: 'action.hover', color: 'text.primary', fontSize: 12.5
 };
 const RESET_SX = { ...LINE_TAP, height: 26, ml: 0.5, px: 0.5, borderRadius: 1, color: 'primary.main', fontSize: 13, fontWeight: 500 };
 

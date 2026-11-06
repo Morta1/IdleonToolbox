@@ -52,7 +52,7 @@ const Group = ({ group, open, onToggle, pathname, nav }) => {
                  aria-current={current ? 'page' : undefined} onClick={() => nav.onNavigate(page.url)}
                  sx={{
                    position: 'relative', display: 'flex', alignItems: 'center', gap: 1.5, height: 42, pl: 7, pr: 2, textDecoration: 'none',
-                   fontSize: 15, lineHeight: '22px', fontWeight: 400, color: 'text.primary',
+                   fontSize: 15, lineHeight: '22px', color: 'text.primary',
                    bgcolor: current ? 'primary.soft' : 'background.tint',
                    '&::before': { content: '""', position: 'absolute', inset: '-1px 0' }
                  }}>

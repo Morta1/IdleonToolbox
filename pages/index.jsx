@@ -44,14 +44,12 @@ const ULTRA_WIDE = '@media (min-width: 1921px)';
 const HERO_TITLE = {
   fontSize: { xs: '3rem', sm: '4.4987rem', md: '5.3556rem', lg: '5.9983rem' },
   lineHeight: 1.167,
-  letterSpacing: '-0.01562em',
-  fontWeight: 400
+  letterSpacing: '-0.01562em'
 };
 const HERO_LEAD = {
   fontSize: { xs: '1.1rem', sm: '1.25rem' },
   lineHeight: 1.6,
-  letterSpacing: '0.0075em',
-  fontWeight: 400
+  letterSpacing: '0.0075em'
 };
 
 // Rendered both as visible page content and as FAQPage structured data, so the two can't drift apart.

@@ -35,7 +35,7 @@ const PILLS = {
 const PILL = {
   minWidth: 0, minHeight: 32, height: 32, px: { xs: 1.25, sm: 1.75 }, py: 0,
   borderRadius: '16px', border: 1, borderColor: 'divider',
-  fontSize: 13, fontWeight: 500,
+  fontSize: 13,
   '&.Mui-selected': { bgcolor: 'primary.soft', borderColor: 'primary.main' },
   ...OUTER_RING
 };

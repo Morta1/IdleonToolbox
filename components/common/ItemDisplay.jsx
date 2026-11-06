@@ -197,7 +197,7 @@ const ItemDisplay = ({
     {breakdown ? <>
       <Divider sx={{ my: 1 }}/>
       <Stack>
-        {breakdown?.map(({ name, value, title }, index) => title ? <Typography sx={{ fontWeight: 500 }}
+        {breakdown?.map(({ name, value, title }, index) => title ? <Typography variant={'cardTitle'} component={'div'}
                                                                                key={`${name}-${index}`}>{title}</Typography>
           : !name ? <Divider sx={{ my: 1 }} key={`${name}-${index}`}/> : <ItemLine
             key={`${name}-${index}`}

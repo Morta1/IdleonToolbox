@@ -66,7 +66,7 @@ const RankRow = ({ rank, name, value, notation, scale, display = null, exact = n
       </Box>
       {/* A long name wraps: there is no hover to read a cut one from. */}
       <Link href={profileUrl(name)} target="_blank" color="inherit"
-            sx={{ minWidth: 0, overflowWrap: 'anywhere', fontSize: 'inherit', fontWeight: emphasised ? 600 : kind ? 500 : 400, opacity: name?.startsWith('Anon#') ? 0.85 : 1 }}>
+            sx={{ minWidth: 0, overflowWrap: 'anywhere', fontSize: 'inherit', fontWeight: emphasised ? 600 : kind ? 500 : undefined, opacity: name?.startsWith('Anon#') ? 0.85 : 1 }}>
         {pinned && kind === 'logged' ? `${name} (you)` : name}
       </Link>
       {kind && !(pinned && kind === 'logged') ? <Box component="span" sx={visuallyHidden}>{SPOKEN_KIND[kind]}</Box> : null}

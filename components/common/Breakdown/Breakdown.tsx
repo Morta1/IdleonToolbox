@@ -189,7 +189,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   // longer than its own line wraps between words. sx, not variant: the build type-checks .tsx files and
   // Typography's variant type does not know the theme's sectionTitle.
   const total = ICON_NOTATION.test(totalText)
-    ? <GameIconNotation value={totalText} sx={{ fontSize: 18, fontWeight: 600 }}/>
+    ? <GameIconNotation value={totalText} sx={{ typography: "sectionTitle" }}/>
     : <Box component="span" sx={{ typography: "sectionTitle" }}>{totalText}</Box>
 
   const showResult = (succeeded: boolean, successMessage: string) => {
@@ -431,7 +431,7 @@ const ImpactNote = ({ node, insight }: { node: ViewNode, insight: RowInsight }) 
   return (
     <Typography variant="caption" component="div" sx={{
       color: isBest ? "text.success" : "text.secondary",
-      fontWeight: isBest ? 600 : 400
+      fontWeight: isBest ? 600 : undefined
     }}>
       Add +{GAIN_STEP}% here: {node.faster ? "speed" : "total"} {formatGain(node.gain)}
     </Typography>
@@ -512,7 +512,7 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, insight, children }: {
           {node.note ? <Typography variant="caption" color="text.secondary">{node.note}</Typography> : null}
           <ImpactNote node={node} insight={insight}/>
         </Box>
-        <Typography variant={isList ? "caption" : "body2"} fontWeight={isList ? 400 : 600}
+        <Typography variant={isList ? "caption" : "body2"} fontWeight={isList ? undefined : 600}
                     color={isList ? "text.secondary" : "primary.light"} sx={{ whiteSpace: "nowrap" }}>
           {node.display}
         </Typography>

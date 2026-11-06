@@ -30,7 +30,7 @@ const AdBlockHowDialog = ({ open, onClose }) => (
       </Typography>
       {BLOCKERS.map(({ name, steps }) => (
         <Box key={name}>
-          <Typography component="h3" sx={{ fontWeight: 500 }}>{name}</Typography>
+          <Typography variant="cardTitle" component="h3">{name}</Typography>
           <Box component="ol" sx={{ typography: 'body2', m: 0, mt: 0.5, pl: 3 }}>
             {steps.map((step) => <li key={step}>{step}</li>)}
           </Box>
