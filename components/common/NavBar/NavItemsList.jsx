@@ -8,7 +8,7 @@ import PinnedPages from '@components/common/favorites/PinnedPages';
 import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
 import { NavMenuButton } from './NavMenu';
-import { BAR_SNUG, BAR_TIGHT } from './frame';
+import { BAR_CRAMPED, BAR_SNUG, BAR_TIGHT } from './frame';
 
 // The bar's sections from lg (below it PhoneMenu holds them): Worlds, Account and Tools open their menu (Decision 11),
 // the rest are links.
@@ -26,7 +26,8 @@ const NavItemsList = ({ openMenu, onMenu, onMenuRest, onMenuRestEnd }) => {
         display: { xs: 'none', lg: 'flex' }, gap: 1,
         [`& .${listItemButtonClasses.root}`]: { whiteSpace: 'nowrap' },
         [BAR_SNUG]: { gap: 0 },
-        [BAR_TIGHT]: { [`& .${listItemButtonClasses.root}`]: { px: '6px' } }
+        [BAR_TIGHT]: { [`& .${listItemButtonClasses.root}`]: { px: '6px' } },
+        [BAR_CRAMPED]: { [`& .${listItemButtonClasses.root}`]: { px: '4px' } }
       }}>
         {TOP_NAV.map((navItem, index) => {
           if (state?.profile && navItem === 'guilds') return null;

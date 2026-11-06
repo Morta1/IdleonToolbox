@@ -44,8 +44,8 @@ const ALL_GROUPS = Object.values(MENUS).flat();
 // The bar, left to right. A key of MENUS opens that menu; the rest are links.
 export const TOP_NAV = ['dashboard', 'characters', 'worlds', 'account', 'tools', 'guilds', 'statistics', 'leaderboards', 'wiki'];
 
-// What the bar and the phone menu call an item.
-export const topNavLabel = (item) => item.charAt(0).toUpperCase() + item.slice(1);
+// What the bar and the phone menu call an item. Statistics is short for the bar's room; its page keeps the full title.
+export const topNavLabel = (item) => (item === 'statistics' ? 'Stats' : item.charAt(0).toUpperCase() + item.slice(1));
 
 // The menu a route lights, by URL, so a route outside the groups lights it too (World 7's s3, a build's page).
 export const menuOfRoute = (pathname = '') => {

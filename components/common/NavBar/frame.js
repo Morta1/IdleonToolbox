@@ -24,12 +24,14 @@ const SHORT = '@media (max-height: 835.98px)';
 // the layout does not, takes it to 1253 at most, still four 300 px cards to a row (4 x 300 + 3 x 16 = 1248).
 export const CENTERED = `@media (min-width: 1900px) and ${TALL}`;
 export const ONE_AD = '@media (min-width: 850px) and (max-width: 1899.98px), (min-width: 850px) and (max-height: 835.98px)';
-// The bar's links show from lg (1200) in one row that never wraps. Below 1440 the gaps between them go (a signed-in
-// bar at 1366 with a 17 px scrollbar is a pixel short without), and below 1280 the items' own padding, the logo's
-// margin, the links' margin from it and the bar's sides tighten too, so 1200 with a scrollbar holds it, signed in. The
-// name and save time are the last to give, with an ellipsis.
-export const BAR_SNUG = '@media (min-width: 1200px) and (max-width: 1439.95px)';
-export const BAR_TIGHT = '@media (min-width: 1200px) and (max-width: 1279.95px)';
+// The bar's links show from lg (1200) in one row that never wraps, and a user's name at its end needs the room: measured
+// with a 17 px scrollbar. Below 1460 the gaps between them go (at 1440 a 14-letter name is 15 px short with them), below
+// 1366 the items' padding, the logo's margin and the bar's sides tighten too (at 1280 a name is 19 to 35 px short
+// without), and below 1280 the items' padding again, which holds a name of about 12 letters at 1200. The name and save
+// time are the last to give, with an ellipsis.
+export const BAR_SNUG = '@media (min-width: 1200px) and (max-width: 1459.95px)';
+export const BAR_TIGHT = '@media (min-width: 1200px) and (max-width: 1365.95px)';
+export const BAR_CRAMPED = '@media (min-width: 1200px) and (max-width: 1279.95px)';
 
 // A phone's page sides. A media query rather than a breakpoint object, so CENTERED's px: 0 needs no source order to win.
 export const PHONE_SIDES = '@media (max-width: 599.95px)';

@@ -368,17 +368,17 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
   return <>
     {/* The trigger: the pill and the icon box, now a button (Search board, "the triggers"). Both looks are in
         the markup and CSS picks one, so nothing reflows after hydration. One name at every size; the shortcut
-        is announced through aria-keyshortcuts. */}
+        is announced through aria-keyshortcuts. Below 1440 the bar needs the pill's 67 px for the user's name. */}
     <ButtonBase onClick={handleSearchOpen} aria-label="Search" aria-haspopup="dialog" aria-keyshortcuts="Control+K Meta+K"
                 sx={{
                   flexShrink: 0, height: 32, border: 1, borderColor: 'outline', borderRadius: '16px',
                   // 44 px to tap, the app bar's other buttons' size on a touch screen
                   '@media (pointer: coarse)': { height: 44, minWidth: 44 },
                   padding: '4px 12px',
-                  '@media (max-width: 1365px)': { borderRadius: '8px', padding: '4px 8px' }
+                  '@media (max-width: 1439.95px)': { borderRadius: '8px', padding: '4px 8px' }
                 }}>
       <IconSearch color={'var(--mui-palette-text-secondary)'} size={16}/>
-      <Box aria-hidden sx={{ display: 'flex', alignItems: 'center', height: '100%', '@media (max-width: 1365px)': { display: 'none' } }}>
+      <Box aria-hidden sx={{ display: 'flex', alignItems: 'center', height: '100%', '@media (max-width: 1439.95px)': { display: 'none' } }}>
         <Divider orientation={'vertical'} sx={{ mx: 1, bgcolor: 'divider', height: '80%' }}/>
         <Typography sx={{ lineHeight: '11px' }} variant={'caption'} color={'text.secondary'}>Ctrl + K</Typography>
       </Box>
