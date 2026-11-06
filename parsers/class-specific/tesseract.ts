@@ -245,7 +245,7 @@ export const getTesseractMapBonus = (account: any, characters: any, character: a
   return bonus! > 0 ? bonus : 0;
 }
 export const getMaps = (account: any, characters: any, character: any) => {
-  const { unlockedPortals, upgrades, mapBonusRaw } = account?.tesseract;
+  const { unlockedPortals, upgrades, mapBonusRaw } = account?.tesseract ?? {};
   const highestOverwhelmingEnergy = getHighestTalentAcrossCharacters(characters, 'OVERWHELMING_ENERGY', character);
 
   const maxMapBonus = 100 * (highestOverwhelmingEnergy - 1) + Math.min(10, calcTesseractBonus(upgrades, 58, 0))
@@ -285,7 +285,7 @@ const getMapMultiBonus = (mapBonuses: any, maxMapBonus: any) => {
   const multiBonuses = [];
 
   for (let index = 0; index < 3; index++) {
-    const rawKills = parseInt(mapBonuses?.[index], 10);
+    const rawKills = parseInt(mapBonuses?.[index], 10) || 0;
     const arcaneValue = getMapMulti(rawKills);
     const clampedValue = Math.min(maxMapBonus, arcaneValue);
 
@@ -642,6 +642,7 @@ const getTesseractBonusAtLevel = (upgrades: any, index: any, levelOverride: any)
 
 export const calcTesseractBonus = (upgrades: any, index: any, anotherIndex: any): any => {
   const upgrade = upgrades?.[index];
+  if (!upgrade && 999 !== anotherIndex) return 0;
   return 3 === index || 7 === index || 8 === index || 10 === index ||
     13 === index || 16 === index || 20 === index ||
     25 === index || 26 === index || 28 === index ||

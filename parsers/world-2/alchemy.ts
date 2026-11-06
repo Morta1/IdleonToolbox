@@ -382,7 +382,7 @@ export const getActiveBubbleBonus = (equippedBubbles: any, bubbleName: any, acco
   if (hasCompanionBonus) {
     return getBubbleBonus(account, bubbleName, false)
   }
-  const bubble = equippedBubbles?.find(({ bubbleName: bName }: any) => bubbleName === bName);
+  const bubble = equippedBubbles?.find((equipped: any) => equipped?.bubbleName === bubbleName);
   if (!bubble && !hasCompanionBonus) return 0;
   // The DNSM writer prices every bubble through CauldronStats("BubbleBonus"), which multiplies
   // Math.max(1, PrismaBonusMult) into prisma'd bubbles - equipped ACTIVE bubbles included.
@@ -1085,7 +1085,7 @@ export const getUpgradeableBubbles = (acc: any, characters: any) => {
       info('No Bubble Left Behind (Lab)', 0, { formatted: 'Not active' })
     ], { combine: 'sum' })
   };
-  const allBubbles = Object.values(acc?.alchemy?.bubbles).flatMap((bubbles: any, index: any) => {
+  const allBubbles = Object.values(acc?.alchemy?.bubbles ?? {}).flatMap((bubbles: any, index: any) => {
     return bubbles.map((bubble: any, bubbleIndex: any) => {
       return { ...bubble, tab: index, flatIndex: 1e3 * index + bubbleIndex }
     });
@@ -1139,7 +1139,7 @@ export const getUpgradeableBubbles = (acc: any, characters: any) => {
 export const getGrindTimeBubbleDaily = (account: any) => {
   const grindTimeBubble = account?.coralReef?.grindTimeDaily;
   const bubbles = account?.alchemy?.bubblesFlat;
-  const bubble = bubbles.find(({ bubbleName }: any) => bubbleName === 'GRIND_TIME');
+  const bubble = bubbles?.find(({ bubbleName }: any) => bubbleName === 'GRIND_TIME');
 
   return {
     ...bubble,

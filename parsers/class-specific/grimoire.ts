@@ -319,6 +319,7 @@ export const getGrimoireBonus = (upgrades: any, index: any) => {
 
 export const calcGrimoireBonus = (upgrades: any, index: any): any => {
   const upgrade = upgrades?.[index];
+  if (!upgrade) return 0;
   return 9 === index || 11 === index || 26 === index || 36 === index || 39 === index || 17 === index || 32 === index || 45 === index
     ? upgrade?.level
     * upgrade?.x5

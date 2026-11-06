@@ -70,10 +70,8 @@ const itemTitle = (displayName) => titleCaseName(cleanUnderscore(displayName));
 const GemShop = () => {
   const { state } = useContext(AppContext);
   const failed = isSectionFailed(state?.account, 'gemShopPurchases');
-  const currenciesFailed = isSectionFailed(state?.account, 'currencies');
-  const failedNames = [failed && 'Gem Shop', currenciesFailed && 'Gems'].filter(Boolean);
-  // A failed currencies section leaves the balance unknown, so a card says the cost and no "need"
-  const gems = currenciesFailed ? undefined : state?.account?.currencies?.gems;
+  // Gems come straight from the save, so only a whole-parse failure leaves them unknown: a card then says the cost and no "need"
+  const gems = state?.account?.currencies?.gems;
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('gem-shop', SHOP_TOOLBAR);
   const hideMaxed = !failed && toolbar.hideMaxed;
   // Past limited specials reuse the current items' indices, so the save can't say which of them were bought
@@ -124,7 +122,7 @@ const GemShop = () => {
       title="Gem Shop | Idleon Toolbox"
       description="Browse all gem shop purchases, upgrade bonuses, and premium currency spending in Legends of Idleon"
     />
-    {failedNames.length ? <MissingData name={failedNames.join(' and ')} failed/> : null}
+    {failed ? <MissingData name={'Gem Shop'} failed atZero/> : null}
     <PageSummary>
       <StatTile label={'Gems'} icon={'data/PremiumGem.png'} value={gems == null ? '-' : formatNum(gems)}/>
     </PageSummary>

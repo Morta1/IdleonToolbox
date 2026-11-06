@@ -539,7 +539,7 @@ export const getCurrencies = (account: any, idleonData: any, processedData: any)
     'Spooky_Time_Candy': { min: 1 / 3, max: 12 },
     'Cosmic_Time_Candy': { min: 5, max: 500 }
   };
-  const allItems = [...account?.storage?.list,
+  const allItems = [...(account?.storage?.list ?? []),
   ...(processedData?.charactersData || [])?.map(({ inventory }: any) => inventory)?.flat()];
   const allCandies = allItems?.filter(({ Type } = {}) => Type === 'TIME_CANDY');
   const guaranteedCandies = allCandies?.reduce((sum: any, { displayName, amount }: any) => {
@@ -860,7 +860,7 @@ export const getSkillCardBonus = (character: any, account: any, skillName: strin
     : getCardBonusByEffect(character?.cards?.equippedCards, effectName);
 
 const getSkillRankByIndex = (skills: any, index: any) => {
-  for (const [, skillData] of Object.entries(skills) as [string, any][]) {
+  for (const [, skillData] of Object.entries(skills ?? {}) as [string, any][]) {
     if (skillData?.level > 0 && skillData?.index === index) {
       return skillData?.rank;
     }
@@ -1203,7 +1203,7 @@ const D_TYPE_CAPACITY = 999999999;
 // game: "MaxCapacity"
 export const getItemCapacity = (type = '', character: any, account?: any, forceMaxCapacity?: any) => {
   const gemshop = account?.gemShopPurchases?.find((value: any, index: any) => index === 58);
-  const hasNanoChip = account?.lab?.playersChips.flat().concat(account?.lab?.chips).find(({ name }: any) => name === 'Silkrode_Nanochip');
+  const hasNanoChip = (account?.lab?.playersChips ?? []).flat().concat(account?.lab?.chips ?? []).find(({ name }: any) => name === 'Silkrode_Nanochip');
   const starSignBonus = getStarSignBonus(character, account, 'Carry_Cap', forceMaxCapacity && hasNanoChip, forceMaxCapacity);
   const minCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Mining_Items', character);
   const chopCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Choppin\'_Items', character);

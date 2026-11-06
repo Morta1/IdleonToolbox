@@ -89,7 +89,7 @@ export const trapsAlerts = (account, characters, character, lastUpdated, options
     alerts.missingTraps = traps?.length < Math.min(maxTraps, 8);
   }
   if (options?.traps?.trapsOverdue?.checked) {
-    alerts.trapsOverdue = account?.traps?.[character?.playerId].some((slot) => isPast(slot?.timeLeft));
+    alerts.trapsOverdue = account?.traps?.[character?.playerId]?.some((slot) => isPast(slot?.timeLeft));
   }
   return alerts;
 }

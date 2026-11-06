@@ -36,9 +36,7 @@ const AtomCollider = () => {
   const printerFailed = isSectionFailed(state?.account, 'printer');
   const { atoms: parsedAtoms = [], particles = 0, stampReducer = 0 } = state?.account?.atoms ?? {};
   const atoms = sectionFailed && !parsedAtoms.length ? catalogAtZero() : parsedAtoms;
-  // A failed printer section's default is {}: calcTotals needs an array
-  const printer = Array.isArray(state?.account?.printer) ? state.account.printer : [];
-  const atomsPerHour = calcTotals({ ...state?.account, printer })?.atom?.atoms ?? 0;
+  const atomsPerHour = calcTotals(state?.account)?.atom?.atoms ?? 0;
   const owned = Math.floor(particles);
 
   return <>

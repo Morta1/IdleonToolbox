@@ -97,6 +97,7 @@ export const getSchematicBonus = ({ holesObject, t, i }: any): any => {
     engineerSchematics,
     studyStuff
   } = holesObject || {};
+  if (!engineerSchematics) return 0;
   if (0 === engineerSchematics?.[t]) return 0;
   if (14 === t) {
     let result = 0;

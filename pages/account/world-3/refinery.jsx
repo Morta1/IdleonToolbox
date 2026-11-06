@@ -47,8 +47,7 @@ const Refinery = () => {
   const refinery = state?.account?.refinery ?? {};
   const salts = refinery?.salts ?? [];
   const characters = state?.characters ?? [];
-  // A failed printer section's default is {}: calcTotals and getSaltsBalance need an array
-  const account = { ...state?.account, printer: Array.isArray(state?.account?.printer) ? state.account.printer : [] };
+  const account = state?.account;
   const activePrints = calcTotals(account);
   // A salt with a printed material has its max safe rank (and the action that follows it) from the printer too, so a
   // failed printer section leaves it unknown

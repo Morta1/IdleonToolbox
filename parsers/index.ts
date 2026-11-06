@@ -166,6 +166,8 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
         failedKeys(failedSections, empty).forEach((key) => {
           accountData[key] = empty[key];
         });
+        // Gems come straight from the save, not from the section that failed.
+        if (accountData.currencies) accountData.currencies.gems = idleonData?.GemsOwned ?? 0;
       }
     }
     return { account: accountData, characters: charactersData };
@@ -363,7 +365,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
 
   accountData.forge = safeSection<any>('forge', {}, () => getForge(idleonData, accountData));
   accountData.refinery = safeSection<any>('refinery', {}, () => getRefinery(idleonData, accountData.storage?.list, accountData.tasks));
-  accountData.printer = safeSection<any>('printer', {}, () => getPrinter(idleonData, charactersData, accountData));
+  accountData.printer = safeSection<any>('printer', [], () => getPrinter(idleonData, charactersData, accountData));
   accountData.quests = safeSection<any>('quests', {}, () => getQuests(charactersData));
   // Each quest counts once account-wide, no matter how many characters finished it - that's what
   // the QUEST_KAPOW! / QUEST_CHUNGUS star talents scale off.

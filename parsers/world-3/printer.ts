@@ -155,7 +155,7 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
 export const calcTotals = (account: Account, showAlertWhenFull: any) => {
   const { printer, storage } = account || {};
   const atomThreshold = getAtomColliderThreshold(Number(account?.accountOptions?.[OPT.atomColliderThresholdSetting]));
-  let totals = printer?.reduce((res: any, character: any) => {
+  let totals = (printer ?? []).reduce((res: any, character: any) => {
     character.forEach(({ boostedValue, item, active }: any) => {
       if (item !== 'Blank' && active) {
         if (res?.[item]) {

@@ -411,7 +411,7 @@ const getRemainingExaltedStamps = (account: any, usedExaltedStamps: number, inde
 }
 
 export const getCompassStats = (character: any, account: any) => {
-  const { upgrades, totalUpgradeLevels } = account?.compass;
+  const { upgrades, totalUpgradeLevels } = account?.compass ?? {};
   const defenceAndAccTalent = getTalentBonus(character?.flatTalents, 'WINDBORNE');
   const critTalent = getTalentBonus(character?.flatTalents, 'PUMPIN\'_POWER');
   const multiTalent = getTalentBonus(character?.flatTalents, 'ELEMENTAL_MAYHEM', true);
@@ -577,6 +577,7 @@ const getCompassBonusAtLevel =(upgrades: any[], index: number, levelOverride: nu
 // game: "CompassBonus"
 const getLocalCompassBonus = (upgrades: any[], index: number): any => {
   const upgrade = upgrades?.[index];
+  if (!upgrade) return 0;
   return 1 === upgrade?.x9
     ? (1 + (getLocalCompassBonus(upgrades, 39) + getLocalCompassBonus(upgrades, 80)) / 100)
     * upgrade?.level * upgrade?.x5
@@ -772,7 +773,7 @@ export const getOptimizedUpgrades = (character: any, account: any, category: str
     category,
     maxUpgrades,
     categoryInfo,
-    getUpgrades: (acc: any) => (acc?.compass?.groupedUpgrades || {}).flatMap(({ list }: any) => list).toSorted((a: any, b: any) => a.index - b.index) || [],
+    getUpgrades: (acc: any) => (acc?.compass?.groupedUpgrades || []).flatMap(({ list }: any) => list).toSorted((a: any, b: any) => a.index - b.index) || [],
     getResources: (acc: any) => acc?.compass?.dusts || [],
     getCurrentStats: (upgrades: any, char: any, acc: any) => getCompassStats(char, { ...acc, compass: { ...acc.compass, upgrades } }),
     getUpgradeCost: (upgrade: any, index: any, {

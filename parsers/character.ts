@@ -3810,7 +3810,7 @@ export const getPlayerConstructionSpeed = (character: any, account: any, charact
     * (1 + getVialsBonusByStat(account?.alchemy?.vials, '6turtle') / 100);
   const talentBonus = getBaseTalentBonus(character?.flatTalents, 'REDOX_RATES');
   const atomBonus = getAtomBonus(account, 'Helium_-_Talent_Power_Stacker');
-  const redSaltAmount = calculateItemTotalAmount([...account?.storage?.list,
+  const redSaltAmount = calculateItemTotalAmount([...(account?.storage?.list ?? []),
   ...(account?.refinery?.refineryStorage || [])], 'Refinery1', true, true);
   return baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * multipliers * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100);
 }

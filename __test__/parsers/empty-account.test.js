@@ -65,10 +65,16 @@ describe('a section that fails', () => {
     }
   };
 
-  it.each(['farming', 'sailing', 'gaming', 'cooking'])('%s draws what an empty save draws', (name) => {
+  it.each(['farming', 'hole', 'sailing', 'gaming', 'cooking'])('%s draws what an empty save draws', (name) => {
     const { account } = failing([name]);
     expect(account[name]).toEqual(parseEmpty().account[name]);
     expect(account.failedSections).toEqual([name]);
+  });
+
+  it('keeps every other section, and its gems', () => {
+    const { account } = failing(['currencies']);
+    expect(account.currencies.gems).toBe(parseReal().account.currencies.gems);
+    expect(account.stamps).toEqual(parseReal().account.stamps);
   });
 
   it('a whole-parse failure stays as it was', () => {

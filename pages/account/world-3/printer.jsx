@@ -48,8 +48,7 @@ const totalNote = (item, total, brrr) => {
 const Printer = () => {
   const { state } = useContext(AppContext);
   const printerFailed = isSectionFailed(state?.account, 'printer');
-  // A failed section's default is {}: the rows and calcTotals need an array (the parser lines are main's, Leftovers)
-  const printer = Array.isArray(state?.account?.printer) ? state.account.printer : [];
+  const printer = state?.account?.printer ?? [];
   const { atom, ...totals } = calcTotals({ ...state?.account, printer }) ?? {};
   const atoms = atom?.atoms ?? 0;
 
