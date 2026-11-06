@@ -9,6 +9,7 @@ import { sessionQuery } from '@utility/nav-query';
 import { setTourMenu } from '@utility/whatsNew';
 
 const DASHBOARD = '/dashboard';
+const STAMPS = '/account/world-1/stamps';
 const CARD_WIDTH = 300;
 const GAP = 12;
 const EDGE = 8;
@@ -16,6 +17,8 @@ const EDGE = 8;
 const PAGE_WAIT_MS = 15000;
 // A section that's on is drawn with the page, or just after it: one that hasn't come by now is switched off.
 const TARGET_WAIT_MS = 1500;
+// A page's header buttons all hold back until the save and the goals' chunk have come.
+const ARRIVAL_WAIT_MS = 5000;
 const POLL_MS = 100;
 
 const SIDE_FIRST = ['right', 'below', 'left', 'above'];
@@ -36,8 +39,15 @@ const STOPS = [
     targets: ['[data-tour="timers"]'], pad: 6, place: SIDE_FIRST
   }
 ];
+// A stop with no route is on the Dashboard. Stamps draws all three of a page's buttons, and the theme's rows work on any page,
+// so the tour changes page once, here.
+const PAGE_STOP = {
+  step: 'page_actions', title: 'Inside a page', route: STAMPS,
+  text: 'Pin keeps a page in your menu. Add goal tracks a target from here. Page settings holds the options that change this page\'s numbers.',
+  targets: ['[data-tour="page-actions"]'], pad: 6, place: ['below', 'left', 'right', 'above']
+};
 const THEME_STOP = {
-  step: 'theme', title: 'Theme', text: 'Pick dark, light or your system\'s setting here, or from Settings.', pad: 6, theme: true
+  step: 'theme', title: 'Theme', route: STAMPS, text: 'Pick dark, light or your system\'s setting here, or from Settings.', pad: 6, theme: true
 };
 // A player with a user menu picks there. Anyone else has the footer's link, at the page's end.
 const USER_THEME = { ...THEME_STOP, menu: 'user', inBar: true, targets: ['[data-tour="user-menu"]', '[data-tour="theme-menu"]'], place: ['left', 'below'] };
@@ -48,7 +58,8 @@ const isShown = (element) => {
   return width > 0 && height > 0 && getComputedStyle(element).visibility === 'visible';
 };
 const shownElements = (targets) => targets.flatMap((selector) => [...document.querySelectorAll(selector)]).filter(isShown);
-const allHere = (stop) => stop.theme || stop.targets.every((selector) => shownElements([selector]).length);
+const isHere = (stop) => stop.theme || stop.targets.every((selector) => shownElements([selector]).length);
+const noLoader = () => !document.querySelector('[data-testid="page-loader"]');
 
 const boxOf = (targets) => {
   const boxes = shownElements(targets).map((element) => element.getBoundingClientRect());
@@ -123,6 +134,14 @@ const placeCard = (cut, size, order) => {
 
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 
+// Each of its own route changes counts, so that leaving unwinds them all in one step.
+const goTo = async (route, ownRoute, pushes) => {
+  ownRoute.current = true;
+  pushes.current += 1;
+  await Router.push({ pathname: route, query: sessionQuery(Router.query) });
+  ownRoute.current = false;
+};
+
 const ThemeButton = () => {
   const { colorScheme, setMode } = useColorScheme();
   const light = colorScheme === 'light';
@@ -132,27 +151,33 @@ const ThemeButton = () => {
   </Button>;
 };
 
-// Behind Show me around, from 1200 wide, where the nav is in the bar. All its stops are on the Dashboard: it goes there once,
-// works out which stops there are, so "of N" never changes partway, and goes back to where it started when it ends. A route
-// change it didn't start ends it, the browser's Back included, and a reload ends it with the page.
+// Behind Show me around, from 1200 wide, where the nav is in the bar. It goes to the Dashboard, works out which stops there are,
+// so "of N" never changes partway, and goes back to where it started when it ends. The page stop counts before it can be seen:
+// should a page's buttons never come it's passed over, the one way a count can skip. A route change it didn't start ends it, the
+// browser's Back included, and a reload ends it with the page.
 const Tour = ({ onEnd }) => {
   const [stops, setStops] = useState(null);
   const [index, setIndex] = useState(0);
+  // The stop it's standing at: behind a route change the page under the dim isn't the stop's yet.
+  const [arrived, setArrived] = useState(null);
   const [cut, setCut] = useState(null);
   const [cardAt, setCardAt] = useState(null);
   const cardRef = useRef(null);
   // A route change of its own, under way.
   const ownRoute = useRef(false);
-  const pushed = useRef(false);
+  const pushes = useRef(0);
+  const heading = useRef(1);
   const startScroll = useRef(0);
   const seen = useRef(new Set());
   const pageTop = usePageTop();
   const stop = stops?.[index] ?? null;
+  const shown = Boolean(stop) && arrived === stop.step;
+  const at = cardAt?.step === stop?.step ? cardAt : null;
 
   const leave = () => {
-    if (pushed.current) {
+    if (pushes.current) {
       ownRoute.current = true;
-      Router.back();
+      window.history.go(-pushes.current);
     } else {
       window.scrollTo({ top: startScroll.current, behavior: 'auto' });
     }
@@ -163,6 +188,7 @@ const Tour = ({ onEnd }) => {
   const leaveNow = useEffectEvent(() => leave());
   // Once for each stop: a band arriving later moves pageTop, and the frame loop below follows it without a scroll.
   const arriveAt = useEffectEvent((next) => {
+    setArrived(next.step);
     setTourMenu(next.menu ?? null);
     bringIntoView(next, pageTop);
     if (!seen.current.has(next.step)) {
@@ -170,27 +196,26 @@ const Tour = ({ onEnd }) => {
       trackEvent('whats_new_tour_stop', { step: next.step });
     }
   });
+  const passOver = useEffectEvent(() => {
+    const next = index + heading.current;
+    if (stops[next]) setIndex(next);
+    else onEnd();
+  });
 
   useEffect(() => {
     let gone = false;
     startScroll.current = window.scrollY;
     const begin = async () => {
-      if (Router.pathname !== DASHBOARD) {
-        ownRoute.current = true;
-        pushed.current = true;
-        await Router.push({ pathname: DASHBOARD, query: sessionQuery(Router.query) });
-        ownRoute.current = false;
-      }
-      const loaded = await until(() => !document.querySelector('[data-testid="page-loader"]'), PAGE_WAIT_MS);
+      if (Router.pathname !== DASHBOARD) await goTo(DASHBOARD, ownRoute, pushes);
+      const loaded = await until(noLoader, PAGE_WAIT_MS);
       if (gone) return;
       if (!loaded) {
         end();
         return;
       }
       const themeStop = shownElements(USER_THEME.targets.slice(0, 1)).length ? USER_THEME : FOOTER_THEME;
-      const all = [...STOPS, themeStop];
-      await until(() => all.every(allHere), TARGET_WAIT_MS);
-      if (!gone) setStops(all.filter(allHere));
+      await until(() => STOPS.every(isHere), TARGET_WAIT_MS);
+      if (!gone) setStops([...STOPS.filter(isHere), PAGE_STOP, themeStop]);
     };
     begin().catch(() => end());
     return () => {
@@ -199,10 +224,10 @@ const Tour = ({ onEnd }) => {
   }, []);
 
   // A route change it didn't start, the browser's Back included: by then the address already reads where it's going, so the
-  // target is what tells. A query-only change on the Dashboard isn't one.
+  // target is what tells, against the page the router still has. A query-only change isn't one.
   useEffect(() => {
     const onRoute = (url) => {
-      if (ownRoute.current || new URL(url, window.location.href).pathname === DASHBOARD) return;
+      if (ownRoute.current || new URL(url, window.location.href).pathname === Router.pathname) return;
       end();
     };
     Router.events.on('routeChangeStart', onRoute);
@@ -236,28 +261,47 @@ const Tour = ({ onEnd }) => {
   useEffect(() => () => setTourMenu(null), []);
 
   useEffect(() => {
-    if (stop) arriveAt(stop);
+    if (!stop) return undefined;
+    let gone = false;
+    const arrive = async () => {
+      const route = stop.route ?? DASHBOARD;
+      if (Router.pathname !== route) await goTo(route, ownRoute, pushes);
+      await until(noLoader, PAGE_WAIT_MS);
+      const found = await until(() => isHere(stop), ARRIVAL_WAIT_MS);
+      if (gone) return;
+      if (found) arriveAt(stop);
+      else passOver();
+    };
+    arrive().catch(() => end());
+    return () => {
+      gone = true;
+    };
   }, [stop]);
 
   // Every frame, so the cut stays on its target through a smooth scroll, a late ad or a player's wheel.
   useEffect(() => {
-    if (!stop) return undefined;
+    if (!shown) return undefined;
     let frame = null;
     const follow = () => {
       const nextCut = cutFor(stop, pageTop);
       setCut((current) => (same(current, nextCut) ? current : nextCut));
       const size = cardRef.current?.getBoundingClientRect();
       if (nextCut && size) {
-        const nextAt = placeCard(nextCut, size, stop.place);
+        const nextAt = { step: stop.step, ...placeCard(nextCut, size, stop.place) };
         setCardAt((current) => (same(current, nextAt) ? current : nextAt));
       }
       frame = requestAnimationFrame(follow);
     };
     frame = requestAnimationFrame(follow);
     return () => cancelAnimationFrame(frame);
-  }, [stop, pageTop]);
+  }, [shown, stop, pageTop]);
 
   const last = stops ? index === stops.length - 1 : false;
+  const move = (by) => {
+    if (!shown) return;
+    heading.current = by;
+    setIndex(index + by);
+  };
   const finish = () => {
     trackEvent('whats_new_tour_finish');
     leave();
@@ -267,7 +311,7 @@ const Tour = ({ onEnd }) => {
   return <>
     {/* Takes every click on the page. The cut is a hole in a shadow, so the page shows through it untouched. */}
     <Box aria-hidden sx={{ position: 'fixed', inset: 0, zIndex: (theme) => theme.zIndex.modal }}/>
-    {cut ? <Box aria-hidden style={cut} sx={{
+    {cut && shown ? <Box aria-hidden style={cut} sx={{
       position: 'fixed', zIndex: (theme) => theme.zIndex.modal, borderRadius: '8px', pointerEvents: 'none',
       boxShadow: (theme) => `0 0 0 200vmax ${(theme.vars || theme).palette.backdrop}`,
       outline: 2, outlineStyle: 'solid', outlineColor: 'primary.main'
@@ -276,9 +320,9 @@ const Tour = ({ onEnd }) => {
       bgcolor: (theme) => (theme.vars || theme).palette.backdrop
     }}/>}
     {stop ? <FocusTrap open disableAutoFocus disableRestoreFocus>
-      <Box ref={cardRef} role="dialog" aria-modal="true" aria-labelledby="tour-title" tabIndex={-1} style={cardAt ?? undefined} sx={{
+      <Box ref={cardRef} role="dialog" aria-modal="true" aria-labelledby="tour-title" tabIndex={-1} style={at ? { left: at.left, top: at.top } : undefined} sx={{
         // Unseen until it's measured, but focusable: Next takes the focus as it mounts.
-        position: 'fixed', top: 0, left: 0, opacity: cardAt ? 1 : 0, zIndex: (theme) => theme.zIndex.modal + 2,
+        position: 'fixed', top: 0, left: 0, opacity: at ? 1 : 0, zIndex: (theme) => theme.zIndex.modal + 2,
         width: CARD_WIDTH, p: 2, outline: 'none', bgcolor: 'background.paper', border: 1, borderColor: 'divider', borderRadius: '8px',
         boxShadow: (theme) => (theme.vars || theme).palette.shadow.floating
       }}>
@@ -289,8 +333,8 @@ const Tour = ({ onEnd }) => {
           <Stack direction="row" alignItems="center" gap={0.5} sx={{ mr: -0.5, mb: -0.5 }}>
             <Typography variant="caption" color="text.secondary" sx={{ mr: 'auto' }}>{`${index + 1} of ${stops.length}`}</Typography>
             {last ? null : <Button onClick={leave}>Skip</Button>}
-            {index > 0 ? <Button onClick={() => setIndex(index - 1)}>Back</Button> : null}
-            <Button variant="contained" autoFocus onClick={last ? finish : () => setIndex(index + 1)}>{last ? 'Done' : 'Next'}</Button>
+            {index > 0 ? <Button onClick={() => move(-1)}>Back</Button> : null}
+            <Button variant="contained" autoFocus onClick={last ? finish : () => move(1)}>{last ? 'Done' : 'Next'}</Button>
           </Stack>
         </Stack>
       </Box>

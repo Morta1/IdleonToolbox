@@ -11,8 +11,8 @@ const PICS = `${prefix}etc/whatsnew`;
 
 const LINE_1 = 'The side menu is gone. Its pages are in the top bar now, under Worlds and Account.';
 const LINE_1_BURGER = 'The menu now has Worlds and Account tabs. World 1 to 7 are under Worlds.';
-const LINE_2 = 'Pin and Goals moved to the right of the page title, next to Page settings.';
-const LINE_2_ABOVE = 'Pin and Goals moved above the page title, next to Page settings.';
+const LINE_2 = 'Pin and Goals moved to the right of the page title, beside Page settings, where a page\'s options now live.';
+const LINE_2_ABOVE = 'Pin and Goals moved above the page title, beside Page settings, where a page\'s options now live.';
 
 // Below 1200 the nav is behind the burger, so "top bar" would be false, and below 900 the page's buttons sit above its
 // title (PageHeader): those widths take the phone's words and the phone's pictures for that item.

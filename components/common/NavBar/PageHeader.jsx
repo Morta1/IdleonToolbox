@@ -167,7 +167,7 @@ const PageHeader = ({ onOpenGroup }) => {
     </Typography>
   </Stack> : null;
   const control = <ControlSlot key="control"/>;
-  const buttons = <Stack key="buttons" direction="row" alignItems="center" flexWrap="wrap"
+  const buttons = <Stack key="buttons" data-tour="page-actions" direction="row" alignItems="center" flexWrap="wrap"
                          sx={[BUTTONS_SX, { order: group ? { xs: -1, md: 0 } : 0 }, settled ? null : { visibility: 'hidden' }]}>
     {showPin ? <Pin/> : null}
     {goals ? <AddGoalButton/> : null}

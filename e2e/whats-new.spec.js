@@ -23,6 +23,17 @@ const open = (page, { anyView = true, regular = true, storage = {} } = {}) => pa
 const dialog = (page) => page.getByRole('dialog', { name: 'What\'s new' });
 const card = (page) => page.locator('[aria-labelledby="tour-title"]');
 const mark = (page) => page.evaluate(() => localStorage.getItem('whatsNew'));
+// The card's words change as Next is pressed, and it stays unseen until the page under it has arrived.
+const arrived = (page) => expect.poll(() => card(page).evaluate((node) => getComputedStyle(node).opacity), { timeout: 30_000 }).toBe('1');
+const next = async (page) => {
+  await arrived(page);
+  await card(page).getByRole('button', { name: 'Next' }).click();
+  await page.waitForTimeout(50);
+};
+const atStop = async (page, title) => {
+  await expect(card(page).getByRole('heading', { name: title })).toBeVisible({ timeout: 30_000 });
+  await arrived(page);
+};
 const startTour = async (page) => {
   await dialog(page).getByRole('button', { name: 'Show me around' }).click();
   await expect(card(page)).toBeVisible({ timeout: 30_000 });
@@ -146,20 +157,22 @@ test.describe('who waits', () => {
 
 test.describe('the tour', () => {
   const stops = [
-    ['1 of 4', 'Worlds and Account', ['Skip', 'Next']],
-    ['2 of 4', 'Goals', ['Skip', 'Back', 'Next']],
-    ['3 of 4', 'Dashboard timers', ['Skip', 'Back', 'Next']],
-    ['4 of 4', 'Theme', ['Try light', 'Back', 'Done']]
+    ['1 of 5', 'Worlds and Account', ['Skip', 'Next'], /\/dashboard\?demo=true$/],
+    ['2 of 5', 'Goals', ['Skip', 'Back', 'Next'], /\/dashboard\?demo=true$/],
+    ['3 of 5', 'Dashboard timers', ['Skip', 'Back', 'Next'], /\/dashboard\?demo=true$/],
+    ['4 of 5', 'Inside a page', ['Skip', 'Back', 'Next'], /\/account\/world-1\/stamps\?demo=true$/],
+    ['5 of 5', 'Theme', ['Try light', 'Back', 'Done'], /\/account\/world-1\/stamps\?demo=true$/]
   ];
 
-  test('walks the four stops on the Dashboard, keeps the session, and goes back to where it started', async ({ page }) => {
+  test('walks the Dashboard, then a page, keeps the session, and goes back to where it started', async ({ page }) => {
     await open(page);
     await page.goto(STAMPS);
     await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
     await startTour(page);
     await expect(page).toHaveURL(/\/dashboard\?demo=true$/);
-    for (const [count, title, buttons] of stops) {
-      await expect(card(page).getByRole('heading', { name: title })).toBeVisible();
+    for (const [count, title, buttons, url] of stops) {
+      await atStop(page, title);
+      await expect(page).toHaveURL(url);
       await expect(card(page).getByText(count)).toBeVisible();
       await expect(card(page).getByRole('button')).toHaveText(buttons);
       // Focus stays in the card, and the card stays in the window.
@@ -175,14 +188,83 @@ test.describe('the tour', () => {
       expect(box.y).toBeGreaterThanOrEqual(0);
       expect(box.x + box.width).toBeLessThanOrEqual(1366);
       expect(box.y + box.height).toBeLessThanOrEqual(768);
-      if (title !== 'Theme') await card(page).getByRole('button', { name: 'Next' }).click();
+      if (title !== 'Theme') await next(page);
     }
     await card(page).getByRole('button', { name: 'Back' }).click();
-    await expect(card(page).getByText('3 of 4')).toBeVisible();
-    await card(page).getByRole('button', { name: 'Next' }).click();
+    await atStop(page, 'Inside a page');
+    await card(page).getByRole('button', { name: 'Back' }).click();
+    await atStop(page, 'Dashboard timers');
+    await expect(page).toHaveURL(/\/dashboard\?demo=true$/);
+    await next(page);
+    await atStop(page, 'Inside a page');
+    await next(page);
+    await atStop(page, 'Theme');
     await card(page).getByRole('button', { name: 'Done' }).click();
     await expect(card(page)).toHaveCount(0);
     await expect(page).toHaveURL(/\/account\/world-1\/stamps\?demo=true$/);
+    // Everything it pushed went at once: the entry behind the start is the visit's own, not a stop of the tour.
+    await expect.poll(() => page.evaluate(() => window.history.state?.as)).toBe('/account/world-1/stamps?demo=true');
+  });
+
+  const toPageStop = async (page) => {
+    for (let i = 0; i < 3; i += 1) await next(page);
+    await atStop(page, 'Inside a page');
+  };
+
+  test('the page stop marks Pin, Add goal and Page settings together, with the card in the window', async ({ page }) => {
+    await open(page);
+    await page.goto('/dashboard?demo=true');
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await startTour(page);
+    await toPageStop(page);
+    const group = page.locator('[data-tour="page-actions"]');
+    for (const name of [/Pin/, /Add goal/, /Page settings/]) await expect(group.getByRole('button', { name })).toBeVisible();
+    const box = await card(page).boundingBox();
+    const buttons = await group.boundingBox();
+    expect(box.y).toBeGreaterThan(buttons.y + buttons.height);
+    expect(box.x + box.width).toBeLessThanOrEqual(1366);
+    expect(box.y + box.height).toBeLessThanOrEqual(768);
+  });
+
+  test('started on the Dashboard, Done from the page goes back to the Dashboard', async ({ page }) => {
+    await open(page);
+    await page.goto('/dashboard?demo=true');
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await startTour(page);
+    await toPageStop(page);
+    await next(page);
+    await atStop(page, 'Theme');
+    await card(page).getByRole('button', { name: 'Done' }).click();
+    await expect(card(page)).toHaveCount(0);
+    await expect(page).toHaveURL(/\/dashboard\?demo=true$/);
+  });
+
+  test('the browser\'s Back on the page stop ends it, there on the Dashboard', async ({ page }) => {
+    await open(page);
+    await page.goto('/dashboard?demo=true');
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await startTour(page);
+    await toPageStop(page);
+    await page.goBack();
+    await expect(card(page)).toHaveCount(0);
+    await expect(page).toHaveURL(/\/dashboard\?demo=true$/);
+  });
+
+  test('a page whose buttons never come is passed over', async ({ page }) => {
+    await open(page);
+    await page.addInitScript(() => {
+      document.addEventListener('DOMContentLoaded', () => {
+        const style = document.createElement('style');
+        style.textContent = '[data-tour="page-actions"] { visibility: hidden !important; }';
+        document.head.append(style);
+      });
+    });
+    await page.goto('/dashboard?demo=true');
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await startTour(page);
+    for (let i = 0; i < 3; i += 1) await next(page);
+    await atStop(page, 'Theme');
+    await expect(card(page).getByText('5 of 5')).toBeVisible();
   });
 
   test('stop 3 marks the table clear of the sticky pills, not the resets strip', async ({ page }) => {
@@ -266,9 +348,9 @@ test.describe('the tour', () => {
   });
 
   for (const [filters, count, heading] of [
-    [['account', 'characters', 'timers'], '3', 'Dashboard timers'],
-    [['goals', 'account', 'characters'], '3', 'Goals'],
-    [['account', 'characters'], '2', 'Theme']
+    [['account', 'characters', 'timers'], '4', 'Dashboard timers'],
+    [['goals', 'account', 'characters'], '4', 'Goals'],
+    [['account', 'characters'], '3', 'Inside a page']
   ]) {
     test(`a stop switched off in the pills is skipped: ${filters.join(', ')}`, async ({ page }) => {
       await open(page, { storage: { 'dashboard-filters': JSON.stringify(filters), 'dashboard-goals-filter-added': 'true' } });
@@ -276,8 +358,8 @@ test.describe('the tour', () => {
       await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
       await startTour(page);
       await expect(card(page).getByText(`1 of ${count}`)).toBeVisible();
-      await card(page).getByRole('button', { name: 'Next' }).click();
-      await expect(card(page).getByRole('heading', { name: heading })).toBeVisible();
+      await next(page);
+      await atStop(page, heading);
       await expect(card(page).getByText(`2 of ${count}`)).toBeVisible();
     });
   }
@@ -287,7 +369,9 @@ test.describe('the tour', () => {
     await page.goto('/dashboard?demo=true');
     await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
     await startTour(page);
-    for (let i = 0; i < 3; i += 1) await card(page).getByRole('button', { name: 'Next' }).click();
+    await toPageStop(page);
+    await next(page);
+    await atStop(page, 'Theme');
     await expect(page.locator('[data-tour="theme-menu"]')).toBeVisible();
     await card(page).getByRole('button', { name: 'Try light' }).click();
     await expect(page.locator('html')).toHaveClass(/\blight\b/);
@@ -312,16 +396,18 @@ test.describe('the tour', () => {
     await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
     await startTour(page);
     // Goals don't draw on a profile view.
-    await expect(card(page).getByText('1 of 3')).toBeVisible();
-    await card(page).getByRole('button', { name: 'Next' }).click();
-    await card(page).getByRole('button', { name: 'Next' }).click();
-    await expect(card(page).getByRole('heading', { name: 'Theme' })).toBeVisible();
+    await expect(card(page).getByText('1 of 4')).toBeVisible();
+    await next(page);
+    await next(page);
+    await atStop(page, 'Inside a page');
+    await next(page);
+    await atStop(page, 'Theme');
     const menu = page.locator('[data-tour="theme-menu"]');
     await expect(menu.getByRole('menuitem', { name: 'Settings' })).toBeVisible();
     await menu.getByRole('menuitemradio', { name: 'Light' }).click();
     await expect(page.locator('html')).toHaveClass(/\blight\b/);
     await menu.getByRole('menuitem', { name: 'Settings' }).click({ force: true });
-    await expect(page).toHaveURL(/\/dashboard\?profile=Tester$/);
+    await expect(page).toHaveURL(/\/account\/world-1\/stamps\?profile=Tester$/);
     await card(page).getByRole('button', { name: 'Back' }).click();
     await expect(menu).toHaveCount(0);
   });
