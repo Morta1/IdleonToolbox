@@ -2,6 +2,7 @@ import { Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { PAGE_SEO } from '../../data/page-seo';
 import { headingOf } from '../../utility/seo-head.mjs';
+import { PAGE_BY_URL } from '../../utility/pageIndex';
 
 
 // PAGE_SEO is keyed by route pattern, so a dynamic route's entry is a fallback for many pages and
@@ -21,7 +22,7 @@ export const titleOf = (pathname) => {
   if (!pathname || ALREADY_HAS_H1.has(pathname)) return null;
   const seo = PAGE_SEO[pathname];
   if (!seo || seo.noindex) return null;
-  return headingOf(seo.title) || null;
+  return PAGE_BY_URL[pathname]?.display ?? (headingOf(seo.title) || null);
 };
 
 // The page's one h1 (Foundations: pageTitle, 24 / 36 / 600), here or on the few pages that draw their own.

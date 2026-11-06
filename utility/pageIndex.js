@@ -24,7 +24,9 @@ export const PAGE_INDEX = [
   })),
   ...Object.entries(PAGES.ACCOUNT).flatMap(([category, { icon: categoryIcon, categories }]) => categories.map((sub) => ({
     url: `/account/${toKebabCase(category)}/${toKebabCase(sub.label)}`,
-    label: formatLabel(sub.label),
+    label: sub.display ?? formatLabel(sub.label),
+    // A name that differs from the URL's and the SEO title's, for what reads neither label nor PAGES (title, pins)
+    display: sub.display,
     section: formatLabel(category),
     group: 'pages',
     icon: sub.icon || categoryIcon,

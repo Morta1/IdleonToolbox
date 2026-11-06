@@ -21,7 +21,7 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import { IconFileExport, IconGripVertical, IconX } from '@tabler/icons-react';
 import { Reorder } from 'framer-motion';
-import { getPageIcon } from '@utility/pageIndex';
+import { getPageIcon, PAGE_BY_URL } from '@utility/pageIndex';
 import { sessionQuery } from '@utility/nav-query';
 import { handleDownload, prefix } from '@utility/helpers';
 import FileUploadButton, { FILE_BUTTON_SX } from '@components/common/DownloadButton';
@@ -133,7 +133,7 @@ const PinnedPages = () => {
     return text.slice(0, half) + '...' + text.slice(-half);
   }
 
-  const getLabel = ({ name, tab, nestedTab, deeplyNestedTab }) => name.replace('-', ' ').capitalizeAllWords()
+  const getLabel = ({ name, url, tab, nestedTab, deeplyNestedTab }) => (PAGE_BY_URL[url]?.display ?? name.replace('-', ' ').capitalizeAllWords())
     + (tab ? ` - ${tab}` : '')
     + (nestedTab ? ` - ${nestedTab}` : '')
     + (deeplyNestedTab ? ` - ${deeplyNestedTab}` : '');

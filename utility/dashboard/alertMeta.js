@@ -60,7 +60,7 @@ export const alertMeta = {
   'account.General.guild': {
     label: 'Guild tasks',
     icon: 'etc/GP',
-    page: { pathname: '/account/misc/guild', label: 'Guild' },
+    page: { pathname: '/account/misc/guild', label: 'My guild' },
     options: {
       daily: { label: 'Daily guild tasks left' },
       weekly: { label: 'Weekly guild tasks left' }

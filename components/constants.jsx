@@ -37,7 +37,8 @@ export const PAGES = {
         { label: 'upgradeVault', icon: 'data/VaultBut' },
         { label: 'randomEvents', icon: 'etc/Mega_Grumblo' },
         { label: 'eventShop', icon: 'etc/Event_Currency' },
-        { label: 'guild', icon: 'etc/Guild', tabs: ['Members', 'Bonuses'] },
+        // "Guilds" on the bar is another page. The name the nav draws: the URL and a stored pin go by label.
+        { label: 'guild', display: 'My guild', icon: 'etc/Guild', tabs: ['Members', 'Bonuses'] },
         { label: 'tournament', icon: 'data/TournyRank2', tabs: ['Companions', 'Matches', 'Leaderboard'] }
       ]
     },
