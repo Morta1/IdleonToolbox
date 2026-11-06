@@ -1,11 +1,11 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Tab, Tabs, useMediaQuery } from '@mui/material';
 import { useRouter } from 'next/router';
-import { prefix } from '@utility/helpers';
 import Box from '@mui/material/Box';
+import GameIcon from '@components/common/GameIcon';
 import useTabIndex from '@hooks/useTabIndex';
 import usePageTop from '@hooks/usePageTop';
-import { PICKER_AFTER, SectionPicker, SectionPills, SPRITE_BOX } from '@components/common/SectionTabs';
+import { PICKER_AFTER, SectionPicker, SectionPills } from '@components/common/SectionTabs';
 import { PAGE_SEO } from '../../data/page-seo';
 import { headingOf } from '../../utility/seo-head.mjs';
 
@@ -206,18 +206,13 @@ const Tabber = ({
       {(components ?? names)?.map((tab, index) => {
         return <Tab
           iconPosition="start"
-          // A named tab's sprite sits in a 24 px square from the start; a sprite-only tab (the caverns' banners) sizes
-          // to its sprite but never collapses below that square while it loads.
-          icon={icons?.[index] ? <img src={`${prefix}${icons?.[index]}.png`} alt=""
-                                      style={iconsOnly ? { height: 24, width: 'auto', minWidth: 24, objectFit: 'contain' } : SPRITE_BOX}/> : null}
-          wrapped label={iconsOnly ? '' : tab}
-          // A sprite-only tab still carries its name for screen readers.
-          {...(iconsOnly ? { 'aria-label': names[index] } : {})}
+          icon={icons?.[index] ? <GameIcon src={`${icons[index]}.png`} size={24} alt=""/> : null}
+          wrapped label={tab}
           sx={alignStart ? {
             minWidth: 62, minHeight: 48, px: 1.75,
             // Tabs board, on a phone: names only. The sprite beside each name fit two or three of the Hole's five
-            // tabs on a 384 px screen. A sprite-only tab keeps its sprite: it has nothing else to show.
-            ...(iconsOnly ? {} : { '& .MuiTab-icon': { display: { xs: 'none', sm: 'inline-block' } } })
+            // tabs on a 384 px screen.
+            '& .MuiTab-icon': { display: { xs: 'none', sm: 'inline-block' } }
           } : { minWidth: 62 }}
           {...(idPrefix ? { id: `${idPrefix}-tab-${index}`, 'aria-controls': panelId } : {})}
           key={`${tabs[index]}-${index}`}/>;

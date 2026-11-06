@@ -24,6 +24,10 @@ const layoutOf = (allBounds, src, { frame, size, fit, side, cover, height }) => 
       place: { ...CANVAS, objectFit: 'none', objectPosition: `${-x0}px ${-y0}px` }
     };
   }
+  if (fit === 'within') {
+    const [width, height] = size;
+    return { box: { width, height }, place: { ...CANVAS, objectFit: 'scale-down' } };
+  }
   if (fit === 'strip') {
     return {
       box: { width: size, height: size },
@@ -47,16 +51,18 @@ const layoutOf = (allBounds, src, { frame, size, fit, side, cover, height }) => 
 // sprite tried before the missing-art box (a slab item that exists only as its _x1 copy). loading: "lazy" in a long list.
 // Art that isn't an icon keeps the same missing-art box, alt, loading and pending mark. fit="bounds": word art and game
 // labels, at the game's own pixels, cropped to what they draw; size is the canvas, [width, height], until the bounds
-// arrive. fit="strip": one end of a long UI strip as a square of size, at its own pixels, or its whole height with cover;
-// side is 'left' or 'right'. height (with fit="bounds" absent): a banner at a fixed height, its width following.
-const GameIcon = ({ src, fallback, size = 40, alt = '', frame, status, fit = 'drawn', loading, side = 'left', cover, height }) => {
+// arrive. fit="within": a banner in a box of size, [width, height], at its own pixels unless it is bigger. fit="strip": one
+// end of a long UI strip as a square of size, at its own pixels, or its whole height with cover; side is 'left' or 'right'.
+// height (with fit="bounds" absent): a banner at a fixed height, its width following. className: for a parent that marks
+// its icon, as MUI's Tab does.
+const GameIcon = ({ src, fallback, size = 40, alt = '', frame, status, fit = 'drawn', loading, side = 'left', cover, height, className }) => {
   const allBounds = useSpriteBounds();
   const [failed, setFailed] = useState([]);
   const shown = failed.includes(src) && fallback ? fallback : src;
 
   const { box, place } = layoutOf(allBounds, shown, { frame, size, fit, side, cover, height });
   if (shown && failed.includes(shown)) {
-    return <MissingArt style={{ width: box.width === 'auto' ? box.height : box.width, height: box.height, fontSize: Math.max(10, box.height / 2) }}
+    return <MissingArt className={className} style={{ width: box.width === 'auto' ? box.height : box.width, height: box.height, fontSize: Math.max(10, box.height / 2) }}
                        role={alt ? 'img' : undefined} aria-label={alt || undefined}
                        aria-hidden={alt ? undefined : true}>?</MissingArt>;
   }
@@ -66,7 +72,7 @@ const GameIcon = ({ src, fallback, size = 40, alt = '', frame, status, fit = 'dr
   const checkFailed = (img) => {
     if (img?.complete && img.naturalWidth === 0) fail();
   };
-  return <Box style={box} data-status={status}
+  return <Box className={className} style={box} data-status={status}
               data-fit={(fit === 'drawn' || fit === 'bounds') && !allBounds ? 'pending' : undefined}>
     {frame ? <img src={`${prefix}${frame}`} alt={''} style={place}/> : null}
     {shown ? <img key={shown} ref={checkFailed} src={`${prefix}${shown}`} alt={alt} style={place} loading={loading}

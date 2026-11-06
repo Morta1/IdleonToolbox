@@ -1,18 +1,15 @@
 import React, { useState } from 'react';
 import { Box, Button, Tab, Tabs } from '@mui/material';
 import { IconChevronDown } from '@tabler/icons-react';
-import { prefix } from '@utility/helpers';
 import AppDialog from '@components/common/Overlays/AppDialog';
+import GameIcon from '@components/common/GameIcon';
 import { useSheet } from '@components/common/cards/SheetContext';
 
 // Level 2 tabs (Tabs board): a part of a tab, at the top of its content. Up to PICKER_AFTER choices they
 // are pills that wrap, never a second underline and never behind scroll arrows.
 export const PICKER_AFTER = 8;
 
-const sprite = (icon, sx) => (icon ? <Box component="img" src={`${prefix}${icon}.png`} alt="" sx={sx}/> : null);
-
-// A sprite has its box before it loads, so the name beside it does not move when it lands on a slow connection.
-export const SPRITE_BOX = { width: 24, height: 24, objectFit: 'contain' };
+const sprite = (icon, props) => (icon ? <GameIcon src={`${icon}.png`} alt="" {...props}/> : null);
 
 // Pills and picker cells never scroll, so their list does not clip: the focus ring draws outside a pill or a cell,
 // apart from the open one's edge. The 4 px around the list leave it room at the ends.
@@ -44,7 +41,6 @@ const PILL = {
 // (the characters board's .pg).
 const SHEET_PILLS = { ...PILLS, '& .MuiTabs-flexContainer': { flexWrap: 'wrap', gap: '4px' }, mb: 0 };
 const SHEET_PILL = { ...PILL, minWidth: 32, width: 32, px: 0, '& .MuiTab-icon': { m: 0 } };
-const SHEET_SPRITE = { width: 20, height: 20, objectFit: 'contain' };
 
 // names: what a reader sees and hears. A sprite-only pill (iconsOnly) shows its sprite, or the caller's
 // own node (components), and carries its name as aria-label.
@@ -59,7 +55,7 @@ export const SectionPills = ({ tabs, names, icons, iconsOnly, components, select
     {tabs.map((tab, index) => <Tab
       key={`${tab}-${index}`}
       iconPosition="start"
-      icon={sprite(icons?.[index], small ? SHEET_SPRITE : SPRITE_BOX)}
+      icon={sprite(icons?.[index], { size: small ? 20 : 24 })}
       label={iconsOnly ? (components?.[index] ?? '') : (components?.[index] ?? names[index])}
       {...(iconsOnly ? { 'aria-label': names[index] } : {})}
       sx={small ? SHEET_PILL : iconsOnly ? { ...PILL, px: 1 } : PILL}
@@ -70,7 +66,7 @@ export const SectionPills = ({ tabs, names, icons, iconsOnly, components, select
 // A picker cell: the Tabs board's 56 px tile, its sprite in a 64 by 40 box (the cavern banners are about 60 by
 // 38, with the name drawn in), drawn at its own size unless that is bigger. The open one: a primary edge, a
 // ring inside it and the pressed tint.
-const CELL_SPRITE = { width: 64, height: 40, objectFit: 'scale-down' };
+const CELL_SPRITE = { fit: 'within', size: [64, 40] };
 const CELL = {
   minWidth: 0, maxWidth: 'none', minHeight: 56, height: 56, p: 0.5,
   borderRadius: '8px', border: 1, borderColor: 'divider', bgcolor: 'background.paper',
@@ -141,7 +137,7 @@ export const SectionPicker = ({ tabs, names, icons, selectedTab, onSelect, label
         '& .MuiButton-endIcon': { ml: 'auto', color: 'text.secondary' }
       }}
     >
-      {sprite(icons?.[selectedTab], { width: 52, height: 30, objectFit: 'scale-down' })}
+      {sprite(icons?.[selectedTab], { fit: 'within', size: [52, 30] })}
       {names[selectedTab]}
     </Button>
     <AppDialog open={open} onClose={() => setOpen(false)} title={label}>
