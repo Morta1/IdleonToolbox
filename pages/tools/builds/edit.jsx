@@ -22,16 +22,15 @@ const EditBuild = () => {
 
   const [build, setBuild] = useState(null);
   const [ownershipConfirmed, setOwnershipConfirmed] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  // Which load has answered: only a signed-in visitor with an id has one to wait for.
+  const load = shortId && signedIn ? `${shortId}/${state?.accessToken}` : null;
+  const [answered, setAnswered] = useState(null);
+  const loading = Boolean(load) && answered !== load;
 
   useEffect(() => {
-    if (!shortId || !signedIn) {
-      setLoading(false);
-      return;
-    }
+    if (!load) return;
     let cancelled = false;
-    setLoading(true);
     Promise.all([
       getBuild(shortId),
       getBuildState(shortId, state?.accessToken)
@@ -49,7 +48,7 @@ const EditBuild = () => {
         if (!cancelled) setError(err?.message || 'Unable to load build.');
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setAnswered(load);
       });
     return () => {
       cancelled = true;

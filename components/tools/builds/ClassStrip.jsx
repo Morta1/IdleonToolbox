@@ -16,7 +16,7 @@ const SUBCLASSES = Object.fromEntries(
   FAMILY_ORDER.map((fam) => [fam, CLASS_KEYS.filter((k) => familyOf(k) === fam && k !== fam)])
 );
 
-const Pill = ({ href, label, iconIndex, active, color, isClass = true }) => (
+const Pill = ({ href, label, iconIndex, active, color, textColor = color, isClass = true }) => (
   <Box
     component={Link}
     href={href}
@@ -36,7 +36,7 @@ const Pill = ({ href, label, iconIndex, active, color, isClass = true }) => (
       fontSize: 13,
       fontWeight: 600,
       whiteSpace: 'nowrap',
-      color: active ? color : 'rgba(255,255,255,0.75)',
+      color: active ? textColor : 'rgba(255,255,255,0.75)',
       background: active ? `${color}22` : 'rgba(255,255,255,0.04)',
       border: `1px solid ${active ? `${color}88` : 'rgba(255,255,255,0.08)'}`,
       '&:hover': { background: active ? `${color}33` : 'rgba(255,255,255,0.07)' }
@@ -85,6 +85,7 @@ const ClassStrip = ({ activeSlug }) => {
           isClass={false}
           active={!activeKey}
           color={ACCENT.primary}
+          textColor={ACCENT.text}
         />
         {FAMILY_ORDER.map((fam) => (
           <Pill

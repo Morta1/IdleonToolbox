@@ -58,7 +58,7 @@ describe('getBuildSlugStaticProps', () => {
     const { props } = getBuildSlugStaticProps(FIXTURE, 'ccc333-wiz-build');
     expect(props.kind).toBe('build');
     expect(props.summary.shortId).toBe('ccc333');
-    expect(props.seoTitle).toBe('Wizard Build — Wiz Build | Idleon Toolbox');
+    expect(props.seoTitle).toBe('Wizard Build: Wiz Build | Idleon Toolbox');
   });
 
   // The talent payload rides separately, so the page renders without a cross-origin fetch.

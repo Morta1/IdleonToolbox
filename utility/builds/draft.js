@@ -16,7 +16,7 @@ export const saveDraft = (draft) => {
     };
     window.localStorage.setItem(KEY, JSON.stringify(payload));
   } catch (err) {
-    // Quota exceeded / private mode — swallow
+    // Quota exceeded / private mode: swallow
     console.warn('[builds] draft save failed:', err);
   }
 };

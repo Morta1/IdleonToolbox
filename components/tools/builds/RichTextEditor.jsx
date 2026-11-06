@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { EditorContent, NodeViewWrapper, ReactNodeViewRenderer, useEditor } from '@tiptap/react';
 import StarterKit from '@tiptap/starter-kit';
 import Mention from '@tiptap/extension-mention';
@@ -9,7 +9,7 @@ import { Box, Stack, Typography } from '@mui/material';
 import Tooltip from '@components/Tooltip';
 import ItemDisplay from '@components/common/ItemDisplay';
 import { items, itemsArray, talents as talentsData } from '@website-data';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum, prefix } from '@utility/helpers';
 import { filterRefsForQuery, flattenTalents, formatTalentName } from '@utility/builds/itemRefs';
 import { docToText, textToDoc } from '@utility/builds/tiptapDoc';
 import MentionMenu from './MentionMenu';
@@ -43,7 +43,7 @@ const parseMentionId = (id) => {
 //
 // 1. TipTap's React integration re-renders the wrapping component on every
 //    transaction by default. With `shouldRerenderOnTransaction: false` the
-//    React tree no longer re-renders on every keystroke — only the editor's
+//    React tree no longer re-renders on every keystroke: only the editor's
 //    own ProseMirror DOM updates.
 //
 // 2. `onUpdate` still fires on every edit, but we debounce the serialization +
@@ -62,7 +62,7 @@ const parseMentionId = (id) => {
 
 const DEBOUNCE_MS = 200;
 
-// React NodeView for `mention` nodes — branches on the mention's type prefix.
+// React NodeView for `mention` nodes: branches on the mention's type prefix.
 // For items, renders the item's icon + displayName with ItemDisplay in a
 // tooltip. For talents, renders the skill icon + talent name with a computed
 // description in a tooltip. Unknown ids fall through to a muted italic chip
@@ -177,19 +177,12 @@ const RichTextEditor = ({
   const mentionStateRef = useRef(mentionState);
   useEffect(() => { mentionStateRef.current = mentionState; }, [mentionState]);
 
-  // Refs mirror props so the extension closures can resolve the *current*
-  // placeholder/maxLength at call time without the extensions array depending
-  // on those props (which would recreate the editor on every prop change).
-  const placeholderRef = useRef(placeholder);
-  useEffect(() => { placeholderRef.current = placeholder; }, [placeholder]);
-  // Capture maxLength at mount — CharacterCount's `limit` option is baked in
-  // at extension init and has no runtime setter. If a caller needs to change
-  // the cap live, they must remount the component.
-  const initialMaxLengthRef = useRef(maxLength);
-
-  // --- Stable extensions array. useEditor must not see a new identity per
+  // --- Stable extensions array, built once. useEditor must not see a new identity per
   //     render, or it'll call setOptions / rebuild internal state unnecessarily.
-  const extensions = useMemo(() => [
+  //     placeholder and maxLength are read here, once: CharacterCount's `limit` is baked
+  //     in at extension init with no runtime setter, so a caller that needs to change
+  //     either must remount the component.
+  const [extensions] = useState(() => [
     StarterKit.configure({
       // Enabled for build descriptions: bold, italic, bullet/ordered lists,
       // headings H1..H6, paragraph, text, history, hardBreak.
@@ -204,9 +197,7 @@ const RichTextEditor = ({
       // with it, so the standalone Link.configure() is the only one enabled.
       link: false
     }),
-    // Function form reads the latest placeholder from the ref so prop changes
-    // propagate without rebuilding the editor.
-    Placeholder.configure({ placeholder: () => placeholderRef.current || '' }),
+    Placeholder.configure({ placeholder: placeholder || '' }),
     Link.configure({
       openOnClick: false,
       autolink: true,
@@ -216,10 +207,10 @@ const RichTextEditor = ({
         target: '_blank'
       }
     }),
-    // CharacterCount surfaces `editor.storage.characterCount.characters()` —
+    // CharacterCount surfaces `editor.storage.characterCount.characters()`:
     // the character counter UI below the editor reads from there. `limit`
     // prevents typing past the cap at the DOM layer.
-    CharacterCount.configure({ limit: initialMaxLengthRef.current }),
+    CharacterCount.configure({ limit: maxLength }),
     ItemMention.configure({
       HTMLAttributes: { class: 'item-mention' },
       suggestion: {
@@ -264,7 +255,7 @@ const RichTextEditor = ({
             if (event.key === 'Enter' || event.key === 'Tab') {
               const sel = m.items[m.selectedIdx];
               // filterRefsForQuery already produced a prefixed "type:id" key
-              // on each entry — that's what we store in attrs.id.
+              // on each entry: that's what we store in attrs.id.
               if (sel?.key) m.command({ id: sel.key });
               return true;
             }
@@ -278,7 +269,7 @@ const RichTextEditor = ({
         })
       }
     })
-  ], []);
+  ]);
 
   // --- The editor. Created once. No React re-render per transaction.
   const editor = useEditor({
@@ -319,8 +310,8 @@ const RichTextEditor = ({
     <Stack gap={0.5}>
       {/* Gate toolbar on editor readiness. `useEditorState` inside the
           toolbar captures its editor prop on first render and doesn't
-          recover cleanly when that prop flips from null to an instance
-          — so if we rendered the toolbar with `editor=null` at mount
+          recover cleanly when that prop flips from null to an instance,
+          so if we rendered the toolbar with `editor=null` at mount
           (which happens because useEditor defers creation under
           `immediatelyRender: false`), it stayed blank until an unrelated
           re-render. Waiting for a non-null editor keeps the hook stable. */}
@@ -333,7 +324,7 @@ const RichTextEditor = ({
             padding: '10.5px 14px',
             border: '1px solid rgba(255,255,255,0.23)',
             borderRadius: '4px',
-            color: '#fff',
+            color: 'text.primary',
             fontSize: 14,
             outline: 'none',
             whiteSpace: 'pre-wrap'
@@ -366,7 +357,7 @@ const RichTextEditor = ({
           },
           '& .ProseMirror li > p': { margin: 0 },
           '& .ProseMirror a': {
-            color: '#5ea9ff',
+            color: 'primary.main',
             textDecoration: 'underline'
           },
           // Placeholder extension adds `.is-editor-empty` on the first empty
@@ -427,7 +418,7 @@ const CharacterCountDisplay = ({ editor, limit }) => {
         flexShrink: 0
       }}
     >
-      {count.toLocaleString()} / {limit.toLocaleString()}
+      {formatNum(count, 'whole')} / {formatNum(limit, 'whole')}
     </Typography>
   );
 };

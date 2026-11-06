@@ -21,7 +21,7 @@ import UndoIcon from '@mui/icons-material/Undo';
 import RedoIcon from '@mui/icons-material/Redo';
 
 // Small, icon-only formatting toolbar for RichTextEditor. TipTap is headless,
-// so we provide the buttons ourselves — `editor.chain().focus().<cmd>().run()`
+// so we provide the buttons ourselves: `editor.chain().focus().<cmd>().run()`
 // is the entry point, and the toolbar's active state is driven by
 // `useEditorState`.
 //
@@ -111,7 +111,7 @@ const EditorToolbar = ({ editor }) => {
 
   const run = (fn) => () => fn(editor.chain().focus()).run();
 
-  // Button renderer. onMouseDown.preventDefault keeps the editor focused —
+  // Button renderer. onMouseDown.preventDefault keeps the editor focused:
   // without it, clicks transfer focus to the button, leaving the editor's
   // visible "selected" ring stuck on the button itself. aria-label is the
   // plain action word so screen readers don't miss the button's purpose.
@@ -261,7 +261,7 @@ const H_TB_SX = {
 // Light normalization: if the user types a bare host like "example.com", turn
 // it into "https://example.com". Pass through anything with a safelisted
 // scheme. Anything else with a scheme (javascript:, data:, vbscript:, …) is
-// rejected — TipTap's default isAllowedUri already blocks these at the mark
+// rejected: TipTap's default isAllowedUri already blocks these at the mark
 // level, but we also reject here so a paste-and-save never stores them.
 const SAFE_PASSTHROUGH_RE = /^(https?:\/\/|mailto:|tel:|\/|#)/i;
 const UNSAFE_SCHEME_RE = /^[a-z][a-z0-9+.-]*:/i;
@@ -283,16 +283,18 @@ const ToolbarDivider = () => (
   />
 );
 
-// Compact link editor popover — mirrors Mantine's RichTextEditor control
+// Compact link editor popover: mirrors Mantine's RichTextEditor control
 // behavior: small input beneath the toolbar button, Save on Enter, Cancel on
 // Escape, Remove button when an existing link is being edited.
 const LinkPopover = ({ anchorEl, initialUrl, hasExistingLink, onClose, onSave, onRemove }) => {
   const [url, setUrl] = useState(initialUrl || '');
 
   // Re-seed when opening on a different selection.
-  useEffect(() => {
+  const [seen, setSeen] = useState({ anchorEl, initialUrl });
+  if (seen.anchorEl !== anchorEl || seen.initialUrl !== initialUrl) {
+    setSeen({ anchorEl, initialUrl });
     if (anchorEl) setUrl(initialUrl || '');
-  }, [anchorEl, initialUrl]);
+  }
 
   const handleKeyDown = (e) => {
     if (e.key === 'Enter') {
@@ -339,7 +341,7 @@ const LinkPopover = ({ anchorEl, initialUrl, hasExistingLink, onClose, onSave, o
               size="small"
               onClick={onRemove}
               onMouseDown={(e) => e.preventDefault()}
-              sx={{ color: 'error.light' }}
+              sx={{ color: 'text.error' }}
             >
               <LinkOffIcon fontSize="small"/>
             </IconButton>

@@ -125,7 +125,7 @@ const renderInlineTokens = (tokens, keyPrefix = 'i') => {
         return <React.Fragment key={key}>{tok.text}</React.Fragment>;
       case 'link': {
         // Guard against javascript:/data:/vbscript: URLs. The editor blocks
-        // these at input time but storage is plain markdown — a direct POST
+        // these at input time but storage is plain markdown: a direct POST
         // or an edit with an older client can smuggle `[x](javascript:…)`
         // through. Fall back to plain text when the scheme isn't safelisted.
         const href = String(tok.href || '').trim();
@@ -138,7 +138,7 @@ const renderInlineTokens = (tokens, keyPrefix = 'i') => {
             href={href}
             target="_blank"
             rel="noopener noreferrer nofollow"
-            sx={{ color: '#5ea9ff' }}
+            sx={{ color: 'primary.main' }}
           >
             {renderInlineTokens(tok.tokens, key)}
           </MuiLink>

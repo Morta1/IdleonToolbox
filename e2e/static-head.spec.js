@@ -269,7 +269,7 @@ test('every page from the slug route gets its own title, not the fallback', asyn
   expect(new Set(classTitles).size, `class titles were not unique: ${classTitles.join(' | ')}`)
     .toBe(classTitles.length);
 
-  const buildTitles = titles.filter((t) => / Build — .+ \| /.test(t));
+  const buildTitles = titles.filter((t) => / Build: .+ \| /.test(t));
   expect(buildTitles.length, 'no build pages among the exported routes').toBeGreaterThan(1);
 });
 

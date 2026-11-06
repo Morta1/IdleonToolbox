@@ -55,7 +55,9 @@ export const ACCENT = {
   primary: '#2087e8',
   primaryHover: '#3a95ee',
   primarySoft: 'rgba(32, 135, 232, 0.16)',
-  primaryBorder: 'rgba(32, 135, 232, 0.55)'
+  primaryBorder: 'rgba(32, 135, 232, 0.55)',
+  // Words in an active pill or chip: the blue itself reads 3.5:1 on its own soft fill.
+  text: 'var(--mui-palette-primary-main)'
 };
 
 // Muted text shades reused across cards / meta rows.
@@ -64,7 +66,7 @@ export const TEXT_SUBTLE = 'rgba(255,255,255,0.7)';
 export const TEXT_STRONG = 'rgba(255,255,255,0.85)';
 
 // 3-px left accent strip used on BuildCard and per-tab cards in BuildForm.
-// Kept as a helper because the color is a runtime value (per family) — a
+// Kept as a helper because the color is a runtime value (per family): a
 // styled component would need a prop dance for this one use case.
 export const familyAccentBar = (color) => ({
   '&::before': {
@@ -79,7 +81,7 @@ export const familyAccentBar = (color) => ({
 });
 
 // Visual primitives (SurfaceCard, TagChip, PillTextField) live in
-// components/tools/builds/styled.js — importing them here would create a
+// components/tools/builds/styled.js: importing them here would create a
 // cycle and they're consumed by components, not by this utility file.
 
 export const familyOf = (classKey) => {

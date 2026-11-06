@@ -15,7 +15,7 @@ import useHydrated from '@hooks/useHydrated';
 // Render a stored (compact) build. hydrate() derives tab/talent metadata from
 // the shared @website-data + talentPagesMap, so no extra data file is needed.
 // Optional `actions` slot renders between the build header and the main
-// content — used by the view page for like / template / edit / delete.
+// content: used by the view page for like / template / edit / delete.
 // Optional `backHref` renders a back button inline with the title.
 //
 // Layout:
@@ -43,7 +43,7 @@ const BuildDetail = ({ build, actions = null, backHref = null }) => {
   const descriptionText = build.description || '';
   const twoColumn = descriptionText.length >= TWO_COLUMN_DESC_CHARS;
 
-  // Always navigate to `backHref` rather than `router.back()` — the button is
+  // Always navigate to `backHref` rather than `router.back()`: the button is
   // labeled "Back to builds" and must actually land there regardless of how
   // the user got to this page. Example: template → /new → publish issues
   // `router.replace` to the new /view, leaving the template's /view as the

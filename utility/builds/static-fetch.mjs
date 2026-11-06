@@ -9,7 +9,7 @@
 // previous deploy serving; a degraded build 404s live URLs.
 
 // Cloudflare's browser-integrity check has rejected default fetch agents on this Worker with
-// HTTP 403 / error code 1010. It does not currently — a bare fetch returns 200 — but the check
+// HTTP 403 / error code 1010. It does not currently (a bare fetch returns 200), but the check
 // is a dashboard toggle that can come back on without a code change, and a build that starts
 // failing on it is an outage. Kept deliberately.
 export const BUILD_FETCH_USER_AGENT =
@@ -23,7 +23,7 @@ const isValidBuild = (item) =>
 
 // getStaticProps runs once per generated page, so [slug].jsx alone would
 // refetch everything 143 times. Memoise the in-flight promise: one fetch per
-// build process, shared by every caller. Not exported — callers should not
+// build process, shared by every caller. Not exported: callers should not
 // need to know this exists.
 let cachedBuildsPromise = null;
 
@@ -37,7 +37,7 @@ export function resetBuildsCacheForTests() {
 export function fetchAllBuildsAtBuildTime() {
   if (!cachedBuildsPromise) {
     cachedBuildsPromise = doFetchAllBuilds().catch((error) => {
-      // Don't cache a rejection — a retry should be able to succeed.
+      // Don't cache a rejection: a retry should be able to succeed.
       cachedBuildsPromise = null;
       throw error;
     });
@@ -109,13 +109,13 @@ function recordDetailOutcome(ok, shortId) {
   detailSeen += 1;
   if (ok) return;
   detailFailures += 1;
-  console.warn(`builds: no detail payload for ${shortId} — that page falls back to fetching on mount`);
+  console.warn(`builds: no detail payload for ${shortId}: that page falls back to fetching on mount`);
 
   if (detailSeen < DETAIL_FLOOR_MIN_SAMPLE) return;
   const ratio = detailFailures / detailSeen;
   if (ratio > DETAIL_MAX_FAILURE_RATIO) {
     throw new Error(
-      `Builds API: ${detailFailures}/${detailSeen} detail payloads unavailable (>${DETAIL_MAX_FAILURE_RATIO * 100}%) — refusing to deploy build pages that would silently fall back to fetching on mount`
+      `Builds API: ${detailFailures}/${detailSeen} detail payloads unavailable (>${DETAIL_MAX_FAILURE_RATIO * 100}%): refusing to deploy build pages that would silently fall back to fetching on mount`
     );
   }
 }
@@ -123,7 +123,7 @@ function recordDetailOutcome(ok, shortId) {
 async function fetchOneDetail(shortId) {
   const base = process.env.NEXT_PUBLIC_BUILDS_URL;
   if (!base) {
-    throw new Error('NEXT_PUBLIC_BUILDS_URL is not set — cannot fetch build details at build time');
+    throw new Error('NEXT_PUBLIC_BUILDS_URL is not set: cannot fetch build details at build time');
   }
   const response = await fetch(`${base}/builds/${encodeURIComponent(shortId)}`, {
     headers: { 'Content-Type': 'application/json', 'User-Agent': BUILD_FETCH_USER_AGENT },
@@ -153,7 +153,7 @@ async function fetchDetailWithRetries(shortId) {
 async function doFetchAllBuilds() {
   const base = process.env.NEXT_PUBLIC_BUILDS_URL;
   if (!base) {
-    throw new Error('NEXT_PUBLIC_BUILDS_URL is not set — cannot fetch builds at build time');
+    throw new Error('NEXT_PUBLIC_BUILDS_URL is not set: cannot fetch builds at build time');
   }
 
   const all = [];
@@ -183,11 +183,11 @@ async function doFetchAllBuilds() {
   }
 
   if (cursor) {
-    throw new Error(`Builds API pagination exceeded ${MAX_PAGES} pages — refusing to return a truncated build list`);
+    throw new Error(`Builds API pagination exceeded ${MAX_PAGES} pages: refusing to return a truncated build list`);
   }
 
   if (all.length === 0) {
-    throw new Error('Builds API returned no builds — refusing to build a site without build pages');
+    throw new Error('Builds API returned no builds: refusing to build a site without build pages');
   }
 
   return all;

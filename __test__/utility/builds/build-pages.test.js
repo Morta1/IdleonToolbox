@@ -124,7 +124,7 @@ describe('findInManifest', () => {
 describe('buildSeoTitle', () => {
   it('leads with the class, not the free-text build title', () => {
     expect(buildSeoTitle(toBuildSummary(full)))
-      .toBe('Wizard Build — Mago de talar | Idleon Toolbox');
+      .toBe('Wizard Build: Mago de talar | Idleon Toolbox');
   });
 
   it('names the subclass alone, never "<subclass> <family>"', () => {
@@ -135,12 +135,12 @@ describe('buildSeoTitle', () => {
 
   it('falls back to the family when a build has no subclass', () => {
     const noSub = toBuildSummary({ ...full, subclass: null });
-    expect(buildSeoTitle(noSub)).toBe('Mage Build — Mago de talar | Idleon Toolbox');
+    expect(buildSeoTitle(noSub)).toBe('Mage Build: Mago de talar | Idleon Toolbox');
   });
 
   it('underscores in a subclass become spaces', () => {
     const bb = toBuildSummary({ ...full, class: 'Warrior', subclass: 'Blood_Berserker' });
-    expect(buildSeoTitle(bb)).toBe('Blood Berserker Build — Mago de talar | Idleon Toolbox');
+    expect(buildSeoTitle(bb)).toBe('Blood Berserker Build: Mago de talar | Idleon Toolbox');
   });
 
   it('falls back to a generic title for an unknown build', () => {

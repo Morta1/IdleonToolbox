@@ -1,6 +1,6 @@
 // Slugs, hrefs and metadata for /tools/builds/<slug>.
 //
-// Dependency-free ESM on purpose — utility/generate-sitemap.mjs imports this and is a plain
+// Dependency-free ESM on purpose: utility/generate-sitemap.mjs imports this and is a plain
 // Node script that cannot resolve Next aliases or TypeScript.
 
 const MAX_TITLE_SLUG = 60;
@@ -29,8 +29,8 @@ export const buildStaticHref = (build) => `/tools/builds/${buildToSlug(build)}`;
 export const staticIdSet = (builds) =>
   new Set((builds || []).map((b) => String(b?.shortId || '').toLowerCase()));
 
-// A build published after the last deploy has no exported page — fallback: false makes that a
-// hard 404 — so it keeps the runtime route instead.
+// A build published after the last deploy has no exported page. fallback: false makes that a
+// hard 404, so it keeps the runtime route instead.
 export const buildHref = (build, staticIds) =>
   staticIds?.has(String(build?.shortId || '').toLowerCase())
     ? buildStaticHref(build)
@@ -71,7 +71,7 @@ export function findInManifest(manifest, shortId) {
   return (manifest || []).find((entry) => entry.shortId === shortId) || null;
 }
 
-// The subclass alone, not "Barbarian Warrior" — the family adds no search value and produces
+// The subclass alone, not "Barbarian Warrior": the family adds no search value and produces
 // nonsense like "Journeyman Beginner". Falls back to the family for builds with no subclass.
 const classLabel = (summary) => (summary.subclass || summary.class || '').replace(/_/g, ' ');
 
@@ -80,12 +80,12 @@ const classLabel = (summary) => (summary.subclass || summary.class || '').replac
 // actually targets past Google's ~60-char cutoff on 52 of 111 builds.
 export function buildSeoTitle(summary) {
   if (!summary) return 'Build | Idleon Toolbox';
-  return `${classLabel(summary)} Build — ${summary.title} | Idleon Toolbox`;
+  return `${classLabel(summary)} Build: ${summary.title} | Idleon Toolbox`;
 }
 
 export function buildSeoDescription(summary) {
   if (!summary) return 'Community build for Legends of Idleon';
   const tags = (summary.tags || []).join(', ');
-  const tagPart = tags ? ` — ${tags}.` : '.';
+  const tagPart = tags ? `: ${tags}.` : '.';
   return `${summary.title} by ${summary.ownerName}. ${classLabel(summary)} build for Legends of Idleon${tagPart} ${summary.likeCount || 0} likes.`;
 }

@@ -53,7 +53,7 @@ const FilterPill = ({ label, value, count, onClick, active }) => (
       height: 36,
       px: 2,
       background: active ? ACCENT.primarySoft : 'rgba(255,255,255,0.04)',
-      color: active ? ACCENT.primary : 'rgba(255,255,255,0.85)',
+      color: active ? ACCENT.text : 'rgba(255,255,255,0.85)',
       border: `1px solid ${active ? ACCENT.primaryBorder : 'rgba(255,255,255,0.08)'}`,
       fontWeight: 500,
       '&:hover': {
@@ -69,7 +69,7 @@ const FilterPill = ({ label, value, count, onClick, active }) => (
           fontSize: 13,
           fontWeight: 600,
           lineHeight: 1,
-          color: active ? ACCENT.primary : 'rgba(255,255,255,0.55)'
+          color: active ? ACCENT.text : 'rgba(255,255,255,0.55)'
         }}
       >
         {label}
@@ -89,7 +89,7 @@ const FilterPill = ({ label, value, count, onClick, active }) => (
             fontWeight: 700,
             fontVariantNumeric: 'tabular-nums',
             borderRadius: 999,
-            color: '#fff',
+            color: 'text.primary',
             background: ACCENT.primary
           }}
         >
@@ -263,7 +263,7 @@ const BuildsBrowser = ({
             },
             '& .Mui-selected': {
               bgcolor: `${ACCENT.primarySoft} !important`,
-              color: `${ACCENT.primary} !important`
+              color: `${ACCENT.text} !important`
             }
           }}
         >
@@ -317,7 +317,7 @@ const BuildsBrowser = ({
                   onClick={() => toggleTag(tag)}
                   sx={selected ? {
                     bgcolor: ACCENT.primarySoft,
-                    color: ACCENT.primary,
+                    color: ACCENT.text,
                     borderColor: ACCENT.primaryBorder
                   } : undefined}
                 />

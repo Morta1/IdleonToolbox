@@ -108,11 +108,10 @@ const Builds = ({ initialBuilds }) => {
 
   // Hydrate filters from the URL once the router reports its query as ready. After this,
   // `filters` state is the source of truth and we replace the URL on every change (see below).
-  useEffect(() => {
-    if (!router.isReady || hydrated) return;
+  if (router.isReady && !hydrated) {
     setFilters(filtersFromQuery(router.query || {}));
     setHydrated(true);
-  }, [router.isReady, router.query, hydrated]);
+  }
 
   // Mirror filter state back into the URL (shallow - no re-mount). Runs only after hydration so
   // we don't clobber the initial URL read on the first render.

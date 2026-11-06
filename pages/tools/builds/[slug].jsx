@@ -34,8 +34,8 @@ import { CLASS_KEYS, resolveHierarchy } from '@utility/builds/classes';
 const classPageTitle = (displayName) => `Idleon ${displayName} Builds | Idleon Toolbox`;
 
 const classPageDescription = (displayName, count) => count
-  ? `Browse ${count} community ${displayName} builds for Legends of Idleon — talent trees, gear and progression.`
-  : `Community ${displayName} builds for Legends of Idleon — talent trees, gear and progression.`;
+  ? `Browse ${count} community ${displayName} builds for Legends of Idleon: talent trees, gear and progression.`
+  : `Community ${displayName} builds for Legends of Idleon: talent trees, gear and progression.`;
 
 // Every class in the game gets a page, including the ones with no builds yet. They are offered by
 // the class strip, and with fallback: false anything not listed here is a hard 404 - so generating
@@ -50,7 +50,7 @@ export function getBuildSlugStaticPaths(builds) {
   const buildSlugs = (builds || []).map(buildToSlug);
   assertNoSlugCollisions(ALL_CLASS_SLUGS, buildSlugs);
   return {
-    // fallback MUST be false — output: 'export' does not support true/'blocking'.
+    // fallback MUST be false. output: 'export' does not support true/'blocking'.
     paths: [...ALL_CLASS_SLUGS, ...buildSlugs].map((slug) => ({ params: { slug } })),
     fallback: false
   };

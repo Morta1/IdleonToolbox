@@ -197,7 +197,7 @@ const TalentTooltip = ({ name, skill, level, isSuperTalent, createMode, eligible
         {talentText(description, mainStat, secondaryStat)}
       </Typography>
       {superHint ? <Typography variant="caption"
-                               sx={{ display: 'block', mt: 1, color: isSuperTalent ? '#ffd75e' : 'text.secondary' }}>
+                               sx={{ display: 'block', mt: 1, color: isSuperTalent ? 'identity.superTalent' : 'text.secondary' }}>
         {superHint}
       </Typography> : null}
     </>
@@ -217,7 +217,7 @@ const SuperBorder = styled('img')`
 
 const CustomInput = styled(InputBase)`
   & .MuiInputBase-input {
-    border: 1px solid #7e7e7e;
+    border: 1px solid ${({ theme }) => (theme.vars || theme).palette.outline};
     border-radius: 5px;
     padding: 3px;
     text-align: center;

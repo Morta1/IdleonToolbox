@@ -40,20 +40,21 @@ const MyBuilds = ({ staticIds }) => {
   const [tab, setTab] = useState(0); // 0 = mine, 1 = liked
   const [mine, setMine] = useState(null);
   const [liked, setLiked] = useState(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  // Whose token the lists answered for: a new one shows the loader until its own answer.
+  const [answeredFor, setAnsweredFor] = useState(null);
+  const loading = answeredFor !== state?.accessToken;
 
   useEffect(() => {
     if (!signedIn) return;
     let cancelled = false;
-    setLoading(true);
-    setError('');
     Promise.all([
       listMyBuilds(state?.accessToken).catch(() => ({ items: [] })),
       listLikedBuilds(state?.accessToken).catch(() => ({ items: [] }))
     ])
       .then(([m, l]) => {
         if (cancelled) return;
+        setError('');
         setMine(m?.items || []);
         setLiked(l?.items || []);
       })
@@ -61,7 +62,7 @@ const MyBuilds = ({ staticIds }) => {
         if (!cancelled) setError(err?.message || 'Unable to load your builds.');
       })
       .finally(() => {
-        if (!cancelled) setLoading(false);
+        if (!cancelled) setAnsweredFor(state?.accessToken);
       });
     return () => {
       cancelled = true;

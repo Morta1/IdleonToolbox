@@ -20,31 +20,27 @@ const NewBuild = () => {
   const fromId = router.query?.from;
 
   const [template, setTemplate] = useState(null);
-  // Start true so we don't flash the empty form before router.query hydrates
-  // (Next.js static export: query is {} until router.isReady flips).
-  const [templateLoading, setTemplateLoading] = useState(true);
+  // The ?from= whose answer has landed.
+  const [answeredFrom, setAnsweredFrom] = useState(null);
   const [templateError, setTemplateError] = useState('');
+  // Loading until the router is ready, so we don't flash the empty form before router.query hydrates
+  // (Next.js static export: query is {} until router.isReady flips).
+  const templateLoading = !router.isReady || (Boolean(fromId) && answeredFrom !== fromId);
 
   useEffect(() => {
-    if (!router.isReady) return;
-    if (!fromId) {
-      setTemplate(null);
-      setTemplateLoading(false);
-      return;
-    }
+    if (!router.isReady || !fromId) return;
     let cancelled = false;
-    setTemplateLoading(true);
     getBuild(fromId)
       .then((doc) => {
         if (cancelled) return;
         // Strip title to force the user to name their variant; keep everything else.
         setTemplate({ ...doc, title: `` });
-        setTemplateLoading(false);
+        setAnsweredFrom(fromId);
       })
       .catch((err) => {
         if (cancelled) return;
         setTemplateError(err?.message || 'Couldn\'t load the template.');
-        setTemplateLoading(false);
+        setAnsweredFrom(fromId);
       });
     return () => {
       cancelled = true;
@@ -52,7 +48,7 @@ const NewBuild = () => {
   }, [router.isReady, fromId]);
 
   // If auth resolves and the user isn't signed in, bounce back to the public
-  // list page — a single loader is shown until the form is interactive.
+  // list page: a single loader is shown until the form is interactive.
   useEffect(() => {
     if (authReady && !signedIn) {
       router.replace('/tools/builds');
@@ -78,7 +74,7 @@ const NewBuild = () => {
         {notReady ? (
           <SimpleLoader message={loaderMessage}/>
         ) : (
-          <BuildForm mode="create" initialBuild={template} backHref="/tools/builds"/>
+          <BuildForm mode="create" initialBuild={fromId ? template : null} backHref="/tools/builds"/>
         )}
       </Stack>
     </>

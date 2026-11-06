@@ -7,17 +7,17 @@ import { styled } from '@mui/material/styles';
 import { Box, Chip, TextField } from '@mui/material';
 import { ACCENT } from '@utility/builds/classes';
 
-// Dark paper surface — BuildCard, tab cards, sticky form toolbar, etc.
+// Paper surface: BuildCard, tab cards, sticky form toolbar, etc.
 // Based on Box so callers can compose layout (flex row / column / grid)
 // without needing a semantically-wrong Card wrapper.
-export const SurfaceCard = styled(Box)({
-  background: '#1C252E',
+export const SurfaceCard = styled(Box)(({ theme }) => ({
+  background: (theme.vars || theme).palette.background.paper,
   border: '1px solid rgba(255,255,255,0.05)',
   borderRadius: 8,
   boxShadow: 'none'
-});
+}));
 
-// Compact uppercase tag chip — idle, soft-tinted. Consumers that need a
+// Compact uppercase tag chip: idle, soft-tinted. Consumers that need a
 // selected / hover state should pass `sx` overrides or the MUI `color` prop.
 export const TagChip = styled(Chip)({
   height: 20,

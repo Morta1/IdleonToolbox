@@ -11,7 +11,7 @@ import { cleanUnderscore, prefix } from '@utility/helpers';
 import { formatTalentName } from '@utility/builds/itemRefs';
 
 // Inline @-mention menu. Anchored to a virtual element at the caret's pixel
-// coordinates so the menu pops up right below the current character — not
+// coordinates so the menu pops up right below the current character: not
 // below the entire textarea.
 //
 // Click handlers use onMouseDown + preventDefault so clicking a row doesn't
@@ -26,7 +26,7 @@ const MentionMenu = ({ open, coords, items, selectedIdx, onSelect }) => {
     if (el?.scrollIntoView) el.scrollIntoView({ block: 'nearest' });
   }, [open, selectedIdx]);
 
-  // Virtual element for Popper — reads its bounding rect from `coords` each
+  // Virtual element for Popper: reads its bounding rect from `coords` each
   // time Popper queries it. Fresh object per render so Popper re-runs its
   // position calculation when the caret moves.
   const virtualAnchor = useMemo(() => {
