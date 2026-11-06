@@ -51,7 +51,7 @@ const pinnedNameSx = (pinTop) => ({
 
 // A character's name row: class sprite, name, class and level on one muted line, the trophy at the right
 const NameRow = ({ character, side, pinTop }) => {
-  const { name, classIndex, class: className, level, equipment } = character;
+  const { name, classIndex, class: className, level, equipment, hasData } = character;
   const trophy = equipment?.reduce((res, { rawName }) => (!res && rawName?.includes('Trophy') ? rawName : res), '');
   return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={[
     { boxSizing: 'border-box' },
@@ -66,7 +66,7 @@ const NameRow = ({ character, side, pinTop }) => {
                        sx={{ flex: '0 10000 102px', minWidth: 64, height: 19, objectFit: 'contain', objectPosition: 'right', display: 'block' }}/> : null}
       </Stack>
       <Typography color={'text.secondary'} component={'div'} sx={{ ...ONE_LINE_SX, fontSize: 13, lineHeight: '18px' }}>
-        {[cleanUnderscore(className), formatNum(level ?? 0, 'level')].filter(Boolean).join(' · ')}
+        {hasData ? `${cleanUnderscore(className)} · ${formatNum(level, 'level')}` : formatNum(0, 'level')}
       </Typography>
     </Stack>
   </Stack>;

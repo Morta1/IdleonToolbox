@@ -186,7 +186,7 @@ const CharactersList = () => {
     }
 
     return state?.characters?.map((character, index) => {
-      const { name, classIndex, level } = character;
+      const { name, classIndex, level, hasData } = character;
       const classIcon = classIconOf(classIndex);
       return <ListItem
         sx={ONLY_ROW_SX}
@@ -206,7 +206,7 @@ const CharactersList = () => {
         <ListItemText
           sx={{ height: 30, margin: 0 }} id={name} primary={name}
           secondary={<>
-            {formatNum(level ?? 0, 'level')}
+            {formatNum(hasData ? level : 0, 'level')}
             <span data-only=""> · <Link component="button" type="button" underline="always" color="inherit"
                                         aria-label={`Show only ${name}`} onClick={() => handleCharacterChange(null, null, index)}
                                         sx={ONLY_SX}>Only</Link></span>

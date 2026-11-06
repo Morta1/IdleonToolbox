@@ -76,7 +76,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
       <Panel.KV label={<Stack direction={'row'} alignItems={'center'} gap={0.5} component={'span'}>
         AFK time
         {isOvertime ? <InfoButton label={'AFK time'}>This character has been AFK more than 10 hours with Unending Energy equipped.</InfoButton> : null}
-      </Stack>} value={isActive ? <StatusText status={'active'}/> : afkTime ? <Timer type={'up'} date={afkTime} lastUpdated={lastUpdated} component={'span'}/> : '-'}/>
+      </Stack>} value={isActive ? <StatusText status={'active'}/> : character?.hasData ? <Timer type={'up'} date={afkTime} lastUpdated={lastUpdated} component={'span'}/> : '-'}/>
       <Fact {...facts['Kill per kill']}/>
       <Fact {...facts['Kills per hour']}/>
       <Fact {...facts['Non consume chance']}/>

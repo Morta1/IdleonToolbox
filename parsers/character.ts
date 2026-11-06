@@ -319,6 +319,8 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
     }
   }, {});
   character.level = char?.[`Lv0`]?.[0] || 0;
+  // A save can hold a character with no stats: level stays a number for every reader, and this says it's a stand-in
+  character.hasData = char?.PersonalValuesMap?.StatList?.[4] !== undefined;
   // inventory bags used
   const rawInvBagsUsed = char?.[`InvBagsUsed`]
   const bags = Object.keys(rawInvBagsUsed);
