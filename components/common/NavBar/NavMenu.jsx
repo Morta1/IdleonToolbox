@@ -6,7 +6,7 @@ import { IconChevronDown, IconChevronRight } from '@tabler/icons-react';
 import { groupOf, MENUS, topNavLabel } from '@utility/navMenu';
 import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
-import { trackEvent } from '@utility/analytics';
+import { trackEvent, trackMenuClose, trackMenuLink, trackMenuOpen } from '@utility/analytics';
 import usePageTop from '@hooks/usePageTop';
 import useFrame from './useFrame';
 import { capPageWidth, TALL } from './frame';
@@ -33,6 +33,11 @@ export const useBarMenu = () => {
   const restTimer = useRef(null);
   const swappedAt = useRef(0);
   useEffect(() => () => clearTimeout(restTimer.current), []);
+  useEffect(() => {
+    if (!openMenu) return undefined;
+    trackMenuOpen(openMenu);
+    return () => trackMenuClose(openMenu);
+  }, [openMenu]);
   const endRest = () => clearTimeout(restTimer.current);
   const toggleMenu = (menu) => {
     endRest();
@@ -204,6 +209,7 @@ export const NavMenuPanel = ({ menu, onClose }) => {
     query: sessionQuery(router?.query),
     onNavigate: (url) => {
       trackEvent('handle_nav', { event_category: url, event_label: 'engagement', value: 1, source: 'menu' });
+      trackMenuLink();
       onClose();
     }
   };

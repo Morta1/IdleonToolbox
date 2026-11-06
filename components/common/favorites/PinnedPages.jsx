@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useRouter } from 'next/router';
 import usePin from '@components/common/favorites/usePin';
@@ -23,6 +23,7 @@ import { IconFileExport, IconGripVertical, IconX } from '@tabler/icons-react';
 import { Reorder } from 'framer-motion';
 import { getPageIcon, PAGE_BY_URL } from '@utility/pageIndex';
 import { sessionQuery } from '@utility/nav-query';
+import { trackMenuClose, trackMenuLink, trackMenuOpen } from '@utility/analytics';
 import { handleDownload, prefix } from '@utility/helpers';
 import FileUploadButton, { FILE_BUTTON_SX } from '@components/common/DownloadButton';
 import { notify } from '@components/common/Overlays/notify';
@@ -40,6 +41,12 @@ const PinnedPages = () => {
   const router = useRouter();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+  // The bar's popover only: on a phone the list is a fold of the phone menu
+  useEffect(() => {
+    if (!open) return undefined;
+    trackMenuOpen('pinned');
+    return () => trackMenuClose('pinned');
+  }, [open]);
   const handleClick = (event) => {
     if (isXs) {
       setIsOpen(!isOpen);
@@ -82,6 +89,7 @@ const PinnedPages = () => {
   }
 
   const handleLinkClick = (event, page) => {
+    trackMenuLink();
     // Let the browser handle modified clicks (ctrl/cmd/shift/middle) so they open a new tab or window.
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
     event.preventDefault();

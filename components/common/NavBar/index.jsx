@@ -22,6 +22,7 @@ import { openCookiePolicy } from '@components/common/Etc/CookiePolicyDialog';
 import { DISCORD_BOT_INSTALL_URL, DISCORD_SERVER_URL, trackBotInstallClick } from '@components/discordLinks';
 import NextLink from 'next/link';
 import { sessionQuery } from '@utility/nav-query';
+import { trackMenuLink } from '@utility/analytics';
 import useNavPrefetch from '@hooks/useNavPrefetch';
 import { NavMenuPanel, useBarMenu } from './NavMenu';
 import { BAR_TIGHT, capPageWidth, pageColumnSx, PHONE_SIDES } from './frame';
@@ -42,6 +43,7 @@ const NavBar = ({ children }) => {
   useEffect(() => {
     const close = (url) => {
       if (new URL(url, window.location.href).pathname === window.location.pathname) return;
+      trackMenuLink();
       setOpenMenu(null);
       setPhoneMenuAt(null);
     };
