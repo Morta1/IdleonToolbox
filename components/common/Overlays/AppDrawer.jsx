@@ -7,13 +7,12 @@ import NoticeSlot from './NoticeSlot';
 import SheetContext from '@components/common/cards/SheetContext';
 import { navBarHeight } from '@components/constants';
 
-// Detail beside the page (Overlays board): from the right, 420 px, on the card surface with a
+// Detail beside the page (Overlays board): from the right, 420 px by default, on the card surface with a
 // divider edge; a bottom sheet on a phone. It starts under the app bar, whose search and sign-in sit at
 // its right end, and covers the band under it (the band is drawer + 1).
 const PAPER_SX = (theme) => ({
   top: navBarHeight,
   height: `calc(100% - ${navBarHeight}px)`,
-  width: 420,
   maxWidth: '100vw',
   display: 'flex',
   flexDirection: 'column',
@@ -22,18 +21,25 @@ const PAPER_SX = (theme) => ({
   boxShadow: (theme.vars || theme).palette.shadow.floating
 });
 
-// aside: beside the title, before the close (a breakdown's total). toolbar: rows that stay put under
+// Open drawers, newest last: a drawer opened from inside another (a breakdown in a stamp's details) takes Esc first.
+const openDrawers = [];
+
+// aside: beside the title, before the close (a breakdown's total). controls: see OverlayHeader. toolbar: rows that stay put under
 // the header while the body scrolls. phoneActions: the phone sheet's actions (a picker's Done); the desktop
-// drawer applies each change as it is made and closes from its x. The types are for Breakdown.tsx, which the build type-checks: a
+// drawer applies each change as it is made and closes from its x. width: for a page whose grid stays in use beside it.
+// keepOpenOn: a selector for what a click may land on without closing it (the tiles that swap what it shows). focusBack: for
+// such a page, where Esc, the close button and a sheet's end hand the focus, in place of what first opened it.
+// The types are for Breakdown.tsx, which the build type-checks: a
 // .jsx prop with no type reads as required, and one defaulted to null reads as null only.
 /**
  * @param {{ open: boolean, onClose: () => void, title: import('react').ReactNode,
  *   subtitle?: import('react').ReactNode, icon?: import('react').ReactNode, aside?: import('react').ReactNode,
- *   toolbar?: import('react').ReactNode, onExited?: () => void, children?: import('react').ReactNode,
- *   phoneActions?: { label: string, main?: boolean, onClick?: () => void }[] }} props
+ *   controls?: import('react').ReactNode, toolbar?: import('react').ReactNode, onExited?: () => void,
+ *   children?: import('react').ReactNode, phoneActions?: { label: string, main?: boolean, onClick?: () => void }[],
+ *   width?: number, keepOpenOn?: string, focusBack?: () => HTMLElement | null }} props
  */
-const AppDrawer = ({ open, onClose, title, subtitle = null, icon = null, aside = null, toolbar = null,
-                     onExited = undefined, phoneActions = undefined, children }) => {
+const AppDrawer = ({ open, onClose, title, subtitle = null, icon = null, aside = null, controls = null, toolbar = null,
+                     onExited = undefined, phoneActions = undefined, width = 420, keepOpenOn = undefined, focusBack = undefined, children }) => {
   const titleId = useId();
   const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   // The desktop drawer is mounted from its opening to the end of its exit only: a page holds dozens of
@@ -44,7 +50,7 @@ const AppDrawer = ({ open, onClose, title, subtitle = null, icon = null, aside =
   const opener = useRef(null);
   const closeToOpener = () => {
     onClose();
-    opener.current?.focus?.({ preventScroll: true });
+    (focusBack?.() ?? opener.current)?.focus?.({ preventScroll: true });
   };
 
   // Not modal on the desktop, so the drawer hears Esc from anywhere on the page (and moves the focus in
@@ -52,14 +58,21 @@ const AppDrawer = ({ open, onClose, title, subtitle = null, icon = null, aside =
   // it where that click put it. A menu inside the drawer stops its own Esc before it gets here.
   useEffect(() => {
     if (!open || isPhone) return undefined;
+    openDrawers.push(titleId);
+    return () => {
+      openDrawers.splice(openDrawers.indexOf(titleId), 1);
+    };
+  }, [open, isPhone]);
+  useEffect(() => {
+    if (!open || isPhone) return undefined;
     const onKey = (event) => {
-      if (event.key === 'Escape') closeToOpener();
+      if (event.key === 'Escape' && openDrawers.at(-1) === titleId) closeToOpener();
     };
     document.addEventListener('keydown', onKey);
     return () => document.removeEventListener('keydown', onKey);
-  }, [open, isPhone]);
+  }, [open, isPhone, focusBack]);
 
-  const header = <OverlayHeader titleId={titleId} title={title} subtitle={subtitle} icon={icon} aside={aside}
+  const header = <OverlayHeader titleId={titleId} title={title} subtitle={subtitle} icon={icon} aside={aside} controls={controls}
                                onClose={isPhone ? onClose : closeToOpener}/>;
 
   if (isPhone) {
@@ -67,7 +80,10 @@ const AppDrawer = ({ open, onClose, title, subtitle = null, icon = null, aside =
     return <SheetContext value={null}>
       <OverlaySheet open={open} onClose={onClose} labelledBy={titleId} header={header} toolbar={toolbar}
                     actions={phoneActions?.length ? <OverlayActions actions={phoneActions} onClose={onClose} sheet/> : null}
-                    onExited={onExited} gutters={false} fill>
+                    onExited={() => {
+                      focusBack?.()?.focus?.();
+                      onExited?.();
+                    }} gutters={false} fill>
         {children}
       </OverlaySheet>
     </SheetContext>;
@@ -79,8 +95,8 @@ const AppDrawer = ({ open, onClose, title, subtitle = null, icon = null, aside =
   // under the one opening.
   return <Portal>
     <SheetContext value={null}>
-      <ClickAwayListener onClickAway={() => {
-        if (open) onClose();
+      <ClickAwayListener onClickAway={(event) => {
+        if (open && !(keepOpenOn && event.target.closest?.(keepOpenOn))) onClose();
       }}>
         <Drawer variant="persistent" anchor="right" open={open}
                 SlideProps={{
@@ -97,7 +113,7 @@ const AppDrawer = ({ open, onClose, title, subtitle = null, icon = null, aside =
                 }}
                 PaperProps={{
                   role: 'dialog', 'aria-labelledby': titleId,
-                  sx: [PAPER_SX, { zIndex: (theme) => theme.zIndex.drawer + (open ? 2 : 1) }]
+                  sx: [PAPER_SX, { width, zIndex: (theme) => theme.zIndex.drawer + (open ? 2 : 1) }]
                 }}>
           <Box ref={body} tabIndex={-1} sx={{ display: 'flex', flexDirection: 'column', flex: 1, minHeight: 0, outline: 'none' }}>
             {header}

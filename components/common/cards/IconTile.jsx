@@ -70,11 +70,10 @@ const TILE_MAX = 'var(--tile-max, 72px)';
 // sharedNote goes with onSelect: the tile's key in the note its page shares across the grid (InfoButton's SharedNote). A
 // mouse over it previews the note; a click hands event.currentTarget over as the anchor, and selected says the note is kept
 // open on it (the Slab's 1,938 items).
-// phoneDetails go with onSelect: below 600 px, where the page's details Panel does not show, a pick also pins the
-// picked tile's details as its note (sized to a table), so the grid keeps the screen.
+// buttonProps go with onSelect, onto the tile's button (the mark a page finds its tile by).
 // sub: a dimmer line under the value, inside a sheet (a talent's "/ max"). kind is what numOrNode takes.
 const IconTile = ({ icon, alt = '', value, kind, sub, frame, height = 72, badge, mark, markAlt, status, details, onSelect, selected,
-  sharedNote, phoneDetails }) => {
+  sharedNote, buttonProps }) => {
   const small = Boolean(useSheet());
   const empty = status === 'empty';
   const hasValue = value !== undefined && !empty;
@@ -125,16 +124,12 @@ const IconTile = ({ icon, alt = '', value, kind, sub, frame, height = 72, badge,
         <GameIcon src={mark} size={24} alt={markAlt ?? ''}/>
       </Box> : null}
   </Box>;
-  if (onSelect && phoneDetails) {
-    return <NoteTrigger note={phoneDetails} label={emptyName} table phoneOnly onPick={onSelect} block
-                        buttonProps={{ 'aria-pressed': Boolean(selected) }}
-                        sx={{ maxWidth: TILE_MAX, borderRadius: '8px' }}>{tile}</NoteTrigger>;
-  }
   if (onSelect) {
     return <ButtonBase component={'span'} disableRipple aria-label={emptyName} onClick={onSelect}
                        {...(sharedNote
                          ? { [NOTE_ANCHOR]: sharedNote, 'aria-expanded': Boolean(selected), 'aria-describedby': selected ? SHARED_NOTE_ID : undefined }
                          : { 'aria-pressed': Boolean(selected) })}
+                       {...buttonProps}
                        sx={small ? { display: 'flex', width: '100%', alignItems: 'stretch', borderRadius: '6px' }
                          : { display: 'flex', width: '100%', maxWidth: TILE_MAX, borderRadius: '8px' }}>{tile}</ButtonBase>;
   }

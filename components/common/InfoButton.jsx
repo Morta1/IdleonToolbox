@@ -11,7 +11,6 @@ const TABLE_NOTE_WIDTH = 'calc(100vw - 32px)';
 // A note keeps the page's 16 px gutter from the screen's edges: a phone note opened flush to them. One too tall for either
 // side of its trigger opens beside it, where it slides to stay in the window (a statue's, on a tile mid-screen).
 const NOTE_POPPER = { popperOptions: { modifiers: [{ name: 'preventOverflow', options: { padding: 16 } }, { name: 'flip', options: { fallbackPlacements: ['top', 'right', 'left'] } }] } };
-const PHONE_NOTE_POPPER = { ...NOTE_POPPER, sx: { display: { sm: 'none' } } };
 
 // A tile note sits 8 px under its tile, from its left edge (Info board): MUI's are 14 and 2 px
 const UNDER_TILE_NOTE = { sx: { '.MuiTooltip-popper[data-popper-placement*="bottom"] &': { mt: 1, ml: 0 } } };
@@ -46,9 +45,7 @@ const NoteBody = ({ bodyRef, takeFocus, children }) => {
 // (an icon); aria-expanded says it is pinned, which is also how a caller styles that state. block makes the trigger
 // as wide as its parent, for content that takes the width it is given (a progress bar). table is a note that holds a
 // table: it sizes to the table, up to the viewport less the page's gutters, so every column shows without a scroll.
-// onPick and phoneOnly make the trigger a picker whose note shows only below 600 px, where the page has no room for
-// the picked thing's details beside its grid (Stamps): a click picks, and on a phone it also pins the note.
-export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, phoneOnly, buttonProps, underTile, children }) => {
+export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, underTile, children }) => {
   const [pinned, setPinned] = useState(false);
   const [previewing, setPreviewing] = useState(false);
   const [pinnedByKey, setPinnedByKey] = useState(false);
@@ -101,7 +98,7 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, p
         onClose={handleClose}
         disableTouchListener
         placement={underTile ? 'bottom-start' : 'bottom'}
-        slotProps={{ popper: { ...(phoneOnly ? PHONE_NOTE_POPPER : NOTE_POPPER), ...tileAnchor }, ...(underTile ? { tooltip: UNDER_TILE_NOTE } : {}) }}
+        slotProps={{ popper: { ...NOTE_POPPER, ...tileAnchor }, ...(underTile ? { tooltip: UNDER_TILE_NOTE } : {}) }}
       >
         <ButtonBase
           ref={triggerRef}
@@ -109,11 +106,9 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, p
           disableRipple
           aria-label={label}
           aria-expanded={pinned}
-          {...buttonProps}
           onClick={(event) => {
             // A note never triggers the card, row or sort header it sits in
             event.stopPropagation();
-            onPick?.(event);
             const next = !pinned;
             // A trigger inside another note leaves that note open: it sits on the note, not beside it
             if (next && !event.currentTarget.closest('[role="tooltip"]')) pinOne(setPinned);

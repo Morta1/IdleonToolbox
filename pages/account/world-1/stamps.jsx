@@ -1,5 +1,5 @@
-import { Box, Stack, Typography } from '@mui/material';
-import { IconChevronDown } from '@tabler/icons-react';
+import { Box, IconButton, Stack, Typography, useMediaQuery } from '@mui/material';
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, formatNum, getCoinsArray } from '@utility/helpers';
@@ -14,12 +14,14 @@ import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
+import AppDrawer from '@components/common/Overlays/AppDrawer';
 import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
 import StatusText from '@components/common/StatusText';
 import Toolbar from '@components/common/Toolbar';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import useToolbarState from '@hooks/useToolbarState';
+import { SCROLL_TARGET_MARGIN } from '@hooks/usePageTop';
 import {
   calcStampLevels,
   evaluateStamp,
@@ -41,7 +43,6 @@ import { openWikiEntity } from '@utility/wiki/item-page';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { focusRing } from '../../../styles/theme/theme';
 import { createBreakdown, multiplier as multiplierLine } from '@parsers/breakdown';
 
 // The game's reducer grows by the Hydrogen atom's daily bonus up to 90% (Atom Collider): the what-if steps it can take
@@ -62,6 +63,19 @@ const STATE_LABELS = Object.fromEntries(STAMP_STATES);
 // The state's word in a stamp's details: the two that level up are ready, a shortfall a problem, the rest a to-do
 const STATE_TONES = { upgradable: 'ready', reduction: 'ready', equipments: 'needs', level: 'needs' };
 const STAMPS_TOOLBAR = { show: 'all' };
+// A stamp's details open beside the grid: at 420 px, the other drawers' width, a 1920 page's last tile column sits half under it.
+const DRAWER_WIDTH = 380;
+// Beside a side ad the drawer sits over the ad's rail and reaches at most this far into the page, the page at its narrowest
+// between two ads: at least 45 px of a tile stays clear, so the grid stays put. Past this the page took the rail's room (a
+// blocker, or no ad under 850 px) and the drawer would cover whole columns, so the grid makes room while it's open.
+const RAIL_REACH = 65;
+const TILE = '[data-stamp]';
+const tileOf = (rawName) => document.querySelector(`[data-stamp="${rawName}"]`);
+// A tile brought into view stops short of the bar, the band and the Toolbar, and of the anchor ad
+const TILE_SCROLL_SX = { [`& ${TILE}`]: { scrollMarginTop: SCROLL_TARGET_MARGIN + 64, scrollMarginBottom: 'calc(16px + var(--nitro-ad-height, 0px))' } };
+const STEP_SX = { width: 36, height: 36, border: 1, borderColor: 'outline', borderRadius: '6px', color: 'text.primary' };
+// A caption's height, with a thumb's room around it on a coarse pointer
+const WIKI_LINK_SX = { position: 'relative', '@media (pointer: coarse)': { '&::before': { content: '""', position: 'absolute', inset: '-12px -4px' } } };
 
 const Stamps = () => {
   const { state } = useContext(AppContext);
@@ -97,8 +111,11 @@ const Stamps = () => {
   const reducerUnknown = atomsFailed && !reducerSet;
   const [view, setView, resetView] = useToolbarState('stamps', STAMPS_TOOLBAR);
   const [picked, setPicked] = useState(null);
-  // The details Panel pins under the Toolbar, so a stamp picked far down the grid shows its details in view
-  const [stickyTop, setStickyTop] = useState(0);
+  const [detailsOpen, setDetailsOpen] = useState(false);
+  const [drawerCover, setDrawerCover] = useState(0);
+  const gridRef = useRef(null);
+  const detailsRef = useRef(null);
+  const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const stampsPerDay = getStampsPerDay(account);
   const localStamps = updateStamps(account, state?.characters, settings?.gilded, reducer, settings?.bestCarry, true);
   const exaltedMulti = getExaltedStampBonus(account);
@@ -142,28 +159,65 @@ const Stamps = () => {
     const before = levelsSnapshot?.levels?.[category]?.[index];
     return settings?.showGained && !stampsFailed && level > before ? level - before : 0;
   };
-  const categories = Object.entries(localStamps ?? {}).map(([category, list]) => ({
-    category,
-    levels: list.reduce((sum, { level }) => sum + (level ?? 0), 0),
-    shown: list.map((stamp, index) => ({
+  const categories = Object.entries(localStamps ?? {}).map(([category, list]) => {
+    const all = list.map((stamp, index) => ({
       ...stamp,
       category,
       state: states[category]?.[index],
       gained: gainedOf(category, index, stamp.level),
       bonus: getStampBonus(account, category, stamp.rawName, stamp.bestCharacter),
       exalted: Boolean(account?.compass?.exaltedStamps?.[category]?.[index])
-    })).filter((stamp) => isShownState(stamp.state))
-  }));
+    }));
+    return {
+      category,
+      levels: list.reduce((sum, { level }) => sum + (level ?? 0), 0),
+      all,
+      shown: all.filter((stamp) => isShownState(stamp.state))
+    };
+  });
   // Decision 3 (b): a note per tile could not show the Next levels table's four columns (a tile's note is 260 px), so
-  // one Panel shows the picked stamp (the first one shown until a tile is picked). A failed section has no details
+  // one drawer shows the picked stamp. It holds that stamp while it slides out, even one a filter just took off the grid.
+  // A failed section has no details
   const shownStamps = stampsFailed ? [] : categories.flatMap(({ shown }) => shown);
-  const pickedStamp = shownStamps.find(({ rawName }) => rawName === picked) ?? shownStamps[0];
+  const pickedStamp = categories.flatMap(({ all }) => all).find(({ rawName }) => rawName === picked);
+  const pickedIndex = shownStamps.findIndex(({ rawName }) => rawName === picked);
+  const drawerOpen = detailsOpen && pickedIndex >= 0;
+  const clearance = drawerOpen && !isPhone ? drawerCover : 0;
   const detailsContext = {
     keepGreenstacks: settings?.keepGreenstacks, reducer, reducerUnknown, exaltedText: exaltedFailed ? null : exaltedText,
     exaltedMulti: 1 + (exaltedMulti?.value ?? 0) / 100,
     vaultBonus: getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 16),
     charmBonus: getCharmBonus(account, 'Liqorice_Rolle')
   };
+
+  // The fixed drawer's left edge against the grid's right one, read while it's open. The grid's own padding moves neither.
+  // A blocker's answer widens the page with no resize, and a resize moves a centred page with no change of width: both listen.
+  useEffect(() => {
+    const grid = gridRef.current;
+    if (!drawerOpen || !grid || typeof ResizeObserver === 'undefined') return undefined;
+    const measure = () => {
+      const reach = grid.getBoundingClientRect().right - (document.documentElement.clientWidth - DRAWER_WIDTH);
+      setDrawerCover(reach > RAIL_REACH ? reach : 0);
+    };
+    const observer = new ResizeObserver(measure);
+    observer.observe(grid);
+    window.addEventListener('resize', measure);
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', measure);
+    };
+  }, [drawerOpen]);
+
+  // Making room rewraps the grid, and a tile can leave the screen either way: the picked one stays in view
+  useEffect(() => {
+    if (picked && !isPhone) tileOf(picked)?.scrollIntoView({ block: 'nearest' });
+  }, [clearance, picked, isPhone]);
+
+  // A swapped stamp's details start at their top
+  useEffect(() => {
+    const body = detailsRef.current?.parentElement;
+    if (body) body.scrollTop = 0;
+  }, [picked]);
 
   return (
     (<div>
@@ -211,28 +265,14 @@ const Stamps = () => {
       </PageSummary>
       <Box>
         {stampsFailed ? null : <Toolbar state={view} defaults={STAMPS_TOOLBAR} onChange={setView} onReset={resetView}
-                                        total={allStates.length} shown={shownCount} noun={'stamps'}
-                                        onStickyBottom={setStickyTop}>
+                                        total={allStates.length} shown={shownCount} noun={'stamps'}>
+          {/* A phone's row holds the Lead and the Filters button; from 600 px it stands beside the Show field */}
+          {shownCount ? <Toolbar.Lead><PickLine sx={{ display: { xs: 'flex', sm: 'none' }, order: 1 }}/></Toolbar.Lead> : null}
           <Toolbar.Show options={[['all', 'All stamps', allStates.length], ...STAMP_STATES.map(([key, label]) => [key, label, counts[key],
             key === 'impossible' ? `An out of reach stamp costs more than your best carry capacity even at the ${MAX_STAMP_REDUCTION}% reducer cap, so no reducer unlocks it. Being short on the material itself is Short on materials.` : undefined])]}/>
+          {shownCount ? <PickLine sx={{ display: 'flex' }}/> : null}
         </Toolbar>}
-        {pickedStamp ? <Panel icon={<GameIcon src={`data/${pickedStamp.rawName}.png`} size={24} alt={''}
-                                              frame={pickedStamp.exalted ? 'etc/Exalted_Stamp_Frame.png' : undefined}/>}
-                              title={cleanUnderscore(pickedStamp.displayName)}
-                              meta={pickedStamp.maxLevel > 0 ? formatNum(pickedStamp.level, 'level', { max: pickedStamp.maxLevel }) : undefined}
-                              aside={<Link component={'button'} variant={'body2'} onClick={() => openWikiEntity(`item:${pickedStamp.rawName}`)}>Wiki page ›</Link>}
-                              sx={{
-                                // Below 600 px the band, the Toolbar and a pinned Panel left the grid half the screen:
-                                // a picked tile shows its details as its note there instead
-                                display: { xs: 'none', sm: 'block' },
-                                mb: 2, position: 'sticky', top: stickyTop, zIndex: (theme) => theme.zIndex.appBar - 2
-                              }}>
-          <Box sx={{ containerType: 'inline-size' }}>{stampDetails(pickedStamp, detailsContext)}</Box>
-        </Panel> : null}
-        {/* On a phone a pick opens a note, so the first stamp's default pick draws no line until one is made: CSS, as the
-            Panel it stands for shows only from 600 px */}
-        <Stack gap={2} data-default-pick={pickedStamp?.rawName !== picked}
-               sx={{ '&[data-default-pick="true"] [aria-pressed="true"] > *': { '@media (max-width: 599.95px)': { borderColor: 'divider', boxShadow: 'none' } } }}>
+        <Stack ref={gridRef} gap={2} sx={[TILE_SCROLL_SX, clearance > 0 && { pr: `${clearance}px` }]}>
           {categories.map(({ category, levels, shown }) => {
             // A category with no stamp in the picked state draws no Panel over nothing
             if (!shown.length) return null;
@@ -242,9 +282,11 @@ const Stamps = () => {
                 <CardGrid size={'icon'}>
                   {shown.map((stamp) => stampTile(stamp, {
                     failed: stampsFailed,
-                    selected: stamp.rawName === pickedStamp?.rawName,
-                    onSelect: stampsFailed ? undefined : () => setPicked(stamp.rawName),
-                    phoneDetails: stampsFailed ? undefined : stampNote(stamp, detailsContext)
+                    selected: drawerOpen && stamp.rawName === picked,
+                    onSelect: stampsFailed ? undefined : () => {
+                      setPicked(stamp.rawName);
+                      setDetailsOpen(true);
+                    }
                   }))}
                 </CardGrid>
               </Box>
@@ -252,14 +294,41 @@ const Stamps = () => {
           })}
         </Stack>
       </Box>
+      {stampsFailed ? null : <AppDrawer open={drawerOpen} onClose={() => setDetailsOpen(false)} width={DRAWER_WIDTH} keepOpenOn={TILE}
+                                        focusBack={() => tileOf(picked)}
+                                        title={pickedStamp ? cleanUnderscore(pickedStamp.displayName) : ''}
+                                        icon={pickedStamp ? <GameIcon src={`data/${pickedStamp.rawName}.png`} size={isPhone ? 24 : 32} alt={''}
+                                                                      frame={pickedStamp.exalted ? 'etc/Exalted_Stamp_Frame.png' : undefined}/> : null}
+                                        subtitle={pickedStamp ? <>
+                                          {pickedStamp.maxLevel > 0 ? `${formatNum(pickedStamp.level, 'level', { max: pickedStamp.maxLevel })} · ` : null}
+                                          <Link component={'button'} variant={'caption'} onClick={() => openWikiEntity(`item:${pickedStamp.rawName}`)} sx={WIKI_LINK_SX}>Wiki page ›</Link>
+                                        </> : null}
+                                        controls={<Stack direction={'row'} gap={0.5} sx={{ display: { xs: 'flex', sm: 'none' } }}>
+                                          <IconButton aria-label={'Previous stamp'} disabled={pickedIndex <= 0} sx={STEP_SX}
+                                                      onClick={() => setPicked(shownStamps[pickedIndex - 1].rawName)}>
+                                            <IconChevronLeft size={18}/>
+                                          </IconButton>
+                                          <IconButton aria-label={'Next stamp'} disabled={pickedIndex < 0 || pickedIndex >= shownStamps.length - 1} sx={STEP_SX}
+                                                      onClick={() => setPicked(shownStamps[pickedIndex + 1].rawName)}>
+                                            <IconChevronRight size={18}/>
+                                          </IconButton>
+                                        </Stack>}>
+        {pickedStamp ? <Box ref={detailsRef} sx={{ display: 'grid', gap: 1.5, px: 3, pb: 3 }}>{stampDetails(pickedStamp, detailsContext)}</Box> : null}
+      </AppDrawer>}
     </div>)
   );
 };
 
+// Nothing shows until a tile is picked, so the Toolbar says how
+const PickLine = ({ sx }) => <Typography variant={'body2'} color={'text.secondary'} component={'div'}
+                                         sx={[{ alignItems: 'center', minHeight: { xs: 44, sm: 40 } }, sx]}>
+  Pick a stamp to see its details
+</Typography>;
+
 // A stamp as a tile (Decision 3): its level, the exalted frame, grey until found, the triangle while it can level up (at
 // the reducer in use or the step below), and the levels gained since the snapshot as a count, which wins over it.
-// A tap picks it for the details Panel, or below 600 px pins its details as its note
-const stampTile = (stamp, { failed, selected, onSelect, phoneDetails }) => <IconTile
+// A tap picks it for the details drawer, which it keeps open and swaps
+const stampTile = (stamp, { failed, selected, onSelect }) => <IconTile
   key={stamp.rawName}
   icon={`data/${stamp.rawName}.png`}
   alt={cleanUnderscore(stamp.displayName)}
@@ -269,19 +338,7 @@ const stampTile = (stamp, { failed, selected, onSelect, phoneDetails }) => <Icon
   badge={stamp.gained > 0 ? `+${formatNum(stamp.gained)}` : STATE_TONES[stamp.state] === 'ready' ? 'up' : undefined}
   selected={selected}
   onSelect={onSelect}
-  phoneDetails={phoneDetails}/>;
-
-// The details as a phone's note: the Panel's name, level and wiki link over the same details
-const stampNote = (stamp, context) => <Stack gap={1}>
-  <Stack direction={'row'} alignItems={'baseline'} justifyContent={'space-between'} gap={1}>
-    <Typography variant={'body2'} component={'div'} sx={{ color: 'text.primary', fontWeight: 500 }}>
-      {`${cleanUnderscore(stamp.displayName)}${stamp.maxLevel > 0 ? `, ${formatNum(stamp.level, 'level', { max: stamp.maxLevel })}` : ''}`}
-    </Typography>
-    <Link component={'button'} variant={'body2'} onClick={() => openWikiEntity(`item:${stamp.rawName}`)} sx={{ flexShrink: 0 }}>
-      Wiki page ›</Link>
-  </Stack>
-  {stampDetails(stamp, context, true)}
-</Stack>;
+  buttonProps={{ 'data-stamp': stamp.rawName }}/>;
 
 // What a stamp costs to carry at the reducer in use: the smallest reducer that fits it, or none up to the cap
 const reducerLine = (minReduction, reducer) => {
@@ -303,55 +360,6 @@ const stampBoosts = ({ category, multiplier, stat, exalted }, { exaltedMulti, ex
   exalted ? { name: 'Exalted Stamps', value: exaltedText ? exaltedMulti : null } : null
 ].filter(Boolean);
 
-// The fade the phone's tab strip draws at the edge where more waits, on the Panel's surface
-const MORE_BELOW_SX = {
-  position: 'absolute', left: 0, right: 0, bottom: 0, height: 32, display: 'flex', alignItems: 'flex-end', justifyContent: 'center',
-  color: 'text.secondary', pointerEvents: 'none',
-  background: 'linear-gradient(to bottom, transparent, var(--mui-palette-background-paper) 70%)'
-};
-
-// The pinned Panel's body. A narrow Panel keeps the grid in view under it, so its body scrolls inside: only there is it a
-// stop for the keyboard, and only there is there anything for the cue to say. A container query can't set a tabIndex.
-const PinnedDetails = ({ children }) => {
-  const bodyRef = useRef(null);
-  const [scrolls, setScrolls] = useState(false);
-  const [moreBelow, setMoreBelow] = useState(false);
-  useEffect(() => {
-    const body = bodyRef.current;
-    if (!body || typeof ResizeObserver === 'undefined') return;
-    const measure = () => {
-      setScrolls(body.scrollHeight > body.clientHeight + 1);
-      setMoreBelow(body.scrollTop + body.clientHeight < body.scrollHeight - 1);
-    };
-    const observer = new ResizeObserver(measure);
-    observer.observe(body);
-    body.addEventListener('scroll', measure, { passive: true });
-    return () => {
-      observer.disconnect();
-      body.removeEventListener('scroll', measure);
-    };
-  }, [children]);
-  // Its ring draws inside, where its own edge clips it
-  return <Box sx={{ position: 'relative' }}>
-    <Box ref={bodyRef} {...(scrolls ? { tabIndex: 0, role: 'region', 'aria-label': 'Stamp details' } : {})}
-         sx={[(theme) => ({ '&:focus-visible': focusRing(theme, -2) }), {
-           display: 'grid',
-           gap: 2,
-           p: { xs: 1.5, sm: 2 },
-           alignItems: 'start',
-           gridTemplateColumns: 'minmax(0, 1fr)',
-           maxHeight: '30vh',
-           overflowY: 'auto',
-           // The Panel's width, not the window's: at 900 px a side ad leaves it 540 px. The table takes its own width beside the
-           // two text columns.
-           '@container (min-width: 760px)': { gridTemplateColumns: 'minmax(0, 1fr) auto minmax(0, 1fr)', maxHeight: 'none', overflowY: 'visible' }
-         }]}>
-      {children}
-    </Box>
-    {moreBelow ? <Box aria-hidden sx={MORE_BELOW_SX}><IconChevronDown size={16}/></Box> : null}
-  </Box>;
-};
-
 // Up to two factors read as words; more open as a breakdown from their product, each factor named on the line
 const boostLine = (boosts, stampName) => {
   const known = boosts.every(({ value }) => value != null);
@@ -371,7 +379,7 @@ const boostLine = (boosts, stampName) => {
 
 // The picked stamp's details, under its name: its sentence filled as the game fills it, its state in words, what the
 // next level costs against what you own, the next levels' costs and each top character's carry capacity
-const stampDetails = (stamp, { keepGreenstacks, reducer, reducerUnknown, exaltedText, exaltedMulti, vaultBonus, charmBonus }, inNote) => {
+const stampDetails = (stamp, { keepGreenstacks, reducer, reducerUnknown, exaltedText, exaltedMulti, vaultBonus, charmBonus }) => {
   const {
     displayName, level, maxLevel, effect, bonus, gained, state: type, goldCost, materialCost,
     futureCosts, bestCharacter, ownedMats, greenStackOwnedMats, hasMoney, itemReq, minReduction
@@ -382,7 +390,7 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, reducerUnknown, exalted
   const boosts = level > 0 ? stampBoosts(stamp, { exaltedMulti, exaltedText, vaultBonus, charmBonus }) : [];
   const costUnknown = atMax && reducerUnknown;
   const reducerText = level > 0 && atMax && !costUnknown ? reducerLine(minReduction, reducer) : null;
-  const body = <>
+  return <>
     <Stack gap={1}>
       <Typography variant={'body2'} component={'div'}>
         {`+${cleanUnderscore((effect ?? '').replace('+{', gameBonusText(bonus)))}`}</Typography>
@@ -390,19 +398,19 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, reducerUnknown, exalted
         {boostLine(boosts, cleanUnderscore(displayName))}</Typography> : null}
       {unobtainableStamps[displayName] ? <StatusText status={'locked'}>Unobtainable</StatusText> : null}
       {type ? <StatusText status={STATE_TONES[type] ?? 'problem'} wrap>{STATE_LABELS[type]}</StatusText> : null}
-      {level > 0 ? <ItemCard.Section label={atMax ? 'Raise the max level' : 'Next level'}>
-        {costUnknown ? '-' : atMax
-          ? <ItemCard.Cost icon={`data/${itemReq?.rawName}.png`} iconAlt={cleanUnderscore(itemReq?.name ?? '')}
-                           need={materialCost} have={owned}/>
-          : <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-            <Typography variant={'body2'} component={'span'}>
-              <CoinDisplay dense maxCoins={3} money={getCoinsArray(goldCost)}/>
-            </Typography>
-            {hasMoney ? null : <StatusText status={'problem'}>Short</StatusText>}
-          </Stack>}
-        {reducerText ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{reducerText}</Typography> : null}
-      </ItemCard.Section> : null}
     </Stack>
+    {level > 0 ? <ItemCard.Section label={atMax ? 'Raise the max level' : 'Next level'}>
+      {costUnknown ? '-' : atMax
+        ? <ItemCard.Cost icon={`data/${itemReq?.rawName}.png`} iconAlt={cleanUnderscore(itemReq?.name ?? '')}
+                         need={materialCost} have={owned}/>
+        : <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+          <Typography variant={'body2'} component={'span'}>
+            <CoinDisplay dense maxCoins={3} money={getCoinsArray(goldCost)}/>
+          </Typography>
+          {hasMoney ? null : <StatusText status={'problem'}>Short</StatusText>}
+        </Stack>}
+      {reducerText ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{reducerText}</Typography> : null}
+    </ItemCard.Section> : null}
     {level > 0 && futureCosts?.length && !costUnknown ? <ItemCard.Section label={'Next levels'}>
       <FutureCosts futureCosts={futureCosts}/>
     </ItemCard.Section> : null}
@@ -416,8 +424,6 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, reducerUnknown, exalted
       ]}/>
     </ItemCard.Section> : null}
   </>;
-  // A phone's note is all there, and scrolls with the page
-  return inNote ? <Box sx={{ display: 'grid', gap: 2 }}>{body}</Box> : <PinnedDetails>{body}</PinnedDetails>;
 };
 
 // Absent entirely when a caller skipped the calculation, versus present with a null reduction,

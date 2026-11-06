@@ -5,8 +5,9 @@ import { IconX } from '@tabler/icons-react';
 // breakdown's total), and a 40 px close button that is always there. The title and the aside share a wrapping
 // row: beside each other while both fit whole, the aside on its own line under the title when they don't, so
 // a long total never squeezes the title into a word per line or draws over it. sx: a form's own room around the title.
-// above: a line over the title, such as a way back.
-const OverlayHeader = ({ titleId, title, subtitle, icon, aside, above, sx, onClose }) => <>
+// above: a line over the title, such as a way back. controls: buttons that hold their place beside the close while the title
+// changes (a sheet's previous and next); the title wraps beside them instead.
+const OverlayHeader = ({ titleId, title, subtitle, icon, aside, controls, above, sx, onClose }) => <>
   {above}
   <Stack direction="row" alignItems="center" gap={1.5} sx={{ px: 3, pt: 2, pb: 1.5, flexShrink: 0, ...sx }}>
     {icon}
@@ -17,6 +18,7 @@ const OverlayHeader = ({ titleId, title, subtitle, icon, aside, above, sx, onClo
       </Box>
       {aside ? <Box sx={{ flex: '0 1 auto', maxWidth: '100%' }}>{aside}</Box> : null}
     </Box>
+    {controls ? <Box sx={{ flexShrink: 0 }}>{controls}</Box> : null}
     <IconButton aria-label="Close" onClick={onClose} sx={{ width: 40, height: 40, flexShrink: 0, color: 'text.secondary' }}>
       <IconX size={20}/>
     </IconButton>
