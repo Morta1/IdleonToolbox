@@ -289,16 +289,14 @@ const AppProvider = ({ children }) => {
     
     removeStored('charactersData');
     removeStored('rawJson', 'session');
-    dispatch({ type: ACTION_TYPES.LOGOUT });
+    // The save a player pasted stays: only the session goes.
+    dispatch(manualImport ? { type: ACTION_TYPES.DATA, data } : { type: ACTION_TYPES.LOGOUT });
     if (clearAuthHint) {
       writeAuthHint('no');
     }
     setWaitingForAuth(false);
 
-    if (manualImport) {
-      dispatch({ type: ACTION_TYPES.DATA, data });
-      return;
-    }
+    if (manualImport) return;
 
     await loadEmptyAccount();
   };
@@ -520,10 +518,6 @@ const AppProvider = ({ children }) => {
     }
     if (state?.manualImport) {
       writeStored('manualImport', state.manualImport);
-      const { lastUpdated = null } = readStoredState();
-      if (state?.signedIn) {
-        logout(true, { ...state, lastUpdated, signedIn: false, manualImport: true });
-      }
     }
   }, [
     state?.trackers,
@@ -534,11 +528,9 @@ const AppProvider = ({ children }) => {
     state?.godPlanner
   ]);
 
-  useEffect(() => {
-    if (!waitingForAuth && authCounter !== 0) {
-      setAuthCounter(0);
-    }
-  }, [waitingForAuth, authCounter]);
+  if (!waitingForAuth && authCounter !== 0) {
+    setAuthCounter(0);
+  }
 
   useInterval(
     async () => {

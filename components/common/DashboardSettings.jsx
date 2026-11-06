@@ -67,39 +67,42 @@ const DashboardSettings = ({
 
   // The dialog stays mounted while closed, so every opening re-points it: at the alert that
   // opened it, or back to the first section.
-  useEffect(() => {
+  const [seen, setSeen] = useState({ open: false, target });
+  if (seen.open !== open || seen.target !== target) {
+    setSeen({ open, target });
     if (!open) {
-      closeNotice(undoNotice.current);
       setHighlight(null);
       setExpanded({});
-      return;
-    }
-    closeNotice(undoNotice.current);
-    const resolved = resolveSettingsTarget(config, target?.configType, target?.path);
-    setQuery('');
-    setImportError(null);
-    if (resolved) {
-      const tab = model[resolved.tab];
-      const section = tab.sections.find((item) => item.section === resolved.section) ?? tab.sections[0];
-      const path = [resolved.configType, resolved.section, resolved.trackerName].filter(Boolean).join('.');
-      setTabIndex(resolved.tab);
-      setSectionKey(section.key);
-      setFilter('all');
-      setMobileDetail(true);
-      setExpanded(resolved.trackerName ? { [path]: true } : {});
-      setHighlight(resolved.trackerName ? { path, optionName: resolved.optionName } : null);
     } else {
-      // Reviewing edits starts where the first edit is, not on a section that may have none.
-      const editedTab = initialFilter === 'edited' ? model.findIndex((item) => item.edited) : -1;
-      const startTab = Math.max(editedTab, 0);
-      const startSection = editedTab >= 0 ? model[editedTab].sections.find((item) => item.edited) : model[0].sections[0];
-      setFilter(initialFilter);
-      setTabIndex(startTab);
-      setSectionKey(startSection.key);
-      setExpanded({});
-      setMobileDetail(editedTab >= 0);
-      setHighlight(null);
+      const resolved = resolveSettingsTarget(config, target?.configType, target?.path);
+      setQuery('');
+      setImportError(null);
+      if (resolved) {
+        const tab = model[resolved.tab];
+        const section = tab.sections.find((item) => item.section === resolved.section) ?? tab.sections[0];
+        const path = [resolved.configType, resolved.section, resolved.trackerName].filter(Boolean).join('.');
+        setTabIndex(resolved.tab);
+        setSectionKey(section.key);
+        setFilter('all');
+        setMobileDetail(true);
+        setExpanded(resolved.trackerName ? { [path]: true } : {});
+        setHighlight(resolved.trackerName ? { path, optionName: resolved.optionName } : null);
+      } else {
+        // Reviewing edits starts where the first edit is, not on a section that may have none.
+        const editedTab = initialFilter === 'edited' ? model.findIndex((item) => item.edited) : -1;
+        const startTab = Math.max(editedTab, 0);
+        const startSection = editedTab >= 0 ? model[editedTab].sections.find((item) => item.edited) : model[0].sections[0];
+        setFilter(initialFilter);
+        setTabIndex(startTab);
+        setSectionKey(startSection.key);
+        setExpanded({});
+        setMobileDetail(editedTab >= 0);
+        setHighlight(null);
+      }
     }
+  }
+  useEffect(() => {
+    closeNotice(undoNotice.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, target]);
 

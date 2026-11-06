@@ -1051,8 +1051,8 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
     {rows.map(({ row, icons, failed }) => <AlertRow key={row} label={row}>
       {failed ? <StatusText status={'problem'}>Couldn't check these alerts.</StatusText> : icons}
     </AlertRow>)}
-    {/* alerts is undefined only until the first effect runs; a failed section's note says more than this one could */}
-    {alerts !== undefined && !rows.length && !account?.failedSections?.length
+    {/* A failed section's note says more than this one could */}
+    {!rows.length && !account?.failedSections?.length
       ? <Notice tone={'info'} sx={{ m: 2 }}>No account alert is on right now.</Notice> : null}
   </Panel>;
 };

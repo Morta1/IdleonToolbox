@@ -136,9 +136,14 @@ const Leaderboards = () => {
   }, [queryPlayer, playerQuery.status, playerQuery.data]);
 
   // An unknown ?player (bot link to a renamed or private player): say so, fall back to plain Boards.
+  const unknownPlayer = queryPlayer && playerQuery.status === 'success' && !playerData ? queryPlayer : null;
+  const [toldUnknown, setToldUnknown] = useState(null);
+  if (unknownPlayer !== toldUnknown) {
+    setToldUnknown(unknownPlayer);
+    if (unknownPlayer) showSearchNote({ tone: 'info', text: `No player named ${unknownPlayer} on the leaderboards.` });
+  }
   useEffect(() => {
-    if (!queryPlayer || playerQuery.status !== 'success' || playerData) return;
-    showSearchNote({ tone: 'info', text: `No player named ${queryPlayer} on the leaderboards.` });
+    if (!unknownPlayer) return;
     const { player, ...rest } = router.query;
     router.replace({ pathname: router.pathname, query: rest }, undefined, { shallow: true });
   }, [queryPlayer, playerQuery.status, playerQuery.data]);

@@ -34,7 +34,7 @@ const renderWith = (chars, acc = account, query = {}) => {
 
 const cardValue = (title) => screen.getByText(title).parentElement.textContent.replace(title, '');
 
-// useCheckbox persists to localStorage by label, so one test's toggle would leak into the next.
+// The page's choices persist to localStorage, so one test's toggle would leak into the next.
 beforeEach(() => window.localStorage.clear());
 
 const showDetails = () => fireEvent.click(screen.getByRole('button', { name: 'Detailed view' }));

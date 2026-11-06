@@ -1,6 +1,6 @@
 // @vitest-environment jsdom
 import '../../../polyfills';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
@@ -24,7 +24,9 @@ const defaultPlans = [
 let latestState;
 const Harness = ({ plans = defaultPlans, account, isLoading, storageHydrated, emptyAccount }) => {
   const [state, setState] = useState({ planner: { sections: plans }, account, isLoading, storageHydrated, emptyAccount });
-  latestState = state;
+  useEffect(() => {
+    latestState = state;
+  });
   const dispatch = ({ type, data }) => type === 'planner' && setState((prev) => ({ ...prev, planner: data }));
   return <ThemeProvider theme={darkTheme}>
     <AppContext.Provider value={{ state, dispatch }}>

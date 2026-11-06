@@ -66,49 +66,37 @@ const Wardrobe = () => {
   const [pickerSlot, setPickerSlot] = useState(null);
   const [unsupported, setUnsupported] = useState([]);
   const canvasRef = useRef(null);
-  const matchedCharacter = useRef(false);
-  // Guards the account-companion default so it is applied at most once: either inline during
-  // hydration (currentCompanion already loaded) or by the late effect below (profile loads after).
-  const companionDefaulted = useRef(false);
-  // Whether the URL named a companion at hydration time, for the late effect - "loadout has no
+  // The URL named no companion and the account's pet hasn't been applied yet: "loadout has no
   // companion" alone can't tell an unnamed URL apart from one the user cleared in the picker.
-  const urlHadNoCompanion = useRef(false);
-  // Hydration is tracked via React state (not a ref, see pages/tools/builds.jsx for the same
-  // pattern): with a ref, the mirror-to-URL effect below would see `hydrated.current === true`
-  // in the same commit where the hydration effect synchronously set it, but `loadout`/`poseChoice`
-  // would still hold their pre-hydration values - clobbering the incoming URL with stale state.
+  const [awaitingCompanion, setAwaitingCompanion] = useState(false);
+  const [matchedCharacter, setMatchedCharacter] = useState(false);
   const [hydrated, setHydrated] = useState(false);
 
   // URL -> state once the router has the query (static export: query is empty on first render).
   // A URL with no companion still gets the account's own pet, same as picking a character does.
-  useEffect(() => {
-    if (!router.isReady || hydrated) return;
+  if (router.isReady && !hydrated) {
     const fromUrl = decodeLoadout(router.query, items, companions);
-    urlHadNoCompanion.current = !router.query.companion;
+    let awaiting = !router.query.companion;
     if (!fromUrl.companion && currentCompanion?.rawName) {
       const defaultCompanion = companionByRawName(currentCompanion.rawName);
       if (defaultCompanion) {
         fromUrl.companion = defaultCompanion;
-        companionDefaulted.current = true;
+        awaiting = false;
       }
     }
     setLoadout(fromUrl);
     setPoseChoice(fromUrl.pose);
+    setAwaitingCompanion(awaiting);
     setHydrated(true);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [router.isReady, router.query, hydrated]);
+  }
 
   // The account's companion can arrive after hydration (profile loads late): apply the same default
-  // once it shows up, but only if the loadout still has no companion and the URL never named one -
-  // otherwise this would clobber a companion the user explicitly cleared in the picker.
-  useEffect(() => {
-    if (!hydrated || companionDefaulted.current || !currentCompanion?.rawName) return;
-    companionDefaulted.current = true;
-    if (!urlHadNoCompanion.current) return;
+  // once it shows up, at most once, and only if the loadout still has no companion.
+  if (hydrated && awaitingCompanion && currentCompanion?.rawName) {
+    setAwaitingCompanion(false);
     const defaultCompanion = companionByRawName(currentCompanion.rawName);
-    if (!defaultCompanion) return;
-    setLoadout((l) => (l.companion ? l : { ...l, companion: defaultCompanion }));
-  }, [hydrated, currentCompanion?.rawName]);
+    if (defaultCompanion && !loadout.companion) setLoadout({ ...loadout, companion: defaultCompanion });
+  }
 
   // state -> URL, shallow so the page does not reload. These params are page-local by design, and
   // the mirror rebuilds the whole query, so the session params (profile/demo) have to be carried
@@ -130,15 +118,12 @@ const Wardrobe = () => {
 
   // A shared link carries the name it was built with, so the selector names that character instead
   // of Blank mannequin. The gear drawn is still the URL's, not that character's current equipment.
-  // One shot, guarded by a ref: a later explicit "Blank mannequin" pick must not be undone.
-  useEffect(() => {
-    if (!hydrated || matchedCharacter.current || !characters.length) return;
-    matchedCharacter.current = true;
-    if (characterName) return;
-    const match = characters.find((character) => sanitiseName(character.name) === loadout.name);
+  // One shot: a later explicit "Blank mannequin" pick must not be undone.
+  if (hydrated && !matchedCharacter && characters.length) {
+    setMatchedCharacter(true);
+    const match = characterName ? null : characters.find((character) => sanitiseName(character.name) === loadout.name);
     if (match) setCharacterName(match.name);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [hydrated, characters.length]);
+  }
 
   // 'attack' is a virtual pose id: the body sheet for a swing depends on the equipped weapon type,
   // and an empty weapon slot swings the fists.

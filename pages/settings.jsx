@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { PreferencesContext } from '@components/common/context/PreferencesProvider';
 import useFormatDate from '@hooks/useFormatDate';
+import useNow from '@hooks/useNow';
 import {
   Button,
   Checkbox,
@@ -110,9 +111,10 @@ const Settings = () => {
   const [showClearOptions, setShowClearOptions] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(false);
   const [uploaded, setUploaded] = useState(false);
   const [lastUpload, setLastUpload, removeLastUpload] = useLocalStorage({ key: `${state?.uid}/lastUpload` });
+  const now = useNow(10000);
+  const isDisabled = Boolean(lastUpload) && now > 0 && (WAIT_TIME - (now - lastUpload)) > 0;
   const [anonId, setAnonId, removeAnonId] = useLocalStorage({ key: `${state?.uid}/anonId` });
   const [lastUploadAccess, setLastUploadAccess, removeLastUploadAccess] = useLocalStorage({
     key: `${state?.uid}/lastUploadAccess`
@@ -133,12 +135,6 @@ const Settings = () => {
   const [error, setError] = useState('');
   const [open, setOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
-
-  useEffect(() => {
-    if (lastUpload) {
-      setIsDisabled((WAIT_TIME - (Date.now() - lastUpload)) > 0);
-    }
-  }, [lastUpload]);
 
   // One-time migration: derive new profileAccess + leaderboardParticipation
   // from the old profileVisibility + leaderboardConsent localStorage keys.

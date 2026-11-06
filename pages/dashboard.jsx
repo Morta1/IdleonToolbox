@@ -23,6 +23,7 @@ import { runAction } from '@utility/dashboard/settingsActions';
 import { alertLabel, alertPage, buildQuickEdit, pageHref } from '@utility/dashboard/quickEdit';
 import { useRouter } from 'next/router';
 import usePageTop from '@hooks/usePageTop';
+import useHydrated from '@hooks/useHydrated';
 import { closeNotice, notify } from '@components/common/Overlays/notify';
 import { trackSettingsEvent } from '@utility/dashboard/settingsAnalytics';
 import AlertQuickEdit from '@components/dashboard/settings/AlertQuickEdit';
@@ -104,8 +105,7 @@ const Dashboard = () => {
     key: 'dashboard-defaults-note-dismissed'
   });
   // Storage is read in an effect, so hold the note back until then instead of flashing it for users who dismissed it.
-  const [storageRead, setStorageRead] = useState(false);
-  useEffect(() => setStorageRead(true), []);
+  const storageRead = useHydrated();
   const [initialFilter, setInitialFilter] = useState('all');
   const [sectionsBarBottom, setSectionsBarBottom] = useState(0);
   const pageTop = usePageTop();

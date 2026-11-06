@@ -1,14 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import useInterval from '@hooks/useInterval';
 import { Typography } from '@mui/material';
 import { formatDuration } from '@utility/helpers';
 import { timeText } from './timeText';
 
 const NormalTimer = ({ date, done }) => {
-  const [time, setTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  useEffect(() => {
+  const [time, setTime] = useState(date);
+  const [seenDate, setSeenDate] = useState(date);
+  if (seenDate !== date) {
+    setSeenDate(date);
     setTime(date);
-  }, [date])
+  }
   const updateTimer = () => {
     let { days, hours, minutes, seconds } = time;
     seconds -= 1;

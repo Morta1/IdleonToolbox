@@ -1000,9 +1000,11 @@ export const handleLoadJson = async (dispatch) => {
         value: parsedData?.characters?.length ?? 0
       });
     }
+    return true;
   } catch (e) {
     console.error('Error while trying to manual import', e);
     trackEvent('import_failed', { import_source: 'manual', error_message: errorMessage(e) });
+    return false;
   }
 }
 

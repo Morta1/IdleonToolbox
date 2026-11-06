@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { IconLayoutDashboard, IconLogin2 } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
 import Head from 'next/head';
@@ -16,6 +16,7 @@ import { useTheme } from '@emotion/react';
 import LoginDialog from '@components/common/NavBar/LoginDialog';
 import { getRandomNumbersArray, prefix } from '@utility/helpers'
 import useInterval from '@hooks/useInterval';
+import useHydrated from '@hooks/useHydrated';
 import { animate, AnimatePresence, motion, MotionConfig, useMotionValue } from 'framer-motion'
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
@@ -77,18 +78,18 @@ const faqs = [
   }
 ];
 
+// Slot 0 is the image both the export and the first client render show, so it must not be
+// random: React compares it during hydration. The rest is shuffled once the page has hydrated.
+const FIRST_IMAGES = [0, 1, 2, 3, 4, 5];
+const SHUFFLED_IMAGES = [0, ...getRandomNumbersArray(5, 5).map((n) => n + 1)];
+
 const Home = () => {
   const { state } = useContext(AppContext);
   // The sample account or a profile stays with the visitor across the page's links, as it does in the bar
   const router = useRouter();
   const session = sessionQuery(router?.query);
   const theme = useTheme();
-  // Slot 0 is the image both the export and the first client render show, so it must not be
-  // random: React compares it during hydration. The rest is shuffled in an effect afterwards.
-  const [indexes, setIndexes] = useState([0, 1, 2, 3, 4, 5]);
-  useEffect(() => {
-    setIndexes([0, ...getRandomNumbersArray(5, 5).map((n) => n + 1)]);
-  }, []);
+  const indexes = useHydrated() ? SHUFFLED_IMAGES : FIRST_IMAGES;
   const [bgIndex, setBgIndex] = useState(0);
   const [loginOpen, setLoginOpen] = useState(false);
   const [pathIndex, setPathIndex] = useState(0);

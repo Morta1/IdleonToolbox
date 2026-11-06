@@ -77,6 +77,13 @@ const UserMenu = () => {
     logout();
   };
 
+  // A pasted save replaces a signed-in session, or the session's next update would replace the save.
+  const handlePasteData = async () => {
+    const imported = await handleLoadJson(dispatch);
+    if (imported && state?.signedIn) logout(true, { signedIn: false });
+    handleClose();
+  };
+
   const handleBackToAccount = () => {
     router.push({ url: router.pathname, query: queryParams });
     setTimeout(() => router.reload())
@@ -127,7 +134,7 @@ const UserMenu = () => {
       ] : null}
       {!isProd ? [
         <Divider key="paste-divider"/>,
-        <MenuItem key="paste-data" onClick={async () => { await handleLoadJson(dispatch); handleClose(); }}>
+        <MenuItem key="paste-data" onClick={handlePasteData}>
           <ListItemIcon><IconClipboard/></ListItemIcon>
           <ListItemText>Paste data</ListItemText>
         </MenuItem>

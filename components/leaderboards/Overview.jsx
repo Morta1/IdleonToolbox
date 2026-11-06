@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
 import NextLink from 'next/link';
 import useHydrated from '@hooks/useHydrated';
+import useNow from '@hooks/useNow';
 import useFormatDate from '@hooks/useFormatDate';
 import GameIcon from '@components/common/GameIcon';
 import Notice, { retryAction } from '@components/common/Notice';
@@ -88,6 +89,7 @@ const standingOf = (player) => (player.context && !player.isError && player.data
 // The slot beside the global ranking: the You card, or whatever stands in for it.
 const YouSlot = ({ player, self, index, onClearPlayer, nextRun }) => {
   const hydrated = useHydrated();
+  const now = useNow(30000);
   const formatDate = useFormatDate();
   if (!player.context) {
     // A signed-in account that is still loading has no name yet; the sign-in prompt would flash at them.
@@ -112,7 +114,7 @@ const YouSlot = ({ player, self, index, onClearPlayer, nextRun }) => {
     if (self.participation === 'off') {
       return <Notice>You are not on the leaderboards: turn them on in {settingsLink} and upload again.</Notice>;
     }
-    const recent = hydrated && self.lastUpload && Date.now() - self.lastUpload < AGGREGATION_INTERVAL;
+    const recent = hydrated && self.lastUpload && now - self.lastUpload < AGGREGATION_INTERVAL;
     if (recent && nextRun) {
       return <Notice>Almost there: boards refresh every 30 min, next at {formatDate(nextRun, { timeOnly: true, showSeconds: false })}.</Notice>;
     }
