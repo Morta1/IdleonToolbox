@@ -691,8 +691,7 @@ const ReadyCell = ({ icon, name, sub, value }) => <Stack direction={'row'} align
   {icon}
   <Typography variant={'body2'} component={'div'} noWrap sx={{ fontWeight: 500, minWidth: 0, flexShrink: sub ? 0 : 1 }}>{name}</Typography>
   {sub ? <Typography variant={'body2'} component={'div'} color={'text.secondary'} noWrap sx={READY_SUB_SX}>{sub}</Typography> : null}
-  <Box sx={{ flex: 1 }}/>
-  <Box sx={{ flexShrink: 0, display: 'inline-flex' }}>{value}</Box>
+  <Box sx={{ flexShrink: 0, display: 'inline-flex', ml: 'auto' }}>{value}</Box>
 </Stack>;
 
 // Blank cells close the block's last row, so its lines run to the Panel's edge: as many as each column count leaves open.
@@ -712,6 +711,8 @@ const COMING_ROW_SX = {
 };
 const COMING_SUB_SX = { ml: 1, fontWeight: 400, color: 'text.secondary', [COMING_NARROW]: { display: 'none' } };
 const COMING_LINE_SX = { display: 'none', fontSize: 13, lineHeight: '18px', [COMING_NARROW]: { display: 'block' } };
+// Each part whole: a line with a sub and a date wraps between them, and never cuts the date
+const COMING_PART_SX = { whiteSpace: 'nowrap' };
 const COMING_WORLD_SX = { fontSize: 12, lineHeight: '16px', color: 'text.muted', whiteSpace: 'nowrap', [COMING_NARROW]: { display: 'none' } };
 const COMING_DATE_SX = {
   fontSize: 13, lineHeight: '18px', color: 'text.secondary', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums',
@@ -726,8 +727,10 @@ const ComingRow = ({ icon, name, sub, world, date, value }) => <Box sx={COMING_R
     <Typography variant={'body2'} component={'div'} noWrap sx={{ fontWeight: 500 }}>
       {name}{sub ? <Box component={'span'} sx={COMING_SUB_SX}>{sub}</Box> : null}
     </Typography>
-    <Typography variant={'body2'} component={'div'} color={'text.secondary'} noWrap sx={COMING_LINE_SX}>
-      {sub ? <>{sub}{' · '}</> : null}{world}{date ? ` · ${date}` : ''}
+    <Typography variant={'body2'} component={'div'} color={'text.secondary'} sx={COMING_LINE_SX}>
+      {sub ? <><Box component={'span'} sx={COMING_PART_SX}>{sub}</Box>{' · '}</> : null}
+      <Box component={'span'} sx={COMING_PART_SX}>{world}</Box>
+      {date ? <>{' · '}<Box component={'span'} sx={COMING_PART_SX}>{date}</Box></> : null}
     </Typography>
   </Box>
   <Box sx={COMING_WORLD_SX}>{world}</Box>
