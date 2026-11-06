@@ -54,7 +54,7 @@ const SALT_SECTIONS = ['refinery', 'alchemy', 'arcade', 'atoms', 'breeding', 'co
   'sneaking', 'spelunking', 'stamps', 'sushiStation', 'towers'];
 const MONUMENT_SECTIONS = ['hole', 'gaming', 'legendTalents'];
 // bookAlert, bossAlert: the Talent library and Miniboss kills stacked alerts' trackers, whose numbers the rows read, the alert on or off.
-const Etc = ({ characters, account, lastUpdated, trackers, bookAlert, bossAlert }) => {
+export const useTimerRows = ({ characters, account, lastUpdated, trackers, bookAlert, bossAlert }) => {
   const failed = (section) => isSectionFailed(account, section);
   const failedAny = (sections) => sections.some(failed);
   // Anchor timer math to `lastUpdated` (the data-fetch timestamp) rather than `new Date().getTime()`.
@@ -634,6 +634,11 @@ const Etc = ({ characters, account, lastUpdated, trackers, bookAlert, bossAlert 
     </>)
   ];
 
+  return rows;
+};
+
+const Etc = ({ characters, account, lastUpdated, trackers, bookAlert, bossAlert }) => {
+  const rows = useTimerRows({ characters, account, lastUpdated, trackers, bookAlert, bossAlert });
   return <TimerBoard rows={rows}>
     <Resets account={account} trackers={trackers} lastUpdated={lastUpdated}/>
   </TimerBoard>;
@@ -825,6 +830,32 @@ const soonestKey = ({ props }) => {
 // Infinity less Infinity is NaN, and two rows with no time keep their order
 const soonestFirst = (a, b) => soonestKey(a) - soonestKey(b) || 0;
 const problemFirst = (a, b) => (b.props.placeholderStatus === 'problem') - (a.props.placeholderStatus === 'problem');
+
+// The board in brief, for the What's new story: placed as the board places them, so its count is the board's.
+const briefRow = ({ key, props }) => {
+  const { deadline, over } = readRow(props);
+  return {
+    key,
+    title: props.name ?? alertMeta[`timers.${props.target}`]?.label,
+    icon: typeof props.icon === 'string' ? props.icon : null,
+    word: props.actNow && !over ? props.state : props.placeholder ?? 'Ready',
+    problem: props.placeholderStatus === 'problem',
+    value: props.value,
+    deadline
+  };
+};
+export const timersInBrief = (rows, clock) => {
+  const at = (place) => rows.filter((row) => placeOf(row, clock) === place);
+  const ready = at('ready').sort(problemFirst);
+  const next = at('next').sort(soonestFirst);
+  const coming = next.length ? next : at('week').sort(soonestFirst);
+  return {
+    readyCount: ready.length,
+    ready: ready.slice(0, 3).map(briefRow),
+    comingLabel: next.length ? 'Next 24 hours' : 'This week',
+    coming: coming.slice(0, 2).map(briefRow)
+  };
+};
 
 const BOARD_SX = { overflow: 'hidden', '& > * + *': { borderTop: 1, borderColor: 'divider' } };
 const FOLD_BUTTON_SX = { mx: 1, my: 0.5, minHeight: { xs: 44, sm: 'auto' } };
