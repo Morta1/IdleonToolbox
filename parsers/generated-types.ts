@@ -199,7 +199,7 @@ export interface Account {
   };
   looty: {
     slabItems: {
-        name?: string;
+        name: string;
         rawName: string;
         itemRawName: string;
         obtained: boolean;
@@ -3851,6 +3851,7 @@ export interface Account {
         time: number;
         label?: string;
       }[];
+    baseFactor: number;
   };
   construction: {
     totalBuildRate: number;
