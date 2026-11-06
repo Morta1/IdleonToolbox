@@ -18,6 +18,9 @@ alwaysApply: true
 - When an alert's data key differs from the option that controls it, add it to `alertAliases` in
   `utility/dashboard/alertMeta.js` so the settings link lands on the option.
 
+## Design system
+Before building or changing UI, read `docs/design-system.md`: which shared piece to use, where controls go, colours, type and numbers. A change to one of those rules updates that file in the same commit.
+
 ## New page
 - When being asked to create new page, make sure to add it to the correct folder path, when unsure, ask.
 - Update the relevant PAGES path at @IdleonToolbox/components/constants.jsx
