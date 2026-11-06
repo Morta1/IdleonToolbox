@@ -109,3 +109,5 @@ Variants, from `styles/theme/theme.js`: `pageTitle`, `sectionTitle`, `cardTitle`
 ## The boards
 
 [Design canvas](https://claude.ai/artifact/MtXexJGcUTA5ffHpwnCPD6): the picture of this system. It's a mirror, so it follows the code and never the other way round. It shows the current design only, with no "today" against "suggested".
+
+Build from this file and the code. Open the boards only to design something new or check a page's look.
