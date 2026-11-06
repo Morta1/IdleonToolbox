@@ -6,6 +6,7 @@ import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
 import { getStatueBonus } from '@parsers/world-1/statues';
 import { getStatueFlairExpMulti, getStatueFlairLevel } from '@parsers/class-specific/royalGuardian';
+import { isSectionFailed } from '@components/common/styles';
 
 const statueName = (name) => `${capitalize(cleanUnderscore(`${name ?? ''}`.toLowerCase()))} Statue`;
 // The statue's sentence: its @ filled with the bonus to a tenth (the old tooltip's fill; the walk compares the game's)
@@ -36,7 +37,8 @@ const statueDetails = ({ statue, index, account, characters, nextLv, flairLevel,
     <ItemCard.Section label={'Next level'}>
       <ItemCard.Facts rows={[
         ['Progress', `${formatGame(progress, 'Big', { whole: true })} / ${formatGame(nextLv, 'Big', { whole: true })}`],
-        flairMulti > 1 ? [`Statue Flair ${flairLevel}`, `${formatNum(flairMulti, 'mult')} statue EXP`] : null
+        isSectionFailed(account, 'royalGuardian') ? ['Statue Flair', '-']
+          : flairMulti > 1 ? [`Statue Flair ${flairLevel}`, `${formatNum(flairMulti, 'mult')} statue EXP`] : null
       ]}/>
     </ItemCard.Section>
   </Stack>;

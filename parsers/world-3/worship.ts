@@ -67,7 +67,7 @@ export const getTotemExpReward = (totem: any, index: number, character: any, cha
 
 export const getTotalizerBonuses = (account: any) => {
   const totalizerUnlocked = isSuperbitUnlocked(account, 'MSA_Totalizer');
-  const totalWaves = Math.floor(account?.towers?.totalWaves / 10);
+  const totalWaves = Math.floor((account?.towers?.totalWaves ?? 0) / 10);
   // game: GamingStatType("MSA_Bonus", 6/7/8) - the jade emporium expanders pay 1.75x, 2x and 1.5x of the waves.
 
   return {

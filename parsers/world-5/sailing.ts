@@ -78,11 +78,11 @@ export const getLockedSailing = (artifactsList: any) => ({
 const parseSailing = (artifactsList: any, sailingRaw: any, captainsRaw: any, boatsRaw: any, chestsRaw: any, charactersData: any, account: any, serverVars: any, charactersLevels: any) => {
   const lootPile = sailingRaw?.[1];
   const dreamCatcherBonus = isArtifactAcquired(artifactsList, 'Dreamcatcher')?.bonus ?? 0;
-  const chestsFromGems = account?.gemShopPurchases?.find((value: any, index: any) => index === 129);
+  const chestsFromGems = account?.gemShopPurchases?.find((value: any, index: any) => index === 129) ?? 0;
   const chestsFromAchievements = getAchievementStatus(account?.achievements, 287) + getAchievementStatus(account?.achievements, 290);
   const maxChests = Math.min(Math.round(5 + chestsFromGems
     + (Math.min(4, dreamCatcherBonus)
-      + (account?.tasks?.[2]?.[4]?.[2])
+      + (account?.tasks?.[2]?.[4]?.[2] ?? 0)
       + (chestsFromAchievements))), 34);
   const chests = getChests(chestsRaw, artifactsList, serverVars, account);
   const rareTreasureChance = getRareTreasureChance();

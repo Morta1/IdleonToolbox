@@ -111,6 +111,9 @@ export const isSectionFailed = (account, section) => {
 // The whole parse failed: a failed section comes back as its catalog at zero (parsers/index.ts), and here none did.
 export const isParseFailed = (account) => !!account?.failedSections?.includes('*');
 
+// A number a parser builds from these sections: when one failed it reads "-".
+export const fedBy = (account, ...sections) => sections.some((name) => isSectionFailed(account, name));
+
 // "your Hat Rack", but a name that carries its own word stands alone: "the Hole", "The Button", "your save".
 const yourName = (name) => (/^(the|your)\b/i.test(name) ? name : `your ${name}`);
 

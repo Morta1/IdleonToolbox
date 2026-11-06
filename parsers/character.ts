@@ -1296,7 +1296,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     // giveEXP(13, CaptainEXPgain * Math.min(1, SailingExpMulti)), so above 1 it changes nothing.
     const value = allSkillExpMulti * (1 + (talentBonus
       + (vialBonus
-        + (10 * account?.tasks?.[2]?.[4]?.[4] +
+        + (10 * (account?.tasks?.[2]?.[4]?.[4] ?? 0) +
           (25 * masteryBonus + (guildBonus + vaultBonus))))) / 100);
 
     return {
@@ -1308,7 +1308,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
         additiveGroup(NUMBERED_GROUP, [
           percent('Talent', talentBonus),
           percent('Vial', vialBonus),
-          percent('Task', 10 * account?.tasks?.[2]?.[4]?.[4]),
+          percent('Task', 10 * (account?.tasks?.[2]?.[4]?.[4] ?? 0)),
           percent('Skill mastery', 25 * masteryBonus),
           percent('Guild', guildBonus),
           percent('Vault', vaultBonus)
@@ -1367,7 +1367,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
                     (mealBonus +
                       (vialBonus
                         + (talentBonus2 +
-                          (10 * account?.tasks?.[2]?.[4]?.[4] +
+                          (10 * (account?.tasks?.[2]?.[4]?.[4] ?? 0) +
                             (25 * masteryBonus +
                               (starSignBonus
                                 + (guildBonus + (arcadeBonus
@@ -1400,7 +1400,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
           percent('Meal', mealBonus),
           percent('Vial', vialBonus),
           percent('Inner Peace talent', talentBonus2),
-          percent('Task', 10 * account?.tasks?.[2]?.[4]?.[4]),
+          percent('Task', 10 * (account?.tasks?.[2]?.[4]?.[4] ?? 0)),
           percent('Skill mastery', 25 * masteryBonus),
           percent('Star sign', starSignBonus),
           percent('Guild', guildBonus),
@@ -3150,7 +3150,7 @@ const getPrinterSampleRate = (character: any, account: any) => {
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Printer_sample');
   const theRoyalSamplerPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler', account)?.bonus;
   const stampBonus = getStampsBonusByEffect(account, '3D_Printer_Sampling_Size');
-  const meritBonus = account?.tasks?.[2]?.[2]?.[4];
+  const meritBonus = account?.tasks?.[2]?.[2]?.[4] ?? 0;
   // FamBonusQTYs[6], as the played character sees it
   const familyPrinterSample = getCharacterFamilyBonus(character, CLASSES.Maestro);
   const arcadeSampleBonus = getArcadeBonus(account?.arcade?.shop, 'Sample_Size')?.bonus;

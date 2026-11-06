@@ -23,8 +23,9 @@ const Totals = ({ account, characters, failedOf = () => false }) => {
     ['Shrines', 'UISkillIcon639', totalOf('shrines', calcShrineLevels(account?.shrines))],
     ...LIFETIME_STATS.map((stat) => [stat.name, stat.icon, totalOf('tasks', getLifetimeStat(account, stat))])
   ];
-  // The first character's chance, as the game rolls it for whoever is on the map; the shrine and the vial feed it
-  const giantFailed = failedOf('shrines') || failedOf('alchemy');
+  // The first character's chance, as the game rolls it for whoever is on the map; the shrine (its cards and artifacts),
+  // the vial and the prayer feed it
+  const giantFailed = ['shrines', 'alchemy', 'cards', 'sailing', 'prayers'].some(failedOf);
   const giantMob = characters?.length && !giantFailed ? getGiantMobChance(characters[0], account) : null;
   const giantText = giantMob?.chance > 0 ? formatNum(giantMob.chance, 'odds') : '-';
   // Its sources are a list, so a breakdown (Info board step 5), headed with the row's own odds

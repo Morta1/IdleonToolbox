@@ -40,7 +40,7 @@ export const getRefineryStorage = (refineryRaw: any[]) => {
 const parseRefinery = (refineryRaw: any[], storage: any[], tasks: any) => {
   const refineryStorage = getRefineryStorage(refineryRaw);
   const combinedStorage = [...(storage || []), ...(refineryStorage || [])];
-  const refinerySaltTaskLevel = tasks?.[2]?.[2]?.[6];
+  const refinerySaltTaskLevel = tasks?.[2]?.[2]?.[6] ?? 0;
   const refineryCatalog = Object.entries(refinery).map(([name, value]: [string, any]) => ({ rawName: name, ...value }));
   const unlockedSaltCount = refineryRaw?.[0]?.[0] ?? 0;
   const saltsArray = liveEntries<any>(refineryCatalog).map(({ entry, index }) => {

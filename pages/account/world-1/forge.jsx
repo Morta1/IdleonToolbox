@@ -8,7 +8,7 @@ import Tabber from '../../../components/common/Tabber';
 import Timer from '../../../components/common/Timer';
 import { PAGES } from '@components/constants';
 import { getForge } from '@parsers/world-1/forge';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { fedBy, MissingData, MissingSections, isSectionFailed } from '@components/common/styles';
 import StatTile from '@components/common/cards/StatTile';
 import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
@@ -48,6 +48,12 @@ const materialCell = (material) => isBlank(material) ? null
     {formatNum(material?.quantity ?? 0, 'whole')}
   </Box>;
 
+// What the ore capacity reads besides the forge's own upgrade (getForgeOreCapacity), by the name the note gives each
+const CAPACITY_SECTIONS = {
+  hole: 'the Hole', arcade: 'the Arcade', cards: 'Cards', stamps: 'Stamps', bribes: 'Bribes', upgradeVault: 'the Upgrade Vault',
+  achievements: 'Achievements', rift: 'the Rift'
+};
+
 const Forge = () => {
   const { state } = useContext(AppContext);
   const tabs = getTabs(PAGES.ACCOUNT['world 1'].categories, 'forge');
@@ -63,8 +69,9 @@ const Forge = () => {
     empty: [slot?.ore, slot?.barrel, slot?.bar].every(isBlank)
   }));
   const upgrades = forgeFailed ? getForge({}, {})?.upgrades ?? [] : forge?.upgrades ?? [];
-  const capText = forgeFailed ? '-' : formatNum(forge?.oreCapacity?.value ?? 0, 'whole');
-  const capBreakdown = forgeFailed ? undefined : forge?.oreCapacity?.breakdown;
+  const capFailed = fedBy(state?.account, 'forge', ...Object.keys(CAPACITY_SECTIONS));
+  const capText = capFailed ? '-' : formatNum(forge?.oreCapacity?.value ?? 0, 'whole');
+  const capBreakdown = capFailed ? undefined : forge?.oreCapacity?.breakdown;
 
   const slotColumns = [
     {
@@ -108,7 +115,8 @@ const Forge = () => {
       title="Forge | Idleon Toolbox"
       description="Monitor your forge ore production, upgrade levels, and crafting progress in Legends of Idleon"
     />
-    {forgeFailed ? <MissingData name={'Forge'} failed atZero={tabs[tabIndex] === 'Upgrades'}/> : null}
+    {forgeFailed ? <MissingData name={'Forge'} failed atZero={tabs[tabIndex] === 'Upgrades'}/>
+      : <MissingSections account={state?.account} names={CAPACITY_SECTIONS}/>}
     <Tabber tabs={tabs}>
       <>
         <StatTile label={'Max ore capacity'} value={capText} sx={{ mb: 2 }}

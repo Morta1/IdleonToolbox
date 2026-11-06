@@ -1,7 +1,7 @@
 import { getDescriptor, getDescriptors } from './registry';
 import { effectiveScope, isAllChars, isCharScope, isGlobalKey, MAX_TARGET, NEXT_TARGET, scopeKey } from './store';
 
-const STATUS_ORDER = { ok: 0, reached: 1, invalid: 2, missing: 2 };
+const STATUS_ORDER = { ok: 0, reached: 1, invalid: 2, missing: 2, unread: 2 };
 
 // missing: the system, metric, entry or character is gone. invalid: the entry is there but the goal cannot be
 // measured any more (a 'max' target on a metric that lost its cap, a percent goal on an entry without a percent)
@@ -246,11 +246,37 @@ const resolveInner = (goal, ctx) => {
   return entryView(goal, descriptor, metric, row, rowCtx, { ...base, ...tier });
 };
 
-export const resolveGoal = (goal, ctx) => {
+// A goal over a failed section would read that section's catalog at zero, not the player's progress. The account's
+// top-level keys are the section names, so a read through this proxy says which sections the goal stands on.
+const readsFailedSection = (goal, ctx) => {
+  const failed = ctx?.account?.failedSections;
+  if (!failed?.length) return false;
+  if (failed.includes('*')) return true;
+  const read = new Set();
+  const account = new Proxy(ctx.account, {
+    get: (target, key) => {
+      read.add(key);
+      return target[key];
+    }
+  });
   try {
-    return resolveInner(goal, ctx ?? {});
+    resolveInner(goal, { ...ctx, account });
   } catch {
-    return missingView(goal, safeDescriptor(goal.system));
+    // what it read before the throw still counts
+  }
+  return failed.some((name) => read.has(name.split('.')[0]));
+};
+
+const unread = (view) => ({ ...view, status: 'unread', value: null, progress: null });
+
+export const resolveGoal = (goal, ctx) => {
+  const failed = readsFailedSection(goal, ctx);
+  try {
+    const view = resolveInner(goal, ctx ?? {});
+    return failed ? unread(view) : view;
+  } catch {
+    const view = missingView(goal, safeDescriptor(goal.system));
+    return failed ? unread(view) : view;
   }
 };
 
@@ -282,7 +308,7 @@ export const resolveGoals = (goals, ctx) => {
 };
 
 // Open goals first, reached ones sink to the bottom; otherwise the given order is kept
-const ROW_ORDER = { ok: 0, invalid: 1, missing: 1, reached: 2 };
+const ROW_ORDER = { ok: 0, invalid: 1, missing: 1, unread: 1, reached: 2 };
 export const openFirst = (views) => views
   .map((view, index) => ({ view, index }))
   .sort((a, b) => ROW_ORDER[a.view.status] - ROW_ORDER[b.view.status] || a.index - b.index)
@@ -291,7 +317,7 @@ export const openFirst = (views) => views
 const rangeKey = (view) => [view.system, scopeKey(view.scope), view.key, view.metric, view.unit].join('|');
 // Only item amounts pair: their bounds are plain quantities, which the range text can show without a unit
 const pairable = (view) => view.system === 'item' && view.unit === 'value' && view.kind === 'entry' && !view.watch
-  && !isUnresolved(view);
+  && !isUnresolved(view) && view.status !== 'unread';
 
 // The range row stands in for both goals: it is reached when both are, and its bar follows the one still short
 const rangeView = (lower, upper) => ({

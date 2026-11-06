@@ -15,7 +15,7 @@ import {
 } from '@parsers/world-2/arcade';
 import { getStampBonus } from '@parsers/world-1/stamps';
 import { NextSeo } from 'next-seo';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { fedBy, MissingData, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -37,7 +37,10 @@ const ARCADE_TOOLBAR = { hideMaxed: false, hideSuper: false, hideOmega: false };
 
 // The sections the page reads, in the order the note names the first that failed: the shop, and the Arcade Stamp that
 // cuts its gold ball costs
-const SECTION_NAMES = { arcade: 'Arcade Shop', stamps: 'Stamps' };
+const SECTION_NAMES = {
+  arcade: 'Arcade Shop', stamps: 'Stamps', gaming: 'Gaming', tesseract: 'the Tesseract', farming: 'Farming', coralReef: 'Coral Reef',
+  companions: 'Companions'
+};
 
 const upgradeIndexOf = (upgrade) => parseInt(upgrade?.iconName?.replace('PachiShopICON', ''), 10);
 
@@ -102,7 +105,10 @@ const ArcadeShop = () => {
   const inactiveUpgrades = shown.filter((upgrade) => !upgrade.active);
 
   const totalCostToMax = shop.reduce((total, upgrade) => total + getCostToMax(upgrade.level, upgradeIndexOf(upgrade), stampMath), 0);
-  const multiText = arcadeFailed ? '-' : formatNum(goldBallMulti?.value ?? 1, 'mult');
+  // getGoldBallMulti's sources
+  const multiFailed = fedBy(account, 'arcade', 'gaming', 'tesseract', 'farming', 'coralReef', 'companions');
+  const costFailed = arcadeFailed || stampsFailed;
+  const multiText = multiFailed ? '-' : formatNum(goldBallMulti?.value ?? 1, 'mult');
   const ballsText = (value) => (arcadeFailed ? '-' : formatGame(value ?? 0, COST_RULE, { whole: true }));
 
   // An upgrade below Lv 100 costs gold balls; Lv 100 to Super costs Royal balls and Super to Omega Omega balls, where
@@ -144,11 +150,11 @@ const ArcadeShop = () => {
       <StatTile label={'Balls'} icon={'data/PachiBall0.png'} value={arcadeFailed ? '-' : formatNum(balls ?? 0, 'whole')}/>
       <StatTile label={'Gold balls'} icon={GOLD_BALL_ICON} value={ballsText(goldBalls)}/>
       <StatTile label={'Gold ball multi'} value={multiText}
-                breakdown={!arcadeFailed && goldBallMulti?.breakdown ? { ...goldBallMulti.breakdown, totalValue: multiText } : undefined}/>
+                breakdown={!multiFailed && goldBallMulti?.breakdown ? { ...goldBallMulti.breakdown, totalValue: multiText } : undefined}/>
       <StatTile label={'Royal balls'} icon={ROYAL_BALL_ICON} value={ballsText(royalBalls)}/>
       <StatTile label={'Omega balls'} icon={OMEGA_BALL_ICON} value={ballsText(omegaBalls)}/>
-      <StatTile label={'Cost to max all'} icon={!failedSection && totalCostToMax > 0 ? GOLD_BALL_ICON : undefined}
-                value={failedSection ? '-' : formatGame(totalCostToMax, COST_RULE, { whole: true })}/>
+      <StatTile label={'Cost to max all'} icon={!costFailed && totalCostToMax > 0 ? GOLD_BALL_ICON : undefined}
+                value={costFailed ? '-' : formatGame(totalCostToMax, COST_RULE, { whole: true })}/>
     </PageSummary>
     <Box>
       {/* A failed section's upgrades are all at zero: nothing for the filters to hide */}

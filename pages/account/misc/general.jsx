@@ -15,7 +15,8 @@ import { MissingData, isParseFailed, isSectionFailed, joinNames } from '@compone
 const AT_ZERO_SECTIONS = ['currencies', 'shrines', 'statues', 'highscores'];
 const SECTIONS = [['obols', 'Obols'], ['currencies', 'Currencies'], ['currencies.KeysAll', 'Keys'],
   ['currencies.ColosseumTickets', 'Colosseum Tickets'], ['shrines', 'Shrines'], ['shrinesExpBonus', 'Shrine EXP'],
-  ['statues', 'Statues'], ['highscores', 'Highscores'], ['alchemy', 'Alchemy'], ['stamps', 'Stamps'], ['tasks', 'Tasks']];
+  ['statues', 'Statues'], ['highscores', 'Highscores'], ['alchemy', 'Alchemy'], ['stamps', 'Stamps'], ['tasks', 'Tasks'],
+  ['cards', 'Cards'], ['sailing', 'Sailing'], ['prayers', 'Prayers'], ['royalGuardian', 'the Royal Armory']];
 
 const General = () => {
   const { state } = useContext(AppContext);

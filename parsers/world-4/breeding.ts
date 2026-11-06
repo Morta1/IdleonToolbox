@@ -323,7 +323,7 @@ export const getShinyBonus = (pets: any, passiveName: any) => {
   return pets?.reduce((sum: any, world: any) => sum + world?.reduce((innerSum: any, {
     passive,
     passiveValue
-  }: any) => innerSum + (passive.includes(passiveName) && passiveValue), 0), 0);
+  }: any) => innerSum + (passive.includes(passiveName) && passiveValue), 0), 0) ?? 0;
 }
 
 export const getTimeToLevel = (pet: any, multi: any, copies: any, targetLevel: any, isShiny: any, maxShinyLevel: number = BASE_MAX_SHINY_LEVEL) => {

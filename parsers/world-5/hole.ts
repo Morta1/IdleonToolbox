@@ -482,9 +482,9 @@ export const getCosSchematic = (holesObject: any) => {
 }
 export const getCosmoBonus = ({ majik, t, i }: any) => {
   return 2 === t && 1 === i
-    ? Math.floor(Math.max(1, Math.pow(3, (majik?.[i]))))
+    ? Math.floor(Math.max(1, Math.pow(3, (majik?.[i] ?? 0))))
     : Math.floor((cosmoUpgrades?.[t]?.[i]?.x0)
-      * (majik?.[i]))
+      * (majik?.[i] ?? 0))
 }
 const getMeasurementBaseBonus = ({ holesObject, t }: any) => {
   const info = holesInfo[55];

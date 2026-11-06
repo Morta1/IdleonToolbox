@@ -26,11 +26,13 @@ const SECTION_NAMES = {
   alchemy: 'Sigils', 'alchemy.sigilProgression': 'Sigil charging', research: 'Research', sailing: 'Sailing',
   voteBallot: 'the Vote Ballot', tesseract: 'the Tesseract', arcade: 'the Arcade', sushiStation: 'Sushi Station',
   jellyOperator: 'Jelly Operator', looty: 'the Slab', gaming: 'Gaming', farming: 'Farming',
-  legendTalents: 'Legend Talents', companions: 'Companions'
+  legendTalents: 'Legend Talents', companions: 'Companions', sneaking: 'Sneaking', spelunking: 'Spelunking'
 };
 const PRISMA_SECTIONS = ['alchemy', 'tesseract', 'arcade', 'sushiStation', 'jellyOperator', 'looty', 'gaming', 'farming',
   'legendTalents', 'companions'];
 const BOOST_SECTIONS = ['sailing', 'voteBallot'];
+// getSigilTierUnlocks: Jade, Ethereal and Eclectic. With one unknown, a sigil at that gate can't be called maxed.
+const TIER_GATE_SECTIONS = ['sneaking', 'spelunking', 'research'];
 const UNDISCOVERED = -1;
 // The game caps the Prisma multi at x5 (PrismaBonusMult's Math.min(5, ...), the parser's MAX_PRISMA_MULTI)
 const PRISMA_CAP = 5;
@@ -54,7 +56,7 @@ const ready = <StatusText status={'ready'}>Ready to level up</StatusText>;
 // countdown that would be false (one label for both). A failed section's catalog has the name and art only. A failed
 // charging step (alchemy.sigilProgression) loses only the charge rate: the next tier's cost is the catalog's, read with
 // the parser's own tier gates, so Maxed, Ready and the progress pair stay, and the countdown reads "-"
-const sigilCard = (sigil, { failed, progressionFailed, tierUnlocks, characters, lastUpdated, boostSources }) => {
+const sigilCard = (sigil, { failed, progressionFailed, tierGatesFailed, tierUnlocks, characters, lastUpdated, boostSources }) => {
   const { name, index, progress = 0, effect, unlocked = UNDISCOVERED, chargeRate, bonus = 0 } = sigil;
   const icon = <Box component={'span'}
                     sx={{ display: 'inline-flex', filter: failed || !TIER_HUES[unlocked] ? undefined : `hue-rotate(${TIER_HUES[unlocked]}deg)` }}>
@@ -63,7 +65,8 @@ const sigilCard = (sigil, { failed, progressionFailed, tierUnlocks, characters, 
   if (failed) return <ItemCard key={name} icon={icon} title={titleCaseName(cleanUnderscore(name))}/>;
   const nextCost = progressionFailed ? getSigilNextCost(sigil, tierUnlocks) : sigil?.nextCost;
   const charging = sigil?.characters ?? [];
-  const maxed = nextCost == null;
+  const gateUnknown = tierGatesFailed && nextCost == null;
+  const maxed = nextCost == null && !gateUnknown;
   const isReady = !maxed && progress >= nextCost;
   const timeLeft = (nextCost - progress) / chargeRate * 3600 * 1000;
   const base = sigilsCatalog?.[index]?.[TIER_BONUS[unlocked]];
@@ -77,7 +80,7 @@ const sigilCard = (sigil, { failed, progressionFailed, tierUnlocks, characters, 
   return <ItemCard key={name} icon={icon} title={titleCaseName(cleanUnderscore(name))} meta={TIER_WORDS[unlocked]}
                    dimmed={unlocked === UNDISCOVERED} status={maxed ? 'maxed' : charging.length ? 'active' : undefined}
                    statusLabel={maxed ? undefined : 'Charging'}
-                   footer={maxed ? null : <ItemCard.Facts rows={[
+                   footer={maxed ? null : gateUnknown ? <ItemCard.Facts rows={[['Next tier', '-']]}/> : <ItemCard.Facts rows={[
                      ['Progress', `${sigilProgress(progress, unlocked)} / ${commaNotation(nextCost)}`],
                      nextRow
                    ]}/>}>
@@ -115,7 +118,7 @@ const Sigils = () => {
     ? yarn ? 'Chilled Yarn' : 'the meritocracy bonus'
     : 'Chilled Yarn and the meritocracy bonus';
   const cardContext = {
-    failed: alchemyFailed, progressionFailed, characters: state?.characters, lastUpdated: state?.lastUpdated,
+    failed: alchemyFailed, progressionFailed, tierGatesFailed: Boolean(failedIn(TIER_GATE_SECTIONS)), characters: state?.characters, lastUpdated: state?.lastUpdated,
     boostSources, tierUnlocks: progressionFailed && !alchemyFailed ? getSigilTierUnlocks(account) : null
   };
 
@@ -138,7 +141,7 @@ const Sigils = () => {
                 info={prismaCapped ? 'Your Prisma multi is already at its x5 cap, so this adds nothing now.' : undefined}/>
       {research?.greenSigilsUnlocked || researchFailed
         ? <StatTile label={'TRUE DMG multi'}
-                    value={researchFailed ? '-' : formatNum(research?.greenSigilTrueDMG ?? 1, 'mult')}
+                    value={researchFailed || alchemyFailed ? '-' : formatNum(research?.greenSigilTrueDMG ?? 1, 'mult')}
                     sub={researchFailed || alchemyFailed ? undefined : `${formatNum(eclecticSigils)} eclectic sigils`}
                     info={'The game never reads this bonus in its damage formula: a game bug.'}/>
         : null}

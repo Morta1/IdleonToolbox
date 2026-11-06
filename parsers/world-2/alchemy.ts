@@ -505,7 +505,7 @@ export const getVialsBonusByEffect = (vials: any, effectName: any, statName?: an
     if (effectName && !desc.includes(effectName)) return sum;
     if (statName && !stat.includes(statName)) return sum;
     return sum + (growth(func, level, x1, x2, false) ?? 0) * multiplier;
-  }, 0);
+  }, 0) ?? 0;
 };
 
 export const getVialsBonusByStat = (vials: any, statName: any) => {
@@ -513,7 +513,7 @@ export const getVialsBonusByStat = (vials: any, statName: any) => {
     const { func, level, x1, x2, multiplier = 1, stat } = vial;
     if (statName !== stat) return sum;
     return sum + (growth(func, level, x1, x2, false) ?? 0) * multiplier;
-  }, 0);
+  }, 0) ?? 0;
 };
 
 export const applyVialsMulti = (vials: any, multiplier: any) => {
@@ -1102,7 +1102,7 @@ export const getUpgradeableBubbles = (acc: any, characters: any) => {
   const amberiteArtifact = isArtifactAcquired(acc?.sailing?.artifacts, 'Amberite');
   const multi = amberiteArtifact?.acquired || 1;
   const artifactBonus = amberiteArtifact ? amberiteArtifact?.baseBonus * multi : 0;
-  const moreBubblesFromMerit = acc?.tasks?.[2]?.[3]?.[6]
+  const moreBubblesFromMerit = acc?.tasks?.[2]?.[3]?.[6] ?? 0
   const meritBonus = moreBubblesFromMerit > 0 ? moreBubblesFromMerit : 0;
 
   const upgradeableBubblesAmount = Math.min(MAX_UPGRADEABLE_BUBBLES, Math.max(MIN_UPGRADEABLE_BUBBLES,

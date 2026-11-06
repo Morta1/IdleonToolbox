@@ -26,6 +26,6 @@ export const goalActions = (view, query) => {
 
 // A goal gone from the game has only what it stored: its key made readable, its kind beside it ("Stamp Z99 · Stamps")
 const readableKey = (key) => cleanUnderscore(key).replace(/([a-z])([A-Z])/g, '$1 $2');
-export const displayTitle = (view) => (view.status === 'missing' && !view.icon
+export const displayTitle = (view) => ((view.status === 'missing' || view.status === 'unread') && !view.icon
   ? (view.kind === 'all' ? view.name : `${readableKey(view.name)} · ${view.label}`)
   : goalTitle(view));

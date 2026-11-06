@@ -46,6 +46,7 @@ const AddGoalButton = () => {
   // resolve orders by system first, which mixes reached goals in with open ones
   const views = openFirst(pairRanges(resolveGoals(pageGoals, { account: state?.account, characters: state?.characters })));
   const reached = views.filter(({ status }) => status === 'reached').length;
+  const readable = views.filter(({ status }) => status !== 'unread').length;
   const card = cardId ? views.find(({ id }) => id === cardId) : null;
 
   const close = () => {
@@ -94,7 +95,7 @@ const AddGoalButton = () => {
                 setAnchorEl(e.currentTarget);
                 setOpen(views.length ? 'panel' : 'add');
               }}>
-        {views.length ? `Goals · ${reached} of ${views.length} reached` : 'Add goal'}
+        {!views.length ? 'Add goal' : readable ? `Goals · ${reached} of ${readable} reached` : "Goals · couldn't read"}
       </Button>
       {views.length ? (
         <IconButton aria-label="Add goal" color="primary" onClick={openAdd} sx={headerIconActionSx}>

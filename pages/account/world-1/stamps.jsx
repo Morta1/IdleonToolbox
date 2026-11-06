@@ -92,6 +92,8 @@ const Stamps = () => {
   // A failed section's page has no settings, so a saved reducer prices nothing there
   const reducerSet = !stampsFailed && settings?.reducer !== null && settings?.reducer !== undefined;
   const reducer = reducerSet ? settings.reducer : stampReducer;
+  // A failed atoms section leaves the reducer unknown: a material cost at 0% isn't the player's
+  const reducerUnknown = atomsFailed && !reducerSet;
   const [view, setView, resetView] = useToolbarState('stamps', STAMPS_TOOLBAR);
   const [picked, setPicked] = useState(null);
   // The details Panel pins under the Toolbar, so a stamp picked far down the grid shows its details in view
@@ -109,7 +111,8 @@ const Stamps = () => {
   };
   // Each stamp's state by category and index; the failed section's catalog has none, and shows whole
   const states = Object.fromEntries(Object.entries(localStamps ?? {}).map(([category, list]) => [category,
-    list.map((stamp) => (stampsFailed ? null : stampState(stamp, stamp.level < stamp.maxLevel ? 'money' : 'material', stateOptions)))]));
+    list.map((stamp) => (stampsFailed || (reducerUnknown && stamp.level >= stamp.maxLevel) ? null
+      : stampState(stamp, stamp.level < stamp.maxLevel ? 'money' : 'material', stateOptions)))]));
   const allStates = Object.values(states).flat();
   const counts = Object.fromEntries(STAMP_STATES.map(([key]) => [key, allStates.filter((type) => type === key).length]));
   const show = stampsFailed ? 'all' : view?.show ?? 'all';
@@ -155,7 +158,7 @@ const Stamps = () => {
   const shownStamps = stampsFailed ? [] : categories.flatMap(({ shown }) => shown);
   const pickedStamp = shownStamps.find(({ rawName }) => rawName === picked) ?? shownStamps[0];
   const detailsContext = {
-    keepGreenstacks: settings?.keepGreenstacks, reducer, exaltedText: exaltedFailed ? null : exaltedText,
+    keepGreenstacks: settings?.keepGreenstacks, reducer, reducerUnknown, exaltedText: exaltedFailed ? null : exaltedText,
     exaltedMulti: 1 + (exaltedMulti?.value ?? 0) / 100,
     vaultBonus: getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 16),
     charmBonus: getCharmBonus(account, 'Liqorice_Rolle')
@@ -318,7 +321,7 @@ const boostLine = (boosts, stampName) => {
 
 // The picked stamp's details, under its name: its sentence filled as the game fills it, its state in words, what the
 // next level costs against what you own, the next levels' costs and each top character's carry capacity
-const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText, exaltedMulti, vaultBonus, charmBonus }, inNote) => {
+const stampDetails = (stamp, { keepGreenstacks, reducer, reducerUnknown, exaltedText, exaltedMulti, vaultBonus, charmBonus }, inNote) => {
   const {
     displayName, level, maxLevel, effect, bonus, gained, state: type, goldCost, materialCost,
     futureCosts, bestCharacter, ownedMats, greenStackOwnedMats, hasMoney, itemReq, minReduction
@@ -327,7 +330,8 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText, exaltedMul
   const atMax = level >= maxLevel;
   const owned = (keepGreenstacks ? greenStackOwnedMats : ownedMats) ?? 0;
   const boosts = level > 0 ? stampBoosts(stamp, { exaltedMulti, exaltedText, vaultBonus, charmBonus }) : [];
-  const reducerText = level > 0 && atMax ? reducerLine(minReduction, reducer) : null;
+  const costUnknown = atMax && reducerUnknown;
+  const reducerText = level > 0 && atMax && !costUnknown ? reducerLine(minReduction, reducer) : null;
   // A phone's note is all there, and scrolls with the page. The pinned Panel's body is a scroller the keyboard can reach:
   // its ring draws inside, where its own edge clips it
   return <Box {...(inNote ? {} : { tabIndex: 0, role: 'region', 'aria-label': 'Stamp details' })} sx={inNote ? { display: 'grid', gap: 2 } : [(theme) => ({ '&:focus-visible': focusRing(theme, -2) }), {
@@ -351,7 +355,7 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText, exaltedMul
       {unobtainableStamps[displayName] ? <StatusText status={'locked'}>Unobtainable</StatusText> : null}
       {type ? <StatusText status={STATE_TONES[type] ?? 'problem'} wrap>{STATE_LABELS[type]}</StatusText> : null}
       {level > 0 ? <ItemCard.Section label={atMax ? 'Raise the max level' : 'Next level'}>
-        {atMax
+        {costUnknown ? '-' : atMax
           ? <ItemCard.Cost icon={`data/${itemReq?.rawName}.png`} iconAlt={cleanUnderscore(itemReq?.name ?? '')}
                            need={materialCost} have={owned}/>
           : <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
@@ -363,13 +367,13 @@ const stampDetails = (stamp, { keepGreenstacks, reducer, exaltedText, exaltedMul
         {reducerText ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{reducerText}</Typography> : null}
       </ItemCard.Section> : null}
     </Stack>
-    {level > 0 && futureCosts?.length ? <ItemCard.Section label={'Next levels'}>
+    {level > 0 && futureCosts?.length && !costUnknown ? <ItemCard.Section label={'Next levels'}>
       <FutureCosts futureCosts={futureCosts}/>
     </ItemCard.Section> : null}
     {level > 0 ? <ItemCard.Section label={'Carry capacity'}>
       <ItemCard.Facts rows={[
         ...(bestCharacter?.topCharacters ?? []).map(({ character, maxCapacity }) => [character,
-          maxCapacity >= materialCost ? formatNum(maxCapacity ?? 0, 'whole')
+          costUnknown || maxCapacity >= materialCost ? formatNum(maxCapacity ?? 0, 'whole')
             : <>{formatNum(maxCapacity ?? 0, 'whole')} <StatusText status={'problem'}>Short</StatusText></>]),
         ['In storage', formatNum(owned, 'whole')],
         gained > 0 ? ['Levels gained since your snapshot', formatNum(gained)] : null

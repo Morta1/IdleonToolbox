@@ -259,7 +259,7 @@ export const getGuaranteedCrystalMobs = (account: any) => {
   const meritocracyBonus = getMeritocracyBonus(account, 15);
   const legendPTSBonus = getLegendTalentBonus(account, 37);
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'SHINY_BEACON');
-  const taskBonus = account?.tasks?.[2]?.[3]?.[0];
+  const taskBonus = account?.tasks?.[2]?.[3]?.[0] ?? 0;
   const achievementBonus = getAchievementStatus(account?.achievements, 285);
 
   return Math.ceil((1 + meritocracyBonus / 100)
@@ -1202,7 +1202,7 @@ export const getAllCap = (character: any, account: any, forceMaxCapacity: any) =
 const D_TYPE_CAPACITY = 999999999;
 // game: "MaxCapacity"
 export const getItemCapacity = (type = '', character: any, account?: any, forceMaxCapacity?: any) => {
-  const gemshop = account?.gemShopPurchases?.find((value: any, index: any) => index === 58);
+  const gemshop = account?.gemShopPurchases?.find((value: any, index: any) => index === 58) ?? 0;
   const hasNanoChip = (account?.lab?.playersChips ?? []).flat().concat(account?.lab?.chips ?? []).find(({ name }: any) => name === 'Silkrode_Nanochip');
   const starSignBonus = getStarSignBonus(character, account, 'Carry_Cap', forceMaxCapacity && hasNanoChip, forceMaxCapacity);
   const minCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Mining_Items', character);

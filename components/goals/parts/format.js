@@ -19,6 +19,7 @@ export const formatPercent = (n) => `${Math.floor(n)}%`;
 export const REACHED = 'Reached';
 export const NO_LONGER_IN_GAME = 'No longer in the game';
 export const TARGET_NO_LONGER_APPLIES = 'Target no longer applies';
+export const COULD_NOT_READ = "Couldn't read this from your save";
 export const TRACKING = 'Tracking';
 // Stands in the bar's place on a goal that only follows an amount
 export const NO_TARGET = 'No target';
@@ -70,7 +71,7 @@ export const progressPercent = (view) => {
 // A goal's value colour: green when reached, muted when it cannot be measured
 export const valueColor = (status) => {
   if (status === 'reached') return 'text.success';
-  if (status === 'missing' || status === 'invalid') return 'text.secondary';
+  if (status === 'missing' || status === 'invalid' || status === 'unread') return 'text.secondary';
   return 'text.primary';
 };
 
@@ -192,6 +193,7 @@ export const goalFace = (view) => {
     mark: reached ? 'check' : null, cost: null
   };
   if (view.status === 'missing') return { ...face, value: NO_LONGER_IN_GAME, mark: null };
+  if (view.status === 'unread') return { ...face, value: COULD_NOT_READ, mark: null };
   // The entry is still there, so its current amount stays under the reason
   if (view.status === 'invalid') return { ...face, value: TARGET_NO_LONGER_APPLIES, mark: null, caption: currentAmount(view) };
   const barred = view.progress != null;

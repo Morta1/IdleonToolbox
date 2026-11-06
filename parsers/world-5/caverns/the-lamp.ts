@@ -73,7 +73,7 @@ export const getLampBonus = ({ holesObject, t, i, account }: any) => {
   const zenithBonus = 1 + getZenithBonus(account, 2) / 100;
   const raw = '25,10,8;15,40,10;20,35,12;5,1,1;2,2,2';
   return 99 === t
-    ? 25 * holesObject?.wishesUsed?.[7] * zenithBonus
+    ? 25 * (holesObject?.wishesUsed?.[7] ?? 0) * zenithBonus
     : (Number(raw.split(';')[t].split(',')[i])
-      * holesObject?.wishesUsed?.[Math.min(11, Math.round(4 + 2 * t))]) * zenithBonus;
+      * (holesObject?.wishesUsed?.[Math.min(11, Math.round(4 + 2 * t))] ?? 0)) * zenithBonus;
 }

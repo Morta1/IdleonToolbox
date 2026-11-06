@@ -4,6 +4,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { formatNum } from '@utility/helpers';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import Panel from '@components/common/cards/Panel';
+import { fedBy } from '@components/common/styles';
 
 // MSA_0..8 cover the first nine stats. The game draws no icon of its own for the later two, so
 // they borrow their skill's.
@@ -15,6 +16,7 @@ const MsaTotalizer = () => {
   // A failed section has no rows: no heading over nothing
   if (!bonuses.length) return null;
   const unlocked = isSuperbitUnlocked(state?.account, 'MSA_Totalizer');
+  const failed = fedBy(state?.account, 'msaTotalizer', 'towers', 'gaming', 'sneaking');
   return <Panel title={'MSA Totalizer'} meta={unlocked ? undefined : 'Unlocks with the MSA Totalizer superbit in Gaming.'}
                 sx={{ mb: 3 }}>
     {/* The Panel's width, not the window's: at 900 px a side ad leaves it 540 px, and three columns ran past its edge */}
@@ -26,7 +28,7 @@ const MsaTotalizer = () => {
         '@container (min-width: 760px)': { gridTemplateColumns: 'repeat(3, 1fr)' }
       }}>
         {bonuses.map(([stat, { name, value }], index) => <Panel.Row key={stat} icon={SKILL_ICONS[stat] ?? `etc/MSA_${index}.png`}
-                                                                    name={name} value={formatNum(value ?? 0, 'pct')}/>)}
+                                                                    name={name} value={failed ? '-' : formatNum(value ?? 0, 'pct')}/>)}
       </Box>
     </Box>
   </Panel>;

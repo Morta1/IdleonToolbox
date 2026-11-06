@@ -14,6 +14,7 @@ import GameIcon from '@components/common/GameIcon';
 import InfoButton from '@components/common/InfoButton';
 import StatusText from '@components/common/StatusText';
 import Panel from '@components/common/cards/Panel';
+import { fedBy } from '@components/common/styles';
 
 const STAT_LABELS = { strength: 'STR', agility: 'AGI', wisdom: 'WIS', luck: 'LUK' };
 const STAT_KEYS = { strength: 'TotalStats.STR', agility: 'TotalStats.AGI', wisdom: 'TotalStats.WIS', luck: 'TotalStats.LUK' };
@@ -35,13 +36,15 @@ const ExpRow = ({ value, max, percent }) => <Stack direction={'row'} alignItems=
 
 const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => {
   if (!statsFilter) return null;
+  // These read nearly every section, as Formulas' do: under any failed one they aren't the player's numbers
+  const failed = fedBy(account, ...(account?.failedSections ?? []));
   const { stats, afkTime, nextPortal } = character;
   const portalLock = nextPortal?.multiCharLock;
   const playerInfo = getMaxDamage(character, characters, account);
   const facts = Object.fromEntries([
     ...characterStatFacts(character, characters, account, playerInfo),
     ...characterPanelFacts(character, characters, account, playerInfo)
-  ].map((fact) => [fact.label, fact]));
+  ].map((fact) => [fact.label, failed ? { label: fact.label, value: '-' } : fact]));
   const isActive = differenceInMinutes(lastUpdated, afkTime) <= 5;
   const isOvertime = character?.activePrayers?.find(({ name }) => name === 'Unending_Energy') && differenceInHours(lastUpdated, afkTime) > 10;
   const classSkill = character?.skillsInfo?.character;

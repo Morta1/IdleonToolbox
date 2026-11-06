@@ -153,7 +153,7 @@ const processLegendTalentDescription = (description: string, index: number, bonu
 }
 
 export const getLegendTalentBonus = (account: Account, index: number): number => {
-  return (account as any)?.legendTalents?.talents?.find((legendTalent: any) => legendTalent.originalIndex === index)?.bonus;
+  return (account as any)?.legendTalents?.talents?.find((legendTalent: any) => legendTalent.originalIndex === index)?.bonus ?? 0;
 };
 
 

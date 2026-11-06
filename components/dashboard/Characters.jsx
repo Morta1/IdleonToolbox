@@ -314,7 +314,7 @@ const CharacterCard = ({ character, characters, account, lastUpdated, failedTrac
 
 // Computed only once opened: a character's full stats read most of the save.
 const CharacterStats = ({ character, characters, account }) => <ItemCard.Facts
-  rows={characterStatFacts(character, characters, account).map(({ label, value, rowText }) => [label, rowText ?? value])}/>;
+  rows={characterStatFacts(character, characters, account).map(({ label, value, rowText }) => [label, account?.failedSections?.length ? '-' : rowText ?? value])}/>;
 
 const UpgradeArrow = () => <Box component={'span'} sx={{ position: 'absolute', top: -4, right: -4, display: 'inline-flex' }}>
   <GameIcon src={'data/UpgArrowG.png'} size={16} alt={'Better than equipped'}/>

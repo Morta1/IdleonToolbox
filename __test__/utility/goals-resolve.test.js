@@ -291,6 +291,15 @@ describe('stub descriptors', () => {
 
 describe('failure modes', () => {
   it.each([
+    [['alchemy'], 'unread'],
+    [['*'], 'unread'],
+    [['speedrun'], resolveGoal(entryGoal({ metric: 'level', target: 1 }), ctx).status]
+  ])('under a failed %s a bubble goal reads %s', (failedSections, status) => {
+    const failed = { ...ctx, account: { ...ctx.account, failedSections } };
+    expect(resolveGoal(entryGoal({ metric: 'level', target: 1 }), failed).status).toBe(status);
+  });
+
+  it.each([
     ['unknown system', { system: 'nope', key: 'a' }],
     ['unknown key', { key: 'no-such-bubble' }]
   ])('%s is missing', (_, fields) => {

@@ -7,7 +7,7 @@ import { PAGES } from '@components/constants';
 import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
 import { fillVoteText, formatGame } from '@utility/gameNotation';
 import { getVoteBallot } from '@parsers/world-2/voteBallot';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { fedBy, MissingData, MissingSections, isSectionFailed } from '@components/common/styles';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -26,12 +26,23 @@ const BONUS_WEEK_OFFSET = 197860;
 const MERITOCRACY_WEEK_OFFSET = 543460;
 const weekLeft = (time, offset) => WEEK - (time + offset - WEEK * Math.floor((time + offset) / WEEK));
 
+// What the two multis read besides the ballot, by the name the note gives each
+const SECTION_NAMES = {
+  companions: 'Companions', gaming: 'Gaming', legendTalents: 'Legend Talents', hole: 'the Hole', summoning: 'Summoning',
+  equinox: 'Equinox', sushiStation: 'Sushi Station', arcade: 'the Arcade', clamWork: 'Clam Work', jellyOperator: 'Jelly Operator'
+};
+const VOTE_SECTIONS = ['companions', 'gaming', 'legendTalents', 'hole', 'summoning', 'equinox', 'sushiStation'];
+const MERIT_SECTIONS = ['companions', 'arcade', 'legendTalents', 'clamWork', 'sushiStation', 'jellyOperator'];
+
 const byVotes = (a, b) => (Number(b.bonus?.percent) || 0) - (Number(a.bonus?.percent) || 0);
 
 const VoteBallot = () => {
   const { state } = useContext(AppContext);
   const account = state?.account;
   const ballotFailed = isSectionFailed(account, 'voteBallot');
+  // What getVoteBallot's two multis read
+  const voteFailed = fedBy(account, 'voteBallot', ...VOTE_SECTIONS);
+  const meritFailed = fedBy(account, 'voteBallot', ...MERIT_SECTIONS);
   // A failed section's {} default: the parser's own bonuses with no save, filled at zero, with no ballot state
   const voteBallot = (ballotFailed ? getVoteBallot({}, {}, []) : account?.voteBallot) ?? {};
   const bonusOf = (bonus) => (ballotFailed ? 0 : bonus?.bonus);
@@ -98,15 +109,15 @@ const VoteBallot = () => {
     </>;
   };
 
-  const bonusText = ballotFailed ? '-' : formatNum(voteBallot?.voteMulti ?? 1, 'mult');
-  const meritocracyText = ballotFailed ? '-' : `${formatGame(voteBallot?.meritocracyMult ?? 1, 'Summoning.MeritocBonuszMulti')}x`;
+  const bonusText = voteFailed ? '-' : formatNum(voteBallot?.voteMulti ?? 1, 'mult');
+  const meritocracyText = meritFailed ? '-' : `${formatGame(voteBallot?.meritocracyMult ?? 1, 'Summoning.MeritocBonuszMulti')}x`;
 
   return <>
     <NextSeo
       title="Vote Ballot | Idleon Toolbox"
       description="Track your active vote ballot bonuses and their effects on gameplay in Legends of Idleon"
     />
-    {ballotFailed ? <MissingData name={'Vote Ballot'} failed atZero/> : null}
+    {ballotFailed ? <MissingData name={'Vote Ballot'} failed atZero/> : <MissingSections account={account} names={SECTION_NAMES}/>}
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 2'].categories, 'voteBallot')}>
       {ballotTab({
         label: 'Bonus multi',
