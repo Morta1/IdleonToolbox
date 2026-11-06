@@ -165,7 +165,7 @@ function getTaskProgress(taskIndex: number, account: any, characters: any = []):
   const opts = account?.accountOptions ?? [];
 
   switch (taskIndex) {
-    // 0-3: TotalStats (STR/AGI/WIS/LUK) — per-character live calc, skip for now
+    // 0-3: TotalStats (STR/AGI/WIS/LUK): per-character live calc, skip for now
     case 0: case 1: case 2: case 3: return 0;
 
     // 4-7: Class-specific resources (Grimoire/Compass/Tesseract)
@@ -183,8 +183,8 @@ function getTaskProgress(taskIndex: number, account: any, characters: any = []):
     case 13: return account?.statues?.[15]?.level ?? 0;  // BOX
     case 14: return account?.statues?.[16]?.level ?? 0;  // TWOSOUL
 
-    // 15: Class EXP multi — computed by getClassExpMulti(), not stored on character
-    // 16: Drop Rate multi — computed by getDropRate(), not stored on character
+    // 15: Class EXP multi: computed by getClassExpMulti(), not stored on character
+    // 16: Drop Rate multi: computed by getDropRate(), not stored on character
     case 15: case 16: return 0;
 
     // 17: Crystallin Stamp level
@@ -219,7 +219,7 @@ function getTaskProgress(taskIndex: number, account: any, characters: any = []):
     // 26: Foraging Speed (Desert Oasis)
     case 26: return account?.breeding?.territories?.[5]?.forageSpeed ?? 0;
 
-    // 27: Ribbon tier on Yumi Peachring — stored in grimoire (Ribbon array)
+    // 27: Ribbon tier on Yumi Peachring: stored in grimoire (Ribbon array)
     case 27: return Number(account?.grimoire?.ribbons?.[92]) || 0;
 
     // 28: Sausy Sausage meal level
@@ -271,13 +271,13 @@ function getTaskProgress(taskIndex: number, account: any, characters: any = []):
     // 46: Jade
     case 46: return account?.sneaking?.jadeCoins ?? 0;
 
-    // 47: Golden Food Bonus % — DNSM.GfoodBonusMULTI, not parsed
+    // 47: Golden Food Bonus %: DNSM.GfoodBonusMULTI, not parsed
     case 47: return 0;
 
     // 48: Total crops found
     case 48: return account?.farming?.cropsFound ?? 0;
 
-    // 49: Max crystal damage — computed by getMaxDamage(), not stored
+    // 49: Max crystal damage: computed by getMaxDamage(), not stored
     case 49: return 0;
 
     // 50: Total Spelunking POW

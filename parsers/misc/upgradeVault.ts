@@ -106,7 +106,7 @@ const resolveVaultDescription = (description: any, index: number, bonus: number,
     resolved = resolved.replace('&', '' + getMonsterLadderTarget(ctx.knockoutProgress));
   }
   // Monster Tax (2) ends with a "Total Coin Bonus from@all@sources;~x" clause whose `~`
-  // (MonsterCash total) we don't compute — drop the dangling clause rather than show it raw.
+  // (MonsterCash total) we don't compute: drop the dangling clause rather than show it raw.
   if (index === 2) {
     resolved = resolved.split('_Total_Coin_Bonus')[0];
   }

@@ -4,7 +4,7 @@ import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getStudyBonus } from '@parsers/world-5/hole';
 import { OPT } from '@parsers/accountOptions';
 
-// Cavern 18 — Crystal Glunko Cove. Mirrors N.js customBlock_Holes2 Cglunko_* handlers.
+// Cavern 18: Crystal Glunko Cove. Mirrors N.js customBlock_Holes2 Cglunko_* handlers.
 // Cove upgrade level t (0..23) lives in OptionsListAccount[630 + t]; gooey shapes (the cove currency)
 // in OptionsListAccount[654 + shapeId] (0..11). randomList2 holds the cove definitions:
 //   [11] names, [12] descriptions, [13] bonus-per-level, [14] cost base.

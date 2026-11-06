@@ -28,7 +28,7 @@ export const getExpDiff = (snapshot: any, current: any, lastUpdated: any) => {
 
   const timeDiffMinutes = (lastUpdated - snapshot.snapshotTime) / 1000 / 60;
 
-  // Fresh snapshot — no elapsed time yet, return zeroed result so UI shows 0s instead of NaN
+  // Fresh snapshot: no elapsed time yet, return zeroed result so UI shows 0s instead of NaN
   if (timeDiffMinutes <= 0) {
     return {
       expEarned: 0,

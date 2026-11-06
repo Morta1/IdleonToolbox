@@ -5,7 +5,7 @@ import type { IdleonData } from './types';
 import { getPowerType } from './powerTypes';
 
 // Re-exported so existing importers keep working. Modules needing ONLY this should import
-// from './powerTypes' — obols.ts reaches items.ts and from there the parser graph.
+// from './powerTypes': obols.ts reaches items.ts and from there the parser graph.
 export { getPowerType };
 
 const obolStats: string[] = ['STR', 'AGI', 'WIS', 'LUK', 'Weapon_Power', 'Defence', 'UQ1txt', 'UQ2txt'];

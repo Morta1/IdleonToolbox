@@ -7,7 +7,7 @@ import {
 
 const HOUR_MS = 3600 * 1000;
 const WEEK_MS = 7 * 24 * HOUR_MS;
-// Saturday 1970-01-03 21:00 UTC — the canonical week-anchor moment.
+// Saturday 1970-01-03 21:00 UTC: the canonical week-anchor moment.
 const WEEK_ANCHOR_MS = (2 * 24 + 21) * HOUR_MS;
 
 // ─── biggestClimber ───────────────────────────────────────────────────────────
@@ -66,14 +66,14 @@ describe('closestGap', () => {
     expect(result.gap).toBe(10);
   });
 
-  it('picks by relative gap, not absolute — a top pair beats a closer bottom pair', () => {
+  it('picks by relative gap, not absolute: a top pair beats a closer bottom pair', () => {
     // Absolute: ranks 3/4 are closer (5,000 vs 10,000). Relative: ranks 1/2
     // win (10000/1000000 = 1% vs 5000/100000 = 5%). Relative must prevail.
     const guilds = [
       { guild_id: 'rank1', rank: 1, total_gp: 1_000_000 },
-      { guild_id: 'rank2', rank: 2, total_gp: 990_000 },  // abs 10,000 — rel 1%
+      { guild_id: 'rank2', rank: 2, total_gp: 990_000 },  // abs 10,000, rel 1%
       { guild_id: 'rank3', rank: 3, total_gp: 100_000 },
-      { guild_id: 'rank4', rank: 4, total_gp: 95_000 }    // abs 5,000 — rel 5%
+      { guild_id: 'rank4', rank: 4, total_gp: 95_000 }    // abs 5,000, rel 5%
     ];
     const result = closestGap(guilds);
     expect(result.leader.guild_id).toBe('rank1');
@@ -119,7 +119,7 @@ describe('closestGap', () => {
 // ─── msUntilWeeklyReset ──────────────────────────────────────────────────────
 
 describe('msUntilWeeklyReset', () => {
-  it('returns a full week at the exact reset instant — rolls over, never zero', () => {
+  it('returns a full week at the exact reset instant: rolls over, never zero', () => {
     expect(msUntilWeeklyReset(WEEK_ANCHOR_MS)).toBe(WEEK_MS);
     // And the same N weeks later (proves periodicity).
     expect(msUntilWeeklyReset(WEEK_ANCHOR_MS + 100 * WEEK_MS)).toBe(WEEK_MS);

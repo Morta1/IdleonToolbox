@@ -33,7 +33,7 @@ describe('fetchAllBuildsAtBuildTime', () => {
     expect(first).toBe(second);
   });
 
-  it('does not cache a failure — a retry can still succeed', async () => {
+  it('does not cache a failure: a retry can still succeed', async () => {
     global.fetch = vi.fn()
       .mockResolvedValueOnce({ ok: false, status: 500, json: async () => ({}) })
       .mockResolvedValueOnce(okResponse({ items: [build('a')], nextCursor: null }));

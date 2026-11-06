@@ -222,7 +222,7 @@ export const applyMonumentFountain = (base: number, holesObject: any, t: any) =>
 
 // 'MonumentROGbonuses' == e
 export const getMonumentBonus = ({ holesObject, t, i }: any): number => {
-  // Monument-multi upgrade itself (i = 9) only gets the fountain factor — adding
+  // Monument-multi upgrade itself (i = 9) only gets the fountain factor: adding
   // cosmo or its own i=9 contribution would be self-referential.
   const finalResult = i === 9
     ? applyMonumentFountain(1, holesObject, t)

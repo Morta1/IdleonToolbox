@@ -1,6 +1,6 @@
 // Class identity: the class name constants, the talent-page ordering per class, and the base-class
 // lookup. Extracted from talents.ts because these are plain values with no dependencies, while
-// talents.ts imports 18 other parser modules — and through class-specific/{grimoire,tesseract} that
+// talents.ts imports 18 other parser modules, and through class-specific/{grimoire,tesseract} that
 // reached monsterDrops. Anything importing just these constants from talents.ts pulled the whole
 // parser graph and its data with it, which put megabytes onto the 137 public /tools/builds/* pages
 // that only need the tab order.

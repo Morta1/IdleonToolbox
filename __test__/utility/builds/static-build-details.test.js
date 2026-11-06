@@ -120,7 +120,7 @@ describe('fetchBuildDetailAtBuildTime', () => {
       return ok(id);
     }));
 
-    // 9 good, 1 bad: 10% — under the floor, and below the minimum sample for most of it.
+    // 9 good, 1 bad: 10%: under the floor, and below the minimum sample for most of it.
     for (let i = 0; i < 9; i++) await fetchBuildDetailAtBuildTime(`good${i}`);
     await expect(fetchBuildDetailAtBuildTime('bad0')).resolves.toBeNull();
 

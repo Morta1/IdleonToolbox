@@ -244,7 +244,7 @@ const formatFountainDescription = (
     }
   }
 
-  // Green Water tier-specific substitutions (tier 2 — real content as of 2.3.511)
+  // Green Water tier-specific substitutions (tier 2: real content as of 2.3.511)
   if (t === 2) {
     if (i === 2 || i === 3 || i === 4) {
       const value = getFountCurrencyBaseValue(holesObject, i + 4);
