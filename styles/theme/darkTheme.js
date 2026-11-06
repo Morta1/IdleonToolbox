@@ -102,19 +102,19 @@ const identity = {
   frame: { surface: '#141A21', edge: 'rgba(255, 255, 255, 0.12)', text: '#ffffff', accent: '#90caf9' }
 };
 
-// Game colors that write words, in light only: the same hue darkened to 4.5:1 on the card and the page (Decision 4). Dots,
-// edges and the game's pictures keep the set above.
+// Game colors that write words, in light only: the same hue darkened to 5.5:1 on the page, so they don't read paler than
+// text.secondary beside them, and no further, or yellows turn brown. Dots, edges and the game's pictures keep the set above.
 const lightIdentity = {
   ...identity,
-  pin: '#836f00',
-  stats: { STR: '#d32f2f', AGI: '#328036', WIS: '#a946ba', LUK: '#b05900' },
-  superTalent: '#836f30',
-  damage: { blue: '#3a788e', purple: '#9a51b8', yellow: '#7f7039', plain: '#73715a' },
-  fever: { yellow: '#846f00', red: '#bc4c42', brown: '#916846', green: '#3f7d3f', menagerie: '#3675a7' },
-  artifactTiers: ['#707070', '#836f00', '#9c6259', '#3c7e4a', '#007f6f', '#7f61b5', '#ab547a'],
-  tomeTiers: { bronze: '#8c6b41', silver: '#6d7072', gold: '#836f00', blue: '#337896' },
-  insightLevels: ['#717070', '#8b6a5a', '#4a7784', '#856d3d', '#4669da', '#b92bcf', '#d72d2d', '#26813b', '#a4597e', '#ac5c1f', '#766879'],
-  leaderboard: { ...identity.leaderboard, youText: '#327b7f', searched: '#9a6414' },
+  pin: '#746200',
+  stats: { STR: '#bc2a2a', AGI: '#2c7130', WIS: '#953ea5', LUK: '#9b4f00' },
+  superTalent: '#74622b',
+  damage: { blue: '#336a7e', purple: '#8948a4', yellow: '#706332', plain: '#666450' },
+  fever: { yellow: '#756200', red: '#a7433b', brown: '#805c3e', green: '#386f38', menagerie: '#306794' },
+  artifactTiers: ['#636363', '#746200', '#8a564f', '#356f41', '#007062', '#7055a0', '#974a6c'],
+  tomeTiers: { bronze: '#7c5e39', silver: '#616466', gold: '#746200', blue: '#2d6a85' },
+  insightLevels: ['#646363', '#7b5d4f', '#426975', '#766036', '#3e5cc0', '#a326b7', '#be2828', '#227234', '#914e6f', '#97511b', '#6c5f6f'],
+  leaderboard: { ...identity.leaderboard, youText: '#2c6c70', searched: '#8a5912' },
   builds: { main: '#1565c0', onMain: '#ffffff', soft: 'rgba(21, 101, 192, 0.08)', edge: 'rgba(21, 101, 192, 0.5)' },
   family: { Beginner: '#8d6107', Warrior: '#b33315', Archer: '#317234', Mage: '#0966b7' }
 };
