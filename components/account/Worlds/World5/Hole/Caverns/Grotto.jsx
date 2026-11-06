@@ -17,7 +17,7 @@ const Grotto = ({ hole }) => {
     <StatTile label={'Monarch HP'} value={formatGame(grotto?.monarchHp ?? 0, 'Holes.MonarchHP')}/>
     <StatTile label={'Mushroom kills'}
               value={`${formatNum(Math.ceil(grotto?.mushroomKills ?? 0))} / ${formatNum(Math.ceil(grotto?.mushroomKillsReq ?? 0))}`}/>
-    <StatTile label={'Mushroom kills left'} value={Math.ceil(grotto?.mushroomKillsLeft ?? 0)} kind={'amount'}/>
+    <StatTile label={'Mushroom kills left'} value={Math.ceil(grotto?.mushroomKillsLeft ?? 0)} kind={{ game: 'Holes.MushKillsLeft' }}/>
     {opalsFoundTile(hole, 8)}
     <StatTile label={'Lootie bonus'} value={schematics?.[LOOTIE]?.totalBonus ?? 0} kind={'pct'}/>
     <StatTile label={'Expie bonus'} value={schematics?.[EXPIE]?.totalBonus ?? 0} kind={'pct'}/>

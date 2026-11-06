@@ -33,7 +33,7 @@ const BellMethodCost = ({ costType, cost, owned }) => {
                           format={formatBits}/>;
   }
   const [icon, name] = BELL_COSTS[costType] ?? ['afk_targets/Nothing.png', ''];
-  return <ItemCard.Cost icon={icon} iconAlt={name} need={cost ?? 0} have={owned}/>;
+  return <ItemCard.Cost icon={icon} iconAlt={name} need={cost ?? 0} have={owned} game={'Holes.BellCosts'}/>;
 };
 
 const TheBell = ({ hole }) => {

@@ -16,7 +16,7 @@ const TheLamp = ({ hole }) => {
 
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
-      <StatTile label={'Wishes'} value={theLamp?.currentWishes ?? 0} kind={'amount'}/>
+      <StatTile label={'Wishes'} value={theLamp?.currentWishes ?? 0} kind={{ game: 'Save.LampWishes' }}/>
       <StatTile label={'Wishes per day'} value={formatNum(theLamp?.wishPerDay ?? 0, 'amount', { precise: true })}/>
       {opalsFoundTile(hole, 6)}
     </Stack>

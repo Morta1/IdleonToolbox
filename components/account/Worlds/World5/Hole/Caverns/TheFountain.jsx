@@ -210,7 +210,7 @@ const TheFountain = ({ hole, sectionFailed }) => {
 
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
-      <StatTile label={'Marbles'} value={formatGame(fountain?.marbleCurrency ?? 0, 'Holes.Fount_MarbleizeCost', { whole: true })}/>
+      <StatTile label={'Marbles'} value={formatGame(fountain?.marbleCurrency ?? 0, 'Save.FountainMarbles', { whole: true })}/>
       <StatTile label={'Max coins'} value={formatGame((fountain?.spacesOwned ?? 0) * (fountain?.maxStackSize ?? 0), 'Holes2.MaxCoinz', { whole: true })}
                 info={`The most coins the floor holds before they collect themselves: ${formatGame(fountain?.spacesOwned ?? 0, 'Holes2.SpacesOwned', { whole: true })} spaces of ${formatGame(fountain?.maxStackSize ?? 0, 'Holes2.MaxStackSize', { whole: true })}.`}/>
       {currencies.map((currency) => <StatTile key={`cur-${currency.type}`} label={currency.name}

@@ -1,7 +1,7 @@
 import React from 'react';
 import { Stack } from '@mui/material';
 import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
-import { bitsIcon, formatBits } from '@utility/gameNotation';
+import { bitsIcon, formatBits, formatGame } from '@utility/gameNotation';
 import Tabber from '@components/common/Tabber';
 import Imports from './Imports';
 import Mutations from './Mutations';
@@ -30,7 +30,7 @@ const General = ({ account, gaming, sectionFailed, characters, lastUpdated }) =>
   } = gaming ?? {};
   // The bit multi re-reads the gaming section, which a failed parse leaves empty
   const bitMulti = sectionFailed ? null : getBitsMulti(account, characters);
-  const bitMultiText = formatNum(bitMulti?.value ?? 1, 'mult');
+  const bitMultiText = `${formatGame(bitMulti?.value ?? 1, 'GamingStatType.SproutValueNonPlantMulti')}x`;
 
   return <>
     <PageSummary failed={sectionFailed}>

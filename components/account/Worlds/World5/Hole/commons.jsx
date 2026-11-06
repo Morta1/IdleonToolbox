@@ -74,7 +74,7 @@ export const monumentTiles = (monument, hole) => {
   const afkText = formatNum(afkHours?.totalValue ?? 0);
   return <>
     <StatTile label={'Opal chance'} icon={'data/Opal.png'} value={(monument?.opalChance ?? 0) * 100} kind={'pct'}/>
-    <StatTile label={'Hours'} value={monument?.hours ?? 0} kind={'amount'}/>
+    <StatTile label={'Hours'} value={monument?.hours ?? 0} kind={{ game: 'Save.MonumentHours' }}/>
     <StatTile label={'Reward multi'} value={(monument?.rewardMulti ?? 0) < 1 ? 0 : monument.rewardMulti} kind={'mult'}/>
     <StatTile label={'Next fight in'}
               value={monument?.timeForNextFight > 0 ? msToDate(monument.timeForNextFight * 1000) : <StatusText status={'ready'}/>}/>
@@ -101,7 +101,7 @@ export const monumentBonusCard = ({ description, level, bonus, cap, progression,
 export const skillingTiles = ({ hole, cavernIndex, effLabel, eff, layerLabel = 'Layer', layer, resource, icon, done, required }) => {
   const amount = (value) => gameFill(value ?? 0, Math.max(done ?? 0, required ?? 0) < 1e9 ? 'Comma' : 'Big', { whole: true });
   return <>
-    <StatTile label={effLabel} value={gameFill(eff ?? 0, 'Big', { whole: true })}/>
+    <StatTile label={effLabel} value={formatGame(eff ?? 0, 'Holes.MotherlodeEffBase', { whole: true })}/>
     <StatTile label={layerLabel} value={layer ?? 0} kind={'amount'}/>
     <StatTile label={resource} icon={icon} value={`${amount(done)} / ${amount(required)}`}/>
     {opalsFoundTile(hole, cavernIndex)}

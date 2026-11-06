@@ -17,7 +17,7 @@ const TheHarp = ({ hole }) => {
   const strings = theHarp?.stringNotes ?? [];
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
-      <StatTile label={'Power'} value={theHarp?.power ?? 0} kind={'pct'}/>
+      <StatTile label={'Power'} value={theHarp?.power ?? 0} kind={{ game: 'Save.HarpPower', unit: '%' }}/>
       <StatTile label={'Power rate'} value={`${formatNum(theHarp?.powerRate ?? 0)}/hr`}/>
       <StatTile label={'Strings'} value={theHarp?.stringSlots ?? 0} kind={'amount'}/>
       <StatTile label={'New note cost'} value={formatGame(theHarp?.newNoteCost ?? 0, 'Holes.HarpNewNote_Cost', { whole: true })}/>
