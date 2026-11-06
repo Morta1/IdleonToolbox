@@ -100,6 +100,7 @@ const eslintConfig = defineConfig([
     '.cursor/**',
     '.idea/**',
     '.screens/**',
+    '.screens-light/**',
     '.screens-report/**',
     '.screens-today/**',
   ]),

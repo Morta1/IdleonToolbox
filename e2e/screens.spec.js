@@ -1,4 +1,5 @@
-// Screenshot every route in demo mode, for playwright.screens.config.js (npm run screens:base / screens:diff).
+// Screenshot every route in demo mode, for playwright.screens.config.js (npm run screens:base / screens:diff, and
+// screens:base:light / screens:diff:light for the light scheme).
 import { test as base, expect } from '@playwright/test';
 import { getAllTestCases, clientNavigate } from './smoke-helpers.js';
 import { settleStrips, waitForRender } from './wait-helpers';
@@ -75,6 +76,8 @@ const fitPhoneViewport = async (page) => {
 };
 
 const shoot = async (page, name) => {
+  // A seed that didn't take would write dark pages into .screens-light/, and every later diff would agree with them.
+  await expect(page.locator('html')).toHaveClass(new RegExp(`\\b${test.info().config.metadata.scheme}\\b`));
   // GameIcon refits once the sprite bounds arrive (utility/spriteBounds.js): shoot after that.
   await expect(page.locator('[data-fit="pending"]')).toHaveCount(0);
   const region = REGION ? page.locator(REGION).first() : null;

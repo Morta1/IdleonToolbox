@@ -71,37 +71,65 @@ const SAMPLES = [
   // Without out/ the exported-route readers fall back to /wiki, and a repeated test title fails collection.
 ].filter(({ route }, i, all) => all.findIndex((other) => other.route === route) === i);
 
+// The scheme reaches <html> before React runs, from storage and the device, and the export knows neither. A stored
+// light has to beat a device that prefers dark, and system has to follow a device either way.
+const SCHEMES = [
+  { mode: 'light', device: 'dark', paints: 'light' },
+  { mode: 'system', device: 'light', paints: 'light' },
+  { mode: 'system', device: 'dark', paints: 'dark' }
+];
+
+// The defaults are a first visit: nothing stored and Playwright's device, which prefers light, and the site stays dark.
+const expectCleanHydration = async (browser, { route, seed, width, device = 'light', paints = 'dark' }) => {
+  const context = await browser.newContext({
+    viewport: { width, height: 900 },
+    timezoneId: 'Asia/Jerusalem',
+    locale: 'de-DE',
+    colorScheme: device
+  });
+  const page = await context.newPage();
+  if (seed) {
+    await page.addInitScript((values) => {
+      for (const [key, value] of Object.entries(values)) localStorage.setItem(key, value);
+    }, seed);
+  }
+  const errors = [];
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') errors.push(msg.text());
+  });
+  page.on('pageerror', (err) => errors.push(err.message));
+
+  await page.goto(route);
+  await waitForRender(page);
+  // waitForRender returns once innerText stops changing, which the static body already is
+  // before React runs: without this the assertion could pass on a page that never hydrated.
+  await page.waitForFunction(() => window.next?.router?.isReady === true, null, { timeout: 30_000 });
+
+  expect(errors.filter((text) => HYDRATION_ERROR.test(text))).toEqual([]);
+  // Without this a seed that never took would pass as one more dark run.
+  await expect(page.locator('html')).toHaveClass(new RegExp(`\\b${paints}\\b`));
+  await context.close();
+};
+
 for (const width of WIDTHS) {
   for (const { route, seed } of SAMPLES) {
-    test(`${route} hydrates without a mismatch at ${width}px`, async ({ browser }) => {
-      const context = await browser.newContext({
-        viewport: { width, height: 900 },
-        timezoneId: 'Asia/Jerusalem',
-        locale: 'de-DE'
-      });
-      const page = await context.newPage();
-      if (seed) {
-        await page.addInitScript((values) => {
-          for (const [key, value] of Object.entries(values)) localStorage.setItem(key, value);
-        }, seed);
-      }
-      const errors = [];
-      page.on('console', (msg) => {
-        if (msg.type() === 'error') errors.push(msg.text());
-      });
-      page.on('pageerror', (err) => errors.push(err.message));
-
-      await page.goto(route);
-      await waitForRender(page);
-      // waitForRender returns once innerText stops changing, which the static body already is
-      // before React runs: without this the assertion could pass on a page that never hydrated.
-      await page.waitForFunction(() => window.next?.router?.isReady === true, null, { timeout: 30_000 });
-
-      expect(errors.filter((text) => HYDRATION_ERROR.test(text))).toEqual([]);
-      await context.close();
-    });
+    test(`${route} hydrates without a mismatch at ${width}px`, ({ browser }) => expectCleanHydration(browser, { route, seed, width }));
   }
 }
+
+// Each route meets every scheme once, each at another width, so a scheme still sees all three widths without tripling the run.
+SAMPLES.forEach(({ route, seed }, routeIndex) => {
+  SCHEMES.forEach(({ mode, device, paints }, schemeIndex) => {
+    const width = WIDTHS[(routeIndex + schemeIndex) % WIDTHS.length];
+    test(`${route} hydrates without a mismatch at ${width}px, ${mode} on a device that prefers ${device}`, ({ browser }) => expectCleanHydration(browser, {
+      route,
+      seed: { ...seed, 'mui-mode': mode },
+      width,
+      device,
+      paints
+    }));
+  });
+});
 
 // router.query is {} on the first render of a statically exported page, so a tab strip that reads
 // the router live and data seeded once from a useState initialiser drift apart: the tab highlights

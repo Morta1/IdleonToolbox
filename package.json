@@ -18,6 +18,8 @@
     "serve:e2e": "node e2e/serve.mjs",
     "screens:base": "npx playwright test -c playwright.screens.config.js --update-snapshots=all",
     "screens:diff": "npx playwright test -c playwright.screens.config.js",
+    "screens:base:light": "playwright test -c playwright.screens.config.js --update-snapshots=all",
+    "screens:diff:light": "playwright test -c playwright.screens.config.js",
     "lint": "eslint .",
     "prepare": "husky || true",
     "prebuild": "node utility/build-worker.mjs && node scripts/entity-graph/game-constants.mjs && node scripts/entity-graph/build.mjs",
