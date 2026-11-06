@@ -30,7 +30,7 @@ const statueDetails = ({ statue, index, account, characters, nextLv, flairLevel,
         ['Voodoo Statufication', formatNum(talentMulti, 'mult')]
       ]}/>
     </ItemCard.Section>
-    {characters?.length ? <ItemCard.Section label={'Per character, with all multipliers'}>
+    {characters?.length ? <ItemCard.Section label={'Per character, all multipliers'}>
       <ItemCard.Facts rows={characters.map(({ name: characterName, flatTalents }) => [characterName,
         formatNum(Math.floor(10 * getStatueBonus(account, index, flatTalents)) / 10, 'amount', { precise: true })])}/>
     </ItemCard.Section> : null}

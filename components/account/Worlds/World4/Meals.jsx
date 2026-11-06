@@ -37,7 +37,8 @@ const MEALS_TOOLBAR = { sort: null, hideCapped: false, view: 'cards' };
 // procs on the tab
 export const MEALS_SETTINGS = { overflow: false, amethyst: false, foodLust: null, procs: 15 };
 export const MEALS_GEAR = { overflow: false, amethyst: false, foodLust: null };
-const SORTS = [['book', 'Book order', 'asc'], ['time', 'Time to next level', 'asc'], ['nmlb', 'No Meal Left Behind', 'asc'], ['ribbon', 'Ribbon rank', 'asc'],
+const SORTS = [['book', 'Book order', 'asc', ['Book order', 'Book order reversed']], ['time', 'Time to next level', 'asc'],
+  ['nmlb', 'No Meal Left Behind', 'asc', ['Next in line first', 'Last in line first']], ['ribbon', 'Ribbon rank', 'asc'],
   ...BREAKPOINT_LEVELS.map((level) => [`lv${level}`, `Time to Lv ${level}`, 'asc'])];
 const AMETHYST_RHINESTONE = 4.5;
 

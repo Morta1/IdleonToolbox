@@ -134,16 +134,18 @@ const Filter = ({ name, label }) => {
   return <FilterPill value={name} on={on} label={label} onToggle={() => onChange({ [name]: !on })}/>;
 };
 
-// The sort without the headers: options are [key, label, firstOrder?, alphabetical?]. A click on a table's header flips its
+// The sort without the headers: options are [key, label, firstOrder?, words?]. A click on a table's header flips its
 // sort, but a card view and a phone have no header to click: there the direction button is the only way, so it stays, and it
 // shows once a sort is picked rather than sitting faint and disabled. (The one Sort over a sortable table, the wiki's listing,
-// hides below its headers' width.) alphabetical: its key is words, so the button says A to Z, not lowest first.
+// hides below its headers' width.) words: what the button says for an option whose key isn't a number. true for names,
+// which read A to Z, or the option's own [ascending, descending] ("Oldest first", "Newest first").
 const Sort = ({ name = 'sort', options, sx }) => {
   const { state, onChange, placement } = useContext(ToolbarContext);
   const sort = state[name] ?? null;
   const descending = sort?.order === 'desc';
   const labelOf = (key) => options.find(([value]) => value === key)?.[1] ?? key;
-  const [low, high] = options.find(([value]) => value === sort?.key)?.[3] ? ['A to Z', 'Z to A'] : ['Lowest first', 'Highest first'];
+  const words = options.find(([value]) => value === sort?.key)?.[3];
+  const [low, high] = Array.isArray(words) ? words : words ? ['A to Z', 'Z to A'] : ['Lowest first', 'Highest first'];
   const flip = `${descending ? high : low}, click to flip`;
   return <Stack direction="row" gap={0.5} alignItems="center" sx={{ ...(placement === 'panel' ? { width: '100%' } : {}), ...sx }}>
     <TextField

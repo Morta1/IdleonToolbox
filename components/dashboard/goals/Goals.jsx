@@ -39,8 +39,8 @@ const STARTER_PAGES = [
 ];
 
 const SORTS = [
-  ['closest', 'Closest first', 'desc'],
-  ['recent', 'Recently added', 'desc']
+  ['closest', 'Closest first', 'desc', ['Furthest first', 'Closest first']],
+  ['recent', 'Recently added', 'desc', ['Oldest first', 'Newest first']]
 ];
 const DEFAULT_SORT = { key: 'closest', order: 'desc' };
 const SORT_KEY = 'goals-dashboard-sort';

@@ -221,7 +221,7 @@ const PetCollection = ({ companions, sectionFailed, tournamentFailed }) => {
       <Toolbar.View options={[['pets', 'Base'], ['plus', 'Pet Mart+']]}/>
       {failed ? null : <Toolbar.Show options={[['all', 'All', counts.all], ['tradable', 'Tradable', counts.tradable],
         ['missing', plusView ? 'Not upgraded' : 'Missing', counts.missing]]}/>}
-      {failed || !historyLoaded ? null : <Toolbar.Sort options={[['lastSeen', 'Last in the Pet Mart', 'desc']]}/>}
+      {failed || !historyLoaded ? null : <Toolbar.Sort options={[['lastSeen', 'Last in the Pet Mart', 'desc', ['Longest ago first', 'Most recent first']]]}/>}
     </Toolbar>}
     {/* The banner says how many and turns it off; this says what the numbers mean */}
     {ownAccount && !plusView && !editing && simulatedCount > 0 ? <Box sx={{ mb: 2 }}>

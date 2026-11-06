@@ -9,7 +9,9 @@ import GameIcon from '@components/common/GameIcon';
 
 // Under 100 kills is the equinox challenge threshold, same rule as the dashboard alert.
 const EQUINOX_KILLS = 100;
-const LINE_SX = { display: 'inline-flex', alignItems: 'center', gap: 0.5, whiteSpace: 'nowrap' };
+// A block, not inline: an inline line sits on its first item's baseline, the sprite's bottom for the number and the words
+// for the label, which set the two 3 px apart
+const LINE_SX = { display: 'flex', alignItems: 'center', gap: 0.5, whiteSpace: 'nowrap' };
 const DOT_SIZE = 8;
 const Dot = ({ sx }) => <Box component={'span'} aria-hidden={'true'} sx={{
   display: 'inline-block', width: DOT_SIZE, height: DOT_SIZE, borderRadius: '50%', bgcolor: 'text.success', ...sx

@@ -388,6 +388,7 @@ describe('Dashboard goals', () => {
     expect(rowNames()).toEqual([tenthName, halfName, quarterName]);
     pick('Sort by', 'Recently added');
     expect(rowNames()).toEqual([tenthName, halfName, quarterName]);
+    expect(screen.getByRole('button', { name: 'Newest first, click to flip' })).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Unpin goal' }));
     expect(rowNames()).toEqual([halfName, tenthName, quarterName]);
     fireEvent.click(within(rows()[2]).getByRole('button', { name: 'Pin goal' }));

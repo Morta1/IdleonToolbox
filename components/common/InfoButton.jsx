@@ -8,8 +8,9 @@ import { FOCUSABLE } from '@utility/focusable';
 const TOUCH = '@media (pointer: coarse)';
 // A table note's widest: the viewport less the 16 px every note keeps from the screen's edges (NOTE_POPPER)
 const TABLE_NOTE_WIDTH = 'calc(100vw - 32px)';
-// A note keeps the page's 16 px gutter from the screen's edges: a phone note opened flush to them
-const NOTE_POPPER = { popperOptions: { modifiers: [{ name: 'preventOverflow', options: { padding: 16 } }] } };
+// A note keeps the page's 16 px gutter from the screen's edges: a phone note opened flush to them. One too tall for either
+// side of its trigger opens beside it, where it slides to stay in the window (a statue's, on a tile mid-screen).
+const NOTE_POPPER = { popperOptions: { modifiers: [{ name: 'preventOverflow', options: { padding: 16 } }, { name: 'flip', options: { fallbackPlacements: ['top', 'right', 'left'] } }] } };
 const PHONE_NOTE_POPPER = { ...NOTE_POPPER, sx: { display: { sm: 'none' } } };
 
 // A tile note sits 8 px under its tile, from its left edge (Info board): MUI's are 14 and 2 px
