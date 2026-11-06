@@ -17,6 +17,8 @@
 //            The first match. Its text joins the dump, and the shots catch it open. Repeat it for a step inside what opened:
 //            --click 'button:has-text("Sign in")' --click 'button:has-text("Continue with email")'
 // --clock    an ISO time that the page and the parse Worker read as now, so two runs an hour apart compare with `diff -r`.
+// --on-art   lists the text the contrast scan skips because art sits under it, unless it's marked data-on-art: a person reads
+//            these, because text in the page's ink over a dark sprite vanishes in one scheme.
 // --base     default http://localhost:$E2E_PORT, or 3002.
 // --no-shots scan only. --out default .page-check (gitignored). Exit 1 on any hit, 2 when the server is down.
 //
@@ -41,6 +43,7 @@ const { values: opts, positionals } = parseArgs({
     settle: { type: 'string', default: '0' },
     click: { type: 'string', multiple: true },
     clock: { type: 'string' },
+    'on-art': { type: 'boolean', default: false },
     base: { type: 'string', default: `http://localhost:${process.env.E2E_PORT ?? 3002}` },
     out: { type: 'string', default: '.page-check' },
     'no-shots': { type: 'boolean', default: false },
@@ -97,11 +100,11 @@ const waitForRender = async (page, maxMs = 20000) => {
 };
 
 // Runs in the page, so it can't read this module.
-const scanPage = ({ maxLines, minGap, maxLowContrast }) => {
+const scanPage = ({ maxLines, minGap, maxLowContrast, listOnArt }) => {
   const main = document.querySelector('main') ?? document.body;
   const hits = {
     brokenWord: [], brokenPair: [], overlap: [], tooClose: [], outOfBox: [], cut: [], tallRow: [],
-    raw: [], emptyHeading: [], unnamed: [], titleAttr: [], lowContrast: []
+    raw: [], emptyHeading: [], unnamed: [], titleAttr: [], lowContrast: [], onArt: []
   };
   const add = (kind, text) => {
     if (!hits[kind].includes(text)) hits[kind].push(text);
@@ -287,6 +290,12 @@ const scanPage = ({ maxLines, minGap, maxLowContrast }) => {
     return document.elementsFromPoint(box.left + box.width / 2, box.top + box.height / 2)
       .some((under) => under !== el && !under.contains(el) && !el.contains(under) && under.matches('img, canvas, video'));
   };
+  // By box, not elementsFromPoint: that sees only what's in the viewport.
+  const arts = listOnArt ? [...main.querySelectorAll('img, canvas, video')].map((art) => art.getBoundingClientRect()).filter((r) => r.width >= 8 && r.height >= 8) : [];
+  const overArt = (box) => {
+    const [x, y] = [box.left + box.width / 2, box.top + box.height / 2];
+    return arts.some((r) => x >= r.left && x <= r.right && y >= r.top && y <= r.bottom);
+  };
   const contrastSeen = new Set();
   const contrastWalker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT);
   for (let node = contrastWalker.nextNode(); node && hits.lowContrast.length < maxLowContrast; node = contrastWalker.nextNode()) {
@@ -298,6 +307,7 @@ const scanPage = ({ maxLines, minGap, maxLowContrast }) => {
     if (box.width <= 2 || box.height <= 2) continue;
     const color = rgba(style(el).color);
     if (!color) continue;
+    if (listOnArt && !el.closest('[data-on-art]') && overArt(box)) add('onArt', `${style(el).color}: ${node.nodeValue.trim().slice(0, 30)}`);
     const background = backgroundOf(el);
     const [lighter, darker] = [luminance(over(color, background)), luminance(background)].sort((a, b) => b - a);
     const ratio = (lighter + 0.05) / (darker + 0.05);
@@ -380,7 +390,7 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
         await page.waitForTimeout(500 + Number(opts.settle));
         // A moved URL forwards in that gap, and the new route opens on its loader.
         await waitForRender(page);
-        return await page.evaluate(scanPage, { maxLines: Number(opts['max-lines']), minGap: Number(opts['min-gap']), maxLowContrast: MAX_LOW_CONTRAST });
+        return await page.evaluate(scanPage, { maxLines: Number(opts['max-lines']), minGap: Number(opts['min-gap']), maxLowContrast: MAX_LOW_CONTRAST, listOnArt: opts['on-art'] });
       } catch (error) {
         if (attempts <= 1 || !/context was destroyed|reading 'innerText'/.test(error.message)) throw error;
         await page.waitForTimeout(1000);
