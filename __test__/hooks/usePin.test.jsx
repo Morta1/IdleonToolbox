@@ -43,6 +43,19 @@ describe('usePin togglePin', () => {
     ]);
   });
 
+  it.each([
+    ['a moved page reads the new one', [{ name: 'royal-guardian', tab: 'Outposts', url: '/account/class-specific/royal-guardian' }]],
+    ['a moved page already pinned there draws once', [
+      { name: 'royal-armory', tab: 'Outposts', url: '/account/class-specific/royal-armory' },
+      { name: 'royal-guardian', tab: 'Outposts', url: '/account/class-specific/royal-guardian' }
+    ]]
+  ])('%s', (_, stored) => {
+    localStorage.setItem('pinnedPages', JSON.stringify(stored));
+    expect(renderHook(usePin).result.current.pinnedPages).toEqual([
+      { name: 'royal-armory', tab: 'Outposts', url: '/account/class-specific/royal-armory' }
+    ]);
+  });
+
   it('reads saved pins as they are, and treats junk in the key as no pins', () => {
     localStorage.setItem('pinnedPages', JSON.stringify(pins));
     expect(renderHook(usePin).result.current.pinnedPages).toEqual(pins);
