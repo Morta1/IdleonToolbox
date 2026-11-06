@@ -1,5 +1,6 @@
 import { createElement } from 'react';
 import { createTheme } from '@mui/material/styles';
+import shadows from '@mui/material/styles/shadows';
 import { IconChevronDown } from '@tabler/icons-react';
 import { SERIES } from '../../utility/chartTheme';
 
@@ -7,11 +8,11 @@ import { SERIES } from '../../utility/chartTheme';
 const palette = (theme) => (theme.vars || theme).palette;
 
 // One look for everything that floats (menus, popovers, dialogs, tooltips): the card surface, a
-// divider edge, one shadow and 8 px corners. shadows[8] is what menus already wore.
+// divider edge, one shadow and 8 px corners.
 const floating = (theme) => ({
   backgroundColor: palette(theme).background.paper,
   border: `1px solid ${palette(theme).divider}`,
-  boxShadow: (theme.vars || theme).shadows[8],
+  boxShadow: palette(theme).shadow.floating,
   borderRadius: 8
 });
 
@@ -47,11 +48,6 @@ export const focusRing = (theme, offset = 2) => ({
 // The same ring on every focus target inside a box whose controls are not all MUI buttons (a phone panel, a
 // drawer's list): keyboard only, because :focus-visible.
 export const focusWithinRing = (theme) => ({ '& :focus-visible': focusRing(theme) });
-
-// The light scheme's primary (Foundations board). Snackbars are inverted, so their actions need the
-// blue that reads on a light surface: about 5.5:1 there, where primary would be 1.7:1. Phase 6 swaps
-// the two when the light scheme arrives.
-const INVERSE_PRIMARY = '#1565c0';
 
 // Identity colors: a thing's own color that reads the same everywhere, not a state or a role (3b Decision 3).
 // pin: the breakdown's pinned star, gold as "pinned" reads elsewhere.
@@ -97,12 +93,14 @@ const darkPalette = {
   // role: with cssVariables a role is a var() string.
   // edge: primary at 50%, the outline of a primary button on the banner or a pressed filter.
   // hover: a contained button under the pointer (Controls board). MUI's own, primary.dark, reads as the board's Disabled.
+  // inverse: the other scheme's primary, for a snackbar's action: the snackbar is inverted, and primary would be 1.7:1 on it.
   primary: {
     main: '#90caf9',
     hover: '#a9d4fb',
     contrastText: '#141A21',
     soft: 'rgba(144, 202, 249, 0.14)',
-    edge: 'rgba(144, 202, 249, 0.5)'
+    edge: 'rgba(144, 202, 249, 0.5)',
+    inverse: '#1565c0'
   },
   // default is surface.page (page, app bar), paper is surface.card (cards, tables, dialogs).
   // tint: 5% white, a row or group set off from its list (the phone menu's open group).
@@ -123,6 +121,8 @@ const darkPalette = {
   divider: 'rgba(255, 255, 255, 0.12)',
   // The edge of a control that stands on its own (a field's own rest border): an outlined button, a filter pill, More.
   outline: 'rgba(255, 255, 255, 0.23)',
+  backdrop: 'rgba(0, 0, 0, 0.5)',
+  shadow: { floating: shadows[8] },
   series: SERIES.dark,
   identity
 };
@@ -135,7 +135,8 @@ const lightPalette = {
     hover: '#0f4f99',
     contrastText: '#ffffff',
     soft: 'rgba(21, 101, 192, 0.08)',
-    edge: 'rgba(21, 101, 192, 0.5)'
+    edge: 'rgba(21, 101, 192, 0.5)',
+    inverse: '#90caf9'
   },
   success: { main: '#2e7d32' },
   error: { main: '#c62828' },
@@ -157,6 +158,8 @@ const lightPalette = {
   },
   divider: 'rgba(0, 0, 0, 0.12)',
   outline: 'rgba(0, 0, 0, 0.23)',
+  backdrop: 'rgba(16, 24, 40, 0.45)',
+  shadow: { floating: '0 2px 4px rgba(16, 24, 40, 0.06), 0 12px 24px -4px rgba(16, 24, 40, 0.14)' },
   action: { hover: 'rgba(0, 0, 0, 0.04)', selected: 'rgba(0, 0, 0, 0.08)' },
   series: SERIES.light,
   identity
@@ -498,6 +501,12 @@ const theme = createTheme({
         paper: ({ theme }) => floating(theme)
       }
     },
+    MuiBackdrop: {
+      styleOverrides: {
+        // A menu's own backdrop is invisible and stays so.
+        root: ({ theme, ownerState }) => (ownerState.invisible ? {} : { backgroundColor: palette(theme).backdrop })
+      }
+    },
     MuiDialogTitle: {
       styleOverrides: {
         root: {
@@ -509,13 +518,13 @@ const theme = createTheme({
     },
     MuiSnackbarContent: {
       styleOverrides: {
-        // Snackbars stay inverted (light on dark) so they never read as part of the page; they only
-        // share the floating corners and shadow.
+        // Snackbars stay inverted (MUI's light on dark, dark on light) so they never read as part of the page; they
+        // only share the floating corners and shadow.
         root: ({ theme }) => ({
           borderRadius: 8,
-          boxShadow: (theme.vars || theme).shadows[8]
+          boxShadow: palette(theme).shadow.floating
         }),
-        action: { '& .MuiButton-root': { color: INVERSE_PRIMARY, fontWeight: 600 } }
+        action: ({ theme }) => ({ '& .MuiButton-root': { color: palette(theme).primary.inverse, fontWeight: 600 } })
       }
     },
     MuiCardContent: {

@@ -128,7 +128,12 @@ const MyApp = (props) => {
         declineButtonText="Decline"
         enableDeclineButton
         cookieName="idleon-consent"
-        style={{ zIndex: 9999999, display: 'flex', alignItems: 'center', fontSize: 14 }}
+        style={{
+          zIndex: 9999999, display: 'flex', alignItems: 'center', fontSize: 14,
+          background: 'var(--mui-palette-background-paper)',
+          color: 'var(--mui-palette-text-primary)',
+          borderTop: '1px solid var(--mui-palette-divider)'
+        }}
         // The banner sits outside the ThemeProvider, so its text reads the theme's caption (12 px) directly.
         contentStyle={{ margin: '8px 15px', ...darkTheme.typography.caption }}
         buttonStyle={{
@@ -138,7 +143,14 @@ const MyApp = (props) => {
           backgroundColor: 'var(--mui-palette-primary-main)',
           color: 'var(--mui-palette-primary-contrastText)'
         }}
-        declineButtonStyle={{ margin: '0 15px 0 15px', borderRadius: '8px', fontSize: 12 }}
+        declineButtonStyle={{
+          margin: '0 15px 0 15px',
+          borderRadius: '8px',
+          fontSize: 12,
+          // Overlays board's destructive fill: 6.7:1 in dark and 5.6:1 in light, where error.main with its own text is 3.7:1 in dark.
+          background: 'var(--mui-palette-text-error)',
+          color: 'var(--mui-palette-primary-contrastText)'
+        }}
         onAccept={() => {
           if (typeof window !== 'undefined' && window.gtag) {
             window.gtag('consent', 'update', getConsentObject(true));
@@ -157,7 +169,7 @@ const MyApp = (props) => {
             is 5,184px²), which made this banner every static page's LCP on mobile. */}
         We use cookies for analytics and personalized ads.{' '}
         {/* The banner sits outside the ThemeProvider, so this button gets MUI's default theme (a dark blue in
-            capitals): its case and the theme's primary color, 6.9:1 on the banner, are written here. */}
+            capitals): its case and the theme's primary color, over 5:1 on the banner in both schemes, are written here. */}
         <Button variant={'text'} sx={{ height: 24, px: 1, fontSize: 12, textTransform: 'none', color: 'var(--mui-palette-primary-main)' }}
                 onClick={openCookiePolicy}>Learn
           more</Button>
