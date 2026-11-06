@@ -112,10 +112,11 @@ const ItemCard = ({ href, onClick, prefetch, status, dimmed, keepMeta, size, foo
 };
 
 // A title that opens a page while the card stays a card, in the title's own color: a phone has no hover to find it by, so
-// the › says so. inline-block keeps it out of the hover's underline.
+// the › says so. inline-block keeps it out of the hover's underline. Its role is a step up from a link card's: this one sits
+// on cards that dim (Hat Rack's, Gallery's, and every one a guest sees), and the dim takes text.muted to 2.5:1.
 const TitleLink = ({ text, onClick }) => <Link component={'button'} type={'button'} color={'inherit'} onClick={onClick}
                                                sx={{ font: 'inherit', textAlign: 'left', verticalAlign: 'baseline' }}>
-  <WithLastWord text={text}><LinkMark sx={{ display: 'inline-block', ml: 0.5 }}/></WithLastWord>
+  <WithLastWord text={text}><LinkMark sx={{ display: 'inline-block', ml: 0.5, color: 'text.secondary' }}/></WithLastWord>
 </Link>;
 
 // The game's text, its "@" turned into lines, except a break the game made mid-sentence to fit its box, which joins
