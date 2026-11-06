@@ -21,7 +21,14 @@ const open = (page, { anyView = true, regular = true, storage = {} } = {}) => pa
 }, [anyView, regular, storage]);
 
 const dialog = (page) => page.getByRole('dialog', { name: 'What\'s new' });
-const lines = (page) => dialog(page).getByRole('listitem');
+const atSlide = (page, step) => expect(dialog(page)).toHaveAttribute('data-step', step, { timeout: 15_000 });
+// The last slide is two layers with the same words: only the one showing can be reached.
+const action = (page, name) => dialog(page).locator('button:not([inert] *)', { hasText: name });
+const lastHeading = (page) => dialog(page).locator('h2:not([inert] *)');
+const skip = async (page) => {
+  await dialog(page).getByRole('button', { name: 'Skip' }).click();
+  await atSlide(page, 'lights');
+};
 const card = (page) => page.locator('[aria-labelledby="tour-title"]');
 const mark = (page) => page.evaluate(() => localStorage.getItem('whatsNew'));
 // The card's words change as Next is pressed, and it stays unseen until the page under it has arrived.
@@ -36,18 +43,24 @@ const atStop = async (page, title) => {
   await arrived(page);
 };
 const startTour = async (page) => {
-  await dialog(page).getByRole('button', { name: 'Show me around' }).click();
+  await skip(page);
+  await action(page, 'Show me around').click();
   await expect(card(page)).toBeVisible({ timeout: 30_000 });
 };
 const appLoaded = (page) => page.waitForFunction(() => window.next?.router?.isReady === true && !document.querySelector('[data-testid="page-loader"]'), null, { timeout: 60_000 });
-// The gate checks on a short timer: this long with no dialog means none is coming.
+// The gate checks on a short timer: this long with no story means none is coming.
 const staysShut = async (page) => {
   await appLoaded(page);
   await page.waitForTimeout(2000);
   await expect(dialog(page)).toHaveCount(0);
 };
+const walkers = (page) => page.evaluate(() => [...document.querySelectorAll('[data-walker]')].map((slot) => {
+  const doll = slot.querySelector('canvas');
+  const pixels = doll.getContext('2d').getImageData(0, 0, doll.width, doll.height).data;
+  return { x: slot.getBoundingClientRect().left, facing: doll.dataset.facing, name: doll.dataset.doll, drawn: pixels.some((value) => value > 0) };
+}));
 
-test.describe('the dialog', () => {
+test.describe('the story', () => {
   test('a regular gets it once: a reload stays shut', async ({ page }) => {
     await open(page);
     await page.goto(STAMPS);
@@ -59,65 +72,185 @@ test.describe('the dialog', () => {
     await staysShut(page);
   });
 
-  for (const [name, close] of [
-    ['the x', (page) => dialog(page).getByRole('button', { name: 'Close' }).click()],
-    ['Got it', (page) => dialog(page).getByRole('button', { name: 'Got it' }).click()],
-    ['the backdrop', (page) => page.mouse.click(10, 400)]
-  ]) {
-    test(`${name} closes it`, async ({ page }) => {
-      await open(page);
-      await page.goto(STAMPS);
-      await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
-      await close(page);
-      await expect(dialog(page)).toHaveCount(0);
-      await expect(card(page)).toHaveCount(0);
-    });
-  }
+  test('Got it closes it, and starts no tour', async ({ page }) => {
+    await open(page);
+    await page.goto(STAMPS);
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await skip(page);
+    await expect(dialog(page).getByRole('button', { name: 'Skip' })).toHaveCount(0);
+    await action(page, 'Got it').click();
+    await expect(dialog(page)).toHaveCount(0);
+    await expect(card(page)).toHaveCount(0);
+  });
 
-  test('all of it shows with no scroll in a 1366 x 650 window, in words only', async ({ page }) => {
+  test('it greets the player by name, draws all their characters, and each walks the way it faces', async ({ page }) => {
+    await open(page);
+    await page.goto(STAMPS);
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await page.waitForTimeout(400);
+    const before = await walkers(page);
+    await page.waitForTimeout(250);
+    const after = await walkers(page);
+    await expect(dialog(page).getByRole('heading')).toHaveText(`${before[0].name}, the Toolbox got rebuilt.`);
+    await expect(dialog(page).getByText(`Your ${before.length} characters are all here.`)).toBeVisible();
+    expect(after.every(({ drawn }) => drawn)).toBe(true);
+    const moved = before.map(({ x, facing }, at) => ({ facing, by: after[at].x - x })).filter(({ by }) => by !== 0);
+    expect(moved.length).toBeGreaterThan(0);
+    // The sheets face right: a character mirrored the wrong way moonwalks.
+    for (const { facing, by } of moved) expect(by > 0 ? 'right' : 'left').toBe(facing);
+    expect(new Set(moved.map(({ facing }) => facing))).toEqual(new Set(['left', 'right']));
+  });
+
+  test('its count of what\'s ready is the Timers table\'s own', async ({ page }) => {
+    await open(page);
+    await page.goto('/dashboard?demo=true');
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await dialog(page).focus();
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('ArrowRight');
+    await atSlide(page, 'timers');
+    const count = await dialog(page).locator('[data-count]').getAttribute('data-count');
+    await expect(dialog(page).locator('[data-count]')).toHaveText(count);
+    await page.keyboard.press('Escape');
+    await expect(page.locator('[data-tour="timers"]').getByText(`${count} to act on`)).toBeVisible({ timeout: 30_000 });
+  });
+
+  test('it plays by itself, and a hold pauses it without moving on', async ({ page }) => {
+    await open(page);
+    await page.goto(STAMPS);
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await page.mouse.move(700, 300);
+    await page.mouse.down();
+    await page.waitForTimeout(5600);
+    await atSlide(page, 'hello');
+    await page.mouse.up();
+    await page.waitForTimeout(200);
+    await atSlide(page, 'hello');
+    await atSlide(page, 'menus');
+    const steps = await page.evaluate(() => window.dataLayer.filter((entry) => entry[1] === 'whats_new_story_step').map((entry) => entry[2].step));
+    expect(steps).toEqual(['hello', 'menus']);
+  });
+
+  test('a tap moves on, its left side goes back, and so do the arrow keys', async ({ page }) => {
+    await open(page);
+    await page.goto(STAMPS);
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await page.mouse.click(900, 300);
+    await atSlide(page, 'menus');
+    await page.mouse.click(100, 300);
+    await atSlide(page, 'hello');
+    await dialog(page).focus();
+    await page.keyboard.press('ArrowRight');
+    await atSlide(page, 'menus');
+    await page.keyboard.press('ArrowLeft');
+    await atSlide(page, 'hello');
+  });
+
+  test('prefers-reduced-motion: nothing plays by itself, and everybody already stands in place', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await open(page);
+    await page.goto(STAMPS);
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await page.waitForTimeout(600);
+    const before = await walkers(page);
+    await page.waitForTimeout(5400);
+    await atSlide(page, 'hello');
+    const after = await walkers(page);
+    expect(after.map(({ x }) => x)).toEqual(before.map(({ x }) => x));
+    expect(after.every(({ drawn }) => drawn)).toBe(true);
+    await page.mouse.click(900, 300);
+    await atSlide(page, 'menus');
+    await expect(dialog(page).locator('canvas')).toHaveCount(0);
+  });
+
+  test('all of the last slide shows with no scroll in a 1366 x 650 window', async ({ page }) => {
     await page.setViewportSize({ width: 1366, height: 650 });
     await open(page);
     await page.goto(STAMPS);
     await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
-    await expect(dialog(page).getByText('Ctrl + K searches them all')).toBeVisible();
-    await expect.poll(() => dialog(page).locator('.MuiDialogContent-root').evaluate((body) => body.scrollHeight - body.clientHeight)).toBe(0);
-    await expect(lines(page)).toHaveCount(4);
-    for (const line of await lines(page).all()) await expect(line).toBeInViewport({ ratio: 1 });
-    await expect(dialog(page).getByRole('button', { name: 'Show me around' })).toBeInViewport({ ratio: 1 });
-    expect((await page.locator('.MuiDialog-paper').boundingBox()).width).toBe(560);
-    await expect(dialog(page).locator('img')).toHaveCount(0);
+    await skip(page);
+    await expect(dialog(page).getByText('Ctrl + K searches them all').first()).toBeVisible();
+    for (const name of ['Show me around', 'Got it']) await expect(action(page, name)).toBeInViewport({ ratio: 1 });
+    await expect(lastHeading(page)).toBeInViewport({ ratio: 1 });
   });
 
-  for (const [width, height, words, sheet] of [
-    [1000, 800, ['Worlds and Account tabs', 'to the right of the page title'], false],
-    [800, 800, ['Worlds and Account tabs', 'above the page title'], false],
-    [384, 832, ['Worlds and Account tabs', 'above the page title'], true]
-  ]) {
-    test(`at ${width} wide only Got it shows, the words fit the burger, and all four lines show`, async ({ page }) => {
+  for (const [width, height] of [[1000, 800], [800, 800], [384, 832], [360, 640]]) {
+    test(`at ${width} wide only Got it shows, and the words fit the burger`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await open(page);
       await page.goto(STAMPS);
       await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
-      for (const line of words) await expect(dialog(page).getByText(line)).toBeVisible();
+      await dialog(page).focus();
+      await page.keyboard.press('ArrowRight');
+      await atSlide(page, 'menus');
+      await expect(dialog(page).getByText('Worlds and Account tabs')).toBeVisible();
       await expect(dialog(page).getByText('top bar')).toHaveCount(0);
-      await expect(dialog(page).getByRole('button', { name: 'Show me around' })).toHaveCount(0);
-      await expect(dialog(page).getByRole('button', { name: 'Got it' })).toBeVisible();
-      await expect(page.locator('.MuiDrawer-paper[role="dialog"]')).toHaveCount(sheet ? 1 : 0);
-      await expect(lines(page)).toHaveCount(4);
-      for (const line of await lines(page).all()) await expect(line).toBeInViewport({ ratio: 1 });
+      await skip(page);
+      await expect(action(page, 'Show me around')).toHaveCount(0);
+      await expect(action(page, 'Got it')).toBeInViewport({ ratio: 1 });
+      await expect(lastHeading(page)).toBeInViewport({ ratio: 1 });
+      await expect(page.locator('[data-walker]').last()).toBeInViewport({ timeout: 8000 });
     });
   }
+
+  test('with no save it keeps the story and makes no claims about the player', async ({ page }) => {
+    await open(page, { storage: { authHint: '"no"' } });
+    await page.goto('/patch-notes');
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await expect(dialog(page).getByRole('heading')).toHaveText('The Toolbox got rebuilt.');
+    await expect(dialog(page).getByText('characters')).toHaveCount(0);
+    await page.waitForTimeout(400);
+    expect((await walkers(page)).every(({ drawn }) => drawn)).toBe(true);
+    await dialog(page).focus();
+    await page.keyboard.press('ArrowRight');
+    await page.keyboard.press('ArrowRight');
+    await atSlide(page, 'timers');
+    await expect(dialog(page).locator('[data-count]')).toHaveCount(0);
+    await expect(dialog(page).getByText('Ready now')).toBeVisible();
+  });
+
+  test('the wipe only shows the light theme off, and the toggle really sets it', async ({ page }) => {
+    await open(page);
+    await page.goto(STAMPS);
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await skip(page);
+    await expect(action(page, 'Light')).toHaveAttribute('aria-pressed', 'true', { timeout: 5000 });
+    await expect(page.locator('html')).toHaveClass(/\bdark\b/);
+    await action(page, 'Dark').click();
+    await expect(action(page, 'Dark')).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('html')).toHaveClass(/\bdark\b/);
+    await action(page, 'Light').click();
+    await expect(page.locator('html')).toHaveClass(/\blight\b/);
+    await action(page, 'Got it').click();
+    await expect(dialog(page)).toHaveCount(0);
+    await expect(page.locator('html')).toHaveClass(/\blight\b/);
+  });
+
+  test('the patch notes link closes it, and keeps the session', async ({ page }) => {
+    await open(page);
+    await page.goto(STAMPS);
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await skip(page);
+    await dialog(page).locator('a:not([inert] *)', { hasText: 'patch notes' }).click();
+    await expect(dialog(page)).toHaveCount(0);
+    await expect(page).toHaveURL(/\/patch-notes\?demo=true$/);
+  });
 });
 
 test.describe('who waits', () => {
-  test('a stranger is marked skipped and gets nothing', async ({ page }) => {
+  test('a stranger is marked skipped, gets nothing, and loads none of it', async ({ page }) => {
+    const fetched = [];
+    page.on('request', (request) => {
+      if (/Lilita|player-sprites|etc\/whatsnew/.test(request.url())) fetched.push(request.url());
+    });
     await open(page, { regular: false });
     await page.goto(STAMPS);
     await staysShut(page);
     expect(await mark(page)).toBe('"skipped"');
+    expect(fetched).toEqual([]);
   });
 
-  test('a full storage means no dialog', async ({ page }) => {
+  test('a full storage means no story', async ({ page }) => {
     await open(page);
     await page.addInitScript(() => {
       const setItem = Storage.prototype.setItem;
@@ -142,7 +275,7 @@ test.describe('who waits', () => {
   test.describe('the consent banner', () => {
     test.use({ storageState: { cookies: [], origins: [] } });
 
-    test('someone who hasn\'t answered it doesn\'t get the dialog yet', async ({ page }) => {
+    test('someone who hasn\'t answered it doesn\'t get the story yet', async ({ page }) => {
       await open(page, { anyView: false, storage: { authHint: 'no' } });
       // Nitro in, with no consent window: what shows the site's own banner.
       await page.route('**/s.nitropay.com/**', (route) => route.abort());
@@ -162,11 +295,10 @@ test.describe('who waits', () => {
 
 test.describe('the tour', () => {
   const stops = [
-    ['1 of 5', 'Worlds and Account', ['Skip', 'Next'], /\/dashboard\?demo=true$/],
-    ['2 of 5', 'Goals', ['Skip', 'Back', 'Next'], /\/dashboard\?demo=true$/],
-    ['3 of 5', 'Dashboard timers', ['Skip', 'Back', 'Next'], /\/dashboard\?demo=true$/],
-    ['4 of 5', 'Inside a page', ['Skip', 'Back', 'Next'], /\/account\/world-1\/stamps\?demo=true$/],
-    ['5 of 5', 'Theme', ['Try light', 'Back', 'Done'], /\/account\/world-1\/stamps\?demo=true$/]
+    ['1 of 4', 'Worlds and Account', ['Skip', 'Next'], /\/dashboard\?demo=true$/],
+    ['2 of 4', 'Dashboard timers', ['Skip', 'Back', 'Next'], /\/dashboard\?demo=true$/],
+    ['3 of 4', 'Page settings', ['Skip', 'Back', 'Next'], /\/account\/world-1\/stamps\?demo=true$/],
+    ['4 of 4', 'Theme', ['Try light', 'Back', 'Done'], /\/account\/world-1\/stamps\?demo=true$/]
   ];
 
   test('walks the Dashboard, then a page, keeps the session, and goes back to where it started', async ({ page }) => {
@@ -196,12 +328,12 @@ test.describe('the tour', () => {
       if (title !== 'Theme') await next(page);
     }
     await card(page).getByRole('button', { name: 'Back' }).click();
-    await atStop(page, 'Inside a page');
+    await atStop(page, 'Page settings');
     await card(page).getByRole('button', { name: 'Back' }).click();
     await atStop(page, 'Dashboard timers');
     await expect(page).toHaveURL(/\/dashboard\?demo=true$/);
     await next(page);
-    await atStop(page, 'Inside a page');
+    await atStop(page, 'Page settings');
     await next(page);
     await atStop(page, 'Theme');
     await card(page).getByRole('button', { name: 'Done' }).click();
@@ -212,8 +344,8 @@ test.describe('the tour', () => {
   });
 
   const toPageStop = async (page) => {
-    for (let i = 0; i < 3; i += 1) await next(page);
-    await atStop(page, 'Inside a page');
+    for (let i = 0; i < 2; i += 1) await next(page);
+    await atStop(page, 'Page settings');
   };
 
   test('the page stop marks Pin, Add goal and Page settings together, with the card in the window', async ({ page }) => {
@@ -243,7 +375,7 @@ test.describe('the tour', () => {
     await atStop(page, 'Theme');
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
     await card(page).getByRole('button', { name: 'Back' }).click();
-    await atStop(page, 'Inside a page');
+    await atStop(page, 'Page settings');
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
     expect((await page.locator('[data-tour="page-actions"]').boundingBox()).y).toBeGreaterThanOrEqual(96);
   });
@@ -284,17 +416,16 @@ test.describe('the tour', () => {
     await page.goto('/dashboard?demo=true');
     await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
     await startTour(page);
-    for (let i = 0; i < 3; i += 1) await next(page);
+    for (let i = 0; i < 2; i += 1) await next(page);
     await atStop(page, 'Theme');
-    await expect(card(page).getByText('5 of 5')).toBeVisible();
+    await expect(card(page).getByText('4 of 4')).toBeVisible();
   });
 
-  test('stop 3 marks the table clear of the sticky pills, not the resets strip', async ({ page }) => {
+  test('the timers stop marks the table clear of the sticky pills, not the resets strip', async ({ page }) => {
     await open(page);
     await page.goto('/dashboard?demo=true');
     await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
     await startTour(page);
-    await card(page).getByRole('button', { name: 'Next' }).click();
     await card(page).getByRole('button', { name: 'Next' }).click();
     await expect(card(page).getByRole('heading', { name: 'Dashboard timers' })).toBeVisible();
     // A smooth scroll is on its way.
@@ -323,7 +454,6 @@ test.describe('the tour', () => {
     await startTour(page);
     await page.keyboard.press('Control+k');
     await expect(page.getByRole('dialog')).toHaveCount(1);
-    await card(page).getByRole('button', { name: 'Next' }).click();
     await card(page).getByRole('button', { name: 'Next' }).click();
     await expect(card(page).getByRole('heading', { name: 'Dashboard timers' })).toBeVisible();
     expect(await page.evaluate(() => window.__scrolls)).toEqual(['auto']);
@@ -359,7 +489,7 @@ test.describe('the tour', () => {
     await expect(page).toHaveURL(/\/patch-notes\?demo=true$/);
   });
 
-  test('a reload ends it, and the dialog stays shut', async ({ page }) => {
+  test('a reload ends it, and the story stays shut', async ({ page }) => {
     await open(page);
     await page.goto(STAMPS);
     await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
@@ -371,8 +501,7 @@ test.describe('the tour', () => {
 
   for (const [filters, count, heading] of [
     [['account', 'characters', 'timers'], '4', 'Dashboard timers'],
-    [['goals', 'account', 'characters'], '4', 'Goals'],
-    [['account', 'characters'], '3', 'Inside a page']
+    [['account', 'characters'], '3', 'Page settings']
   ]) {
     test(`a stop switched off in the pills is skipped: ${filters.join(', ')}`, async ({ page }) => {
       await open(page, { storage: { 'dashboard-filters': JSON.stringify(filters), 'dashboard-goals-filter-added': 'true' } });
@@ -417,11 +546,10 @@ test.describe('the tour', () => {
     await page.goto('/dashboard?profile=Tester');
     await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
     await startTour(page);
-    // Goals don't draw on a profile view.
     await expect(card(page).getByText('1 of 4')).toBeVisible();
     await next(page);
     await next(page);
-    await atStop(page, 'Inside a page');
+    await atStop(page, 'Page settings');
     await next(page);
     await atStop(page, 'Theme');
     const menu = page.locator('[data-tour="theme-menu"]');

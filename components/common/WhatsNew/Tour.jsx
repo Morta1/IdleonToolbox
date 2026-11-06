@@ -29,11 +29,6 @@ const STOPS = [
     targets: ['[data-tour="nav-worlds"]', '[data-tour="nav-account"]'], pad: 4, inBar: true, place: ['below']
   },
   {
-    step: 'goals', title: 'Goals',
-    text: 'Track what you\'re working toward here. Add a goal from any page with a target icon.',
-    targets: ['[data-tour="goals"]'], pad: 6, place: SIDE_FIRST
-  },
-  {
     step: 'timers', title: 'Dashboard timers',
     text: 'What\'s ready comes first, then everything else, soonest at the top.',
     targets: ['[data-tour="timers"]'], pad: 6, place: SIDE_FIRST
@@ -42,8 +37,8 @@ const STOPS = [
 // A stop with no route is on the Dashboard. Stamps draws all three of a page's buttons, and the theme's rows work on any page,
 // so the tour changes page once, here.
 const PAGE_STOP = {
-  step: 'page_actions', title: 'Inside a page', route: STAMPS,
-  text: 'Pin keeps a page in your menu. Add goal tracks a target from here. Page settings holds the options that change this page\'s numbers.',
+  step: 'page_actions', title: 'Page settings', route: STAMPS,
+  text: 'What changes a page\'s numbers now lives in this one button, on every page. Pin and Add goal moved beside it.',
   targets: ['[data-tour="page-actions"]'], pad: 6, atTop: true, place: ['below', 'left', 'right', 'above']
 };
 const THEME_STOP = {

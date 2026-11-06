@@ -26,8 +26,8 @@
 // --pins     lists what stays on screen, at rest and scrolled 40% down: each sticky or fixed box's top and bottom, with its gap to
 //            the nearest box above it in its column, and saves <slug>-<width>-pinned.png of the scrolled window. A negative gap is an
 //            overlap: a lead, since a drawer over the band is meant.
-// --whats-new opens the What's new gate for this run, on the demo too, for a browser with a pinned page. The dialog, then
-//            --click 'button:has-text("Show me around")' --click 'button:has-text("Next")' for the tour's stops.
+// --whats-new opens the What's new gate for this run, on the demo too, for a browser with a pinned page. The story, then
+//            --click 'button:has-text("Skip")' --click 'button:has-text("Show me around")' --click 'button:has-text("Next")' for the tour.
 // --window   a shot is the window as it stands, not the whole page, and nothing scrolls the page before it: for an overlay.
 // --root     a selector the text scans and the dump read in place of main: '.MuiDialog-paper', a floating card.
 // --base     default http://localhost:$E2E_PORT, or 3002.

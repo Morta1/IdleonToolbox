@@ -3,14 +3,14 @@ import { getCookieConsentValue } from 'react-cookie-consent';
 import { AUTH_HINT_KEY } from '@utility/auth-hint';
 import { GOALS_STORAGE_KEY } from '@utility/goals/store';
 
-// The redesign's one-time What's new dialog: the one written exception to "Nothing opens by itself". Returning visitors,
+// The redesign's one-time What's new story: the one written exception to "Nothing opens by itself". Returning visitors,
 // once per browser, for two weeks. Everything here runs from effects: nothing reads storage on the first render.
 export const WHATS_NEW_KEY = 'whatsNew';
 export const WHATS_NEW_SHOWN = 'shown';
 export const WHATS_NEW_SKIPPED = 'skipped';
 
 // A hard end: after it nothing shows, with no deploy. SET THIS AT RELEASE, to two weeks after the release date. It stands
-// in the past until then, so a build of this code can't show the dialog to anyone.
+// in the past until then, so a build of this code can't show the story to anyone.
 export const WHATS_NEW_UNTIL = '2026-01-01T00:00:00Z';
 
 // A test or the kit (tools/page-check.mjs --whats-new) opens the window, and lets it open on the demo for shots.
@@ -48,8 +48,8 @@ export const startWhatsNew = (now = Date.now()) => {
 
 let triedThisLoad = false;
 
-// The last step before the dialog. Never twice in a page load, whatever storage says, and only once the mark is really
-// there, so a browser that can't keep it never sees the dialog twice. A second tab that got there first has left its mark.
+// The last step before the story. Never twice in a page load, whatever storage says, and only once the mark is really
+// there, so a browser that can't keep it never sees the story twice. A second tab that got there first has left its mark.
 export const claimWhatsNew = (now = Date.now()) => {
   if (triedThisLoad) return false;
   triedThisLoad = true;
@@ -64,7 +64,7 @@ export const NO_BANNER_AFTER_MS = 10000;
 const CHECK_MS = 500;
 const CMP_ANSWERED = ['tcloaded', 'useractioncomplete'];
 
-// Whether the consent banner can still meet the dialog. Someone who hasn't answered it doesn't get the dialog yet: the
+// Whether the consent banner can still meet the story. Someone who hasn't answered it doesn't get the story yet: the
 // site's own banner sets a cookie, and the EU's consent window (Nitro's, through __tcfapi) reports its own answer.
 const consentChecker = () => {
   let cmpAnswered = false;
