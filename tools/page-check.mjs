@@ -246,7 +246,8 @@ const scanPage = ({ maxLines, minGap, maxLowContrast, listOnArt }) => {
   const raw = (re) => {
     for (const match of pageText.match(re) ?? []) add('raw', match.trim());
   };
-  raw(/.{0,30}[{}$@₣—^].{0,30}/g);
+  // "$19.99" is a real price.
+  raw(/.{0,30}(?:[{}@₣—^]|\$(?!\d)).{0,30}/g);
   // "~13d" is a page's own "about", and "Anon#f95d09" a real player's id.
   raw(/.{0,30}(?<!\d)~(?!\d).{0,30}/g);
   raw(/.{0,30}(?<!Anon)#[A-Za-z{].{0,30}/g);
@@ -255,7 +256,8 @@ const scanPage = ({ maxLines, minGap, maxLowContrast, listOnArt }) => {
   raw(/.{0,30}∞.{0,30}/g);
   // A small percent to three figures is a wiki's drop rate ("0.000120%"), not a raw float.
   raw(/.{0,20}(?!\b0\.0*\d{1,3}%)\b\d+\.\d{4,}.{0,20}/g);
-  raw(/.{0,25}\b(NaN|undefined|Infinity)\b.{0,25}/g);
+  // Infinity Hammer is an item.
+  raw(/.{0,25}\b(NaN|undefined|Infinity(?! Hammer))\b.{0,25}/g);
 
   // Nothing drawn after a heading, up to its card: a folded section's heading sits in its button and isn't empty. The i
   // beside a heading is the heading's, so it isn't what the heading heads.
