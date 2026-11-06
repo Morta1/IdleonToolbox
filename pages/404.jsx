@@ -111,8 +111,8 @@ const MissingProfile = ({ name, query }) => <>
   <Scene scene={MISSING_PROFILE}>
     <Box data-on-art sx={{
       position: 'absolute', left: '77.8%', top: '60%', transform: 'translateX(-50%)', px: 1, color: ON_ART.text, fontSize: 18, lineHeight: '24px',
-      fontWeight: 700, whiteSpace: 'nowrap', textShadow: `0 0 3px ${ON_ART.outline}, 0 1px 2px ${ON_ART.outline}, 0 0 1px ${ON_ART.outline}`,
-      [PHONE_SIDES]: { fontSize: 15, lineHeight: '20px' }
+      fontWeight: 700, maxWidth: '44%', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', textShadow: `0 0 3px ${ON_ART.outline}, 0 1px 2px ${ON_ART.outline}, 0 0 1px ${ON_ART.outline}`,
+      [PHONE_SIDES]: { fontSize: 15, lineHeight: '20px', maxWidth: 200 }
     }}>{name}</Box>
   </Scene>
   <Message title={`No sign of ${name}`} lead={`No profile named "${name}" was found. The player may not have uploaded it yet.`}>
