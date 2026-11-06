@@ -381,7 +381,13 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
   const slug = slugOf(route, state, scheme);
   const result = { route, state, scheme, size: `${size.width}x${size.height}`, shots: [] };
   try {
-    const response = await page.goto(opts.base + withQuery(route, state), { waitUntil: 'domcontentloaded', timeout: 30000 });
+    const open = () => page.goto(opts.base + withQuery(route, state), { waitUntil: 'domcontentloaded', timeout: 30000 });
+    // A long run's server answers 404 now and then for a page that exists: only a second miss is real.
+    let response = await open();
+    if (response?.status() === 404) {
+      await page.waitForTimeout(1000);
+      response = await open();
+    }
     if (response?.status() >= 400) throw new Error(`HTTP ${response.status()}: no such page in this export`);
     // A moved URL forwards once the page is up: a scan that lands in that navigation is asked again, on where it landed.
     const scanned = async (attempts = 3) => {
