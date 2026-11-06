@@ -10,6 +10,7 @@
 // --schemes  dark, light. Default dark. A light run's files end in -light.
 // --force    safeSection names that really throw in the parse Worker: farming,hole. * fails the whole parse. A guest's parse fails the same way.
 // --setup    a module whose default export takes the browser context, for serving API replies with context.route.
+//            e2e/live-replies.mjs serves fixed rows; e2e/live-proxy.mjs adds the site's own APIs, which refuse localhost.
 // --storage  JSON of localStorage entries.
 // --settle   more ms after the page settles: a tool page's text stands still before its parse lands.
 // --click    a selector clicked once the page has rendered, before the scan: a drawer or a note that only opens on a tap.
