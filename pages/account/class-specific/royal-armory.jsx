@@ -2,7 +2,7 @@ import { Box, MenuItem, TextField } from '@mui/material';
 import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
-import { formatNum, getTabs } from '@utility/helpers';
+import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import { PAGES } from '@components/constants';
@@ -84,7 +84,7 @@ const RoyalArmory = () => {
                      SelectDisplayProps: { 'aria-label': 'Royal Guardian' }
                    }
                  }}>
-        {royalGuardians.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{character?.name}</MenuItem>)}
+        {royalGuardians.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{cleanUnderscore(character?.name)}</MenuItem>)}
       </TextField>
     </PageHeaderControl> : null}
     <PageSummary>

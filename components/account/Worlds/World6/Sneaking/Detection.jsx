@@ -13,7 +13,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Panel, { FIELD_INFO_SX } from '@components/common/cards/Panel';
 import Notice from '@components/common/Notice';
-import { formatNum, parseShorthandNumber } from '@utility/helpers';
+import { cleanUnderscore, formatNum, parseShorthandNumber } from '@utility/helpers';
 import {
   getDetectionChance,
   getFloorDifficulty,
@@ -74,7 +74,7 @@ const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
       <CardGrid size={'s'}>
         {ninjas.map(({ playerIndex, floor: ninjaFloor, stealth, stealthBreakdown, detection: chance }) => (
           <ItemCard key={`current-${playerIndex}`} icon={`data/ClassIcons${characters?.[playerIndex]?.classIndex}.png`}
-                    title={characters?.[playerIndex]?.name}
+                    title={cleanUnderscore(characters?.[playerIndex]?.name)}
                     meta={`Floor ${ninjaFloor + 1} · ${formatNum(flowerStacks?.[ninjaFloor] ?? 0, 'whole')} flowers`}>
             <ItemCard.Facts rows={[
               ['Detection', formatDetection(chance)],
@@ -128,7 +128,7 @@ const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
       {ninjas.length ? <DataTable
           columns={[
             {
-              key: 'ninja', label: 'Ninja', value: ({ playerIndex }) => characters?.[playerIndex]?.name,
+              key: 'ninja', label: 'Ninja', value: ({ playerIndex }) => cleanUnderscore(characters?.[playerIndex]?.name),
               icon: ({ playerIndex }) => <GameIcon src={`data/ClassIcons${characters?.[playerIndex]?.classIndex}.png`} alt={''} size={24}/>
             },
             {
@@ -155,7 +155,7 @@ const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
           ]}
           rows={rows}
           rowKey={'playerIndex'}
-          rowLabel={({ playerIndex }) => characters?.[playerIndex]?.name}
+          rowLabel={({ playerIndex }) => cleanUnderscore(characters?.[playerIndex]?.name)}
         />
         : <Box sx={{ p: 2 }}>{noNinjas(`Your ninjas' detection on the floor you pick shows here`)}</Box>}
     </Panel>

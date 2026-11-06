@@ -4,6 +4,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import IconTile from '@components/common/cards/IconTile';
 import Chips, { chipDetails, titleCase } from './Chips';
+import { cleanUnderscore } from '@utility/helpers';
 
 const Console = ({ chips, playersChips, characters }) => {
   return (
@@ -12,7 +13,7 @@ const Console = ({ chips, playersChips, characters }) => {
         {playersChips?.map((playerChips, index) => {
           const playerLabLevel = characters?.[index]?.skillsInfo?.laboratory?.level ?? 0;
           return <ItemCard key={`player-${index}`} icon={`data/ClassIcons${characters?.[index]?.classIndex}.png`}
-                           iconAlt={''} title={characters?.[index]?.name} level={{ value: playerLabLevel }}>
+                           iconAlt={''} title={cleanUnderscore(characters?.[index]?.name)} level={{ value: playerLabLevel }}>
             <Chips playerLabLevel={playerLabLevel} playerChips={playerChips}/>
           </ItemCard>
         })}

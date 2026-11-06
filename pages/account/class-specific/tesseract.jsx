@@ -4,7 +4,7 @@ import { Box, MenuItem, TextField } from '@mui/material';
 import { useLocalStorage } from '@mantine/hooks';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import { AppContext } from '@components/common/context/AppProvider';
-import { formatNum, getTabs } from '@utility/helpers';
+import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import {
   getArcanistStats,
@@ -97,7 +97,7 @@ const Tesseract = () => {
                      SelectDisplayProps: { 'aria-label': 'Arcane Cultist' }
                    }
                  }}>
-        {arcanists.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{character?.name}</MenuItem>)}
+        {arcanists.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{cleanUnderscore(character?.name)}</MenuItem>)}
       </TextField>
     </PageHeaderControl> : null}
     <PageSummary>

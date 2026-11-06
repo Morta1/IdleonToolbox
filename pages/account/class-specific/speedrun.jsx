@@ -10,7 +10,7 @@ import { isParseFailed, isSectionFailed, MissingData } from '@components/common/
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import { getPortalProgressBreakdown, getSpeedrunPlan, getSpeedrunStats } from '@parsers/class-specific/speedrun';
 import { getMaxDamage } from '@parsers/damage';
-import { formatDuration, formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
 import Portals from '@components/account/Misc/class-specific/Speedrun/Portals';
 import Bosses from '@components/account/Misc/class-specific/Speedrun/Bosses';
 
@@ -82,7 +82,7 @@ const Speedrun = () => {
                      SelectDisplayProps: { 'aria-label': 'Voidwalker' }
                    }
                  }}>
-        {voidwalkers.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{character?.name}</MenuItem>)}
+        {voidwalkers.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{cleanUnderscore(character?.name)}</MenuItem>)}
       </TextField>
     </PageHeaderControl> : null}
     {/* Each note hangs off the label's i (StatTile's info), as the Info board draws it */}

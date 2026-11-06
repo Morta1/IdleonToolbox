@@ -1,6 +1,6 @@
 import React from 'react';
 import { Stack } from '@mui/material';
-import { formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { divStyles } from '@website-data';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -15,7 +15,7 @@ const DivinityStyles = ({ characters }) => <CardGrid size={'m'}>
       {equippedBy.length > 0 ? <ItemCard.Section label={'Used by'}>
         <ItemCard.Facts rows={equippedBy.map(({ name: charName, classIndex, playerId, skillsInfo }) => [
           <Stack key={`${charName}-${playerId}`} component={'span'} direction={'row'} alignItems={'center'} gap={1}>
-            <GameIcon src={`data/ClassIcons${classIndex}.png`} size={24} alt={''}/>{charName}
+            <GameIcon src={`data/ClassIcons${classIndex}.png`} size={24} alt={''}/>{cleanUnderscore(charName)}
           </Stack>,
           formatNum(skillsInfo?.divinity?.level ?? 0, 'level')
         ])}/>

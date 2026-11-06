@@ -6,7 +6,7 @@ import Market from '@components/account/Worlds/World6/Farming/Market';
 import { AppContext } from '@components/common/context/AppProvider';
 import Plot from '@components/account/Worlds/World6/Farming/Plot';
 import Crop from '@components/account/Worlds/World6/Farming/Crop';
-import { formatNum, getTabs } from '@utility/helpers';
+import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
 import RankDatabase from '@components/account/Worlds/World6/Farming/RankDatabase';
@@ -91,7 +91,7 @@ const Farming = () => {
                      }
                    }}>
           {characters?.map((character) => <MenuItem key={character?.playerId}
-                                                    value={character?.playerId}>{character?.name}</MenuItem>)}
+                                                    value={character?.playerId}>{cleanUnderscore(character?.name)}</MenuItem>)}
         </TextField>
       </PageHeaderControl> : null}
       {characters?.length ? <PageSettings state={settings} defaults={FARMING_SETTINGS} onChange={setSettings} onReset={resetSettings}>

@@ -55,7 +55,7 @@ const Prayers = () => {
               <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
                 {equippedBy.map((character) => <Stack key={character?.name} direction={'row'} alignItems={'center'} gap={0.5}>
                   <GameIcon src={`data/ClassIcons${character?.classIndex}.png`} size={24} alt={''}/>
-                  <Typography variant={'body2'}>{character?.name}</Typography>
+                  <Typography variant={'body2'}>{cleanUnderscore(character?.name)}</Typography>
                 </Stack>)}
               </Stack>
             </ItemCard.Section> : null}

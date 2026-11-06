@@ -7,7 +7,7 @@ import LoginButton from './LoginButton';
 import PhoneMenu from './PhoneMenu';
 import { navBarHeight } from '../../constants';
 import { useRouter } from 'next/router';
-import { prefix } from '@utility/helpers';
+import { cleanUnderscore, prefix } from '@utility/helpers';
 import { Link, Stack, Typography } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import QuickSearch from '@components/common/QuickSearch';
@@ -69,7 +69,7 @@ const NavBar = ({ children }) => {
         {/* The one part of the bar that gives when a long name meets a narrow bar: an ellipsis, never a second row */}
         {state?.signedIn ? (
           <Stack sx={{ px: 1, minWidth: 0 }}>
-            <Typography variant={'body2'} noWrap sx={{ fontWeight: 'bold' }}>{state?.characters?.[0]?.name}</Typography>
+            <Typography variant={'body2'} noWrap sx={{ fontWeight: 'bold' }}>{cleanUnderscore(state?.characters?.[0]?.name)}</Typography>
             {state?.lastUpdated ? (
               <Typography variant={'caption'} noWrap>
                 {formatDate(state?.lastUpdated, { showSeconds: false, shortYear: true })}

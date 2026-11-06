@@ -13,7 +13,7 @@ const MemberName = ({ member }) => <Box component={'span'} sx={{ display: 'inlin
     ? <GameIcon src={`etc/GuildRank${member.rank}.png`} alt={''} size={16}/>
     : <Box component={'span'} sx={{ display: 'inline-block', width: 16, height: 16 }}/>}
   <Typography component={'span'} variant={'body2'}>
-    {member.name} {member.rank === 0 ? '(King)' : member.rank === 1 ? '(Leader)' : ''}
+    {cleanUnderscore(member.name)} {member.rank === 0 ? '(King)' : member.rank === 1 ? '(Leader)' : ''}
   </Typography>
 </Box>;
 
@@ -43,7 +43,7 @@ const GuildMembers = ({ members, saves }) => {
     columns={columns}
     rows={(members ?? []).filter((member) => member?.name)}
     rowKey={'name'}
-    rowLabel={(member) => member.name}
+    rowLabel={(member) => cleanUnderscore(member.name)}
     defaultSort={{ key: 'gpEarned', order: 'desc' }}
     surface={'card'}
     stickyTop={pageTop}

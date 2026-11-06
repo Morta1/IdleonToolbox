@@ -123,7 +123,7 @@ const MinorBonusCalculator = ({ characters, account }) => {
                                                // The divinity level belongs to the character, so a new pick takes over the field again.
                                                setOverrides((prev) => ({ ...prev, divinityLevel: null }));
                                              }}>
-          {characters?.map(({ name }, index) => <MenuItem key={name} value={index}>{name}</MenuItem>)}
+          {characters?.map(({ name }, index) => <MenuItem key={name} value={index}>{cleanUnderscore(name)}</MenuItem>)}
         </TextField> : null}
         <NumberField label={'Divinity level'} sx={FIELD_SX} min={0} integer help={false} value={divinityLevel}
                      onChange={handleOverride('divinityLevel')}/>

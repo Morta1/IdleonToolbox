@@ -7,7 +7,7 @@ import CookingMastery from '@components/account/Worlds/World4/CookingMastery';
 import Ribbons from '@components/account/Worlds/World4/Ribbons';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
-import { getTabs } from '@utility/helpers';
+import { cleanUnderscore, getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { calcTotalMeals, getTotalMealSpeed, parseKitchens } from '@parsers/world-4/cooking';
 import MenuItem from '@mui/material/MenuItem';
@@ -71,7 +71,7 @@ const Cooking = () => {
                      }
                    }}>
           {characters?.map((character) => <MenuItem key={character?.playerId}
-                                                    value={character?.playerId}>{character?.name}</MenuItem>)}
+                                                    value={character?.playerId}>{cleanUnderscore(character?.name)}</MenuItem>)}
         </TextField>
       </PageHeaderControl> : null}
       {characters?.length && !sectionFailed ? <PageSettings {...joinSettings({ state: settings, defaults: COOKING_SETTINGS, set: setSettings },

@@ -178,9 +178,9 @@ const GodPlanner = () => {
           {planDetails?.length ? <CardGrid size={'s'}>
             {planDetails.map(({ charName, godName, godLabel, bonusLabel, sentence, cap, nextTalent, isLinked, status }, index) => <ItemCard
               key={charName + godName + index}
-              icon={`data/${godName}.png`} title={godLabel} meta={charName}
+              icon={`data/${godName}.png`} title={godLabel} meta={cleanUnderscore(charName)}
               status={isLinked ? 'active' : status ? 'info' : undefined} statusLabel={isLinked ? 'Linked' : status}
-              footer={<Box><Button size={'small'} data-plan-remove aria-label={`Remove ${godLabel} from ${charName}`}
+              footer={<Box><Button size={'small'} data-plan-remove aria-label={`Remove ${godLabel} from ${cleanUnderscore(charName)}`}
                                    onClick={() => handleDelete(index)}>Remove</Button></Box>}>
               <ItemCard.Desc>{sentence}</ItemCard.Desc>
               <ItemCard.Facts rows={[
@@ -209,7 +209,7 @@ const GodPlanner = () => {
           // Polytheism lets an Elemental Sorcerer hold a second link, so its plan holds two gods.
           const maxGods = checkCharClass(charClass, CLASSES.Elemental_Sorcerer) ? 2 : 1;
           const classIcon = classIndex !== undefined ? `data/ClassIcons${classIndex}.png` : 'afk_targets/Nothing.png';
-          return <Panel key={charName} icon={<GameIcon src={classIcon} size={32} alt={''}/>} title={charName}
+          return <Panel key={charName} icon={<GameIcon src={classIcon} size={32} alt={''}/>} title={cleanUnderscore(charName)}
                         meta={`Divinity ${formatNum(skillsInfo?.divinity?.level ?? 0, 'level')}`}>
             <Box sx={{ p: 2 }}>
               <CardGrid size={'icon'} fill>

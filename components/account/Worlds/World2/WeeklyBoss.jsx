@@ -33,7 +33,7 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
     const quantity = Math.round(getTaskQuantity(index, task?.taskIndex, account, characters) ?? 0) || 0;
     return <ItemCard key={`turn-${index}`} icon={`etc/Req_Icon_${task?.rawName}.png`}
                      title={cleanUnderscore(task?.statText?.replace('{', quantity))}
-                     meta={`Turn ${index + 1} · ${characters?.[index]?.name ?? ''}`}
+                     meta={`Turn ${index + 1} · ${cleanUnderscore(characters?.[index]?.name)}`}
                      status={currentTurn === index ? 'active' : undefined} statusLabel={'Your turn'}>
       {/* The { is the boss fight's number, which the toolbox does not compute */}
       <ItemCard.Desc text={(actions ?? []).map(({ description }) => cleanUnderscore(description?.replace('{', 'X')))}/>

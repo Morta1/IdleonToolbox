@@ -3,7 +3,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Box, MenuItem, TextField } from '@mui/material';
 import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
-import { formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
@@ -86,7 +86,7 @@ const ClamWork = () => {
                      SelectDisplayProps: { 'aria-label': 'Clamworks character' }
                    }
                  }}>
-        {characters?.map((char) => <MenuItem key={char?.playerId} value={char?.playerId}>{char?.name}</MenuItem>)}
+        {characters?.map((char) => <MenuItem key={char?.playerId} value={char?.playerId}>{cleanUnderscore(char?.name)}</MenuItem>)}
       </TextField>
     </PageHeaderControl> : null}
     {sectionFailed ? null : <PageSettings state={settings} defaults={CLAM_SETTINGS} onChange={setSettings} onReset={resetSettings}>

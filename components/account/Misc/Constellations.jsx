@@ -62,7 +62,7 @@ const ConstellationsComp = ({ constellations = [], characters = [], sectionFaile
       ?.map((char) => CHAR_INDEX_MAP?.[char])
       ?.filter((idx) => idx !== undefined);
     const uniqueSorted = [...new Set(indices)].toSorted((a, b) => a - b);
-    return uniqueSorted.map((idx) => characterNames?.[idx] || `Char ${idx + 1}`);
+    return uniqueSorted.map((idx) => cleanUnderscore(characterNames?.[idx]) || `Char ${idx + 1}`);
   };
 
   // The points the game has added: the claimed constellations'

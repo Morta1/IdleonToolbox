@@ -78,12 +78,12 @@ const alertsMap = {
 const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlertless, onHideAlertless }) => {
   const cards = characters?.map((character, characterIndex) => {
     const {
-      name,
       classIndex,
       afkTarget,
       afkTime,
       postOffice
     } = character;
+    const name = cleanUnderscore(character.name);
     const options = Object.entries(trackers || {})?.reduce((result, [trackerName, data]) => {
       const { options, ...rest } = data;
       const optionObject = data?.options?.reduce((result, option) => ({
@@ -238,7 +238,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
                                                                                      displayName
                                                                                    }, index) => (
         <Alert target={'tools'} key={`${character?.name}-${rawName}-${index}`}
-               title={`${character?.name} can equip ${cleanUnderscore(pascalCase(displayName))}`}
+               title={`${cleanUnderscore(character?.name)} can equip ${cleanUnderscore(pascalCase(displayName))}`}
                iconPath={`data/${rawName}`}/>
       )) : null}
       {trackers?.crystalCountdown && alerts?.crystalCountdown?.length > 0 ? alerts?.crystalCountdown?.map(({
@@ -292,7 +292,7 @@ const CharacterCard = ({ character, characters, account, lastUpdated, failedTrac
   const classIcon = classIndex !== undefined ? `data/ClassIcons${classIndex}.png` : 'afk_targets/Nothing.png';
   const form = FORMS.find(({ talent }) => getTalentBonusIfActive(character?.activeBuffs, talent));
   return <Box data-cy={`character-${name}`} sx={{ height: '100%' }}>
-    <ItemCard icon={<GameIcon src={classIcon} size={40} alt={''}/>} title={name} level={{ value: stats?.level ?? 0 }}
+    <ItemCard icon={<GameIcon src={classIcon} size={40} alt={''}/>} title={cleanUnderscore(name)} level={{ value: stats?.level ?? 0 }}
               meta={isActive ? 'Active' : <>AFK <Timer type={'up'} date={afkTime} lastUpdated={lastUpdated} component={'span'}/></>}
               footer={<Button size={'small'} aria-expanded={statsOpen} onClick={() => setStatsOpen(!statsOpen)} sx={{ alignSelf: 'flex-start' }}>
                 {statsOpen ? 'Hide stats' : 'Show stats'}

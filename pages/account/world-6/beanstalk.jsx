@@ -34,7 +34,7 @@ const Beanstalk = () => {
     const multi = getGoldenFoodMulti(character, state?.account, state?.characters);
     return {
       character,
-      name: character?.name,
+      name: cleanUnderscore(character?.name),
       bonus: multi?.value,
       breakdown: multi?.breakdown,
       value: formatNum(Math.max(0, 100 * ((multi?.value ?? 1) - 1)), 'pct')
@@ -52,7 +52,7 @@ const Beanstalk = () => {
     { label: 'Characters', combine: 'list' });
   // The best character's tab totals as the tile reads (7.71K%), not the parser's raw percent text (7703.24)
   const totalBreakdowns = [charactersBreakdown,
-    bestCharacter?.breakdown && { ...bestCharacter.breakdown, label: bestCharacter.name, totalValue: bestBonusText }];
+    bestCharacter?.breakdown && { ...bestCharacter.breakdown, label: cleanUnderscore(bestCharacter.name), totalValue: bestBonusText }];
   return <>
     <NextSeo
       title="Beanstalk | Idleon Toolbox"

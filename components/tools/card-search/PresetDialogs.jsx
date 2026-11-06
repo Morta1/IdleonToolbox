@@ -37,14 +37,14 @@ export const ImportFromCharacterDialog = ({ characters, getCard, getCardSet, onI
           </Stack>
           <Button variant={'outlined'} aria-label={`Import ${loadout.label}`}
                   onClick={() => onImport({
-                    name: `${character.name} ${loadout.label.toLowerCase()}`,
+                    name: `${cleanUnderscore(character.name)} ${loadout.label.toLowerCase()}`,
                     cardSet: loadout.cardSet,
                     cards: loadout.cards
                   })}>
             Import
           </Button>
         </Stack>
-      }) : <Typography variant={'body2'} color={'text.secondary'}>{character?.name} has no cards equipped</Typography>}
+      }) : <Typography variant={'body2'} color={'text.secondary'}>{cleanUnderscore(character?.name)} has no cards equipped</Typography>}
     </Stack>
   </AppDialog>
 };

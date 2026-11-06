@@ -42,10 +42,10 @@ const apocalypsePanel = (character, apocalypse, hideSuperChow) => {
   const doneText = apocalypse.key === 'chow'
     ? `${formatNum(finished[0] ?? 0)} Chow, ${formatNum(finished[1] ?? 0)} Super Chow done`
     : `${formatNum(finished[0] ?? 0)} done`;
-  return <Panel key={apocalypse.key} title={`${character?.name}: ${apocalypse.name}`} meta={`${doneText} · ${apocalypse.rule}`}
+  return <Panel key={apocalypse.key} title={`${cleanUnderscore(character?.name)}: ${apocalypse.name}`} meta={`${doneText} · ${apocalypse.rule}`}
                 aside={allDone ? <StatusText status={'done'}>Done</StatusText> : null}>
     {!monsters ? <Box sx={{ p: 2 }}>
-      <Notice tone={'locked'}>{`${apocalypse.name} is still locked for ${character?.name}.`}</Notice>
+      <Notice tone={'locked'}>{`${apocalypse.name} is still locked for ${cleanUnderscore(character?.name)}.`}</Notice>
     </Box> : left.length ? <Box sx={{ p: 2 }}>
       <CardGrid size={'icon'}>
         {left.map(({ mapName, name, monsterFace, kills, done }, index) => {
@@ -85,7 +85,7 @@ const Apocalypses = () => {
           <Toolbar state={view} defaults={APOCALYPSES_TOOLBAR} onChange={setView} onReset={resetView}
                    total={characters.length} shown={shownCharacters.length} noun={'characters'}>
             <Toolbar.Show options={[['maniacs', 'Barbarians', maniacs.length], ['all', 'All characters', characters.length],
-              ...characters.map((character) => [`${character?.playerId}`, character?.name])]}/>
+              ...characters.map((character) => [`${character?.playerId}`, cleanUnderscore(character?.name)])]}/>
             <Toolbar.Filter name={'superChow'} label={'Hide super chow'}/>
           </Toolbar>
           <Typography variant={'body2'} color={'text.secondary'}>

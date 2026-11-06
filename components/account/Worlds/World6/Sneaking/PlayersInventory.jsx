@@ -68,7 +68,7 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
         const hasDoor = doorHp > 0;
         const activityIcon = getActivityIcon(activityInfo, weaponType, hasDoor);
         return <ItemCard key={'player-' + playerIndex} icon={`etc/${activityIcon}_Ninja.png`}
-                         title={characters?.[playerIndex]?.name}
+                         title={cleanUnderscore(characters?.[playerIndex]?.name)}
                          level={{ value: characters?.[playerIndex]?.skillsInfo?.sneaking?.level ?? 0 }}
                          meta={`${activityIcon} · Floor ${floor + 1}`}>
           <ItemCard.Facts rows={[

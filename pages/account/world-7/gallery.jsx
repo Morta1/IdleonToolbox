@@ -83,7 +83,7 @@ const Gallery = () => {
                    }
                  }}>
         <MenuItem value={''}>Account</MenuItem>
-        {state?.characters?.map((char) => <MenuItem key={char?.playerId} value={char?.playerId}>{char?.name}</MenuItem>)}
+        {state?.characters?.map((char) => <MenuItem key={char?.playerId} value={char?.playerId}>{cleanUnderscore(char?.name)}</MenuItem>)}
       </TextField>
     </PageHeaderControl> : null}
     {!section || sectionFailed ? <MissingData name={'Gallery'} failed={sectionFailed} atZero={!isParseFailed(account)}/>

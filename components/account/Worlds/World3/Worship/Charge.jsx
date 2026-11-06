@@ -33,7 +33,7 @@ const Charge = () => {
                                              date={now + closestToFull.timeLeft}/> : undefined}/>
         <StatTile label={'Charge with syphon'} value={`${formatNum(totalCharge ?? 0, 'whole')} / ${formatNum(maxChargeWithSyphon, 'whole')}`}
                   info={'Log in to every character before you use the syphon: the game applies a character\'s charge only when it logs in.'}
-                  sub={bestWizard?.name ? <>{bestWizard.name}{' · '}<Timer type={'countdown'} placeholder={full}
+                  sub={bestWizard?.name ? <>{cleanUnderscore(bestWizard.name)}{' · '}<Timer type={'countdown'} placeholder={full}
                                                                        date={timeToOverCharge}
                                                                        lastUpdated={state?.lastUpdated}/></> : undefined}/>
       </Stack>
@@ -41,7 +41,7 @@ const Charge = () => {
         {characters.map(({ worship, tools, name, classIndex, skillsInfo }, index) => {
           const skull = tools?.find(({ name }) => name?.includes('Skull'));
           const timeLeft = ((worship?.maxCharge ?? 0) - (worship?.currentCharge ?? 0)) / worship?.chargeRate * 1000 * 3600;
-          return <ItemCard key={`${name}-${index}`} icon={`data/ClassIcons${classIndex}.png`} title={name}
+          return <ItemCard key={`${name}-${index}`} icon={`data/ClassIcons${classIndex}.png`} title={cleanUnderscore(name)}
                            meta={[`Worship Lv ${formatNum(skillsInfo?.worship?.level ?? 0)}`, skull ? cleanUnderscore(skull.name) : null]
                              .filter(Boolean).join(' · ')}>
             <ItemCard.Progress label={'Charge'} value={Math.floor(worship?.currentCharge ?? 0)} max={worship?.maxCharge ?? 0}/>

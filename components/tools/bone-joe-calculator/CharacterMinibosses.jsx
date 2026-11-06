@@ -70,7 +70,7 @@ const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti,
   });
   const columns = [
     {
-      key: 'character', label: 'Character', value: ({ character }) => character?.name,
+      key: 'character', label: 'Character', value: ({ character }) => cleanUnderscore(character?.name),
       icon: ({ character }) => <GameIcon src={`data/ClassIcons${character?.classIndex}.png`} alt={''} size={24}/>
     },
     {
@@ -78,7 +78,7 @@ const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti,
       // A failed section upstream of the damage reads "-": no number, so no note on how a number was counted
       render: ({ character, maxDamage, strongest }) => (Number.isFinite(maxDamage) ? <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
         {formatNum(maxDamage)}
-        <InfoButton label={`${character?.name} damage`}>
+        <InfoButton label={`${cleanUnderscore(character?.name)} damage`}>
           {strongest
             ? `Hit counts run from every hit being ${cleanUnderscore(strongest.name)} at ${formatNum(strongest.multi * 100, 'pct')} damage, the hardest of ${strongest.count} equipped attacks, up to basic attacks only. A real fight mixes both.`
             : 'No attack equipped, so hit counts are basic attacks only'}
@@ -119,7 +119,7 @@ const CharacterTable = ({ characters, account, overridePickles, overrideHpMulti,
       : 'Both are using each character\'s own equipped prayers and carried pickles.'}
     </Typography>
     <DataTable columns={columns} rows={rows} rowKey={(row) => row.character?.name} dense
-               rowLabel={(row) => row.character?.name} stickyTop={pageTop}/>
+               rowLabel={(row) => cleanUnderscore(row.character?.name)} stickyTop={pageTop}/>
   </>;
 };
 

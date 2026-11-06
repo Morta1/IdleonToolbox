@@ -86,7 +86,7 @@ const Grimoire = () => {
                      SelectDisplayProps: { 'aria-label': 'Death Bringer' }
                    }
                  }}>
-        {deathBringers.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{character?.name}</MenuItem>)}
+        {deathBringers.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{cleanUnderscore(character?.name)}</MenuItem>)}
       </TextField>
     </PageHeaderControl> : null}
     <PageSummary>

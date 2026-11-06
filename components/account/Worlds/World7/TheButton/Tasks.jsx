@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Box, Stack } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
-import { formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 import { getCharacterTaskProgress } from '@parsers/world-7/button';
@@ -95,7 +95,7 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, cycleLength, pressesIntoCu
           {tasks.map((task) => {
             const { progress, bestChar } = best[task.index] ?? {};
             const first = !failed && cycle === 0 && task.pressNumber === rows[0]?.pressNumber;
-            const sub = [first ? 'Next press' : null, bestChar ? `Best: ${bestChar.name}` : null].filter(Boolean).join(' · ');
+            const sub = [first ? 'Next press' : null, bestChar ? `Best: ${cleanUnderscore(bestChar.name)}` : null].filter(Boolean).join(' · ');
             return <Panel.Row key={task.pressNumber} name={task.description} sub={sub || undefined}
                               value={isReady(task)
                                 ? <StatusText status={'ready'}/>

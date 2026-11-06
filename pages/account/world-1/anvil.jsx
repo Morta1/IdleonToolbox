@@ -128,7 +128,7 @@ const Anvil = () => {
       `Points ${formatNum(totalPoints - availablePoints)} / ${formatNum(totalPoints)}`,
       availablePoints > 0 ? `${formatNum(availablePoints)} unspent` : null]);
     return <Panel key={`anvil-${index}`} icon={`data/ClassIcons${character?.classIndex}.png`}
-                  title={character?.name ?? `Character ${index + 1}`} meta={meta}>
+                  title={cleanUnderscore(character?.name) || `Character ${index + 1}`} meta={meta}>
       {slots.length ? <Box sx={{ p: 2 }}>
         <CardGrid size={'s'}>
           {slots.map((slot, slotIndex) => slotCard(slot, slotIndex, stats, character?.afkTime))}

@@ -107,7 +107,7 @@ const Compass = () => {
                      SelectDisplayProps: { 'aria-label': 'Wind Walker' }
                    }
                  }}>
-        {windWalkers.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{character?.name}</MenuItem>)}
+        {windWalkers.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{cleanUnderscore(character?.name)}</MenuItem>)}
       </TextField>
     </PageHeaderControl> : null}
     <PageSummary>

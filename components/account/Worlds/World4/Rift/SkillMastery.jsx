@@ -57,7 +57,7 @@ const SkillMastery = ({ currentRift, totalSkillsLevels, characters }) => {
       const skillLabel = cleanUnderscore(skillName.capitalize());
       // Info 5: each character's level was a list in a hover note; it is the total's own breakdown
       const levels = createBreakdown(`${skillLabel} levels`, formatNum(level ?? 0), flatLines((characters ?? []).map((character) => ({
-        name: character?.name, value: character?.skillsInfo?.[skillName]?.level ?? 0,
+        name: cleanUnderscore(character?.name), value: character?.skillsInfo?.[skillName]?.level ?? 0,
         formatted: formatNum(character?.skillsInfo?.[skillName]?.level ?? 0, 'level')
       }))), { combine: 'list' });
       return <ItemCard key={skillName} icon={`data/${icon}.png`} iconAlt={''} title={skillLabel}

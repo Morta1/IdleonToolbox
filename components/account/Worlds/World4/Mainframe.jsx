@@ -46,7 +46,7 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords, account, sect
         <CardGrid size={'s'}>
           {players.map(({ playerCord, index, character, connectedByGod }) => <ItemCard
             key={`${playerCord?.x}${playerCord?.y}-${index}`} icon={`data/ClassIcons${character?.classIndex}.png`}
-            iconAlt={''} title={character?.name}
+            iconAlt={''} title={cleanUnderscore(character?.name)}
             meta={[connectedByGod ? 'Linked by Arctis' : null, playerCord?.soupedUp ? 'Souped up' : null].filter(Boolean).join(' · ') || undefined}>
             <ItemCard.Facts rows={[
               ['Range', `${formatGame(playerCord?.lineWidth ?? 0, 'Labb.Dist')}px`],

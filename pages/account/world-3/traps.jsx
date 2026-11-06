@@ -80,7 +80,7 @@ const Traps = () => {
     const meta = [`Trapping Lv ${formatNum(character?.skillsInfo?.trapping?.level ?? 0)}`,
       trap?.rawName ? itemName(trap.rawName) : null].filter(Boolean).join(' · ');
     return <Panel key={`traps-${index}`} icon={`data/ClassIcons${character?.classIndex}.png`}
-                  title={character?.name ?? `Character ${index + 1}`} meta={meta}>
+                  title={cleanUnderscore(character?.name) || `Character ${index + 1}`} meta={meta}>
       <Box sx={{ p: 2 }}>
         {realTraps.length ? <CardGrid size={'icon'}>{realTraps.map((slot, slotIndex) => slot?.name
             ? <IconTile key={`${slot.rawName}-${slotIndex}`} icon={`data/${slot.rawName}.png`} alt={slot.name}
@@ -114,7 +114,7 @@ const Traps = () => {
                      SelectDisplayProps: { 'aria-label': 'Collect as' }
                    }
                  }}>
-        {characters.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{character?.name}</MenuItem>)}
+        {characters.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{cleanUnderscore(character?.name)}</MenuItem>)}
       </TextField>
     </PageHeaderControl> : null}
     {sectionFailed ? <MissingData name={'Traps'} failed/> : !characters.length

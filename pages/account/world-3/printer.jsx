@@ -58,7 +58,7 @@ const Printer = () => {
 
   const printerPanel = (slots, index) => {
     const character = state?.characters?.[index];
-    const name = character?.name ?? `Character ${index + 1}`;
+    const name = cleanUnderscore(character?.name) || `Character ${index + 1}`;
     const sample = character?.printerSample ?? 0;
     const printing = slots?.find((slot) => slot?.item && slot.item !== 'Blank' && slot?.value > 0);
     const multi = printing ? printing.boostedValue / printing.value : undefined;

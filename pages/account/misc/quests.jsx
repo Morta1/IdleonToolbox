@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { Box } from '@mui/material';
 import WorldQuest, { shapeQuests } from 'components/account/Misc/WorldQuest';
-import { formatNum } from 'utility/helpers';
+import { cleanUnderscore, formatNum } from 'utility/helpers';
 import { AppContext } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import PageSummary from '@components/common/cards/PageSummary';
@@ -63,7 +63,7 @@ const Quests = () => {
             </InfoButton>
           </Toolbar.Lead>
           {characters.length && !questsFailed ? <Toolbar.Show options={[['all', 'All characters'],
-            ...characters.map((character, index) => [`${index}`, character?.name])]}/> : null}
+            ...characters.map((character, index) => [`${index}`, cleanUnderscore(character?.name)])]}/> : null}
           <Toolbar.Filter name={'hideCompleted'} label={'Hide completed'}/>
           <Toolbar.Filter name={'doneByAny'} label={'Done by any'}/>
           {lootyFailed ? null : <Toolbar.Filter name={'missable'} label={'Missable greenstacks'}/>}

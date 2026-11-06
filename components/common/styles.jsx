@@ -93,7 +93,7 @@ export const TalentTooltip = ({ level, funcX, x1, x2, funcY, y1, y2, description
 export const PlayersList = ({ players, characters }) => {
   return <Stack gap={1} direction={'row'}>
     {players.map(({ index }) => {
-      const name = characters?.[index]?.name ?? 'Character';
+      const name = cleanUnderscore(characters?.[index]?.name) || 'Character';
       return <NoteTrigger key={`player-${index}`} note={name} label={name}>
         <GameIcon src={`data/ClassIcons${characters?.[index]?.classIndex}.png`} size={24} alt=""/>
       </NoteTrigger>;

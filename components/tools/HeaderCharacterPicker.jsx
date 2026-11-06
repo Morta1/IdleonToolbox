@@ -1,6 +1,7 @@
 import { Box, MenuItem, Stack, TextField } from '@mui/material';
 import GameIcon from '@components/common/GameIcon';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
+import { cleanUnderscore } from '@utility/helpers';
 
 const classIcon = (character) => (character?.classIndex !== undefined ? `data/ClassIcons${character?.classIndex}.png` : 'afk_targets/Nothing.png');
 
@@ -15,7 +16,7 @@ const HeaderCharacterPicker = ({ characters, value, onChange }) => <PageHeaderCo
                    return <Stack direction={'row'} alignItems={'center'} gap={0.75}>
                      <Box component={'span'} sx={{ color: 'text.secondary' }}>Character</Box>
                      <GameIcon src={classIcon(character)} size={24} alt={''}/>
-                     {character?.name}
+                     {cleanUnderscore(character?.name)}
                    </Stack>;
                  },
                  SelectDisplayProps: { 'aria-label': 'Character' }
@@ -23,7 +24,7 @@ const HeaderCharacterPicker = ({ characters, value, onChange }) => <PageHeaderCo
              }}>
     {characters?.map((character) => <MenuItem key={character?.playerId} value={String(character?.playerId)} sx={{ gap: 1 }}>
       <GameIcon src={classIcon(character)} size={24} alt={''}/>
-      {character?.name}
+      {cleanUnderscore(character?.name)}
     </MenuItem>)}
   </TextField>
 </PageHeaderControl>;
