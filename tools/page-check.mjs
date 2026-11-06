@@ -352,7 +352,6 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
   const touch = size.width < 768;
   const context = await browser.newContext({ viewport: size, storageState: consent, ...(touch ? { isMobile: true, hasTouch: true } : {}) });
   if (force) await context.addInitScript(forceSections, force);
-  // MUI's colorSchemes reads this key once the theme has a light scheme; until then a light run draws dark.
   if (scheme !== 'dark') await context.addInitScript((mode) => localStorage.setItem('mui-mode', mode), scheme);
   if (storage) {
     await context.addInitScript((entries) => entries.forEach(([key, value]) => localStorage.setItem(key, JSON.stringify(value))), Object.entries(storage));
@@ -375,6 +374,8 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
       try {
         await waitForRender(page);
         await page.waitForTimeout(500 + Number(opts.settle));
+        // A moved URL forwards in that gap, and the new route opens on its loader.
+        await waitForRender(page);
         return await page.evaluate(scanPage, { maxLines: Number(opts['max-lines']), minGap: Number(opts['min-gap']), maxLowContrast: MAX_LOW_CONTRAST });
       } catch (error) {
         if (attempts <= 1 || !/context was destroyed|reading 'innerText'/.test(error.message)) throw error;
