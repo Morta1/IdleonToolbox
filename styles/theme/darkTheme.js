@@ -351,6 +351,11 @@ const theme = createTheme({
           minHeight: 32,
           [TOUCH]: { minHeight: 32 }
         },
+        // Flat on white, as the Foundations board draws it. A shadow that dark can't show would be the only one on the page.
+        contained: ({ theme }) => theme.applyStyles('light', {
+          boxShadow: 'none',
+          '&:hover, &:active, &.Mui-focusVisible': { boxShadow: 'none' }
+        }),
         containedPrimary: ({ theme }) => ({
           '&:hover': { '@media (hover: hover)': { '--variant-containedBg': palette(theme).primary.hover } }
         })
@@ -580,7 +585,9 @@ const theme = createTheme({
         root: ({ theme }) => ({
           '--AppBar-background': palette(theme).background.default,
           '--AppBar-color': palette(theme).text.primary,
-          borderBottom: `1px solid ${palette(theme).divider}`
+          borderBottom: `1px solid ${palette(theme).divider}`,
+          // The board's bar has its divider and no shadow, which white would show.
+          ...theme.applyStyles('light', { boxShadow: 'none' })
         })
       }
     }

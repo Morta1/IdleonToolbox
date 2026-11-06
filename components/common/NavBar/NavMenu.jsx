@@ -242,7 +242,7 @@ export const NavMenuPanel = ({ menu, onClose }) => {
                pointerEvents: 'auto', outline: 'none', color: 'text.primary',
                width: menu === 'tools' && form !== 'pane' ? 820 : '100%', maxWidth: '100%',
                p: FORMS[form]?.pad ?? 2, bgcolor: 'background.paper', border: 1, borderTop: 0, borderColor: 'divider',
-               borderRadius: '0 0 8px 8px', boxShadow: 8,
+               borderRadius: '0 0 8px 8px', boxShadow: (theme) => (theme.vars || theme).palette.shadow.floating,
                maxHeight: `calc(100vh - ${top}px - var(--nitro-ad-height, 0px))`, overflowY: 'auto'
              }, frame.cap ? capPageWidth(frame.cap) : null]}>
           <nav aria-label={`${LABELS[menu]} pages`}>
