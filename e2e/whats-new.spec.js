@@ -21,6 +21,19 @@ const open = (page, { anyView = true, regular = true, storage = {} } = {}) => pa
 }, [anyView, regular, storage]);
 
 const dialog = (page) => page.getByRole('dialog', { name: 'What\'s new' });
+const picture = (page) => dialog(page).getByTestId('before-after');
+const lines = (page) => dialog(page).locator('li button');
+const labels = (page) => picture(page).getByTestId('before-after-label');
+const nextPicture = (page) => dialog(page).getByRole('button', { name: 'Next', exact: true });
+const counter = (page, shown) => dialog(page).getByText(`${shown} of 4.`);
+const linePos = (page) => picture(page).evaluate((node) => parseFloat(getComputedStyle(node).getPropertyValue('--pos')));
+const dragLineTo = async (page, share) => {
+  const box = await picture(page).boundingBox();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width * share, box.y + box.height / 2, { steps: 5 });
+  await page.mouse.up();
+};
 const card = (page) => page.locator('[aria-labelledby="tour-title"]');
 const mark = (page) => page.evaluate(() => localStorage.getItem('whatsNew'));
 // The card's words change as Next is pressed, and it stays unseen until the page under it has arrived.
@@ -73,35 +86,281 @@ test.describe('the dialog', () => {
     });
   }
 
-  test('all four show with no scroll in a 1366 x 650 window', async ({ page }) => {
+  test('everything shows with no scroll in a 1366 x 650 window, and the picture is close to full size', async ({ page }) => {
     await page.setViewportSize({ width: 1366, height: 650 });
+    await page.emulateMedia({ reducedMotion: 'reduce' });
     await open(page);
     await page.goto(STAMPS);
     await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
     await expect(dialog(page).getByText('Ctrl + K searches them all')).toBeVisible();
     await expect.poll(() => dialog(page).locator('.MuiDialogContent-root').evaluate((body) => body.scrollHeight - body.clientHeight)).toBe(0);
-    await expect(dialog(page).locator('img')).toHaveCount(8);
+    await expect(lines(page)).toHaveCount(4);
+    for (const line of await lines(page).all()) await expect(line).toBeInViewport({ ratio: 1 });
+    await expect(picture(page)).toBeInViewport({ ratio: 1 });
+    await expect(dialog(page).getByRole('button', { name: 'Show me around' })).toBeInViewport({ ratio: 1 });
+    expect((await page.locator('.MuiDialog-paper').boundingBox()).width).toBe(960);
+    expect((await picture(page).boundingBox()).width).toBeGreaterThanOrEqual(585);
+    await expect(dialog(page).locator('img')).toHaveCount(2);
     const broken = await dialog(page).locator('img').evaluateAll((images) => Promise.all(images.map((image) => image.decode().then(() => null, () => image.src))));
     expect(broken.filter(Boolean)).toEqual([]);
   });
 
-  for (const [width, height, lines, sheet] of [
-    [1000, 800, ['Worlds and Account tabs', 'to the right of the page title'], false],
-    [800, 800, ['Worlds and Account tabs', 'above the page title'], false],
-    [384, 832, ['Worlds and Account tabs', 'above the page title'], true]
+  test('at 1366 x 768 the picture is its full 614 x 337', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await open(page);
+    await page.goto(STAMPS);
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    const { width, height } = await picture(page).boundingBox();
+    expect(Math.round(width)).toBe(614);
+    expect(Math.round(height)).toBe(337);
+    await expect.poll(() => dialog(page).locator('.MuiDialogContent-root').evaluate((body) => body.scrollHeight - body.clientHeight)).toBe(0);
+  });
+
+  for (const [width, height, words, sheet, stacked] of [
+    [1000, 800, ['Worlds and Account tabs', 'to the right of the page title'], false, false],
+    [800, 800, ['Worlds and Account tabs', 'above the page title'], false, true],
+    [384, 832, ['Worlds and Account tabs', 'above the page title'], true, true]
   ]) {
-    test(`at ${width} wide only Got it shows, and the words fit the burger`, async ({ page }) => {
+    test(`at ${width} wide only Got it shows, the words fit the burger, and every picture is one height`, async ({ page }) => {
       await page.setViewportSize({ width, height });
+      await page.emulateMedia({ reducedMotion: 'reduce' });
       await open(page);
       await page.goto(STAMPS);
       await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
-      for (const line of lines) await expect(dialog(page).getByText(line)).toBeVisible();
+      for (const line of words) await expect(dialog(page).getByText(line)).toBeVisible();
       await expect(dialog(page).getByText('top bar')).toHaveCount(0);
       await expect(dialog(page).getByRole('button', { name: 'Show me around' })).toHaveCount(0);
       await expect(dialog(page).getByRole('button', { name: 'Got it' })).toBeVisible();
       await expect(page.locator('.MuiDrawer-paper[role="dialog"]')).toHaveCount(sheet ? 1 : 0);
+      const stage = await picture(page).boundingBox();
+      const list = await lines(page).first().boundingBox();
+      expect(stacked ? list.y > stage.y + stage.height : list.x + list.width <= stage.x).toBe(true);
+      if (!sheet) await expect.poll(() => dialog(page).locator('.MuiDialogContent-root').evaluate((body) => body.scrollHeight - body.clientHeight)).toBe(0);
+      const heights = [Math.round(stage.height)];
+      for (let i = 0; i < 3; i += 1) {
+        await nextPicture(page).click();
+        await expect(counter(page, i + 2)).toBeVisible();
+        heights.push(Math.round((await picture(page).boundingBox()).height));
+      }
+      expect(new Set(heights).size).toBe(1);
     });
   }
+});
+
+test.describe('the picture', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await open(page);
+    await page.goto(STAMPS);
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await expect(picture(page)).toBeVisible();
+  });
+
+  test('dragging moves the line, and it starts at the middle', async ({ page }) => {
+    expect(await linePos(page)).toBe(50);
+    await dragLineTo(page, 0.25);
+    expect(await linePos(page)).toBeCloseTo(25, 0);
+    // The upper picture is cut at the line.
+    expect(await picture(page).locator('img').last().evaluate((image) => getComputedStyle(image).clipPath)).toMatch(/^inset\(0px 7[45](\.\d+)?% 0px 0px\)$/);
+  });
+
+  test('the arrow keys carry on from a drag, 2 at a time, with the focus still on the range', async ({ page }) => {
+    await dragLineTo(page, 0.3);
+    await expect(picture(page).getByRole('slider')).toBeFocused();
+    const value = Number(await picture(page).getByRole('slider').inputValue());
+    await page.keyboard.press('ArrowRight');
+    expect(await linePos(page)).toBe(value + 2);
+    await page.keyboard.press('ArrowLeft');
+    await page.keyboard.press('ArrowLeft');
+    expect(await linePos(page)).toBe(value - 2);
+    await expect(picture(page).getByRole('slider')).toBeFocused();
+  });
+
+  test('the knob shows the focus ring from the keyboard, not from a drag', async ({ page }) => {
+    const ring = () => picture(page).locator('[data-knob]').evaluate((knob) => getComputedStyle(knob).outlineStyle);
+    await dragLineTo(page, 0.4);
+    expect(await ring()).toBe('none');
+    await page.keyboard.press('ArrowRight');
+    expect(await ring()).toBe('solid');
+    await dragLineTo(page, 0.6);
+    expect(await ring()).toBe('none');
+    await page.keyboard.press('Tab');
+    await page.keyboard.press('Shift+Tab');
+    await expect(picture(page).getByRole('slider')).toBeFocused();
+    expect(await ring()).toBe('solid');
+  });
+
+  test('each label rides on its own side and fades when that side has no room', async ({ page }) => {
+    const seen = () => labels(page).evaluateAll((all) => all.map((label) => getComputedStyle(label).opacity));
+    const [before, after] = await labels(page).all();
+    await expect(before).toHaveText('Before');
+    await expect(after).toHaveText('After');
+    expect(await seen()).toEqual(['1', '1']);
+    await dragLineTo(page, 0);
+    expect(await seen()).toEqual(['0', '1']);
+    await dragLineTo(page, 1);
+    expect(await seen()).toEqual(['1', '0']);
+    await dragLineTo(page, 0.5);
+    expect(await seen()).toEqual(['1', '1']);
+    const line = await picture(page).locator('[data-line]').boundingBox();
+    expect((await before.boundingBox()).x + (await before.boundingBox()).width).toBeLessThan(line.x);
+    expect((await after.boundingBox()).x).toBeGreaterThan(line.x);
+  });
+
+  test('clicking a line swaps the picture and sets the line back to the middle', async ({ page }) => {
+    await dragLineTo(page, 0.2);
+    await expect(lines(page).nth(0)).toHaveAttribute('aria-current', 'true');
+    await lines(page).nth(2).click();
+    await expect(lines(page).nth(2)).toHaveAttribute('aria-current', 'true');
+    await expect(lines(page).nth(0)).not.toHaveAttribute('aria-current');
+    await expect(counter(page, 3)).toBeVisible();
+    await expect(picture(page).locator('img').first()).toHaveAttribute('src', /timers-after\.webp$/);
+    await expect(picture(page).locator('img').last()).toHaveAttribute('src', /timers-before\.webp$/);
+    expect(await linePos(page)).toBe(50);
+  });
+
+  test('the Theme pair reads Dark and Light', async ({ page }) => {
+    await lines(page).nth(3).click();
+    await expect(labels(page)).toHaveText(['Dark', 'Light']);
+    await expect(picture(page).locator('img').first()).toHaveAttribute('src', /theme-light\.webp$/);
+  });
+
+  test('Next goes through all four and back to the first', async ({ page }) => {
+    for (const shown of [2, 3, 4, 1]) {
+      await nextPicture(page).click();
+      await expect(counter(page, shown)).toBeVisible();
+      await expect(lines(page).nth(shown - 1)).toHaveAttribute('aria-current', 'true');
+    }
+  });
+});
+
+test('every picture of this width is fetched once it\'s open, and none before', async ({ page }) => {
+  const asked = new Set();
+  page.on('request', (request) => {
+    if (request.url().includes('/etc/whatsnew/')) asked.add(request.url());
+  });
+  await page.emulateMedia({ reducedMotion: 'reduce' });
+  await open(page, { regular: false });
+  await page.goto(STAMPS);
+  await staysShut(page);
+  expect(asked.size).toBe(0);
+  await open(page);
+  await page.evaluate(() => localStorage.removeItem('whatsNew'));
+  await page.reload();
+  await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+  await expect.poll(() => [...asked].filter((url) => !url.includes('/phone-')).length).toBe(8);
+  expect(asked.size).toBe(8);
+});
+
+test.describe('the sweep', () => {
+  const positions = (page, ms) => picture(page).evaluate((node, time) => new Promise((resolve) => {
+    const seen = new Set();
+    const end = performance.now() + time;
+    const tick = () => {
+      seen.add(parseFloat(getComputedStyle(node).getPropertyValue('--pos')));
+      if (performance.now() < end) requestAnimationFrame(tick);
+      else resolve([...seen]);
+    };
+    tick();
+  }), ms);
+
+  test('the line sweeps the first time each picture shows, and not again', async ({ page }) => {
+    await open(page);
+    await page.goto(STAMPS);
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await expect(picture(page)).toBeVisible();
+    await expect.poll(() => linePos(page), { intervals: [50] }).not.toBe(50);
+    await expect.poll(() => linePos(page), { timeout: 5000 }).toBe(50);
+    await nextPicture(page).click();
+    await expect.poll(() => linePos(page), { intervals: [50] }).not.toBe(50);
+    await expect.poll(() => linePos(page), { timeout: 5000 }).toBe(50);
+    await lines(page).nth(0).click();
+    await expect(counter(page, 1)).toBeVisible();
+    expect(await positions(page, 500)).toEqual([50]);
+  });
+
+  test('prefers-reduced-motion: it stays still', async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await open(page);
+    await page.goto(STAMPS);
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await expect(picture(page)).toBeVisible();
+    expect(await positions(page, 800)).toEqual([50]);
+  });
+});
+
+// Real touches through the browser's own gesture handling, so touch-action and the sheet's listeners both get their say.
+test.describe('on a touch phone', () => {
+  test.use({ viewport: { width: 384, height: 832 }, hasTouch: true, isMobile: true });
+
+  const touch = async (page, points) => {
+    const client = await page.context().newCDPSession(page);
+    const [first, ...rest] = points;
+    await client.send('Input.dispatchTouchEvent', { type: 'touchStart', touchPoints: [first] });
+    for (const point of rest) {
+      await client.send('Input.dispatchTouchEvent', { type: 'touchMove', touchPoints: [point] });
+      await page.waitForTimeout(16);
+    }
+    return { end: () => client.send('Input.dispatchTouchEvent', { type: 'touchEnd', touchPoints: [] }) };
+  };
+  const stroke = (from, to, steps = 10) => Array.from({ length: steps + 1 }, (_, step) => ({
+    x: from.x + ((to.x - from.x) * step) / steps, y: from.y + ((to.y - from.y) * step) / steps
+  }));
+  const sheet = (page) => page.locator('.MuiDrawer-paper[role="dialog"]');
+  const sheetTop = async (page) => Math.round((await sheet(page).boundingBox()).y);
+  const onPicture = async (page, across = 0.5) => {
+    const box = await picture(page).boundingBox();
+    return { x: box.x + box.width * across, y: box.y + box.height / 2 };
+  };
+
+  test.beforeEach(async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: 'reduce' });
+    await open(page);
+    await page.goto(STAMPS);
+    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
+    await expect(picture(page)).toBeVisible();
+    // The sheet has slid in.
+    await expect.poll(() => sheetTop(page)).toBeLessThan(832 * 0.5);
+    await page.waitForTimeout(400);
+  });
+
+  test('a drag along the picture moves the line and leaves the sheet where it is', async ({ page }) => {
+    const top = await sheetTop(page);
+    const from = await onPicture(page, 0.5);
+    const gesture = await touch(page, stroke(from, { x: from.x - 100, y: from.y + 30 }));
+    expect(await linePos(page)).toBeLessThan(30);
+    expect(await sheetTop(page)).toBe(top);
+    await gesture.end();
+    await expect(sheet(page)).toBeVisible();
+    expect(await sheetTop(page)).toBe(top);
+  });
+
+  test('a swipe down that starts on the picture is the sheet\'s, and the line doesn\'t move on its way', async ({ page }) => {
+    const top = await sheetTop(page);
+    const from = await onPicture(page, 0.25);
+    const gesture = await touch(page, stroke(from, { x: from.x + 60, y: from.y + 280 }));
+    expect(await sheetTop(page)).toBeGreaterThan(top + 100);
+    expect(await linePos(page)).toBe(50);
+    await gesture.end();
+    await expect(dialog(page)).toHaveCount(0);
+  });
+
+  test('a tap on the picture moves the line there', async ({ page }) => {
+    const from = await onPicture(page, 0.8);
+    const gesture = await touch(page, [from]);
+    expect(await linePos(page)).toBe(50);
+    await gesture.end();
+    await expect.poll(() => linePos(page)).toBeCloseTo(80, 0);
+    expect(await sheet(page).isVisible()).toBe(true);
+  });
+
+  test('a swipe down from the title still closes the sheet', async ({ page }) => {
+    const box = await dialog(page).getByRole('heading', { name: 'What\'s new' }).boundingBox();
+    const from = { x: box.x + 10, y: box.y + box.height / 2 };
+    const gesture = await touch(page, stroke(from, { x: from.x, y: from.y + 400 }));
+    await gesture.end();
+    await expect(dialog(page)).toHaveCount(0);
+  });
 });
 
 test.describe('who waits', () => {
