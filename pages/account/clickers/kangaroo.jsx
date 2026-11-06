@@ -15,7 +15,10 @@ import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
 import StatusText from '@components/common/StatusText';
+import NextBonus from '@components/account/clickers/NextBonus';
 import { getKangaroo } from '@parsers/world-2/kangaroo';
+
+const megaFishText = ({ description, totalBonus }) => cleanUnderscore(`${description ?? ''}`.replace('{', () => formatNum(totalBonus ?? 1, 'mult', { bare: true })));
 
 const bonusText = ({ bonus, percentage }) => `${bonus > 0 ? '+' : ''}${formatGame(bonus ?? 0, 'Summoning.RooBonuses')}${percentage ? '%' : ''}`;
 // The game's fish line rounds up before its commas (N.js, the Poppy panel), a step its rule's Comma doesn't hold
@@ -67,15 +70,15 @@ const Kangaroo = () => {
         <Panel title={'Megafish'}>
           <Box sx={{ p: 1.5 }}>
             <CardGrid size={'icon'} evenRows>
-              {(kangaroo?.megaFish ?? []).map(({ description, unlocked, amount, totalBonus }, index) => <IconTile key={index}
-                                                                                                                icon={`data/RooMG${index}.png`}
-                                                                                                                alt={`Megafish ${index + 1}`}
-                                                                                                                status={unlocked ? undefined : 'missing'}
-                                                                                                                value={!failed && amount > 0 ? formatNum(amount, 'whole') : undefined}
-                                                                                                                details={<ItemCard.Desc
-                                                                                                                  text={cleanUnderscore(`${description ?? ''}`.replace('{', () => formatNum(totalBonus ?? 1, 'mult', { bare: true })))}/>}/>)}
+              {(kangaroo?.megaFish ?? []).map((entry, index) => <IconTile key={index}
+                                                                          icon={`data/RooMG${index}.png`}
+                                                                          alt={`Megafish ${index + 1}`}
+                                                                          status={entry.unlocked ? undefined : 'missing'}
+                                                                          value={!failed && entry.amount > 0 ? formatNum(entry.amount, 'whole') : undefined}
+                                                                          details={<ItemCard.Desc text={megaFishText(entry)}/>}/>)}
             </CardGrid>
           </Box>
+          {failed ? null : <NextBonus entries={kangaroo?.megaFish} name={'Megafish'} iconOf={(index) => `data/RooMG${index}.png`} textOf={megaFishText}/>}
         </Panel>
         <Box sx={{ containerType: 'inline-size' }}>
           <Box sx={LISTS_SX}>

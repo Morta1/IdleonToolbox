@@ -12,6 +12,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
 import Upgrades from '@components/account/clickers/bubba/Upgrades';
+import NextBonus from '@components/account/clickers/NextBonus';
 import { getBubba } from '@parsers/clickers/bubba';
 
 // The parser formats the last megaflesh's bonus; its $ takes it. "Current_Bonus:$x" has no space of its own
@@ -54,6 +55,8 @@ const Bubba = () => {
                                                                    details={<ItemCard.Desc text={megafleshText(entry).split('\n')}/>}/>)}
         </CardGrid>
       </Box>
+      {failed ? null : <NextBonus entries={bubba?.megaFlesh} name={'Megaflesh'} iconOf={(index) => `data/BubbaMF${index}.png`}
+                                  textOf={(entry) => megafleshText(entry).replaceAll('\n', ' ')}/>}
     </Panel>
     <Panel title={"Bubba's bonuses"} sx={{ mb: 3 }}>
       <Panel.Columns>

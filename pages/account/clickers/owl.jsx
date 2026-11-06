@@ -12,7 +12,10 @@ import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
 import StatusText from '@components/common/StatusText';
+import NextBonus from '@components/account/clickers/NextBonus';
 import { getOwl } from '@parsers/world-1/owl';
+
+const megaFeatherText = ({ description, totalBonus }) => cleanUnderscore(`${description ?? ''}`.replace('{', () => formatNum(totalBonus ?? 1, 'mult', { bare: true })));
 
 // The game fills Orion's bonuses with the raw number (N.js, the Orion panel): commas and no K. Shiny Feather is a count
 const bonusText = ({ name, bonus, percentage }) => (name === 'Shiny Feather'
@@ -48,15 +51,15 @@ const Owl = () => {
     <Panel title={'Megafeathers'} sx={{ mb: 2 }}>
       <Box sx={{ p: 1.5 }}>
         <CardGrid size={'icon'} evenRows>
-          {(owl?.megaFeathers ?? []).map(({ description, unlocked, amount, totalBonus }, index) => <IconTile key={index}
-                                                                                                          icon={`data/Feaz${index}.png`}
-                                                                                                          alt={`Megafeather ${index + 1}`}
-                                                                                                          status={unlocked ? undefined : 'missing'}
-                                                                                                          value={!failed && amount > 0 ? formatGame(amount, 'Summoning.OwlMegafeather', { whole: true }) : undefined}
-                                                                                                          details={<ItemCard.Desc
-                                                                                                            text={cleanUnderscore(`${description ?? ''}`.replace('{', () => formatNum(totalBonus ?? 1, 'mult', { bare: true })))}/>}/>)}
+          {(owl?.megaFeathers ?? []).map((entry, index) => <IconTile key={index}
+                                                                     icon={`data/Feaz${index}.png`}
+                                                                     alt={`Megafeather ${index + 1}`}
+                                                                     status={entry.unlocked ? undefined : 'missing'}
+                                                                     value={!failed && entry.amount > 0 ? formatGame(entry.amount, 'Summoning.OwlMegafeather', { whole: true }) : undefined}
+                                                                     details={<ItemCard.Desc text={megaFeatherText(entry)}/>}/>)}
         </CardGrid>
       </Box>
+      {failed ? null : <NextBonus entries={owl?.megaFeathers} name={'Megafeather'} iconOf={(index) => `data/Feaz${index}.png`} textOf={megaFeatherText}/>}
     </Panel>
     <Panel title={'Bonuses of Orion'} sx={{ mb: 3 }}>
       <Panel.Columns>
