@@ -365,36 +365,6 @@ export const getNumberWithOrdinal = (n) => {
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
-export const kFormatter = (num, digits = 1) => {
-  if (num === undefined) return null;
-  const si = [
-    { value: 1, symbol: '' },
-    { value: 1e3, symbol: 'k' },
-    { value: 1e6, symbol: 'M' },
-    { value: 1e9, symbol: 'B' },
-    { value: 1e12, symbol: 'T' },
-    { value: 1e15, symbol: 'Q' },
-    { value: 1e18, symbol: 'QQ' }
-  ];
-  const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-  let i;
-  for (i = si.length - 1; i > 0; i--) {
-    if (num >= si[i].value) {
-      break;
-    }
-  }
-  return (num / si[i].value).toFixed(digits).replace(rx, '$1') + si[i].symbol;
-};
-
-// Port of the game's cash multiplier label (the MonsterCash text in N.js). Past 1e16 it hands off to
-// NotateNumber, which has no tier above QQ and prints e notation from 1e21 on.
-export const cashFormatter = (value) => {
-  if (value > 1e16) return notateNumber(value, 'Big');
-  if (value > 1e10) return Math.floor(value / 1e8) / 10 + 'B';
-  if (value > 1e7) return Math.floor(value / 1e5) / 10 + 'M';
-  return notateNumber(value, 'MultiplierInfo');
-}
-
 // Every digit a typed number has, grouped: for a field's own text, which isn't a number being shown (formatNum).
 export const groupDigits = (value) => numberWithCommas(value);
 

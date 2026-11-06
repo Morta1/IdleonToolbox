@@ -13,7 +13,7 @@ const NUMBER_MESSAGE = 'Raw number formatting: use formatNum or <Num> (Numbers b
 const SHADE = '/^(success|error|warning|info)\\.(light|dark)$/'
 const SHADE_MESSAGE = 'Status shade in a component: words take the role (text.success), fills and edges the main shade (success.main). Foundations board.'
 const TYPE_MESSAGE = 'h1 to h6 are not titles: use pageTitle, sectionTitle, cardTitle or groupLabel (Foundations board, Type).'
-const LEGACY_FORMATTERS = { names: ['kFormatter', 'cashFormatter', 'numberWithCommas'], message: NUMBER_MESSAGE }
+const LEGACY_FORMATTERS = { names: ['numberWithCommas'], message: NUMBER_MESSAGE }
 
 const eslintConfig = defineConfig([
   ...nextVitals,

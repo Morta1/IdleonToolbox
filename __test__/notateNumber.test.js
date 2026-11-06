@@ -1,5 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { cashFormatter, commaNotation, GAME_LN10, notateNumber, notateProgress } from '@utility/helpers';
+import { commaNotation, GAME_LN10, notateNumber, notateProgress } from '@utility/helpers';
+import { cashMultiText } from '@utility/gameNotation';
 import GAME from '@utility/wiki/game-constants.mjs';
 
 /**
@@ -101,7 +102,7 @@ describe('notateNumber MultiplierInfo matches the game', () => {
  * The cash multiplier label has its own M and B bands before handing off to NotateNumber. The E
  * values were read back from the running game; there is no QQQ tier, which the toolbox once invented.
  */
-describe('cashFormatter matches the game', () => {
+describe('cashMultiText matches the game', () => {
   it.each([
     [5e6, '5.00M'],
     [1.234e7, '12.3M'],
@@ -114,7 +115,7 @@ describe('cashFormatter matches the game', () => {
     [1.0179e35, '1.01e35'],
     [4.2e150, '4.2e150']
   ])('formats %s as %s', (value, expected) => {
-    expect(cashFormatter(value)).toBe(expected);
+    expect(cashMultiText(value)).toBe(expected);
   });
 });
 
