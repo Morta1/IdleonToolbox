@@ -17,7 +17,8 @@ import {
   ninjaExtraInfo,
   randomList,
   rawMapNames,
-  slab
+  slab,
+  slabItemNames
 } from '@website-data';
 import { checkCharClass, CLASSES, getTalentBonus, mainStatMap, talentPagesMap, getHighestTalentAcrossCharacters, getBestActiveCharacter, getLastBloodBerserkerLine } from './talents';
 import { getMealsBonusByEffectOrStat } from './world-4/cooking';
@@ -483,7 +484,7 @@ export const getSlab = (idleonData: any) => {
     'Bone0', 'Bone1', 'Bone2', 'Bone3', 'Tach0', 'Tach1', 'Tach2', 'Tach3', 'Tach4', 'Tach5',
     'DungRNG0', 'DungRNG1', 'DungRNG2', 'DungRNG3', 'DungRNG4']);
   const slabItems = slab?.map((name) => ({
-    name: allItems?.[name]?.displayName,
+    name: allItems?.[name]?.displayName ?? slabItemNames?.[name as keyof typeof slabItemNames],
     rawName: x1Names.has(name) ? `${name}_x1` : name,
     itemRawName: name,
     obtained: lootyRaw?.includes(name),

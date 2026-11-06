@@ -5,7 +5,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import { DoubledPreview, DoublerTag } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
-export const MINE_CURRENCY_ICON = 'data/MineUpgBG.png';
+export const MINE_CURRENCY_ICON = 'etc/MineCurrency.png';
 
 const Upgrades = ({ upgrades, mineCurrency, doublersOwned = 0 }) => <CardGrid size={'m'}>
   {upgrades?.map((upgrade, position) => {

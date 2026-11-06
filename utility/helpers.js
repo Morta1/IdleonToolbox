@@ -546,9 +546,15 @@ const PLAIN = {
   Ceil: (value) => String(Math.ceil(value))
 };
 
+// A printed scale, z-processing's CommaM or RoundB: the game's `CommaNotation(x / 1e6) + "M"`.
+const SCALES = { K: 1e3, M: 1e6, B: 1e9, T: 1e12, Q: 1e15 };
+
 // The game's own print of a value in one mode: what a whole thing keeps, and any value from 1M up
-const gamePrint = (magnitude, mode) => (PLAIN[mode] ? PLAIN[mode](magnitude)
-  : String(mode === 'Comma' ? commaNotation(magnitude) : notateNumber(magnitude, mode)));
+const gamePrint = (magnitude, mode) => {
+  const scale = SCALES[mode.at(-1)];
+  if (scale) return `${gamePrint(magnitude / scale, mode.slice(0, -1))}${mode.at(-1)}`;
+  return PLAIN[mode] ? PLAIN[mode](magnitude) : String(mode === 'Comma' ? commaNotation(magnitude) : notateNumber(magnitude, mode));
+};
 
 // The one way a parser or a page prints a number in a game sentence. The site's rule (notes above formatNum): below 1M a
 // value shows its decimals in every mode, so the mode only picks the short form from 1M up. whole prints a whole thing

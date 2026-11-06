@@ -1,6 +1,6 @@
 import { gameFill, tryToParse, lavaLog, lavaLog2, GAME_LN10 } from '@utility/helpers';
 import { sumSaveArray } from '@parsers/world-7/saveTotals';
-import { research as researchData, superbitsUpgrades, sushiUpgrades as sushiUpgradesData } from '@website-data';
+import { gameTables, research as researchData, superbitsUpgrades, sushiUpgrades as sushiUpgradesData } from '@website-data';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
@@ -295,7 +295,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
   const panelAmount = (value: number, rule: number, options?: { whole: boolean }) => gameFill(value, rule < 1e7 ? 'Comma' : 'Big', options);
   const panelMulti = (percent: number) => gameFill(1 + percent / 100, 'Small');
   const getUpgradeDollar = (idx: number, qty: number): string => {
-    if ([2, 3, 4, 5, 9, 10, 11, 12].includes(idx)) return panelMulti(Number(upgradeLevels?.[idx]) || 0);
+    if (gameTables.sushiJoinedIds.includes(idx)) return panelMulti(Number(upgradeLevels?.[idx]) || 0);
     if (idx === 6) return `${Math.round(qty) + 1}`;
     if (idx === 8) return `${panelAmount(fuelGen, fuelGen)} Fuel/hr. Max Cap is ${panelAmount(fuelCap, fuelGen, { whole: true })}`;
     if (idx === 14) return panelMulti(50 * slotEffectBase);

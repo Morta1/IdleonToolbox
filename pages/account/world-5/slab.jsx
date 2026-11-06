@@ -49,6 +49,7 @@ const Slab = () => {
   const sectionFailed = isSectionFailed(state?.account, 'looty');
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('slab', SLAB_TOOLBAR);
   const items = looty?.slabItems ?? [];
+  const offList = (looty?.lootedItems ?? 0) - items.filter(({ obtained }) => obtained).length;
   const searchTerm = (toolbar?.search ?? '').trim().toLowerCase();
   const shown = items.filter((item) => shouldDisplayItem(item, toolbar?.show ?? 'missing'))
     .filter((item) => !searchTerm || cleanUnderscore(item?.name)?.toLowerCase().includes(searchTerm));
@@ -66,7 +67,8 @@ const Slab = () => {
     />
     {sectionFailed ? <MissingData name={'the Slab'} failed atZero={!isParseFailed(state?.account)}/> : null}
     <PageSummary failed={sectionFailed}>
-      <StatTile label={'Looted items'} value={`${formatNum(looty?.lootedItems ?? 0)} / ${formatNum(looty?.totalItems ?? 0)}`}/>
+      <StatTile label={'Looted items'} value={`${formatNum(looty?.lootedItems ?? 0)} / ${formatNum(looty?.totalItems ?? 0)}`}
+                sub={offList > 0 ? `${formatNum(offList)} the list doesn't name` : undefined}/>
       <StatTile label={'Missing items'} value={looty?.missingItems ?? 0} kind={'amount'}/>
       <StatTile label={'Greenstacks'}
                 value={`${formatNum(looty?.greenstackableStackedCount ?? 0)} / ${formatNum(looty?.greenstackableCount ?? 0)}`}/>

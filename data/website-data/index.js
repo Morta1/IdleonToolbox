@@ -143,6 +143,7 @@ export const {
   shops,
   shrines,
   sigils,
+  slabItemNames,
   spelunkingChapters,
   spelunkingRocks,
   spelunkingUpgrades,

@@ -904,7 +904,7 @@ declare module '@website-data' {
       }[];
   };
   export const flagsReqs: number[];
-  export const gameNotation: Record<string, any>;
+  export const gameNotation: Record<string, string | (string | number)[]>;
   export const gameTables: {
     jellyBossHP: number[];
     jellyMainAttackCooldown: number[];
@@ -957,6 +957,7 @@ declare module '@website-data' {
       overrides: Record<string, number>;
       perWorld: number[];
     };
+    sushiJoinedIds: number[];
     constructionFlagReq: {
       boardSlots: number;
       boardScale: number;
@@ -4103,6 +4104,13 @@ declare module '@website-data' {
       effect: string;
     }[];
   export const slab: string[];
+  export const slabItemNames: {
+    DungRNG0: string;
+    DungRNG1: string;
+    DungRNG2: string;
+    DungRNG3: string;
+    DungRNG4: string;
+  };
   export const spelunkingChapters: ({
         name: string;
         x1: number;
@@ -10987,7 +10995,11 @@ declare module '@website-data' {
       colours: string[];
       perColour: number;
     };
-    sushiJoinedIds: number[];
+    bubbleToolWords: {
+      '0,7': string;
+      '1,6': string;
+      '2,6': string;
+    };
     notateNumber: {
       small: {
         hundredthsBelow: number;

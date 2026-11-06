@@ -449,7 +449,7 @@ export interface Account {
           name: string;
           regen: Record<string, any>;
           capacity: Record<string, any>;
-          players: Record<string, any>[] | any[];
+          players: Record<string, any>[];
         }[];
       vials: {
         attempts: number;
@@ -1435,6 +1435,8 @@ export interface Account {
         };
       };
     };
+    rawKitchens: (number[])[];
+    rawAtoms: number[];
     kitchens: {
         kitchenIndex: number;
         status: number;
@@ -1975,8 +1977,8 @@ export interface Account {
     villagers: {
         index: number;
         name: string;
-        exp: string;
-        expReq: string;
+        exp: number;
+        expReq: number;
         readyToLevel: boolean;
         level: number;
         opalInvested: number;
@@ -2019,20 +2021,20 @@ export interface Account {
         totalFillRate: number;
         goldenBucketsOwned: number;
         goldenBucketMulti: number;
-        opalCost: string;
+        opalCost: number;
         expandWhenFull: number;
       };
       motherlode: {
-        miningEff: string;
+        miningEff: number;
         layer: number;
         ores: {
-          mined: string;
-          required: string;
+          mined: number;
+          required: number;
           maxed: boolean;
         };
       };
       theDen: {
-        bestScore: string;
+        bestScore: number;
         nextOpalAt: number;
         ampMulti: number;
         amplifiers: Record<string, any>[];
@@ -2096,11 +2098,11 @@ export interface Account {
         currentWishes: number;
       };
       theHive: {
-        fishingEff: string;
+        fishingEff: number;
         layer: number;
         bugs: {
-          mined: string;
-          required: string;
+          mined: number;
+          required: number;
           maxed: boolean;
         };
       };
@@ -2154,11 +2156,11 @@ export interface Account {
         collectibles: Record<string, any>[];
       };
       evertree: {
-        choppingEff: string;
+        choppingEff: number;
         layer: number;
         logs: {
-          chopped: string;
-          required: string;
+          chopped: number;
+          required: number;
           maxed: boolean;
         };
       };
@@ -2229,11 +2231,11 @@ export interface Account {
         maxStackSize: number;
       };
       theBottomlessTrench: {
-        fishingEff: string;
+        fishingEff: number;
         layer: number;
         fish: {
-          caught: string;
-          required: string;
+          caught: number;
+          required: number;
           maxed: boolean;
         };
       };
@@ -2605,7 +2607,10 @@ export interface Account {
         cost: number;
         isMulti: boolean;
         smallNotation: boolean;
-        extraData?: string;
+        killsProgress?: {
+          kills: number;
+          total: number;
+        };
       }[];
     groupedUpgrades: {
         path: string;
@@ -2740,7 +2745,10 @@ export interface Account {
     remainingExaltedStamps: number;
     totalUpgradeLevels: number;
     totalDustsCollected: number;
-    topOfTheMorninKills: string;
+    topOfTheMorninKills: {
+      kills: number;
+      total: number;
+    };
   };
   tesseract: {
     upgrades: {
@@ -2869,6 +2877,7 @@ export interface Account {
         bonus: number;
         cost: number;
         maxed: boolean;
+        bonusInSentence: boolean;
       }[];
     orblets: number;
     guardian: {
@@ -3479,18 +3488,15 @@ export interface Account {
         secondBonusDescription: string;
         firstBonusValue: number;
         secondBonusValue: number;
-        exp: string;
         firstBonus: number;
         secondBonus: number;
         expValue: number;
         expReqValue: number;
-        expReq: string;
       }[];
     boats: {
         rawName: string;
         level: number;
         artifactChance: {
-          value: string;
           rawValue: number;
           breakdown: Record<string, any>;
         };
@@ -3561,12 +3567,10 @@ export interface Account {
         secondBonusDescription: string;
         firstBonusValue: number;
         secondBonusValue: number;
-        exp: string;
         firstBonus: number;
         secondBonus: number;
         expValue: number;
         expReqValue: number;
-        expReq: string;
         cost: number;
       }[];
     captainsOnBoats: {
@@ -3836,6 +3840,7 @@ export interface Account {
           combine: string;
           children: Record<string, any>[];
           unit?: string;
+          formatted?: string;
           note?: string;
         }[];
       combine: string;
@@ -4093,6 +4098,7 @@ export interface Account {
     pendingFish: number;
     totalFish: number;
     progress: number;
+    nextLvReq: number;
     megaFish: {
         description: string;
         unlocked: boolean;
@@ -4104,10 +4110,10 @@ export interface Account {
     tarFishOwned: number;
     pendingTarFish: number;
     totalTarFishOwned: number;
-    totalMulti: string;
+    totalMulti: number;
     allMultipliers: {
-        multi: string;
-        amount: string;
+        multi: number;
+        amount: number;
       }[];
     tarUpgrades: {
         name: string;
@@ -4667,7 +4673,6 @@ export interface Account {
         name: string;
         value: number;
         displayFormat: string;
-        displayValue: string;
         bonusPerPress: number;
         level: number;
       }[];
@@ -4687,6 +4692,7 @@ export interface Account {
   sushiStation: {
     unlocked: boolean;
     uniqueSushi: number;
+    nextFuelCost: number;
     fuel: {
       current: number;
       cap: number;
@@ -5177,6 +5183,7 @@ export interface Character {
     level: number;
   };
   level: number;
+  hasData: boolean;
   invBagsUsed: {
       displayName: string;
       sellPrice: number;

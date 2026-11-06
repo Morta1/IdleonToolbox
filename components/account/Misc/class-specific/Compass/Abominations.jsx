@@ -7,9 +7,7 @@ import GameIcon from '@components/common/GameIcon';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 
-// A saved checkbox from before resets once. The abominations have no art in the toolbox's data (the old cards drew a
-// compass upgrade icon for the first and a broken image for the rest), so the cards carry none and the old "Hide
-// future abominations" spoiler switch had nothing left to hide.
+// A saved checkbox from before resets once.
 const ABOMINATIONS_TOOLBAR = { show: 'all' };
 
 // sectionFailed: the catalog at zero by name (the parser's own empty save), with no killed state and no Toolbar
@@ -26,9 +24,11 @@ const Abominations = ({ abominations, sectionFailed }) => {
         ['notKilled', 'Not killed', catalog.length - killed]]}/>
     </Toolbar>}
     {shown.length ? <CardGrid size={'s'}>
-      {shown.map(({ name, unlocked, weakness, hp, map, world }) => {
+      {shown.map((abomination) => {
+        const { name, unlocked, weakness, hp, map, world } = abomination;
         const killedNow = !sectionFailed && Boolean(unlocked);
-        return <ItemCard key={name} title={cleanUnderscore(name)} dimmed={!sectionFailed && !unlocked}
+        // The game draws "Titan" + its index + ".png" (N.js:120878)
+        return <ItemCard key={name} icon={`data/Titan${catalog.indexOf(abomination)}.png`} title={cleanUnderscore(name)} dimmed={!sectionFailed && !unlocked}
                          meta={`World ${formatNum(world)} · ${cleanUnderscore(map)}`}
                          status={killedNow ? 'done' : undefined} statusLabel={'Killed'}>
           <ItemCard.Facts rows={[

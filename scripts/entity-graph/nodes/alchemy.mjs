@@ -94,17 +94,9 @@ const alchemyTerms = (entry, levelLabel, cap) => (entry?.func ? {
   }))
 } : null);
 
-// UPKEEP: the three tool bubbles' `$` is words, not a number: the game's bubble text (N.js, "Pickaxes_and_Fishing_Rods.")
-// fills them by cauldron and bubble index, and no table in website-data holds them. Keyed by the game's bubble name.
-const TOOL_WORDS = {
-  STRONK_TOOLS: 'Pickaxes_and_Fishing_Rods.',
-  SANIC_TOOLS: 'Catching_Nets_and_Traps.',
-  LE_BRAIN_TOOLS: 'Hatchets_and_Worship_Skulls.'
-};
-
-// The sentence with the game's words in place of the `$` they fill.
-const withToolWords = (bubble) => (TOOL_WORDS[bubble.bubbleName]
-  ? { ...bubble, desc: bubble.desc?.replace('$', TOOL_WORDS[bubble.bubbleName]), toolWords: true }
+// The three tool bubbles' `$` is words, not a number: the sentence with the game's words in place of the `$` they fill.
+const withToolWords = (bubble, words) => (words
+  ? { ...bubble, desc: bubble.desc?.replace('$', words), toolWords: true }
   : bubble);
 
 export const vialNodes = (vials, vialCosts = []) => {
@@ -160,13 +152,14 @@ export const bubbleNodes = (cauldrons, data) => {
   const nodes = {};
   const titles = gameTable(data, 'cauldronTitles');
   const costTable = gameTable(data, 'bubbleCost');
+  const toolWords = gameTable(data, 'bubbleToolWords');
   Object.values(cauldrons || {}).forEach((bubbles, cauldronIndex) => {
     const label = titles?.[cauldronIndex] ? cauldronLabel(titles[cauldronIndex]) : '';
     for (const bubble of bubbles || []) {
       const rawName = bubbleRawName(cauldronIndex, bubble?.bubbleIndex);
       if (!rawName || !bubble?.bubbleName || isPlaceholderBubble(bubble)) continue;
       const cost = bubbleCosts(bubble, costTable, data?.items);
-      const worded = withToolWords(bubble);
+      const worded = withToolWords(bubble, toolWords?.[`${cauldronIndex},${String(bubble.bubbleIndex).slice(1)}`]);
       nodes[`bubble:${rawName}`] = {
         kind: 'bubble',
         rawName,

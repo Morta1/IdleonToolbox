@@ -20,6 +20,8 @@
     10000000000000000,
     "Big"
   ],
+  "ArbitraryCode.StatueBonusGiven": "Big",
+  "ArbitraryCode.StatueExpReq": "Big",
   "ArcaneType.ArcaneTachyonQTYbase": "Comma",
   "ArcaneType.ArcaneUpgBonus": "Big",
   "ArcaneType.ArcaneUpgCost": "Big",
@@ -36,6 +38,7 @@
   "ArcaneType.PrismaBubDropChance": "Big",
   "ArcaneType.TenteyeclePCT": "Round",
   "AtomCollider.AtomBonuses": "Small",
+  "AtomCollider.AtomBubbleUpgCost": "Big",
   "AtomCollider.AtomCost": "Big",
   "AtomCollider.AtomThreshold": "Big",
   "Breeding.1stMulti": "MultiplierInfo",
@@ -43,24 +46,34 @@
   "Breeding.3rdMulti": "MultiplierInfo",
   "Breeding.4thMulti": "MultiplierInfo",
   "Breeding.5thMulti": "MultiplierInfo",
-  "Breeding.BaseBreedChance": "Comma",
+  "Breeding.BaseBreedChance": "Micro",
   "Breeding.GeneticCost": "Bigish",
   "Breeding.PetUpgCostREAL": "Big",
   "Breeding.SpecialPassives": "Smallish",
   "Breeding.SpecialzOverLVL": "MultiplierInfo",
   "Breeding.TotalBreedChance": "Micro",
+  "Bubbastuff.BubbaRoG_Bonuses": "Comma",
   "Bubbastuff.Dice_Multi": [
     "MultiplierInfo",
     10,
+    "Tenths",
+    100,
     "Big"
   ],
   "Bubbastuff.GiftPassiveBonus": "Floor",
   "Bubbastuff.HappinessBonus": [
     "MultiplierInfo",
     10,
+    "Tenths",
+    100,
     "Big"
   ],
   "Bubbastuff.HappinessRank": "Floor",
+  "Bubbastuff.MeatProdREQ": [
+    "Comma",
+    100000000,
+    "Big"
+  ],
   "Bubbastuff.MeatsliceRate": [
     "Comma",
     1000000,
@@ -69,11 +82,15 @@
   "Bubbastuff.SmokeMeat_Multi": [
     "MultiplierInfo",
     10,
+    "Tenths",
+    100,
     "Big"
   ],
   "Bubbastuff.SpareCoins_Multi": [
     "MultiplierInfo",
     10,
+    "Tenths",
+    100,
     "Big"
   ],
   "Bubbastuff.TotUpgBonus": [
@@ -97,7 +114,11 @@
   ],
   "CauldronStats.ResearchSpeed": "Big",
   "CookingR.CookingFIRE": "Big",
-  "CookingR.CookingMenuMealCosts": "TinyE",
+  "CookingR.CookingMenuMealCosts": [
+    "Big",
+    100000,
+    "TinyE"
+  ],
   "CookingR.CookingReqToCook": "Big",
   "CookingR.CookingSPEED": "Big",
   "CookingR.CookingUpgSpiceCostQty": "Big",
@@ -129,7 +150,11 @@
     100,
     "Big"
   ],
-  "FarmingStuffs.BeanTradeQTY": "Comma",
+  "FarmingStuffs.BeanTradeQTY": [
+    "Comma",
+    1000000000,
+    "Big"
+  ],
   "FarmingStuffs.CropSCbonus": "Big",
   "FarmingStuffs.CropsBonusValue": [
     "MultiplierInfo",
@@ -142,18 +167,32 @@
     "MultiplierInfo",
     10000,
     "Round",
+    100000000,
+    "RoundM",
+    100000000000,
+    "RoundB",
     100000000000000,
     "Big"
   ],
   "FarmingStuffs.GrowthRate": "MultiplierInfo",
   "FarmingStuffs.LankRankEXPreq": "Big",
   "FarmingStuffs.MarketCostQTY": "Big",
-  "FarmingStuffs.NextCropChance": "MultiplierInfo",
-  "FarmingStuffs.OGmulti": "Comma",
+  "FarmingStuffs.NextCropChance": [
+    "MultiplierInfo",
+    1000000000,
+    "Big"
+  ],
+  "FarmingStuffs.OGmulti": [
+    "Comma",
+    1000000,
+    "RoundM"
+  ],
   "FarmingStuffs.PlotRankGain": [
     "MultiplierInfo",
     10000,
-    "Round"
+    "Round",
+    100000000,
+    "RoundM"
   ],
   "FarmingStuffs.StickerBonus": "Comma",
   "FarmingStuffs.StickerDMGmulti": "MultiplierInfo",
@@ -163,6 +202,7 @@
     "Big"
   ],
   "FishingToolkit.EXP": "Round",
+  "FishingToolkit.EffReq": "Big",
   "FishingToolkit.POW": "Round",
   "FishingToolkit.SPEED": "Round",
   "Gallery.CapevineBonusMulti": "MultiplierInfo",
@@ -185,8 +225,16 @@
     999,
     "Comma"
   ],
-  "GamingStatType.RatCrownOdds": "Big",
-  "GamingStatType.RatCurrencyGain": "Comma",
+  "GamingStatType.RatCrownOdds": [
+    "Round",
+    10000,
+    "Big"
+  ],
+  "GamingStatType.RatCurrencyGain": [
+    "Comma",
+    9999999,
+    "Big"
+  ],
   "GamingStatType.RatShopBonuses": "Comma",
   "GamingStatType.RatShopCost": "Ceil",
   "GamingStatType.SnailStuff": "Round",
@@ -263,12 +311,28 @@
     "Big"
   ],
   "Holes.MonarchHP": "Big",
+  "Holes.MotherlodeEffBase": "Big",
+  "Holes.MushKillsLeft": [
+    "Comma",
+    2000000000,
+    "CommaB"
+  ],
   "Holes.SedimentMax": "TinyE",
   "Holes.StudyBolaiaBonuses": "Round",
   "Holes.StudyReqForBolaia": "Big",
   "Holes.TempleTorchBonuses": "Small",
-  "Holes.TempleTorchCost": "Comma",
-  "Holes.TotalOreREQ": "Big",
+  "Holes.TempleTorchCost": [
+    "Comma",
+    9999999.9,
+    "CommaM",
+    9999999999.9,
+    "CommaB"
+  ],
+  "Holes.TotalOreREQ": [
+    "Comma",
+    1000000000,
+    "Big"
+  ],
   "Holes.VillagerExpPerHour": [
     "Comma",
     100000000,
@@ -323,7 +387,7 @@
   "JellyOperation.UnitSumAtk": "MultiplierInfo",
   "JellyOperation.UnitSumAtkCD": "MultiplierInfo",
   "JellyOperation.UpgCost": "Big",
-  "JellyOperation.UpgradeQTY": "Round",
+  "JellyOperation.UpgradeQTY": "Comma",
   "Labb.ChipRepoJEWEL": "Big",
   "Labb.Dist": "Small",
   "Labb.VIPmembership": "Floor",
@@ -335,7 +399,11 @@
   "MaxCapacity.dFish": "Big",
   "MaxCapacity.dSouls": "Big",
   "MenagerieStuff.BoostQTY": "Comma",
-  "MenagerieStuff.CK_TotalValue": "Big",
+  "MenagerieStuff.CK_TotalValue": [
+    "Comma",
+    10000000,
+    "Big"
+  ],
   "MenagerieStuff.ConstBuildBONUSES": "Round",
   "MenagerieStuff.ConstBuildREQ": "Big",
   "MenagerieStuff.Cost": [
@@ -344,7 +412,11 @@
     "Big"
   ],
   "MenagerieStuff.JellyOpDoublersLEFT": "Round",
-  "MenagerieStuff.LumiGainRate": "Big",
+  "MenagerieStuff.LumiGainRate": [
+    "Comma",
+    1000000000,
+    "Big"
+  ],
   "MenagerieStuff.MineheadDoublersLEFT": [
     "Comma",
     100000,
@@ -385,7 +457,21 @@
   "Minehead.BluecrownMulti": "MultiplierInfo",
   "Minehead.BonusQTY": "Round",
   "Minehead.Button_Bonuses": "Comma",
-  "Minehead.CurrencyGain": "Comma",
+  "Minehead.Button_REQ": [
+    "Comma",
+    1000000,
+    "Big"
+  ],
+  "Minehead.Button_uHave": [
+    "Comma",
+    1000000,
+    "Big"
+  ],
+  "Minehead.CurrencyGain": [
+    "Comma",
+    100000000,
+    "Big"
+  ],
   "Minehead.CurrentOutgoingDMG": [
     "Comma",
     100000000,
@@ -408,6 +494,7 @@
   "Minehead.UpgCost": "Big",
   "Minehead.UpgradeQTY": "Comma",
   "Minehead.WepPowDmgPCT": "MultiplierInfo",
+  "Ninja.DoorMaxHP": "Big",
   "Ninja.EmporiumCost": "Big",
   "Ninja.FloorsUnlocked": "Round",
   "Ninja.GemstoneBonus": "Big",
@@ -426,6 +513,10 @@
   "PetStuff.TotalTrekkingFightPowREQ": "Big",
   "PetStuff.TotalTrekkingHR": "Big",
   "PetStuff.TotalTrekkingREQ": "Big",
+  "PlayerAccTot": "Big",
+  "PlayerHPmax": "Big",
+  "PlayerMPmax": "Big",
+  "PlayerSpeedBonus": "Big",
   "Refinery.CapMulti": "Big",
   "Refinery.CostsMulti": "Big",
   "Refinery.PowerCAP": "Whole",
@@ -488,12 +579,17 @@
   "RoyalG.SupportEXP": "MultiplierInfo",
   "RoyalG.TotalStatz": "Round",
   "RoyalG.UnitSpecEffect": "Comma",
-  "RunCodeOfTypeXforThingY.CardLv": "Big",
+  "RunCodeOfTypeXforThingY.CardLv": [
+    "Tenths",
+    10,
+    "Big"
+  ],
   "RunCodeOfTypeXforThingY.CardsTillNextLV": [
     "Comma",
     100000000,
     "Big"
   ],
+  "RunCodeOfTypeXforThingY.Stat2num": "MultiplierInfo",
   "Sailing.ArtifactBonus": "MultiplierInfo",
   "Sailing.BoatArtiMulti": [
     "MultiplierInfo",
@@ -519,6 +615,126 @@
   ],
   "Sailing.NewCaptBoatSlot": "Big",
   "Sailing.SailingExpMulti": "MultiplierInfo",
+  "Save.ArcadeBalls": "Comma",
+  "Save.ArmoryLevel": [
+    "Comma",
+    10000000,
+    "Big"
+  ],
+  "Save.BubbaMeat": [
+    "Comma",
+    9999999,
+    "Big"
+  ],
+  "Save.ClamPearls": [
+    "Comma",
+    1000000000,
+    "Big"
+  ],
+  "Save.EquinoxDream": "Comma",
+  "Save.EventShopCurrency": "Comma",
+  "Save.FountainMarbles": [
+    "Comma",
+    9999999,
+    "Big"
+  ],
+  "Save.Gems": "Comma",
+  "Save.IslandCount": "Comma",
+  "Save.JellyCurrency": [
+    "Comma",
+    1000000000,
+    "Big"
+  ],
+  "Save.KillroyBest": "Comma",
+  "Save.LampWishes": "Comma",
+  "Save.MonumentHours": "Comma",
+  "Save.ObservationExp": [
+    "Small",
+    1000,
+    "Comma",
+    1000000,
+    "Big"
+  ],
+  "Save.Orblets": [
+    "Comma",
+    1000000,
+    "CommaK",
+    1000000000,
+    "CommaM",
+    1000000000000,
+    "CommaB"
+  ],
+  "Save.OutpostStat": "Comma",
+  "Save.OwlFeathers": [
+    "Comma",
+    9999999,
+    "Big"
+  ],
+  "Save.OwlFeathersProduced": [
+    "Round",
+    1000000,
+    "Big"
+  ],
+  "Save.OwlShinyFeathers": [
+    "Comma",
+    1000000000,
+    "Big"
+  ],
+  "Save.PortalKills": [
+    "Comma",
+    10000000,
+    "CommaK",
+    1000000000,
+    "CommaM"
+  ],
+  "Save.ReefCoral": "Comma",
+  "Save.RiftProgress": "Comma",
+  "Save.RooFish": [
+    "Comma",
+    9999999,
+    "Big"
+  ],
+  "Save.RooFishCaught": [
+    "Round",
+    1000000,
+    "Big"
+  ],
+  "Save.RooTarFish": [
+    "Comma",
+    9999999,
+    "Big"
+  ],
+  "Save.ShrineHours": [
+    "Tenths",
+    1000,
+    "Comma",
+    1000000,
+    "FloorK"
+  ],
+  "Save.SigilCost": "Comma",
+  "Save.SigilProgress": "Comma",
+  "Save.TempleTorches": [
+    "Comma",
+    9999999.9,
+    "CommaM",
+    9999999999999.9,
+    "CommaB"
+  ],
+  "Save.VillagerExp": [
+    "Comma",
+    1000000,
+    "Big"
+  ],
+  "Save.VillagerLevel": "Comma",
+  "Save.ZenithClusters": [
+    "Comma",
+    1000000,
+    "CommaK",
+    1000000000,
+    "CommaM",
+    1000000000000,
+    "CommaB"
+  ],
   "SkillStats.BreedingEXPmulti": "MultiplierInfo",
   "SkillStats.CatchingEXPmulti": "MultiplierInfo",
   "SkillStats.CatchingEfficiency": "Big",
@@ -596,7 +812,11 @@
     "Big"
   ],
   "Stuff2.PetTournyPOW": "Comma",
-  "Summoning.EnemyDMG": "Big",
+  "Summoning.EnemyDMG": [
+    "Comma",
+    10000000,
+    "Big"
+  ],
   "Summoning.EventShopOwned": "MultiplierInfo",
   "Summoning.GrimoireBoneQTYbase": "Comma",
   "Summoning.GrimoireBonesDropDEC": [
@@ -615,19 +835,46 @@
   "Summoning.Grimoire_DMG": "Big",
   "Summoning.Grimoire_HP": "Big",
   "Summoning.MeritocBonuszMulti": "MultiplierInfo",
-  "Summoning.OwlCost": "Big",
+  "Summoning.OwlCost": [
+    "Comma",
+    9999999,
+    "Big"
+  ],
   "Summoning.OwlFeatherRate": [
     "Small",
     1000,
+    "Floor",
+    100000,
     "Big"
   ],
   "Summoning.OwlMegafeather": "Big",
-  "Summoning.OwlNextUpgReq": "Big",
+  "Summoning.OwlNextUpgReq": [
+    "Round",
+    1000000,
+    "Big"
+  ],
   "Summoning.RibbonBonus": "MultiplierInfo",
-  "Summoning.RooCatchREQ_S": "Big",
+  "Summoning.RooCatchREQ_S": [
+    "Floor",
+    100000,
+    "Big"
+  ],
   "Summoning.RooCatchREQ_T": "Small",
-  "Summoning.RooCost_T": "Big",
-  "Summoning.RooNextUpgReq": "Big",
+  "Summoning.RooCost": [
+    "Comma",
+    9999999,
+    "Big"
+  ],
+  "Summoning.RooCost_T": [
+    "Comma",
+    9999999,
+    "Big"
+  ],
+  "Summoning.RooNextUpgReq": [
+    "Round",
+    1000000,
+    "Big"
+  ],
   "Summoning.RooShinyMulti": [
     "MultiplierInfo",
     1000,
@@ -642,9 +889,21 @@
   "Summoning.TomeBonus": "MultiplierInfo",
   "Summoning.TomeLvReq": "Comma",
   "Summoning.TomePTS": "Comma",
-  "Summoning.UnitDMG": "Big",
-  "Summoning.UnitHP": "Big",
-  "Summoning.VaultKillzTotal": "Comma",
+  "Summoning.UnitDMG": [
+    "Comma",
+    10000000,
+    "Big"
+  ],
+  "Summoning.UnitHP": [
+    "Comma",
+    10000000,
+    "Big"
+  ],
+  "Summoning.VaultKillzTotal": [
+    "Comma",
+    100000000,
+    "CommaM"
+  ],
   "Summoning.VaultUpgBonus": "Comma",
   "Summoning.VotingBonuszMulti": "MultiplierInfo",
   "Summoning.WinBonus": "Big",
@@ -666,6 +925,8 @@
     "Big"
   ],
   "SushiStuff.FuelCost": [
+    "Small",
+    1000,
     "Comma",
     1000000,
     "Big"
@@ -700,10 +961,15 @@
   "Thingies.Clam_Mobs": "Floor",
   "Thingies.Clam_PearlUpgReq": "Big",
   "Thingies.CoralKidUpgBonus": "MultiplierInfo",
-  "Thingies.CoralKidUpgCost": "Big",
+  "Thingies.CoralKidUpgCost": [
+    "Comma",
+    1000000,
+    "Big"
+  ],
   "Thingies.DancingCoralBonus": "Tenths",
   "Thingies.DancingCoralCOST": "Ceil",
   "Thingies.EmperorBon": "Comma",
+  "Thingies.FriendBonusQTY": "Tenths",
   "Thingies.FuneralStealthz": [
     "MultiplierInfo",
     100,
@@ -718,8 +984,14 @@
   "Thingies.MaxEmperorAttemptStack": "Round",
   "Thingies.OrbletMarketBonus": "Comma",
   "Thingies.OrbletMarketCost": "Big",
-  "Thingies.ReefCost": "Comma",
+  "Thingies.ReefCost": [
+    "Comma",
+    9999999,
+    "Big"
+  ],
   "Thingies.ReefDayGains": "Comma",
+  "Thingies.SneakSymbolBon": "MultiplierInfo",
+  "Thingies.SumStoneTrialz": "Round",
   "Thingies.SuperTalentPTS_LVgiven": "Round",
   "Thingies.ZenithMarketBonus": "Comma",
   "Thingies.ZenithMarketCost": "Big",
@@ -732,7 +1004,15 @@
   "TotalStats.Drop_Rarity": [
     "MultiplierInfo",
     100,
-    "Comma"
+    "Comma",
+    1000000,
+    "MultiplierInfo",
+    100000000,
+    "CommaM",
+    1000000000000,
+    "MultiplierInfoT",
+    100000000000000,
+    "CommaQ"
   ],
   "TotalStats.LUK": [
     "Comma",
@@ -754,7 +1034,11 @@
     1000000,
     "Big"
   ],
-  "TowerStats.damage": "Big",
+  "TowerStats.damage": [
+    "Round",
+    9999,
+    "Big"
+  ],
   "TrappingStuffs.CollectAllPCT": "Round",
   "TrappingStuffs.CollectAllPCTexp": "Round",
   "TrappingStuffs.EfficiencyBonusQTY": "Big",
@@ -779,6 +1063,7 @@
   ],
   "Windwalker.Compass_HP": "Big",
   "Windwalker.Compass_MoveSpeed": "Floor",
+  "Windwalker.EffectAmount": "MultiplierInfo",
   "Windwalker.ExtraDust": "MultiplierInfo",
   "Windwalker.StampDoubler": "MultiplierInfo",
   "Windwalker.StoneChancePCT": "Small",
@@ -794,6 +1079,13 @@
     "Comma"
   ],
   "WorkbenchStuff.PlayerBuildSpd": "Big",
+  "WorkbenchStuff.ShrineHrREQ": [
+    "Tenths",
+    1000,
+    "Comma",
+    1000000,
+    "CeilK"
+  ],
   "WorkbenchStuff.TotalGildedBoostio": "MultiplierInfo",
   "WorkbenchStuff.TowerBuildReq": "Big",
   "WorshipStuff.EfficiencyBonusQTY": "Big",
@@ -801,5 +1093,30 @@
   "WorshipStuff.NewTowerCost": "Big",
   "WorshipStuff.PrayerCost": "Big",
   "WorshipStuff.SoulRewards": "Big",
-  "WorshipStuff.TrialType": "Round"
+  "WorshipStuff.TrialType": "Round",
+  "Summoning.RooBonuses": [
+    "Tenths",
+    100,
+    "Comma"
+  ],
+  "JellyOperation.CellDPS": "Comma",
+  "Save.DeathNoteKills": [
+    "Comma",
+    2000000000,
+    "CommaM",
+    2000000000000000,
+    "CommaT"
+  ],
+  "Save.HarpPower": [
+    "Small",
+    100,
+    "Comma",
+    1000000,
+    "Big"
+  ],
+  "FarmingStuffs.CropSCbonus_Multi": [
+    "MultiplierInfo",
+    100,
+    "Big"
+  ]
 }

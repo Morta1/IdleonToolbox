@@ -10374,6 +10374,16 @@
         250
       ]
     },
+    "sushiJoinedIds": [
+      2,
+      3,
+      4,
+      5,
+      9,
+      10,
+      11,
+      12
+    ],
     "constructionFlagReq": {
       "boardSlots": 96,
       "boardScale": 25,
@@ -39099,6 +39109,13 @@
       "effect": "Boosts_Jade_Coin_gain_in_Sneaking_by_+{%"
     }
   ],
+  "slabItemNames": {
+    "DungRNG0": "Common_RNG_Item",
+    "DungRNG1": "Uncommon_RNG_Item",
+    "DungRNG2": "Rare_RNG_Item",
+    "DungRNG3": "Epic_RNG_Item",
+    "DungRNG4": "Legendary_RNG_Item"
+  },
   "spelunkingChapters": [
     [
       {

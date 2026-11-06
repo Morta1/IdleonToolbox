@@ -60,16 +60,11 @@
     ],
     "perColour": 10
   },
-  "sushiJoinedIds": [
-    2,
-    3,
-    4,
-    5,
-    9,
-    10,
-    11,
-    12
-  ],
+  "bubbleToolWords": {
+    "0,7": "Pickaxes_and_Fishing_Rods.",
+    "1,6": "Catching_Nets_and_Traps.",
+    "2,6": "Hatchets_and_Worship_Skulls."
+  },
   "notateNumber": {
     "small": {
       "hundredthsBelow": 1,
