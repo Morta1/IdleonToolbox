@@ -22,28 +22,32 @@ export const FAMILY_THEME = {
     soft: 'rgba(245, 185, 60, 0.18)',
     gradient: 'linear-gradient(135deg, #3a2b10 0%, #1a1204 100%)',
     glow: '0 0 0 1px rgba(245, 185, 60, 0.25)',
-    contrast: '#111'
+    contrast: '#111',
+    text: 'var(--mui-palette-identity-family-Beginner)'
   },
   Warrior: {
     primary: '#e85d3c',
     soft: 'rgba(232, 93, 60, 0.18)',
     gradient: 'linear-gradient(135deg, #3a1812 0%, #1a0906 100%)',
     glow: '0 0 0 1px rgba(232, 93, 60, 0.25)',
-    contrast: '#fff'
+    contrast: '#fff',
+    text: 'var(--mui-palette-identity-family-Warrior)'
   },
   Archer: {
     primary: '#4caf50',
     soft: 'rgba(76, 175, 80, 0.18)',
     gradient: 'linear-gradient(135deg, #12341a 0%, #0a1a0d 100%)',
     glow: '0 0 0 1px rgba(76, 175, 80, 0.25)',
-    contrast: '#fff'
+    contrast: '#fff',
+    text: 'var(--mui-palette-identity-family-Archer)'
   },
   Mage: {
     primary: '#3d9ff5',
     soft: 'rgba(61, 159, 245, 0.18)',
     gradient: 'linear-gradient(135deg, #0e2b47 0%, #061523 100%)',
     glow: '0 0 0 1px rgba(61, 159, 245, 0.25)',
-    contrast: '#fff'
+    contrast: '#fff',
+    text: 'var(--mui-palette-identity-family-Mage)'
   }
 };
 
@@ -52,10 +56,12 @@ export const FAMILY_THEME = {
 // darkTheme.js. Buttons themselves stay on plain MUI defaults to match the
 // other tool pages in the app (active-stuff-calculator, material-tracker, etc).
 export const ACCENT = {
+  // A hex for the class strip's `${color}22` fills, the one place that appends an alpha. The rest follow the scheme.
   primary: '#2087e8',
+  main: 'var(--mui-palette-identity-builds-main)',
   primaryHover: '#3a95ee',
-  primarySoft: 'rgba(32, 135, 232, 0.16)',
-  primaryBorder: 'rgba(32, 135, 232, 0.55)',
+  primarySoft: 'var(--mui-palette-identity-builds-soft)',
+  primaryBorder: 'var(--mui-palette-identity-builds-edge)',
   headerLine: 'linear-gradient(90deg, rgba(32,135,232,0.35) 0%, rgba(32,135,232,0) 40%)',
   emptyGlow: 'radial-gradient(600px 200px at 50% 0%, rgba(32,135,232,0.06), transparent 70%)',
   // Words in an active pill or chip: the blue itself reads 3.5:1 on its own soft fill.

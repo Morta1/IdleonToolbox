@@ -110,7 +110,7 @@ const BuildCard = ({ build, staticIds }) => {
                 style={{ width: 24, height: 24, objectFit: 'contain' }}
               />
             ) : (
-              <Typography sx={{ color: theme.primary, fontWeight: 700, fontSize: 14 }}>
+              <Typography sx={{ color: theme.text, fontWeight: 700, fontSize: 14 }}>
                 {classKey?.[0] || '?'}
               </Typography>
             )}

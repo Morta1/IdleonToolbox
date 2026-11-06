@@ -96,6 +96,7 @@ const ClassStrip = ({ activeSlug }) => {
             iconIndex={classes.indexOf(fam)}
             active={activeKey === fam}
             color={FAMILY_THEME[fam].primary}
+            textColor={FAMILY_THEME[fam].text}
           />
         ))}
       </Row>
@@ -109,6 +110,7 @@ const ClassStrip = ({ activeSlug }) => {
               iconIndex={classes.indexOf(key)}
               active={activeKey === key}
               color={FAMILY_THEME[activeFamily].primary}
+              textColor={FAMILY_THEME[activeFamily].text}
             />
           ))}
         </Row>

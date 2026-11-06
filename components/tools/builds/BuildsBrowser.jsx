@@ -90,8 +90,8 @@ const FilterPill = ({ label, value, count, onClick, active }) => (
             fontWeight: 700,
             fontVariantNumeric: 'tabular-nums',
             borderRadius: 999,
-            color: 'text.primary',
-            background: ACCENT.primary
+            color: 'identity.builds.onMain',
+            background: ACCENT.main
           }}
         >
           {count}
@@ -247,9 +247,10 @@ const BuildsBrowser = ({
           size="small"
           value={filters.sort}
           onChange={(_, v) => v && setFilters({ ...filters, sort: v })}
-          sx={{
+          sx={(theme) => ({
             borderRadius: 999,
             background: ink(0.04),
+            ...theme.applyStyles('light', { background: 'transparent' }),
             border: `1px solid ${ink(0.08)}`,
             p: 0.25,
             gap: 0.25,
@@ -266,7 +267,7 @@ const BuildsBrowser = ({
               bgcolor: `${ACCENT.primarySoft} !important`,
               color: `${ACCENT.text} !important`
             }
-          }}
+          })}
         >
           {SORTS.map((s) => (
             <ToggleButton key={s.value} value={s.value}>

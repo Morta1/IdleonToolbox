@@ -128,7 +128,7 @@ const ClassPicker = ({
                     fontWeight: 700,
                     letterSpacing: 0.6,
                     textTransform: 'uppercase',
-                    color: FAMILY_THEME[family].primary,
+                    color: FAMILY_THEME[family].text,
                     borderBottom: `1px solid ${FAMILY_THEME[family].primary}44`
                   }}
                 >

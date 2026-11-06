@@ -39,7 +39,7 @@ const pillFieldMixin = {
   '& fieldset': { borderColor: ink(0.08) },
   '&:hover fieldset': { borderColor: ink(0.16) },
   '&.Mui-focused fieldset': {
-    borderColor: ACCENT.primary,
+    borderColor: ACCENT.main,
     boxShadow: `0 0 0 3px ${ACCENT.primarySoft}`
   }
 };

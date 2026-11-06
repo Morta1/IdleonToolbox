@@ -90,6 +90,10 @@ const identity = {
   outpostModes: ['#f7de2a', '#31cef0', '#f8b4f8'],
   // The leaderboards' identities: whose row it is (you, a searched player) and the podium's medals
   leaderboard: { you: '#007E85', youText: '#4fc3c9', searched: '#cd861b', gold: '#f0b849', silver: '#9aa3ad', bronze: '#b8783a' },
+  // The builds pages' blue, and each class family's color where it writes words (Decision 6). Their fills and edges stay in
+  // utility/builds/classes.js.
+  builds: { main: '#2087e8', onMain: '#ffffff', soft: 'rgba(32, 135, 232, 0.16)', edge: 'rgba(32, 135, 232, 0.55)' },
+  family: { Beginner: '#f5b93c', Warrior: '#e85d3c', Archer: '#4caf50', Mage: '#3d9ff5' },
   // Discord's brand colour, on the two Discord buttons
   discord: { main: '#5865F2', hover: '#4752c4', text: '#ffffff' },
   // The surface of a picture of the game (Research's grid, the kingdom map): dark in both schemes, its words pinned to it
@@ -107,7 +111,9 @@ const lightIdentity = {
   fever: { yellow: '#846f00', red: '#bc4c42', brown: '#916846', green: '#3f7d3f', menagerie: '#3675a7' },
   artifactTiers: ['#707070', '#836f00', '#9c6259', '#3c7e4a', '#007f6f', '#7f61b5', '#ab547a'],
   tomeTiers: { bronze: '#8c6b41', silver: '#6d7072', gold: '#836f00', blue: '#337896' },
-  leaderboard: { ...identity.leaderboard, youText: '#327b7f', searched: '#9a6414' }
+  leaderboard: { ...identity.leaderboard, youText: '#327b7f', searched: '#9a6414' },
+  builds: { main: '#1565c0', onMain: '#ffffff', soft: 'rgba(21, 101, 192, 0.08)', edge: 'rgba(21, 101, 192, 0.5)' },
+  family: { Beginner: '#8d6107', Warrior: '#b33315', Archer: '#317234', Mage: '#0966b7' }
 };
 
 // The roles from the redesign's Foundations board. Components ask for a role by its job
@@ -156,7 +162,7 @@ const darkPalette = {
 const lightPalette = {
   primary: {
     main: '#1565c0',
-    // MUI lightens main, which writes a breakdown's values at 3.9:1.
+    // MUI would lighten main to about 3.8:1 on a card, and this role writes words.
     light: '#1565c0',
     hover: '#0f4f99',
     contrastText: '#ffffff',

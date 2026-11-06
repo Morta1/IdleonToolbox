@@ -453,7 +453,7 @@ const BuildForm = ({
                         sx={{
                           fontWeight: 700,
                           letterSpacing: 0.6,
-                          color: tabTheme.primary,
+                          color: tabTheme.text,
                           lineHeight: 1
                         }}
                       >
