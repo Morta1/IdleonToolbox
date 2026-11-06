@@ -53,8 +53,20 @@ const SlabTile = ({ item: { name, rawName, greenStacked, obtained }, dimMissing,
   mark={greenStacked ? 'data/GreenSymbol.png' : undefined}
   markAlt={greenStacked ? 'Greenstacked' : undefined}
   selected={open}
-  sharedNote
+  sharedNote={rawName}
   onSelect={(event) => onToggle(rawName, event.currentTarget)}/>;
+
+const SlabNote = ({ item }) => <Stack gap={1}>
+  <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(item.name)}</Typography>
+  <ItemCard.Section>
+    <ItemCard.Facts rows={[
+      ['Looted', item.obtained ? 'Yes' : 'No'],
+      ['Greenstacked', item.greenStacked ? 'Yes' : 'No'],
+      item.onRotation ? ['GemShop rotation', 'Yes'] : null,
+      item.unobtainable ? ['Unobtainable', 'Yes'] : null
+    ]}/>
+  </ItemCard.Section>
+</Stack>;
 
 const Slab = () => {
   const { state } = useContext(AppContext);
@@ -67,10 +79,18 @@ const Slab = () => {
   const shown = items.filter((item) => shouldDisplayItem(item, toolbar?.show ?? 'missing'))
     .filter((item) => !searchTerm || cleanUnderscore(item?.name)?.toLowerCase().includes(searchTerm));
   // Decision 13 (b): a note per tile took past 500 ms to draw "All items", so the grid shares one note, opened on the
-  // clicked tile so the eye stays on it. Gone with the item if a filter takes the tile away.
+  // hovered or clicked tile so the eye stays on it. note is the one a click keeps. A filter redraws the tiles, so it closes.
   const [note, setNote] = useState(null);
   const toggleNote = (rawName, anchor) => setNote((open) => (open?.rawName === rawName ? null : { rawName, anchor }));
   const closeNote = () => setNote(null);
+  const changeToolbar = (patch) => {
+    closeNote();
+    setToolbar(patch);
+  };
+  const clearToolbar = () => {
+    closeNote();
+    resetToolbar();
+  };
   const item = note ? shown.find(({ rawName }) => rawName === note.rawName) : null;
 
   return <>
@@ -88,24 +108,17 @@ const Slab = () => {
       {SLAB_BONUSES.map(({ name, icon, value }) => <StatTile key={name} label={name} icon={`data/${icon}.png`}
                                                               value={value(state?.account) ?? 0} kind={'pct'}/>)}
     </PageSummary>
-    {sectionFailed ? null : <Toolbar state={toolbar} defaults={SLAB_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+    {sectionFailed ? null : <Toolbar state={toolbar} defaults={SLAB_TOOLBAR} onChange={changeToolbar} onReset={clearToolbar}
              total={items.length} shown={shown.length} noun={'items'}>
       <Toolbar.Search placeholder={'Search items'}/>
       <Toolbar.Show options={SHOWS.map(([value, label]) => [value, label, items.filter((item) => shouldDisplayItem(item, value)).length,
         value === 'unrealistic' ? UNREALISTIC_NOTE : undefined])}/>
     </Toolbar>}
-    <SharedNote anchor={item ? note.anchor : null} onClose={closeNote}>
-      {item ? <Stack gap={1}>
-        <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(item.name)}</Typography>
-        <ItemCard.Section>
-          <ItemCard.Facts rows={[
-            ['Looted', item.obtained ? 'Yes' : 'No'],
-            ['Greenstacked', item.greenStacked ? 'Yes' : 'No'],
-            item.onRotation ? ['GemShop rotation', 'Yes'] : null,
-            item.unobtainable ? ['Unobtainable', 'Yes'] : null
-          ]}/>
-        </ItemCard.Section>
-      </Stack> : null}
+    <SharedNote key={`${toolbar?.show}-${searchTerm}`} anchor={item ? note.anchor : null} onClose={closeNote}>
+      {(rawName) => {
+        const entry = shown.find((candidate) => candidate.rawName === rawName);
+        return entry ? <SlabNote item={entry}/> : null;
+      }}
     </SharedNote>
     <CardGrid size={'icon'}>
       {/* Where a view holds looted and missing items, a missing one greys as a not-found tile does elsewhere; Missing

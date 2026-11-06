@@ -67,8 +67,9 @@ const TILE_MAX = 'var(--tile-max, 72px)';
 // onSelect makes the tile a button that picks it, for a grid too large to draw a note per tile: the page shows the
 // picked one's details once, and selected draws the selected line. An empty slot draws no sprite, so its alt names it
 // ("Empty slot" by default) when it has details to open or can be picked; one with neither is not a button.
-// sharedNote goes with onSelect: the tile opens the note its page shares across the grid (InfoButton's SharedNote),
-// handed event.currentTarget as the anchor, and selected says that note is open on it (the Slab's 1,938 items).
+// sharedNote goes with onSelect: the tile's key in the note its page shares across the grid (InfoButton's SharedNote). A
+// mouse over it previews the note; a click hands event.currentTarget over as the anchor, and selected says the note is kept
+// open on it (the Slab's 1,938 items).
 // phoneDetails go with onSelect: below 600 px, where the page's details Panel does not show, a pick also pins the
 // picked tile's details as its note (sized to a table), so the grid keeps the screen.
 // sub: a dimmer line under the value, inside a sheet (a talent's "/ max"). kind is what numOrNode takes.
@@ -132,7 +133,7 @@ const IconTile = ({ icon, alt = '', value, kind, sub, frame, height = 72, badge,
   if (onSelect) {
     return <ButtonBase component={'span'} disableRipple aria-label={emptyName} onClick={onSelect}
                        {...(sharedNote
-                         ? { [NOTE_ANCHOR]: '', 'aria-expanded': Boolean(selected), 'aria-describedby': selected ? SHARED_NOTE_ID : undefined }
+                         ? { [NOTE_ANCHOR]: sharedNote, 'aria-expanded': Boolean(selected), 'aria-describedby': selected ? SHARED_NOTE_ID : undefined }
                          : { 'aria-pressed': Boolean(selected) })}
                        sx={small ? { display: 'flex', width: '100%', alignItems: 'stretch', borderRadius: '6px' }
                          : { display: 'flex', width: '100%', maxWidth: TILE_MAX, borderRadius: '8px' }}>{tile}</ButtonBase>;

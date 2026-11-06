@@ -130,23 +130,80 @@ export const NoteTrigger = ({ note, label, maxWidth, table, sx, block, onPick, p
   </ClickAwayListener>;
 };
 
-// A note with no trigger of its own, for a grid too large to draw one per tile (the Slab's 1,938 items): the page holds
-// which tile is open and hands it over as anchor, so one note moves between them, the look and the placing a NoteTrigger's.
-// A tile (IconTile's sharedNote, NOTE_ANCHOR) toggles in its own click; any other click closes it, heard in the capture
-// phase since a NoteTrigger's click stops at React's root. Esc closes it and hands the focus back to the tile. Nothing in
-// it takes the focus, so Tab moves on from the tile and takes the note away with it.
+// A note with no trigger of its own, for a grid too large to draw one per tile (the Slab's 1,938 items): one note moves
+// between the tiles, the look and the placing a NoteTrigger's. A mouse over a tile (IconTile's sharedNote, NOTE_ANCHOR)
+// previews it, and only the note redraws, so a sweep costs the grid nothing. The page holds the tile a click keeps open, and
+// hands it over as anchor; the preview shows over it while the pointer is on another tile. A tile toggles in its own click;
+// any other click closes it, heard in the capture phase since a NoteTrigger's click stops at React's root. Esc closes it and
+// hands the focus back to the tile. Nothing in it takes the focus, so Tab moves on from the tile and takes the note away with
+// it. children gets the tile's NOTE_ANCHOR value and draws its note, or null for no note. A page that redraws its tiles (a
+// filter) closes its note and gives SharedNote a new key, since both hold tiles that are gone.
 export const NOTE_ANCHOR = 'data-note-anchor';
 export const SHARED_NOTE_ID = 'shared-note';
 const SHARED_NOTE_TRANSITION = { timeout: { exit: 0 } };
+// A NoteTrigger's Tooltip waits 100 ms for a note, and not at all within 800 ms of the last one.
+const NOTE_ENTER_MS = 100;
+const NOTE_NEXT_MS = 800;
+// The pointer crosses a gap between two tiles: the note waits that long for the next one, so it moves instead of blinking.
+const NOTE_LEAVE_MS = 100;
 export const SharedNote = ({ anchor, onClose, children }) => {
+  const [hovered, setHovered] = useState(null);
+  const pointer = useRef({ over: null, timer: null, closedAt: 0 });
+  const shownTile = hovered ?? anchor ?? null;
+  const isOpen = Boolean(shownTile);
+
+  // Pointer events, so a touch never leaves a preview behind: its tap is the tile's click and nothing else.
   useEffect(() => {
-    if (!anchor) return undefined;
+    const state = pointer.current;
+    const after = (ms, then) => {
+      clearTimeout(state.timer);
+      state.timer = setTimeout(then, ms);
+    };
+    const leave = () => {
+      if (!state.over) return;
+      state.over = null;
+      after(NOTE_LEAVE_MS, () => {
+        state.closedAt = Date.now();
+        setHovered(null);
+      });
+    };
+    const onOver = (event) => {
+      if (event.pointerType !== 'mouse') return;
+      const tile = event.target.closest?.(`[${NOTE_ANCHOR}]`);
+      if (tile) {
+        if (tile === state.over) return;
+        state.over = tile;
+        if (document.getElementById(SHARED_NOTE_ID) || Date.now() - state.closedAt < NOTE_NEXT_MS) {
+          clearTimeout(state.timer);
+          setHovered(tile);
+        } else after(NOTE_ENTER_MS, () => setHovered(tile));
+      } else if (event.target.closest?.(`#${SHARED_NOTE_ID}`)) {
+        // The pointer can rest on the note, as on a NoteTrigger's
+        clearTimeout(state.timer);
+        state.over = event.target;
+      } else leave();
+    };
+    const onOut = (event) => {
+      if (event.pointerType === 'mouse' && !event.relatedTarget) leave();
+    };
+    document.addEventListener('pointerover', onOver);
+    document.addEventListener('pointerout', onOut);
+    return () => {
+      document.removeEventListener('pointerover', onOver);
+      document.removeEventListener('pointerout', onOut);
+      clearTimeout(state.timer);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!isOpen) return undefined;
     const closeOnKey = (event) => {
       if (event.key === 'Tab') onClose();
       if (event.key !== 'Escape') return;
       event.stopPropagation();
-      anchor.focus({ preventScroll: true });
+      anchor?.focus({ preventScroll: true });
       onClose();
+      setHovered(null);
     };
     const closeOnClick = (event) => {
       if (!event.target.closest?.(`[${NOTE_ANCHOR}], [role="tooltip"]`)) onClose();
@@ -157,10 +214,12 @@ export const SharedNote = ({ anchor, onClose, children }) => {
       document.removeEventListener('keydown', closeOnKey, true);
       document.removeEventListener('click', closeOnClick, true);
     };
-  }, [anchor, onClose]);
-  return <Tooltip id={SHARED_NOTE_ID} title={anchor ? <SheetContext value={null}>{children}</SheetContext> : ''} describeChild
-                  open={Boolean(anchor)} disableHoverListener disableFocusListener disableTouchListener placement={'bottom'}
-                  slotProps={{ popper: { ...NOTE_POPPER, anchorEl: anchor }, transition: SHARED_NOTE_TRANSITION }}>
+  }, [isOpen, anchor, onClose]);
+
+  const note = shownTile ? children(shownTile.getAttribute(NOTE_ANCHOR)) : null;
+  return <Tooltip id={SHARED_NOTE_ID} title={note ? <SheetContext value={null}>{note}</SheetContext> : ''} describeChild
+                  open={isOpen} disableHoverListener disableFocusListener disableTouchListener placement={'bottom'}
+                  slotProps={{ popper: { ...NOTE_POPPER, anchorEl: shownTile }, transition: SHARED_NOTE_TRANSITION }}>
     <Box component={'span'} sx={{ display: 'none' }}/>
   </Tooltip>;
 };
