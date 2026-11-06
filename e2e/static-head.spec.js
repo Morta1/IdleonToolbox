@@ -304,3 +304,28 @@ for (const route of ['/leaderboards?player=Baker333', '/leaderboards?t=skills&m=
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://idleontoolbox.com/leaderboards');
   });
 }
+
+// One shared copy keeps the export under GitHub Pages' 1 GB: inline, these variables cost 30 KB on each of 8,600 pages.
+test('the theme variables come from a shared stylesheet, and the first paint waits for it', async ({ page, request }) => {
+  const html = await (await request.get('/patch-notes')).text();
+  expect(html).not.toContain('--mui-palette-background-default');
+  const head = html.slice(0, html.indexOf('</head>'));
+  const sheets = [...head.matchAll(/<link[^>]+rel="stylesheet"[^>]*href="([^"]+)"/g)].map((match) => match[1]).filter((href) => href.includes('/_next/'));
+  expect(sheets.length).toBeGreaterThan(0);
+  await page.route(/\/_next\/static\/.*\.css/, async (route) => {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 800);
+    });
+    await route.continue();
+  });
+  await page.goto('/patch-notes');
+  await waitForRender(page);
+  const { paint, sheet, background } = await page.evaluate((hrefs) => ({
+    paint: performance.getEntriesByType('paint')[0]?.startTime,
+    sheet: Math.max(...performance.getEntriesByType('resource').filter(({ name }) => hrefs.some((href) => name.endsWith(href))).map(({ responseEnd }) => responseEnd)),
+    background: getComputedStyle(document.documentElement).getPropertyValue('--mui-palette-background-default').trim()
+  }), sheets);
+  expect(background).not.toBe('');
+  expect(sheet).toBeGreaterThan(800);
+  expect(paint).toBeGreaterThanOrEqual(sheet);
+});

@@ -7,6 +7,7 @@ import '../polyfills';
 import createEmotionCache from '../utility/createEmotionCache';
 import theme from '../styles/theme/theme';
 import '../styles/globals.css';
+import '../styles/theme/theme-vars.css';
 import Head from 'next/head';
 import AppProvider from '../components/common/context/AppProvider';
 import PreferencesProvider from '../components/common/context/PreferencesProvider';
@@ -210,7 +211,8 @@ const MyApp = (props) => {
           it then reported as a crawled-not-indexed URL. */}
       <QueryClientProvider client={queryClient}>
       <CacheProvider value={emotionCache}>
-        <ThemeProvider theme={theme} defaultMode="dark">
+        {/* The theme's variables come from one shared file (styles/theme/theme-vars.css), not from every page's HTML. */}
+        <ThemeProvider theme={theme} defaultMode="dark" disableStyleSheetGeneration>
           <EmotionThemeProvider theme={theme}>
             <CookiePolicyDialog/>
             <CssBaseline enableColorScheme/>
