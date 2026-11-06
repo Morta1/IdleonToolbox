@@ -19,6 +19,8 @@
 // --clock    an ISO time that the page and the parse Worker read as now, so two runs an hour apart compare with `diff -r`.
 // --watch   a selector: every frame from the first paint on, the box of each match while it's visible. One that moves or
 //            resizes after it first showed is a hit, so a late arrival can't push what is already on screen.
+// --cls      sums the layout shifts of the load (PerformanceObserver) and lists each one with when it came and how far its
+//            sources moved, so a total can be split by cause. Not a hit: a number to compare, since some shift is normal.
 // --on-art   lists the text the contrast scan skips because art sits under it, unless it's marked data-on-art: a person reads
 //            these, because text in the page's ink over a dark sprite vanishes in one scheme.
 // --pins     lists what stays on screen, at rest and scrolled 40% down: each sticky or fixed box's top and bottom, with its gap to
@@ -49,6 +51,7 @@ const { values: opts, positionals } = parseArgs({
     click: { type: 'string', multiple: true },
     clock: { type: 'string' },
     watch: { type: 'string' },
+    cls: { type: 'boolean', default: false },
     'on-art': { type: 'boolean', default: false },
     pins: { type: 'boolean', default: false },
     base: { type: 'string', default: `http://localhost:${process.env.E2E_PORT ?? 3002}` },
@@ -114,6 +117,23 @@ const watchBoxes = (selector) => {
     requestAnimationFrame(tick);
   };
   requestAnimationFrame(tick);
+};
+
+// Top frame only, as watchBoxes. A source's move is in CSS px, down positive, and the browser names at most five per shift.
+const watchShifts = () => {
+  if (window !== window.top) return;
+  const shifts = [];
+  window.__shifts = shifts;
+  new PerformanceObserver((list) => {
+    for (const { value, startTime, hadRecentInput, sources } of list.getEntries()) {
+      if (hadRecentInput) continue;
+      shifts.push({
+        value,
+        at: Math.round(startTime),
+        moves: [...new Set(sources.map(({ previousRect, currentRect }) => Math.round(currentRect.y - previousRect.y)))]
+      });
+    }
+  }).observe({ type: 'layout-shift', buffered: true });
 };
 
 const waitForRender = async (page, maxMs = 20000) => {
@@ -420,6 +440,7 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
   const context = await browser.newContext({ viewport: size, storageState: consent, ...(touch ? { isMobile: true, hasTouch: true } : {}) });
   if (force) await context.addInitScript(forceSections, force);
   if (opts.watch) await context.addInitScript(watchBoxes, opts.watch);
+  if (opts.cls) await context.addInitScript(watchShifts);
   // Top frame only: an init script runs in every frame, and a sandboxed ad frame throws on localStorage.
   if (scheme !== 'dark') await context.addInitScript((mode) => { if (window === window.top) localStorage.setItem('mui-mode', mode); }, scheme);
   if (storage) {
@@ -470,6 +491,12 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
       const { moved, frames, shown } = await page.evaluate(() => window.__watch);
       hits.moved = moved;
       result.watched = `${shown} boxes over ${frames} frames`;
+    }
+    if (opts.cls) {
+      result.shifts = await page.evaluate(() => window.__shifts);
+      result.cls = result.shifts.reduce((sum, { value }) => sum + value, 0);
+      // A box that moves before this has moved on nobody's screen, and the browser doesn't count it.
+      result.firstPaint = await page.evaluate(() => Math.round(performance.getEntriesByName('first-contentful-paint')[0]?.startTime ?? 0));
     }
     hits.hiddenHead = await hiddenHeads(page);
     hits.error = errors;
@@ -545,6 +572,7 @@ for (const result of results) {
   console.log(`${result.route} ${result.state} ${result.scheme === 'dark' ? '' : `${result.scheme} `}${result.size} height ${result.height ?? '?'}${result.watched ? ` (${result.watched})` : ''}: ${result.failed ?? (kinds.map(([kind, list]) => `${kind} ${list.length}`).join(', ') || 'clean')}`);
   for (const [kind, list] of kinds) console.log(`  ${kind}: ${list.slice(0, 5).join(' || ')}`);
   for (const [at, line] of Object.entries(result.pins ?? {})) console.log(`  pins ${at}: ${line}`);
+  if (result.shifts) console.log(`  cls ${result.cls.toFixed(4)}, first paint ${result.firstPaint} ms: ${result.shifts.map(({ value, at, moves }) => `${value.toFixed(4)} at ${at} ms, moved ${moves.join('/')} px`).join(' || ') || 'none'}`);
 }
 if (!opts['no-shots']) {
   for (const route of routes) {
