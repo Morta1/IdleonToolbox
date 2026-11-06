@@ -843,7 +843,7 @@ const TimerBoard = ({ rows, children }) => {
   const capped = ready.length > READY_CAP + 1;
   return <Stack gap={1.5} sx={{ containerType: 'inline-size' }}>
     {children}
-    {rows.length ? <Box component={'section'} aria-label={'Timers'} sx={[(theme) => cardSurface(theme), BOARD_SX]}>
+    {rows.length ? <Box component={'section'} data-tour={'timers'} aria-label={'Timers'} sx={[(theme) => cardSurface(theme), BOARD_SX]}>
       {ready.length ? <Band label={'Ready now'} note={`${formatNum(ready.length, 'whole')} to act on`}>
         <Box sx={[READY_GRID_SX, capped && !readyOpen && READY_CAPPED_SX]}>
           <RowShape value={'ready'}>{ready}</RowShape>

@@ -58,7 +58,7 @@ export const useBarMenu = () => {
 // The bar item for a menu (Decision 11): a click, a tap or Enter opens its panel; no opening on hover, only the swap
 // above, for a mouse: a tap's compatibility events must not count as a rest.
 export const NavMenuButton = ({ menu, open, selected, onToggle, onRest, onRestEnd }) => (
-  <ListItemButton id={buttonId(menu)} {...{ [MENU_BUTTON]: '' }} data-cy={`nav-item-${menu}`}
+  <ListItemButton id={buttonId(menu)} {...{ [MENU_BUTTON]: '' }} data-cy={`nav-item-${menu}`} data-tour={`nav-${menu}`}
                   selected={selected} aria-expanded={open} aria-controls={open ? navMenuId(menu) : undefined}
                   onClick={() => onToggle(menu)} onPointerLeave={onRestEnd}
                   onPointerEnter={(event) => {

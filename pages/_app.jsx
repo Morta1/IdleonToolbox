@@ -12,6 +12,7 @@ import AppProvider from '../components/common/context/AppProvider';
 import PreferencesProvider from '../components/common/context/PreferencesProvider';
 import { GoalsProvider } from '../components/goals/GoalsProvider';
 import SnackbarHost from '@components/common/Overlays/SnackbarHost';
+import WhatsNewGate from '@components/common/WhatsNew/WhatsNewGate';
 import { NextSeo } from 'next-seo';
 import NavBar from '../components/common/NavBar';
 import DataLoadingWrapper from '../components/common/DataLoadingWrapper';
@@ -277,6 +278,7 @@ const MyApp = (props) => {
                 </ErrorBoundary>
               </NavBar>
               <SnackbarHost/>
+              <WhatsNewGate/>
               </GoalsProvider>
             </AppProvider>
             </PreferencesProvider>

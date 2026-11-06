@@ -26,6 +26,10 @@
 // --pins     lists what stays on screen, at rest and scrolled 40% down: each sticky or fixed box's top and bottom, with its gap to
 //            the nearest box above it in its column, and saves <slug>-<width>-pinned.png of the scrolled window. A negative gap is an
 //            overlap: a lead, since a drawer over the band is meant.
+// --whats-new opens the What's new gate for this run, on the demo too, for a browser with a pinned page. The dialog, then
+//            --click 'button:has-text("Show me around")' --click 'button:has-text("Next")' for the tour's stops.
+// --window   a shot is the window as it stands, not the whole page, and nothing scrolls the page before it: for an overlay.
+// --root     a selector the text scans and the dump read in place of main: '.MuiDialog-paper', a floating card.
 // --base     default http://localhost:$E2E_PORT, or 3002.
 // --no-shots scan only. --out default .page-check (gitignored). Exit 1 on any hit, 2 when the server is down.
 //
@@ -54,6 +58,9 @@ const { values: opts, positionals } = parseArgs({
     cls: { type: 'boolean', default: false },
     'on-art': { type: 'boolean', default: false },
     pins: { type: 'boolean', default: false },
+    'whats-new': { type: 'boolean', default: false },
+    window: { type: 'boolean', default: false },
+    root: { type: 'string' },
     base: { type: 'string', default: `http://localhost:${process.env.E2E_PORT ?? 3002}` },
     out: { type: 'string', default: '.page-check' },
     'no-shots': { type: 'boolean', default: false },
@@ -95,6 +102,14 @@ const forceSections = (names) => {
     if (Array.isArray(message?.args)) message.args[7] = { ...message.args[7], failSections: names };
     return post.call(this, message, ...rest);
   };
+};
+
+// A future end date for the gate (utility/whatsNew.js), and a pin that makes this browser a regular. Top frame only, as a
+// sandboxed ad frame throws on localStorage.
+const openWhatsNew = () => {
+  if (window !== window.top) return;
+  window.__whatsNewKit = { until: '2099-01-01T00:00:00Z', anyView: true };
+  localStorage.setItem('pinnedPages', JSON.stringify([{ name: 'stamps', url: '/account/world-1/stamps' }]));
 };
 
 // Top frame only, as an ad frame has none of the page's boxes. Boxes are in page coordinates, so a scroll is no move.
@@ -149,8 +164,8 @@ const waitForRender = async (page, maxMs = 20000) => {
 };
 
 // Runs in the page, so it can't read this module.
-const scanPage = ({ maxLines, minGap, maxLowContrast, listOnArt }) => {
-  const main = document.querySelector('main') ?? document.body;
+const scanPage = ({ maxLines, minGap, maxLowContrast, listOnArt, root }) => {
+  const main = (root && document.querySelector(root)) ?? document.querySelector('main') ?? document.body;
   const hits = {
     brokenWord: [], brokenPair: [], overlap: [], tooClose: [], outOfBox: [], cut: [], tallRow: [],
     raw: [], emptyHeading: [], unnamed: [], titleAttr: [], lowContrast: [], onArt: []
@@ -439,6 +454,7 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
   const touch = size.width < 768;
   const context = await browser.newContext({ viewport: size, storageState: consent, ...(touch ? { isMobile: true, hasTouch: true } : {}) });
   if (force) await context.addInitScript(forceSections, force);
+  if (opts['whats-new']) await context.addInitScript(openWhatsNew);
   if (opts.watch) await context.addInitScript(watchBoxes, opts.watch);
   if (opts.cls) await context.addInitScript(watchShifts);
   // Top frame only: an init script runs in every frame, and a sandboxed ad frame throws on localStorage.
@@ -472,7 +488,7 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
         await page.waitForTimeout(500 + Number(opts.settle));
         // A moved URL forwards in that gap, and the new route opens on its loader.
         await waitForRender(page);
-        return await page.evaluate(scanPage, { maxLines: Number(opts['max-lines']), minGap: Number(opts['min-gap']), maxLowContrast: MAX_LOW_CONTRAST, listOnArt: opts['on-art'] });
+        return await page.evaluate(scanPage, { maxLines: Number(opts['max-lines']), minGap: Number(opts['min-gap']), maxLowContrast: MAX_LOW_CONTRAST, listOnArt: opts['on-art'], root: opts.root });
       } catch (error) {
         if (attempts <= 1 || !/context was destroyed|reading 'innerText'/.test(error.message)) throw error;
         await page.waitForTimeout(1000);
@@ -498,14 +514,18 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
       // A box that moves before this has moved on nobody's screen, and the browser doesn't count it.
       result.firstPaint = await page.evaluate(() => Math.round(performance.getEntriesByName('first-contentful-paint')[0]?.startTime ?? 0));
     }
-    hits.hiddenHead = await hiddenHeads(page);
+    hits.hiddenHead = opts.window ? [] : await hiddenHeads(page);
     hits.error = errors;
     if (sideways > 1) hits.sideways = [`${sideways}px`];
     result.height = height;
     result.hits = Object.fromEntries(Object.entries(hits).filter(([, list]) => list.length));
-    writeFileSync(join(opts.out, `${slug}-${size.width}.txt`), await pageDump(page, opts.click ? 'body' : 'main').catch(() => ''));
+    writeFileSync(join(opts.out, `${slug}-${size.width}.txt`), await pageDump(page, opts.root ?? (opts.click ? 'body' : 'main')).catch(() => ''));
     if (!opts['no-shots']) {
-      if (touch) {
+      if (opts.window) {
+        const file = join(opts.out, `${slug}-${size.width}.png`);
+        await page.screenshot({ path: file });
+        result.shots.push(file);
+      } else if (touch) {
         for (let i = 0, y = 0; i < PHONE_SHOTS && y < height; i += 1, y += size.height - 80) {
           await page.evaluate((top) => window.scrollTo(0, top), y);
           await page.waitForTimeout(250);
