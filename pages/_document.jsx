@@ -1,5 +1,6 @@
 import * as React from 'react';
 import Document, { Head, Html, Main, NextScript } from 'next/document';
+import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import createEmotionServer from '@emotion/server/create-instance';
 import createEmotionCache from '../utility/createEmotionCache';
 import darkTheme from '../styles/theme/darkTheme';
@@ -36,6 +37,8 @@ export default class MyDocument extends Document {
           <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         </Head>
         <body>
+        {/* First in the body, so a stored scheme's class is on <html> before anything paints. */}
+        <InitColorSchemeScript attribute="class" defaultMode="dark"/>
         <Main/>
         <NextScript/>
         </body>

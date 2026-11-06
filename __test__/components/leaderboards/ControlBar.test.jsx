@@ -130,7 +130,7 @@ describe('ControlBar', () => {
 
   it('stops viewing from the X without the field taking focus on a touch screen', () => {
     const matchMedia = window.matchMedia;
-    window.matchMedia = (query) => ({ matches: query === '(hover: none)', media: query, addEventListener: () => {}, removeEventListener: () => {} });
+    window.matchMedia = (query) => ({ matches: query === '(hover: none)', media: query, addListener: () => {}, removeListener: () => {}, addEventListener: () => {}, removeEventListener: () => {} });
     const onClearPlayer = vi.fn();
     renderBar({ viewing: { name: 'Baker333', kind: 'searched' }, onClearPlayer });
     fireEvent.click(screen.getByRole('button', { name: 'Stop viewing Baker333' }));

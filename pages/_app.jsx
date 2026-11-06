@@ -186,10 +186,10 @@ const MyApp = (props) => {
           it then reported as a crawled-not-indexed URL. */}
       <QueryClientProvider client={queryClient}>
       <CacheProvider value={emotionCache}>
-        <ThemeProvider theme={darkTheme}>
+        <ThemeProvider theme={darkTheme} defaultMode="dark">
           <EmotionThemeProvider theme={darkTheme}>
             <CookiePolicyDialog/>
-            <CssBaseline/>
+            <CssBaseline enableColorScheme/>
             <RouteProgress/>
             {/* Outer net for the shell itself (providers, NavBar). Still beats a blank root. */}
             <ErrorBoundary resetKey={asPath} title={'The app failed to load'} gutters detail>

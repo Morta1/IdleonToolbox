@@ -2,7 +2,7 @@ import { createElement } from 'react';
 import { createTheme } from '@mui/material/styles';
 import { IconChevronDown } from '@tabler/icons-react';
 
-// Values are read through theme.vars, so a light scheme can later swap them without touching this file's rules.
+// Values are read through theme.vars, so both schemes share this file's rules.
 const palette = (theme) => (theme.vars || theme).palette;
 
 // One look for everything that floats (menus, popovers, dialogs, tooltips): the card surface, a
@@ -49,80 +49,119 @@ export const focusWithinRing = (theme) => ({ '& :focus-visible': focusRing(theme
 // the two when the light scheme arrives.
 const INVERSE_PRIMARY = '#1565c0';
 
-const darkTheme = createTheme({
-  // MUI writes the palette as CSS variables, so a light scheme can later be added as values only.
-  cssVariables: true,
-  // The roles from the redesign's Foundations board. Components ask for a role by its job
-  // (text.success, background.paper), never for a shade like success.light or a hex.
-  palette: {
-    mode: 'dark',
-    // soft: primary at 14%, the fill of a pinned note or a pressed filter. A fixed value, not alpha() over the
-    // role: with cssVariables a role is a var() string.
-    // edge: primary at 50%, the outline of a primary button on the banner or a pressed filter.
-    // hover: a contained button under the pointer (Controls board). MUI's own, primary.dark, reads as the board's Disabled.
-    primary: {
-      main: '#90caf9',
-      hover: '#a9d4fb',
-      contrastText: '#141A21',
-      soft: 'rgba(144, 202, 249, 0.14)',
-      edge: 'rgba(144, 202, 249, 0.5)'
-    },
-    // default is surface.page (page, app bar), paper is surface.card (cards, tables, dialogs).
-    // tint: 5% white, a row or group set off from its list (the phone menu's open group).
-    background: {
-      default: '#141A21',
-      paper: '#1C252E',
-      tint: 'rgba(255, 255, 255, 0.05)'
-    },
-    text: {
-      primary: '#fff',
-      secondary: 'rgba(255, 255, 255, 0.7)',
-      muted: 'rgba(255, 255, 255, 0.5)',
-      success: '#81c784',
-      error: '#e57373',
-      warning: '#ffb74d',
-      info: '#4fc3f7'
-    },
-    divider: 'rgba(255, 255, 255, 0.12)',
-    // The edge of a control that stands on its own (a field's own rest border): an outlined button, a filter pill, More.
-    outline: 'rgba(255, 255, 255, 0.23)',
-    // Identity colors: a thing's own color that reads the same everywhere, not a state or a role (3b Decision 3).
-    // pin: the breakdown's pinned star, gold as "pinned" reads elsewhere.
-    identity: {
-      pin: '#FFD700',
-      // An item's stat labels: what main's item card and wiki wore (MUI's error, success, secondary and warning .dark)
-      stats: { STR: '#d32f2f', AGI: '#388e3c', WIS: '#ab47bc', LUK: '#f57c00' },
-      // A Super Talent's words in a build, gold like the game's border around its icon
-      superTalent: '#ffd75e',
-      // The game's font colors for the damage tiers (GameIconNotation): plain is font 33, under 9,999,999.
-      damage: {
-        blue: '#5fc5e8',
-        purple: '#cd6cf5',
-        yellow: '#f5d76e',
-        plain: '#fffcc9'
-      },
-      // The Sushi Station board's greens, a copy of the game's board (the Sushi tab)
-      sushi: { board: '#1a2a1a', edge: '#3a5a3a', slot: '#2a3e2a' },
-      // The Legendary Fever squares' colors and the game's Menagerie link color in Legend Talent descriptions
-      fever: { yellow: '#e5c100', red: '#e05a4f', brown: '#a5764f', green: '#5cb85c', menagerie: '#4ea8f0' },
-      // Research's grid shapes, the game's: a line and the 25% tint a shaped cell's empty part shows
-      researchShapes: [
-        { line: '#b39ddb', tint: 'rgba(179, 157, 219, 0.25)' }, { line: '#81d4fa', tint: 'rgba(129, 212, 250, 0.25)' },
-        { line: '#ffb74d', tint: 'rgba(255, 183, 77, 0.25)' }, { line: '#a5d6a7', tint: 'rgba(165, 214, 167, 0.25)' },
-        { line: '#ef9a9a', tint: 'rgba(239, 154, 154, 0.25)' }, { line: '#ce93d8', tint: 'rgba(206, 147, 216, 0.25)' }
-      ],
-      // Sailing's artifact forms, the game's: Base, Ancient, Eldritch, Sovereign, Omnipotent, Transcendent, Verisimilitude
-      artifactTiers: ['#ffffff', '#ffd700', '#ffa092', '#67da80', '#00ffde', '#b388ff', '#ff7eb6'],
-      // The Tome's point tiers, the game's: bronze, silver, gold, blue
-      tomeTiers: { bronze: '#ffc277', silver: '#d6dbe0', gold: '#ffd700', blue: '#56ccff' },
-      // The kingdom screen's own outpost modes: yellow Resource Depot, cyan Support Camp, pink Savage Stronghold
-      outpostModes: ['#f7de2a', '#31cef0', '#f8b4f8'],
-      // The leaderboards' identities: whose row it is (you, a searched player) and the podium's medals
-      leaderboard: { you: '#007E85', youText: '#4fc3c9', searched: '#cd861b', gold: '#f0b849', silver: '#9aa3ad', bronze: '#b8783a' },
-      // Discord's brand colour, on the two Discord buttons
-      discord: { main: '#5865F2', hover: '#4752c4', text: '#ffffff' }
-    }
+// Identity colors: a thing's own color that reads the same everywhere, not a state or a role (3b Decision 3).
+// pin: the breakdown's pinned star, gold as "pinned" reads elsewhere.
+const identity = {
+  pin: '#FFD700',
+  // An item's stat labels: what main's item card and wiki wore (MUI's error, success, secondary and warning .dark)
+  stats: { STR: '#d32f2f', AGI: '#388e3c', WIS: '#ab47bc', LUK: '#f57c00' },
+  // A Super Talent's words in a build, gold like the game's border around its icon
+  superTalent: '#ffd75e',
+  // The game's font colors for the damage tiers (GameIconNotation): plain is font 33, under 9,999,999.
+  damage: {
+    blue: '#5fc5e8',
+    purple: '#cd6cf5',
+    yellow: '#f5d76e',
+    plain: '#fffcc9'
   },
+  // The Sushi Station board's greens, a copy of the game's board (the Sushi tab)
+  sushi: { board: '#1a2a1a', edge: '#3a5a3a', slot: '#2a3e2a' },
+  // The Legendary Fever squares' colors and the game's Menagerie link color in Legend Talent descriptions
+  fever: { yellow: '#e5c100', red: '#e05a4f', brown: '#a5764f', green: '#5cb85c', menagerie: '#4ea8f0' },
+  // Research's grid shapes, the game's: a line and the 25% tint a shaped cell's empty part shows
+  researchShapes: [
+    { line: '#b39ddb', tint: 'rgba(179, 157, 219, 0.25)' }, { line: '#81d4fa', tint: 'rgba(129, 212, 250, 0.25)' },
+    { line: '#ffb74d', tint: 'rgba(255, 183, 77, 0.25)' }, { line: '#a5d6a7', tint: 'rgba(165, 214, 167, 0.25)' },
+    { line: '#ef9a9a', tint: 'rgba(239, 154, 154, 0.25)' }, { line: '#ce93d8', tint: 'rgba(206, 147, 216, 0.25)' }
+  ],
+  // Sailing's artifact forms, the game's: Base, Ancient, Eldritch, Sovereign, Omnipotent, Transcendent, Verisimilitude
+  artifactTiers: ['#ffffff', '#ffd700', '#ffa092', '#67da80', '#00ffde', '#b388ff', '#ff7eb6'],
+  // The Tome's point tiers, the game's: bronze, silver, gold, blue
+  tomeTiers: { bronze: '#ffc277', silver: '#d6dbe0', gold: '#ffd700', blue: '#56ccff' },
+  // The kingdom screen's own outpost modes: yellow Resource Depot, cyan Support Camp, pink Savage Stronghold
+  outpostModes: ['#f7de2a', '#31cef0', '#f8b4f8'],
+  // The leaderboards' identities: whose row it is (you, a searched player) and the podium's medals
+  leaderboard: { you: '#007E85', youText: '#4fc3c9', searched: '#cd861b', gold: '#f0b849', silver: '#9aa3ad', bronze: '#b8783a' },
+  // Discord's brand colour, on the two Discord buttons
+  discord: { main: '#5865F2', hover: '#4752c4', text: '#ffffff' }
+};
+
+// The roles from the redesign's Foundations board. Components ask for a role by its job
+// (text.success, background.paper), never for a shade like success.light or a hex.
+const darkPalette = {
+  // soft: primary at 14%, the fill of a pinned note or a pressed filter. A fixed value, not alpha() over the
+  // role: with cssVariables a role is a var() string.
+  // edge: primary at 50%, the outline of a primary button on the banner or a pressed filter.
+  // hover: a contained button under the pointer (Controls board). MUI's own, primary.dark, reads as the board's Disabled.
+  primary: {
+    main: '#90caf9',
+    hover: '#a9d4fb',
+    contrastText: '#141A21',
+    soft: 'rgba(144, 202, 249, 0.14)',
+    edge: 'rgba(144, 202, 249, 0.5)'
+  },
+  // default is surface.page (page, app bar), paper is surface.card (cards, tables, dialogs).
+  // tint: 5% white, a row or group set off from its list (the phone menu's open group).
+  background: {
+    default: '#141A21',
+    paper: '#1C252E',
+    tint: 'rgba(255, 255, 255, 0.05)'
+  },
+  text: {
+    primary: '#fff',
+    secondary: 'rgba(255, 255, 255, 0.7)',
+    muted: 'rgba(255, 255, 255, 0.5)',
+    success: '#81c784',
+    error: '#e57373',
+    warning: '#ffb74d',
+    info: '#4fc3f7'
+  },
+  divider: 'rgba(255, 255, 255, 0.12)',
+  // The edge of a control that stands on its own (a field's own rest border): an outlined button, a filter pill, More.
+  outline: 'rgba(255, 255, 255, 0.23)',
+  identity
+};
+
+// Foundations' "Every role, both schemes". MUI's own light primary and info miss 4.5:1 on the page, so the board has its
+// own, and one darker shade of each status serves both its words and its fills.
+const lightPalette = {
+  primary: {
+    main: '#1565c0',
+    hover: '#0f4f99',
+    contrastText: '#ffffff',
+    soft: 'rgba(21, 101, 192, 0.08)',
+    edge: 'rgba(21, 101, 192, 0.5)'
+  },
+  success: { main: '#2e7d32' },
+  error: { main: '#c62828' },
+  warning: { main: '#b45309' },
+  info: { main: '#01579b' },
+  background: {
+    default: '#f4f6f9',
+    paper: '#ffffff',
+    tint: 'rgba(0, 0, 0, 0.05)'
+  },
+  text: {
+    primary: 'rgba(0, 0, 0, 0.87)',
+    secondary: 'rgba(0, 0, 0, 0.6)',
+    muted: 'rgba(0, 0, 0, 0.55)',
+    success: '#2e7d32',
+    error: '#c62828',
+    warning: '#b45309',
+    info: '#01579b'
+  },
+  divider: 'rgba(0, 0, 0, 0.12)',
+  outline: 'rgba(0, 0, 0, 0.23)',
+  action: { hover: 'rgba(0, 0, 0, 0.04)', selected: 'rgba(0, 0, 0, 0.08)' },
+  identity
+};
+
+const theme = createTheme({
+  // MUI writes both schemes as CSS variables: the default under :root and .dark, the other under .light. The script in
+  // _document puts the class on <html> before first paint, so a page reads theme.vars and never asks which scheme it's in.
+  cssVariables: { colorSchemeSelector: 'class' },
+  defaultColorScheme: 'dark',
+  colorSchemes: { dark: { palette: darkPalette }, light: { palette: lightPalette } },
   // The Foundations type scale. body and caption are MUI's body2 and caption. pageTitle, sectionTitle,
   // groupLabel and value are the board's; cardTitle and heroValue are what the Cards board's ItemCard
   // title and StatTile hero draw.
@@ -494,9 +533,14 @@ const darkTheme = createTheme({
       }
     },
     MuiAppBar: {
+      // Without this, MUI paints the bar card-colored in dark, in a rule that lands after these overrides.
+      defaultProps: {
+        enableColorOnDark: true
+      },
       styleOverrides: {
         root: ({ theme }) => ({
-          background: palette(theme).background.default,
+          '--AppBar-background': palette(theme).background.default,
+          '--AppBar-color': palette(theme).text.primary,
           borderBottom: `1px solid ${palette(theme).divider}`
         })
       }
@@ -504,4 +548,4 @@ const darkTheme = createTheme({
   }
 });
 
-export default darkTheme;
+export default theme;
