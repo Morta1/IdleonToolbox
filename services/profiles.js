@@ -27,6 +27,8 @@ export const uploadProfile = async ({ profile, profileAccess, leaderboardPartici
   }
 }
 
+// null is the worker's answer that no such profile exists. Anything else that isn't a save throws: no answer, a 5xx, or
+// a 403, whose JSON { error } would otherwise be parsed as a save.
 export const getProfile = async ({ mainChar }) => {
   try {
     const response = await fetch(`${url}/profiles/?profile=${encodeURIComponent(mainChar)}`, {
@@ -35,8 +37,9 @@ export const getProfile = async ({ mainChar }) => {
         'Content-Type': 'application/json'
       }
     });
-    if (!response) return null
-    return await response?.json();
+    if (response.status === 404) return null;
+    if (!response.ok) throw new Error(`The profile api answered ${response.status}`);
+    return await response.json();
   } catch (e) {
     console.error(`profiles.js -> Error has occurred while getting profile for ${mainChar}`);
     throw e;

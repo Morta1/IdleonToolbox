@@ -156,6 +156,8 @@ const AppProvider = ({ children }) => {
   const [authCounter, setAuthCounter] = useState(0);
   const [waitingForAuth, setWaitingForAuth] = useState(false);
   const unsubscribeRef = useRef(null);
+  // A profile that never arrived has moved the visitor to the 404: their own save lands behind it, leaving the URL alone.
+  const leftProfile = useRef(false);
 
   const handleCloudUpdate = async (
     data, 
@@ -170,7 +172,7 @@ const AppProvider = ({ children }) => {
   ) => {
     // The player's own save replaces a viewed profile or the sample account, so drop both from the URL
     // (they are session params and would otherwise reload the other account).
-    if (router?.query?.profile || router?.query?.demo) {
+    if (!leftProfile.current && (router?.query?.profile || router?.query?.demo)) {
       const { profile, demo, ...rest } = router.query;
       router.replace({ query: rest });
     }
@@ -312,11 +314,25 @@ const AppProvider = ({ children }) => {
   useEffect(() => {
     if (!router.isReady || !state.storageHydrated) return;
 
+    // The page's links lead on from where this lands, so the visitor carries on as themselves: as a guest, or with their
+    // own save. Left with no account at all, every data page behind those links would wait forever.
+    const leaveProfile = async (navigate, reason, as) => {
+      leftProfile.current = true;
+      await navigate({ pathname: '/404', query: { reason, name: router?.query?.profile } }, as);
+      await handleUnauthenticatedUser();
+    };
+
     const handleProfile = async () => {
       try {
         const content = await getProfile({ mainChar: router?.query?.profile });
         if (!content) {
-          throw new Error('Failed to load data from profile api');
+          trackEvent('import_failed', { import_source: 'profile', error_message: 'No such profile' });
+          // Masked with a bare `as`: the 404 still reads reason/name off router.query (Next derives
+          // it from the href, not from `as`), but the address bar stays /404. Spelling them into the
+          // URL put them in router.query for every link built afterwards, which is how Search Console
+          // ended up with hundreds of /leaderboards?reason=profile&name=... duplicates.
+          await leaveProfile(router.push, 'profile', '/404');
+          return;
         }
 
         let parsedData;
@@ -375,17 +391,8 @@ const AppProvider = ({ children }) => {
       } catch (err) {
         console.error('Failed to load data from profile api', err);
         trackEvent('import_failed', { import_source: 'profile', error_message: errorMessage(err) });
-        // Masked with a bare `as`: the 404 still reads reason/name off router.query (Next derives
-        // it from the href, not from `as`), but the address bar stays /404. Spelling them into the
-        // URL put them in router.query for every link built afterwards, which is how Search Console
-        // ended up with hundreds of /leaderboards?reason=profile&name=... duplicates.
-        router.push({ pathname: '/404', query: { reason: 'profile', name: router?.query?.profile } }, '/404');
-        dispatch({
-          type: ACTION_TYPES.DATA,
-          data: {
-            isLoading: false
-          }
-        });
+        // The address stays the link the visitor followed, so a reload asks again: the page's Retry, or the browser's.
+        await leaveProfile(router.replace, 'profile-failed', router.asPath);
       }
     };
 

@@ -1,12 +1,14 @@
 import { useState } from 'react';
 import { Box, Button, ButtonBase, Link, Stack, TextField, Typography } from '@mui/material';
 import { IconSearch } from '@tabler/icons-react';
+import Head from 'next/head';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
 import GameIcon from '@components/common/GameIcon';
 import { PHONE_SIDES } from '@components/common/NavBar/frame';
 import { NextLinkComposed } from '@components/common/NextLinkComposed';
+import Notice, { retryAction } from '@components/common/Notice';
 import { Kbd, openQuickSearch } from '@components/common/QuickSearch';
 import { profilePath } from '@components/leaderboards/format';
 import { ON_ART } from '@utility/colorSets';
@@ -45,9 +47,9 @@ const Message = ({ title, lead, children }) => <Stack alignItems="center" sx={{ 
   <Typography variant="pageTitle" component="h1" sx={{ fontSize: 32, lineHeight: '40px', overflowWrap: 'anywhere', [PHONE_SIDES]: { fontSize: 26, lineHeight: '32px' } }}>
     {title}
   </Typography>
-  <Typography color="text.secondary" sx={{ mt: '6px', mb: '20px', overflowWrap: 'anywhere', [PHONE_SIDES]: { mt: '4px', mb: '14px', fontSize: 14, lineHeight: '20px' } }}>
+  {lead ? <Typography color="text.secondary" sx={{ mt: '6px', mb: '20px', overflowWrap: 'anywhere', [PHONE_SIDES]: { mt: '4px', mb: '14px', fontSize: 14, lineHeight: '20px' } }}>
     {lead}
-  </Typography>
+  </Typography> : null}
   {children}
 </Stack>;
 
@@ -123,6 +125,21 @@ const MissingProfile = ({ name, query }) => <>
   </Message>
 </>;
 
+// The profile may well exist: the request for it failed. No scene: nobody is lost. The address is still the link the
+// visitor followed (AppProvider), so a reload asks again. The tab says so too; NextSeo above stays the page's one, for
+// the generator that reads its title.
+const FailedProfile = ({ name, query }) => <>
+  <Head>
+    <title>Couldn&apos;t load this profile | Idleon Toolbox</title>
+  </Head>
+  <Message title="Couldn't load this profile">
+    <Notice tone="error" action={retryAction(() => window.location.reload())} sx={{ justifyContent: 'center', mt: 1, textAlign: 'left' }}>
+      {`The request for "${name}" failed. The profile itself may be fine.`}
+    </Notice>
+    <Ways places={[PLACES.leaderboards, PLACES.dashboard, PLACES.home]} query={query}/>
+  </Message>
+</>;
+
 const OffTheMap = ({ query }) => <>
   <Scene scene={OFF_THE_MAP}/>
   <Message title="You wandered off the map" lead="This page doesn't exist or has moved. Nothing to farm out here.">
@@ -131,14 +148,19 @@ const OffTheMap = ({ query }) => <>
   </Message>
 </>;
 
+const Variant = ({ reason, name, query }) => {
+  if (reason === 'profile' && name) return <MissingProfile name={name} query={query}/>;
+  if (reason === 'profile-failed' && name) return <FailedProfile name={name} query={query}/>;
+  return <OffTheMap query={query}/>;
+};
+
 export default function Custom404() {
   const router = useRouter();
   // Empty until the router is ready, so the export and the first render read the same words.
   const { reason, name } = router.query;
-  const query = sessionQuery(router.query);
 
   return <>
     <NextSeo title="Page Not Found | Idleon Toolbox" noindex={true}/>
-    {reason === 'profile' && name ? <MissingProfile name={name} query={query}/> : <OffTheMap query={query}/>}
+    <Variant reason={reason} name={name} query={sessionQuery(router.query)}/>
   </>;
 }
