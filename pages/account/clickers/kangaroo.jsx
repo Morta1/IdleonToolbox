@@ -81,7 +81,7 @@ const Kangaroo = () => {
           {(kangaroo?.allMultipliers ?? []).map(({ multi, amount }, index) => <Panel.Row key={index}
                                                                                          icon={`data/RooFishS${index}.png`}
                                                                                          name={failed ? `Shiny fish ${index + 1}` : `${formatNum(amount, 'whole')} caught`}
-                                                                                         value={failed ? '-' : formatNum(multi, 'mult')}/>)}
+                                                                                         value={failed ? '-' : `${formatGame(multi, 'Summoning.RooShinyMulti_Fish')}x`}/>)}
         </Panel>
         <Panel title={'Reset bonuses'}>
           {(kangaroo?.resetBonuses ?? []).map(({ desc, level }, index) => <Panel.Row key={index}

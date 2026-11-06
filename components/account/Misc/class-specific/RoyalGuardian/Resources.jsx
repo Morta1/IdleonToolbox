@@ -16,8 +16,8 @@ import { AppContext } from '@components/common/context/AppProvider';
 const RESOURCES_TOOLBAR = { world: 'all', hideUnused: false, unconnected: false };
 // A node's amounts print in the armory costs' rule, which these pay
 const amount = (value) => formatGame(value ?? 0, 'RoyalG.ArmoryUpgCost', { whole: true });
-// A balance, as the armory's resource list prints it (N.js:122791, floored): the key is named for a level, but RoyalG[1] holds these
-export const resourceBalance = (value) => formatGame(Math.floor(value ?? 0), 'Save.ArmoryLevel', { whole: true });
+// A balance, as the armory's resource list prints it (N.js:122791, floored)
+export const resourceBalance = (value) => formatGame(Math.floor(value ?? 0), 'Save.RoyalResources', { whole: true });
 // One to three columns of rows, as wide as the page allows
 const ROWS_GRID_SX = { display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' } };
 

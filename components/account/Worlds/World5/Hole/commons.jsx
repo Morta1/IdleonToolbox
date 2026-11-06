@@ -52,7 +52,7 @@ export const villagerTiles = (villager) => {
     <StatTile label={'EXP rate'} value={rateText} breakdownTitle={'EXP rate'}
               breakdown={breakdown ? { ...breakdown, totalValue: rateText } : undefined}/>
     <StatTile label={'Time to level'} value={timeLeft}/>
-    <StatTile label={'Opals invested'} icon={'data/Opal.png'} value={villager?.opalInvested ?? 0} kind={'amount'}/>
+    <StatTile label={'Opals invested'} icon={'data/Opal.png'} value={formatGame(villager?.opalInvested ?? 0, 'Save.VillagerOpals', { whole: true })}/>
   </>;
 };
 

@@ -54,8 +54,9 @@ export const characterStatFacts = (character, characters, account, playerInfo = 
   return [
     stat('Damage', playerInfo?.maxDamage, () => <GameIconNotation value={notateDamage(playerInfo)} sx={{ typography: 'body2', fontWeight: 500, display: 'inline-flex', flexWrap: 'wrap', justifyContent: 'flex-end' }}/>,
       { breakdown: playerInfo?.damageBreakdown, notation: 'ThreeDecimals' }),
-    stat('HP', playerInfo?.maxHp, (hp) => formatGame(hp, 'PlayerHPmax')),
-    stat('MP', playerInfo?.maxMp, (mp) => formatGame(mp, 'PlayerMPmax')),
+    // Big from 1M, as the game's HP bar (N.js:82671): the stats panel's PlayerHPmax is bare digits up to 1e8 (N.js:81962)
+    stat('HP', playerInfo?.maxHp, (hp) => formatNum(hp)),
+    stat('MP', playerInfo?.maxMp, (mp) => formatNum(mp)),
     stat('Accuracy', playerInfo?.accuracy, (accuracy) => formatGame(accuracy, 'PlayerAccTot')),
     stat('Movement speed', playerInfo?.movementSpeed, (speed) => `${formatGame(speed, 'PlayerSpeedBonus')}%`),
     stat('Cash multi', cashMulti, (multi) => `${cashMultiText(multi)}x`, { breakdown: cashBreakdown, notation: 'Smaller' }),

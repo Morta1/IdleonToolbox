@@ -43,8 +43,8 @@ const General = ({ account, gaming, sectionFailed, characters, lastUpdated }) =>
       <StatTile label={'Sprouts'} icon={'etc/Sprouts.png'}
                 value={`${formatNum(availableSprouts ?? 0)} / ${formatNum(sproutsCapacity ?? 0)}`}/>
       <StatTile label={'Drops'} icon={'etc/GamingDrop.png'} value={availableDrops ?? 0} kind={'whole'}/>
-      <StatTile label={'Envelopes'} icon={'etc/GamingEnvelope.png'} value={envelopes ?? 0} kind={'whole'}/>
-      <StatTile label={'Rat tokens'} icon={'data/GamingRatCrown.png'} value={ratTokens ?? 0} kind={'whole'}/>
+      <StatTile label={'Envelopes'} icon={'etc/GamingEnvelope.png'} value={formatGame(Math.floor(envelopes ?? 0), 'Save.Envelopes', { whole: true })}/>
+      <StatTile label={'Rat tokens'} icon={'data/GamingRatCrown.png'} value={formatGame(Math.floor(ratTokens ?? 0), 'Save.RatTokens', { whole: true })}/>
     </PageSummary>
     <CardGrid size={'m'} sx={{ mb: 3 }}>
       {fertilizerUpgrades?.map(({ name, level, description, cost }) => <ItemCard key={name} title={cleanUnderscore(name)}

@@ -514,8 +514,16 @@
   "PetStuff.TotalTrekkingHR": "Big",
   "PetStuff.TotalTrekkingREQ": "Big",
   "PlayerAccTot": "Big",
-  "PlayerHPmax": "Big",
-  "PlayerMPmax": "Big",
+  "PlayerHPmax": [
+    "Round",
+    100000000,
+    "Big"
+  ],
+  "PlayerMPmax": [
+    "Round",
+    100000000,
+    "Big"
+  ],
   "PlayerSpeedBonus": "Big",
   "Refinery.CapMulti": "Big",
   "Refinery.CostsMulti": "Big",
@@ -616,11 +624,6 @@
   "Sailing.NewCaptBoatSlot": "Big",
   "Sailing.SailingExpMulti": "MultiplierInfo",
   "Save.ArcadeBalls": "Comma",
-  "Save.ArmoryLevel": [
-    "Comma",
-    10000000,
-    "Big"
-  ],
   "Save.BubbaMeat": [
     "Comma",
     9999999,
@@ -631,6 +634,7 @@
     1000000000,
     "Big"
   ],
+  "Save.Envelopes": "Comma",
   "Save.EquinoxDream": "Comma",
   "Save.EventShopCurrency": "Comma",
   "Save.FountainMarbles": [
@@ -680,6 +684,7 @@
     1000000000,
     "Big"
   ],
+  "Save.PoingHighscore": "Comma",
   "Save.PortalKills": [
     "Comma",
     10000000,
@@ -687,6 +692,7 @@
     1000000000,
     "CommaM"
   ],
+  "Save.RatTokens": "Comma",
   "Save.ReefCoral": "Comma",
   "Save.RiftProgress": "Comma",
   "Save.RooFish": [
@@ -702,6 +708,11 @@
   "Save.RooTarFish": [
     "Comma",
     9999999,
+    "Big"
+  ],
+  "Save.RoyalResources": [
+    "Comma",
+    10000000,
     "Big"
   ],
   "Save.ShrineHours": [
@@ -725,7 +736,7 @@
     1000000,
     "Big"
   ],
-  "Save.VillagerLevel": "Comma",
+  "Save.VillagerOpals": "Comma",
   "Save.ZenithClusters": [
     "Comma",
     1000000,
@@ -949,7 +960,11 @@
   "SushiStuff.UpgradeQTY": "Comma",
   "TaskStuff.MeritsGiven": "Big",
   "TaskStuff.TaskPointREQ": "Big",
-  "Thingies.Boss6HP": "Big",
+  "Thingies.Boss6HP": [
+    "Big",
+    100000000000000000000,
+    "BigQQ"
+  ],
   "Thingies.ClamBonuses": "MultiplierInfo",
   "Thingies.ClamPearlValue": "Big",
   "Thingies.Clam_BlackPearlValue": "Floor",
@@ -1118,5 +1133,19 @@
     "MultiplierInfo",
     100,
     "Big"
+  ],
+  "Save.BestNugget": [
+    "Smaller",
+    100,
+    "Comma"
+  ],
+  "Save.KillroyTotalKills": "Comma",
+  "Save.IslandShopCost": "Comma",
+  "Summoning.RooShinyMulti_Fish": [
+    "MultiplierInfo",
+    10,
+    "Tenths",
+    100,
+    "Floor"
   ]
 }

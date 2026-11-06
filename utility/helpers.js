@@ -547,12 +547,12 @@ const PLAIN = {
 };
 
 // A printed scale, z-processing's CommaM or RoundB: the game's `CommaNotation(x / 1e6) + "M"`.
-const SCALES = { K: 1e3, M: 1e6, B: 1e9, T: 1e12, Q: 1e15 };
+const SCALES = { K: 1e3, M: 1e6, B: 1e9, T: 1e12, Q: 1e15, QQ: 1e18 };
 
 // The game's own print of a value in one mode: what a whole thing keeps, and any value from 1M up
 const gamePrint = (magnitude, mode) => {
-  const scale = SCALES[mode.at(-1)];
-  if (scale) return `${gamePrint(magnitude / scale, mode.slice(0, -1))}${mode.at(-1)}`;
+  const [, base, letter] = mode.match(/^(.+?)(QQ|[KMBTQ])$/) ?? [];
+  if (letter) return `${gamePrint(magnitude / SCALES[letter], base)}${letter}`;
   return PLAIN[mode] ? PLAIN[mode](magnitude) : String(mode === 'Comma' ? commaNotation(magnitude) : notateNumber(magnitude, mode));
 };
 

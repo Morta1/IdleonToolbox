@@ -10,7 +10,7 @@ import { repoRelative, sourceFiles } from './helpers/source-files';
 const PORTED_MODES = ['Big', 'Small', 'MultiplierInfo', 'Whole', 'Micro', 'Smallish', 'Smaller', 'Bigish', 'TinyE', 'LargeE', 'Bits', 'Comma',
   'Floor', 'Tenths', 'Round', 'Ceil'];
 // A scale after a mode (CommaM) is the game's `CommaNotation(x / 1e6) + "M"`.
-const isMode = (mode) => PORTED_MODES.includes(`${mode}`.replace(/[KMBTQ]$/, ''));
+const isMode = (mode) => PORTED_MODES.includes(`${mode}`.replace(/(QQ|[KMBTQ])$/, ''));
 const isRule = (rule) => isMode(rule) || (Array.isArray(rule) && rule.length % 2 === 1 &&
   rule.every((part, index) => (index % 2 === 0 ? isMode(part) : typeof part === 'number')));
 
@@ -67,7 +67,8 @@ describe('formatGame', () => {
     [123456, 'MenagerieStuff.Cost', '123,456'],
     [1.5e9, 'MenagerieStuff.Cost', '1.5B'],
     [1.5e8, 'Holes.TempleTorchCost', '150M'],
-    [1.2e10, 'Holes.TempleTorchCost', '12B']
+    [1.2e10, 'Holes.TempleTorchCost', '12B'],
+    [2.535579817697124e21, 'Thingies.Boss6HP', '2.54KQQ']
   ])('formatGame(%s, %s) = %s', (value, key, expected) => {
     expect(formatGame(value, key)).toBe(expected);
   });

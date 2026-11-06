@@ -25,6 +25,7 @@ const SPRITE = /^(data|etc)\//;
 const count = (value) => formatNum(Number(value) || 0, 'whole');
 // What the save holds: garbage, bottles, Shimmer and the Fractal hours
 const balance = (value) => formatGame(Number(value) || 0, 'Save.IslandCount', { whole: true });
+const shopPrice = (value) => formatGame(Number(value) || 0, 'Save.IslandShopCost', { whole: true });
 
 // The parser builds a level the save does not hold yet into its text as "undefined" (parsers/world-2/islands.ts:227 and
 // :231, Rando's "5% Loot (" + level + ")", and :261, the Shimmer shop's "+{" replaced with its bonus), so a guest's shop
@@ -47,9 +48,9 @@ const shopStatus = (row) => {
 // A levelled upgrade's count goes under its cost: beside it, the cost column pushed the table past a 384 phone
 const shopCost = (row) => {
   const upgrades = Number(row.upgrades) || 0;
-  if (upgrades <= 0) return count(row.cost);
+  if (upgrades <= 0) return shopPrice(row.cost);
   return <>
-    {count(row.cost)}
+    {shopPrice(row.cost)}
     <Box component={'span'} sx={{ display: 'block', typography: 'caption', color: 'text.secondary' }}>
       {`${formatNum(upgrades)} upgrade${upgrades === 1 ? '' : 's'}`}
     </Box>

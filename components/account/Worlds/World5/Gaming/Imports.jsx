@@ -1,6 +1,6 @@
 import { calculateSnailEncouragementForSuccessChance } from '@parsers/world-5/gaming';
 import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
-import { bitsIcon } from '@utility/gameNotation';
+import { bitsIcon, formatGame } from '@utility/gameNotation';
 import Timer from '../../../../common/Timer';
 import React from 'react';
 import RatKing from './RatKing';
@@ -55,7 +55,7 @@ const importExtras = (index, item, gaming, account, lastUpdated) => {
                                 lastUpdated={lastUpdated}/>],
       ['Nuggets', <Breakdown key={'nuggets'} asValue data={nuggets}>{formatNum(gaming?.goldNuggets ?? 0, 'whole')}</Breakdown>],
       ['Rolls', `${formatNum((maxNuggetValue ?? 0) / 1584.89, 'whole')} to ${formatNum(maxNuggetValue ?? 0, 'whole')}`],
-      ['Best nugget', formatNum(Number(gaming?.bestNugget) || 0, 'whole')],
+      ['Best nugget', formatGame(Number(gaming?.bestNugget) || 0, 'Save.BestNugget', { whole: true })],
       ['Since upgrade', account?.accountOptions?.[OPT.nuggetsSinceUpgrade] ?? 0, 'amount']
     ]}/>;
   }
@@ -75,7 +75,7 @@ const importExtras = (index, item, gaming, account, lastUpdated) => {
   }
   if (index === 6) {
     return <ItemCard.Facts rows={[
-      ['Highscore', gaming?.poingHighscore ?? 0, 'amount'],
+      ['Highscore', formatGame(gaming?.poingHighscore ?? 0, 'Save.PoingHighscore', { whole: true })],
       ['Multiplier', formatNum(gaming?.poingMulti ?? 1, 'mult')]
     ]}/>;
   }

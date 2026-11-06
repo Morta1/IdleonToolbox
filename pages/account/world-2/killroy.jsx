@@ -3,6 +3,7 @@ import { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import { formatNum, getTabs } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { getKillRoy, getKillroySchedule } from '@parsers/misc';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -29,7 +30,7 @@ const Killroy = () => {
     {killroyFailed ? <MissingData name={'Killroy'} failed atZero/> : null}
     <PageSummary>
       <StatTile label={'Skulls'} icon={'etc/Killroy_Skull.png'} value={tile(formatNum(killroy?.skulls ?? 0, 'whole'))}/>
-      <StatTile label={'Total kills'} value={tile(formatNum(killroy?.totalKills ?? 0, 'whole'))}/>
+      <StatTile label={'Total kills'} value={tile(formatGame(killroy?.totalKills ?? 0, 'Save.KillroyTotalKills', { whole: true }))}/>
       <StatTile label={'Total damage multi'} value={tile(formatNum(killroy?.totalDamageMulti ?? 1, 'mult'))}/>
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 2'].categories, 'killroy')}>
