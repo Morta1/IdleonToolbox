@@ -12,6 +12,7 @@ import Timer from '../common/Timer';
 import StatusText from '@components/common/StatusText';
 import { isSectionFailed } from '@components/common/styles';
 import Panel from '@components/common/cards/Panel';
+import { cardSurface } from '@components/common/cards/tokens';
 import AlertIcon from './AlertIcon';
 import { alertMeta } from '@utility/dashboard/alertMeta';
 import { calcHappyHours } from '@parsers/dungeons';
@@ -669,11 +670,12 @@ const TimerRow = ({
   return <Panel.Row name={title} sub={line} icon={sprite} value={linked(shown)}/>;
 };
 
-// Ready now fills the Panel's width in as many columns as its names and words hold. The board's width, not the window's:
-// a side ad leaves it 540 px at 900. One across also caps the block, so a stale save never buries Coming up.
-const ONE_ACROSS = '@container (max-width: 619.95px)';
-const TWO_ACROSS = '@container (min-width: 620px)';
-const THREE_ACROSS = '@container (min-width: 960px)';
+// The board's width sets its columns, not the window's: a side ad leaves it 540 px at 900. Ready now's first column and a
+// Coming up row's name and time share one line down the table, so the eye crosses a cell, not the full width, from a name to
+// its time. One across also caps Ready now, so a stale save never buries the rest.
+const ONE_ACROSS = '@container (max-width: 699.95px)';
+const TWO_ACROSS = '@container (min-width: 700px)';
+const THREE_ACROSS = '@container (min-width: 1100px)';
 const READY_CAP = 6;
 const READY_GRID_SX = {
   display: 'grid', gap: '1px', bgcolor: 'divider', gridTemplateColumns: 'minmax(0, 1fr)',
@@ -681,10 +683,9 @@ const READY_GRID_SX = {
   [THREE_ACROSS]: { gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }
 };
 const READY_CAPPED_SX = { [ONE_ACROSS]: { [`& > :nth-of-type(n+${READY_CAP + 1})`]: { display: 'none' } } };
-const READY_CELL_SX = {
-  minHeight: 39, pl: 1.5, pr: '14px', minWidth: 0, bgcolor: 'background.paper',
-  [ONE_ACROSS]: { minHeight: 43 }
-};
+// A row's first cell, a Ready now cell or the front of a Coming up row
+const LEAD_CELL_SX = { minHeight: 39, pl: 1.5, pr: '14px', minWidth: 0 };
+const READY_CELL_SX = { ...LEAD_CELL_SX, bgcolor: 'background.paper', [ONE_ACROSS]: { minHeight: 43 } };
 const READY_SUB_SX = { fontSize: 13, minWidth: 0, fontVariantNumeric: 'tabular-nums' };
 // A row with a sub gives its room from there: any shrink at all puts an ellipsis on the name
 const ReadyCell = ({ icon, name, sub, value }) => <Stack direction={'row'} alignItems={'center'} gap={'10px'} sx={READY_CELL_SX}>
@@ -694,7 +695,7 @@ const ReadyCell = ({ icon, name, sub, value }) => <Stack direction={'row'} align
   <Box sx={{ flexShrink: 0, display: 'inline-flex', ml: 'auto' }}>{value}</Box>
 </Stack>;
 
-// Blank cells close the block's last row, so its lines run to the Panel's edge: as many as each column count leaves open.
+// Blank cells close the block's last row, so its lines run to the board's edge: as many as each column count leaves open.
 const blanksLeft = (count, across) => (across - (count % across)) % across;
 const blankCell = (index, count) => <Box key={`blank-${index}`} aria-hidden sx={{
   bgcolor: 'background.paper', display: 'none',
@@ -702,47 +703,52 @@ const blankCell = (index, count) => <Box key={`blank-${index}`} aria-hidden sx={
   [THREE_ACROSS]: { display: index < blanksLeft(count, 3) ? 'block' : 'none' }
 }}/>;
 
-// Coming up's own width: beside the right column at 1002 it holds the row's five cells, under 580 px its two lines.
-const COMING_NARROW = '@container (max-width: 579.95px)';
+// One across, a row is its first cell with a second line. Wider, its sub, world and date take the width past Ready's first
+// column: the same width as that column, less the 1 px line between Ready's cells.
 const COMING_ROW_SX = {
-  display: 'grid', columnGap: 1.5, alignItems: 'center', minHeight: 39, pl: 1.5, pr: 2,
-  gridTemplateColumns: '24px minmax(0, 1fr) 64px 136px 92px',
-  [COMING_NARROW]: { gridTemplateColumns: '24px minmax(0, 1fr) auto', minHeight: 51, pr: 1.5 }
+  display: 'grid', alignItems: 'center', gridTemplateColumns: 'minmax(0, 1fr)',
+  [TWO_ACROSS]: { columnGap: 1.5, gridTemplateColumns: 'calc((100% - 1px) / 2) minmax(0, 1fr) 64px 150px' },
+  [THREE_ACROSS]: { gridTemplateColumns: 'calc((100% - 2px) / 3) minmax(0, 1fr) 64px 150px' }
 };
-const COMING_SUB_SX = { ml: 1, fontWeight: 400, color: 'text.secondary', [COMING_NARROW]: { display: 'none' } };
-const COMING_LINE_SX = { display: 'none', fontSize: 13, lineHeight: '18px', [COMING_NARROW]: { display: 'block' } };
+const COMING_LEAD_SX = { ...LEAD_CELL_SX, [ONE_ACROSS]: { minHeight: 51 } };
+const COMING_LINE_SX = { fontSize: 13, lineHeight: '18px', [TWO_ACROSS]: { display: 'none' } };
 // Each part whole: a line with a sub and a date wraps between them, and never cuts the date
 const COMING_PART_SX = { whiteSpace: 'nowrap' };
-const COMING_WORLD_SX = { fontSize: 12, lineHeight: '16px', color: 'text.muted', whiteSpace: 'nowrap', [COMING_NARROW]: { display: 'none' } };
+const COMING_TIME_SX = { typography: 'body2', fontWeight: 500, ml: 'auto', flexShrink: 0, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' };
+const WIDE_ONLY_SX = { display: 'none', [TWO_ACROSS]: { display: 'block' } };
+const COMING_SUB_SX = { ...WIDE_ONLY_SX, ...READY_SUB_SX, color: 'text.secondary', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' };
+const COMING_WORLD_SX = { ...WIDE_ONLY_SX, fontSize: 12, lineHeight: '16px', color: 'text.muted', whiteSpace: 'nowrap' };
 const COMING_DATE_SX = {
-  fontSize: 13, lineHeight: '18px', color: 'text.secondary', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums',
-  [COMING_NARROW]: { display: 'none' }
+  ...WIDE_ONLY_SX, fontSize: 13, lineHeight: '18px', color: 'text.secondary', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums',
+  textAlign: 'right', pr: '14px'
 };
-const COMING_TIME_SX = { typography: 'body2', fontWeight: 500, textAlign: 'right', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' };
-// A row with no date lends its cell to what it prints instead (a monument's ratio, "A long time")
-const COMING_TIME_WIDE_SX = { ...COMING_TIME_SX, gridColumn: 'span 2', [COMING_NARROW]: { gridColumn: 'auto' } };
 const ComingRow = ({ icon, name, sub, world, date, value }) => <Box sx={COMING_ROW_SX}>
-  {icon}
-  <Box sx={{ minWidth: 0 }}>
-    <Typography variant={'body2'} component={'div'} noWrap sx={{ fontWeight: 500 }}>
-      {name}{sub ? <Box component={'span'} sx={COMING_SUB_SX}>{sub}</Box> : null}
-    </Typography>
-    <Typography variant={'body2'} component={'div'} color={'text.secondary'} sx={COMING_LINE_SX}>
-      {sub ? <><Box component={'span'} sx={COMING_PART_SX}>{sub}</Box>{' · '}</> : null}
-      <Box component={'span'} sx={COMING_PART_SX}>{world}</Box>
-      {date ? <>{' · '}<Box component={'span'} sx={COMING_PART_SX}>{date}</Box></> : null}
-    </Typography>
-  </Box>
+  <Stack direction={'row'} alignItems={'center'} gap={'10px'} sx={COMING_LEAD_SX}>
+    {icon}
+    <Box sx={{ minWidth: 0 }}>
+      <Typography variant={'body2'} component={'div'} noWrap sx={{ fontWeight: 500 }}>{name}</Typography>
+      <Typography variant={'body2'} component={'div'} color={'text.secondary'} sx={COMING_LINE_SX}>
+        {sub ? <><Box component={'span'} sx={COMING_PART_SX}>{sub}</Box>{' · '}</> : null}
+        <Box component={'span'} sx={COMING_PART_SX}>{world}</Box>
+        {date ? <>{' · '}<Box component={'span'} sx={COMING_PART_SX}>{date}</Box></> : null}
+      </Typography>
+    </Box>
+    <Box sx={COMING_TIME_SX}>{value}</Box>
+  </Stack>
+  <Box sx={COMING_SUB_SX}>{sub}</Box>
   <Box sx={COMING_WORLD_SX}>{world}</Box>
-  {date ? <Box sx={COMING_DATE_SX}>{date}</Box> : null}
-  <Box sx={date ? COMING_TIME_SX : COMING_TIME_WIDE_SX}>{value}</Box>
+  <Box sx={COMING_DATE_SX}>{date}</Box>
 </Box>;
 
-// A band of Coming up: its label on the tint, every row under its own line.
-const BAND_LABEL_SX = { display: 'flex', alignItems: 'center', minHeight: 28, pl: 1.5, pr: 2, bgcolor: 'background.tint' };
+// A band of the board: its label on the tint, what it says about itself across from it, every row under its own line.
+const BAND_LABEL_SX = { minHeight: 28, pl: 1.5, pr: '14px', bgcolor: 'background.tint' };
+const BAND_NOTE_SX = { fontSize: 12, lineHeight: '20px', color: 'text.secondary', whiteSpace: 'nowrap' };
 const BAND_ROWS_SX = { '& > *': { borderTop: 1, borderColor: 'divider' } };
-const Band = ({ label, children }) => <Box>
-  <Typography variant={'groupLabel'} color={'text.secondary'} sx={BAND_LABEL_SX}>{label}</Typography>
+const Band = ({ label, note, children }) => <Box>
+  <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1.5} sx={BAND_LABEL_SX}>
+    <Typography variant={'groupLabel'} component={'h2'} color={'text.secondary'}>{label}</Typography>
+    {note ? <Box sx={BAND_NOTE_SX}>{note}</Box> : null}
+  </Stack>
   <Box sx={BAND_ROWS_SX}>{children}</Box>
 </Box>;
 
@@ -762,13 +768,13 @@ const soonestKey = ({ props }) => {
 const soonestFirst = (a, b) => soonestKey(a) - soonestKey(b) || 0;
 const problemFirst = (a, b) => (b.props.placeholderStatus === 'problem') - (a.props.placeholderStatus === 'problem');
 
-const DENSE_PANEL_SX = { overflow: 'hidden', '& > :first-of-type': { minHeight: 48 } };
-const PanelNote = ({ children }) => <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{children}</Typography>;
+const BOARD_SX = { overflow: 'hidden', '& > * + *': { borderTop: 1, borderColor: 'divider' } };
 const FOLD_BUTTON_SX = { mx: 1, my: 0.5, minHeight: { xs: 44, sm: 'auto' } };
+const SOONEST_NOTE = 'Soonest first, all worlds';
 
-// The timers as what they ask of the player: everything to act on now, then one list of what's next across all worlds,
-// beside the panels that keep their own controls. It ticks by the second, apart from Etc's heavy reads, so a row that hits
-// zero moves to Ready now on the next tick, and a list with nothing in it draws no heading.
+// The timers as what they ask of the player, in one table: everything to act on now, then what's next across all worlds. It
+// ticks by the second, apart from Etc's heavy reads, so a row that hits zero moves to Ready now on the next tick, and a band
+// with nothing in it isn't drawn. The soonest note sits on whichever band starts that order.
 const TimerBoard = ({ rows, children }) => {
   const clock = useNow(SECOND);
   const [readyOpen, setReadyOpen] = useState(false);
@@ -779,44 +785,38 @@ const TimerBoard = ({ rows, children }) => {
   const week = at('week').sort(soonestFirst);
   const later = at('later').sort(soonestFirst);
   const unread = at('unread');
-  const coming = next.length + week.length + later.length + unread.length > 0;
+  // A cap that hides one row costs more than the row: its button takes the room of the row it hides
+  const capped = ready.length > READY_CAP + 1;
   return <Stack gap={1.5} sx={{ containerType: 'inline-size' }}>
-    {ready.length ? <Panel title={'Ready now'} aside={<PanelNote>{`${formatNum(ready.length, 'whole')} to act on`}</PanelNote>} sx={DENSE_PANEL_SX}>
-      <Box sx={[READY_GRID_SX, !readyOpen && READY_CAPPED_SX]}>
-        <RowShape value={'ready'}>{ready}</RowShape>
-        {[0, 1].map((index) => blankCell(index, ready.length))}
-      </Box>
-      {ready.length > READY_CAP ? <Stack alignItems={'center'} sx={{ display: 'none', [ONE_ACROSS]: { display: 'flex' } }}>
-        <Button size={'small'} aria-expanded={readyOpen} onClick={() => setReadyOpen(!readyOpen)}
-                endIcon={readyOpen ? <IconChevronUp size={16}/> : <IconChevronDown size={16}/>} sx={FOLD_BUTTON_SX}>
-          {readyOpen ? 'Show fewer' : `Show ${formatNum(ready.length - READY_CAP, 'whole')} more`}
-        </Button>
-      </Stack> : null}
-    </Panel> : null}
-    <Box sx={{
-      display: 'grid', gap: 1.5, alignItems: 'start', gridTemplateColumns: 'minmax(0, 1fr)',
-      '@container (min-width: 800px)': { gridTemplateColumns: coming ? 'minmax(0, 1fr) minmax(320px, 32%)' : 'repeat(auto-fill, minmax(320px, 1fr))' }
-    }}>
-      {coming ? <Box sx={{ containerType: 'inline-size', minWidth: 0 }}>
-        <Panel title={'Coming up'} aside={<PanelNote>Soonest first, all worlds</PanelNote>} sx={DENSE_PANEL_SX}>
-          <RowShape value={'coming'}>
-            {next.length ? <Band label={'Next 24 hours'}>{next}</Band> : null}
-            {week.length ? <Band label={'This week'}>{week}</Band> : null}
-            {later.length ? <Band label={'Later'}>
-              <Box>
-                <Button size={'small'} aria-expanded={laterOpen} onClick={() => setLaterOpen(!laterOpen)}
-                        endIcon={laterOpen ? <IconChevronUp size={16}/> : <IconChevronDown size={16}/>} sx={FOLD_BUTTON_SX}>
-                  {laterOpen ? 'Hide later' : `Show ${formatNum(later.length, 'whole')} later`}
-                </Button>
-                <Collapse in={laterOpen}><Box sx={BAND_ROWS_SX}>{later}</Box></Collapse>
-              </Box>
-            </Band> : null}
-            {unread.length ? <Band label={'No reading'}>{unread}</Band> : null}
-          </RowShape>
-        </Panel>
-      </Box> : null}
-      <Stack gap={1.5} sx={coming ? { minWidth: 0 } : { display: 'contents' }}>{children}</Stack>
-    </Box>
+    {rows.length ? <Box component={'section'} aria-label={'Timers'} sx={[(theme) => cardSurface(theme), BOARD_SX]}>
+      {ready.length ? <Band label={'Ready now'} note={`${formatNum(ready.length, 'whole')} to act on`}>
+        <Box sx={[READY_GRID_SX, capped && !readyOpen && READY_CAPPED_SX]}>
+          <RowShape value={'ready'}>{ready}</RowShape>
+          {[0, 1].map((index) => blankCell(index, ready.length))}
+        </Box>
+        {capped ? <Stack alignItems={'center'} sx={{ display: 'none', [ONE_ACROSS]: { display: 'flex' } }}>
+          <Button size={'small'} aria-expanded={readyOpen} onClick={() => setReadyOpen(!readyOpen)}
+                  endIcon={readyOpen ? <IconChevronUp size={16}/> : <IconChevronDown size={16}/>} sx={FOLD_BUTTON_SX}>
+            {readyOpen ? 'Show fewer' : `Show ${formatNum(ready.length - READY_CAP, 'whole')} more`}
+          </Button>
+        </Stack> : null}
+      </Band> : null}
+      <RowShape value={'coming'}>
+        {next.length ? <Band label={'Next 24 hours'} note={SOONEST_NOTE}>{next}</Band> : null}
+        {week.length ? <Band label={'This week'} note={next.length ? null : SOONEST_NOTE}>{week}</Band> : null}
+        {later.length ? <Band label={'Later'} note={next.length || week.length ? null : SOONEST_NOTE}>
+          <Box>
+            <Button size={'small'} aria-expanded={laterOpen} onClick={() => setLaterOpen(!laterOpen)}
+                    endIcon={laterOpen ? <IconChevronUp size={16}/> : <IconChevronDown size={16}/>} sx={FOLD_BUTTON_SX}>
+              {laterOpen ? 'Hide later' : `Show ${formatNum(later.length, 'whole')} later`}
+            </Button>
+            <Collapse in={laterOpen}><Box sx={BAND_ROWS_SX}>{later}</Box></Collapse>
+          </Box>
+        </Band> : null}
+        {unread.length ? <Band label={'No reading'}>{unread}</Band> : null}
+      </RowShape>
+    </Box> : null}
+    <Box sx={{ display: 'grid', gap: 1.5, alignItems: 'start', gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>{children}</Box>
   </Stack>;
 };
 
