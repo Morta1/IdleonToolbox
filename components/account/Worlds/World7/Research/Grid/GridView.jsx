@@ -44,6 +44,12 @@ const gridContainerSx = {
   overflow: 'auto'
 };
 
+// The board keeps its width. The details take what's left beside it where that's a readable column (466 px at 1920, 208 at
+// 1366, under the side ad), and wrap to their own line under it where it isn't.
+const LAYOUT_SX = { display: 'flex', flexWrap: 'wrap', justifyContent: 'center', alignItems: 'flex-start', gap: 2 };
+const DETAILS_MIN = 200;
+const STICKY_GAP = 8;
+
 const CELL_BOX = {
   width: CELL_SIZE - 4,
   height: CELL_SIZE - 4,
@@ -84,8 +90,9 @@ const GridCell = ({ sq, selected, onPick }) => {
 };
 
 /** Grid view: fixed 20-column layout (the game's own index % 20 addressing), row count derived from the catalog so a
- * future grid growing past 12 rows renders without a code change. One square's details at a time, under the board. */
-const GridView = ({ squares }) => {
+ * future grid growing past 12 rows renders without a code change. One square's details at a time, pinned beside the board
+ * under the Toolbar, so they stay in view from square to square on a short window. */
+const GridView = ({ squares, stickyTop }) => {
   const [picked, setPicked] = useState(null);
   const cellCount = Math.max(squares?.length ?? 0, COLS);
   const rows = Math.ceil(cellCount / COLS);
@@ -94,13 +101,13 @@ const GridView = ({ squares }) => {
   const square = index != null ? squares?.[index] : null;
   const name = cleanUnderscore(square?.name);
 
-  return <Stack gap={2} alignItems={'center'}>
+  return <Box sx={LAYOUT_SX}>
     <Box sx={gridContainerSx} role={'group'} aria-label={'Research grid'}>
       {Array.from({ length: rows * COLS }, (_, i) => <GridCell key={i} sq={squares?.[i] ?? null} selected={i === index}
                                                                 onPick={() => setPicked(i)}/>)}
     </Box>
     {square ? <Panel title={name} meta={formatNum(square.level ?? 0, 'level', { max: Math.max(1, square.maxLv ?? 1) })}
-                     sx={{ width: '100%', maxWidth: 640 }}>
+                     sx={{ flex: `1 1 ${DETAILS_MIN}px`, maxWidth: 640, position: 'sticky', top: stickyTop + STICKY_GAP }}>
       <Stack gap={1} sx={{ px: 2, py: 1.5 }}>
         {square.description ? <ItemCard.Desc text={square.description}/> : null}
         <HiddenCapLine system={'grid'} index={index} name={name}/>
@@ -109,7 +116,7 @@ const GridView = ({ squares }) => {
         ? <Panel.KV label={'Shape multi'} value={formatNum(Number(square.shapeAffectMultiplier), 'mult')}/>
         : null}
     </Panel> : null}
-  </Stack>;
+  </Box>;
 };
 
 export default GridView;
