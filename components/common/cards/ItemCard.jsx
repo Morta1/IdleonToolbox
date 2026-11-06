@@ -1,9 +1,10 @@
 import { Fragment } from 'react';
 import NextLink from 'next/link';
-import { Box, LinearProgress, Stack, Typography } from '@mui/material';
+import { Box, LinearProgress, Link, Stack, Typography } from '@mui/material';
 import GameIcon from '@components/common/GameIcon';
 import Num, { numOrNode } from '@components/common/Num';
 import StatusText from '@components/common/StatusText';
+import WithLastWord from '@components/common/WithLastWord';
 import { formatNum, gameLines } from '@utility/helpers';
 import { useCardSize } from './CardGrid';
 import { CARD_PADDING, cardState, cardSurface, dimKeepingMeta, isNumberLike, textOf } from './tokens';
@@ -42,6 +43,9 @@ const STATUS_OWN_LINE_SX = { ...STATUS_SX, flexBasis: '100%' };
 const HEADER_SX = { '& > [data-title-row]:has(> span) + [data-aside]': { ml: -0.5 } };
 const ASIDE_SX = { alignSelf: 'flex-start', flexShrink: 0, '&:empty': { display: 'none' } };
 
+// The › of a thing that opens a page: at a link card's top right, and after a title that is a link.
+const LinkMark = ({ sx }) => <Box component={'span'} aria-hidden={'true'} sx={{ color: 'text.muted', ...sx }}>›</Box>;
+
 // "Lv 458" with its cap a step dimmer (Cards board).
 const levelLine = ({ value, max }) => {
   const [current, cap] = formatNum(value, 'level', { max }).split(' / ');
@@ -69,8 +73,7 @@ export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title
     </Box>
     {aside || link ? <Stack data-aside direction={'row'} alignItems={'center'} gap={1} sx={ASIDE_SX}>
       {aside}
-      {link ? <Box component={'span'} aria-hidden={'true'}
-                   sx={{ color: 'text.muted', fontSize: 22, lineHeight: '20px' }}>›</Box> : null}
+      {link ? <LinkMark sx={{ fontSize: 22, lineHeight: '20px' }}/> : null}
     </Stack> : null}
   </Stack>;
 };
@@ -107,6 +110,13 @@ const ItemCard = ({ href, onClick, prefetch, status, dimmed, keepMeta, size, foo
       : null}
   </Box>;
 };
+
+// A title that opens a page while the card stays a card, in the title's own color: a phone has no hover to find it by, so
+// the › says so. inline-block keeps it out of the hover's underline.
+const TitleLink = ({ text, onClick }) => <Link component={'button'} type={'button'} color={'inherit'} onClick={onClick}
+                                               sx={{ font: 'inherit', textAlign: 'left', verticalAlign: 'baseline' }}>
+  <WithLastWord text={text}><LinkMark sx={{ display: 'inline-block', ml: 0.5 }}/></WithLastWord>
+</Link>;
 
 // The game's text, its "@" turned into lines, except a break the game made mid-sentence to fit its box, which joins
 // with a space (gameLines' sentences); an array is lines the page built itself, one each; children for text the page
@@ -210,6 +220,7 @@ const Cost = ({ icon, iconAlt = '', need, have, game = 'Big', format, needBelow 
     : <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>{amounts}{needLine}</Stack>;
 };
 
+ItemCard.TitleLink = TitleLink;
 ItemCard.Desc = Desc;
 ItemCard.Facts = Facts;
 ItemCard.Stats = Stats;

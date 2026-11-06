@@ -1,5 +1,5 @@
 import React from 'react';
-import { Divider, Link, Stack, Typography } from '@mui/material';
+import { Divider, Stack, Typography } from '@mui/material';
 import { formatNum } from '@utility/helpers';
 import ItemDisplay, { ItemLine } from '@components/common/ItemDisplay';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -39,9 +39,7 @@ const statLines = (item) => {
 export const catalogCard = (item, meta) => {
   const lines = statLines(item);
   return <ItemCard key={item?.rawName} icon={`data/${item?.rawName}.png`} dimmed={!item?.isAcquired} keepMeta
-                   title={<Link component={'button'} color={'inherit'}
-                                onClick={() => openItemWikiPage(item?.rawName)}
-                                sx={{ font: 'inherit', textAlign: 'left', verticalAlign: 'baseline' }}>{itemName(item)}</Link>}
+                   title={<ItemCard.TitleLink text={itemName(item)} onClick={() => openItemWikiPage(item?.rawName)}/>}
                    meta={meta}>
     {lines.length ? <ItemCard.Desc text={lines}/> : null}
   </ItemCard>;
