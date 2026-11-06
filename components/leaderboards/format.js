@@ -203,4 +203,5 @@ export const buildMetaIndex = (meta) => {
 export const metaOf = (index, key) => index.byKey[key]
   ?? { key, label: key.camelToTitleCase(), section: '', notation: 'default', category: null };
 
-export const profileUrl = (name) => `${process.env.NEXT_PUBLIC_IT_URL}/account/misc/general?profile=${encodeURIComponent(name)}`;
+export const profilePath = (name) => `/account/misc/general?profile=${encodeURIComponent(name)}`;
+export const profileUrl = (name) => `${process.env.NEXT_PUBLIC_IT_URL}${profilePath(name)}`;

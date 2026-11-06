@@ -70,7 +70,7 @@ const GroupTitle = ({ icon: Icon, children }) => <Typography variant="groupLabel
   {children}
 </Typography>;
 // A key as a key cap (Search board).
-const Kbd = ({ sx, ...props }) => <Box component="kbd" {...props} sx={[{
+export const Kbd = ({ sx, ...props }) => <Box component="kbd" {...props} sx={[{
   display: 'inline-flex', alignItems: 'center', height: 22, px: 0.75, border: 1, borderColor: 'outline', borderRadius: 1,
   fontSize: 11.5, color: 'text.secondary', fontFamily: 'inherit'
 }, sx]}/>;
@@ -108,6 +108,10 @@ const ResultRow = ({ row, selected, onOpen, hrefFor }) => <Box component="li" da
     </Stack> : null}
   </Box>
 </Box>;
+
+// The bar's panel, for a page that offers the search itself (the 404): what the bar's button does, as of the last render.
+let openPanel = null;
+export const openQuickSearch = () => openPanel?.();
 
 const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
   const [searchOpen, setSearchOpen] = useState(false);
@@ -342,6 +346,13 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
       });
     }
   };
+
+  useEffect(() => {
+    openPanel = handleSearchOpen;
+    return () => {
+      openPanel = null;
+    };
+  });
 
   // MUI's own Esc closes the open panel; a second handler here would report the search twice.
   useHotkeys([
