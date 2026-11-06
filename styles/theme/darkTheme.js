@@ -200,6 +200,8 @@ const lightPalette = {
   // active: an unpressed toggle's label and an icon, full ink in dark, where MUI's 54% sits under text.muted.
   // disabled: MUI's 26% is 1.9:1 on white; 38% is what dark's reads at (2.7:1).
   action: { active: 'rgba(0, 0, 0, 0.87)', hover: 'rgba(0, 0, 0, 0.04)', selected: 'rgba(0, 0, 0, 0.08)', disabled: 'rgba(0, 0, 0, 0.38)' },
+  // A bar's track, the divider's grey. MUI lightens the bar's own color, and at 0% that pale blue reads as a filled bar.
+  LinearProgress: Object.fromEntries(['primary', 'secondary', 'error', 'info', 'success', 'warning'].map((color) => [`${color}Bg`, 'rgba(0, 0, 0, 0.12)'])),
   series: SERIES.light,
   identity: lightIdentity
 };
