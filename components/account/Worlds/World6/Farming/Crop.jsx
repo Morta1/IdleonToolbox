@@ -10,10 +10,10 @@ import IconTile from '@components/common/cards/IconTile';
 import GameIcon from '@components/common/GameIcon';
 
 // The Crop Scientist's lines as the game prints them: the percent lines in Big (FarmingStuffs.CropSCbonus), critters
-// as a flat +, the two multipliers in the mult kind (the game's own switch for them is short in gameNotation).
+// as a flat +, the two multipliers in their own switch (FarmingStuffs.CropSCbonus_Multi). A line not earned yet is 0x.
 const MULTI_STATS = ['gamingEvo', 'cookingSpeed'];
 const depotValue = (stat, value) => (stat === 'critters' ? `+${formatGame(value, 'FarmingStuffs.CropSCbonus')}`
-  : MULTI_STATS.includes(stat) ? formatNum(value, 'mult') : `${formatGame(value, 'FarmingStuffs.CropSCbonus')}%`);
+  : MULTI_STATS.includes(stat) ? (value ? `${formatGame(value, 'FarmingStuffs.CropSCbonus_Multi')}x` : formatNum(value, 'mult')) : `${formatGame(value, 'FarmingStuffs.CropSCbonus')}%`);
 
 const Crop = ({ crop, maxTimes, cropDepot }) => {
   return <>

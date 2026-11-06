@@ -73,7 +73,7 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
                          meta={`${activityIcon} · Floor ${floor + 1}`}>
           <ItemCard.Facts rows={[
             ninjaDetection ? ['Detection', formatDetection(ninjaDetection.detection)] : null,
-            hasDoor ? ['Door HP', `${formatNum(doorHp)} / ${formatNum(doorMaxHps?.[floor])}`] : null
+            hasDoor ? ['Door HP', `${formatGame(doorHp, 'Ninja.DoorMaxHP')} / ${formatGame(doorMaxHps?.[floor], 'Ninja.DoorMaxHP')}`] : null
           ]}/>
           <ItemCard.Section label={'Equipped'}>
             {/* One row of slots at every width, as the game draws them */}

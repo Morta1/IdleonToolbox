@@ -7,6 +7,8 @@ import { AppContext } from '@components/common/context/AppProvider';
 import Plot from '@components/account/Worlds/World6/Farming/Plot';
 import Crop from '@components/account/Worlds/World6/Farming/Crop';
 import { formatNum, getTabs } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import Num from '@components/common/Num';
 import RankDatabase from '@components/account/Worlds/World6/Farming/RankDatabase';
 import LandRankOptimizer from '@components/account/Worlds/World6/Farming/UpgradeOptimizer';
 import { PAGES } from '@components/constants';
@@ -66,9 +68,10 @@ const Farming = () => {
   const enableNano = hasNanoAndGordonius() || Boolean(settings?.forceNano);
 
   const farmingExp = getSkillExpMulti('farming', selectedCharacter, characters, account);
-  // The parser titles this breakdown with its own partial copy of the game's switch ("515622Mx"): the drawer totals
-  // the number instead, so it reads like the tile and every other drawer (×516B)
-  const farmingExpBreakdown = farmingExp?.breakdown ? { ...farmingExp.breakdown, totalValue: farmingExp?.value } : undefined;
+  const farmingExpText = farmingExp?.value > 0 ? `${formatGame(farmingExp.value, 'FarmingStuffs.FarmingEXP')}x` : formatNum(farmingExp?.value, 'mult');
+  // The parser titles this breakdown with its own partial copy of the game's switch ("515622Mx"): the drawer totals the
+  // tile's own text
+  const farmingExpBreakdown = farmingExp?.breakdown ? { ...farmingExp.breakdown, totalValue: farmingExpText } : undefined;
 
   return <SummaryFailed value={sectionFailed}>
     <NextSeo
@@ -100,17 +103,17 @@ const Farming = () => {
     {sectionFailed ? null : <NotReached name={'Farming'} reached={farming?.cropsFound > 0 || plot?.some(({ seedType }) => seedType !== -1)}/>}
     <PageSummary failed={sectionFailed}>
       {/* breakdownTitle: the drawer takes the tile's name; the breakdown's own stays its link and pin key */}
-      <StatTile label={'Bean Trade'} icon={'data/Quest80_x1.png'} value={formatNum(Math.round(beanTrade ?? 0))}
+      <StatTile label={'Bean Trade'} icon={'data/Quest80_x1.png'} value={formatGame(Math.round(beanTrade ?? 0), 'FarmingStuffs.BeanTradeQTY')}
                 breakdown={stats?.magicBean} breakdownTitle={'Bean Trade'}/>
       <StatTile label={'Insta Grow'} value={instaGrow ?? 0} kind={'amount'}/>
       <StatTile label={'Rank points'} value={`${formatNum(usedPoints ?? 0)} / ${formatNum(totalPoints ?? 0)}`}/>
       <StatTile label={'Crops found'} value={farming?.cropsFound ?? 0} kind={'amount'}/>
       {stats ? <>
-        <StatTile label={'Growth Speed'} value={formatNum(stats?.growthSpeed?.totalValue, 'mult')}
+        <StatTile label={'Growth Speed'} value={<Num value={stats?.growthSpeed?.totalValue} game={'FarmingStuffs.GrowthRate'} unit={'x'}/>}
                   breakdown={stats?.growthSpeed}/>
         <StatTile label={'OG Chance Multi'} value={formatNum(stats?.ogChance?.totalValue, 'mult')}
                   breakdown={stats?.ogChance} breakdownTitle={'OG Chance Multi'}/>
-        <StatTile label={'Farming EXP'} value={formatNum(farmingExp?.value, 'mult')} breakdown={farmingExpBreakdown}
+        <StatTile label={'Farming EXP'} value={farmingExpText} breakdown={farmingExpBreakdown}
                   breakdownTitle={'Farming EXP'}/>
         <StatTile label={'Land Rank EXP'} value={formatNum(stats?.landRankExp?.totalValue, 'mult')}
                   breakdown={stats?.landRankExp}/>

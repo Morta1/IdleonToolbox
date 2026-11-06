@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Box } from '@mui/material';
 import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
-import { clickerAmount, formatGame, poppyFill } from '@utility/gameNotation';
+import { formatGame } from '@utility/gameNotation';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import Tabber from '@components/common/Tabber';
 import Upgrades from '@components/account/Worlds/World2/Kangaroo/Upgrades';
@@ -17,7 +17,9 @@ import ItemCard from '@components/common/cards/ItemCard';
 import StatusText from '@components/common/StatusText';
 import { getKangaroo } from '@parsers/world-2/kangaroo';
 
-const bonusText = ({ bonus, percentage }) => `${bonus > 0 ? '+' : ''}${poppyFill(bonus)}${percentage ? '%' : ''}`;
+const bonusText = ({ bonus, percentage }) => `${bonus > 0 ? '+' : ''}${formatGame(bonus ?? 0, 'Summoning.RooBonuses')}${percentage ? '%' : ''}`;
+// The game's fish line rounds up before its commas (N.js, the Poppy panel), a step its rule's Comma doesn't hold
+const fishText = (key) => (value) => formatGame(Math.ceil(value), key, { whole: true });
 
 const Kangaroo = () => {
   const { state } = useContext(AppContext);
@@ -36,20 +38,20 @@ const Kangaroo = () => {
     />
     {failed ? <MissingData name={'Kangaroo'} failed atZero/> : null}
     <PageSummary>
-      <StatTile label={'Fish'} icon={'etc/KFish.png'} value={number(kangaroo?.totalFish, clickerAmount)}/>
+      <StatTile label={'Fish'} icon={'etc/KFish.png'} value={number(kangaroo?.totalFish, fishText('Save.RooFish'))}/>
       <StatTile label={'Fish per minute'} value={number(fishRate, formatNum)}/>
       <StatTile label={'Fish per hour'} value={number(fishRate * 60, formatNum)}/>
       <StatTile label={'Next upgrade'} value={failed || kangaroo?.nextLvReq == null ? '-' : kangaroo.nextLvReq > 0
-        ? `${formatGame(kangaroo.progress, 'Summoning.RooNextUpgReq', { whole: true })} / ${formatGame(kangaroo.nextLvReq, 'Summoning.RooNextUpgReq', { whole: true })}`
+        ? `${formatGame(kangaroo.progress, 'Save.RooFishCaught', { whole: true })} / ${formatGame(kangaroo.nextLvReq, 'Summoning.RooNextUpgReq', { whole: true })}`
         : <StatusText status={'done'}>All unlocked</StatusText>}/>
       <StatTile label={'Tar fish'} icon={'etc/KTar.png'}
-                value={number(kangaroo?.totalTarFishOwned, clickerAmount)}/>
+                value={number(kangaroo?.totalTarFishOwned, fishText('Save.RooTarFish'))}/>
       <StatTile label={'Tar fish per hour'}
-                value={failed || !(kangaroo?.tarFishRate > 0) ? '-' : tarPitOpen ? formatNum(3600 / kangaroo.tarFishRate) : '0'}/>
+                value={failed || !(kangaroo?.tarFishRate > 0) ? '-' : tarPitOpen ? formatGame(3600 / kangaroo.tarFishRate, 'Summoning.RooCatchREQ_T') : '0'}/>
       <StatTile label={'Shiny progress'} icon={'etc/KShiny.png'}
-                value={number(kangaroo?.shinyProgress, (value) => formatNum(value, 'pct'))}/>
-      <StatTile label={'Shiny per minute'} value={number(kangaroo?.shinyRatePercent, (value) => `${poppyFill(value)}%`)}/>
-      <StatTile label={'Average reset points'} value={number(kangaroo?.avgResetPoints, clickerAmount)}/>
+                value={number(kangaroo?.shinyProgress, (value) => `${formatGame(value, 'Summoning.RooCatchREQ_S')}%`)}/>
+      <StatTile label={'Shiny per minute'} value={number(kangaroo?.shinyRatePercent, (value) => formatNum(value, 'pct'))}/>
+      <StatTile label={'Average reset points'} value={number(kangaroo?.avgResetPoints, (value) => formatNum(Math.ceil(value), 'whole'))}/>
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['clickers'].categories, 'kangaroo')}>
       <Upgrades upgrades={kangaroo?.upgrades} failed={failed} fish={kangaroo?.totalFish ?? 0}/>

@@ -46,7 +46,7 @@ const observationCard = (obs) => {
     <ItemCard.Facts rows={[
       ['Research LV needed', formatNum(obs?.researchLvReq ?? 0)],
       ['Insight LV', formatNum(obs?.insightLevel ?? 0)],
-      obs?.found ? ['Insight EXP', `${formatNum(obs.insightExp ?? 0)} / ${formatNum(obs.insightExpREQ ?? 0, 'whole')}`] : null,
+      obs?.found ? ['Insight EXP', `${formatGame(obs.insightExp ?? 0, 'Save.ObservationExp')} / ${formatNum(obs.insightExpREQ ?? 0, 'whole')}`] : null,
       obs?.found ? [<React.Fragment key={'displayed'}>
         Displayed insight per hour <InfoButton label={'Displayed insight per hour'}>Insight EXP per hour as the
         game shows it: the insight rate times the Research EXP multi. Insight levels slower than this.</InfoButton>

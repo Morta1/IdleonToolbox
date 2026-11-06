@@ -44,9 +44,9 @@ const ZenithMarket = () => {
     {!section || sectionFailed ? <MissingData name={'Zenith Market'} failed={sectionFailed} atZero={!isParseFailed(account)}/>
       : <NotReached name={'the Zenith Market'} reached={clusters > 0 || market?.some(({ level }) => level > 0)}/>}
     <PageSummary failed={sectionFailed}>
-      {/* The market's own print, so the balance reads as its costs do */}
+      {/* The market's own balance line, in commas with its scales */}
       <StatTile label={'Zenith clusters'} icon={CLUSTER_ICON}
-                value={<Num value={clusters ?? 0} game={'Thingies.ZenithMarketCost'} whole/>}/>
+                value={<Num value={clusters ?? 0} game={'Save.ZenithClusters'} whole/>}/>
       <StatTile label={'Clusters in inventories'} value={totalInventoryClusters} kind={'whole'} failed={false}
                 breakdown={inventoryBreakdown} breakdownTitle={'Clusters in inventories'}/>
       <StatTile label={'Total upgrade LV'} value={account?.spelunking?.saveTotals?.zenithMarketUpgradeLevels ?? 0}

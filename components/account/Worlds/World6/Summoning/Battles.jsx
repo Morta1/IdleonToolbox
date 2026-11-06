@@ -1,5 +1,6 @@
 import { Box, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { cleanUnderscore } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import React from 'react';
 import { getEndlessBattles, SUMMONING_COLOURS } from '@parsers/world-6/summoning';
 import StatTile from '@components/common/cards/StatTile';
@@ -22,8 +23,8 @@ const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel, winnerB
   return <>
     {/* A row that wraps, so a long number never breaks mid-word on a phone */}
     <Stack mb={1} direction={'row'} gap={1} flexWrap={'wrap'}>
-      <StatTile icon={'data/SumUpgIc3.png'} label={'Army damage'} value={formatNum(armyDamage)}/>
-      <StatTile icon={'data/SumUpgIc1.png'} label={'Army health'} value={formatNum(armyHealth)}/>
+      <StatTile icon={'data/SumUpgIc3.png'} label={'Army damage'} value={formatGame(armyDamage, 'Summoning.UnitDMG')}/>
+      <StatTile icon={'data/SumUpgIc1.png'} label={'Army health'} value={formatGame(armyHealth, 'Summoning.UnitHP')}/>
     </Stack>
 
     <Box>

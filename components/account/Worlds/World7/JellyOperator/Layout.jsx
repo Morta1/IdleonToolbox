@@ -19,8 +19,8 @@ const MARKERS = [
   { key: 'proximity', icon: 'etc/JellyProximity.png', label: 'Next to the obstruction' }
 ];
 
-// A placed cell's details, a tap or a click away (Decision 5). Decision 12: DPS has no gameNotation key, so the
-// amount kind, one format with the Cells tab.
+// A placed cell's details, a tap or a click away (Decision 5). DPS is the game's cell card, one format with the Cells
+// tab; the boosted one is the board's own number, which the game doesn't print, so the amount kind.
 const UnitNote = ({ cell, unit }) => {
   const boosts = [
     unit?.speedBoost > 1 ? { icon: 'etc/JellySpeedArrow.png', text: `Organelle: ${formatNum(unit.speedBoost, 'mult')} SPD` } : null,
@@ -36,7 +36,7 @@ const UnitNote = ({ cell, unit }) => {
   return (
     <Stack gap={0.5}>
       <Typography variant={'body2'}>{cell?.name}</Typography>
-      <Panel.KV label={'DPS'} value={formatNum(cell?.dps ?? 0)}/>
+      <Panel.KV label={'DPS'} value={cell?.dps ?? 0} kind={{ game: 'JellyOperation.CellDPS' }}/>
       {cell?.passive ? <Panel.KV label={'Passive'} value={cell.passive}/> : null}
       {cell?.effect ? <Typography variant={'body2'}>{cell.effect}</Typography> : null}
       {boosts.length > 0 ? <>
@@ -79,7 +79,7 @@ const Layout = ({ layout, cells }) => {
       {showPassives ? (
         <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
           <StatTile label={'Passive damage'} value={<Num value={passives.damage} game={'JellyOperation.UnitSumAtk'} unit={'x'}/>}/>
-          <StatTile label={'Passive speed'} value={formatNum(passives.speed, 'mult')}/>
+          <StatTile label={'Passive speed'} value={<Num value={passives.speed} game={'JellyOperation.UnitSumAtkCD'} unit={'x'}/>}/>
           <StatTile label={'Virus stars'} icon={'etc/JellyStar.png'} value={formatNum(passives.stars)}
                     sub={`${formatNum(passives.stars / 10, 'mult', { signed: true })} DMG`}/>
         </Stack>

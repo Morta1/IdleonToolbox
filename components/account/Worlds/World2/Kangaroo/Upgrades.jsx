@@ -1,10 +1,12 @@
 import { cleanUnderscore, formatNum } from '@utility/helpers';
-import { clickerAmount, formatGame } from '@utility/gameNotation';
+import { formatGame } from '@utility/gameNotation';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 
 // The Tar Pit opens 3 upgrades with Megafish 1, 3 more with Megafish 5 and the last 2 with Megafish 8
 const TAR_MEGAFISH = (index) => (index < 3 ? 1 : index < 6 ? 5 : 8);
+// The game's cost line rounds up before its commas (N.js, the Poppy panel), a step its rule's Comma doesn't hold
+const costText = (key) => (value) => formatGame(Math.ceil(value), key, { whole: true });
 
 const Upgrades = ({ upgrades, isTar, failed, fish, tarFish }) => <CardGrid size={'m'}>
   {(upgrades ?? []).map(({ name, desc, level, cost, unlocked, x3 }, index) => <ItemCard key={index}
@@ -19,7 +21,7 @@ const Upgrades = ({ upgrades, isTar, failed, fish, tarFish }) => <CardGrid size=
                                                                                         : <ItemCard.Cost icon={`etc/K${isTar ? 'Tar' : 'Fish'}.png`}
                                                                                                          iconAlt={isTar ? 'Tar fish' : 'Fish'}
                                                                                                          need={cost} have={isTar ? tarFish : fish}
-                                                                                                         format={clickerAmount}/>}>
+                                                                                                         format={costText(isTar ? 'Summoning.RooCost_T' : 'Summoning.RooCost')}/>}>
     <ItemCard.Desc text={cleanUnderscore(desc)}/>
   </ItemCard>)}
 </CardGrid>;

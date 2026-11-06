@@ -78,16 +78,6 @@ export const cashMultiText = (value) => (value > 1e16 || value <= 1e7 ? formatGa
 // stays whole; every other god's is a bonus, with its decimals.
 export const minorBonusText = (bonus, isArctis) => (isArctis ? String(Math.ceil(bonus)) : formatGame(bonus, 'Divinity.DivMinorBonus'));
 
-// The game's Orion and Poppy screens (N.js, every cost and the feather, fish and tar fish balances): commas under 10M,
-// rounded up, Big from there. Summoning.OwlCost and Summoning.RooCost_T hold only the Big arm, and a fish cost has no key.
-export const clickerAmount = (value) => {
-  if (value == null || Number.isNaN(value)) return '-';
-  return 9999999 > value ? commaNotation(Math.ceil(value)) : String(notateNumber(value, 'Big'));
-};
-
-// Poppy's bonuses: the rule, then the game's fill from 1M up (N.js, the Poppy panel: commas).
-export const poppyFill = (value) => (SHORT_FROM <= value ? commaNotation(value) : fullDigits(value ?? 0));
-
 // A Tome entry's quantity, the game's fill: Big past 1e9 on a log curve (x2 1), two decimals on an x4 entry, commas
 // otherwise. One rule for the Tome's Overview and Rankings. The player's own quantity takes the site's rule below 1M;
 // whole is a quantity an entry asks for, which keeps the game's fill.

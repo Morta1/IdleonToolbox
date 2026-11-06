@@ -7,6 +7,7 @@ import Upgrades from '@components/account/Worlds/World6/Summoning/Upgrades';
 import { formatDuration, formatNum, getTabs, secondsToShortDuration } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import Num from '@components/common/Num';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 import Battles from '@components/account/Worlds/World6/Summoning/Battles';
 import { PAGES } from '@components/constants';
@@ -77,7 +78,7 @@ const Summoning = () => {
       <StatTile icon={'data/SumExp.png'} label={'Unclaimed familiar EXP'} value={`${formatNum(pendingExp?.exp, 'whole')} EXP`}
                 sub={<>{claimText}{maxGain > 0 ? <>{', '}<Breakdown asValue data={levelGainsBreakdown}>
                   {`+${gainRange} Lv`}</Breakdown></> : null}</>}/>
-      <StatTile label={'Summoning EXP multi'} value={formatNum(familiarExp?.expMulti ?? 1, 'mult')}
+      <StatTile label={'Summoning EXP multi'} value={<Num value={familiarExp?.expMulti ?? 1} game={'Summoning.SummEXPgain'} unit={'x'}/>}
                 breakdown={familiarExp?.expMultiBreakdown}/>
       {Object.keys(summonEssenceColor).map((key) => {
         const index = Number(key);

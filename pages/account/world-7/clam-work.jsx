@@ -97,9 +97,9 @@ const ClamWork = () => {
       : <NotReached name={'Clam Work'} reached={ownedPearls > 0 || upgrades?.some(({ level }) => level > 0)}/>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Worker class'} value={formatNum(workerClass, 'level')}/>
-      {/* Every pearl cost prints in this rule (Thingies.Clam_Cost), so the balance does too */}
+      {/* The game's balance line: commas under 1e9, where a pearl cost goes Big from 1M */}
       <StatTile label={'Pearls'} icon={'data/ClamPearl0.png'}
-                value={<Num value={ownedPearls ?? 0} game={'Thingies.Clam_Cost'} whole/>}/>
+                value={<Num value={ownedPearls ?? 0} game={'Save.ClamPearls'} whole/>}/>
       <StatTile label={'Promotion chance'} value={(promotionChance ?? 0) * 100} kind={'pct'}/>
       <StatTile label={'Promotion cost'} value={formatGame(promotionCost ?? 0, 'Thingies.Clam_Cost', { whole: true })}/>
       <StatTile label={'Pearl value multiplier'} value={formatGame(pearlValue ?? 1, 'Thingies.ClamPearlValue')}/>

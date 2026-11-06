@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { Box, Stack } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
 import { formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 import { getCharacterTaskProgress } from '@parsers/world-7/button';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
@@ -14,11 +15,11 @@ import { PRESSES_PER_BONUS } from './Bonuses';
 
 const TASKS_TOOLBAR = { cycle: 0, hideReady: false };
 
-// Decision 13: task progress has no game rule, so the amount kind (a requirement that scales by a power reads whole,
-// as its sentence does). A save balance can arrive as a numeric string (Jade's "3.85e124"): it is a number, not ∞.
-const amount = (value) => {
+// The game's task line, whole (a requirement that scales by a power reads whole, as its sentence does). A save balance
+// can arrive as a numeric string (Jade's "3.85e124"): it is a number, not ∞.
+const amount = (value, key = 'Minehead.Button_REQ') => {
   const number = typeof value === 'string' ? Number(value) : value;
-  return Number.isFinite(number) ? formatNum(number, 'whole') : '∞';
+  return Number.isFinite(number) ? formatGame(number, key, { whole: true }) : '∞';
 };
 
 // A task's next five requirements, as a list: the first is the next time the task comes up
@@ -98,7 +99,7 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, cycleLength, pressesIntoCu
             return <Panel.Row key={task.pressNumber} name={task.description} sub={sub || undefined}
                               value={isReady(task)
                                 ? <StatusText status={'ready'}/>
-                                : `${amount(progress)} / ${amount(task.requirement)}`}
+                                : `${amount(progress, 'Minehead.Button_uHave')} / ${amount(task.requirement)}`}
                               valueSub={task.futureRequirements?.length
                                 ? <Breakdown asValue data={upcoming(task)} title={task.description}>
                                   {`Next ${amount(task.futureRequirements[0])}`}

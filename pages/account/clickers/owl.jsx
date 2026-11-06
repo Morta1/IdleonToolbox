@@ -3,7 +3,7 @@ import { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Box } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
-import { clickerAmount, formatGame } from '@utility/gameNotation';
+import { formatGame } from '@utility/gameNotation';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -16,8 +16,11 @@ import { getOwl } from '@parsers/world-1/owl';
 
 // The game fills Orion's bonuses with the raw number (N.js, the Orion panel): commas and no K. Shiny Feather is a count
 const bonusText = ({ name, bonus, percentage }) => (name === 'Shiny Feather'
-  ? formatNum(bonus ?? 0)
+  ? formatGame(bonus ?? 0, 'Save.OwlShinyFeathers')
   : `${formatNum(bonus ?? 0, 'exact', { signed: true })}${percentage ? '%' : ''}`);
+
+// The game's cost and balance lines round up before their commas (N.js, the Orion panel), a step the rule's Comma doesn't hold
+const costText = (value) => formatGame(Math.ceil(value), 'Summoning.OwlCost', { whole: true });
 
 const Owl = () => {
   const { state } = useContext(AppContext);
@@ -35,11 +38,11 @@ const Owl = () => {
     />
     {failed ? <MissingData name={'Owl'} failed atZero/> : null}
     <PageSummary>
-      <StatTile label={'Feathers'} icon={'etc/Owlb_0.png'} value={failed ? '-' : clickerAmount(feathers)}/>
+      <StatTile label={'Feathers'} icon={'etc/Owlb_0.png'} value={failed ? '-' : formatGame(Math.ceil(feathers), 'Save.OwlFeathers', { whole: true })}/>
       <StatTile label={'Feathers per second'} value={failed ? '-' : formatGame(featherRate, 'Summoning.OwlFeatherRate')}/>
       <StatTile label={'Feathers per hour'} value={failed ? '-' : formatGame(featherRate * 3600, 'Summoning.OwlFeatherRate')}/>
       <StatTile label={'Next upgrade'} value={failed || owl?.nextLvReq == null ? '-' : owl.nextLvReq > 0
-        ? `${formatGame(owl.progress, 'Summoning.OwlNextUpgReq', { whole: true })} / ${formatGame(owl.nextLvReq, 'Summoning.OwlNextUpgReq', { whole: true })}`
+        ? `${formatGame(owl.progress, 'Save.OwlFeathersProduced', { whole: true })} / ${formatGame(owl.nextLvReq, 'Summoning.OwlNextUpgReq', { whole: true })}`
         : <StatusText status={'done'}>All unlocked</StatusText>}/>
     </PageSummary>
     <CardGrid size={'m'} sx={{ mb: 3, alignItems: 'start' }}>
@@ -71,7 +74,7 @@ const Owl = () => {
                                                                                                footer={failed ? null : unlocked
                                                                                                  ? <ItemCard.Cost icon={'etc/Owlb_0.png'} iconAlt={'Feathers'}
                                                                                                                   need={cost} have={feathers}
-                                                                                                                  format={clickerAmount}/>
+                                                                                                                  format={costText}/>
                                                                                                  : <ItemCard.Facts rows={[['Unlocks at', `${formatGame(Number(x3), 'Summoning.OwlNextUpgReq', { whole: true })} feathers made`]]}/>}>
         <ItemCard.Desc text={cleanUnderscore(desc)}/>
       </ItemCard>)}

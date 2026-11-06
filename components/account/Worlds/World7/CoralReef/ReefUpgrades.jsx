@@ -23,6 +23,7 @@ const unlocksOf = (reef, index) => createBreakdown(`Reef upgrade ${index + 1} un
     note: fillUnlock(item)
   }))), { combine: 'list' });
 
+// The game rounds a reef cost up before its commas (N.js, the reef panel)
 const ReefUpgrades = ({ reefUpgrades, ownedCorals }) => <CardGrid size={'m'}>
   {reefUpgrades?.map((reef, index) => {
     const maxed = reef?.x1 > 0 && (reef?.level ?? 0) >= reef.x1;
@@ -32,7 +33,8 @@ const ReefUpgrades = ({ reefUpgrades, ownedCorals }) => <CardGrid size={'m'}>
                      level={{ value: reef?.level ?? 0, max: reef?.x1 ?? null }} status={maxed ? 'maxed' : undefined}
                      dimmed={!(reef?.level > 0)}
                      footer={reef?.cost !== undefined
-                       ? <ItemCard.Cost icon={'data/Coral0.png'} iconAlt={'Coral'} need={reef.cost} have={ownedCorals}/>
+                       ? <ItemCard.Cost icon={'data/Coral0.png'} iconAlt={'Coral'} need={Math.ceil(reef.cost)} have={ownedCorals}
+                                        game={'Thingies.ReefCost'}/>
                        : null}>
       {unlocks
         ? <ItemCard.Facts rows={[['Unlocks', <Breakdown key={'unlocks'} asValue data={unlocks} title={'Unlocks'}>

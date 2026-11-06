@@ -31,9 +31,8 @@ const Minehead = () => {
     upgrades,
     opponents
   } = section ?? {};
-  // Decision 13: Minehead.CurrencyGain's stored rule is short of the game's switch, so the amount kind; the drawer reads
-  // the tile's own text
-  const perHourText = formatNum(currencyGain ?? 0);
+  // The drawer reads the tile's own text
+  const perHourText = formatGame(currencyGain ?? 0, 'Minehead.CurrencyGain');
 
   return <SummaryFailed value={sectionFailed}>
     <NextSeo

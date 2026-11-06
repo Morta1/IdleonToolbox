@@ -6,7 +6,7 @@ import ItemCard from '@components/common/cards/ItemCard';
 
 // The first coral is paid from the reef's own coral (Spelunk[4][5]), the others from their coral item in the chest and
 // inventories (the game's _ItemsAndStorageOWNED check): balances[index]. The game rounds the cost up (Math.ceil) before
-// it compares and prints it; both sides print in Big, coral's one rule (the Summary, the reef costs).
+// it compares and prints it. Both sides print in Big: the game's own line is that bare number, no commas at any size.
 const DancingCoral = ({ dancingCoral, balances }) => <CardGrid size={'m'}>
   {dancingCoral?.map((coral, index) => {
     const towerName = coral?.tower?.name ? cleanUnderscore(coral.tower.name) : null;

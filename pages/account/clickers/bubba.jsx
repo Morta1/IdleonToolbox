@@ -19,15 +19,19 @@ const megafleshText = ({ description, totalBonus }) => cleanUnderscore(totalBonu
   ? `${description ?? ''}`.replace(':$', () => ': $').replace('$', () => totalBonus)
   : `${description ?? ''}`);
 
-// The game's own bonus lines: every one signed but "{%_XP_Multi"
+// The game's own bonus lines (Bubbastuff.BubbaRoG_Bonuses): every one signed but "{%_XP_Multi"
 const XP_MULTI = 'EXP Multi';
+const bonusText = ({ name, bonus, isNegative }) => {
+  const value = isNegative ? -(bonus ?? 0) : bonus ?? 0;
+  return `${name !== XP_MULTI && value > 0 ? '+' : ''}${formatGame(value, 'Bubbastuff.BubbaRoG_Bonuses')}%`;
+};
 
 const Bubba = () => {
   const { state } = useContext(AppContext);
   const failed = isSectionFailed(state?.account, 'bubba');
   // A failed section draws Bubba's lists at zero (the parser's own empty save); its numbers are not the player's
   const bubba = failed ? getBubba(undefined, {}) : state?.account?.bubba;
-  const slices = (value) => (failed ? '-' : formatGame(value ?? 0, 'Bubbastuff.MeatsliceRate'));
+  const slices = (value, key) => (failed ? '-' : formatGame(value ?? 0, key));
 
   return <>
     <NextSeo
@@ -36,16 +40,16 @@ const Bubba = () => {
     />
     {failed ? <MissingData name={'Bubba'} failed atZero/> : null}
     <PageSummary>
-      <StatTile label={'Meat slices'} icon={'etc/Bubba_0.png'} value={slices(bubba?.meatSlices)}/>
-      <StatTile label={'Meat slices per minute'} value={slices(bubba?.meatsliceRate)}/>
-      <StatTile label={'Next upgrade'} value={failed ? '-' : `${slices(bubba?.progress)} / ${slices(bubba?.progressReq)}`}/>
+      <StatTile label={'Meat slices'} icon={'etc/Bubba_0.png'} value={slices(bubba?.meatSlices, 'Save.BubbaMeat')}/>
+      <StatTile label={'Meat slices per minute'} value={slices(bubba?.meatsliceRate, 'Bubbastuff.MeatsliceRate')}/>
+      <StatTile label={'Next upgrade'} value={failed ? '-' : `${slices(bubba?.progress, 'Bubbastuff.MeatProdREQ')} / ${slices(bubba?.progressReq, 'Bubbastuff.MeatProdREQ')}`}/>
     </PageSummary>
     <CardGrid size={'m'} sx={{ mb: 3, alignItems: 'start' }}>
       <Panel title={"Bubba's bonuses"}>
-        {Object.values(bubba?.bonuses ?? {}).map(({ name, bonus, isNegative }, index) => <Panel.Row key={name}
+        {Object.values(bubba?.bonuses ?? {}).map((entry, index) => <Panel.Row key={entry.name}
                                                                                                   icon={`etc/Bubba_${index + 1}.png`}
-                                                                                                  name={name}
-                                                                                                  value={failed ? '-' : formatNum(isNegative ? -(bonus ?? 0) : bonus ?? 0, 'pct', { signed: name !== XP_MULTI })}/>)}
+                                                                                                  name={entry.name}
+                                                                                                  value={failed ? '-' : bonusText(entry)}/>)}
       </Panel>
       <Panel title={'Megaflesh'}>
         <Box sx={{ p: 1.5 }}>
