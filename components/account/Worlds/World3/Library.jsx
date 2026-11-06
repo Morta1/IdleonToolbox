@@ -40,7 +40,7 @@ const Library = ({ libraryTimes, failed }) => {
 
   return <Panel icon={'data/Libz.png'} title={'Library'}>
     <Panel.KV label={'Books ready'} value={formatNum(bookCount)}/>
-    {breakdown ? <Panel.Row name={'Checkout time'} sub={'At your last save'}
+    {breakdown ? <Panel.Row name={'Checkout time'}
                             value={<Breakdown asValue title={'Checkout time'} data={{ ...breakdown, totalValue: checkoutTime }}>{checkoutTime}</Breakdown>}/> : null}
     {next > 0 ? <WaitRow name={'Next book in'} time={next}/>
       : <Panel.Row name={'Next book in'} value={<StatusText status={'info'}>Wait for game update</StatusText>}/>}
