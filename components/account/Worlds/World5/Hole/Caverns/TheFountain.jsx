@@ -10,6 +10,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
 import GameIcon from '@components/common/GameIcon';
+import { DIM } from '@components/common/cards/tokens';
 import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
 import ViewSwitch from '@components/common/ViewSwitch';
 import { Duration } from '@components/common/Num';
@@ -157,7 +158,7 @@ const FountainGraph = ({ water, t, currencies }) => {
           // A click, a tap or Enter pins the upgrade's details; a hover previews them
           return <Box key={`upg-${t}-${u.index}`} sx={{ position: 'absolute', left: np.x, top: np.y }}>
             <NoteTrigger block label={cleanUnderscore(u.name)} note={upgradeNote(u, water, currencies)}>
-              <Box sx={{ position: 'relative', width: NODE, height: NODE + 14, opacity: u.unlocked ? 1 : 0.45 }}>
+              <Box sx={{ position: 'relative', width: NODE, height: NODE + 14, opacity: u.unlocked ? 1 : DIM }}>
                 <GameIcon src={`data/HoleFountainUpg${t}_${u.index}.png`} size={56} fit={'canvas'} alt={''}/>
                 <Typography variant={'caption'} component={'div'} sx={{
                   position: 'absolute', bottom: -2, left: 0, right: 0, textAlign: 'center', lineHeight: 1,

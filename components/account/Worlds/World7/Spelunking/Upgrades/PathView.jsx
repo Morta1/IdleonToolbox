@@ -3,6 +3,7 @@ import { Box, ButtonBase, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import GameIcon from '@components/common/GameIcon';
+import { DIM } from '@components/common/cards/tokens';
 
 const buildDependencyTree = (upgrades) => {
   const upgradeMap = {};
@@ -64,7 +65,7 @@ const UpgradeTree = ({ upgrade, depth = 0, hoveredNodeId, onHover }) => {
           justifyContent: 'flex-start',
           textAlign: 'left',
           py: 0.4,
-          opacity: isUnlocked ? 1 : 0.5,
+          opacity: isUnlocked ? 1 : DIM,
           cursor: hasChildren ? 'pointer' : 'default',
           '&:hover': { bgcolor: 'action.hover', borderRadius: 0.5 }
         }}
