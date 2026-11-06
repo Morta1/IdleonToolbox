@@ -1,7 +1,7 @@
 import React, { useContext, useState } from 'react';
 import { useRouter } from 'next/router';
+import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import IconButton from '@mui/material/IconButton';
 import Popover from '@mui/material/Popover';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import AppDialog from '@components/common/Overlays/AppDialog';
@@ -17,9 +17,19 @@ import { notify } from '@components/common/Overlays/notify';
 import GoalPopover from './GoalPopover';
 import PageGoalsPanel from './PageGoalsPanel';
 import GoalCard from './GoalCard';
-import { headerActionSx, headerIconActionSx } from '@components/common/NavBar/headerAction';
+import { headerActionSx, headerJoinEndSx, headerJoinStartSx } from '@components/common/NavBar/headerAction';
 
 const stop = (event) => event.stopPropagation();
+
+// Goals' count, whole-width digits so a change never nudges the button. "?" where no goal on the page could be read: the
+// full sentence is the button's name, and the panel says which.
+const GoalCount = ({ reached, readable, total }) => <Box component="span" sx={[
+  { ml: { xs: 0.5, sm: 0.75 }, fontVariantNumeric: 'tabular-nums' },
+  readable && reached === readable ? { color: 'text.success', fontWeight: 500 } : null,
+  readable ? null : { color: 'text.secondary' }
+]}>
+  {readable ? `${reached}/${readable}` : `?/${total}`}
+</Box>;
 
 // Popovers portal out of the NavBar, but React still bubbles their clicks up the component tree
 const Contained = ({ children }) => (
@@ -89,19 +99,22 @@ const AddGoalButton = () => {
 
   return (
     <>
-      <Button sx={headerActionSx}
-              startIcon={<IconTargetArrow size={20}/>}
-              onClick={(e) => {
-                setAnchorEl(e.currentTarget);
-                setOpen(views.length ? 'panel' : 'add');
-              }}>
-        {!views.length ? 'Add goal' : readable ? `Goals · ${reached} of ${readable} reached` : "Goals · couldn't read"}
-      </Button>
-      {views.length ? (
-        <IconButton aria-label="Add goal" color="primary" onClick={openAdd} sx={headerIconActionSx}>
-          <IconPlus size={20}/>
-        </IconButton>
-      ) : null}
+      <Box sx={{ display: 'inline-flex', flexShrink: 0 }}>
+        <Button variant="outlined" sx={[headerActionSx, views.length ? headerJoinStartSx : null]}
+                aria-label={views.length ? (readable ? `Goals · ${reached} of ${readable} reached` : "Goals · couldn't read") : undefined}
+                startIcon={<IconTargetArrow size={18}/>}
+                onClick={(e) => {
+                  setAnchorEl(e.currentTarget);
+                  setOpen(views.length ? 'panel' : 'add');
+                }}>
+          {views.length ? <>Goals<GoalCount reached={reached} readable={readable} total={views.length}/></> : 'Add goal'}
+        </Button>
+        {views.length ? (
+          <Button variant="outlined" aria-label="Add goal" onClick={openAdd} sx={[headerActionSx, headerJoinEndSx]}>
+            <IconPlus size={18}/>
+          </Button>
+        ) : null}
+      </Box>
       <Contained>
         {isPhone ? <AppDialog open={open === 'panel'} onClose={close} size="s" title="Goals on this page">{panel}</AppDialog>
           : <Popover open={open === 'panel'} anchorEl={anchorEl} onClose={close}

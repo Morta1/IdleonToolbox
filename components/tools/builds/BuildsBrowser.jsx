@@ -134,7 +134,6 @@ const BuildsBrowser = ({
       <Box
         sx={{
           position: 'relative',
-          mt: 2,
           mb: 3,
           pb: 2,
           '&::after': {

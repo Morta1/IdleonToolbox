@@ -6,7 +6,10 @@ import dynamic from 'next/dynamic';
 import { Box, ButtonBase, Divider, Menu, MenuItem, MenuList, Stack, Typography, useMediaQuery } from '@mui/material';
 import { IconCheck, IconChevronDown } from '@tabler/icons-react';
 import Pin from '@components/common/favorites/Pin';
+import { AppContext } from '@components/common/context/AppProvider';
 import AppDialog from '@components/common/Overlays/AppDialog';
+import { useGoals } from '@components/goals/GoalsProvider';
+import usePageDataLoading from '@hooks/usePageDataLoading';
 import { titleOf } from '@components/common/PageTitle';
 import { hasGoals } from '@utility/goals/routes';
 import { headerIconFor } from '@utility/pageIndex';
@@ -14,13 +17,16 @@ import { groupOf } from '@utility/navMenu';
 import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
-import { PHONE_SIDES } from '@components/common/NavBar/frame';
 
-// Parser-heavy popover: kept out of every page's bundle, fetched only on routes that have goals
-const AddGoalButton = dynamic(() => import('@components/goals/AddGoalButton'), { ssr: false });
+// Parser-heavy popover: kept out of every page's bundle, fetched only on routes that have goals. While its chunk is on
+// the way the marker holds the header's buttons back (BUTTONS_SX); a chunk that failed leaves the others to show.
+const AddGoalButton = dynamic(() => import('@components/goals/AddGoalButton'), {
+  ssr: false,
+  loading: ({ error }) => (error ? null : <span data-goals-pending hidden/>)
+});
 
 // The header's slots: the nodes a page renders its own header parts into (Page settings at the row's end, a page-wide
-// control after Pin). null on the build machine and on the first client render, so the export has neither and nothing
+// control by the title). null on the build machine and on the first client render, so the export has neither and nothing
 // mismatches; the page's own state stays the page's (a portal keeps its context).
 const SlotContext = createContext({ settings: null, control: null, setSettings: () => {}, setControl: () => {} });
 export const PageHeaderSlots = ({ children }) => {
@@ -31,16 +37,17 @@ export const PageHeaderSlots = ({ children }) => {
 export const usePageHeaderSlot = (name = 'settings') => useContext(SlotContext)[name];
 export const SettingsSlot = () => {
   const { setSettings } = useContext(SlotContext);
-  return <Box ref={setSettings} sx={{ display: 'flex', alignItems: 'center' }}/>;
+  return <Box ref={setSettings} sx={{ display: 'contents' }}/>;
 };
-// On a phone a page-wide control takes the group's last line, so Pin, Add goal and the gear keep their one row.
+// On a phone a page-wide control takes the header's last line, under the title and the buttons.
 const ControlSlot = () => {
   const { setControl } = useContext(SlotContext);
   return <Box ref={setControl} sx={{
-    display: { xs: 'flex', sm: 'contents' }, order: { xs: 1, sm: 0 }, flexBasis: { xs: '100%', sm: 'auto' }, '&:empty': { display: 'none' }
+    display: { xs: 'flex', sm: 'contents' }, order: { xs: 1, sm: 0 }, flexBasis: { xs: '100%', sm: 'auto' }, mt: { xs: 1, sm: 0 },
+    '&:empty': { display: 'none' }
   }}/>;
 };
-// A page-wide control in the header row, after Pin (the characters picker): rendered once the slot exists.
+// A page-wide control in the header row, by the title (the characters picker): rendered once the slot exists.
 export const PageHeaderControl = ({ children }) => {
   const node = usePageHeaderSlot('control');
   return node ? createPortal(children, node) : null;
@@ -89,7 +96,7 @@ const TitleSwitcher = ({ group, title, pathname, onOpenGroup }) => {
   return <>
     <ButtonBase aria-haspopup={asSheet ? 'dialog' : 'menu'} aria-expanded={Boolean(anchor)}
                 onClick={(event) => setAnchor(event.currentTarget)}
-                sx={{ font: 'inherit', color: 'inherit', gap: 0.75, maxWidth: '100%', borderRadius: 1, justifyContent: 'flex-start' }}>
+                sx={{ font: 'inherit', color: 'inherit', gap: 0.75, maxWidth: '100%', borderRadius: 1, justifyContent: 'flex-start', verticalAlign: 'top' }}>
       <Box component="span" sx={{ textAlign: 'left' }}>{title}</Box>
       <IconChevronDown size={18} aria-hidden style={{ flexShrink: 0, transform: anchor ? 'rotate(180deg)' : 'none', transition: 'transform .15s' }}/>
     </ButtonBase>
@@ -109,72 +116,74 @@ const TitleSwitcher = ({ group, title, pathname, onOpenGroup }) => {
 const TitleIcon = ({ icon, sx }) => <Box component="img" src={`${prefix}${icon.icon}.png`} alt="" style={icon.style}
                                          sx={[{ objectFit: 'contain', flexShrink: 0 }, sx]}/>;
 
-// The page's h1, and on a phone, after hydration, the switcher inside it (the export and the first render are the plain
-// h1 at every width). The group's caption above it is CSS only, so nothing moves when the switcher arrives. On a phone
-// a long title wraps at a space, never inside a word ("Guaranteed Drop Calculator" was "Guaranteed Drop Calc..." at
-// 384); from md it keeps one line and an ellipsis. Below sm a grouped title's icon sits in the caption's line: the row
-// has no room for it beside the title with Pin, Add goal and the gear.
-const TitleOrSwitcher = ({ title, group, icon, pathname, onOpenGroup }) => {
-  const isPhone = useMediaQuery((theme) => theme.breakpoints.down('md'));
-  return <Stack sx={{ minWidth: 0 }}>
-    {group ? <Stack direction="row" alignItems="center" gap={0.75} sx={{ display: { xs: 'flex', md: 'none' } }}>
-      {icon ? <TitleIcon icon={icon} sx={{ width: 20, height: 20, display: { xs: 'block', sm: 'none' } }}/> : null}
-      <Typography variant="caption" color="text.secondary">{group.label}</Typography>
-    </Stack> : null}
-    <Typography variant="pageTitle" component="h1"
-                sx={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: { xs: 'normal', md: 'nowrap' } }}>
-      {isPhone && group ? <TitleSwitcher group={group} title={title} pathname={pathname} onOpenGroup={onOpenGroup}/> : title}
-    </Typography>
-  </Stack>;
+// The title's box, the h1's 36 px line, sits 14 px under whatever is above it. Under a group row that row's 8 px margin and
+// the 6 px of air in the title's 48 make it; with none above, main's 24 px padding less 16. Below md, where a grouped page's
+// first line is its caption and the buttons, the block has no air and starts 14 px down: main's 24 less 10.
+const rowHeight = (group) => (group ? { md: 48 } : { xs: 36, sm: 48 });
+const headerSx = (group, title) => ({
+  // A route that draws its own h1 has it under this row, 14 px down
+  mb: title ? 2 : '14px',
+  minHeight: rowHeight(group),
+  mt: group ? { xs: '-10px', md: 0 } : { xs: '-10px', sm: '-16px' },
+  rowGap: group ? { xs: 0, sm: 0.5 } : 0.5
+});
+// One group at the row's right end, one gap apart; gone while it holds nothing.
+const BUTTONS_SX = {
+  ml: 'auto', minWidth: 0, maxWidth: '100%', columnGap: { xs: '6px', sm: 1 }, rowGap: 1, justifyContent: 'flex-end',
+  '&:not(:has(> :not(:empty)))': { display: 'none' },
+  '&:has([data-goals-pending])': { visibility: 'hidden' }
 };
 
-// Every page's first row (Tabs board): icon, title, Pin and Add goal, then the page's own settings at the end. One
-// height everywhere, so nothing jumps between pages; Add goal arrives after the goals load and the gear after
-// hydration, both where they move nothing (Decision 5). The body starts right under it, so a page's first note sits
-// under its title (Decision 7). On a phone (Layout3Phone) the buttons are their short forms and share the title's row
-// when they fit: a title too long for that takes its own line and they move together under it, the gear at their end.
+// Every page's first row (Tabs board, mock A): icon, title and any page-wide control on the left; Pin, Goals and the page's
+// own settings on the right, one height and one outline. They arrive at different times: Pin is in the export, Goals after
+// the stored goals and its chunk, the gear with the page's body once the save is parsed, and in a right-aligned group each
+// arrival would push the others left. So the group keeps its place in the row, hidden, until the last has arrived, and all
+// show at once in their final places; a guest or a failed section, whose page draws fewer, shows fewer at that same moment.
+// Below md a grouped page's caption line holds the buttons, so the title has the whole width (a long one wraps at a space,
+// never inside a word; from md it keeps one line and an ellipsis). Below sm the icon sits in that line too, and the buttons
+// are their short forms. A page with no caption keeps them on the title's row while they fit.
 // onOpenGroup: the phone menu at a group (a phone title's "All ... pages").
 const PageHeader = ({ onOpenGroup }) => {
   const router = useRouter();
+  const { state } = useContext(AppContext);
+  const { loaded } = useGoals();
+  const { loading } = usePageDataLoading();
+  const isNarrow = useMediaQuery((theme) => theme.breakpoints.down('md'));
+  const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const pathname = router?.pathname ?? '';
   const icon = headerIconFor(pathname);
   const title = titleOf(pathname);
-  const isCharacters = pathname === '/characters';
-  const showPin = pathname.includes('account') || pathname.includes('tools') || isCharacters;
+  const showPin = pathname.includes('account') || pathname.includes('tools') || pathname === '/characters';
   const goals = hasGoals(pathname);
   const group = groupOf(pathname);
   if (!title && !showPin && !goals) return null;
-  const actions = <>
+  const settled = loaded && !state?.isLoading && !loading;
+  const heading = title ? <Stack key="title" direction="row" alignItems="center" columnGap={2}
+                                 sx={{ minWidth: 0, maxWidth: '100%', minHeight: rowHeight(group), flexBasis: group ? { xs: '100%', md: 'auto' } : 'auto' }}>
+    {icon ? <TitleIcon icon={icon} sx={{ width: { xs: 32, sm: 40 }, height: { xs: 32, sm: 40 }, display: { xs: group ? 'none' : 'block', sm: 'block' } }}/> : null}
+    <Typography variant="pageTitle" component="h1"
+                sx={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: { xs: 'normal', md: 'nowrap' } }}>
+      {isNarrow && group ? <TitleSwitcher group={group} title={title} pathname={pathname} onOpenGroup={onOpenGroup}/> : title}
+    </Typography>
+  </Stack> : null;
+  const control = <ControlSlot key="control"/>;
+  const buttons = <Stack key="buttons" direction="row" alignItems="center" flexWrap="wrap"
+                         sx={[BUTTONS_SX, { order: group ? { xs: -1, md: 0 } : 0 }, settled ? null : { visibility: 'hidden' }]}>
     {showPin ? <Pin/> : null}
-    {isCharacters ? null : <ControlSlot/>}
-    {/* Add goal's room on a phone is held while it loads, so its arrival never wraps the row */}
-    {goals ? <Box sx={{ display: 'flex', alignItems: 'center', gap: { xs: 0.5, sm: 2 }, minWidth: { xs: 84, sm: 0 } }}><AddGoalButton/></Box> : null}
-  </>;
-  return <Stack data-shell="header" direction="row" alignItems={{ xs: 'flex-end', sm: 'center' }} columnGap={{ xs: 1, sm: 2 }} rowGap={0.5} flexWrap="wrap"
-                sx={{ minHeight: 48, mb: 2, mt: { xs: -1, sm: 0 } }}>
-    {title ? <Stack direction="row" alignItems="center" columnGap={2} sx={{ minWidth: 0, maxWidth: '100%', ...(isCharacters ? { [PHONE_SIDES]: { flexGrow: 1 } } : {}) }}>
-      {icon ? <TitleIcon icon={icon} sx={{ width: { xs: 32, sm: 40 }, height: { xs: 32, sm: 40 }, display: { xs: group ? 'none' : 'block', sm: 'block' } }}/> : null}
-      <TitleOrSwitcher title={title} group={group} icon={icon} pathname={pathname} onOpenGroup={onOpenGroup}/>
+    {goals ? <AddGoalButton/> : null}
+    <SettingsSlot/>
+  </Stack>;
+  // CSS order lays the row out from the export on. Tab follows the DOM, never CSS order, so after hydration the keyed parts
+  // take the same order in the DOM at each width, moved rather than remounted.
+  const parts = group && isNarrow ? [buttons, heading, control]
+    : !group && isPhone ? [heading, buttons, control]
+      : [heading, control, buttons];
+  return <Stack data-shell="header" direction="row" alignItems="center" flexWrap="wrap" columnGap={{ xs: 1, sm: 2 }} sx={headerSx(group, title)}>
+    {group && title ? <Stack direction="row" alignItems="center" gap={0.75} sx={{ display: { xs: 'flex', md: 'none' }, order: -2, flex: '1 1 0', minWidth: 0 }}>
+      {icon ? <TitleIcon icon={icon} sx={{ width: 20, height: 20, display: { xs: 'block', sm: 'none' } }}/> : null}
+      <Typography variant="caption" color="text.secondary" noWrap>{group.label}</Typography>
     </Stack> : null}
-    {/* One group, so the buttons wrap together, the gear at its end; gone while it holds nothing. The characters page's
-        control is wider than the group's line, which would take Pin and Add goal under the title with it: on a phone
-        the group opens into the row, so they stay beside the title and the control takes its own row. */}
-    <Stack direction="row" alignItems="center" columnGap={{ xs: 0.5, sm: 2 }} rowGap={1} flexWrap="wrap"
-           sx={{
-             flex: '1 1 auto', minWidth: 0, maxWidth: '100%', '&:not(:has(> :not(:empty)))': { display: 'none' },
-             ...(isCharacters ? { [PHONE_SIDES]: { display: 'contents', '& > :empty': { display: 'none' } } } : {})
-           }}>
-      {/* Tab follows the DOM, never CSS order. The characters page's row is its picker, Pin, Add goal from 600 px, and Pin,
-          Add goal, then the picker on its own line on a phone: its buttons sit on both sides of the slot and each width
-          shows its pair, display: none taking the other out of the tab order. */}
-      {isCharacters ? <>
-        <Box sx={{ display: { xs: 'contents', sm: 'none' } }}>{actions}</Box>
-        <ControlSlot/>
-        <Box sx={{ display: { xs: 'none', sm: 'contents' } }}>{actions}</Box>
-      </> : actions}
-      <Box sx={{ flex: 1 }}/>
-      <SettingsSlot/>
-    </Stack>
+    {parts}
   </Stack>;
 };
 

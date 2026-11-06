@@ -1,27 +1,20 @@
 import Button from '@mui/material/Button';
-import { Box } from '@mui/material';
-import { IconHeart, IconHeartFilled } from '@tabler/icons-react';
+import { IconPin, IconPinFilled } from '@tabler/icons-react';
 import usePin from '@components/common/favorites/usePin';
-import { headerActionSx, phoneOnly, widerThanPhone } from '@components/common/NavBar/headerAction';
+import { headerActionSx } from '@components/common/NavBar/headerAction';
 
-// Both labels share one grid cell and only the current one shows, so the button keeps the longer label's width
-// and pressing it never reflows the header. A phone's short form is the one word "Pin" in both states, the filled heart
-// saying which: the row has no room to hold "Unpin"'s width. The name says what a press does.
-const LABEL_SX = { gridArea: '1 / 1' };
+const PINNED_SX = { color: 'primary.main', borderColor: 'primary.edge', '&:hover': { borderColor: 'primary.main' } };
 
+// Leftmost in the header's right-aligned group, so "Pinned" takes its extra width to the left and nothing else moves.
+// The name starts with the word on the button, then says what a press does.
 const Pin = () => {
   const { isPinned, togglePin } = usePin();
 
-  return <>
-    <Button onClick={() => togglePin()} sx={headerActionSx} aria-label={isPinned ? 'Unpin this page' : 'Pin this page'}
-            startIcon={isPinned ? <IconHeartFilled size={20}/> : <IconHeart size={20}/>}>
-      <Box component={'span'} sx={[{ display: 'inline-grid', justifyItems: 'start' }, widerThanPhone]}>
-        <Box component={'span'} sx={[LABEL_SX, { visibility: isPinned ? 'hidden' : 'visible' }]}>Pin this page</Box>
-        <Box component={'span'} sx={[LABEL_SX, { visibility: isPinned ? 'visible' : 'hidden' }]}>Unpin this page</Box>
-      </Box>
-      <Box component={'span'} sx={phoneOnly}>Pin</Box>
-    </Button>
-  </>
+  return <Button variant="outlined" onClick={() => togglePin()} sx={[headerActionSx, isPinned ? PINNED_SX : null]}
+                 aria-label={isPinned ? 'Pinned, unpin this page' : 'Pin this page'}
+                 startIcon={isPinned ? <IconPinFilled size={18}/> : <IconPin size={18}/>}>
+    {isPinned ? 'Pinned' : 'Pin'}
+  </Button>;
 };
 
 export default Pin;

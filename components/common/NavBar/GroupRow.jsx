@@ -57,8 +57,8 @@ const Pill = ({ page, current, nav, sx }) => {
 
 // A page's siblings (Layout boards): the group's name opens its menu, the pages are links, and what does not fit in
 // the row's real width waits under More, never the page on screen (navMenu rowSplit). A band under the bar: it takes
-// back main's top padding, so it sits flush under the bar (or the notice band), 52 px, with the title 22 px under it
-// (16 here and 6 in the header row's 48). Scrolls with the page (Decision 10). From md; a phone has its title switcher.
+// back main's top padding, so it sits flush under the bar (or the notice band), 52 px, with the title 14 px under it
+// (8 here and 6 in the header row's 48). Scrolls with the page (Decision 10). From md; a phone has its title switcher.
 const GroupRow = ({ openMenu, phoneMenuOpen, onOpenMenu }) => {
   const router = useRouter();
   const pathname = router?.pathname ?? '';
@@ -102,7 +102,7 @@ const GroupRow = ({ openMenu, phoneMenuOpen, onOpenMenu }) => {
 
   return <Box component="nav" ref={rowRef} aria-label={`${group.label} pages`} data-shell="group-row"
               sx={{
-                display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 0.5, height: 52, mt: -3, mb: 2,
+                display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 0.5, height: 52, mt: -3, mb: 1,
                 position: 'relative', containerType: 'inline-size', '&::after': EDGE_LINE_SX
               }}>
     <ButtonBase {...{ [MENU_BUTTON]: '' }} onClick={() => onOpenMenu(group)} aria-expanded={menuOpen || phoneMenuOpen}

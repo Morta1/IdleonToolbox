@@ -186,8 +186,8 @@ const ItemPlanner = () => {
       </PageSummary> : null}
       {/* Before Page settings, which is last on every page. Always mounted, hidden while there are plans: a portal joins
           its slot's end when it mounts, so Import arriving after a last delete would land past the gear. */}
-      {headerSlot ? createPortal(<Button startIcon={<IconUpload size={18}/>} onClick={() => inputRef.current.click()}
-                                         sx={[headerActionSx, { display: sections.length ? 'none' : undefined, '&:not(:last-child)': { mr: 1 } }]}>Import</Button>, headerSlot) : null}
+      {headerSlot ? createPortal(<Button variant="outlined" startIcon={<IconUpload size={18}/>} onClick={() => inputRef.current.click()}
+                                         sx={[headerActionSx, { display: sections.length ? 'none' : undefined }]}>Import</Button>, headerSlot) : null}
       {/* In the header row's settings slot (Decision 6) */}
       {loggedIn ? <PageSettings state={settings} defaults={PLANNER_SETTINGS} onChange={setSettings} onReset={resetSettings}>
         <PageSettings.Toggle name={'countEquipped'} label={'Count equipped items'}

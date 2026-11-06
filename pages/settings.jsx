@@ -289,7 +289,8 @@ const Settings = () => {
 
   return <>
     <NextSeo title="Settings | Idleon Toolbox" description="Configure your Idleon Toolbox preferences and manage your profile"/>
-    <Container maxWidth="md" disableGutters sx={{ my: 3 }}>
+    {/* Its title's box 14 px under whatever is above it, as on every page: main's 24 px padding less 10 */}
+    <Container maxWidth="md" disableGutters sx={{ mt: '-10px', mb: 3 }}>
       <Typography variant="pageTitle" component="h1" sx={{ mb: 3 }}>Settings</Typography>
       {!hasAccount && !state?.isLoading
         ? <Notice tone={'signin'} sx={{ mb: 3 }}>Your profile and data settings show here once you sign in.</Notice>

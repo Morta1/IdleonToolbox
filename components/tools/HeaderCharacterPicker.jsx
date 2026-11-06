@@ -4,7 +4,7 @@ import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 
 const classIcon = (character) => (character?.classIndex !== undefined ? `data/ClassIcons${character?.classIndex}.png` : 'afk_targets/Nothing.png');
 
-// A tool's page-wide character picker, in the header after Pin: "Character" inside the field, the class sprite before
+// A tool's page-wide character picker, in the header by the title: "Character" inside the field, the class sprite before
 // each name. value and onChange speak a character's playerId, as a string.
 const HeaderCharacterPicker = ({ characters, value, onChange }) => <PageHeaderControl>
   <TextField select value={value ?? ''} onChange={(event) => onChange(event.target.value)} sx={{ minWidth: 200, flex: { xs: 1, sm: 'none' } }}

@@ -6,7 +6,7 @@ import AppDialog from '@components/common/Overlays/AppDialog';
 import NumberField, { fieldNumber, rangeText } from '@components/common/NumberField';
 import { usePageHeaderSlot } from '@components/common/NavBar/PageHeader';
 import useToolbarState, { same } from '@hooks/useToolbarState';
-import { headerGearSx, widerThanPhone } from '@components/common/NavBar/headerAction';
+import { headerActionSx, headerGearSx, widerThanPhone } from '@components/common/NavBar/headerAction';
 
 // A page's settings, remembered per page in this browser: the player's edits only (useToolbarState's rule).
 export const usePageSettings = (page, defaults) => useToolbarState(page, defaults, { scope: 'page-settings' });
@@ -24,19 +24,11 @@ export const joinSettings = (...parts) => ({
   onReset: () => parts.forEach(({ defaults, set }) => set(defaults))
 });
 
-// The board's dot: a setting differs from its default. Its room is always kept, so the button never changes width; on a
-// phone, where the button is the gear alone, it sits on the gear's corner.
-const DOT_SX = {
-  display: 'inline-block', width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main', ml: '2px', alignSelf: 'flex-start', mt: 0.5,
-  '@media (max-width: 599.95px)': { position: 'absolute', top: 2, right: 2, m: 0 }
-};
+// The board's dot: a setting differs from its default. It sits on the button's corner, so the button never changes width.
+const DOT_SX = { position: 'absolute', top: 2, right: 2, width: 8, height: 8, borderRadius: '50%', bgcolor: 'primary.main' };
 const SettingsContext = createContext({ state: {}, onChange: () => {} });
-// Toolbar board: an outlined control at the header's right end, white 14/400 with the 23% edge; on a phone the gear alone.
-const BUTTON_SX = [{
-  color: 'text.primary', borderColor: 'outline', fontWeight: 400, whiteSpace: 'nowrap', pl: 1.5, pr: 1.25,
-  '& .MuiButton-startIcon': { ml: 0, mr: 0.75 },
-  '&:hover': { borderColor: 'text.secondary', bgcolor: 'action.hover' }
-}, headerGearSx];
+// Toolbar board: an outlined control at the header's right end, as Pin and Goals beside it; on a phone the gear alone.
+const BUTTON_SX = [headerActionSx, headerGearSx];
 // One row per setting with a line between rows (Toolbar board's panel). A child is a row, a page's own row (Stamps'
 // snapshot) or a Group, whose title and rows follow the same rules. px: the panel's 16, or 0 inside a sheet's own gutter.
 const rowsSx = (px) => ({
@@ -112,6 +104,15 @@ const PageSettings = ({ state, defaults, onChange, onReset, onOpen, label = 'Pag
         {rows}
       </Popover>}
   </>, node);
+};
+
+// The gear's room on a view of its page that has no gear (Pets' Pet Mart tab): Pin and Goals stay put in the right-aligned
+// group while the player moves between the views.
+export const PageSettingsRoom = () => {
+  const node = usePageHeaderSlot('settings');
+  return node ? createPortal(<Button variant="outlined" startIcon={<IconSettings size={18}/>} sx={[...BUTTON_SX, { visibility: 'hidden' }]}>
+    <Box component="span" sx={widerThanPhone}>Page settings</Box>
+  </Button>, node) : null;
 };
 
 // A setting's row: its name and one line on what it changes on the left, in words nothing hides; its control on the right.

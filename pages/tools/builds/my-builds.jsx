@@ -82,7 +82,7 @@ const MyBuilds = ({ staticIds }) => {
     return (
       <>
         <NextSeo title="My builds | Idleon Toolbox" noindex/>
-        <Stack mt={2} gap={2}>
+        <Stack gap={2}>
           <Typography variant="pageTitle" component="h1">My builds</Typography>
           <Alert severity="info">Sign in to see your builds and the ones you've liked.</Alert>
           <Button component={Link} href="/tools/builds" variant="outlined">
@@ -98,7 +98,7 @@ const MyBuilds = ({ staticIds }) => {
   return (
     <>
       <NextSeo title="My builds | Idleon Toolbox" noindex/>
-      <Stack mt={2} gap={2}>
+      <Stack gap={2}>
         <Stack direction="row" alignItems="center" gap={1}>
           <Tooltip title="Back to builds">
             <IconButton component={Link} href="/tools/builds">

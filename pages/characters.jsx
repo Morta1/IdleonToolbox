@@ -58,7 +58,7 @@ const Characters = () => {
       description="View detailed character stats, skills, equipment, talents, and progression for all your Legends of Idleon characters"
     />
     {failedSections?.length ? <MissingData sections={failedSections}/> : null}
-    {/* In the header row, after Pin (Decision 9) */}
+    {/* In the header row, by the title (Decision 9) */}
     {hasCharacters ? <PageHeaderControl>
       <CharactersPicker open={pickerOpen} onOpenChange={setPickerOpen} buttonRef={pickerButton}/>
     </PageHeaderControl> : null}

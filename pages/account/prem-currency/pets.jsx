@@ -9,7 +9,8 @@ import { PAGES } from '@components/constants';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import StatusText from '@components/common/StatusText';
-import PetCollection, { PET_CRYSTAL_LOOK } from '@components/account/Pets/PetCollection';
+import PetCollection, { canSimulatePets, PET_CRYSTAL_LOOK } from '@components/account/Pets/PetCollection';
+import { PageSettingsRoom } from '@components/common/PageSettings';
 import PetMart from '@components/account/Pets/PetMart';
 import { getCompanions } from '@parsers/misc';
 
@@ -42,8 +43,11 @@ const Pets = () => {
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['prem-currency'].categories, 'pets')}>
       <PetCollection companions={companions?.list} sectionFailed={companionsFailed} tournamentFailed={tournamentFailed}/>
-      <PetMart petMart={state?.account?.tournament?.petMart} companions={companions?.list} lastUpdated={state?.lastUpdated}
-               sectionFailed={tournamentFailed} companionsFailed={companionsFailed} guest={Boolean(state?.emptyAccount)}/>
+      <>
+        {canSimulatePets(state, companionsFailed) ? <PageSettingsRoom/> : null}
+        <PetMart petMart={state?.account?.tournament?.petMart} companions={companions?.list} lastUpdated={state?.lastUpdated}
+                 sectionFailed={tournamentFailed} companionsFailed={companionsFailed} guest={Boolean(state?.emptyAccount)}/>
+      </>
     </Tabber>
   </>
 };

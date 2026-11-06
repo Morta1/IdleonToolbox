@@ -16,11 +16,13 @@ import ItemCard from '@components/common/cards/ItemCard';
 import StatTile from '@components/common/cards/StatTile';
 import GameIcon from '@components/common/GameIcon';
 import Toolbar from '@components/common/Toolbar';
-import PageSettings from '@components/common/PageSettings';
+import PageSettings, { PageSettingsRoom } from '@components/common/PageSettings';
 import useToolbarState from '@hooks/useToolbarState';
 
 // The pet crystal has no sprite of its own: the toolbox tints the premium gem, as the nav does
 export const PET_CRYSTAL_LOOK = { filter: 'hue-rotate(280deg)' };
+// Simulating on someone else's profile or on the demo account would misrepresent their save.
+export const canSimulatePets = (state, failed) => !failed && !state?.profile && !state?.demo && !state?.emptyAccount;
 export const petCrystalIcon = (size) => <Box component={'span'} sx={{ display: 'inline-flex', ...PET_CRYSTAL_LOOK }}>
   <GameIcon src={'data/PremiumGem.png'} size={size} alt={'Pet Crystals'}/>
 </Box>;
@@ -67,8 +69,7 @@ const PetCollection = ({ companions, sectionFailed, tournamentFailed }) => {
 
   const allCompanions = companions ?? [];
   const indexedCompanions = allCompanions.map((companion, index) => ({ ...companion, index }));
-  // Simulating on someone else's profile or on the demo account would misrepresent their save.
-  const ownAccount = !failed && !state?.profile && !state?.demo && !state?.emptyAccount;
+  const ownAccount = canSimulatePets(state, failed);
   const editing = draft !== null;
   const simulatedCount = allCompanions.filter((companion) => companion?.simulated).length;
 
@@ -192,7 +193,7 @@ const PetCollection = ({ companions, sectionFailed, tournamentFailed }) => {
       <PageSettings.Action label={'Simulate pets'}
                            help={"Count pets you don't own as owned, at their base level, on every page."}
                            action={{ label: 'Edit pets', onClick: () => setDraft(new Set(simulated ?? [])) }}/>
-    </PageSettings> : null}
+    </PageSettings> : ownAccount ? <PageSettingsRoom/> : null}
     <Box sx={{ mb: 1 }}>
       <StatTile label={progress.label} value={failed ? '-' : `${formatNum(progress.done)} / ${formatNum(progress.total)}`}/>
     </Box>

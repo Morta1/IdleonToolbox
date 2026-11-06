@@ -13,7 +13,7 @@ import {
   Typography,
   useMediaQuery
 } from '@mui/material';
-import { IconBook2, IconClock, IconHeartFilled, IconSearch } from '@tabler/icons-react';
+import { IconBook2, IconClock, IconPinFilled, IconSearch } from '@tabler/icons-react';
 import { useHotkeys, useLocalStorage } from '@mantine/hooks';
 import { startTransition, useContext, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
@@ -227,7 +227,7 @@ const QuickSearch = ({ loadWikiEntries = defaultLoadWikiEntries }) => {
     ]
     : [
       {
-        key: 'pinned', title: 'Pinned', icon: IconHeartFilled, rows: box.pins.slice(0, box.pins.length - pinsHidden),
+        key: 'pinned', title: 'Pinned', icon: IconPinFilled, rows: box.pins.slice(0, box.pins.length - pinsHidden),
         more: pinsHidden ? { label: `Show ${pinsHidden} more pinned`, open: () => setShowAllPins(true) } : null
       },
       { key: 'recent', title: 'Recent', icon: IconClock, rows: box.recent, more: null }

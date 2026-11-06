@@ -154,7 +154,7 @@ const BuildView = ({ shortId, summary, initialBuild = null }) => {
 
   return (
     <>
-      <Stack mt={2} gap={2}>
+      <Stack gap={2}>
         {loading ? (
           // The summary comes from static props, so a crawler (and a human on a slow connection)
           // sees the real title/author/tags immediately rather than a bare spinner contradicting
