@@ -11,6 +11,7 @@ import { Autocomplete, Box, createFilterOptions, Stack, TextField, Typography } 
 import { cleanUnderscore, formatNum } from 'utility/helpers';
 import ItemDisplay from 'components/common/ItemDisplay';
 import { getGoldenFoodBonus } from '@parsers/misc';
+import { getPlayerFoodBonus } from '@parsers/character';
 import { AppContext } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -61,7 +62,7 @@ const ItemBrowser = () => {
   const results = Array.isArray(found) ? found : [];
   // A golden food's card fills its bonus from a character, as the page has no pick: the first who wears one of its
   // effect, failing that the first. Nobody wearing it reads 0%, which is true.
-  const goldenFood = { account: state?.account, characters: state?.characters, getGoldenFoodBonus };
+  const goldenFood = { account: state?.account, characters: state?.characters, getGoldenFoodBonus, getPlayerFoodBonus };
   const goldenFoodFor = (item) => ({
     ...goldenFood,
     character: state?.characters?.find((character) => character?.food?.some((food) => food?.Type === 'GOLDEN_FOOD' && food?.Effect === item?.Effect)) ?? state?.characters?.[0]

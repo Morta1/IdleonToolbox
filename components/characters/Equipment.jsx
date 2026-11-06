@@ -2,6 +2,7 @@ import React from 'react';
 import ItemDisplay from '../common/ItemDisplay';
 import { cleanUnderscore, formatNum } from 'utility/helpers';
 import { getGoldenFoodBonus } from '@parsers/misc';
+import { getPlayerFoodBonus } from '@parsers/character';
 import Panel from '@components/common/cards/Panel';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
@@ -28,7 +29,7 @@ const Equipment = ({ equipment, tools, food, account, character, characters }) =
           return <IconTile key={`${rawName}-${itemIndex}`} icon={`data/${rawName}.png`} alt={cleanUnderscore(displayName)}
                            value={amount ? formatNum(amount, 'whole') : undefined}
                            details={<ItemDisplay {...item} character={character} account={account} characters={characters}
-                                                 getGoldenFoodBonus={getGoldenFoodBonus}/>}/>;
+                                                 getGoldenFoodBonus={getGoldenFoodBonus} getPlayerFoodBonus={getPlayerFoodBonus}/>}/>;
         })}
       </CardGrid>
     </Panel.Group>)}

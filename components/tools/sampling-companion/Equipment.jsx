@@ -5,6 +5,7 @@ import { cleanUnderscore, formatNum } from 'utility/helpers';
 import { CLASSES, talentPagesMap } from '@parsers/talents';
 import { items as itemsList } from '@website-data';
 import { getGoldenFoodBonus } from '@parsers/misc';
+import { getPlayerFoodBonus } from '@parsers/character';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import Panel from '@components/common/cards/Panel';
@@ -61,7 +62,7 @@ const EquipmentPage = ({ allAccountItems, items, character, account, characters,
         value={known && rawName !== 'Blank' && amount !== undefined ? formatNum(Number(amount), 'whole') : undefined}
         details={known ? <>
           {line ? <>{line}<Divider sx={{ my: 1 }}/></> : null}
-          <ItemDisplay {...shownItem} character={character} account={account} characters={characters} getGoldenFoodBonus={getGoldenFoodBonus}/>
+          <ItemDisplay {...shownItem} character={character} account={account} characters={characters} getGoldenFoodBonus={getGoldenFoodBonus} getPlayerFoodBonus={getPlayerFoodBonus}/>
         </> : undefined}
       />;
     })}

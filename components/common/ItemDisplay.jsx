@@ -1,11 +1,12 @@
-import { cleanUnderscore, formatNum, titleCaseName } from 'utility/helpers';
+import { cleanUnderscore, formatNum, gameFill, growth, titleCaseName } from 'utility/helpers';
 import { Divider, Stack, Typography } from '@mui/material';
 import GameIcon from '@components/common/GameIcon';
 import React from 'react';
 import { getPowerType } from '@parsers/powerTypes';
 
-// An ore's smelt time as the game's item box fills its ] (N.js): Cooldown / (4 x ForgeSpeeed(0)), rounded up in its
-// unit. Forge slot 1's speed comes from the account when the caller passes it; without one it is the base 0.25.
+// An ore's smelt time as the game's item box fills its ] (N.js): Cooldown / FoodBonuses("OreSmithTime") / (4 x
+// ForgeSpeeed(0)), rounded up in its unit. The game's OreSmithTime is 1 and its OreRedux 0, whatever the save. Forge slot
+// 1's speed comes from the account when the caller passes it; without one it is the base 0.25.
 const smeltTime = (cooldown, account) => {
   const seconds = (Number(cooldown) || 0) / (4 * (account?.forge?.list?.[0]?.speed || 0.25));
   return 60 > seconds ? `${Math.ceil(seconds)} Seconds` : 3600 > seconds ? `${Math.ceil(seconds / 60)} Minutes`
@@ -16,10 +17,40 @@ const smeltTime = (cooldown, account) => {
 const typeName = (type) => (type?.startsWith('INVENTORY') ? 'Inventory Bag'
   : type?.startsWith('STORAGE') ? 'Storage Chest' : titleCaseName(cleanUnderscore(type)));
 const slotsText = (slots) => `+${slots} slot${Number(slots) === 1 ? '' : 's'}`;
+// game: StoneChancePCT(0) = GuildBonuses(13) + GambitBonuses(4); a Tempest stone asks for (1), which is 0. Read off the
+// account: the parsers holding these two helpers import all of website-data, and this card is on every wiki page.
+const stoneChanceBonus = (rawName, account) => {
+  if (rawName?.includes('Tempest')) return 0;
+  const guildBonus = account?.guild?.guildBonuses?.[13];
+  return (guildBonus ? growth(guildBonus.func, guildBonus.level, guildBonus.x1, guildBonus.x2, false) : 0)
+    + (account?.hole?.caverns?.gambit?.bonuses?.[4]?.bonus || 0);
+};
 // An upgrade stone's lines as the game's item box fills them (N.js): * its chance, at most 100, # the slots it takes.
 const stoneText = (text, chance, slots) => {
-  const filled = text.replace('*', Math.min(Number(chance) || 0, 100)).replace('#', slots);
+  const filled = text.replace('*', gameFill(Math.min(chance, 100), 'Small')).replace('#', slots);
   return Number(slots) === 1 ? filled.replace('slots', 'slot') : filled;
+};
+// game: FoodBonuses(Effect + "EffectBonus") on a food's [. It's 1 for an oil and for a food that's neither Health nor a
+// Boost, and the character's without one: the game reads the player's own, and a page with no character shows the base.
+const foodEffectMulti = (Effect, character, account, getPlayerFoodBonus) => {
+  if (!character) return 1;
+  if (Effect === 'Health') return getPlayerFoodBonus(character, account, true);
+  return Effect?.endsWith('Boosts') ? getPlayerFoodBonus(character, account) : 1;
+};
+// game: FoodBonuses(Effect + "ForgeCooldownBonus") on an oil's ], 1 - GetBribeBonus("9") / 100. A food's is 1.
+const oilCooldownMulti = (account) => 1 - (account?.bribes?.find(({ name, done }) => name === 'Fossil_Fuel_Legislation' && done)?.value ?? 0) / 100;
+// The item box's [ and ] (N.js, its DESC row), for what fills them with more than the item's own numbers
+const filledAmount = ({ Type, typeGen, Effect, Amount, character, account, getPlayerFoodBonus }) => {
+  if (typeGen === 'bOre') return gameFill(Math.max(Math.ceil(Number(Amount)), 1), 'Big', { whole: true });
+  if (typeGen === 'cOil') return gameFill(Number(Amount), 'Small');
+  if (typeGen !== 'cFood') return Amount;
+  const value = Number(Amount) * foodEffectMulti(Effect, character, account, getPlayerFoodBonus);
+  return Type === 'HEALTH_FOOD' ? gameFill(Math.round(value), 'Round', { whole: true }) : gameFill(value, 'Small');
+};
+const filledCooldown = ({ typeGen, Cooldown, account }) => {
+  if (typeGen === 'bOre') return smeltTime(Cooldown, account);
+  if (typeGen === 'cOil') return gameFill(Number(Cooldown) * oilCooldownMulti(account), 'Small');
+  return typeGen === 'cFood' ? gameFill(Number(Cooldown), 'Small') : Cooldown;
 };
 
 // One line of an item's note: the label at 500, its value after it, wrapping as a sentence does.
@@ -33,6 +64,7 @@ const ItemDisplay = ({
                        account,
                        Type,
                        typeGen,
+                       Effect,
                        description,
                        lvReqToEquip,
                        Class: className,
@@ -80,6 +112,8 @@ const ItemDisplay = ({
                        // 148 public /tools/builds/* pages, where it returns 0 anyway because they
                        // have no character. Callers holding account context pass the real one.
                        getGoldenFoodBonus = () => 0,
+                       // The same, from parsers/character. A food's own number on a character's items.
+                       getPlayerFoodBonus = () => 1,
                        characters
                      }) => {
 
@@ -93,8 +127,8 @@ const ItemDisplay = ({
   // The game's sentence carries its own %, so the bonus goes in bare.
   const filledDesc = allDesc.filter((desc) => desc && desc !== 'Filler').join(' ').replace(/\[/, isGoldenFood
     ? formatNum(goldenFoodBonus, 'pct', { bare: true })
-    : Amount).replace(/]/, typeGen === 'bOre' ? smeltTime(Cooldown, account) : Cooldown);
-  const mergedDesc = typeGen === 'dStone' ? stoneText(filledDesc, Amount, Trigger) : filledDesc;
+    : filledAmount({ Type, typeGen, Effect, Amount, character, account, getPlayerFoodBonus })).replace(/]/, filledCooldown({ typeGen, Cooldown, account }));
+  const mergedDesc = typeGen === 'dStone' ? stoneText(filledDesc, (Number(Amount) || 0) + stoneChanceBonus(rawName, account), Trigger) : filledDesc;
 
   return displayName && displayName !== 'Empty' && displayName !== 'Locked' ? <>
     {/* An item card's header: the M card's 40 px icon, named by the title beside it */}
