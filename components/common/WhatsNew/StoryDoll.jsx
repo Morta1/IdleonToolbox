@@ -10,9 +10,10 @@ export const IDLE = '0';
 export const WALK = '1';
 
 // Wide enough for any gear's reach (PLAYER_REACH_LEFT, and as much again to the right), with no pet: the wardrobe's anchor sits
-// off-centre to leave a pet its room, and a mirrored doll has to turn on its own feet. Scale 2 keeps each label pixel whole.
+// off-centre to leave a pet its room, and a mirrored doll has to turn on its own feet. The wardrobe's scale, where each label
+// pixel is a whole block: the browser scales the canvas down from there.
 const REACH = 76;
-const SCALE = 2;
+const SCALE = 4;
 const AT = { scale: SCALE, anchorX: REACH, anchorY: CANVAS.anchorY };
 
 // One cache for the whole crew: most of them share sheets.

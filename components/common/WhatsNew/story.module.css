@@ -71,7 +71,7 @@
 .crowd { position: absolute; inset: 0; pointer-events: none }
 .slot { position: absolute; aspect-ratio: 88 / 81; pointer-events: none; animation: walk-in var(--dur) linear var(--d) both }
 /* The slot is the body and its label: the canvas reaches past it, so no gear is ever cut. */
-.doll { position: absolute; left: -36.36%; top: -65.43%; width: 172.73%; height: 165.43%; display: block; image-rendering: pixelated }
+.doll { position: absolute; left: -36.36%; top: -65.43%; width: 172.73%; height: 165.43%; display: block }
 .walker { position: absolute; left: 0; bottom: calc(var(--u) * -3.43); width: calc(var(--u) * 13); aspect-ratio: 88 / 81; z-index: 2; pointer-events: none; transform: translateX(-100%); filter: drop-shadow(0 calc(var(--u) * .3) calc(var(--u) * .3) rgba(0, 0, 0, .35)) }
 .helloText { position: absolute; left: var(--gutter); right: var(--gutter); top: calc(var(--u) * 6) }
 .helloText .h { font-size: calc(var(--u) * 4.6) }
