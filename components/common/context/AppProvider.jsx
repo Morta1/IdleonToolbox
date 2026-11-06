@@ -9,6 +9,7 @@ import { setRawJson } from '@utility/helpers';
 import { errorMessage, trackEvent } from '@utility/analytics';
 import { readAuthHint, writeAuthHint } from '@utility/auth-hint';
 import { routeNeedsAccount } from '@utility/account-routes';
+import { releaseBandSlot } from '@utility/band-slot';
 import { readLocalStorageValue } from '@mantine/hooks';
 import { simulatedCompanionsKey } from '@components/constants';
 import { parseSave } from '@utility/parseSave';
@@ -442,6 +443,8 @@ const AppProvider = ({ children }) => {
         // the SDK on every later visit.
         writeAuthHint(user ? 'yes' : 'no');
         hadSession = !!user;
+        // No guest's band is coming. Closed now, over the loader: in the save's commit it would move with the whole page.
+        if (user) releaseBandSlot();
         if (!state?.account && user) {
           const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
           unsubscribeRef.current = unsub;

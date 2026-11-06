@@ -4,9 +4,11 @@ import InitColorSchemeScript from '@mui/material/InitColorSchemeScript';
 import createEmotionServer from '@emotion/server/create-instance';
 import createEmotionCache from '../utility/createEmotionCache';
 import defaultTheme from '../styles/theme/theme';
+import { bandSlotScript } from '../utility/band-slot';
 
 export default class MyDocument extends Document {
   render() {
+    const bandSlot = bandSlotScript(this.props.__NEXT_DATA__.page);
     // No <title> or <meta name="description"> here on purpose. Both used to live in this file,
     // because next/head was dropping <title> and the whole site shipped untitled. next/head no
     // longer drops it (the exported tag carries data-next-head), and _app declares both in its
@@ -39,6 +41,8 @@ export default class MyDocument extends Document {
         <body>
         {/* First in the body, so a stored scheme's class is on <html> before anything paints. */}
         <InitColorSchemeScript attribute="class" defaultMode="dark"/>
+        {/* Before the first paint too, and in the body: a head tag from here is outside next/head's control. */}
+        {bandSlot ? <script dangerouslySetInnerHTML={{ __html: bandSlot }}/> : null}
         <Main/>
         <NextScript/>
         </body>

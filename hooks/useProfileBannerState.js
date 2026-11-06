@@ -1,12 +1,9 @@
 import { useContext } from 'react';
 import { useRouter } from 'next/router';
 import { AppContext } from '@components/common/context/AppProvider';
-import { routeNeedsAccount } from '@utility/account-routes';
+import { NO_GUEST_NUMBERS, routeNeedsAccount } from '@utility/account-routes';
 
-// Routes that still pay for an empty account (account-routes.js) though no number on them reads it, so the guest's band
-// has nothing true to say there.
-const NO_GUEST_NUMBERS = new Set(['/settings']);
-
+// bandSlotScript (utility/band-slot.js) guesses this rule before the app runs, and holds the band's room when it says yes.
 const useProfileBannerState = () => {
   const { state } = useContext(AppContext);
   const router = useRouter();

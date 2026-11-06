@@ -12,6 +12,13 @@ vi.mock('next/router', () => ({ useRouter: () => router }));
 const parseData = vi.hoisted(() => vi.fn(() => ({ account: { empty: true }, characters: [] })));
 vi.mock('@parsers/index', () => ({ parseData }));
 
+// A session firebase finds, whose save never lands here. The anonymous tests never ask: their hint skips firebase.
+vi.mock('../../firebase/lazy', () => ({
+  firebaseRequested: () => false,
+  loadFirebase: async () => ({ checkUserStatus: async () => ({ uid: 'a', accessToken: 'b' }), subscribe: async () => () => {} })
+}));
+
+const { BAND_SLOT_ATTR } = await import('@utility/band-slot');
 const { routeNeedsAccount } = await import('@utility/account-routes');
 const { default: AppProvider, AppContext } = await import('@components/common/context/AppProvider');
 const { default: usePageDataLoading } = await import('@hooks/usePageDataLoading');
@@ -98,5 +105,15 @@ describe('AppProvider anonymous visitor', () => {
     render(<AppProvider><Probe/></AppProvider>);
     await waitFor(() => expect(seen.current.account).toEqual({ empty: true }));
     expect(parseData).toHaveBeenCalledTimes(1);
+  });
+
+  // Over the loader it moves a little. In the save's commit the page's whole height moves with it, a shift ten times the size.
+  it('closes a held band slot when firebase finds a session the hint did not know, before the save lands', async () => {
+    localStorage.removeItem('authHint');
+    document.documentElement.setAttribute(BAND_SLOT_ATTR, '');
+    render(<AppProvider><Probe/></AppProvider>);
+    await waitFor(() => expect(localStorage.getItem('authHint')).toBe('yes'));
+    expect(document.documentElement.hasAttribute(BAND_SLOT_ATTR)).toBe(false);
+    expect(seen.current.isLoading).toBe(true);
   });
 });

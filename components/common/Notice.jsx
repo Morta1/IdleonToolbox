@@ -20,8 +20,8 @@ export const NOTICE_TONES = {
 };
 
 // The one band under the app bar. AppDrawer and the leaderboards toolbar offset by its 40 px while
-// useProfileBannerState says the slot is taken.
-const BANNER_SX = {
+// useProfileBannerState says the slot is taken. ProfileBanner's held slot is this same box, empty.
+export const BANNER_SX = {
   position: 'sticky',
   top: navBarHeight,
   zIndex: (theme) => theme.zIndex.drawer + 1,

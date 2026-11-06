@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext, useLayoutEffect, useRef, useState } from 'react';
 import { Box } from '@mui/material';
 import { IconEye, IconFlask, IconInfoCircle, IconLayoutNavbar } from '@tabler/icons-react';
 import { useLocalStorage } from '@mantine/hooks';
@@ -8,17 +8,36 @@ import { AppContext } from '../context/AppProvider';
 import useProfileBannerState from '@hooks/useProfileBannerState';
 import useAdBlockNotice from '@hooks/useAdBlockNotice';
 import { sessionQueryWithoutProfile } from '@utility/nav-query';
-import Notice from '@components/common/Notice';
+import Notice, { BANNER_SX } from '@components/common/Notice';
 import { trackEvent } from '@utility/analytics';
+import { BAND_SLOT_ATTR, releaseBandSlot } from '@utility/band-slot';
 import AdBlockHowDialog from './AdBlockHowDialog';
 
 // What a phone leaves out of a line: the band is one 40 px row, and the button carries the rest. Each tail starts with
 // its own punctuation, so the line reads as before from 600 px.
 const WideOnly = ({ children }) => <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' } }}>{children}</Box>;
 
+// The band's own box with nothing in it, so its arrival only adds its words. Takes space only while <html> holds it.
+const SLOT_SX = { display: 'none', [`html[${BAND_SLOT_ATTR}] &`]: { ...BANNER_SX, display: 'block' } };
+
+// Goes in the commit that answers who is visiting, band or no band, so the band takes its place with nothing moving. A
+// failed sign-in check clears isLoading a step ahead of the guest's flags, so these are what's read. It also goes with the
+// page it was held for: pathname for a route that keeps the URL (a failed profile's 404), the URL for one that keeps the pattern.
+const BandSlot = () => {
+  const { state } = useContext(AppContext);
+  const router = useRouter();
+  const landedOn = useRef(null);
+  useLayoutEffect(() => {
+    const here = `${router.pathname} ${window.location.pathname}`;
+    landedOn.current ??= here;
+    if (here !== landedOn.current || state.signedIn || state.emptyAccount || state.demo || state.profile) releaseBandSlot();
+  });
+  return <Box aria-hidden data-shell="band-slot" sx={SLOT_SX}/>;
+};
+
 // The banner slot: one band under the app bar, one notice at a time, in this order. Every state is its
 // own early return; the ad-block ask comes last, only when none of the others is up.
-const ProfileBanner = () => {
+const Band = () => {
   const { state, dispatch, reparseOwnAccount } = useContext(AppContext);
   const router = useRouter();
   const profileName = router?.query?.profile;
@@ -94,5 +113,10 @@ const ProfileBanner = () => {
   }
   return null;
 };
+
+const ProfileBanner = () => <>
+  <BandSlot/>
+  <Band/>
+</>;
 
 export default ProfileBanner;

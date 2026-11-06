@@ -27,3 +27,7 @@ const STATIC_ROUTES = new Set([
 
 // `pathname` is the Next route pattern (router.pathname), not the URL.
 export const routeNeedsAccount = (pathname) => !STATIC_ROUTES.has(pathname);
+
+// Routes that still pay for an empty account though no number on them reads it, so the guest's band
+// has nothing true to say there.
+export const NO_GUEST_NUMBERS = new Set(['/settings']);
