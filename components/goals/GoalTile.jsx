@@ -5,7 +5,7 @@ import { Box, Button, Divider, IconButton, Menu, MenuItem, Typography } from '@m
 import CardGrid from '@components/common/cards/CardGrid';
 import { IconDotsVertical, IconNote } from '@tabler/icons-react';
 import { editText, goalFace, valueColor } from './parts/format';
-import { COMPACT_BUTTON_SX, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX, PinStar } from './parts/GoalVisuals';
+import { COMPACT_BUTTON_SX, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX, GoalPin } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntriesDialog from './GoalEntriesDialog';
 import { isUnresolved } from '@utility/goals/resolve';
@@ -57,7 +57,7 @@ const GoalTile = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard' })
   return (
     <Box component="li" data-goal-status={view.status} sx={CARD_SX}>
       <Box sx={{ gridRow: 1, gridColumn: '1 / 3', display: 'flex', alignItems: 'center', gap: 0.75, minWidth: 0 }}>
-        <PinStar pinned={view.pinned} onToggle={onTogglePin && !unresolved ? () => onTogglePin(view) : undefined} keepSlot={!!onTogglePin && !unresolved} size={14}/>
+        <GoalPin pinned={view.pinned} onToggle={onTogglePin && !unresolved ? () => onTogglePin(view) : undefined} keepSlot={!!onTogglePin && !unresolved} size={14}/>
         {view.icon ? <GoalIcon src={view.icon} alt="" size={24}/> : null}
         <Typography data-goal-name variant="body2" component="span" sx={{ ...LINE_SX, fontWeight: 500, flexShrink: 1 }}>
           {displayTitle(view)}

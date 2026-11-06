@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box, IconButton, LinearProgress, Stack, Typography } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
-import { IconCheck, IconCircle, IconStar, IconStarFilled } from '@tabler/icons-react';
+import { IconCheck, IconCircle, IconPin, IconPinFilled } from '@tabler/icons-react';
 import { getCoinsArray } from '@utility/helpers';
 import CoinDisplay from '@components/common/CoinDisplay';
 import GameIcon from '@components/common/GameIcon';
@@ -60,17 +60,17 @@ export const GoalBar = ({ progress, reached, ready = false, label, sx }) => {
   );
 };
 
-// Pins a goal in one click: the pinned gold star (the breakdown's), a faint outline otherwise. Without onToggle it only marks a pin;
+// Pins a goal in one click: filled in the primary color as Guilds and the page's Pin read, a faint outline otherwise. Without onToggle it only marks a pin;
 // keepSlot then holds the button's width so the row lines up with rows that have one
-export const PinStar = ({ pinned, onToggle, keepSlot = false, size = 16 }) => {
+export const GoalPin = ({ pinned, onToggle, keepSlot = false, size = 16 }) => {
   if (!onToggle) {
     if (!pinned && !keepSlot) return null;
     return (
       <Box component="span" sx={{
-        display: 'inline-flex', justifyContent: 'center', color: 'identity.pin', flexShrink: 0,
+        display: 'inline-flex', justifyContent: 'center', color: 'primary.main', flexShrink: 0,
         ...(keepSlot && { width: size + 8 })
       }}>
-        {pinned ? <IconStarFilled size={size} aria-label="Pinned" role="img"/> : null}
+        {pinned ? <IconPinFilled size={size} aria-label="Pinned" role="img"/> : null}
       </Box>
     );
   }
@@ -81,10 +81,10 @@ export const PinStar = ({ pinned, onToggle, keepSlot = false, size = 16 }) => {
                   onToggle();
                 }}
                 sx={{
-                  p: 0.5, flexShrink: 0, color: pinned ? 'identity.pin' : 'text.muted',
-                  '&:hover, &:focus-visible': { color: 'identity.pin' }
+                  p: 0.5, flexShrink: 0, color: pinned ? 'primary.main' : 'text.muted',
+                  '&:hover, &:focus-visible': { color: 'primary.main' }
                 }}>
-      {pinned ? <IconStarFilled size={size}/> : <IconStar size={size}/>}
+      {pinned ? <IconPinFilled size={size}/> : <IconPin size={size}/>}
     </IconButton>
   );
 };

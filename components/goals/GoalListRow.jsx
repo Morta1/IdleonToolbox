@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import { Box, Button, ButtonBase, Stack, Typography } from '@mui/material';
 import { IconChevronDown, IconNote } from '@tabler/icons-react';
 import { editText, goalFace, goalText, maxIsGoal, valueColor } from './parts/format';
-import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GOAL_LIST_WIDTH, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX, PinStar, WRAP_ON_PHONE_SX } from './parts/GoalVisuals';
+import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GOAL_LIST_WIDTH, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX, GoalPin, WRAP_ON_PHONE_SX } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntries from './GoalEntries';
 import { isUnresolved } from '@utility/goals/resolve';
@@ -233,9 +233,9 @@ const GoalListRow = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard'
       borderColor: open ? 'primary.main' : 'divider',
       borderRadius: 1
     }}>
-      {/* the star sits outside the row button (a button cannot hold another); a goal that cannot be measured only shows it */}
+      {/* the pin sits outside the row button (a button cannot hold another); a goal that cannot be measured only shows it */}
       <Box sx={{ display: 'flex', alignItems: 'center', pl: 0.5, '& > :last-child': { flex: 1, minWidth: 0 } }}>
-        <PinStar pinned={view.pinned} onToggle={onTogglePin && !unresolved ? () => onTogglePin(view) : undefined} keepSlot={!!onTogglePin}/>
+        <GoalPin pinned={view.pinned} onToggle={onTogglePin && !unresolved ? () => onTogglePin(view) : undefined} keepSlot={!!onTogglePin}/>
         {unresolved ? <UnresolvedRow view={view} face={face} onEdit={onEdit} onRemove={onRemove}/> : (
           <ButtonBase data-goal-row aria-expanded={open} aria-controls={open ? id : undefined}
                       onClick={() => setOpen(!open)}
@@ -256,7 +256,7 @@ const GoalListRow = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard'
   );
 };
 
-// A Panel's list: the rows fill it, with lines between them and no box of their own, their star on the Panel's 16 px side
+// A Panel's list: the rows fill it, with lines between them and no box of their own, their pin on the Panel's 16 px side
 const LINED_LIST_SX = {
   listStyle: 'none',
   m: 0,

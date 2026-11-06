@@ -55,10 +55,7 @@ export const ink = (alpha) => `rgba(var(--mui-palette-common-onBackgroundChannel
 export const focusWithinRing = (theme) => ({ '& :focus-visible': focusRing(theme) });
 
 // Identity colors: a thing's own color that reads the same everywhere, not a state or a role (3b Decision 3).
-// pin: the breakdown's pinned star, gold as "pinned" reads elsewhere.
 const identity = {
-  pin: '#FFD700',
-  pinSoft: 'rgba(255, 215, 0, 0.1)',
   pinSoftHover: 'rgba(255, 215, 0, 0.15)',
   // An item's stat labels: what main's item card and wiki wore (MUI's error, success, secondary and warning .dark)
   stats: { STR: '#d32f2f', AGI: '#388e3c', WIS: '#ab47bc', LUK: '#f57c00' },
@@ -107,7 +104,6 @@ const identity = {
 // text.secondary beside them, and no further, or yellows turn brown. Dots, edges and the game's pictures keep the set above.
 const lightIdentity = {
   ...identity,
-  pin: '#746200',
   stats: { STR: '#bc2a2a', AGI: '#2c7130', WIS: '#953ea5', LUK: '#9b4f00' },
   superTalent: '#74622b',
   damage: { blue: '#336a7e', purple: '#8948a4', yellow: '#706332', plain: '#666450' },
