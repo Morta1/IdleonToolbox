@@ -3,6 +3,7 @@ import { createTheme } from '@mui/material/styles';
 import shadows from '@mui/material/styles/shadows';
 import { IconChevronDown } from '@tabler/icons-react';
 import { SERIES } from '../../utility/chartTheme';
+import { PALE_SPRITE_STYLES } from '../../utility/paleSprites';
 
 // Values are read through theme.vars, so both schemes share this file's rules.
 const palette = (theme) => (theme.vars || theme).palette;
@@ -243,7 +244,8 @@ const theme = createTheme({
     },
     MuiCssBaseline: {
       styleOverrides: (theme) => ({
-        'a:focus-visible, button:focus-visible': focusRing(theme)
+        'a:focus-visible, button:focus-visible': focusRing(theme),
+        ...PALE_SPRITE_STYLES
       })
     },
     MuiButtonBase: {
