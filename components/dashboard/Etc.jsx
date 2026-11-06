@@ -191,10 +191,13 @@ const Etc = ({ characters, account, lastUpdated, trackers, bookAlert }) => {
 
   const closestWorshiper = getClosestWorshiper(characters);
   const { timeAway, voteBallot } = account || {};
-  const bonusTimeLeft = timeAway ? (604800 - (timeAway?.GlobalTime + 197860 - 604800 * Math.floor((timeAway?.GlobalTime + 197860) / 604800))) * 1000 : 0;
-  const meritocracyTimeLeft = timeAway ? (604800 - (timeAway?.GlobalTime + 543460 - 604800 * Math.floor((timeAway?.GlobalTime + 543460) / 604800))) * 1000 : 0;
-  const nextVoteBonus = now + bonusTimeLeft;
-  const nextMeritocracyVote = now + meritocracyTimeLeft;
+  // Vote weeks run on a fixed weekly schedule, so an old save still has a next one: read from the clock, not the save.
+  const voteWeekEnds = (offset) => {
+    const clock = Math.max(now, wallClock) / 1000;
+    return (clock + 604800 - (clock + offset) % 604800) * 1000;
+  };
+  const nextVoteBonus = voteWeekEnds(197860);
+  const nextMeritocracyVote = voteWeekEnds(543460);
   const hasVotedBonus = !!voteBallot?.selectedBonus?.[0];
   const hasVotedMeritocracy = !!voteBallot?.selectedMeritocracyBonus?.description;
 
