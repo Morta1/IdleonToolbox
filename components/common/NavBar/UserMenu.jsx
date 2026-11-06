@@ -112,6 +112,8 @@ const UserMenu = () => {
       onClose={handleClose}
       transformOrigin={{ horizontal: 'right', vertical: 'top' }}
       anchorOrigin={{ horizontal: 'right', vertical: 'bottom' }}
+      // Past the theme's 360 px, which put the last row behind a scroll: only a window too short for the menu scrolls it.
+      slotProps={{ paper: { sx: { maxHeight: 'calc(100% - 32px)' } } }}
     >
       {createdAt ? <MenuCaption>{`Account created ${formatDate(createdAt, { showSeconds: false })}`}</MenuCaption> : null}
       {themeRows}
