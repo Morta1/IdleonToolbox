@@ -84,6 +84,10 @@ const trophyMeta = (trophy) => {
 };
 
 const Trophies = ({ trophiesUsed, bonusRows, inventoryTrophies, allTrophies, sectionFailed }) => <>
+  {/* A guest has no bonus: no Panel, no heading */}
+  {bonusRows?.length ? <Panel title={'Bonuses'} sx={{ my: 3 }}>
+    {bonusRows.map(([label, value], index) => <Panel.KV key={`${label}-${index}`} label={label} value={value}/>)}
+  </Panel> : null}
   {inventoryTrophies?.length ? <Stack gap={1} sx={{ my: 3 }}>
     <Typography variant={'sectionTitle'} component={'h2'}>Inventory trophies</Typography>
     <CardGrid size={'icon'}>
@@ -109,10 +113,6 @@ const Trophies = ({ trophiesUsed, bonusRows, inventoryTrophies, allTrophies, sec
     </CardGrid>
   </Stack> : null}
   <CatalogList page={'gallery-trophies'} title={'All trophies'} noun={'trophies'} items={allTrophies} meta={trophyMeta} failed={sectionFailed}/>
-  {/* A guest has no bonus: no Panel, no heading */}
-  {bonusRows?.length ? <Panel title={'Bonuses'} sx={{ my: 3 }}>
-    {bonusRows.map(([label, value], index) => <Panel.KV key={`${label}-${index}`} label={label} value={value}/>)}
-  </Panel> : null}
 </>;
 
 export default Trophies;

@@ -23,13 +23,13 @@ const baseHelmet = (hat) => ({
 // The rack's multi shows once, on the Bonuses panel, whose totals hold it. sectionFailed: the catalog at zero with no
 // state words
 const HatRack = ({ bonusMulti, hatBonuses, allPremiumHelmets, sectionFailed }) => <>
-  <CatalogList page={'hat-rack'} title={'Premium helmets'} noun={'helmets'} items={allPremiumHelmets?.map(baseHelmet)} failed={sectionFailed}/>
-  {hatBonuses?.length ? <Panel title={'Bonuses'}
+  {hatBonuses?.length ? <Panel title={'Bonuses'} sx={{ mb: 3 }}
                                meta={`Totals with the hat rack multi ${formatGame(bonusMulti ?? 1, 'Gallery.HatrackBonusMulti')}x`}>
     <Box sx={{ display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' } }}>
       {hatBonuses.map((bonus, index) => <Panel.Row key={`bonus-${index}`} name={bonusText(bonus)}/>)}
     </Box>
   </Panel> : null}
+  <CatalogList page={'hat-rack'} title={'Premium helmets'} noun={'helmets'} items={allPremiumHelmets?.map(baseHelmet)} failed={sectionFailed}/>
 </>;
 
 export default HatRack;
