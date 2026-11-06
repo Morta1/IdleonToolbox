@@ -8,7 +8,7 @@ import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
 import { NextSeo } from 'next-seo';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -195,7 +195,7 @@ const Stamps = () => {
       <PageSummary>
         <StatTile label={'Gilded stamps'} icon={'data/GildedStamp.png'} value={riftFailed ? '-' : formatNum(gildedStamps)}
                   sub={gildedSub}/>
-        <StatTile label={'No Stamp Left Behind'} value={perDayText}
+        <StatTile label={'No Stamp Left Behind'} value={perDayText} failed={isParseFailed(state?.account)}
                   breakdown={stampsPerDay?.breakdown ? { ...stampsPerDay.breakdown, totalValue: perDayText } : undefined}
                   breakdownTitle={'No Stamp Left Behind'}/>
         <StatTile label={'Exalted multi'} value={exaltedFailed ? '-' : exaltedText}

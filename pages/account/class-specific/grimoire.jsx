@@ -12,7 +12,7 @@ import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import Panel from '@components/common/cards/Panel';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
-import { isSectionFailed, MissingData } from '@components/common/styles';
+import { isParseFailed, isSectionFailed, MissingData } from '@components/common/styles';
 import Upgrades from '@components/account/Misc/class-specific/Grimoire/Upgrades';
 import Monsters from '@components/account/Misc/class-specific/Grimoire/Monsters';
 import { boneNames, getGrimoire, getWraithStats } from '@parsers/class-specific/grimoire';
@@ -67,7 +67,7 @@ const Grimoire = () => {
   // A tile the failed section feeds shows no number
   const shown = (value) => (sectionFailed ? '-' : value);
   const formMeta = selectedCharacter?.name
-    ?? (state?.emptyAccount ? 'Sign in to see your Death Bringer' : 'No Death Bringer on this account');
+    ?? (state?.emptyAccount ? 'Sign in to see your Death Bringer' : isParseFailed(state?.account) ? undefined : 'No Death Bringer on this account');
 
   return <>
     <NextSeo

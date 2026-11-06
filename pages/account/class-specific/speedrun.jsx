@@ -6,7 +6,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
-import { isSectionFailed, MissingData } from '@components/common/styles';
+import { isParseFailed, isSectionFailed, MissingData } from '@components/common/styles';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import { getPortalProgressBreakdown, getSpeedrunPlan, getSpeedrunStats } from '@parsers/class-specific/speedrun';
 import { getMaxDamage } from '@parsers/damage';
@@ -86,7 +86,7 @@ const Speedrun = () => {
       </TextField>
     </PageHeaderControl> : null}
     {/* Each note hangs off the label's i (StatTile's info), as the Info board draws it */}
-    <PageSummary>
+    <PageSummary failed={isParseFailed(state?.account)}>
       <StatTile label={'Portal highscore'} icon={'data/UISkillIcon45.png'} value={formatNum(highscore ?? 0)}/>
       <StatTile label={'Run duration'} value={ofVoidwalker(runUnlocked ? formatDuration(runDuration) : 'Talent not learned')}
                 info={runUnlocked
@@ -113,7 +113,7 @@ const Speedrun = () => {
     </PageSummary>
     <Bosses bosses={plan?.bosses} bossPortals={plan?.bossPortals} runUnlocked={plan?.runUnlocked}
             hasVoidwalker={Boolean(selectedVoidwalker)} emptyAccount={state?.emptyAccount}/>
-    <Portals character={selectedVoidwalker} plan={plan} emptyAccount={state?.emptyAccount}/>
+    <Portals character={selectedVoidwalker} plan={plan} emptyAccount={state?.emptyAccount} parseFailed={isParseFailed(state?.account)}/>
   </>
 };
 

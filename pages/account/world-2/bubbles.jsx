@@ -27,7 +27,7 @@ import { getPrismaMulti } from '@parsers/class-specific/tesseract';
 import { getAchievementStatus } from '@parsers/achievements';
 import { OPT } from '@parsers/accountOptions';
 import { createBreakdown, info, listGroup } from '@parsers/breakdown';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import Panel from '@components/common/cards/Panel';
@@ -440,7 +440,7 @@ const Bubbles = () => {
                   breakdownTitle={'Prisma multi'}/>
         <StatTile label={'Prisma fragments'}
                   value={alchemyFailed ? '-' : formatNum(Math.floor(account?.alchemy?.prismaFragments ?? 0))}/>
-        <StatTile label={'Particle upgrades'} value={formatNum(account?.accountOptions?.[OPT.alternateParticles] ?? 0)}/>
+        <StatTile label={'Particle upgrades'} value={formatNum(account?.accountOptions?.[OPT.alternateParticles] ?? 0)} failed={isParseFailed(account)}/>
         {pricedWith ? <StatTile label={'Priced with'} value={pricedWith}/> : null}
       </PageSummary>
       {daily.length ? <Panel title={'Upgraded daily'} meta={`${formatNum(daily.length)} bubbles`} sx={{ mb: 3 }}>

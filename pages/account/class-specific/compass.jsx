@@ -12,7 +12,7 @@ import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import Panel from '@components/common/cards/Panel';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
-import { isSectionFailed, MissingData } from '@components/common/styles';
+import { isParseFailed, isSectionFailed, MissingData } from '@components/common/styles';
 import Upgrades from '@components/account/Misc/class-specific/Compass/Upgrades';
 import Abominations from '@components/account/Misc/class-specific/Compass/Abominations';
 import Medallions from '@components/account/Misc/class-specific/Compass/Medallions';
@@ -88,7 +88,7 @@ const Compass = () => {
   // A tile the failed section feeds shows no number
   const shown = (value) => (sectionFailed ? '-' : value);
   const formMeta = selectedWindWalker?.name
-    ?? (state?.emptyAccount ? 'Sign in to see your Wind Walker' : 'No Wind Walker on this account');
+    ?? (state?.emptyAccount ? 'Sign in to see your Wind Walker' : isParseFailed(state?.account) ? undefined : 'No Wind Walker on this account');
 
   return <>
     <NextSeo

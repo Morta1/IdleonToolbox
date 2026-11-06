@@ -3,7 +3,7 @@ import { AppContext } from 'components/common/context/AppProvider';
 import { Box, Typography } from '@mui/material';
 import { cleanUnderscore, commaNotation, formatNum, titleCaseName } from 'utility/helpers';
 import { gameBonusText } from '@utility/gameNotation';
-import { MissingData, PlayersList, isSectionFailed } from '@components/common/styles';
+import { MissingData, PlayersList, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { calcSigilsLevels, getAlchemy, getSigilNextCost, getSigilTierUnlocks } from '@parsers/world-2/alchemy';
 import { getPrismaMulti } from '@parsers/class-specific/tesseract';
@@ -133,7 +133,7 @@ const Sigils = () => {
                 breakdown={!progressionFailed && sigilSpeed?.breakdown ? { ...sigilSpeed.breakdown, totalValue: speedText } : undefined}
                 breakdownTitle={'Sigil speed'}/>
       <StatTile label={'Sigil syrup'} icon={'data/SigilSyrup.png'}
-                value={formatNum(account?.accountOptions?.[OPT.sigilSyrup] ?? 0)}/>
+                value={formatNum(account?.accountOptions?.[OPT.sigilSyrup] ?? 0)} failed={isParseFailed(account)}/>
       <StatTile label={'Total sigil levels'} value={alchemyFailed ? '-' : formatNum(calcSigilsLevels(sigils))}/>
       <StatTile label={'Prisma from sigils'}
                 value={alchemyFailed ? '-' : formatNum(0.2 * etherealSigils, 'pct', { signed: true })}

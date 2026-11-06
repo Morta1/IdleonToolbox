@@ -23,7 +23,7 @@ const portalSection = ({ portalIndex, reqKills, destinationName, secondsToClear,
   <MultiCharLockText lock={multiCharLock}/>
 </ItemCard.Section>;
 
-const Portals = ({ character, plan, emptyAccount }) => {
+const Portals = ({ character, plan, emptyAccount, parseFailed }) => {
   const [view, setView, resetView] = useToolbarState('speedrun-portals', PORTALS_TOOLBAR);
 
   const all = plan?.portals ?? [];
@@ -50,7 +50,7 @@ const Portals = ({ character, plan, emptyAccount }) => {
       <Toolbar.Filter name={'detailed'} label={'Detailed view'}/>
     </Toolbar> : emptyAccount
       ? <Notice tone={'signin'}>Your Voidwalker&apos;s clear times show here once you sign in.</Notice>
-      : <Notice tone={'locked'}>Create a Voidwalker to see your clear times.</Notice>}
+      : parseFailed ? null : <Notice tone={'locked'}>Create a Voidwalker to see your clear times.</Notice>}
     <Stack gap={3} aria-label="speedrun portals">
       {Object.entries(worlds).map(([world, maps]) => <Stack key={world} gap={1.5}>
         <Typography variant={'sectionTitle'} component={'h2'}>World {world}</Typography>

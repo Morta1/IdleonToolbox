@@ -20,7 +20,7 @@ import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import Panel from '@components/common/cards/Panel';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
-import { isSectionFailed, MissingData } from '@components/common/styles';
+import { isParseFailed, isSectionFailed, MissingData } from '@components/common/styles';
 import Upgrades from '@components/account/Misc/class-specific/Tesseract/Upgrades';
 import Maps from '@components/account/Misc/class-specific/Tesseract/Maps';
 import { getDropRate } from '@parsers/character';
@@ -78,7 +78,7 @@ const Tesseract = () => {
   // A tile the failed section feeds shows no number
   const shown = (value) => (sectionFailed ? '-' : value);
   const formMeta = selectedArcanist?.name
-    ?? (state?.emptyAccount ? 'Sign in to see your Arcane Cultist' : 'No Arcane Cultist on this account');
+    ?? (state?.emptyAccount ? 'Sign in to see your Arcane Cultist' : isParseFailed(state?.account) ? undefined : 'No Arcane Cultist on this account');
 
   return <>
     <NextSeo

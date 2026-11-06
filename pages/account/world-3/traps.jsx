@@ -8,7 +8,7 @@ import { NextSeo } from 'next-seo';
 import { calcTotalCritters, getShinyChanceInfo, getTrapsBonuses } from '@parsers/world-3/traps';
 import { createBreakdown, findBreakdownNode } from '@parsers/breakdown';
 import { items as itemsTable } from '@website-data';
-import { MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 import Notice from '@components/common/Notice';
 import StatusText from '@components/common/StatusText';
@@ -120,7 +120,7 @@ const Traps = () => {
     {sectionFailed ? <MissingData name={'Traps'} failed/> : !characters.length
       ? <Notice tone={'signin'} sx={{ mb: 2 }}>Each character&apos;s traps show here once you sign in.</Notice>
       : null}
-    <PageSummary>
+    <PageSummary failed={isParseFailed(state?.account)}>
       {rateTile('Critter collect rate', collectRate?.critter, 'TrappingStuffs.CollectAllPCT')}
       {rateTile('EXP collect rate', collectRate?.exp, 'TrappingStuffs.CollectAllPCTexp')}
       <StatTile label={'Shiny chance'} value={shinyText} sub={`${formatNum(shiny?.bundleSize ?? 1)} per drop`}
