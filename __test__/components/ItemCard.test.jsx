@@ -27,6 +27,20 @@ describe('ItemCard', () => {
     expect(container.querySelector('article').lastChild.textContent).toBe(expected);
   });
 
+  // A card at its level's max reads Maxed and drops its cost unless the page names another state (Statue flair priced Lv 5).
+  it.each([
+    ['below its max', { level: { value: 3, max: 4 } }, { state: null, cost: true }],
+    ['at its max', { level: { value: 4, max: 4 }, statusLabel: 'Unreleased' }, { state: 'Maxed', cost: false }],
+    ['at its max with its own state', { level: { value: 4, max: 4 }, status: 'locked', statusLabel: 'Unreleased' }, { state: 'Unreleased', cost: true }],
+    ['with no levels', { level: { value: 0, max: 0 } }, { state: null, cost: true }]
+  ])('a card %s', (_, props, expected) => {
+    const { container } = renderCard(<ItemCard title={'Power'} {...props} footer={<span data-cost>cost</span>}/>);
+    expect({
+      state: container.querySelector('[data-title-row] > span')?.textContent ?? null,
+      cost: Boolean(container.querySelector('[data-cost]'))
+    }).toEqual(expected);
+  });
+
   // Holes.Bravery_MonsterHP is a Comma stat in the game's data, so from 1M up the game's rule reads apart from the kind's.
   it.each([
     ['a kind', 'amount', '1.24M'],

@@ -87,9 +87,16 @@ export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title
 // the whole card is the link, so it holds no buttons; onClick opens it in place (a page that keeps its query), and
 // prefetch false leaves a large page's data until it is opened. keepMeta: a dimmed card whose meta line is its state in
 // words (Gallery's "Not acquired") keeps that line at full strength, so it reads at AA.
-const ItemCard = ({ href, onClick, prefetch, status, dimmed, keepMeta, size, footer, children, ...header }) => {
+// A card at its level's max is Maxed unless the page names another state, so it drops its cost by itself: a page that
+// forgot to say so priced a level past the cap (Statue flair's Lv 4 / 4 asking for marble).
+const reachedMax = (level) => Number.isFinite(level?.max) && level.max > 0 && (level.value ?? 0) >= level.max;
+const ItemCard = ({ href, onClick, prefetch, status: givenStatus, dimmed, keepMeta, size, footer, children, ...props }) => {
   const gridSize = useCardSize();
   const cardSize = size ?? gridSize;
+  const derivedMax = givenStatus == null && reachedMax(props.level);
+  const status = derivedMax ? 'maxed' : givenStatus;
+  // A label the page wrote for its own state never names the derived one
+  const header = derivedMax ? { ...props, statusLabel: undefined } : props;
   const root = href ? { component: NextLink, href, onClick, prefetch } : { component: 'article' };
   return <Box {...root} sx={[
     (theme) => cardSurface(theme),
