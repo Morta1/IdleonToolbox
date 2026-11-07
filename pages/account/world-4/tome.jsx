@@ -1,7 +1,7 @@
 import React, { Fragment, useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { Box, Stack } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
 import GameIcon from '@components/common/GameIcon';
 import { formatGame, tomeQuantity } from '@utility/gameNotation';
@@ -33,6 +33,11 @@ const TIERS = ['bronze', 'silver', 'gold', 'blue'];
 
 // The rank's word art ("TOP 25%") beside its words at its own size: StatTile's 24 px icon shrank it past reading, and
 // pixel art never scales up (5e's Bell).
+// A titled row of bonus tiles that wraps
+const BonusStrip = ({ title, children }) => <Stack gap={1} component={'section'} aria-label={title}>
+  <Typography variant={'groupLabel'} component={'h2'} color={'text.secondary'}>{title}</Typography>
+  <Stack direction={'row'} flexWrap={'wrap'} gap={1}>{children}</Stack>
+</Stack>;
 const RankBadge = ({ top }) => <GameIcon src={`data/TomeTop${top}.png`} fit={'bounds'} size={[102, 17]} alt={''}/>;
 
 // The tier the parser picked, read back off its colour (a locked entry has none); its word and the theme's colour for it
@@ -179,18 +184,19 @@ const Tome = () => {
     </PageSummary>
     <Tabber tabs={tabs}>
       <>
-        <CardGrid size={'l'} sx={{ mb: 3 }}>
-          {tome?.bonuses?.length ? <Panel title={'Tome bonuses'}>
-            {tome.bonuses.map(({ name, bonus, isMulti, icon }, index) => <Panel.Row
-              key={name} icon={icon || `etc/Tome_${index}.png`} name={cleanUnderscore(name).trim()}
+        {/* The bonuses as tiles in rows, as Slab's: two panels of one bonus a row took most of a screen beside an empty half */}
+        <Stack gap={2} sx={{ mb: 3 }}>
+          {tome?.bonuses?.length ? <BonusStrip title={'Tome bonuses'}>
+            {tome.bonuses.map(({ name, bonus, isMulti, icon }, index) => <StatTile
+              key={name} icon={icon || `etc/Tome_${index}.png`} label={cleanUnderscore(name).trim()}
               value={isMulti ? `${formatGame(1 + bonus / 100, 'Summoning.TomeBonus')}x` : formatNum(bonus ?? 0, 'pct')}/>)}
-          </Panel> : null}
-          {state?.account?.spelunking?.loreBonuses?.length ? <Panel title={'Lore bonuses'}>
-            {state.account.spelunking.loreBonuses.filter((upgrade) => upgrade?.name !== 'filler').map((upgrade) => <Panel.Row
-              key={upgrade?.name} icon={`etc/Tome_${upgrade?.index + 6}.png`} name={cleanUnderscore(upgrade?.name)}
+          </BonusStrip> : null}
+          {state?.account?.spelunking?.loreBonuses?.length ? <BonusStrip title={'Lore bonuses'}>
+            {state.account.spelunking.loreBonuses.filter((upgrade) => upgrade?.name !== 'filler').map((upgrade) => <StatTile
+              key={upgrade?.name} icon={`etc/Tome_${upgrade?.index + 6}.png`} label={cleanUnderscore(upgrade?.name)}
               value={upgrade?.isMulti ? `${formatGame(1 + (upgrade?.bonus ?? 0) / 100, 'Thingies.LoreEpiBon')}x` : formatNum(upgrade?.bonus ?? 0, 'pct')}/>)}
-          </Panel> : null}
-        </CardGrid>
+          </BonusStrip> : null}
+        </Stack>
         <Box>
           {sectionFailed ? null : <Toolbar state={toolbar} defaults={TOME_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
                    total={entries.length} shown={shown.length} noun={'entries'}>
