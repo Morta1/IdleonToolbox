@@ -57,10 +57,11 @@ const smallTileSx = (hasValue, empty) => ({
 // A fill grid lifts this, so a tile fills its column.
 const TILE_MAX = 'var(--tile-max, 72px)';
 // label: the thing's name under its sprite, for a collection whose sprites alone can't be told apart (hats, companions).
-// Two lines at most; the tile grows to hold it and its value.
+// Two lines at most, and always the room of two: a one-line name keeps its tile as tall as its neighbours, so a row of
+// tiles lines up whatever the names.
 const LABEL_SX = {
-  fontSize: 12, lineHeight: '15px', color: 'text.secondary', textAlign: 'center', maxWidth: '100%', overflowWrap: 'break-word',
-  display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
+  fontSize: 12, lineHeight: '15px', minHeight: 30, color: 'text.secondary', textAlign: 'center', maxWidth: '100%',
+  overflowWrap: 'break-word', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
 };
 
 // IconTile (Cards board): a sprite and one number, packed tight, for grids scanned at a glance. 72 px

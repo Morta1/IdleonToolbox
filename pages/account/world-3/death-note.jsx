@@ -21,6 +21,9 @@ import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 
 const DEATH_NOTE_TOOLBAR = { search: '', world: 'all' };
+// A world's table at its narrowest with no scrollbar (name, a 13-digit kill count, the rank skull): four to a row on a 1920
+// window's 1245 px page
+const WORLD_TABLE_MIN = 292;
 
 // A rank's skull: StatusSkull0 to 6 by the formula below, the eclipse skull past rank 10, none before the first.
 const skullOf = (rank) => {
@@ -116,7 +119,7 @@ const DeathNote = () => {
         </Toolbar> : null}
         {/* A short table per world, side by side, as the old page laid them out: one long table ran three times its height
             on a desktop. A row of worlds takes its tallest one's height. A world with no match draws no table. */}
-        <CardGrid size={'s'} sx={{ alignItems: 'start' }}>
+        <CardGrid size={'s'} sx={{ alignItems: 'start', gridTemplateColumns: `repeat(auto-fill, minmax(min(${WORLD_TABLE_MIN}px, 100%), 1fr))` }}>
           {bands.map((band) => <DataTable key={band.key} columns={COLUMNS} bands={[band]} bandNoun={'monsters'} rowKey={'rawName'}
                                           rowLabel={(mob) => cleanUnderscore(mob.displayName)} surface={'card'} dense/>)}
         </CardGrid>
