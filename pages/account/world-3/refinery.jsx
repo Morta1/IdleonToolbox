@@ -30,6 +30,20 @@ import {
 } from '@parsers/world-3/refinery';
 
 const REFINERY_SETTINGS = { squireCycles: false, nextLevelCost: false };
+// Two salts to a desktop row, each its numbers in two columns over its cost table: one salt per full-width row left the
+// table most of the row and the numbers' column set every panel's height. A panel wide enough for both (one to a row)
+// keeps the numbers beside the table, and a narrow one (a phone) keeps them in one column.
+const SALT_WIDE = '@container (min-width: 820px)';
+const SALTS_GRID_SX = { mt: 3, gridTemplateColumns: 'repeat(auto-fill, minmax(min(580px, 100%), 1fr))' };
+const SALT_BODY_SX = {
+  display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', alignItems: 'start',
+  [SALT_WIDE]: { gridTemplateColumns: 'minmax(260px, 320px) minmax(0, 1fr)' }
+};
+const SALT_FACTS_SX = {
+  py: 1, display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', alignItems: 'center',
+  '@container (max-width: 419.95px)': { gridTemplateColumns: 'minmax(0, 1fr)' },
+  [SALT_WIDE]: { gridTemplateColumns: 'minmax(0, 1fr)' }
+};
 
 // A cycle's drawer, headed with its tile's time: the parser writes the base time as "15m:00s", so every time in the
 // drawer reads in the header's format instead ("15m", "100d")
@@ -127,12 +141,8 @@ const Refinery = () => {
     });
     return <Panel key={`${saltName}-${saltIndex}`} icon={`data/${rawName}.png`} title={cleanUnderscore(saltName)}
                   meta={meta} aside={saltState}>
-      <Box sx={{
-        display: 'grid',
-        gridTemplateColumns: { xs: '1fr', md: 'minmax(260px, 320px) 1fr' },
-        alignItems: 'start'
-      }}>
-        <Box sx={{ py: 1 }}>
+      <Box sx={{ containerType: 'inline-size' }}><Box sx={SALT_BODY_SX}>
+        <Box sx={SALT_FACTS_SX}>
           <Panel.KV label={'Rank up in'} value={active ? <Timer type={'countdown'} component={'span'}
                                                                 lastUpdated={state?.lastUpdated}
                                                                 pause={!hasMaterialsForCycle} date={timeLeft}
@@ -157,7 +167,7 @@ const Refinery = () => {
         <Box sx={{ width: '100%', minWidth: 0, p: 2 }}>
           <DataTable columns={COST_COLUMNS} rows={rows} rowKey={'rawName'} rowLabel={({ name }) => cleanUnderscore(name)}/>
         </Box>
-      </Box>
+      </Box></Box>
     </Panel>;
   };
 
@@ -195,9 +205,9 @@ const Refinery = () => {
       </Box>
     </Panel> : null}
     <SaltChainSummary balances={saltsBalance} failed={sectionFailed}/>
-    {unlockedSalts.length ? <Stack gap={2} sx={{ mt: 3 }}>
+    {unlockedSalts.length ? <CardGrid size={'l'} sx={SALTS_GRID_SX}>
       {salts.map((salt, saltIndex) => (salt?.unlocked === false ? null : saltPanel(salt, saltIndex)))}
-    </Stack> : null}
+    </CardGrid> : null}
     {lockedSalts.length && !sectionFailed ? <Panel title={'Locked salts'} sx={{ mt: 3 }}>
       <Box sx={{ p: 2 }}>
         <CardGrid size={'icon'} fill>
@@ -311,12 +321,11 @@ const SaltChainSummary = ({ balances, failed }) => {
 }
 
 // A cost cell: the amount, "short" when the stock and what comes in can't cover it, and with Show next level cost on,
-// the next rank's amount under it.
+// the next rank's amount. Each on its own line, so a short cost never widens its column: beside the amount it made a
+// half-width salt's table scroll.
 const CostAmount = ({ value, next, short, nextShort, showNext }) => <>
-  <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, whiteSpace: 'nowrap' }}>
-    {formatNum(value, 'whole')}
-    {short ? <StatusText status={'problem'}>short</StatusText> : null}
-  </Box>
+  <Box sx={{ whiteSpace: 'nowrap' }}>{formatNum(value, 'whole')}</Box>
+  {short ? <Box sx={{ whiteSpace: 'nowrap' }}><StatusText status={'problem'}>short</StatusText></Box> : null}
   {showNext && next ? <Typography variant={'caption'} component={'div'} color={'text.secondary'} sx={{ whiteSpace: 'nowrap' }}>
     next {formatNum(next, 'whole')}{nextShort ? ', short' : ''}
   </Typography> : null}
