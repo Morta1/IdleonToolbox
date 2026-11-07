@@ -38,6 +38,7 @@ import SortField from './SortField';
 //   mutedWord(row)  a word dims the row as muted does and says so in place of its values (DataTable.test.jsx, mutedWord).
 //   linkOf(row)     { href, label }: the anchors a collapsed band still ships, so a crawler reaches every row.
 //   bandNoun        what a band's count counts ("12 monsters"), where the bare number would read as the last column's.
+//                   A band's count is its rows, or its own count: a searched band keeps its whole total (Death Note).
 //
 // Columns (columns[0] is the row's name: always shown, left-aligned, icon(row) beside it; the rest are data columns)
 //   render(row, { heading })  a column's own cell.
@@ -338,7 +339,7 @@ const DataTable = ({
                   <Typography variant={'groupLabel'} component={'span'} color={'text.secondary'}>{heading}</Typography>
                   {band.meta ? <Typography variant={'caption'} color={'text.secondary'}>{band.meta}</Typography> : null}
                   <Typography variant={'caption'} color={'text.secondary'} sx={{ ml: 'auto' }}>
-                    {formatNum(band.rows.length, 'whole')}{bandNoun ? ` ${bandNoun}` : ''}
+                    {formatNum(band.count ?? band.rows.length, 'whole')}{bandNoun ? ` ${bandNoun}` : ''}
                   </Typography>
                 </Stack>
               </Box>

@@ -1,7 +1,7 @@
 import { Box, Button, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
 import Notice from '@components/common/Notice';
 import { IconFlask } from '@tabler/icons-react';
-import { useContext, useState } from 'react';
+import { useContext, useDeferredValue, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { getCompanionSets, isUnreleasedCompanion } from '@parsers/misc';
@@ -41,7 +41,7 @@ const readSightings = (days, petMart, lastUpdated, plusView) => {
 // The game's effect text draws its + as {: every one, in both views
 export const effectText = (text) => cleanUnderscore(`${text ?? ''}`.replaceAll('{', '+'));
 
-const PETS_TOOLBAR = { show: 'all', sort: null };
+const PETS_TOOLBAR = { search: '', show: 'all', sort: null };
 const shortDate = (date) => format(parseISO(date), 'MMM d');
 
 // When this pet (Base view) or upgrade (Pet Mart+ view) was last on its Pet Mart counter. A pet never seen shows
@@ -66,6 +66,9 @@ const PetCollection = ({ companions, sectionFailed, tournamentFailed }) => {
   const failed = Boolean(sectionFailed);
   const show = failed ? 'all' : toolbar.show;
   const sort = failed ? null : toolbar.sort;
+  // The cards follow the search a beat behind the box, so typing stays responsive
+  const searchText = useDeferredValue(toolbar.search ?? '');
+  const query = failed ? '' : searchText.trim().toLowerCase();
 
   const allCompanions = companions ?? [];
   const indexedCompanions = allCompanions.map((companion, index) => ({ ...companion, index }));
@@ -99,9 +102,12 @@ const PetCollection = ({ companions, sectionFailed, tournamentFailed }) => {
     if (show === 'missing') return !comp?.acquired;
     return true;
   };
+  const matchesSearch = (comp) => !query || cleanUnderscore(comp?.name).toLowerCase().includes(query);
+  const matches = (comp) => matchesShow(comp) && matchesSearch(comp);
   const inView = (indices) => indices.map((i) => indexedCompanions[i]).filter(Boolean)
     .filter((comp) => !plusView || inPlusPool(comp));
-  const filterCompanions = (indices) => (editing ? inView(indices) : inView(indices).filter(matchesShow));
+  // Editing hides the Toolbar, so it lists every pet
+  const filterCompanions = (indices) => (editing ? inView(indices) : inView(indices).filter(matches));
 
   const { groups, unreleasedIndices } = getCompanionSets(indexedCompanions);
   const released = groups.flatMap((group) => group.indices).map((i) => indexedCompanions[i]).filter(Boolean);
@@ -130,7 +136,7 @@ const PetCollection = ({ companions, sectionFailed, tournamentFailed }) => {
     tradable: pool.filter((comp) => (plusView ? comp?.upgradedTradableCount : comp?.tradableCount) > 0).length,
     missing: pool.filter((comp) => (plusView ? !comp?.upgraded : !comp?.acquired)).length
   };
-  const shownCount = pool.filter(matchesShow).length;
+  const shownCount = pool.filter(matches).length;
 
   const petState = (pet) => {
     if (failed) return null;
@@ -219,6 +225,7 @@ const PetCollection = ({ companions, sectionFailed, tournamentFailed }) => {
                         note={historyFailed
                           ? <Notice tone={'info'}>The Pet Mart history didn&apos;t load: only your save&apos;s rotation is marked.</Notice>
                           : null}>
+      {failed ? null : <Toolbar.Search placeholder={'Search pets'}/>}
       <Toolbar.View options={[['pets', 'Base'], ['plus', 'Pet Mart+']]}/>
       {failed ? null : <Toolbar.Show options={[['all', 'All', counts.all], ['tradable', 'Tradable', counts.tradable],
         ['missing', plusView ? 'Not upgraded' : 'Missing', counts.missing]]}/>}
@@ -234,7 +241,8 @@ const PetCollection = ({ companions, sectionFailed, tournamentFailed }) => {
       {sortedBySighting
         ? petList('All pets', bySighting)
         : groups.map((group) => petList(group.name, filterCompanions(group.indices)))}
-      {!editing && !plusView && !sortedBySighting && show === 'all' && unreleasedIndices.length > 0
+      {/* Outside the counted list, so like a Show option a search hides it rather than leave it beside a "no match" note */}
+      {!editing && !plusView && !sortedBySighting && show === 'all' && !query && unreleasedIndices.length > 0
         ? petList('Not yet released', unreleasedIndices.map((i) => indexedCompanions[i]).filter(Boolean))
         : null}
     </Stack>
