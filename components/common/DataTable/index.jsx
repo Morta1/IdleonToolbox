@@ -71,7 +71,8 @@ import SortField from './SortField';
 //   dense           many narrow columns keep the phone's tighter padding at every width (Bone Joe's ten minibosses).
 //
 // Surface
-//   surface         'page', or 'card' to draw the table on the card surface.
+//   surface         'page', or 'card' to draw the table on the card surface, or 'panel' for a table inside a Panel or card:
+//                   the card's colour with no frame of its own, which would draw a box inside a box (Statue flair).
 //   stickyTop       where the page's sticky toolbar ends: a long table's header sticks there.
 //   sx              on the table.
 
@@ -201,7 +202,7 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, 
       position: 'sticky',
       top: `calc(${stickyTop}px + var(--page-tabs-pinned, 0px))`,
       zIndex: (theme) => theme.zIndex.appBar - 3,
-      bgcolor: surface === 'card' ? 'background.paper' : 'background.default'
+      bgcolor: surface === 'page' ? 'background.default' : 'background.paper'
     },
     ...(surface === 'card' ? {
       '& thead tr > :first-of-type': { borderTopLeftRadius: `${CARD_RADIUS}px` },

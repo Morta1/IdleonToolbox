@@ -77,7 +77,7 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels, sectionFailed }
             // A phone hides columns behind chevrons, so the table takes the width it has instead of its own.
             <Box sx={{ width: { xs: '100%', sm: 'fit-content' }, maxWidth: '100%' }}>
               <DataTable columns={flairColumns(statueFlair)} rows={statueFlair.marbleTotals} rowKey={'shardIndex'}
-                         rowLabel={({ name }) => cleanUnderscore(name)} surface={'card'}
+                         rowLabel={({ name }) => cleanUnderscore(name)} surface={'panel'}
                          // Locked flair: every cell in the muted color, its amounts kept.
                          sx={statueFlair?.unlocked ? undefined : { '& td': { color: 'text.muted' } }}/>
             </Box>
