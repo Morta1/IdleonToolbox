@@ -19,6 +19,12 @@ a {
   box-sizing: border-box;
 }
 
+/* An ad's frame holds a light document: under the dark scheme's color-scheme the browser paints that frame opaque
+   white wherever the creative doesn't cover it (an empty or loading slot). Rails and the anchor live in body, outside the app. */
+[id^="nitro-"] {
+  color-scheme: light;
+}
+
 #nitro-bottom-banner-ad {
   pointer-events: none !important;
 }
