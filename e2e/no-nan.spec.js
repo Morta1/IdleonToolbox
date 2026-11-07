@@ -155,7 +155,9 @@ test('active stuff calculator renders no NaN with a leftover snapshot and no sav
 // for one; a tool that needs characters or land ranks reads the demo. Each step proves it landed.
 const inGear = (label, value) => async (page) => {
   await page.getByRole('button', { name: 'Page settings' }).click();
-  await page.getByRole('dialog', { name: 'Page settings' }).getByLabel(label, { exact: true }).fill(value);
+  // Docked under the header on a desktop, a popover where the header has no dock
+  await page.getByRole('region', { name: 'Page settings' }).or(page.getByRole('dialog', { name: 'Page settings' }))
+    .getByLabel(label, { exact: true }).fill(value);
   await page.keyboard.press('Escape');
   await expect(page.getByRole('button', { name: 'Page settings, changed' })).toBeVisible();
 };

@@ -1,18 +1,20 @@
 import { navBarHeight } from '@components/constants';
 
 // The page frame (Layout boards; phase 4 Task 8). An inner page and its side ads are one centred group, each ad right
-// beside the page, never at the window's edge:
-// - CENTERED: two ads, one each side of a 1260 px page, where both fit by width and a 600 px ad fits by height;
-// - ONE_AD: one ad on the right from 850 px wide, narrower or shorter than that: page and ad are one group of at most
-//   1576 px, centred, and below 1624 px the group fills the window with 24 px sides, today's shape;
+// beside the page, never at the window's edge. The page takes the room the ads leave, up to FRAME_MAX, so a big monitor
+// shows more of it instead of empty margins:
+// - CENTERED: two ads, one each side of the page, where both fit by width and a 600 px ad fits by height: the page is
+//   the window less 660 px (the ads and four 15 px gaps), 1243 at 1920 and about 1880 at 2560;
+// - ONE_AD: one ad on the right from 850 px wide, narrower or shorter than that: the page is the window less 364 px;
 // - under 850 px, no ad: the page fills the window, with 16 px sides on a phone as the phone boards draw.
 // CSS only: the export and the first render agree at every size, and a page can take its width helper without the
 // shell's hooks (useFrame.js picks the frame for the page on screen; SideAds in AdUnit.jsx creates the units).
-export const FRAME_MAX = 1260;
+// FRAME_MAX holds a page to what reads as one page on an ultrawide.
+export const FRAME_MAX = 2000;
 const AD_WIDE = 300;
 const AD_TALL = 600;
-// One ad: 16 px to the page, so below 1624 the page keeps today's W - 364 (300 + 16 + its 24 px side). Two ads: 15 px,
-// the boards' 1920 to the pixel (15 + 300 + 15 + 1260 + 15 + 300 + 15).
+// One ad: 16 px to the page, which keeps its 24 px sides, so the page is W - 364 (300 + 16 + 24 + 24). Two ads: 15 px
+// between each part and at the window's edges (15 + 300 + 15 + page + 15 + 300 + 15).
 const AD_GAP = 16;
 const PAIR_GAP = 15;
 // The ads stick under the bar, the group row (52) and 24 px, where the boards draw them, clear of the band under the
@@ -20,8 +22,8 @@ const PAIR_GAP = 15;
 const AD_TOP = navBarHeight + 52 + 24;
 export const TALL = '(min-height: 836px)';
 const SHORT = '@media (max-height: 835.98px)';
-// Two ads and the page take 1890 px. From 1900 the page keeps 1260; a 17 px scrollbar, which media queries count and
-// the layout does not, takes it to 1253 at most, still four 300 px cards to a row (4 x 300 + 3 x 16 = 1248).
+// From 1900 two ads fit beside a page of about 1240 (a 17 px scrollbar, which media queries count and the layout does
+// not, included), four 300 px cards to a row (4 x 300 + 3 x 16 = 1248) at 1920.
 export const CENTERED = `@media (min-width: 1900px) and ${TALL}`;
 export const ONE_AD = '@media (min-width: 850px) and (max-width: 1899.98px), (min-width: 850px) and (max-height: 835.98px)';
 // The bar's links show from lg (1200) in one row that never wraps, and a user's name at its end needs the room: measured
@@ -49,7 +51,7 @@ export const frameSx = ({ reserveAds }) => ({
   [ONE_AD]: reserveAds
     ? grid(`minmax(0, ${FRAME_MAX}px) ${AD_WIDE}px`, '"page right"', AD_GAP)
     : grid(`minmax(0, ${FRAME_MAX + AD_GAP + AD_WIDE}px)`, '"page"', AD_GAP),
-  [CENTERED]: { ...grid(`${AD_WIDE}px minmax(0, ${FRAME_MAX}px) ${AD_WIDE}px`, '"left page right"', PAIR_GAP), px: 0 }
+  [CENTERED]: { ...grid(`${AD_WIDE}px minmax(0, ${FRAME_MAX}px) ${AD_WIDE}px`, '"left page right"', PAIR_GAP), px: `${PAIR_GAP}px` }
 });
 
 // The page's column: the header row and the page. minWidth 0 keeps a wide table from widening the track.

@@ -28,11 +28,17 @@ const AddGoalButton = dynamic(() => import('@components/goals/AddGoalButton'), {
 // The header's slots: the nodes a page renders its own header parts into (Page settings at the row's end, a page-wide
 // control by the title). null on the build machine and on the first client render, so the export has neither and nothing
 // mismatches; the page's own state stays the page's (a portal keeps its context).
-const SlotContext = createContext({ settings: null, control: null, setSettings: () => {}, setControl: () => {} });
+// panel: under the header row, where Page settings docks open on a desktop.
+const SlotContext = createContext({ settings: null, control: null, panel: null, setSettings: () => {}, setControl: () => {}, setPanel: () => {} });
 export const PageHeaderSlots = ({ children }) => {
   const [settings, setSettings] = useState(null);
   const [control, setControl] = useState(null);
-  return <SlotContext value={{ settings, control, setSettings, setControl }}>{children}</SlotContext>;
+  const [panel, setPanel] = useState(null);
+  return <SlotContext value={{ settings, control, panel, setSettings, setControl, setPanel }}>{children}</SlotContext>;
+};
+const PanelSlot = () => {
+  const { setPanel } = useContext(SlotContext);
+  return <Box ref={setPanel} sx={{ '&:empty': { display: 'none' } }}/>;
 };
 export const usePageHeaderSlot = (name = 'settings') => useContext(SlotContext)[name];
 export const SettingsSlot = () => {
@@ -178,13 +184,16 @@ const PageHeader = ({ onOpenGroup }) => {
   const parts = group && isNarrow ? [buttons, heading, control]
     : !group && isPhone ? [heading, buttons, control]
       : [heading, control, buttons];
-  return <Stack data-shell="header" direction="row" alignItems="center" flexWrap="wrap" columnGap={{ xs: 1, sm: 2 }} sx={headerSx(group, title)}>
-    {group && title ? <Stack direction="row" alignItems="center" gap={0.75} sx={{ display: { xs: 'flex', md: 'none' }, order: -2, flex: '1 1 0', minWidth: 0 }}>
-      {icon ? <TitleIcon icon={icon} sx={{ width: 20, height: 20, display: { xs: 'block', sm: 'none' } }}/> : null}
-      <Typography variant="caption" color="text.secondary" noWrap>{group.label}</Typography>
-    </Stack> : null}
-    {parts}
-  </Stack>;
+  return <>
+    <Stack data-shell="header" direction="row" alignItems="center" flexWrap="wrap" columnGap={{ xs: 1, sm: 2 }} sx={headerSx(group, title)}>
+      {group && title ? <Stack direction="row" alignItems="center" gap={0.75} sx={{ display: { xs: 'flex', md: 'none' }, order: -2, flex: '1 1 0', minWidth: 0 }}>
+        {icon ? <TitleIcon icon={icon} sx={{ width: 20, height: 20, display: { xs: 'block', sm: 'none' } }}/> : null}
+        <Typography variant="caption" color="text.secondary" noWrap>{group.label}</Typography>
+      </Stack> : null}
+      {parts}
+    </Stack>
+    <PanelSlot/>
+  </>;
 };
 
 export default PageHeader;

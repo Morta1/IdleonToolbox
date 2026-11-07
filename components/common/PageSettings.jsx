@@ -1,7 +1,10 @@
 import React, { createContext, useContext, useId, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { Box, Button, MenuItem, Popover, Stack, Switch, TextField, Typography, useMediaQuery } from '@mui/material';
-import { IconSettings } from '@tabler/icons-react';
+import { useRouter } from 'next/router';
+import { useLocalStorage } from '@mantine/hooks';
+import { Box, Button, IconButton, MenuItem, Popover, Stack, Switch, TextField, Typography, useMediaQuery } from '@mui/material';
+import { IconSettings, IconX } from '@tabler/icons-react';
+import { cardSurface } from '@components/common/cards/tokens';
 import AppDialog from '@components/common/Overlays/AppDialog';
 import NumberField, { fieldNumber, rangeText } from '@components/common/NumberField';
 import { usePageHeaderSlot } from '@components/common/NavBar/PageHeader';
@@ -37,13 +40,30 @@ const rowsSx = (px) => ({
   '& [data-settings-group] > h3': { pt: 1.5, pb: 0.5, minHeight: 0 }
 });
 
+// Docked on a desktop: a panel under the header row, its settings in columns, so they take a few rows of the page rather
+// than a long list. Open or closed is remembered per page in this browser, so a player who keeps a page's settings in
+// view opens them once.
+const DOCK_SX = (theme) => ({ ...cardSurface(theme), mb: 2, overflow: 'hidden' });
+const DOCK_HEAD_SX = { px: 2, py: 0.5, minHeight: 44, boxSizing: 'border-box', gap: 1, borderBottom: 1, borderColor: 'divider' };
+const DOCK_COLUMNS_SX = {
+  display: 'block', columnWidth: 360, columnGap: 0, columnRule: '1px solid', columnRuleColor: 'divider',
+  '& > *': { breakInside: 'avoid' }
+};
+const DOCKED_KEY = 'page-settings:open';
+
 // The settings that change the numbers on the page (Toolbar board, "Where a control goes"), the ones only one tab
-// reads too, grouped under that tab's name (Group): the gear at the end of the header row opens them, a dot says one differs from its default, Reset puts the defaults back. A popover on
-// desktop, a sheet on a phone. It renders into the header's slot, which exists only after mount, so the export has no
-// gear and nothing mismatches. onOpen: a page whose settings live in their own window (the dashboard's alerts): the same
-// header button and dot, under its own label, and a click opens that window instead (changed says when the dot shows).
+// reads too, grouped under that tab's name (Group): the gear at the end of the header row opens them, a dot says one differs from its default, Reset puts the defaults back. Docked under
+// the header on a desktop, a sheet on a phone, and a popover where the header has no room for the dock. It renders into
+// the header's slots, which exist only after mount, so the export has no gear and nothing mismatches. onOpen: a page
+// whose settings live in their own window (the dashboard's alerts): the same header button and dot, under its own
+// label, and a click opens that window instead (changed says when the dot shows).
 const PageSettings = ({ state, defaults, onChange, onReset, onOpen, label = 'Page settings', changed: isChanged, children }) => {
   const node = usePageHeaderSlot('settings');
+  const dockNode = usePageHeaderSlot('panel');
+  const router = useRouter();
+  const pathname = router?.pathname ?? '';
+  // No default: nothing is stored until a player opens one
+  const [dockedPages, setDockedPages] = useLocalStorage({ key: DOCKED_KEY });
   const [anchor, setAnchor] = useState(null);
   // Where the button ends on screen: the panel stays under it and scrolls itself when tall, instead of Popover lifting it
   // over its own button. At least 240 px, so a button low on a short window still opens a usable panel.
@@ -63,22 +83,44 @@ const PageSettings = ({ state, defaults, onChange, onReset, onOpen, label = 'Pag
   if (onOpen) {
     return createPortal(<Button variant="outlined" startIcon={<IconSettings size={18}/>} aria-label={buttonName} aria-haspopup="dialog" onClick={onOpen} sx={BUTTON_SX}>{buttonLabel}</Button>, node);
   }
-  const rows = <SettingsContext value={{ state, onChange, close }}><Stack ref={rowsRef} sx={rowsSx(isPhone ? 0 : 2)}>{children}</Stack></SettingsContext>;
+  const docks = !isPhone && Boolean(dockNode);
+  const docked = docks && Boolean(dockedPages?.[pathname]);
+  const toggleDock = () => setDockedPages((current) => ({ ...current, [pathname]: !current?.[pathname] }));
+  // An action that starts a mode closes a popover or a sheet so the page shows the mode; a dock already leaves it in view
+  const rows = <SettingsContext value={{ state, onChange, close: docks ? undefined : close }}>
+    <Stack ref={rowsRef} sx={[rowsSx(isPhone ? 0 : 2), docks && DOCK_COLUMNS_SX]}>{children}</Stack>
+  </SettingsContext>;
   // Reset leaves with the change it undid: the focus goes on to the first setting rather than to the popover or
   // the sheet itself
   const resetHere = () => {
     onReset();
     requestAnimationFrame(() => rowsRef.current?.querySelector('input, button, [tabindex="0"]')?.focus());
   };
+  const open = docks ? docked : Boolean(anchor);
+  const button = <Button variant="outlined" startIcon={<IconSettings size={18}/>} aria-label={buttonName}
+                         aria-haspopup={docks ? undefined : 'dialog'} aria-expanded={open} aria-controls={open ? panelId : undefined} sx={BUTTON_SX}
+                         onClick={(event) => {
+                           if (docks) return toggleDock();
+                           setButtonBottom(event.currentTarget.getBoundingClientRect().bottom);
+                           setAnchor(event.currentTarget);
+                         }}>
+    {buttonLabel}
+  </Button>;
+  if (docks) {
+    return <>
+      {createPortal(button, node)}
+      {docked ? createPortal(<Box id={panelId} role="region" aria-label="Page settings" sx={DOCK_SX}>
+        <Stack direction="row" alignItems="center" sx={DOCK_HEAD_SX}>
+          <Typography component="h2" sx={{ fontSize: 15, lineHeight: '24px', fontWeight: 500, mr: 'auto' }}>Page settings</Typography>
+          {changed ? <Button size="small" onClick={resetHere} sx={{ fontSize: 13 }}>Reset</Button> : null}
+          <IconButton size="small" aria-label="Hide page settings" onClick={toggleDock}><IconX size={18}/></IconButton>
+        </Stack>
+        {rows}
+      </Box>, dockNode) : null}
+    </>;
+  }
   return createPortal(<>
-    <Button variant="outlined" startIcon={<IconSettings size={18}/>} aria-label={buttonName} aria-haspopup="dialog" aria-expanded={Boolean(anchor)}
-            aria-controls={anchor ? panelId : undefined} sx={BUTTON_SX}
-            onClick={(event) => {
-              setButtonBottom(event.currentTarget.getBoundingClientRect().bottom);
-              setAnchor(event.currentTarget);
-            }}>
-      {buttonLabel}
-    </Button>
+    {button}
     {isPhone
       ? <AppDialog open={Boolean(anchor)} onClose={close} id={panelId} size="s" title="Page settings"
                    actions={[...(changed ? [{ label: 'Reset', onClick: resetHere }] : []), { label: 'Done', main: true }]}>
