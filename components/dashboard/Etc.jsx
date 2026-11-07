@@ -13,7 +13,10 @@ import { isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import { cardSurface } from '@components/common/cards/tokens';
+import CardGrid from '@components/common/cards/CardGrid';
 import { LinkMark } from '@components/common/cards/ItemCard';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 import InfoButton from '@components/common/InfoButton';
 import AlertIcon, { counted } from './AlertIcon';
 import { alertMeta } from '@utility/dashboard/alertMeta';
@@ -637,9 +640,17 @@ export const useTimerRows = ({ characters, account, lastUpdated, trackers, bookA
   return rows;
 };
 
+// Soonest first answers "what's next?", by world "where's my salt?": players asked for both, so the board keeps both.
+const TIMERS_TOOLBAR = { group: 'soonest' };
+const GROUP_OPTIONS = [['soonest', 'Soonest first'], ['world', 'By world']];
 const Etc = ({ characters, account, lastUpdated, trackers, bookAlert, bossAlert }) => {
   const rows = useTimerRows({ characters, account, lastUpdated, trackers, bookAlert, bossAlert });
-  return <TimerBoard rows={rows}>
+  const [view, setView, resetView] = useToolbarState('dashboard-timers', TIMERS_TOOLBAR);
+  const toolbar = rows.length ? <Toolbar state={view} defaults={TIMERS_TOOLBAR} onChange={setView} onReset={resetView} counted={false}
+                                         noun={'timers'}>
+    <Toolbar.View name={'group'} options={GROUP_OPTIONS}/>
+  </Toolbar> : null;
+  return <TimerBoard rows={rows} byWorld={view?.group === 'world'} toolbar={toolbar}>
     <Resets account={account} trackers={trackers} lastUpdated={lastUpdated}/>
   </TimerBoard>;
 };
@@ -718,6 +729,11 @@ const TimerRow = ({
                             label={typeof words === 'string' ? undefined : title} icon={icon} look={look}
                             size={ROW_ICON_SIZE}/>;
   const note = info ? <InfoButton label={title}><Stack gap={1}>{info}</Stack></InfoButton> : null;
+  if (shape === 'box') {
+    const acting = actNow && !over;
+    return <BoxRow icon={sprite} name={label} note={note} sub={noTime ? null : acting ? sub : state ?? sub}
+                   value={acting ? state : shown} control={control}/>;
+  }
   if (shape === 'ready') {
     return <ReadyCell icon={sprite} name={label} note={note} sub={sub} value={actNow && !over ? state : word} control={control}/>;
   }
@@ -742,8 +758,9 @@ const READY_CAPPED_SX = { [ONE_ACROSS]: { [`& > :nth-of-type(n+${READY_CAP + 1})
 const LEAD_CELL_SX = { minHeight: 39, pl: 1.5, pr: '14px', minWidth: 0 };
 const READY_CELL_SX = { ...LEAD_CELL_SX, bgcolor: 'background.paper', [ONE_ACROSS]: { minHeight: 43 } };
 const READY_SUB_SX = { fontSize: 13, minWidth: 0, fontVariantNumeric: 'tabular-nums' };
-const RowName = ({ name, note, sx }) => <Stack direction={'row'} alignItems={'center'} gap={0.5} sx={[{ minWidth: 0 }, sx]}>
-  <Typography variant={'body2'} component={'div'} noWrap sx={{ fontWeight: 500, minWidth: 0 }}>{name}</Typography>
+// wrap: a world's box is too narrow for a long name on one line ("Next outpost resource runs out")
+const RowName = ({ name, note, wrap, sx }) => <Stack direction={'row'} alignItems={'center'} gap={0.5} sx={[{ minWidth: 0 }, sx]}>
+  <Typography variant={'body2'} component={'div'} noWrap={!wrap} sx={{ fontWeight: 500, minWidth: 0 }}>{name}</Typography>
   {note}
 </Stack>;
 // A row with a sub gives its room from there: any shrink at all puts an ellipsis on the name
@@ -801,6 +818,20 @@ const ComingRow = ({ icon, name, note, sub, world, date, value, control }) => <B
   <Box sx={COMING_WORLD_SX}>{world}</Box>
   <Box sx={COMING_DATE_SX}>{date}</Box>
 </Box>;
+
+// A row in its world's box: the box is narrow, so the time sits close to the name. No exact date, which the icon's note holds.
+const BOX_SUB_SX = { fontSize: 13, lineHeight: '18px', fontVariantNumeric: 'tabular-nums' };
+const BoxRow = ({ icon, name, note, sub, value, control }) => <Stack direction={'row'} alignItems={'center'} gap={'10px'} sx={LEAD_CELL_SX}>
+  {icon}
+  <Box sx={{ minWidth: 0, py: 0.5 }}>
+    <RowName name={name} note={note} wrap/>
+    {sub ? <Typography variant={'body2'} component={'div'} color={'text.secondary'} noWrap sx={BOX_SUB_SX}>{sub}</Typography> : null}
+  </Box>
+  <Stack direction={'row'} alignItems={'center'} gap={0.5} sx={{ flexShrink: 0, ml: 'auto' }}>
+    {control}
+    <Box sx={COMING_TIME_SX}>{value}</Box>
+  </Stack>
+</Stack>;
 
 // A band of the board: its label on the tint, what it says about itself across from it, every row under its own line.
 const BAND_LABEL_SX = { minHeight: 28, pl: 1.5, pr: '14px', bgcolor: 'background.tint' };
@@ -861,11 +892,41 @@ const BOARD_SX = { overflow: 'hidden', '& > * + *': { borderTop: 1, borderColor:
 const FOLD_BUTTON_SX = { mx: 1, my: 0.5, minHeight: { xs: 44, sm: 'auto' } };
 const SOONEST_NOTE = 'Soonest first, all worlds';
 
-// The timers as what they ask of the player, in one table: everything to act on now, then what's next across all worlds. It
-// ticks by the second, apart from Etc's heavy reads, so a row that hits zero moves to Ready now on the next tick, and a band
-// with nothing in it isn't drawn. The soonest note sits on whichever band starts that order.
-const TimerBoard = ({ rows, children }) => {
+// The board ticks by the second, apart from Etc's heavy reads, so a row that hits zero reads Ready on the next tick.
+const TimerBoard = ({ rows, byWorld, toolbar, children }) => {
   const clock = useNow(SECOND);
+  if (byWorld) {
+    return <Stack gap={1.5} sx={{ containerType: 'inline-size' }}>
+      {children}
+      {toolbar}
+      {rows.length ? <WorldBoard rows={rows} clock={clock}/> : null}
+    </Stack>;
+  }
+  return <SoonestBoard rows={rows} clock={clock} toolbar={toolbar}>{children}</SoonestBoard>;
+};
+
+// Each world's timers in a box of its own, in the alerts' order, so a timer keeps its place whatever its time. A ready one
+// reads its word where it sits, and the box's head counts them. The boxes flow down columns, so a long world leaves no gap
+// beside a short one.
+const WorldBoard = ({ rows, clock }) => {
+  const worlds = [...new Set(rows.map(({ props }) => props.world))];
+  return <CardGrid size={'m'} flow component={'section'} data-tour={'timers'} aria-label={'Timers'}>
+    {worlds.map((world) => {
+      const own = rows.filter(({ props }) => props.world === world);
+      const ready = own.filter((row) => placeOf(row, clock) === 'ready').length;
+      return <Box key={world} sx={[(theme) => cardSurface(theme), { overflow: 'hidden' }]}>
+        <Band label={world} note={ready ? `${formatNum(ready, 'whole')} ready` : null}>
+          <RowShape value={'box'}>{own}</RowShape>
+        </Band>
+      </Box>;
+    })}
+  </CardGrid>;
+};
+
+// The timers as what they ask of the player, in one table: everything to act on now, then what's next across all worlds. A
+// row that hits zero moves to Ready now, and a band with nothing in it isn't drawn. The soonest note sits on whichever band
+// starts that order.
+const SoonestBoard = ({ rows, clock, toolbar, children }) => {
   const [readyOpen, setReadyOpen] = useState(false);
   const [laterOpen, setLaterOpen] = useState(false);
   const at = (place) => rows.filter((row) => placeOf(row, clock) === place);
@@ -878,6 +939,7 @@ const TimerBoard = ({ rows, children }) => {
   const capped = ready.length > READY_CAP + 1;
   return <Stack gap={1.5} sx={{ containerType: 'inline-size' }}>
     {children}
+    {toolbar}
     {rows.length ? <Box component={'section'} data-tour={'timers'} aria-label={'Timers'} sx={[(theme) => cardSurface(theme), BOARD_SX]}>
       {ready.length ? <Band label={'Ready now'} note={`${formatNum(ready.length, 'whole')} to act on`}>
         <Box sx={[READY_GRID_SX, capped && !readyOpen && READY_CAPPED_SX]}>
