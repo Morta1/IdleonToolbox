@@ -1,90 +1,61 @@
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import React from 'react';
-import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
-import ProgressBar from '@components/common/ProgressBar';
-import Tooltip from '@components/Tooltip';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { createBreakdown, info, listGroup } from '@parsers/breakdown';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
-const BreakpointTooltip = ({ breakpoints }) => {
-  return (
-    <Stack gap={0.5}>
-      <Typography variant="caption">Cap is never fully reached, breakpoints:</Typography>
-      {breakpoints?.map(({ percent, level, bonusDisplay: breakpointBonus }) => (
-        <Typography key={percent} variant="body2">
-          {percent}%: Lv. {commaNotation(level)} ({breakpointBonus})
-        </Typography>
-      ))}
-    </Stack>
-  );
+// The upgrade's short name: "Permanently boosts Crop Evolution Chance! ..." is Crop Evolution Chance. A flat unlock
+// ("Adds 1 nugget to your Shovel ...") has none, so its description is its title.
+const shortName = (text) => text.match(/boosts (?:the |your )?(.+?)(?:!| by |\.\.\.)/i)?.[1]?.capitalize();
+
+// Below Lv 2 the Gallery upgrade's description is its +1 Grade chance, which names no upgrade: its name is the
+// multiplier the game's description names from Lv 2
+const GALLERY = 5;
+const GALLERY_NAME = 'Gallery Multiplier';
+
+const breakpointText = ({ level, bonusDisplay }) => `${formatNum(level, 'level')} (${bonusDisplay})`;
+
+// The cap is never fully reached: the breakpoints are the levels for 50% to 99% of it, listed in a drawer named as the
+// Fact that opens it and headed with the next one
+const breakpointsTrigger = (title, nextBreakpoint, breakpoints) => {
+  const nextText = breakpointText(nextBreakpoint);
+  const drawer = `${title} next breakpoint`;
+  const rows = (breakpoints ?? []).map((breakpoint) => info(`${breakpoint.percent}% of the cap`, breakpoint.level,
+    { formatted: breakpointText(breakpoint) }));
+  return <Breakdown asValue data={createBreakdown(drawer, nextText, [listGroup('Breakpoints', rows)], { combine: 'list' })}
+                    title={drawer} countNoun={'breakpoints'}>
+    {nextText}
+  </Breakdown>;
 };
 
-const AppliedTooltip = ({ appliedBonuses }) => {
-  return (
-    <Stack gap={0.5}>
-      <Typography variant="caption">The game applies this bonus as a percentage:</Typography>
-      {appliedBonuses.map(({ name, value, max }) => (
-        <Typography key={name} variant="body2">
-          {name}: {value} (max {max})
-        </Typography>
-      ))}
-    </Stack>
-  );
-};
+const PermanentUpgrades = ({ killroy, sectionFailed }) => <CardGrid size={'m'}>
+  {(killroy?.permanentUpgrades ?? []).map(({
+                                            description,
+                                            level,
+                                            progress,
+                                            bonusDisplay,
+                                            capDisplay,
+                                            breakpoints,
+                                            nextBreakpoint,
+                                            appliedBonuses
+                                          }, index) => {
+    const text = cleanUnderscore(description ?? '');
+    const name = index === GALLERY ? GALLERY_NAME : shortName(text);
+    const title = name ?? text.capitalize();
+    // A failed section's shop is the catalog at zero: no progress, breakpoint or applied bonus of its own
+    const applied = sectionFailed ? [] : appliedBonuses ?? [];
+    return <ItemCard key={`upgrade-${index}`} icon={`etc/Skull_Shop_Item_${index}.png`} title={title}
+                     level={level > 0 ? { value: level } : undefined}>
+      {name ? <ItemCard.Desc text={text}/> : null}
+      {!sectionFailed && progress != null
+        ? <ItemCard.Progress label={'Toward its cap'} value={bonusDisplay} max={capDisplay} percent={progress}/>
+        : null}
+      <ItemCard.Facts rows={[!sectionFailed && nextBreakpoint ? ['Next breakpoint', breakpointsTrigger(title, nextBreakpoint, breakpoints)] : null]}/>
+      {applied.length ? <ItemCard.Section label={'Applied to'}>
+        <ItemCard.Facts rows={applied.map(({ name: target, value, max }) => [target, `${formatNum(value, 'mult')} / ${formatNum(max, 'mult')}`])}/>
+      </ItemCard.Section> : null}
+    </ItemCard>;
+  })}
+</CardGrid>;
 
-const Upgrades = ({ killroy }) => {
-  return (
-    <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={1}>
-      {killroy?.permanentUpgrades?.map(({
-                                          description,
-                                          level,
-                                          progress,
-                                          bonusDisplay,
-                                          capDisplay,
-                                          breakpoints,
-                                          nextBreakpoint,
-                                          appliedBonuses
-                                        }, index) => (
-        <Card key={`upgrade-${index}`} sx={{ height: 195, width: 350 }}>
-          <CardContent>
-            <Stack direction={'row'} gap={2}>
-              <img style={{ objectFit: 'contain' }} src={`${prefix}etc/Skull_Shop_Item_${index}.png`} alt="skull-shop-icon"/>
-              <Stack flex={1} minWidth={0}>
-                {level > 0 ? <Typography>Upgrades: {level}</Typography> : <>&nbsp;</>}
-                {progress != null ? (
-                  <ProgressBar
-                    percent={progress}
-                    tooltipTitle={`${bonusDisplay} / ${capDisplay} cap`}
-                  />
-                ) : null}
-                {nextBreakpoint ? (
-                  <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-                    <Typography variant="caption" color="text.secondary">
-                      Next breakpoint: Lv. {commaNotation(nextBreakpoint.level)} ({nextBreakpoint.bonusDisplay})
-                    </Typography>
-                    <Tooltip title={<BreakpointTooltip breakpoints={breakpoints}/>}>
-                      <IconInfoCircleFilled size={14} style={{ cursor: 'pointer', flexShrink: 0 }}/>
-                    </Tooltip>
-                  </Stack>
-                ) : null}
-                <Divider sx={{ my: 1 }}/>
-                <Typography>{cleanUnderscore(description.replace('{', 1 + level / 100))}</Typography>
-                {appliedBonuses ? (
-                  <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-                    <Typography variant="caption" color="text.secondary">
-                      Actually applied: {appliedBonuses.map(({ value }) => value).join(' / ')}
-                    </Typography>
-                    <Tooltip title={<AppliedTooltip appliedBonuses={appliedBonuses}/>}>
-                      <IconInfoCircleFilled size={14} style={{ cursor: 'pointer', flexShrink: 0 }}/>
-                    </Tooltip>
-                  </Stack>
-                ) : null}
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
-      ))}
-    </Stack>
-  );
-};
-
-export default Upgrades;
+export default PermanentUpgrades;

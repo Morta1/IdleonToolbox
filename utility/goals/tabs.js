@@ -134,11 +134,15 @@ const tabSystemOf = (node, query, depth) => {
   // A nested tab clicked before any outer tab leaves the outer key out of the query: that is the first tab
   const deeper = TAB_QUERY_KEYS.slice(depth + 1).some((key) => query?.[key] != null);
   const tab = query?.[TAB_QUERY_KEYS[depth]] ?? (deeper ? Object.keys(tabs)[0] : undefined);
-  return tabSystemOf(tabs[tab], query, depth + 1) ?? node.system;
+  // A tab link in any case opens that tab (useTabIndex), so its system follows
+  const name = Object.keys(tabs).find((key) => key.toLowerCase() === `${tab}`.toLowerCase());
+  return tabSystemOf(tabs[name], query, depth + 1) ?? node.system;
 };
 
 // systems: the page's goal systems, in order. Returns the system to open the add popover on.
 export const systemForTab = (pathname, query, systems) => {
+  // A link that says which system (the dashboard's first-run Talents link)
+  if (systems.some(({ system }) => system === query?.goal)) return query.goal;
   const route = String(pathname ?? '').split(/[?#]/)[0].replace(/\/$/, '');
   const tabSystem = tabSystemOf({ tabs: GOAL_TABS[route] }, query, 0);
   return systems.some(({ system }) => system === tabSystem) ? tabSystem : systems[0]?.system;

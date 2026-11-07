@@ -1,9 +1,10 @@
 import { format, getDaysInMonth, getDaysInYear, intervalToDuration, isValid } from 'date-fns';
-import { drawerPages, simulatedCompanionsKey } from '@components/constants';
+import { simulatedCompanionsKey } from '@components/constants';
 import { readLocalStorageValue } from '@mantine/hooks';
 import merge from 'lodash.merge';
 import { copyText } from '@utility/clipboard';
 import { errorMessage, trackEvent } from '@utility/analytics';
+import { fullDigits, notateNumber, numberWithCommas, preciseDigits } from './notate.mjs';
 
 export const getTabs = (array, label, tabName, nestedTabName) => {
   const navItem = array.find((item) => item.label === label);
@@ -60,14 +61,6 @@ const msPerDay = 8.64e+7;
 export const getTimeAsDays = (time) => {
   return Math.ceil(time * 3600 * 1000 / msPerDay);
 }
-export const eventsColors = {
-  'Meteorite': '#f8e8b7',
-  'Mega_Grumblo': '#e6b471',
-  'Glacial_Guild': '#65b8d6',
-  'Snake_Swarm': '#3f9c61',
-  'Angry_Frogs': '#f6b5f8'
-}
-
 export const
   number2letter = [
     "_",
@@ -286,13 +279,7 @@ export const createIndexedArray = (object) => {
 };
 
 export { growth } from './wiki/growth.mjs';
-
-// game: _customBlock_getLOG divides by ln(10) truncated to 2.30259, not the exact 2.302585...
-export const GAME_LN10 = 2.30259;
-
-export const lavaLog = (num) => {
-  return Math.log(Math.max(num, 1)) / GAME_LN10;
-};
+export { fullDigits, GAME_LN10, lavaLog, notateNumber, notateProgress, numberWithCommas } from './notate.mjs';
 
 export const lavaLog2 = (num) => {
   return Math.log(Math.max(num, 1)) / Math.log(2);
@@ -317,6 +304,17 @@ export const cloneObject = (data) => {
   }
 };
 
+// The game's ALL-CAPS names read in Title Case on a card ("PEARL_VALUE" to "Pearl Value", Cards board: never uppercase).
+// Display only: the game's data keeps its caps. Pass it the name once its underscores are gone.
+const TITLE_SMALL_WORDS = new Set(['a', 'an', 'and', 'at', 'for', 'in', 'of', 'on', 'or', 'the', 'to']);
+const TITLE_KEPT_CAPS = /^(VIP|XP|EXP|AFK|DPS|HP|MP|DNA|EMP|3D|FMJ|DMG|NRG|[IVX]+)$/;
+export const titleCaseName = (name) => `${name ?? ''}`.split(' ').map((word, index) => {
+  if (TITLE_KEPT_CAPS.test(word)) return word;
+  const lower = word.toLowerCase();
+  if (index > 0 && TITLE_SMALL_WORDS.has(lower)) return lower;
+  return lower.replace(/(^|-)([a-z])/g, (_, start, letter) => `${start}${letter.toUpperCase()}`);
+}).join(' ');
+
 export const cleanUnderscore = (str) => {
   try {
     if (!str) return '';
@@ -326,89 +324,49 @@ export const cleanUnderscore = (str) => {
   }
 };
 
+// The game writes "@" for a line break inside a description (Summoning, Spelunking, Lamp wishes).
+// keepBlank keeps the empty lines a help note spaces itself with ("@___@"). sentences joins a break the game made only
+// to fit its box, mid-sentence: the next line starts lowercase ("the delve@at the time") or the line before ends on a
+// number ("give +1@Scurge EXP"). A break after a sentence's end, a blank line, a bonus list ("@+3% Bits gain") and a
+// "Total Bonus:" line stay lines.
+const SENTENCE_END = /[.!?:]$/;
+const MID_SENTENCE = (before, line) => !SENTENCE_END.test(before) && (/^[a-z]/.test(line) || /\d$/.test(before));
+export const gameLines = (text, { keepBlank = false, sentences = false } = {}) => {
+  const lines = cleanUnderscore(text).split('@').map((line) => line.trim());
+  if (keepBlank) return lines;
+  if (!sentences) return lines.filter(Boolean);
+  // A blank line is a paragraph break: the line after it never joins
+  return lines.reduce(({ joined, broke }, line) => {
+    if (!line) return { joined, broke: true };
+    const before = joined.at(-1);
+    return before !== undefined && !broke && MID_SENTENCE(before, line)
+      ? { joined: [...joined.slice(0, -1), `${before} ${line}`], broke: false }
+      : { joined: [...joined, line], broke: false };
+  }, { joined: [], broke: false }).joined;
+};
+
 // Star sign bonuses use "{" as a value placeholder, but decimal-valued bonuses
-// use the "{.{" token pair instead, so both have to be substituted.
+// use the "{.{" token pair instead, so both have to be substituted. The game data writes a sign's level condition
+// with a glyph its font draws: "(If_Lv&60)" means at least 60 (the parser counts the sign from classLevel >= 60).
+// A curse's line writes its own minus ("-{%_Total_HP") over a negative bonus, where the game's list has one ("-80%_Total_HP").
 export const formatStarSignBonus = (rawName, bonus) => {
   if (!rawName) return '';
-  return String(rawName).replace('{.{', bonus).replace(/{/g, bonus);
+  const value = String(rawName).includes('-{') ? Math.abs(bonus) : bonus;
+  return String(rawName).replace('{.{', value).replace(/{/g, value).replace(/&/g, '≥');
 };
+
+// A talent's line as the game fills it (N.js's StringTools.replace takes every "{" and "}": a line can hold two), its "@"
+// breaks mid-sentence ("Getting_4@kills_in_4@sec") joined.
+export const talentText = (description, mainStat, secondaryStat) => gameLines(`${description ?? ''}`.replace(/{/g, mainStat).replace(/}/g, secondaryStat),
+  { sentences: true }).join(' ');
 
 export const getNumberWithOrdinal = (n) => {
   const s = ['th', 'st', 'nd', 'rd'], v = n % 100;
   return n + (s[(v - 20) % 10] || s[v] || s[0]);
 }
 
-export const kFormatter = (num, digits = 1) => {
-  if (num === undefined) return null;
-  const si = [
-    { value: 1, symbol: '' },
-    { value: 1e3, symbol: 'k' },
-    { value: 1e6, symbol: 'M' },
-    { value: 1e9, symbol: 'B' },
-    { value: 1e12, symbol: 'T' },
-    { value: 1e15, symbol: 'Q' },
-    { value: 1e18, symbol: 'QQ' }
-  ];
-  const rx = /\.0+$|(\.[0-9]*[1-9])0+$/;
-  let i;
-  for (i = si.length - 1; i > 0; i--) {
-    if (num >= si[i].value) {
-      break;
-    }
-  }
-  return (num / si[i].value).toFixed(digits).replace(rx, '$1') + si[i].symbol;
-};
-
-// Port of the game's cash multiplier label (the MonsterCash text in N.js). Past 1e16 it hands off to
-// NotateNumber, which has no tier above QQ and prints e notation from 1e21 on.
-export const cashFormatter = (value) => {
-  if (value > 1e16) return notateNumber(value, 'Big');
-  if (value > 1e10) return Math.floor(value / 1e8) / 10 + 'B';
-  if (value > 1e7) return Math.floor(value / 1e5) / 10 + 'M';
-  return notateNumber(value, 'MultiplierInfo');
-}
-
-function splitDecimal(numStr, allowNegative = true) {
-  const hasNegation = numStr[0] === '-';
-  const addNegation = hasNegation && allowNegative;
-  numStr = numStr.replace('-', '');
-
-  const parts = numStr.split('.');
-  const beforeDecimal = parts[0];
-  const afterDecimal = parts[1] || '';
-
-  return {
-    beforeDecimal,
-    afterDecimal,
-    hasNegation,
-    addNegation
-  };
-}
-
-function applyThousandSeparator(
-  str,
-  thousandSeparator
-) {
-  const thousandsGroupRegex = /(\d)(?=(\d{3})+(?!\d))/g;
-  let index = str.search(/[1-9]/);
-  index = index === -1 ? str.length : index;
-  return (
-    str.substring(0, index) +
-    str.substring(index, str.length).replace(thousandsGroupRegex, '$1' + thousandSeparator)
-  );
-}
-
-export const numberWithCommas = (numStr, isFloat = true) => {
-  // Number#toString switches to exponential notation at 1e21, which the grouping below would mangle
-  numStr = typeof numStr === 'number' && Number.isFinite(numStr) && Math.abs(numStr) >= 1e21
-    ? BigInt(Math.round(numStr)).toString()
-    : String(numStr);
-  const hasDecimalSeparator = numStr.indexOf('.') !== -1;
-  let { beforeDecimal, afterDecimal } = splitDecimal(numStr); // eslint-disable-line prefer-const
-  beforeDecimal = applyThousandSeparator(beforeDecimal, ',');
-  numStr = beforeDecimal + ((isFloat && hasDecimalSeparator && '.') || '') + (isFloat ? afterDecimal : '');
-  return numStr;
-}
+// Every digit a typed number has, grouped: for a field's own text, which isn't a number being shown (formatNum).
+export const groupDigits = (value) => numberWithCommas(value);
 
 export const pascalCase = (str) => {
   return str
@@ -458,114 +416,6 @@ export const getBitIndex = (e) => {
   }
   return num;
 }
-// game: "NotateNumber"
-// Straight port of _customBlock_NotateNumber (N.js:68770). Every branch is a chain of `limit > e`
-// tests that assumes a positive number - the game only ever notates magnitudes, so a negative falls
-// through to `Math.floor(e)` and prints raw digits. Callers that can produce a signed value must
-// notate `Math.abs()` and render the sign themselves.
-// notateNumber rounds up like the game, so 9,997,104 of a 10M target would read as 10M / 10M.
-// A progress amount floors to the three digits the ladder shows first.
-export const notateProgress = (n) => {
-  if (!Number.isFinite(n) || n < 1e3) return notateNumber(n);
-  const step = Math.pow(10, Math.floor(Math.log10(n)) - 2);
-  return notateNumber(Math.floor(n / step) * step);
-};
-
-export const notateNumber = (e, s) => {
-  // The game prints NaNEInfinity here (a Bits bubble's cost overflows past ~Lv 1000).
-  if (e === Infinity) return '∞';
-  if (s === 'bits') {
-    let bits = e, t = 0;
-    for (let i = 0; i < 5; i++) {
-      if (bits > 1e18) {
-        bits /= 1e18;
-        t++;
-      }
-    }
-    return 1e4 > bits
-      ? Math.floor(bits)
-      : 1e5 > bits
-        ? Math.floor(bits / 100) / 10 + 'K'
-        : 1e6 > bits
-          ? Math.floor(bits / 1e3) + 'K'
-          : 1e7 > bits
-            ? Math.floor(bits / 1e4) / 100 + 'M'
-            : 1e8 > bits
-              ? Math.floor(bits / 1e5) / 10 + 'M'
-              : 1e9 > bits
-                ? Math.floor(bits / 1e6) + 'M'
-                : 1e10 > bits
-                  ? Math.floor(bits / 1e7) / 100 + 'B'
-                  : 1e11 > bits
-                    ? Math.floor(bits / 1e8) / 10 + 'B'
-                    : 1e12 > bits
-                      ? Math.floor(bits / 1e9) + 'B'
-                      : 1e13 > bits
-                        ? Math.floor(bits / 1e10) / 100 + 'T'
-                        : 1e14 > bits
-                          ? Math.floor(bits / 1e11) / 10 + 'T'
-                          : 1e15 > bits
-                            ? Math.floor(bits / 1e12) + 'T'
-                            : 1e16 > bits
-                              ? Math.floor(bits / 1e13) / 100 + 'Q'
-                              : 1e17 > bits
-                                ? Math.floor(bits / 1e14) / 10 + 'Q'
-                                : 1e18 > bits
-                                  ? Math.floor(bits / 1e15) + 'Q'
-                                  : Math.floor(bits /
-                                    Math.pow(10, Math.floor(lavaLog(bits))) * 100)
-                                  / 100 + 'e' + Math.floor(lavaLog(bits))
-  }
-  return 'Whole' === s ? (1e4 > e ? '' + Math.floor(e)
-    : 1e6 > e ? Math.floor(e / 1e3) + 'K'
-      : 1e7 > e ? Math.floor(e / 1e5) / 10 + 'M'
-        : 1e9 > e ? Math.floor(e / 1e6) + 'M'
-          : 1e10 > e ? Math.floor(e / 1e8) / 10 + 'B'
-            : Math.floor(e / 1e9) + 'B')
-    : 'MultiplierInfo' === s ? (1e6 < e
-      ? (0 === Math.round((e / 1e6) * 100) % 100 ? Math.round(e / 1e6) + '.00M'
-        : 0 === Math.round((e / 1e6) * 100) % 10 ? Math.round((e / 1e6) * 10) / 10 + '0M'
-          : Math.round((e / 1e6) * 100) / 100 + 'M')
-      : 0 === Math.round(100 * e) % 100 ? Math.round(e) + '.00'
-        : 0 === Math.round(100 * e) % 10 ? Math.round(10 * e) / 10 + '0'
-          : Math.round(100 * e) / 100 + '')
-      : 'ThreeDecimals' === s ? '' + parseFloat((Math.round(1000 * e) / 1000).toFixed(3))
-        : 'Micro' === s ? (10 < e ? '' + Math.round(e)
-          : 0.1 < e ? '' + Math.round(10 * e) / 10
-            : 0.01 < e ? '' + Math.round(100 * e) / 100
-              : '' + Math.round(1e3 * e) / 1e3)
-          : 100 > e ? ('Small' === s ? (1 > e ? '' + Math.round(100 * e) / 100
-            : '' + Math.round(10 * e) / 10)
-            : 'Smallish' === s ? (10 > e ? '' + Math.round(10 * e) / 10
-              : '' + Math.round(e))
-              : 'Smaller' === s ? (10 > e ? '' + Math.round(100 * e) / 100
-                : '' + Math.round(10 * e) / 10)
-                : '' + Math.floor(e))
-            : 1e3 > e ? '' + Math.floor(e)
-              : 1e4 > e ? ('Bigish' === s ? '' + Math.floor(e)
-                : Math.ceil(e / 10) / 100 + 'K')
-                : 1e5 > e ? Math.ceil(e / 100) / 10 + 'K'
-                  : 1e6 > e ? Math.ceil(e / 1e3) + 'K'
-                    : 1e7 > e ? Math.ceil(e / 1e4) / 100 + 'M'
-                      : 1e8 > e ? Math.ceil(e / 1e5) / 10 + 'M'
-                        : 1e9 > e ? Math.ceil(e / 1e6) + 'M'
-                          : 1e10 > e ? Math.ceil(e / 1e7) / 100 + 'B'
-                            : 1e11 > e ? Math.ceil(e / 1e8) / 10 + 'B'
-                              : 1e12 > e ? Math.ceil(e / 1e9) + 'B'
-                                : 1e13 > e ? Math.ceil(e / 1e10) / 100 + 'T'
-                                  : 1e14 > e ? Math.ceil(e / 1e11) / 10 + 'T'
-                                    : 1e15 > e ? Math.ceil(e / 1e12) + 'T'
-                                      : 1e16 > e ? Math.ceil(e / 1e13) / 100 + 'Q'
-                                        : 1e17 > e ? Math.ceil(e / 1e14) / 10 + 'Q'
-                                          : 1e18 > e ? Math.ceil(e / 1e15) + 'Q'
-                                            : 1e19 > e ? Math.ceil(e / 1e16) / 100 + 'QQ'
-                                              : 1e20 > e ? Math.ceil(e / 1e17) / 10 + 'QQ'
-                                                : 1e21 > e ? Math.ceil(e / 1e18) + 'QQ'
-                                                  : 'TinyE' === s
-                                      ? '' + Math.floor(e / Math.pow(10, Math.floor(lavaLog(e))) * 10) / 10 + ('e' + Math.floor(lavaLog(e)))
-                                      // 2.3.540: the default exponent is a lowercase 'e'; 'LargeE' keeps the old 'E'
-                                      : '' + Math.floor(e / Math.pow(10, Math.floor(lavaLog(e))) * 100) / 100 + (('LargeE' === s ? 'E' : 'e') + Math.floor(lavaLog(e)))
-}
 export const commaNotation = (number) => {
   // Initialize variables
   let formattedNumber = '';
@@ -585,6 +435,8 @@ export const commaNotation = (number) => {
       }
     }
   }
+  // From 1e39 even the QQ digits print in e notation (2.77e+21), and the grouping below would cut that up.
+  if (number === Infinity || roundedNumberAsString.includes('e')) return String(notateNumber(number, 'Big'));
 
   // Calculate number of commas needed
   const numberOfCommas = Math.floor((roundedNumberAsString.length - 1) / 3) + 1;
@@ -606,9 +458,155 @@ export const commaNotation = (number) => {
   return formattedNumber + suffix;
 }
 
-// The game's usual switch: commas below 1M, its "Big" notation from there.
+// The game's usual switch, and the form of a whole thing (the whole kind): commas below 1M, its "Big" notation from there.
 // `round` applies to the comma branch only, so callers keep their floor/ceil there.
 export const commaOrBig = (value, round = Math.round) => 1e6 > value ? commaNotation(round(value)) : notateNumber(value, 'Big');
+
+// A number as a short format printed it, read back as whole digits and a power of ten ("12,258": 12258 and 0, "12.3M":
+// 123 and 5, "7.3e181": 73 and 180)
+const SHOWN_POWERS = { '': 0, K: 3, M: 6, B: 9, T: 12, Q: 15, QQ: 18 };
+const shownDigits = (text) => {
+  const [, whole = '0', fraction = '', suffix = '', exponent = '0'] = String(text).replace(/,/g, '')
+    .match(/^(\d+)(?:\.(\d+))?([A-Z]*)(?:e(\d+))?$/) ?? [];
+  return { digits: Number(whole + fraction), power: (SHOWN_POWERS[suffix] ?? 0) + Number(exponent) - fraction.length };
+};
+// The bracket rule: a gain or a balance beside two printed numbers is the difference of the numbers as shown (to minus
+// from), so it always adds up, the game's Big and e-notation included ("12,258 → 12,342 (+84)", "146 - 12 = 134")
+export const shownDifference = (fromText, toText) => {
+  const [from, to] = [shownDigits(fromText), shownDigits(toText)];
+  const power = Math.min(from.power, to.power);
+  return (to.digits * 10 ** (to.power - power) - from.digits * 10 ** (from.power - power)) * 10 ** power;
+};
+// The same rule for a share: "X of Y (Z%)" is X over Y as shown, so the percent always reads as the two numbers do
+export const shownPercent = (partText, wholeText) => {
+  const [part, whole] = [shownDigits(partText), shownDigits(wholeText)];
+  return whole.digits > 0 ? part.digits / whole.digits * 10 ** (part.power - whole.power) * 100 : null;
+};
+
+// The site's one rule (the owner, 2026-11-04, for the endgamers who read the decimals): below 1M a number shows the
+// decimals it has, up to two, with commas, rounded, the trailing zeros dropped; from 1M up it reads the game's short
+// form, as the game's key or the kind says. So 6.34x, 1,529.05x, 6,395.65%, 3.59, and past 1M 1.93e21x. No setting: low
+// numbers read the same either way. A value's fraction under about 0.005 is float noise, so it reads whole, and a very
+// small value keeps two significant digits (0.0012%, not 0%).
+// The number itself never changes, only how many digits show. A whole thing computed as a fraction stays whole, as the
+// game prints it, by asking for that where it prints: a cost, a requirement, kills, an item count, a balance (Cost 363,
+// never 362.4). The whole kind here; { whole: true } in formatGame, whole on <Num>. Default to decimals, opt out on
+// purpose. Where the game ceils or floors one, the call site keeps that direction. Durations, odds, levels and prices
+// have their own forms and take no part.
+//
+// Numbers board, lane B: a number only the toolbox shows, in the game's usual format for its kind. Every kind
+// notates the magnitude and draws the sign itself, because the game's NotateNumber assumes a positive number.
+//   amount  totals, stats               the rule, Big from 1M                                 3.59 · 21,146 · 2.16Q
+//   whole   costs, requirements, counts CommaNotation below 1M, Big from there (commaOrBig)   21,146 · 2.16Q
+//   mult    anything that multiplies    MultiplierInfo (two decimals, always) with commas, Big from 1M, then x
+//                                                                                             19.21x · 14.00x · 5.14Mx
+//   pct     bonuses, chances            the rule, Big from 1M, then %                         88.51% · 6,395.65% · 1.16M%
+//   rate    per hour, per kill          a signed amount per unit                              +61,080.25/hr · +6.51e31/hr
+//   level   levels and caps             Lv, commas, the cap after a slash                     Lv 106 / 250
+//   odds    a chance from 0 to 1        1 in N, commas                                        1 in 152
+//   price   real money (bundles)        a dollar sign, two decimals                           $4.99
+//   exact   the digits behind a short number (a note): commas, up to 3 decimals, Big past 2^53   1,234.568
+// Options: signed (a change: +144%), precise (up to 3 decimals, the toolbox's ThreeDecimals, for breakdown totals
+// and values endgamers push), decimals (exactly that many, zeros kept, below 1M, for a column whose values line up:
+// 15.0%, 4.0%), significant (that many significant figures, zeros kept, at any size, for a ranking whose rows must tell
+// neighbours apart: 35.0M, 0.20), bare (no % or x: the game's own sentence carries it), max and next (level), per (rate,
+// default hr).
+
+const fixedDigits = (value, decimals) => numberWithCommas(value.toFixed(decimals));
+
+// Where the rule hands over to the short form, every kind and mode alike.
+export const SHORT_FROM = 1e6;
+
+const SHORT_SUFFIXES = [[1e18, 'QQ'], [1e15, 'Q'], [1e12, 'T'], [1e9, 'B'], [SHORT_FROM, 'M']];
+// Past QQ the short form is a power of ten.
+const SCIENTIFIC_FROM = 1e21;
+
+// Rounded on the value's own digits before it is scaled, so 999.6M moves on to 1.00B.
+const significantDigits = (value, significant) => {
+  if (value === 0 || value === Infinity) return String(notateNumber(value));
+  const rounded = Number(value.toPrecision(significant));
+  if (rounded >= SCIENTIFIC_FROM) {
+    const [mantissa, exponent] = rounded.toExponential(significant - 1).split('e');
+    return `${mantissa}e${Number(exponent)}`;
+  }
+  const [base, suffix] = SHORT_SUFFIXES.find(([power]) => rounded >= power) ?? [1, ''];
+  const scaled = rounded / base;
+  return `${fixedDigits(scaled, Math.max(0, significant - Math.floor(Math.log10(scaled)) - 1))}${suffix}`;
+};
+
+// The rule's digits where the print is the game's own two decimals: 14.00 keeps its zeros
+export const multiplierDigits = (value) => (value > 0 && value < 0.01 ? fullDigits(value) : numberWithCommas(notateNumber(value, 'MultiplierInfo')));
+
+// The modes z-processing names for the game's plain arithmetic fills (analysis/facts/gameNotation.js): `Math.floor(x)`,
+// `Math.floor(10 * x) / 10`, `Math.round(x)`, `Math.ceil(x)`. A caller adds any offset the game adds (attack speed's 100).
+const PLAIN = {
+  Floor: (value) => String(Math.floor(value)),
+  Tenths: (value) => String(Math.floor(10 * value) / 10),
+  Round: (value) => String(Math.round(value)),
+  Ceil: (value) => String(Math.ceil(value))
+};
+
+// A printed scale, z-processing's CommaM or RoundB: the game's `CommaNotation(x / 1e6) + "M"`.
+const SCALES = { K: 1e3, M: 1e6, B: 1e9, T: 1e12, Q: 1e15, QQ: 1e18 };
+
+// The game's own print of a value in one mode: what a whole thing keeps, and any value from 1M up
+const gamePrint = (magnitude, mode) => {
+  const [, base, letter] = mode.match(/^(.+?)(QQ|[KMBTQ])$/) ?? [];
+  if (letter) return `${gamePrint(magnitude / SCALES[letter], base)}${letter}`;
+  return PLAIN[mode] ? PLAIN[mode](magnitude) : String(mode === 'Comma' ? commaNotation(magnitude) : notateNumber(magnitude, mode));
+};
+
+// The one way a parser or a page prints a number in a game sentence. The site's rule (notes above formatNum): below 1M a
+// value shows its decimals in every mode, so the mode only picks the short form from 1M up. whole prints a whole thing
+// (a cost, a requirement, a count) as the game does, in its mode's direction. Bits are a currency with tiers of their
+// own, and Whole is a whole thing by name. The sign is drawn outside the notation.
+export const gameFill = (value, mode, { whole = false } = {}) => {
+  const magnitude = Math.abs(value);
+  const printsAsGame = whole || magnitude >= SHORT_FROM || mode === 'Bits' || mode === 'Whole';
+  const text = printsAsGame ? gamePrint(magnitude, mode) : mode === 'MultiplierInfo' ? multiplierDigits(magnitude) : fullDigits(magnitude);
+  return value < 0 ? `-${text}` : text;
+};
+
+const KIND_FORMATS = {
+  amount: (value, precise, decimals) => (SHORT_FROM <= value ? notateNumber(value, 'Big')
+    : decimals != null ? fixedDigits(value, decimals) : precise ? numberWithCommas(preciseDigits(value)) : fullDigits(value)),
+  whole: (value) => commaOrBig(value),
+  // An exact 0 (nothing multiplied yet) reads 0x, not MultiplierInfo's 0.00x.
+  mult: (value, precise, decimals) => (SHORT_FROM <= value ? notateNumber(value, 'Big')
+    : decimals != null ? fixedDigits(value, decimals) : precise ? numberWithCommas(preciseDigits(value))
+      : value === 0 ? '0' : multiplierDigits(value)),
+  pct: (value, precise, decimals) => (SHORT_FROM <= value ? notateNumber(value, 'Big')
+    : decimals != null ? fixedDigits(value, decimals) : precise ? numberWithCommas(preciseDigits(value)) : fullDigits(value)),
+  // Real money (bundle prices): two decimals, always.
+  price: (value) => `$${numberWithCommas(value.toFixed(2))}`,
+  // Every digit, for the exact number behind a short one (a note): commas, up to three decimals. Never digits a double
+  // can't hold: past 2^53 its integer digits stop being exact (a harp note's 41.1QQ printed 41,105,488,426,643,972,096),
+  // so it reads the Big rule, as the short number beside it does. A whole number prints as it is: ThreeDecimals'
+  // 1000 * x passes 2^53 from about 9e12 and turned a rupie count of 79,138,063,219,213 into 79,138,063,219,212.98.
+  exact: (value) => (Number.isFinite(value) && value >= Number.MAX_SAFE_INTEGER ? notateNumber(value, 'Big')
+    : numberWithCommas(Number.isInteger(value) ? String(value)
+      // ThreeDecimals' 1000 * x passes 2^53 from about 9e12: no decimal past it is real
+      : value >= 9e12 ? String(Math.round(value)) : notateNumber(value, 'ThreeDecimals')))
+};
+
+// The game draws a multiplier's x and a percent's % after the number. bare leaves them to the game's own sentence.
+const UNITS = { mult: 'x', pct: '%' };
+
+const signOf = (value, signed) => (value < 0 ? '-' : signed && value > 0 ? '+' : '');
+
+export const formatNum = (value, kind = 'amount', { signed = false, precise = false, decimals, significant, bare = false, max, next, per = 'hr' } = {}) => {
+  if (value == null || Number.isNaN(value)) return '-';
+  if (kind === 'level') {
+    const level = `Lv ${commaNotation(value)}`;
+    if (max != null) return `${level} / ${commaNotation(max)}`;
+    return next != null ? `${level} · next ${commaNotation(next)}` : level;
+  }
+  if (kind === 'odds') return value > 0 ? `1 in ${commaNotation(1 / value)}` : '-';
+  const magnitude = Math.abs(value);
+  if (kind === 'rate') return `${signOf(value, true)}${KIND_FORMATS.amount(magnitude, precise, decimals)}/${per}`;
+  const text = significant != null ? significantDigits(magnitude, significant) : (KIND_FORMATS[kind] ?? KIND_FORMATS.amount)(magnitude, precise, decimals);
+  return `${signOf(value, signed)}${text}${bare ? '' : UNITS[kind] ?? ''}`;
+};
 
 
 export const constellationIndexes = (str) => {
@@ -714,13 +712,9 @@ export const fillArrayToLength = (length, array, defaultValue = {}) => {
   });
 };
 
-export const splitTime = (numberOfHours) => {
-  const days = Math.floor(numberOfHours / 24);
-  const remainder = numberOfHours % 24;
-  const hours = Math.floor(remainder);
-  const minutes = Math.floor(60 * (remainder - hours));
-  return `${days}d:${hours}h:${minutes}m`;
-};
+// A span in hours as every time reads (Numbers board, Time left: the two largest units, "68d 12h"). Its callers are an
+// elapsed time (Bubba's smoker) and a wait the caller already keeps above zero, so no Ready at zero.
+export const splitTime = (numberOfHours) => secondsToShortDuration(numberOfHours * 3600);
 
 export const randomFloatBetween = function (e, t) {
   return e <= t ? e + Math.random() * (t - e) : t + Math.random() * (e - t)
@@ -742,19 +736,19 @@ export const sections = [
   { name: 'Stats' },
   { name: 'Talents' },
   { name: 'Cards' },
-  { name: 'Prayers' },
+  { name: 'Skills' },
   { name: 'Equipment' },
-  { name: 'Inventory' },
-  { name: 'Bags' },
   { name: 'Obols' },
   { name: 'Obols Stats' },
-  { name: 'Skills' },
+  { name: 'Inventory' },
+  { name: 'Bags' },
+  { name: 'Prayers' },
   { name: 'Star Signs' },
-  { name: 'Post Office' },
-  { name: 'Anvil Details' },
-  { name: 'Chips' },
   { name: 'Equipped Bubbles' },
-  { name: 'Divinity' }
+  { name: 'Chips' },
+  { name: 'Divinity' },
+  { name: 'Anvil Details' },
+  { name: 'Post Office' }
 ];
 
 export const isProd = process.env.NODE_ENV === 'production';
@@ -766,9 +760,6 @@ export const getRandomNumbersArray = (length, max) => {
     if (arr.indexOf(r) === -1) arr.push(r);
   }
   return arr;
-}
-export const shouldDisplayDrawer = (pathname = '') => {
-  return drawerPages.includes(pathname?.split('/').at(1))
 }
 
 export const UNKNOWN_TIME = '-';
@@ -785,7 +776,12 @@ export const getRealDateInMs = (ms, shouldFormat = true, formatString = 'dd/MM/y
   return dateInMs;
 }
 
-export const msToDate = (ms) => {
+// A time left or a span in ms as every time reads (formatDuration: "68d 12h", Ready at zero).
+export const msToDate = (ms) => formatDuration(ms / 1000);
+
+// The clock shape "1h:02m:03s", and seconds with milliseconds under a minute: for a time that is a record, not a span
+// to wait (the Hole's gambit run times, where 0 means not run and the milliseconds count).
+export const msToClock = (ms) => {
   // Calculate the number of hours, minutes, and seconds
   const hours = Math.floor(ms / (1000 * 60 * 60));
   const minutes = Math.floor((ms % (1000 * 60 * 60)) / (1000 * 60));
@@ -812,7 +808,7 @@ export const msToDate = (ms) => {
 const SECONDS_IN = { minute: 60, hour: 3600, day: 86400, year: 31536000 };
 
 /**
- * A single rounded unit for spans that can reach centuries, where msToDate's hours-only format
+ * A single rounded unit for spans that can reach centuries, where the clock shape's hours-only format
  * stops being readable. Anything past a human lifetime reads as "never".
  */
 export const secondsToCoarseDuration = (seconds) => {
@@ -851,6 +847,15 @@ export const secondsToShortDuration = (seconds, { minUnit = 'second' } = {}) => 
   }
   return minorValue > 0 ? `${majorValue}${major.label} ${minorValue}${minor.label}` : `${majorValue}${major.label}`;
 }
+
+// Numbers board, Time left: the two largest units, Ready at zero, and past 999 days it says so.
+const MAX_DURATION_DAYS = 999;
+export const formatDuration = (seconds) => {
+  if (seconds == null || Number.isNaN(seconds)) return '-';
+  if (seconds <= 0) return 'Ready';
+  if (seconds > MAX_DURATION_DAYS * SECONDS_IN.day) return `> ${MAX_DURATION_DAYS}d`;
+  return secondsToShortDuration(seconds);
+};
 
 export const fillMissingTalents = (arr) => {
   const talentIds = arr.map(obj => obj.talentId);
@@ -1001,9 +1006,11 @@ export const handleLoadJson = async (dispatch) => {
         value: parsedData?.characters?.length ?? 0
       });
     }
+    return true;
   } catch (e) {
     console.error('Error while trying to manual import', e);
     trackEvent('import_failed', { import_source: 'manual', error_message: errorMessage(e) });
+    return false;
   }
 }
 
@@ -1049,8 +1056,17 @@ export const excludedPortals = {
 // - French: '12 000,5' or '12 000'
 // - Decimal with comma: '12,5' (12.5)
 // - Decimal with period: '12.5' (12.5)
-export function parseShorthandNumber(input) {
-  if (typeof input !== 'string') return NaN;
+export function parseShorthandNumber(text) {
+  if (typeof text !== 'string') return NaN;
+  // One minus in front of a digit is a sign; the rest of the text parses without it ('--123' still reads 123).
+  const negative = /^\s*-(?=[\d.,])/.test(text);
+  const signed = (value) => (negative ? -value : value);
+  const input = negative ? text.replace(/^\s*-/, '') : text;
+
+  // Game notation past the suffixes ("3.2e12", "10e58"). The mantissa is a plain decimal, so the thousands
+  // guesses below never see it; commas in it are grouping.
+  const exponent = input.trim().match(/^([\d.,]*\d)e([+-]?\d+)$/i);
+  if (exponent) return signed(Number(`${exponent[1].replace(/,/g, '')}e${exponent[2]}`));
 
   const multipliers = {
     '': 1,
@@ -1178,10 +1194,10 @@ export function parseShorthandNumber(input) {
     for (let i = 1; i < suffix.length; i++) {
       base *= 1e3;
     }
-    return num * base;
+    return signed(num * base);
   }
 
-  return num * (multipliers[suffix] || 1);
+  return signed(num * (multipliers[suffix] || 1));
 }
 
 export const worldColor = ['#64b564', '#f1ac45', '#00bcd4', '#864ede', '#de4e4e', '#5FF1B4FF', '#40e0d0'];

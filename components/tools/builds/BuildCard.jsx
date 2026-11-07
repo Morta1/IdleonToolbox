@@ -5,7 +5,7 @@ import Tooltip from '@components/Tooltip';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import Link from 'next/link';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum, prefix } from '@utility/helpers';
 import { classToSlug } from '@utility/builds/class-paths.mjs';
 import { buildHref } from '@utility/builds/build-pages.mjs';
 import { classes } from '@website-data';
@@ -19,22 +19,15 @@ import {
 } from '@utility/builds/classes';
 import AuthorChip from './AuthorChip';
 import { SurfaceCard, TagChip } from './styled';
+import { ink } from '../../../styles/theme/theme';
 
 // Calm text-first card. Family color shows as a thin left accent bar plus a
-// subdued class breadcrumb — no gradient hero, no heavy uppercase labels.
+// subdued class breadcrumb: no gradient hero, no heavy uppercase labels.
 //
 // The card is a div with an onClick rather than one big <a>, because the breadcrumb inside it
 // links to the class pages and anchors cannot nest. The title stays a real <a> so the card is
 // still keyboard-reachable and middle-clickable, and a crawler that never runs JS reaches every
 // build page through it.
-
-const formatCount = (n) => {
-  if (!n) return '0';
-  if (n < 1000) return String(n);
-  if (n < 10_000) return `${(n / 1000).toFixed(1)}k`;
-  if (n < 1_000_000) return `${Math.round(n / 1000)}k`;
-  return `${(n / 1_000_000).toFixed(1)}M`;
-};
 
 const Separator = () => (
   <Box
@@ -42,7 +35,7 @@ const Separator = () => (
       width: 3,
       height: 3,
       borderRadius: '50%',
-      background: 'rgba(255,255,255,0.25)',
+      background: ink(0.25),
       flexShrink: 0
     }}
   />
@@ -59,7 +52,7 @@ const ClassCrumb = ({ classKey, children }) => (
     sx={{
       ...breadcrumbSx,
       textDecoration: 'none',
-      '&:hover': { color: 'rgba(255,255,255,0.9)', textDecoration: 'underline' }
+      '&:hover': { color: ink(0.9), textDecoration: 'underline' }
     }}
     noWrap
   >
@@ -91,7 +84,7 @@ const BuildCard = ({ build, staticIds }) => {
         ...familyAccentBar(theme.primary),
         '&:hover': {
           transform: 'translateY(-1px)',
-          borderColor: 'rgba(255,255,255,0.12)'
+          borderColor: ink(0.12)
         }
       }}
     >
@@ -117,7 +110,7 @@ const BuildCard = ({ build, staticIds }) => {
                 style={{ width: 24, height: 24, objectFit: 'contain' }}
               />
             ) : (
-              <Typography sx={{ color: theme.primary, fontWeight: 700, fontSize: 14 }}>
+              <Typography sx={{ color: theme.text, fontWeight: 700, fontSize: 14 }}>
                 {classKey?.[0] || '?'}
               </Typography>
             )}
@@ -152,15 +145,15 @@ const BuildCard = ({ build, staticIds }) => {
 
           <Stack direction="row" alignItems="center" gap={1} sx={{ flexShrink: 0, color: TEXT_STRONG }}>
             <Tooltip title={`${views} view${views === 1 ? '' : 's'}`}>
-              <Stack direction="row" alignItems="center" gap={0.3}>
+              <Stack data-volatile direction="row" alignItems="center" gap={0.3}>
                 <VisibilityIcon sx={{ fontSize: 14, color: TEXT_MUTED }}/>
                 <Typography sx={{ ...metricLabelSx, color: TEXT_MUTED }}>
-                  {formatCount(views)}
+                  {formatNum(views || 0, 'whole')}
                 </Typography>
               </Stack>
             </Tooltip>
-            <Stack direction="row" alignItems="center" gap={0.35}>
-              <FavoriteIcon sx={{ fontSize: 14, color: '#ff6b6b' }}/>
+            <Stack data-volatile direction="row" alignItems="center" gap={0.35}>
+              <FavoriteIcon sx={{ fontSize: 14, color: 'text.error' }}/>
               <Typography sx={metricLabelSx}>{build.likeCount || 0}</Typography>
             </Stack>
           </Stack>
@@ -200,8 +193,8 @@ const iconTileSx = {
   display: 'flex',
   alignItems: 'center',
   justifyContent: 'center',
-  background: 'rgba(255,255,255,0.03)',
-  border: '1px solid rgba(255,255,255,0.05)'
+  background: ink(0.03),
+  border: `1px solid ${ink(0.05)}`
 };
 
 const titleSx = { fontWeight: 600, lineHeight: 1.25 };

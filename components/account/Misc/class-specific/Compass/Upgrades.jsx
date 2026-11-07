@@ -1,59 +1,52 @@
-import React, { useState } from 'react';
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Select,
-  Stack,
-  TextField,
-  Typography
-} from '@mui/material';
-import { prefix } from '@utility/helpers';
-import useCheckbox from '@components/common/useCheckbox';
-import { getCompassTotalUpgradeCost } from '@parsers/class-specific/compass';
-import useMasterclassCostControls from '../useMasterclassCostControls';
-import MasterclassUpgradeCard, { formatNextLevelBonus } from '../MasterclassUpgradeCard';
+import React from 'react';
+import { Stack, Typography } from '@mui/material';
+import { compass } from '@website-data';
+import { dustNames, getCompassDollar, getCompassTotalUpgradeCost } from '@parsers/class-specific/compass';
+import { formatNum } from '@utility/helpers';
+import MasterclassUpgradeCard, { formatNextLevelBonus, masterclassText } from '../MasterclassUpgradeCard';
+import CardGrid from '@components/common/cards/CardGrid';
+import GameIcon from '@components/common/GameIcon';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 import { matchesUpgradeSearch } from '../matchesUpgradeSearch';
 
-const Upgrades = ({ account, upgrades, dusts }) => {
-  const [sortBy, setSortBy] = useState('default');
-  const [searchText, setSearchText] = useState('');
-  const [CheckboxEl, hideMaxedUpgrades] = useCheckbox('Hide maxed upgrades');
-  const [LockedCheckboxEl, hideLockedUpgrades] = useCheckbox('Hide locked upgrades');
-  const { controls, levelsAhead, forceLegendTalent, isOverridden } = useMasterclassCostControls(account);
+// A saved checkbox from before resets once: the old shared "Hide maxed/locked upgrades" keys ticked four pages at once
+const UPGRADES_TOOLBAR = { search: '', sort: null, view: 'paths', hideMaxed: false, hideLocked: false };
+// The game's placeholder rows: listed in its data, never in its menu
+const PLACEHOLDER = 'Titan_doesnt_exist';
+const byCost = (order) => (a, b) => (order === 'desc' ? -1 : 1) * ((a.cost || 0) - (b.cost || 0));
 
-  const sortUpgrades = (list) => {
-    const sorted = [...list];
-    if (sortBy === 'cost') {
-      return sorted.sort((a, b) => (a.cost || 0) - (b.cost || 0));
-    }
-    if (sortBy === 'type') {
-      return sorted.sort((a, b) => (a.name || '').localeCompare(b.name || ''));
-    }
-    return list;
-  };
+// costing: the page's Levels ahead and Daily Shopping Spree (its Page settings). sectionFailed: the catalog at zero
+// (the parser's empty save) by name, with no cost, state or Toolbar.
+const Upgrades = ({ account, upgrades, dusts, costing, dollarFills, sectionFailed }) => {
+  const { levelsAhead = 1, forceLegendTalent, isOverridden } = costing ?? {};
+  const [view, setView, resetView] = useToolbarState('compass-upgrades', UPGRADES_TOOLBAR);
+  const catalog = (upgrades ?? []).flatMap(({ path, list }) => (list ?? []).map((upgrade) => ({ ...upgrade, path })))
+    .filter(({ description }) => description !== PLACEHOLDER);
+  const shown = sectionFailed ? catalog : catalog.filter((upgrade) => matchesUpgradeSearch(upgrade, view?.search)
+    && !(view?.hideMaxed && upgrade.level >= upgrade.x4)
+    && !(view?.hideLocked && !upgrade.unlocked));
+  const sorted = (list) => (view?.sort ? list.toSorted(byCost(view.sort.order)) : list);
+  // By path in the game's order, or by dust, cheapest first inside each (as the Type sort did); a group with nothing
+  // shown draws nothing
+  const groups = view?.view === 'dust' && !sectionFailed
+    ? Object.keys(dustNames).map((type) => ({
+      key: type,
+      title: dustNames[type],
+      icon: `data/Dust${type}_x1.png`,
+      list: shown.filter(({ x3 }) => `${x3}` === type).toSorted(byCost(view?.sort?.order ?? 'asc'))
+    }))
+    : (upgrades ?? []).map(({ path }) => ({ key: path, title: path, list: sorted(shown.filter((upgrade) => upgrade.path === path)) }));
 
-  const filterUpgrades = (list) => {
-    if (!searchText) return list;
-    return list.filter(upgrade => matchesUpgradeSearch(upgrade, searchText));
-  };
-
-  const renderUpgradeCard = (upgrade, i, dustType) => {
+  const renderUpgradeCard = (upgrade) => {
     const {
-      name, cost, description, level, x4, extraData,
-      x3, baseIconIndex, index, shapeIcon, unlocksAt, nextLevelBonus, isMulti, bonusDiff, unlocked,
-      path
+      name, cost, description, level, x4, killsProgress, x3, baseIconIndex, index, shapeIcon, unlocksAt, unlocked, path
     } = upgrade;
-    if (hideMaxedUpgrades && level >= x4) return null;
-    if (hideLockedUpgrades && !unlocked) return null;
-    if (description === 'Titan_doesnt_exist') return null;
-    const owned = dusts?.[dustType || x3]?.value || 0;
+    const owned = dusts?.[x3]?.value || 0;
     const nextCost = isOverridden ? getCompassTotalUpgradeCost(account, upgrade, level + 1, forceLegendTalent) : cost;
     const targetLevel = Math.min(level + levelsAhead, x4);
     const targetCost = targetLevel > level + 1 ? getCompassTotalUpgradeCost(account, upgrade, targetLevel, forceLegendTalent) : 0;
-
-    let iconIndex = index ?? i;
-    if (baseIconIndex != null && baseIconIndex >= 0) iconIndex = baseIconIndex + 106;
+    const iconIndex = baseIconIndex != null && baseIconIndex >= 0 ? baseIconIndex + 106 : index;
 
     return <MasterclassUpgradeCard key={name + iconIndex}
                                    name={name}
@@ -61,102 +54,38 @@ const Upgrades = ({ account, upgrades, dusts }) => {
                                    frame={shapeIcon}
                                    level={level}
                                    maxLevel={x4}
-                                   description={description.replace('$', ``).replace('.00', '')}
-                                   nextLevelBonus={formatNextLevelBonus(upgrade)}
-                                   extraData={extraData}
-                                   currencyIcon={`Dust${dustType ?? x3}_x1`}
+                                   description={masterclassText(description, getCompassDollar(index, account, dollarFills))}
+                                   nextLevelBonus={formatNextLevelBonus(upgrade, 'compass', compass?.[index]?.description)}
+                                   extraData={killsProgress ? `Kills: ${formatNum(killsProgress.kills, 'whole')} / ${formatNum(killsProgress.total, 'whole')}` : undefined}
+                                   currencyIcon={`Dust${x3}_x1`}
+                                   currencyName={dustNames[x3]}
+                                   costGame={'Windwalker.CompassUpgCost'}
                                    owned={owned}
                                    nextCost={nextCost}
                                    targetLevel={targetLevel}
                                    targetCost={targetCost}
-                                   unlockText={unlocksAt > 0 ? `Unlocks at ${path}: ${unlocksAt}` : null}
-                                   unlocked={unlocked}/>;
+                                   unlockText={!unlocked && unlocksAt > 0 ? `Unlocks at ${path}: ${unlocksAt}` : null}
+                                   unlocked={unlocked}
+                                   catalogOnly={sectionFailed}/>;
   };
 
   return (
     <Stack direction="column" gap={4}>
-      <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
-        <FormControl size="small" sx={{ width: 200 }}>
-          <InputLabel>Sort By</InputLabel>
-          <Select value={sortBy} label="Sort By" onChange={(e) => setSortBy(e.target.value)}>
-            <MenuItem value="default">Default</MenuItem>
-            <MenuItem value="type">Type</MenuItem>
-          </Select>
-        </FormControl>
-        <TextField
-          size="small"
-          label="Search by description or name"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          sx={{ width: 250 }}
-        />
-        {controls}
-        <CheckboxEl/>
-        <LockedCheckboxEl/>
-      </Stack>
-
-      {sortBy === 'type' ? (
-        Object.entries(
-          upgrades
-          .flatMap(({ path, list }) => list.map(upg => ({ ...upg, path })))
-          .filter(u => u.description !== 'Titan_doesnt_exist')
-            .reduce((acc, upgrade) => {
-              if (!acc[upgrade.x3]) acc[upgrade.x3] = [];
-              acc[upgrade.x3].push(upgrade);
-              return acc;
-            }, {})
-        ).map(([x3, groupedUpgrades]) => {
-          const sortedGroup = filterUpgrades(groupedUpgrades.toSorted((a, b) => (a.cost || 0) - (b.cost || 0)));
-          if (sortedGroup.length === 0) return null;
-
-          // If hiding maxed upgrades, check if this category has any visible upgrades
-          if (hideMaxedUpgrades) {
-            const hasVisibleUpgrades = sortedGroup.some(upgrade => upgrade.level < upgrade.x4);
-            if (!hasVisibleUpgrades) return null;
-          }
-          if (hideLockedUpgrades) {
-            const hasVisibleUpgrades = sortedGroup.some(upgrade => upgrade.unlocked);
-            if (!hasVisibleUpgrades) return null;
-          }
-
-
-          return (
-            <Stack key={x3} direction="column" gap={2}>
-              <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
-                <Typography variant="h6">Dust Type</Typography>
-                <img style={{ objectPosition: '0 -6px' }} src={`${prefix}data/Dust${x3}_x1.png`} alt=""/>
-              </Stack>
-              <Stack direction="row" gap={2} flexWrap="wrap">
-                {sortedGroup.map((upgrade, i) => renderUpgradeCard(upgrade, i, x3))}
-              </Stack>
-            </Stack>
-          );
-        })
-      ) : (
-        upgrades?.map(({ path, list }) => {
-          const filtered = filterUpgrades(sortUpgrades(list));
-          if (filtered.length === 0) return null;
-
-          // If hiding maxed upgrades, check if this category has any visible upgrades
-          if (hideMaxedUpgrades) {
-            const hasVisibleUpgrades = filtered.some(upgrade => upgrade.level < upgrade.x4);
-            if (!hasVisibleUpgrades) return null;
-          }
-          if (hideLockedUpgrades) {
-            const hasVisibleUpgrades = filtered.some(upgrade => upgrade.unlocked);
-            if (!hasVisibleUpgrades) return null;
-          }
-
-          return (
-            <Stack key={path} direction="column" gap={2}>
-              <Typography variant="h6">{path}</Typography>
-              <Stack direction="row" gap={2} flexWrap="wrap">
-                {filtered.map((upgrade, i) => renderUpgradeCard(({ ...upgrade, path }), i, null))}
-              </Stack>
-            </Stack>
-          );
-        })
-      )}
+      {sectionFailed ? null : <Toolbar state={view} defaults={UPGRADES_TOOLBAR} onChange={setView} onReset={resetView}
+               total={catalog.length} shown={shown.length} noun={'upgrades'}>
+        <Toolbar.Search placeholder={'Search upgrades'}/>
+        <Toolbar.Sort options={[['cost', 'Cost', 'asc']]}/>
+        <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
+        <Toolbar.Filter name={'hideLocked'} label={'Hide locked'}/>
+        <Toolbar.View options={[['paths', 'By path'], ['dust', 'By dust']]}/>
+      </Toolbar>}
+      {groups.map(({ key, title, icon, list }) => list.length ? <Stack key={key} direction="column" gap={2}>
+        <Stack direction="row" alignItems="center" gap={1}>
+          {icon ? <GameIcon src={icon} size={24} alt={''}/> : null}
+          <Typography variant={'sectionTitle'} component={'h2'}>{title}</Typography>
+        </Stack>
+        <CardGrid size={'m'}>{list.map(renderUpgradeCard)}</CardGrid>
+      </Stack> : null)}
     </Stack>
   );
 };

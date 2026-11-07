@@ -1,7 +1,7 @@
 import { getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { holesInfo } from '@website-data';
-import { lavaLog, lavaLog2, notateNumber } from '@utility/helpers';
+import { gameFill, lavaLog, lavaLog2 } from '@utility/helpers';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getEventShopBonus } from '@parsers/misc';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
@@ -10,6 +10,8 @@ import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 // Event shop purchase that grants extra summoning doublers
 const EVENT_SHOP_DOUBLERS_INDEX = 15;
 const EVENT_SHOP_DOUBLERS = 10;
+// game: "GambitPts" sums Gambit_0 to 5, Holes[11][65] to [70]
+export const GAMBIT_RUNS = 6;
 
 export const getGambit = (holesObject: any, accountData: any) => {
   const pointsMulti = getPointsMulti(holesObject, accountData);
@@ -24,8 +26,8 @@ export const getGambit = (holesObject: any, accountData: any) => {
       bonus,
       pointsReq,
       name: name.replace('{', Math.floor(bonus)).replace('}', bonus
-        ? `${notateNumber(1 + Math.floor(bonus) / 100, 'MultiplierInfo')}x`
-        : 0).replace(/[梦而]/g, '').replace('(TAP ME)', '')
+        ? `${gameFill(1 + Math.floor(bonus) / 100, 'MultiplierInfo')}x`
+        : 0).replace(/[梦而]/g, '').replace('(TAP_ME)', '').replace(/_+$/, '')
     }
   })
   const nextUnlock = bonuses?.find(({ pointsReq }: any) => points < pointsReq);
@@ -34,7 +36,7 @@ export const getGambit = (holesObject: any, accountData: any) => {
   const appointedDoublers = (holesObject?.gambitStuff ?? []).reduce((sum: any, val: any) => {
     return sum + (val !== -1 ? 1 : 0)
   }, 0);
-  const times = holesObject?.extraCalculations.slice(65, 71);
+  const times = Array.from({ length: GAMBIT_RUNS }, (_, run) => holesObject?.extraCalculations?.[65 + run]);
   const totalTime = times.reduce((sum: any, time: any) => sum + time, 0);
   return {
     pointsMulti,

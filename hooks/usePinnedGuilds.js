@@ -13,18 +13,20 @@ const STORAGE_KEY = 'pinned-guilds';
  * inside a useEffect, preventing hydration mismatches.
  */
 export function usePinnedGuilds() {
-  const [pinnedGuilds, setPinnedGuilds] = useLocalStorage({
+  const [stored, setPinnedGuilds] = useLocalStorage({
     key: STORAGE_KEY,
     defaultValue: []
   });
+  // Whatever else the key holds reads as no pins.
+  const pinnedGuilds = Array.isArray(stored) ? stored : [];
 
   const isPinned = (id) => pinnedGuilds.some((g) => g.id === id);
 
   const togglePin = (id, name) => {
     if (isPinned(id)) {
-      setPinnedGuilds((current) => current.filter((g) => g.id !== id));
+      setPinnedGuilds((current) => (Array.isArray(current) ? current : []).filter((g) => g.id !== id));
     } else {
-      setPinnedGuilds((current) => [...current, { id, name }]);
+      setPinnedGuilds((current) => [...(Array.isArray(current) ? current : []), { id, name }]);
     }
   };
 

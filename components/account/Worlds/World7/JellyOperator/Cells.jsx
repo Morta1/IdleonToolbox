@@ -1,37 +1,20 @@
 import React from 'react';
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
-import { notateNumber, prefix } from '@utility/helpers';
+import { formatNum } from '@utility/helpers';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
-const Cells = ({ cells }) => {
-  return (
-    <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 2, alignItems: 'stretch' }}>
-      {cells?.map(({ index, name, unlocked, level, expReq, dps, passive, effect }) => (
-        <Card key={index} variant={'outlined'} sx={{ width: 240, opacity: unlocked ? 1 : 0.45 }}>
-          <CardContent>
-            <Stack gap={1}>
-              <Stack direction="row" gap={1.5} alignItems="center">
-                <img
-                  src={`${prefix}data/JellyUnit${index}.png`}
-                  alt={name}
-                  style={{ width: 40, height: 40, objectFit: 'contain', flexShrink: 0 }}
-                />
-                <Stack>
-                  <Typography variant="subtitle1" fontWeight={500}>{name}</Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    {unlocked ? `Lv. ${level}` : 'Locked'}
-                  </Typography>
-                </Stack>
-              </Stack>
-              <Typography variant="body2">DPS: {notateNumber(dps, 'Big')}</Typography>
-              {passive ? <Typography variant="body2">Passive: {passive}</Typography> : null}
-              {effect ? <Typography variant="body2">{effect}</Typography> : null}
-              <Typography variant="body2" color="text.secondary">Next level: {notateNumber(expReq, 'Big')} EXP</Typography>
-            </Stack>
-          </CardContent>
-        </Card>
-      ))}
-    </Box>
-  );
-};
+// The DPS is the game's cell card, as the Layout's note reads it. A cell's EXP has no print in the game: the whole kind
+const Cells = ({ cells }) => <CardGrid size={'s'}>
+  {cells?.map(({ index, name, unlocked, level, expReq, dps, passive, effect }) => <ItemCard
+    key={index} icon={`data/JellyUnit${index}.png`} title={name}
+    level={unlocked ? { value: level ?? 0 } : undefined} status={unlocked ? undefined : 'locked'}>
+    <ItemCard.Facts rows={[
+      ['DPS', dps ?? 0, { game: 'JellyOperation.CellDPS' }],
+      passive ? ['Passive', passive] : null,
+      ['Next level', `${formatNum(expReq ?? 0, 'whole')} EXP`]
+    ]}/>
+    {effect ? <ItemCard.Desc text={effect}/> : null}
+  </ItemCard>)}
+</CardGrid>;
 
 export default Cells;

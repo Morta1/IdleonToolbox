@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useLocalStorage } from "@mantine/hooks";
 import { useRouter } from "next/compat/router";
 import { breakdownKey } from "@utility/breakdownSearch";
@@ -11,34 +11,35 @@ import {
   TextField,
   InputAdornment,
   IconButton,
-  Snackbar,
-  Alert,
   useMediaQuery,
   useTheme,
-  SwipeableDrawer,
-  Tooltip,
   Tabs,
   Tab,
+  ButtonBase,
+  Menu,
+  MenuItem,
+  ListItemText,
+  Divider,
 } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SearchIcon from "@mui/icons-material/Search";
-import UnfoldMoreIcon from "@mui/icons-material/UnfoldMore";
-import UnfoldLessIcon from "@mui/icons-material/UnfoldLess";
-import ContentCopyIcon from "@mui/icons-material/ContentCopy";
-import StarIcon from "@mui/icons-material/Star";
-import StarBorderIcon from "@mui/icons-material/StarBorder";
-import ImageIcon from "@mui/icons-material/Image";
-import VisibilityIcon from "@mui/icons-material/Visibility";
-import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import PieChartOutlineIcon from "@mui/icons-material/PieChartOutline";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
+import { IconPin, IconPinFilled } from "@tabler/icons-react";
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from "@utility/clipboard";
+import { notify } from "@components/common/Overlays/notify";
+import AppDrawer from "@components/common/Overlays/AppDrawer";
+import Notice from "@components/common/Notice";
+import WithLastWord from "@components/common/WithLastWord";
+import { menuCheck } from "@components/common/Overlays/menuCheck";
 import useBreakdown from "./Breakdown.hook";
 import GameIconNotation from "@components/common/GameIconNotation";
 import {
   buildView,
   collectGroupKeys,
+  countLines,
   defaultExpandedKeys,
   flattenView,
+  formatTotal,
   hasInactiveNodes,
   isLegacyBreakdown,
   toBreakdownTree
@@ -55,9 +56,18 @@ import {
   formatShare,
   GAIN_STEP
 } from "./breakdownInsights";
+import { ink } from '../../../styles/theme/theme';
 
 // More notes than this bury the groups worth upgrading under near-zero ones
 const TOP_GAINS_SHOWN = 3
+// A list breakdown's lines from which its drawer offers a search
+const SEARCH_FROM = 10
+
+// Info board: a value that opens a breakdown carries a 14 px bars glyph, and a hover tints the whole value
+const VALUE_TRIGGER_SX = { "&:hover": { bgcolor: "primary.soft" } }
+
+// Totals the header draws as game icons (GameIconNotation) carry these markers
+const ICON_NOTATION = /[\[!|棘]/
 
 // A `?breakdown=` link opens only the first matching breakdown: per-unit stats mount one per unit
 const linkClaim = { path: "" }
@@ -84,19 +94,24 @@ interface BreakdownProps {
   // Notation for lines that carry no unit (the older shape)
   valueNotation?: string
   skipNotation?: boolean
+  // The children are the value itself (StatTile, ItemCard facts), not an icon beside it
+  asValue?: boolean
+  // The drawer's name when the trigger names the stat otherwise (a tile's label); statName stays the key of
+  // its pins and its ?breakdown= link
+  title?: string
+  // What a list's lines count as ("11 characters"), when they are not sources
+  countNoun?: string
 }
 
-export function Breakdown({ data: dataProp, children, valueNotation = "MultiplierInfo", skipNotation }: BreakdownProps) {
+export function Breakdown({ data: dataProp, children, valueNotation = "MultiplierInfo", skipNotation, asValue = false, title, countNoun }: BreakdownProps) {
   const datasets = (Array.isArray(dataProp) ? dataProp : [dataProp])
     .filter((entry): entry is AnyBreakdown => !!entry)
   const [activeTab, setActiveTab] = useState(0)
   const data = datasets[Math.min(activeTab, datasets.length - 1)]
-  const [showFeedback, setShowFeedback] = useState(false);
-  const [feedbackMessage, setFeedbackMessage] = useState("");
-  const [feedbackSeverity, setFeedbackSeverity] = useState<"success" | "error">("success");
   const { copyImageToClipboard } = useBreakdown()
   const [open, setOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState("")
+  const searchField = useRef<HTMLInputElement>(null)
   // Zero sources stay listed (dimmed) so players see what they can still improve
   const [showInactive, setShowInactive] = useLocalStorage<boolean>({ key: "breakdown-show-inactive", defaultValue: true })
   // Contribution and upgrade impact, shown together
@@ -111,6 +126,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   const router = useRouter()
   const linkedKey = router?.isReady ? router.query.breakdown : undefined
   const datasetKeys = datasets.map((dataset) => breakdownKey(dataset.statName)).join("|")
+  const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
 
   useEffect(() => {
     if (typeof linkedKey !== "string") {
@@ -129,8 +145,17 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
 
   if (!data) return <>{children}</>
 
+  const name = title || data.statName
+  // "Power breakdown, 2.66e26": the total only when it is plain text
+  const totalText = formatTotal(data, valueNotation, skipNotation)
+  const plainTotal = totalText !== "" && !ICON_NOTATION.test(totalText)
+  const triggerName = plainTotal ? `${name} breakdown, ${totalText}` : `${name} breakdown`
+
   const tree = toBreakdownTree(data, valueNotation, skipNotation)
   const rootCombine = isLegacyBreakdown(data) ? "list" : data.combine ?? DEFAULT_ROOT_COMBINE
+  // A short list (the two next happy hours) is read at a glance: its drawer has no search until SEARCH_FROM lines
+  const searchable = isLegacyBreakdown(data) || data.combine !== "list"
+    || tree.reduce((lines, node) => lines + countLines(node), 0) >= SEARCH_FROM
   // Only an open drawer pays for them; pages hold dozens of closed breakdowns
   const shares = open ? computeShares(tree, rootCombine) : new Map()
   const gains = open ? computeGains(tree, rootCombine) : new Map()
@@ -146,32 +171,43 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   const shownGains = gainValues.filter((gain) => gain > 0).sort((a, b) => b - a).slice(0, TOP_GAINS_SHOWN)
   const insight: RowInsight = { on: insightsOn, bestGain, minShownGain: shownGains.at(-1) }
   const views = buildView(tree, {
-    valueNotation, skipNotation, query: searchQuery, showInactive, pinned, rootCombine,
+    valueNotation, skipNotation, countNoun, query: searchQuery, showInactive, pinned, rootCombine,
     ...(insightsOn ? { shares, gains, faster } : {})
   })
   const expanded = expandedKeys ?? defaultExpandedKeys(data, views)
   // Searching opens every group that still has a match
   const isExpanded = (key: string) => !!searchQuery.trim() || expanded.has(key)
   const canHideInactive = hasInactiveNodes(tree)
+  const hasToggles = canHideInactive || hasInsights
+
+  const runFromMenu = (action: () => void) => {
+    setMenuAnchor(null)
+    action()
+  }
+
+  // The total sits in the header beside the name, or under it when both don't fit (OverlayHeader); a text total
+  // longer than its own line wraps between words. sx, not variant: the build type-checks .tsx files and
+  // Typography's variant type does not know the theme's sectionTitle.
+  const total = ICON_NOTATION.test(totalText)
+    ? <GameIconNotation value={totalText} sx={{ typography: "sectionTitle" }}/>
+    : <Box component="span" sx={{ typography: "sectionTitle" }}>{totalText}</Box>
 
   const showResult = (succeeded: boolean, successMessage: string) => {
-    setFeedbackSeverity(succeeded ? "success" : "error")
-    setFeedbackMessage(succeeded ? successMessage : CLIPBOARD_ERROR_MESSAGE)
-    setShowFeedback(true)
+    notify(succeeded ? successMessage : CLIPBOARD_ERROR_MESSAGE)
   }
 
   // Exports carry the drawer's % column only while it is shown
   const exportRows = () => flattenView(buildView(tree, {
-    valueNotation, skipNotation, query: "", showInactive, pinned, rootCombine, ...(insightsOn ? { shares } : {})
+    valueNotation, skipNotation, countNoun, query: "", showInactive, pinned, rootCombine, ...(insightsOn ? { shares } : {})
   })).map((row) => ({ ...row, shareText: row.share !== undefined && !row.inactive ? formatShare(row.share) : "" }))
 
   const handleCopyImage = async () => {
-    const image = { statName: data.statName, totalValue: data.totalValue, rows: exportRows() }
+    const image = { statName: name, totalValue: totalText, rows: exportRows() }
     showResult(await copyImageToClipboard(image), "Copied image to clipboard")
   }
 
   const handleCopyBreakdown = async () => {
-    let text = `${data.statName}: ${data.totalValue}\n\n`
+    let text = `${name}: ${totalText}\n\n`
     exportRows().forEach((row) => {
       text += `${"  ".repeat(row.depth)}${row.name}: ${row.display}${row.shareText ? ` (${row.shareText})` : ""}\n`
     })
@@ -215,192 +251,167 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
     : <LineRow key={node.key} node={node} isMobile={isMobile} insight={insight} pinned={pinned.has(node.pinKey)}
                onPin={(event) => togglePin(node.pinKey, event)}/>)
 
+  // Stays put under the header while the sources scroll.
+  const toolbar = <>
+    {datasets.length > 1 ? (
+      <Tabs
+        value={Math.min(activeTab, datasets.length - 1)}
+        onChange={handleTabChange}
+        variant="fullWidth"
+        sx={{ borderBottom: "1px solid", borderColor: "divider" }}
+      >
+        {datasets.map((dataset) => <Tab key={dataset.statName} label={dataset.label ?? dataset.statName}/>)}
+      </Tabs>
+    ) : null}
+
+    <Stack
+      direction="row"
+      alignItems="center"
+      justifyContent="flex-end"
+      spacing={1}
+      sx={{
+        px: isMobile ? 1.5 : 2,
+        py: isMobile ? 1 : 1.5,
+        borderBottom: "1px solid",
+        borderColor: "divider",
+      }}
+    >
+      {searchable ? <TextField
+        size="small"
+        placeholder="Search"
+        inputProps={{ "aria-label": "Search sources" }}
+        inputRef={searchField}
+        value={searchQuery}
+        onChange={(e) => setSearchQuery(e.target.value)}
+        sx={{
+          flexGrow: 1,
+          "& .MuiOutlinedInput-root": {
+            fontSize: "0.875rem",
+            color: "text.primary",
+            minHeight: isMobile ? 40 : "auto",
+            "& fieldset": {
+              borderColor: "divider",
+            },
+            "&:hover fieldset": {
+              borderColor: "text.secondary",
+            },
+            "&.Mui-focused fieldset": {
+              borderColor: "primary.main",
+            },
+          },
+          "& .MuiInputBase-input::placeholder": {
+            color: "text.secondary",
+            opacity: 0.7,
+          },
+        }}
+        InputProps={{
+          startAdornment: (
+            <InputAdornment position="start">
+              <SearchIcon sx={{ fontSize: 18, color: "text.secondary" }}/>
+            </InputAdornment>
+          ),
+        }}
+      /> : null}
+      <IconButton
+        aria-label="Breakdown options"
+        aria-haspopup="menu"
+        aria-expanded={!!menuAnchor}
+        onClick={(event) => setMenuAnchor(event.currentTarget)}
+        // 40 px on touch comes from the theme's IconButton minimum
+        sx={{ color: "text.secondary", width: 32, height: 32 }}
+      >
+        <MoreHorizIcon fontSize="small"/>
+      </IconButton>
+    </Stack>
+
+    {/* Every action named in text: the icon buttons this replaces named themselves only on hover */}
+    <Menu
+      anchorEl={menuAnchor}
+      open={!!menuAnchor}
+      onClose={() => setMenuAnchor(null)}
+      anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+      transformOrigin={{ vertical: "top", horizontal: "right" }}
+    >
+      {canHideInactive ? menuCheck(showInactive, "Show inactive sources", () => runFromMenu(() => setShowInactive(!showInactive))) : null}
+      {hasInsights ? menuCheck(insightsOn, "Show share and impact", () => runFromMenu(() => setShowInsights(!showInsights))) : null}
+      {hasToggles ? <Divider/> : null}
+      <MenuItem onClick={() => runFromMenu(() => setExpandedKeys(new Set(collectGroupKeys(views))))}>
+        <ListItemText inset={hasToggles}>Expand all</ListItemText>
+      </MenuItem>
+      <MenuItem onClick={() => runFromMenu(() => setExpandedKeys(new Set()))}>
+        <ListItemText inset={hasToggles}>Collapse all</ListItemText>
+      </MenuItem>
+      <Divider/>
+      <MenuItem onClick={() => runFromMenu(handleCopyBreakdown)}>
+        <ListItemText inset={hasToggles}>Copy as text</ListItemText>
+      </MenuItem>
+      <MenuItem onClick={() => runFromMenu(handleCopyImage)}>
+        <ListItemText inset={hasToggles}>Copy as image</ListItemText>
+      </MenuItem>
+    </Menu>
+
+    {insightsOn ? (
+      <Typography variant="caption" color="text.secondary" sx={{ display: "block", px: isMobile ? 2 : 3, pt: 1 }}>
+        % = share of your total
+      </Typography>
+    ) : null}
+    {insightsOn && showRootGain ? (
+      <Typography variant="caption" color="text.secondary" sx={{ display: "block", px: isMobile ? 2 : 3 }}>
+        Add +{GAIN_STEP}%: total {formatGain(rootGain)}
+      </Typography>
+    ) : null}
+  </>
+
   return (
     <>
-      <Box component="span" sx={{ display: "inline-block", cursor: "pointer" }} onClick={() => setOpen(true)}>
-        {children}
-      </Box>
-
-      <SwipeableDrawer
-        anchor={isMobile ? "bottom" : "right"}
-        open={open}
-        onClose={() => setOpen(false)}
-        onOpen={() => setOpen(true)}
-        // Every instance would add its own edge swipe area, so a swipe opened an arbitrary breakdown
-        disableSwipeToOpen
-        // SwipeableDrawer keeps a closed drawer mounted for edge swipes; pages hold dozens of these
-        ModalProps={{ keepMounted: false }}
-        sx={{
-          zIndex: (theme) => theme.zIndex.drawer + 2,
-        }}
-        slotProps={{
-          backdrop: {
-            sx: { bgcolor: "rgba(0, 0, 0, 0.5)" },
-          },
-        }}
-        PaperProps={{
-          sx: {
-            width: isMobile ? "100%" : 420,
-            maxWidth: "100vw",
-            height: isMobile ? "85vh" : "100%",
-            maxHeight: isMobile ? "85vh" : "100%",
-            borderTopLeftRadius: isMobile ? 16 : 0,
-            borderTopRightRadius: isMobile ? 16 : 0,
-          },
-        }}
+      {/* A span, not a <button>: callers pass block content (Stacks, sprites). ButtonBase gives it the
+          button role, Enter and Space, and the theme's focus ring. */}
+      <ButtonBase
+        component="span"
+        disableRipple
+        aria-label={triggerName}
+        aria-haspopup="dialog"
+        aria-expanded={open}
+        onClick={() => setOpen(true)}
+        // ButtonBase is an inline-flex box aligned to the middle; the span it replaces was an inline block.
+        // It also makes its text unselectable and becomes the box absolute children place against: undo both.
+        sx={[
+          { display: "inline-block", verticalAlign: "baseline", borderRadius: 1, userSelect: "text", position: "static" },
+          asValue && VALUE_TRIGGER_SX
+        ]}
       >
-        <Box
-          sx={{
-            width: "100%",
-            height: "100%",
-            display: "flex",
-            flexDirection: "column",
-            bgcolor: "background.paper",
-          }}
-        >
-          {isMobile && (
-            <Box sx={{ display: "flex", justifyContent: "center", pt: 1, pb: 0.5 }}>
-              <Box sx={{ width: 40, height: 4, bgcolor: "divider", borderRadius: 2 }}/>
-            </Box>
-          )}
+        {/* A value in words wraps before its last word and the glyph, so the glyph never takes a line of its own */}
+        {asValue && typeof children === "string" ? <WithLastWord text={children}><ValueGlyph/></WithLastWord> : <>{children}{asValue ? <ValueGlyph/> : null}</>}
+      </ButtonBase>
 
-          <Box
-            sx={{
-              borderBottom: "1px solid",
-              borderColor: "divider",
-              px: isMobile ? 2 : 3,
-              py: isMobile ? 1.5 : 2,
-              bgcolor: "background.default",
-            }}
-          >
-            <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1.5} width="100%">
-              <Typography variant="body1" color="text.secondary" fontWeight={500}>
-                {data.statName}
-              </Typography>
-              {typeof data.totalValue === 'string' && /[\[!|棘]/.test(data.totalValue)
-                ? <GameIconNotation value={data.totalValue} sx={{ fontSize: '1.5rem', fontWeight: 700 }}/>
-                : <Typography variant="h5" fontWeight={700}>
-                  {data.totalValue}
-                </Typography>
-              }
-            </Stack>
-          </Box>
-
-          {datasets.length > 1 ? (
-            <Tabs
-              value={Math.min(activeTab, datasets.length - 1)}
-              onChange={handleTabChange}
-              variant="fullWidth"
-              sx={{ borderBottom: "1px solid", borderColor: "divider", bgcolor: "background.default" }}
-            >
-              {datasets.map((dataset) => <Tab key={dataset.statName} label={dataset.label ?? dataset.statName}/>)}
-            </Tabs>
-          ) : null}
-
-          <Stack
-            direction="row"
-            alignItems="center"
-            spacing={1}
-            sx={{
-              px: isMobile ? 1.5 : 2,
-              py: isMobile ? 1 : 1.5,
-              borderBottom: "1px solid",
-              borderColor: "divider",
-              bgcolor: "background.default",
-            }}
-          >
-            <TextField
-              size="small"
-              placeholder="Search sources..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              sx={{
-                flexGrow: 1,
-                "& .MuiOutlinedInput-root": {
-                  fontSize: "0.875rem",
-                  color: "text.primary",
-                  minHeight: isMobile ? 40 : "auto",
-                  "& fieldset": {
-                    borderColor: "divider",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "text.secondary",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "primary.main",
-                  },
-                },
-                "& .MuiInputBase-input::placeholder": {
-                  color: "text.secondary",
-                  opacity: 0.7,
-                },
-              }}
-              InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
-                    <SearchIcon sx={{ fontSize: 18, color: "text.secondary" }}/>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            {canHideInactive ? (
-              <IconButtonWithTooltip tooltip={showInactive ? "Hide inactive" : "Show inactive"}
-                                     onClick={() => setShowInactive(!showInactive)}>
-                {showInactive ? <VisibilityIcon fontSize="small"/> : <VisibilityOffIcon fontSize="small"/>}
-              </IconButtonWithTooltip>
-            ) : null}
-            {hasInsights ? (
-              <IconButtonWithTooltip tooltip={insightsOn ? "Hide contribution and impact" : "Show contribution and impact"}
-                                     active={insightsOn} onClick={() => setShowInsights(!showInsights)}>
-                <PieChartOutlineIcon fontSize="small"/>
-              </IconButtonWithTooltip>
-            ) : null}
-            <IconButtonWithTooltip tooltip="Expand All" onClick={() => setExpandedKeys(new Set(collectGroupKeys(views)))}>
-              <UnfoldMoreIcon fontSize="small"/>
-            </IconButtonWithTooltip>
-            <IconButtonWithTooltip tooltip="Collapse All" onClick={() => setExpandedKeys(new Set())}>
-              <UnfoldLessIcon fontSize="small"/>
-            </IconButtonWithTooltip>
-            <IconButtonWithTooltip tooltip="Copy as Text" onClick={handleCopyBreakdown}>
-              <ContentCopyIcon fontSize="small"/>
-            </IconButtonWithTooltip>
-            <IconButtonWithTooltip tooltip="Copy as Image" onClick={handleCopyImage}>
-              <ImageIcon fontSize="small"/>
-            </IconButtonWithTooltip>
-          </Stack>
-
-          {insightsOn ? (
-            <Typography variant="caption" color="text.secondary" sx={{ px: isMobile ? 2 : 3, pt: 1 }}>
-              % = share of your total
-            </Typography>
-          ) : null}
-          {insightsOn && showRootGain ? (
-            <Typography variant="caption" color="text.secondary" sx={{ px: isMobile ? 2 : 3 }}>
-              Add +{GAIN_STEP}%: total {formatGain(rootGain)}
-            </Typography>
-          ) : null}
-
-          <Box sx={{ flexGrow: 1, overflowY: "auto", WebkitOverflowScrolling: "touch", py: 1 }}>
-            {renderNodes(views)}
-          </Box>
+      <AppDrawer open={open} onClose={() => setOpen(false)} title={name} aside={total} toolbar={toolbar}>
+        <Box sx={{ py: 1 }}>
+          {/* A search that matches no source says so, with the step that brings the rows back */}
+          {views.length || !searchQuery.trim()
+            ? renderNodes(views)
+            : <Notice sx={{ px: isMobile ? 2 : 3, py: 1 }} action={{ label: "Clear search", onClick: () => setSearchQuery("") }}
+                      focusAfter={searchField}>
+              {`No source matches “${searchQuery.trim()}”.`}
+            </Notice>}
         </Box>
-      </SwipeableDrawer>
-
-      <Snackbar
-        open={showFeedback}
-        autoHideDuration={feedbackSeverity === "error" ? 5000 : 2000}
-        onClose={() => setShowFeedback(false)}
-        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-      >
-        <Alert severity={feedbackSeverity} variant="filled" onClose={() => setShowFeedback(false)}>
-          {feedbackMessage}
-        </Alert>
-      </Snackbar>
+      </AppDrawer>
     </>
   )
 }
 
+// Three lines getting shorter: there is a breakdown behind this value (Info board).
+const BreakdownGlyph = () => <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.6} strokeLinecap="round" aria-hidden>
+  <path d="M4 6h16M4 12h11M4 18h6"/>
+</svg>
+const ValueGlyph = () => <Box component="span" aria-hidden sx={{ display: "inline-flex", ml: 0.5, color: "primary.main", verticalAlign: "-2px" }}>
+  <BreakdownGlyph/>
+</Box>
+
 const indent = (depth: number, isMobile: boolean) => (isMobile ? 2 : 3) + depth * 2
+
+// A phone's rows are the board's 34 px, about 12 lines on screen. A row's pin keeps a 44 px wide tap target as tall as
+// its row: the theme's 40 px touch minimum would make each row 60 px.
+const PIN_TOUCH = { "@media (pointer: coarse)": { minWidth: 24, minHeight: 24, "&::before": { content: '""', position: "absolute", inset: "-5px -10px" } } }
 
 // A fixed width keeps every row's value in one column
 const InsightCell = ({ node, insight }: { node: ViewNode, insight: RowInsight }) => {
@@ -419,8 +430,8 @@ const ImpactNote = ({ node, insight }: { node: ViewNode, insight: RowInsight }) 
   const isBest = node.gain === insight.bestGain
   return (
     <Typography variant="caption" component="div" sx={{
-      color: isBest ? "success.main" : "text.secondary",
-      fontWeight: isBest ? 600 : 400
+      color: isBest ? "text.success" : "text.secondary",
+      fontWeight: isBest ? 600 : undefined
     }}>
       Add +{GAIN_STEP}% here: {node.faster ? "speed" : "total"} {formatGain(node.gain)}
     </Typography>
@@ -461,6 +472,7 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, insight, children }: {
       <Box
         component="button"
         onClick={onToggle}
+        aria-expanded={expanded}
         sx={{
           width: "100%",
           position: "relative",
@@ -469,18 +481,20 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, insight, children }: {
           gap: 1,
           pl: indent(node.depth, isMobile),
           pr: isMobile ? 2 : 3,
-          py: topLevel ? (isMobile ? 1.75 : 1.5) : 1,
-          minHeight: isMobile ? 44 : "auto",
-          bgcolor: isBest ? "rgba(102, 187, 106, 0.1)" : topLevel ? "transparent" : "rgba(255, 255, 255, 0.03)",
-          boxShadow: (theme) => isBest ? `inset 3px 0 0 ${theme.palette.success.main}` : "none",
+          py: isMobile ? "7px" : topLevel ? 1.5 : 1,
+          minHeight: isMobile ? 34 : "auto",
+          bgcolor: isBest ? "rgba(var(--mui-palette-success-mainChannel) / 0.1)" : topLevel ? "transparent" : ink(0.03),
+          boxShadow: isBest ? 'inset 3px 0 0 var(--mui-palette-success-main)' : 'none',
           border: "none",
           cursor: "pointer",
           textAlign: "left",
           color: "text.primary",
           transition: "background-color 0.2s",
           "&:hover": {
-            bgcolor: "rgba(255, 255, 255, 0.06)",
+            bgcolor: ink(0.06),
           },
+          // The CssBaseline ring is drawn outside, and the scrolling list clips it
+          "&:focus-visible": { outlineOffset: -2 },
         }}
       >
         <ChevronRightIcon
@@ -498,7 +512,7 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, insight, children }: {
           {node.note ? <Typography variant="caption" color="text.secondary">{node.note}</Typography> : null}
           <ImpactNote node={node} insight={insight}/>
         </Box>
-        <Typography variant={isList ? "caption" : "body2"} fontWeight={isList ? 400 : 600}
+        <Typography variant={isList ? "caption" : "body2"} fontWeight={isList ? undefined : 600}
                     color={isList ? "text.secondary" : "primary.light"} sx={{ whiteSpace: "nowrap" }}>
           {node.display}
         </Typography>
@@ -528,13 +542,13 @@ const LineRow = ({ node, pinned, onPin, isMobile, insight }: {
       gap: 1,
       pl: indent(node.depth, isMobile),
       pr: isMobile ? 2 : 3,
-      py: isMobile ? 1.25 : 0.75,
-      minHeight: isMobile ? 44 : "auto",
+      py: isMobile ? "5px" : 0.75,
+      minHeight: isMobile ? 34 : "auto",
       opacity: node.inactive ? 0.5 : 1,
       transition: "background-color 0.2s",
-      bgcolor: pinned ? "rgba(255, 215, 0, 0.1)" : "transparent",
+      bgcolor: pinned ? "primary.soft" : "transparent",
       "&:hover": {
-        bgcolor: pinned ? "rgba(255, 215, 0, 0.15)" : "rgba(255, 255, 255, 0.05)",
+        bgcolor: pinned ? "primary.soft" : "background.tint",
       },
     }}
   >
@@ -542,18 +556,21 @@ const LineRow = ({ node, pinned, onPin, isMobile, insight }: {
       <IconButton
         size="small"
         onClick={onPin}
+        aria-label={`${pinned ? "Unpin" : "Pin"} ${node.name}`}
+        aria-pressed={pinned}
         sx={{
           p: 0.5,
-          color: pinned ? "#FFD700" : "text.secondary",
+          color: pinned ? "primary.main" : "text.secondary",
           opacity: pinned ? 1 : 0.3,
           transition: "opacity 0.2s, color 0.2s",
           "&:hover": {
             opacity: 1,
             bgcolor: "transparent",
           },
+          ...PIN_TOUCH,
         }}
       >
-        {pinned ? <StarIcon sx={{ fontSize: 16 }}/> : <StarBorderIcon sx={{ fontSize: 16 }}/>}
+        {pinned ? <IconPinFilled size={16}/> : <IconPin size={16}/>}
       </IconButton>
       <Box sx={{ minWidth: 0 }}>
         <Typography variant="body2" color="text.primary" sx={{ opacity: 0.8 }}>
@@ -569,24 +586,3 @@ const LineRow = ({ node, pinned, onPin, isMobile, insight }: {
     <ShareBar node={node} insight={insight} isMobile={isMobile}/>
   </Box>
 )
-
-const IconButtonWithTooltip = ({ children, tooltip, onClick, active }: {
-  children: React.ReactNode,
-  tooltip: string,
-  onClick: (event: React.MouseEvent<HTMLElement>) => void,
-  active?: boolean
-}) => {
-  const theme = useTheme()
-  const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  return (
-    <Tooltip title={tooltip}>
-      <IconButton size={isMobile ? "medium" : "small"} onClick={onClick} sx={{
-        color: active ? "primary.main" : "text.secondary",
-        width: 32,
-        height: 32
-      }}>
-        {children}
-      </IconButton>
-    </Tooltip>
-  )
-}

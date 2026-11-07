@@ -2,6 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
+import { within } from '../helpers/live-verified';
 import { calcHitChance, getMaxDamage, NO_DEFENCE_OVERRIDE } from '@parsers/damage';
 import { evaluateBreakdown, evaluateBreakdownNode } from '@parsers/breakdown';
 
@@ -40,8 +41,7 @@ const GAME = {
   hitChanceByRatio: { 0.3: 0, 0.5: 4, 0.7: 23, 1.2: 71, 1.5: 99, 3: 100 }
 };
 
-// Relative closeness: these values span 1e2 to 1e26
-const expectRelative = (value, game, digits) => expect(value / game).toBeCloseTo(1, digits);
+const TOLERANCE = 5e-13;
 
 const { account, characters } = parseFixture(latest);
 const hunter = characters.find(({ name }) => name === 'IAmTheHunterrr');
@@ -55,17 +55,17 @@ describe('Character stats verified against the live game', () => {
   });
 
   it.each(['maxHp', 'maxMp', 'critChance', 'critDamage', 'accuracy', 'movementSpeed'])('%s', (stat) => {
-    expectRelative(playerInfo[stat], GAME[stat], 12);
+    within(playerInfo[stat], GAME[stat], TOLERANCE);
   });
 
   it('defence', () => {
-    expectRelative(playerInfo.defence.value, GAME.defence, 12);
+    within(playerInfo.defence.value, GAME.defence, TOLERANCE);
   });
 
   it('base and per-X damage components', () => {
-    expectRelative(evaluateBreakdownNode(baseNode), GAME.baseDamage, 12);
+    within(evaluateBreakdownNode(baseNode), GAME.baseDamage, TOLERANCE);
     // Includes Looty McShooty counting 1591 items (Gem entries dropped) and 37 dream clouds
-    expectRelative(evaluateBreakdownNode(perXNode), GAME.perXDamage, 12);
+    within(evaluateBreakdownNode(perXNode), GAME.perXDamage, TOLERANCE);
   });
 
   // A non-string looted entry used to throw "startsWith is not a function" and break stats + Copy for support
@@ -81,8 +81,8 @@ describe('Character stats verified against the live game', () => {
   // The rest is Fun Hippoete reading the save's baked Player_ cog build rates, which run ~1.6% above
   // the live CogMap (511.25% vs 511.01%)
   it('damage percent and max damage', () => {
-    expectRelative(evaluateBreakdownNode(percentNode), GAME.percentDamage, 7);
-    expectRelative(playerInfo.maxDamage, GAME.maxDamage, 7);
+    within(evaluateBreakdownNode(percentNode), GAME.percentDamage, 5e-8);
+    within(playerInfo.maxDamage, GAME.maxDamage, 5e-8);
     expect(playerInfo.minDamage / playerInfo.maxDamage).toBeCloseTo(0.8, 12);
   });
 
@@ -100,8 +100,8 @@ describe('Character stats verified against the live game', () => {
   it('kill per kill', () => {
     const onMap200 = { ...hunter, mapIndex: 200, targetMonster: 'Nothing', afkTarget: 'Nothing' };
     const { killPerkill } = getMaxDamage(onMap200, characters, account);
-    expectRelative(killPerkill.value, GAME.killPerKill, 12);
-    expectRelative(evaluateBreakdown(killPerkill.breakdown), GAME.killPerKill, 12);
+    within(killPerkill.value, GAME.killPerKill, TOLERANCE);
+    within(evaluateBreakdown(killPerkill.breakdown), GAME.killPerKill, TOLERANCE);
   });
 });
 

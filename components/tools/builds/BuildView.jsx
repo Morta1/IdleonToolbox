@@ -25,15 +25,16 @@ import BuildDetail from '@components/tools/builds/BuildDetail';
 import LikeButton from '@components/tools/builds/LikeButton';
 import UseAsTemplateButton from '@components/tools/builds/UseAsTemplateButton';
 import { getBuild, deleteBuild, getBuildState } from 'services/builds';
+import { formatNum } from '@utility/helpers';
 
 // The detail UI, with no opinion on where shortId came from. /tools/builds/<slug> reads it from a
 // static path; /tools/builds/view reads it from ?id=, which is how a build published since the
-// last deploy resolves — fallback: false gives it no page of its own. Each caller owns its
+// last deploy resolves. fallback: false gives it no page of its own. Each caller owns its
 // <NextSeo>, because the two need different canonicals.
 
 const BuildSummaryHeader = ({ summary }) => (
   <Box>
-    <Typography variant="h4" component="h1" sx={{ fontWeight: 700 }}>{summary.title}</Typography>
+    <Typography variant="pageTitle" component="h1">{summary.title}</Typography>
     <Typography variant="body1" color="text.secondary">
       {(summary.subclass || summary.class || '').replace(/_/g, ' ')}
     </Typography>
@@ -70,17 +71,24 @@ const BuildView = ({ shortId, summary, initialBuild = null }) => {
   const [deleting, setDeleting] = useState(false);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
 
+  // Reset for the new id. /tools/builds/<a> to /tools/builds/<b> is a client-side navigation
+  // within one route, so this component stays mounted and useState's initialiser does not re-run
+  // - without this the page renders the previous build under the new URL, and if the refresh
+  // fails it never corrects itself, because initialBuild is truthy so the error is suppressed.
+  const [seen, setSeen] = useState({ shortId, initialBuild });
+  if (seen.shortId !== shortId || seen.initialBuild !== initialBuild) {
+    setSeen({ shortId, initialBuild });
+    if (shortId) {
+      setBuild(initialBuild);
+      setFetched(false);
+      setLoading(!initialBuild);
+      setError('');
+    }
+  }
+
   useEffect(() => {
     if (!shortId) return;
     let cancelled = false;
-    // Reset for the new id. /tools/builds/<a> to /tools/builds/<b> is a client-side navigation
-    // within one route, so this component stays mounted and useState's initialiser does not re-run
-    // - without this the page renders the previous build under the new URL, and if the refresh
-    // fails it never corrects itself, because initialBuild is truthy so the error is suppressed.
-    setBuild(initialBuild);
-    setFetched(false);
-    setLoading(!initialBuild);
-    setError('');
     getBuild(shortId)
       .then((doc) => {
         if (cancelled) return;
@@ -99,7 +107,7 @@ const BuildView = ({ shortId, summary, initialBuild = null }) => {
       .finally(() => {
         if (!cancelled) setLoading(false);
       });
-    // View count bumps happen server-side inside the GET detail handler —
+    // View count bumps happen server-side inside the GET detail handler:
     // no extra round-trip from the client.
     return () => {
       cancelled = true;
@@ -108,12 +116,13 @@ const BuildView = ({ shortId, summary, initialBuild = null }) => {
 
   // Single cheap call for viewer-specific flags. Detail responses scrub
   // ownerUid, so the worker derives `owner` on the server side.
+  const viewerKnown = signedIn && Boolean(shortId);
+  if (!viewerKnown && (liked || isOwner)) {
+    setLiked(false);
+    setIsOwner(false);
+  }
   useEffect(() => {
-    if (!signedIn || !shortId) {
-      setLiked(false);
-      setIsOwner(false);
-      return;
-    }
+    if (!viewerKnown) return;
     let cancelled = false;
     getBuildState(shortId, state?.accessToken)
       .then((res) => {
@@ -145,7 +154,7 @@ const BuildView = ({ shortId, summary, initialBuild = null }) => {
 
   return (
     <>
-      <Stack mt={2} gap={2}>
+      <Stack gap={2}>
         {loading ? (
           // The summary comes from static props, so a crawler (and a human on a slow connection)
           // sees the real title/author/tags immediately rather than a bare spinner contradicting
@@ -172,16 +181,16 @@ const BuildView = ({ shortId, summary, initialBuild = null }) => {
                     value is a visibly wrong number. They appear once the fetch answers. The row's
                     height comes from the buttons opposite, so nothing below moves when they do. */}
                 {fetched && (
-                  <Stack direction="row" alignItems="center" gap={1}>
+                  <Stack data-volatile direction="row" alignItems="center" gap={1}>
                     <LikeButton
                       shortId={build.shortId}
                       initialLiked={liked}
                       initialCount={build.likeCount || 0}
                     />
-                    <Tooltip title={`${build.viewCount || 0} view${build.viewCount === 1 ? '' : 's'}`}>
+                    <Tooltip title={`${formatNum(build.viewCount || 0, 'whole')} view${build.viewCount === 1 ? '' : 's'}`}>
                       <Stack direction="row" alignItems="center" gap={0.5} sx={{ color: 'text.secondary' }}>
                         <VisibilityIcon sx={{ fontSize: 18 }}/>
-                        <Typography variant="body2">{build.viewCount || 0}</Typography>
+                        <Typography variant="body2">{formatNum(build.viewCount || 0, 'whole')}</Typography>
                       </Stack>
                     </Tooltip>
                   </Stack>
@@ -189,7 +198,7 @@ const BuildView = ({ shortId, summary, initialBuild = null }) => {
 
                 <Box sx={{ flexGrow: 1 }}/>
 
-                {/* Actions cluster — wraps together, not individually */}
+                {/* Actions cluster: wraps together, not individually */}
                 <Stack direction="row" alignItems="center" gap={0.5} flexWrap="wrap">
                   <UseAsTemplateButton shortId={build.shortId}/>
                   {isOwner && (

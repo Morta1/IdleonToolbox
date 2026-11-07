@@ -1,61 +1,48 @@
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
 import React from 'react';
-import useCheckbox from '@components/common/useCheckbox';
-import { CardTitleAndValue } from '@components/common/styles';
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore } from '@utility/helpers';
+import { dustNames } from '@parsers/class-specific/compass';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 import MultiCharLockText from '@components/common/MultiCharLockText';
 
 // Mining and fishing maps idle on an ore or a fish, which has no monster face
 const SKILL_MAP_ICONS = { MINING: 'ClassIconsM', FISHING: 'ClassIcons45' };
+// A saved checkbox from before resets once
+const PORTALS_TOOLBAR = { hideOpen: false };
 
-const Portals = ({ maps }) => {
-  const [CheckboxEl, hideUnlockedPortals] = useCheckbox('Hide unlocked portals');
-  return <Stack gap={2}>
-    <Stack direction="row">
-      <CardTitleAndValue title={''} value={<CheckboxEl/>}/>
-    </Stack>
-    <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
-      {maps?.map(({
-                    mapName,
-                    portals,
-                    monster,
-                    afkType,
-                    unlocked
-                  }, index) => {
-        if (hideUnlockedPortals && unlocked) return null;
-        return (
-          <Card key={mapName + index}>
-            <CardContent sx={{ display: 'flex', flexDirection: 'column', width: 300 }}>
-              <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center" justifyContent={'space-between'}
-                     sx={{ position: 'relative' }}>
-                <Typography>{cleanUnderscore(mapName)}</Typography>
-                <img style={{ width: 32, height: 32, objectFit: 'contain' }}
-                     src={`${prefix}data/${SKILL_MAP_ICONS[afkType] ?? `Mface${monster?.MonsterFace}`}.png`} alt=""/>
-              </Stack>
-              <Divider sx={{ my: 1.5 }}/>
-              <Stack direction={'row'} alignItems={'center'} gap={1}
-                     justifyContent={'space-between'}
-              >
-                {portals.map(({ unlocked, costType, costQuantity, multiCharLock }, index) => {
-                  return <Stack key={mapName + 'portal' + index}>
-                    <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-                      <Typography sx={{ opacity: unlocked ? 1 : .5 }} variant={'body1'}>Portal {index + 1}</Typography>
-                      <MultiCharLockText lock={multiCharLock} compact/>
-                    </Stack>
-                    <Stack alignItems={'center'} sx={{ opacity: unlocked ? 1 : .5 }}>
-                      <img style={{ width: 41, height: 41, objectFit: 'contain' }}
-                           src={`${prefix}data/Dust${costType}_x1.png`} alt=""/>
-                      <Typography variant={'body2'}>{commaNotation(costQuantity)}</Typography>
-                    </Stack>
-                  </Stack>
-                })}
-              </Stack>
-            </CardContent>
-          </Card>
-        );
-      })}
-    </Stack>
-  </Stack>
+// dusts: what each portal's cost is paid from. sectionFailed: the catalog at zero by name, every door's cost and no
+// open state, no Toolbar.
+const Portals = ({ maps, dusts, sectionFailed }) => {
+  const [view, setView, resetView] = useToolbarState('compass-portals', PORTALS_TOOLBAR);
+  const catalog = maps ?? [];
+  const shown = view?.hideOpen && !sectionFailed ? catalog.filter(({ unlocked }) => !unlocked) : catalog;
+  return <Stack gap={3}>
+    {sectionFailed ? null : <Toolbar state={view} defaults={PORTALS_TOOLBAR} onChange={setView} onReset={resetView}
+                                     total={catalog.length} shown={shown.length} noun={'maps'}>
+      <Toolbar.Filter name={'hideOpen'} label={'Hide unlocked'}/>
+    </Toolbar>}
+    {shown.length ? <CardGrid size={'s'}>
+      {shown.map(({ mapName, portals, monster, afkType, unlocked, mapIndex }) => <ItemCard
+        key={mapIndex ?? mapName} title={cleanUnderscore(mapName)}
+        icon={`data/${SKILL_MAP_ICONS[afkType] ?? `Mface${monster?.MonsterFace}`}.png`}
+        status={!sectionFailed && unlocked ? 'done' : undefined} statusLabel={'All unlocked'}>
+        {(portals ?? []).map(({ unlocked: open, costType, costQuantity, multiCharLock }, index) => <Stack key={index} gap={0.5}>
+          <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+            <Typography variant={'body2'} color={'text.secondary'}>{`Portal ${index + 1}`}</Typography>
+            <MultiCharLockText lock={multiCharLock} compact label={`portal ${index + 1}'s character lock`}/>
+            {!sectionFailed && open ? <Typography variant={'body2'} sx={{ ml: 'auto' }}>Unlocked</Typography> : null}
+          </Stack>
+          {!sectionFailed && open ? null
+            : <ItemCard.Cost icon={`data/Dust${costType}_x1.png`} iconAlt={cleanUnderscore(dustNames[costType] ?? '')}
+                             game={'Windwalker.CompassUpgCost'} need={costQuantity}
+                             have={sectionFailed ? undefined : dusts?.[costType]?.value ?? 0}/>}
+        </Stack>)}
+      </ItemCard>)}
+    </CardGrid> : null}
+  </Stack>;
 };
 
 export default Portals;

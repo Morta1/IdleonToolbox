@@ -1,22 +1,19 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import Checkbox from '@mui/material/Checkbox';
 import FormControlLabel from '@mui/material/FormControlLabel';
-import Drawer from '@mui/material/Drawer';
-import Popover from '@mui/material/Popover';
 import Stack from '@mui/material/Stack';
-import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
-import useMediaQuery from '@mui/material/useMediaQuery';
 import NextLink from 'next/link';
 import { prefix } from '@utility/helpers';
+import GameIcon from '@components/common/GameIcon';
 import { optionExtras } from '@utility/dashboard/settingsModel';
-import { clampValue } from '@utility/dashboard/settingsActions';
-import { Help, NumberField, Picker, ToggleChips } from './OptionRow';
+import NumberField from '@components/common/NumberField';
+import { Help, OptionNumberField, optionNumber, Picker, ToggleChips } from './OptionRow';
 import LetterBadge from './LetterBadge';
+import AppDialog from '@components/common/Overlays/AppDialog';
 
-const TITLE_ID = 'alert-quick-edit-title';
 const TAB_LABELS = { characters: 'Characters', timers: 'Timers' };
 const ROW = { mr: 0, minHeight: { xs: 44, sm: 'auto' } };
 
@@ -35,7 +32,6 @@ const TrackerToggle = ({ tracker, onAction }) => <Check label="Show this alert" 
                                                         onChange={() => onAction('toggleTracker', tracker)}/>;
 
 const WorldRow = ({ row, option, tracker, disabled, onAction }) => {
-  const [draft, setDraft] = useState(null);
   if (!row.overridden) {
     return <Button size="small" disabled={disabled} sx={{ alignSelf: 'flex-start', minHeight: { xs: 44, sm: 'auto' } }}
                    onClick={() => onAction('setPerWorld', tracker, option.name, row.world, String(option.props.value))}>
@@ -43,21 +39,11 @@ const WorldRow = ({ row, option, tracker, disabled, onAction }) => {
     </Button>;
   }
   return <Stack direction="row" alignItems="center" gap={1}>
-    <TextField size="small" type="number" label={`World ${row.world} value`} disabled={disabled} sx={{ width: 140 }}
-               value={draft ?? row.value}
-               slotProps={{
-                 inputLabel: { shrink: true },
-                 htmlInput: { 'aria-label': `World ${row.world} value`, min: option.props.minValue, max: option.props.maxValue }
-               }}
-               onChange={(e) => {
-                 setDraft(e.target.value);
-                 if (e.target.value !== '') onAction('setPerWorld', tracker, option.name, row.world, e.target.value);
-               }}
-               onBlur={(e) => {
-                 setDraft(null);
-                 const clamped = e.target.value === '' ? '' : clampValue(option, e.target.value);
-                 if (clamped === '' || clamped !== e.target.value) onAction('setPerWorld', tracker, option.name, row.world, clamped);
-               }}/>
+    {/* Clearing it while typing keeps the override; leaving it empty drops it. */}
+    <NumberField label={`World ${row.world} value`} ariaLabel={`World ${row.world} value`} disabled={disabled} sx={{ width: 140 }}
+                 value={optionNumber(row.value)} min={option.props.minValue} max={option.props.maxValue} help={false}
+                 onChange={(next) => next != null && onAction('setPerWorld', tracker, option.name, row.world, String(next))}
+                 onCommit={(next) => next == null && onAction('setPerWorld', tracker, option.name, row.world, '')}/>
     <Button size="small" disabled={disabled} sx={{ minHeight: { xs: 44, sm: 'auto' } }}
             onClick={() => onAction('setPerWorld', tracker, option.name, row.world, '')}>
       Use main value
@@ -70,7 +56,7 @@ const Dependents = ({ quickEdit, onAction }) => quickEdit.dependents.map((depend
   return <Box key={dependent.name} sx={{ pl: 3 }}>
     <OptionCheck option={dependent} tracker={quickEdit.tracker} disabled={locked} onAction={onAction}/>
     {dependent.type === 'input'
-      ? <NumberField option={dependent} tracker={quickEdit.tracker} onAction={onAction} disabled={locked || !dependent.checked}/>
+      ? <OptionNumberField option={dependent} tracker={quickEdit.tracker} onAction={onAction} disabled={locked || !dependent.checked}/>
       : null}
     {locked ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
       Turn on {quickEdit.option.label} to use this.
@@ -83,13 +69,19 @@ const Folded = ({ quickEdit, onAction, disabled }) => quickEdit.folded.map((fold
   {folded.type === 'array' ? <ToggleChips option={folded} tracker={quickEdit.tracker} onAction={onAction} disabled={disabled}/> : null}
 </Box>);
 
+const LinkedNumber = ({ linkedNumber, onAction }) => (linkedNumber ? <>
+  <OptionNumberField option={linkedNumber.option} tracker={linkedNumber.tracker} onAction={onAction} label={linkedNumber.option.label}/>
+  <Help text={linkedNumber.help} clamp={false}/>
+</> : null);
+
 const Body = ({ quickEdit, onAction }) => {
-  const { kind, tracker, option, parent, items, worlds, trackerSwitch } = quickEdit;
+  const { kind, tracker, option, parent, items, worlds, trackerSwitch, linkedNumber } = quickEdit;
   if (kind === 'tracker') {
     return <>
       <TrackerToggle tracker={tracker} onAction={onAction}/>
-      {option?.type === 'input' ? <NumberField option={option} tracker={tracker} onAction={onAction} ariaLabel={`${tracker.label} ${option.label}`}/> : null}
+      {option?.type === 'input' ? <OptionNumberField option={option} tracker={tracker} onAction={onAction} label={option.label}/> : null}
       <Help text={option?.help} clamp={false}/>
+      <LinkedNumber linkedNumber={linkedNumber} onAction={onAction}/>
     </>;
   }
   const { disabledReason } = optionExtras(tracker, option);
@@ -108,7 +100,7 @@ const Body = ({ quickEdit, onAction }) => {
     {kind === 'threshold' || kind === 'perWorld'
       ? <Stack gap={0.5}>
         {kind === 'perWorld' ? <Typography variant="caption" color="text.secondary">Main value</Typography> : null}
-        <NumberField option={option} tracker={tracker} onAction={onAction} disabled={locked || !option.checked}/>
+        <OptionNumberField option={option} tracker={tracker} onAction={onAction} label={option.label} disabled={locked || !option.checked}/>
       </Stack> : null}
     {kind === 'perWorld' ? <Stack gap={1}>
       {worlds.map((row) => <WorldRow key={row.world} row={row} option={option} tracker={tracker} onAction={onAction}
@@ -120,69 +112,45 @@ const Body = ({ quickEdit, onAction }) => {
     <Folded quickEdit={quickEdit} onAction={onAction} disabled={locked}/>
     <Help text={option.help} clamp={false}/>
     <Dependents quickEdit={quickEdit} onAction={onAction}/>
+    <LinkedNumber linkedNumber={linkedNumber} onAction={onAction}/>
   </>;
 };
 
-const AlertQuickEdit = ({ quickEdit, open, anchorPosition, above = false, iconSrc = null, pageHref = null, onClose, onAction, onOpenAll, onUndo }) => {
-  const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+// message: what the clicked alert says (its sentence, its list, a timer's exact time). It comes first: a tap has no hover
+// to read it from.
+const AlertQuickEdit = ({ quickEdit, open, iconSrc = null, message = null, pageHref = null, onClose, onExited, onAction, onOpenAll, onUndo }) => {
   if (!quickEdit) return null;
   const { tracker, option, kind, everyCharacter, configType } = quickEdit;
   // The title is the alert that was clicked; the subtitle says where it lives in the settings.
   const title = kind === 'tracker' || !option ? tracker.label : option.label;
   const where = [TAB_LABELS[configType], tracker.section, title === tracker.label ? null : tracker.label].filter(Boolean).join(' · ');
-  const content = <Stack gap={1.5}>
-    <Stack direction="row" alignItems="center" gap={1}>
-      {iconSrc || tracker.icon
-        ? <img src={iconSrc ?? `${prefix}${tracker.icon}.png`} alt="" width={24} height={24} style={{ objectFit: 'contain' }}/>
-        : <LetterBadge label={tracker.label} size={24} radius={1}/>}
-      <Box sx={{ minWidth: 0 }}>
-        <Typography id={TITLE_ID} variant="subtitle1" component="h2" fontWeight={500} sx={{ lineHeight: 1.3 }}>{title}</Typography>
-        {where ? <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>{where}</Typography> : null}
-      </Box>
-      {pageHref ? <Button component={NextLink} href={pageHref} variant="outlined" size="small"
-                          sx={{
-                            ml: 'auto', flexShrink: 0, alignSelf: 'flex-start', whiteSpace: 'nowrap',
-                            // Stays compact on a phone, but the tap area still reaches the 44px the other controls get.
-                            '&::after': { content: '""', position: 'absolute', inset: { xs: '-7px 0', sm: 0 } }
-                          }}>
-        {quickEdit.page.label}<Box component="span" sx={{ display: { xs: 'none', sm: 'inline' }, whiteSpace: 'pre' }}> page</Box>&nbsp;→
-      </Button> : null}
-    </Stack>
+  // iconSrc is the clicked sprite as the page drew it, with the path prefix GameIcon adds itself.
+  const icon = iconSrc || tracker.icon
+    ? <GameIcon src={iconSrc ? iconSrc.slice(prefix.length) : `${tracker.icon}.png`} size={24} alt=""/>
+    : <LetterBadge label={tracker.label} size={24} radius={1}/>;
+  return <AppDialog open={open} onClose={onClose} onExited={onExited} size="s" title={title} subtitle={where || null} icon={icon}>
     <Stack gap={1.5}>
-      <Body quickEdit={quickEdit} onAction={onAction}/>
-    </Stack>
-    {everyCharacter ? <Typography variant="caption" color="text.secondary">Applies to every character</Typography> : null}
-    <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1} flexWrap="wrap"
-           sx={{ borderTop: 1, borderColor: 'divider', pt: 1 }}>
-      <Stack direction="row" alignItems="center" gap={0.5}>
-        <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>Saved</Typography>
-        {/* Always in its slot, greyed until there is a change: appearing later grew the popover and moved the checkbox under the pointer. */}
-        <Button size="small" sx={{ minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={!onUndo} onClick={onUndo}>Undo</Button>
+      {message ? <Typography variant="body2" component="div" sx={{ pb: 1.5, borderBottom: 1, borderColor: 'divider' }}>{message}</Typography> : null}
+      <Stack gap={1.5}>
+        <Body quickEdit={quickEdit} onAction={onAction}/>
       </Stack>
-      <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onOpenAll}>All {tracker.label} settings</Button>
+      {everyCharacter ? <Typography variant="caption" color="text.secondary">Applies to every character</Typography> : null}
+      <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1} flexWrap="wrap"
+             sx={{ borderTop: 1, borderColor: 'divider', pt: 1 }}>
+        <Stack direction="row" alignItems="center" gap={0.5}>
+          <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>Saved</Typography>
+          {/* Always in its slot, greyed until there is a change: appearing later grew the dialog and moved the checkbox under the pointer. */}
+          <Button size="small" sx={{ minWidth: 0, minHeight: { xs: 44, sm: 'auto' } }} disabled={!onUndo} onClick={onUndo}>Undo</Button>
+        </Stack>
+        <Stack direction="row" alignItems="center" gap={0.5} flexWrap="wrap">
+          {pageHref ? <Button component={NextLink} href={pageHref} size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }}>
+            Open {quickEdit.page.label} page
+          </Button> : null}
+          <Button size="small" sx={{ minHeight: { xs: 44, sm: 'auto' } }} onClick={onOpenAll}>All {tracker.label} settings</Button>
+        </Stack>
+      </Stack>
     </Stack>
-  </Stack>;
-  // A popover beside the icon is too narrow on a phone, so there it slides up from the bottom.
-  if (isPhone) {
-    return <Drawer anchor="bottom" open={open} onClose={onClose}
-                   PaperProps={{
-                     role: 'dialog', 'aria-labelledby': TITLE_ID,
-                     sx: { p: 2, pb: 'calc(16px + env(safe-area-inset-bottom))', maxHeight: '85vh', borderTopLeftRadius: 12, borderTopRightRadius: 12 }
-                   }}>
-      <Box sx={{ width: 36, height: 4, borderRadius: 2, bgcolor: 'divider', mx: 'auto', mb: 1.5 }}/>
-      {content}
-    </Drawer>;
-  }
-  return <Popover open={open} onClose={onClose} anchorReference="anchorPosition" anchorPosition={anchorPosition}
-                  transformOrigin={{ vertical: above ? 'bottom' : 'top', horizontal: 'left' }}
-                  slotProps={{
-                    paper: {
-                      role: 'dialog', 'aria-labelledby': TITLE_ID,
-                      sx: { width: 360, maxWidth: 'calc(100vw - 32px)', p: 2 }
-                    }
-                  }}>
-    {content}
-  </Popover>;
+  </AppDialog>;
 };
 
 export default AlertQuickEdit;

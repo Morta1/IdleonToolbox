@@ -1,6 +1,11 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { AppContext, writeStored } from '@components/common/context/AppProvider';
 import { Stack } from '@mui/material';
+import ErrorBoundary from '@components/common/ErrorBoundary';
+import Notice from '@components/common/Notice';
+import PageSettings from '@components/common/PageSettings';
+import Toolbar from '@components/common/Toolbar';
+import { MissingData } from '@components/common/styles';
 import SectionToggles from '@components/dashboard/SectionToggles';
 import { normalizeSectionOrder } from '@utility/dashboard/sectionOrder';
 import Characters from '../components/dashboard/Characters';
@@ -10,8 +15,6 @@ import Goals from '@components/dashboard/goals/Goals';
 import { NextSeo } from 'next-seo';
 import DashboardSettings from '../components/common/DashboardSettings';
 import { DashboardSettingsProvider } from '@components/common/context/DashboardSettingsProvider';
-import Button from '@mui/material/Button';
-import { IconSettingsFilled } from '@tabler/icons-react';
 import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import DefaultsNote from '@components/dashboard/settings/DefaultsNote';
@@ -19,28 +22,38 @@ import { buildModel } from '@utility/dashboard/settingsModel';
 import { runAction } from '@utility/dashboard/settingsActions';
 import { alertLabel, alertPage, buildQuickEdit, pageHref } from '@utility/dashboard/quickEdit';
 import { useRouter } from 'next/router';
-import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
+import usePageTop from '@hooks/usePageTop';
+import useHydrated from '@hooks/useHydrated';
+import { closeNotice, notify } from '@components/common/Overlays/notify';
 import { trackSettingsEvent } from '@utility/dashboard/settingsAnalytics';
 import AlertQuickEdit from '@components/dashboard/settings/AlertQuickEdit';
 import { diffTrackers, LEGACY_BACKUP_KEY, loadTrackers, toStoredTrackers } from '@utility/dashboard/trackerStore';
 
 const GOALS_FILTER_ADDED_KEY = 'dashboard-goals-filter-added';
-
-// Roughly the height of a quick edit popover with a picker in it.
-const QUICK_EDIT_ROOM = 440;
+const SECTION_TITLES = { goals: 'The goals', account: 'The Account alerts', characters: 'The Characters alerts', timers: 'The timers' };
 
 const Dashboard = () => {
   const router = useRouter();
   const { dispatch, state } = useContext(AppContext);
   const { characters, account, lastUpdated } = state;
+  const guest = Boolean(state?.emptyAccount);
+  // No save was read: an alert or a timer would be computed from nothing, so only the page's note shows.
+  const noSave = guest || Boolean(account?.failedSections?.includes('*'));
   const [open, setOpen] = useState(false);
   // Set when the modal is opened by clicking an alert, so it lands on that alert's own setting.
   const [settingsTarget, setSettingsTarget] = useState(null);
-  // The alert whose popover is open: its target, the extras its call site passed, where it was
-  // clicked, and the config at that moment (what Undo goes back to).
+  // The alert whose quick edit is open: its target, the extras its call site passed, the icon that
+  // was clicked, and the config at that moment (what Undo goes back to).
   const [quickEdit, setQuickEdit] = useState(null);
+  // The quick edit closes first and lets go of its alert once it has slid out, so it leaves the way it came.
+  const [quickOpen, setQuickOpen] = useState(false);
   const [quickUndo, setQuickUndo] = useState(null);
   const [quickEditCount, setQuickEditCount] = useState(0);
+  // The Undo notice a closed quick edit left, so a newer edit or the full window can take it away.
+  const quickNotice = useRef(null);
+  // The quick edit's last change, kept outside render: Esc blurs the field first, and the value that
+  // blur settles changes the config inside the close handler, after quickUndo and quickChanged were read.
+  const pendingQuick = useRef(null);
   const [initialLoad] = useState(() => loadTrackers(baseTrackers, state?.trackers));
   const [config, setConfig] = useState(initialLoad.config);
   // Set when the stored config could not be converted: keep saving it the pre-R1 way.
@@ -92,14 +105,17 @@ const Dashboard = () => {
     key: 'dashboard-defaults-note-dismissed'
   });
   // Storage is read in an effect, so hold the note back until then instead of flashing it for users who dismissed it.
-  const [storageRead, setStorageRead] = useState(false);
-  useEffect(() => setStorageRead(true), []);
+  const storageRead = useHydrated();
   const [initialFilter, setInitialFilter] = useState('all');
+  const [sectionsBarBottom, setSectionsBarBottom] = useState(0);
+  const pageTop = usePageTop();
 
   const handleOpenSettings = (configType, path, source) => {
     trackSettingsEvent('alert_settings_opened', { source });
     // The window has its own Undo; a stale popover one would wipe edits made there.
     setQuickUndo(null);
+    pendingQuick.current = null;
+    closeNotice(quickNotice.current);
     setSettingsTarget(configType ? { configType, path } : null);
     setOpen(true);
   };
@@ -107,22 +123,19 @@ const Dashboard = () => {
   const quickEditFor = (current, configType, target, extra) =>
     buildQuickEdit(current, buildModel(current, baseTrackers, diffTrackers(baseTrackers, current)), configType, target, extra);
 
-  const handleOpenAlert = (element, configType, target, extra = {}) => {
+  const handleOpenAlert = (element, configType, target, extra = {}, message = null) => {
+    closeNotice(quickNotice.current);
     if (!quickEditFor(config, configType, target, extra)) {
       handleOpenSettings(configType, target, 'alert');
       return;
     }
-    const rect = element.getBoundingClientRect();
     setQuickUndo(null);
+    pendingQuick.current = null;
     setQuickEditCount((count) => count + 1);
+    setQuickOpen(true);
     setQuickEdit({
-      id: quickEditCount + 1, configType, target, extra,
-      // Open below the icon, or above it when the space below is short: MUI would otherwise slide
-      // the popover up over the icon that was clicked.
-      ...(window.innerHeight - rect.bottom < QUICK_EDIT_ROOM && rect.top > window.innerHeight - rect.bottom
-        ? { anchorPosition: { top: rect.top - 4, left: rect.left }, above: true }
-        : { anchorPosition: { top: rect.bottom + 4, left: rect.left }, above: false }),
-      // The popover shows the icon that was clicked, not the tracker's own one (The Hole vs Bravery).
+      id: quickEditCount + 1, configType, target, extra, message,
+      // The quick edit shows the icon that was clicked, not the tracker's own one (The Hole vs Bravery).
       iconSrc: element.querySelector('img')?.getAttribute('src') ?? null,
       snapshot: config
     });
@@ -130,21 +143,41 @@ const Dashboard = () => {
 
   const quickModel = quickEdit ? quickEditFor(config, quickEdit.configType, quickEdit.target, quickEdit.extra) : null;
 
+  const changedFrom = (next, previous) =>
+    JSON.stringify(diffTrackers(baseTrackers, next)) !== JSON.stringify(diffTrackers(baseTrackers, previous));
+
   const handleQuickAction = (name, ...args) => {
-    handleConfigChange(runAction(baseTrackers, config, name, ...args));
+    const next = runAction(baseTrackers, config, name, ...args);
+    handleConfigChange(next);
     if (quickUndo?.id !== quickEdit.id) trackSettingsEvent('alert_quick_edit_changed', { kind: quickModel.kind });
     if (name === 'resetPath') trackSettingsEvent('alert_settings_reset', { scope: 'option' });
-    setQuickUndo({ id: quickEdit.id, label: `Updated: ${quickModel.kind === 'tracker' || !quickModel.option ? quickModel.tracker.label : quickModel.option.label}`, previous: quickEdit.snapshot });
+    const undo = { id: quickEdit.id, label: `Updated: ${quickModel.kind === 'tracker' || !quickModel.option ? quickModel.tracker.label : quickModel.option.label}`, previous: quickEdit.snapshot };
+    setQuickUndo(undo);
+    pendingQuick.current = { ...undo, next };
   };
 
   // Ticking something off and on again is no change: no Undo for it.
-  const quickChanged = Boolean(quickUndo)
-    && JSON.stringify(diffTrackers(baseTrackers, config)) !== JSON.stringify(diffTrackers(baseTrackers, quickUndo.previous));
+  const quickChanged = Boolean(quickUndo) && changedFrom(config, quickUndo.previous);
 
   const undoQuickEdit = () => {
     handleConfigChange(quickUndo.previous);
     setQuickUndo(null);
-    setQuickEdit(null);
+    pendingQuick.current = null;
+    setQuickOpen(false);
+  };
+
+  const closeQuickEdit = () => {
+    const pending = pendingQuick.current;
+    pendingQuick.current = null;
+    if (pending?.id === quickEdit?.id && changedFrom(pending.next, pending.previous)) {
+      quickNotice.current = notify(pending.label, {
+        undo: () => {
+          handleConfigChange(pending.previous);
+          setQuickUndo(null);
+        }
+      });
+    }
+    setQuickOpen(false);
   };
 
   const handleCloseSettings = () => {
@@ -164,10 +197,6 @@ const Dashboard = () => {
     writeStored('dashboard-filters', newFilters);
   };
 
-  const handleHideAlertless = (checked) => {
-    setHideAlertless(checked);
-  };
-
   const isDisplayed = (filter) => {
     return filters.includes(filter)
   }
@@ -183,8 +212,8 @@ const Dashboard = () => {
     goals: <Goals/>,
     account: <Account trackers={config?.account} characters={characters} account={account} lastUpdated={lastUpdated}/>,
     characters: <Characters trackers={config?.characters} characters={characters} account={account}
-                            lastUpdated={lastUpdated} hideAlertless={hideAlertless}/>,
-    timers: <Etc characters={characters} account={account} trackers={config?.timers} lastUpdated={lastUpdated}/>
+                            lastUpdated={lastUpdated} hideAlertless={hideAlertless} onHideAlertless={setHideAlertless}/>,
+    timers: <Etc characters={characters} account={account} trackers={config?.timers} bookAlert={config?.account?.['World 3']?.library} bossAlert={config?.account?.General?.etc} lastUpdated={lastUpdated}/>
   };
 
   return <>
@@ -193,53 +222,57 @@ const Dashboard = () => {
       description="Provides key information about your account and alerts you when there are unfinished tasks"
     />
     <Stack>
+      {account?.failedSections?.length
+        ? <MissingData sections={account.failedSections}/>
+        : guest ? <Notice tone={'signin'} sx={{ mb: 2 }}>Your alerts, timers and goals show here once you sign in.</Notice> : null}
       {storageRead && !defaultsNoteDismissed && defaultsNoteCount > 0 ? <DefaultsNote count={defaultsNoteCount}
                                                                onReview={() => {
                                                                  setInitialFilter('edited');
                                                                  handleOpenSettings(null, null, 'note');
                                                                }}
                                                                onDismiss={() => setDefaultsNoteDismissed(true)}/> : null}
-      <Stack mb={2} direction={'row'} alignItems={'center'} gap={3} flexWrap={'wrap'}>
-        <SectionToggles order={sectionOrder} filters={filters} onFilters={handleFilters} onReorder={setSavedOrder}/>
-        <Button variant={'outlined'} sx={{ textTransform: 'none', height: 32 }}
-                startIcon={<IconSettingsFilled size={20}/>}
-                onClick={() => {
-                  handleOpenSettings(null, null, 'button');
-                }}>
-          Configure alerts
-        </Button>
-      </Stack>
-      <Stack gap={2}>
+      {/* With no save no section draws, so there is nothing for its pills to show */}
+      {noSave ? null : <Toolbar noun={'sections'} onStickyBottom={setSectionsBarBottom}>
+        <Toolbar.Lead>
+          <SectionToggles order={sectionOrder} filters={filters} onFilters={handleFilters} onReorder={setSavedOrder}/>
+        </Toolbar.Lead>
+      </Toolbar>}
+      <PageSettings onOpen={() => handleOpenSettings(null, null, 'button')} label={'Configure alerts'}
+                    changed={Object.keys(diffTrackers(baseTrackers, config)).length > 0}/>
+      {/* A section's own Toolbar pins right under the page's, the way a pinned tab strip takes this variable. Its own
+          stacking context keeps it under the page's bar while it scrolls up to its pin. */}
+      <Stack gap={2} sx={{ position: 'relative', zIndex: 0, '--page-tabs-pinned': `${Math.max(0, sectionsBarBottom - pageTop)}px` }}>
         <DashboardSettingsProvider onOpenAlert={handleOpenAlert}
                                    labelFor={(configType, target, extra) => alertLabel(config, configType, target, extra)}
                                    hrefFor={(configType, target) => {
                                      const page = alertPage(config, configType, target);
                                      return page ? pageHref(page, router.query) : null;
                                    }}>
-          {sectionOrder.map((id) => isDisplayed(id) ? <React.Fragment key={id}>{sections[id]}</React.Fragment> : null)}
+          {/* Each section fails alone: a throw in one leaves its note and the others. */}
+          {sectionOrder.map((id) => isDisplayed(id) && !noSave
+            ? <ErrorBoundary key={id} title={`${SECTION_TITLES[id]} didn't load`} resetKey={lastUpdated}>{sections[id]}</ErrorBoundary>
+            : null)}
         </DashboardSettingsProvider>
       </Stack>
     </Stack>
     <DashboardSettings onFileUpload={handleFileUpload} onChange={handleConfigChange} open={open}
                        onClose={handleCloseSettings} config={config} target={settingsTarget}
                        initialFilter={initialFilter}
-                       exportConfig={legacyMode ? config : toStoredTrackers(baseTrackers, config)}
-                       hideAlertless={hideAlertless} onHideAlertlessChange={handleHideAlertless}/>
-    <AlertQuickEdit quickEdit={quickModel} open={Boolean(quickModel)} anchorPosition={quickEdit?.anchorPosition} above={quickEdit?.above}
-                    iconSrc={quickEdit?.iconSrc}
+                       exportConfig={legacyMode ? config : toStoredTrackers(baseTrackers, config)}/>
+    <AlertQuickEdit quickEdit={quickModel} open={quickOpen && Boolean(quickModel)} iconSrc={quickEdit?.iconSrc}
+                    message={quickEdit?.message}
+                    onExited={() => setQuickEdit(null)}
                     pageHref={quickModel?.page ? pageHref(quickModel.page, router.query) : null}
                     // Escape unmounts the popover without blurring its field; blur first so its clamp runs.
                     onClose={() => {
                       document.activeElement?.blur?.();
-                      setQuickEdit(null);
+                      closeQuickEdit();
                     }} onAction={handleQuickAction}
                     onUndo={quickChanged && quickUndo?.id === quickEdit?.id ? undoQuickEdit : undefined}
                     onOpenAll={() => {
-                      setQuickEdit(null);
+                      closeQuickEdit();
                       handleOpenSettings(quickEdit.configType, quickEdit.target, 'quick_edit');
                     }}/>
-    {quickChanged && !quickEdit ? <UndoSnackbar key={quickUndo.id} label={quickUndo.label} onUndo={undoQuickEdit}
-                                             onClose={() => setQuickUndo(null)}/> : null}
   </>
 };
 

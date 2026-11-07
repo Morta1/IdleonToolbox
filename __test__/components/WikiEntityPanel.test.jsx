@@ -5,11 +5,13 @@ import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import EntityPanel from '@components/wiki/EntityPanel';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { staticNeighbourhood } from '@utility/wiki/static-graph.mjs';
 import { entityHref, pageIndex } from '@utility/wiki/page-graph';
 import { entityName } from '@utility/wiki/names.mjs';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
+
+vi.mock('@hooks/useProfileBannerState', () => ({ default: () => ({ isVisible: false }) }));
 
 const nodes = {
   'monster:sandgiant': {
@@ -42,7 +44,7 @@ const index = {
 };
 
 const renderPanel = (props) => render(
-  <ThemeProvider theme={darkTheme}>
+  <ThemeProvider theme={theme}>
     <EntityPanel index={index} id={'monster:sandgiant'} onNavigate={() => {}} {...props}/>
   </ThemeProvider>
 );
@@ -51,7 +53,7 @@ describe('EntityPanel breadcrumb', () => {
   const crumbLinks = (container) => [...container.querySelectorAll('nav[aria-label="breadcrumb"] a')]
     .map((link) => [link.textContent, link.getAttribute('href')]);
   const renderNode = (node, props) => render(
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <EntityPanel index={{ byId: { [node.id]: node }, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] }}
                    id={node.id} onNavigate={() => {}} {...props}/>
     </ThemeProvider>
@@ -171,7 +173,7 @@ describe('EntityPanel details box', () => {
     expect(screen.getByText('Details')).toBeDefined();
     expect(screen.getByText('Tree Interior')).toBeDefined();
     expect(screen.getByText('World')).toBeDefined();
-    expect(container.querySelector('input[type="number"]')).toBe(null);
+    expect(container.querySelector('input[inputmode="decimal"]')).toBe(null);
   });
 
   it('shows no box for a page with neither registry nor fields', () => {
@@ -185,13 +187,13 @@ describe('EntityPanel details box', () => {
     const { container } = renderPanel({ index: detailIndex, id: 'shrine:talentlike' });
     expect(screen.getByText('Details')).toBeDefined();
     expect(screen.queryByText('Effect')).toBe(null);
-    expect(container.querySelector('input[type="number"]')).toBe(null);
+    expect(container.querySelector('input[inputmode="decimal"]')).toBe(null);
   });
 
   it('keeps the level calculator for a registry row', () => {
     const { container } = renderPanel({ index: detailIndex, id: 'shrine:levelled' });
     expect(screen.getByText('Effect')).toBeDefined();
-    expect(container.querySelector('input[type="number"]')).not.toBe(null);
+    expect(container.querySelector('input[inputmode="decimal"]')).not.toBe(null);
   });
 });
 
@@ -269,7 +271,7 @@ describe('EntityPanel field values', () => {
 
   it.each([
     [5000000, '5,000,000'],
-    [43700000000, '4.37e10']
+    [43700000000, '43.7B']
   ])('prints an amount field of %s as %s', (value, text) => {
     const amountNodes = {
       'rift:Rift1': {
@@ -357,7 +359,7 @@ describe('EntityPanel bubble', () => {
   it('prices the material and the liquid together at the typed level, and links the material once', () => {
     const { container } = renderPanel({ index: bubbleIndex, id: 'bubble:aUpgradesG0' });
     fireEvent.change(screen.getByLabelText('Bubble level'), { target: { value: '10' } });
-    const lines = [...container.querySelectorAll('p')].map((p) => p.textContent).filter((text) => /for this level/.test(text));
+    const lines = [...container.querySelectorAll('[data-cost-line]')].map((row) => `${row.children[0].textContent}: ${row.children[1].textContent}`).filter((text) => /for this level/.test(text));
     expect([
       lines,
       screen.queryByText('Liquids'),
@@ -402,6 +404,8 @@ describe('EntityPanel family bonus', () => {
     type('200');
     expect(screen.getByText('+8.42% TOTAL DAMAGE')).toBeDefined();
     type('5');
+    // Below the promotion level the field settles on it once it is left.
+    fireEvent.blur(levelField());
     expect(screen.getByText('+0.11% TOTAL DAMAGE')).toBeDefined();
   });
 
@@ -412,7 +416,7 @@ describe('EntityPanel family bonus', () => {
 
   // The page keeps one EntityPanel across client-side navigation, so the typed level must not follow.
   it('resets the level when the panel moves to another class', () => {
-    const panel = (id) => <ThemeProvider theme={darkTheme}>
+    const panel = (id) => <ThemeProvider theme={theme}>
       <EntityPanel index={classIndex} id={id} onNavigate={() => {}}/>
     </ThemeProvider>;
     const { rerender } = render(panel('class:Blood_Berserker'));
@@ -451,9 +455,9 @@ describe('EntityPanel registry entries', () => {
     expect(screen.getByText('Merits')).toBeDefined();
     expect(screen.getByText('+2% faster')).toBeDefined();
     expect(screen.getByText('+5% slower')).toBeDefined();
-    expect(screen.getByText('Order: B, C')).toBeDefined();
+    expect(screen.getByText('B, C')).toBeDefined();
     expect([...container.querySelectorAll('img')].filter((img) => img.getAttribute('src').endsWith('data/TaskSa2.png'))).toHaveLength(2);
-    const [first] = screen.getAllByLabelText('Purchases (max 10)');
+    const [first] = screen.getAllByLabelText('Purchases');
     fireEvent.change(first, { target: { value: '3' } });
     expect(screen.getByText('+6% faster')).toBeDefined();
     expect(screen.getByText('+5% slower')).toBeDefined();
@@ -463,7 +467,7 @@ describe('EntityPanel registry entries', () => {
     const { container } = renderPanel({ index: entryIndex, id: 'shrine:Tier' });
     expect(screen.getByText('Entries')).toBeDefined();
     expect(screen.getByText('Start with 2 items')).toBeDefined();
-    expect(container.querySelector('input[type="number"]')).toBe(null);
+    expect(container.querySelector('input[inputmode="decimal"]')).toBe(null);
   });
 
   it('shows no entries box on a page without entries', () => {
@@ -492,9 +496,9 @@ describe('EntityPanel card set', () => {
 
   it('reads the set bonus and its ladder, and repeats no Set row', () => {
     renderPanel({ index: cardIndex, id: 'item:CardsA0' });
-    expect(screen.getByText('Card Set')).toBeDefined();
+    expect(screen.getByText('Card set')).toBeDefined();
     expect(screen.getByText('+8% EXP if below Lv 50')).toBeDefined();
-    const setGroup = screen.getByText('Card Set').parentElement;
+    const setGroup = screen.getByText('Card set').closest('section');
     expect(within(setGroup).getAllByText(/^\d+$/).map((node) => node.textContent)).toEqual(['8', '16', '24', '32', '40', '48', '56']);
     expect(screen.queryByText('Set')).toBe(null);
   });
@@ -502,9 +506,9 @@ describe('EntityPanel card set', () => {
   // One cell per card tier, Base to the cap (CardLv), and one requirement per tier-up after Base.
   it('reads the card bonus at every tier and the cards each tier-up needs', () => {
     renderPanel({ index: cardIndex, id: 'item:CardsA1' });
-    const cells = (title) => within(screen.getByText(title).parentElement).getAllByText(/^[\d.]+K?$/).map((node) => node.textContent);
-    const stars = (title) => within(screen.getByText(title).parentElement).getAllByRole('img').map((node) => node.getAttribute('alt'));
-    expect([cells('Card Bonus'), stars('Card Bonus'), cells('Tier Requirements'), stars('Tier Requirements')]).toEqual([
+    const cells = (title) => within(screen.getByText(title).closest('section')).getAllByText(/^[\d.]+K?$/).map((node) => node.textContent);
+    const stars = (title) => within(screen.getByText(title).closest('section')).getAllByRole('img').map((node) => node.getAttribute('alt'));
+    expect([cells('Card bonus'), stars('Card bonus'), cells('Tier requirements'), stars('Tier requirements')]).toEqual([
       ['5', '10', '15', '20', '25', '30', '35'],
       ['1 star', '2 star', '3 star', '4 star', '5 star', '6 star'],
       ['10', '30', '50', '160', '4.59K', '147K'],
@@ -514,8 +518,8 @@ describe('EntityPanel card set', () => {
 
   it('shows no Card Set box on a card without a set', () => {
     renderPanel({ index: cardIndex, id: 'item:CardsA1' });
-    expect(screen.getByText('Card Bonus')).toBeDefined();
-    expect(screen.queryByText('Card Set')).toBe(null);
+    expect(screen.getByText('Card bonus')).toBeDefined();
+    expect(screen.queryByText('Card set')).toBe(null);
   });
 });
 
@@ -573,10 +577,10 @@ describe('EntityPanel field links', () => {
     expect(screen.getAllByRole('heading', { name: 'Upgrades' })).toHaveLength(1);
     expect({
       tables: container.querySelectorAll('table').length,
-      cards: [...container.querySelectorAll('.MuiCard-root .MuiCard-root a')].map((link) => [link.getAttribute('href'), link.textContent])
+      cards: [...container.querySelectorAll('a h3')].map((title) => title.closest('a')).map((link) => [link.getAttribute('href'), link.textContent])
     }).toEqual({
       tables: 0,
-      cards: [['/wiki/compass-upgrades', 'Compass Upgrades16'], ['/wiki/royal-armory/upgrades', 'Royal Armory Upgrades1']]
+      cards: [['/wiki/compass-upgrades', 'Compass Upgrades16›'], ['/wiki/royal-armory/upgrades', 'Royal Armory Upgrades1›']]
     });
   });
 
@@ -680,7 +684,7 @@ describe('EntityPanel disambiguator chip', () => {
     const [kind, rawName] = id.split(':');
     const node = { kind, rawName, name: 'Same_Name', icon: null, description: null, stats: null, card: null, ...fields };
     const { container } = renderPanel({ id, index: { byId: { [id]: node }, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] } });
-    return [...container.querySelectorAll('.MuiChip-label')].map((chip) => chip.textContent);
+    return [...container.querySelectorAll('[data-tag]')].map((tag) => tag.textContent);
   };
 
   it('adds the label that tells a same-name page apart', () => {

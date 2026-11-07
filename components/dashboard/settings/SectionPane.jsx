@@ -1,15 +1,15 @@
 import React from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Paper from '@mui/material/Paper';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
+import Notice from '@components/common/Notice';
 import { matchesFilter } from '@utility/dashboard/settingsModel';
 import TrackerCard, { CompactRow, hasOptionsBody } from './TrackerCard';
 
 const TAB_LABELS = { account: 'Account', characters: 'Characters', timers: 'Timers' };
 
-const SectionPane = ({ section, filter, expanded, onToggleExpanded, onSetExpanded, target, onAction, onBulk, onShowAll, extraTop = null }) => {
+const SectionPane = ({ section, filter, expanded, onToggleExpanded, onSetExpanded, target, onAction, onBulk, onShowAll }) => {
   const visible = section.trackers.filter((tracker) => matchesFilter(tracker, filter) || tracker.path === target?.path);
   const compact = visible.filter(({ compact: isCompact }) => isCompact);
   const cards = visible.filter(({ compact: isCompact }) => !isCompact);
@@ -24,7 +24,7 @@ const SectionPane = ({ section, filter, expanded, onToggleExpanded, onSetExpande
   return <Stack gap={1.25}>
     <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
       <Box>
-        <Typography variant="h6" component="h2">{section.label}</Typography>
+        <Typography variant={'sectionTitle'} component="h2">{section.label}</Typography>
         <Typography variant="body2" color="text.secondary">{section.total} alerts · {section.onCount} on</Typography>
       </Box>
       <Stack direction="row" gap={0.5} sx={{ ml: 'auto' }}>
@@ -42,11 +42,9 @@ const SectionPane = ({ section, filter, expanded, onToggleExpanded, onSetExpande
         </Button> : null}
       </Stack>
     </Stack>
-    {extraTop}
-    {!visible.length ? <Paper variant="outlined" sx={{ p: 3, textAlign: 'center' }}>
-      <Typography fontWeight={500}>{filter === 'off' ? `Every ${section.label} alert is on` : `No ${section.label} alerts match this filter`}</Typography>
-      <Button sx={{ mt: 1.5, ...buttonSx }} variant="outlined" onClick={onShowAll}>Show all alerts</Button>
-    </Paper> : null}
+    {!visible.length ? <Notice tone={'info'} action={{ label: 'Show all alerts', onClick: onShowAll }}>
+      {filter === 'off' ? `Every ${section.label} alert is on.` : `No ${section.label} alert matches this filter.`}
+    </Notice> : null}
     {compact.length ? <Box sx={{ display: 'grid', gap: 1 }}>
       {compact.map((tracker) => <CompactRow key={tracker.path} tracker={tracker} onAction={onAction}
                                             highlight={target?.path === tracker.path} highlightKey={target}/>)}

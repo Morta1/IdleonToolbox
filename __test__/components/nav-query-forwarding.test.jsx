@@ -4,7 +4,7 @@ import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 // A visitor who arrived on a build page in demo mode: `demo` names the save being viewed, the rest
 // describes the page they are on. Every one of these params was observed riding the nav in Search
@@ -28,12 +28,12 @@ vi.mock('@components/common/context/AppProvider', () => ({
   default: ({ children }) => children
 }));
 
-const ToolsDrawer = (await import('@components/common/NavBar/AppDrawer/ToolsDrawer')).default;
-const AccountDrawer = (await import('@components/common/NavBar/AppDrawer/AccountDrawer')).default;
+const { NavMenuPanel } = await import('@components/common/NavBar/NavMenu');
+const { GuildLink } = await import('@components/guilds/GuildTable');
 
-const renderDrawer = (Drawer) => render(
-  <ThemeProvider theme={darkTheme}>
-    <Drawer/>
+const renderMenu = (menu) => render(
+  <ThemeProvider theme={theme}>
+    <NavMenuPanel menu={menu} onClose={() => {}}/>
   </ThemeProvider>
 );
 
@@ -46,19 +46,22 @@ const linkParams = () => screen.getAllByRole('link')
 
 beforeEach(() => push.mockClear());
 
-// AccountDrawer's world links sit inside accordions that mount only once opened.
-const expandAll = () => screen.getAllByRole('button').forEach((node) => fireEvent.click(node));
-
 describe.each([
-  ['ToolsDrawer', () => ToolsDrawer, false],
-  ['AccountDrawer', () => AccountDrawer, true]
-])('%s nav links', (_name, get, needsExpanding) => {
+  ['Worlds menu', 'worlds'],
+  ['Account menu', 'account'],
+  ['Tools menu', 'tools']
+])('%s links', (_name, menu) => {
   it('carries the session param and nothing else', () => {
-    renderDrawer(get());
-    if (needsExpanding) expandAll();
+    renderMenu(menu);
     const params = linkParams();
 
     expect(params.length).toBeGreaterThan(0);
     params.forEach((keys) => expect(keys.sort()).toEqual(['demo']));
   });
+});
+
+it('a guild name keeps the session and nothing else, with no href for a crawler', () => {
+  render(<ThemeProvider theme={theme}><GuildLink guild={{ guild_id: 'g 1', guild_name: 'Guild' }} router={{ push, query }}/></ThemeProvider>);
+  fireEvent.click(screen.getByRole('button', { name: 'Guild' }));
+  expect(push.mock.calls).toEqual([[{ pathname: '/guilds/detail', query: { id: 'g 1', demo: 'true' } }]]);
 });

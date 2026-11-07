@@ -1,9 +1,10 @@
 import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
+import CardGrid from '@components/common/cards/CardGrid';
 import { NextSeo } from 'next-seo';
 import WikiRail from './WikiRail';
 import WikiBreadcrumbs from './WikiBreadcrumbs';
-import { KindTile, TILE_GRID, kindLabel } from './KindLink';
+import { KindTile, kindLabel } from './KindLink';
 import { goOnPlainClick, useWikiGo } from './links';
 import { wikiCrumbs } from '@utility/wiki/kinds.mjs';
 
@@ -12,12 +13,12 @@ const WikiSystemPage = ({ system, kinds, seoTitle, seoDescription }) => {
   const go = useWikiGo();
 
   return <WikiRail current={null} currentSystem={system.slug}>
-    <Box sx={{ maxWidth: 1200 }}>
+    <Box>
       <NextSeo title={seoTitle} description={seoDescription}/>
       <Stack gap={2}>
         <WikiBreadcrumbs crumbs={wikiCrumbs({ system })} onGo={go}/>
-        <Typography variant={'h5'} component={'h2'}>{system.label}</Typography>
-        <Box sx={TILE_GRID}>
+        <Typography variant={'pageTitle'} component={'h2'}>{system.label}</Typography>
+        <CardGrid size={'s'}>
           {kinds.map(({ kind, count }) => <KindTile
             key={kind}
             kind={kind}
@@ -25,7 +26,7 @@ const WikiSystemPage = ({ system, kinds, seoTitle, seoDescription }) => {
             count={count}
             go={goOnPlainClick(go)}
           />)}
-        </Box>
+        </CardGrid>
       </Stack>
     </Box>
   </WikiRail>;

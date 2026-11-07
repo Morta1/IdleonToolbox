@@ -3,7 +3,8 @@ import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
-import { ninjaExtraInfo } from '@website-data';
+import { ninjaExtraInfo, tomeData } from '@website-data';
+import { quantityForPoints } from '@components/account/Worlds/World4/tomeQuantity';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
 // latest.json is that account's save (OptionsListAccount[340] matches). All three lists are indexed by tome
@@ -90,7 +91,7 @@ describe('tome verified against the live game', () => {
 
   // 3-5 are the Tome of STR/AGI/WIS bubbles: whole 2000-point steps past 5000, and the logged-in Wind Walker's
   // archer class multiplier on the AGI one
-  it.each(GAME.bonuses.map((bonus, index) => [index, bonus]))('bonus %i', (index, bonus) => {
+  it.each([...GAME.bonuses.entries()])('bonus %i', (index, bonus) => {
     within(account.tome.bonuses[index].bonus, bonus);
   });
 });
@@ -125,6 +126,23 @@ describe('tome colour thresholds', () => {
         const ok = tomePct(line, q) >= targets[tier] && (q === 0 || tomePct(line, short) < targets[tier]);
         if (!ok) off.push(`${line.name} ${tier} ${q}`);
       }
+    }
+    expect(off).toEqual([]);
+  });
+});
+
+describe('the Tome inverse on a reversed entry', () => {
+  // TomePCT's type 3 and TomePTS, verbatim from the game
+  const gamePoints = ({ x1, x3 }, Q) => Math.ceil((Q > 5 * x1 ? 0 : Math.pow((1.2 * (6 * x1 - Q)) / (7 * x1 - Q), 5)) * x3);
+  const reversed = tomeData.filter(({ x2 }) => x2 === 3);
+
+  it.each(reversed.map((bonus) => [bonus.name, bonus]))('%s: the most it may hold for each point, none past a quantity of 0', (name, bonus) => {
+    const max = gamePoints(bonus, 0);
+    expect(quantityForPoints(bonus, max + 1)).toBe(Infinity);
+    const off = [];
+    for (let points = 1; points <= max; points += 1) {
+      const quantity = quantityForPoints(bonus, points);
+      if (gamePoints(bonus, quantity) < points || gamePoints(bonus, quantity + 1) >= points) off.push(`${points}: ${quantity}`);
     }
     expect(off).toEqual([]);
   });

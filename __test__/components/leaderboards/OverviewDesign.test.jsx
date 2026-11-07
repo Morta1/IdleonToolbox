@@ -5,11 +5,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 
 const fetchBoard = vi.fn(async () => ({ metric: 'globalRanking', createdAt: 1, around: [],
   top: Array.from({ length: 10 }, (_, i) => ({ mainChar: `G${i + 1}`, value: 20000 - i, rank: i + 1, globalRank: i + 1 })) }));
 vi.mock('../../../services/leaderboards', () => ({ fetchBoard }));
+vi.mock('@hooks/useProfileBannerState', () => ({ default: () => ({ isVisible: false }) }));
 const Overview = (await import('@components/leaderboards/Overview')).default;
 const { buildMetaIndex } = await import('@components/leaderboards/format');
 
@@ -32,7 +33,7 @@ const self = { name: null, pending: false, participation: null, lastUpload: null
 const logged = { name: 'Baker333', kind: 'logged' };
 const renderOverview = (props) => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <Overview index={index} showAnonymous highlight={{}} self={self} onOpen={() => {}} onTab={() => {}} {...props}/>
     </ThemeProvider>
   </QueryClientProvider>
@@ -43,21 +44,15 @@ afterEach(() => { cleanup(); vi.clearAllMocks(); });
 describe('Overview podium', () => {
   const slotOf = (name) => screen.getByText(name).closest('[data-testid="podium-slot"]');
 
-  it('sizes slots by content, not fixed heights', async () => {
+  it('sizes slots by content, and colours the top border by rank, in slot order second, first, third', async () => {
     renderOverview({ player: { context: null } });
     await screen.findByText('G1');
     const slots = screen.getAllByTestId('podium-slot');
-    expect(slots).toHaveLength(3);
     for (const slot of slots) expect(getComputedStyle(slot).height).toBe('');
-  });
-
-  it('colours the top border by rank, in slot order second, first, third', async () => {
-    renderOverview({ player: { context: null } });
-    await screen.findByText('G1');
-    expect(screen.getAllByTestId('podium-slot').map((slot) => slot.textContent.slice(0, 2))).toEqual(['G2', 'G1', 'G3']);
-    expect(getComputedStyle(slotOf('G1')).borderTopColor).toBe('rgb(240, 184, 73)');
-    expect(getComputedStyle(slotOf('G2')).borderTopColor).toBe('rgb(154, 163, 173)');
-    expect(getComputedStyle(slotOf('G3')).borderTopColor).toBe('rgb(184, 120, 58)');
+    expect(slots.map((slot) => slot.textContent.slice(0, 2))).toEqual(['G2', 'G1', 'G3']);
+    expect(getComputedStyle(slotOf('G1')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-gold)');
+    expect(getComputedStyle(slotOf('G2')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-silver)');
+    expect(getComputedStyle(slotOf('G3')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-bronze)');
   });
 
   it('gives each tied first place a trophy and gold, and a slot ranked past 3 neither', async () => {
@@ -67,8 +62,8 @@ describe('Overview podium', () => {
     await screen.findByText('M0');
     expect(screen.getAllByAltText('Rank 1')).toHaveLength(2);
     expect(screen.queryByAltText('Rank 5')).toBeNull();
-    expect(getComputedStyle(slotOf('M0')).borderTopColor).toBe('rgb(240, 184, 73)');
-    expect(getComputedStyle(slotOf('M1')).borderTopColor).toBe('rgb(240, 184, 73)');
+    expect(getComputedStyle(slotOf('M0')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-gold)');
+    expect(getComputedStyle(slotOf('M1')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-gold)');
     expect(getComputedStyle(slotOf('M2')).borderTopWidth).toBe('1px');
   });
 
@@ -79,14 +74,14 @@ describe('Overview podium', () => {
     renderOverview({ player: { context: { name: 'Anon#abc123', kind: 'searched' }, data: anon }, highlight: { 'Anon#abc123': 'searched' } });
     await screen.findByText('P10');
     const row = screen.getAllByText('Anon#abc123').map((el) => el.closest('[data-testid="rank-row"]')).find(Boolean);
-    expect(row.textContent).toMatch(/^9Anon#abc123/);
+    expect(row.textContent).toMatch(/^#9Anon#abc123/);
   });
 
   it('outlines the viewed player slot in their colour', async () => {
     renderOverview({ player: { context: null }, highlight: { G2: 'logged' } });
     await screen.findByText('G1');
-    expect(getComputedStyle(slotOf('G2')).borderRightColor).toBe('rgb(0, 126, 133)');
-    expect(getComputedStyle(slotOf('G1')).borderRightColor).not.toBe('rgb(0, 126, 133)');
+    expect(getComputedStyle(slotOf('G2')).borderColor).toBe('var(--mui-palette-identity-leaderboard-you)');
+    expect(getComputedStyle(slotOf('G1')).borderColor).not.toBe('var(--mui-palette-identity-leaderboard-you)');
   });
 });
 
@@ -101,11 +96,11 @@ describe('Overview You card', () => {
     const label = await screen.findByText('You');
     expect(label.parentElement.textContent).toBe('You · Baker333');
     expect(screen.getByText('#75')).toBeTruthy();
-    expect(screen.getByText('of 2,608 · top 2.9% · 14,901.02 pts')).toBeTruthy();
-    const tile = (name) => screen.getByText(name).closest('[data-stat]').textContent;
-    expect(tile('First places')).toBe('1First places+1 at the max');
-    expect(tile('Top 25')).toBe('1Top 25');
-    expect(tile('Top 100')).toBe('2Top 100');
+    expect(screen.getByText('of 2,608 · top 2.88% · 14,901.02 pts')).toBeTruthy();
+    const tile = (name) => screen.getByText(name).closest('[data-stat-tile]').textContent;
+    expect(tile('First places')).toBe('First places1+1 at the max');
+    expect(tile('Top 25')).toBe('Top 251');
+    expect(tile('Top 100')).toBe('Top 1002');
     expect(document.body.textContent).not.toMatch(/\bcap\b/i);
   });
 
@@ -113,12 +108,12 @@ describe('Overview You card', () => {
     const tiedData = { ...withMax, ranks: { ...withMax.ranks, coins: { r: 1, v: 9, p: 3.4, t: 88 } } };
     renderOverview({ player: { context: logged, data: tiedData } });
     await screen.findByText('You');
-    expect(screen.getByText('First places').closest('[data-stat]').textContent).toBe('2First places1 tied+1 at the max');
-    fireEvent.mouseOver(screen.getByRole('button', { name: 'About first places' }));
-    const tip = await screen.findByRole('tooltip');
-    expect(tip.textContent).toMatch(/#1 alone: /);
-    expect(tip.textContent).toMatch(/Tied for #1: .*\(88 players\)/);
-    expect(tip.textContent).toMatch(/At the max: .*not counted as first places/);
+    expect(screen.getByText('First places').closest('[data-stat-tile]').textContent).toBe('First places21 tied+1 at the max');
+    expect(screen.getByText('Mining')).toBeTruthy();
+    expect(screen.getByText('Coins (88 players)')).toBeTruthy();
+    expect(screen.getByText('Log Book')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'About At the max' }));
+    expect((await screen.findByRole('tooltip')).textContent).toMatch(/not counted as first places/);
   });
 
   it('offers a way back from a searched player on the card itself', async () => {
@@ -132,7 +127,7 @@ describe('Overview You card', () => {
     renderOverview({ player: { context: { name: 'Baker333', kind: 'searched' }, data } });
     const label = await screen.findByText('Searched player');
     expect(label.parentElement.textContent).toBe('Searched player · Baker333');
-    expect(getComputedStyle(label.parentElement).color).toBe('rgb(205, 134, 27)');
+    expect(getComputedStyle(label.parentElement).color).toBe('var(--mui-palette-identity-leaderboard-searched)');
     expect(screen.queryByText(/tied at the max/)).toBeNull();
   });
 
@@ -147,17 +142,16 @@ describe('Overview highlights', () => {
 
   it('puts the tab and value under the label and the rank on the right', async () => {
     show([{ metric: 'mining', value: 240, rank: 3, topPercent: 0.2 }]);
-    const value = (await screen.findAllByText('240')).find((el) => el.parentElement.textContent === 'Skills · 240');
-    expect(value.getAttribute('title')).toBe('240');
+    expect(await screen.findByText('Skills · 240')).toBeTruthy();
     expect(screen.getByText('Your highlights')).toBeTruthy();
-    expect(screen.getByText('your strongest boards')).toBeTruthy();
+    expect(screen.getByText('Your strongest boards')).toBeTruthy();
     expect(screen.getByText('#3')).toBeTruthy();
     expect(screen.getByText('top 0.2%')).toBeTruthy();
   });
 
   it('leaves no stray separator or NaN when the value is missing', async () => {
     show([{ metric: 'mining', rank: 3, topPercent: 0.2 }]);
-    const card = (await screen.findByText('Your highlights')).closest('.MuiCard-root');
+    const card = (await screen.findByText('Your highlights')).closest('section');
     expect(within(card).getByText('Skills')).toBeTruthy();
     expect(within(card).queryByText(/·|NaN|undefined/)).toBeNull();
   });
@@ -177,15 +171,15 @@ describe('Overview highlights', () => {
 describe('Overview within reach', () => {
   it('lists label, rank and value, the step and an Around you link', async () => {
     renderOverview({ player: { context: logged, data } });
-    const row = await screen.findByRole('button', { name: /Mining · #3 · 240/ });
-    expect(row.textContent).toContain('+10 to reach #2');
-    expect(row.textContent).toContain('Around you›');
-    expect(screen.getByText('smallest step to the next rank')).toBeTruthy();
+    const panel = (await screen.findByText('Within reach')).closest('section');
+    expect(panel.textContent).toContain('Mining#3 · 240+10 to reach #2Around you');
+    expect(within(panel).getByRole('link', { name: 'Around you' })).toBeTruthy();
+    expect(screen.getByText('Smallest step to the next rank')).toBeTruthy();
   });
 });
 
 describe('Overview category tiles', () => {
-  const tiles = () => screen.getAllByRole('link').filter((link) => /^\?t=/.test(link.getAttribute('href') ?? ''));
+  const tiles = () => screen.getAllByRole('link').filter((link) => /^\?t=\w+$/.test(link.getAttribute('href') ?? ''));
   const rankData = { ...data, ranks: {
     logBook: { r: 7, v: 50, p: 1, t: 1 }, coins: { r: 21, v: 5, p: 4, t: 1 },
     mining: { r: 3, v: 240, p: 0.2, t: 1, nr: 2, nv: 250 }, farming: { r: 100, v: 9, p: 8, t: 1 }
@@ -196,16 +190,16 @@ describe('Overview category tiles', () => {
     await screen.findByText('G1');
     const found = tiles();
     expect(found.map((link) => link.getAttribute('href'))).toEqual(['?t=Account', '?t=Skills']);
-    expect(found[0].textContent).toBe('Account2');
-    expect(screen.queryByText(/median/)).toBeNull();
+    expect(found[0].textContent).toBe('Account2 boards›');
+    expect(screen.queryByText(/Median/)).toBeNull();
   });
 
   it('shows the median rank and the best board of the player in each tab', async () => {
     renderOverview({ player: { context: logged, data: rankData } });
     await screen.findByText('G1');
     const [account, skills] = tiles();
-    expect(account.textContent).toBe('Account2median #14#7 Log Book');
-    expect(skills.textContent).toBe('Skills2median #52#3 Mining');
+    expect(account.textContent).toBe('Account2 boards›Median rank#14Best board#7 Log Book');
+    expect(skills.textContent).toBe('Skills2 boards›Median rank#52Best board#3 Mining');
   });
 
   it('switches tab in place on a plain click and leaves modified clicks to the browser', async () => {

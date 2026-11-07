@@ -6,8 +6,16 @@ import ArrowForwardIosSharpIcon from '@mui/icons-material/ArrowForwardIosSharp';
 import { useTheme } from '@emotion/react';
 import AddIcon from '@mui/icons-material/Add';
 import CheckIcon from '@mui/icons-material/Check';
-import { deepPurple, green } from '@mui/material/colors';
+import { format, isValid } from 'date-fns';
 import { patchNotes } from '../data/patch-notes';
+
+// A note's stored date is DD/MM/YYYY. Read by its parts and printed with the month's name, so it says the same on the
+// export, in every zone and to a reader of either date order.
+const patchDate = (note) => {
+  const [day, month, year] = `${note?.date ?? ''}`.split('/').map(Number);
+  const date = new Date(year, month - 1, day);
+  return isValid(date) ? format(date, 'MMM do, yyyy') : note?.date;
+};
 
 const PatchNotes = ({ patchNotes: pNotes }) => {
   const [noteIndex, setNoteIndex] = useState(0);
@@ -20,7 +28,10 @@ const PatchNotes = ({ patchNotes: pNotes }) => {
     return <>{seo}<Stack divider={<Divider/>} gap={3}>
       {patchNotes?.map((note, index) => {
         return <Stack gap={1} key={'note' + index}>
-          <Typography variant={'h3'}>v{note?.ver}</Typography>
+          <Stack direction={'row'} alignItems={'baseline'} columnGap={1.5} flexWrap={'wrap'}>
+            <Typography variant={'sectionTitle'} component={'h2'}>v{note?.ver}</Typography>
+            <Typography variant={'body2'} color={'text.secondary'}>{patchDate(note)}</Typography>
+          </Stack>
           <StyledSection icon={'add'} topMargin={false} title={"Features"} list={note?.features}/>
           <StyledSection icon={"fix"} topMargin={false} title={"Fixes"} list={note?.fixes}/>
         </Stack>
@@ -32,7 +43,7 @@ const PatchNotes = ({ patchNotes: pNotes }) => {
                       disableGutters
                       sx={{
                         '&:before': { display: 'none' },
-                        border: `1px solid ${theme.palette.divider}`,
+                        border: `1px solid ${(theme.vars || theme).palette.divider}`,
                         '&:not(:last-child)': {
                           borderBottom: 0,
                         },
@@ -46,8 +57,8 @@ const PatchNotes = ({ patchNotes: pNotes }) => {
           }
         }}
         expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }}/>}
-      >v{note?.ver} - {note?.date}</AccordionSummary>
-      <AccordionDetails sx={{ backgroundColor: 'rgb(22, 22, 22)', p: 3 }}>
+      >v{note?.ver} · {patchDate(note)}</AccordionSummary>
+      <AccordionDetails sx={{ backgroundColor: 'background.paper', p: 3 }}>
         <Stack gap={3}>
           <StyledSection icon={'add'} topMargin={false} title={"Features"} list={note?.features}/>
           <StyledSection icon={"fix"} topMargin={false} title={"Fixes"} list={note?.fixes}/>
@@ -60,26 +71,26 @@ const PatchNotes = ({ patchNotes: pNotes }) => {
 const StyledSection = ({ title, list, icon, topMargin = true }) => {
   if (!list || list.length === 0) return null;
   const icons = {
-    'add': <AddIcon sx={{ color: green[600] }}/>,
-    'fix': <CheckIcon sx={{ color: deepPurple[300] }}/>
+    'add': <AddIcon sx={{ color: 'text.success' }}/>,
+    'fix': <CheckIcon sx={{ color: 'primary.main' }}/>
   }
   return (
     <Box sx={{ marginTop: topMargin ? '20px' : 0 }}>
       <Stack direction={'row'} alignItems={'center'} gap={1}>
         {icons[icon]}
-        <Typography sx={{ color: icon === 'add' ? green[500] : deepPurple[200] }} variant={"h5"}>{title}</Typography>
+        <Typography variant={'cardTitle'} component={'h3'}>{title}</Typography>
       </Stack>
-      <ul style={{ marginTop: 20 }}>
+      <Box component={'ul'} sx={{ mt: 1.5, mb: 0, pl: 3 }}>
         {list.map((item, index) => {
           return (
-            <li key={`${title}-${index}`} style={{ marginTop: 5 }}>
-              <Typography variant={"body1"} component={"div"}>
+            <Box component={'li'} key={`${title}-${index}`} sx={{ mt: 0.5 }}>
+              <Typography variant={"body2"} component={"div"}>
                 {item}
               </Typography>
-            </li>
+            </Box>
           );
         })}
-      </ul>
+      </Box>
     </Box>
   );
 };

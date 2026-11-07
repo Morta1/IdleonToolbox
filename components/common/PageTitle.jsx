@@ -2,6 +2,7 @@ import { Typography } from '@mui/material';
 import { useRouter } from 'next/router';
 import { PAGE_SEO } from '../../data/page-seo';
 import { headingOf } from '../../utility/seo-head.mjs';
+import { PAGE_BY_URL } from '../../utility/pageIndex';
 
 
 // PAGE_SEO is keyed by route pattern, so a dynamic route's entry is a fallback for many pages and
@@ -16,21 +17,21 @@ const ALREADY_HAS_H1 = new Set([
   '/tools/builds/view'
 ]);
 
-// One size for the page h1 wherever it is drawn, in NavBar or by a page with its own heading.
-export const PAGE_H1_SX = { fontSize: 24, fontWeight: 600, m: 0, whiteSpace: 'nowrap' };
-
-const PageTitle = () => {
-  const router = useRouter();
-  const pathname = router?.pathname;
+// A route's h1 text, or null where the page draws its own, has no SEO entry, or is noindex.
+export const titleOf = (pathname) => {
   if (!pathname || ALREADY_HAS_H1.has(pathname)) return null;
-
   const seo = PAGE_SEO[pathname];
   if (!seo || seo.noindex) return null;
+  return PAGE_BY_URL[pathname]?.display ?? (headingOf(seo.title) || null);
+};
 
-  const title = headingOf(seo.title);
+// The page's one h1 (Foundations: pageTitle, 24 / 36 / 600), here or on the few pages that draw their own.
+// One line: the title shares its row with Pin and Add goal, which wrap under it; a long one ends in an ellipsis.
+const PageTitle = () => {
+  const router = useRouter();
+  const title = titleOf(router?.pathname);
   if (!title) return null;
-
-  return <Typography component={'h1'} sx={PAGE_H1_SX}>{title}</Typography>;
+  return <Typography variant={'pageTitle'} component={'h1'} noWrap sx={{ minWidth: 0 }}>{title}</Typography>;
 };
 
 export default PageTitle;

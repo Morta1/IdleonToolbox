@@ -60,10 +60,14 @@ describe('the GA login event', () => {
     render(<AppProvider><Probe/></AppProvider>);
     await waitFor(() => expect(context.current.state.isLoading).toBe(false));
 
+    // The poll's first try waits a second: only that wait is faked, so the promises behind it stay real.
+    vi.useFakeTimers({ toFake: ['setInterval', 'clearInterval'] });
     act(() => {
       context.current.dispatch({ type: 'login', data: { loginType, loginData } });
       context.current.setWaitingForAuth(true);
     });
+    act(() => vi.advanceTimersByTime(1000));
+    vi.useRealTimers();
 
     await waitFor(() => expect(window.gtag).toHaveBeenCalledWith('event', 'login', expect.anything()), { timeout: 3000 });
     expect(window.gtag.mock.calls.find(([, name]) => name === 'login')[2].value).toBe(label);

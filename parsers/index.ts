@@ -98,7 +98,7 @@ import { getBubba } from '@parsers/clickers/bubba';
 import { getHatRack } from '@parsers/world-3/hatRack';
 import { getCapeVine } from '@parsers/world-4/capeVine';
 import { getFriendBonusStats } from '@parsers/misc';
-import { safeSection, trackSectionFailures } from '@parsers/safeSection';
+import { forceSectionFailures, safeSection, setSectionCatalogs, trackSectionFailures } from '@parsers/safeSection';
 import type { IdleonData, Account, CompanionData, GuildData, ServerVars, TournamentData } from './types';
 import { resetSaveFields, saveField } from '@parsers/saveField';
 
@@ -107,16 +107,29 @@ export interface ParseOptions {
   simulatedCompanions?: number[];
   // Tests only: pass-convergence.test.js checks that one extra pass changes nothing.
   passes?: number;
+  // Tests and the kit only (tools/page-check.mjs --force): these safeSection names really throw.
+  failSections?: string[];
+  // The fallback's own parse, so a failure in it can't recurse.
+  noCatalogFallback?: boolean;
 }
 
 const DEFAULT_PASSES = 3;
 
+// A failed section's account keys, where it fills more than its own name.
+const SECTION_KEYS: Record<string, string[]> = {
+  tasks: ['tasks', 'tasksDescriptions', 'meritsDescriptions', 'unlockedRecipes', 'taskUnlocks'],
+  constellations: ['constellations', 'rawConstellationsDone']
+};
+const failedKeys = (names: string[], empty: any) => names.flatMap((name) => SECTION_KEYS[name] ?? [name]).filter((key) => key in empty);
+
 export const parseData = (idleonData: IdleonData, charNames: string[], companion: CompanionData, guildData: GuildData | null, serverVars: ServerVars, accountCreateTime: number, tournament: TournamentData | null, options?: ParseOptions) => {
   try {
+    if (options?.failSections?.includes('*')) throw new Error('forced: the whole parse');
     resetSaveFields(idleonData);
+    forceSectionFailures(options?.failSections);
     const staticFailures = new Set<string>();
     trackSectionFailures(staticFailures);
-    const staticData = getStaticData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, tournament, options);
+    const staticData: any = getStaticData(idleonData, charNames, companion, guildData, serverVars, accountCreateTime, tournament, options);
 
     // Multiple passes needed to resolve cross-dependencies between parsers. Pass 3 is load-bearing:
     // on endgame saves it still moves ~1,000 values (2026-10-27), and pass-convergence.test.js
@@ -125,7 +138,18 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
     // Only the last pass counts: a section can throw on a dependency an earlier pass had not filled yet.
     let passFailures = new Set<string>();
     const passes = options?.passes ?? DEFAULT_PASSES;
+    const emptyAccount = () => parseData(undefined as any, [], null as any, null, undefined as any, undefined as any, null, { noCatalogFallback: true }).account;
     for (let pass = 0; pass < passes; pass++) {
+      // Still failing on the last pass: its readers meet the section's catalog at zero, not {}. An earlier pass's failure can be a dependency not filled yet.
+      if (pass === passes - 1 && (staticFailures.size || passFailures.size) && !options?.noCatalogFallback) {
+        const empty = emptyAccount();
+        forceSectionFailures(options?.failSections);
+        setSectionCatalogs(empty);
+        failedKeys([...staticFailures, ...passFailures], empty).forEach((key) => {
+          if (key in staticData) staticData[key] = empty[key];
+          if (processedData) processedData.accountData[key] = empty[key];
+        });
+      }
       passFailures = new Set<string>();
       trackSectionFailures(passFailures);
       processedData = serializeData(idleonData, serverVars, staticData, processedData);
@@ -135,6 +159,16 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
     const failedSections = [...new Set([...staticFailures, ...passFailures])];
     if (failedSections.length) {
       accountData.failedSections = failedSections;
+      // A section that threw draws what an empty save draws: its catalog at zero. The note says so.
+      if (!options?.noCatalogFallback) {
+        // A fresh one: the last pass's readers wrote into theirs.
+        const empty = emptyAccount();
+        failedKeys(failedSections, empty).forEach((key) => {
+          accountData[key] = empty[key];
+        });
+        // Gems come straight from the save, not from the section that failed.
+        if (accountData.currencies) accountData.currencies.gems = idleonData?.GemsOwned ?? 0;
+      }
     }
     return { account: accountData, characters: charactersData };
   } catch (err) {
@@ -151,6 +185,8 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
     return { account: { failedSections: ['*'] }, characters: [], parseFailed: true };
   } finally {
     trackSectionFailures(null);
+    forceSectionFailures();
+    setSectionCatalogs(null);
   }
 };
 
@@ -202,7 +238,7 @@ const getStaticData = (idleonData: IdleonData, charNames: string[], companion: C
     constellations,
     rawConstellationsDone,
     shopStock: safeSection<any>('shopStock', [], () => getShops(idleonData)),
-    traps: safeSection<any>('traps', [], () => getTraps(serializedCharactersData)),
+    traps: safeSection<any>('traps', [], () => getTraps(serializedCharactersData, tryToParse(idleonData?.TimeAway))),
     totems: safeSection<any>('totems', [], () => getTotems(idleonData)),
     adviceFish: safeSection<any>('adviceFish', {}, () => getAdviceFish(idleonData)),
     guild: safeSection<any>('guild', getLockedGuild(), () => getGuild(idleonData, guildData)),
@@ -329,7 +365,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
 
   accountData.forge = safeSection<any>('forge', {}, () => getForge(idleonData, accountData));
   accountData.refinery = safeSection<any>('refinery', {}, () => getRefinery(idleonData, accountData.storage?.list, accountData.tasks));
-  accountData.printer = safeSection<any>('printer', {}, () => getPrinter(idleonData, charactersData, accountData));
+  accountData.printer = safeSection<any>('printer', [], () => getPrinter(idleonData, charactersData, accountData));
   accountData.quests = safeSection<any>('quests', {}, () => getQuests(charactersData));
   // Each quest counts once account-wide, no matter how many characters finished it - that's what
   // the QUEST_KAPOW! / QUEST_CHUNGUS star talents scale off.
@@ -396,7 +432,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   });
   accountData.coralReef = safeSection<any>('coralReef', {}, () => getCoralReef(idleonData, accountData, charactersData));
   accountData.clamWork = safeSection<any>('clamWork', {}, () => getClamWork(idleonData, accountData));
-  accountData.minehead = safeSection<any>('minehead', {}, () => getMinehead(idleonData, accountData, serverVars));
+  accountData.minehead = safeSection<any>('minehead', {}, () => getMinehead(idleonData, accountData, serverVars, charactersData));
   accountData.tournament = safeSection<any>('tournament', {}, () => getTournament(idleonData, accountData, staticData.tournamentServerData, serverVars));
   accountData.research = safeSection<any>('research', {}, () => getResearch(idleonData, accountData, charactersData, serverVars));
   accountData.button = safeSection<any>('button', {}, () => getButton(accountData, charactersData));

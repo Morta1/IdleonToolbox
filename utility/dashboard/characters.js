@@ -12,7 +12,7 @@ import {
   relevantTalents
 } from '../../parsers/talents';
 import { getAllTools } from '../../parsers/items';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { OPT } from '@parsers/accountOptions';
 
 export const anvilAlerts = (account, characters, character, lastUpdated, options) => {
@@ -89,7 +89,7 @@ export const trapsAlerts = (account, characters, character, lastUpdated, options
     alerts.missingTraps = traps?.length < Math.min(maxTraps, 8);
   }
   if (options?.traps?.trapsOverdue?.checked) {
-    alerts.trapsOverdue = account?.traps?.[character?.playerId].some((slot) => isPast(slot?.timeLeft));
+    alerts.trapsOverdue = account?.traps?.[character?.playerId]?.some((slot) => isPast(slot?.timeLeft));
   }
   return alerts;
 }
@@ -351,7 +351,7 @@ export const cardsAlert = (account, characters, character, lastUpdated, options)
   const alerts = {}
   if (options?.cards?.cardSet?.checked) {
     const equippedCardSet = character?.cards?.cardSet;
-    const cardSetEffect = cleanUnderscore(equippedCardSet?.effect).replace('{', '');
+    const cardSetEffect = cleanUnderscore(equippedCardSet?.effect?.replace('{', formatNum(equippedCardSet?.bonus)));
     const dbWithWraith = checkCharClass(character?.class, CLASSES.Death_Bringer) && character?.activeBuffs?.find(({ name }) => name === 'WRAITH_FORM') !== -1;
     if (character?.level >= 50 && equippedCardSet?.rawName === 'CardSet0') {
       alerts.cardSet = {

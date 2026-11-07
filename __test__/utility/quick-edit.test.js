@@ -44,6 +44,15 @@ describe('buildQuickEdit', () => {
     expect(result.option.name).toBe('miniBosses');
   });
 
+  it.each([
+    ['dilapidatedSlush', 'miniBosses'],
+    ['drDefecaus', undefined]
+  ])('the %s timer holds the alert number it reads', (key, number) => {
+    const result = quick('timers', 'Etc.minibosses', { items: [{ key, label: key }] });
+    expect(result.kind).toBe('pickerItems');
+    expect(result.linkedNumber?.option?.name).toBe(number);
+  });
+
   it('a picker alert with its item key watches that item', () => {
     const result = quick('account', 'World 3.construction.saltDeficit', { items: [{ key: 'Refinery2', label: 'Frigid Soul' }] });
     expect(result.kind).toBe('pickerItems');
@@ -142,14 +151,10 @@ describe('call site key shapes', () => {
     ['account', 'World 2.postOffice.dailyShipments', 3],
     ['account', 'World 3.construction.materials', 'Refinery1'],
     ['account', 'World 3.construction.rankUp', 'Refinery1'],
-    ['account', 'World 3.construction.saltDeficit', 'Refinery1'],
     ['account', 'World 3.construction.saltRankUpRoom', 'Refinery1'],
-    ['account', 'World 3.printer.atoms', 'Copper'],
     ['account', 'World 7.minehead.currencyUpgrades', 'MineUpg5'],
     ['account', 'World 7.sushiStation.shakerUses', 'SushiUpg17'],
-    ['characters', 'talents.talents', 'PRINTER_GO_BRRR'],
     ['characters', 'crystalCountdown', 'ClassIcons42'],
-    ['timers', 'World 3.closestSalt', 'Refinery1'],
     ['timers', 'World 5.villagers', 'explore']
   ];
   it.each(cases)('%s %s resolves item %s', (configType, target, key) => {

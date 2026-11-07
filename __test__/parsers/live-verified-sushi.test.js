@@ -4,18 +4,12 @@ import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
-import { research } from '@website-data';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr.
 // latest.json is that account's save (Sushi[2] upgrades, bucks and the slot tiers match).
 const GAME = {
-  // SushiStuff("RoG_BonusQTY", i, 0)
-  rog: [
-    100, 30, 2, 2, 2, 1, 30, 30, 1, 30, 100, 25, 50, 1, 20, 25,
-    50, 1, 20, 1, 200, 3, 1, 1, 2, 30, 25, 50, 100, 100, 1, 50,
-    100, 3, 50, 100, 1, 40, 25, 100, 1, 100, 20, 50, 50, 25, 30, 50,
-    10, 10, 10, 10, 50, 1, 1, 25, 2, 30, 10, 0, 0, 0, 0, 0
-  ],
+  // SushiStuff("RoG_BonusQTY", i, 0): the catalog value below the unique sushi count, 0 from it on
+  rog: { 0: 100, 58: 10, 59: 0 },
   // SushiStuff("UniqueSushi", -1, 0)
   uniqueSushi: 59,
   // SushiStuff("KnowledgeBonusTOT", i, 0), rebuilt with KnowledgeBonusTOT(0, 0, -1)
@@ -57,8 +51,8 @@ const { account } = parseFixture(latest);
 const sushi = account.sushiStation;
 
 describe('sushi station verified against the live game', () => {
-  it.each(research[37].map((_, index) => [index]))('RoG bonus %i', (index) => {
-    expect(getSushiBonus(account, index)).toBe(GAME.rog[index]);
+  it.each(Object.entries(GAME.rog))('RoG bonus %s', (index, value) => {
+    expect(getSushiBonus(account, Number(index))).toBe(value);
   });
 
   it('unique sushi and knowledge totals', () => {

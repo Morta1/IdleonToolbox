@@ -1,32 +1,22 @@
 import React from 'react';
-import {
-  Card,
-  CardContent,
-  Divider,
-  FormControlLabel,
-  IconButton,
-  InputAdornment,
-  Stack,
-  Switch,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  ToggleButton,
-  Typography
-} from '@mui/material';
+import { Box, FormControlLabel, IconButton, Switch } from '@mui/material';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
-import Tooltip from '@components/Tooltip';
-import { cleanUnderscore, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import NumberField from '@components/common/NumberField';
+import DataTable from '@components/common/DataTable';
+import GameIcon from '@components/common/GameIcon';
+import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { getKillCredit, getMinibosses, getMinibossHp } from '@parsers/misc/boneJoeCalculator';
-import { monsterImage } from '@utility/spriteImages';
+import { monsterSprite } from '@utility/spriteImages';
+
+// One height for the row: the equip toggle sits inside its level field, so the pair is one control with one border.
+const EQUIP_SX = { width: 32, height: 32, ml: -0.75, p: 0, '&[aria-pressed="true"]': { bgcolor: 'primary.soft' } };
 
 const MinibossHp = ({
                       pickles,
                       setPickles,
+                      maxPickles,
                       activePrayers,
                       levelsFromAccount,
                       setPrayerLevel,
@@ -34,127 +24,98 @@ const MinibossHp = ({
                       curse,
                       hpMulti,
                       applyToCharacters,
-                      setApplyToCharacters
+                      setApplyToCharacters,
+                      showTargetHits,
+                      targetHits,
+                      setTargetHits,
+                      maxTargetHits
                     }) => {
   const minibosses = getMinibosses();
   const killCredit = getKillCredit(pickles);
 
-  const handlePrayerLevel = (name, maxLevel) => ({ target }) => {
-    const level = Math.min(Math.max(parseInt(target.value, 10) || 0, 0), maxLevel);
-    setPrayerLevel(name, level);
-  };
+  // The field settles the max on leave, so the level arrives inside it.
+  const handlePrayerLevel = (name) => (next) => setPrayerLevel(name, next ?? 0);
 
-  return <Card sx={{ width: 'fit-content' }}>
-    <CardContent>
-      <Stack gap={2}>
-        <Typography variant={'h6'}>Miniboss HP</Typography>
-        <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-          <TextField
-            size={'small'}
-            type={'number'}
-            label={'Pickles'}
-            sx={{ width: 120 }}
-            value={pickles}
-            onChange={({ target }) => setPickles(Math.max(parseInt(target.value, 10) || 0, 0))}
-          />
-          <Divider orientation={'vertical'} flexItem sx={{ display: { xs: 'none', sm: 'block' } }}/>
-          {activePrayers.map((prayer) => {
-            const levelField = <TextField
-              size={'small'}
-              type={'number'}
-              label={cleanUnderscore(prayer?.name)}
-              value={prayer?.level}
-              onChange={handlePrayerLevel(prayer?.name, prayer?.maxLevel)}
-              sx={{
-                width: levelsFromAccount ? 170 : 150,
-                ...(prayer?.enabled ? {} : { '& .MuiInputBase-input': { color: 'text.disabled' } })
-              }}
-              slotProps={levelsFromAccount && prayer?.level !== prayer?.accountLevel ? {
-                input: {
-                  endAdornment: <InputAdornment position={'end'}>
-                    <Tooltip title={`Reset to account level (Lv ${prayer?.accountLevel})`}>
-                      <IconButton
-                        size={'small'}
-                        edge={'end'}
-                        aria-label={`Reset ${cleanUnderscore(prayer?.name)} to account level`}
-                        onClick={() => setPrayerLevel(prayer?.name, prayer?.accountLevel)}
-                      >
-                        <RestartAltIcon fontSize={'small'}/>
-                      </IconButton>
-                    </Tooltip>
-                  </InputAdornment>
-                }
-              } : undefined}
-            />;
-            if (!levelsFromAccount) return React.cloneElement(levelField, { key: prayer?.name });
-            return <Stack key={prayer?.name} direction={'row'} gap={0.5} alignItems={'center'}>
-              <Tooltip title={prayer?.enabled ? 'Equipped, click to unequip' : 'Not equipped, click to equip'}>
-                <ToggleButton
-                  value={prayer?.name}
-                  size={'small'}
-                  selected={!!prayer?.enabled}
-                  color={'primary'}
-                  aria-label={`Equip ${cleanUnderscore(prayer?.name)}`}
-                  onChange={() => togglePrayer(prayer?.name)}
-                  // Same height and resting border as the level field beside it, so the pair reads as one control.
-                  sx={(theme) => ({
-                    width: 40,
-                    height: 40,
-                    p: 0,
-                    borderColor: theme.palette.mode === 'dark' ? 'rgba(255, 255, 255, 0.23)' : 'rgba(0, 0, 0, 0.23)',
-                    '&.Mui-selected': { borderColor: theme.palette.primary.main }
-                  })}
-                >
-                  <img src={`${prefix}data/Prayer${prayer?.prayerIndex}.png`} alt="" width={24} height={24}
-                       style={{
-                         objectFit: 'contain',
-                         filter: prayer?.enabled ? 'none' : 'grayscale(1)',
-                         opacity: prayer?.enabled ? 1 : 0.5
-                       }}/>
-                </ToggleButton>
-              </Tooltip>
-              {levelField}
-            </Stack>;
-          })}
-        </Stack>
-        <FormControlLabel
-          control={<Switch
-            checked={applyToCharacters}
-            onChange={({ target }) => setApplyToCharacters(target.checked)}
-          />}
-          label={'Apply to characters'}
-        />
-        <Typography variant={'caption'}>
-          Monster HP curse: +{numberWithCommas(curse)}% &middot; each kill counts
-          as {numberWithCommas(killCredit)} Deathnote {killCredit === 1 ? 'kill' : 'kills'}
-        </Typography>
-        <TableContainer>
-          <Table size={'small'}>
-            <TableHead>
-              <TableRow>
-                <TableCell>Miniboss</TableCell>
-                <TableCell align={'right'}>Base HP</TableCell>
-                <TableCell align={'right'}>HP</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {minibosses.map(({ rawName, name, baseHp }) => <TableRow key={rawName}>
-                <TableCell>
-                  <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    <img src={monsterImage(name)} alt="" width={24} height={24}
-                         style={{ objectFit: 'contain' }}/>
-                    {cleanUnderscore(name)}
-                  </Stack>
-                </TableCell>
-                <TableCell align={'right'}>{notateNumber(baseHp, 'Big')}</TableCell>
-                <TableCell align={'right'}>{notateNumber(getMinibossHp(baseHp, hpMulti, pickles), 'Big')}</TableCell>
-              </TableRow>)}
-            </TableBody>
-          </Table>
-        </TableContainer>
-      </Stack>
-    </CardContent>
-  </Card>;
+  return <Panel title={'Miniboss HP'}>
+    <Panel.Inputs>
+      <NumberField
+        label={'Pickles'}
+        sx={{ flex: '1 1 120px', minWidth: 0 }}
+        min={0}
+        max={maxPickles}
+        integer
+        help={false}
+        value={pickles}
+        onChange={(next) => setPickles(next ?? 0)}
+      />
+      {activePrayers.map((prayer) => {
+        const name = cleanUnderscore(prayer?.name);
+        return <NumberField
+          key={prayer?.name}
+          label={name}
+          value={prayer?.level}
+          min={0}
+          max={prayer?.maxLevel}
+          integer
+          help={false}
+          onChange={handlePrayerLevel(prayer?.name)}
+          sx={{
+            flex: '1 1 170px',
+            minWidth: 0,
+            ...(prayer?.enabled ? {} : { '& .MuiInputBase-input': { color: 'text.muted' } })
+          }}
+          icon={levelsFromAccount ? <IconButton size={'small'} aria-label={`Equip ${name}`} aria-pressed={Boolean(prayer?.enabled)}
+                                                sx={EQUIP_SX} onClick={() => togglePrayer(prayer?.name)}>
+            <GameIcon src={`data/Prayer${prayer?.prayerIndex}.png`} size={24} alt={''} status={prayer?.enabled ? undefined : 'missing'}/>
+          </IconButton> : undefined}
+          unit={levelsFromAccount && prayer?.level !== prayer?.accountLevel
+            ? <IconButton size={'small'} edge={'end'} aria-label={`Reset ${name} to account level`}
+                          onClick={() => setPrayerLevel(prayer?.name, prayer?.accountLevel)}>
+              <RestartAltIcon fontSize={'small'}/>
+            </IconButton>
+            : undefined}
+        />;
+      })}
+      {/* It only moves the characters' table, but it is one of this tool's inputs: they share one row */}
+      {showTargetHits ? <NumberField
+        label={'Target hits'}
+        sx={{ flex: '1 1 120px', minWidth: 0 }}
+        min={1}
+        max={maxTargetHits}
+        integer
+        help={false}
+        value={targetHits}
+        onChange={(next) => setTargetHits(next ?? 1)}
+      /> : null}
+      <FormControlLabel
+        control={<Switch
+          checked={applyToCharacters}
+          onChange={({ target }) => setApplyToCharacters(target.checked)}
+        />}
+        label={'Apply to characters'}
+      />
+    </Panel.Inputs>
+    <Box sx={{ p: 2 }}>
+      <ItemCard.Facts rows={[
+        ['Monster HP curse', formatNum(curse, 'pct', { signed: true })],
+        ['Each kill counts as', `${formatNum(killCredit, 'whole')} Deathnote ${killCredit === 1 ? 'kill' : 'kills'}`]
+      ]}/>
+    </Box>
+    <DataTable
+      columns={[
+        {
+          key: 'miniboss', label: 'Miniboss', value: ({ name }) => cleanUnderscore(name),
+          icon: ({ name }) => <GameIcon src={monsterSprite(name)} size={24} alt={''}/>
+        },
+        // A phone keeps HP, the number the pickles change.
+        { key: 'baseHp', label: 'Base HP', numeric: true, render: ({ baseHp }) => formatNum(baseHp) },
+        { key: 'hp', label: 'HP', numeric: true, phone: true, render: ({ baseHp }) => formatNum(getMinibossHp(baseHp, hpMulti, pickles)) }
+      ]}
+      rows={minibosses}
+      rowKey={'rawName'}
+      rowLabel={({ name }) => cleanUnderscore(name)}
+    />
+  </Panel>;
 };
 
 export default MinibossHp;

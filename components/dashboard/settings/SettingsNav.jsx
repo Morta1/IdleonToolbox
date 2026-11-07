@@ -4,7 +4,7 @@ import Stack from '@mui/material/Stack';
 import ToggleButton from '@mui/material/ToggleButton';
 import ToggleButtonGroup from '@mui/material/ToggleButtonGroup';
 import Typography from '@mui/material/Typography';
-import { prefix } from '@utility/helpers';
+import GameIcon from '@components/common/GameIcon';
 import { EditedDot } from './EditedTag';
 import LetterBadge from './LetterBadge';
 
@@ -16,7 +16,7 @@ const SettingsNav = ({ model, tabIndex, onTabChange, sectionKey, onSectionChange
     <ToggleButtonGroup exclusive fullWidth size="small" value={tabIndex}
                        onChange={(e, value) => value !== null && onTabChange(value)}>
       {model.map((item, index) => <ToggleButton key={item.configType} value={index}
-                                                sx={{ gap: 0.75, textTransform: 'none', minHeight: { xs: 44, sm: 32 } }}>
+                                                sx={{ gap: 0.75, minHeight: { xs: 44, sm: 32 } }}>
         {item.label}{item.edited ? <EditedDot/> : null}
       </ToggleButton>)}
     </ToggleButtonGroup>
@@ -28,11 +28,11 @@ const SettingsNav = ({ model, tabIndex, onTabChange, sectionKey, onSectionChange
           <ButtonBase onClick={() => onSectionChange(section.key)} aria-current={selected ? 'true' : undefined}
                       sx={{ justifyContent: 'flex-start', gap: 1.25, px: 1.25, minHeight: { xs: 52, sm: 38 }, borderRadius: 1.5, bgcolor: selected ? 'action.selected' : 'transparent' }}>
             {section.icon
-              ? <img src={`${prefix}${section.icon}.png`} alt="" width={22} height={22} style={{ objectFit: 'contain' }}/>
-              : <LetterBadge label={section.label} size={22} radius={1}/>}
+              ? <GameIcon src={`${section.icon}.png`} size={24} alt=""/>
+              : <LetterBadge label={section.label} size={24} radius={1}/>}
             <Typography variant="body2" sx={{ flex: 1, textAlign: 'left' }}>{section.label}</Typography>
             {section.edited ? <EditedDot/> : null}
-            <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace' }}>{section.onCount}/{section.total}</Typography>
+            <Typography variant="caption" color="text.secondary" sx={{ fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' }}>{section.onCount} / {section.total}</Typography>
           </ButtonBase>
           {selected && section.trackers.length > LONG_SECTION ? section.trackers.map((tracker) =>
             <ButtonBase key={tracker.path} onClick={() => onTrackerJump(tracker.path)}

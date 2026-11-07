@@ -1,4 +1,4 @@
-import { commaNotation, notateNumber, tryToParse, lavaLog } from '@utility/helpers';
+import { gameFill, notateNumber, tryToParse, lavaLog } from '@utility/helpers';
 import { research as researchData, upgradeVault } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { isBundlePurchased, getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
@@ -95,9 +95,9 @@ export const getVaultCostReduction = (accountData: any) => {
 const resolveVaultDescription = (description: any, index: number, bonus: number, ctx: any): any => {
   if (!description) return description;
   let resolved = (description as string)
-    .replace('{', '' + commaNotation(bonus))
-    .replace('}', '' + notateNumber(1 + bonus / 100, 'MultiplierInfo'))
-    .replace('^', '' + commaNotation(bonus * lavaLog(ctx.oresMined)));
+    .replace('{', gameFill(bonus, 'Comma'))
+    .replace('}', gameFill(1 + bonus / 100, 'MultiplierInfo'))
+    .replace('^', gameFill(bonus * lavaLog(ctx.oresMined), 'Comma'));
   const dollar = getVaultDollarValue(index, bonus, ctx);
   if (dollar != null) {
     resolved = resolved.replace('$', dollar);
@@ -106,7 +106,7 @@ const resolveVaultDescription = (description: any, index: number, bonus: number,
     resolved = resolved.replace('&', '' + getMonsterLadderTarget(ctx.knockoutProgress));
   }
   // Monster Tax (2) ends with a "Total Coin Bonus from@all@sources;~x" clause whose `~`
-  // (MonsterCash total) we don't compute — drop the dangling clause rather than show it raw.
+  // (MonsterCash total) we don't compute: drop the dangling clause rather than show it raw.
   if (index === 2) {
     resolved = resolved.split('_Total_Coin_Bonus')[0];
   }
@@ -125,8 +125,8 @@ const getVaultDollarValue = (index: number, bonus: number, ctx: any): string | n
   const formatKills = (rawKills: number, logBonusSlot: number, totalLabel = '\nTotal_Bonus:+') => {
     const totalBonus = Math.round(bonus * (vaultKills?.[logBonusSlot] ?? 0));
     return rawKills < 1e8
-      ? `Current_Kills:${commaNotation(rawKills)}\nTotal_Bonus:+${totalBonus}`
-      : `Current_Kills:${commaNotation(rawKills / 1e6)}million${totalLabel}${totalBonus}`;
+      ? `Current_Kills:${gameFill(rawKills, 'Comma', { whole: true })}\nTotal_Bonus:+${totalBonus}`
+      : `Current_Kills:${gameFill(rawKills / 1e6, 'Comma')}million${totalLabel}${totalBonus}`;
   };
 
   if (index in killsByIndex) {
@@ -141,15 +141,15 @@ const getVaultDollarValue = (index: number, bonus: number, ctx: any): string | n
     case 34:
       return '' + Math.round((vaultKills?.[8] ?? 0) * bonus);
     case 35:
-      return '' + commaNotation(bonus * lavaLog(fishCaught));
+      return gameFill(bonus * lavaLog(fishCaught), 'Comma');
     case 37:
-      return '' + commaNotation((vaultKills?.[9] ?? 0) * bonus);
+      return gameFill((vaultKills?.[9] ?? 0) * bonus, 'Comma');
     case 41:
-      return '' + commaNotation(bonus * lavaLog(bugsCaught));
+      return gameFill(bonus * lavaLog(bugsCaught), 'Comma');
     case 48:
       return formatKills(vaultKills?.[10] ?? 0, 11, '\nTotal:+');
     case 70:
-      return '' + commaNotation(bonus * cardsCollected);
+      return gameFill(bonus * cardsCollected, 'Comma');
     default:
       return null;
   }

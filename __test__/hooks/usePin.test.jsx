@@ -6,25 +6,23 @@ import { act, renderHook } from '@testing-library/react';
 const router = vi.hoisted(() => ({ pathname: '/account/worlds/alchemy', query: {} }));
 vi.mock('next/router', () => ({ useRouter: () => router }));
 
-const { AppContext } = await import('@components/common/context/AppProvider');
 const { default: usePin } = await import('@components/common/favorites/usePin');
 
 const pins = [
   { name: 'alchemy', tab: 'Bubbles', url: '/account/worlds/alchemy' },
   { name: 'alchemy', tab: 'Bubbles', nestedTab: 'Power', deeplyNestedTab: 'Cauldron', url: '/account/worlds/alchemy' },
   { name: 'alchemy', tab: 'Vials', url: '/account/worlds/alchemy' },
-  { name: 'stats', url: '/account/misc/stats' }
+  { name: 'stats', url: '/account/misc/stats' },
+  { name: 'killroy', url: '/account/world-2/killroy' }
 ];
 
-const togglePinOn = (query) => {
+const togglePinOn = (query, pathname = '/account/worlds/alchemy') => {
+  router.pathname = pathname;
   router.query = query;
-  const dispatch = vi.fn();
-  const wrapper = ({ children }) => (
-    <AppContext.Provider value={{ state: { pinnedPages: pins }, dispatch }}>{children}</AppContext.Provider>
-  );
-  const { result } = renderHook(usePin, { wrapper });
+  localStorage.setItem('pinnedPages', JSON.stringify(pins));
+  const { result } = renderHook(usePin);
   act(() => result.current.togglePin());
-  return dispatch.mock.calls[0][0].data;
+  return result.current.pinnedPages;
 };
 
 describe('usePin togglePin', () => {
@@ -32,9 +30,10 @@ describe('usePin togglePin', () => {
 
   it.each([
     ['a pin without a deep tab', { t: 'Bubbles' }, 0],
-    ['a pin with a deep tab', { t: 'Bubbles', nt: 'Power', dnt: 'Cauldron' }, 1]
-  ])('unpinning %s removes only that pin', (_, query, removed) => {
-    expect(togglePinOn(query)).toEqual(pins.filter((_, index) => index !== removed));
+    ['a pin with a deep tab', { t: 'Bubbles', nt: 'Power', dnt: 'Cauldron' }, 1],
+    ['a pin with no tab, from its first tab', { t: 'Schedule' }, 4, '/account/world-2/killroy']
+  ])('unpinning %s removes only that pin', (_, query, removed, pathname) => {
+    expect(togglePinOn(query, pathname)).toEqual(pins.filter((_, index) => index !== removed));
   });
 
   it('pins a page that is not pinned yet', () => {
@@ -42,5 +41,25 @@ describe('usePin togglePin', () => {
       ...pins,
       { name: 'alchemy', tab: 'Liquid', nestedTab: undefined, deeplyNestedTab: undefined, url: '/account/worlds/alchemy' }
     ]);
+  });
+
+  it.each([
+    ['a moved page reads the new one', [{ name: 'royal-guardian', tab: 'Outposts', url: '/account/class-specific/royal-guardian' }]],
+    ['a moved page already pinned there draws once', [
+      { name: 'royal-armory', tab: 'Outposts', url: '/account/class-specific/royal-armory' },
+      { name: 'royal-guardian', tab: 'Outposts', url: '/account/class-specific/royal-guardian' }
+    ]]
+  ])('%s', (_, stored) => {
+    localStorage.setItem('pinnedPages', JSON.stringify(stored));
+    expect(renderHook(usePin).result.current.pinnedPages).toEqual([
+      { name: 'royal-armory', tab: 'Outposts', url: '/account/class-specific/royal-armory' }
+    ]);
+  });
+
+  it('reads saved pins as they are, and treats junk in the key as no pins', () => {
+    localStorage.setItem('pinnedPages', JSON.stringify(pins));
+    expect(renderHook(usePin).result.current.pinnedPages).toEqual(pins);
+    localStorage.setItem('pinnedPages', 'not json');
+    expect(renderHook(usePin).result.current.pinnedPages).toEqual([]);
   });
 });

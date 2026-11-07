@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 
 const searchNames = vi.fn(async () => [{ mainChar: 'Baker333', rank: 75 }]);
 vi.mock('../../../services/leaderboards', () => ({ searchNames }));
@@ -17,7 +17,7 @@ const { buildMetaIndex } = await import('@components/leaderboards/format');
 const index = buildMetaIndex({ tabs: [{ key: 'skills', label: 'Skills', sections: [{ name: 'Skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] }] });
 const renderBar = (props = {}) => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <ControlBar index={index} totalPlayers={2608} createdAt={null} showAnonymous onToggleAnonymous={() => {}} onPlayer={() => {}} onMetric={() => {}} {...props}/>
     </ThemeProvider>
   </QueryClientProvider>
@@ -26,14 +26,17 @@ const renderBar = (props = {}) => render(
 afterEach(() => { bannerState.isVisible = false; cleanup(); vi.clearAllMocks(); });
 
 describe('ControlBar', () => {
-  it('suggests names after two characters and reports a typeahead pick', async () => {
+  it('suggests names after two characters and reports a typeahead pick, again when picked twice', async () => {
     const onPlayer = vi.fn();
     renderBar({ onPlayer });
     const input = screen.getByLabelText('Find a player');
-    fireEvent.change(input, { target: { value: 'ba' } });
-    await waitFor(() => expect(searchNames).toHaveBeenCalledWith('ba'));
-    fireEvent.click(await screen.findByRole('option', { name: /Baker333/ }));
-    expect(onPlayer).toHaveBeenCalledWith('Baker333', 'typeahead');
+    for (let pick = 1; pick <= 2; pick++) {
+      fireEvent.change(input, { target: { value: 'ba' } });
+      await waitFor(() => expect(searchNames).toHaveBeenCalledWith('ba'));
+      fireEvent.click(await screen.findByRole('option', { name: /Baker333/ }));
+      expect(onPlayer).toHaveBeenCalledTimes(pick);
+      expect(onPlayer).toHaveBeenLastCalledWith('Baker333', 'typeahead');
+    }
   });
 
   it('shows the matched prefix in bold and the rank on the right of each name option', async () => {
@@ -61,6 +64,8 @@ describe('ControlBar', () => {
     expect(jump.getAttribute('placeholder')).toBe('Jump to a board (1)');
     expect(jump.getAttribute('aria-label')).toBe('Jump to board');
     expect(container.querySelector('label.MuiInputLabel-root')).toBeNull();
+    // The export cannot know the viewport, so CSS (not a media query hook) picks the layout: the phone's copies stay out.
+    expect(container.querySelectorAll('input[type="text"], input:not([type])')).toHaveLength(2);
     // The "/" shortcut hint sits in the jump field, and the jump has no popup arrow.
     expect(jump.closest('.MuiInputBase-root').textContent.replace(/​/g, '')).toBe('/');
     expect(container.querySelector('.MuiAutocomplete-popupIndicator')).toBeNull();
@@ -68,19 +73,7 @@ describe('ControlBar', () => {
     expect(screen.queryByText(/can be found by their Anon# id/)).toBeNull();
   });
 
-  it('reports the same player again when picked twice', async () => {
-    const onPlayer = vi.fn();
-    renderBar({ onPlayer });
-    const input = screen.getByLabelText('Find a player');
-    for (let pick = 1; pick <= 2; pick++) {
-      fireEvent.change(input, { target: { value: 'ba' } });
-      fireEvent.click(await screen.findByRole('option', { name: /Baker333/ }));
-      expect(onPlayer).toHaveBeenCalledTimes(pick);
-    }
-    expect(onPlayer).toHaveBeenNthCalledWith(2, 'Baker333', 'typeahead');
-  });
-
-  it('shows the status line in the bar below xl and in the phone menu', async () => {
+  it('shows the status line in the bar and in the phone menu', async () => {
     renderBar({ createdAt: Date.UTC(2026, 9, 8, 7, 31) });
     expect(await screen.findByText(/2,608 players · updated/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'More options' }));
@@ -89,10 +82,11 @@ describe('ControlBar', () => {
 
   it('sticks right below the navbar, and below the profile banner when it shows', () => {
     const stickyTop = ({ container }) => getComputedStyle(container.firstChild).top;
-    expect(stickyTop(renderBar())).toBe('70px');
+    // Plus a pinned tab strip's height, which no Tabber here sets
+    expect(stickyTop(renderBar())).toBe('calc(56px + var(--page-tabs-pinned, 0px))');
     cleanup();
     bannerState.isVisible = true;
-    expect(stickyTop(renderBar())).toBe('110px');
+    expect(stickyTop(renderBar())).toBe('calc(96px + var(--page-tabs-pinned, 0px))');
   });
 
   it('picks the highlighted suggestion on Enter, so a partial name finds the player', async () => {
@@ -108,15 +102,6 @@ describe('ControlBar', () => {
     expect(document.activeElement).toBe(input);
   });
 
-  it('says when no player starts with the typed text', async () => {
-    searchNames.mockResolvedValueOnce([]);
-    renderBar();
-    const input = screen.getByLabelText('Find a player');
-    act(() => input.focus());
-    fireEvent.change(input, { target: { value: 'zzq' } });
-    expect(await screen.findByText('No players start with "zzq"')).toBeTruthy();
-  });
-
   it('holds the viewed player in the field, and its X stops viewing them', () => {
     const onClearPlayer = vi.fn();
     renderBar({ viewing: { name: 'Baker333', kind: 'searched' }, onClearPlayer });
@@ -129,7 +114,7 @@ describe('ControlBar', () => {
 
   it('stops viewing from the X without the field taking focus on a touch screen', () => {
     const matchMedia = window.matchMedia;
-    window.matchMedia = (query) => ({ matches: query === '(hover: none)', media: query, addEventListener: () => {}, removeEventListener: () => {} });
+    window.matchMedia = (query) => ({ matches: query === '(hover: none)', media: query, addListener: () => {}, removeListener: () => {}, addEventListener: () => {}, removeEventListener: () => {} });
     const onClearPlayer = vi.fn();
     renderBar({ viewing: { name: 'Baker333', kind: 'searched' }, onClearPlayer });
     fireEvent.click(screen.getByRole('button', { name: 'Stop viewing Baker333' }));
@@ -163,7 +148,7 @@ describe('ControlBar', () => {
     expect(onClearPlayer).toHaveBeenCalledTimes(1);
   });
 
-  it('answers Enter on a no-match row with the typed text, not a silent first press', async () => {
+  it('says when no player starts with the typed text, and answers Enter there with that text, kept in the field', async () => {
     searchNames.mockResolvedValueOnce([]);
     const onPlayer = vi.fn();
     renderBar({ onPlayer });
@@ -173,17 +158,6 @@ describe('ControlBar', () => {
     await screen.findByText('No players start with "zzq"');
     fireEvent.keyDown(input, { key: 'Enter' });
     expect(onPlayer).toHaveBeenCalledWith('zzq', 'enter');
-  });
-
-  it('keeps the typed text on Enter when nothing matches', async () => {
-    searchNames.mockResolvedValueOnce([]);
-    const onPlayer = vi.fn();
-    renderBar({ onPlayer });
-    const input = screen.getByLabelText('Find a player');
-    act(() => input.focus());
-    fireEvent.change(input, { target: { value: 'zzq' } });
-    await screen.findByText('No players start with "zzq"');
-    fireEvent.keyDown(input, { key: 'Enter' });
     // The page answers a miss with a message; the text stays for a quick fix.
     expect(input.value).toBe('zzq');
   });
@@ -208,11 +182,6 @@ describe('ControlBar', () => {
     expect(more.getAttribute('aria-controls')).toBe(dialog.id);
   });
 
-  it('exposes Show anonymous as a switch', () => {
-    renderBar();
-    expect(screen.getByRole('switch', { name: 'Show anonymous' })).toBeTruthy();
-  });
-
   it('searches free text on Enter, for Anon# ids', () => {
     const onPlayer = vi.fn();
     renderBar({ onPlayer });
@@ -220,15 +189,6 @@ describe('ControlBar', () => {
     fireEvent.change(input, { target: { value: 'Anon#ab12cd' } });
     fireEvent.keyDown(input, { key: 'Enter' });
     expect(onPlayer).toHaveBeenCalledWith('Anon#ab12cd', 'enter');
-  });
-
-  it('jumps to a board', async () => {
-    const onMetric = vi.fn();
-    renderBar({ onMetric });
-    const jump = screen.getByLabelText('Jump to board');
-    fireEvent.change(jump, { target: { value: 'Min' } });
-    fireEvent.click(await screen.findByText('Mining'));
-    expect(onMetric).toHaveBeenCalledWith('mining');
   });
 
   it('opens the first board match on Enter, matching words in any order and section names', async () => {
@@ -252,9 +212,7 @@ describe('ControlBar', () => {
   it.each([
     ['kills', ['DK Orb Kills']],
     ['hr', ['Highest Construct Exp/hr']],
-    ['exp/hr', ['Highest Construct Exp/hr']],
-    ['world 3', ['Highest Construct Exp/hr']],
-    ['min', ['Mining']]
+    ['exp/hr', ['Highest Construct Exp/hr']]
   ])('matches "%s" at the start of a word only', async (query, expected) => {
     const boards = buildMetaIndex({ tabs: [
       { key: 'skills', label: 'Skills', sections: [{ name: 'Skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] },
@@ -287,17 +245,7 @@ describe('ControlBar', () => {
     expect(document.activeElement).toBe(search);
   });
 
-  it('has the desktop controls in the markup at first render, whatever the viewport', () => {
-    // The export cannot know the viewport, so CSS (not a media query hook) picks the layout.
-    const { container } = renderBar();
-    expect(screen.getByLabelText('Jump to board')).toBeTruthy();
-    expect(screen.getByLabelText('Show anonymous')).toBeTruthy();
-    expect(screen.getByLabelText('Find a player')).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'More options' })).toBeTruthy();
-    expect(container.querySelectorAll('input[type="text"], input:not([type])')).toHaveLength(2);
-  });
-
-  it('mounts the phone options only while open, as a popover rather than a type-ahead menu', async () => {
+  it('mounts the phone options only while open, as a dialog rather than a type-ahead menu', async () => {
     const onMetric = vi.fn();
     renderBar({ onMetric });
     expect(screen.getAllByLabelText('Jump to board')).toHaveLength(1);

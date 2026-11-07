@@ -1,15 +1,17 @@
 // @vitest-environment jsdom
 import '../../polyfills';
 import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { renderToString } from 'react-dom/server';
 import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import RelationTable from '@components/wiki/RelationTable';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
-// The table caps itself at 50 rows behind a "Show more" link, so everything past the cap has to
-// ship as a hidden anchor or a crawler never reaches it.
+vi.mock('@hooks/useProfileBannerState', () => ({ default: () => ({ isVisible: false }) }));
+
+// The table caps a long group behind a "Show more" link, so everything past the cap has to ship as a
+// hidden anchor or a crawler never reaches it.
 
 const makeProps = (count) => {
   const byId = {};
@@ -30,24 +32,24 @@ const makeProps = (count) => {
 
 describe('RelationTable anchors', () => {
   it('ships one real link per row in the export, the rows past the cap included', () => {
-    const props = makeProps(60);
-    const html = renderToString(<ThemeProvider theme={darkTheme}><RelationTable {...props}/></ThemeProvider>);
+    const props = makeProps(90);
+    const html = renderToString(<ThemeProvider theme={theme}><RelationTable {...props}/></ThemeProvider>);
     const hrefs = [...html.matchAll(/href="(\/wiki\/item\/item-\d+)"/g)].map((match) => match[1]);
-    expect(new Set(hrefs).size).toBe(60);
+    expect(new Set(hrefs).size).toBe(90);
   });
 });
 
 describe('RelationTable on a phone', () => {
-  it('hides the Chance column below sm, since the rate beside it says the same thing', () => {
-    render(<ThemeProvider theme={darkTheme}><RelationTable {...makeProps(3)}/></ThemeProvider>);
-    // jsdom resolves no media queries, so read the rules emotion emitted for the heading's classes.
-    const classes = [...screen.getByText('Chance').classList].filter((name) => name.startsWith('css-'));
+  it('holds the Chance column back until the box around the table has room, since the rate beside it says the same thing', () => {
+    render(<ThemeProvider theme={theme}><RelationTable {...makeProps(3)}/></ThemeProvider>);
+    // jsdom resolves no container queries, so read the rules emotion emitted on the table for the heading's column.
+    const column = [...screen.getByText('Chance').closest('th').classList].find((name) => name.startsWith('col-'));
     const css = [...document.querySelectorAll('style')].map((style) => style.textContent);
-    const displayRules = css.filter((rule) => rule.includes('display:') && classes.some((name) => rule.includes(`.${name}`)));
+    const displayRules = css.filter((rule) => rule.includes(`th.${column}{`) && rule.includes('display:'));
 
     expect(displayRules).toEqual([
-      expect.stringMatching(/^@media \(min-width:0px\)\{\.css-\w+\{[^}]*display:none;\}\}$/),
-      expect.stringMatching(/^@media \(min-width:600px\)\{\.css-\w+\{[^}]*display:table-cell;\}\}$/)
+      expect.stringMatching(new RegExp(`^\\.css-\\w+ th\\.${column}\\{[^}]*display:none;[^}]*\\}$`)),
+      expect.stringMatching(new RegExp(`^@container \\(min-width:\\d+px\\)\\{\\.css-\\w+ th\\.${column}\\{[^}]*display:table-cell;[^}]*\\}\\}$`))
     ]);
   });
 });

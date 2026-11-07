@@ -1,64 +1,43 @@
 import { NextSeo } from 'next-seo';
-import { Button, Card, CardContent, Stack, Typography } from '@mui/material';
-import React, { useContext, useEffect, useState } from 'react';
+import { Button, Stack } from '@mui/material';
+import React, { useContext } from 'react';
+import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import Tabber from '../../../components/common/Tabber';
 import GuildMembers from '../../../components/account/Guild/GuildMembers';
 import GuildBonuses from '../../../components/account/Guild/GuildBonuses';
-import { numberWithCommas, prefix, tryToParse } from '@utility/helpers';
-import ProgressBar from '../../../components/common/ProgressBar';
+import { formatNum } from '@utility/helpers';
 import useFormatDate from '@hooks/useFormatDate';
-import Box from '@mui/material/Box';
-import Popper from '@components/common/Popper';
+import { notify } from '@components/common/Overlays/notify';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
 import { OPT } from '@parsers/accountOptions';
+import { getLockedGuild } from '@parsers/guild';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import Notice from '@components/common/Notice';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import Panel from '@components/common/cards/Panel';
+import useTabIndex from '@hooks/useTabIndex';
 
 const Guild = () => {
   const { state } = useContext(AppContext);
   const formatDate = useFormatDate();
-  const { guild } = state?.account || {};
-  const [dataTimestamp, setDataTimestamp] = useState([]);
-  const [anchorEl, setAnchorEl] = React.useState(null);
-  const [popperMessage, setPopperMessage] = React.useState(null);
-  const [error, setError] = useState('');
+  const tabs = ['Members', 'Bonuses'];
+  const [tabIndex] = useTabIndex(tabs);
+  const guildFailed = isSectionFailed(state?.account, 'guild');
+  const guild = guildFailed ? getLockedGuild() : state?.account?.guild;
+  const members = (guild?.members ?? []).filter((member) => member?.name);
+  const hasMembers = !guildFailed && members.length > 0;
+  // The snapshots are the player's data, kept under the old key; no default, so a visit writes nothing
+  const [stored, setStored] = useLocalStorage({ key: 'guild' });
+  // Older saves kept one snapshot as a plain object
+  const snapshots = Array.isArray(stored) ? stored : stored ? [stored] : [];
 
-  useEffect(() => {
-    const lsData = tryToParse(localStorage.getItem('guild'));
-    if (lsData) {
-      setDataTimestamp(Array.isArray(lsData) ? lsData : [lsData]);
-    }
-  }, [])
+  const saveSnapshot = () => setStored([...snapshots.slice(snapshots.length >= 3 ? 1 : 0),
+    { timestamp: Date.now(), members: guild?.members }]);
+  const clearSnapshots = () => setStored([]);
 
-  const saveToLS = () => {
-    const timestamp = new Date().getTime();
-    let currentSaves = tryToParse(localStorage.getItem('guild'));
-    let saves
-    if (Array.isArray(currentSaves)) {
-      currentSaves = currentSaves?.length >= 3 ? currentSaves?.slice(1) : currentSaves;
-      saves = [...(currentSaves || []), {
-        timestamp,
-        members: guild?.members
-      }]
-    } else {
-      if (currentSaves) {
-        saves = [currentSaves, {
-          timestamp,
-          members: guild?.members
-        }]
-      } else {
-        saves = [{
-          timestamp,
-          members: guild?.members
-        }]
-      }
-    }
-    setDataTimestamp(saves)
-    localStorage.setItem('guild', JSON.stringify(saves));
-    setError('')
-  }
-
-  const exportToJson = async (e) => {
-    const target = e.currentTarget;
+  const exportToJson = async () => {
     let copied = false;
     try {
       const exportedData = {
@@ -69,64 +48,38 @@ const Guild = () => {
     } catch (e) {
       console.error('exportToJson -> ', e);
     }
-    setPopperMessage(copied ? null : CLIPBOARD_ERROR_MESSAGE);
-    setAnchorEl(target);
+    notify(copied ? 'Copied the guild members to clipboard' : CLIPBOARD_ERROR_MESSAGE);
   }
 
-  const onClear = () => {
-    localStorage.removeItem('guild');
-    setDataTimestamp([]);
-  }
-
-  if (!guild?.unlocked || guild?.members?.length === 0) {
-    return <>
-      <GuildSeo/>
-
-      <Typography variant={'h5'} mb={2}>Guild bonuses</Typography>
-      <GuildBonuses bonuses={guild?.guildBonuses}/>
-    </>
-  }
+  const membersTab = guildFailed ? null : state?.emptyAccount
+    ? <Notice tone={'signin'}>Your guild's members show here once you sign in.</Notice>
+    : !members.length
+      ? <Notice tone={'locked'}>Join a guild in game: its members show here.</Notice>
+      : <Stack gap={3}>
+        <Panel title={'Snapshots'} meta={'Up to 3, kept in this browser: each adds a column of GP earned since it'}>
+          {snapshots.toReversed().map(({ timestamp }, index) => <Panel.KV key={`${timestamp}-${index}`} label={`#${index + 1}`}
+                                                                       value={formatDate(timestamp, { showSeconds: false })}/>)}
+          <Stack direction={'row'} alignItems={'center'} flexWrap={'wrap'} gap={1} sx={{ px: 2, py: 1.25 }}>
+            <Button variant={'contained'} onClick={saveSnapshot}>Save snapshot</Button>
+            <Button onClick={exportToJson}>Export</Button>
+            {snapshots.length ? <Button color={'error'} onClick={clearSnapshots} sx={{ color: 'text.error' }}>Clear all</Button> : null}
+          </Stack>
+        </Panel>
+        <GuildMembers members={guild?.members} saves={snapshots}/>
+      </Stack>;
 
   return <>
     <GuildSeo/>
-    <Stack>
-      <Stack direction={'row'} alignItems={'center'} gap={1}>
-        <img src={`${prefix}data/G2icon${state?.account?.accountOptions?.[OPT.guildIcon]}.png`}
-             alt={'guild-icon'}/>
-        <Typography variant={'h3'}>{state?.account?.accountOptions?.[OPT.guildName]} <Typography component="span"
-                                                                                      variant={'h5'}>({guild?.members?.length} / {guild?.maxMembers})</Typography></Typography>
-      </Stack>
-      <Stack mb={3} sx={{ mb: 1 }} direction={'row'} gap={2} flexWrap={'wrap'}>
-        <CardTitleAndValue title={'Members'} value={`${guild?.members?.length} / ${guild?.maxMembers}`}/>
-        <CardTitleAndValue title={'Exp'}>
-          <ProgressBar boxSx={{ width: 200 }}
-                       percent={guild?.totalGp / Math.round(guild?.levelReq) * 100}
-                       bgColor={'#f3dd4c'}/>
-          <Typography>{numberWithCommas(guild?.totalGp)} / {numberWithCommas(Math.round(guild?.levelReq))}</Typography>
-        </CardTitleAndValue>
-        <CardTitleAndValue title={'Saves (up to 3)'}>
-          <Stack gap={1}>
-            <Box>
-              {[...dataTimestamp].reverse()?.map(({ timestamp }, index) => {
-                return <Typography
-                  key={timestamp + index}>#{index + 1} - {formatDate(new Date(timestamp))}</Typography>
-              })}
-            </Box>
-            <Stack direction={'row'} alignItems={'center'} gap={2}>
-              <Button variant={'contained'} onClick={saveToLS}>Save</Button>
-              <Button variant={'contained'} onClick={exportToJson}>Export</Button>
-              <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)} message={popperMessage ?? undefined}/>
-              <Button variant={'contained'} color={'warning'} onClick={onClear}>Clear
-                all</Button>
-            </Stack>
-            {error ? <Typography color={'error.light'}>{error}</Typography> : null}
-          </Stack>
-        </CardTitleAndValue>
-      </Stack>
-    </Stack>
-    <Tabber tabs={['Members', 'Bonuses']}>
-      <GuildMembers members={guild?.members} saves={dataTimestamp}/>
-      <GuildBonuses bonuses={guild?.guildBonuses}/>
+    {guildFailed ? <MissingData name={'Guild'} failed atZero={tabs[tabIndex] === 'Bonuses'}/> : null}
+    {hasMembers ? <PageSummary>
+      <StatTile label={'Guild'} icon={`data/G2icon${state?.account?.accountOptions?.[OPT.guildIcon]}.png`}
+                value={state?.account?.accountOptions?.[OPT.guildName]}/>
+      <StatTile label={'Members'} value={`${formatNum(members.length)} / ${formatNum(guild?.maxMembers ?? 0)}`}/>
+      <StatTile label={'Guild GP'} value={`${formatNum(guild?.totalGp ?? 0)} / ${formatNum(Math.round(guild?.levelReq ?? 0))}`}/>
+    </PageSummary> : null}
+    <Tabber tabs={tabs}>
+      {membersTab}
+      <GuildBonuses bonuses={guild?.guildBonuses} sectionFailed={guildFailed}/>
     </Tabber>
   </>
 };
@@ -136,13 +89,5 @@ const GuildSeo = () => <NextSeo
   description="Keep track of your guild members, gp, bonuses and more"
 />;
 
-const CardTitleAndValue = ({ cardSx, title, value, children }) => {
-  return <Card sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
-    <CardContent>
-      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
-      {value ? <Typography>{value}</Typography> : children}
-    </CardContent>
-  </Card>
-}
 
 export default Guild;

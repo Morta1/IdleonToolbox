@@ -1,58 +1,43 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getBitIndex, notateNumber, prefix } from '@utility/helpers';
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { bitsIcon, superbitFill } from '@utility/gameNotation';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
-const Superbits = ({ superbits }) => {
-  const superBits = superbits?.filter(item => !item.isDuper && !item.isZuper) || [];
-  const duperBits = superbits?.filter(item => item.isDuper && !item.isZuper) || [];
-  const zuperBits = superbits?.filter(item => item.isZuper) || [];
+// The game's fill: } is the superbit's count, { its total in the mode the game's own tooltip draws it in for that
+// superbit, the sentence keeping its own x or %
+const superbitText = ({ description, bonus, totalBonus, originalIndex }) => description
+  ?.replace('}', formatNum(bonus ?? 0))
+  ?.replace('{', superbitFill(originalIndex, totalBonus));
 
-  const renderBits = (bits) => {
-    return bits.map(({ name, description, unlocked, bonus, totalBonus, additionalInfo, cost, originalIndex }, index) => {
-      return <Card key={name + `${index}`} sx={{
-        width: 300,
-        border: unlocked ? '1px solid #81c784' : '',
-        opacity: !unlocked ? 0.5 : 1
-      }}>
-        <CardContent>
-          <Typography>{cleanUnderscore(name.capitalize())}</Typography>
-          <Typography
-            sx={{ mt: 2 }}>{cleanUnderscore(description?.replace('}', bonus)?.replace('{', notateNumber(totalBonus, 'MultiplierInfo').replace('.00', '')))}</Typography>
-          <Stack my={2} direction={'row'} alignItems={'center'} gap={1}>
-            <img src={`${prefix}etc/Bits_${getBitIndex(cost)}.png`} alt={''} />
-            <Typography>{notateNumber(cost, 'bits')}</Typography>
-          </Stack>
-          {additionalInfo ? <Typography sx={{ mt: 2 }}>{cleanUnderscore(additionalInfo)}</Typography> : null}
-        </CardContent>
-      </Card>
-    });
+const GROUPS = [
+  ['Super Bits', (item) => !item?.isDuper && !item?.isZuper],
+  ['Duper Bits', (item) => item?.isDuper && !item?.isZuper],
+  ['Zuper Bits', (item) => item?.isZuper]
+];
+
+const Superbits = ({ superbits, bits }) => {
+  const superbitCard = (upgrade, index) => {
+    const { name, unlocked, additionalInfo, cost } = upgrade;
+    return <ItemCard key={`${name}-${index}`} title={cleanUnderscore(name?.capitalize?.() ?? name)} dimmed={!unlocked}
+                     status={unlocked ? 'done' : undefined} statusLabel={unlocked ? 'Owned' : undefined}
+                     footer={unlocked ? null : <ItemCard.Cost icon={bitsIcon}
+                                                              iconAlt={'Bits'} need={cost ?? 0} have={bits ?? 0}
+                                                              game={'GamingStatType.SuperbitCost'}/>}>
+      <ItemCard.Desc text={superbitText(upgrade)}/>
+      {additionalInfo ? <ItemCard.Desc text={additionalInfo}/> : null}
+    </ItemCard>;
   };
 
-  return <>
-    {superBits.length > 0 && (
-      <Stack gap={2} sx={{ mb: 4 }}>
-        <Typography variant="h6">Super Bits</Typography>
-        <Stack gap={1} direction={'row'} flexWrap={'wrap'} sx={{ maxWidth: 300 * 7 }}>
-          {renderBits(superBits)}
-        </Stack>
-      </Stack>
-    )}
-    {duperBits.length > 0 && (
-      <Stack gap={2} sx={{ mb: 4 }}>
-        <Typography variant="h6">Duper Bits</Typography>
-        <Stack gap={1} direction={'row'} flexWrap={'wrap'} sx={{ maxWidth: 300 * 7 }}>
-          {renderBits(duperBits)}
-        </Stack>
-      </Stack>
-    )}
-    {zuperBits.length > 0 && (
-      <Stack gap={2}>
-        <Typography variant="h6">Zuper Bits</Typography>
-        <Stack gap={1} direction={'row'} flexWrap={'wrap'} sx={{ maxWidth: 300 * 7 }}>
-          {renderBits(zuperBits)}
-        </Stack>
-      </Stack>
-    )}
-  </>
+  return <Stack gap={4}>
+    {GROUPS.map(([title, inGroup]) => {
+      const group = (superbits ?? []).filter(inGroup);
+      return group.length ? <Stack key={title} gap={2}>
+        <Typography variant={'sectionTitle'} component={'h2'}>{title}</Typography>
+        <CardGrid size={'m'}>{group.map(superbitCard)}</CardGrid>
+      </Stack> : null;
+    })}
+  </Stack>;
 };
 
 export default Superbits;

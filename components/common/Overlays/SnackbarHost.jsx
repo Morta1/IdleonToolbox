@@ -1,0 +1,91 @@
+import { useEffect, useRef, useSyncExternalStore } from 'react';
+import { createPortal } from 'react-dom';
+import NextLink from 'next/link';
+import { useRouter } from 'next/compat/router';
+import { Box, Button, Snackbar } from '@mui/material';
+import { visuallyHidden } from '@mui/utils';
+import { closeAllNotices, closeNotice, noticeSnapshot, serverNoticeSnapshot, subscribeNotices } from './notify';
+
+// MUI's fixed bottom center, full width with 8 px sides on a phone, above the anchor ad and, until it is answered, the
+// consent banner (z 9999999), which hid an Undo.
+const BOTTOM_SX = {
+  bottom: {
+    xs: 'calc(var(--nitro-ad-height, 0px) + var(--consent-banner-height, 0px) + 8px)',
+    sm: 'calc(var(--nitro-ad-height, 0px) + var(--consent-banner-height, 0px) + 24px)'
+  }
+};
+// In a phone sheet it goes to the top of the screen, over the backdrop: at the bottom it covered the sheet's
+// actions (Done, Save) for its few seconds.
+const IN_SHEET_SX = { top: 'calc(env(safe-area-inset-top) + 8px)' };
+
+// The path an action's link leads to, to drop the link once the player is on that page.
+const pathOf = (href) => (typeof href === 'string' ? href.split(/[?#]/)[0] : href?.pathname ?? null);
+
+const SnackbarHost = () => {
+  const { notice, open, slot } = useSyncExternalStore(subscribeNotices, noticeSnapshot, serverNoticeSnapshot);
+  const announcer = useRef(null);
+  // compat: null where no router is mounted (tests); the snackbar never shows at build.
+  const router = useRouter();
+  const inSheet = Boolean(slot?.closest?.('.MuiDrawer-paperAnchorBottom'));
+
+  // Read out politely, once. The region is in the page before any message, which screen readers
+  // need. MUI keeps the page aria-hidden until a closing menu or popover has finished leaving, and
+  // a message written under it is never read, so the text waits for that.
+  useEffect(() => {
+    const region = announcer.current;
+    if (!region) return undefined;
+    if (!open) {
+      region.textContent = '';
+      return undefined;
+    }
+    const hidden = region.closest('[aria-hidden="true"]');
+    if (!hidden) {
+      region.textContent = notice.message;
+      return undefined;
+    }
+    const observer = new MutationObserver(() => {
+      if (hidden.getAttribute('aria-hidden') === 'true') return;
+      observer.disconnect();
+      region.textContent = notice.message;
+    });
+    observer.observe(hidden, { attributes: true, attributeFilter: ['aria-hidden'] });
+    return () => observer.disconnect();
+  }, [notice, open, slot]);
+
+  // A notice never outlives its host (tests unmount it between cases).
+  useEffect(() => closeAllNotices, []);
+
+  // "View on dashboard" says nothing once the player is on the dashboard: the message stays, the link goes.
+  const action = notice?.action?.href && router?.pathname && pathOf(notice.action.href) === router.pathname ? null : notice?.action;
+  const close = () => closeNotice(notice?.id);
+  // The action closes the snackbar, and its button with it: the focus goes back to where it came from (an Undo
+  // reached from the page) instead of dropping to the page body.
+  const cameFrom = useRef(null);
+  const button = action
+    ? <Button size="small" component={action.href ? NextLink : 'button'} href={action.href}
+              onFocus={(event) => {
+                cameFrom.current = event.relatedTarget;
+              }}
+              onClick={() => {
+                action.onClick?.();
+                close();
+                if (!action.href && cameFrom.current?.isConnected) cameFrom.current.focus();
+              }}>
+      {action.label}
+    </Button>
+    : null;
+  const content = <>
+    <Box component="span" ref={announcer} role="status" sx={visuallyHidden}/>
+    {/* role none: the region above says it once; the snackbar's own default (alert) would say it again, loudly */}
+    <Snackbar key={notice?.id} open={open} anchorOrigin={{ vertical: inSheet ? 'top' : 'bottom', horizontal: 'center' }}
+              sx={inSheet ? IN_SHEET_SX : BOTTOM_SX} autoHideDuration={action ? 6000 : 4000}
+              onClose={(event, reason) => {
+                if (reason !== 'clickaway') close();
+              }}
+              message={notice?.message} action={button} ContentProps={{ role: 'none' }}/>
+  </>;
+
+  return slot ? createPortal(content, slot) : content;
+};
+
+export default SnackbarHost;

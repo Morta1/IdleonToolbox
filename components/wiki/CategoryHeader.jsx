@@ -1,7 +1,8 @@
 import React from 'react';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { KindArt } from './kind-art';
+import { formatNum } from '@utility/helpers';
 
 // The category pages used to open on a thin line of text and a row of controls, which is most of
 // why they read as empty. This is the band the three explored directions all shared, so it lands
@@ -20,24 +21,18 @@ const BLURB = {
   bubble: 'Every cauldron bubble, its ingredients and its effect.'
 };
 
-const CategoryHeader = ({ kind, count }) => <Card variant={'outlined'}>
-  <CardContent>
-    <Stack direction={'row'} gap={2} alignItems={'center'}>
-      <KindArt kind={kind} size={56}/>
-      <Stack sx={{ minWidth: 0 }}>
-        <Typography variant={'h5'} component={'h2'}>{KIND_PLURALS[kind] || kind}</Typography>
-        <Typography variant={'caption'} color={'text.secondary'}>{BLURB[kind]}</Typography>
-      </Stack>
-      <Stack sx={{ ml: 'auto', textAlign: 'right', flexShrink: 0 }}>
-        <Typography variant={'h5'} sx={{ fontVariantNumeric: 'tabular-nums' }}>
-          {count.toLocaleString('en-US')}
-        </Typography>
-        <Typography variant={'caption'} color={'text.secondary'} textTransform={'uppercase'}>
-          {(KIND_PLURALS[kind] || kind).toLowerCase()}
-        </Typography>
-      </Stack>
-    </Stack>
-  </CardContent>
-</Card>;
+// A plural inside a sentence: lowercase word by word, but an acronym stays as written ("NPCs", "dungeon RNG items").
+export const pluralInSentence = (plural) => plural.split(' ').map((word) => (/[A-Z].*[A-Z]/.test(word) ? word : word.toLowerCase())).join(' ');
+
+const CategoryHeader = ({ kind, count }) => <Stack direction={'row'} gap={2} alignItems={'center'}>
+  <KindArt kind={kind} size={56}/>
+  <Stack sx={{ minWidth: 0 }}>
+    <Typography variant={'pageTitle'} component={'h2'}>{KIND_PLURALS[kind] || kind}</Typography>
+    <Typography variant={'body2'} color={'text.secondary'}>
+      {formatNum(count, 'whole')} {pluralInSentence(KIND_PLURALS[kind] || kind)}
+    </Typography>
+    {BLURB[kind] ? <Typography variant={'caption'} color={'text.secondary'}>{BLURB[kind]}</Typography> : null}
+  </Stack>
+</Stack>;
 
 export default CategoryHeader;

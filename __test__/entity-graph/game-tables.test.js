@@ -18,6 +18,7 @@ import * as l6 from './game-tables/l6.js';
 import * as l7 from './game-tables/l7.js';
 import * as l8 from './game-tables/l8.js';
 import { grownLeftovers, leftovers } from '../helpers/wiki-leftovers.js';
+import { expectNoBreaks } from '../helpers/sweep';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
@@ -64,15 +65,17 @@ const shift = (value, table) => {
 const render = (key, input) => JSON.stringify(dropUnfilledSentences(READERS[key](input)));
 const full = Object.fromEntries(KEYS.map((key) => [key, render(key, data)]));
 const nodeIds = (rendered) => Object.keys(JSON.parse(rendered)).sort();
+// Each of these renders every table: seconds alone, and more on a loaded machine.
+const SWEEP_TIMEOUT = 60_000;
 
 describe('game tables the wiki reads', () => {
   it('has every reader table in the data', () => {
     expect(KEYS.filter((key) => data[homeOf(key)]?.[key] === undefined)).toEqual([]);
   });
 
-  it.each(KEYS)('reads %s', (key) => {
-    expect(render(key, withTable(key, shift(data[homeOf(key)][key], key)))).not.toEqual(full[key]);
-  });
+  it('reads every table it lists: shifting the table changes what the reader writes', () => {
+    expectNoBreaks(KEYS, (key) => key, (key) => (render(key, withTable(key, shift(data[homeOf(key)][key], key))) === full[key] ? ['reads nothing from it'] : []));
+  }, SWEEP_TIMEOUT);
 
   it('reads no table without a reader', () => {
     const roots = ['scripts/entity-graph', 'utility/wiki', 'components/wiki'].map((dir) => path.join(process.cwd(), dir));
@@ -103,30 +106,44 @@ describe('game tables the wiki reads', () => {
 
   // Owner decisions 4: an absent table leaves its piece out and is reported, never thrown. The piece goes whole: no page
   // prints a raw placeholder, `null` or NaN that the same page with every table present does not.
-  it.each(KEYS)('leaves out what %s fills when it is absent', (key) => {
-    resetMissingTables();
-    const out = render(key, withTable(key, undefined));
-    expect(out).not.toEqual(full[key]);
-    // Only the piece goes: every node is still built.
-    expect(nodeIds(out)).toEqual(nodeIds(full[key]));
-    expect(missingTables()).toEqual([key]);
-    expect(grownLeftovers(leftovers(JSON.parse(full[key])), leftovers(JSON.parse(out)))).toEqual([]);
-    resetMissingTables();
-  });
+  it('leaves out what a table fills when it is absent', () => {
+    try {
+      expectNoBreaks(KEYS, (key) => key, (key) => {
+        resetMissingTables();
+        const out = render(key, withTable(key, undefined));
+        const missing = missingTables();
+        return [
+          ...(out === full[key] ? ['nothing left out'] : []),
+          // Only the piece goes: every node is still built.
+          ...(nodeIds(out).join() === nodeIds(full[key]).join() ? [] : ['a node went with it']),
+          ...(missing.join() === key ? [] : [`reported ${missing}`]),
+          ...grownLeftovers(leftovers(JSON.parse(full[key])), leftovers(JSON.parse(out))).map((leftover) => `printed ${leftover}`)
+        ];
+      });
+    } finally {
+      resetMissingTables();
+    }
+  }, SWEEP_TIMEOUT);
 
   // z-processing writes a list locator that stopped matching as `{ <entry>: null }`: the table is there, the entry is not.
   // The build names it like a missing table, since one entry can list a whole page family.
   const ENTRIES = Object.keys(data.wikiTables.listIndexes);
   const everyList = JSON.stringify(dropUnfilledSentences(l8.everyListReader(data)));
-  it.each(ENTRIES)('names listIndexes.%s when that entry is gone, and prints no placeholder for it', (entry) => {
-    resetMissingTables();
+  it('names a listIndexes entry that is gone, and prints no placeholder for it', () => {
     try {
-      const out = dropUnfilledSentences(l8.everyListReader(withTable('listIndexes', { ...data.wikiTables.listIndexes, [entry]: null })));
-      expect([missingTables(), grownLeftovers(leftovers(JSON.parse(everyList)), leftovers(out))]).toEqual([[`listIndexes.${entry}`], []]);
+      expectNoBreaks(ENTRIES, (entry) => entry, (entry) => {
+        resetMissingTables();
+        const out = dropUnfilledSentences(l8.everyListReader(withTable('listIndexes', { ...data.wikiTables.listIndexes, [entry]: null })));
+        const missing = missingTables();
+        return [
+          ...(missing.join() === `listIndexes.${entry}` ? [] : [`reported ${missing}`]),
+          ...grownLeftovers(leftovers(JSON.parse(everyList)), leftovers(out)).map((leftover) => `printed ${leftover}`)
+        ];
+      });
     } finally {
       resetMissingTables();
     }
-  });
+  }, SWEEP_TIMEOUT);
 });
 
 describe('the client constants module', () => {
@@ -161,20 +178,28 @@ describe('the client constants module', () => {
 
   // Owner decisions 4 and 6: an absent client table is left out of the module and named; the number formatting
   // tables are the exception, and stop the build instead.
-  it.each(CLIENT_TABLES.filter((key) => !CORE_TABLES.includes(key)))('leaves %s out of the module when it is absent', (key) => {
+  it('leaves an absent client table out of the module, and names it', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     try {
-      expect(Object.keys(gameConstants(withTable(key, undefined)))).toEqual(CLIENT_TABLES.filter((name) => name !== key));
-      expect(warn.mock.calls).toEqual([[`missing gameTables: ${key} (left out of their pages; run npm run test:analysis in z-processing)`]]);
+      expectNoBreaks(CLIENT_TABLES.filter((key) => !CORE_TABLES.includes(key)), (key) => key, (key) => {
+        warn.mockClear();
+        resetMissingTables();
+        const written = Object.keys(gameConstants(withTable(key, undefined)));
+        const warned = warn.mock.calls.map(([message]) => message);
+        return [
+          ...(written.join() === CLIENT_TABLES.filter((name) => name !== key).join() ? [] : [`wrote ${written}`]),
+          ...(warned.join() === `missing gameTables: ${key} (left out of their pages; run npm run test:analysis in z-processing)` ? [] : [`warned ${warned}`])
+        ];
+      });
     } finally {
       warn.mockRestore();
       resetMissingTables();
     }
   });
 
-  it.each(CORE_TABLES)('stops the build when %s is absent', (key) => {
+  it('stops the build when a core table is absent', () => {
     try {
-      expect(() => gameConstants(withTable(key, undefined))).toThrow(`missing gameTables: ${key}`);
+      for (const key of CORE_TABLES) expect(() => gameConstants(withTable(key, undefined))).toThrow(`missing gameTables: ${key}`);
     } finally {
       resetMissingTables();
     }

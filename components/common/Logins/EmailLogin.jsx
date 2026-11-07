@@ -1,12 +1,14 @@
-import { Stack, TextField } from '@mui/material';
-import Button from '@mui/material/Button';
+import { Link, Stack, TextField } from '@mui/material';
 import React, { useContext, useState } from 'react';
 import { loadFirebase } from '../../../firebase/lazy';
 import { AppContext } from '../context/AppProvider';
 import { describeLoginError, toLoginError } from '@utility/loginErrors';
 import LoginErrorAlert from './LoginErrorAlert';
+import FlowAction from './FlowAction';
+import { FIELD_SX, FLOW_SX } from './look';
+import { touchTarget } from '../../../styles/theme/theme';
 
-const EmailLogin = () => {
+const EmailLogin = ({ onStart }) => {
   const { state, dispatch, waitingForAuth, setWaitingForAuth } = useContext(AppContext);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -30,6 +32,7 @@ const EmailLogin = () => {
   const handleSubmit = async () => {
     setSubmitted(true);
     if (email && password) {
+      onStart?.();
       setWaitingForAuth(true);
       let data;
       try {
@@ -46,24 +49,25 @@ const EmailLogin = () => {
   }
 
   return (
-    <Stack gap={3}>
-      <TextField inputProps={{ autoComplete: 'email' }} value={email} error={submitted && !email} name={'email'}
-                 onChange={handleChange}
-                 onKeyDown={handleKeyDown}
-                 label={'Email'}/>
-      <TextField value={password} error={submitted && !password} name={'password'}
-                 onChange={handleChange}
-                 onKeyDown={handleKeyDown}
-                 label={'Password'}
-                 inputProps={{ type: 'password', autoComplete: 'current-password' }}/>
-      <Button 
-        onClick={handleSubmit} 
-        loading={waitingForAuth} 
-        variant={'contained'}
-      >
-        Login
-      </Button>
-      <LoginErrorAlert error={state?.loginError || error}/>
+    <Stack sx={FLOW_SX}>
+      <Stack gap={2}>
+        <TextField sx={FIELD_SX} inputProps={{ autoComplete: 'email', type: 'email', inputMode: 'email' }} value={email} error={submitted && !email} name={'email'}
+                   onChange={handleChange}
+                   onKeyDown={handleKeyDown}
+                   label={'Email'}/>
+        <TextField sx={FIELD_SX} value={password} error={submitted && !password} name={'password'}
+                   onChange={handleChange}
+                   onKeyDown={handleKeyDown}
+                   label={'Password'}
+                   inputProps={{ type: 'password', autoComplete: 'current-password' }}/>
+      </Stack>
+      <LoginErrorAlert sx={{ mt: 2 }} error={state?.loginError || error}/>
+      {/* Under the button as the board draws it; on a phone above it, where the button sticks to the bottom */}
+      <FlowAction onClick={handleSubmit} loading={waitingForAuth} sx={{ order: { xs: 1, sm: 0 } }}>Sign in</FlowAction>
+      <Link href="https://www.reddit.com/r/idleon/comments/12ccw2h/steam_email/" target="_blank" rel="noopener"
+            sx={{ mt: 2, alignSelf: 'center', order: { xs: 0, sm: 1 }, fontSize: 13.5, fontWeight: 500, ...touchTarget }}>
+        Forgot which email you used?
+      </Link>
     </Stack>
   );
 };

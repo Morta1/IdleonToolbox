@@ -1,4 +1,4 @@
-import { tryToParse, commaNotation, notateNumber } from '@utility/helpers';
+import { tryToParse, gameFill } from '@utility/helpers';
 import { statues as statuesList, zenithMarket } from '@website-data';
 import { getTalentBonus, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
@@ -74,8 +74,8 @@ const getZenithMarket = (rawSpelunking: any) => {
     const rawCost = level + (bonusObj?.x1 || 0) * Math.pow(bonusObj?.x2 || 1, level);
     const cost = rawCost < 1e6 ? Math.floor(rawCost) : rawCost;
     const description = bonusObj?.description
-      ?.replace(/\{/g, commaNotation(bonus))
-      ?.replace(/\}/g, notateNumber(1 + bonus / 100, 'MultiplierInfo'));
+      ?.replace(/\{/g, gameFill(bonus, 'Comma'))
+      ?.replace(/\}/g, gameFill(1 + bonus / 100, 'MultiplierInfo'));
 
     // Calculate cost to max
     const maxLevel = bonusObj?.x3 || 0;

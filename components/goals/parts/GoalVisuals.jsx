@@ -1,9 +1,10 @@
 import React from 'react';
 import { Box, IconButton, LinearProgress, Stack, Typography } from '@mui/material';
 import { visuallyHidden } from '@mui/utils';
-import { IconCheck, IconCircle, IconStar, IconStarFilled } from '@tabler/icons-react';
-import { getCoinsArray, prefix } from '@utility/helpers';
+import { IconCheck, IconCircle, IconPin, IconPinFilled } from '@tabler/icons-react';
+import { getCoinsArray } from '@utility/helpers';
 import CoinDisplay from '@components/common/CoinDisplay';
+import GameIcon from '@components/common/GameIcon';
 import { swatchColor } from '@utility/goals/icons';
 import { canBuy, CAN_BUY_NOW, costAmount, costFaceText, costText, goalFace, goalTitle, REACHED, valueColor } from './format';
 
@@ -12,10 +13,14 @@ export const GOAL_LIST_WIDTH = { xs: '100%', md: 880 };
 
 // One line of a row or card that ends in an ellipsis instead of wrapping
 export const LINE_SX = { overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', minWidth: 0 };
+// The same from 600 px. On a phone it wraps: an ellipsis there cut the number off a goal and two names to one.
+export const WRAP_ON_PHONE_SX = {
+  overflow: { xs: 'visible', sm: 'hidden' }, textOverflow: { xs: 'clip', sm: 'ellipsis' }, whiteSpace: { xs: 'normal', sm: 'nowrap' }, minWidth: 0
+};
 
 const HEXAGON = 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)';
 
-export const GoalIcon = ({ src, alt, size = 28 }) => {
+export const GoalIcon = ({ src, alt, size = 32 }) => {
   const swatch = swatchColor(src);
   return (
     <Box sx={{ width: size, height: size, flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -24,9 +29,7 @@ export const GoalIcon = ({ src, alt, size = 28 }) => {
         <Box role={alt ? 'img' : undefined} aria-label={alt || undefined}
              sx={{ width: size * 0.8, height: size * 0.9, clipPath: HEXAGON, bgcolor: swatch }}/>
       ) : null}
-      {src && !swatch ? (
-        <Box component="img" src={`${prefix}${src}.png`} alt={alt} sx={{ maxWidth: size, maxHeight: size, objectFit: 'contain' }}/>
-      ) : null}
+      {src && !swatch ? <GameIcon src={`${src}.png`} size={size} alt={alt}/> : null}
     </Box>
   );
 };
@@ -34,7 +37,6 @@ export const GoalIcon = ({ src, alt, size = 28 }) => {
 // A one-line text button (Edit, Remove on a row or card): on a phone a 40px target whose negative margins keep the
 // one-line footprint
 export const COMPACT_BUTTON_SX = (theme) => ({
-  textTransform: 'none',
   minWidth: 0,
   py: 0,
   lineHeight: '18px',
@@ -58,17 +60,17 @@ export const GoalBar = ({ progress, reached, ready = false, label, sx }) => {
   );
 };
 
-// Pins a goal in one click: a gold star when pinned, a faint outline otherwise. Without onToggle it only marks a pin;
+// Pins a goal in one click: filled in the primary color as Guilds and the page's Pin read, a faint outline otherwise. Without onToggle it only marks a pin;
 // keepSlot then holds the button's width so the row lines up with rows that have one
-export const PinStar = ({ pinned, onToggle, keepSlot = false, size = 16 }) => {
+export const GoalPin = ({ pinned, onToggle, keepSlot = false, size = 16 }) => {
   if (!onToggle) {
     if (!pinned && !keepSlot) return null;
     return (
       <Box component="span" sx={{
-        display: 'inline-flex', justifyContent: 'center', color: 'warning.main', flexShrink: 0,
+        display: 'inline-flex', justifyContent: 'center', color: 'primary.main', flexShrink: 0,
         ...(keepSlot && { width: size + 8 })
       }}>
-        {pinned ? <IconStarFilled size={size} aria-label="Pinned" role="img"/> : null}
+        {pinned ? <IconPinFilled size={size} aria-label="Pinned" role="img"/> : null}
       </Box>
     );
   }
@@ -79,10 +81,10 @@ export const PinStar = ({ pinned, onToggle, keepSlot = false, size = 16 }) => {
                   onToggle();
                 }}
                 sx={{
-                  p: 0.5, flexShrink: 0, color: pinned ? 'warning.main' : 'text.disabled',
-                  '&:hover, &:focus-visible': { color: 'warning.main' }
+                  p: 0.5, flexShrink: 0, color: pinned ? 'primary.main' : 'text.muted',
+                  '&:hover, &:focus-visible': { color: 'primary.main' }
                 }}>
-      {pinned ? <IconStarFilled size={size}/> : <IconStar size={size}/>}
+      {pinned ? <IconPinFilled size={size}/> : <IconPin size={size}/>}
     </IconButton>
   );
 };
@@ -91,7 +93,7 @@ export const PinStar = ({ pinned, onToggle, keepSlot = false, size = 16 }) => {
 export const GoalMark = ({ mark, size = 16 }) => {
   if (mark === 'check') {
     return (
-      <Box component="span" sx={{ color: 'success.main', display: 'inline-flex', flexShrink: 0 }}>
+      <Box component="span" sx={{ color: 'text.success', display: 'inline-flex', flexShrink: 0 }}>
         <IconCheck size={size} aria-label={REACHED} role="img"/>
       </Box>
     );
@@ -106,15 +108,13 @@ export const GoalMark = ({ mark, size = 16 }) => {
   return null;
 };
 
-const CURRENCY_ICON_SX = { width: 16, height: 16, objectFit: 'contain', flexShrink: 0 };
-
 // One amount of a price's currency as the page draws it: coin tiers (the top `tiers` of them), or the currency icon
 // and the amount
 const CostAmount = ({ cost, n, tiers }) => {
   if (cost.display === 'coins') return <CoinDisplay dense money={getCoinsArray(n)} maxCoins={tiers}/>;
   return (
     <Box component="span" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.25 }}>
-      <Box component="img" src={`${prefix}${cost.icon(n)}.png`} alt="" sx={CURRENCY_ICON_SX}/>
+      <GameIcon src={`${cost.icon(n)}.png`} size={16} alt=""/>
       {costAmount(cost, n)}
     </Box>
   );
@@ -165,7 +165,7 @@ export const GoalProgress = ({ view, sx }) => {
   return (
     <Stack direction="row" alignItems="center" gap={1} sx={sx}>
       <GoalBar progress={view.progress} reached={reached} label={goalTitle(view)} sx={{ flex: 1, minWidth: 40 }}/>
-      <Typography variant="caption" color={reached ? 'success.main' : 'text.secondary'}
+      <Typography variant="caption" color={reached ? 'text.success' : 'text.secondary'}
                   sx={{ minWidth: 36, textAlign: 'right' }}>
         {face.aside}
       </Typography>

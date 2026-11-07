@@ -46,9 +46,6 @@ describe('Pet Mart+ (CompanionLVz / CompLV2)', () => {
     const { list } = getCompanions({ l: ['1,1', '2,1,0,0,', '3,1,0,0,nope'] }, []);
     for (const index of [1, 2, 3]) {
       expect(list[index].level).toBe(0);
-      expect(Number.isNaN(list[index].level)).toBe(false);
-      expect(list[index].level).not.toBeUndefined();
-      expect(Boolean(list[index].level)).toBe(false);
       expect(list[index].upgraded).toBe(false);
     }
   });

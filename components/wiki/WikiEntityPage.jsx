@@ -15,7 +15,7 @@ const WikiEntityPage = ({ slice, seoTitle, seoDescription }) => {
   const go = useWikiGo();
 
   return <WikiRail current={slice.node?.kind}>
-    <Box sx={{ maxWidth: 1200 }}>
+    <Box>
       <NextSeo title={seoTitle} description={seoDescription}/>
       {/* Keyed by entity: Next keeps this page mounted between two entity pages, and a level typed on
           one would otherwise open the next at that level. */}

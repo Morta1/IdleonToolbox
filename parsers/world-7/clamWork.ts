@@ -1,5 +1,5 @@
 import type { IdleonData, Account } from '../types';
-import { tryToParse, notateNumber, commaOrBig } from '@utility/helpers';
+import { gameFill, tryToParse } from '@utility/helpers';
 import { generalSpelunky, gameTables } from '@website-data';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
 import { getScurgeExp, getScurgeLevel, getScurgeUpgradeLevel, isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
@@ -393,7 +393,7 @@ const formatClamWorkDescription = (description: string, index: number, { bonus, 
   }
 
   const multiplier = 1 + bonus / 100;
-  const multiplierFormatted = notateNumber(multiplier, 'MultiplierInfo');
+  const multiplierFormatted = gameFill(multiplier, 'MultiplierInfo');
   text = text.replace(/\}/g, multiplierFormatted as string);
 
   // Replace $ with special values based on index
@@ -401,7 +401,7 @@ const formatClamWorkDescription = (description: string, index: number, { bonus, 
     let dollarValue = '';
 
     if (index === 0) {
-      dollarValue = '' + notateNumber(pearlValue, 'Big');
+      dollarValue = gameFill(pearlValue, 'Big');
     } else if (index === 1) {
       dollarValue = '' + Math.floor(mobs);
     } else if (index === 2 || index === 4) {
@@ -429,18 +429,18 @@ interface ScurgeDescriptionData {
 const formatScurgeDescription = (description: string, index: number,
                                  { bonus, expGain, startingExp, scurgeState }: ScurgeDescriptionData): string => {
   if (!description) return description;
-  let text = description.replace(/\}/g, String(notateNumber(1 + bonus / 100, 'MultiplierInfo')).replace(/#/g, ''));
+  let text = description.replace(/\}/g, gameFill(1 + bonus / 100, 'MultiplierInfo'));
   if (index === 0) {
-    text = text.replace('$', String(commaOrBig(expGain)));
+    text = text.replace('$', gameFill(expGain, expGain < 1e6 ? 'Comma' : 'Big'));
   } else if (index === 2) {
-    text = text.replace('$', String(notateNumber(Math.pow(100, scurgeState.levels?.[2] ?? 0), 'Big')));
+    text = text.replace('$', gameFill(Math.pow(100, scurgeState.levels?.[2] ?? 0), 'Big'));
   } else if (index === 3) {
     text = text.replace('$', '' + Math.floor(1e4 * (1 - 1 / (1 + bonus / 100))) / 100);
   } else if (index === 6) {
     text = text.replace('$', '' + Math.floor(1e4 * startingExp) / 100);
   } else if (index === 7) {
     // solo: no other real players on the map
-    text = text.replace('$', String(notateNumber(1, 'MultiplierInfo')).replace(/#/g, ''));
+    text = text.replace('$', gameFill(1, 'MultiplierInfo'));
   }
   return text;
 };

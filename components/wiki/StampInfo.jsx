@@ -26,11 +26,11 @@ const stampGroups = (node) => {
   const coins = node.sellPrice ? getCoinsArray(node.sellPrice).filter(([, quantity]) => quantity > 0) : [];
 
   return [
-    { title: 'Stamp Info', rows },
+    { title: 'Stamp info', rows },
     {
-      title: 'Other Info',
+      title: 'Other info',
       rows: coins.length > 0
-        ? [{ label: 'Sell Price', value: <CoinDisplay title={''} variant={'horizontal'} centered={false} money={coins}/> }]
+        ? [{ label: 'Sell price', value: <CoinDisplay title={''} variant={'horizontal'} centered={false} money={coins}/> }]
         : []
     }
   ];

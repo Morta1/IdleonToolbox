@@ -5,7 +5,7 @@ import { describe, expect, it, beforeEach } from 'vitest';
 import { render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import GenericUpgradeOptimizer from '@components/account/Misc/class-specific/GenericUpgradeOptimizer';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 const resourceNames = { 0: 'Purple', 1: 'Brown' };
 
@@ -27,22 +27,33 @@ const buildRow = ({ hoardingPercentChange = 0, grossPercentChange = 1, cost = 1e
   }]
 });
 
-const renderOptimizer = (rows) => render(
-  <ThemeProvider theme={darkTheme}>
-    <GenericUpgradeOptimizer
-      character={{ name: 'Tester' }}
-      account={{ tesseract: { tachyons: [{ name: 'Purple', value: 1e9 }, { name: 'Brown', value: 1e9 }] } }}
-      getOptimizedUpgradesFn={() => rows}
-      upgradeCategories={{ damage: { name: 'Damage', stats: ['damage'], upgradeIndices: [6] } }}
-      resourceNames={resourceNames}
-      resourceKey="tesseract.tachyons"
-      resourceImagePrefix="Tach"
-      upgradeImagePrefix="ArcaneUpg"
-      getResourceType={(upgrade) => upgrade.x3}
-      tooltipText="test tooltip"
-    />
-  </ThemeProvider>
-);
+const TACHYONS = { tesseract: { tachyons: [{ name: 'Purple', value: 1e9 }, { name: 'Brown', value: 1e9 }] } };
+
+// calls: the options the optimizer was asked with, one per render.
+const renderOptimizer = (rows, { account = TACHYONS, ...props } = {}) => {
+  const calls = [];
+  const view = render(
+    <ThemeProvider theme={theme}>
+      <GenericUpgradeOptimizer
+        character={{ name: 'Tester' }}
+        account={account}
+        getOptimizedUpgradesFn={(character, plannedAccount, category, max, options) => {
+          calls.push(options);
+          return rows;
+        }}
+        upgradeCategories={{ damage: { name: 'Damage', stats: ['damage'], upgradeIndices: [6] } }}
+        resourceNames={resourceNames}
+        resourceKey="tesseract.tachyons"
+        resourceImagePrefix="Tach"
+        upgradeImagePrefix="ArcaneUpg"
+        getResourceType={(upgrade) => upgrade.x3}
+        tooltipText="test tooltip"
+        {...props}
+      />
+    </ThemeProvider>
+  );
+  return { ...view, calls };
+};
 
 const withReason = (rows, reason) => {
   const list = [...rows];
@@ -55,21 +66,14 @@ describe('GenericUpgradeOptimizer empty state', () => {
     window.localStorage.clear();
   });
 
-  it('tells the user to hoard when holding beats every affordable purchase', () => {
-    const { container } = renderOptimizer(withReason([], 'hoarding'));
-    expect(container.textContent).toContain('Build up your stash instead');
-    expect(container.textContent).not.toContain('No viable upgrades found');
-  });
-
-  it('keeps the plain message when there is genuinely nothing to buy', () => {
-    const { container } = renderOptimizer(withReason([], 'no-candidates'));
-    expect(container.textContent).toContain('No viable upgrades found');
-    expect(container.textContent).not.toContain('Build up your stash');
-  });
-
-  it('falls back to the plain message when the optimizer reports no reason', () => {
-    const { container } = renderOptimizer([]);
-    expect(container.textContent).toContain('No viable upgrades found');
+  it.each([
+    ['tells the user to hoard when holding beats every affordable purchase', 'hoarding', 'Build up your stash', 'No viable upgrades found'],
+    ['keeps the plain message when there is genuinely nothing to buy', 'no-candidates', 'No viable upgrades found', 'Build up your stash'],
+    ['falls back to the plain message when the optimizer reports no reason', undefined, 'No viable upgrades found', 'Build up your stash']
+  ])('%s', (_, reason, shown, hidden) => {
+    const { container } = renderOptimizer(withReason([], reason));
+    expect(container.textContent).toContain(shown);
+    expect(container.textContent).not.toContain(hidden);
   });
 
   it('notes the early stop when a partial list came back', () => {
@@ -87,8 +91,8 @@ describe('GenericUpgradeOptimizer hoarding breakdown', () => {
     const { container } = renderOptimizer([buildRow({ grossPercentChange: 2.1, hoardingPercentChange: 1.4 })]);
     const text = container.textContent;
     // net stays the headline number
-    expect(text).toContain('+0.70%');
-    expect(text).toContain('gross +2.10%, hoarding -1.40%, net +0.70%');
+    expect(text).toContain('+0.7%');
+    expect(text).toContain('gross +2.1%, hoarding -1.4%, net +0.7%');
     // cost 1e6 at the default 1/hour rebuilds over a century, which is a placeholder rate, not a real one
     expect(text).not.toMatch(/stash back in/);
   });
@@ -99,30 +103,27 @@ describe('GenericUpgradeOptimizer hoarding breakdown', () => {
     expect(container.textContent).toMatch(/stash back in/);
   });
 
-  it('stays quiet when hoarding costs nothing', () => {
-    const { container } = renderOptimizer([buildRow({ grossPercentChange: 2.1, hoardingPercentChange: 0 })]);
-    expect(container.textContent).toContain('+2.10%');
-    expect(container.textContent).not.toContain('hoarding');
-  });
-
   it('shows a tiny absolute loss when it still eats a real share of the gain', () => {
     // absolute loss is minute, but it swallows 90% of the gain - the case the old fixed
     // 0.005pp threshold hid from exactly the accounts with the deepest stashes
     const { container } = renderOptimizer([buildRow({ grossPercentChange: 0.001, hoardingPercentChange: 0.0009 })]);
-    expect(container.textContent).toContain('gross +0.0010%, hoarding -0.0009%, net +0.0001%');
+    expect(container.textContent).toContain('gross +0.001%, hoarding -0.0009%, net +0.0001%');
   });
 
-  it('stays quiet when the loss is large in absolute terms but trivial next to the gain', () => {
-    const { container } = renderOptimizer([buildRow({ grossPercentChange: 100, hoardingPercentChange: 0.5 })]);
-    expect(container.textContent).not.toContain('hoarding');
-  });
-
-  it('tolerates rows from an optimizer that reports no hoarding data', () => {
+  const withoutHoardingData = () => {
     const row = buildRow({ grossPercentChange: 2.1 });
     delete row.statChanges[0].grossPercentChange;
     delete row.statChanges[0].hoardingPercentChange;
-    const { container } = renderOptimizer([row]);
-    expect(container.textContent).toContain('+2.10%');
+    return row;
+  };
+
+  it.each([
+    ['hoarding costs nothing', () => buildRow({ grossPercentChange: 2.1, hoardingPercentChange: 0 }), '+2.1%'],
+    ['the loss is large in absolute terms but trivial next to the gain', () => buildRow({ grossPercentChange: 100, hoardingPercentChange: 0.5 }), '+99.5%'],
+    ['the optimizer reports no hoarding data', withoutHoardingData, '+2.1%']
+  ])('stays quiet when %s', (_, row, headline) => {
+    const { container } = renderOptimizer([row()]);
+    expect(container.textContent).toContain(headline);
     expect(container.textContent).not.toContain('hoarding');
   });
 });
@@ -183,19 +184,12 @@ describe('GenericUpgradeOptimizer unlock marker', () => {
     window.localStorage.clear();
   });
 
-  it('marks a row that is still locked in game and says how far off it is', () => {
-    const { container } = renderOptimizer([
-      buildRow({}),
-      { ...buildRow({}), lockedNow: true, unlocksAfterStep: 1 }
-    ]);
-    expect(container.textContent).toContain('Unlocks after 1 purchase');
-  });
-
-  it('pluralises the purchase count', () => {
-    const { container } = renderOptimizer([
-      { ...buildRow({}), lockedNow: true, unlocksAfterStep: 7 }
-    ]);
-    expect(container.textContent).toContain('Unlocks after 7 purchases');
+  it.each([
+    [1, 'Unlocks after 1 purchase'],
+    [7, 'Unlocks after 7 purchases']
+  ])('marks a row still locked in game and says how far off it is: %d', (unlocksAfterStep, text) => {
+    const { container } = renderOptimizer([buildRow({}), { ...buildRow({}), lockedNow: true, unlocksAfterStep }]);
+    expect(container.textContent).toContain(text);
   });
 
   it('leaves already unlocked rows unmarked', () => {
@@ -211,78 +205,24 @@ const buildReductionAccount = ({ bonus, spent }) => ({
   accountOptions: { 480: spent }
 });
 
-const renderWithReductions = ({ bonus, spent, usesMasterclassReduction = true }) => {
-  const calls = [];
-  render(
-    <ThemeProvider theme={darkTheme}>
-      <GenericUpgradeOptimizer
-        character={{ name: 'Tester' }}
-        account={buildReductionAccount({ bonus, spent })}
-        getOptimizedUpgradesFn={(character, account, category, max, options) => {
-          calls.push(options);
-          return [];
-        }}
-        upgradeCategories={{ damage: { name: 'Damage', stats: ['damage'], upgradeIndices: [6] } }}
-        resourceNames={resourceNames}
-        resourceKey="tesseract.tachyons"
-        resourceImagePrefix="Tach"
-        upgradeImagePrefix="ArcaneUpg"
-        getResourceType={(upgrade) => upgrade.x3}
-        usesMasterclassReduction={usesMasterclassReduction}
-        tooltipText="test tooltip"
-      />
-    </ThemeProvider>
-  );
-  return calls;
-};
-
 describe('GenericUpgradeOptimizer masterclass reductions', () => {
   beforeEach(() => {
     window.localStorage.clear();
   });
 
-  it('only offers the reductions the legend talent has left', () => {
-    // the game discounts while accountOptions[480] < the talent bonus, so 8 granted and 12
-    // already spent means nothing is left to discount
-    const calls = renderWithReductions({ bonus: 8, spent: 12 });
-    expect(calls.at(-1).masterClassReduction).toBe(0);
-  });
-
-  it('counts the unspent grant when purchases remain', () => {
-    const calls = renderWithReductions({ bonus: 8, spent: 3 });
-    expect(calls.at(-1).masterClassReduction).toBe(5);
-  });
-
-  it('ignores the seed the old build froze into storage', () => {
-    // the pre-override key was written on first render and never followed the day rolling over
-    seedSetting('masterClassReduction', 8);
-    const calls = renderWithReductions({ bonus: 8, spent: 12 });
-    expect(calls.at(-1).masterClassReduction).toBe(0);
-  });
-
-  it('still honours an explicit manual override', () => {
-    seedSetting('masterClassReductionOverride', 4);
-    const calls = renderWithReductions({ bonus: 8, spent: 12 });
-    expect(calls.at(-1).masterClassReduction).toBe(4);
-  });
-
-  it('treats a cleared override as "follow the live count"', () => {
-    seedSetting('masterClassReductionOverride', null);
-    const calls = renderWithReductions({ bonus: 8, spent: 3 });
-    expect(calls.at(-1).masterClassReduction).toBe(5);
-  });
-
-  it('lets the override reach past today, for a plan that spans days', () => {
-    // the grant is per day and shared by every masterclass, so a plan spanning days gets it back -
-    // capping at today's leftovers quotes every later step 5x above what the game charges
-    seedSetting('masterClassReductionOverride', 200);
-    const calls = renderWithReductions({ bonus: 8, spent: 12 });
-    expect(calls.at(-1).masterClassReduction).toBe(200);
-  });
-
-  it('never invents an allowance for an account without the legend talent', () => {
-    const calls = renderWithReductions({ bonus: 0, spent: 0 });
-    expect(calls.at(-1).masterClassReduction).toBe(0);
+  // The game discounts while accountOptions[480] < the talent bonus. The old key was written on first render and never
+  // followed the day rolling over. The grant is per day and shared by every masterclass, so a plan spanning days gets it
+  // back: capping an override at today's leftovers quotes every later step 5x above what the game charges.
+  it.each([
+    ['nothing is left of the grant', {}, 12, 0],
+    ['the unspent grant while purchases remain', {}, 3, 5],
+    ['the live count over the seed the old build froze into storage', { masterClassReduction: 8 }, 12, 0],
+    ['the live count over a cleared override', { masterClassReductionOverride: null }, 3, 5],
+    ['an explicit override, even past what today has left', { masterClassReductionOverride: 200 }, 12, 200]
+  ])('offers %s', (_, stored, spent, expected) => {
+    Object.entries(stored).forEach(([key, value]) => seedSetting(key, value));
+    const { calls } = renderOptimizer([], { account: buildReductionAccount({ bonus: 8, spent }) });
+    expect(calls.at(-1).masterClassReduction).toBe(expected);
   });
 });
 
@@ -293,14 +233,9 @@ describe('GenericUpgradeOptimizer discount marker', () => {
     window.localStorage.clear();
   });
 
-  it('marks the rows the daily allowance actually paid for', () => {
-    const { container } = renderOptimizer([buildDiscountRow({ hadReduction: true })]);
-    expect(container.textContent).toContain('-80%');
-  });
-
-  it('leaves full-price rows unmarked', () => {
-    const { container } = renderOptimizer([buildDiscountRow({ hadReduction: false })]);
-    expect(container.textContent).not.toContain('-80%');
+  it.each([[true], [false]])('marks only the rows the daily allowance actually paid for: %s', (hadReduction) => {
+    const { container } = renderOptimizer([buildDiscountRow({ hadReduction })]);
+    expect(container.textContent.includes('-80%')).toBe(hadReduction);
   });
 
   it('counts how many steps of a grouped row were discounted', () => {
@@ -320,8 +255,8 @@ describe('GenericUpgradeOptimizer game order', () => {
   });
 
   const namedRow = (name, index, level) => ({ ...buildRow({}), name, index, level });
-  const rowNames = (container) => [...container.querySelectorAll('tbody tr')]
-    .map((row) => row.children[2].textContent);
+  const rowNames = (container) => [...container.querySelectorAll('tbody tr.row')]
+    .map((row) => row.querySelector('td.name').textContent);
 
   it('lists one row per upgrade in in-game position, not purchase order', () => {
     seedSetting('groupMode', 'Game order');
@@ -333,7 +268,7 @@ describe('GenericUpgradeOptimizer game order', () => {
       namedRow('Middle_Upgrade', 12, 1)
     ]);
     expect(rowNames(container)).toEqual(['Early Upgrade', 'Middle Upgrade', 'Late Upgrade']);
-    expect(container.textContent).toContain('Levels 10 → 11');
+    expect(container.textContent).toContain('Lv 9 → 11');
   });
 
   it('leaves Summary in purchase order', () => {
@@ -345,32 +280,18 @@ describe('GenericUpgradeOptimizer game order', () => {
     ]);
     expect(rowNames(container)).toEqual(['Late Upgrade', 'Early Upgrade']);
   });
+
+  it.each([
+    ['Upgrade', ['Late_Upgrade', 'Late_Upgrade', 'Early_Upgrade'], 'Upgrades #1 to #2'],
+    ['Summary', ['Late_Upgrade', 'Early_Upgrade', 'Late_Upgrade'], '2 upgrades, #1 to #3']
+  ])('a %s card names where its steps sit in the plan', (group, names, place) => {
+    seedSetting('groupMode', group);
+    const { container } = renderOptimizer(names.map((name, step) => namedRow(name, 1, 10 + step)));
+    expect(container.textContent).toContain(place);
+  });
 });
 
-const renderWithAutoRph = (autoResourcePerHour, rows = []) => {
-  const calls = [];
-  const view = render(
-    <ThemeProvider theme={darkTheme}>
-      <GenericUpgradeOptimizer
-        character={{ name: 'Tester' }}
-        account={{ tesseract: { tachyons: [{ name: 'Purple', value: 1e9 }, { name: 'Brown', value: 1e9 }] } }}
-        getOptimizedUpgradesFn={(character, account, category, max, options) => {
-          calls.push(options);
-          return rows;
-        }}
-        upgradeCategories={{ damage: { name: 'Damage', stats: ['damage'], upgradeIndices: [6] } }}
-        resourceNames={resourceNames}
-        resourceKey="tesseract.tachyons"
-        resourceImagePrefix="Tach"
-        upgradeImagePrefix="ArcaneUpg"
-        getResourceType={(upgrade) => upgrade.x3}
-        autoResourcePerHour={autoResourcePerHour}
-        tooltipText="test tooltip"
-      />
-    </ThemeProvider>
-  );
-  return { calls, view };
-};
+const renderWithAutoRph = (autoResourcePerHour) => renderOptimizer([], { autoResourcePerHour });
 
 describe('GenericUpgradeOptimizer auto resource per hour', () => {
   beforeEach(() => {
@@ -378,27 +299,27 @@ describe('GenericUpgradeOptimizer auto resource per hour', () => {
   });
 
   it('prices upgrades off the computed rates and hides the manual dialog', () => {
-    const { calls, view } = renderWithAutoRph({ 0: 2500, 1: 500 });
+    const { calls, container } = renderWithAutoRph({ 0: 2500, 1: 500 });
 
     expect(calls.at(-1).resourcePerHour).toEqual({ 0: 2500, 1: 500 });
-    expect(view.container.textContent).not.toContain('Set RPH');
+    expect(container.textContent).not.toContain('Set RPH');
   });
 
   it('keeps the manual rates when the user picks the manual method', () => {
     seedSetting('optimizationMethod', 'rph');
     seedSetting('resourcePerHour', { 0: 7, 1: 9 });
-    const { calls, view } = renderWithAutoRph({ 0: 2500, 1: 500 });
+    const { calls, container } = renderWithAutoRph({ 0: 2500, 1: 500 });
 
     expect(calls.at(-1).resourcePerHour).toEqual({ 0: 7, 1: 9 });
-    expect(view.container.textContent).toContain('Set RPH');
+    expect(container.textContent).toContain('Set RPH');
   });
 
   it('falls back to manual for an optimizer that has no computed rates', () => {
     seedSetting('optimizationMethod', 'rph-auto');
     seedSetting('resourcePerHour', { 0: 7, 1: 9 });
-    const { calls, view } = renderWithAutoRph(null);
+    const { calls, container } = renderWithAutoRph(null);
 
     expect(calls.at(-1).resourcePerHour).toEqual({ 0: 7, 1: 9 });
-    expect(view.container.textContent).toContain('Set RPH');
+    expect(container.textContent).toContain('Set RPH');
   });
 });

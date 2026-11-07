@@ -1,10 +1,22 @@
-import { CardTitleAndValue } from '@components/common/styles';
-import React, { useState } from 'react';
-import { Checkbox, Divider, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, msToDate, notateNumber } from '@utility/helpers';
-import { ExpRateCard, HoleCostRow } from '@components/account/Worlds/World5/Hole/commons';
-import UpgradeCard, { CardIcon } from '@components/common/UpgradeCard';
+import React from 'react';
+import { Box, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { holeCostIcon, holeResourceName, villagerTiles } from '@components/account/Worlds/World5/Hole/commons';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Notice from '@components/common/Notice';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 import { getHoleResourceIcon } from '@parsers/world-5/hole';
+
+const SCHEMATICS_TOOLBAR = { show: 'todo' };
+// The schematics a set holds: the ones still to create, every one, or the ones whose bonus grows with another Hole number
+const IN_SET = {
+  todo: (schematic) => !schematic?.unlocked,
+  all: () => true,
+  scaling: (schematic) => Boolean(schematic?.scaling)
+};
 
 const getUnlockLevelByIndex = (schematicIndex) => {
   let level = 1;
@@ -33,56 +45,49 @@ const getUnlockLevelByIndex = (schematicIndex) => {
   return level - 1;
 }
 
-const Engineer = ({ hole }) => {
-  const [, engineer] = hole?.villagers || [];
-  const [showAll, setShowAll] = useState(false);
-  const [showScaling, setShowScaling] = useState(false);
+const Engineer = ({ hole, sectionFailed }) => {
+  const engineer = hole?.villagers?.[1];
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('hole-schematics', SCHEMATICS_TOOLBAR);
+  // A schematic's place in the game's list says when it unlocks, so it is kept before the list is filtered
+  const schematics = (hole?.engineerBonuses ?? []).map((schematic, order) => ({ ...schematic, order }));
+  const count = (set) => schematics.filter(IN_SET[set]).length;
+  const shown = schematics.filter(IN_SET[toolbar?.show] ?? IN_SET.todo);
+  // The catalog lists every schematic for any save, a guest's too: none means the section failed, and then there is
+  // no count to give and nothing created
+  const listed = schematics.length > 0;
+
+  const schematicCard = ({ index, name, description, unlocked, owned, cost, x2, order }) => {
+    const isLocked = (hole?.unlockedSchematics ?? 0) <= order;
+    const resource = getHoleResourceIcon(x2);
+    return <ItemCard key={`upgrade-${index}`} icon={`data/HoleUIbuildUpg${index}.png`} title={cleanUnderscore(name)}
+                     status={unlocked ? 'active' : isLocked ? 'locked' : undefined}
+                     statusLabel={unlocked ? 'Created' : undefined}
+                     footer={unlocked ? null : isLocked
+                       ? <Typography variant={'body2'} color={'text.secondary'}>
+                         Unlocks at {formatNum(getUnlockLevelByIndex(order), 'level')}
+                       </Typography>
+                       : <ItemCard.Cost icon={holeCostIcon(resource)} iconAlt={holeResourceName(resource)} need={cost ?? 0}
+                                        have={Math.max(0, owned ?? 0)} game={'Holes.BuildCost'}/>}>
+      <ItemCard.Desc text={description}/>
+    </ItemCard>;
+  };
 
   return <>
-    <Stack mb={2} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Level'} value={engineer?.level}/>
-      <CardTitleAndValue title={'Exp'} value={`${engineer?.exp} / ${engineer?.expReq}`}/>
-      <ExpRateCard title={'Exp rate'} expRate={engineer?.expRate}/>
-      <CardTitleAndValue title={'Time to level'}
-                         value={engineer?.timeLeft >= 0 && engineer?.expRate?.value > 0
-                           ? msToDate(engineer?.timeLeft)
-                           : '0'}/>
-      <CardTitleAndValue title={'Unlocked schematics'} value={`${hole?.unlockedSchematics} / ${hole?.totalSchematics}`}/>
-      <CardTitleAndValue title={'Opals invested'} value={engineer?.opalInvested || '0'} icon={'data/Opal.png'}
-                         imgStyle={{ width: 22, height: 22 }}/>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
+      {villagerTiles(engineer)}
+      {listed ? <StatTile label={'Unlocked schematics'}
+                          value={`${formatNum(hole?.unlockedSchematics ?? 0)} / ${formatNum(hole?.totalSchematics ?? 0)}`}/> : null}
     </Stack>
-    <Divider/>
-    <Stack direction={'row'} flexWrap={'wrap'}>
-      <FormControlLabel
-        control={<Checkbox checked={showAll} onChange={() => setShowAll(!showAll)}/>}
-        name={'Show all schematics'}
-        label="Show all schematics"/>
-      <FormControlLabel
-        control={<Checkbox checked={showScaling} onChange={() => setShowScaling(!showScaling)}/>}
-        name={'Show only scaling schematics'}
-        label="Show only scaling schematics"/>
-    </Stack>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {hole?.engineerBonuses?.map(({ index, name, description, unlocked, owned, cost, x2, scaling }, order) => {
-        if (showScaling && !scaling) return null;
-        if (!showScaling && !showAll && unlocked) return null;
-        const isLocked = hole?.unlockedSchematics <= order;
-        return <UpgradeCard key={`upgrade-${index}`}
-                            width={340}
-                            dimmed={isLocked}
-                            icon={<CardIcon src={`data/HoleUIbuildUpg${index}.png`} alt={''} imgSize={80}/>}
-                            title={cleanUnderscore(name)}
-                            subtitle={isLocked ? `Unlocks at Lv. ${getUnlockLevelByIndex(order)}` : null}
-                            footer={unlocked
-                              ? <Typography variant={'body2'} color={'success.light'}>Created ✔</Typography>
-                              : <HoleCostRow icon={getHoleResourceIcon(x2)}>
-                                {notateNumber(Math.max(0, owned), 'Big')} / {notateNumber(cost, 'TinyE')}
-                              </HoleCostRow>}>
-          <Typography variant={'body2'}>{cleanUnderscore(description)}</Typography>
-        </UpgradeCard>
-      })}
-    </Stack>
-  </>
+    <Box>
+      {sectionFailed ? null : <Toolbar state={toolbar} defaults={SCHEMATICS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+               total={schematics.length} shown={shown.length} noun={'schematics'}>
+        <Toolbar.Show options={[['todo', 'To create', count('todo')], ['all', 'All schematics', count('all')],
+          ['scaling', 'Scaling schematics', count('scaling')]]}/>
+      </Toolbar>}
+      {listed && shown.length === 0 && (toolbar?.show ?? 'todo') === 'todo' ? <Notice>Every schematic is created.</Notice> : null}
+      <CardGrid size={'m'}>{shown.map(schematicCard)}</CardGrid>
+    </Box>
+  </>;
 };
 
 export default Engineer;

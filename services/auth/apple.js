@@ -1,3 +1,5 @@
+import { LoginError } from '@utility/loginErrors';
+
 // Safari (and every iOS browser, they're all WKWebView) only allows window.open from inside the
 // click handler itself, so the popup is opened empty on click and pointed at apple once the
 // device code arrives.
@@ -17,9 +19,10 @@ const appleAuthorize = async ({ device_code, h_nonce, statusToken }, popup) => {
   const url = `https://appleid.apple.com/auth/authorize?${params.toString()}`;
   if (popup && !popup.closed) {
     popup.location.href = url;
-  } else {
-    window.open(url, '_blank', 'popup');
+    return;
   }
+  // Blocked twice, the empty pop-up and this one: nothing would ever come back, so say so.
+  if (!window.open(url, '_blank', 'popup')) throw new LoginError('APPLE_POPUP_BLOCKED');
 }
 
 const getAppleCode = async () => {

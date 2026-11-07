@@ -37,7 +37,7 @@ import { getShinyBonus } from '@parsers/world-4/breeding';
 import { getObolsBonus } from '@parsers/obols';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
-import { cleanUnderscore, lavaLog, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, lavaLog, notateNumber, titleCaseName } from '@utility/helpers';
 import {
   additiveGroup,
   createBreakdown,
@@ -211,7 +211,7 @@ export const getAllEffBreakdown = (character: any, characters: any, account: any
 export const getAllEff = (character: any, characters: any, account: any) =>
   evaluateBreakdownNode(getAllEffBreakdown(character, characters, account));
 
-const bubbleLabel = (bubbleName: string) => `${(cleanUnderscore(bubbleName)?.toLowerCase() as any)?.capitalizeAllWords()} bubble`;
+const bubbleLabel = (bubbleName: string) => `${titleCaseName(cleanUnderscore(bubbleName))} bubble`;
 
 interface SkillPowerOptions {
   tool: number;

@@ -2,7 +2,7 @@ import { atomsInfo, cookingMenu, monsters, randomList, randomList2, bonuses, spi
 import { liveEntries } from '@parsers/catalog';
 import { getStampsBonusByEffect, getStampsBonusByStat } from '@parsers/world-1/stamps';
 import { getStatsFromGear } from '@parsers/items';
-import { cleanUnderscore, commaNotation, growth, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, gameFill, growth, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
@@ -62,7 +62,9 @@ export const getCooking = (idleonData: any, account: any, characters?: any) => {
   const mealsRaw = tryToParse(idleonData?.Meals) || idleonData?.Meals;
   const territoryRaw = saveField(idleonData, 'Territory') || idleonData?.Territory;
   const cookMasterRaw = tryToParse(idleonData?.CookMaster) || idleonData?.CookMaster;
-  return parseCooking(mealsRaw, territoryRaw, cookingRaw, account, cookMasterRaw, characters);
+  // The save's kitchens and atoms, for parseKitchens from the picked character's side (the Kitchens tab)
+  const atomsRaw = saveField(idleonData, 'Atoms') || idleonData?.Atoms;
+  return { ...parseCooking(mealsRaw, territoryRaw, cookingRaw, account, cookMasterRaw, characters), rawKitchens: cookingRaw, rawAtoms: atomsRaw };
 }
 
 const parseCooking = (mealsRaw: any, territoryRaw: any, cookingRaw: any, account: any, cookMasterRaw?: any, characters?: any) => {
@@ -240,7 +242,7 @@ export const getMealBonus = (account: any, meal: any, level: number = meal?.leve
 }
 
 // Same notation the meal cards print the bonus with
-export const formatMealBonus = (value: number) => value < 1e7 ? commaNotation(value) : notateNumber(value, 'Big');
+export const formatMealBonus = (value: number) => gameFill(value, value < 1e7 ? 'Comma' : 'Big');
 
 
 // game: "RibbonBonus"
@@ -281,7 +283,7 @@ export interface CookingMasteryCategory {
 const COOKING_MASTERY_CATEGORY_INFO: { label: string; desc: (category: CookingMasteryCategory) => string }[] = [
   {
     label: 'EXP boost via Ladle',
-    desc: (c) => `+${Math.round(c.mult)}% Cooking Mastery EXP per POW 10 Ladles you've ever used, currently ${notateNumber(c.sourceValue, 'Big')} ladles used.`
+    desc: (c) => `+${Math.round(c.mult)}% Cooking Mastery EXP per POW 10 Ladles you've ever used, currently ${gameFill(c.sourceValue, 'Big', { whole: true })} ladles used.`
   },
   {
     label: 'EXP boost via account Cooking LV',
@@ -293,15 +295,15 @@ const COOKING_MASTERY_CATEGORY_INFO: { label: string; desc: (category: CookingMa
   },
   {
     label: 'Boosts daily Ribbon gains',
-    desc: (c) => `+${notateNumber(c.bonusAmount, 'Small')}% chance daily ribbons are +1 rank higher than they otherwise would've been.`
+    desc: (c) => `+${gameFill(c.bonusAmount, 'Small')}% chance daily ribbons are +1 rank higher than they otherwise would've been.`
   },
   {
     label: 'EXP boost via total Ribbon Ranks',
-    desc: (c) => `+${Math.round(c.mult)}% Cooking Mastery EXP per total Rank of all your Ribbons across all meals, currently ${notateNumber(c.sourceValue, 'Big')}.`
+    desc: (c) => `+${Math.round(c.mult)}% Cooking Mastery EXP per total Rank of all your Ribbons across all meals, currently ${gameFill(c.sourceValue, 'Big', { whole: true })}.`
   },
   {
     label: 'EXP boost via Mastery Rank',
-    desc: (c) => `+${Math.round(c.mult)}% Cooking Mastery EXP per Cooking Mastery Rank you are, currently Rank ${notateNumber(c.sourceValue, 'Big')}.`
+    desc: (c) => `+${Math.round(c.mult)}% Cooking Mastery EXP per Cooking Mastery Rank you are, currently Rank ${gameFill(c.sourceValue, 'Big', { whole: true })}.`
   }
 ];
 

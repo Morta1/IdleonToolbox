@@ -1,15 +1,18 @@
 // @vitest-environment jsdom
 import '../../../polyfills';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { crafts } from '@website-data';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import ItemPlanner from '../../../pages/tools/item-planner';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
+import SnackbarHost from '@components/common/Overlays/SnackbarHost';
+import { PageHeaderSlots, SettingsSlot } from '@components/common/NavBar/PageHeader';
 
 vi.mock('next-seo', () => ({ NextSeo: () => null }));
+vi.mock('next/router', () => ({ useRouter: () => ({ query: {}, pathname: '/tools/item-planner' }) }));
 
 const militia = { itemName: 'Militia_Helm', rawName: crafts.Militia_Helm.rawName, itemQuantity: 1 };
 const defaultPlans = [
@@ -21,10 +24,15 @@ const defaultPlans = [
 let latestState;
 const Harness = ({ plans = defaultPlans, account, isLoading, storageHydrated, emptyAccount }) => {
   const [state, setState] = useState({ planner: { sections: plans }, account, isLoading, storageHydrated, emptyAccount });
-  latestState = state;
+  useEffect(() => {
+    latestState = state;
+  });
   const dispatch = ({ type, data }) => type === 'planner' && setState((prev) => ({ ...prev, planner: data }));
-  return <ThemeProvider theme={darkTheme}>
-    <AppContext.Provider value={{ state, dispatch }}><ItemPlanner/></AppContext.Provider>
+  return <ThemeProvider theme={theme}>
+    <AppContext.Provider value={{ state, dispatch }}>
+      <PageHeaderSlots><SettingsSlot/><ItemPlanner/></PageHeaderSlots>
+    </AppContext.Provider>
+    <SnackbarHost/>
   </ThemeProvider>;
 };
 
@@ -58,14 +66,15 @@ describe('Item Planner page', () => {
     render(<Harness/>);
     await importFile({ sections: [{ name: 'Imported', items: [militia], materials: [] }] });
     expect(planNames()).toEqual(['A', 'B', 'C']);
-    fireEvent.click(await screen.findByRole('button', { name: 'Add to my plans' }));
+    fireEvent.click(await screen.findByRole('button', { name: 'Import 1 plan' }));
     expect(planNames()).toEqual(['A', 'B', 'C', 'Imported']);
   });
 
   it('replaces existing plans only when asked to', async () => {
     render(<Harness/>);
     await importFile({ sections: [{ name: 'Imported', items: [militia], materials: [] }] });
-    fireEvent.click(await screen.findByRole('button', { name: 'Replace' }));
+    fireEvent.click(await screen.findByLabelText('Replace my 3 plans'));
+    fireEvent.click(screen.getByRole('button', { name: 'Import 1 plan' }));
     expect(planNames()).toEqual(['Imported']);
   });
 
@@ -88,7 +97,7 @@ describe('Item Planner page', () => {
     render(<Harness/>);
     fireEvent.click(screen.getAllByRole('button', { name: 'Plan options' })[1]);
     fireEvent.click(screen.getByRole('menuitem', { name: 'Delete plan' }));
-    expect(await screen.findByText('Delete "B"? This can\'t be undone.')).toBeTruthy();
+    expect(await screen.findByText('"B" goes for good.')).toBeTruthy();
   });
 
   it.each([
@@ -102,11 +111,12 @@ describe('Item Planner page', () => {
 
   it('treats the parsed empty account of a logged-out visitor as logged out', () => {
     render(<Harness account={{}} emptyAccount/>);
-    expect(screen.queryByRole('checkbox', { name: 'Count equipped items' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /Page settings/ })).toBeNull();
   });
 
   it('counts equipped items by default', () => {
     render(<Harness account={{}}/>);
-    expect(screen.getByRole('checkbox', { name: 'Count equipped items' }).checked).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: /Page settings/ }));
+    expect(screen.getByRole('switch', { name: 'Count equipped items' }).checked).toBe(true);
   });
 });

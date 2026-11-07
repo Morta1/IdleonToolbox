@@ -59,11 +59,11 @@ describe('kangaroo verified against the live game', () => {
     expect(kangaroo.tarUpgrades.filter(({ unlocked }) => unlocked)).toHaveLength(GAME.tarUnlocked);
   });
 
-  it.each(GAME.costs.map((cost, index) => [index, cost]))('upgrade %i cost', (index, cost) => {
+  it.each([...GAME.costs.entries()])('upgrade %i cost', (index, cost) => {
     within(kangaroo.upgrades[index].cost, cost);
   });
 
-  it.each(GAME.tarCosts.map((cost, index) => [index, cost]))('tar upgrade %i cost', (index, cost) => {
+  it.each([...GAME.tarCosts.entries()])('tar upgrade %i cost', (index, cost) => {
     within(kangaroo.tarUpgrades[index].cost, cost);
   });
 

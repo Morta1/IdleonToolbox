@@ -1,93 +1,93 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from '../../../../common/context/AppProvider';
-import { Card, CardContent, FormControl, InputLabel, MenuItem, Select, Stack, TextField, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
-import styled from '@emotion/styled';
-import { getSoulsBonuses, getSoulsReward, getTotemExpReward } from '@parsers/world-3/worship';
+import { Stack } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import { getSoulsBonuses, getSoulsReward, getTotemExpReward, getTotems } from '@parsers/world-3/worship';
 import { getBestActiveCharacter } from '@parsers/talents';
-import { CardTitleAndValue as StatCard } from '@components/common/styles';
-import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import StatTile from '@components/common/cards/StatTile';
+import DataTable from '@components/common/DataTable';
+import withBreakdown from '@components/common/DataTable/withBreakdown';
+import GameIcon from '@components/common/GameIcon';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 
-const Totems = () => {
+// Three totems carry the game's placeholder names; these are the names their maps show.
+const TOTEM_NAMES = { 5: 'Citric Conflict', 6: 'Breezy Battle', 7: 'Pufferblob Brawl' };
+const totemName = ({ index, name }) => cleanUnderscore(TOTEM_NAMES[index] ?? name);
+const expText = ({ expReward }) => formatGame(expReward?.value ?? 0, 'WorshipStuff.ExpRewards');
+
+const COLUMNS = [
+  {
+    key: 'totem', label: 'Totem', value: totemName,
+    icon: ({ index }) => <GameIcon src={`etc/totem_${index}.png`} alt={''} size={24}/>
+  },
+  { key: 'map', label: 'Map', value: ({ map }) => cleanUnderscore(map) },
+  { key: 'maxWave', label: 'Max wave', numeric: true, sortable: true, value: ({ maxWave }) => maxWave || 0, kind: 'amount' },
+  {
+    key: 'expPerWave', label: 'EXP per wave', numeric: true, sortable: true,
+    value: ({ expReward }) => expReward?.value ?? 0,
+    render: expText,
+    // The drawer is named for its totem and headed with the cell's text
+    wrap: withBreakdown((totem) => (totem?.expReward?.breakdown
+      ? { ...totem.expReward.breakdown, statName: `${totemName(totem)} EXP per wave`, totalValue: expText(totem) }
+      : undefined))
+  },
+  {
+    key: 'expPerCharge', label: 'EXP per charge', numeric: true,
+    value: ({ expReward, chargeReq }) => Math.floor((expReward?.value ?? 0) / chargeReq) || 0, kind: 'amount'
+  },
+  {
+    key: 'minEfficiency', label: 'Min efficiency', numeric: true, info: 'The worship efficiency a character needs for the souls bonus',
+    value: ({ minEfficiency }) => minEfficiency, kind: 'amount'
+  },
+  {
+    key: 'souls', label: 'Souls', numeric: true, sortable: true, value: ({ souls }) => souls,
+    render: ({ souls }) => formatGame(souls ?? 0, 'WorshipStuff.SoulRewards')
+  }
+];
+
+// The table's prices, in Worship's gear under the tab's name (not remembered before they moved there)
+export const TOTEMS_SETTINGS = { worshipEff: null, foodEff: null, worshipper: null };
+// A wave's EXP uses the Worship EXP multi of the character fighting it, the logged-in one by default
+const defaultWorshipper = (characters) => getBestActiveCharacter(characters) ?? characters?.[0];
+
+export const TotemsSettings = ({ characters }) => <PageSettings.Group title={'Totems'}>
+  <PageSettings.Number name={'worshipEff'} label={'Worship efficiency'} defaultValue={0} min={0}/>
+  <PageSettings.Number name={'foodEff'} label={'Food effect'} defaultValue={0} min={0}/>
+  {characters?.length ? <PageSettings.Select name={'worshipper'} label={'Worshipper'} defaultValue={defaultWorshipper(characters)?.name}
+                                             options={characters.map(({ name, classIndex }) => [name, <Stack key={name} component={'span'}
+                                               direction={'row'} alignItems={'center'} gap={1}>
+                                               <GameIcon src={`data/ClassIcons${classIndex}.png`} alt={''} size={24}/>
+                                               {name}
+                                             </Stack>])}/> : null}
+</PageSettings.Group>;
+
+// totemsFailed: a failed section lists the totems at zero (the parser's catalog with no save). The max waves total is
+// the totems' own waves (towers reads them from the same save field), so either failed section shows no number there
+const Totems = ({ totemsFailed, towersFailed }) => {
   const { state } = useContext(AppContext);
-  const [worshipEff, setWorshipEff] = useState(0);
-  const [foodEff, setFoodEff] = useState(0);
-  const [selectedName, setSelectedName] = useState(null);
+  const [settings] = usePageSettings('worship', TOTEMS_SETTINGS);
+  const worshipEff = settings?.worshipEff ?? 0;
+  const foodEff = settings?.foodEff ?? 0;
   const soulsBonuses = getSoulsBonuses(state?.account, state?.characters);
   const characters = state?.characters ?? [];
-  // A wave's EXP uses the Worship EXP multi of the character fighting it, the logged-in one by default
-  const worshipper = characters.find(({ name }) => name === selectedName) ?? getBestActiveCharacter(characters) ?? characters[0];
+  const worshipper = characters.find(({ name }) => name === settings?.worshipper) ?? defaultWorshipper(characters);
+  const totems = state?.account?.totems?.length ? state.account.totems : totemsFailed ? getTotems({}) : [];
+  // Each totem's reward priced once for the chosen worshipper, so the rows rebuild when it changes.
+  const rows = totems.map((totem, index) => ({
+    ...totem,
+    index,
+    expReward: getTotemExpReward(totem, index, worshipper, characters, state?.account),
+    souls: getSoulsReward({ ...totem, efficiency: worshipEff, foodEffect: foodEff, bonuses: soulsBonuses }) || 0
+  }));
 
   return (
     <>
-      <Stack sx={{ my: 3 }} direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
-        <TextField size={'small'} value={worshipEff} onChange={({ target }) => setWorshipEff(target.value)}
-                   label={'Worship Efficiency'}/>
-        <TextField size={'small'} value={foodEff} onChange={({ target }) => setFoodEff(target.value)}
-                   label={'Food Effect'}/>
-        {characters.length ? <FormControl size={'small'} sx={{ minWidth: 180 }}>
-          <InputLabel id={'totem-worshipper-label'}>Worshipper</InputLabel>
-          <Select labelId={'totem-worshipper-label'} label={'Worshipper'} value={worshipper?.name ?? ''}
-                  onChange={({ target }) => setSelectedName(target.value)}>
-            {characters.map(({ name, classIndex }) => <MenuItem key={name} value={name}>
-              <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <img src={`${prefix}data/ClassIcons${classIndex}.png`} alt={''} width={24} height={24}/>
-                <Typography>{name}</Typography>
-              </Stack>
-            </MenuItem>)}
-          </Select>
-        </FormControl> : null}
-        <StatCard title={'Total Max Waves'} icon={'etc/totem_0.png'} imgStyle={{ width: 24, height: 24 }}
-                  value={commaNotation(state?.account?.towers?.totalWaves ?? 0)}/>
-      </Stack>
-      <Stack direction={'row'} gap={2} sx={{ width: 'fit-content' }} flexWrap={'wrap'}>
-        {state?.account?.totems?.map((totem, index) => {
-          const { name, maxWave, map, chargeReq, minEfficiency } = totem;
-          const expReward = getTotemExpReward(totem, index, worshipper, characters, state?.account);
-          return <Card key={name ?? index} sx={{ md: { minWidth: 500 } }}>
-            <CardContent>
-              <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
-                <TotemImg src={`${prefix}etc/totem_${index}.png`} alt={'totem' + index}/>
-                <Stack mb={3} direction={'row'} gap={4} flexWrap={'wrap'}>
-                  <CardTitleAndValue title={'Name'} value={cleanUnderscore(index === 5 ? 'Citric Conflict' : index === 6 ? 'Breezy Battle' : index === 7 ? 'Pufferblob Brawl' : name)}/>
-                  <CardTitleAndValue title={'Map name'} value={cleanUnderscore(map)}/>
-                  <CardTitleAndValue title={'Max Wave'} value={maxWave || '0'}/>
-                  <CardTitleAndValue title={'Exp Per Wave'}>
-                    <Stack direction={'row'} alignItems={'center'} gap={1}>
-                      <Typography>{commaNotation(expReward.value)}</Typography>
-                      <Breakdown data={expReward.breakdown}>
-                        <Stack justifyContent={'center'}>
-                          <IconInfoCircleFilled size={18}/>
-                        </Stack>
-                      </Breakdown>
-                    </Stack>
-                  </CardTitleAndValue>
-                  <CardTitleAndValue title={'Exp Per Charge'} value={commaNotation(Math.floor(expReward.value / chargeReq)) || '0'}/>
-                  <CardTitleAndValue title={'Min eff. for souls bonus'} value={commaNotation(minEfficiency)}/>
-                  <CardTitleAndValue title={'Souls'}
-                                     value={getSoulsReward({ ...totem, efficiency: worshipEff, foodEffect: foodEff, bonuses: soulsBonuses }) || '0'}/>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        })}
-      </Stack>
-
+      <StatTile label={'Total max waves'} icon={'etc/totem_0.png'} kind={'amount'} sx={{ mb: 2 }}
+                value={towersFailed || totemsFailed ? '-' : state?.account?.towers?.totalWaves ?? 0}/>
+      {rows.length ? <DataTable columns={COLUMNS} rows={rows} rowKey={'index'} rowLabel={totemName} surface={'card'}/> : null}
     </>
   );
 };
-
-const TotemImg = styled.img`
-  width: 75px;
-  height: 75px;
-`
-
-const CardTitleAndValue = ({ title, value, children }) => {
-  return <Stack sx={{ width: 130 }}>
-    <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
-    {value ? <Typography>{value}</Typography> : children}
-  </Stack>
-}
 
 export default Totems;

@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, asPath: '/' }) }));
 
@@ -51,21 +51,19 @@ const trackers = {
   }
 };
 
-const renderClickers = (days) => render(<ThemeProvider theme={darkTheme}>
+const renderClickers = (days) => render(<ThemeProvider theme={theme}>
   <Etc characters={[]} account={buildAccount(days)} lastUpdated={now} trackers={trackers}/>
 </ThemeProvider>);
 
-const longTimeCount = (container) => Array.from(container.querySelectorAll('p'))
-  .filter(({ textContent }) => textContent === 'A long time').length;
+const longTimeCount = (container) => Array.from(container.querySelectorAll('*'))
+  .filter(({ children, textContent }) => children.length === 0 && textContent === 'A long time').length;
 
 describe('dashboard Clickers long duration cutoff', () => {
-  it('collapses every Clickers timer past 365 days to "A long time"', () => {
-    const { container } = renderClickers(400);
-    expect(longTimeCount(container)).toBe(4);
-  });
-
-  it('keeps the countdown on every Clickers timer within 365 days', () => {
-    const { container } = renderClickers(100);
-    expect(longTimeCount(container)).toBe(0);
+  it.each([
+    ['collapses every Clickers timer to "A long time" past', 400, 4],
+    ['keeps the countdown on every Clickers timer within', 100, 0]
+  ])('%s 365 days', (_, days, collapsed) => {
+    const { container } = renderClickers(days);
+    expect(longTimeCount(container)).toBe(collapsed);
   });
 });

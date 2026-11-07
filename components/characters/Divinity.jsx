@@ -1,6 +1,10 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from 'utility/helpers';
+import { Typography } from '@mui/material';
+import { cleanUnderscore, gameLines } from 'utility/helpers';
+import { minorBonusText } from '@utility/gameNotation';
+import { GOD_SLOT } from '@parsers/world-5/divinity';
+import { isSectionFailed } from '@components/common/styles';
+import Panel from '@components/common/cards/Panel';
 
 const Divinity = ({ character, account }) => {
   const { linkedDeity, deityMinorBonus = 0, secondLinkedDeityIndex, secondDeityMinorBonus = 0, divStyle } = character;
@@ -10,35 +14,21 @@ const Divinity = ({ character, account }) => {
     { slot: secondLinkedDeityIndex, bonus: secondDeityMinorBonus }
   ].filter(({ slot }) => slot != null && slot >= 0 && deities?.[slot]);
   const hasStyle = divStyle?.name != null;
+  const failed = isSectionFailed(account, 'divinity');
 
-  return <Stack sx={{ width: { xs: '100%', sm: 340 } }}>
-    <Typography variant={'h5'}>Divinity</Typography>
-    <Card variant={'outlined'}>
-      <CardContent>
-        <Stack gap={1.5}>
-          {links.length === 0 ? <Typography variant={'body2'}>No god linked</Typography> : links.map(({ slot, bonus }) => {
-            const { name, minorBonus } = deities[slot];
-            return <Stack key={slot} direction={'row'} alignItems={'center'} gap={1.5}>
-              <img style={{ width: 42, height: 42, objectFit: 'contain' }} src={`${prefix}data/DivGod${slot}.png`} alt=""/>
-              <Stack>
-                <Typography fontWeight={'bold'}>{cleanUnderscore(name)}</Typography>
-                <Typography variant={'body2'}>{cleanUnderscore(minorBonus?.replace(/{/g, bonus.toFixed(2)))}</Typography>
-              </Stack>
-            </Stack>;
-          })}
-          <Divider/>
-          {hasStyle ? <Stack direction={'row'} alignItems={'center'} gap={1.5}>
-            <img style={{ width: 58, height: 40, objectFit: 'contain' }} src={`${prefix}etc/Div_Style_${divStyle?.index}.png`}
-                 alt=""/>
-            <Stack>
-              <Typography fontWeight={'bold'}>{cleanUnderscore(divStyle?.name)}</Typography>
-              <Typography variant={'body2'}>{cleanUnderscore(divStyle?.description?.replace('@', ''))}</Typography>
-            </Stack>
-          </Stack> : <Typography variant={'body2'}>No style selected</Typography>}
-        </Stack>
-      </CardContent>
-    </Card>
-  </Stack>;
+  return <Panel title={'Divinity'}>
+    {failed ? <Panel.KV label={'Linked god'} value={'-'}/> : null}
+    {!failed && !links.length ? <Typography variant={'body2'} color={'text.secondary'} sx={{ pb: '6px' }}>No god linked</Typography> : null}
+    {links.map(({ slot, bonus }) => {
+      const { name, minorBonus } = deities[slot];
+      return <Panel.Row key={slot} icon={`data/DivGod${slot}.png`} name={cleanUnderscore(name)}
+                        sub={cleanUnderscore(minorBonus?.replace(/{/g, minorBonusText(bonus, slot === GOD_SLOT.Arctis)))}/>;
+    })}
+    {hasStyle ? <Panel.Row icon={`etc/Div_Style_${divStyle?.index}.png`} name={cleanUnderscore(divStyle?.name)}
+                           sub={gameLines(divStyle?.description ?? '').map((line) => <div key={line}>{line}</div>)}/>
+      : failed ? <Panel.KV label={'Style'} value={'-'}/>
+        : <Typography variant={'body2'} color={'text.secondary'}>No style selected</Typography>}
+  </Panel>;
 };
 
 export default Divinity;

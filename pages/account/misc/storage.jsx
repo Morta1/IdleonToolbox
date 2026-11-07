@@ -1,183 +1,123 @@
 import { AppContext } from 'components/common/context/AppProvider';
-import React, { useContext, useEffect, useState } from 'react';
-import { Box, Card, CardContent, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getCoinsArray, getTabs, groupByKey, notateNumber, prefix } from 'utility/helpers';
-import styled from '@emotion/styled';
-import HtmlTooltip from 'components/Tooltip';
+import React, { useContext } from 'react';
+import { Box, Link, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum, getCoinsArray, getTabs, groupByKey, titleCaseName } from 'utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
-import Image from 'next/image';
+import { openWikiEntity } from '@utility/wiki/item-page';
+import StatusText from '@components/common/StatusText';
 import ItemDisplay from '@components/common/ItemDisplay';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
-import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
 import CoinDisplay from '@components/common/CoinDisplay';
-import InfoIcon from '@mui/icons-material/Info';
+import Notice from '@components/common/Notice';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import Panel from '@components/common/cards/Panel';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import useTabIndex from '@hooks/useTabIndex';
 
-// Full digit string: past the top coin tier the icons alone are unreadable
-const exactCoins = (coins) => Number.isFinite(coins)
-  ? BigInt(Math.floor(coins)).toLocaleString('en-US')
-  : '0';
+// The exact digits only while a double holds them (2^53); past that the coins already say it, and under 100 (one coin
+// tier) they repeat it
+const exactCoins = (coins) => (Number.isFinite(coins) && coins >= 100 && coins < Number.MAX_SAFE_INTEGER
+  ? formatNum(Math.floor(coins), 'exact') : undefined);
+// The tiers wrap between coins in a narrow tile (the phone Summary's column), never inside a coin's number
+const moneyValue = (coins) => (Number.isFinite(coins) ? <Box component={'span'} sx={{ overflowWrap: 'normal' }}>
+  <CoinDisplay dense money={getCoinsArray(coins)} style={{ flexWrap: 'wrap', rowGap: 2 }}/>
+</Box> : '-');
 
+const ITEMS_TOOLBAR = { search: '', sort: null, view: 'all' };
+
+// A chest: its slots, whether it is found, and its page on the toolbox's own wiki (5i's stamps precedent)
+const chestDetails = (chest) => <Stack gap={0.5} alignItems={'flex-start'}>
+  <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(chest?.displayName)}</Typography>
+  <Typography variant={'body2'}>{`${formatNum((chest?.amount || chest?.capacity) ?? 0)} slots`}</Typography>
+  {chest?.unlocked ? <StatusText status={'done'}>Found</StatusText> : <StatusText status={'needs'}>Not found yet</StatusText>}
+  <Link component={'button'} variant={'body2'} onClick={() => openWikiEntity(`item:${chest?.rawName}`)}>Wiki page ›</Link>
+</Stack>;
 
 const Looty = () => {
   const { state } = useContext(AppContext);
-  const [sortByStackSize, setSortByStackSize] = useState(false);
-  const [items, setItems] = useState();
-  const [orderByGroup, setOrderByGroup] = useState(false);
-  const sortedItems = [...state?.account?.storage?.list]?.sort((a, b) => b?.amount - a?.amount);
-  useEffect(() => {
-    let result
-    if (orderByGroup) {
-      const groupedBy = groupByKey(state?.account?.storage?.list, ({ Type }) => Type);
-      if (sortByStackSize) {
-        result = Object.entries(groupedBy).reduce((res, [key, val]) => {
-          const sorted = [...val].sort((a, b) => b?.amount - a?.amount);
-          return { ...res, [key]: sorted }
-        }, {})
-        setItems(result);
-      }
-      else {
-        setItems(groupedBy)
-      }
-    }
-    else {
-      setItems(sortByStackSize ? sortedItems : state?.account?.storage?.list);
-    }
-  }, [state, orderByGroup, sortByStackSize])
+  const tabs = getTabs(PAGES.ACCOUNT.misc.categories, 'storage');
+  const [tabIndex] = useTabIndex(tabs);
+  const storageFailed = isSectionFailed(state?.account, 'storage');
+  // The money tiles read the currencies section: a failed one dashes them, named in the page's one note
+  const currenciesFailed = isSectionFailed(state?.account, 'currencies');
+  const failedNames = [storageFailed && 'Storage', currenciesFailed && 'Currencies'].filter(Boolean);
+  const list = state?.account?.storage?.list ?? [];
+  const greenStacks = new Set(state?.account?.storage?.greenStacks ?? []);
+  const { bankMoney, rawMoney } = state?.account?.currencies ?? {};
+  const [view, setView, resetView] = useToolbarState('storage-items', ITEMS_TOOLBAR);
+  const search = view.search?.trim().toLowerCase();
+  const shown = search
+    ? list.filter((item) => cleanUnderscore(item?.name ?? item?.rawName ?? '').toLowerCase().includes(search))
+    : list;
+  const sorted = view.sort?.key === 'amount'
+    ? shown.toSorted((a, b) => (view.sort.order === 'asc' ? 1 : -1) * ((a?.amount ?? 0) - (b?.amount ?? 0)))
+    : shown;
+  // The greenstack symbol is the game's own mark for a stack of 10M or more
+  const itemTile = (item, index) => <IconTile key={`${item?.rawName}-${index}`} icon={`data/${item?.rawName}.png`}
+                                              alt={cleanUnderscore(item?.name ?? item?.rawName)}
+                                              value={formatGame(item?.amount ?? 0, 'Big', { whole: true })}
+                                              mark={greenStacks.has(item?.rawName) ? 'data/GreenSymbol.png' : undefined}
+                                              markAlt={'Greenstacked'}
+                                              details={<ItemDisplay {...item} account={state?.account} showAmount/>}/>;
+  const slots = state?.account?.storage?.slots;
+  const slotsText = storageFailed ? '-' : formatNum(slots?.value ?? 0);
+  const groups = view.view === 'type' ? Object.entries(groupByKey(sorted, ({ Type }) => Type)) : [];
 
-  const handleChange = (event) => {
-    setSortByStackSize(event.target.checked);
-  };
-
-  const greenStacksSet = new Set(state?.account?.storage?.greenStacks);
-  const bankMoney = state?.account?.currencies?.bankMoney ?? 0;
-
-  const renderItems = (items) => {
-    if (!items || !Array.isArray(items)) return null;
-    return items?.map((item, index) => {
-      const { name, rawName, amount } = item;
-      const greenStacked = greenStacksSet.has(rawName);
-      return (
-        <Card variant={'outlined'} sx={{ width: 75 }} key={`${name}-${index}`}>
-          <CardContent sx={{ position: 'relative' }}>
-            {greenStacked ? <img src={`${prefix}data/GreenSymbol.png`}
-                                 alt={'greenstacked'}
-                                 style={{ position: 'absolute', top: 0, right: 0 }}
-                                 width={50}
-                                 height={50}/> : null}
-            <HtmlTooltip title={<ItemDisplay {...item} showAmount/>}>
-              <Stack alignItems="center" key={`${rawName}-${index}`} data-index={index}>
-                <Box sx={{ position: 'relative', display: 'inline-flex' }}>
-                  <Image loading="lazy" data-index={index} width={30} height={30} style={{ objectFit: 'contain' }}
-                         src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-                </Box>
-                <Typography
-                  color={amount >= 1e7
-                    ? 'success.light'
-                    : ''}>{notateNumber(amount, 'Big')}</Typography>
-              </Stack>
-            </HtmlTooltip>
-          </CardContent>
-        </Card>
-      );
-    })
-  }
   return (
     <>
       <NextSeo
         title="Storage | Idleon Toolbox"
         description="Browse your full storage inventory with item counts, chest slots, and capacity in Legends of Idleon"
       />
-      {state?.account?.currencies ? <Card variant={'outlined'} sx={{ mb: 2, width: 'fit-content', maxWidth: '100%' }}>
-        <CardContent>
-          <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={2} mb={1}>
-            <Stack direction={'row'} alignItems={'baseline'} gap={1}>
-              <Typography>Storage Money</Typography>
-              <Typography variant={'body2'} color={'text.secondary'}>{notateNumber(bankMoney)}</Typography>
-            </Stack>
-            <HtmlTooltip title={<Stack gap={1} sx={{ wordBreak: 'break-all' }}>
-              <Typography variant={'body2'}>Exact: {exactCoins(bankMoney)}</Typography>
-              <Typography variant={'body2'}>
-                Account total (storage + characters): {notateNumber(state?.account?.currencies?.rawMoney)}
-                {' '}({exactCoins(state?.account?.currencies?.rawMoney)})
-              </Typography>
-            </Stack>}>
-              <InfoIcon fontSize={'small'}/>
-            </HtmlTooltip>
-          </Stack>
-          <CoinDisplay title={null} centered={false} variant={'horizontal'} money={getCoinsArray(bankMoney)}/>
-        </CardContent>
-      </Card> : null}
-      <Tabber tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'storage')}>
-        <Stack>
-          <Stack mb={3} direction={'row'} flexWrap={'wrap'}>
-            <FormControlLabel
-              control={<Checkbox name={'mini'} checked={orderByGroup}
-                                 size={'small'}
-                                 onChange={() => setOrderByGroup(!orderByGroup)}/>}
-              label={'Group by type'}/>
-            <FormControlLabel control={<Checkbox checked={sortByStackSize} onChange={handleChange}/>}
-                              label="Sort by stack size"/>
-          </Stack>
-          {orderByGroup && !Array.isArray(items) ? <Stack gap={2}>
-              {Object.entries(items || {}).map(([group, groupedItems], index) => {
-                if (groupedItems.length === 0) return null;
-                return (
-                  <Card key={`${group}-${index}`}>
-                    <CardContent>
-                      <Typography>{(cleanUnderscore(group)).toLowerCase().capitalize()}</Typography>
-                      <Stack key={`${group}-${index}`} data-index={index}>
-                        <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
-                          {renderItems(groupedItems)}
-                        </Stack>
-                      </Stack>
-                    </CardContent>
-                  </Card>
-                );
-              })}
-            </Stack>
-            : items?.length === 0
-              ? <Typography variant={'h6'}>Sign in to see the items in your storage</Typography>
-              : <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-                {renderItems(items)}
-              </Stack>}
-        </Stack>
+      {failedNames.length ? <MissingData name={failedNames.join(' and ')} failed atZero={storageFailed && tabs[tabIndex] === 'Slots'}/> : null}
+      <PageSummary>
+        <StatTile label={'Storage money'} value={currenciesFailed ? '-' : moneyValue(bankMoney)}
+                  sub={currenciesFailed ? undefined : exactCoins(bankMoney)}/>
+        <StatTile label={'Total money'} value={currenciesFailed ? '-' : moneyValue(rawMoney)}
+                  sub={currenciesFailed ? undefined : exactCoins(rawMoney)}
+                  info={'Your storage and every character\'s coins together.'}/>
+      </PageSummary>
+      <Tabber tabs={tabs}>
+        <Box>
+          {list.length ? <Toolbar state={view} defaults={ITEMS_TOOLBAR} onChange={setView} onReset={resetView}
+                                  total={list.length} shown={shown.length} noun={'items'}>
+            <Toolbar.Search placeholder={'Search items'}/>
+            <Toolbar.Sort options={[['amount', 'Stack size', 'desc']]}/>
+            <Toolbar.View options={[['all', 'All items'], ['type', 'By type']]}/>
+          </Toolbar> : null}
+          {!list.length
+            ? storageFailed ? null : <Notice tone={state?.emptyAccount ? 'signin' : 'info'}>{state?.emptyAccount
+              ? 'Your storage items show here once you sign in.' : 'Your storage chest is empty.'}</Notice>
+            : view.view === 'type'
+              ? <Stack gap={2}>{groups.map(([type, items]) => <Panel key={type}
+                                                                     title={titleCaseName(cleanUnderscore(type))}
+                                                                     meta={`${formatNum(items.length)} ${items.length === 1 ? 'item' : 'items'}`}>
+                <Box sx={{ p: 1.5 }}><CardGrid size={'icon'} fill>{items.map(itemTile)}</CardGrid></Box>
+              </Panel>)}</Stack>
+              : <CardGrid size={'icon'} fill>{sorted.map(itemTile)}</CardGrid>}
+        </Box>
         <Stack gap={2}>
-          <CardWithBreakdown title={'Slots Owned'} value={`${state?.account?.storage?.slots?.value}`}
-                             icon={'data/InvStorage1.png'}
-                             breakdown={state?.account?.storage?.slots?.breakdown}
-                             skipNotation/>
-          <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-            {state?.account?.storage?.storageChests?.map(({
-                                                            rawName,
-                                                            displayName,
-                                                            amount,
-                                                            capacity,
-                                                            unlocked
-                                                          }, index) => {
-              return <Card key={rawName} sx={{ width: 200, opacity: unlocked ? 1 : .5, cursor: 'pointer' }}
-                           onClick={() => window.open(`https://idleon.wiki/wiki/${displayName}`, '_blank')}>
-                <CardContent>
-                  <Typography>{(cleanUnderscore(displayName)).toLowerCase().capitalize()}</Typography>
-                  <Stack direction={'row'} flexWrap={'wrap'} gap={1} data-index={index} alignItems={'center'}>
-                    <Image loading="lazy" data-index={index} width={30} height={30} style={{ objectFit: 'contain' }}
-                           src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-                    <Typography>+{amount || capacity}</Typography>
-                  </Stack>
-                </CardContent>
-              </Card>
-            })}
-          </Stack>
+          <StatTile label={'Slots owned'} icon={'data/InvStorage1.png'} value={slotsText} breakdownTitle={'Slots owned'}
+                    breakdown={!storageFailed && slots?.breakdown ? { ...slots.breakdown, totalValue: slotsText } : undefined}/>
+          <CardGrid size={'icon'} fill>
+            {(state?.account?.storage?.storageChests ?? []).map((chest) => <IconTile key={chest?.rawName}
+                                                                                   icon={`data/${chest?.rawName}.png`}
+                                                                                   alt={cleanUnderscore(chest?.displayName)}
+                                                                                   value={`+${formatNum((chest?.amount || chest?.capacity) ?? 0)}`}
+                                                                                   status={chest?.unlocked ? undefined : 'missing'}
+                                                                                   details={chestDetails(chest)}/>)}
+          </CardGrid>
         </Stack>
       </Tabber>
     </>
   );
 };
-
-const ItemImg = styled.img`
-  height: 30px;
-  width: 30px;
-  object-fit: contain;
-`;
 
 export default Looty;

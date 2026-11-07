@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { readdirSync } from 'node:fs';
-import path from 'node:path';
+import { firstExportedRoute } from './route-helpers';
 import { waitForRender } from './wait-helpers';
 
 // React reports a hydration mismatch as a console error (minified #418/#423/#425) and answers it
@@ -10,19 +9,6 @@ import { waitForRender } from './wait-helpers';
 
 const WIDTHS = [1280, 1500, 390];
 const HYDRATION_ERROR = /#418|#423|#425|hydrat/i;
-
-// The first sorted out/<dir>/*.html not in `skip`. Falls back rather than throwing: a readdir at
-// collection time takes the whole file down when out/ is missing.
-const firstExportedRoute = (dir, { skip = [] } = {}) => {
-  try {
-    const file = readdirSync(path.join(process.cwd(), 'out', ...dir.split('/')))
-      .filter((f) => f.endsWith('.html') && !skip.includes(f))
-      .sort()[0];
-    return `/${dir}/${file.replace(/\.html$/, '')}`;
-  } catch {
-    return '/wiki';
-  }
-};
 
 const SAMPLES = [
   { route: '/' },
@@ -65,43 +51,69 @@ const SAMPLES = [
     route: '/characters?demo=true',
     seed: {
       filters: JSON.stringify({ Inventory: true }),
-      pinnedPages: JSON.stringify([{ href: '/account/world-1/stamps', label: 'Stamps' }])
+      pinnedPages: JSON.stringify([{ name: 'stamps', url: '/account/world-1/stamps' }])
     }
   }
   // Without out/ the exported-route readers fall back to /wiki, and a repeated test title fails collection.
 ].filter(({ route }, i, all) => all.findIndex((other) => other.route === route) === i);
 
-for (const width of WIDTHS) {
-  for (const { route, seed } of SAMPLES) {
-    test(`${route} hydrates without a mismatch at ${width}px`, async ({ browser }) => {
-      const context = await browser.newContext({
-        viewport: { width, height: 900 },
-        timezoneId: 'Asia/Jerusalem',
-        locale: 'de-DE'
-      });
-      const page = await context.newPage();
-      if (seed) {
-        await page.addInitScript((values) => {
-          for (const [key, value] of Object.entries(values)) localStorage.setItem(key, value);
-        }, seed);
-      }
-      const errors = [];
-      page.on('console', (msg) => {
-        if (msg.type() === 'error') errors.push(msg.text());
-      });
-      page.on('pageerror', (err) => errors.push(err.message));
+// The scheme reaches <html> before React runs, from storage and the device, and the export knows neither. A stored
+// light has to beat a device that prefers dark, and system has to follow a device either way.
+const SCHEMES = [
+  { mode: 'light', device: 'dark', paints: 'light' },
+  { mode: 'system', device: 'light', paints: 'light' },
+  { mode: 'system', device: 'dark', paints: 'dark' }
+];
 
-      await page.goto(route);
-      await waitForRender(page);
-      // waitForRender returns once innerText stops changing, which the static body already is
-      // before React runs: without this the assertion could pass on a page that never hydrated.
-      await page.waitForFunction(() => window.next?.router?.isReady === true, null, { timeout: 30_000 });
-
-      expect(errors.filter((text) => HYDRATION_ERROR.test(text))).toEqual([]);
-      await context.close();
-    });
+// The defaults are a first visit: nothing stored and Playwright's device, which prefers light, and the site stays dark.
+const expectCleanHydration = async (browser, { route, seed, width, device = 'light', paints = 'dark' }) => {
+  const context = await browser.newContext({
+    viewport: { width, height: 900 },
+    timezoneId: 'Asia/Jerusalem',
+    locale: 'de-DE',
+    colorScheme: device
+  });
+  const page = await context.newPage();
+  if (seed) {
+    await page.addInitScript((values) => {
+      for (const [key, value] of Object.entries(values)) localStorage.setItem(key, value);
+    }, seed);
   }
-}
+  const errors = [];
+  page.on('console', (msg) => {
+    if (msg.type() === 'error') errors.push(msg.text());
+  });
+  page.on('pageerror', (err) => errors.push(err.message));
+
+  await page.goto(route);
+  await waitForRender(page);
+  // waitForRender returns once innerText stops changing, which the static body already is
+  // before React runs: without this the assertion could pass on a page that never hydrated.
+  await page.waitForFunction(() => window.next?.router?.isReady === true, null, { timeout: 30_000 });
+
+  expect(errors.filter((text) => HYDRATION_ERROR.test(text))).toEqual([]);
+  // Without this a seed that never took would pass as one more dark run.
+  await expect(page.locator('html')).toHaveClass(new RegExp(`\\b${paints}\\b`));
+  await context.close();
+};
+
+// Each route meets every scheme once, each at another width, so a route sees all three widths and a scheme does too. A first
+// visit adds one more width per route, rotating, so every width also sees first visits without tripling the run.
+SAMPLES.forEach(({ route, seed }, routeIndex) => {
+  const firstVisitWidth = WIDTHS[routeIndex % WIDTHS.length];
+  test(`${route} hydrates without a mismatch at ${firstVisitWidth}px`, ({ browser }) => expectCleanHydration(browser, { route, seed, width: firstVisitWidth }));
+
+  SCHEMES.forEach(({ mode, device, paints }, schemeIndex) => {
+    const width = WIDTHS[(routeIndex + schemeIndex) % WIDTHS.length];
+    test(`${route} hydrates without a mismatch at ${width}px, ${mode} on a device that prefers ${device}`, ({ browser }) => expectCleanHydration(browser, {
+      route,
+      seed: { ...seed, 'mui-mode': mode },
+      width,
+      device,
+      paints
+    }));
+  });
+});
 
 // router.query is {} on the first render of a statically exported page, so a tab strip that reads
 // the router live and data seeded once from a useState initialiser drift apart: the tab highlights
@@ -132,6 +144,16 @@ test.describe('a tab deep link selects the tab and its data', () => {
           })
         });
       }
+    );
+
+    // The cards wait for meta, and the live one refuses localhost: three retries, about 7 s of the 10 s below.
+    await page.route(
+      (url) => url.pathname.endsWith('/leaderboards/meta'),
+      (route) => route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({ tabs: [{ key: 'skills', label: 'Skills', sections: [{ name: 'Gathering', metrics: [{ key: 'mining', label: 'Mining' }] }] }] })
+      })
     );
 
     await page.goto('/leaderboards?t=Skills');

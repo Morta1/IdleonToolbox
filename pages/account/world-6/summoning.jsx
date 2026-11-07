@@ -4,11 +4,11 @@ import Tabber from '@components/common/Tabber';
 import WinnerBonuses from '@components/account/Worlds/World6/Summoning/WinnerBonuses';
 import { AppContext } from '@components/common/context/AppProvider';
 import Upgrades from '@components/account/Worlds/World6/Summoning/Upgrades';
-import { getTabs, notateNumber, numberWithCommas, secondsToShortDuration } from '@utility/helpers';
-import { CardTitleAndValue } from '@components/common/styles';
-import { Divider, Stack, Typography } from '@mui/material';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { formatDuration, formatNum, getTabs, secondsToShortDuration } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import Num from '@components/common/Num';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
 import Battles from '@components/account/Worlds/World6/Summoning/Battles';
 import { PAGES } from '@components/constants';
 import Stones from '@components/account/Worlds/World6/Summoning/Stones';
@@ -16,14 +16,19 @@ import {
   FAMILIAR_EXP_MIN_CLAIM_SECONDS,
   getFamiliarLevelGains,
   getPendingFamiliarExp,
+  SUMMONING_COLOURS,
   summonEssenceColor
 } from '@parsers/world-6/summoning';
-import Tooltip from '@components/Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
 import useHydrated from '@hooks/useHydrated';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
+import useTabIndex from '@hooks/useTabIndex';
 
 const Summoning = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['world 6'].categories, 'summoning');
+  const [tabIndex] = useTabIndex(tabs);
   const {
     winnerBonuses,
     upgrades,
@@ -38,6 +43,8 @@ const Summoning = () => {
     familiarExp,
     familiarCostResetSeconds
   } = state?.account?.summoning || {};
+  const sectionFailed = isSectionFailed(state?.account, 'summoning');
+  const parseFailed = isParseFailed(state?.account);
   // Date.now() differs between the build and the client, so the elapsed time waits for hydration
   const hydrated = useHydrated();
   const pendingExp = getPendingFamiliarExp(familiarExp, hydrated ? state?.lastUpdated : undefined);
@@ -45,72 +52,51 @@ const Summoning = () => {
   const gains = levelGains.map(({ level, newLevel }) => newLevel - level);
   const minGain = gains.length ? Math.min(...gains) : 0;
   const maxGain = gains.length ? Math.max(...gains) : 0;
+  const gainRange = minGain === maxGain ? `${maxGain}` : `${minGain}-${maxGain}`;
+  // Info 5: each character's level gain, a list in a note before
+  const levelGainsBreakdown = createBreakdown('Familiar levels', `+${gainRange} Lv`,
+    flatLines(levelGains.map(({ name, level, newLevel }) => ({
+      name,
+      value: newLevel,
+      formatted: newLevel > level ? `${level} → ${newLevel}` : `${level}`
+    }))),
+    { combine: 'list' });
+  const claimText = pendingExp.claimable
+    ? `${secondsToShortDuration(pendingExp.seconds, { minUnit: 'minute' })} unclaimed`
+    : `Claimable in ${formatDuration(FAMILIAR_EXP_MIN_CLAIM_SECONDS - pendingExp.seconds)}`;
   return <>
     <NextSeo
       title="Summoning | Idleon Toolbox"
       description="View your summoning upgrades, winner bonuses, and battle rewards in Legends of Idleon"
     />
-    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3} alignItems={'center'}>
-      <CardTitleAndValue value={highestEndlessLevel}
-                         icon={'etc/Endless_Summoning.png'} iconAlt={'Highest endless summoning level'}
-                         imgStyle={{ width: 25 }} cardSx={{ my: 0, mb: 0 }}/>
-      <CardTitleAndValue icon={'data/SumExp.png'} iconAlt={'Unclaimed familiar EXP'} cardSx={{ my: 0, mb: 0 }}
-                         imgStyle={{ width: 25 }}
-                         value={<Stack>
-                           <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-                             <Typography>{notateNumber(pendingExp.exp)} EXP</Typography>
-                             {familiarExp?.expMultiBreakdown ? <Breakdown data={familiarExp.expMultiBreakdown}>
-                               <Stack justifyContent={'center'}>
-                                 <IconInfoCircleFilled size={14}/>
-                               </Stack>
-                             </Breakdown> : null}
-                           </Stack>
-                           <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-                             <Typography variant={'caption'} color={'text.secondary'}>
-                               {pendingExp.claimable
-                                 ? `${secondsToShortDuration(pendingExp.seconds, { minUnit: 'minute' })} unclaimed`
-                                 : `Claimable in ${secondsToShortDuration(FAMILIAR_EXP_MIN_CLAIM_SECONDS - pendingExp.seconds, { minUnit: 'minute' })}`}
-                               {maxGain > 0
-                                 ? `, +${minGain === maxGain ? maxGain : `${minGain}-${maxGain}`} Lv`
-                                 : ''}
-                             </Typography>
-                             {maxGain > 0 ? <Tooltip title={<Stack>
-                               {levelGains.map(({ name, level, newLevel }) => <Typography key={name} variant={'body2'}>
-                                 {name}: {level} {newLevel > level ? `→ ${newLevel}` : ''}
-                               </Typography>)}
-                             </Stack>}>
-                               <InfoIcon sx={{ fontSize: 14, opacity: 0.7 }}/>
-                             </Tooltip> : null}
-                           </Stack>
-                         </Stack>}/>
-      <Divider flexItem orientation={'vertical'}/>
+    {sectionFailed ? <MissingData name={'Summoning'} failed atZero={!parseFailed}/>
+      : <NotReached name={'Summoning'} reached={totalUpgradesLevels > 0}/>}
+    <PageSummary failed={sectionFailed}>
+      <StatTile icon={'etc/Endless_Summoning.png'} label={'Highest endless level'} value={highestEndlessLevel ?? 0}
+                kind={'amount'}/>
+      {/* Each tile opens its own number: the unclaimed EXP has no breakdown, the multi behind it is its own tile */}
+      <StatTile icon={'data/SumExp.png'} label={'Unclaimed familiar EXP'} value={`${formatNum(pendingExp?.exp, 'whole')} EXP`}
+                sub={<>{claimText}{maxGain > 0 ? <>{', '}<Breakdown asValue data={levelGainsBreakdown}>
+                  {`+${gainRange} Lv`}</Breakdown></> : null}</>}/>
+      <StatTile label={'Summoning EXP multi'} value={<Num value={familiarExp?.expMulti ?? 1} game={'Summoning.SummEXPgain'} unit={'x'}/>}
+                breakdown={familiarExp?.expMultiBreakdown}/>
       {Object.keys(summonEssenceColor).map((key) => {
         const index = Number(key);
         const gain = essenceGain?.[index];
-        return <CardTitleAndValue key={index} icon={`data/SummC${index + 1}.png`}
-                                  iconAlt={`${summonEssenceColor[index]} essence`}
-                                  cardSx={{ my: 0, mb: 0 }}
-                                  value={<Stack>
-                                    <Typography>{notateNumber(essences?.[index] ?? 0)}</Typography>
-                                    {gain?.unlocked ? <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-                                      <Typography variant={'caption'} color={'text.secondary'}>
-                                        +{notateNumber(gain.value)}/hr
-                                      </Typography>
-                                      <Breakdown data={gain.breakdown}>
-                                        <Stack justifyContent={'center'}>
-                                          <IconInfoCircleFilled size={14}/>
-                                        </Stack>
-                                      </Breakdown>
-                                    </Stack> : null}
-                                  </Stack>}/>
+        return <StatTile key={index} icon={`data/SummC${index + 1}.png`} label={`${SUMMONING_COLOURS[index]} essence`}
+                         value={essences?.[index] ?? 0} kind={'whole'}
+                         sub={gain?.unlocked ? <Breakdown asValue data={gain?.breakdown}>
+                           {`+${formatGame(gain?.value, 'Summoning.SummRockEssGen')}/hr`}</Breakdown> : null}/>;
       })}
-    </Stack>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'summoning')}>
-      <Upgrades upgrades={upgrades} totalUpgradesLevels={numberWithCommas(totalUpgradesLevels)}
-                familiarCostReset={state?.lastUpdated + familiarCostResetSeconds * 1000}/>
+      {/* Decision 2: the number the disabled toggle showed */}
+      <StatTile label={'Total upgrades'} value={totalUpgradesLevels ?? 0} kind={'amount'}/>
+    </PageSummary>
+    <Tabber tabs={tabs}>
+      {parseFailed ? null : <Upgrades upgrades={upgrades} essences={essences}
+                familiarCostReset={state?.lastUpdated + familiarCostResetSeconds * 1000}/>}
       <WinnerBonuses winnerBonuses={winnerBonuses}/>
-      <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage}
-               highestEndlessLevel={highestEndlessLevel} winnerBonuses={winnerBonuses}/>
+      {parseFailed ? null : <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage}
+               highestEndlessLevel={highestEndlessLevel} winnerBonuses={winnerBonuses}/>}
       <Stones stones={summoningStones}/>
     </Tabber>
   </>

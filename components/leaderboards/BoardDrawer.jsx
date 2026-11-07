@@ -1,25 +1,30 @@
 import React, { useId } from 'react';
-import { Alert, Button, CircularProgress, Drawer, IconButton, Stack, Typography, useMediaQuery } from '@mui/material';
+import { Button, CircularProgress, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
-import { IconX } from '@tabler/icons-react';
 import { useQuery } from '@tanstack/react-query';
-import { numberWithCommas } from '@utility/helpers';
+import AppDrawer from '@components/common/Overlays/AppDrawer';
+import Notice, { retryAction } from '@components/common/Notice';
+import { formatNum } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
-import { FOCUS_RING, GLOBAL_METRIC, formatDistinctValues, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun } from './format';
+import { GLOBAL_METRIC, formatBoardValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, showsFailure, staleUntilNextRun } from './format';
+import { focusWithinRing } from '../../styles/theme/theme';
 import MetricIcon from './MetricIcon';
 import RankRow from './RankRow';
 
 // At rank 15 or better the window would repeat the top of the Top 100 list.
 const AROUND_SKIP_RANK = 15;
+// A card lists a board's first ten: the drawer prints those the way the card did.
+const CARD_ROWS = 10;
+const NOWRAP_SX = { whiteSpace: 'nowrap' };
 
 const SectionHeading = ({ children, note, action, id, sx }) => (
   <Stack direction="row" alignItems="baseline" columnGap={1} flexWrap="wrap" sx={{ px: 2.5, pb: 0.75, ...sx }}>
     {/* The Top 100 link focuses this heading; when it is already on screen the ring is the only
         sign the link did anything. */}
-    <Typography component="h3" id={id} tabIndex={id ? -1 : undefined} color="text.secondary" sx={{
-      fontSize: 12, letterSpacing: 1, textTransform: 'uppercase', borderRadius: 1, '&:focus': { outline: '2px solid #90caf9', outlineOffset: '2px' }
+    <Typography variant="groupLabel" component="h3" id={id} tabIndex={id ? -1 : undefined} color="text.secondary" sx={{
+      borderRadius: 1, '&:focus': { outline: '2px solid var(--mui-palette-primary-main)', outlineOffset: '2px' }
     }}>{children}</Typography>
-    {note ? <Typography color="text.disabled" sx={{ fontSize: 12 }}>{note}</Typography> : null}
+    {note ? <Typography variant="caption" color="text.muted">{note}</Typography> : null}
     {action ? <Box sx={{ ml: 'auto' }}>{action}</Box> : null}
   </Stack>
 );
@@ -39,10 +44,9 @@ const focusBoardLink = (metricKey, force) => {
 // rankEntry: the player's entry for this board from /player ({ r, v, t, nr, nv }), the fallback
 // for the step when everyone in the around window shares the player's rank.
 const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, showAnonymous, focusBoardOnClose = false, onClose }) => {
-  const isPhone = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const titleId = useId();
   const meta = metaOf(index, metricKey ?? GLOBAL_METRIC);
-  const { data, isError, isLoading, refetch } = useQuery({
+  const boardQuery = useQuery({
     queryKey: ['lb-board', metricKey, player?.toLowerCase() ?? '', !showAnonymous],
     queryFn: () => fetchBoard(metricKey, { around: player ?? undefined, publicOnly: !showAnonymous }),
     enabled: open,
@@ -51,8 +55,10 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
     placeholderData: (previous, previousQuery) => (previousQuery?.queryKey[1] === metricKey ? previous : undefined),
     staleTime: staleUntilNextRun
   });
+  const { data, isLoading, isFetching, refetch, errorUpdateCount } = boardQuery;
   const isMe = (name) => Boolean(player) && name.toLowerCase() === player.toLowerCase();
-  const around = (data?.around ?? []).filter((row) => showAnonymous || isMe(row.mainChar) || !row.mainChar.startsWith('Anon#'));
+  // A row with no name has nothing to show or link to.
+  const around = (data?.around ?? []).filter((row) => row?.mainChar && (showAnonymous || isMe(row.mainChar) || !row.mainChar.startsWith('Anon#')));
   const mine = around.find((row) => isMe(row.mainChar)) ?? null;
   const myRank = mine?.rank ?? null;
   const showAround = myRank != null && myRank > AROUND_SKIP_RANK;
@@ -65,64 +71,55 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
     : showAround && rankEntry?.nv != null
       ? `+${formatStep(meta.notation, rankEntry.nv - rankEntry.v, { scale: meta.top })} to reach ${rankText(rankEntry.nr)}`
       : null;
-  const ties = showAround && rankEntry?.t > 1 ? `${numberWithCommas(rankEntry.t)} tied at ${rankText(myRank)}` : null;
+  const ties = showAround && rankEntry?.t > 1 ? `${formatNum(rankEntry.t, 'whole')} tied at ${rankText(myRank)}` : null;
   const step = [nextStep, ties].filter(Boolean).join(' · ') || null;
   const maxed = Boolean(meta.maxed);
   // With anonymous players hidden, an anonymous player in context is missing from the public top
   // 100; they still go in their place.
-  const top = data?.top ?? [];
+  const top = (data?.top ?? []).filter((row) => row?.mainChar);
   const topRows = mine && top.length && mine.rank < top[top.length - 1].rank && !top.some((row) => isMe(row.mainChar))
     ? [...top, mine].sort((a, b) => a.rank - b.rank)
     : top;
   // The header names the same #1 as the list under it.
   const first = topRows[0] ?? null;
   const players = (metricKey ?? GLOBAL_METRIC) === GLOBAL_METRIC ? index.totalPlayers : meta.players;
-  const aroundTexts = formatDistinctValues(meta.notation, around.map((row) => row.value), { scale: meta.top });
-  // The drawer is the close look, and a phone has no hover for the exact figure: its list gets the
-  // same treatment, so ranks 16 to 20 never all read 104M.
-  const topTexts = formatDistinctValues(meta.notation, topRows.map((row) => row.value), { scale: meta.top });
+  // The list gets the card's treatment, so ranks 16 to 20 never all read 104M. Its first ten read as they do on the card
+  // ("12.20M" in both); the rest take the digits they need. A value below 1M shows the board's one count of decimals.
+  const [aroundTexts, cardTexts, restTexts] = formatBoardValues(meta.notation,
+    [around, topRows.slice(0, CARD_ROWS), topRows.slice(CARD_ROWS)].map((rows) => rows.map((row) => row.value)), { scale: meta.top });
+  const topTexts = [...cardTexts, ...restTexts];
   const topHeadingId = `${titleId}-top`;
   const rowProps = (row, variant) => ({
-    rank: row.rank, name: row.mainChar, value: row.value, notation: meta.notation, scale: meta.top, variant,
+    rank: row.rank, name: row.mainChar, value: row.value, notation: meta.notation, scale: meta.top, variant, exact: formatExactValue(meta.notation, row.value),
     kind: isMe(row.mainChar) ? kind : null, plainRank: maxed, globalRank: maxed ? row.globalRank : null
   });
 
+  // The header's caption line: the max when the board is maxed, else the leader and the player count.
+  // Each part is one group: on a phone they stack, and neither breaks inside ("17,369.52 / pts", "2,749 / players").
+  const summaryParts = maxed && meta.top != null
+    ? [`${formatMetricValue(meta.notation, meta.top, { scale: meta.top })} is the max`, `${formatNum(meta.topTies, 'whole')} players have it`]
+    : [
+      first ? `${rankText(first.rank)} ${first.mainChar} · ${topTexts[0] ?? formatMetricValue(meta.notation, first.value, { scale: meta.top })}` : null,
+      players != null ? `${formatNum(players, 'whole')} players` : null
+    ].filter(Boolean);
+  const summary = summaryParts.length ? (
+    <Stack direction="row" flexWrap="wrap" columnGap={2}>
+      {summaryParts.map((part) => <Box component="span" key={part} sx={NOWRAP_SX}>{part}</Box>)}
+    </Stack>
+  ) : null;
+
   return (
-    <Drawer
-      anchor="right"
+    <AppDrawer
       open={open}
       onClose={onClose}
+      title={meta.label}
+      icon={<MetricIcon metric={meta.key} label={meta.label}/>}
+      subtitle={summary}
       // MUI hands focus back after onExited, so the check waits for that to land first.
-      SlideProps={{ onExited: () => setTimeout(() => focusBoardLink(metricKey, focusBoardOnClose), 50) }}
-      sx={{ zIndex: (theme) => theme.zIndex.modal }}
-      PaperProps={{
-        role: 'dialog', 'aria-modal': true, 'aria-labelledby': titleId,
-        sx: { width: isPhone ? '100%' : 480, bgcolor: 'background.default', backgroundImage: 'none', borderLeft: '1px solid #2f3641', ...FOCUS_RING }
-      }}>
-      <Stack gap={1.25} sx={{ flexShrink: 0, px: 2.5, pt: 2.25, pb: 1.75, borderBottom: 1, borderColor: 'divider' }}>
-        <Stack direction="row" alignItems="center" gap={1.25}>
-          <MetricIcon metric={meta.key} label={meta.label} size={26} maxed={maxed}/>
-          <Typography id={titleId} component="h2" title={meta.label} noWrap sx={{ flexGrow: 1, minWidth: 0, fontSize: 18, fontWeight: 700 }}>{meta.label}</Typography>
-          <IconButton aria-label="Close" onClick={onClose} sx={{ width: 36, height: 36, borderRadius: 2, color: 'text.secondary' }}>
-            <IconX size={18} stroke={2.2}/>
-          </IconButton>
-        </Stack>
-        {maxed && meta.top != null ? (
-          <Typography color="text.secondary" sx={{ fontSize: 12 }}>
-            {`${formatMetricValue(meta.notation, meta.top)} is the max · ${numberWithCommas(meta.topTies)} players have it`}
-          </Typography>
-        ) : first || players != null ? (
-          <Stack direction="row" gap={2} sx={{ fontSize: 12, color: 'text.secondary' }}>
-            {first ? <span>{`${rankText(first.rank)} ${first.mainChar} · ${topTexts[0] ?? formatMetricValue(meta.notation, first.value, { scale: meta.top })}`}</span> : null}
-            {players != null ? <span>{`${numberWithCommas(players)} players`}</span> : null}
-          </Stack>
-        ) : null}
-      </Stack>
-      <Box sx={{ flex: 1, minHeight: 0, overflowY: 'auto', pb: 2 }}>
-        {isError ? (
-          <Alert severity="error" sx={{ m: 2 }} action={<Button color="inherit" size="small" onClick={() => refetch()}>Retry</Button>}>
-            Could not load this board
-          </Alert>
+      onExited={() => setTimeout(() => focusBoardLink(metricKey, focusBoardOnClose), 50)}>
+      <Box sx={[{ pb: 2 }, focusWithinRing]}>
+        {showsFailure(boardQuery) ? (
+          <Notice key={errorUpdateCount} tone={'error'} sx={{ m: 2 }} action={retryAction(() => refetch(), isFetching)}>Couldn't load this board.</Notice>
         ) : isLoading ? (
           <Stack alignItems="center" sx={{ p: 4 }}><CircularProgress/></Stack>
         ) : (
@@ -136,9 +133,8 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
                     const heading = document.getElementById(topHeadingId);
                     heading?.scrollIntoView({ block: 'start', behavior: 'smooth' });
                     heading?.focus({ preventScroll: true });
-                  }}
-                          sx={{ p: 0, minWidth: 0, fontSize: 12, fontWeight: 600, textTransform: 'none' }}>
-                    Top 100<Box component="span" aria-hidden sx={{ ml: 0.5 }}>↓</Box>
+                  }}>
+                    Back to the top 100
                   </Button>
                 }>
                   {kind === 'logged' ? 'Around you' : <>Around <Box component="span" sx={{ textTransform: 'none' }}>{mine.mainChar}</Box></>}
@@ -150,12 +146,14 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
             ) : null}
             <SectionHeading id={topHeadingId} sx={showAround ? { mt: 1.75, pt: 2.25, borderTop: 1, borderColor: 'divider', scrollMarginTop: 8 } : { pt: 1.75 }}>Top 100</SectionHeading>
             <Box sx={{ px: 1.5 }}>
-              {topRows.map((row, at) => <RankRow key={row.mainChar} {...rowProps(row, 'list')} display={topTexts[at]}/>)}
+              {topRows.length
+                ? topRows.map((row, at) => <RankRow key={row.mainChar} {...rowProps(row, 'list')} display={topTexts[at]}/>)
+                : <Typography variant="body2" color="text.secondary" sx={{ px: 1.25, py: 0.875 }}>No one on this board yet.</Typography>}
             </Box>
           </>
         )}
       </Box>
-    </Drawer>
+    </AppDrawer>
   );
 };
 

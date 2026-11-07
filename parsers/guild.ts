@@ -1,6 +1,9 @@
 import { growth, tryToParse } from '@utility/helpers';
 import { guildBonuses, guildTasks } from '@website-data';
+import { getGuildLevel } from './guildLevel';
 import type { IdleonData, GuildData } from './types';
+
+export { getGuildLevel };
 
 export interface GuildBonusEntry {
   level: number;
@@ -103,16 +106,6 @@ const getGuildLevelReq = (guildRaw: any, points: number): number => {
     }
   }
   return 0;
-}
-
-export const getGuildLevel = (points: number): number => {
-  for (let e = 0; 100 > e;) {
-    const n = e++;
-    if (!(points >= 100 * (n + 1) * Math.pow(1.21, n))) {
-      return Math.min(n + 1, 45);
-    }
-  }
-  return 1;
 }
 
 export const getGuildBonusBonus = (guildBonuses: GuildBonusEntry[] | undefined, bonusIndex: number): number => {

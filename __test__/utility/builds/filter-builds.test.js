@@ -71,14 +71,6 @@ describe('filterAndSortBuilds', () => {
     expect(filterAndSortBuilds([], undefined)).toEqual([]);
   });
 
-  it('is unchanged when pinFirst is absent', () => {
-    const builds = [
-      b('old', { createdAt: '2026-01-01T00:00:00.000Z' }),
-      b('new', { createdAt: '2026-08-01T00:00:00.000Z' })
-    ];
-    expect(filterAndSortBuilds(builds, {}).map((x) => x.shortId)).toEqual(['new', 'old']);
-  });
-
   it('pins builds ahead of a newer unpinned build under the "new" sort', () => {
     const builds = [
       b('freshest', { createdAt: '2026-09-01T00:00:00.000Z' }),

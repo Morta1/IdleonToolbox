@@ -1,67 +1,47 @@
-import { Divider, Stack, TextField, Typography } from '@mui/material';
-import { numberWithCommas } from '@utility/helpers';
-import { Section } from '@components/tools/active-calculator/common';
+import { Box, Stack, Typography } from '@mui/material';
+import { elapsedHours, Section, SectionGroup } from '@components/tools/active-calculator/common';
 import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { compareInventories, consolidateItems } from '@parsers/misc/activeCalculator';
 import { AppContext } from '@components/common/context/AppProvider';
 import Inventory from '@components/characters/Inventory';
-import Tooltip from '@components/Tooltip';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import NumberField from '@components/common/NumberField';
 
 const DropSection = ({ selectedChar, lastUpdated, resultsOnly }) => {
   const { state } = useContext(AppContext);
   const [snapshottedChar] = useLocalStorage({ key: 'activeDropPlayer', defaultValue: null });
   const [goal, setGoal] = useLocalStorage({ key: 'activeDropGoal', defaultValue: '' });
-  const difference = compareInventories(snapshottedChar?.inventory, state?.characters?.[selectedChar]?.inventory, lastUpdated, snapshottedChar?.snapshotTime, goal);
+  const character = state?.characters?.[selectedChar];
+  const difference = compareInventories(snapshottedChar?.inventory, character?.inventory, lastUpdated, snapshottedChar?.snapshotTime, goal);
+  // An older value holds commas; the parser reads either
+  const goalNumber = Number(`${goal}`.replace(/,/g, ''));
 
-  const handleChange = (event) => {
-    const rawValue = event.target.value.replace(/,/g, ''); // Remove existing commas
-    if (!isNaN(rawValue) && rawValue !== '') {
-      setGoal(numberWithCommas(Number(rawValue))); // Format with commas
-    } else {
-      setGoal(''); // Clear if invalid input
-    }
-  };
-
-  return <Section title={'Total Items'}
-                  tooltip={'This is a consolidated view of your items, where identical items have been combined and their total quantities summed.'}
-                  extra={<TextField value={goal} onChange={handleChange} label={'Goal'} size={'small'}/>}
-  >
-    {!resultsOnly ? <>
-      <Stack>
-        <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Snapshot</Typography>
-        {(snapshottedChar?.playerId + '') === selectedChar
-          ? <Inventory asc
-                       inventory={consolidateItems(snapshottedChar?.inventory)}
-                       inventoryLength={snapshottedChar?.inventory?.length}
+  return <Section title={'Drops'} meta={'Updates when you cloud save in game'} info={'Identical items are combined and their amounts summed.'}>
+    <Stack gap={2} sx={{ p: 2 }}>
+      <Box>
+        <NumberField label={'Goal'} integer min={0} help={false} sx={{ width: 200 }}
+                     value={goal === '' || !Number.isFinite(goalNumber) ? null : goalNumber}
+                     onChange={(next) => setGoal(next == null ? '' : String(next))}/>
+      </Box>
+      <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
+        {!resultsOnly ? <>
+          <SectionGroup label={'Snapshot'}>
+            <Inventory asc inventory={consolidateItems(snapshottedChar?.inventory)} inventoryLength={snapshottedChar?.inventory?.length}
                        inventorySlots={snapshottedChar?.inventorySlots}/>
-          : <Typography variant={'body1'}>No snapshot available for
-            this character</Typography>}
+          </SectionGroup>
+          <SectionGroup label={'Now'}>
+            <Inventory asc inventory={consolidateItems(character?.inventory)} inventoryLength={character?.inventory?.length}
+                       inventorySlots={character?.inventorySlots}/>
+          </SectionGroup>
+        </> : null}
+        <SectionGroup label={'Gained'}>
+          {/* A save older than the snapshot has no time to divide by: no rate, as Coins and Cards read */}
+          {difference.length ? <Inventory asc inventory={difference} amountKey={'difference'} ratesKnown={Boolean(elapsedHours(lastUpdated, snapshottedChar?.snapshotTime))}/>
+            : <Typography variant={'body2'} color={'text.secondary'}>No item has gone up since the snapshot.</Typography>}
+        </SectionGroup>
       </Stack>
-      <Divider flexItem orientation={'vertical'} sx={{ mx: 2 }}/>
-      <Stack>
-        <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Current</Typography>
-        <Inventory asc
-                   inventory={consolidateItems(state?.characters?.[selectedChar]?.inventory)}
-                   inventoryLength={state?.characters?.[selectedChar]?.inventory?.length}
-                   inventorySlots={state?.characters?.[selectedChar]?.inventorySlots}/>
-      </Stack>
-    </> : null}
-    <Stack>
-      <Stack direction={'row'} alignItems={'center'} gap={1}>
-        <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Result</Typography>
-        <Tooltip
-          title={<Stack>
-            <Typography variant={'body1'}>Hover over each item to see more stats</Typography>
-          </Stack>}>
-          <IconInfoCircleFilled size={18}/>
-        </Tooltip>
-      </Stack>
-      <Typography variant={'body1'}>Cloudsave in-game to update the results</Typography>
-      <Inventory asc inventory={difference} amountKey={'difference'}/>
     </Stack>
-  </Section>
+  </Section>;
 };
 
 export default DropSection;

@@ -8,7 +8,8 @@ import { PAGE_SEO } from '../../data/page-seo';
 let pathname = '/';
 vi.mock('next/router', () => ({ useRouter: () => ({ pathname }) }));
 
-const PageTitle = (await import('@components/common/PageTitle')).default;
+const { default: PageTitle, titleOf } = await import('@components/common/PageTitle');
+const { headerIconFor } = await import('@utility/pageIndex');
 
 describe('PageTitle', () => {
   beforeEach(() => { pathname = '/'; });
@@ -49,5 +50,10 @@ describe('PageTitle', () => {
       .filter(([, seo]) => !seo.title?.replace(/\s*\|.*$/, '').trim())
       .map(([route]) => route);
     expect(missing).toEqual([]);
+  });
+
+  // The header row puts an icon before every title, so no title sits 48 px left of the others
+  it('has a header icon for every route with a title', () => {
+    expect(Object.keys(PAGE_SEO).filter((route) => titleOf(route) && !headerIconFor(route))).toEqual([]);
   });
 });

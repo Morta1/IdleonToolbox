@@ -8,12 +8,12 @@
 //   Special:                 [[EquipmentHats5]] → mention node
 //   Whitespace:              paragraphs separated by \n\n (standard MD);
 //                            old plain-text builds with single \n still
-//                            render — the view-side renderer turns soft
+//                            render: the view-side renderer turns soft
 //                            breaks into <br>.
 //
 // textToDoc is the inverse of docToText for well-formed input. Unsupported
 // token types (code blocks, tables, images, blockquotes, etc.) degrade to
-// plain-text paragraphs so nothing crashes — they can't be created through
+// plain-text paragraphs so nothing crashes: they can't be created through
 // our editor (the extensions are disabled) but might appear in stored text
 // if somebody hand-authored the description via the API.
 
@@ -24,7 +24,7 @@ import { parseItemRefs } from './itemRefs';
 // Serialize: TipTap doc JSON -> storage string
 // ---------------------------------------------------------------------------
 
-// Users type in a WYSIWYG editor, not in raw Markdown — they apply formatting
+// Users type in a WYSIWYG editor, not in raw Markdown: they apply formatting
 // via shortcuts or the (future) toolbar, not by typing `**x**`. So we escape
 // only the characters whose literal occurrences would become accidental
 // formatting on re-parse: the emphasis markers and backslash itself.
@@ -118,7 +118,7 @@ const inlineTokensToNodes = (tokens, marksStack = []) => {
 			case 'text':
 			case 'escape':
 			case 'codespan': {
-				// For `code`, we don't have a code mark enabled — fall through to plain text.
+				// For `code`, we don't have a code mark enabled: fall through to plain text.
 				const raw = tok.text ?? tok.raw ?? '';
 				const segs = parseItemRefs(raw);
 				if (segs.length === 0 && raw) {
@@ -202,7 +202,7 @@ const blockTokenToNode = (tok) => {
 		case 'blockquote':
 		case 'def':
 		case 'image':
-			// Extension disabled — render as plain text to keep content visible.
+			// Extension disabled: render as plain text to keep content visible.
 			return {
 				type: 'paragraph',
 				content: [{ type: 'text', text: (tok.raw || '').trim() }].filter(

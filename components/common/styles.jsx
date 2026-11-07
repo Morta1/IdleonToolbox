@@ -1,92 +1,73 @@
-import React, { forwardRef, useEffect } from 'react';
-import { cleanUnderscore, growth, numberWithCommas, prefix } from 'utility/helpers';
-import { Badge, Button, Card, CardContent, Stack, Typography } from '@mui/material';
-import { alpha, styled } from '@mui/material/styles';
-import { IconAlertTriangle, IconBrandDiscord, IconInfoCircle } from '@tabler/icons-react';
-import Tooltip from '../Tooltip';
-import { DISCORD_SERVER_URL } from '../discordLinks';
+import React, { forwardRef, useContext, useEffect } from 'react';
+import { cleanUnderscore, formatNum, growth, prefix, talentText, titleCaseName } from 'utility/helpers';
+import { Stack, Typography } from '@mui/material';
+import { styled } from '@mui/material/styles';
+import Notice from '@components/common/Notice';
+import { AppContext } from '@components/common/context/AppProvider';
+import GameIcon from '@components/common/GameIcon';
+import { NoteTrigger } from '@components/common/InfoButton';
+import ItemCard from '@components/common/cards/ItemCard';
 import { trackEvent } from '@utility/analytics';
 import { calcCardBonus } from 'parsers/cardMath';
+import { formatGame } from '@utility/gameNotation';
 
+// A sprite over its count. size is a GameIcon size; a title is the thing's name, a note that opens on a tap. A title
+// that is more than a name (a note with lines) takes label as the thing's name.
 export const IconWithText = forwardRef((props, ref) => {
-  const { stat, icon, img, title = '', ...rest } = props
-  return <Tooltip title={title}>
-    <Stack alignItems={'center'} {...rest} ref={ref} style={{ position: 'relative', width: 'fit-content' }}>
-      <img {...img} src={`${prefix}data/${icon}.png`} alt={typeof title === 'string' && title ? title : icon}/>
-      <Typography variant={'body1'}
-                  component={'span'}>{stat}</Typography>
-    </Stack>
-  </Tooltip>
+  const { stat, icon, size = 32, title = '', label, ...rest } = props
+  const name = typeof title === 'string' ? title : label ?? '';
+  const body = <Stack alignItems={'center'} {...rest} ref={ref} style={{ position: 'relative', width: 'fit-content' }}>
+    <GameIcon src={`data/${icon}.png`} size={size} alt={name}/>
+    <Typography variant={'body2'} component={'span'}>{stat}</Typography>
+  </Stack>;
+  return title ? <NoteTrigger note={title} label={name || undefined}>{body}</NoteTrigger> : body;
 })
 IconWithText.displayName = 'IconWithText'
 
-export const TitleAndValue = ({ title, value, boldTitle, titleStyle = {}, valueStyle = {}, stackStyle }) => {
-  return <Stack direction={'row'} flexWrap={'wrap'} alignItems={'center'} sx={stackStyle}>
-    {title ? <Typography sx={titleStyle} fontWeight={boldTitle ? 'bold' : 500}
-                         component={'span'}>{title}:&nbsp;</Typography> : null}
-    <Typography fontSize={15} component={'span'} sx={valueStyle}>{value}</Typography>
-  </Stack>
-}
-
-export const StyledBadge = styled(Badge)`
-  & .MuiBadge-badge {
-    background-color: #d5d5dc;
-    color: rgba(0, 0, 0, 0.87);
-  }
-`
-
+// A card is 56x72, not a square item box, so its art keeps its own box (5a Decision 1), dimmed when not owned.
+// Its details open on a tap.
 export const CardAndBorder = (cardProps) => {
-  const { cardName, stars, cardIndex, name, variant, rawName, amount, nextLevelReq, forceDisable, tooltipProps } = cardProps;
+  const { cardName, displayName, stars, cardIndex, name, variant, rawName, amount, nextLevelReq, forceDisable } = cardProps;
   const iconSrc = variant === 'cardSet' ? `${prefix}data/${rawName}.png` : `${prefix}data/2Cards${cardIndex}.png`;
   const realCardName = variant === 'cardSet' ? name : cardName;
+  const label = cleanUnderscore(displayName ?? realCardName ?? rawName ?? '');
+  // A card the save never mentions (a failed cards section) is unknown, not missing: only a 0 dims it
+  const dim = (amount === 0 && variant !== 'cardSet') || forceDisable;
+  const art = <img src={iconSrc} alt={label} style={{ width: 56, height: 72, objectFit: 'contain', opacity: dim ? .5 : 1 }}/>;
+  const details = <CardTooltip {...{ ...cardProps, cardName: realCardName, nextLevelReq, amount }}/>;
 
   return <>
+    <NoteTrigger note={details} label={label}>{art}</NoteTrigger>
+    {/* After the art, so the equipped border draws over it */}
     {stars > 0 && !forceDisable ?
       <BorderIcon src={`${prefix}data/CardEquipBorder${stars}.png`} alt=""/> : null}
-    <Tooltip {...tooltipProps} title={<CardTooltip {...{ ...cardProps, cardName: realCardName, nextLevelReq, amount }}/>}>
-      <CardIcon
-        forceDisable={forceDisable}
-        isCardSet={variant === 'cardSet'}
-        amount={amount}
-        src={iconSrc} alt={cleanUnderscore(realCardName ?? rawName ?? '')}/>
-    </Tooltip>
   </>
 }
 
-const CardTooltip = ({ displayName, effect, bonus, stars, showInfo, nextLevelReq, amount }) => {
+// A card set has no displayName: its note is titled by the set's name (cardName), as its trigger is.
+const cardCount = (value) => formatGame(value, 'RunCodeOfTypeXforThingY.CardsTillNextLV', { whole: true });
+const CardTooltip = ({ displayName, cardName, effect, bonus, stars, showInfo, nextLevelReq, amount }) => {
   let realBonus = bonus;
   if (showInfo) {
     realBonus = calcCardBonus({ bonus, stars });
   }
   return <>
-    <Typography fontWeight={'bold'} variant={'h6'}>{cleanUnderscore(displayName)}</Typography>
-    <Typography>{cleanUnderscore(effect.replace('{', realBonus))}</Typography>
+    <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(displayName ?? cardName ?? '')}</Typography>
+    <Typography variant={'body2'}>{cleanUnderscore(effect?.replace('{', formatNum(realBonus)) ?? '')}</Typography>
     {showInfo ? <Stack mt={1} direction={'row'} gap={1} flexWrap={'wrap'}>
       {[1, 2, 3, 4, 5, 6, 7].map((_, index) => {
         return <Stack key={`${displayName}-${index}`} alignItems={'center'} justifyContent={'space-between'}>
-          {index === 0 ? <Typography>Base</Typography> : <StarIcon src={`${prefix}etc/Star${index}.png`} alt={`${index} star`}/>}
-          <Typography>{bonus * (index + 1)}</Typography>
+          {index === 0 ? <Typography variant={'body2'}>Base</Typography> :
+            <GameIcon src={`etc/Star${index}.png`} size={16} alt={`${index} star`}/>}
+          <Typography variant={'body2'}>{formatNum(bonus * (index + 1))}</Typography>
         </Stack>
       })}
     </Stack> : null}
-    {amount >= nextLevelReq ? <Stack>You've collected {numberWithCommas(amount)} cards</Stack> : nextLevelReq > 0 ?
-      <Stack>
-        Progress: {numberWithCommas(amount)} / {numberWithCommas(nextLevelReq)}
-      </Stack> : null}
+    {/* The game's line (N.js): commas up to 1M, its short form past it. Not CardsTillNextLV's 100M: that rule is its "more cards to Lv Up" */}
+    {amount >= nextLevelReq ? <Typography variant={'body2'}>You've collected {formatNum(amount, 'whole')} cards</Typography> : nextLevelReq > 0 ?
+      <ItemCard.Facts rows={[['Progress', `${cardCount(amount)} / ${cardCount(nextLevelReq)}`]]}/> : null}
   </>
 }
-
-const StarIcon = styled('img')`
-  height: 20px;
-  object-fit: contain;
-`
-
-const CardIcon = styled('img')`
-  width: 56px;
-  height: 72px;
-  object-fit: contain;
-  opacity: ${({ amount, isCardSet, forceDisable }) => (!amount && !isCardSet) || forceDisable ? .5 : 1};
-`
 
 const BorderIcon = styled('img')`
   position: absolute;
@@ -102,23 +83,21 @@ export const TalentTooltip = ({ level, funcX, x1, x2, funcY, y1, y2, description
   const secondaryStat = level > 0 ? growth(funcY, level, y1, y2) : 0;
   return <>
     <Stack direction={'row'} alignItems={'center'} gap={1}>
-      <img src={`${prefix}data/UISkillIcon${talentId}.png`} alt=""/>
-      <Typography fontWeight={'bold'} variant={'h6'}>{cleanUnderscore(name)}</Typography>
+      <GameIcon src={`data/UISkillIcon${talentId}.png`} size={32} alt=""/>
+      <Typography variant={'cardTitle'} component={'div'} color={'text.primary'}>{titleCaseName(cleanUnderscore(name))}</Typography>
     </Stack>
-    <Typography>{cleanUnderscore(description).replace('{', mainStat).replace('}', secondaryStat)}</Typography>
+    <Typography variant={'body2'}>{talentText(description, mainStat, secondaryStat)}</Typography>
   </>
 }
 
 export const PlayersList = ({ players, characters }) => {
   return <Stack gap={1} direction={'row'}>
-    {players.map(({ index }) => <Tooltip key={name + '-head-' + index}
-                                         title={characters?.[index]?.name}>
-      <img
-        style={{ width: 24, height: 24 }}
-        src={`${prefix}data/ClassIcons${characters?.[index]?.classIndex}.png`}
-        alt={characters?.[index]?.name ?? 'character'}
-      />
-    </Tooltip>)}
+    {players.map(({ index }) => {
+      const name = cleanUnderscore(characters?.[index]?.name) || 'Character';
+      return <NoteTrigger key={`player-${index}`} note={name} label={name}>
+        <GameIcon src={`data/ClassIcons${characters?.[index]?.classIndex}.png`} size={24} alt=""/>
+      </NoteTrigger>;
+    })}
   </Stack>
 }
 
@@ -130,88 +109,61 @@ export const isSectionFailed = (account, section) => {
   return !!failed?.includes(section) || !!failed?.includes('*');
 };
 
-// The identity banner's blue, so the info state reads as the same family of notice.
-const NOTICE_BLUE = '#94baee';
+// The whole parse failed: a failed section comes back as its catalog at zero (parsers/index.ts), and here none did.
+export const isParseFailed = (account) => !!account?.failedSections?.includes('*');
 
-// The page returns early with this, so it is the whole body: a panel, not a bare line.
-export const MissingData = ({ name, failed }) => {
+// A number a parser builds from these sections: when one failed it reads "-".
+export const fedBy = (account, ...sections) => sections.some((name) => isSectionFailed(account, name));
+
+// "your Hat Rack", but a name that carries its own word stands alone: "the Hole", "The Button", "your save".
+const yourName = (name) => (/^(the|your)\b/i.test(name) ? name : `your ${name}`);
+
+// The parse's own section keys as a player reads them: "printer" is "Printer", "cooking.kitchens" "Cooking kitchens".
+export const sectionName = (key) => {
+  const words = `${key}`.replace(/\./g, ' ').replace(/([a-z])([A-Z])/g, (_, a, b) => `${a} ${b}`).toLowerCase();
+  return `${words.charAt(0).toUpperCase()}${words.slice(1)}`;
+};
+export const joinNames = (names) => (names.length < 2 ? names.join('') : `${names.slice(0, -1).join(', ')} and ${names.at(-1)}`);
+// What a page that reads many sections says failed: '*' (the whole parse) is "your save", else every one by name.
+const failedSectionsName = (sections) => (sections.includes('*') ? 'your save' : joinNames(sections.map(sectionName)));
+
+// A page's first note when its section is missing or failed to parse (Notices board, "Never replace the page"): the
+// page renders under it. sections: the parse's failed keys, for a page that reads too many to name itself (failed is
+// then implied). atZero: the page keeps its catalog at zero under the note, so the note says so (Notices board, "Nothing
+// of yours"); a page whose body went blank has no zeros to explain.
+export const MissingData = ({ name, failed, sections, atZero }) => {
+  const shownName = sections ? failedSectionsName(sections) : name;
+  const isFailed = failed || Boolean(sections);
   useEffect(() => {
     // Parse errors only reach the console otherwise; this surfaces breaks nobody reports.
-    if (failed) trackEvent('section_failed', { section: name });
-  }, [failed, name]);
+    if (isFailed) trackEvent('section_failed', { section: shownName });
+  }, [isFailed, shownName]);
 
-  const Icon = failed ? IconAlertTriangle : IconInfoCircle;
-  return <Card variant={'outlined'} sx={{ maxWidth: 520, mt: 2 }}>
-    <CardContent>
-      <Stack direction={'row'} gap={2} alignItems={'flex-start'}>
-        <Stack alignItems={'center'} justifyContent={'center'} sx={{
-          width: 40,
-          height: 40,
-          flexShrink: 0,
-          borderRadius: '50%',
-          color: failed ? 'error.light' : NOTICE_BLUE,
-          bgcolor: (theme) => alpha(failed ? theme.palette.error.light : NOTICE_BLUE, 0.14)
-        }}>
-          <Icon size={22}/>
-        </Stack>
-        <Stack gap={0.5}>
-          <Typography variant={'subtitle1'} component={'h2'} fontWeight={500}>
-            {failed ? `Couldn't load ${name}` : `No ${name} data yet`}
-          </Typography>
-          <Typography variant={'body2'} color={'text.secondary'}>
-            {failed
-              ? `Something in this save tripped up the toolbox. That's a bug on my end: let me know on Discord and I'll fix it.`
-              : `Your save doesn't have ${name} yet. It shows up here once it does.`}
-          </Typography>
-          {failed ? <Stack direction={'row'} gap={1} alignItems={'center'} mt={1}>
-            <Button size={'small'} variant={'outlined'} href={DISCORD_SERVER_URL} target={'_blank'} rel={'noreferrer'}
-                    startIcon={<IconBrandDiscord size={16}/>}>
-              Report on Discord
-            </Button>
-            <Button size={'small'} onClick={() => window.location.reload()}>Reload page</Button>
-          </Stack> : null}
-        </Stack>
-      </Stack>
-    </CardContent>
-  </Card>
-}
+  // The name leads (or stands alone): some names carry their own article ("The Button").
+  return isFailed
+    ? <Notice tone={'error'} sx={{ mb: 2 }}>{atZero
+      ? `Couldn't load ${yourName(shownName)}, so everything shows at zero. That's a bug on my end.`
+      : `Couldn't load ${shownName}. That's a bug on my end.`}</Notice>
+    : <Notice tone={'missing'} sx={{ mb: 2 }}>{`${shownName} has no data in your save yet: it shows up here once it does.`}</Notice>;
+};
 
-export const CardTitleAndValue = ({
-                                    variant,
-                                    raised,
-                                    cardSx,
-                                    imgOnly,
-                                    imgStyle,
-                                    title,
-                                    value,
-                                    children,
-                                    icon,
-                                    iconAlt,
-                                    tooltipTitle,
-                                    stackProps,
-                                    contentPadding
-                                  }) => {
-  const hasValue = value !== undefined && value !== null && value !== '';
-  return <Tooltip title={tooltipTitle || ''}>
-    <Card variant={variant} raised={raised} data-card-title-value
-          sx={{ width: 'fit-content', ...cardSx }}>
-      <CardContent sx={{ '&:last-child': contentPadding ? { p: contentPadding } : {}, height: '100%' }}>
-        <Stack sx={{ display: stackProps ? 'flex' : 'block', ...(stackProps || {}) }}>
-          {title ? <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom
-                               component={'span'}>{title}</Typography> : null}
-          {(hasValue || imgOnly) ? icon ? <Stack direction={'row'} gap={2} alignItems={'center'}>
-            <img style={{ objectFit: 'contain', ...imgStyle }} src={`${prefix}${icon}`}
-                 alt={typeof title === 'string' && title
-                   ? ''
-                   : (iconAlt ?? icon.split('/').pop().replace(/\.\w+$/, ''))}/>
-            {hasValue ? <Typography component={'div'}>{value}</Typography> : null}
-          </Stack> : <Typography component={'div'}>{value}</Typography> : children}
-        </Stack>
-      </CardContent>
-    </Card>
-  </Tooltip>
-}
+// A page's first note for the sections it reads directly: names ({ key: name }, first first) says what to call the first
+// failed one, and a whole-parse failure reads "your save". With no names, a page of composites that read nearly every
+// section: any failed one counts, and the note names them all.
+export const MissingSections = ({ account, names }) => {
+  const failed = account?.failedSections;
+  if (!names) return failed?.length ? <MissingData sections={failed}/> : null;
+  const first = failed?.includes('*') ? 'your save' : names?.[Object.keys(names ?? {}).find((key) => failed?.includes(key))];
+  return first ? <MissingData name={first} failed/> : null;
+};
 
+// A save that hasn't got to this page: its catalog reads zero under this. reached is something the save can only have
+// once there. A guest has no save to say it of, and their band already says why the numbers are zero.
+export const NotReached = ({ name, reached, children }) => {
+  const { state } = useContext(AppContext);
+  if (reached || state?.emptyAccount) return null;
+  return <Notice tone={'locked'} sx={{ mb: 2 }}>Your account hasn&apos;t reached {name} yet.{children ? <> {children}</> : null}</Notice>;
+};
 
 export const CenteredStack = ({ direction = 'row', children }) => {
   return <Stack gap={1} direction={direction} alignItems={'center'}>

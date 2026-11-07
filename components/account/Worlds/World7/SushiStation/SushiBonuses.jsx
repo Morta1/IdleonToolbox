@@ -1,45 +1,23 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { commaNotation, prefix } from '@utility/helpers';
+import { formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import CardGrid from '@components/common/cards/CardGrid';
+import Panel from '@components/common/cards/Panel';
 
-const SushiBonuses = ({ knowledgeSummary }) => {
-  if (!knowledgeSummary || knowledgeSummary.length === 0) {
-    return <Typography variant="body2" color="text.secondary">No knowledge data available</Typography>;
-  }
-
-  return (
-    <Stack direction={'row'} gap={1.5} flexWrap={'wrap'} alignItems={'stretch'}>
-      {knowledgeSummary.map(({ label, category, sources }) => (
-        <Card key={category} variant="outlined" sx={{ width: 280 }}>
-          <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-            <Typography variant="body2" fontWeight={600}>{label}</Typography>
-            {sources?.length > 0 && (
-              <>
-                <Divider sx={{ my: 1 }}/>
-                <Stack gap={0.5}>
-                  {sources.map(({ index, name, bonus, level, perfecto }) => (
-                    <Stack key={index} direction="row" gap={1} alignItems="center">
-                      <img
-                        src={`${prefix}data/Sushi${index}.png`}
-                        alt={name}
-                        style={{ width: 24, height: 24, objectFit: 'contain' }}
-                      />
-                      <Typography variant="caption" color="text.secondary" sx={{ flex: 1 }}>
-                        {name} (Lv.{level}{perfecto ? '*' : ''})
-                      </Typography>
-                      <Typography variant="caption">
-                        +{commaNotation(bonus)}
-                      </Typography>
-                    </Stack>
-                  ))}
-                </Stack>
-              </>
-            )}
-          </CardContent>
-        </Card>
-      ))}
-    </Stack>
-  );
+// Each knowledge category is a titled list of the sushi that feed it. A save with no sushi discovered (a guest) lists
+// every category's sushi from the catalog at zero, rather than empty panels.
+const SushiBonuses = ({ knowledgeSummary, knowledge }) => {
+  const anyDiscovered = knowledge?.some(({ discovered }) => discovered);
+  const catalogOf = (category) => knowledge?.flatMap(({ name, category: of }, index) => (of === category
+    ? [{ index, name, bonus: 0, level: 0, perfecto: false }] : []));
+  return <CardGrid size={'m'}>
+    {knowledgeSummary?.map(({ label, category, sources }) => <Panel key={category} title={label}>
+      {(anyDiscovered ? sources : catalogOf(category))?.map(({ index, name, bonus, level, perfecto }) => <Panel.Row
+        key={index} icon={`data/Sushi${index}.png`} name={name}
+        sub={perfecto ? `Lv ${formatNum(level ?? 0)} · Perfecto` : `Lv ${formatNum(level ?? 0)}`}
+        value={`+${formatGame(bonus ?? 0, 'SushiStuff.KnowledgeBonusSpecific')}`}/>)}
+    </Panel>)}
+  </CardGrid>;
 };
 
 export default SushiBonuses;

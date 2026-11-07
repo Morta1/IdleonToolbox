@@ -1,25 +1,60 @@
-import { useContext, useState } from 'react';
-import { Box, Checkbox, FormControlLabel, Stack, Typography } from '@mui/material';
-import styled from '@emotion/styled';
-import HtmlTooltip from 'components/Tooltip';
+import { useContext } from 'react';
+import { Box, Stack, Typography } from '@mui/material';
 import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, notateNumber, prefix, worldsArray } from 'utility/helpers';
+import { cleanUnderscore, formatNum, getTabs } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
-import { CardTitleAndValue } from '@components/common/styles';
-import EmptyState from '@components/common/EmptyState';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import { PAGES } from '@components/constants';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import ItemCard from '@components/common/cards/ItemCard';
+import StatusText from '@components/common/StatusText';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 import useTabIndex from '@hooks/useTabIndex';
-import { getAchievementWorldTotals, getWorldAchievements, isRealAchievement } from '@parsers/achievements';
+import {
+  getAchievementWorldTotals,
+  getAchievements,
+  getWorldAchievements,
+  isRealAchievement
+} from '@parsers/achievements';
+import { gameGlyphs } from '@utility/wiki/game-glyphs.mjs';
+
+const TABS = getTabs(PAGES.ACCOUNT['task board'].categories, 'achievements');
+const ACHIEVEMENTS_TOOLBAR = { hideCompleted: false };
+
+// The game's font draws an end-of-line # and ^ and a 论 the site can't: the marks go, 论 reads + (Sneaking's +LV)
+const achievementText = (desc) => cleanUnderscore(gameGlyphs(desc));
 
 const Achievements = () => {
   const { state } = useContext(AppContext);
-  const [world] = useTabIndex(worldsArray);
-  const [hideCompleted, setHideCompleted] = useState(false);
+  const [world] = useTabIndex(TABS);
+  const failed = isSectionFailed(state?.account, 'achievements');
+  const [view, setView, resetView] = useToolbarState('achievements', ACHIEVEMENTS_TOOLBAR);
+  const hideCompleted = !failed && view.hideCompleted;
+  // A failed section draws the game's list at zero, a guest's grey: no done state and no progress that would not be the player's
+  const achievements = failed ? getAchievements(undefined) : state?.account?.achievements;
+  const { worldTotals, combined } = getAchievementWorldTotals(achievements, TABS);
+  const pair = (done, total) => (failed ? '-' : `${formatNum(done)} / ${formatNum(total)}`);
 
-  const { worldTotals, combined } = getAchievementWorldTotals(state?.account?.achievements, worldsArray);
+  const worldAchievements = getWorldAchievements(achievements, world)?.filter(isRealAchievement) ?? [];
+  const shown = worldAchievements.filter(({ completed }) => !(hideCompleted && completed));
+  const underWay = ({ completed, currentQuantity, quantity }) => !failed && !completed && quantity > 1 && currentQuantity > 0;
 
-  const worldAchievements = getWorldAchievements(state?.account?.achievements, world)?.filter(isRealAchievement) ?? [];
-  const localAchievements = worldAchievements.filter(({ completed }) => !(hideCompleted && completed));
+  const details = (achievement) => <Stack gap={1}>
+    <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(achievement.name)}</Typography>
+    <ItemCard.Desc text={achievementText(achievement.desc)}/>
+    <ItemCard.Facts rows={[
+      underWay(achievement)
+        ? ['Progress', `${formatNum(achievement.currentQuantity, 'whole')} / ${formatNum(achievement.quantity, 'whole')}`]
+        : null,
+      !failed && achievement.completed ? ['State', <StatusText key={'done'} status={'done'}>Completed</StatusText>] : null,
+      ['Rewards', (achievement.rewards ?? []).map((reward) => cleanUnderscore(reward).trim()).join(', ')]
+    ]}/>
+  </Stack>;
 
   return (
     <Box>
@@ -27,73 +62,29 @@ const Achievements = () => {
         title="Achievements | Idleon Toolbox"
         description="Track your achievement completion, reward tiers, and unlockable bonuses in Legends of Idleon"
       />
-      <Stack mb={3} direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
-        {worldTotals.map(({ worldName, completed, total }) => <CardTitleAndValue key={`total-${worldName}`}
-                                                                                title={worldName}
-                                                                                value={`${completed} / ${total}`}/>)}
-        <CardTitleAndValue title={'Total'} value={`${combined.completed} / ${combined.total}`}/>
-        <FormControlLabel
-          control={<Checkbox checked={hideCompleted}
-                             onChange={(e) => setHideCompleted(e.target.checked)}/>}
-          label={'Hide completed'}/>
-      </Stack>
-      <Tabber tabs={worldsArray} keepChildren>
-        <Box display={'flex'} justifyContent={'center'}>
-          {localAchievements?.length > 0 ?
-            <Stack sx={{ width: { lg: 900 } }} justifyContent={'center'} mt={3} flexWrap={'wrap'} direction={'row'}
-                   gap={3}>
-              {localAchievements?.map((achievement, index) => {
-                const { name, rawName, completed, currentQuantity, quantity } = achievement;
-                return <Stack sx={{ position: 'relative' }} key={`${name}-${index}`}>
-                  <HtmlTooltip title={<AchievementTooltip {...achievement}/>}>
-                    <Achievement completed={completed} src={`${prefix}data/${rawName}.png`}
-                                 alt={cleanUnderscore(name)}/>
-                  </HtmlTooltip>
-                  {currentQuantity ? <Quantity>
-                    {notateNumber(currentQuantity)} {quantity > 1 ?
-                    <span> / {notateNumber(quantity, 'Big')}</span> : null}
-                  </Quantity> : null}
-                </Stack>
-              })}
-            </Stack> : <EmptyState hideCompleted={hideCompleted && worldAchievements.length > 0}
-                                   label={'achievements'}/>}
+      {failed ? <MissingData name={'Achievements'} failed atZero/> : null}
+      <PageSummary>
+        {worldTotals.map(({ worldName, completed, total }) => <StatTile key={worldName} label={worldName}
+                                                                        value={pair(completed, total)}/>)}
+        <StatTile label={'Total'} value={pair(combined.completed, combined.total)}/>
+      </PageSummary>
+      <Tabber tabs={TABS} keepChildren>
+        <Box>
+          {failed ? null : <Toolbar state={view} defaults={ACHIEVEMENTS_TOOLBAR} onChange={setView} onReset={resetView}
+                                    total={worldAchievements.length} shown={shown.length} noun={'achievements'}>
+            <Toolbar.Filter name={'hideCompleted'} label={'Hide completed'}/>
+          </Toolbar>}
+          {shown.length ? <CardGrid size={'icon'}>
+            {shown.map((achievement) => <IconTile key={achievement.rawName} icon={`data/${achievement.rawName}.png`}
+                                                  alt={cleanUnderscore(achievement.name)}
+                                                  status={achievement.completed ? undefined : 'missing'}
+                                                  value={underWay(achievement) ? formatNum(achievement.currentQuantity, 'whole') : undefined}
+                                                  details={details(achievement)}/>)}
+          </CardGrid> : null}
         </Box>
       </Tabber>
     </Box>
   );
 };
-
-const Quantity = styled.span`
-  position: absolute;
-  font-size: 14px;
-  z-index: 1;
-  bottom: -24px;
-  pointer-events: none;
-  width: 80px;
-  left: -4px;
-`
-
-const Achievement = styled.img`
-  filter: ${({ completed }) => completed ? 'grayscale(0)' : 'grayscale(.8)'};
-  opacity: ${({ completed }) => completed ? '1' : '0.3'};
-  margin-left: -4px;
-  object-fit: contain;
-  width: 60px;
-`;
-
-const AchievementTooltip = ({ name, desc, rewards, currentQuantity, quantity }) => {
-  return <>
-    <Typography variant={'h5'} fontWeight={500}>{cleanUnderscore(name)}</Typography>
-    <Typography variant={'body1'}>{cleanUnderscore(desc)}</Typography>
-    {currentQuantity ? <Box mt={1} mb={1}>
-      <Typography variant={'body1'}>Progress: {currentQuantity} {quantity > 1 ?
-        <span> / {quantity}</span> : null}</Typography>
-    </Box> : null}
-    <Box mt={1}>
-      <Typography variant={'body1'} fontWeight={'bold'}>Rewards:</Typography>
-      <Typography variant={'body1'}>{cleanUnderscore(rewards.join(', '))}</Typography>
-    </Box>
-  </>
-}
 
 export default Achievements;

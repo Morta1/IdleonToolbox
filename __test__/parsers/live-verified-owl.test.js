@@ -38,7 +38,7 @@ describe('owl verified against the live game', () => {
     within(owl.featherRate, GAME.featherRate, GAME.gambitDriftTolerance);
   });
 
-  it.each(GAME.costs.map((cost, index) => [index, cost]))('upgrade %i cost', (index, cost) => {
+  it.each([...GAME.costs.entries()])('upgrade %i cost', (index, cost) => {
     within(owl.upgrades[index].cost, cost);
   });
 

@@ -38,20 +38,13 @@ const GAME = {
   tiers: [4, 4, 4, 4, 4, 3, 4, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
   // CauldronJobs[1]: 100 + sigil index for a character charging a sigil
   jobs: [110.4, 110.3, 4, 110.2, 5, 4, 7, 5, 7, 110.1, 6],
-  // CustomLists.SigilDesc[i] columns 1, 2, 7, 9, 11: the EXP to reach each tier
-  costs: [
-    [2, 100, 50000, 250000, 1e7], [3, 150, 60000, 300000, 2e7], [5, 200, 70000, 400000, 3e7],
-    [8, 300, 90000, 500000, 5e7], [15, 700, 1e5, 6e5, 6e7], [24, 1250, 130000, 7e5, 1e8],
-    [60, 2500, 160000, 1e6, 2.5e8], [120, 4000, 2e5, 1.4e6, 7e7], [250, 7000, 240000, 1.7e6, 2e8],
-    [500, 1e4, 280000, 2.2e6, 3e8], [700, 12000, 320000, 2.6e6, 6e8], [1300, 14000, 4e5, 3e6, 1.25e9],
-    [2100, 15000, 420000, 3.5e6, 2.5e9], [3000, 25000, 450000, 4.3e6, 6e9], [4500, 33000, 480000, 5.5e6, 1.2e10],
-    [6300, 42000, 520000, 6.7e6, 2.5e10], [7000, 5e4, 560000, 8.2e6, 4e10], [8000, 6e4, 6e5, 1e7, 6e10],
-    [9000, 7e4, 650000, 1.2e7, 1e11], [12000, 8e4, 7e5, 1.4e7, 2e11], [17000, 120000, 750000, 1.5e7, 3.5e11],
-    [23000, 160000, 9e5, 1.6e7, 5e11], [26000, 2e5, 1.2e6, 1.7e7, 7e11], [30000, 250000, 2e6, 2e7, 1e12]
-  ]
+  // Labb("SigilBonus", "Blank", i, 0) for every sigil
+  bonuses: [1400, 1400, 1400, 1400, 70000, 350, 525, 70, 350, 700, 420, 700, 3150, 105, 420, 700, 70, 175, 630, 490, 350, 420,
+    700, 1750],
+  // CustomLists.SigilDesc[0] columns 1, 2, 7, 9, 11: the EXP to reach each tier. The other sigils are the same columns
+  firstSigilCosts: [2, 100, 50000, 250000, 1e7]
 };
 // The game's level-up check reads the cost of the tier above the current one; a tier 4 sigil is maxed
-const NEXT_COST_COLUMN = { [-1]: 0, 0: 1, 1: 2, 2: 3, 3: 4 };
 const COST_FIELDS = ['unlockCost', 'boostCost', 'jadeCost', 'etherealCost', 'eclecticCost'];
 // The charge loop walks CauldronJobs[1] up to index 9, adding SigilBonusSpeed / 3600 per second to sigil job - 100
 const SIGIL_CHARGING_SLOTS = 10;
@@ -76,15 +69,16 @@ describe('sigils verified against the live game', () => {
     within(multiplierLines.find((line) => line.name === name).value, 1 + value / 100);
   });
 
-  it('tier unlocks, tiers and the catalog costs', () => {
+  it('tier unlocks, tiers, bonuses and the cost columns', () => {
     expect(getSigilTierUnlocks(account)).toEqual(GAME.unlocks);
     expect(sigils.map(({ unlocked }) => unlocked)).toEqual(GAME.tiers);
-    expect(sigils.map((sigil) => COST_FIELDS.map((field) => sigil[field]))).toEqual(GAME.costs);
+    expect(sigils.map(({ bonus }) => bonus)).toEqual(GAME.bonuses);
+    expect(COST_FIELDS.map((field) => sigils[0][field])).toEqual(GAME.firstSigilCosts);
   });
 
-  it.each(GAME.tiers.map((tier, index) => [index, tier]))('sigil %i at tier %i: next cost and charge rate', (index, tier) => {
+  it.each([...GAME.tiers.entries()])('sigil %i at tier %i: next cost and charge rate', (index, tier) => {
     const sigil = sigils[index];
-    expect(sigil.nextCost).toBe(GAME.costs[index][NEXT_COST_COLUMN[tier]] ?? null);
+    expect(sigil.nextCost).toBe(sigil[COST_FIELDS[tier + 1]] ?? null);
     within(sigil.chargeRate, chargingCharacters(index) * GAME.sigilSpeed);
   });
 

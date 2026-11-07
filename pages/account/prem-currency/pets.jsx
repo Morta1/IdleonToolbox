@@ -1,38 +1,53 @@
 import { NextSeo } from 'next-seo';
-import { Stack } from '@mui/material';
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
-import { getNextCompanionClaim, getTabs, numberWithCommas } from '@utility/helpers';
+import { formatNum, getNextCompanionClaim, getTabs } from '@utility/helpers';
 import Timer from '@components/common/Timer';
-import { CardTitleAndValue } from '../../../components/common/styles';
+import { MissingData, isSectionFailed } from '@components/common/styles';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
-import PetCollection from '@components/account/Pets/PetCollection';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import StatusText from '@components/common/StatusText';
+import PetCollection, { canSimulatePets, PET_CRYSTAL_LOOK } from '@components/account/Pets/PetCollection';
+import { PageSettingsRoom } from '@components/common/PageSettings';
 import PetMart from '@components/account/Pets/PetMart';
+import { getCompanions } from '@parsers/misc';
 
 const Pets = () => {
   const { state } = useContext(AppContext);
-  const nextCompanionClaim = getNextCompanionClaim(state?.account);
-  const tokens = state?.account?.companions?.tokens;
+  const companionsFailed = isSectionFailed(state?.account, 'companions');
+  const tournamentFailed = isSectionFailed(state?.account, 'tournament');
+  const failedNames = [companionsFailed && 'Pets', tournamentFailed && 'Pet Mart'].filter(Boolean);
+  // A failed section draws the game's pets at zero (the parser's own empty save): no copy, token or simulation
+  const companions = companionsFailed ? getCompanions(undefined, []) : state?.account?.companions;
+  const anchor = companions?.freeClaimAnchor;
+  const count = (value) => (companionsFailed ? '-' : formatNum(value ?? 0));
 
   return <>
     <NextSeo
       title="Pets | Idleon Toolbox"
       description="View your pet collection, Pet Mart+ upgrades and bonuses, trade offers, and the daily Pet Mart rotation in Legends of Idleon"
     />
-    <Stack mb={3} direction={'row'} gap={3} flexWrap={'wrap'} alignItems="center">
-      <CardTitleAndValue title={'Pet Crystals'} value={numberWithCommas(state?.account?.companions?.petCrystals ?? 0)} icon='data/PremiumGem.png' imgStyle={{ filter: 'hue-rotate(280deg)', width: 24, height: 24 }} />
-      <CardTitleAndValue title={'Total Box Opened'} value={numberWithCommas(state?.account?.companions?.totalBoxesOpened ?? 0)} />
-      <CardTitleAndValue title={'Tokens Available'} value={numberWithCommas(tokens?.remaining ?? 0)} icon='data/Quest119.png' imgStyle={{ width: 24, height: 24 }} />
-      <CardTitleAndValue title={'Token Bonuses Active'} value={numberWithCommas(tokens?.used ?? 0)} icon='data/Quest119.png' imgStyle={{ width: 24, height: 24 }} />
-      <CardTitleAndValue title={'Next free companion'} value={<Timer
-        type={'countdown'} date={nextCompanionClaim}
-        placeholder={'Go claim!'}
-        lastUpdated={state?.lastUpdated} />} />
-    </Stack>
+    {failedNames.length ? <MissingData name={failedNames.join(' and ')} failed atZero/> : null}
+    <PageSummary>
+      <StatTile label={'Pet crystals'} icon={'data/PremiumGem.png'} imgStyle={PET_CRYSTAL_LOOK} value={count(companions?.petCrystals)}/>
+      <StatTile label={'Boxes opened'} value={count(companions?.totalBoxesOpened)}/>
+      <StatTile label={'Tokens available'} icon={'data/Quest119.png'} value={count(companions?.tokens?.remaining)}/>
+      <StatTile label={'Token bonuses active'} icon={'data/Quest119.png'} value={count(companions?.tokens?.used)}/>
+      {/* The claim deadline is absolute (getNextCompanionClaim), so the Timer takes no lastUpdated: the save's age is no
+          part of it */}
+      <StatTile label={'Next free pet'} value={companionsFailed || !Number.isFinite(anchor) ? '-'
+        : <Timer type={'countdown'} date={getNextCompanionClaim(state?.account)} component={'span'}
+                 placeholder={<StatusText status={'ready'}>Ready to claim</StatusText>}/>}/>
+    </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['prem-currency'].categories, 'pets')}>
-      <PetCollection/>
-      <PetMart petMart={state?.account?.tournament?.petMart} companions={state?.account?.companions?.list}/>
+      <PetCollection companions={companions?.list} sectionFailed={companionsFailed} tournamentFailed={tournamentFailed}/>
+      <>
+        {canSimulatePets(state, companionsFailed) ? <PageSettingsRoom/> : null}
+        <PetMart petMart={state?.account?.tournament?.petMart} companions={companions?.list} lastUpdated={state?.lastUpdated}
+                 sectionFailed={tournamentFailed} companionsFailed={companionsFailed} guest={Boolean(state?.emptyAccount)}/>
+      </>
     </Tabber>
   </>
 };

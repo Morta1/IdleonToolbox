@@ -1,11 +1,14 @@
 // @vitest-environment jsdom
 import '../../polyfills';
 import React from 'react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import Characters from '@components/dashboard/Characters';
+
+// The section's Toolbar pins under the profile band, which reads the route.
+vi.mock('next/router', () => ({ useRouter: () => ({ query: {}, asPath: '/dashboard', pathname: '/dashboard' }) }));
 
 const trackers = {
   bags: { checked: true, options: [{ name: 'unmaxedBags', checked: true }] }
@@ -26,7 +29,7 @@ const character = {
 
 describe('dashboard unmaxed bags alert', () => {
   it('shows the bag alert icon when a carry bag is below max tier', () => {
-    render(<ThemeProvider theme={darkTheme}>
+    render(<ThemeProvider theme={theme}>
       <Characters characters={[character]} account={{}} lastUpdated={0} trackers={trackers}/>
     </ThemeProvider>);
     const icons = document.querySelectorAll('img[src*="MaxCapBag"]');
@@ -34,7 +37,7 @@ describe('dashboard unmaxed bags alert', () => {
   });
 
   it('shows nothing for an alert whose switch is off, even with its options on', () => {
-    const { container } = render(<ThemeProvider theme={darkTheme}>
+    const { container } = render(<ThemeProvider theme={theme}>
       <Characters characters={[character]} account={{}} lastUpdated={0}
                   trackers={{ bags: { ...trackers.bags, checked: false } }}/>
     </ThemeProvider>);

@@ -1,79 +1,51 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { cleanUnderscore, kFormatter, prefix } from 'utility/helpers';
-import { Card, CardContent, Container, Divider, Stack, Typography } from '@mui/material';
-import styled from '@emotion/styled';
+import { cleanUnderscore, formatNum } from 'utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
-import AutoGrid from '@components/common/AutoGrid';
+import { getSaltLick } from '@parsers/world-3/saltLick';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+
+const calcBonusCost = (bonus) => Math.floor(bonus?.baseCost * Math.pow(bonus?.increment, bonus?.level ?? 0));
+
+const calcCostToMax = (bonus) => Array.from({ length: Math.max(0, (bonus?.maxLevel ?? 0) - (bonus?.level ?? 0)) },
+  (_, step) => calcBonusCost({ ...bonus, level: (bonus?.level ?? 0) + step }))
+  .reduce((sum, cost) => sum + cost, 0);
+
+// The game's description shows the bonus floored to one decimal
+const calcBonus = (bonus) => Math.floor((bonus?.level ?? 0) * (bonus?.baseBonus ?? 0) * 10) / 10;
 
 const SaltLick = () => {
   const { state } = useContext(AppContext);
-  const { saltLick = [] } = state?.account || {};
+  const sectionFailed = isSectionFailed(state?.account, 'saltLick');
+  const parsed = state?.account?.saltLick ?? [];
+  // A failed section lists the upgrades at zero (the parser's catalog with no save), with no costs or states
+  const saltLick = sectionFailed && !parsed.length ? getSaltLick({}, [], []) : parsed;
 
-  const calcBonusCost = (bonus) => {
-    return Math.floor(bonus?.baseCost * Math.pow(bonus?.increment, bonus?.level ?? 0));
-  }
-
-  const calcCostToMax = (bonus) => {
-    let costToMax = 0;
-    for (let i = bonus?.level; i < bonus?.maxLevel; i++) {
-      costToMax += calcBonusCost({ ...bonus, level: i });
-    }
-    return costToMax ?? 0;
-  }
-
-  // The game's description shows the bonus floored to one decimal
-  const calcBonus = (bonus) => {
-    return Math.floor((bonus.level ?? 0) * bonus.baseBonus * 10) / 10;
-  }
   return <>
     <NextSeo
       title="Salt Lick | Idleon Toolbox"
       description="Track your Salt Lick upgrade levels, bonus effects, and material costs in Legends of Idleon World 3"
     />
-    <Container>
-      <AutoGrid>
-        {saltLick?.map((bonus, index) => {
-          const { desc, name, level, maxLevel, rawName, totalAmount, unlocked } = bonus;
-          const calculatedBonusCost = calcBonusCost(bonus);
-          const costToMax = calcCostToMax(bonus);
-          const calculatedBonus = calcBonus(bonus);
-          return <Card key={name + ' ' + index} sx={{
-            opacity: unlocked ? 1 : 0.5,
-            outline: level >= maxLevel ? '1px solid' : '',
-            outlineColor: (theme) => level >= maxLevel
-              ? theme.palette.success.light
-              : ''
-          }}>
-            <CardContent
-              sx={{ '&:last-child': { padding: 2 }, height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Stack mb={2} gap={1} direction={'row'} justifyContent={'space-between'} divider={<Divider/>}>
-                <Typography sx={{ maxWidth: 250 }}
-                            variant={'body1'}>{cleanUnderscore(desc.replace('{', calculatedBonus))}</Typography>
-                <Typography variant={'body2'}>Lv. {level}/{maxLevel}</Typography>
-              </Stack>
-              <Stack sx={{ mt: 'auto' }} direction={'row'} justifyContent={'space-between'}>
-                <Stack justifyContent={'center'} alignItems={'center'}>
-                  <ItemIcon src={`${prefix}data/${rawName}.png`} alt="required-item-icon"/>
-                  {costToMax > 0 ?
-                    <Typography>{kFormatter(totalAmount, 2)} / {kFormatter(calculatedBonusCost, 2)}</Typography> :
-                    <Typography sx={{ alignSelf: 'center', color: 'success.main' }}>Maxed</Typography>}
-                </Stack>
-                {costToMax > 0 ? <Stack justifyContent={'center'} alignItems={'center'}>
-                  <ItemIcon src={`${prefix}data/${rawName}.png`} alt="required-item-icon"/>
-                  <Typography>{kFormatter(costToMax, 2)}</Typography>
-                </Stack> : null}
-              </Stack>
-            </CardContent>
-          </Card>
-        })}
-      </AutoGrid>
-    </Container>
+    {sectionFailed ? <MissingData name={'Salt Lick'} failed atZero/> : null}
+    <CardGrid>
+      {saltLick.map((bonus, index) => {
+        const { desc, name, level = 0, maxLevel, rawName, totalAmount, unlocked } = bonus;
+        const priced = !sectionFailed && level < maxLevel;
+        // The game names an upgrade by its bonus: two upgrades cost the same salt, so a title by the salt would repeat
+        return <ItemCard key={`${name}-${index}`} icon={`data/${rawName}.png`} iconAlt={cleanUnderscore(name)}
+                         title={cleanUnderscore(desc ?? '').replace('{', formatNum(calcBonus(bonus), 'amount', { precise: true }))}
+                         level={{ value: level, max: maxLevel }} dimmed={!sectionFailed && !unlocked}
+                         status={sectionFailed ? undefined : !unlocked ? 'locked' : level >= maxLevel ? 'maxed' : undefined}
+                         footer={priced ? <ItemCard.Cost icon={`data/${rawName}.png`} iconAlt={cleanUnderscore(name)}
+                                                         need={calcBonusCost(bonus)} have={totalAmount ?? 0}/> : null}>
+          {priced ? <ItemCard.Facts rows={[['Cost to max', formatGame(calcCostToMax(bonus), 'Big', { whole: true })]]}/> : null}
+        </ItemCard>;
+      })}
+    </CardGrid>
   </>
 };
-
-const ItemIcon = styled.img`
-  width: 30px;
-`;
 
 export default SaltLick;

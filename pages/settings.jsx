@@ -2,15 +2,14 @@ import React, { useContext, useEffect, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { PreferencesContext } from '@components/common/context/PreferencesProvider';
 import useFormatDate from '@hooks/useFormatDate';
+import useNow from '@hooks/useNow';
+import { useThemeMode } from '@components/common/NavBar/ThemeRows';
 import {
+  Box,
   Button,
   Checkbox,
   Collapse,
   Container,
-  Dialog,
-  DialogContent,
-  DialogTitle,
-  Divider,
   FormControlLabel,
   Stack,
   Switch,
@@ -20,26 +19,28 @@ import {
 } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import {
-  IconCalendarTime,
   IconDatabase,
-  IconInfoCircle,
+  IconPalette,
   IconUserCircle
 } from '@tabler/icons-react';
 import { styled } from '@mui/material/styles';
-import HtmlTooltip from '@components/Tooltip';
+import InfoButton from '@components/common/InfoButton';
+import Notice from '@components/common/Notice';
+import Panel from '@components/common/cards/Panel';
+import ErrorBoundary from '@components/common/ErrorBoundary';
 import { useRouter } from 'next/router';
-import { intervalToDuration, isValid } from 'date-fns';
+import { isValid } from 'date-fns';
 import { uploadProfile } from '../services/profiles';
 import { expandLeaderboardInfo } from '../services/leaderboardInfo';
-import { copyForSupport, copyRawData, notateNumber, sortKeys } from '@utility/helpers';
+import { copyForSupport, copyRawData, formatNum, sortKeys } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { errorMessage } from '@utility/analytics';
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from '@utility/clipboard';
-import useTimeout from '@hooks/useTimeout';
-import NormalTimer from '../components/common/Timer/Normal';
+import { notify } from '@components/common/Overlays/notify';
+import AppDialog from '@components/common/Overlays/AppDialog';
+import Timer from '@components/common/Timer';
 import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import Popper from '@components/common/Popper';
-import { TitleAndValue } from '@components/common/styles';
 import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks';
 
 const HOURS = 4;
@@ -47,21 +48,16 @@ const WAIT_TIME = 1000 * 60 * 60 * HOURS;
 
 const ACCESS_LABELS = { off: 'Off', public: 'Public', anonymous: 'Anonymous' };
 
-const SectionHeader = ({ icon: Icon, title, description }) => (
-  <>
-    <Stack direction="row" alignItems="center" gap={1}>
-      <Icon size={22}/>
-      <Typography variant="h6">{title}</Typography>
-    </Stack>
-    <Typography variant="body2" color="text.secondary">{description}</Typography>
-  </>
-);
+// A light line between options gives the eye a path from a label across to its control at the panel's far side.
+const OPTIONS_SX = { px: 2, '& > * + *': { borderTop: 1, borderColor: 'divider' } };
+// The options that belong to the row above them: on a rail, split the same way.
+const RAIL_SX = { pl: 2, mb: 1.5, borderLeft: '2px solid', borderColor: 'divider', '& > * + *': { borderTop: 1, borderColor: 'divider' } };
 
 const SettingRow = ({ label, description, children }) => (
   <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'flex-start', sm: 'center' }}
-         justifyContent="space-between" gap={1} sx={{ py: 0.5 }}>
+         justifyContent="space-between" gap={1} sx={{ py: 1.5 }}>
     <Stack sx={{ minWidth: 0 }}>
-      <Typography variant="body1" component="div">{label}</Typography>
+      <Typography variant="body2" component="div" sx={{ fontWeight: 'fontWeightMedium' }}>{label}</Typography>
       {description && <Typography variant="body2" color="text.secondary" component="div">{description}</Typography>}
     </Stack>
     {children}
@@ -69,38 +65,32 @@ const SettingRow = ({ label, description, children }) => (
 );
 
 
-const PeakStats = ({
-                     dropRate,
-                     defence,
-                     accuracy,
-                     hp,
-                     mp,
-                     logBook,
-                     totalShinyLevels,
-                     slab,
-                     greenMushroomKills,
-                     totalBoats,
-                     totalTomePoints,
-                     highestVillagerExpPerHour,
-                     totalVillagerExpPerHour
-                   }) => {
-  return <Stack>
-    <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Calculated stats</Typography>
-    <Divider sx={{ my: 1 }}/>
-    <TitleAndValue title={'Drop Rate'} value={`${notateNumber(dropRate, 'MultiplierInfo')}x`}/>
-    <TitleAndValue title={'Defence'} value={notateNumber(defence)}/>
-    <TitleAndValue title={'Accuracy'} value={notateNumber(accuracy)}/>
-    <TitleAndValue title={'HP'} value={notateNumber(hp)}/>
-    <TitleAndValue title={'MP'} value={notateNumber(mp)}/>
-    <TitleAndValue title={'Log Book'} value={notateNumber(logBook)}/>
-    <TitleAndValue title={'Total Shiny Levels'} value={notateNumber(totalShinyLevels)}/>
-    <TitleAndValue title={'Slab'} value={notateNumber(slab)}/>
-    <TitleAndValue title={'Green Mushroom Kills'} value={notateNumber(greenMushroomKills)}/>
-    <TitleAndValue title={'Total Boats'} value={notateNumber(totalBoats)}/>
-    <TitleAndValue title={'Total Tome Points'} value={notateNumber(totalTomePoints)}/>
-    <TitleAndValue title={'Highest villager exp / hr'} value={notateNumber(highestVillagerExpPerHour)}/>
-    <TitleAndValue title={'Total villager exp / hr'} value={notateNumber(totalVillagerExpPerHour)}/>
-  </Stack>
+// Computed only while its dialog is open: it runs getMaxDamage per character, and a section that throws there stays inside
+// the dialog. Lane A where the game has a key for the number (TotalStats, Player*, the villagers'
+// Holes.VillagerExpPerHour, Summoning.TomePTS: each read in N.js); whole for what the game counts.
+const StatsDialogBody = ({ account, characters }) => {
+  const {
+    dropRate, defence, accuracy, hp, mp, logBook, totalShinyLevels, slab, greenMushroomKills, totalBoats, totalTomePoints,
+    highestVillagerExpPerHour, totalVillagerExpPerHour
+  } = expandLeaderboardInfo(account, characters);
+  const rows = [
+    ['Drop rate', `${formatGame(dropRate, 'TotalStats.Drop_Rarity')}x`],
+    ['Defence', formatGame(defence, 'TotalStats.Defence')],
+    ['Accuracy', formatGame(accuracy, 'PlayerAccTot')],
+    ['HP', formatNum(hp)],
+    ['MP', formatNum(mp)],
+    ['Log book', formatNum(logBook, 'whole')],
+    ['Total shiny levels', formatNum(totalShinyLevels, 'whole')],
+    ['Slab', formatNum(slab, 'whole')],
+    ['Green mushroom kills', formatNum(greenMushroomKills, 'whole')],
+    ['Total boat levels', formatNum(totalBoats, 'whole')],
+    ['Total tome points', formatGame(totalTomePoints, 'Summoning.TomePTS')],
+    ['Highest villager EXP per hour', formatGame(highestVillagerExpPerHour, 'Holes.VillagerExpPerHour')],
+    ['Total villager EXP per hour', formatGame(totalVillagerExpPerHour, 'Holes.VillagerExpPerHour')]
+  ];
+  return <Stack sx={{ mx: -2, '& > * + *': { borderTop: 1, borderColor: 'divider' } }}>
+    {rows.map(([label, value]) => <Panel.KV key={label} label={label} value={value}/>)}
+  </Stack>;
 };
 
 const ButtonStyle = styled(Button)`
@@ -111,17 +101,17 @@ const Settings = () => {
   const router = useRouter();
   const { state } = useContext(AppContext);
   const { dateFormat, setDateFormat, timeFormat, setTimeFormat } = useContext(PreferencesContext);
+  const { mode, setMode } = useThemeMode();
   const formatDate = useFormatDate();
 
   // Profile management state
   const [showClearOptions, setShowClearOptions] = useState(false);
   const [selectedKeys, setSelectedKeys] = useState([]);
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [popperMessage, setPopperMessage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [isDisabled, setIsDisabled] = useState(false);
   const [uploaded, setUploaded] = useState(false);
   const [lastUpload, setLastUpload, removeLastUpload] = useLocalStorage({ key: `${state?.uid}/lastUpload` });
+  const now = useNow(10000);
+  const isDisabled = Boolean(lastUpload) && now > 0 && (WAIT_TIME - (now - lastUpload)) > 0;
   const [anonId, setAnonId, removeAnonId] = useLocalStorage({ key: `${state?.uid}/anonId` });
   const [lastUploadAccess, setLastUploadAccess, removeLastUploadAccess] = useLocalStorage({
     key: `${state?.uid}/lastUploadAccess`
@@ -142,12 +132,6 @@ const Settings = () => {
   const [error, setError] = useState('');
   const [open, setOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
-
-  useEffect(() => {
-    if (lastUpload) {
-      setIsDisabled((WAIT_TIME - (Date.now() - lastUpload)) > 0);
-    }
-  }, [lastUpload]);
 
   // One-time migration: derive new profileAccess + leaderboardParticipation
   // from the old profileVisibility + leaderboardConsent localStorage keys.
@@ -186,39 +170,29 @@ const Settings = () => {
     setLeaderboardParticipation(newParticipation);
   }, []);
 
-  useTimeout(() => {
-    setAnchorEl(null);
-  }, anchorEl ? (popperMessage ? 4000 : 1000) : null);
-
-  const showPopper = (target, message = null) => {
-    setPopperMessage(message);
-    setAnchorEl(target);
-  };
-
-  // The popper reports the result, so it can only be shown once the write has actually resolved.
-  const runCopy = async (target, copy) => {
+  // The snackbar says how the copy went, so it shows once the write has resolved.
+  const runCopy = async (copy, successMessage) => {
     let copied = false;
     try {
       copied = await copy();
     } catch (err) {
       console.error(err);
     }
-    showPopper(target, copied ? null : CLIPBOARD_ERROR_MESSAGE);
+    notify(copied ? successMessage : CLIPBOARD_ERROR_MESSAGE);
   };
 
-  const handleCopyITRaw = async (e) => {
-    await runCopy(e.currentTarget, () => copyForSupport(state?.account, state?.characters));
+  const handleCopyITRaw = async () => {
+    await runCopy(() => copyForSupport(state?.account, state?.characters), 'Copied to clipboard');
   };
 
-  const handleCopyRaw = async (e) => {
-    await runCopy(e.currentTarget, () => copyRawData());
+  const handleCopyRaw = async () => {
+    await runCopy(() => copyRawData(), 'Copied to clipboard');
   };
 
-  const handleCopyLink = async (e) => {
-    const target = e.currentTarget;
+  const handleCopyLink = async () => {
     const charName = state?.characters?.[0]?.name;
     if (!charName) return;
-    await runCopy(target, () => copyText(`${process.env.NEXT_PUBLIC_IT_URL}/account/misc/general?profile=${encodeURIComponent(charName)}`));
+    await runCopy(() => copyText(`${process.env.NEXT_PUBLIC_IT_URL}/account/misc/general?profile=${encodeURIComponent(charName)}`), 'Copied the profile link');
   };
 
   const handleStorageClear = (keys) => {
@@ -301,23 +275,63 @@ const Settings = () => {
     }
   };
 
-  if (!state?.signedIn && !state?.profile && !state?.manualImport && !state?.demo) {
-    return null;
-  }
-
+  // A guest can still set the date and time formats. isLoading is true on the export and the first render, so the note
+  // never flashes at an account that is still loading, and both renders match.
+  const hasAccount = Boolean(state?.signedIn || state?.profile || state?.manualImport || state?.demo);
   const effectiveParticipation = profileAccess === 'off' ? 'off' : leaderboardParticipation;
   const settingsChangedSinceUpload = lastUploadAccess
     && (lastUploadAccess !== profileAccess || lastUploadParticipation !== effectiveParticipation);
 
   return <>
     <NextSeo title="Settings | Idleon Toolbox" description="Configure your Idleon Toolbox preferences and manage your profile"/>
-    <Container maxWidth="md" sx={{ my: 3 }}>
-      <Typography variant="h4" component="h1" sx={{ mb: 3 }}>Settings</Typography>
-      <Stack divider={<Divider/>} spacing={3}>
-        {/* Profile - only show for account owner, not public profiles */}
-        {state?.characters && !router.query.profile ? <Stack spacing={1.5}>
-          <SectionHeader icon={IconUserCircle} title="Profile" description="Manage your public profile and leaderboard participation"/>
+    {/* Its title's box 14 px under whatever is above it, as on every page: main's 24 px padding less 10 */}
+    <Container maxWidth="md" disableGutters sx={{ mt: '-10px', mb: 3, mx: 0 }}>
+      <Typography variant="pageTitle" component="h1" sx={{ mb: 3 }}>Settings</Typography>
+      {!hasAccount && !state?.isLoading
+        ? <Notice tone={'signin'} sx={{ mb: 3 }}>Your profile and data settings show here once you sign in.</Notice>
+        : null}
+      <Stack gap={2}>
+        <Panel icon={<IconPalette size={22}/>} title="Display">
+          <Box sx={OPTIONS_SX}>
+            <SettingRow label="Theme" description="Dark is the default. System follows your device">
+              <ToggleButtonGroup
+                value={mode}
+                exclusive
+                onChange={(_, val) => { if (val) setMode(val); }}
+                size="small"
+              >
+                <ToggleButton value="dark">Dark</ToggleButton>
+                <ToggleButton value="light">Light</ToggleButton>
+                <ToggleButton value="system">System</ToggleButton>
+              </ToggleButtonGroup>
+            </SettingRow>
+            <SettingRow label="Date format" description="How dates appear across the site">
+              <ToggleButtonGroup
+                value={dateFormat}
+                exclusive
+                onChange={(_, val) => { if (val) setDateFormat(val); }}
+                size="small"
+              >
+                <ToggleButton value="DMY">DD/MM</ToggleButton>
+                <ToggleButton value="MDY">MM/DD</ToggleButton>
+              </ToggleButtonGroup>
+            </SettingRow>
+            <SettingRow label="Time format" description="12-hour or 24-hour clock">
+              <ToggleButtonGroup
+                value={timeFormat}
+                exclusive
+                onChange={(_, val) => { if (val) setTimeFormat(val); }}
+                size="small"
+              >
+                <ToggleButton value="24h">24h</ToggleButton>
+                <ToggleButton value="12h">12h</ToggleButton>
+              </ToggleButtonGroup>
+            </SettingRow>
+          </Box>
+        </Panel>
 
+        {/* Profile: only for the account owner, not public profiles */}
+        {hasAccount && state?.characters && !router.query.profile ? <Panel icon={<IconUserCircle size={22}/>} title="Profile"><Box sx={OPTIONS_SX}>
           <SettingRow label="Profile link" description="Share this link so others can view your profile">
             <ButtonStyle component="span" variant="outlined" size="small" startIcon={<FileCopyIcon/>}
                          onClick={handleCopyLink}>
@@ -325,64 +339,50 @@ const Settings = () => {
             </ButtonStyle>
           </SettingRow>
 
-          <Stack spacing={1}>
+          <Box>
             <SettingRow
               label="Upload profile"
-              description={<>
-                Can be updated once every 4 hours
-                {isValid(parseInt(lastUpload)) && <> &middot; Last: {formatDate(parseInt(lastUpload))}</>}
-                {lastUpload && isDisabled && <Stack direction="row" alignItems="center" gap={0.5} component="span">
-                  {' '}&middot; Next in: <NormalTimer
-                    done={!isDisabled}
-                    date={intervalToDuration({
-                      start: new Date(parseInt(lastUpload)),
-                      end: new Date().getTime() - WAIT_TIME
-                    })}/>
-                </Stack>}
-                {lastUploadAccess && <> &middot; Uploaded as: <strong>{ACCESS_LABELS[lastUploadAccess] ?? lastUploadAccess}</strong></>}
-                {lastUploadParticipation && <> &middot; Leaderboard:
-                  {' '}<strong>{lastUploadParticipation === 'on' ? 'On' : 'Off'}</strong></>}
-                {settingsChangedSinceUpload && <Typography component="span" variant="body2" color="warning.main">
-                  {' '}&middot; Now set to <strong>{ACCESS_LABELS[profileAccess] ?? profileAccess}</strong>
-                  {' '}/ leaderboard <strong>{effectiveParticipation === 'on' ? 'On' : 'Off'}</strong> - upload again to apply
-                </Typography>}
-                {anonId && <> &middot; Anonymous ID: <strong>{anonId}</strong></>}
-                {error && <Typography color="error" variant="body2">{error}</Typography>}
-                <br/>
-                <Typography component="span" variant="body2" color="primary"
-                            sx={{ cursor: 'pointer', '&:hover': { textDecoration: 'underline' } }}
-                            onClick={() => setStatsOpen(true)}>
+              description={<Stack alignItems="flex-start" gap={0.25} component="span">
+                <span>
+                  Updates once every 4 hours.
+                  {isValid(parseInt(lastUpload)) ? <> Last uploaded {formatDate(parseInt(lastUpload), { showSeconds: false })}
+                    {isDisabled ? <>, next in <Timer type={'countdown'} date={parseInt(lastUpload) + WAIT_TIME} placeholder={'now'}/></> : null}
+                    {lastUploadAccess ? <>, as <strong>{ACCESS_LABELS[lastUploadAccess] ?? lastUploadAccess}</strong></> : null}
+                    {lastUploadParticipation ? <> with the leaderboard <strong>{lastUploadParticipation === 'on' ? 'on' : 'off'}</strong></> : null}.</> : null}
+                </span>
+                {settingsChangedSinceUpload ? <Typography component="span" variant="body2" color="text.warning">
+                  Now set to <strong>{ACCESS_LABELS[profileAccess] ?? profileAccess}</strong> with the leaderboard
+                  {' '}<strong>{effectiveParticipation === 'on' ? 'on' : 'off'}</strong>: upload again to apply.
+                </Typography> : null}
+                {anonId ? <span>Your anonymous ID is <strong>{anonId}</strong>.</span> : null}
+                <Button variant="text" size="small" onClick={() => setStatsOpen(true)} sx={{ p: 0, minWidth: 0 }}>
                   View calculated stats
-                </Typography>
-              </>}
+                </Button>
+              </Stack>}
             >
               <Stack direction="row" alignItems="center" gap={1}>
                 <ButtonStyle disabled={isDisabled} loading={loading} onClick={handleUpdate}
                              variant="contained" size="small">Upload</ButtonStyle>
-                {uploaded && <CheckCircleIcon color="success" fontSize="small"/>}
+                {uploaded && <CheckCircleIcon fontSize="small" sx={{ color: 'text.success' }}/>}
               </Stack>
             </SettingRow>
-            <Dialog open={statsOpen} onClose={() => setStatsOpen(false)}>
-              <DialogTitle>Calculated Stats</DialogTitle>
-              <DialogContent>
-                <PeakStats {...expandLeaderboardInfo(state?.account, state?.characters)} />
-              </DialogContent>
-            </Dialog>
+            {error ? <Notice tone={'error'} sx={{ mb: 1.5 }}>{errorMessage(error)}</Notice> : null}
+            <AppDialog open={statsOpen} onClose={() => setStatsOpen(false)} size="l" title="Calculated stats">
+              {statsOpen ? <ErrorBoundary title={'The calculated stats didn\'t load'}>
+                <StatsDialogBody account={state?.account} characters={state?.characters}/>
+              </ErrorBoundary> : null}
+            </AppDialog>
 
-            <Stack sx={{ pl: 2, borderLeft: '2px solid', borderColor: 'divider' }} spacing={1}>
+            <Box sx={RAIL_SX}>
               <SettingRow label="Hide gem info" description="Remove gems and bundle data from uploads">
-                <Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)}/>
+                <Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)} inputProps={{ 'aria-label': 'Hide gem info' }}/>
               </SettingRow>
 
               <SettingRow label={<Stack direction="row" alignItems="center" gap={0.5}>
                 Profile access
-                <HtmlTooltip title={<Stack spacing={0.5}>
-                  <Typography variant="body2"><strong>Off</strong> - Profile not visible anywhere</Typography>
-                  <Typography variant="body2"><strong>Public</strong> - Profile viewable by character name</Typography>
-                  <Typography variant="body2"><strong>Anonymous</strong> - Profile viewable only via anonymous ID</Typography>
-                </Stack>}>
-                  <IconInfoCircle size={16} style={{ cursor: 'pointer' }}/>
-                </HtmlTooltip>
+                <InfoButton label={'Profile access'}>
+                  Off: not visible anywhere. Public: anyone with your character's name can view it. Anonymous: only people with your anonymous ID can view it.
+                </InfoButton>
               </Stack>} description="Control how your profile can be accessed">
                 <ToggleButtonGroup
                   value={profileAccess}
@@ -407,19 +407,18 @@ const Settings = () => {
                 <Switch
                   checked={leaderboardParticipation === 'on'}
                   disabled={profileAccess === 'off'}
+                  inputProps={{ 'aria-label': 'Leaderboard participation' }}
                   onChange={() => {
                     setLeaderboardParticipation(leaderboardParticipation === 'on' ? 'off' : 'on');
                   }}
                 />
               </SettingRow>
-            </Stack>
-          </Stack>
-        </Stack> : null}
+            </Box>
+          </Box>
+        </Box></Panel> : null}
 
         {/* Data */}
-        <Stack spacing={1.5}>
-          <SectionHeader icon={IconDatabase} title="Data" description="Support data and local storage management"/>
-
+        {hasAccount ? <Panel icon={<IconDatabase size={22}/>} title="Data"><Box sx={OPTIONS_SX}>
           <SettingRow label="Support data" description="Copy Idleon Toolbox formatted data for troubleshooting">
             <ButtonStyle component="span" variant="outlined" size="small" startIcon={<FileCopyIcon/>}
                          onClick={handleCopyITRaw}>
@@ -434,24 +433,14 @@ const Settings = () => {
             </ButtonStyle>
           </SettingRow>
 
-          <Dialog open={open} onClose={() => setOpen(false)}>
-            <DialogTitle>
-              <Stack direction="row" justifyContent="space-between">
-                <Typography variant="h6">Raw idleon data</Typography>
-                <ButtonStyle sx={{ ml: 'auto' }} component="span" size="small" variant="outlined"
-                             onClick={handleCopyRaw}>
-                  Copy
-                </ButtonStyle>
-              </Stack>
-            </DialogTitle>
-            <DialogContent>
-              <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
-                {open ? JSON.stringify(sortKeys(JSON.parse(sessionStorage.getItem('rawJson'))?.data), null, 2) : null}
-              </div>
-            </DialogContent>
-          </Dialog>
+          <AppDialog open={open} onClose={() => setOpen(false)} size="l" title="Raw game data"
+                     actions={[{ label: 'Copy raw data', main: true, onClick: handleCopyRaw }]}>
+            <div style={{ whiteSpace: 'pre-wrap', overflowWrap: 'break-word' }}>
+              {open ? JSON.stringify(sortKeys(JSON.parse(sessionStorage.getItem('rawJson'))?.data), null, 2) : null}
+            </div>
+          </AppDialog>
 
-          <Stack spacing={1}>
+          <Box>
             <SettingRow label="Clear local data" description="Remove locally stored configurations">
               <ButtonStyle size="small" variant="outlined"
                            onClick={() => { setShowClearOptions(!showClearOptions); setSelectedKeys([]); }}>
@@ -459,14 +448,14 @@ const Settings = () => {
               </ButtonStyle>
             </SettingRow>
             <Collapse in={showClearOptions}>
-              <Stack sx={{ pl: 2, borderLeft: '2px solid', borderColor: 'divider' }}>
+              <Stack sx={{ pl: 2, mb: 1.5, borderLeft: '2px solid', borderColor: 'divider' }}>
                 {[
                   { key: 'filters', label: 'Character filters' },
                   { key: 'trackers', label: 'Dashboard config' },
                   { key: 'planner', label: 'Item Planner' },
                   { key: 'material-tracker', label: 'Material tracker' },
                   { key: 'last-upload-time', label: 'Last upload time' },
-                  { key: 'pinnedPages', label: 'Pinned Pages' }
+                  { key: 'pinnedPages', label: 'Pinned pages' }
                 ].map(({ key: storageKey, label }) => (
                   <FormControlLabel
                     key={storageKey}
@@ -497,38 +486,10 @@ const Settings = () => {
                 </Stack>
               </Stack>
             </Collapse>
-          </Stack>
-
-        </Stack>
-        {/* Formatting */}
-        <Stack spacing={1.5}>
-          <SectionHeader icon={IconCalendarTime} title="Formatting" description="Date, and time display preferences"/>
-          <SettingRow label="Date format" description="How dates appear across the site">
-            <ToggleButtonGroup
-              value={dateFormat}
-              exclusive
-              onChange={(_, val) => { if (val) setDateFormat(val); }}
-              size="small"
-            >
-              <ToggleButton value="DMY">DD/MM</ToggleButton>
-              <ToggleButton value="MDY">MM/DD</ToggleButton>
-            </ToggleButtonGroup>
-          </SettingRow>
-          <SettingRow label="Time format" description="12-hour or 24-hour clock">
-            <ToggleButtonGroup
-              value={timeFormat}
-              exclusive
-              onChange={(_, val) => { if (val) setTimeFormat(val); }}
-              size="small"
-            >
-              <ToggleButton value="24h">24h</ToggleButton>
-              <ToggleButton value="12h">12h</ToggleButton>
-            </ToggleButtonGroup>
-          </SettingRow>
-        </Stack>
+          </Box>
+        </Box></Panel> : null}
       </Stack>
     </Container>
-    <Popper anchorEl={anchorEl} handleClose={() => setAnchorEl(null)} message={popperMessage ?? undefined}/>
   </>;
 };
 

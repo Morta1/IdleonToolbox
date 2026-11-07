@@ -16,7 +16,7 @@ const GoalCard = ({ view, onBack, onEdit, onRemove }) => {
         </IconButton>
         <GoalIcon src={view.icon} alt="" size={32}/>
         <Stack sx={{ minWidth: 0 }}>
-          <Typography variant="subtitle1" noWrap>{goalName(view)}</Typography>
+          <Typography variant="cardTitle" component="div" noWrap>{goalName(view)}</Typography>
           <Typography variant="caption" color="text.secondary">{cardLabel(view)}</Typography>
         </Stack>
       </Stack>
@@ -26,7 +26,7 @@ const GoalCard = ({ view, onBack, onEdit, onRemove }) => {
       </Stack>
       <Stack direction="row" gap={1} justifyContent="flex-end" flexWrap="wrap">
         {!missing ? editable.map((part) => (
-          <Button key={part.id} size="small" sx={{ textTransform: 'none' }} onClick={() => onEdit(part)}>
+          <Button key={part.id} size="small" onClick={() => onEdit(part)}>
             {editText(view, part)}
           </Button>
         )) : null}

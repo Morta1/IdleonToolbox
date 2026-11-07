@@ -33,19 +33,12 @@ const allStrings = (value) => {
 describe('alertMeta', () => {
   const paths = trackerPaths();
 
-  it('covers every tracker with a label', () => {
-    Object.keys(paths).forEach((path) => {
-      expect(alertMeta[path], path).toBeDefined();
-      expect(alertMeta[path].label?.trim(), path).toBeTruthy();
-    });
-  });
-
-  it('labels every option', () => {
-    Object.entries(paths).forEach(([path, options]) => {
-      options.forEach((option) => {
-        expect(alertMeta[path]?.options?.[option]?.label?.trim(), `${path}.${option}`).toBeTruthy();
-      });
-    });
+  it('labels every tracker and every option', () => {
+    const unlabelled = Object.entries(paths).flatMap(([path, options]) => [
+      ...(alertMeta[path]?.label?.trim() ? [] : [path]),
+      ...options.filter((option) => !alertMeta[path]?.options?.[option]?.label?.trim()).map((option) => `${path}.${option}`)
+    ]);
+    expect(unlabelled).toEqual([]);
   });
 
   it('has no trackers or options that baseTrackers lacks', () => {
@@ -74,15 +67,9 @@ describe('alertMeta', () => {
   });
 
   it('keys every section that baseTrackers has', () => {
-    ['account', 'timers'].forEach((configType) => {
-      Object.keys(baseTrackers[configType]).forEach((section) => {
-        expect(sectionMeta[`${configType}.${section}`]?.label, `${configType}.${section}`).toBeTruthy();
-      });
-    });
-    Object.keys(sectionMeta).forEach((key) => {
-      const [configType, section] = key.split('.');
-      expect(baseTrackers[configType]?.[section], key).toBeDefined();
-    });
+    const sections = ['account', 'timers'].flatMap((configType) => Object.keys(baseTrackers[configType]).map((section) => `${configType}.${section}`));
+    expect(sections.filter((key) => !sectionMeta[key]?.label)).toEqual([]);
+    expect(Object.keys(sectionMeta).filter((key) => !sections.includes(key))).toEqual([]);
   });
 
   it('points every page at a real route, merging option pages over the tracker page', () => {

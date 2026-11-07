@@ -1,11 +1,13 @@
 import React from 'react';
-import { Stack, Typography } from '@mui/material';
-import { commaNotation } from '@utility/helpers';
-import UpgradeCard, { CardIcon, IconValueRow, LabelValue } from '@components/common/UpgradeCard';
-import { CardTitleAndValue } from '@components/common/styles';
-import useLevelsAhead, { LevelsAheadCaption } from '@components/common/LevelsAhead';
+import { Stack } from '@mui/material';
+import { formatNum } from '@utility/helpers';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import StatTile from '@components/common/cards/StatTile';
+import { LevelsAheadCaption, MAX_LEVELS_AHEAD } from '@components/common/LevelsAhead';
+import PageSettings from '@components/common/PageSettings';
 import { getMenagerieBoostTotalCost } from '@parsers/world-7/menagerie';
-import { DOUBLER_ICONS, formatLumi, LUMI_ICON, RankRequired, StatusText } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+import { DOUBLER_ICONS, formatLumi, LUMI_ICON, RankRequired } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
 const DOUBLER_CARDS = [
   { key: 'blackStars', title: 'Black Stars' },
@@ -16,45 +18,44 @@ const DOUBLER_CARDS = [
   { key: 'omnijade', title: 'Omnijade' }
 ];
 
-const Boosts = ({ account, boosts, doublers, lumi }) => {
-  const { picker, levelsAhead } = useLevelsAhead();
+// Levels ahead prices this tab only: in the Menagerie's gear, under the tab's name
+export const BOOSTS_SETTINGS = { levelsAhead: null };
+
+export const BoostsSettings = () => <PageSettings.Group title={'Boosts'}>
+  <PageSettings.Number name={'levelsAhead'} label={'Levels ahead'} defaultValue={1} min={1} max={MAX_LEVELS_AHEAD} integer
+                       help={'Each boost also shows the total cost of this many levels.'}/>
+</PageSettings.Group>;
+
+const Boosts = ({ account, boosts, doublers, lumi, levelsAhead = 1 }) => {
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
       {DOUBLER_CARDS.map(({ key, title }) => {
         const { owned = 0, left = 0 } = doublers?.[key] ?? {};
         const used = owned - Math.max(0, left);
-        return <CardTitleAndValue key={key} title={title} icon={DOUBLER_ICONS[key]} imgStyle={{ width: 20, height: 20 }}
-                                  value={`${commaNotation(used)} / ${commaNotation(owned)}`}/>;
+        return <StatTile key={key} label={title} icon={DOUBLER_ICONS[key]} value={`${formatNum(used)} / ${formatNum(owned)}`}/>;
       })}
     </Stack>
-    <Stack mb={2}>{picker}</Stack>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-      {boosts?.map(({ index, description, level, perLevel, cost, affordable, visible, rankRequired }) => {
+    <CardGrid size={'m'}>
+      {boosts?.map(({ index, description, level, perLevel, cost, visible, rankRequired }) => {
         const targetLevel = (level ?? 0) + levelsAhead;
-        return <UpgradeCard key={`boost-${index}`}
-                            width={320}
-                            dimmed={!visible}
-                            icon={<CardIcon src={`data/MenaIconP${index}.png`} width={42} height={55} alt={''}/>}
-                            title={description}
-                            subtitle={`Lv. ${commaNotation(level ?? 0)}`}
-                            badges={!visible ? <StatusText status={'locked'}/> : null}
-                            footer={<>
-                              <IconValueRow src={LUMI_ICON} alt={'Lumi'} iconSize={24}>
-                                <Typography component={'span'} variant={'body2'} color={affordable ? 'text.primary' : 'error'}>
-                                  {formatLumi(cost)}
-                                </Typography>
-                              </IconValueRow>
-                              {levelsAhead > 1
-                                ? <LevelsAheadCaption targetLevel={commaNotation(targetLevel)}
-                                                      targetCost={getMenagerieBoostTotalCost(account, index, targetLevel)}
-                                                      owned={lumi ?? 0} format={formatLumi} indent={36}/>
-                                : null}
-                            </>}>
-          <LabelValue label={'Per LV'}>{commaNotation(perLevel ?? 0)}</LabelValue>
-          {!visible ? <RankRequired rank={rankRequired}/> : null}
-        </UpgradeCard>;
+        return <ItemCard key={`boost-${index}`}
+                         icon={`data/MenaIconP${index}.png`}
+                         iconSize={56}
+                         title={description}
+                         level={{ value: level ?? 0 }}
+                         status={visible ? undefined : 'locked'}
+                         footer={visible ? <>
+                           <ItemCard.Cost icon={LUMI_ICON} iconAlt={'Lumi'} need={cost} have={lumi ?? 0} game={'MenagerieStuff.Cost'}/>
+                           {levelsAhead > 1
+                             ? <LevelsAheadCaption targetLevel={formatNum(targetLevel)}
+                                                   targetCost={getMenagerieBoostTotalCost(account, index, targetLevel)}
+                                                   owned={lumi ?? 0} format={formatLumi} indent={32}/>
+                             : null}
+                         </> : <RankRequired rank={rankRequired}/>}>
+          <ItemCard.Facts rows={[['Per LV', perLevel ?? 0, 'amount']]}/>
+        </ItemCard>;
       })}
-    </Stack>
+    </CardGrid>
   </>;
 };
 

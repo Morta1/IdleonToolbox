@@ -1,115 +1,100 @@
-import { Divider, Stack, Typography } from '@mui/material';
-import { styled } from '@mui/material/styles';
-import {
-  cleanUnderscore,
-  getBitIndex,
-  getCoinsArray,
-  msToDate,
-  notateNumber,
-  numberWithCommas,
-  prefix
-} from '@utility/helpers';
-import { CardTitleAndValue } from '@components/common/styles';
+import { Box, Stack, Typography } from '@mui/material';
+import { formatDuration, formatNum, getCoinsArray } from '@utility/helpers';
+import { bitsIcon, formatBits, formatGame } from '@utility/gameNotation';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import React from 'react';
 import CoinDisplay from '@components/common/CoinDisplay';
-import { IconAlertTriangle, IconInfoCircleFilled } from '@tabler/icons-react';
-import Tooltip from 'components/Tooltip';
-import UpgradeCard, { IconValueRow, LabelValue } from '@components/common/UpgradeCard';
+import GameIcon from '@components/common/GameIcon';
+import StatTile from '@components/common/cards/StatTile';
+import StatusText from '@components/common/StatusText';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 
-
-const TheBell = ({ hole }) => {
-  return <>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <CardTitleAndValue title={'New method chance'}
-                         value={`${notateNumber(hole?.caverns?.theBell?.newMethodChance * 100, 'MultiplierInfo')}%`}/>
-      <CardTitleAndValue title={'Rings'}
-                         >
-        <Stack direction={'row'} alignItems={'center'} gap={1} >
-          <Typography>{notateNumber(hole?.caverns?.theBell?.rings, 'Big')}</Typography>
-          <Tooltip title={'20th ring bonus from study triggers on rings 19, 39, 59, 79 ...'}>
-            <IconAlertTriangle color="#cc952e" size={18}/>
-          </Tooltip>
-
-        </Stack>
-      </CardTitleAndValue>
-      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.holesObject?.opalsPerCavern?.[4] || 0}/>
-    </Stack>
-    <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {hole?.caverns?.theBell?.bells?.map(({ expRate, expReq, exp, readyUses }, index) => {
-        const timeToFull = (expReq - exp) / expRate.value * 1000 * 3600;
-        return <UpgradeCard key={`bell-${index}`}
-                            icon={<BellBanner src={`${prefix}data/HoleBellAction${index}.png`} alt={'bell-' + index}/>}>
-          <Stack gap={.5}>
-            <Stack direction={'row'} alignItems={'center'} gap={.5}>
-              <LabelValue label={'Exp rate'}>{numberWithCommas(Math.floor(expRate.value))} / hr</LabelValue>
-              <Breakdown data={expRate.breakdown}>
-                <Stack><IconInfoCircleFilled size={16}/></Stack>
-              </Breakdown>
-            </Stack>
-            <LabelValue label={'Exp'}>{notateNumber(exp, 'Big')} / {notateNumber(expReq, 'Big')}</LabelValue>
-            <LabelValue label={'Time to full'}>
-              {timeToFull > 0 ? msToDate(timeToFull) : `Ready${readyUses > 1 ? ` (x${readyUses})` : ''}`}
-            </LabelValue>
-          </Stack>
-        </UpgradeCard>
-      })}
-    </Stack>
-    <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {hole?.caverns?.theBell?.improvementMethods?.map(({ description, level, bonus, cost, costType, owned }, index) => {
-        if (hole?.caverns?.theBell?.bellMethodsOwned <= index) return null;
-        return <UpgradeCard key={`method-${index}`}
-                            footer={<BellMethodCost costType={costType} cost={cost} owned={owned}/>}>
-          <Stack gap={.5}>
-            <Typography variant={'body2'} color={'text.secondary'}>Lv. {level}</Typography>
-            <Typography variant={'body2'}>{cleanUnderscore(description.replace('{', notateNumber(bonus, 'Big')))}</Typography>
-          </Stack>
-        </UpgradeCard>
-      })}
-    </Stack>
-    <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {hole?.caverns?.theBell?.bellBonuses?.map(({ description, bonus, level }, index) => {
-        return <UpgradeCard key={`bell-bonus-${index}`} dimmed={level === 0}>
-          <Stack gap={.5}>
-            <Typography variant={'body2'} color={'text.secondary'}>Lv. {level}</Typography>
-            <Typography variant={'body2'}>
-              {cleanUnderscore(description.replace('{', bonus.toFixed(2).replace('.00', '')).replace('|', ' '))}
-            </Typography>
-          </Stack>
-        </UpgradeCard>
-      })}
-    </Stack>
-  </>
+// A method's cost: its sprite and the name a screen reader hears (the parser's wellSediment 3, 14 and 25, named as
+// holeResourceName names them)
+const BELL_COSTS = {
+  sediments: ['data/HoleWellFill4.png', 'Sediment 4'],
+  notes: ['data/HoleHarpNote4.png', 'Harp note 5'],
+  particles: ['etc/Particle.png', 'Particles'],
+  rupie: ['data/HoleJarR5.png', 'Rupie tier 6']
 };
 
-const BELL_COST_ICONS = {
-  sediments: 'data/HoleWellFill4.png',
-  notes: 'data/HoleHarpNote4.png',
-  particles: 'etc/Particle.png',
-  rupie: 'data/HoleJarR5.png'
-};
+// Decision 5 (b): a bell's word art ("RING BELL") across the card's top at its own size (18 px tall: pixel art never
+// scales up), its name in words under it.
+const BellArt = ({ index }) => <Box component={'span'} sx={{ display: 'flex', mb: 0.5 }}>
+  <GameIcon src={`data/HoleBellAction${index}.png`} fit={'bounds'} size={[133, 26]} alt={''}/>
+</Box>;
 
 const BellMethodCost = ({ costType, cost, owned }) => {
   if (costType === 'money') return <CoinDisplay title={''} noShadow money={getCoinsArray(cost)}/>;
   if (costType === 'bits') {
-    return <IconValueRow src={`etc/Bits_${getBitIndex(cost)}.png`}>
-      {notateNumber(owned, 'bits')} / {notateNumber(cost, 'bits')}
-    </IconValueRow>
+    return <ItemCard.Cost icon={bitsIcon} iconAlt={'Bits'} need={cost} have={owned}
+                          format={formatBits}/>;
   }
-  return <IconValueRow src={BELL_COST_ICONS[costType] ?? 'afk_targets/Nothing.png'}
-                       fit={costType === 'sediments' ? 'cover' : 'contain'}>
-    {notateNumber(owned, 'Big')} / {notateNumber(cost, 'Big')}
-  </IconValueRow>
+  const [icon, name] = BELL_COSTS[costType] ?? ['afk_targets/Nothing.png', ''];
+  return <ItemCard.Cost icon={icon} iconAlt={name} need={cost ?? 0} have={owned} game={'Holes.BellCosts'}/>;
 };
 
-// HoleBellAction sprites are the bell's name as word art, so they stand in for the title
-const BellBanner = styled('img')`
-  height: 32px;
-  object-fit: contain;
-`;
+const TheBell = ({ hole }) => {
+  const theBell = hole?.caverns?.theBell;
+  const bells = theBell?.bells ?? [];
+  const methods = theBell?.improvementMethods ?? [];
+  const ringBonuses = theBell?.bellBonuses ?? [];
+  return <>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'New method chance'} value={(theBell?.newMethodChance ?? 0) * 100} kind={'pct'}/>
+      <StatTile label={'Rings'} value={theBell?.rings ?? 0} kind={'amount'}
+                info={'The 20th-ring bonus from its study triggers on rings 19, 39, 59 and 79, then every 20 rings.'}/>
+      {opalsFoundTile(hole, 4)}
+    </Stack>
+    <Stack gap={3}>
+      {bells.length ? <Stack gap={1}>
+        <Typography variant={'sectionTitle'} component={'h2'}>Bells</Typography>
+        <CardGrid size={'m'}>
+          {bells.map(({ name, expRate, expReq, exp, readyUses }, index) => {
+            const rate = expRate?.value ?? 0;
+            const title = `${name?.charAt(0)?.toUpperCase() ?? ''}${name?.slice(1) ?? ''}`;
+            // The game's "N/hr" (Holes.BellExpPerHR), the drawer named and headed the same
+            const rateText = `${formatGame(rate, 'Holes.BellExpPerHR')}/hr`;
+            const secondsToFull = rate > 0 ? ((expReq ?? 0) - (exp ?? 0)) / rate * 3600 : null;
+            return <ItemCard key={`bell-${index}`} title={<><BellArt index={index}/>{title}</>}>
+              <ItemCard.Facts rows={[
+                ['EXP rate', expRate?.breakdown
+                  ? <Breakdown key={'rate'} asValue data={{ ...expRate.breakdown, totalValue: rateText }}
+                               title={`${title} EXP rate`}>{rateText}</Breakdown>
+                  : rateText],
+                ['EXP', `${formatGame(exp ?? 0, 'Holes.BellEXPreq', { whole: true })} / ${formatGame(expReq ?? 0, 'Holes.BellEXPreq', { whole: true })}`],
+                ['Time to full', secondsToFull === null ? '-' : secondsToFull > 0 ? formatDuration(secondsToFull)
+                  : <StatusText key={'ready'} status={'ready'}>{readyUses > 1 ? `Ready (x${formatNum(readyUses)})` : 'Ready'}</StatusText>]
+              ]}/>
+            </ItemCard>;
+          })}
+        </CardGrid>
+      </Stack> : null}
+      {methods.length ? <Stack gap={1}>
+        <Typography variant={'sectionTitle'} component={'h2'}>Improvement methods</Typography>
+        <CardGrid size={'m'}>
+          {methods.map(({ description, level, bonus, cost, costType, owned }, index) => {
+            const found = index < (theBell?.bellMethodsOwned ?? 0);
+            return <ItemCard key={`method-${index}`} level={{ value: level ?? 0 }} status={found ? undefined : 'locked'}
+                             footer={found ? <BellMethodCost costType={costType} cost={cost} owned={owned}/> : null}>
+              <ItemCard.Desc text={(description ?? '').replace('{', formatGame(bonus ?? 0, 'Holes.BellMethodsQTY'))}/>
+            </ItemCard>;
+          })}
+        </CardGrid>
+      </Stack> : null}
+      {ringBonuses.length ? <Stack gap={1}>
+        <Typography variant={'sectionTitle'} component={'h2'}>Ring bonuses</Typography>
+        <CardGrid size={'m'}>
+          {ringBonuses.map(({ description, bonus, level }, index) =>
+            <ItemCard key={`bell-bonus-${index}`} dimmed={!(level > 0)} level={{ value: level ?? 0 }}>
+              <ItemCard.Desc text={(description ?? '').replace('{', formatGame(bonus ?? 0, 'Holes.BellBonuss')).replace('|', ' ')}/>
+            </ItemCard>)}
+        </CardGrid>
+      </Stack> : null}
+    </Stack>
+  </>;
+};
 
 export default TheBell;

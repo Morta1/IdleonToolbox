@@ -1,4 +1,4 @@
-import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
+import { gameFill, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { grimoire, mapEnemiesArray, mapNames, monsterCoinQuantity, monsters, randomList } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { getTalentBonus } from '@parsers/talents';
@@ -58,6 +58,9 @@ export const GRIMOIRE_UPGRADE_CATEGORIES = {
   }
 };
 
+export const formatGrimoireBonus = (bonus: number) => gameFill(bonus, 'Comma');
+export const formatGrimoireMulti = (bonus: number) => gameFill(1 + bonus / 100, 'MultiplierInfo');
+
 export const getGrimoire = (idleonData: any, charactersData: any, account: any) => {
   const grimoireRaw = tryToParse(idleonData?.Grimoire) || idleonData?.Grimoire;
   const ribbonRaw = tryToParse(idleonData?.Ribbon) || idleonData?.Ribbon;
@@ -87,7 +90,7 @@ const parseGrimoire = (grimoireRaw: any, ribbonRaw: any, charactersData: any, ac
       unlocked: upgrade?.unlockLevel <= totalUpgradeLevels,
       bonus,
       monsterProgress: getMonsterProgress(account, index),
-      description: upgrade?.description.replace('{', '' + commaNotation(bonus)).replace('}', '' + notateNumber(1 + bonus / 100, 'MultiplierInfo'))
+      description: upgrade?.description.replace('{', formatGrimoireBonus(bonus)).replace('}', formatGrimoireMulti(bonus))
     }
   })
   const nextUnlock = upgrades?.find(({ unlocked }: any) => !unlocked);
@@ -319,6 +322,7 @@ export const getGrimoireBonus = (upgrades: any, index: any) => {
 
 export const calcGrimoireBonus = (upgrades: any, index: any): any => {
   const upgrade = upgrades?.[index];
+  if (!upgrade) return 0;
   return 9 === index || 11 === index || 26 === index || 36 === index || 39 === index || 17 === index || 32 === index || 45 === index
     ? upgrade?.level
     * upgrade?.x5

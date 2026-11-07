@@ -1,13 +1,15 @@
-import { Alert, AlertTitle } from '@mui/material';
+import Notice from '@components/common/Notice';
 
-// The one place a login error is drawn, so every login tab shows the same message and next step.
-// Takes a toLoginError() result.
+// The one place a sign-in error is drawn, so every flow shows the same message and next step. The
+// hint is the next step, so the error carries no Reload, which would close the dialog; only a failure
+// the toolbox cannot name (UNKNOWN, whose hint says to report it) keeps Report on Discord. Notice is
+// read only in render: Notice imports the dialog these flows live in. role alert: the error answers the
+// player's last step, and is read out when it appears.
 const LoginErrorAlert = ({ error, sx }) => {
   if (!error?.message) return null;
-  return <Alert severity="error" sx={sx}>
-    <AlertTitle sx={{ mb: error.hint ? 0.5 : 0 }}>{error.message}</AlertTitle>
-    {error.hint}
-  </Alert>;
+  return <Notice tone={'error'} action={error.code === 'UNKNOWN' ? null : false} role={'alert'} sx={sx}>
+    {error.hint ? `${error.message}. ${error.hint}` : `${error.message}.`}
+  </Notice>;
 };
 
 export default LoginErrorAlert;

@@ -1,5 +1,5 @@
-import { createRange, lavaLog, notateNumber, number2letter, tryToParse } from '@utility/helpers';
-import { filteredGemShopItems, filteredLootyItems, keysMap, unrealisticGreenstackItems } from './parseMaps';
+import { createRange, formatDuration, lavaLog, notateNumber, number2letter, tryToParse } from '@utility/helpers';
+import { filteredGemShopItems, filteredLootyItems, keysMap, skillIndexMap, unrealisticGreenstackItems } from './parseMaps';
 import {
   bonuses,
   bundles as bundlesData,
@@ -17,7 +17,8 @@ import {
   ninjaExtraInfo,
   randomList,
   rawMapNames,
-  slab
+  slab,
+  slabItemNames
 } from '@website-data';
 import { checkCharClass, CLASSES, getTalentBonus, mainStatMap, talentPagesMap, getHighestTalentAcrossCharacters, getBestActiveCharacter, getLastBloodBerserkerLine } from './talents';
 import { getMealsBonusByEffectOrStat } from './world-4/cooking';
@@ -259,7 +260,7 @@ export const getGuaranteedCrystalMobs = (account: any) => {
   const meritocracyBonus = getMeritocracyBonus(account, 15);
   const legendPTSBonus = getLegendTalentBonus(account, 37);
   const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'SHINY_BEACON');
-  const taskBonus = account?.tasks?.[2]?.[3]?.[0];
+  const taskBonus = account?.tasks?.[2]?.[3]?.[0] ?? 0;
   const achievementBonus = getAchievementStatus(account?.achievements, 285);
 
   return Math.ceil((1 + meritocracyBonus / 100)
@@ -334,7 +335,7 @@ export const getBookLvRange = (account: any) => {
 }
 
 export const getLibraryBookTimes = (idleonData: any, characters: any, account: any) => {
-  const { bookCount, libTime, breakdown } = calcBookCount(account, characters, idleonData);
+  const { bookCount, libTime, breakdown, baseFactor } = calcBookCount(account, characters, idleonData);
   let breakpoints = [16, 18, 20].map((maxCount) => {
     return {
       breakpoint: maxCount,
@@ -351,8 +352,23 @@ export const getLibraryBookTimes = (idleonData: any, characters: any, account: a
     bookCount,
     next: getTimeToNextBooks(bookCount, account, characters, idleonData)?.value - libTime,
     breakdown,
-    breakpoints
+    breakpoints,
+    baseFactor
   }
+}
+
+const MAX_BOOKS_AHEAD = 10000;
+
+// When the library reaches a book count, on the clock: from the save's own time, less what it had built toward its books then,
+// every book's wait at today's speed. The sum calcTimeToXBooks does from the parse's moment, so it holds however old the save is.
+export const getBooksReachedAt = (account: any, target: number) => {
+  const start = account?.accountOptions?.[OPT.libraryBooks] ?? 0;
+  if (!(target - start <= MAX_BOOKS_AHEAD)) return Infinity;
+  let seconds = -(account?.timeAway?.BookLib ?? 0);
+  for (let count = start; count < target; count++) {
+    seconds += bookWait(account?.libraryTimes?.baseFactor, count);
+  }
+  return ((account?.timeAway?.GlobalTime ?? 0) + seconds) * 1000;
 }
 
 const calcBookCount = (account: any, characters: any, idleonData: any) => {
@@ -361,13 +377,15 @@ const calcBookCount = (account: any, characters: any, idleonData: any) => {
   let libTime = timeAway?.BookLib ?? 0;
   let afk = timeAway ? (new Date).getTime() / 1e3 - timeAway.GlobalTime : 0;
   let bookCount = baseBookCount;
-  if (afk > 300) libTime += afk;
-  const { breakdown } = getTimeToNextBooks(bookCount, account, characters, idleonData);
+  // AwayTimers only pays out 0 < away < 1e8 (N.js:80445).
+  if (afk > 300 && afk < 1e8) libTime += afk;
   while (libTime > getTimeToNextBooks(bookCount, account, characters, idleonData)?.value) {
     libTime -= getTimeToNextBooks(bookCount, account, characters, idleonData)?.value;
     bookCount += 1;
   }
-  return { bookCount, libTime, breakdown };
+  // At the books the wait has added: each one makes the next slower
+  const { breakdown, baseFactor } = getTimeToNextBooks(bookCount, account, characters, idleonData);
+  return { bookCount, libTime, breakdown, baseFactor };
 }
 
 const calcTimeToXBooks = (bookCount: any, maxCount: any, account: any, characters: any, idleonData: any) => {
@@ -379,6 +397,8 @@ const calcTimeToXBooks = (bookCount: any, maxCount: any, account: any, character
 }
 
 const LIBRARY_BASE_CHECKOUT_HOURS = 4;
+// One book's wait in seconds: the base time over the speed, longer with each book already out.
+const bookWait = (baseFactor: any, bookCount: any) => Math.round(baseFactor * (1 + 10 * Math.pow(bookCount, 1.4) / 100));
 
 //  "BookReqTime"
 // game: "BookReqTime"
@@ -406,8 +426,7 @@ export const getTimeToNextBooks = (bookCount: any, account: any, characters: any
           + superbitBonus))) / 100);
   const baseFactor = LIBRARY_BASE_CHECKOUT_HOURS * (3600 / bonusMultiplier);
   const bookCountFactor = 1 + 10 * Math.pow(bookCount, 1.4) / 100;
-  const unrounded = baseFactor * bookCountFactor;
-  const math = Math.round(unrounded)
+  const math = bookWait(baseFactor, bookCount);
 
   // The base time over the speed, times the book count factor, rounded
   const breakdown = createBreakdown('Library Checkout Time', math, [
@@ -415,7 +434,7 @@ export const getTimeToNextBooks = (bookCount: any, account: any, characters: any
       flat('Base time', LIBRARY_BASE_CHECKOUT_HOURS * 3600, { formatted: `${LIBRARY_BASE_CHECKOUT_HOURS}h` }),
       additiveGroup('Books checked out', [percent('Book count', 10 * Math.pow(bookCount, 1.4))],
         { note: 'Each book makes the next one slower' })
-    ], { unit: 'flat' }),
+    ], { unit: 'flat', formatted: formatDuration(LIBRARY_BASE_CHECKOUT_HOURS * 3600 * bookCountFactor) }),
     productGroup('Checkout speed', [
       multiplier('Meal Bonus', 1 + mealBonus / 100),
       multiplier('Atom Bonus', 1 + libraryBooker / 100),
@@ -477,19 +496,9 @@ export const getSlab = (idleonData: any) => {
   const greenStacks = tryToParse(idleonData?.GreenStacks) || idleonData?.GreenStacks || [];
   const greenStacksSet = new Set(greenStacks);
   const allItems = structuredClone((items)); // Deep clone
-  const forcedNames = {
-    'Motherlode': 'Motherlode_x1',
-    'Island0': 'Island0_x1',
-    'Dust0': 'Dust0_x1',
-    'Dust1': 'Dust1_x1',
-    'Dust2': 'Dust2_x1',
-    'Dust3': 'Dust3_x1',
-    'Dust4': 'Dust4_x1',
-    'Dust5': 'Dust5_x1'
-  }
   const slabItems = slab?.map((name) => ({
-    name: allItems?.[name]?.displayName,
-    rawName: (forcedNames as Record<string, any>)?.[name] || name,
+    name: allItems?.[name]?.displayName ?? slabItemNames?.[name as keyof typeof slabItemNames],
+    rawName: name,
     itemRawName: name,
     obtained: lootyRaw?.includes(name),
     greenStacked: greenStacksSet.has(name),
@@ -539,7 +548,7 @@ export const getCurrencies = (account: any, idleonData: any, processedData: any)
     'Spooky_Time_Candy': { min: 1 / 3, max: 12 },
     'Cosmic_Time_Candy': { min: 5, max: 500 }
   };
-  const allItems = [...account?.storage?.list,
+  const allItems = [...(account?.storage?.list ?? []),
   ...(processedData?.charactersData || [])?.map(({ inventory }: any) => inventory)?.flat()];
   const allCandies = allItems?.filter(({ Type } = {}) => Type === 'TIME_CANDY');
   const guaranteedCandies = allCandies?.reduce((sum: any, { displayName, amount }: any) => {
@@ -610,7 +619,7 @@ export const enhanceKeysObject = (keysAll: any, characters: any, account: any) =
     2: { name: 'Bellows', dialogThreshold: 8.5, daysSinceIndex: 80 },
     3: {}
   }
-  return keysAll.map((key: any, keyIndex: any) => {
+  return keysAll?.map((key: any, keyIndex: any) => {
     const amountPerDay = getAmountPerDay((npcs as Record<string, any>)?.[keyIndex], characters);
     const daysSincePickup = account?.accountOptions?.[(npcs as Record<string, any>)?.[keyIndex]?.daysSinceIndex];
     const totalAmount = Math.min(daysSincePickup ?? 0, 3) * amountPerDay;
@@ -806,18 +815,16 @@ export const calculateLeaderboard = (characters: any) => {
 };
 
 export const calculateTotalSkillsLevel = (characters: any) => {
+  // The catalog at 0, so no save still reads every skill
+  const catalog = Object.fromEntries(Object.entries(skillIndexMap).map(([index, { name, icon }]) =>
+    [name, { level: 0, index: Number(index) - 1, icon }]));
   const allSkills = characters?.reduce((res: any, { skillsInfo }: any) => {
     if (!skillsInfo) return res;
     for (const [skillName, skillData] of Object.entries(skillsInfo) as [string, any][]) {
-      if (res?.[skillName]) {
-        res[skillName] = { ...res[skillName], level: res[skillName].level + (skillData?.level ?? 0) }
-      }
-      else {
-        res[skillName] = { level: skillData?.level, index: skillData?.index - 1, icon: skillData?.icon };
-      }
+      res[skillName] = { ...res[skillName], level: (res[skillName]?.level ?? 0) + (skillData?.level ?? 0) };
     }
     return res;
-  }, {})
+  }, catalog) ?? catalog;
   return Object.entries(allSkills)?.reduce((res: any, [skillName, skillVal]: [string, any]) => {
     const { level } = skillVal;
     const rank = getSkillRank(level);
@@ -860,7 +867,7 @@ export const getSkillCardBonus = (character: any, account: any, skillName: strin
     : getCardBonusByEffect(character?.cards?.equippedCards, effectName);
 
 const getSkillRankByIndex = (skills: any, index: any) => {
-  for (const [, skillData] of Object.entries(skills) as [string, any][]) {
+  for (const [, skillData] of Object.entries(skills ?? {}) as [string, any][]) {
     if (skillData?.level > 0 && skillData?.index === index) {
       return skillData?.rank;
     }
@@ -1096,11 +1103,13 @@ export const getGoldenFoodMultiplier = (foodName: any, character: any, account: 
 
 export const getRandomEvents = (account: any) => {
   if (!account) return [];
-  const { serverVars, timeAway } = account || {};
+  const randEventHour = account?.serverVars?.RandEvntHr;
+  // The schedule is the server's, not the save's: a save older than 100 hours still reads the hours ahead
+  if (!Number.isFinite(randEventHour)) return [];
   const eventList = []
-  const seed = Math.round(Math.floor(timeAway?.GlobalTime / 3600));
+  const seed = Math.floor(new Date().getTime() / 3600000);
   for (let i = 0; i < 100; i++) {
-    const actualSeed = seed + i + serverVars?.RandEvntHr;
+    const actualSeed = seed + i + randEventHour;
     const eventRng = new LavaRand(actualSeed);
     const eventRandom = eventRng.rand();
     const eventType = getEventType(eventRandom);
@@ -1202,8 +1211,8 @@ export const getAllCap = (character: any, account: any, forceMaxCapacity: any) =
 const D_TYPE_CAPACITY = 999999999;
 // game: "MaxCapacity"
 export const getItemCapacity = (type = '', character: any, account?: any, forceMaxCapacity?: any) => {
-  const gemshop = account?.gemShopPurchases?.find((value: any, index: any) => index === 58);
-  const hasNanoChip = account?.lab?.playersChips.flat().concat(account?.lab?.chips).find(({ name }: any) => name === 'Silkrode_Nanochip');
+  const gemshop = account?.gemShopPurchases?.find((value: any, index: any) => index === 58) ?? 0;
+  const hasNanoChip = (account?.lab?.playersChips ?? []).flat().concat(account?.lab?.chips ?? []).find(({ name }: any) => name === 'Silkrode_Nanochip');
   const starSignBonus = getStarSignBonus(character, account, 'Carry_Cap', forceMaxCapacity && hasNanoChip, forceMaxCapacity);
   const minCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Mining_Items', character);
   const chopCapStamps = getStampsBonusByEffect(account, 'Carrying_Capacity_for_Choppin\'_Items', character);
@@ -1636,31 +1645,31 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
   const killRoyClasses = getKillRoyClasses(rooms, accountData, serverVars);
   const upgrades = [
     {
-      level: accountData?.accountOptions?.[OPT.killroyTimerLevel],
+      level: accountData?.accountOptions?.[OPT.killroyTimerLevel] ?? 0,
       description: 'Increases your maximum time in room. Base time is 100 seconds.',
       upgrade: '+1 Second Timer'
     },
     {
-      level: accountData?.accountOptions?.[OPT.killroyTalentDropsLevel],
+      level: accountData?.accountOptions?.[OPT.killroyTalentDropsLevel] ?? 0,
       description: 'Increases chance for Talent Point drop, depends on how many Talent Point drops already got',
       upgrade: '+ Talent Drops'
     },
     {
-      level: accountData?.accountOptions?.[OPT.killroyBonusSkullsLevel],
+      level: accountData?.accountOptions?.[OPT.killroyBonusSkullsLevel] ?? 0,
       description: 'Increases chance of dropping skulls by mobs',
       upgrade: '+1% Bonus Skulls'
     },
     {
-      level: accountData?.accountOptions?.[OPT.killroyRespawnLevel],
+      level: accountData?.accountOptions?.[OPT.killroyRespawnLevel] ?? 0,
       description: 'Faster Respawn'
     },
     {
-      level: accountData?.accountOptions?.[OPT.killroyDungeonDropsLevel],
+      level: accountData?.accountOptions?.[OPT.killroyDungeonDropsLevel] ?? 0,
       description: 'Mobs can drop Dungeon Credits now',
       upgrade: 'Dungeon Drops'
     },
     {
-      level: accountData?.accountOptions?.[OPT.killroyPearlDropsLevel],
+      level: accountData?.accountOptions?.[OPT.killroyPearlDropsLevel] ?? 0,
       description: 'Mobs can drop Pearls now',
       upgrade: 'Pearl Drops'
     }
@@ -1709,34 +1718,24 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
     9: { decay: 200, cap: 3, format: 'mult' }
   };
 
-  const formatBonus = (value: number, format: 'mult' | 'addMult' | 'pct') => {
-    if (format === 'mult') return `${Math.floor(value * 100) / 100}x`;
-    if (format === 'addMult') return `+${(value / 100).toFixed(2)}x`;
-    return `+${Math.floor(value * 100) / 100}%`;
-  };
-
   // The curve is asymptotic, so the cap is never actually reached.
   // Inverting L/(decay+L) = percent gives the level needed for a given % of the cap.
-  // Game's skull shop description rounds shops 11-14 down and 16-19 up.
+  // Game's skull shop description rounds shops 11-14 down and 16-19 up, and the Gallery floors its whole percent.
   const roundUpDescription = new Set([6, 7, 8, 9]);
   const formatDescriptionBonus = (value: number, i: number) => {
     const round = roundUpDescription.has(i) ? Math.ceil : Math.floor;
     return String(round(value * 100) / 100);
   };
+  const formatBonus = (value: number, format: 'mult' | 'addMult' | 'pct', i: number) => {
+    if (format === 'addMult') return `+${Math.floor(value) / 100}x`;
+    return format === 'mult' ? `${formatDescriptionBonus(value, i)}x` : `+${formatDescriptionBonus(value, i)}%`;
+  };
 
-  // The game feeds these "x" bonuses in as percentages: 1.42x applies as x1.0142 / +1.42%.
-  const formatAppliedMulti = (value: number) => `x${Math.round((1 + value / 100) * 10000) / 10000}`;
-  const formatAppliedPct = (value: number) => `+${Math.round(value * 100) / 100}%`;
+  // game: AllMasterclassDropz and both World 7 skills read Math.max(1, KillroyBonuses(n)) as a multiplier
   const getAppliedBonuses = (i: number, bonus: number, cap: number) => {
-    if (i === 6) {
-      return [{ name: 'Masterclass drops', value: formatAppliedMulti(bonus), max: formatAppliedMulti(cap) }];
-    }
-    if (i === 7) {
-      return [
-        { name: 'Research EXP', value: formatAppliedMulti(bonus), max: formatAppliedMulti(cap) },
-        { name: 'Spelunking EXP', value: formatAppliedPct(bonus), max: formatAppliedPct(cap) }
-      ];
-    }
+    const applied = { value: Math.max(1, bonus), max: cap };
+    if (i === 6) return [{ name: 'Masterclass drops', ...applied }];
+    if (i === 7) return [{ name: 'Research EXP', ...applied }, { name: 'Spelunking EXP', ...applied }];
     return null;
   };
 
@@ -1751,8 +1750,8 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
     const level = levelOption !== null ? (accountData?.accountOptions?.[levelOption] ?? 0) : 0;
     const bonus = bonusIndex !== undefined ? getKillRoyShopBonus(accountData, bonusIndex) : 1;
     const progress = capInfo ? (level / (level + capInfo.decay)) * 100 : null;
-    const bonusDisplay = capInfo ? formatBonus(bonus, capInfo.format) : null;
-    const capDisplay = capInfo ? formatBonus(capInfo.cap, capInfo.format) : null;
+    const bonusDisplay = capInfo ? formatBonus(bonus, capInfo.format, i) : null;
+    const capDisplay = capInfo ? formatBonus(capInfo.cap, capInfo.format, i) : null;
 
     // 'mult' bonuses start at 1x, the additive ones at 0.
     const bonusBase = capInfo?.format === 'mult' ? 1 : 0;
@@ -1761,7 +1760,8 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
       return {
         percent,
         level: breakpointLevel,
-        bonusDisplay: formatBonus(bonusBase + (capInfo.cap - bonusBase) * (percent / 100), capInfo.format)
+        // Rounded first: a share of the cap's float error would tip the shop's round up to the next hundredth
+        bonusDisplay: formatBonus(Math.round((bonusBase + (capInfo.cap - bonusBase) * (percent / 100)) * 1e6) / 1e6, capInfo.format, i)
       };
     }) : null;
     const nextBreakpoint = breakpoints?.find((breakpoint) => breakpoint.level > level) ?? null;
@@ -1894,6 +1894,8 @@ export const calcTotalQuestCompleted = (characters: any) => {
 }
 
 export const getKillroySchedule = (account: any, characters: any, serverVars: any) => {
+  // The weeks are seeded from the save's clock: with none, every week would draw the same rooms with no date
+  if (!Number.isFinite(account?.timeAway?.GlobalTime)) return [];
   const unlockedThirdKillRoy = account?.accountOptions?.[OPT.killroyThirdFightUnlocked] === 1;
   const rooms = unlockedThirdKillRoy ? 3 : 2;
   const schedule = [];

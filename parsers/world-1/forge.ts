@@ -88,7 +88,7 @@ const upgradesData: ForgeUpgradeData[] = [
   {
     name: 'Puff Puff Go',
     maxLevel: 60,
-    description: 'Increased chance for a card drop while afk',
+    description: 'Increased chance for a card drop while AFK',
     costMulti: 1.33
   }
 ];

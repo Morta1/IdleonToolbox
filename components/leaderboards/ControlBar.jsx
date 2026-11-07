@@ -1,25 +1,24 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Autocomplete, FormControlLabel, IconButton, InputAdornment, Popover, Stack, Switch, TextField, Typography } from '@mui/material';
+import { Autocomplete, FormControlLabel, IconButton, InputAdornment, Stack, Switch, TextField, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { IconDotsVertical, IconListSearch, IconSearch, IconX } from '@tabler/icons-react';
 import { useDebouncedValue } from '@mantine/hooks';
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import useHydrated from '@hooks/useHydrated';
 import useFormatDate from '@hooks/useFormatDate';
-import useProfileBannerState from '@hooks/useProfileBannerState';
-import { navBarHeight, profileBannerHeight } from '@components/constants';
-import { numberWithCommas } from '@utility/helpers';
+import { formatNum } from '@utility/helpers';
 import { searchNames } from '../../services/leaderboards';
-import { AGGREGATION_INTERVAL, FOCUS_RING, GLOBAL_METRIC, rankText } from './format';
+import { AGGREGATION_INTERVAL, GLOBAL_METRIC, rankText } from './format';
 import { HIGHLIGHT } from './RankRow';
+import Toolbar from '@components/common/Toolbar';
 
 const MIN_QUERY = 2;
-const FIELD_OUTLINE = 'rgba(255,255,255,0.23)';
 const fieldHeight = { xs: 44, sm: 40 };
 
 // Rows that say something instead of offering a player: Enter or a click on them does nothing, so the
 // typed text stays put.
 const NO_MATCH = { message: 'noMatch', mainChar: '' };
+const NAMES_FAILED = { message: 'failed', mainChar: '' };
 const ANON_HINT = { message: 'anon', mainChar: '' };
 const ANON_PREFIX = /^anon#/i;
 const ANON_ID = /^anon#[0-9a-f]{6}$/i;
@@ -42,7 +41,7 @@ const PlayerOption = ({ name, rank, query }) => {
       <Box component="span" sx={{ flexGrow: 1, minWidth: 0 }}>
         <b>{name.slice(0, matched)}</b>{name.slice(matched)}
       </Box>
-      {rank != null ? <Typography component="span" sx={{ fontSize: 12, color: 'text.disabled', flexShrink: 0 }}>{rankText(rank)}</Typography> : null}
+      {rank != null ? <Typography component="span" variant="caption" sx={{ color: 'text.muted', flexShrink: 0 }}>{rankText(rank)}</Typography> : null}
     </Stack>
   );
 };
@@ -51,8 +50,9 @@ const isTouch = () => typeof window !== 'undefined' && Boolean(window.matchMedia
 
 // The field holds the viewed player: their name sits in it, outlined in their highlight colour, and
 // its X stops viewing them. Typing over the name searches for someone else; leaving the field with a
-// half-typed name puts the viewed one back.
-const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
+// half-typed name puts the viewed one back. onEmpty: the player emptied the field (typing or its X), so the answer
+// to the last search no longer answers anything.
+const PlayerSearch = ({ onPlayer, viewing = null, onClear, onEmpty }) => {
   const viewingName = viewing?.name ?? '';
   const [input, setInput] = useState(viewingName);
   // A new viewed player (or none) replaces whatever the field held.
@@ -71,7 +71,7 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
   const [debounced] = useDebouncedValue(typing ? text : '', 250);
   // Anon# ids are left out of the name search by design.
   const ready = debounced.length >= MIN_QUERY && !ANON_PREFIX.test(debounced);
-  const { data: players = [], isFetching } = useQuery({
+  const { data: players = [], isFetching, isError } = useQuery({
     queryKey: ['lb-names', debounced.toLowerCase()],
     queryFn: () => searchNames(debounced),
     enabled: ready,
@@ -86,6 +86,7 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
   const clear = () => {
     if (stopsViewing) onClear?.();
     else setInput('');
+    onEmpty?.();
     if (!(stopsViewing && isTouch())) inputRef.current?.focus();
   };
 
@@ -108,12 +109,18 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
         if (ANON_PREFIX.test(query)) return ANON_ID.test(query) ? [] : [ANON_HINT];
         const matches = matchesFor(options, query);
         const settled = ready && !isFetching && debounced === query;
+        // A failed search says so: "No players start with" would be false.
+        if (settled && isError) return [NAMES_FAILED];
         return matches.length || !settled ? matches : [NO_MATCH];
       }}
       value={null}
       inputValue={input}
       // Only typing changes the text: a pick sets it in onChange, and a message row must not blank it.
-      onInputChange={(event, value, reason) => { if (reason === 'input' || reason === 'clear') setInput(value); }}
+      onInputChange={(event, value, reason) => {
+        if (reason !== 'input' && reason !== 'clear') return;
+        setInput(value);
+        if (!value) onEmpty?.();
+      }}
       // freeSolo: Enter on free text arrives as 'createOption', which is how Anon# ids get searched.
       // A miss keeps the typed text, so a typo is one key away from fixed.
       onChange={(event, value, reason) => {
@@ -136,8 +143,9 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
         const { key, ...optionProps } = props;
         if (option.message) {
           return <Box component="li" key={option.message} {...optionProps} sx={{ cursor: 'default !important', opacity: '1 !important' }}>
-            <Typography component="span" sx={{ fontSize: 13, color: 'text.secondary' }}>
-              {option.message === 'anon' ? 'Type the full Anon# id (Anon# and 6 characters), then search' : `No players start with "${debounced}"`}
+            <Typography component="span" variant="body2" sx={{ color: 'text.secondary' }}>
+              {option.message === 'anon' ? 'Type the full Anon# id (Anon# and 6 characters), then search'
+                : option.message === 'failed' ? 'Couldn\'t search names. Press Enter to look the name up.' : `No players start with "${debounced}"`}
             </Typography>
           </Box>;
         }
@@ -201,8 +209,8 @@ const PlayerSearch = ({ onPlayer, viewing = null, onClear }) => {
         flex: '1 1 240px', minWidth: 200, maxWidth: { xs: 'none', sm: 360 },
         '& .MuiOutlinedInput-root': { height: fieldHeight, py: 0, pr: '8px !important' },
         ...(showsViewed ? {
-          '& .MuiOutlinedInput-notchedOutline': { borderColor: `${HIGHLIGHT[viewing.kind]} !important` },
-          '& .MuiInputBase-input': { fontWeight: 600 }
+          '& .MuiOutlinedInput-notchedOutline': { borderColor: (theme) => `${HIGHLIGHT[viewing.kind](theme)} !important` },
+          '& .MuiInputBase-input': { fontWeight: 500 }
         } : {})
       }}
     />
@@ -228,7 +236,7 @@ const filterBoards = (options, { inputValue }) => {
 const KeyHint = () => (
   <InputAdornment position="end">
     <Box aria-hidden component="span" sx={{
-      fontSize: 11, color: 'text.disabled', border: `1px solid ${FIELD_OUTLINE}`, borderRadius: '4px', px: 0.75, lineHeight: '16px',
+      typography: 'caption', color: 'text.muted', border: 1, borderColor: 'outline', borderRadius: '4px', px: 0.75, lineHeight: '16px',
       // No keyboard shortcut to hint at on a touch screen.
       '@media (hover: none)': { display: 'none' }
     }}>/</Box>
@@ -277,38 +285,36 @@ const MetricJump = ({ index, onMetric, inputRef = null, showKeyHint = false, ful
 
 // Sits at the right end of the tab strip on desktop and in the phone menu. Times are the visitor's
 // clock, so nothing renders until hydration.
-export const LeaderboardStatus = ({ totalPlayers, createdAt }) => {
+const LeaderboardStatus = ({ totalPlayers, createdAt }) => {
   const hydrated = useHydrated();
   const formatDate = useFormatDate();
   if (!hydrated || !createdAt) return null;
   return (
-    <Typography variant="caption" sx={{ fontSize: 12, color: 'text.disabled', whiteSpace: 'nowrap' }}>
-      {`${totalPlayers ? `${numberWithCommas(totalPlayers)} players · ` : ''}updated ${formatDate(createdAt, { timeOnly: true, showSeconds: false })} · next ~${formatDate(createdAt + AGGREGATION_INTERVAL, { timeOnly: true, showSeconds: false })}`}
+    <Typography variant="caption" sx={{ color: 'text.muted' }}>
+      {`${totalPlayers ? `${formatNum(totalPlayers, 'whole')} players · ` : ''}updated ${formatDate(createdAt, { timeOnly: true, showSeconds: false })} · next about ${formatDate(createdAt + AGGREGATION_INTERVAL, { timeOnly: true, showSeconds: false })}`}
     </Typography>
   );
 };
 
 // onStickyBottom: where the bar ends on screen, so the tab strip can pin right under it.
+// drawerReach: what an open board drawer takes from the window's right edge, which the status line ends clear of.
 // viewing: the ?player= context ({ name, kind }), held by the search field, which clears it.
-const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAnonymous, onPlayer, onMetric, onStickyBottom, viewing, onClearPlayer, children }) => {
-  const { isVisible: showProfileBanner } = useProfileBannerState();
-  const [menuAnchor, setMenuAnchor] = useState(null);
-  const [barHeight, setBarHeight] = useState(0);
+// note: the answer to a player search (a Notice), shown in the bar; onSearchEmptied: the field was emptied.
+const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAnonymous, onPlayer, onMetric, onStickyBottom, viewing, onClearPlayer, note = null,
+                      onSearchEmptied, drawerReach = 0, children }) => {
   const jumpRef = useRef(null);
-  const barRef = useRef(null);
-  const top = navBarHeight + (showProfileBanner ? profileBannerHeight : 0);
+  const statusRef = useRef(null);
+  const [endRoom, setEndRoom] = useState(0);
 
   useEffect(() => {
-    const bar = barRef.current;
-    if (!bar || typeof ResizeObserver === 'undefined') return;
-    const observer = new ResizeObserver(() => setBarHeight(bar.offsetHeight));
-    observer.observe(bar);
+    const status = statusRef.current;
+    if (!drawerReach || !status || typeof ResizeObserver === 'undefined') return undefined;
+    const observer = new ResizeObserver(() => {
+      setEndRoom(Math.max(0, drawerReach - (document.documentElement.clientWidth - status.getBoundingClientRect().right)));
+    });
+    observer.observe(status);
     return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (barHeight) onStickyBottom?.(top + barHeight);
-  }, [top, barHeight]);
+  }, [drawerReach]);
 
   // "/" focuses the board jump, registered on this page only and ignored while typing.
   useEffect(() => {
@@ -330,59 +336,30 @@ const ControlBar = ({ index, totalPlayers, createdAt, showAnonymous, onToggleAno
     <FormControlLabel
       control={<Switch checked={showAnonymous} onChange={onToggleAnonymous} inputProps={{ role: 'switch' }}
                        // Its input is invisible, so the ring goes on the switch itself.
-                       sx={{ borderRadius: 2, '&:has(.Mui-focusVisible)': { outline: '2px solid #90caf9', outlineOffset: '-4px' } }}/>}
+                       sx={{ borderRadius: 2, '&:has(.Mui-focusVisible)': { outline: '2px solid var(--mui-palette-primary-main)', outlineOffset: '-4px' } }}/>}
       label="Show anonymous"
-      slotProps={{ typography: { sx: { fontSize: 13, color: 'text.secondary' } } }}
+      slotProps={{ typography: { variant: 'body2', sx: { color: 'text.secondary' } } }}
       sx={{ minHeight: fieldHeight, my: 0 }}
     />
   );
 
   return (
-    <Box ref={barRef} sx={{
-      position: 'sticky', top, zIndex: (theme) => theme.zIndex.appBar - 1,
-      // No line of its own: the tab strip right under it closes the header with one line, so the
-      // tabs sit centred between the fields and that line.
-      bgcolor: 'background.default', py: 1.5,
-      // A landscape phone has no height to spare for pinned bars.
-      '@media (max-height: 500px)': { position: 'static' }
-    }}>
-      <Stack direction="row" gap={{ xs: 1, sm: 2 }} alignItems="flex-start" flexWrap={{ xs: 'nowrap', sm: 'wrap' }}>
-        <PlayerSearch onPlayer={onPlayer} viewing={viewing} onClear={onClearPlayer}/>
-        {/* Both layouts are in the markup and CSS picks one, so a phone does not reflow after hydration. */}
-        <Box sx={{ display: { xs: 'none', sm: 'contents' } }}>
-          <MetricJump index={index} onMetric={onMetric} inputRef={jumpRef} showKeyHint/>
-          {anonSwitch}
-          {children}
-          <Box sx={{ flexGrow: 1 }}/>
-          <Box sx={{ display: { xs: 'none', sm: 'flex', xl: 'none' }, alignItems: 'center', minHeight: fieldHeight }}>
-            <LeaderboardStatus totalPlayers={totalPlayers} createdAt={createdAt}/>
-          </Box>
-        </Box>
-        <IconButton
-          aria-label="More options"
-          aria-haspopup="dialog"
-          aria-expanded={Boolean(menuAnchor)}
-          aria-controls={menuAnchor ? 'lb-more-options' : undefined}
-          onClick={(event) => setMenuAnchor(event.currentTarget)}
-          sx={{ display: { xs: 'inline-flex', sm: 'none' }, width: 44, height: 44, flexShrink: 0, bgcolor: 'rgba(255,255,255,0.08)', color: 'common.white' }}>
-          <IconDotsVertical size={18}/>
-        </IconButton>
-      </Stack>
-      <Popover
-        anchorEl={menuAnchor}
-        open={Boolean(menuAnchor)}
-        onClose={() => setMenuAnchor(null)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
-        slotProps={{ paper: { id: 'lb-more-options', role: 'dialog', 'aria-label': 'More options', sx: FOCUS_RING } }}>
-        <Stack gap={1.5} sx={{ p: 2, width: 300 }}>
-          <MetricJump fullWidth index={index} onMetric={(key) => { setMenuAnchor(null); onMetric(key); }}/>
-          {anonSwitch}
-          {children}
-          <LeaderboardStatus totalPlayers={totalPlayers} createdAt={createdAt}/>
-        </Stack>
-      </Popover>
-    </Box>
+    <Toolbar onStickyBottom={onStickyBottom} panelLabel="More options" panelIcon={<IconDotsVertical size={18}/>} panelIconOnly panelTall note={note}>
+      <Toolbar.Lead><PlayerSearch onPlayer={onPlayer} viewing={viewing} onClear={onClearPlayer} onEmpty={onSearchEmptied}/></Toolbar.Lead>
+      <MetricJump index={index} onMetric={onMetric} inputRef={jumpRef} showKeyHint/>
+      {anonSwitch}
+      {children}
+      {/* One line's width and its share of the row, whatever the drawer does: where the padding leaves less, the line takes two */}
+      <Box ref={statusRef} sx={{ display: { xs: 'none', sm: 'flex' }, flex: '1 1 274px', minWidth: 0, justifyContent: 'flex-end', alignItems: 'center', textAlign: 'right', minHeight: fieldHeight, pr: { md: `${drawerReach ? endRoom : 0}px` } }}>
+        <LeaderboardStatus totalPlayers={totalPlayers} createdAt={createdAt}/>
+      </Box>
+      <Toolbar.Panel>{(close) => <Stack gap={1.5}>
+        <MetricJump fullWidth index={index} onMetric={(key) => { close(); onMetric(key); }}/>
+        {anonSwitch}
+        {children}
+        <LeaderboardStatus totalPlayers={totalPlayers} createdAt={createdAt}/>
+      </Stack>}</Toolbar.Panel>
+    </Toolbar>
   );
 };
 

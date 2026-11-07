@@ -1,24 +1,17 @@
-import React, { useContext, useState } from 'react';
+import { useContext } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import { gemShop } from '@website-data';
-import {
-  Badge,
-  Card,
-  CardContent,
-  Checkbox,
-  FormControlLabel,
-  Stack,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography
-} from '@mui/material';
-import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
-import { CardTitleAndValue } from '@components/common/styles';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
-
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 
 // Keyed by `${categoryName}_${globalIndex}` - globalIndex is reused across categories
 // (e.g. usables>Limited_Specials and past_limited_specials both use 87-94), so a flat
@@ -68,45 +61,63 @@ const calculateTotalCostToMax = (baseCost, costIncrement, currentPurchases, maxP
   return totalCost;
 };
 
+const SHOP_TOOLBAR = { search: '', tier: 'all', hideMaxed: false };
+const TIERS = [['all', 'All tiers'], ['S', 'S tier'], ['A', 'A tier'], ['B', 'B tier'], ['C', 'C tier'], ['Unranked', 'Unranked']];
+const TIER_NAME = { S: 'S tier', A: 'A tier', B: 'B tier', C: 'C tier' };
+const PAST_CATEGORY = 'past_limited_specials';
+const isRealItem = ({ rawName, displayName }) => rawName !== 'Blank' && displayName !== 'NAME_OF_ITEM';
+// Every digit, as the game and General print them; a card's cost reads the same way beside it
+const gemCount = (value) => formatGame(value, 'Save.Gems', { whole: true });
+const itemTitle = (displayName) => titleCaseName(cleanUnderscore(displayName));
+
 const GemShop = () => {
   const { state } = useContext(AppContext);
-  const [showMissingOnly, setShowMissingOnly] = useState(false);
-  const [selectedPriorities, setSelectedPriorities] = React.useState(['All']);
-  const [searchQuery, setSearchQuery] = useState('');
+  const failed = isSectionFailed(state?.account, 'gemShopPurchases');
+  // Gems come straight from the save, so only a whole-parse failure leaves them unknown: a card then says the cost and no "need"
+  const gems = state?.account?.currencies?.gems;
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('gem-shop', SHOP_TOOLBAR);
+  const hideMaxed = !failed && toolbar.hideMaxed;
+  // Past limited specials reuse the current items' indices, so the save can't say which of them were bought
+  const boughtOf = (category, globalIndex) => (failed || category === PAST_CATEGORY
+    ? null
+    : state?.account?.gemShopPurchases?.[globalIndex] ?? 0);
 
-  const handlePriorities = (event, newSelectedPriorities) => {
-    if (newSelectedPriorities?.length === 0) return;
-    const hasAllOld = selectedPriorities.includes('All');
-    const hasAllNew = newSelectedPriorities.includes('All');
-    let finalArray = newSelectedPriorities
-    if (hasAllOld && hasAllNew) {
-      finalArray = finalArray.filter((item) => item !== 'All');
-    } else if (hasAllNew && !hasAllOld) {
-      finalArray = ['All'];
-    }
-    setSelectedPriorities(finalArray);
+  const allItems = (gemShop ?? []).flatMap(({ name, sections }) => Object.entries(sections ?? {})
+    .flatMap(([sectionName, items]) => (items ?? []).filter(isRealItem).map((item) => ({ ...item, category: name, sectionName }))));
+  const matchesSearch = ({ displayName, desc, sectionName }) => {
+    const search = `${toolbar.search ?? ''}`.trim().toLowerCase();
+    if (!search) return true;
+    return [itemTitle(displayName), cleanUnderscore(desc ?? ''), cleanUnderscore(sectionName.capitalize())]
+      .some((text) => text.toLowerCase().includes(search));
   };
+  const isMaxed = ({ category, globalIndex, maxPurchases }) => {
+    const bought = boughtOf(category, globalIndex);
+    return bought != null && bought >= maxPurchases;
+  };
+  const isVisible = (item) => (toolbar.tier === 'all' || getPriority(item.category, item.globalIndex) === toolbar.tier)
+    && !(hideMaxed && isMaxed(item)) && matchesSearch(item);
+  const countOf = (tier) => allItems.filter((item) => tier === 'all' || getPriority(item.category, item.globalIndex) === tier).length;
+  const shownCount = allItems.filter(isVisible).length;
 
-  const isItemVisible = (item, sectionName, categoryName) => {
-    const { globalIndex, rawName, displayName, desc, maxPurchases } = item;
-    const purchased = state?.account?.gemShopPurchases?.[globalIndex] || 0;
-    const priority = getPriority(categoryName, globalIndex);
-
-    if (rawName === 'Blank' || displayName === 'NAME_OF_ITEM') return false;
-    if (showMissingOnly && purchased >= maxPurchases) return false;
-    if (!selectedPriorities.includes('All') && !selectedPriorities?.includes(priority)) return false;
-    
-    if (searchQuery) {
-      const searchLower = searchQuery.toLowerCase();
-      const displayNameText = cleanUnderscore(displayName.toLowerCase().camelToTitleCase()).toLowerCase();
-      const descText = cleanUnderscore(desc).toLowerCase();
-      const sectionText = cleanUnderscore(sectionName.capitalize()).toLowerCase();
-      if (!displayNameText.includes(searchLower) && !descText.includes(searchLower) && !sectionText.includes(searchLower)) {
-        return false;
-      }
-    }
-    
-    return true;
+  const itemCard = (item, index) => {
+    const { category, globalIndex, rawName, displayName, desc, cost, maxPurchases, costIncrement } = item;
+    const bought = boughtOf(category, globalIndex);
+    const maxed = bought != null && bought >= maxPurchases;
+    const nextCost = cost + (bought ?? 0) * (costIncrement || 0);
+    return <ItemCard key={`${category}-${globalIndex}-${rawName}-${index}`}
+                     icon={rawName?.includes(';') ? undefined : `data/${rawName}.png`}
+                     title={itemTitle(displayName)} meta={TIER_NAME[getPriority(category, globalIndex)]}
+                     status={maxed ? 'maxed' : undefined}
+                     footer={bought == null ? null : <ItemCard.Cost icon={'data/PremiumGem.png'} iconAlt={'Gems'} need={nextCost}
+                                                                    have={gems} format={gemCount}/>}>
+      <ItemCard.Desc text={cleanUnderscore(desc ?? '')}/>
+      <ItemCard.Facts rows={[
+        bought == null ? ['Cost', formatNum(cost, 'whole')] : ['Bought', `${formatNum(bought, 'whole')} / ${formatNum(maxPurchases, 'whole')}`],
+        bought != null && !maxed && maxPurchases - bought > 1
+          ? ['Cost to max', formatNum(calculateTotalCostToMax(cost, costIncrement || 0, bought, maxPurchases), 'whole')]
+          : null
+      ]}/>
+    </ItemCard>;
   };
 
   return <>
@@ -114,121 +125,35 @@ const GemShop = () => {
       title="Gem Shop | Idleon Toolbox"
       description="Browse all gem shop purchases, upgrade bonuses, and premium currency spending in Legends of Idleon"
     />
-    <Stack direction={'row'} flexWrap={'wrap'} gap={3} mb={2}>
-      <CardTitleAndValue title={'Gems'} value={numberWithCommas(state?.account?.currencies?.gems)} icon={'data/PremiumGem.png'}
-        imgStyle={{ width: 24, height: 24 }} />
-      <CardTitleAndValue title={'Control'} value={<FormControlLabel
-        control={<Checkbox name={'mini'} checked={showMissingOnly}
-          size={'small'}
-          onChange={() => setShowMissingOnly(!showMissingOnly)} />}
-        label={'Show missing only'} />} />
-      <CardTitleAndValue title={'Priorities'} value={<ToggleButtonGroup
-        sx={{ mt: .5 }}
-        value={selectedPriorities}
-        onChange={handlePriorities}
-      >
-        <ToggleButton value="All">All</ToggleButton>
-        <ToggleButton value="S">S</ToggleButton>
-        <ToggleButton value="A">A</ToggleButton>
-        <ToggleButton value="B">B</ToggleButton>
-        <ToggleButton value="C">C</ToggleButton>
-        <ToggleButton value="Unranked">Unranked</ToggleButton>
-      </ToggleButtonGroup>} />
-      <CardTitleAndValue title={'Search'} value={<TextField
-        label="Enter search term"
-        variant="outlined"
-        size="small"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-        sx={{ minWidth: 200, mt:1 }}
-      />} />
-      
-    </Stack>
-    {gemShop?.map(({ name, sections }) => {
-      const isPastCategory = name === 'past_limited_specials';
-      // Filter sections to only those with visible items
-      const visibleSections = Object.entries(sections).filter(([sectionName, sectionItems]) => {
-        const isAllBlanks = sectionItems?.every(({ rawName }) => rawName === 'Blank');
-        if (isAllBlanks) return false;
-        return sectionItems?.some(item => isItemVisible(item, sectionName, name));
-      });
-
-      // Only show category if it has visible sections
-      if (visibleSections.length === 0) return null;
-
-      return <Stack key={name} gap={2}>
-        <Typography sx={{ mt: 5 }} variant={'h5'}>{cleanUnderscore(name).capitalize()}</Typography>
-        {visibleSections.map(([sectionName, sectionItems]) => {
-          // Filter items to only visible ones
-          const visibleItems = sectionItems?.filter(item => isItemVisible(item, sectionName, name));
-          
-          // Only show section if it has visible items
-          if (!visibleItems || visibleItems.length === 0) return null;
-
-          return <Card key={sectionName}>
-            <CardContent>
-              <Typography sx={{ mb: 1 }} variant={'h5'}>{cleanUnderscore(sectionName.capitalize())}</Typography>
-              <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
-                {visibleItems.map(({
-                  globalIndex,
-                  rawName,
-                  displayName,
-                  desc,
-                  cost,
-                  maxPurchases,
-                  costIncrement
-                }, index) => {
-                  const purchased = state?.account?.gemShopPurchases?.[globalIndex] ?? 0;
-                  const addedCost = purchased * costIncrement;
-                  const priority = getPriority(name, globalIndex);
-                  return <Badge
-                    badgeContent={PRIORITY_TIERS.includes(priority) ? priority : 0}
-                    color={'warning'} key={rawName + index}>
-                    <Card variant={'outlined'}
-                      sx={{
-                        width: 300,
-                        border: purchased === maxPurchases ? '1px solid' : '',
-                        borderColor: purchased === maxPurchases ? 'success.main' : ''
-                      }}>
-                      <CardContent sx={{ height: '100%', display: 'flex', position: 'relative' }}>
-                        <Stack sx={{ width: '100%' }}>
-                          <Stack gap={1} direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
-                            <Stack gap={1} direction={'row'} alignItems={'center'}>
-                              {!rawName.includes(';') ? <img width={32} src={`${prefix}data/${rawName}.png`}
-                                alt={rawName} /> : null}
-                              <Typography variant={'body1'}>{cleanUnderscore(displayName.toLowerCase().camelToTitleCase())}</Typography>
-                            </Stack>
-                            {purchased < maxPurchases && (
-                              <Tooltip title={
-                                <Stack>
-                                  <Typography variant="body2">
-                                    Cost to max: {numberWithCommas(calculateTotalCostToMax(cost, costIncrement, purchased, maxPurchases))}
-                                  </Typography>
-                                </Stack>
-                              }>
-                                <IconInfoCircleFilled size={18} />
-                              </Tooltip>
-                            )}
-                          </Stack>
-                          <Typography fontSize={14}>{cleanUnderscore(desc)}</Typography>
-                          <Stack sx={{ mt: 'auto' }} direction={'row'} alignItems={'center'}
-                            justifyContent={'space-between'}>
-                            <Stack direction={'row'} alignItems={'center'} gap={1}>
-                              <img width={32} height={32} src={`${prefix}data/PremiumGem.png`} alt={'gem'} />
-                              <Typography variant={'body1'}>{cost + (isNaN(addedCost) ? 0 : addedCost)}</Typography>
-                            </Stack>
-                            <Typography variant={'body1'}>{isPastCategory ? `?? / ${maxPurchases}` : `${purchased} / ${maxPurchases}`}</Typography>
-                          </Stack>
-                        </Stack>
-                      </CardContent>
-                    </Card>
-                  </Badge>
-                })}
-              </Stack>
-            </CardContent>
-          </Card>
-        })}
-      </Stack>
+    {failed ? <MissingData name={'Gem Shop'} failed atZero/> : null}
+    <PageSummary>
+      <StatTile label={'Gems'} icon={'data/PremiumGem.png'} value={gems == null ? '-' : gemCount(gems)}/>
+    </PageSummary>
+    <Toolbar state={toolbar} defaults={SHOP_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+             total={allItems.length} shown={shownCount} noun={'items'}>
+      <Toolbar.Search placeholder={'Search items'}/>
+      <Toolbar.Show name={'tier'} options={TIERS.map(([key, label]) => [key, label, countOf(key)])}/>
+      {failed ? null : <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>}
+    </Toolbar>
+    {(gemShop ?? []).map(({ name, sections }) => {
+      const visibleSections = Object.entries(sections ?? {})
+        .map(([sectionName, items]) => [sectionName, (items ?? []).filter(isRealItem)
+          .map((item) => ({ ...item, category: name, sectionName })).filter(isVisible)])
+        .filter(([, items]) => items.length);
+      // A category with nothing to show draws no heading over nothing
+      if (!visibleSections.length) return null;
+      return <Stack key={name} gap={2} sx={{ mt: 3 }}>
+        <Typography variant={'sectionTitle'} component={'h2'}>{cleanUnderscore(name).capitalize()}</Typography>
+        {visibleSections.map(([sectionName, items], sectionIndex) => <Stack key={sectionName} gap={1}>
+          <Stack direction={'row'} alignItems={'baseline'} columnGap={1} flexWrap={'wrap'}>
+            <Typography variant={'groupLabel'} component={'h3'}>{cleanUnderscore(sectionName.capitalize())}</Typography>
+            {name === PAST_CATEGORY && sectionIndex === 0
+              ? <Typography variant={'body2'} color={'text.secondary'}>The save doesn't say which past specials you bought.</Typography>
+              : null}
+          </Stack>
+          <CardGrid size={'m'}>{items.map(itemCard)}</CardGrid>
+        </Stack>)}
+      </Stack>;
     })}
   </>
 };

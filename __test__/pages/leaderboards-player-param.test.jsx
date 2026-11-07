@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 Element.prototype.scrollIntoView = vi.fn();
 const routerState = { isReady: true, query: {}, push: vi.fn(), replace: vi.fn(), asPath: '/leaderboards', pathname: '/leaderboards' };
@@ -26,12 +26,13 @@ vi.mock('../../services/leaderboards', () => ({ fetchMeta, fetchPlayer, fetchBoa
 const { AppContext } = await import('@components/common/context/AppProvider');
 const Leaderboards = (await import('../../pages/leaderboards')).default;
 
-const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+// retryDelay 0: the page retries meta and tabs once, and the default wait is a real second.
+const client = new QueryClient({ defaultOptions: { queries: { retry: false, retryDelay: 0 } } });
 const renderPage = (state = {}) => {
   // A fresh element each call, or React bails out of the rerender: the router mock is a plain object.
   const page = () => (
     <QueryClientProvider client={client}>
-      <ThemeProvider theme={darkTheme}>
+      <ThemeProvider theme={theme}>
         <AppContext.Provider value={{ state }}>
           <Leaderboards/>
         </AppContext.Provider>
@@ -52,18 +53,13 @@ afterEach(() => {
 });
 
 describe('leaderboards ?player= deep link', () => {
-  it('loads the player once and shows them as the searched player', async () => {
+  it('loads the player once, shows them as the searched player and announces them', async () => {
     routerState.query = { player: 'Tester' };
     renderPage();
     const label = await screen.findByText('Searched player');
     expect(label.parentElement.textContent).toBe('Searched player · Tester');
     expect(fetchPlayer).toHaveBeenCalledTimes(1);
     expect(fetchPlayer).toHaveBeenCalledWith('Tester');
-  });
-
-  it('announces the player it loaded', async () => {
-    routerState.query = { player: 'Tester' };
-    renderPage();
     await waitFor(() => expect(screen.getByRole('status').textContent).toMatch(/^Showing Tester, global rank #/));
   });
 
@@ -75,10 +71,10 @@ describe('leaderboards ?player= deep link', () => {
     expect(routerState.push).toHaveBeenLastCalledWith({ pathname: '/leaderboards', query: { t: 'Skills' } }, undefined, { shallow: true });
   });
 
-  it('drops an unknown player from the URL with a toast', async () => {
+  it('drops an unknown player from the URL with a note', async () => {
     routerState.query = { player: 'Ghost', t: 'Skills' };
     renderPage();
-    expect(await screen.findByText(/No player named Ghost/)).toBeTruthy();
+    expect(await screen.findByText(/No player named Ghost/, { selector: '[data-notice] div' })).toBeTruthy();
     expect(routerState.replace).toHaveBeenCalledWith({ pathname: '/leaderboards', query: { t: 'Skills' } }, undefined, { shallow: true });
   });
 
@@ -90,7 +86,7 @@ describe('leaderboards ?player= deep link', () => {
 
   it('fetches no player for an anonymous visitor', async () => {
     renderPage();
-    expect(await screen.findByText('See where you stand')).toBeTruthy();
+    expect(await screen.findByText(/^Your standing shows here once you sign in/)).toBeTruthy();
     expect(fetchPlayer).not.toHaveBeenCalled();
   });
 
@@ -111,7 +107,7 @@ describe('leaderboards ?player= deep link', () => {
   it('decides the tab from the URL alone, so back to a URL without ?t= shows Overview', async () => {
     routerState.push.mockImplementation(({ query }) => { routerState.query = query; });
     const { rerender } = renderPage();
-    expect(await screen.findByText('See where you stand')).toBeTruthy();
+    expect(await screen.findByText(/^Your standing shows here once you sign in/)).toBeTruthy();
     fireEvent.click(await screen.findByRole('tab', { name: /Skills/ }));
     rerender();
     expect(await screen.findByText('Mining')).toBeTruthy();
@@ -119,19 +115,16 @@ describe('leaderboards ?player= deep link', () => {
 
     routerState.query = {};
     rerender();
-    expect(await screen.findByText('See where you stand')).toBeTruthy();
+    expect(await screen.findByText(/^Your standing shows here once you sign in/)).toBeTruthy();
     expect(screen.queryByText('Mining')).toBeNull();
     expect(fetchTab).toHaveBeenCalledTimes(1);
   });
 
-  it('puts the board count in its own span on the tab and the status line in the tab strip', async () => {
+  it('puts the board count in its own span on the tab and one status line in the control bar', async () => {
     renderPage();
     await waitFor(() => expect(screen.getByRole('tab', { name: /Skills/ }).querySelector('span')?.textContent).toBe('1'));
     expect(screen.getByRole('tab', { name: /Skills/ }).textContent).toBe('Skills1');
-    const statuses = await screen.findAllByText(/10 players · updated/);
-    const inStrip = statuses.find((status) => status.parentElement.parentElement.parentElement.querySelector('[role="tablist"]'));
-    expect(inStrip).toBeTruthy();
-    expect(inStrip.closest('.MuiTabs-root')).toBeNull();
+    expect(await screen.findAllByText(/10 players · updated/)).toHaveLength(1);
   });
 
   it('keeps the logged-in treatment when you search your own name', async () => {
@@ -142,13 +135,13 @@ describe('leaderboards ?player= deep link', () => {
   });
 
   it('offers a retry when a tab fails to load', async () => {
-    fetchTab.mockRejectedValueOnce(new Error('boom'));
+    fetchTab.mockRejectedValueOnce(new Error('boom')).mockRejectedValueOnce(new Error('boom'));
     routerState.query = { t: 'skills' };
     renderPage();
-    expect(await screen.findByText('Could not load these boards')).toBeTruthy();
+    expect(await screen.findByText('Couldn\'t load these boards.')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(await screen.findByText('Mining')).toBeTruthy();
-    expect(fetchTab).toHaveBeenCalledTimes(2);
+    expect(fetchTab).toHaveBeenCalledTimes(3);
   });
 
   it('stores the anonymous switch value it is given', async () => {

@@ -1,5 +1,6 @@
 import { gamingImports, gamingPalette, gamingUpgrades, randomList2, superbitsUpgrades } from '@website-data';
-import { commaNotation, notateNumber, number2letter, tryToParse } from '@utility/helpers';
+import { gameFill, notateNumber, number2letter, tryToParse } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { getAccountMinorDivinityBonus, GOD_INDEX } from '@parsers/world-5/divinity';
 import { getHighestLevelCharacter, getLoggedInSkillLevel, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
@@ -64,7 +65,7 @@ export const getGaming = (idleonData: any, characters: any, account: any, server
       researchRaw,
       characters, account, serverVars
     ),
-    unlocked: !!gamingRaw && !!gamingSproutRaw && !!spelunkRaw
+    unlocked: !!gamingRaw && !!gamingSproutRaw
   };
 }
 
@@ -357,6 +358,10 @@ const getMutations = () => {
   }))
 }
 
+// A wave superbit's line. Its total can be a fraction (1.12 or 0.3 per 10 waves), so it prints by the shared rule
+const wavesInfo = (bonus: number, totalWaves: number) =>
+  `Total Bonus: ${gameFill(bonus, 'Big')}% (${gameFill(totalWaves, 'Comma', { whole: true })} waves)`;
+
 const calcSuperbitBonus = (characters: any, account: any, index: any) => {
   let bonus, totalBonus, additionalInfo;
   const totalWaves = account?.towers?.totalWaves ?? 0;
@@ -366,19 +371,19 @@ const calcSuperbitBonus = (characters: any, account: any, index: any) => {
   }
   else if (index === 3 || index === 16) {
     bonus = Math.floor(totalWaves / 10);
-    additionalInfo = `Total Bonus: ${bonus}% (${totalWaves} waves)`
+    additionalInfo = wavesInfo(bonus, totalWaves);
   }
   else if (index === 11) {
     bonus = 1.12 * Math.floor(totalWaves / 10);
-    additionalInfo = `Total Bonus: ${bonus.toFixed(2)}% (${totalWaves} waves)`
+    additionalInfo = wavesInfo(bonus, totalWaves);
   }
   else if (index === 13) {
     bonus = Math.floor(totalWaves / 10) * 13;
-    additionalInfo = `Total Bonus: ${bonus}% (${totalWaves} waves)`
+    additionalInfo = wavesInfo(bonus, totalWaves);
   }
   else if (index === 7) {
     bonus = Math.floor(totalWaves / 10);
-    additionalInfo = `Total Bonus: ${bonus}% (${totalWaves} waves)`
+    additionalInfo = wavesInfo(bonus, totalWaves);
   }
   else if (index === 12) {
     // The game multiplies this superbit by Lv0[15] of the character you're logged in as, not by the
@@ -390,11 +395,11 @@ const calcSuperbitBonus = (characters: any, account: any, index: any) => {
   }
   else if (index === 20) {
     bonus = Math.floor(totalWaves / 10) * 50;
-    additionalInfo = `Total Bonus: ${bonus}% (${totalWaves} waves)`
+    additionalInfo = wavesInfo(bonus, totalWaves);
   }
   else if (index === 27) {
     bonus = 2.5 * Math.max(0, Math.floor((totalWaves - 300) / 10));
-    additionalInfo = `Total Bonus: ${bonus}% (${totalWaves} waves)`
+    additionalInfo = wavesInfo(bonus, totalWaves);
   }
   else if (index === 24) {
     const discoveriesCount = account?.spelunking?.discoveriesCount ?? 0;
@@ -418,13 +423,12 @@ const calcSuperbitBonus = (characters: any, account: any, index: any) => {
   }
   else if (index === 38) {
     totalBonus = account?.gaming?.paletteFinalBonus;
-    additionalInfo = `Palette Lucky +${account?.gaming?.paletteFinalBonus?.toFixed(2)}%`
   }
   // 42 (Bigger_Palette) is a flag. The game still replaces "{" with Lv0[17] (sneaking level), a
   // leftover with nothing to replace in its description, so it shows no value.
   else if (index === 44) {
     bonus = 0.3 * Math.max(0, Math.floor((totalWaves - 300) / 10));
-    additionalInfo = `Total Bonus: ${bonus}% (${totalWaves} waves)`
+    additionalInfo = wavesInfo(bonus, totalWaves);
   }
   else if (index === 45) {
     // game: PaletteLuck reads Lv0[15], the logged-in character's gaming level
@@ -517,7 +521,7 @@ const calcImportCost = (index: any, gamingImportsValues: any) => {
 const calcFertilizerBonus = (index: any, gamingRaw: any, gamingSproutRaw: any, characters: any, account: any, acornShop: any, imports: any) => {
   if (index === 0) {
     const baseValue = gamingRaw?.[1];
-    return notateNumber((1 + 4 * baseValue) * Math.pow(1.065, baseValue), 'bits');
+    return gameFill((1 + 4 * baseValue) * Math.pow(1.065, baseValue), 'Bits');
   }
   else if (index === 1) {
     const baseValue = gamingRaw?.[2];
@@ -529,14 +533,15 @@ const calcFertilizerBonus = (index: any, gamingRaw: any, gamingSproutRaw: any, c
     const growChance = 1 / calcSproutGrowChance(gamingRaw);
     const final = (growTime * growChance) / 60;
     const time = 100 * final / 100;
-    if (time > 60) return `${time / 60} Hr`;
-    if (time < 1) return `${Math.trunc(time * 60 * 100) / 100} Sec`;
-    return `${Math.trunc(time * 1000) / 1000} Min`;
+    // game: 60 < x reads Hr, 1 < x reads Min, anything else Sec (the fertilizer panel)
+    if (time > 60) return `${gameFill(time / 60, 'Small')} Hr`;
+    if (time > 1) return `${gameFill(time, 'Small')} Min`;
+    return `${gameFill(60 * time, 'Small')} Sec`;
   }
   else if (index === 2) {
     const baseValue = gamingRaw?.[3];
     const maxSprouts = account?.gemShopPurchases?.find((value: any, index: any) => index === 133) ?? 0;
-    return notateNumber(Math.round(Math.min(24, 3 + baseValue + (maxSprouts))));
+    return gameFill(Math.round(Math.min(24, 3 + baseValue + (maxSprouts))), 'Big', { whole: true });
   }
 }
 
@@ -579,8 +584,9 @@ const calcAcornShop = (gamingSproutRaw: any, account: any) => {
       ? 4 + value + 3 * Math.max(0, value - 5)
       : 1 + value + 2 * Math.max(0, value - 5);
     return {
+      level: value ?? 0,
       cost,
-      description: bonusTexts?.[index].replace(/{/, `${bonus.toFixed(2)}`),
+      description: bonusTexts?.[index].replace(/{/, formatGame(bonus, 'GamingStatType.AcornShopBonus')),
       bonus
     }
   });
@@ -762,9 +768,9 @@ const getPalette = (account: any, ratKing: any, spelunkRaw: any, characters: any
       const template = gamingPalette?.[i]?.description || '';
       if (!template) return template;
       return template
-        .replace(/\{/g, commaNotation(value))
+        .replace(/\{/g, gameFill(value, 'Comma'))
         .replace(/#/g, '' + (Math.floor(100 * value) / 100))
-        .replace(/\}/g, String(notateNumber(1 + value / 100, 'MultiplierInfo')));
+        .replace(/\}/g, gameFill(1 + value / 100, 'MultiplierInfo'));
     };
     const description = formatDescription(bonus);
     // game: "CanWeDoubleBlackstar" is always 1, so any colour takes up to 2 stars

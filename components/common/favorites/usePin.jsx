@@ -1,32 +1,61 @@
 import { useRouter } from 'next/router';
-import { useContext } from 'react';
-import { AppContext } from '@components/common/context/AppProvider';
+import { useLocalStorage } from '@mantine/hooks';
+import { PAGE_BY_URL } from '@utility/pageIndex';
+
+const NO_PINS = [];
+
+// A page that moved keeps its pins: the row reads the new page, and one already pinned there doesn't draw twice. One copy per
+// stored pin, so a row keeps its identity between renders: Reorder matches rows by reference.
+const MOVED_PAGES = {
+  '/account/class-specific/royal-guardian': '/account/class-specific/royal-armory',
+  '/tools/active-exp-calculator': '/tools/active-stuff-calculator'
+};
+const movedPins = new WeakMap();
+const currentPin = (pin) => {
+  const url = MOVED_PAGES[pin?.url];
+  if (!url) return pin;
+  if (!movedPins.has(pin)) movedPins.set(pin, { ...pin, url, name: url.split('/').at(-1) });
+  return movedPins.get(pin);
+};
+const readPins = (stored) => {
+  const seen = new Set();
+  return stored.map(currentPin).filter((pin) => {
+    const id = [pin?.name, pin?.tab, pin?.nestedTab, pin?.deeplyNestedTab].join('|');
+    if (seen.has(id)) return false;
+    seen.add(id);
+    return true;
+  });
+};
 
 const usePin = () => {
-  const { dispatch, state } = useContext(AppContext);
+  // No defaultValue, so a visitor with no pins stores nothing. Mantine reads storage in an effect: the export and the
+  // first client render have no pins, and every reader of this hook moves together.
+  const [stored, setPinnedPages] = useLocalStorage({ key: 'pinnedPages' });
+  const pinnedPages = Array.isArray(stored) ? readPins(stored) : NO_PINS;
   const router = useRouter();
-  const isPinned = state.pinnedPages?.find(({ name, tab, nestedTab, deeplyNestedTab }) => router.pathname.includes(name)
-    && (tab ? router.query?.t?.includes(tab) : true)
-    && (nestedTab ? router.query?.nt?.includes(nestedTab) : true)
-    && (deeplyNestedTab ? router.query?.dnt?.includes(deeplyNestedTab) : true));
+  // One rule for showing a page as pinned and for pinning or unpinning it: the same route and the same tabs, exactly.
+  // A substring match lit the star on pages whose name contains a pinned one, and a pin with no tab on every tab.
+  const pageName = router.pathname.split('/').at(-1);
+  const { t, nt, dnt } = router.query;
+  // A page opens on its first tab, so no tab and that tab are one view and one pin
+  const firstTab = PAGE_BY_URL[router.pathname]?.tabs?.[0]?.tab ?? null;
+  const tabKey = (value) => ((value ?? null) === firstTab ? null : (value ?? null));
+  const isThisPin = ({ name, tab, nestedTab, deeplyNestedTab }) =>
+    name === pageName &&
+    tabKey(tab) === tabKey(t) &&
+    (nestedTab ?? null) === (nt ?? null) &&
+    (deeplyNestedTab ?? null) === (dnt ?? null);
+  const isPinned = pinnedPages.find(isThisPin);
 
   const togglePin = () => {
-    const pageName = router.pathname.split('/').at(-1);
-    const { t, nt, dnt } = router.query;
-    const isThisPin = ({ name, tab, nestedTab, deeplyNestedTab }) =>
-      name === pageName &&
-      (tab ?? null) === (t ?? null) &&
-      (nestedTab ?? null) === (nt ?? null) &&
-      (deeplyNestedTab ?? null) === (dnt ?? null);
-    const exist = state?.pinnedPages?.find(isThisPin);
-    let updatePinnedPages = [...(state?.pinnedPages || [])];
+    const exist = pinnedPages.find(isThisPin);
+    let updatePinnedPages = [...pinnedPages];
     if (exist) {
       updatePinnedPages = updatePinnedPages.filter((pin) => !isThisPin(pin));
     } else {
       updatePinnedPages.push({ name: pageName, tab: t, nestedTab: nt, deeplyNestedTab: dnt, url: router.pathname })
     }
-    localStorage.setItem('pinnedPages', JSON.stringify(updatePinnedPages));
-    dispatch({ type: 'pinnedPages', data: updatePinnedPages });
+    setPinnedPages(updatePinnedPages);
 
     if (typeof window.gtag !== 'undefined') {
       window.gtag('event', exist ? 'page_unpinned' : 'page_pinned', {
@@ -38,11 +67,9 @@ const usePin = () => {
   }
 
   const removePin = (index) => {
-    let updatePinnedPages = [...(state?.pinnedPages || [])];
-    const removed = updatePinnedPages[index];
-    updatePinnedPages = updatePinnedPages.filter((_, ind) => ind !== index);
-    localStorage.setItem('pinnedPages', JSON.stringify(updatePinnedPages));
-    dispatch({ type: 'pinnedPages', data: updatePinnedPages });
+    const removed = pinnedPages[index];
+    const updatePinnedPages = pinnedPages.filter((_, ind) => ind !== index);
+    setPinnedPages(updatePinnedPages);
     if (removed && typeof window.gtag !== 'undefined') {
       window.gtag('event', 'page_unpinned', {
         event_category: 'engagement',
@@ -52,17 +79,7 @@ const usePin = () => {
     }
   }
 
-  const reorderPins = (newOrder) => {
-    localStorage.setItem('pinnedPages', JSON.stringify(newOrder));
-    dispatch({ type: 'pinnedPages', data: newOrder });
-  }
-
-  const setPins = (pages) => {
-    localStorage.setItem('pinnedPages', JSON.stringify(pages));
-    dispatch({ type: 'pinnedPages', data: pages });
-  }
-
-  return { pinnedPages: state.pinnedPages, isPinned, togglePin, removePin, reorderPins, setPins };
+  return { pinnedPages, isPinned, togglePin, removePin, reorderPins: setPinnedPages, setPins: setPinnedPages };
 };
 
 export default usePin;

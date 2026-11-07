@@ -7,9 +7,10 @@ import {
   ROYAL_RESOURCE_NAMES
 } from '@parsers/class-specific/royalGuardian';
 
-const UpgradeOptimizer = ({ character, account }) => (
+const UpgradeOptimizer = ({ character, account, sectionFailed }) => (
   <GenericUpgradeOptimizer
     character={character}
+    sectionFailed={sectionFailed}
     account={account}
     getOptimizedUpgradesFn={getOptimizedArmoryUpgrades}
     upgradeCategories={ARMORY_UPGRADE_CATEGORIES}
@@ -27,11 +28,12 @@ const UpgradeOptimizer = ({ character, account }) => (
     getResourceType={(upgrade) => upgrade.costResourceIndex}
     // The shelf is laid out by display slot, not upgrade id.
     getGameOrder={(upgrade) => upgrade.slot}
-    getResourceAmount={(amount) => amount}
     // Unlike the other three masterclasses, RG income is passive: outposts bank a fixed rate off the
     // nodes they're wired to, so the rate can be derived instead of typed in. Manual entry stays
     // available as the "(manual)" method.
     autoResourcePerHour={getRoyalResourcePerHour(account)}
+    costGame={'RoyalG.ArmoryUpgCost'}
+    characterLabel={'Royal Guardian'}
     tooltipText="Shows armory upgrades in the order you can afford them. Unlike Grimoire/Compass/Tesseract, armory upgrades don't share a common stat, so this ranks by cost only. With a resource per hour method, each upgrade is placed by when it's ready: what you hold now plus every resource filling at the same time. Auto RPH is read from your outposts and their connected nodes."
   />
 );

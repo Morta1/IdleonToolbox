@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
-import { Stack, Typography } from '@mui/material';
+import Notice from '@components/common/Notice';
+import { sessionQuery } from '@utility/nav-query';
 
 // The page moved to /account/class-specific/royal-armory: every other class-specific entry is named
 // after the skill it tracks (Grimoire, Compass, Tesseract), and the in-game skill here is the Royal
@@ -13,10 +14,9 @@ import { Stack, Typography } from '@mui/material';
 // The whole query rides along verbatim - unlike a cross-page hop, these params (`t`, `profile`,
 // `demo`) all belong to the page being reopened.
 //
-// No <meta http-equiv="refresh"> fallback: this is a data page, so its <NextSeo> never runs
-// during the export and the noindex reaches the HTML only because generate-page-seo.mjs lifts it
-// into _app via PAGE_SEO. A refresh tag would also fire before hydration, dropping the query a
-// shared ?profile= link needs, so the redirect has to stay client-side.
+// No <meta http-equiv="refresh"> fallback: it would fire before hydration, dropping the query a
+// shared ?profile= link needs, so the redirect has to stay client-side. It needs no account
+// (account-routes.js), so its export is the Notice: with JS off the link below is the way on.
 export const ROYAL_ARMORY_PATH = '/account/class-specific/royal-armory';
 
 const RoyalGuardianRedirect = () => {
@@ -34,10 +34,8 @@ const RoyalGuardianRedirect = () => {
       canonical={`https://idleontoolbox.com${ROYAL_ARMORY_PATH}`}
       noindex
     />
-    <Stack sx={{ my: 4 }} alignItems={'center'} gap={1}>
-      <Typography>This page moved to Royal Armory.</Typography>
-      <a href={ROYAL_ARMORY_PATH}>Continue to Royal Armory</a>
-    </Stack>
+    {/* A real link, so the way on works before the page's script has run */}
+    <Notice tone={'info'} action={{ label: 'Continue to Royal Armory', href: { pathname: ROYAL_ARMORY_PATH, query: sessionQuery(router.query) } }}>This page moved to Royal Armory.</Notice>
   </>;
 };
 

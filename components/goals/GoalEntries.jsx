@@ -7,7 +7,7 @@ import { getDescriptor } from '@utility/goals/registry';
 import { isAllChars } from '@utility/goals/store';
 import { entryProgressText } from './parts/format';
 import { entryWikiOpener } from './parts/actions';
-import { CostValue, GoalBar, GoalIcon } from './parts/GoalVisuals';
+import { CostValue, GoalBar, GoalIcon, WRAP_ON_PHONE_SX } from './parts/GoalVisuals';
 
 const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr: false });
 
@@ -57,13 +57,13 @@ const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
           <Stack component="li" key={entry.key} direction="row" alignItems="center" gap={1} sx={{ py: 0.25 }}>
             <GoalIcon src={entry.icon} alt="" size={24}/>
             {wikiOpener(entry) ? (
-              <Link data-entry-name component="button" type="button" underline="hover" color="multiLight" noWrap
+              <Link data-entry-name component="button" type="button" color="primary"
                     onClick={wikiOpener(entry)}
-                    sx={{ flex: { xs: 1, sm: '0 0 180px' }, minWidth: 0, fontSize: 14, textAlign: 'left' }}>
+                    sx={{ ...WRAP_ON_PHONE_SX, display: 'block', flex: { xs: 1, sm: '0 0 180px' }, fontSize: 14, textAlign: 'left' }}>
                 {entry.name}
               </Link>
             ) : (
-              <Typography data-entry-name variant="body2" noWrap sx={{ flex: { xs: 1, sm: '0 0 180px' }, minWidth: 0 }}>
+              <Typography data-entry-name variant="body2" sx={{ ...WRAP_ON_PHONE_SX, flex: { xs: 1, sm: '0 0 180px' } }}>
                 {entry.name}
               </Typography>
             )}
@@ -78,7 +78,7 @@ const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
             {descriptor?.allOnly ? null : (
               <IconButton size="small" aria-label={`Set goal for ${entry.name}`} sx={ACTION_SX}
                           color={hasOwnGoal(entry) ? 'primary' : 'default'}
-                          onClick={(e) => setPicking({ anchorEl: e.currentTarget, ...entryGoalOf(view, entry) })}>
+                          onClick={() => setPicking({ ...entryGoalOf(view, entry) })}>
                 <IconTargetArrow size={16}/>
               </IconButton>
             )}
@@ -86,13 +86,13 @@ const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
         ))}
       </Box>
       {matches.length > shown.length ? (
-        <Button size="small" sx={{ alignSelf: 'flex-start', textTransform: 'none' }}
+        <Button size="small" sx={{ alignSelf: 'flex-start' }}
                 onClick={() => setPages(pages + 1)}>
           Show 50 more
         </Button>
       ) : null}
       {picking && descriptor ? (
-        <GoalPopover anchorEl={picking.anchorEl} open onClose={() => setPicking(null)}
+        <GoalPopover open onClose={() => setPicking(null)}
                      systems={[descriptor]} initial={{ system: view.system, key: picking.key, scope: picking.scope }}
                      source={source} entryOnly/>
       ) : null}

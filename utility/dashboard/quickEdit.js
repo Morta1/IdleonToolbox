@@ -89,6 +89,10 @@ export const buildQuickEdit = (config, model, configType, target, { items = [], 
   const shown = kind === 'tracker'
     ? tracker.options.find(({ name }) => name === tracker.inline) ?? null
     : option;
+  // A timer that reads a number another tracker holds: its quick edit holds that number too
+  const numberFrom = alertMeta[path]?.numberFrom;
+  const readsNumber = numberFrom && (!numberFrom.forItems || items.some(({ key }) => numberFrom.forItems.includes(key)));
+  const numberTracker = readsNumber ? allTrackers(model).find((candidate) => candidate.path === numberFrom.tracker) ?? null : null;
 
   return {
     kind,
@@ -100,6 +104,9 @@ export const buildQuickEdit = (config, model, configType, target, { items = [], 
     items: kind === 'pickerItems' ? watched : [],
     worlds: kind === 'perWorld' ? rows : [],
     everyCharacter: configType === 'characters',
+    linkedNumber: numberTracker
+      ? { tracker: numberTracker, option: numberTracker.options.find(({ name }) => name === numberFrom.option), help: numberFrom.help }
+      : null,
     // A timer's switch is its only control, except an input option keeps its own checkbox.
     trackerSwitch: kind === 'tracker' || (configType === 'timers' && option?.type !== 'input'),
     page: alertPage(config, configType, target),

@@ -54,16 +54,16 @@ describe('fetchBuildDetailAtBuildTime', () => {
 
   it('returns the static build for an id', async () => {
     vi.stubGlobal('fetch', vi.fn(async (url) => ok(String(url).split('/').pop())));
-    const out = await fetchBuildDetailAtBuildTime('aaa');
-    expect(out.shortId).toBe('aaa');
-    expect(out.payload).toEqual({ talents: [1, 2, 3] });
+    expect(await fetchBuildDetailAtBuildTime('aaa')).toEqual(toStaticBuild(detail('aaa')));
   });
 
   // The list drives the exported paths, so a failure there must stop the deploy. One missing
   // payload only costs that page its head start - it still fetches on mount.
-  it('resolves null rather than throwing when one build fails', async () => {
-    vi.stubGlobal('fetch', vi.fn(async () => ({ ok: false, status: 500 })));
+  it('resolves null rather than throwing when one build fails, after a fixed number of attempts', async () => {
+    const spy = vi.fn(async () => ({ ok: false, status: 500 }));
+    vi.stubGlobal('fetch', spy);
     await expect(fetchBuildDetailAtBuildTime('bad')).resolves.toBeNull();
+    expect(spy).toHaveBeenCalledTimes(3);
   });
 
   // Keyed per id, not per call: a batch keyed on the whole list made every forked worker fetch all
@@ -93,22 +93,13 @@ describe('fetchBuildDetailAtBuildTime', () => {
     expect(calls).toBe(2);
   });
 
-  it('gives up after a fixed number of attempts', async () => {
-    const spy = vi.fn(async () => ({ ok: false, status: 500 }));
-    vi.stubGlobal('fetch', spy);
-    await fetchBuildDetailAtBuildTime('aaa');
-    expect(spy).toHaveBeenCalledTimes(3);
-  });
-
   // undici's default header timeout is 300s; without an explicit signal a stalled Worker hangs the
   // build for hours per attempt instead of failing over to fetch-on-mount.
   it('bounds each request with a timeout signal', async () => {
-    const spy = vi.fn(async (_url, init) => {
-      expect(init.signal, 'no abort signal on the detail fetch').toBeDefined();
-      return ok('aaa');
-    });
+    const spy = vi.fn(async () => ok('aaa'));
     vi.stubGlobal('fetch', spy);
     await fetchBuildDetailAtBuildTime('aaa');
+    expect(spy.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal);
   });
 
   // One bad build is a warning. Half of them silently reverting to fetch-on-mount is the exact
@@ -120,7 +111,7 @@ describe('fetchBuildDetailAtBuildTime', () => {
       return ok(id);
     }));
 
-    // 9 good, 1 bad: 10% — under the floor, and below the minimum sample for most of it.
+    // 9 good, 1 bad: 10%: under the floor, and below the minimum sample for most of it.
     for (let i = 0; i < 9; i++) await fetchBuildDetailAtBuildTime(`good${i}`);
     await expect(fetchBuildDetailAtBuildTime('bad0')).resolves.toBeNull();
 

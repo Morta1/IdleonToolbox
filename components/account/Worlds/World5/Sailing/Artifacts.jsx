@@ -1,12 +1,13 @@
 import React from 'react';
-import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '@utility/helpers';
-import { ARTIFACT_TIERS as TIERS, artifactTierColor } from './sailing.consts';
-import styled from '@emotion/styled';
-import Tooltip from '../../../../Tooltip';
-import { TitleAndValue } from '../../../../common/styles';
-import processString from 'react-process-string';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { Box } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { ARTIFACT_TIERS as TIERS } from './sailing.consts';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
+import { artifacts as ARTIFACTS, gameTables } from '@website-data';
 
 const getTierDescription = (artifact, tier) => {
   switch (tier) {
@@ -21,126 +22,61 @@ const getTierDescription = (artifact, tier) => {
   }
 };
 
-const Artifacts = ({ artifacts }) => {
-  return (
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {artifacts?.map((artifact, index) => {
-        const { name, description, rawName, acquired, additionalData } = artifact;
-        const currentTier = acquired ?? 0;
-        const bonusDescription = currentTier >= 2 ? getTierDescription(artifact, currentTier) : '';
-        const color = artifactTierColor(currentTier);
-        return (
-          <Card key={name + index} variant={acquired ? 'elevation' : 'outlined'}
-                sx={{ opacity: currentTier === 0 ? .5 : 1 }}>
-            <CardContent>
-              <Stack sx={{ width: 220 }}>
-                <Stack direction={'row'} gap={1} alignItems={'center'}>
-                  <ArtifactImg src={`${prefix}data/${rawName}.png`} alt="" verisimilitude={currentTier === 7}/>
-                  <Typography>{cleanUnderscore(name)}</Typography>
-                  {Array.isArray(additionalData) ? <Tooltip title={getTooltip(name, additionalData)}>
-                    <IconInfoCircleFilled style={{ marginLeft: 'auto' }} size={18}/>
-                  </Tooltip> : null}
-                </Stack>
-                <TierTrack currentTier={currentTier} artifact={artifact}/>
-                <Typography sx={{ fontSize: 11, mt: 0.75, textAlign: 'center', opacity: 0.7 }}>
-                  {currentTier === 0
-                    ? 'Not Acquired'
-                    : `Tier ${currentTier}/${TIERS.length} · ${TIERS[currentTier - 1]?.full ?? ''}`}
-                </Typography>
-                <Divider sx={{ my: 2 }}/>
-                <Stack flexWrap={'wrap'}>
-                  <Typography sx={{ minHeight: 150 }} component={'div'}>{processString([{
-                    regex: /Total bonus.*/gi,
-                    fn: (key, result) => {
-                      return <div key={key} style={{ marginTop: 15 }}>{result[0]}</div>
-                    }
-                  }])(cleanUnderscore(description))}</Typography>
-                  <Divider flexItem color={color} sx={{ my: 2 }}/>
-                  <Typography
-                    sx={{
-                      opacity: currentTier >= 2 ? 1 : .5,
-                      color: color
-                    }}>{cleanUnderscore(bonusDescription)}</Typography>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        );
-      })}
-    </Stack>
-  );
+// The game tints a tier 7 (Verisimilitude) artifact with createHueFilter(160) (_customEvent_Sailing)
+const artifactIcon = (rawName, tier) => tier === 7
+  ? <Box component={'span'} sx={{ display: 'inline-flex', filter: 'hue-rotate(160deg)' }}>
+    <GameIcon src={`data/${rawName}.png`} size={40} alt={''}/>
+  </Box>
+  : `data/${rawName}.png`;
+
+// The parser drops the game's line break before the total (sailing.ts), so the card puts it back
+const withTotalLine = (text) => cleanUnderscore(text ?? '').replace(/\s*(Total bonus)/i, ' @ $1');
+
+// Info 5: Crystal Steak's and Socrates' per-character tables, a list in a hover note before
+const PER_CHARACTER = {
+  Crystal_Steak: ['Total damage per character', ({ bonus }) => ({ value: bonus, formatted: formatNum(bonus ?? 0, 'pct') })],
+  Socrates: ['All stats per character', ({ strength, agility, wisdom, luck }) => ({
+    value: strength,
+    formatted: [strength, agility, wisdom, luck].map((stat) => formatNum(stat ?? 0)).join(' / ')
+  })]
 };
 
-const TierTrack = ({ currentTier, artifact }) => {
-  return (
-    <Stack direction={'row'} gap={0.5} sx={{ mt: 1.5 }}>
-      {TIERS.map(({ level, full }) => {
-        const color = artifactTierColor(level);
-        const reached = currentTier >= level;
-        const isCurrent = currentTier === level;
-        const tierDescription = getTierDescription(artifact, level);
-        return (
-          <Tooltip key={level} title={
-            <>
-              <Typography sx={{ color, fontWeight: 'bold' }}>Tier {level}: {full}</Typography>
-              {tierDescription ? (
-                <Typography sx={{ mt: 0.5 }}>{cleanUnderscore(tierDescription)}</Typography>
-              ) : null}
-            </>
-          }>
-            <Box
-              sx={{
-                flex: 1,
-                height: 6,
-                borderRadius: 0.5,
-                backgroundColor: reached ? color : 'rgba(255,255,255,0.08)',
-                opacity: reached ? (isCurrent ? 1 : 0.55) : 1,
-                cursor: 'help',
-                transition: 'opacity 0.15s'
-              }}
-            />
-          </Tooltip>
-        );
-      })}
-    </Stack>
-  );
+const perCharacter = (name, additionalData, tier) => {
+  const [title, line] = PER_CHARACTER[name] ?? [];
+  if (!title || !tier || !Array.isArray(additionalData) || !additionalData.length) return null;
+  const count = `${formatNum(additionalData.length)} ${additionalData.length === 1 ? 'character' : 'characters'}`;
+  const data = createBreakdown(title, count, flatLines(additionalData.map((row) => ({ name: row?.name, ...line(row) }))),
+    { combine: 'list' });
+  return [title, <Breakdown key={'per-character'} asValue data={data} countNoun={'characters'}>{count}</Breakdown>];
 };
 
-const getTooltip = (name, additionalData) => {
-  const map = {
-    Crystal_Steak: <StatsTooltip additionalData={additionalData}/>,
-    Socrates: <AllStatsTooltip additionalData={additionalData}/>
-  }
-  return map[name] || <></>;
-}
+// A failed section the page reads as {} still lists the catalog, as a guest's does: every artifact not acquired, its
+// sentence filled with the catalog's base bonus and no total, which only the section knows
+const catalogAtZero = () => (ARTIFACTS ?? []).map((artifact, index) => ({
+  ...artifact,
+  rawName: `Arti${index}`,
+  acquired: 0,
+  description: String(artifact?.description ?? '').replace(/_*@?_*Total_Bonus.*$/, '').replace('{', artifact?.baseBonus ?? '')
+    .replace('$', gameTables?.artifactFormText?.forms?.[0] ?? '')
+}));
 
-const StatsTooltip = ({ additionalData }) => {
-  return <>
-    <Typography sx={{ fontWeight: 'bold' }} mb={1} variant={'subtitle1'}>Total Damage</Typography>
-    {additionalData?.map(({ name, bonus }, index) => <TitleAndValue key={`stat-${name}-${index}`}
-                                                                    boldTitle
-                                                                    title={name}
-                                                                    value={`${bonus}%`}
-    />)}
-  </>
-}
-
-const AllStatsTooltip = ({ additionalData }) => {
-  return <>
-    <Typography sx={{ fontWeight: 'bold' }} mb={1} variant={'subtitle1'}>All stats (STR/AGI/WIS/LUK)</Typography>
-    {additionalData?.map(({ name, strength, agility, wisdom, luck }, index) => <TitleAndValue
-      key={`all-stat-${name}-${index}`}
-      boldTitle
-      title={name}
-      value={`${strength}/${agility}/${wisdom}/${luck}`}
-    />)}
-  </>
-}
-
-// game: _customEvent_Sailing tints a tier 7 (Verisimilitude) artifact with createHueFilter(160)
-const ArtifactImg = styled.img`
-  object-fit: contain;
-  ${({ verisimilitude }) => verisimilitude ? 'filter: hue-rotate(160deg);' : ''}
-`
+const Artifacts = ({ artifacts, sectionFailed }) => <CardGrid size={'m'}>
+  {(artifacts ?? catalogAtZero()).map((artifact, index) => {
+    const { name, rawName, acquired, additionalData } = artifact;
+    const tier = acquired ?? 0;
+    const current = tier >= 2 ? getTierDescription(artifact, tier) : '';
+    const next = tier >= 1 && tier < TIERS.length ? getTierDescription(artifact, tier + 1) : '';
+    return <ItemCard key={`${name}-${index}`} icon={artifactIcon(rawName, tier)} title={cleanUnderscore(name)} dimmed={!tier}
+                     meta={tier ? `Tier ${tier} of ${TIERS.length} · ${TIERS[tier - 1]?.full}` : sectionFailed ? undefined : 'Not acquired'}>
+      <ItemCard.Desc text={withTotalLine(artifact?.description)}/>
+      {/* The tier is the meta line's; the rows say what it gives now and what the next one would */}
+      <ItemCard.Facts rows={[
+        current ? ['Now', cleanUnderscore(current)] : null,
+        next ? [`Next tier (${TIERS[tier]?.full})`, cleanUnderscore(next)] : null,
+        perCharacter(name, additionalData, tier)
+      ]}/>
+    </ItemCard>;
+  })}
+</CardGrid>;
 
 export default Artifacts;

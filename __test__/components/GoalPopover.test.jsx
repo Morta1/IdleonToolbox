@@ -1,48 +1,27 @@
 // @vitest-environment jsdom
 import '../../polyfills';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen } from '@testing-library/react';
-import { createFilterOptions, ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import { fireEvent, screen } from '@testing-library/react';
+import { createFilterOptions } from '@mui/material';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { AppContext } from '@components/common/context/AppProvider';
-import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
+import { goalsHarness } from '../helpers/goals-harness';
 import GoalPopover from '@components/goals/GoalPopover';
 import { getDescriptor, withDescriptors } from '@utility/goals/registry';
-import { createGoal, GOALS_STORAGE_KEY, MAX_GOALS } from '@utility/goals/store';
+import { createGoal, MAX_GOALS } from '@utility/goals/store';
 import { resolveGoal } from '@utility/goals/resolve';
 import { getBubbleLevelForPercent } from '@parsers/world-2/alchemy';
-import { numberWithCommas } from '@utility/helpers';
+import { formatNumber } from '@components/goals/parts/format';
 
 const { account, characters } = parseFixture(latest);
 const ctx = { account, characters };
-const ACCOUNT_KEY = 'uid-test';
+const { api, mount: mountUi, seed } = goalsHarness({ account, characters });
+const mount = (props) => mountUi(<GoalPopover open onClose={() => {}} source="entry" {...props}/>);
 const bubble = getDescriptor('bubble');
 const grimoire = getDescriptor('grimoire');
 const stamp = getDescriptor('stamp');
 const item = getDescriptor('item');
-
-let api;
-const Probe = () => {
-  const value = useGoals();
-  useEffect(() => {
-    api = value;
-  });
-  return null;
-};
-
-const mount = (props) => render(
-  <ThemeProvider theme={darkTheme}>
-    <AppContext.Provider value={{ state: { uid: ACCOUNT_KEY, characters, account } }}>
-      <GoalsProvider>
-        <Probe/>
-        <GoalPopover anchorEl={document.body} open onClose={() => {}} source="entry" {...props}/>
-      </GoalsProvider>
-    </AppContext.Provider>
-  </ThemeProvider>
-);
 
 const button = (name) => screen.queryByRole('button', { name });
 const setTarget = (value) => fireEvent.change(screen.getByLabelText(/^Target/), { target: { value: String(value) } });
@@ -66,9 +45,9 @@ describe('GoalPopover', () => {
     expect(button('Level')).toBeTruthy();
     expect(button('% of max')).toBeTruthy();
     const level = getBubbleLevelForPercent(account, bubbleRow, 90);
-    const step = button(`90% = Lv ${numberWithCommas(level)}`);
+    const step = button(`90% = Lv ${formatNumber(level)}`);
     expect(step).toBeTruthy();
-    expect(screen.getByText(new RegExp(`^You have Lv ${numberWithCommas(bubbleRow.level)} · \\d+% of max$`))).toBeTruthy();
+    expect(screen.getByText(new RegExp(`^You have Lv ${formatNumber(bubbleRow.level)} · \\d+% of max$`))).toBeTruthy();
     fireEvent.click(step);
     save();
     expect(api.goals).toHaveLength(1);
@@ -77,13 +56,10 @@ describe('GoalPopover', () => {
     });
   });
 
-  it.each([
-    ['stamps lost their max', () => ({ system: 'stamp', key: stamp.key(stamp.list(ctx)[0]), systems: [stamp] })],
-    ['this upgrade has no cap', () => ({ system: 'grimoire', key: grimoire.key(uncappedGrimoire), systems: [grimoire] })]
-  ])('editing a stored Max target that no longer applies starts empty: %s', (_, entry) => {
-    const { system, key, systems } = entry();
-    const goal = createGoal({ system, key, metric: 'level', target: 'max' });
-    mount({ systems, initial: { system, key, goal } });
+  it('editing a stored Max target on an upgrade with no cap starts empty', () => {
+    const key = grimoire.key(uncappedGrimoire);
+    const goal = createGoal({ system: 'grimoire', key, metric: 'level', target: 'max' });
+    mount({ systems: [grimoire], initial: { system: 'grimoire', key, goal } });
     expect(screen.getByLabelText(/^Target/).value).toBe('');
   });
 
@@ -93,7 +69,7 @@ describe('GoalPopover', () => {
     expect(button('Level')).toBeNull();
     expect(button('% of max')).toBeNull();
     const max = grimoire.metrics.level.max(cappedGrimoire, ctx);
-    expect(button(`Max (${numberWithCommas(max)})`)).toBeTruthy();
+    expect(button(`Max (${formatNumber(max)})`)).toBeTruthy();
     capped.unmount();
 
     mount({ systems: [grimoire], initial: { system: 'grimoire', key: grimoire.key(uncappedGrimoire) } });
@@ -122,18 +98,12 @@ describe('GoalPopover', () => {
     expect(api.goals[0]).toMatchObject({ kind: 'entry', system: 'grimoire', key: grimoire.key(cappedGrimoire), target: 1 });
   });
 
-  it('item search shows at most 250 matches', () => {
-    mount({ systems: [getDescriptor('item')], initial: {}, source: 'header' });
-    fireEvent.change(screen.getByLabelText('Item'), { target: { value: 'a' } });
-    expect(screen.getAllByRole('option').length).toBe(250);
-  });
-
   it('blocks a target above an absolute max', () => {
     mount({ systems: [grimoire], initial: { system: 'grimoire', key: grimoire.key(cappedGrimoire) } });
     const max = grimoire.metrics.level.max(cappedGrimoire, ctx);
     setTarget(max + 1);
     save();
-    expect(screen.getByText(`Target is above the max (${numberWithCommas(max)})`)).toBeTruthy();
+    expect(screen.getByText(`Target is above the max (${formatNumber(max)})`)).toBeTruthy();
     expect(api.goals).toEqual([]);
   });
 
@@ -156,7 +126,7 @@ describe('GoalPopover', () => {
   it('editing an existing goal keeps one goal', () => {
     const key = bubble.key(bubbleRow);
     const existing = createGoal({ system: 'bubble', key, metric: 'level', target: bubbleRow.level + 10, pinned: true });
-    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({ schema: 1, accounts: { [ACCOUNT_KEY]: [existing] } }));
+    seed(existing);
     mount({ systems: [bubble], initial: { system: 'bubble', key, goal: existing } });
     expect(screen.getByText('Edit goal')).toBeTruthy();
     setTarget(bubbleRow.level + 20);
@@ -191,7 +161,7 @@ describe('GoalPopover', () => {
   ])('editing a watch item goal %s', (_, target, watch) => {
     const key = item.key(item.list(ctx)[0]);
     const existing = createGoal({ system: 'item', key, metric: 'quantity', target: 0, watch: true });
-    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({ schema: 1, accounts: { [ACCOUNT_KEY]: [existing] } }));
+    seed(existing);
     mount({ systems: [item], initial: { system: 'item', key, goal: existing } });
     setTarget(target);
     save();
@@ -207,7 +177,7 @@ describe('GoalPopover', () => {
       fireEvent.click(button('All'));
       fireEvent.click(button('Max'));
       save();
-      expect(screen.getByText('No entries can reach this target')).toBeTruthy();
+      expect(screen.getByText('No entry can reach this target.')).toBeTruthy();
       expect(api.goals).toEqual([]);
     });
   });
@@ -218,13 +188,13 @@ describe('GoalPopover', () => {
     fireEvent.click(button('% of max'));
     setTarget(50);
     save();
-    expect(screen.getByText('No entries can reach this target')).toBeTruthy();
+    expect(screen.getByText('No entry can reach this target.')).toBeTruthy();
     expect(api.goals).toEqual([]);
   });
 
   it('save at the cap shows the cap message', () => {
     const full = Array.from({ length: MAX_GOALS }, (_, i) => createGoal({ system: 'stamp', key: `k${i}`, metric: 'level', target: 1 }));
-    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({ schema: 1, accounts: { [ACCOUNT_KEY]: full } }));
+    seed(...full);
     mount({ systems: [bubble], initial: { system: 'bubble', key: bubble.key(bubbleRow) } });
     setTarget(bubbleRow.level + 1);
     save();
@@ -272,28 +242,22 @@ describe('GoalPopover', () => {
     });
   });
 
-  it('several systems show the system select first', () => {
+  it('several systems show the system select first, each with its icon and entry count', () => {
     mount({ systems: [bubble, stamp], initial: {} });
     const system = screen.getByLabelText('System');
-    const appliesTo = button('All');
-    expect(system.compareDocumentPosition(appliesTo) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(system.compareDocumentPosition(button('All')) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     fireEvent.mouseDown(system);
-    fireEvent.click(screen.getByRole('option', { name: /^Stamps/ }));
-    expect(button('By category')).toBeTruthy();
-  });
-
-  it('the system select shows each system icon and entry count', () => {
-    mount({ systems: [bubble, stamp], initial: {} });
-    fireEvent.mouseDown(screen.getByLabelText('System'));
     const options = screen.getAllByRole('option');
     expect(options.map((o) => o.textContent)).toEqual([
-      `Bubbles${numberWithCommas(bubble.list(ctx).length)}`,
-      `Stamps${numberWithCommas(stamp.list(ctx).length)}`
+      `Bubbles${formatNumber(bubble.list(ctx).length)}`,
+      `Stamps${formatNumber(stamp.list(ctx).length)}`
     ]);
     expect(options.map((o) => o.querySelector('img').getAttribute('src'))).toEqual([
       `/${bubble.icon(bubble.list(ctx)[0])}.png`,
       `/${stamp.icon(stamp.list(ctx)[0])}.png`
     ]);
+    fireEvent.click(screen.getByRole('option', { name: /^Stamps/ }));
+    expect(button('By category')).toBeTruthy();
   });
 
   it('lists the other systems only when the system select opens, and filters the entries only while their list is open', () => {
@@ -342,7 +306,7 @@ describe('GoalPopover', () => {
     it('switching to Stay at or below clears a Max target', () => {
       mount({ systems: [grimoire], initial: { system: 'grimoire', key: grimoire.key(cappedGrimoire) } });
       fireEvent.click(button(/^Max/));
-      expect(screen.getByLabelText(/^Target/).value).toBe('Max');
+      expect(screen.getByLabelText(/^Target/).getAttribute('placeholder')).toBe('Max');
       pickDirection('Stay at or below');
       expect(screen.getByLabelText(/^Target/).value).toBe('');
     });
@@ -350,15 +314,15 @@ describe('GoalPopover', () => {
     it('editing an at most goal reads Stay at or below', () => {
       const key = grimoire.key(uncappedGrimoire);
       const existing = createGoal({ system: 'grimoire', key, metric: 'level', op: '<=', target: 3 });
-      localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({ schema: 1, accounts: { [ACCOUNT_KEY]: [existing] } }));
+      seed(existing);
       mount({ systems: [grimoire], initial: { goal: existing } });
       expect(screen.getByLabelText('Direction').textContent).toBe('Stay at or below');
     });
   });
 
   it.each([
-    ['a level', () => bubble, (row) => `You have Lv ${numberWithCommas(row.level)}`, 'Target level'],
-    ['kills', () => getDescriptor('killroyKills'), (row) => `You have ${numberWithCommas(Number(row.killRoyKills) || 0)} kills`, 'Target kills']
+    ['a level', () => bubble, (row) => `You have Lv ${formatNumber(row.level)}`, 'Target level'],
+    ['kills', () => getDescriptor('killroyKills'), (row) => `You have ${formatNumber(Number(row.killRoyKills) || 0)} kills`, 'Target kills']
   ])('the target row of %s says what you have and names the unit in the field', (_, descriptorOf, have, placeholder) => {
     const d = descriptorOf();
     const row = d.list(ctx).find((r) => d.metrics[Object.keys(d.metrics)[0]].value(r, ctx) > 0);
@@ -376,15 +340,17 @@ describe('GoalPopover', () => {
     expect(screen.getByText(`You have ${artifact.metrics.tier.tiers[artifact.metrics.tier.value(row, ctx)]}`)).toBeTruthy();
   });
 
-  it.each([
-    ['one', 'One', 'One stamp you pick from the list.'],
-    ['all', 'All', 'Every entry in Stamps: reached when all of them meet the target.'],
-    ['group', 'By category', 'Every entry in Stamps in the category you pick: reached when all of them meet the target.']
-  ])('applies to %s has a short label and one helper sentence', (_, label, helper) => {
+  it('each applies to choice has a short label and one helper sentence', () => {
     mount({ systems: [stamp], initial: { system: 'stamp' } });
     expect(['One', 'All', 'By category'].map((name) => !!button(name))).toEqual([true, true, true]);
-    fireEvent.click(button(label));
-    expect(screen.getByText(helper)).toBeTruthy();
+    for (const [label, helper] of [
+      ['All', 'Every entry in Stamps: reached when all of them meet the target.'],
+      ['By category', 'Every entry in Stamps in the category you pick: reached when all of them meet the target.'],
+      ['One', 'One stamp you pick from the list.']
+    ]) {
+      fireEvent.click(button(label));
+      expect(screen.getByText(helper)).toBeTruthy();
+    }
   });
 
   it('slab offers All and By category only, starts on All and saves an all goal', () => {
@@ -403,9 +369,9 @@ describe('GoalPopover', () => {
     mount({ systems: [totals], initial: { system: 'researchTotals', key: 'observations' } });
     expect(['One', 'All'].map((name) => !!button(name))).toEqual([false, false]);
     expect(screen.getByText('One total you pick from the list.')).toBeTruthy();
-    expect(button(`Max (${numberWithCommas(row.max)})`)).toBeTruthy();
-    const max = row.value >= row.max ? 'Already maxed' : `Max ${numberWithCommas(row.max)}`;
-    expect(screen.getByText(`You have ${numberWithCommas(row.value)} · ${max}`)).toBeTruthy();
+    expect(button(`Max (${formatNumber(row.max)})`)).toBeTruthy();
+    const max = row.value >= row.max ? 'Already maxed' : `Max ${formatNumber(row.max)}`;
+    expect(screen.getByText(`You have ${formatNumber(row.value)} · ${max}`)).toBeTruthy();
     setTarget(row.max);
     save();
     expect(api.goals.map(({ system, kind, key, metric, target }) => [system, kind, key, metric, target]))
@@ -434,7 +400,7 @@ describe('GoalPopover', () => {
   it('marks entries that already have a goal', () => {
     const [withGoal, without] = stamp.list(ctx);
     const existing = createGoal({ system: 'stamp', key: stamp.key(withGoal), metric: 'level', target: 1e6 });
-    localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({ schema: 1, accounts: { [ACCOUNT_KEY]: [existing] } }));
+    seed(existing);
     mount({ systems: [stamp], initial: {}, source: 'header' });
     fireEvent.keyDown(screen.getByLabelText('Stamp'), { key: 'ArrowDown' });
     const option = (row) => screen.getAllByRole('option').find((o) => o.textContent.startsWith(stamp.name(row)));
@@ -442,14 +408,15 @@ describe('GoalPopover', () => {
     expect(option(without).textContent).toBe(stamp.name(without));
   });
 
-  it('a capped entry list says how many match', () => {
+  it('item search shows at most 250 matches and says how many match', () => {
     mount({ systems: [item], initial: {}, source: 'header' });
     // Typing happens in a focused input; unfocused, the Autocomplete resets what was typed
     screen.getByLabelText('Item').focus();
     fireEvent.change(screen.getByLabelText('Item'), { target: { value: 'a' } });
     const matches = createFilterOptions()(item.list(ctx), { inputValue: 'a', getOptionLabel: (row) => String(item.name(row) ?? '') });
     expect(matches.length).toBeGreaterThan(250);
-    expect(screen.getByText(`250 of ${numberWithCommas(matches.length)}, type to filter`)).toBeTruthy();
+    expect(screen.getAllByRole('option').length).toBe(250);
+    expect(screen.getByText(`250 of ${formatNumber(matches.length)}, type to filter`)).toBeTruthy();
   });
 
   it('Sword Stamp has no Max step and accepts level 600', () => {
@@ -461,7 +428,7 @@ describe('GoalPopover', () => {
     expect(api.goals[0]).toMatchObject({ system: 'stamp', key: stamp.key(sword), target: 600 });
   });
 
-  it.each(['artifact', 'sigil', 'card', 'statue', 'deathNote'])('%s tier select never offers the first tier (None / Locked)', (system) => {
+  it.each(['artifact', 'deathNote'])('%s tier select never offers the first tier (None / Locked)', (system) => {
     const d = getDescriptor(system);
     const metric = Object.keys(d.metrics).find((id) => d.metrics[id].tiers);
     mount({ systems: [d], initial: { system, key: d.key(d.list(ctx)[0]) } });

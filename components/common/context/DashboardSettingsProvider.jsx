@@ -20,12 +20,12 @@ export const DashboardSettingsProvider = ({ onOpenAlert, labelFor = () => null, 
 /**
  * Props that make an alert icon open its quick edit. `target` is a dot path naming the alert
  * (see utility/dashboard/settingsTarget); `extra` is `{ items, worlds }` for alerts about one picker
- * item or some Royal Guardian worlds.
+ * item or some Royal Guardian worlds; `message` is what the alert says, which its quick edit leads with.
  *
  * An alert with a page is also a real link to it: a plain click still opens the quick edit, while
  * Ctrl/Cmd/Shift+click and middle click are left to the browser, which opens the page in a new tab.
  */
-export const useAlertSettingsProps = (configType, target, extra) => {
+export const useAlertSettingsProps = (configType, target, extra, message) => {
   const { openAlert, labelFor, hrefFor } = useContext(DashboardSettingsContext);
   if (!target) return {};
   const href = hrefFor(configType, target);
@@ -33,7 +33,7 @@ export const useAlertSettingsProps = (configType, target, extra) => {
   // Timer rows navigate on click, so the icon keeps its click to itself.
   const fire = (event) => {
     event.stopPropagation();
-    openAlert(event.currentTarget, configType, target, extra);
+    openAlert(event.currentTarget, configType, target, extra, message);
   };
   return {
     role: 'button',

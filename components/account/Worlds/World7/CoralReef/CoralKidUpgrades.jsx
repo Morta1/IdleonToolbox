@@ -1,118 +1,89 @@
 import React, { useContext } from 'react';
-import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, commaOrBig, notateNumber, prefix } from '@utility/helpers';
+import { Box, Stack, Typography } from '@mui/material';
+import { formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { AppContext } from '@components/common/context/AppProvider';
-import { CardTitleAndValue } from '@components/common/styles';
+import { MissingData, isSectionFailed } from '@components/common/styles';
 import { isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 import { calcTotalItemOwned } from '@parsers/storage';
 import { getTotalDivinityLevel } from '@parsers/world-5/divinity';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import StatusText from '@components/common/StatusText';
+import Notice from '@components/common/Notice';
+import GameIcon from '@components/common/GameIcon';
 
 // Menagerie unlock 2 opens Singularity Mode, the second page of Coral Kid upgrades
 const SINGULARITY_MENAGERIE_UNLOCK = 2;
 const SINGULARITY_SPIRAL = 'CKsing';
+// Every Coral Kid cost is Thingies.CoralKidUpgCost (Big), so what pays for it reads in the same rule
+const COST_RULE = 'Thingies.CoralKidUpgCost';
 
-const formatAmount = (value) => commaOrBig(value, Math.ceil);
-const formatMulti = (value) => 100 > value
-  ? `${notateNumber(value, 'MultiplierInfo').replace('#', '')}x`
-  : `${commaNotation(value)}x`;
-
-const Row = ({ label, children }) => <Stack direction="row" alignItems="center" justifyContent="space-between"
-                                             flexWrap="wrap" gap={1}>
-  <Typography variant="body2" color="text.secondary" component="span">{label}</Typography>
-  {children}
-</Stack>;
-
-const UpgradeGrid = ({ upgrades, locked, totalDivinityLevel }) => {
-  return <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 2 }}>
-    {upgrades.map((upgrade) => {
-      const gateMet = totalDivinityLevel >= (upgrade.divinityLevelReq ?? 0);
-      return <Card key={upgrade.index} variant={'outlined'}
-                   sx={{ opacity: !locked && upgrade.level > 0 ? 1 : 0.6, height: '100%' }}>
-        <CardContent>
-          <Stack spacing={1.5}>
-            {upgrade.description ? <Typography variant="body2">
-              {cleanUnderscore(upgrade.description)}
-            </Typography> : null}
-            <Divider sx={{ my: 0.5 }}/>
-            <Row label={'Level:'}>
-              <Typography variant="body2" component="span">{upgrade.level || 0}</Typography>
-            </Row>
-            {upgrade.divinityLevelReq > 0 ? <Row label={'Requires Total Divinity LV:'}>
-              <Typography variant="body2" component="span" color={gateMet ? 'text.primary' : 'error.light'}>
-                {commaNotation(upgrade.divinityLevelReq)}
-              </Typography>
-            </Row> : null}
-            {upgrade.cost !== undefined ? <>
-              <Divider sx={{ my: 0.5 }}/>
-              <Row label={'Cost:'}>
-                <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-                  {upgrade.costItem ? <img src={`${prefix}data/${upgrade.costItem}.png`}
-                                           alt={'Singularity Spiral'}
-                                           style={{ width: 20, height: 20, objectFit: 'contain' }}/> : null}
-                  <Typography variant="body2" component="span">{formatAmount(upgrade.cost)}</Typography>
-                </Stack>
-              </Row>
-            </> : null}
-          </Stack>
-        </CardContent>
-      </Card>;
-    })}
-  </Box>;
-};
+const UpgradeGrid = ({ upgrades, locked, totalDivinityLevel, divinityPoints, spiralsOwned }) => <CardGrid size={'m'}>
+  {upgrades.map((upgrade) => {
+    const gateMet = totalDivinityLevel >= (upgrade.divinityLevelReq ?? 0);
+    // Page 1 spends Divinity PTS, which has no sprite, so the row names the currency
+    const currency = upgrade.costItem ? 'Singularity Spirals' : 'Divinity PTS';
+    return <ItemCard key={upgrade.index} level={{ value: upgrade.level ?? 0 }} dimmed={locked || !(upgrade.level > 0)}
+                     footer={upgrade.cost !== undefined ? <ItemCard.Facts rows={[[currency,
+                       <ItemCard.Cost key={'cost'} icon={upgrade.costItem ? `data/${upgrade.costItem}.png` : undefined}
+                                      iconAlt={upgrade.costItem ? 'Singularity Spirals' : ''} need={upgrade.cost}
+                                      have={upgrade.costItem ? spiralsOwned : divinityPoints} game={COST_RULE}/>]]}/> : null}>
+      {upgrade.description ? <ItemCard.Desc text={upgrade.description}/> : null}
+      {upgrade.divinityLevelReq > 0 ? <ItemCard.Facts rows={[['Needs total Divinity LV', gateMet
+        ? formatNum(upgrade.divinityLevelReq)
+        : <StatusText key={'gate'} status={'needs'}>{formatNum(upgrade.divinityLevelReq)}</StatusText>]]}/> : null}
+    </ItemCard>;
+  })}
+</CardGrid>;
 
 // The Singularity panel's conversion: Divinity PTS, kills and AFK hours into Singularity Spirals
 const Singularity = ({ singularity, spiralsOwned }) => {
   const { points, kills, hours, baseValue, killMulti, timeMulti, totalValue } = singularity ?? {};
-  return <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={2}>
-    <CardTitleAndValue title={'Singularity Spirals'} icon={`data/${SINGULARITY_SPIRAL}.png`}
-                       imgStyle={{ width: 24, height: 24 }} value={formatAmount(spiralsOwned ?? 0)}/>
-    <CardTitleAndValue title={'Divinity PTS'} value={`${formatAmount(points ?? 0)} (${formatAmount(baseValue ?? 0)} base)`}/>
-    <CardTitleAndValue title={'Kills'} value={`${formatAmount(kills ?? 0)} (${formatMulti(killMulti ?? 1)})`}/>
-    <CardTitleAndValue title={'Hours'} value={`${formatAmount(hours ?? 0)} (${formatMulti(timeMulti ?? 0)})`}/>
-    <CardTitleAndValue title={'Spirals on claim'} icon={`data/${SINGULARITY_SPIRAL}.png`}
-                       imgStyle={{ width: 24, height: 24 }} value={formatAmount(Math.floor(totalValue ?? 0))}/>
+  return <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={2}>
+    <StatTile label={'Singularity Spirals'} icon={`data/${SINGULARITY_SPIRAL}.png`} value={formatGame(spiralsOwned ?? 0, COST_RULE, { whole: true })}/>
+    <StatTile label={'Divinity PTS'} value={`${formatGame(points ?? 0, COST_RULE, { whole: true })} (base ${formatGame(baseValue ?? 0, COST_RULE, { whole: true })})`}/>
+    <StatTile label={'Kills'} value={kills ?? 0} kind={'amount'} sub={formatNum(killMulti ?? 1, 'mult')}/>
+    <StatTile label={'Hours'} value={hours ?? 0} kind={'amount'} sub={formatNum(timeMulti ?? 0, 'mult')}/>
+    <StatTile label={'Spirals on claim'} icon={`data/${SINGULARITY_SPIRAL}.png`}
+              value={formatGame(Math.floor(totalValue ?? 0), COST_RULE, { whole: true })}/>
   </Stack>;
 };
 
 const CoralKidUpgrades = ({ coralKidUpgrades }) => {
   const { state } = useContext(AppContext);
+  const failed = isSectionFailed(state?.account, 'coralReef');
+  const upgrades = coralKidUpgrades ?? [];
   const totalLevels = state?.account?.coralReef?.coralKidUpgradeLevelTotal ?? 0;
-  // The gates read the Total Divinity LV across all players
+  // The gates read the Total Divinity LV across all players (the page's Summary)
   const totalDivinityLevel = getTotalDivinityLevel(state?.characters);
-  if (!coralKidUpgrades || coralKidUpgrades.length === 0) {
-    return (
-      <Box>
-        <Typography variant="h5" sx={{ mb: 2 }}>Coral Kid Upgrades</Typography>
-        <Typography variant="body2" color="text.secondary">No coral kid upgrades available</Typography>
-      </Box>
-    );
-  }
-
-  const firstPage = Math.min(...coralKidUpgrades.map(({ page }) => page ?? 0));
-  const pageOne = coralKidUpgrades.filter(({ page }) => (page ?? 0) === firstPage);
-  const pageTwo = coralKidUpgrades.filter(({ page }) => (page ?? 0) !== firstPage);
+  const divinityPoints = state?.account?.divinity?.divinityPoints;
+  const spiralsOwned = calcTotalItemOwned(state?.account?.storage, state?.characters, SINGULARITY_SPIRAL);
+  const firstPage = upgrades.length ? Math.min(...upgrades.map(({ page }) => page ?? 0)) : 0;
+  const pageOne = upgrades.filter(({ page }) => (page ?? 0) === firstPage);
+  const pageTwo = upgrades.filter(({ page }) => (page ?? 0) !== firstPage);
   const singularityUnlocked = isMenagerieUnlockOwned(state?.account, SINGULARITY_MENAGERIE_UNLOCK);
 
-  return (
-    <Box>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
-        <CardTitleAndValue title={'Total Upgrade LV'} value={commaNotation(totalLevels)}/>
-        <CardTitleAndValue title={'Total Divinity LV'} value={commaNotation(totalDivinityLevel)}/>
+  return <Box>
+    {failed ? <MissingData name={'Coral Kid upgrades'} failed atZero={upgrades.length > 0}/> : null}
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'Total upgrade LV'} value={totalLevels} kind={'amount'}/>
+    </Stack>
+    <UpgradeGrid upgrades={pageOne} totalDivinityLevel={totalDivinityLevel} divinityPoints={divinityPoints}
+                 spiralsOwned={spiralsOwned}/>
+    {pageTwo.length > 0 ? <>
+      <Stack direction={'row'} alignItems={'center'} gap={1} mt={4} mb={2}>
+        <GameIcon src={`data/${SINGULARITY_SPIRAL}.png`} size={24} alt={''}/>
+        <Typography variant={'sectionTitle'} component={'h2'}>Singularity Mode</Typography>
       </Stack>
-      <UpgradeGrid upgrades={pageOne} totalDivinityLevel={totalDivinityLevel}/>
-      {pageTwo.length > 0 ? <>
-        <Stack direction={'row'} alignItems={'center'} gap={1} mt={4} mb={2}>
-          <img src={`${prefix}data/${SINGULARITY_SPIRAL}.png`} alt={''} style={{ width: 28, height: 28, objectFit: 'contain' }}/>
-          <Typography variant={'h6'}>Singularity Mode</Typography>
-        </Stack>
-        {!singularityUnlocked ? <Typography variant={'body2'} color={'text.secondary'} mb={2}>
-          Unlocked from the Luminous Menagerie.
-        </Typography> : <Singularity singularity={state?.account?.coralReef?.singularity}
-                                     spiralsOwned={calcTotalItemOwned(state?.account?.storage, state?.characters, SINGULARITY_SPIRAL)}/>}
-        <UpgradeGrid upgrades={pageTwo} locked={!singularityUnlocked} totalDivinityLevel={totalDivinityLevel}/>
-      </> : null}
-    </Box>
-  );
+      {!singularityUnlocked
+        ? <Notice tone={'locked'} sx={{ mb: 2 }}>Singularity Mode unlocks from the Luminous Menagerie.</Notice>
+        : <Singularity singularity={state?.account?.coralReef?.singularity} spiralsOwned={spiralsOwned}/>}
+      <UpgradeGrid upgrades={pageTwo} locked={!singularityUnlocked} totalDivinityLevel={totalDivinityLevel}
+                   divinityPoints={divinityPoints} spiralsOwned={spiralsOwned}/>
+    </> : null}
+  </Box>;
 };
 
 export default CoralKidUpgrades;

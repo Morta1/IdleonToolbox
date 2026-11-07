@@ -67,7 +67,7 @@ export const getTotemExpReward = (totem: any, index: number, character: any, cha
 
 export const getTotalizerBonuses = (account: any) => {
   const totalizerUnlocked = isSuperbitUnlocked(account, 'MSA_Totalizer');
-  const totalWaves = Math.floor(account?.towers?.totalWaves / 10);
+  const totalWaves = Math.floor((account?.towers?.totalWaves ?? 0) / 10);
   // game: GamingStatType("MSA_Bonus", 6/7/8) - the jade emporium expanders pay 1.75x, 2x and 1.5x of the waves.
 
   return {
@@ -185,7 +185,8 @@ export const getChargeRate = (character: any, account: any) => {
 export const getPlayerWorship = (character: any, account: any, playerCharge: any) => {
   const maxCharge = getMaxCharge(character, account)
   const chargeRate = getChargeRate(character, account);
-  const afkFor = new Date().getTime() - character.afkTime;
+  // Up to the save's clock, not now: an old profile's charge reads what it was, and a timer takes the save's age off
+  const afkFor = Math.max(0, (account?.timeAway?.GlobalTime ?? 0) * 1000 - character.afkTime);
   const estimatedCharge = Math.min(parseInt(playerCharge) + chargeRate * (afkFor / 1000 / 3600), maxCharge);
   return {
     maxCharge: round(maxCharge),

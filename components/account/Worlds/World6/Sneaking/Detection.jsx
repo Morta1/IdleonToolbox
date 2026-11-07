@@ -1,27 +1,19 @@
 import React from 'react';
-import {
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography
-} from '@mui/material';
+import { Box, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import { useLocalStorage } from '@mantine/hooks';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
+import NumberField from '@components/common/NumberField';
+import DataTable from '@components/common/DataTable';
+import GameIcon from '@components/common/GameIcon';
+import StatusText from '@components/common/StatusText';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { notateNumber, numberWithCommas, parseShorthandNumber, prefix } from '@utility/helpers';
+import InfoButton from '@components/common/InfoButton';
+import ViewSwitch from '@components/common/ViewSwitch';
+import Num from '@components/common/Num';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Panel, { FIELD_INFO_SX } from '@components/common/cards/Panel';
+import Notice from '@components/common/Notice';
+import { cleanUnderscore, formatNum, parseShorthandNumber } from '@utility/helpers';
 import {
   getDetectionChance,
   getFloorDifficulty,
@@ -31,9 +23,14 @@ import {
 
 const FLOORS = 12;
 
-const formatDetection = (detection) => `${(100 * detection).toFixed(detection > 0 && detection < 0.01 ? 4 : 2)}%`;
+// A column of chances lines up on two decimals (94.57%, 94.56%); a chance under 0.01% keeps two significant digits
+// (Precise's rule) rather than reading 0.00%.
+export const formatDetection = (detection) => {
+  const percent = 100 * (detection ?? 0);
+  return percent > 0 && percent < 0.01 ? formatNum(percent, 'pct', { precise: true }) : formatNum(percent, 'pct', { decimals: 2 });
+};
 
-const Detection = ({ detection, characters, ninjaMastery }) => {
+const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
   const { ninjas = [], flowerStacks = [], flowerBonus = 0, mastery: currentMastery = 0 } = detection || {};
   const [storedMastery, setMastery] = useLocalStorage({ key: 'sneaking-detection-mastery' });
   const [floor, setFloor] = useLocalStorage({ key: 'sneaking-detection-floor', defaultValue: 0 });
@@ -63,113 +60,105 @@ const Detection = ({ detection, characters, ninjaMastery }) => {
     };
   });
 
+  // No ninjas (a guest): each section says what it lists once there are some, not an empty grid or table
+  const noNinjas = (text) => (emptyAccount
+    ? <Notice tone={'signin'}>{`${text} once you sign in.`}</Notice>
+    : <Notice tone={'missing'}>This account has no ninjas yet.</Notice>);
+
   return <Stack gap={3}>
     <Stack gap={1}>
-      <Typography variant={'h6'}>Current detection</Typography>
-      <Typography variant={'body2'} color={'text.secondary'}>
+      <Typography variant={'sectionTitle'} component={'h2'}>Current detection</Typography>
+      {ninjas.length ? <Typography variant={'body2'} color={'text.secondary'}>
         Mastery {currentMastery}, each ninja on their current floor with the Funeral Flowers stacked there.
-      </Typography>
-      <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+      </Typography> : noNinjas(`Each ninja's detection on their current floor shows here`)}
+      <CardGrid size={'s'}>
         {ninjas.map(({ playerIndex, floor: ninjaFloor, stealth, stealthBreakdown, detection: chance }) => (
-          <Paper key={`current-${playerIndex}`} variant={'outlined'} sx={{ p: 1.5, width: 170 }}>
-            <Typography variant={'body2'} fontWeight={600} noWrap>{characters?.[playerIndex]?.name}</Typography>
-            <Typography variant={'caption'} component={'div'} color={'text.secondary'}>
-              Floor {ninjaFloor + 1} · {numberWithCommas(flowerStacks?.[ninjaFloor] ?? 0)} flowers
-            </Typography>
-            <Typography variant={'body2'}>{formatDetection(chance)}</Typography>
-            <Stack direction={'row'} alignItems={'center'} gap={0.5}>
-              <Typography variant={'caption'} color={'text.secondary'}>
-                Stealth: {notateNumber(stealth, 'Big')}
-              </Typography>
-              <Breakdown data={stealthBreakdown}>
-                <IconInfoCircleFilled size={14}/>
-              </Breakdown>
-            </Stack>
-          </Paper>
+          <ItemCard key={`current-${playerIndex}`} icon={`data/ClassIcons${characters?.[playerIndex]?.classIndex}.png`}
+                    title={cleanUnderscore(characters?.[playerIndex]?.name)}
+                    meta={`Floor ${ninjaFloor + 1} · ${formatNum(flowerStacks?.[ninjaFloor] ?? 0, 'whole')} flowers`}>
+            <ItemCard.Facts rows={[
+              ['Detection', formatDetection(chance)],
+              ['Stealth', <Breakdown key={'stealth'} asValue data={stealthBreakdown}><Num value={stealth}
+                                                                                        game={'Ninja.Stealth'}/></Breakdown>]
+            ]}/>
+          </ItemCard>
         ))}
-      </Stack>
+      </CardGrid>
     </Stack>
 
-    <Stack gap={2}>
-      <Stack direction={'row'} alignItems={'center'} gap={1}>
-        <Typography variant={'h6'}>What if</Typography>
-        <Tooltip title={'Preview any mastery and floor without moving there. Funeral Flower stacks are per floor and reset when you change mastery, so "Current" stacks only count on the mastery you are on.'}>
-          <IconInfoCircleFilled size={16}/>
-        </Tooltip>
-      </Stack>
-      <Stack direction={'row'} gap={2} alignItems={'center'} flexWrap={'wrap'}>
-        <FormControl size={'small'} sx={{ width: 160 }}>
-          <InputLabel id={'detection-mastery'}>Mastery</InputLabel>
-          <Select labelId={'detection-mastery'} label={'Mastery'} value={mastery}
-                  onChange={(e) => setMastery(e.target.value)}>
-            {masteryOptions.map((value) => <MenuItem key={value} value={value}>
-              {value}{value === currentMastery ? ' (current)' : ''}
-            </MenuItem>)}
-          </Select>
-        </FormControl>
-        <FormControl size={'small'} sx={{ width: 100 }}>
-          <InputLabel id={'detection-floor'}>Floor</InputLabel>
-          <Select labelId={'detection-floor'} label={'Floor'} value={floor}
-                  onChange={(e) => setFloor(e.target.value)}>
-            {Array.from({ length: FLOORS }, (_, index) => <MenuItem key={index} value={index}>{index + 1}</MenuItem>)}
-          </Select>
-        </FormControl>
-        <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <TextField size={'small'} sx={{ width: 160 }} label={'Funeral Flowers'}
-                     value={flowersInput === 'current' ? '' : flowersInput}
-                     placeholder={`Current (${numberWithCommas(currentFlowers)})`}
-                     InputLabelProps={{ shrink: true }}
-                     onChange={(e) => setFlowersInput(e.target.value === '' ? 'current' : e.target.value)}/>
-          <Tooltip title={`Each stack gives +${flowerBonus}% stealth on its floor. Leave empty to use the stacks you have there now. Accepts shorthand like 10K or 1.5M.`}>
-            <IconInfoCircleFilled size={16}/>
-          </Tooltip>
+    <Panel title={'What if'} aside={<InfoButton label={'What if'}>
+      Preview any mastery and floor without moving there. Funeral Flower stacks are per floor and reset when you
+      change mastery, so &quot;Current&quot; stacks only count on the mastery you are on.
+    </InfoButton>}>
+      {/* Bottoms aligned: the switch and the i sit on the fields' line, not their labels' */}
+      <Panel.Inputs>
+        <TextField select label={'Mastery'} value={mastery} sx={{ width: 160 }} onChange={(e) => setMastery(e.target.value)}>
+          {masteryOptions.map((value) => <MenuItem key={value} value={value}>
+            {value}{value === currentMastery ? ' (current)' : ''}
+          </MenuItem>)}
+        </TextField>
+        <TextField select label={'Floor'} value={floor} sx={{ width: 100 }} onChange={(e) => setFloor(e.target.value)}>
+          {Array.from({ length: FLOORS }, (_, index) => <MenuItem key={index} value={index}>{index + 1}</MenuItem>)}
+        </TextField>
+        <Stack direction={'row'} alignItems={'flex-end'} gap={0.5}>
+          <NumberField label={'Funeral Flowers'} sx={{ width: 160 }}
+                       value={flowersInput === 'current' ? null : Number.isNaN(parsedFlowers) ? null : parsedFlowers}
+                       placeholder={`Current (${formatNum(currentFlowers, 'amount')})`}
+                       min={0} integer help={false}
+                       // Stacks run past a million, where a phone's number pad has no letters for 1.5M.
+                       inputMode={'text'}
+                       onChange={(next) => setFlowersInput(next ?? 'current')}/>
+          <InfoButton label={'Funeral Flowers'} sx={FIELD_INFO_SX}>
+            {`Each stack gives +${flowerBonus}% stealth on its floor. Leave empty to use the stacks you have there now. Accepts shorthand like 10K or 1.5M.`}
+          </InfoButton>
         </Stack>
-        <TextField size={'small'} sx={{ width: 140 }} label={'Target detection %'}
-                   value={targetInput}
-                   onChange={(e) => setTargetInput(e.target.value)}/>
+        <NumberField label={'Target detection'} unit={'%'} sx={{ width: 140 }}
+                     value={Number.isNaN(parsedTarget) ? null : parsedTarget}
+                     min={0} max={100} help={false}
+                     onChange={(next) => setTargetInput(String(next ?? 0))}/>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <ToggleButtonGroup size={'small'} exclusive value={placement}
-                             onChange={(_, value) => value && setPlacement(value)}>
-            <ToggleButton value={'together'}>All together</ToggleButton>
-            <ToggleButton value={'alone'}>Alone</ToggleButton>
-          </ToggleButtonGroup>
-          <Tooltip title={'All together: every ninja shares the floor, so Smoke Bombs and Lotus Flowers boost the others. Alone: each ninja on the floor by themselves.'}>
-            <IconInfoCircleFilled size={16}/>
-          </Tooltip>
+          <ViewSwitch size={'medium'} label={'Placement'} options={[['together', 'All together'], ['alone', 'Alone']]}
+                      value={placement} onChange={setPlacement}/>
+          <InfoButton label={'placement'}>
+            All together: every ninja shares the floor, so Smoke Bombs and Lotus Flowers boost the others. Alone: each
+            ninja on the floor by themselves.
+          </InfoButton>
         </Stack>
-      </Stack>
-      <TableContainer component={Paper} sx={{ maxWidth: 900, overflowX: 'auto' }}>
-        <Table size={'small'}>
-          <TableHead>
-            <TableRow>
-              <TableCell>Ninja</TableCell>
-              <TableCell>Sneaking LV</TableCell>
-              <TableCell>Stealth</TableCell>
-              <TableCell>Detection</TableCell>
-              <TableCell>Flowers needed for {formatDetection(target)}</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {rows.map(({ playerIndex, stealth, simulated, flowersNeeded }) => <TableRow key={`row-${playerIndex}`}>
-              <TableCell>
-                <Stack direction={'row'} alignItems={'center'} gap={1}>
-                  <img width={20} src={`${prefix}data/ClassIcons${characters?.[playerIndex]?.classIndex}.png`} alt={''}/>
-                  <Typography variant={'body2'}>{characters?.[playerIndex]?.name}</Typography>
-                </Stack>
-              </TableCell>
-              <TableCell>{characters?.[playerIndex]?.skillsInfo?.sneaking?.level ?? 0}</TableCell>
-              <TableCell>{notateNumber(stealth, 'Big')}</TableCell>
-              <TableCell sx={{ color: simulated <= target ? 'success.light' : undefined }}>
-                {formatDetection(simulated)}
-              </TableCell>
-              <TableCell>
-                {flowersNeeded === Infinity ? 'Unreachable' : flowersNeeded === 0 ? 'Reached' : numberWithCommas(flowersNeeded)}
-              </TableCell>
-            </TableRow>)}
-          </TableBody>
-        </Table>
-      </TableContainer>
-    </Stack>
+      </Panel.Inputs>
+      {ninjas.length ? <DataTable
+          columns={[
+            {
+              key: 'ninja', label: 'Ninja', value: ({ playerIndex }) => cleanUnderscore(characters?.[playerIndex]?.name),
+              icon: ({ playerIndex }) => <GameIcon src={`data/ClassIcons${characters?.[playerIndex]?.classIndex}.png`} alt={''} size={24}/>
+            },
+            {
+              key: 'level', label: 'Sneaking level', kind: 'amount', sortable: true,
+              value: ({ playerIndex }) => characters?.[playerIndex]?.skillsInfo?.sneaking?.level ?? 0
+            },
+            // The game prints a ninja's stealth in Big: 248QQ up to 1e21, 8e26 past it
+            {
+              key: 'stealth', label: 'Stealth', numeric: true, sortable: true, value: ({ stealth }) => stealth,
+              render: ({ stealth }) => <Num value={stealth} game={'Ninja.Stealth'}/>
+            },
+            // The last column says in words whether the target is met, so this one carries no color.
+            {
+              key: 'detection', label: 'Detection', numeric: true, sortable: true, phone: true,
+              value: ({ simulated }) => simulated, render: ({ simulated }) => formatDetection(simulated)
+            },
+            {
+              key: 'flowers', label: `Flowers needed for ${formatNum(100 * target, 'pct')}`, numeric: true, sortable: true,
+              value: ({ flowersNeeded }) => flowersNeeded,
+              render: ({ flowersNeeded }) => (flowersNeeded === Infinity
+                ? <StatusText status={'problem'}>Unreachable</StatusText>
+                : flowersNeeded === 0 ? <StatusText status={'ready'}>Reached</StatusText> : formatNum(flowersNeeded, 'whole'))
+            }
+          ]}
+          rows={rows}
+          rowKey={'playerIndex'}
+          rowLabel={({ playerIndex }) => cleanUnderscore(characters?.[playerIndex]?.name)}
+        />
+        : <Box sx={{ p: 2 }}>{noNinjas(`Your ninjas' detection on the floor you pick shows here`)}</Box>}
+    </Panel>
   </Stack>
 };
 

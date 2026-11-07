@@ -1,6 +1,7 @@
 import React from 'react';
 import { MenuItem, Stack, TextField } from '@mui/material';
 import { MAX_TARGET } from '@utility/goals/store';
+import NumberField from '@components/common/NumberField';
 import { DIRECTIONS, targetPlaceholder } from './format';
 
 // Reads as a sentence ("Reach at least" [Target level]), so neither field carries a visible label
@@ -17,15 +18,18 @@ const TargetInput = ({ op, target, percent, metricLabel, nextStep, error, onOpCh
                  sx={{ width: 160, flexShrink: 0 }}>
         {DIRECTIONS.map(({ op: value, option }) => <MenuItem key={value} value={value}>{option}</MenuItem>)}
       </TextField>
-      <TextField
-        size="small"
+      <NumberField
+        ariaLabel={placeholder}
+        placeholder={target === MAX_TARGET ? 'Max' : placeholder}
+        value={target === MAX_TARGET || target === '' ? null : Number(target)}
+        // Every goal metric is a level, count, amount or percent, none of them below 0.
+        min={0}
+        error={error || null}
+        help={false}
+        // Targets run past a million, where a phone's number pad has no letters for 1.5B.
+        inputMode="text"
         fullWidth
-        placeholder={placeholder}
-        value={target === MAX_TARGET ? 'Max' : target}
-        error={!!error}
-        helperText={error || null}
-        slotProps={{ htmlInput: { inputMode: 'decimal', 'aria-label': placeholder } }}
-        onChange={(e) => onTargetChange(e.target.value.replace(/[^\d.]/g, ''))}
+        onChange={(next) => onTargetChange(next == null ? '' : String(next))}
       />
     </Stack>
   );

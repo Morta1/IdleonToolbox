@@ -1,248 +1,94 @@
-import {
-  Card,
-  CardContent,
-  Divider,
-  Stack,
-  Typography,
-  Select,
-  MenuItem
-} from '@mui/material';
-import { cleanUnderscore, numberWithCommas, prefix } from '@utility/helpers';
-import React, { useState } from 'react';
-import useCheckbox from '@components/common/useCheckbox';
-import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
-import Tooltip from '@components/Tooltip';
+import React from 'react';
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import StatTile from '@components/common/cards/StatTile';
+import GameIcon from '@components/common/GameIcon';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 import MultiCharLockText from '@components/common/MultiCharLockText';
-import { tachyonNames } from '@parsers/class-specific/tesseract';
-import {
-  getMaps,
-  getRingBaseStats,
-  getWeaponBaseStats
-} from '@parsers/class-specific/tesseract';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { getMaps, getRingBaseStats, getWeaponBaseStats, tachyonNames } from '@parsers/class-specific/tesseract';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
 
-const Portals = ({ character, account, characters }) => {
-  const [CheckboxEl, hideUnlockedMaps] = useCheckbox('Hide unlocked maps');
-  const [selectedTachyon, setSelectedTachyon] = useState('all');
+// A saved checkbox from before resets once ("Hide unlocked maps")
+const MAPS_TOOLBAR = { tachyon: 'all', hideOpen: false };
 
-  const maps = getMaps(account, characters, character);
+// An item's base stat ranges at its quality: a list, so a breakdown under the quality it follows (Info board step 5),
+// named and headed as the tile reads
+const baseStats = (label, qualityText, stats) => createBreakdown(label, qualityText, flatLines((stats ?? [])
+  .filter(({ name }) => name)
+  .map(({ name, min, max }) => ({
+    name,
+    value: max,
+    formatted: `${formatNum(min, 'amount', { precise: true })} to ${formatNum(max, 'amount', { precise: true })}`
+  }))), { combine: 'list' });
 
-  const {
-    weaponDropChance,
-    ringDropChance,
-    weaponQuality,
-    ringQuality
-  } = account?.tesseract || {};
-
-  return (
-    <>
-      {/* Header controls */}
-      <Stack mb={3} direction="row" gap={2} flexWrap="wrap" alignItems="center">
-      <CardTitleAndValue
-          title="Tachyon Type"
-          value={
-            <Select
-              size="small"
-              value={selectedTachyon}
-              onChange={(e) => setSelectedTachyon(e.target.value)}
-              sx={{ minWidth: 140 }}
-            >
-              <MenuItem value="all">All</MenuItem>
-              {Object.entries(tachyonNames).map(([value, label]) => (
-                <MenuItem key={value} value={value}>
-                  <Stack direction="row" gap={1} alignItems="center">
-                    <img
-                      style={{ width: 24, height: 24, objectPosition: '0 -6px' }}
-                      src={`${prefix}data/Tach${value}_x1.png`} alt=""/>
-                    {label}
-                  </Stack>
-                </MenuItem>
-              ))}
-            </Select>
-          }
-        />
-        <CardTitleAndValue title="" value={<CheckboxEl />} />       
-
-        <CardTitleAndValue
-          title="Weapon Drop Chance"
-          value={`1 in ${Math.floor(1 / weaponDropChance)}`}
-          icon="data/EquipmentWandsArc0.png"
-          imgStyle={{ width: 24, height: 24 }}
-        />
-
-        <ItemBase
-          weapon
-          title="Weapon Quality"
-          quality={weaponQuality}
-          stats={getWeaponBaseStats(weaponQuality)}
-          icon="data/EquipmentWandsArc0"
-        />
-
-        <CardTitleAndValue
-          title="Ring Drop Chance"
-          value={`1 in ${Math.floor(1 / ringDropChance)}`}
-          icon="data/EquipmentRingsArc0.png"
-          imgStyle={{ width: 24, height: 24 }}
-        />
-
-        <ItemBase
-          title="Ring Quality"
-          quality={ringQuality}
-          stats={getRingBaseStats(ringQuality)}
-          icon="data/EquipmentRingsArc0"
-        />
-      </Stack>
-
-      {/* Maps */}
-      <Stack direction="row" gap={2} flexWrap="wrap" alignItems="center">
-        {maps?.map((map, index) => {
-          const {
-            mapName,
-            reqKills,
-            portals,
-            monster,
-            unlocked,
-            tachyonQuantity,
-            tachyonType,
-            mapBonuses,
-            timeLeft
-          } = map;
-
-          if (hideUnlockedMaps && unlocked) return null;
-          if (selectedTachyon !== 'all' && tachyonType !== parseInt(selectedTachyon)) return null;
-
-          return (
-            <Card key={mapName + index}>
-              <CardContent
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  width: 350,
-                  opacity: unlocked ? 1 : 0.5
-                }}
-              >
-                <Stack
-                  direction="row"
-                  flexWrap="wrap"
-                  alignItems="center"
-                  justifyContent="space-between"
-                  sx={{ position: 'relative' }}
-                >
-                  <img
-                    style={{
-                      width: 32,
-                      height: 32,
-                      objectFit: 'contain',
-                      marginTop: -8,
-                      marginRight: 4
-                    }}
-                    src={`${prefix}data/Mface${monster.MonsterFace}.png`}
-                    alt=""
-                  />
-
-                  <Typography>{cleanUnderscore(mapName)}</Typography>
-
-                  <Stack direction="row" alignItems="center" sx={{ ml: 'auto' }}>
-                    <Typography variant="body1">
-                      {numberWithCommas(Math.floor(tachyonQuantity))}
-                    </Typography>
-                    <img
-                      style={{ width: 32, height: 32, marginTop: -8 }}
-                      src={`${prefix}data/Tach${tachyonType}_x1.png`}
-                      alt=""
-                    />
-                  </Stack>
-                </Stack>
-
-                <Divider sx={{ my: 1.5 }} />
-
-                <Stack direction="row" gap={1} justifyContent="space-between">
-                  <Stack>
-                    <Typography>Charge kill req: {reqKills}</Typography>
-                    <Typography>Time left: {timeLeft}s</Typography>
-                    {portals?.map(({ multiCharLock }, portalIndex) => <MultiCharLockText key={portalIndex}
-                                                                                     lock={multiCharLock}/>)}
-                  </Stack>
-
-                  <Stack direction="row" alignItems="center" gap={2}>
-                    {mapBonuses.map(({ value, killsToNext, type }, i) => (
-                      <Stack key={mapName + 'portal' + i} alignItems="center">
-                        <Tooltip
-                          title={
-                            killsToNext
-                              ? `Increases in ${killsToNext} kills`
-                              : ''
-                          }
-                        >
-                          <Typography
-                            variant="body1"
-                            sx={{
-                              borderBottom: '1px dotted',
-                              lineHeight: 1,
-                              mb: 0.5
-                            }}
-                          >
-                            {type}
-                          </Typography>
-                        </Tooltip>
-
-                        <Stack alignItems="center">
-                          <img src={`${prefix}data/StatusArc${i}.png`} alt="" />
-                          <Typography variant="body2">
-                            {Math.floor(1000 * (1 + value / 100)) / 1000}
-                          </Typography>
-                        </Stack>
-                      </Stack>
-                    ))}
-                  </Stack>
-                </Stack>
-              </CardContent>
-            </Card>
-          );
-        })}
-      </Stack>
-    </>
-  );
+// A map bonus moves in steps of 0.001x (the parser's kills to next step), so it keeps three decimals
+// The next step of a map bonus, where the parser can name it: "TONS" is more than 100,000 kills away
+const nextStep = (killsToNext) => {
+  if (killsToNext === 'TONS') return 'next in more than 100K kills';
+  return Number.isFinite(killsToNext) && killsToNext > 0 ? `next in ${formatNum(killsToNext, 'whole')} kills` : null;
 };
 
-const ItemBase = ({ title, icon, quality, stats }) => {
-  return (
-    <CardTitleAndValue title={title}>
-      <Stack direction="row" alignItems="center" gap={1}>
-        <img style={{ width: 24, height: 24 }} src={`${prefix}${icon}.png`} alt="" />
-        <Typography>{quality}</Typography>
+// sectionFailed: the maps at zero by name, with no open state, bonus or Toolbar; the drop numbers read "-"
+const Maps = ({ character, account, characters, sectionFailed }) => {
+  const [view, setView, resetView] = useToolbarState('tesseract-maps', MAPS_TOOLBAR);
+  const catalog = getMaps(account, characters, character) ?? [];
+  const { weaponDropChance, ringDropChance, weaponQuality, ringQuality } = account?.tesseract || {};
+  const weaponQualityText = formatNum(weaponQuality ?? 0);
+  const ringQualityText = formatNum(ringQuality ?? 0);
+  const ofType = (type) => catalog.filter(({ tachyonType }) => `${tachyonType}` === type);
+  const shown = sectionFailed ? catalog : catalog.filter(({ unlocked, tachyonType }) => !(view?.hideOpen && unlocked)
+    && (view?.tachyon === 'all' || `${tachyonType}` === view?.tachyon));
 
-        <Tooltip
-          title={
-            <Stack>
-              {stats?.map(({ title, name, min, max }, index) =>
-                title ? (
-                  <Stack key={`${title}-${index}`}>
-                    {index > 0 && <Divider sx={{ my: 1 }} />}
-                    <Typography sx={{ fontWeight: 500 }}>{title}</Typography>
-                    <Divider sx={{ my: 1 }} />
-                  </Stack>
-                ) : (
-                  <TitleAndValue
-                    key={`${name}-${index}`}
-                    title={name}
-                    titleStyle={{ width: 150 }}
-                    value={`${min
-                      .toFixed(2)
-                      .replace('.00', '')} - ${max
-                      .toFixed(2)
-                      .replace('.00', '')}`}
-                  />
-                )
-              )}
-            </Stack>
-          }
-        >
-          <IconInfoCircleFilled size={18} />
-        </Tooltip>
-      </Stack>
-    </CardTitleAndValue>
-  );
+  return <Stack gap={3}>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+      <StatTile label={'Weapon drop chance'} icon={'data/EquipmentWandsArc0.png'}
+                value={sectionFailed ? '-' : formatNum(weaponDropChance, 'odds')}/>
+      <StatTile label={'Weapon quality'} value={sectionFailed ? '-' : weaponQualityText} breakdownTitle={'Weapon quality'}
+                breakdown={sectionFailed ? undefined : baseStats('Weapon quality', weaponQualityText, getWeaponBaseStats(weaponQuality ?? 0))}
+                breakdownNoun={'stats'}/>
+      <StatTile label={'Ring drop chance'} icon={'data/EquipmentRingsArc0.png'}
+                value={sectionFailed ? '-' : formatNum(ringDropChance, 'odds')}/>
+      <StatTile label={'Ring quality'} value={sectionFailed ? '-' : ringQualityText} breakdownTitle={'Ring quality'}
+                breakdown={sectionFailed ? undefined : baseStats('Ring quality', ringQualityText, getRingBaseStats(ringQuality ?? 0))}
+                breakdownNoun={'stats'}/>
+    </Stack>
+    {sectionFailed ? null : <Toolbar state={view} defaults={MAPS_TOOLBAR} onChange={setView} onReset={resetView}
+                                     total={catalog.length} shown={shown.length} noun={'maps'}>
+      <Toolbar.Show name={'tachyon'} options={[['all', 'All tachyons', catalog.length],
+        ...Object.keys(tachyonNames).map((type) => [type, tachyonNames[type], ofType(type).length])]}/>
+      <Toolbar.Filter name={'hideOpen'} label={'Hide unlocked'}/>
+    </Toolbar>}
+    {shown.length ? <CardGrid size={'m'}>
+      {shown.map(({ mapIndex, mapName, reqKills, portals, monster, unlocked, tachyonQuantity, tachyonType, mapBonuses, timeLeft }) =>
+        <ItemCard key={mapIndex ?? mapName} icon={`data/Mface${monster?.MonsterFace}.png`} title={cleanUnderscore(mapName ?? '')}
+                  dimmed={!sectionFailed && !unlocked}>
+          <ItemCard.Facts rows={[
+            ['Tachyons per kill', <Stack key={'tachyons'} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
+              {formatGame(tachyonQuantity ?? 0, 'ArcaneType.ArcaneTachyonQTYbase')}
+              <GameIcon src={`data/Tach${tachyonType}_x1.png`} size={16} alt={tachyonNames[tachyonType] ?? ''}/>
+            </Stack>],
+            ['Kills to charge', formatNum(reqKills, 'whole')],
+            ['Time to charge', formatDuration(timeLeft)]
+          ]}/>
+          {(portals ?? []).map(({ multiCharLock }, portalIndex) => <MultiCharLockText key={portalIndex} lock={multiCharLock}/>)}
+          <ItemCard.Section label={'Map bonuses'}>
+            {(mapBonuses ?? []).map(({ value, killsToNext, type }, index) => {
+              const next = sectionFailed ? null : nextStep(killsToNext);
+              return <Stack key={index} gap={0.25}>
+                <ItemCard.Facts rows={[[<Stack key={'type'} component={'span'} direction={'row'} alignItems={'center'} gap={1}>
+                  <GameIcon src={`data/StatusArc${index}.png`} size={16} alt={''}/>{type}
+                </Stack>, !sectionFailed && Number.isFinite(value) ? formatNum(1 + value / 100, 'mult', { precise: true }) : '-']]}/>
+                {next ? <Typography variant={'caption'} color={'text.secondary'} sx={{ textAlign: 'right' }}>{next}</Typography> : null}
+              </Stack>;
+            })}
+          </ItemCard.Section>
+        </ItemCard>)}
+    </CardGrid> : null}
+  </Stack>;
 };
 
-export default Portals;
+export default Maps;

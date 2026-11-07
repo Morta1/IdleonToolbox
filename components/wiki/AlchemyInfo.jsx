@@ -1,21 +1,18 @@
 import React from 'react';
 import InfoBox, { visibleGroups } from './InfoBox';
-import { Box, Stack } from '@mui/material';
-import { prefix } from '@utility/helpers';
-import { cleanUnderscore, numberWithCommas } from '@utility/helpers';
-import LevelledEffect from './LevelledEffect';
+import { Stack } from '@mui/material';
+import DataTable from '@components/common/DataTable';
+import GameIcon from '@components/common/GameIcon';
+import { formatNum } from '@utility/helpers';
+import LevelledEffect, { CostAmount } from './LevelledEffect';
 
-// The liquids have art of their own, and the rest of the site already draws them from Liquid<n>_x1.
-const LiquidIcon = ({ liquid, size = 18 }) => {
-  if (!liquid?.icon) return null;
-  return <img
-    src={`${prefix}${liquid.icon.replace(/^\//, '')}`}
-    alt={''}
-    width={size}
-    height={size}
-    style={{ objectFit: 'contain', flexShrink: 0 }}
-  />;
-};
+// The liquids have art of their own, and the rest of the site already draws them from Liquid<n>_x1. It rides with the
+// number rather than sitting once in the header: beside a column of bare digits it is what says at a glance that these
+// are drops, not more material.
+const LiquidAmount = ({ liquid, amount }) => <Stack component={'span'} direction={'row'} gap={0.5} alignItems={'center'} justifyContent={'flex-end'}>
+  {liquid?.icon ? <GameIcon src={liquid.icon.replace(/^\//, '')} size={16} alt={''}/> : null}
+  <span>{formatNum(amount, 'whole')}</span>
+</Stack>;
 
 const alchemyGroups = (node, materialName) => {
   if (node?.kind !== 'vial' && node?.kind !== 'bubble') return [];
@@ -25,7 +22,7 @@ const alchemyGroups = (node, materialName) => {
   const rows = [];
   // The score the vial's item has to roll to discover it, which is the game's own difficulty
   // number: Copper Corona wants 1 and the late-game vials want 99.
-  if (node.discoveryScore != null) rows.push({ label: 'Discovery score', value: node.discoveryScore });
+  if (node.discoveryScore != null) rows.push({ label: 'Discovery score', value: formatNum(node.discoveryScore, 'whole') });
 
   // The four alchemy liquids are not items and have no page, so they cannot be edges. They are still part of the
   // upgrade cost: a vial's upgrade table has a column for its liquid, and a bubble's cost lines (node.cost, in the
@@ -41,60 +38,29 @@ const alchemyGroups = (node, materialName) => {
   // level needs a verb, because 100 at "Lv 2" is what you pay standing at Lv 1 to REACH Lv 2, which
   // is how the game indexes it (AlchemyVialQTYreq[currentLevel]) and not what the bare label says.
   const costs = node.upgradeCosts || [];
-  const totalMaterials = costs.reduce((sum, rung) => sum + rung.materials, 0);
-  const totalLiquid = costs.reduce((sum, rung) => sum + rung.liquid, 0);
-
-  // InfoBox already pads the content block, so a cell only needs the gap to its neighbour.
-  const CELL = { py: 0.5, fontSize: 14, lineHeight: 1.43, whiteSpace: 'nowrap' };
-  const NUM = { ...CELL, pl: 2, textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
-  const HEAD = {
-    ...NUM, fontSize: 12, fontWeight: 500, color: 'text.secondary',
-    borderBottom: '1px solid', borderColor: 'divider'
+  // What maxing costs, which is the number a player is otherwise adding up by hand.
+  const total = {
+    level: 'Total',
+    materials: costs.reduce((sum, rung) => sum + rung.materials, 0),
+    liquid: costs.reduce((sum, rung) => sum + rung.liquid, 0)
   };
-  const TOTAL = { fontWeight: 600, borderTop: '1px solid', borderColor: 'divider' };
 
-  const costTable = costs.length === 0 ? null : <Box component={'table'} sx={{
-    width: '100%', borderCollapse: 'collapse'
-  }}>
-    <thead>
-    <Box component={'tr'}>
-      <Box component={'th'} sx={{ ...HEAD, textAlign: 'left' }}>To reach</Box>
-      <Box component={'th'} sx={HEAD}>{materialName || 'Material'}</Box>
-      <Box component={'th'} sx={HEAD}>{liquid?.name || 'Liquid'}</Box>
-    </Box>
-    </thead>
-    <tbody>
-    {costs.map(({ level, materials, liquid: liquidCost }) => <Box component={'tr'} key={level}>
-      <Box component={'td'} sx={{ ...CELL, color: 'text.secondary' }}>Lv {level}</Box>
-      <Box component={'td'} sx={NUM}>{numberWithCommas(materials)}</Box>
-      {/* The icon rides with the number rather than sitting once in the header: beside a column
-          of bare digits it is what says at a glance that these are drops, not more material. */}
-      <Box component={'td'} sx={{ ...NUM, color: 'text.disabled' }}>
-        <Stack direction={'row'} gap={0.5} alignItems={'center'} justifyContent={'flex-end'}>
-          <LiquidIcon liquid={liquid} size={18}/>
-          <Box component={'span'}>{liquidCost}</Box>
-        </Stack>
-      </Box>
-    </Box>)}
-    {/* What maxing costs, which is the number a player is otherwise adding up by hand. */}
-    <Box component={'tr'}>
-      <Box component={'td'} sx={{ ...CELL, ...TOTAL }}>Total</Box>
-      <Box component={'td'} sx={{ ...NUM, ...TOTAL }}>{numberWithCommas(totalMaterials)}</Box>
-      <Box component={'td'} sx={{ ...NUM, ...TOTAL }}>
-        <Stack direction={'row'} gap={0.5} alignItems={'center'} justifyContent={'flex-end'}>
-          <LiquidIcon liquid={liquid} size={18}/>
-          <Box component={'span'}>{totalLiquid}</Box>
-        </Stack>
-      </Box>
-    </Box>
-    </tbody>
-  </Box>;
+  const costTable = costs.length === 0 ? null : <DataTable
+    fits
+    rows={[...costs, total]}
+    rowKey={'level'}
+    columns={[
+      { key: 'level', label: 'To reach', render: ({ level }) => (level === 'Total' ? level : `Lv ${formatNum(level, 'whole')}`) },
+      { key: 'materials', label: materialName || 'Material', numeric: true, render: ({ materials }) => <CostAmount amount={materials}/> },
+      { key: 'liquid', label: liquid?.name || 'Liquid', numeric: true, render: ({ liquid: amount }) => <LiquidAmount liquid={liquid} amount={amount}/> }
+    ]}
+  />;
 
   return [
     { title: 'Effect', content: node.effect ? <LevelledEffect node={node}/> : null, rows: [] },
-    { title: `${node.kind === 'vial' ? 'Vial' : 'Bubble'} Info`, rows },
+    { title: `${node.kind === 'vial' ? 'Vial' : 'Bubble'} info`, rows },
     // No rows: the table IS the group, and InfoBox keeps a group that has content.
-    { title: 'Upgrade Cost', content: costTable, rows: [] }
+    { title: 'Upgrade cost', content: costTable, rows: [] }
   ];
 };
 

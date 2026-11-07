@@ -1,6 +1,6 @@
 // Routing helpers for the class pages served by /tools/builds/[slug].
 //
-// Dependency-free ESM on purpose — utility/generate-sitemap.mjs imports this
+// Dependency-free ESM on purpose: utility/generate-sitemap.mjs imports this
 // and is a plain Node script that cannot resolve Next aliases or TypeScript.
 //
 // BUILD_FAMILIES mirrors FAMILY_ORDER in utility/builds/classes.js. It is
@@ -24,8 +24,8 @@ export const slugToClassKey = (slug) => titleCaseParts(slug).join('_');
 
 export const isFamilySlug = (slug) => FAMILY_SLUGS.includes(slug);
 
-// A subclass slug becomes a getStaticPaths param — a filesystem path segment
-// under output: 'export' — and is later interpolated unescaped into
+// A subclass slug becomes a getStaticPaths param, a filesystem path segment
+// under output: 'export', and is later interpolated unescaped into
 // sitemap.xml <loc> entries. `subclass` comes straight from the API, so
 // anything containing '/', '..', '&', '<' etc. must be rejected before it
 // reaches either the filesystem or the XML, rather than merely lowercased.

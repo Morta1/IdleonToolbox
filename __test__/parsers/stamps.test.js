@@ -4,11 +4,7 @@ import { getStamps, stampsMapping } from '@parsers/world-1/stamps';
 import { liveCount } from '@parsers/catalog';
 import { stamps } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
-import latest from '../fixtures/latest.json';
+import { FIXTURES } from '../helpers/save-fixtures';
 
 const CATEGORIES = ['combat', 'skills', 'misc'];
 const emptyAccount = { storage: { list: [] } };
@@ -33,14 +29,13 @@ describe('getStamps', () => {
   });
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
 describe('getStamps fixture regression', () => {
-  it.each(FIXTURES)('%s: levels the save covers are unchanged at the same index', (_name, fixture) => {
+  it.each(FIXTURES)('%s: levels read at their index, across every whole category', (_name, fixture) => {
     const data = fixture.data ?? fixture;
     const stampLevelsRaw = tryToParse(data?.StampLv) || data?.StampLevel;
     const result = getStamps(data, emptyAccount);
 
+    CATEGORIES.forEach((category) => expect(result[category]).toHaveLength(liveCount(Object.values(stamps[category]))));
     Object.entries(stampsMapping).forEach(([catIndexStr, category]) => {
       const raw = stampLevelsRaw?.[Number(catIndexStr)];
       if (!raw) return;
@@ -53,11 +48,4 @@ describe('getStamps fixture regression', () => {
     });
   });
 
-  it.each(FIXTURES)('%s: returns the full catalog length per category regardless of save length', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const result = getStamps(data, emptyAccount);
-    for (const category of CATEGORIES) {
-      expect(result[category]).toHaveLength(liveCount(Object.values(stamps[category])));
-    }
-  });
 });

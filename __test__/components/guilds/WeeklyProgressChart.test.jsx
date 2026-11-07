@@ -3,10 +3,10 @@ import { transformForChart } from '../../../components/guilds/WeeklyProgressChar
 
 describe('transformForChart', () => {
   it('returns two series (this week and last week)', () => {
-    // Week starts Saturday 21:00 UTC — the first point sits exactly on it.
+    // Week starts Saturday 21:00 UTC: the first point lands 32 s after it and rounds to hour 0.
     const detail = {
       current_week: { week: '2026-05-16', timeseries: [
-        { captured_at: Date.UTC(2026, 4, 16, 21, 0), total_gp: 0 },
+        { captured_at: Date.UTC(2026, 4, 16, 21, 0, 32), total_gp: 0 },
         { captured_at: Date.UTC(2026, 4, 17, 21, 0), total_gp: 100 }
       ]},
       last_week: { week: '2026-05-09', timeseries: [

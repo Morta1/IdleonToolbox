@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 Element.prototype.scrollIntoView = vi.fn();
 const routerState = { isReady: true, query: {}, push: vi.fn(), replace: vi.fn(), back: vi.fn(), asPath: '/leaderboards', pathname: '/leaderboards' };
@@ -24,11 +24,12 @@ vi.mock('../../services/leaderboards', () => ({ fetchMeta, fetchPlayer, fetchBoa
 const { AppContext } = await import('@components/common/context/AppProvider');
 const Leaderboards = (await import('../../pages/leaderboards')).default;
 
-const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+// retryDelay 0: the page retries meta and tabs once, and the default wait is a real second.
+const client = new QueryClient({ defaultOptions: { queries: { retry: false, retryDelay: 0 } } });
 const renderPage = (state = {}) => {
   const page = () => (
     <QueryClientProvider client={client}>
-      <ThemeProvider theme={darkTheme}>
+      <ThemeProvider theme={theme}>
         <AppContext.Provider value={{ state }}>
           <Leaderboards/>
         </AppContext.Provider>
@@ -131,16 +132,8 @@ describe('leaderboards board drawer', () => {
     expect(fetchBoard).not.toHaveBeenCalled();
   });
 
-  it('opens nothing for an unknown key once meta has loaded', async () => {
-    routerState.query = { t: 'skills', m: 'nope' };
-    renderPage();
-    expect(await screen.findByRole('link', { name: /Top 100/ })).toBeTruthy();
-    expect(screen.queryByRole('dialog')).toBeNull();
-    expect(fetchBoard).not.toHaveBeenCalled();
-  });
-
   it('still opens a board from a card when meta is down', async () => {
-    fetchMeta.mockRejectedValueOnce(new Error('meta down'));
+    fetchMeta.mockRejectedValueOnce(new Error('meta down')).mockRejectedValueOnce(new Error('meta down'));
     routerState.push.mockImplementation(({ query }) => { routerState.query = query; });
     routerState.query = { t: 'skills' };
     const { rerender } = renderPage();

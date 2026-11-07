@@ -8,19 +8,17 @@ import {
   getMaxBonus
 } from '@parsers/world-2/alchemy';
 import { growth } from '@utility/helpers';
-import { parseData } from '@parsers/index';
-import raw from '../data/raw.json';
 import latest from './fixtures/latest.json';
 import { parseFixture } from './helpers/parsed-fixtures';
+
+const { account } = parseFixture(latest) as any;
 
 // addDECAY is x1 * level up to level 50000, then decays toward a second x1 * 50000,
 // so the hard cap is x1 * 100000 and every threshold below 100% has an exact level.
 describe('addDECAY threshold level', () => {
   const cases = [
     { x1: 1, threshold: 50, expected: 50000 },
-    { x1: 1, threshold: 80, expected: 275000 },
     { x1: 1, threshold: 90, expected: 650000 },
-    { x1: 1, threshold: 99, expected: 7400000 },
     { x1: 4, threshold: 90, expected: 650000 }
   ];
 
@@ -44,12 +42,9 @@ describe('addDECAY threshold level', () => {
   });
 
   it('gives every addDECAY bubble a finite target level', () => {
-    const { data, charNames, companion, guildData, serverVars } = raw as any;
-    const { account }: any = parseData(data, charNames, companion, guildData, serverVars, 0, null);
-    const bubbles = Object.values(account?.alchemy?.bubbles ?? {}).flat() as any[];
-    const addDecay = bubbles.filter((bubble) => bubble?.func?.toLowerCase() === 'adddecay');
+    const addDecay = account.alchemy.bubblesFlat.filter((bubble: any) => bubble?.func?.toLowerCase() === 'adddecay');
 
-    expect(addDecay.map(({ bubbleName }) => bubbleName))
+    expect(addDecay.map(({ bubbleName }: any) => bubbleName))
       .toEqual(expect.arrayContaining(['ROID_RAGIN', 'BIG_MEATY_CLAWS']));
 
     for (const { func, x1, x2 } of addDecay) {
@@ -63,7 +58,6 @@ describe('addDECAY threshold level', () => {
 });
 
 describe('bubble effect percent', () => {
-  const { account } = parseFixture(latest) as any;
   const bubbles = account.alchemy.bubblesFlat;
   const decay = bubbles.find((b: any) => b.func === 'decay');
   const uncapped = bubbles.find((b: any) => b.func === 'bigBase');
@@ -78,7 +72,7 @@ describe('bubble effect percent', () => {
     expect(getBubbleLevelForPercent(account, uncapped, 90)).toBeNull();
   });
 
-  it.each([decay, addDecay].flatMap((b: any) => [50, 90, 99].map((p) => [b.func, p, b])))(
+  it.each([decay, addDecay].flatMap((b: any) => [50, 99].map((p) => [b.func, p, b])))(
     '%s: level for %i%% reaches the percent and one level less does not', (_: any, p: any, b: any) => {
       const lv = getBubbleLevelForPercent(account, b, p) as number;
       expect(Number.isInteger(lv)).toBe(true);

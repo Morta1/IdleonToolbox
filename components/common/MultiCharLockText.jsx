@@ -1,24 +1,22 @@
 import React from 'react';
-import { Stack, Typography } from '@mui/material';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
+import InfoButton from '@components/common/InfoButton';
+import StatusText from '@components/common/StatusText';
 
 const lockText = ({ required, cleared }) => `Needs ${required} characters to clear this map (${cleared}/${required})`;
 
-// A portal the game keeps shut until enough characters have cleared its map (getMultiCharDoorLock).
-// compact: a warning info icon with the text in its tooltip, for tight cards.
-const MultiCharLockText = ({ lock, variant = 'body2', compact, ...props }) => {
+// A portal the game keeps shut until enough characters have cleared its map (getMultiCharDoorLock). A state, so
+// StatusText's needs tone (its glyph and amber), on its own line like the text it replaced.
+// compact: the info button with the text as its note, for tight cards; label names it ("About portal 2's
+// character lock"), since a card can hold several.
+const MultiCharLockText = ({ lock, compact, label = 'the character lock', sx }) => {
   if (!lock || lock.open) return null;
   if (compact) {
-    return <Tooltip title={lockText(lock)}>
-      <Stack sx={{ cursor: 'pointer', color: 'warning.light' }}>
-        <IconInfoCircleFilled size={16}/>
-      </Stack>
-    </Tooltip>;
+    // Amber like the line it stands for, so a shut portal still reads at a glance
+    return <InfoButton label={label} sx={{ color: 'text.warning' }}>{lockText(lock)}</InfoButton>;
   }
-  return <Typography variant={variant} color={'warning.light'} {...props}>
+  return <StatusText status={'needs'} sx={{ display: 'flex', width: 'fit-content', ...sx }}>
     {`Needs ${lock.required} characters (${lock.cleared}/${lock.required})`}
-  </Typography>;
+  </StatusText>;
 };
 
 export default MultiCharLockText;

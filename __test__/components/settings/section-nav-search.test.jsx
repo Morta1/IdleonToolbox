@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import { buildModel, searchModel } from '@utility/dashboard/settingsModel';
@@ -16,7 +16,7 @@ const modelFor = (edits = {}) => {
   const config = resolveTrackers(baseTrackers, edits);
   return buildModel(config, baseTrackers, diffTrackers(baseTrackers, config));
 };
-const renderIn = (node) => render(<ThemeProvider theme={darkTheme}>{node}</ThemeProvider>).container;
+const renderIn = (node) => render(<ThemeProvider theme={theme}>{node}</ThemeProvider>).container;
 const world3 = (model) => model[0].sections.find(({ section }) => section === 'World 3');
 
 describe('SectionPane', () => {
@@ -99,7 +99,7 @@ describe('SearchResults with a paired inline tracker', () => {
     const container = renderIn(<SearchResults results={results} query="books" onAction={() => {}} onShow={() => {}}/>);
     const library = results[0].tracker;
     expect(container.querySelector(`[aria-label="${library.label} alerts"]`)).toBeTruthy();
-    expect(container.querySelector('input[type="number"]')).toBeTruthy();
+    expect(container.querySelector('input[inputmode="decimal"]')).toBeTruthy();
     expect(container.querySelector(`[aria-label="${library.options[0].label}"]`)).toBeFalsy();
   });
 });

@@ -20,6 +20,7 @@ export const READERS = {
   tarPitMegafish: rebuild('tarpit'),
   // The cap in the bubble cost note; the rest of the table is read by the client (utility/wiki/effects.mjs).
   bubbleCost: (input) => bubbleNodes(input.cauldrons, input),
+  bubbleToolWords: (input) => bubbleNodes(input.cauldrons, input),
   // The structured boxes: a prayer's bonus, curse and soul cost, an Upgrade Vault upgrade's bonus and coin cost.
   prayerCost: (input) => prayerNodes(input.prayers, input),
   prayerBonus: (input) => prayerNodes(input.prayers, input),

@@ -1,36 +1,172 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { Breakdown as StatBreakdown } from '@components/common/Breakdown/Breakdown';
+import { Box, Stack, Typography } from '@mui/material';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import ProgressBar from '../../../components/common/ProgressBar';
-import { getCoinsArray, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
-import darkTheme from '../../../styles/theme/darkTheme';
-import { PlayersList } from '@components/common/styles';
-import Box from '@mui/material/Box';
+import { formatNum, gameFill, getCoinsArray } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import { MissingData, PlayersList, isSectionFailed } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import CoinDisplay from '@components/common/CoinDisplay';
-import { CAULDRONS_MAX_LEVELS, getBaseNewBubbleChance, getMaxCauldron } from '@parsers/world-2/alchemy';
+import GameIcon from '@components/common/GameIcon';
+import StatusText from '@components/common/StatusText';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
+import {
+  CAULDRON_INFO,
+  CAULDRONS_MAX_LEVELS,
+  LIQUID_INFO,
+  getAlchemy,
+  getBaseNewBubbleChance,
+  getMaxCauldron
+} from '@parsers/world-2/alchemy';
 import { NUMBERED_GROUP, createBreakdown, flat, info, listGroup, multiplier, productGroup } from '@parsers/breakdown';
-import Tooltip from '@components/Tooltip';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
 
-const cauldronsColors = [
-  darkTheme.palette.warning.light,
-  darkTheme.palette.success.light,
-  '#b452ec',
-  '#ecec31'
-]
+// The sections the page reads, in the order the note names the first that failed: the alchemy section and the two
+// parts the parser adds to it on their own (safeSection 'alchemy.cauldrons': the brew speeds and new bubble chances;
+// 'alchemy.liquidCauldrons': the liquid caps)
+const SECTION_NAMES = { alchemy: 'Cauldrons', 'alchemy.cauldrons': 'Brewing', 'alchemy.liquidCauldrons': 'Liquids' };
 
-const liquidsColors = [
-  '#61d5e8',
-  '#34c6fd',
-  '#2073ff',
-  '#3e2027'
-];
+const BOOSTS = [['speed', 'Speed'], ['luck', 'Luck'], ['cost', 'Cost'], ['extra', 'Extra']];
+const NEXT_BUBBLES_SHOWN = 10;
+const HEADING_SX = { mt: 4, mb: 1.5 };
+
+// The game rounds this to 0.01%, which hides everything past the first few worlds.
+const formatChance = (chance) => formatNum(Math.min(chance, 100), 'pct', { precise: true });
+// The game draws a brew boost's and a liquid's Cap and Rate pair in Big on both sides (CauldronStats.CauldronLvsBrewREQ)
+const brewReq = (value) => formatGame(value, 'CauldronStats.CauldronLvsBrewREQ', { whole: true });
+// The game draws the liquid in its jar in Small beside the cap in Big: NotateNumber(CauldronInfo[6][i], "Small"), a
+// save field with no gameNotation key, so the mode is named here. A balance a bubble's cost spends, so it stays as the game prints it
+const liquidAmount = (value) => gameFill(value, 'Small', { whole: true });
+
+// A level against its max, with the Maxed word once it is there
+const levelValue = (level = 0, max) => (level >= max
+  ? <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
+    {formatNum(level, 'level', { max })}<StatusText status={'maxed'}/>
+  </Box>
+  : formatNum(level, 'level', { max }));
+
+// One pay 2 win upgrade: its level and, while under its own max, what the next level and the rest cost. A failed
+// section's catalog and a liquid not found yet have no cost.
+const upgradeSection = (label, { level = 0, cost, costToMax } = {}, max, failed) => <ItemCard.Section key={label}
+                                                                                                    label={label}>
+  <ItemCard.Facts rows={[
+    ['Level', failed ? '-' : levelValue(level, max)],
+    !failed && cost !== null && level < max ? ['Next cost', <CoinDisplay key={'next'} dense money={getCoinsArray(cost ?? 0)}/>] : null,
+    !failed && cost !== null && level < max
+      ? ['Cost to max', <CoinDisplay key={'max'} dense money={getCoinsArray(costToMax ?? 0)}/>]
+      : null
+  ]}/>
+</ItemCard.Section>;
+
+const getNewBubbleBreakdown = (displayName, cauldron) => {
+  const { newBubble, unlockedBubbles = 0 } = cauldron;
+  const nextBubbles = Array.from({ length: NEXT_BUBBLES_SHOWN }, (_, offset) => {
+    const unlocked = unlockedBubbles + offset;
+    const bubble = unlocked + 1;
+    const chance = getBaseNewBubbleChance(unlocked) * newBubble.multi;
+    const brew = formatGame(getMaxCauldron(unlocked), 'CauldronStats.MaxCauldronQTY', { whole: true });
+    return info(`#${bubble} (World ${Math.ceil(bubble / 5)}): ${brew} per attempt`, chance,
+      { formatted: formatChance(chance) });
+  });
+  const factors = newBubble.breakdown ?? [];
+  const base = factors.find(({ name }) => name === 'Base')?.value ?? 0;
+  return createBreakdown(`${displayName} new bubble chance`, formatChance(newBubble.chance), [
+    flat('Base', base, { formatted: formatChance(base) }),
+    productGroup(NUMBERED_GROUP, factors.filter(({ name }) => name !== 'Base')
+      .map(({ name, value }) => multiplier(name, value))),
+    listGroup('Next bubbles', nextBubbles)
+  ]);
+};
+
+// A brew boost: its level and the brew toward the next one (the game floors it first), Maxed at the cap. A failed
+// section's catalog has no brew: the pair reads "-" with no bar
+const boostRow = ([statName, label], { level = 0, progress = 0, req = 0 } = {}, failed) => {
+  if (failed) return <ItemCard.Facts key={statName} rows={[[label, '-']]}/>;
+  const name = `${label} · ${formatNum(level, 'level', { max: CAULDRONS_MAX_LEVELS.brewing })}`;
+  return level >= CAULDRONS_MAX_LEVELS.brewing
+    ? <ItemCard.Facts key={statName} rows={[[name, <StatusText key={'maxed'} status={'maxed'}/>]]}/>
+    : <ItemCard.Progress key={statName} label={name} value={brewReq(Math.floor(progress))} max={brewReq(req)}
+                         percent={req > 0 ? Math.min(100, progress / req * 100) : 0}/>;
+};
+
+// A brewing cauldron. The brew speed and new bubble chance come from the parser's own step (alchemy.cauldrons): a
+// failed step, or a failed section's catalog, has neither, so they read "-". A failed section's catalog has no brew
+// either: its pairs and counts read "-" with no bar.
+const brewingCard = ({ name, displayName }, index, cauldron = {}, characters, failed) => {
+  const { newBubble, brewSpeed, attempts = 0, progress = 0, req = 0, players = [], boosts = {} } = cauldron;
+  const towardNext = req > 0 ? progress - attempts * req : 0;
+  // The game draws the pair in Small while the cauldron's max is under 10, Big from there (CauldronStats.MaxCauldronQTY)
+  const brew = (value) => formatGame(value, 'CauldronStats.MaxCauldronQTY', { ruleValue: req, whole: true });
+  const speedText = formatNum(brewSpeed?.value ?? 0, 'rate');
+  const chanceText = formatChance(newBubble?.chance ?? 0);
+  const expected = newBubble ? ` (about ${formatNum(newBubble.expectedBubbles ?? 0)} bubbles)` : '';
+  return <ItemCard key={name} icon={`data/aJarB${index}.png`} title={displayName}
+                   aside={players.length ? <PlayersList players={players} characters={characters}/> : null}>
+    {failed ? null : <ItemCard.Progress label={'Next attempt'} value={brew(towardNext)} max={brew(req)}
+                                        percent={req > 0 ? Math.min(100, towardNext / req * 100) : 0}/>}
+    <ItemCard.Facts rows={[
+      failed ? ['Next attempt', '-'] : null,
+      ['Brew speed', brewSpeed
+        ? <Breakdown key={'speed'} asValue title={`${displayName} brew speed`}
+                     data={{ ...brewSpeed.breakdown, totalValue: speedText }}>{speedText}</Breakdown>
+        : '-'],
+      ['New bubble chance', newBubble
+        ? <Breakdown key={'chance'} asValue title={`${displayName} new bubble chance`}
+                     data={getNewBubbleBreakdown(displayName, cauldron)}>{chanceText}</Breakdown>
+        : '-'],
+      newBubble?.chance > 0 && newBubble.chance < 50 ? ['Odds', formatNum(newBubble.chance / 100, 'odds')] : null,
+      ['Attempts ready', failed ? '-' : attempts > 0 ? `${formatNum(attempts)}${expected}` : '0']
+    ]}/>
+    <ItemCard.Section label={'Boosts'}>
+      {BOOSTS.map((boost) => boostRow(boost, boosts?.[boost[0]], failed))}
+    </ItemCard.Section>
+  </ItemCard>;
+};
+
+// A liquid's jar. Its cap and its Cap and Rate levels come from the parser's own step (alchemy.liquidCauldrons): with
+// that step or the section failed they read "-", and the liquid shows no bar and no half a pair.
+const liquidCard = ({ displayName }, index, { upgrades = {}, jar, amount, characters, failed }) => {
+  const { regen, capacity, players = [] } = upgrades;
+  const { maxLiquid, decantCap, decantRate, isDragonic, maxLiquidBreakdown } = jar ?? {};
+  const hasCap = Number.isFinite(maxLiquid);
+  const capText = hasCap ? formatGame(maxLiquid, 'CauldronStats.LiquidCap', { whole: true }) : '-';
+  const cap = hasCap && maxLiquidBreakdown
+    ? <Breakdown key={'cap'} asValue title={`${displayName} capacity`}
+                 data={{ ...maxLiquidBreakdown, totalValue: capText }}>{capText}</Breakdown>
+    : capText;
+  const decant = (label, { level = 0, progress = 0, req = 0 } = {}) => (jar
+    ? [`${label} · ${formatNum(level, 'level')}`, `${brewReq(progress)} / ${brewReq(req)}`]
+    : [label, '-']);
+  return <ItemCard key={displayName} icon={`data/aJarL${index}.png`} title={displayName}
+                   meta={isDragonic ? 'Dragonic' : undefined}
+                   aside={isDragonic || players.length ? <Stack direction={'row'} alignItems={'center'} gap={1}>
+                     {isDragonic ? <GameIcon src={'data/GemP18.png'} size={24} alt={'Dragonic'}/> : null}
+                     {players.length ? <PlayersList players={players} characters={characters}/> : null}
+                   </Stack> : null}>
+    {hasCap ? <ItemCard.Progress label={'Liquid'} value={liquidAmount(amount)} max={cap}
+                                 percent={maxLiquid > 0 ? Math.min(100, amount / maxLiquid * 100) : 0}/> : null}
+    <ItemCard.Facts rows={[
+      hasCap ? null : ['Liquid', '-'],
+      decant('Cap', decantCap),
+      decant('Rate', decantRate)
+    ]}/>
+    {upgradeSection('Regen', regen, CAULDRONS_MAX_LEVELS.liquidsRegen, failed)}
+    {upgradeSection('Capacity', capacity, CAULDRONS_MAX_LEVELS.liquidsCapacity, failed)}
+  </ItemCard>;
+};
 
 const Cauldrons = () => {
   const { state } = useContext(AppContext);
-  const { alchemy } = state?.account || {};
+  const account = state?.account;
+  const characters = state?.characters;
+  const failedSection = Object.keys(SECTION_NAMES).find((section) => isSectionFailed(account, section));
+  const alchemyFailed = isSectionFailed(account, 'alchemy');
+  // The caps are worked out from the alchemy section, so they count as failed with it too
+  const liquidsFailed = alchemyFailed || isSectionFailed(account, 'alchemy.liquidCauldrons');
+  // A failed section's {} default: the catalog at zero, the parser's own with no save, with no cost, rate or player
+  const alchemy = alchemyFailed ? getAlchemy({}, [], {}) : account?.alchemy;
+  const { player, vials } = alchemy?.p2w ?? {};
 
   return (
     <>
@@ -38,290 +174,50 @@ const Cauldrons = () => {
         title="Cauldrons | Idleon Toolbox"
         description="Track your alchemy cauldron levels, brewing speed, and liquid capacity in Legends of Idleon"
       />
-      <Typography variant={'h5'} mb={3}>Brewing</Typography>
-      <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-        {Object.entries(alchemy?.cauldrons || {})?.map(([name, stats], cauldronIndex) => (
-          <BrewingCard key={`${name}-${cauldronIndex}`} name={name} cauldron={stats}
-                       color={cauldronsColors[cauldronIndex]} characters={state?.characters}/>
-        ))}
-      </Stack>
+      {failedSection ? <MissingData name={SECTION_NAMES[failedSection]} failed atZero={alchemyFailed}/> : null}
+      <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1.5 }}>Brewing</Typography>
+      <CardGrid size={'l'}>
+        {CAULDRON_INFO.map((cauldron, index) => brewingCard(cauldron, index, alchemy?.cauldrons?.[cauldron.name],
+          characters, alchemyFailed))}
+      </CardGrid>
 
-      <Typography my={3} variant={'h5'} mb={3}>Pay 2 Win</Typography>
-
-      <Typography my={3} variant={'h5'} mb={3}>Liquids</Typography>
-      <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-        {alchemy?.p2w?.liquids?.map((cauldron, index) => {
-          const { name, regen, capacity, players } = cauldron;
-          const {
-            maxLiquid,
-            decantCap,
-            decantRate,
-            isDragonic,
-            maxLiquidBreakdown
-          } = alchemy?.liquidCauldrons?.[index] ?? {};
-          const currentLiquid = alchemy?.liquids?.[index] ?? 0;
-          return <Card key={`${name}-${index}`}>
-            <CardContent>
-              <Stack mb={1} direction={'row'} alignItems={'center'} gap={2}>
-                <img src={`${prefix}data/aJarL${index}.png`} alt=""/>
-                <Stack>
-                  <Typography component={'span'}
-                              sx={{
-                                display: 'inline-block',
-                                mr: 1
-                              }}>{name.capitalize()}</Typography>
-                  <Stack direction={'row'} alignItems={'center'} gap={1}>
-                    {isDragonic ? <Tooltip title={'Dragonic cauldron'}>
-                      <img style={{ width: 24, height: 24, objectFit: 'contain' }} src={`${prefix}data/GemP18.png`}
-                           alt="Gem P18"/>
-                    </Tooltip> : null}
-                    <PlayersList players={players} characters={state?.characters}/>
-                  </Stack>
-                </Stack>
-              </Stack>
-              <Stack direction={'row'} gap={1} alignItems={'center'}>
-                <Typography variant={'caption'}>{Math.round(currentLiquid)} / {maxLiquid}</Typography>
-                <StatBreakdown data={maxLiquidBreakdown}>
-                  <Stack alignContent={'center'}>
-                    <IconInfoCircleFilled size={18}/>
-                  </Stack>
-                </StatBreakdown>
-              </Stack>
-              <ProgressBar bgColor={liquidsColors?.[index]}
-                           pre={<img src={`${prefix}data/Liquid${index + 1}_x1.png`} alt=""/>}
-                           percent={currentLiquid / maxLiquid * 100}/>
-              <Stack mt={1} direction={'row'} gap={1} flexWrap={'wrap'}>
-                <Card variant={'outlined'}>
-                  <CardContent>
-                    <Typography>Cap Lv.{decantCap?.level}</Typography>
-                    <Typography>{notateNumber(decantCap?.progress)}/{notateNumber(decantCap?.req)}</Typography>
-                  </CardContent>
-                </Card>
-                <Card variant={'outlined'}>
-                  <CardContent>
-                    <Typography>Rate Lv.{decantRate?.level}</Typography>
-                    <Typography>{notateNumber(decantRate?.progress)}/{notateNumber(decantRate?.req)}</Typography>
-                  </CardContent>
-                </Card>
-                <CostTooltip shouldDisplay={regen?.level < CAULDRONS_MAX_LEVELS.liquidsRegen} cost={regen?.cost}
-                             costToMax={regen?.costToMax}>
-                  <Card variant={'outlined'} sx={{
-                    outline: regen?.level >= CAULDRONS_MAX_LEVELS.liquidsRegen ? '1px solid' : '',
-                    outlineColor: (theme) => regen?.level >= CAULDRONS_MAX_LEVELS.liquidsRegen
-                      ? theme.palette.success.light
-                      : ''
-                  }}>
-                    <CardContent>
-                      <Typography>Regen</Typography>
-                      <Typography>Lv. {regen?.level} / {CAULDRONS_MAX_LEVELS.liquidsRegen}</Typography>
-                    </CardContent>
-                  </Card>
-                </CostTooltip>
-                <CostTooltip shouldDisplay={capacity?.level < CAULDRONS_MAX_LEVELS.liquidsRegen} cost={capacity?.cost}
-                             costToMax={capacity?.costToMax}>
-                  <Card variant={'outlined'} sx={{
-                    outline: capacity?.level >= CAULDRONS_MAX_LEVELS.liquidsCapacity ? '1px solid' : '',
-                    outlineColor: (theme) => capacity?.level >= CAULDRONS_MAX_LEVELS.liquidsCapacity
-                      ? theme.palette.success.light
-                      : ''
-                  }}>
-                    <CardContent>
-                      <Typography>Capacity</Typography>
-                      <Typography>Lv. {capacity?.level} / {CAULDRONS_MAX_LEVELS.liquidsCapacity}</Typography>
-                    </CardContent>
-                  </Card>
-                </CostTooltip>
-              </Stack>
-            </CardContent>
-          </Card>
+      <Typography variant={'sectionTitle'} component={'h2'} sx={HEADING_SX}>Pay 2 Win</Typography>
+      <Typography variant={'sectionTitle'} component={'h3'} sx={{ mb: 1.5 }}>Liquids</Typography>
+      <CardGrid size={'m'}>
+        {LIQUID_INFO.map((liquid, index) => {
+          const amount = Number(alchemy?.liquids?.[index] ?? 0);
+          return liquidCard(liquid, index, {
+            upgrades: alchemy?.p2w?.liquids?.[index],
+            jar: liquidsFailed ? undefined : alchemy?.liquidCauldrons?.[index],
+            amount: Number.isFinite(amount) ? amount : 0,
+            characters,
+            failed: alchemyFailed
+          });
         })}
-      </Stack>
+      </CardGrid>
 
-      <Typography my={3} variant={'h5'} mb={3}>Cauldrons</Typography>
-      <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-        {alchemy?.p2w?.cauldrons?.map((cauldron, index) => {
-          const { name, speed, newBubble, boostReq } = cauldron;
-          return <Card sx={{ width: { md: 485 } }} key={`${name}-${index}`}>
-            <CardContent>
-              <Stack mb={1} direction={'row'} alignItems={'center'} gap={2}>
-                <img src={`${prefix}data/aJarB${index}.png`} alt=""/>
-                <Typography component={'span'}
-                            sx={{
-                              display: 'inline-block',
-                              mr: 1
-                            }}>{name.capitalize()}</Typography>
-              </Stack>
-              <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-                <CostTooltip shouldDisplay={speed?.level < CAULDRONS_MAX_LEVELS.cauldronsSpeed} cost={speed?.cost}
-                             costToMax={speed?.costToMax}>
-                  <Card variant={'outlined'} sx={{
-                    outline: speed?.level >= CAULDRONS_MAX_LEVELS.cauldronsSpeed ? '1px solid' : '',
-                    outlineColor: (theme) => speed?.level >= CAULDRONS_MAX_LEVELS.cauldronsSpeed
-                      ? theme.palette.success.light
-                      : ''
-                  }}>
-                    <CardContent>
-                      <Typography>Speed</Typography>
-                      <Typography>Lv. {speed?.level} / {CAULDRONS_MAX_LEVELS.cauldronsSpeed}</Typography>
-                    </CardContent>
-                  </Card>
-                </CostTooltip>
-                <CostTooltip shouldDisplay={newBubble?.level < CAULDRONS_MAX_LEVELS.cauldronsNewBubble}
-                             cost={newBubble?.cost} costToMax={newBubble?.costToMax}>
-                  <Card variant={'outlined'} sx={{
-                    outline: newBubble?.level >= CAULDRONS_MAX_LEVELS.cauldronsNewBubble ? '1px solid' : '',
-                    outlineColor: (theme) => newBubble?.level >= CAULDRONS_MAX_LEVELS.cauldronsNewBubble
-                      ? theme.palette.success.light
-                      : ''
-                  }}>
-                    <CardContent>
-                      <Typography>New Bubble Chance</Typography>
-                      <Typography>Lv. {newBubble?.level} / {CAULDRONS_MAX_LEVELS.cauldronsNewBubble}</Typography>
-                    </CardContent>
-                  </Card>
-                </CostTooltip>
-                <CostTooltip shouldDisplay={boostReq?.level < CAULDRONS_MAX_LEVELS.cauldronsBoostReq}
-                             cost={boostReq?.cost} costToMax={boostReq?.costToMax}>
-                  <Card variant={'outlined'} sx={{
-                    outline: boostReq?.level >= CAULDRONS_MAX_LEVELS.cauldronsBoostReq ? '1px solid' : '',
-                    outlineColor: (theme) => boostReq?.level >= CAULDRONS_MAX_LEVELS.cauldronsBoostReq
-                      ? theme.palette.success.light
-                      : ''
-                  }}>
-                    <CardContent>
-                      <Typography>Boost Req</Typography>
-                      <Typography>Lv. {boostReq?.level} / {CAULDRONS_MAX_LEVELS.cauldronsBoostReq}</Typography>
-                    </CardContent>
-                  </Card>
-                </CostTooltip>
-              </Stack>
-            </CardContent>
-          </Card>
+      <Typography variant={'sectionTitle'} component={'h3'} sx={HEADING_SX}>Cauldrons</Typography>
+      <CardGrid size={'m'}>
+        {CAULDRON_INFO.map(({ name, displayName }, index) => {
+          const { speed, newBubble, boostReq } = alchemy?.p2w?.cauldrons?.[index] ?? {};
+          return <ItemCard key={name} icon={`data/aJarB${index}.png`} title={displayName}>
+            {upgradeSection('Speed', speed, CAULDRONS_MAX_LEVELS.cauldronsSpeed, alchemyFailed)}
+            {upgradeSection('New bubble chance', newBubble, CAULDRONS_MAX_LEVELS.cauldronsNewBubble, alchemyFailed)}
+            {upgradeSection('Boost req', boostReq, CAULDRONS_MAX_LEVELS.cauldronsBoostReq, alchemyFailed)}
+          </ItemCard>;
         })}
-      </Stack>
-      <Stack direction={'row'} gap={3}>
-        <Box>
-          <Typography my={3} variant={'h5'} mb={3}>Player</Typography>
-          <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-            <Section title={'Alch speed'} value={alchemy?.p2w?.player?.speedLv}/>
-            <Section title={'Extra Exp'} value={alchemy?.p2w?.player?.extraExpLv}/>
-          </Stack>
-        </Box>
-        <Box>
-          <Typography my={3} variant={'h5'} mb={3}>Vials</Typography>
-          <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-            <Section title={'Attempts'} maxLevel={CAULDRONS_MAX_LEVELS.vialsAttempts}
-                     value={alchemy?.p2w?.vials?.attempts}/>
-            <Section title={'RNG'} maxLevel={CAULDRONS_MAX_LEVELS.vialsRng} value={alchemy?.p2w?.vials?.rng}/>
-          </Stack>
-        </Box>
-      </Stack>
+      </CardGrid>
+
+      <CardGrid size={'m'} sx={{ mt: 4 }}>
+        <Panel title={'Player and vials'}>
+          <Panel.KV label={'Alchemy speed'} value={alchemyFailed ? '-' : formatNum(player?.speedLv ?? 0, 'level')}/>
+          <Panel.KV label={'Extra EXP'} value={alchemyFailed ? '-' : formatNum(player?.extraExpLv ?? 0, 'level')}/>
+          <Panel.KV label={'Vial attempts'} value={alchemyFailed ? '-' : levelValue(vials?.attempts ?? 0, CAULDRONS_MAX_LEVELS.vialsAttempts)}/>
+          <Panel.KV label={'Vial RNG'} value={alchemyFailed ? '-' : levelValue(vials?.rng ?? 0, CAULDRONS_MAX_LEVELS.vialsRng)}/>
+        </Panel>
+      </CardGrid>
     </>
   );
 };
-
-const NEXT_BUBBLES_SHOWN = 10;
-
-// The game rounds this to 0.01%, which hides everything past the first few worlds.
-const formatChance = (chance) => `${Math.min(chance, 100).toLocaleString('en-US', { maximumSignificantDigits: 3 })}%`;
-const formatOdds = (chance) => chance >= 100 ? 'guaranteed' : `1 in ${notateNumber(100 / chance, 'Big')}`;
-
-const BrewingCard = ({ name, cauldron, color, characters }) => {
-  const { newBubble, brewSpeed, attempts = 0, progress = 0, req = 0, players = [], boosts = {} } = cauldron;
-  const towardNext = req > 0 ? progress - attempts * req : 0;
-  return <Card sx={{ width: { md: 450 } }}>
-    <CardContent>
-      <Stack direction={'row'} gap={1}>
-        <Typography color={color}>{name.capitalize()}</Typography>
-        <PlayersList players={players} characters={characters}/>
-      </Stack>
-      <ProgressBar bgColor={color} percent={req > 0 ? towardNext / req * 100 : 0}/>
-      <Typography>{notateNumber(towardNext, 'Big')} / {notateNumber(req, 'Big')}</Typography>
-      {brewSpeed ? <Stack direction={'row'} alignItems={'center'} gap={1}>
-        <Typography variant={'body2'}>Brew speed {notateNumber(brewSpeed.value, 'Big')} / hr</Typography>
-        <StatBreakdown data={brewSpeed.breakdown}>
-          <IconInfoCircleFilled size={16}/>
-        </StatBreakdown>
-      </Stack> : null}
-      {newBubble ? <Stack direction={'row'} alignItems={'center'} columnGap={1.5} flexWrap={'wrap'}>
-        <Typography variant={'body2'}>
-          New bubble {formatChance(newBubble.chance)} ({formatOdds(newBubble.chance)})
-        </Typography>
-        <Typography variant={'body2'} color={'text.secondary'}>
-          {numberWithCommas(attempts)} attempts ready
-          {attempts > 0 ? ` (~${newBubble.expectedBubbles.toLocaleString('en-US', { maximumFractionDigits: 1 })} bubbles)` : ''}
-        </Typography>
-        <StatBreakdown data={getNewBubbleBreakdown(name, cauldron)}>
-          <IconInfoCircleFilled size={16}/>
-        </StatBreakdown>
-      </Stack> : null}
-      <Stack mt={1} direction={'row'} flexWrap={'wrap'} gap={2}>
-        {Object.entries(boosts).map(([statName, { level, progress, req }]) => {
-          return <Card sx={{
-            width: 200,
-            outline: level >= CAULDRONS_MAX_LEVELS.brewing ? '1px solid' : '',
-            outlineColor: (theme) => level >= CAULDRONS_MAX_LEVELS.brewing ? theme.palette.success.light : ''
-          }} variant={'outlined'} key={`${name}-${statName}`}>
-            <CardContent>
-              <Typography component={'span'}
-                          sx={{
-                            display: 'inline-block',
-                            width: 50,
-                            mr: 1
-                          }}>{statName.capitalize()}</Typography>
-              <Typography component={'span'}>Lv. {level} / {CAULDRONS_MAX_LEVELS.brewing}</Typography>
-              <ProgressBar bgColor={color} percent={progress / req * 100}/>
-              <Typography>{notateNumber(progress, 'Big')} / {notateNumber(req, 'Big')}</Typography>
-            </CardContent>
-          </Card>
-        })}
-      </Stack>
-    </CardContent>
-  </Card>
-}
-
-const getNewBubbleBreakdown = (name, cauldron) => {
-  const { newBubble, unlockedBubbles = 0 } = cauldron;
-  const nextBubbles = Array.from({ length: NEXT_BUBBLES_SHOWN }, (_, offset) => {
-    const unlocked = unlockedBubbles + offset;
-    const bubble = unlocked + 1;
-    const chance = getBaseNewBubbleChance(unlocked) * newBubble.multi;
-    return info(`#${bubble} (W${Math.ceil(bubble / 5)}), ${notateNumber(getMaxCauldron(unlocked), 'Big')} per attempt`, chance,
-      { formatted: formatChance(chance) });
-  });
-  const factors = newBubble.breakdown ?? [];
-  const base = factors.find(({ name }) => name === 'Base')?.value ?? 0;
-  return createBreakdown(`${name.capitalize()} new bubble chance`, formatChance(newBubble.chance), [
-    flat('Base', base, { formatted: formatChance(base) }),
-    productGroup(NUMBERED_GROUP, factors.filter(({ name }) => name !== 'Base')
-      .map(({ name, value }) => multiplier(name, value))),
-    listGroup('Next bubbles', nextBubbles)
-  ]);
-}
-
-const CostTooltip = ({ children, shouldDisplay, cost, costToMax }) => {
-  return shouldDisplay ? <Tooltip dark title={<Stack>
-    <Typography variant={'body1'}>Cost</Typography>
-    <CoinDisplay title={''} maxCoins={3} money={getCoinsArray(cost)}/>
-    <Typography variant={'body1'} mt={2}>Cost To Max</Typography>
-    <CoinDisplay title={''} maxCoins={3} money={getCoinsArray(costToMax)}/>
-  </Stack>}>
-    {children}
-  </Tooltip> : children;
-}
-
-const Section = ({ title, value, maxLevel }) => {
-  return <Card sx={{
-    outline: value >= maxLevel ? '1px solid' : '',
-    outlineColor: (theme) => value >= maxLevel
-      ? theme.palette.success.light
-      : ''
-  }}>
-    <CardContent>
-      <Typography>{title}</Typography>
-      <Typography>Lv. {value}</Typography>
-    </CardContent>
-  </Card>;
-}
 
 export default Cauldrons;

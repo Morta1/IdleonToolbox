@@ -1,80 +1,50 @@
 // components/guilds/TrendChart.jsx
-import { ResponsiveLine } from '@nivo/line';
-import { Box, Typography, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import { format } from 'date-fns';
-import { numberWithCommas } from '@utility/helpers';
-import { buildNivoTheme, computeNiceAxis, makeGpFormatter } from './WeeklyProgressChart';
+import ChartFrame from '@components/common/charts/ChartFrame';
+import LineChart from '@components/common/charts/LineChart';
+import Num from '@components/common/Num';
+import { labelIndexes } from '@utility/chartScale';
+import { seriesColors } from '@utility/chartTheme';
 
 const DAY_MS = 24 * 3600 * 1000;
 
-// `values` is GP gained per day (oldest → newest), the same series the
-// leaderboard sparkline plots — it excludes the partial current day, so the
+// Month names, so no date preference applies. A point is a UTC midnight, a day as the worker counts it: its label reads
+// that UTC date on any clock, or west of UTC every label names the day before.
+const dayLabel = (x) => {
+  const day = new Date(x);
+  return format(new Date(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate()), 'MMM d');
+};
+// With no tick in the reply yet, today is the visitor's.
+const clockNow = () => Date.now();
+
+// `values` is GP gained per day (oldest to newest), the same series the
+// leaderboard sparkline plots: it excludes the partial current day, so the
 // last point is "yesterday". Each point's date is derived by counting back from
 // the start of the latest tick's UTC day (matching how the worker buckets days).
 // This assumes one point per consecutive day, as the sparkline does; for the
 // hourly-snapshotted cohort every day has data so the dates line up.
 export default function TrendChart({ values, lastUpdatedMs }) {
-  const muiTheme = useTheme();
+  const theme = useTheme();
 
-  if (!values || values.length < 2) {
-    return (
-      <Box sx={{ height: 320, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <Typography color="text.secondary">
-          No trend data yet — chart will populate as daily snapshots accumulate.
-        </Typography>
-      </Box>
-    );
-  }
+  if (!values || values.length < 2) return null;
 
-  const startOfToday = Math.floor((lastUpdatedMs ?? Date.now()) / DAY_MS) * DAY_MS;
+  const startOfToday = Math.floor((lastUpdatedMs ?? clockNow()) / DAY_MS) * DAY_MS;
   const n = values.length;
-  // point i → startOfToday − (n − i) days; i = n−1 maps to yesterday.
+  // point i is startOfToday minus (n - i) days; i = n - 1 is yesterday.
   const data = values.map((y, i) => ({ x: startOfToday - (n - i) * DAY_MS, y }));
 
-  const ys = data.map(d => d.y);
-  const dataMagnitude = Math.max(1, ...ys.map(Math.abs));
-  const { yMin, yMax, ticks: yTicks, step: yStep } = computeNiceAxis(Math.min(...ys), Math.max(...ys));
-  const formatYAxis = makeGpFormatter(yStep, dataMagnitude);
-
-  // ~6 evenly spaced date ticks across the series.
-  const tickCount = Math.min(6, n);
-  const tickValues = Array.from({ length: tickCount }, (_, k) =>
-    data[Math.round((k * (n - 1)) / (tickCount - 1))].x
-  );
-
-  return (
-    <Box sx={{ height: 200 }}>
-      <ResponsiveLine
-        data={[{ id: 'Daily GP', data }]}
-        theme={buildNivoTheme(muiTheme)}
-        margin={{ top: 20, right: 30, bottom: 40, left: 60 }}
-        xScale={{ type: 'linear', min: 'auto', max: 'auto' }}
-        yScale={{ type: 'linear', min: yMin, max: yMax }}
-        axisBottom={{ tickValues, format: (v) => format(new Date(v), 'MMM d') }}
-        axisLeft={{ format: formatYAxis, tickValues: yTicks }}
-        gridYValues={yTicks}
-        enablePoints={false}
-        curve="monotoneX"
-        colors={[muiTheme.palette.primary.main]}
-        lineWidth={2.5}
-        useMesh
-        tooltip={({ point }) => (
-          <Box sx={{
-            bgcolor: 'background.paper',
-            color: 'text.primary',
-            border: 1,
-            borderColor: 'divider',
-            px: 1.5, py: 1,
-            minWidth: 160,
-            borderRadius: 1,
-            fontSize: 13,
-            boxShadow: 3
-          }}>
-            <Box sx={{ color: 'text.secondary' }}>{format(new Date(point.data.x), 'MMM d')}</Box>
-            <Box sx={{ fontWeight: 600 }}>{numberWithCommas(point.data.y)} GP gained</Box>
-          </Box>
-        )}
-      />
-    </Box>
-  );
+  return <ChartFrame table={{
+    rows: data,
+    rowKey: 'x',
+    rowLabel: (row) => dayLabel(row.x),
+    columns: [
+      { key: 'x', label: 'Day', render: (row) => dayLabel(row.x) },
+      { key: 'y', label: 'GP gained', numeric: true, phone: true, render: (row) => (row.y == null ? null : <Num value={row.y}/>) }
+    ]
+  }}>
+    <LineChart label={'GP gained per day'}
+               series={[{ id: 'Daily GP', label: 'GP gained', color: seriesColors(theme)[0], data }]}
+               xTicks={labelIndexes(n, 4).map((i) => data[i].x)} formatX={dayLabel} tooltipTitle={dayLabel}/>
+  </ChartFrame>;
 }

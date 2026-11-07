@@ -1,20 +1,17 @@
 import '../../polyfills';
-import 'core-js/modules/web.structured-clone';
 import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
-import { parseData } from '@parsers/index';
+import { getKangaroo } from '@parsers/world-2/kangaroo';
+import { parseFixture } from '../helpers/parsed-fixtures';
 import latest from '../fixtures/latest.json';
 
 // Poppy banks elapsed seconds in accountOptions[288] and only converts them to fish while the
 // Poppy menu is open in game. Timers built on the raw fish counter froze at a constant value for
 // days on end, because the counter never moved while real time passed.
 const parseWith = (mutate) => {
-  const clone = structuredClone(latest);
-  const isString = typeof clone.data.OptLacc === 'string';
-  const options = isString ? JSON.parse(clone.data.OptLacc) : clone.data.OptLacc;
+  const { account } = parseFixture(latest);
+  const options = [...account.accountOptions];
   mutate(options);
-  clone.data.OptLacc = isString ? JSON.stringify(options) : options;
-  const { data, charNames, companion, guildData, serverVars } = clone;
-  return parseData(data, charNames, companion, guildData, serverVars).account.kangaroo;
+  return getKangaroo(null, { ...account, accountOptions: options });
 };
 
 describe('getKangaroo banked fish', () => {
@@ -68,7 +65,7 @@ describe('getKangaroo banked fish', () => {
     // float residue of dividing ~1e12-magnitude fish counts.
     const oneDayMs = 1440 * 60 * 1000;
     expect(remaining(days[1].totalFish)).toBeLessThanOrEqual(oneDayMs * 1e-9);
-  }, 30000); // five full parseData runs; the 5s default is not enough when workers are contended
+  });
 
   it('banks tar fish the same way', () => {
     const kangaroo = parseWith(() => {});

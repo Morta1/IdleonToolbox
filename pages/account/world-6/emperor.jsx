@@ -1,12 +1,13 @@
 import { useContext } from 'react';
 import { NextSeo } from 'next-seo';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { CardTitleAndValue } from '@components/common/styles';
-import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
 const Emperor = () => {
   const { state } = useContext(AppContext);
@@ -20,88 +21,61 @@ const Emperor = () => {
     maxAttempts,
     dailyAttempts
   } = state?.account?.emperor || {};
+  const sectionFailed = isSectionFailed(state?.account, 'emperor');
   const nextLevelBonus = upcomingBonuses?.[0];
+  // Info 5: the lists that sat in notes open as breakdowns, read from the current level
+  const bossHpBreakdown = createBreakdown('Boss HP', formatNum(bossHp?.[0]),
+    flatLines(bossHp?.map((hp, index) => ({
+      name: `Lv ${(highestEmperorShowdown ?? 0) + index}`,
+      value: hp,
+      formatted: formatNum(hp)
+    })) ?? []),
+    { combine: 'list' });
+  const upcomingBreakdown = createBreakdown('Upcoming bonuses', cleanUnderscore(nextLevelBonus?.bonus ?? ''),
+    flatLines(upcomingBonuses?.map(({ level, bonus }) => ({
+      name: `Lv ${level}`,
+      value: level,
+      formatted: cleanUnderscore(bonus)
+    })) ?? []),
+    { combine: 'list' });
 
   return <>
     <NextSeo
       title="Emperor | Idleon Toolbox"
       description="Track your Emperor showdown progress, boss HP, attempt counts, and bonus rewards in Legends of Idleon"
     />
-    <Stack mb={3} direction={'row'} flexWrap={'wrap'} gap={2}>
-      <CardTitleAndValue title={'Highest showdown'} value={highestEmperorShowdown || '0'}/>
-      <CardTitleAndValue title={'Daily Attempts'} value={dailyAttempts} icon={'data/GemP45.png'}
-                         imgStyle={{ width: 24 }}/>
-      <CardTitleAndValue title={'Attempts'} value={`${attempts} / ${maxAttempts}`} icon={'data/GemP45.png'}
-                         imgStyle={{ width: 24 }}/>
-      <CardTitleAndValue title={'Boss HP'}>
-        <Stack direction="row" gap={1} alignItems={'center'}>
-          <Typography>{notateNumber(bossHp?.[0])}</Typography>
-          <Tooltip title={<Stack>
-            {bossHp?.map((hp, index) => {
-              if (index === 0 && hp) return null;
-              return <Typography
-                key={'hp-' + index}>Lv: {highestEmperorShowdown + index}: {notateNumber(hp)}</Typography>
-            })}
-          </Stack>}>
-            <IconInfoCircleFilled size={18}/>
-          </Tooltip>
-        </Stack>
-      </CardTitleAndValue>
-      {bonusMulti ? <CardTitleAndValue title={'Bonus Multi'}>
-        <Stack direction="row" gap={1} alignItems={'center'}>
-          <Typography>{notateNumber(bonusMulti.totalValue, 'MultiplierInfo')}x</Typography>
-          <Breakdown data={bonusMulti} valueNotation="MultiplierInfo">
-            <Stack alignContent="center" sx={{ cursor: 'pointer' }}>
-              <IconInfoCircleFilled size={18}/>
-            </Stack>
-          </Breakdown>
-        </Stack>
-      </CardTitleAndValue> : null}
-      {nextLevelBonus ? <CardTitleAndValue title={'Next level bonus'}>
-        <Stack direction="row" gap={1} alignItems={'center'}>
-          <Typography>{cleanUnderscore(nextLevelBonus.bonus)}</Typography>
-          <Tooltip title={<Stack gap={.5}>
-            {upcomingBonuses.map(({ level, bonus, icon }) => <Stack key={'upcoming-' + level} direction="row"
-                                                                   gap={1} alignItems={'center'}>
-              {icon ? <img src={`${prefix}${icon}.png`} style={{ width: 20, height: 20 }} alt=""/> : <Box
-                sx={{ width: 20, height: 20 }}/>}
-              <Typography variant={'body2'}>Lv {level}: {cleanUnderscore(bonus)}</Typography>
-            </Stack>)}
-          </Stack>}>
-            <IconInfoCircleFilled size={18}/>
-          </Tooltip>
-        </Stack>
-      </CardTitleAndValue> : null}
-    </Stack>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
+    {sectionFailed ? <MissingData name={'the Emperor'} failed atZero={!isParseFailed(state?.account)}/>
+      : <NotReached name={'the Emperor'} reached={highestEmperorShowdown > 0}/>}
+    <PageSummary failed={sectionFailed}>
+      <StatTile label={'Highest showdown'} value={highestEmperorShowdown ?? 0} kind={'amount'}/>
+      <StatTile label={'Daily attempts'} icon={'data/GemP45.png'} value={dailyAttempts ?? 0} kind={'amount'}/>
+      <StatTile label={'Attempts'} icon={'data/GemP45.png'} value={`${attempts} / ${maxAttempts}`}/>
+      <StatTile label={'Boss HP'} value={formatNum(bossHp?.[0])} breakdown={bossHpBreakdown}/>
+      {bonusMulti ? <StatTile label={'Bonus Multi'} value={formatNum(bonusMulti?.totalValue, 'mult')}
+                              breakdown={bonusMulti}/> : null}
+      {nextLevelBonus ? <StatTile label={'Next level bonus'} value={cleanUnderscore(nextLevelBonus?.bonus)}
+                                  breakdown={upcomingBreakdown} breakdownTitle={'Next level bonus'}/> : null}
+    </PageSummary>
+    <CardGrid size={'m'}>
       {bonuses?.map(({ bonus, baseBonus, indexes, value, icon }, index) => {
         const [realValue, ...nameParts] = cleanUnderscore(bonus).split(' ');
         const [baseValue] = cleanUnderscore(baseBonus || bonus).split(' ');
-        const bonusName = nameParts.join(' ');
-        return <Card key={'upgrade-' + index} sx={{ width: 350 }}>
-          <CardContent>
-            <Stack direction={'row'} alignItems={'center'} gap={1}>
-              {icon ? <img src={`${prefix}${icon}.png`} style={{ width: 32, height: 32 }} alt=""/> : <Box
-                sx={{ width: 32, height: 32, border: '1px solid grey' }}/>}
-              <Typography>{realValue} ({baseValue} base) {bonusName}</Typography>
-            </Stack>
-            <Divider sx={{ my: 1 }}/>
-            <Typography variant={'body2'}>Per level: {cleanUnderscore(value)}</Typography>
-            <Divider sx={{ my: 1 }}/>
-            <Typography variant={'body2'}>Unlocks at levels:</Typography>
-            <Stack direction={'row'} gap={1}>
-              {indexes.map((indexBonus, index) => {
-                return <Typography variant={'body2'}
-                                   color={indexBonus < highestEmperorShowdown ? 'success.light' : 'inherit'}
-                                   key={bonus + 'indexBonus-' + indexBonus}>{indexBonus + 1}{index < indexes.length - 1
-                  ? ','
-                  : ''}</Typography>
-              })}
-            </Stack>
-          </CardContent>
-        </Card>
+        // "20% cheaper Farming Upgrades" leaves a lowercase name once its number is the Total row
+        const bonusName = nameParts.join(' ').capitalize();
+        // A state never rests on color: the reached levels and the next ones are named
+        const reached = indexes?.filter((level) => level < highestEmperorShowdown).map((level) => level + 1) ?? [];
+        const next = indexes?.filter((level) => level >= highestEmperorShowdown).map((level) => level + 1) ?? [];
+        return <ItemCard key={'upgrade-' + index} icon={icon ? `${icon}.png` : undefined} title={bonusName}>
+          <ItemCard.Facts rows={[
+            ['Total', realValue],
+            ['Base', baseValue],
+            ['Per level', cleanUnderscore(value)],
+            ['Reached at', reached.join(', ') || 'None'],
+            ['Next at', next.join(', ') || 'None']
+          ]}/>
+        </ItemCard>
       })}
-    </Stack>
+    </CardGrid>
   </>
 };
 

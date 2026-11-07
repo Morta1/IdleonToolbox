@@ -1,6 +1,7 @@
 import React from 'react';
-import { Link, Typography } from '@mui/material';
-import Box from '@mui/material/Box';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import { formatNum } from '@utility/helpers';
 import { TABS, metaOf, rankText } from './format';
 import { openOnPlainClick } from './MetricCard';
 import { bestInSection, medianRank } from './standing';
@@ -11,29 +12,21 @@ const CategoryTiles = ({ index, ranks, onTab, linkPlayer = null }) => {
   const tiles = TABS.map((tab) => ({ tab, keys: index.categories[tab.toLowerCase()]?.metrics ?? [] })).filter(({ keys }) => keys.length);
   if (!tiles.length) return null;
   return (
-    <Box role="group" aria-label="Categories" sx={{
-      display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', gap: 1.5,
-      '@container (min-width: 520px)': { gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' },
-      '@container (min-width: 900px)': { gridTemplateColumns: 'repeat(6, minmax(0, 1fr))' }
-    }}>
+    <CardGrid size="s" role="group" aria-label="Categories">
       {tiles.map(({ tab, keys }) => {
         const median = ranks ? medianRank(keys, ranks) : null;
         const best = ranks ? bestInSection(keys, ranks) : null;
         return (
-          <Link key={tab} href={`?t=${tab}${linkPlayer ? `&player=${encodeURIComponent(linkPlayer)}` : ''}`} onClick={openOnPlainClick(onTab, tab)} underline="none" color="inherit" sx={{
-            display: 'flex', flexDirection: 'column', gap: 0.75, boxSizing: 'border-box', p: '14px', bgcolor: '#1C252E', border: 1, borderColor: 'divider', borderRadius: 2,
-            '&:hover': { borderColor: 'primary.main' }
-          }}>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 1 }}>
-              <Typography component="span" sx={{ fontWeight: 700 }}>{tab}</Typography>
-              <Typography component="span" color="text.disabled" sx={{ fontSize: 11 }}>{keys.length}</Typography>
-            </Box>
-            {median != null ? <Typography color="text.secondary" sx={{ fontSize: 12 }}>{`median ${rankText(median)}`}</Typography> : null}
-            {best ? <Typography color="primary" noWrap title={metaOf(index, best.key).label} sx={{ fontSize: 12 }}>{`${rankText(best.r)} ${metaOf(index, best.key).label}`}</Typography> : null}
-          </Link>
+          <ItemCard key={tab} href={`?t=${tab}${linkPlayer ? `&player=${encodeURIComponent(linkPlayer)}` : ''}`} onClick={openOnPlainClick(onTab, tab)}
+                    title={tab} meta={`${formatNum(keys.length, 'whole')} ${keys.length === 1 ? 'board' : 'boards'}`}>
+            <ItemCard.Facts rows={[
+              median != null && ['Median rank', rankText(median)],
+              best && ['Best board', `${rankText(best.r)} ${metaOf(index, best.key).label}`]
+            ]}/>
+          </ItemCard>
         );
       })}
-    </Box>
+    </CardGrid>
   );
 };
 

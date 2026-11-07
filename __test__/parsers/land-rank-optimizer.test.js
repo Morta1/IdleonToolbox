@@ -1,14 +1,13 @@
 import '../../polyfills';
 import 'core-js/modules/web.structured-clone';
-import { parseData } from '@parsers/index';
+import { parseFixture } from '../helpers/parsed-fixtures';
 import raw from '../../data/raw.json';
 import { getOptimizedLandRankUpgrades, isFifthColumnRank, LAND_RANK_GOALS } from '@parsers/world-6/farming';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { tryToParse } from '@utility/helpers';
 
 describe('land rank upgrade optimizer', () => {
-  const { data, charNames, companion, guildData, serverVars } = raw;
-  const { account } = parseData(data, charNames, companion, guildData, serverVars);
+  const { account } = parseFixture(raw);
   const { ranks, totalPoints, fifthColumnMaxLevel } = account.farming;
 
   // The evolution cap is per crop type, not a ceiling on the bonus - scoring it capped would call
@@ -121,7 +120,7 @@ describe('land rank upgrade optimizer', () => {
     const collected = structuredClone(raw);
     const plots = tryToParse(collected.data.FarmPlot) ?? collected.data.FarmPlot;
     collected.data.FarmPlot = plots.map((plot) => [-1, ...plot.slice(1)]);
-    const emptyAccount = parseData(collected.data, charNames, companion, guildData, serverVars).account;
+    const emptyAccount = parseFixture(collected).account;
     const planFor = (target, goal) => getOptimizedLandRankUpgrades(target, 10, { goal })
       .map(({ index, newLevel }) => `${index}:${newLevel}`);
 

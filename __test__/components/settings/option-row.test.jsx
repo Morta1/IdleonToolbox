@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import { allTrackers, buildModel } from '@utility/dashboard/settingsModel';
@@ -17,7 +17,7 @@ const trackerFor = (path, edits = {}) => {
 const renderRow = (tracker, optionName, extra = {}) => {
   const onAction = vi.fn();
   const option = tracker.options.find(({ name }) => name === optionName);
-  const { container } = render(<ThemeProvider theme={darkTheme}>
+  const { container } = render(<ThemeProvider theme={theme}>
     <OptionRow option={option} tracker={tracker} onAction={onAction} {...extra}/>
   </ThemeProvider>);
   return { container, onAction };
@@ -45,16 +45,20 @@ describe('OptionRow', () => {
   it('clamps a number on blur and flags it while out of range', () => {
     const tracker = trackerFor('account.World 3.equinox', { 'account.World 3.equinox.foodLust': { value: '20' } });
     const { container, onAction } = renderRow(tracker, 'foodLust');
-    expect(container.textContent).toContain('Allowed 1 to 14');
-    fireEvent.blur(container.querySelector('input[type="number"]'));
+    expect(container.textContent).toContain('Up to 14');
+    const input = container.querySelector('input[inputmode="decimal"]');
+    fireEvent.focus(input);
+    fireEvent.blur(input);
     expect(onAction).toHaveBeenCalledWith('setOptionValue', tracker, 'foodLust', '14');
   });
 
-  it('an emptied number goes back to its default on blur', () => {
-    const tracker = trackerFor('account.World 3.equinox', { 'account.World 3.equinox.foodLust': { value: '' } });
+  it('an emptied number goes back to its default', () => {
+    const tracker = trackerFor('account.World 3.equinox', { 'account.World 3.equinox.foodLust': { value: '7' } });
     const option = tracker.options.find(({ name }) => name === 'foodLust');
     const { container, onAction } = renderRow(tracker, 'foodLust');
-    fireEvent.blur(container.querySelector('input[type="number"]'));
+    const input = container.querySelector('input[inputmode="decimal"]');
+    fireEvent.focus(input);
+    fireEvent.change(input, { target: { value: '' } });
     expect(onAction).toHaveBeenCalledWith('setOptionValue', tracker, 'foodLust', String(option.defaultValue));
   });
 
@@ -108,7 +112,7 @@ describe('OptionRow', () => {
   it('a disabled dependent number option cannot be edited', () => {
     const tracker = trackerFor('account.World 3.library', { 'account.World 3.library.books': { value: 30 } });
     const { container } = renderRow(tracker, 'books', { disabledReason: 'Turn something on to use this.' });
-    expect(container.querySelector('input[type="number"]').disabled).toBe(true);
+    expect(container.querySelector('input[inputmode="decimal"]').disabled).toBe(true);
     expect([...container.querySelectorAll('button')].find((b) => b.textContent === 'Reset').disabled).toBe(true);
   });
 
@@ -118,7 +122,9 @@ describe('OptionRow', () => {
     });
     const { container, onAction } = renderRow(tracker, 'tradeRank');
     fireEvent.click([...container.querySelectorAll('button')].find((b) => b.textContent === 'Per world'));
-    fireEvent.blur(container.querySelector('input[aria-label="World 3 value"]'));
+    const world = container.querySelector('input[aria-label="World 3 value"]');
+    fireEvent.focus(world);
+    fireEvent.blur(world);
     expect(onAction).toHaveBeenCalledWith('setPerWorld', tracker, 'tradeRank', 3, '1');
   });
 

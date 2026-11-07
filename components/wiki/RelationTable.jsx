@@ -1,35 +1,60 @@
 import React, { useState } from 'react';
-import { Box, Chip, Link, Stack, TextField, Typography } from '@mui/material';
+import { Link, Stack, TextField, Typography } from '@mui/material';
+import TagLine from '@components/common/TagLine';
+import DataTable from '@components/common/DataTable';
+import usePageTop from '@hooks/usePageTop';
 import EntityIcon from './EntityIcon';
-import { CELL, HEAD, HeadNote, NUM } from './table-parts';
 import CoinAmount, { isCoin } from './CoinAmount';
 import Price from './Price';
 import { entityName } from '@utility/wiki/names.mjs';
 import { dropTalentLabel, oneInOrNothing, percentLabel } from '@utility/wiki/drops';
 import { orderRows } from '@utility/wiki/relations';
 import { navigateOnPlainClick } from './links';
+import { captionWidth, coinRowWidth, relationRooms } from './listingRoom';
+import { formatNum } from '@utility/helpers';
+import { notateAmount } from '@utility/wiki/notate';
 
 // A flat list is right for the median entity, which has three relations. Silver Pen has 248, and
 // there a list is a wall: nothing lines up, nothing sorts, and the same monster appears five times
-// because it reaches the item through five drop tables. This is that section as a table.
-const PAGE_SIZE = 50;
+// because it reaches the item through five drop tables. This is that section as a table, drawn by
+// DataTable: its band preview caps a long group, and its hidden anchors reach the rows the cap hides.
 
 // A filter box earns its height over Silver Pen's 198 rows and looks like furniture over eight. The
 // short tables exist because a drop row needs columns, not because the section is long.
 const FILTER_MIN = 15;
 
-// Below sm the percentage goes: it repeats the rate beside it, and at 384px the table has to fit
-// without a sideways scroll nobody sees. The rate may break between "1 in" and the number.
-const CHANCE_HIDDEN_ON_PHONE = { display: { xs: 'none', sm: 'table-cell' } };
-const RATE = { ...NUM, whiteSpace: { xs: 'normal', sm: 'nowrap' } };
+// The rate may break between "1 in" and the number on a phone, where it is the only number.
+const RATE = { whiteSpace: 'nowrap' };
+// A row's 24 px art and its 10 px gap.
+const ROW_ART = 34;
+// A number a shop's art stands beside.
+const ART_NUMBER = 18;
+
+const rowAmount = (row) => row.edge?.meta?.quantity ?? row.edge?.meta?.amount;
+
+// The row's entity: a real anchor, so the export carries every link; its recipe tag and drop talent beside it.
+const RowName = ({ row, hrefFor, onNavigate }) => {
+  const href = hrefFor?.(row.otherId);
+  const label = entityName(row.other);
+  const talent = dropTalentLabel(row.edge?.meta);
+  return <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'} component={'span'}>
+    {row.other.navigable === false
+      ? <Typography variant={'body2'} component={'span'}>{label}</Typography>
+      : <Link href={href} variant={'body2'} onClick={navigateOnPlainClick(onNavigate, row.otherId, Boolean(href))}>
+        {label}
+      </Link>}
+    {row.edge?.meta?.recipe ? <TagLine tags={['Recipe']}/> : null}
+    {talent ? <Typography variant={'caption'} color={'text.secondary'}>{talent}</Typography> : null}
+  </Stack>;
+};
 
 // A section arrives as one or more groups: a monster's drops come pre-split into the game's drop
-// tables, everything else is a single unlabelled group. Groups become full-width band rows inside
-// ONE table rather than a table each, which is what lets a monster's 16 drops across 3 tiers read
-// as one sorted thing instead of three short lists that each miss the threshold.
+// tables, everything else is a single unlabelled group. Groups become bands inside ONE table rather
+// than a table each, which is what lets a monster's 16 drops across 3 tiers read as one sorted thing
+// instead of three short lists that each miss the threshold.
 const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
   const [filter, setFilter] = useState('');
-  const [shown, setShown] = useState(PAGE_SIZE);
+  const pageTop = usePageTop();
 
   const named = groups.map((group) => ({
     ...group,
@@ -48,165 +73,136 @@ const RelationTable = ({ groups, index, onNavigate, hrefFor, showChance }) => {
 
   const total = filtered.reduce((sum, group) => sum + group.rows.length, 0);
 
-  // The cap counts rows across the whole section rather than per group, so the count in the header
-  // is the count a reader sees.
-  let budget = shown;
-  const visibleGroups = [];
-  for (const group of filtered) {
-    if (budget <= 0) break;
-    visibleGroups.push({ ...group, rows: group.rows.slice(0, budget) });
-    budget -= group.rows.length;
-  }
-  const visibleCount = visibleGroups.reduce((sum, group) => sum + group.rows.length, 0);
-  // Same order the budget was spent in, so this is exactly the tail the table left out.
-  const hiddenRows = filtered.flatMap((group) => group.rows).slice(visibleCount);
-
   // Only worth a column when at least one row actually merged several drop tables; on a section
   // where every row is a single path it would be a column of ones.
   const anyMerged = named.some((group) => group.rows.some((row) => row.paths > 1));
   // Same rule for quantity: most sections drop one of a thing, and a column of blanks is worse
   // than no column. Coins always earn it, since their amount IS the interesting part.
-  const rowAmount = (row) => row.edge?.meta?.quantity ?? row.edge?.meta?.amount;
   const anyQuantity = named.some((group) => group.rows.some((row) => rowAmount(row) > 1 || isCoin(row.other)));
   // Only the shop sections carry a price, and there every row has one.
   const anyPrice = named.some((group) => group.rows.some((row) => row.edge?.meta?.price > 0));
-  const columns = 2 + (anyQuantity ? 1 : 0) + (anyPrice ? 1 : 0) + (anyMerged ? 1 : 0) + (showChance ? 2 : 0);
 
   // Counted before filtering, so typing cannot make the box that is being typed into disappear.
   const searchable = named.reduce((sum, group) => sum + group.rows.length, 0) >= FILTER_MIN;
 
-  return <Stack gap={1} sx={{ mt: 1 }}>
+  // From the whole section, not the filtered view: the columns don't come and go as a reader types. The two a phone keeps
+  // first, as they did: beside the rail at 900 the box is narrower than a phone's.
+  const allRows = named.flatMap((group) => group.rows);
+  const rooms = relationRooms({
+    names: allRows.map((row) => [entityName(row.other), row.edge?.meta?.recipe ? 'Recipe' : '', dropTalentLabel(row.edge?.meta)].filter(Boolean).join(' ')),
+    rows: allRows,
+    art: ROW_ART,
+    phoneKeeps: ['price', 'rate'],
+    columns: [
+      ...(anyPrice ? [{
+        key: 'price',
+        label: 'Price',
+        width: (row) => (row.edge?.meta?.currency ? ART_NUMBER + captionWidth(notateAmount(row.edge?.meta?.price)) : coinRowWidth(row.edge?.meta?.price))
+      }] : []),
+      ...(showChance ? [{
+        key: 'rate',
+        label: anyMerged ? 'Per kill' : 'Rate',
+        note: anyMerged,
+        width: (row) => captionWidth(oneInOrNothing(row.combinedChance) || percentLabel(row.combinedChance))
+      }] : []),
+      ...(anyQuantity ? [{
+        key: 'qty',
+        label: 'Qty',
+        width: (row) => (isCoin(row.other) ? coinRowWidth(rowAmount(row)) : captionWidth(rowAmount(row) > 1 ? notateAmount(rowAmount(row)) : ''))
+      }] : []),
+      ...(anyMerged ? [{ key: 'tables', label: 'Tables', note: true, width: (row) => captionWidth(String(row.paths)) }] : []),
+      ...(showChance ? [{ key: 'chance', label: 'Chance', width: (row) => captionWidth(percentLabel(row.combinedChance)) }] : [])
+    ]
+  });
+
+  const columns = [
+    {
+      key: 'name',
+      label: 'Name',
+      value: (row) => entityName(row.other),
+      icon: (row) => <EntityIcon node={row.other} size={24}/>,
+      render: (row) => <RowName row={row} hrefFor={hrefFor} onNavigate={onNavigate}/>
+    },
+    ...(anyQuantity ? [{
+      key: 'qty',
+      label: 'Qty',
+      numeric: true,
+      from: { room: rooms.at.qty },
+      render: (row) => (isCoin(row.other)
+        ? <Stack direction={'row'} justifyContent={'flex-end'} component={'span'}><CoinAmount amount={rowAmount(row)}/></Stack>
+        : <Typography variant={'caption'} color={'text.secondary'}>{rowAmount(row) > 1 ? notateAmount(rowAmount(row)) : ''}</Typography>)
+    }] : []),
+    // A shop's price is what a phone keeps beside the name.
+    ...(anyPrice ? [{
+      key: 'price',
+      label: 'Price',
+      numeric: true,
+      from: { room: rooms.at.price },
+      render: (row) => <Stack direction={'row'} justifyContent={'flex-end'} component={'span'}>
+        <Price price={row.edge?.meta?.price} currency={row.edge?.meta?.currency}/>
+      </Stack>
+    }] : []),
+    ...(anyMerged ? [{
+      key: 'tables',
+      label: 'Tables',
+      numeric: true,
+      from: { room: rooms.at.tables },
+      info: 'How many separate drop tables reach it. Each is its own roll.',
+      render: (row) => <Typography variant={'caption'} color={row.paths > 1 ? 'text.primary' : 'text.muted'}>{row.paths}</Typography>
+    }] : []),
+    // Below sm this is the only number, so a chance that would round to "1 in 1" prints as itself.
+    ...(showChance ? [{
+      key: 'rate',
+      label: anyMerged ? 'Per kill' : 'Rate',
+      numeric: true,
+      from: { room: rooms.at.rate },
+      cellSx: RATE,
+      info: anyMerged ? 'The chance per kill of getting it from any of its tables, not from one of them.' : undefined,
+      render: (row) => <Typography variant={'caption'} color={'text.secondary'}>
+        {oneInOrNothing(row.combinedChance) || percentLabel(row.combinedChance)}
+      </Typography>
+    }, {
+      // The odds twice, deliberately: "1 in 618" is what a player quotes, a percentage is what the game's own drop
+      // tables are written in, and neither converts in the head. It joins last: it repeats the rate beside it.
+      key: 'chance',
+      label: 'Chance',
+      numeric: true,
+      from: { room: rooms.at.chance },
+      render: (row) => <Typography variant={'caption'} color={'text.muted'}>{percentLabel(row.combinedChance)}</Typography>
+    }] : [])
+  ];
+
+  // The container the columns read: the width beside the rail, not the window's.
+  return <Stack gap={1} sx={{ mt: 1, containerType: 'inline-size' }}>
     {searchable ? <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
       <TextField
         size={'small'}
         value={filter}
-        onChange={(event) => {
-          setFilter(event.target.value);
-          setShown(PAGE_SIZE);
-        }}
+        onChange={(event) => setFilter(event.target.value)}
         label={'Filter'}
         sx={{ width: 240 }}
       />
-      <Typography variant={'caption'} color={'text.secondary'}>
-        {visibleCount < total
-          ? `showing ${visibleCount} of ${total.toLocaleString('en-US')}`
-          : `${total.toLocaleString('en-US')} total`}
-      </Typography>
+      <Typography variant={'caption'} color={'text.secondary'}>{formatNum(total, 'amount')} total</Typography>
     </Stack> : null}
 
-    <Box sx={{ overflowX: 'auto' }}>
-      <Box component={'table'} sx={{ width: '100%', borderCollapse: 'collapse' }}>
-        <thead>
-        <Box component={'tr'}>
-          <Box component={'th'} sx={{ ...HEAD, width: { xs: 'auto', sm: 44 } }}/>
-          <Box component={'th'} sx={HEAD}>Name</Box>
-          {anyQuantity ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: { xs: 'auto', sm: 130 } }}>Qty</Box> : null}
-          {anyPrice ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: { xs: 'auto', sm: 150 } }}>Price</Box> : null}
-          {anyMerged ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: { xs: 'auto', sm: 80 } }}>
-            <HeadNote note={'How many separate drop tables reach it. Each is its own roll.'}>Tables</HeadNote>
-          </Box> : null}
-          {showChance ? <Box component={'th'} sx={{ ...HEAD, textAlign: 'right', width: { xs: 'auto', sm: 140 } }}>
-            {anyMerged
-              ? <HeadNote note={'The chance per kill of getting it from any of its tables, not from one of them.'}>
-                Per kill
-              </HeadNote>
-              : 'Rate'}
-          </Box> : null}
-          {showChance ? <Box component={'th'} sx={{ ...HEAD, ...CHANCE_HIDDEN_ON_PHONE, textAlign: 'right', width: 110 }}>Chance</Box> : null}
-        </Box>
-        </thead>
-        <tbody>
-        {visibleGroups.map((group) => <React.Fragment key={group.key}>
-        {group.label ? <Box component={'tr'}>
-          <Box component={'td'} colSpan={columns} sx={{ ...CELL, bgcolor: 'action.hover' }}>
-            <Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'}>
-              <Typography variant={'body2'} fontWeight={600}>{group.label}</Typography>
-              {group.odds ? <Typography variant={'caption'} color={'text.secondary'}>
-                table rolls {group.odds}
-              </Typography> : null}
-            </Stack>
-          </Box>
-        </Box> : null}
-        {group.rows.map((row) => {
-          const href = hrefFor?.(row.otherId);
-          const label = entityName(row.other);
-          const talent = dropTalentLabel(row.edge?.meta);
-          return <Box component={'tr'} key={row.key}>
-            <Box component={'td'} sx={CELL}><EntityIcon node={row.other} size={24}/></Box>
-            <Box component={'td'} sx={CELL}>
-              <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
-                {row.other.navigable === false
-                  ? <Typography variant={'body2'}>{label}</Typography>
-                  : <Link
-                    href={href}
-                    variant={'body2'}
-                    underline={'hover'}
-                    onClick={navigateOnPlainClick(onNavigate, row.otherId, Boolean(href))}
-                  >
-                    {label}
-                  </Link>}
-                {row.edge?.meta?.recipe ? <Chip size={'small'} variant={'outlined'} label={'Recipe'}/> : null}
-                {talent ? <Typography variant={'caption'} color={'text.secondary'}>{talent}</Typography> : null}
-              </Stack>
-            </Box>
-            {anyQuantity ? <Box component={'td'} sx={NUM}>
-              {isCoin(row.other)
-                ? <Stack direction={'row'} justifyContent={'flex-end'}><CoinAmount amount={rowAmount(row)} size={16}/></Stack>
-                : <Typography variant={'caption'} color={'text.secondary'}>
-                  {rowAmount(row) > 1 ? rowAmount(row).toLocaleString('en-US') : ''}
-                </Typography>}
-            </Box> : null}
-            {anyPrice ? <Box component={'td'} sx={NUM}>
-              <Stack direction={'row'} justifyContent={'flex-end'}>
-                <Price price={row.edge?.meta?.price} currency={row.edge?.meta?.currency} size={16}/>
-              </Stack>
-            </Box> : null}
-            {anyMerged ? <Box component={'td'} sx={NUM}>
-              <Typography variant={'caption'} color={row.paths > 1 ? 'text.primary' : 'text.disabled'}>
-                {row.paths}
-              </Typography>
-            </Box> : null}
-            {/* Below sm this is the only number, so a chance that would round to "1 in 1" prints as itself. */}
-            {showChance ? <Box component={'td'} sx={RATE}>
-              <Typography variant={'caption'} color={'text.secondary'}>
-                {oneInOrNothing(row.combinedChance) || percentLabel(row.combinedChance)}
-              </Typography>
-            </Box> : null}
-            {/* The odds twice, deliberately: "1 in 618" is what a player quotes, a percentage is
-                what the game's own drop tables are written in, and neither converts in the head. */}
-            {showChance ? <Box component={'td'} sx={{ ...NUM, ...CHANCE_HIDDEN_ON_PHONE }}>
-              <Typography variant={'caption'} color={'text.disabled'}>
-                {percentLabel(row.combinedChance)}
-              </Typography>
-            </Box> : null}
-          </Box>;
-        })}
-        </React.Fragment>)}
-        </tbody>
-      </Box>
-    </Box>
-
-    {/* Rows past the visible cap render nothing at all, so this listing is a crawler's only path
-        to them. Text-only anchors, or a 248-row section requests 200 images nobody sees. */}
-    {hiddenRows.length > 0 ? <Box component={'nav'} aria-hidden sx={{ display: 'none' }}>
-      {hiddenRows.map((row) => {
+    <DataTable
+      columns={columns}
+      bands={filtered.map((group) => ({
+        key: group.key,
+        label: group.label || null,
+        meta: group.odds ? `table rolls ${group.odds}` : null,
+        rows: group.rows
+      }))}
+      rowKey={'key'}
+      rowLabel={(row) => entityName(row.other)}
+      // Rows past a band's preview render nothing, so these anchors are a crawler's only path to them.
+      linkOf={(row) => {
         const href = hrefFor?.(row.otherId);
-        return href && row.other.navigable !== false
-          ? <a key={row.key} href={href}>{entityName(row.other)}</a>
-          : null;
-      })}
-    </Box> : null}
-
-    {visibleCount < total ? <Link
-      component={'button'}
-      type={'button'}
-      variant={'body2'}
-      underline={'hover'}
-      sx={{ alignSelf: 'flex-start' }}
-      onClick={() => setShown((current) => current + PAGE_SIZE)}
-    >
-      Show {Math.min(PAGE_SIZE, total - visibleCount)} more
-    </Link> : null}
+        return href && row.other.navigable !== false ? { href, label: entityName(row.other) } : null;
+      }}
+      stickyTop={pageTop}
+      sx={rooms.holds}
+    />
   </Stack>;
 };
 

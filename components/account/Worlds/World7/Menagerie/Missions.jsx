@@ -1,71 +1,64 @@
 import React from 'react';
-import { Stack, Typography } from '@mui/material';
-import InfoIcon from '@mui/icons-material/Info';
-import { commaNotation, getBitIndex, notateNumber, prefix } from '@utility/helpers';
-import UpgradeCard, { CardIcon, LabelValue } from '@components/common/UpgradeCard';
-import ProgressBar from '@components/common/ProgressBar';
-import Tooltip from '@components/Tooltip';
-import { formatLumi, StatusText } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+import { Stack } from '@mui/material';
+import { formatNum, getBitIndex } from '@utility/helpers';
+import { formatBits, formatGame } from '@utility/gameNotation';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
+import InfoButton from '@components/common/InfoButton';
+import StatusText from '@components/common/StatusText';
 
-// Missions 20 and 24 count digits: the game shows 10^requirement, and mission 24's Gaming Bits in bits notation
+// The game's mission line, "You have: N" in commas (MenagerieStuff.MissionProg); missions 20 and 24 count digits, and
+// mission 24's Gaming Bits keep the game's bits notation
 const formatAmount = (value, isLogScale, isBits) => {
-  if (!isLogScale) return formatLumi(value);
+  if (!isLogScale) return formatGame(value ?? 0, 'MenagerieStuff.MissionProg', { whole: true });
   const amount = Math.pow(10, value);
-  if (!isBits) return notateNumber(amount, 'Big');
-  return <Stack component={'span'} direction={'row'} alignItems={'center'} gap={.5} sx={{ display: 'inline-flex' }}>
-    {notateNumber(amount, 'bits')}
-    <img src={`${prefix}etc/Bits_${getBitIndex(amount)}.png`} alt={'Bits'} width={16} height={16} style={{ objectFit: 'contain' }}/>
+  if (!isBits) return formatNum(amount, 'whole');
+  return <Stack component={'span'} direction={'row'} alignItems={'center'} gap={0.5} sx={{ display: 'inline-flex' }}>
+    {formatBits(amount)}<GameIcon src={`etc/Bits_${getBitIndex(amount)}.png`} size={16} alt={'Bits'}/>
   </Stack>;
 };
 
 const Progress = ({ progress, requirement, increment, claims, isLogScale, isBits }) => {
   if (progress === null || progress === undefined) {
-    return <Stack direction={'row'} alignItems={'center'} gap={.5}>
-      <Typography variant={'body2'} color={'text.secondary'}>Progress: unknown</Typography>
-      <Tooltip title={'This progress is not part of the uploaded save'}>
-        <InfoIcon sx={{ fontSize: 16 }}/>
-      </Tooltip>
-    </Stack>;
+    return <ItemCard.Facts rows={[['Progress', <Stack key={'unknown'} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
+      Unknown<InfoButton label={'Progress'}>This progress isn&apos;t part of the uploaded save.</InfoButton>
+    </Stack>]]}/>;
   }
   // Progress is never spent, so after a claim the bar measures from the last threshold, not from zero
   const previous = claims > 0 && increment > 0 ? requirement - increment : 0;
   const step = requirement - previous;
   const percent = step > 0 ? Math.min(100, Math.max(0, (progress - previous) / step * 100)) : 100;
-  return <Stack gap={.5}>
-    <LabelValue label={'Progress'}>
-      {formatAmount(progress, isLogScale, isBits)} / {formatAmount(requirement, isLogScale, isBits)}
-    </LabelValue>
-    <ProgressBar percent={percent}/>
-  </Stack>;
+  return <ItemCard.Progress label={'Progress'} percent={percent}
+                            value={formatAmount(progress, isLogScale, isBits)}
+                            max={formatAmount(requirement, isLogScale, isBits)}/>;
 };
 
 const Missions = ({ missions, unlocked }) => {
-  return <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
+  return <CardGrid size={'m'}>
     {missions?.map(({
       index, name, description, claims, progress, requirement, increment, claimable, isLogScale, isBits, canClaim, visible
     }) => {
-      return <UpgradeCard key={`mission-${index}`}
-                          width={320}
-                          dimmed={!visible}
-                          icon={<CardIcon src={`data/MenaIconY${index}.png`} size={38} alt={''}/>}
-                          title={name}
-                          subtitle={`Claimed ${commaNotation(claims ?? 0)} times`}
-                          badges={unlocked && visible && canClaim
-                            ? <StatusText status={'claimable'}/>
-                            : !visible ? <StatusText status={'locked'}/> : null}>
-        <Typography variant={'body2'}>{description}</Typography>
+      return <ItemCard key={`mission-${index}`}
+                       icon={`data/MenaIconY${index}.png`}
+                       title={name}
+                       meta={`Claimed ${formatNum(claims ?? 0)} times`}
+                       status={visible ? undefined : 'locked'}
+                       titleState={unlocked && visible && canClaim ? <StatusText status={'ready'}>Claimable</StatusText> : null}>
+        <ItemCard.Desc>{description}</ItemCard.Desc>
         <Progress progress={progress} requirement={requirement} increment={increment} claims={claims} isLogScale={isLogScale} isBits={isBits}/>
-        {claimable > 0
-          ? <LabelValue label={visible ? 'Claimable now' : 'Claimable once unlocked'}>
-            {commaNotation(claimable)} {claimable === 1 ? 'shell' : 'shells'}
-          </LabelValue>
-          : null}
-        {increment > 0 ? <LabelValue label={'Requirement'}>
-          +{isLogScale ? `${commaNotation(increment)} digits` : commaNotation(increment)} per claim
-        </LabelValue> : null}
-      </UpgradeCard>;
+        <ItemCard.Facts rows={[
+          // A locked page has nothing to claim, as its Summary says
+          unlocked && claimable > 0
+            ? [visible ? 'Claimable now' : 'Claimable once unlocked', `${formatNum(claimable)} ${claimable === 1 ? 'shell' : 'shells'}`]
+            : null,
+          increment > 0
+            ? ['Requirement', `+${isLogScale ? `${formatNum(increment)} digits` : formatGame(increment, 'MenagerieStuff.MissionProg', { whole: true })} per claim`]
+            : null
+        ]}/>
+      </ItemCard>;
     })}
-  </Stack>;
+  </CardGrid>;
 };
 
 export default Missions;

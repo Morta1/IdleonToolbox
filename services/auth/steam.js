@@ -22,8 +22,10 @@ const normalizeSteamUrl = (input) => {
   if (/^(www\.)?legendsofidleon\.com\/steamsso\//.test(url)) {
     url = `https://www.${url.replace(/^www\./, '')}`;
   }
+  // Missing "https://" only when it is the steamsso address with the start cut off; anything else
+  // (another site, a code, a word) is not the Steam page address at all.
   if (!url.startsWith('https://')) {
-    throw new LoginError(url.startsWith('http') ? 'STEAM_URL_FORMAT' : 'STEAM_URL_NO_HTTPS');
+    throw new LoginError(!url.startsWith('http') && url.includes('legendsofidleon.com/steamsso') ? 'STEAM_URL_NO_HTTPS' : 'STEAM_URL_FORMAT');
   }
   if (!url.startsWith(STEAM_SSO_PREFIX)) {
     throw new LoginError('STEAM_URL_FORMAT');

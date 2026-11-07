@@ -1,5 +1,6 @@
-import { notateNumber } from '@utility/helpers';
+import { formatNum, notateNumber } from '@utility/helpers';
 import {
+  DEFAULT_ROOT_COMBINE,
   evaluateBreakdownNode,
   formatBreakdownValue,
   getBreakdownNodeUnit,
@@ -7,7 +8,7 @@ import {
   isInactiveBreakdownNode,
   listGroup
 } from '@parsers/breakdown';
-import type { BreakdownCombine, BreakdownLine, BreakdownNode, StatBreakdown } from '@parsers/breakdown';
+import type { BreakdownCombine, BreakdownLine, BreakdownNode, BreakdownUnit, StatBreakdown } from '@parsers/breakdown';
 
 // The older breakdown shape: flat categories of sources, one level of sub-sections
 interface LegacySource {
@@ -55,6 +56,8 @@ export interface ViewNode {
 interface ViewOptions {
   valueNotation: string;
   skipNotation?: boolean;
+  // What a list's lines count as ("11 characters"); sources when the caller names nothing
+  countNoun?: string;
   query: string;
   showInactive: boolean;
   pinned: Set<string>;
@@ -82,18 +85,49 @@ export const toBreakdownTree = (data: AnyBreakdown, valueNotation: string, skipN
   ]));
 }
 
-const countLines = (node: BreakdownNode): number =>
+export const countLines = (node: BreakdownNode): number =>
   isBreakdownGroup(node) ? node.children.reduce((total, child) => total + countLines(child), 0) : 1;
 
-const displayOf = (node: BreakdownNode, { valueNotation, skipNotation }: ViewOptions) => {
+const displayOf = (node: BreakdownNode, { valueNotation, skipNotation, countNoun = 'sources' }: ViewOptions) => {
   if (isBreakdownGroup(node)) {
     if (node.formatted) return node.formatted;
-    if (node.combine === 'list') return `${countLines(node)} sources`;
+    if (node.combine === 'list') {
+      const count = countLines(node);
+      return `${count} ${count === 1 ? countNoun.replace(/s$/, '') : countNoun}`;
+    }
     return formatBreakdownValue(evaluateBreakdownNode(node), getBreakdownNodeUnit(node));
   }
   if (node.formatted) return node.formatted;
   if (node.unit) return formatBreakdownValue(node.value, node.unit);
   return String(skipNotation ? node.value : notateNumber(node.value, valueNotation));
+}
+
+// The unit a tree's total can claim for sure: a product of multipliers, or an additive group of percents and
+// multipliers, is a multiplier too (Growth Speed 154Kx). A min or a divide keeps its first node's unit, the value
+// being capped or divided, as a group of either does (Crop Value under its cap). A total with an amount among its
+// factors, a sum or a list stays a bare number, as the root has no unit of its own to say otherwise.
+const rootUnit = (data: StatBreakdown): BreakdownUnit | undefined => {
+  const combine = data.combine ?? DEFAULT_ROOT_COMBINE;
+  const units = data.tree.filter(Boolean)
+    .filter((node) => !(isBreakdownGroup(node) && node.combine === 'list'))
+    .map(getBreakdownNodeUnit);
+  if (!units.length) return undefined;
+  if (combine === 'product') return units.every((unit) => unit === 'multiplier') ? 'multiplier' : undefined;
+  if (combine === 'additive') return units.every((unit) => unit === 'percent' || unit === 'multiplier') ? 'multiplier' : undefined;
+  if (combine === 'min' || combine === 'divide') return units[0];
+  return undefined;
+}
+
+// The header's total read like the rows under it: a tree's number as its groups print theirs, with their unit
+// when the root is sure of it, an older breakdown's as its lines do. A multiplier reads as the tile that opens it
+// (the mult kind: 1.90x, 154Kx), so the number a player tapped is the number the drawer names. A text total is
+// already written for display.
+export const formatTotal = (data: AnyBreakdown, valueNotation: string, skipNotation?: boolean): string => {
+  const total = data.totalValue;
+  if (typeof total !== 'number') return total ?? '';
+  if (isLegacyBreakdown(data)) return String(skipNotation ? total : notateNumber(total, valueNotation));
+  const unit = rootUnit(data);
+  return unit === 'multiplier' ? formatNum(total, 'mult') : formatBreakdownValue(total, unit);
 }
 
 const matches = (node: BreakdownNode, query: string): boolean =>

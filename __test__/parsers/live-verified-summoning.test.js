@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { within } from '../helpers/live-verified';
+import { asMortasNinth, within } from '../helpers/live-verified';
 import { getLoggedInSkillLevel } from '@parsers/misc';
 import { evaluateBreakdownNode, findBreakdownNode } from '@parsers/breakdown';
 import { getSummoningUpgradeText } from '@parsers/world-6/summoning';
@@ -47,19 +47,10 @@ const withLiveInputs = () => {
   ESSENCE_GAME.drifted.monumentLevels.forEach((level, index) => {
     holes[15][index] = level;
   });
-  // A newer PTimeAway stamp makes MortasNinth the logged-in character
-  return parseFixture({
-    ...latest,
-    data: {
-      ...latest.data,
-      CauldronInfo: cauldrons,
-      Holes: JSON.stringify(holes),
-      PTimeAway_8: Number(latest.data.PTimeAway_5) + 1
-    }
-  });
+  return parseFixture(asMortasNinth(latest, { CauldronInfo: cauldrons, Holes: JSON.stringify(holes) }));
 };
-const asMortasNinth = withLiveInputs();
-const essenceGain = asMortasNinth.account.summoning.essenceGain;
+const essenceLive = withLiveInputs();
+const essenceGain = essenceLive.account.summoning.essenceGain;
 
 // Read on 2026-11-02, logged in as MortasNinth: the upgrade panel's "Total bonus", each upgrade's own branch of
 // the panel's "}" expression, before CommaNotation
@@ -126,18 +117,13 @@ const withLivePanelInputs = () => {
   levels[18] = summoningLevel;
   const talents = JSON.parse(latest.data.SL_4);
   talents[597] = absoluteStardom;
-  return parseFixture({
-    ...latest,
-    data: {
-      ...latest.data,
-      Summon: JSON.stringify(summon),
-      Holes: JSON.stringify(holes),
-      OptLacc: options,
-      Lv0_8: levels,
-      SL_4: JSON.stringify(talents),
-      PTimeAway_8: Number(latest.data.PTimeAway_5) + 1
-    }
-  });
+  return parseFixture(asMortasNinth(latest, {
+    Summon: JSON.stringify(summon),
+    Holes: JSON.stringify(holes),
+    OptLacc: options,
+    Lv0_8: levels,
+    SL_4: JSON.stringify(talents)
+  }));
 };
 const panelSummoning = withLivePanelInputs().account.summoning;
 const panelUpgrades = Object.values(panelSummoning.upgrades).flat();
@@ -152,7 +138,7 @@ describe('summoning verified against the live game', () => {
   });
 
   it('career wins per essence colour', () => {
-    const { careerWins, totalWins } = asMortasNinth.account.summoning;
+    const { careerWins, totalWins } = essenceLive.account.summoning;
     expect([totalWins, ...Object.values(careerWins).slice(1)]).toEqual(ESSENCE_GAME.victories);
   });
 
@@ -161,7 +147,7 @@ describe('summoning verified against the live game', () => {
       ESSENCE_GAME.allEssence);
   });
 
-  it.each(ESSENCE_GAME.essencePerHour.map((value, index) => [index, value]))('essence per hour of colour %i', (index, value) => {
+  it.each([...ESSENCE_GAME.essencePerHour.entries()])('essence per hour of colour %i', (index, value) => {
     within(essenceGain[index].value, value);
   });
 
@@ -169,11 +155,12 @@ describe('summoning verified against the live game', () => {
     within(panelUpgrades.find(({ originalIndex }) => originalIndex === Number(index)).totalBonus, value);
   });
 
-  // The panel's lines: CommaNotation for the bonus and most totals, the cost cuts as a plain %
+  // The panel's lines: CommaNotation for the bonus and most totals, the cost cuts as a plain %. It rounds 244.08 to 244
+  // and 21.36 to 21; below 1M the site's sentences keep their decimals
   it.each([
     [46, '+40,575% Red Essence generated per hour for each Red circuit win.\nTotal bonus: +527,475%'],
-    [68, 'Spike damage is increased by 244% of your base unit damage.\nTotal Bonus Spike DMG: +7,474T'],
-    [75, 'Reduces the cost of all Summoning Upgrades by +21% for every 100 total summoning upgrades purchased.\n'
+    [68, 'Spike damage is increased by 244.08% of your base unit damage.\nTotal Bonus Spike DMG: +7,474T'],
+    [75, 'Reduces the cost of all Summoning Upgrades by +21.36% for every 100 total summoning upgrades purchased.\n'
       + 'Total bonus: 98.95% cost reduction']
   ])('the upgrade panel text of upgrade %i', (index, text) => {
     expect(getSummoningUpgradeText(panelUpgrades.find(({ originalIndex }) => originalIndex === index))).toBe(text);

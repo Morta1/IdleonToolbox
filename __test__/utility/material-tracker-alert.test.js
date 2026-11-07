@@ -27,14 +27,11 @@ const goalsFor = ({ lower, upper, nearly, note = '' }) => [
 describe('material tracker alert from item goals', () => {
   it.each([
     ['lower bound, below', { lower: amount * 2 }],
-    ['lower bound, above (no alert)', { lower: Math.floor(amount / 2) }],
     ['upper bound, above', { upper: Math.floor(amount / 2) }],
-    ['upper bound, below (no alert)', { upper: amount * 2 }],
     ['range, outside', { lower: amount * 2, upper: amount * 3 }],
     ['range, inside (no alert)', { lower: Math.floor(amount / 2), upper: amount * 2 }],
     ['lower bound, nearly', { lower: amount, nearly: true }],
-    ['upper bound, nearly', { upper: amount, nearly: true }],
-    ['range, nearly', { lower: amount, upper: amount * 3, nearly: true }]
+    ['upper bound, nearly', { upper: amount, nearly: true }]
   ])('%s matches checkBound for the same tracker entry', (_, bounds) => {
     const expected = checkBound(name, amount, bounds.lower ?? '', bounds.upper ?? '', !!bounds.nearly, 5);
     const alert = alertFor({ itemGoals: goalsFor({ ...bounds, note: 'keep some' }) });

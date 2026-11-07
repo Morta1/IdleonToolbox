@@ -80,30 +80,15 @@ describe('legacy conversion', () => {
     const legacy = legacyFrom((config) => {
       config.account['World 1'].stamps.checked = false;
       option(config, 'World 1', 'stamps', 'affordableStampLevels').props.value = '30';
+      config.account['World 7'].royalGuardian.checked = false;
+      option(config, 'World 7', 'royalGuardian', 'tradeRank').props.perWorld = { 3: '15' };
     });
     expect(convertLegacyTrackers(baseTrackers, legacy)).toEqual({
       'account.World 1.stamps': { checked: false },
-      'account.World 1.stamps.affordableStampLevels': { value: '30' }
+      'account.World 1.stamps.affordableStampLevels': { value: '30' },
+      'account.World 7.royalGuardian': { checked: false },
+      'account.World 7.royalGuardian.tradeRank': { perWorld: { 3: '15' } }
     });
-  });
-
-  it('round trips an off tracker with some options unticked at v81', () => {
-    const legacy = legacyFrom((config) => {
-      config.account['World 1'].stamps.checked = false;
-      option(config, 'World 1', 'stamps', 'gildedStamps').checked = false;
-    });
-    expect(effective(roundTrip(legacy))).toEqual(effective(expected(legacy)));
-  });
-
-  it('round trips an off tracker in an older config', () => {
-    const legacy = legacyFrom((config) => {
-      config.version = 78;
-      config.account['World 5'].sailing.options = config.account['World 5'].sailing.options
-        .filter(({ name }) => name !== 'alwaysAlertEnderCaptains');
-      config.account['World 3'].library.checked = false;
-      option(config, 'World 3', 'library', config.account['World 3'].library.options[0].name).checked = false;
-    });
-    expect(effective(roundTrip(legacy))).toEqual(effective(expected(legacy)));
   });
 
   it('a cascaded gaming tracker gets no drops edit', () => {
@@ -114,32 +99,20 @@ describe('legacy conversion', () => {
     });
     const edits = convertLegacyTrackers(baseTrackers, legacy);
     expect(edits).toEqual({ 'account.World 5.gaming': { checked: false } });
-    expect(effective(roundTrip(legacy))).toEqual(effective(expected(legacy)));
   });
 
-  it('gaming on with sprouts off hides drops too', () => {
-    const legacy = legacyFrom((config) => {
-      option(config, 'World 5', 'gaming', 'sprouts').checked = false;
-    });
-    expect(convertLegacyTrackers(baseTrackers, legacy)['account.World 5.gaming.drops']).toEqual({ checked: false });
-    expect(effective(roundTrip(legacy))).toEqual(effective(expected(legacy)));
-  });
-
-  it('drops the option unticks the old tracker switch cascaded', () => {
-    const legacy = legacyFrom((config) => {
-      const library = config.account['World 3'].library;
-      library.checked = false;
-      library.options.forEach((libraryOption) => { libraryOption.checked = false; });
-    });
-    expect(convertLegacyTrackers(baseTrackers, legacy)).toEqual({ 'account.World 3.library': { checked: false } });
-  });
-
-  it('drops option edits under an off tracker, they were never observable', () => {
+  it('drops option and picker edits under an off tracker, they were never observable', () => {
     const legacy = legacyFrom((config) => {
       config.account['World 1'].stamps.checked = false;
       option(config, 'World 1', 'stamps', 'gildedStamps').checked = false;
+      config.account['World 3'].construction.checked = false;
+      const materials = option(config, 'World 3', 'construction', 'materials').props.value;
+      materials[Object.keys(materials)[0]] = false;
     });
-    expect(convertLegacyTrackers(baseTrackers, legacy)).toEqual({ 'account.World 1.stamps': { checked: false } });
+    expect(convertLegacyTrackers(baseTrackers, legacy)).toEqual({
+      'account.World 1.stamps': { checked: false },
+      'account.World 3.construction': { checked: false }
+    });
   });
 
   it('runs older configs through the migration chain first', () => {

@@ -1,148 +1,69 @@
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix, round } from 'utility/helpers';
-import styled from '@emotion/styled';
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum } from 'utility/helpers';
+import { fillPrayer, formatGame, prayerValue } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
-import { calcPrayerCost } from '@parsers/world-3/prayers';
-import Tooltip from 'components/Tooltip';
+import { calcPrayerCost, getPrayers } from '@parsers/world-3/prayers';
+import { items as itemsTable } from '@website-data';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
+
+const soulName = (rawName) => cleanUnderscore(itemsTable?.[rawName]?.displayName ?? rawName);
+
+const calcCostToMax = (prayer) => Array.from({ length: Math.max(0, (prayer?.maxLevel ?? 0) - (prayer?.level ?? 0)) },
+  (_, step) => calcPrayerCost({ ...prayer, level: (prayer?.level ?? 0) + step }))
+  .reduce((sum, cost) => sum + cost, 0);
 
 const Prayers = () => {
   const { state } = useContext(AppContext);
-  const { prayers } = state?.account;
-  const { characters } = state;
-
-  const calcCostToMax = (prayer) => {
-    let costToMax = 0;
-    for (let i = prayer?.level; i < prayer?.maxLevel; i++) {
-      costToMax += calcPrayerCost({ ...prayer, level: i });
-    }
-    return costToMax ?? 0;
-  }
+  const sectionFailed = isSectionFailed(state?.account, 'prayers');
+  const parsed = state?.account?.prayers ?? [];
+  // A failed section lists the prayers at zero (the parser's catalog with no save), with no costs or states
+  const prayers = sectionFailed && !parsed.length ? getPrayers({}, state?.account?.storage?.list) : parsed;
+  const characters = state?.characters ?? [];
 
   return (
-    <div>
+    <>
       <NextSeo
         title="Prayers | Idleon Toolbox"
         description="View your active prayers, curse penalties, and soul bonuses to optimize worship in Legends of Idleon"
       />
-      <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
-        {prayers?.map((prayer, index) => {
-          const {
-            name,
-            x1,
-            x2,
-            level,
-            prayerIndex,
-            effect,
-            curse,
-            soul,
-            maxLevel,
-            totalAmount,
-            unlockWave,
-            unlockZone
-          } = prayer
-          const calculatedBonus = x1 + (x1 * (level - 1)) / 10;
-          const calculatedCurse = x2 + (x2 * (level - 1)) / 10;
-          const cost = calcPrayerCost(prayer);
-          const charactersWithPrayer = characters?.filter((character) =>
-            character?.activePrayers?.some((prayer) => prayer?.prayerIndex === prayerIndex)
-          ) || [];
-          return <Card key={name + index} sx={{ width: 300, display: 'flex', opacity: level === 0 ? .5 : 1,
-            outline: level >= maxLevel ? '1px solid' : '',
-            outlineColor: (theme) => level >= maxLevel
-              ? theme.palette.success.light
-              : ''
-          }}>
-            <CardContent sx={{ display: 'flex', flexDirection: 'column', flex: 1, justifyContent: 'space-between' }}>
-              <Stack direction={'row'} alignItems={'center'} gap={2} mb={2}>
-                <Stack alignItems={'center'}>
-                  <PrayerIcon src={`${prefix}data/Prayer${prayerIndex}.png`} alt="prayer-icon"/>
-                  <Typography fontWeight={'bold'}>Lv.{level}</Typography>
-                </Stack>
-                <Typography variant={'h6'}>{cleanUnderscore(name)}</Typography>
+      {sectionFailed ? <MissingData name={'Prayers'} failed atZero/> : null}
+      <CardGrid size={'m'}>
+        {prayers.map((prayer, index) => {
+          const { name, x1, x2, level = 0, prayerIndex, effect, curse, soul, maxLevel, totalAmount, unlockWave, unlockZone } = prayer;
+          // A failed section has no levels, so a prayer listed as equipped would sit under "Lv 0 / 50"
+          const equippedBy = sectionFailed ? [] : characters.filter((character) =>
+            character?.activePrayers?.some((active) => active?.prayerIndex === prayerIndex));
+          const priced = !sectionFailed && level < maxLevel;
+          return <ItemCard key={`${name}-${index}`} icon={`data/Prayer${prayerIndex}.png`} title={cleanUnderscore(name)}
+                           level={{ value: level, max: maxLevel }} dimmed={!sectionFailed && !level}
+                           status={!sectionFailed && level >= maxLevel ? 'maxed' : undefined}
+                           footer={priced ? <ItemCard.Cost icon={`data/${soul}.png`} iconAlt={soulName(soul)}
+                                                           need={calcPrayerCost(prayer)} have={totalAmount ?? 0}
+                                                           game={'WorshipStuff.PrayerCost'}/> : null}>
+            <ItemCard.Facts rows={[
+              ['Bonus', fillPrayer(effect, prayerValue(x1, level))],
+              ['Curse', fillPrayer(curse, prayerValue(x2, level))],
+              ['Unlocks at', `Wave ${formatNum(unlockWave ?? 0)} in ${cleanUnderscore(unlockZone ?? '')}`],
+              priced ? ['Cost to max', formatGame(calcCostToMax(prayer), 'WorshipStuff.PrayerCost', { whole: true })] : null
+            ]}/>
+            {equippedBy.length ? <ItemCard.Section label={'Equipped by'}>
+              <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
+                {equippedBy.map((character) => <Stack key={character?.name} direction={'row'} alignItems={'center'} gap={0.5}>
+                  <GameIcon src={`data/ClassIcons${character?.classIndex}.png`} size={24} alt={''}/>
+                  <Typography variant={'body2'}>{cleanUnderscore(character?.name)}</Typography>
+                </Stack>)}
               </Stack>
-              <Stack>
-                <div><Typography
-                  sx={{ color: 'success.light' }}>Bonus:</Typography> {cleanUnderscore(effect).replace('{', calculatedBonus)}
-                </div>
-                <div><Typography
-                  sx={{ color: 'error.light' }}>Curse:</Typography> {cleanUnderscore(curse).replace('{', calculatedCurse)}
-                </div>
-              </Stack>
-              <Typography mt={1}>Unlock: lv. {unlockWave} at {unlockZone}</Typography>
-              <Stack mt={3} direction={'row'} alignItems={'center'} gap={2}>
-                <ItemIcon src={`${prefix}data/${soul}.png`} alt="soul-icon"/>
-                {maxLevel === level ? <Typography sx={{ color: 'success.main' }}>Maxed</Typography> : <div>
-                  <div>Cost: <Typography component={'span'}
-                                         sx={{ color: level === 0 ? '' : cost <= totalAmount ? 'success.light' : 'error.light' }}>
-                    {notateNumber(round(cost), 2)}</Typography> ({notateNumber(totalAmount, 2)})
-                  </div>
-                  <div>Cost To Max: {notateNumber(round(calcCostToMax(prayer)))}</div>
-                </div>}
-              </Stack>
-              {charactersWithPrayer?.length > 0 ? (
-                <>
-                  <Divider sx={{ my: 2 }} />
-                  <Stack direction={'row'} flexWrap={'wrap'} gap={0.5}>
-                    {charactersWithPrayer.map((character) => (
-                      <Tooltip
-                        key={character.name}
-                        title={
-                          <CharacterPrayerDetails
-                            name={character.name}
-                            activePrayers={character.activePrayers}
-                          />
-                        }
-                      >
-                        <CharacterIcon
-                          src={`${prefix}data/ClassIcons${character.classIndex}.png`}
-                          alt={character.name}
-                        />
-                      </Tooltip>
-                    ))}
-                  </Stack>
-                </>
-              ) : null}
-            </CardContent>
-          </Card>
+            </ItemCard.Section> : null}
+          </ItemCard>;
         })}
-      </Stack>
-    </div>
-  );
-};
-
-const PrayerIcon = styled.img`
-  width: 36px;
-  height: 36px;
-`
-
-const ItemIcon = styled.img`
-  width: 36px;
-  height: 36px;
-`
-
-const CharacterIcon = styled.img`
-  width: 32px;
-  height: 32px;
-  cursor: pointer;
-  &:hover {
-    transform: scale(1.1);
-  }
-`
-
-const CharacterPrayerDetails = ({ name, activePrayers }) => {
-  return (
-    <>
-      <Typography sx={{ fontWeight: 'bold' }}>{name}</Typography>
-      <Typography variant="body2" sx={{ mt: 1 }}>Equipped Prayers:</Typography>
-      {activePrayers?.map((prayer) => (
-        <Typography key={prayer?.name} variant="body2">
-          • {cleanUnderscore(prayer?.name)} (Lv. {prayer?.level})
-        </Typography>
-      ))}
+      </CardGrid>
     </>
   );
-}
+};
 
 export default Prayers;

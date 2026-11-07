@@ -1,50 +1,43 @@
-import { CardTitleAndValue } from '@components/common/styles';
-import { Divider, Stack } from '@mui/material';
+import { Stack } from '@mui/material';
 import React from 'react';
-import { cleanUnderscore, commaNotation, msToDate, notateNumber, numberWithCommas } from '@utility/helpers';
+import { cleanUnderscore } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
-import { ExpRateCard, HoleCostRow } from '@components/account/Worlds/World5/Hole/commons';
-import UpgradeCard, { CardIcon, LabelValue } from '@components/common/UpgradeCard';
+import { holeCostIcon, holeResourceName, villagerTiles } from '@components/account/Worlds/World5/Hole/commons';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+
+// A measurement's line as the game prints it (Holes.MeasurementBonusTOTAL): { the bonus in Big, | a space, 访 the
+// game's &, in lower case as before
+const measureText = (description, value) => cleanUnderscore((description ?? '').toLowerCase().replace('访', '&')
+  .replace('|', ' ').replace('{', formatGame(value ?? 0, 'Holes.MeasurementBonusTOTAL')));
 
 const Measure = ({ hole }) => {
-  const [, , , measure] = hole?.villagers || [];
+  const measure = hole?.villagers?.[3];
   return <>
-    <Stack mb={2} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Level'} value={measure?.level}/>
-      <CardTitleAndValue title={'Exp'} value={`${measure?.exp} / ${measure?.expReq}`}/>
-      <ExpRateCard title={'Exp rate'} expRate={measure?.expRate} />
-      <CardTitleAndValue title={'Time to level'}
-                         value={measure?.timeLeft >= 0 && measure?.expRate?.value > 0 ? msToDate(measure?.timeLeft) : '0'}/>
-      <CardTitleAndValue title={'Opals invested'} value={measure?.opalInvested || '0'} icon={'data/Opal.png'}
-                         imgStyle={{ width: 22, height: 22 }}/>
-      <CardTitleAndValue title={'Total measurement levels'}
-                         value={commaNotation(getHoleLeaderboardTotals(hole).measurementLevels)}/>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
+      {villagerTiles(measure)}
+      <StatTile label={'Total measurement levels'} value={getHoleLeaderboardTotals(hole).measurementLevels} kind={'amount'}/>
     </Stack>
-    <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {hole?.measurements?.map(({ description, baseBonus, totalBonus, multi, measuredBy, level, cost, owned, icon }, index) => {
-        if (description === 'i') return null
-        const desc = description.toLowerCase().replace('访', '&');
-        const bonusText = (value) => cleanUnderscore(desc.replace('|', ' ').replace('{', notateNumber(value, 'Big')));
-        return <UpgradeCard key={`measure-${index}`}
-                            width={320}
-                            icon={<CardIcon src={`etc/Measure_${index}.png`} alt={''} size={40}/>}
-                            title={bonusText(totalBonus)}
-                            subtitle={`Lv. ${level}`}
-                            footer={<HoleCostRow icon={icon}>
-                              {notateNumber(owned, 'Big')} / {notateNumber(cost, 'Big')}
-                            </HoleCostRow>}>
-          <Stack gap={.5}>
-            <LabelValue label={'Base'}>{bonusText(baseBonus)}</LabelValue>
-            <LabelValue label={'Multi'}>{notateNumber(multi, 'MultiplierInfo')}x</LabelValue>
-            <LabelValue label={measuredBy?.label}>{measuredBy?.value < 1e6
-              ? numberWithCommas(measuredBy?.value)
-              : notateNumber(measuredBy?.value, 'Big')}</LabelValue>
-          </Stack>
-        </UpgradeCard>
+    <CardGrid size={'m'}>
+      {(hole?.measurements ?? []).map(({ description, baseBonus, totalBonus, multi, measuredBy, level, cost, owned, icon }, index) => {
+        if (description === 'i') return null;
+        return <ItemCard key={`measure-${index}`}
+                         icon={`etc/Measure_${index}.png`}
+                         title={measureText(description, totalBonus)}
+                         level={{ value: level ?? 0 }}
+                         footer={<ItemCard.Cost icon={holeCostIcon(icon)} iconAlt={holeResourceName(icon)} need={cost ?? 0}
+                                                have={owned ?? 0} game={'Holes.MeasurementCost'}/>}>
+          <ItemCard.Facts rows={[
+            ['Base', measureText(description, baseBonus)],
+            ['Multi', `${formatGame(multi ?? 1, 'Holes.MeasurementMulti')}x`],
+            measuredBy?.label ? [measuredBy.label, formatGame(measuredBy?.value ?? 0, 'Holes.MeasurementQTYfound', { whole: true })] : null
+          ]}/>
+        </ItemCard>;
       })}
-    </Stack>
-  </>
+    </CardGrid>
+  </>;
 };
 
 export default Measure;

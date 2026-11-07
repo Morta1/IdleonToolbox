@@ -1,6 +1,8 @@
 import React from 'react';
 import { Stack, Typography } from '@mui/material';
-import { getCoinsArray, prefix } from '@utility/helpers';
+import GameIcon from '@components/common/GameIcon';
+import { getCoinsArray } from '@utility/helpers';
+import { notateAmount } from '@utility/wiki/notate';
 
 // Coins are stored in the smallest denomination, 100 to the next one up, so a quest paying
 // 1,500,000,000 pays 15 dementia coins and a monster dropping 610 drops 6 silver 10 copper.
@@ -15,7 +17,7 @@ const MAX_TIERS = 5;
 export const coinsOf = (amount) => getCoinsArray(amount).filter(([, quantity]) => quantity > 0).slice(0, MAX_TIERS);
 
 // `inline` draws it inside a line of text (a cost line), so every box is a span.
-const CoinAmount = ({ amount, size = 18, inline = false }) => {
+const CoinAmount = ({ amount, inline = false }) => {
   const coins = coinsOf(amount);
   if (coins.length === 0) return null;
   const box = inline ? 'span' : 'div';
@@ -25,14 +27,8 @@ const CoinAmount = ({ amount, size = 18, inline = false }) => {
     {coins.map(([coinIndex, quantity]) => <Stack
       component={box} key={coinIndex} direction={'row'} gap={0.25} alignItems={'center'}
     >
-      <img
-        src={`${prefix}data/Coins${coinIndex}.png`}
-        alt={''}
-        width={size}
-        height={size}
-        style={{ objectFit: 'contain' }}
-      />
-      <Typography component={'span'} variant={'caption'} color={'text.secondary'}>{quantity.toLocaleString('en-US')}</Typography>
+      <GameIcon src={`data/Coins${coinIndex}.png`} size={16} alt={''}/>
+      <Typography component={'span'} variant={'caption'} color={'text.secondary'}>{notateAmount(quantity)}</Typography>
     </Stack>)}
   </Stack>;
 };

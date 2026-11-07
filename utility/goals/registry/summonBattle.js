@@ -24,8 +24,8 @@ export default {
   ),
   key: (row) => row.enemyId,
   name: (row) => row.goalName,
-  // the page renders row.icon, a prefixed .png path
-  icon: (row) => String(row.icon ?? '').replace(/^\//, '').replace(/\.png$/, ''),
+  // the page renders row.icon, a .png path
+  icon: (row) => String(row.icon ?? '').replace(/\.png$/, ''),
   metrics: {
     won: { label: 'Won', value: (row) => (row.won ? 1 : 0), boolean: true }
   }

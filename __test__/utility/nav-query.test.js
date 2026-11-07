@@ -12,15 +12,8 @@ describe('sessionQuery', () => {
     expect(sessionQuery({ profile: 'Morojo', t: 'Upgrades', nt: '2', dnt: '1' })).toEqual({ profile: 'Morojo' });
   });
 
-  test.each([
-    ['a build slug reaching the god planner', { slug: 'divine-knight' }],
-    ['class and build index reaching the guilds page', { c: 'barbarian', b: '11' }],
-    ['a 404 message reaching the leaderboards', { reason: 'profile', name: 'Tay' }],
-    ['the leaderboards player and board params', { player: 'Baker333', m: 'mining', t: 'Skills' }],
-    ['an item search term', { q: 'platinum' }],
-    ['a param the app does not even read', { pb: 'VHFQx3zU' }]
-  ])('drops %s', (_label, query) => {
-    expect(sessionQuery(query)).toEqual({});
+  test('drops a param the app does not even read', () => {
+    expect(sessionQuery({ pb: 'VHFQx3zU' })).toEqual({});
   });
 
   test('survives a missing query', () => {

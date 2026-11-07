@@ -1,6 +1,20 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { getGeneralAlerts } from '../../utility/dashboard/account';
+import { isMinibossReady } from '../../utility/dashboard/bossRespawns';
+
+describe('isMinibossReady', () => {
+  it.each([
+    ['at the number', { current: 2, maxed: false }, 2, true],
+    ['the number below the player\'s', { current: 4, maxed: false }, 5, false],
+    ['maxed under a number it can never reach', { current: 6, maxed: true }, 10, true],
+    ['the number left empty reads the lowest, 2', { current: 2, maxed: false }, '', true],
+    ['below the lowest with the number empty', { current: 1, maxed: false }, '', false],
+    ['no number at all', { current: 9, maxed: false }, undefined, false]
+  ])('%s', (_, miniboss, wanted, ready) => {
+    expect(isMinibossReady(miniboss, wanted)).toBe(ready);
+  });
+});
 
 const fields = { etc: { checked: true } };
 const optionsFor = (value) => ({

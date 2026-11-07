@@ -1,4 +1,4 @@
-import { items } from '@website-data';
+import { items, slabItemNames } from '@website-data';
 import { GOAL_ROUTES } from '../routes';
 import { itemIcon } from './itemIcon';
 import { cleanUnderscore } from '@utility/helpers';
@@ -55,10 +55,10 @@ export default {
       books: 'Recipes and talent books'
     }
   },
-  // a few slab ids have no item behind them (DungRNG0); without a name they would show as raw ids. Unobtainable items
-  // count only once looted, as on the slab page, so "All slab" stays reachable
+  // a few slab ids have no item behind them (DungRNG0), so no category and no goal. Unobtainable items count only once
+  // looted, as on the slab page, so "All slab" stays reachable
   list: ({ account }) => (account?.looty?.slabItems ?? [])
-    .filter(({ name, obtained, unobtainable }) => name && (obtained || !unobtainable)),
+    .filter(({ itemRawName, name, obtained, unobtainable }) => name && !slabItemNames?.[itemRawName] && (obtained || !unobtainable)),
   key: (row) => row.itemRawName,
   name: (row) => cleanUnderscore(row.name),
   icon: (row) => itemIcon(row.rawName),

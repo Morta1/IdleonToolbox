@@ -2,6 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
+import { asMortasNinth, within } from '../helpers/live-verified';
 import {
   getChargeRate,
   getMaxCharge,
@@ -37,9 +38,6 @@ const GAME = {
     // Summoning("VaultUpgBonus", 50)
     vault: 576
   },
-  // CustomLists.WorshipBASEinfos[i][7] and [i][6]
-  minEfficiency: [60, 250, 1000, 3000, 8000, 20000, 150000, 2500000],
-  chargeReq: [25, 40, 60, 90, 120, 250, 500, 1000],
   // GamingStatType("MSA_Bonus", i) for i 0..10
   totalizer: {
     damage: 57, cookingSpeed: 741, sailing: 57, bit: 2850, classExp: 63.84, skillExp: 57, farmingExp: 99.75,
@@ -61,7 +59,6 @@ const TOTEM_EXP_GAME = {
 const LIVE_BLANK_SKULL_SPEED = 3;
 
 const TOLERANCE = 1e-12;
-const within = (actual, expected) => expect(Math.abs(actual / expected - 1)).toBeLessThan(TOLERANCE);
 
 const { account, characters } = parseFixture(latest);
 const hunter = characters.find((character) => character?.name === 'IAmTheHunterrr');
@@ -74,7 +71,7 @@ describe('worship charge matches the live game', () => {
 
   it('charge rate', () => {
     const activeBubble = getActiveBubbleBonus(hunter.equippedBubbles, 'CALL_ME_POPE', account);
-    within(getChargeRate(hunter, account) / activeBubble, GAME.chargeRatePerBubble);
+    within(getChargeRate(hunter, account) / activeBubble, GAME.chargeRatePerBubble, TOLERANCE);
   });
 
   // An empty slot used to take the speed-below-3 branch with speed 0, ~5x under the game
@@ -86,12 +83,7 @@ describe('worship charge matches the live game', () => {
 
 describe('totems match the live game', () => {
   it('wave multiplier', () => {
-    within(account.totems[0].waveMulti, GAME.waveMultiplier);
-  });
-
-  it('min efficiency and charge cost', () => {
-    expect(account.totems.map(({ minEfficiency, chargeReq }) => [minEfficiency, chargeReq]))
-      .toEqual(GAME.minEfficiency.map((minEfficiency, index) => [minEfficiency, GAME.chargeReq[index]]));
+    within(account.totems[0].waveMulti, GAME.waveMultiplier, TOLERANCE);
   });
 
   it('soul reward bonuses', () => {
@@ -113,23 +105,17 @@ describe('totems match the live game', () => {
 describe('totem EXP matches the live game', () => {
   const cauldrons = structuredClone(latest.data.CauldronInfo);
   cauldrons[0][18] = TOTEM_EXP_GAME.shimmeronLevel;
-  // A newer PTimeAway stamp makes MortasNinth the logged-in character
-  const asMortasNinth = parseFixture({
-    ...latest,
-    data: { ...latest.data, CauldronInfo: cauldrons, PTimeAway_8: Number(latest.data.PTimeAway_5) + 1 }
-  });
-  const mortasNinth = asMortasNinth.characters.find((character) => character?.name === 'MortasNinth');
-  const reward = getTotemExpReward(asMortasNinth.account.totems[0], 0, mortasNinth, asMortasNinth.characters,
-    asMortasNinth.account);
+  const live = parseFixture(asMortasNinth(latest, { CauldronInfo: cauldrons }));
+  const mortasNinth = live.characters.find((character) => character?.name === 'MortasNinth');
+  const reward = getTotemExpReward(live.account.totems[0], 0, mortasNinth, live.characters, live.account);
 
   it('worship EXP multi', () => {
-    within(getSkillExpMulti('worship', mortasNinth, asMortasNinth.characters, asMortasNinth.account).value,
-      TOTEM_EXP_GAME.worshipExpMulti);
+    within(getSkillExpMulti('worship', mortasNinth, live.characters, live.account).value, TOTEM_EXP_GAME.worshipExpMulti, TOLERANCE);
   });
 
   // The base reward used to leave out WorshipEXPmulti: 227x under the game here
   it('EXP per wave', () => {
-    within(evaluateBreakdownNode(findBreakdownNode(reward.breakdown.tree, 'Worship EXP multi')), TOTEM_EXP_GAME.worshipExpMulti);
+    within(evaluateBreakdownNode(findBreakdownNode(reward.breakdown.tree, 'Worship EXP multi')), TOTEM_EXP_GAME.worshipExpMulti, TOLERANCE);
     expect(reward.value).toBe(TOTEM_EXP_GAME.expPerWave);
   });
 });

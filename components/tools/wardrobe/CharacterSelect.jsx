@@ -1,45 +1,32 @@
 import React from 'react';
-import { Box, FormControl, InputLabel, MenuItem, Select, Stack, Typography } from '@mui/material';
-import { prefix } from '@utility/helpers';
+import { Box, MenuItem, Stack, TextField } from '@mui/material';
+import GameIcon from '@components/common/GameIcon';
+import { cleanUnderscore } from '@utility/helpers';
+
+const classIcon = ({ classIndex }) => <GameIcon src={`data/ClassIcons${classIndex}.png`} size={24} alt={''}/>;
+const NO_ICON = <Box component={'span'} sx={{ display: 'inline-block', width: 24, height: 24 }}/>;
 
 // With a loaded profile the outfit comes from one of its characters, or from a blank mannequin.
 // Without a profile there is nothing to choose, so the control does not render at all.
 const CharacterSelect = ({ characters = [], characterName, onPickCharacter }) => {
   if (!characters.length) return null;
   const renderRow = (value) => {
-    if (!value) return <Stack direction={'row'} alignItems={'center'} gap={1}>
-      <Box width={24} height={24}/>
-      <Typography>Blank mannequin</Typography>
-    </Stack>;
     const character = characters.find((c) => c.name === value);
-    if (!character) return null;
-    return <Stack direction={'row'} alignItems={'center'} gap={1}>
-      <img src={`${prefix}data/ClassIcons${character.classIndex}.png`} alt="" width={24} height={24}/>
-      <Typography>{character.name}</Typography>
+    return <Stack direction={'row'} alignItems={'center'} gap={0.75}>
+      <Box component={'span'} sx={{ color: 'text.secondary' }}>Character</Box>
+      {character ? classIcon(character) : null}
+      {cleanUnderscore(character?.name) || 'Blank mannequin'}
     </Stack>;
   };
-  return <FormControl size={'small'} sx={{ minWidth: 220 }}>
-    <InputLabel id={'wardrobe-character-label'} shrink>Character</InputLabel>
-    <Select labelId={'wardrobe-character-label'} id={'wardrobe-character'} label={'Character'}
-            value={characterName ?? ''}
-            displayEmpty
-            renderValue={renderRow}
-            sx={{ '& .MuiSelect-select': { display: 'flex', alignItems: 'center' } }}
-            onChange={(e) => onPickCharacter(characters.find((c) => c.name === e.target.value))}>
-      <MenuItem value={''}>
-        <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <Box width={24} height={24}/>
-          <Typography>Blank mannequin</Typography>
-        </Stack>
-      </MenuItem>
-      {characters.map((character) => <MenuItem key={character.name} value={character.name}>
-        <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <img src={`${prefix}data/ClassIcons${character.classIndex}.png`} alt="" width={24} height={24}/>
-          <Typography>{character.name}</Typography>
-        </Stack>
-      </MenuItem>)}
-    </Select>
-  </FormControl>;
+  return <TextField select value={characterName ?? ''} sx={{ minWidth: 240, alignSelf: 'flex-start', maxWidth: '100%' }}
+                    onChange={(e) => onPickCharacter(characters.find((c) => c.name === e.target.value))}
+                    slotProps={{ select: { displayEmpty: true, renderValue: renderRow, SelectDisplayProps: { 'aria-label': 'Character' } } }}>
+    <MenuItem value={''} sx={{ gap: 1 }}>{NO_ICON}Blank mannequin</MenuItem>
+    {characters.map((character) => <MenuItem key={character.name} value={character.name} sx={{ gap: 1 }}>
+      {classIcon(character)}
+      {cleanUnderscore(character.name)}
+    </MenuItem>)}
+  </TextField>;
 };
 
 export default CharacterSelect;

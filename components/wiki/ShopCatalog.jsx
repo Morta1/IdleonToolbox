@@ -1,6 +1,8 @@
 import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import GameIcon from '@components/common/GameIcon';
+import { cleanUnderscore } from '@utility/helpers';
+import { notateAmount } from '@utility/wiki/notate';
 import Price from './Price';
 
 // The panel asks the same question the list answers, so it cannot draw while the empty state shows.
@@ -13,27 +15,23 @@ const ShopCatalog = ({ node }) => {
   const rows = node.catalog;
 
   return <Stack sx={{ mt: 3 }} gap={0.5}>
-    <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'} letterSpacing={0.5}>
+    <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>
       Also sold
     </Typography>
     {rows.map((row, index) => <Stack key={`${row.text}-${index}`} direction={'row'} gap={1} alignItems={'center'}>
-      {row.icon ? <img
-        // The icon is rooted at `/`, and a slash after the prefix would read as a protocol-relative URL.
-        src={`${prefix}${row.icon.replace(/^\//, '')}`}
-        alt={''}
-        width={24}
-        height={24}
-        loading={'lazy'}
-        // A UI skin is a long strip: its right end is the pattern alone, so that is the square shown.
-        style={{ objectFit: row.iconFit ?? 'contain', objectPosition: row.iconFit === 'cover' ? 'right center' : undefined, flexShrink: 0 }}
-      /> : <Box sx={{ width: 24, flexShrink: 0 }}/>}
+      {/* A UI skin is a long strip whose right end is the pattern alone, so that is the square shown. The icon is rooted
+          at /, and a slash after the prefix would read as a protocol-relative URL. */}
+      {row.icon && row.iconFit === 'cover'
+        ? <GameIcon src={row.icon.replace(/^\//, '')} fit={'strip'} side={'right'} cover size={24} alt={''} loading={'lazy'}/>
+        : row.icon ? <GameIcon src={row.icon.replace(/^\//, '')} size={24} alt={''} loading={'lazy'}/>
+          : <Box sx={{ width: 24, flexShrink: 0 }}/>}
       <Typography variant={'body2'}>
         {cleanUnderscore(row.text)}
         {row.quantity > 1 ? <Typography component={'span'} variant={'caption'} color={'text.secondary'}>
-          {` x${row.quantity.toLocaleString('en-US')}`}
+          {` x${notateAmount(row.quantity)}`}
         </Typography> : null}
       </Typography>
-      <Price price={row.price} currency={row.currency} size={16}/>
+      <Price price={row.price} currency={row.currency}/>
     </Stack>)}
   </Stack>;
 };

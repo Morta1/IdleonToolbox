@@ -1,68 +1,58 @@
 import React from 'react';
-import { Box, Card, CardContent, Chip, Link, Stack, Typography } from '@mui/material';
+import { Box, Link, Stack, Typography } from '@mui/material';
+import Panel from '@components/common/cards/Panel';
+import Notice from '@components/common/Notice';
+import StatusText from '@components/common/StatusText';
 import { NextSeo } from 'next-seo';
-import Tooltip from '@components/Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
 import WikiRail from '@components/wiki/WikiRail';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { navigateOnPlainClick, useWikiGo } from '@components/wiki/links';
-import { CAVEAT, fieldLabel, formatValue } from '@utility/wiki/history';
+import { CAVEAT, changeLine } from '@utility/wiki/history';
 import { entityHref } from '@utility/wiki/page-graph';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 
 const Changelog = ({ versions }) => {
   const go = useWikiGo();
 
   return <WikiRail current={'changelog'}>
-    <Box sx={{ maxWidth: 1200 }}>
+    <Box>
     <NextSeo
       title="Game changelog | Idleon Toolbox"
       description="What each Legends of Idleon patch changed: items, monsters, recipes, companions and talents, version by version."
     />
-    <Stack direction={'row'} gap={0.5} alignItems={'center'} sx={{ mb: 2 }}>
-      <Typography variant={'h5'} component={'h2'}>Game changelog</Typography>
-      <Tooltip title={CAVEAT}>
-        <InfoIcon sx={{ fontSize: 16, cursor: 'pointer' }}/>
-      </Tooltip>
-    </Stack>
+    <Box sx={{ mb: 2 }}><Notice tone={'info'}>{CAVEAT}</Notice></Box>
 
     <Stack gap={2}>
-      {versions.map(({ version, added, changed, kinds }) => <Card key={version} variant={'outlined'}>
-        <CardContent>
-          <Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'}>
-            <Typography variant={'h6'} component={'h3'}>{version}</Typography>
-            {added > 0 ? <Chip size={'small'} variant={'outlined'} label={`${added} added`}/> : null}
-            {changed > 0 ? <Chip size={'small'} variant={'outlined'} label={`${changed} changed`}/> : null}
-          </Stack>
-
-          {kinds.map(({ kind, entries }) => <Stack key={kind} sx={{ mt: 1.5 }} gap={0.25}>
-            <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'} letterSpacing={0.5}>
+      {versions.map(({ version, added, changed, kinds }) => <Panel key={version} title={version}
+                                                                 meta={[added > 0 && `${formatNum(added, 'whole')} added`, changed > 0 && `${formatNum(changed, 'whole')} changed`].filter(Boolean).join(', ')}>
+        <Stack gap={1.5} sx={{ p: 2, containerType: 'inline-size' }}>
+          {kinds.map(({ kind, entries }) => <Stack key={kind} gap={0.25}>
+            <Typography variant={'groupLabel'} component={'h4'} color={'text.secondary'}>
               {KIND_PLURALS[kind] || kind}
             </Typography>
-            {entries.map((entry) => <Stack
+            {/* Name beside change once the Panel holds both, whatever the window: beside the rail at 900 it is 228 px. */}
+            {entries.map((entry) => <Box
               key={`${entry.kind}-${entry.slug}`}
-              direction={{ xs: 'column', sm: 'row' }}
-              gap={{ xs: 0, sm: 1.5 }}
+              sx={{ display: 'flex', flexDirection: 'column', '@container (min-width:480px)': { flexDirection: 'row', columnGap: 1.5 } }}
             >
               <Link
                 href={entityHref(entry)}
                 variant={'body2'}
-                underline={'hover'}
+               
                 sx={{ minWidth: 200 }}
                 onClick={navigateOnPlainClick(go, entityHref(entry), true)}
               >
                 {cleanUnderscore(entry.name)}
               </Link>
-              <Typography variant={'body2'} color={'text.secondary'}>
+              <Typography variant={'body2'} color={'text.secondary'} component={'div'} sx={{ minWidth: 0, overflowWrap: 'break-word' }}>
                 {entry.added
-                  ? 'added'
-                  : entry.fields.map(({ field, from, to }) =>
-                    `${fieldLabel(field)}: ${formatValue(from)} to ${formatValue(to)}`).join(', ')}
+                  ? <StatusText status={'info'}>Added</StatusText>
+                  : entry.fields.map(changeLine).join(', ')}
               </Typography>
-            </Stack>)}
+            </Box>)}
           </Stack>)}
-        </CardContent>
-      </Card>)}
+        </Stack>
+      </Panel>)}
     </Stack>
     </Box>
   </WikiRail>;

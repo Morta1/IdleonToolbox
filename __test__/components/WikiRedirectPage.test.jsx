@@ -13,7 +13,7 @@ vi.mock('next/router', () => ({
 // next/head only reaches document.head through Next's head manager; rendered in place, React 19 hoists the tags there itself.
 vi.mock('next/head', () => ({ default: ({ children }) => <>{children}</> }));
 
-const WikiRedirectPage = (await import('@components/wiki/WikiRedirectPage')).default;
+const { default: WikiRedirectPage, carrySessionScript } = await import('@components/wiki/WikiRedirectPage');
 
 const { props } = slugProps('god', 'goharut');
 
@@ -33,5 +33,14 @@ describe('WikiRedirectPage', () => {
       replaced: [[{ pathname: to, query: { demo: 'true' } }]]
     });
     expect(container.textContent).toContain('This page moved to');
+  });
+
+  it('carries only the session past the refresh on a direct load', () => {
+    const replacedBy = (search) => {
+      const location = { search, replace: vi.fn() };
+      new Function('location', carrySessionScript('/wiki/new'))(location);
+      return location.replace.mock.calls;
+    };
+    expect([replacedBy('?demo=true&utm_source=x'), replacedBy('?utm_source=x')]).toEqual([[['/wiki/new?demo=true']], []]);
   });
 });

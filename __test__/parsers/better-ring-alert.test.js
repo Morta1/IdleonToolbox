@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { classSpecificAlerts, getInventoryLocation } from '@utility/dashboard/characters';
 import { CLASSES } from '@parsers/talents';
-import { parseData } from '@parsers/index';
+import { parseFixture } from '../helpers/parsed-fixtures';
 import raw from '../../data/raw.json';
 
 // The Arcane Cultist ring rolls both an accuracy and a tachyon stat, and a drop can be positive on
@@ -71,8 +71,7 @@ describe('inventory location', () => {
 
 describe('inventory slots', () => {
   it('keeps the raw slot index on every inventory item', () => {
-    const { characters } = parseData(raw.data, raw.charNames, raw.companion, raw.guildData, raw.serverVars,
-      raw.accountCreateTime);
+    const { characters } = parseFixture(raw);
     const inventory = characters?.find(({ inventory: inv }) => inv?.length > 1)?.inventory;
     expect(inventory?.every(({ slot }) => Number.isInteger(slot))).toBe(true);
     // Blanks are dropped from the list, so the slots have to be able to skip - a packed list would

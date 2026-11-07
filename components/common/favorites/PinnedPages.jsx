@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { useRouter } from 'next/router';
 import usePin from '@components/common/favorites/usePin';
 import {
-  Alert,
   Box,
   Collapse,
   Divider,
@@ -14,7 +13,6 @@ import {
   listItemButtonClasses,
   ListItemText,
   Popover,
-  Snackbar,
   Stack,
   Typography,
   useMediaQuery
@@ -23,23 +21,32 @@ import Button from '@mui/material/Button';
 import IconButton from '@mui/material/IconButton';
 import { IconFileExport, IconGripVertical, IconX } from '@tabler/icons-react';
 import { Reorder } from 'framer-motion';
-import { getPageIcon } from '@utility/pageIcons';
+import { getPageIcon, PAGE_BY_URL } from '@utility/pageIndex';
+import { sessionQuery } from '@utility/nav-query';
+import { trackMenuClose, trackMenuLink, trackMenuOpen } from '@utility/analytics';
 import { handleDownload, prefix } from '@utility/helpers';
-import FileUploadButton from '@components/common/DownloadButton';
+import FileUploadButton, { FILE_BUTTON_SX } from '@components/common/DownloadButton';
+import { notify } from '@components/common/Overlays/notify';
+import NoticeSlot from '@components/common/Overlays/NoticeSlot';
 
 // An exported file is a plain array of pin entries. Anything else (a dashboard config, some other
 // json) gets rejected rather than wiping the user's pins with garbage.
 const isValidPins = (data) => Array.isArray(data)
   && data.every((page) => page && typeof page.name === 'string' && typeof page.url === 'string');
 
-const PinnedPages = ({}) => {
+const PinnedPages = () => {
   const isXs = useMediaQuery((theme) => theme.breakpoints.down('lg'));
   const [isOpen, setIsOpen] = useState(false);
-  const [result, setResult] = useState(null);
   const { pinnedPages, removePin, reorderPins, setPins } = usePin();
   const router = useRouter();
   const [anchorEl, setAnchorEl] = React.useState(null);
   const open = Boolean(anchorEl);
+  // The bar's popover only: on a phone the list is a fold of the phone menu
+  useEffect(() => {
+    if (!open) return undefined;
+    trackMenuOpen('pinned');
+    return () => trackMenuClose('pinned');
+  }, [open]);
   const handleClick = (event) => {
     if (isXs) {
       setIsOpen(!isOpen);
@@ -55,11 +62,9 @@ const PinnedPages = ({}) => {
     }
   };
 
+  // The session (a profile, the sample account) rides along, as on every nav link, then the pin's own tabs
   const getQuery = ({ tab, nestedTab, deeplyNestedTab }) => {
-    let query = {}
-    if (router.query.profile) {
-      query.profile = router.query.profile;
-    }
+    const query = sessionQuery(router?.query);
     if (tab) {
       query.t = tab;
       if (nestedTab) {
@@ -84,6 +89,7 @@ const PinnedPages = ({}) => {
   }
 
   const handleLinkClick = (event, page) => {
+    trackMenuLink();
     // Let the browser handle modified clicks (ctrl/cmd/shift/middle) so they open a new tab or window.
     if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey || event.button !== 0) return;
     event.preventDefault();
@@ -103,11 +109,11 @@ const PinnedPages = ({}) => {
 
   const handleImport = (data) => {
     if (!isValidPins(data)) {
-      setResult({ severity: 'error', message: 'That file doesn\'t contain pinned pages' });
+      notify('That file doesn\'t contain pinned pages');
       return;
     }
     setPins(data);
-    setResult({ severity: 'success', message: `Imported ${data.length} pinned page${data.length === 1 ? '' : 's'}` });
+    notify(`Imported ${data.length} pinned page${data.length === 1 ? '' : 's'}`);
     if (typeof window.gtag !== 'undefined') {
       window.gtag('event', 'pinned_pages_imported', {
         event_category: 'engagement',
@@ -123,6 +129,7 @@ const PinnedPages = ({}) => {
             disabled={!pinnedPages?.length}
             variant={'outlined'}
             size={'small'}
+            sx={FILE_BUTTON_SX}
             startIcon={<IconFileExport size={18}/>}>
       Export
     </Button>
@@ -134,7 +141,7 @@ const PinnedPages = ({}) => {
     return text.slice(0, half) + '...' + text.slice(-half);
   }
 
-  const getLabel = ({ name, tab, nestedTab, deeplyNestedTab }) => name.replace('-', ' ').capitalizeAllWords()
+  const getLabel = ({ name, url, tab, nestedTab, deeplyNestedTab }) => (PAGE_BY_URL[url]?.display ?? name.replace('-', ' ').capitalizeAllWords())
     + (tab ? ` - ${tab}` : '')
     + (nestedTab ? ` - ${nestedTab}` : '')
     + (deeplyNestedTab ? ` - ${deeplyNestedTab}` : '');
@@ -149,7 +156,7 @@ const PinnedPages = ({}) => {
           component={'div'}
           sx={dense ? { pl: 1, pr: 7 } : { pr: 7 }}
           dense={dense}
-          secondaryAction={<IconButton size="small" onClick={(e) => {
+          secondaryAction={<IconButton size="small" aria-label={`Unpin ${label}`} onClick={(e) => {
             e.stopPropagation();
             removePin(index)
           }}>
@@ -184,21 +191,21 @@ const PinnedPages = ({}) => {
         disableGutters={!isXs}
         disableRipple
         sx={{
-          color: 'white',
+          color: 'text.primary',
           borderRadius: '8px',
-          ...(!isXs ? { p: '0 8px' } : {})
+          ...(!isXs ? { p: '0 8px' } : { minHeight: 46 })
         }}
         selected={open}
         variant={'text'}
-        id="basic-button"
-        aria-controls={open ? 'basic-menu' : undefined}
+        id="pinned-pages-button"
+        aria-controls={open ? 'pinned-pages' : undefined}
         aria-haspopup="true"
         aria-expanded={open ? 'true' : undefined}
         onClick={handleClick}
       >
         <ListItemText component={'span'} disableTypography
-                      sx={{ fontWeight: 'bold', fontSize: 16 }}>
-          Pinned Pages
+                      sx={{ fontWeight: isXs ? 500 : 600, fontSize: 16 }}>
+          Pinned pages
         </ListItemText>
         <KeyboardArrowDownIcon sx={{
           ml: 1,
@@ -217,10 +224,10 @@ const PinnedPages = ({}) => {
         <Divider/>
         {renderActions()}
       </Collapse> : <Popover
+        id="pinned-pages"
         anchorEl={anchorEl}
         open={open}
         onClose={handleClose}
-        sx={{ mt: 0.5 }}
         anchorOrigin={{
           vertical: 'bottom',
           horizontal: 'left'
@@ -248,17 +255,9 @@ const PinnedPages = ({}) => {
           <Divider/>
           {renderActions()}
         </Box>
+        {/* The import runs from in here */}
+        <NoticeSlot open={open}/>
       </Popover>}
-      <Snackbar
-        open={Boolean(result)}
-        autoHideDuration={result?.severity === 'error' ? 5000 : 2000}
-        onClose={() => setResult(null)}
-        anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-      >
-        <Alert severity={result?.severity} variant="filled" onClose={() => setResult(null)}>
-          {result?.message}
-        </Alert>
-      </Snackbar>
     </div>
   );
 }

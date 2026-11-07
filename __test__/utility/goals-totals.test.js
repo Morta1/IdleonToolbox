@@ -2,6 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
+import { expectNoBreaks } from '../helpers/sweep';
 import { DESCRIPTORS, getDescriptor } from '@utility/goals/registry';
 import { pageIcon, totalsDescriptor } from '@utility/goals/registry/totals';
 import { GOAL_ROUTES } from '@utility/goals/routes';
@@ -55,10 +56,12 @@ describe('totalsDescriptor', () => {
   });
 });
 
-it.each(TOTALS.map((d) => [d.system, d]))('%s: label is "<page> totals" and the route is the page', (system, d) => {
-  expect(d.label).toMatch(/^\S.* totals$/);
-  expect(GOAL_ROUTES[system]).toBe(d.route);
-  expect(pageIcon(d.route)).toBeTruthy();
+it('every totals descriptor is labelled "<page> totals", with the route of that page', () => {
+  expectNoBreaks(TOTALS, ({ system }) => system, ({ system, label, route }) => [
+    ...(/^\S.* totals$/.test(label) ? [] : [`label ${label}`]),
+    ...(GOAL_ROUTES[system] === route ? [] : [`GOAL_ROUTES says ${GOAL_ROUTES[system]}, not ${route}`]),
+    ...(pageIcon(route) ? [] : [`no page icon for ${route}`])
+  ]);
 });
 
 // Each row: the page's own header expression, or a total summed from the fixture's save, on the latest fixture. [value, max] (max null when the page shows none).

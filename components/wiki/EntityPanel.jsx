@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Box, Card, CardContent, Chip, Link, Stack, Typography } from '@mui/material';
+import { Box, Link, Stack, Typography } from '@mui/material';
+import Notice from '@components/common/Notice';
+import TagLine from '@components/common/TagLine';
 import CardBonus, { cardBonusShows } from './CardBonus';
-import InfoBox, { visibleGroups } from './InfoBox';
+import InfoBox, { ROW_FROM, visibleGroups } from './InfoBox';
 import ItemStats, { itemStatsShows } from './ItemStats';
 import { monsterGroups } from './MonsterInfo';
 import QuestInfo, { questInfoShows } from './QuestInfo';
@@ -14,13 +16,16 @@ import SneakFloorInfo, { sneakFloorShows } from './SneakFloorInfo';
 import EntityHistory, { entityHistoryShows } from './EntityHistory';
 import { dropOdds, dropQuantityLabel, dropTalentLabel, dropTierGroups, percentLabel } from '@utility/wiki/drops';
 import { entityName } from '@utility/wiki/names.mjs';
-import { cleanUnderscore } from '@utility/helpers';
+import { gameGlyphs, shownName } from '@utility/wiki/game-glyphs.mjs';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { notateAmount } from '@utility/wiki/notate';
 import { LISTED_KINDS, listingHref, wikiCrumbs } from '@utility/wiki/kinds.mjs';
 import { FIELD_LINK_SECTIONS, fieldLinkEdge, fieldLinks } from '@utility/wiki/field-links.mjs';
 import { KIND_LABELS, KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 import { categoryLabel } from '@utility/wiki/categories.mjs';
 import { formatAmount, starterBundleCapacity } from '@utility/wiki/effects.mjs';
 import { collapseRows, tableThreshold } from '@utility/wiki/relations';
+import usePageTop from '@hooks/usePageTop';
 import RelationTable from './RelationTable';
 import NpcQuestRow from './NpcQuestRow';
 import CoinAmount, { isCoin } from './CoinAmount';
@@ -29,7 +34,8 @@ import ShopCatalog, { shopCatalogShows } from './ShopCatalog';
 import EntityIcon from './EntityIcon';
 import GemCount from './GemCount';
 import { goOnPlainClick, linkProps, navigateOnPlainClick } from './links';
-import { KindTile, TILE_GRID } from './KindLink';
+import { KindTile } from './KindLink';
+import CardGrid from '@components/common/cards/CardGrid';
 import WikiBreadcrumbs from './WikiBreadcrumbs';
 
 export { EntityIcon, entityName, KIND_LABELS, KIND_PLURALS };
@@ -44,19 +50,19 @@ const COLUMN_MIN = 6;
 // strip is 711px, a world's map 811px. Shown at its own size at most, never blown up.
 const WIDE_HEADER = { bundle: 711, world: 811 };
 
-const quantityLabel = (meta) => (meta?.quantity != null ? `x${meta.quantity.toLocaleString('en-US')}` : '');
-const amountLabel = (meta) => (meta?.amount != null ? `x${meta.amount.toLocaleString('en-US')}` : '');
+const quantityLabel = (meta) => (meta?.quantity != null ? `x${notateAmount(meta.quantity)}` : '');
+const amountLabel = (meta) => (meta?.amount != null ? `x${notateAmount(meta.amount)}` : '');
 const spawnLabel = (meta) => (meta?.count > 0 ? `${meta.count} spawns` : '');
 const orderLabel = (meta) => (meta?.order != null ? `#${meta.order}` : '');
 // What a container rolls. The pools are weighted and the weights are the game's own, so this is a
 // real rate rather than an even split across the list.
-const yieldLabel = (meta) => (meta?.chance > 0 ? `${meta.chance}%` : '');
+const yieldLabel = (meta) => (meta?.chance > 0 ? formatNum(meta.chance, 'pct') : '');
 // A skilling node's resource, and for a fishing spot the depths it is caught at.
 const gatherLabel = (meta) => [meta?.skill, meta?.depths?.length ? `Depth ${meta.depths.join(', ')}` : null].filter(Boolean).join(' · ');
 // What a trap map yields: the plain critter past an efficiency threshold, the shiny one by chance.
 const harvestLabel = (meta) => {
-  if (meta?.efficiencyReq > 0) return `${meta.efficiencyReq.toLocaleString('en-US')} efficiency for bonus critters`;
-  if (meta?.shinyChance > 0) return `${meta.shinyChance.toLocaleString('en-US')}% shiny chance`;
+  if (meta?.efficiencyReq > 0) return `${notateAmount(meta.efficiencyReq)} efficiency for bonus critters`;
+  if (meta?.shinyChance > 0) return `${formatNum(meta.shinyChance, 'pct')} shiny chance`;
   return '';
 };
 // A bubble's base cost, which is the level-one price. What it actually costs depends on the
@@ -74,10 +80,10 @@ const unlockNote = (unlock) => (unlock
   ? `Recipe unlocked on the World ${unlock.world} Task Board (#${unlock.position})`
   : null);
 
-const costLabel = (meta) => (meta?.baseCost > 0 ? `x${meta.baseCost.toLocaleString('en-US')}` : '');
+const costLabel = (meta) => (meta?.baseCost > 0 ? `x${notateAmount(meta.baseCost)}` : '');
 // What a Glimbo trade pays out: never an item, always a higher cap on one Upgrade Vault upgrade.
 const vaultUpgradeLabel = (meta) => (meta?.upgrade ? `+Max LV: ${cleanUnderscore(meta.upgrade)}` : '');
-const cycleLabel = (meta) => (meta?.quantity != null ? `x${meta.quantity.toLocaleString('en-US')} / cycle` : '');
+const cycleLabel = (meta) => (meta?.quantity != null ? `x${notateAmount(meta.quantity)} / cycle` : '');
 const REFINERY_NOTE = 'Cost at salt rank 1; it grows with every rank.';
 const smithingLabel = (meta) => (meta?.levelReq > 0 ? `Smithing LV ${meta.levelReq}` : '');
 // A Worship Totem prayer unlocks once a wave is reached.
@@ -97,8 +103,8 @@ const DropChance = ({ meta, node }) => {
   const chance = meta?.effectiveChance ?? meta?.chance;
   // A drop the game splices in at runtime carries no odds, but its gate is still worth showing.
   if (!(chance > 0)) {
-    if (meta?.randomEvent) return <Chip size={'small'} variant={'outlined'} label={'Random event'}/>;
-    if (meta?.jadeUnlock) return <Chip size={'small'} variant={'outlined'} label={cleanUnderscore(meta.jadeUnlock)}/>;
+    if (meta?.randomEvent) return <TagLine tags={['Random event']}/>;
+    if (meta?.jadeUnlock) return <TagLine tags={[cleanUnderscore(meta.jadeUnlock)]}/>;
     return null;
   }
   // Coins carry their amount in the smallest denomination, so the raw quantity is not the number
@@ -108,19 +114,16 @@ const DropChance = ({ meta, node }) => {
   const odds = dropOdds(meta);
   const percentage = percentLabel(chance);
   return <>
-    {/* A chip rather than another caption: it qualifies what the row IS, and would otherwise be
-        read as part of the run of numbers beside it. */}
-    {meta?.recipe ? <Chip size={'small'} variant={'outlined'} label={'Recipe'}/> : null}
-    {/* Drops the game splices in at runtime: only during a random event, or once a Jade upgrade is bought. */}
-    {meta?.randomEvent ? <Chip size={'small'} variant={'outlined'} label={'Random event'}/> : null}
-    {meta?.jadeUnlock ? <Chip size={'small'} variant={'outlined'} label={cleanUnderscore(meta.jadeUnlock)}/> : null}
+    {/* The tags name what the row is (a recipe, or a drop the game splices in at runtime: only during a random
+        event, or once a Jade upgrade is bought), ahead of the run of numbers beside it. */}
+    <TagLine tags={[meta?.recipe && 'Recipe', meta?.randomEvent && 'Random event', meta?.jadeUnlock && cleanUnderscore(meta.jadeUnlock)]}/>
     {talent ? <Typography variant={'caption'} color={'text.secondary'}>{talent}</Typography> : null}
     {quantity ? <Typography variant={'caption'} color={'text.secondary'}>{quantity}</Typography> : null}
     {odds ? <Typography variant={'caption'} color={'text.secondary'}>{odds}</Typography> : null}
     {/* Both numbers on the row rather than one of them behind a hover. "1 in 618" is what a player
         quotes and a percentage is what the game's drop tables are written in, and neither converts
         in the head. Which table a tiered drop sits in is already the band heading above the row. */}
-    {percentage ? <Typography variant={'caption'} color={'text.disabled'}>{percentage}</Typography> : null}
+    {percentage ? <Typography variant={'caption'} color={'text.muted'}>{percentage}</Typography> : null}
   </>;
 };
 
@@ -306,7 +309,7 @@ const AnimationTile = ({ src, alt }) => {
   const [broken, setBroken] = useState(false);
   if (broken) return null;
   return <Stack alignItems={'center'} gap={0.5}>
-    <img src={src} alt={alt} width={72} height={72} loading={'lazy'} style={{ objectFit: 'contain' }}
+    <img src={src} alt={''} width={72} height={72} loading={'lazy'} style={{ objectFit: 'contain' }}
          onError={() => setBroken(true)}/>
     <Typography variant={'caption'} color={'text.secondary'}>{alt}</Typography>
   </Stack>;
@@ -354,7 +357,7 @@ const bundleGroups = (node) => [{
       { label: 'Limit', value: 'One per account' },
       ...carryCapacityRows()
     ] : []),
-    ...(node.price > 0 ? [{ label: 'Price', value: `$${node.price.toFixed(2)}` }] : []),
+    ...(node.price > 0 ? [{ label: 'Price', value: formatNum(node.price, 'price') }] : []),
     // Gems are not an item and cannot be an edge: the game hands them over in a separate
     // server message. Without this row the page would list a cape and omit the 4,200 gems
     // bought alongside it.
@@ -383,10 +386,10 @@ const petGroups = (node) => [{
   title: 'Pet',
   rows: [
     ...(node.tourPower > 0
-      ? [{ label: 'Power', value: node.tourPower.toLocaleString('en-US') }]
+      ? [{ label: 'Power', value: notateAmount(node.tourPower) }]
       : []),
     ...(node.upgradedTourPower > 0
-      ? [{ label: 'Upgraded power', value: node.upgradedTourPower.toLocaleString('en-US') }]
+      ? [{ label: 'Upgraded power', value: notateAmount(node.upgradedTourPower) }]
       : []),
     ...(node.upgradedEffect
       ? [{ label: 'Upgraded', value: cleanUnderscore(node.upgradedEffect) }]
@@ -404,7 +407,7 @@ const achievementGroups = (node) => [{
   title: 'Achievement',
   rows: [
     ...(node.quantity > 1
-      ? [{ label: 'Target', value: node.quantity.toLocaleString('en-US') }]
+      ? [{ label: 'Target', value: notateAmount(node.quantity) }]
       : []),
     ...(node.steamExclusive ? [{ label: 'Steam only', value: 'Yes' }] : []),
     ...(node.secret ? [{ label: 'Secret', value: 'Yes' }] : [])
@@ -414,13 +417,12 @@ const achievementGroups = (node) => [{
 const KIND_BOXES = { bundle: bundleGroups, pet: petGroups, achievement: achievementGroups };
 
 const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
+  const pageTop = usePageTop();
   // byId is a plain object, so ?e=__proto__ would otherwise resolve to Object.prototype and render
   // a blank card instead of the empty state.
   const node = index?.byId && Object.hasOwn(index.byId, id) ? index.byId[id] : null;
   if (!node) {
-    return <Typography color={'text.secondary'}>
-      No entity matches this link. Use the search above to find one.
-    </Typography>;
+    return <Notice tone={'info'}>No entity matches this link. Use the search above to find one.</Notice>;
   }
 
   // Every monster's category is literally "Monster", which would print the kind chip twice.
@@ -545,9 +547,10 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
   return <Stack gap={1.5}>
     {/* The panel is reached from search, from a category listing, or from another entity's row, so it
         carries its own way back up rather than leaving browser history as the only route. */}
-    <WikiBreadcrumbs crumbs={wikiCrumbs({ kind: node.kind, page: entityName(node) })} onGo={onGo}/>
-    <Card variant={'outlined'}>
-    <CardContent>
+    <WikiBreadcrumbs crumbs={wikiCrumbs({ kind: node.kind, page: shownName(entityName(node)) })} onGo={onGo}/>
+    {/* The query container for the relations row below: block-level and full width, so its own width is known
+        before its content's (a fit-content box would collapse to 0 under inline-size containment). */}
+    <Box sx={{ containerType: 'inline-size' }}>
       {/* A bundle's banner is the shop art the game sells it with: wide, and carrying its name and
           contents. A world's is the island map the game draws when you pick where to travel, which
           is the same shape and the same job. Both read as a header rather than as an avatar, so
@@ -563,15 +566,16 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
             banner treatment would blow up to 711px. It takes the avatar every other kind uses. A
             Starter Pack offer's portrait card sits in the rail instead, see below. */}
         {node.icon && (!WIDE_HEADER[node.kind] || node.petMart)
-          ? <EntityIcon key={id} node={node} size={72}/> : null}
-        <Typography variant={'h5'} component={'h2'}>{entityName(node)}</Typography>
-        <Chip size={'small'} variant={'outlined'} label={kindChip}/>
-        {categoryChip ? <Chip size={'small'} variant={'outlined'} label={categoryChip}/> : null}
-        {disambigChip ? <Chip size={'small'} variant={'outlined'} label={disambigChip}/> : null}
+          ? <EntityIcon key={id} node={node} size={56}/> : null}
+        <Typography variant={'pageTitle'} component={'h2'}>{shownName(entityName(node))}</Typography>
+        <TagLine variant={'body2'} tags={[kindChip, categoryChip, disambigChip]}/>
       </Stack>
-      {/* Relations read as the main column; the stat infobox sits beside them on a wide
-          screen and drops underneath once there is no room, the way a wiki page does. */}
-      <Stack direction={{ xs: 'column', md: 'row' }} gap={3} alignItems={'flex-start'} sx={{ mt: 1.5 }}>
+      {/* Relations read as the main column; the stat infobox sits beside them once the panel itself has room for
+          both, and drops underneath otherwise, the way a wiki page does. The panel's width, not the window's:
+          beside the wiki rail and the ad gutters a md window left the column 0 px at 1024. ROW_FROM is a 480 px
+          column, the 24 px gap and the 340 px infobox. */}
+      <Stack direction={'column'} gap={3} alignItems={'flex-start'}
+             sx={{ mt: 1.5, [`@container (min-width: ${ROW_FROM}px)`]: { flexDirection: 'row' } }}>
         <Box sx={{ flexGrow: 1, minWidth: 0, width: '100%' }}>
           {/* A vial or bubble's description is a template with a `{` in it, and AlchemyInfo is
               what fills that in; printing the raw form here would show the brace. */}
@@ -579,26 +583,23 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
               each level, so the raw form with its braces never reaches the page. */}
           {showsDescription
             ? <Typography variant={'body2'} color={'text.secondary'}>
-              {cleanUnderscore(node.description)}
+              {cleanUnderscore(gameGlyphs(node.description))}
             </Typography>
             : null}
       <SneakFloorInfo key={id} node={node} index={index} hrefFor={hrefFor} onNavigate={onNavigate}/>
       {/* Only a blank page says this: no relation, no field link, no description, and no panel in
           the rail or below (stats, price, objectives, history, animations, a shop's catalog). */}
-      {!hasContent ? <Typography sx={{ mt: 2 }} color={'text.secondary'}>
-        Nothing is linked to this entity yet.
-      </Typography> : null}
+      {!hasContent ? <Box sx={{ mt: 2 }}><Notice tone={'info'}>Nothing is linked to this entity yet.</Notice></Box> : null}
       {sections.map(({ title, dir, rel, groups, size, show, note, Detail, Row, tabular, asKinds }) => <Stack key={`${title}|${dir}|${rel}`} sx={{ mt: 3 }} gap={0.5}>
-        <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'}
-                    letterSpacing={0.5}>
+        <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>
           {title}
         </Typography>
         {note ? <Typography variant={'caption'} color={'text.secondary'}>{note}</Typography> : null}
-        {asKinds ? <Box sx={TILE_GRID}>
+        {asKinds ? <CardGrid size={'s'}>
           {/* A tile is a link to its kind's listing, so a kind without one has no tile. */}
           {groups.filter(({ key }) => listingHref(key)).map(({ key, edges }) => <KindTile key={key} kind={key} count={edges.length}
                                                                                        go={goOnPlainClick(onGo)}/>)}
-        </Box> : null}
+        </CardGrid> : null}
         {!asKinds && tabular ? <RelationTable
           groups={groups.map((group) => ({ ...group, rows: collapseRows(group.edges, dir) }))}
           index={index}
@@ -608,18 +609,18 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
         /> : null}
         {asKinds || tabular ? null : groups.map(({ key, label, odds, edges }) => <Stack key={key} gap={0.5}>
           {label ? <Stack direction={'row'} gap={1} alignItems={'baseline'} flexWrap={'wrap'} sx={{ mt: 1 }}>
-            <Typography variant={'body2'} fontWeight={600}>{label}</Typography>
+            <Typography variant={'body2'} sx={{ fontWeight: 'fontWeightMedium' }}>{label}</Typography>
             {odds ? <Typography variant={'caption'} color={'text.secondary'}>{odds}</Typography> : null}
           </Stack> : null}
-          {/* Two columns once there is room, which halves the scrolling on the long sections. A
-              short section stays in one: two entries spread across a 1200px row put the second one
-              half a screen from its own heading, which reads as a layout fault rather than density.
+          {/* Two columns once the column itself has room (beside the rail at 900 it is 262 px), which halves the
+              scrolling on the long sections. A short section stays in one: two entries spread across a 1200px row put the
+              second one half a screen from its own heading, which reads as a layout fault rather than density.
               A section rendering its own Row is a block per entry and never columnar. */}
           <Box sx={{
             display: 'grid',
             gridTemplateColumns: Row || size < COLUMN_MIN
               ? '1fr'
-              : { xs: '1fr', md: 'repeat(2, minmax(0, 1fr))' },
+              : 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))',
             columnGap: 3,
             rowGap: 0.5
           }}>
@@ -648,7 +649,7 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
                     // and a crawler's rendered DOM all behave. onClick still routes it in-app.
                     {...linkProps(hrefFor, otherId)}
                     variant={'body2'}
-                    underline={'hover'}
+                   
                     textAlign={'left'}
                     onClick={navigateOnPlainClick(onNavigate, otherId, Boolean(hrefFor?.(otherId)))}
                   >
@@ -660,7 +661,7 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
                 {/* A town shop's price is coins, so it is drawn as coins: 700 is 7 silver, and
                     printing the raw figure would be the wrong number rather than a big one. The
                     currency shops price in their own currency and say so with its icon. */}
-                <Price price={edge.meta?.price} currency={edge.meta?.currency} size={16}/>
+                <Price price={edge.meta?.price} currency={edge.meta?.currency}/>
                 {/* Quantity belongs to the item side of the edge, whichever end of it that is. */}
                 {Detail ? <Detail meta={edge.meta || {}} node={dir === 'from' ? other : node}/> : null}
               </Stack>
@@ -681,9 +682,10 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
           flexDirection: 'column',
           gap: 2,
           flexShrink: 0,
-          width: { xs: '100%', md: 'auto' },
-          position: { md: 'sticky' },
-          top: 16,
+          width: '100%',
+          [`@container (min-width: ${ROW_FROM}px)`]: { width: 'auto', position: 'sticky' },
+          // Clears the bar and the band while it shows, as WikiRail beside it does
+          top: pageTop + 8,
           '&:empty': { display: 'none' }
         }}>
           {node.stamp
@@ -715,8 +717,7 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
           <AnimationsBox node={node}/>
         </Box>
       </Stack>
-    </CardContent>
-    </Card>
+    </Box>
   </Stack>;
 };
 

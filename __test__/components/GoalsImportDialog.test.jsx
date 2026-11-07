@@ -1,14 +1,11 @@
 // @vitest-environment jsdom
 import '../../polyfills';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { AppContext } from '@components/common/context/AppProvider';
-import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
+import { goalsHarness } from '../helpers/goals-harness';
 import Goals from '@components/dashboard/goals/Goals';
 import ImportDialog, { READ_ERROR } from '@components/dashboard/goals/ImportDialog';
 import { exportGoals, isItemGoal } from '@utility/goals/importExport';
@@ -19,27 +16,11 @@ vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, is
 vi.mock('@utility/analytics', () => ({ trackEvent: vi.fn() }));
 
 const { account, characters } = parseFixture(latest);
-const KEY = 'uid-test';
+const { api, mount, seed } = goalsHarness({ account, characters });
 const bubble = (key, fields) => createGoal({ system: 'bubble', metric: 'level', key, target: 5, ...fields });
 const fileText = (goals) => JSON.stringify(exportGoals(goals, characters));
 
-let api;
-const Probe = () => {
-  const value = useGoals();
-  useEffect(() => {
-    api = value;
-  });
-  return null;
-};
-const mount = (ui) => render(
-  <ThemeProvider theme={darkTheme}>
-    <AppContext.Provider value={{ state: { uid: KEY, account, characters }, dispatch: vi.fn() }}>
-      <GoalsProvider><Probe/>{ui}</GoalsProvider>
-    </AppContext.Provider>
-  </ThemeProvider>
-);
-const seed = (...goals) => localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({ schema: 1, accounts: { [KEY]: goals } }));
-const stored = () => JSON.parse(localStorage.getItem(GOALS_STORAGE_KEY)).accounts[KEY];
+const stored = () => Object.values(JSON.parse(localStorage.getItem(GOALS_STORAGE_KEY)).accounts)[0];
 
 describe('Goals import dialog', () => {
   beforeEach(() => {
@@ -49,11 +30,13 @@ describe('Goals import dialog', () => {
 
   it('merge adds new goals, reports duplicates and tracks once', async () => {
     seed(bubble('a'));
-    mount(<ImportDialog text={fileText([bubble('a'), bubble('b'), bubble('c', { scope: { char: 'Gone', classIndex: -5 } })])} onClose={vi.fn()}/>);
+    const onClose = vi.fn();
+    mount(<ImportDialog text={fileText([bubble('a'), bubble('b'), bubble('c', { scope: { char: 'Gone', classIndex: -5 } })])} onClose={onClose}/>);
     expect(screen.getByText('3 goals: 2 account, 1 character')).toBeTruthy();
     await waitFor(() => expect(api.loaded).toBe(true));
-    fireEvent.click(screen.getByRole('button', { name: 'Import' }));
-    expect(await screen.findByText('Imported 1. 1 already there. 1 skipped.')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Import 1 goal' }));
+    await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Imported 1. 1 already there. 1 skipped.'));
+    expect(onClose).toHaveBeenCalledTimes(1);
     expect(stored().map((g) => g.key)).toEqual(['a', 'b']);
     expect(trackEvent).toHaveBeenCalledTimes(1);
     expect(trackEvent).toHaveBeenCalledWith('goal_added', { source: 'import', count: 1 });
@@ -63,11 +46,11 @@ describe('Goals import dialog', () => {
     seed(bubble('old'));
     mount(<ImportDialog text={fileText([bubble('new')])} onClose={vi.fn()}/>);
     await waitFor(() => expect(api.loaded).toBe(true));
-    expect(screen.queryByText('This removes your 1 current goal')).toBeNull();
+    expect(screen.queryByText('This removes your 1 current goal.')).toBeNull();
     fireEvent.click(screen.getByLabelText('Replace my goals'));
-    expect(screen.getByText('This removes your 1 current goal')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Import' }));
-    await screen.findByText('Imported 1.');
+    expect(screen.getByText('This removes your 1 current goal.')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Import 1 goal' }));
+    await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Imported 1.'));
     expect(stored().map((g) => g.key)).toEqual(['new']);
   });
 
@@ -89,7 +72,7 @@ describe('Goals import dialog', () => {
   ])('shows the error for %s', (text, message) => {
     mount(<ImportDialog text={text} onClose={vi.fn()}/>);
     expect(screen.getByText(message)).toBeTruthy();
-    expect(screen.queryByRole('button', { name: 'Import' })).toBeNull();
+    expect(screen.queryByRole('button', { name: /^Import / })).toBeNull();
   });
 
   it('the section header picks a file and opens the dialog', async () => {
@@ -109,9 +92,9 @@ describe('Goals import dialog', () => {
     expect(screen.getByText('1 goal: 1 account, 0 character')).toBeTruthy();
     expect(screen.getByText(/, 1 other goal left out$/)).toBeTruthy();
     fireEvent.click(screen.getByLabelText('Replace my item goals'));
-    expect(screen.getByText('This removes your 1 current item goal')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: 'Import' }));
-    await screen.findByText('Imported 1.');
+    expect(screen.getByText('This removes your 1 current item goal.')).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Import 1 item goal' }));
+    await waitFor(() => expect(screen.getByRole('status').textContent).toBe('Imported 1.'));
     expect(stored().map((g) => g.key)).toEqual(['keep', 'New']);
   });
 });

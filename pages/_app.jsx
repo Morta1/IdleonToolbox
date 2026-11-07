@@ -1,23 +1,26 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import Router, { useRouter } from 'next/router';
 import { CacheProvider, ThemeProvider as EmotionThemeProvider } from '@emotion/react';
 import { CssBaseline, ThemeProvider } from '@mui/material';
+import { useColorScheme } from '@mui/material/styles';
 import '../polyfills';
 import createEmotionCache from '../utility/createEmotionCache';
-import darkTheme from '../styles/theme/darkTheme';
+import theme from '../styles/theme/theme';
 import '../styles/globals.css';
+import '../styles/theme/theme-vars.css';
 import Head from 'next/head';
 import AppProvider from '../components/common/context/AppProvider';
 import PreferencesProvider from '../components/common/context/PreferencesProvider';
 import { GoalsProvider } from '../components/goals/GoalsProvider';
-import { NoticeStackProvider } from '../components/common/NoticeSnackbar';
-import LoginNotice from '../components/common/LoginNotice';
+import SnackbarHost from '@components/common/Overlays/SnackbarHost';
+import WhatsNewGate from '@components/common/WhatsNew/WhatsNewGate';
 import { NextSeo } from 'next-seo';
 import NavBar from '../components/common/NavBar';
 import DataLoadingWrapper from '../components/common/DataLoadingWrapper';
 import ConsentScripts from '@components/common/Etc/ContentScripts';
 import { CookieConsent } from 'react-cookie-consent';
-import CookiePolicyDialog from '@components/common/Etc/CookiePolicyDialog';
+import ConsentBannerHeight from '@components/common/Etc/ConsentBannerHeight';
+import CookiePolicyDialog, { openCookiePolicy } from '@components/common/Etc/CookiePolicyDialog';
 import Button from '@mui/material/Button';
 import useGdprRegion, { getConsentObject } from '../hooks/useGdprRegion';
 import DynamicBreadcrumbs from '@components/common/DynamicBreadcrumbs';
@@ -26,7 +29,7 @@ import ErrorBoundary from '@components/common/ErrorBoundary';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { PAGE_SEO } from '../data/page-seo';
 import { resolveSeoHead } from '../utility/seo-head.mjs';
-import { pageIconFor } from '../utility/page-icons';
+import { pageIconFor } from '../utility/pageIndex';
 import { trackPageView } from '../utility/analytics';
 import { reportWebVitals } from '../utility/web-vitals';
 
@@ -53,9 +56,18 @@ const preConnections = [
   'https://s.nitropay.com'
 ];
 
+// The phone's browser bar follows the scheme. _document's tag holds the default, and colorScheme is undefined until mount.
+const ThemeColorMeta = () => {
+  const { colorScheme } = useColorScheme();
+  useEffect(() => {
+    if (!colorScheme) return;
+    document.querySelector('meta[name="theme-color"]')?.setAttribute('content', theme.colorSchemes[colorScheme].palette.background.default);
+  }, [colorScheme]);
+  return null;
+};
+
 const MyApp = (props) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props;
-  const [openPolicy, setOpenPolicy] = useState(false);
   const router = useRouter();
   const { asPath, pathname } = router;
   // Pages generated from a dynamic route share one PAGE_SEO entry, so they carry their own
@@ -112,21 +124,35 @@ const MyApp = (props) => {
         {preConnections?.map((link) => <link key={link} rel="preconnect" href={link}/>)}
       </Head>
       <div id="ncmp-consent-link"></div>
+      <ConsentBannerHeight>
       {isGdprRegion === false && <CookieConsent
         buttonText="Accept"
         declineButtonText="Decline"
         enableDeclineButton
         cookieName="idleon-consent"
-        style={{ zIndex: 9999999, display: 'flex', alignItems: 'center', fontSize: 14 }}
-        contentStyle={{ margin: '8px 15px', fontSize: 12 }}
+        style={{
+          zIndex: 9999999, display: 'flex', alignItems: 'center', fontSize: 14,
+          background: 'var(--mui-palette-background-paper)',
+          color: 'var(--mui-palette-text-primary)',
+          borderTop: '1px solid var(--mui-palette-divider)'
+        }}
+        // The banner sits outside the ThemeProvider, so its text reads the theme's caption (12 px) directly.
+        contentStyle={{ margin: '8px 15px', ...theme.typography.caption }}
         buttonStyle={{
           margin: '0 15px 0 0',
           borderRadius: '8px',
           fontSize: 12,
-          backgroundColor: '#1976d2',
-          color: 'white'
+          backgroundColor: 'var(--mui-palette-primary-main)',
+          color: 'var(--mui-palette-primary-contrastText)'
         }}
-        declineButtonStyle={{ margin: '0 15px 0 15px', borderRadius: '8px', fontSize: 12 }}
+        declineButtonStyle={{
+          margin: '0 15px 0 15px',
+          borderRadius: '8px',
+          fontSize: 12,
+          // Overlays board's destructive fill: 6.7:1 in dark and 5.6:1 in light, where error.main with its own text is 3.7:1 in dark.
+          background: 'var(--mui-palette-text-error)',
+          color: 'var(--mui-palette-primary-contrastText)'
+        }}
         onAccept={() => {
           if (typeof window !== 'undefined' && window.gtag) {
             window.gtag('consent', 'update', getConsentObject(true));
@@ -143,11 +169,14 @@ const MyApp = (props) => {
         {/* One short line at the buttons' 12px: the full detail is behind Learn more. The notice paints after
             hydration, and at any larger size its text outweighed a wiki page's own content (a 72px item icon
             is 5,184px²), which made this banner every static page's LCP on mobile. */}
-        We use cookies for analytics and personalized ads.{' '}
-        <Button variant={'contained'} sx={{ height: 24, px: 1, fontSize: 12, textTransform: 'none' }}
-                onClick={() => setOpenPolicy(true)}>Learn
+        I use cookies for analytics and personalized ads.{' '}
+        {/* The banner sits outside the ThemeProvider, so this button gets MUI's default theme (a dark blue in
+            capitals): its case and the theme's primary color, over 5:1 on the banner in both schemes, are written here. */}
+        <Button variant={'text'} sx={{ height: 24, px: 1, fontSize: 12, textTransform: 'none', color: 'var(--mui-palette-primary-main)' }}
+                onClick={openCookiePolicy}>Learn
           more</Button>
       </CookieConsent>}
+      </ConsentBannerHeight>
       <ConsentScripts/>
       {/* Plain script rather than next/script: afterInteractive injects post-hydration,
           which keeps structured data out of the static export entirely. */}
@@ -178,21 +207,22 @@ const MyApp = (props) => {
       />
       {/* No WebSite/SearchAction block here on purpose. Google retired the sitelinks search box in
           2024, so the SearchAction bought nothing - and its urlTemplate was the only reason
-          Googlebot ever fetched /tools/item-database?q=%7Bsearch_term_string%7D, which it then
-          reported as a crawled-not-indexed URL. */}
+          Googlebot ever fetched the search page with a literal ?q=%7Bsearch_term_string%7D, which
+          it then reported as a crawled-not-indexed URL. */}
       <QueryClientProvider client={queryClient}>
       <CacheProvider value={emotionCache}>
-        <ThemeProvider theme={darkTheme}>
-          <EmotionThemeProvider theme={darkTheme}>
-            <CookiePolicyDialog open={openPolicy} onClose={() => setOpenPolicy(false)}/>
-            <CssBaseline/>
+        {/* The theme's variables come from one shared file (styles/theme/theme-vars.css), not from every page's HTML. */}
+        <ThemeProvider theme={theme} defaultMode="dark" disableStyleSheetGeneration>
+          <EmotionThemeProvider theme={theme}>
+            <CookiePolicyDialog/>
+            <CssBaseline enableColorScheme/>
+            <ThemeColorMeta/>
             <RouteProgress/>
             {/* Outer net for the shell itself (providers, NavBar). Still beats a blank root. */}
-            <ErrorBoundary resetKey={asPath} title={'The app failed to load'}>
+            <ErrorBoundary resetKey={asPath} title={'The app failed to load'} gutters detail>
             <PreferencesProvider>
             <AppProvider>
               <GoalsProvider>
-              <NoticeStackProvider>
               <NavBar>
                 {/* App-level SEO defaults, deliberately without a title or description: every page
                     declares its own, and _app's <Head> above covers the rest.
@@ -241,16 +271,16 @@ const MyApp = (props) => {
                   ]}
                 />
                 <DynamicBreadcrumbs/>
-                <LoginNotice/>
                 {/* Contains a page-level crash to this slot. Without it React unmounts the whole
                     root and the app goes blank until a manual refresh. */}
-                <ErrorBoundary resetKey={asPath} title={'This page failed to render'}>
+                <ErrorBoundary resetKey={asPath} title={'This page failed to render'} detail>
                   <DataLoadingWrapper>
                     <Component {...pageProps} />
                   </DataLoadingWrapper>
                 </ErrorBoundary>
               </NavBar>
-              </NoticeStackProvider>
+              <SnackbarHost/>
+              <WhatsNewGate/>
               </GoalsProvider>
             </AppProvider>
             </PreferencesProvider>

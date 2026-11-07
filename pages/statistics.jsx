@@ -1,102 +1,55 @@
 import { NextSeo } from 'next-seo';
 import React, { useEffect, useState } from 'react';
 import SimpleLoader from '../components/common/SimpleLoader';
-import { useReportPageLoading } from '@components/common/context/PageLoadingProvider';
-import { Grid, useMediaQuery } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { classes } from '@website-data';
-import { customColors, getVisualizationMap } from '@components/statistics/consts';
-import dynamic from 'next/dynamic';
-
-const BarVisualization = dynamic(
-  () => import('../components/statistics/BarVisualization'),
-  { ssr: false }
-);
-const PieVisualization = dynamic(
-  () => import('../components/statistics/PieVisualization'),
-  { ssr: false }
-);
+import { getVisualizationMap } from '@components/statistics/consts';
+import CardGrid from '@components/common/cards/CardGrid';
+import Panel from '@components/common/cards/Panel';
+import ErrorBoundary from '@components/common/ErrorBoundary';
+import Notice, { retryAction } from '@components/common/Notice';
+import StatisticsChart from '@components/statistics/StatisticsChart';
 
 const API_URL = process.env.NEXT_PUBLIC_PROFILES_URL;
+
+// Two panels share a row's height: the spare goes down to the chart frame, whose footer closes the panel.
+const COLUMN_SX = { display: 'flex', flexDirection: 'column' };
+const CHART_PANEL_SX = { ...COLUMN_SX, height: '100%', boxSizing: 'border-box', '& > :last-child': { ...COLUMN_SX, flexGrow: 1 } };
+
+const REQUEST_TIMEOUT = 20000;
+
+const fetchVisualizations = () => fetch(`${API_URL}/visualizations`, { signal: AbortSignal.timeout?.(REQUEST_TIMEOUT) }).then((res) => {
+  if (!res.ok) throw new Error('Failed to fetch');
+  return res.json();
+});
 
 const Statistics = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('lg'));
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+  const [retrying, setRetrying] = useState(false);
+  const [failed, setFailed] = useState(0);
   const visualizationMap = getVisualizationMap(classes);
 
-  // Whole page is a loader below - let the layout collapse the ad gutter so it centres
-  useReportPageLoading(loading);
+  const load = () => fetchVisualizations()
+    .then((json) => {
+      setData(json);
+      setFailed(0);
+    })
+    .catch(() => setFailed((count) => count + 1))
+    .finally(() => {
+      setLoading(false);
+      setRetrying(false);
+    });
 
   useEffect(() => {
-    fetch(`${API_URL}/visualizations`)
-      .then((res) => {
-        if (!res.ok) throw new Error('Failed to fetch');
-        return res.json();
-      })
-      .then((json) => {
-        setData(json);
-        setLoading(false);
-      })
-      .catch((err) => {
-        setError(err.message);
-        setLoading(false);
-      });
+    load();
   }, []);
 
-  // Render a chart for each key in the data, using the visualizationMap
-  const renderCharts = () => {
-    if (!data) return null;
-    return Object.entries(data)
-      .filter(([key]) => (visualizationMap[key] && visualizationMap[key].getData))
-      .map(([key, value], index) => {
-        const vizConfig = visualizationMap[key];
-        const vizType = vizConfig.type;
-        const chartData = vizConfig.getData(value);
-        const chartKeys = vizConfig.hasOwnProperty('getKeys') ? vizConfig.getKeys(chartData) : null;
-        if (!Array.isArray(chartData)) return null;
-        const indexKey = '_id';
-        if (vizType === 'bar') {
-          return (
-            <BarVisualization
-              key={key}
-              keys={chartKeys || vizConfig?.keys}
-              data={chartData.map(item => ({
-                ...item,
-                [indexKey]: item[indexKey],
-                count: item.count
-              }))}
-              indexKey={indexKey}
-              label={vizConfig?.props?.label || key.camelToTitleCase()}
-              color={customColors[index % customColors.length]}
-              colors={vizConfig?.getColors}
-              {...vizConfig?.props}
-            />
-          );
-        }
-        if (vizType === 'pie') {
-          const pieData = chartData.map(item => ({
-            id: item._id,
-            value: item.count,
-            label: item[indexKey],
-            color: customColors[index % customColors.length]
-          }));
-          return (
-            <PieVisualization
-              key={key}
-              data={pieData}
-              label={key.camelToTitleCase()}
-              colors={customColors}
-              isMd={isMd}
-              isSm={isSm}
-              {...vizConfig?.props}
-            />
-          );
-        }
-        return null;
-      });
-  };
+  // One chart per key the API sends that the map knows (createdAt and _id are skipped). A key whose answer is not a list
+  // has nothing to draw, and the page says so once under the charts.
+  const known = Object.keys(visualizationMap);
+  const charts = known.filter((key) => Array.isArray(data?.[key])).map((key) => [key, visualizationMap[key], data[key]]);
+  const unread = known.length - charts.length;
 
   // Rendered in both branches - when it sat below the early return the page had no title at all
   // while the visualizations were still loading.
@@ -109,32 +62,25 @@ const Statistics = () => {
 
   return <>
     {seo}
-    <div style={{ background: '#141A21', minHeight: '100vh', padding: isSm ? 8 : 20 }}>
-      {error && <p style={{ color: '#F56565', textAlign: 'center', fontSize: 14 }}>Error: {error}</p>}
-      {!loading && !error && data && (
-        <Grid container spacing={3}>
-          {renderCharts().map((chart, idx) => (
-            <Grid item xs={12} md={6} key={idx}>
-              <div
-                style={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  height: isSm ? 350 : 400,
-                  minWidth: isSm ? 0 : 300,
-                  background: '#1C252E',
-                  borderRadius: 8,
-                  padding: isSm ? 12 : 32,
-                  border: '1px solid #424242',
-                  boxShadow: 'rgba(0, 0, 0, 0.05) 0px 1px 3px 0px, rgba(0, 0, 0, 0.05) 0px 20px 25px -5px, rgba(0, 0, 0, 0.04) 0px 10px 10px'
-                }}
-              >
-                {chart}
-              </div>
-            </Grid>
-          ))}
-        </Grid>
-      )}
-    </div>
+    {failed
+      ? <Notice key={failed} tone={'error'} action={retryAction(() => {
+        setRetrying(true);
+        load();
+      }, retrying)}>Couldn't load the statistics.</Notice>
+      : <>
+        <Typography variant={'body2'} color={'text.secondary'} sx={{ mb: 3 }}>
+          Counted from every profile players have uploaded to Idleon Toolbox, refreshed every 30 minutes.
+        </Typography>
+        {/* Two columns at most: a chart's table twin needs the width, and three at 1920 cut its last column. */}
+        {charts.length ? <CardGrid size={'l'} sx={{ gridTemplateColumns: 'minmax(0, 1fr)', '@media (min-width:1300px)': { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' } }}>
+          {charts.map(([key, config, raw]) => <Panel key={key} title={config.title} meta={config.subtitle} sx={CHART_PANEL_SX}>
+            <Box sx={{ ...COLUMN_SX, flexGrow: 1, p: { xs: 1.5, sm: 2 } }}>
+              <ErrorBoundary title={'This chart didn\'t load'}><StatisticsChart config={config} raw={raw}/></ErrorBoundary>
+            </Box>
+          </Panel>)}
+        </CardGrid> : <Notice tone={'info'}>No statistics yet.</Notice>}
+        {charts.length && unread ? <Box sx={{ mt: 3 }}><Notice tone={'info'}>{unread} {unread === 1 ? 'chart' : 'charts'} didn't load.</Notice></Box> : null}
+      </>}
   </>;
 };
 

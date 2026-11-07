@@ -1,32 +1,31 @@
 import {
   Checkbox,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogContentText,
-  DialogTitle,
   Divider,
   FormControlLabel,
   Stack,
   TextField,
   Typography
 } from '@mui/material';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import Button from '@mui/material/Button';
-import { handleDownload, numberWithCommas } from '@utility/helpers';
+import { handleDownload } from '@utility/helpers';
 import { itemsArray } from '@website-data';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import StructuredData, { createHowToData } from '@components/common/StructuredData';
-import { CardTitleAndValue } from '@components/common/styles';
+import { isSectionFailed, MissingSections } from '@components/common/styles';
+import Panel from '@components/common/cards/Panel';
+import NumberField from '@components/common/NumberField';
 import { IconTrash } from '@tabler/icons-react';
 import { useGoals } from '@components/goals/GoalsProvider';
 import { useMaterialTrackerMigration } from '@components/goals/useMaterialTrackerMigration';
 import GreenstackFoldNotice from '@components/goals/GreenstackFoldNotice';
 import GoalListRow, { GoalRows } from '@components/goals/GoalListRow';
 import ImportDialog from '@components/dashboard/goals/ImportDialog';
-import NoticeSnackbar, { NoticeStack } from '@components/common/NoticeSnackbar';
+import Notice from '@components/common/Notice';
+import { notify } from '@components/common/Overlays/notify';
+import AppDialog from '@components/common/Overlays/AppDialog';
 import { goalsFileName, useGoalsFileImport, useGoalsUndo } from '@components/goals/goalListHelpers';
 import { getDescriptor } from '@utility/goals/registry';
 import { GREENSTACK_AMOUNT, greenstackGoal } from '@utility/goals/registry/greenstack';
@@ -41,6 +40,13 @@ import { trackEvent } from '@utility/analytics';
 const GoalPopover = dynamic(() => import('@components/goals/GoalPopover'), { ssr: false });
 
 const SOURCE = 'material-tracker';
+const SECTION_NAMES = { looty: 'Slab', storage: 'Storage' };
+// Each button's list comes from these sections: with one failed it would come up short, without a word
+const TRACK_MY_READS = ['looty', 'storage'];
+const TRACK_MISSING_READS = ['looty'];
+
+// A goal over a failed section: its amount reads "-", and nothing says short, reached or gone from the game.
+const unknownAmount = (view) => ({ ...view, status: 'ok', value: null, met: null, total: null, short: [], progress: null });
 
 const MaterialTracker = () => {
   const { state } = useContext(AppContext);
@@ -50,47 +56,54 @@ const MaterialTracker = () => {
   const [bounds, setBounds] = useState({ lowerBound: '', upperBound: '' });
   const [note, setNote] = useState('');
   const [errors, setErrors] = useState({ lowerBound: false, upperBound: false });
-  const [result, setResult] = useState(null);
-  // Keys the result notice so a second one restarts its timer (the Undo snackbar keeps its own)
-  const [noticeCount, setNoticeCount] = useState(0);
-  const [confirmClear, setConfirmClear] = useState(false);
+  // The count is stored when it opens, so the confirm keeps its words while it fades out
+  const [confirmClear, setConfirmClear] = useState({ open: false, count: 0 });
+  const goalsRegion = useRef(null);
   const [editing, setEditing] = useState(null);
-  const { removeWithUndo, undoSnackbar } = useGoalsUndo();
+  const { removeWithUndo } = useGoalsUndo();
   const fileImport = useGoalsFileImport();
 
   const ctx = { account: state?.account, characters: state?.characters };
   const itemGoals = goals.filter(({ system }) => system === 'item');
   // "Track my greenstacks" is the All greenstacks goal, not a single greenstack entry goal
   const greenstack = goals.find(({ system, kind }) => system === 'greenstack' && kind === 'all');
-  const greenstackView = greenstack ? resolveGoal(greenstack, ctx) : null;
+  const failed = (names) => names.find((name) => isSectionFailed(state?.account, name));
+  const greenstackGoalView = greenstack ? resolveGoal(greenstack, ctx) : null;
+  const greenstackView = greenstackGoalView && failed(TRACK_MY_READS) ? unknownAmount(greenstackGoalView) : greenstackGoalView;
   // A lower and an upper goal on one item read as one range row
-  const itemViews = pairRanges(resolveGoals(itemGoals, ctx));
-  const pageGoals = goals.filter(isItemGoal);
-
-  const notify = (next) => {
-    setResult(next);
-    setNoticeCount(noticeCount + 1);
+  const itemRows = pairRanges(resolveGoals(itemGoals, ctx));
+  const itemViews = failed(['storage']) ? itemRows.map(unknownAmount) : itemRows;
+  const offReason = (names) => {
+    const first = failed(names);
+    return first ? `Off for now: ${state?.account?.failedSections?.includes('*') ? 'your save' : SECTION_NAMES[first]} didn't load, so this list would come up short.` : null;
   };
+  const trackMyOff = offReason(TRACK_MY_READS);
+  const trackMissingOff = offReason(TRACK_MISSING_READS);
+  const pageGoals = goals.filter(isItemGoal);
+  // One goal: the confirm names it (its item, or All greenstacks), or at least its kind.
+  const onlyGoal = pageGoals.length === 1 ? pageGoals[0] : null;
+  const onlyName = onlyGoal ? [greenstackView, ...itemViews].find((view) => view?.id === onlyGoal.id)?.name : null;
+  const clearOneTitle = onlyName ? `Clear the ${onlyName} goal?` : `Clear this ${onlyGoal?.system === 'greenstack' ? 'greenstack' : 'item'} goal?`;
 
   // Goals need an account: a logged-out visitor still sees the card, and a click asks them to sign in
   const needsAccount = () => {
-    if (!enabled) notify({ severity: 'info', message: 'Sign in to track your greenstacks' });
+    if (!enabled) notify('Sign in to track your greenstacks');
     return !enabled;
   };
 
   const handleTrackMissing = () => {
     if (needsAccount()) return;
     if (greenstack) {
-      notify({ severity: 'info', message: 'Already tracking your greenstacks' });
+      notify('Already tracking your greenstacks');
       return;
     }
     const goal = greenstackGoal();
     if (save(goal) === 'cap') {
-      notify({ severity: 'error', message: `You have ${MAX_GOALS} goals. Remove some first.` });
+      notify(`You have ${MAX_GOALS} goals. Remove some first.`);
       return;
     }
     trackEvent('goal_added', { system: goal.system, kind: goal.kind, source: SOURCE });
-    notify({ severity: 'success', message: 'Greenstack goal added' });
+    notify('Greenstack goal added');
   };
 
   const handleTrackOwned = () => {
@@ -106,7 +119,7 @@ const MaterialTracker = () => {
     const untracked = itemsArray.filter((item) => isTrackableItem(item)
       && ownedGreenStacks.has(item.rawName) && !tracked.has(item.rawName));
     if (untracked.length === 0) {
-      notify({ severity: 'info', message: 'All your greenstacks are already tracked' });
+      notify('All your greenstacks are already tracked');
       return;
     }
     const lowerBound = bounds.lowerBound.replace(/,/g, '');
@@ -125,16 +138,16 @@ const MaterialTracker = () => {
     const { added, overCap: rejected } = saveMany(materialTrackerToGoals(entries));
     if (added > 0) trackEvent('goal_added', { system: 'item', kind: 'entry', source: SOURCE });
     notify(rejected > 0
-      ? { severity: 'error', message: `${rejected} greenstack goals could not be added (goal limit)` }
-      : { severity: 'success', message: `Added ${untracked.length} greenstack${untracked.length === 1 ? '' : 's'}` });
+      ? `${rejected} greenstack goals could not be added (goal limit)`
+      : `Added ${untracked.length} greenstack${untracked.length === 1 ? '' : 's'}`);
     setBounds({ lowerBound: '', upperBound: '' });
     setNote('');
   };
 
-  const onEdit = (view, anchorEl) => {
+  const onEdit = (view) => {
     const goal = goals.find(({ id }) => id === view.id);
     const descriptor = getDescriptor(view.system);
-    if (goal && descriptor) setEditing({ anchorEl, goal, descriptor });
+    if (goal && descriptor) setEditing({ goal, descriptor });
   };
 
   // A range row stands for two goals, so it removes both
@@ -145,12 +158,14 @@ const MaterialTracker = () => {
 
   const onExport = () => handleDownload(exportItemGoals(goals), goalsFileName('idleon-item-goals'));
 
+  // The same strings reach the goals as ever; the field reads and shows the number
   const boundField = (field, label) => (
-    <TextField size={'small'} error={errors[field]} value={bounds[field]} label={label}
-               onChange={({ target }) => {
-                 setBounds({ ...bounds, [field]: numberWithCommas(target.value.replace(/,/g, '')) });
-                 setErrors({ ...errors, [field]: false });
-               }}/>
+    <NumberField label={label} integer min={0} help={false} error={errors[field] ? 'The two bounds must differ' : null}
+                 value={bounds[field] === '' ? null : Number(bounds[field])}
+                 onChange={(next) => {
+                   setBounds((current) => ({ ...current, [field]: next == null ? '' : String(next) }));
+                   setErrors({ ...errors, [field]: false });
+                 }}/>
   );
 
   return (<>
@@ -168,6 +183,9 @@ const MaterialTracker = () => {
         'Track your missing greenstacks as one goal'
       ]
     )}/>
+    <MissingSections account={state?.account} names={SECTION_NAMES}/>
+    {!enabled && !state?.account?.failedSections?.length
+      ? <Notice tone={'signin'} sx={{ mb: 2 }}>Goals need your save: sign in to track greenstacks.</Notice> : null}
     <Stack gap={0.5} sx={{ mb: 2 }}>
       <Typography variant={'body2'} color={'text.secondary'}>
         Item goals show on your dashboard and raise the material tracker alert. Add single items with the Add goal
@@ -177,13 +195,14 @@ const MaterialTracker = () => {
         Item goals track how many of an item you own. Slab goals, on the Slab page, track which items you have looted.
       </Typography>
     </Stack>
-    <CardTitleAndValue title={'Greenstacks'} cardSx={{ mb: 3 }}>
-      <Stack sx={{ mt: 1 }} gap={2} direction={{ xs: 'column', md: 'row' }}
+    <Panel title={'Greenstacks'} sx={{ mb: 3 }}>
+      <Stack sx={{ p: 2 }} gap={2} direction={{ xs: 'column', md: 'row' }}
              divider={<Divider orientation={'vertical'} flexItem sx={{ display: { xs: 'none', md: 'block' } }}/>}>
         <Stack role={'group'} aria-label={'Track my greenstacks'} gap={1.5} sx={{ flex: 1, minWidth: 0 }}>
-          <Button onClick={handleTrackOwned} variant={'contained'} sx={{ alignSelf: 'flex-start' }}>
+          <Button onClick={handleTrackOwned} variant={'contained'} disabled={Boolean(trackMyOff)} sx={{ alignSelf: 'flex-start' }}>
             Track my greenstacks
           </Button>
+          {trackMyOff ? <Typography variant={'body2'} color={'text.secondary'}>{trackMyOff}</Typography> : null}
           <Typography variant={'caption'} color={'text.secondary'}>
             One goal per greenstack you own, with the bounds and note below. No bounds: the dashboard always shows
             the amount.
@@ -200,36 +219,33 @@ const MaterialTracker = () => {
           />
         </Stack>
         <Stack role={'group'} aria-label={'Track missing greenstacks'} gap={1.5} sx={{ flex: { md: '0 0 240px' } }}>
-          <Button onClick={handleTrackMissing} variant={'contained'}
+          <Button onClick={handleTrackMissing} variant={'outlined'} disabled={Boolean(trackMissingOff)}
                   sx={{ alignSelf: 'flex-start' }}>
             Track missing greenstacks
           </Button>
+          {trackMissingOff ? <Typography variant={'body2'} color={'text.secondary'}>{trackMissingOff}</Typography> : null}
           <Typography variant={'caption'} color={'text.secondary'}>
             One goal for every greenstack you still need.
           </Typography>
         </Stack>
       </Stack>
-    </CardTitleAndValue>
+    </Panel>
     {enabled ? <>
+      {/* 16 px: on a touch screen its link's 44 px tap area reaches 12 px below the note, clear of Export item goals */}
+      <GreenstackFoldNotice sx={{ mb: 2 }}/>
       {overCap > 0 ? (
-        <Typography variant="body2" color="warning.main" sx={{ mb: 1 }}>
-          {`${overCap} tracked materials could not be added (goal limit)`}
-        </Typography>
+        <Notice tone={'missing'} sx={{ mb: 1 }}>{`${overCap} tracked materials could not be added (goal limit).`}</Notice>
       ) : null}
-      <Stack data-item-goals gap={1} sx={{ maxWidth: 760 }}>
-        <Stack direction={'row'} gap={1} flexWrap={'wrap'} justifyContent={'flex-end'}>
-          {pageGoals.length ? (
-            <Button size={'small'} sx={{ textTransform: 'none' }} onClick={onExport}>Export item goals</Button>
-          ) : null}
-          <Button size={'small'} sx={{ textTransform: 'none' }} onClick={fileImport.pick}>Import</Button>
-          {fileImport.input}
-          {pageGoals.length ? (
-            <Button onClick={() => setConfirmClear(true)} variant={'outlined'} color={'error'} size={'small'}
-                    startIcon={<IconTrash size={18}/>} sx={{ textTransform: 'none' }}>
-              Clear all item goals
-            </Button>
-          ) : null}
-        </Stack>
+      <Stack ref={goalsRegion} data-item-goals gap={1} sx={{ maxWidth: 760 }}>
+        {fileImport.input}
+        {pageGoals.length ? <Stack direction={'row'} gap={1} flexWrap={'wrap'} justifyContent={'flex-end'}>
+          <Button size={'small'} onClick={onExport}>Export item goals</Button>
+          <Button size={'small'} onClick={fileImport.pick}>Import</Button>
+          <Button onClick={() => setConfirmClear({ open: true, count: pageGoals.length })} color={'error'} size={'small'}
+                  startIcon={<IconTrash size={18}/>}>
+            Clear all item goals
+          </Button>
+        </Stack> : null}
         {greenstackView || itemViews.length > 0 ? (
           <GoalRows label="Item goals">
             {greenstackView ? (
@@ -237,39 +253,41 @@ const MaterialTracker = () => {
             ) : null}
             {itemViews.map((view) => <GoalListRow key={view.id} view={view} onEdit={onEdit} onRemove={onRemove} source={SOURCE}/>)}
           </GoalRows>
-        ) : <Typography color={'text.secondary'}>Add item goals with the Add goal button</Typography>}
+        ) : <Notice action={{ label: 'Import', onClick: fileImport.pick }}>No item goals yet. Add one with Add goal, or import a file.</Notice>}
       </Stack>
     </> : null}
     {editing ? (
-      <GoalPopover anchorEl={editing.anchorEl} open onClose={() => setEditing(null)}
+      <GoalPopover open onClose={() => setEditing(null)}
                    systems={[editing.descriptor]}
                    initial={{ system: editing.goal.system, key: editing.goal.key, scope: editing.goal.scope, goal: editing.goal }}
                    source={SOURCE}/>
     ) : null}
-    <Dialog open={confirmClear} onClose={() => setConfirmClear(false)}>
-      <DialogTitle>Clear all item goals</DialogTitle>
-      <DialogContent>
-        <DialogContentText>{`Remove all ${pageGoals.length} item and greenstack goals?`}</DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setConfirmClear(false)}>Cancel</Button>
-        <Button color={'error'} onClick={() => {
-          removeWithUndo(pageGoals.map(({ id }) => id), 'Item goals cleared');
-          setConfirmClear(false);
-        }} autoFocus>Confirm</Button>
-      </DialogActions>
-    </Dialog>
+    <AppDialog open={confirmClear.open} onClose={() => setConfirmClear({ ...confirmClear, open: false })} size="s"
+               // Clearing takes the opener away with the goals: the empty list's first control takes the focus.
+               onExited={() => {
+                 if (!pageGoals.length) goalsRegion.current?.querySelector('button')?.focus();
+               }}
+               title={confirmClear.count === 1 ? clearOneTitle : 'Clear all item goals?'}
+               actions={[
+                 { label: 'Cancel' },
+                 {
+                   label: `Clear ${confirmClear.count} ${confirmClear.count === 1 ? 'goal' : 'goals'}`,
+                   main: true, danger: true,
+                   onClick: () => {
+                     removeWithUndo(pageGoals.map(({ id }) => id), 'Item goals cleared');
+                     setConfirmClear({ ...confirmClear, open: false });
+                   }
+                 }
+               ]}>
+      <Typography variant={'body2'} color="text.secondary">
+        {confirmClear.count === 1
+          ? 'You can undo it right after.'
+          : `This removes all ${confirmClear.count} item and greenstack goals. You can undo it right after.`}
+      </Typography>
+    </AppDialog>
     {fileImport.text !== null ? (
       <ImportDialog text={fileImport.text} onClose={fileImport.close} only={isItemGoal} noun="item goal"/>
     ) : null}
-    <NoticeStack>
-      {enabled ? <GreenstackFoldNotice/> : null}
-      {undoSnackbar}
-      {result ? (
-        <NoticeSnackbar key={noticeCount} label={result.message} stacked
-                        autoHideDuration={result.severity === 'error' ? 10000 : 4000} onClose={() => setResult(null)}/>
-      ) : null}
-    </NoticeStack>
   </>);
 };
 

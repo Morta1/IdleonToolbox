@@ -1,4 +1,4 @@
-import { commaNotation, notateNumber } from '@utility/helpers';
+import { gameFill, notateNumber } from '@utility/helpers';
 import {
   mapEnemiesArray,
   mapNames,
@@ -347,7 +347,7 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
     gridPTSavailable,
     shapesOwned,
     canRotateShapes: researchLevel >= 90 ? 1 : 0,
-    postyNotesOwned: Math.min(14, Math.floor(researchLevel / 10)),
+    postyNotesOwned: Math.min(researchData?.[6]?.length ?? 0, Math.floor(researchLevel / 10)),
     postyNotes: (researchData?.[6] ?? []).map((desc: string, index: number) => ({
       index,
       description: desc,
@@ -469,10 +469,10 @@ export function getResearchGridSquareDescription(account: any, research: any, gr
   const level = Math.round(getResearchGridBonusInternal(account, research, gridIndex, 1));
   const opt499 = research?.optionsListAccount?.[OPT.researchMasterclassCostReduction] ?? 0;
 
-  const bonus0Str = bonus0 > 100 ? commaNotation(bonus0) : notateNumber(bonus0, 'Small');
-  const mult0Str = (notateNumber(1 + bonus0 / 100, 'MultiplierInfo') as string).replace(/#/g, '');
-  const bonus2Str = commaNotation(bonus2);
-  const mult2Str = (notateNumber(1 + bonus2 / 100, 'MultiplierInfo') as string).replace(/#/g, '');
+  const bonus0Str = bonus0 > 100 ? gameFill(bonus0, 'Comma') : gameFill(bonus0, 'Small');
+  const mult0Str = gameFill(1 + bonus0 / 100, 'MultiplierInfo');
+  const bonus2Str = gameFill(bonus2, 'Comma');
+  const mult2Str = gameFill(1 + bonus2 / 100, 'MultiplierInfo');
   const opt499Str = Math.floor(10000 * (1 - 1 / (1 + opt499 / 100))) / 100;
   const levelStr = level;
 
@@ -484,6 +484,12 @@ export function getResearchGridSquareDescription(account: any, research: any, gr
   result = replacePlaceholder(result, '^', mult2Str);
   result = replacePlaceholder(result, '&', opt499Str);
   result = replacePlaceholder(result, '|', levelStr);
+  // Divine Design opens on a sentence of its own, by King Doot (N.js:121917). The game prints two periods after one of them.
+  if (gridIndex === 173) {
+    result = replacePlaceholder(result, '<.', research?.kingDootActive
+      ? 'Arctis_nods_in_approval..._all_Research_Grid_bonuses_are_1.05x_higher.'
+      : 'You_are_now_permanently_linked_to_Arctis_on_all_characters.');
+  }
   return result;
 }
 

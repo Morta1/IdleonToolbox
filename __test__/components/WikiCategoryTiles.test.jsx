@@ -37,7 +37,7 @@ describe('CategoryTiles', () => {
     const countText = LISTED_KINDS.filter((kind) => counts[kind]).map((kind) => counts[kind].toLocaleString('en-US'));
 
     expect(links.map((link) => link.getAttribute('href'))).toEqual(expected);
-    expect(kindLinks.map((link, i) => link.textContent.slice(-countText[i].length))).toEqual(countText);
+    expect(kindLinks.map((link, i) => link.textContent.replace('›', '').slice(-countText[i].length))).toEqual(countText);
   });
 
   it('titles each group that has rows, in the rail order', () => {
@@ -62,7 +62,10 @@ describe('CategoryTiles', () => {
       .toEqual([`${label}${counts[kind].toLocaleString('en-US')}`, heading]);
   });
 
-  it('routes a plain click in-app and leaves a modified click to the browser', () => {
+  it.each([
+    ['a kind', 'a[href="/wiki/pet"]', '/wiki/pet'],
+    ['a system heading', 'li.MuiListSubheader-root a[href="/wiki/sneaking"]', '/wiki/sneaking']
+  ])('routes a plain click on %s in-app and leaves a modified click to the browser', (_, selector, href) => {
     const seen = [];
     // After React's own handler has run, so it records whether the default was already prevented,
     // and stops jsdom trying to navigate.
@@ -72,31 +75,11 @@ describe('CategoryTiles', () => {
     };
     document.body.addEventListener('click', record);
     const { container, onGo } = renderTiles();
-    const link = container.querySelector('a[href="/wiki/pet"]');
+    const link = container.querySelector(selector);
 
     fireEvent.click(link);
-    expect(onGo).toHaveBeenCalledTimes(1);
-    expect(onGo).toHaveBeenCalledWith('/wiki/pet');
-
     fireEvent.click(link, { ctrlKey: true });
     document.body.removeEventListener('click', record);
-    expect(onGo).toHaveBeenCalledTimes(1);
-    expect(seen).toEqual([true, false]);
-  });
-
-  it('routes a plain click on a system heading in-app and leaves a modified click to the browser', () => {
-    const seen = [];
-    const record = (event) => {
-      seen.push(event.defaultPrevented);
-      event.preventDefault();
-    };
-    document.body.addEventListener('click', record);
-    const { container, onGo } = renderTiles();
-    const heading = container.querySelector('li.MuiListSubheader-root a[href="/wiki/sneaking"]');
-
-    fireEvent.click(heading);
-    fireEvent.click(heading, { ctrlKey: true });
-    document.body.removeEventListener('click', record);
-    expect([onGo.mock.calls, seen, heading.textContent]).toEqual([[['/wiki/sneaking']], [true, false], 'Sneaking']);
+    expect([onGo.mock.calls, seen]).toEqual([[[href]], [true, false]]);
   });
 });

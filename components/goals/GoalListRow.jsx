@@ -3,49 +3,54 @@ import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Box, Button, ButtonBase, Stack, Typography } from '@mui/material';
 import { IconChevronDown, IconNote } from '@tabler/icons-react';
-import { editText, goalFace, goalText, valueColor } from './parts/format';
-import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GOAL_LIST_WIDTH, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX, PinStar } from './parts/GoalVisuals';
+import { editText, goalFace, goalText, maxIsGoal, valueColor } from './parts/format';
+import { COMPACT_BUTTON_SX, CostValue, FOCUS_SX, GOAL_LIST_WIDTH, GoalBar, GoalIcon, GoalMark, GoalValueText, LINE_SX as ONE_LINE_SX, GoalPin, WRAP_ON_PHONE_SX } from './parts/GoalVisuals';
 import { displayTitle, goalActions } from './parts/actions';
 import GoalEntries from './GoalEntries';
 import { isUnresolved } from '@utility/goals/resolve';
+import ItemCard from '@components/common/cards/ItemCard';
+import StatusText from '@components/common/StatusText';
 
 const ROW_HEIGHT = 38;
 
-// Fixed slots so the value and the bar sit at the same x in every row. A phone gives the name its own full line and
-// puts the value, bar and percent on the second; a tier's goal line shows on a desktop only
+// Fixed slots so the value and the bar sit at the same x in every row. A phone gives the name, the value and the bar
+// with its percent a line each, so nothing is cut: the name and the value wrap; a tier's goal line shows on a desktop only
 const ROW_GRID_SX = {
   display: 'grid',
   alignItems: 'center',
   columnGap: 1,
+  rowGap: { xs: 0.25, sm: 0 },
   width: '100%',
-  height: ROW_HEIGHT,
+  height: { xs: 'auto', sm: ROW_HEIGHT },
   px: 1,
+  py: { xs: 0.75, sm: 0 },
   textAlign: 'left',
   alignContent: 'center',
   // a desktop row splits into three even parts: the name, the value, and the bar with its percent
   gridTemplateColumns: {
-    xs: '24px minmax(0, 1fr) 56px 32px 16px',
+    xs: '24px minmax(0, 1fr) 32px 16px',
     sm: '28px minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) 40px 16px'
   },
-  gridTemplateRows: { xs: '18px 16px', sm: 'auto' },
+  gridTemplateRows: 'auto',
   gridTemplateAreas: {
-    xs: '"icon name name name chevron" "icon value bar aside chevron"',
+    xs: '"icon name name chevron" "icon value value chevron" "icon bar aside chevron"',
     sm: '"icon name value bar aside chevron"'
   }
 };
 const LINE_SX = { ...ONE_LINE_SX, display: 'block' };
-const MAIN_LINE_SX = { ...LINE_SX, fontSize: 14, lineHeight: '18px' };
-const SUB_LINE_SX = { ...LINE_SX, fontSize: 12, lineHeight: '16px', color: 'text.secondary' };
+const MAIN_LINE_SX = { ...LINE_SX, typography: 'body2', lineHeight: '18px' };
+const SUB_LINE_SX = { ...LINE_SX, typography: 'caption', lineHeight: '16px', color: 'text.secondary' };
 // A phone keeps Edit and Remove on the name line so the reason and the amount get the full second line
 const UNRESOLVED_GRID_SX = {
   display: 'grid',
   alignItems: 'center',
   alignContent: 'center',
   columnGap: 1,
-  height: ROW_HEIGHT,
+  height: { xs: 'auto', sm: ROW_HEIGHT },
   px: 1,
+  py: { xs: 0.75, sm: 0 },
   gridTemplateColumns: '24px minmax(0, 1fr) auto',
-  gridTemplateRows: '18px 16px',
+  gridTemplateRows: { xs: 'auto', sm: '18px 16px' },
   gridTemplateAreas: { xs: '"icon name actions" "icon reason reason"', sm: '"icon name actions" "icon reason actions"' }
 };
 // One text line tall, so the buttons never spill into the reason line under them
@@ -63,7 +68,7 @@ const RowSlots = ({ view, face, open = false }) => (
     </Box>
     <Box component="span" sx={{ gridArea: 'name', minWidth: 0 }}>
       <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
-        <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, fontWeight: 500, minWidth: 0, ...(open ? WRAPPED_SX : {}) }}>
+        <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, ...WRAP_ON_PHONE_SX, fontWeight: 500, ...(open ? WRAPPED_SX : {}) }}>
           {displayTitle(view)}
         </Box>
         {view.note ? (
@@ -78,7 +83,8 @@ const RowSlots = ({ view, face, open = false }) => (
         <GoalMark mark={face.mark} size={14}/>
         <Box component="span" data-goal-value sx={{
           ...MAIN_LINE_SX,
-          fontSize: { xs: 12, sm: 14 },
+          ...WRAP_ON_PHONE_SX,
+          typography: { xs: 'caption', sm: 'body2' },
           lineHeight: { xs: '16px', sm: '18px' },
           color: valueColor(view.status)
         }}>
@@ -111,9 +117,9 @@ const ProgressSlots = ({ view, face }) => {
         gridArea: 'aside',
         alignSelf: 'center',
         textAlign: 'right',
-        fontSize: 12,
+        typography: 'caption',
         lineHeight: '16px',
-        color: reached ? 'success.main' : 'text.secondary'
+        color: reached ? 'text.success' : 'text.secondary'
       }}>
         {face.aside ?? ''}
       </Box>
@@ -126,10 +132,10 @@ const ProgressSlots = ({ view, face }) => {
 const RowDetails = ({ view, face, id, source, onEdit, onRemove }) => {
   const router = useRouter();
   const { editable, route, openLabel, onOpenPage, onOpenWiki } = goalActions(view, router.query);
-  const showGoal = view.kind !== 'all' && !view.boolean && !view.watch;
+  const showGoal = (view.kind !== 'all' || maxIsGoal(view)) && !view.boolean && !view.watch;
   return (
     <Stack id={id} gap={1} sx={{ px: 1, pb: 1.5, pt: 0.5 }}>
-      {showGoal ? <Typography variant="body2" color="text.secondary">{`Goal: ${goalText(view)}`}</Typography> : null}
+      {showGoal ? <ItemCard.Facts rows={[['Goal', goalText(view)]]}/> : null}
       {face.cost ? (
         <Typography variant="body2" component="div" color="text.secondary"
                     sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
@@ -146,30 +152,30 @@ const RowDetails = ({ view, face, id, source, onEdit, onRemove }) => {
       ) : null}
       {view.kind === 'all' && view.shortCount ? (
         <Stack gap={0.5}>
-          <Typography variant="subtitle2" component="h3">Next up</Typography>
+          <Typography variant="groupLabel" component="h3" color="text.secondary">Next up</Typography>
           <GoalEntries view={view} source={source}/>
         </Stack>
       ) : null}
       <Stack direction="row" gap={1} flexWrap="wrap">
         {editable.map((part) => (
-          <Button key={part.id} size="small" variant="outlined" sx={{ textTransform: 'none' }}
+          <Button key={part.id} size="small" variant="outlined"
                   onClick={(e) => onEdit?.(part, e.currentTarget)}>
             {editText(view, part)}
           </Button>
         ))}
         {route ? (
           <Button size="small" variant="outlined" component={Link} href={route} onClick={onOpenPage}
-                  sx={{ textTransform: 'none' }}>
+                 >
             {/* the row no longer names its system, so the button does ("Open Bubbles page") */}
             {openLabel}
           </Button>
         ) : null}
         {onOpenWiki ? (
-          <Button size="small" variant="outlined" sx={{ textTransform: 'none' }} onClick={onOpenWiki}>
+          <Button size="small" variant="outlined" onClick={onOpenWiki}>
             Open wiki page
           </Button>
         ) : null}
-        <Button size="small" color="error" sx={{ textTransform: 'none' }} onClick={() => onRemove?.(view)}>
+        <Button size="small" color="error" onClick={() => onRemove?.(view)}>
           Remove
         </Button>
       </Stack>
@@ -185,11 +191,18 @@ const UnresolvedRow = ({ view, face, onEdit, onRemove }) => (
       <GoalIcon src={view.icon} alt="" size={24}/>
     </Box>
     <Box component="span" sx={{ gridArea: 'name', display: 'flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
-      <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, fontWeight: 500, minWidth: 0 }}>{displayTitle(view)}</Box>
+      <Box component="span" data-goal-name sx={{ ...MAIN_LINE_SX, ...WRAP_ON_PHONE_SX, fontWeight: 500 }}>{displayTitle(view)}</Box>
+      {view.note ? (
+        <Box component="span" sx={{ display: 'inline-flex', color: 'text.secondary', flexShrink: 0 }}>
+          <IconNote size={14} aria-label="Has a note" role="img"/>
+        </Box>
+      ) : null}
     </Box>
     {/* the reason and the entry's current amount share one line */}
-    <Box component="span" data-goal-reason sx={{ ...SUB_LINE_SX, gridArea: 'reason' }}>
-      <span data-goal-value>{face.value}</span>
+    <Box component="span" data-goal-reason sx={{ ...SUB_LINE_SX, ...WRAP_ON_PHONE_SX, gridArea: 'reason' }}>
+      <span data-goal-value>
+        {view.status === 'missing' ? <StatusText status={'needs'} sx={{ typography: 'caption', lineHeight: '16px' }}>{face.value}</StatusText> : face.value}
+      </span>
       {face.caption ? <>{' · '}<span data-goal-caption>{face.caption}</span></> : null}
     </Box>
     <Box sx={{ gridArea: 'actions', display: 'flex', gap: 0.5 }}>
@@ -218,12 +231,11 @@ const GoalListRow = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard'
       minWidth: 0,
       border: 1,
       borderColor: open ? 'primary.main' : 'divider',
-      borderRadius: 1,
-      opacity: view.status === 'missing' ? 0.6 : 1
+      borderRadius: 1
     }}>
-      {/* the star sits outside the row button (a button cannot hold another); a goal that cannot be measured only shows it */}
+      {/* the pin sits outside the row button (a button cannot hold another); a goal that cannot be measured only shows it */}
       <Box sx={{ display: 'flex', alignItems: 'center', pl: 0.5, '& > :last-child': { flex: 1, minWidth: 0 } }}>
-        <PinStar pinned={view.pinned} onToggle={onTogglePin && !unresolved ? () => onTogglePin(view) : undefined} keepSlot={!!onTogglePin}/>
+        <GoalPin pinned={view.pinned} onToggle={onTogglePin && !unresolved ? () => onTogglePin(view) : undefined} keepSlot={!!onTogglePin}/>
         {unresolved ? <UnresolvedRow view={view} face={face} onEdit={onEdit} onRemove={onRemove}/> : (
           <ButtonBase data-goal-row aria-expanded={open} aria-controls={open ? id : undefined}
                       onClick={() => setOpen(!open)}
@@ -244,9 +256,18 @@ const GoalListRow = ({ view, onEdit, onRemove, onTogglePin, source = 'dashboard'
   );
 };
 
-// One capped-width column keeps the name, value and bar close enough to scan on wide screens
-export const GoalRows = ({ label, children }) => (
-  <Box component="ul" aria-label={label} sx={{
+// A Panel's list: the rows fill it, with lines between them and no box of their own, their pin on the Panel's 16 px side
+const LINED_LIST_SX = {
+  listStyle: 'none',
+  m: 0,
+  p: 0,
+  '& > li': { border: 0, borderRadius: 0, px: 1 },
+  '& > li + li': { borderTop: 1, borderColor: 'divider' }
+};
+
+// One capped-width column keeps the name, value and bar close enough to scan on wide screens. lined: in a Panel.
+export const GoalRows = ({ label, lined = false, children }) => (
+  <Box component="ul" aria-label={label} sx={lined ? LINED_LIST_SX : {
     listStyle: 'none',
     m: 0,
     p: 0,

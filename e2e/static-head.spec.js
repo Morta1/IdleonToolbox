@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
-import { existsSync, readdirSync, statSync } from 'node:fs';
+import { existsSync, readdirSync } from 'node:fs';
 import path from 'node:path';
+import { discoverRoutes, pagePropsIn } from './route-helpers';
 import { waitForRender } from './wait-helpers';
 import { MOVED_KINDS, SYSTEMS, listingHref, movedListingHref } from '../utility/wiki/kinds.mjs';
 
@@ -8,33 +9,6 @@ import { MOVED_KINDS, SYSTEMS, listingHref, movedListingHref } from '../utility/
 // <title> for months while __test__/page-seo.test.js passed, because that test checks the
 // PAGE_SEO map rather than the bytes a crawler receives. next/head silently dropped the tag.
 // This spec is the output gate: it fetches each route the way Googlebot does, with no JS.
-
-const PAGES_DIR = path.join(process.cwd(), 'pages');
-
-const discoverRoutes = () => {
-  const routes = [];
-  const walk = (dir, prefix = '') => {
-    for (const entry of readdirSync(dir)) {
-      const full = path.join(dir, entry);
-      if (statSync(full).isDirectory()) {
-        // A dynamic SEGMENT is not a URL either, and pages/wiki/[kind]/index.jsx puts one in a
-        // directory name rather than a file name - walking into it yields "/wiki/[kind]", which
-        // 404s. Same reasoning as the file-level check below.
-        if (entry.includes('[')) continue;
-        walk(full, `${prefix}/${entry}`);
-        continue;
-      }
-      if (!entry.endsWith('.jsx')) continue;
-      const name = entry.replace(/\.jsx$/, '');
-      if (['_app', '_document', '_error'].includes(name)) continue;
-      // Dynamic routes aren't URLs. The pages they generate are covered by exportedBuildRoutes.
-      if (name.includes('[')) continue;
-      routes.push(name === 'index' ? (prefix || '/') : `${prefix}/${name}`);
-    }
-  };
-  walk(PAGES_DIR);
-  return routes.sort();
-};
 
 // Read from out/ rather than the API: the point is to check what actually shipped, and these
 // pages are the ones whose titles come from static props rather than the PAGE_SEO map.
@@ -91,67 +65,88 @@ const exportedWikiRedirects = () => {
 
 const titleOf = (html) => html.match(/<title[^>]*>([^<]*)<\/title>/)?.[1];
 
-test.describe('static export ships crawlable head tags', () => {
-  for (const route of [...discoverRoutes(), ...exportedBuildRoutes(), ...exportedWikiHubRoutes(), ...exportedWikiRedirects()]) {
-    test(`${route} has a title and description in the served HTML`, async ({ request }) => {
-      const response = await request.get(route);
-      expect(response.status(), `${route} did not serve`).toBe(200);
+// The head a crawler and a link preview read, in the served bytes. Soft, so a run lists every route that fails.
+const expectCrawlableHead = async (request, route, html) => {
+  const occurrences = (html.match(/<title[^>]*>/g) || []).length;
 
-      const html = await response.text();
-      const occurrences = (html.match(/<title[^>]*>/g) || []).length;
-
-      expect(occurrences, `${route} must have exactly one <title>`).toBe(1);
-      expect(titleOf(html)?.trim(), `${route} has an empty <title>`).toBeTruthy();
-      expect(html, `${route} is missing its meta description`).toMatch(
-        /<meta name="description" content="[^"]+"/
-      );
-      // Two owners writing a description is how it drifts: _document's copy could not be deduped
-      // against next/head's, so pages shipped two and the _document one went stale on navigation.
-      const descriptions = (html.match(/<meta name="description"/g) || []).length;
-      expect(descriptions, `${route} must have exactly one meta description`).toBe(1);
-      // _app's NextSeo and the page's own both render in the export, so next/head has to collapse
-      // them into one og:title and one robots tag.
-      const ogTitles = (html.match(/<meta property="og:title"/g) || []).length;
-      expect(ogTitles, `${route} must have exactly one og:title`).toBe(1);
-      const robots = (html.match(/<meta name="robots"/g) || []).length;
-      expect(robots, `${route} must have exactly one robots tag`).toBe(1);
-      // Link previews (Discord, Slack...) read og:*, not <title>. _app once hardcoded them, so every
-      // shared link showed the same generic site embed.
-      const contentOf = (attr) => html.match(new RegExp(`<meta ${attr} content="([^"]*)"`))?.[1];
-      expect(contentOf('property="og:title"'), `${route} og:title must match its <title>`)
-        .toBe(titleOf(html));
-      expect(contentOf('property="og:description"'),
-        `${route} og:description must match its meta description`)
-        .toBe(contentOf('name="description"'));
-      // og:image is the page's nav icon, so a typo'd icon in PAGES would ship a broken preview.
-      const ogImage = contentOf('property="og:image"');
-      expect(ogImage, `${route} is missing og:image`).toBeTruthy();
-      const imageResponse = await request.get(new URL(ogImage).pathname);
-      expect(imageResponse.status(), `${route} og:image ${ogImage} does not exist`).toBe(200);
-    });
+  expect.soft(occurrences, `${route} must have exactly one <title>`).toBe(1);
+  expect.soft(titleOf(html)?.trim(), `${route} has an empty <title>`).toBeTruthy();
+  expect.soft(html, `${route} is missing its meta description`).toMatch(
+    /<meta name="description" content="[^"]+"/
+  );
+  // Two owners writing a description is how it drifts: _document's copy could not be deduped
+  // against next/head's, so pages shipped two and the _document one went stale on navigation.
+  const descriptions = (html.match(/<meta name="description"/g) || []).length;
+  expect.soft(descriptions, `${route} must have exactly one meta description`).toBe(1);
+  // _app's NextSeo and the page's own both render in the export, so next/head has to collapse
+  // them into one og:title and one robots tag.
+  const ogTitles = (html.match(/<meta property="og:title"/g) || []).length;
+  expect.soft(ogTitles, `${route} must have exactly one og:title`).toBe(1);
+  const robots = (html.match(/<meta name="robots"/g) || []).length;
+  expect.soft(robots, `${route} must have exactly one robots tag`).toBe(1);
+  // Link previews (Discord, Slack...) read og:*, not <title>. _app once hardcoded them, so every
+  // shared link showed the same generic site embed.
+  const contentOf = (attr) => html.match(new RegExp(`<meta ${attr} content="([^"]*)"`))?.[1];
+  expect.soft(contentOf('property="og:title"'), `${route} og:title must match its <title>`)
+    .toBe(titleOf(html));
+  expect.soft(contentOf('property="og:description"'),
+    `${route} og:description must match its meta description`)
+    .toBe(contentOf('name="description"'));
+  // og:image is the page's nav icon, so a typo'd icon in PAGES would ship a broken preview.
+  const ogImage = contentOf('property="og:image"');
+  expect.soft(ogImage, `${route} is missing og:image`).toBeTruthy();
+  if (ogImage) {
+    const imageResponse = await request.get(new URL(ogImage).pathname);
+    expect.soft(imageResponse.status(), `${route} og:image ${ogImage} does not exist`).toBe(200);
   }
-});
+};
+
+// A moved address on a static route draws in the export, so its own NextSeo ships: noindex, and the canonical of where it went.
+const MOVED_NOINDEX = {
+  '/tools/active-exp-calculator': '/tools/active-stuff-calculator',
+  '/account/class-specific/royal-guardian': '/account/class-specific/royal-armory'
+};
 
 // A data page renders a loader at build time rather than its own <NextSeo canonical>, so the
 // exported canonical can only come from _app's <Head>.
-test.describe('static export ships canonicals', () => {
-  for (const route of [...discoverRoutes(), ...exportedBuildRoutes(), ...exportedWikiHubRoutes()]) {
-    test(`${route} names its own canonical URL`, async ({ request }) => {
-      const html = await (await request.get(route)).text();
-      const canonicals = [...html.matchAll(/<link rel="canonical" href="([^"]+)"/g)]
-        .map((m) => m[1]);
+const expectOwnCanonical = (route, html) => {
+  const canonicals = [...html.matchAll(/<link rel="canonical" href="([^"]+)"/g)]
+    .map((m) => m[1]);
 
-      // A noindex page is deliberately exempt - it has nothing to consolidate, and
-      // /tools/builds/view cannot name its own URL without the ?id= it renders from.
-      if (/content="noindex/.test(html)) {
-        expect(canonicals, `${route} is noindex and should not claim a canonical`).toHaveLength(0);
-        return;
+  // A noindex page is deliberately exempt - it has nothing to consolidate, and
+  // /tools/builds/view cannot name its own URL without the ?id= it renders from.
+  if (/content="noindex/.test(html)) {
+    expect.soft(canonicals, `${route} is noindex and should not claim a canonical`)
+      .toEqual(MOVED_NOINDEX[route] ? [`https://idleontoolbox.com${MOVED_NOINDEX[route]}`] : []);
+    return;
+  }
+
+  // The canonical must name THIS page. A route-pattern canonical ('/tools/builds/[slug]')
+  // or a stale one from another page is worse than none.
+  expect.soft(canonicals, `${route} must name itself, once`).toEqual([`https://idleontoolbox.com${route}`]);
+};
+
+// One test per kind of route, not per route: these are requests with no browser, the route lists come from pages/ and the
+// export, and expect.soft reports every route that fails, by name. A moved wiki URL has its canonical checked below.
+const ROUTE_GROUPS = [
+  ['every page file', discoverRoutes(), expectOwnCanonical],
+  ['every exported build and class page', exportedBuildRoutes(), expectOwnCanonical],
+  ['every wiki listing, system page and sample entity', exportedWikiHubRoutes(), expectOwnCanonical],
+  ['every moved wiki URL', exportedWikiRedirects(), () => {}]
+];
+
+test.describe('static export ships crawlable head tags and canonicals', () => {
+  for (const [name, routes, expectCanonical] of ROUTE_GROUPS) {
+    test(name, async ({ request }) => {
+      test.setTimeout(180_000);
+      expect(routes.length, 'no routes found: is out/ built?').toBeGreaterThan(0);
+      for (const route of routes) {
+        const response = await request.get(route);
+        expect.soft(response.status(), `${route} did not serve`).toBe(200);
+        const html = await response.text();
+        await expectCrawlableHead(request, route, html);
+        expectCanonical(route, html);
       }
-
-      expect(canonicals, `${route} must have exactly one canonical`).toHaveLength(1);
-      // The canonical must name THIS page. A route-pattern canonical ('/tools/builds/[slug]')
-      // or a stale one from another page is worse than none.
-      expect(canonicals[0]).toBe(`https://idleontoolbox.com${route === '/' ? '/' : route}`);
     });
   }
 });
@@ -162,7 +157,7 @@ test.describe('a moved wiki URL hands over to its new one', () => {
   for (const route of exportedWikiRedirects()) {
     test(`${route} canonicals and refreshes to its new URL`, async ({ request }) => {
       const html = await (await request.get(route)).text();
-      const { to } = JSON.parse(html.match(/id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s)[1]).props.pageProps;
+      const { to } = pagePropsIn(html);
       expect({
         canonicals: [...html.matchAll(/<link rel="canonical" href="([^"]+)"/g)].map((m) => m[1]),
         refresh: html.match(/<meta http-equiv="refresh" content="([^"]+)"/)?.[1],
@@ -265,7 +260,7 @@ test('every page from the slug route gets its own title, not the fallback', asyn
   expect(new Set(classTitles).size, `class titles were not unique: ${classTitles.join(' | ')}`)
     .toBe(classTitles.length);
 
-  const buildTitles = titles.filter((t) => / Build — .+ \| /.test(t));
+  const buildTitles = titles.filter((t) => / Build: .+ \| /.test(t));
   expect(buildTitles.length, 'no build pages among the exported routes').toBeGreaterThan(1);
 });
 
@@ -297,3 +292,29 @@ for (const route of ['/leaderboards?player=Baker333', '/leaderboards?t=skills&m=
     await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://idleontoolbox.com/leaderboards');
   });
 }
+
+// One shared copy keeps the export under GitHub Pages' 1 GB: inline, these variables cost 30 KB on each of 8,600 pages.
+test('the theme variables come from a shared stylesheet, and the first paint waits for it', async ({ page, request }) => {
+  const html = await (await request.get('/patch-notes')).text();
+  // Components read it as var(--name, ...): a colon is where it would be defined.
+  expect(html).not.toMatch(/--mui-palette-background-default\s*:/);
+  const head = html.slice(0, html.indexOf('</head>'));
+  const sheets = [...head.matchAll(/<link[^>]+rel="stylesheet"[^>]*href="([^"]+)"/g)].map((match) => match[1]).filter((href) => href.includes('/_next/'));
+  expect(sheets.length).toBeGreaterThan(0);
+  await page.route(/\/_next\/static\/.*\.css/, async (route) => {
+    await new Promise((resolve) => {
+      setTimeout(resolve, 800);
+    });
+    await route.continue();
+  });
+  await page.goto('/patch-notes');
+  await waitForRender(page);
+  const { paint, sheet, background } = await page.evaluate((hrefs) => ({
+    paint: performance.getEntriesByType('paint')[0]?.startTime,
+    sheet: Math.max(...performance.getEntriesByType('resource').filter(({ name }) => hrefs.some((href) => name.endsWith(href))).map(({ responseEnd }) => responseEnd)),
+    background: getComputedStyle(document.documentElement).getPropertyValue('--mui-palette-background-default').trim()
+  }), sheets);
+  expect(background).not.toBe('');
+  expect(sheet).toBeGreaterThan(800);
+  expect(paint).toBeGreaterThanOrEqual(sheet);
+});

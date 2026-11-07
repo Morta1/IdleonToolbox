@@ -1,19 +1,22 @@
 import { Stack, Typography } from '@mui/material';
-import Button from '@mui/material/Button';
+import { IconExternalLink } from '@tabler/icons-react';
 import React, { useContext, useState } from 'react';
 import { appleAuthorize, getAppleCode, openAuthPopup } from '../../../services/auth/apple';
 import { AppContext } from '../context/AppProvider';
 import { describeLoginError } from '@utility/loginErrors';
 import LoginErrorAlert from './LoginErrorAlert';
+import FlowAction from './FlowAction';
+import { FLOW_SX } from './look';
 
 const APPLE_LOGIN_TIMEOUT = 10 * 60 * 1000;
 
-const AppleLogin = () => {
+const AppleLogin = ({ onStart }) => {
   const { state, dispatch, waitingForAuth, setWaitingForAuth } = useContext(AppContext);
   const [fetchingCode, setFetchingCode] = useState(false);
 
   const handleAppleLogin = async () => {
     if (fetchingCode || waitingForAuth) return;
+    onStart?.();
     setFetchingCode(true);
     // Opened here and not after the await, otherwise it's outside the user gesture and safari blocks it.
     const popup = openAuthPopup();
@@ -35,27 +38,23 @@ const AppleLogin = () => {
       popup?.close();
       setWaitingForAuth(false);
       console.error('Apple sign-in failed to start:', e);
-      dispatch({ type: 'loginError', data: describeLoginError('APPLE_START_FAILED') })
+      // The browser blocked the pop-up, or Apple's service did not answer: each has its own next step.
+      const blocked = !popup || e?.code === 'APPLE_POPUP_BLOCKED';
+      dispatch({ type: 'loginError', data: describeLoginError(blocked ? 'APPLE_POPUP_BLOCKED' : 'APPLE_START_FAILED') })
     } finally {
       setFetchingCode(false);
     }
   }
 
-  return <Stack sx={{ px: 5 }}>
-    <Typography textAlign={'center'}>
-      An Apple Sign-in page will open for you in a popup, Please complete the steps there, then return here
+  return <Stack sx={FLOW_SX}>
+    <Typography variant="body2" color="text.secondary" sx={{ fontSize: 13.5, lineHeight: '19px' }}>
+      Apple&apos;s sign-in opens in a pop-up. Finish there, then come back to this tab.
     </Typography>
-    <Typography textAlign={'center'} variant={'caption'}>* please make sure you enable pop-ups in your
-      browser</Typography>
-    <Button 
-      loading={fetchingCode || waitingForAuth} 
-      sx={{ mt: 3 }} 
-      onClick={handleAppleLogin}
-      variant={'contained'}
-    >
-      Login
-    </Button>
     <LoginErrorAlert sx={{ mt: 2 }} error={state?.loginError}/>
+    <FlowAction loading={fetchingCode} inert={waitingForAuth} icon={<IconExternalLink size={14} stroke={2.2}/>}
+                onClick={handleAppleLogin} status={waitingForAuth ? 'Waiting for Apple' : null}>
+      Open Apple sign-in
+    </FlowAction>
   </Stack>
 };
 

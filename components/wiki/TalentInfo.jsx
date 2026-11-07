@@ -1,6 +1,11 @@
 import React from 'react';
 import InfoBox, { visibleGroups } from './InfoBox';
 import LevelledEffect from './LevelledEffect';
+import { formatDuration, formatNum } from '@utility/helpers';
+import { notateAmount } from '@utility/wiki/notate';
+
+// A time as a time: "23h 53m", with a short one keeping its decimals ("0.5s", which the two-unit form would drop).
+const timeText = (seconds) => (seconds < 60 ? `${formatNum(seconds)}s` : formatDuration(seconds));
 
 const talentGroups = (node) => {
   if (node?.kind !== 'talent') return [];
@@ -12,9 +17,9 @@ const talentGroups = (node) => {
 
   // 91 of the 376 talents are attacks; the rest are passives and have none of this.
   const cost = [];
-  if (node.manaCost > 0) cost.push({ label: 'Mana', value: node.manaCost.toLocaleString('en-US') });
-  if (node.cooldown > 0) cost.push({ label: 'Cooldown', value: `${node.cooldown}s` });
-  if (node.castTime > 0) cost.push({ label: 'Cast time', value: `${node.castTime}s` });
+  if (node.manaCost > 0) cost.push({ label: 'Mana', value: notateAmount(node.manaCost) });
+  if (node.cooldown > 0) cost.push({ label: 'Cooldown', value: timeText(node.cooldown) });
+  if (node.castTime > 0) cost.push({ label: 'Cast time', value: timeText(node.castTime) });
   if (cost.length) groups.push({ title: 'Attack', rows: cost });
 
   // No Classes box: the class pages link here through `teaches`, so the panel renders that as a

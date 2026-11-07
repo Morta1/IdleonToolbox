@@ -29,12 +29,8 @@ describe('weekly boss alerts', () => {
     expect(weeklyBosses(account(true, 3))?.trophy).toEqual({ bestSkulls: 3, maxSkulls: 5 });
   });
 
-  it('flags trophies at 0 skulls', () => {
-    expect(weeklyBosses(account(true, 0))?.trophy).toEqual({ bestSkulls: 0, maxSkulls: 5 });
-  });
-
   it('stops flagging trophies once 5 skulls are beaten this week', () => {
-    expect(weeklyBosses(account(false, 5))?.trophy).toBeUndefined();
+    expect(weeklyBosses(account(false, 5))).toEqual({ daily: true });
   });
 
   it('drops the alert entirely when 5 skulls are beaten and the daily is done', () => {
@@ -42,10 +38,8 @@ describe('weekly boss alerts', () => {
   });
 
   it('respects each option separately', () => {
-    expect(weeklyBosses(account(false, 0), options(false, true))?.daily).toBeUndefined();
-    expect(weeklyBosses(account(false, 0), options(false, true))?.trophy).toBeDefined();
-    expect(weeklyBosses(account(false, 0), options(true, false))?.trophy).toBeUndefined();
-    expect(weeklyBosses(account(false, 0), options(true, false))?.daily).toBe(true);
+    expect(weeklyBosses(account(false, 0), options(false, true))).toEqual({ trophy: { bestSkulls: 0, maxSkulls: 5 } });
+    expect(weeklyBosses(account(false, 0), options(true, false))).toEqual({ daily: true });
   });
 
   it('treats a missing skull value as zero', () => {

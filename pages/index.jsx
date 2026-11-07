@@ -1,7 +1,8 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { IconLayoutDashboard, IconLogin2 } from '@tabler/icons-react';
 import { AppContext } from '@components/common/context/AppProvider';
 import Head from 'next/head';
+import { useRouter } from 'next/router';
 import {
   Accordion,
   AccordionDetails,
@@ -15,12 +16,14 @@ import { useTheme } from '@emotion/react';
 import LoginDialog from '@components/common/NavBar/LoginDialog';
 import { getRandomNumbersArray, prefix } from '@utility/helpers'
 import useInterval from '@hooks/useInterval';
+import useHydrated from '@hooks/useHydrated';
 import { animate, AnimatePresence, motion, MotionConfig, useMotionValue } from 'framer-motion'
 import Button from '@mui/material/Button';
 import { styled } from '@mui/material/styles';
 import { patchNotes } from '../data/patch-notes';
 import PatchNotes from './patch-notes';
 import { NextLinkComposed } from '@components/common/NextLinkComposed';
+import { sessionQuery } from '@utility/nav-query';
 import Link from '@mui/material/Link';
 import { useFlubber } from '@hooks/useFlubber';
 import Box from '@mui/material/Box';
@@ -36,6 +39,19 @@ import { DISCORD_SERVER_URL } from '@components/discordLinks';
 const WIDE = '@media (min-width: 1246px)';
 const ULTRA_WIDE = '@media (min-width: 1921px)';
 
+// The landing hero's own display sizes, the only type outside the Foundations scale. They are what the
+// theme's scaled h1 and h6 drew before responsiveFontSizes left the theme.
+const HERO_TITLE = {
+  fontSize: { xs: '3rem', sm: '4.4987rem', md: '5.3556rem', lg: '5.9983rem' },
+  lineHeight: 1.167,
+  letterSpacing: '-0.01562em'
+};
+const HERO_LEAD = {
+  fontSize: { xs: '1.1rem', sm: '1.25rem' },
+  lineHeight: 1.6,
+  letterSpacing: '0.0075em'
+};
+
 // Rendered both as visible page content and as FAQPage structured data, so the two can't drift apart.
 const faqs = [
   {
@@ -47,28 +63,31 @@ const faqs = [
     answer: 'Yes, Idleon Toolbox is completely free to use for all Legends of Idleon players.'
   },
   {
-    question: 'How do I use idleon toolbox?',
-    answer: 'Click Login and sign in with the same credentials as your Idleon account - email, Google, Apple, or Steam. Your save data is parsed automatically so every tool shows your own information.'
+    question: 'How do I use Idleon Toolbox?',
+    answer: 'Click Sign in and use the account you play with: Google, Steam, Apple or email. Your save data is parsed automatically so every tool shows your own information.'
   },
   {
-    question: 'Is it safe to log in to Idleon Toolbox?',
-    answer: 'Yes. Login uses Firebase Authentication directly from your browser to Google, the same auth Legends of Idleon itself uses. Your password is never sent to or stored by Idleon Toolbox. The site is open source so you can verify this yourself. Sharing a public profile or appearing on leaderboards is opt-in from the Settings page.'
+    question: 'Is it safe to sign in to Idleon Toolbox?',
+    answer: 'Yes. Sign-in uses Firebase Authentication directly from your browser to Google, the same auth Legends of Idleon itself uses. Your password is never sent to or stored by Idleon Toolbox. The site is open source so you can verify this yourself. Sharing a public profile or appearing on leaderboards is opt-in from the Settings page.'
   },
   {
-    question: 'Do I need to log in to use Idleon Toolbox?',
-    answer: 'No. Card Search, Builds, Item Browser and Item Planner work without logging in, along with the Guilds, Statistics and Leaderboards pages. Logging in adds your dashboard, character pages and the tools that need your save data.'
+    question: 'Do I need to sign in to use Idleon Toolbox?',
+    answer: 'No. Card Search, Builds, Item Browser and Item Planner work without signing in, along with the Guilds, Statistics and Leaderboards pages. Signing in adds your dashboard, character pages and the tools that need your save data.'
   }
 ];
 
+// Slot 0 is the image both the export and the first client render show, so it must not be
+// random: React compares it during hydration. The rest is shuffled once the page has hydrated.
+const FIRST_IMAGES = [0, 1, 2, 3, 4, 5];
+const SHUFFLED_IMAGES = [0, ...getRandomNumbersArray(5, 5).map((n) => n + 1)];
+
 const Home = () => {
   const { state } = useContext(AppContext);
+  // The sample account or a profile stays with the visitor across the page's links, as it does in the bar
+  const router = useRouter();
+  const session = sessionQuery(router?.query);
   const theme = useTheme();
-  // Slot 0 is the image both the export and the first client render show, so it must not be
-  // random: React compares it during hydration. The rest is shuffled in an effect afterwards.
-  const [indexes, setIndexes] = useState([0, 1, 2, 3, 4, 5]);
-  useEffect(() => {
-    setIndexes([0, ...getRandomNumbersArray(5, 5).map((n) => n + 1)]);
-  }, []);
+  const indexes = useHydrated() ? SHUFFLED_IMAGES : FIRST_IMAGES;
   const [bgIndex, setBgIndex] = useState(0);
   const [loginOpen, setLoginOpen] = useState(false);
   const [pathIndex, setPathIndex] = useState(0);
@@ -111,10 +130,10 @@ const Home = () => {
                [ULTRA_WIDE]: { mt: 5 }
              }}>
         <Stack sx={{ width: '100%', [WIDE]: { width: '50%' } }}>
-          <Typography style={{ fontWeight: 400 }} variant={'h1'}>
+          <Typography component={'h1'} sx={HERO_TITLE}>
             Idleon Toolbox
           </Typography>
-          <Typography mt={2} variant={'h6'} style={{ fontWeight: 400, color: '#e3e3e3' }}>Power up your Legends of
+          <Typography mt={2} component={'p'} sx={{ ...HERO_LEAD, color: 'text.secondary' }}>Power up your Legends of
             Idleon
             adventure with Idleon Toolbox&#39;s essential tools and resources for optimizing gameplay, character builds,
             crafting, and more.</Typography>
@@ -122,12 +141,12 @@ const Home = () => {
                  sx={{ justifyContent: 'center', [WIDE]: { justifyContent: 'inherit' } }}>
             {(state?.signedIn || state?.profile || state?.demo || state?.manualImport)
               ? <Button variant={'contained'} size={'medium'} startIcon={<IconLayoutDashboard/>}
-                        component={NextLinkComposed} to={{ pathname: '/dashboard' }}>
+                        component={NextLinkComposed} to={{ pathname: '/dashboard', query: session }}>
                 Open your dashboard
               </Button>
               : <Button variant={'contained'} size={'medium'} startIcon={<IconLogin2/>}
                         onClick={() => setLoginOpen(true)}>
-                Login to get started
+                Sign in to get started
               </Button>}
             <DiscordButton startIcon={<DiscordSvg/>} href={DISCORD_SERVER_URL} target={'_blank'} rel={'noopener noreferrer'}
                            variant={'contained'}>
@@ -161,7 +180,7 @@ const Home = () => {
                       left: '50%',
                       transform: 'translateX(-50%)',
                       borderRadius: 10,
-                      boxShadow: '0 10px 15px -3px #000000'
+                      boxShadow: (theme.vars || theme).palette.shadow.floating
                     }}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -179,16 +198,16 @@ const Home = () => {
       <PatchNotesSection transition={{ duration: .8 }}
                          initial={{ y: 50, opacity: 0 }}
                          animate={{ y: 0, opacity: 1 }}>
-        <Typography variant={'h4'} mt={2}>IT Patch Notes</Typography>
-        <Link to={{ pathname: '/patch-notes' }}
+        <Typography variant={'sectionTitle'} component={'h2'} mt={2}>Patch notes</Typography>
+        <Link to={{ pathname: '/patch-notes', query: session }}
               onMouseEnter={() => handleAnimation(true)}
               onMouseLeave={() => handleAnimation()}
               sx={{ my: 2, display: 'inline-flex', alignItems: 'center', gap: 1 }}
               underline={'none'}
               component={NextLinkComposed}
-              noWrap variant="body1">
+              noWrap variant="body2">
           More patch notes <svg
-          width={24} height={24} fill={'#90caf9'}>
+          width={24} height={24} fill={'var(--mui-palette-primary-main)'}>
           <g>
             <motion.path d={path}/>
           </g>
@@ -198,45 +217,42 @@ const Home = () => {
       </PatchNotesSection>
       <DiscordBotSection/>
       <Box sx={{ mt: 6, mb: 2 }} component={'section'}>
-        <Typography variant={'h4'} mb={2}>Frequently Asked Questions</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'} mb={2}>Frequently asked questions</Typography>
         {faqs.map(({ question, answer }, index) => {
           return <Accordion key={'faq' + index}
                             disableGutters
                             sx={{
                               '&:before': { display: 'none' },
-                              border: `1px solid ${theme.palette.divider}`,
+                              border: `1px solid ${(theme.vars || theme).palette.divider}`,
                               '&:not(:last-child)': { borderBottom: 0 }
                             }}>
             <AccordionSummary
               sx={{
-                flexDirection: 'row-reverse', gap: 2, fontWeight: 500,
+                flexDirection: 'row-reverse', gap: 2, fontWeight: 'fontWeightMedium',
                 '& .MuiAccordionSummary-expandIconWrapper.Mui-expanded': { transform: 'rotate(90deg)' }
               }}
               expandIcon={<ArrowForwardIosSharpIcon sx={{ fontSize: '0.9rem' }}/>}
             >
               {question}
             </AccordionSummary>
-            <AccordionDetails sx={{ backgroundColor: 'rgb(22, 22, 22)', p: 3 }}>
-              <Typography variant={'body1'}>{answer}</Typography>
+            <AccordionDetails sx={{ backgroundColor: 'background.paper', p: 3 }}>
+              <Typography variant={'body2'}>{answer}</Typography>
             </AccordionDetails>
           </Accordion>
         })}
       </Box>
       <span data-ccpa-link="1"></span>
-      <LoginDialog open={loginOpen} setOpen={setLoginOpen} onClose={() => setLoginOpen(false)}/>
+      <LoginDialog open={loginOpen} onClose={() => setLoginOpen(false)}/>
     </Container>
   );
 };
 
-const DiscordButton = styled(Button)`
-  width: fit-content;
-  background-color: #5865f2;
-  color: #ffffff;
-
-  &:hover {
-    background-color: hsl(235 51.4% 52.4%);
-  }
-`
+const DiscordButton = styled(Button)(({ theme }) => ({
+  width: 'fit-content',
+  backgroundColor: (theme.vars || theme).palette.identity.discord.main,
+  color: (theme.vars || theme).palette.identity.discord.text,
+  '&:hover': { backgroundColor: (theme.vars || theme).palette.identity.discord.hover }
+}));
 
 // Inline style can't hold a media query, so the wide-screen top margin lives in CSS rather than
 // behind a useMediaQuery, which would differ between the export and the first client render.

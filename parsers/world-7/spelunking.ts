@@ -1,4 +1,4 @@
-import { cleanUnderscore, commaNotation, growth, lavaLog, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, gameFill, growth, lavaLog, notateNumber } from '@utility/helpers';
 import { generalSpelunky, items, spelunkingChapters, spelunkingRocks, spelunkingUpgrades } from '@website-data';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
@@ -260,6 +260,9 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
   const ownedElixirs = (upgrades as any)?.[23]?.baseBonus;
   const ownedSlots = 1 + ((upgrades as any)?.[24]?.baseBonus ?? 0);
   const maxElixirDuplicates = (upgrades as any)?.[25]?.baseBonus;
+  // The shop's caps, each upgrade's max level (x3). game: "ElixirSlotsOwned" is min(5, 1 + its bonus)
+  const elixirSlotsCap = 1 + (Number((spelunkingUpgrades as any)?.[24]?.x3) || 0);
+  const elixirDuplicatesCap = Number((spelunkingUpgrades as any)?.[25]?.x3) || 0;
   const equippedElixirs = rawSpelunking?.[7] || [];
   const elixirs = generalSpelunky[16]?.map((description: any, index: any) => {
     const timesUsed = equippedElixirs.filter((elixirIndex: any) => elixirIndex === index).length;
@@ -357,6 +360,8 @@ const parseSpelunking = (account: any, characters: any, rawSpelunking: any, rawT
     ownedSlots,
     ownedElixirs,
     maxElixirDuplicates,
+    elixirSlotsCap,
+    elixirDuplicatesCap,
     talentSpelunkArrays,
     charactersStamina,
     // Patch 2.3.525: Overstim stack, Manic Mode, and the sum47 upgrade tail.
@@ -483,9 +488,7 @@ export const getDiscoveryPowerReq = (account: any, allRocks: any, discovery: any
 export const formatDiscoveryPowerReq = (powerReq: any, isScalingRock = false) => {
   // Format: if > 9999999, use "Big" notation, otherwise use comma notation
   // If scaling rock, append "+"
-  let formatted = powerReq > 9999999
-    ? notateNumber(powerReq, 'Big')
-    : commaNotation(powerReq);
+  let formatted = gameFill(powerReq, powerReq > 9999999 ? 'Big' : 'Comma', { whole: true });
 
   if (isScalingRock) {
     formatted += '+';
@@ -569,7 +572,7 @@ export const getLoreBonuses = (account: any) => {
 
     return {
       name: cleanUnderscore(name.replace('|', '_').replace(/^[^a-zA-Z0-9]+(?:x)?[|_]/, "")),
-      description: name.replace('|', '_').replace('{', Math.floor(bonus)).replace('}', notateNumber(1 + bonus / 100, 'MultiplierInfo')),
+      description: name.replace('|', '_').replace('{', Math.floor(bonus)).replace('}', gameFill(1 + bonus / 100, 'MultiplierInfo')),
       isMulti: name.includes('}'),
       bonus,
       index: index
@@ -1149,11 +1152,11 @@ const replacePlaceholders = (description: any, upgradeId: any, mockData: any = {
   const bonus = mockData.bonus;
 
   // Replace { with the bonus value (comma notation)
-  text = text.replace(/\{/g, commaNotation(mockData.baseBonus));
+  text = text.replace(/\{/g, gameFill(mockData.baseBonus, 'Comma'));
 
   // Replace } with multiplier notation (e.g., "1.5x") and remove # characters
   const multiplier = 1 + bonus / 100;
-  const multiplierFormatted = (notateNumber(multiplier, 'MultiplierInfo') as string).replace(/#/g, '');
+  const multiplierFormatted = gameFill(multiplier, 'MultiplierInfo');
   text = text.replace(/\}/g, multiplierFormatted);
 
   // Handle special cases based on upgrade ID
@@ -1162,26 +1165,26 @@ const replacePlaceholders = (description: any, upgradeId: any, mockData: any = {
     case 10: // Amber from 'Em All
       // ^ = number of discoveries
       const discoveries = mockData.discoveriesCount;
-      text = text.replace(/\^/g, commaNotation(discoveries || 0));
+      text = text.replace(/\^/g, gameFill(discoveries || 0, 'Comma', { whole: true }));
       break;
 
     case 2: // Depthing the POW
     case 9: // Amber from the Depths
       // ^ = total depths reached
       const depths = mockData.totalBestCaveLevels;
-      text = text.replace(/\^/g, commaNotation(depths || 0));
+      text = text.replace(/\^/g, gameFill(depths || 0, 'Comma', { whole: true }));
       break;
 
     case 3: // Hauling the POW
       // ^ = digits of biggest haul
       const digits = mockData.biggestHaul;
-      text = text.replace(/\^/g, commaNotation(digits || 0));
+      text = text.replace(/\^/g, gameFill(digits || 0, 'Comma', { whole: true }));
       break;
 
     case 8: // Amber on the Brain
       // ^ = total spelunking levels
       const levels = mockData.totalCharactersSpelunkingLevels;
-      text = text.replace(/\^/g, commaNotation(levels || 0));
+      text = text.replace(/\^/g, gameFill(levels || 0, 'Comma', { whole: true }));
       break;
 
     case 5: // Stamina Resurgence
@@ -1208,13 +1211,13 @@ const replacePlaceholders = (description: any, upgradeId: any, mockData: any = {
       const amberGain = mockData?.amberGain;
       if (amberGain != null) {
         if (amberGain > 1e9) {
-          text = text.replace(/\$/g, notateNumber(amberGain, 'Big'));
+          text = text.replace(/\$/g, gameFill(amberGain, 'Big'));
         }
         else if (amberGain > 100) {
-          text = text.replace(/\$/g, commaNotation(amberGain));
+          text = text.replace(/\$/g, gameFill(amberGain, 'Comma'));
         }
         else {
-          text = text.replace(/\$/g, (notateNumber(amberGain, 'MultiplierInfo') as string).replace(/#/g, ''));
+          text = text.replace(/\$/g, gameFill(amberGain, 'MultiplierInfo'));
         }
       }
       break;
@@ -1230,7 +1233,7 @@ const replacePlaceholders = (description: any, upgradeId: any, mockData: any = {
     case 21: // Deep Pockets
       // $ = multiplier at depth 7
       const depthMultiplier = 1 + 7 * mockData.bonus / 100;
-      text = text.replace(/\$/g, (notateNumber(depthMultiplier, 'MultiplierInfo') as string).replace(/#/g, ''));
+      text = text.replace(/\$/g, gameFill(depthMultiplier, 'MultiplierInfo'));
       break;
 
     case 25: // Duplicate Elixirs
@@ -1243,13 +1246,13 @@ const replacePlaceholders = (description: any, upgradeId: any, mockData: any = {
 
     case 27: // Exalted Find
       // $ = drop chance (1 in X, comma notation), # = count found (rounded integer)
-      text = text.replace(/\$/g, commaNotation(mockData?.exaltedDropChance));
+      text = text.replace(/\$/g, gameFill(mockData?.exaltedDropChance, 'Comma', { whole: true }));
       text = text.replace(/#/g, '' + Math.round(mockData?.exaltedFragmentFound));
       break;
 
     case 28: // Prismatic Find
       // $ = drop chance (1 in X, comma notation), # = count found (rounded integer)
-      text = text.replace(/\$/g, commaNotation(mockData?.prismaDropChance));
+      text = text.replace(/\$/g, gameFill(mockData?.prismaDropChance, 'Comma', { whole: true }));
       text = text.replace(/#/g, '' + Math.round(mockData?.prismaFragmentFound));
       break;
 
@@ -1269,19 +1272,19 @@ const replacePlaceholders = (description: any, upgradeId: any, mockData: any = {
     case 55: // Manic Discoveries
     case 56: // Manic Efficiency
       // ^ = Manic Depths reached across all tunnels
-      text = text.replace(/\^/g, commaNotation(mockData?.sum47 || 0));
+      text = text.replace(/\^/g, gameFill(mockData?.sum47 || 0, 'Comma', { whole: true }));
       break;
 
     case 43: // Grand Discoveries
       // $ = total grand discoveries
-      text = text.replace(/\$/g, commaNotation(1 / mockData?.grandDiscoveriesChance));
+      text = text.replace(/\$/g, gameFill(1 / mockData?.grandDiscoveriesChance, 'Comma', { whole: true }));
       break;
     default:
       break;
   }
 
   // Replace remaining $ with bonus (comma notation)
-  text = text.replace(/\$/g, commaNotation(bonus || 0));
+  text = text.replace(/\$/g, gameFill(bonus || 0, 'Comma'));
 
   return text;
 }

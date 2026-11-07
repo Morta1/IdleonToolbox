@@ -133,26 +133,20 @@ describe('equinox nodes', () => {
 
   // The old sentences read "Level 1: +10%_Damage" and "Stacks_up_to_1_times" with the max level after them.
   it.each([
-    ['Dream_Upgrade_1', 1, '+10% Damage. Its own multiplier'],
     ['Dream_Upgrade_1', 8, '+80% Damage. Its own multiplier'],
-    ['Dream_Upgrade_2', 1, 'Stacks up to 1 times. (0.80x cost)'],
     ['Dream_Upgrade_2', 10, 'Stacks up to 10 times. (0.80x cost)']
   ])('%s reads its per-level bonus times level %s, the total dropped', (raw, level, text) => {
     expect(levelledText(equinoxNodes(upgrades)[`equinox:${raw}`], level)).toBe(text);
   });
 
-  // Clouds and other bonuses raise most max levels, so the field has no cap and the base is a row.
-  it('states the base max level as a row, levelled or not', () => {
+  // Clouds and other bonuses raise most max levels, so the field has no cap and the base is a row. The hidden Hmm... gets no page.
+  it('states the base max level as a row, levelled or not, and leaves out the hidden placeholder', () => {
     const nodes = equinoxNodes([...upgrades, { name: 'Shades_of_K', description: 'Adds_another_choice', maxLevel: 3, bonus: 0 }]);
     expect(Object.values(nodes).map(({ registry, effect, fields }) => [Boolean(registry), effect?.cap ?? null, fields])).toEqual([
       [true, null, [{ label: 'Base max level', value: 8 }]],
       [true, null, [{ label: 'Base max level', value: 10 }]],
       [false, null, [{ label: 'Base max level', value: 3 }]]
     ]);
-  });
-
-  it('leaves out the hidden placeholder', () => {
-    expect(Object.keys(equinoxNodes(upgrades))).toHaveLength(2);
   });
 });
 

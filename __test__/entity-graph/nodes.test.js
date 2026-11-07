@@ -53,14 +53,11 @@ describe('node extractors', () => {
   // page at /wiki/monster/nothing with an empty title. It has no edges either.
   it('leaves out the monster whose name is only underscores', () => {
     const nodes = monsterNodes({ Nothing: { Name: '_', Type: 'Monster' }, mushG: { Name: 'Green_Mushroom', Type: 'Monster' } }, {});
-    expect(nodes['monster:Nothing']).toBeUndefined();
-    expect(nodes['monster:mushG']).toBeDefined();
+    expect(Object.keys(nodes)).toEqual(['monster:mushG']);
   });
 
   it('leaves out the monsters the game names Error', () => {
-    const nodes = monsterNodes(monsters);
-    expect(nodes['monster:behemoth']).toBeUndefined();
-    expect(nodes['monster:mushG']).toBeDefined();
+    expect(Object.keys(monsterNodes(monsters))).toEqual(['monster:mushG', 'monster:Copper']);
   });
 
   // Beyond the Error and blank names: the AFK targets of a station or a W5 monument (the monuments
@@ -365,14 +362,17 @@ describe('monster stats and location', () => {
     goblinG: {
       Name: 'Glublin', Type: 'Monster', Damages: [13, 1], MonsterHPTotal: 2500,
       Defence: 7, ExpGiven: 50, RespawnTime: 15, mapIndex: 26, worldIndex: 1
-    }
+    },
+    // An early monster that never hits: its 0 attack is a fact, kept.
+    mushG: { Name: 'Green Mushroom', Type: 'Monster', Damages: [0, 1], MonsterHPTotal: 32, Defence: 1, ExpGiven: 2 }
   };
 
   it('pulls the Information box figures off the monster', () => {
     const nodes = monsterNodes(glublin, { 26: 'Forest_Outskirts' });
-    expect(nodes['monster:goblinG'].stats).toEqual({
-      attack: 13, health: 2500, defence: 7, experience: 50, respawn: 15, hitCurve: 'monster'
-    });
+    expect([nodes['monster:goblinG'].stats, nodes['monster:mushG'].stats]).toEqual([
+      { attack: 13, health: 2500, defence: 7, experience: 50, respawn: 15, hitCurve: 'monster' },
+      { attack: 0, health: 32, defence: 1, experience: 2, hitCurve: 'monster' }
+    ]);
   });
 
   // The index comes along so the infobox can link the area to its map page; the name alone cannot

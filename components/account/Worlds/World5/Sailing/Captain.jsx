@@ -1,95 +1,70 @@
 import React from 'react';
-import { Box, Card, CardContent, Divider, LinearProgress, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
-import { Row, SectionLabel } from './CardParts';
+import { Box, Stack } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
 
-const Captain = ({
-  lootPile,
-  shop,
-  captainsOnBoats,
-  firstBonusName,
-  secondBonusName,
-  firstBonus,
-  secondBonus,
-  firstBonusValue,
-  secondBonusValue,
-  level,
-  exp,
-  expReq,
-  expValue,
-  expReqValue,
-  firstBonusIndex,
-  secondBonusIndex,
-  captainIndex,
-  captainType,
-  cost
-}) => {
-  const empty = captainType === -1;
-  const boatIndex = captainsOnBoats?.[captainIndex];
-  const canAfford = lootPile?.[0]?.amount >= cost;
-  return <Card>
-    <CardContent sx={{ width: 270 }}>
-      <Stack direction={'row'} alignItems={'center'} gap={1}>
-        <img style={{ width: 40, height: 50, objectFit: 'contain', opacity: empty ? 0.4 : 1 }}
-             src={`${prefix}etc/Captain_${empty ? 0 : captainType}.png`} alt=""/>
-        <Stack>
-          <Typography variant={'body2'}>{shop
-            ? 'Shop captain'
-            : `Captain ${captainIndex}${empty ? '' : ` · Lv. ${level}`}`}</Typography>
-          {!shop ? <Typography variant={'caption'} color={'text.secondary'}>{empty
-            ? 'Empty slot'
-            : boatIndex >= 0 ? `Boat ${boatIndex + 1}` : 'Not on a boat'}</Typography> : null}
-        </Stack>
-      </Stack>
-      {!empty ? <>
-        {!shop ? <>
-          <Divider sx={{ my: 1 }}/>
-          <SectionLabel>Exp</SectionLabel>
-          <LinearProgress variant={'determinate'} value={Math.min(100, 100 * (expValue ?? 0) / (expReqValue || 1))}
-                          sx={{ height: 4, borderRadius: 1, mb: 0.5 }}/>
-          <Typography variant={'caption'} color={'text.secondary'}>{exp} / {expReq}</Typography>
-        </> : null}
-        <Divider sx={{ my: 1 }}/>
-        <SectionLabel>Bonuses</SectionLabel>
-        <Bonus shop={shop} index={firstBonusIndex} name={firstBonusName} total={firstBonus}
-               perLevel={firstBonusValue}/>
-        {secondBonusIndex >= 0 && secondBonusValue > 0
-          ? <Bonus shop={shop} index={secondBonusIndex} name={secondBonusName} total={secondBonus}
-                   perLevel={secondBonusValue}/>
-          : <NoBonus/>}
-        {shop ? <>
-          <Divider sx={{ my: 1 }}/>
-          <Row label={'Cost'} value={<Stack component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
-            <img style={{ width: 20, objectFit: 'contain' }} src={`${prefix}data/SailT0.png`} alt="Sail T0"/>
-            <Typography component={'span'} variant={'body2'} color={canAfford ? 'success.light' : 'error.light'}>
-              {notateNumber(lootPile?.[0]?.amount, 'Big')} / {notateNumber(cost, 'Big')}
-            </Typography>
-          </Stack>}/>
-        </> : null}
-      </> : null}
-    </CardContent>
-  </Card>
+const Whole = ({ children }) => <Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>{children}</Box>;
+
+// A bonus name breaks only before its last two words ("Artifact / Find Chance"), so "Loot Value" never splits
+const bonusName = (name) => {
+  const words = cleanUnderscore(name ?? '').split(' ');
+  const head = words.slice(0, -2).join(' ');
+  return <span>{head ? `${head} ` : null}<Whole>{words.slice(-2).join(' ')}</Whole></span>;
 };
 
-const Bonus = ({ shop, index, name, total, perLevel }) => {
-  return <Stack direction={'row'} alignItems={'center'} gap={1} mb={0.5}>
-    <img style={{ width: 22, height: 22, objectFit: 'contain' }} src={`${prefix}etc/Sailing_Skill_${index}.png`} alt=""/>
-    <Stack sx={{ flex: 1, minWidth: 0 }}>
-      <Row label={cleanUnderscore(name)} value={shop ? `+${perLevel}%` : `+${commaNotation(total)}%`}/>
-      <Typography variant={'caption'} color={'text.secondary'}>{shop ? 'per level' : `${perLevel}% per level`}</Typography>
-    </Stack>
-  </Stack>
-}
+// A captain's bonus: its sprite and name, the total and the per level gain (a shop captain only has the per level gain),
+// the gain one piece. Two rolls of one bonus are the game's two rolls, so both rows stay.
+const bonusRow = (shop, index, name, total, perLevel) => {
+  const gain = `${formatNum(perLevel ?? 0, 'pct', { signed: true })} per level`;
+  return [
+    <Stack key={'name'} component={'span'} direction={'row'} gap={1} alignItems={'center'}>
+      <GameIcon src={`etc/Sailing_Skill_${index}.png`} size={24} alt={''}/>{bonusName(name)}
+    </Stack>,
+    shop
+      ? <Whole key={'gain'}>{gain}</Whole>
+      : <React.Fragment key={'gain'}>{formatNum(total ?? 0, 'pct', { signed: true })} <Whole>({gain})</Whole></React.Fragment>
+  ];
+};
 
-// Keeps single-bonus cards the same height as their neighbours
-const NoBonus = () => {
-  return <Stack direction={'row'} alignItems={'center'} gap={1} mb={0.5}>
-    <Box sx={{ width: 22, height: 22, flexShrink: 0 }}/>
-    <Stack>
-      <Typography variant={'body2'} color={'text.secondary'}>No second bonus</Typography>
-      <Typography variant={'caption'} sx={{ visibility: 'hidden' }}>per level</Typography>
-    </Stack>
-  </Stack>
-}
+const Captain = ({
+                   lootPile,
+                   shop,
+                   captainsOnBoats,
+                   firstBonusName,
+                   secondBonusName,
+                   firstBonus,
+                   secondBonus,
+                   firstBonusValue,
+                   secondBonusValue,
+                   level,
+                   expValue,
+                   expReqValue,
+                   firstBonusIndex,
+                   secondBonusIndex,
+                   captainIndex,
+                   captainType,
+                   cost
+                 }) => {
+  const empty = captainType === -1;
+  const boatIndex = captainsOnBoats?.[captainIndex];
+  return <ItemCard icon={<GameIcon src={`etc/Captain_${empty ? 0 : captainType}.png`} size={40} alt={''}
+                                   status={empty ? 'missing' : undefined}/>}
+                   title={shop ? 'Shop captain' : `Captain ${captainIndex}`}
+                   level={!shop && !empty ? { value: level ?? 0 } : undefined}
+                   meta={shop ? undefined : empty ? 'Empty slot' : boatIndex >= 0 ? `Boat ${boatIndex + 1}` : 'Not on a boat'}
+                   footer={shop && !empty ? <ItemCard.Cost icon={'data/SailT0.png'} iconAlt={'Gold bars'} need={cost ?? 0}
+                                                           have={lootPile?.[0]?.amount ?? 0} game={'Sailing.BuyCaptainCost'}/> : null}>
+    {/* The captain's EXP, both sides in the game's rule for it */}
+    {!shop && !empty ? <ItemCard.Progress label={'EXP'} percent={Math.min(100, 100 * (expValue ?? 0) / (expReqValue || 1))}
+                                          value={formatGame(expValue ?? 0, 'Sailing.CaptainExpReq', { whole: true })}
+                                          max={formatGame(expReqValue ?? 0, 'Sailing.CaptainExpReq', { whole: true })}/> : null}
+    {!empty ? <ItemCard.Facts rows={[
+      bonusRow(shop, firstBonusIndex, firstBonusName, firstBonus, firstBonusValue),
+      secondBonusIndex >= 0 && secondBonusValue > 0 ? bonusRow(shop, secondBonusIndex, secondBonusName, secondBonus, secondBonusValue) : null
+    ]}/> : null}
+  </ItemCard>;
+};
 
 export default Captain;

@@ -45,7 +45,8 @@ describe('crystal island alert', () => {
   });
 
   it('respects a custom threshold', () => {
-    expect(crystalAlert(account({ unclaimedDays: 5 }), options(5))).toBeDefined();
+    expect(crystalAlert(account({ unclaimedDays: 5 }), options(5))).toMatchObject({ unclaimedDays: 5, mobsWaiting: 11 });
+    expect(crystalAlert(account({ unclaimedDays: 4 }), options(5))).toBeUndefined();
   });
 });
 

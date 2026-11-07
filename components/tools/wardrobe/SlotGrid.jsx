@@ -1,40 +1,28 @@
 import React from 'react';
-import { Box, Card, CardActionArea, CardContent, Chip, Stack, Typography } from '@mui/material';
+import { Box, Button } from '@mui/material';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import { CARD_RADIUS, emptySlot } from '@components/common/cards/tokens';
+import StatusText from '@components/common/StatusText';
 import { cleanUnderscore } from '@utility/helpers';
 import { DRAWN_SLOTS, iconFor } from './slots';
 
-// One card per slot the game draws (see slots.js DRAWN_SLOTS). Each card is a button that
-// opens the picker; CardActionArea gives keyboard focus and Enter/Space for free.
-const SlotGrid = ({ loadout, unsupported = [], onSlotClick }) => {
-  return <Stack gap={1}>
-    <Typography variant={'h6'}>Wardrobe</Typography>
-    <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(190px, 1fr))', gap: 1 }}>
-      {DRAWN_SLOTS.map(({ label, slot }) => {
-        const item = loadout[slot];
-        const noArt = item && unsupported.includes(item.rawName);
-        return <Card key={slot} variant={'outlined'}>
-          <CardActionArea aria-label={`${label} slot`} onClick={() => onSlotClick(slot)} sx={{ minHeight: 64 }}>
-            <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-              <Stack direction={'row'} alignItems={'center'} gap={1.5}>
-                <Box sx={{ width: 40, height: 40, display: 'grid', placeItems: 'center' }}>
-                  {item
-                    ? <img width={40} height={40} style={{ objectFit: 'contain' }} src={iconFor(slot, item)} alt=""/>
-                    : null}
-                </Box>
-                <Stack sx={{ minWidth: 0 }}>
-                  <Typography variant={'caption'} color={'text.secondary'}>{label}</Typography>
-                  <Typography variant={'body2'} noWrap color={item ? 'text.primary' : 'text.secondary'}>
-                    {item ? cleanUnderscore(item.displayName) : 'None'}
-                  </Typography>
-                  {noArt ? <Chip size={'small'} label={'no art yet'} color={'warning'} sx={{ height: 16, fontSize: 10, alignSelf: 'flex-start' }}/> : null}
-                </Stack>
-              </Stack>
-            </CardContent>
-          </CardActionArea>
-        </Card>;
-      })}
-    </Box>
-  </Stack>;
-};
+// An empty slot in the sprite's place, so a card with nothing on it doesn't read as a sprite that failed
+const EMPTY_ICON = <Box sx={[emptySlot, { width: 32, height: 32, flexShrink: 0, boxSizing: 'border-box', borderRadius: `${CARD_RADIUS}px` }]}/>;
+
+// One card per slot the game draws (see slots.js DRAWN_SLOTS), its Change button opening the picker.
+const SlotGrid = ({ loadout, unsupported = [], onSlotClick }) => <CardGrid size={'s'}>
+  {DRAWN_SLOTS.map(({ label, slot }) => {
+    const item = loadout[slot];
+    const noArt = item && unsupported.includes(item.rawName);
+    return <ItemCard key={slot}
+                     icon={item ? iconFor(slot, item) : EMPTY_ICON}
+                     title={item ? cleanUnderscore(item.displayName) : <Box component={'span'} sx={{ color: 'text.secondary' }}>None</Box>}
+                     meta={label}
+                     footer={<Box><Button size={'small'} aria-label={`${label} slot`} onClick={() => onSlotClick(slot)}>Change</Button></Box>}>
+      {noArt ? <StatusText status={'locked'}>No art yet</StatusText> : null}
+    </ItemCard>;
+  })}
+</CardGrid>;
 
 export default SlotGrid;

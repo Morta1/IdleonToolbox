@@ -2,25 +2,26 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Stack } from '@mui/material';
-import { CardTitleAndValue, MissingData, isSectionFailed } from '@components/common/styles';
-import { notateNumber, commaNotation, secondsToShortDuration } from '@utility/helpers';
-import Tooltip from '@components/Tooltip';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { formatDuration, formatNum, getTabs } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import Num from '@components/common/Num';
+import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
-import { getTabs } from '@utility/helpers';
 import Grid from '@components/account/Worlds/World7/Research/Grid';
 import Observations from '@components/account/Worlds/World7/Research/Observations';
 import PostyNotes from '@components/account/Worlds/World7/Research/PostyNotes';
-import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+
+// Time left in the Numbers board's style; no rate, no time
+const timeText = (hours) => (hours > 0 ? formatDuration(hours * 3600) : '-');
 
 const Research = () => {
   const { state } = useContext(AppContext);
-  const research = state?.account?.research;
-
+  const section = state?.account?.research;
   const sectionFailed = isSectionFailed(state?.account, 'research');
-  if (!state?.account?.research || sectionFailed) return <MissingData name={'Research'} failed={sectionFailed}/>;
-
+  const parseFailed = isParseFailed(state?.account);
   const {
     occurrencesToBeFound,
     totalOccurrencesFound,
@@ -50,116 +51,71 @@ const Research = () => {
     nextUnlockResearchLv,
     timeToNextUnlock,
     timeToNextUnlockRegistrant
-  } = research;
+  } = section ?? {};
 
   const allPostyNotesUnlocked = (postyNotes?.length ?? 0) > 0 && postyNotes.every(({ unlocked }) => unlocked);
-  const formatEta = (hours) => (hours > 0 ? secondsToShortDuration(hours * 3600, { minUnit: 'minute' }) : '-');
+  // The parser's AFK total is a MultiplierInfo string; the drawer reads the tile's own number (the game's Small)
+  const afkText = `${formatGame(researchAFKrate ?? 0, 'AFKgainrates.Research')}%`;
+  const registrantNote = 'Research Registrant banks 12 hours of research gains each time you register for the tournament: '
+    + `registering daily is a flat 1.5x rate.${researchRegistrantOwned ? '' : " You don't own it yet."}`;
 
-  const overview = (
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
-      <CardTitleAndValue
-        title={'Research Level'}
-        value={`${researchLevel ?? 0} (${(researchEXPpercent ?? 0).toFixed(2)}%)`}
-      />
-      <CardTitleAndValue title={'Time To Level'} value={formatEta(timeToLevel)}/>
-      <CardTitleAndValue title={'Time With Registrant'}>
-        <Stack direction="row" alignItems="center" gap={1}>
-          <span>{formatEta(timeToLevelRegistrant)}</span>
-          <Tooltip
-            title={`Research Registrant banks 12hrs of research gains every time you register for the tournament. Registering daily is a flat 1.5x rate.${researchRegistrantOwned ? '' : ' You don\'t own this upgrade yet.'}`}>
-            <Stack alignContent="center" sx={{ cursor: 'pointer' }}>
-              <IconInfoCircleFilled size={18}/>
-            </Stack>
-          </Tooltip>
-        </Stack>
-      </CardTitleAndValue>
-      <CardTitleAndValue title={'Time To Next Posty'}>
-        <Stack direction="row" alignItems="center" gap={1}>
-          <span>{allPostyNotesUnlocked ? '-' : formatEta(timeToNextUnlock)}</span>
-          <Tooltip
-            title={allPostyNotesUnlocked
-              ? 'All Posty Notes are unlocked.'
-              : `Next Posty Note unlocks at Research LV ${nextUnlockResearchLv}. Estimate assumes your current EXP rate. With Registrant: ${formatEta(timeToNextUnlockRegistrant)}`}>
-            <Stack alignContent="center" sx={{ cursor: 'pointer' }}>
-              <IconInfoCircleFilled size={18}/>
-            </Stack>
-          </Tooltip>
-        </Stack>
-      </CardTitleAndValue>
-      <CardTitleAndValue
-        title={'Observations Found'}
-        value={`${totalOccurrencesFound ?? 0} / ${occurrencesToBeFound ?? 0}`}
-      />
-      <CardTitleAndValue title={'Max Roll'} value={maxRoll ?? 0} />
-      <CardTitleAndValue title={'Rolls Per Day'} value={rollsPerDay ?? 3} />
-      <CardTitleAndValue
-        title={'Research EXP Rate'}
-        value={`${notateNumber(researchEXPrateTOT ?? 0, 'Big')} / hr`}
-      />
-      <CardTitleAndValue title={'Research EXP Multi'}>
-        <Stack direction="row" alignItems="center" gap={1}>
-          <span>{notateNumber(researchEXPmulti ?? 1, 'MultiplierInfo')}</span>
-          {researchEXPmultiBreakdown && (
-            <Breakdown data={researchEXPmultiBreakdown} valueNotation="MultiplierInfo">
-              <Stack alignContent="center" sx={{ cursor: 'pointer' }}>
-                <IconInfoCircleFilled size={18} />
-              </Stack>
-            </Breakdown>
-          )}
-        </Stack>
-      </CardTitleAndValue>
-      <CardTitleAndValue title={'Research AFK Gains'}>
-        <Stack direction="row" alignItems="center" gap={1}>
-          <span>{notateNumber(researchAFKrate ?? 1, 'MultiplierInfo')}%</span>
-          {researchAFKrateBreakdown && (
-            <Breakdown data={researchAFKrateBreakdown} valueNotation="MultiplierInfo">
-              <Stack alignContent="center" sx={{ cursor: 'pointer' }}>
-                <IconInfoCircleFilled size={18} />
-              </Stack>
-            </Breakdown>
-          )}
-        </Stack>
-      </CardTitleAndValue>
-      <CardTitleAndValue title={'Offline Research EXP Rate'}>
-        <Stack direction="row" alignItems="center" gap={1}>
-          <span>{`${notateNumber(researchEXPrateAFK ?? 0, 'Big')} / hr`}</span>
-          <Tooltip
-            title={'Research EXP per hour while you are away, at your Research AFK Gains rate. It also sets how fast Insight, Minehead currency and Sushi Station fuel build up offline. While the game is open, research runs at the full rate.'}>
-            <Stack alignContent="center" sx={{ cursor: 'pointer' }}>
-              <IconInfoCircleFilled size={18}/>
-            </Stack>
-          </Tooltip>
-        </Stack>
-      </CardTitleAndValue>
-
-      <CardTitleAndValue
-        title={'Grid PTs'}
-        value={`${commaNotation(gridPTSpent ?? 0)} / ${commaNotation(gridPTSearned ?? 0)}`}
-      />
-      <CardTitleAndValue title={'Shapes Owned'} value={shapesOwned ?? 0} />
-      <CardTitleAndValue title={'Total Lenses'} value={magnifiersOwned ?? 0} />
-      <CardTitleAndValue title={'Magnifying Glasses'} value={magnifyingGlassOwned ?? 0} />
-      <CardTitleAndValue title={'Optical Monocles'} value={opticalMonocleOwned ?? 0} />
-      <CardTitleAndValue title={'Kaleidoscopes'} value={kaleidoscopeOwned ?? 0} />
-    </Stack>
-  );
-
-  return <>
+  return <SummaryFailed value={sectionFailed}>
     <NextSeo
       title="Research | Idleon Toolbox"
       description="Keep track of your research level, observations and grid bonuses"
     />
-    {overview}
+    {!section || sectionFailed ? <MissingData name={'Research'} failed={sectionFailed} atZero={!parseFailed}/>
+      : <NotReached name={'Research'} reached={section?.researchLevel > 0}/>}
+    <PageSummary failed={sectionFailed}>
+      <StatTile label={'Research level'}
+                value={`${formatNum(researchLevel ?? 0)} (${formatNum(researchEXPpercent ?? 0, 'pct')})`}/>
+      <StatTile label={'Time to level'} value={timeText(timeToLevel)}/>
+      <StatTile label={'Time with registrant'} value={timeText(timeToLevelRegistrant)} info={registrantNote}/>
+      <StatTile label={'Time to next Posty Note'} value={allPostyNotesUnlocked ? '-' : timeText(timeToNextUnlock)}
+                info={allPostyNotesUnlocked
+                  ? 'Every Posty Note is unlocked.'
+                  : `The next one unlocks at Research LV ${formatNum(nextUnlockResearchLv ?? 0)}${timeToNextUnlockRegistrant > 0
+                    ? `, at your current EXP rate: ${timeText(timeToNextUnlockRegistrant)} with Registrant` : ''}.`}/>
+      <StatTile label={'Research EXP rate'}
+                value={`${formatGame(researchEXPrateTOT ?? 0, 'ResearchStuff.ResearchEXPrateTOT')}/hr`}/>
+      <StatTile label={'Research EXP multi'}
+                value={<Num value={researchEXPmulti ?? 1} game={'ResearchStuff.ResearchEXPmulti'} unit={'x'}/>}
+                breakdown={researchEXPmultiBreakdown} breakdownTitle={'Research EXP multi'}/>
+      <StatTile label={'Research AFK gains'} value={afkText}
+                breakdown={researchAFKrateBreakdown ? { ...researchAFKrateBreakdown, totalValue: afkText } : undefined}
+                breakdownTitle={'Research AFK gains'}/>
+      {/* The same stat as Research EXP rate at the AFK rate, so the same rule */}
+      <StatTile label={'Offline research EXP rate'}
+                value={`${formatGame(researchEXPrateAFK ?? 0, 'ResearchStuff.ResearchEXPrateTOT')}/hr`}
+                info={'Research EXP per hour while you are away, at your Research AFK gains rate. It also sets how fast Insight, Minehead currency and Sushi Station fuel build up offline; with the game open, research runs at the full rate.'}/>
+    </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'research')}>
-      <Stack alignItems="center" sx={{ width: '100%' }}>
-        <Grid gridSquares={gridSquares} />
+      {/* Decision 6: the numbers that count one tab's list sit at that tab's top */}
+      <Stack gap={3}>
+        <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+          <StatTile label={'Grid points'} value={`${formatNum(gridPTSpent ?? 0)} / ${formatNum(gridPTSearned ?? 0)}`} failed={sectionFailed}/>
+          <StatTile label={'Shapes owned'} value={shapesOwned ?? 0} kind={'amount'} failed={sectionFailed}/>
+          <StatTile label={'Lenses'} value={magnifiersOwned ?? 0} kind={'amount'} failed={sectionFailed}/>
+          <StatTile label={'Magnifying Glasses'} icon={'data/ResMagni0.png'} value={magnifyingGlassOwned ?? 0}
+                    kind={'amount'} failed={sectionFailed}/>
+          <StatTile label={'Optical Monocles'} icon={'data/ResMagni1.png'} value={opticalMonocleOwned ?? 0}
+                    kind={'amount'} failed={sectionFailed}/>
+          <StatTile label={'Kaleidoscopes'} icon={'data/ResMagni2.png'} value={kaleidoscopeOwned ?? 0} kind={'amount'} failed={sectionFailed}/>
+        </Stack>
+        {parseFailed ? null : <Grid gridSquares={gridSquares}/>}
       </Stack>
-      <Stack alignItems="stretch">
-        <Observations observations={observations} />
+      <Stack gap={3}>
+        <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+          <StatTile label={'Observations found'} failed={sectionFailed}
+                    value={`${formatNum(totalOccurrencesFound ?? 0)} / ${formatNum(occurrencesToBeFound ?? 0)}`}/>
+          <StatTile label={'Max roll'} value={maxRoll ?? 0} kind={'amount'} failed={sectionFailed}/>
+          <StatTile label={'Rolls per day'} value={rollsPerDay ?? 3} kind={'amount'} failed={sectionFailed}/>
+        </Stack>
+        {parseFailed ? null : <Observations observations={observations}/>}
       </Stack>
-      <PostyNotes postyNotes={postyNotes} />
+      <PostyNotes postyNotes={postyNotes}/>
     </Tabber>
-  </>
+  </SummaryFailed>;
 };
 
 export default Research;

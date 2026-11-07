@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import { Box, ButtonBase, IconButton, Link, Stack, Typography } from '@mui/material';
 import { IconTrash } from '@tabler/icons-react';
-import { cleanUnderscore, prefix } from 'utility/helpers';
+import { cleanUnderscore } from 'utility/helpers';
+import GameIcon from '@components/common/GameIcon';
+import StatusText from '@components/common/StatusText';
 import { openItemWikiPage } from '@utility/wiki/item-page';
 import QuantityStepper from './QuantityStepper';
 import ItemTooltip from './ItemTooltip';
@@ -31,18 +33,11 @@ const TrackedItems = ({ items, onSetCount }) => {
         justifyContent: 'flex-start',
         textAlign: 'left'
       }}>
-      <Box sx={{ display: 'flex' }}>
-        {items.slice(0, 4).map(({ itemName, rawName }, index) => <Box key={itemName} component={'img'}
-                                                                       src={`${prefix}data/${rawName}.png`} alt=""
-                                                                       sx={{
-                                                                         width: 36,
-                                                                         height: 36,
-                                                                         objectFit: 'contain',
-                                                                         ml: index ? -1 : 0
-                                                                       }}/>)}
-      </Box>
-      <Typography variant={'body2'} fontWeight={500} sx={{ flex: 1 }}>{pluralItems(items.length)}</Typography>
-      <Typography variant={'body2'} fontWeight={500} color={'multiLight'} sx={{ px: 0.75 }}>
+      <Stack direction={'row'} gap={0.25}>
+        {items.slice(0, 4).map(({ itemName, rawName }) => <GameIcon key={itemName} src={`data/${rawName}.png`} size={32} alt={''}/>)}
+      </Stack>
+      <Typography variant={'value'} component={'span'} sx={{ flex: 1 }}>{pluralItems(items.length)}</Typography>
+      <Typography variant={'value'} component={'span'} color={'primary'} sx={{ px: 0.75 }}>
         {expanded ? 'Done' : 'Edit'}
       </Typography>
     </ButtonBase>
@@ -63,18 +58,15 @@ const TrackedItems = ({ items, onSetCount }) => {
           bgcolor: 'action.hover'
         }}>
           <ItemTooltip rawName={rawName}>
-            <Box component={'img'} src={`${prefix}data/${rawName}.png`} alt=""
-                 sx={{ width: 32, height: 32, objectFit: 'contain' }}/>
+            <GameIcon src={`data/${rawName}.png`} size={32} alt={''}/>
           </ItemTooltip>
           <Box sx={{ minWidth: 0, gridColumn: { xs: '2 / 4', sm: 'auto' } }}>
-            <Link component={'button'} type={'button'} underline={'hover'} color={'multiLight'}
+            <Link component={'button'} type={'button'} color={'primary'}
                   onClick={() => openItemWikiPage(rawName)}
                   sx={{ fontSize: 14, fontWeight: 500, textAlign: 'left', overflowWrap: 'anywhere' }}>
               {name}
             </Link>
-            {craftable ? null : <Typography variant={'caption'} component={'div'} color={'text.disabled'}>
-              No longer craftable
-            </Typography>}
+            {craftable ? null : <div><StatusText status={'locked'}>No longer craftable</StatusText></div>}
           </Box>
           <Box sx={{ gridColumn: { xs: 2, sm: 'auto' }, gridRow: { xs: 2, sm: 'auto' } }}>
             <QuantityStepper value={itemQuantity ?? 1} min={0} label={name}

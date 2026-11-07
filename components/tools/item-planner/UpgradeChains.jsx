@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { Box, Button, Stack, Typography } from '@mui/material';
-import { IconCheck, IconChevronRight } from '@tabler/icons-react';
-import { cleanUnderscore, prefix } from 'utility/helpers';
+import { IconChevronRight } from '@tabler/icons-react';
+import { cleanUnderscore } from 'utility/helpers';
+import GameIcon from '@components/common/GameIcon';
 import ShortAmount from '@components/common/ShortAmount';
-import { StatusText } from './MaterialList';
+import StatusText from '@components/common/StatusText';
 import ItemTooltip from './ItemTooltip';
 
 const slotName = (subType) => subType ? cleanUnderscore(subType.charAt(0) + subType.slice(1).toLowerCase()) : '';
@@ -12,10 +13,10 @@ const SHOWN_SHORTFALLS = 2;
 
 const ChainStatus = ({ next, shortFor }) => {
   if (!shortFor.length) {
-    return <StatusText tone={'ready'} wrap>Ready to craft {cleanUnderscore(next)}</StatusText>;
+    return <StatusText status={'ready'} wrap>Ready to craft {cleanUnderscore(next)}</StatusText>;
   }
   const hidden = shortFor.length - SHOWN_SHORTFALLS;
-  return <StatusText tone={'short'} wrap>
+  return <StatusText status={'problem'} wrap>
     <span>
       {shortFor.slice(0, SHOWN_SHORTFALLS).map(({ itemName, short }, index) => <React.Fragment key={itemName}>
         {index ? ' · ' : null}
@@ -26,52 +27,33 @@ const ChainStatus = ({ next, shortFor }) => {
   </StatusText>;
 };
 
-const tierNote = (state, ownedTier) => {
-  if (state === 'covered') return `Covered by ${cleanUnderscore(ownedTier)}`;
-  if (state === 'owned') return 'Owned';
-  if (state === 'goal') return 'Tracked item';
+// Where a tier stands, in its note and its alt. unknown: a guest or a failed storage section can't say, so neither does the note.
+const TierNote = ({ state, ownedTier }) => {
+  if (state === 'covered') return <StatusText status={'done'} wrap>Covered by {cleanUnderscore(ownedTier)}</StatusText>;
+  if (state === 'owned') return <StatusText status={'done'}>Owned</StatusText>;
+  if (state === 'goal') return <StatusText status={'info'}>Tracked item</StatusText>;
   return 'Not owned';
 };
 
-const Tier = ({ itemName, rawName, state, ownedTier }) => <ItemTooltip rawName={rawName}
-                                                                      note={tierNote(state, ownedTier)}><Box
-  component={'span'}
-  sx={{
-    position: 'relative',
-    width: { xs: 40, sm: 44 },
-    height: { xs: 40, sm: 44 },
-    flexShrink: 0,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 2,
-    ...(state === 'owned' && { boxShadow: (theme) => `inset 0 0 0 1px ${theme.palette.success.light}` }),
-    ...(state === 'goal' && { boxShadow: (theme) => `inset 0 0 0 1px ${theme.palette.multi}` })
-  }}>
-  <Box component={'img'} src={`${prefix}data/${rawName}.png`} alt={`${cleanUnderscore(itemName)}, ${TIER_LABEL[state]}`}
-       sx={{ width: '78%', height: '78%', objectFit: 'contain', opacity: state === 'covered' ? 0.35 : 1 }}/>
-  {state === 'owned' ? <Box component={'span'} aria-hidden sx={{
-    position: 'absolute',
-    top: -4,
-    right: -4,
-    width: 16,
-    height: 16,
-    borderRadius: '50%',
-    bgcolor: 'background.paper',
-    color: 'success.light',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center'
-  }}><IconCheck size={12} stroke={3}/></Box> : null}
-</Box></ItemTooltip>;
+// The tracked tier wears the selected line, so it reads apart from an owned one without a tap. A plan knows what it
+// tracks with or without a save.
+const trackedRing = (theme) => ({ borderRadius: '8px', boxShadow: `0 0 0 2px ${(theme.vars || theme).palette.primary.main}` });
+
+const Tier = ({ itemName, rawName, state, ownedTier, unknown }) => <ItemTooltip rawName={rawName}
+                                                                               note={unknown ? null : <TierNote state={state} ownedTier={ownedTier}/>}>
+  <Box component={'span'} sx={[{ display: 'inline-flex' }, state === 'goal' && trackedRing]}>
+    <GameIcon src={`data/${rawName}.png`} size={40} status={!unknown && state === 'covered' ? 'missing' : undefined}
+              alt={unknown ? cleanUnderscore(itemName) : `${cleanUnderscore(itemName)}, ${TIER_LABEL[state]}`}/>
+  </Box>
+</ItemTooltip>;
 
 // Tiers below the owned one are history for most players, so the ladder starts at the owned tier;
 // the earlier ones stay one click away for anyone checking the crafting order.
-const ChainRow = ({ chain, first }) => {
+const ChainRow = ({ chain, first, unknown }) => {
   const [showEarlier, setShowEarlier] = useState(false);
   const ownedTier = chain.tiers.find(({ state }) => state === 'owned')?.itemName;
   const coveredCount = chain.tiers.filter(({ state }) => state === 'covered').length;
-  const tiers = showEarlier ? chain.tiers : chain.tiers.filter(({ state }) => state !== 'covered');
+  const tiers = showEarlier || unknown ? chain.tiers : chain.tiers.filter(({ state }) => state !== 'covered');
   const tierWord = coveredCount === 1 ? 'tier' : 'tiers';
 
   return <Box sx={{
@@ -86,29 +68,29 @@ const ChainRow = ({ chain, first }) => {
     borderColor: 'divider'
   }}>
     <Stack sx={{ minWidth: 0 }}>
-      <Typography variant={'body2'} fontWeight={500}>{cleanUnderscore(chain.goal)}</Typography>
-      <Typography variant={'caption'} color={'text.disabled'}>{slotName(chain.subType)}</Typography>
+      <Typography variant={'value'} component={'div'}>{cleanUnderscore(chain.goal)}</Typography>
+      <Typography variant={'caption'} color={'text.muted'}>{slotName(chain.subType)}</Typography>
     </Stack>
     <Box sx={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 0.5 }}>
       {tiers.map((tier, tierIndex) => <React.Fragment key={tier.itemName}>
-        {tierIndex ? <Box component={'span'} aria-hidden sx={{ display: 'inline-flex', color: 'text.disabled' }}>
+        {tierIndex ? <Box component={'span'} aria-hidden sx={{ display: 'inline-flex', color: 'text.muted' }}>
           <IconChevronRight size={14}/>
         </Box> : null}
-        <Tier {...tier} ownedTier={ownedTier}/>
+        <Tier {...tier} ownedTier={ownedTier} unknown={unknown}/>
       </React.Fragment>)}
-      {coveredCount ? <Button size={'small'} onClick={() => setShowEarlier(!showEarlier)} aria-expanded={showEarlier}
+      {coveredCount && !unknown ? <Button size={'small'} onClick={() => setShowEarlier(!showEarlier)} aria-expanded={showEarlier}
                               sx={{ ml: 0.5, minHeight: { xs: 44, sm: 32 }, color: 'text.secondary' }}>
         {showEarlier ? `Hide ${coveredCount} earlier ${tierWord}` : `Show ${coveredCount} earlier ${tierWord}`}
       </Button> : null}
     </Box>
-    <Box>
+    {unknown ? null : <Box>
       <ChainStatus {...chain}/>
-    </Box>
+    </Box>}
   </Box>;
 };
 
-const UpgradeChains = ({ chains }) => <Stack>
-  {chains.map((chain, index) => <ChainRow key={`${chain.goal}-${index}`} chain={chain} first={index === 0}/>)}
+const UpgradeChains = ({ chains, unknown }) => <Stack>
+  {chains.map((chain, index) => <ChainRow key={`${chain.goal}-${index}`} chain={chain} first={index === 0} unknown={unknown}/>)}
 </Stack>;
 
 export default UpgradeChains;

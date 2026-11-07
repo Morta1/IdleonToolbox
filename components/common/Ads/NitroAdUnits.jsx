@@ -9,6 +9,7 @@ const NITRO_BASE_OPTIONS = {
   refreshTime: 30,
   refreshVisibleOnly: true
 }
+const REPORT = { enabled: true, icon: true, wording: 'Report Ad', position: 'top-right' };
 
 const createRail = (id, alignment, sizes, mediaQuery) => {
   if (!window.nitroAds) return;
@@ -21,26 +22,22 @@ const createRail = (id, alignment, sizes, mediaQuery) => {
     'railCollisionWhitelist': ['*'],
     'mediaQuery': mediaQuery,
     'sizes': sizes,
-    report: {
-      enabled: true,
-      icon: true,
-      wording: 'Report Ad',
-      position: 'top-right'
-    }
+    report: REPORT
   });
 };
 
 const destroyRail = (id) => {
   const el = document.getElementById(id);
   if (!el) return;
+  // Removes a relocated rail, and a side ad's display holder too, if Nitro ever moved it.
   // Anything still inside the app root belongs to React: with the ads script blocked (Firefox ETP,
   // any ad blocker) window.nitroAds never exists, createRail bails, and the div is never relocated.
-  // It has to be left alone — removing it leaves React holding a node it no longer owns, which
+  // It has to be left alone: removing it leaves React holding a node it no longer owns, which
   // throws NotFoundError on unmount. Matching on `body > div:has(#id)` used to match #__next itself
   // in exactly this case and delete the whole app root, silently blanking the page on every
   // navigation off the home page until a manual refresh.
   if (document.getElementById('__next')?.contains(el)) return;
-  // Relocated: rail ads are wrapped in a body > div created by NitroAds — remove the wrapper to
+  // Relocated: rail ads are wrapped in a body > div created by NitroAds. Remove the wrapper to
   // fully clean up, or the bare node if there is no wrapper around it.
   (el.closest('body > div') || el).remove();
 };
@@ -74,7 +71,7 @@ export const NitroRailAd = ({
   // Route-scoped rails have to be gone before Next commits the new URL. NitroAds polls
   // location.href every 100ms and calls onNavigate() on every unit whose element it still finds,
   // which for a rail is a full refresh. That render resolves after React's unmount cleanup, builds
-  // a fresh container in body and arms a new refresh timer nothing will ever clear — so the ad
+  // a fresh container in body and arms a new refresh timer nothing will ever clear, so the ad
   // returns one refreshTime later, on top of whichever page the user is on now.
   useEffect(() => {
     if (!teardownOnNavigate) return;
@@ -104,6 +101,30 @@ export const NitroRailAd = ({
     />
   );
 };
+
+const HOLDER_STYLE = { width: '100%', height: '100%' };
+
+// A display unit in a box the frame owns (the side ads, AdUnit.jsx SideAds). Display is Nitro's default format: it
+// renders in its holder where the holder stands (only rails, anchors and the other holder-less formats build their own
+// node in body), and it takes only the sizes that fit the holder, so the holder fills the box and the box sets the
+// height (frame.js adBoxSx). The outer div is React's own: if Nitro ever moved the holder, React would still remove
+// a node it owns, and destroyRail removes the moved holder (one still in the app is left to React). No z-index tag:
+// the unit sits in the page's flow, under the bar, the band and every overlay.
+export const NitroSideAd = ({ id, sizes, side }) => {
+  useEffect(() => {
+    window.nitroAds?.createAd(id, { ...NITRO_BASE_OPTIONS, sizes, report: REPORT });
+    return () => destroyRail(id);
+  }, [id, sizes]);
+
+  // A narrower creative (160x600) sits against the page: at the left box's right edge, at the right box's left edge.
+  // colorScheme light: an unfilled ad's empty iframe otherwise paints opaque white on the dark page.
+  return <div style={HOLDER_STYLE}>
+    <div id={id} style={{
+      ...HOLDER_STYLE, display: 'flex', justifyContent: side === 'left' ? 'flex-end' : 'flex-start', colorScheme: 'light'
+    }}/>
+  </div>;
+};
+
 export const NitroBottomBannerAd = () => {
   const theme = useTheme();
   useEffect(() => {

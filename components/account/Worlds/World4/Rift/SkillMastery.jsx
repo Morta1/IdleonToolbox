@@ -1,12 +1,11 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '@utility/helpers';
-import styled from '@emotion/styled';
-import { getSkillRankColor, isMasteryBonusUnlocked, SKILL_MASTERY_THRESHOLDS as thresholds, SKILLS_WITHOUT_MASTERY as skillsWithoutMastery } from '../../../../../parsers/misc';
-import Tooltip from '@components/Tooltip';
-import { TitleAndValue } from '@components/common/styles';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
+import { isMasteryBonusUnlocked, SKILL_MASTERY_THRESHOLDS as thresholds, SKILLS_WITHOUT_MASTERY as skillsWithoutMastery } from '../../../../../parsers/misc';
 import { gameTables } from '@website-data';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
 // Bonus texts mirror the game's own skill mastery panel (N.js _GenINFO[95..98])
 const defaultBonuses = [
@@ -52,75 +51,24 @@ const getBonusText = (skillName, bonusIndex) => {
 }
 
 const SkillMastery = ({ currentRift, totalSkillsLevels, characters }) => {
-  return <>
-    <Typography variant={'h5'}>Skill level thresholds</Typography>
-    <Stack sx={{ my: 2 }} direction={'row'} gap={2} flexWrap={'wrap'}>
-      {thresholds?.map((threshold, index) => <Card key={index} sx={{ width: 100 }}>
-        <CardContent>
-          <Typography color={getSkillRankColor(threshold)}>Lv. {threshold}</Typography>
-        </CardContent>
-      </Card>)}
-    </Stack>
-
-    <Typography variant={'h5'}>Skills</Typography>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {Object.entries(totalSkillsLevels)?.map(([skillName, { icon, level, rank, color }]) => {
-        if (skillsWithoutMastery.includes(skillName)) return null;
-        return <Card key={skillName} sx={{
-          width: 250,
-          minHeight: 200,
-          display: 'flex'
-        }}>
-          <CardContent sx={{ width: 300 }}>
-            <Stack direction={'row'} alignItems={'center'} gap={1}>
-              <SkillIcon src={`${prefix}data/${icon}.png`}
-                alt="" />
-              <Stack>
-                <Typography>{cleanUnderscore(skillName.capitalize())}</Typography>
-                <Typography variant={'caption'} component={'span'} sx={{ color, fontWeight: 'bold' }}>Total
-                  Level {level}</Typography>
-              </Stack>
-              <Tooltip title={<SkillBreakdown characters={characters} skillName={skillName} />}>
-                <IconInfoCircleFilled style={{ marginLeft: 'auto' }} size={18} />
-              </Tooltip>
-            </Stack>
-            <Divider sx={{ my: 1 }} />
-            <Stack gap={1}>
-              {defaultBonuses?.map((bonus, bonusIndex) => {
-                const unlocked = isMasteryBonusUnlocked({ currentRift }, rank, bonusIndex);
-                const displayText = getBonusText(skillName, bonusIndex).toLowerCase().capitalizeAll();
-
-                return (
-                  <Typography
-                    sx={{ opacity: unlocked ? 1 : .6 }}
-                    key={`${skillName}-bonus-${bonusIndex}`}
-                  >
-                    {unlocked ? '' : `Lv. ${thresholds[bonusIndex]}: `}{cleanUnderscore(displayText)}
-                  </Typography>
-                );
-              })}
-            </Stack>
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
-  </>
-};
-
-const SkillBreakdown = ({ characters, skillName }) => {
-  const charactersSkills = characters.reduce((res, char) => ([
-    ...res,
-    { name: char?.name, level: char?.skillsInfo?.[skillName]?.level }
-  ]), [])
-  return <Stack>
-    {charactersSkills?.map(({ name, level }) => {
-      return <TitleAndValue key={name} title={name} value={`Lv. ${level}`} />
+  const skills = Object.entries(totalSkillsLevels ?? {}).filter(([skillName]) => !skillsWithoutMastery.includes(skillName));
+  return <CardGrid size={'m'}>
+    {skills.map(([skillName, { icon, level, rank }]) => {
+      const skillLabel = cleanUnderscore(skillName.capitalize());
+      // Info 5: each character's level was a list in a hover note; it is the total's own breakdown
+      const levels = createBreakdown(`${skillLabel} levels`, formatNum(level ?? 0), flatLines((characters ?? []).map((character) => ({
+        name: cleanUnderscore(character?.name), value: character?.skillsInfo?.[skillName]?.level ?? 0,
+        formatted: formatNum(character?.skillsInfo?.[skillName]?.level ?? 0, 'level')
+      }))), { combine: 'list' });
+      return <ItemCard key={skillName} icon={`data/${icon}.png`} iconAlt={''} title={skillLabel}
+                       meta={`Rank ${formatNum(rank ?? 0)} of ${formatNum(thresholds.length)}`}>
+        <ItemCard.Facts rows={[['Total level', <Breakdown key={'levels'} asValue title={`${skillLabel} levels`}
+                                                          data={levels} countNoun={'characters'}>{formatNum(level ?? 0)}</Breakdown>]]}/>
+        <ItemCard.Desc text={defaultBonuses.map((_, bonusIndex) => `${isMasteryBonusUnlocked({ currentRift }, rank, bonusIndex)
+          ? '' : `Lv ${formatNum(thresholds[bonusIndex])}: `}${titleCaseName(cleanUnderscore(getBonusText(skillName, bonusIndex)))}`)}/>
+      </ItemCard>
     })}
-  </Stack>
-}
-
-const SkillIcon = styled.img`
-
-`
+  </CardGrid>
+};
 
 export default SkillMastery;

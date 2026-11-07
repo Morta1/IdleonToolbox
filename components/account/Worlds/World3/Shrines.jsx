@@ -1,84 +1,56 @@
-import { Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, kFormatter, numberWithCommas } from 'utility/helpers';
-import HtmlTooltip from 'components/Tooltip';
-import { IconWithText } from '@components/common/styles';
-import ProgressBar from 'components/common/ProgressBar';
-import { mapNames } from '@website-data';
-import Timer from '../../../common/Timer';
+import { Box, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatDuration, formatNum } from 'utility/helpers';
+import { mapNames, shrines as shrineData } from '@website-data';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import ItemCard from '@components/common/cards/ItemCard';
 
-const Shrines = ({ shrines, shrinesExpBonus }) => {
-  return (
-    <Stack sx={{ height: 'fit-content' }} justifyContent={'center'} direction={'row'} flexWrap={'wrap'} gap={2}>
-      {shrines?.map((shrine, index) => {
-        const { name, rawName, shrineLevel, desc, bonus, progress } = shrine;
-        const affectingCharacters = shrinesExpBonus?.breakdown?.[index]?.reduce((res, { name, value }) => value > 0
-          ? [...res, name]
-          : res, []);
-        const progressPerHour = shrinesExpBonus?.total?.[index];
-        const description = cleanUnderscore(desc?.replace('{', kFormatter(bonus, 2)));
-        const hoursReq = Math.floor(20 * (shrineLevel - 1) + 6 * shrineLevel * Math.pow(1.63, shrineLevel - 1));
-        const timeLeft = (hoursReq - progress) / progressPerHour * 1000 * 3600;
-        return <Stack key={name + index}>
-          <HtmlTooltip
-            title={<ShrineTooltip {...shrine}
-                                  affectingCharacters={affectingCharacters}
-                                  progressPerHour={progressPerHour}
-                                  hoursReq={hoursReq}
-                                  timeLeft={timeLeft}
-                                  description={description}/>}>
-            <IconWithText stat={shrineLevel} icon={rawName} img={{ style: { width: 50, height: 50 } }}/>
-          </HtmlTooltip>
-          <ProgressBar percent={progress / hoursReq * 100} label={false}/>
-        </Stack>
-      })}
-    </Stack>
-  );
+const pct = (value) => `+${formatNum(value ?? 0, 'pct')}`;
+
+// The game's shrine sign (N.js): { is floor((level - 1) * per level + base), with no card bonus
+const shrineSentence = ({ desc, shrineLevel }, entry) => cleanUnderscore(`${desc ?? ''}`.replace('{',
+  `${shrineLevel > 0 ? Math.floor((shrineLevel - 1) * (entry?.bonusPerLevel ?? 0) + (entry?.baseBonus ?? 0)) : 0}`));
+// The sign's hours: one decimal under 1,000, commas under 1M, then thousands
+const gameHours = (hours, round = Math.floor) => (hours < 1e3 ? `${Math.floor(10 * hours) / 10}` : hours < 1e6
+  ? formatNum(round(hours)) : `${formatNum(round(hours / 1e3))}K`);
+// The hours a shrine needs for its next level
+const hoursToLevel = (level) => Math.floor(20 * (level - 1) + 6 * level * Math.pow(1.63, level - 1));
+
+const shrineDetails = (shrine, entry, contributors, perHour) => {
+  const built = shrine?.shrineLevel > 0;
+  const hoursReq = hoursToLevel(shrine?.shrineLevel);
+  const progress = shrine?.progress ?? 0;
+  return <Stack gap={1}>
+    <Box>
+      <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(shrine?.name)}</Typography>
+      <Typography variant={'body2'} color={'text.secondary'}>{built ? formatNum(shrine.shrineLevel, 'level') : 'Not built yet'}</Typography>
+    </Box>
+    <Typography variant={'body2'}>{shrineSentence(shrine, entry)}</Typography>
+    {built ? <ItemCard.Facts rows={[
+      ['Map', cleanUnderscore(mapNames?.[shrine?.mapId])],
+      ['Progress', `${gameHours(progress)} / ${gameHours(hoursReq, Math.ceil)} hours`],
+      perHour !== undefined ? ['Per hour', formatNum(perHour, 'rate')] : null,
+      perHour !== undefined ? ['Next level in', perHour > 0 ? formatDuration((hoursReq - progress) / perHour * 3600) : '-'] : null,
+      ['With cards', pct(shrine?.bonus)],
+      contributors ? ['Contributors', contributors.length ? contributors.join(', ') : 'Nobody on its map'] : null,
+      shrine?.crystalShrineBonus > 0 ? ['Crystal Shrine', pct(shrine.crystalShrineBonus)] : null
+    ]}/> : null}
+  </Stack>;
 };
 
-const ShrineTooltip = ({
-                         name,
-                         description,
-                         shrineLevel,
-                         progress,
-                         mapId,
-                         affectingCharacters,
-                         progressPerHour,
-                         hoursReq,
-                         timeLeft,
-                         crystalShrineBonus
-                       }) => {
-  return <>
-    <Typography fontWeight={'bold'} variant={'h6'}>{cleanUnderscore(name)} Lv.{shrineLevel}</Typography>
-    <Typography variant={'body1'}>{description}</Typography>
-    <Divider sx={{ my: 1 }}/>
-    <Typography fontWeight={'bold'} variant={'body1'}>Map: {cleanUnderscore(mapNames[mapId])}</Typography>
-    <ProgressBar percent={progress / hoursReq * 100}/>
-    <Typography
-      variant={'body1'}>{numberWithCommas(parseInt(progress))} / {numberWithCommas(parseInt(hoursReq))}</Typography>
-    <Divider sx={{ my: 1 }}/>
-    <Typography sx={{ fontWeight: 'bold' }} mt={1}>Exp contribution:</Typography>
-    <Typography mt={1} variant={'body2'} sx={{ fontWeight: 'bold' }}>Characters:</Typography>
-    <Typography variant={'body1'}>{affectingCharacters?.join(', ')}</Typography>
-    {crystalShrineBonus > 0 ? <>
-      <Typography mt={1} variant={'body2'} sx={{ fontWeight: 'bold' }}>Shrines:</Typography>
-      <Typography variant={'body1'}>Crystal shrine ({crystalShrineBonus}%)</Typography>
-    </> : null}
-    <Divider sx={{ my: 1 }}/>
-    <Typography sx={{ fontWeight: 'bold' }} mt={1}>Progress: {progressPerHour.toFixed(2)}/hr</Typography>
-    <Divider sx={{ my: 1 }}/>
-    <Typography variant={'inherit'} mt={1}>{convertMsToHHMM(timeLeft)}</Typography>
-    <Timer date={new Date().getTime() + timeLeft} staticTime={true}/>
-  </>
-}
+// shrinesExpBonus: each character's EXP into each shrine (null when its section failed: no rate, no contributors)
+const Shrines = ({ shrines, shrinesExpBonus }) => <Box sx={{ p: 1.5 }}>
+  <CardGrid size={'icon'} fill>
+    {(shrines ?? []).map((shrine, index) => {
+      const entry = shrineData?.[`${shrine?.rawName ?? ''}`.replace('ConTowerB', '')];
+      const contributors = shrinesExpBonus ? (shrinesExpBonus?.breakdown?.[index] ?? [])
+        .filter(({ value }) => value > 0).map(({ name }) => name) : null;
+      const perHour = shrinesExpBonus ? shrinesExpBonus?.total?.[index] ?? 0 : undefined;
+      return <IconTile key={shrine?.rawName ?? index} icon={`data/${shrine?.rawName}.png`} alt={cleanUnderscore(shrine?.name)}
+                       value={formatNum(shrine?.shrineLevel ?? 0)} status={shrine?.shrineLevel > 0 ? undefined : 'missing'}
+                       details={shrineDetails(shrine, entry, contributors, perHour)}/>;
+    })}
+  </CardGrid>
+</Box>;
 
-const convertMsToHHMM = (ms) => {
-  let hours = Math.floor(ms / 3600000); // 1 Hour = 3600000 ms
-  let minutes = Math.floor((ms % 3600000) / 60000); // 1 Minute = 60000 ms
-
-  // Ensure that the values have two digits by adding a leading zero if necessary
-  hours = hours.toString().padStart(2, '0');
-  minutes = minutes.toString().padStart(2, '0');
-
-  return `${hours}h:${minutes}m`;
-}
 export default Shrines;

@@ -37,19 +37,25 @@ async function gotoHomeAndWait(page) {
 test.describe.configure({ mode: 'serial' });
 
 test.describe('Logged-out visitors reach gated pages by clicking, not just by URL', () => {
-  test('homepage -> Account nav link -> World 3 -> Prayers, purely by clicking', async ({ browser }) => {
+  // Every account page's logged-out render is checked in no-nan.spec.js's per-route loop.
+  test('/ (root) does not redirect a logged-out visitor away from itself', async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await page.goto('/');
+    await waitForRender(page);
+    expect(new URL(page.url()).pathname).toBe('/');
+    await context.close();
+  });
+
+  test('homepage -> Worlds menu -> Prayers, purely by clicking', async ({ browser }) => {
     const context = await browser.newContext({ viewport: DESKTOP_VIEWPORT });
     const page = await context.newPage();
     const errors = collectErrors(page);
 
     await gotoHomeAndWait(page);
 
-    await clickUntilPath(page, page.locator('[data-cy="nav-item-account/misc/general"]'), '/account/misc/general');
-
-    const prayersLink = page.locator('[data-cy="prayers"]');
-    await click(page.locator('[data-cy="world 3"]'));
-    await expect(prayersLink).toBeVisible();
-    await clickUntilPath(page, prayersLink, '/account/world-3/prayers');
+    await click(page.locator('[data-cy="nav-item-worlds"]'));
+    await clickUntilPath(page, page.locator('[data-cy="prayers"]'), '/account/world-3/prayers');
 
     const bodyText = await page.locator('body').innerText();
     expect(bodyText).toContain('Big Brain Time');
@@ -82,14 +88,14 @@ test.describe('Logged-out visitors reach gated pages by clicking, not just by UR
     await context.close();
   });
 
-  test('Tools drawer lists and links to a previously-offline tool (Material Tracker)', async ({ browser }) => {
+  test('Tools menu lists and links to a previously-offline tool', async ({ browser }) => {
     const context = await browser.newContext({ viewport: DESKTOP_VIEWPORT });
     const page = await context.newPage();
     const errors = collectErrors(page);
 
     await gotoHomeAndWait(page);
 
-    await clickUntilPath(page, page.locator('[data-cy="nav-item-tools/card-search"]'), '/tools/card-search');
+    await click(page.locator('[data-cy="nav-item-tools"]'));
 
     const materialTrackerLink = page.locator('a[href^="/tools/material-tracker"]').first();
     await expect(materialTrackerLink).toBeVisible();
@@ -111,7 +117,7 @@ test.describe('Logged-out visitors reach gated pages by clicking, not just by UR
 
     await gotoHomeAndWait(page);
 
-    const searchInput = page.getByPlaceholder('Search pages and breakdowns...');
+    const searchInput = page.getByPlaceholder('Search pages, stats and items');
     await expect(async () => {
       await click(page.getByText('Ctrl + K'));
       await expect(searchInput).toBeVisible({ timeout: 1000 });

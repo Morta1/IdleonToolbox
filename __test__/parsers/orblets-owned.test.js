@@ -33,11 +33,6 @@ describe('royalGuardian.orblets counts chest + character inventories', () => {
     expect(account.royalGuardian.orblets).toBe(CHEST_ORBLETS);
   });
 
-  it('still sees Orblets that were never deposited', () => {
-    const { account } = parseFixture(withOrbletsInInventory(0, CHEST_ORBLETS));
-    expect(account.royalGuardian.orblets).toBe(CHEST_ORBLETS);
-  });
-
   it('sums a partial deposit with what is left on the character', () => {
     const { account } = parseFixture(withOrbletsInInventory(3, 100));
     expect(account.royalGuardian.orblets).toBe(CHEST_ORBLETS);

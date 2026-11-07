@@ -1,12 +1,16 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import useInterval from '@hooks/useInterval';
 import { Typography } from '@mui/material';
+import { formatDuration } from '@utility/helpers';
+import { timeText } from './timeText';
 
 const NormalTimer = ({ date, done }) => {
-  const [time, setTime] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-  useEffect(() => {
+  const [time, setTime] = useState(date);
+  const [seenDate, setSeenDate] = useState(date);
+  if (seenDate !== date) {
+    setSeenDate(date);
     setTime(date);
-  }, [date])
+  }
   const updateTimer = () => {
     let { days, hours, minutes, seconds } = time;
     seconds -= 1;
@@ -30,8 +34,8 @@ const NormalTimer = ({ date, done }) => {
 
   return (
     <div>
-      {done ? <Typography variant={'body2'}>00:00:00</Typography> :
-        <Typography variant={'body2'}>{String(time.hours).padStart(2, '0')}:{String(time.minutes).padStart(2, '0')}:{String(time.seconds).padStart(2, '0')}</Typography>}
+      {done ? <Typography variant={'body2'}>{formatDuration(0)}</Typography> :
+        <Typography variant={'body2'}>{timeText(time, true)}</Typography>}
     </div>
   );
 }

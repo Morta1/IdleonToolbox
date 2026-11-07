@@ -1,33 +1,129 @@
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, getTabs, notateNumber } from '@utility/helpers';
+import { Box, Stack } from '@mui/material';
+import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
+import GameIcon from '@components/common/GameIcon';
+import { formatGame, tomeQuantity } from '@utility/gameNotation';
 import Tabber from '../../../components/common/Tabber';
 import { PAGES } from '@components/constants';
-import TomeRankings from '@components/account/Worlds/World4/TomeRankings';
+import TomeRankings, { isTomeEntryLocked, RANKINGS_SETTINGS, RankingsSettings } from '@components/account/Worlds/World4/TomeRankings';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import useRealDate from '@hooks/useRealDate';
-import { CardTitleAndValue, TitleAndValue } from '@components/common/styles';
-import Tooltip from '@components/Tooltip';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import useCheckbox from '@components/common/useCheckbox';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import NumberField from '@components/common/NumberField';
 import Timer from '@components/common/Timer';
 import { segmentColors } from '@parsers/world-4/tome';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
+import Num from '@components/common/Num';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+import { quantityForPoints } from '@components/account/Worlds/World4/tomeQuantity';
+import useTabIndex from '@hooks/useTabIndex';
+import { ink } from '../../../styles/theme/theme';
 
-const ranks = ['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '80%', '90%', '95%']
-const getFormattedQuantity = ({ x2, x4 }, quantity) => quantity > 1e9 && x2 === 1
-  ? notateNumber(quantity, 'Big')
-  : x4 === 1
-    ? Math.round(100 * quantity) / 100
-    : commaNotation(quantity);
+const RANKS = ['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '80%', '90%', '95%'];
+const TOME_TOOLBAR = { search: '', hideMaxed: false, view: 'cards' };
+const TIERS = ['bronze', 'silver', 'gold', 'blue'];
+
+// The rank's word art ("TOP 25%") beside its words at its own size: StatTile's 24 px icon shrank it past reading, and
+// pixel art never scales up (5e's Bell).
+const RankBadge = ({ top }) => <GameIcon src={`data/TomeTop${top}.png`} fit={'bounds'} size={[102, 17]} alt={''}/>;
+
+// The tier the parser picked, read back off its colour (a locked entry has none); its word and the theme's colour for it
+const tierOf = (color) => Object.keys(segmentColors).find((tier) => segmentColors[tier] === color) ?? null;
+const tierName = (tier) => `${tier.capitalize()} tier`;
+const tierColor = (tier) => (theme) => (theme.vars || theme).palette.identity.tomeTiers[tier];
+
+// How far a quantity fills each of the bronze, silver and gold stretches of the tier bar
+const tierFills = (bonus) => {
+  const { quantity = 0, requiredQuantities } = bonus ?? {};
+  const silver = requiredQuantities?.silver || null;
+  const gold = requiredQuantities?.gold || null;
+  const blue = requiredQuantities?.blue || null;
+  const clamp = (value) => Math.max(0, Math.min(1, value));
+  // From low up to high, and on a reversed entry from high down to low
+  const upTo = (low, high) => (high > low ? (quantity - low) / (high - low) : 1);
+  const downTo = (high, low) => (high > low ? (high - quantity) / (high - low) : 1);
+  if (bonus?.x2 === 3) {
+    // Lower is better: bronze until silver's quantity, then silver down to gold's, then gold down to blue's
+    return [
+      silver !== null && quantity <= silver ? 1 : 0,
+      silver !== null && gold !== null ? downTo(silver, gold) : 0,
+      gold !== null && blue !== null ? downTo(gold, blue) : 0
+    ].map(clamp);
+  }
+  return [
+    silver !== null ? upTo(0, silver) : 0,
+    silver !== null && (gold || blue) ? upTo(silver, gold || blue) : 0,
+    blue !== null ? upTo(gold || silver, blue) : 0
+  ].map(clamp);
+};
+
+// The calculator's own number: the points the player aims for, and the quantity that takes
+const QuantityCalculator = ({ bonus, maxPoints }) => {
+  const [targetPoints, setTargetPoints] = useState(null);
+  const quantity = targetPoints > 0 && targetPoints <= maxPoints ? quantityForPoints(bonus, targetPoints) : null;
+  const result = !targetPoints ? null
+    : targetPoints > maxPoints ? `Past the max of ${formatGame(maxPoints, 'Summoning.TomePTS', { whole: true })}`
+      : quantity === Infinity ? 'Out of reach'
+        : quantity === null ? '-' : `Needs ${tomeQuantity(bonus, quantity, { whole: true })}`;
+  return <Stack gap={1}>
+    <NumberField label={'Target points'} value={targetPoints} min={0} help={false} sx={{ width: 160 }}
+                 onChange={(next) => setTargetPoints(next)}/>
+    {result ? <ItemCard.Facts rows={[['Quantity for target', result]]}/> : null}
+  </Stack>;
+};
+
+// The Details view: an entry's tier thresholds, its tier bar, its points against the max, and the calculator
+const detailsSection = (bonus, tier) => {
+  const { requiredQuantities, points = 0, maxPoints = 0, x2 } = bonus ?? {};
+  // A locked entry has no tier, so its bar draws empty
+  const fills = tier ? tierFills(bonus) : [0, 0, 0];
+  const maxQuantity = maxPoints ? quantityForPoints(bonus, maxPoints) : null;
+  return <>
+    <ItemCard.Section label={'Tiers'}>
+      <ItemCard.Facts rows={[
+        ...Object.entries(requiredQuantities ?? {}).map(([key, value]) => [key.capitalize(), tomeQuantity(bonus, value, { whole: true })]),
+        x2 === 3 ? ['Direction', 'Lower is better'] : null
+      ]}/>
+      <Stack direction={'row'} gap={0.5} aria-hidden>
+        {fills.map((fill, index) => <Box key={TIERS[index]} sx={{
+          position: 'relative', flex: 1, height: 8, overflow: 'hidden', bgcolor: ink(0.08),
+          borderRadius: index === 0 ? '4px 0 0 4px' : index === 2 ? '0 4px 4px 0' : 0
+        }}>
+          <Box sx={{ position: 'absolute', inset: 0, width: `${fill * 100}%`, bgcolor: tierColor(tier) }}/>
+        </Box>)}
+      </Stack>
+    </ItemCard.Section>
+    {maxPoints ? <ItemCard.Section>
+      <ItemCard.Progress label={'Points'} percent={Math.min(100, 100 * points / maxPoints)}
+                         value={<Num value={points} game={'Summoning.TomePTS'} whole/>}
+                         max={<Num value={maxPoints} game={'Summoning.TomePTS'} whole/>}/>
+      <ItemCard.Facts rows={[maxQuantity === null ? null
+        : ['Max at', maxQuantity === Infinity ? 'Out of reach' : tomeQuantity(bonus, maxQuantity, { whole: true })]]}/>
+    </ItemCard.Section> : null}
+    {maxPoints ? <ItemCard.Section label={'Calculator'}>
+      <QuantityCalculator bonus={bonus} maxPoints={maxPoints}/>
+    </ItemCard.Section> : null}
+  </>;
+};
 
 const Tome = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['world 4'].categories, 'tome');
+  const [tabIndex] = useTabIndex(tabs);
   const getRealDateInMs = useRealDate();
-  const [CheckboxEl, showThresholds] = useCheckbox('Show quantity thresholds');
-  const [CheckboxHideMaxedEl, hideMaxed] = useCheckbox('Hide capped');
-  const [CheckboxProgressBarsEl, showProgressBars] = useCheckbox('Show progress bars');
-  const [CheckboxCalculatorEl, showCalculator] = useCheckbox('Show quantity calculator');
+  const tome = state?.account?.tome ?? {};
+  const sectionFailed = isSectionFailed(state?.account, 'tome');
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('tome', TOME_TOOLBAR);
+  // The Rankings tab's settings, kept under the tab's own key
+  const [rankSettings, setRankSettings, resetRankSettings] = usePageSettings('tome-rankings', RANKINGS_SETTINGS);
 
   // Calculate countdown to next tome nametag reset and next 10 resets (stable across re-renders)
   const [{ nextResetTime, nextResetTimes }] = useState(() => {
@@ -42,542 +138,91 @@ const Tome = () => {
     return { nextResetTime: resets[0], nextResetTimes: resets };
   });
 
+  const tops = tome?.tops ?? [];
+  // The cut-offs sort from the top 0.1% down: the account's tier is the first it reaches
+  const rankIndex = tops.findIndex((score) => (tome?.totalPoints ?? 0) >= score);
+  const rankText = rankIndex >= 0 ? `Top ${RANKS[rankIndex]}` : '-';
+  const cutOffs = tops.length ? createBreakdown('Rank', rankText, flatLines(tops.map((score, index) => ({
+    name: `Top ${RANKS[index]}`, value: score, formatted: `${formatGame(score, 'Summoning.TomePTS', { whole: true })} points`
+  }))), { combine: 'list' }) : undefined;
+  const resets = createBreakdown('Nametag reward reset', getRealDateInMs(nextResetTime), flatLines(nextResetTimes.map((time, index) => ({
+    name: index ? `Reset ${index + 1}` : 'Next reset', value: time, formatted: getRealDateInMs(time)
+  }))), { combine: 'list' });
+
+  const accountLevel = state?.account?.accountLevel ?? 0;
+  const search = String(toolbar?.search ?? '').trim().toLowerCase();
+  const entries = (tome?.tome ?? []).map((bonus, position) => ({ bonus, position }));
+  const shown = entries
+    .filter(({ bonus }) => !search || cleanUnderscore(bonus?.name).toLowerCase().includes(search))
+    .filter(({ bonus }) => !toolbar?.hideMaxed || isTomeEntryLocked(bonus, accountLevel)
+      || !(bonus?.maxPoints && bonus?.points >= bonus?.maxPoints));
+
   return <>
     <NextSeo
       title="Tome | Idleon Toolbox"
       description="Track your Tome upgrade bonuses, highscores, and progression rewards in Legends of Idleon World 4"
     />
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'tome')}>
+    {sectionFailed ? null : <PageSettings state={rankSettings} defaults={RANKINGS_SETTINGS} onChange={setRankSettings}
+                                          onReset={resetRankSettings}>
+      <RankingsSettings/>
+    </PageSettings>}
+    {sectionFailed ? <MissingData name={'the Tome'} failed atZero={!isParseFailed(state?.account) && tabs[tabIndex] === 'Overview'}/> : null}
+    <PageSummary>
+      <StatTile label={'Total points'} value={sectionFailed ? '-' : formatGame(tome?.totalPoints ?? 0, 'Summoning.TomePTS', { whole: true })}/>
+      <StatTile label={'Rank'} value={tome?.top >= 0 && !sectionFailed
+        ? <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>{rankText}<RankBadge top={tome.top}/></Box>
+        : rankText}
+                breakdown={cutOffs} breakdownTitle={'Rank'} breakdownNoun={'cut-offs'}/>
+      {/* An absolute date: the countdown is not shifted by the save's upload time */}
+      <StatTile label={'Nametag reward reset'} value={<Timer type={'countdown'} date={nextResetTime}/>}
+                breakdown={resets} breakdownTitle={'Nametag reward reset'} breakdownNoun={'resets'}/>
+    </PageSummary>
+    <Tabber tabs={tabs}>
       <>
-        {/*<Typography variant={'caption'}>* Bubble bonus might be inaccurate because it is determined by your active*/}
-        {/*  character.</Typography>*/}
-        <Stack mb={3} direction={'row'} gap={1} flexWrap={'wrap'}>
-          <CardTitleAndValue title={'Total Points'} value={commaNotation(state?.account?.tome?.totalPoints)} />
-          <CardTitleAndValue title={'Rank'} value={!state?.account?.tome?.tops ? '' : <Tooltip title={<Stack gap={1}>
-            {state?.account?.tome?.tops?.map((score, index) => <Stack direction={'row'} gap={1}
-              key={'rank' + ranks?.[index]}
-              divider={<>-</>}>
-              <Typography sx={{ width: 40 }}>{ranks?.[index]}</Typography>
-              <Typography>{commaNotation(score)}</Typography>
-            </Stack>)}
-          </Stack>}>
-            <IconInfoCircleFilled size={18} />
-          </Tooltip>} icon={`data/TomeTop${state?.account?.tome?.top}.png`} />
-          <CardTitleAndValue title={'Nametag Reward Reset'} value={
-            <Stack direction={'row'} alignItems={'center'} gap={1}>
-              <Timer type="countdown" date={nextResetTime} lastUpdated={state?.lastUpdated || Date.now()} />
-              <Tooltip title={<Stack gap={1}>
-                <Typography variant='body1' color='text.secondary'>Next resets</Typography>
-                {nextResetTimes.map((resetTime, index) => (
-                  <Typography variant='body2' key={`reset-${index}`}>
-                    {getRealDateInMs(resetTime)}
-                  </Typography>
-                ))}
-              </Stack>}>
-                <IconInfoCircleFilled size={18} />
-              </Tooltip>
-            </Stack>
-          } />
-          <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-            {state?.account?.tome?.bonuses?.map(({ name, bonus, isMulti, icon }, index) => {
-              const formatted = isMulti ? notateNumber(1 + bonus / 100, 'MultiplierInfo') : notateNumber(bonus, 'Big');
-              return <CardTitleAndValue key={name} title={cleanUnderscore(name)} value={`${formatted}${isMulti ? 'x' : '%'}`}
-                icon={icon || `etc/Tome_${index}.png`}>
-              </CardTitleAndValue>
+        <CardGrid size={'l'} sx={{ mb: 3 }}>
+          {tome?.bonuses?.length ? <Panel title={'Tome bonuses'}>
+            {tome.bonuses.map(({ name, bonus, isMulti, icon }, index) => <Panel.Row
+              key={name} icon={icon || `etc/Tome_${index}.png`} name={cleanUnderscore(name).trim()}
+              value={isMulti ? `${formatGame(1 + bonus / 100, 'Summoning.TomeBonus')}x` : formatNum(bonus ?? 0, 'pct')}/>)}
+          </Panel> : null}
+          {state?.account?.spelunking?.loreBonuses?.length ? <Panel title={'Lore bonuses'}>
+            {state.account.spelunking.loreBonuses.filter((upgrade) => upgrade?.name !== 'filler').map((upgrade) => <Panel.Row
+              key={upgrade?.name} icon={`etc/Tome_${upgrade?.index + 6}.png`} name={cleanUnderscore(upgrade?.name)}
+              value={upgrade?.isMulti ? `${formatGame(1 + (upgrade?.bonus ?? 0) / 100, 'Thingies.LoreEpiBon')}x` : formatNum(upgrade?.bonus ?? 0, 'pct')}/>)}
+          </Panel> : null}
+        </CardGrid>
+        <Box>
+          {sectionFailed ? null : <Toolbar state={toolbar} defaults={TOME_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+                   total={entries.length} shown={shown.length} noun={'entries'}>
+            <Toolbar.Search placeholder={'Search the Tome'}/>
+            <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
+            <Toolbar.View options={[['cards', 'Cards'], ['details', 'Details']]}/>
+          </Toolbar>}
+          <CardGrid size={'m'}>
+            {shown.map(({ bonus, position }) => {
+              const { name, color, tomeLvReq, quantity, maxPoints, index } = bonus;
+              const locked = isTomeEntryLocked(bonus, accountLevel);
+              const { points } = bonus;
+              const tier = tierOf(color);
+              const pointsText = `${formatGame(points ?? 0, 'Summoning.TomePTS', { whole: true })} / ${formatGame(maxPoints ?? 0, 'Summoning.TomePTS', { whole: true })}`;
+              return <ItemCard key={'tome-bonus' + index} title={cleanUnderscore(name?.replace('(Tap_for_more_info)', ''))}
+                               dimmed={locked} status={locked ? 'locked' : maxPoints && points >= maxPoints ? 'maxed' : undefined}
+                               meta={locked ? `Unlocks at account Lv ${formatGame(tomeLvReq, 'Summoning.TomeLvReq', { whole: true })}`
+                                 : position === 19 ? 'Uses your active character' : undefined}>
+                <ItemCard.Facts rows={[
+                  ['Quantity', tomeQuantity(bonus, quantity)],
+                  ['Points', tier ? <Box key={'pts'} component={'span'} sx={{ color: tierColor(tier) }}>
+                    {`${pointsText} · ${tierName(tier)}`}</Box> : pointsText]
+                ]}/>
+                {toolbar?.view === 'details' ? detailsSection({ ...bonus, points }, tier) : null}
+              </ItemCard>
             })}
-            {state?.account?.spelunking?.loreBonuses?.map((upgrade) => {
-              if (upgrade?.name === 'filler') return null;
-              return <CardTitleAndValue key={upgrade?.name} title={upgrade?.name} value={`${notateNumber(upgrade?.isMulti ? 1 + upgrade?.bonus / 100 : upgrade?.bonus, 'MultiplierInfo')}${upgrade?.isMulti ? 'x' : '%'}`}
-                icon={`etc/Tome_${upgrade?.index + 6}.png`}>
-              </CardTitleAndValue>
-            })}
-          </Stack>
-        </Stack>
-        <CheckboxEl />
-        <CheckboxHideMaxedEl />
-        <CheckboxProgressBarsEl />
-        <CheckboxCalculatorEl />
-
-        <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-          {state?.account?.tome?.tome?.map((bonus, rIndex) => {
-        const {
-          name,
-          color,
-          tomeLvReq,
-          quantity,
-          maxPoints,
-          index,
-          points,
-          requiredQuantities
-        } = bonus;
-        const silverReq = requiredQuantities?.silver || null;
-        const goldReq = requiredQuantities?.gold || null;
-        const blueReq = requiredQuantities?.blue || null;
-        const isReversed = bonus?.x2 === 3; // Type 3: lower quantity = more points
-
-        const tiers = ['bronze', 'silver', 'gold', 'blue'];
-        const segments = tiers.map((tier) => {
-          const segment = {
-            tier,
-            progress: 0,
-            fillColor: segmentColors[tier],
-            startPoint: 0,
-            endPoint: null,
-            current: quantity,
-            isReversed
-          };
-
-          // Define tier boundaries
-          // For reversed items: blueReq < goldReq < silverReq (lower is better)
-          // For normal items: silverReq < goldReq < blueReq (higher is better)
-          let bounds;
-          if (isReversed) {
-            // Reversed: Lower quantity = better tier
-            // Bronze: above silverReq (worst)
-            // Silver: between goldReq and silverReq  
-            // Gold: between blueReq and goldReq
-            // Blue: at or below blueReq (best)
-            bounds = {
-              bronze: { start: silverReq, end: null },
-              silver: { start: goldReq, end: silverReq },
-              gold: { start: blueReq, end: goldReq },
-              blue: { start: 0, end: blueReq }
-            };
-          } else {
-            // Normal: Higher quantity = better tier
-            bounds = {
-              bronze: { start: 0, end: silverReq },
-              silver: { start: silverReq, end: goldReq || blueReq },
-              gold: { start: goldReq || silverReq, end: blueReq },
-              blue: { start: blueReq, end: null }
-            };
-          }
-
-          const { start, end } = bounds[tier] || {};
-          segment.startPoint = start;
-          segment.endPoint = end;
-
-          // Calculate progress based on direction
-          if (isReversed) {
-            // Lower quantity = better progress
-            // Segments represent milestones: each fills as you progress through tiers
-            // For reversed: start is the better (lower) threshold, end is the worse (higher) threshold
-            if (tier === 'bronze') {
-              // Bronze segment: fills as you progress from infinity to silverReq
-              // If quantity <= silverReq (start), you've passed bronze tier (segment full)
-              segment.progress = start !== null && quantity <= start ? 1 : 0;
-            } else if (tier === 'blue') {
-              // Blue segment: not displayed in the 3-segment view
-              if (end !== null && quantity <= end) {
-                segment.progress = 1;
-              } else {
-                segment.progress = 0;
-              }
-            } else if (end !== null && start !== null) {
-              // Silver/Gold segments: fill as you progress through each tier
-              // start = better threshold (lower value, e.g., goldReq=75)
-              // end = worse threshold (higher value, e.g., silverReq=100)
-              if (quantity > end) {
-                segment.progress = 0; // Above worse threshold, haven't reached this tier yet
-              } else if (quantity <= start) {
-                segment.progress = 1; // Below better threshold, passed this tier completely
-              } else {
-                // Within tier range (start < quantity <= end)
-                // Progress from end (high/worse) down to start (low/better)
-                const span = end - start;
-                segment.progress = span > 0 ? (end - quantity) / span : 1;
-              }
-            }
-          } else {
-            // Higher quantity = better progress
-            if (tier === 'blue') {
-              segment.progress = quantity >= start ? 1 : 0;
-            } else if (end !== null) {
-              if (quantity < start) {
-                segment.progress = 0; // Not reached tier
-              } else if (quantity >= end) {
-                segment.progress = 1; // Completed tier
-              } else {
-                // Within tier range
-                const span = end - start;
-                segment.progress = span > 0 ? (quantity - start) / span : 1;
-              }
-            }
-          }
-
-          // Clamp progress to [0, 1]
-          segment.progress = Math.max(0, Math.min(1, segment.progress));
-
-          return segment;
-        });
-        const formattedQuantity = getFormattedQuantity(bonus, quantity);
-        const pointsProgress = Math.min(1, maxPoints ? points / maxPoints : 0);
-        if (hideMaxed && points >= maxPoints) return null;
-        return <Card key={'tome-bonus' + index} sx={{ width: 300 }}>
-          <CardContent sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            height: '100%',
-            opacity: state?.account?.accountLevel < tomeLvReq ? .5 : 1
-          }}>
-            <Stack mb={1} direction={'row'} alignItems={'center'} gap={1} justifyContent={'space-between'}>
-              <Typography variant={'body1'}>{cleanUnderscore(name.replace('(Tap_for_more_info)', ''))}</Typography>
-              {rIndex === 19
-                ? <Tooltip
-                  title={'Affected by your currently active character'}><IconInfoCircleFilled size={16} /></Tooltip>
-                : null}
-            </Stack>
-            <Stack mt={'auto'} mb={1} justifyContent="space-between" direction={'row'}>
-              <Stack direction={'row'} alignItems={'center'} gap={1}>
-                <Typography>{formattedQuantity}</Typography>
-                {showThresholds ? <Tooltip title={<Stack>
-                  {Object.entries(requiredQuantities).map(([key, value]) => (
-                    <TitleAndValue stackStyle={{ justifyContent: 'space-between' }} key={name + key}
-                      title={key.capitalize()} value={getFormattedQuantity(bonus, value)} />
-                  ))}
-                </Stack>}>
-                  <IconInfoCircleFilled size={16} />
-                </Tooltip> : null}
-              </Stack>
-              <Typography color={color}>{commaNotation(points)} PTS</Typography>
-            </Stack>
-            <TomeProgressBar segments={segments} show={showProgressBars} />
-            {showProgressBars
-              ? <PointsProgressBar progress={pointsProgress} points={points} maxPoints={maxPoints} bonus={bonus} />
-              : null}
-            {showCalculator
-              ? <QuantityCalculator bonus={bonus} maxPoints={maxPoints} />
-              : null}
-          </CardContent>
-        </Card>
-          })}
-        </Stack>
+          </CardGrid>
+        </Box>
       </>
-      <TomeRankings />
+      <TomeRankings sectionFailed={sectionFailed}/>
     </Tabber>
   </>
-};
-
-const TomeProgressBar = ({ segments, show }) => {
-  if (!show) return null;
-
-  // Determine current tier and color for the whole bar
-  const bronzeSegment = segments.find(s => s.tier === 'bronze');
-  const silverSegment = segments.find(s => s.tier === 'silver');
-  const goldSegment = segments.find(s => s.tier === 'gold');
-  const blueSegment = segments.find(s => s.tier === 'blue');
-
-  const { current, isReversed } = bronzeSegment || {};
-  const currentFormatted = getFormattedQuantity({ x2: 0 }, current);
-
-  // Determine which tier we're in - this determines the color for ALL segments
-  let currentColor = segmentColors.bronze;
-  
-  if (isReversed) {
-    // For reversed items: lower is better
-    // Check from best (blue) to worst (bronze)
-    if (blueSegment && blueSegment.progress >= 1) {
-      currentColor = segmentColors.blue;
-    } else if (goldSegment && goldSegment.progress > 0) {
-      currentColor = segmentColors.gold;
-    } else if (silverSegment && silverSegment.progress > 0) {
-      currentColor = segmentColors.silver;
-    } else {
-      currentColor = segmentColors.bronze;
-    }
-  } else {
-    // For normal items: higher is better
-    if (blueSegment && blueSegment.progress >= 1) {
-      currentColor = segmentColors.blue;
-    } else if (goldSegment && goldSegment.progress > 0) {
-      currentColor = segmentColors.gold;
-    } else if (silverSegment && silverSegment.progress > 0) {
-      currentColor = segmentColors.silver;
-    } else {
-      currentColor = segmentColors.bronze;
-    }
-  }
-
-  // Filter to only show bronze, silver, gold segments (3 tiers)
-  const displaySegments = segments.filter(s => ['bronze', 'silver', 'gold'].includes(s.tier));
-
-  return (
-    <Stack gap={0.25} mb={1}>
-      <Stack direction="row" justifyContent="space-between">
-        <Typography variant="caption" color="text.secondary">Tier progress</Typography>
-      </Stack>
-      <Stack direction={'row'} gap={0.5}>
-        {displaySegments.map(({ tier, progress, startPoint, endPoint, current, isReversed }) => {
-          const currentFormatted = getFormattedQuantity({ x2: 0 }, current);
-          const startFormatted = startPoint !== null ? getFormattedQuantity({ x2: 0 }, startPoint) : '0';
-          const endFormatted = endPoint !== null ? getFormattedQuantity({ x2: 0 }, endPoint) : null;
-
-          let rangeText = '';
-          if (isReversed) {
-            // For reversed: lower is better
-            // Bounds are structured as: start (higher value), end (lower value or null)
-            if (tier === 'bronze') {
-              // Bronze: above silverReq (worst)
-              rangeText = `≥ ${startFormatted}`;
-            } else if (tier === 'blue') {
-              // Blue: at or below blueReq (best)
-              rangeText = `≤ ${endFormatted}`;
-            } else if (endFormatted && startFormatted) {
-              // Silver/Gold: between two values
-              rangeText = `${endFormatted} - ${startFormatted}`;
-            }
-          } else {
-            // Normal: higher is better
-            if (tier === 'blue') {
-              rangeText = `≥ ${startFormatted}`;
-            } else if (endFormatted) {
-              rangeText = `${startFormatted} - ${endFormatted}`;
-            } else {
-              rangeText = `${startFormatted}+`;
-            }
-          }
-
-          const tooltipContent = (
-            <Stack gap={0.5}>
-              <Typography variant="body1" color="text.secondary">{tier.capitalize()} tier</Typography>
-              <Typography variant="body2" color="text.secondary">{rangeText}</Typography>
-              <Typography variant="body2" color="text.secondary">
-                Current: {currentFormatted}{isReversed ? ' (lower is better)' : ''}
-              </Typography>
-            </Stack>
-          );
-          return (
-            <Tooltip key={tier} title={tooltipContent}>
-              <Box sx={{
-                position: 'relative',
-                flex: 1,
-                height: 8,
-                borderRadius: tier === 'bronze' ? '4px 0 0 4px' : tier === 'gold' ? '0 4px 4px 0' : 0,
-                overflow: 'hidden',
-                bgcolor: (theme) => theme.palette.action.hover
-              }}>
-                <Box sx={{
-                  position: 'absolute',
-                  inset: 0,
-                  width: `${progress * 100}%`,
-                  bgcolor: currentColor  // All segments use the same color based on current tier
-                }} />
-              </Box>
-            </Tooltip>
-          );
-        })}
-      </Stack>
-    </Stack>
-  );
-};
-
-const PointsProgressBar = ({ progress, points, maxPoints, bonus }) => {
-  if (!maxPoints) return null;
-  const clamped = Math.max(0, Math.min(1, progress || 0));
-  
-  // Calculate required quantity for max points based on curve type
-  const getRequiredForMaxPoints = () => {
-    const { x1, x2, x3 } = bonus || {};
-    if (x1 === undefined || x2 === undefined || x3 === undefined) return null;
-    
-    // Calculate the target percent needed to reach maxPoints
-    // maxPoints = ceil(targetPercent * x3), so targetPercent ≈ maxPoints / x3
-    const targetPercent = (maxPoints - 0.5) / x3; // Subtract 0.5 to account for ceiling
-    
-    // Type 2: Linear - quantity = targetPercent * x1
-    if (x2 === 2) {
-      return { quantity: targetPercent * x1 };
-    }
-    
-    // Type 4: Diminishing returns - solve (2*q / (q + x1))^0.7 = targetPercent
-    if (x2 === 4) {
-      const base = Math.pow(targetPercent, 1 / 0.7);
-      const quantity = (base * x1) / (2 - base);
-      return { quantity: Math.ceil(quantity) };
-    }
-    
-    // Type 3: Reversed - solve ((1.2 * (6*x1 - q)) / (7*x1 - q))^5 = targetPercent
-    if (x2 === 3) {
-      const base = Math.pow(targetPercent, 1 / 5);
-      const numerator = 1.2 * 6 * x1 - base * 7 * x1;
-      const denom = 1.2 - base;
-      const quantity = numerator / denom;
-      return { quantity: Math.ceil(Math.max(0, quantity)) };
-    }
-    
-    // Type 0: Exponential - solve (1.7*q / (q + x1))^0.7 = targetPercent
-    if (x2 === 0) {
-      const base = Math.pow(targetPercent, 1 / 0.7);
-      const quantity = (base * x1) / (1.7 - base);
-      if (quantity < 0 || !isFinite(quantity)) {
-        return { quantity: Infinity };
-      }
-      return { quantity: Math.ceil(quantity) };
-    }
-    
-    // Type 1: Logarithmic - solve 2.4*log(q) / (2*log(q) + x1) = targetPercent
-    if (x2 === 1) {
-      const logQ = -(targetPercent * x1) / (2 * targetPercent - 2.4);
-      if (logQ <= 0 || !isFinite(logQ)) {
-        return { quantity: Infinity };
-      }
-      const quantity = Math.pow(10, logQ);
-      return { quantity: Math.ceil(quantity) };
-    }
-    
-    return null;
-  };
-  
-  const maxInfo = getRequiredForMaxPoints();
-  let maxQuantityText = null;
-  
-  if (maxInfo) {
-    if (maxInfo.quantity === Infinity) {
-      maxQuantityText = 'Unreachable (asymptotic)';
-    } else {
-      const formatted = getFormattedQuantity(bonus, maxInfo.quantity);
-      maxQuantityText = formatted;
-    }
-  }
-  
-  const tooltipContent = maxQuantityText ? (
-    <Stack gap={0.5}>
-      <Typography variant="body1" color="text.secondary">Max Points</Typography>
-      <Typography variant="body2" color="text.secondary">
-        {maxInfo?.quantity === Infinity ? maxQuantityText : `Required: ${maxQuantityText}`}
-      </Typography>
-      <Typography variant="body2" color="text.secondary">
-        {commaNotation(points)} / {commaNotation(maxPoints)} PTS
-      </Typography>
-    </Stack>
-  ) : null;
-  
-  return (
-    <Stack gap={0.25}>
-      <Stack direction="row" justifyContent="space-between">
-        <Typography variant="caption" color="text.secondary">PTS progress</Typography>
-        <Typography variant="caption" color="text.secondary">{commaNotation(points)} / {commaNotation(maxPoints)}</Typography>
-      </Stack>
-      <Tooltip title={tooltipContent || ''}>
-        <Box sx={{
-          position: 'relative',
-          width: '100%',
-          height: 6,
-          borderRadius: 3,
-          overflow: 'hidden',
-          bgcolor: (theme) => theme.palette.action.hover
-        }}>
-          <Box sx={{
-            position: 'absolute',
-            inset: 0,
-            width: `${clamped * 100}%`,
-            bgcolor: 'success.light'
-          }} />
-        </Box>
-      </Tooltip>
-    </Stack>
-  );
-}
-
-const QuantityCalculator = ({ bonus, maxPoints }) => {
-  const [targetPoints, setTargetPoints] = React.useState('');
-
-  const calculateRequiredQuantity = (points) => {
-    const { x1, x2, x3 } = bonus || {};
-    if (!x1 || x2 === undefined || !x3 || !points || points <= 0) return null;
-
-    // Calculate target percent: points = ceil(targetPercent * x3)
-    const targetPercent = (points - 0.5) / x3;
-    
-    // Type 2: Linear
-    if (x2 === 2) {
-      return Math.ceil(targetPercent * x1);
-    }
-    
-    // Type 4: Diminishing returns
-    if (x2 === 4) {
-      const base = Math.pow(targetPercent, 1 / 0.7);
-      if (base >= 2) return Infinity;
-      return Math.ceil((base * x1) / (2 - base));
-    }
-    
-    // Type 3: Reversed
-    if (x2 === 3) {
-      const base = Math.pow(targetPercent, 1 / 5);
-      if (base >= 1.2) return 0;
-      const numerator = 1.2 * 6 * x1 - base * 7 * x1;
-      const denom = 1.2 - base;
-      return Math.ceil(Math.max(0, numerator / denom));
-    }
-    
-    // Type 0: Exponential
-    if (x2 === 0) {
-      const base = Math.pow(targetPercent, 1 / 0.7);
-      if (base >= 1.7) return Infinity;
-      return Math.ceil((base * x1) / (1.7 - base));
-    }
-    
-    // Type 1: Logarithmic
-    if (x2 === 1) {
-      const denom = 2 * targetPercent - 2.4;
-      if (denom === 0) return Infinity;
-      const logQ = -(targetPercent * x1) / denom;
-      if (logQ <= 0) return Infinity;
-      return Math.ceil(Math.pow(10, logQ));
-    }
-    
-    return null;
-  };
-
-  // Calculate result automatically as user types
-  let result = null;
-  if (targetPoints && targetPoints.trim() !== '') {
-    const points = parseFloat(targetPoints);
-    if (isNaN(points) || points <= 0) {
-      result = 'Invalid input';
-    } else if (points > maxPoints) {
-      result = `Max points is ${commaNotation(maxPoints)}`;
-    } else {
-      const quantity = calculateRequiredQuantity(points);
-      if (quantity === null) {
-        result = 'Unable to calculate';
-      } else if (quantity === Infinity) {
-        result = 'Unreachable (asymptotic)';
-      } else {
-        const formatted = getFormattedQuantity(bonus, quantity);
-        result = `Required: ${formatted}`;
-      }
-    }
-  }
-
-  return (
-    <Stack gap={0.5} mt={2} p={1} sx={{ bgcolor: (theme) => theme.palette.action.hover, borderRadius: 1 }}>
-      <Typography variant="caption" color="text.secondary">Calculate required quantity</Typography>
-      <Stack direction="row" gap={1} alignItems="center">
-        <input
-          type="number"
-          placeholder="Target PTS"
-          value={targetPoints}
-          onChange={(e) => setTargetPoints(e.target.value)}
-          style={{
-            padding: '4px 8px',
-            borderRadius: '4px',
-            border: '1px solid #444',
-            background: '#1a1a1a',
-            color: '#fff',
-            width: '120px',
-            fontSize: '12px'
-          }}
-        />
-        
-      {result && (
-        <Typography variant="caption" color="primary.main">
-          {result}
-        </Typography>
-      )}
-      </Stack>
-    </Stack>
-  );
 };
 
 export default Tome;

@@ -2,16 +2,8 @@ import React from 'react';
 import InfoBox, { visibleGroups } from './InfoBox';
 import CoinAmount from './CoinAmount';
 import { getPowerType } from '@parsers/powerTypes';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { categoryLabel } from '@utility/wiki/categories.mjs';
-
-// Same stat colours ItemDisplay uses, so an item reads the same in a tooltip and here.
-const STAT_COLOURS = {
-  STR: 'error.dark',
-  AGI: 'success.dark',
-  WIS: 'secondary.dark',
-  LUK: 'warning.dark'
-};
 
 // Grouped the way idleon.wiki's infobox groups it: what you need to equip the thing, then what it
 // gives you, then what a vendor pays. Set Info is absent on purpose: equipmentSets holds 19 sets and
@@ -28,7 +20,7 @@ const STAT_COLOURS = {
 const statGroups = (stats, rawName, type) => {
   const requirements = [];
   const values = [];
-  const add = (into, label, value, color) => into.push({ label, value, color });
+  const add = (into, label, value) => into.push({ label, value });
 
   // The game's bag tooltip shows only the level requirement (N.js:89543); a bag's Class is its pouch type.
   if (stats.Class && type !== 'CARRY_BAG') add(requirements, 'Class', categoryLabel(stats.Class));
@@ -39,12 +31,12 @@ const statGroups = (stats, rawName, type) => {
   if (stats.Speed) add(values, 'Speed', stats.Speed);
   if (stats.Reach) add(values, 'Reach', stats.Reach);
   for (const stat of ['STR', 'AGI', 'WIS', 'LUK']) {
-    if (stats[stat]) add(values, stat, stats[stat], STAT_COLOURS[stat]);
+    if (stats[stat]) add(values, stat, stats[stat]);
   }
   if (stats.Defence) add(values, 'Defence', stats.Defence);
   if (stats.UQ1txt && stats.UQ1val) add(values, 'Misc', cleanUnderscore(`+${stats.UQ1val}${stats.UQ1txt}`));
   if (stats.UQ2txt && stats.UQ2val) add(values, 'Misc', cleanUnderscore(`+${stats.UQ2val}${stats.UQ2txt}`));
-  if (stats.Upgrade_Slots_Left > 0) add(values, 'Upgrade Slots', stats.Upgrade_Slots_Left);
+  if (stats.Upgrade_Slots_Left > 0) add(values, 'Upgrade slots', stats.Upgrade_Slots_Left);
 
   return [
     { title: 'Requirements', rows: requirements },
@@ -65,13 +57,13 @@ const itemStatGroups = (node) => {
   // the anvil. Only set on items no edge reached, so it never contradicts a source above it.
   const other = [];
   if (obtainedFrom) other.push({ label: 'Obtained from', value: obtainedFrom });
-  if (sellPrice) other.push({ label: 'Sell Price', value: <CoinAmount amount={sellPrice} size={16}/> });
+  if (sellPrice) other.push({ label: 'Sell price', value: <CoinAmount amount={sellPrice}/> });
   // The anvil's Points From Mats: which of the bought points this material pays for.
   if (anvilPoints) other.push({
-    label: 'Anvil Points',
-    value: anvilPoints.to == null ? `${anvilPoints.from}+` : `${anvilPoints.from} to ${anvilPoints.to}`
+    label: 'Anvil points',
+    value: anvilPoints.to == null ? `${formatNum(anvilPoints.from, 'whole')}+` : `${formatNum(anvilPoints.from, 'whole')} to ${formatNum(anvilPoints.to, 'whole')}`
   });
-  if (other.length > 0) groups.push({ title: 'Other Info', rows: other });
+  if (other.length > 0) groups.push({ title: 'Other info', rows: other });
   return groups;
 };
 

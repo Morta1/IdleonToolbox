@@ -87,12 +87,17 @@ const bubbleCosts = (bubble, table, items) => {
 const alchemyTerms = (entry, levelLabel, cap) => (entry?.func ? {
   levelLabel,
   cap,
-  terms: ['{', '$'].map((token) => ({
+  terms: ['{', '$'].filter((token) => entry.desc?.includes(token) || !entry.toolWords).map((token) => ({
     token,
     formula: 'growth',
     args: { func: entry.func, x1: entry.x1 ?? null, x2: entry.x2 ?? null }
   }))
 } : null);
+
+// The three tool bubbles' `$` is words, not a number: the sentence with the game's words in place of the `$` they fill.
+const withToolWords = (bubble, words) => (words
+  ? { ...bubble, desc: bubble.desc?.replace('$', words), toolWords: true }
+  : bubble);
 
 export const vialNodes = (vials, vialCosts = []) => {
   const nodes = {};
@@ -147,12 +152,14 @@ export const bubbleNodes = (cauldrons, data) => {
   const nodes = {};
   const titles = gameTable(data, 'cauldronTitles');
   const costTable = gameTable(data, 'bubbleCost');
+  const toolWords = gameTable(data, 'bubbleToolWords');
   Object.values(cauldrons || {}).forEach((bubbles, cauldronIndex) => {
     const label = titles?.[cauldronIndex] ? cauldronLabel(titles[cauldronIndex]) : '';
     for (const bubble of bubbles || []) {
       const rawName = bubbleRawName(cauldronIndex, bubble?.bubbleIndex);
       if (!rawName || !bubble?.bubbleName || isPlaceholderBubble(bubble)) continue;
       const cost = bubbleCosts(bubble, costTable, data?.items);
+      const worded = withToolWords(bubble, toolWords?.[`${cauldronIndex},${String(bubble.bubbleIndex).slice(1)}`]);
       nodes[`bubble:${rawName}`] = {
         kind: 'bubble',
         rawName,
@@ -163,8 +170,8 @@ export const bubbleNodes = (cauldrons, data) => {
         icon: `/data/${rawName}.png`,
         // Without the titles the cauldron is left out of the category rather than four cauldrons sharing one band.
         category: label ? `${label} Cauldron` : null,
-        description: bubble.desc || null,
-        ...(alchemyTerms(bubble, 'Bubble level', null) ? { effect: alchemyTerms(bubble, 'Bubble level', null) } : {}),
+        description: worded.desc || null,
+        ...(alchemyTerms(worded, 'Bubble level', null) ? { effect: alchemyTerms(worded, 'Bubble level', null) } : {}),
         // The game's COSTS box: the material and the liquid together, both at the level the reader types.
         ...(cost?.length ? { cost } : {})
       };

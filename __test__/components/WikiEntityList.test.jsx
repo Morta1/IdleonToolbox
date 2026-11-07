@@ -6,8 +6,11 @@ import { renderToString } from 'react-dom/server';
 import { fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import EntityList from '@components/wiki/EntityList';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { listingCells, listingColumns } from '@utility/wiki/listing.mjs';
+
+// The toolbar sticks under the profile banner, which reads the router; no page mounts one here.
+vi.mock('@hooks/useProfileBannerState', () => ({ default: () => ({ isVisible: false }) }));
 
 // A kind listing is how a crawler reaches every entity of that kind, so the rows themselves must
 // be anchors, including the ones a collapsed band keeps out of view.
@@ -27,7 +30,7 @@ const makeIndex = (count) => {
 const renderList = (count, method) => {
   const index = makeIndex(count);
   const onNavigate = vi.fn();
-  const ui = <ThemeProvider theme={darkTheme}>
+  const ui = <ThemeProvider theme={theme}>
     <EntityList
       index={index}
       kind={'npc'}
@@ -69,7 +72,7 @@ describe('EntityList same-name rows', () => {
       { id: 'mineheadopponent:MineheadOpp20', kind: 'mineheadopponent', label: 'Brainhead', disambig: '#21' },
       { id: 'mineheadopponent:MineheadOpp21', kind: 'mineheadopponent', label: 'Brainhead', disambig: '#22' }
     ];
-    const { getAllByRole } = render(<ThemeProvider theme={darkTheme}>
+    const { getAllByRole } = render(<ThemeProvider theme={theme}>
       <EntityList
         index={{ byId, searchList }}
         kind={'mineheadopponent'}
@@ -85,31 +88,9 @@ describe('EntityList same-name rows', () => {
   });
 });
 
-describe('EntityList Pet Mart card', () => {
-  // A Pet Mart pack has no banner, so its card prints the gems and pet crystals the banner would have shown.
-  it('prints the gem and pet crystal counts beside their gems', () => {
-    const byId = {
-      'bundle:petMart1': {
-        kind: 'bundle', rawName: 'petMart1', name: 'Blob_Pack', slug: 'blob-pack', icon: '/data/Blob.png', category: 'Pet Mart',
-        petMart: true, petName: 'Mr_Blob', price: 4.99, gems: 1200, petCrystals: 35
-      }
-    };
-    const { container } = render(<ThemeProvider theme={darkTheme}>
-      <EntityList
-        index={{ byId, searchList: [{ id: 'bundle:petMart1', kind: 'bundle', label: 'Blob Pack' }] }}
-        kind={'bundle'}
-        onNavigate={() => {}}
-        hrefFor={(id) => `/wiki/bundle/${byId[id].slug}`}
-      />
-    </ThemeProvider>);
-    const gems = [...container.querySelector('a[href="/wiki/bundle/blob-pack"]').querySelectorAll('img')].filter((img) => img.getAttribute('src').endsWith('PremiumGem.png'));
-    expect(gems.map((img) => img.nextSibling.textContent)).toEqual(['1,200', '35']);
-  });
-});
-
 describe('EntityList item categories', () => {
-  // The chip row, the picker and the band headings all print the game's raw type; the page reads it as words.
-  it('titles an item category in the chips', () => {
+  // The Show select and the band headings both print the game's raw type; the page reads it as words.
+  it('titles an item category in the Show select', () => {
     const byId = {
       'item:A': { kind: 'item', rawName: 'A', name: 'Alpha', slug: 'alpha', icon: null, category: 'PREMIUM_HELMET' },
       'item:B': { kind: 'item', rawName: 'B', name: 'Beta', slug: 'beta', icon: null, category: 'SPELUNKY_PAGE' }
@@ -118,7 +99,7 @@ describe('EntityList item categories', () => {
       { id: 'item:A', kind: 'item', label: 'Alpha' },
       { id: 'item:B', kind: 'item', label: 'Beta' }
     ];
-    const { getAllByText, queryByText } = render(<ThemeProvider theme={darkTheme}>
+    const { getAllByText, getByRole, getAllByRole, queryByText } = render(<ThemeProvider theme={theme}>
       <EntityList
         index={{ byId, searchList }}
         kind={'item'}
@@ -126,10 +107,18 @@ describe('EntityList item categories', () => {
         hrefFor={(id) => `/wiki/item/${byId[id].slug}`}
       />
     </ThemeProvider>);
-    // Once as a chip and once as the band heading above its rows.
-    expect(getAllByText('Premium Helmet')).toHaveLength(2);
-    expect(getAllByText('Spelunky Page')).toHaveLength(2);
-    expect(queryByText('PREMIUM HELMET')).toBeNull();
+    // Once as the band heading above its rows, and as an option with its count in the Show select.
+    const headings = { premium: getAllByText('Premium Helmet').length, spelunky: getAllByText('Spelunky Page').length };
+    fireEvent.mouseDown(getByRole('combobox', { name: 'Show' }));
+    expect({
+      headings,
+      options: getAllByRole('option').map((option) => option.textContent),
+      raw: queryByText('PREMIUM HELMET')
+    }).toEqual({
+      headings: { premium: 1, spelunky: 1 },
+      options: ['All items (2)', 'Premium Helmet (1)', 'Spelunky Page (1)'],
+      raw: null
+    });
   });
 });
 
@@ -146,19 +135,20 @@ describe('EntityList item category bands and picker', () => {
         searchList.push({ id, kind: 'item', label, ...(disambig ? { disambig } : {}) });
       }
     }
-    return render(<ThemeProvider theme={darkTheme}>
+    return render(<ThemeProvider theme={theme}>
       <EntityList index={{ byId, searchList }} kind={'item'} onNavigate={() => {}}
                   hrefFor={(id) => `/wiki/item/${byId[id].slug}`}/>
     </ThemeProvider>);
   };
 
-  // Past twelve categories the chips become a select; it lists them as words, in the order the words sort.
+  // The Show select lists the categories as words, in the order the words sort, each with its count.
   it('lists a picker of more than twelve categories by their words', () => {
     const raw = ['ZEBRA_HAT', 'AXE', 'AXE_HEAD', 'B_TIER', 'CARD', 'DNA_THING', 'EGG', 'FISH', 'GEM', 'HAT', 'INK', 'JAR', 'KEY'];
     const { getByRole, getAllByRole } = renderItems(raw.map((category) => [category, 1]));
-    fireEvent.mouseDown(getByRole('combobox'));
+    fireEvent.mouseDown(getByRole('combobox', { name: 'Show' }));
     expect(getAllByRole('option').map((option) => option.textContent)).toEqual([
-      'All', 'Axe', 'Axe Head', 'B Tier', 'Card', 'DNA Thing', 'Egg', 'Fish', 'Gem', 'Hat', 'Ink', 'Jar', 'Key', 'Zebra Hat'
+      'All items (13)', 'Axe (1)', 'Axe Head (1)', 'B Tier (1)', 'Card (1)', 'DNA Thing (1)', 'Egg (1)', 'Fish (1)', 'Gem (1)', 'Hat (1)',
+      'Ink (1)', 'Jar (1)', 'Key (1)', 'Zebra Hat (1)'
     ]);
   });
 
@@ -216,7 +206,7 @@ describe('EntityList table', () => {
 
   const renderTable = ({ count = 3, categoryOf, sort = null, onSortChange = () => {}, method = render } = {}) => {
     const { columns, index } = sushi(count, categoryOf);
-    return method(<ThemeProvider theme={darkTheme}>
+    return method(<ThemeProvider theme={theme}>
       <EntityList
         index={index}
         kind={'sushiupgrade'}
@@ -240,7 +230,7 @@ describe('EntityList table', () => {
     const heads = [...container.querySelectorAll('thead th')];
     expect({
       heads: heads.map((head) => head.textContent),
-      effectNote: Boolean(heads[1].querySelector('svg[data-testid="InfoIcon"]')),
+      effectNote: Boolean(heads[1].querySelector('[aria-label="About Effect"]')),
       ariaSort: heads.map((head) => head.getAttribute('aria-sort'))
     }).toEqual({
       heads: ['Name', 'Effect', 'Cost', 'Max level', 'Research level needed'],
@@ -252,7 +242,7 @@ describe('EntityList table', () => {
   // A reader who expanded the list and then sorts it is still looking at the whole list.
   it('keeps an expanded list expanded when it is sorted', () => {
     const { columns, index } = sushi(150);
-    const list = (sort) => <ThemeProvider theme={darkTheme}>
+    const list = (sort) => <ThemeProvider theme={theme}>
       <EntityList index={index} kind={'sushiupgrade'} columns={columns} sort={sort} onSortChange={() => {}}
                   onNavigate={() => {}} hrefFor={(id) => `/wiki/sushiupgrade/${index.byId[id].slug}`}/>
     </ThemeProvider>;
@@ -266,20 +256,21 @@ describe('EntityList table', () => {
   });
 
   it.each([
-    ['unsorted', null, { key: 'cost', order: 'asc' }],
-    ['ascending', { key: 'cost', order: 'asc' }, { key: 'cost', order: 'desc' }],
-    ['descending', { key: 'cost', order: 'desc' }, null]
+    ['unsorted', null, { key: 'cost', order: 'desc' }],
+    ['descending', { key: 'cost', order: 'desc' }, { key: 'cost', order: 'asc' }],
+    ['ascending', { key: 'cost', order: 'asc' }, null]
   ])('moves a %s Cost header on to the next sort', (unused, sort, next) => {
     const onSortChange = vi.fn();
     const { getByRole } = renderTable({ sort, onSortChange });
-    fireEvent.click(getByRole('button', { name: 'Cost' }));
+    // jsdom resolves no container query: the heading reads as hidden.
+    fireEvent.click(getByRole('button', { name: 'Cost', hidden: true }));
     expect(onSortChange.mock.calls).toEqual([[next]]);
   });
 
   // Sorted, the list is one run: band headings between the rows would cut the order the reader asked for.
   it('keeps the category bands as rows inside the one table until the list is sorted', () => {
     const headings = (sort) => [...renderTable({ count: 4, categoryOf: (i) => (i < 2 ? 'A' : 'B'), sort }).container
-      .querySelectorAll('tbody th[scope="rowgroup"] p')].map((heading) => heading.textContent);
+      .querySelectorAll('tbody th[scope="rowgroup"] .MuiTypography-groupLabel')].map((heading) => heading.textContent);
     expect({ unsorted: headings(null), sorted: headings({ key: 'cost', order: 'asc' }) }).toEqual({ unsorted: ['A', 'B'], sorted: [] });
   });
 
@@ -293,7 +284,11 @@ describe('EntityList table', () => {
       ...capped,
       ...nodes.filter((node) => node.effect.cap == null && !node.effect.noMax)
     ].map((node) => `/wiki/sushiupgrade/${node.slug}`);
-    expect([...container.querySelectorAll('tbody a[href]')].map((link) => link.getAttribute('href'))).toEqual(expected);
+    expect({
+      hrefs: [...container.querySelectorAll('tbody a[href]')].map((link) => link.getAttribute('href')),
+      // The blank row's Max level is the muted dash.
+      lastMax: [...container.querySelectorAll('tbody tr')].at(-1).querySelector('td.col-2').textContent
+    }).toEqual({ hrefs: expected, lastMax: '-' });
   });
 
   it('sorts from the Sort by select, for the phone whose headers are hidden', () => {
@@ -301,13 +296,25 @@ describe('EntityList table', () => {
     const { getByRole } = renderTable({ onSortChange });
     fireEvent.mouseDown(getByRole('combobox', { name: 'Sort by' }));
     fireEvent.click(getByRole('option', { name: 'Max level' }));
-    expect(onSortChange.mock.calls).toEqual([[{ key: 'max-level', order: 'asc' }]]);
+    expect(onSortChange.mock.calls).toEqual([[{ key: 'max-level', order: 'desc' }]]);
   });
 
-  // jsdom resolves no media queries, so read the rules emotion emitted for a cell's classes.
+  // Cost is the primary column, so it stays in the row and the rest open under it.
+  it('opens the columns a phone hides under the row', () => {
+    const { getAllByRole } = renderTable();
+    const details = getAllByRole('button', { name: /^Details for / })[0];
+    fireEvent.click(details);
+    const detail = document.getElementById(details.getAttribute('aria-controls'));
+    expect({
+      expanded: details.getAttribute('aria-expanded'),
+      labels: [...detail.querySelectorAll('dt')].map((label) => label.textContent)
+    }).toEqual({ expanded: 'true', labels: ['Effect', 'Cost', 'Max level', 'Research level needed'] });
+  });
+
+  // jsdom resolves no queries, so read the rules emotion emitted for a cell's classes.
   // The cells carry no style of their own (the table styles each column once), so the rules are the table's,
-  // scoped to a column's class. The Sort by select stays until md, where every header shows.
-  it('shows the name and the primary column on a phone, the third data column from md', () => {
+  // scoped to a column's class. The Sort by select stays until the box holds every column, where every header shows.
+  it('brings each column in by the room around the table, the sentence last', () => {
     const { container, getByRole } = renderTable();
     const css = [...document.querySelectorAll('style')].map((style) => style.textContent);
     const classOf = (element) => [...element.classList].find((name) => name.startsWith('css-'));
@@ -315,29 +322,26 @@ describe('EntityList table', () => {
     const table = classOf(container.querySelector('table'));
     // Name, then Effect (col-0), Cost (col-1, primary), Max level (col-2, secondary), Research level needed (col-3).
     const cells = [...container.querySelector('tbody tr').querySelectorAll('td')].map((cell) => cell.className);
+    const roomOf = (column) => Number(/@container \(min-width:(\d+)px\)/.exec(displayRules(`.${table} td.${column}{`).find((rule) => rule.includes('table-cell')))[1]);
+    const sortRule = displayRules(`.${classOf(getByRole('combobox', { name: 'Sort by' }).closest('.MuiStack-root'))}{`).find((rule) => rule.startsWith('@container'));
+    const rooms = ['col-1', 'col-2', 'col-3', 'col-0'].map(roomOf);
     expect({
       cells,
-      primary: displayRules(`.${table} td.col-1{`).filter((rule) => rule.includes('display:none')),
-      third: displayRules(`.${table} td.col-3{`),
-      sortControl: displayRules(`.${classOf(getByRole('combobox', { name: 'Sort by' }).closest('.MuiStack-root'))}{`)
-        .filter((rule) => rule.startsWith('@media'))
+      inOrder: [...rooms].sort((a, b) => a - b),
+      sortFrom: Number(/min-width:(\d+)px/.exec(sortRule)[1]),
+      sortHides: sortRule.includes('display:none')
     }).toEqual({
-      cells: ['name', 'col-0', 'col-1', 'col-2', 'col-3'],
-      primary: [],
-      third: [
-        expect.stringMatching(/^@media \(min-width:0px\)\{\.css-\w+ td\.col-3\{[^}]*display:none;[^}]*\}\}$/),
-        expect.stringMatching(/^@media \(min-width:900px\)\{\.css-\w+ td\.col-3\{[^}]*display:table-cell;[^}]*\}\}$/)
-      ],
-      sortControl: [
-        expect.stringMatching(/^@media \(min-width:0px\)\{\.css-[\w-]+\{[^}]*display:flex;[^}]*\}\}$/),
-        expect.stringMatching(/^@media \(min-width:900px\)\{\.css-[\w-]+\{[^}]*display:none;[^}]*\}\}$/)
-      ]
+      cells: ['name', 'col-0', 'col-1', 'col-2', 'col-3', 'expand'],
+      inOrder: rooms,
+      sortFrom: rooms.at(-1),
+      sortHides: true
     });
   });
 });
 
 describe('EntityList bundle cards', () => {
   // A banner is the row, so bundles stay cards; the sort reaches them through the Sort by control.
+  // A Pet Mart pack has no banner, so its card prints the gems and pet crystals the banner would have shown.
   it('orders the cards by price and keeps the Pet Mart card whole', () => {
     const nodes = [
       { kind: 'bundle', rawName: 'bun_a', name: 'Starter_Pack', slug: 'starter-pack', icon: '/data/bun_a.png', category: 'Gem Shop', price: 4.99, gems: 500 },
@@ -350,7 +354,7 @@ describe('EntityList bundle cards', () => {
     const searchList = nodes.map((node) => ({
       id: `bundle:${node.rawName}`, kind: 'bundle', label: node.name.replace(/_/g, ' '), cells: listingCells(columns, node)
     }));
-    const { container } = render(<ThemeProvider theme={darkTheme}>
+    const { container } = render(<ThemeProvider theme={theme}>
       <EntityList
         index={{ byId, searchList }}
         kind={'bundle'}
@@ -366,7 +370,7 @@ describe('EntityList bundle cards', () => {
     expect({
       table: container.querySelector('table'),
       hrefs: cards.map((card) => card.getAttribute('href')),
-      gems: [...petMart.querySelectorAll('img')].filter((img) => img.getAttribute('src').endsWith('PremiumGem.png')).map((img) => img.nextSibling.textContent)
+      gems: [...petMart.querySelectorAll('img')].filter((img) => img.getAttribute('src').endsWith('PremiumGem.png')).map((img) => img.closest('.MuiStack-root').textContent)
     }).toEqual({
       table: null,
       hrefs: [...nodes].sort((a, b) => b.price - a.price).map((node) => `/wiki/bundle/${node.slug}`),
@@ -384,7 +388,7 @@ describe('EntityList bundle cards', () => {
     const columns = listingColumns('compassupgrade', nodes);
     const byId = Object.fromEntries(nodes.map((n) => [`compassupgrade:${n.rawName}`, n]));
     const searchList = nodes.map((n) => ({ id: `compassupgrade:${n.rawName}`, kind: 'compassupgrade', label: n.name, cells: listingCells(columns, n) }));
-    const { container } = render(<ThemeProvider theme={darkTheme}>
+    const { container } = render(<ThemeProvider theme={theme}>
       <EntityList index={{ byId, searchList }} kind={'compassupgrade'} columns={columns} sort={null} onSortChange={() => {}}
                   onNavigate={() => {}} hrefFor={(id) => `/wiki/compassupgrade/${byId[id].slug}`}/>
     </ThemeProvider>);

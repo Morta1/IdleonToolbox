@@ -1,61 +1,24 @@
-import { CardTitleAndValue } from '@components/common/styles';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, msToDate, notateNumber } from '@utility/helpers';
+import { Stack } from '@mui/material';
 import React from 'react';
-import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
-import ProgressBar from '@components/common/ProgressBar';
 import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import { monumentBonusCard, monumentTiles, opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 
 const Justice = ({ hole }) => {
+  const justice = hole?.caverns?.justice;
   return <>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <CardTitleAndValue title={'Mental health'} icon={'etc/Justice_Health.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={`${hole?.caverns?.justice?.health}`}/>
-      <CardTitleAndValue title={'Coins'} icon={'etc/Justice_Coin.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={`${hole?.caverns?.justice?.coins}`}/>
-      <CardTitleAndValue title={'Popularity'} icon={'etc/Justice_Popularity.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={`${hole?.caverns?.justice?.popularity}`}/>
-      <CardTitleAndValue title={'Dismissals'} icon={'etc/Justice_Dismissals.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={`${hole?.caverns?.justice?.dismissals}`}/>
-      <CardTitleAndValue title={'Opal chance'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={`${notateNumber(hole?.caverns?.justice?.opalChance * 100, 'MultiplierInfo')}%`}/>
-      <CardTitleAndValue title={'Hours'}
-                         value={`${commaNotation(hole?.caverns?.justice?.hours)}`}/>
-      <CardTitleAndValue title={'Reward multi'}
-                         value={`${hole?.caverns?.justice?.rewardMulti < 1
-                           ? '0'
-                           : Math.round(10 * hole?.caverns?.justice?.rewardMulti) / 10}x`}/>
-      <CardTitleAndValue title={'Next fight in'}
-                         value={hole?.caverns?.justice?.timeForNextFight > 0
-                           ? msToDate(hole?.caverns?.justice?.timeForNextFight * 1000)
-                           : 'Now!'}/>
-      {hole?.caverns?.justice?.monumentAfkReq ? <CardWithBreakdown title={'Afk hours req'} breakdown={hole?.caverns?.justice?.monumentAfkReq}/> : null}
-      {hole?.caverns?.justice?.nextHourBreakpoint ? <CardTitleAndValue title={'Next hour reward'}
-                          value={`${commaNotation(hole?.caverns?.justice?.nextHourBreakpoint?.hours)}hrs: ${cleanUnderscore(hole?.caverns?.justice?.nextHourBreakpoint?.reward)}`}/> : null}
-      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.holesObject?.opalsPerCavern?.[9] || 0}/>
-      <CardTitleAndValue title={'Total justice levels'}
-                         value={commaNotation(getHoleLeaderboardTotals(hole).justiceLevels)}/>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'Mental health'} icon={'etc/Justice_Health.png'} value={justice?.health ?? 0} kind={'amount'}/>
+      <StatTile label={'Coins'} icon={'etc/Justice_Coin.png'} value={justice?.coins ?? 0} kind={'whole'}/>
+      <StatTile label={'Popularity'} icon={'etc/Justice_Popularity.png'} value={justice?.popularity ?? 0} kind={'amount'}/>
+      <StatTile label={'Dismissals'} icon={'etc/Justice_Dismissals.png'} value={justice?.dismissals ?? 0} kind={'amount'}/>
+      {monumentTiles(justice, hole)}
+      {opalsFoundTile(hole, 9)}
+      <StatTile label={'Total justice levels'} value={getHoleLeaderboardTotals(hole).justiceLevels} kind={'amount'}/>
     </Stack>
-    <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {hole?.caverns?.justice?.bonuses.map(({ description, level, bonus, cap, progression, scalingValue, levelToReachCap }, index) => {
-        return <Card key={`bonus-${index}`}>
-          <CardContent sx={{ width: 300, opacity: level === 0 ? .5 : 1 }}>
-            <Typography>Lv. {level}{levelToReachCap !== null ? ` / ${commaNotation(levelToReachCap)}` : ''}</Typography>
-            <Typography>{cleanUnderscore(description)}</Typography>
-            {cap === null && <Typography variant={'body2'} sx={{ mt: 1 }}>+{scalingValue} per level</Typography>}
-            {cap !== null && (
-              <ProgressBar
-                percent={progression}
-                tooltipTitle={`${notateNumber(bonus, 'MultiplierInfo')} / ${cap} cap`}
-              />
-            )}
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
-  </>
+    <CardGrid size={'m'}>{(justice?.bonuses ?? []).map(monumentBonusCard)}</CardGrid>
+  </>;
 };
 
 export default Justice;

@@ -1,63 +1,50 @@
-import { Stack, Typography } from '@mui/material';
 import React from 'react';
-import { notateNumber, prefix } from 'utility/helpers';
+import { formatNum } from 'utility/helpers';
 import { calcStampLevels } from '@parsers/world-1/stamps';
-import Tooltip from '../../Tooltip';
 import { calcStatueLevels } from '@parsers/world-1/statues';
 import { calcShrineLevels } from '@parsers/world-3/shrines';
 import { calcBubbleLevels } from '@parsers/world-2/alchemy';
 import { getGiantMobChance, getLifetimeStat, LIFETIME_STATS } from '@parsers/misc';
-import InfoIcon from '@mui/icons-material/Info';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
+import Panel from '@components/common/cards/Panel';
+import ShortAmount from '@components/common/ShortAmount';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
-const Totals = ({ account, characters }) => {
+const pct = (value) => formatNum(value ?? 0, 'pct', { precise: true });
 
-  const totalBubbleLevels = calcBubbleLevels(account?.alchemy?.bubbles);
-  const totalStampLevels = calcStampLevels(account?.stamps);
-  const totalStatueLevels = calcStatueLevels(account?.statues);
-  const totalShrineLevels = calcShrineLevels(account?.shrines);
-  const giantMob = getGiantMobChance(characters?.[0], account);
+// failedOf: whether a section the page reads failed; a total it feeds reads "-"
+const Totals = ({ account, characters, failedOf = () => false }) => {
+  // A lifetime stat can be a numeric string in the save ("3.76e+27")
+  const totalOf = (section, total) => (failedOf(section) ? '-' : <ShortAmount amount={Number(total) || 0}/>);
+  const totals = [
+    ['Bubbles', 'aBrewOptionA0', totalOf('alchemy', calcBubbleLevels(account?.alchemy?.bubbles))],
+    ['Stamps', 'StampA34', totalOf('stamps', calcStampLevels(account?.stamps))],
+    ['Statues', 'EquipmentStatues1', totalOf('statues', calcStatueLevels(account?.statues))],
+    ['Shrines', 'UISkillIcon639', totalOf('shrines', calcShrineLevels(account?.shrines))],
+    ...LIFETIME_STATS.map((stat) => [stat.name, stat.icon, totalOf('tasks', getLifetimeStat(account, stat))])
+  ];
+  // The first character's chance, as the game rolls it for whoever is on the map; the shrine (its cards and artifacts),
+  // the vial and the prayer feed it
+  const giantFailed = ['shrines', 'alchemy', 'cards', 'sailing', 'prayers'].some(failedOf);
+  const giantMob = characters?.length && !giantFailed ? getGiantMobChance(characters[0], account) : null;
+  const giantText = giantMob?.chance > 0 ? formatNum(giantMob.chance, 'odds') : '-';
+  // Its sources are a list, so a breakdown (Info board step 5), headed with the row's own odds
+  const giantBreakdown = giantMob?.chance > 0 ? createBreakdown('Giant mob chance', giantText, flatLines([
+    { name: 'Crescent Shrine', value: giantMob?.crescentShrineBonus ?? 0, formatted: `+${pct(giantMob?.crescentShrineBonus)}` },
+    { name: 'Shaved Ice vial', value: giantMob?.giantMobVial ?? 0, formatted: `+${pct(giantMob?.giantMobVial)}` },
+    giantMob?.glitterbugPrayer > 0
+      ? { name: 'Glitterbug prayer', value: -giantMob.glitterbugPrayer, formatted: `-${pct(giantMob.glitterbugPrayer)}` }
+      : null
+  ].filter(Boolean)), { combine: 'list' }) : null;
 
-  return (
-    <Stack gap={1}>
-      <Typography variant={'h5'}>Totals</Typography>
-      <TotalStat text={'Bubbles'} icon={'aBrewOptionA0'} stat={totalBubbleLevels}/>
-      <TotalStat text={'Stamps'} icon={'StampA34'} stat={totalStampLevels}/>
-      <TotalStat text={'Statues'} icon={'EquipmentStatues1'} stat={totalStatueLevels}/>
-      <TotalStat text={'Shrines'} icon={'UISkillIcon639'} stat={totalShrineLevels}/>
-      {LIFETIME_STATS.map((stat) => <TotalStat key={stat.key} text={stat.name} icon={stat.icon}
-                                               stat={getLifetimeStat(account, stat)}/>)}
-      {account?.finishedWorlds?.World2 ? <>
-        <Stack direction={'row'} alignItems={'center'} gap={2}>
-          <Tooltip title={<Stack>
-            <Typography sx={{ fontWeight: 'bold' }}>Giant Mob Chance</Typography>
-            <Typography>+{giantMob?.crescentShrineBonus}% from Crescent shrine</Typography>
-            <Typography>+{giantMob?.giantMobVial}% from Shaved Ice vial</Typography>
-            {giantMob?.glitterbugPrayer > 0 ?
-              <Typography>-{giantMob?.glitterbugPrayer}% from Glitterbug prayer</Typography> : null}
-          </Stack>}>
-            <Stack gap={1} direction={'row'} alignItems={'center'}>
-              <img style={{ width: 35, height: 35 }} alt={'giant'} src={`${prefix}data/Prayer5.png`}/>
-              <Typography>1
-                in {notateNumber(Math.floor(1 / giantMob?.chance))}</Typography>
-            </Stack>
-          </Tooltip>
-          <Tooltip title={`Spawned this week: ${giantMob?.giantsAlreadySpawned ?? 0}`}>
-            <InfoIcon fontSize={'small'}/>
-          </Tooltip>
-        </Stack>
-      </> : null}
-    </Stack>
-  );
+  return <Panel title={'Totals'}>
+    {totals.map(([name, icon, value]) => <Panel.Row key={name} icon={`data/${icon}.png`} name={name} value={value}/>)}
+    {account?.finishedWorlds?.World2 ? <Panel.Row icon={'data/Prayer5.png'} name={'Giant mob chance'}
+                                                  sub={giantMob ? `${formatNum(giantMob?.giantsAlreadySpawned ?? 0)} spawned this week` : undefined}
+                                                  value={giantBreakdown
+                                                    ? <Breakdown asValue data={giantBreakdown} title={'Giant mob chance'}>{giantText}</Breakdown>
+                                                    : giantText}/> : null}
+  </Panel>;
 };
-
-const TotalStat = ({ text, icon, stat }) => {
-  return <Stack direction={'row'} alignItems={'center'} gap={1.5}>
-    <img style={{ width: 35, height: 35 }} src={`${prefix}data/${icon}.png`} alt={`${text}-total-icon`}/>
-    <Typography variant={'body1'} component={'span'}>{text} :</Typography>
-    <Tooltip title={stat}>
-      <Typography variant={'body1'} component={'span'}>{notateNumber(stat)}</Typography>
-    </Tooltip>
-  </Stack>
-}
 
 export default Totals;

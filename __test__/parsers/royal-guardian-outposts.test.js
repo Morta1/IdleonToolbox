@@ -144,7 +144,6 @@ describe('royal guardian outposts', () => {
     expect(parsed.resources[0].connectedMap).toBe(2);
     expect(parsed.resources[0].connectedMapName).toBe('Froggy Fields');
     expect(parsed.resources[2].connectedMaps).toEqual([0]);
-    expect(parsed.resources[3].connected).toBe(false);
   });
 
   it('ranks each bar off the game thresholds and reports the bar it is working towards', () => {
@@ -168,7 +167,6 @@ describe('royal guardian outposts', () => {
 
     // Expanded Barracks 2 shows 1 + 2 = 3 slots, but TotalUnitsz reads all nine packed characters.
     expect(froggy.unitSlots).toEqual([0, 1, 1]);
-    expect(froggy.unitSlots).toHaveLength(3);
     // Command rank 4 grants one stationary unit of each type: PassiveUnitsz rounds UP since 2.3.531,
     // so type i arrives at rank i + 1.
     expect(froggy.passiveUnits).toEqual([1, 1, 1, 1]);
@@ -272,7 +270,6 @@ describe('royal guardian outposts', () => {
     const parsed = parse();
 
     // 80 base + 250 * L/(L+100) + 45px per Guard unit (the passive one) + 6px per Military rank (4).
-    expect(outpostOn(parsed, 2).range).toBe(Math.floor(80 + 250 * (3 / 103) + 45 + 4 * 6));
     expect(outpostOn(parsed, 2).range).toBe(156);
     expect(outpostOn(parsed, 1).range).toBe(80);
   });

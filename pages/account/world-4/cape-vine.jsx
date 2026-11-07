@@ -1,10 +1,12 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Stack } from '@mui/material';
-import { commaNotation, notateNumber } from '@utility/helpers';
+import { formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
-import { CardTitleAndValue, MissingData, isSectionFailed } from '@components/common/styles';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import CapeVine from '@components/account/Worlds/World4/CapeVine';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
 
 const CapeVinePage = () => {
   const { state } = useContext(AppContext);
@@ -20,6 +22,7 @@ const CapeVinePage = () => {
   } = state?.account?.capeVine || {};
 
   const sectionFailed = isSectionFailed(state?.account, 'capeVine');
+  const parseFailed = isParseFailed(state?.account);
 
   return (
     <>
@@ -27,15 +30,14 @@ const CapeVinePage = () => {
         title="Cape Vine | Idleon Toolbox"
         description="Keep track of your Cape Vine bonuses, Golden Vines and every cape you still need"
       />
-      {!state?.account?.capeVine || sectionFailed ? <MissingData name={'Cape Vine'} failed={sectionFailed}/> : <>
-        <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'}>
-          <CardTitleAndValue title={'Capes Collected'} value={`${totalCapes || 0} / ${totalEligibleCapes || 0}`}/>
-          <CardTitleAndValue title={'Bonus Multiplier'} value={`${notateNumber(bonusMulti, 'MultiplierInfo')}x`}/>
-          <CardTitleAndValue title={'Golden Vines'} value={goldenVines || 0}/>
-          <CardTitleAndValue title={'Next Golden Vine'} value={`Class Lv. ${commaNotation(nextGoldenVineClassLevel || 0)}`}/>
-        </Stack>
-        <CapeVine capesUsed={capesUsed} capeBonuses={capeBonuses} allCapes={allCapes}/>
-      </>}
+      {!state?.account?.capeVine || sectionFailed ? <MissingData name={'Cape Vine'} failed={sectionFailed} atZero={!parseFailed}/> : null}
+      <PageSummary failed={sectionFailed}>
+        <StatTile label={'Capes collected'} value={`${formatNum(totalCapes ?? 0)} / ${formatNum(totalEligibleCapes ?? 0)}`}/>
+        <StatTile label={'Bonus multi'} value={`${formatGame(bonusMulti ?? 1, 'Gallery.CapevineBonusMulti')}x`}/>
+        <StatTile label={'Golden Vines'} value={goldenVines ?? 0} kind={'amount'}/>
+        <StatTile label={'Next Golden Vine'} value={`Class Lv ${formatNum(nextGoldenVineClassLevel ?? 0)}`}/>
+      </PageSummary>
+      {parseFailed ? null : <CapeVine capesUsed={capesUsed} capeBonuses={capeBonuses} allCapes={allCapes} sectionFailed={sectionFailed}/>}
     </>
   );
 };

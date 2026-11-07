@@ -1,5 +1,7 @@
 import React, { useContext, useState } from 'react';
-import { Button, Popover, Stack, Typography } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
+import AppDialog from '@components/common/Overlays/AppDialog';
+import Notice from '@components/common/Notice';
 import { AppContext } from '@components/common/context/AppProvider';
 import { sameScope, useGoals } from '@components/goals/GoalsProvider';
 import { ALL_CHARS, createGoal, effectiveScope, isAllChars, isCharScope, isGlobalKey, MAX_GOALS, MAX_TARGET, NEXT_TARGET } from '@utility/goals/store';
@@ -89,7 +91,7 @@ const buildSteps = ({ descriptor, metric, row, value, max, percent, appliesTo, a
   return steps;
 };
 
-const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => {
+const GoalForm = ({ open, systems, initial, source, onClose, onSaved, entryOnly }) => {
   const { state } = useContext(AppContext);
   const { goals, save, remove, findEntryGoal } = useGoals();
   const fixedScope = initial?.goal?.scope ?? initial?.scope;
@@ -107,7 +109,8 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
     unit: existing?.unit ?? 'value'
   });
   const [op, setOp] = useState(existing?.op ?? '>=');
-  const [target, setTarget] = useState(() => startTarget(existing, descriptor, { account: state?.account, characters: state?.characters }));
+  const [firstTarget] = useState(() => startTarget(existing, descriptor, { account: state?.account, characters: state?.characters }));
+  const [target, setTarget] = useState(firstTarget);
   const [note, setNote] = useState(existing?.note ?? '');
   const [attempted, setAttempted] = useState(false);
   const [rejected, setRejected] = useState(null);
@@ -243,18 +246,28 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
     ? []
     : buildSteps({ descriptor, metric, row, value, max, percent, appliesTo, account: ctx.account });
 
-  return (
-    <Stack gap={1.5}>
-      <Typography variant="h6">{existing ? 'Edit goal' : 'Add goal'}</Typography>
+  const shownError = (unreachable && attempted && 'No entry can reach this target.')
+    || (rejected === 'cap' && `You have ${MAX_GOALS} goals. Remove some first.`)
+    || (rejected === 'newer' && 'Your goals were saved by a newer version of the site. Reload the page.');
+
+  // dirty: a click outside or a swipe down keeps what was typed
+  return <AppDialog open={open} onClose={onClose} size="m" title={existing ? 'Edit goal' : 'Add goal'}
+                    dirty={target !== firstTarget || note !== (existing?.note ?? '')}
+                    actions={[
+                      ...(existing ? [{ label: 'Remove', danger: true, onClick: onRemove }] : []),
+                      { label: 'Cancel' },
+                      { label: 'Save', main: true, onClick: onSave }
+                    ]}>
+    <Stack gap={1.5} sx={{ pt: 1 }}>
       {systems.length > 1 ? <SystemSelect current={systemOption(descriptor, rows)} listOptions={listSystemOptions} value={descriptor.system}
                         onChange={changeSystem}/> : null}
       {showPicker ? <CharacterPicker characters={state?.characters} value={pickedChar} onChange={changeCharacter}/> : null}
       <AppliesTo descriptor={descriptor} rows={rows} value={appliesTo} group={group} onChange={setAppliesTo}
                  onGroupChange={setGroup} entryOnly={entryOnly || isAllChars(listScope)}/>
       {appliesTo === 'one' ? (
-        <EntrySearch descriptor={descriptor} rows={rows} value={entryKey} goalKeys={goalKeys} onChange={setEntryKey}/>
+        <EntrySearch descriptor={descriptor} rows={rows} value={entryKey} goalKeys={goalKeys} onChange={setEntryKey}
+                     error={entryError && attempted ? entryError : null}/>
       ) : null}
-      {entryError && attempted ? <Typography variant="body2" color="error">{entryError}</Typography> : null}
       {have ? <Typography variant="body2" color="text.secondary">{have}</Typography> : null}
       {options.length > 1 ? (
         <MetricChips options={options} metric={choice.metric} unit={choice.unit} onChange={changeChoice}/>
@@ -270,39 +283,18 @@ const GoalForm = ({ systems, initial, source, onClose, onSaved, entryOnly }) => 
       {steps.length ? <QuickSteps steps={steps} onPick={setTarget}/> : null}
       {preview ? <Preview view={preview}/> : null}
       <NoteInput value={note} onChange={setNote}/>
-      {unreachable && attempted ? (
-        <Typography variant="body2" color="error">No entries can reach this target</Typography>
-      ) : null}
-      {rejected === 'cap' ? (
-        <Typography variant="body2" color="error">You have {MAX_GOALS} goals. Remove some first.</Typography>
-      ) : null}
-      {rejected === 'newer' ? (
-        <Typography variant="body2" color="error">Your goals were saved by a newer version of the site. Reload the page.</Typography>
-      ) : null}
-      <Stack direction="row" gap={1} justifyContent="flex-end">
-        {existing ? <Button color="error" onClick={onRemove} sx={{ mr: 'auto' }}>Remove</Button> : null}
-        <Button onClick={onClose}>Cancel</Button>
-        <Button variant="contained" onClick={onSave}>Save</Button>
-      </Stack>
+      {shownError ? <Notice tone={'error'} action={false}>{shownError}</Notice> : null}
     </Stack>
-  );
+  </AppDialog>;
 };
 
-// align="right" opens leftwards from the anchor's right edge, so a header button keeps the page header and tabs visible.
-// entryOnly locks the form to the one entry in `initial` (no applies-to toggle); pass a single system with it
-const GoalPopover = ({ anchorEl, open, onClose, onSaved, systems, initial, source, align = 'left', entryOnly = false }) => {
+// The goal form, a dialog (a sheet on a phone). entryOnly locks it to the one entry in `initial` (no applies-to toggle);
+// pass a single system with it. It mounts while open, so every open starts from `initial`.
+const GoalPopover = ({ open, onClose, onSaved, systems, initial, source, entryOnly = false }) => {
   const { enabled } = useGoals();
-  if (!enabled || !systems?.length) return null;
-  // The form lives inside the popover so it unmounts on close and every open starts from `initial`
-  return (
-    <Popover open={open} anchorEl={anchorEl} onClose={onClose}
-             anchorOrigin={{ vertical: 'bottom', horizontal: align }}
-             transformOrigin={{ vertical: 'top', horizontal: align }}
-             slotProps={{ paper: { sx: { p: 2, width: 380, maxWidth: 'calc(100vw - 32px)' } } }}>
-      <GoalForm systems={systems} initial={initial} source={source} onClose={onClose} onSaved={onSaved}
-                entryOnly={entryOnly}/>
-    </Popover>
-  );
+  if (!enabled || !systems?.length || !open) return null;
+  return <GoalForm open={open} systems={systems} initial={initial} source={source} onClose={onClose} onSaved={onSaved}
+                   entryOnly={entryOnly}/>;
 };
 
 export default GoalPopover;

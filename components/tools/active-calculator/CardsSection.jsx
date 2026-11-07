@@ -1,36 +1,43 @@
-import { Divider, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { Section } from '@components/tools/active-calculator/common';
 import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { compareCards } from '@parsers/misc/activeCalculator';
 import { AppContext } from '@components/common/context/AppProvider';
-import { CardAndBorder } from '@components/common/styles';
-import { numberWithCommas } from '@utility/helpers';
+import CardGrid from '@components/common/cards/CardGrid';
+import { CardAndBorder, isSectionFailed } from '@components/common/styles';
+import { formatDuration, formatNum } from '@utility/helpers';
 
-const CardsSection = ({ selectedChar, lastUpdated }) => {
+const CardsSection = ({ lastUpdated }) => {
   const { state } = useContext(AppContext);
   const [snapshottedAcc] = useLocalStorage({ key: 'activeDropAcc', defaultValue: null });
-  const diff = compareCards(snapshottedAcc?.cards, state?.account?.cards, lastUpdated, snapshottedAcc?.snapshotTime);
+  const failed = isSectionFailed(state?.account, 'cards');
+  const diff = failed ? [] : compareCards(snapshottedAcc?.cards, state?.account?.cards, lastUpdated, snapshottedAcc?.snapshotTime);
 
   return <Section title={'Cards'}>
-    <Stack>
-      <Typography variant="body1" sx={{ fontWeight: 'bold' }}>Result</Typography>
-      <Stack direction={'row'} gap={2} flexWrap={'wrap'} divider={<Divider flexItem orientation={'vertical'}/>}>
+    <Box sx={{ p: 2 }}>
+      {failed || !diff.length ? <Typography variant={'body2'} color={'text.secondary'}>
+        {failed ? 'Cards failed to load, so there is nothing to compare.' : 'No card has moved since the snapshot.'}
+      </Typography> : <CardGrid size={'icon'}>
         {diff.map((card) => {
-          const { cardIndex, amount, perHour, hoursForNextLevel } = card;
-          return <Stack key={cardIndex} alignItems={'flex-start'}>
-            <div
-              style={{ position: 'relative' }}>
-              <CardAndBorder {...card} />
-            </div>
-            <Typography variant={'body2'} mt={1.5}>{numberWithCommas(amount)}</Typography>
-            <Typography variant={'body2'}>{numberWithCommas(perHour > 1 ? Math.floor(perHour) : perHour)} / hr</Typography>
-            {hoursForNextLevel !== 'N/A' ? <Typography variant={'body2'}>To next star: {numberWithCommas(hoursForNextLevel)} hrs</Typography> : null}
-          </Stack>
+          const { cardIndex, displayName, amount, perHour, hoursForNextLevel: hoursLeft } = card;
+          return <Stack key={cardIndex} gap={0.25}>
+            {/* 16 px: a card's frame hangs below its art, and its gems reach the count */}
+            <Box sx={{ position: 'relative', width: 'fit-content', mb: 2 }}>
+              {/* The card's own note reads the real count and the bonus at its stars, as Card search's does: the row's
+                  amount is what it gained */}
+              <CardAndBorder {...card} amount={state?.account?.cards?.[displayName]?.amount} showInfo/>
+            </Box>
+            <Typography variant={'value'} component={'div'}>{formatNum(amount, 'whole')}</Typography>
+            <Typography variant={'caption'} component={'div'}>{perHour === null ? '-' : formatNum(perHour, 'rate')}</Typography>
+            {hoursLeft !== null ? <Typography variant={'caption'} component={'div'} color={'text.secondary'}>
+              Next star in <Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>{formatDuration(hoursLeft * 3600)}</Box>
+            </Typography> : null}
+          </Stack>;
         })}
-      </Stack>
-    </Stack>
-  </Section>
+      </CardGrid>}
+    </Box>
+  </Section>;
 };
 
 export default CardsSection;

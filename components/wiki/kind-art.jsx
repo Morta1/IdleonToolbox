@@ -1,5 +1,5 @@
 import React from 'react';
-import { prefix } from '@utility/helpers';
+import GameIcon from '@components/common/GameIcon';
 
 // One recognisable piece of the game per category, picked for being the thing a player meets first:
 // Copper Ore, Green Mushroom, Scripticus.
@@ -116,14 +116,8 @@ export const KIND_ART = {
 
 // Every listed kind carries real art, so there is no drawn stand-in any more: the glyphs existed
 // for quests, maps and shops, and none of the three has a listing left.
-export const KindArt = ({ kind, size = 44 }) => {
+export const KindArt = ({ kind, size = 40 }) => {
   const art = KIND_ART[kind];
   if (!art) return null;
-  return <img
-    src={`${prefix}${art}`}
-    alt={''}
-    width={size}
-    height={size}
-    style={{ objectFit: 'contain', flexShrink: 0 }}
-  />;
+  return <GameIcon src={art} size={size} alt={''}/>;
 };

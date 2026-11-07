@@ -147,13 +147,13 @@ export function buildClassSitemapEntries(slugs, fallback, builds) {
   </url>`).join('\n')
 }
 
-// shortId is [A-Za-z0-9]{4,10} per the Worker's own route matcher, so it needs no XML escaping —
+// shortId is [A-Za-z0-9]{4,10} per the Worker's own route matcher, so it needs no XML escaping:
 // but assert it rather than trust it, since this interpolates straight into <loc>.
 const SAFE_SHORT_ID = /^[A-Za-z0-9]{4,10}$/
 
 // Each build has its own exported page now. /tools/builds/view still resolves builds published
 // since the last deploy, but it is one URL serving many builds and canonicalises to the static
-// path, so it has no place here — these entries are the static pages themselves.
+// path, so it has no place here: these entries are the static pages themselves.
 export function buildDetailSitemapEntries(builds, fallback) {
   return (builds || [])
     .filter((build) => SAFE_SHORT_ID.test(build?.shortId || ''))
@@ -165,7 +165,7 @@ export function buildDetailSitemapEntries(builds, fallback) {
   </url>`).join('\n')
 }
 
-// This script runs as the `postbuild` npm script under plain Node, not through Next.js — Next
+// This script runs as the `postbuild` npm script under plain Node, not through Next.js: Next
 // loads .env files for getStaticProps, plain Node loads nothing. Without this,
 // fetchAllBuildsAtBuildTime() would throw "NEXT_PUBLIC_BUILDS_URL is not set" on every build.
 //
@@ -203,7 +203,7 @@ function loadBuildEnv() {
 // unrelated fix) over something that resolves itself on the next one, and the page still gets
 // listed then. The other cause, the two halves resolving different .env files, cannot happen in
 // CI at all: .env.local is gitignored, so both always land on .env.production.
-// Null when out/ has no builds directory at all — nothing was exported to check against, so
+// Null when out/ has no builds directory at all: nothing was exported to check against, so
 // callers pass their list through untouched rather than pruning it to nothing.
 function exportedSlugs(outDir) {
   const dir = path.join(outDir, 'tools', 'builds')
@@ -288,7 +288,7 @@ async function generateSitemap() {
     '!pages/_*.jsx',
     '!pages/404.jsx',
     '!pages/api',
-    // Dynamic route — real slugs are appended below. Without this exclusion the
+    // Dynamic route: real slugs are appended below. Without this exclusion the
     // glob emits a literal /tools/builds/[slug] URL.
     '!pages/tools/builds/[slug].jsx',
     // Same, for the wiki: three files serve every system page, listing, entity and redirect between them.
@@ -334,8 +334,12 @@ ${wikiEntries}
   if (fs.existsSync('out')) fs.writeFileSync('out/sitemap.xml', sitemap)
 }
 
-// Only run when invoked as a script (npm postbuild), not when imported by tests.
-if (import.meta.main) {
+// Only run when invoked as a script (npm postbuild), not when imported by tests. A FAST_BUILD=1 build is a check
+// between a plan's gates and is never deployed, so it writes no sitemap: that skips the builds API fetch, and the
+// tracked public/sitemap.xml is not rewritten from an export that left most wiki pages out.
+if (import.meta.main && process.env.FAST_BUILD === '1') {
+  console.log('FAST_BUILD=1: sitemap skipped')
+} else if (import.meta.main) {
   loadBuildEnv()
   console.log('starting sitemap generation')
   generateSitemap()

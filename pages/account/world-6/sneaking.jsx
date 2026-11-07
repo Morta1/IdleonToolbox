@@ -2,23 +2,27 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import Tabber from '@components/common/Tabber';
 import JadeEmporium from '@components/account/Worlds/World6/Sneaking/JadeEmporium';
-import { getTabs, notateNumber } from '@utility/helpers';
-import { CardTitleAndValue } from '@components/common/styles';
-import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
+import { formatNum, getTabs } from '@utility/helpers';
 import Charms from '@components/account/Worlds/World6/Sneaking/Charms';
 import PlayersInventory from '@components/account/Worlds/World6/Sneaking/PlayersInventory';
 import Upgrades from '@components/account/Worlds/World6/Sneaking/Upgrades';
 import { NextSeo } from 'next-seo';
-import { Stack, Typography } from '@mui/material';
 import Mastery from '@components/account/Worlds/World6/Sneaking/Mastery';
 import Gemstones from '@components/account/Worlds/World6/Sneaking/Gemstones';
 import Detection from '@components/account/Worlds/World6/Sneaking/Detection';
 import { PAGES } from '@components/constants';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import Tooltip from '@components/Tooltip';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
+import useTabIndex from '@hooks/useTabIndex';
+
+// Each character's own: no catalog to draw at zero
+const BLANK_WHEN_FAILED = ['Inventory', 'Detection'];
 
 const Sneaking = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['world 6'].categories, 'sneaking');
+  const [tabIndex] = useTabIndex(tabs);
   const {
     jadeEmporium,
     jadeCoins,
@@ -38,40 +42,40 @@ const Sneaking = () => {
     pristineCharmChance,
     detection
   } = state?.account?.sneaking || {};
+  const sectionFailed = isSectionFailed(state?.account, 'sneaking');
 
   return <>
     <NextSeo
       title="Sneaking | Idleon Toolbox"
       description="Keep track of your ninja and jade upgrades and much more bonuses"
     />
-    <Stack mb={3} direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Jade coins'} value={notateNumber(jadeCoins)} icon={`etc/jade_coin.png`}/>
-      <CardTitleAndValue title={'Daily charm rolls used'} value={`${dailyCharmRollCount || 0}/120`}/>
-      <CardTitleAndValue title={'Remaining pristine rolls'} stackProps>
-        <Stack direction={'row'} alignItems={'center'} gap={1}>
-          <Typography component={'div'}>{remainingPristineRolls ?? 0}</Typography>
-          <Tooltip title={`Current pristine chance: ${((pristineCharmChance || 0) * 100).toFixed(4)}%`}>
-            <IconInfoCircleFilled size={18}/>
-          </Tooltip>
-        </Stack>
-      </CardTitleAndValue>
-      <CardTitleAndValue title={'Remaining symbol rolls'} value={remainingSymbolRolls ?? 0}/>
-      <CardWithBreakdown title={'Items max level'} breakdown={itemsMaxLevelBreakdown}/>
-    </Stack>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 6'].categories, 'sneaking')}>
-      <PlayersInventory players={players}
+    {sectionFailed ? <MissingData name={'Sneaking'} failed atZero={!isParseFailed(state?.account) && !BLANK_WHEN_FAILED.includes(tabs[tabIndex])}/>
+      : <NotReached name={'Sneaking'} reached={state?.account?.sneaking?.totalNinjaUpgradeLevels > 0}/>}
+    <PageSummary failed={sectionFailed}>
+      {/* The save keeps the coins as text past 1e21 ("5.385403851749856e+79") */}
+      <StatTile label={'Jade coins'} icon={'etc/jade_coin.png'} value={Number(jadeCoins ?? 0)} kind={'whole'}/>
+      <StatTile label={'Daily charm rolls used'} value={`${formatNum(dailyCharmRollCount ?? 0)} / 120`}/>
+      <StatTile label={'Remaining pristine rolls'} value={remainingPristineRolls ?? 0} kind={'amount'}
+                info={`Current pristine chance: ${formatNum(pristineCharmChance, 'odds')}.`}/>
+      <StatTile label={'Remaining symbol rolls'} value={remainingSymbolRolls ?? 0} kind={'amount'}/>
+      <StatTile label={'Items max level'} breakdown={itemsMaxLevelBreakdown}/>
+    </PageSummary>
+    <Tabber tabs={tabs}>
+      {sectionFailed ? null : <PlayersInventory players={players}
                         dropList={dropList}
                         inventory={inventory}
                         characters={state?.characters}
                         account={state?.account}
                         doorsCurrentHp={doorsCurrentHp}
-      />
-      <JadeEmporium upgrades={jadeEmporium}/>
+                        emptyAccount={state?.emptyAccount}
+      />}
+      <JadeEmporium upgrades={jadeEmporium} jadeCoins={jadeCoins}/>
       <Upgrades upgrades={upgrades} omnijade={state?.account?.menagerie?.doublers?.omnijade}/>
       <Charms charms={pristineCharms}/>
       <Mastery masteryBonuses={ninjaMasteryBonuses} masteryLevel={ninjaMastery}/>
       <Gemstones gemStones={gemStones}/>
-      <Detection detection={detection} characters={state?.characters} ninjaMastery={ninjaMastery}/>
+      {sectionFailed ? null : <Detection detection={detection} characters={state?.characters} ninjaMastery={ninjaMastery}
+                 emptyAccount={state?.emptyAccount}/>}
     </Tabber>
   </>
 };

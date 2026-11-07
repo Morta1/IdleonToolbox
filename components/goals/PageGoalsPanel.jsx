@@ -24,12 +24,13 @@ const PanelRow = ({ view, onOpen }) => {
   );
 };
 
-// views: the page's goals, already resolved and ordered (open first, reached last)
-const PageGoalsPanel = ({ views, onAdd, onOpen, dashboardHref, onLeave }) => (
+// views: the page's goals, already resolved and ordered (open first, reached last). titled: false where the sheet around
+// it already says so.
+const PageGoalsPanel = ({ views, onAdd, onOpen, dashboardHref, onLeave, titled = true }) => (
   <Stack gap={1}>
-    <Stack direction="row" alignItems="center" justifyContent="space-between" gap={1}>
-      <Typography variant="h6">Goals on this page</Typography>
-      <Button size="small" startIcon={<IconPlus size={16}/>} sx={{ textTransform: 'none' }} onClick={onAdd}>
+    <Stack direction="row" alignItems="center" justifyContent={titled ? 'space-between' : 'flex-end'} gap={1}>
+      {titled ? <Typography variant={'sectionTitle'} component={'h2'}>Goals on this page</Typography> : null}
+      <Button size="small" startIcon={<IconPlus size={16}/>} onClick={onAdd}>
         Add goal
       </Button>
     </Stack>
@@ -38,7 +39,7 @@ const PageGoalsPanel = ({ views, onAdd, onOpen, dashboardHref, onLeave }) => (
       {views.map((view) => <PanelRow key={view.id} view={view} onOpen={onOpen}/>)}
     </Box>
     <Divider/>
-    <MuiLink component={Link} href={dashboardHref} variant="body2" underline="hover" onClick={onLeave}
+    <MuiLink component={Link} href={dashboardHref} variant="body2" onClick={onLeave}
              sx={{ alignSelf: 'flex-start' }}>
       All goals on the dashboard
     </MuiLink>

@@ -16,7 +16,7 @@ const FamilyBonusInfo = ({ node }) => {
     title: 'Family bonus',
     content: <Stack gap={1}>
       <LevelledEffect key={node.rawName} node={node.familyBonus}/>
-      <Typography variant={'caption'} color={'text.disabled'}>
+      <Typography variant={'caption'} color={'text.muted'}>
         {`Every character whose class line includes ${cleanUnderscore(node.name)} gives this bonus to the whole account; the highest one counts.`}
       </Typography>
     </Stack>

@@ -60,7 +60,7 @@ export const alertMeta = {
   'account.General.guild': {
     label: 'Guild tasks',
     icon: 'etc/GP',
-    page: { pathname: '/account/misc/guild', label: 'Guild' },
+    page: { pathname: '/account/misc/guild', label: 'My guild' },
     options: {
       daily: { label: 'Daily guild tasks left' },
       weekly: { label: 'Weekly guild tasks left' }
@@ -89,14 +89,14 @@ export const alertMeta = {
       },
       miniBosses: {
         label: 'Miniboss kills stacked',
-        help: 'Alerts when a miniboss has this many kills available. The lowest value is 2.',
+        help: 'Alerts when a miniboss has this many kills available, or is maxed. The lowest value is 2. In the timers, a miniboss moves to Ready now at the same number.',
         unit: 'kills',
         group: 'Account',
         page: { pathname: '/account/world-3/death-note', label: 'Death note' }
       },
       bossRespawns: {
         label: 'Dr Defecaus or Baba Yaga up',
-        help: 'Alerts while the Bosses timer shows Dr Defecaus or Baba Yaga as up. Each boss can be turned off on its own.',
+        help: 'Alerts while the timers show Dr Defecaus or Baba Yaga as up. Each boss can be turned off on its own.',
         group: 'Daily',
         page: { pathname: '/account/world-3/death-note', label: 'Death note' },
         itemIcons: { drDefecaus: 'monsters/poopBig/static', babaYaga: 'monsters/babayaga/static' }
@@ -178,7 +178,7 @@ export const alertMeta = {
     page: { pathname: '/account/clickers/owl', label: 'Owl' },
     options: {
       featherRestart: { label: 'Feather Restart affordable' },
-      megaFeatherRestart: { label: 'Mega Feather Restart affordable' }
+      megaFeatherRestart: { label: 'Megafeather Restart affordable' }
     }
   },
   'account.World 1.forge': {
@@ -353,9 +353,10 @@ export const alertMeta = {
   'account.World 3.library': {
     label: 'Talent library',
     icon: 'data/Libz',
+    page: { pathname: '/account/misc/general', label: 'General' },
     inline: 'books',
     options: {
-      books: { label: 'Books ready', help: 'Alerts when the library has this many books ready.', unit: 'books' }
+      books: { label: 'Books ready', help: 'Alerts when the library has this many books ready. The Library row in the timers reads the same number, with this alert on or off.', unit: 'books' }
     }
   },
   'account.World 3.construction': {
@@ -463,7 +464,7 @@ export const alertMeta = {
     options: {
       spices: { label: 'Spice clicks left', page: { query: { t: 'Kitchens' }, label: 'Kitchens' } },
       ribbons: {
-        label: 'Empty ribbon slots',
+        label: 'Ribbon shelf filling up',
         help: 'Alerts when the ribbon shelf has this many empty slots or fewer (28 slots).',
         page: { query: { t: 'Ribbons' }, label: 'Ribbons' }
       },
@@ -1249,15 +1250,31 @@ export const alertMeta = {
   'timers.General.sailingTrades': { label: 'Next sailing trade', icon: 'etc/Blob_Trade', page: { pathname: '/account/world-5/sailing', query: { t: 'Trades' }, label: 'Sailing trades' }, options: {} },
 
   // Timers: Other
-  'timers.Etc.library': { label: 'Library books', icon: 'data/Libz', options: {} },
+  'timers.Etc.library': {
+    label: 'Library books',
+    icon: 'data/Libz',
+    page: { pathname: '/account/misc/general', label: 'General' },
+    unit: 'Ready at the number set in World 3, Talent library',
+    // The row reads the alert's number, so its quick edit holds that number too.
+    numberFrom: { tracker: 'account.World 3.library', option: 'books', help: 'The Library row is ready at this number. The Talent library alert uses the same one, on or off.' },
+    options: {}
+  },
   'timers.Etc.minibosses': {
     label: 'Boss and miniboss respawns',
     icon: 'monsters/poopBig/static',
     page: { pathname: '/account/world-3/death-note', label: 'Death note' },
+    unit: 'Minibosses are ready at the number set in General, Miniboss kills stacked',
+    // A miniboss row reads the alert's number, so its quick edit holds that number too. Dr Defecaus and Baba Yaga have no number.
+    numberFrom: {
+      tracker: 'account.General.etc',
+      option: 'miniBosses',
+      help: 'A miniboss moves to Ready now at this many kills, or when it is maxed. The Miniboss kills stacked alert uses the same number, on or off.',
+      forItems: ['dilapidatedSlush', 'mutatedMush', 'domeoMagmus', 'dementedSpiritlord']
+    },
     options: {
       bosses: {
         label: 'Bosses to show',
-        help: 'Only the ticked bosses appear in the Bosses timer.',
+        help: 'Only the ticked bosses appear in the timers.',
         itemIcons: {
           drDefecaus: 'monsters/poopBig/static',
           babaYaga: 'monsters/babayaga/static',
@@ -1274,10 +1291,10 @@ export const alertMeta = {
 
   // Timers: Clickers
   'timers.Clickers.featherRestart': { label: 'Feather Restart', icon: 'etc/Owl_4', page: { pathname: '/account/clickers/owl', label: 'Owl' }, unit: 'Orion', options: {} },
-  'timers.Clickers.megaFeatherRestart': { label: 'Mega Feather Restart', icon: 'etc/Owl_8', page: { pathname: '/account/clickers/owl', label: 'Owl' }, unit: 'Orion', options: {} },
+  'timers.Clickers.megaFeatherRestart': { label: 'Megafeather Restart', icon: 'etc/Owl_8', page: { pathname: '/account/clickers/owl', label: 'Owl' }, unit: 'Orion', options: {} },
   'timers.Clickers.fisherooReset': { label: 'Fisheroo Reset', icon: 'etc/KUpga_6', page: { pathname: '/account/clickers/kangaroo', label: 'Kangaroo' }, unit: 'Poppy', options: {} },
   'timers.Clickers.greatestCatch': { label: 'Greatest Catch', icon: 'etc/KUpga_11', page: { pathname: '/account/clickers/kangaroo', label: 'Kangaroo' }, unit: 'Poppy', options: {} },
-  'timers.Clickers.megaFleshRestart': { label: 'Mega Flesh Restart', icon: 'etc/Bubbo_Upgrade_8', page: { pathname: '/account/clickers/bubba', label: 'Bubba' }, unit: 'Bubba', options: {} },
+  'timers.Clickers.megaFleshRestart': { label: 'Megaflesh Restart', icon: 'etc/Bubbo_Upgrade_8', page: { pathname: '/account/clickers/bubba', label: 'Bubba' }, unit: 'Bubba', options: {} },
   'timers.Clickers.smokerMax': { label: 'Smoker at max quality', icon: 'data/BubbaSmokedmeat4', page: { pathname: '/account/clickers/bubba', label: 'Bubba' }, unit: 'Bubba', options: {} },
 
   // Timers: World 3

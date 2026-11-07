@@ -1,14 +1,16 @@
-import { Divider, Select, Stack, Typography } from '@mui/material';
-import { CardTitleAndValue } from '@components/common/styles';
-import MenuItem from '@mui/material/MenuItem';
-import React, { useContext, useState } from 'react';
+import { Box, MenuItem, TextField } from '@mui/material';
+import React, { useContext } from 'react';
+import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
-import { commaNotation, getTabs, notateNumber, prefix } from '@utility/helpers';
-import Tooltip from '@components/Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
+import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
+import { isSectionFailed, MissingData } from '@components/common/styles';
 import Armory from '@components/account/Misc/class-specific/RoyalGuardian/Armory';
 import UpgradeOptimizer from '@components/account/Misc/class-specific/RoyalGuardian/UpgradeOptimizer';
 import RoyalStatues from '@components/account/Misc/class-specific/RoyalGuardian/RoyalStatues';
@@ -16,80 +18,100 @@ import OrbletMarket from '@components/account/Misc/class-specific/RoyalGuardian/
 import Outposts from '@components/account/Misc/class-specific/RoyalGuardian/Outposts';
 import Resources from '@components/account/Misc/class-specific/RoyalGuardian/Resources';
 import { checkCharClass, CLASSES } from '@parsers/talents';
+import { getRoyalGuardian } from '@parsers/class-specific/royalGuardian';
+import { createBreakdown, flatLines, info } from '@parsers/breakdown';
+import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
+import useTabIndex from '@hooks/useTabIndex';
+
+// The game's "1 in N" for a marble's chance per kill
+const marbleText = (chance) => (chance > 0 ? `1 in ${formatGame(1 / chance, 'RoyalG.MarbleDrop', { whole: true })}` : '-');
+// A failed section's catalogs at zero, from the parser's own empty save: every shelf, statue and orblet upgrade by name
+const zeroRoyalGuardian = () => {
+  try {
+    return getRoyalGuardian({}, {}, []);
+  }
+  catch {
+    return {};
+  }
+};
+
+// The kingdom's own lists: no catalog to draw at zero
+const BLANK_WHEN_FAILED = ['Outposts', 'Resources', 'Upgrade Optimizer'];
 
 const RoyalArmory = () => {
   const { state } = useContext(AppContext);
+  const tabs = getTabs(PAGES.ACCOUNT['class-specific'].categories, 'royalArmory');
+  const [tabIndex] = useTabIndex(tabs);
+  const sectionFailed = isSectionFailed(state?.account, 'royalGuardian');
   const royalGuardian = state?.account?.royalGuardian;
+  const catalog = sectionFailed ? zeroRoyalGuardian() : null;
   const { armory, royalStatues, statueFlair, orbletMarket, orblets, outpostStats, raw } = royalGuardian ?? {};
-  const [selectedChar, setSelectedChar] = useState(null);
-  const royalGuardians = state?.characters?.filter((character) => checkCharClass(character?.class, CLASSES.Royal_Guardian));
-  // Derived rather than stored: an initial index only ever matched the right character when the
-  // account had exactly one Royal Guardian, same fix as Compass's selectedWindWalker.
-  const selectedRoyalGuardian = royalGuardians?.find((character) => character?.playerId === selectedChar)
-    ?? royalGuardians?.[0];
+  // Remembered per page; no default, so a pick that was never made keeps following the first Royal Guardian
+  const [selectedChar, setSelectedChar] = useLocalStorage({ key: 'royal-armory:selectedChar' });
+  const royalGuardians = (state?.characters ?? []).filter((character) => checkCharClass(character?.class, CLASSES.Royal_Guardian));
+  const selectedRoyalGuardian = royalGuardians.find((character) => character?.playerId === selectedChar) ?? royalGuardians[0];
   const selectedRogBonus = outpostStats?.rogBonuses?.find((bonus) => bonus?.selected);
   const { marbleDropChanceEffective, marblesDropped, marbleEarlyBoost } = royalGuardian?.guardian ?? {};
-  const formatMarbleChance = (chance) => chance > 0 ? `1 in ${commaNotation(Math.floor(1 / chance))}` : '-';
+  // Levels ahead and the Daily Shopping Spree price the Armory tab: in the page's gear, under the tab's name
+  const { gear: costSettings, ...costing } = useMasterclassCostControls(state?.account, 'royal-armory', 'Armory');
+  // The chance by world is a list, so a breakdown (Info board step 5), headed with the tile's own World 1 chance
+  const marbleBreakdown = marbleDropChanceEffective?.length ? createBreakdown('Marble chance', marbleText(marbleDropChanceEffective[0]), [
+    ...flatLines(marbleDropChanceEffective.map((chance, world) => ({ name: `World ${world + 1}`, value: chance, formatted: marbleText(chance) }))),
+    // The early-marble boost: 99x on the first marble, 1 less per marble found, used up at the 99th
+    info('Early-marble boost', marbleEarlyBoost ?? 1, {
+      formatted: marbleEarlyBoost > 1
+        ? `${formatNum(marbleEarlyBoost)}x (${formatNum(marblesDropped ?? 0)} found)`
+        : `Used up (${formatNum(marblesDropped ?? 0)} found)`
+    })
+  ], { combine: 'list' }) : null;
+  // A tile the failed section feeds shows no number
+  const shown = (value) => (sectionFailed ? '-' : value);
 
   return <>
     <NextSeo
       title="Royal Armory | Idleon Toolbox"
       description="Keep track of your Royal Guardian's armory, royal statues, statue flair and orblet market"
     />
-    <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      {royalGuardians.length > 1 ? <CardTitleAndValue title={'Character'}
-                                                      value={<Select size={'small'} value={selectedRoyalGuardian?.playerId ?? ''}
-                                                                     onChange={(e) => setSelectedChar(e.target.value)}>
-                                                        {royalGuardians?.map((character, index) => {
-                                                          return <MenuItem key={character?.name + index}
-                                                                           value={character?.playerId}
-                                                                           selected={selectedRoyalGuardian?.playerId === character?.playerId}>
-                                                            <Stack direction={'row'} alignItems={'center'} gap={2}>
-                                                              <img
-                                                                src={`${prefix}data/ClassIcons${character?.classIndex}.png`}
-                                                                alt="" width={32} height={32}/>
-                                                              <Typography>{character?.name}</Typography>
-                                                            </Stack>
-                                                          </MenuItem>
-                                                        })}
-                                                      </Select>}/> : null}
-      <CardTitleAndValue title={'Total Armory Levels'} value={notateNumber(armory?.totalLevels || 0)}/>
-      <CardTitleAndValue title={'Shelves Unlocked'}
-                         value={`${armory?.unlockedSlots ?? 0} / ${armory?.slotToId?.length ?? 0}`}/>
-      <CardTitleAndValue title={'Outposts Built'} value={outpostStats?.built ?? 0}/>
-      {marbleDropChanceEffective?.length ? <CardTitleAndValue title={'Marble Chance'}
-                         value={<Stack direction={'row'} alignItems={'center'} gap={1}>
-                           <Tooltip title={<Stack gap={0.5}>
-                             <Typography variant={'body2'}>Per kill on an outpost map, by world:</Typography>
-                             {marbleDropChanceEffective.map((chance, world) => <Stack key={world} direction={'row'}
-                                                                                      alignItems={'center'} gap={1}>
-                               <img src={`${prefix}data/RGshard${world}.png`} alt="" width={24} height={24}/>
-                               <Typography variant={'body2'}>{`W${world + 1}: ${formatMarbleChance(chance)}`}</Typography>
-                             </Stack>)}
-                             <Typography variant={'caption'}>
-                               {marbleEarlyBoost > 1
-                                 ? `${marblesDropped} marbles found so far: ${marbleEarlyBoost}x boost, which drops by 1 per marble until the 99th`
-                                 : `${marblesDropped} marbles found: the early-marble boost is used up`}
-                             </Typography>
-                           </Stack>}>
-                             <InfoIcon sx={{ fontSize: 18 }}/>
-                           </Tooltip>
-                         </Stack>}/> : null}
-      {selectedRogBonus ? <CardTitleAndValue title={selectedRogBonus?.name}
-                         value={`${notateNumber(selectedRogBonus?.value, 'MultiplierInfo')}x`}/> : null}
-    </Stack>
-    <Divider sx={{ mb: 3, mt: { xs: 2, md: 0 } }}/>
-    <Tabber tabs={getTabs(PAGES.ACCOUNT['class-specific'].categories, 'royalArmory')}>
-      <Armory account={state?.account} upgrades={armory?.upgrades} resourceStorage={raw?.[1]}
-              resourcePerHour={royalGuardian?.resourcePerHour}/>
+    {sectionFailed ? <MissingData name={'Royal Armory'} failed atZero={!BLANK_WHEN_FAILED.includes(tabs[tabIndex])}/> : null}
+    {armory?.upgrades?.length ? costSettings : null}
+    {royalGuardians.length > 1 ? <PageHeaderControl>
+      <TextField select value={selectedRoyalGuardian?.playerId ?? ''} onChange={(event) => setSelectedChar(event.target.value)}
+                 sx={{ minWidth: 180 }}
+                 slotProps={{
+                   select: {
+                     renderValue: (id) => <><Box component={'span'} sx={{ color: 'text.secondary', mr: 0.75 }}>Character</Box>
+                       {royalGuardians.find((character) => character?.playerId === id)?.name}</>,
+                     SelectDisplayProps: { 'aria-label': 'Royal Guardian' }
+                   }
+                 }}>
+        {royalGuardians.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{cleanUnderscore(character?.name)}</MenuItem>)}
+      </TextField>
+    </PageHeaderControl> : null}
+    <PageSummary>
+      <StatTile label={'Total armory levels'} value={shown(formatGame(armory?.totalLevels ?? 0, 'RoyalG.ArmoryUpgTotal', { whole: true }))}/>
+      <StatTile label={'Shelves unlocked'}
+                value={shown(`${formatNum(armory?.unlockedSlots ?? 0)} / ${formatNum(armory?.slotToId?.length ?? 0)}`)}/>
+      <StatTile label={'Outposts built'} value={shown(formatGame(outpostStats?.built ?? 0, 'RoyalG.TotalStatz', { whole: true }))}/>
+      {sectionFailed ? <StatTile label={'Marble chance'} value={'-'}/>
+        : marbleBreakdown ? <StatTile label={'Marble chance'} sub={'World 1, per kill on an outpost map'}
+                                      value={marbleText(marbleDropChanceEffective[0])} breakdown={marbleBreakdown}
+                                      breakdownTitle={'Marble chance'} breakdownNoun={'worlds'}/> : null}
+      {!sectionFailed && selectedRogBonus
+        ? <StatTile label={selectedRogBonus.name} value={`${formatGame(selectedRogBonus.value ?? 1, 'RoyalG.OutpostROGbon')}x`}/>
+        : null}
+    </PageSummary>
+    <Tabber tabs={tabs}>
+      <Armory account={state?.account} upgrades={catalog?.armory?.upgrades ?? armory?.upgrades} resourceStorage={raw?.[1]}
+              resourcePerHour={royalGuardian?.resourcePerHour} costing={costing} sectionFailed={sectionFailed}/>
       <Outposts outposts={royalGuardian?.outposts} outpostStats={outpostStats}
-               resources={royalGuardian?.resources} clearingMaps={royalGuardian?.clearingMaps}
-               activeKillClear={royalGuardian?.guardian?.activeKillClear}/>
+                resources={royalGuardian?.resources} clearingMaps={royalGuardian?.clearingMaps}
+                activeKillClear={royalGuardian?.guardian?.activeKillClear} sectionFailed={sectionFailed}/>
       <Resources resources={royalGuardian?.resources} outposts={royalGuardian?.outposts}
-                 resourcePerHour={royalGuardian?.resourcePerHour}/>
-      <UpgradeOptimizer account={state?.account} character={selectedRoyalGuardian}/>
-      <RoyalStatues royalStatues={royalStatues} statueFlair={statueFlair} statueLevels={raw?.[0]}/>
-      <OrbletMarket orbletMarket={orbletMarket} orblets={orblets}/>
+                 resourcePerHour={royalGuardian?.resourcePerHour} sectionFailed={sectionFailed}/>
+      <UpgradeOptimizer account={state?.account} character={selectedRoyalGuardian} sectionFailed={sectionFailed}/>
+      <RoyalStatues royalStatues={catalog?.royalStatues ?? royalStatues} statueFlair={statueFlair} statueLevels={raw?.[0]}
+                    sectionFailed={sectionFailed}/>
+      <OrbletMarket orbletMarket={catalog?.orbletMarket ?? orbletMarket} orblets={orblets} sectionFailed={sectionFailed}/>
     </Tabber>
   </>;
 };

@@ -1,4 +1,4 @@
-import { commaNotation, notateNumber, lavaLog, lavaLog2 } from '@utility/helpers';
+import { gameFill, notateNumber, lavaLog, lavaLog2 } from '@utility/helpers';
 import { sumSaveArray } from '@parsers/world-7/saveTotals';
 import { research as researchData, jellyUpgrades as jellyUpgradesData, gameTables } from '@website-data';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
@@ -82,8 +82,8 @@ const getRawResearch = (idleonData: any) => {
 
 const formatDescription = (desc: string, value: number) => String(desc ?? '')
   .replace(/_/g, ' ')
-  .replace(/\{/g, '' + commaNotation(value))
-  .replace(/\}/g, '' + notateNumber(1 + value / 100, 'MultiplierInfo'))
+  .replace(/\{/g, gameFill(value, 'Comma'))
+  .replace(/\}/g, gameFill(1 + value / 100, 'MultiplierInfo'))
   .replace(/@/g, '\n');
 
 // game: "BossHP" - a table for the first bosses, a curve after it.
@@ -252,17 +252,17 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
     15: () => `${Math.round(1 + upgradeQTY(15))}`,
     17: () => `${Math.round(1 + upgradeQTY(17))}`,
     23: () => `${Math.round(100 * bloodcellMulti) / 100}`,
-    29: () => `${notateNumber(1 + (50 + upgradeQTY(29)) / 100, 'MultiplierInfo')}`.replace('#', ''),
-    32: () => commaNotation(upgradeQTY(32) * Math.floor(cellLevelTotal / 10)),
-    33: () => commaNotation(upgradeQTY(33) * cellLevelTotal),
+    29: () => gameFill(1 + (50 + upgradeQTY(29)) / 100, 'MultiplierInfo'),
+    32: () => gameFill(upgradeQTY(32) * Math.floor(cellLevelTotal / 10), 'Comma'),
+    33: () => gameFill(upgradeQTY(33) * cellLevelTotal, 'Comma'),
     34: () => `${Math.round(1e4 * (1 - 1 / (1 + upgradeQTY(34) / 100))) / 100}`,
-    38: () => `${notateNumber(bloodcellDaily, 'Big')}`
+    38: () => gameFill(bloodcellDaily, 'Big')
   };
   const formatUpgradeDescription = (id: number) => {
     const qty = upgradeQTY(id);
     let text = String((jellyUpgradesData as any)?.[id]?.[5] ?? '')
-      .replace('{', commaNotation(qty))
-      .replace('}', `${notateNumber(1 + qty / 100, 'MultiplierInfo')}`.replace('#', ''));
+      .replace('{', gameFill(qty, 'Comma'))
+      .replace('}', gameFill(1 + qty / 100, 'MultiplierInfo'));
     if (upgradeDollar[id]) text = text.replace('$', upgradeDollar[id]());
     return text.replace(/_/g, ' ').replace(/@/g, '\n');
   };
@@ -341,7 +341,7 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
       damage,
       dps: (damage * 60) / cooldown,
       passive: CELL_PASSIVES[index] ?? '',
-      effect: index === ORGANELLE ? `Boosts SPD of adjacent cells by ${notateNumber(organelleSpeed, 'MultiplierInfo')}x`
+      effect: index === ORGANELLE ? `Boosts SPD of adjacent cells by ${gameFill(organelleSpeed, 'MultiplierInfo')}x`
         : CELL_EFFECTS[index] ?? ''
     };
   });

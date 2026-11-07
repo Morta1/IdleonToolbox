@@ -10,12 +10,13 @@ import {
   FAMILY_THEME,
   familyOf
 } from '@utility/builds/classes';
+import { ink } from '../../../styles/theme/theme';
 
 const CLASS_OPTIONS = FAMILY_ORDER.flatMap((fam) =>
   CLASS_KEYS.filter((k) => familyOf(k) === fam)
 );
 
-// Pill-shaped trigger — mirrors the filter pills on the builds list page
+// Pill-shaped trigger: mirrors the filter pills on the builds list page
 // so the form and the browse page feel like the same control.
 const PillTrigger = ({ label, value, placeholder, active, onClick }) => (
   <Button
@@ -25,13 +26,13 @@ const PillTrigger = ({ label, value, placeholder, active, onClick }) => (
       borderRadius: 999,
       height: 36,
       px: 2,
-      background: active ? ACCENT.primarySoft : 'rgba(255,255,255,0.04)',
-      color: active ? ACCENT.primary : 'rgba(255,255,255,0.85)',
-      border: `1px solid ${active ? ACCENT.primaryBorder : 'rgba(255,255,255,0.08)'}`,
+      background: active ? ACCENT.primarySoft : ink(0.04),
+      color: active ? ACCENT.text : ink(0.85),
+      border: `1px solid ${active ? ACCENT.primaryBorder : ink(0.08)}`,
       fontWeight: 500,
       '&:hover': {
-        background: active ? ACCENT.primarySoft : 'rgba(255,255,255,0.07)',
-        borderColor: active ? ACCENT.primaryBorder : 'rgba(255,255,255,0.14)'
+        background: active ? ACCENT.primarySoft : ink(0.07),
+        borderColor: active ? ACCENT.primaryBorder : ink(0.14)
       }
     }}
   >
@@ -42,7 +43,7 @@ const PillTrigger = ({ label, value, placeholder, active, onClick }) => (
           fontSize: 13,
           fontWeight: 600,
           lineHeight: 1,
-          color: active ? ACCENT.primary : 'rgba(255,255,255,0.55)'
+          color: active ? ACCENT.text : ink(0.55)
         }}
       >
         {label}
@@ -103,7 +104,7 @@ const ClassPicker = ({
                 sx={{
                   textTransform: 'none',
                   fontSize: 12,
-                  color: 'rgba(255,255,255,0.6)'
+                  color: ink(0.6)
                 }}
               >
                 Clear
@@ -127,7 +128,7 @@ const ClassPicker = ({
                     fontWeight: 700,
                     letterSpacing: 0.6,
                     textTransform: 'uppercase',
-                    color: FAMILY_THEME[family].primary,
+                    color: FAMILY_THEME[family].text,
                     borderBottom: `1px solid ${FAMILY_THEME[family].primary}44`
                   }}
                 >

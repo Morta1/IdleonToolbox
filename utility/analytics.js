@@ -13,6 +13,33 @@ export const gtag = function () {
 
 export const trackEvent = (name, params) => gtag('event', name, params);
 
+// The bar's menus: which one opens, and when one follows another with no link between, a player's wrong guess.
+const MENU_SWITCH_MS = 10000;
+let menuOnScreen = null;
+let menuLastClosed = null;
+
+export const trackMenuOpen = (menu) => {
+  trackEvent('menu_open', { menu });
+  const recent = menuLastClosed && Date.now() - menuLastClosed.at <= MENU_SWITCH_MS ? menuLastClosed.menu : null;
+  // Still on screen when the next opens: the click on Pinned pages reaches its button before the panel's click-away.
+  const from = menuOnScreen ?? recent;
+  if (from && from !== menu) trackEvent('menu_switch', { from, to: menu });
+  menuOnScreen = menu;
+  menuLastClosed = null;
+};
+
+export const trackMenuClose = (menu) => {
+  if (menuOnScreen !== menu) return;
+  menuOnScreen = null;
+  menuLastClosed = { menu, at: Date.now() };
+};
+
+// A link was followed: whatever opens next is a new search, not a switch.
+export const trackMenuLink = () => {
+  menuOnScreen = null;
+  menuLastClosed = null;
+};
+
 const LEADERBOARDS_PATH = '/leaderboards';
 // A searched player's name and an open board are page state, not pages: the name must never reach GA
 // and the drawer opening or closing is not a visit.

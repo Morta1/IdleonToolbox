@@ -4,6 +4,7 @@
 import GAME from './game-constants.mjs';
 import { growthCurve } from './growth.mjs';
 import { formatAmount, formatNumber } from './format-amount.mjs';
+import { notateNumber, PLAIN_BELOW } from '../notate.mjs';
 
 const cleanUnderscore = (str) => (str ? String(str).replace(/_/g, ' ') : '');
 
@@ -184,13 +185,11 @@ export const FORMULAS = {
   },
   // Emerald's "$% cheaper" (gemstone bonus as a discount).
   affineDecayCheaper: (level, { base, scale, offset }) => 100 * (1 - 1 / (1 + (base + (scale * level) / (offset + level)) / 100)),
-  // The game's NotateNumber(x, "Big") (N.js:68754) floors below 1,000 (GAME.notateNumber small.floorBelow); above
-  // that it writes K/M, which the wiki's own notation replaces. Wraps another formula so item panels print what the game prints.
+  // The game's NotateNumber(x, "Big") below 1,000; above that it writes K/M, which the wiki's own notation replaces.
+  // Wraps another formula so item panels print what the game prints.
   notateBig: (level, { formula, args }) => {
-    const small = GAME.notateNumber?.small;
-    if (!small) return null;
     const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
-    return typeof value === 'number' && value < small.floorBelow ? Math.floor(value) : value;
+    return typeof value === 'number' && value < PLAIN_BELOW ? Number(notateNumber(value, 'Big')) : value;
   },
   // Spelunk ShopUpgCost (GAME.spelunkShopCost): scale x base x (levelOffset + L) x rate^L plus L^2 + perLevel L, rounded
   // up below `below` as the shop prints it (N.js:118794).
@@ -234,17 +233,12 @@ export const FORMULAS = {
     if (level < below) return flat;
     return FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
   },
-  // The game's NotateNumber(x, "Small") (N.js:68764): hundredths below 1, tenths below 100, floored below 1,000, then
-  // K/M with three significant figures, which the wiki replaces with the floored whole number (costs: notateBig). The
-  // thresholds are GAME.notateNumber small.
+  // The game's NotateNumber(x, "Small") below 1,000; above that it writes K/M with three significant figures, which the
+  // wiki replaces with the floored whole number (costs: notateBig).
   notateSmall: (level, { formula, args }) => {
-    const small = GAME.notateNumber?.small;
-    if (!small) return null;
     const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
     if (typeof value !== 'number') return value;
-    if (value < small.hundredthsBelow) return Math.round(100 * value) / 100;
-    if (value < small.tenthsBelow) return Math.round(10 * value) / 10;
-    return Math.floor(value);
+    return value < PLAIN_BELOW ? Number(notateNumber(value, 'Small')) : Math.floor(value);
   },
   // Moon of Sneak (CompassBonus 45, N.js:107131): the linear bonus doubles every `every` levels.
   linearDoubling: (level, { perLevel, every, base = 0 }) => base + perLevel * level * Math.pow(2, Math.floor(level / every)),
@@ -403,6 +397,10 @@ export const readLevel = (value, cap = null, from = 1) => {
 
 // The level a page opens its calculator on, and the one the bot and the meta description read.
 export const firstLevel = (node) => node?.effect?.from ?? 1;
+
+// The highest level a page's level field takes: the effect's cap, or the guard above where the game has none (Ninja
+// Mastery), so the field never shows a level the numbers under it do not read.
+export const levelMax = (node) => node?.effect?.cap ?? MAX_LEVEL;
 
 // The level a page opens on and its one-line summary (listing cell, meta description) reads at: the first level, or the
 // max where the effect says so (`summaryAtCap`), for a kind whose bonuses start partway up and read +0 at level 1.

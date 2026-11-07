@@ -1,4 +1,6 @@
 import React, { useContext, useEffect, useRef, useState } from 'react';
+import useHydrated from '@hooks/useHydrated';
+import usePageTop from '@hooks/usePageTop';
 import {
   Alert,
   Box,
@@ -57,6 +59,7 @@ const BuildForm = ({
 }) => {
   const router = useRouter();
   const { state } = useContext(AppContext);
+  const pageTop = usePageTop();
   const signedIn = !!state?.signedIn;
 
   // Core form state
@@ -84,33 +87,36 @@ const BuildForm = ({
   // router hydrated query params on the second render, or the template fetch
   // resolved after BuildForm was already rendered), re-seed the form state
   // from it. Keyed on shortId so we don't re-sync on every render.
-  const syncedShortIdRef = useRef(initialBuild?.shortId ?? null);
-  useEffect(() => {
-    const incomingId = initialBuild?.shortId ?? null;
-    if (incomingId === syncedShortIdRef.current) return;
-    syncedShortIdRef.current = incomingId;
-    if (!initialBuild) return;
-    setClassKey(toClassKey(initialBuild));
-    setTitle(initialBuild.title || '');
-    setDescription(initialBuild.description || '');
-    setTags(initialBuild.tags || []);
-    setIsAnonymous(!!initialBuild.isAnonymous);
-    if (toClassKey(initialBuild)) {
-      setTabs(hydrate(initialBuild).tabs);
-    } else {
-      setTabs([]);
+  const incomingId = initialBuild?.shortId ?? null;
+  const [syncedShortId, setSyncedShortId] = useState(incomingId);
+  if (incomingId !== syncedShortId) {
+    setSyncedShortId(incomingId);
+    if (initialBuild) {
+      setClassKey(toClassKey(initialBuild));
+      setTitle(initialBuild.title || '');
+      setDescription(initialBuild.description || '');
+      setTags(initialBuild.tags || []);
+      setIsAnonymous(!!initialBuild.isAnonymous);
+      if (toClassKey(initialBuild)) {
+        setTabs(hydrate(initialBuild).tabs);
+      } else {
+        setTabs([]);
+      }
     }
-  }, [initialBuild]);
+  }
 
-  // Detect saved draft on mount - defer the actual restore until the user
+  // Detect saved draft once storage can be read - defer the actual restore until the user
   // confirms in the dialog.
-  useEffect(() => {
-    if (mode !== 'create') return;
-    if (initialBuild) return; // template flow - don't overwrite
-    const saved = loadDraft();
-    if (saved?.draft) setPendingDraft(saved.draft);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const hydrated = useHydrated();
+  const [draftChecked, setDraftChecked] = useState(false);
+  if (hydrated && !draftChecked) {
+    setDraftChecked(true);
+    // template flow - don't overwrite
+    if (mode === 'create' && !initialBuild) {
+      const saved = loadDraft();
+      if (saved?.draft) setPendingDraft(saved.draft);
+    }
+  }
 
   const applyDraft = (d) => {
     setClassKey(d.classKey || '');
@@ -303,7 +309,7 @@ const BuildForm = ({
           gap: 2,
           alignItems: { md: 'center' },
           position: 'sticky',
-          top: 0,
+          top: pageTop,
           zIndex: 2,
           py: 1.5,
           px: 2
@@ -401,7 +407,7 @@ const BuildForm = ({
                       onClick={() => toggleTag(tag)}
                       sx={selected ? {
                         bgcolor: ACCENT.primarySoft,
-                        color: ACCENT.primary,
+                        color: ACCENT.text,
                         borderColor: ACCENT.primaryBorder
                       } : undefined}
                     />
@@ -449,7 +455,7 @@ const BuildForm = ({
                         sx={{
                           fontWeight: 700,
                           letterSpacing: 0.6,
-                          color: tabTheme.primary,
+                          color: tabTheme.text,
                           lineHeight: 1
                         }}
                       >

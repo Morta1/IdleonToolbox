@@ -1,8 +1,5 @@
 import React from 'react';
-import { Divider, Stack } from '@mui/material';
-import { CardTitleAndValue } from '@components/common/styles';
-import { commaNotation, fillArrayToLength, getTabs, msToDate } from '@utility/helpers';
-import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
+import { Stack } from '@mui/material';
 import Tabber from '@components/common/Tabber';
 import TheWell from '@components/account/Worlds/World5/Hole/Caverns/TheWell';
 import Motherlode from '@components/account/Worlds/World5/Hole/Caverns/Motherlode';
@@ -14,7 +11,6 @@ import TheLamp from '@components/account/Worlds/World5/Hole/Caverns/TheLamp';
 import TheHive from '@components/account/Worlds/World5/Hole/Caverns/TheHive';
 import Grotto from '@components/account/Worlds/World5/Hole/Caverns/Grotto';
 import Justice from '@components/account/Worlds/World5/Hole/Caverns/Justice';
-import { PAGES } from '@components/constants';
 import TheJars from '@components/account/Worlds/World5/Hole/Caverns/TheJars';
 import Evertree from '@components/account/Worlds/World5/Hole/Caverns/Evertree';
 import Wisdom from '@components/account/Worlds/World5/Hole/Caverns/Wisdom';
@@ -23,38 +19,21 @@ import TheTemple from '@components/account/Worlds/World5/Hole/Caverns/TheTemple'
 import TheFountain from '@components/account/Worlds/World5/Hole/Caverns/TheFountain';
 import TheBottomlessTrench from '@components/account/Worlds/World5/Hole/Caverns/TheBottomlessTrench';
 import CrystalGlunkoCove from '@components/account/Worlds/World5/Hole/Caverns/CrystalGlunkoCove';
-import { ExpRateCard } from '@components/account/Worlds/World5/Hole/commons';
-import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
+import { CAVERN_LABELS, CAVERN_TABS, villagerTiles } from '@components/account/Worlds/World5/Hole/commons';
 
-const Explore = ({ hole }) => {
-  const [explore] = hole?.villagers || [];
-  const caverns = fillArrayToLength(18);
-  const totals = getHoleLeaderboardTotals(hole);
+const CAVERN_ICONS = CAVERN_TABS.map((tab, index) => `etc/Cavern_${index}`);
+
+const Explore = ({ hole, sectionFailed }) => {
+  const explore = hole?.villagers?.[0];
   return <>
-    <Stack mb={2} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Level'} value={explore?.level}/>
-      <CardTitleAndValue title={'Exp'} value={`${explore?.exp} / ${explore?.expReq}`}/>
-      <ExpRateCard title={'Exp rate'} expRate={explore?.expRate}/>
-      <CardTitleAndValue title={'Time to level'} value={explore?.timeLeft >= 0 && explore?.expRate?.value > 0
-        ? msToDate(explore?.timeLeft)
-        : '0'}/>
-      <CardTitleAndValue title={'Opals invested'} value={explore?.opalInvested || '0'} icon={'data/Opal.png'}
-                         imgStyle={{ width: 22, height: 22 }}/>
-      <CardTitleAndValue title={'Unlocked caverns'} value={hole?.unlockedCaverns}/>
-      <CardTitleAndValue title={'Total opals invested'} value={commaNotation(totals.opalsInvested)} icon={'data/Opal.png'}
-                         imgStyle={{ width: 22, height: 22 }}/>
-      <CardTitleAndValue title={'Total villager exp rate'} value={`${commaNotation(totals.villagerExpPerHour)} / hr`}/>
-      <CardTitleAndValue title={'Total layers destroyed'} value={commaNotation(totals.layersDestroyed)}/>
-      <CardWithBreakdown title={'Total Monument Afk'} value={`${hole?.caverns?.bravery?.afkPercent?.effectiveValue.toFixed(2)}%`} 
-      breakdown={hole?.caverns?.bravery?.afkPercent?.breakdown}/>
-    </Stack>
-    <Divider sx={{ mb: 3 }}/>
+    <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>{villagerTiles(explore)}</Stack>
     <Tabber
-      queryKey={'nt'}
+      level={2}
+      label={'Caverns'}
       clearOnChange={['dnt']}
-      iconsOnly
-      tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'hole', 'Explore')}
-      icons={caverns.map((a, index) => `etc/Cavern_${index}`)}
+      tabs={CAVERN_TABS}
+      labels={CAVERN_LABELS}
+      icons={CAVERN_ICONS}
     >
       <TheWell hole={hole}/>
       <Motherlode hole={hole}/>
@@ -66,12 +45,12 @@ const Explore = ({ hole }) => {
       <TheHive hole={hole}/>
       <Grotto hole={hole}/>
       <Justice hole={hole}/>
-      <TheJars hole={hole}/>
+      <TheJars hole={hole} sectionFailed={sectionFailed}/>
       <Evertree hole={hole}/>
       <Wisdom hole={hole}/>
       <Gambit hole={hole}/>
       <TheTemple hole={hole}/>
-      <TheFountain hole={hole}/>
+      <TheFountain hole={hole} sectionFailed={sectionFailed}/>
       <TheBottomlessTrench hole={hole}/>
       <CrystalGlunkoCove hole={hole}/>
     </Tabber>

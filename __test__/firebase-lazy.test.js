@@ -7,18 +7,13 @@ import { repoRelative, sourceFiles } from './helpers/source-files';
 // exported page. Only firebase/lazy.js may import it; everyone else awaits loadFirebase().
 const ROOTS = ['components', 'pages', 'hooks'];
 
-// Page-scoped and mounted under DataLoadingWrapper, so its import lands in that page's own chunk
-// and never in the shared one.
-const ALLOWED = new Set(['components/account/Worlds/World7/Tournament/Leaderboard.jsx']);
-
 const FIREBASE_IMPORT = /(?:from\s*|import\s*\()\s*['"][^'"]*firebase(?:\/index)?['"]/;
 
 describe('firebase stays out of the every-page bundle', () => {
   it('is imported by firebase/lazy.js alone', () => {
     const hits = sourceFiles(ROOTS)
       .filter((file) => FIREBASE_IMPORT.test(readFileSync(file, 'utf8')))
-      .map(repoRelative)
-      .filter((file) => !ALLOWED.has(file));
+      .map(repoRelative);
     expect(hits).toEqual([]);
   });
 });

@@ -1,38 +1,27 @@
 import React from 'react';
-import { Box, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { Stack } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { divStyles } from '@website-data';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
 
-const DivinityStyles = ({ characters }) => {
-  return <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: 2 }}>
-    {divStyles?.map(({ name, description }, styleIndex) => {
-      const equippedBy = characters?.filter(({ divStyle }) => divStyle?.index === styleIndex) ?? [];
-      return <Card key={name} variant={'outlined'} sx={{ height: '100%' }}>
-        <CardContent>
-          <Stack gap={1.5}>
-            <Stack direction={'row'} alignItems={'center'} gap={1.5}>
-              <img style={{ width: 58, height: 40 }} src={`${prefix}etc/Div_Style_${styleIndex}.png`} alt=""/>
-              <Typography>{name}</Typography>
-            </Stack>
-            <Typography variant={'body2'}>{cleanUnderscore(description?.replace('@', ''))}</Typography>
-            {equippedBy.length > 0 ? <>
-              <Divider/>
-              <Stack gap={0.5}>
-                {equippedBy.map(({ name: charName, classIndex, playerId, skillsInfo }) => <Stack
-                  key={`${charName}-${playerId}`} direction={'row'} alignItems={'center'} gap={1}>
-                  <img style={{ width: 24, height: 24 }} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
-                  <Typography variant={'body2'}>{charName}</Typography>
-                  <Typography variant={'body2'} color={'text.secondary'} sx={{ ml: 'auto' }}>
-                    Lv. {skillsInfo?.divinity?.level ?? 0}
-                  </Typography>
-                </Stack>)}
-              </Stack>
-            </> : null}
-          </Stack>
-        </CardContent>
-      </Card>
-    })}
-  </Box>;
-};
+const DivinityStyles = ({ characters }) => <CardGrid size={'m'}>
+  {divStyles?.map(({ name, description }, styleIndex) => {
+    const equippedBy = characters?.filter(({ divStyle }) => divStyle?.index === styleIndex) ?? [];
+    return <ItemCard key={name} icon={`etc/Div_Style_${styleIndex}.png`} title={name}>
+      {/* The game's @ is a line break: the style's second line */}
+      <ItemCard.Desc text={description}/>
+      {equippedBy.length > 0 ? <ItemCard.Section label={'Used by'}>
+        <ItemCard.Facts rows={equippedBy.map(({ name: charName, classIndex, playerId, skillsInfo }) => [
+          <Stack key={`${charName}-${playerId}`} component={'span'} direction={'row'} alignItems={'center'} gap={1}>
+            <GameIcon src={`data/ClassIcons${classIndex}.png`} size={24} alt={''}/>{cleanUnderscore(charName)}
+          </Stack>,
+          formatNum(skillsInfo?.divinity?.level ?? 0, 'level')
+        ])}/>
+      </ItemCard.Section> : null}
+    </ItemCard>;
+  })}
+</CardGrid>;
 
 export default DivinityStyles;

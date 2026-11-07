@@ -1,18 +1,14 @@
 import { Stack } from '@mui/material';
-import { CardTitleAndValue } from '@components/common/styles';
+import { skillingTiles } from '@components/account/Worlds/World5/Hole/commons';
 
 const Evertree = ({ hole }) => {
-  return <>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <CardTitleAndValue title={'Chopping eff req'} value={hole?.caverns?.evertree?.choppingEff}/>
-      <CardTitleAndValue title={'Layer'} value={hole?.caverns?.evertree?.layer}/>
-      <CardTitleAndValue title={'Logs'} icon={'data/MotherlodeTREE_x1.png'}
-                         imgStyle={{ width: 24, height: 24, objectFit: 'contain' }}
-                         value={`${hole?.caverns?.evertree?.logs?.chopped} / ${hole?.caverns?.evertree?.logs?.required}`}/>
-      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.holesObject?.opalsPerCavern?.[11] || 0}/>
-    </Stack>
-  </>
+  const evertree = hole?.caverns?.evertree;
+  return <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
+    {skillingTiles({
+      hole, cavernIndex: 11, effLabel: 'Chopping efficiency needed', eff: evertree?.choppingEff, layer: evertree?.layer,
+      resource: 'Logs', icon: 'data/MotherlodeTREE_x1.png', done: evertree?.logs?.chopped, required: evertree?.logs?.required
+    })}
+  </Stack>;
 };
 
 export default Evertree;

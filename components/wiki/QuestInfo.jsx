@@ -1,6 +1,6 @@
 import React from 'react';
 import InfoBox, { visibleGroups } from './InfoBox';
-import { numberWithCommas } from '@utility/helpers';
+import { formatNum } from '@utility/helpers';
 
 // The half of idleon.wiki's quest table that is neither an item nor an NPC, so none of it can be
 // an edge: how hard the quest is, whether it eats the items it asks for, and the objectives that
@@ -12,11 +12,11 @@ export const questGroups = (node) => {
 
   const objectives = (node?.objectives || []).map((objective) => ({
     label: objective.desc,
-    value: typeof objective.value === 'number' ? numberWithCommas(objective.value) : objective.value
+    value: typeof objective.value === 'number' ? formatNum(objective.value, 'whole') : objective.value
   }));
 
   return [
-    { title: 'Quest Info', rows: information },
+    { title: 'Quest info', rows: information },
     { title: 'Objectives', rows: objectives }
   ];
 };

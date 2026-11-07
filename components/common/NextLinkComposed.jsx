@@ -3,30 +3,16 @@ import clsx from 'clsx';
 import { useRouter } from 'next/router';
 import NextLink from 'next/link';
 import MuiLink from '@mui/material/Link';
-import { Typography } from '@mui/material';
 import styled from '@emotion/styled';
 
 const Anchor = styled.a``;
-export const NextLinkComposed = React.forwardRef(
-  function NextLinkComposed(props, ref) {
-    const { to, linkAs, replace, scroll, shallow, prefetch, locale, children, ...other } = props;
-
-    return (
-      <NextLink
-        href={to}
-        prefetch={prefetch}
-        as={linkAs}
-        replace={replace}
-        scroll={scroll}
-        shallow={shallow}
-        passHref
-        locale={locale}
-      >
-        <Typography component={'span'} ref={ref} {...other}>{children}</Typography>
-      </NextLink>
-    );
-  },
-);
+// One element: next/link renders the anchor, so a ButtonBase's role and tabIndex land on it instead of on a span
+// inside it (each link was two Tab stops).
+export const NextLinkComposed = React.forwardRef(function NextLinkComposed(props, ref) {
+  const { to, linkAs, replace, scroll, shallow, prefetch, locale, ...other } = props;
+  return <NextLink href={to} as={linkAs} replace={replace} scroll={scroll} shallow={shallow} prefetch={prefetch}
+                   locale={locale} ref={ref} {...other}/>;
+});
 
 
 // A styled version of the Next.js Link component:

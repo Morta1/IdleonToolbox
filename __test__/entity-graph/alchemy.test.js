@@ -255,15 +255,15 @@ describe('the built graph', () => {
     expect(bare).toEqual([]);
   });
 
-  // Swift Steppin's Pocket Sand and Water Drops at the wiki's Lv 1, 10 and 100, the game's price at levels 0, 9 and 99,
-  // each drawn with its art: the material's from its item page, the liquid's own.
-  it.each([[1, [1, 2]], [10, [11, 2]], [100, [1081860, 6]]])('prices Swift Steppin at Lv %s as the game does', (level, values) => {
+  // Swift Steppin's Pocket Sand and Water Drops at the wiki's Lv 100, the game's price at level 99, each drawn with its art:
+  // the material's from its item page, the liquid's own.
+  it('prices Swift Steppin at Lv 100 as the game does', () => {
     const node = graph.nodes['bubble:aUpgradesG0'];
-    expect([node.liquids, costsAt(node, level).map(({ value, currency, currencyIcon, label }) => [value, currency, currencyIcon, label])]).toEqual([
+    expect([node.liquids, costsAt(node, 100).map(({ value, currency, currencyIcon, label }) => [value, currency, currencyIcon, label])]).toEqual([
       undefined,
       [
-        [values[0], 'Pocket_Sand', graph.nodes['item:DesertA1'].icon, 'Material for this level'],
-        [values[1], 'Water Drops', '/data/Liquid1_x1.png', 'Liquid for this level']
+        [1081860, 'Pocket_Sand', graph.nodes['item:DesertA1'].icon, 'Material for this level'],
+        [6, 'Water Drops', '/data/Liquid1_x1.png', 'Liquid for this level']
       ]
     ]);
   });

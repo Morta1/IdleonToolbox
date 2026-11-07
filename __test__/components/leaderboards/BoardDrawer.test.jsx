@@ -5,7 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 
 const fetchBoard = vi.fn();
 vi.mock('../../../services/leaderboards', () => ({ fetchBoard }));
@@ -19,7 +19,7 @@ const aroundAt = (rank) => Array.from({ length: 11 }, (_, i) => ({ mainChar: i =
 const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 const renderDrawer = (props = {}) => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <BoardDrawer open metricKey="mining" index={index} player="me" kind="logged" showAnonymous onClose={() => {}} {...props}/>
     </ThemeProvider>
   </QueryClientProvider>
@@ -28,13 +28,17 @@ const renderDrawer = (props = {}) => render(
 afterEach(() => { cleanup(); client.clear(); vi.clearAllMocks(); });
 
 describe('BoardDrawer', () => {
-  it('shows Around you first when the player is below rank 15', async () => {
+  it('shows Around you first below rank 15: your row outlined, the nearest rank above and the step to it', async () => {
     fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: aroundAt(91) });
     renderDrawer();
     expect(await screen.findByText('Around you')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Top 100' })).toBeTruthy();
-    expect(screen.getByRole('button', { name: 'Top 100' })).toBeTruthy();
+    expect(screen.getByRole('button', { name: 'Back to the top 100' })).toBeTruthy();
     expect(fetchBoard).toHaveBeenCalledWith('mining', { around: 'me', publicOnly: false });
+    expect(screen.getByText('+1 to reach N4 (#90)')).toBeTruthy();
+    const rowOf = (name) => screen.getByText(name).closest('[data-testid="rank-row"]');
+    expect(getComputedStyle(rowOf('Me')).borderColor).toBe('var(--mui-palette-identity-leaderboard-you)');
+    expect(getComputedStyle(rowOf('N0')).borderColor).not.toBe('var(--mui-palette-identity-leaderboard-you)');
   });
 
   it('names a searched player instead of saying you', async () => {
@@ -111,7 +115,8 @@ describe('BoardDrawer', () => {
     fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: [] });
     renderDrawer();
     const dialog = await screen.findByRole('dialog', { name: 'Mining' });
-    expect(dialog.getAttribute('aria-modal')).toBe('true');
+    // Beside the page on the desktop, not over it: no aria-modal.
+    expect(dialog.getAttribute('aria-modal')).toBeNull();
   });
 
   it('keeps the rows on screen while a deep link asks again with the player', async () => {
@@ -119,7 +124,7 @@ describe('BoardDrawer', () => {
     fetchBoard.mockReturnValueOnce(new Promise(() => {}));
     const tree = (player) => (
       <QueryClientProvider client={client}>
-        <ThemeProvider theme={darkTheme}>
+        <ThemeProvider theme={theme}>
           <BoardDrawer open metricKey="mining" index={index} player={player} kind="logged" showAnonymous onClose={() => {}}/>
         </ThemeProvider>
       </QueryClientProvider>
@@ -137,7 +142,7 @@ describe('BoardDrawer', () => {
     fetchBoard.mockReturnValueOnce(new Promise(() => {}));
     const tree = (metricKey) => (
       <QueryClientProvider client={client}>
-        <ThemeProvider theme={darkTheme}>
+        <ThemeProvider theme={theme}>
           <BoardDrawer open metricKey={metricKey} index={index} player="me" kind="logged" showAnonymous onClose={() => {}}/>
         </ThemeProvider>
       </QueryClientProvider>
@@ -176,12 +181,6 @@ describe('BoardDrawer header and steps', () => {
     expect(screen.queryByText(/#1 /)).toBeNull();
   });
 
-  it('names the nearest rank above you and the step to reach it', async () => {
-    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: aroundAt(91) });
-    renderDrawer();
-    expect(await screen.findByText('+1 to reach N4 (#90)')).toBeTruthy();
-  });
-
   it('keeps a fractional points step above zero and skips tied neighbours', async () => {
     const globalIndex = buildMetaIndex({ totalPlayers: 2616, tabs: [] });
     fetchBoard.mockResolvedValue({ metric: 'globalRanking', createdAt: 1, top, around: [
@@ -197,14 +196,5 @@ describe('BoardDrawer header and steps', () => {
     renderDrawer();
     await screen.findByText('Around you');
     expect(screen.queryByText(/to reach/)).toBeNull();
-  });
-
-  it('outlines your row in the Around you list and no other', async () => {
-    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: aroundAt(91) });
-    renderDrawer();
-    const rowOf = (name) => screen.getByText(name).closest('[data-testid="rank-row"]');
-    await screen.findByText('Me');
-    expect(getComputedStyle(rowOf('Me')).borderTopColor).toBe('rgb(0, 126, 133)');
-    expect(getComputedStyle(rowOf('N0')).borderTopColor).not.toBe('rgb(0, 126, 133)');
   });
 });

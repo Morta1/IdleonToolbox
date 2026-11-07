@@ -9,9 +9,10 @@ import {
 } from '@mui/material';
 import { cleanUnderscore, prefix } from '@utility/helpers';
 import { formatTalentName } from '@utility/builds/itemRefs';
+import { ink } from '../../../styles/theme/theme';
 
 // Inline @-mention menu. Anchored to a virtual element at the caret's pixel
-// coordinates so the menu pops up right below the current character — not
+// coordinates so the menu pops up right below the current character: not
 // below the entire textarea.
 //
 // Click handlers use onMouseDown + preventDefault so clicking a row doesn't
@@ -26,7 +27,7 @@ const MentionMenu = ({ open, coords, items, selectedIdx, onSelect }) => {
     if (el?.scrollIntoView) el.scrollIntoView({ block: 'nearest' });
   }, [open, selectedIdx]);
 
-  // Virtual element for Popper — reads its bounding rect from `coords` each
+  // Virtual element for Popper: reads its bounding rect from `coords` each
   // time Popper queries it. Fresh object per render so Popper re-runs its
   // position calculation when the caret moves.
   const virtualAnchor = useMemo(() => {
@@ -67,7 +68,7 @@ const MentionMenu = ({ open, coords, items, selectedIdx, onSelect }) => {
           overflow: 'auto',
           minWidth: 280,
           maxWidth: 360,
-          border: '1px solid rgba(255,255,255,0.08)'
+          border: `1px solid ${ink(0.08)}`
         }}
       >
         <MenuList dense disablePadding>

@@ -1,4 +1,5 @@
 import { test, expect } from '@playwright/test';
+import { pagePropsIn } from './route-helpers';
 import { waitForRender } from './wait-helpers';
 
 // Everything here reads the served bytes with no JS executed - the state Googlebot is in when it
@@ -8,11 +9,6 @@ import { waitForRender } from './wait-helpers';
 // A href pattern cannot tell a build slug from a class slug - 'blood-berserker' looks exactly
 // like '<shortId>-<title>'. The hub ships the list of shortIds that have a static page, so the
 // hrefs are matched against that rather than guessed at.
-const pagePropsIn = (html) => {
-  const json = html.match(/id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s)?.[1];
-  return JSON.parse(json).props.pageProps;
-};
-
 const staticIdsIn = (html) => {
   const builds = pagePropsIn(html).initialBuilds;
   // Every build in static props has an exported page - that is what getStaticPaths generated

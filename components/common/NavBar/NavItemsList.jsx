@@ -1,152 +1,68 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { NextLinkComposed } from '../NextLinkComposed';
-import { drawerWidth, navItems } from '../../constants';
+import { MENUS, menuOfRoute, TOP_NAV, topNavLabel } from '@utility/navMenu';
 import { useRouter } from 'next/router';
-import { Collapse, List, ListItem, ListItemButton, ListItemText, Stack } from '@mui/material';
+import { ListItemButton, listItemButtonClasses, ListItemText, Stack } from '@mui/material';
 import { AppContext } from '../context/AppProvider';
 import PinnedPages from '@components/common/favorites/PinnedPages';
-import AccountDrawer from '@components/common/NavBar/AppDrawer/AccountDrawer';
-import ExpandLess from '@mui/icons-material/ExpandLess';
-import ExpandMore from '@mui/icons-material/ExpandMore';
-import Kofi from '@components/common/Kofi';
-import ToolsDrawer from '@components/common/NavBar/AppDrawer/ToolsDrawer';
 import { sessionQuery } from '@utility/nav-query';
 import useNavPrefetch from '@hooks/useNavPrefetch';
+import { NavMenuButton } from './NavMenu';
+import { BAR_CRAMPED, BAR_SNUG, BAR_TIGHT } from './frame';
 
-
-const NavItemsList = ({ drawer }) => {
+// The bar's sections from lg (below it PhoneMenu holds them): Worlds, Account and Tools open their menu (Decision 11),
+// the rest are links.
+const NavItemsList = ({ openMenu, onMenu, onMenuRest, onMenuRestEnd }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
   const updateQuery = sessionQuery(router?.query);
   const prefetch = useNavPrefetch();
-  const [openItems, setOpenItems] = useState({});
-  const toggleOpen = (key) => {
-    setOpenItems((prev) => ({
-      ...prev,
-      [key]: !prev[key],
-    }));
-  };
   return (
-    <Stack
-      direction={drawer ? 'column' : 'row'}
-      justifyContent={drawer ? 'flex-start' : 'center'}
-      sx={{ width: '100%', maxWidth: drawer ? drawerWidth : 'inherit' }}
-    >
-      <ItemsWrapper drawer={drawer}>
-        {navItems.map((navItem, index) => {
+    // Grows from its content's width, so the bar shrinks something only when it truly runs out of room
+    <Stack direction={'row'} justifyContent={'center'} sx={{ flex: '1 1 auto' }}>
+      {/* No label wraps: the bar is one row, and below 1440 its gaps tighten instead (frame.js) */}
+      <Stack component={'nav'} aria-label="Main" direction={'row'} sx={{
+        display: { xs: 'none', lg: 'flex' }, gap: 1,
+        [`& .${listItemButtonClasses.root}`]: { whiteSpace: 'nowrap' },
+        [BAR_SNUG]: { gap: 0 },
+        [BAR_TIGHT]: { [`& .${listItemButtonClasses.root}`]: { px: '6px' } },
+        [BAR_CRAMPED]: { [`& .${listItemButtonClasses.root}`]: { px: '4px' } }
+      }}>
+        {TOP_NAV.map((navItem, index) => {
           if (state?.profile && navItem === 'guilds') return null;
 
-          // `drawer` stands in for the lg breakpoint rather than a useMediaQuery, which is false
-          // at build and on the first client render: this list is display:none below lg and the
-          // drawer that passes `drawer` is display:none from lg up, so CSS already draws the line.
-          if (drawer && (navItem === 'account' || navItem === 'tools')) {
-            const isAccount = navItem === 'account';
-            const isTools = navItem === 'tools';
-
-            return (
-              <CollapsibleNavItem
-                key={`account-${index}`}
-                navKey={navItem}
-                label={navItem.capitalize()}
-                isOpen={openItems[navItem]}
-                setIsOpen={() => toggleOpen(navItem)}
-                selected={router?.pathname.includes(navItem)}
-                drawer={drawer}
-                dataCy={`nav-item-${navItem}`}
-              >
-                {isAccount && <AccountDrawer fromList/>}
-                {isTools && <ToolsDrawer fromList/>}
-              </CollapsibleNavItem>
-            );
+          if (MENUS[navItem]) {
+            return <NavMenuButton key={navItem} menu={navItem} open={openMenu === navItem}
+                                  selected={menuOfRoute(router?.pathname) === navItem} onToggle={onMenu}
+                                  onRest={onMenuRest} onRestEnd={onMenuRestEnd}/>;
           }
 
-          const pageName = navItem === 'account' ? 'account/misc/general' : navItem === 'tools'
-            ? 'tools/card-search'
-            : navItem;
-
+          const selected = router?.pathname.includes(navItem);
           return (
             <ListItemButton
               component={NextLinkComposed}
-              selected={router?.pathname.includes(navItem)}
+              selected={selected}
+              aria-current={selected ? 'page' : undefined}
               key={`${navItem}-${index}`}
-              to={{ pathname: `/${pageName}`, query: updateQuery }}
+              to={{ pathname: `/${navItem}`, query: updateQuery }}
               prefetch={prefetch}
-              sx={{
-                borderRadius: drawer ? 'inherit' : 2,
-                p: drawer ? '8px 16px' : '0 8px'
-              }}
-              data-cy={`nav-item-${pageName}`}
-              dense={!drawer}
+              sx={{ borderRadius: 2, p: '0 8px' }}
+              data-cy={`nav-item-${navItem}`}
+              dense
               size="medium"
             >
               <ListItemText
                 component={'span'}
                 disableTypography
-                sx={{ fontWeight: 'bold', fontSize: 16 }}
+                sx={{ fontWeight: 600, fontSize: 16 }}
               >
-                {navItem.capitalize()}
+                {topNavLabel(navItem)}
               </ListItemText>
             </ListItemButton>
           );
         })}
-        <PinnedPages text={'Pinned pages'}/>
-        {drawer && <List style={{ marginTop: 'auto', paddingBottom: 0 }}>
-          <ListItem>
-            <ListItemText>
-              <Kofi display={'inline-block'}/>
-            </ListItemText>
-          </ListItem>
-        </List>}
-      </ItemsWrapper>
-    </Stack>
-  );
-};
-
-const CollapsibleNavItem = ({
-                              navKey,
-                              label,
-                              isOpen,
-                              setIsOpen,
-                              selected,
-                              drawer,
-                              dataCy,
-                              children
-                            }) => (
-  <React.Fragment key={`collapsible-${navKey}`}>
-    <ListItemButton
-      onClick={() => setIsOpen(!isOpen)}
-      selected={selected}
-      sx={{
-        borderRadius: drawer ? 'inherit' : 2,
-        p: drawer ? '8px 16px' : '0 8px'
-      }}
-      data-cy={dataCy}
-      dense={!drawer}
-      size="medium"
-    >
-      <ListItemText
-        component={'span'}
-        disableTypography
-        sx={{ fontWeight: 'bold', fontSize: 16 }}
-      >
-        {label}
-      </ListItemText>
-      {isOpen ? <ExpandLess/> : <ExpandMore/>}
-    </ListItemButton>
-    <Collapse in={isOpen} timeout="auto" unmountOnExit>
-      {children}
-    </Collapse>
-  </React.Fragment>
-);
-
-const ItemsWrapper = ({ drawer, children }) => {
-  return drawer ? (
-    <List component={'nav'}>
-      {children}
-    </List>
-  ) : (
-    <Stack component={'nav'} direction={'row'} gap={1} sx={{ display: { xs: 'none', lg: 'flex' }, heigh: '100%' }}>
-      {children}
+        <PinnedPages/>
+      </Stack>
     </Stack>
   );
 };

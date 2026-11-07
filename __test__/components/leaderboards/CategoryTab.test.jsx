@@ -4,7 +4,7 @@ import React from 'react';
 import { afterEach, describe, expect, it } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 import CategoryTab from '@components/leaderboards/CategoryTab';
 import { buildMetaIndex } from '@components/leaderboards/format';
 
@@ -16,7 +16,7 @@ const index = buildMetaIndex({ tabs: [
   { key: 'skills', label: 'Skills', sections: [{ name: 'Skills', metrics: [{ key: 'mining', label: 'Mining', section: 'Skills', notation: 'default' }] }] }
 ] });
 const lists = { totalMoney: [{ mainChar: 'A', totalMoney: 5, rank: 1 }], logSample: [{ mainChar: 'B', logSample: 2, rank: 1 }], mining: [] };
-const renderTab = (props) => render(<ThemeProvider theme={darkTheme}>
+const renderTab = (props) => render(<ThemeProvider theme={theme}>
   <CategoryTab index={index} lists={lists} ranks={undefined} highlight={{}} pinnedBase={null} onOpen={() => {}} {...props}/>
 </ThemeProvider>);
 
@@ -28,12 +28,6 @@ describe('CategoryTab', () => {
     expect(screen.getByRole('heading', { name: 'Account' })).toBeTruthy();
     expect(screen.getByText('1 board · your best: Total Money #40')).toBeTruthy();
     expect(screen.getByRole('heading', { name: '3D Printer Samples' })).toBeTruthy();
-  });
-
-  it('collapses a section', () => {
-    renderTab({ category: 'account' });
-    fireEvent.click(screen.getByRole('button', { name: 'Collapse Account' }));
-    expect(screen.getByRole('button', { name: 'Expand Account' }).getAttribute('aria-expanded')).toBe('false');
   });
 
   it('toggles from anywhere on the header row, once per click', () => {
@@ -60,7 +54,7 @@ describe('CategoryTab', () => {
     const { rerender } = renderTab({ category: 'account' });
     fireEvent.click(screen.getByRole('button', { name: 'Collapse all' }));
     expect(screen.getByRole('button', { name: 'Expand 3D Printer Samples' })).toBeTruthy();
-    rerender(<ThemeProvider theme={darkTheme}>
+    rerender(<ThemeProvider theme={theme}>
       <CategoryTab category="account" index={index} lists={lists} ranks={undefined} highlight={{}} pinnedBase={null} onOpen={() => {}} revealMetric="logSample"/>
     </ThemeProvider>);
     expect(screen.getByRole('button', { name: 'Collapse 3D Printer Samples' }).getAttribute('aria-expanded')).toBe('true');
@@ -99,9 +93,10 @@ describe('CategoryTab controls', () => {
     expect(screen.getByRole('button', { name: 'Expand all' }).disabled).toBe(true);
   });
 
-  it('enables both buttons when only some sections are open', () => {
+  it('collapses one section from its button, which enables both bulk buttons', () => {
     renderTab({ category: 'account' });
     fireEvent.click(screen.getByRole('button', { name: 'Collapse Account' }));
+    expect(screen.getByRole('button', { name: 'Expand Account' }).getAttribute('aria-expanded')).toBe('false');
     expect(screen.getByRole('button', { name: 'Expand all' }).disabled).toBe(false);
     expect(screen.getByRole('button', { name: 'Collapse all' }).disabled).toBe(false);
   });

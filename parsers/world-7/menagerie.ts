@@ -1,4 +1,4 @@
-import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
+import { gameFill, lavaLog, tryToParse } from '@utility/helpers';
 import { gameTables, legendTalents as legendTalentsData, research as researchData, spelunkingChapters } from '@website-data';
 import { getCompanionBonus, getEventShopBonus, isBundlePurchased, isCompanionBonusActive } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
@@ -377,10 +377,10 @@ const getMissionProgress = (idleonData: any, account: any): (number | null)[] =>
 const formatText = (text: string) => String(text ?? '').replace(/_/g, ' ').replace(TOOLTIP_MARK, '').trim();
 
 const formatMissionText = (index: number, cost: number) => {
-  const text = formatText(missionTexts?.[index]).replace('{', commaNotation(cost));
+  const text = formatText(missionTexts?.[index]).replace('{', gameFill(cost, 'Comma', { whole: true }));
   if (!LOG_MISSIONS.includes(index)) return text;
-  const notation = index === BITS_MISSION ? 'bits' : 'Big';
-  return text.replace('$', () => String(notateNumber(Math.pow(10, cost), notation)));
+  const notation = index === BITS_MISSION ? 'Bits' : 'Big';
+  return text.replace('$', () => gameFill(Math.pow(10, cost), notation, { whole: true }));
 };
 
 // The catalog text of an unlock / boost, before the live values fill its placeholders
@@ -388,8 +388,8 @@ export const getMenagerieUnlockText = (index: number): string => formatText(unlo
 export const getMenagerieBoostText = (index: number): string => formatText(boostDescriptions[index]);
 
 const formatBoostDescription = (index: number, value: number) => formatText(boostDescriptions?.[index])
-  .replace('{', commaNotation(value))
-  .replace('}', String(notateNumber(1 + value / 100, 'MultiplierInfo')).replace('#', ''));
+  .replace('{', gameFill(value, 'Comma'))
+  .replace('}', gameFill(1 + value / 100, 'MultiplierInfo'));
 
 const countDoublersLeft = (owned: number, assigned: any) => Math.round(owned - (Array.isArray(assigned) ? assigned.length : 0));
 
@@ -446,7 +446,7 @@ export const getMenagerie = (idleonData: any, account: any, dropRate: number = 1
     return {
       index,
       // game: "1 in $" fills max(1, 1 / (Drop_Rarity * OmegaArcBallChance))
-      name: formatText(name).replace('$', String(notateNumber(Math.max(1, 1 / (dropRate * getOmegaArcadeBallChance(account))), 'Big'))),
+      name: formatText(name).replace('$', gameFill(Math.max(1, 1 / (dropRate * getOmegaArcadeBallChance(account))), 'Big', { whole: true })),
       tooltip,
       cost,
       owned,

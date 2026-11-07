@@ -11,11 +11,12 @@ import { hydrate } from '@utility/builds/hydrate';
 import { cleanUnderscore } from '@utility/helpers';
 import useFormatDate from '@hooks/useFormatDate';
 import useHydrated from '@hooks/useHydrated';
+import { ink } from '../../../styles/theme/theme';
 
 // Render a stored (compact) build. hydrate() derives tab/talent metadata from
 // the shared @website-data + talentPagesMap, so no extra data file is needed.
 // Optional `actions` slot renders between the build header and the main
-// content — used by the view page for like / template / edit / delete.
+// content: used by the view page for like / template / edit / delete.
 // Optional `backHref` renders a back button inline with the title.
 //
 // Layout:
@@ -43,7 +44,7 @@ const BuildDetail = ({ build, actions = null, backHref = null }) => {
   const descriptionText = build.description || '';
   const twoColumn = descriptionText.length >= TWO_COLUMN_DESC_CHARS;
 
-  // Always navigate to `backHref` rather than `router.back()` — the button is
+  // Always navigate to `backHref` rather than `router.back()`: the button is
   // labeled "Back to builds" and must actually land there regardless of how
   // the user got to this page. Example: template → /new → publish issues
   // `router.replace` to the new /view, leaving the template's /view as the
@@ -87,7 +88,7 @@ const BuildDetail = ({ build, actions = null, backHref = null }) => {
           )}
           {/* The page's only h1 - PageTitle skips this route because one PAGE_SEO entry covers
               every build and class page under it. */}
-          <Typography variant="h4" component="h1">{build.title}</Typography>
+          <Typography variant="pageTitle" component="h1">{build.title}</Typography>
         </Stack>
         <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
           <Typography variant="body2" color="text.secondary">
@@ -98,7 +99,7 @@ const BuildDetail = ({ build, actions = null, backHref = null }) => {
               width: 3,
               height: 3,
               borderRadius: '50%',
-              background: 'rgba(255, 255, 255, 0.7)',
+              background: ink(0.7),
               flexShrink: 0
             }}
           />
@@ -141,8 +142,8 @@ const BuildDetail = ({ build, actions = null, backHref = null }) => {
           flexWrap="wrap"
           sx={{
             py: 1.5,
-            borderTop: '1px solid rgba(255,255,255,0.06)',
-            borderBottom: '1px solid rgba(255,255,255,0.06)'
+            borderTop: `1px solid ${ink(0.06)}`,
+            borderBottom: `1px solid ${ink(0.06)}`
           }}
         >
           {actions}

@@ -1,4 +1,4 @@
-import { kFormatter, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
+import { gameFill, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { artifacts, captainsBonuses, gameTables, islands } from '@website-data';
 import {
   getEventShopBonus,
@@ -61,7 +61,7 @@ export const getSailing = (idleonData: any, artifactsList: any, charactersData: 
 export const getLockedSailing = (artifactsList: any) => ({
   unlocked: false,
   artifacts: artifactsList ?? [],
-  lootPile: [],
+  lootPile: getLootPile([]),
   chests: [],
   maxChests: 0,
   captains: [],
@@ -78,11 +78,11 @@ export const getLockedSailing = (artifactsList: any) => ({
 const parseSailing = (artifactsList: any, sailingRaw: any, captainsRaw: any, boatsRaw: any, chestsRaw: any, charactersData: any, account: any, serverVars: any, charactersLevels: any) => {
   const lootPile = sailingRaw?.[1];
   const dreamCatcherBonus = isArtifactAcquired(artifactsList, 'Dreamcatcher')?.bonus ?? 0;
-  const chestsFromGems = account?.gemShopPurchases?.find((value: any, index: any) => index === 129);
+  const chestsFromGems = account?.gemShopPurchases?.find((value: any, index: any) => index === 129) ?? 0;
   const chestsFromAchievements = getAchievementStatus(account?.achievements, 287) + getAchievementStatus(account?.achievements, 290);
   const maxChests = Math.min(Math.round(5 + chestsFromGems
     + (Math.min(4, dreamCatcherBonus)
-      + (account?.tasks?.[2]?.[4]?.[2])
+      + (account?.tasks?.[2]?.[4]?.[2] ?? 0)
       + (chestsFromAchievements))), 34);
   const chests = getChests(chestsRaw, artifactsList, serverVars, account);
   const rareTreasureChance = getRareTreasureChance();
@@ -184,7 +184,7 @@ const ISLAND_ARTIFACT_OVERRIDES: Record<string, any> = {
 // chance/threshold is a raw fraction (can exceed 1 = guaranteed).
 // Convert to a display percentage: min(100, fraction * 100).
 const toTierChance = (chance: any, threshold: any) =>
-  Math.min(100, (chance / threshold) * 100).toFixed(5);
+  Math.min(100, (chance / threshold) * 100);
 
 const getIslandArtifactCount = (island: any, account: any) => {
   const override = island?.name ? (ISLAND_ARTIFACT_OVERRIDES as any)[island.name] : null;
@@ -554,8 +554,7 @@ const getCaptain = (captain: any, index: any, isShop: any) => {
     secondBonusName: captainsBonuses?.[secondBonusIndex]?.bonus?.replace('+{%_', ''),
     secondBonusDescription: captainsBonuses?.[secondBonusIndex]?.bonus,
     firstBonusValue,
-    secondBonusValue,
-    exp: notateNumber(Math.floor(exp), 'Big')
+    secondBonusValue
   }
   const firstBonus = getCaptainDisplayBonus(captainObj, firstBonusValue);
   const secondBonus = getCaptainDisplayBonus(captainObj, secondBonusValue);
@@ -565,7 +564,6 @@ const getCaptain = (captain: any, index: any, isShop: any) => {
   captainObj.secondBonusDescription = captainObj?.secondBonusDescription?.replace('{', String(secondBonus));
   captainObj.expValue = exp ?? 0;
   captainObj.expReqValue = getCaptainExpReq(captainObj);
-  captainObj.expReq = notateNumber(captainObj.expReqValue, 'Big');
   if (isShop) {
     const baseCost = 2 * firstBonusIndex + (2 * secondBonusIndex) + firstBonusValue + secondBonusValue;
     captainObj.cost = Math.pow(8, 1 + captainType) * (1 + Math.pow(baseCost, 2) / 100);
@@ -877,7 +875,7 @@ const getBoatArtifactChance = (artifacts: any, captain: any, account: any, chara
     ])
   ]);
 
-  return { value, rawValue: total, breakdown };
+  return { rawValue: total, breakdown };
 }
 
 const getCaptainBonus = (bonusIndex: any, captain: any, captainBonusIndex: any, bonusValue: any) => {
@@ -901,11 +899,13 @@ const getBoatFrame = (totalLevels: any, account?: any) => {
 }
 
 
+// Gold bars, then two treasures per island: the pile's length in a save (35 with 17 islands)
 const getLootPile = (lootPile: any) => {
-  return lootPile?.map((item: any, index: any) => ({
-    amount: item > 0 ? item : 0,
+  const count = Math.max(1 + 2 * (islands?.length ?? 0), lootPile?.length ?? 0);
+  return Array.from({ length: count }, (_, index) => ({
+    amount: lootPile?.[index] > 0 ? lootPile[index] : 0,
     rawName: `SailT${index}`
-  }))
+  }));
 }
 
 const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, charactersData: any, account: any) => {
@@ -922,7 +922,9 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
       bonus = highestLevel > artifact?.[multiplierType]
         ? artifact?.[multiplierType] * artifact?.baseBonus
         : highestLevel * artifact?.baseBonus;
-      fixedDescription = `${fixedDescription} Total Bonus: ${upgradedForm ? bonus * formMultiplier : bonus}`;
+      // game: "ArtifactBonus" caps this one at character level 200 + 200 per form above the first
+      const total = artifact?.baseBonus * Math.min(highestLevel, 200 * Math.max(0, acquired ?? 0));
+      fixedDescription = `${fixedDescription}_@_Total_Bonus:_+${gameFill(total, 'Big')}%_Divinity`;
     }
   }
   else if (artifact?.name === 'Ruble_Cuble' || artifact?.name === '10_AD_Tablet' || artifact?.name === 'Jade_Rock' || artifact?.name === 'Gummy_Orb') {
@@ -978,7 +980,7 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
     const daysSinceLastSample = account?.accountOptions?.[OPT.daysSinceLastSample];
     const goldRelicBonus = upgradedForm ? artifact?.[multiplierType] : 0;
     const daysBonus = 1 + ((daysSinceLastSample) * (2 + goldRelicBonus)) / 100;
-    additionalData = `Days passed: ${daysSinceLastSample}. Bonus: ${String(notateNumber(daysBonus, 'MultiplierInfo')).replace('#', '')}x`;
+    additionalData = `Days passed: ${daysSinceLastSample}. Bonus: ${gameFill(daysBonus, 'MultiplierInfo')}x`;
   }
   else if (artifact?.name === 'Crystal_Steak') {
     const mainStats = charactersData?.map(({ name, class: className, stats }: any) => {
@@ -1017,7 +1019,7 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
     const formText = gameTables.artifactFormText;
     if (index === formText.artifact) {
       const descriptions: string[] = formText.forms;
-      const descriptionIndex = Math.round(acquired);
+      const descriptionIndex = Math.round(acquired ?? 0);
       if (descriptionIndex >= 0 && descriptionIndex < descriptions.length) {
         fixedDescription = fixedDescription.replace('$', descriptions[descriptionIndex]);
       }
@@ -1030,7 +1032,7 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
     bonus *= acquired;
   }
 
-  fixedDescription = fixedDescription.replace(/{/, baseBonus).replace(/}/, kFormatter(bonus, 2)).replace(/@/, '');
+  fixedDescription = fixedDescription.replace(/{/, baseBonus).replace(/}/, gameFill(bonus, 'Big')).replace(/@/, ' ');
   return {
     ...artifact,
     description: fixedDescription,

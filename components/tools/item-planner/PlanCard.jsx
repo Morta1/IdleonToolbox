@@ -1,7 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Box, Button, Card, IconButton, InputBase, Menu, MenuItem, Stack, Typography } from '@mui/material';
-import { IconChevronDown, IconChevronRight, IconCircleCheck, IconDotsVertical, IconPencil, IconPlus } from '@tabler/icons-react';
-import { cleanUnderscore, prefix } from 'utility/helpers';
+import { Box, Button, Divider, IconButton, InputBase, Menu, MenuItem, Stack, Typography } from '@mui/material';
+import { IconChevronDown, IconChevronRight, IconDotsVertical, IconPencil, IconPlus } from '@tabler/icons-react';
+import { cleanUnderscore, formatNum } from 'utility/helpers';
+import GameIcon from '@components/common/GameIcon';
+import StatusText from '@components/common/StatusText';
+import { cardSurface } from '@components/common/cards/tokens';
 import { withCurrentSprites } from '@utility/itemPlanner';
 import AddItemForm from './AddItemForm';
 import TrackedItems from './TrackedItems';
@@ -10,7 +13,8 @@ import { CoveredMaterials, GroupTitle, MaterialRows } from './MaterialList';
 
 const ICON_BUTTON_SIZE = { xs: 44, sm: 36 };
 
-const formatPercent = (percent) => percent > 0 && percent < 1 ? percent.toFixed(1) : String(Math.floor(percent));
+// Floored, so a plan at 99.96% never reads 100; below 1% the fraction shows.
+const formatPercent = (percent) => formatNum(percent > 0 && percent < 1 ? percent : Math.floor(percent), 'pct', { bare: true });
 
 // The headline is the one thing holding the plan back: its scarcest material, else the next craft
 const progressHeadline = ({ progress, craftNext, itemCount }) => {
@@ -22,18 +26,16 @@ const progressHeadline = ({ progress, craftNext, itemCount }) => {
   return { tone: 'ready', text: 'All materials ready' };
 };
 
-const HEADLINE_COLOR = { idle: 'text.secondary', short: 'error.light', ready: 'success.light' };
+const HEADLINE_STATUS = { short: 'problem', ready: 'done' };
 
 const Progress = ({ progress, craftNext, itemCount }) => {
   const headline = progressHeadline({ progress, craftNext, itemCount });
   const percent = progress.blocker ? progress.percent : progress.total ? 100 : 0;
   return <Stack gap={0.5} sx={{ width: { xs: '100%', sm: 240 } }}>
     <Stack direction={'row'} justifyContent={'space-between'} gap={1}>
-      <Typography variant={'body2'} fontWeight={500} color={HEADLINE_COLOR[headline.tone]}
-                  sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, minWidth: 0 }}>
-        {headline.tone === 'ready' ? <IconCircleCheck size={16}/> : null}
-        {headline.text}
-      </Typography>
+      {headline.tone === 'idle'
+        ? <Typography variant={'body2'} color={'text.secondary'}>{headline.text}</Typography>
+        : <StatusText status={HEADLINE_STATUS[headline.tone]} wrap>{headline.text}</StatusText>}
       {progress.blocker ? <Typography variant={'body2'} color={'text.secondary'}>
         {formatPercent(progress.percent)}%
       </Typography> : null}
@@ -44,11 +46,11 @@ const Progress = ({ progress, craftNext, itemCount }) => {
           height: '100%',
           width: `${percent}%`,
           borderRadius: 999,
-          bgcolor: progress.blocker ? 'error.light' : 'success.light'
+          bgcolor: progress.blocker ? 'error.main' : 'success.main'
         }}/>
       </Box>
-      <Typography variant={'caption'} color={'text.disabled'}>
-        {`${progress.ready} of ${progress.total} materials ready`}
+      <Typography variant={'caption'} color={'text.muted'}>
+        {`${formatNum(progress.ready, 'whole')} of ${formatNum(progress.total, 'whole')} materials ready`}
       </Typography>
     </> : null}
   </Stack>;
@@ -56,7 +58,7 @@ const Progress = ({ progress, craftNext, itemCount }) => {
 
 const PlanName = ({ name, renaming, onRename, onCancel }) => {
   if (!renaming) {
-    return <Typography fontWeight={500} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+    return <Typography variant={'cardTitle'} component={'h2'} sx={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
       {name}
     </Typography>;
   }
@@ -69,7 +71,7 @@ const PlanName = ({ name, renaming, onRename, onCancel }) => {
       if (event.key === 'Enter') onRename(event.target.value);
       if (event.key === 'Escape') onCancel();
     }}
-    sx={{ fontWeight: 500, borderBottom: 1, borderColor: 'multi' }}
+    sx={{ fontWeight: 500, borderBottom: 1, borderColor: 'primary.main' }}
   />;
 };
 
@@ -79,6 +81,7 @@ const PlanCard = ({
                     defaultExpanded = false,
                     startRenaming = false,
                     showAll,
+                    unknown,
                     onAddItem,
                     onSetCount,
                     onRename,
@@ -94,19 +97,21 @@ const PlanCard = ({
     if (startRenaming) cardRef.current?.scrollIntoView?.({ block: 'center', behavior: 'smooth' });
   }, []);
   const [menuAnchor, setMenuAnchor] = useState(null);
+  const menuButton = useRef(null);
   const [pendingRename, setPendingRename] = useState(false);
   const items = withCurrentSprites(plan?.items);
-  const craftNext = showAll ? view.craftNext : view.craftNext.filter(({ state }) => state !== 'ready');
-  const gather = showAll ? view.gather : view.gather.filter(({ state }) => state === 'short');
+  // A guest or a failed storage section can't say what is short, so every material shows
+  const craftNext = showAll || unknown ? view.craftNext : view.craftNext.filter(({ state }) => state !== 'ready');
+  const gather = showAll || unknown ? view.gather : view.gather.filter(({ state }) => state === 'short');
   const shortCount = view.gather.filter(({ state }) => state === 'short').length;
-  const nothingMissing = !showAll && !craftNext.length && !gather.length;
+  const nothingMissing = !showAll && !unknown && !craftNext.length && !gather.length;
 
   const rename = (name) => {
     onRename(name);
     setRenaming(false);
   };
 
-  return <Card ref={cardRef} variant={'outlined'} component={'section'} aria-label={`${plan?.name} plan`}>
+  return <Box ref={cardRef} component={'section'} aria-label={`${plan?.name} plan`} sx={(theme) => cardSurface(theme)}>
     <Box sx={{
       display: 'flex',
       alignItems: 'center',
@@ -123,9 +128,7 @@ const PlanCard = ({
         {expanded ? <IconChevronDown size={20}/> : <IconChevronRight size={20}/>}
       </IconButton>
       <Box sx={{ display: { xs: 'none', sm: 'flex' } }} aria-hidden>
-        {items.slice(0, 4).map(({ itemName, rawName }) => <Box key={itemName} component={'img'}
-                                                               src={`${prefix}data/${rawName}.png`} alt=""
-                                                               sx={{ width: 40, height: 40, objectFit: 'contain' }}/>)}
+        {items.slice(0, 4).map(({ itemName, rawName }) => <GameIcon key={itemName} src={`data/${rawName}.png`} size={40} alt={''}/>)}
       </Box>
       <Stack sx={{ flex: '1 1 180px', minWidth: 0 }}>
         <Stack direction={'row'} alignItems={'center'} gap={0.5} sx={{ minWidth: 0 }}>
@@ -135,14 +138,14 @@ const PlanCard = ({
             <IconPencil size={16}/>
           </IconButton> : null}
         </Stack>
-        <Typography variant={'caption'} color={'text.disabled'}>
-          {items.length} item{items.length === 1 ? '' : 's'} tracked
+        <Typography variant={'caption'} color={'text.muted'}>
+          {formatNum(items.length, 'whole')} item{items.length === 1 ? '' : 's'} tracked
         </Typography>
       </Stack>
       <Box sx={{ order: { xs: 3, sm: 0 }, flexBasis: { xs: '100%', sm: 'auto' }, px: { xs: 1.5, sm: 0 } }}>
-        <Progress progress={view.progress} craftNext={view.craftNext} itemCount={items.length}/>
+        {unknown ? null : <Progress progress={view.progress} craftNext={view.craftNext} itemCount={items.length}/>}
       </Box>
-      <IconButton aria-label={'Plan options'} onClick={(event) => setMenuAnchor(event.currentTarget)}
+      <IconButton ref={menuButton} aria-label={'Plan options'} onClick={(event) => setMenuAnchor(event.currentTarget)}
                   sx={{ width: ICON_BUTTON_SIZE, height: ICON_BUTTON_SIZE, color: 'text.secondary' }}>
         <IconDotsVertical size={20}/>
       </IconButton>
@@ -160,9 +163,11 @@ const PlanCard = ({
           setExpanded(true);
           setPendingRename(true);
         }}>Rename</MenuItem>
-        <MenuItem onClick={() => {
+        <Divider/>
+        {/* The row is gone once the menu closes, so the delete dialog gives focus back to the menu's button */}
+        <MenuItem sx={{ color: 'text.error' }} onClick={() => {
           setMenuAnchor(null);
-          onRemove();
+          onRemove(menuButton.current);
         }}>Delete plan</MenuItem>
       </Menu>
     </Box>
@@ -175,35 +180,33 @@ const PlanCard = ({
           Add item
         </Button>
         <Stack gap={2} sx={{ display: { xs: adding ? 'flex' : 'none', sm: 'flex' } }}>
-          <Typography variant={'subtitle2'} color={'text.secondary'}>Add to this plan</Typography>
+          <Typography variant={'groupLabel'} component={'h3'} color={'text.muted'}>Add to this plan</Typography>
           <AddItemForm onAdd={onAddItem}/>
         </Stack>
-        <Typography variant={'subtitle2'} color={'text.secondary'} sx={{ mt: 1 }}>Tracked items</Typography>
+        <Typography variant={'groupLabel'} component={'h3'} color={'text.muted'} sx={{ mt: 1 }}>Tracked items</Typography>
         <TrackedItems items={items} onSetCount={onSetCount}/>
       </Stack>
       <Stack gap={3} sx={{ flex: '999 1 560px', minWidth: 0 }}>
         {view.chains.length ? <Stack gap={0.5}>
           <GroupTitle title={'Upgrade chains'}/>
-          <UpgradeChains chains={view.chains}/>
+          <UpgradeChains chains={view.chains} unknown={unknown}/>
         </Stack> : null}
         {craftNext.length ? <Stack gap={0.5}>
           <GroupTitle title={'Craft next'}/>
-          <MaterialRows rows={craftNext}/>
+          <MaterialRows rows={craftNext} unknown={unknown}/>
         </Stack> : null}
         {gather.length ? <Stack gap={0.5}>
           <GroupTitle title={'Gather'}
-                      count={showAll
+                      count={unknown ? null : showAll
                         ? `${view.gather.length} material${view.gather.length === 1 ? '' : 's'}, ${shortCount} short`
                         : `${shortCount} short`}/>
-          <MaterialRows rows={gather}/>
+          <MaterialRows rows={gather} unknown={unknown}/>
         </Stack> : null}
-        {showAll ? <CoveredMaterials rows={view.covered}/> : null}
-        {nothingMissing && items.length ? <Typography variant={'body2'} color={'success.light'}>
-          Nothing missing: every material is ready.
-        </Typography> : null}
+        {showAll && !unknown ? <CoveredMaterials rows={view.covered}/> : null}
+        {nothingMissing && items.length ? <StatusText status={'done'} wrap>Nothing missing: every material is ready.</StatusText> : null}
       </Stack>
     </Box> : null}
-  </Card>;
+  </Box>;
 };
 
 export default PlanCard;

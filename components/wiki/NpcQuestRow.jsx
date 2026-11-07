@@ -1,13 +1,14 @@
 import React from 'react';
-import { Box, Chip, Link, Stack, Typography } from '@mui/material';
-import Tooltip from '@components/Tooltip';
-import InfoIcon from '@mui/icons-material/Info';
+import { Link, Stack, Typography } from '@mui/material';
+import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
+import Panel from '@components/common/cards/Panel';
+import TagLine from '@components/common/TagLine';
 import EntityIcon from './EntityIcon';
 import CoinAmount, { isCoin } from './CoinAmount';
 import { itemTooltip } from './ItemTooltip';
 import { navigateOnPlainClick } from './links';
 import { entityName } from '@utility/wiki/names.mjs';
-import { numberWithCommas } from '@utility/helpers';
+import { formatNum } from '@utility/helpers';
 
 // An NPC's quest chain, as a block per quest rather than a line per quest.
 //
@@ -21,20 +22,18 @@ const DIFFICULTY_MAX = 10;
 const Reward = ({ item, amount, onNavigate, hrefFor, id }) => {
   const href = hrefFor?.(id);
   const label = entityName(item);
-  const count = amount > 1 ? `${numberWithCommas(amount)} ` : '';
+  const count = amount > 1 ? `${formatNum(amount, 'whole')} ` : '';
   return <Stack direction={'row'} gap={0.5} alignItems={'center'}>
     {isCoin(item)
-      ? <CoinAmount amount={amount} size={18}/>
+      ? <CoinAmount amount={amount}/>
       : <>
-        <Tooltip title={itemTooltip(item) || label}>
-          <span style={{ display: 'inline-flex' }}><EntityIcon node={item} size={20}/></span>
-        </Tooltip>
+        <NoteTrigger note={itemTooltip(item) || label} label={label}><EntityIcon node={item} size={24}/></NoteTrigger>
         {item.navigable === false
           ? <Typography variant={'caption'} color={'text.secondary'}>{count}{label}</Typography>
           : <Link
             href={href}
             variant={'caption'}
-            underline={'hover'}
+           
             color={'text.secondary'}
             onClick={navigateOnPlainClick(onNavigate, id, Boolean(href))}
           >
@@ -53,7 +52,7 @@ const questItems = (index, questId, rel) => (index.edgesFrom.get(questId) || [])
 const ItemLine = ({ title, entries, onNavigate, hrefFor }) => {
   if (entries.length === 0) return null;
   return <Stack direction={'row'} gap={1.5} alignItems={'center'} flexWrap={'wrap'}>
-    <Typography variant={'caption'} color={'text.disabled'} textTransform={'uppercase'} letterSpacing={0.5}>
+    <Typography variant={'groupLabel'} component={'div'} color={'text.muted'}>
       {title}
     </Typography>
     {entries.map((entry, entryIndex) => <Reward
@@ -73,82 +72,41 @@ const NpcQuestRow = ({ index, edge, other: quest, otherId, onNavigate, hrefFor }
   const objectives = quest.objectives || [];
   const href = hrefFor?.(otherId);
 
-  return <Box sx={{
-    display: 'grid',
-    gridTemplateColumns: 'auto minmax(0, 1fr)',
-    columnGap: 1.5,
-    rowGap: 0.5,
-    py: 1.5,
-    // The chain is ordered and the steps are read in sequence, so they are separated rather than
-    // boxed: a border per quest would put six frames on Cowbo Jones' page.
-    '&:not(:first-of-type)': { borderTop: '1px solid', borderColor: 'divider' }
-  }}>
-    {/* The step number, not a caption saying "#3": it is the one thing that orders the chain. */}
-    <Box sx={{
-      gridRow: '1 / span 1',
-      width: 26,
-      height: 26,
-      borderRadius: '50%',
-      border: '1px solid',
-      borderColor: 'divider',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      color: 'text.secondary',
-      fontSize: 13,
-      fontVariantNumeric: 'tabular-nums'
-    }}>
+  // The chain is ordered and the steps are read in sequence, so they are separated rather than boxed: a border per quest
+  // would put six frames on Cowbo Jones' page. The step number leads: it is the one thing that orders the chain.
+  return <Panel.Row
+    sx={{ px: 0, py: 1.5, alignItems: 'flex-start', '&:not(:first-of-type)': { borderTop: 1, borderColor: 'divider' } }}
+    icon={<Typography variant={'caption'} color={'text.secondary'} sx={{ width: 24, flexShrink: 0, textAlign: 'center', fontVariantNumeric: 'tabular-nums' }}>
       {edge.meta?.order ?? '?'}
-    </Box>
-
-    <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
-      <Link
-        href={href}
-        variant={'body2'}
-        fontWeight={600}
-        underline={'hover'}
-        onClick={navigateOnPlainClick(onNavigate, otherId, Boolean(href))}
-      >
+    </Typography>}
+    name={<Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
+      <Link href={href} variant={'body2'} sx={{ fontWeight: 'fontWeightMedium' }} onClick={navigateOnPlainClick(onNavigate, otherId, Boolean(href))}>
         {entityName(quest)}
       </Link>
-      {/* The gloss hangs off an icon rather than off the chip: a chip does not look like
-          something you can hover, so the scale it is measured on was invisible. */}
       {quest.difficulty ? <Stack direction={'row'} gap={0.5} alignItems={'center'}>
-        <Chip
-          size={'small'}
-          variant={'outlined'}
-          label={`Difficulty ${quest.difficulty}/${DIFFICULTY_MAX}`}
-        />
-        <Tooltip title={'The game\'s own difficulty rating for this quest'}>
-          <InfoIcon sx={{ fontSize: 14, cursor: 'pointer' }}/>
-        </Tooltip>
+        <TagLine variant={'body2'} tags={[`Difficulty ${quest.difficulty} / ${DIFFICULTY_MAX}`]}/>
+        <InfoButton label={'difficulty'}>The game's own difficulty rating for this quest.</InfoButton>
       </Stack> : null}
-    </Stack>
-
-    {/* Everything below the title lines up under it, past the number. */}
-    <Stack gap={0.75} sx={{ gridColumn: 2 }}>
+    </Stack>}
+    sub={<Stack gap={0.75} sx={{ mt: 0.5 }}>
       {quest.description ? <Typography variant={'caption'} color={'text.secondary'}>
         {quest.description}
       </Typography> : null}
 
       {objectives.length > 0 ? <Stack direction={'row'} gap={0.75} alignItems={'baseline'} flexWrap={'wrap'}>
-        <Typography variant={'caption'} color={'text.disabled'} textTransform={'uppercase'} letterSpacing={0.5}>
+        <Typography variant={'groupLabel'} component={'div'} color={'text.muted'}>
           Objectives
         </Typography>
-        {objectives.map((objective, objectiveIndex) => <Chip
-          key={`${objective.desc}-${objectiveIndex}`}
-          size={'small'}
-          variant={'outlined'}
-          // A count of one is the game's way of writing a flag, and "Create a Party: 1" reads worse
-          // than "Create a Party". Only a real count is printed.
-          label={`${objective.desc}${objective.value > 1 ? `: ${numberWithCommas(objective.value)}` : ''}`}
-        />)}
+        {/* A count of one is the game's way of writing a flag, and "Create a Party 1" reads worse than "Create a Party".
+            Only a real count is printed. */}
+        <TagLine variant={'caption'} tags={objectives.map((objective) =>
+          `${objective.desc}${objective.value > 1 ? ` ${formatNum(objective.value, 'whole')}` : ''}`)}/>
       </Stack> : null}
 
       <ItemLine title={'Requires'} entries={requires} onNavigate={onNavigate} hrefFor={hrefFor}/>
       <ItemLine title={'Rewards'} entries={rewards} onNavigate={onNavigate} hrefFor={hrefFor}/>
-    </Stack>
-  </Box>;
+    </Stack>}
+  />;
 };
 
 export default NpcQuestRow;

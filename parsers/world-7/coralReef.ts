@@ -1,4 +1,4 @@
-import { notateNumber, commaNotation, lavaLog, lavaLog2 } from '@utility/helpers';
+import { gameFill, notateNumber, lavaLog, lavaLog2 } from '@utility/helpers';
 import { generalSpelunky, coralReef, gameTables } from '@website-data';
 import {
   isCompanionBonusActive,
@@ -373,13 +373,13 @@ const getCoralKidDescription = (baseDescription: any, level: any, index: any, bo
   description = description.replace('{', '' + bonusRounded);
 
   const multiplier = 1 + bonus / 100;
-  const multiplierNotation = notateNumber(multiplier, 'MultiplierInfo');
+  const multiplierNotation = gameFill(multiplier, 'MultiplierInfo');
   description = description.replace('}', multiplierNotation);
 
   if (index >= CORAL_KID_PAGE_SIZE) {
     if (index === 11) {
       const godMulti = Math.pow(1 + bonus / 100, Math.max(0, (Number(account?.divinity?.unlockedDeities) || 0) - 35));
-      description = description.replace('$', notateNumber(godMulti, 'MultiplierInfo'));
+      description = description.replace('$', gameFill(godMulti, 'MultiplierInfo'));
     } else if (index === 9) {
       // game: MenagerieStuff("CK_NonDivHourTime") = clamp(CoralKidUpgBonus(9) / 100, 0, 1)
       description = description.replace('$', '' + Math.round(Math.floor(100 * Math.max(0, Math.min(1, bonus / 100)))));
@@ -395,20 +395,20 @@ const getCoralKidDescription = (baseDescription: any, level: any, index: any, bo
     const bonus2 = getCoralKidUpgBonus(account, 2);
     const unlockedDeities = account?.divinity?.unlockedDeities || 0;
     const powerValue = Math.pow(1 + bonus2 / 100, Math.max(0, unlockedDeities - 10));
-    const powerNotation = notateNumber(powerValue, 'MultiplierInfo');
+    const powerNotation = gameFill(powerValue, 'MultiplierInfo');
     description = description.replace('$', powerNotation);
   } else if (index === 4) {
     const sumReefLevels = Array.from({ length: 6 }, (_, i) => coralReefLevels?.[i] || 0)
       .reduce((acc, val) => acc + val, 0);
     const totalValue = sumReefLevels * bonus;
-    description = description.replace('$', commaNotation(totalValue));
+    description = description.replace('$', gameFill(totalValue, 'Comma'));
   }
 
   const bonus3 = getCoralKidUpgBonus(account, 3);
   const divinityLevel = getLoggedInSkillLevel(charactersData, 'divinity');
   const divisor = 60 + divinityLevel;
   const hatValue = 1 + (1 + bonus3 / 100) * divinityLevel / divisor;
-  const hatNotation = notateNumber(hatValue, 'MultiplierInfo');
+  const hatNotation = gameFill(hatValue, 'MultiplierInfo');
   description = description.replace('^', hatNotation);
 
   return description;
@@ -440,7 +440,7 @@ const getDancingCoralDescription = (baseDescription: any, account: any, index: a
   // Replace } with multiplier notation (1 + baseBonus/100), removing "#" from notation
   // notateNumber(1 + DancingCoralBonus(i, 999) / 100, "MultiplierInfo") with "#" removed
   const multiplier = 1 + baseBonus / 100;
-  const multiplierNotation = notateNumber(multiplier, 'MultiplierInfo');
+  const multiplierNotation = gameFill(multiplier, 'MultiplierInfo');
   description = description.replace('}', multiplierNotation);
 
   // Coral 5 reads "+{%_Minehead_DMG潤Money". That glyph is an in-game icon font character (it only

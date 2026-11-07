@@ -1,28 +1,23 @@
-import { Grid, Stack, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import React from 'react';
-import { prefix } from '@utility/helpers';
-import Tooltip from '@components/Tooltip';
+import { cleanUnderscore } from '@utility/helpers';
 import ItemDisplay from '@components/common/ItemDisplay';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import Panel from '@components/common/cards/Panel';
 
-const Obols = ({ obols, character }) => {
-  return <Stack>
-    <Typography mb={2} variant={'h5'}>Obols</Typography>
-    <Stack>
-      <Grid container rowGap={3}>
-        {obols?.map((obol, index) => {
-          const { displayName } = obol || {};
-          const isEquipped = character?.obols?.list?.filter(({ displayName: dName }) => dName === displayName)?.length > 0;
-          return <Grid display={'flex'} sx={{ position: 'relative' }} justifyContent={'center'} key={`${displayName}-${index}`} xs={3} item>
-            <Tooltip title={<ItemDisplay {...obol}/>}>
-              <img width={48} style={{ opacity: isEquipped ? 1 : .5 }} src={`${prefix}data/${obol?.rawName}.png`}
-                   alt={obol?.rawName}/>
-            </Tooltip>
-          </Grid>
-        })}
-      </Grid>
-    </Stack>
-  </Stack>
-};
-
+const Obols = ({ obols, character }) => <Panel title={'Obols'}>
+  <Box sx={{ p: 2 }}>
+    <CardGrid size={'icon'} fill>
+      {obols?.map((obol, index) => {
+        const { displayName, rawName } = obol || {};
+        const isEquipped = character?.obols?.list?.filter(({ displayName: dName }) => dName === displayName)?.length > 0;
+        return <IconTile key={`${displayName}-${index}`} icon={`data/${rawName}.png`}
+                         alt={cleanUnderscore(displayName ?? '')} status={isEquipped ? undefined : 'missing'}
+                         details={<ItemDisplay {...obol}/>}/>;
+      })}
+    </CardGrid>
+  </Box>
+</Panel>;
 
 export default Obols;

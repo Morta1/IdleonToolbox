@@ -23,7 +23,8 @@ test.describe('wardrobe', () => {
 
     // Picking a companion puts its monster raw name in the URL, so the look can be shared.
     await page.getByRole('button', { name: 'Companion slot' }).click();
-    await page.getByLabel('Search').fill('Dedotated Ram');
+    // The picker's field: the bar's search button is named Search too
+    await page.getByRole('combobox', { name: 'Search' }).fill('Dedotated Ram');
     await page.getByRole('option', { name: 'Dedotated Ram' }).click();
     await expect(page).toHaveURL(/companion=ram/);
   });

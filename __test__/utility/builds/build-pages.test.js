@@ -122,25 +122,19 @@ describe('findInManifest', () => {
 });
 
 describe('buildSeoTitle', () => {
-  it('leads with the class, not the free-text build title', () => {
+  it('leads with the subclass alone, never "<subclass> <family>", not the free-text build title', () => {
     expect(buildSeoTitle(toBuildSummary(full)))
-      .toBe('Wizard Build — Mago de talar | Idleon Toolbox');
-  });
-
-  it('names the subclass alone, never "<subclass> <family>"', () => {
-    const journeyman = toBuildSummary({ ...full, class: 'Beginner', subclass: 'Journeyman' });
-    expect(buildSeoTitle(journeyman)).toContain('Journeyman Build');
-    expect(buildSeoTitle(journeyman)).not.toContain('Journeyman Beginner');
+      .toBe('Wizard Build: Mago de talar | Idleon Toolbox');
   });
 
   it('falls back to the family when a build has no subclass', () => {
     const noSub = toBuildSummary({ ...full, subclass: null });
-    expect(buildSeoTitle(noSub)).toBe('Mage Build — Mago de talar | Idleon Toolbox');
+    expect(buildSeoTitle(noSub)).toBe('Mage Build: Mago de talar | Idleon Toolbox');
   });
 
   it('underscores in a subclass become spaces', () => {
     const bb = toBuildSummary({ ...full, class: 'Warrior', subclass: 'Blood_Berserker' });
-    expect(buildSeoTitle(bb)).toBe('Blood Berserker Build — Mago de talar | Idleon Toolbox');
+    expect(buildSeoTitle(bb)).toBe('Blood Berserker Build: Mago de talar | Idleon Toolbox');
   });
 
   it('falls back to a generic title for an unknown build', () => {
@@ -150,10 +144,7 @@ describe('buildSeoTitle', () => {
 
 describe('buildSeoDescription', () => {
   it('mentions author, class and tags', () => {
-    const d = buildSeoDescription(toBuildSummary(full));
-    expect(d).toContain('Anon');
-    expect(d).toContain('Wizard');
-    expect(d).toContain('afk');
+    expect(buildSeoDescription(toBuildSummary(full))).toBe('Mago de talar by Anon. Wizard build for Legends of Idleon: afk, choppin. 3 likes.');
   });
 
   it('falls back to generic copy for an unknown build', () => {

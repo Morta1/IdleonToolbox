@@ -20,8 +20,46 @@ const loadImage = (src) => new Promise((resolve) => {
 const DEFAULT_SCALE = 4;
 // Sheets are keyed "layer/anim.png" and label art is a bare file name, so the two never collide
 // in the one image cache even though they load from different directories.
-const SPRITE_BASE = 'player-sprites/';
-const LABEL_BASE = 'data/';
+export const SPRITE_BASE = 'player-sprites/';
+export const LABEL_BASE = 'data/';
+
+// A doll's layers, around its anchor. mirrored turns it to face left: the sheets face right. imageOf: the sheet, or nothing yet.
+export const drawLayers = (ctx, layers, imageOf, { scale, anchorX = CANVAS.anchorX, anchorY = CANVAS.anchorY, mirrored = false }) => {
+  if (mirrored) {
+    ctx.save();
+    ctx.translate(anchorX * 2 * scale, 0);
+    ctx.scale(-1, 1);
+  }
+  for (const op of layers) {
+    const img = imageOf(op.file);
+    if (!img) continue;
+    const destX = (anchorX + op.dx) * scale;
+    const destY = (anchorY + op.dy) * scale;
+    const destW = op.w * scale * (op.drawScale ?? 1);
+    const destH = op.h * scale * (op.drawScale ?? 1);
+    if (op.flip) {
+      // op.dx already describes the mirrored top-left, so the flip pivots on the drawn box.
+      ctx.save();
+      ctx.translate(destX + destW, destY);
+      ctx.scale(-1, 1);
+      ctx.drawImage(img, op.sx, op.sy, op.w, op.h, 0, 0, destW, destH);
+      ctx.restore();
+    } else ctx.drawImage(img, op.sx, op.sy, op.w, op.h, destX, destY, destW, destH);
+  }
+  if (mirrored) ctx.restore();
+};
+
+// The name label is its own actor on a higher layer than the body, and it is never scaled: its ops are world px around the
+// same feet origin, so they halve into sprite px here. It never mirrors, so a name reads the same whichever way its body faces.
+export const drawLabel = (ctx, ops, imageOf, { scale, anchorX = CANVAS.anchorX, anchorY = CANVAS.anchorY }) => {
+  for (const op of ops) {
+    const img = imageOf(op.file);
+    if (!img) continue;
+    ctx.drawImage(img,
+      (anchorX * 2 + op.x) * scale / 2, (anchorY * 2 + op.y) * scale / 2,
+      img.naturalWidth * scale / 2, img.naturalHeight * scale / 2);
+  }
+};
 
 const PaperDollCanvas = ({ manifest, state, playing = true, scale = DEFAULT_SCALE, onUnsupported, canvasRef }) => {
   const localRef = useRef(null);
@@ -66,6 +104,12 @@ const PaperDollCanvas = ({ manifest, state, playing = true, scale = DEFAULT_SCAL
       });
     };
 
+    const imageOf = (file, base) => {
+      const img = images.current.get(file);
+      if (!img) ensureLoaded(file, base);
+      return img;
+    };
+
     // nameLabelOps needs the natural size of every label piece already in the cache. The cache only
     // ever grows, so the map is rebuilt when its size changes rather than on every frame.
     const labelSizes = { count: -1, value: {} };
@@ -91,37 +135,13 @@ const PaperDollCanvas = ({ manifest, state, playing = true, scale = DEFAULT_SCAL
 
       ctx.imageSmoothingEnabled = false;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
-      for (const op of layers) {
-        const img = images.current.get(op.file);
-        if (!img) { ensureLoaded(op.file); continue; }
-        const destX = (CANVAS.anchorX + op.dx) * scale;
-        const destY = (CANVAS.anchorY + op.dy) * scale;
-        const destW = op.w * scale * (op.drawScale ?? 1);
-        const destH = op.h * scale * (op.drawScale ?? 1);
-        if (op.flip) {
-          // op.dx already describes the mirrored top-left, so the flip pivots on the drawn box.
-          ctx.save();
-          ctx.translate(destX + destW, destY);
-          ctx.scale(-1, 1);
-          ctx.drawImage(img, op.sx, op.sy, op.w, op.h, 0, 0, destW, destH);
-          ctx.restore();
-        } else ctx.drawImage(img, op.sx, op.sy, op.w, op.h, destX, destY, destW, destH);
-      }
-
-      // The name label is its own actor on a higher layer than the body, and it is never scaled:
-      // its ops are world px around the same feet origin, so they halve into sprite px here.
+      drawLayers(ctx, layers, (file) => imageOf(file, SPRITE_BASE), { scale });
       if (s.name) {
         const ops = nameLabelOps({
           name: s.name, nametagId: s.nametag?.ID, trophyId: s.trophy?.ID,
           nameFont: manifest.nameFont, sizes: sizesForLabel()
         });
-        for (const op of ops) {
-          const img = images.current.get(op.file);
-          if (!img) { ensureLoaded(op.file, LABEL_BASE); continue; }
-          ctx.drawImage(img,
-            (CANVAS.anchorX * 2 + op.x) * scale / 2, (CANVAS.anchorY * 2 + op.y) * scale / 2,
-            img.naturalWidth * scale / 2, img.naturalHeight * scale / 2);
-        }
+        drawLabel(ctx, ops, (file) => imageOf(file, LABEL_BASE), { scale });
       }
 
       const key = unsupported.join(',');
@@ -135,9 +155,9 @@ const PaperDollCanvas = ({ manifest, state, playing = true, scale = DEFAULT_SCAL
     return () => cancelAnimationFrame(frame);
   }, [manifest, scale, ref]);
 
-  return <Box sx={{ display: 'inline-block', lineHeight: 0, background: '#1f2833', borderRadius: 2 }}>
+  return <Box sx={{ display: 'inline-block', lineHeight: 0, bgcolor: 'background.default', borderRadius: 2 }}>
     {/* height auto keeps the aspect when a narrow viewport shrinks the width */}
-    <canvas ref={ref} width={CANVAS.width * scale} height={CANVAS.height * scale}
+    <canvas data-volatile ref={ref} width={CANVAS.width * scale} height={CANVAS.height * scale}
             style={{ width: '100%', maxWidth: CANVAS.width * 3, height: 'auto', display: 'block' }}/>
   </Box>;
 };

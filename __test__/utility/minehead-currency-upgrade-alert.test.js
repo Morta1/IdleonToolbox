@@ -1,9 +1,8 @@
 import '../../polyfills';
-import 'core-js/modules/web.structured-clone';
-import { beforeAll, describe, expect, it } from 'vitest';
-import { parseData } from '@parsers/index';
+import { describe, expect, it } from 'vitest';
 import { getWorld7Alerts } from '@utility/dashboard/account';
 import latest from '../fixtures/latest.json';
+import { parseFixture } from '../helpers/parsed-fixtures';
 
 const fields = { minehead: { checked: true } };
 const optionsWith = (value) => ({
@@ -11,15 +10,7 @@ const optionsWith = (value) => ({
 });
 const allSelected = { MineUpg5: true, MineUpg22: true, MineUpg28: true };
 
-let account;
-let characters;
-
-beforeAll(() => {
-  const { data, charNames, companion, guildData, serverVars } = latest;
-  const parsed = parseData(data, charNames, companion, guildData, serverVars);
-  account = parsed.account;
-  characters = parsed.characters;
-});
+const { account, characters } = parseFixture(latest);
 
 const withUpgrades = (overrides) => ({
   ...account,
@@ -53,5 +44,4 @@ describe('minehead currency upgrade alert', () => {
     const alerts = getWorld7Alerts(withUpgrades({}), fields, optionsWith(allSelected), characters);
     expect(alerts?.minehead?.currencyUpgrades).toBeUndefined();
   });
-
 });

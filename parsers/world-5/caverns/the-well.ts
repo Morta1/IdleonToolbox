@@ -1,4 +1,4 @@
-import { fillArrayToLength, lavaLog, notateNumber } from '@utility/helpers';
+import { fillArrayToLength, lavaLog } from '@utility/helpers';
 import { holesInfo } from '@website-data';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
@@ -56,7 +56,7 @@ export const getTheWell = (holesObject: any, accountData: any) => {
     totalFillRate,
     goldenBucketsOwned,
     goldenBucketMulti,
-    opalCost: notateNumber(opalCost, 'TinyE'),
+    opalCost,
     expandWhenFull
   }
 }
@@ -97,6 +97,7 @@ export const getSchematicBonus = ({ holesObject, t, i }: any): any => {
     engineerSchematics,
     studyStuff
   } = holesObject || {};
+  if (!engineerSchematics) return 0;
   if (0 === engineerSchematics?.[t]) return 0;
   if (14 === t) {
     let result = 0;

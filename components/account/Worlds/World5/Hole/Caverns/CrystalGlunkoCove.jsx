@@ -1,99 +1,68 @@
 import React from 'react';
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
-import { CardTitleAndValue } from '@components/common/styles';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import StatTile from '@components/common/cards/StatTile';
+import IconTile from '@components/common/cards/IconTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
+import Num from '@components/common/Num';
+import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 
-// Temporary fallback until the 2.3.511 gooey-shape sprites are extracted to public/data/HoleGshape*.png.
-const FALLBACK_ICON = `${prefix}data/ClassIconsNA2.png`;
-const onIconError = (e) => {
-  if (e.target.src.endsWith('ClassIconsNA2.png')) return;
-  e.target.src = FALLBACK_ICON;
-};
+const upgradeCard = (upgrade) => <ItemCard key={upgrade.index} title={cleanUnderscore(upgrade.name)}
+                                           level={{ value: upgrade.level ?? 0 }}
+                                           status={upgrade.unlocked ? undefined : 'locked'}
+                                           dimmed={upgrade.unlocked && !(upgrade.level > 0)}
+                                           footer={upgrade.unlocked
+                                             ? <ItemCard.Cost icon={`data/${upgrade.shapeName}.png`}
+                                                              iconAlt={cleanUnderscore(upgrade.requirement)}
+                                                              need={upgrade.cost ?? 0} have={upgrade.shapeOwned ?? 0}
+                                                              game={'Holes.Cglunko_upgCost'}/>
+                                             : <Typography variant={'body2'} color={'text.secondary'} component={'div'}
+                                                           sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
+                                               Find a <GameIcon src={`data/${upgrade.shapeName}.png`} size={16} alt={''}/>
+                                               {cleanUnderscore(upgrade.requirement)} to unlock
+                                             </Typography>}>
+  <ItemCard.Desc text={upgrade.description}/>
+</ItemCard>;
+
+const upgradeSection = (title, upgrades) => (upgrades.length ? <Stack gap={1} sx={{ mt: 3 }}>
+  <Typography variant={'sectionTitle'} component={'h2'}>{title}</Typography>
+  <CardGrid size={'s'}>{upgrades.map(upgradeCard)}</CardGrid>
+</Stack> : null);
 
 const CrystalGlunkoCove = ({ hole }) => {
   const cove = hole?.caverns?.crystalGlunkoCove;
-  if (!cove) return null;
+  const upgrades = cove?.upgrades ?? [];
+  const shapes = cove?.shapes ?? [];
+  // A shape's name is the upgrade that is paid in it (each upgrade's requirement is its shape's item name)
+  const shapeName = (shape) => cleanUnderscore(upgrades.find((upgrade) => upgrade?.shapeId === shape?.index)?.requirement)
+    || `Shape ${(shape?.index ?? 0) + 1}`;
 
   return <>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <CardTitleAndValue title={'Drop Rate (in Cove)'} value={`${notateNumber(cove.dropRate, 'MultiplierInfo')}x`}/>
-      <CardTitleAndValue title={'AFK Gains (in Cove)'} value={`${notateNumber(100 * cove.afkGains, 'Big')}%`}/>
-      <CardTitleAndValue title={'Multikill Per Tier'} value={`${notateNumber(cove.multiKillTier, 'Big')}%`}/>
-      <CardTitleAndValue title={'Base Multikill'} value={`${notateNumber(cove.multiKillBase, 'Big')}%`}/>
-      <CardTitleAndValue title={'Faster Respawn'} value={`${notateNumber(cove.respawn, 'Big')}%`}/>
-      <CardTitleAndValue title={'Double Pickup'} value={`${notateNumber(cove.doublePickup, 'Big')}x`}/>
-      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.holesObject?.opalsPerCavern?.[17] || 0}/>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'Cove drop rate'} value={cove?.dropRate ?? 1} kind={'mult'}/>
+      <StatTile label={'Cove AFK gains'} value={100 * (cove?.afkGains ?? 0)} kind={'pct'}/>
+      <StatTile label={'Multikill per tier'} value={cove?.multiKillTier ?? 0} kind={'pct'}/>
+      <StatTile label={'Base multikill'} value={cove?.multiKillBase ?? 0} kind={'pct'}/>
+      <StatTile label={'Faster respawn'} value={cove?.respawn ?? 0} kind={'pct'}/>
+      <StatTile label={'Double pickup'} value={cove?.doublePickup ?? 0} kind={'mult'}/>
+      {opalsFoundTile(hole, 17)}
     </Stack>
-
-    <CardTitleAndValue title={'Gooey Shapes'} cardSx={{ mt: 2 }}>
-      <Stack direction={'row'} gap={1.5} flexWrap={'wrap'}>
-        {cove.shapes.map((shape) => (
-          <Stack key={shape.name} alignItems={'center'} sx={{ width: 56 }}>
-            <img src={`${prefix}data/${shape.name}.png`} onError={onIconError}
-                 width={32} height={32} style={{ objectFit: 'contain' }} alt={shape.name}/>
-            <Typography variant={'body2'} color={'text.secondary'}>
-              {notateNumber(shape.owned, 'Big')}
-            </Typography>
-          </Stack>
-        ))}
-      </Stack>
-    </CardTitleAndValue>
-
-    <UpgradeSection title={'Crystal Upgrades'}
-                    upgrades={cove.upgrades.filter((upgrade) => upgrade.group === 'crystal')}/>
-    <UpgradeSection title={'Jeweled Upgrades'}
-                    upgrades={cove.upgrades.filter((upgrade) => upgrade.group === 'jeweled')}/>
-  </>;
-};
-
-const UpgradeSection = ({ title, upgrades }) => {
-  if (!upgrades?.length) return null;
-  return <>
-    <Typography variant={'h6'} sx={{ mt: 2 }}>{title}</Typography>
-    <Box sx={{
-      mt: 1,
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fill, minmax(240px, 1fr))',
-      gap: 2,
-      alignItems: 'stretch'
-    }}>
-      {upgrades.map((upgrade) => (
-        <Card key={upgrade.index} sx={{ height: '100%', opacity: upgrade.unlocked ? (upgrade.level > 0 ? 1 : 0.7) : 0.5 }}>
-          <CardContent sx={{ p: 1, '&:last-child': { pb: 1 } }}>
-            <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'}>
-              <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>
-                {cleanUnderscore(upgrade.name)}
-              </Typography>
-              <Typography variant={'body2'} color={'text.secondary'}>
-                Lv {upgrade.level}
-              </Typography>
-            </Stack>
-            <Typography variant={'body1'} sx={{ display: 'block', mt: 0.5, lineHeight: 1.3 }}>
-              {cleanUnderscore(upgrade.description)}
-            </Typography>
-            {upgrade.unlocked ?
-              <Stack direction={'row'} alignItems={'center'} gap={0.5} sx={{ mt: 0.5 }}>
-                <Typography variant={'body2'} color={'text.secondary'}>Cost:</Typography>
-                <img src={`${prefix}data/${upgrade.shapeName}.png`} onError={onIconError}
-                     width={20} height={20} style={{ objectFit: 'contain' }} alt={upgrade.shapeName}/>
-                <Typography variant={'body2'} color={'text.secondary'}>
-                  {notateNumber(upgrade.cost, 'Big')}
-                </Typography>
-              </Stack>
-              :
-              <Typography variant={'body2'} color={'text.secondary'} sx={{ mt: 0.5 }}>
-                Locked - find a{' '}
-                <img src={`${prefix}data/${upgrade.shapeName}.png`} onError={onIconError}
-                     width={16} height={16}
-                     style={{ objectFit: 'contain', verticalAlign: 'text-bottom', margin: '0 2px' }}
-                     alt={upgrade.shapeName}/>
-                {cleanUnderscore(upgrade.requirement)}
-              </Typography>}
-          </CardContent>
-        </Card>
-      ))}
-    </Box>
+    {shapes.length ? <Stack gap={1}>
+      <Typography variant={'sectionTitle'} component={'h2'}>Gooey shapes</Typography>
+      <CardGrid size={'icon'}>
+        {shapes.map((shape) => {
+          // Whole shapes, as the Jars' rupies: the tile, its note and its owned state read one number (0.1 is none)
+          const owned = Math.floor(Number(shape.owned) || 0);
+          return <IconTile key={shape.name} icon={`data/${shape.name}.png`} alt={shapeName(shape)}
+                           value={<Num value={owned} game={'Big'} whole/>} status={owned > 0 ? undefined : 'missing'}
+                           details={`${shapeName(shape)}: ${formatNum(owned, 'exact')}`}/>;
+        })}
+      </CardGrid>
+    </Stack> : null}
+    {upgradeSection('Crystal upgrades', upgrades.filter((upgrade) => upgrade.group === 'crystal'))}
+    {upgradeSection('Jeweled upgrades', upgrades.filter((upgrade) => upgrade.group === 'jeweled'))}
   </>;
 };
 

@@ -1,4 +1,5 @@
 import { owlData, gameTables } from '@website-data';
+import { gameFill } from '@utility/helpers';
 import { isCompanionBonusActive } from '@parsers/misc';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
@@ -59,7 +60,7 @@ const parseOwl = (account: any) => {
     const bonus3 = Math.floor(1e4 * (1 - 1 / (1 + 10 * option254PlusI / 100))) / 100;
 
     description = description
-      .replace('{', '' + bonus1)
+      .replace('{', gameFill(bonus1, 'Big'))
       .replace('}', '' + bonus2)
       .replace('@', '' + bonus3);
 
@@ -84,7 +85,8 @@ const parseOwl = (account: any) => {
     }
   });
   const nextLvReqIndex = upgrades?.findIndex(({ level, x3 }) => progress < x3);
-  const nextLvReq = owlData?.[nextLvReqIndex]?.x3 || 0;
+  // null with no save: no feathers made, so no next upgrade to count toward. 0 is every upgrade unlocked
+  const nextLvReq = progress == null ? null : owlData?.[nextLvReqIndex]?.x3 ?? 0;
   const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 21);
   const meritocracyBonus = getMeritocracyBonus(account, 12);
 

@@ -1,27 +1,17 @@
-import { Grid, Stack, Typography } from '@mui/material';
 import React from 'react';
 import { cleanUnderscore, formatStarSignBonus } from '@utility/helpers';
+import Panel from '@components/common/cards/Panel';
+import StatusText from '@components/common/StatusText';
 
-const Chips = ({ starSigns, account, character }) => {
-  return <Stack>
-    <Typography mb={2} variant={'h5'}>Star Signs</Typography>
-    <Stack>
-      <Grid container>
-        {starSigns?.map((starSign, index) => {
-          const { starSign: { starName }, bonusIndex, starSignIndex } = starSign || {};
-          const realStarSign = account?.starSigns?.[starSignIndex]?.bonuses?.[bonusIndex];
-          const isEquipped = character?.starSigns?.filter(({ starName: sName }) => sName === starName)?.length > 0;
-          return <Grid display={'flex'} sx={{ position: 'relative' }} justifyContent={'center'} key={`${starName}-${index}`} xs={4} item>
-            <Stack sx={{ opacity: isEquipped ? 1 : .5 }}>
-              <Typography>{cleanUnderscore(starName)}</Typography>
-              <Typography
-                variant={'body2'}>{cleanUnderscore(formatStarSignBonus(realStarSign?.rawName, realStarSign?.bonus))}</Typography>
-            </Stack>
-          </Grid>
-        })}
-      </Grid>
-    </Stack>
-  </Stack>
-};
+const StarSigns = ({ starSigns, account, character }) => <Panel title={'Star signs'}>
+  {starSigns?.map((starSign, index) => {
+    const { starSign: { starName }, bonusIndex, starSignIndex } = starSign || {};
+    const realStarSign = account?.starSigns?.[starSignIndex]?.bonuses?.[bonusIndex];
+    const isEquipped = character?.starSigns?.filter(({ starName: sName }) => sName === starName)?.length > 0;
+    return <Panel.Row key={`${starName}-${index}`} name={cleanUnderscore(starName)}
+                      sub={realStarSign ? cleanUnderscore(formatStarSignBonus(realStarSign?.rawName, realStarSign?.bonus)) : undefined}
+                      value={isEquipped ? <StatusText status={'active'}>Equipped</StatusText> : undefined}/>;
+  })}
+</Panel>;
 
-export default Chips;
+export default StarSigns;

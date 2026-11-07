@@ -1,17 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
-import Chip from '@mui/material/Chip';
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import IconButton from '@mui/material/IconButton';
 import InputAdornment from '@mui/material/InputAdornment';
 import Stack from '@mui/material/Stack';
-import Alert from '@mui/material/Alert';
-import Switch from '@mui/material/Switch';
+import Notice from '@components/common/Notice';
 import TextField from '@mui/material/TextField';
 import Typography from '@mui/material/Typography';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -21,7 +17,8 @@ import SearchIcon from '@mui/icons-material/Search';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { IconFileExport } from '@tabler/icons-react';
 import { handleDownload } from '@utility/helpers';
-import FileUploadButton from '@components/common/DownloadButton';
+import FileUploadButton, { FILE_BUTTON_SX } from '@components/common/DownloadButton';
+import { ShowField } from '@components/common/Toolbar';
 import { resolveSettingsTarget } from '@utility/dashboard/settingsTarget';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, loadTrackers, TRACKERS_SCHEMA } from '@utility/dashboard/trackerStore';
@@ -32,24 +29,23 @@ import SettingsNav from '@components/dashboard/settings/SettingsNav';
 import SectionPane from '@components/dashboard/settings/SectionPane';
 import SearchResults from '@components/dashboard/settings/SearchResults';
 import { EditedDot } from '@components/dashboard/settings/EditedTag';
-import UndoSnackbar from '@components/dashboard/settings/UndoSnackbar';
+import { closeNotice, notify } from '@components/common/Overlays/notify';
+import NoticeSlot from '@components/common/Overlays/NoticeSlot';
 
 const TITLE_ID = 'configure-alerts-title';
-const RESET_TEXT_ID = 'configure-alerts-reset-text';
 const TAP = { minWidth: { xs: 44, sm: 'auto' }, minHeight: { xs: 44, sm: 'auto' } };
-const notAConfig = (fileName) => `${fileName} isn't an alert config. Nothing was changed. Pick a file made with Export.`;
+const notAConfig = (fileName) => `Nothing changed: ${fileName} isn't an alert config made with Export.`;
+// Each refusal is a note of its own (id), so the same wrong file twice is read out twice.
+const refusal = (fileName) => (previous) => ({ message: notAConfig(fileName), id: (previous?.id ?? 0) + 1 });
 
 const FILTER_LABELS = { all: 'All', on: 'On', off: 'Off', edited: 'Edited', threshold: 'Has threshold' };
 
 const DashboardSettings = ({
-  open, onClose, config, onChange, onFileUpload, exportConfig, target,
-  hideAlertless, onHideAlertlessChange, initialFilter = 'all'
+  open, onClose, config, onChange, onFileUpload, exportConfig, target, initialFilter = 'all'
 }) => {
   const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
   const edits = diffTrackers(baseTrackers, config);
   const model = buildModel(config, baseTrackers, edits);
-  // Counted in alerts, like the Edited chip; edits counts options too.
-  const editedCount = allTrackers(model).filter(({ edited }) => edited).length;
   const [tabIndex, setTabIndex] = useState(0);
   const [sectionKey, setSectionKey] = useState(model[0].sections[0].key);
   const [mobileDetail, setMobileDetail] = useState(false);
@@ -64,46 +60,49 @@ const DashboardSettings = ({
   }, [settledQuery]);
   const [expanded, setExpanded] = useState({});
   const [highlight, setHighlight] = useState(null);
-  const [undo, setUndo] = useState(null);
-  const [undoCount, setUndoCount] = useState(0);
-  const [confirmReset, setConfirmReset] = useState(false);
+  const undoNotice = useRef(null);
   const [importError, setImportError] = useState(null);
+  // The refusal's x hands the focus back to Import, where it came from.
+  const importButton = useRef(null);
 
   // The dialog stays mounted while closed, so every opening re-points it: at the alert that
   // opened it, or back to the first section.
-  useEffect(() => {
+  const [seen, setSeen] = useState({ open: false, target });
+  if (seen.open !== open || seen.target !== target) {
+    setSeen({ open, target });
     if (!open) {
-      setUndo(null);
       setHighlight(null);
       setExpanded({});
-      return;
-    }
-    setUndo(null);
-    const resolved = resolveSettingsTarget(config, target?.configType, target?.path);
-    setQuery('');
-    setImportError(null);
-    if (resolved) {
-      const tab = model[resolved.tab];
-      const section = tab.sections.find((item) => item.section === resolved.section) ?? tab.sections[0];
-      const path = [resolved.configType, resolved.section, resolved.trackerName].filter(Boolean).join('.');
-      setTabIndex(resolved.tab);
-      setSectionKey(section.key);
-      setFilter('all');
-      setMobileDetail(true);
-      setExpanded(resolved.trackerName ? { [path]: true } : {});
-      setHighlight(resolved.trackerName ? { path, optionName: resolved.optionName } : null);
     } else {
-      // Reviewing edits starts where the first edit is, not on a section that may have none.
-      const editedTab = initialFilter === 'edited' ? model.findIndex((item) => item.edited) : -1;
-      const startTab = Math.max(editedTab, 0);
-      const startSection = editedTab >= 0 ? model[editedTab].sections.find((item) => item.edited) : model[0].sections[0];
-      setFilter(initialFilter);
-      setTabIndex(startTab);
-      setSectionKey(startSection.key);
-      setExpanded({});
-      setMobileDetail(editedTab >= 0);
-      setHighlight(null);
+      const resolved = resolveSettingsTarget(config, target?.configType, target?.path);
+      setQuery('');
+      setImportError(null);
+      if (resolved) {
+        const tab = model[resolved.tab];
+        const section = tab.sections.find((item) => item.section === resolved.section) ?? tab.sections[0];
+        const path = [resolved.configType, resolved.section, resolved.trackerName].filter(Boolean).join('.');
+        setTabIndex(resolved.tab);
+        setSectionKey(section.key);
+        setFilter('all');
+        setMobileDetail(true);
+        setExpanded(resolved.trackerName ? { [path]: true } : {});
+        setHighlight(resolved.trackerName ? { path, optionName: resolved.optionName } : null);
+      } else {
+        // Reviewing edits starts where the first edit is, not on a section that may have none.
+        const editedTab = initialFilter === 'edited' ? model.findIndex((item) => item.edited) : -1;
+        const startTab = Math.max(editedTab, 0);
+        const startSection = editedTab >= 0 ? model[editedTab].sections.find((item) => item.edited) : model[0].sections[0];
+        setFilter(initialFilter);
+        setTabIndex(startTab);
+        setSectionKey(startSection.key);
+        setExpanded({});
+        setMobileDetail(editedTab >= 0);
+        setHighlight(null);
+      }
     }
+  }
+  useEffect(() => {
+    closeNotice(undoNotice.current);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, target]);
 
@@ -113,13 +112,15 @@ const DashboardSettings = ({
   };
   const onAction = (name, ...args) => onChange(run(name, ...args));
   const showUndo = (label) => {
-    setUndo({ label, previous: config });
-    setUndoCount((count) => count + 1);
+    const previous = config;
+    undoNotice.current = notify(label, { undo: () => onChange(previous) });
   };
   const onBulk = (label, name, ...args) => {
     showUndo(label);
     onChange(run(name, ...args));
   };
+  // Never a dialog from a dialog (Overlays board): Reset all runs at once and its Undo notice takes it back.
+  const resetAll = () => onBulk('All alerts reset to defaults', 'resetPath', null);
 
   const tab = model[tabIndex];
   const section = tab.sections.find((item) => item.key === sectionKey) ?? tab.sections[0];
@@ -160,7 +161,7 @@ const DashboardSettings = ({
   };
   const handleImport = (data, fileName = 'That file') => {
     if (!(data?.schema === TRACKERS_SCHEMA || (data?.account && data?.characters))) {
-      setImportError(notAConfig(fileName));
+      setImportError(refusal(fileName));
       return;
     }
     setImportError(null);
@@ -174,7 +175,7 @@ const DashboardSettings = ({
   };
 
   const search = <TextField
-    size="small" fullWidth value={query} placeholder={`Search ${allTrackers(model).length} alerts, options and descriptions`}
+    size="small" fullWidth value={query} placeholder={isSm ? `Search ${allTrackers(model).length} alerts` : `Search ${allTrackers(model).length} alerts, options and descriptions`}
     onChange={(e) => {
       setQuery(e.target.value);
       // Results replace the pane, so start them at the top rather than at the old scroll position.
@@ -188,36 +189,35 @@ const DashboardSettings = ({
       }
     }}/>;
 
-  // Swipeable on a phone without a scrollbar: the bar sat on top of the chips, and the cut-off last chip already shows there is more.
-  const chips = <Stack direction="row" gap={1} alignItems="center" sx={{ overflowX: 'auto', scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
-    {FILTERS.map((key) => <Chip key={key} label={`${FILTER_LABELS[key]} ${countFor(key)}`}
-                                color={filter === key ? 'primary' : 'default'} variant={filter === key ? 'filled' : 'outlined'}
-                                aria-pressed={filter === key} onClick={() => setFilter(key)} sx={{ minHeight: { xs: 44, sm: 32 } }}/>)}
-    <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', ml: 1 }}>
-      {searching ? 'While searching, counts are results' : 'Every count is alerts, not options'}
-    </Typography>
-    <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap', display: 'inline-flex', alignItems: 'center', gap: 0.75, ml: 1 }}>
+  const fileButtons = <>
+    <FileUploadButton ref={importButton} onFileUpload={handleImport}
+                      onInvalidFile={(fileName) => setImportError(refusal(fileName))}>
+      Import
+    </FileUploadButton>
+    <Button onClick={handleExport} startIcon={<IconFileExport size={18}/>} variant="outlined" size="small"
+            sx={FILE_BUTTON_SX}>Export</Button>
+  </>;
+
+  const filterRow = <Stack direction="row" columnGap={2} rowGap={1} alignItems="center" flexWrap="wrap">
+    <ShowField value={filter} onChange={setFilter} options={FILTERS.map((key) => [key, FILTER_LABELS[key], countFor(key)])} fullWidth={isSm}/>
+    {searching ? <Typography variant="caption" color="text.secondary">While searching, counts are results</Typography> : null}
+    <Typography variant="caption" color="text.secondary" sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.75 }}>
       <EditedDot label={null}/>Changed from default
     </Typography>
   </Stack>;
 
-  const hideAlertlessRow = tab.configType === 'characters' ? <Stack direction="row" alignItems="center" gap={1.5}
-                                                                    sx={{ border: 1, borderColor: 'divider', borderRadius: 2, p: 1 }}>
-    <Switch checked={Boolean(hideAlertless)} onChange={(e) => onHideAlertlessChange(e.target.checked)}
-            inputProps={{ 'aria-label': 'Hide characters without alerts' }}/>
-    <Box>
-      <Typography variant="body2" fontWeight={500}>Hide characters without alerts</Typography>
-      <Typography variant="caption" color="text.secondary">Saved in this browser, not in your exported config</Typography>
-    </Box>
-  </Stack> : null;
+  // The player's file, not a bug: no Report or Reload, and the x or the next import clears it
+  const importNote = importError ? <Notice key={importError.id} tone={'error'} action={false} onDismiss={() => setImportError(null)} focusAfter={importButton}>
+    {importError.message}
+  </Notice> : null;
 
   const pane = searching
-    ? <SearchResults results={results.filter(({ tracker }) => matchesFilter(tracker, filter))} query={searching} onAction={onAction} onShow={showResult}/>
+    ? <SearchResults results={results.filter(({ tracker }) => matchesFilter(tracker, filter))} query={searching} onAction={onAction} onShow={showResult}
+                     onClear={() => setQuery('')}/>
     : <SectionPane section={section} filter={filter} expanded={expanded}
                    onToggleExpanded={(path) => setExpanded((prev) => ({ ...prev, [path]: !prev[path] }))}
                    onSetExpanded={(paths, value) => setExpanded((prev) => ({ ...prev, ...Object.fromEntries(paths.map((path) => [path, value])) }))}
-                   target={highlight} onAction={onAction} onBulk={onBulk} onShowAll={() => setFilter('all')}
-                   extraTop={hideAlertlessRow}/>;
+                   target={highlight} onAction={onAction} onBulk={onBulk} onShowAll={() => setFilter('all')}/>;
 
   const nav = <SettingsNav model={model} tabIndex={tabIndex} onTabChange={changeTab} sectionKey={section.key}
                            onSectionChange={changeSection} onTrackerJump={jumpTo}/>;
@@ -225,58 +225,42 @@ const DashboardSettings = ({
   return <>
     <Dialog open={open} onClose={onClose} aria-labelledby={TITLE_ID} fullWidth maxWidth="lg" fullScreen={isSm}
             PaperProps={{ sx: { height: { sm: '90vh' } } }}>
-      <DialogTitle component="div" id="configure-alerts-header" sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pb: 1.5 }}>
+      <DialogTitle component="div" id="configure-alerts-header" sx={{ display: 'flex', flexDirection: 'column', gap: 1.5, pb: { xs: 1, sm: 1.5 } }}>
         <Stack direction="row" alignItems="center" gap={2}>
           {isSm && mobileDetail && !searching
             ? <IconButton aria-label="Back to sections" sx={TAP} onClick={() => setMobileDetail(false)}><ArrowBackIcon/></IconButton> : null}
-          <Typography id={TITLE_ID} variant="h6" component="h1" sx={{ whiteSpace: 'nowrap' }}>Configure alerts</Typography>
+          <Typography id={TITLE_ID} variant={'sectionTitle'} component="h1" sx={{ whiteSpace: 'nowrap' }}>Configure alerts</Typography>
           {!isSm ? <Box sx={{ flex: 1, maxWidth: 520 }}>{search}</Box> : null}
           <Stack direction="row" alignItems="center" gap={0.5} sx={{ ml: 'auto' }}>
-            <FileUploadButton onFileUpload={handleImport} ariaLabel="Import" iconSx={TAP}
-                              onInvalidFile={(fileName) => setImportError(notAConfig(fileName))}>
-              Import
-            </FileUploadButton>
-            {isSm ? <IconButton aria-label="Export" sx={TAP} onClick={handleExport}><IconFileExport size={18}/></IconButton>
-              : <Button onClick={handleExport} startIcon={<IconFileExport size={18}/>} size="small">Export</Button>}
-            {!isSm ? <Button size="small" color="inherit" disabled={!Object.keys(edits).length} onClick={() => setConfirmReset(true)}>Reset all</Button> : null}
+            {!isSm ? fileButtons : null}
+            {!isSm ? <Button size="small" color="inherit" disabled={!Object.keys(edits).length} onClick={resetAll}>Reset all</Button> : null}
             <IconButton aria-label="Close" sx={TAP} onClick={onClose}><CloseIcon/></IconButton>
           </Stack>
         </Stack>
-        {isSm ? search : null}
-        {chips}
-        {importError ? <Alert severity="error" onClose={() => setImportError(null)}>{importError}</Alert> : null}
+        {!isSm ? filterRow : null}
+        {!isSm ? importNote : null}
       </DialogTitle>
       <DialogContent dividers sx={{ p: 0, display: 'flex', minHeight: 0 }}>
         {isSm
-          ? <Box ref={paneRef} sx={{ p: 1.5, width: '100%', overflowY: 'auto' }}>{searching || mobileDetail ? pane : <>
-            {nav}
-            <Button fullWidth color="inherit" sx={{ ...TAP, mt: 2 }} disabled={!Object.keys(edits).length} onClick={() => setConfirmReset(true)}>Reset all alerts</Button>
-          </>}</Box>
+          ? <Box ref={paneRef} sx={{ p: 1.5, width: '100%', overflowY: 'auto' }}>
+            {/* A phone keeps only the title row fixed: the rest scrolls away with the list, for the room to read it */}
+            <Stack gap={1.5} sx={{ mb: 1.5 }}>
+              <Stack direction="row" gap={0.5}>{fileButtons}</Stack>
+              {search}
+              {filterRow}
+              {importNote}
+            </Stack>
+            {searching || mobileDetail ? pane : <>
+              {nav}
+              <Button fullWidth color="inherit" sx={{ ...TAP, mt: 2 }} disabled={!Object.keys(edits).length} onClick={resetAll}>Reset all alerts</Button>
+            </>}
+          </Box>
           : <>
             <Box sx={{ width: 288, flexShrink: 0, borderRight: 1, borderColor: 'divider', p: 1.5, overflowY: 'auto' }}>{nav}</Box>
             <Box ref={paneRef} sx={{ flex: 1, minWidth: 0, p: 2.5, overflowY: 'auto' }}>{pane}</Box>
           </>}
       </DialogContent>
-      {undo ? <UndoSnackbar key={undoCount} label={undo.label} onClose={() => setUndo(null)}
-                            onUndo={() => {
-                              onChange(undo.previous);
-                              setUndo(null);
-                            }}/> : null}
-    </Dialog>
-    <Dialog open={confirmReset} onClose={() => setConfirmReset(false)} PaperProps={{ role: 'alertdialog', 'aria-describedby': RESET_TEXT_ID }}>
-      <DialogTitle>Reset every alert to default?</DialogTitle>
-      <DialogContent>
-        <DialogContentText id={RESET_TEXT_ID}>
-          This turns all {allTrackers(model).length} alerts back to their default and clears your edits to {editedCount} {editedCount === 1 ? 'alert' : 'alerts'}. Export first if you want a copy.
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={() => setConfirmReset(false)}>Cancel</Button>
-        <Button variant="contained" onClick={() => {
-          setConfirmReset(false);
-          onBulk('All alerts reset to defaults', 'resetPath', null);
-        }}>Reset all</Button>
-      </DialogActions>
+      <NoticeSlot open={open}/>
     </Dialog>
 </>;
 };

@@ -9,10 +9,12 @@ import { setRawJson } from '@utility/helpers';
 import { errorMessage, trackEvent } from '@utility/analytics';
 import { readAuthHint, writeAuthHint } from '@utility/auth-hint';
 import { routeNeedsAccount } from '@utility/account-routes';
+import { releaseBandSlot } from '@utility/band-slot';
 import { readLocalStorageValue } from '@mantine/hooks';
 import { simulatedCompanionsKey } from '@components/constants';
 import { parseSave } from '@utility/parseSave';
 import { shrinkStoredSnapshots } from '@utility/activeCalculatorSnapshot';
+import { removeDeadStorageKeys } from '@utility/deadStorageKeys';
 import { describeLoginError, toLoginError } from '@utility/loginErrors';
 
 export const AppContext = createContext({});
@@ -24,23 +26,28 @@ export const ACTION_TYPES = {
   DISPLAYED_CHARACTERS: 'displayedCharacters',
   FILTERS: 'filters',
   SEARCH_FILTERS: 'searchFilters',
-  PINNED_PAGES: 'pinnedPages',
   PLANNER: 'planner',
   TRACKERS: 'trackers',
   GOD_PLANNER: 'godPlanner',
   LOGIN_ERROR: 'loginError',
-  SHOW_RANK_ONE_ONLY: 'showRankOneOnly',
-  SHOW_UNMAXED_BOXES_ONLY: 'showUnmaxedBoxesOnly',
   SET_LOADING: 'setLoading',
   SETTINGS: 'settings',
   HYDRATE_STORAGE: 'hydrateStorage'
 };
 
+// What the characters page shows until the player changes something: the first character with these sections. Only
+// ever derived, so a first visit stores nothing; the first change stores these plus that change.
+const FIRST_VISIT_SECTIONS = { Stats: true, Talents: true, Cards: true, Skills: true, Equipment: true };
+const FIRST_VISIT_CHARACTERS = { all: false, 0: true };
+
+export const savedFilters = (state) => state?.filters ?? FIRST_VISIT_SECTIONS;
+export const shownCharacters = (state) => state?.displayedCharacters ?? FIRST_VISIT_CHARACTERS;
+
 // The characters page sections to show: the saved chips plus any the quick search turned on for
 // this visit, which are never written to storage
 export const shownFilters = (state) => state?.searchFilters
-  ? { ...state?.filters, ...state.searchFilters }
-  : state?.filters;
+  ? { ...savedFilters(state), ...state.searchFilters }
+  : savedFilters(state);
 
 export function appReducer(state, action) {
   const actionHandlers = {
@@ -53,11 +60,9 @@ export function appReducer(state, action) {
     // user's uid and token. A whitelist drops any future session key by default. storageHydrated
     // rides along too, or the persist effect would skip every write after a logout.
     [ACTION_TYPES.LOGOUT]: () => {
-      const { filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings,
-        showRankOneOnly, showUnmaxedBoxesOnly, storageHydrated } = state;
+      const { filters, displayedCharacters, trackers, godPlanner, planner, settings, storageHydrated } = state;
       return {
-        filters, pinnedPages, displayedCharacters, trackers, godPlanner, planner, settings,
-        showRankOneOnly, showUnmaxedBoxesOnly,
+        filters, displayedCharacters, trackers, godPlanner, planner, settings,
         storageHydrated,
         signedIn: false,
         isLoading: false
@@ -70,13 +75,10 @@ export function appReducer(state, action) {
     // A chip the player picks replaces the search's temporary ones (see shownFilters)
     [ACTION_TYPES.FILTERS]: () => ({ ...state, filters: action.data, searchFilters: undefined }),
     [ACTION_TYPES.SEARCH_FILTERS]: () => ({ ...state, searchFilters: action.data }),
-    [ACTION_TYPES.PINNED_PAGES]: () => ({ ...state, pinnedPages: action.data }),
     [ACTION_TYPES.PLANNER]: () => ({ ...state, planner: action.data }),
     [ACTION_TYPES.TRACKERS]: () => ({ ...state, trackers: action.data }),
     [ACTION_TYPES.GOD_PLANNER]: () => ({ ...state, godPlanner: action.data }),
     [ACTION_TYPES.LOGIN_ERROR]: () => ({ ...state, loginError: action.data }),
-    [ACTION_TYPES.SHOW_RANK_ONE_ONLY]: () => ({ ...state, showRankOneOnly: action.data }),
-    [ACTION_TYPES.SHOW_UNMAXED_BOXES_ONLY]: () => ({ ...state, showUnmaxedBoxesOnly: action.data }),
     [ACTION_TYPES.SET_LOADING]: () => ({ ...state, isLoading: action.data }),
     [ACTION_TYPES.SETTINGS]: () => ({ ...state, settings: action.data })
   };
@@ -91,7 +93,6 @@ export function appReducer(state, action) {
 
 const STORAGE_KEYS = [
   'filters',
-  'pinnedPages',
   'displayedCharacters',
   'trackers',
   'godPlanner',
@@ -105,34 +106,23 @@ const STORAGE_KEYS = [
 // (localStorage) is merged by HYDRATE_STORAGE in an effect, which the init and persist effects
 // wait for via storageHydrated.
 export const DEFAULT_STATE = {
-  showRankOneOnly: false,
-  showUnmaxedBoxesOnly: false,
   isLoading: true,
-  pinnedPages: [],
   storageHydrated: false
 };
 
 // Call only from an effect: reading storage during render would make the first client render
 // differ from the export, and React answers a mismatch by re-rendering the whole page.
-export const readStoredState = () => {
-  const loadedState = STORAGE_KEYS.reduce((state, key) => {
-    try {
-      const value = localStorage.getItem(key);
-      if (value) {
-        state[key] = JSON.parse(value);
-      }
-    } catch (err) {
-      console.warn(`Failed to parse ${key} from localStorage:`, err);
+export const readStoredState = () => STORAGE_KEYS.reduce((state, key) => {
+  try {
+    const value = localStorage.getItem(key);
+    if (value) {
+      state[key] = JSON.parse(value);
     }
-    return state;
-  }, {});
-
-  if (!loadedState.pinnedPages) {
-    loadedState.pinnedPages = [];
+  } catch (err) {
+    console.warn(`Failed to parse ${key} from localStorage:`, err);
   }
-
-  return loadedState;
-};
+  return state;
+}, {});
 
 // A visitor with site data blocked gets a SecurityError from every localStorage touch, and the
 // persist effect runs on the first render of every page, so an unguarded write would reach the
@@ -167,6 +157,8 @@ const AppProvider = ({ children }) => {
   const [authCounter, setAuthCounter] = useState(0);
   const [waitingForAuth, setWaitingForAuth] = useState(false);
   const unsubscribeRef = useRef(null);
+  // A profile that never arrived has moved the visitor to the 404: their own save lands behind it, leaving the URL alone.
+  const leftProfile = useRef(false);
 
   const handleCloudUpdate = async (
     data, 
@@ -181,7 +173,7 @@ const AppProvider = ({ children }) => {
   ) => {
     // The player's own save replaces a viewed profile or the sample account, so drop both from the URL
     // (they are session params and would otherwise reload the other account).
-    if (router?.query?.profile || router?.query?.demo) {
+    if (!leftProfile.current && (router?.query?.profile || router?.query?.demo)) {
       const { profile, demo, ...rest } = router.query;
       router.replace({ query: rest });
     }
@@ -300,16 +292,14 @@ const AppProvider = ({ children }) => {
     
     removeStored('charactersData');
     removeStored('rawJson', 'session');
-    dispatch({ type: ACTION_TYPES.LOGOUT });
+    // The save a player pasted stays: only the session goes.
+    dispatch(manualImport ? { type: ACTION_TYPES.DATA, data } : { type: ACTION_TYPES.LOGOUT });
     if (clearAuthHint) {
       writeAuthHint('no');
     }
     setWaitingForAuth(false);
 
-    if (manualImport) {
-      dispatch({ type: ACTION_TYPES.DATA, data });
-      return;
-    }
+    if (manualImport) return;
 
     await loadEmptyAccount();
   };
@@ -318,17 +308,32 @@ const AppProvider = ({ children }) => {
   // effect's position: dispatching here flips the flag and re-runs it with the stored values.
   useEffect(() => {
     shrinkStoredSnapshots();
+    removeDeadStorageKeys();
     dispatch({ type: ACTION_TYPES.HYDRATE_STORAGE, data: readStoredState() });
   }, []);
 
   useEffect(() => {
     if (!router.isReady || !state.storageHydrated) return;
 
+    // The page's links lead on from where this lands, so the visitor carries on as themselves: as a guest, or with their
+    // own save. Left with no account at all, every data page behind those links would wait forever.
+    const leaveProfile = async (navigate, reason, as) => {
+      leftProfile.current = true;
+      await navigate({ pathname: '/404', query: { reason, name: router?.query?.profile } }, as);
+      await handleUnauthenticatedUser();
+    };
+
     const handleProfile = async () => {
       try {
         const content = await getProfile({ mainChar: router?.query?.profile });
         if (!content) {
-          throw new Error('Failed to load data from profile api');
+          trackEvent('import_failed', { import_source: 'profile', error_message: 'No such profile' });
+          // Masked with a bare `as`: the 404 still reads reason/name off router.query (Next derives
+          // it from the href, not from `as`), but the address bar stays /404. Spelling them into the
+          // URL put them in router.query for every link built afterwards, which is how Search Console
+          // ended up with hundreds of /leaderboards?reason=profile&name=... duplicates.
+          await leaveProfile(router.push, 'profile', '/404');
+          return;
         }
 
         let parsedData;
@@ -387,17 +392,8 @@ const AppProvider = ({ children }) => {
       } catch (err) {
         console.error('Failed to load data from profile api', err);
         trackEvent('import_failed', { import_source: 'profile', error_message: errorMessage(err) });
-        // Masked with a bare `as`: the 404 still reads reason/name off router.query (Next derives
-        // it from the href, not from `as`), but the address bar stays /404. Spelling them into the
-        // URL put them in router.query for every link built afterwards, which is how Search Console
-        // ended up with hundreds of /leaderboards?reason=profile&name=... duplicates.
-        router.push({ pathname: '/404', query: { reason: 'profile', name: router?.query?.profile } }, '/404');
-        dispatch({
-          type: ACTION_TYPES.DATA,
-          data: {
-            isLoading: false
-          }
-        });
+        // The address stays the link the visitor followed, so a reload asks again: the page's Retry, or the browser's.
+        await leaveProfile(router.replace, 'profile-failed', router.asPath);
       }
     };
 
@@ -413,6 +409,7 @@ const AppProvider = ({ children }) => {
         type: ACTION_TYPES.DATA,
         data: {
           ...parsedData,
+          serverVars,
           lastUpdated: timestamp,
           demo: true,
           emptyAccount: false,
@@ -446,6 +443,8 @@ const AppProvider = ({ children }) => {
         // the SDK on every later visit.
         writeAuthHint(user ? 'yes' : 'no');
         hadSession = !!user;
+        // No guest's band is coming. Closed now, over the loader: in the save's commit it would move with the whole page.
+        if (user) releaseBandSlot();
         if (!state?.account && user) {
           const unsub = await subscribe(user?.uid, user?.accessToken, handleCloudUpdate);
           unsubscribeRef.current = unsub;
@@ -515,9 +514,6 @@ const AppProvider = ({ children }) => {
     if (state?.filters) {
       writeStored('filters', state.filters);
     }
-    if (state?.pinnedPages) {
-      writeStored('pinnedPages', state.pinnedPages);
-    }
     if (state?.displayedCharacters) {
       writeStored('displayedCharacters', state.displayedCharacters);
     }
@@ -532,14 +528,9 @@ const AppProvider = ({ children }) => {
     }
     if (state?.manualImport) {
       writeStored('manualImport', state.manualImport);
-      const { lastUpdated = null } = readStoredState();
-      if (state?.signedIn) {
-        logout(true, { ...state, lastUpdated, signedIn: false, manualImport: true });
-      }
     }
   }, [
     state?.trackers,
-    state?.pinnedPages,
     state?.filters,
     state?.displayedCharacters,
     state?.planner,
@@ -547,11 +538,9 @@ const AppProvider = ({ children }) => {
     state?.godPlanner
   ]);
 
-  useEffect(() => {
-    if (!waitingForAuth && authCounter !== 0) {
-      setAuthCounter(0);
-    }
-  }, [waitingForAuth, authCounter]);
+  if (!waitingForAuth && authCounter !== 0) {
+    setAuthCounter(0);
+  }
 
   useInterval(
     async () => {

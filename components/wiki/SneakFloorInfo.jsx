@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { Box, Link, Stack, TextField, Typography } from '@mui/material';
-import { firstLevel, readLevel, termValue } from '@utility/wiki/effects.mjs';
+import { Link, Stack, Typography } from '@mui/material';
+import NumberField from '@components/common/NumberField';
+import { firstLevel, levelMax, readLevel, termValue } from '@utility/wiki/effects.mjs';
 import { oneInOrNothing, percentLabel } from '@utility/wiki/odds.mjs';
 import { entityName } from '@utility/wiki/names.mjs';
 import EntityIcon from './EntityIcon';
 import ShortAmount from '@components/common/ShortAmount';
-import { CELL, HEAD, NUM } from './table-parts';
+import Panel from '@components/common/cards/Panel';
+import DataTable from '@components/common/DataTable';
 import { linkProps, navigateOnPlainClick } from './links';
 
-const SectionTitle = ({ children }) => <Typography variant={'subtitle2'} color={'text.secondary'} textTransform={'uppercase'} letterSpacing={0.5}>
+const SectionTitle = ({ children }) => <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>
   {children}
 </Typography>;
 
@@ -21,7 +23,7 @@ export const sneakFloorShows = (node) => Boolean(node?.kind === 'sneakfloor' && 
 
 const SneakFloorInfo = ({ node, index, hrefFor, onNavigate }) => {
   const from = firstLevel(node);
-  const [input, setInput] = useState(String(from));
+  const [input, setInput] = useState(from);
   if (!sneakFloorShows(node)) return null;
   const level = readLevel(input, null, from);
   const stats = node.panel.stats
@@ -40,75 +42,63 @@ const SneakFloorInfo = ({ node, index, hrefFor, onNavigate }) => {
     const item = index?.byId?.[id];
     if (!item) return null;
     return <React.Fragment key={id}>
-      <Link {...linkProps(hrefFor, id)} underline={'hover'} onClick={navigateOnPlainClick(onNavigate, id, Boolean(hrefFor?.(id)))}>
+      <Link {...linkProps(hrefFor, id)} onClick={navigateOnPlainClick(onNavigate, id, Boolean(hrefFor?.(id)))}>
         {entityName(item)}
       </Link>
-      {need ? ` (needs a ${need})` : null}
+      {need ? `, which needs a ${need}` : null}
     </React.Fragment>;
   };
 
   return <Stack gap={2} sx={{ mt: 2, maxWidth: 720 }}>
-    <TextField
-      size={'small'}
-      type={'number'}
+    <NumberField
       value={input}
-      onChange={(event) => setInput(event.target.value)}
+      onChange={setInput}
       label={node.effect?.levelLabel ?? 'Ninja Mastery'}
-      inputProps={{ min: from }}
+      min={from}
+      max={levelMax(node)}
+      integer
+      help={node.effect?.noMax ? 'No max level' : undefined}
       sx={{ width: 200 }}
     />
-    {stats.length ? <Stack gap={0.5}>
-      <SectionTitle>Stats</SectionTitle>
-      <Box component={'table'} sx={{ borderCollapse: 'collapse', width: '100%' }}>
-        <tbody>
-        {stats.map(({ label, value }) => <tr key={label}>
-          <Box component={'th'} scope={'row'} sx={{ ...CELL, fontWeight: 400, textAlign: 'left', color: 'text.secondary' }}>{label}</Box>
-          <Box component={'td'} sx={NUM}><ShortAmount amount={value}/></Box>
-        </tr>)}
-        </tbody>
-      </Box>
-    </Stack> : null}
+    {stats.length ? <Panel title={'Stats'}>
+      {stats.map(({ label, value }) => <Panel.KV key={label} label={label} value={<ShortAmount amount={value}/>}/>)}
+    </Panel> : null}
     {step?.loot.length ? <Stack gap={0.5}>
       <SectionTitle>{`Loot at Ninja Mastery ${step.from === level ? level : `${level} (same as ${step.from})`}`}</SectionTitle>
-      <Box component={'table'} sx={{ borderCollapse: 'collapse', width: '100%' }}>
-        <thead>
-        <tr>
-          <Box component={'th'} sx={HEAD}>Item</Box>
-          <Box component={'th'} sx={{ ...HEAD, textAlign: 'right' }}>Odds</Box>
-          <Box component={'th'} sx={{ ...HEAD, textAlign: 'right' }}>Chance</Box>
-        </tr>
-        </thead>
-        <tbody>
-        {step.loot.map(({ id, chance, need }) => {
-          const item = index?.byId?.[id];
-          return <tr key={id}>
-            <Box component={'td'} sx={CELL}>
-              <Stack direction={'row'} gap={1} alignItems={'center'}>
-                {item ? <EntityIcon node={item} size={24}/> : null}
-                <Stack>
-                  {item
-                    ? <Link {...linkProps(hrefFor, id)} underline={'hover'} onClick={navigateOnPlainClick(onNavigate, id, Boolean(hrefFor?.(id)))}>
-                      {entityName(item)}
-                    </Link>
-                    : id}
-                  {need ? <Typography variant={'caption'} color={'text.secondary'}>{`Needs a ${need}`}</Typography> : null}
-                </Stack>
-              </Stack>
-            </Box>
-            <Box component={'td'} sx={NUM}>{oneInOrNothing(chance)}</Box>
-            <Box component={'td'} sx={NUM}>{percentLabel(chance)}</Box>
-          </tr>;
-        })}
-        </tbody>
-      </Box>
+      {/* Both numbers show on a phone: a likely drop (Straw Hat's 99.9%) has no odds worth quoting, so its row needs the percentage. */}
+      <DataTable
+        rows={step.loot}
+        rowKey={'id'}
+        rowLabel={({ id }) => (index?.byId?.[id] ? entityName(index.byId[id]) : id)}
+        columns={[
+          {
+            key: 'item',
+            label: 'Item',
+            icon: ({ id }) => (index?.byId?.[id] ? <EntityIcon node={index.byId[id]} size={32}/> : null),
+            render: ({ id, need }) => {
+              const item = index?.byId?.[id];
+              return <Stack component={'span'}>
+                {item
+                  ? <Link {...linkProps(hrefFor, id)} onClick={navigateOnPlainClick(onNavigate, id, Boolean(hrefFor?.(id)))}>
+                    {entityName(item)}
+                  </Link>
+                  : id}
+                {need ? <Typography variant={'caption'} color={'text.secondary'}>{`Needs a ${need}`}</Typography> : null}
+              </Stack>;
+            }
+          },
+          { key: 'odds', label: 'Odds', numeric: true, phone: true, render: ({ chance }) => oneInOrNothing(chance) || null },
+          { key: 'chance', label: 'Chance', numeric: true, phone: true, render: ({ chance }) => percentLabel(chance) }
+        ]}
+      />
       {node.panel.hatNote ? <Typography variant={'caption'} color={'text.secondary'}>{node.panel.hatNote}</Typography> : null}
       {/* A class-locked item sits in the roll order only with its class on the account, which shifts every chance below it. */}
       {[...new Set(step.loot.map(({ need }) => need).filter(Boolean))].map((need) => <Typography key={need} variant={'caption'} color={'text.secondary'}>
         {`The chances assume a ${need} on the account.`}
       </Typography>)}
       {later.map(({ from: mastery, added }) => <Typography key={mastery} variant={'caption'} color={'text.secondary'} data-mastery-adds>
-        {`Ninja Mastery ${mastery} adds: `}
-        {added.map((entry, at) => <React.Fragment key={entry.id}>{at ? ', ' : null}{itemLink(entry)}</React.Fragment>)}
+        {`Ninja Mastery ${mastery} adds `}
+        {added.map((entry, at) => <React.Fragment key={entry.id}>{at ? ', ' : null}{itemLink(entry)}</React.Fragment>)}.
       </Typography>)}
     </Stack> : null}
   </Stack>;

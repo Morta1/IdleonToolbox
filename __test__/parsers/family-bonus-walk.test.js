@@ -66,6 +66,10 @@ describe('family bonuses walked in save order', () => {
 });
 
 describe('family bonuses walked across every class', () => {
+  const byIndex = Object.fromEntries(Object.entries(classPromotions).map(([name, { index }]) => [index, name]));
+  const liveAccount = [[22, 1291], [14, 1292], [34, 1259], [12, 1240], [40, 1231], [29, 1280], [4, 1158], [22, 1261], [16, 1307], [36, 1268], [1, 1224]]
+    .map(([classIndex, level]) => ({ class: byIndex[classIndex], level }));
+
   it('credits each class in a character line, not just the final one', () => {
     const { Hunter, Beast_Master, Wind_Walker, Archer } = getFamilyBonusesSeenBy([{ class: 'Wind_Walker', level: 1280 }], -1, null);
     expect(Hunter).toBe(raw('EFFICIENCY_FOR_ALL_SKILLS', 1280));
@@ -87,16 +91,13 @@ describe('family bonuses walked across every class', () => {
   // from DNSM.FamBonusQTYs. The first Siege Breaker sits before the Elemental Sorcerer, so its account
   // buff is read without the sorcerer's 15 levels.
   it('matches FamBonusQTYs read from the game', () => {
-    const byIndex = Object.fromEntries(Object.entries(classPromotions).map(([name, { index }]) => [index, name]));
-    const chars = [[22, 1291], [14, 1292], [34, 1259], [12, 1240], [40, 1231], [29, 1280], [4, 1158], [22, 1261], [16, 1307], [36, 1268], [1, 1224]]
-      .map(([classIndex, level]) => ({ class: byIndex[classIndex], level }));
     const game = {
       6: 5.51179820992677, 8: 4.066467513069455, 14: 348.63810930576074, 16: 23.165810711665443, 18: 49.744278630430074,
       20: 17.434069850320743, 24: 59.43271792887757, 28: 35.54763117677025, 32: 7.985838313023764, 38: 257, 40: 35.20998531571219,
       42: 27.77942264988897, 44: 23.519585373476403, 50: 4.352983465132998, 58: 1.825935417734495, 62: 252, 64: 206,
       66: 1.3701269604182227, 68: 15.454545454545455, 72: 4.3473531544597535, 80: 6.952681388012619
     };
-    const walked = getFamilyBonusesSeenBy(chars, 8, familyGuy(562), familyGuy(562));
+    const walked = getFamilyBonusesSeenBy(liveAccount, 8, familyGuy(562), familyGuy(562));
     Object.entries(game).forEach(([key, value]) => {
       expect(walked[byIndex[key / 2]], `FamBonusQTYs[${key}]`).toBeCloseTo(value, 10);
     });
@@ -105,10 +106,7 @@ describe('family bonuses walked across every class', () => {
   // Same account with its Elemental Sorcerer played: the sorcerer buffs its own bonus to 20.65, and
   // the Divine Knight walked after it reads the account talent with those 20 levels, not the raw 15.
   it('matches FamBonusQTYs read from the game with the sorcerer played', () => {
-    const byIndex = Object.fromEntries(Object.entries(classPromotions).map(([name, { index }]) => [index, name]));
-    const chars = [[22, 1291], [14, 1292], [34, 1259], [12, 1240], [40, 1231], [29, 1280], [4, 1158], [22, 1261], [16, 1307], [36, 1268], [1, 1224]]
-      .map(([classIndex, level]) => ({ class: byIndex[classIndex], level }));
-    const walked = getFamilyBonusesSeenBy(chars, 2, familyGuy(514), familyGuy(555));
+    const walked = getFamilyBonusesSeenBy(liveAccount, 2, familyGuy(514), familyGuy(555));
     expect(walked.Elemental_Sorcerer).toBeCloseTo(20.653562653562656, 10);
     expect(walked.Wizard).toBeCloseTo(274.97980456026056, 10);
     expect(walked.Divine_Knight).toBeCloseTo(59.42495864524631, 10);

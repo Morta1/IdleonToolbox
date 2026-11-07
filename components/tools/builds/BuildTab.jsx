@@ -3,9 +3,10 @@ import { Box, Button, Card, CardContent, InputBase, Stack, Typography } from '@m
 import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
 import Tooltip from '@components/Tooltip';
 import ItemRefRenderer from './ItemRefRenderer';
-import { cleanUnderscore, growth, prefix } from '@utility/helpers';
+import { cleanUnderscore, growth, prefix, talentText } from '@utility/helpers';
 import { SUPER_TALENT_MAX_POINTS, isSuperTalentEligible } from '@utility/builds/superTalents';
 import { styled } from '@mui/material/styles';
+import { ink } from '../../../styles/theme/theme';
 
 // Fully controlled: talent values come straight from the parent
 // (BuildForm or BuildDetail). No local mirrors, no useEffect resync needed.
@@ -117,7 +118,7 @@ const BuildTab = ({
   // legacy note, renders read-only with a Remove button so the author can
   // delete it and migrate the content into the main description manually.
   const noteBlock = note ? (
-    <Card variant="outlined" sx={{ bgcolor: 'rgba(255,255,255,0.02)', width: '100%' }}>
+    <Card variant="outlined" sx={{ bgcolor: ink(0.02), width: '100%' }}>
       <CardContent>
         {createMode && (
           <Stack direction="row" alignItems="center" gap={1} sx={{ mb: 1 }}>
@@ -192,12 +193,12 @@ const TalentTooltip = ({ name, skill, level, isSuperTalent, createMode, eligible
       : null;
   return (
     <>
-      <Typography variant="h5">{cleanUnderscore(name)}</Typography>
+      <Typography variant="cardTitle" component="div">{cleanUnderscore(name)}</Typography>
       <Typography variant="body1">
-        {cleanUnderscore(cleanUnderscore(description).replace('{', mainStat).replace('}', secondaryStat))}
+        {talentText(description, mainStat, secondaryStat)}
       </Typography>
       {superHint ? <Typography variant="caption"
-                               sx={{ display: 'block', mt: 1, color: isSuperTalent ? '#ffd75e' : 'text.secondary' }}>
+                               sx={{ display: 'block', mt: 1, color: isSuperTalent ? 'identity.superTalent' : 'text.secondary' }}>
         {superHint}
       </Typography> : null}
     </>
@@ -217,7 +218,7 @@ const SuperBorder = styled('img')`
 
 const CustomInput = styled(InputBase)`
   & .MuiInputBase-input {
-    border: 1px solid #7e7e7e;
+    border: 1px solid ${({ theme }) => (theme.vars || theme).palette.outline};
     border-radius: 5px;
     padding: 3px;
     text-align: center;

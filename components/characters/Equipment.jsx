@@ -1,55 +1,40 @@
 import React from 'react';
-import styled from '@emotion/styled';
-import { Box, Card, CardContent, Stack, Typography } from '@mui/material';
 import ItemDisplay from '../common/ItemDisplay';
-import { notateNumber, prefix } from 'utility/helpers';
-import Tooltip from '../Tooltip';
+import { cleanUnderscore, formatNum } from 'utility/helpers';
 import { getGoldenFoodBonus } from '@parsers/misc';
+import { getPlayerFoodBonus } from '@parsers/character';
+import Panel from '@components/common/cards/Panel';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import { isFilledSlot } from './sectionSummary';
+
+const SLOTS_PER_GROUP = 8;
 
 const Equipment = ({ equipment, tools, food, account, character, characters }) => {
-  return <Stack>
-    <Typography variant={'h5'}>Equipment</Typography>
-    <Stack mt={2} direction={'row'} gap={1} flexWrap={'wrap'} justifyContent={'center'}>
-      <EquipmentPage items={equipment?.slice(0, 8)} character={character} account={account} characters={characters}/>
-      <EquipmentPage items={equipment?.slice(8)} character={character} account={account} characters={characters}/>
-      <EquipmentPage items={tools} character={character} account={account} characters={characters}/>
-      <EquipmentPage items={food} character={character} account={account} characters={characters}/>
-    </Stack>
-  </Stack>
+  // The game's own names for its two pages of equips
+  const groups = [
+    ['Equipment', equipment?.slice(0, SLOTS_PER_GROUP)],
+    ['Specials', equipment?.slice(SLOTS_PER_GROUP)],
+    ['Tools', tools],
+    ['Food', food]
+  ];
+  return <Panel title={'Equipment'}>
+    {groups.map(([label, items]) => <Panel.Group key={label} label={label}>
+      <CardGrid size={'icon'} sheetColumns={[8, 4]}>
+        {items?.slice(0, SLOTS_PER_GROUP).map((item, itemIndex) => {
+          const { rawName, displayName, amount } = item;
+          // A slot with nothing in it has nothing to read: no note, no tab stop
+          if (!isFilledSlot(item)) {
+            return <IconTile key={`${rawName}-${itemIndex}`} status={'empty'} alt={'Empty slot'}/>;
+          }
+          return <IconTile key={`${rawName}-${itemIndex}`} icon={`data/${rawName}.png`} alt={cleanUnderscore(displayName)}
+                           value={amount ? formatNum(amount, 'whole') : undefined}
+                           details={<ItemDisplay {...item} character={character} account={account} characters={characters}
+                                                 getGoldenFoodBonus={getGoldenFoodBonus} getPlayerFoodBonus={getPlayerFoodBonus}/>}/>;
+        })}
+      </CardGrid>
+    </Panel.Group>)}
+  </Panel>;
 };
 
-const EquipmentPage = ({ items, character, account, characters }) => {
-  return <Box
-    sx={{
-      display: 'grid',
-      justifyContent: 'center',
-      gridTemplateColumns: 'repeat(2, 60px)'
-    }}>
-    {items?.map((item, itemIndex) => {
-      const { rawName, displayName, amount } = item;
-      return itemIndex < 8 ?
-        <Card sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 76 }}
-              variant={'outlined'} key={`${rawName}-${itemIndex}`}>
-          <CardContent sx={{ '&:last-child': { padding: 0 } }}>
-            <Stack alignItems={'center'} justifyContent={'center'}>
-            <Tooltip
-              title={displayName && displayName !== 'ERROR' ? <ItemDisplay {...item} character={character}
-                                                                           account={account}
-                                                                           characters={characters}
-                                                                           getGoldenFoodBonus={getGoldenFoodBonus}/> : ''}>
-              <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-            </Tooltip>
-            {displayName !== 'ERROR' && rawName !== 'Blank' ? amount >= 1e5 ? notateNumber(amount) : amount : ' '}
-          </Stack>
-          </CardContent>
-        </Card> : null;
-    })}
-  </Box>
-}
-
-const ItemIcon = styled.img`
-  width: 50px;
-  height: 50px;
-  object-fit: contain;
-`
 export default Equipment;

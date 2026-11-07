@@ -17,7 +17,7 @@
 // The optional `type:` prefix is item | talent.
 export const REF_RE = /\[\[(?:(item|talent):)?([A-Za-z0-9_]{1,64})\]\]/g;
 
-// Back-compat alias — older callers imported ITEM_REF_RE.
+// Back-compat alias: older callers imported ITEM_REF_RE.
 export const ITEM_REF_RE = REF_RE;
 
 // Normalize a `{type, id}` pair to the canonical storage string.
@@ -76,11 +76,11 @@ export const insertItemRef = (text, start, rawNameOrRef, end = start) => {
 //   - Walk backwards from `cursor`. The query body can include letters,
 //     digits, underscore, and spaces (so "@Divine Ch" → query "Divine Ch"
 //     for multi-word item names like Divine Charge).
-//   - Newlines and punctuation break the mention — you can't carry a mention
+//   - Newlines and punctuation break the mention: you can't carry a mention
 //     across a paragraph or past a period/comma.
 //   - The char BEFORE `@` must be whitespace or the very start of the string
 //     (so "email@host" doesn't accidentally trigger).
-//   - The query is capped at 50 chars — no item displayName approaches this.
+//   - The query is capped at 50 chars: no item displayName approaches this.
 const QUERY_CHAR = /[A-Za-z0-9_ ]/;
 
 export const detectMention = (text, cursor) => {
@@ -191,7 +191,7 @@ export const flattenTalents = (talentsByTab) => {
   return out;
 };
 
-// Talent filter — mirror of filterItemsForQuery but against the flattened
+// Talent filter: mirror of filterItemsForQuery but against the flattened
 // talent array. Matches on `name` + `tabName` with the same underscore-as-
 // space normalisation so "@book of the wise" finds "BOOK_OF_THE_WISE".
 export const filterTalentsForQuery = (pool, query) => {
@@ -205,7 +205,7 @@ export const filterTalentsForQuery = (pool, query) => {
     const tab = normalizeForSearch(t.tabName || '');
     if (name.includes(q) || tab.includes(q)) matches.push(t);
   }
-  // See filterItemsForQuery — decorate once, sort by the cached normalized name.
+  // See filterItemsForQuery: decorate once, sort by the cached normalized name.
   const decorated = matches.map((t) => ({ t, n: normalizeForSearch(t.name || '') }));
   decorated.sort((a, b) => {
     const ap = a.n.startsWith(q) ? 0 : 1;

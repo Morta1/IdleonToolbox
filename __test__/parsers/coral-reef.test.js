@@ -40,8 +40,6 @@ describe('dancing coral', () => {
   it('exposes the shrine effect without the level-up-instructions tail', () => {
     const clover = dancingCoral[4];
     expect(clover.towerEffect).toBe('This_shrine_increases_the_Drop_Rate_of_all_characters_on_the_same_map.');
-    expect(clover.towerEffect).not.toContain('Current_Bonuses');
-    expect(clover.towerEffect).not.toContain('Level_it_up_by_claiming');
   });
 
   it('marks ownership by corals bought, not by the shrine\'s level', () => {

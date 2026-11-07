@@ -3,13 +3,15 @@ import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
-import { commaNotation, notateNumber } from '@utility/helpers';
 import { getMonumentMaxLinearTime } from '@parsers/world-5/caverns/bravery';
 import { getMotherlodeEffBase, getTotalOreReq, LAYER_CAVERN } from '@parsers/world-5/caverns/motherlode';
 import { getHarpExpGain, getHarpStringAllBonus } from '@parsers/world-5/caverns/the-harp';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
-import { getNewCollectibleChance } from '@parsers/world-5/caverns/the-jars';
+import { getJarBonus, getNewCollectibleChance } from '@parsers/world-5/caverns/the-jars';
 import { getTorchBonus } from '@parsers/world-5/caverns/the-temple';
+import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
+import { getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
+import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 
 const { account } = parseFixture(latest);
 const { caverns, holesObject } = account.hole;
@@ -44,8 +46,9 @@ const GAME_A = {
   motherlodeEffBase: [74962673.51641624, 2203992.1152000003, 41645929.731342345, 1285368201.5846403],
   // Holes("HoundNextOpalScoreReq" / "AmpStonesOwned" / "AmpMulti")
   den: { nextOpalAt: 17982988.396270752, ownedAmps: 8, ampMulti: 4.1899999999999995 },
-  // NotateNumber(Holes("AmpDebuff", t), t == 7 ? "Small" : "Big"), as the amplifier panel prints it
-  ampDebuffText: ['68K', '96.6K', '15', '4', '2', '2', '4', '0.1'],
+  // NotateNumber(Holes("AmpDebuff", t), t == 7 ? "Small" : "Big"): the amplifier panel prints 68K 96.6K 15 4 2 2 4 0.1.
+  // Below 1M the site's sentences keep their decimals
+  ampDebuffText: ['67,949.3', '96,536.18', '15', '4.63', '2.14', '2', '4', '0.1'],
   // Holes2("Fountain_BonTOT", t, i) after a -1 rebuild, Holes2("Cost_FountainUPG", t, i), Holes2("Fountain_UpgUnlocked", t, i)
   fountainBonus: [
     [10, 220, 136, 60, 59, 925, 900, 280, 64, 144, 5, 9, 720, 10, 122, 295, 56, 90, 200, 75],
@@ -77,74 +80,6 @@ const GAME_A = {
   // Holes2("FountainBar_ActiveSpdMulti")
   fountainActiveMulti: 12.2
 };
-
-describe('caverns part A verified against the live game', () => {
-  it.each([
-    ['bravery', caverns.bravery, GAME_A.bravery],
-    ['justice', caverns.justice, GAME_A.justice],
-    ['wisdom', caverns.wisdom, GAME_A.wisdom],
-    ['the den', caverns.theDen, GAME_A.den],
-    ['the fountain', caverns.theFountain, GAME_A.fountain]
-  ])('%s scalar readings', (_, cavern, expected) => {
-    Object.entries(expected).forEach(([key, value]) => within(cavern[key], value));
-  });
-
-  it('monument max linear reward time per monument', () => {
-    GAME_A.maxLinearTime.forEach((value, t) => within(getMonumentMaxLinearTime(holesObject, t, account), value));
-  });
-
-  it('well sediment caps, buckets and opal cost', () => {
-    const { theWell } = caverns;
-    // sediments[0] is the rock layer, repeated in front of the ten sediments
-    GAME_A.sedimentMax.forEach((value, index) => within(theWell.sediments[index + 1].max, value));
-    expect(theWell.buckets.length).toBe(GAME_A.buckets);
-    expect(theWell.goldenBucketsOwned).toBe(GAME_A.goldenBucketsOwned);
-    within(theWell.goldenBucketMulti, GAME_A.goldenBucketMulti);
-    expect(theWell.opalCost).toBe(notateNumber(GAME_A.wellOpalCost, 'TinyE'));
-  });
-
-  it('layer requirement and efficiency of every layered cavern, Evertree including the Trench study', () => {
-    GAME_A.totalOreReq.forEach((value, t) => within(getTotalOreReq(holesObject, account, t), value));
-    GAME_A.motherlodeEffBase.forEach((value, t) => within(getMotherlodeEffBase(holesObject, t), value));
-    expect(caverns.evertree.logs.required).toBe(commaNotation(GAME_A.totalOreReq[LAYER_CAVERN.EVERTREE]));
-    expect(caverns.motherlode.ores.required).toBe(commaNotation(GAME_A.totalOreReq[LAYER_CAVERN.MOTHERLODE]));
-  });
-
-  it('den amplifier debuffs as the game prints them', () => {
-    expect(caverns.theDen.amplifiers.map(({ bonus }) => bonus)).toEqual(GAME_A.ampDebuffText);
-  });
-
-  it('fountain upgrade bonuses, costs and unlocks', () => {
-    const { waters } = caverns.theFountain;
-    expect(waters.map(({ upgrades }) => upgrades.map(({ bonus }) => bonus))).toEqual(GAME_A.fountainBonus);
-    expect(waters.map(({ upgrades }) => upgrades.map(({ unlocked }) => unlocked ? 1 : 0))).toEqual(GAME_A.fountainUnlocked);
-    waters.forEach(({ upgrades }, t) => upgrades.forEach(({ cost }, i) => within(cost, GAME_A.fountainCost[t][i])));
-  });
-
-  // Holes("SchematicsAvailable") read 2026-10-16: 105, the game's cap, with 107 rows in HolesBuildings
-  it('engineer schematics, unlocked out of the most there can be', () => {
-    expect([account.hole.unlockedSchematics, account.hole.totalSchematics]).toEqual([105, 105]);
-  });
-
-  // The game has no fountain level cap (live saves pass 1,000); an upgrade has done its part once every upgrade it
-  // leads to is unlocked, which is what the tree marks.
-  it('fountain upgrades are uncapped and mark the ones that open everything after them', () => {
-    const { waters } = caverns.theFountain;
-    const upgrades = waters.flatMap(({ upgrades: list }) => list);
-    expect(upgrades.every(({ maxLevel }) => maxLevel === null)).toBe(true);
-    waters.forEach(({ upgrades: list }, t) => list.forEach(({ opensAll, unlocks }) => {
-      expect(opensAll).toBe(unlocks.length > 0 && unlocks.every((child) => GAME_A.fountainUnlocked[t][child] === 1));
-    }));
-  });
-
-  it('fountain currency base values and bars', () => {
-    const { currencies, fountainBars } = caverns.theFountain;
-    Object.entries(GAME_A.currencyBaseValue).forEach(([type, value]) => within(currencies[type].baseValue, value));
-    expect(fountainBars.map(({ tier }) => tier)).toEqual(GAME_A.fountainBarSpeed.map((_, tier) => tier));
-    fountainBars.forEach(({ speedPerSecond }, index) => within(speedPerSecond, GAME_A.fountainBarSpeed[index]));
-    within(fountainBars[0].activeMulti, GAME_A.fountainActiveMulti);
-  });
-});
 
 // Caverns part B: The Bell, The Harp, The Lamp, The Hive, Grotto, The Jars, The Temple, The Bottomless Trench and
 // Crystal Glunko Cove. Read from the same live session on 2026-10-12; every reading below still matched the save.
@@ -194,14 +129,75 @@ const GAME_B = {
   coveUpgradeCost: [412, 73, 99, 32, 15, 4, 1, 12, 2, 4, 1, 4, 1, 4, 1, 4, 1, 4, 1, 4, 1, 4, 1, 4]
 };
 
-describe('caverns part B verified against the live game', () => {
+describe('caverns verified against the live game', () => {
   it.each([
+    ['bravery', caverns.bravery, GAME_A.bravery],
+    ['justice', caverns.justice, GAME_A.justice],
+    ['wisdom', caverns.wisdom, GAME_A.wisdom],
+    ['the den', caverns.theDen, GAME_A.den],
+    ['the fountain', caverns.theFountain, GAME_A.fountain],
     ['the harp', caverns.theHarp, GAME_B.harp],
     ['grotto', caverns.grotto, GAME_B.grotto],
     ['the jars', caverns.theJars, GAME_B.jars],
     ['crystal glunko cove', caverns.crystalGlunkoCove, GAME_B.cove]
   ])('%s scalar readings', (_, cavern, expected) => {
     Object.entries(expected).forEach(([key, value]) => within(cavern[key], value));
+  });
+
+  it('monument max linear reward time per monument', () => {
+    GAME_A.maxLinearTime.forEach((value, t) => within(getMonumentMaxLinearTime(holesObject, t, account), value));
+  });
+
+  it('well sediment caps, buckets and opal cost', () => {
+    const { theWell } = caverns;
+    // sediments[0] is the rock layer, repeated in front of the ten sediments
+    GAME_A.sedimentMax.forEach((value, index) => within(theWell.sediments[index + 1].max, value));
+    expect(theWell.buckets.length).toBe(GAME_A.buckets);
+    expect(theWell.goldenBucketsOwned).toBe(GAME_A.goldenBucketsOwned);
+    within(theWell.goldenBucketMulti, GAME_A.goldenBucketMulti);
+    within(theWell.opalCost, GAME_A.wellOpalCost);
+  });
+
+  it('layer requirement and efficiency of every layered cavern, Evertree including the Trench study', () => {
+    GAME_A.totalOreReq.forEach((value, t) => within(getTotalOreReq(holesObject, account, t), value));
+    GAME_A.motherlodeEffBase.forEach((value, t) => within(getMotherlodeEffBase(holesObject, t), value));
+    within(caverns.evertree.logs.required, GAME_A.totalOreReq[LAYER_CAVERN.EVERTREE]);
+    within(caverns.motherlode.ores.required, GAME_A.totalOreReq[LAYER_CAVERN.MOTHERLODE]);
+  });
+
+  it('den amplifier debuffs', () => {
+    expect(caverns.theDen.amplifiers.map(({ bonus }) => bonus)).toEqual(GAME_A.ampDebuffText);
+  });
+
+  it('fountain upgrade bonuses, costs and unlocks', () => {
+    const { waters } = caverns.theFountain;
+    expect(waters.map(({ upgrades }) => upgrades.map(({ bonus }) => bonus))).toEqual(GAME_A.fountainBonus);
+    expect(waters.map(({ upgrades }) => upgrades.map(({ unlocked }) => unlocked ? 1 : 0))).toEqual(GAME_A.fountainUnlocked);
+    waters.forEach(({ upgrades }, t) => upgrades.forEach(({ cost }, i) => within(cost, GAME_A.fountainCost[t][i])));
+  });
+
+  // Holes("SchematicsAvailable") read 2026-10-16: 105, the game's cap, with 107 rows in HolesBuildings
+  it('engineer schematics, unlocked out of the most there can be', () => {
+    expect([account.hole.unlockedSchematics, account.hole.totalSchematics]).toEqual([105, 105]);
+  });
+
+  // The game has no fountain level cap (live saves pass 1,000); an upgrade has done its part once every upgrade it
+  // leads to is unlocked, which is what the tree marks.
+  it('fountain upgrades are uncapped and mark the ones that open everything after them', () => {
+    const { waters } = caverns.theFountain;
+    const upgrades = waters.flatMap(({ upgrades: list }) => list);
+    expect(upgrades.every(({ maxLevel }) => maxLevel === null)).toBe(true);
+    waters.forEach(({ upgrades: list }, t) => list.forEach(({ opensAll, unlocks }) => {
+      expect(opensAll).toBe(unlocks.length > 0 && unlocks.every((child) => GAME_A.fountainUnlocked[t][child] === 1));
+    }));
+  });
+
+  it('fountain currency base values and bars', () => {
+    const { currencies, fountainBars } = caverns.theFountain;
+    Object.entries(GAME_A.currencyBaseValue).forEach(([type, value]) => within(currencies[type].baseValue, value));
+    expect(fountainBars.map(({ tier }) => tier)).toEqual(GAME_A.fountainBarSpeed.map((_, tier) => tier));
+    fountainBars.forEach(({ speedPerSecond }, index) => within(speedPerSecond, GAME_A.fountainBarSpeed[index]));
+    within(fountainBars[0].activeMulti, GAME_A.fountainActiveMulti);
   });
 
   it.each([
@@ -251,9 +247,114 @@ describe('caverns part B verified against the live game', () => {
   });
 
   it('hive and trench requirements and efficiency, the Trench study included and no extra quarter on the Trench', () => {
-    expect(caverns.theHive.bugs.required).toBe(commaNotation(GAME_A.totalOreReq[LAYER_CAVERN.HIVE]));
-    expect(caverns.theBottomlessTrench.fish.required).toBe(commaNotation(GAME_A.totalOreReq[LAYER_CAVERN.TRENCH]));
-    expect(caverns.theHive.fishingEff).toBe(notateNumber(0.25 * GAME_A.motherlodeEffBase[LAYER_CAVERN.HIVE], 'Big'));
-    expect(caverns.theBottomlessTrench.fishingEff).toBe(notateNumber(0.25 * GAME_A.motherlodeEffBase[LAYER_CAVERN.TRENCH], 'Big'));
+    within(caverns.theHive.bugs.required, GAME_A.totalOreReq[LAYER_CAVERN.HIVE]);
+    within(caverns.theBottomlessTrench.fish.required, GAME_A.totalOreReq[LAYER_CAVERN.TRENCH]);
+    within(caverns.theHive.fishingEff, 0.25 * GAME_A.motherlodeEffBase[LAYER_CAVERN.HIVE]);
+    within(caverns.theBottomlessTrench.fishingEff, 0.25 * GAME_A.motherlodeEffBase[LAYER_CAVERN.TRENCH]);
+  });
+});
+
+// The Hole's rates that read across its caverns, and its villagers. Read on 2026-10-11, logged in as IAmTheHunterrr.
+// Caches were rebuilt first (calcEtcBonuses, TalentCalc(-2), PaletteBonus(-1), LoreEpiBon(-1), OverkillQTY(-1)).
+const GAME_HOLE = {
+  // Holes("VillagerExpPerHour", t)
+  villagerExp: [100606167441241.08, 107748829431517.72, 347887683585451.1, 255655541551169.4, 198870132829311],
+  // Holes("JarRupieValue"), Holes("JarProductionPerHR")
+  jarRupieValue: 2310873159367098,
+  jarProgressPerHour: 2915395.6824436793,
+  // Holes("MonumentHRbonusPCT") and ("MonumentHRbonusMULTI")
+  monumentAfkPercent: 1735.4172145155994,
+  monumentAfkMulti: 1.25,
+  // Holes("BellExpPerHR", 0..3)
+  bellExpRates: [17385809045426.973, 8111941563.352408, 153911.628713663, 10]
+};
+// The villager, jar and monument readings were compared at 1e-6
+const LOOSE = 1e-6;
+
+describe('hole verified against the live game', () => {
+  it('villager EXP / hr, the Tome epilogue read from the current tome score (hole parses before spelunking)', () => {
+    account.hole.villagers.forEach((villager, index) => within(villager.expRate.value, GAME_HOLE.villagerExp[index], LOOSE));
+  });
+
+  it('jar rupie value and progress per hour', () => {
+    within(caverns.theJars.rupieValue.value, GAME_HOLE.jarRupieValue, LOOSE);
+    within(caverns.theJars.perHour.value, GAME_HOLE.jarProgressPerHour, LOOSE);
+  });
+
+  it('monument AFK bonus, with the Minehead opponent multiplier on top', () => {
+    const { afkPercent } = caverns.bravery;
+    within(afkPercent.value, GAME_HOLE.monumentAfkPercent, 2e-5);
+    within(afkPercent.multi, GAME_HOLE.monumentAfkMulti, LOOSE);
+  });
+
+  it('bell EXP rates, the death note measurement leaving out the mini bosses', () => {
+    caverns.theBell.bells.forEach(({ expRate }, index) => within(expRate.value, GAME_HOLE.bellExpRates[index]));
+  });
+});
+
+// Gambit. Read on 2026-10-11, logged in as IAmTheHunterrr (Holes[11][65..70] gambit times and Holes[28] doublers match).
+// The live monument bonus (Holes("MonumentROGbonuses", 2, 7)) read 68.6 against the save's 68.5: Holes[15][27]
+// had grown from 11407 to 11507, so the points multi and every points-scaled bonus sit 1e-4 / 8e-6 above the save's.
+const GAME_GAMBIT = {
+  // Holes("GambitPts", 99, 0)
+  basePoints: 1634160.00000002,
+  // Holes("GambitPTSmulti", 0, 0)
+  pointsMulti: 7.690268815920399,
+  pointsMultiDriftTolerance: 2e-4,
+  // The GambitPTSmulti terms that do not drift: MeasurementBonusTOTAL 13, StudyBolaiaBonuses 13, B_UPG 78,
+  // JarCollectibleBonus 23 and 30, ArcaneUpgBonus 47
+  pointsMultiTerms: {
+    measurement: 37.426881592039805,
+    study: 125,
+    schematic: 10,
+    jar23: 64,
+    jar30: 64,
+    tesseract: 300
+  },
+  // Holes("GambitBonuses", i, 0)
+  bonuses: [
+    22, 7.099220967818055, 20, 177.48052419545138, 20, 177.48052419545138, 35, 70.99220967818054,
+    709.9220967818055, 1, 1, 177.48052419545138, 1, 1, 250, 3
+  ],
+  bonusDriftTolerance: 1e-5,
+  // Holes("GambitPtsREQ", i, 0)
+  pointsReq: [
+    3000, 5024, 8667.92, 14802.406400000002, 24684.26384, 40109.5632512, 63623.16377719041, 98804.3881881682,
+    150655.2386114558, 226126.35975265643, 334827.6442326948, 489985.8405622638, 709731.9643904582,
+    1018828.2956256031, 1450980.3212664844, 2051925.843981216
+  ],
+  // Holes("Gambit_SummoningDoublersLeft", 0, 0): bonus 0 plus 10 from event shop 15, less the 30 appointed slots
+  doublersLeft: 2,
+  doublersTotal: 32
+};
+
+describe('gambit verified against the live game', () => {
+  const { gambit } = caverns;
+
+  it('base points and points multi', () => {
+    within(gambit.basePoints, GAME_GAMBIT.basePoints);
+    within(gambit.pointsMulti, GAME_GAMBIT.pointsMulti, GAME_GAMBIT.pointsMultiDriftTolerance);
+  });
+
+  it('points multi terms', () => {
+    expect({
+      measurement: getMeasurementBonus({ holesObject, accountData: account, t: 13 }),
+      study: getStudyBonus(holesObject, 13, 0),
+      schematic: getSchematicBonus({ holesObject, t: 78, i: 10 }),
+      jar23: getJarBonus({ holesObject, i: 23, account }),
+      jar30: getJarBonus({ holesObject, i: 30, account }),
+      tesseract: getTesseractBonus(account, 47)
+    }).toEqual(GAME_GAMBIT.pointsMultiTerms);
+  });
+
+  it.each([...GAME_GAMBIT.bonuses.entries()])('bonus %i and its points requirement', (index, bonus) => {
+    within(gambit.bonuses[index].bonus, bonus, GAME_GAMBIT.bonusDriftTolerance);
+    within(gambit.bonuses[index].pointsReq, GAME_GAMBIT.pointsReq[index]);
+  });
+
+  it('summoning doublers', () => {
+    const { appointed, total } = gambit.summoningDoublers;
+    expect(total).toBe(GAME_GAMBIT.doublersTotal);
+    expect(total - appointed).toBe(GAME_GAMBIT.doublersLeft);
   });
 });

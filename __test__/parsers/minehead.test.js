@@ -5,10 +5,9 @@ import { liveCount } from '@parsers/catalog';
 import { mineheadUpgrades } from '@website-data';
 import { tryToParse } from '@utility/helpers';
 import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
 import latest from '../fixtures/latest.json';
+import saveFromAugust from '../fixtures/latest-2026-08.json';
+import { parseFixture } from '../helpers/parsed-fixtures';
 
 describe('getMinehead', () => {
   it('returns every live upgrade when the save is missing', () => {
@@ -42,34 +41,74 @@ describe('getMinehead', () => {
   });
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
-describe('getMinehead fixture regression', () => {
-  it.each(FIXTURES)('%s: upgrade levels the save covers are unchanged at the same index', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const researchRaw = tryToParse(data?.Research) || data?.Research;
-    const upgradeLevels = Array.isArray(researchRaw) ? researchRaw?.[8] : undefined;
-    const result = getMinehead(data, {}, {});
-
-    upgradeLevels?.forEach((level, index) => {
-      if (index >= result.upgrades.length) return;
-      expect(result.upgrades[index].level).toBe(Number(level) || 0);
-    });
-  });
-
-  it.each(FIXTURES)('%s: returns the full catalog length regardless of save', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const result = getMinehead(data, {}, {});
-    expect(result.upgrades).toHaveLength(liveCount(mineheadUpgrades));
+// Only the newest fixture carries Research: the older ones walk the missing-save path above
+describe('getMinehead on a real save', () => {
+  it('reads every level at its index, across the whole catalog', () => {
+    const upgradeLevels = tryToParse(latest.data.Research)[8];
+    const { upgrades } = getMinehead(latest.data, {}, {});
+    expect(upgradeLevels.length).toBeGreaterThan(0);
+    expect(upgrades.map(({ level }) => level))
+      .toEqual(Array.from({ length: liveCount(mineheadUpgrades) }, (_, index) => Number(upgradeLevels[index]) || 0));
   });
 
   // The dashboard currency-upgrade alert filters on canAfford alone, so the parser must keep
   // maxed and research-locked upgrades out of it.
-  it.each(FIXTURES)('%s: canAfford is never true for a maxed or locked upgrade', (_name, fixture) => {
+  it.each([['first', first], ['latest', latest]])('%s: canAfford is never true for a maxed or locked upgrade', (_name, fixture) => {
     const data = fixture.data ?? fixture;
     const result = getMinehead(data, {}, {});
     result.upgrades.forEach((upgrade) => {
       if (upgrade.isMaxed || upgrade.isLocked) expect(upgrade.canAfford).toBe(false);
     });
+  });
+});
+
+// Differentials on the 22 Aug 2026 save (latest-2026-08.json), which reads 0 for these terms
+describe('minehead currency gain: outpost ROG bonus and event shop 44', () => {
+  const { account } = parseFixture(saveFromAugust);
+  const currency = (acc) => getMinehead(saveFromAugust.data, acc, saveFromAugust.serverVars).currencyGain;
+
+  const withRog = (selectedIndex, value) => ({
+    ...account,
+    royalGuardian: {
+      ...account.royalGuardian,
+      outpostStats: {
+        ...account.royalGuardian.outpostStats,
+        rogBonuses: account.royalGuardian.outpostStats.rogBonuses.map((bonus, index) => ({
+          ...bonus,
+          selected: index === selectedIndex,
+          value: index === selectedIndex ? value : 1
+        }))
+      }
+    }
+  });
+
+  // accountOptions[311] is the owned-event-shop letter string; "R" is index 44.
+  const withEventShop = (owned) => ({
+    ...account,
+    accountOptions: Object.assign([], account.accountOptions, { 311: owned })
+  });
+
+  it('ROG bonus 3 (Minehead Currency Gain) multiplies currency per hour', () => {
+    const none = currency(withRog(-1, 1));
+    const selected = currency(withRog(3, 1.93));
+    expect(selected / none).toBeCloseTo(1.93, 10);
+  });
+
+  it('a ROG bonus below 1 is clamped to the identity', () => {
+    const none = currency(withRog(-1, 1));
+    expect(currency(withRog(3, 0.4)) / none).toBeCloseTo(1, 10);
+  });
+
+  it('the other three ROG bonuses do not touch currency per hour', () => {
+    const none = currency(withRog(-1, 1));
+    [0, 1, 2].forEach((index) => {
+      expect(currency(withRog(index, 1.93)) / none).toBeCloseTo(1, 10);
+    });
+  });
+
+  it('event shop 44 doubles currency per hour', () => {
+    const without = currency(withEventShop(''));
+    const owned = currency(withEventShop('R'));
+    expect(owned / without).toBeCloseTo(2, 10);
   });
 });

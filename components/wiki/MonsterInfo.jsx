@@ -3,7 +3,8 @@ import { Link } from '@mui/material';
 import InfoBox from './InfoBox';
 import StarLadder from './StarLadder';
 import { linkProps, navigateOnPlainClick } from './links';
-import { cleanUnderscore, numberWithCommas } from '@utility/helpers';
+import { cleanUnderscore, formatDuration } from '@utility/helpers';
+import { oneInOrNothing, percentLabel } from '@utility/wiki/odds.mjs';
 import { notateGame } from '@utility/wiki/notate';
 import { cardEffect, cardTiers } from '@utility/wiki/effects.mjs';
 import { entityName } from '@utility/wiki/names.mjs';
@@ -15,17 +16,14 @@ import { accuracyForHitChance, HIT_CURVE } from '@utility/hit-chance.mjs';
 const PageLink = ({ id, label, hrefFor, onNavigate }) => <Link
   {...linkProps(hrefFor, id)}
   variant={'body2'}
-  underline={'hover'}
+ 
   onClick={navigateOnPlainClick(onNavigate, id, Boolean(hrefFor?.(id)))}
 >
   {label}
 </Link>;
 
-// A stat as a row, notated; no row when the game data lacks what notating it needs.
-const notatedRow = (label, value) => {
-  const text = notateGame(value);
-  return text === null ? [] : [{ label, value: text }];
-};
+// A stat as a row, notated.
+const notatedRow = (label, value) => ({ label, value: notateGame(value) });
 
 // The rows, kept apart from the component so EntityPanel can ask whether any of them would draw.
 export const monsterGroups = ({ node, index, card, cardId, cardDropChance, hrefFor, onNavigate }) => {
@@ -33,20 +31,20 @@ export const monsterGroups = ({ node, index, card, cardId, cardDropChance, hrefF
   const pageLink = (id, label) => <PageLink id={id} label={label} hrefFor={hrefFor} onNavigate={onNavigate}/>;
 
   // Notated the way the game notates, not comma-grouped. Past 2^53 the raw number is not merely
-  // long, it is wrong: Spearfish's health is 1e23, which numberWithCommas rendered as
-  // 99,999,999,999,999,991,611,392. The game shows 10E22 and so do we.
+  // long, it is wrong: Spearfish's health is 1e23, which comma grouping rendered as
+  // 99,999,999,999,999,991,611,392. The game shows 10E22, and so does this.
   const information = [];
-  if (stats?.attack) information.push(...notatedRow('Attack', stats.attack));
-  if (stats?.health) information.push(...notatedRow('Health', stats.health));
+  if (stats?.attack) information.push(notatedRow('Attack', stats.attack));
+  if (stats?.health) information.push(notatedRow('Health', stats.health));
   if (stats?.defence) {
     // A graph built before the curve was stored only ever held monster figures.
     const curve = stats.hitCurve ?? HIT_CURVE.MONSTER;
-    information.push(...notatedRow('5% Accuracy', accuracyForHitChance(stats.defence, 5, curve)));
-    information.push(...notatedRow('100% Accuracy', accuracyForHitChance(stats.defence, 100, curve)));
-    information.push(...notatedRow('Def for 0', stats.defence));
+    information.push(notatedRow('5% Accuracy', accuracyForHitChance(stats.defence, 5, curve)));
+    information.push(notatedRow('100% Accuracy', accuracyForHitChance(stats.defence, 100, curve)));
+    information.push(notatedRow('Def for 0', stats.defence));
   }
-  if (stats?.experience) information.push(...notatedRow('Experience', stats.experience));
-  if (stats?.respawn) information.push({ label: 'Respawn', value: stats.respawn });
+  if (stats?.experience) information.push(notatedRow('Experience', stats.experience));
+  if (stats?.respawn) information.push({ label: 'Respawn', value: formatDuration(Number(stats.respawn)) });
 
   const cardRows = [];
   if (card) {
@@ -54,7 +52,8 @@ export const monsterGroups = ({ node, index, card, cardId, cardDropChance, hrefF
     cardRows.push({ label: 'Effect', value: cardEffect(card) });
     if (card.category) cardRows.push({ label: 'Category', value: cleanUnderscore(card.category) });
     if (cardDropChance > 0) {
-      cardRows.push({ label: 'Dropchance', value: `1 in ${numberWithCommas(Math.round(1 / cardDropChance))}` });
+      // The row's rule: three significant figures, a likely drop as its percent.
+      cardRows.push({ label: 'Drop chance', value: oneInOrNothing(cardDropChance) || percentLabel(cardDropChance) });
     }
   }
 
@@ -86,7 +85,7 @@ export const monsterGroups = ({ node, index, card, cardId, cardDropChance, hrefF
   return [
     { title: 'Information', rows: information },
     {
-      title: 'Card Info',
+      title: 'Card info',
       content: tiers ? <StarLadder values={tiers.bonus.map((tier) => card.bonus * (tier + 1))}/> : null,
       rows: cardRows
     },

@@ -1,44 +1,48 @@
-import { Card, CardContent, Checkbox, Chip, FormControlLabel, Stack, Typography } from '@mui/material';
+import { Box } from '@mui/material';
 import { cleanUnderscore } from '@utility/helpers';
-import React, { useState } from 'react';
+import React from 'react';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Notice from '@components/common/Notice';
 
-const Challenges = ({ challenges, completedClouds }) => {
-  const [hideCompleted, setHideCompleted] = useState(true);
+// Off by default, so the completed ones stay hidden as before: a Filter away from its default is what the Toolbar
+// names as narrowing, and "Hide completed" on by default would read as a filter when it was turned off
+const CHALLENGES_TOOLBAR = { showDone: false };
 
-  return <>
-    <FormControlLabel
-      control={<Checkbox checked={hideCompleted} onChange={() => setHideCompleted(!hideCompleted)}/>}
-      name={'Hide completed challenges'}
-      label="Hide completed challenges"/>
-    <Stack mb={1} gap={3} direction={'row'} flexWrap={'wrap'}>
-      {completedClouds >= challenges?.length && hideCompleted
-        ? <Typography variant={'h4'}>No more challenges!</Typography>
-        : challenges?.map(({ label, reward, goal, current, active, locked }, index) => {
-          if (current === -1 && hideCompleted) return null;
-          const readyToClaim = current !== -1 && current >= goal && !active && !locked;
-          return <Card key={label + `${index}`} sx={{
-            width: 350,
-            border: active || readyToClaim ? '1px solid' : '',
-            borderColor: active ? 'success.light' : readyToClaim ? 'info.light' : '',
-            opacity: locked ? .3 : current === -1 || active || readyToClaim ? 1 : .5
-          }}>
-            <CardContent>
-              <Stack>
-                {locked ? <Typography color="warning.main" sx={{ mb: 1 }}>Requires Research G8</Typography> : null}
-                {readyToClaim ? <Chip label="Requirements met" color="info" size="small" variant="outlined"
-                                      sx={{ mb: 1, alignSelf: 'flex-start', fontSize: 12 }}/> : null}
-                <Typography>Challenge: </Typography>
-                <Typography>{cleanUnderscore(label.capitalize())}</Typography>
-                <Typography sx={{ mt: 3 }}>Reward: </Typography>
-                <Typography>{cleanUnderscore(reward)}</Typography>
-                {current !== -1 ? <Typography sx={{ mt: 3 }}>Progress: </Typography> : null}
-                {current !== -1 ? <Typography>{current}</Typography> : null}
-              </Stack>
-            </CardContent>
-          </Card>
-        })}
-    </Stack>
-  </>;
+const stateOf = ({ current, goal, active, locked }) => {
+  if (current === -1) return { status: 'done', statusLabel: 'Completed' };
+  if (locked) return { status: 'locked', statusLabel: 'Requires Research G8' };
+  if (active) return { status: 'active', statusLabel: 'Active' };
+  if (current >= goal) return { status: 'ready', statusLabel: 'Requirements met' };
+  return {};
+};
+
+// sectionFailed: the progress is unknown, so no card carries a state
+const Challenges = ({ challenges, sectionFailed }) => {
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('equinox-challenges', CHALLENGES_TOOLBAR);
+  const list = challenges ?? [];
+  const shown = list.filter(({ current }) => toolbar?.showDone || current !== -1);
+
+  return <Box>
+    <Toolbar state={toolbar} defaults={CHALLENGES_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+             total={list.length} shown={shown.length} noun={'challenges'}>
+      <Toolbar.Filter name={'showDone'} label={'Show completed'}/>
+    </Toolbar>
+    {list.length && !shown.length ? <Notice tone={'info'}>Every challenge is completed.</Notice> : null}
+    <CardGrid size={'m'}>
+      {shown.map((challenge, index) => {
+        const { label, reward, goal, current } = challenge;
+        const { status, statusLabel } = sectionFailed ? {} : stateOf(challenge);
+        return <ItemCard key={`${label}-${index}`} title={cleanUnderscore(label?.capitalize?.() ?? label)}
+                         status={status} statusLabel={statusLabel}>
+          <ItemCard.Facts rows={[['Reward', cleanUnderscore(reward)]]}/>
+          {current !== -1 ? <ItemCard.Progress label={'Progress'} value={current ?? 0} max={goal ?? 0} kind={'whole'}/> : null}
+        </ItemCard>;
+      })}
+    </CardGrid>
+  </Box>;
 };
 
 export default Challenges;

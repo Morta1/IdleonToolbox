@@ -1,5 +1,5 @@
-import { cleanUnderscore, commaNotation, createRange, groupByKey, notateNumber, prefix, tryToParse } from '@utility/helpers';
-import { monsterImage } from '@utility/spriteImages';
+import { cleanUnderscore, createRange, gameFill, groupByKey, tryToParse } from '@utility/helpers';
+import { monsterSprite } from '@utility/spriteImages';
 import {
   deathNote,
   gameTables,
@@ -96,7 +96,7 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
     const monsterData = getSummoningBattle(enemyId);
     if (monsterData) {
       const extraData = getBattleData(enemyId, monsterData, wonBattles);
-      allBattles[0].push({ ...monsterData, ...extraData, icon: monsterImage(whiteBattleIcons?.[index]) });
+      allBattles[0].push({ ...monsterData, ...extraData, icon: monsterSprite(whiteBattleIcons?.[index]) });
     }
   });
   // 9 === this._GenINFO[146]
@@ -212,11 +212,9 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
     6: 264, // Emperor's Castle Doorstep
   }
 
-  const summoningStones = Object.entries(killRoyKills || {})
-    .filter(([name]) => name.includes('SummzTrz'))
-    .map(([name, kills]) => {
-      const killsNum = Number(kills) || 0;
-      const index = parseInt(name.match(/\d+$/)![0], 10);
+  const summoningStones = Object.keys(stoneNames).map(Number)
+    .map((index) => {
+      const killsNum = Number(killRoyKills?.[`SummzTrz${index}`]) || 0;
       const enemy = summoningEnemies[106 + index] as any;
       const isBoss6 = enemy?.enemyId === 'Boss6';
       const rawName = isBoss6 ? 'Boss6A' : enemy?.enemyId
@@ -229,7 +227,7 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
       const mapMonsterName = monsters?.[(mapEnemiesArray as any)[(stoneMapsIds as any)[index]]]?.Name;
       return {
         name: enemy?.territoryName,
-        monsterIcon: isBoss6 ? `${prefix}data/${enemy?.enemyId}.png` : monsterImage(monsterName),
+        monsterIcon: isBoss6 ? `data/${enemy?.enemyId}.png` : monsterSprite(monsterName),
         stoneName: (stoneNames as Record<number, string>)[index],
         kills: killsNum,
         index,
@@ -238,10 +236,9 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
         nextLevelHps,
         mapName: (mapNames as any)[(stoneMapsIds as any)[index]],
         mapMonsterName: mapMonsterName,
-        mapMonsterIcon: mapMonsterName ? monsterImage(mapMonsterName) : null
+        mapMonsterIcon: mapMonsterName ? monsterSprite(mapMonsterName) : null
       }
-    })
-    .toSorted((a, b) => a.index - b.index);
+    });
   const totalSummoningStonesKills = summoningStones.reduce((sum, { kills }) => sum + kills, 0);
   // game: the Familiar upgrade's "|", ShopRestock + 86400 * Summon[3][3] seconds from the save
   const familiarCostResetSeconds = (Number(account?.timeAway?.ShopRestock) || 0) + 86400 * (Number(summoningStuff?.[3]) || 0);
@@ -277,7 +274,7 @@ export const getEndlessBattles = (battles = 100, highestEndlessLevel: any, winne
     const actualBonus = bonus?.bonus?.includes('<')
       ? (1 + bonusQty / 100)
       : (bonusQty);
-    bonus.bonus = bonus?.bonus?.replace(/[<{]/, actualBonus.toFixed(2).replace('.00', ''));
+    bonus.bonus = bonus?.bonus?.replace(/[<{]/, gameFill(actualBonus, bonus?.bonus?.includes('<') ? 'MultiplierInfo' : 'Big'));
     const riftIndex = summoningEnemies.findIndex((enemy) => enemy.enemyId.includes('rift1'));
     const monsterId = Math.round(riftIndex + Math.min(4, Math.floor(i / 20)));
     const [name, ...rest] = summoningEndless.difficultiesText?.[difficultyIndex].split('|');
@@ -288,7 +285,7 @@ export const getEndlessBattles = (battles = 100, highestEndlessLevel: any, winne
       bonusQty,
       difficulty: { name, sentence: rest.join('_') },
       won: highestEndlessLevel > i,
-      icon: `${prefix}etc/${monster?.enemyId}_monster.png`
+      icon: `etc/${monster?.enemyId}_monster.png`
     });
   }
   return endlessBattles;
@@ -423,11 +420,11 @@ const getArmyDamage = (upgrades: any, totalUpgradesLevels: any, account: any) =>
 const getSummoningBattle = (enemyId: any) => summoningEnemies.find((enemy) => enemy.enemyId === enemyId && enemy.bonusId !== '_');
 
 const getBattleData = (enemyId: any, monsterData: any, wonBattles: any) => {
-  const icon = monsterImage(enemyId, 'face');
+  const icon = monsterSprite(enemyId, 'face');
   const won = wonBattles?.includes(enemyId);
   const { bonus, bonusId } = summoningBonuses.find((bonus) => bonus.bonusId === monsterData.bonusId)!;
   const base = 3.5 * monsterData?.bonusQty;
-  const actualBonus = bonus.includes('<') ? notateNumber(1 + base / 100, 'MultiplierInfo') : notateNumber(base, 'Big');
+  const actualBonus = bonus.includes('<') ? gameFill(1 + base / 100, 'MultiplierInfo') : gameFill(base, 'Big');
   const resultBonus = { bonusId, bonus: bonus.replace(/[<{]/, '' + actualBonus) };
   return {
     bonus: resultBonus,
@@ -535,9 +532,9 @@ const PLAIN_TOTAL_UPGRADES = [49, 57, 72, 75];
 // > is round(100 + bonus) / 100, } is the total and "@" is a line break. "|" (the familiar cost reset) is left for
 // the page to fill.
 export const getSummoningUpgradeText = ({ bonus, value, totalBonus, originalIndex }: any): string => {
-  const total = PLAIN_TOTAL_UPGRADES.includes(originalIndex) ? totalBonus : commaNotation(totalBonus);
+  const total = PLAIN_TOTAL_UPGRADES.includes(originalIndex) ? totalBonus : gameFill(totalBonus, 'Comma');
   const text = String(bonus ?? '')
-    .split('{').join(commaNotation(value))
+    .split('{').join(gameFill(value, 'Comma'))
     .split('>').join(String(Math.round(100 + value) / 100))
     .split('}').join(String(total));
   return (cleanUnderscore(text) ?? '').split('@').map((line) => line.trim()).join('\n');

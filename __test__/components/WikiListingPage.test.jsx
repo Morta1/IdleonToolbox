@@ -4,7 +4,7 @@ import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import { listingProps, slugProps } from '@utility/wiki/static-pages.mjs';
 import { KIND_PLURALS } from '@utility/wiki/kind-labels.mjs';
 
@@ -15,7 +15,7 @@ vi.mock('next/router', () => ({ useRouter: () => ({ pathname: '/wiki/[kind]', ..
 
 const WikiListingPage = (await import('@components/wiki/WikiListingPage')).default;
 
-const renderPage = (props) => render(<ThemeProvider theme={darkTheme}><WikiListingPage {...props}/></ThemeProvider>);
+const renderPage = (props) => render(<ThemeProvider theme={theme}><WikiListingPage {...props}/></ThemeProvider>);
 const npc = listingProps('npc').props;
 
 describe('WikiListingPage', () => {
@@ -28,13 +28,9 @@ describe('WikiListingPage', () => {
     const trail = container.querySelector('nav[aria-label="breadcrumb"]');
     expect({
       links: [...trail.querySelectorAll('a')].map((link) => [link.textContent, link.getAttribute('href')]),
-      current: trail.querySelector('[aria-current="page"]').textContent
-    }).toEqual({ links, current });
-  });
-
-  it('leaves the old button trail out of the category card', () => {
-    renderPage(npc);
-    expect(screen.queryByRole('button', { name: 'Wiki' })).toBeNull();
+      current: trail.querySelector('[aria-current="page"]').textContent,
+      buttonTrail: [...container.querySelectorAll('button')].filter((button) => button.textContent === 'Wiki')
+    }).toEqual({ links, current, buttonTrail: [] });
   });
 
   it('routes a plain click on a crumb in-app and leaves a modified click to the browser', () => {
@@ -97,20 +93,21 @@ describe('WikiListingPage sort', () => {
 
   // The pathname is the listing's own URL, so a moved listing sorts under /wiki/equinox/upgrades, never ?kind=.
   it.each([
-    ['/wiki/monster', monster, { kind: 'monster' }, 'Health', 'health'],
-    ['/wiki/equinox/upgrades', slugProps('equinox', 'upgrades').props, { kind: 'equinox', slug: 'upgrades' }, 'Name', 'name']
-  ])('writes a header click into %s', (pathname, props, query, header, key) => {
+    ['/wiki/monster', monster, { kind: 'monster' }, 'Health', { sort: 'health', order: 'desc' }],
+    ['/wiki/equinox/upgrades', slugProps('equinox', 'upgrades').props, { kind: 'equinox', slug: 'upgrades' }, 'Name', { sort: 'name' }]
+  ])('writes a header click into %s', (pathname, props, query, header, written) => {
     Object.assign(router, { isReady: true, query });
     const { container } = renderPage(props);
     // Within the head: a role query over a 222-row page is seconds slower and finds the same button.
-    fireEvent.click(within(container.querySelector('thead')).getByRole('button', { name: header }));
-    expect(router.replace.mock.calls).toEqual([[{ pathname, query: { sort: key } }, undefined, { shallow: true, scroll: false }]]);
+    // hidden: jsdom resolves no container query, so a column waiting for its room reads as hidden.
+    fireEvent.click(within(container.querySelector('thead')).getByRole('button', { name: header, hidden: true }));
+    expect(router.replace.mock.calls).toEqual([[{ pathname, query: written }, undefined, { shallow: true, scroll: false }]]);
   });
   // Next keeps this page mounted between two listings, so a filter typed on one emptied the next.
   it('opens the next listing unfiltered', () => {
     const { rerender } = renderPage(npc);
-    fireEvent.change(screen.getByLabelText(/^Filter /), { target: { value: 'zzz' } });
-    rerender(<ThemeProvider theme={darkTheme}><WikiListingPage {...listingProps('pet').props}/></ThemeProvider>);
-    expect(screen.getByLabelText(/^Filter /).value).toBe('');
+    fireEvent.change(screen.getByPlaceholderText(/^Search NPCs/), { target: { value: 'zzz' } });
+    rerender(<ThemeProvider theme={theme}><WikiListingPage {...listingProps('pet').props}/></ThemeProvider>);
+    expect(screen.getByPlaceholderText(/^Search pets/i).value).toBe('');
   });
 });

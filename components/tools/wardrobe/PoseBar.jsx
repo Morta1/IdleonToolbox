@@ -6,14 +6,14 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { POSES } from '@utility/paperDoll';
 
 const PoseBar = ({ pose, playing, poses = POSES, onPose, onTogglePlay, onDownload }) => {
-  return <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-    <ToggleButtonGroup size={'small'} exclusive value={pose} onChange={(_, next) => next && onPose(next)}>
+  return <Stack direction={'row'} alignItems={'center'} justifyContent={'center'} gap={1} flexWrap={'wrap'}>
+    <ToggleButtonGroup exclusive value={pose} onChange={(_, next) => next && onPose(next)}>
       {poses.map(({ id, label }) => <ToggleButton key={id} value={id}>{label}</ToggleButton>)}
     </ToggleButtonGroup>
-    <IconButton aria-label={playing ? 'pause' : 'play'} onClick={onTogglePlay}>
+    <IconButton aria-label={playing ? 'Pause' : 'Play'} onClick={onTogglePlay}>
       {playing ? <PauseIcon/> : <PlayArrowIcon/>}
     </IconButton>
-    <IconButton aria-label={'download png'} onClick={onDownload}><DownloadIcon/></IconButton>
+    <IconButton aria-label={'Download as PNG'} onClick={onDownload}><DownloadIcon/></IconButton>
   </Stack>;
 };
 

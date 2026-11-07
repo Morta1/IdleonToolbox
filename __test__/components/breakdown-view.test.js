@@ -52,6 +52,9 @@ describe('breakdown tree', () => {
     expect(formatBreakdownValue(-1.06, 'percent')).toBe('-1.06%');
     expect(formatBreakdownValue(1.9, 'multiplier')).toBe('×1.9');
     expect(formatBreakdownValue(1330000, 'flat')).toBe('1.33M');
+    // Below 1M a line shows its decimals, as the row it explains does.
+    expect(formatBreakdownValue(2830.12, 'percent')).toBe('+2,830.12%');
+    expect(formatBreakdownValue(39725.93, 'multiplier')).toBe('×39,725.93');
   });
 });
 
@@ -146,7 +149,7 @@ describe('older categories shape', () => {
     expect(category.children.map(({ name, display, pinKey }) => [name, display, pinKey])).toEqual([
       ['Luck', '1.40', '0-Luck'],
       ['Card', '0%', '0-Card'],
-      ['Gear', '1 sources', expect.any(String)]
+      ['Gear', '1 source', expect.any(String)]
     ]);
     expect(category.children[2].children[0].pinKey).toBe('0-0-Equipment');
     expect(hasInactiveNodes(toBreakdownTree(legacy, 'MultiplierInfo'))).toBe(false);
@@ -266,7 +269,8 @@ describe('share and gain', () => {
       { Bonus: 33.3333, Prayer: -66.6667 }],
     ['the one amount group when every factor is x1', 'product',
       [sumGroup('Size', [flat('Base', 2), flat('Talent', 6)]), multiplier('Bundle', 1)],
-      { Size: 100, Base: 25, Talent: 75 }]
+      { Size: 100, Base: 25, Talent: 75 }],
+    ['nothing on a min root, where one value is picked', 'min', [flat('Uncapped', 3), flat('Cap', 50)], {}]
   ])('shares %s', (_name, combine, nodes, expected) => {
     expect(byName(computeShares(nodes, combine))).toEqual(expected);
   });
@@ -287,7 +291,7 @@ describe('share and gain', () => {
   });
 
   it('never rounds a share to 0% or 100% that is not', () => {
-    expect([0, 0.0018, 4.567, 43.31, 99.998, 100].map(formatShare)).toEqual(['0%', '<0.1%', '4.57%', '43.3%', '>99.9%', '100%']);
+    expect([0, 0.0018, 4.567, 43.31, 99.998, 100].map(formatShare)).toEqual(['0%', '<0.1%', '4.57%', '43.31%', '>99.9%', '100%']);
   });
 
   it('puts both on the rows the drawer shows', () => {

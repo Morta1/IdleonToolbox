@@ -1,30 +1,23 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
+import { formatNum } from '@utility/helpers';
+import Panel from '@components/common/cards/Panel';
 
-const Bosses = ({ bosses, bossPortals, runUnlocked }) => <Card sx={{ mb: 3 }}>
-  <CardContent>
-    <Typography variant={'h6'}>Bosses</Typography>
-    <Typography variant={'body2'} color={'text.secondary'} sx={{ mb: 1.5 }}>
-      {bossPortals > 0
-        ? 'Each boss kill is worth its difficulty plus one in portals, and speeds mob respawn for the rest of the run.'
-        : runUnlocked
-          ? 'Level "Bossing in Vain" to make boss kills count as portals.'
-          : 'Level "Void Trial Rerun" to start a speedrun.'}
-    </Typography>
-    <Divider sx={{ mb: 1.5 }}/>
-    <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-      {bosses.map(({ mapIndex, name, world, difficultyName, portals, payoutBossName }) => <Stack
-        key={mapIndex} sx={{ px: 1.5, py: 0.5, borderRadius: 1, bgcolor: 'background.default' }}>
-        <Typography variant={'body2'}>{name}</Typography>
-        <Typography variant={'caption'} color={'text.secondary'}>
-          W{world} &middot; {difficultyName} &middot; {bossPortals > 0 ? `+${portals}` : '+0'} portals
-        </Typography>
-        {payoutBossName ? <Typography variant={'caption'} color={'text.secondary'}>
-          Pays out on {payoutBossName}&apos;s difficulty (game bug)
-        </Typography> : null}
-      </Stack>)}
-    </Stack>
-  </CardContent>
-</Card>;
+// The run's sentence for the account it reads: a guest has no Voidwalker to read it off
+const bossNote = ({ bossPortals, runUnlocked, hasVoidwalker, emptyAccount }) => {
+  if (!hasVoidwalker && emptyAccount) return 'Your Voidwalker\'s boss portals show here once you sign in.';
+  if (bossPortals > 0) return 'Each boss kill is worth its difficulty plus one in portals, and speeds mob respawn for the rest of the run.';
+  return runUnlocked ? 'Level "Bossing in Vain" to make boss kills count as portals.' : 'Level "Void Trial Rerun" to start a speedrun.';
+};
+
+// One row per world boss; a failed section has none, so no Panel draws over nothing
+const Bosses = ({ bosses, bossPortals, runUnlocked, hasVoidwalker, emptyAccount }) => {
+  if (!bosses?.length) return null;
+  return <Panel title={'Bosses'} meta={bossNote({ bossPortals, runUnlocked, hasVoidwalker, emptyAccount })} sx={{ mb: 3 }}>
+    {bosses.map(({ mapIndex, name, world, difficultyName, portals, payoutBossName }) => <Panel.Row
+      key={mapIndex} name={name}
+      sub={`World ${formatNum(world)} · ${difficultyName}${payoutBossName ? ` · Pays out on ${payoutBossName}'s difficulty (game bug)` : ''}`}
+      value={`+${formatNum(bossPortals > 0 ? portals : 0)} portals`}/>)}
+  </Panel>;
+};
 
 export default Bosses;

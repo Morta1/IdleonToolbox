@@ -4,25 +4,28 @@ import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import graph from '../../data/entity-graph.json';
 import SneakFloorInfo from '@components/wiki/SneakFloorInfo';
 import { registryInfoShows } from '@components/wiki/RegistryInfo';
 
 const floor = graph.nodes['sneakfloor:SneakFloor4'];
 const index = { byId: graph.nodes };
-const renderFloor = () => render(<ThemeProvider theme={darkTheme}>
+const renderFloor = () => render(<ThemeProvider theme={theme}>
   <SneakFloorInfo node={floor} index={index} hrefFor={(id) => `/wiki/${id}`} onNavigate={() => {}}/>
 </ThemeProvider>);
 
 const tables = (container) => [...container.querySelectorAll('table')].map((table) => [...table.querySelectorAll('tbody tr')]
-  .map((row) => [...row.querySelectorAll('th, td')].map((cell) => cell.textContent)));
+  .map((row) => [...row.querySelectorAll('th, td:not(.expand)')].map((cell) => cell.textContent)));
 
 describe('SneakFloorInfo', () => {
   // The stats and the loot follow one Ninja Mastery field; the rail no longer repeats them.
   it('lays the floor out as a stats table and a loot table', () => {
     const { container } = renderFloor();
-    const [stats, loot] = tables(container);
+    const [loot] = tables(container);
+    const stats = [...screen.getByRole('heading', { name: 'Stats' }).closest('section').querySelectorAll('.MuiStack-root')]
+      .filter((row) => row.children.length === 2 && row.children[0].tagName === 'DIV' && !row.querySelector('h2'))
+      .map((row) => [row.children[0].textContent, row.children[1].textContent]);
     expect({
       stats: stats.map(([label]) => label),
       door: stats[0][1],
@@ -50,15 +53,15 @@ describe('SneakFloorInfo', () => {
       [...line.querySelectorAll('a')].map((link) => link.getAttribute('href'))
     ]);
     expect(added).toEqual([
-      ['Ninja Mastery 1 adds: Emerald (needs a Wind Walker)', ['/wiki/ninjaitem:NjGem6']],
-      ['Ninja Mastery 2 adds: Gold Star', ['/wiki/ninjaitem:NjTr21']]
+      ['Ninja Mastery 1 adds Emerald, which needs a Wind Walker.', ['/wiki/ninjaitem:NjGem6']],
+      ['Ninja Mastery 2 adds Gold Star.', ['/wiki/ninjaitem:NjTr21']]
     ]);
   });
 
   it('moves the loot with the mastery, the class-locked item marked', () => {
     const { container } = renderFloor();
-    fireEvent.change(screen.getByRole('spinbutton'), { target: { value: '2' } });
-    const [, loot] = tables(container);
+    fireEvent.change(screen.getByLabelText('Ninja Mastery'), { target: { value: '2' } });
+    const [loot] = tables(container);
     expect(loot.map(([item]) => item)).toEqual(['Spirited Mane', 'Fiery Mane', 'Gold Eye', 'Silk Veil', 'EmeraldNeeds a Wind Walker', 'Gold Star', 'Jagged Kunai']);
   });
 });

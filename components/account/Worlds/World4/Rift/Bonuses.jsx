@@ -1,60 +1,40 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { getShinyBonus } from '@parsers/world-4/breeding';
 import { MAX_VIAL_LEVEL } from '@parsers/world-2/alchemy';
 import { getEclipseSkullsBonus } from '@parsers/world-3/deathNote';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import { isCookingMasteryUnlocked } from '../CookingMastery';
 
-const Bonuses = ({ list, currentRift, account }) => {
-  const getTotalBonus = (riftBonus) => {
-    let totalBonus, totalBonusText;
+const Bonuses = ({ list, currentRift = 0, account }) => {
+  // The three bonuses whose total the account holds
+  const totalBonus = (riftBonus) => {
     if (riftBonus === 'Vial_Mastery') {
-      const maxedVials = account?.alchemy?.vials?.filter(({ level }) => level === MAX_VIAL_LEVEL);
-      totalBonus = `${notateNumber(1 + (2 * maxedVials?.length) / 100, 'MultiplierInfo')}x`;
-      totalBonusText = 'Total Vial Boost: ';
-    } else if (riftBonus === 'Eclipse_Skulls') {
-      totalBonus = `${getEclipseSkullsBonus(account)}%`;
-      totalBonusText = 'Total Damage Bonus: ';
-    } else if (riftBonus === 'Infinite_Stars') {
-      const infiniteStarBonus = 5 + getShinyBonus(account?.breeding?.pets, 'Infinite_Star_Signs');
-      totalBonus = `You have ${infiniteStarBonus} infinite star signs`;
-      totalBonusText = '';
+      const maxedVials = account?.alchemy?.vials?.filter(({ level }) => level === MAX_VIAL_LEVEL)?.length ?? 0;
+      return ['Total vial boost', formatNum(1 + (2 * maxedVials) / 100, 'mult')];
     }
-    return {
-      totalBonus,
-      totalBonusText
+    if (riftBonus === 'Eclipse_Skulls') return ['Total damage bonus', formatNum(getEclipseSkullsBonus(account) ?? 0, 'pct')];
+    if (riftBonus === 'Infinite_Stars') {
+      return ['Infinite star signs', formatNum(5 + (getShinyBonus(account?.breeding?.pets, 'Infinite_Star_Signs') ?? 0))];
     }
-  }
-  return <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-    {list?.map(({ monsterName, task, icon, riftBonus, riftBonusIcon, riftDescription }, index) => {
-      if (index > 60 || !riftBonus) return;
-      const { totalBonusText, totalBonus } = getTotalBonus(riftBonus);
-      return <Card key={`${monsterName}-${index}`} sx={{
-        width: 300,
-        minHeight: 200,
-        display: 'flex',
-        opacity: index > currentRift && index !== currentRift ? .7 : 1
-      }}>
-        <CardContent sx={{ width: 300 }}>
-          <Stack direction={'row'} alignItems={'center'} gap={1}>
-            <img src={`${prefix}etc/${riftBonusIcon}.png`}
-                 alt={riftBonusIcon}/>
-            <Typography>{cleanUnderscore(riftBonus)}</Typography>
-          </Stack>
-          <Typography variant={'caption'} component={'span'}>{index <= currentRift ?
-            <Typography variant={'caption'} color={'success.light'}>Unlocked</Typography> : null} (Unlocks at
-            rift {index + 1})</Typography>
-          <Divider sx={{ mt: 1 }}/>
-          <Typography sx={{ mt: 2 }}>{cleanUnderscore(riftDescription.replace('@', ''))}</Typography>
-          {totalBonus || totalBonusText ? <>
-            <Divider sx={{ mt: 1 }}/>
-            <Typography sx={{ mt: 2 }}>{totalBonusText}{cleanUnderscore(totalBonus)}</Typography>
-          </> : null}
-        </CardContent>
-      </Card>
+    return null;
+  };
+  return <CardGrid size={'m'}>
+    {list?.map(({ monsterName, riftBonus, riftBonusIcon, riftDescription }, index) => {
+      if (!riftBonus) return null;
+      // Each card names its rift as the game's list does (Cooking Mastery: Rift 61, the game's own words); Cooking
+      // Mastery unlocks by the rule Cooking reads (from Rift 60, or the Rift Spooker), not its place in the list
+      const unlocked = riftBonus === 'Cooking_Mastery' ? isCookingMasteryUnlocked(account) : index <= currentRift;
+      return <ItemCard key={`${monsterName}-${index}`} icon={`etc/${riftBonusIcon}.png`} iconAlt={''}
+                       title={cleanUnderscore(riftBonus)} meta={`Rift ${index + 1}`} dimmed={!unlocked}
+                       status={unlocked ? 'done' : 'locked'}
+                       statusLabel={unlocked ? 'Unlocked' : `Unlocks at rift ${index + 1}`}>
+        {riftDescription ? <ItemCard.Desc text={riftDescription}/> : null}
+        <ItemCard.Facts rows={[totalBonus(riftBonus)]}/>
+      </ItemCard>
     })}
-  </Stack>
+  </CardGrid>
 };
-
 
 export default Bonuses;

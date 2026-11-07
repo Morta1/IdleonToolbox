@@ -1,4 +1,4 @@
-import { commaNotation, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
+import { commaNotation, gameFill, lavaLog, tryToParse } from '@utility/helpers';
 import {
   armoryUpgrades as armoryUpgradesCatalog,
   items,
@@ -499,27 +499,27 @@ export const getOutpostKillsReq = (mapIndex: number): number => {
 const getResourceNodeMax = (nodeIndex: number, baseMaxQuantity: number, nodeLevel: number): number =>
   5 * baseMaxQuantity * Math.pow(1.5, nodeLevel) * Math.pow(5, Math.floor(nodeIndex / RESOURCE_NODES_PER_WORLD));
 
+const GLORIFICATION_INDEX = 4;
+const GLORIFICATION_LINE = '10%_chance_to_Glorify_the_current_Outpost';
+
 // split/join, not regex .replace(): the replacement string can itself legitimately contain "$"
 // (see below), and String.replace treats "$" specially in its REPLACEMENT argument ($&, $1...),
 // which would corrupt exactly that value. Same fix already used in world-7/research.ts.
 const replaceToken = (str: string, placeholder: string, value: string): string => str.split(placeholder).join(value);
 
-// Strips the game's own "roughly equal" marker that NotateNumber('MultiplierInfo') sometimes
-// embeds (game: y.replace(str, "#", "")); this port never emits '#', so this is a defensive no-op.
-const stripApprox = (str: string): string => replaceToken(str, '#', '');
-
-const applyBonusTokens = (description: string, bonus: number, dollarValue?: string | null): string => {
+const applyBonusTokens = (description: string, bonus: number, dollarValue?: string | null, multiplierInfo?: boolean): string => {
   if (typeof description !== 'string') return '';
   let result = description;
   if (bonus >= 1e9) {
-    result = replaceToken(result, '{', String(notateNumber(bonus, 'Big')));
-    result = replaceToken(result, '}', String(notateNumber(1 + bonus / 100, 'Big')));
+    result = replaceToken(result, '{', gameFill(bonus, 'Big'));
+    result = replaceToken(result, '}', gameFill(1 + bonus / 100, multiplierInfo ? 'MultiplierInfo' : 'Big'));
   } else {
-    const multiplier = bonus < 1e3
-      ? notateNumber(1 + bonus / 100, 'MultiplierInfo')
+    // The game floors } from a bonus of 1e3 up; below 1M it shows its decimals by the site's rule
+    const multiplier = 1 + bonus / 100 < 1e6 || multiplierInfo
+      ? gameFill(1 + bonus / 100, 'MultiplierInfo')
       : commaNotation(Math.floor(1 + bonus / 100));
-    result = replaceToken(result, '{', String(commaNotation(bonus)));
-    result = replaceToken(result, '}', String(multiplier));
+    result = replaceToken(result, '{', gameFill(bonus, 'Comma'));
+    result = replaceToken(result, '}', multiplier);
   }
   // Unlike { and }, "$" is not a generic "second bonus" token here (contrast world-7/research.ts):
   // the game's own armory tooltip renderer (MenuType2 == 106 draw loop) hand-picks a different
@@ -713,11 +713,11 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       bonusPerLevel: toNum(entry?.bonusPerLevel),
       cost: rawCost < 1e6 ? Math.floor(rawCost) : rawCost,
       maxed: maxLevel > 0 && level >= maxLevel,
-      // game: for GLORIFICATION (index 4) this "$" is overwritten with one of three strings that
-      // describe the CURRENT map's own outpost (no outpost / not glorified / glorified) - there is
-      // no account-wide value to substitute, so it is deliberately left unresolved (see task D9
-      // report). Every other orblet description's placeholders are the shared {/} bonus pair only.
-      description: applyBonusTokens(entry?.description, bonus)
+      // game: for GLORIFICATION (index 4) this "$" is overwritten with one of three strings about the CURRENT map's own
+      // outpost (no outpost / not glorified / glorified): the line that says what the upgrade does stands for them. Every
+      // other orblet description's placeholders are the shared {/} bonus pair only, so only this sentence leaves its bonus out.
+      description: applyBonusTokens(entry?.description, bonus, index === GLORIFICATION_INDEX ? GLORIFICATION_LINE : null),
+      bonusInSentence: index !== GLORIFICATION_INDEX
     };
   });
   const orbletBonus = (index: number): number => orbletUpgrades.find((u) => u.index === index)?.bonus ?? 0;
@@ -843,45 +843,45 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
         return String(Math.round(100 * (1 + purifyMulti / 100)) / 100);
       }
       case 17: // Peacetime_Milita - exactly half the Military Rank unit's own EXP rate
-        return String(notateNumber(getBarExpRateBase(3) / 2, 'Small'));
+        return gameFill(getBarExpRateBase(3) / 2, 'Small');
       case 41: // Royal_Marble - game: commaNotation(1 / MarbleDrop(0, 0)), so the world 1 chance
-        return commaNotation(1 / marbleDropChance[0]);
+        return gameFill(1 / marbleDropChance[0], 'Comma', { whole: true });
       case 18: // Global_Decree_-_RG
-        return commaNotation(totalStatz[0] * armoryBonus(18));
+        return gameFill(totalStatz[0] * armoryBonus(18), 'Comma');
       case 19: // Wonderful_Workers - game: "UnitSpecEffect"(0)
-        return commaNotation(50 + armoryBonus(19));
+        return gameFill(50 + armoryBonus(19), 'Comma');
       case 21: // Great_Guards - game: "UnitSpecEffect"(2)
-        return commaNotation(25 + armoryBonus(21));
+        return gameFill(25 + armoryBonus(21), 'Comma');
       case 20: case 22: case 24: case 25: case 26: {
         const rankType = RANK_TYPE_ARMORY_ID.indexOf(index);
-        return stripApprox(String(notateNumber(getBarExpRateBase(rankType), 'MultiplierInfo')));
+        return gameFill(getBarExpRateBase(rankType), 'MultiplierInfo');
       }
       case 23: // Mighty_Militia
-        return commaNotation(militiaClearRate);
+        return gameFill(militiaClearRate, 'Comma');
       case 37: // Parchment_of_Enchantment
-        return commaNotation(1 / parchmentDropChance);
+        return gameFill(1 / parchmentDropChance, 'Comma', { whole: true });
       case 39: // Parchment_Doubleprint - game: ParchmentDouble = ArmoryUpgBonus(39)/100, the *100 here cancels that
-        return String(notateNumber(armoryBonus(39), 'Small'));
+        return gameFill(armoryBonus(39), 'Small');
       case 40: // Parchment_Recycling - game: ParchmentRecycle = min(0.75, ArmoryUpgBonus(40)/100), *100 cancels
-        return String(notateNumber(Math.min(75, armoryBonus(40)), 'Small'));
+        return gameFill(Math.min(75, armoryBonus(40)), 'Small');
       case 42: { // Support_Camps - SupportEXP and SupportCollection share one formula
-        const supportMulti = stripApprox(String(notateNumber(1 + supportBonus / 100, 'MultiplierInfo')));
+        const supportMulti = gameFill(1 + supportBonus / 100, 'MultiplierInfo');
         return `${supportMulti}x_EXP_&_${supportMulti}x_Collection_Rate!`;
       }
       case 44: // Savage_Strongholds - game: "SavageCollection"
-        return stripApprox(String(notateNumber(5 * (1 + armoryBonus(69) / 100), 'MultiplierInfo')));
+        return gameFill(5 * (1 + armoryBonus(69) / 100), 'MultiplierInfo');
       case 50:
-        return commaNotation(totalStatz[1] * armoryBonus(50));
+        return gameFill(totalStatz[1] * armoryBonus(50), 'Comma');
       case 51:
-        return commaNotation(totalStatz[2] * armoryBonus(51));
+        return gameFill(totalStatz[2] * armoryBonus(51), 'Comma');
       case 53: // Tip-Top_'sources - game: CommaNotation(TotalStatz(3) * ArmoryUpgBonus(53))
-        return commaNotation(totalStatz[3] * armoryBonus(53));
+        return gameFill(totalStatz[3] * armoryBonus(53), 'Comma');
       case 52: // Experiential_Triumph
-        return commaNotation(Math.floor(Math.max(0, rgClassLevel - 1000) / 100) * armoryBonus(52));
+        return gameFill(Math.floor(Math.max(0, rgClassLevel - 1000) / 100) * armoryBonus(52), 'Comma');
       case 60: case 61: case 62: case 63: case 64: case 65: case 66: case 67:
         return militiaClearRate > 1e7
-          ? String(notateNumber(militiaClearRate, 'Big'))
-          : commaNotation(militiaClearRate);
+          ? gameFill(militiaClearRate, 'Big')
+          : gameFill(militiaClearRate, 'Comma');
       case 68: { // Kingdom_Sovereignty - next recruit, keyed off the upgrade's OWN level (one per recruit)
         const level = toNum(armoryLevels?.[68]);
         const { role: roleByLevel, world: worldByLevel } = gameTables.royalRecruitOrder;
@@ -896,7 +896,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       case 79: { // Compounding_Outposting - the same OutpostROGbon this parser already exposes as
         // outpostStats.rogBonuses, just formatted inline for the tooltip.
         const selected = rogBonuses[selectedRogIndex];
-        const multiplierText = stripApprox(String(notateNumber(selected?.value ?? 1, 'MultiplierInfo')));
+        const multiplierText = gameFill(selected?.value ?? 1, 'MultiplierInfo');
         return `${multiplierText}x ${selected?.name ?? ''}`;
       }
       default:
@@ -951,7 +951,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     return {
       index,
       rawName,
-      description: applyBonusTokens(rawName, bonus),
+      // game: the statue panel's } is always MultiplierInfo
+      description: applyBonusTokens(rawName, bonus, null, true),
       level,
       bonus,
       baseBonus,

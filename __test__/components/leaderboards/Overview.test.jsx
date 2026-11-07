@@ -5,11 +5,12 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 
 const fetchBoard = vi.fn(async () => ({ metric: 'globalRanking', createdAt: 1, around: [],
   top: Array.from({ length: 10 }, (_, i) => ({ mainChar: `G${i + 1}`, value: 20000 - i, rank: i + 1, globalRank: i + 1 })) }));
 vi.mock('../../../services/leaderboards', () => ({ fetchBoard }));
+vi.mock('@hooks/useProfileBannerState', () => ({ default: () => ({ isVisible: false }) }));
 const Overview = (await import('@components/leaderboards/Overview')).default;
 const { buildMetaIndex } = await import('@components/leaderboards/format');
 
@@ -25,7 +26,7 @@ const data = {
 const self = { name: null, pending: false, participation: null, lastUpload: null };
 const renderOverview = (props) => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <Overview index={index} showAnonymous highlight={{}} self={self} onOpen={() => {}} {...props}/>
     </ThemeProvider>
   </QueryClientProvider>
@@ -39,7 +40,7 @@ describe('Overview', () => {
     renderOverview({ player: { context: null }, onOpen });
     expect(await screen.findByText('G1')).toBeTruthy();
     expect(screen.getByText('G10')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: /Full top 100/ }));
+    fireEvent.click(screen.getByRole('link', { name: /Full top 100/ }));
     expect(onOpen).toHaveBeenCalledWith('globalRanking', 'overview');
   });
 
@@ -55,26 +56,21 @@ describe('Overview', () => {
     expect(screen.getByText('#5')).toBeTruthy();
   });
 
-  it('asks a visitor with no player to log in or search', async () => {
+  it('asks a visitor with no player to sign in or search, before the global ranking in reading order', async () => {
     renderOverview({ player: { context: null } });
-    expect(await screen.findByText('See where you stand')).toBeTruthy();
-    // Settings renders nothing for a guest, so the prompt never sends one there.
-    expect(screen.queryByRole('link', { name: 'Settings' })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Log in' }));
-    expect(await screen.findByRole('dialog')).toBeTruthy();
-  });
-
-  it('puts the standing card before the global ranking in reading order', async () => {
-    renderOverview({ player: { context: null } });
-    const notice = await screen.findByText('See where you stand');
+    const notice = await screen.findByText(/^Your standing shows here once you sign in/);
     const ranking = await screen.findByText('Global ranking');
     expect(notice.compareDocumentPosition(ranking) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // Signing in is the way onto the boards, so the prompt offers that and not Settings.
+    expect(screen.queryByRole('link', { name: 'Settings' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+    expect(await screen.findByRole('dialog')).toBeTruthy();
   });
 
   it('shows a skeleton, not the sign-in notice, while the account loads', async () => {
     renderOverview({ player: { context: null }, self: { ...self, pending: true } });
     expect(await screen.findByText('G1')).toBeTruthy();
-    expect(screen.queryByText('See where you stand')).toBeNull();
+    expect(screen.queryByText(/^Your standing shows here once you sign in/)).toBeNull();
     expect(document.querySelector('.MuiSkeleton-root')).toBeTruthy();
   });
 
@@ -84,32 +80,32 @@ describe('Overview', () => {
     expect(await screen.findByText('Searched player')).toBeTruthy();
     expect(screen.getByText('#75')).toBeTruthy();
     expect(screen.getByText('Highlights')).toBeTruthy();
-    fireEvent.click(screen.getByRole('button', { name: /Mining · #3/ }));
+    fireEvent.click(screen.getByRole('link', { name: 'Around them' }));
     expect(onOpen).toHaveBeenCalledWith('mining', 'within_reach');
   });
 
   it('never shows self copy for a searched player that was not found', () => {
     renderOverview({ self: { ...self, participation: 'off' }, player: { context: { name: 'Ghost', kind: 'searched' }, data: null, isLoading: false, isError: false } });
     expect(screen.queryByText(/not on the leaderboards/i)).toBeNull();
-    expect(screen.queryByText('Almost there')).toBeNull();
+    expect(screen.queryByText(/^Almost there/)).toBeNull();
   });
 
   it('tells a signed-in player who turned leaderboards off', async () => {
     renderOverview({ player: { context: { name: 'Me', kind: 'logged' }, data: null }, self: { ...self, name: 'Me', participation: 'off' } });
-    expect(await screen.findByText('You are not on the leaderboards')).toBeTruthy();
+    expect(await screen.findByText(/^You are not on the leaderboards: turn them on/)).toBeTruthy();
   });
 
   it('offers a retry when the player fetch fails', async () => {
     const refetch = vi.fn();
     renderOverview({ player: { context: { name: 'Me', kind: 'logged' }, isError: true, refetch } });
-    expect(await screen.findByText('Could not load your standing')).toBeTruthy();
+    expect(await screen.findByText('Couldn\'t load your standing.')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(refetch).toHaveBeenCalled();
   });
 
   it('words the error for a searched player as theirs, not yours', async () => {
     renderOverview({ player: { context: { name: 'Other', kind: 'searched' }, isError: true, refetch: () => {} } });
-    expect(await screen.findByText('Could not load this player')).toBeTruthy();
-    expect(screen.queryByText('Could not load your standing')).toBeNull();
+    expect(await screen.findByText('Couldn\'t load this player.')).toBeTruthy();
+    expect(screen.queryByText('Couldn\'t load your standing.')).toBeNull();
   });
 });

@@ -1,10 +1,5 @@
 import React, { useContext, useState } from 'react';
 import {
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   FormControl,
   FormControlLabel,
   MenuItem,
@@ -19,6 +14,9 @@ import { useGoals } from '@components/goals/GoalsProvider';
 import { getDescriptor } from '@utility/goals/registry';
 import { ALL_GOALS, defaultCharMap, parseImport, planImport, summarizeImport } from '@utility/goals/importExport';
 import { trackEvent } from '@utility/analytics';
+import AppDialog from '@components/common/Overlays/AppDialog';
+import Notice from '@components/common/Notice';
+import { notify } from '@components/common/Overlays/notify';
 
 export const READ_ERROR = Symbol('read-error');
 
@@ -28,6 +26,10 @@ const ERRORS = {
   schema: 'This file is from a newer version of the site',
   read: 'This file could not be read'
 };
+
+// The option for a character left out: a real value, since an empty one needs displayEmpty, and that draws the field's
+// border with a gap for its label.
+const SKIP = '__skip__';
 
 const greenstackKeysOf = (ctx) => {
   const greenstack = getDescriptor('greenstack');
@@ -45,7 +47,7 @@ const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan
   const summary = summarizeImport(file);
   return (
     <Stack gap={2} sx={{ pt: 1 }}>
-      <Typography>{`${summary.total} ${summary.total === 1 ? 'goal' : 'goals'}: ${summary.account} account, ${summary.character} character`}</Typography>
+      <Typography variant="body2">{`${summary.total} ${summary.total === 1 ? 'goal' : 'goals'}: ${summary.account} account, ${summary.character} character`}</Typography>
       <FormControl>
         <RadioGroup value={mode} onChange={(e) => setMode(e.target.value)}>
           <FormControlLabel value="merge" control={<Radio size="small"/>} label="Merge with my goals"/>
@@ -53,9 +55,7 @@ const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan
         </RadioGroup>
       </FormControl>
       {mode === 'replace' && currentCount > 0 ? (
-        <Typography variant="body2" color="warning.main">
-          {`This removes your ${currentCount} current ${noun}${currentCount === 1 ? '' : 's'}`}
-        </Typography>
+        <Notice tone={'missing'}>{`This removes your ${currentCount} current ${noun}${currentCount === 1 ? '' : 's'}.`}</Notice>
       ) : null}
       {summary.characters.map(({ name, count }) => (
         <Stack key={name} direction="row" gap={2} alignItems="center">
@@ -63,10 +63,9 @@ const ImportBody = ({ file, mode, setMode, charMap, setCharMap, characters, plan
             {`${name}: ${count} ${count === 1 ? 'goal' : 'goals'}`}
           </Typography>
           <TextField select size="small" label="Import as" sx={{ flex: 1, minWidth: 0 }}
-                     value={Object.hasOwn(charMap, name) && typeof charMap[name] === 'string' ? charMap[name] : ''}
-                     onChange={(e) => setCharMap({ ...charMap, [name]: e.target.value || null })}
-                     slotProps={{ select: { displayEmpty: true }, inputLabel: { shrink: true } }}>
-            <MenuItem value="">Skip</MenuItem>
+                     value={Object.hasOwn(charMap, name) && typeof charMap[name] === 'string' ? charMap[name] : SKIP}
+                     onChange={(e) => setCharMap({ ...charMap, [name]: e.target.value === SKIP ? null : e.target.value })}>
+            <MenuItem value={SKIP}>Skip</MenuItem>
             {characters.map((c) => <MenuItem key={c.name} value={c.name}>{c.name}</MenuItem>)}
           </TextField>
         </Stack>
@@ -101,40 +100,48 @@ const ImportDialog = ({ text, onClose, only = ALL_GOALS, noun = 'goal' }) => {
     return { ...result, file, leftOut: result.file.goals.length - file.goals.length, charMap: defaultCharMap(file, characters) };
   });
   const [mode, setMode] = useState('merge');
+  // Mounted per file: it closes itself and tells the caller once it has slid out. The import lands then too,
+  // so the counts on screen hold while it leaves.
+  const [open, setOpen] = useState(true);
+  const [importing, setImporting] = useState(false);
   const [charMap, setCharMap] = useState(parsed.charMap ?? {});
-  const [result, setResult] = useState(null);
 
   const replaced = goals.filter(only);
   const plan = parsed.ok ? planImport(parsed.file, { account, current: goals, characters, mode, charMap, only }) : null;
 
   const doImport = () => {
-    // The plan already applied the caps, so the add below cannot fail after the removal
-    if (mode === 'replace') removeMany(replaced.map(({ id }) => id));
-    saveMany(plan.goals);
-    if (plan.added > 0) trackEvent('goal_added', { source: 'import', count: plan.added });
-    setResult(plan);
+    setImporting(true);
+    setOpen(false);
   };
 
+  const finish = () => {
+    if (importing) {
+      // The plan already applied the caps, so the add below cannot fail after the removal
+      if (mode === 'replace') removeMany(replaced.map(({ id }) => id));
+      saveMany(plan.goals);
+      if (plan.added > 0) trackEvent('goal_added', { source: 'import', count: plan.added });
+      // A result is a confirmation (Overlays board): the dialog closes and the snackbar says it.
+      notify(resultText(plan));
+    }
+    onClose();
+  };
+
+  // A file with nothing new says so, rather than offering to import 0 goals.
+  const importLabel = plan?.added
+    ? `Import ${plan.added} ${plan.added === 1 ? noun : `${noun}s`}`
+    : 'Nothing new to import';
   return (
-    <Dialog open onClose={onClose} fullWidth maxWidth="xs">
-      <DialogTitle>Import goals</DialogTitle>
-      <DialogContent>
-        {!parsed.ok ? <Typography color="error">{ERRORS[parsed.error]}</Typography>
-          : result ? <Typography>{resultText(result)}</Typography>
-            : <ImportBody file={parsed.file} mode={mode} setMode={setMode} charMap={charMap} setCharMap={setCharMap}
-                          characters={characters} plan={plan} currentCount={replaced.length} noun={noun}
-                          leftOut={parsed.leftOut}/>}
-      </DialogContent>
-      <DialogActions>
-        <Button onClick={onClose} sx={{ textTransform: 'none' }}>{result || !parsed.ok ? 'Close' : 'Cancel'}</Button>
-        {parsed.ok && !result ? (
-          <Button variant="contained" onClick={doImport} disabled={!loaded || plan.goals.length === 0}
-                  sx={{ textTransform: 'none' }}>
-            Import
-          </Button>
-        ) : null}
-      </DialogActions>
-    </Dialog>
+    <AppDialog open={open} onClose={() => setOpen(false)} onExited={finish} size="m" title="Import goals"
+               actions={parsed.ok ? [
+                 { label: 'Cancel' },
+                 { label: importLabel, main: true, disabled: !loaded || plan.goals.length === 0, onClick: doImport }
+               ] : undefined}>
+      {parsed.ok
+        ? <ImportBody file={parsed.file} mode={mode} setMode={setMode} charMap={charMap} setCharMap={setCharMap}
+                      characters={characters} plan={plan} currentCount={replaced.length} noun={noun}
+                      leftOut={parsed.leftOut}/>
+        : <Notice tone={'error'} action={false}>{ERRORS[parsed.error]}</Notice>}
+    </AppDialog>
   );
 };
 

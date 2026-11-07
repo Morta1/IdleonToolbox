@@ -42,8 +42,14 @@ export const npcImageFrom = (manifest, name, variant = 'static') => {
 export const monsterImage = (nameOrRaw, variant = 'static') =>
   monsterImageFrom(spriteManifest, nameOrRaw, variant);
 
+// The same sprite as a path under public/, for GameIcon and IconTile, which add the site prefix themselves
+export const monsterSprite = (nameOrRaw, variant = 'static') => monsterImage(nameOrRaw, variant).slice(prefix.length);
+
 export const npcImage = (name, variant = 'static') =>
   npcImageFrom(spriteManifest, name, variant);
+
+// The same NPC sprite as a path under public/, for GameIcon, which adds the site prefix itself
+export const npcSprite = (name, variant = 'static') => npcImage(name, variant).slice(prefix.length);
 
 // Moved from helpers.js; now returns a complete src (callers no longer add prefix/.png).
 export const getActivityIcon = (character) => {

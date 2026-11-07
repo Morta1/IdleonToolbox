@@ -1,266 +1,167 @@
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { Card, CardContent, Divider, Stack, ToggleButton, ToggleButtonGroup, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
-import styled from '@emotion/styled';
-import { getBuildCost, getExtraMaxLevels } from '@parsers/world-3/construction';
+import { Box } from '@mui/material';
+import { cleanUnderscore, formatNum } from 'utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import { getBuildCost, getExtraMaxLevels, getGildedBoostioBonus, getTotalGildedSlots, getTrimmedBuildSpeed } from '@parsers/world-3/construction';
+import { towers as towersTable } from '@website-data';
 import { NextSeo } from 'next-seo';
-import Timer from '../../../components/common/Timer';
-import Tooltip from '../../../components/Tooltip';
-import Box from '@mui/material/Box';
-import { TitleAndValue } from '@components/common/styles';
-import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import InfoIcon from '@mui/icons-material/Info';
-import { getGildedBoostioBonus, getTotalGildedSlots, getTrimmedBuildSpeed } from '@parsers/world-3/construction';
-import useCheckbox from '@components/common/useCheckbox';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+import { NoteTrigger } from '@components/common/InfoButton';
+import { Duration } from '@components/common/Num';
 
-const Buildings = () => {
-  const { state } = useContext(AppContext);
-  const [sortBy, setSortBy] = useState('order')
-  const [CheckboxEl, hideMaxed] = useCheckbox('Hide maxed buildings');
-  const buildSpeed = state?.account?.construction?.totalBuildRate;
-  const trimmedBuildSpeed = getTrimmedBuildSpeed(state?.account);
-  const costCruncher = state?.account?.towers?.data?.find((tower) => tower.index === 5);
+const BUILDINGS_TOOLBAR = { sort: null, hideMaxed: false };
 
-  const getMaterialCosts = (itemReq, level, maxLevel, bonusInc, costCruncher) => {
-    return itemReq.map(({ rawName, name, amount }) => {
-      const math1 = Math.min(0.1, 0.1 * Math.floor((costCruncher.level + 999) / 1000));
-      const math2 = Math.max(0, costCruncher.level - 1);
-      const costReduction = Math.max(0.2, 1 - (math1 + (math2 * costCruncher.costInc[0]) / 100))
-      if (rawName.includes('Refinery')) {
-        return {
-          rawName, name,
-          amount: Math.floor(costReduction * amount * (level + 1))
-        }
-      } else {
-        return {
-          rawName, name,
-          amount: Math.floor(costReduction * amount * Math.pow(bonusInc + 0.03 - ((bonusInc + 0.03 - 1.05) * level) / (maxLevel / 2 + level), level))
-        };
-      }
-    });
-  }
-
-  const getMaterialCostsToMax = (itemReq, iterations, level, maxLevel, bonusInc, costCruncher) => {
-    let costs = [];
-    for (let i = 0; i < iterations; i++) {
-      const [firstCost, secondCost] = getMaterialCosts(itemReq, level + i, maxLevel, bonusInc, costCruncher);
-      costs[0] = { ...(costs?.[0] ?? firstCost), amount: (costs?.[0]?.amount || 0) + firstCost?.amount }
-      if (secondCost) {
-        costs[1] = { ...(costs?.[1] ?? secondCost), amount: (costs?.[1]?.amount || 0) + secondCost?.amount }
-      }
+const getMaterialCosts = (itemReq, level, maxLevel, bonusInc, costCruncher) => {
+  const cruncherLevel = costCruncher?.level ?? 0;
+  return (itemReq ?? []).map(({ rawName, name, amount }) => {
+    const math1 = Math.min(0.1, 0.1 * Math.floor((cruncherLevel + 999) / 1000));
+    const math2 = Math.max(0, cruncherLevel - 1);
+    const costReduction = Math.max(0.2, 1 - (math1 + (math2 * (costCruncher?.costInc?.[0] ?? 0)) / 100))
+    if (rawName.includes('Refinery')) {
+      return { rawName, name, amount: Math.floor(costReduction * amount * (level + 1)) };
     }
-    return costs;
-  }
+    return {
+      rawName, name,
+      amount: Math.floor(costReduction * amount * Math.pow(bonusInc + 0.03 - ((bonusInc + 0.03 - 1.05) * level) / (maxLevel / 2 + level), level))
+    };
+  });
+}
 
-  const b = state?.account?.towers?.data?.map((tower) => {
-    let { progress, level, maxLevel, bonusInc, itemReq, slot } = tower;
-    const fakeMaxLevel = maxLevel;
-    const items = getMaterialCosts(itemReq, level, maxLevel, bonusInc, costCruncher);
-    const buildCost = getBuildCost(state?.account?.towers, level, bonusInc, tower?.index);
-    const atom = state?.account?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
-    let extraLevels = getExtraMaxLevels(state?.account, maxLevel, atom?.level, tower?.index);
-    maxLevel += extraLevels;
-    const trimmedSlots = getTotalGildedSlots(state?.account);
+const getMaterialCostsToMax = (itemReq, iterations, level, maxLevel, bonusInc, costCruncher) => Array.from({ length: Math.max(0, iterations) },
+  (_, step) => getMaterialCosts(itemReq, level + step, maxLevel, bonusInc, costCruncher))
+  .reduce((costs, levelCosts) => levelCosts.map((cost, index) => ({ ...cost, amount: (costs?.[index]?.amount ?? 0) + cost.amount })), []);
+
+// Every tower with its costs and times. The trimmed slot's progress since the save reads the clock, as the
+// page's timers do (a data page)
+const buildingsOf = (account, lastUpdated) => {
+  const buildSpeed = account?.construction?.totalBuildRate ?? 0;
+  const costCruncher = account?.towers?.data?.find((tower) => tower?.index === 5);
+  const atom = account?.atoms?.atoms?.find(({ name }) => name === 'Carbon_-_Wizard_Maximizer');
+  const trimmedSlots = getTotalGildedSlots(account);
+  const speedBoost = getGildedBoostioBonus(account);
+  const timePassed = (new Date().getTime() - (lastUpdated ?? 0)) / 1000;
+  return (account?.towers?.data ?? []).map((tower) => {
+    const { level, maxLevel: baseMaxLevel, bonusInc, itemReq, slot } = tower;
+    const maxLevel = baseMaxLevel + getExtraMaxLevels(account, baseMaxLevel, atom?.level, tower?.index);
+    const buildCost = getBuildCost(account?.towers, level, bonusInc, tower?.index);
     const isSlotTrimmed = slot !== -1 && slot < trimmedSlots;
-    const speedBoost = getGildedBoostioBonus(state?.account);
-    if (isSlotTrimmed) {
-      const timePassed = (new Date().getTime() - (state?.lastUpdated ?? 0)) / 1000;
-      progress += speedBoost * (timePassed / 3600) * buildSpeed;
-    }
-    const trimmedSlotSpeed = speedBoost * buildSpeed;
-    const trimmedTimeLeft = (buildCost - progress) / (trimmedSlotSpeed) * 1000 * 3600;
-    const timeLeft = (buildCost - progress) / buildSpeed * 1000 * 3600;
-    const iterations = maxLevel - level;
-    const itemsMax = getMaterialCostsToMax(itemReq, iterations, level, fakeMaxLevel, bonusInc, costCruncher);
-
+    const progress = tower?.progress + (isSlotTrimmed ? speedBoost * (timePassed / 3600) * buildSpeed : 0);
     return {
       ...tower,
       maxLevel,
       isMaxed: level === maxLevel,
       isSlotTrimmed,
-      timeLeft,
       progress,
       buildCost,
-      items,
-      itemsMax,
-      trimmedSlotSpeed,
-      trimmedTimeLeft
-    }
+      // seconds; a build speed of 0 makes them Infinity
+      timeLeft: (buildCost - progress) / buildSpeed * 3600,
+      trimmedTimeLeft: (buildCost - progress) / (speedBoost * buildSpeed) * 3600,
+      items: getMaterialCosts(itemReq, level, baseMaxLevel, bonusInc, costCruncher),
+      itemsMax: getMaterialCostsToMax(itemReq, maxLevel - level, level, baseMaxLevel, bonusInc, costCruncher)
+    };
   });
+};
 
-  let sortedBuildings = b;
-  if (sortBy === 'time') {
-    const towers = structuredClone(b);
-    sortedBuildings = towers?.sort((a, bb) => {
-      const timeLeftA = a?.isSlotTrimmed ? a?.trimmedTimeLeft : a?.timeLeft;
-      const timeLeftB = bb?.isSlotTrimmed ? bb?.trimmedTimeLeft : bb?.timeLeft;
-      if (a?.isMaxed) return 1;
-      else if (bb?.isMaxed) return -1;
-      return timeLeftA - timeLeftB;
-    });
-  } else if (sortBy === 'requirement') {
-    const towers = structuredClone(b);
-    sortedBuildings = towers?.sort((a, bb) => {
-      if (a?.isMaxed) return 1;
-      else if (bb?.isMaxed) return -1;
-      const buildCostComparison = a?.buildCost - bb?.buildCost;
-      if (buildCostComparison !== 0) {
-        return buildCostComparison;
-      } else {
-        const progressA = a?.buildCost - a?.progress;
-        const progressB = bb?.buildCost - bb?.progress;
-        return progressA - progressB;
-      }
-    });
-  }
+// A failed towers section has no levels or build costs: the catalog at zero, by name
+const catalogAtZero = () => Object.entries(towersTable ?? {}).map(([name, tower]) => ({ ...tower, name, level: 0, catalogOnly: true }));
 
-  if (hideMaxed) {
-    sortedBuildings = sortedBuildings?.filter(({ isMaxed }) => !isMaxed);
-  }
+const timeLeftOf = ({ isSlotTrimmed, timeLeft, trimmedTimeLeft }) => (isSlotTrimmed ? trimmedTimeLeft : timeLeft);
+const SORTS = {
+  time: (a, b) => timeLeftOf(a) - timeLeftOf(b),
+  cost: (a, b) => (a?.buildCost - b?.buildCost) || ((a?.buildCost - a?.progress) - (b?.buildCost - b?.progress))
+};
 
-  const getBorderColor = ({ isSlotTrimmed, inProgress }) => {
-    if (isSlotTrimmed) {
-      return 'warning.light';
-    } else if (inProgress) {
-      return 'success.light'
-    }
-    return '';
-  }
+const durationOrDash = (seconds) => (Number.isFinite(seconds) ? <Duration seconds={seconds}/> : '-');
+// A tower's progress pair in the game's rule, its exact digits on a tap only while a double holds both numbers whole
+// (under 2^53): past it 'exact' prints Big, which repeated the card's pair or mixed the two kinds ("1.3e23 / 37.7Q")
+const exactFits = (value) => Number.isFinite(value) && Math.floor(value) < Number.MAX_SAFE_INTEGER;
+const exactOf = (value) => formatNum(Math.floor(value), 'exact');
+const progressValue = (progress, buildCost) => {
+  const short = formatGame(progress, 'WorkbenchStuff.TowerBuildReq', { whole: true });
+  // The note would repeat the card's pair (a guest's "0 / 2"): no trigger
+  const pairShown = short === exactOf(progress) && formatGame(buildCost, 'WorkbenchStuff.TowerBuildReq', { whole: true }) === exactOf(buildCost);
+  return exactFits(progress) && exactFits(buildCost) && !pairShown
+    ? <NoteTrigger label={'Exact progress'} note={`${exactOf(progress)} / ${exactOf(buildCost)}`}>{short}</NoteTrigger>
+    : short;
+};
+
+const costLine = ({ rawName, name, amount }) => <ItemCard.Cost key={rawName} icon={`data/${rawName}.png`}
+                                                               iconAlt={cleanUnderscore(name)} need={amount} game={'Big'}/>;
+
+const Buildings = () => {
+  const { state } = useContext(AppContext);
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('buildings', BUILDINGS_TOOLBAR);
+  const towersFailed = isSectionFailed(state?.account, 'towers');
+  const constructionFailed = isSectionFailed(state?.account, 'construction');
+  const buildSpeed = state?.account?.construction?.totalBuildRate ?? 0;
+  const trimmedBuildSpeed = getTrimmedBuildSpeed(state?.account);
+  const parsed = buildingsOf(state?.account, state?.lastUpdated);
+  const buildings = towersFailed && !parsed.length ? catalogAtZero() : parsed;
+
+  const sort = toolbar?.sort;
+  const compare = SORTS[sort?.key];
+  // Maxed towers stay last whichever way the sort runs
+  const sorted = compare
+    ? buildings.toSorted((a, b) => (a?.isMaxed - b?.isMaxed) || (sort?.order === 'desc' ? compare(b, a) : compare(a, b)))
+    : buildings;
+  const shown = toolbar?.hideMaxed ? sorted.filter(({ isMaxed }) => !isMaxed) : sorted;
+  const trimmedText = `${formatGame(trimmedBuildSpeed?.value ?? 0, 'Big')}/hr`;
 
   return <>
     <NextSeo
       title="Buildings | Idleon Toolbox"
       description="Keep track of your towers levels, bonuses and required materials for upgrades"
     />
-    <Stack direction={'row'} alignItems="center" gap={3} flexWrap={'wrap'} mb={2}>
-      <Box>
-        <Typography>Sort by</Typography>
-        <ToggleButtonGroup value={sortBy} sx={{ mb: 2 }} exclusive
-                           onChange={(e, newSort) => newSort?.length > 0 && setSortBy(newSort)}>
-          <ToggleButton value={'order'}>Order</ToggleButton>
-          <ToggleButton value={'time'}>Time left</ToggleButton>
-          <ToggleButton value={'requirement'}>Build cost</ToggleButton>
-        </ToggleButtonGroup>
-      </Box>
-      <CardTitleAndValue title={'Total building levels'} value={commaNotation(state?.account?.towers?.totalLevels ?? 0)}/>
-      <CardTitleAndValue title={'Build Speed'}value={notateNumber(buildSpeed, 'Big')}/>
-      <CardTitleAndValue title={'Trimmed Build Speed'}
-                         value={notateNumber(trimmedBuildSpeed.value, 'Big')}
-                         breakdown={trimmedBuildSpeed.breakdown}
-      />
-      <CardTitleAndValue>
-        <CheckboxEl/>
-      </CardTitleAndValue>
-    </Stack>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={3}>
-      {sortedBuildings?.map((tower, index) => {
-        let {
-          name,
-          progress,
-          level,
-          maxLevel,
-          inProgress,
-          isSlotTrimmed,
-          isMaxed,
-          items,
-          itemsMax,
-          buildCost,
-          timeLeft,
-          trimmedTimeLeft
-        } = tower;
-        return <Card key={`${name}-${index}`} sx={{
-          border: inProgress || isSlotTrimmed ? '1px solid' : '',
-          borderColor: getBorderColor(tower),
-          width: { xs: '100%', md: 450 },
-          height: { md: 165 }
-        }}>
-          <CardContent>
-            <Stack direction={'row'} justifyContent={'space-around'} flexWrap={'wrap'}>
-              <Stack alignItems={'center'} sx={{ textAlign: 'center' }}>
-                <Typography>{cleanUnderscore(name)}</Typography>
-                <TowerIcon src={`${prefix}data/ConTower${tower?.index}.png`} alt="tower-icon"/>
-                <Typography>Lv. {level} / {maxLevel}</Typography>
-                {isMaxed ? <Typography color={'success.light'}>Maxed</Typography> :
-                  <Tooltip title={<>
-                    <Typography>Progress: {numberWithCommas(Math.floor(progress))}</Typography>
-                    <Typography>Requirement: {numberWithCommas(Math.floor(buildCost))}</Typography>
-                  </>}>
-                    <Typography>{notateNumber(progress, 'Big')} / {notateNumber(buildCost, 'Big')}</Typography>
-                  </Tooltip>}
-
-              </Stack>
-              {!isMaxed ? <Stack gap={1} divider={<Divider flexItem/>}>
-                <Stack>
-                  {!isMaxed
-                    ? <TitleAndValue title={'Non-trimmed'}
-                                     value={<Timer type={'countdown'} staticTime={true}
-                                                   placeholder={'Ready!'}
-                                                   date={new Date().getTime() + timeLeft}
-                                                   lastUpdated={state?.lastUpdated}/>}/>
-                    : null}
-                  {!isMaxed
-                    ? <TitleAndValue title={'Trimmed'}
-                                     value={<Timer type={'countdown'}
-                                                   placeholder={'Ready!'}
-                                                   staticTime={true}
-                                                   date={new Date().getTime() + trimmedTimeLeft}
-                                                   lastUpdated={state?.lastUpdated}/>}/>
-                    : null}
-
-                </Stack>
-                <Stack direction={'row'} divider={<Divider orientation={'vertical'} flexItem/>} gap={2}>
-                  <ReqItemsDisplay title={'Next'} isMaxed={isMaxed} items={items}/>
-                  <ReqItemsDisplay title={'Max'} isMaxed={isMaxed} items={itemsMax}/>
-                </Stack>
-              </Stack> : null}
-            </Stack>
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
+    {towersFailed || constructionFailed ? <MissingData name={'Buildings'} failed atZero={towersFailed}/> : null}
+    <PageSummary>
+      <StatTile label={'Total building levels'} value={towersFailed ? '-' : state?.account?.towers?.totalLevels ?? 0}
+                kind={'amount'}/>
+      <StatTile label={'Build speed'} value={constructionFailed ? '-' : `${formatNum(buildSpeed)}/hr`}/>
+      <StatTile label={'Trimmed build speed'} value={constructionFailed ? '-' : trimmedText} breakdownTitle={'Trimmed build speed'}
+                breakdown={!constructionFailed && trimmedBuildSpeed?.breakdown
+                  ? { ...trimmedBuildSpeed.breakdown, totalValue: trimmedText }
+                  : undefined}/>
+    </PageSummary>
+    <Box>
+      <Toolbar state={toolbar} defaults={BUILDINGS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+               total={buildings.length} shown={shown.length} noun={'buildings'}>
+        <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
+        <Toolbar.Sort options={[['time', 'Time left', 'asc'], ['cost', 'Build cost', 'asc']]}/>
+      </Toolbar>
+      <CardGrid size={'m'}>
+        {shown.map((tower, index) => {
+          const { name, progress, level, maxLevel, inProgress, isSlotTrimmed, isMaxed, items, itemsMax, buildCost } = tower;
+          if (tower?.catalogOnly) {
+            return <ItemCard key={`${name}-${index}`} icon={`data/ConTower${tower?.index}.png`} title={cleanUnderscore(name)}
+                             level={{ value: 0 }}/>;
+          }
+          return <ItemCard key={`${name}-${index}`} icon={`data/ConTower${tower?.index}.png`} title={cleanUnderscore(name)}
+                           level={{ value: level, max: maxLevel }}
+                           status={isMaxed ? 'maxed' : isSlotTrimmed || inProgress ? 'active' : undefined}
+                           statusLabel={isMaxed ? undefined : isSlotTrimmed ? 'Trimmed slot' : inProgress ? 'Building' : undefined}>
+            {isMaxed ? null : <>
+              <ItemCard.Progress label={'Progress'} percent={buildCost > 0 ? Math.min(100, (progress / buildCost) * 100) : 0}
+                                 value={progressValue(progress, buildCost)}
+                                 max={formatGame(buildCost, 'WorkbenchStuff.TowerBuildReq', { whole: true })}/>
+              <ItemCard.Facts rows={[
+                ['Time left', durationOrDash(tower?.timeLeft)],
+                ['In a trimmed slot', durationOrDash(tower?.trimmedTimeLeft)]
+              ]}/>
+              {items?.length ? <ItemCard.Section label={'Next level'}>{items.map(costLine)}</ItemCard.Section> : null}
+              {itemsMax?.length ? <ItemCard.Section label={'To max'}>{itemsMax.map(costLine)}</ItemCard.Section> : null}
+            </>}
+          </ItemCard>;
+        })}
+      </CardGrid>
+    </Box>
   </>;
 };
-
-const ReqItemsDisplay = ({ title, isMaxed, items }) => {
-  if (isMaxed) return null;
-  return <Stack>
-    <Typography variant={'body2'} color={'text.secondary'}>{title}</Typography>
-    <Stack direction={'row'} gap={1}>
-      {items?.map(({ rawName, amount }, itemIndex) => {
-        return <Stack alignItems={'center'} key={`${name}-${rawName}-${itemIndex}`}>
-          <ItemIcon src={`${prefix}data/${rawName}.png`} alt="item-icon"/>
-          <Typography>{notateNumber(amount, 'Big')}</Typography>
-        </Stack>
-      })}
-    </Stack>
-  </Stack>
-}
-
-const TowerIcon = styled.img`
-  width: 50px;
-  height: 50px;
-  object-fit: contain;
-`
-const ItemIcon = styled.img`
-  width: 35px;
-  height: 35px;
-  object-fit: contain;
-`
-
-const CardTitleAndValue = ({ cardSx, title, value, children, breakdown }) => {
-  return <Card sx={{ my: { xs: 0, md: 3 }, width: 'fit-content', ...cardSx }}>
-    <CardContent>
-      <Typography sx={{ fontSize: 14 }} color="text.secondary" gutterBottom>{title}</Typography>
-      <Stack direction={'row'} gap={2}>
-        {value ? <Typography>{value}</Typography> : children}
-        {breakdown ? <Breakdown data={breakdown}>
-          <InfoIcon></InfoIcon>
-        </Breakdown> : null}
-      </Stack>
-    </CardContent>
-  </Card>
-}
-
 
 export default Buildings;

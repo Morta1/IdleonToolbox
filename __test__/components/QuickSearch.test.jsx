@@ -4,7 +4,7 @@ import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 const push = vi.fn();
 vi.mock('next/router', () => ({ useRouter: () => ({ push, query: {}, pathname: '/' }) }));
@@ -15,16 +15,17 @@ const searchEvents = () => window.dataLayer
   .map((args) => Array.from(args))
   .filter(([, name]) => name === 'view_search_results');
 
+// An empty wiki index: opening the panel never parses the real one here.
 const renderSearch = () => render(
-  <ThemeProvider theme={darkTheme}>
-    <QuickSearch/>
+  <ThemeProvider theme={theme}>
+    <QuickSearch loadWikiEntries={async () => []}/>
   </ThemeProvider>
 );
 
-const input = () => screen.getByPlaceholderText('Search pages and breakdowns...');
+const input = () => screen.getByRole('textbox', { name: 'Search' });
 
 const openAndType = (term) => {
-  fireEvent.click(screen.getByText('Ctrl + K'));
+  fireEvent.click(screen.getByRole('button', { name: 'Search' }));
   fireEvent.change(input(), { target: { value: term } });
 };
 
@@ -58,7 +59,7 @@ describe('QuickSearch search tracking', () => {
   it('reports once, not twice, when a result is opened', () => {
     renderSearch();
     openAndType('Storage');
-    fireEvent.click(screen.getAllByRole('button').find((node) => /storage/i.test(node.textContent)));
+    fireEvent.click(screen.getAllByRole('link').find((node) => /storage/i.test(node.textContent)));
 
     expect(push).toHaveBeenCalled();
     expect(searchEvents()).toHaveLength(1);

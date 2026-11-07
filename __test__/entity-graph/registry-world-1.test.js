@@ -58,12 +58,9 @@ describe('bribes', () => {
   const sentinelKeys = Object.values(nodes).filter((node) => node.kind === 'bribe'
     && data.bribes[node.order].price === 99999999).map((node) => node.rawName);
 
-  it('has sentinel-priced bribes to check', () => {
+  it('hide the price of a bribe that cannot be bought', () => {
     expect(sentinelKeys.length).toBeGreaterThan(0);
-  });
-
-  it.each(sentinelKeys)('hide the price of %s, which cannot be bought', (key) => {
-    expect(nodes[`bribe:${key}`].fields).toBeUndefined();
+    expect(sentinelKeys.filter((key) => nodes[`bribe:${key}`].fields !== undefined)).toEqual([]);
   });
 });
 

@@ -1,44 +1,37 @@
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { CardTitleAndValue } from '@components/common/styles';
-import { cleanUnderscore, commaNotation, numberWithCommas } from '@utility/helpers';
-import { CardWithBreakdown } from '@components/common/Breakdown/CardWithBreakdown';
+import { Stack } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { templeAmount } from '@utility/gameNotation';
 import React from 'react';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 
-// The temple panel prints millions past 1e7 and billions past billionsFrom (1e13 for the torch count, 1e10 for costs)
-const torchNotation = (value, billionsFrom) => {
-  if (value > 999999999999999.9) return '999999B';
-  if (value > billionsFrom) return `${commaNotation(value / 1e9)}B`;
-  if (value > 9999999.9) return `${commaNotation(value / 1e6)}M`;
-  return commaNotation(value);
-};
+const TORCH_ICON = 'data/HoleUIbuildUpg77.png';
 
 const TheTemple = ({ hole }) => {
+  const temple = hole?.caverns?.theTemple;
+  const torches = Math.floor(temple?.torches ?? 0);
+  // The tile and its drawer read one text
+  const chanceText = formatNum(temple?.extraTorchChance?.value ?? 0, 'pct');
+  const chanceBreakdown = temple?.extraTorchChance?.breakdown;
   return <>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <CardTitleAndValue title={'Torches'} value={torchNotation(Math.floor(hole?.caverns?.theTemple?.torches ?? 0), 9999999999999.9)}
-                         imgStyle={{ width: 32, height: 32, marginBottom: -10, marginRight: -10 }} icon={'data/HoleUIbuildUpg77.png'}/>
-      <CardTitleAndValue title={'Layer'} value={hole?.caverns?.theTemple?.layer}/>
-      <CardWithBreakdown title={'Extra torch chance'}
-                         value={`${numberWithCommas(hole?.caverns?.theTemple?.extraTorchChance?.value ?? 0)}%`}
-                         breakdown={hole?.caverns?.theTemple?.extraTorchChance?.breakdown}/>
-      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.holesObject?.opalsPerCavern?.[14] || 0}/>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'Torches'} icon={TORCH_ICON} value={templeAmount(torches, 9999999999999.9)}/>
+      <StatTile label={'Layer'} value={temple?.layer ?? 0} kind={'amount'}/>
+      <StatTile label={'Extra torch chance'} value={chanceText}
+                breakdown={chanceBreakdown ? { ...chanceBreakdown, totalValue: chanceText } : undefined}/>
+      {opalsFoundTile(hole, 14)}
     </Stack>
-    <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {hole?.caverns?.theTemple?.bonuses?.map(({ name, description, cost }, index) => {
-        return <Card key={`bonus-${index}`}>
-          <CardContent sx={{ width: 300 }}>
-            <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>{cleanUnderscore(name)}</Typography>
-            <Typography mt={2}>{cleanUnderscore(description)}</Typography>
-            <Stack direction={'row'} alignItems={'center'} mt={2} gap={1}>
-              <Typography variant={'body2'}>Cost: {torchNotation(cost, 9999999999.9)}</Typography>
-            </Stack>
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
-  </>
+    <CardGrid size={'m'}>
+      {(temple?.bonuses ?? []).map(({ name, description, cost }, index) =>
+        <ItemCard key={`bonus-${index}`} title={cleanUnderscore(name)}
+                  footer={<ItemCard.Cost icon={TORCH_ICON} iconAlt={'Torches'} need={cost ?? 0} have={torches}
+                                         format={(value) => templeAmount(value, 9999999999.9)}/>}>
+          <ItemCard.Desc text={description}/>
+        </ItemCard>)}
+    </CardGrid>
+  </>;
 };
 
 export default TheTemple;

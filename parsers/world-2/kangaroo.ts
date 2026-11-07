@@ -1,5 +1,5 @@
 import { poppyBonuses, poppyTarBonuses } from '@website-data';
-import { commaNotation, notateNumber } from '@utility/helpers';
+import { gameFill } from '@utility/helpers';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
@@ -76,7 +76,8 @@ const parseKangaroo = (account: any) => {
     }
   });
   const nextLvReqIndex = upgrades?.findIndex(({ level, x3 }) => progress < x3);
-  const nextLvReq = poppyBonuses?.[nextLvReqIndex]?.x3;
+  // null with no save: no fish caught, so no next upgrade to count toward. 0 is every upgrade unlocked
+  const nextLvReq = progress == null ? null : poppyBonuses?.[nextLvReqIndex]?.x3 ?? 0;
   const vaultUpgradeBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 45);
   const fountainPoppyBonus = getFountainBonusTotal(account?.hole?.holesObject, 1, 18);
   // game: "Summoning:RooCatchFishQTY"
@@ -196,27 +197,11 @@ const parseKangaroo = (account: any) => {
   const totalResetPoints = resetBonuses.reduce((sum, { level }) => sum + level, 0);
   const totalResets = (account?.accountOptions?.[OPT.kangarooFisherooResetLevel] ?? 0) + (account?.accountOptions?.[OPT.kangarooMegaFish] ?? 0);
   const avgResetPoints = totalResets > 0 ? totalResetPoints / totalResets : 0;
-  let totalMulti: any = getShinyMulti(account, -1);
-  if (1E3 > getShinyMulti(account, -1)) {
-    totalMulti = notateNumber(totalMulti, 'MultiplierInfo');
-  }
-  else if (1E7 > getShinyMulti(account, -1)) {
-    totalMulti = commaNotation(totalMulti);
-  }
-  else {
-    totalMulti = notateNumber(totalMulti, 'MultiplierInfo');
-  }
-  const allMultipliers = [0, 1, 2, 3, 4, 5].map((index) => {
-    let amount = account?.accountOptions?.[281 + index];
-    const baseMulti = getShinyMulti(account, index);
-    const multi = ('' + (10 > baseMulti ? notateNumber(baseMulti, 'MultiplierInfo') : 100 > baseMulti
-      ? '' + Math.floor(10 * baseMulti) / 10
-      : '' + Math.floor(baseMulti))).replace('.00', '');
-    return {
-      multi,
-      amount: 1E4 > amount ? '' + Math.round(amount) : '' + notateNumber(amount, 'Big')
-    }
-  });
+  const totalMulti = getShinyMulti(account, -1);
+  const allMultipliers = [0, 1, 2, 3, 4, 5].map((index) => ({
+    multi: getShinyMulti(account, index),
+    amount: account?.accountOptions?.[281 + index] ?? 0
+  }));
 
   return {
     resetBonuses,
@@ -248,10 +233,10 @@ const formatDescription = (account: any, level: any, desc: any, upgradesIndex: a
   const optionValue = account?.accountOptions?.[index] ?? 0;
   const lvl = level ?? 0;
   let newDesc = desc;
-  newDesc = newDesc.replace('{', '' + commaNotation(optionValue * (data[i]?.x6)));
+  newDesc = newDesc.replace('{', gameFill(optionValue * (data[i]?.x6), 'Comma'));
   newDesc = newDesc.replace(']', '' + Math.round(100 + (lvl * (data[i]?.x6))) / 100);
-  newDesc = newDesc.replace('~', '' + notateNumber(100 * (1 - 1 / (1 + lvl * (data[i]?.x6) / 100)), 'Small'));
-  newDesc = newDesc.replace('?', '' + notateNumber((data[i]?.x6) * (lvl / (40 + lvl)), 'Small'));
+  newDesc = newDesc.replace('~', gameFill(100 * (1 - 1 / (1 + lvl * (data[i]?.x6) / 100)), 'Small'));
+  newDesc = newDesc.replace('?', gameFill((data[i]?.x6) * (lvl / (40 + lvl)), 'Small'));
   return newDesc;
 }
 

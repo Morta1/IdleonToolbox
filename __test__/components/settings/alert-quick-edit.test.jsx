@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import { buildModel } from '@utility/dashboard/settingsModel';
@@ -16,22 +16,23 @@ const quickFor = (configType, target, extra, edits = {}) => {
   return buildQuickEdit(config, buildModel(config, baseTrackers, diffTrackers(baseTrackers, config)), configType, target, extra);
 };
 const open = (quickEdit, props = {}) => {
-  render(<ThemeProvider theme={darkTheme}>
+  render(<ThemeProvider theme={theme}>
     <AlertQuickEdit quickEdit={quickEdit} open anchorPosition={{ top: 10, left: 10 }} onClose={() => {}}
                     onAction={props.onAction ?? (() => {})} onOpenAll={props.onOpenAll ?? (() => {})} onUndo={props.onUndo} iconSrc={props.iconSrc}
-                    pageHref={props.pageHref}/>
+                    pageHref={props.pageHref} message={props.message}/>
   </ThemeProvider>);
   return document.body.querySelector('[role="dialog"]');
 };
 const byLabel = (root, label) => root.querySelector(`[aria-label="${label}"]`);
 
 describe('AlertQuickEdit', () => {
-  it('a checkbox alert: title, checkbox, saved note and the full settings link', () => {
+  it('a checkbox alert: title, what the alert says first, checkbox, saved note and the full settings link', () => {
     const onAction = vi.fn();
     const onOpenAll = vi.fn();
     const quickEdit = quickFor('account', 'General.etc.keys');
-    const dialog = open(quickEdit, { onAction, onOpenAll });
+    const dialog = open(quickEdit, { onAction, onOpenAll, message: '3 keys are ready' });
     expect(dialog.getAttribute('aria-labelledby')).toBeTruthy();
+    expect(dialog.textContent.indexOf('3 keys are ready')).toBeLessThan(dialog.textContent.indexOf('Show this alert'));
     // Title: the clicked alert. Subtitle: where it lives.
     expect(dialog.querySelector('h2').textContent).toBe(quickEdit.option.label);
     expect(dialog.textContent).toContain(`General · ${quickEdit.tracker.label}`);
@@ -45,11 +46,11 @@ describe('AlertQuickEdit', () => {
   it('links to the alert page when there is one, and shows no link otherwise', () => {
     const quickEdit = { ...quickFor('account', 'General.etc.keys'), page: { pathname: '/account/world-7/spelunking', query: {}, label: 'Lore' } };
     let dialog = open(quickEdit, { pageHref: '/account/world-7/spelunking?t=Lore' });
-    const link = [...dialog.querySelectorAll('a')].find((a) => a.textContent.replace(/\s/g, ' ') === 'Lore page →');
+    const link = [...dialog.querySelectorAll('a')].find((a) => a.textContent.replace(/\s+/g, ' ').trim() === 'Open Lore page');
     expect(link?.getAttribute('href')).toBe('/account/world-7/spelunking?t=Lore');
     cleanup();
     dialog = open(quickEdit);
-    expect([...dialog.querySelectorAll('a')].some((a) => a.textContent.endsWith('page →'))).toBe(false);
+    expect([...dialog.querySelectorAll('a')].some((a) => a.textContent.includes(' page'))).toBe(false);
   });
 
   it('the footer Undo button calls onUndo', () => {
@@ -68,7 +69,7 @@ describe('AlertQuickEdit', () => {
     const onAction = vi.fn();
     const quickEdit = quickFor('account', 'General.etc.miniBosses');
     const dialog = open(quickEdit, { onAction });
-    fireEvent.change(dialog.querySelector('input[type="number"]'), { target: { value: '5' } });
+    fireEvent.change(dialog.querySelector('input[inputmode="decimal"]'), { target: { value: '5' } });
     expect(onAction).toHaveBeenCalledWith('setOptionValue', quickEdit.tracker, 'miniBosses', '5');
   });
 
@@ -126,7 +127,7 @@ describe('AlertQuickEdit', () => {
     const dialog = open(quickEdit);
     const dependent = quickEdit.dependents[0];
     expect(dialog.textContent).toContain(dependent.label);
-    expect(dialog.querySelector('input[type="number"]').disabled).toBe(true);
+    expect(dialog.querySelector('input[inputmode="decimal"]').disabled).toBe(true);
   });
 
   it('timers with a picker item show Show this alert and Watch <item>', () => {

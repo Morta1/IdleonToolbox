@@ -1,6 +1,6 @@
 import '../../../polyfills';
 import { describe, expect, it, vi } from 'vitest';
-import { AGGREGATION_INTERVAL, buildMetaIndex, formatDistinctValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, TABS, untilNextRun } from '@components/leaderboards/format';
+import { AGGREGATION_INTERVAL, buildMetaIndex, formatBoardValues, formatDistinctValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
 
 const meta = {
   createdAt: 100,
@@ -22,25 +22,25 @@ const meta = {
 describe('formatMetricValue', () => {
   it('applies each notation', () => {
     expect(formatMetricValue('points', 14901.02)).toBe('14,901.02 pts');
-    expect(formatMetricValue('multiplier', 3.2)).toBe('3.20');
+    expect(formatMetricValue('multiplier', 3.2)).toBe('3.20x');
     expect(formatMetricValue('default', 240)).toBe('240');
     expect(formatMetricValue(undefined, 240)).toBe('240');
   });
 
   it('shows exact figures with commas below a million on a board that stays below it', () => {
     expect(formatMetricValue('default', 1724, { scale: 900_000 })).toBe('1,724');
-    expect(formatMetricValue('default', 20184.9, { scale: 900_000 })).toBe('20,185');
+    expect(formatMetricValue('default', 20184.9, { scale: 900_000 })).toBe('20,184.9');
     expect(formatMetricValue('default', 999_999)).toBe('999,999');
     expect(formatMetricValue('default', 0)).toBe('0');
-    expect(formatMetricValue('multiplier', 870329.134, { scale: 900_000 })).toBe('870,329.13');
+    expect(formatMetricValue('multiplier', 870329.134, { scale: 900_000 })).toBe('870,329.13x');
   });
 
-  it('shows every value short on a board that reaches a million', () => {
-    expect(formatMetricValue('multiplier', 3_009_320_000, { scale: 3.01e9 })).toBe('3.01B');
-    expect(formatMetricValue('multiplier', 870329.134, { scale: 3.01e9 })).toBe('870K');
-    expect(formatMetricValue('multiplier', 400.66, { scale: 3.01e9 })).toBe('400.66');
-    expect(formatMetricValue('default', 990_882, { scale: 1.23e6 })).toBe('991K');
-    expect(formatMetricValue('default', 4200, { scale: 1.57e25 })).toBe('4.20K');
+  it('shows a value below a million in full on any board, and short from there', () => {
+    expect(formatMetricValue('multiplier', 3_009_320_000, { scale: 3.01e9 })).toBe('3.01Bx');
+    expect(formatMetricValue('multiplier', 870329.134, { scale: 3.01e9 })).toBe('870,329.13x');
+    expect(formatMetricValue('multiplier', 400.66, { scale: 3.01e9 })).toBe('400.66x');
+    expect(formatMetricValue('default', 990_882, { scale: 1.23e6 })).toBe('990,882');
+    expect(formatMetricValue('default', 4200, { scale: 1.57e25 })).toBe('4,200');
     expect(formatMetricValue('default', 999, { scale: 1.57e25 })).toBe('999');
   });
 
@@ -55,21 +55,21 @@ describe('formatMetricValue', () => {
 });
 
 describe('formatMetricValue short form', () => {
-  it('rounds to the nearest with three significant figures, trailing zeros kept', () => {
+  it('rounds to the nearest with three significant figures, trailing zeros dropped', () => {
     expect(formatMetricValue('default', 56_831_731)).toBe('56.8M');
     expect(formatMetricValue('default', 96_517_910)).toBe('96.5M');
-    expect(formatMetricValue('default', 35_000_000)).toBe('35.0M');
-    expect(formatMetricValue('default', 1e6)).toBe('1.00M');
-    expect(formatMetricValue('default', 4.9047e18)).toBe('4.90QQ');
+    expect(formatMetricValue('default', 35_000_000)).toBe('35M');
+    expect(formatMetricValue('default', 1e6)).toBe('1M');
+    expect(formatMetricValue('default', 4.9047e18)).toBe('4.9QQ');
     expect(formatMetricValue('default', 1.3176e62)).toBe('1.32e62');
-    expect(formatMetricValue('default', 6.9e36)).toBe('6.90e36');
-    expect(formatMetricValue('default', 9.996e62)).toBe('1.00e63');
+    expect(formatMetricValue('default', 6.9e36)).toBe('6.9e36');
+    expect(formatMetricValue('default', 9.996e62)).toBe('1e63');
   });
 
   it('moves to the next suffix when rounding reaches 1000', () => {
-    expect(formatMetricValue('default', 999_600_000)).toBe('1.00B');
-    expect(formatMetricValue('default', 999_700, { scale: 2e6 })).toBe('1.00M');
-    expect(formatMetricValue('default', 999.7e18)).toBe('1.00e21');
+    expect(formatMetricValue('default', 999_600_000)).toBe('1B');
+    expect(formatMetricValue('default', 999_700, { scale: 2e6 })).toBe('999,700');
+    expect(formatMetricValue('default', 999.7e18)).toBe('1e21');
   });
 
   it('keeps one notation across a board that reaches E notation', () => {
@@ -83,7 +83,7 @@ describe('formatExactValue', () => {
     expect(formatExactValue('default', 93_912_345)).toBe('93,912,345');
     // Fractional scores keep two decimals, so a 0.21 gap is visible.
     expect(formatExactValue('default', 498506.8800000001)).toBe('498,506.88');
-    expect(formatExactValue('default', 498506.66799999983)).toBe('498,506.67');
+    expect(formatExactValue('default', 498506.66799999983)).toBe('498,506.668');
     expect(formatExactValue('default', 100.0000001)).toBe('100');
     // Past a trillion a double has no real decimals.
     expect(formatExactValue('default', 980059689370745.6)).toBe('980,059,689,370,746');
@@ -96,7 +96,7 @@ describe('rankText', () => {
   it('groups thousands', () => {
     expect(rankText(1220)).toBe('#1,220');
     expect(rankText(5)).toBe('#5');
-    expect(rankText(null)).toBe('#-');
+    expect(rankText(null)).toBe('-');
   });
 });
 
@@ -106,21 +106,21 @@ describe('formatStep', () => {
     expect(formatStep('default', 0.42)).toBe('0.42');
     expect(formatStep('default', 0.001)).toBe('0.001');
     // Never +0.00, and rounded up so it reaches.
-    expect(formatStep('multiplier', 0.000278)).toBe('0.00028');
+    expect(formatStep('multiplier', 0.000278)).toBe('0.00028x');
     expect(formatStep('default', 0.212)).toBe('0.22');
     expect(formatStep('default', 0.0113)).toBe('0.012');
     expect(formatStep('default', 30_546_577, { scale: 1e9 })).toBe('30.6M');
     expect(formatStep('default', 6.0038e12, { scale: 1e14 })).toBe('6.01T');
-    expect(formatStep('multiplier', 14.9016)).toBe('14.91');
+    expect(formatStep('multiplier', 14.9016)).toBe('14.91x');
     expect(formatStep('points', 2.311)).toBe('2.32 pts');
     expect(formatStep('points', 120.4)).toBe('120.40 pts');
-    // A step that really reaches: +117 would fall short of a 117.32 gap.
-    expect(formatStep('default', 117.32)).toBe('118');
+    // Its decimals kept, and a step that really reaches: +117.32 would fall short of a 117.321 gap.
+    expect(formatStep('default', 117.321)).toBe('117.33');
     expect(formatStep('default', 117.00000000001)).toBe('117');
-    expect(formatStep('multiplier', 380.07)).toBe('380.07');
+    expect(formatStep('multiplier', 380.07)).toBe('380.07x');
     expect(formatStep('default', 2333, { scale: 1e8 })).toBe('2,333');
     expect(formatStep('default', 1)).toBe('1');
-    expect(formatStep('default', 2.5e9)).toBe('2.50B');
+    expect(formatStep('default', 2.5e9)).toBe('2.5B');
     expect(formatStep('bits', 5.69e20, { scale: 2.7e119 })).toBe('5.69e20');
   });
 });
@@ -177,10 +177,12 @@ describe('untilNextRun', () => {
 });
 
 describe('formatDistinctValues', () => {
-  it('keeps the board style with just enough figures to tell neighbours apart', () => {
+  it('keeps just enough figures to tell neighbours apart, and a zero only where a neighbour needs that digit', () => {
+    expect(formatDistinctValues('default', [35e6, 34.9e6], { scale: 1e8 })).toEqual(['35.0M', '34.9M']);
+    expect(formatDistinctValues('default', [35e6, 36e6], { scale: 1e8 })).toEqual(['35M', '36M']);
     expect(formatDistinctValues('default', [94_681_382.33, 94_653_886.83, 94_600_000], { scale: 2.04e8 })).toEqual(['94.68M', '94.65M', '94.60M']);
     expect(formatDistinctValues('default', [7.05237e15, 6.8258e15], { scale: 2.34e17 })).toEqual(['7.05Q', '6.83Q']);
-    expect(formatDistinctValues('multiplier', [385_382.06, 369_925.85], { scale: 3.01e9 })).toEqual(['385K', '370K']);
+    expect(formatDistinctValues('multiplier', [385_382.06, 369_925.85], { scale: 3.01e9 })).toEqual(['385,382.06x', '369,925.85x']);
   });
 
   it('treats float noise as the same value, so a group still aligns', () => {
@@ -196,53 +198,39 @@ describe('formatDistinctValues', () => {
   it('lets equal values read the same', () => {
     expect(formatDistinctValues('default', [500, 500, 400], { scale: 900 })).toEqual(['500', '500', '400']);
   });
-});
 
-describe('round 4 value rules', () => {
-  it('rounds an exact half up on its own digits', () => {
-    expect(formatMetricValue('default', 2295, { scale: 1e8 })).toBe('2.30K');
-    expect(formatMetricValue('default', 5225, { scale: 1e8 })).toBe('5.23K');
+  it('gives a group\'s values one count of decimals', () => {
+    expect(formatDistinctValues('default', [11624.65, 10994.1], { scale: 11_666 })).toEqual(['11,624.65', '10,994.10']);
   });
 
-  it('keeps two decimals on small values that are not whole', () => {
-    expect(formatMetricValue('default', 1.3, { scale: 1.47e6 })).toBe('1.30');
+  it('gives a board\'s full values one count of decimals across its groups, and leaves short values their own digits', () => {
+    expect(formatBoardValues('default', [[11624.6, 11483.306], [10994.1, 10000], [12.2e6, 12.1e6]], { scale: 1e8 }))
+      .toEqual([['11,624.60', '11,483.31'], ['10,994.10', '10,000.00'], ['12.2M', '12.1M']]);
+    expect(formatBoardValues('default', [[500, 400], [300]], { scale: 900 })).toEqual([['500', '400'], ['300']]);
+  });
+});
+
+describe('value rules', () => {
+  it('rounds an exact half up on its own digits', () => {
+    expect(formatMetricValue('default', 2295e3, { scale: 1e8 })).toBe('2.3M');
+    expect(formatMetricValue('default', 5225e3, { scale: 1e8 })).toBe('5.23M');
+  });
+
+  it('keeps the decimals a small value has', () => {
+    expect(formatMetricValue('default', 1.3, { scale: 1.47e6 })).toBe('1.3');
     expect(formatMetricValue('default', 3, { scale: 1.47e6 })).toBe('3');
-    expect(formatExactValue('multiplier', 8.6708)).toBe('8.6708');
+    expect(formatExactValue('multiplier', 8.6708)).toBe('8.6708x');
   });
 
   it('separates small multipliers with more decimals and keeps a column aligned', () => {
-    expect(formatDistinctValues('multiplier', [8.6708, 8.6656, 8.8313], { scale: 3.01e9 })).toEqual(['8.671', '8.666', '8.831']);
+    expect(formatDistinctValues('multiplier', [8.6708, 8.6656, 8.8313], { scale: 3.01e9 })).toEqual(['8.671x', '8.666x', '8.831x']);
     expect(formatDistinctValues('default', [8488, 8487.6, 8475.8], { scale: 11_666 })).toEqual(['8,488.00', '8,487.60', '8,475.80']);
   });
 });
 
-describe('display tabs', () => {
-  const redox = { key: 'redoxSaltRank', label: 'Redox Salt Rank', section: 'World 3', notation: 'default' };
-  const bells = { key: 'bellRings', label: 'Bell Rings', section: 'Caverns', notation: 'default' };
-
-  it('lists the display tabs', () => {
-    expect(TABS).toEqual(['Overview', 'Account', 'Character', 'Skills', 'Combat', 'Worlds']);
-  });
-
-  it('indexes boards under their display tab, keeping section order', () => {
-    const index = buildMetaIndex({ tabs: [{ key: 'worlds', label: 'Worlds', sections: [
-      { name: 'World 3', metrics: [redox] }, { name: 'Caverns', metrics: [bells] }
-    ] }] });
-    expect(index.categories.worlds).toEqual({ metrics: ['redoxSaltRank', 'bellRings'], sections: [
-      { name: 'World 3', metrics: ['redoxSaltRank'] }, { name: 'Caverns', metrics: ['bellRings'] }
-    ] });
-    expect(index.byKey.redoxSaltRank.category).toBe('worlds');
-    expect(TABS.find((tab) => tab.toLowerCase() === index.byKey.redoxSaltRank.category)).toBe('Worlds');
-  });
-
-  it('ignores an unknown tab', () => {
-    const index = buildMetaIndex({ tabs: [{ key: 'future', label: 'Future', sections: [{ name: 'Next', metrics: [bells] }] }] });
-    expect(index.byKey.bellRings.category).toBe('future');
-    expect(TABS.find((tab) => tab.toLowerCase() === 'future')).toBeUndefined();
-  });
-
+describe('retired meta', () => {
   it('reads only tabs: a meta with the retired categories list and no tabs is empty', () => {
-    const index = buildMetaIndex({ categories: [{ category: 'misc', metrics: [{ ...redox, section: 'Salt Ranks' }] }] });
+    const index = buildMetaIndex({ categories: [{ category: 'misc', metrics: [{ key: 'redoxSaltRank', label: 'Redox Salt Rank', section: 'Salt Ranks', notation: 'default' }] }] });
     expect(index.categories).toEqual({});
     expect(metaOf(index, 'redoxSaltRank').category).toBeNull();
   });

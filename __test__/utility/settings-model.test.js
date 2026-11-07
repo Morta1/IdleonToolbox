@@ -1,7 +1,8 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
-import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
+import { alertMeta } from '@utility/dashboard/alertMeta';
+import { diffTrackers, forEachTracker, resolveTrackers } from '@utility/dashboard/trackerStore';
 import { allTrackers, buildModel, matchesFilter, optionExtras, searchModel } from '@utility/dashboard/settingsModel';
 
 const modelFor = (edits = {}) => {
@@ -14,14 +15,18 @@ describe('buildModel', () => {
   it('has the three tabs and every tracker once', () => {
     const model = modelFor();
     expect(model.map(({ configType }) => configType)).toEqual(['account', 'characters', 'timers']);
-    expect(allTrackers(model)).toHaveLength(102);
+    const paths = [];
+    forEachTracker(baseTrackers, (path) => paths.push(path));
+    expect(allTrackers(model).map(({ path }) => path).sort()).toEqual(paths.sort());
     expect(model[1].sections).toHaveLength(1);
   });
 
   it('labels from alertMeta, never the raw key for a known tracker', () => {
-    const construction = tracker(modelFor(), 'account.World 3.construction');
-    expect(construction.label).toBeTruthy();
-    expect(construction.options.every(({ label }) => label && !/[A-Z][a-z]+[A-Z]/.test(label))).toBe(true);
+    const path = 'account.World 3.construction';
+    const construction = tracker(modelFor(), path);
+    const { label, options } = alertMeta[path];
+    expect(construction.label).toBe(label);
+    expect(construction.options.map((option) => option.label)).toEqual(construction.options.map(({ name }) => options[name].label));
   });
 
   it('marks edited paths and keeps the default next to the value', () => {

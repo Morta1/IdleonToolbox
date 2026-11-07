@@ -44,7 +44,7 @@ describe('trap items', () => {
     ]);
   });
 
-  // Owner decisions 4: a reshaped table, a list with no fitting unit or no list at all, leaves the time out rather than
+  // A reshaped table, a list with no fitting unit or no list at all, leaves the time out rather than
   // throwing the build.
   it.each([[[]], [{ unit: 'MINS' }]])('read an option without its time when the units are %o', (units) => {
     const reshaped = blank();

@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 
 const routerState = { isReady: true, query: {}, push: vi.fn(), replace: vi.fn(), asPath: '/leaderboards', pathname: '/leaderboards' };
 vi.mock('next/router', () => ({ useRouter: () => routerState }));
@@ -29,7 +29,7 @@ const Leaderboards = (await import('../../../pages/leaderboards')).default;
 
 const renderPage = () => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    <ThemeProvider theme={darkTheme}><AppContext.Provider value={{ state: {} }}><Leaderboards/></AppContext.Provider></ThemeProvider>
+    <ThemeProvider theme={theme}><AppContext.Provider value={{ state: {} }}><Leaderboards/></AppContext.Provider></ThemeProvider>
   </QueryClientProvider>
 );
 const events = (name) => (window.dataLayer ?? []).map((args) => Array.from(args)).filter(([kind, event]) => kind === 'event' && event === name).map(([, , params]) => params);
@@ -51,18 +51,11 @@ describe('leaderboards analytics', () => {
     expect(events('lb_board_open')).toEqual([{ metric: 'mining', source: 'card' }]);
   });
 
-  it('fires lb_player_search for a deep-linked player without the name', async () => {
-    routerState.query = { player: 'Tester' };
+  it.each([['Tester', 'found'], ['Ghost', 'not_found']])('fires lb_player_search for deep-linked %s as %s, without the name', async (player, result) => {
+    routerState.query = { player };
     renderPage();
-    await waitFor(() => expect(events('lb_player_search')).toEqual([{ result: 'found', via: 'url' }]));
-    expect(JSON.stringify(window.dataLayer)).not.toContain('Tester');
-  });
-
-  it('reports not_found for an unknown deep-linked player', async () => {
-    routerState.query = { player: 'Ghost' };
-    renderPage();
-    await waitFor(() => expect(events('lb_player_search')).toEqual([{ result: 'not_found', via: 'url' }]));
-    expect(JSON.stringify(window.dataLayer)).not.toContain('Ghost');
+    await waitFor(() => expect(events('lb_player_search')).toEqual([{ result, via: 'url' }]));
+    expect(JSON.stringify(window.dataLayer)).not.toContain(player);
   });
 
   it('fires lb_player_search with via enter from the search box', async () => {

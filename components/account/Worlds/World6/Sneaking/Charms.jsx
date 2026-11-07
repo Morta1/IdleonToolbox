@@ -1,30 +1,18 @@
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
 
 const Charms = ({ charms }) => {
-  return (
-    (<Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-      {charms?.map(({ rawName, name, bonus, x3, unlocked, value }, index) => {
-        bonus = bonus.replace(/}/, notateNumber(value, 'MultiplierInfo'));
-        bonus = bonus.replace(/{/, value);
-        return <Card sx={{
-          width: 250,
-          border: unlocked ? '1px solid' : '',
-          borderColor: unlocked ? 'success.main' : '',
-        }} key={'charm-' + index}>
-          <CardContent>
-            <Stack direction={'row'} gap={1}>
-              <img style={{ objectFit: 'contain' }} src={`${prefix}data/${rawName}.png`} alt={''}/>
-              <Stack>
-                <Typography>{cleanUnderscore(name)}</Typography>
-                <Typography>{cleanUnderscore(bonus)}</Typography>
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
-      })}
-    </Stack>)
-  );
+  return <CardGrid size={'s'}>
+    {charms?.map(({ rawName, name, bonus, unlocked, value }, index) => {
+      // The game's sentence: } the multiplier (its x is the sentence's), { the value itself
+      const text = bonus.replace(/}/, formatNum(value, 'mult', { bare: true })).replace(/{/, value);
+      return <ItemCard key={'charm-' + index} icon={`data/${rawName}.png`} title={cleanUnderscore(name)}
+                       status={unlocked ? 'active' : undefined} statusLabel={'Found'}>
+        <ItemCard.Desc text={cleanUnderscore(text)}/>
+      </ItemCard>
+    })}
+  </CardGrid>;
 };
 
 export default Charms;

@@ -1,7 +1,7 @@
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { holesInfo } from '@website-data';
-import { commaNotation, fillArrayToLength, notateNumber } from '@utility/helpers';
+import { fillArrayToLength, gameFill } from '@utility/helpers';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
@@ -12,6 +12,8 @@ import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 
 export const HARP_STRING_LETTERS = ['C', 'D', 'E', 'F', 'G', 'A', 'B'];
+// The ten hole resources 10 to 19 (getHoleResourceIcon)
+export const HARP_NOTES = 10;
 // The note art of a string type (no extension)
 export const harpNoteIcon = (noteId: any) => `etc/HarpNote_${109 + Number(noteId || 0)}`;
 
@@ -25,7 +27,7 @@ export const getTheHarp = (holesObject: any, accountData: any) => {
   const stringAllBonus = getHarpStringAllBonus(holesObject, uniqueStringTypes);
   const harpExpGain = getHarpExpGain(holesObject, accountData, stringAllBonus, power);
   const opalChance = getHarpOpalChance(holesObject, stringAllBonus, power);
-  const notes = holesObject?.wellSediment?.slice(10, 20);
+  const notes = Array.from({ length: HARP_NOTES }, (_, note) => holesObject?.wellSediment?.[10 + note]);
   const stringNotes = (holesObject?.harpStringNotes ?? []).slice(0, stringSlots).map((noteId: any) => Number(noteId) || 0);
   const chords = fillArrayToLength(6).map((_, index) => {
     const description = holesInfo[45][index];
@@ -37,15 +39,15 @@ export const getTheHarp = (holesObject: any, accountData: any) => {
     const bonus = getHarpStringBonus(holesObject, index);
     let result;
     if (index === 0) {
-      result = notateNumber(owned, 'Big');
+      result = gameFill(owned, 'Big');
     } else if (index === 1) {
-      result = notateNumber(100 * opalChance, 'Small');
+      result = gameFill(100 * opalChance, 'Small');
     } else if (index === 3) {
-      result = notateNumber(owned, 'Big');
+      result = gameFill(owned, 'Big');
     } else if (index === 5) {
-      result = notateNumber(owned, 'Big');
+      result = gameFill(owned, 'Big');
     } else if (index === 4) {
-      result = commaNotation(harpExpGain);
+      result = gameFill(harpExpGain, 'Comma');
     }
     return {
       level,

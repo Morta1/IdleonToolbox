@@ -1,44 +1,27 @@
-import Tooltip from '../Tooltip';
-import { cleanUnderscore, growth, prefix } from 'utility/helpers';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
+import { cleanUnderscore, growth } from 'utility/helpers';
+import { gameBonusText } from '@utility/gameNotation';
+import Panel from '@components/common/cards/Panel';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import StatusText from '@components/common/StatusText';
 
 const PlayerBubbles = ({ bubbles }) => {
-  const empty = bubbles?.every(({ bubbleName }) => !bubbleName);
-  return <>
-    <Stack direction={'row'} sx={{ height: 'fit-content' }}>
-      {empty ? <Card variant={'outlined'}>
-        <CardContent><Tooltip title={'Missing Active Bubble'}>
-          <img src={`${prefix}data/aUpgradesG2.png`}
-               style={{ width: 42, height: 42, filter: 'brightness(0)' }}
-               alt="a Upgrades G2"/>
-        </Tooltip></CardContent></Card> : null}
-      {!empty ? <Card variant={'outlined'}>
-        <CardContent>
-          <Stack direction={'row'} gap={2} flexWrap="wrap" justifyContent={'center'}>
-            {bubbles?.map((bubble, index) => {
-              const { bubbleName, rawName } = bubble;
-              if (!bubbleName) return null;
-              const alteredBubbleName = bubbleName === 'BUG]' ? 'Bug2' : bubbleName;
-              return <Tooltip key={alteredBubbleName + index}
-                              title={<BubbleTooltip {...{ ...bubble, bubbleName: alteredBubbleName }}/>}>
-                <img src={`${prefix}data/${rawName}.png`}
-                     style={{ width: 42, height: 42 }}
-                     alt={rawName}/>
-              </Tooltip>;
-            })}
-          </Stack>
-        </CardContent>
-      </Card> : null}
-    </Stack>
-  </>
+  const equipped = bubbles?.filter(({ bubbleName }) => bubbleName) ?? [];
+  return <Panel title={'Equipped bubbles'}>
+    {equipped.length ? <CardGrid size={'icon'} sheetColumns={[8, 6]} sheetBare>
+      {equipped.map((bubble, index) => {
+        const name = bubble.bubbleName === 'BUG]' ? 'Bug2' : bubble.bubbleName;
+        return <IconTile key={`${name}-${index}`} icon={`data/${bubble.rawName}.png`} alt={cleanUnderscore(name)}
+                         details={<BubbleDetails {...bubble} bubbleName={name}/>}/>;
+      })}
+    </CardGrid> : <StatusText status={'needs'}>No active bubble</StatusText>}
+  </Panel>;
 };
 
-const BubbleTooltip = ({ bubbleName, desc, func, level, x1, x2 }) => {
-  const effect = growth(func, level, x1, x2);
-  return <>
-    <Typography fontWeight={'bold'} variant={'h5'}>{cleanUnderscore(bubbleName)}</Typography>
-    <Typography>{cleanUnderscore(desc).replace(/({}?)|\$/g, effect)}</Typography>
-  </>;
-}
+const BubbleDetails = ({ bubbleName, desc, func, level, x1, x2 }) => <>
+  <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(bubbleName)}</Typography>
+  <Typography variant={'body2'}>{cleanUnderscore(desc ?? '').replace(/({}?)|\$/g, gameBonusText(growth(func, level, x1, x2)))}</Typography>
+</>;
 
 export default PlayerBubbles;

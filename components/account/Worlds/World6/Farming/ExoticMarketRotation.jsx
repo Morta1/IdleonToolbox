@@ -1,31 +1,32 @@
-import {
-  Autocomplete,
-  Card,
-  CardContent,
-  Divider,
-  FormControl,
-  InputLabel,
-  Select,
-  Stack,
-  TextField,
-  Typography,
-  useMediaQuery
-} from '@mui/material';
-import MenuItem from '@mui/material/MenuItem';
-import { cleanUnderscore, prefix } from '@utility/helpers';
-import { format, isValid } from 'date-fns';
+import { Autocomplete, Box, Divider, Stack, TextField, Typography } from '@mui/material';
+import { cleanUnderscore, titleCaseName } from '@utility/helpers';
+import { isValid } from 'date-fns';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { getExoticMarketReturnWeeks, getExoticMarketRotations } from '@parsers/world-6/farming';
 import ExoticReturnsIn from './ExoticReturnsIn';
 import useFormatDate from '@hooks/useFormatDate';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+import Notice from '@components/common/Notice';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import { isSectionFailed } from '@components/common/styles';
+
+const ROTATION_TOOLBAR = { weeks: 10 };
+const WEEKS = [10, 20, 30, 40, 50];
+
+const upgradeName = (upgrade) => (upgrade ? titleCaseName(cleanUnderscore(upgrade?.name)) : '');
 
 const ExoticMarketRotation = () => {
   const { state } = useContext(AppContext);
   const formatDate = useFormatDate();
-  const isSm = useMediaQuery((theme) => theme.breakpoints.down('sm'));
+  // A pick for this visit, not remembered; the weeks are the bar's, remembered per page
   const [filter, setFilter] = useState([]);
-  const [weeks, setWeeks] = useState(10);
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('farming-exotic-rotation', ROTATION_TOOLBAR);
+  const weeks = toolbar?.weeks ?? 10;
+  // The forecast comes from the date, so a failed section keeps each week's names; their levels and effects are gone
+  const sectionFailed = isSectionFailed(state?.account, 'farming');
 
   // Get all valid exotic market upgrades for the filter dropdown (use processed data for actual values)
   const processedMarket = state?.account?.farming?.exoticMarket || [];
@@ -40,114 +41,97 @@ const ExoticMarketRotation = () => {
   const filteredRotations = filter.length === 0
     ? rotations
     : rotations?.filter((rotation) => {
-        return rotation.upgrades?.some(({ name }) => filter.map(f => f.name).includes(name));
-      });
+      return rotation.upgrades?.some(({ name }) => filter.map(f => f.name).includes(name));
+    });
 
+  // A guest has no save clock to count weeks from
   if (!rotations?.length) {
-    return <Typography>No rotation data available</Typography>;
+    return <Notice>The rotations show once a save is loaded: they follow its weekly clock.</Notice>;
   }
 
   return (
-    <Stack gap={3}>
-      <Stack direction="row" gap={2} alignItems="flex-start" flexWrap="wrap" sx={{ mb: 1 }}>
-        <Autocomplete
-          size="small"
-          multiple
-          limitTags={isSm ? 2 : 3}
-          value={filter}
-          onChange={(event, newValue) => setFilter(newValue)}
-          disablePortal
-          options={allUpgrades}
-          sx={{ width: { xs: 300, sm: 500 } }}
-          filterSelectedOptions
-          getOptionLabel={(option) => option ? cleanUnderscore(option?.name?.toLowerCase()?.capitalizeAll()) : ''}
-          renderOption={(props, option) => (
-            <li {...props} key={'option-' + option?.index}>
-              <Stack alignItems="flex-start">
-                <Typography variant="body2" fontWeight="bold">
-                  {cleanUnderscore(option?.name?.toLowerCase()?.capitalizeAll())}
-                </Typography>
-                <Typography variant="caption" color="text.secondary">
-                  {cleanUnderscore(option?.displayText)}
-                </Typography>
-              </Stack>
-            </li>
-          )}
-          renderInput={(params) => <TextField {...params} label="Filter by upgrade"/>}
-        />
-        <FormControl size="small">
-          <InputLabel>Weeks</InputLabel>
-          <Select
-            label="Weeks"
-            sx={{ width: 100 }}
-            value={weeks}
-            onChange={(e) => setWeeks(e.target.value)}
-          >
-            <MenuItem value={10}>10</MenuItem>
-            <MenuItem value={20}>20</MenuItem>
-            <MenuItem value={30}>30</MenuItem>
-            <MenuItem value={40}>40</MenuItem>
-            <MenuItem value={50}>50</MenuItem>
-          </Select>
-        </FormControl>
-      </Stack>
+    <Box>
+      <Toolbar state={toolbar} defaults={ROTATION_TOOLBAR} onChange={setToolbar}
+               onReset={() => {
+                 resetToolbar();
+                 setFilter([]);
+               }}
+               total={rotations?.length ?? 0} shown={filteredRotations?.length ?? 0} noun={'weeks'}>
+        {sectionFailed ? null : <Toolbar.Lead>
+          <Autocomplete
+            multiple
+            limitTags={2}
+            value={filter}
+            onChange={(event, next) => setFilter(next)}
+            disablePortal
+            options={allUpgrades}
+            filterSelectedOptions
+            sx={{ flex: { xs: '1 1 auto', sm: '0 0 auto' }, width: { sm: 500 }, minWidth: 0 }}
+            getOptionLabel={upgradeName}
+            renderOption={(props, option) => (
+              <li {...props} key={'option-' + option?.index}>
+                <Stack alignItems="flex-start">
+                  <Typography variant="body2">{upgradeName(option)}</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    {cleanUnderscore(option?.displayText)}
+                  </Typography>
+                </Stack>
+              </li>
+            )}
+            // The label sits inside, as the bar's own fields put theirs ("Show 10 weeks"): "Upgrade: Any", Any read as
+            // the value it is
+            renderInput={(params) => <TextField {...params} placeholder={filter.length ? undefined : 'Any'}
+                                                sx={{ '& input::placeholder': { color: 'text.primary', opacity: 1 } }}
+                                                slotProps={{
+                                                  htmlInput: { ...params.inputProps, 'aria-label': 'Filter by upgrade' },
+                                                  input: {
+                                                    ...params.InputProps,
+                                                    startAdornment: <>
+                                                      <Box component={'span'} sx={{ color: 'text.secondary', mr: 0.75, whiteSpace: 'nowrap' }}>
+                                                        Upgrade:
+                                                      </Box>
+                                                      {params.InputProps.startAdornment}
+                                                    </>
+                                                  }
+                                                }}/>}
+          />
+        </Toolbar.Lead>}
+        <Toolbar.Show name={'weeks'} options={WEEKS.map((count) => [count, `${count} weeks`])}/>
+      </Toolbar>
 
-      <Stack gap={4}>
+      <Stack gap={4} sx={{ mt: 2 }}>
         {filteredRotations.map((rotation, rotationIndex) => {
           const isCurrentWeek = rotation.weekOffset === 0;
           return (
             <Stack key={'rotation-' + rotationIndex}>
-              <Stack direction="row" alignItems="baseline" gap={2} mb={2}>
-                <Typography
-                  variant="h6"
-                  color={isCurrentWeek ? 'success.light' : 'text.primary'}
-                >
-                  {isCurrentWeek ? 'Current Rotation' : `Week ${rotation.weekOffset + 1}`}
+              <Stack direction="row" alignItems="baseline" gap={2} mb={2} flexWrap={'wrap'}>
+                <Typography variant={'sectionTitle'} component={'h2'}>
+                  {isCurrentWeek ? 'Current rotation' : `Week ${rotation.weekOffset + 1}`}
                 </Typography>
                 <Typography variant="caption" color="text.secondary">
-                  {isValid(rotation.date)
-                    ? `${formatDate(rotation.date)} (${format(rotation.date, 'MMM do, yyyy')})`
-                    : null}
+                  {isValid(rotation.date) ? formatDate(rotation.date, { showSeconds: false }) : null}
                 </Typography>
               </Stack>
 
-              <Stack direction="row" flexWrap="wrap" gap={2}>
+              <CardGrid size={'m'}>
                 {rotation.upgrades.map((upgrade, upgradeIndex) => {
                   const isHighlighted = filter.length > 0 && filter.some(f => f.name === upgrade.name);
-                  return (
-                    <Card
-                      key={'upgrade-' + rotationIndex + '-' + upgradeIndex}
-                      sx={{
-                        width: 250,
-                        borderColor: isHighlighted ? 'success.light' : undefined,
-                        borderWidth: isHighlighted ? 2 : undefined,
-                        borderStyle: isHighlighted ? 'solid' : undefined
-                      }}
-                    >
-                      <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-                        <Stack direction="row" gap={2} alignItems="center">
-                          <img src={`${prefix}data/FarmCrop${upgrade.x2}.png`} alt="" width={24} height={24}/>
-                          <Typography fontWeight="bold">
-                            {cleanUnderscore(upgrade.name.toLowerCase().capitalizeAll())}
-                          </Typography>
-                          <Typography variant="caption">Lv. {upgrade.level || 0}</Typography>
-                        </Stack>
-                        <Typography variant="body2" mt={1}>
-                          {cleanUnderscore(upgrade.displayText)}
-                        </Typography>
-                        <ExoticReturnsIn weeks={returnsIn(upgrade.index, rotation.weekOffset)} sx={{ mt: 'auto', pt: 1 }}/>
-                      </CardContent>
-                    </Card>
-                  );
+                  return <ItemCard key={'upgrade-' + rotationIndex + '-' + upgradeIndex}
+                                   icon={`data/FarmCrop${upgrade.x2}.png`} title={upgradeName(upgrade)}
+                                   level={sectionFailed ? undefined : { value: upgrade.level || 0 }}
+                                   status={isHighlighted ? 'selected' : undefined} statusLabel={'Matches filter'}
+                                   footer={<ExoticReturnsIn weeks={returnsIn(upgrade.index, rotation.weekOffset)}/>}>
+                    {sectionFailed ? null : <ItemCard.Desc text={upgrade.displayText}/>}
+                  </ItemCard>;
                 })}
-              </Stack>
+              </CardGrid>
 
               {rotationIndex < filteredRotations.length - 1 && <Divider sx={{ mt: 4 }}/>}
             </Stack>
           );
         })}
       </Stack>
-    </Stack>
+    </Box>
   );
 };
 

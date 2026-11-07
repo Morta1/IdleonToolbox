@@ -1218,7 +1218,7 @@ const CROP_EVO_CHANCE_STEP = 0.1;
 // game: TalentCalc counts, across every character, the 13 World 6 maps (251-263) with no kills left
 const WORLD_6_FIRST_MAP = 251;
 const WORLD_6_MAP_COUNT = 13;
-const getClearedWorld6Maps = (characters: any[] = []) => characters.reduce((sum, { kills }: any) => {
+export const getClearedWorld6Maps = (characters: any[] = []) => characters.reduce((sum, { kills }: any) => {
   for (let map = WORLD_6_FIRST_MAP; map < WORLD_6_FIRST_MAP + WORLD_6_MAP_COUNT; map++) {
     // kills holds kills done, so "less than 1 kill left" is kills > requirement - 1
     if ((kills?.[map] ?? 0) > parseFloat(mapPortals?.[map]?.[0] as any) - 1) sum++;

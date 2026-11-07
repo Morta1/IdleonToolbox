@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { withLoggedInDivinity } from '../helpers/live-verified';
+import { withLoggedInDivinity, withSkillLevel } from '../helpers/live-verified';
 import { getBestActiveCharacter } from '@parsers/talents';
 import { getCharacters } from '@parsers/character';
 import { getLab } from '@parsers/world-4/lab';
@@ -63,10 +63,6 @@ const noDootAccount = {
   ...account,
   companions: { ...account.companions, list: account.companions.list.map((companion, index) => index === 0 ? { ...companion, acquired: false } : companion) }
 };
-const withLevel = (character, skill, level) => ({
-  ...character,
-  skillsInfo: { ...character.skillsInfo, [skill]: { ...character.skillsInfo?.[skill], level } }
-});
 
 describe('minor divinity bonuses verified against the live game', () => {
   it.each(Object.entries(GAME.minorAccount))('account wide %s', (god, value) => {
@@ -79,7 +75,7 @@ describe('minor divinity bonuses verified against the live game', () => {
   });
 
   it('King Doot spreads Harriep and Goharut only while the logged-in character has divinity 2', () => {
-    const lowDivinity = (name) => characters.map((c) => c.name === name ? withLevel(c, 'divinity', 1) : c);
+    const lowDivinity = (name) => characters.map((c) => c.name === name ? withSkillLevel(c, 'divinity', 1) : c);
     const other = characters.find((c) => c.name !== loggedIn.name);
     const withDoot = getAccountMinorDivinityBonus(account, characters, GOD_INDEX.Goharut);
     const otherLow = getAccountMinorDivinityBonus(account, lowDivinity(other.name), GOD_INDEX.Goharut);

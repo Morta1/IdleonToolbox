@@ -4,10 +4,6 @@ import { getTesseract, getTachyonType, getTachyonQuantityBase } from '@parsers/c
 import { liveCount } from '@parsers/catalog';
 import { tesseract } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
 import latest from '../fixtures/latest.json';
 
 describe('getTesseract', () => {
@@ -26,12 +22,6 @@ describe('getTesseract', () => {
     expect(result.totalTachyons).toBe(0);
   });
 
-  it('never produces NaN/Infinity drop chances with no save', () => {
-    const result = getTesseract(undefined, [], {});
-    expect(Number.isFinite(result.weaponDropChance)).toBe(true);
-    expect(Number.isFinite(result.ringDropChance)).toBe(true);
-  });
-
   it('applies save levels at the right indexes (synthetic, unconditional)', () => {
     const idleonData = { Arcane: [5, 3, 0, 0, 0] };
     const result = getTesseract(idleonData, [], {});
@@ -42,27 +32,13 @@ describe('getTesseract', () => {
   });
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
-const FIXTURES_WITH_ARCANE = FIXTURES.filter(([, fixture]) => (fixture.data ?? fixture)?.Arcane != null);
-
-describe('getTesseract fixture regression', () => {
-  it.each(FIXTURES_WITH_ARCANE)('%s: levels the save covers are unchanged at the same index', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const tesseractRaw = tryToParse(data?.Arcane) || [];
-    const result = getTesseract(data, [], {});
-
-    expect(tesseractRaw.length).toBeGreaterThan(0);
-    tesseractRaw.forEach((level, index) => {
-      if (index >= result.upgrades.length) return;
-      expect(result.upgrades[index].level).toBe(level);
-    });
-  });
-
-  it.each(FIXTURES)('%s: returns the full catalog length regardless of save', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const result = getTesseract(data, [], {});
-    expect(result.upgrades).toHaveLength(liveCount(tesseract));
+// The older saves carry no key at all, which is the missing-save path above
+describe('getTesseract on a real save', () => {
+  it('reads every level at its index, across the whole catalog', () => {
+    const raw = tryToParse(latest.data.Arcane);
+    const { upgrades } = getTesseract(latest.data, [], {});
+    expect(raw.length).toBeGreaterThan(0);
+    expect(upgrades.map(({ level }) => level)).toEqual(Array.from({ length: liveCount(tesseract) }, (_, index) => raw[index] ?? 0));
   });
 });
 

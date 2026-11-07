@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import {
-  Box,
-  Stack,
-  Typography
-} from '@mui/material';
+import { Box, ButtonBase, Typography } from '@mui/material';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import { cleanUnderscore, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import GameIcon from '@components/common/GameIcon';
+import { DIM } from '@components/common/cards/tokens';
 
 const buildDependencyTree = (upgrades) => {
   const upgradeMap = {};
@@ -47,18 +45,27 @@ const UpgradeTree = ({ upgrade, depth = 0, hoveredNodeId, onHover }) => {
   const [isExpanded, setIsExpanded] = useState(true);
   const isAncestor = hoveredNodeId !== null && upgrade.id !== hoveredNodeId && isAncestorOf(upgrade, hoveredNodeId);
 
+  // A row with children is a button (Tab reaches it, Enter folds it); a leaf stays a plain row. The ancestor
+  // highlight follows the mouse: an emphasis, not content.
+  const Row = hasChildren ? ButtonBase : Box;
+  const rowProps = hasChildren
+    ? { component: 'div', 'aria-expanded': isExpanded, onClick: () => setIsExpanded(!isExpanded) }
+    : {};
   return (
     <Box>
-      <Stack
-        direction="row"
-        alignItems="center"
-        gap={0.75}
-        onClick={hasChildren ? () => setIsExpanded(!isExpanded) : undefined}
+      <Row
+        {...rowProps}
         onMouseEnter={() => onHover(upgrade.id)}
         onMouseLeave={() => onHover(null)}
         sx={{
+          display: 'flex',
+          alignItems: 'center',
+          gap: 0.75,
+          width: '100%',
+          justifyContent: 'flex-start',
+          textAlign: 'left',
           py: 0.4,
-          opacity: isUnlocked ? 1 : 0.5,
+          opacity: isUnlocked ? 1 : DIM,
           cursor: hasChildren ? 'pointer' : 'default',
           '&:hover': { bgcolor: 'action.hover', borderRadius: 0.5 }
         }}
@@ -76,32 +83,26 @@ const UpgradeTree = ({ upgrade, depth = 0, hoveredNodeId, onHover }) => {
           )}
         </Box>
 
-        <img
-          src={`${prefix}data/CaveShopUpg${upgrade.originalIndex}.png`}
-          style={{ width: 20, height: 20, flexShrink: 0 }} alt=""/>
+        <GameIcon src={`data/CaveShopUpg${upgrade.originalIndex}.png`} size={24} alt={''}/>
 
         <Typography
           variant="body2"
           sx={{
-            fontWeight: isUnlocked ? 500 : 400,
-            fontSize: '0.875rem',
             flex: 1,
             minWidth: 0,
             overflow: 'hidden',
             textOverflow: 'ellipsis',
             whiteSpace: 'nowrap',
-            color: isAncestor ? 'primary.main' : 'inherit'
+            color: isAncestor ? 'primary.main' : upgrade.context ? 'text.secondary' : 'inherit'
           }}
         >
           {cleanUnderscore(upgrade.name)}
         </Typography>
 
-        <Stack direction="column" gap={0.5} alignItems="center" sx={{ flexShrink: 0 }}>
-          <Typography variant="caption" sx={{ opacity: 0.6, fontSize: '0.75rem' }}>
-            {Math.max(upgrade.level, 0)}/{upgrade.x3}
-          </Typography>
-        </Stack>
-      </Stack>
+        <Typography variant={'caption'} color={'text.secondary'} sx={{ flexShrink: 0 }}>
+          {formatNum(Math.max(upgrade.level ?? 0, 0), 'level', { max: Number.isFinite(upgrade.x3) ? upgrade.x3 : null })}
+        </Typography>
+      </Row>
 
       {isExpanded && hasChildren && (
         <Box sx={{ 
@@ -124,25 +125,21 @@ const UpgradeTree = ({ upgrade, depth = 0, hoveredNodeId, onHover }) => {
   );
 };
 
-const PathView = ({ upgrades, roots }) => {
+// With no roots it draws its heading only: the Toolbar's "Showing 0 of N" and its Reset say the rest
+const PathView = ({ roots }) => {
   const [hoveredNodeId, setHoveredNodeId] = useState(null);
-  
+
   // Find primary root (id 0) or use first root
   const primaryRoot = roots.find(r => r.id === 0) ?? roots[0];
   const displayRoots = primaryRoot ? [primaryRoot] : roots;
 
   if (roots.length === 0) {
-    return (
-      <Box>
-        <Typography variant="h6" mb={1.5}>Upgrade Dependency Paths</Typography>
-        <Typography>No upgrades found</Typography>
-      </Box>
-    );
+    return <Typography variant={'sectionTitle'} component={'h2'} mb={1.5}>Upgrade dependency paths</Typography>;
   }
 
   return (
     <Box>
-      <Typography variant="h6" mb={1.5}>Upgrade Dependency Paths</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'} mb={1.5}>Upgrade dependency paths</Typography>
       <Box sx={{ border: '1px solid', borderColor: 'divider', borderRadius: 1, p: 1.5 }}>
         {displayRoots.map(root => (
           <UpgradeTree 

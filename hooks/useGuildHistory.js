@@ -17,6 +17,8 @@ export function useGuildDetail(guildId) {
     queryKey: ['guild-history', 'detail', guildId],
     queryFn: () => fetchGuildDetail(guildId),
     enabled: !!guildId,
+    // A guild that isn't there won't be there on a second ask.
+    retry: (count, error) => error?.status !== 404 && count < 3,
     staleTime: FIFTEEN_MIN,
     refetchOnWindowFocus: false
   });

@@ -1,22 +1,22 @@
 import { useContext } from 'react';
 import { useRouter } from 'next/router';
 import { AppContext } from '@components/common/context/AppProvider';
-import { offlineTools } from '@components/common/NavBar/AppDrawer/ToolsDrawer';
+import { routeNeedsAccount } from '@utility/account-routes';
+import { offlineTools } from '@utility/navMenu';
 
 /**
  * Whether the current page is still waiting for the data it needs to render.
- *
- * Lives in a hook rather than inside DataLoadingWrapper because the layout needs the same
- * answer: while a page is loading, ContentWrapper collapses the sidebar ad gutter so the
- * loader can centre in the full width instead of in the narrowed content column.
+ * DataLoadingWrapper shows its loader while it is; the frame keeps its width either way (useFrame).
  */
 const usePageDataLoading = () => {
   const router = useRouter();
   const { state } = useContext(AppContext);
 
   // Determine the page type
-  const isAccountPage = router.pathname.includes('/account');
-  const isToolPage = router.pathname.includes('/tools');
+  const isAccountPage = router.pathname.includes('/account') && routeNeedsAccount(router.pathname);
+  // The hub (/tools) lists the tools and reads no save; only a tool under it can wait for one, and a route audited to
+  // need no account never gets one to wait for: a guest doesn't parse there.
+  const isToolPage = router.pathname.startsWith('/tools/') && routeNeedsAccount(router.pathname);
   const endPoint = router.pathname.split('/')?.[2] || '';
   const formattedEndPoint = endPoint?.replace('-', ' ')?.toCamelCase();
   const isCharactersPage = router.pathname === '/characters';
@@ -31,12 +31,16 @@ const usePageDataLoading = () => {
     }
   } else if (isCharactersPage) {
     // An anonymous visitor's flags arrive before the empty account is parsed: wait for the parse.
-    const isDataLoaded = !!state?.characters?.length || (state?.emptyAccount && !!state?.account);
+    // A whole-parse failure has no characters to wait for, as on the dashboard
+    const isDataLoaded = !!state?.characters?.length || (state?.emptyAccount && !!state?.account)
+      || !!state?.account?.failedSections?.includes('*');
     if (state.isLoading || !isDataLoaded) {
       return { loading: true, message: 'Loading character data...', isDataPage };
     }
   } else if (isDashboardPage) {
-    const isDataLoaded = (!!state?.account && !!state?.characters?.length) || (state?.emptyAccount && !!state?.account);
+    // A whole-parse failure has no characters to wait for: the page says what failed, never a loader that stays.
+    const isDataLoaded = (!!state?.account && !!state?.characters?.length) || (state?.emptyAccount && !!state?.account)
+      || !!state?.account?.failedSections?.includes('*');
     if (state.isLoading || !isDataLoaded) {
       return { loading: true, message: 'Loading dashboard data...', isDataPage };
     }

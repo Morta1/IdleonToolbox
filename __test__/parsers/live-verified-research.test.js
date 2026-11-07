@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { within, withLoggedInDivinity } from '../helpers/live-verified';
+import { within, withLoggedInDivinity, withSkillLevel } from '../helpers/live-verified';
 import { getGridBonusAllmulti, getResearch } from '@parsers/world-7/research';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
@@ -59,8 +59,13 @@ const data = latest.data ?? latest;
 const { account, characters } = parseFixture(latest);
 
 describe('research verified against the live game', () => {
-  it('research EXP multi', () => {
-    within(account.research.researchEXPmulti, GAME.researchExpMulti, 1e-6);
+  it.each([
+    ['research EXP multi', account.research.researchEXPmulti, GAME.researchExpMulti, 1e-6],
+    ['research AFK gains rate', account.research.researchAFKrate, GAME.afkGainsRatePct],
+    ['MSA bonus rewards from grid 170', account.research.msaBonusRewards, GAME.msaBonusRewards],
+    ['research level reads the logged-in character', account.research.researchLevel, GAME.researchLevel]
+  ])('%s', (_, actual, expected, tolerance) => {
+    within(actual, expected, tolerance);
   });
 
   it('observation rolls, magnifiers, grid points and tiny cogs', () => {
@@ -72,10 +77,6 @@ describe('research verified against the live game', () => {
       gridPTSearned: GAME.gridPointsEarned,
       tinyCogsPerDay: GAME.tinyCogsPerDay
     });
-  });
-
-  it('research AFK gains rate', () => {
-    within(account.research.researchAFKrate, GAME.afkGainsRatePct);
   });
 
   it('research EXP rate, live and while away', () => {
@@ -101,20 +102,9 @@ describe('research verified against the live game', () => {
   // only when Lv0[20] > 0, so a logged-in character without research banks nothing
   it('offline research EXP rate is 0 when the logged-in character has no research level', () => {
     const loggedIn = characters.reduce((best, character) => character.afkTime > (best?.afkTime ?? 0) ? character : best, null);
-    const withoutResearch = characters.map((character) => character !== loggedIn ? character : {
-      ...character,
-      skillsInfo: { ...character.skillsInfo, research: { ...character.skillsInfo.research, level: 0 } }
-    });
+    const withoutResearch = characters.map((character) => character !== loggedIn ? character : withSkillLevel(character, 'research', 0));
     expect(account.research.researchEXPrateAFK).toBeGreaterThan(0);
     expect(getResearch(data, account, withoutResearch, latest.serverVars).researchEXPrateAFK).toBe(0);
-  });
-
-  it('MSA bonus rewards from grid 170', () => {
-    within(account.research.msaBonusRewards, GAME.msaBonusRewards);
-  });
-
-  it('research level reads the logged-in character', () => {
-    expect(account.research.researchLevel).toBe(GAME.researchLevel);
   });
 
   it('Grid_Bonus_Allmulti and grid 48 follow King Doot, which follows the logged-in character', () => {

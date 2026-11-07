@@ -19,13 +19,15 @@ describe('usePinnedGuilds', () => {
     expect(result.current.pinnedGuilds).toEqual([]);
   });
 
-  it('togglePin adds a guild to the list', () => {
+  it('togglePin adds a guild to the list and to localStorage, and isPinned knows it', () => {
     const { result } = renderHook(() => usePinnedGuilds());
     act(() => {
       result.current.togglePin('guild-a', 'Alpha Guild');
     });
-    expect(result.current.pinnedGuilds).toHaveLength(1);
-    expect(result.current.pinnedGuilds[0]).toEqual({ id: 'guild-a', name: 'Alpha Guild' });
+    expect(result.current.pinnedGuilds).toEqual([{ id: 'guild-a', name: 'Alpha Guild' }]);
+    expect(JSON.parse(localStorage.getItem(STORAGE_KEY))).toEqual([{ id: 'guild-a', name: 'Alpha Guild' }]);
+    expect(result.current.isPinned('guild-a')).toBe(true);
+    expect(result.current.isPinned('guild-b')).toBe(false);
   });
 
   it('togglePin removes a guild that is already pinned', () => {
@@ -39,15 +41,6 @@ describe('usePinnedGuilds', () => {
     expect(result.current.pinnedGuilds).toHaveLength(0);
   });
 
-  it('isPinned returns true for a pinned guild and false otherwise', () => {
-    const { result } = renderHook(() => usePinnedGuilds());
-    act(() => {
-      result.current.togglePin('guild-a', 'Alpha Guild');
-    });
-    expect(result.current.isPinned('guild-a')).toBe(true);
-    expect(result.current.isPinned('guild-b')).toBe(false);
-  });
-
   it('supports multiple pins (unbounded)', () => {
     const { result } = renderHook(() => usePinnedGuilds());
     act(() => {
@@ -56,15 +49,6 @@ describe('usePinnedGuilds', () => {
       result.current.togglePin('g3', 'Guild Three');
     });
     expect(result.current.pinnedGuilds).toHaveLength(3);
-  });
-
-  it('persists pins to localStorage', () => {
-    const { result } = renderHook(() => usePinnedGuilds());
-    act(() => {
-      result.current.togglePin('guild-a', 'Alpha Guild');
-    });
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    expect(stored).toEqual([{ id: 'guild-a', name: 'Alpha Guild' }]);
   });
 
   it('hydrates from localStorage on mount', () => {

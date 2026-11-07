@@ -1,10 +1,7 @@
-export const drawerWidth = 240;
-export const navBarHeight = 70;
+export const navBarHeight = 56;
 export const profileBannerHeight = 40;
 export const simulatedCompanionsKey = 'simulatedCompanions';
 export const petsViewKey = 'petsView';
-export const navItems = ['dashboard', 'characters', 'account', 'tools', 'guilds', 'statistics', 'leaderboards', 'wiki'];
-export const drawerPages = ['characters', 'account', 'tools'];
 
 // The task board pages tab by world. Spelled out rather than imported from utility/helpers'
 // worldsArray: this file must stay free of the website-data graph that helpers pulls in.
@@ -40,17 +37,17 @@ export const PAGES = {
         { label: 'upgradeVault', icon: 'data/VaultBut' },
         { label: 'randomEvents', icon: 'etc/Mega_Grumblo' },
         { label: 'eventShop', icon: 'etc/Event_Currency' },
-        { label: 'guild', icon: 'etc/Guild', tabs: ['Members', 'Bonuses'] },
+        // "Guilds" on the bar is another page. The name the nav draws: the URL and a stored pin go by label.
+        { label: 'guild', display: 'My guild', icon: 'etc/Guild', tabs: ['Members', 'Bonuses'] },
         { label: 'tournament', icon: 'data/TournyRank2', tabs: ['Companions', 'Matches', 'Leaderboard'] }
       ]
     },
     'prem-currency': {
-      style: { filter: 'hue-rotate(180deg)' },
       icon: 'data/PremiumGem',
       categories: [
         { label: 'gemShop', icon: 'data/PremiumGem' },
         { label: 'pets', icon: 'data/PremiumGem', style: { filter: 'hue-rotate(280deg)' }, tabs: ['Pets', 'Pet Mart'] },
-        { label: 'bundles', icon: 'data/PremiumGem', tabs: ['Bundles', 'Pet Mart', 'Starter Pack'] }
+        { label: 'bundles', icon: 'data/PremiumGem', style: { filter: 'hue-rotate(180deg)' }, tabs: ['Bundles', 'Pet Mart', 'Starter Pack'] }
       ]
     },
     'class-specific': {
@@ -89,7 +86,8 @@ export const PAGES = {
     'task board': {
       icon: 'etc/TasksStar',
       categories: [
-        { label: 'achievements', icon: 'data/TaskAchBorder1', tabs: WORLD_TABS },
+        // The game lists no World 7 achievement yet (achievements.json stops at slot 419): its tab comes back with them
+        { label: 'achievements', icon: 'data/TaskAchBorder1', tabs: WORLD_TABS.slice(0, 6) },
         { label: 'tasks', icon: 'etc/TasksStar', tabs: WORLD_TABS },
         { label: 'merits', icon: 'etc/Merit_4', tabs: WORLD_TABS },
         { label: 'unlocks', icon: 'data/PetLockB0', tabs: ['Tab 1', 'Tab 2', 'Tab 3', 'Tab 4', 'Tab 5', 'Tab 6', 'Tab 7'] }

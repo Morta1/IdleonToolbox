@@ -1,11 +1,7 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { getObols } from '@parsers/obols';
-import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
-import latest from '../fixtures/latest.json';
+import { FIXTURES } from '../helpers/save-fixtures';
 
 describe('getObols', () => {
   it('returns an empty but complete shape with no save', () => {
@@ -19,15 +15,9 @@ describe('getObols', () => {
   });
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
 describe('getObols fixture regression', () => {
   it.each(FIXTURES)('%s: does not throw and returns the standard shape', (_name, fixture) => {
     const data = fixture.data ?? fixture;
-    const result = getObols(data);
-    expect(result).toHaveProperty('inventory');
-    expect(result).toHaveProperty('list');
-    expect(result).toHaveProperty('stats');
-    expect(Array.isArray(result.list)).toBe(true);
+    expect(getObols(data)).toEqual({ inventory: expect.any(Array), list: expect.any(Array), stats: expect.anything() });
   });
 });

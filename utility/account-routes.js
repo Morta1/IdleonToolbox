@@ -6,11 +6,16 @@
 const STATIC_ROUTES = new Set([
   '/',
   '/404',
+  '/account/class-specific/royal-guardian',
   '/guilds',
+  '/guilds/detail',
+  '/guilds/ecosystem',
   '/leaderboards',
   '/patch-notes',
   '/privacy-policy',
   '/statistics',
+  '/tools',
+  '/tools/active-exp-calculator',
   '/tools/builds',
   '/tools/builds/[slug]',
   '/wiki',
@@ -22,3 +27,7 @@ const STATIC_ROUTES = new Set([
 
 // `pathname` is the Next route pattern (router.pathname), not the URL.
 export const routeNeedsAccount = (pathname) => !STATIC_ROUTES.has(pathname);
+
+// Routes that still pay for an empty account though no number on them reads it, so the guest's band
+// has nothing true to say there.
+export const NO_GUEST_NUMBERS = new Set(['/settings']);

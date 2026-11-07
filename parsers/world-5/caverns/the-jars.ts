@@ -3,7 +3,7 @@ import { getPaletteBonus, isSuperbitUnlocked } from '@parsers/world-5/gaming';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
-import { cleanUnderscore, commaNotation, createRange, lavaLog, notateNumber, numberWithCommas } from '@utility/helpers';
+import { cleanUnderscore, createRange, gameFill, lavaLog, notateNumber, numberWithCommas, titleCaseName } from '@utility/helpers';
 import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
@@ -43,8 +43,8 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
   const jarAesthetic = getJarAesthetic({ holesObject });
   const jarInventory = getJarInventory(jarsRaw);
   const jars = jarNames.map((name, index) => {
-    const bonus = index === 1 ? notateNumber(100 * opalChance, 'Small') : index === 2
-      ? notateNumber(100 * newCollectibleChance, 'Small')
+    const bonus = index === 1 ? gameFill(100 * opalChance, 'Small') : index === 2
+      ? gameFill(100 * newCollectibleChance, 'Small')
       : index === 4 ? enchant.label : ''
     return {
       name,
@@ -75,21 +75,20 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
   rupies = [...rupies, ...whiteDarkRupies];
 
   // game: $ (only the first collectible has one) is JarRupieValue, Small under 1e3, with commas under 1e9, Big past that
-  const rupieValueText = String(rupieValue.value < 1e3
-    ? notateNumber(rupieValue.value, 'Small')
-    : rupieValue.value < 1e9 ? commaNotation(rupieValue.value) : notateNumber(rupieValue.value, 'Big'));
+  const rupieValueText = gameFill(rupieValue.value, rupieValue.value < 1e3 ? 'Small' : rupieValue.value < 1e9 ? 'Comma' : 'Big');
   const collectibles = Array.from({ length: 40 }, (_, index) => holesObject?.jarStuff?.[index]).map((level: any, index: any) => {
     const [name, bonusModifier, , description] = holesInfo?.[67]?.[index]?.split('|') ?? [];
     const bonus = getJarBonus({ holesObject, i: index, account: accountData });
     return {
       level,
       bonus,
-      name: (cleanUnderscore(name) as any).toLowerCase().capitalizeAllWords(),
+      name: titleCaseName(cleanUnderscore(name)),
       bonusModifier,
       // @ is the game's line break
-      description: description.replace('{', String(bonus)).replace('}', String(1 + bonus / 100))
-        .replace('$', rupieValueText).replace(/@/g, '\n'),
-      doubled: holesObject?.extraCalculations?.[62] === index
+      description: description.replace('{', gameFill(bonus, 'Round')).replace('}', gameFill(1 + bonus / 100, 'MultiplierInfo'))
+        .replace('$', rupieValueText),
+      // game: 0 <= Holes[11][62] and 1 <= its level, so a save that has picked none (-1, or no slot at all) doubles nothing
+      doubled: level >= 1 && holesObject?.extraCalculations?.[62] === index
     }
   });
 
@@ -325,15 +324,8 @@ export const getNewCollectibleChance = (holesObject: any, account: any) => {
   return (0.2 * multi) / ((1 + Math.pow(found, 1.9)) * Math.pow(1.5, Math.max(0, found - 16)));
 }
 
-// Format a probability (0-1) as a percentage string that stays useful even for
-// tiny values. The game floors anything under 0.01% to "0%"; we keep precision.
-const formatEnchantPercent = (chance: number) => {
-  const percentage = 100 * chance;
-  if (percentage === 0) return '0';
-  if (percentage >= 0.01) return notateNumber(percentage, 'Small');
-  // Below 0.01%: show meaningful precision via scientific notation.
-  return percentage.toExponential(4);
-}
+// A probability (0-1) as a percent. The game floors anything under 0.01% to "0%"; the shared rule keeps two figures.
+const formatEnchantPercent = (chance: number) => gameFill(100 * chance, 'Small');
 
 const getEnchantChance = ({ holesObject, account }: any) => {
   let enhancingLevels = 0;

@@ -3,7 +3,7 @@ import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { LISTED_KINDS, inListing } from '../../utility/wiki/kinds.mjs';
 import { listingCells, listingColumns, listingEntries } from '../../utility/wiki/listing.mjs';
-import { NO_MAX, nextSort, parseSort, sortColumn, sortEntries, sortQuery } from '../../utility/wiki/listing-sort.mjs';
+import { NO_MAX, parseSort, sortColumn, sortEntries, sortQuery } from '../../utility/wiki/listing-sort.mjs';
 
 const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
 
@@ -49,7 +49,7 @@ describe('listingColumns', () => {
   it('derives the columns from the graph', () => {
     const kinds = ['item', 'monster', 'pet', 'bundle', 'world', 'talent', 'vault', 'sushiupgrade', 'tome', 'armorset', 'totem', 'summoningupgrade', 'rift', 'mineheadopponent', 'observation', 'advicefish'];
     expect(Object.fromEntries(kinds.map((kind) => [kind, listingEntries(graph, kind).columns.map((column) => column.label)]))).toEqual({
-      item: ['Type', 'Level', 'Sell Price'],
+      item: ['Type', 'Level', 'Sell price'],
       monster: ['Section', 'Health', 'Experience', 'Attack', 'Def for 0'],
       pet: ['Category', 'Power', 'Upgraded power', 'Pet Mart+ cost'],
       bundle: ['Category', 'Price', 'Gems'],
@@ -98,6 +98,12 @@ describe('listingColumns', () => {
       keys: ['category', 'price', 'gems'],
       cells: [['Gem Shop', 4.99, 100], ['Pet Mart', 9.99, null]]
     });
+  });
+
+  it('prints a monster\'s 0 attack as 0, not as a missing value', () => {
+    const { columns } = listingEntries(graph, 'monster');
+    expect(listingCells(columns, { kind: 'monster', stats: { attack: 0, health: 5, defence: 1, experience: 2 } }).slice(1))
+      .toEqual([5, 2, 0, 1]);
   });
 
   const cost = (base) => ({ currency: 'Coins', formula: 'pow', args: { base, rate: 2 } });
@@ -224,14 +230,5 @@ describe('sort URL', () => {
     [null, { demo: 'true' }]
   ])('writes %o into the query', (sort, expected) => {
     expect(sortQuery({ kind: 'equinox', slug: 'upgrades', demo: 'true', sort: 'name' }, sort)).toEqual(expected);
-  });
-
-  it.each([
-    [null, { key: 'cost', order: 'asc' }],
-    [{ key: 'cost', order: 'asc' }, { key: 'cost', order: 'desc' }],
-    [{ key: 'cost', order: 'desc' }, null],
-    [{ key: 'name', order: 'desc' }, { key: 'cost', order: 'asc' }]
-  ])('steps %o to %o on a Cost header click', (current, expected) => {
-    expect(nextSort(current, 'cost')).toEqual(expected);
   });
 });

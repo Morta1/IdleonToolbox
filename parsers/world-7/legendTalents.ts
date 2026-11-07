@@ -1,5 +1,5 @@
 import type { IdleonData, Account } from '../types';
-import { commaNotation, notateNumber, tryToParse } from '@utility/helpers';
+import { gameFill, tryToParse } from '@utility/helpers';
 import { generalSpelunky, legendTalents, researchGridSquares, gameTables } from '@website-data';
 import { getGildedBoostioBonus } from '@parsers/world-3/construction';
 import { getEventShopBonus, getGuaranteedCrystalMobs, isCompanionBonusActive } from '@parsers/misc';
@@ -123,9 +123,9 @@ const processLegendTalentDescription = (description: string, index: number, bonu
 
   let text = description;
 
-  text = text.replace(/\{/g, commaNotation(bonus));
+  text = text.replace(/\{/g, gameFill(bonus, 'Comma'));
   const multiplier = 1 + bonus / 100;
-  const multiplierFormatted = notateNumber(multiplier, 'MultiplierInfo');
+  const multiplierFormatted = gameFill(multiplier, 'MultiplierInfo');
   text = text.replace(/\}/g, multiplierFormatted as string);
   if (text.includes('$')) {
     let dollarValue: string | number = '';
@@ -134,7 +134,7 @@ const processLegendTalentDescription = (description: string, index: number, bonu
       dollarValue = (2 + bonus / 100);
     }
     else if (index === 33) {
-      dollarValue = notateNumber(getGildedBoostioBonus(accountData) || 0, 'MultiplierInfo');
+      dollarValue = gameFill(getGildedBoostioBonus(accountData) || 0, 'MultiplierInfo');
     }
     else if (index === 37) {
       dollarValue = Math.round(getGuaranteedCrystalMobs(accountData) || 0);
@@ -143,7 +143,7 @@ const processLegendTalentDescription = (description: string, index: number, bonu
       dollarValue = getSuperTalentAddedLevels(accountData);
     }
     else {
-      dollarValue = notateNumber(bonus, 'MultiplierInfo');
+      dollarValue = gameFill(bonus, 'MultiplierInfo');
     }
 
     text = text.replace(/\$/g, String(dollarValue));
@@ -153,7 +153,7 @@ const processLegendTalentDescription = (description: string, index: number, bonu
 }
 
 export const getLegendTalentBonus = (account: Account, index: number): number => {
-  return (account as any)?.legendTalents?.talents?.find((legendTalent: any) => legendTalent.originalIndex === index)?.bonus;
+  return (account as any)?.legendTalents?.talents?.find((legendTalent: any) => legendTalent.originalIndex === index)?.bonus ?? 0;
 };
 
 

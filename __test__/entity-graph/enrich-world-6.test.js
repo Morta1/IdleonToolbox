@@ -5,19 +5,15 @@ import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { enrichWorld6 } from '../../scripts/entity-graph/enrich-world-6.mjs';
 import { jadeNodes } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
 import { monsterNodes } from '../../scripts/entity-graph/nodes/monsters.mjs';
+import { enrichRun } from '../helpers/enrich-run.js';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
-// The before/after snapshots name exactly which nodes the enrichment touched.
 const blank = () => ({
   ...jadeNodes(data.jadeUpgrades),
   ...monsterNodes(data.monsters, data.mapNames)
 });
-const before = blank();
-const snapshot = Object.fromEntries(Object.entries(before).map(([id, node]) => [id, JSON.stringify(node)]));
-const nodes = blank();
-enrichWorld6(nodes, data);
-const changed = (prefix) => Object.keys(nodes).filter((id) => id.startsWith(prefix) && JSON.stringify(nodes[id]) !== snapshot[id]).sort();
+const { nodes, changed } = enrichRun(blank, (fresh) => enrichWorld6(fresh, data));
 const jadeNamed = (name) => Object.values(nodes).find((node) => node.kind === 'jade' && node.name === name);
 
 describe('jade emporium', () => {
@@ -48,7 +44,7 @@ describe('jade emporium', () => {
     expect(priced).toEqual([
       ['MSA_Expander_I', 2, '2,019 Jade Coins'],
       ['Level_Exemption', 3, '8,306 Jade Coins'],
-      ['Emperor_Season_Pass', 40, '1.30e28 Jade Coins'],
+      ['Emperor_Season_Pass', 40, '1.3e28 Jade Coins'],
       // 2.3.540 added the 300^max(0, row - 44) tier (EmporiumCost), so row 47 (index 46) is 300^2 x the old price.
       ['Optimal_Optometry', 47, '7.97e54 Jade Coins']
     ]);
@@ -86,7 +82,7 @@ describe('Emperor showdown rewards', () => {
           'Wins 36, 40: a bonus not released yet'
         ]
       },
-      { label: 'Showdown HP', value: '1.35e14, x1.52 per showdown won' }
+      { label: 'Showdown HP', value: '135T, x1.52 per showdown won' }
     ]);
   });
 });

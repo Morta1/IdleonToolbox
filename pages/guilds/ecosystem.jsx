@@ -1,63 +1,62 @@
-// pages/guilds/ecosystem.jsx — ecosystem-wide guild statistics.
+// pages/guilds/ecosystem.jsx: ecosystem-wide guild statistics.
 // Static sub-page (no query param); not registered in constants.jsx.
+import NextLink from 'next/link';
 import { useRouter } from 'next/router';
+import { sessionQuery } from '@utility/nav-query';
 import { useGlobalSnapshots } from '@hooks/useGuildHistory';
 import { Box, Button, Typography } from '@mui/material';
-import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { IconArrowLeft } from '@tabler/icons-react';
 import { NextSeo } from 'next-seo';
 import { isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
 import StatCard from '@components/guilds/StatCard';
+import { showsFailure } from '@components/leaderboards/format';
+import CardGrid from '@components/common/cards/CardGrid';
+import Panel from '@components/common/cards/Panel';
+import Notice, { retryAction } from '@components/common/Notice';
 import SimpleLoader from '@components/common/SimpleLoader';
-import { useReportPageLoading } from '@components/common/context/PageLoadingProvider';
-import { numberWithCommas } from '@utility/helpers';
+import { formatNum } from '@utility/helpers';
 
-// A titled section with a responsive 2-up grid of StatCards.
-function EcosystemSection({ title, columns, children }) {
-  return (
-    <Box sx={{ mb: 4 }}>
-      <Typography
-        variant="overline"
-        color="text.secondary"
-        fontWeight={700}
-        sx={{
-          display: 'block',
-          letterSpacing: 1.2,
-          borderBottom: '1px solid',
-          borderColor: 'divider',
-          pb: 0.5,
-          mb: 1.5
-        }}
-      >
-        {title}
-      </Typography>
-      <Box
-        sx={{
-          display: 'grid',
-          gridTemplateColumns: { xs: '1fr', md: `repeat(${columns}, 1fr)` },
-          gap: 2
-        }}
-      >
-        {children}
-      </Box>
-    </Box>
-  );
-}
+const EcosystemSection = ({ title, children }) => <Panel title={title} sx={{ mb: 3 }}>
+  <CardGrid size={'s'} sx={{ p: 2 }}>{children}</CardGrid>
+</Panel>;
+
+const BackToGuilds = () => {
+  const router = useRouter();
+  return <Button size={'small'} startIcon={<IconArrowLeft size={18}/>} component={NextLink}
+                 href={{ pathname: '/guilds', query: sessionQuery(router.query) }} prefetch={false} sx={{ mb: 2 }}>
+    Back to guilds
+  </Button>;
+};
 
 export default function GuildEcosystem() {
-  const router = useRouter();
   const formatDate = useFormatDate();
   // ~6 months of weekly snapshots (newest-first from API)
-  const { data, isLoading, error } = useGlobalSnapshots(26);
-  useReportPageLoading(isLoading);
+  const query = useGlobalSnapshots(26);
+  const { data, isLoading } = query;
+  // Above every branch, so the page keeps its title and description on the error and empty notes.
+  const seo = <NextSeo
+    title="Guild Ecosystem | Idleon Toolbox"
+    description="Ecosystem-wide guild statistics: total guilds, active guilds, member health, and guild point output across all of Legends of Idleon."
+  />;
 
-  if (isLoading) return <SimpleLoader message="Loading ecosystem data..." />;
-  if (error) return <Typography color="error">Failed to load ecosystem data</Typography>;
-  if (!data) return null;
+  if (showsFailure(query)) {
+    return <>
+      {seo}
+      <BackToGuilds/>
+      <Notice key={query.errorUpdateCount} tone={'error'} action={retryAction(() => query.refetch(), query.isFetching)}>Couldn't load the ecosystem numbers.</Notice>
+    </>;
+  }
+  if (isLoading) return <>{seo}<SimpleLoader message="Loading ecosystem data..."/></>;
 
-  const snapshots = data.snapshots ?? [];
+  // A reply that isn't a list reads as an empty one.
+  const snapshots = Array.isArray(data?.snapshots) ? data.snapshots : [];
   if (snapshots.length === 0) {
-    return <Typography color="text.secondary">No ecosystem data available yet.</Typography>;
+    return <>
+      {seo}
+      <BackToGuilds/>
+      <Notice tone={'info'}>No ecosystem numbers yet. They arrive with the first weekly snapshot.</Notice>
+    </>;
   }
 
   const latest = snapshots[0];
@@ -76,12 +75,12 @@ export default function GuildEcosystem() {
   const disbandedGuilds = latest.disbanded_guilds ?? null;
   const churnCaption =
     newGuilds != null && disbandedGuilds != null
-      ? `+${numberWithCommas(newGuilds)} new · −${numberWithCommas(disbandedGuilds)} disbanded this week`
+      ? `+${formatNum(newGuilds, 'whole')} new, ${formatNum(disbandedGuilds, 'whole')} disbanded this week`
       : null;
 
   const totalGuilds = field('total_guilds');
   // Ecosystem-wide total GP is only accurate for the tracked top 1000, so the
-  // absolute sum is misleading — show the weekly change, and how it compares
+  // absolute sum is misleading: show the weekly change, and how it compares
   // to the previous week's change.
   const thisWeekGp = latestDelta.total_points ?? null;
   const lastWeekGp = snapshots[1]?.delta?.total_points ?? null;
@@ -96,87 +95,32 @@ export default function GuildEcosystem() {
   const activeMembers = field('active_members');
   const abandonedMembers = field('abandoned_members');
 
-  return <Box sx={{ maxWidth: 980 }}>
-    <NextSeo
-      title="Guild Ecosystem | Idleon Toolbox"
-      description="Ecosystem-wide guild statistics: total guilds, active guilds, member health, and guild point output across all of Legends of Idleon."
-    />
+  return <Box>
+    {seo}
 
-    <Button
-      size="small"
-      startIcon={<ArrowBackIcon />}
-      onClick={() => router.push('/guilds')}
-      sx={{ mb: 1, alignSelf: 'flex-start' }}
-    >
-      Back to guilds
-    </Button>
+    <BackToGuilds/>
 
-    <Typography variant="h4">Guild Ecosystem</Typography>
-    <Typography variant="body2" color="text.secondary" sx={{ mb: 4 }}>
-      Week-over-week health of the IdleOn guild ecosystem.
+    <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+      How the Idleon guilds changed from last week
       {latest.taken_at && isValid(new Date(latest.taken_at)) && (
-        <> · As of {formatDate(latest.taken_at)}</>
+        <>, as of {formatDate(latest.taken_at, { showSeconds: false })}</>
       )}
     </Typography>
 
-    <EcosystemSection title="Scale & Output" columns={2}>
-      <StatCard
-        label="Total Guilds"
-        value={totalGuilds.value}
-        delta={totalGuilds.delta}
-        history={totalGuilds.history}
-        caption={churnCaption}
-      />
-      <StatCard
-        label="Weekly GP Change"
-        value={gpChange.value}
-        delta={gpChange.delta}
-        deltaBelow
-        deltaLabel="vs last week"
-        history={gpChange.history}
-      />
+    <EcosystemSection title="Scale and output">
+      <StatCard label="Total guilds" {...totalGuilds} caption={churnCaption}/>
+      <StatCard label="Weekly GP change" {...gpChange}/>
     </EcosystemSection>
 
-    <EcosystemSection title="Guild Health" columns={2}>
-      <StatCard
-        label="Active Guilds"
-        value={activeGuilds.value}
-        delta={activeGuilds.delta}
-        history={activeGuilds.history}
-        hint="Guilds where the total GP increased in the last week."
-      />
-      <StatCard
-        label="Abandoned Guilds"
-        value={abandonedGuilds.value}
-        delta={abandonedGuilds.delta}
-        history={abandonedGuilds.history}
-        goodDirection="down"
-        hint="Guilds with no GP change for several weeks — likely inactive or empty."
-      />
+    <EcosystemSection title="Guild health">
+      <StatCard label="Active guilds" {...activeGuilds} hint="Guilds where the total GP increased in the last week."/>
+      <StatCard label="Abandoned guilds" {...abandonedGuilds} hint="Guilds with no GP change for several weeks: likely inactive or empty."/>
     </EcosystemSection>
 
-    <EcosystemSection title="Member Health" columns={3}>
-      <StatCard
-        label="Total Members"
-        value={totalMembers.value}
-        delta={totalMembers.delta}
-        history={totalMembers.history}
-      />
-      <StatCard
-        label="Active Members"
-        value={activeMembers.value}
-        delta={activeMembers.delta}
-        history={activeMembers.history}
-        hint="Members in active guilds — guilds that gained GP in the last week."
-      />
-      <StatCard
-        label="Abandoned Members"
-        value={abandonedMembers.value}
-        delta={abandonedMembers.delta}
-        history={abandonedMembers.history}
-        goodDirection="down"
-        hint="Members in abandoned guilds — guilds with no GP change for several weeks."
-      />
+    <EcosystemSection title="Member health">
+      <StatCard label="Total members" {...totalMembers}/>
+      <StatCard label="Active members" {...activeMembers} hint="Members in active guilds: guilds that gained GP in the last week."/>
+      <StatCard label="Abandoned members" {...abandonedMembers} hint="Members in abandoned guilds: guilds with no GP change for several weeks."/>
     </EcosystemSection>
   </Box>;
 }

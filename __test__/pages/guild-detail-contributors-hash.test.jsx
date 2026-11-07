@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, render, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 
 const routerState = { isReady: true, query: { id: 'g1' }, push: vi.fn(), replace: vi.fn(), asPath: '/guilds/detail?id=g1', pathname: '/guilds/detail' };
 vi.mock('next/router', () => ({ useRouter: () => routerState }));
@@ -31,7 +31,7 @@ const GuildDetail = (await import('../../pages/guilds/detail')).default;
 
 const renderPage = () => render(
   <QueryClientProvider client={new QueryClient({ defaultOptions: { queries: { retry: false } } })}>
-    <ThemeProvider theme={darkTheme}>
+    <ThemeProvider theme={theme}>
       <AppContext.Provider value={{ state: {} }}>
         <GuildDetail/>
       </AppContext.Provider>

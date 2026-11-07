@@ -3,33 +3,45 @@ import { Link, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { visuallyHidden } from '@mui/utils';
 import { IconCheck } from '@tabler/icons-react';
-import { numberWithCommas, prefix } from '@utility/helpers';
-import { formatExactValue, formatMetricValue, profileUrl } from './format';
+import GameIcon from '@components/common/GameIcon';
+import { DottedValue } from '@components/common/InfoButton';
+import { formatMetricValue, profileUrl, rankText } from './format';
 
-export const HIGHLIGHT = { logged: '#007E85', searched: '#cd861b' };
-export const MEDAL = { 1: '#f0b849', 2: '#9aa3ad', 3: '#b8783a' };
+// Whose row it is and which medal: the theme's identities, as sx callbacks.
+const leaderboardColor = (name) => (theme) => (theme.vars || theme).palette.identity?.leaderboard?.[name];
+export const HIGHLIGHT = { logged: leaderboardColor('you'), searched: leaderboardColor('searched') };
+export const LABEL_COLOR = { logged: leaderboardColor('youText'), searched: leaderboardColor('searched') };
+export const MEDAL = { 1: leaderboardColor('gold'), 2: leaderboardColor('silver'), 3: leaderboardColor('bronze') };
 export const TROPHIES = { 1: 'data/Trophie.png', 2: 'data/G2icon40.png', 3: 'data/G2icon39.png' };
 // The highlight is colour and outline only; a screen reader hears this instead.
 const SPOKEN_KIND = { logged: '(you)', searched: '(searched player)' };
 
 const RankBadge = ({ rank, plain, strong, dim }) => {
-  if (!plain && TROPHIES[rank]) {
-    return <img width={20} height={20} style={{ objectFit: 'contain', flexShrink: 0 }} src={`${prefix}${TROPHIES[rank]}`} alt={`Rank ${rank}`}/>;
-  }
-  return <Typography component="span" color={strong ? 'text.primary' : dim ? 'text.disabled' : 'text.secondary'} sx={{ fontSize: { xs: 12, lg: 13 }, fontWeight: strong ? 700 : 600 }}>
-    {rank == null ? '-' : numberWithCommas(rank)}
+  // The trophy is the rank's only label.
+  if (!plain && TROPHIES[rank]) return <GameIcon src={TROPHIES[rank]} size={24} alt={`Rank ${rank}`}/>;
+  return <Typography component="span" variant="body2" color={strong ? 'text.primary' : dim ? 'text.muted' : 'text.secondary'} sx={{ fontWeight: strong ? 600 : 500, whiteSpace: 'nowrap' }}>
+    {rankText(rank)}
   </Typography>;
 };
 
+// The digits a value's text spells, its commas and trailing zeros aside: "8,488.00 pts" and "8,488 pts" are one number.
+const digitsOf = (text) => String(text).replace(/,/g, '').replace(/(\.\d*?)0+(?=\D|$)/, (all, kept) => kept).replace(/\.(?=\D|$)/, '');
+
+// A value and the digits behind it: the digits open from the value, on a click, a tap or Enter. A value shown in full
+// has nothing to open.
+export const ExactValue = ({ text, exact }) => (exact && digitsOf(exact) !== digitsOf(text)
+  ? <DottedValue note={exact} label={`${text}, exact value`} sx={{ zIndex: 1, whiteSpace: 'nowrap' }}>{text}</DottedValue>
+  : text);
+
 // plainRank: a maxed board's ten #1s are text, not ten trophies (D7).
-// variant: 'card' rows sit in a metric card (centred 30px rank column), 'list' and 'around' rows in the
-// drawer (left-aligned 34px column); 'around' rows are boxed, so the player's row gets a full outline.
-// dimRank: a quieter rank number (0.5 alpha), for the Overview's ranks 4 to 10.
+// variant: 'card' rows sit in a metric card (a centred rank column), 'list' and 'around' rows in the drawer (left-aligned);
+// 'around' rows are boxed, so the player's row gets a full outline.
+// dimRank: a quieter rank number, for the Overview's ranks 4 to 10.
 // pinned: the player's own row under a card, which reads "(you)" for the logged-in player.
 // scale: the board's top value, so every row of a board shares one notation.
-// display: the value text when the caller formats a group of rows together (the drawer's Around
-// rows, which need enough figures to tell neighbours apart).
-const RankRow = ({ rank, name, value, notation, scale, display = null, kind = null, plainRank = false, globalRank = null, maxCheck = false, pinned = false, variant = 'card', dimRank = false }) => {
+// display: the value text when the caller formats a group of rows together (a card's or the drawer's rows, which need
+// enough figures to tell neighbours apart). exact: the value's every digit, opened from the value.
+const RankRow = ({ rank, name, value, notation, scale, display = null, exact = null, kind = null, plainRank = false, globalRank = null, maxCheck = false, pinned = false, variant = 'card', dimRank = false }) => {
   const drawer = variant !== 'card';
   const around = variant === 'around';
   const accent = kind ? HIGHLIGHT[kind] : null;
@@ -40,33 +52,35 @@ const RankRow = ({ rank, name, value, notation, scale, display = null, kind = nu
       // The row above draws the line between them.
       ? { borderTop: 0, borderBottom: 0 }
       : { borderBottom: 1, borderColor: 'divider' };
+  const text = display ?? formatMetricValue(notation, value, { scale });
   return (
     <Stack direction="row" alignItems="center" gap={1.25} data-testid="rank-row" aria-current={kind ? 'true' : undefined} sx={{
       // The pinned row keeps the list's rhythm: its tint and left bar already set it apart.
-      // One step up on wide screens, where 13px read small at desktop viewing distance.
-      px: drawer ? 1.25 : 1.75, py: drawer ? 0.875 : 0.75, fontSize: { xs: 13, lg: 14 }, ...shape,
-      bgcolor: kind ? '#12141c' : 'transparent',
-      boxShadow: kind && !around ? `inset 3px 0 0 ${accent}` : 'none'
+      px: drawer ? 1.25 : 1.75, py: drawer ? 0.875 : 0.75, typography: 'body2', ...shape,
+      bgcolor: kind ? 'action.selected' : 'transparent',
+      boxShadow: kind && !around ? (theme) => `inset 3px 0 0 ${accent(theme)}` : 'none'
     }}>
-      <Box sx={{ width: drawer ? 34 : 30, flexShrink: 0, display: 'flex', justifyContent: drawer ? 'flex-start' : 'center' }}>
+      {/* #1,220 fits: a wider rank pushes the name instead of wrapping inside itself */}
+      <Box sx={{ minWidth: drawer ? 34 : 30, flexShrink: 0, display: 'flex', justifyContent: drawer ? 'flex-start' : 'center' }}>
         <RankBadge rank={rank} plain={plainRank} strong={emphasised} dim={dimRank}/>
       </Box>
-      <Link href={profileUrl(name)} target="_blank" underline="hover" color="inherit" noWrap
-            sx={{ minWidth: 0, fontSize: 'inherit', fontWeight: emphasised ? (around ? 700 : 600) : kind ? 600 : 400, opacity: name?.startsWith('Anon#') ? 0.85 : 1 }}>
+      {/* A long name wraps: there is no hover to read a cut one from. */}
+      <Link href={profileUrl(name)} target="_blank" color="inherit"
+            sx={{ minWidth: 0, overflowWrap: 'anywhere', fontSize: 'inherit', fontWeight: emphasised ? 600 : kind ? 500 : undefined, opacity: name?.startsWith('Anon#') ? 0.85 : 1 }}>
         {pinned && kind === 'logged' ? `${name} (you)` : name}
       </Link>
       {kind && !(pinned && kind === 'logged') ? <Box component="span" sx={visuallyHidden}>{SPOKEN_KIND[kind]}</Box> : null}
-      {globalRank ? <Typography color="text.disabled" noWrap sx={{ fontSize: 11 }}>global #{globalRank}</Typography> : null}
+      {globalRank ? <Typography variant="caption" color="text.muted" sx={{ whiteSpace: 'nowrap' }}>global {rankText(globalRank)}</Typography> : null}
       <Box sx={{ flexGrow: 1 }}/>
       {maxCheck ? (
-        <Stack direction="row" alignItems="center" gap={0.5} sx={{ color: '#81c784', fontSize: 12 }}>
+        <Stack direction="row" alignItems="center" gap={0.5} sx={{ color: 'text.success', typography: 'caption' }}>
           <IconCheck size={14} stroke={2.5} aria-label="Has the max"/>
           max
         </Stack>
       ) : (
-        // The value never shrinks: on a narrow row the name truncates, not the number.
-        <Typography color="text.secondary" noWrap title={formatExactValue(notation, value)} sx={{ fontSize: 'inherit', flexShrink: 0 }}>
-          {display ?? formatMetricValue(notation, value, { scale })}
+        // The value never shrinks: on a narrow row the name wraps, not the number.
+        <Typography component="div" color="text.secondary" sx={{ fontSize: 'inherit', flexShrink: 0, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' }}>
+          <ExactValue text={text} exact={exact}/>
         </Typography>
       )}
     </Stack>

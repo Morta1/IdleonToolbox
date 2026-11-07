@@ -1,10 +1,43 @@
-import { Box, Tooltip, Typography, Stack, Chip } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix, commaNotation } from '@utility/helpers';
+import { Box, Stack, Typography } from '@mui/material';
+import StatusText from '@components/common/StatusText';
+import { formatNum } from '@utility/helpers';
 import React from 'react';
 import BlackStars, { BlackStarPreviews } from './BlackStars';
 import HiddenCapLine from '@components/common/HiddenCapLine';
+import { NoteTrigger } from '@components/common/InfoButton';
+import GameIcon from '@components/common/GameIcon';
+import ItemCard from '@components/common/cards/ItemCard';
+import { colourName, paletteOdds } from './CardView';
+import { GAME_HEX, ON_ART } from '@utility/colorSets';
 
-const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemMatchesSearch, searchTerm, fastestIndices, blackStarsOwned }) => {
+const HEX_CLIP = 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)';
+// The board's glows for the active colours and the fastest to level, on the theme's primary and warning channels
+const glow = (channel) => `drop-shadow(0 0 8px rgba(var(--mui-palette-${channel}-mainChannel) / 0.8)) drop-shadow(0 0 4px rgba(var(--mui-palette-${channel}-mainChannel) / 1))`;
+// Dark text on the colour's own fill, with a light halo, as the game's board draws it
+const ON_FILL_SX = { position: 'relative', textShadow: `1px 1px 2px ${GAME_HEX.halo}`, pointerEvents: 'none', zIndex: 2, color: GAME_HEX.text };
+
+// A hex's details, the card's content: a click, a tap or Enter pins it
+const hexNote = (item, isTop3, blackStarsOwned) => {
+  const { description, level, active, blackStars, blackStarMulti, blackStarPreviews } = item;
+  return <Stack gap={0.5}>
+    <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+      <Typography variant={'cardTitle'} component={'div'}>{colourName(item)}</Typography>
+      {active ? <StatusText status={'active'}/> : null}
+      {isTop3 ? <StatusText status={'best'}>Fastest to level</StatusText> : null}
+    </Stack>
+    {level !== undefined ? <Typography variant={'body2'}>{formatNum(level, 'level')}</Typography> : null}
+    {blackStars > 0 ? <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+      <BlackStars count={blackStars}/>
+      <Typography variant={'body2'}>{formatNum(blackStarMulti ?? 1, 'mult')}</Typography>
+    </Stack> : null}
+    {description ? <ItemCard.Desc text={description}/> : null}
+    <HiddenCapLine system={'palette'} index={item.index} inline/>
+    <BlackStarPreviews description={description} previews={blackStarPreviews} owned={blackStarsOwned}/>
+  </Stack>;
+};
+
+// The game's palette board: each colour where the game places it, its fill from the game's data (x0, x1, x2)
+const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemMatchesSearch, searching, fastestIndices, blackStarsOwned }) => {
   return (
     <Box
       sx={{
@@ -28,12 +61,12 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
         {palette.map((item, index) => {
           if (typeof item !== 'object' || !item) return null;
 
-          const { name, description, bonus, level, chance, x0, x1, x2, active, blackStars, blackStarMulti, blackStarPreviews } = item;
+          const { level, chance, x0, x1, x2, active, blackStars } = item;
           const position = hexagonPositions[index];
           const hasLevel = level !== undefined && level > 0.5;
-          const hexImage = hasLevel ? null : 'GamingHexB.png';
-          const matchesSearch = itemMatchesSearch(item);
+          const dimmed = searching && !itemMatchesSearch(item);
           const isTop3 = fastestIndices.has(item.index);
+          const odds = chance !== undefined && chance > 0 && chance < Infinity ? paletteOdds(chance) : null;
 
           // RGB color values (x0, x1, x2 are R, G, B from the game's palette data)
           const r = x0 !== undefined ? Math.round(Math.max(0, Math.min(255, x0))) : 255;
@@ -43,219 +76,81 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
           // Only apply color if level > 0.5 and color is not white
           const shouldColorize = hasLevel && (r !== 255 || g !== 255 || b !== 255);
           const colorValue = `rgb(${r}, ${g}, ${b})`;
-          const chanceValue = 1 / chance;
-          const formattedChance = chanceValue > 999999 ? notateNumber(chanceValue, 'Big') : commaNotation(chanceValue);
+          const ring = active || isTop3;
 
-          return (
-            <Tooltip
-              key={`hexagon-${index}`}
-              title={
-                <Stack>
-                  <Stack direction="row" alignItems="center" gap={1} flexWrap="wrap">
-                    <Typography variant="body2" sx={{ fontWeight: 'bold' }}>
-                      {cleanUnderscore(name || `Palette ${index + 1}`)}
-                    </Typography>
-                    {active && (
-                      <Chip
-                        label="ACTIVE"
-                        color="primary"
-                        size="small"
-                        sx={{ fontSize: '0.7rem', fontWeight: 'bold' }}
-                      />
-                    )}
-                    {isTop3 && (
-                      <Chip
-                        label="FASTEST TO LEVEL"
-                        size="small"
-                        sx={{
-                          fontSize: '0.7rem',
-                          fontWeight: 'bold',
-                          backgroundColor: '#d18d28',
-                          color: '#000'
-                        }}
-                      />
-                    )}
-                  </Stack>
-                  {level !== undefined && (
-                    <Typography>Lv. {notateNumber(level)}</Typography>
-                  )}
-                  {blackStars > 0 && (
-                    <Typography>Black Stars: {blackStars} ({notateNumber(blackStarMulti ?? 1, 'MultiplierInfo')}x bonus)</Typography>
-                  )}
-                  {description && (
-                    <Typography>{cleanUnderscore(description)}</Typography>
-                  )}
-                  <HiddenCapLine system={'palette'} index={item.index} inline/>
-                  <BlackStarPreviews description={description} previews={blackStarPreviews} owned={blackStarsOwned} variant={'body1'}/>
-                </Stack>
-              }
-            >
-              <Box
-                sx={{
+          return <NoteTrigger key={`hexagon-${index}`} note={hexNote(item, isTop3, blackStarsOwned)} label={colourName(item)}
+                              sx={{
+                                position: 'absolute',
+                                left: position.x - gridBounds.offsetX,
+                                top: position.y - gridBounds.offsetY,
+                                width: hexagonSize,
+                                height: hexagonSize,
+                                transition: 'all 0.2s',
+                                opacity: dimmed ? 0.3 : 1,
+                                filter: dimmed ? 'grayscale(70%)' : 'none',
+                                ...(hasLevel ? { '&:hover': { transform: 'scale(1.02)', zIndex: 10 } } : {})
+                              }}>
+            {hasLevel ? <Box sx={{
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}>
+              {/* Border hexagon (outer layer) for active or top 3 */}
+              {ring ? <Box sx={{
+                position: 'absolute',
+                inset: 0,
+                clipPath: HEX_CLIP,
+                backgroundColor: active ? 'primary.main' : 'warning.main',
+                filter: `drop-shadow(0 0 8px rgba(var(--mui-palette-${active ? 'primary' : 'warning'}-mainChannel) / 0.6))`,
+                pointerEvents: 'none'
+              }}/> : null}
+              {/* Inner hexagon (main content) */}
+              <Box data-on-art sx={{
+                position: 'absolute',
+                top: ring ? '4%' : 0,
+                left: ring ? '4%' : 0,
+                width: ring ? '92%' : '100%',
+                height: ring ? '92%' : '100%',
+                clipPath: HEX_CLIP,
+                border: 1,
+                borderColor: active ? 'primary.main' : isTop3 ? 'warning.main' : GAME_HEX.edge,
+                bgcolor: GAME_HEX.fill,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center'
+              }}>
+                {shouldColorize ? <Box sx={{
                   position: 'absolute',
-                  left: position.x - gridBounds.offsetX,
-                  top: position.y - gridBounds.offsetY,
-                  width: hexagonSize,
-                  height: hexagonSize,
-                  cursor: 'pointer',
-                  transition: 'all 0.2s',
-                  opacity: searchTerm.trim() && !matchesSearch ? 0.3 : 1,
-                  filter: searchTerm.trim() && !matchesSearch ? 'grayscale(70%)' : 'none',
-                  ...(hasLevel ? {
-                    '&:hover': {
-                      transform: 'scale(1.02)',
-                      zIndex: 10
-                    }
-                  } : {})
-                }}
-              >
-                {hexImage ? (
-                  <Box
-                    sx={{
-                      position: 'relative',
-                      width: '100%',
-                      height: '100%',
-                      ...(active && {
-                        filter: 'drop-shadow(0 0 8px rgba(25, 118, 210, 0.8)) drop-shadow(0 0 4px rgba(25, 118, 210, 1))',
-                        '& img': {
-                          filter: 'brightness(1.2)'
-                        }
-                      }),
-                      ...(!active && isTop3 && {
-                        filter: 'drop-shadow(0 0 8px rgba(255, 152, 0, 0.8)) drop-shadow(0 0 4px rgba(255, 152, 0, 1))',
-                        '& img': {
-                          filter: 'brightness(1.2)'
-                        }
-                      })
-                    }}
-                  >
-                    <img
-                      src={`${prefix}data/${hexImage}`}
-                      alt={cleanUnderscore(name || `Palette ${index + 1}`)}
-                      style={{
-                        width: '100%',
-                        height: '100%',
-                        objectFit: 'contain'
-                      }}
-                    />
-                    <Stack sx={
-                      {
-                        position: 'absolute',
-                        top: '50%',
-                        left: '50%',
-                        transform: 'translate(-50%, -50%)',
-                        textAlign: 'center'
-                      }
-                    }
-                    >
-                      {chance !== undefined && chance > 0 && (
-                        <Typography
-                          variant='caption'
-
-                        >
-                          1 in {formattedChance}
-                        </Typography>
-                      )}
-                    </Stack>
-                  </Box>
-                ) : (
-                  <Box
-                    sx={{
-                      position: 'relative',
-                      width: '100%',
-                      height: '100%',
-                      display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center'
-                    }}
-                  >
-                    {/* Border hexagon (outer layer) for active or top 3 */}
-                    {(active || isTop3) && (
-                      <Box
-                        sx={{
-                          position: 'absolute',
-                          top: 0,
-                          left: 0,
-                          width: '100%',
-                          height: '100%',
-                          clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                          backgroundColor: active ? '#1976d2' : '#ff9800',
-                          filter: active
-                            ? 'drop-shadow(0 0 8px rgba(25, 118, 210, 0.6))'
-                            : 'drop-shadow(0 0 8px rgba(255, 152, 0, 0.6))',
-                          pointerEvents: 'none'
-                        }}
-                      />
-                    )}
-                    {/* Inner hexagon (main content) */}
-                    <Box
-                      sx={{
-                        position: 'absolute',
-                        top: (active || isTop3) ? '4%' : 0,
-                        left: (active || isTop3) ? '4%' : 0,
-                        width: (active || isTop3) ? '92%' : '100%',
-                        height: (active || isTop3) ? '92%' : '100%',
-                        clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                        border: `1px solid ${active ? '#1976d2' : isTop3 ? '#ff9800' : 'black'}`,
-                        backgroundColor: '#ffffff',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
-                      }}
-                    >
-                      {shouldColorize && (
-                        <Box
-                          sx={{
-                            position: 'absolute',
-                            top: 0,
-                            left: 0,
-                            width: '100%',
-                            height: '100%',
-                            backgroundColor: colorValue,
-                            clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
-                            opacity: 0.7,
-                            pointerEvents: 'none'
-                          }}
-                        />
-                      )}
-                      <Stack gap={1} alignItems={'center'} justifyContent={'center'}>
-                        {level !== undefined && level > 0 && (
-                          <Typography
-                            sx={{
-                              position: 'relative',
-                              fontSize: '0.875rem',
-                              fontWeight: 'bold',
-                              textShadow: '1px 1px 2px rgba(255, 255, 255, 0.8)',
-                              pointerEvents: 'none',
-                              zIndex: 2,
-                              color: '#000000'
-                            }}
-                          >
-                            Lv. {level}
-                          </Typography>
-                        )}
-                        <BlackStars count={blackStars}/>
-                        {chance !== undefined && chance > 0 && (
-                          <Typography
-                            variant='caption'
-                            sx={{
-                              position: 'relative',
-                              color: '#000000',
-                              textShadow: '1px 1px 2px rgba(255, 255, 255, 0.8)',
-                              pointerEvents: 'none',
-                              zIndex: 2
-                            }}
-                          >
-                            1 in {formattedChance}
-                          </Typography>
-                        )}
-                      </Stack>
-                    </Box>
-                  </Box>
-                )}
+                  inset: 0,
+                  backgroundColor: colorValue,
+                  clipPath: HEX_CLIP,
+                  opacity: 0.7,
+                  pointerEvents: 'none'
+                }}/> : null}
+                <Stack gap={1} alignItems={'center'} justifyContent={'center'}>
+                  {level > 0 ? <Typography variant={'value'} component={'div'} sx={ON_FILL_SX}>
+                    {formatNum(level, 'level')}
+                  </Typography> : null}
+                  <BlackStars count={blackStars}/>
+                  {odds ? <Typography variant={'caption'} sx={ON_FILL_SX}>{odds}</Typography> : null}
+                </Stack>
               </Box>
-            </Tooltip>
-          );
+            </Box> : <Box sx={{
+              position: 'relative',
+              width: '100%',
+              height: '100%',
+              ...(active ? { filter: glow('primary'), '& img': { filter: 'brightness(1.2)' } }
+                : isTop3 ? { filter: glow('warning'), '& img': { filter: 'brightness(1.2)' } } : {})
+            }}>
+              <GameIcon src={'data/GamingHexB.png'} size={hexagonSize} fit={'canvas'} alt={''}/>
+              <Stack data-on-art sx={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)', textAlign: 'center', color: ON_ART.text }}>
+                {odds ? <Typography variant={'caption'}>{odds}</Typography> : null}
+              </Stack>
+            </Box>}
+          </NoteTrigger>;
         })}
       </Box>
     </Box>
@@ -263,4 +158,3 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
 };
 
 export default HexagonView;
-

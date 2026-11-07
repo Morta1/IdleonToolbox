@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { within } from '../helpers/live-verified';
+import { within, withAccountOption } from '../helpers/live-verified';
 import { getTalentBonus } from '@parsers/talents';
 import { getDoubleGoldenFoodDrop, getDoubleStatueDrop } from '@parsers/misc';
 import {
@@ -73,11 +73,7 @@ const GAME_RING_DROP = (options) => 1 / (500 * (1 + options[397] / 100));
 
 const { account, characters } = parseFixture(latest);
 const windWalker = characters.find(({ name }) => name === 'IAmTheHunterrr');
-const liveCostAccount = {
-  ...account,
-  accountOptions: account.accountOptions.map((value, index) => index === 499 ? GAME.costRedux499 : value)
-};
-const upgradeAt = (index) => account.tesseract.upgrades.find((upgrade) => upgrade.index === index);
+const liveCostAccount = withAccountOption(account, 499, GAME.costRedux499);
 const maps = getMaps(account, characters, windWalker);
 
 describe('tesseract verified against the live game', () => {
@@ -99,7 +95,7 @@ describe('tesseract verified against the live game', () => {
   });
 
   it.each(Object.entries(GAME.cost))('upgrade %s next level cost', (index, value) => {
-    const upgrade = upgradeAt(Number(index));
+    const upgrade = account.tesseract.upgrades.find((candidate) => candidate.index === Number(index));
     within(getTesseractTotalUpgradeCost(liveCostAccount, upgrade, upgrade.level + 1), value);
   });
 

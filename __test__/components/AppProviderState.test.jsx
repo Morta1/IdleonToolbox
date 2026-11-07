@@ -18,8 +18,7 @@ const Probe = () => {
   return <span data-testid="probe">{JSON.stringify({
     isLoading: state.isLoading,
     hydrated: state.storageHydrated,
-    filters: state.filters ?? null,
-    pinned: state.pinnedPages
+    filters: state.filters ?? null
   })}</span>;
 };
 
@@ -46,10 +45,10 @@ describe('reducer', () => {
 describe('readStoredState', () => {
   beforeEach(() => localStorage.clear());
 
-  it('defaults pinnedPages and skips keys that do not parse', () => {
+  it('skips keys that do not parse', () => {
     localStorage.setItem('filters', JSON.stringify({ a: true }));
     localStorage.setItem('planner', '{not json');
-    expect(readStoredState()).toEqual({ filters: { a: true }, pinnedPages: [] });
+    expect(readStoredState()).toEqual({ filters: { a: true } });
   });
 });
 
@@ -86,6 +85,19 @@ describe('first render', () => {
     expect(html).toContain('&quot;hydrated&quot;:false');
     expect(html).toContain('&quot;filters&quot;:null');
     expect(DEFAULT_STATE.storageHydrated).toBe(false);
+  });
+
+  it('removes the dead settings once per browser, and nothing else', async () => {
+    localStorage.setItem('stamps:types', '["a"]');
+    localStorage.setItem('toolbar:stamps', '{"show":"all"}');
+    render(<AppProvider><Probe/></AppProvider>);
+    await act(async () => {});
+    expect([localStorage.getItem('stamps:types'), localStorage.getItem('toolbar:stamps')]).toEqual([null, '{"show":"all"}']);
+    // A key written after the first clean is not this list's to touch.
+    localStorage.setItem('stamps:types', '["a"]');
+    render(<AppProvider><Probe/></AppProvider>);
+    await act(async () => {});
+    expect(localStorage.getItem('stamps:types')).toBe('["a"]');
   });
 
   it('merges storage in an effect after the first client render', async () => {

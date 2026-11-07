@@ -1,4 +1,4 @@
-// Client for it-cloudflare-builds. Mirrors services/profiles.js in style —
+// Client for it-cloudflare-builds. Mirrors services/profiles.js in style:
 // each function optionally takes a `token` (Firebase JWT) that the Worker uses
 // to identify the caller for writes and private reads.
 

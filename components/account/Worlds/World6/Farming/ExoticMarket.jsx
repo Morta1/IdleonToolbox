@@ -1,8 +1,7 @@
-import { Card, CardContent, LinearProgress, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, prefix } from '@utility/helpers';
-import React, { useContext, useEffect, useState } from 'react';
-import Tooltip from '@components/Tooltip';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
+import { fillRound } from '@utility/gameNotation';
+import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import {
   findExoticCappedThresholdLevel,
@@ -12,38 +11,21 @@ import {
 import ExoticReturnsIn from './ExoticReturnsIn';
 import HiddenCapLine from '@components/common/HiddenCapLine';
 import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import StatTile from '@components/common/cards/StatTile';
+import GameIcon from '@components/common/GameIcon';
+import StatusText from '@components/common/StatusText';
+import Timer from '@components/common/Timer';
 
-const formatCountdown = (ms) => {
-  if (ms <= 0) return null;
-  const totalSeconds = Math.floor(ms / 1000);
-  const days = Math.floor(totalSeconds / 86400);
-  const hours = Math.floor((totalSeconds % 86400) / 3600);
-  const minutes = Math.floor((totalSeconds % 3600) / 60);
-  const seconds = totalSeconds % 60;
-  const parts = [];
-  if (days > 0) parts.push(`${days}d`);
-  parts.push(`${hours}h`);
-  parts.push(`${minutes}m`);
-  parts.push(`${seconds}s`);
-  return parts.join(' ');
-};
+// The card text's own fill (parsers/world-6/farming.ts, `{`), so the bar and the line under it read 0.67 alike
+const effectText = (value) => String(fillRound(value ?? 0));
 
-const Market = ({ market, crop }) => {
+const Market = ({ market }) => {
   const { state } = useContext(AppContext);
-  const [now, setNow] = useState(() => new Date());
 
   const rotations = getExoticMarketRotations(state?.account, 2);
   const nextRotationDate = rotations?.[1]?.date;
-
-  useEffect(() => {
-    if (!nextRotationDate) return;
-    const interval = setInterval(() => setNow(new Date()), 1000);
-    return () => clearInterval(interval);
-  }, [nextRotationDate]);
-
-  const countdown = (!nextRotationDate || !(nextRotationDate instanceof Date))
-    ? null
-    : formatCountdown(nextRotationDate.getTime() - now.getTime());
 
   const organicLabels = state?.account?.menagerie?.doublers?.organicLabels;
   const returnsIn = getExoticMarketReturnWeeks(state?.account);
@@ -75,89 +57,61 @@ const Market = ({ market, crop }) => {
         index
       },
       marketIndex
-    ) => (
-      <Card sx={{ width: 250 }} key={'upgrade' + marketIndex}>
-        <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-          <Stack direction={'row'} gap={2} alignItems={'center'} flexWrap="wrap">
-            <img src={`${prefix}data/FarmCrop${x2}.png`} alt="" width={24} height={24}/>
-            <Typography>{cleanUnderscore(name.toLowerCase().capitalizeAll())}</Typography>
-            <Typography variant="caption">Lv. {level}</Typography>
-            {isOrganic ? <Stack direction={'row'} alignItems={'center'} gap={.5}>
-              <img src={`${prefix}${DOUBLER_ICONS.organicLabels}`} alt={''} width={18} height={18}/>
-              <Typography variant="caption" color="success.light">Organic label: x2</Typography>
-            </Stack> : null}
-          </Stack>
-
-          {isCapped ? (
-            <>
-              <Stack direction="row" alignItems="center" gap={0.5} sx={{ mt: 1 }}>
-                <Typography variant="body2">
-                  Effect: {Math.round(value * 100) / 100} / {maxValue} ({percentOfCap != null
-                  ? Math.round(percentOfCap * 10) / 10
-                  : 0}%)
-                </Typography>
-                <Tooltip
-                  title={`${Math.round(value * 100) / 100} is ${percentOfCap != null ? Math.round(percentOfCap * 10) / 10 : 0}% of hard cap (${maxValue})`}
-                >
-                  <IconInfoCircleFilled size={16} style={{ cursor: 'pointer', flexShrink: 0 }}/>
-                </Tooltip>
-              </Stack>
-              <LinearProgress
-                variant="determinate"
-                value={Math.min(100, percentOfCap ?? 0)}
-                sx={{ mt: 1, mb: 1 }}
-              />
-            </>
-          ) : (
-            <Typography variant="body2" sx={{ mt: 1 }}>
-              Effect: {Math.round(value * 100) / 100} (no cap; scales with level)
+    ) => {
+      const title = titleCaseName(cleanUnderscore(name));
+      return <ItemCard key={'upgrade' + marketIndex} icon={`data/FarmCrop${x2}.png`} title={title}
+                       level={{ value: level }}
+                       aside={isOrganic ? <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+                         <GameIcon src={DOUBLER_ICONS.organicLabels} size={16} alt={''}/>
+                         <Typography variant={'caption'} color={'text.success'}>Organic label: x2</Typography>
+                       </Stack> : null}
+                       footer={<ExoticReturnsIn weeks={returnWeeks}/>}>
+        {isCapped
+          // The share of the hard cap gets its own line, so it never reads as the cap's
+          ? <Stack gap={0.5}>
+            <ItemCard.Progress label={'Effect'} value={effectText(value)} max={effectText(maxValue)}
+                               percent={Math.min(100, percentOfCap ?? 0)}/>
+            <Typography variant={'caption'} color={'text.secondary'}>
+              {`${formatNum(percentOfCap ?? 0, 'pct')} of the hard cap`}
             </Typography>
-          )}
-
-          <Typography mt={isCapped ? 1 : 2}>
-            {cleanUnderscore(displayText)}
-          </Typography>
-          <HiddenCapLine system={'exotic'} index={index} sx={{ mt: 1 }}/>
-          <ExoticReturnsIn weeks={returnWeeks} sx={{ mt: 'auto', pt: 1 }}/>
-        </CardContent>
-      </Card>
-    ));
+          </Stack>
+          : <ItemCard.Facts rows={[['Effect', `${effectText(value)}, no cap`]]}/>}
+        <ItemCard.Desc text={displayText}/>
+        <HiddenCapLine system={'exotic'} index={index} name={title}/>
+      </ItemCard>;
+    });
 
   return (
     <Stack gap={4}>
       {organicLabels?.owned > 0 ? <Stack direction="row" gap={2} flexWrap="wrap">
         <DoublerUsageCard title={'Organic Labels'} doubler={organicLabels} icon={DOUBLER_ICONS.organicLabels}/>
       </Stack> : null}
-      <Stack direction="row" gap={3} flexWrap="wrap" alignItems="center">
-        <Typography variant="body2" fontWeight="bold">Cap breakpoints:</Typography>
-        {breakpoints.map(({ pct, lvlNeeded }) => (
-          <Typography key={pct} variant="body2">
-            {pct}%: Lv. {commaNotation(lvlNeeded)}
-          </Typography>
-        ))}
+      <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+        {breakpoints.map(({ pct, lvlNeeded }) => <StatTile key={pct} label={`${pct}% of cap`}
+                                                           value={formatNum(lvlNeeded, 'level')}/>)}
       </Stack>
 
       {/* Current Rotation */}
       <Stack>
         <Stack direction="row" alignItems="baseline" gap={2} sx={{ mb: 3 }} flexWrap="wrap">
-          <Typography variant="h6">Current Rotation</Typography>
-          {countdown != null && (
-            <Typography variant="caption" color="text.secondary">
-              Next in {countdown}
-            </Typography>
-          )}
+          <Typography variant={'sectionTitle'} component={'h2'}>Current rotation</Typography>
+          {nextRotationDate instanceof Date ? <Typography variant={'caption'} color={'text.secondary'}>
+            {/* The Timer ticks itself and reads like every timer; its text placeholder would draw at body1 */}
+            Next in <Timer type={'countdown'} date={nextRotationDate.getTime()} component={'span'}
+                           placeholder={<StatusText status={'ready'}/>}/>
+          </Typography> : null}
         </Stack>
-        <Stack direction="row" flexWrap="wrap" gap={2}>
+        <CardGrid size={'m'}>
           {renderCards(currentRotation)}
-        </Stack>
+        </CardGrid>
       </Stack>
 
       {/* Off Rotation */}
       <Stack>
-        <Typography sx={{ mb: 3 }} variant="h6">Off Rotation</Typography>
-        <Stack direction="row" flexWrap="wrap" gap={2}>
+        <Typography sx={{ mb: 3 }} variant={'sectionTitle'} component={'h2'}>Off rotation</Typography>
+        <CardGrid size={'m'}>
           {renderCards(offRotation)}
-        </Stack>
+        </CardGrid>
       </Stack>
     </Stack>
   );

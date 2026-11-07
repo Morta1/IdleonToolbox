@@ -1,45 +1,43 @@
-import { CardTitleAndValue } from '@components/common/styles';
-import { Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation } from '@utility/helpers';
+import { Stack } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import React from 'react';
-import InfoIcon from '@mui/icons-material/Info';
-import Tooltip from '@components/Tooltip';
-import UpgradeCard, { LabelValue } from '@components/common/UpgradeCard';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
+
+// The first wish's cost past level 10 (LampWishCost): the game's "no more wishes"
+const NO_MORE_WISHES = 999999;
 
 const TheLamp = ({ hole }) => {
-  const { theLamp } = hole?.caverns;
+  const theLamp = hole?.caverns?.theLamp;
 
   return <>
-    <Stack mb={3} direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      <CardTitleAndValue title={'Wishes'}
-                         value={theLamp?.currentWishes}/>
-      <CardTitleAndValue title={'Wish per day'}
-                         value={Math.round(100 * theLamp?.wishPerDay) / 100}/>
-      <CardTitleAndValue title={'Opals found'} icon={'data/Opal.png'} imgStyle={{ width: 24, height: 24 }}
-                         value={hole?.holesObject?.opalsPerCavern?.[6] || 0}/>
+    <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
+      <StatTile label={'Wishes'} value={theLamp?.currentWishes ?? 0} kind={{ game: 'Save.LampWishes' }}/>
+      <StatTile label={'Wishes per day'} value={formatNum(theLamp?.wishPerDay ?? 0, 'amount', { precise: true })}/>
+      {opalsFoundTile(hole, 6)}
     </Stack>
-    <Divider sx={{ my: 2 }}/>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {theLamp?.wishes?.map(({ description, name, futureCosts, cost }, index) => {
-        return <UpgradeCard key={`wish-${index}`}
-                            title={cleanUnderscore(name)}
-                            footer={<Stack direction={'row'} alignItems={'center'} gap={.5}>
-              <LabelValue label={'Cost'}>{cost}</LabelValue>
-              <Tooltip title={<Stack>
-                <Typography variant={'body2'} style={{fontWeight:'bold'}}> Future costs</Typography>
-                {futureCosts.map((futureCost, costIndex) => <div
-                  key={`fc-${costIndex}`}>{commaNotation(futureCost)}</div>)}
-              </Stack>}>
-                <InfoIcon fontSize={'small'}/>
-              </Tooltip>
-            </Stack>}>
-          <Stack gap={.5}>
-            {cleanUnderscore(description).split('@').map((line) => line.trim()).filter(Boolean).map((line, lineIndex) => <Typography
-              key={`wish-${index}-line-${lineIndex}`} variant={'body2'}>{line}</Typography>)}
-          </Stack>
-        </UpgradeCard>
+    <CardGrid size={'m'}>
+      {(theLamp?.wishes ?? []).map(({ description, name, futureCosts, cost }, index) => {
+        const maxed = index === 0 && cost === NO_MORE_WISHES;
+        // futureCosts holds the five wishes after the next one; the first wish stops at the game's "no more"
+        const costs = [cost, ...(futureCosts ?? [])].filter((value) => !(index === 0 && value === NO_MORE_WISHES));
+        // Info 5: the next wishes' costs, a list inside a hover note before, in a drawer named by its row as the Well's
+        // ("Another Try cost")
+        const nextCosts = createBreakdown(`${cleanUnderscore(name)} cost`, formatNum(cost ?? 0, 'whole'), flatLines(costs.map((value, step) => ({
+          name: step ? `Wish ${step + 1}` : 'Next wish', value, formatted: formatNum(value ?? 0, 'whole')
+        }))), { combine: 'list' });
+        return <ItemCard key={`wish-${index}`} title={cleanUnderscore(name)} status={maxed ? 'maxed' : undefined}
+                         footer={<ItemCard.Facts rows={[['Cost', <Breakdown key={'cost'} asValue data={nextCosts}>
+                           {formatNum(cost ?? 0, 'whole')}
+                         </Breakdown>]]}/>}>
+          <ItemCard.Desc text={description}/>
+        </ItemCard>;
       })}
-    </Stack>
+    </CardGrid>
   </>;
 };
 

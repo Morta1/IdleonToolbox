@@ -1,202 +1,116 @@
 import { calculateSnailEncouragementForSuccessChance } from '@parsers/world-5/gaming';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, getBitIndex, notateNumber, numberWithCommas, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
+import { bitsIcon, formatGame } from '@utility/gameNotation';
 import Timer from '../../../../common/Timer';
-import Tooltip from '../../../../Tooltip';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
-import styled from '@emotion/styled';
 import React from 'react';
-import useCheckbox from '@components/common/useCheckbox';
 import RatKing from './RatKing';
+import ShopTable from './ShopTable';
 import { OPT } from '@parsers/accountOptions';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { createBreakdown, flatLines } from '@parsers/breakdown';
 
-const Imports = ({ account, lastUpdated }) => {
-  const [CheckboxEl, compactView] = useCheckbox('Compact view', true);
-  const {
-    snailLevel,
-    snailEncouragement,
-    imports,
-    lastShovelClicked,
-    goldNuggets,
-    lastAcornClicked,
-    acorns,
-    nuggetsBreakpoints,
-    acornsBreakpoints,
-    bestNugget,
-    poingHighscore,
-    poingMulti,
-    ratKing
-  } = account?.gaming || {};
-  return (
-    <>
-      <CheckboxEl />
-      <Stack mt={2} direction={'row'} flexWrap={'wrap'} gap={2}>
-        {imports?.map(({
-          boxName,
-          boxDescription,
-          name,
-          description,
-          majorBonus,
-          minorBonus,
-          cost,
-          rawName,
-          saveSprinklerChance,
-          acquired,
-          acornShop,
-          maxNuggetValue,
-          level
-        }, index) => {
-          return <Card key={name} sx={{ width: 380 }} variant={acquired ? 'elevation' : 'outlined'}>
-            <CardContent>
-              <Stack>
-                <Stack direction={'row'} alignItems={'center'} gap={2}>
-                  <ImportImg src={`${prefix}data/${rawName}.png`} alt={rawName} />
-                  <Typography>{cleanUnderscore(name)} ({cleanUnderscore(boxName)})</Typography>
-                </Stack>
-                {index !== 5 ? <Divider sx={{ my: 2 }} /> : null}
-                {majorBonus || index === 6 ? <>
-                  {index === 6 ? <>
-                    <Typography>Highscore: {poingHighscore}</Typography>
-                    <Typography>Multiplier: x{notateNumber(poingMulti, 'MultiplierInfo')}</Typography>
-                  </> :
-                    <Typography>{cleanUnderscore(majorBonus.split('|').join(' '))}</Typography>}
-                  <Divider sx={{ my: 2 }} /> </> : null}
-                <Typography>{cleanUnderscore(minorBonus)}</Typography>
-                <Stack mt={1} direction={'row'} gap={1} alignItems={'center'}>
-                  <img src={`${prefix}etc/Bits_${getBitIndex(cost)}.png`} alt="" style={{ objectFit: 'contain' }} />
-                  <Typography>{notateNumber(cost, 'bits')}</Typography>
-                </Stack>
-                {acquired && (index === 1 || index === 2) ? <Divider sx={{ my: 2 }} /> : null}
-                {acquired && index === 1 ? <Nuggets account={account} bestNugget={bestNugget} lastUpdated={lastUpdated}
-                  goldNuggets={goldNuggets}
-                  lastShovelClicked={lastShovelClicked}
-                  maxNuggetValue={maxNuggetValue}
-                  nuggetsBreakpoints={nuggetsBreakpoints} /> : null}
-                {acquired && index === 2 ? <Acorns acorns={acorns} lastUpdated={lastUpdated}
-                  acornsBreakpoints={acornsBreakpoints}
-                  lastAcornClicked={lastAcornClicked} /> : null}
-                {acquired && index === 7 ? <Snail account={account} snailLevel={snailLevel}
-                  snailEncouragement={snailEncouragement} /> : null}
-                {saveSprinklerChance ? <Typography>Save sprinkler chance: {saveSprinklerChance}%</Typography> : null}
-                {acornShop ? <AcornShop acornShop={acornShop} /> : null}
-                {index === 8 && acquired ? <RatKing ratKing={ratKing} /> : null}
-              </Stack>
-              {compactView ? null : <Stack mt={'auto'}>
-                <Divider sx={{ my: 2 }} />
-                <Typography mb={1} variant={'body2'}>Box info</Typography>
-                <Stack>
-                  <Typography variant={'caption'}>{cleanUnderscore(boxDescription)}</Typography>
-                  <Typography mt={1} variant={'caption'}>{cleanUnderscore(description)}</Typography>
-                </Stack>
-              </Stack>}
-            </CardContent>
-          </Card>
-        })}
-        
-      </Stack>
-    </>
-  );
+const IMPORTS_TOOLBAR = { boxDetails: false };
+
+// The game's font draws ₣ as its bits icon; | is the box text's line break
+const importText = (text) => cleanUnderscore(text ?? '').replace(/₣/g, 'bits').replace(/\|/g, '@');
+
+// What a count reaches after each time away (Info 5: a list that sat in a hover note), named and headed as its row
+const byTimeAway = (name, count, breakpoints) => createBreakdown(name, formatNum(count ?? 0),
+  flatLines((breakpoints ?? []).map(({ time, amount }) => ({
+    name: formatDuration(time), value: amount, formatted: formatNum(amount ?? 0)
+  }))), { combine: 'list' });
+
+const snailFacts = (gaming) => {
+  const { snailLevel, snailEncouragement } = gaming ?? {};
+  const { maxLevel, holeBonus, successChance = 0, resetChance = 0 } = gaming?.snail ?? {};
+  const realResetChance = resetChance * (1 - successChance);
+  const succeedBeforeReset = 1 - Math.pow(1 - successChance, 1 / realResetChance);
+  const encouragementNeeded = calculateSnailEncouragementForSuccessChance(snailLevel, 0.9, holeBonus);
+  return <ItemCard.Section label={'Snail'}>
+    <ItemCard.Facts rows={[
+      ['Level', snailLevel ?? 0, 'amount'],
+      ['Max level', maxLevel ?? 0, 'amount'],
+      ['Encouragement', snailEncouragement ?? 0, 'amount'],
+      ['Success chance', formatNum(successChance * 100, 'pct')],
+      ['Reset chance', formatNum(resetChance * 100, 'pct')],
+      ['Real reset chance', formatNum(realResetChance * 100, 'pct')],
+      successChance > 0 ? ['Average attempts', formatNum(1 / successChance, 'amount', { precise: true })] : null,
+      ['Chance to succeed before reset', formatNum(succeedBeforeReset * 100, 'pct')],
+      ['Encouragement for 90% success', encouragementNeeded ?? 0, 'amount']
+    ]}/>
+  </ItemCard.Section>;
 };
 
-const Snail = ({ account, snailLevel, snailEncouragement }) => {
-  const { maxLevel: maxSnailLV, holeBonus, successChance, resetChance } = account?.gaming?.snail || {};
+// An import's own extras, by its place in the game's list
+const importExtras = (index, item, gaming, account, lastUpdated) => {
+  const { acquired, saveSprinklerChance, maxNuggetValue, acornShop } = item;
+  if (index === 0) return <ItemCard.Facts rows={[['Save sprinkler chance', formatNum(saveSprinklerChance ?? 0, 'pct')]]}/>;
+  if (index === 1 && acquired) {
+    const nuggets = byTimeAway('Nuggets', gaming?.goldNuggets, gaming?.nuggetsBreakpoints);
+    return <ItemCard.Facts rows={[
+      ['Since last dig', <Timer key={'timer'} date={new Date().getTime() - (gaming?.lastShovelClicked ?? 0) * 1000}
+                                lastUpdated={lastUpdated}/>],
+      ['Nuggets', <Breakdown key={'nuggets'} asValue data={nuggets}>{formatNum(gaming?.goldNuggets ?? 0, 'whole')}</Breakdown>],
+      ['Rolls', `${formatNum((maxNuggetValue ?? 0) / 1584.89, 'whole')} to ${formatNum(maxNuggetValue ?? 0, 'whole')}`],
+      ['Best nugget', formatGame(Number(gaming?.bestNugget) || 0, 'Save.BestNugget', { whole: true })],
+      ['Since upgrade', account?.accountOptions?.[OPT.nuggetsSinceUpgrade] ?? 0, 'amount']
+    ]}/>;
+  }
+  if (index === 2) {
+    const acorns = byTimeAway('Acorns', gaming?.acorns, gaming?.acornsBreakpoints);
+    return <>
+      {acquired ? <ItemCard.Facts rows={[
+        ['Since last visit', <Timer key={'timer'} date={new Date().getTime() - (gaming?.lastAcornClicked ?? 0) * 1000}
+                                    lastUpdated={lastUpdated}/>],
+        ['Acorns', <Breakdown key={'acorns'} asValue data={acorns}>{formatNum(gaming?.acorns ?? 0, 'whole')}</Breakdown>]
+      ]}/> : null}
+      {acornShop?.length ? <ItemCard.Section label={'Acorn Shop'}>
+        <ShopTable rows={acornShop.map(({ description, level, cost }) => ({ name: description, level, cost }))} currency={'acorns'}/>
+      </ItemCard.Section> : null}
+    </>;
+  }
+  if (index === 6) {
+    return <ItemCard.Facts rows={[
+      ['Highscore', formatGame(gaming?.poingHighscore ?? 0, 'Save.PoingHighscore', { whole: true })],
+      ['Multiplier', formatNum(gaming?.poingMulti ?? 1, 'mult')]
+    ]}/>;
+  }
+  if (index === 7 && acquired) return snailFacts(gaming);
+  if (index === 8 && acquired) return <RatKing ratKing={gaming?.ratKing}/>;
+  return null;
+};
 
-  const realResetChance = (resetChance * (1 - successChance));
-  const averageAttempts = 1 / successChance;
-  const succeedBeforeReset = 1 - Math.pow(1 - successChance, 1 / realResetChance);
-  const encNeededForProbableSuccess = calculateSnailEncouragementForSuccessChance(snailLevel, 0.9, holeBonus);
-
+const Imports = ({ account, gaming, lastUpdated }) => {
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('gaming-imports', IMPORTS_TOOLBAR);
+  const imports = gaming?.imports ?? [];
   return <>
-    <Divider sx={{ my: 1 }} />
-    <Stack divider={<Divider sx={{ my: 1 }} />}>
-      <TextAndValue title={'Level'} value={snailLevel} />
-      <TextAndValue title={'Max Level'} value={maxSnailLV} />
-      <TextAndValue title={'Encouragement'} value={snailEncouragement} />
-      <TextAndValue title={'Success chance'} value={`${notateNumber(successChance * 100, 'MultiplierInfo')}%`} />
-      <TextAndValue title={'Reset chance'} value={`${notateNumber(resetChance * 100, 'MultiplierInfo')}%`} />
-      <TextAndValue title={'Real Reset chance'} value={`${notateNumber(realResetChance * 100, 'MultiplierInfo')}%`} />
-      <TextAndValue title={'Avg # attempts'} value={notateNumber(averageAttempts, 'MultiplierInfo')} />
-      <TextAndValue title={'Chance to Succeed Before Reset'} value={notateNumber(succeedBeforeReset, 'MultiplierInfo')} />
-      <TextAndValue title={'Enc. needed for 90% success chance'}
-        value={notateNumber(encNeededForProbableSuccess, 'MultiplierInfo')} />
-    </Stack>
-  </>
-}
-
-const TextAndValue = ({ title, value }) => {
-  return <>
-    <Stack direction={'row'} justifyContent={'space-between'}>
-      <Typography variant={'body1'}>{title}:</Typography>
-      <Typography variant={'body1'}>{value}</Typography>
-    </Stack>
-  </>
-}
-
-const Nuggets = ({
-  account,
-  goldNuggets,
-  nuggetsBreakpoints,
-  lastShovelClicked,
-  lastUpdated,
-  maxNuggetValue
-}) => {
-  return <>
-    <Stack mt={1} direction={'row'} alignItems={'center'} gap={1}>
-      <Timer date={new Date().getTime() - lastShovelClicked * 1000} lastUpdated={lastUpdated} />
-      <Tooltip title={<ResourcePerTime breakpoints={nuggetsBreakpoints} />}>
-        <IconInfoCircleFilled size={18} />
-      </Tooltip>
-    </Stack>
-    <Typography># of nuggets: {goldNuggets}</Typography>
-    <Typography>Rolls
-      possible: {(notateNumber(maxNuggetValue / 1584.89))}-{notateNumber(maxNuggetValue)}</Typography>
-    <Typography>Nuggets since upgrade: {numberWithCommas(account?.accountOptions?.[OPT.nuggetsSinceUpgrade])}</Typography>
-  </>
-}
-
-const Acorns = ({ lastAcornClicked, lastUpdated, acornsBreakpoints, acorns }) => {
-  return <>
-    <Stack mt={1} direction={'row'} gap={1}>
-      <Timer date={new Date().getTime() - lastAcornClicked * 1000} lastUpdated={lastUpdated} />
-      <Tooltip title={<ResourcePerTime breakpoints={acornsBreakpoints} />}>
-        <IconInfoCircleFilled size={18} />
-      </Tooltip>
-    </Stack>
-    <Typography># of acorns: {numberWithCommas(acorns)}</Typography>
-  </>
-}
-const AcornShop = ({ acornShop }) => {
-  return <Stack>
-    <Divider sx={{ my: 2 }} />
-    <Typography variant={'body1'} sx={{ fontWeight: 'bold' }}>Acorn Shop</Typography>
-    <Stack direction={'row'} gap={3}>
-      {acornShop?.map(({ cost, bonus, description }, index) => <Stack key={'corn-' + index}>
-        <Stack>
-          <Typography variant={'body2'}>{description}</Typography>
-          <Typography variant={'body2'}>Cost: {cost}</Typography>
-        </Stack>
-      </Stack>)}
-    </Stack>
-  </Stack>
-}
-
-
-const ResourcePerTime = ({ breakpoints }) => {
-  return <Stack>
-    <Typography sx={{ fontWeight: 'bold' }}>Breakpoints</Typography>
-    {breakpoints?.map(({ time, amount }, index) => {
-      const hours = Math.floor(time / 3600);
-      const minutes = Math.round(time / 3600 % 1 * 60)
-      return <Stack key={`bp-${index}`} direction={'row'} gap={2}>
-        <Typography sx={{ width: 100 }}>{`${hours}h`}{minutes > 0 ? `:${minutes}m` : ''}</Typography>
-        <Typography>{amount}</Typography>
-      </Stack>
-    })}
-  </Stack>
-}
-
-const ImportImg = styled.img`
-  width: 32px;
-`;
+    <Toolbar state={toolbar} defaults={IMPORTS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+             total={imports.length} shown={imports.length} noun={'imports'}>
+      <Toolbar.Filter name={'boxDetails'} label={'Box details'} display/>
+    </Toolbar>
+    <CardGrid size={'m'}>
+      {imports.map((item, index) => {
+        const { boxName, boxDescription, name, description, majorBonus, minorBonus, cost, rawName, acquired } = item;
+        return <ItemCard key={name} icon={`data/${rawName}.png`} title={cleanUnderscore(name)}
+                         meta={cleanUnderscore(boxName)} dimmed={!acquired}
+                         footer={<ItemCard.Cost icon={bitsIcon} iconAlt={'Bits'}
+                                                need={cost ?? 0} have={gaming?.bits ?? 0}
+                                                game={'GamingStatType.ImportItemCOST'}/>}>
+          {majorBonus ? <ItemCard.Desc text={importText(majorBonus)}/> : null}
+          {minorBonus ? <ItemCard.Desc text={importText(minorBonus)}/> : null}
+          {importExtras(index, item, gaming, account, lastUpdated)}
+          {toolbar?.boxDetails ? <ItemCard.Section label={'Box'}>
+            <ItemCard.Desc text={importText(boxDescription)}/>
+            <ItemCard.Desc text={importText(description)}/>
+          </ItemCard.Section> : null}
+        </ItemCard>;
+      })}
+    </CardGrid>
+  </>;
+};
 
 export default Imports;

@@ -43,7 +43,6 @@ describe('Void Radius multikill', () => {
     const idle = getMultiKillPerTier(voidwalker, characters, account);
     const running = getMultiKillPerTier(speedrunning(voidwalker), characters, account);
     expect(running - idle).toBeCloseTo(expectedY, 6);
-    expect(running - idle).not.toBeCloseTo(pixelRadius, 6);
   });
 
   it('pays nothing while no speedrun is running', () => {

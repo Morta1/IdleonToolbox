@@ -1,87 +1,52 @@
 import React from 'react';
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import Tooltip from '../../../../Tooltip';
-import { TitleAndValue } from '../../../../common/styles';
-import { artifactTierColor } from './sailing.consts';
+import { Box, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { ARTIFACT_TIERS, artifactTierColor } from './sailing.consts';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import IconTile from '@components/common/cards/IconTile';
+import GameIcon from '@components/common/GameIcon';
+import Num from '@components/common/Num';
+import Notice from '@components/common/Notice';
 
-const Chests = ({ chests }) => {
-  if (chests.length === 0) return <Stack justifyContent={'center'} direction={'row'}>
-    <Typography variant={'h4'}>You have no chests!</Typography>
-  </Stack>
-  return <>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={2} my={2}>
-      {chests?.map(({
-                      island,
-                      artifactChance,
-                      ancientChance,
-                      eldritchChance,
-                      sovereignChance,
-                      omnipotentChance,
-                      transcendentChance,
-                      verisimilitudeChance,
-                      rawName,
-                      done,
-                      possibleArtifacts,
-                      islandIndex,
-                      treasure
+const TIERS = [['ancientChance', 2], ['eldritchChance', 3], ['sovereignChance', 4], ['omnipotentChance', 5],
+  ['transcendentChance', 6], ['verisimilitudeChance', 7]];
 
-                    }, index) => {
-        return <Card key={`${rawName}-${index}`} sx={{ width: 300 }}>
-          <CardContent>
-            <Stack>
-              <Stack direction={'row'} alignItems={'center'}>
-                <img style={{ objectFit: 'contain', width: 50 }} src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-                <Stack>
-                  {done ? <><Typography>No more artifacts!</Typography>
-                    <Typography>&nbsp;</Typography></> : <>
-                    <Typography>Artifact Chance {artifactChance}%</Typography>
-                    {ancientChance && <Typography color={artifactTierColor(2)}>Ancient Chance {ancientChance}%</Typography>}
-                    {eldritchChance && <Typography color={artifactTierColor(3)}>Eldritch Chance {eldritchChance}%</Typography>}
-                    {sovereignChance && <Typography color={artifactTierColor(4)}>Sovereign Chance {sovereignChance}%</Typography>}
-                    {omnipotentChance && <Typography color={artifactTierColor(5)}>Omnipotent Chance {omnipotentChance}%</Typography>}
-                    {transcendentChance && <Typography color={artifactTierColor(6)}>Transcendent Chance {transcendentChance}%</Typography>}
-                    {verisimilitudeChance && <Typography color={artifactTierColor(7)}>Verisimilitude Chance {verisimilitudeChance}%</Typography>}
-                  </>}
-                </Stack>
-              </Stack>
-              <Divider sx={{ my: 1 }}/>
-              <Stack>
-                <Typography>Island: {cleanUnderscore(island?.name)}</Typography>
-                <Stack direction={'row'} alignItems={'center'}>
-                  <img style={{ objectFit: 'contain', width: 25 }} src={`${prefix}data/SailT${islandIndex * 2 + 1}.png`}
-                       alt=""/>
-                  <Typography>{notateNumber(treasure, 'Big')}</Typography>
-                </Stack>
-                <Divider sx={{ my: 1 }}/>
-                {!done ? <Stack direction={'row'} flexWrap={'wrap'} gap={1} alignItems={'center'}>
-                  {possibleArtifacts?.map((artifact) => <Tooltip key={artifact?.rawName}
-                                                                 title={<ArtifactInfoTooltip {...artifact}/>}>
-                    <Stack sx={{
-                      border: '1px solid',
-                      borderColor: artifact?.acquired >= 2 ? artifactTierColor(artifact.acquired) : '',
-                      p: 1
-                    }}
-                           alignItems={'center'}>
-                      <img src={`${prefix}data/${artifact?.rawName}.png`}
-                           width={24} height={24}
-                           alt={artifact?.rawName}/>
-                    </Stack>
-                  </Tooltip>)}
-                </Stack> : null}
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
-      })}
-    </Stack></>
+// A possible artifact's details: its name, its form now and its bonus
+const artifactDetails = (artifact) => <Stack gap={0.5}>
+  <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(artifact?.name)}</Typography>
+  <Typography variant={'body2'} color={'text.secondary'}>
+    {artifact?.acquired ? `${ARTIFACT_TIERS[artifact.acquired - 1]?.full} form` : 'Not acquired'}
+  </Typography>
+  <ItemCard.Desc text={artifact?.description}/>
+</Stack>;
+
+// In a failed section the page's note says why there are none
+const Chests = ({ chests, sectionFailed }) => {
+  if (!chests?.length) return sectionFailed ? null
+    : <Notice tone={'info'}>Chests show here when your boats bring them back from their islands.</Notice>;
+  return <CardGrid size={'m'}>
+    {chests.map((chest, index) => {
+      const { island, artifactChance, rawName, done, possibleArtifacts, islandIndex, treasure } = chest;
+      return <ItemCard key={`${rawName}-${index}`} icon={`data/${rawName}.png`} iconAlt={''} title={cleanUnderscore(island?.name)}
+                       meta={done ? 'No artifacts left on this island' : undefined}
+                       footer={<ItemCard.Facts rows={[[<Stack key={'label'} component={'span'} direction={'row'} gap={1} alignItems={'center'}>
+                         <GameIcon src={`data/SailT${2 * islandIndex + 1}.png`} size={24} alt={''}/>Treasure</Stack>,
+                         <Num key={'treasure'} value={treasure ?? 0} system={'Sailing'}/>]]}/>}>
+        {done ? null : <ItemCard.Facts rows={[
+          ['Artifact', formatNum(artifactChance ?? 0, 'pct')],
+          ...TIERS.filter(([key]) => chest[key] != null)
+            .map(([key, tier]) => [<Box key={key} component={'span'} sx={{ color: artifactTierColor(tier) }}>{ARTIFACT_TIERS[tier - 1].full}</Box>,
+              formatNum(chest[key], 'pct')])
+        ]}/>}
+        {!done && possibleArtifacts?.length ? <CardGrid size={'icon'} fill>
+          {possibleArtifacts.map((artifact) => <IconTile key={artifact?.rawName} icon={`data/${artifact?.rawName}.png`}
+                                                         alt={cleanUnderscore(artifact?.name)}
+                                                         details={artifactDetails(artifact)}/>)}
+        </CardGrid> : null}
+      </ItemCard>;
+    })}
+  </CardGrid>;
 };
-
-const ArtifactInfoTooltip = ({ name, description }) => {
-  return <>
-    <Typography sx={{ fontWeight: 'bold' }} variant={'subtitle1'}>{cleanUnderscore(name)}</Typography>
-    <TitleAndValue boldTitle title={'Bonus'} value={cleanUnderscore(description)}/>
-  </>
-}
 
 export default Chests;

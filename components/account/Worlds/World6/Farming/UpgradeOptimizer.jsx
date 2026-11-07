@@ -1,40 +1,26 @@
 import React, { useContext } from 'react';
-import {
-  Box,
-  Card,
-  CardContent,
-  Chip,
-  Divider,
-  FormControl,
-  InputLabel,
-  MenuItem,
-  Paper,
-  Select,
-  Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  TextField,
-  ToggleButton,
-  ToggleButtonGroup,
-  Typography
-} from '@mui/material';
-import { IconInfoCircleFilled, IconList, IconTable } from '@tabler/icons-react';
+import { FormControlLabel, MenuItem, Stack, Switch, TextField, Typography } from '@mui/material';
+import StatusText from '@components/common/StatusText';
+import DataTable from '@components/common/DataTable';
+import GameIcon from '@components/common/GameIcon';
 import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
-import useCheckbox from '@components/common/useCheckbox';
-import Tooltip from '@components/Tooltip';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { getOptimizedLandRankUpgrades, isCropValueCapped, LAND_RANK_GOALS } from '@parsers/world-6/farming';
+import { clampCustomMax, MAX_CUSTOM_UPGRADES } from '@parsers/genericUpgradeOptimizer';
+import InfoButton from '@components/common/InfoButton';
+import ViewSwitch from '@components/common/ViewSwitch';
+import Notice from '@components/common/Notice';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
+import NumberField from '@components/common/NumberField';
+import { stepLevels, stepMeta } from '@components/account/Misc/class-specific/upgradeSteps';
 
 const pointsOptions = [10, 25, 50, 100, 250, 500, 1000];
 const groupModes = ['None', 'Upgrade', 'Summary'];
-const tooltipText = `Every land rank upgrade costs exactly 1 rank point, so the plan spends points one at a
- time on whichever upgrade gains the most. Goals group the upgrades by what they boost - a percent of
- total damage and a percent of rank EXP aren't the same kind of percent.`;
+const METHOD_NOTE = 'Every land rank upgrade costs exactly 1 rank point, so the plan spends points one at a time on whichever upgrade gains the most. Goals group the upgrades by what they boost: a percent of total damage and a percent of rank EXP aren\'t the same kind of percent.';
 
 const goalDescriptions = {
   evolution: 'Chance for a plot to evolve into the next crop.',
@@ -46,11 +32,36 @@ const goalDescriptions = {
   all: 'Every goal at once. Bonuses from different goals are not really comparable, so treat this as a tiebreaker rather than an answer.'
 };
 
-const formatLevel = (upgrade) => (upgrade?.maxLevel
-  ? `${upgrade.level} / ${upgrade.maxLevel}`
-  : `${upgrade.level}`);
-const formatBonus = (bonus) => notateNumber(Math.round(100 * bonus) / 100, 'Big');
-const formatPercentChange = (percentChange) => `+${percentChange.toFixed(percentChange < 1 ? 4 : 2)}%`;
+// A land rank bonus is a percent the game's sentence carries the % of: decimals under 100, Big from 1,000
+const formatBonus = (bonus) => formatNum(bonus, 'pct', { bare: true });
+const formatPercentChange = (percentChange) => formatNum(percentChange, 'pct', { signed: true, precise: true });
+const points = (count) => `${count} ${count === 1 ? 'pt' : 'pts'}`;
+
+// The plan's inputs, each under the key it has always had (the checkbox's own for Only affordable)
+const useLandRankSettings = () => {
+  const [goal, setGoal] = useLocalStorage({ key: 'landRankOptimizer:goal', defaultValue: 'evolution' });
+  const [maxUpgrades, setMaxUpgrades] = useLocalStorage({ key: 'landRankOptimizer:maxUpgrades', defaultValue: 100 });
+  const [maxUpgradesMode, setMaxUpgradesMode] = useLocalStorage({ key: 'landRankOptimizer:maxUpgradesMode', defaultValue: 'preset' });
+  const [customMaxUpgrades, setCustomMaxUpgrades] = useLocalStorage({ key: 'landRankOptimizer:customMaxUpgrades', defaultValue: 100 });
+  const [onlyAffordable, setOnlyAffordable] = useLocalStorage({ key: 'checkbox-Only affordable', defaultValue: false });
+  const custom = maxUpgradesMode === 'custom';
+  const state = {
+    goal,
+    points: custom ? 'custom' : maxUpgrades,
+    customMax: customMaxUpgrades === '' || customMaxUpgrades == null ? null : clampCustomMax(customMaxUpgrades),
+    onlyAffordable: Boolean(onlyAffordable)
+  };
+  const set = (patch) => {
+    if (Object.hasOwn(patch, 'goal')) setGoal(patch.goal);
+    if (Object.hasOwn(patch, 'points')) {
+      setMaxUpgradesMode(patch.points === 'custom' ? 'custom' : 'preset');
+      if (patch.points !== 'custom') setMaxUpgrades(patch.points);
+    }
+    if (Object.hasOwn(patch, 'customMax')) setCustomMaxUpgrades(patch.customMax ?? '');
+    if (Object.hasOwn(patch, 'onlyAffordable')) setOnlyAffordable(patch.onlyAffordable);
+  };
+  return { state, set, maxToUse: custom ? clampCustomMax(customMaxUpgrades) : maxUpgrades };
+};
 
 const UpgradeOptimizer = () => {
   const { state } = useContext(AppContext);
@@ -58,24 +69,10 @@ const UpgradeOptimizer = () => {
   const farming = account?.farming;
   const { availablePoints = 0, hasLandRank } = farming || {};
 
-  const [goal, setGoal] = useLocalStorage({
-    key: 'landRankOptimizer:goal',
-    defaultValue: 'evolution'
-  });
-  const [maxUpgrades, setMaxUpgrades] = useLocalStorage({
-    key: 'landRankOptimizer:maxUpgrades',
-    defaultValue: 100
-  });
-  const [maxUpgradesMode, setMaxUpgradesMode] = useLocalStorage({
-    key: 'landRankOptimizer:maxUpgradesMode',
-    defaultValue: 'preset'
-  });
-  const [customMaxUpgrades, setCustomMaxUpgrades] = useLocalStorage({
-    key: 'landRankOptimizer:customMaxUpgrades',
-    defaultValue: 100
-  });
-  // Land rank steps repeat far more than the other optimizers' do - a flat list is 1000 copies of
-  // the same row - so the grouped view is the one worth landing on.
+  const { state: settings, set: setSettings, maxToUse } = useLandRankSettings();
+  const { goal, onlyAffordable } = settings;
+  // Land rank steps repeat far more than the other optimizers' do: a flat list is 1000 copies of
+  // the same row, so the grouped view is the one worth landing on.
   const [groupMode, setGroupMode] = useLocalStorage({
     key: 'landRankOptimizer:groupMode',
     defaultValue: 'Summary'
@@ -84,11 +81,6 @@ const UpgradeOptimizer = () => {
     key: 'landRankOptimizer:viewMode',
     defaultValue: 'grid'
   });
-  const [AffordableCheckboxEl, onlyAffordable] = useCheckbox('Only affordable');
-
-  const maxToUse = maxUpgradesMode === 'custom'
-    ? Math.max(0, parseInt(customMaxUpgrades || 0, 10) || 0)
-    : maxUpgrades;
   const optimizedUpgrades = getOptimizedLandRankUpgrades(account, maxToUse, { goal, onlyAffordable });
 
   // The percent changes are gains of the whole goal per step, so a group's total compounds.
@@ -102,10 +94,10 @@ const UpgradeOptimizer = () => {
     optimizedUpgrades.forEach((upgrade, index) => {
       if (!currentGroup || currentGroup.name !== upgrade.name) {
         if (currentGroup) consolidated.push(currentGroup);
-        currentGroup = { ...upgrade, upgradeIndex: index, sequence: [upgrade], startLevel: upgrade.level, contiguous: true };
+        currentGroup = { ...upgrade, upgradeIndex: index, sequence: [{ ...upgrade, upgradeIndex: index }], startLevel: upgrade.level };
         return;
       }
-      currentGroup.sequence.push(upgrade);
+      currentGroup.sequence.push({ ...upgrade, upgradeIndex: index });
     });
     if (currentGroup) consolidated.push(currentGroup);
     displayUpgrades = consolidated.map((upgrade) => ({
@@ -123,7 +115,7 @@ const UpgradeOptimizer = () => {
         grouped[upgrade.name] = { ...upgrade, upgradeIndex: index, startLevel: upgrade.level, sequence: [] };
       }
       const group = grouped[upgrade.name];
-      group.sequence.push(upgrade);
+      group.sequence.push({ ...upgrade, upgradeIndex: index });
       group.finalLevel = upgrade.newLevel;
       group.bonusAfter = upgrade.bonusAfter;
       group.totalCost = group.sequence.length;
@@ -153,172 +145,112 @@ const UpgradeOptimizer = () => {
     </>;
   };
 
-  const renderCost = (upgrade) => <Typography variant={'body2'}>
-    {upgrade.sequence?.length > 1 ? `Total Cost: ${upgrade.totalCost} pts` : `Cost: ${upgrade.cost} pts`}
-  </Typography>;
-
   // A capped 5th column upgrade can't take the point the plan would otherwise hand it, and a card
   // sitting at its cap with no marker reads as "keep pouring points in here".
-  const renderCapChip = (upgrade) => {
+  const renderCapStatus = (upgrade) => {
     const level = upgrade.finalLevel ?? upgrade.newLevel;
     if (!upgrade.maxLevel || level < upgrade.maxLevel) return null;
-    return <Chip size={'small'}
-                 variant={'outlined'}
-                 color={'warning'}
-                 label={'Maxed'}
-                 sx={{ ml: 1, height: 20, '& .MuiChip-label': { px: .75, fontSize: 11 } }}/>;
+    return <StatusText status={'maxed'}/>;
   };
 
-  // Summary lumps together points that aren't next to each other in the plan, so a "#1 to #63"
-  // range would claim an order the steps never had.
-  const groupLabel = (upgrade) => {
-    if (!(upgrade.sequence?.length > 1)) return `Upgrade #${upgrade.upgradeIndex + 1}`;
-    if (!upgrade.contiguous) return `${upgrade.sequence.length} points across the plan`;
-    return `Upgrade Group (#${upgrade.upgradeIndex + 1} to #${upgrade.upgradeIndex + upgrade.sequence.length})`;
-  };
+  // The shared step rows read a step's level as the one it buys to, and this plan's as the one it buys from
+  const asStep = (upgrade) => ({ ...upgrade, level: upgrade.newLevel, startLevel: upgrade.startLevel + 1 });
 
   const renderUpgradeCard = (upgrade) => {
     const hasSequence = upgrade.sequence?.length > 1;
-    const originalIndex = upgrade.upgradeIndex;
-    return <Card key={originalIndex} sx={{ width: 350 }}>
-      <CardContent>
-        <Stack direction={'row'} gap={2} sx={{ position: 'relative' }}>
-          <img style={{ width: 32, height: 32, objectFit: 'contain' }}
-               src={`${prefix}data/RankUpg${upgrade.index}.png`}
-               alt={''}/>
-          <Box>
-            <Typography variant={'subtitle1'}>
-              {cleanUnderscore(upgrade.name)} ({formatLevel(upgrade)})
-              {renderCapChip(upgrade)}
-            </Typography>
-            <Typography variant={'caption'} color={'text.secondary'}>{groupLabel(upgrade)}</Typography>
-          </Box>
-        </Stack>
-        <Divider sx={{ my: 1 }}/>
-        {hasSequence ? <Typography variant={'subtitle2'} gutterBottom>
-          Total Benefits (Levels {upgrade.startLevel} → {upgrade.finalLevel})
-        </Typography> : null}
-        {renderStatChange(upgrade)}
-        <Divider sx={{ my: 1 }}/>
-        {renderCost(upgrade)}
-      </CardContent>
-    </Card>;
+    return <ItemCard key={upgrade.upgradeIndex} icon={`data/RankUpg${upgrade.index}.png`} title={cleanUnderscore(upgrade.name)}
+                     meta={stepMeta(asStep(upgrade), { max: upgrade.maxLevel || null })}
+                     aside={renderCapStatus(upgrade)}
+                     footer={<ItemCard.Facts rows={[[hasSequence ? 'Total cost' : 'Cost',
+                       points(hasSequence ? upgrade.totalCost : upgrade.cost)]]}/>}>
+      {hasSequence
+        ? <ItemCard.Section label={'Total benefits'}>
+          {renderStatChange(upgrade)}
+        </ItemCard.Section>
+        : renderStatChange(upgrade)}
+    </ItemCard>;
   };
 
-  const renderUpgradeRow = (upgrade) => {
-    const hasSequence = upgrade.sequence?.length > 1;
-    return <TableRow key={upgrade.upgradeIndex}>
-      <TableCell>{upgrade.displayPosition}</TableCell>
-      <TableCell>
-        <img style={{ width: 24, height: 24, objectFit: 'contain' }}
-             src={`${prefix}data/RankUpg${upgrade.index}.png`}
-             alt={''}/>
-      </TableCell>
-      <TableCell>{cleanUnderscore(upgrade.name)}{renderCapChip(upgrade)}</TableCell>
-      <TableCell>{hasSequence
-        ? `${upgrade.startLevel} → ${upgrade.finalLevel}`
-        : `${upgrade.level} → ${upgrade.newLevel}`}{upgrade.maxLevel ? ` / ${upgrade.maxLevel}` : ''}</TableCell>
-      <TableCell>{renderStatChange(upgrade)}</TableCell>
-      <TableCell>{renderCost(upgrade)}</TableCell>
-    </TableRow>;
-  };
+  // The table view: the plan's order (#), nothing sorts. A point costs 1, a group its level count.
+  const upgradeColumns = [
+    {
+      key: 'name',
+      label: 'Name',
+      icon: (upgrade) => <GameIcon src={`data/RankUpg${upgrade.index}.png`} alt={''} size={24}/>,
+      render: (upgrade) => {
+        const capStatus = renderCapStatus(upgrade);
+        return <span>{cleanUnderscore(upgrade.name)}{capStatus ? <> {capStatus}</> : null}</span>;
+      }
+    },
+    {
+      key: 'level',
+      label: 'Level',
+      cellSx: { whiteSpace: 'nowrap' },
+      render: (upgrade) => stepLevels(asStep(upgrade), upgrade.maxLevel || null)
+    },
+    { key: 'stats', label: 'Stat changes', render: (upgrade) => renderStatChange(upgrade) },
+    {
+      key: 'cost',
+      label: 'Cost (pts)',
+      numeric: true,
+      phone: true,
+      value: (upgrade) => (upgrade.sequence?.length > 1 ? upgrade.totalCost : upgrade.cost)
+    }
+  ];
 
   return <Stack gap={3}>
-    <Stack direction={'row'} gap={2} alignItems={'center'} flexWrap={'wrap'}>
-      <FormControl size={'small'} sx={{ width: 200 }}>
-        <InputLabel id={'land-rank-goal'}>Optimization Category</InputLabel>
-        <Select labelId={'land-rank-goal'}
-                label={'Optimization Category'}
-                value={goal}
-                onChange={(e) => setGoal(e.target.value)}>
+    {/* The plan needs Land Rank: without it the lock note below is all this tab has to say */}
+    {hasLandRank ? <Panel title={'Upgrade plan'} aside={<ViewSwitch size={'medium'} label={'View'} options={[['grid', 'Cards'], ['list', 'Table']]}
+                                                                    value={viewMode} onChange={setViewMode}/>}>
+      <Panel.Inputs>
+        <TextField select label={'Optimize for'} value={goal} sx={{ width: 200 }}
+                   onChange={(e) => setSettings({ goal: e.target.value })}>
           {Object.entries(LAND_RANK_GOALS).map(([key, { name }]) => <MenuItem key={key} value={key}>{name}</MenuItem>)}
           <MenuItem value={'all'}>All</MenuItem>
-        </Select>
-      </FormControl>
-      <FormControl size={'small'} sx={{ width: 160 }}>
-        <InputLabel id={'land-rank-points'}>Points to spend</InputLabel>
-        <Select labelId={'land-rank-points'}
-                label={'Points to spend'}
-                value={maxUpgradesMode === 'custom' ? 'custom' : maxUpgrades}
-                onChange={(e) => {
-                  const value = e.target.value;
-                  if (value === 'custom') {
-                    setMaxUpgradesMode('custom');
-                    return;
-                  }
-                  setMaxUpgradesMode('preset');
-                  setMaxUpgrades(value);
-                }}>
-          {pointsOptions.map((points) => <MenuItem key={points} value={points}>{points}</MenuItem>)}
+        </TextField>
+        <TextField select label={'Max upgrades'} value={settings.points} sx={{ width: 140 }}
+                   onChange={(e) => setSettings({ points: e.target.value })}>
+          {pointsOptions.map((option) => <MenuItem key={option} value={option}>{formatNum(option)}</MenuItem>)}
           <MenuItem value={'custom'}>Custom</MenuItem>
-        </Select>
-      </FormControl>
-      {maxUpgradesMode === 'custom' ? <TextField size={'small'}
-                                                 type={'number'}
-                                                 inputProps={{ min: 1 }}
-                                                 sx={{ width: 120 }}
-                                                 label={'Custom Max'}
-                                                 value={customMaxUpgrades}
-                                                 onChange={(e) => {
-                                                   const value = parseInt(e.target.value, 10);
-                                                   setCustomMaxUpgrades(isNaN(value) ? '' : Math.max(1, value));
-                                                 }}/> : null}
-      <FormControl size={'small'} sx={{ width: 120 }}>
-        <InputLabel id={'land-rank-group'}>Group mode</InputLabel>
-        <Select labelId={'land-rank-group'}
-                label={'Group mode'}
-                value={groupMode}
-                onChange={(e) => setGroupMode(e.target.value)}>
+        </TextField>
+        {settings.points === 'custom' ? <NumberField label={'Custom max'} value={settings.customMax} min={1} max={MAX_CUSTOM_UPGRADES}
+                                                     integer help={false} sx={{ width: 120 }}
+                                                     onChange={(next) => setSettings({ customMax: next })}/> : null}
+        <TextField select label={'Group'} value={groupMode} onChange={(e) => setGroupMode(e.target.value)} sx={{ width: 140 }}>
           {groupModes.map((mode) => <MenuItem key={mode} value={mode}>{mode}</MenuItem>)}
-        </Select>
-      </FormControl>
-      <Tooltip title={`${goalDescriptions[goal]} ${tooltipText}`}><IconInfoCircleFilled size={16}/></Tooltip>
-      <Stack><AffordableCheckboxEl/></Stack>
-      <Divider sx={{ my: 1 }} flexItem orientation={'vertical'}/>
-      <Stack direction={'row'} gap={1} alignItems={'center'}>
-        <Typography>{optimizedUpgrades.length} / {availablePoints}</Typography>
-        <Typography variant={'caption'} color={'text.secondary'}>points spent / unspent</Typography>
-      </Stack>
-      <ToggleButtonGroup value={viewMode}
-                         exclusive
-                         sx={{ ml: 'auto' }}
-                         onChange={(_, value) => value && setViewMode(value)}>
-        <Tooltip title={'Grid view'}>
-          <ToggleButton sx={{ height: 40 }} value={'grid'}><IconTable/></ToggleButton>
-        </Tooltip>
-        <Tooltip title={'List view'}>
-          <ToggleButton sx={{ height: 40 }} value={'list'}><IconList/></ToggleButton>
-        </Tooltip>
-      </ToggleButtonGroup>
-    </Stack>
+        </TextField>
+        <FormControlLabel label={'Only affordable'}
+                          control={<Switch checked={onlyAffordable} onChange={() => setSettings({ onlyAffordable: !onlyAffordable })}/>}/>
+      </Panel.Inputs>
+      {goalDescriptions[goal] ? <Typography variant={'body2'} color={'text.secondary'} sx={{ p: 2 }}>{goalDescriptions[goal]}</Typography> : null}
+    </Panel> : null}
 
-    <Typography variant={'h6'}>Recommended Upgrade Sequence</Typography>
-    {hasLandRank ? null : <Typography variant={'body2'} color={'text.secondary'}>
-      Land Rank isn&apos;t unlocked on this account yet. Buy it from the farming market first.
-    </Typography>}
+    <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
+      <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+        <Typography variant={'sectionTitle'} component={'h2'}>
+          {LAND_RANK_GOALS[goal] ? `Recommended ${LAND_RANK_GOALS[goal].name} upgrade sequence` : 'Recommended upgrade sequence'}
+        </Typography>
+        <InfoButton label={'the plan'}>{METHOD_NOTE}</InfoButton>
+      </Stack>
+      <StatTile label={'Points spent / unspent'}
+                value={`${formatNum(optimizedUpgrades.length)} / ${formatNum(availablePoints)}`}/>
+    </Stack>
+    {/* One note per place: the lock note is that place's note, so the empty plan says nothing more */}
+    {hasLandRank ? null : <Notice tone={state?.emptyAccount ? 'signin' : 'locked'}>
+      {state?.emptyAccount ? 'Your Land Rank upgrade plan shows here once you sign in.'
+        : "Land Rank isn't unlocked on this account yet. Buy it from the farming market first."}
+    </Notice>}
     {displayUpgrades.length > 0
       ? viewMode === 'grid'
-        ? <Stack direction={'row'} gap={2} flexWrap={'wrap'}>{displayUpgrades.map(renderUpgradeCard)}</Stack>
-        : <TableContainer component={Paper} sx={{ maxWidth: '100%', overflowX: 'auto' }}>
-          <Table size={'small'}>
-            <TableHead>
-              <TableRow>
-                <TableCell>#</TableCell>
-                <TableCell>Icon</TableCell>
-                <TableCell>Name</TableCell>
-                <TableCell>Level</TableCell>
-                <TableCell>Stat Changes</TableCell>
-                <TableCell>Cost</TableCell>
-              </TableRow>
-            </TableHead>
-            <TableBody>{displayUpgrades.map(renderUpgradeRow)}</TableBody>
-          </Table>
-        </TableContainer>
-      : <Typography variant={'body1'} color={'text.secondary'}>
+        ? <CardGrid size={'m'}>{displayUpgrades.map(renderUpgradeCard)}</CardGrid>
+        : <DataTable columns={upgradeColumns} rows={displayUpgrades} rowKey={'upgradeIndex'}
+                     rowLabel={(upgrade) => cleanUnderscore(upgrade.name)}
+                     rankOf={(upgrade) => upgrade.displayPosition} surface={'card'}/>
+      : hasLandRank ? <Notice>
         {goal === 'cropValue' && isCropValueCapped(account)
           ? "Every plot is already at the game's crop multiplier cap, so more crop value bonus buys nothing. Spend the points on another category."
-          : "No viable upgrades found for this category - they're either all maxed, or still locked behind a higher total rank."}
-      </Typography>}
+          : 'No viable upgrades found for this category: each is maxed or locked behind a higher total rank.'}
+      </Notice> : null}
   </Stack>
 };
 

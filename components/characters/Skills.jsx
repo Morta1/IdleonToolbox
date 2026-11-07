@@ -1,144 +1,69 @@
-import { notateNumber, prefix } from '@utility/helpers';
-import Box from '@mui/material/Box';
-import Badge from '@mui/material/Badge';
-import { capitalize, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import Tooltip from '../Tooltip';
-import React from 'react';
-import ProgressBar from '../common/ProgressBar';
+import { capitalize, Box, Typography } from '@mui/material';
+import React, { useState } from 'react';
+import { formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
+import gameNotation from '../../data/website-data/gameNotation.json';
 import { getSkillExpMulti } from '@parsers/character';
 import { getSkillEfficiency } from '@parsers/efficiency';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { getMaxDamage } from '@parsers/damage';
 import { isGlobalSkill } from '@utility/consts';
+import Panel from '@components/common/cards/Panel';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import ItemCard from '@components/common/cards/ItemCard';
+import Notice from '@components/common/Notice';
 
-const getRankColor = (rank) => {
-  const colorMap = {
-    1: 'success.light',
-    2: 'warning.light',
-    3: 'secondary.main'
-  }
-  return colorMap[rank] || 'white';
-}
+// The game's SkillStats blocks spell two skills differently from the save
+const SKILL_STAT_NAMES = { chopping: 'Choppin' };
+const skillStatKey = (skillName, stat) => `SkillStats.${SKILL_STAT_NAMES[skillName] ?? capitalize(skillName)}${stat}`;
+// The game's own rule where it prints this skill's number; the parser's text where it doesn't
+const skillNumber = (value, key, fallback) => (gameNotation[key] ? formatGame(value, key) : fallback);
 
-const isTopRank = (rank) => rank === 1 || rank === 2 || rank === 3;
-
-const levelBadgeSx = {
-  '& > .MuiBadge-badge': {
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
-    color: 'common.white',
-    fontSize: 12,
-    fontWeight: 700,
-    minWidth: 14,
-    height: 14,
-    padding: '0 4px',
-    borderRadius: '4px'
-  }
-};
-
-const rankBadgeSx = (rank) => ({
-  '& > .MuiBadge-badge': {
-    backgroundColor: getRankColor(rank),
-    color: 'common.black',
-    fontSize: 10,
-    fontWeight: 700,
-    minWidth: 16,
-    width: 16,
-    height: 16,
-    padding: 0,
-    borderRadius: '50%'
-  }
-});
-
-const skillIconStyle = {
-  width: 38,
-  height: 36,
-  display: 'block'
-};
-
-const Skills = ({ skills, charName, account, characters, character, showSkillsRankOneOnly }) => {
-  const hasRankOne = Object.keys(skills || {})?.filter((skillName) => skills[skillName]?.rank === 1)?.length > 0;
+// The picked skill's numbers; its two breakdowns open from their values, each headed as its value reads
+const SkillDetails = ({ skillName, skill, character, characters, account }) => {
+  const { exp, expReq, level, rank } = skill;
   const playerInfo = getMaxDamage(character, characters, account);
-  if (showSkillsRankOneOnly && !hasRankOne) return null;
-
-  return <Stack>
-    <Typography variant={'h5'}>Skills</Typography>
-    <Card>
-      <CardContent>
-        <Box sx={{
-          display: showSkillsRankOneOnly ? 'flex' : 'grid',
-          gridAutoFlow: 'row',
-          gap: showSkillsRankOneOnly ? '24px' : '8px',
-          ...(showSkillsRankOneOnly ? {
-            maxWidth: 500,
-            flexWrap: 'wrap'
-          } : {}),
-          gridTemplateColumns: { xs: showSkillsRankOneOnly ? 'fit-content' : `repeat(3, minmax(45px, 60px))` },
-          justifyContent: 'center'
-        }}>
-
-          {Object.keys(skills || {})?.map((skillName, index) => {
-            const { level, rank, icon } = skills[skillName];
-            if (skillName === 'character' || (showSkillsRankOneOnly && rank !== 1)) return null;
-            const expMulti = getSkillExpMulti(skillName, character, characters, account, playerInfo);
-            const efficiency = getSkillEfficiency(skillName, character, characters, account, playerInfo);
-            const showRankBadge = !isGlobalSkill(skillName);
-            return <Box key={index} sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', py: '4px' }}>
-              <Breakdown data={[expMulti?.breakdown, efficiency?.breakdown]}>
-                <Tooltip title={<SkillTooltip {...skills?.[skillName]} skillName={skillName} charName={charName}
-                                              expMulti={expMulti} efficiency={efficiency}/>}>
-                  <Badge
-                    badgeContent={level}
-                    max={999999}
-                    overlap="rectangular"
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
-                    sx={levelBadgeSx}
-                  >
-                    <Badge
-                      badgeContent={rank}
-                      invisible={!showRankBadge}
-                      overlap="rectangular"
-                      anchorOrigin={{ vertical: 'top', horizontal: 'left' }}
-                      sx={rankBadgeSx(rank)}
-                    >
-                      <img src={`${prefix}data/${icon}.png`} style={skillIconStyle} alt=""/>
-                    </Badge>
-                  </Badge>
-                </Tooltip>
-              </Breakdown>
-            </Box>;
-          })}
-        </Box>
-      </CardContent>
-    </Card>
-  </Stack>
+  const expMulti = getSkillExpMulti(skillName, character, characters, account, playerInfo);
+  const efficiency = getSkillEfficiency(skillName, character, characters, account, playerInfo);
+  const multiText = expMulti ? `${skillNumber(expMulti.value, skillStatKey(skillName, 'EXPmulti'), expMulti.formattedValue)}x` : null;
+  const efficiencyText = efficiency ? skillNumber(efficiency.value, skillStatKey(skillName, 'Efficiency'), efficiency.formattedValue) : null;
+  return <Box sx={{ mt: 1 }}>
+    <Panel.KV label={capitalize(skillName)} value={formatNum(level, 'level')}/>
+    {!isGlobalSkill(skillName) && rank != null
+      ? <Panel.KV label={'Account rank'} value={`${formatNum(rank)} of ${formatNum(characters?.length)}`}/> : null}
+    <Box sx={{ py: 0.75 }}>
+      <ItemCard.Progress label={'EXP'} value={formatGame(exp, 'Big', { whole: true })} max={formatGame(expReq, 'Big', { whole: true })} percent={Math.min(100, (exp / expReq * 100) || 0)}/>
+    </Box>
+    {expMulti ? <Panel.KV label={'EXP multi'} value={expMulti.breakdown
+      ? <Breakdown asValue title={'EXP multi'} data={{ ...expMulti.breakdown, totalValue: multiText }}>{multiText}</Breakdown> : multiText}/> : null}
+    {efficiency ? <Panel.KV label={'Efficiency'} value={efficiency.breakdown
+      ? <Breakdown asValue title={'Efficiency'} data={{ ...efficiency.breakdown, totalValue: efficiencyText }}>{efficiencyText}</Breakdown> : efficiencyText}/> : null}
+  </Box>;
 };
 
-const SkillTooltip = ({ exp, expReq, expMulti, efficiency, charName, skillName, level, rank }) => {
-  const percent = exp / expReq * 100;
-  return <Stack gap={.5}>
-    <Typography variant={'h5'} fontWeight={'bold'}>{charName}</Typography>
-    <Typography variant={'body1'}>{capitalize(skillName)} <Typography
-      variant={'body1'}
-      component={'span'}>(Lv. {level})</Typography></Typography>
-    {!isGlobalSkill(skillName) && rank != null && <Typography variant={'body2'}
-      sx={{ color: getRankColor(rank), fontWeight: isTopRank(rank) ? 'bold' : 400 }}>
-      Account rank: {rank}
-    </Typography>}
-    <ProgressBar percent={percent} bgColor={'#f3dd4c'}/>
-    <Typography variant={'body1'}>{notateNumber(exp, 'Big')} / {notateNumber(expReq, 'Big')}</Typography>
+// A tile per skill, its level on it and a rank 1 to 3 as its badge; one details block under the grid for the picked one,
+// so a tap opens one thing.
+const Skills = ({ skills, account, characters, character, showSkillsRankOneOnly }) => {
+  const [picked, setPicked] = useState(null);
+  const shown = Object.keys(skills || {}).filter((skillName) => skillName !== 'character'
+    && (!showSkillsRankOneOnly || skills[skillName]?.rank === 1));
+  if (showSkillsRankOneOnly && !shown.length) return <Panel title={'Skills'}><Notice>No skill at rank 1 on this character.</Notice></Panel>;
+  const pickedName = shown.includes(picked) ? picked : null;
 
-    {expMulti || efficiency ? <>
-      <Divider sx={{ my: 1 }}/>
-      {expMulti ? <Typography variant={'body1'}>Exp
-        multi: {expMulti?.formattedValue || notateNumber(expMulti?.value, 'MultiplierInfo') || 0}x</Typography> : null}
-      {efficiency ? <Typography variant={'body1'}>Efficiency: {efficiency.formattedValue}</Typography> : null}
-      {expMulti?.breakdown || efficiency?.breakdown ? <Typography variant={'caption'} color={'text.secondary'}>
-        Click the skill for the breakdown
-      </Typography> : null}
-    </> : null}
-
-  </Stack>
-}
-
+  return <Panel title={'Skills'} meta={showSkillsRankOneOnly ? 'Rank 1 only' : undefined}>
+    <CardGrid size={'icon'} sheetColumns={[5]}>
+      {shown.map((skillName) => {
+        const { level, rank, icon } = skills[skillName];
+        return <IconTile key={skillName} icon={`data/${icon}.png`} alt={capitalize(skillName)} value={formatNum(level, 'whole')}
+                         badge={!isGlobalSkill(skillName) && rank <= 3 ? rank : undefined}
+                         onSelect={() => setPicked(skillName)} selected={pickedName === skillName}/>;
+      })}
+    </CardGrid>
+    {pickedName
+      ? <SkillDetails skillName={pickedName} skill={skills[pickedName]} character={character} characters={characters} account={account}/>
+      : <Typography color={'text.secondary'} sx={{ mt: 1, fontSize: 13, lineHeight: '18px' }}>Pick a skill to see its EXP and efficiency.</Typography>}
+  </Panel>;
+};
 
 export default Skills;

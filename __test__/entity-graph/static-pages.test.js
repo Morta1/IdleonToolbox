@@ -77,7 +77,6 @@ describe('the wiki home', () => {
 describe('props', () => {
   it.each([
     ['equinox', 'upgrades', 'equinox'],
-    ['rift', 'levels', 'rift'],
     ['sneaking', 'pristine-charms', 'pristinecharm']
   ])('renders the full listing at /wiki/%s/%s', (system, segment, kind) => {
     const { props } = slugProps(system, segment);

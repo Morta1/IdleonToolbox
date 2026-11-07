@@ -1,55 +1,45 @@
 import React from 'react';
-import { Stack, Typography } from '@mui/material';
-import InfoIcon from '@mui/icons-material/Info';
-import { commaNotation } from '@utility/helpers';
-import UpgradeCard, { CardIcon, IconValueRow, LabelValue } from '@components/common/UpgradeCard';
-import Tooltip from '@components/Tooltip';
-import useCheckbox from '@components/common/useCheckbox';
-import { formatLumi, LUMI_ICON, RankRequired, StatusText } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+import { Box } from '@mui/material';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+import { LUMI_ICON, RankRequired } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 
 const NIGHTMARINER_UNLOCK = 13;
-
-const UnlockTitle = ({ name, tooltip }) => {
-  if (!tooltip) return name;
-  return <span style={{ display: 'inline-flex', alignItems: 'center', gap: 4 }}>
-    {name}
-    <Tooltip title={tooltip}>
-      <InfoIcon sx={{ fontSize: 16 }}/>
-    </Tooltip>
-  </span>;
-};
+const UNLOCKS_TOOLBAR = { hidePurchased: false };
 
 const Unlocks = ({ unlocks, menagerie }) => {
-  const [CheckboxEl, hidePurchased] = useCheckbox('Hide purchased unlocks');
-  const shownUnlocks = hidePurchased ? unlocks?.filter(({ owned }) => !owned) : unlocks;
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('menagerie-unlocks', UNLOCKS_TOOLBAR);
+  const shownUnlocks = toolbar?.hidePurchased ? unlocks?.filter(({ owned }) => !owned) : unlocks;
 
-  return <Stack gap={1}>
-    <CheckboxEl/>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-      {shownUnlocks?.map(({ index, name, tooltip, cost, owned, affordable, visible, rankRequired }) => {
-        return <UpgradeCard key={`unlock-${index}`}
-                            width={320}
-                            dimmed={!visible && !owned}
-                            icon={<CardIcon src={`data/MenaIconO${index}.png`} width={44} height={55} alt={''}/>}
-                            title={<UnlockTitle name={name} tooltip={tooltip}/>}
-                            badges={owned
-                              ? <StatusText status={'owned'}/>
-                              : !visible ? <StatusText status={'locked'}/> : null}
-                            footer={!owned ? <IconValueRow src={LUMI_ICON} alt={'Lumi'} iconSize={24}>
-                              <Typography component={'span'} variant={'body2'} color={affordable ? 'text.primary' : 'error'}>
-                                {formatLumi(cost)}
-                              </Typography>
-                            </IconValueRow> : null}>
-          {!visible && !owned ? <RankRequired rank={rankRequired}/> : null}
+  return <Box>
+    <Toolbar state={toolbar} defaults={UNLOCKS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+             total={unlocks?.length ?? 0} shown={shownUnlocks?.length ?? 0} noun={'unlocks'}>
+      <Toolbar.Filter name={'hidePurchased'} label={'Hide purchased'}/>
+    </Toolbar>
+    <CardGrid size={'m'}>
+      {shownUnlocks?.map(({ index, name, tooltip, cost, owned, visible, rankRequired }) => {
+        const locked = !visible && !owned;
+        return <ItemCard key={`unlock-${index}`}
+                         icon={`data/MenaIconO${index}.png`}
+                         iconSize={56}
+                         title={name}
+                         status={owned ? 'active' : locked ? 'locked' : undefined}
+                         statusLabel={owned ? 'Owned' : undefined}
+                         footer={owned ? null : locked
+                           ? <RankRequired rank={rankRequired}/>
+                           : <ItemCard.Cost icon={LUMI_ICON} iconAlt={'Lumi'} need={cost} have={menagerie?.lumi ?? 0}
+                                            game={'MenagerieStuff.Cost'}/>}>
+          {/* The unlock's explanation, visible on the card (a hover note on its title before) */}
+          {tooltip ? <ItemCard.Desc>{tooltip}</ItemCard.Desc> : null}
           {index === NIGHTMARINER_UNLOCK && owned
-            ? <LabelValue label={'Nightmariner LVs over 600'}>
-              {commaNotation(menagerie?.nightmariner?.totalLevels ?? 0)}
-            </LabelValue>
+            ? <ItemCard.Facts rows={[['Nightmariner LVs over 600', menagerie?.nightmariner?.totalLevels ?? 0, 'amount']]}/>
             : null}
-        </UpgradeCard>;
+        </ItemCard>;
       })}
-    </Stack>
-  </Stack>;
+    </CardGrid>
+  </Box>;
 };
 
 export default Unlocks;

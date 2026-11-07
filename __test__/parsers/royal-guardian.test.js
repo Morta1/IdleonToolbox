@@ -13,6 +13,8 @@ import {
   getStatueFlairMarbleTotals
 } from '@parsers/class-specific/royalGuardian';
 import { lavaLog } from '@utility/helpers';
+import { liveCount } from '@parsers/catalog';
+import { armoryUpgrades, orbletMarket, research, royalResources, statues } from '@website-data';
 
 // Every number in GAME was read out of the running game (patch 2.3.525) over the debug server, on
 // the save reproduced by buildRoyalG()/buildRoyalMaps() below. Handlers: ArmoryUpgCost (by display
@@ -242,12 +244,12 @@ describe('royal guardian with no save', () => {
   const parsed = getRoyalGuardian({}, { bundles: [] }, []);
 
   it('still renders the whole catalog', () => {
-    expect(parsed.armory.upgrades.length).toBe(83);
-    expect(parsed.armory.slotToId.length).toBe(69);
-    expect(parsed.royalStatues.length).toBe(8);
-    expect(parsed.statueFlair.statues.length).toBe(32);
-    expect(parsed.orbletMarket.length).toBe(10);
-    expect(parsed.resources.length).toBe(80);
+    expect(parsed.armory.upgrades).toHaveLength(liveCount(armoryUpgrades));
+    expect(parsed.armory.slotToId).toEqual(research[43].map(Number));
+    expect(parsed.royalStatues).toHaveLength(GAME.statueBon.length);
+    expect(parsed.statueFlair.statues).toHaveLength(liveCount(statues));
+    expect(parsed.orbletMarket).toHaveLength(liveCount(orbletMarket));
+    expect(parsed.resources).toHaveLength(liveCount(royalResources));
     expect(parsed.outposts).toEqual([]);
     expect(parsed.unlocked).toBe(false);
     expect(parsed.outpostStats.unitsUnlocked).toBe(1);

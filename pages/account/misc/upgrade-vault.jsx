@@ -1,133 +1,90 @@
-import { Card, CardContent, Divider, Stack, TextField, Typography } from '@mui/material';
-import { CardTitleAndValue } from '@components/common/styles';
-import Tooltip from '@components/Tooltip';
-import { cleanUnderscore, commaNotation, getCoinsArray, prefix } from '@utility/helpers';
-import InfoIcon from '@mui/icons-material/Info';
-import React, { useContext, useState } from 'react';
+import { Box } from '@mui/material';
+import { cleanUnderscore, formatNum, getCoinsArray } from '@utility/helpers';
+import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import CoinDisplay from '@components/common/CoinDisplay';
-import useCheckbox from '@components/common/useCheckbox';
-import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
-import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { getUpgradeHelpText } from '@components/common/UpgradeHelpIcon';
 import { NextSeo } from 'next-seo';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
+import { parseUpgradeVault } from '@parsers/misc/upgradeVault';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+
+const VAULT_TOOLBAR = { search: '', hideMaxed: false };
+
+// A failed section draws the parser's own catalog on an empty save: names, sprites and sentences, nothing owned
+const vaultCatalog = () => {
+  try {
+    return parseUpgradeVault(undefined, {}, []);
+  } catch {
+    return {};
+  }
+};
+
+const coins = (amount) => <CoinDisplay dense money={getCoinsArray(amount ?? 0)}/>;
 
 const UpgradeVault = () => {
   const { state } = useContext(AppContext);
-  const [CheckboxEl, hideMaxed] = useCheckbox('Hide maxed upgrades');
-  const { upgrades, totalUpgradeLevels, nextUnlock, costReduction } = state?.account?.upgradeVault;
-  const [searchText, setSearchText] = useState('');
-
-  const isUpgradeVisible = (upgrade) => {
-    if (searchText === '') return true;
-    return upgrade.description &&
-      cleanUnderscore(upgrade.description).toLowerCase().includes(searchText.toLowerCase()) || (upgrade.name &&
-        cleanUnderscore(upgrade.name).toLowerCase().includes(searchText.toLowerCase()));
-  };
+  const vaultFailed = isSectionFailed(state?.account, 'upgradeVault');
+  const vault = vaultFailed ? vaultCatalog() : (state?.account?.upgradeVault ?? {});
+  const { upgrades = [], totalUpgradeLevels, nextUnlock, costReduction } = vault;
+  const [view, setView, resetView] = useToolbarState('upgrade-vault', VAULT_TOOLBAR);
+  const search = view.search?.trim().toLowerCase();
+  const matches = (upgrade) => !search || cleanUnderscore(upgrade?.description ?? '').toLowerCase().includes(search)
+    || cleanUpgradeName(upgrade?.name ?? '').toLowerCase().includes(search);
+  const shown = vaultFailed ? upgrades
+    : upgrades.filter((upgrade) => matches(upgrade) && (!view.hideMaxed || (upgrade?.level ?? 0) < upgrade?.maxLevel));
+  const reductionText = formatNum(costReduction?.cheaperFactor ?? 1, 'mult');
 
   return <>
     <NextSeo
       title="Upgrade Vault | Idleon Toolbox"
       description="Keep track of your upgrade vault progress, upgrade, levels, cost to upgrade and more"
     />
-    <Stack mb={3} direction={'row'} gap={{ xs: 1, md: 3 }} flexWrap={'wrap'}>
-      <CardTitleAndValue title={'Total Levels'} value={totalUpgradeLevels}/>
-      {costReduction?.cheaperFactor > 1 ? <CardTitleAndValue title={'Vault cost reduction'} value={
-        <Stack direction={'row'} gap={1} alignItems={'center'}>
-          {`${costReduction.cheaperFactor.toFixed(2)}x`}
-          <Breakdown data={costReduction.breakdown}>
-            <InfoIcon fontSize={'small'}/>
-          </Breakdown>
-        </Stack>
-      }/> : null}
-      {nextUnlock?.unlockLevel ? <CardTitleAndValue title={'Next upgrade'} value={<Tooltip title={<Stack gap={1}>
-        <Typography sx={{ fontWeight: 'bold' }}>{cleanUnderscore(nextUnlock?.name)}</Typography>
-        <Typography>{cleanUnderscore(nextUnlock?.description)}</Typography>
-      </Stack>}>
-        <Stack direction={'row'} gap={1}>
-          {nextUnlock?.unlockLevel}
-          <InfoIcon/>
-        </Stack>
-      </Tooltip>}/> : null}
-      <CardTitleAndValue>
-        <CheckboxEl/>
-      </CardTitleAndValue>
-      <CardTitleAndValue>
-        <TextField
-          size="small"
-          label="Search by description or name"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          sx={{ width: 250 }}
-        />
-      </CardTitleAndValue>
-    </Stack>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-      {upgrades?.map((upgrade, index) => {
-        const {
-          name,
-          cost,
-          description,
-          bonus,
-          monsterProgress,
-          boneType,
-          unlockLevel,
-          maxLevel,
-          level,
-          costToMax,
-          unlocked
-        } = upgrade;
-        const maxed = level >= maxLevel;
-        if (maxed && hideMaxed) return null;
-        if (!isUpgradeVisible(upgrade)) return null;
-        return (
-          (<Card key={name + index}>
-            <CardContent sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              width: 370,
-              minHeight: 330,
-              height: '100%',
-              opacity: unlocked ? 1 : .5,
-              border: maxed ? '1px solid' : 'none',
-              borderColor: maxed ? 'success.light' : 'none'
-            }}>
-              <Stack direction={'row'} gap={2} flexWrap={'wrap'} alignItems={'center'}>
-                <img style={{ width: 32, height: 32 }} src={`${prefix}data/VaultUpg${index}.png`} alt=""/>
-                <Typography>{cleanUpgradeName(name)} ({maxed
-                  ? 'Maxed'
-                  : `${level} / ${maxLevel}`})
-                  <UpgradeHelpIcon panel="vault" index={index}/>
-                </Typography>
-              </Stack>
-              <Divider sx={{ my: 1 }}/>
-              <Typography sx={{ whiteSpace: 'pre-line' }}>{cleanUnderscore(description?.replace('$', ` ${cleanUnderscore(monsterProgress)}`).replace('.00', ''))}</Typography>
-              {maxed ? null : <>
-                <Divider sx={{ my: 1 }}/>
-                <Typography variant={'caption'}>Cost</Typography>
-                <CoinDisplay title={''}
-                             noShadow
-                             variant={'no'}
-                             money={getCoinsArray(cost)}
-                             maxCoins={5}
-                />
-                <Typography variant={'caption'}>Cost to max</Typography>
-                <CoinDisplay title={''}
-                             noShadow
-                             variant={'no'}
-                             money={getCoinsArray(costToMax)}
-                             maxCoins={3}
-                />
-              </>}
-              <Divider sx={{ my: 1 }}/>
-              <Typography>Unlocks at: {commaNotation(unlockLevel)} levels</Typography>
-            </CardContent>
-          </Card>)
-        );
-      })}
-    </Stack>
-  </>
-
+    {vaultFailed ? <MissingData name={'Upgrade Vault'} failed atZero/> : null}
+    <PageSummary>
+      <StatTile label={'Total levels'} value={vaultFailed ? '-' : formatNum(totalUpgradeLevels ?? 0)}/>
+      {vaultFailed ? <StatTile label={'Vault cost reduction'} value={'-'}/>
+        : costReduction?.cheaperFactor > 1 ? <StatTile label={'Vault cost reduction'} value={reductionText}
+                                                       breakdownTitle={'Vault cost reduction'}
+                                                       breakdown={{ ...costReduction.breakdown, totalValue: reductionText }}/> : null}
+      {vaultFailed ? <StatTile label={'Next upgrade'} value={'-'}/>
+        : nextUnlock?.unlockLevel ? <StatTile label={'Next upgrade'} value={cleanUpgradeName(nextUnlock.name ?? '')}
+                                              sub={`At ${formatNum(nextUnlock.unlockLevel)} total levels`}
+                                              info={cleanUnderscore(nextUnlock.description ?? '')}/> : null}
+    </PageSummary>
+    <Box>
+      {vaultFailed ? null : <Toolbar state={view} defaults={VAULT_TOOLBAR} onChange={setView} onReset={resetView}
+                                     total={upgrades.length} shown={shown.length} noun={'upgrades'}>
+        <Toolbar.Search placeholder={'Search upgrades'}/>
+        <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
+      </Toolbar>}
+      <CardGrid size={'m'}>
+        {shown.map((upgrade) => {
+          const { index, name, cost, costToMax, description, unlockLevel, maxLevel, level = 0, unlocked } = upgrade ?? {};
+          const maxed = level >= maxLevel;
+          // The game's (?) box for the upgrade, shown on the card rather than behind an i
+          const help = getUpgradeHelpText('vault', index);
+          return <ItemCard key={index} icon={`data/VaultUpg${index}.png`} title={cleanUpgradeName(name ?? '')}
+                           level={vaultFailed ? undefined : { value: level, max: maxLevel }}
+                           status={vaultFailed ? undefined : maxed ? 'maxed' : unlocked ? undefined : 'locked'}
+                           statusLabel={!vaultFailed && !maxed && !unlocked ? `Unlocks at ${formatNum(unlockLevel ?? 0)} total levels` : undefined}
+                           footer={vaultFailed || !unlocked ? null : <ItemCard.Facts rows={[
+                             ['Cost', coins(cost)],
+                             ['Cost to max', coins(costToMax)]
+                           ]}/>}>
+            <ItemCard.Desc text={cleanUnderscore(description ?? '').split('\n')}/>
+            {help ? <ItemCard.Section label={'More info'}><ItemCard.Desc text={help.split('\n')}/></ItemCard.Section> : null}
+          </ItemCard>;
+        })}
+      </CardGrid>
+    </Box>
+  </>;
 };
 
 export default UpgradeVault;

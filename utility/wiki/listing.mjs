@@ -23,12 +23,14 @@ const EFFECT_NOTE = 'At the first level.';
 // These kinds keep their numbers in `stats` and top-level fields that no rule can tell from the indexes
 // beside them (order, companionIndex), so they name their columns. The labels are the entity page's own,
 // so one value reads the same in both places. `facet` names the band column where "Category" would mislead.
+// `|| null` is safe on every column but Attack: the graph holds no 0 in those fields (a 0 there means none, and
+// the builder drops it); a monster's 0 attack is real and prints 0.
 export const KIND_COLUMNS = {
   item: {
     facet: 'Type',
     columns: [
       { key: 'level', label: 'Level', format: 'amount', value: (node) => node.stats?.lvReqToEquip || null },
-      { key: 'sell-price', label: 'Sell Price', format: 'coins', value: (node) => node.sellPrice || null }
+      { key: 'sell-price', label: 'Sell price', format: 'coins', value: (node) => node.sellPrice || null }
     ]
   },
   monster: {
@@ -36,7 +38,7 @@ export const KIND_COLUMNS = {
     columns: [
       { key: 'health', label: 'Health', format: 'notate', value: (node) => node.stats?.health || null },
       { key: 'experience', label: 'Experience', format: 'notate', value: (node) => node.stats?.experience || null },
-      { key: 'attack', label: 'Attack', format: 'notate', value: (node) => node.stats?.attack || null },
+      { key: 'attack', label: 'Attack', format: 'notate', value: (node) => node.stats?.attack ?? null },
       { key: 'def-for-0', label: 'Def for 0', format: 'notate', value: (node) => node.stats?.defence || null }
     ]
   },

@@ -80,8 +80,8 @@ export const getTasks = (idleonData: IdleonData): {
     })
   });
   const unlockedRecipes = tasksRaw?.[3]?.flat()?.reduce((sum: number, unlock: number) => sum + unlock, 0) ?? 0;
-  const unlockPointsOwned = getUnlockPointsOwned(unlockPointsFormula, tasksRaw?.[4]?.[0]) ?? 0;
-  const pointsReq = getPointsReq(unlockPointsFormula, unlockPointsOwned, 0) ?? 0;
+  const unlockPointsOwned = getUnlockPointsOwned(unlockPointsFormula, tasksRaw?.[4]?.[0] ?? 0);
+  const pointsReq = getPointsReq(unlockPointsFormula, unlockPointsOwned, 0);
   const taskUnlocks = {
     taskUnlocksList,
     unlockedRecipes,

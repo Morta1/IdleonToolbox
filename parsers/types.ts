@@ -1,5 +1,5 @@
 /**
- * All types are auto-generated — do not edit manually.
+ * All types are auto-generated: do not edit manually.
  *
  * Sources:
  *   - generated-firebase-types.ts  ← node scripts/generate-firebase-types.mjs

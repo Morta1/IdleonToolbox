@@ -4,13 +4,21 @@ import Mainframe from 'components/account/Worlds/World4/Mainframe';
 import Console from 'components/account/Worlds/World4/Console';
 import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
-import LabRotation from '../../../components/account/Worlds/World4/LabRotation';
+import LabRotation, { canRotate, ROTATION_SETTINGS, RotationSettings } from '../../../components/account/Worlds/World4/LabRotation';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { getTabs } from '@utility/helpers';
 import { PAGES } from '@components/constants';
+import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import useTabIndex from '@hooks/useTabIndex';
 
 const Laboratory = () => {
   const { state } = useContext(AppContext);
-  const { lab } = state?.account || {};
+  const tabs = getTabs(PAGES.ACCOUNT['world 4'].categories, 'laboratory');
+  const [tabIndex] = useTabIndex(tabs);
+  const lab = state?.account?.lab ?? {};
+  const sectionFailed = isSectionFailed(state?.account, 'lab');
+  // The rotation tab's setting, kept under the tab's own key
+  const [rotationSettings, setRotationSettings, resetRotationSettings] = usePageSettings('lab-rotation', ROTATION_SETTINGS);
 
   return (
     <>
@@ -18,10 +26,15 @@ const Laboratory = () => {
         title="Laboratory | Idleon Toolbox"
         description="Keep track of your lab upgrades, lab connected players, chips and more"
       />
-      <Tabber tabs={getTabs(PAGES.ACCOUNT['world 4'].categories, 'laboratory')}>
-        <Mainframe {...lab} characters={state?.characters} account={state?.account}/>
+      {canRotate(state?.account, sectionFailed) ? <PageSettings state={rotationSettings} defaults={ROTATION_SETTINGS}
+                                                                onChange={setRotationSettings} onReset={resetRotationSettings}>
+        <RotationSettings/>
+      </PageSettings> : null}
+      {sectionFailed ? <MissingData name={'the Laboratory'} failed atZero={!isParseFailed(state?.account) && tabs[tabIndex] !== 'Chips And Jewels Rotation'}/> : null}
+      <Tabber tabs={tabs}>
+        <Mainframe {...lab} characters={state?.characters} account={state?.account} sectionFailed={sectionFailed}/>
         <Console {...lab} characters={state?.characters}/>
-        <LabRotation/>
+        <LabRotation sectionFailed={sectionFailed}/>
       </Tabber>
     </>
   );

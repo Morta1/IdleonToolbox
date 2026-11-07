@@ -1,11 +1,12 @@
 // Drop-odds formatting and drop-table tiering. Kept out of the panel component so the maths can be
 // tested without dragging MUI into the test environment, which vitest shares across files.
 import { oneInOrNothing, percentLabel } from './odds.mjs';
+import { notateAmount } from './notate';
 
 export { oneIn, oneInOrNothing, percentLabel } from './odds.mjs';
 
 export const dropQuantityLabel = (meta) => (
-  meta?.quantity > 1 ? `x${meta.quantity.toLocaleString('en-US')}` : ''
+  meta?.quantity > 1 ? `x${notateAmount(meta.quantity)}` : ''
 );
 
 // One item rawName, "Special Talent Book", covers every book in the game; which talent it teaches

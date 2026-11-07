@@ -2,13 +2,14 @@ import React from 'react';
 import InfoBox from './InfoBox';
 import StarLadder from './StarLadder';
 import { calculateAmountToNextLevel } from '@parsers/cardMath';
-import { cleanUnderscore, numberWithCommas } from '@utility/helpers';
+import { cleanUnderscore } from '@utility/helpers';
+import { oneInOrNothing, percentLabel } from '@utility/wiki/odds.mjs';
 import { notateGame } from '@utility/wiki/notate';
 import { cardEffect, cardTiers } from '@utility/wiki/effects.mjs';
 
 // UPKEEP: the set level is floor(sum of CardLv over every card in the category / their count), and an unfound card's CardLv is 0 (N.js:85869).
 // Not extracted: the rule is an init-time loop with no handler key (ActorEvents_312.init), and this is its wording.
-const SET_TIER_NOTE = 'The average tier of its cards, rounded down; an unfound card counts one below Base';
+const SET_TIER_NOTE = 'The set\'s tier is the average tier of its cards, rounded down; an unfound card counts one below Base.';
 
 // UPKEEP: the card panel prefixes a set bonus with "+" (N.js:84779); the set effects carry none of their own.
 // Not extracted: it is drawn by a numbered card panel event, which no locator may anchor on.
@@ -38,26 +39,24 @@ const CardBonus = ({ card, dropChance }) => {
   /> : null;
 
   const details = [];
-  if (dropChance > 0) details.push({ label: 'Dropchance', value: `1 in ${numberWithCommas(Math.round(1 / dropChance))}` });
+  if (dropChance > 0) details.push({ label: 'Drop chance', value: oneInOrNothing(dropChance) || percentLabel(dropChance) });
   if (card.category) details.push({ label: 'Category', value: cleanUnderscore(card.category) });
   if (card.order != null) details.push({ label: 'Order', value: card.order });
 
   return <InfoBox groups={[
     {
-      title: 'Card Bonus',
+      title: 'Card bonus',
       content: bonusLadder,
       rows: [{ label: 'Effect', value: cardEffect(card) }]
     },
     card.set && {
-      title: 'Card Set',
+      title: 'Card set',
       content: tiers ? <StarLadder values={tiers.bonus.map((tier) => card.set.bonus * (tier + 1))}/> : null,
-      rows: [
-        { label: 'Effect', value: `${SET_PREFIX}${cardEffect(card.set)}` },
-        { label: 'Set tier', value: SET_TIER_NOTE }
-      ]
+      rows: [{ label: 'Effect', value: `${SET_PREFIX}${cardEffect(card.set)}` }],
+      note: SET_TIER_NOTE
     },
-    { title: 'Tier Requirements', content: requirements },
-    { title: 'Other Details', rows: details }
+    { title: 'Tier requirements', content: requirements },
+    { title: 'Other details', rows: details }
   ].filter(Boolean)}/>;
 };
 

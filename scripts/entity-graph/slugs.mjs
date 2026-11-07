@@ -3,6 +3,13 @@ import { slugify } from '../../utility/wiki/names.mjs';
 // slugify lives with the wiki's data-free helpers, so the route model slugs a system the way the build slugs a page.
 export { slugify };
 
+// A page's URL outlives how its name prints. These two missions went out when the wiki wrote 1.00e10, and their names now
+// read the game's Big: the links stay.
+const PUBLISHED_SLUGS = {
+  'menageriemission:MenaMission20': 'take-a-copper-3d-printer-sample-of-1-00e10',
+  'menageriemission:MenaMission24': 'own-at-least-1-00e80-gaming-bits'
+};
+
 // Names are not unique: The Crow Perch is both a hat and a dungeon hat, and 79 item names collide
 // like that. A colliding name disambiguates with the rawName, which IS unique because it keys the
 // node. Every member of a colliding group takes the suffix, not just the losers, so the slug never
@@ -21,7 +28,7 @@ export const assignSlugs = (nodes) => {
       const node = nodes[id];
       // An empty base means a name of pure punctuation; the rawName is all there is to go on.
       const raw = slugify(node.rawName);
-      node.slug = ids.length === 1 && base ? base : [base, raw].filter(Boolean).join('--');
+      node.slug = PUBLISHED_SLUGS[id] ?? (ids.length === 1 && base ? base : [base, raw].filter(Boolean).join('--'));
     }
   }
   return nodes;

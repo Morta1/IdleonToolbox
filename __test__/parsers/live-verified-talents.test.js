@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { within } from '../helpers/live-verified';
+import { within, withSkillLevel } from '../helpers/live-verified';
 import { getBestActiveCharacter, getLastBloodBerserkerLine, getMaestroHand } from '@parsers/talents';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
@@ -18,10 +18,6 @@ const HAND_SKILLS = ['mining', 'smithing', 'chopping', 'fishing', 'alchemy', 'ca
 
 const { account, characters } = parseFixture(latest);
 const loggedIn = getBestActiveCharacter(characters);
-const withLevel = (character, skill, level) => ({
-  ...character,
-  skillsInfo: { ...character.skillsInfo, [skill]: { ...character.skillsInfo?.[skill], level } }
-});
 
 describe('Maestro hands verified against the live game', () => {
   it('the logged-in character\'s hands match CalcTalentMAP[42] and [43]', () => {
@@ -35,9 +31,9 @@ describe('Maestro hands verified against the live game', () => {
     const maestro = characters.filter((c) => ['Maestro', 'Voidwalker', 'Infinilyte'].includes(c.class)).at(-1);
     expect(maestro.flatTalents.find(({ name }) => name === 'LEFT_HAND_OF_LEARNING')).toBeTruthy();
     const level = maestro.skillsInfo.mining.level;
-    const equal = withLevel(loggedIn, 'mining', level);
+    const equal = withSkillLevel(loggedIn, 'mining', level);
     expect(getMaestroHand(equal, 'mining', characters, account, 'LEFT_HAND_OF_LEARNING')).toBe(0);
-    const below = withLevel(loggedIn, 'mining', level - 1);
+    const below = withSkillLevel(loggedIn, 'mining', level - 1);
     const belowHand = getMaestroHand(below, 'mining', characters, account, 'LEFT_HAND_OF_LEARNING');
     expect(belowHand).toBeGreaterThan(0);
     // ENHANCEMENT_ECLIPSE on this account is past 175, so both hands are enhanced: self gets 2x

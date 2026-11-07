@@ -33,20 +33,13 @@ describe('fetchAllBuildsAtBuildTime', () => {
     expect(first).toBe(second);
   });
 
-  it('does not cache a failure — a retry can still succeed', async () => {
+  it('throws on a non-ok response, and does not cache it: a retry can still succeed', async () => {
     global.fetch = vi.fn()
       .mockResolvedValueOnce({ ok: false, status: 500, json: async () => ({}) })
       .mockResolvedValueOnce(okResponse({ items: [build('a')], nextCursor: null }));
     await expect(fetchAllBuildsAtBuildTime()).rejects.toThrow(/500/);
     const result = await fetchAllBuildsAtBuildTime();
     expect(result).toHaveLength(1);
-  });
-
-  it('returns builds from a single page', async () => {
-    global.fetch = vi.fn(async () => okResponse({ items: [build('a')], nextCursor: null }));
-    const result = await fetchAllBuildsAtBuildTime();
-    expect(result).toHaveLength(1);
-    expect(result[0].shortId).toBe('a');
   });
 
   it('sends a browser User-Agent to get past Cloudflare', async () => {
@@ -57,26 +50,14 @@ describe('fetchAllBuildsAtBuildTime', () => {
     expect(BUILD_FETCH_USER_AGENT).toMatch(/Mozilla/);
   });
 
-  it('follows nextCursor until exhausted', async () => {
+  it('follows nextCursor until exhausted, passing it on the next request', async () => {
     global.fetch = vi.fn()
       .mockResolvedValueOnce(okResponse({ items: [build('a')], nextCursor: 'c1' }))
       .mockResolvedValueOnce(okResponse({ items: [build('b')], nextCursor: null }));
     const result = await fetchAllBuildsAtBuildTime();
     expect(result.map((b) => b.shortId)).toEqual(['a', 'b']);
     expect(global.fetch).toHaveBeenCalledTimes(2);
-  });
-
-  it('passes the cursor on the second request', async () => {
-    global.fetch = vi.fn()
-      .mockResolvedValueOnce(okResponse({ items: [build('a')], nextCursor: 'c1' }))
-      .mockResolvedValueOnce(okResponse({ items: [build('b')], nextCursor: null }));
-    await fetchAllBuildsAtBuildTime();
     expect(global.fetch.mock.calls[1][0]).toContain('cursor=c1');
-  });
-
-  it('throws on a non-ok response rather than returning a partial list', async () => {
-    global.fetch = vi.fn(async () => ({ ok: false, status: 403, json: async () => ({}) }));
-    await expect(fetchAllBuildsAtBuildTime()).rejects.toThrow(/403/);
   });
 
   it('throws when the API returns zero builds', async () => {

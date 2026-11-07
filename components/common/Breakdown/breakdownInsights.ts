@@ -1,5 +1,6 @@
 import { evaluateBreakdownNode, getBreakdownNodeUnit, isBreakdownGroup } from '@parsers/breakdown';
 import type { BreakdownCombine, BreakdownGroup, BreakdownNode } from '@parsers/breakdown';
+import { formatNum } from '@utility/helpers';
 
 // Upgrade impact asks what this many more percent in a group adds to the total
 export const GAIN_STEP = 10;
@@ -24,7 +25,8 @@ const additivePoints = (node: BreakdownNode) => getBreakdownNodeUnit(node) === '
  * stacked multipliers add up to their group's share, and a divide splits it the same way over what it
  * divides by; additive groups and sums split it by value. What a product multiplies or a divide divides
  * gets no share, unless every factor is ×1 and a single amount group is left to carry it. Lists get no
- * share; a min passes its share to the child it picked.
+ * share; a min passes its share to the child it picked. A min root gets none: it picks one value, so a share of 100%
+ * says nothing.
  */
 export const computeShares = (tree: BreakdownNode[], rootCombine: BreakdownCombine) => {
   const shares = new Map<BreakdownNode, number>();
@@ -62,7 +64,7 @@ export const computeShares = (tree: BreakdownNode[], rootCombine: BreakdownCombi
     }
   };
   const root = rootOf(tree, rootCombine);
-  if (rootCombine === 'list') return shares;
+  if (rootCombine === 'list' || rootCombine === 'min') return shares;
   assign(root, 100);
   shares.delete(root);
   return shares;
@@ -145,11 +147,11 @@ export const formatShare = (share: number) => {
   if (size < 0.1) return `${sign}<0.1%`;
   // Rounding would show 100% for a share that leaves room for others
   if (size > 99.9 && size < 100 - 1e-9) return `${sign}>99.9%`;
-  return `${sign}${size < 10 ? parseFloat(size.toFixed(2)) : parseFloat(size.toFixed(1))}%`;
+  return `${sign}${formatNum(size, 'pct')}`;
 }
 
 export const formatGain = (gain: number) => {
   if (gain <= 0) return '+0%';
   if (gain < 0.01) return '+<0.01%';
-  return `+${gain < 100 ? parseFloat(gain.toFixed(2)) : parseFloat(gain.toFixed(0))}%`;
+  return formatNum(gain, 'pct', { signed: true, precise: true });
 }

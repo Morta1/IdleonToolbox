@@ -1,9 +1,9 @@
 export const CLASSIFICATION_TYPES = {
-  1: { label: 'High Priority', color: '#ff6b6b' },
-  3: { label: 'Achievable', color: '#58a6ff' },
-  4: { label: 'Time Gated', color: '#d29922' },
-  5: { label: 'Luck Gated', color: '#e3b341' },
-  9: { label: 'Event/Update Gated', color: '#8b949e' },
+  1: { label: 'High Priority', tone: 'error' },
+  3: { label: 'Achievable', tone: 'info' },
+  4: { label: 'Time Gated', tone: 'warning' },
+  5: { label: 'Luck Gated', tone: 'warning' },
+  9: { label: 'Event/Update Gated', tone: 'muted' },
 };
 
 // Keyed by display index (position in sorted tome array)
@@ -136,25 +136,19 @@ const DEFAULT_CLASSIFICATIONS = [
   4,  // 121 Successful Jelly Operations
 ];
 
-const STORAGE_KEY = 'tome-classifications';
+// The player's own picks, by display index, under this key (read through useLocalStorage, after mount).
+export const CLASSIFICATIONS_KEY = 'tome-classifications';
 
-export function getClassifications() {
-  try {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    return DEFAULT_CLASSIFICATIONS.map((def, i) => stored[i] ?? def);
-  } catch {
-    return [...DEFAULT_CLASSIFICATIONS];
+// Every metric's classification: the player's pick where they made one, else the default.
+export const classificationsOf = (stored) => DEFAULT_CLASSIFICATIONS.map((def, i) => stored?.[i] ?? def);
+
+// The stored picks with one changed; a pick back to the default is dropped, so only edits are kept.
+export const withClassification = (stored, displayIndex, value) => {
+  const next = { ...(stored ?? {}) };
+  if (value === DEFAULT_CLASSIFICATIONS[displayIndex]) {
+    delete next[displayIndex];
+  } else {
+    next[displayIndex] = value;
   }
-}
-
-export function setClassification(displayIndex, value) {
-  try {
-    const stored = JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}');
-    if (value === DEFAULT_CLASSIFICATIONS[displayIndex]) {
-      delete stored[displayIndex];
-    } else {
-      stored[displayIndex] = value;
-    }
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(stored));
-  } catch {}
-}
+  return next;
+};

@@ -34,7 +34,7 @@ const { account, characters } = parseFixture(latest);
 const serverVars = { ...latest.serverVars, ArcGballPCT: GAME.goldBallEventPct };
 
 describe('arcade verified against the live game', () => {
-  it.each(GAME.shopBonuses.map((value, index) => [index, value]))('shop upgrade %i', (index, value) => {
+  it.each([...GAME.shopBonuses.entries()])('shop upgrade %i', (index, value) => {
     within(account.arcade.shop[index].bonus, value);
   });
 

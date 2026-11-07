@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it } from 'vitest';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../styles/theme/darkTheme';
+import theme from '../../styles/theme/theme';
 import Account from '@components/dashboard/Account';
 
 // useAlerts keys trackers by dashboard section, then by tracker within it.
@@ -42,12 +42,22 @@ const account = {
   }
 };
 
-const renderDashboard = () => render(<ThemeProvider theme={darkTheme}>
+const renderDashboard = () => render(<ThemeProvider theme={theme}>
   <Account account={account} characters={[]} lastUpdated={0} trackers={trackers}/>
 </ThemeProvider>);
 
 describe('royal guardian alert list', () => {
-  it('names the world and the map monster next to every outpost', async () => {
+  // The printer section's failed default ({}) throws in its alerts: that row says so, and World 7's alerts stay.
+  it('a family that throws takes only its own row', async () => {
+    render(<ThemeProvider theme={theme}>
+      <Account account={{ ...account, finishedWorlds: { World2: true, World6: true }, printer: {} }} characters={[]} lastUpdated={0}
+               trackers={{ ...trackers, 'World 3': { printer: { checked: true, options: [{ name: 'includeResource', checked: true, props: { value: {} } }] } } }}/>
+    </ThemeProvider>);
+    expect(await screen.findByText('Couldn\'t check these alerts.')).toBeTruthy();
+    expect(document.querySelector('img[src*="Royal_Cost"]')).toBeTruthy();
+  });
+
+  it('names the world and the map monster next to every outpost, with its sprite, or the plain map name without an AFK target', async () => {
     renderDashboard();
     fireEvent.mouseOver(document.querySelector('img[src*="Royal_Cost"]'));
     await screen.findByText(/W1 Spore Meadows/);
@@ -62,24 +72,13 @@ describe('royal guardian alert list', () => {
     expect(screen.getByText("W1 The Ol' Straightaway")).toBeTruthy();
     expect(screen.getByText('Plat')).toBeTruthy();
     expect(screen.getByText('12 PTS')).toBeTruthy();
-  });
-
-  it('draws the monster sprite alongside the name', async () => {
-    renderDashboard();
-    fireEvent.mouseOver(document.querySelector('img[src*="Royal_Cost"]'));
-    await screen.findByText(/W1 Spore Meadows/);
 
     const sprites = [...document.querySelectorAll('img')]
       .map((img) => img.getAttribute('src'))
       .filter((src) => /mushG|Plat/.test(src));
     expect(sprites.length).toBe(2);
-  });
 
-  it('falls back to the plain map name where the map has no AFK target', async () => {
-    renderDashboard();
-    fireEvent.mouseOver(document.querySelector('img[src*="Royal_Cost"]'));
-
-    const owlPerch = await screen.findByText('W1 Grand Owl Perch');
+    const owlPerch = screen.getByText('W1 Grand Owl Perch');
     // No monster means no trailing label at all, rather than an empty one.
     expect(owlPerch.closest('li').querySelectorAll('img').length).toBe(0);
     expect(screen.getByText('11 PTS')).toBeTruthy();
@@ -120,7 +119,7 @@ describe('royal guardian unit alerts', () => {
       }
     }
   };
-  const renderUnits = () => render(<ThemeProvider theme={darkTheme}>
+  const renderUnits = () => render(<ThemeProvider theme={theme}>
     <Account account={unitAccount} characters={[]} lastUpdated={0} trackers={unitTrackers}/>
   </ThemeProvider>);
 
@@ -129,11 +128,11 @@ describe('royal guardian unit alerts', () => {
     const [spareIcon, parkedIcon] = document.querySelectorAll('img[src*="RGunit2"]');
 
     fireEvent.mouseOver(spareIcon);
-    expect(await screen.findByText(/Guards whose range it does not need - Traders or Surveyors/)).toBeTruthy();
+    expect(await screen.findByText(/Guards whose range it does not need: Traders or Surveyors/)).toBeTruthy();
     expect(screen.getByText('1 spare Guard')).toBeTruthy();
 
     fireEvent.mouseOver(parkedIcon);
-    expect(await screen.findByText(/only reach an empty resource - Traders or Surveyors .* rewire it after the reset/)).toBeTruthy();
+    expect(await screen.findByText(/only reach an empty resource: Traders or Surveyors .* rewire it after the reset/)).toBeTruthy();
     expect(screen.getByText('1 Guard on an empty resource')).toBeTruthy();
   });
 
@@ -148,7 +147,7 @@ describe('royal guardian unit alerts', () => {
   const renderWithCommand = (props) => {
     const trackers = structuredClone(unitTrackers);
     trackers['World 7'].royalGuardian.options[1].props = props;
-    return render(<ThemeProvider theme={darkTheme}>
+    return render(<ThemeProvider theme={theme}>
       <Account account={unitAccount} characters={[]} lastUpdated={0} trackers={trackers}/>
     </ThemeProvider>);
   };

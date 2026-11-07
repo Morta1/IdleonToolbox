@@ -1,136 +1,141 @@
-import {
-  Checkbox,
-  Divider,
-  FormControlLabel,
-  Grid,
-  Link,
-  Stack,
-  Typography,
-  useMediaQuery
-} from '@mui/material';
+import { Box, Link, Stack, Typography } from '@mui/material';
 import React, { useState } from 'react';
-import { cleanUnderscore, prefix } from 'utility/helpers';
-import CheckIcon from '@mui/icons-material/Check';
+import { cleanUnderscore, formatNum } from 'utility/helpers';
 import { mapEnemiesArray, monsters } from '@website-data';
-import { monsterImage } from '@utility/spriteImages';
+import { monsterSprite } from '@utility/spriteImages';
 import { openWikiEntity } from '@utility/wiki/item-page';
-
-// Each constellation's shape, cut from the game's StarSign sheet (the lit frame) into public/etc. Opens its wiki page.
-const ConstellationIcon = ({ rawIndex, name }) => rawIndex == null ? null : <img
-  src={`${prefix}etc/Constellation_${rawIndex}.png`}
-  alt={cleanUnderscore(name)}
-  width={32}
-  height={32}
-  onClick={() => openWikiEntity(`constellation:${name}`)}
-  style={{ objectFit: 'contain', flexShrink: 0, cursor: 'pointer' }}
-/>;
+import DataTable from '@components/common/DataTable';
+import StatusText from '@components/common/StatusText';
+import GameIcon from '@components/common/GameIcon';
+import StatTile from '@components/common/cards/StatTile';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+import usePageTop from '@hooks/usePageTop';
 
 const CHAR_INDEX_MAP = Object.fromEntries('_abcdefghijklmnopqrstuvwxyz'.split('').map((c, i) => [c, i]));
+const CONSTELLATIONS_TOOLBAR = { hideDone: false };
+// The Mob column joins the row from the desktop width; below it the mob folds into Location's second line
+const MOB_FROM = 'lg';
 
-const ConstellationsComp = ({ constellations = [], characters = [] }) => {
-  const isMd = useMediaQuery((theme) => theme.breakpoints.down('md'));
-  const [hideCompleted, setHideCompleted] = useState(false);
+// The game marks a constellation done only when it is claimed at its star; its points are added then (N.js). Enough
+// characters past its requirement and not claimed yet: ready to claim.
+const stateOf = ({ done, completedChars, requiredPlayers }) => (done ? 'done'
+  : (completedChars?.length ?? 0) >= requiredPlayers ? 'ready' : 'open');
+
+const mobOf = (mapIndex) => {
+  const raw = mapEnemiesArray?.[mapIndex];
+  return !raw || raw === 'Nothing' ? null : { raw, name: cleanUnderscore(monsters?.[raw]?.Name || raw) };
+};
+const Mob = ({ mob, size }) => <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, whiteSpace: 'nowrap' }}>
+  <GameIcon src={monsterSprite(mob.raw)} size={size} alt={''}/>
+  {mob.name}
+</Box>;
+
+// Where a constellation is done: the map (End of the Road starred, as in game) with its world under it, muted
+const Location = ({ location, mapIndex }) => {
+  const mob = mobOf(mapIndex);
+  const world = Number.isInteger(mapIndex) ? Math.floor(mapIndex / 50) + 1 : null;
+  return <Stack spacing={0.25}>
+    <Box component={'span'} sx={{ fontWeight: 500 }}>{location === 'End_Of_The_Road' ? cleanUnderscore(location) + ' *' : cleanUnderscore(location)}</Box>
+    {world || mob ? <Typography variant={'caption'} color={'text.secondary'} component={'div'}
+                                sx={{ display: 'flex', flexWrap: 'wrap', alignItems: 'center', columnGap: 0.5 }}>
+      {world ? <span>{`World ${world}`}</span> : null}
+      {mob ? <Box component={'span'} sx={{ display: { xs: 'inline-flex', [MOB_FROM]: 'none' }, alignItems: 'center', gap: 0.5 }}>
+        {world ? <span>·</span> : null}<Mob mob={mob} size={16}/>
+      </Box> : null}
+    </Typography> : null}
+  </Stack>;
+};
+
+// sectionFailed: the catalog by name, with no progress, points owned or Toolbar
+const ConstellationsComp = ({ constellations = [], characters = [], sectionFailed }) => {
+  const [view, setView, resetView] = useToolbarState('constellations', CONSTELLATIONS_TOOLBAR);
+  const [toolbarBottom, setToolbarBottom] = useState(null);
+  const pageTop = usePageTop();
 
   const characterNames = characters?.map(({ name }) => name) || [];
-  const constellationList = hideCompleted ? constellations?.filter(({ done }) => !done) : constellations;
-
-  const charIndexMap = CHAR_INDEX_MAP;
+  const rows = !sectionFailed && view.hideDone ? constellations?.filter(({ done }) => !done) : constellations;
 
   const getCompletedNames = (completedChars) => {
     const indices = completedChars
       ?.split('')
-      ?.map((char) => charIndexMap?.[char])
+      ?.map((char) => CHAR_INDEX_MAP?.[char])
       ?.filter((idx) => idx !== undefined);
-    const uniqueSorted = [...new Set(indices)]?.sort((a, b) => a - b);
-    return uniqueSorted?.map((idx) => characterNames?.[idx] || `Char ${idx + 1}`) || [];
+    const uniqueSorted = [...new Set(indices)].toSorted((a, b) => a - b);
+    return uniqueSorted.map((idx) => cleanUnderscore(characterNames?.[idx]) || `Char ${idx + 1}`);
   };
 
-  const getTotalPoints = () => {
-    const { ownedPoints, totalPoints } = constellations?.reduce((res, { points, done }) => {
-      if (done) {
-        res.ownedPoints += points;
+  // The points the game has added: the claimed constellations'
+  const { ownedPoints, totalPoints } = (constellations ?? []).reduce((res, { points, done }) => ({
+    ownedPoints: res.ownedPoints + (done ? points ?? 0 : 0),
+    totalPoints: res.totalPoints + (points ?? 0)
+  }), { ownedPoints: 0, totalPoints: 0 });
+
+  const columns = [
+    {
+      key: 'name',
+      label: 'Name',
+      icon: ({ rawIndex }) => (rawIndex == null ? null : <GameIcon src={`etc/Constellation_${rawIndex}.png`} size={24} alt={''}/>),
+      // nowrap: "A-10" broke at its hyphen at 1920
+      render: ({ name }) => <Link component={'button'} variant={'body2'} color={'inherit'} textAlign={'left'}
+                                  sx={{ whiteSpace: 'nowrap' }} onClick={() => openWikiEntity(`constellation:${name}`)}>{cleanUnderscore(name)}</Link>
+    },
+    {
+      key: 'progress',
+      label: 'Progress',
+      numeric: true,
+      align: 'left',
+      // A star's Done or Ready to claim shows without opening its row on a phone
+      phone: !sectionFailed,
+      sortable: !sectionFailed,
+      sortValue: (row) => ({ done: 2, ready: 1 })[stateOf(row)] ?? (row?.completedChars?.length ?? 0) / (row?.requiredPlayers || 1),
+      render: (row) => (sectionFailed ? null
+        : stateOf(row) === 'done' ? <StatusText status={'done'}>Done</StatusText>
+          // It may take two lines on the narrowest phones, so the row's chevron stays in the card
+          : stateOf(row) === 'ready' ? <StatusText status={'ready'} sx={{ whiteSpace: { xs: 'normal', sm: 'nowrap' } }}>Ready to claim</StatusText>
+            : `${formatNum(Math.min(row?.completedChars?.length ?? 0, row?.requiredPlayers ?? 0))} / ${formatNum(row?.requiredPlayers ?? 0)}`)
+    },
+    { key: 'location', label: 'Location', render: ({ location, mapIndex }) => <Location location={location} mapIndex={mapIndex}/> },
+    {
+      key: 'mob', label: 'Mob', from: MOB_FROM, details: false,
+      render: ({ mapIndex }) => (mobOf(mapIndex) ? <Mob mob={mobOf(mapIndex)} size={24}/> : null)
+    },
+    { key: 'requirement', label: 'Requirement', value: ({ requirement }) => cleanUnderscore(requirement) },
+    { key: 'points', label: 'Points', kind: 'amount', sortable: true, phone: true, value: ({ points }) => points },
+    {
+      key: 'completedBy',
+      label: 'Completed by',
+      // Names wrap between names, never inside one
+      render: ({ completedChars }) => {
+        const names = sectionFailed ? [] : getCompletedNames(completedChars);
+        return names.length ? names.map((name, index) => <React.Fragment key={`${name}-${index}`}>
+          {index ? ', ' : null}<Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>{name}</Box>
+        </React.Fragment>) : null;
       }
-      res.totalPoints += points;
-      return res;
-    }, { ownedPoints: 0, totalPoints: 0 });
-    return `${ownedPoints} / ${totalPoints}`;
-  }
+    }
+  ];
 
   return (
     <Stack gap={3}>
-      <Stack direction={{ xs: 'column', sm: 'row' }} justifyContent={'space-between'} gap={1} alignItems={'center'}>
-        <Typography variant={'h5'} textAlign={'center'}>Total Points: {getTotalPoints()}</Typography>
-        <FormControlLabel control={<Checkbox checked={hideCompleted} onChange={(e) => setHideCompleted(e.target.checked)} />}
-          label="Hide completed" />
-      </Stack>
-      <Grid rowGap={2} justifyContent={'center'} container>
-        {!isMd ? <Grid item xs={1}>
-          <Typography variant={'body1'} component={'span'}>Name</Typography></Grid> : null}
-        <Grid item xs={1}>
-          <Typography variant={'body1'} component={'span'}>{!isMd ? 'Progress' : ''}</Typography></Grid>
-        <Grid item xs={2}>
-          <Typography pl={!isMd ? 6 : 0} variant={'body1'}
-            component={'span'}>{!isMd ? 'Location' : 'Loc.'}</Typography></Grid>
-        <Grid item xs={3}>
-          <Typography pl={!isMd ? 6 : 0} variant={'body1'}
-            component={'span'}>{!isMd ? 'Requirement' : 'Req.'}</Typography></Grid>
-        <Grid item xs={4}>
-          <Typography pl={!isMd ? 6 : 0} variant={'body1'} component={'span'}>Points</Typography></Grid>
-        <Grid item md={1} />
-      </Grid>
-      {constellationList?.map((constellation, index) => {
-        const { name, points, done, requirement, completedChars, requiredPlayers, location, mapIndex, rawIndex } = constellation;
-        const completedNames = getCompletedNames(completedChars);
-        const monsterRaw = mapEnemiesArray?.[mapIndex];
-        const monsterName = monsterRaw === 'Nothing' ? null : cleanUnderscore(monsters?.[monsterRaw]?.Name || monsterRaw);
-        const world = Number.isInteger(mapIndex) ? Math.floor(mapIndex / 50) + 1 : null;
-        return <React.Fragment key={name + ' ' + index}>
-          <Grid rowGap={2} gap={1} container>
-            {!isMd ? <Grid item xs={1} display={'flex'} flexDirection={'column'} alignItems={'flex-start'} gap={0.5}>
-              <ConstellationIcon rawIndex={rawIndex} name={name}/>
-              <Link component={'button'} variant={'body1'} color={'inherit'} underline={'hover'}
-                    onClick={() => openWikiEntity(`constellation:${name}`)}>{cleanUnderscore(name)}</Link>
-            </Grid> : null}
-            <Grid item xs={1} display={'flex'} alignItems={'center'} gap={1}>
-              {isMd ? <ConstellationIcon rawIndex={rawIndex} name={name}/> : null}
-              {done ? <CheckIcon color={'success'} /> : <Typography variant={'body1'}
-                component={'span'}>
-                {`${completedChars?.length ?? 0}/${requiredPlayers}`}
-              </Typography>}
-            </Grid>
-            <Grid item xs={2}>
-              <Stack spacing={0.25}>
-                <Typography variant={'body1'} component={'span'}>
-                  {(location === 'End_Of_The_Road') ? cleanUnderscore(location) + ' *' : cleanUnderscore(location)}
-                </Typography>
-                {world ? <Typography variant={'caption'} color={'text.secondary'}>World {world}</Typography> : null}
-                {monsterName ?
-                  <Stack direction={'row'} spacing={0.5} alignItems={'center'}>
-                    <img
-                      src={monsterImage(monsterRaw)}
-                      alt={monsterName}
-                      style={{ width: 28, height: 28, objectFit: 'contain' }}
-                    />
-                    <Typography variant={'caption'} color={'text.secondary'}>Mob: {monsterName}</Typography>
-                  </Stack> : null}
-              </Stack>
-            </Grid>
-            <Grid item xs={3}>{cleanUnderscore(requirement)}</Grid>
-            <Grid item xs={2} sm={1}>{points}</Grid>
-            <Grid item xs={2}>
-              {completedNames?.length > 0
-                ?
-                <Stack spacing={0.25}>
-                  <Typography variant={'caption'} component={'div'}>Completed By</Typography>
-                  <Typography variant={'caption'}
-                    sx={{ wordBreak: 'break-word' }}>{completedNames.join(', ')}</Typography>
-                </Stack>
-                : null}
-            </Grid>
-          </Grid>
-          {constellationList.length - 1 !== index ? <Divider /> : null}
-        </React.Fragment>
-      })}
+      <Box>
+        <StatTile label={'Constellation points'}
+                  value={sectionFailed ? '-' : `${formatNum(ownedPoints)} / ${formatNum(totalPoints)}`}/>
+      </Box>
+      <Box>
+        {sectionFailed ? null : <Toolbar state={view} defaults={CONSTELLATIONS_TOOLBAR} onChange={setView} onReset={resetView}
+                                         total={constellations?.length ?? 0} shown={rows?.length ?? 0} noun={'constellations'}
+                                         onStickyBottom={setToolbarBottom}>
+          <Toolbar.Filter name={'hideDone'} label={'Hide done'}/>
+        </Toolbar>}
+        <DataTable
+          columns={columns}
+          rows={rows ?? []}
+          rowKey={'name'}
+          rowLabel={({ name }) => cleanUnderscore(name)}
+          surface={'card'}
+          stickyTop={toolbarBottom ?? pageTop}
+        />
+      </Box>
     </Stack>
   );
 };

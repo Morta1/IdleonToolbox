@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { NextSeo } from 'next-seo';
-import { Stack, Typography } from '@mui/material';
+import Notice from '@components/common/Notice';
+import { sessionQuery } from '@utility/nav-query';
 
 // The Active Exp Calculator was folded into the Active Stuff Calculator, whose Exp section covers
 // the same numbers (exp/hr, time to next level, target level). The old path stays as a client
@@ -23,10 +24,9 @@ const ActiveExpCalculatorRedirect = () => {
       canonical={`https://idleontoolbox.com${ACTIVE_STUFF_CALCULATOR_PATH}`}
       noindex
     />
-    <Stack sx={{ my: 4 }} alignItems={'center'} gap={1}>
-      <Typography>The Active Exp Calculator is now part of the Active Stuff Calculator.</Typography>
-      <a href={ACTIVE_STUFF_CALCULATOR_PATH}>Continue to Active Stuff Calculator</a>
-    </Stack>
+    <Notice action={{ label: 'Open the Active Stuff Calculator', href: { pathname: ACTIVE_STUFF_CALCULATOR_PATH, query: sessionQuery(router.query) } }}>
+      The Active Exp Calculator is part of the Active Stuff Calculator now.
+    </Notice>
   </>;
 };
 

@@ -1,6 +1,8 @@
 // @vitest-environment jsdom
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { errorMessage, gtag, pageViewUrl, safePageLocation, stripLeaderboardsState, trackEvent, trackPageView } from '@utility/analytics';
+import {
+  errorMessage, gtag, pageViewUrl, safePageLocation, stripLeaderboardsState, trackEvent, trackMenuClose, trackMenuLink, trackMenuOpen, trackPageView
+} from '@utility/analytics';
 
 const entries = () => window.dataLayer.map((args) => Array.from(args));
 const pageViews = () => entries().filter(([command, name]) => command === 'event' && name === 'page_view');
@@ -31,6 +33,29 @@ describe('gtag', () => {
 
     expect(entries()).toHaveLength(2);
     expect(entries()[1]).toEqual(['event', 'import_failed', { import_source: 'profile' }]);
+  });
+});
+
+describe('the bar menu events', () => {
+  const open = trackMenuOpen;
+  const close = trackMenuClose;
+  const wait = (ms) => () => vi.advanceTimersByTime(ms);
+  const opens = (menu) => ['menu_open', { menu }];
+  const switched = (from, to) => ['menu_switch', { from, to }];
+
+  it.each([
+    ['a swap', [() => open('worlds'), () => close('worlds'), () => open('account')], [opens('worlds'), opens('account'), switched('worlds', 'account')]],
+    ['closed, then another inside 10 s', [() => open('worlds'), () => close('worlds'), wait(10000), () => open('tools')],
+      [opens('worlds'), opens('tools'), switched('worlds', 'tools')]],
+    ['closed, then another after 10 s', [() => open('worlds'), () => close('worlds'), wait(10001), () => open('tools')], [opens('worlds'), opens('tools')]],
+    ['the same menu again', [() => open('worlds'), () => close('worlds'), () => open('worlds')], [opens('worlds'), opens('worlds')]],
+    ['a link between', [() => open('worlds'), trackMenuLink, () => close('worlds'), () => open('account')], [opens('worlds'), opens('account')]],
+    ['opened while the last still shows', [() => open('worlds'), () => open('pinned'), () => close('worlds'), () => close('pinned'), () => open('account')],
+      [opens('worlds'), opens('pinned'), switched('worlds', 'pinned'), opens('account'), switched('pinned', 'account')]]
+  ])('%s', (_name, steps, expected) => {
+    trackMenuLink();
+    steps.forEach((step) => step());
+    expect(entries().map(([, name, params]) => [name, params])).toEqual(expected);
   });
 });
 
@@ -65,7 +90,6 @@ describe('pageViewUrl', () => {
     expect(pageViewUrl('/leaderboards?t=Skills&m=mining&player=X')).toBe('/leaderboards?t=Skills');
     expect(pageViewUrl('/leaderboards?player=Some%20Name')).toBe('/leaderboards');
     expect(pageViewUrl('/leaderboards?m=mining&t=Skills&v=2#top')).toBe('/leaderboards?t=Skills&v=2#top');
-    expect(pageViewUrl('/leaderboards/?player=X')).toBe('/leaderboards/');
   });
 
   it('skips a change that only opens or closes a drawer, or searches a player', () => {

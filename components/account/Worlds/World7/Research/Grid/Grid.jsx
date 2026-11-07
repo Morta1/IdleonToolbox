@@ -1,51 +1,32 @@
 import React, { useState } from 'react';
-import Tooltip from '@components/Tooltip';
-import { Box, Stack, ToggleButton, ToggleButtonGroup } from '@mui/material';
-import ViewModuleIcon from '@mui/icons-material/ViewModule';
-import ViewListIcon from '@mui/icons-material/ViewList';
+import { Box } from '@mui/material';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 import GridView from './GridView';
 import CardView from './CardView';
+import { hasShape } from './researchGridShared';
 
-const VIEW = { CARD: 'card', GRID: 'grid' };
+const GRID_TOOLBAR = { hideUnlevelled: false, view: 'cards' };
+// The catalog's real squares: the other cells are placeholders named "Name" (the goals registry skips them too)
+const isRealSquare = (square) => Boolean(square?.name) && square.name !== 'Name';
+const isLevelled = (square) => (square?.level ?? 0) >= 1 || hasShape(square);
 
-/** Research grid: 12×20 cells. Toggle between card view (default) and grid view. */
+/** Research grid: 12×20 cells. Every real square as a card (Decision 7), or the game's board. */
 const Grid = ({ gridSquares }) => {
-  const [viewMode, setViewMode] = useState(VIEW.CARD);
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('research-grid', GRID_TOOLBAR);
+  const [toolbarBottom, setToolbarBottom] = useState(0);
   const squares = gridSquares ?? [];
-  const isGrid = viewMode === VIEW.GRID;
-
-  return (
-    <Stack spacing={2} sx={{ width: '100%' }}>
-      <Stack direction="row" justifyContent="flex-end" sx={{ width: '100%', flexShrink: 0 }}>
-        <ToggleButtonGroup
-          value={viewMode}
-          exclusive
-          onChange={(_, newMode) => newMode && setViewMode(newMode)}
-          size="small"
-        >
-          <ToggleButton value={VIEW.CARD} aria-label="Card view">
-            <Tooltip title="Card view">
-              <ViewModuleIcon />
-            </Tooltip>
-          </ToggleButton>
-          <ToggleButton value={VIEW.GRID} aria-label="Grid view">
-            <Tooltip title="Grid view">
-              <ViewListIcon />
-            </Tooltip>
-          </ToggleButton>
-        </ToggleButtonGroup>
-      </Stack>
-      <Box
-        sx={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: isGrid ? 'center' : 'flex-start',
-        }}
-      >
-        {isGrid ? <GridView squares={squares} /> : <CardView squares={squares} />}
-      </Box>
-    </Stack>
-  );
+  const real = squares.filter(isRealSquare);
+  const isGrid = toolbar?.view === 'grid';
+  const shown = toolbar?.hideUnlevelled && !isGrid ? real.filter(isLevelled) : real;
+  return <Box>
+    <Toolbar state={toolbar} defaults={GRID_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+             total={real.length} shown={shown.length} noun={'squares'} onStickyBottom={setToolbarBottom}>
+      {isGrid ? null : <Toolbar.Filter name={'hideUnlevelled'} label={'Hide unlevelled'}/>}
+      <Toolbar.View options={[['cards', 'Cards'], ['grid', 'Grid']]}/>
+    </Toolbar>
+    {isGrid ? <GridView squares={squares} stickyTop={toolbarBottom}/> : <CardView squares={shown}/>}
+  </Box>;
 };
 
 export default Grid;

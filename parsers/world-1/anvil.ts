@@ -260,14 +260,17 @@ export const getAnvilProductCatalog = () => Object.values(anvilProducts as Recor
     displayName: items?.[product?.rawName]?.displayName ?? product?.rawName
   }));
 
+// A slot's hourly output: it makes no more an hour than its cap holds
+export const getAnvilSlotPerHour = (stats: any, { hammers, requiredAmount }: any): number =>
+  Math.min((stats?.anvilSpeed ?? 0) * hammers / requiredAmount, stats?.anvilCapacity ?? 0);
+
 // Each product's hourly output, one line per character producing it
 const getAnvilProductionGroups = (account: any, characters: any): Record<string, BreakdownGroup> => {
   const lines: Record<string, BreakdownLine[]> = {};
   account?.anvil?.forEach((_: any, index: any) => {
     const { stats, production } = getPlayerAnvil(characters?.[index], characters, account);
-    production?.filter(({ hammers }: any) => hammers > 0)?.forEach(({ hammers, rawName, requiredAmount }: any) => {
-      const perHour = Math.min(stats?.anvilSpeed * hammers / requiredAmount, stats?.anvilCapacity);
-      (lines[rawName] ??= []).push(flat(characters?.[index]?.name ?? `Character ${index + 1}`, perHour));
+    production?.filter(({ hammers }: any) => hammers > 0)?.forEach((slot: any) => {
+      (lines[slot.rawName] ??= []).push(flat(characters?.[index]?.name ?? `Character ${index + 1}`, getAnvilSlotPerHour(stats, slot)));
     });
   });
   return Object.fromEntries(Object.entries(lines).map(([rawName, productLines]) =>

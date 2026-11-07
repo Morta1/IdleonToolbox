@@ -15,10 +15,8 @@ import { getLiquidCauldrons } from '@parsers/world-2/alchemy';
 const GAME = {
   // DNSM.skillLvRanks, by skill index (Lv0[index + 1]); 20..23 are unused skill slots
   skillRanks: [5, 7, 5, 5, 7, 6, 5, 7, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6],
-  // RiftStuff("RiftSkillBonus," + skill, tier) for tiers 0..7, one string per skill index
-  masteryTiers: ['11111000', '11111110', '11111000', '11111000', '11111110', '11111100', '11111000', '11111110',
-    '11111100', '11111110', '11111110', '11111110', '11111110', '11111110', '11111110', '11111110', '11111110',
-    '11111110', '11111110', '11111100'],
+  // RiftStuff("RiftSkillBonus," + skill, tier) for tiers 0..7, the same string for every skill of a rank
+  masteryTiersByRank: { 5: '11111000', 6: '11111100', 7: '11111110' },
   // RiftStuff("RiftSkillETC", 0..4): damage, smithing-tier skill EXP, all efficiency, printer, all skill EXP
   riftSkillEtc: [67, 187, 67, 21, 307],
   // RiftStuff("riftBonus", t) = Rift[0] >= 5 * (t + 1), for every rift bonus in the catalog
@@ -35,16 +33,16 @@ const skillByIndex = (index) => Object.values(account.totalSkillsLevels).find((s
 const riftBonuses = account.rift.list.map(({ riftBonus }, index) => [riftBonus, index]).filter(([riftBonus]) => riftBonus);
 
 describe('rift verified against the live game', () => {
-  it.each(GAME.skillRanks.map((rank, index) => [index, rank]))('skill %i mastery rank', (index, rank) => {
+  it.each([...GAME.skillRanks.entries()])('skill %i mastery rank', (index, rank) => {
     expect(skillByIndex(index).rank).toBe(rank);
   });
 
-  it.each(GAME.masteryTiers.map((tiers, index) => [index, tiers]))('skill %i mastery tiers unlocked', (index, tiers) => {
-    const unlocked = [...tiers].map((_, tier) => isMasteryBonusUnlocked(account.rift, skillByIndex(index).rank, tier));
+  it.each(Object.entries(GAME.masteryTiersByRank))('mastery rank %s tiers unlocked', (rank, tiers) => {
+    const unlocked = [...tiers].map((_, tier) => isMasteryBonusUnlocked(account.rift, Number(rank), tier));
     expect(unlocked.join('')).toBe(tiers);
   });
 
-  it.each(GAME.riftSkillEtc.map((value, index) => [index, value]))('RiftSkillETC %i', (index, value) => {
+  it.each([...GAME.riftSkillEtc.entries()])('RiftSkillETC %i', (index, value) => {
     expect(getSkillMasteryBonusByIndex(account.totalSkillsLevels, account.rift, index)).toBe(value);
   });
 
@@ -57,7 +55,7 @@ describe('rift verified against the live game', () => {
     expect(account.killroy.totalDamageMulti).toBe(1 + GAME.killroyDmg / 100);
   });
 
-  it.each(GAME.constructMastery.map((value, index) => [index, value]))('construct mastery %i', (index, value) => {
+  it.each([...GAME.constructMastery.entries()])('construct mastery %i', (index, value) => {
     expect(getConstructionMasteryBonus(account, index)).toBe(value);
   });
 });

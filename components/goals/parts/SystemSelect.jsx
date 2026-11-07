@@ -23,7 +23,7 @@ const SystemSelect = ({ current, listOptions, value, onChange }) => {
                sx={{ '& .MuiSelect-select': sx }}>
       {options.map(({ system, label, icon, count }) => (
         <MenuItem key={system} value={system} sx={sx}>
-          <GoalIcon src={icon} alt="" size={20}/>
+          <GoalIcon src={icon} alt="" size={24}/>
           {label}
           <Typography component="span" variant="body2" color="text.secondary" sx={{ ml: 'auto' }}>
             {formatNumber(count)}

@@ -1,229 +1,160 @@
-import React, { useContext } from 'react';
+import React, { Fragment, useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { Badge, Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, fillArrayToLength, notateNumber, numberWithCommas, prefix } from 'utility/helpers';
+import { Box, Typography } from '@mui/material';
+import StatusText from '@components/common/StatusText';
+import { cleanUnderscore, fillArrayToLength, formatNum } from 'utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import Timer from 'components/common/Timer';
-import styled from '@emotion/styled';
 import {
   calcTotals,
   getAnvilProductCatalog,
+  getAnvilSlotPerHour,
   getAnvilTotalsBreakdowns,
   getAnvilFutureProduction,
   getPlayerAnvil,
   getTimeTillCap
 } from '@parsers/world-1/anvil';
-import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import { isCompanionBonusActive } from '@parsers/misc';
+import { items } from '@website-data';
 import { NextSeo } from 'next-seo';
-import Tooltip from '../../../components/Tooltip';
-import ProgressBar from '../../../components/common/ProgressBar';
-import { IconInfoCircleFilled } from '@tabler/icons-react';
+import { MissingData, isSectionFailed } from '@components/common/styles';
+import Notice from '@components/common/Notice';
+import { Duration } from '@components/common/Num';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import Panel from '@components/common/cards/Panel';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+
+// The anvil is the characters' own, not a section: its speed reads these sections (the stamp, the statue, the star
+// sign, the vault upgrade and the Hammer Hammer bubble). While one failed, every number made from the speed reads "-",
+// and the note names the first failed in this order.
+const SECTION_NAMES = {
+  stamps: 'Stamps', statues: 'Statues', starSigns: 'Star Signs', upgradeVault: 'the Upgrade Vault',
+  equippedBubbles: 'equipped bubbles', alchemy: 'Bubbles', companions: 'Companions'
+};
+const SPEED_SECTIONS = Object.keys(SECTION_NAMES);
+
+const itemName = (rawName) => cleanUnderscore(items?.[rawName]?.displayName ?? rawName);
+
+// game: the count it sets as the anvil opens: one, one with Hammer Hammer equipped (Sheepie counts every big bubble as
+// equipped), and one from the gem shop
+const SHEEPIE = 4;
+const THIRD_HAMMER_GEM_ITEM = 103;
+const hammersOwned = (character, account) => 1
+  + (character?.equippedBubbles?.some(({ bubbleName }) => bubbleName === 'HAMMER_HAMMER') || isCompanionBonusActive(account, SHEEPIE) ? 1 : 0)
+  + (account?.gemShopPurchases?.[THIRD_HAMMER_GEM_ITEM] === 1 ? 1 : 0);
+
+// One line of parts, each kept whole ("Points 300 / 320" never breaks inside its pair)
+const metaLine = (parts) => parts.filter(Boolean).map((part, index) => <Fragment key={index}>
+  {index ? ' · ' : null}<Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>{part}</Box>
+</Fragment>);
+
+const catalogCard = ({ rawName, displayName, requiredAmount, levelReq, exp }) => <ItemCard
+  key={rawName} icon={`data/${rawName}.png`} title={cleanUnderscore(displayName)}>
+  <ItemCard.Facts rows={[['Smithing Lv', formatNum(levelReq ?? 0, 'whole')], ['Materials', formatNum(requiredAmount ?? 0, 'whole')],
+    ['EXP per craft', formatNum(exp ?? 0)]]}/>
+</ItemCard>;
 
 const Anvil = () => {
   const { state } = useContext(AppContext);
-  const { anvil } = state?.account || {};
+  const anvil = state?.account?.anvil ?? [];
+  const speedFailed = SPEED_SECTIONS.find((section) => isSectionFailed(state?.account, section));
 
-  const totals = calcTotals(state?.account, state?.characters);
+  const totals = calcTotals(state?.account, state?.characters) ?? {};
   const totalsBreakdowns = getAnvilTotalsBreakdowns(state?.account, state?.characters);
+
+  const productTile = ([rawName, perHour]) => {
+    const name = itemName(rawName);
+    const text = speedFailed ? '-' : formatNum(perHour, 'rate');
+    const breakdown = speedFailed ? undefined : totalsBreakdowns?.[rawName];
+    return <StatTile key={rawName} icon={`data/${rawName}.png`} label={name} value={text}
+                     sub={speedFailed ? undefined : `${formatNum(perHour * 24)} per day`}
+                     breakdown={breakdown ? { ...breakdown, totalValue: text } : undefined}
+                     breakdownTitle={name} breakdownNoun={'characters'}/>;
+  };
+
+  const slotCard = (slot, slotIndex, stats, afkTime) => {
+    if (!slot?.hammers) return <ItemCard key={`empty-${slotIndex}`} title={'Empty slot'} dimmed/>;
+    const { rawName, hammers, requiredAmount, currentXP, displayName, exp } = slot;
+    const future = getAnvilFutureProduction({ ...slot, stats, afkTime });
+    const capacity = stats?.anvilCapacity;
+    const percentOfCap = Math.round(future / capacity * 100);
+    const perDay = 24 * getAnvilSlotPerHour(stats, slot);
+    const timeTillCap = getTimeTillCap({ ...slot, stats, afkTime });
+    const timeFromZero = getTimeTillCap({
+      ...slot,
+      stats,
+      afkTime,
+      currentAmount: 0,
+      currentProgress: 0,
+      fromZero: true
+    });
+    const capText = formatGame(capacity, 'AnvilProduceStats.Cap', { whole: true });
+    const fullIn = percentOfCap >= 100
+      ? <StatusText status={'ready'}>Full</StatusText>
+      : <Timer type={'countdown'} component={'span'} date={new Date().getTime() + (timeTillCap * 1000)}
+               lastUpdated={state?.lastUpdated} placeholder={<StatusText status={'ready'}>Full</StatusText>}/>;
+    return <ItemCard key={`${rawName}-${slotIndex}`} icon={`data/${rawName}.png`}
+                     title={cleanUnderscore(displayName ?? rawName)}
+                     meta={`${formatNum(hammers)} ${hammers === 1 ? 'hammer' : 'hammers'}`}>
+      {/* Without the speed, the amount made since the save is unknown: the cap alone, no bar */}
+      {speedFailed ? null : <ItemCard.Progress label={'Cap'} value={formatGame(future, 'AnvilProduceStats.Cap', { whole: true })}
+                                               max={capText}
+                                               percent={Number.isFinite(percentOfCap) ? Math.min(100, percentOfCap) : 0}/>}
+      <ItemCard.Facts rows={[
+        speedFailed ? ['Cap', capText] : null,
+        ['Full in', speedFailed ? '-' : fullIn],
+        ['Full from empty', speedFailed ? '-' : <Duration seconds={timeFromZero}/>],
+        ['Per day', speedFailed ? '-' : formatNum(perDay)],
+        ['EXP per craft', formatNum(exp ?? 0)],
+        ['EXP waiting', formatGame(currentXP ?? 0, 'Big', { whole: true })]
+      ]}/>
+    </ItemCard>;
+  };
+
+  const anvilPanel = (_, index) => {
+    const character = state?.characters?.[index];
+    const smithing = character?.skillsInfo?.smithing?.level ?? 0;
+    const { stats, production } = getPlayerAnvil(character, state?.characters, state?.account);
+    const { availablePoints = 0, pointsFromCoins = 0, pointsFromMats = 0 } = stats ?? {};
+    const totalPoints = pointsFromCoins + pointsFromMats + smithing;
+    const working = production?.filter(({ hammers }) => hammers > 0) ?? [];
+    const placed = working.reduce((res, { hammers }) => res + hammers, 0);
+    // An Empty slot is a free hammer. Hammers stack on a product, so a card per hammer would draw blanks for a full anvil
+    const free = Math.max(0, hammersOwned(character, state?.account) - placed);
+    const slots = fillArrayToLength(working.length + free, working);
+    const meta = metaLine([`Smithing ${formatNum(smithing, 'level')}`,
+      `Points ${formatNum(totalPoints - availablePoints)} / ${formatNum(totalPoints)}`,
+      availablePoints > 0 ? `${formatNum(availablePoints)} unspent` : null]);
+    return <Panel key={`anvil-${index}`} icon={`data/ClassIcons${character?.classIndex}.png`}
+                  title={cleanUnderscore(character?.name) || `Character ${index + 1}`} meta={meta}>
+      {slots.length ? <Box sx={{ p: 2 }}>
+        <CardGrid size={'s'}>
+          {slots.map((slot, slotIndex) => slotCard(slot, slotIndex, stats, character?.afkTime))}
+        </CardGrid>
+      </Box> : null}
+    </Panel>;
+  };
+
+  const products = Object.entries(totals);
 
   return <>
     <NextSeo
       title="Anvil | Idleon Toolbox"
       description="Monitor your characters' anvil production rates, craft queues, and smithing progress in Legends of Idleon"
     />
-    <Stack direction={'row'} gap={2} sx={{ mb: 3 }} flexWrap={'wrap'}>
-      {Object.entries(totals || {}).map(([rawName, value], index) => {
-        return <Breakdown key={'total' + rawName + index} data={totalsBreakdowns?.[rawName]}>
-          <Card>
-            <CardContent>
-              <Stack alignItems={'center'} gap={1} direction={'row'}>
-                <img width={25} height={25} src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-                <Stack>
-                  <Typography>{notateNumber(value, 'Big')}<Typography component={'span'} variant={'caption'} color={'text.secondary'}> /hr</Typography></Typography>
-                  <Typography variant={'caption'} color={'text.secondary'}>{notateNumber(value * 24, 'Big')} /day</Typography>
-                </Stack>
-              </Stack>
-            </CardContent>
-          </Card>
-        </Breakdown>
-      })}
-    </Stack>
-    <Stack gap={2}>
-      {anvil?.map((anvil, index) => {
-        const classIndex = state?.characters?.[index]?.classIndex;
-        const playerName = state?.characters?.[index]?.name;
-        const smithingLevel = state?.characters?.[index].skillsInfo?.smithing?.level;
-        const {
-          stats,
-          production: prod
-        } = getPlayerAnvil(state?.characters?.[index], state?.characters, state?.account)
-        const {
-          availablePoints,
-          pointsFromCoins,
-          pointsFromMats
-        } = stats || {};
-        const color = availablePoints === 0 ? '' : availablePoints > 0 ? 'error.light' : 'secondary';
-        const afkTime = state?.characters?.[index]?.afkTime;
-        const hammerBubble = state?.characters?.[index]?.equippedBubbles?.find(({ bubbleName }) => bubbleName === 'HAMMER_HAMMER');
-        const maxProducts = hammerBubble ? 3 : 2;
-        const production = prod?.filter(({ hammers }) => hammers > 0);
-        const numOfHammers = production?.reduce((res, { hammers }) => res + hammers, 0);
-        const realProduction = numOfHammers >= maxProducts ? production : fillArrayToLength(numOfHammers, production);
-        return <Card key={`printer-row-${index}`}
-                     sx={{
-                       width: { xs: '100%', lg: 900 },
-                       transition: 'box-shadow .15s ease, transform .15s ease',
-                       '&:hover': { boxShadow: 6 }
-                     }}>
-          <CardContent>
-            <Stack sx={{ flexDirection: { xs: 'column', md: 'row' } }} alignItems={'center'} gap={2}
-                   divider={<Divider orientation={'vertical'} flexItem sx={{ display: { xs: 'none', md: 'block' } }}/>}>
-              <Stack sx={{ width: 175, flexDirection: { xs: 'column', md: 'row' } }}
-                     alignItems={'center'} gap={2}>
-                <img className={'class-icon'} src={`${prefix}data/ClassIcons${classIndex}.png`} alt=""/>
-                <Stack gap={.25}>
-                  <Typography data-cy={`player-name-${playerName}`}
-                              className={'character-name'}>{playerName}</Typography>
-                  <Typography variant={'caption'} color={'text.secondary'}>Smithing lv. {smithingLevel}</Typography>
-                  <Typography variant={'caption'}
-                              color={color || 'text.secondary'}>Points {pointsFromCoins + pointsFromMats - availablePoints + smithingLevel} / {pointsFromCoins + pointsFromMats + smithingLevel}</Typography>
-                </Stack>
-              </Stack>
-              <Stack sx={{ justifyContent: { xs: 'center', md: 'flex-start' } }} direction={'row'} alignItems={'center'}
-                     flexWrap={'wrap'} gap={3}>
-                {realProduction?.map((slot, slotIndex) => {
-                  const {
-                    rawName,
-                    hammers,
-                    currentProgress,
-                    requiredAmount,
-                    currentXP,
-                    displayName,
-                    exp
-                  } = slot;
-                  const futureProduction = getAnvilFutureProduction({ ...slot, stats, afkTime });
-                  const productionPerDay = ((currentProgress + 24 * stats.anvilSpeed) / requiredAmount) * hammers
-                  const percentOfCap = Math.round(futureProduction / stats?.anvilCapacity * 100);
-                  const timeTillCap = getTimeTillCap({ ...slot, stats, afkTime });
-                  const timeFromZeroTillCap = getTimeTillCap({
-                    ...slot,
-                    stats,
-                    afkTime,
-                    currentAmount: 0,
-                    currentProgress: 0,
-                    fromZero: true
-                  });
-                  const isFull = percentOfCap >= 100;
-                  return <Card elevation={3}
-                               sx={{
-                                 borderRadius: 2,
-                                 boxShadow: hammers > 0 ? 'inherit' : '0px 0px 5px #ff0707',
-                                 transition: 'transform .15s ease',
-                               }}
-                               key={`${rawName}-${slotIndex}`}>
-                    <CardContent sx={{ p: 1.5, '&:last-child': { pb: 1.5 } }}>
-                      {hammers > 0 ? <Stack direction={'row'} gap={1.5} alignItems={'center'}>
-                        <Badge anchorOrigin={{
-                          vertical: 'top',
-                          horizontal: 'left'
-                        }} color="secondary" variant={'standard'} badgeContent={hammers > 1 ? hammers : 0}>
-                          <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-                        </Badge>
-                        <Stack gap={.4} sx={{ minWidth: 165 }}>
-                          <Stack direction={'row'} alignItems={'center'} justifyContent={'space-between'} gap={1}>
-                            <Typography variant={'subtitle2'} noWrap>{cleanUnderscore(displayName)}</Typography>
-                            <Tooltip title={<>
-                              <Typography variant={'body1'}>{cleanUnderscore(displayName)}</Typography>
-                              <Divider sx={{ my: 1 }}/>
-                              <Typography variant={'body2'}>Time until max from zero:</Typography>
-                              <Timer date={new Date().getTime() + (timeFromZeroTillCap * 1000)}
-                                     staticTime={true}
-                                     type={'countdown'}
-                                     placeholder={<Typography component={'span'}
-                                                              color={'error.light'}>Full</Typography>}
-                                     lastUpdated={state?.lastUpdated}/>
-                              <Divider sx={{ my: 1 }}/>
-                              <Typography variant={'body2'}>Income: {notateNumber(productionPerDay)} / day</Typography>
-                              <Divider sx={{ my: 1 }}/>
-                              <Typography variant={'body2'}>Exp per craft: {numberWithCommas(exp)}</Typography>
-                            </>}>
-                              <IconInfoCircleFilled size={16} style={{ flexShrink: 0, opacity: .6 }}/>
-                            </Tooltip>
-                          </Stack>
-                          <Stack direction={'row'} alignItems={'center'} gap={.75}>
-                            <Typography variant={'caption'} color={'text.secondary'}>Done in</Typography>
-                            <Timer date={new Date().getTime() + (timeTillCap * 1000)}
-                                   type={'countdown'}
-                                   placeholder={<Typography component={'span'}
-                                                            color={'error.light'}>Full</Typography>}
-                                   lastUpdated={state?.lastUpdated}/>
-                          </Stack>
-                          <ProgressBar percent={percentOfCap}
-                                       bgColor={isFull ? '#ef5350' : undefined}
-                                       label={false}
-                                       sx={{ height: 8 }}/>
-                          <Stack direction={'row'} justifyContent={'space-between'} gap={1}>
-                            <Typography variant={'caption'} color={'text.secondary'}>Cap</Typography>
-                            <Typography variant={'caption'} color={isFull ? 'error.light' : 'inherit'}>
-                              {notateNumber(futureProduction)} / {notateNumber(stats?.anvilCapacity)}
-                            </Typography>
-                          </Stack>
-                          <Stack direction={'row'} justifyContent={'space-between'} gap={1}>
-                            <Typography variant={'caption'} color={'text.secondary'}>Exp</Typography>
-                            <Typography variant={'caption'}>{notateNumber(currentXP, 'Big')}</Typography>
-                          </Stack>
-                        </Stack>
-                      </Stack> : <Stack sx={{ width: 90, height: 65 }} alignItems={'center'}
-                                        justifyContent={'center'}>
-                        <Typography variant={'caption'}>EMPTY</Typography>
-                      </Stack>}
-                    </CardContent>
-                  </Card>
-                })}
-              </Stack>
-            </Stack>
-          </CardContent>
-        </Card>
-      })}
-    </Stack>
-    {anvil?.length ? null : <AnvilProductCatalog/>}
-  </>
+    {speedFailed ? <MissingData name={SECTION_NAMES[speedFailed]} failed/> : !anvil.length
+      ? <Notice tone={'signin'} sx={{ mb: 2 }}>Each character&apos;s anvil shows here once you sign in.</Notice>
+      : null}
+    {products.length ? <PageSummary>{products.map(productTile)}</PageSummary> : null}
+    {/* Two or three characters a row from md: a character runs two or three slots, so a full-width Panel was mostly
+     empty */}
+    {anvil.length ? <CardGrid size={'l'}>{anvil.map(anvilPanel)}</CardGrid> : <>
+      <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1.5 }}>Anvil products</Typography>
+      <CardGrid size={'s'}>{getAnvilProductCatalog().map(catalogCard)}</CardGrid>
+    </>}
+  </>;
 };
-
-const AnvilProductCatalog = () => {
-  const products = getAnvilProductCatalog();
-  return <Stack gap={2}>
-    <Typography variant={'h6'}>Anvil products</Typography>
-    <Stack direction={'row'} gap={2} flexWrap={'wrap'}>
-      {products.map(({ rawName, displayName, requiredAmount, levelReq, exp }, index) => (
-        <Card key={`${rawName}-${index}`} sx={{ width: 200 }}>
-          <CardContent>
-            <Stack direction={'row'} alignItems={'center'} gap={1.5}>
-              <ItemIcon src={`${prefix}data/${rawName}.png`} alt={rawName}/>
-              <Typography variant={'subtitle2'}>{cleanUnderscore(displayName)}</Typography>
-            </Stack>
-            <Divider sx={{ my: 1 }}/>
-            <Stack direction={'row'} justifyContent={'space-between'}>
-              <Typography variant={'caption'} color={'text.secondary'}>Smithing lv.</Typography>
-              <Typography variant={'caption'}>{levelReq}</Typography>
-            </Stack>
-            <Stack direction={'row'} justifyContent={'space-between'}>
-              <Typography variant={'caption'} color={'text.secondary'}>Materials</Typography>
-              <Typography variant={'caption'}>{numberWithCommas(requiredAmount)}</Typography>
-            </Stack>
-            <Stack direction={'row'} justifyContent={'space-between'}>
-              <Typography variant={'caption'} color={'text.secondary'}>Exp per craft</Typography>
-              <Typography variant={'caption'}>{numberWithCommas(exp)}</Typography>
-            </Stack>
-          </CardContent>
-        </Card>
-      ))}
-    </Stack>
-  </Stack>;
-};
-
-const ItemIcon = styled.img`
-  width: 42px;
-  height: 42px;
-`
 
 export default Anvil;

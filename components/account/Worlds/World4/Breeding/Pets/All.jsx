@@ -1,74 +1,37 @@
 import React, { useContext } from 'react';
-import { Card, CardContent, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, notateNumber, prefix } from '@utility/helpers';
-import { GeneIcon, MonsterIcon } from '@components/account/Worlds/World4/Breeding/Pets/styles';
-import Tooltip from '@components/Tooltip';
+import { Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { AppContext } from '@components/common/context/AppProvider';
-import { monsterImage } from '@utility/spriteImages';
+import CardGrid from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
+import StatTile from '@components/common/cards/StatTile';
+import ItemCard from '@components/common/cards/ItemCard';
+import { petIcon } from './Other';
 
+// Each world's cells, then its pets: the level as the value, the gene as the tile's mark, both abilities in its details
 const All = ({ pets }) => {
   const { state } = useContext(AppContext);
+  const genetics = state?.account?.breeding?.genetics;
 
-  return <>
-    <Stack gap={1}>
-      {pets?.map((list, worldIndex) => {
-        return <React.Fragment key={`world-${worldIndex}`}>
-          <Stack direction={'row'} alignItems={'center'} gap={2}>
-            <Typography variant={'h5'}>World {worldIndex + 1}</Typography>
-            <Stack direction={'row'} alignItems={'center'} gap={2}>
-              <img style={{ width: 32, height: 32 }} src={`${prefix}data/Genetic${worldIndex}.png`}
-                   alt={'cells' + worldIndex}/>
-              <Typography
-                variant={'body2'}>{notateNumber(state?.account?.breeding?.genetics?.[worldIndex])}</Typography>
-            </Stack>
-          </Stack>
-          <Stack direction={'row'} flexWrap={'wrap'} gap={1}>
-            {list?.map(({
-                          monsterName,
-                          monsterRawName,
-                          icon,
-                          gene,
-                          unlocked,
-                          level
-                        }) => {
-              const bodyIcon = icon?.startsWith('Mface');
-              return <Card key={`${monsterName}-${worldIndex}`} variant="outlined"
-                           sx={{ opacity: unlocked ? 1 : .6 }}>
-                <CardContent>
-                  <Stack direction={'row'} alignItems={'center'} gap={1} justifyContent={'space-between'}>
-                    <Stack justifyContent={'center'} alignItems={'center'}>
-                      <MonsterIcon
-                        src={bodyIcon ? monsterImage(monsterRawName) : `${prefix}data/${icon}.png`}
-                        missingIcon={bodyIcon}
-                        alt=""/>
-                      <Typography variant={'body2'}>Lv. {level}</Typography>
-                    </Stack>
-                    <Tooltip title={<GeneTooltip gene={gene}/>}>
-                      <GeneIcon src={`${prefix}data/GeneReady${gene?.index}.png`} alt=""/>
-                    </Tooltip>
-                  </Stack>
-                </CardContent>
-              </Card>
-            })}
-          </Stack>
-        </React.Fragment>
-      })}
-    </Stack>
-  </>
+  return <Stack gap={3}>
+    {pets?.map((list, worldIndex) => <Stack key={`world-${worldIndex}`} gap={1}>
+      <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+        <Typography variant={'sectionTitle'} component={'h2'}>World {worldIndex + 1}</Typography>
+        <StatTile label={'Cells'} icon={`data/Genetic${worldIndex}.png`}
+                  value={formatGame(genetics?.[worldIndex] ?? 0, 'Breeding.GeneticCost', { whole: true })}/>
+      </Stack>
+      <CardGrid size={'icon'}>
+        {list?.map((pet) => <IconTile key={pet?.monsterName} icon={petIcon(pet)} alt={cleanUnderscore(pet?.monsterName)}
+                                      value={pet?.level ?? 0} kind={'amount'} status={pet?.unlocked ? undefined : 'missing'}
+                                      mark={pet?.gene ? `data/GeneReady${pet.gene.index}.png` : undefined}
+                                      markAlt={cleanUnderscore(pet?.gene?.name)}
+                                      details={<ItemCard.Desc text={[`${cleanUnderscore(pet?.monsterName)}: Lv ${formatNum(pet?.level ?? 0)}`,
+                                        `${cleanUnderscore(pet?.gene?.name)} gene`, `Combat: ${cleanUnderscore(pet?.gene?.combatAbility)}`,
+                                        `Bonus: ${cleanUnderscore(pet?.gene?.bonusAbility)}`]}/>}/>)}
+      </CardGrid>
+    </Stack>)}
+  </Stack>
 };
-
-const GeneTooltip = ({ gene }) => {
-  return <>
-    <Stack sx={{ mt: 2 }}>
-      <Typography variant={'caption'} sx={{ color: 'error.light' }}>Combat Ability:</Typography>
-      <Typography>{cleanUnderscore(gene?.combatAbility)}</Typography>
-    </Stack>
-    <Stack sx={{ mt: 1 }}>
-      <Typography variant={'caption'} sx={{ color: 'success.light' }}>Bonus Ability:</Typography>
-      <Typography>{cleanUnderscore(gene?.bonusAbility)}</Typography>
-    </Stack>
-  </>
-
-}
 
 export default All;

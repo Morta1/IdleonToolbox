@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { firstExportedRoute } from './route-helpers';
 import { waitForRender } from './wait-helpers';
 
 // Asserts on the JS a page actually references, fetched the way a browser would. Chunk names
@@ -9,20 +10,6 @@ const FIREBASE_MARKER = '@firebase/';
 const ITEMS_MARKER = '"displayName":"Copper_Ore"';
 
 const scriptsOf = (html) => [...html.matchAll(/<script[^>]+src="([^"]+\.js)"/g)].map((m) => m[1]);
-
-// The first sorted out/<dir>/*.html not in `skip`. Falls back rather than throwing: a readdir at
-// collection time takes the whole file down before a test runs when out/ is missing, which reads as
-// a broken spec instead of a missing build.
-const firstExportedRoute = (dir, { skip = [] } = {}) => {
-  try {
-    const file = readdirSync(path.join(process.cwd(), 'out', ...dir.split('/')))
-      .filter((f) => f.endsWith('.html') && !skip.includes(f))
-      .sort()[0];
-    return `/${dir}/${file.replace(/\.html$/, '')}`;
-  } catch {
-    return '/wiki';
-  }
-};
 
 const referencedScripts = async (request, route) => {
   const html = await (await request.get(route)).text();
@@ -51,6 +38,14 @@ for (const route of [firstExportedRoute('wiki/monster'), '/wiki/sneaking', '/wik
   });
 }
 
+// GameIcon's sprite bounds (~530 KB) load as their own chunk after the page; no page ships them in its own scripts.
+const SPRITE_BOUNDS_MARKER = '"data/Tach0_x1.png":[';
+
+test('a page with game icons references no sprite-bounds chunk', async ({ request }) => {
+  const scripts = await referencedScripts(request, '/account/world-5/hole');
+  expect(offenders(scripts, SPRITE_BOUNDS_MARKER)).toEqual([]);
+});
+
 const loadedScriptUrls = (page) => page.evaluate(() =>
   performance.getEntriesByType('resource').map((entry) => entry.name).filter((name) => name.endsWith('.js')));
 
@@ -75,6 +70,46 @@ test.describe('firebase loads only when a session might exist', () => {
     await expect.poll(() => page.evaluate(() => localStorage.getItem('authHint'))).toBe('no');
     expect(offenders(await loadedScripts(page, request), FIREBASE_MARKER).length).toBeGreaterThan(0);
   });
+});
+
+// The What's new dialog and tour load only for the visitor who gets them. The gate's end date keeps them shut here, so a guest's
+// whole visit fetches neither.
+const WHATS_NEW_MARKER = 'Show me around';
+
+test('a guest never downloads the What\'s new dialog', async ({ page, request }) => {
+  // A marker that left the dialog would make this pass vacuously.
+  expect(offenders(exportedChunks(path.join(process.cwd(), 'out', '_next', 'static')), WHATS_NEW_MARKER).length).toBeGreaterThan(0);
+  await page.addInitScript(() => localStorage.setItem('authHint', 'no'));
+  await page.goto('/');
+  await waitForRender(page);
+  await page.waitForTimeout(1500);
+  expect(offenders(await loadedScripts(page, request), WHATS_NEW_MARKER)).toEqual([]);
+});
+
+// The guild pages read one pure helper from the parsers (parsers/guildLevel.ts): the data barrel (1.67 MB) was theirs
+// for a guest until it left parsers/guild.ts.
+for (const route of ['/guilds', '/guilds/detail']) {
+  test(`a guest on ${route} fetches no game-data chunk`, async ({ page, request }) => {
+    await page.addInitScript(() => localStorage.setItem('authHint', 'no'));
+    await page.goto(route);
+    await waitForRender(page);
+    await page.waitForTimeout(1500);
+    expect(offenders(await loadedScripts(page, request), ITEMS_MARKER)).toEqual([]);
+  });
+}
+
+// The first GameIcon that mounts starts the sprite-bounds download, not the module's import: a page that imports a
+// card with an icon slot but draws no icon (Statistics' Panels) never asks for it.
+test('a page with no game icon never downloads the sprite bounds', async ({ page, request }) => {
+  await page.route(/\/visualizations$/, (route) => route.fulfill({
+    status: 200,
+    headers: { 'access-control-allow-origin': '*', 'content-type': 'application/json' },
+    body: JSON.stringify({ topPrayers: [{ prayer: 1, count: 5 }, { prayer: 5, count: 3 }] })
+  }));
+  await page.goto('/statistics');
+  await expect(page.getByText(/top prayers/i).first()).toBeVisible({ timeout: 20_000 });
+  await page.waitForTimeout(1500);
+  expect(offenders(await loadedScripts(page, request), SPRITE_BOUNDS_MARKER)).toEqual([]);
 });
 
 // wikiTables is read only by the graph build. trapTimeUnits is one of its keys with no other source in app code,
@@ -119,4 +154,34 @@ test('no exported chunk carries a wiki-only table', () => {
   const chunks = exportedChunks(path.join(process.cwd(), 'out', '_next', 'static'));
   expect(chunks.length).toBeGreaterThan(0);
   expect(offenders(chunks, WIKI_TABLES_MARKER)).toEqual([]);
+});
+
+// The site draws its charts itself (bars and columns in HTML, lines in components/common/charts/LineChart): no
+// chart library ships. TooltipWrapper is the displayName of the tooltip every nivo chart mounts; this test's first
+// version proved the marker live while the guild page still drew nivo lines.
+const NIVO_MARKER = 'TooltipWrapper';
+
+test('no exported page ships nivo', () => {
+  expect(offenders(exportedChunks(path.join(process.cwd(), 'out', '_next', 'static')), NIVO_MARKER)).toEqual([]);
+});
+
+// The wiki's search index (about 7,600 names, 167 KB gzipped) is the quick search's last group: it loads when
+// the panel opens, never with a page. One of its rows, as the index writes it.
+const WIKI_INDEX_MARKER = '"label":"Copper Ore","slug":"copper-ore"';
+
+test('no page references the wiki search index', async ({ request }) => {
+  for (const route of ['/', '/account/world-4/cooking', firstExportedRoute('wiki/monster')]) {
+    const scripts = await referencedScripts(request, route);
+    expect(offenders(scripts, WIKI_INDEX_MARKER), route).toEqual([]);
+  }
+});
+
+test('the quick search loads the wiki index only once it opens', async ({ page, request }) => {
+  await page.addInitScript(() => localStorage.setItem('authHint', 'no'));
+  await page.goto('/');
+  await waitForRender(page);
+  expect(offenders(await loadedScripts(page, request), WIKI_INDEX_MARKER)).toEqual([]);
+  await page.getByRole('button', { name: 'Search', exact: true }).click();
+  // Also proves the marker exists, so the test above cannot pass vacuously.
+  await expect.poll(async () => offenders(await loadedScripts(page, request), WIKI_INDEX_MARKER).length).toBeGreaterThan(0);
 });

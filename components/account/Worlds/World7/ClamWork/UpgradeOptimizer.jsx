@@ -1,11 +1,15 @@
 import React from 'react';
 import GenericUpgradeOptimizer from '@components/account/Misc/class-specific/GenericUpgradeOptimizer';
 import { CLAM_WORK_UPGRADE_CATEGORIES, getOptimizedClamWorkUpgrades, pearlNames } from '@parsers/world-7/clamWork';
+import { cleanUpgradeName } from '@utility/goals/registry/names';
+import { titleCaseName } from '@utility/helpers';
 
-const UpgradeOptimizer = ({ character, account, multiKill }) => (
+const UpgradeOptimizer = ({ character, account, multiKill, sectionFailed }) => (
   <GenericUpgradeOptimizer
+    upgradeTitle={(name) => titleCaseName(cleanUpgradeName(name))}
     character={character}
     account={account}
+    sectionFailed={sectionFailed}
     getOptimizedUpgradesFn={(char, acc, category, maxUpgrades, options) => getOptimizedClamWorkUpgrades(
       char, acc, category, maxUpgrades, { ...options, multiKill }
     )}
@@ -19,6 +23,7 @@ const UpgradeOptimizer = ({ character, account, multiKill }) => (
     // forceLegendTalent, so the Masterclass allowance has nothing to say about this optimizer.
     usesMasterclassReduction={false}
     showSplitByResource={false}
+    costGame={'Thingies.Clam_Cost'}
     statLabels={{ pearlGain: 'Pearl gain', costReduction: 'Cost reduction' }}
     tooltipText={'Shows the most efficient upgrade path based on your available pearls, in order. Pearl Gain ranks upgrades by pearl income per pearl spent; Cost Reduction ranks Frugality and Anti Inflation by how much cheaper they make everything else.'}
   />

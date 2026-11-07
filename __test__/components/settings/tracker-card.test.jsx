@@ -4,7 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import { allTrackers, buildModel } from '@utility/dashboard/settingsModel';
@@ -14,7 +14,10 @@ const trackerFor = (path, edits = {}) => {
   const config = resolveTrackers(baseTrackers, edits);
   return allTrackers(buildModel(config, baseTrackers, diffTrackers(baseTrackers, config))).find((t) => t.path === path);
 };
-const renderIn = (node) => render(<ThemeProvider theme={darkTheme}>{node}</ThemeProvider>).container;
+const renderIn = (node) => render(<ThemeProvider theme={theme}>{node}</ThemeProvider>).container;
+
+// The Material tracker's link keeps the session's query.
+vi.mock('next/router', () => ({ useRouter: () => ({ query: {}, asPath: '/dashboard', pathname: '/dashboard' }) }));
 
 describe('TrackerCard', () => {
   it('collapsed: switch, summary and expand', () => {

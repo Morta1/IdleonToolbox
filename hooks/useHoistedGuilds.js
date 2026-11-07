@@ -5,9 +5,7 @@
  * tombstones so the user can still see/unpin them.
  */
 export function useHoistedGuilds({ guilds, pinnedGuilds, myGuildId }) {
-  const guildById = guilds
-    ? new Map(guilds.map((g) => [g.guild_id, g]))
-    : new Map();
+  const guildById = new Map(Array.isArray(guilds) ? guilds.map((g) => [g.guild_id, g]) : []);
   const myGuildRow = myGuildId ? guildById.get(myGuildId) ?? null : null;
 
   const hoistedRows = [];
@@ -18,7 +16,7 @@ export function useHoistedGuilds({ guilds, pinnedGuilds, myGuildId }) {
     hoistedRows.push({ guild: myGuildRow, yourGuild: true, tombstone: false });
   }
 
-  for (const { id, name } of pinnedGuilds) {
+  for (const { id, name } of Array.isArray(pinnedGuilds) ? pinnedGuilds : []) {
     if (hoistedIds.has(id)) continue;
     hoistedIds.add(id);
     const liveRow = guildById.get(id);

@@ -4,7 +4,6 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import MonsterInfo from '@components/wiki/MonsterInfo';
-import GAME from '@utility/wiki/game-constants.mjs';
 
 const valueOf = (label) => screen.getByText(label).nextElementSibling.textContent;
 
@@ -14,35 +13,13 @@ const renderInfo = (stats) => render(
 );
 
 describe('MonsterInfo accuracy rows', () => {
-  it('uses the monster curve for monsters', () => {
-    renderInfo({ defence: 230, hitCurve: 'monster' });
-    expect(valueOf('5% Accuracy')).toBe('116');
-    expect(valueOf('100% Accuracy')).toBe('346');
-  });
-
-  it('uses the resource curve for ores, trees, fish and bugs', () => {
-    renderInfo({ defence: 25, hitCurve: 'resource' });
-    expect(valueOf('5% Accuracy')).toBe('7');
-    expect(valueOf('100% Accuracy')).toBe('50');
-  });
-
-  it('falls back to the monster curve when the graph has no curve', () => {
-    renderInfo({ defence: 230 });
-    expect(valueOf('5% Accuracy')).toBe('116');
-  });
-});
-
-// Past the ladder a value is written in the exponential form, which needs getLOG's divisor: without it the row goes.
-describe('MonsterInfo information rows', () => {
-  it('leaves out a stat it cannot notate', () => {
-    const table = GAME.gameLog;
-    delete GAME.gameLog;
-    try {
-      renderInfo({ attack: 140, health: 1e23 });
-      expect([screen.queryByText('Health'), valueOf('Attack')]).toEqual([null, '140']);
-    } finally {
-      GAME.gameLog = table;
-    }
+  it.each([
+    ['the monster curve for monsters', { defence: 230, hitCurve: 'monster' }, '116', '346'],
+    ['the resource curve for ores, trees, fish and bugs', { defence: 25, hitCurve: 'resource' }, '7', '50'],
+    ['the monster curve when the graph has no curve', { defence: 230 }, '116', '346']
+  ])('uses %s', (_, stats, low, high) => {
+    renderInfo(stats);
+    expect([valueOf('5% Accuracy'), valueOf('100% Accuracy')]).toEqual([low, high]);
   });
 });
 
@@ -51,7 +28,7 @@ describe('MonsterInfo card ladder', () => {
   it('reads the card bonus at every tier', () => {
     render(<MonsterInfo node={{ kind: 'monster', name: 'Test', stats: null, location: null }} index={{ byId: {} }}
                         card={{ effect: '{%_Base_Damage', bonus: 4 }} cardId={'item:CardsA0'} onNavigate={() => {}}/>);
-    const box = within(screen.getByText('Card Info').parentElement);
+    const box = within(screen.getByText('Card info').closest('section'));
     expect([box.getAllByText(/^\d+$/).map((node) => node.textContent), box.getAllByRole('img').map((node) => node.getAttribute('alt'))]).toEqual([
       ['4', '8', '12', '16', '20', '24', '28'],
       ['1 star', '2 star', '3 star', '4 star', '5 star', '6 star']

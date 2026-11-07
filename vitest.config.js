@@ -1,6 +1,18 @@
 import { defineConfig } from 'vitest/config';
+import { BaseSequencer } from 'vitest/node';
 import path from 'path';
 import fs from 'fs';
+
+// Vitest's own order runs whole projects by name, so every jsdom file was handed out before any node
+// file and the slowest node files (game-tables, about 37 s) only started 24 s into the run. Node goes
+// first, each project still longest first, and the jsdom files fill the workers as node ones finish.
+// Not interleaved: a node worker is only reused while the next file in the queue is a node file too.
+class NodeFirstSequencer extends BaseSequencer {
+  async sort(files) {
+    const sorted = await super.sort(files);
+    return [...sorted.filter((spec) => spec.project.name === 'node'), ...sorted.filter((spec) => spec.project.name !== 'node')];
+  }
+}
 
 // Files opt into jsdom with a docblock, so the split has to read them rather than match a path.
 const testGlob = '__test__/**/*.test.{js,ts,jsx,tsx}';
@@ -38,6 +50,7 @@ export default defineConfig({
     // were intermittently blowing the 5s default, failing a different file on every run. The
     // timeout is here to catch a genuine hang, which 20s still does.
     testTimeout: 20000,
+    sequence: { sequencer: NodeFirstSequencer },
     // isolate:false shares every loaded module across the files a worker runs, but each jsdom file
     // gets a fresh document. testing-library's `screen`, emotion's style cache and any module a
     // vi.mock should have replaced all stayed bound to the first file's document or imports, so

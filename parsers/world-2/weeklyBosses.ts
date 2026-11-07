@@ -58,7 +58,8 @@ const getShopItems = (seed: number): { shopItems: any[]; extraSeed: number } => 
 
 const MAX_ACCUMULATOR_SIZE = 9;
 export const getWeeklyBoss = (account: Account, weeks: number = 10) => {
-  if (!account) return [];
+  // The weeks are seeded from the save's clock: with none, every week would draw the same boss with no date
+  if (!Number.isFinite((account as any)?.timeAway?.GlobalTime)) return [];
   const seed = Math.round(Math.floor((account as any)?.timeAway?.GlobalTime / 604800));
   const weeklyBossesList: any[] = [];
   for (let i = 0; i < weeks; i++) {

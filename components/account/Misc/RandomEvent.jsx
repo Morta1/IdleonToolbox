@@ -1,27 +1,22 @@
 import { Stack, Typography } from '@mui/material';
-import { cleanUnderscore, eventsColors, prefix } from '@utility/helpers';
+import { cleanUnderscore } from '@utility/helpers';
 import { isValid } from 'date-fns';
 import React from 'react';
-import styled from '@emotion/styled';
 import useFormatDate from '@hooks/useFormatDate';
+import GameIcon from '@components/common/GameIcon';
 
+// The dashboard's random event note (the page draws its own cards): the sprite names the event, so its name takes the
+// text color
 const RandomEvent = ({ eventName, mapName, date }) => {
   const formatDate = useFormatDate();
-  return <>
-    <Stack direction={'row'} alignItems={'center'} gap={2}>
-      <IconImg src={`${prefix}etc/${eventName}.png`} alt="random-event-icon"/>
-      <Typography color={eventsColors?.[eventName]}>{cleanUnderscore(eventName)}</Typography>
+  return <Stack gap={0.5}>
+    <Stack direction={'row'} alignItems={'center'} gap={1}>
+      <GameIcon src={`etc/${eventName}.png`} size={32} alt={''}/>
+      <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(eventName)}</Typography>
     </Stack>
-    <Typography>{cleanUnderscore(mapName)}</Typography>
-    {isValid(date) ? <Typography variant={'body2'}>Starts: {formatDate(date)}</Typography> : null}
-  </>
+    <Typography variant={'body2'}>{cleanUnderscore(mapName)}</Typography>
+    {isValid(date) ? <Typography variant={'body2'} color={'text.secondary'}>{`Starts ${formatDate(date)}`}</Typography> : null}
+  </Stack>;
 };
-
-
-const IconImg = styled.img`
-  width: 35px;
-  height: 35px;
-  object-fit: contain;
-`;
 
 export default RandomEvent;

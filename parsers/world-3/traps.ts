@@ -7,7 +7,7 @@ import { getPrayerBonusAndCurse } from '@parsers/world-3/prayers';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getTrappingStuff } from '@parsers/character';
 import { getFoodBonus, getSkillCardBonus } from '@parsers/misc';
-import { cleanUnderscore, notateNumber } from '@utility/helpers';
+import { cleanUnderscore, gameFill } from '@utility/helpers';
 import { checkCharClass, CLASSES, getCharacterByHighestTalent, getTalentBonus, unownedTalentBonus } from '@parsers/talents';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
@@ -17,11 +17,13 @@ import { getMenagerieBoost } from '@parsers/world-7/menagerie';
 import { NUMBERED_GROUP, additiveGroup, createBreakdown, info, listGroup, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 import { OPT } from '@parsers/accountOptions';
 
-export const getTraps = (rawCharactersData: any) => {
-  return parseTraps(rawCharactersData);
+export const getTraps = (rawCharactersData: any, timeAway?: any) => {
+  return parseTraps(rawCharactersData, timeAway);
 }
 
-const parseTraps = (rawCharactersData: any) => {
+const parseTraps = (rawCharactersData: any, timeAway?: any) => {
+  // A trap's elapsed time is the save's, so its end is anchored on the save's clock
+  const saveTime = Number.isFinite(timeAway?.GlobalTime) ? timeAway.GlobalTime * 1000 : new Date().getTime();
   return rawCharactersData.map((char: any) => {
     const traps = char?.PldTraps || [];
     return traps.reduce((res: any, critterInfo: any) => {
@@ -36,7 +38,7 @@ const parseTraps = (rawCharactersData: any) => {
         crittersQuantity,
         trapType,
         trapExp,
-        timeLeft: new Date().getTime() + (timeLeft * 1000),
+        timeLeft: saveTime + (timeLeft * 1000),
         trapData
       }] : res;
     }, []);
@@ -250,11 +252,11 @@ export const getShinyChance = (character: any, account: any): ShinyChance & { so
 // shiny and the surplus buys nothing on that critter.
 const formatChance = (value: number) => {
   if (value >= 100) return '100%';
-  if (value >= 1) return `${notateNumber(value, 'Big')}%`;
+  if (value >= 1) return `${gameFill(value, 'Big')}%`;
   return `${parseFloat(value.toPrecision(3))}%`;
 }
 
-const formatMulti = (value: number) => `x${notateNumber(value, 'MultiplierInfo')}`;
+const formatMulti = (value: number) => `x${gameFill(value, 'MultiplierInfo')}`;
 
 // The shiny chance is per character - the talent, its trapping-level repeat, the equipped boost
 // food and the Shiny Snitch prayer are all character-bound - so the caller picks whose to show,

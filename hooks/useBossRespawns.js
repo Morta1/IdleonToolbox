@@ -13,8 +13,8 @@ import {
 
 const STORAGE_KEY = 'dashboard-boss-respawns';
 
-// Shared by the Bosses card and the General alerts, so both read (and keep syncing) the same
-// tracker state even when the card is hidden.
+// Shared by the timers and the General alerts, so both read (and keep syncing) the same
+// tracker state even when the timers are hidden.
 const useBossRespawns = ({ account, characters, lastUpdated }) => {
   const [clock, setClock] = useState(() => Date.now());
   const [allStored, setAllStored] = useLocalStorage({

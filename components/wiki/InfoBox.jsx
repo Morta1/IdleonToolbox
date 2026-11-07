@@ -1,51 +1,27 @@
 import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
+import Panel from '@components/common/cards/Panel';
 
-// The bordered, banded table both the item and the card panel use, matching the shape idleon.wiki
-// puts in its top-right infobox. A group is either label/value rows or one full-width block.
+// The panel width from which the rail sits beside the relations: a 480 px column, the 24 px gap and the 340 px box.
+export const ROW_FROM = 480 + 24 + 340;
+
+// A group is label/value rows, one full-width block, or both, with an optional sentence under them.
 export const visibleGroups = (groups) => (groups || []).filter((group) => group?.content || group?.rows?.length > 0);
 
+// The infobox idleon.wiki keeps top right, one Panel per group. Its width follows the panel's own container: a 340 px box
+// under a window's md rule overflowed its column at 900 to 1011, where the rail still sits under the relations.
 const InfoBox = ({ groups }) => {
   const visible = visibleGroups(groups);
   if (visible.length === 0) return null;
 
   // No margin of its own: the panel stacks these in one rail and owns the spacing between them.
-  return <Box sx={{
-    width: { xs: '100%', md: 340 },
-    flexShrink: 0,
-    border: '1px solid',
-    borderColor: 'divider',
-    borderRadius: 1,
-    overflow: 'hidden'
-  }}>
-    {visible.map(({ title, rows, content }) => <Box key={title}>
-      <Typography
-        variant={'caption'}
-        component={'div'}
-        textAlign={'center'}
-        fontWeight={600}
-        textTransform={'uppercase'}
-        letterSpacing={0.5}
-        sx={{ bgcolor: 'action.selected', py: 0.5 }}
-      >
-        {title}
-      </Typography>
-      {content ? <Box sx={{ px: 1.5, py: 1 }}>{content}</Box> : null}
-      {(rows || []).map(({ label, value, color }, index) => <Stack
-        key={`${label}-${index}`}
-        direction={'row'}
-        justifyContent={'space-between'}
-        gap={2}
-        sx={{ px: 1.5, py: 0.5, borderTop: index > 0 || content ? '1px solid' : 0, borderColor: 'divider' }}
-      >
-        {/* A div, not the default p, for the label and the value alike: either can be a whole
-            element (CoinDisplay renders block content, a liquid label is a Stack), which inside a
-            <p> is invalid HTML and breaks hydration. */}
-        <Typography variant={'body2'} component={'div'} color={color || 'text.secondary'}>{label}</Typography>
-        <Typography variant={'body2'} component={'div'} fontWeight={600} textAlign={'right'}>{value}</Typography>
-      </Stack>)}
-    </Box>)}
-  </Box>;
+  return <Stack gap={2} sx={{ width: '100%', minWidth: 0, flexShrink: 0, [`@container (min-width: ${ROW_FROM}px)`]: { width: 340 } }}>
+    {visible.map(({ title, rows, content, note }) => <Panel key={title} title={title}>
+      {content ? <Box sx={{ px: 2, py: 1.25 }}>{content}</Box> : null}
+      {(rows || []).map(({ label, value }, index) => <Panel.KV key={`${label}-${index}`} label={label} value={value}/>)}
+      {note ? <Typography variant={'caption'} component={'div'} color={'text.secondary'} sx={{ px: 2, py: 1 }}>{note}</Typography> : null}
+    </Panel>)}
+  </Stack>;
 };
 
 export default InfoBox;

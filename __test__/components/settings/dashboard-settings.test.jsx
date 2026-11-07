@@ -4,10 +4,11 @@ import React, { useEffect, useState } from 'react';
 import { afterEach, beforeAll, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render, waitFor } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import DashboardSettings from '@components/common/DashboardSettings';
+import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 import { allTrackers, buildModel } from '@utility/dashboard/settingsModel';
 
 let latest;
@@ -16,32 +17,43 @@ const Harness = ({ target = null, edits = {}, open = true, initialFilter }) => {
   useEffect(() => {
     latest = config;
   });
-  return <ThemeProvider theme={darkTheme}>
+  return <ThemeProvider theme={theme}>
     <DashboardSettings open={open} onClose={() => {}} config={config} onChange={setConfig} onFileUpload={() => {}}
-                       target={target} hideAlertless={false} onHideAlertlessChange={() => {}}
+                       target={target}
                        initialFilter={initialFilter}/>
+    <SnackbarHost/>
   </ThemeProvider>;
 };
 const edits = () => diffTrackers(baseTrackers, latest);
+// The Material tracker's link keeps the session's query.
+vi.mock('next/router', () => ({ useRouter: () => ({ query: {}, asPath: '/dashboard', pathname: '/dashboard' }) }));
+
 // Every alert baseTrackers defines; a game update that adds one (2.3.540's Menagerie alerts) moves the chip with it.
 const ALL_COUNT = allTrackers(buildModel(resolveTrackers(baseTrackers, {}), baseTrackers, {})).length;
 const button = (text) => [...document.body.querySelectorAll('button')].find((b) => b.textContent === text);
+const showField = () => document.body.querySelector('[aria-label="Show"]');
+const showOptions = () => {
+  fireEvent.mouseDown(showField());
+  return [...document.body.querySelectorAll('[role="option"]')].map(({ textContent }) => textContent);
+};
 
 describe('DashboardSettings window', () => {
   beforeAll(() => {
     Element.prototype.scrollIntoView = () => {};
   });
 
-  it('opens on the first section with counts on the chips', () => {
+  it('opens titled, with the legend and nothing to reset, and the Show field counts and names its filter', () => {
     render(<Harness/>);
-    expect(document.body.textContent).toContain('Configure alerts');
-    expect(document.body.textContent).toContain('Every count is alerts, not options');
-    expect(document.body.textContent).toContain(`All ${ALL_COUNT}On`);
-  });
-
-  it('the legend says what the blue dot means', () => {
-    render(<Harness/>);
+    const titled = document.body.querySelectorAll('#configure-alerts-title');
+    expect(titled).toHaveLength(1);
+    expect(titled[0].tagName).toBe('H1');
+    expect(titled[0].textContent).toBe('Configure alerts');
     expect(document.body.textContent).toContain('Changed from default');
+    expect(button('Reset all').disabled).toBe(true);
+    expect(showField().textContent).toContain('All');
+    expect(showOptions()[0]).toBe(`All (${ALL_COUNT})`);
+    fireEvent.click([...document.body.querySelectorAll('[role="option"]')].find(({ textContent }) => textContent.startsWith('Edited')));
+    expect(showField().textContent).toContain('Edited');
   });
 
   it('Expand all opens every card in the section and Collapse all closes them', () => {
@@ -53,15 +65,6 @@ describe('DashboardSettings window', () => {
     expect(toggles().every((b) => b.getAttribute('aria-expanded') === 'true')).toBe(true);
     fireEvent.click(button('Collapse all'));
     expect(toggles().every((b) => b.getAttribute('aria-expanded') === 'false')).toBe(true);
-  });
-
-  it('filter chips say which one is pressed', () => {
-    render(<Harness/>);
-    const chip = (label) => [...document.body.querySelectorAll('[aria-pressed]')].find((el) => el.textContent.startsWith(label));
-    expect(chip('All').getAttribute('aria-pressed')).toBe('true');
-    fireEvent.click(chip('Edited'));
-    expect(chip('Edited').getAttribute('aria-pressed')).toBe('true');
-    expect(chip('All').getAttribute('aria-pressed')).toBe('false');
   });
 
   it('Review edits opens on the first section with edits', () => {
@@ -80,12 +83,13 @@ describe('DashboardSettings window', () => {
     expect(edits()).toEqual({});
   });
 
-  it('Reset all asks first', () => {
+  it('Reset all resets at once and can be undone', async () => {
     render(<Harness edits={{ 'account.World 1.stamps': { checked: false } }}/>);
     fireEvent.click(button('Reset all'));
-    expect(document.body.textContent).toContain('Reset every alert to default?');
-    fireEvent.click([...document.body.querySelectorAll('[role="alertdialog"] button')].find((b) => b.textContent === 'Reset all'));
     expect(edits()).toEqual({});
+    await waitFor(() => expect(button('Undo')).toBeTruthy());
+    fireEvent.click(button('Undo'));
+    expect(edits()).toEqual({ 'account.World 1.stamps': { checked: false } });
   });
 
   it('search shows results across tabs', () => {
@@ -98,8 +102,8 @@ describe('DashboardSettings window', () => {
   it('spaces alone are not a search', () => {
     render(<Harness/>);
     fireEvent.change(document.body.querySelector('input[aria-label="Search alerts"]'), { target: { value: '   ' } });
-    expect(document.body.textContent).toContain('Every count is alerts, not options');
-    expect(document.body.textContent).toContain(`All ${ALL_COUNT}On`);
+    expect(document.body.querySelector('[aria-label="Show"]').textContent).toContain('All');
+    expect(showOptions()[0]).toBe(`All (${ALL_COUNT})`);
   });
 
   it('a deep link opens the section with the alert expanded', () => {
@@ -144,11 +148,6 @@ describe('DashboardSettings window', () => {
     expect(latest).toEqual(afterFirst);
   });
 
-  it('Reset all is disabled with nothing to reset', () => {
-    render(<Harness/>);
-    expect(button('Reset all').disabled).toBe(true);
-  });
-
   it('Reset all alerts is on the mobile menu screen', () => {
     const original = window.matchMedia;
     window.matchMedia = (query) => ({
@@ -158,7 +157,7 @@ describe('DashboardSettings window', () => {
     try {
       render(<Harness edits={{ 'account.World 1.stamps': { checked: false } }}/>);
       fireEvent.click(button('Reset all alerts'));
-      expect(document.body.textContent).toContain('Reset every alert to default?');
+      expect(edits()).toEqual({});
     } finally {
       window.matchMedia = original;
     }
@@ -173,12 +172,12 @@ describe('DashboardSettings window', () => {
     try {
       render(<Harness/>);
       fireEvent.click(button('Characters'));
-      expect(document.body.textContent).toContain('Hide characters without alerts');
+      expect(document.body.textContent).toMatch(/\d+ alerts · \d+ on/);
       fireEvent.click(document.body.querySelector('[aria-label="Back to sections"]'));
       const navButtons = () => document.body.querySelectorAll('nav[aria-label="Characters sections"] button');
       expect(navButtons()[0]).toBeTruthy();
       fireEvent.click(navButtons()[0]);
-      expect(document.body.textContent).toContain('Hide characters without alerts');
+      expect(document.body.textContent).toMatch(/\d+ alerts · \d+ on/);
       // A tracker link in the menu opens the section on that alert.
       fireEvent.click(document.body.querySelector('[aria-label="Back to sections"]'));
       fireEvent.click(navButtons()[1]);
@@ -194,14 +193,7 @@ describe('DashboardSettings window', () => {
     await waitFor(() => expect(button('Undo')).toBeTruthy());
     view.rerender(<Harness open={false}/>);
     view.rerender(<Harness/>);
-    expect(button('Undo')).toBeFalsy();
-  });
-
-  it('labels the dialog by the title alone', () => {
-    render(<Harness/>);
-    const titled = document.body.querySelectorAll('#configure-alerts-title');
-    expect(titled).toHaveLength(1);
-    expect(titled[0].tagName).toBe('H1');
+    await waitFor(() => expect(button('Undo')).toBeFalsy());
   });
 });
 
@@ -221,18 +213,24 @@ describe('DashboardSettings analytics', () => {
   it('Reset all sends alert_settings_reset with scope all', () => {
     render(<Harness edits={{ 'timers.World 3.closestSalt': { checked: false } }}/>);
     fireEvent.click(button('Reset all'));
-    fireEvent.click([...document.body.querySelectorAll('[role="alertdialog"] button')].find((b) => b.textContent === 'Reset all'));
     expect(gtag).toHaveBeenCalledWith('event', 'alert_settings_reset', expect.objectContaining({ scope: 'all' }));
   });
 
-  it('search sends one debounced event with the result count and no query text', async () => {
+  it('search sends one debounced event with the result count and no query text', () => {
     render(<Harness/>);
     const input = document.body.querySelector('input[aria-label="Search alerts"]');
-    fireEvent.change(input, { target: { value: 'sal' } });
-    fireEvent.change(input, { target: { value: 'salt' } });
-    await waitFor(() => expect(gtag).toHaveBeenCalledWith('event', 'alert_settings_search', expect.objectContaining({ results: expect.any(Number) })), { timeout: 2500 });
-    const calls = gtag.mock.calls.filter(([, name]) => name === 'alert_settings_search');
-    expect(calls).toHaveLength(1);
-    expect(JSON.stringify(calls[0])).not.toContain('salt');
+    const searches = () => gtag.mock.calls.filter(([, name]) => name === 'alert_settings_search');
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    try {
+      fireEvent.change(input, { target: { value: 'sal' } });
+      fireEvent.change(input, { target: { value: 'salt' } });
+      act(() => vi.advanceTimersByTime(999));
+      expect(searches()).toEqual([]);
+      act(() => vi.advanceTimersByTime(1));
+    } finally {
+      vi.useRealTimers();
+    }
+    expect(searches()).toEqual([['event', 'alert_settings_search', expect.objectContaining({ results: expect.any(Number) })]]);
+    expect(JSON.stringify(searches()[0])).not.toContain('salt');
   });
 });

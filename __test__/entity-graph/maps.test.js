@@ -53,15 +53,11 @@ describe('map nodes', () => {
   // a page, would have been two thirds of the map URLs.
   it('drops the placeholder slots the game never built', () => {
     const nodes = mapNodes({ ...mapNames, 43: 'Z', 313: 'unused', 4: 'PlayerSelect' });
-    expect(nodes['map:43']).toBeUndefined();
-    expect(nodes['map:313']).toBeUndefined();
-    expect(nodes['map:4']).toBeUndefined();
-    expect(nodes['map:1']).toBeDefined();
+    expect(Object.keys(nodes)).toEqual(Object.keys(mapNodes(mapNames)));
   });
 
   it('keeps a real map whose name merely starts with one of those words', () => {
-    const nodes = mapNodes({ 7: 'Zow_Grounds' });
-    expect(nodes['map:7']).toBeDefined();
+    expect(mapNodes({ 7: 'Zow_Grounds' })['map:7'].name).toBe('Zow_Grounds');
   });
 });
 

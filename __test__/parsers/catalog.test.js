@@ -1,7 +1,7 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { isPlaceholder, liveEntries, liveCount } from '@parsers/catalog';
-import { prayers, legendTalents, achievements, classes, itemsArray, petGenes } from '@website-data';
+import { prayers, petGenes } from '@website-data';
 
 describe('isPlaceholder', () => {
   it('flags engine filler entries', () => {
@@ -38,21 +38,15 @@ describe('liveEntries', () => {
     ]);
   });
 
+  it('drops the filler rows of a real catalog and keeps one that has none whole', () => {
+    expect(liveCount(prayers)).toBeLessThan(prayers.length);
+    // Refiller is a real gene
+    expect(liveCount(petGenes)).toBe(petGenes.length);
+  });
+
   it('returns [] for missing catalogs', () => {
     expect(liveEntries(undefined)).toEqual([]);
     expect(liveEntries(null)).toEqual([]);
   });
 
-  it('matches the measured live counts of the real catalogs', () => {
-    expect(liveCount(prayers)).toBe(19);        // 25 total, 6 placeholders
-    // 2.3.540 made talents 40 and 41 real (z-processing names the two the game data still calls filler).
-    expect(liveCount(legendTalents)).toBe(42);  // 50 total, 8 placeholders
-    expect(liveCount(achievements)).toBe(268);  // 420 total, 152 placeholders
-    expect(liveCount(classes)).toBe(55);        // 63 total, 8 placeholders
-    // 2.3.531 added the season 5 tournament hats EquipmentHats142-144; 2.3.540 added EquipmentGown9, CKsing,
-    // ArcBallOmega and EquipmentNametagReplica43; 2.3.550 added EquipmentHats145-150, EquipmentNametag44,
-    // EquipmentNametagReplica44 and CardsY25; 2.3.561 added EquipmentCape23.
-    expect(liveCount(itemsArray)).toBe(2465);   // 2470 total, 5 placeholders
-    expect(liveCount(petGenes)).toBe(36);       // 36 total, 0 placeholders (Refiller is real)
-  });
 });

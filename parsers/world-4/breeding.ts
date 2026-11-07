@@ -47,8 +47,8 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
   const genetics = breedingRaw?.[3]?.slice(0, 4)
   const deadCells = breedingRaw?.[3]?.[8];
   const speciesUnlocks = breedingRaw?.[1];
-  const petUpgradesList = breedingRaw?.[2]?.map((upgradeLevel: any, index: any) => {
-    const upgrade = petUpgrades[index] || {};
+  const petUpgradesList = petUpgrades?.map((upgrade: any, index: any) => {
+    const upgradeLevel = breedingRaw?.[2]?.[index] ?? 0;
     const maxLevel = index === 6
       ? (upgrade.maxLevel ?? 0) + getMineheadBonusQTY(account, 3)
       : upgrade.maxLevel;
@@ -144,7 +144,7 @@ const parseBreeding = (breedingRaw: any, territoryRaw: any, petsRaw: any, petsSt
     return petList?.map((pet, petIndex) => {
       const shinyLevel = getShinyLevel(shinyPetsLevels, worldIndex, petIndex, maxShinyLevel);
       // Tome calc
-      totalShinyLevels += shinyLevel === 0 ? 1 : shinyLevel;
+      totalShinyLevels += shinyLevel === 0 && shinyPetsLevels ? 1 : shinyLevel;
       // game: "Breeding:SpecialzOverLVL"
       shinyOverLevels += Math.max(0, shinyLevel - BASE_MAX_SHINY_LEVEL);
 
@@ -217,7 +217,8 @@ const getShinyLevel = (shinyPetsLevels: any, worldIndex: any, petIndex: any, max
   const shinyLevel = new Array(Math.max(0, maxShinyLevel - 1)).fill(1)?.reduce((sum, _, index) => shinyPetsLevels?.[worldIndex]?.[petIndex] > Math.floor((1 + Math.pow(index + 1, 1.6)) * Math.pow(1.7, index + 1))
     ? index + 2
     : sum, 0)
-  return shinyPetsLevels?.[worldIndex]?.[petIndex] === 0 ? 0 : shinyLevel === 0 ? 1 : shinyLevel;
+  // game: a pet's shiny level starts at 1 once it has progress. No save has none
+  return (shinyPetsLevels?.[worldIndex]?.[petIndex] ?? 0) === 0 ? 0 : shinyLevel === 0 ? 1 : shinyLevel;
 }
 
 export const BASE_MAX_SHINY_LEVEL = 20;
@@ -240,7 +241,10 @@ export const addBreedingChance = (idleonData: any, account: any) => {
     return petList?.map((pet: any, petIndex: any) => {
       const totalKitchenLevels = getTotalKitchenLevels(account?.cooking?.kitchens)
       const breedingMultipliers = getBreedingMulti(account, breedingRaw, worldIndex, petIndex, account?.breeding?.unlockedBreedingMulti, totalKitchenLevels);
-      const breedingLevel = Math.min(MAX_BREEDABILITY_LEVEL, Math.floor(Math.pow(breedingMultipliers?.second - 1, .8)) + 1);
+      // No save breeds nothing: 1 is the game's floor for a save's pet
+      const breedingLevel = breedingRaw
+        ? Math.min(MAX_BREEDABILITY_LEVEL, Math.floor(Math.pow(breedingMultipliers?.second - 1, .8)) + 1)
+        : 0;
       const breedingGoal = getLevelGoal(breedingLevel, false);
       totalBreedabilityLv += breedingLevel;
       return {
@@ -323,7 +327,7 @@ export const getShinyBonus = (pets: any, passiveName: any) => {
   return pets?.reduce((sum: any, world: any) => sum + world?.reduce((innerSum: any, {
     passive,
     passiveValue
-  }: any) => innerSum + (passive.includes(passiveName) && passiveValue), 0), 0);
+  }: any) => innerSum + (passive.includes(passiveName) && passiveValue), 0), 0) ?? 0;
 }
 
 export const getTimeToLevel = (pet: any, multi: any, copies: any, targetLevel: any, isShiny: any, maxShinyLevel: number = BASE_MAX_SHINY_LEVEL) => {

@@ -1,16 +1,15 @@
 import React from 'react';
 import Box from '@mui/material/Box';
-import { prefix } from '@utility/helpers';
+import GameIcon from '@components/common/GameIcon';
 import { metricIcon, monogram } from '@utility/leaderboardIcons';
 
-const MetricIcon = ({ metric, label, size = 24, maxed = false }) => {
+// A board's icon: always beside its name, so alt is empty. A board with no sprite shows its monogram in the same box.
+const MetricIcon = ({ metric, label, size = 24 }) => {
   const icon = metricIcon(metric);
-  if (icon) {
-    return <img src={`${prefix}${icon}.png`} width={size} height={size} style={{ objectFit: 'contain', flexShrink: 0 }} alt=""/>;
-  }
+  if (icon) return <GameIcon src={`${icon}.png`} size={size} alt=""/>;
   return <Box aria-hidden sx={{
-    width: size, height: size, borderRadius: 1.5, flexShrink: 0, bgcolor: 'rgba(255,255,255,0.12)', color: maxed ? '#b9a6f2' : '#90caf9',
-    display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 10, fontWeight: 700
+    width: size, height: size, borderRadius: 1.5, flexShrink: 0, bgcolor: 'action.selected', color: 'text.secondary',
+    display: 'flex', alignItems: 'center', justifyContent: 'center', typography: 'groupLabel'
   }}>{monogram(label)}</Box>;
 };
 

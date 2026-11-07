@@ -1,1 +1,40 @@
-npm test
+# set -f stops pages/tools/builds/[slug].jsx from being read as a glob.
+set -f
+# Tests that read source files from disk instead of importing them, so vitest related never connects them to the
+# files they check: a staged component with noSsr in it would pass the quick hook. They run on every quick commit.
+# A new test that scans sources (readFileSync, readdirSync, helpers/source-files) must join this list.
+SOURCE_SCANS="__test__/no-nossr.test.js __test__/alt-text.test.js __test__/card-spacing.test.js __test__/firebase-lazy.test.js
+  __test__/components/leaderboards/jsx-comment-text.test.js __test__/utility/goals-header-only.test.js
+  __test__/components/shell-contracts.test.js
+  __test__/parsers/arcade-bonus.test.js __test__/parsers/sailing-locked-shape.test.js __test__/parsers/talent-vs-game.test.js
+  __test__/data/website-data-barrel.test.js __test__/gameNotation.test.js __test__/theme-vars.test.js __test__/design-system-doc.test.js"
+# game-tables.test.js scans the wiki sources in one test, and the rest of the file takes about 40 s: only that test runs.
+SOURCE_SCAN_TEST="__test__/entity-graph/game-tables.test.js"
+SOURCE_SCAN_NAME="reads no table without a reader"
+# QUICK_COMMIT=1 is for commits between a plan's gates: it runs the tests that import a staged file plus the source
+# scans above, and type-checks, and the gate runs the full suite. Every other commit runs the full suite.
+if [ "$QUICK_COMMIT" = "1" ]; then
+  staged=$(git diff --cached --name-only --diff-filter=ACMR)
+  if [ -n "$staged" ]; then
+    # The type check next build runs (tsconfig.build.json: errors in .ts and .tsx), here so a commit between gates
+    # that skips the build still meets it. It runs beside the tests; its incremental state sits in .next/cache,
+    # which builds keep and git ignores.
+    tsc_log=$(mktemp)
+    trap 'rm -f "$tsc_log"' EXIT
+    npx tsc --noEmit --incremental -p tsconfig.build.json --tsBuildInfoFile .next/cache/tsc-precommit.tsbuildinfo > "$tsc_log" 2>&1 &
+    tsc_pid=$!
+    # A test file named on the command line is related to itself, so the scans ride in the same run.
+    npx vitest related --run --passWithNoTests $staged $SOURCE_SCANS
+    npx vitest run "$SOURCE_SCAN_TEST" -t "$SOURCE_SCAN_NAME"
+    if ! wait "$tsc_pid"; then
+      cat "$tsc_log"
+      echo "pre-commit: tsc -p tsconfig.build.json found type errors" >&2
+      exit 1
+    fi
+  fi
+else
+  npm test
+fi
+# Lint only what is being committed.
+files=$(git diff --cached --name-only --diff-filter=ACMR -- '*.js' '*.jsx' '*.mjs' '*.ts' '*.tsx')
+[ -z "$files" ] || npx eslint --no-warn-ignored --pass-on-unpruned-suppressions $files

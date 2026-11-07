@@ -1,92 +1,53 @@
-import { Card, CardContent, Divider, Stack, Typography } from '@mui/material';
-import { cleanUnderscore, commaNotation, notateNumber, prefix } from '@utility/helpers';
-import { CardTitleAndValue } from '@components/common/styles';
+import { Stack } from '@mui/material';
+import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
 import { DAY_MARKET_SIZE, sumMarketLevels } from '@parsers/world-6/farming';
+import StatTile from '@components/common/cards/StatTile';
+import CardGrid from '@components/common/cards/CardGrid';
+import ItemCard from '@components/common/cards/ItemCard';
+import { formatGame } from '@utility/gameNotation';
 
 const Market = ({ market, crop }) => {
   return (<>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={2} mb={2}>
-      <CardTitleAndValue title={'Total day market levels'}
-                         value={commaNotation(sumMarketLevels(market?.slice(0, DAY_MARKET_SIZE)))}/>
-      <CardTitleAndValue title={'Total night market levels'}
-                         value={commaNotation(sumMarketLevels(market?.slice(DAY_MARKET_SIZE, DAY_MARKET_SIZE * 2)))}/>
+    <Stack direction={'row'} flexWrap={'wrap'} gap={1} mb={2}>
+      <StatTile label={'Total day market levels'} value={formatNum(sumMarketLevels(market?.slice(0, DAY_MARKET_SIZE)))}/>
+      <StatTile label={'Total night market levels'}
+                value={formatNum(sumMarketLevels(market?.slice(DAY_MARKET_SIZE, DAY_MARKET_SIZE * 2)))}/>
     </Stack>
-    <Stack direction={'row'} flexWrap={'wrap'} gap={2}>
-      {market?.map(({
-                      name,
-                      level,
-                      maxLvl,
-                      bonus,
-                      value,
-                      baseValue,
-                      costToMax,
-                      type,
-                      cost,
-                      nextUpgrades
-                    }, marketIndex) => {
-        return (
-          (<Card sx={{ width: 250 }}
-                       key={'upgrade' + marketIndex}>
-            <CardContent sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-              <Stack direction={'row'} gap={2} alignItems={'center'}>
-                <Typography>{cleanUnderscore(name.toLowerCase().capitalizeAll())}</Typography>
-                <Typography variant={'caption'}>{level} / {maxLvl}</Typography>
-              </Stack>
-              <Typography variant={'caption'}
-                          color={marketIndex < 8 ? 'warning.light' : 'secondary.main'}>{marketIndex < 8
-                ? 'Day market'
-                : 'Night Market'}</Typography>
-              <Typography mt={2}>{cleanUnderscore(bonus.replace(/{/, marketIndex < 8
-                ? value
-                : baseValue)).replace(/}/, marketIndex < 8
-                ? value
-                : Math.round(100 * baseValue) / 100)}</Typography>
-              {level < maxLvl ? <>
-                <Stack mt={1}>
-                  <Typography variant={'caption'}>Next requirement</Typography>
-                  <UpgradeReq icon={marketIndex < 8 ? `FarmCrop${type}` : 'FarmCropBean'}
-                              owned={crop[marketIndex < 8 ? type : 'beans']} cost={cost}/>
-                  <Divider sx={{ mt: 2 }}/>
-                </Stack>
-                <Stack mt={2}>
-                  <Typography variant={'caption'}>Future requirements</Typography>
-                  {nextUpgrades.map(({ type: nextType, cost: nextCost }, index) => {
-                    if (nextType === type && nextCost === cost) return null;
-                    if (marketIndex > 8 && index > 0) return null;
-                    nextType = marketIndex < 8 ? nextType : 'beans';
-                    const icon = marketIndex < 8 ? `FarmCrop${nextType}` : 'FarmCropBean';
-                    return <UpgradeReq key={'extra' + index} icon={icon} owned={crop[nextType]} cost={nextCost}/>
-                  })}
-                </Stack>
-              </> : <Typography color={'success.light'}>Maxed out</Typography>}
-              {level >= maxLvl && nextUpgrades?.length > 0 ? <Stack mt={2}>
-                <Typography variant={'caption'}>Future requirements (needs more research)</Typography>
-                {nextUpgrades.map(({ type: nextType, cost: nextCost }, index) => {
-                  if (marketIndex > 8 && index > 0) return null;
-                  nextType = marketIndex < 8 ? nextType : 'beans';
-                  const icon = marketIndex < 8 ? `FarmCrop${nextType}` : 'FarmCropBean';
-                  return <UpgradeReq key={'future' + index} icon={icon} owned={crop[nextType]} cost={nextCost}/>
-                })}
-              </Stack> : null}
-              {costToMax > 0
-                ? <Typography sx={{ mt: 'auto' }} variant={'caption'}>Cost to
-                  max: {notateNumber(costToMax, 'Big')}</Typography>
-                : null}
-            </CardContent>
-          </Card>)
-        );
+    <CardGrid size={'m'}>
+      {market?.map(({ name, level, maxLvl, bonus, value, baseValue, costToMax, type, cost, nextUpgrades }, marketIndex) => {
+        // The day market pays in its own crops, the night market in beans; a night upgrade lists only its next step
+        const isDay = marketIndex < DAY_MARKET_SIZE;
+        const costIcon = (nextType) => `data/${isDay ? `FarmCrop${nextType}` : 'FarmCropBean'}.png`;
+        const ownedOf = (nextType) => Math.max(0, crop?.[isDay ? nextType : 'beans'] ?? 0);
+        const later = (level < maxLvl
+          ? nextUpgrades?.filter(({ type: nextType, cost: nextCost }) => !(nextType === type && nextCost === cost))
+          : nextUpgrades) ?? [];
+        const shown = isDay ? later : later.slice(0, 1);
+        // { is a percent and } a multiplier, the sentence carrying the % or x. The game fills both with
+        // Math.round(100 * x) / 100, which FarmingStuffs.BasketUpgQTY's stored rule does not hold (it prints 2.26 as 2.3)
+        const amount = isDay ? value : baseValue;
+        const bonusText = cleanUnderscore(bonus.replace(/{/g, formatNum(amount, 'pct', { precise: true, bare: true }))
+          .replace(/}/g, formatNum(amount, 'mult', { bare: true })));
+        // The next cost leads, named, then the later steps: as a footer it sat unlabelled under them
+        return <ItemCard key={'upgrade' + marketIndex} title={titleCaseName(cleanUnderscore(name))}
+                         level={{ value: level, max: maxLvl }} meta={isDay ? 'Day market' : 'Night market'}
+                         status={level >= maxLvl ? 'maxed' : undefined}>
+          <ItemCard.Desc text={bonusText}/>
+          {level < maxLvl ? <ItemCard.Section label={'Next cost'}>
+            <ItemCard.Cost icon={costIcon(type)} need={Math.floor(cost)} have={ownedOf(type)}
+                           game={'FarmingStuffs.MarketCostQTY'}/>
+          </ItemCard.Section> : null}
+          {shown.length ? <ItemCard.Section label={level >= maxLvl ? 'Future requirements (needs more research)' : 'Future requirements'}>
+            {shown.map(({ type: nextType, cost: nextCost }, step) => <ItemCard.Cost key={step} icon={costIcon(nextType)}
+                                                                                    need={Math.floor(nextCost)}
+                                                                                    have={ownedOf(nextType)}
+                                                                                    game={'FarmingStuffs.MarketCostQTY'}/>)}
+          </ItemCard.Section> : null}
+          {costToMax > 0 ? <ItemCard.Facts rows={[['Cost to max', formatGame(costToMax, 'FarmingStuffs.MarketCostQTY', { whole: true })]]}/> : null}
+        </ItemCard>;
       })}
-    </Stack>
+    </CardGrid>
   </>);
 };
-
-const UpgradeReq = ({ icon, owned, cost }) => {
-  return <Stack direction={'row'} alignItems={'center'} gap={1}>
-    <img src={`${prefix}data/${icon}.png`} alt={''}/>
-    <Typography>{owned > 0
-      ? notateNumber(owned)
-      : 0} / {notateNumber(Math.floor(cost))}</Typography>
-  </Stack>
-}
 
 export default Market;

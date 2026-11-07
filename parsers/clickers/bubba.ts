@@ -1,4 +1,4 @@
-import { commaNotation, lavaLog, lavaLog2, notateNumber, tryToParse } from '@utility/helpers';
+import { gameFill, lavaLog, lavaLog2, tryToParse } from '@utility/helpers';
 import { bubbaUpgrades, generalSpelunky } from '@website-data';
 import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
@@ -71,9 +71,7 @@ const parseBubba = (rawBubba: any, account: any) => {
     };
     if (index === 0) {
       const value = 1 + (getMegafleshOwned(rawBubba, 0) * getTotalQTYofLVs(rawBubba)) / 100;
-      const formatted = value < 100
-        ? String(notateNumber(value, 'MultiplierInfo')).replace('#', '')
-        : commaNotation(value);
+      const formatted = gameFill(value, value < 100 ? 'MultiplierInfo' : 'Comma');
       return { ...base, totalBonus: formatted };
     }
     if (index === 11) {
@@ -83,7 +81,7 @@ const parseBubba = (rawBubba: any, account: any) => {
       return {
         ...base,
         amount,
-        totalBonus: String(notateNumber(value, 'MultiplierInfo')).replace('#', '')
+        totalBonus: gameFill(value, 'MultiplierInfo')
       };
     }
     return base;
@@ -327,18 +325,6 @@ const getDailyPetHappinessFromUpg = (rawBubba: any) => {
   return (Math.min(1, totUpgBonus5) + (totUpgBonus5 / (totUpgBonus5 + 200)) * 2) * multiplier;
 };
 
-// Helper function to format timer display (seconds to HH:MM:SS)
-const formatTimerDisplay = (seconds: any) => {
-  const hours = Math.floor(seconds / 3600);
-  const minutes = Math.floor((seconds % 3600) / 60);
-  const secs = Math.floor(seconds % 60);
-
-  if (hours > 0) {
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-  }
-  return `${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-};
-
 // The game renders @ as a line break
 const replaceLineBreaks = (description: any) => String(description ?? '').replace(/_*@_*/g, '\n');
 
@@ -354,19 +340,13 @@ const formatUpgradeDescription = (rawBubba: any, upgradeIndex: any) => {
 
   // Replace { with bonus value
   if (description.includes('{')) {
-    const bonusValue = bonus < 1e6
-      ? commaNotation(bonus)
-      : notateNumber(bonus, 'Big');
-    description = description.replace('{', '' + bonusValue);
+    description = description.replace('{', gameFill(bonus, bonus < 1e6 ? 'Comma' : 'Big'));
   }
 
   // Replace } with multiplier (1 + bonus / 100)
   if (description.includes('}')) {
     const multiplier = 1 + bonus / 100;
-    let multiplierStr = '' + notateNumber(multiplier, 'MultiplierInfo');
-    // Remove # if present
-    multiplierStr = multiplierStr.replace(/#/g, '');
-    description = description.replace('}', multiplierStr);
+    description = description.replace('}', gameFill(multiplier, 'MultiplierInfo'));
   }
 
   // Replace $ with special values
@@ -391,23 +371,9 @@ const formatUpgradeDescription = (rawBubba: any, upgradeIndex: any) => {
     description = description.replace('$', '' + dollarValue);
   }
 
-  // Replace ~ with timer values
-  if (description.includes('~')) {
-    let timerValue = '';
-    if (upgradeIndex === 1 || upgradeIndex === 12) {
-      // Timer for 3600 - Bubba[0][13]
-      const timeRemaining = Math.max(0, 3600 - (rawBubba?.[0]?.[13] || 0));
-      timerValue = formatTimerDisplay(timeRemaining);
-    }
-    else if (upgradeIndex === 15) {
-      // Timer for Bubba[0][14]
-      const timeValue = rawBubba?.[0]?.[14] || 0;
-      timerValue = formatTimerDisplay(timeValue);
-    }
-    description = description.replace('~', timerValue);
-  }
-
-  return replaceLineBreaks(description);
+  // The game's ~ is a clock it runs live ("Your next pats come in ~"): frozen at the save's time it reads wrong, so its
+  // line goes
+  return replaceLineBreaks(description.split('@').filter((line: string) => !line.includes('~')).join('@'));
 };
 
 // game: "MeatsliceRate"

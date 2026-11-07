@@ -4,10 +4,10 @@ import React from 'react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
-import darkTheme from '../../../styles/theme/darkTheme';
+import theme from '../../../styles/theme/theme';
 import MetricCard from '@components/leaderboards/MetricCard';
 
-const renderCard = (props) => render(<ThemeProvider theme={darkTheme}><MetricCard highlight={{}} pinned={null} onOpen={() => {}} {...props}/></ThemeProvider>);
+const renderCard = (props) => render(<ThemeProvider theme={theme}><MetricCard highlight={{}} pinned={null} onOpen={() => {}} {...props}/></ThemeProvider>);
 const mining = { key: 'mining', label: 'Mining', notation: 'default', maxed: false };
 const row = (mainChar, mining, rank, globalRank = null) => ({ mainChar, mining, rank, globalRank });
 
@@ -18,14 +18,14 @@ describe('MetricCard', () => {
     renderCard({ meta: mining, entries: [row('A', 300, 1), row('B', 250, 2), row('C', 250, 2), row('D', 200, 4)] });
     expect(screen.getAllByAltText('Rank 2')).toHaveLength(2);
     expect(screen.queryByAltText('Rank 3')).toBeNull();
-    expect(screen.getByText('4')).toBeTruthy();
+    expect(screen.getByText('#4')).toBeTruthy();
   });
 
   it('shows real ranks with gaps when anonymous players are hidden', () => {
     renderCard({ meta: mining, entries: [row('A', 300, 1), row('B', 250, 2), row('D', 200, 4), row('E', 190, 5)] });
-    expect(screen.getByText('4')).toBeTruthy();
-    expect(screen.getByText('5')).toBeTruthy();
-    expect(screen.queryByText('3')).toBeNull();
+    expect(screen.getByText('#4')).toBeTruthy();
+    expect(screen.getByText('#5')).toBeTruthy();
+    expect(screen.queryByText('#3')).toBeNull();
   });
 
   it('renders a maxed board with the max line, plain #1s and global ranks', () => {
@@ -34,7 +34,7 @@ describe('MetricCard', () => {
     expect(screen.getByText('Maxed')).toBeTruthy();
     expect(screen.getByText(/is the max · 146 players have it, all tied at #1 · listed by global rank/)).toBeTruthy();
     expect(screen.queryByAltText('Rank 1')).toBeNull();
-    expect(screen.getAllByText('1')).toHaveLength(2);
+    expect(screen.getAllByText('#1')).toHaveLength(2);
     expect(screen.getByText('global #2')).toBeTruthy();
   });
 
@@ -48,7 +48,7 @@ describe('MetricCard', () => {
     cleanup();
     renderCard({ meta: breed, entries, pinned: { mainChar: 'Baker333', kind: 'logged', globalRank: 91, entry: { r: 150, v: 600, p: 9, t: 2, nr: 1, nv: 612 } } });
     expect(screen.queryByLabelText('Has the max')).toBeNull();
-    expect(screen.getByText('150')).toBeTruthy();
+    expect(screen.getByText('#150')).toBeTruthy();
   });
 
   it('does not pin a player already in the list, and skips a player with no entry', () => {
@@ -79,14 +79,7 @@ describe('MetricCard', () => {
     expect(values).toEqual(['12.20M', '12.19M', '11.00M']);
   });
 
-  it('opens the board from Top 100', () => {
-    const onOpen = vi.fn();
-    renderCard({ meta: mining, entries: [row('A', 300, 1)], onOpen });
-    fireEvent.click(screen.getByRole('link', { name: /Top 100/ }));
-    expect(onOpen).toHaveBeenCalledWith('mining');
-  });
-
-  it('links Top 100 to the board and leaves a modified click to the browser', () => {
+  it('links Top 100 to the board, opens it on a plain click and leaves a modified click to the browser', () => {
     const onOpen = vi.fn();
     renderCard({ meta: { ...mining, category: 'skills' }, entries: [row('A', 300, 1)], onOpen });
     const link = screen.getByRole('link', { name: /Top 100/ });
@@ -94,12 +87,14 @@ describe('MetricCard', () => {
     document.addEventListener('click', (event) => event.preventDefault(), { once: true });
     fireEvent.click(link, { ctrlKey: true });
     expect(onOpen).not.toHaveBeenCalled();
+    fireEvent.click(link);
+    expect(onOpen).toHaveBeenCalledWith('mining');
   });
 
-  it('keeps the full label in a title attribute for a clamped heading', () => {
+  it('keeps the full label in a clamped heading, with no hover title', () => {
     const label = 'Highest Construction Experience Gained Per Hour Across All Characters';
     renderCard({ meta: { ...mining, label }, entries: [row('A', 300, 1)] });
-    expect(screen.getByRole('heading', { name: label }).getAttribute('title')).toBe(label);
+    expect(screen.getByRole('heading', { name: label }).getAttribute('title')).toBeNull();
   });
 
   it('adds (you) to the pinned row of the logged-in player only', () => {
@@ -125,6 +120,6 @@ describe('MetricCard', () => {
 
   it('says so when a board is empty', () => {
     renderCard({ meta: mining, entries: [] });
-    expect(screen.getByText('Nothing here yet')).toBeTruthy();
+    expect(screen.getByText('No one on this board yet.')).toBeTruthy();
   });
 });

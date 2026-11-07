@@ -141,7 +141,7 @@ import { getButtonBonus } from '@parsers/world-7/button';
 import { getGuaranteedCrystalMobs } from '@parsers/misc';
 import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { ARMORY_TALENT_REATTAINMENT, getArmoryUpgradeBonus, getOrbletMarketBonus, getRoyalStatueBonus } from '@parsers/class-specific/royalGuardian';
-import { tryToParse, createIndexedArray, createArrayOfArrays, cashFormatter } from '@utility/helpers';
+import { tryToParse, createIndexedArray, createArrayOfArrays, gameFill } from '@utility/helpers';
 import type { IdleonData, Account } from './types';
 import { OPT } from '@parsers/accountOptions';
 import { saveField } from '@parsers/saveField';
@@ -319,6 +319,8 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
     }
   }, {});
   character.level = char?.[`Lv0`]?.[0] || 0;
+  // A save can hold a character with no stats: level stays a number for every reader, and this says it's a stand-in
+  character.hasData = char?.PersonalValuesMap?.StatList?.[4] !== undefined;
   // inventory bags used
   const rawInvBagsUsed = char?.[`InvBagsUsed`]
   const bags = Object.keys(rawInvBagsUsed);
@@ -1296,7 +1298,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     // giveEXP(13, CaptainEXPgain * Math.min(1, SailingExpMulti)), so above 1 it changes nothing.
     const value = allSkillExpMulti * (1 + (talentBonus
       + (vialBonus
-        + (10 * account?.tasks?.[2]?.[4]?.[4] +
+        + (10 * (account?.tasks?.[2]?.[4]?.[4] ?? 0) +
           (25 * masteryBonus + (guildBonus + vaultBonus))))) / 100);
 
     return {
@@ -1308,7 +1310,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
         additiveGroup(NUMBERED_GROUP, [
           percent('Talent', talentBonus),
           percent('Vial', vialBonus),
-          percent('Task', 10 * account?.tasks?.[2]?.[4]?.[4]),
+          percent('Task', 10 * (account?.tasks?.[2]?.[4]?.[4] ?? 0)),
           percent('Skill mastery', 25 * masteryBonus),
           percent('Guild', guildBonus),
           percent('Vault', vaultBonus)
@@ -1367,7 +1369,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
                     (mealBonus +
                       (vialBonus
                         + (talentBonus2 +
-                          (10 * account?.tasks?.[2]?.[4]?.[4] +
+                          (10 * (account?.tasks?.[2]?.[4]?.[4] ?? 0) +
                             (25 * masteryBonus +
                               (starSignBonus
                                 + (guildBonus + (arcadeBonus
@@ -1400,7 +1402,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
           percent('Meal', mealBonus),
           percent('Vial', vialBonus),
           percent('Inner Peace talent', talentBonus2),
-          percent('Task', 10 * account?.tasks?.[2]?.[4]?.[4]),
+          percent('Task', 10 * (account?.tasks?.[2]?.[4]?.[4] ?? 0)),
           percent('Skill mastery', 25 * masteryBonus),
           percent('Star sign', starSignBonus),
           percent('Guild', guildBonus),
@@ -2894,6 +2896,14 @@ final *= Math.max(1, Math.min(1.01, 1 + fourthCompanionDropRate / 2500));`
   };
 }
 
+// game: the MonsterCash label: NotateNumber Big past 1e16 (e notation from 1e21), its own B past 1e10 and M past 1e7
+const cashMultiLabel = (value: number) => {
+  if (value > 1e16) return gameFill(value, 'Big', { whole: true });
+  if (value > 1e10) return `${Math.floor(value / 1e8) / 10}B`;
+  if (value > 1e7) return `${Math.floor(value / 1e5) / 10}M`;
+  return gameFill(value, 'MultiplierInfo', { whole: true });
+};
+
 export const getCashMulti = (character: any, account: any, characters: any, playerInfo?: any) => {
   // ArbitraryCode("MonsterCash")
   // strength/agility/wisdom default to 0: a character with no stats data has none of these
@@ -3023,7 +3033,7 @@ export const getCashMulti = (character: any, account: any, characters: any, play
       + ninjaExtraCash
       + vault70 * cardsCollected) / 100);
 
-  const breakdown = createBreakdown('Cash multi', cashFormatter(cashMulti), [
+  const breakdown = createBreakdown('Cash multi', cashMultiLabel(cashMulti), [
     productGroup(NUMBERED_GROUP, [
       additiveGroup('Cash bubbles', [
         percent('Penny of Strength', cashStrBubble * Math.floor(strength / 250)),
@@ -3150,7 +3160,7 @@ const getPrinterSampleRate = (character: any, account: any) => {
   const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, 'Printer_sample');
   const theRoyalSamplerPrayer = getPrayerBonusAndCurse(character?.activePrayers, 'The_Royal_Sampler', account)?.bonus;
   const stampBonus = getStampsBonusByEffect(account, '3D_Printer_Sampling_Size');
-  const meritBonus = account?.tasks?.[2]?.[2]?.[4];
+  const meritBonus = account?.tasks?.[2]?.[2]?.[4] ?? 0;
   // FamBonusQTYs[6], as the played character sees it
   const familyPrinterSample = getCharacterFamilyBonus(character, CLASSES.Maestro);
   const arcadeSampleBonus = getArcadeBonus(account?.arcade?.shop, 'Sample_Size')?.bonus;
@@ -3250,7 +3260,7 @@ export const getPlayerCrystalChance = (character: any, account: any, idleonData:
 
   // In percent points: the base chance times the multipliers, plus the event shop, less what the cap cuts off
   const breakdown = createBreakdown('Crystal Chance', notateNumber(effectiveValue * 100, 'MultiplierInfo'), [
-    listGroup('Crystal kills', [info('Remaining Crystal kills', Math.max(0, remainingCrystalKills))]),
+    listGroup('Crystal kills', [info('Remaining Crystal kills', Math.max(0, remainingCrystalKills), { formatted: gameFill(Math.max(0, remainingCrystalKills) || 0, 'Comma', { whole: true }) })]),
     productGroup(NUMBERED_GROUP, [
       flat('Base chance', 100 / CRYSTAL_SPAWN_DIVISOR, { formatted: `${100 / CRYSTAL_SPAWN_DIVISOR}%` }),
       productGroup(NUMBERED_GROUP, [
@@ -3810,7 +3820,7 @@ export const getPlayerConstructionSpeed = (character: any, account: any, charact
     * (1 + getVialsBonusByStat(account?.alchemy?.vials, '6turtle') / 100);
   const talentBonus = getBaseTalentBonus(character?.flatTalents, 'REDOX_RATES');
   const atomBonus = getAtomBonus(account, 'Helium_-_Talent_Power_Stacker');
-  const redSaltAmount = calculateItemTotalAmount([...account?.storage?.list,
+  const redSaltAmount = calculateItemTotalAmount([...(account?.storage?.list ?? []),
   ...(account?.refinery?.refineryStorage || [])], 'Refinery1', true, true);
   return baseMath * (1 + (constructionLevel * bubbleBonus) / 100) * moreMath * multipliers * (1 + (talentBonus * (atomBonus + lavaLog(redSaltAmount))) / 100);
 }
