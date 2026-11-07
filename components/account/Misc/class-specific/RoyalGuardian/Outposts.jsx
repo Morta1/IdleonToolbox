@@ -22,7 +22,7 @@ import { OUTPOST_RANK_NAMES } from '@parsers/class-specific/royalGuardian';
 const RANK_SORT_PREFIX = 'rank';
 const NO_RANK = 'none';
 // Map order unless a sort is picked. A saved checkbox from before resets once ("Group by world").
-const OUTPOSTS_TOOLBAR = { search: '', sort: null, world: 'all', glorified: 'all', rank: NO_RANK, byWorld: false, view: 'cards' };
+const OUTPOSTS_TOOLBAR = { search: '', sort: null, world: 'all', glorified: 'all', rank: NO_RANK, byWorld: false, view: 'cards', details: false };
 const SORT_VALUE = {
   rate: (outpost) => outpost.resourceRate || 0,
   range: (outpost) => outpost.range || 0,
@@ -144,6 +144,8 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
 
   const sortKey = view?.sort?.key;
   const direction = view?.sort?.order === 'asc' ? -1 : 1;
+  // The rank a filter or a sort is on: a compact card keeps that one
+  const focusedRank = isRankFiltered ? rankType : sortKey?.startsWith(RANK_SORT_PREFIX) ? Number(sortKey.slice(RANK_SORT_PREFIX.length)) : null;
   const sorted = filtered.toSorted((a, b) => {
     // None of the outpost stats exist on a clearing map, so those sorts push them to the end.
     if (sortKey && a.isClearing !== b.isClearing) return a.isClearing ? 1 : -1;
@@ -166,7 +168,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
   const outpostCard = (outpost) => {
     const {
       mapIndex, name, world, resourceRate, range, ptsLeft, ptsTotal, mode, modeName, purified, boosted, isSupport,
-      supportLinks, supports, rankBars, upgrades, unitSlots, passiveUnits, connectedNodes, monsterRawName, monsterName
+      supportLinks, supports, rankBars, monsterRawName, monsterName
     } = outpost;
     // Naming every linked outpost overflows the meta line, so only a single link is named.
     const boosting = [...new Set(supportLinks ?? [])];
@@ -180,22 +182,38 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
         : 'Collects its nodes straight into your resource storage.';
     const meta = [`World ${formatNum(world)}`, monsterLabel(name, monsterName), modeName, supportText, purified ? 'Purified' : null]
       .filter(Boolean).join(' · ');
+    const rankBar = (bar) => {
+      const time = !bar.unlocked ? ' · Locked' : bar.expPerHour > 0 ? ` · ${formatDuration((bar.hoursToNextRank ?? 0) * 3600)}` : '';
+      // The rank a filter is on names its range in its label, so its level reads at a glance on every card
+      const filteredRank = isRankFiltered && bar.type === rankType ? ` (filter: ${formatRankRange(minRank, maxRank)})` : '';
+      return <ItemCard.Progress key={bar.type} label={`${bar.name} rank ${formatNum(bar.rank ?? 0)}${time}${filteredRank}`}
+                                percent={100 * (bar.progress ?? 0)}
+                                value={formatGame(bar.exp ?? 0, 'RoyalG.OutpostEXPreq', { ruleValue: bar.required ?? 0, whole: true })} max={formatGame(bar.required ?? 0, 'RoyalG.OutpostEXPreq', { whole: true })}/>;
+    };
+    // A compact card keeps one rank: the one a filter or a sort is on, or else the next to rank up. The Details pill shows
+    // the rest, with range and points, units, connected resources and upgrades.
+    const bars = rankBars ?? [];
+    const keyBar = bars.find(({ type }) => type === focusedRank)
+      ?? bars.filter((bar) => bar.unlocked && bar.expPerHour > 0).toSorted((a, b) => (a.hoursToNextRank ?? Infinity) - (b.hoursToNextRank ?? Infinity))[0]
+      ?? bars[0];
     return <ItemCard key={mapIndex} icon={faceOf(monsterRawName)} iconAlt={monsterName ?? ''} title={name || `Map ${mapIndex}`}
                      meta={<WithLastWord text={meta}><InfoButton label={'this mode'} sx={{ ml: 0.5 }}>{modeHint}</InfoButton></WithLastWord>}
-                     status={boosted ? 'active' : undefined} statusLabel={'Glorified'}>
-      <ItemCard.Facts rows={[
-        ['Collection rate', `${formatGame(resourceRate ?? 0, 'RoyalG.OutpostResourceRate')}/hr`],
-        ['Range', `${formatGame(range ?? 0, 'RoyalG.OutpostRange')}px`],
-        ['PTS', `${formatNum(ptsLeft ?? 0, 'whole')} / ${formatNum(ptsTotal ?? 0, 'whole')}`]
-      ]}/>
-      {(rankBars ?? []).map((bar) => {
-        const time = !bar.unlocked ? ' · Locked' : bar.expPerHour > 0 ? ` · ${formatDuration((bar.hoursToNextRank ?? 0) * 3600)}` : '';
-        // The rank a filter is on names its range in its label, so its level reads at a glance on every card
-        const filteredRank = isRankFiltered && bar.type === rankType ? ` (filter: ${formatRankRange(minRank, maxRank)})` : '';
-        return <ItemCard.Progress key={bar.type} label={`${bar.name} rank ${formatNum(bar.rank ?? 0)}${time}${filteredRank}`}
-                                  percent={100 * (bar.progress ?? 0)}
-                                  value={formatGame(bar.exp ?? 0, 'RoyalG.OutpostEXPreq', { ruleValue: bar.required ?? 0, whole: true })} max={formatGame(bar.required ?? 0, 'RoyalG.OutpostEXPreq', { whole: true })}/>;
-      })}
+                     status={boosted ? 'active' : undefined} statusLabel={'Glorified'}
+                     more={<>
+                       <ItemCard.Facts rows={[
+                         ['Range', `${formatGame(range ?? 0, 'RoyalG.OutpostRange')}px`],
+                         ['PTS', `${formatNum(ptsLeft ?? 0, 'whole')} / ${formatNum(ptsTotal ?? 0, 'whole')}`]
+                       ]}/>
+                       {bars.filter((bar) => bar !== keyBar).map(rankBar)}
+                       {outpostSections(outpost)}
+                     </>}>
+      <ItemCard.Facts rows={[['Collection rate', `${formatGame(resourceRate ?? 0, 'RoyalG.OutpostResourceRate')}/hr`]]}/>
+      {keyBar ? rankBar(keyBar) : null}
+    </ItemCard>;
+  };
+
+  // An outpost's units, connected resources and upgrades: the Details pill's part of its card
+  const outpostSections = ({ upgrades, unitSlots, passiveUnits, connectedNodes }) => <>
       <ItemCard.Section label={'Units'}>
         <CardGrid size={'icon'} fill>
           {(unitSlots ?? []).map((unit, slot) => isEmptySlot(unit)
@@ -236,10 +254,9 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
           </Typography> : null}
         </Stack>)}
       </ItemCard.Section> : null}
-    </ItemCard>;
-  };
+    </>;
 
-  const grid = (items) => <CardGrid size={'m'}>
+  const grid = (items) => <CardGrid size={'m'} details={view?.details}>
     {items.map((item) => (item.isClearing ? clearingCard(item, clearingHint) : outpostCard(item)))}
   </CardGrid>;
   const groupedWorlds = [...new Set(sorted.map(({ world }) => world))].sort((a, b) => a - b);
@@ -277,6 +294,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
             {view?.view === 'map' ? null : <Toolbar.Show name={'rank'} label={'Rank'} options={[[NO_RANK, 'Any rank'],
               ...OUTPOST_RANK_NAMES.map((name, type) => [`${type}`, `${name} rank`])]}/>}
             {view?.view === 'map' ? null : <Toolbar.Filter name={'byWorld'} label={'By world'}/>}
+            {view?.view === 'map' ? null : <Toolbar.Filter name={'details'} label={'Details'} display/>}
             <Toolbar.View options={[['cards', 'Cards'], ['map', 'Map']]}/>
           </Toolbar>
           {view?.view !== 'map' && isRankFiltered ? <Stack direction={'row'} gap={2} alignItems={'flex-end'} flexWrap={'wrap'}>
