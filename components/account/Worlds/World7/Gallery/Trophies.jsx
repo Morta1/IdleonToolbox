@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Divider, Stack, Typography } from '@mui/material';
+import { Box, Divider, Link, Stack, Typography } from '@mui/material';
 import { formatNum } from '@utility/helpers';
 import ItemDisplay, { ItemLine } from '@components/common/ItemDisplay';
 import CardGrid, { LABELED_TILE_MIN } from '@components/common/cards/CardGrid';
@@ -49,16 +49,19 @@ export const catalogCard = (item, { meta, acquired = 'Acquired', notAcquired = '
   </ItemCard>;
 };
 
-// A catalog tile's note: what the card said, the name opening its wiki page, its state words and stat lines.
+// A catalog tile's note: the item's own note, as every item tile has (the podium's above), then its state words (an acquired
+// one's multi among them) and its wiki page.
 const CatalogNote = ({ item, meta, acquired, notAcquired, failed }) => {
   const state = item?.isAcquired ? [acquired, meta].filter(Boolean).join(' · ') : notAcquired;
-  return <Stack gap={0.75}>
-    <Typography variant={'cardTitle'} component={'div'}>
-      <ItemCard.TitleLink text={itemName(item)} onClick={() => openItemWikiPage(item?.rawName)}/>
-    </Typography>
-    {failed || !state ? null : <Typography variant={'body2'} color={'text.secondary'}>{state}</Typography>}
-    {statLines(item).map((line) => <Typography key={line} variant={'body2'}>{line}</Typography>)}
-  </Stack>;
+  return <ItemDisplay {...item} additionalInfo={<>
+    {failed || !state ? null : <>
+      <Divider sx={{ my: 1 }}/>
+      <Typography variant={'body2'} color={'text.secondary'}>{state}</Typography>
+    </>}
+    <Link component={'button'} type={'button'} variant={'body2'} onClick={() => openItemWikiPage(item?.rawName)} sx={{ mt: 1 }}>
+      Open wiki page
+    </Link>
+  </>}/>;
 };
 
 const CATALOG_TOOLBAR = { search: '', show: 'all' };
@@ -85,7 +88,8 @@ export const CatalogList = ({ page, title, noun, items, meta, tileValue, acquire
       <Typography variant={'sectionTitle'} component={'h2'}>{title}</Typography>
       <CardGrid size={'icon'} fill={LABELED_TILE_MIN}>
         {shown.map((item) => <IconTile key={item?.rawName} icon={`data/${item?.rawName}.png`} alt={itemName(item)} label={itemName(item)}
-                                       value={item?.isAcquired ? tileValue?.(item) : undefined}
+                                       // One not acquired keeps its value's line, blank, so the grid's tiles stay one height
+                                       value={tileValue ? (item?.isAcquired ? tileValue(item) : ' ') : undefined}
                                        status={!failed && !item?.isAcquired ? 'missing' : undefined}
                                        details={<CatalogNote item={item} meta={meta?.(item)} acquired={acquired} notAcquired={notAcquired} failed={failed}/>}/>)}
       </CardGrid>
