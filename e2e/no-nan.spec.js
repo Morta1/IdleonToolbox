@@ -30,6 +30,7 @@ const ALLOWED_INFINITY_TEXT = new Set([
   'Sneaking: a weapon past level 110 showed an Infinity stat instead of its real value',
 ]);
 
+// The start of a longer sentence on the page, so never matched with exact: true.
 const ERROR_BOUNDARY_TEXT = ['This page failed to render', 'The app failed to load'];
 
 const EXPECTED_DIRTY_ROUTES = [];
@@ -125,7 +126,7 @@ test.describe('No "NaN"/"undefined"/crash fallback reaches the rendered page for
       await readTabs(page, offending);
 
       for (const errorText of ERROR_BOUNDARY_TEXT) {
-        const count = await page.getByText(errorText, { exact: true }).count();
+        const count = await page.getByText(errorText).count();
         if (count > 0) offending.push(`[ErrorBoundary fallback] ${errorText}`);
       }
 
@@ -208,7 +209,7 @@ test.describe('A tool\'s second state renders no NaN/undefined/crash fallback', 
 
       const offending = (await findOffendingTextNodes(page)).filter((text) => !isAllowed(text));
       expect(offending, `Bad text found on ${route}:\n${offending.join('\n')}`).toEqual([]);
-      for (const errorText of ERROR_BOUNDARY_TEXT) await expect(page.getByText(errorText, { exact: true })).toHaveCount(0);
+      for (const errorText of ERROR_BOUNDARY_TEXT) await expect(page.getByText(errorText)).toHaveCount(0);
       expect(pageErrors).toEqual([]);
     });
   }
