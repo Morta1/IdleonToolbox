@@ -40,7 +40,7 @@ export const cardState = (theme, state) => {
 export const dimKeepingMeta = (theme) => ({
   backgroundColor: `color-mix(in srgb, ${palette(theme).background.paper} calc(${DIM} * 100%), transparent)`,
   borderColor: `color-mix(in srgb, ${palette(theme).divider} calc(${DIM} * 100%), transparent)`,
-  '& > :not([data-card-header]), & [data-card-header] > :not([data-title-row]), & [data-title-row] > :not([data-title-block]), & [data-title-block] > :not([data-card-meta])': { opacity: DIM }
+  '& > :not([data-card-header]), & [data-card-header] > :not([data-title-group]), & [data-title-group] > :not([data-title-row]), & [data-title-row] > :not([data-title-block]), & [data-title-block] > :not([data-card-meta])': { opacity: DIM }
 });
 
 // The words a value's own strings spell; a node that prints its value itself (a <Num>) spells nothing.

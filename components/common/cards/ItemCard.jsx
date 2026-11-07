@@ -33,15 +33,17 @@ const SHORT_LABEL_SX = { flexShrink: 0 };
 
 // The title block and the state share one wrapping row: the title block asks for its one-line width, so when the title
 // and the state don't fit side by side the state takes its own line under the title instead of squeezing it to a
-// narrow column. Side by side, the title sits centred and the state at the top right, as before.
-const TITLE_ROW_SX = { minWidth: 0, flex: 1, alignSelf: 'stretch', display: 'flex', flexWrap: 'wrap', columnGap: 1.5, rowGap: 0.5 };
-const TITLE_BLOCK_SX = { minWidth: 0, flex: '1 1 auto', alignSelf: 'center' };
+// narrow column. The title row and the markers are one group centred beside the icon, the state and markers at its top:
+// on the title's first line. Pinned to the header's top instead, they sat above a title centred beside a taller icon.
+const TITLE_GROUP_SX = { minWidth: 0, flex: 1, alignSelf: 'center', display: 'flex', alignItems: 'flex-start', gap: 1.5 };
+const TITLE_ROW_SX = { minWidth: 0, flex: 1, display: 'flex', flexWrap: 'wrap', columnGap: 1.5, rowGap: 0.5 };
+const TITLE_BLOCK_SX = { minWidth: 0, flex: '1 1 auto' };
 const STATUS_SX = { alignSelf: 'flex-start', flexShrink: 0 };
 const STATUS_OWN_LINE_SX = { ...STATUS_SX, flexBasis: '100%' };
 // The marker group after the state: none when the marker draws nothing (a doubler tag with nothing to say), and 8 px
 // from a shown state (a span in the title row) as when the two shared one group
-const HEADER_SX = { '& > [data-title-row]:has(> span) + [data-aside]': { ml: -0.5 } };
-const ASIDE_SX = { alignSelf: 'flex-start', flexShrink: 0, '&:empty': { display: 'none' } };
+const HEADER_SX = { '& [data-title-row]:has(> span) + [data-aside]': { ml: -0.5 } };
+const ASIDE_SX = { flexShrink: 0, '&:empty': { display: 'none' } };
 
 // The › of a thing that opens a page: at a link card's top right, and after a title that is a link.
 export const LinkMark = ({ sx }) => <Box component={'span'} aria-hidden={'true'} sx={{ color: 'text.muted', ...sx }}>›</Box>;
@@ -61,20 +63,22 @@ export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title
   const metaParts = [level ? levelLine(level) : null, meta].filter(Boolean);
   return <Stack data-card-header direction={'row'} alignItems={'center'} gap={1.5} sx={{ ...HEADER_SX, minHeight: icon || title ? 40 : undefined }}>
     {typeof icon === 'string' ? <GameIcon src={icon} size={iconSize ?? ICON_SIZE[size]} alt={iconAlt}/> : icon}
-    <Box data-title-row sx={TITLE_ROW_SX}>
-      <Stack data-title-block sx={TITLE_BLOCK_SX}>
-        {title ? <Typography variant={'cardTitle'} component={'h3'}>{title}</Typography> : null}
-        {metaParts.length ? <Typography data-card-meta color={'text.secondary'} component={'div'} sx={{ fontSize: 13, lineHeight: '18px' }}>
-          {metaParts.map((part, index) => <Fragment key={index}>{index ? ' · ' : null}{part}</Fragment>)}
-        </Typography> : null}
-      </Stack>
-      {status ? <StatusText status={status} sx={statusOwnLine ? STATUS_OWN_LINE_SX : STATUS_SX}>{statusLabel}</StatusText> : null}
-      {titleState ? <Box component={'span'} sx={STATUS_SX}>{titleState}</Box> : null}
+    <Box data-title-group sx={TITLE_GROUP_SX}>
+      <Box data-title-row sx={TITLE_ROW_SX}>
+        <Stack data-title-block sx={TITLE_BLOCK_SX}>
+          {title ? <Typography variant={'cardTitle'} component={'h3'}>{title}</Typography> : null}
+          {metaParts.length ? <Typography data-card-meta color={'text.secondary'} component={'div'} sx={{ fontSize: 13, lineHeight: '18px' }}>
+            {metaParts.map((part, index) => <Fragment key={index}>{index ? ' · ' : null}{part}</Fragment>)}
+          </Typography> : null}
+        </Stack>
+        {status ? <StatusText status={status} sx={statusOwnLine ? STATUS_OWN_LINE_SX : STATUS_SX}>{statusLabel}</StatusText> : null}
+        {titleState ? <Box component={'span'} sx={STATUS_SX}>{titleState}</Box> : null}
+      </Box>
+      {aside || link ? <Stack data-aside direction={'row'} alignItems={'center'} gap={1} sx={ASIDE_SX}>
+        {aside}
+        {link ? <LinkMark sx={{ fontSize: 22, lineHeight: '20px' }}/> : null}
+      </Stack> : null}
     </Box>
-    {aside || link ? <Stack data-aside direction={'row'} alignItems={'center'} gap={1} sx={ASIDE_SX}>
-      {aside}
-      {link ? <LinkMark sx={{ fontSize: 22, lineHeight: '20px' }}/> : null}
-    </Stack> : null}
   </Stack>;
 };
 
