@@ -197,7 +197,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
                                   value={formatGame(bar.exp ?? 0, 'RoyalG.OutpostEXPreq', { ruleValue: bar.required ?? 0, whole: true })} max={formatGame(bar.required ?? 0, 'RoyalG.OutpostEXPreq', { whole: true })}/>;
       })}
       <ItemCard.Section label={'Units'}>
-        <CardGrid size={'icon'}>
+        <CardGrid size={'icon'} fill>
           {(unitSlots ?? []).map((unit, slot) => isEmptySlot(unit)
             ? <IconTile key={slot} status={'empty'} alt={'Empty slot'}/>
             : <IconTile key={slot} icon={unitIcon(unit)} alt={unitNames[unit] ?? `Type ${unit}`}
@@ -208,7 +208,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
             <Typography variant={'body2'} color={'text.secondary'}>Stationary</Typography>
             <InfoButton label={'stationary units'}>Stationary units granted by Command rank and Glorification. They take no slot.</InfoButton>
           </Stack>
-          <CardGrid size={'icon'}>
+          <CardGrid size={'icon'} fill>
             {passiveUnits.map((count, type) => (count > 0
               ? <IconTile key={type} icon={unitIcon(type)} alt={unitNames[type] ?? `Type ${type}`} value={`x${formatNum(count)}`}
                           details={`${formatNum(count)} stationary ${unitNames[type] ?? `Type ${type}`}`}/>
@@ -218,7 +218,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
       </ItemCard.Section>
       <ItemCard.Section label={'Connected resources'}>
         {connectedNodes?.length
-          ? <CardGrid size={'icon'}>
+          ? <CardGrid size={'icon'} fill>
             {connectedNodes.map((node) => <IconTile key={node.index} icon={`data/${node.rawName}.png`} alt={`Node ${node.index}`}
                                                     status={node.exhausted ? 'dim' : undefined}
                                                     details={node.exhausted

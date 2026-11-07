@@ -49,7 +49,7 @@ const LoreBosses = ({ loreBosses, account }) => {
       ]}/>
       <ItemCard.Section label={'Discoveries'}>
         <ItemCard.Progress label={'Found'} value={boss.discoveriesCount ?? 0} max={boss.maxDiscoveries ?? 0}/>
-        <CardGrid size={'icon'}>
+        <CardGrid size={'icon'} fill>
           {boss.discoveries?.map((discovery) => {
             const name = cleanUnderscore(discovery?.name);
             // A discovery's sprite note, a tap away (the hover tooltip before)
