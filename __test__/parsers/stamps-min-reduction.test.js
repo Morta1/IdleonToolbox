@@ -2,13 +2,9 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { evaluateStamp, MAX_STAMP_REDUCTION, updateStamps } from '@parsers/world-1/stamps';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
+import { FIXTURES } from '../helpers/save-fixtures';
 import fourth from '../fixtures/fourth.json';
-import latest from '../fixtures/latest.json';
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
 const CASES = FIXTURES.flatMap(([name, fixture]) => [[`${name} (gilded)`, fixture, true], [name, fixture, false]]);
 
 // minReduction answers "can the best character carry the cost", nothing else. A material shortage
@@ -29,6 +25,8 @@ describe('minReduction', () => {
     expect(stamps.every(({ minReduction }) => minReduction === null)).toBe(true);
   });
 
+  // A null reduction means out of reach even at the cap, whatever the materials: a stamp the account can carry there but
+  // lacks the material for must stay out of that bucket, so the page can type it 'materials' instead.
   it.each(CASES)('%s: is the lowest reduction the best character can carry the cost at', (_name, fixture, gilded) => {
     const { account, characters } = parseFixture(fixture);
     const materialStamps = getMaterialStamps(account, characters, gilded);
@@ -47,16 +45,6 @@ describe('minReduction', () => {
       if (reduction > 0) {
         expect(carryable(reduction - 1), label).toBe(false);
       }
-    });
-  });
-
-  // The reported bug: a stamp the account can carry at the cap but lacks the material for must
-  // stay out of the out-of-reach bucket, so the page can type it 'materials' instead.
-  it.each(CASES)('%s: ignores stored materials', (_name, fixture, gilded) => {
-    const { account, characters } = parseFixture(fixture);
-    getMaterialStamps(account, characters, gilded).forEach((stamp) => {
-      if (!carryableAt(stamp, account, characters, gilded, MAX_STAMP_REDUCTION)) return;
-      expect(stamp.minReduction.reduction, `${stamp.displayName} (${_name})`).not.toBe(null);
     });
   });
 

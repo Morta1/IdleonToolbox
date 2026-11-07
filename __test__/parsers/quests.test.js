@@ -17,6 +17,8 @@ describe('quest markers', () => {
     const npc = findNpc(getQuests(build(qc)), 'Blunder_Hills', 'Scripticus');
     const questNamed = (name) => npc.npcQuests.find((quest) => quest.QuestName === name);
 
+    // Champion_of_the_Grasslands isn't on the game's reclaim list, so a later turn-in proves nothing
+    expect(questNamed('Scripticus12').completed ?? []).toEqual([]);
     expect(questNamed('Scripticus12').progress).toEqual([{ charIndex: 0, status: 0 }]);
     // and only there - one marker per character per npc
     expect(questNamed('Scripticus13').progress ?? []).toEqual([]);
@@ -47,17 +49,6 @@ describe('quest markers', () => {
 
     expect(questNamed('Promotheus2').completed ?? []).toEqual([]);
     expect(questNamed('Promotheus2').progress).toEqual([{ charIndex: 0, status: 0 }]);
-  });
-
-  it('still holds the marker on an open repeatable that is not reclaimable', () => {
-    // Champion_of_the_Grasslands isn't on the game's reclaim list, so a later turn-in proves nothing
-    const qc = { Scripticus12: 0, Scripticus13: 1 };
-
-    const npc = findNpc(getQuests(build(qc)), 'Blunder_Hills', 'Scripticus');
-    const questNamed = (name) => npc.npcQuests.find((quest) => quest.QuestName === name);
-
-    expect(questNamed('Scripticus12').completed ?? []).toEqual([]);
-    expect(questNamed('Scripticus12').progress).toEqual([{ charIndex: 0, status: 0 }]);
   });
 
   it('carries the marker past a quest that was never unlocked', () => {
@@ -92,16 +83,6 @@ describe('quest markers', () => {
 
     expect(withMarker).toHaveLength(1);
     expect(withMarker[0].QuestName).toBe('Scripticus13');
-  });
-
-  it('still advances the marker across a normal completed chain', () => {
-    const qc = { Scripticus2: 1, Scripticus3: 1, Scripticus4: 0 };
-    const npc = findNpc(getQuests(build(qc)), 'Blunder_Hills', 'Scripticus');
-    const questNamed = (name) => npc.npcQuests.find((quest) => quest.QuestName === name);
-
-    expect(questNamed('Scripticus2').progress ?? []).toEqual([]);
-    expect(questNamed('Scripticus3').progress ?? []).toEqual([]);
-    expect(questNamed('Scripticus4').progress).toEqual([{ charIndex: 0, status: 0 }]);
   });
 
   it('exposes the codex-only quests that carry no dialogue requirements', () => {

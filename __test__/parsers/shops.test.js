@@ -2,11 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { getShops, parseShops } from '@parsers/shops';
 import { shops } from '@website-data';
-import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
-import latest from '../fixtures/latest.json';
+import { FIXTURES } from '../helpers/save-fixtures';
 
 const SHOP_COUNT = Object.keys(shops).length;
 
@@ -24,8 +20,6 @@ describe('getShops', () => {
     expect(result[1]).toEqual([]);
   });
 });
-
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
 
 describe('getShops fixture regression', () => {
   it.each(FIXTURES)('%s: never throws and always returns one array per catalog shop', (_name, fixture) => {

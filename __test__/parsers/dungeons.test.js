@@ -4,10 +4,7 @@ import { calcHappyHours, getDungeons } from '@parsers/dungeons';
 import { liveCount } from '@parsers/catalog';
 import { dungeonCreditShop, dungeonStats, dungeonFlurboStats, randomList } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
+import { FIXTURES } from '../helpers/save-fixtures';
 import latest from '../fixtures/latest.json';
 
 describe('getDungeons', () => {
@@ -39,14 +36,15 @@ describe('getDungeons', () => {
   });
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
 describe('getDungeons fixture regression', () => {
-  it.each(FIXTURES)('%s: levels the save covers are unchanged at the same index', (_name, fixture) => {
+  it.each(FIXTURES)('%s: levels read at their index, across the whole catalogs', (_name, fixture) => {
     const data = fixture.data ?? fixture;
     const dungeonUpgrades = tryToParse(data?.DungUpg);
     const result = getDungeons(data, data?.OptLacc ? tryToParse(data.OptLacc) : []);
 
+    expect(result.rngItems).toHaveLength(liveCount(dungeonCreditShop));
+    expect(result.insideUpgrades).toHaveLength(liveCount(dungeonStats));
+    expect(result.upgrades).toHaveLength(liveCount(dungeonFlurboStats));
     dungeonUpgrades?.[0]?.forEach((level, index) => {
       if (index >= result.rngItems.length) return;
       expect(result.rngItems[index].level).toBe(level);
@@ -61,13 +59,6 @@ describe('getDungeons fixture regression', () => {
     });
   });
 
-  it.each(FIXTURES)('%s: returns the full catalog length regardless of save', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const result = getDungeons(data, []);
-    expect(result.rngItems).toHaveLength(liveCount(dungeonCreditShop));
-    expect(result.insideUpgrades).toHaveLength(liveCount(dungeonStats));
-    expect(result.upgrades).toHaveLength(liveCount(dungeonFlurboStats));
-  });
 });
 
 // The game's rank loop stops at the first RANDOlist[29] requirement the progress is still below, so
@@ -111,7 +102,6 @@ describe('calcHappyHours', () => {
   };
 
   it('returns nothing for a missing server var instead of throwing', () => {
-    expect(() => calcHappyHours(undefined)).not.toThrow();
     expect(calcHappyHours(undefined)).toBeUndefined();
     expect(calcHappyHours([])).toEqual([]);
   });
@@ -119,15 +109,11 @@ describe('calcHappyHours', () => {
   // 2026-08-20 is a Thursday. The old code took an early return here that skipped the
   // local-to-UTC correction the other branches applied, so every Thursday the timers were out
   // by the viewer's UTC offset - the two hours originally reported from UTC+2.
-  it('anchors to Thursday 00:00 UTC on a Thursday', () => {
-    const now = at('2026-08-20T13:46:36Z');
-    const weekStart = Date.UTC(2026, 7, 20) / 1000;
-    const [next] = calcHappyHours(HAPPY_HOURS);
-    expect(next).toBe((weekStart + gameNextHappyHourEnd(now) - SECONDS_IN_HOUR) * 1000);
-  });
-
-  it('anchors to the preceding Thursday on any other day', () => {
-    const now = at('2026-08-24T09:00:00Z'); // Monday
+  it.each([
+    ['00:00 UTC on a Thursday', '2026-08-20T13:46:36Z'],
+    ['the preceding Thursday on any other day', '2026-08-24T09:00:00Z']
+  ])('anchors to %s', (_label, iso) => {
+    const now = at(iso);
     const weekStart = Date.UTC(2026, 7, 20) / 1000;
     const [next] = calcHappyHours(HAPPY_HOURS);
     expect(next).toBe((weekStart + gameNextHappyHourEnd(now) - SECONDS_IN_HOUR) * 1000);

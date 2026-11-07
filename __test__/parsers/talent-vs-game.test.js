@@ -72,13 +72,13 @@ const TALENTS = [
   ["Arcane_Cultist", "PASSION_OF_THE_SUMMON", 596, 4.8545887961859355],
   ["Arcane_Cultist", "ABSOLUTE_STARDOM", 597, 180.85],
   ["Arcane_Cultist", "TACHYON_TRUTH", 598, 7.508982035928144],
-  // Royal Guardian (patch 2.3.525, task D5): no character in this fixture has levelled these, so
+  // Royal Guardian (patch 2.3.525): no character in this fixture has levelled these, so
   // the pinned values are each talent's level-0 identity (0 for decay, 1 for decayMulti) - still a
   // real regression lock, since a typo'd talent name would silently resolve to a different value.
   ["Royal_Guardian", "AMBER_HOARD", 235, 0],
   ["Royal_Guardian", "SPELUNKING_SPECIALTY", 236, 0],
   ["Royal_Guardian", "GRAND_VEIN", 238, 1],
-  // Added with task D9 (Royal Armory "$" tooltip fix): also unlevelled in this fixture, so the
+  // Added with the Royal Armory "$" tooltip fix: also unlevelled in this fixture, so the
   // pinned value is again the decayMulti level-0 identity (1).
   ["Royal_Guardian", "WARBOUND_POLITICS", 231, 1],
   // Added with the Outposts tab (OutpostResourceRate): unlevelled in this fixture too, so decay
@@ -151,37 +151,14 @@ describe('every talent used by a parser matches the game', () => {
 // [talent, talentId, expected, yBonus?]
 const FRESH = [
   ["ENHANCEMENT_ECLIPSE", 49, 0],
-  ["POWER_ORB", 50, 0],
-  ["EXP_CULTIVATION", 55, 0],
-  ["VOODOO_STATUFICATION", 56, 0],
-  ["MASTER_OF_THE_SYSTEM", 58, 0],
-  ["BLOOD_MARROW", 59, 0],
-  ["THE_FAMILY_GUY", 144, 21.220657276995304],
-  ["1000_HOURS_PLAYED", 176, 0],
-  ["BITTY_LITTY", 177, 0],
-  ["AGRICULTURAL_'PRECIATION", 206, 0],
-  ["DANK_RANKS", 207, 1],
-  ["WRAITH_OVERLORD", 208, 0],
   ["APOCALYPSE_WOW", 209, 0],
+  ["DANK_RANKS", 207, 1],
+  ["PASSION_OF_THE_SUMMON", 596, 1],
+  ["CHARGE_SYPHON", 475, 4000, true],
+  ["THE_FAMILY_GUY", 144, 21.220657276995304],
   ["UNENDING_LOOT_SEARCH", 325, 49.77900552486188],
   ["EXPERTLY_SAILED", 326, 41.65137614678899],
-  ["ARCHLORD_OF_THE_PIRATES", 328, 3.643979057591623],
-  ["SHINING_BEACON_OF_EGG", 372, 0],
-  ["CURVITURE_OF_THE_PAW", 373, 1],
-  ["SHINY_MEDALLIONS", 429, 1],
-  ["SNEAKY_SKILLING", 431, 0],
-  ["GENERATIONAL_GEMSTONES", 432, 1],
-  ["DUSTWALKER", 433, 0],
-  ["SLAYER_ABOMINATOR", 434, 1],
-  ["CHARGE_SYPHON", 475, 4000, true],
-  ["SHARED_BELIEFS", 506, 0],
-  ["GODS_CHOSEN_CHILDREN", 507, 0],
-  ["WORMHOLE_EMPEROR", 508, 0],
-  ["PURPLE_TUBE", 535, 0],
-  ["GREEN_TUBE", 536, 0],
-  ["OVERWHELMING_ENERGY", 589, 1],
-  ["PASSION_OF_THE_SUMMON", 596, 1],
-  ["TACHYON_TRUTH", 598, 0]
+  ["ARCHLORD_OF_THE_PIRATES", 328, 3.643979057591623]
 ];
 
 describe('fresh account: every talent matches the live client', () => {

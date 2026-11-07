@@ -3,11 +3,6 @@ import { describe, expect, it } from 'vitest';
 import { getUpgradeVault } from '@parsers/misc/upgradeVault';
 import { liveCount } from '@parsers/catalog';
 import { upgradeVault } from '@website-data';
-import { tryToParse } from '@utility/helpers';
-import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
 import latest from '../fixtures/latest.json';
 
 describe('getUpgradeVault', () => {
@@ -29,26 +24,12 @@ describe('getUpgradeVault', () => {
   });
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
-const FIXTURES_WITH_UPGVAULT = FIXTURES.filter(([, fixture]) => (fixture.data ?? fixture)?.UpgVault != null);
-
-describe('getUpgradeVault fixture regression', () => {
-  it.each(FIXTURES_WITH_UPGVAULT)('%s: levels the save covers are unchanged at the same index', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const upgradeVaultRaw = data?.UpgVault || tryToParse(data?.UpgVault);
-    const result = getUpgradeVault(data, {}, []);
-
-    expect(upgradeVaultRaw?.length).toBeGreaterThan(0);
-    upgradeVaultRaw.forEach((level, index) => {
-      if (index >= result.upgrades.length) return;
-      expect(result.upgrades[index].level).toBe(level);
-    });
-  });
-
-  it.each(FIXTURES)('%s: returns the full catalog length regardless of save', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const result = getUpgradeVault(data, {}, []);
-    expect(result.upgrades).toHaveLength(liveCount(upgradeVault));
+// The older saves carry no key at all, which is the missing-save path above
+describe('getUpgradeVault on a real save', () => {
+  it('reads every level at its index, across the whole catalog', () => {
+    const raw = latest.data.UpgVault;
+    const { upgrades } = getUpgradeVault(latest.data, {}, []);
+    expect(raw.length).toBeGreaterThan(0);
+    expect(upgrades.map(({ level }) => level)).toEqual(Array.from({ length: liveCount(upgradeVault) }, (_, index) => raw[index] ?? 0));
   });
 });

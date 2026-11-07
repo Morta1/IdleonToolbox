@@ -4,20 +4,12 @@ import { getStorage } from '@parsers/storage';
 import { liveCount } from '@parsers/catalog';
 import { invStorage } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
-import latest from '../fixtures/latest.json';
+import { FIXTURES } from '../helpers/save-fixtures';
 
 describe('getStorage', () => {
-  it('returns an empty inventory list (pure user state) when the save is missing', () => {
+  it('returns every live storage chest and an empty inventory when the save is missing', () => {
     const result = getStorage(undefined, 'storage', {});
     expect(result.list).toEqual([]);
-  });
-
-  it('returns every live storage chest (catalog-backed) when the save is missing', () => {
-    const result = getStorage(undefined, 'storage', {});
     expect(result.storageChests).toHaveLength(liveCount(Object.values(invStorage)));
     expect(result.storageChests.every((c) => c.amount === 0 && c.unlocked === false)).toBe(true);
     expect(getStorage(undefined, 'storage', undefined).storageChests).toHaveLength(liveCount(Object.values(invStorage)));
@@ -32,21 +24,14 @@ describe('getStorage', () => {
   });
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
 describe('getStorage fixture regression', () => {
-  it.each(FIXTURES)('%s: never throws and always returns the full storage-chest catalog', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const result = getStorage(data, 'storage', {});
-    expect(result.storageChests).toHaveLength(liveCount(Object.values(invStorage)));
-  });
-
-  it.each(FIXTURES)('%s: inventory quantities the save covers are unchanged', (_name, fixture) => {
+  it.each(FIXTURES)('%s: inventory quantities read from the save, beside the full chest catalog', (_name, fixture) => {
     const data = fixture.data ?? fixture;
     const chestOrderRaw = tryToParse(data?.ChestOrder);
     const chestQuantityRaw = tryToParse(data?.ChestQuantity);
     const result = getStorage(data, 'storage', {});
 
+    expect(result.storageChests).toHaveLength(liveCount(Object.values(invStorage)));
     const expectedPairs = (chestOrderRaw ?? [])
       .map((itemName, index) => ({ itemName, amount: parseInt(chestQuantityRaw?.[index]) }))
       .filter(({ itemName }) => itemName !== 'LockedInvSpace' && itemName !== 'Blank');

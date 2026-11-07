@@ -1,16 +1,13 @@
 import '../../polyfills';
 import 'core-js/modules/web.structured-clone';
 import { describe, expect, it } from 'vitest';
-import { parseData } from '@parsers/index';
 import { getLab } from '@parsers/world-4/lab';
 import { liveCount } from '@parsers/catalog';
 import { chips, jewels, labBonuses } from '@website-data';
 import { tryToParse } from '@utility/helpers';
+import { FIXTURES } from '../helpers/save-fixtures';
+import { parseFixture } from '../helpers/parsed-fixtures';
 import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
-import latest from '../fixtures/latest.json';
 
 describe('getLab', () => {
   it('returns every live chip/jewel/labBonus when the save is missing', () => {
@@ -26,27 +23,21 @@ describe('getLab', () => {
   });
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
 describe('getLab fixture regression', () => {
-  it.each(FIXTURES)('%s: jewel acquisition the save covers is unchanged at the same index', (_name, fixture) => {
+  it.each(FIXTURES)('%s: jewel acquisition reads at its index, beside the full chip and bonus catalogs', (_name, fixture) => {
     const data = fixture.data ?? fixture;
     const labRaw = tryToParse(data?.Lab) || data?.Lab;
     const jewelsRaw = labRaw?.[14];
     const result = getLab(data, [], {});
 
+    expect(result.chips).toHaveLength(liveCount(chips));
+    expect(result.labBonuses).toHaveLength(liveCount(labBonuses));
     jewelsRaw?.forEach((flag, index) => {
       if (!jewels[index]) return; // beyond the catalog's live jewel count, filtered out by the real path
       expect(result.jewels[index].acquired).toBe(flag === 1);
     });
   });
 
-  it.each(FIXTURES)('%s: chip/labBonus catalog length is unaffected by save length', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const result = getLab(data, [], {});
-    expect(result.chips).toHaveLength(liveCount(chips));
-    expect(result.labBonuses).toHaveLength(liveCount(labBonuses));
-  });
 });
 
 describe('lab tube connections', () => {
@@ -54,8 +45,7 @@ describe('lab tube connections', () => {
   // BrightFinThree is third in the account but second in the lab, so it gets the wider line that
   // reaches the prism and seeds every other connection.
   it('first: souped tubes follow lab-AFK order', () => {
-    const { data, charNames, companion, guildData, serverVars } = first;
-    const { account } = parseData(data, charNames, companion, guildData, serverVars);
+    const { account } = parseFixture(first);
 
     expect(account.lab.playersCords[2].lineWidth).toBe(104);
     expect(account.lab.connectedPlayers.map(({ playerId }) => playerId).sort()).toEqual([1, 2, 4, 5]);

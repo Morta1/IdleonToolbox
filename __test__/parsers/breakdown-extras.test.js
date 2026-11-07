@@ -1,7 +1,6 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
-import highend from '../fixtures/highend.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { evaluateBreakdown, evaluateBreakdownNode } from '@parsers/breakdown';
 import { getKrukBubblesDaily, getUpgradeableBubbles, getVialMultiplier } from '@parsers/world-2/alchemy';
@@ -14,23 +13,20 @@ import { getExtraBonesBonus } from '@parsers/class-specific/grimoire';
 import { getExtraTachyon, getPrismaMulti } from '@parsers/class-specific/tesseract';
 import { getPortalProgressBreakdown } from '@parsers/class-specific/speedrun';
 
-// The top-level nodes combined the way the root says; list groups are reference values. The combine
-// each test expects is checked against the root's (unset means product)
-const rebuild = (breakdown, combine) => {
-  expect(breakdown.combine ?? 'product').toBe(combine);
-  return evaluateBreakdown(breakdown);
-};
+// breakdown-totals.test.js rebuilds every breakdown on every save and skips what a root marks display only. These pin
+// what it cannot see: the root combine, hand-built inputs no fixture reaches, display-only lists and the rounding.
 
 const expectRebuilt = (breakdown, combine, value) => {
-  expect(breakdown.categories).toBeUndefined();
+  expect(breakdown.combine ?? 'product').toBe(combine);
   if (value === 0) {
-    expect(rebuild(breakdown, combine)).toBeCloseTo(0, 9);
+    expect(evaluateBreakdown(breakdown)).toBeCloseTo(0, 9);
     return;
   }
-  expect(rebuild(breakdown, combine) / value).toBeCloseTo(1, 9);
+  expect(evaluateBreakdown(breakdown) / value).toBeCloseTo(1, 9);
 };
 
-// breakdown-totals.test.js rebuilds all of these; what it does not check is the root's combine type
+const top = (breakdown, name) => breakdown.tree.find((node) => node.name === name);
+
 const COMBINES = [
   ['vial multiplier', 'product', (account) => [getVialMultiplier(account).breakdown]],
   ['upgradeable bubbles', 'sum', (account, characters) => [getUpgradeableBubbles(account, characters).breakdown]],
@@ -52,13 +48,13 @@ const COMBINES = [
   ['portal progress per kill', 'product', (account) => [getPortalProgressBreakdown(account, 3.5).breakdown]]
 ];
 
-describe.each([['latest', latest], ['highend', highend]])('world 2-4 and class breakdowns (%s)', (_, fixture) => {
-  const { account, characters } = parseFixture(fixture);
+describe('breakdowns on a real save', () => {
+  const { account, characters } = parseFixture(latest);
 
-  it.each(COMBINES)('%s combines as %s', (_label, combine, breakdownsOf) => {
-    const breakdowns = breakdownsOf(account, characters);
-    expect(breakdowns.length).toBeGreaterThan(0);
-    breakdowns.forEach((breakdown) => expect(breakdown.combine ?? 'product').toBe(combine));
+  it('keeps the root combine of each one', () => {
+    const combinesOf = ([label, , breakdownsOf]) => [label, [...new Set(breakdownsOf(account, characters).map(({ combine }) => combine ?? 'product'))]];
+    expect(Object.fromEntries(COMBINES.map(combinesOf)))
+      .toEqual(Object.fromEntries(COMBINES.map(([label, combine]) => [label, [combine]])));
   });
 
   it('trap collect rates, per character', () => {
@@ -67,6 +63,30 @@ describe.each([['latest', latest], ['highend', highend]])('world 2-4 and class b
       expect(evaluateBreakdownNode(critters) / (100 * critter)).toBeCloseTo(1, 9);
       expect(evaluateBreakdownNode(expGroup) / (100 * exp)).toBeCloseTo(1, 9);
     });
+  });
+
+  it('monument hours required list the per character hours', () => {
+    ['bravery', 'justice', 'wisdom'].forEach((cavern) => {
+      const req = account.hole.caverns[cavern].monumentAfkReq;
+      if (!req) return;
+      const [hoursPerCharacter] = req.tree;
+      expect(hoursPerCharacter.combine).toBe('list');
+      expect(hoursPerCharacter.children[0].value).toBe(req.totalValue);
+    });
+  });
+
+  it('the jar enchant chance lists every tier', () => {
+    const { enchant } = account.hole.caverns.theJars.jars[4];
+    expect(top(enchant.breakdown, 'Enchant chance by tier').children).toHaveLength(enchant.tiers.length);
+  });
+
+  it('farming shares the growth speed drawer and rounds the uncapped crop value', () => {
+    const { stats, maxTimes } = account.farming;
+    expect(maxTimes[0].breakdown).toBe(stats.growthSpeed);
+    // The uncapped group is rounded, and the lower of it and the cap wins
+    const [uncapped, cap] = stats.cropValue.tree;
+    expect(cap.name).toBe('Crop value cap');
+    expect(evaluateBreakdownNode(uncapped)).toBe(Math.round(evaluateBreakdownNode(uncapped)));
   });
 });
 

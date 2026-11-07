@@ -4,10 +4,6 @@ import { getGrimoire } from '@parsers/class-specific/grimoire';
 import { liveCount } from '@parsers/catalog';
 import { grimoire } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
 import latest from '../fixtures/latest.json';
 
 describe('getGrimoire', () => {
@@ -35,26 +31,12 @@ describe('getGrimoire', () => {
   });
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
-const FIXTURES_WITH_GRIMOIRE = FIXTURES.filter(([, fixture]) => (fixture.data ?? fixture)?.Grimoire != null);
-
-describe('getGrimoire fixture regression', () => {
-  it.each(FIXTURES_WITH_GRIMOIRE)('%s: levels the save covers are unchanged at the same index', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const grimoireRaw = tryToParse(data?.Grimoire) || data?.Grimoire;
-    const result = getGrimoire(data, [], {});
-
-    expect(grimoireRaw?.length).toBeGreaterThan(0);
-    grimoireRaw.forEach((level, index) => {
-      if (index >= result.upgrades.length) return;
-      expect(result.upgrades[index].level).toBe(level);
-    });
-  });
-
-  it.each(FIXTURES)('%s: returns the full catalog length regardless of save', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const result = getGrimoire(data, [], {});
-    expect(result.upgrades).toHaveLength(liveCount(grimoire));
+// The older saves carry no key at all, which is the missing-save path above
+describe('getGrimoire on a real save', () => {
+  it('reads every level at its index, across the whole catalog', () => {
+    const raw = tryToParse(latest.data.Grimoire) || latest.data.Grimoire;
+    const { upgrades } = getGrimoire(latest.data, [], {});
+    expect(raw.length).toBeGreaterThan(0);
+    expect(upgrades.map(({ level }) => level)).toEqual(Array.from({ length: liveCount(grimoire) }, (_, index) => raw[index] ?? 0));
   });
 });

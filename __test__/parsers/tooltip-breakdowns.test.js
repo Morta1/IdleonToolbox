@@ -73,12 +73,6 @@ describe('tooltip breakdowns (empty)', () => {
     [getDoubleStatueDrop(account, characters?.[0], characters), getDoubleGoldenFoodDrop(account)]
       .forEach(({ value, breakdown }) => expect(evaluateBreakdown(breakdown)).toBeCloseTo(value, 9));
   });
-});
-
-describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('tooltip breakdowns (%s)', (name, parse) => {
-  const { account, characters } = parse();
-  // The fixture must reach every branch, or a broken tree passes on empty data
-  const populated = name === 'latest';
 
   it('legend points owned', () => {
     const pointsOwned = account.legendTalents?.pointsOwned;
@@ -91,6 +85,12 @@ describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('
     expect(product(breakdown)).toBe(value);
     expect(value).toBe(getGildedBoostioBonus(account) * (account?.construction?.totalBuildRate ?? 0));
   });
+});
+
+describe.each([['latest', () => parseFixture(latest)], ['empty', parseEmpty]])('tooltip breakdowns (%s)', (name, parse) => {
+  const { account, characters } = parse();
+  // The fixture must reach every branch, or a broken tree passes on empty data
+  const populated = name === 'latest';
 
   it('anvil totals are the sum of every character producing them', () => {
     const totals = calcTotals(account, characters);

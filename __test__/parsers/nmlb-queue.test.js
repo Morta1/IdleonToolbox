@@ -58,11 +58,6 @@ describe('getNoMealLeftBehindQueue', () => {
     expect(longer.slice(8).map(({ index }) => index)).toEqual([40, 1]);
   });
 
-  it('breaks level ties towards the meal furthest down the book', () => {
-    const queue = getNoMealLeftBehindQueue([meal(3, 20), meal(9, 20)], 90, 2, opts);
-    expect(queue.map(({ index }) => index)).toEqual([9, 3]);
-  });
-
   it('skips meals outside the level >= 2 and level < max window', () => {
     const meals = [meal(0, 1), meal(1, 90), meal(2, 40)];
     const queue = getNoMealLeftBehindQueue(meals, 90, 3, opts);

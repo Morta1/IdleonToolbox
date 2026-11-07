@@ -1,14 +1,12 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
-import { parseData } from '@parsers/index';
+import { parseFixture } from '../helpers/parsed-fixtures';
 // Values below are pinned to the 22 Aug 2026 save (latest-2026-08.json), checked against the game then.
 import latest from '../fixtures/latest-2026-08.json';
 import { getLibraryBookTimes, getTimeToNextBooks } from '@parsers/misc';
 
 // The game's BookReqTime multiplies the "Library Checkouts" superbit by Lv0[15] of the character
 // you're logged in as. Values below were read from a live game on this fixture's account.
-const run = (data) => parseData(data, latest.charNames ?? [], null, null, latest.serverVars);
-
 const withActiveCharacter = (index) => {
   const data = JSON.parse(JSON.stringify(latest.data));
   const newest = Math.max(...latest.charNames.map((_, i) => data[`PTimeAway_${i}`]));
@@ -18,20 +16,20 @@ const withActiveCharacter = (index) => {
 
 describe('library book time', () => {
   it('uses the gaming level of the character that was active at save time', () => {
-    const { account, characters } = run(latest.data);
+    const { account, characters } = parseFixture(latest);
     expect(account?.gaming?.superbitsUpgrades?.[12]?.totalBonus).toBe(512);
     expect(getTimeToNextBooks(2078, account, characters, latest.data)?.value).toBe(16453);
   });
 
   it('matches the game when a lower-gaming character is the active one', () => {
     const data = withActiveCharacter(6); // gaming 490, game reported BookReqTime 16566
-    const { account, characters } = run(data);
+    const { account, characters } = parseFixture({ ...latest, data });
     expect(account?.gaming?.superbitsUpgrades?.[12]?.totalBonus).toBe(490);
     expect(getTimeToNextBooks(2078, account, characters, data)?.value).toBe(16566);
   });
 
   it('measures breakpoints from the leftover time, not the raw saved BookLib', () => {
-    const { account, characters } = run(latest.data);
+    const { account, characters } = parseFixture(latest);
     const { bookCount, next, breakpoints } = getLibraryBookTimes(latest.data, characters, account);
     const nextReq = getTimeToNextBooks(bookCount, account, characters, latest.data)?.value;
     const leftover = nextReq - next;

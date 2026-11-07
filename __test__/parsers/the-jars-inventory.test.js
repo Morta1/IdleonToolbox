@@ -1,30 +1,19 @@
 import '../../polyfills';
-import 'core-js/modules/web.structured-clone';
 import { describe, expect, it } from 'vitest';
-import { parseData } from '@parsers/index';
 import { tryToParse } from '@utility/helpers';
+import { parseFixture } from '../helpers/parsed-fixtures';
 import latest from '../fixtures/latest.json';
 
 // A raw Jars entry is [typeIndex, tierExponent, x, y, roll]; the exponent is what the game
 // raises 10 to when the jar breaks, so a tier N jar is worth 10^(N-1) tier 1 jars.
 const rawJars = tryToParse(latest.data.Jars) || [];
 
-const parse = () => {
-  const { data, charNames, companion, guildData, serverVars } = structuredClone(latest);
-  return parseData(data, charNames, companion, guildData, serverVars).account.hole.caverns.theJars;
-};
-
-const parseEmpty = () => {
-  const clone = structuredClone(latest);
-  clone.data.Jars = '[]';
-  const { data, charNames, companion, guildData, serverVars } = clone;
-  return parseData(data, charNames, companion, guildData, serverVars).account.hole.caverns.theJars;
-};
+const parse = (fixture = latest) => parseFixture(fixture).account.hole.caverns.theJars;
 
 describe('the jars inventory', () => {
   it('returns an entry per jar type when no jars are held', () => {
-    const { jarInventory, totalJarQuantity } = parseEmpty();
-    expect(jarInventory).toHaveLength(10);
+    const { jarInventory, totalJarQuantity } = parse({ ...latest, data: { ...latest.data, Jars: '[]' } });
+    expect(jarInventory).toHaveLength(parse().jars.length);
     expect(jarInventory.every(({ total, quantity, tiers }) => total === 0 && quantity === 0 && tiers.length === 0))
       .toBe(true);
     expect(totalJarQuantity).toBe(0);

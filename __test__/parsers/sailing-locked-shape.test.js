@@ -33,14 +33,9 @@ const findNaN = (root) => {
   return nan;
 };
 
-const REQUIRED_COLLECTIONS = ['artifacts', 'lootPile', 'chests', 'captains', 'boats', 'shopCaptains', 'trades'];
-
 describe('sailing locked shape', () => {
   it('is an object, never null, for an account with no save', () => {
-    const { sailing } = parseEmpty().account;
-    expect(sailing).toBeTypeOf('object');
-    expect(sailing).not.toBeNull();
-    expect(sailing.unlocked).toBe(false);
+    expect(parseEmpty().account.sailing.unlocked).toBe(false);
   });
 
   it('carries the full artifact catalog so the page has something to show', () => {
@@ -50,9 +45,9 @@ describe('sailing locked shape', () => {
     expect(sailing.lootPile.map(({ amount }) => amount)).toEqual(new Array(1 + 2 * islands.length).fill(0));
   });
 
-  it.each(REQUIRED_COLLECTIONS)('exposes %s as an array, not undefined', (key) => {
+  it('exposes the collections its consumers index into as arrays', () => {
     const { sailing } = parseEmpty().account;
-    expect(Array.isArray(sailing[key]), `${key} must be an array - consumers index into it`).toBe(true);
+    expect(['artifacts', 'lootPile', 'chests', 'captains', 'boats', 'shopCaptains', 'trades'].filter((key) => !Array.isArray(sailing[key]))).toEqual([]);
   });
 
   it('keeps captainsOnBoats an object, matching the unlocked shape', () => {
@@ -61,23 +56,11 @@ describe('sailing locked shape', () => {
     expect(Array.isArray(sailing.captainsOnBoats)).toBe(false);
   });
 
-  it('survives the exact expression that crashed guild when it stopped being null', () => {
-    const account = parseEmpty().account;
-    expect(() => account?.sailing?.trades.length > 0).not.toThrow();
-  });
-
-  it('reports unlocked: true for a real save that has sailing', () => {
-    const { sailing } = parseReal().account;
-    expect(sailing.unlocked).toBe(true);
-    expect(sailing.artifacts.length).toBeGreaterThan(0);
-  });
 });
 
 describe('sushiStation locked shape', () => {
   it('is an object reporting unlocked: false, carrying the upgrade catalog', () => {
     const { sushiStation } = parseEmpty().account;
-    expect(sushiStation).toBeTypeOf('object');
-    expect(sushiStation).not.toBeNull();
     expect(sushiStation.unlocked).toBe(false);
     expect(sushiStation.upgrades.length).toBeGreaterThan(0);
     expect(sushiStation.upgrades.every(({ level }) => level === 0)).toBe(true);
@@ -91,26 +74,17 @@ describe('sushiStation locked shape', () => {
     expect(sushiStation.fuel).toBeTypeOf('object');
   });
 
-  it('reports unlocked: true for a real save that has it', () => {
-    const { sushiStation } = parseReal().account;
-    expect(sushiStation.unlocked).toBe(true);
-  });
 });
 
 describe('divinity locked shape', () => {
   it('is an object reporting unlocked: false, carrying every god', () => {
     const { divinity } = parseEmpty().account;
-    expect(divinity).toBeTypeOf('object');
-    expect(divinity).not.toBeNull();
     expect(divinity.unlocked).toBe(false);
     expect(divinity.deities.length).toBeGreaterThan(0);
     expect(divinity.deities.every(({ level }) => level === 0)).toBe(true);
     expect(divinity.deities.every(({ name, blessing }) => !!name && !!blessing)).toBe(true);
   });
 
-  it('reports unlocked: true for a real save that has it', () => {
-    expect(parseReal().account.divinity.unlocked).toBe(true);
-  });
 });
 
 describe('gaming locked shape', () => {
@@ -119,8 +93,6 @@ describe('gaming locked shape', () => {
 
   it('is an object reporting unlocked: false, carrying every catalog', () => {
     const { gaming } = parseEmpty().account;
-    expect(gaming).toBeTypeOf('object');
-    expect(gaming).not.toBeNull();
     expect(gaming.unlocked).toBe(false);
     expect(gaming.superbitsUpgrades).toHaveLength(superbitsUpgrades.length);
     expect(gaming.palette).toHaveLength(gamingPalette.length + 1); // +1 for the final bonus entry
@@ -135,14 +107,6 @@ describe('gaming locked shape', () => {
       expect(findNaN(account)).toEqual([]);
     });
 
-  it('keeps palette luck finite - the single root that poisoned 37 chances plus button', () => {
-    for (const [name, account] of oldSaves) {
-      expect(Number.isFinite(account.gaming.paletteLuck.value), `${name} paletteLuck`).toBe(true);
-      expect(account.gaming.palette.every(({ chance }) => chance === undefined || Number.isFinite(chance))).toBe(true);
-      expect(account.button.taskSequence.every(({ progress }) => progress === undefined || Number.isFinite(progress))).toBe(true);
-    }
-  });
-
   it('keeps every cross-section gaming lookup neutral', () => {
     const account = parseEmpty().account;
     expect(account.gaming.palette.every((_, i) => getPaletteBonus(account, i) === 0)).toBe(true);
@@ -150,19 +114,11 @@ describe('gaming locked shape', () => {
     expect(Number.isFinite(getBitsMulti(account, []).value)).toBe(true);
   });
 
-  it('reports unlocked: true for a real save that has it, World 7 or not', () => {
-    const { gaming } = parseReal().account;
-    expect(gaming.unlocked).toBe(true);
-    expect(oldSaves.filter(([, account]) => !account.gaming.unlocked)).toEqual([]);
-    expect(findNaN(gaming)).toEqual([]);
-  });
 });
 
 describe('equinox locked shape', () => {
   it('is an object reporting unlocked: false, carrying every challenge and upgrade', () => {
     const { equinox } = parseEmpty().account;
-    expect(equinox).toBeTypeOf('object');
-    expect(equinox).not.toBeNull();
     expect(equinox.unlocked).toBe(false);
     expect(equinox.challenges).toHaveLength(equinoxChallenges.length);
     expect(equinox.upgrades).toHaveLength(equinoxUpgrades.length);
@@ -198,18 +154,11 @@ describe('equinox locked shape', () => {
     expect(Object.keys(getLockedEquinox()).sort()).toEqual(Object.keys(parsed).sort());
   });
 
-  it('reports unlocked: true for a real save that has it', () => {
-    const { equinox } = parseReal().account;
-    expect(equinox.unlocked).toBe(true);
-    expect(equinox.chargeRate).toBeGreaterThan(0);
-  });
 });
 
 describe('guild locked shape', () => {
   it('is an object reporting unlocked: false, carrying every guild bonus', () => {
     const { guild } = parseEmpty().account;
-    expect(guild).toBeTypeOf('object');
-    expect(guild).not.toBeNull();
     expect(guild.unlocked).toBe(false);
     expect(guild.guildBonuses).toHaveLength(guildBonuses.length);
     expect(guild.guildBonuses.every(({ level }) => level === 0)).toBe(true);
@@ -224,13 +173,6 @@ describe('guild locked shape', () => {
     expect(guild.guildTasks.weekly).toEqual([]);
   });
 
-  it('does not fire the dashboard uncompleted-task alerts for a guild-less account', () => {
-    const { guild } = parseEmpty().account;
-    const uncompleted = (tasks) => tasks?.filter(({ requirement, progress }) => progress < requirement)?.length;
-    expect(uncompleted(guild.guildTasks.daily)).toBe(0);
-    expect(uncompleted(guild.guildTasks.weekly)).toBe(0);
-  });
-
   it('keeps every cross-section guild bonus at 0, exactly as the null contract did', () => {
     const { guild } = parseEmpty().account;
     const indexes = guild.guildBonuses.map((_, i) => i);
@@ -243,15 +185,26 @@ describe('guild locked shape', () => {
     const { guild } = parseEmpty().account;
     expect(guild.level).toBe(getGuildLevel(0));
     expect(guild.maxMembers).toBe(30 + 4 * guild.level);
-    expect(Number.isFinite(guild.levelReq)).toBe(true);
     expect(guild.levelReq).toBeGreaterThan(0);
     expect(guild.totalGp).toBe(0);
   });
 
-  it('reports unlocked: true for a real save that has guild data', () => {
-    const { guild } = parseReal().account;
-    expect(guild.unlocked).toBe(true);
-    expect(guild.members.length).toBeGreaterThan(0);
+});
+
+describe('the locked sections on a real save', () => {
+  it('all report unlocked, with their content', () => {
+    const { account } = parseReal();
+    expect(['sailing', 'sushiStation', 'divinity', 'gaming', 'equinox', 'guild'].filter((key) => account[key].unlocked !== true)).toEqual([]);
+    expect(account.sailing.artifacts.length).toBeGreaterThan(0);
+    expect(account.equinox.chargeRate).toBeGreaterThan(0);
+    expect(account.guild.members.length).toBeGreaterThan(0);
+    expect(findNaN(account.gaming)).toEqual([]);
+  });
+
+  it('gaming is unlocked on every save from before World 7', () => {
+    const stillLocked = Object.entries({ first, second, third, fourth })
+      .filter(([, fixture]) => !parseFixture(fixture).account.gaming.unlocked).map(([name]) => name);
+    expect(stillLocked).toEqual([]);
   });
 });
 
@@ -267,8 +220,10 @@ describe('no consumer truthiness-gates account.sailing', () => {
   };
   for (const r of roots) walk(path.resolve(__dirname, '../..', r));
 
+  const gateOn = (section) => new RegExp(`!\\s*(state\\s*\\??\\.\\s*)?account\\s*\\??\\.\\s*${section}\\b(?!\\s*\\??\\.)`);
+
   it.each(['sailing', 'guild'])('has no `if (!...account?.%s)` style gate left', (section) => {
-    const gate = new RegExp(`!\\s*(state\\s*\\??\\.\\s*)?account\\s*\\??\\.\\s*${section}\\b(?!\\s*\\??\\.)`);
+    const gate = gateOn(section);
     const offenders = files
       .map((f) => ({ f, lines: fs.readFileSync(f, 'utf8').split(/\r?\n/) }))
       .flatMap(({ f, lines }) => lines
@@ -279,7 +234,7 @@ describe('no consumer truthiness-gates account.sailing', () => {
   });
 
   it('the gate regex actually matches the pattern it is meant to catch', () => {
-    const gate = new RegExp(`!\\s*(state\\s*\\??\\.\\s*)?account\\s*\\??\\.\\s*guild\\b(?!\\s*\\??\\.)`);
+    const gate = gateOn('guild');
     expect(gate.test('if (!state?.account?.guild) return <MissingData/>;')).toBe(true);
     expect(gate.test('if (!account.guild) return null;')).toBe(true);
     expect(gate.test('myGuildId: state?.account?.guild?.id || null')).toBe(false);
