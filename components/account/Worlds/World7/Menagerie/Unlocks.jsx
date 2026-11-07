@@ -25,7 +25,7 @@ const Unlocks = ({ unlocks, menagerie }) => {
                          icon={`data/MenaIconO${index}.png`}
                          iconSize={56}
                          title={name}
-                         status={owned ? 'active' : locked ? 'locked' : undefined}
+                         status={owned ? 'done' : locked ? 'locked' : undefined}
                          statusLabel={owned ? 'Owned' : undefined}
                          footer={owned ? null : locked
                            ? <RankRequired rank={rankRequired}/>
