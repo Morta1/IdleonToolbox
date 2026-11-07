@@ -1,4 +1,4 @@
-import React, { useContext, useState } from 'react';
+import React, { Fragment, useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { Box, Stack } from '@mui/material';
@@ -28,7 +28,7 @@ import useTabIndex from '@hooks/useTabIndex';
 import { ink } from '../../../styles/theme/theme';
 
 const RANKS = ['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '80%', '90%', '95%'];
-const TOME_TOOLBAR = { search: '', hideMaxed: false, view: 'cards' };
+const TOME_TOOLBAR = { search: '', hideMaxed: false, details: false };
 const TIERS = ['bronze', 'silver', 'gold', 'blue'];
 
 // The rank's word art ("TOP 25%") beside its words at its own size: StatTile's 24 px icon shrank it past reading, and
@@ -80,7 +80,7 @@ const QuantityCalculator = ({ bonus, maxPoints }) => {
   </Stack>;
 };
 
-// The Details view: an entry's tier thresholds, its tier bar, its points against the max, and the calculator
+// The Details pill's rows: an entry's tier thresholds, its tier bar, its points against the max, and the calculator
 const detailsSection = (bonus, tier) => {
   const { requiredQuantities, points = 0, maxPoints = 0, x2 } = bonus ?? {};
   // A locked entry has no tier, so its bar draws empty
@@ -196,25 +196,33 @@ const Tome = () => {
                    total={entries.length} shown={shown.length} noun={'entries'}>
             <Toolbar.Search placeholder={'Search the Tome'}/>
             <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
-            <Toolbar.View options={[['cards', 'Cards'], ['details', 'Details']]}/>
+            <Toolbar.Filter name={'details'} label={'Details'} display/>
           </Toolbar>}
-          <CardGrid size={'m'}>
+          {/* An entry has no sprite to tile, so it keeps a card, five to a row on a 1920 window where four were. The
+              title names what the Tome counts, so the quantity reads under it as the game lists it, with the tier:
+              "1,633 / 2,175 · Blue tier" broke the narrower card's points row. A maxed entry's tier is the top one, and
+              its Maxed says so. */}
+          <CardGrid size={'s'} details={!sectionFailed && toolbar?.details}>
             {shown.map(({ bonus, position }) => {
               const { name, color, tomeLvReq, quantity, maxPoints, index } = bonus;
               const locked = isTomeEntryLocked(bonus, accountLevel);
               const { points } = bonus;
+              const maxed = !locked && maxPoints && points >= maxPoints;
               const tier = tierOf(color);
               const pointsText = `${formatGame(points ?? 0, 'Summoning.TomePTS', { whole: true })} / ${formatGame(maxPoints ?? 0, 'Summoning.TomePTS', { whole: true })}`;
+              // A locked entry counts nothing, so its line says when it opens instead of its quantity
+              const meta = [
+                locked ? `Unlocks at account Lv ${formatGame(tomeLvReq, 'Summoning.TomeLvReq', { whole: true })}` : tomeQuantity(bonus, quantity),
+                tier && !maxed ? <Box component={'span'} sx={{ color: tierColor(tier) }}>{tierName(tier)}</Box> : null,
+                position === 19 ? 'Uses your active character' : null
+              ].filter(Boolean);
               return <ItemCard key={'tome-bonus' + index} title={cleanUnderscore(name?.replace('(Tap_for_more_info)', ''))}
-                               dimmed={locked} status={locked ? 'locked' : maxPoints && points >= maxPoints ? 'maxed' : undefined}
-                               meta={locked ? `Unlocks at account Lv ${formatGame(tomeLvReq, 'Summoning.TomeLvReq', { whole: true })}`
-                                 : position === 19 ? 'Uses your active character' : undefined}>
+                               dimmed={locked} status={locked ? 'locked' : maxed ? 'maxed' : undefined}
+                               meta={meta.map((part, partIndex) => <Fragment key={partIndex}>{partIndex ? ' · ' : null}{part}</Fragment>)}
+                               more={detailsSection({ ...bonus, points }, tier)}>
                 <ItemCard.Facts rows={[
-                  ['Quantity', tomeQuantity(bonus, quantity)],
-                  ['Points', tier ? <Box key={'pts'} component={'span'} sx={{ color: tierColor(tier) }}>
-                    {`${pointsText} · ${tierName(tier)}`}</Box> : pointsText]
+                  ['Points', tier ? <Box key={'pts'} component={'span'} sx={{ color: tierColor(tier) }}>{pointsText}</Box> : pointsText]
                 ]}/>
-                {toolbar?.view === 'details' ? detailsSection({ ...bonus, points }, tier) : null}
               </ItemCard>
             })}
           </CardGrid>

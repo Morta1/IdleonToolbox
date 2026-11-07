@@ -1,4 +1,4 @@
-import { Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
 import { fillRound } from '@utility/gameNotation';
 import React, { useContext } from 'react';
@@ -14,15 +14,24 @@ import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/Worl
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import StatTile from '@components/common/cards/StatTile';
+import { SummaryFailed } from '@components/common/cards/PageSummary';
 import GameIcon from '@components/common/GameIcon';
 import StatusText from '@components/common/StatusText';
 import Timer from '@components/common/Timer';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 
 // The card text's own fill (parsers/world-6/farming.ts, `{`), so the bar and the line under it read 0.67 alike
 const effectText = (value) => String(fillRound(value ?? 0));
+// ExoticReturnsIn draws a caption; on the card's meta line it takes the line's own type
+const META_TEXT_SX = { font: 'inherit', letterSpacing: 'inherit' };
+
+const MARKET_TOOLBAR = { details: false };
 
 const Market = ({ market }) => {
   const { state } = useContext(AppContext);
+  const failed = useContext(SummaryFailed);
+  const [view, setView, resetView] = useToolbarState('farming-exotic-market', MARKET_TOOLBAR);
 
   const rotations = getExoticMarketRotations(state?.account, 2);
   const nextRotationDate = rotations?.[1]?.date;
@@ -41,6 +50,8 @@ const Market = ({ market }) => {
     lvlNeeded: Math.ceil(findExoticCappedThresholdLevel(pct))
   }));
 
+  // A card keeps what it gives (its bar and its text) and when it returns, on the level's line in place of a footer. The
+  // share of the hard cap shows with the Details pill: the card ran about a third taller than the old page's.
   const renderCards = (list) =>
     list?.map((
       {
@@ -61,20 +72,17 @@ const Market = ({ market }) => {
       const title = titleCaseName(cleanUnderscore(name));
       return <ItemCard key={'upgrade' + marketIndex} icon={`data/FarmCrop${x2}.png`} title={title}
                        level={{ value: level }}
+                       meta={<ExoticReturnsIn weeks={returnWeeks} sx={META_TEXT_SX}/>}
                        aside={isOrganic ? <Stack direction={'row'} alignItems={'center'} gap={0.5}>
                          <GameIcon src={DOUBLER_ICONS.organicLabels} size={16} alt={''}/>
                          <Typography variant={'caption'} color={'text.success'}>Organic label: x2</Typography>
                        </Stack> : null}
-                       footer={<ExoticReturnsIn weeks={returnWeeks}/>}>
+                       more={isCapped
+                         ? <ItemCard.Facts rows={[['Share of the hard cap', formatNum(percentOfCap ?? 0, 'pct')]]}/>
+                         : null}>
         {isCapped
-          // The share of the hard cap gets its own line, so it never reads as the cap's
-          ? <Stack gap={0.5}>
-            <ItemCard.Progress label={'Effect'} value={effectText(value)} max={effectText(maxValue)}
+          ? <ItemCard.Progress label={'Effect'} value={effectText(value)} max={effectText(maxValue)}
                                percent={Math.min(100, percentOfCap ?? 0)}/>
-            <Typography variant={'caption'} color={'text.secondary'}>
-              {`${formatNum(percentOfCap ?? 0, 'pct')} of the hard cap`}
-            </Typography>
-          </Stack>
           : <ItemCard.Facts rows={[['Effect', `${effectText(value)}, no cap`]]}/>}
         <ItemCard.Desc text={displayText}/>
         <HiddenCapLine system={'exotic'} index={index} name={title}/>
@@ -91,28 +99,34 @@ const Market = ({ market }) => {
                                                            value={formatNum(lvlNeeded, 'level')}/>)}
       </Stack>
 
-      {/* Current Rotation */}
-      <Stack>
-        <Stack direction="row" alignItems="baseline" gap={2} sx={{ mb: 3 }} flexWrap="wrap">
-          <Typography variant={'sectionTitle'} component={'h2'}>Current rotation</Typography>
-          {nextRotationDate instanceof Date ? <Typography variant={'caption'} color={'text.secondary'}>
-            {/* The Timer ticks itself and reads like every timer; its text placeholder would draw at body1 */}
-            Next in <Timer type={'countdown'} date={nextRotationDate.getTime()} component={'span'}
-                           placeholder={<StatusText status={'ready'}/>}/>
-          </Typography> : null}
-        </Stack>
-        <CardGrid size={'m'}>
-          {renderCards(currentRotation)}
-        </CardGrid>
-      </Stack>
+      <Box>
+        {failed ? null : <Toolbar state={view} defaults={MARKET_TOOLBAR} onChange={setView} onReset={resetView}
+                                  total={market?.length ?? 0} shown={market?.length ?? 0} noun={'upgrades'}>
+          <Toolbar.Filter name={'details'} label={'Details'} display/>
+        </Toolbar>}
+        <Stack gap={4}>
+          <Stack gap={1.5}>
+            <Stack direction="row" alignItems="baseline" gap={2} flexWrap="wrap">
+              <Typography variant={'sectionTitle'} component={'h2'}>Current rotation</Typography>
+              {nextRotationDate instanceof Date ? <Typography variant={'caption'} color={'text.secondary'}>
+                {/* The Timer ticks itself and reads like every timer; its text placeholder would draw at body1 */}
+                Next in <Timer type={'countdown'} date={nextRotationDate.getTime()} component={'span'}
+                               placeholder={<StatusText status={'ready'}/>}/>
+              </Typography> : null}
+            </Stack>
+            <CardGrid size={'m'} details={!failed && view?.details}>
+              {renderCards(currentRotation)}
+            </CardGrid>
+          </Stack>
 
-      {/* Off Rotation */}
-      <Stack>
-        <Typography sx={{ mb: 3 }} variant={'sectionTitle'} component={'h2'}>Off rotation</Typography>
-        <CardGrid size={'m'}>
-          {renderCards(offRotation)}
-        </CardGrid>
-      </Stack>
+          <Stack gap={1.5}>
+            <Typography variant={'sectionTitle'} component={'h2'}>Off rotation</Typography>
+            <CardGrid size={'m'} details={!failed && view?.details}>
+              {renderCards(offRotation)}
+            </CardGrid>
+          </Stack>
+        </Stack>
+      </Box>
     </Stack>
   );
 };

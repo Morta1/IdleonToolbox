@@ -61,7 +61,7 @@ const calculateTotalCostToMax = (baseCost, costIncrement, currentPurchases, maxP
   return totalCost;
 };
 
-const SHOP_TOOLBAR = { search: '', tier: 'all', hideMaxed: false };
+const SHOP_TOOLBAR = { search: '', tier: 'all', hideMaxed: false, details: false };
 const TIERS = [['all', 'All tiers'], ['S', 'S tier'], ['A', 'A tier'], ['B', 'B tier'], ['C', 'C tier'], ['Unranked', 'Unranked']];
 const TIER_NAME = { S: 'S tier', A: 'A tier', B: 'B tier', C: 'C tier' };
 const PAST_CATEGORY = 'past_limited_specials';
@@ -109,13 +109,15 @@ const GemShop = () => {
                      title={itemTitle(displayName)} meta={TIER_NAME[getPriority(category, globalIndex)]}
                      status={maxed ? 'maxed' : undefined}
                      footer={bought == null ? null : <ItemCard.Cost icon={'data/PremiumGem.png'} iconAlt={'Gems'} need={nextCost}
-                                                                    have={gems} format={gemCount}/>}>
-      <ItemCard.Desc text={cleanUnderscore(desc ?? '')}/>
+                                                                    have={gems} format={gemCount}/>}
+                     more={<>
+                       <ItemCard.Desc text={cleanUnderscore(desc ?? '')}/>
+                       <ItemCard.Facts rows={[bought != null && !maxed && maxPurchases - bought > 1
+                         ? ['Cost to max', formatNum(calculateTotalCostToMax(cost, costIncrement || 0, bought, maxPurchases), 'whole')]
+                         : null]}/>
+                     </>}>
       <ItemCard.Facts rows={[
-        bought == null ? ['Cost', formatNum(cost, 'whole')] : ['Bought', `${formatNum(bought, 'whole')} / ${formatNum(maxPurchases, 'whole')}`],
-        bought != null && !maxed && maxPurchases - bought > 1
-          ? ['Cost to max', formatNum(calculateTotalCostToMax(cost, costIncrement || 0, bought, maxPurchases), 'whole')]
-          : null
+        bought == null ? ['Cost', formatNum(cost, 'whole')] : ['Bought', `${formatNum(bought, 'whole')} / ${formatNum(maxPurchases, 'whole')}`]
       ]}/>
     </ItemCard>;
   };
@@ -134,6 +136,7 @@ const GemShop = () => {
       <Toolbar.Search placeholder={'Search items'}/>
       <Toolbar.Show name={'tier'} options={TIERS.map(([key, label]) => [key, label, countOf(key)])}/>
       {failed ? null : <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>}
+      <Toolbar.Filter name={'details'} label={'Details'} display/>
     </Toolbar>
     {(gemShop ?? []).map(({ name, sections }) => {
       const visibleSections = Object.entries(sections ?? {})
@@ -151,7 +154,9 @@ const GemShop = () => {
               ? <Typography variant={'body2'} color={'text.secondary'}>The save doesn't say which past specials you bought.</Typography>
               : null}
           </Stack>
-          <CardGrid size={'m'}>{items.map(itemCard)}</CardGrid>
+          {/* A card keeps what a purchase is weighed by: its tier, how many are bought and the next price. What it does
+              and the cost to max show with the Details pill: the text ran each card two to four lines taller. */}
+          <CardGrid size={'m'} details={toolbar.details}>{items.map(itemCard)}</CardGrid>
         </Stack>)}
       </Stack>;
     })}
