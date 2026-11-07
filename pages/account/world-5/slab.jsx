@@ -120,7 +120,7 @@ const Slab = () => {
         return entry ? <SlabNote item={entry}/> : null;
       }}
     </SharedNote>
-    <CardGrid size={'icon'}>
+    <CardGrid size={'icon'} fill>
       {/* Where a view holds looted and missing items, a missing one greys as a not-found tile does elsewhere; Missing
           items holds only missing ones, so it keeps their colours */}
       {shown.map((entry, index) => <SlabTile key={`${entry.rawName}-${index}`} item={entry}
