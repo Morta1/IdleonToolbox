@@ -37,10 +37,16 @@ const PILL = {
   ...OUTER_RING
 };
 
-// Inside a sheet a sprite-only pill is a 32 px circle with a 20 px sprite, 4 px apart, and the row keeps no margin
-// (the characters board's .pg).
-const SHEET_PILLS = { ...PILLS, '& .MuiTabs-flexContainer': { flexWrap: 'wrap', gap: '4px' }, mb: 0 };
-const SHEET_PILL = { ...PILL, minWidth: 32, width: 32, px: 0, '& .MuiTab-icon': { m: 0 } };
+// Inside a sheet a sprite-only pill is a 36 px circle with a 28 px sprite, 4 px apart, and the row keeps no margin
+// (the characters board's .pg). A 20 px sprite was too small to tell a talent page's class by; seven card presets
+// at 36 px still keep one row in a character card six to a row.
+const SHEET_PILL_SIZE = 36;
+const SHEET_SPRITE = 28;
+const SHEET_PILLS = { ...PILLS, minHeight: SHEET_PILL_SIZE, '& .MuiTabs-flexContainer': { flexWrap: 'wrap', gap: '4px' }, mb: 0 };
+const SHEET_PILL = {
+  ...PILL, minWidth: SHEET_PILL_SIZE, width: SHEET_PILL_SIZE, minHeight: SHEET_PILL_SIZE, height: SHEET_PILL_SIZE, borderRadius: '18px', px: 0,
+  '& .MuiTab-icon': { m: 0 }
+};
 
 // names: what a reader sees and hears. A sprite-only pill (iconsOnly) shows its sprite, or the caller's
 // own node (components), and carries its name as aria-label.
@@ -55,7 +61,7 @@ export const SectionPills = ({ tabs, names, icons, iconsOnly, components, select
     {tabs.map((tab, index) => <Tab
       key={`${tab}-${index}`}
       iconPosition="start"
-      icon={sprite(icons?.[index], { size: small ? 20 : 24 })}
+      icon={sprite(icons?.[index], { size: small ? SHEET_SPRITE : 24 })}
       label={iconsOnly ? (components?.[index] ?? '') : (components?.[index] ?? names[index])}
       {...(iconsOnly ? { 'aria-label': names[index] } : {})}
       sx={small ? SHEET_PILL : iconsOnly ? { ...PILL, px: 1 } : PILL}

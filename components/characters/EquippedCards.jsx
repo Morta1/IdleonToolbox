@@ -64,7 +64,7 @@ const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
 
 // The game's preset in use carries the dot on its sprite's corner, so it never fills the pill the way the open one does
 const TabIcon = ({ src, alt, selected }) => <Box component={'span'} sx={{ position: 'relative', display: 'inline-flex' }}>
-  <GameIcon src={src} size={20} alt={alt}/>
+  <GameIcon src={src} size={28} alt={alt}/>
   {selected ? <InUseDot onSprite/> : null}
 </Box>;
 

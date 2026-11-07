@@ -17,6 +17,9 @@ import { pointsSpent } from './sectionSummary';
 import InUseDot from './InUseDot';
 
 const LOCK = 'data/UISkillIconLocke.png';
+// A talent is its sprite, so the sprite takes its tile: 48 px, the most a tile holds with six characters to a row (about
+// 52 px a tile), where 40 drew a 36 px speck
+const TALENT_ICON = 48;
 // A star talent page's 13 talents, with its two arrows in their slots
 const STAR_PAGE_SIZE = 13;
 const STAR_PAGES = 5;
@@ -146,11 +149,13 @@ const Talents = ({
         const isMaxed = !isStarTab && baseLevel >= maxLevel;
         const libraryCanRaise = isMaxed && isBookEligibleTalent(talentId) && maxLevel < maxBookLv;
         // A super talent wears the game's border over its sprite, as in game: behind it, the sprite hid it
-        return <IconTile key={slotKey} icon={`data/UISkillIcon${talentId}.png`} alt={cleanUnderscore(name)} iconSize={40}
+        return <IconTile key={slotKey} icon={`data/UISkillIcon${talentId}.png`} alt={cleanUnderscore(name)} iconSize={TALENT_ICON}
                          frame={isSuperTalent ? `etc/Super_Talent_${isActiveTalent ? 'Active' : 'Passive'}_Border.png` : undefined}
                          frameAbove
-                         value={level >= 0 && maxLevel >= 0 ? formatNum(level, 'whole') : undefined}
-                         sub={level >= 0 && maxLevel >= 0 ? `/ ${formatNum(maxLevel, 'whole')}` : undefined}
+                         // A talent the save has no max for (the parser's -1: nothing unlocked yet) reads 0 / 0: blank, it
+                         // looked broken
+                         value={formatNum(Math.max(level ?? 0, 0), 'whole')}
+                         sub={`/ ${formatNum(Math.max(maxLevel ?? 0, 0), 'whole')}`}
                          badge={libraryCanRaise ? 'up' : undefined}
                          details={<Stack gap={0.5}>
                            <TalentTooltip {...talentDetails}/>
