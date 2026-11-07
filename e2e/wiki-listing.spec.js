@@ -1,13 +1,10 @@
 import { test, expect } from '@playwright/test';
+import { pagePropsIn } from './route-helpers';
 import { waitForRender } from './wait-helpers';
 import { entityPath, listingHref } from '../utility/wiki/kinds.mjs';
 
 // The sortable listings. Every expectation comes from the page's own __NEXT_DATA__, so no count or name is
 // typed here and a game update cannot break the spec.
-
-const NEXT_DATA = /id="__NEXT_DATA__" type="application\/json">(.*?)<\/script>/s;
-
-const propsIn = (html) => JSON.parse(html.match(NEXT_DATA)[1]).props.pageProps;
 
 const propsOf = (page) => page.evaluate(() => JSON.parse(document.getElementById('__NEXT_DATA__').textContent).props.pageProps);
 
@@ -23,7 +20,7 @@ for (const kind of ['item', 'sushiupgrade']) {
   test(`${listingHref(kind)} links every row in its HTML`, async ({ request }) => {
     const html = await (await request.get(listingHref(kind))).text();
     const hrefs = new Set([...html.matchAll(new RegExp(`href="(${listingHref(kind)}/[^"]+)"`, 'g'))].map((match) => match[1]));
-    const expected = new Set(propsIn(html).entries.map((entry) => entityPath(kind, entry.node.slug)));
+    const expected = new Set(pagePropsIn(html).entries.map((entry) => entityPath(kind, entry.node.slug)));
     expect([...hrefs].sort()).toEqual([...expected].sort());
   });
 }

@@ -1,28 +1,6 @@
 import { test, expect } from '@playwright/test';
-import { readdirSync, statSync } from 'node:fs';
-import path from 'node:path';
+import { discoverRoutes } from './route-helpers';
 import { waitForRender } from './wait-helpers';
-
-const PAGES_DIR = path.join(process.cwd(), 'pages');
-
-const discoverRoutes = () => {
-  const routes = [];
-  const walk = (dir, prefix = '') => {
-    for (const entry of readdirSync(dir)) {
-      const full = path.join(dir, entry);
-      if (statSync(full).isDirectory()) {
-        walk(full, `${prefix}/${entry}`);
-        continue;
-      }
-      if (!entry.endsWith('.jsx')) continue;
-      const name = entry.replace(/\.jsx$/, '');
-      if (['_app', '_document', '_error', '404'].includes(name)) continue;
-      routes.push(name === 'index' ? (prefix || '/') : `${prefix}/${name}`);
-    }
-  };
-  walk(PAGES_DIR);
-  return routes.sort();
-};
 
 const NEEDS_QUERY_PARAM = new Map([
   ['/guilds/detail', 'needs a real ?name= (or similar) identifying a guild to render'],
@@ -102,7 +80,7 @@ const readTabs = async (page, offending, above) => {
   }
 };
 
-const routes = discoverRoutes();
+const routes = discoverRoutes({ skip: ['_app', '_document', '_error', '404'] });
 
 // Account pages once bounced a logged-out visitor to the landing page or left them on the loader.
 // They must stay put, render the empty account and say why its numbers are zero.

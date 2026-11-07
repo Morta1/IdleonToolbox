@@ -37,6 +37,16 @@ async function gotoHomeAndWait(page) {
 test.describe.configure({ mode: 'serial' });
 
 test.describe('Logged-out visitors reach gated pages by clicking, not just by URL', () => {
+  // Every account page's logged-out render is checked in no-nan.spec.js's per-route loop.
+  test('/ (root) does not redirect a logged-out visitor away from itself', async ({ browser }) => {
+    const context = await browser.newContext();
+    const page = await context.newPage();
+    await page.goto('/');
+    await waitForRender(page);
+    expect(new URL(page.url()).pathname).toBe('/');
+    await context.close();
+  });
+
   test('homepage -> Worlds menu -> Prayers, purely by clicking', async ({ browser }) => {
     const context = await browser.newContext({ viewport: DESKTOP_VIEWPORT });
     const page = await context.newPage();
