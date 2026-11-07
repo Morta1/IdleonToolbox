@@ -33,7 +33,7 @@ The rules that keep every page looking like one site. Read this before building 
 | A table | `DataTable` (`components/common/DataTable/index.jsx`). Past rotations and Obols keep their own on purpose | A raw MUI table |
 | A chart | `components/common/charts/`, with `seriesColors` | A colour picked by hand. Series slots go in order and never cycle: a ninth is Other |
 | A game sprite | `GameIcon`, at 16, 24, 32, 40 or 56. 20 and 28 only for a shared piece's small or sheet form (`IconTile`, `Panel`, `SectionTabs`) | Any other size, or `image-rendering: pixelated`: it distorts the art |
-| A state (Ready, Locked, Purchased) | `StatusText`: a word in its tone, with that tone's glyph (`selected` has none) | A chip, or colour alone |
+| A state (Ready, Locked, Purchased) | `StatusText`: a word in its tone, with that tone's glyph (`selected` has none). On an `ItemCard`, something got for good (Owned, Purchased, Found, Created) is `done`: the word and its ✓, no edge. `active` and its green edge are for what is running now (In use, Equipped, Your turn) | A chip, or colour alone. A green edge on a card that is merely owned: a late account's grid turns all green |
 | A note beside text | `InfoButton`, or `DottedValue` for a value with a dotted underline. `NoteTrigger` is what both are built on, for a note with neither look | A tooltip on plain text, or MUI's Tooltip |
 | How a number was made | A breakdown (`components/common/Breakdown/Breakdown.tsx`): values grouped under the game's names | Formula text |
 | A message on the page | `Notice` | A custom alert |

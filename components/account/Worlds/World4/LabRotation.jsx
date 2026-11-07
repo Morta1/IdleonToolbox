@@ -69,7 +69,7 @@ const LabRotation = ({ sectionFailed }) => {
             const marked = threshold != null && itemsIndex !== JEWEL_SLOT && chipCount > threshold;
             return <ItemCard key={'items' + itemsIndex} icon={`data/${rawName ? rawName : `ConsoleChip${index}`}.png`}
                              iconAlt={''} title={cleanUnderscore(name)}
-                             status={soldOut ? 'done' : acquired || marked ? 'active' : undefined}
+                             status={soldOut || acquired || marked ? 'done' : undefined}
                              statusLabel={soldOut ? 'Sold out' : acquired ? 'Found' : marked ? `You own ${formatNum(chipCount)}` : undefined}>
               <ItemCard.Desc text={itemsIndex === JEWEL_SLOT ? jewelText(item) : [chipText(item)]}/>
               {requirements?.map(({ name: reqName, rawName: reqRaw, amount }, reqIndex) => <ItemCard.Cost

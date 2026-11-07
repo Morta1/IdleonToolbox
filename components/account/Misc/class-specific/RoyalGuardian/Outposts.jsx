@@ -198,7 +198,7 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
       ?? bars[0];
     return <ItemCard key={mapIndex} icon={faceOf(monsterRawName)} iconAlt={monsterName ?? ''} title={name || `Map ${mapIndex}`}
                      meta={<WithLastWord text={meta}><InfoButton label={'this mode'} sx={{ ml: 0.5 }}>{modeHint}</InfoButton></WithLastWord>}
-                     status={boosted ? 'active' : undefined} statusLabel={'Glorified'}
+                     status={boosted ? 'done' : undefined} statusLabel={'Glorified'}
                      more={<>
                        <ItemCard.Facts rows={[
                          ['Range', `${formatGame(range ?? 0, 'RoyalG.OutpostRange')}px`],

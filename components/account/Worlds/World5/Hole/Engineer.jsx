@@ -60,7 +60,7 @@ const Engineer = ({ hole, sectionFailed }) => {
     const isLocked = (hole?.unlockedSchematics ?? 0) <= order;
     const resource = getHoleResourceIcon(x2);
     return <ItemCard key={`upgrade-${index}`} icon={`data/HoleUIbuildUpg${index}.png`} title={cleanUnderscore(name)}
-                     status={unlocked ? 'active' : isLocked ? 'locked' : undefined}
+                     status={unlocked ? 'done' : isLocked ? 'locked' : undefined}
                      statusLabel={unlocked ? 'Created' : undefined}
                      footer={unlocked ? null : isLocked
                        ? <Typography variant={'body2'} color={'text.secondary'}>

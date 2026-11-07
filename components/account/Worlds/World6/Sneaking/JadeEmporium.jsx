@@ -11,7 +11,7 @@ const JadeEmporium = ({ upgrades, jadeCoins }) => {
   return <CardGrid size={'m'}>
     {upgrades?.filter(({ name }) => name !== PLACEHOLDER_NAME)?.map(({ name, description, unlocked, cost, x3 }, index) => {
       return <ItemCard key={name + index} icon={`data/NjJupg${x3}.png`} iconSize={56} title={cleanUnderscore(name)}
-                       status={unlocked ? 'active' : undefined} statusLabel={'Purchased'}
+                       status={unlocked ? 'done' : undefined} statusLabel={'Purchased'}
                        footer={unlocked ? null : <ItemCard.Cost icon={'etc/jade_coin.png'} iconAlt={'Jade coins'} need={cost}
                                                                 have={owned} game={'Ninja.EmporiumCost'}/>}>
         <ItemCard.Desc text={description}/>
