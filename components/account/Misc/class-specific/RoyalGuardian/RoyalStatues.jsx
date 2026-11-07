@@ -90,8 +90,10 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels, sectionFailed }
           </Panel>
           : null}
         {statueFlair?.statues?.length ? <CardGrid size={'s'}>
+          {/* At its max a card is Maxed, which drops the cost: the parser still prices a level past the cap */}
           {statueFlair.statues.map(({ index, name, level, maxLevel, cost, bonus, expMulti, costItem }) => <ItemCard
             key={index} title={titleCaseName(cleanText(name))} level={{ value: level ?? 0, max: maxLevel }} dimmed={!statueFlair?.unlocked}
+            status={(level ?? 0) >= maxLevel ? 'maxed' : undefined}
             footer={<ItemCard.Cost icon={`data/${costItem}.png`} iconAlt={cleanUnderscore(statueFlair?.marbleTotals
               ?.find((marble) => marble.costItem === costItem)?.name ?? '')} game={'RoyalG.SF_costo'} need={cost}
                                    have={ownedOf(costItem)}/>}>
