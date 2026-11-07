@@ -1,4 +1,4 @@
-import { Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum, getNextPetMartRestock, titleCaseName } from '@utility/helpers';
 import { monsterSprite } from '@utility/spriteImages';
 import Timer from '@components/common/Timer';
@@ -28,6 +28,22 @@ const priceLine = ({ list, price }, size = 16) => {
     </Typography> : null}
     <Typography variant={'body2'} component={'span'} color={discounted ? 'text.success' : 'text.primary'}>{formatNum(price ?? 0, 'whole')}</Typography>
   </Stack>;
+};
+
+// A counter's offers fill their rows evenly, never one card alone on the last: five to a row while a card keeps
+// OFFER_MIN, then three over two, then one each. S cards' 240 px column left four and one alone on a desktop about 1,370
+// to 1,630 px wide. The counter's box is the container.
+const OFFER_MIN = 176;
+const OFFER_GAP = 16;
+const offerColumns = (count) => {
+  const counts = Array.from({ length: count }, (_, step) => count - step).filter((columns) => columns === 1 || count % columns !== 1);
+  const widthOf = (columns) => columns * OFFER_MIN + (columns - 1) * OFFER_GAP;
+  const columnsOf = (columns) => ({ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` });
+  // Widest first, so a narrower query overrides the one before it
+  return {
+    ...columnsOf(counts[0] ?? 1),
+    ...Object.fromEntries(counts.slice(1).map((columns, step) => [`@container (max-width: ${widthOf(counts[step]) - 0.05}px)`, columnsOf(columns)]))
+  };
 };
 
 // The clock, read once per render after the data loader (the export is the loader): today's rotation, everything
@@ -75,7 +91,9 @@ const PetMart = ({ petMart, companions, lastUpdated, sectionFailed, companionsFa
   const counter = (title, offers, plus) => <Stack gap={1}>
     <Typography variant={'groupLabel'} component={'h3'}>{title}</Typography>
     {offers?.length
-      ? <CardGrid size={'s'}>{offers.map((offer) => offerCard(offer, plus))}</CardGrid>
+      ? <Box sx={{ containerType: 'inline-size' }}>
+        <CardGrid size={'s'} sx={offerColumns(offers.length)}>{offers.map((offer) => offerCard(offer, plus))}</CardGrid>
+      </Box>
       : <Typography variant={'body2'} color={'text.secondary'}>No offers today.</Typography>}
   </Stack>;
 

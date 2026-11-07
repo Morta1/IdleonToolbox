@@ -1,4 +1,4 @@
-import { useContext } from 'react';
+import { useContext, useState } from 'react';
 import { AppContext } from '../../../components/common/context/AppProvider';
 import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum, prefix, titleCaseName } from '@utility/helpers';
@@ -10,9 +10,10 @@ import Tabber from '../../../components/common/Tabber';
 import useTabIndex from '@hooks/useTabIndex';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import CardGrid from '@components/common/cards/CardGrid';
+import CardGrid, { LABELED_TILE_MIN } from '@components/common/cards/CardGrid';
+import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
-import GameIcon from '@components/common/GameIcon';
+import GameIcon, { MissingArt } from '@components/common/GameIcon';
 import StatusText from '@components/common/StatusText';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
@@ -31,6 +32,25 @@ const BUNDLES_TOOLBAR = { hideOwned: false };
 const amountWith = (icon, value) => <Stack direction={'row'} gap={0.5} alignItems={'center'} component={'span'}>
   {icon}{formatNum(value ?? 0)}
 </Stack>;
+
+// A banner tile is the game's art alone: its name, price and contents are drawn in it, so the tile says nothing beside
+// it. Bought is the art at full strength, not bought dimmed, and the note says which in words. Three banners to a desktop
+// row keep the art's small words readable; the card each, with its price and state under the art, ran the page half again
+// past the old one's height.
+const BANNER_GRID_SX = { gridTemplateColumns: 'repeat(auto-fill, minmax(min(340px, 100%), 1fr))' };
+const OFFER_GRID_SX = { gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))' };
+const BANNER_ART = { banner: '711 / 130', offer: '320 / 446' };
+
+// A banner at the tile's width. Art the game data lacks (bon_q) draws GameIcon's dashed ? box in the banner's shape, never
+// the browser's broken image. An image that failed before hydration fired its error before React was listening.
+const BannerArt = ({ src, alt, aspectRatio }) => {
+  const [failed, setFailed] = useState(false);
+  const shape = { width: '100%', aspectRatio, display: 'flex' };
+  if (failed) return <MissingArt role={'img'} aria-label={alt} style={{ ...shape, fontSize: 24 }}>?</MissingArt>;
+  return <Box component={'img'} src={`${prefix}${src}`} alt={alt} onError={() => setFailed(true)}
+              ref={(img) => { if (img?.complete && img.naturalWidth === 0) setFailed(true); }}
+              sx={{ ...shape, height: 'auto', display: 'block' }}/>;
+};
 
 const Bundles = () => {
   const { state } = useContext(AppContext);
@@ -53,27 +73,39 @@ const Bundles = () => {
     ? (hideOwned && offerOwned ? [] : offer)
     : tabBundles.filter((bundle) => !(hideOwned && isOwned(bundle)));
 
-  const ownedWord = (owned) => (failed ? null : <StatusText status={owned ? 'done' : 'needs'}>{owned ? 'Owned' : 'Not owned'}</StatusText>);
-  // The game's banner: the bundle's name, price and contents live only in this art
-  const bannerCard = ({ name, owned, price, image }) => <ItemCard key={name} dimmed={!failed && !owned}
-                                                                  footer={<Stack direction={'row'} justifyContent={'space-between'} alignItems={'center'} gap={1}>
-                                                                    <Typography variant={'body2'}>{price != null ? formatNum(price, 'price') : ''}</Typography>
-                                                                    {ownedWord(owned)}
-                                                                  </Stack>}>
-    <Box component={'img'} src={`${prefix}data/${image ?? name}.png`} alt={''}
-         sx={{ width: '100%', height: 'auto', display: 'block' }}/>
-  </ItemCard>;
-  const packCard = (bundle) => {
+  const stateWord = (bundle) => (failed ? null : isOwned(bundle)
+    ? <StatusText status={'done'}>Owned</StatusText>
+    : <Typography variant={'body2'} color={'text.secondary'}>Not owned</Typography>);
+  const priceOf = ({ price }) => (price != null ? formatNum(price, 'price') : null);
+  const bannerTile = (bundle, art) => {
+    const state = stateWord(bundle);
+    const price = priceOf(bundle);
+    return <IconTile key={bundle.name} height={'auto'} status={failed || isOwned(bundle) ? undefined : 'dim'}
+                     details={state || price ? <Stack gap={0.5}>
+                       {state}
+                       {price ? <Typography variant={'body2'}>{price}</Typography> : null}
+                     </Stack> : undefined}
+                     icon={<BannerArt src={`data/${bundle.image ?? bundle.name}.png`} aspectRatio={BANNER_ART[art]}
+                                      alt={['Bundle', price].filter(Boolean).join(', ')}/>}/>;
+  };
+  // A Pet Mart pack has no art: its pet's sprite, its name and price, its pet and currencies in the note
+  const packTile = (bundle) => {
     const companion = companionsData?.[bundle.companionIndex];
-    return <ItemCard key={bundle.name} icon={companion?.name ? monsterSprite(companion.name) : undefined}
-                     title={titleCaseName(cleanUnderscore(bundle.displayName))} meta={companion?.name ? cleanUnderscore(companion.name) : undefined}
-                     status={isOwned(bundle) ? 'done' : undefined} statusLabel={'Owned'}>
-      <ItemCard.Facts rows={[
-        ['Price', bundle.price != null ? formatNum(bundle.price, 'price') : '-'],
-        ['Gems', amountWith(<GameIcon src={'data/PremiumGem.png'} size={16} alt={'Gems'}/>, bundle.gems)],
-        ['Pet crystals', amountWith(petCrystalIcon(16), bundle.petCrystals)]
-      ]}/>
-    </ItemCard>;
+    const name = titleCaseName(cleanUnderscore(bundle.displayName));
+    return <IconTile key={bundle.name} icon={companion?.name ? monsterSprite(companion.name) : undefined} alt={name} label={name}
+                     value={priceOf(bundle) ?? '-'} status={!failed && !isOwned(bundle) ? 'missing' : undefined}
+                     details={<Stack gap={1}>
+                       <Stack gap={0.25}>
+                         <Typography variant={'body2'} fontWeight={500}>{name}</Typography>
+                         {stateWord(bundle)}
+                       </Stack>
+                       <ItemCard.Facts rows={[
+                         companion?.name ? ['Pet', cleanUnderscore(companion.name)] : null,
+                         ['Price', priceOf(bundle) ?? '-'],
+                         ['Gems', amountWith(<GameIcon src={'data/PremiumGem.png'} size={16} alt={'Gems'}/>, bundle.gems)],
+                         ['Pet crystals', amountWith(petCrystalIcon(16), bundle.petCrystals)]
+                       ]}/>
+                     </Stack>}/>;
   };
 
   return <>
@@ -99,8 +131,9 @@ const Bundles = () => {
         {tab === 2 && shown.length ? <Typography variant={'body2'} color={'text.secondary'} sx={{ mb: 2 }}>
           One per account. Each card also adds +1,000 base carry capacity.
         </Typography> : null}
-        {shown.length ? <CardGrid size={tab === 0 ? 'l' : 'm'}>
-          {shown.map((bundle) => (tab === 1 ? packCard(bundle) : bannerCard(bundle)))}
+        {shown.length ? <CardGrid size={'icon'} fill={tab === 1 ? LABELED_TILE_MIN : true}
+                                  sx={tab === 0 ? BANNER_GRID_SX : tab === 2 ? OFFER_GRID_SX : undefined}>
+          {shown.map((bundle) => (tab === 1 ? packTile(bundle) : bannerTile(bundle, tab === 2 ? 'offer' : 'banner')))}
         </CardGrid> : null}
       </Box>
     </Tabber>

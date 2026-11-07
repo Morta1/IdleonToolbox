@@ -6,6 +6,7 @@ import { fireEvent, render, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import theme from '../../styles/theme/theme';
 import { getCompanions } from '@parsers/misc';
+import { formatNum } from '@utility/helpers';
 
 vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, asPath: '/' }) }));
 vi.mock('next-seo', () => ({ NextSeo: () => null }));
@@ -32,35 +33,43 @@ const renderPets = (copies, { plusView = false, filter, petMart } = {}) => {
     fireEvent.mouseDown(within(container).getByRole('combobox', { name: 'Show' }));
     fireEvent.click(document.querySelector(`li[data-value="${filter}"]`));
   }
-  // A pet's card is the article titled by its name (its + version's in the Pet Mart+ view)
-  const cardOf = (index) => {
-    const name = companions.list[index].name.replace(/_/g, ' ');
-    return [...container.querySelectorAll('article')]
-      .find((card) => [name, `${name}+`].includes(card.querySelector('h3')?.textContent)) ?? null;
+  // A pet's tile is the button its sprite names: the pet, or its + version (the Pet Mart+ view, or once upgraded)
+  const tileOf = (index) => {
+    const name = nameOf(index);
+    return [...container.querySelectorAll('[role="button"]')]
+      .find((tile) => [name, `${name}+`].includes(tile.querySelector('img')?.getAttribute('alt'))) ?? null;
   };
-  return { cardOf, companions, container };
+  // A click pins the tile's note, which describes the tile
+  const noteOf = (index) => {
+    const tile = tileOf(index);
+    fireEvent.click(tile);
+    return document.getElementById(tile.getAttribute('aria-describedby'))?.textContent ?? null;
+  };
+  return { tileOf, noteOf, container };
 };
 
-// The card's meta line, under its title
-const metaOf = (card) => card.querySelector('h3')?.nextElementSibling?.textContent ?? null;
+const nameOf = (index) => catalog.list[index].name.replace(/_/g, ' ');
+// The note's words no bonus text holds, in order: its state, its copies, and Pet Mart+ (the meta of an upgraded pet, or
+// the label over a price)
+const FACTS = /Owned|Upgraded|Needs the base pet|Pet Mart\+ tradable\d+ \/ \d+|Tradable\d+ \/ \d+|Pet Mart\+/g;
+const factsOf = (note) => note.match(FACTS) ?? [];
+const saleOf = (note) => note.match(/In the Pet Mart today|Last appeared \w+ \d+/)?.[0] ?? null;
 
 describe('Pets page: Pet Mart+ tradability', () => {
   it('counts tradable + copies apart from base copies, and shows no + line on a pet never upgraded', () => {
-    const { cardOf } = renderPets([
+    const { tileOf, noteOf } = renderPets([
       // An untradable + copy, with a base copy of the same pet tradable
       '1,1,0,0,0', '1,0,0,0,1',
       // Several copies upgraded, one of them tradable
       '2,1,0,0,1', '2,0,0,0,1',
-      // Never upgraded
+      // Never upgraded: its note prices the upgrade under a Pet Mart+ label
       '3,1,0,0,0'
     ]);
-    expect(cardOf(1).textContent).toContain('Tradable1 / 2');
-    expect(cardOf(1).textContent).toContain('Pet Mart+ tradable0 / 1');
-    expect(metaOf(cardOf(1))).toBe('Pet Mart+');
-    expect(cardOf(2).textContent).toContain('Pet Mart+ tradable1 / 2');
-    expect(metaOf(cardOf(2))).toBe('Pet Mart+');
-    expect(cardOf(3).textContent).toContain('Tradable1 / 1');
-    expect(cardOf(3).textContent).not.toContain('Pet Mart+ tradable');
+    expect([1, 2, 3].map((index) => [tileOf(index).textContent, factsOf(noteOf(index))])).toEqual([
+      [`${nameOf(1)}+x2`, ['Owned', 'Pet Mart+', 'Tradable1 / 2', 'Pet Mart+ tradable0 / 1']],
+      [`${nameOf(2)}+x2`, ['Owned', 'Pet Mart+', 'Tradable1 / 2', 'Pet Mart+ tradable1 / 2']],
+      [`${nameOf(3)}x1`, ['Owned', 'Tradable1 / 1', ...(catalog.list[3].upgradeCost > 0 ? ['Pet Mart+'] : [])]]
+    ]);
   });
 });
 
@@ -73,30 +82,28 @@ describe('Pets page: Pet Mart+ view', () => {
   // upgradedPet: one tradable + copy; ownedPet: a base copy only; unownedPet: no copy at all.
   const copies = [`${upgradedPet.index},1,0,0,1`, `${ownedPet.index},1,0,0,0`];
 
-  it('lists only the + pool, each as its + version with the + bonus, priced and greyed by what you own', () => {
-    const { cardOf, container } = renderPets(copies, { plusView: true });
+  // A tile reads the + copies once upgraded, else the upgrade's crystal price; only a pet with no copy to upgrade greys
+  it('lists only the + pool, each as its + version, priced and greyed by what you own', () => {
+    const { tileOf, noteOf, container } = renderPets(copies, { plusView: true });
     expect(container.textContent).toMatch(/Upgraded\s*1 \/ \d+/);
-    expect(cardOf(noPlusIndex)).toBeNull();
-    const card = cardOf(upgradedPet.index);
-    expect(card.textContent).toContain(`${upgradedPet.name.replace(/_/g, ' ')}+`);
-    expect(card.textContent).toContain('Tradable1 / 1');
-    // The sprite greys, never the card, so the Pet Mart line under it stays readable.
+    expect(tileOf(noPlusIndex)).toBeNull();
     expect([upgradedPet, ownedPet, unownedPet].map((pet) => {
-      const shown = cardOf(pet.index);
-      return [shown.querySelector('img[alt="Pet Crystals"]') !== null, shown.textContent.includes('Needs the base pet'), shown.querySelector('[data-status="missing"]') !== null];
+      const tile = tileOf(pet.index);
+      return [tile.textContent, tile.querySelector('img[alt="Pet Crystals"]') !== null, tile.querySelector('[data-status="missing"]') !== null,
+        factsOf(noteOf(pet.index))];
     })).toEqual([
-      [false, false, false],
-      [true, false, false],
-      [true, true, true]
+      [`${nameOf(upgradedPet.index)}+x1`, false, false, ['Upgraded', 'Tradable1 / 1']],
+      [`${nameOf(ownedPet.index)}+${formatNum(ownedPet.upgradeCost, 'whole')}`, true, false, []],
+      [`${nameOf(unownedPet.index)}+${formatNum(unownedPet.upgradeCost, 'whole')}`, true, true, ['Needs the base pet']]
     ]);
   });
 
   it('Missing hides upgraded pets, Tradable keeps only tradable + copies', () => {
-    const { cardOf, container } = renderPets(copies, { plusView: true, filter: 'missing' });
-    expect([upgradedPet, ownedPet, unownedPet].map((pet) => cardOf(pet.index) !== null)).toEqual([false, true, true]);
+    const { tileOf, container } = renderPets(copies, { plusView: true, filter: 'missing' });
+    expect([upgradedPet, ownedPet, unownedPet].map((pet) => tileOf(pet.index) !== null)).toEqual([false, true, true]);
     fireEvent.mouseDown(within(container).getByRole('combobox', { name: 'Show' }));
     fireEvent.click(document.querySelector('li[data-value="tradable"]'));
-    expect([upgradedPet, ownedPet, unownedPet].map((pet) => cardOf(pet.index) !== null)).toEqual([true, false, false]);
+    expect([upgradedPet, ownedPet, unownedPet].map((pet) => tileOf(pet.index) !== null)).toEqual([true, false, false]);
   });
 });
 
@@ -126,45 +133,24 @@ describe('Pets page: Pet Mart+ sales history', () => {
     offers: [{ companionIndex: unseenPet, listPrice: 80, price: 80 }],
     plusOffers: [{ companionIndex: todayPet, listPrice: 500, price: 500 }]
   };
-  const footerOf = (cardOf, index) => cardOf(index).textContent;
-
-  // One render per view reads every pet in it. The + view: seen on two days shows the latest, seen once, in today's
-  // rotation, never seen. The base view: seen by a logged rotation, in today's rotation, only its upgrade was seen.
+  // One render per row reads every pet in it, from its tile's note. The + view: seen on two days shows the latest, seen
+  // once, in today's rotation, never seen. The base view: seen by a logged rotation, in today's rotation, only its upgrade
+  // was seen. Without the history only today's rotation is known.
   it.each([
-    ['+', true, () => [[loggedPet, 'Last appeared Oct 10'], [olderPet, 'Last appeared Aug 25'], [todayPet, 'In the Pet Mart today'], [unseenPet, null]]],
-    ['base', false, () => [[olderPet, 'Last appeared Oct 10'], [unseenPet, 'In the Pet Mart today'], [loggedPet, null]]]
-  ])('%s view says when each pet was last in the Pet Mart', (_, plusView, rows) => {
-    Object.assign(petMartHistory, { data: { days }, isSuccess: true });
-    const { cardOf } = renderPets([], { plusView, petMart });
-    for (const [pet, line] of rows()) {
-      const text = footerOf(cardOf, pet);
-      if (line) expect(text).toContain(line);
-      else expect(text).not.toMatch(/in the Pet Mart|appeared/i);
-    }
-  });
-
-  it('keeps the Pet Mart line unfaded on a missing pet', () => {
-    Object.assign(petMartHistory, { data: { days }, isSuccess: true });
-    const { cardOf } = renderPets([], { petMart });
-    const card = cardOf(unseenPet);
-    expect(card.querySelector('[data-status="missing"]')).not.toBeNull();
-    const line = [...card.querySelectorAll('p')].find((p) => p.textContent === 'In the Pet Mart today');
-    const faded = [];
-    for (let node = line; node !== card; node = node.parentElement) faded.push(getComputedStyle(node).opacity);
-    expect(faded.every((opacity) => Number(opacity || 1) === 1)).toBe(true);
-  });
-
-  it("shows only today's offers while the history is unavailable", () => {
-    const { cardOf } = renderPets([], { plusView: true, petMart });
-    expect(footerOf(cardOf, todayPet)).toContain('In the Pet Mart today');
-    expect(footerOf(cardOf, loggedPet)).not.toMatch(/appeared/i);
+    ['+ view', true, true, [[loggedPet, 'Last appeared Oct 10'], [olderPet, 'Last appeared Aug 25'], [todayPet, 'In the Pet Mart today'], [unseenPet, null]]],
+    ['base view', false, true, [[olderPet, 'Last appeared Oct 10'], [unseenPet, 'In the Pet Mart today'], [loggedPet, null]]],
+    ['+ view without the history', true, false, [[todayPet, 'In the Pet Mart today'], [loggedPet, null]]]
+  ])('%s says when each pet was last in the Pet Mart', (_, plusView, history, rows) => {
+    if (history) Object.assign(petMartHistory, { data: { days }, isSuccess: true });
+    const { noteOf } = renderPets([], { plusView, petMart });
+    expect(rows.map(([pet]) => [pet, saleOf(noteOf(pet))])).toEqual(rows);
   });
 
   it('sorts by last in the Pet Mart, newest first until its direction button flips it', () => {
     Object.assign(petMartHistory, { data: { days }, isSuccess: true });
-    const { cardOf, container } = renderPets([], { plusView: true, petMart });
+    const { tileOf, container } = renderPets([], { plusView: true, petMart });
     const expectOrder = (indexes) => {
-      const order = indexes.map((index) => cardOf(index));
+      const order = indexes.map((index) => tileOf(index));
       for (let i = 1; i < order.length; i++) {
         expect(order[i - 1].compareDocumentPosition(order[i]) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
       }
