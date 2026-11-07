@@ -115,7 +115,8 @@ const ItemBrowser = () => {
                                                   htmlInput: { ...params.inputProps, 'aria-label': 'Item' },
                                                   input: {
                                                     ...params.InputProps,
-                                                    startAdornment: <Box component={'span'} sx={{ color: 'text.secondary', mr: 0.75 }}>Item:</Box>
+                                                    // Autocomplete's root keeps 6 px of side; 6 more sets the label 12 px in, as Search by's
+                                                    startAdornment: <Box component={'span'} sx={{ color: 'text.secondary', ml: 0.75, mr: 0.75 }}>Item:</Box>
                                                   }
                                                 }}/>}
           />
