@@ -47,7 +47,7 @@ const apocalypsePanel = (character, apocalypse, hideSuperChow) => {
     {!monsters ? <Box sx={{ p: 2 }}>
       <Notice tone={'locked'}>{`${apocalypse.name} is still locked for ${cleanUnderscore(character?.name)}.`}</Notice>
     </Box> : left.length ? <Box sx={{ p: 2 }}>
-      <CardGrid size={'icon'}>
+      <CardGrid size={'icon'} fill>
         {left.map(({ mapName, name, monsterFace, kills, done }, index) => {
           // A kill counts once it is whole: the tile, its details and the next tier all read the floor
           const shownKills = Math.floor(kills ?? 0);

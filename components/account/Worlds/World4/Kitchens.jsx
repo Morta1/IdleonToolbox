@@ -101,13 +101,13 @@ const Kitchens = ({
   const recipeSection = (kitchen, recipeTime, timeToFinish) => {
     const usedSpices = kitchen?.spices?.filter((spice) => spice !== -1) ?? [];
     return <ItemCard.Section label={'Recipe'}>
-      {usedSpices.length ? <CardGrid size={'icon'}>
+      {usedSpices.length ? <CardGrid size={'icon'} fill>
         {usedSpices.map((spice, index) => <IconTile key={`${spice}-${index}`} icon={`data/CookingSpice${spice}.png`}
                                                     alt={spicesNames[spice]} details={`${spicesNames[spice] ?? 'Spice'} spice`}/>)}
       </CardGrid> : null}
       {kitchen?.possibleMeals?.length ? <>
         <Typography variant={'body2'} color={'text.secondary'}>Possible meals</Typography>
-        <CardGrid size={'icon'}>
+        <CardGrid size={'icon'} fill>
           {kitchen.possibleMeals.map((food, index) => {
             const name = cleanUnderscore(meals?.[food?.index]?.name ?? food?.rawName);
             const found = (meals?.[food?.index]?.level ?? 0) > 0;

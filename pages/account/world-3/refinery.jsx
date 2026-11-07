@@ -200,7 +200,7 @@ const Refinery = () => {
     </Stack> : null}
     {lockedSalts.length && !sectionFailed ? <Panel title={'Locked salts'} sx={{ mt: 3 }}>
       <Box sx={{ p: 2 }}>
-        <CardGrid size={'icon'}>
+        <CardGrid size={'icon'} fill>
           {lockedSalts.map(({ saltName, rawName }) => <IconTile key={rawName} icon={`data/${rawName}.png`}
                                                                 alt={cleanUnderscore(saltName)} status={'missing'}
                                                                 details={`${cleanUnderscore(saltName)}: locked`}/>)}

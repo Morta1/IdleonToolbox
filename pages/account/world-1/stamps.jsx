@@ -279,7 +279,7 @@ const Stamps = () => {
             return <Panel key={category} title={category.capitalize()} meta={stampsFailed ? '-' : `${formatNum(levels)} levels`}>
               {/* 8 px on a phone, so four tiles fit its 336 px Panel */}
               <Box sx={{ p: { xs: 1, sm: 1.5 } }}>
-                <CardGrid size={'icon'}>
+                <CardGrid size={'icon'} fill>
                   {shown.map((stamp) => stampTile(stamp, {
                     failed: stampsFailed,
                     selected: drawerOpen && stamp.rawName === picked,

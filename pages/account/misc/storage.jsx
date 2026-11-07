@@ -99,14 +99,14 @@ const Looty = () => {
               ? <Stack gap={2}>{groups.map(([type, items]) => <Panel key={type}
                                                                      title={titleCaseName(cleanUnderscore(type))}
                                                                      meta={`${formatNum(items.length)} ${items.length === 1 ? 'item' : 'items'}`}>
-                <Box sx={{ p: 1.5 }}><CardGrid size={'icon'}>{items.map(itemTile)}</CardGrid></Box>
+                <Box sx={{ p: 1.5 }}><CardGrid size={'icon'} fill>{items.map(itemTile)}</CardGrid></Box>
               </Panel>)}</Stack>
-              : <CardGrid size={'icon'}>{sorted.map(itemTile)}</CardGrid>}
+              : <CardGrid size={'icon'} fill>{sorted.map(itemTile)}</CardGrid>}
         </Box>
         <Stack gap={2}>
           <StatTile label={'Slots owned'} icon={'data/InvStorage1.png'} value={slotsText} breakdownTitle={'Slots owned'}
                     breakdown={!storageFailed && slots?.breakdown ? { ...slots.breakdown, totalValue: slotsText } : undefined}/>
-          <CardGrid size={'icon'}>
+          <CardGrid size={'icon'} fill>
             {(state?.account?.storage?.storageChests ?? []).map((chest) => <IconTile key={chest?.rawName}
                                                                                    icon={`data/${chest?.rawName}.png`}
                                                                                    alt={cleanUnderscore(chest?.displayName)}

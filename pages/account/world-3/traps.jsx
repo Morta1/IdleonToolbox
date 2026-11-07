@@ -82,7 +82,7 @@ const Traps = () => {
     return <Panel key={`traps-${index}`} icon={`data/ClassIcons${character?.classIndex}.png`}
                   title={cleanUnderscore(character?.name) || `Character ${index + 1}`} meta={meta}>
       <Box sx={{ p: 2 }}>
-        {realTraps.length ? <CardGrid size={'icon'}>{realTraps.map((slot, slotIndex) => slot?.name
+        {realTraps.length ? <CardGrid size={'icon'} fill>{realTraps.map((slot, slotIndex) => slot?.name
             ? <IconTile key={`${slot.rawName}-${slotIndex}`} icon={`data/${slot.rawName}.png`} alt={slot.name}
                         mark={`data/TrapBoxSet${(slot.trapType ?? 0) + 1}.png`} markAlt={trapBoxName(slot.trapType)}
                         value={<Timer type={'countdown'} component={'span'} sx={{ font: 'inherit' }} date={slot.timeLeft}

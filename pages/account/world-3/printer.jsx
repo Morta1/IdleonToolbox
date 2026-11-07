@@ -78,7 +78,7 @@ const Printer = () => {
                     </Typography>
                     : null}>
       <Box sx={{ p: 2 }}>
-        <CardGrid size={'icon'}>
+        <CardGrid size={'icon'} fill>
           {slots?.map((slot, slotIndex) => !slot?.item || slot.item === 'Blank'
             ? <IconTile key={`blank-${slotIndex}`} status={'empty'}/>
             : <IconTile key={`${slot.item}-${slotIndex}`} icon={`data/${slot.item}.png`} alt={itemName(slot.item)}

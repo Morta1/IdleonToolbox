@@ -39,7 +39,7 @@ const Chests = ({ chests, sectionFailed }) => {
             .map(([key, tier]) => [<Box key={key} component={'span'} sx={{ color: artifactTierColor(tier) }}>{ARTIFACT_TIERS[tier - 1].full}</Box>,
               formatNum(chest[key], 'pct')])
         ]}/>}
-        {!done && possibleArtifacts?.length ? <CardGrid size={'icon'}>
+        {!done && possibleArtifacts?.length ? <CardGrid size={'icon'} fill>
           {possibleArtifacts.map((artifact) => <IconTile key={artifact?.rawName} icon={`data/${artifact?.rawName}.png`}
                                                          alt={cleanUnderscore(artifact?.name)}
                                                          details={artifactDetails(artifact)}/>)}

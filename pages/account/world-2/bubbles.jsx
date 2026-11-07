@@ -442,7 +442,7 @@ const Bubbles = () => {
       </PageSummary>
       {daily.length ? <Panel title={'Upgraded daily'} meta={`${formatNum(daily.length)} bubbles`} sx={{ mb: 3 }}>
         <Box sx={{ p: { xs: 1, sm: 1.5 } }}>
-          <CardGrid size={'icon'}>
+          <CardGrid size={'icon'} fill>
             {daily.map((bubble, index) => dailyTile(bubble, index, { upgradeable, account, discounts }))}
           </CardGrid>
         </Box>

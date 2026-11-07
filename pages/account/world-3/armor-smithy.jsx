@@ -40,7 +40,7 @@ const ArmorSmithy = () => {
 
   // A part's tile opens the item and who holds it on a tap
   const partsSection = (label, parts, count) => <ItemCard.Section key={label} label={`${label} (${formatNum(count)})`}>
-    <CardGrid size={'icon'}>
+    <CardGrid size={'icon'} fill>
       {(parts ?? []).map((rawName, index) => {
         const owners = allItems.filter(({ rawName: owned }) => owned === rawName).map(({ owner }) => owner);
         return <IconTile key={`${rawName}-${index}`} icon={`data/${rawName}.png`} alt={itemName(rawName)}

@@ -44,7 +44,7 @@ const RngItems = ({ rngItems, credits, sectionFailed }) => <Stack gap={2}>
     return <Panel key={rarity} title={rarity}
                   meta={sectionFailed ? undefined : `${formatNum(found)} of ${formatNum(items.length)} found`}>
       <Box sx={{ p: 1.5 }}>
-        <CardGrid size={'icon'}>
+        <CardGrid size={'icon'} fill>
           {items.map((item) => <IconTile key={item?.index} icon={`data/DungItems${item?.index}.png`} alt={cleanUnderscore(item?.name)}
                                          value={sectionFailed ? undefined : `${formatNum(Math.max(0, item?.level ?? 0))} / ${formatNum(item?.maxLevel ?? 0)}`}
                                          status={!sectionFailed && !isFound(item) ? 'missing' : undefined}
