@@ -584,6 +584,7 @@ const calcAcornShop = (gamingSproutRaw: any, account: any) => {
       ? 4 + value + 3 * Math.max(0, value - 5)
       : 1 + value + 2 * Math.max(0, value - 5);
     return {
+      level: value ?? 0,
       cost,
       description: bonusTexts?.[index].replace(/{/, formatGame(bonus, 'GamingStatType.AcornShopBonus')),
       bonus

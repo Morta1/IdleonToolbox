@@ -4,6 +4,7 @@ import { bitsIcon, formatGame } from '@utility/gameNotation';
 import Timer from '../../../../common/Timer';
 import React from 'react';
 import RatKing from './RatKing';
+import ShopTable from './ShopTable';
 import { OPT } from '@parsers/accountOptions';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -68,8 +69,7 @@ const importExtras = (index, item, gaming, account, lastUpdated) => {
         ['Acorns', <Breakdown key={'acorns'} asValue data={acorns}>{formatNum(gaming?.acorns ?? 0, 'whole')}</Breakdown>]
       ]}/> : null}
       {acornShop?.length ? <ItemCard.Section label={'Acorn Shop'}>
-        <ItemCard.Facts rows={acornShop.map(({ description, cost }) => [cleanUnderscore(description),
-          `${formatNum(cost ?? 0, 'whole')} ${cost === 1 ? 'acorn' : 'acorns'}`])}/>
+        <ShopTable rows={acornShop.map(({ description, level, cost }) => ({ name: description, level, cost }))} currency={'acorns'}/>
       </ItemCard.Section> : null}
     </>;
   }
