@@ -3,6 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { allFixtures, onEachFixture } from '../helpers/save-fixtures';
 import { tryToParse } from '@utility/helpers';
+import { deathNote, summoningEnemies } from '@website-data';
 import { getVialsBonusByEffect, getSigilBonus } from '@parsers/world-2/alchemy';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
@@ -117,6 +118,34 @@ describe('values with no live reading yet', () => {
     });
     expect(boats).toBeGreaterThan(0);
   });
+
+  it('time to full chests', () => onEverySave(({ account }) => {
+    if (!account.sailing) return;
+    const trips = account.sailing.boats.map((boat) => (boat.island?.distance / boat.speed?.value) * 3600 * 1000).filter(Number.isFinite);
+    if (!trips.length) return expect(account.sailing.timeToFullChests).toBeUndefined();
+    const capacity = account.sailing.maxChests - (account.sailing.chests?.length || 0);
+    const rate = capacity / Math.min(...trips);
+    let elapsed = 0;
+    let chests = 0;
+    for (const trip of trips) {
+      elapsed += trip;
+      chests += rate * (elapsed - trip);
+      if (chests >= capacity) break;
+    }
+    expect(account.sailing.timeToFullChests).toBe(elapsed);
+  }));
+
+  // game: SummVictories(0), every career win with endless included. A win counts if it is a white battle or a Death Note monster.
+  it('the summoning upgrade paid per win, over every win', () => onEachFixture(REAL_SAVES, (fixture) => {
+    const { account } = parseFixture(fixture);
+    const WHITE_BATTLES = ['Pet1', 'Pet2', 'Pet3', 'Pet0', 'Pet4', 'Pet6', 'Pet5', 'Pet10', 'Pet11'];
+    const wins = (tryToParse((fixture.data ?? fixture)?.Summon)?.[1] ?? []).filter((enemyId) => {
+      const enemy = summoningEnemies.find((candidate) => candidate.enemyId === enemyId);
+      return enemy?.bonusId < 20 && (WHITE_BATTLES.includes(enemy.enemyId) || deathNote.some(({ rawName }) => rawName === enemy.enemyId));
+    });
+    const upgrade = Object.values(account.summoning.upgrades).flat().find(({ originalIndex }) => originalIndex === 0);
+    expect(upgrade.totalBonus).toBe(upgrade.value * (wins.length + account.summoning.highestEndlessLevel));
+  }));
 
   it('stamp material costs', () => onEverySave(({ account }) => {
     const reduction = account?.atoms?.stampReducer ?? 0;
