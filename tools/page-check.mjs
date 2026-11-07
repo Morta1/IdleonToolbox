@@ -303,7 +303,8 @@ const scanPage = ({ maxLines, minGap, maxLowContrast, listOnArt, root }) => {
   main.querySelectorAll('h2, h3, h4, h5, h6').forEach((heading) => {
     if (!heading.getBoundingClientRect().height || heading.closest('button, summary, [aria-expanded], [role="button"]')) return;
     const card = cardOf(heading);
-    for (let node = heading, depth = 0; node && node !== main && depth < 4; node = node.parentElement, depth += 1) {
+    // Up to 6 levels: a card's title sits 5 deep (title, block, row, group, header), and 4 stopped short of its body
+    for (let node = heading, depth = 0; node && node !== main && depth < 6; node = node.parentElement, depth += 1) {
       for (let next = node.nextElementSibling; next; next = next.nextElementSibling) {
         if (hasContent(next)) return;
       }
