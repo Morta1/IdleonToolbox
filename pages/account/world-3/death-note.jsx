@@ -9,12 +9,14 @@ import {
   getDeathNoteRank,
   MINI_BOSS_DEATH_NOTE_RANKS
 } from '@parsers/world-3/deathNote';
-import { cleanUnderscore, formatNum, worldColor, worlds } from 'utility/helpers';
+import { cleanUnderscore, formatNum, worlds } from 'utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import DataTable from '@components/common/DataTable';
 import CardGrid from '@components/common/cards/CardGrid';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
 import GameIcon from '@components/common/GameIcon';
 import Toolbar from '@components/common/Toolbar';
 
@@ -24,6 +26,9 @@ const DEATH_NOTE_TOOLBAR = { search: '', world: 'all' };
 // A world's table at its narrowest with no scrollbar (name, a 13-digit kill count, the rank skull): four to a row on a 1920
 // window's 1,265 px page
 const WORLD_TABLE_MIN = 292;
+// The world's name is the table's title, in its own case: in capitals "Frostbite Tundra" broke in two, so heads in one row
+// differed in height, and kept on one line it made the table scroll
+const WORLD_HEAD_SX = { '& thead th:first-of-type': { textTransform: 'none', letterSpacing: 0, fontSize: 13, color: 'text.primary' } };
 
 // A rank's skull: StatusSkull0 to 6 by the formula below, the eclipse skull past rank 10, none before the first.
 const skullOf = (rank) => {
@@ -52,8 +57,10 @@ const RANK_LEGEND = <Stack gap={1}>
   <Typography variant={'body2'}>{`The ${formatNum(ECLIPSE_SKULL_RANK)} point rank needs the rift's Eclipse Skulls bonus.`}</Typography>
 </Stack>;
 
-const COLUMNS = [
-  { key: 'monster', label: 'Monster', value: (mob) => cleanUnderscore(mob.displayName) },
+// A world's table names its world in its first column's head, where "Monster" said nothing: the band that named it took two
+// lines a table, and its multikill bonus now sits in the tiles above, where the worlds compare at a glance.
+const columnsOf = (world) => [
+  { key: 'monster', label: world, value: (mob) => cleanUnderscore(mob.displayName) },
   { key: 'kills', label: 'Kills', numeric: true, sortable: true, phone: true, value: (mob) => mob.kills,
     render: (mob) => formatGame(mob.kills, 'Save.DeathNoteKills', { whole: true }) },
   {
@@ -78,11 +85,10 @@ const DeathNote = () => {
   // A failed section has no Toolbar, so nothing narrows its catalog
   const query = sectionFailed ? '' : searchText.trim().toLowerCase();
   const world = sectionFailed ? 'all' : toolbar?.world ?? 'all';
-  // A band per world, each its own table that sorts on its own. A band with no world color (the minibosses) draws no accent.
+  // A table per world, each sorting on its own
   const worldBands = Object.entries(deathNote).map(([worldIndex, { mobs, rank }]) => ({
     key: worldIndex,
     label: worlds?.[worldIndex] || 'Minibosses',
-    accent: worldColor?.[worldIndex],
     multikill: rank,
     rows: (mobs ?? []).map((mob) => ({
       ...mob,
@@ -91,13 +97,10 @@ const DeathNote = () => {
     }))
   }));
   const countOf = (list) => list.reduce((sum, { rows }) => sum + rows.length, 0);
-  // A searched band keeps its world's whole count: the count describes the world
   const bands = worldBands
     .filter(({ key }) => world === 'all' || key === world)
-    .map(({ multikill, rows, ...band }) => ({
+    .map(({ rows, ...band }) => ({
       ...band,
-      meta: sectionFailed ? undefined : `Multikill bonus ${formatNum(multikill ?? 0, 'pct')}`,
-      count: rows.length,
       rows: query ? rows.filter((mob) => cleanUnderscore(mob.displayName).toLowerCase().includes(query)) : rows
     }))
     .filter(({ rows }) => rows.length);
@@ -109,6 +112,10 @@ const DeathNote = () => {
         description="Track your Death Note monster kill counts, multikill progress, and world completion in Legends of Idleon"
       />
       {sectionFailed ? <MissingData name={'Death Note'} failed atZero/> : null}
+      {worldBands.length ? <PageSummary label={'Multikill bonus'}>
+        {worldBands.map(({ key, label, multikill }) => <StatTile key={key} label={`${label} multikill`} failed={sectionFailed}
+                                                                 value={formatNum(multikill ?? 0, 'pct')}/>)}
+      </PageSummary> : null}
       <Box>
         {!sectionFailed && worldBands.length ? <Toolbar state={toolbar} defaults={DEATH_NOTE_TOOLBAR} onChange={setToolbar}
                                                         onReset={resetToolbar} total={countOf(worldBands)} shown={countOf(bands)}
@@ -120,8 +127,9 @@ const DeathNote = () => {
         {/* A short table per world, side by side, as the old page laid them out: one long table ran three times its height
             on a desktop. A row of worlds takes its tallest one's height. A world with no match draws no table. */}
         <CardGrid size={'s'} sx={{ alignItems: 'start', gridTemplateColumns: `repeat(auto-fill, minmax(min(${WORLD_TABLE_MIN}px, 100%), 1fr))` }}>
-          {bands.map((band) => <DataTable key={band.key} columns={COLUMNS} bands={[band]} bandNoun={'monsters'} rowKey={'rawName'}
-                                          rowLabel={(mob) => cleanUnderscore(mob.displayName)} surface={'card'} dense/>)}
+          {bands.map(({ key, label, rows }) => <DataTable key={key} columns={columnsOf(label)} rows={rows} rowKey={'rawName'}
+                                                          rowLabel={(mob) => cleanUnderscore(mob.displayName)} surface={'card'} dense
+                                                          sx={WORLD_HEAD_SX}/>)}
         </CardGrid>
       </Box>
     </>
