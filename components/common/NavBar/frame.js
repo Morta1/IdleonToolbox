@@ -80,3 +80,6 @@ export const adBoxSx = {
 // which the export knows), so the title lines up with its content.
 export const capPageWidth = (maxWidth) => ({ maxWidth, width: '100%', mx: 'auto' });
 export const PAGE_CAPS = { '/guilds': 980, '/guilds/detail': 980, '/guilds/ecosystem': 980 };
+// Home, patch notes and the error pages have no page column, so a bar panel there takes home's width (its MUI
+// Container, lg), centred: without it Worlds spanned the window and Account and Tools sat at its left edge.
+export const OUTER_PANEL_WIDTH = 1200;

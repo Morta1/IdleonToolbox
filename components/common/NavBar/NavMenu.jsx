@@ -9,7 +9,7 @@ import { sessionQuery } from '@utility/nav-query';
 import { trackEvent, trackMenuClose, trackMenuLink, trackMenuOpen } from '@utility/analytics';
 import usePageTop from '@hooks/usePageTop';
 import useFrame from './useFrame';
-import { capPageWidth, TALL } from './frame';
+import { capPageWidth, OUTER_PANEL_WIDTH, TALL } from './frame';
 
 export const navMenuId = (menu) => `nav-menu-${menu}`;
 const buttonId = (menu) => `nav-menu-${menu}-button`;
@@ -264,7 +264,7 @@ export const NavMenuPanel = ({ menu, onClose }) => {
     position: 'fixed', top, left: 0, right: 0, zIndex: (theme) => theme.zIndex.drawer + 1,
     pointerEvents: 'none'
   }}>
-    <Box sx={frame.sx}>
+    <Box sx={[frame.sx, frame.inner ? null : capPageWidth(OUTER_PANEL_WIDTH)]}>
       <ClickAwayListener onClickAway={onClickAway}>
         <Box ref={panelRef} id={navMenuId(menu)} tabIndex={-1} onKeyDown={onKeyDown} onBlur={onBlur}
              sx={[{
