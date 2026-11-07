@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { within } from '../helpers/live-verified';
+import { within, withAccountOption } from '../helpers/live-verified';
 import { getGrimoireBonus, getGrimoireTotalUpgradeCost, getWraithStats } from '@parsers/class-specific/grimoire';
 import { getTalentBonus } from '@parsers/talents';
 import { getSkillEfficiency } from '@parsers/efficiency';
@@ -43,17 +43,15 @@ const GAME = {
     critChance: 535,
     critDamage: 17.42
   },
-  costRedux499: 101.64
+  costRedux499: 101.64,
+  // Grimoire upgrades 13/21/31: RANDOlist[104] names at OptionsListAccount 334/335/336 (78/78/17 of 78)
+  monsterLadderTargets: { 13: 'All_Done!', 21: 'All_Done!', 31: 'Poop' }
 };
 
 const { account, characters } = parseFixture(latest);
 const windWalker = characters.find(({ name }) => name === 'IAmTheHunterrr');
 const deathBringer = characters.find(({ class: className }) => className === 'Death_Bringer');
-const liveCostAccount = {
-  ...account,
-  accountOptions: account.accountOptions.map((value, index) => index === 499 ? GAME.costRedux499 : value)
-};
-const upgradeAt = (index) => account.grimoire.upgrades.find((upgrade) => upgrade.index === index);
+const liveCostAccount = withAccountOption(account, 499, GAME.costRedux499);
 
 describe('grimoire verified against the live game', () => {
   it.each(Object.entries(GAME.bonus))('upgrade %s bonus', (index, value) => {
@@ -61,12 +59,16 @@ describe('grimoire verified against the live game', () => {
   });
 
   it.each(Object.entries(GAME.cost))('upgrade %s next level cost', (index, value) => {
-    const upgrade = upgradeAt(Number(index));
+    const upgrade = account.grimoire.upgrades.find((candidate) => candidate.index === Number(index));
     within(getGrimoireTotalUpgradeCost(liveCostAccount, upgrade, upgrade.level + 1), value);
   });
 
   it.each(Object.entries(GAME.stats))('wraith %s', (stat, value) => {
     within(getWraithStats(windWalker, account)[stat], value);
+  });
+
+  it.each(Object.entries(GAME.monsterLadderTargets))('upgrade %s monster ladder target', (index, name) => {
+    expect(account.grimoire.upgrades[index].monsterProgress).toBe(name);
   });
 
   it('wraith crits add FAMINE_O\'_FISH x log10(fishing efficiency), the game\'s Grimoire_CRITPCT / CRITDMG', () => {

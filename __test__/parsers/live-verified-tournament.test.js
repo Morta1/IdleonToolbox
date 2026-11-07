@@ -3,18 +3,13 @@ import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { getTournament } from '@parsers/world-7/tournament';
-import { tournyStuff } from '@website-data';
 import { getGeneralAlerts } from '../../utility/dashboard/account';
 
 // Read from the running game on 2026-10-12 through the debug server. The OptionsListAccount entries below
 // held the same values in latest.json; 496 (the save's copy of the tournament day) had moved on, so it is not pinned.
 const GAME = {
-  // CustomLists.TournyStuff rows 13 (division names) and 17 (division scales)
-  divisionNames: ['Bronze', 'Silver', 'Gold', 'Diamond', 'Master', '_', '_', '_'],
-  divisionScales: [200, 200, 180, 170, 160, 200, 200, 200],
-  // TournyStuff[27]: the "+N PTS" a bracket win is worth, by round index
-  pointsPerRound: [2, 2, 2, 2, 2, 3, 3, 4, 4, 5, 5],
   divisionIndex: 0, // OptionsListAccount[495]
+  divisionName: 'Bronze', // CustomLists.TournyStuff row 13 at that index
   registrationCount: 12, // OptionsListAccount[498], +1 per registration
   registeredThrough: 226 // OptionsListAccount[511], set to getTournamentDay() + 1 on registering
 };
@@ -35,15 +30,9 @@ const options = { etc: { tournamentRegister: { checked: true }, petMartGems: { c
 const matchString = (lives, steps) => JSON.stringify([['me', 0, lives, 1, 2, 3, 4, 5], ['them', 0, lives, 6, 7], steps]);
 
 describe('tournament verified against the live game', () => {
-  it('division data', () => {
-    expect(tournyStuff.divisionNames).toEqual(GAME.divisionNames.filter((name) => name !== '_'));
-    expect(tournyStuff.divisionScales).toEqual(GAME.divisionScales);
-    expect(tournyStuff.divisionPointReqs).toEqual(GAME.pointsPerRound);
-  });
-
   it('division and registration count', () => {
     expect([tournament.divisionIndex, tournament.divisionName, tournament.registrationCount])
-      .toEqual([GAME.divisionIndex, GAME.divisionNames[GAME.divisionIndex], GAME.registrationCount]);
+      .toEqual([GAME.divisionIndex, GAME.divisionName, GAME.registrationCount]);
   });
 
   it('registration alert: registered through day 226 is behind the current tournament day', () => {

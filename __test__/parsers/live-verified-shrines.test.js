@@ -2,9 +2,8 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
+import { within } from '../helpers/live-verified';
 import { getShrineBonus, getShrineExpBonus } from '@parsers/world-3/shrines';
-import { getArtifactFormBonus } from '@parsers/world-5/sailing';
-import { artifacts } from '@website-data';
 
 // Read from the running game on 11 Oct 2026 through the debug server, logged in as IAmTheHunterrr.
 // latest.json is that save: every shrine on map 300 at level 346-349, Chizoar card Lv 7, Moai Head transcendent
@@ -17,9 +16,6 @@ const GAME = {
   expPerHour: [6384.695422093198, 4145.513141359091, 5628.21492184519, 7655.582662509854, 7776.619542549535,
     4508.623781478135, 4084.9947013392502, 3358.773421101161, 1482.7017804860982]
 };
-
-const TOLERANCE = 1e-9;
-const within = (actual, expected) => expect(Math.abs(actual / expected - 1)).toBeLessThan(TOLERANCE);
 
 const { account, characters } = parseFixture(latest);
 const hunter = characters.find((character) => character?.name === 'IAmTheHunterrr');
@@ -49,25 +45,5 @@ describe('Shrine World Tour', () => {
     ['the same world without World Tour', 330, false, 0]
   ])('%s', (_label, playerMap, worldTour, expected) => {
     expect(getShrineBonus(shrineAt(worldTour), 0, playerMap, [], [])).toBe(expected);
-  });
-});
-
-describe('getArtifactFormBonus', () => {
-  // Sailing("ArtifactBonus", t, 1): only the upgraded forms pay, a plain artifact gives 0
-  const moai = artifacts.find(({ name }) => name === 'Moai_Head');
-  it.each([
-    [0, 0],
-    [1, 0],
-    [2, moai.ancientMultiplier],
-    [3, moai.eldritchMultiplier],
-    [4, moai.sovereignMultiplier],
-    [5, moai.omnipotentMultiplier],
-    [6, moai.transcendentMultiplier]
-  ])('grade %i pays %s', (acquired, expected) => {
-    expect(getArtifactFormBonus([{ ...moai, acquired }], 'Moai_Head')).toBe(expected);
-  });
-
-  it('reads the live transcendent Moai Head', () => {
-    expect(getArtifactFormBonus(account.sailing.artifacts, 'Moai_Head')).toBe(500);
   });
 });

@@ -1,7 +1,8 @@
 import '../../polyfills';
-import { describe, expect, it } from 'vitest';
+import { describe, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
+import { within } from '../helpers/live-verified';
 import { getStatueBonus } from '@parsers/world-1/statues';
 
 // ArbitraryCode("StatueBonusGiven" + i) read from the running game on 11 Oct 2026 through the debug server,
@@ -18,14 +19,11 @@ const GAME = [
   4695.981071141355, 182.72842640037942
 ];
 
-const TOLERANCE = 1e-9;
-
 const { account, characters } = parseFixture(latest);
 const hunter = characters.find((character) => character?.name === 'IAmTheHunterrr');
 
 describe('statue bonus matches the live game', () => {
   it.each(GAME.map((value, index) => [account.statues[index]?.name, index, value]))('%s (%i)', (_name, index, value) => {
-    const actual = getStatueBonus(account, index, hunter.flatTalents);
-    expect(Math.abs(actual / value - 1)).toBeLessThan(TOLERANCE);
+    within(getStatueBonus(account, index, hunter.flatTalents), value);
   });
 });

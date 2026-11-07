@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { within } from '../helpers/live-verified';
+import { asMortasNinth, within } from '../helpers/live-verified';
 import { calcTotalTasks, getMeritDescription } from '@parsers/tasks';
 import { merits } from '@website-data';
 import { getClassExpMulti, getRespawnRate } from '@parsers/character';
@@ -66,17 +66,10 @@ const GAME = {
   eggCapacity: 15
 };
 
-const withLiveInputs = (fixture) => ({
-  ...fixture,
-  data: {
-    ...fixture.data,
-    [`PTimeAway_${LOGGED_IN}`]: Number(fixture.data.PTimeAway_5) + 1,
-    TaskZZ5: JSON.stringify(LIVE_DAILY_TASK_ROLLS),
-    OptLacc: fixture.data.OptLacc.map((value, index) => index === 500 ? LIVE_OPTION_500 : value)
-  }
-});
-
-const { account, characters } = parseFixture(withLiveInputs(latest));
+const { account, characters } = parseFixture(asMortasNinth(latest, {
+  TaskZZ5: JSON.stringify(LIVE_DAILY_TASK_ROLLS),
+  OptLacc: latest.data.OptLacc.map((value, index) => index === 500 ? LIVE_OPTION_500 : value)
+}));
 const loggedIn = characters[LOGGED_IN];
 
 describe('task board (live)', () => {
@@ -89,7 +82,7 @@ describe('task board (live)', () => {
     });
   });
 
-  it.each(GAME.board.map((row, world) => [world, row]))('world %i board', (world, row) => {
+  it.each([...GAME.board.entries()])('world %i board', (world, row) => {
     expect(account.tasksDescriptions[world].map(({ name, requirement, meritReward }) => [name, requirement, meritReward]))
       .toEqual(row);
   });

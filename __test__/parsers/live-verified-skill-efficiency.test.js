@@ -1,7 +1,8 @@
 import '../../polyfills';
-import { describe, expect, it } from 'vitest';
+import { describe, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
+import { within } from '../helpers/live-verified';
 import { getMaxDamage } from '@parsers/damage';
 import { getSkillEfficiency } from '@parsers/efficiency';
 
@@ -34,7 +35,6 @@ describe('skill efficiency verified against the live game', () => {
   const playerInfo = getMaxDamage(hunter, characters, account);
 
   it.each(Object.entries(GAME_EFFICIENCY))('%s', (skill, value) => {
-    const ratio = getSkillEfficiency(skill, hunter, characters, account, playerInfo).value / value;
-    expect(Math.abs(ratio - 1)).toBeLessThan(TOLERANCE[skill] ?? DEFAULT_TOLERANCE);
+    within(getSkillEfficiency(skill, hunter, characters, account, playerInfo).value, value, TOLERANCE[skill] ?? DEFAULT_TOLERANCE);
   });
 });

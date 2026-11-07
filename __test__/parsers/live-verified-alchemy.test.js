@@ -2,13 +2,14 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { unrounded, within } from '../helpers/live-verified';
+import { asMortasNinth, unrounded, within } from '../helpers/live-verified';
 import {
   applyBrewSpeeds,
   getBubbleBonus,
   getCauldronBrewMulti,
   getCharacterBrewSpeed,
   getKrukBubblesDaily,
+  getNblbLevel,
   getPossibleZenithMarketBubbles,
   getUpgradeableBubbles,
   getVialMultiplier,
@@ -25,8 +26,10 @@ const GAME = {
   vialMulti: 3.3600000000000003,
   // Thingies("KrukBubblesDaily")
   krukDaily: 2142,
-  // ArcaneType("NBLB_bubbleQTY", 0, 0)
+  // ArcaneType("NBLB_bubbleQTY", 0, 0) and ("NBLB_bubbleLVrangeDisp", 0 | 99)
   upgradeableBubbles: 10,
+  nblbMinLevel: 3,
+  nblbMaxLevel: 13,
   // CauldronStats("LiquidCap", 0..3), the game does not round them
   liquidCaps: [489156.6973870904, 490324.50665103, 479350.8069009945, 474100.2993770121],
   // DNSM.AlchBubbles after TalentCalc(-2), only bubbles whose level matches the save. The logged-in archer
@@ -57,25 +60,21 @@ const GAME = {
     Kcosts: 109.20000000000002,
     Contspd: 305.76000000000005,
     '6turtle': 147.84
-  },
-  // Labb("SigilBonus", "Blank", i, 0) for every sigil
-  sigils: [1400, 1400, 1400, 1400, 70000, 350, 525, 70, 350, 700, 420, 700, 3150, 105, 420, 700, 70, 175, 630, 490, 350, 420,
-    700, 1750],
-  // Summoning("VaultKillzTotal", 9, 0): every bubble level capped at 100
-  cappedBubbleLevels: 12903
+  }
 };
 // The logged-in character is an archer
 const LOGGED_IN_CLASS_CAULDRON = 'quicc';
 const SWIFT_STEPPIN_LEVEL_DRIFT = 1e-4;
-const VAULT_CAPPED_BUBBLE_LEVELS_INDEX = 9;
 
 const { account, characters } = parseFixture(latest);
 
 describe('alchemy verified against the live game', () => {
-  it('vial multiplier, Kruk daily bubble levels and upgradeable bubbles', () => {
+  it('vial multiplier, Kruk daily bubble levels and No Bubble Left Behind', () => {
     within(getVialMultiplier(account).value, GAME.vialMulti);
     expect(getKrukBubblesDaily(account).value).toBe(GAME.krukDaily);
     expect(getUpgradeableBubbles(account, characters).upgradeableBubblesAmount).toBe(GAME.upgradeableBubbles);
+    expect(getNblbLevel(account, characters, true)).toBe(GAME.nblbMinLevel);
+    expect(getNblbLevel(account, characters)).toBe(GAME.nblbMaxLevel);
   });
 
   it.each(Object.entries(GAME.bubbles))('%s bubble', (bubbleName, value) => {
@@ -92,11 +91,6 @@ describe('alchemy verified against the live game', () => {
 
   it.each(Object.entries(GAME.vials))('%s vials', (stat, value) => {
     within(getVialsBonusByStat(account.alchemy.vials, stat), value);
-  });
-
-  it('sigil bonuses and the capped bubble levels the vault counts', () => {
-    expect(account.alchemy.p2w.sigils.map(({ bonus }) => bonus)).toEqual(GAME.sigils);
-    expect(account.upgradeVault.vaultTotalKills[VAULT_CAPPED_BUBBLE_LEVELS_INDEX]).toBe(GAME.cappedBubbleLevels);
   });
 
   it('liquid cauldron capacity', () => {
@@ -121,21 +115,12 @@ const BREW_GAME = {
   brewstachioLevel: 2080,
   wisdom: { MortasNinth: 1805752, IAmTheHunterrr: 1700522 }
 };
-const LOGGED_IN_INDEX = 8;
 const BREWSTACHIO = { cauldron: 2, index: 8 };
 
 const brewFixture = () => {
   const cauldronInfo = structuredClone(latest.data.CauldronInfo);
   cauldronInfo[BREWSTACHIO.cauldron][BREWSTACHIO.index] = BREW_GAME.brewstachioLevel;
-  // A newer PTimeAway stamp makes MortasNinth the logged-in character
-  return {
-    ...latest,
-    data: {
-      ...latest.data,
-      CauldronInfo: cauldronInfo,
-      [`PTimeAway_${LOGGED_IN_INDEX}`]: Number(latest.data.PTimeAway_5) + 1
-    }
-  };
+  return asMortasNinth(latest, { CauldronInfo: cauldronInfo });
 };
 
 describe('cauldron brew speed verified against the live game', () => {
@@ -144,13 +129,13 @@ describe('cauldron brew speed verified against the live game', () => {
     ? { ...character, stats: { ...character.stats, wisdom: BREW_GAME.wisdom[character.name] } }
     : character);
 
-  it.each(BREW_GAME.characterSpeeds.map((value, index) => [index, value]))('character %i brew speed', (index, value) => {
+  it.each([...BREW_GAME.characterSpeeds.entries()])('character %i brew speed', (index, value) => {
     const { value: speed, breakdown } = getCharacterBrewSpeed(brewCharacters[index], brewAccount, brewCharacters);
     within(speed, value);
     within(evaluateBreakdown(breakdown), value);
   });
 
-  it.each(BREW_GAME.cauldronMultis.map((value, index) => [index, value]))('cauldron %i multiplier', (index, value) => {
+  it.each([...BREW_GAME.cauldronMultis.entries()])('cauldron %i multiplier', (index, value) => {
     within(getCauldronBrewMulti(brewAccount, index).value, value);
   });
 

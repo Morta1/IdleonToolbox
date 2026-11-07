@@ -46,7 +46,7 @@ describe('bubba verified against the live game', () => {
     within(bubba.meatsliceRate, GAME.meatslicesPerSecond * SECONDS_PER_MINUTE);
   });
 
-  it.each(GAME.costs.map((cost, index) => [index, cost]))('upgrade %i cost and bonus', (index, cost) => {
+  it.each([...GAME.costs.entries()])('upgrade %i cost and bonus', (index, cost) => {
     within(bubba.upgrades[index].cost, cost);
     within(bubba.upgrades[index].bonus, GAME.upgradeBonuses[index]);
   });

@@ -91,7 +91,7 @@ describe('tome verified against the live game', () => {
 
   // 3-5 are the Tome of STR/AGI/WIS bubbles: whole 2000-point steps past 5000, and the logged-in Wind Walker's
   // archer class multiplier on the AGI one
-  it.each(GAME.bonuses.map((bonus, index) => [index, bonus]))('bonus %i', (index, bonus) => {
+  it.each([...GAME.bonuses.entries()])('bonus %i', (index, bonus) => {
     within(account.tome.bonuses[index].bonus, bonus);
   });
 });

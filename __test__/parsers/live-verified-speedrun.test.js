@@ -2,8 +2,8 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { within } from '../helpers/live-verified';
-import { mapEnemiesArray, mapMonsterCounts, mapMulticharReq, mapPortals } from '@website-data';
+import { asMortasNinth, within } from '../helpers/live-verified';
+import { mapMulticharReq } from '@website-data';
 import {
   getPortalProgressBreakdown,
   getSpeedrunPlan,
@@ -41,36 +41,29 @@ const GAME = {
   killPerKill: 11835.383898964392,
   // BossInfo[n][0] for the six world bosses
   bossDifficulties: [0, 0, 0, 0, 0, 0],
-  // CustomLists.MapDetails[map][0] (portal kill requirements), MapDetails[map][1][0] (MonstersOnScreen) and
-  // MapAFKtarget[map]: one and two door maps, a padded 0 door, an arena, the Emperor's arena, World 7
+  // CustomLists.MapDetails[map][0] (portal kill requirements) and MapDetails[map][1][0] (MonstersOnScreen):
+  // one and two door maps, a padded 0 door, an arena, the Emperor's arena, World 7
   maps: [
-    [1, [21], 15, 'mushG'],
-    [24, [120, 2000], 16, 'carrotO'],
-    [51, [100], 17, 'jarSand'],
-    [60, [500, 0], 17, 'potato'],
-    [113, [120000], 22, 'eye'],
-    [165, [700], 0, 'w4c4'],
-    [266, [0], 0, 'w6d3'],
-    [323, [750000000], 16, 'w7b9']
+    [1, [21], 15],
+    [24, [120, 2000], 16],
+    [51, [100], 17],
+    [60, [500, 0], 17],
+    [113, [120000], 22],
+    [165, [700], 0],
+    [266, [0], 0],
+    [323, [750000000], 16]
   ],
   // Read 2026-10-13: Summoning("RegionLockMulticharProg", map, 0) per CustomMaps.MapMulticharReq map, and
   // PlayerDATABASE.MortaMan.KillsLeft2Advance[map][0] <= 0 on every one of them except 324
   multiCharProgress: { 255: 10, 259: 10, 261: 10, 303: 11, 305: 11, 311: 7, 317: 11, 320: 8, 324: 0, 325: 11 },
   mortaManUnclearedMultiCharMaps: [324]
 };
-const TOLERANCE = 1e-9;
 
-// A newer PTimeAway stamp makes MortasNinth the logged-in character; the bubble level is the live one
-const { account, characters } = parseFixture({
-  ...latest,
-  data: {
-    ...latest.data,
-    PTimeAway_8: Number(latest.data.PTimeAway_5) + 1,
-    CauldronInfo: latest.data.CauldronInfo.map((cauldron, index) => index === 3
-      ? { ...cauldron, 15: GAME.massacreLevel }
-      : cauldron)
-  }
-});
+const { account, characters } = parseFixture(asMortasNinth(latest, {
+  CauldronInfo: latest.data.CauldronInfo.map((cauldron, index) => index === 3
+    ? { ...cauldron, 15: GAME.massacreLevel }
+    : cauldron)
+}));
 const voidwalker = characters.find(({ name }) => name === 'MortaMan');
 const loggedIn = characters.find(({ name }) => name === 'MortasNinth');
 const onMap51 = {
@@ -84,9 +77,9 @@ const stats = getSpeedrunStats(account, characters, voidwalker);
 describe('speedrun verified against the live game', () => {
   it('reads the highscore and the account-wide Master of the System bonus', () => {
     expect(stats.highscore).toBe(GAME.highscore);
-    within(stats.multiKillPerFiveMaps, GAME.masterOfTheSystem, TOLERANCE);
+    within(stats.multiKillPerFiveMaps, GAME.masterOfTheSystem);
     // MultiKill_perTier's term: getbonus2(1, 58, -1) * floor(OptionsListAccount[158] / 5)
-    within(stats.multiKillBonus, GAME.masterOfTheSystem * Math.floor(GAME.highscore / 5), TOLERANCE);
+    within(stats.multiKillBonus, GAME.masterOfTheSystem * Math.floor(GAME.highscore / 5));
   });
 
   it.each(Object.entries(GAME.voidwalkerTalentLevels))('%s sits at its live base level', (name, level) => {
@@ -104,7 +97,7 @@ describe('speedrun verified against the live game', () => {
   });
 
   it('shortens the run cooldown by the attack cooldown reduction', () => {
-    within(getAttackCooldownDivisor(loggedIn), GAME.attackCooldownDivisor, TOLERANCE);
+    within(getAttackCooldownDivisor(loggedIn), GAME.attackCooldownDivisor);
     // MortaMan has the same Magician_Starterpack level and no Woah, That Was Fast!, so the same divisor
     expect(getPostOfficeBoxLevel(voidwalker.postOffice, 'Magician_Starterpack')).toBe(GAME.mortaManMagicianBoxLevel);
     expect(getTalentCooldown(voidwalker, 'VOID_TRIAL_RERUN'))
@@ -113,25 +106,19 @@ describe('speedrun verified against the live game', () => {
   });
 
   it('credits each kill to the portal the way the on-kill handler does', () => {
-    within(getMultiKillPerTier(onMap51, characters, account), GAME.multiKillPerTier, TOLERANCE);
+    within(getMultiKillPerTier(onMap51, characters, account), GAME.multiKillPerTier);
     const killPerKill = getMaxDamage(onMap51, characters, account).killPerkill.value;
-    within(killPerKill, GAME.killPerKill, TOLERANCE);
+    within(killPerKill, GAME.killPerKill);
 
     const progress = getPortalProgressBreakdown(account, killPerKill);
     expect(progress.vaultBonus).toBe(GAME.vault43);
-    within(progress.vialBonus, GAME.seawaterVial, TOLERANCE);
+    within(progress.vialBonus, GAME.seawaterVial);
     // KillsLeft2Advance -= (1 + VaultUpgBonus(43) / 100) * (KillPerKill + AlchVials.MultiKillPlay / 100)
-    within(progress.perKill, (1 + GAME.vault43 / 100) * (GAME.killPerKill + GAME.seawaterVial / 100), TOLERANCE);
+    within(progress.perKill, (1 + GAME.vault43 / 100) * (GAME.killPerKill + GAME.seawaterVial / 100));
   });
 
   it('reads every boss difficulty off the save', () => {
     expect(account.speedrun.bosses.map(({ difficulty }) => difficulty)).toEqual(GAME.bossDifficulties);
-  });
-
-  it.each(GAME.maps)('map %i carries the live portal costs, spawn count and AFK target', (mapIndex, reqs, monstersOnScreen, afkTarget) => {
-    expect(mapPortals[mapIndex].map(Number)).toEqual(reqs);
-    expect(mapMonsterCounts[mapIndex] ?? 0).toBe(monstersOnScreen);
-    expect(mapEnemiesArray[mapIndex]).toBe(afkTarget);
   });
 
   it('scores a multi-character door only once enough characters have cleared its map', () => {

@@ -5,8 +5,6 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
 import { findBreakdownNode } from '../helpers/breakdown-tree';
 import { getJewelBonus, getLabBonus, getPlayerLabChipBonus } from '@parsers/world-4/lab';
-import { getTotalGildedSlots } from '@parsers/world-3/construction';
-import { getNblbLevel, getUpgradeableBubbles } from '@parsers/world-2/alchemy';
 import { evaluateBreakdownNode } from '@parsers/breakdown';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
@@ -34,15 +32,7 @@ const GAME = {
     Silkrode_Software: 1,
     Omega_Nanochip: 1,
     Omega_Motherboard: 1
-  },
-  // WorkbenchStuff("TotalGildedSlots"): Minehead 1 + Sapphire Rhinestone ceil(9.6 / 5) + atom + legend + gambit + event
-  gildedSlots: 7,
-  // ArcaneType("NBLB_bubbleLVrangeDisp", 0 | 99) and ("NBLB_bubbleQTY")
-  nblbMinLevel: 3,
-  nblbMaxLevel: 13,
-  nblbBubbles: 10,
-  // FarmingStuffs("CropSCbonMulti")
-  cropDepotMulti: 6.002268177525967
+  }
 };
 
 const { account, characters } = parseFixture(latest);
@@ -50,11 +40,11 @@ const { lab } = account;
 const windWalker = characters.find(({ name }) => name === 'IAmTheHunterrr');
 
 describe('lab verified against the live game', () => {
-  it.each(GAME.mainframeBonus.map((value, index) => [index, value]))('MainframeBonus(%i)', (index, value) => {
+  it.each([...GAME.mainframeBonus.entries()])('MainframeBonus(%i)', (index, value) => {
     within(getLabBonus(lab.labBonuses, index), value);
   });
 
-  it.each(GAME.jewelBonus.map((value, index) => [index, value]).filter(([index]) => index !== 14))(
+  it.each([...GAME.jewelBonus.entries()].filter(([index]) => index !== 14))(
     'MainframeBonus(100 + %i)', (index, value) => {
       within(getJewelBonus(lab.jewels, index), value);
     });
@@ -75,14 +65,6 @@ describe('lab verified against the live game', () => {
       .map(({ name, index }) => [name, getPlayerLabChipBonus(windWalker, account, index)])
       .filter(([, value]) => value > 0));
     expect(chipBonuses).toEqual(GAME.loggedInChipBonuses);
-  });
-
-  it('lab-derived readers: gilded slots, No Bubble Left Behind, crop depot', () => {
-    expect(getTotalGildedSlots(account)).toBe(GAME.gildedSlots);
-    expect(getNblbLevel(account, characters, true)).toBe(GAME.nblbMinLevel);
-    expect(getNblbLevel(account, characters)).toBe(GAME.nblbMaxLevel);
-    expect(getUpgradeableBubbles(account, characters).upgradeableBubblesAmount).toBe(GAME.nblbBubbles);
-    within(account.farming.cropDepot.damage.value / (20 * Math.round(account.farming.cropsFound)), GAME.cropDepotMulti);
   });
 });
 

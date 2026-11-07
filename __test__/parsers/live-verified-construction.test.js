@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { within } from '../helpers/live-verified';
+import { asMortasNinth, within, withSkillLevel } from '../helpers/live-verified';
 import { evaluateBreakdown, evaluateBreakdownNode } from '@parsers/breakdown';
 import { BOARD_SIZE, getConstruction, getTotalGildedSlots, getTrimmedBuildSpeed } from '@parsers/world-3/construction';
 import {
@@ -129,8 +129,9 @@ const GAME_COGS = {
   },
   // Every Excogia piece (two assembled squares, CogZA00 at 74 and 76)
   excogiaInputs: { a: 195846, c: 17121 },
-  // _GenINFO[12]: build rate, construct EXP bonus (x small cogs), flaggy rate (x gem shop), as printed on the board
-  totals: { totalBuildRate: 1894405319059028200, totalExpRate: 799932, totalFlaggyRate: 18744110330113908 },
+  // _GenINFO[12]: build rate, construct EXP bonus (x small cogs), flaggy rate (x gem shop), as printed on the board.
+  // WorkbenchStuff("ExtraBuildSPDmulti")
+  totals: { totalBuildRate: 1894405319059028200, totalExpRate: 799932, totalFlaggyRate: 18744110330113908, extraBuildSpeedMulti: 364 },
   // _GenINFO[8][slot] after the neighbour boosts: one slot per boost shape, both Excogia corners, characters
   slots: {
     3: { a: 12752.300000000001 },
@@ -150,8 +151,6 @@ const GAME_COGS = {
     77: { a: 422537.74499999994, c: 17121 },
     94: { a: 6940212793266381, c: 84127073951218.56 }
   },
-  // WorkbenchStuff("ExtraBuildSPDmulti")
-  extraBuildSpeedMulti: 364,
   // WorkbenchStuff("FlagReq", 0..95), read 2026-10-16: the board squares, 25 x their FlagReqs entry
   boardFlagReqs: [250000000, 50000000, 17500000, 300000, 100000, 31250, 31250, 100000, 300000, 17500000, 50000000,
     250000000, 50000000, 1000000, 187500, 8750, 1500, 625, 625, 1500, 8750, 187500, 1000000, 50000000, 17500000, 312500,
@@ -164,7 +163,7 @@ const GAME_COGS = {
     26214400000000, 117964800000000, 524288000000000, 2306867200000000, 10066329600000000, 43620761600000000,
     187904819200000000, 805306368000000000, 3435973836800000000, 14602888806400000000, 61847529062400000000,
     261134011596800000000, 1.099511627776e+21, 4.6179488366592e+21, 1.93514046488576e+22, 8.09240558043136e+22],
-  // WorkbenchStuff("TotalGildedSlots")
+  // WorkbenchStuff("TotalGildedSlots"): Minehead 1 + Sapphire Rhinestone ceil(9.6 / 5) + atom + legend + gambit + event
   gildedSlots: 7,
   // WorkbenchStuff("PlayerBuildSpd", i, 0): EtcBonuses("30") is MortasNinth's 40% obol build speed for everyone
   playerBuildSpeed: {
@@ -185,8 +184,7 @@ const GAME_COGS = {
 };
 const EXCOGIA_PIECE = /^CogZA0[0-3]$/;
 
-const ninthFixture = { ...latest, data: { ...latest.data, PTimeAway_8: Number(latest.data.PTimeAway_5) + 1 } };
-const ninth = parseFixture(ninthFixture);
+const ninth = parseFixture(asMortasNinth(latest));
 const liveCogMap = JSON.parse(latest.data.CogM);
 JSON.parse(latest.data.CogO).slice(0, BOARD_SIZE).forEach((name, slot) => {
   const live = EXCOGIA_PIECE.test(name) ? GAME_COGS.excogiaInputs : GAME_COGS.boardInputs[slot];
@@ -205,10 +203,6 @@ describe('construction cog board verified against the live game', () => {
     within(stats.c?.value ?? 0, c);
   });
 
-  it('extra build speed multi', () => {
-    within(cogBoard.extraBuildSpeedMulti, GAME_COGS.extraBuildSpeedMulti);
-  });
-
   it('board flag requirements', () => {
     expect(cogBoard.board.map(({ requiredAmount }) => requiredAmount)).toEqual(GAME_COGS.boardFlagReqs);
   });
@@ -224,8 +218,7 @@ describe('construction cog board verified against the live game', () => {
 
   it.each(Object.entries(GAME_COGS.playerBuildSpeed))('%s build speed with MortasNinth logged in', (name, value) => {
     const character = ninth.characters.find((other) => other.name === name);
-    const level = GAME_COGS.constructionLevel[name] ?? character.skillsInfo.construction.level;
-    const live = { ...character, skillsInfo: { ...character.skillsInfo, construction: { ...character.skillsInfo.construction, level } } };
+    const live = withSkillLevel(character, 'construction', GAME_COGS.constructionLevel[name] ?? character.skillsInfo.construction.level);
     within(getPlayerConstructionSpeed(live, ninth.account, ninth.characters), value);
   });
 });
