@@ -1,5 +1,7 @@
-import React, { useState } from 'react';
-import { Box, Button, Stack, Typography } from '@mui/material';
+import React from 'react';
+import { Box, Stack, Typography } from '@mui/material';
+import { IconChartBar } from '@tabler/icons-react';
+import { INFO_SX, NoteTrigger } from '@components/common/InfoButton';
 import { cleanUnderscore, formatNum, pascalCase, prefix } from '@utility/helpers';
 import { getActivityIcon } from '@utility/spriteImages';
 import { alertMeta } from '@utility/dashboard/alertMeta';
@@ -49,6 +51,11 @@ const TALENT_BOOKS = {
   [CLASSES.Mage]: 'TalentBook5'
 };
 const getTalentBookIcon = (className) => TALENT_BOOKS?.[getBaseClass(className)] || 'TalentBook1';
+// A card's alerts at 4 px apart fit six to a row where 8 fit five, and a busy character's card was the dashboard's
+// height. A finger keeps the 8.
+const ALERTS_SX = { gap: 0.5, '@media (pointer: coarse)': { gap: 1 } };
+const STATS_SX = [INFO_SX, { flexShrink: 0 }];
+const STATS_NOTE_WIDTH = 300;
 
 // An inventory alert names the item, which still leaves it to be found among a few hundred slots.
 const itemLocationSuffix = (item) => {
@@ -109,7 +116,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
     }, {});
     const { showMaxed, showNonMaxed } = options?.crystalCountdown || {};
 
-    const alertIcons = <Stack direction={'row'} gap={1} flexWrap={'wrap'} alignItems={'center'}>
+    const alertIcons = <Stack direction={'row'} flexWrap={'wrap'} alignItems={'center'} sx={ALERTS_SX}>
       {trackers?.worship && alerts?.worship?.unendingEnergy ?
         <Alert target={'worship.unendingEnergy'} title={`${name} has unending energy prayer and is afk for more than 10 hours`}
                iconPath={'data/Prayer2'}/> : null}
@@ -282,9 +289,9 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
   </Box>;
 };
 
-// A character's card: who it is, what it's doing, its alerts, and its stats on a button (not remembered).
+// A character's card: who it is, what it's doing, its alerts, and its stats in a note at the activity line's end. Opened
+// in the card, they grew every card in the row to their height; a footer for the button took 45 px of every card.
 const CharacterCard = ({ character, characters, account, lastUpdated, failedTrackers, children }) => {
-  const [statsOpen, setStatsOpen] = useState(false);
   const { name, classIndex, afkTarget, afkTime, stats } = character;
   // Both ends of the save: no clock read, and a character that was active when the save was taken stays "Active"
   const isActive = differenceInMinutes(lastUpdated, afkTime) <= 5;
@@ -293,21 +300,23 @@ const CharacterCard = ({ character, characters, account, lastUpdated, failedTrac
   const form = FORMS.find(({ talent }) => getTalentBonusIfActive(character?.activeBuffs, talent));
   return <Box data-cy={`character-${name}`} sx={{ height: '100%' }}>
     <ItemCard icon={<GameIcon src={classIcon} size={40} alt={''}/>} title={cleanUnderscore(name)} level={{ value: stats?.level ?? 0 }}
-              meta={isActive ? 'Active' : <>AFK <Timer type={'up'} date={afkTime} lastUpdated={lastUpdated} component={'span'}/></>}
-              footer={<Button size={'small'} aria-expanded={statsOpen} onClick={() => setStatsOpen(!statsOpen)} sx={{ alignSelf: 'flex-start' }}>
-                {statsOpen ? 'Hide stats' : 'Show stats'}
-              </Button>}>
+              meta={isActive ? 'Active' : <>AFK <Timer type={'up'} date={afkTime} lastUpdated={lastUpdated} component={'span'}/></>}>
       <Stack direction={'row'} alignItems={'center'} gap={1}>
         <GameIcon src={getActivityIcon(character).slice(prefix.length)} size={24} alt={''}/>
-        <Typography variant={'body2'} color={'text.secondary'}>{[activity, form?.name].filter(Boolean).join(' · ')}</Typography>
+        <Typography variant={'body2'} color={'text.secondary'} sx={{ minWidth: 0 }}>{[activity, form?.name].filter(Boolean).join(' · ')}</Typography>
+        <Box sx={{ ml: 'auto', display: 'inline-flex' }}>
+          <NoteTrigger label={`${cleanUnderscore(name)}'s stats`} maxWidth={STATS_NOTE_WIDTH} sx={STATS_SX}
+                       note={<ErrorBoundary title={'These stats didn\'t load'}>
+                         <CharacterStats character={character} characters={characters} account={account}/>
+                       </ErrorBoundary>}>
+            <IconChartBar size={16}/>
+          </NoteTrigger>
+        </Box>
       </Stack>
       {children}
       {failedTrackers.map((tracker) => <StatusText key={tracker} status={'problem'} wrap>
         {`Couldn't check ${alertMeta[`characters.${tracker}`]?.label ?? tracker} alerts.`}
       </StatusText>)}
-      {statsOpen ? <ErrorBoundary title={'These stats didn\'t load'}>
-        <CharacterStats character={character} characters={characters} account={account}/>
-      </ErrorBoundary> : null}
     </ItemCard>
   </Box>;
 };

@@ -225,7 +225,8 @@ export const DottedValue = ({ note, label, table, sx, children }) => <NoteTrigge
   <Box component={'span'} sx={{ textDecoration: 'underline dotted', textUnderlineOffset: 3, cursor: 'help' }}>{children}</Box>
 </NoteTrigger>;
 
-const INFO_SX = {
+// The i's look, for a NoteTrigger that wears another 16 px glyph (a character's stats on the dashboard)
+export const INFO_SX = {
   // The box is the 16 px glyph, so the i takes the room of the icon it replaced and never pushes a
   // title onto a second line, whatever margin a caller adds. The 24 px click area and the 40 px tap
   // area are drawn around it.
