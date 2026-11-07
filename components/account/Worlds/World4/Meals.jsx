@@ -32,7 +32,7 @@ import GameIcon from '@components/common/GameIcon';
 import Num, { Duration } from '@components/common/Num';
 
 const BREAKPOINT_LEVELS = [11, 30, 40, 50, 60, 70, 80, 90, 100, 110, 120, 130, 140, 150, 160, 170, 180, 190, 200];
-const MEALS_TOOLBAR = { sort: null, hideCapped: false, view: 'cards' };
+const MEALS_TOOLBAR = { sort: null, hideCapped: false, view: 'cards', details: false };
 // The tab's remembered settings: the three that change the meal numbers sit in Cooking's gear (MEALS_GEAR), the queue's
 // procs on the tab
 export const MEALS_SETTINGS = { overflow: false, amethyst: false, foodLust: null, procs: 15 };
@@ -89,21 +89,22 @@ const nmlbOrder = (meals, mealMaxLevel) => (meals ?? [])
   .filter((meal) => meal?.level >= NO_MEAL_LEFT_BEHIND_MIN_LEVEL && meal?.level < mealMaxLevel)
   .toSorted((a, b) => (a.level === b.level ? b.index - a.index : a.level - b.level));
 
-// Ladles and hours are the same number (1 ladle = 1 hour of cook time): the rows under a time
-const ladleRows = (hours, singleKitchenMulti) => {
+// Ladles and hours are the same number (1 ladle = 1 hour of cook time): the row under a time
+const ladleRow = (hours) => {
   const ladles = Number(hours);
-  if (!Number.isFinite(ladles)) return [['Ladles', '-']];
+  return ['Ladles', Number.isFinite(ladles) ? exactNote(formatNum(Math.ceil(ladles)), formatNum(ladles, 'exact')) : '-'];
+};
+// The ladles if one kitchen cooks the meal alone: a Details row, as it only qualifies the ladles on the card
+const singleKitchenRow = (hours, singleKitchenMulti) => {
+  const ladles = Number(hours);
   const fastest = Math.ceil(ladles * singleKitchenMulti?.fastest);
   const slowest = Math.ceil(ladles * singleKitchenMulti?.slowest);
-  const single = ladles > 0 && Number.isFinite(fastest) && Number.isFinite(slowest);
-  return [
-    ['Ladles', exactNote(formatNum(Math.ceil(ladles)), formatNum(ladles, 'exact'))],
-    single ? [<Box key={'single'} component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
-      1 kitchen
-      <InfoButton label={'1 kitchen'}>Ladles needed if only one kitchen cooks this meal: your fastest kitchen first, your
-        slowest second.</InfoButton>
-    </Box>, formatNum(fastest) === formatNum(slowest) ? formatNum(fastest) : `${formatNum(fastest)} to ${formatNum(slowest)}`] : null
-  ];
+  if (!(ladles > 0 && Number.isFinite(fastest) && Number.isFinite(slowest))) return null;
+  return [<Box key={'single'} component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+    1 kitchen
+    <InfoButton label={'1 kitchen'}>Ladles needed if only one kitchen cooks this meal: your fastest kitchen first, your
+      slowest second.</InfoButton>
+  </Box>, formatNum(fastest) === formatNum(slowest) ? formatNum(fastest) : `${formatNum(fastest)} to ${formatNum(slowest)}`];
 };
 
 const Meals = ({
@@ -239,10 +240,14 @@ const Meals = ({
                              max={exactNote(<Num value={Math.ceil(bpCost ?? 0)} game={'CookingR.CookingMenuMealCosts'} whole/>, formatNum(bpCost ?? 0, 'exact'))}/>}
       {maxed ? null : <ItemCard.Facts rows={[
         [bpLevel > 0 ? `To Lv ${formatNum(bpLevel)}` : 'Next level', shownTime(timeToBp)],
-        ...ladleRows(timeToBp, singleKitchenMulti)
+        ladleRow(timeToBp)
       ]}/>}
     </ItemCard.Section>;
   };
+  // The one-kitchen ladles go with the section's own, so only where it draws them
+  const sectionSingleKitchen = (meal) => (toolbar?.view === 'compact' || !meal?.level || meal.level >= mealMaxLevel
+    ? null
+    : singleKitchenRow(entryFor(meal, target)?.timeToBp, singleKitchenMulti));
 
   return (
     <>
@@ -255,19 +260,21 @@ const Meals = ({
                  total={meals?.length ?? 0} shown={visibleMeals.length} noun={'meals'}>
           <Toolbar.Sort options={SORTS}/>
           <Toolbar.Filter name={'hideCapped'} label={'Hide capped'}/>
+          <Toolbar.Filter name={'details'} label={'Details'} display/>
           <Toolbar.View options={[['cards', 'Cards'], ['compact', 'Compact']]}/>
         </Toolbar>}
         {allPast ? <Notice tone={'info'} sx={{ mb: 2 }}>{`Every meal has reached Lv ${formatNum(target)}.`}</Notice> : null}
         {bestSpeedMeals.length ? <Stack gap={1} my={2}>
           <Typography variant={'sectionTitle'} component={'h2'}>Best meal speed contribution</Typography>
-          <CardGrid size={'m'}>
+          <CardGrid size={'m'} details={toolbar?.details}>
             {bestSpeedMeals.map(({ name, rawName, level, current, next, timeTillNextLevel }) => <ItemCard
               key={name} icon={<MealIcon rawName={rawName} plateLevel={level} small/>} title={cleanUnderscore(name)}
-              meta={`Lv ${formatNum(level)} → ${formatNum(level + 1)}`}>
+              meta={`Lv ${formatNum(level)} → ${formatNum(level + 1)}`}
+              more={<ItemCard.Facts rows={[singleKitchenRow(timeTillNextLevel, singleKitchenMulti)]}/>}>
               <ItemCard.Facts rows={[
                 ['Bonus', `+${mealBonusText(current)}% → +${mealBonusText(next)}% (+${mealBonusText(shownGain(current, next))}%)`],
                 ['Next level', shownTime(timeTillNextLevel)],
-                ...ladleRows(timeTillNextLevel, singleKitchenMulti)
+                ladleRow(timeTillNextLevel)
               ]}/>
             </ItemCard>)}
           </CardGrid>
@@ -301,7 +308,9 @@ const Meals = ({
         <MealsFilterBar upgradableCount={upgradableCount} total={costTotal}
                         limited={limited} value={limited ? mealLimit : upgradableCount}
                         onCommit={(val) => setMealLimit(val >= upgradableCount ? 0 : val)}/>
-        <CardGrid size={'m'}>
+        {/* A card says what its meal gives and how far it is from the target. The next level's bonus, its ribbon and
+            mastery node, and one kitchen's ladles show with the Details pill. */}
+        <CardGrid size={'m'} details={toolbar?.details}>
           {visibleMeals.map((meal) => {
             const { name, rawName, effect, level, cookingMasteryNode, index: mealIndex } = meal;
             const ribbonIndex = ribbonOf(meal);
@@ -314,18 +323,19 @@ const Meals = ({
             const nextLevelNotation = level < mealMaxLevel ? mealFill(effect, getMealBonus(account, meal, level + 1).value) : null;
             return <ItemCard key={mealIndex} icon={<MealIcon rawName={rawName} plateLevel={level}/>}
                              title={cleanUnderscore(name)} level={{ value: level ?? 0 }} dimmed={level === 0}
-                             status={level >= mealMaxLevel ? 'maxed' : undefined}>
+                             status={level >= mealMaxLevel ? 'maxed' : undefined}
+                             more={<ItemCard.Facts rows={[
+                               sectionSingleKitchen(meal),
+                               nextLevelNotation ? [`At Lv ${formatNum(level + 1)}`, nextLevelNotation] : null,
+                               ribbonIndex > 1 ? [iconLabel('ribbon', `data/Ribbon${ribbonIndex - 1}.png`, 'Ribbon'),
+                                 `Rank ${formatNum(ribbonIndex)} (${formatGame(ribbonBonus, 'Summoning.RibbonBonus')}x)`] : null,
+                               cookingMasteryNode?.level > 0 ? [iconLabel('node', 'etc/CookingMastery.png', 'Mastery node'),
+                                 `Lv ${formatNum(cookingMasteryNode.level)} (${formatGame(cookingMasteryNode.multi, 'Summoning2.BonusMultiCook')}x)`] : null
+                             ]}/>}>
               <ItemCard.Desc>{level > 0 && effectBreakdown
                 ? <Breakdown asValue title={`${cleanUnderscore(name)} bonus`}
                              data={{ ...effectBreakdown, totalValue: effectFill }}>{sentence}</Breakdown>
                 : sentence}</ItemCard.Desc>
-              <ItemCard.Facts rows={[
-                nextLevelNotation ? [`At Lv ${formatNum(level + 1)}`, nextLevelNotation] : null,
-                ribbonIndex > 1 ? [iconLabel('ribbon', `data/Ribbon${ribbonIndex - 1}.png`, 'Ribbon'),
-                  `Rank ${formatNum(ribbonIndex)} (${formatGame(ribbonBonus, 'Summoning.RibbonBonus')}x)`] : null,
-                cookingMasteryNode?.level > 0 ? [iconLabel('node', 'etc/CookingMastery.png', 'Mastery node'),
-                  `Lv ${formatNum(cookingMasteryNode.level)} (${formatGame(cookingMasteryNode.multi, 'Summoning2.BonusMultiCook')}x)`] : null
-              ]}/>
               {toolbar?.view === 'compact' ? null : breakpointSection(meal)}
             </ItemCard>;
           })}

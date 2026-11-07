@@ -6,7 +6,7 @@ import GridView from './GridView';
 import CardView from './CardView';
 import { hasShape } from './researchGridShared';
 
-const GRID_TOOLBAR = { hideUnlevelled: false, view: 'cards' };
+const GRID_TOOLBAR = { hideUnlevelled: false, view: 'cards', details: false };
 // The catalog's real squares: the other cells are placeholders named "Name" (the goals registry skips them too)
 const isRealSquare = (square) => Boolean(square?.name) && square.name !== 'Name';
 const isLevelled = (square) => (square?.level ?? 0) >= 1 || hasShape(square);
@@ -23,9 +23,10 @@ const Grid = ({ gridSquares }) => {
     <Toolbar state={toolbar} defaults={GRID_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
              total={real.length} shown={shown.length} noun={'squares'} onStickyBottom={setToolbarBottom}>
       {isGrid ? null : <Toolbar.Filter name={'hideUnlevelled'} label={'Hide unlevelled'}/>}
+      {isGrid ? null : <Toolbar.Filter name={'details'} label={'Details'} display/>}
       <Toolbar.View options={[['cards', 'Cards'], ['grid', 'Grid']]}/>
     </Toolbar>
-    {isGrid ? <GridView squares={squares} stickyTop={toolbarBottom}/> : <CardView squares={shown}/>}
+    {isGrid ? <GridView squares={squares} stickyTop={toolbarBottom}/> : <CardView squares={shown} details={toolbar?.details}/>}
   </Box>;
 };
 

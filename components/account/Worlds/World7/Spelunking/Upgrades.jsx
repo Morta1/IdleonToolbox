@@ -8,7 +8,7 @@ import useToolbarState from '@hooks/useToolbarState';
 import GroupedView from './Upgrades/GroupedView';
 import PathView, { buildDependencyTree } from './Upgrades/PathView';
 
-const UPGRADES_TOOLBAR = { search: '', hideMaxed: false, view: 'group' };
+const UPGRADES_TOOLBAR = { search: '', hideMaxed: false, view: 'group', details: false };
 const isMaxed = (upgrade) => upgrade?.level >= upgrade?.x3;
 
 const Upgrades = ({ upgrades, totalUpgradeLevels, amber, denominator, amberIndex }) => {
@@ -37,11 +37,13 @@ const Upgrades = ({ upgrades, totalUpgradeLevels, amber, denominator, amberIndex
                total={upgrades?.length ?? 0} shown={shown.length} noun={'upgrades'}>
         <Toolbar.Search placeholder={'Search upgrades'}/>
         <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
+        {toolbar?.view === 'path' ? null : <Toolbar.Filter name={'details'} label={'Details'} display/>}
         <Toolbar.View options={[['group', 'By column'], ['path', 'Paths']]}/>
       </Toolbar>
       {toolbar?.view === 'path'
         ? <PathView roots={roots}/>
-        : <GroupedView grouped={grouped} amber={amber} denominator={denominator} amberIndex={amberIndex}/>}
+        : <GroupedView grouped={grouped} amber={amber} denominator={denominator} amberIndex={amberIndex}
+                       details={toolbar?.details}/>}
     </Box>
   </Stack>;
 };

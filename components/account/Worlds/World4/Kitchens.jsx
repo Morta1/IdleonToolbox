@@ -1,4 +1,4 @@
-import { Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
 import { formatGame, mealBonusText } from '@utility/gameNotation';
@@ -20,13 +20,17 @@ import IconTile from '@components/common/cards/IconTile';
 import StatTile from '@components/common/cards/StatTile';
 import Notice from '@components/common/Notice';
 import Num from '@components/common/Num';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 
 const SPICE_COST = 'CookingR.CookingUpgSpiceCostQty';
 const MEAL_COST = 'CookingR.CookingMenuMealCosts';
+const KITCHENS_TOOLBAR = { details: false };
 
 const hoursText = (hours) => (Number.isFinite(hours) ? formatDuration(hours * 3600) : 'Never');
 
-// A meal being cooked: its bonus in the game's own fill, its next level and diamond plate, its progress
+// A meal being cooked: its bonus in the game's own fill, its next level, its progress, and the diamond plate's time for
+// the Details pill
 const mealProgress = (meal, { totalMealSpeed, achievements, equinoxUpgrades, account }) => {
   const timeToDiamond = calcMealTime(11, meal, totalMealSpeed, achievements, equinoxUpgrades, account);
   const levelCost = getMealLevelCost(meal?.level, achievements, account, equinoxUpgrades);
@@ -36,16 +40,18 @@ const mealProgress = (meal, { totalMealSpeed, achievements, equinoxUpgrades, acc
   const timeTillNextLevel = isReady ? 0 : calcTimeToNextLevel(levelCost - meal?.amount, meal?.cookReq, totalMealSpeed);
   const realEffect = getMealBonus(account, meal).value;
   const target = showDiamond ? diamondCost : levelCost;
-  return <>
-    <ItemCard.Desc text={meal?.effect?.replace('{', mealBonusText(realEffect))}/>
-    <ItemCard.Facts rows={[
-      ['Next level', isReady ? <StatusText key={'ready'} status={'ready'}/> : hoursText(timeTillNextLevel)],
-      showDiamond ? ['Diamond plate', hoursText(timeToDiamond)] : null
-    ]}/>
-    <ItemCard.Progress label={showDiamond ? 'Progress to Lv 11' : 'Progress'}
-                       percent={target > 0 ? Math.min(100, 100 * (meal?.amount ?? 0) / target) : 100}
-                       value={<Num value={meal?.amount ?? 0} game={MEAL_COST} whole/>} max={<Num value={target ?? 0} game={MEAL_COST} whole/>}/>
-  </>;
+  return {
+    body: <>
+      <ItemCard.Desc text={meal?.effect?.replace('{', mealBonusText(realEffect))}/>
+      <ItemCard.Facts rows={[
+        ['Next level', isReady ? <StatusText key={'ready'} status={'ready'}/> : hoursText(timeTillNextLevel)]
+      ]}/>
+      <ItemCard.Progress label={showDiamond ? 'Progress to Lv 11' : 'Progress'}
+                         percent={target > 0 ? Math.min(100, 100 * (meal?.amount ?? 0) / target) : 100}
+                         value={<Num value={meal?.amount ?? 0} game={MEAL_COST} whole/>} max={<Num value={target ?? 0} game={MEAL_COST} whole/>}/>
+    </>,
+    more: showDiamond ? <ItemCard.Facts rows={[['Diamond plate', hoursText(timeToDiamond)]]}/> : null
+  };
 };
 
 const Kitchens = ({
@@ -60,6 +66,7 @@ const Kitchens = ({
                     sectionFailed,
                     kitchensFailed
                   }) => {
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('cooking-kitchens', KITCHENS_TOOLBAR);
   const calcTotals = (list) => {
     return list?.reduce((res, kitchen) => {
       const isCooking = kitchen?.status === 2;
@@ -97,14 +104,19 @@ const Kitchens = ({
     <ItemCard.Cost icon={`data/${spice}.png`} iconAlt={name} need={cost ?? 0} have={ownedSpice(spice)} game={SPICE_COST}/>
   </Stack>;
 
-  // A kitchen making a recipe: its spices, the meals they can make (greyed until found), its progress
-  const recipeSection = (kitchen, recipeTime, timeToFinish) => {
+  // A recipe's spices and the meals they can make (greyed until found): the Details pill's part of its card, under the
+  // recipe's progress
+  const recipeIngredients = (kitchen) => {
     const usedSpices = kitchen?.spices?.filter((spice) => spice !== -1) ?? [];
-    return <ItemCard.Section label={'Recipe'}>
-      {usedSpices.length ? <CardGrid size={'icon'} fill>
-        {usedSpices.map((spice, index) => <IconTile key={`${spice}-${index}`} icon={`data/CookingSpice${spice}.png`}
-                                                    alt={spicesNames[spice]} details={`${spicesNames[spice] ?? 'Spice'} spice`}/>)}
-      </CardGrid> : null}
+    if (!usedSpices.length && !kitchen?.possibleMeals?.length) return null;
+    return <Stack gap={1}>
+      {usedSpices.length ? <>
+        <Typography variant={'body2'} color={'text.secondary'}>Spices</Typography>
+        <CardGrid size={'icon'} fill>
+          {usedSpices.map((spice, index) => <IconTile key={`${spice}-${index}`} icon={`data/CookingSpice${spice}.png`}
+                                                      alt={spicesNames[spice]} details={`${spicesNames[spice] ?? 'Spice'} spice`}/>)}
+        </CardGrid>
+      </> : null}
       {kitchen?.possibleMeals?.length ? <>
         <Typography variant={'body2'} color={'text.secondary'}>Possible meals</Typography>
         <CardGrid size={'icon'} fill>
@@ -116,15 +128,19 @@ const Kitchens = ({
           })}
         </CardGrid>
       </> : null}
-      <ItemCard.Progress label={'Progress'}
-                         percent={recipeTime > 0 ? Math.min(100, 100 * (kitchen?.currentProgress ?? 0) / recipeTime) : 0}
-                         value={<Num value={kitchen?.currentProgress ?? 0} game={MEAL_COST} whole/>}
-                         max={<Num value={recipeTime} game={MEAL_COST} whole/>}/>
-      <ItemCard.Facts rows={[['Done in', <Timer key={'done'} variant={'body2'} placeholder={<StatusText status={'ready'}/>}
-                                                type={'countdown'} date={new Date().getTime() + (timeToFinish * 1000 * 3600)}
-                                                lastUpdated={lastUpdated}/>]]}/>
-    </ItemCard.Section>;
+    </Stack>;
   };
+
+  // A kitchen making a recipe: its progress and when it's done
+  const recipeSection = (kitchen, recipeTime, timeToFinish) => <ItemCard.Section label={'Recipe'}>
+    <ItemCard.Progress label={'Progress'}
+                       percent={recipeTime > 0 ? Math.min(100, 100 * (kitchen?.currentProgress ?? 0) / recipeTime) : 0}
+                       value={<Num value={kitchen?.currentProgress ?? 0} game={MEAL_COST} whole/>}
+                       max={<Num value={recipeTime} game={MEAL_COST} whole/>}/>
+    <ItemCard.Facts rows={[['Done in', <Timer key={'done'} variant={'body2'} placeholder={<StatusText status={'ready'}/>}
+                                              type={'countdown'} date={new Date().getTime() + (timeToFinish * 1000 * 3600)}
+                                              lastUpdated={lastUpdated}/>]]}/>
+  </ItemCard.Section>;
 
   return (
     <>
@@ -140,19 +156,26 @@ const Kitchens = ({
       </CardGrid> : null}
       {/* In a failed section the page's note says why there are none */}
       {!builtKitchens.length ? (kitchensFailed ? null
-        : <Notice tone={'info'}>Kitchens show here once you build your first one in World 4.</Notice>) : <>
+        : <Notice tone={'info'}>Kitchens show here once you build your first one in World 4.</Notice>) : <Box>
+        <Toolbar state={toolbar} defaults={KITCHENS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+                 total={builtKitchens.length} shown={builtKitchens.length} noun={'kitchens'}>
+          <Toolbar.Filter name={'details'} label={'Details'} display/>
+        </Toolbar>
         {totals.length ? <Stack gap={1} mb={3}>
           <Typography variant={'sectionTitle'} component={'h2'}>Totals</Typography>
-          <CardGrid size={'m'}>
-            {totals.map(([foodName, meal], index) => <ItemCard key={`${foodName}-${index}`}
-                                                                icon={<MealIcon rawName={foodName} plateLevel={meal?.level} small/>}
-                                                                title={cleanUnderscore(meal?.name)}
-                                                                meta={formatNum(meal?.total ?? 0, 'rate')}>
-              {mealProgress(meal, progressOptions)}
-            </ItemCard>)}
+          <CardGrid size={'m'} details={toolbar?.details}>
+            {totals.map(([foodName, meal], index) => {
+              const { body, more } = mealProgress(meal, progressOptions);
+              return <ItemCard key={`${foodName}-${index}`} icon={<MealIcon rawName={foodName} plateLevel={meal?.level} small/>}
+                               title={cleanUnderscore(meal?.name)} meta={formatNum(meal?.total ?? 0, 'rate')} more={more}>
+                {body}
+              </ItemCard>;
+            })}
           </CardGrid>
         </Stack> : null}
-        <CardGrid size={'l'}>
+        {/* A card leads with what its kitchen does now: meal speed while it cooks, fire speed and luck while it makes a
+            recipe. Its upgrade costs stay; the other stats and a recipe's spices show with the Details pill. */}
+        <CardGrid size={'l'} details={toolbar?.details}>
           {builtKitchens.map((kitchen, index) => {
             const kitchenIndex = kitchen?.kitchenIndex ?? index;
             const isRecipe = kitchen?.status >= 3;
@@ -163,30 +186,35 @@ const Kitchens = ({
             const luckSpice = thirdSpiceIndex >= 21 ? 'CookingSpiceNA' : `CookingSpice${thirdSpiceIndex}`;
             const speedText = `${formatGame(kitchen?.mealSpeed ?? 0, 'CookingR.CookingSPEED')}/hr`;
             const fireText = `${formatGame(kitchen?.fireSpeed ?? 0, 'CookingR.CookingFIRE')}/hr`;
+            const speedRow = [`Speed Lv ${formatNum(kitchen?.speedLv ?? 0)}`, kitchen?.mealSpeedBreakdown
+              ? <Breakdown key={'speed'} asValue title={`Kitchen ${kitchenIndex + 1} speed`}
+                           data={{ ...kitchen.mealSpeedBreakdown, totalValue: speedText }}>{speedText}</Breakdown>
+              : speedText];
+            const fireRow = [`Fire Lv ${formatNum(kitchen?.fireLv ?? 0)}`, kitchen?.fireSpeedBreakdown
+              ? <Breakdown key={'fire'} asValue title={`Kitchen ${kitchenIndex + 1} fire`}
+                           data={{ ...kitchen.fireSpeedBreakdown, totalValue: fireText }}>{fireText}</Breakdown>
+              : fireText];
+            const luckRow = [`Luck Lv ${formatNum(kitchen?.luckLv ?? 0)}`, formatNum(kitchen?.mealLuck ?? 1, 'mult')];
+            const mealsPerHourRow = ['Meals per hour', formatNum((kitchen?.mealSpeed ?? 0) / (kitchen?.meal?.cookReq || 1), 'rate')];
             return <ItemCard key={`kitchen-${kitchenIndex}`} title={`Kitchen ${kitchenIndex + 1}`}
-                             meta={isRecipe ? 'Making a recipe' : cleanUnderscore(kitchen?.meal?.name)}>
-              <ItemCard.Facts rows={[
-                [`Speed Lv ${formatNum(kitchen?.speedLv ?? 0)}`, kitchen?.mealSpeedBreakdown
-                  ? <Breakdown key={'speed'} asValue title={`Kitchen ${kitchenIndex + 1} speed`}
-                               data={{ ...kitchen.mealSpeedBreakdown, totalValue: speedText }}>{speedText}</Breakdown>
-                  : speedText],
-                [`Fire Lv ${formatNum(kitchen?.fireLv ?? 0)}`, kitchen?.fireSpeedBreakdown
-                  ? <Breakdown key={'fire'} asValue title={`Kitchen ${kitchenIndex + 1} fire`}
-                               data={{ ...kitchen.fireSpeedBreakdown, totalValue: fireText }}>{fireText}</Breakdown>
-                  : fireText],
-                [`Luck Lv ${formatNum(kitchen?.luckLv ?? 0)}`, formatNum(kitchen?.mealLuck ?? 1, 'mult')]
-              ]}/>
+                             meta={isRecipe ? 'Making a recipe' : cleanUnderscore(kitchen?.meal?.name)}
+                             more={<>
+                               {isRecipe ? recipeIngredients(kitchen) : null}
+                               <ItemCard.Section>
+                                 <ItemCard.Facts rows={isRecipe ? [speedRow] : [fireRow, luckRow]}/>
+                               </ItemCard.Section>
+                             </>}>
+              <ItemCard.Facts rows={isRecipe ? [fireRow, luckRow] : [speedRow, mealsPerHourRow]}/>
               <ItemCard.Section label={'Upgrade costs'}>
                 {upgradeCost('Speed', `CookingSpice${firstSpiceIndex}`, spicesNames[firstSpiceIndex], kitchen?.speedCost)}
                 {upgradeCost('Fire', `CookingSpice${secondSpiceIndex}`, spicesNames[secondSpiceIndex], kitchen?.fireCost)}
                 {upgradeCost('Luck', luckSpice, thirdSpiceIndex >= 20 ? 'Unknown spice' : spicesNames[thirdSpiceIndex], kitchen?.luckCost)}
               </ItemCard.Section>
-              {isRecipe ? recipeSection(kitchen, recipeTime, timeToFinish) : <ItemCard.Facts rows={[
-                ['Meals per hour', formatNum((kitchen?.mealSpeed ?? 0) / (kitchen?.meal?.cookReq || 1), 'rate')]]}/>}
+              {isRecipe ? recipeSection(kitchen, recipeTime, timeToFinish) : null}
             </ItemCard>
           })}
         </CardGrid>
-      </>}
+      </Box>}
     </>
   );
 };

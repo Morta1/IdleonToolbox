@@ -11,7 +11,7 @@ import { Duration } from '@components/common/Num';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 
-const STUDY_TOOLBAR = { sort: null };
+const STUDY_TOOLBAR = { sort: null, details: false };
 
 const Study = ({ account, sectionFailed }) => {
   const hole = account?.hole;
@@ -30,7 +30,8 @@ const Study = ({ account, sectionFailed }) => {
   const lists = [...new Set(studies.map((entry) => entry?.location))];
 
   // A study is its cavern's, in the caverns' order: it takes the name the cavern strip and picker show ("The Bottomless
-  // Trench", where the game's study list says "Trench")
+  // Trench", where the game's study list says "Trench"). Its bonus is its text, so the card keeps it whole with the time
+  // to its next level; the study points behind that time show with the Details pill.
   const studyCard = (entry) => <ItemCard key={`study-${entry?.index}`}
                                          title={CAVERN_LABELS[entry?.index] ?? cleanUnderscore(entry?.name)}
                                          level={{ value: entry?.level ?? 0 }}
@@ -40,8 +41,10 @@ const Study = ({ account, sectionFailed }) => {
                                          aside={entry?.name === 'The_bell'
                                            ? <InfoButton label={'The Bell study'}>Its bonus triggers on rings 19, 39, 59 and
                                              79, then every 20 rings.</InfoButton> : null}
+                                         more={<ItemCard.Facts rows={[
+                                           ['Progress', `${formatGame(entry?.progress ?? 0, 'Holes.StudyReqForBolaia', { whole: true })} / ${formatGame(entry?.req ?? 0, 'Holes.StudyReqForBolaia', { whole: true })}`]
+                                         ]}/>}
                                          footer={<ItemCard.Facts rows={[
-                                           ['Progress', `${formatGame(entry?.progress ?? 0, 'Holes.StudyReqForBolaia', { whole: true })} / ${formatGame(entry?.req ?? 0, 'Holes.StudyReqForBolaia', { whole: true })}`],
                                            ['Next level', <Duration key={'next'} seconds={secondsLeft(entry)}/>]
                                          ]}/>}>
     <ItemCard.Desc text={entry?.description}/>
@@ -56,13 +59,14 @@ const Study = ({ account, sectionFailed }) => {
     <Box>
       {sectionFailed ? null : <Toolbar state={toolbar} defaults={STUDY_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
                total={studies.length} shown={studies.length} noun={'studies'}>
+        <Toolbar.Filter name={'details'} label={'Details'} display/>
         <Toolbar.Sort options={[['time', 'Time to next level', 'asc']]}/>
       </Toolbar>}
       {byTime
-        ? <CardGrid size={'m'}>{sorted.map(studyCard)}</CardGrid>
+        ? <CardGrid size={'m'} details={toolbar?.details}>{sorted.map(studyCard)}</CardGrid>
         : <Stack gap={3}>{lists.map((list) => <Stack key={list} gap={1}>
           <Typography variant={'sectionTitle'} component={'h2'}>{list}</Typography>
-          <CardGrid size={'m'}>{studies.filter((entry) => entry?.location === list).map(studyCard)}</CardGrid>
+          <CardGrid size={'m'} details={toolbar?.details}>{studies.filter((entry) => entry?.location === list).map(studyCard)}</CardGrid>
         </Stack>)}</Stack>}
     </Box>
   </>;
