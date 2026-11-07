@@ -126,8 +126,13 @@ const Row = ({ icon, iconAlt = '', name, sub, value, valueSub, kind, sx }) => {
   </Stack>;
 };
 
-// Rows in two columns from md, for a list that would leave half of a full width Panel empty.
-const COLUMNS_SX = { display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' } };
+// Rows in two columns from md, for a list that would leave half of a full width Panel empty. Lines between rows as the
+// Panel draws them, the two rows side by side under one line.
+const COLUMNS_SX = {
+  display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
+  '& > * + *': { borderTop: 1, borderColor: 'divider' },
+  '& > :nth-child(2)': { borderTop: { xs: 1, md: 0 } }
+};
 const Columns = ({ children }) => <Box sx={COLUMNS_SX}>{children}</Box>;
 
 // A banded group title over label and value rows, for info boxes (the wiki InfoBox's shape).

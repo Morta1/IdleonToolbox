@@ -5,7 +5,7 @@ import ItemDisplay, { ItemLine } from '@components/common/ItemDisplay';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
-import Panel from '@components/common/cards/Panel';
+import BonusesPanel from '@components/account/BonusesPanel';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 import { openItemWikiPage } from '@utility/wiki/item-page';
@@ -84,10 +84,7 @@ const trophyMeta = (trophy) => {
 };
 
 const Trophies = ({ trophiesUsed, bonusRows, inventoryTrophies, allTrophies, sectionFailed }) => <>
-  {/* A guest has no bonus: no Panel, no heading */}
-  {bonusRows?.length ? <Panel title={'Bonuses'} sx={{ my: 3 }} foldOnPhone>
-    {bonusRows.map(([label, value], index) => <Panel.KV key={`${label}-${index}`} label={label} value={value}/>)}
-  </Panel> : null}
+  <BonusesPanel rows={bonusRows} sx={{ my: 3 }}/>
   {inventoryTrophies?.length ? <Stack gap={1} sx={{ my: 3 }}>
     <Typography variant={'sectionTitle'} component={'h2'}>Inventory trophies</Typography>
     <CardGrid size={'icon'}>

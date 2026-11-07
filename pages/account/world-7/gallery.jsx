@@ -11,6 +11,7 @@ import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
 import Trophies from '@components/account/Worlds/World7/Gallery/Trophies';
+import { bonusRows } from '@components/account/BonusesPanel';
 import Nametags from '@components/account/Worlds/World7/Gallery/Nametags';
 import {
   getGalleryBonusMulti,
@@ -20,16 +21,7 @@ import {
   getAllNametags
 } from '@parsers/world-7/gallery';
 
-// A bonus the game names with a leading "%" is a percent, as its item line prints it ("+12.5%_DROP_RATE"); the rest
-// (STR, Weapon Power) are flat amounts. A percent keeps the game's "% LUK" name, so it never shares a label with the
-// flat LUK beside it.
-const bonusRows = (bonuses) => (bonuses ?? []).map(({ name, value }) => {
-  const percent = String(name ?? '').startsWith('%');
-  const label = cleanUnderscore(String(name ?? ''));
-  return [label, percent
-    ? formatNum(value ?? 0, 'pct', { signed: true })
-    : formatNum(value ?? 0, 'amount', { signed: true })];
-});
+const galleryValue = (value, percent) => formatNum(value, percent ? 'pct' : 'amount', { signed: true });
 
 const Gallery = () => {
   const { state } = useContext(AppContext);
@@ -98,14 +90,14 @@ const Gallery = () => {
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'Gallery')}>
       <Trophies
         trophiesUsed={trophiesUsed}
-        bonusRows={bonusRows(trophyBonuses)}
+        bonusRows={bonusRows(trophyBonuses, galleryValue)}
         inventoryTrophies={inventoryTrophies}
         allTrophies={allTrophies}
         sectionFailed={sectionFailed}
       />
       <Nametags
         nametagsUsed={nametagsUsed}
-        bonusRows={bonusRows(nametagBonuses)}
+        bonusRows={bonusRows(nametagBonuses, galleryValue)}
         allNametags={allNametags}
         sectionFailed={sectionFailed}
       />
