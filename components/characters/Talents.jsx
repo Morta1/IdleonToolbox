@@ -14,6 +14,7 @@ import Panel from '../common/cards/Panel';
 import CardGrid from '../common/cards/CardGrid';
 import IconTile from '../common/cards/IconTile';
 import { pointsSpent } from './sectionSummary';
+import InUseDot from './InUseDot';
 
 const LOCK = 'data/UISkillIconLocke.png';
 // A star talent page's 13 talents, with its two arrows in their slots
@@ -107,9 +108,8 @@ const Talents = ({
         value={preset}
         onChange={setSelectedPreset}
         sx={PRESET_SX}
-        // The game's active preset glows, as it did on the old tabs.
-        options={[0, 1].map((index) => [index, <span key={index} style={{ textShadow: selectedTalentPreset === index ? 'var(--mui-palette-primary-main) 1px 0 10px' : '' }}>
-          Preset {index + 1}
+        options={[0, 1].map((index) => [index, <span key={index}>
+          Preset {index + 1}{selectedTalentPreset === index ? <InUseDot/> : null}
         </span>])}
       />
       <Tabber
@@ -145,8 +145,10 @@ const Talents = ({
         const isActiveTalent = Object.hasOwn(talentDetails, 'manaCost') && Object.hasOwn(talentDetails, 'cooldown');
         const isMaxed = !isStarTab && baseLevel >= maxLevel;
         const libraryCanRaise = isMaxed && isBookEligibleTalent(talentId) && maxLevel < maxBookLv;
-        return <IconTile key={slotKey} icon={`data/UISkillIcon${talentId}.png`} alt={cleanUnderscore(name)}
+        // A super talent wears the game's border over its sprite, as in game: behind it, the sprite hid it
+        return <IconTile key={slotKey} icon={`data/UISkillIcon${talentId}.png`} alt={cleanUnderscore(name)} iconSize={40}
                          frame={isSuperTalent ? `etc/Super_Talent_${isActiveTalent ? 'Active' : 'Passive'}_Border.png` : undefined}
+                         frameAbove
                          value={level >= 0 && maxLevel >= 0 ? formatNum(level, 'whole') : undefined}
                          sub={level >= 0 && maxLevel >= 0 ? `/ ${formatNum(maxLevel, 'whole')}` : undefined}
                          badge={libraryCanRaise ? 'up' : undefined}

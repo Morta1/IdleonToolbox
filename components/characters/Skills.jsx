@@ -76,8 +76,10 @@ const Skills = ({ skills, account, characters, character, showSkillsRankOneOnly 
         {worlds.map((world) => <CardGrid key={world[0]} size={'icon'} columns={SKILLS_PER_WORLD} sheetTile={57}>
           {world.map((skillName) => {
             const { level, rank, icon } = skills[skillName];
+            // Every rank, as the old page had them: only the top 3 left the rest unread. A skill every character shares
+            // has no rank.
             return <IconTile key={skillName} icon={`data/${icon}.png`} alt={capitalize(skillName)} value={formatNum(level, 'whole')}
-                             badge={!isGlobalSkill(skillName) && rank <= 3 ? rank : undefined}
+                             iconSize={40} badge={!isGlobalSkill(skillName) && rank > 0 ? rank : undefined}
                              onSelect={() => setPicked(skillName)} selected={pickedName === skillName}/>;
           })}
         </CardGrid>)}

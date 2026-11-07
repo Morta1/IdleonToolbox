@@ -6,6 +6,7 @@ import { CardAndBorder } from '../common/styles';
 import { cleanUnderscore, createRange, formatNum } from '@utility/helpers';
 import Tabber from '../common/Tabber';
 import GameIcon from '../common/GameIcon';
+import InUseDot from './InUseDot';
 import Panel from '../common/cards/Panel';
 import IconTile from '../common/cards/IconTile';
 
@@ -61,9 +62,10 @@ const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
   </Panel>;
 };
 
-// The game's active preset glows around the sprite's own shape, so it never fills the pill the way the open one does.
-const TabIcon = ({ src, alt, selected }) => <Box component={'span'} sx={{ display: 'inline-flex', filter: selected ? 'drop-shadow(0 0 3px var(--mui-palette-primary-main))' : 'none' }}>
+// The game's preset in use carries the dot on its sprite's corner, so it never fills the pill the way the open one does
+const TabIcon = ({ src, alt, selected }) => <Box component={'span'} sx={{ position: 'relative', display: 'inline-flex' }}>
   <GameIcon src={src} size={20} alt={alt}/>
+  {selected ? <InUseDot onSprite/> : null}
 </Box>;
 
 export default EquippedCards;

@@ -78,9 +78,11 @@ const LABEL_SX = {
 // mouse over it previews the note; a click hands event.currentTarget over as the anchor, and selected says the note is kept
 // open on it (the Slab's 1,938 items).
 // buttonProps go with onSelect, onto the tile's button (the mark a page finds its tile by).
-// sub: a dimmer line under the value, inside a sheet (a talent's "/ max"). kind is what numOrNode takes.
-const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, height = 72, badge, mark, markAlt, status, details, onSelect, selected,
-  sharedNote, buttonProps }) => {
+// sub: a dimmer line under the value, inside a sheet (a talent's "/ max"). kind is what numOrNode takes. frameAbove: the
+// frame over the sprite (GameIcon's). iconSize: 40 in a sheet where the sprite is all a tile says (talents, skills): the
+// sheet's 28 px left a talent a speck in its cell.
+const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, iconSize, height = 72, badge, mark, markAlt, status, details,
+  onSelect, selected, sharedNote, buttonProps }) => {
   const small = Boolean(useSheet());
   const empty = status === 'empty';
   const hasValue = value !== undefined && !empty;
@@ -110,7 +112,7 @@ const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, height = 72,
     empty && emptySlot
   ]}>
     {icon && !empty ? (typeof icon === 'string'
-      ? <GameIcon src={icon} size={small ? 28 : 40} alt={alt} frame={frame}
+      ? <GameIcon src={icon} size={iconSize ?? (small ? 28 : 40)} alt={alt} frame={frame} frameAbove={frameAbove}
                   status={status === 'missing' ? 'missing' : undefined}/>
       : icon) : null}
     {hasLabel ? <Typography component={'div'} sx={LABEL_SX}>{label}</Typography> : null}

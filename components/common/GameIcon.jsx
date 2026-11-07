@@ -53,8 +53,9 @@ const layoutOf = (allBounds, src, { frame, size, fit, side, cover, height }) => 
 // arrive. fit="within": a banner in a box of size, [width, height], at its own pixels unless it is bigger. fit="strip": one
 // end of a long UI strip as a square of size, at its own pixels, or its whole height with cover; side is 'left' or 'right'.
 // height (with fit="bounds" absent): a banner at a fixed height, its width following. className: for a parent that marks
-// its icon, as MUI's Tab does.
-const GameIcon = ({ src, size = 40, alt = '', frame, status, fit = 'drawn', loading, side = 'left', cover, height, className }) => {
+// its icon, as MUI's Tab does. frameAbove: the frame over the sprite, for a game border the sprite would hide (a super
+// talent's).
+const GameIcon = ({ src, size = 40, alt = '', frame, frameAbove, status, fit = 'drawn', loading, side = 'left', cover, height, className }) => {
   const allBounds = useSpriteBounds();
   const [failed, setFailed] = useState([]);
 
@@ -72,9 +73,10 @@ const GameIcon = ({ src, size = 40, alt = '', frame, status, fit = 'drawn', load
   };
   return <Box className={className} style={box} data-status={status}
               data-fit={(fit === 'drawn' || fit === 'bounds') && !allBounds ? 'pending' : undefined}>
-    {frame ? <img src={`${prefix}${frame}`} alt={''} style={place}/> : null}
+    {frame && !frameAbove ? <img src={`${prefix}${frame}`} alt={''} style={place}/> : null}
     {src ? <img key={src} ref={checkFailed} src={`${prefix}${src}`} alt={alt} style={place} loading={loading}
                   onError={fail}/> : null}
+    {frame && frameAbove ? <img src={`${prefix}${frame}`} alt={''} style={place}/> : null}
   </Box>;
 };
 
