@@ -43,7 +43,7 @@ const SkillDetails = ({ skillName, skill, character, characters, account }) => {
 };
 
 // A tile per skill, its level on it and a rank 1 to 3 as its badge; one details block under the grid for the picked one,
-// so a tap opens one thing.
+// so a tap opens one thing. Three to a row, as the old site had them: in the game's order that's one world per row.
 const Skills = ({ skills, account, characters, character, showSkillsRankOneOnly }) => {
   const [picked, setPicked] = useState(null);
   const shown = Object.keys(skills || {}).filter((skillName) => skillName !== 'character'
@@ -52,7 +52,7 @@ const Skills = ({ skills, account, characters, character, showSkillsRankOneOnly 
   const pickedName = shown.includes(picked) ? picked : null;
 
   return <Panel title={'Skills'} meta={showSkillsRankOneOnly ? 'Rank 1 only' : undefined}>
-    <CardGrid size={'icon'} sheetColumns={[5]}>
+    <CardGrid size={'icon'} columns={3} sheetTile={60}>
       {shown.map((skillName) => {
         const { level, rank, icon } = skills[skillName];
         return <IconTile key={skillName} icon={`data/${icon}.png`} alt={capitalize(skillName)} value={formatNum(level, 'whole')}
