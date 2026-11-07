@@ -81,8 +81,8 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels, sectionFailed }
           </Typography>
         </Stack>
         {statueFlair?.marbleTotals?.length > 0
-          // As wide as its table; a phone hides columns behind chevrons, so there it takes the width it has
-          ? <Panel title={'Marbles'} sx={{ width: { xs: '100%', sm: 'fit-content' }, maxWidth: '100%' }}>
+          // The column's width, as the cards under it and the site's other tables
+          ? <Panel title={'Marbles'}>
             <DataTable columns={flairColumns(statueFlair)} rows={statueFlair.marbleTotals} rowKey={'shardIndex'}
                        rowLabel={({ name }) => cleanUnderscore(name)}
                        // Locked flair: every cell in the muted color, its amounts kept.
