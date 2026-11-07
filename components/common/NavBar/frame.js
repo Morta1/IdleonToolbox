@@ -62,9 +62,12 @@ export const pageColumnSx = { gridArea: 'page', minWidth: 0 };
 
 // An ad's gutter: the left one only between two ads, the right one wherever an ad shows. Hidden outside those queries
 // (a fractional width between two of them included), so an empty gutter never drops below the page.
+// minHeight: room for the box to reach AD_TOP. A sticky box stays inside its gutter, and the gutter is only as tall as
+// the page, so on a short page (Bundles' Pet Mart tab) the ad sat higher than on its other tabs, jumping on a tab switch.
 export const adGutterSx = (side) => ({
   display: 'none',
   gridArea: side,
+  minHeight: AD_TOP + AD_TALL - navBarHeight,
   ...(side === 'right' ? { [ONE_AD]: { display: 'block' } } : {}),
   [CENTERED]: { display: 'block' }
 });
