@@ -4,11 +4,8 @@ import { getRefinery } from '@parsers/world-3/refinery';
 import { liveCount } from '@parsers/catalog';
 import { refinery } from '@website-data';
 import { tryToParse } from '@utility/helpers';
+import { FIXTURES } from '../helpers/save-fixtures';
 import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
-import latest from '../fixtures/latest.json';
 
 describe('getRefinery', () => {
   it('returns every live salt when the save is missing', () => {
@@ -16,24 +13,20 @@ describe('getRefinery', () => {
     expect(result.salts).toHaveLength(liveCount(Object.values(refinery)));
     expect(result.salts.every((s) => s.rank === 0)).toBe(true);
     expect(result.salts[0]).toMatchObject({ rawName: 'Refinery1', saltName: 'Redox_Salts' });
-  });
-
-  it('never emits placeholder entries', () => {
-    const result = getRefinery(undefined, [], {});
     expect(result.salts.some((s) => s.saltName?.startsWith('Some_'))).toBe(false);
   });
+
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
 describe('getRefinery fixture regression', () => {
-  it.each(FIXTURES)('%s: salt progress below the unlocked count is unchanged at the same index', (_name, fixture) => {
+  it.each(FIXTURES)('%s: salt progress below the unlocked count reads at its index, across the whole catalog', (_name, fixture) => {
     const data = fixture.data ?? fixture;
     const refineryRaw = tryToParse(data?.Refinery) || data?.Refinery;
     const unlockedSaltCount = refineryRaw?.[0]?.[0] ?? 0;
     const result = getRefinery(data, [], {});
     const names = Object.keys(refinery);
 
+    expect(result.salts).toHaveLength(liveCount(Object.values(refinery)));
     names.forEach((_name2, index) => {
       if (index >= unlockedSaltCount || index >= result.salts.length) return;
       const salt = refineryRaw?.[3 + index];
@@ -69,9 +62,4 @@ describe('getRefinery fixture regression', () => {
     expect(result.totalLevels).toBe(13);
   });
 
-  it.each(FIXTURES)('%s: returns the full catalog length regardless of save length', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const result = getRefinery(data, [], {});
-    expect(result.salts).toHaveLength(liveCount(Object.values(refinery)));
-  });
 });

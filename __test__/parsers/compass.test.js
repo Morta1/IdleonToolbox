@@ -4,10 +4,6 @@ import { getCompass } from '@parsers/class-specific/compass';
 import { liveCount } from '@parsers/catalog';
 import { compass, abominations } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
 import latest from '../fixtures/latest.json';
 
 describe('getCompass', () => {
@@ -56,27 +52,12 @@ describe('getCompass', () => {
   });
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
-const FIXTURES_WITH_COMPASS = FIXTURES.filter(([, fixture]) => (fixture.data ?? fixture)?.Compass != null);
-
-describe('getCompass fixture regression', () => {
-  it.each(FIXTURES_WITH_COMPASS)('%s: levels the save covers are unchanged at the same index', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const compassRaw = tryToParse(data?.Compass);
-    const [upgradesLevels] = compassRaw || [];
-    const result = getCompass(data, [], {}, {});
-
-    expect(upgradesLevels?.length).toBeGreaterThan(0);
-    upgradesLevels.forEach((level, index) => {
-      if (index >= result.upgrades.length) return;
-      expect(result.upgrades[index].level).toBe(level);
-    });
-  });
-
-  it.each(FIXTURES)('%s: returns the full catalog length regardless of save', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const result = getCompass(data, [], {}, {});
-    expect(result.upgrades).toHaveLength(liveCount(compass));
+// The older saves carry no key at all, which is the missing-save path above
+describe('getCompass on a real save', () => {
+  it('reads every level at its index, across the whole catalog', () => {
+    const raw = tryToParse(latest.data.Compass)[0];
+    const { upgrades } = getCompass(latest.data, [], {}, {});
+    expect(raw.length).toBeGreaterThan(0);
+    expect(upgrades.map(({ level }) => level)).toEqual(Array.from({ length: liveCount(compass) }, (_, index) => raw[index] ?? 0));
   });
 });

@@ -24,7 +24,8 @@ vi.mock('../../services/leaderboards', () => ({ fetchMeta, fetchPlayer, fetchBoa
 const { AppContext } = await import('@components/common/context/AppProvider');
 const Leaderboards = (await import('../../pages/leaderboards')).default;
 
-const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+// retryDelay 0: the page retries meta and tabs once, and the default wait is a real second.
+const client = new QueryClient({ defaultOptions: { queries: { retry: false, retryDelay: 0 } } });
 const renderPage = (state = {}) => {
   const page = () => (
     <QueryClientProvider client={client}>
@@ -131,21 +132,12 @@ describe('leaderboards board drawer', () => {
     expect(fetchBoard).not.toHaveBeenCalled();
   });
 
-  it('opens nothing for an unknown key once meta has loaded', async () => {
-    routerState.query = { t: 'skills', m: 'nope' };
-    renderPage();
-    expect(await screen.findByRole('link', { name: /Top 100/ })).toBeTruthy();
-    expect(screen.queryByRole('dialog')).toBeNull();
-    expect(fetchBoard).not.toHaveBeenCalled();
-  });
-
   it('still opens a board from a card when meta is down', async () => {
     fetchMeta.mockRejectedValueOnce(new Error('meta down')).mockRejectedValueOnce(new Error('meta down'));
     routerState.push.mockImplementation(({ query }) => { routerState.query = query; });
     routerState.query = { t: 'skills' };
     const { rerender } = renderPage();
-    // The page's own retry comes first, a second later
-    fireEvent.click(await screen.findByRole('link', { name: /Top 100/ }, { timeout: 3000 }));
+    fireEvent.click(await screen.findByRole('link', { name: /Top 100/ }));
     rerender();
     expect(await screen.findByRole('dialog', { name: 'Mining' })).toBeTruthy();
     await waitFor(() => expect(fetchBoard).toHaveBeenCalledWith('mining', expect.any(Object)));

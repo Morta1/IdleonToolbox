@@ -35,11 +35,6 @@ const renderPage = (state) => render(
 );
 
 describe('Traps shiny chance', () => {
-  it('shows the shiny multi under the collect rates', () => {
-    renderPage({ characters, account });
-    expect(tileText('Shiny chance')).toMatch(/^Shiny chance[\d.,KMBTQ]+x\d+ per drop$/);
-  });
-
   it('opens the breakdown from its button', () => {
     renderPage({ characters, account });
     fireEvent.keyDown(screen.getByRole('button', { name: /^Shiny chance breakdown/ }), { key: 'Enter' });
@@ -70,24 +65,18 @@ describe('Traps collector selection', () => {
   const collectRates = () => tileText('Critter collect rate');
   const shinyMulti = () => tileText('Shiny chance');
 
-  it('defaults to the character with the best critter rate', () => {
-    const { perCharacter } = getTrapsBonuses(account, characters);
-    const best = perCharacter.reduce((res, rate) => rate.critter > res.critter ? rate : res);
-    renderPage({ characters, account });
-
-    expect(screen.getByRole('combobox').textContent).toBe(`Collect as${best.name}`);
-    expect(collectRates()).toContain(formatNum(best.critter * 100, 'pct'));
-  });
-
-  it('moves both the collect rate and the shiny multi onto the picked character', () => {
+  it('defaults to the character with the best critter rate, and moves both the collect rate and the shiny multi onto the picked one', () => {
     const { perCharacter } = getTrapsBonuses(account, characters);
     const best = perCharacter.reduce((res, rate) => rate.critter > res.critter ? rate : res);
     const other = perCharacter.find(({ critter, name }) => critter !== best.critter && name !== best.name);
     expect(other).toBeDefined();
 
     renderPage({ characters, account });
+    expect(screen.getByRole('combobox').textContent).toBe(`Collect as${best.name}`);
+    expect(collectRates()).toContain(formatNum(best.critter * 100, 'pct'));
     const rateBefore = collectRates();
     const multiBefore = shinyMulti();
+    expect(multiBefore).toMatch(/^Shiny chance[\d.,KMBTQ]+x\d+ per drop$/);
 
     fireEvent.mouseDown(screen.getByRole('combobox'));
     // The character rows below the picker repeat every name, so stay inside the open menu.

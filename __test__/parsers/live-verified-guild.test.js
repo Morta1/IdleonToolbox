@@ -17,7 +17,7 @@ const GAME = {
 const { account } = parseFixture(latest);
 
 describe('guild verified against the live game', () => {
-  it.each(GAME.guildBonuses.map((value, index) => [index, value]))('guild bonus %i', (index, value) => {
+  it.each([...GAME.guildBonuses.entries()])('guild bonus %i', (index, value) => {
     within(getGuildBonusBonus(account.guild.guildBonuses, index), value);
   });
 });

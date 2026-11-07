@@ -30,12 +30,6 @@ describe('CategoryTab', () => {
     expect(screen.getByRole('heading', { name: '3D Printer Samples' })).toBeTruthy();
   });
 
-  it('collapses a section', () => {
-    renderTab({ category: 'account' });
-    fireEvent.click(screen.getByRole('button', { name: 'Collapse Account' }));
-    expect(screen.getByRole('button', { name: 'Expand Account' }).getAttribute('aria-expanded')).toBe('false');
-  });
-
   it('toggles from anywhere on the header row, once per click', () => {
     renderTab({ category: 'account' });
     fireEvent.click(screen.getAllByText('1 board')[0]);
@@ -99,9 +93,10 @@ describe('CategoryTab controls', () => {
     expect(screen.getByRole('button', { name: 'Expand all' }).disabled).toBe(true);
   });
 
-  it('enables both buttons when only some sections are open', () => {
+  it('collapses one section from its button, which enables both bulk buttons', () => {
     renderTab({ category: 'account' });
     fireEvent.click(screen.getByRole('button', { name: 'Collapse Account' }));
+    expect(screen.getByRole('button', { name: 'Expand Account' }).getAttribute('aria-expanded')).toBe('false');
     expect(screen.getByRole('button', { name: 'Expand all' }).disabled).toBe(false);
     expect(screen.getByRole('button', { name: 'Collapse all' }).disabled).toBe(false);
   });

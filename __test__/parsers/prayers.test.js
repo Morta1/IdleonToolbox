@@ -4,11 +4,7 @@ import { getPrayerBonusAndCurse, getPrayers } from '@parsers/world-3/prayers';
 import { liveCount } from '@parsers/catalog';
 import { prayers } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
-import latest from '../fixtures/latest.json';
+import { FIXTURES } from '../helpers/save-fixtures';
 
 describe('getPrayers', () => {
   it('returns every live prayer when the save is missing', () => {
@@ -16,10 +12,6 @@ describe('getPrayers', () => {
     expect(result).toHaveLength(liveCount(prayers));
     expect(result.every((p) => p.level === 0)).toBe(true);
     expect(result[0]).toMatchObject({ name: 'Big_Brain_Time', maxLevel: 50, soul: 'Soul1' });
-  });
-
-  it('never emits placeholder entries', () => {
-    const result = getPrayers(undefined, []);
     expect(result.some((p) => p.name?.startsWith('Some_'))).toBe(false);
   });
 
@@ -33,23 +25,18 @@ describe('getPrayers', () => {
   });
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
 describe('getPrayers fixture regression', () => {
-  it.each(FIXTURES)('%s: levels the save covers are unchanged', (_name, fixture) => {
+  it.each(FIXTURES)('%s: levels read at their index, across the whole catalog', (_name, fixture) => {
     const data = fixture.data ?? fixture;
     const raw = data?.PrayersUnlocked || tryToParse(data?.PrayOwned) || [];
     const result = getPrayers(data, []);
 
+    expect(result).toHaveLength(liveCount(prayers));
     raw.slice(0, result.length).forEach((level, index) => {
       expect(result[index].level).toBe(level);
     });
   });
 
-  it.each(FIXTURES)('%s: returns the full catalog length regardless of save length', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    expect(getPrayers(data, [])).toHaveLength(liveCount(prayers));
-  });
 });
 
 // _customBlock_prayersReal: with nothing equipped the superbit path pays a fifth of every prayer's

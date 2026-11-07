@@ -1,7 +1,6 @@
 import '../../polyfills';
-import 'core-js/modules/web.structured-clone';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { parseData } from '@parsers/index';
+import { parseFixture } from '../helpers/parsed-fixtures';
 import {
   EQUINOX_PORTAL_GOAL,
   getSpeedrunBosses,
@@ -18,14 +17,16 @@ import { getMapDoorRequirements, getMultiCharDoorLock } from '@parsers/portals';
 let account;
 let characters;
 let character;
+// Sweeping every map takes seconds, and these only read the answer
+let route;
+let plan;
 
 beforeAll(() => {
-  const { data, charNames, companion, guildData, serverVars } = highend;
-  const parsed = parseData(data, charNames, companion, guildData, serverVars);
-  account = parsed.account;
-  characters = parsed.characters;
-  character = parsed.characters[0];
-});
+  ({ account, characters } = parseFixture(highend));
+  [character] = characters;
+  route = getSpeedrunRoute(account, characters, character);
+  plan = getSpeedrunPlan(account, characters, character);
+}, 60_000);
 
 describe('getSpeedrunStats', () => {
   it('steps the multikill bonus every 5 maps', () => {
@@ -53,21 +54,19 @@ describe('getSpeedrunStats', () => {
 
 describe('getSpeedrunRoute', () => {
   it('is the portal catalog without a character: requirements, no clear time', () => {
-    const route = getSpeedrunRoute(account, characters, undefined);
-    expect(route.map(({ mapIndex, portalIndex, reqKills }) => [mapIndex, portalIndex, reqKills]))
-      .toEqual(getSpeedrunRoute(account, characters, character).map(({ mapIndex, portalIndex, reqKills }) => [mapIndex, portalIndex, reqKills]));
-    expect(route.every(({ reachable, secondsToClear, multiCharLock }) => !reachable && secondsToClear === Infinity && multiCharLock === null)).toBe(true);
+    const bare = getSpeedrunRoute(account, characters, undefined);
+    expect(bare.map(({ mapIndex, portalIndex, reqKills }) => [mapIndex, portalIndex, reqKills]))
+      .toEqual(route.map(({ mapIndex, portalIndex, reqKills }) => [mapIndex, portalIndex, reqKills]));
+    expect(bare.every(({ reachable, secondsToClear, multiCharLock }) => !reachable && secondsToClear === Infinity && multiCharLock === null)).toBe(true);
   });
 
   it('lists every portal on every fightable map, in game map order', () => {
-    const route = getSpeedrunRoute(account, characters, character);
     expect(route.length).toBeGreaterThan(100);
     const keys = route.map(({ mapIndex, portalIndex }) => mapIndex * 10 + portalIndex);
     expect([...keys].sort((a, b) => a - b)).toEqual(keys);
   });
 
   it('never emits NaN', () => {
-    const route = getSpeedrunRoute(account, characters, character);
     route.forEach(({ reqKills, secondsToClear, effectiveKillsPerSecond, killPerKill }) => {
       expect(Number.isNaN(reqKills)).toBe(false);
       expect(Number.isNaN(secondsToClear)).toBe(false);
@@ -77,7 +76,6 @@ describe('getSpeedrunRoute', () => {
   });
 
   it('scales the clear time by portal progress per kill, not by the raw kill rate', () => {
-    const route = getSpeedrunRoute(account, characters, character);
     const entry = route.find(({ reqKills, reachable }) => reqKills > 0 && reachable);
     expect(entry).toBeDefined();
     expect(entry.effectiveKillsPerSecond).toBeCloseTo(entry.killsPerSecond * entry.portalProgressPerKill, 6);
@@ -85,7 +83,6 @@ describe('getSpeedrunRoute', () => {
   });
 
   it('marks maps the character cannot hit as unreachable', () => {
-    const route = getSpeedrunRoute(account, characters, character);
     route.forEach(({ reachable, effectiveKillsPerSecond, secondsToClear }) => {
       expect(reachable).toBe(effectiveKillsPerSecond > 0);
       if (!reachable) expect(secondsToClear).toBe(Infinity);
@@ -93,7 +90,6 @@ describe('getSpeedrunRoute', () => {
   });
 
   it('names the destination of each portal on a map that has more than one', () => {
-    const route = getSpeedrunRoute(account, characters, character);
     expect(route.find(({ mapIndex }) => mapIndex === 1).portalCount).toBe(1);
     const patch = route.filter(({ mapIndex }) => mapIndex === 24).sort((a, b) => a.portalIndex - b.portalIndex);
     expect(patch).toHaveLength(2);
@@ -103,7 +99,6 @@ describe('getSpeedrunRoute', () => {
   });
 
   it('leaves the destination blank where the game lists no exit for the portal', () => {
-    const route = getSpeedrunRoute(account, characters, character);
     // Crystal Basecamp's portal leads to a boss arena, which the world map never lists as a
     // destination, so SceneTransitions holds nothing but the way back.
     const basecamp = route.filter(({ mapIndex }) => mapIndex === 113);
@@ -113,7 +108,6 @@ describe('getSpeedrunRoute', () => {
   });
 
   it('drops every portal that costs no kills', () => {
-    const route = getSpeedrunRoute(account, characters, character);
     expect(route.every(({ reqKills }) => reqKills > 0)).toBe(true);
 
     // Where the Branches End, Mummy Memorial, Hell Hath Frozen Over and Equinox Valley are dead
@@ -131,7 +125,6 @@ describe('getSpeedrunRoute', () => {
   });
 
   it('drops the mining and fishing maps, where a portal unlock does not score', () => {
-    const route = getSpeedrunRoute(account, characters, character);
     // These ten field monsters and carry real requirements, but N.js gives them a non-zero
     // _DefaultExpType (1 mining, 4 fishing) and the handler only scores while ExpType is 0, so the
     // game answers ONLY_KILL_RELATED_MAP_UNLOCKS_COUNT instead of counting the portal.
@@ -143,7 +136,6 @@ describe('getSpeedrunRoute', () => {
   });
 
   it('drops the arenas and colosseums, which spawn nothing', () => {
-    const route = getSpeedrunRoute(account, characters, character);
     // No name list needed - a zero monster count takes them out on its own.
     [29, 66, 114, 115, 164, 165, 214, 266].forEach((mapIndex) => {
       expect(route.filter((portal) => portal.mapIndex === mapIndex)).toHaveLength(0);
@@ -165,7 +157,6 @@ describe('getSpeedrunRoute', () => {
   });
 
   it('drops the maps the game never gave a name', () => {
-    const route = getSpeedrunRoute(account, characters, character);
     // 2.3.527 named 323 (uAquaB9) Ancient_Fissure and 2.3.540 named 324 (uAquaB10) Molten_Edge, so
     // both joined the route once the game named them; no stop keeps a placeholder name.
     expect(route.filter(({ mapName }) => mapName === 'fillername')).toHaveLength(0);
@@ -181,10 +172,7 @@ describe('the rank 1 speedrun account', () => {
   let rankOneCharacters;
 
   beforeAll(() => {
-    const parsed = parseData(rankOne.data, rankOne.charNames, rankOne.companion, rankOne.guildData,
-      rankOne.serverVars);
-    rankOneAccount = parsed.account;
-    rankOneCharacters = parsed.characters;
+    ({ account: rankOneAccount, characters: rankOneCharacters } = parseFixture(rankOne));
   });
 
   it('reads the recorded highscore', () => {
@@ -249,33 +237,28 @@ describe('getSpeedrunBosses', () => {
 
 describe('getSpeedrunPlan', () => {
   it('lists the catalog with no boss portals without a character', () => {
-    const plan = getSpeedrunPlan(account, characters, undefined);
-    expect(plan.portals.length).toBe(getSpeedrunRoute(account, characters, character).length);
-    expect(plan.bossPortals).toBe(0);
+    const bare = getSpeedrunPlan(account, characters, undefined);
+    expect(bare.portals.length).toBe(route.length);
+    expect(bare.bossPortals).toBe(0);
   });
 
   it('keeps the game map order of the underlying route', () => {
-    const plan = getSpeedrunPlan(account, characters, character);
     // Never by cost: that would read as a recommended route.
     const keys = plan.portals.map(({ mapIndex, portalIndex }) => mapIndex * 10 + portalIndex);
     expect([...keys].sort((a, b) => a - b)).toEqual(keys);
-    expect(plan.portals).toHaveLength(getSpeedrunRoute(account, characters, character).length);
   });
 
   it('tags every portal with its world', () => {
-    const plan = getSpeedrunPlan(account, characters, character);
     plan.portals.forEach(({ mapIndex, world }) => expect(world).toBe(Math.floor(mapIndex / 50) + 1));
   });
 
   it('never reports the buff making a portal slower', () => {
-    const plan = getSpeedrunPlan(account, characters, character);
     plan.portals.filter(({ reachable }) => reachable).forEach(({ secondsToClear, buffedSecondsToClear }) => {
       expect(buffedSecondsToClear).toBeLessThanOrEqual(secondsToClear + 1e-9);
     });
   });
 
   it('counts boss portals only once Bossing in Vain is learned', () => {
-    const plan = getSpeedrunPlan(account, characters, character);
     const bossTotal = plan.bosses.reduce((sum, { portals }) => sum + portals, 0);
     const learned = character?.flatTalents?.find(({ name }) => name === 'BOSSING_VAIN')?.level > 0;
     expect(plan.bossPortals).toBe(learned ? bossTotal : 0);

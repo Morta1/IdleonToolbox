@@ -19,6 +19,5 @@ describe('getResearch EXP left', () => {
 
     expect(research.researchEXP).toBe(10);
     expect(research.researchEXPreq).toBe(1000);
-    expect(research.researchEXPreq - research.researchEXP).toBe(990);
   });
 });

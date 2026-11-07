@@ -13,21 +13,13 @@ const renderInfo = (stats) => render(
 );
 
 describe('MonsterInfo accuracy rows', () => {
-  it('uses the monster curve for monsters', () => {
-    renderInfo({ defence: 230, hitCurve: 'monster' });
-    expect(valueOf('5% Accuracy')).toBe('116');
-    expect(valueOf('100% Accuracy')).toBe('346');
-  });
-
-  it('uses the resource curve for ores, trees, fish and bugs', () => {
-    renderInfo({ defence: 25, hitCurve: 'resource' });
-    expect(valueOf('5% Accuracy')).toBe('7');
-    expect(valueOf('100% Accuracy')).toBe('50');
-  });
-
-  it('falls back to the monster curve when the graph has no curve', () => {
-    renderInfo({ defence: 230 });
-    expect(valueOf('5% Accuracy')).toBe('116');
+  it.each([
+    ['the monster curve for monsters', { defence: 230, hitCurve: 'monster' }, '116', '346'],
+    ['the resource curve for ores, trees, fish and bugs', { defence: 25, hitCurve: 'resource' }, '7', '50'],
+    ['the monster curve when the graph has no curve', { defence: 230 }, '116', '346']
+  ])('uses %s', (_, stats, low, high) => {
+    renderInfo(stats);
+    expect([valueOf('5% Accuracy'), valueOf('100% Accuracy')]).toEqual([low, high]);
   });
 });
 

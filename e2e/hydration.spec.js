@@ -1,6 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { readdirSync } from 'node:fs';
-import path from 'node:path';
+import { firstExportedRoute } from './route-helpers';
 import { waitForRender } from './wait-helpers';
 
 // React reports a hydration mismatch as a console error (minified #418/#423/#425) and answers it
@@ -10,19 +9,6 @@ import { waitForRender } from './wait-helpers';
 
 const WIDTHS = [1280, 1500, 390];
 const HYDRATION_ERROR = /#418|#423|#425|hydrat/i;
-
-// The first sorted out/<dir>/*.html not in `skip`. Falls back rather than throwing: a readdir at
-// collection time takes the whole file down when out/ is missing.
-const firstExportedRoute = (dir, { skip = [] } = {}) => {
-  try {
-    const file = readdirSync(path.join(process.cwd(), 'out', ...dir.split('/')))
-      .filter((f) => f.endsWith('.html') && !skip.includes(f))
-      .sort()[0];
-    return `/${dir}/${file.replace(/\.html$/, '')}`;
-  } catch {
-    return '/wiki';
-  }
-};
 
 const SAMPLES = [
   { route: '/' },
@@ -111,14 +97,12 @@ const expectCleanHydration = async (browser, { route, seed, width, device = 'lig
   await context.close();
 };
 
-for (const width of WIDTHS) {
-  for (const { route, seed } of SAMPLES) {
-    test(`${route} hydrates without a mismatch at ${width}px`, ({ browser }) => expectCleanHydration(browser, { route, seed, width }));
-  }
-}
-
-// Each route meets every scheme once, each at another width, so a scheme still sees all three widths without tripling the run.
+// Each route meets every scheme once, each at another width, so a route sees all three widths and a scheme does too. A first
+// visit adds one more width per route, rotating, so every width also sees first visits without tripling the run.
 SAMPLES.forEach(({ route, seed }, routeIndex) => {
+  const firstVisitWidth = WIDTHS[routeIndex % WIDTHS.length];
+  test(`${route} hydrates without a mismatch at ${firstVisitWidth}px`, ({ browser }) => expectCleanHydration(browser, { route, seed, width: firstVisitWidth }));
+
   SCHEMES.forEach(({ mode, device, paints }, schemeIndex) => {
     const width = WIDTHS[(routeIndex + schemeIndex) % WIDTHS.length];
     test(`${route} hydrates without a mismatch at ${width}px, ${mode} on a device that prefers ${device}`, ({ browser }) => expectCleanHydration(browser, {

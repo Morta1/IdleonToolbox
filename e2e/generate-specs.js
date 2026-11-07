@@ -26,6 +26,9 @@ for (let i = 0; i < WORKER_COUNT; i++) {
     '      const { errors, cleanup } = collectErrors(demoPage);',
     '      await clientNavigate(demoPage, path, query);',
     "      await expect(demoPage.locator('body')).not.toBeEmpty();",
+    // The error boundary catches a render crash, so no pageerror fires for it.
+    "      await expect(demoPage.getByText('This page failed to render')).toHaveCount(0);",
+    "      await expect(demoPage.getByText('The app failed to load')).toHaveCount(0);",
     '      expect([...errors]).toEqual([]);',
     '      cleanup();',
     '    });',

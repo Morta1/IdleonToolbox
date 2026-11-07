@@ -4,11 +4,7 @@ import { getCooking, getCookingMastery } from '@parsers/world-4/cooking';
 import { liveCount } from '@parsers/catalog';
 import { cookingMenu } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
-import latest from '../fixtures/latest.json';
+import { FIXTURES } from '../helpers/save-fixtures';
 
 describe('getCooking', () => {
   it('returns every live meal when the save is missing', () => {
@@ -16,10 +12,6 @@ describe('getCooking', () => {
     expect(result.meals).toHaveLength(liveCount(cookingMenu));
     expect(result.meals.every((m) => m.level === 0 && m.amount === 0)).toBe(true);
     expect(result.meals[0]).toMatchObject({ name: 'Turkey_of_Thank', rawName: 'CookingMB0' });
-  });
-
-  it('never emits placeholder entries', () => {
-    const result = getCooking(undefined, {}, []);
     expect(result.meals.some((m) => m.name?.startsWith('Some_'))).toBe(false);
   });
 
@@ -33,16 +25,15 @@ describe('getCooking', () => {
   });
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
 describe('getCooking fixture regression', () => {
-  it.each(FIXTURES)('%s: meal levels/amounts the save covers are unchanged at the same index', (_name, fixture) => {
+  it.each(FIXTURES)('%s: meal levels and amounts read at their index, across the whole catalog', (_name, fixture) => {
     const data = fixture.data ?? fixture;
     const mealsRaw = tryToParse(data?.Meals) || data?.Meals;
     const levels = mealsRaw?.[0];
     const amounts = mealsRaw?.[2];
     const { meals } = getCooking(data, {}, []);
 
+    expect(meals).toHaveLength(liveCount(cookingMenu));
     levels?.forEach((level, index) => {
       if (index >= meals.length) return;
       expect(meals[index].level).toBe(level);
@@ -53,11 +44,6 @@ describe('getCooking fixture regression', () => {
     });
   });
 
-  it.each(FIXTURES)('%s: returns the full catalog length regardless of save length', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const { meals } = getCooking(data, {}, []);
-    expect(meals).toHaveLength(liveCount(cookingMenu));
-  });
 });
 
 describe('getCookingMastery ribbons', () => {

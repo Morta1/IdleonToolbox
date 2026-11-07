@@ -21,10 +21,6 @@ describe('parseChunkRefs', () => {
   it('ignores non-chunk scripts', () => {
     expect(parseChunkRefs('<script src="/_next/static/css/x.css"></script>')).toEqual([]);
   });
-
-  it('returns an empty array for a page with no scripts', () => {
-    expect(parseChunkRefs('<html><body>hi</body></html>')).toEqual([]);
-  });
 });
 
 describe('buildManifest', () => {

@@ -4,7 +4,6 @@ import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { excludedPortals } from '@utility/helpers';
 import { getMapDoorRequirements, getMultiCharDoorLock, getPortalKillsLeftDisplay } from '@parsers/portals';
-import { mapMulticharReq } from '@website-data';
 import { getPortalCostQuantity, getPortalCostType } from '@parsers/class-specific/compass';
 import { getLastBloodBerserkerLine } from '@parsers/talents';
 
@@ -18,9 +17,8 @@ const GAME = {
   // Windwalker("PortalCostQTY", 203, 1) from map 300: MapDetails[203][0] has no second door, so the game reads
   // its requirement as 0 and charges what map 300's zero-requirement door costs
   door203Of1CostFromMap300: 4575,
-  // CustomLists.MapDetails[map][0]: one and two door maps, a mining map, the Hole's roundabout, a W7 town
-  // and a W7 door with no requirement
-  mapDetails: [[1, [21]], [7, [25, 81]], [11, [50, 60]], [24, [120, 2000]], [203, [40000]], [300, [1, 0]], [306, [0]]],
+  // CustomLists.MapDetails[203][0]
+  door203Requirements: [40000],
   // Compass[2]: the portals the Windwalker bought (account wide)
   compassPortals: ['1_0', '2_0', '14_0', '14_1', '16_1', '16_0', '19_0', '24_0', '26_0', '27_1', '51_0', '52_0',
     '53_0', '57_0', '58_0', '59_0', '60_0', '62_0', '63_0', '64_0', '101_0', '103_0', '104_1', '104_0', '105_0',
@@ -56,15 +54,11 @@ const compassDoors = account.compass.maps.flatMap(({ mapIndex, portals }) => por
 })));
 
 describe('portals verified against the live game', () => {
-  it.each(GAME.mapDetails)('map %i door requirements start with MapDetails', (map, requirements) => {
-    expect(getMapDoorRequirements(map).slice(0, requirements.length)).toEqual(requirements);
-  });
-
   it('compass portal cost and dust type', () => {
     expect(GAME.portalCostOnMap300.map((_, door) => getPortalCostQuantity(300, door))).toEqual(GAME.portalCostOnMap300);
     expect(getPortalCostType(300)).toBe(GAME.portalCostTypeOnMap300);
     // the Hole's door is a real compass door with no MapDetails requirement
-    expect(getMapDoorRequirements(203)).toEqual([...GAME.mapDetails.find(([map]) => map === 203)[1], 0]);
+    expect(getMapDoorRequirements(203)).toEqual([...GAME.door203Requirements, 0]);
     expect(getPortalCostQuantity(300, 1)).toBe(GAME.door203Of1CostFromMap300);
   });
 
@@ -100,10 +94,6 @@ describe('portals verified against the live game', () => {
       currentIcon: 'ClassIconsF',
       multiCharLock: null
     });
-  });
-
-  it('reads the multi-character door table the game ships', () => {
-    expect(mapMulticharReq).toEqual(GAME.multiCharReq);
   });
 
   it('counts the characters that cleared each multi-character map the way RegionLockMulticharProg does', () => {

@@ -44,18 +44,12 @@ afterEach(() => { cleanup(); vi.clearAllMocks(); });
 describe('Overview podium', () => {
   const slotOf = (name) => screen.getByText(name).closest('[data-testid="podium-slot"]');
 
-  it('sizes slots by content, not fixed heights', async () => {
+  it('sizes slots by content, and colours the top border by rank, in slot order second, first, third', async () => {
     renderOverview({ player: { context: null } });
     await screen.findByText('G1');
     const slots = screen.getAllByTestId('podium-slot');
-    expect(slots).toHaveLength(3);
     for (const slot of slots) expect(getComputedStyle(slot).height).toBe('');
-  });
-
-  it('colours the top border by rank, in slot order second, first, third', async () => {
-    renderOverview({ player: { context: null } });
-    await screen.findByText('G1');
-    expect(screen.getAllByTestId('podium-slot').map((slot) => slot.textContent.slice(0, 2))).toEqual(['G2', 'G1', 'G3']);
+    expect(slots.map((slot) => slot.textContent.slice(0, 2))).toEqual(['G2', 'G1', 'G3']);
     expect(getComputedStyle(slotOf('G1')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-gold)');
     expect(getComputedStyle(slotOf('G2')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-silver)');
     expect(getComputedStyle(slotOf('G3')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-bronze)');

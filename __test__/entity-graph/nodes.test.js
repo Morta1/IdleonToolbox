@@ -53,14 +53,11 @@ describe('node extractors', () => {
   // page at /wiki/monster/nothing with an empty title. It has no edges either.
   it('leaves out the monster whose name is only underscores', () => {
     const nodes = monsterNodes({ Nothing: { Name: '_', Type: 'Monster' }, mushG: { Name: 'Green_Mushroom', Type: 'Monster' } }, {});
-    expect(nodes['monster:Nothing']).toBeUndefined();
-    expect(nodes['monster:mushG']).toBeDefined();
+    expect(Object.keys(nodes)).toEqual(['monster:mushG']);
   });
 
   it('leaves out the monsters the game names Error', () => {
-    const nodes = monsterNodes(monsters);
-    expect(nodes['monster:behemoth']).toBeUndefined();
-    expect(nodes['monster:mushG']).toBeDefined();
+    expect(Object.keys(monsterNodes(monsters))).toEqual(['monster:mushG', 'monster:Copper']);
   });
 
   // Beyond the Error and blank names: the AFK targets of a station or a W5 monument (the monuments

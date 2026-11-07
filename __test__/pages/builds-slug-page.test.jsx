@@ -1,6 +1,7 @@
 import '../../polyfills';
 import { describe, it, expect } from 'vitest';
 import {
+  ALL_CLASS_SLUGS,
   getBuildSlugStaticPaths,
   getBuildSlugStaticProps
 } from '../../pages/tools/builds/[slug].jsx';
@@ -25,19 +26,12 @@ describe('getBuildSlugStaticPaths', () => {
     expect(getBuildSlugStaticPaths(FIXTURE).fallback).toBe(false);
   });
 
-  it('emits a path for every class and every build', () => {
-    const slugs = getBuildSlugStaticPaths(FIXTURE).paths.map((p) => p.params.slug);
-    expect(slugs).toContain('barbarian');
-    expect(slugs).toContain('aaa111-rage-build');
-  });
-
   // fallback: false makes any unlisted path a hard 404, and the class strip links every class -
   // so a class with no builds yet still needs a page or the strip walks the user into a dead end.
-  it('generates a page for classes that have no builds yet', () => {
+  it('emits a path for every class, builds or not, and every build', () => {
     const slugs = getBuildSlugStaticPaths(FIXTURE).paths.map((p) => p.params.slug);
-    for (const empty of ['siege-breaker', 'arcane-cultist', 'death-bringer', 'wind-walker']) {
-      expect(slugs, `${empty} would 404 from the class strip`).toContain(empty);
-    }
+    expect([...slugs].sort()).toEqual([...ALL_CLASS_SLUGS, 'aaa111-rage-build', 'bbb222-second-barb', 'ccc333-wiz-build'].sort());
+    expect(ALL_CLASS_SLUGS).toEqual(expect.arrayContaining(['barbarian', 'siege-breaker', 'arcane-cultist', 'death-bringer', 'wind-walker']));
   });
 
   it('throws rather than exporting two pages to one file', () => {

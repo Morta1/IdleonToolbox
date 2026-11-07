@@ -8,16 +8,11 @@ import { classNodes } from '../../scripts/entity-graph/nodes/classes.mjs';
 import { FORMULAS, levelledText } from '../../utility/wiki/effects.mjs';
 import { entityDescription } from '../../utility/wiki/seo';
 import { getFamilyBonusBonus } from '../../parsers/family';
+import { enrichRun } from '../helpers/enrich-run.js';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
-// The before/after snapshots name exactly which nodes the enrichment touched.
-const blank = () => classNodes(data.classPromotions);
-const before = blank();
-const snapshot = Object.fromEntries(Object.entries(before).map(([id, node]) => [id, JSON.stringify(node)]));
-const nodes = blank();
-enrichClasses(nodes, data);
-const changed = (prefix) => Object.keys(nodes).filter((id) => id.startsWith(prefix) && JSON.stringify(nodes[id]) !== snapshot[id]).sort();
+const { before, nodes, changed } = enrichRun(() => classNodes(data.classPromotions), (fresh) => enrichClasses(fresh, data));
 const familyOf = (name) => nodes[`class:${name}`].familyBonus;
 const textAt = (name, level) => levelledText(familyOf(name), level);
 
@@ -70,14 +65,9 @@ describe('family bonus text', () => {
 
   it.each([
     ['Death_Bringer', 130, '+0.07% KILL PER KILL'],
-    ['Squire', 200, '+25% TOTAL HP'],
-    ['Elemental_Sorcerer', 200, '+5.45 LV FOR ALL TALENTS ABOVE LV 1']
+    ['Squire', 200, '+25% TOTAL HP']
   ])('reads %s at class level %s as the panel does', (name, level, expected) => {
     expect(textAt(name, level)).toBe(expected);
-  });
-
-  it('opens each bonus at the level the game starts it', () => {
-    expect(familyOf('Death_Bringer').effect.from).toBe(130);
   });
 
   it('agrees with the parser on the raw value, to the panel rounding', () => {

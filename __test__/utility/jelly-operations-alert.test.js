@@ -64,9 +64,7 @@ describe('jelly operator alerts', () => {
 
   it('respects each option being off', () => {
     const off = { jellyOperator: { ...allOn.jellyOperator, emptySlots: { name: 'emptySlots', checked: false } } };
-    const alerts = jellyAlerts(account({ operationsLeft: 1, emptySlots: 3 }), off);
-    expect(alerts?.emptySlots).toBeUndefined();
-    expect(alerts?.operationsLeft).toBeDefined();
+    expect(jellyAlerts(account({ operationsLeft: 1, emptySlots: 3 }), off)).toEqual({ operationsLeft: { left: 1, max: 2 } });
   });
 });
 

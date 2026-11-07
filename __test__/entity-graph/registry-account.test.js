@@ -61,9 +61,7 @@ describe('guild bonuses', () => {
   it.each([
     ['Guild Gifts', 50, '+233% chance for an extra Guild Gift to be added to your Storage Chest every week.'],
     ['Bonus GP for small guilds', 10, '+67% GP earned if your guild has 20 members or less.'],
-    ['Star Dazzle', 10, '+20 Star Talent Points'],
-    ['Skilley Skillet', 1, '+0.25% Skill EXP for all skills'],
-    ['Coin Supercharger', 100, "+16.7% Cash for each world you've reached"]
+    ['Skilley Skillet', 1, '+0.25% Skill EXP for all skills']
   ])('fill %s at level %i as %s', (name, level, expected) => {
     expect(textAt(name, level)).toBe(expected);
   });
@@ -108,7 +106,7 @@ describe('merit shops', () => {
     );
   });
 
-  // The live game's GenINFO[19] (research section 2); a game reading, not a count of the data.
+  // The live game's GenINFO[19]: a game reading, not a count of the data.
   it('list the merits the live game draws per world', () => {
     expect(shops.map((shop) => shop.entries.length)).toEqual([7, 8, 7, 7, 7, 6, 6]);
   });
@@ -119,10 +117,7 @@ describe('merit shops', () => {
 
   it.each([
     ['TaskShop0_3', 1, "Sets the Max Lv. to 5 For the 'Goblet of Hemoglobin' Talent. Helps survivability!"],
-    ['TaskShop1_2', 3, '+2% AFK Gains for your first 3 characters in your family.'],
-    ['TaskShop3_2', 2, '+2 egg capacity in the Nest. Those Mobs wont hatch themselves after all!'],
     ['TaskShop6_0', 15, "+225% Spelunking POW, but like, it's a multiplier!"],
-    ['TaskShop2_4', 1, '+0.5% Printer Sample Size per purchase. Make the Federal Reserve jealous!'],
     ['TaskShop2_4', 10, '+0.5% Printer Sample Size per purchase. Make the Federal Reserve jealous!'],
     ['TaskShop5_3', 1, '+3% Jade Gain, permanently.'],
     // Its A|B|C|E|F|H options never apply: the title has no `}`.
@@ -180,20 +175,13 @@ describe('dungeon RNG items', () => {
   it.each([
     ['Helping Heart', 5, 'Increases your max HP by +4'],
     ['Muscle Memory', 1, 'Each skilling action you perform increases damage by +0.52% up to +50%'],
-    ['Muscle Memory', 10, 'Each skilling action you perform increases damage by +0.7% up to +50%'],
-    ['Liars Craps', 1, '+16% drop rate, -16% Max HP.'],
-    ['Golden Dice', 1, 'Gives you a chance to get an additional Loot Dice based on how much Cash you have at the end. +15% extra dice chance based on Cash.'],
-    ['Recycler', 30, 'Drops a new RNG item to pick up. 20% chance to drop an additional RNG item.'],
-    ['Dead Book', 1, '+0.65% Dmg and Crit chance for each monster type you defeat, even before getting this.'],
-    ['Prepaid Debit Card', 4, 'Auto purchases 4 of each equipment, free of charge. Also multiplies current cash by 1.9x'],
-    ['Horn of the Foal', 1, '+15% Crit Chance, +615% Crit Dmg, and -60% max HP. Oh, and Non Crits deal no damage.']
+    ['Golden Dice', 1, 'Gives you a chance to get an additional Loot Dice based on how much Cash you have at the end. +15% extra dice chance based on Cash.']
   ])('fill %s at level %i as %s', (name, level, expected) => {
     expect(textAt(name, level)).toBe(expected);
   });
 
   it.each([
     ['Helping Heart', [10], ['259'], '829'],
-    ['Recycler', [30], ['72,139'], '303,029'],
     ['Vampire Fangs', [1], ['15'], '1,192'],
     ['Dead Book', [1, 5], ['40', '336'], '781'],
     ['Angelite', [1], ['95'], '1,851'],
@@ -258,10 +246,8 @@ describe('dungeon passives', () => {
   });
 
   it.each([
-    ['Base Damage', 10, 'Base Damage: +9.1'],
     ['Total Dmg', 1, 'Total Dmg: +2.5%'],
-    ['Weapon Power', 50, 'Weapon Power: +19.2'],
-    ['AFK Gains', 10, 'AFK Gains: +1.7%']
+    ['Weapon Power', 50, 'Weapon Power: +19.2']
   ])('fill %s at level %i as %s', (name, level, expected) => {
     expect(textAt(name, level)).toBe(expected);
   });

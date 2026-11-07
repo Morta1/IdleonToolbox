@@ -4,11 +4,7 @@ import { getShrines, isLiveShrineEntry } from '@parsers/world-3/shrines';
 import { liveCount } from '@parsers/catalog';
 import { shrines } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
-import latest from '../fixtures/latest.json';
+import { FIXTURES } from '../helpers/save-fixtures';
 
 describe('getShrines', () => {
   it('returns every live shrine when the save is missing', () => {
@@ -67,14 +63,13 @@ describe('unbuilt shrines award nothing', () => {
   });
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
 describe('getShrines fixture regression', () => {
-  it.each(FIXTURES)('%s: shrine levels the save covers are unchanged at the same index', (_name, fixture) => {
+  it.each(FIXTURES)('%s: shrine levels read at their index, across the whole catalog', (_name, fixture) => {
     const data = fixture.data ?? fixture;
     const shrinesRaw = data?.ShrineInfo || tryToParse(data?.Shrine);
     const result = getShrines(data, {});
 
+    expect(result).toHaveLength(liveCount(Object.values(shrines)));
     shrinesRaw?.forEach((item, index) => {
       if (index >= result.length) return;
       const [mapId, , , shrineLevel] = item;
@@ -83,8 +78,4 @@ describe('getShrines fixture regression', () => {
     });
   });
 
-  it.each(FIXTURES)('%s: returns the full catalog length regardless of save length', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    expect(getShrines(data, {})).toHaveLength(liveCount(Object.values(shrines)));
-  });
 });

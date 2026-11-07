@@ -7,6 +7,9 @@ import { getCardBonusByEffect, getCardLevel } from '@parsers/cards';
 import { getCloudBonus } from '@parsers/world-3/equinox';
 import { getAmberGain, getLoreBonuses } from '@parsers/world-7/spelunking';
 import { calcTotalStarTalent } from '@parsers/talents';
+import { getFamilyBonusBonus } from '@parsers/family';
+import { classFamilyBonuses } from '@website-data';
+import { growth } from '@utility/helpers';
 import { breakdownLineNames, findBreakdownNode } from '../helpers/breakdown-tree';
 
 // Base drop rate > (additive bonuses x Siege Breaker) > additive bonuses; the multipliers are the second root group
@@ -186,14 +189,10 @@ describe('cards the game counts more than once or caps on their own', () => {
     return (findBreakdownNode(breakdown.tree, 'Card').value - 1) * 100;
   };
 
-  it('matches the live game at Litterfish level 4', () => {
+  it('matches the live game at Litterfish level 4, triple a single bonus * level lookup', () => {
     // live client 2026-08-20: CardLv("w7a7") = 4, game term = min(20,40) + min(40,100) = 60
     expect(amberTerm(4)).toBeCloseTo(60, 10);
-  });
-
-  it('is triple what a single bonus * level lookup returns', () => {
-    expect(getCardBonusByEffect(litterfish(4), 'Spelunk_Amber_(Passive)')).toBe(20); // the old, halved-and-then-some result
-    expect(amberTerm(4)).toBeCloseTo(60, 10);
+    expect(getCardBonusByEffect(litterfish(4), 'Spelunk_Amber_(Passive)')).toBe(20);
   });
 
   it('applies both caps independently at high level', () => {
@@ -206,5 +205,79 @@ describe('cards the game counts more than once or caps on their own', () => {
       withCardLevels(account, { w4b2: cardLv, Boss2C: cardLv, fallEvent1: cardLv }));
     // at level 7: Gilded Efaunt would give 105 uncapped, so the cap is what keeps it at 100
     expect(starPoints(7) - starPoints(0)).toBe(35 + 100 + 28);
+  });
+});
+
+describe('drop rate: Royal Guardian family bonus and GRADED_RATE', () => {
+  const { account, characters } = parseFixture(latest);
+  const character = characters[8];
+  const dropRate = (char, acc, chars) => getDropRate(char, acc, chars).dropRate;
+  const base = dropRate(character, account, characters);
+
+  // The family bonus is walked once per character at parse time (family-bonus-walk.test.js), so
+  // the multiplier is exercised by setting the value that walk would have produced.
+  const withRoyalGuardianFamily = (level, char = character) => ({
+    ...char,
+    familyBonuses: { ...char.familyBonuses, Royal_Guardian: getFamilyBonusBonus(classFamilyBonuses, 'DROP_RATE_MULTIPLIER', level) }
+  });
+
+  it('FamBonusQTYs[32] multiplies drop rate by the Royal Guardian family bonus', () => {
+    const level = 1307;
+    const expected = getFamilyBonusBonus(classFamilyBonuses, 'DROP_RATE_MULTIPLIER', level);
+    expect(expected).toBeGreaterThan(0);
+    expect(dropRate(withRoyalGuardianFamily(level), account, characters) / base).toBeCloseTo(1 + expected / 100, 10);
+  });
+
+  it('a Royal Guardian below the family bonus level requirement changes nothing', () => {
+    expect(dropRate(withRoyalGuardianFamily(50), account, characters) / base).toBeCloseTo(1, 10);
+  });
+
+  // GRADED_RATE: decay, x1 3, x2 500 (talents.json, skillIndex 239).
+  const withGradedRate = (level) => ({
+    ...character,
+    flatTalents: [...character.flatTalents, { name: 'GRADED_RATE', level, funcX: 'decay', x1: 3, x2: 500 }]
+  });
+  const withNodeGrades = (totalNodeLevels) => ({
+    ...account,
+    royalGuardian: {
+      ...account.royalGuardian,
+      outpostStats: { ...account.royalGuardian.outpostStats, totalNodeLevels }
+    }
+  });
+  // Anchors how much one additive percentage point is worth after the whole multiplicative chain,
+  // so the GRADED_RATE expectation is a magnitude and not just "it went up".
+  const withSpelunkingUpgrade50 = (bonus) => {
+    const upgrades = clone(account.spelunking.upgrades);
+    upgrades[50] = { ...upgrades[50], bonus };
+    return { ...account, spelunking: { ...account.spelunking, upgrades } };
+  };
+  const upgrade50Bonus = account.spelunking.upgrades[50].bonus;
+
+  it('GetTalentNumber(1, 239) * TotalStatz(0) enters the additive group', () => {
+    const talentLevel = 40;
+    const nodeGrades = 42;
+    const talentBonus = growth('decay', talentLevel, 3, 500, false);
+    const perPoint = (dropRate(character, withSpelunkingUpgrade50(upgrade50Bonus + 10), characters)
+      - dropRate(character, withSpelunkingUpgrade50(upgrade50Bonus), characters)) / 10;
+    expect(perPoint).toBeGreaterThan(0);
+
+    const actual = dropRate(withGradedRate(talentLevel), withNodeGrades(nodeGrades), characters);
+    expect(actual).toBeCloseTo(base + perPoint * talentBonus * nodeGrades, 6);
+  });
+
+  it('a character without the talent contributes nothing, whatever the node grades', () => {
+    expect(dropRate(character, withNodeGrades(500), characters)).toBeCloseTo(base, 10);
+  });
+
+  it('both new sources are listed in the breakdown', () => {
+    const { breakdown } = getDropRate(withRoyalGuardianFamily(1307, withGradedRate(40)), withNodeGrades(42), characters);
+    const additiveGroup = findBreakdownNode(breakdown.tree, 'Base drop rate').children[0].children[0];
+    const multiGroup = breakdown.tree[1];
+    expect([additiveGroup.combine, multiGroup.combine]).toEqual(['additive', 'product']);
+    expect(breakdownLineNames(additiveGroup)).toContain('Graded Rate (Royal Guardian)');
+    expect(breakdownLineNames(multiGroup)).toContain('Royal Guardian family');
+    expect(findBreakdownNode(additiveGroup, 'Graded Rate (Royal Guardian)').value).toBeGreaterThan(0);
+    // A factor: above 1 once the family bonus applies
+    expect(findBreakdownNode(multiGroup, 'Royal Guardian family').value).toBeGreaterThan(1);
   });
 });

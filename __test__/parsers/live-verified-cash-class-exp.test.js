@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
+import { within } from '../helpers/live-verified';
 import { getCashMulti, getClassExpMulti } from '../../parsers/character';
 import { getMaxDamage } from '../../parsers/damage';
 
@@ -10,14 +11,14 @@ import { getMaxDamage } from '../../parsers/damage';
 const GAME_CASH_MULTI = 9.90294028827609e22; // ArbitraryCode("MonsterCash"), 51 overkill tiers
 const GAME_CLASS_EXP = 1.3976006e9; // ExpMulti(0)
 
-const within = (actual, expected, pct) => expect(Math.abs(actual / expected - 1)).toBeLessThan(pct / 100);
+const TOLERANCE = 1e-4;
 
 describe('formulas verified against the live game', () => {
   const { account, characters } = parseFixture(latest);
   const character = characters.find(c => c?.name === 'MortasNinth');
 
   it('monster cash matches, Molti card and both Cash from Mobs arcade upgrades included', () => {
-    within(getCashMulti(character, account, characters, { multiKillTiers: 51 }).cashMulti, GAME_CASH_MULTI, 0.01);
+    within(getCashMulti(character, account, characters, { multiKillTiers: 51 }).cashMulti, GAME_CASH_MULTI, TOLERANCE);
   });
 
   it('works out the overkill tiers itself when the caller passes no player info', () => {
@@ -29,7 +30,7 @@ describe('formulas verified against the live game', () => {
 
   it('class EXP matches, with the Omniphau minor bonus read from its god slot (5x vs 100x)', () => {
     const { value, breakdown } = getClassExpMulti(character, account, characters);
-    within(value, GAME_CLASS_EXP, 0.01);
+    within(value, GAME_CLASS_EXP, TOLERANCE);
     const [, additive] = breakdown.tree;
     expect(additive.combine).toBe('additive');
     const god = additive.children.find(node => node.name === 'God (Omniphau)');

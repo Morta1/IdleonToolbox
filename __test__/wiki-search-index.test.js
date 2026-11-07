@@ -5,8 +5,9 @@ import path from 'path';
 const indexPath = path.join(__dirname, '..', 'data', 'wiki-search-index.json');
 
 describe('wiki search index', () => {
+  const entries = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
+
   it('is a non-trivial array whose every entry carries id, kind, label and slug; icon is a rooted path or null', () => {
-    const entries = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
     expect(Array.isArray(entries)).toBe(true);
     expect(entries.length).toBeGreaterThan(3000);
     for (const entry of entries) {
@@ -20,13 +21,11 @@ describe('wiki search index', () => {
   });
 
   it('contains a known monster with its per-entity icon', () => {
-    const entries = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
     const bean = entries.find((entry) => entry.label === 'Bored Bean');
     expect(bean).toMatchObject({ kind: 'monster', slug: 'bored-bean', icon: '/monsters/beanG/static.png' });
   });
 
   it('gives no two rows of one kind the same label and disambiguator', () => {
-    const entries = JSON.parse(fs.readFileSync(indexPath, 'utf-8'));
     const keys = entries.map((entry) => `${entry.kind}|${entry.label}|${entry.disambig ?? ''}`);
     expect(keys.filter((key, at) => keys.indexOf(key) !== at)).toEqual([]);
   });

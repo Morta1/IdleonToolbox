@@ -22,12 +22,14 @@ const anonymous = { signedIn: false, emptyAccount: true, isLoading: false };
 describe('useProfileBannerState guest banner', () => {
   // "numbers fill in once you sign in" is only true where the page shows account numbers. On
   // static pages it also arrived after hydration as the largest text, which made it the LCP.
-  it.each(['/', '/wiki/[kind]/[slug]', '/tools/builds/[slug]', '/guilds', '/patch-notes'])('hidden on %s', (pathname) => {
+  // Which route needs an account is routeNeedsAccount's table, in AppProviderLazyEmptyAccount. /settings pays for an
+  // empty account but shows no number that reads it.
+  it.each(['/wiki/[kind]/[slug]', '/settings'])('hidden on %s', (pathname) => {
     expect(run(pathname, anonymous)).toMatchObject({ isEmptyAccount: false, isVisible: false });
   });
 
-  it.each(['/dashboard', '/characters', '/account/world-3/printer', '/tools/card-search'])('shown on %s', (pathname) => {
-    expect(run(pathname, anonymous)).toMatchObject({ isEmptyAccount: true, isVisible: true });
+  it('shown on a page that shows account numbers', () => {
+    expect(run('/dashboard', anonymous)).toMatchObject({ isEmptyAccount: true, isVisible: true });
   });
 
   it('keeps the profile banner on a static page', () => {

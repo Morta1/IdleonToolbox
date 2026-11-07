@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { within } from '../helpers/live-verified';
+import { asMortasNinth, within } from '../helpers/live-verified';
 import { getNinjaCharmBonus, getInventoryNinjaItem } from '@parsers/world-6/sneaking';
 import { getSlabBonus } from '@parsers/world-5/sailing';
 import { ninjaExtraInfo } from '@website-data';
@@ -73,11 +73,7 @@ const GAME = {
 // The toolbox reads the "logged-in" character as the save's last played one (IAmTheHunterrr here). Generational
 // Gemstones (getbonus2 432) and the farming land rank follow the logged-in character's added levels, so the
 // save is parsed with MortasNinth as the last played character to match the game's point of view.
-const loggedInFixture = {
-  ...latest,
-  data: { ...latest.data, PTimeAway_8: Number(latest.data.PTimeAway_5) + 1 }
-};
-const { account, characters } = parseFixture(loggedInFixture);
+const { account, characters } = parseFixture(asMortasNinth(latest));
 const { sneaking } = account;
 
 const KNOWLEDGE_WITH_MASTERY_LOOT = { 6: 'Gemstone', 7: 'Kunai', 10: 'Gloves', 11: 'Charm', 12: 'Nunchaku' };
@@ -100,11 +96,11 @@ describe('sneaking verified against the live game', () => {
       .toBe('MortasNinth');
   });
 
-  it.each(GAME.gemstones.map((value, index) => [index, value]))('gemstone %i', (index, value) => {
+  it.each([...GAME.gemstones.entries()])('gemstone %i', (index, value) => {
     within(sneaking.gemStones[index].bonus, value);
   });
 
-  it.each(GAME.knowledge.map((value, index) => [index, value]).filter(([, value]) => value !== null))(
+  it.each([...GAME.knowledge.entries()].filter(([, value]) => value !== null))(
     'ninja knowledge %i', (index, value) => {
       within(knowledgeValue(index), value);
     });
@@ -113,7 +109,7 @@ describe('sneaking verified against the live game', () => {
     within(getInventoryNinjaItem(account, name), value);
   });
 
-  it.each(GAME.charms.map((row, playerIndex) => [playerIndex, row]))('charms of ninja %i', (playerIndex, row) => {
+  it.each([...GAME.charms.entries()])('charms of ninja %i', (playerIndex, row) => {
     GAME.charmSubTypes.forEach((subType, index) => within(getNinjaCharmBonus(account, playerIndex, subType), row[index]));
   });
 

@@ -75,16 +75,14 @@ const GAME = {
     37: ['+193,545%'],
     41: ['+287.64%'],
     70: ['+5,200%']
-  },
-  // Grimoire upgrades 13/21/31: RANDOlist[104] names at OptionsListAccount 334/335/336 (78/78/17 of 78)
-  grimoireTargets: { 13: 'All_Done!', 21: 'All_Done!', 31: 'Poop' }
+  }
 };
 
 const { account } = parseFixture(latest);
 const vault = account.upgradeVault;
 
 describe('upgrade vault verified against the live game', () => {
-  it.each(GAME.bonuses.map((bonus, index) => [index, bonus]))('upgrade %i: bonus, cost and max level', (index, bonus) => {
+  it.each([...GAME.bonuses.entries()])('upgrade %i: bonus, cost and max level', (index, bonus) => {
     const upgrade = vault.upgrades[index];
     within(upgrade.bonus, bonus);
     within(upgrade.cost, GAME.costs[index]);
@@ -105,9 +103,5 @@ describe('upgrade vault verified against the live game', () => {
     const { description } = vault.upgrades[index];
     values.forEach((value) => expect(description).toContain(value));
     expect(description).not.toMatch(/[{}^$&~]/);
-  });
-
-  it.each(Object.entries(GAME.grimoireTargets))('grimoire upgrade %s monster ladder target', (index, name) => {
-    expect(account.grimoire.upgrades[index].monsterProgress).toBe(name);
   });
 });

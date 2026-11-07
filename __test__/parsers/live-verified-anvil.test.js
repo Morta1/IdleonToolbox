@@ -2,6 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
+import { within } from '../helpers/live-verified';
 import { calcAnvilExp, getAnvilFutureProduction, getPlayerAnvil } from '@parsers/world-1/anvil';
 import { getActiveBubbleBonus } from '@parsers/world-2/alchemy';
 import { getSpeedBonusFromAgility } from '@parsers/misc';
@@ -38,8 +39,7 @@ describe('anvil verified against the live game', () => {
   });
 
   it('production speed with the save-side bubble level', () => {
-    const ratio = stats.anvilSpeed / 3600 / GAME_SPEED;
-    expect(Math.abs(ratio - 1)).toBeLessThan(HAMMER_BUBBLE_LEVEL_DRIFT);
+    within(stats.anvilSpeed / 3600, GAME_SPEED, HAMMER_BUBBLE_LEVEL_DRIFT);
   });
 
   it('EXP, capacity and point costs', () => {

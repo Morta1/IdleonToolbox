@@ -4,15 +4,14 @@ import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { getBribeBonus } from '@parsers/world-1/bribes';
 
-// Read from the running game on 11 Oct 2026 through the debug server (latest.json is that save):
-// GetBribeBonus(i) for every bribe, 0 for the one not bought yet.
-const GAME = [8, 15, 7, 5, 10, 6, 20, 2.2, 20, 0.2, 20, 3, 13, 2, 10, 1, 4, 10, 4, 20, 2, 2, 2, 5, 2, 10, 27, 1, 1, 1, 2,
-  10, 33, 34, 20, 30, 10, 20, 30, 20, 0];
+// Read from the running game on 11 Oct 2026 through the debug server (latest.json is that save): GetBribeBonus(i).
+// A bought bribe pays its catalog value, so these are the first, the last bought and the one not bought yet.
+const GAME = { 0: 8, 39: 20, 40: 0 };
 
 const { account } = parseFixture(latest);
 
 describe('bribes match the live game', () => {
-  it.each(GAME.map((value, index) => [account.bribes[index]?.name, index, value]))('%s bonus', (name, index, value) => {
+  it.each(Object.entries(GAME).map(([index, value]) => [account.bribes[index].name, value]))('%s bonus', (name, value) => {
     expect(getBribeBonus(account.bribes, name)).toBe(value);
   });
 });

@@ -1,12 +1,9 @@
-import '../polyfills';
-import 'core-js/modules/web.structured-clone';
-import { parseData } from '@parsers/index';
+import { parseFixture } from './helpers/parsed-fixtures';
 import raw from '../data/raw.json';
 import { getOptimizedClamWorkUpgrades, getOptimizedScurgeUpgrades, parseClamWork } from '@parsers/world-7/clamWork';
 
 describe('clam work upgrade optimizer', () => {
-  const { data, charNames, companion, guildData, serverVars } = raw;
-  const { account, characters } = parseData(data, charNames, companion, guildData, serverVars);
+  const { account, characters } = parseFixture(raw);
   const view = parseClamWork(account, null, 3585);
   const optimizerAccount = { ...account, clamWork: { ...account.clamWork, upgrades: view.upgrades, pearls: view.pearls } };
   const plan = (category, max) => getOptimizedClamWorkUpgrades(characters[0], optimizerAccount, category, max, {

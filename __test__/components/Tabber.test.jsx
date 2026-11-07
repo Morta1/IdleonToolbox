@@ -23,9 +23,11 @@ const renderTabber = (count, props = {}) => render(
 );
 
 describe('Tabber', () => {
+  // Left to MUI rather than overriding its layout.
   it('centres a tab row that is short enough to render unscrolled, when asked', () => {
     const { container } = renderTabber(7, { align: 'center' });
     expect(container.querySelector('.MuiTabs-centered')).toBeTruthy();
+    expect(getComputedStyle(container.querySelector('.MuiTabs-flexContainer')).justifyContent).not.toBe('safe center');
   });
 
   // MUI ignores `centered` once the tabs go scrollable, which is what left-aligned an 8-tab page.
@@ -36,12 +38,6 @@ describe('Tabber', () => {
     expect(container.querySelector('.MuiTabs-centered')).toBeNull();
     const flexContainer = container.querySelector('.MuiTabs-flexContainer');
     expect(getComputedStyle(flexContainer).justifyContent).toBe('safe center');
-  });
-
-  it('leaves the non-scrollable centred row to MUI rather than overriding its layout', () => {
-    const { container } = renderTabber(7, { align: 'center' });
-    const flexContainer = container.querySelector('.MuiTabs-flexContainer');
-    expect(getComputedStyle(flexContainer).justifyContent).not.toBe('safe center');
   });
 
   it('left-aligns the strip by default, for either row length', () => {

@@ -37,15 +37,11 @@ const renderPage = () => render(
 const cardText = (title) => screen.getByText(title).closest('[data-stat-tile]').textContent;
 
 describe('Clam Work page', () => {
-  it('renders the clam stat cards', () => {
+  it('renders the clam stat cards, and recalculates pearl value from the multikill input', () => {
     renderPage();
     expect(cardText('Worker class')).toContain('Lv 5');
     expect(cardText('Clam mobs')).toContain('13');
     expect(cardText('Black pearl value')).toContain('450');
-  });
-
-  it('recalculates pearl value from the multikill input', () => {
-    renderPage();
     expect(cardText('Pearl value multiplier')).toContain('41');
     fireEvent.click(screen.getByRole('button', { name: /Page settings/ }));
     // Well above the auto-suggested multikill, so the override has to visibly move the value.

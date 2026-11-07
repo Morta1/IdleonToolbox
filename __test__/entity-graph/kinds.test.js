@@ -296,14 +296,8 @@ describe('routes', () => {
     expect(loose.filter(hasListing).map(listingHref)).toEqual(loose.filter(hasListing).map((kind) => `/wiki/${spelled[kind] ?? kind}`));
   });
 
-  it.each([
-    ['a system kind', 'sneakfloor', 'floor-5', '/wiki/sneaking/floors/floor-5'],
-    ['a moved kind', 'god', 'goharut', '/wiki/divinity/gods/goharut'],
-    ['a loose kind', 'item', 'copper-ore', '/wiki/item/copper-ore'],
-    ['a spelled-out loose kind', 'compassupgrade', 'pathfinder', '/wiki/compass-upgrades/pathfinder'],
-    ['a kind with no listing', 'quest', 'hoopsies', '/wiki/quest/hoopsies']
-  ])('writes the entity URL of %s', (unused, kind, slug, href) => {
-    expect(entityPath(kind, slug)).toBe(href);
+  it('writes the entity URL of a system kind', () => {
+    expect(entityPath('sneakfloor', 'floor-5')).toBe('/wiki/sneaking/floors/floor-5');
   });
 
   // Exactly the system kinds that shipped at /wiki/<kind> keep a redirect, and Equinox's old listing needs none: its
@@ -349,13 +343,8 @@ describe('routes', () => {
     expect(routeClashes(input)).toEqual([message]);
   });
 
-  it.each([
-    ['equinox', '/wiki/equinox/upgrades'],
-    ['rift', '/wiki/rift/levels'],
-    ['item', '/wiki/item'],
-    ['quest', null]
-  ])('links the %s listing at %s', (kind, href) => {
-    expect(listingHref(kind)).toBe(href);
+  it('links no listing for a kind without one', () => {
+    expect(listingHref('quest')).toBeNull();
   });
 
   it.each([

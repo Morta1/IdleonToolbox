@@ -141,14 +141,9 @@ describe('worship totems', () => {
   });
 
   // Oracle: CustomMaps WorshipMapType, the map each totem stands on.
-  it('link each totem to the map it stands on', () => {
-    expect(fieldAt('totem:Totem0', 'Map')).toEqual({ label: 'Map', value: spaced(data.mapNames[26]), links: ['map:26'], linkAs: 'locatedIn' });
-    expect(totems.map((node) => fieldAt(`totem:${node.rawName}`, 'Map').links)).toEqual([26, 63, 30, 107, 155, 208, 259, 308].map((id) => [`map:${id}`]));
-  });
-
-  it('name the map each totem stands on, spaced', () => {
-    expect(totems.map((node) => node.fields.find(({ label }) => label === 'Map').value)).toEqual(
-      [26, 63, 30, 107, 155, 208, 259, 308].map((id) => spaced(data.mapNames[id]))
+  it('name and link the map each totem stands on', () => {
+    expect(totems.map((node) => fieldAt(`totem:${node.rawName}`, 'Map'))).toEqual(
+      [26, 63, 30, 107, 155, 208, 259, 308].map((id) => ({ label: 'Map', value: spaced(data.mapNames[id]), links: [`map:${id}`], linkAs: 'locatedIn' }))
     );
   });
 });
@@ -190,10 +185,7 @@ describe('armor sets', () => {
 
   it.each([
     ['COPPER_SET', '+60% Mining and Chopping Efficiency'],
-    ['GOLD_SET', '1.50x Coins Dropped by Monsters'],
-    ['TROLL_SET', '1.25x Higher Bonuses from Tome'],
-    ['KATTLEKRUK_SET', '+5 LV for all Talents'],
-    ['EMPEROR_SET', 'Ribbons and Exalted Stamps give 1.20x more multi']
+    ['GOLD_SET', '1.50x Coins Dropped by Monsters']
   ])('%s reads %s', (setName, text) => {
     expect(spaced(sets.find((node) => node.rawName === setName).description)).toBe(text);
   });

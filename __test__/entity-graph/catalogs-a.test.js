@@ -229,8 +229,8 @@ describe('real data', () => {
     expect(Object.keys(built.sigil)).toHaveLength(shared.sigils.length);
     // The unreleased arcade rows (74-79 since 2.3.540) read "who_knows" and get no page.
     expect(Object.keys(built.arcade)).toHaveLength(shared.arcadeShop.filter((upgrade) => !/who_knows/.test(upgrade.effect)).length);
-    // 94 rows, 14 of which are filler or the unreachable sign.
-    expect(Object.keys(built.starsign)).toHaveLength(80);
+    // The filler rows and the unreachable sign, priced at 999, get no page.
+    expect(Object.keys(built.starsign)).toHaveLength(shared.starSigns.filter((sign) => !/^Filler/i.test(sign.starName) && sign.cost < 999).length);
   });
 
   // One suite for the catalogs-a and catalogs-b builders alike. Star signs band by constellation

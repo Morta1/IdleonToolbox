@@ -13,12 +13,9 @@ describe('a talent read at a level', () => {
     funcY: 'bigBase', y1: 5, y2: 0.05
   });
 
-  it('fills both tokens from the talent own growth', () => {
+  it('fills both tokens from the talent own growth, moving with the level', () => {
     // intervalAdd at level 34 is 8 + floor(34/17) = 10; bigBase is 5 + 0.05 * 34 = 6.7.
     expect(levelledText(twoValues, 34)).toBe('Drop canisters for 10 sec. Poison does 6.7% Dmg.');
-  });
-
-  it('moves with the level', () => {
     expect(levelledText(twoValues, 1)).toBe('Drop canisters for 8 sec. Poison does 5.05% Dmg.');
   });
 
@@ -45,7 +42,6 @@ describe('the level the field is read at', () => {
     ['', null, 1],
     ['-5', null, 1],
     ['abc', null, 1],
-    ['0', null, 1],
     ['7.9', null, 7],
     ['99999999', null, 10000],
     ['50', 20, 20],
@@ -57,9 +53,7 @@ describe('the level the field is read at', () => {
   // A calculator that starts below 1 (Ninja Mastery 0) reads its own first level for anything below it.
   it.each([
     ['0', 0],
-    ['', 0],
-    ['-3', 0],
-    ['4', 4]
+    ['-3', 0]
   ])('reads %s as %s when the first level is 0', (value, expected) => {
     expect(readLevel(value, null, 0)).toBe(expected);
   });

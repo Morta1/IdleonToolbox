@@ -6,6 +6,7 @@ import latest from '../fixtures/latest.json';
 import highend from '../fixtures/highend.json';
 import fresh from '../fixtures/fresh.json';
 import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
+import { expectNoBreaks } from '../helpers/sweep';
 import { PAGES } from '@components/constants';
 import { DESCRIPTORS, descriptorsForRoute, getDescriptor, withDescriptors } from '@utility/goals/registry';
 import { DESCRIPTOR_FIELDS, METRIC_FIELDS } from '@utility/goals/registry/fields';
@@ -43,100 +44,105 @@ const pageRoutes = () => [
   ...Object.keys(PAGES.TOOLS).map((key) => `/tools/${kebab(key)}`)
 ];
 
-describe.each(DESCRIPTORS.map((d) => [d.system, d]))('%s descriptor', (system, d) => {
+// A value the UI can read that is not a number, or a max or a price that cannot be one.
+const valueProblems = (d, ctx) => {
+  const rows = d.list(ctx);
+  return Object.entries(d.metrics).flatMap(([name, m]) => [
+    ...rows.flatMap((row) => {
+      const max = m.max?.(row, ctx) ?? null;
+      const price = m.cost?.price(row, ctx);
+      return [
+        ...(Number.isFinite(m.value(row, ctx)) ? [] : [`${name} ${d.key(row)} value`]),
+        ...(max === null || (Number.isFinite(max) && max > 0) ? [] : [`${name} ${d.key(row)} max ${max}`]),
+        ...(!m.cost || (price > 0 && Number.isFinite(price)) ? [] : [`${name} ${d.key(row)} price ${price}`])
+      ];
+    }),
+    ...(!m.cost || Number.isFinite(m.cost.have(ctx)) ? [] : [`${name} cost have`])
+  ]);
+};
+const everyDescriptor = (rule) => expectNoBreaks(DESCRIPTORS, ({ system }) => system, rule);
+
+describe('every descriptor', () => {
   it.each(Object.entries(fixtures))('%s: unique non-empty keys, finite values, null-or-positive max', (_, fx) => {
-    for (const ctx of contexts(d, parseFixture(fx))) {
-      const rows = d.list(ctx);
-      const keys = rows.map(d.key);
-      expect(keys.every((k) => typeof k === 'string' && k.length > 0)).toBe(true);
-      expect(new Set(keys).size).toBe(keys.length);
-      for (const [name, m] of Object.entries(d.metrics)) {
-        for (const row of rows) {
-          expect(Number.isFinite(m.value(row, ctx)), `${name} ${d.key(row)}`).toBe(true);
-          const max = m.max?.(row, ctx) ?? null;
-          expect(max === null || (Number.isFinite(max) && max > 0), `${name} max ${d.key(row)}`).toBe(true);
-          if (m.cost) expect(m.cost.price(row, ctx) > 0 && Number.isFinite(m.cost.price(row, ctx)), `${name} price ${d.key(row)}`).toBe(true);
-        }
-        if (m.cost) expect(Number.isFinite(m.cost.have(ctx)), `${name} cost have`).toBe(true);
-      }
-    }
+    everyDescriptor((d) => contexts(d, parseFixture(fx)).flatMap((ctx) => {
+      const keys = d.list(ctx).map(d.key);
+      return [
+        ...keys.filter((k) => !(typeof k === 'string' && k.length > 0)).map((k) => `bad key ${k}`),
+        ...(new Set(keys).size === keys.length ? [] : ['duplicate keys']),
+        ...valueProblems(d, ctx)
+      ];
+    }));
+  });
+
+  it('an empty account lists without throwing, with finite values and a null-or-positive max', () => {
+    everyDescriptor((d) => contexts(d, parseEmpty()).flatMap((ctx) => valueProblems(d, ctx)));
   });
 
   it('uses only known fields; a yes/no metric names its verb from the known set; only yes/no metrics have a verb or a cost', () => {
-    expect(Object.keys(d).filter((field) => !DESCRIPTOR_FIELDS.includes(field))).toEqual([]);
-    expect(Object.entries(d.metrics).flatMap(([name, m]) => Object.keys(m).filter((field) => !METRIC_FIELDS.includes(field))
-      .map((field) => `${name}.${field}`))).toEqual([]);
-    for (const [name, m] of Object.entries(d.metrics)) {
-      if (m.boolean) expect(['buy', 'unlock', 'own', undefined], name).toContain(m.verb);
-      else expect([m.verb, m.cost], name).toEqual([undefined, undefined]);
-    }
+    everyDescriptor((d) => [
+      ...Object.keys(d).filter((field) => !DESCRIPTOR_FIELDS.includes(field)),
+      ...Object.entries(d.metrics).flatMap(([name, m]) => [
+        ...Object.keys(m).filter((field) => !METRIC_FIELDS.includes(field)).map((field) => `${name}.${field}`),
+        ...(m.boolean
+          ? (['buy', 'unlock', 'own', undefined].includes(m.verb) ? [] : [`${name} verb ${m.verb}`])
+          : (m.verb === undefined && m.cost === undefined ? [] : [`${name} is not yes/no but has a verb or cost`]))
+      ])
+    ]);
   });
 
   // Without a verb the words come from the label, so the label must read as one word for the done state
   it('every yes/no metric reads as a not yet / done pair', () => {
-    for (const [name, m] of Object.entries(d.metrics).filter(([, metric]) => metric.boolean)) {
+    everyDescriptor((d) => Object.entries(d.metrics).filter(([, metric]) => metric.boolean).flatMap(([name, m]) => {
       const { open, done } = booleanWords({ verb: m.verb, metricLabel: m.label });
-      expect([/^[A-Z][a-z]+$/.test(done), open, m.verb ? done : m.label], name)
-        .toEqual([true, `Not ${done.toLowerCase()} yet`, done]);
-    }
+      return /^[A-Z][a-z]+$/.test(done) && open === `Not ${done.toLowerCase()} yet` && (m.verb ? done : m.label) === done
+        ? [] : [`${name} reads ${open} / ${done}`];
+    }));
   });
 
   it('the same entry has the same key in latest and highend', () => {
-    const [a] = contexts(d, parseFixture(latest));
-    const [b] = contexts(d, parseFixture(highend));
-    const other = new Map(d.list(b).map((row) => [d.name(row), d.key(row)]));
-    const sample = d.list(a).filter((row) => other.has(d.name(row))).slice(0, 5);
-    // outposts are built entries: the highend save has none to compare
-    if (d.system !== 'outpost') expect(sample.length).toBeGreaterThan(0);
-    for (const row of sample) expect(d.key(row)).toBe(other.get(d.name(row)));
+    everyDescriptor((d) => {
+      const [a] = contexts(d, parseFixture(latest));
+      const [b] = contexts(d, parseFixture(highend));
+      const other = new Map(d.list(b).map((row) => [d.name(row), d.key(row)]));
+      const sample = d.list(a).filter((row) => other.has(d.name(row))).slice(0, 5);
+      // outposts are built entries: the highend save has none to compare
+      return [
+        ...(sample.length || d.system === 'outpost' ? [] : ['no entry in common to compare']),
+        ...sample.filter((row) => d.key(row) !== other.get(d.name(row))).map((row) => `${d.name(row)} moved key`)
+      ];
+    });
   });
 
   it('every icon is a colour or exists under public/', () => {
-    const [ctx] = contexts(d, parseFixture(latest));
-    const rows = (d.iconRows ?? ((r) => r))(d.list(ctx), ctx);
-    expect(rows.length).toBeGreaterThan(0);
-    for (const row of rows) {
-      const icon = d.icon(row);
-      expect(!!swatchColor(icon) || existsSync(join(process.cwd(), 'public', `${icon}.png`)), icon).toBe(true);
-    }
+    everyDescriptor((d) => {
+      const [ctx] = contexts(d, parseFixture(latest));
+      const rows = (d.iconRows ?? ((r) => r))(d.list(ctx), ctx);
+      return [
+        ...(rows.length ? [] : ['no rows to check']),
+        ...rows.map(d.icon).filter((icon) => !swatchColor(icon) && !existsSync(join(process.cwd(), 'public', `${icon}.png`)))
+      ];
+    });
   });
 
   // iconRows narrows the check above to rows known to have art; this one covers every row the UI can
   // request, so art that only ships as <name>_x1.png is caught even when the fixture does not own it
   it.each(Object.entries(fixtures))('%s: every row with art requests the file that exists', (_, fx) => {
     const art = (path) => existsSync(join(process.cwd(), 'public', `${path}.png`));
-    const wrong = [];
-    for (const ctx of contexts(d, parseFixture(fx))) {
-      for (const row of d.list(ctx)) {
-        const icon = d.icon(row);
-        if (!icon || swatchColor(icon) || art(icon)) continue;
-        const base = icon.replace(/_x1$/, '');
-        if (art(base) || art(`${base}_x1`)) wrong.push(icon);
-      }
-    }
-    expect([...new Set(wrong)]).toEqual([]);
+    everyDescriptor((d) => [...new Set(contexts(d, parseFixture(fx)).flatMap((ctx) => d.list(ctx).map(d.icon)))].filter((icon) => {
+      if (!icon || swatchColor(icon) || art(icon)) return false;
+      const base = icon.replace(/_x1$/, '');
+      return art(base) || art(`${base}_x1`);
+    }));
   });
 
   it('route is a page in PAGES and in GOAL_ROUTES', () => {
-    expect(pageRoutes()).toContain(d.route);
-    expect(GOAL_ROUTES[system]).toBe(d.route);
-    expect(hasGoals(d.route)).toBe(true);
-    expect(descriptorsForRoute(d.route).map((x) => x.system)).toContain(system);
-  });
-
-  it('empty account lists without throwing, with finite values and a null-or-positive max', () => {
-    for (const ctx of contexts(d, parseEmpty())) {
-      expect(() => d.list(ctx)).not.toThrow();
-      for (const [name, m] of Object.entries(d.metrics)) {
-        for (const row of d.list(ctx)) {
-          expect(Number.isFinite(m.value(row, ctx)), `${name} ${d.key(row)}`).toBe(true);
-          const max = m.max?.(row, ctx) ?? null;
-          expect(max === null || (Number.isFinite(max) && max > 0), `${name} max ${d.key(row)}`).toBe(true);
-          if (m.cost) expect(m.cost.price(row, ctx) > 0 && Number.isFinite(m.cost.price(row, ctx)), `${name} price ${d.key(row)}`).toBe(true);
-        }
-        if (m.cost) expect(Number.isFinite(m.cost.have(ctx)), `${name} cost have`).toBe(true);
-      }
-    }
+    const pages = pageRoutes();
+    everyDescriptor(({ system, route }) => [
+      ...(pages.includes(route) ? [] : [`${route} is not a page`]),
+      ...(GOAL_ROUTES[system] === route ? [] : [`GOAL_ROUTES says ${GOAL_ROUTES[system]}`]),
+      ...(hasGoals(route) ? [] : [`${route} has no goals`]),
+      ...(descriptorsForRoute(route).some((x) => x.system === system) ? [] : [`${route} does not list it`])
+    ]);
   });
 });
 
@@ -171,18 +177,22 @@ describe('tab to system map', () => {
     return categories.flatMap(([list, label]) => getTabs(list, label, ...path));
   };
 
-  it.each(Object.entries(GOAL_TABS))('%s maps real page tabs to that page systems', (route, tabs) => {
-    expect(Object.keys(tabs).filter((tab) => !pageTabs(route).includes(tab))).toEqual([]);
-    const nodes = tabNodes(route, tabs);
-    expect(nodes.filter(({ path }) => !realTabs(route, path.slice(0, -1)).includes(path.at(-1))).map(({ path }) => path)).toEqual([]);
-    expect(nodes.filter(({ system }) => GOAL_ROUTES[system] !== route).map(({ path }) => path)).toEqual([]);
+  it('every mapped page maps real page tabs to that page systems', () => {
+    expectNoBreaks(Object.entries(GOAL_TABS), ([route]) => route, ([route, tabs]) => {
+      const nodes = tabNodes(route, tabs);
+      return [
+        ...Object.keys(tabs).filter((tab) => !pageTabs(route).includes(tab)),
+        ...nodes.filter(({ path }) => !realTabs(route, path.slice(0, -1)).includes(path.at(-1))).map(({ path }) => path.join(' > ')),
+        ...nodes.filter(({ system }) => GOAL_ROUTES[system] !== route).map(({ path }) => `${path.join(' > ')} is a system of another page`)
+      ];
+    });
   });
 
   // a nested tab clicked before any top tab leaves `t` out of the query, so the first map key must be the page's first tab
-  it.each(Object.entries(GOAL_TABS).filter(([, tabs]) => Object.values(tabs).some((node) => typeof node !== 'string')))(
-    '%s lists the first page tab first', (route, tabs) => {
-      expect(Object.keys(tabs)[0]).toBe(pageTabs(route)[0]);
-    });
+  it('a page with nested tabs lists its first page tab first', () => {
+    expectNoBreaks(Object.entries(GOAL_TABS).filter(([, tabs]) => Object.values(tabs).some((node) => typeof node !== 'string')), ([route]) => route,
+      ([route, tabs]) => (Object.keys(tabs)[0] === pageTabs(route)[0] ? [] : [`starts at ${Object.keys(tabs)[0]}, not ${pageTabs(route)[0]}`]));
+  });
 
   it.each([
     ['a mapped tab', { t: 'Measure' }, 'measurement'],
@@ -304,11 +314,13 @@ const catalogKeys = {
   tesseractMap: () => getFilteredPortals().map(({ mapIndex }) => String(mapIndex))
 };
 describe('filtered lists keep catalog keys', () => {
-  it.each(Object.keys(catalogKeys).flatMap((system) => Object.keys(fixtures).map((name) => [system, name])))(
-    '%s in %s', (system, name) => {
-      const parsed = parseFixture(fixtures[name]);
-      expect(getDescriptor(system).list(parsed).map(getDescriptor(system).key)).toEqual(catalogKeys[system](parsed));
-    });
+  it.each(Object.keys(catalogKeys))('%s', (system) => {
+    const d = getDescriptor(system);
+    for (const fx of Object.values(fixtures)) {
+      const parsed = parseFixture(fx);
+      expect(d.list(parsed).map(d.key)).toEqual(catalogKeys[system](parsed));
+    }
+  });
 });
 
 // The page sorts these by what you own, so the order moves with the save; the key set must not.
@@ -319,11 +331,12 @@ const sortedCatalogKeys = {
   nametag: () => itemsArray.filter((item) => item?.Type === 'NAMETAG').map((item) => item.rawName)
 };
 describe('sorted lists keep catalog keys', () => {
-  it.each(Object.keys(sortedCatalogKeys).flatMap((system) => Object.keys(fixtures).map((name) => [system, name])))(
-    '%s in %s', (system, name) => {
-      const parsed = parseFixture(fixtures[name]);
-      expect(getDescriptor(system).list(parsed).map(getDescriptor(system).key).toSorted()).toEqual(sortedCatalogKeys[system]().toSorted());
-    });
+  it.each(Object.keys(sortedCatalogKeys))('%s', (system) => {
+    const d = getDescriptor(system);
+    for (const fx of Object.values(fixtures)) {
+      expect(d.list(parseFixture(fx)).map(d.key).toSorted()).toEqual(sortedCatalogKeys[system]().toSorted());
+    }
+  });
 });
 
 // Membership comes from the catalog (or a rule over it) that the descriptor filters, so no fixture may add or drop an entry.

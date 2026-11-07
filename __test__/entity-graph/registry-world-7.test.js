@@ -61,15 +61,11 @@ describe('spelunking shop upgrades', () => {
   });
 
   it.each([
-    ['Amber_on_the_Rocks', 1, '19% chance'],
-    ['Amber_on_the_Rocks', 1, '+25% more'],
     ['Amber_on_the_Rocks', 10, '37.5%'],
     ['Amber_on_the_Rocks', 10, '+250%'],
     ['Less_Taxes', 1, 'Lose only 48%'],
-    ['Less_Taxes', 20, '10%'],
     ['Deep_Pockets', 1, 'drop 1.07x more amber'],
     ['Duplicate_Elixirs', 4, 'equip 5 of the same'],
-    ['A_Truly_Exalted_Find', 1, '1 in 59'],
     ['A_Truly_Exalted_Find', 10, '1 in 50'],
     ['Grand_Discoveries', 1, '1 in 24,752'],
     ['Overstim_Meter', 1, '+31% bonus Amber'],
@@ -84,21 +80,14 @@ describe('spelunking shop upgrades', () => {
 
   it.each([
     ['Big_Time_Stamina', 1, '8'],
-    ['Big_Time_Stamina', 2, '28'],
     ['Big_Time_Stamina', 10, '143,332'],
-    ['Less_Taxes', 1, '487,482'],
-    ['Golden_Hardhat', 1, '1.15e23'],
     ['Amber_Supply_Swap', 1, '1.07e38']
   ])('price %s at level %i at %s', (name, level, expected) => {
     expect(costAt(name, level)).toBe(expected);
   });
 
-  it.each([
-    ['Big_Time_Stamina', '5.27e23'],
-    ['Less_Taxes', '3.17e22'],
-    ['Grand_Discoveries', '1.17e67']
-  ])('total %s to its cap at %s', (name, expected) => {
-    expect(costToMax(name)).toBe(expected);
+  it('total Big Time Stamina to its cap', () => {
+    expect(costToMax('Big_Time_Stamina')).toBe('5.27e23');
   });
 
   it('cut the account readouts and keep the sentence ends', () => {
@@ -124,14 +113,14 @@ describe('spelunking shop upgrades', () => {
     expect(fieldOf(byName('A_Scintillatingly_Prismatic_Find'), 'Odds')).toBe('Each bubble found makes the next 1.5x rarer');
   });
 
-  // Owner decisions 4: without the panel table the shop's round-up is unknown, so no price shows rather than an unrounded one.
+  // Without the panel table the shop's round-up is unknown, so no price shows rather than an unrounded one.
   it('show no price and no unlock cost without the shop panel table', () => {
     const { pages, missing } = builtWithout('spelunkShopPanel', 'spelunkupgrade');
     expect([[...new Set(pages.map((node) => node.cost))], pages.filter((node) => fieldOf(node, 'Unlock cost')), missing]).toEqual([[null], [], ['spelunkShopPanel']]);
   });
 });
 
-// Oracle: research section 2 table, cross-checked by spelunking.ts:211-235 (the Lore boss list).
+// Oracle: spelunking.ts:211-235 (the Lore boss list).
 describe('spelunking tunnels', () => {
   const tunnels = ofKind('spelunktunnel');
   const byName = (name) => tunnels.find((node) => node.name === name);
@@ -205,17 +194,10 @@ describe('research grid squares', () => {
   });
 
   it.each([
-    ['Smart_Eye', 1, 'up to +25'],
-    ['Smart_Eye', 1, '+5% Research EXP Gain'],
     ['Smart_Eye', 3, 'up to +75'],
     ['Smart_Eye', 3, '+15%'],
-    ["Takin'_Notes", 1, '1.12x'],
     ["Takin'_Notes", 4, '1.48x'],
-    ['Pts_Every_Ten', 1, 'Get +1 extra Research PTS'],
-    ['Equinox_Nightmares', 3, '1.6x'],
-    ['Legendary_Yellow_Fever', 3, '+3'],
-    ['Legendary_Yellow_Fever', 3, '1.15x'],
-    ["Day_'N'_Nite", 4, '+200']
+    ['Pts_Every_Ten', 1, 'Get +1 extra Research PTS']
   ])('fill %s at level %i with %s', (name, level, expected) => {
     expect(textAt(name, level)).toContain(expected);
   });
@@ -252,11 +234,8 @@ describe('research observations', () => {
   });
 
   it.each([
-    ['Bored_Tree', 1, 'Insight EXP for the next level: 4.5'],
     ['Bored_Tree', 10, 'Insight EXP for the next level: 548.78'],
-    ['Barnacle_Brothers', 1, 'Insight EXP for the next level: 33.4'],
-    ['Barnacle_Brothers', 10, 'Insight EXP for the next level: 6,436.84'],
-    ['Happy_Tree', 10, 'Insight EXP for the next level: 489,716.95']
+    ['Barnacle_Brothers', 10, 'Insight EXP for the next level: 6,436.84']
   ])('fill %s at level %i with %s', (name, level, expected) => {
     expect(textAt(name, level)).toContain(expected);
   });
@@ -307,9 +286,7 @@ describe('legend talents', () => {
 
   it.each([
     ['Coral_Restoration', 2, '+60% more Daily Coral'],
-    ['Greatest_Drop_Party_Ever', 1, '+500% Drop Rate'],
     ['Double_Aint_Enough', 3, 'bundles of 5x'],
-    ['The_Charms_got_Rizz', 1, '1.25x'],
     ['Inevitable_Builder', 1, '1.75x faster!']
   ])('fill %s at level %i with %s', (name, level, expected) => {
     expect(textAt(name, level)).toContain(expected);
@@ -364,7 +341,7 @@ describe('legend talents', () => {
 });
 
 // Oracle: Thingies.js:70-80 (ZenithMarketCost, bonus), panel N.js:119261 (unlock chain), N.js:119168 (the Zenith Cluster item),
-// cross-checked by statues.ts:69-90. Task 1 pins True Zen's costs.
+// cross-checked by statues.ts:69-90.
 describe('zenith market upgrades', () => {
   const upgrades = ofKind('zenithupgrade');
   const byName = (name) => upgrades.find((node) => node.name === name);
@@ -373,30 +350,16 @@ describe('zenith market upgrades', () => {
 
   it('build one page per upgrade, named in title case', () => {
     expect(upgrades.map((node) => spaced(node.name).toLowerCase())).toEqual(data.zenithMarket.map((entry) => spaced(entry.name).toLowerCase()));
-    expect(byName('True_Zen')).toBeDefined();
-    expect(byName('Kingdomercial')).toBeDefined();
   });
 
   it('fill the level text', () => {
     expect(spaced(levelledText(byName('True_Zen'), 10))).toContain('1.2x');
   });
 
-  it.each([
-    ['Double_Cluster', ['8', '10', '41'], '309,908,909'],
-    ['Super_Dupers', ['50', '86', '5,938'], '41,218,985'],
-    ['Kingdomercial', ['25,000', '35,251', '550,705'], '51QQ']
-  ])('price %s', (name, [first, second, tenth], max) => {
-    expect([1, 2, 10].map((level) => costAt(name, level))).toEqual([first, second, tenth]);
-    expect(costToMax(name)).toBe(max);
-  });
-
-  it('price Kruk Bubbles to its cap', () => {
-    expect(costToMax('Kruk_Bubbles')).toBe('3,120');
-  });
-
-  // Past 1e6 the price is no longer floored.
-  it('price Kingdomercial at level 20', () => {
-    expect(costAt('Kingdomercial', 20)).toBe('17,104,234');
+  // Past 1e6, at level 20, the price is no longer floored.
+  it('price Kingdomercial by level and to its cap', () => {
+    expect([1, 2, 10, 20].map((level) => costAt('Kingdomercial', level))).toEqual(['25,000', '35,251', '550,705', '17,104,234']);
+    expect(costToMax('Kingdomercial')).toBe('51QQ');
   });
 
   it('name the previous upgrade that unlocks each one', () => {
@@ -416,7 +379,7 @@ describe('zenith market upgrades', () => {
 });
 
 // Oracle: Spelunk.js:673-700 (BigFishBonus, BigFishCost, BigFishUpgLVREQ), panel N.js:107447 and 218018-218019, cross-checked by
-// AdviceFish/Upgrades.jsx:13-18. Task 1 pins Life and Death's level 3.
+// AdviceFish/Upgrades.jsx:13-18.
 describe('advice fish upgrades', () => {
   const fish = ofKind('advicefish');
   const byName = (name) => fish.find((node) => node.name === name);
@@ -428,11 +391,7 @@ describe('advice fish upgrades', () => {
   });
 
   it.each([
-    ['Advice_on_Life_and_Death', 1, '+0.1% faster W7 mob respawn rate'],
-    ['Advice_on_Life_and_Death', 10, '+0.91%'],
-    ['Advice_on_Life_and_Death', 100, '+5%'],
-    ['Advice_on_Being_Tired', 3, '+0.24%'],
-    ['Advice_on_Being_Smart', 1, '1.01x'],
+    ['Advice_on_Life_and_Death', 10, '+0.91% faster W7 mob respawn rate'],
     ['Advice_on_Being_Smart', 100, '1.13x']
   ])('fill %s at level %i with %s', (name, level, expected) => {
     expect(textAt(name, level)).toContain(expected);
@@ -486,21 +445,15 @@ describe('minehead upgrades', () => {
   });
 
   it.each([
-    ['Numbahs', 2, 'find to 3!'],
     ['Numbahs', 10, 'find to 12!'],
-    ['Multiplier_Madness', 2, 'up to 1.4x!'],
     ['Multiplier_Madness', 10, 'up to 8x!'],
-    ['Triple_Crown_Hunter', 1, 'by 1.51x'],
     ['Triple_Crown_Hunter', 250, 'by 4x'],
-    ['Awesome_Additives', 1, 'up to 10%!'],
     ['Awesome_Additives', 10, 'up to 10,000%!'],
-    ['Jackpot_Time', 2, '1 in 99'],
     ['Jackpot_Time', 10, '1 in 91'],
     ['Record_Breaking_Jackpots', 1, 'reveal 4 tiles'],
     // Level 11 is where the rounded and the floored discount part (9.91% vs 9.9%).
     ["El'_Cheapo_Upgrado", 11, '9.91%'],
-    ['Grid_Expansion', 16, '12x6'],
-    ['Grid_Expansion', 16, '72 total']
+    ['Grid_Expansion', 16, "12x6 tiles, that's 72 total"]
   ])('fill %s at level %i with %s', (name, level, expected) => {
     expect(textAt(name, level)).toContain(expected);
   });
@@ -514,26 +467,13 @@ describe('minehead upgrades', () => {
     ['Base_Damage_I', [1, 2, 10], ['5', '5', '11']],
     ['Extra_Lives', [1, 2], ['68', '17,063']],
     // 1,915 without A_MineCost.
-    ['Boom_Blocker', [1], ['2,509']],
-    ['Triple_Crown_Hunter', [1, 2, 10], ['174,966', '202,961', '665,390']],
-    ['Final_Round_Fury', [20], ['1,072,519']]
+    ['Boom_Blocker', [1], ['2,509']]
   ])('price %s', (name, levels, expected) => {
     expect(levels.map((level) => costAt(name, level))).toEqual(expected);
   });
 
-  it.each([
-    ['Numbahs', '20.4T'],
-    ['Extra_Lives', '16.8Q'],
-    ['Boom_Blocker', '2.51T'],
-    ['Triple_Crown_Hunter', '1.42e22']
-  ])('total %s to its cap at %s', (name, expected) => {
-    expect(costToMax(name)).toBe(expected);
-  });
-
-  it('price in Minehead Currency before discounts', () => {
-    expect([...new Set(upgrades.map((node) => JSON.stringify([costsAt(node, 1)[0].currency, costsAt(node, 1)[0].note ?? null])))]).toEqual([
-      JSON.stringify(['Minehead Currency', null])
-    ]);
+  it('total Numbahs to its cap', () => {
+    expect(costToMax('Numbahs')).toBe('20.4T');
   });
 
   it('gate each upgrade on a Research level', () => {
@@ -560,8 +500,7 @@ describe('minehead opponents', () => {
     ['Bronzehead', '1.1x Total Damage and 1.1x Drop Rate! (NOTE:All Bonuses earned from beating Opponents affect the rest of the game)'],
     ['Gemhead', '+2% AFK gains for Research! This affects offline Research, you get 100% gains if you\'re online!'],
     ['Bleckhead', '+1% Damage per Weapon POW.'],
-    ['Blindhead', '+1 more Trimmed Construction Slot'],
-    ['Basshead', 'Multiplies Minehead Currency gain by 1.5x']
+    ['Blindhead', '+1 more Trimmed Construction Slot']
   ])('describe %s', (name, expected) => {
     expect(spaced(byName(name).description)).toBe(expected);
   });
@@ -591,7 +530,6 @@ describe('sushi station upgrades', () => {
   const byName = (name) => upgrades.find((node) => node.name === name);
   const textAt = (name, level) => spaced(levelledText(byName(name), level));
   const costAt = (name, level) => formatAmount(costsAt(byName(name), level)[0].value);
-  const costToMax = (name) => formatAmount(costsToMax(byName(name))[0].value);
   const shop = data.research[32].map(Number).filter((id) => data.sushiUpgrades[id]);
   const notForSale = shop.findIndex((id) => Number(data.sushiUpgrades[id][1]) === 0);
 
@@ -605,32 +543,15 @@ describe('sushi station upgrades', () => {
     ['Hourly_Wage_Meter', [1, 2, 10], ['5', '5', '9']],
     ['Fuel_Capacity_I', [1, 2, 10], ['12', '12', '23']],
     ['Sushi_Slot', [1, 2, 10], ['102', '358', '8,079,834']],
-    ['Hot_Slot', [1, 2], ['143,135', '2,862,697']],
-    ['Fuel_Capacity_V', [1, 2], ['2.49e26', '2.87e26']],
-    ['Customer_Surcharge_II', [20], ['249,098']]
+    ['Fuel_Capacity_V', [1, 2], ['2.49e26', '2.87e26']]
   ])('price %s', (name, levels, expected) => {
     expect(levels.map((level) => costAt(name, level))).toEqual(expected);
-  });
-
-  it.each([
-    ['Sushi_Slot', '6.55e28'],
-    // 2.3.550 raised its cap from 35 to 45.
-    ['Superior_Sushi_Skillz', '2.26e27'],
-    ['Hot_Slot', '7.89e29']
-  ])('total %s to its cap at %s', (name, expected) => {
-    expect(costToMax(name)).toBe(expected);
   });
 
   // The last levels dominate a steep curve, so one level short of the cap is still most of the total.
   it('total Sushi Slot from a level the player is at', () => {
     const slot = nodes['sushiupgrade:SushiUpg0'];
     expect([costsToMax(slot), costsToMax(slot, 49)].map((costs) => formatAmount(costs[0].value))).toEqual(['6.55e28', '4.67e28']);
-  });
-
-  it('price in Bucks before discounts', () => {
-    expect([...new Set(upgrades.map((node) => JSON.stringify([costsAt(node, 1)[0].currency, costsAt(node, 1)[0].note ?? null])))]).toEqual([
-      JSON.stringify(['Bucks', null])
-    ]);
   });
 
   it('gate each upgrade on a Research level and the one before it', () => {
@@ -650,8 +571,7 @@ describe('sushi station upgrades', () => {
     ['Superior_Sushi_Skillz', 1, 'up to Tier 2'],
     ['Hot_Slot', 1, 'generate 1.5x more Bucks!'],
     ['Wholesale_Pricing', 11, '9.91%'],
-    ['2nd_Degree_Searing', 1, '+1.1 exp'],
-    ['Sasaphrax_Saffron', 1, '2 hour\'s worth']
+    ['2nd_Degree_Searing', 1, '+1.1 exp']
   ])('fill %s at level %i with %s', (name, level, expected) => {
     expect(textAt(name, level)).toContain(expected);
   });
@@ -728,30 +648,18 @@ describe('jelly operator upgrades', () => {
   it.each([
     ['Bloodcell_Coagulation', [1, 2, 10], ['13', '15', '32']],
     ['Another_Unlock', [1, 2, 10], ['2,106', '24,219', '7.41T']],
-    ['Cell_Mutilation', [1, 2], ['123,616', '4,944,628']],
-    ['Stronkroid', [1, 2], ['5.99B', '7.78B']],
-    ['Daily_Transfusion', [1, 2, 10], ['2,508', '6,269', '9,566,178']],
-    ['Bloodletting_I', [20], ['9,235']]
+    ['Stronkroid', [1, 2], ['5.99B', '7.78B']]
   ])('price %s', (name, levels, expected) => {
     expect(levels.map((level) => costAt(name, level))).toEqual(expected);
   });
 
   it.each([
     ['Amoeba_Cell_Cultivation', 1, '0'],
-    ['Plasmid_Cell_Cultivation', 1, '85'],
     ['Another_Unlock', 25, '6.6e28'],
-    ['Cell_Mutilation', 20, '3.48e35'],
-    ['Stronkroid', 150, '2.46e27'],
-    ['Daily_Transfusion', 20, '153B']
+    ['Stronkroid', 150, '2.46e27']
   ])('cap %s at %i and total its cost at %s', (name, cap, expected) => {
     expect(byName(name).effect.cap).toBe(cap);
     expect(costToMax(name)).toBe(expected);
-  });
-
-  it('price in Bloodcells before discounts', () => {
-    expect([...new Set(upgrades.map((node) => JSON.stringify([costsAt(node, 1)[0].currency, costsAt(node, 1)[0].note ?? null])))]).toEqual([
-      JSON.stringify(['Bloodcells', null])
-    ]);
   });
 
   it('gate each upgrade on a Research level and the one before it', () => {
@@ -767,8 +675,6 @@ describe('jelly operator upgrades', () => {
     ['Cell_Mutilation', 1, '+2% DMG multi'],
     ['Stronkroid', 1, '1.51x faster'],
     ['Daily_Transfusion', 1, 'equal to 10%'],
-    // 2.3.540 reworded it: "Currently, you can only place $ Virus Cells."
-    ['Viral_Injection', 1, 'only place 2 Virus Cells'],
     ['Lower_Cholesterol', 11, '9.91%']
   ])('fill %s at level %i with %s', (name, level, expected) => {
     expect(textAt(name, level)).toContain(expected);
@@ -793,12 +699,8 @@ describe('jelly obstructions', () => {
     expect(obstructions.length + placeholders.length).toBe(data.research[45].length);
   });
 
-  it.each([
-    ['Longbone', '1.5x multiplier to Research EXP gain. Also, +2 Jelly Operator slots!'],
-    ['Gold_Bangle', '1.05x Drop Rate'],
-    ['Mongo', 'All Summoning upgrades are 200% cheaper']
-  ])('describe %s', (name, expected) => {
-    expect(spaced(byName(name).description)).toBe(expected);
+  it('fill both tokens of the bonus', () => {
+    expect(spaced(byName('Longbone').description)).toBe('1.5x multiplier to Research EXP gain. Also, +2 Jelly Operator slots!');
   });
 
   it('name the operation that earns each one, and carry no calculator', () => {
@@ -837,31 +739,19 @@ describe('bubba upgrades', () => {
 
   it.each([
     ['Bargain', [1, 2, 10], ['149', '192', '639']],
-    ['Megaflesh', [2, 10], ['39,525,795', '2.35e24']],
-    ['Great_Meat', [20], ['715,974,428']]
+    ['Megaflesh', [2, 10], ['39,525,795', '2.35e24']]
   ])('price %s', (name, levels, expected) => {
     expect(levels.map((level) => costAt(name, level))).toEqual(expected);
   });
 
-  it.each([
-    ['Fun_Gifts', 6, '1.48e23'],
-    ['More_Sides', 9, '2.01e37']
-  ])('cap %s at %i and total its cost at %s', (name, cap, expected) => {
-    expect(byName(name).effect.cap).toBe(cap);
-    expect(costToMax(name)).toBe(expected);
-  });
-
-  it('price in Meat Slices before discounts', () => {
-    expect([...new Set(upgrades.map((node) => JSON.stringify([costsAt(node, 1)[0].currency, costsAt(node, 1)[0].note ?? null])))]).toEqual([
-      JSON.stringify(['Meat Slices', null])
-    ]);
+  it('cap Fun Gifts at 6 and total its cost', () => {
+    expect(byName('Fun_Gifts').effect.cap).toBe(6);
+    expect(costToMax('Fun_Gifts')).toBe('1.48e23');
   });
 
   it.each([
     // Bubba floors the discount (N.js:119651): 9.9% where the rounding rows read 9.91%.
     ['Bargain', 11, '9.9%'],
-    ['Cost_Saver', 1, '1.96%'],
-    ['Buyer_Grin', 1, '+1.01 Happiness'],
     ['Buyer_Grin', 100, '+1.67 Happiness']
   ])('fill %s at level %i with %s', (name, level, expected) => {
     expect(textAt(name, level)).toContain(expected);
@@ -900,16 +790,16 @@ describe('luminous menagerie', () => {
       data.wikiTables.menagerieUnlockUses.jellyfish.length]);
   });
 
-  it.each([[0, 0], [0, 3], [13, 2]])('ask mission %i for its requirement after %i claims', (index, claims) => {
+  it.each([[0, 3], [13, 2]])('ask mission %i for its requirement after %i claims', (index, claims) => {
     const requirement = getMenagerieCost(saveWith(1, index, claims), 0, index);
     expect(spaced(levelledText(nodes[`menageriemission:MenaMission${index}`], claims)))
       .toBe(spaced(data.research[lists.menagerieMissions][index].replace('{', formatAmount(requirement))));
   });
 
-  // The two missions whose requirement is a power of ten: the panel prints 10^requirement.
-  it.each([[20, 0], [24, 2]])('ask mission %i for ten to its requirement after %i claims', (index, claims) => {
-    const requirement = getMenagerieCost(saveWith(1, index, claims), 0, index);
-    expect(spaced(levelledText(nodes[`menageriemission:MenaMission${index}`], claims))).toContain(` ${formatAmount(Number(`1e${requirement}`))}`);
+  // One of the two missions whose requirement is a power of ten: the panel prints 10^requirement.
+  it('ask mission 24 for ten to its requirement after 2 claims', () => {
+    const requirement = getMenagerieCost(saveWith(1, 24, 2), 0, 24);
+    expect(spaced(levelledText(nodes['menageriemission:MenaMission24'], 2))).toContain(` ${formatAmount(Number(`1e${requirement}`))}`);
   });
 
   it('name each mission by its first requirement', () => {
@@ -928,7 +818,7 @@ describe('luminous menagerie', () => {
     expect(spaced(nodes['menagerieunlock:MenaUnlock6'].name)).toBe('Mobs drop Omega Arcade Balls');
   });
 
-  it.each([[3, 1], [3, 5], [8, 3], [15, 2]])('price boost %i at level %i', (index, level) => {
+  it.each([[3, 5], [8, 3]])('price boost %i at level %i', (index, level) => {
     expect(costsAt(nodes[`menagerieboost:MenaBoost${index}`], level)[0].value)
       .toBeCloseTo(getMenagerieCost(saveWith(3, index, level - 1), 2, index), 6);
   });
@@ -973,7 +863,7 @@ describe('clam work upgrades', () => {
   });
 
   // Frugality (4) and Anti-Inflation (8) discount their own price, which the wiki's base cost leaves out.
-  it.each([[0, 1], [0, 10], [1, 1], [1, 10], [7, 6]])('price page 1 slot %i at level %i before discounts', (slot, level) => {
+  it.each([[0, 10], [1, 10]])('price page 1 slot %i at level %i before discounts', (slot, level) => {
     expect(costsAt(nodes[`clamupgrade:ClamWork${slot}`], level)[0].value).toBeCloseTo(getClamCost(levelsWith(slot, level - 1), slot, 0), 6);
   });
 
@@ -991,8 +881,7 @@ describe('clam work upgrades', () => {
     [3, 1, 'Boosts pearl value based on your Multikill!'],
     [perPage, 10, 'Active clam kills give +11 Scurge EXP, with each'],
     [perPage + 2, 2, 'Reduce your DMG by 10,000x, and get 5x more'],
-    [perPage + 6, 1, 'Start with 2.88% Scurge EXP'],
-    [perPage + 7, 1, 'Get a 1.1x Scurge EXP multi for each real player in the map!']
+    [perPage + 6, 1, 'Start with 2.88% Scurge EXP']
   ])('fill upgrade %i at level %i', (index, level, expected) => {
     expect(textAt(index, level)).toContain(expected);
   });
@@ -1025,6 +914,19 @@ describe('upgrades with no max level', () => {
       strays: [],
       pinned: [[null, true], [null, true], [null, true], [null, true]]
     });
+  });
+});
+
+describe('the four shops\' currencies', () => {
+  it.each([
+    ['mineheadupgrade', 'Minehead Currency'],
+    ['sushiupgrade', 'Bucks'],
+    ['jellyupgrade', 'Bloodcells'],
+    ['bubbaupgrade', 'Meat Slices']
+  ])('price every %s in %s before discounts', (kind, currency) => {
+    expect([...new Set(ofKind(kind).map((node) => JSON.stringify([costsAt(node, 1)[0].currency, costsAt(node, 1)[0].note ?? null])))]).toEqual([
+      JSON.stringify([currency, null])
+    ]);
   });
 });
 

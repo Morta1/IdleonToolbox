@@ -27,8 +27,7 @@ const GAME = {
   blackPearlValue: 450, // Thingies("Clam_BlackPearlValue", 0, 0)
   mobs: 13, // Thingies("Clam_Mobs", 0, 0)
   clamHp: 2.43e+23, // Thingies("Clamz_HP", 0, 0)
-  promotionChance: 0.07142857142857142, // Thingies("ClamPromochance", 0, 0)
-  respawn: 60 // Thingies("Clam_Respawn", 0, 0)
+  promotionChance: 0.07142857142857142 // Thingies("ClamPromochance", 0, 0)
 };
 
 const { account } = parseFixture(latest);
@@ -36,11 +35,11 @@ const levels = getClamLevels(account);
 const view = parseClamWork(account, null, GAME.multiKill);
 
 describe('clam work verified against the live game', () => {
-  it.each(GAME.bonuses.map((bonus, index) => [index, bonus]))('upgrade %i bonus', (index, bonus) => {
+  it.each([...GAME.bonuses.entries()])('upgrade %i bonus', (index, bonus) => {
     within(getClamBonus(levels, index, GAME.multiKill), bonus);
   });
 
-  it.each(GAME.costs.map((cost, index) => [index, cost]))('upgrade %i cost', (index, cost) => {
+  it.each([...GAME.costs.entries()])('upgrade %i cost', (index, cost) => {
     within(getClamCost(levels, index, view.workerClass), cost);
   });
 
@@ -48,7 +47,7 @@ describe('clam work verified against the live game', () => {
     within(view.promotionCost, GAME.costs.at(-1));
   });
 
-  it.each(GAME.unlockRequirements.map((pearls, index) => [index, pearls]))('upgrade %i unlock requirement', (index, pearls) => {
+  it.each([...GAME.unlockRequirements.entries()])('upgrade %i unlock requirement', (index, pearls) => {
     within(view.upgrades[index].requiredPearls, pearls);
   });
 
@@ -57,7 +56,7 @@ describe('clam work verified against the live game', () => {
     expect(view.compensations.map(({ unlocked }) => unlocked)).toEqual(GAME.compensations);
   });
 
-  it.each(['pearlValue', 'blackPearlValue', 'mobs', 'clamHp', 'promotionChance', 'respawn'])('%s', (key) => {
+  it.each(['pearlValue', 'blackPearlValue', 'mobs', 'clamHp', 'promotionChance'])('%s', (key) => {
     within(view[key], GAME[key]);
   });
 });

@@ -1,6 +1,7 @@
 import { test, expect } from '@playwright/test';
 import { readdirSync, readFileSync } from 'node:fs';
 import path from 'node:path';
+import { firstExportedRoute } from './route-helpers';
 import { waitForRender } from './wait-helpers';
 
 // Asserts on the JS a page actually references, fetched the way a browser would. Chunk names
@@ -9,20 +10,6 @@ const FIREBASE_MARKER = '@firebase/';
 const ITEMS_MARKER = '"displayName":"Copper_Ore"';
 
 const scriptsOf = (html) => [...html.matchAll(/<script[^>]+src="([^"]+\.js)"/g)].map((m) => m[1]);
-
-// The first sorted out/<dir>/*.html not in `skip`. Falls back rather than throwing: a readdir at
-// collection time takes the whole file down before a test runs when out/ is missing, which reads as
-// a broken spec instead of a missing build.
-const firstExportedRoute = (dir, { skip = [] } = {}) => {
-  try {
-    const file = readdirSync(path.join(process.cwd(), 'out', ...dir.split('/')))
-      .filter((f) => f.endsWith('.html') && !skip.includes(f))
-      .sort()[0];
-    return `/${dir}/${file.replace(/\.html$/, '')}`;
-  } catch {
-    return '/wiki';
-  }
-};
 
 const referencedScripts = async (request, route) => {
   const html = await (await request.get(route)).text();

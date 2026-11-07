@@ -44,7 +44,7 @@ describe('entityNeighbourhood', () => {
   // is two hops out and would otherwise render as a missing node.
   it('reaches the rewards of a quest the entity gives', () => {
     const slice = entityNeighbourhood(graph, 'npc:TP_Pete');
-    expect(slice.nodes['item:Quest14']).toBeDefined();
+    expect(slice.nodes['item:Quest14'].rawName).toBe('Quest14');
     expect(slice.edges).toContainEqual(
       { from: 'quest:TP_Pete1', to: 'item:Quest14', rel: 'rewards', meta: { amount: 2 } }
     );

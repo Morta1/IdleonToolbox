@@ -49,15 +49,12 @@ describe('Talents tab', () => {
     expect(screen.getByText('120')).toBeTruthy();
   });
 
-  it('shows the added levels a Royal Guardian talent actually receives', () => {
-    renderTalents({ addedLevels: 237, cap: 50 });
+  it.each([
+    ['the added levels a Royal Guardian talent actually receives', 50],
+    ['no added levels without the Talent Reattainment upgrade', 0]
+  ])('shows %s', (_, cap) => {
+    renderTalents({ addedLevels: 237, cap });
 
-    expect(screen.getByRole('button', { name: /Added levels breakdown, 50/ })).toBeTruthy();
-  });
-
-  it('shows no added levels without the Talent Reattainment upgrade', () => {
-    renderTalents({ addedLevels: 237, cap: 0 });
-
-    expect(screen.getByRole('button', { name: /Added levels breakdown, 0/ })).toBeTruthy();
+    expect(screen.getByRole('button', { name: new RegExp(`Added levels breakdown, ${cap}`) })).toBeTruthy();
   });
 });

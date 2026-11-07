@@ -4,6 +4,7 @@ import { applyNewBubbleChances, getAlchemy, getBaseNewBubbleChance, getExpectedN
 import { liveCount } from '@parsers/catalog';
 import { cauldrons, vials } from '@website-data';
 import { createArrayOfArrays } from '@utility/helpers';
+import { FIXTURES } from '../helpers/save-fixtures';
 import first from '../fixtures/first.json';
 import second from '../fixtures/second.json';
 import third from '../fixtures/third.json';
@@ -22,7 +23,6 @@ describe('getAlchemy', () => {
     expect(result.vials).toHaveLength(liveCount(Object.values(vials)));
     expect(result.vials.every((v) => v.level === 0)).toBe(true);
     expect([result.bubbles.power[0].bubbleName, result.vials[0].name]).toEqual(['ROID_RAGIN', 'COPPER_CORONA']);
-    expect(result.p2w).toBeDefined();
   });
 });
 
@@ -38,15 +38,14 @@ describe('isNamedVial', () => {
   });
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
 describe('getAlchemy fixture regression', () => {
-  it.each(FIXTURES)('%s: bubble levels the save covers are unchanged at the same index', (_name, fixture) => {
+  it.each(FIXTURES)('%s: bubble and vial levels read at their index, across the whole catalogs', (_name, fixture) => {
     const data = fixture.data ?? fixture;
     const alchemyRaw = createArrayOfArrays(data?.CauldronInfo);
     const result = getAlchemy(data, [], {});
 
     CAULDRON_CATEGORIES.forEach((category, cauldronIndex) => {
+      expect(result.bubbles[category]).toHaveLength(liveCount(cauldrons[category]));
       const raw = alchemyRaw?.[cauldronIndex];
       if (!raw) return;
       raw.forEach((level, index) => {
@@ -54,28 +53,11 @@ describe('getAlchemy fixture regression', () => {
         expect(result.bubbles[category][index].level).toBe(parseInt(level) || 0);
       });
     });
-  });
-
-  it.each(FIXTURES)('%s: vial levels the save covers are unchanged at the same index', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const alchemyRaw = createArrayOfArrays(data?.CauldronInfo);
-    const vialsRaw = alchemyRaw?.[4];
-    const result = getAlchemy(data, [], {});
-    if (!vialsRaw) return;
-
-    vialsRaw.forEach((level, index) => {
+    expect(result.vials).toHaveLength(liveCount(Object.values(vials)));
+    alchemyRaw?.[4]?.forEach((level, index) => {
       if (index >= result.vials.length) return;
       expect(result.vials[index].level).toBe(parseInt(level) || 0);
     });
-  });
-
-  it.each(FIXTURES)('%s: returns catalog-length bubbles and vials regardless of save length', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const result = getAlchemy(data, [], {});
-    for (const category of CAULDRON_CATEGORIES) {
-      expect(result.bubbles[category]).toHaveLength(liveCount(cauldrons[category]));
-    }
-    expect(result.vials).toHaveLength(liveCount(Object.values(vials)));
   });
 
   it.each([

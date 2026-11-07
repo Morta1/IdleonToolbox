@@ -5,19 +5,15 @@ import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { enrichWorld6 } from '../../scripts/entity-graph/enrich-world-6.mjs';
 import { jadeNodes } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
 import { monsterNodes } from '../../scripts/entity-graph/nodes/monsters.mjs';
+import { enrichRun } from '../helpers/enrich-run.js';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
-// The before/after snapshots name exactly which nodes the enrichment touched.
 const blank = () => ({
   ...jadeNodes(data.jadeUpgrades),
   ...monsterNodes(data.monsters, data.mapNames)
 });
-const before = blank();
-const snapshot = Object.fromEntries(Object.entries(before).map(([id, node]) => [id, JSON.stringify(node)]));
-const nodes = blank();
-enrichWorld6(nodes, data);
-const changed = (prefix) => Object.keys(nodes).filter((id) => id.startsWith(prefix) && JSON.stringify(nodes[id]) !== snapshot[id]).sort();
+const { nodes, changed } = enrichRun(blank, (fresh) => enrichWorld6(fresh, data));
 const jadeNamed = (name) => Object.values(nodes).find((node) => node.kind === 'jade' && node.name === name);
 
 describe('jade emporium', () => {

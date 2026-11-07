@@ -26,7 +26,8 @@ vi.mock('../../services/leaderboards', () => ({ fetchMeta, fetchPlayer, fetchBoa
 const { AppContext } = await import('@components/common/context/AppProvider');
 const Leaderboards = (await import('../../pages/leaderboards')).default;
 
-const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+// retryDelay 0: the page retries meta and tabs once, and the default wait is a real second.
+const client = new QueryClient({ defaultOptions: { queries: { retry: false, retryDelay: 0 } } });
 const renderPage = (state = {}) => {
   // A fresh element each call, or React bails out of the rerender: the router mock is a plain object.
   const page = () => (
@@ -52,18 +53,13 @@ afterEach(() => {
 });
 
 describe('leaderboards ?player= deep link', () => {
-  it('loads the player once and shows them as the searched player', async () => {
+  it('loads the player once, shows them as the searched player and announces them', async () => {
     routerState.query = { player: 'Tester' };
     renderPage();
     const label = await screen.findByText('Searched player');
     expect(label.parentElement.textContent).toBe('Searched player · Tester');
     expect(fetchPlayer).toHaveBeenCalledTimes(1);
     expect(fetchPlayer).toHaveBeenCalledWith('Tester');
-  });
-
-  it('announces the player it loaded', async () => {
-    routerState.query = { player: 'Tester' };
-    renderPage();
     await waitFor(() => expect(screen.getByRole('status').textContent).toMatch(/^Showing Tester, global rank #/));
   });
 
@@ -142,8 +138,7 @@ describe('leaderboards ?player= deep link', () => {
     fetchTab.mockRejectedValueOnce(new Error('boom')).mockRejectedValueOnce(new Error('boom'));
     routerState.query = { t: 'skills' };
     renderPage();
-    // The page's own retry comes first, a second later
-    expect(await screen.findByText('Couldn\'t load these boards.', {}, { timeout: 3000 })).toBeTruthy();
+    expect(await screen.findByText('Couldn\'t load these boards.')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Retry' }));
     expect(await screen.findByText('Mining')).toBeTruthy();
     expect(fetchTab).toHaveBeenCalledTimes(3);

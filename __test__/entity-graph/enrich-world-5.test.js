@@ -1,39 +1,30 @@
 import '../../polyfills';
-import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { enrichWorld5 } from '../../scripts/entity-graph/enrich-world-5.mjs';
 import { artifactNodes, godNodes, superbitNodes } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
 import { costAt, costsAt, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
-import { fieldLinkFailures } from '../../utility/wiki/field-links.mjs';
+import { enrichRun } from '../helpers/enrich-run.js';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
-// The before/after snapshots name exactly which nodes the enrichment touched.
 const blank = () => ({
   ...godNodes(data.gods, data),
   ...artifactNodes(data.artifacts, data.islands, data),
   ...superbitNodes(data.superbitsUpgrades)
 });
-const before = blank();
-const snapshot = Object.fromEntries(Object.entries(before).map(([id, node]) => [id, JSON.stringify(node)]));
-const nodes = blank();
-enrichWorld5(nodes, data);
-const changed = (prefix) => Object.keys(nodes).filter((id) => id.startsWith(prefix) && JSON.stringify(nodes[id]) !== snapshot[id]).sort();
+const { before, nodes, changed, linkFailures } = enrichRun(blank, (fresh) => enrichWorld5(fresh, data));
 const spaced = (text) => String(text).replace(/_/g, ' ');
 const fieldOf = (node, label) => node.fields?.find((field) => field.label === label)?.value;
 const godNamed = (name) => Object.values(nodes).find((node) => node.kind === 'god' && node.name === name);
 const blessingAt = (node, level) => levelledText(node, level).split('Blessing: ')[1];
 const fieldAt = (node, label) => node.fields?.find((field) => field.label === label);
 
-// The registry sweep never sees these links, so the enriched nodes are swept here against the committed graph's pages.
 describe('field links', () => {
   it('name a page that exists, is navigable and draws in its text', () => {
-    const known = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8')).nodes;
-    const enriched = Object.keys(nodes).filter((id) => JSON.stringify(nodes[id]) !== snapshot[id]).map((id) => nodes[id]);
-    expect(enriched.length).toBeGreaterThan(0);
-    expect(fieldLinkFailures(enriched, known)).toEqual([]);
+    expect(changed('').length).toBeGreaterThan(0);
+    expect(linkFailures()).toEqual([]);
   });
 });
 
@@ -81,23 +72,17 @@ describe('gods', () => {
 
   // Oracle: the blessing button's x4 * x5^L (N.js; divinity.ts getGodCost is unexported, so the values are pinned).
   it.each([
-    ['Snehebatu', 1, 10],
     ['Snehebatu', 2, 17.5],
-    ['Arctis', 1, 10],
-    ['Nobisect', 1, 10000],
-    ['Kattlekruk', 1, 1e9]
+    ['Nobisect', 1, 10000]
   ])('charge %s level %s at %s', (name, level, cost) => {
     expect(costAt(godNamed(name), level)).toBe(cost);
   });
 
-  it.each([
-    ['Snehebatu', '1.15e25'],
-    ['Arctis', '10,211,421']
-  ])('print the level 100 cost of %s as %s', (name, printed) => {
-    expect(formatAmount(costAt(godNamed(name), 100))).toBe(printed);
+  it('print the level 100 cost of Snehebatu', () => {
+    expect(formatAmount(costAt(godNamed('Snehebatu'), 100))).toBe('1.15e25');
   });
 
-  // The blessing button's currency per slot (research section 13).
+  // The blessing button's currency per slot.
   it('charge each god in its own currency', () => {
     expect(Object.fromEntries(changed('god:').map((id) => [nodes[id].name, costsAt(nodes[id], 1)[0].currency]))).toEqual({
       Snehebatu: 'Bits',

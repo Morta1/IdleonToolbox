@@ -12,8 +12,7 @@ const parseReal = () => parseFixture(demoJson);
 describe('parseData with no save', () => {
   it('returns an account instead of undefined', () => {
     const parsed = parseEmpty();
-    expect(parsed).toBeDefined();
-    expect(parsed.account).toBeDefined();
+    expect(Object.keys(parsed.account).length).toBeGreaterThan(0);
     expect(parsed.characters).toEqual([]);
   });
 
@@ -82,119 +81,61 @@ describe('a section that fails', () => {
   });
 });
 
-const CATALOG_BACKED = [
-  ['prayers', () => liveCount(websiteData.prayers)],
-  ['shrines', () => liveCount(Object.values(websiteData.shrines))],
-  ['starSigns', () => liveCount(websiteData.starSigns)]
+// Each section's own test also runs its getter with no save. These go through parseData, the path a logged-out page takes.
+const live = (catalog) => () => liveCount(catalog);
+const CATALOG_LISTS = [
+  ['prayers', ({ prayers }) => prayers, live(websiteData.prayers)],
+  ['shrines', ({ shrines }) => shrines, live(Object.values(websiteData.shrines))],
+  ['starSigns', ({ starSigns }) => starSigns, live(websiteData.starSigns)],
+  ['stamps.combat', ({ stamps }) => stamps.combat, live(Object.values(websiteData.stamps.combat)), 'at level 0'],
+  ['stamps.skills', ({ stamps }) => stamps.skills, live(Object.values(websiteData.stamps.skills)), 'at level 0'],
+  ['stamps.misc', ({ stamps }) => stamps.misc, live(Object.values(websiteData.stamps.misc)), 'at level 0'],
+  ['alchemy.vials', ({ alchemy }) => alchemy.vials, live(Object.values(websiteData.vials))],
+  ['refinery.salts', ({ refinery }) => refinery.salts, live(Object.values(websiteData.refinery))],
+  ['compass.upgrades', ({ compass }) => compass.upgrades, live(websiteData.compass), 'at level 0'],
+  ['compass.abominations', ({ compass }) => compass.abominations, () => websiteData.abominations.length],
+  ['grimoire.upgrades', ({ grimoire }) => grimoire.upgrades, live(websiteData.grimoire), 'at level 0'],
+  ['tesseract.upgrades', ({ tesseract }) => tesseract.upgrades, live(websiteData.tesseract), 'at level 0'],
+  ['upgradeVault.upgrades', ({ upgradeVault }) => upgradeVault.upgrades, live(websiteData.upgradeVault), 'at level 0'],
+  ['dungeons.rngItems', ({ dungeons }) => dungeons.rngItems, live(websiteData.dungeonCreditShop)],
+  ['dungeons.insideUpgrades', ({ dungeons }) => dungeons.insideUpgrades, live(websiteData.dungeonStats)],
+  ['dungeons.upgrades', ({ dungeons }) => dungeons.upgrades, live(websiteData.dungeonFlurboStats)],
+  ['storage.storageChests', ({ storage }) => storage.storageChests, live(Object.values(websiteData.invStorage))],
+  ['shopStock', ({ shopStock }) => shopStock, () => Object.keys(websiteData.shops).length],
+  ['cooking.meals', ({ cooking }) => cooking.meals, live(websiteData.cookingMenu), 'at level 0'],
+  ['lab.chips', ({ lab }) => lab.chips, live(websiteData.chips)],
+  ['lab.jewels', ({ lab }) => lab.jewels, live(websiteData.jewels)],
+  ['minehead.upgrades', ({ minehead }) => minehead.upgrades, live(websiteData.mineheadUpgrades)]
 ];
 
-describe.each(CATALOG_BACKED)('catalog-backed section: %s', (key, expectedCount) => {
-  it('is fully populated with no save', () => {
-    const section = parseEmpty().account[key];
-    expect(Array.isArray(section)).toBe(true);
-    expect(section.length).toBe(expectedCount());
+describe('catalog-backed sections with no save', () => {
+  it.each(CATALOG_LISTS)('%s lists the whole catalog', (_, rowsOf, expectedCount, atLevelZero) => {
+    const rows = rowsOf(parseEmpty().account);
+    expect(rows).toHaveLength(expectedCount());
+    if (atLevelZero) expect(rows.filter(({ level }) => level !== 0)).toEqual([]);
   });
 
   it('carries catalog fields, not just empty rows', () => {
-    const section = parseEmpty().account[key];
-    expect(section[0].name ?? section[0].displayName ?? section[0].rawName ?? section[0].shrineName ?? section[0].starName).toBeTruthy();
+    const { prayers, shrines, starSigns } = parseEmpty().account;
+    expect([prayers[0].name, shrines[0].name ?? shrines[0].shrineName, starSigns[0].name ?? starSigns[0].starName].filter((name) => !name)).toEqual([]);
   });
-});
 
-describe('nested catalog-backed sections', () => {
-  it('stamps has every category populated', () => {
-    const { stamps } = parseEmpty().account;
+  it('stamps has exactly its three categories, and alchemy its bubbles', () => {
+    const { stamps, alchemy } = parseEmpty().account;
     expect(Object.keys(stamps).sort()).toEqual(['combat', 'misc', 'skills']);
-    for (const category of Object.keys(stamps)) {
-      expect(stamps[category].length).toBe(liveCount(Object.values(websiteData.stamps[category])));
-      expect(stamps[category].every((s) => s.level === 0)).toBe(true);
-    }
-  });
-
-  it('alchemy has bubbles and vials populated', () => {
-    const { alchemy } = parseEmpty().account;
-    expect(alchemy.vials.length).toBe(liveCount(Object.values(websiteData.vials)));
     expect(Object.keys(alchemy.bubbles).length).toBeGreaterThan(0);
   });
 
-  it('refinery has its salt list populated', () => {
-    const { refinery } = parseEmpty().account;
-    expect(refinery.salts.length).toBe(liveCount(Object.values(websiteData.refinery)));
-  });
-});
-
-describe('Task 7 sections (catalog-backed and user-state)', () => {
-  it('compass has every upgrade and abomination populated', () => {
-    const { compass } = parseEmpty().account;
-    expect(compass.upgrades.length).toBe(liveCount(websiteData.compass));
-    expect(compass.upgrades.every((u) => u.level === 0)).toBe(true);
-    expect(compass.abominations.length).toBe(websiteData.abominations.length);
-  });
-
-  it('grimoire has every upgrade populated', () => {
-    const { grimoire } = parseEmpty().account;
-    expect(grimoire.upgrades.length).toBe(liveCount(websiteData.grimoire));
-    expect(grimoire.upgrades.every((u) => u.level === 0)).toBe(true);
-  });
-
-  it('tesseract has every upgrade populated', () => {
-    const { tesseract } = parseEmpty().account;
-    expect(tesseract.upgrades.length).toBe(liveCount(websiteData.tesseract));
-    expect(tesseract.upgrades.every((u) => u.level === 0)).toBe(true);
-  });
-
-  it('upgradeVault has every upgrade populated', () => {
-    const { upgradeVault } = parseEmpty().account;
-    expect(upgradeVault.upgrades.length).toBe(liveCount(websiteData.upgradeVault));
-    expect(upgradeVault.upgrades.every((u) => u.level === 0)).toBe(true);
-  });
-
-  it('dungeons has its rng shop, inside upgrades and flurbo shop populated', () => {
-    const { dungeons } = parseEmpty().account;
-    expect(dungeons.rngItems.length).toBe(liveCount(websiteData.dungeonCreditShop));
-    expect(dungeons.insideUpgrades.length).toBe(liveCount(websiteData.dungeonStats));
-    expect(dungeons.upgrades.length).toBe(liveCount(websiteData.dungeonFlurboStats));
-  });
-
-  it('storage has every storage chest populated but an empty inventory (pure user state)', () => {
-    const { storage } = parseEmpty().account;
-    expect(storage.storageChests.length).toBe(liveCount(Object.values(websiteData.invStorage)));
-    expect(storage.list).toEqual([]);
-  });
-
-  it('obols stays empty (pure user state, not catalog-backed)', () => {
-    const { obols } = parseEmpty().account;
-    expect(obols).toEqual({ inventory: [], list: [], stats: {} });
-  });
-
-  it('shopStock returns one empty array per catalog shop (mixed: item catalog + live stock state)', () => {
-    const { shopStock } = parseEmpty().account;
-    expect(shopStock.length).toBe(Object.keys(websiteData.shops).length);
-    expect(shopStock.every((shop) => Array.isArray(shop) && shop.length === 0)).toBe(true);
-  });
-});
-
-describe('world 4-7 sections', () => {
   it('breeding has its pet list populated', () => {
-    const { breeding } = parseEmpty().account;
-    expect(breeding.pets.length).toBeGreaterThan(0);
+    expect(parseEmpty().account.breeding.pets.length).toBeGreaterThan(0);
   });
 
-  it('cooking has meals populated', () => {
-    const { cooking } = parseEmpty().account;
-    expect(cooking.meals.length).toBe(liveCount(websiteData.cookingMenu));
-    expect(cooking.meals.every((m) => m.level === 0)).toBe(true);
-  });
-
-  it('lab has chips and jewels populated', () => {
-    const { lab } = parseEmpty().account;
-    expect(lab.chips.length).toBe(liveCount(websiteData.chips));
-    expect(lab.jewels.length).toBe(liveCount(websiteData.jewels));
-  });
-
-  it('minehead has upgrades populated', () => {
-    const { minehead } = parseEmpty().account;
-    expect(minehead.upgrades.length).toBe(liveCount(websiteData.mineheadUpgrades));
+  it('pure user state stays empty: inventory, obols and shop stock', () => {
+    const { storage, obols, shopStock } = parseEmpty().account;
+    expect(storage.list).toEqual([]);
+    expect(storage.storageChests.filter(({ unlocked }) => unlocked)).toEqual([]);
+    expect(obols).toEqual({ inventory: [], list: [], stats: {} });
+    expect(shopStock.filter((shop) => !Array.isArray(shop) || shop.length)).toEqual([]);
   });
 });
 

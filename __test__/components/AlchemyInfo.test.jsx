@@ -27,20 +27,14 @@ afterEach(() => {
 
 // An element inside a row label (the liquid name beside its icon) must not sit in a <p>: invalid
 // nesting makes React discard the server DOM, so the calculator on the page never comes alive.
-describe('AlchemyInfo markup', () => {
-  it.each([['vial', vial], ['bubble', bubble]])('renders a %s without a DOM nesting warning', (_, node) => {
+// The liquid is part of the cost: on a bubble it is a cost line, on a vial a column of the upgrade table. Neither repeats
+// it in a group of its own.
+describe('AlchemyInfo', () => {
+  it.each([['vial', vial], ['bubble', bubble]])('renders a %s without a DOM nesting warning or a separate Liquids group', (_, node) => {
     const errors = vi.spyOn(console, 'error').mockImplementation(() => {});
     render(<ThemeProvider theme={theme}><AlchemyInfo node={node} materialName={'Copper Ore'}/></ThemeProvider>);
     const nesting = errors.mock.calls.map((call) => call.join(' ')).filter((line) => /cannot be a descendant of|cannot contain a nested|validateDOMNesting/.test(line));
     expect(nesting).toEqual([]);
-  });
-});
-
-// The liquid is part of the cost: on a bubble it is a cost line, on a vial a column of the upgrade table. Neither repeats
-// it in a group of its own.
-describe('AlchemyInfo groups', () => {
-  it.each([['vial', vial], ['bubble', bubble]])('gives a %s no separate Liquids group', (_, node) => {
-    render(<ThemeProvider theme={theme}><AlchemyInfo node={node} materialName={'Copper Ore'}/></ThemeProvider>);
     expect(screen.queryByText('Liquids')).toBeNull();
   });
 });

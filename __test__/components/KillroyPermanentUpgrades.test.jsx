@@ -36,15 +36,10 @@ const killroy = {
 const renderUpgrades = () => render(<ThemeProvider theme={theme}><PermanentUpgrades killroy={killroy}/></ThemeProvider>);
 
 describe('Killroy permanent upgrades', () => {
-  it('shows the next decay breakpoint level for a capped upgrade', () => {
+  it('shows the next decay breakpoint level for a capped upgrade only, not on flat unlocks', () => {
     renderUpgrades();
-    expect(screen.getByText('Next breakpoint')).toBeDefined();
     // A value in words keeps its last word with the glyph, in a span of their own
     expect(screen.getByRole('button', { name: /next breakpoint/ }).textContent).toBe('Lv 300 (1.5x)');
-  });
-
-  it('renders flat unlocks without a breakpoint line', () => {
-    renderUpgrades();
     expect(screen.getAllByText('Next breakpoint')).toHaveLength(1);
     expect(screen.getByText('Adds 1 nugget to your Shovel in Gaming, go dig it up!')).toBeDefined();
   });

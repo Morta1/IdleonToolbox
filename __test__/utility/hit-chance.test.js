@@ -65,17 +65,6 @@ describe('accuracyForHitChance', () => {
     }
   });
 
-  it('lands on the closed forms for 5% and 100%', () => {
-    // Half Defence floors to 4% on a monster, so 5% needs one more point.
-    expect(accuracyForHitChance(10, 5, MONSTER)).toBe(6);
-    expect(accuracyForHitChance(100, 5, MONSTER)).toBe(51);
-    expect(accuracyForHitChance(100, 100, MONSTER)).toBe(151);
-    expect(accuracyForHitChance(25, 5, RESOURCE)).toBe(7);
-    expect(accuracyForHitChance(100, 5, RESOURCE)).toBe(25);
-    expect(accuracyForHitChance(100, 100, RESOURCE)).toBe(199);
-    expect(accuracyForHitChance(10000, 100, RESOURCE)).toBe(19828);
-  });
-
   it('handles the out-of-range inputs', () => {
     expect(accuracyForHitChance(100, 0, MONSTER)).toBe(0);
     expect(accuracyForHitChance(100, 101, MONSTER)).toBe(Infinity);

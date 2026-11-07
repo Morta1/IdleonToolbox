@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { within } from '../helpers/live-verified';
+import { within, withAccountOption } from '../helpers/live-verified';
 import { getCompassBonus, getCompassStats, getCompassTotalUpgradeCost } from '@parsers/class-specific/compass';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
@@ -59,11 +59,7 @@ const COST_TOLERANCE = 1e-8;
 
 const { account, characters } = parseFixture(latest);
 const windWalker = characters.find(({ name }) => name === 'IAmTheHunterrr');
-const liveCostAccount = {
-  ...account,
-  accountOptions: account.accountOptions.map((value, index) => index === 499 ? GAME.costRedux499 : value)
-};
-const upgradeAt = (index) => account.compass.upgrades.find((upgrade) => upgrade.index === index);
+const liveCostAccount = withAccountOption(account, 499, GAME.costRedux499);
 
 describe('compass verified against the live game', () => {
   it.each(Object.entries(GAME.bonus))('upgrade %s bonus', (index, value) => {
@@ -71,7 +67,7 @@ describe('compass verified against the live game', () => {
   });
 
   it.each(Object.entries(GAME.cost))('upgrade %s next level cost', (index, value) => {
-    const upgrade = upgradeAt(Number(index));
+    const upgrade = account.compass.upgrades.find((candidate) => candidate.index === Number(index));
     within(getCompassTotalUpgradeCost(liveCostAccount, upgrade, upgrade.level + 1), value, COST_TOLERANCE);
   });
 

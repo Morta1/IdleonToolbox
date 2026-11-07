@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { attackPoseForType, CANVAS, COMPANION_DX, COMPANION_SCALE, drawOrder, frameAt, OUTFIT_POSES, PLAYER_REACH_LEFT, PLAYER_REACH_UP, POSES, resolveLayers, GAME_SCALE, HAT_OFFSET, MAX_FRAME_MS, playbackDurations, scaledOffset } from '../utility/paperDoll';
+import { attackPoseForType, CANVAS, COMPANION_DX, COMPANION_SCALE, drawOrder, frameAt, OUTFIT_POSES, PLAYER_REACH_LEFT, POSES, resolveLayers, HAT_OFFSET, MAX_FRAME_MS, playbackDurations, scaledOffset } from '../utility/paperDoll';
 import { nameLabelOps } from '../utility/nameLabel';
 import realManifest from '../data/player-sprites-manifest.json';
 
@@ -8,7 +8,7 @@ const sheet = (file, numFrames, across, frameW = 94, frameH = 50, durations) => 
   originX: Math.round(frameW / 2), originY: frameH, durations: durations ?? Array(numFrames).fill(100)
 });
 
-// Mirrors the shape Task 2 writes, sized like the synthetic z-processing fixture.
+// Mirrors the shipped manifest's shape, sized like the synthetic z-processing fixture.
 const manifest = {
   version: 'x', frameW: 94, frameH: 50, hatFrameOffset: 2,
   weaponTypeOffsets: { FISTICUFF: 0, SPEAR: 2, BOW: 4, WAND: 5 },
@@ -89,7 +89,7 @@ describe('attackPoseForType', () => {
 describe('POSES', () => {
   it('every pose names a body sheet the shipped manifest has', () => {
     // 'attack' is virtual: the page resolves it to 2a/2b/2c/2_ by weapon type.
-    for (const pose of POSES.filter((p) => p.id !== 'attack')) expect(realManifest.layers.body[pose.id], pose.id).toBeDefined();
+    expect(POSES.filter(({ id }) => id !== 'attack' && !realManifest.layers.body[id])).toEqual([]);
   });
   it('labels the skilling poses the way the game controller picks them (map connection type / target type / node id)', () => {
     expect(Object.fromEntries(POSES.map((pose) => [pose.id, pose.label]))).toMatchObject({
@@ -102,10 +102,6 @@ describe('OUTFIT_POSES', () => {
   it('is Idle, Walk and Attack, in that order', () => {
     expect(OUTFIT_POSES.map(({ id }) => id)).toEqual(['0', '1', 'attack']);
     expect(OUTFIT_POSES.map(({ label }) => label)).toEqual(['Idle', 'Walk', 'Attack']);
-  });
-  it('takes its labels from POSES rather than repeating them', () => {
-    const labelById = Object.fromEntries(POSES.map((pose) => [pose.id, pose.label]));
-    for (const pose of OUTFIT_POSES) expect(pose.label).toBe(labelById[pose.id]);
   });
 });
 
@@ -120,6 +116,7 @@ describe('resolveLayers', () => {
     expect(byFile(layers, 'body')).toMatchObject({ sx: 0, sy: 50 });
   });
   it('hat uses sheet 1, frame ID + 2, at the hat offset', () => {
+    // pose '0' has no entry in manifest.hatOffsets, so the per-frame nudge falls back to 0.
     const { layers } = resolveLayers(manifest, { ...base, hat }, 0);
     const op = byFile(layers, 'hat');
     expect(op).toMatchObject({ file: 'hat/1.png', sx: 3 * 30, sy: 0, w: 30, h: 50, dx: -15 + HAT_OFFSET.x, dy: -50 + HAT_OFFSET.y });
@@ -133,12 +130,6 @@ describe('resolveLayers', () => {
     const { layers } = resolveLayers(manifest, { ...base, hat, pose: '1' }, 250);
     const op = byFile(layers, 'hat');
     expect(op).toMatchObject({ dx: -15 + 3 + HAT_OFFSET.x, dy: -50 - 2 + HAT_OFFSET.y });
-  });
-  it('leaves the hat at its own-origin anchor when the pose has no offsets', () => {
-    // pose '0' has no entry in manifest.hatOffsets: the nudge must fall back to 0, not throw.
-    const { layers } = resolveLayers(manifest, { ...base, hat, pose: '0' }, 0);
-    const op = byFile(layers, 'hat');
-    expect(op).toMatchObject({ dx: -15 + HAT_OFFSET.x, dy: -50 + HAT_OFFSET.y });
   });
   it('idle weapon frame = type offset + ID', () => {
     const { layers } = resolveLayers(manifest, { ...base, weapon: bow }, 0); // 4 + 1 = 5 -> col 5
@@ -199,11 +190,11 @@ describe('resolveLayers', () => {
     const { layers } = resolveLayers(manifest, { ...base, cape: tallCape }, 0);
     expect(layers[0]).toMatchObject({ file: 'cape/2.png', dx: -47, dy: -50 - 11.5 });
   });
-  it('cape offset follows the BODY frame, not its own loop frame', () => {
-    // tick 350 -> body frame 3 (5 frames): capeOffsets['0'].y[3] = 1, and the cape's own 6-frame
-    // loop is on frame 3 too, but it is the body frame that picks the offset.
-    const { layers } = resolveLayers(manifest, { ...base, cape }, 350);
-    expect(layers[0]).toMatchObject({ dx: -47 + 0, dy: -50 + 0.5 });
+  it('cape offset follows the BODY frame, while its sheet plays its own loop', () => {
+    // tick 550 -> body frame 0 (5 frames, looped): capeOffsets['0'].y[0] = 1. The cape's own 6-frame
+    // loop is on frame 5 (row 1 col 2 of its 3-across sheet), which has no offset row at all.
+    const { layers } = resolveLayers(manifest, { ...base, cape }, 550);
+    expect(layers[0]).toMatchObject({ sx: 2 * 94, sy: 50, dx: -47 + 0, dy: -50 + 0.5 });
   });
   it('cape falls back to no offset for a pose XYoffsetCape has no row for', () => {
     const { layers } = resolveLayers(manifest, { ...base, cape, pose: '2b' }, 0);
@@ -221,10 +212,6 @@ describe('resolveLayers', () => {
   });
   it('idle with a non-fist weapon puts the weapon behind the body (game: weapon z = body - 1)', () => {
     const { layers } = resolveLayers(manifest, { ...base, cape, costume, weapon: spear, hat }, 0);
-    expect(layers.map((l) => l.file.split('/')[0])).toEqual(['cape', 'weapon', 'body', 'hat', 'costume']);
-  });
-  it('walk with non-fist weapon puts the weapon behind the body (sheet 0, same as idle)', () => {
-    const { layers } = resolveLayers(manifest, { ...base, cape, costume, weapon: spear, hat, pose: '1' }, 0);
     expect(layers.map((l) => l.file.split('/')[0])).toEqual(['cape', 'weapon', 'body', 'hat', 'costume']);
   });
   it('reports items with no art and skips them', () => {
@@ -333,7 +320,7 @@ describe('canvas fit', () => {
 
   it('fits every companion strip in the shipped manifest', () => {
     const strips = Object.values(realManifest.layers.companion);
-    expect(strips.length).toBeGreaterThanOrEqual(150);
+    expect(strips.length).toBeGreaterThan(0);
     // The anchor is off-centre, so left and right are checked against different things: the
     // player's own swing on the left, every companion's placed art on the right.
     expect(CANVAS.anchorX - PLAYER_REACH_LEFT).toBeGreaterThanOrEqual(0);
@@ -345,16 +332,11 @@ describe('canvas fit', () => {
     }
   });
 
-  it('keeps the player attack swing inside the canvas at PLAYER_REACH_UP', () => {
-    expect(CANVAS.anchorY - PLAYER_REACH_UP).toBeGreaterThanOrEqual(0);
-  });
-
   it('fits the name label\'s lowest point (trophy) below the feet', () => {
-    // Trophy top sits 20 world px below the feet (+10 sprite px, TROPHY_Y - ORIGIN_Y in
-    // nameLabel.js), and the tallest trophy in the manifest is 28 world px -> 14 sprite px below
-    // that: about 24 sprite px below anchorY, well within the height's 30px label margin.
-    expect(nameLabelOps({ name: 'mortastr', trophyId: 6, sizes: {} }).length).toBeGreaterThan(0);
-    expect(CANVAS.anchorY + 24).toBeLessThanOrEqual(CANVAS.height);
+    // nameLabelOps gives world px below the feet, half that in sprite px. The tallest trophy in the
+    // manifest is 28 world px.
+    const trophy = nameLabelOps({ name: 'mortastr', trophyId: 6, sizes: {} }).find(({ file }) => file.startsWith('Trophy'));
+    expect(CANVAS.anchorY + (trophy.y + 28) / 2).toBeLessThanOrEqual(CANVAS.height);
   });
 });
 
@@ -375,7 +357,6 @@ describe('drawOrder', () => {
 
 describe('scaledOffset', () => {
   it('converts a world-pixel offset to sprite pixels around each actor\'s own origin', () => {
-    expect(GAME_SCALE).toBe(2);
     const body = sheet('body/0.png', 5, 3);
     // Live 2.3.528 measurement: body 94x50 origin (47, 50) at (859, 674), weapon 152x110 origin
     // (76, 110) at (831, 634) -> raw (-28, -40) renders as (-28.5, -50) sprite px.

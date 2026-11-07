@@ -3,10 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { getBreeding, calcHighestPower, getCombatMixGeneMulti } from '@parsers/world-4/breeding';
 import { petGenes, petStats, territory } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
+import { FIXTURES } from '../helpers/save-fixtures';
 import latest from '../fixtures/latest.json';
 
 const TOTAL_PETS = petStats.reduce((sum, world) => sum + world.length, 0);
@@ -36,15 +33,14 @@ describe('calcHighestPower', () => {
   });
 });
 
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
-
 describe('getBreeding fixture regression', () => {
-  it.each(FIXTURES)('%s: pet levels the save covers are unchanged at the same [world][pet] index', (_name, fixture) => {
+  it.each(FIXTURES)('%s: pet levels read at their [world][pet] index, across every live species', (_name, fixture) => {
     const data = fixture.data ?? fixture;
     const breedingRaw = tryToParse(data?.Breeding) || data?.Breeding;
     const petsLevels = breedingRaw?.slice(4, 8);
     const { pets } = getBreeding(data, {}, {});
 
+    expect(pets.reduce((sum, world) => sum + world.length, 0)).toBe(TOTAL_PETS);
     petsLevels?.forEach((worldLevels, worldIndex) => {
       worldLevels?.forEach((level, petIndex) => {
         if (!pets[worldIndex]?.[petIndex]) return;
@@ -53,11 +49,6 @@ describe('getBreeding fixture regression', () => {
     });
   });
 
-  it.each(FIXTURES)('%s: returns every live pet species regardless of save', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const { pets } = getBreeding(data, {}, {});
-    expect(pets.reduce((sum, world) => sum + world.length, 0)).toBe(TOTAL_PETS);
-  });
 });
 
 // N.js TotalTrekkingHR: gene 14 (Flashy) multiplies by 1.5 per Flashy when no slot holds a combat pet (PetGenes[g][1] == 0,

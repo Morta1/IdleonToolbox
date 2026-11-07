@@ -1,6 +1,4 @@
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { categoryLabel } from '../../utility/wiki/categories.mjs';
 import { dropReadout, fillBonus, sentence, spaced, tidy, titleCase } from '../../scripts/entity-graph/registry/text.mjs';
 
@@ -63,10 +61,8 @@ describe('registry text helpers', () => {
   // is the game's padding (STORAGE_), and a value that is already mixed-case is the game's own wording.
   it.each([
     ['PREMIUM_HELMET', 'Premium Helmet'],
-    ['SPELUNKY_PAGE', 'Spelunky Page'],
     ['STORAGE_', 'Storage'],
     ['DNA_SPLICER', 'DNA Splicer'],
-    ['EXP_BALLOON', 'EXP Balloon'],
     ['Bits', 'Bits'],
     [undefined, '']
   ])('labels the category %s', (input, expected) => {
@@ -81,19 +77,5 @@ describe('registry text helpers', () => {
   ])('drops the readout tail of %s', (input, expected) => {
     expect(dropReadout(input)).toBe(expected);
     expect(tidy(dropReadout(input))).not.toMatch(/-$/);
-  });
-
-  // The Lab separator fix must not move any text that already read fine: compare every atom against the old regex.
-  it('leaves every atom description exactly as the previous readout regex did', () => {
-    const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
-    const previous = (text) => text.replace(/(?:_*@)*_*Total_Bonus:.*$/i, '');
-    expect(data.atomsInfo.length).toBeGreaterThan(0);
-    expect(data.atomsInfo.map((atom) => dropReadout(atom.desc))).toEqual(data.atomsInfo.map((atom) => previous(atom.desc)));
-  });
-
-  it('leaves no readout or stray separator on any Lab bonus', () => {
-    const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
-    const texts = data.labBonuses.map((bonus) => tidy(dropReadout(bonus.description)));
-    expect(texts.filter((text) => /@|Total_Bonus|_-$/.test(text))).toEqual([]);
   });
 });

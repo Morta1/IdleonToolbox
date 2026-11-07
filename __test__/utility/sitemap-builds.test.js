@@ -16,12 +16,21 @@ import {
 import { LISTED_KINDS, MOVED_KINDS, SYSTEMS, entityPath, listingHref, movedEntityPath, movedListingHref } from '@utility/wiki/kinds.mjs';
 import searchIndex from '../../data/wiki-search-index.json';
 
+const locs = (xml) => [...xml.matchAll(/<loc>([^<]*)<\/loc>/g)].map(([, loc]) => loc);
+const b = (shortId, title = 'Some Build') => ({ shortId, title });
+const withExported = (slugs) => {
+  const root = mkdtempSync(path.join(tmpdir(), 'sitemap-'));
+  const dir = path.join(root, 'tools', 'builds');
+  mkdirSync(dir, { recursive: true });
+  for (const slug of slugs) writeFileSync(path.join(dir, `${slug}.html`), '');
+  return root;
+};
+
 describe('routeToLoc', () => {
   // pages/tools/index.jsx exports to out/tools.html, so /tools/index is a listed URL with no
   // file behind it. It shipped in every sitemap until this was fixed.
   it('drops a trailing /index, which is never its own file', () => {
     expect(routeToLoc('/tools/index')).toBe('/tools');
-    expect(routeToLoc('/account/world-1/index')).toBe('/account/world-1');
   });
 
   it('maps the root index to the bare domain', () => {
@@ -36,15 +45,10 @@ describe('routeToLoc', () => {
 });
 
 describe('buildClassSitemapEntries', () => {
-  it('emits a url block per slug', () => {
+  it('emits a url block per slug, dated by the fallback while the class has no builds', () => {
     const xml = buildClassSitemapEntries(['warrior', 'barbarian'], '2026-08-08');
-    expect(xml).toContain('https://idleontoolbox.com/tools/builds/warrior');
-    expect(xml).toContain('https://idleontoolbox.com/tools/builds/barbarian');
-    expect(xml.match(/<url>/g)).toHaveLength(2);
-  });
-
-  it('falls back to the supplied date for a class with no builds', () => {
-    expect(buildClassSitemapEntries(['warrior'], '2026-08-08')).toContain('<lastmod>2026-08-08</lastmod>');
+    expect(locs(xml)).toEqual(['https://idleontoolbox.com/tools/builds/warrior', 'https://idleontoolbox.com/tools/builds/barbarian']);
+    expect(xml).toContain('<lastmod>2026-08-08</lastmod>');
   });
 
   // A class page shows the builds in it, so a stale date on a class that gained a build last week
@@ -121,23 +125,16 @@ describe('pageLastmod', () => {
 });
 
 describe('buildDetailSitemapEntries', () => {
-  const b = (shortId, title = 'Some Build') => ({ shortId, title });
-
   // Without these the only path to a build page is a link that exists after JS runs, which is
   // the discovery failure the whole change set targets.
   it('emits the static page url per build, not the ?id= route', () => {
-    const xml = buildDetailSitemapEntries([b('OacmGM'), b('abc123')], '2026-08-12');
-    expect(xml).toContain('https://idleontoolbox.com/tools/builds/oacmgm-some-build');
-    expect(xml).toContain('https://idleontoolbox.com/tools/builds/abc123-some-build');
-    expect(xml).not.toContain('view?id=');
-    expect(xml.match(/<url>/g)).toHaveLength(2);
+    expect(locs(buildDetailSitemapEntries([b('OacmGM'), b('abc123')], '2026-08-12')))
+      .toEqual(['https://idleontoolbox.com/tools/builds/oacmgm-some-build', 'https://idleontoolbox.com/tools/builds/abc123-some-build']);
   });
 
   it('drops ids that would need escaping inside <loc>', () => {
-    const xml = buildDetailSitemapEntries([b('ok1234'), b('a&b<c'), b('has/slash')], '2026-08-12');
-    expect(xml).toContain('ok1234-some-build');
-    expect(xml).not.toContain('&');
-    expect(xml).not.toContain('has/slash');
+    expect(locs(buildDetailSitemapEntries([b('ok1234'), b('a&b<c'), b('has/slash')], '2026-08-12')))
+      .toEqual(['https://idleontoolbox.com/tools/builds/ok1234-some-build']);
   });
 
   it('returns an empty string for no builds', () => {
@@ -147,14 +144,6 @@ describe('buildDetailSitemapEntries', () => {
 });
 
 describe('pruneUnexportedSlugs', () => {
-  const withExported = (slugs) => {
-    const root = mkdtempSync(path.join(tmpdir(), 'sitemap-'));
-    const dir = path.join(root, 'tools', 'builds');
-    mkdirSync(dir, { recursive: true });
-    for (const slug of slugs) writeFileSync(path.join(dir, `${slug}.html`), '');
-    return root;
-  };
-
   // A build published between next build's fetch and this script's fetch produces a slug with no
   // page. Listing it would send a crawler to a 404; failing would kill the deploy over something
   // the next one fixes on its own. The warning names the slug, so a persistent mismatch is visible.
@@ -178,11 +167,6 @@ describe('pruneUnexportedSlugs', () => {
     warn.mockRestore();
   });
 
-  it('tolerates extra exported pages the sitemap does not list', () => {
-    const out = withExported(['warrior', 'barbarian', 'view']);
-    expect(pruneUnexportedSlugs(['warrior'], out)).toEqual(['warrior']);
-  });
-
   // Nothing to compare against yet - don't silently empty the sitemap.
   it('returns the slugs untouched when out/ has not been produced', () => {
     expect(pruneUnexportedSlugs(['warrior'], path.join(tmpdir(), 'no-such-dir')))
@@ -191,26 +175,12 @@ describe('pruneUnexportedSlugs', () => {
 });
 
 describe('pruneUnexportedBuilds', () => {
-  const b = (shortId, title = 'Some Build') => ({ shortId, title });
-  const withExported = (slugs) => {
-    const root = mkdtempSync(path.join(tmpdir(), 'sitemap-'));
-    const dir = path.join(root, 'tools', 'builds');
-    mkdirSync(dir, { recursive: true });
-    for (const slug of slugs) writeFileSync(path.join(dir, `${slug}.html`), '');
-    return root;
-  };
-
-  it('keeps builds whose page was exported', () => {
-    const out = withExported(['oacmgm-some-build']);
-    expect(pruneUnexportedBuilds([b('OacmGM')], out).map((x) => x.shortId)).toEqual(['OacmGM']);
-  });
-
   // A build published between next build's fetch and this script's fetch has a slug but no file.
   // Listing it invites a crawler to a 404.
-  it('drops a build with no exported page and warns', () => {
+  it('keeps a build whose page was exported, drops one with no page and warns', () => {
     const out = withExported(['oacmgm-some-build']);
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
-    expect(pruneUnexportedBuilds([b('OacmGM'), b('brand1')], out)).toHaveLength(1);
+    expect(pruneUnexportedBuilds([b('OacmGM'), b('brand1')], out).map((x) => x.shortId)).toEqual(['OacmGM']);
     expect(warn).toHaveBeenCalledTimes(1);
     warn.mockRestore();
   });

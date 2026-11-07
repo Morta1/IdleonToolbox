@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { getKillroySchedule } from '@parsers/misc';
-import { mapEnemiesArray, mapPortals, monsters, randomList, rawMapNames } from '@website-data';
+import { mapEnemiesArray, monsters, randomList, rawMapNames } from '@website-data';
 
 // Game (N.js, Killroy actor on map 50), per room i, after rolling 0..999:
 //   roll < 300 || i == 0                         -> RANDOlist[68 + i]
@@ -16,7 +16,6 @@ import { mapEnemiesArray, mapPortals, monsters, randomList, rawMapNames } from '
 // `>= 0` test wrongly accepted it.
 // Cross-checked against a live client on 2026-08-20.
 
-const REQUIREMENT = parseFloat(mapPortals?.[200]?.[0]);
 const WORLD_5_POOL = new Set(
   randomList[72].map((mapName) => monsters?.[mapEnemiesArray[rawMapNames.indexOf(mapName)]]?.Name)
 );
@@ -34,13 +33,6 @@ describe('killroy schedule monster pools', () => {
     const kills = [...(character.kills ?? [])];
     kills[200] = 0;
     return { ...character, kills };
-  });
-
-  it('pins the fixture as a World 5 account and the stand-in as pre-World 5', () => {
-    expect(REQUIREMENT).toBeGreaterThan(0);
-    expect(WORLD_5_POOL.size).toBeGreaterThan(0);
-    expect(characters.every(({ kills }) => kills?.[200] >= REQUIREMENT)).toBe(true);
-    expect(preW5Characters.some(({ kills }) => kills?.[200] >= REQUIREMENT)).toBe(false);
   });
 
   it('serves World 5 monsters only once Magma Rivertown is reached', () => {

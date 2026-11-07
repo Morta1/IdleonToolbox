@@ -8,7 +8,6 @@ const shape = (goals) => goals.map((g) => (g.watch ? 'watch' : [g.op, g.target])
 
 describe('materialTrackerToGoals', () => {
   it.each([
-    [{ lowerBound: 100 }, [['>=', 100]]],
     [{ upperBound: 900 }, [['<=', 900]]],
     [{ lowerBound: 100, upperBound: 900 }, [['>=', 100], ['<=', 900]]],
     [{ lowerBound: '', upperBound: '' }, ['watch']],

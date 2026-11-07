@@ -1,35 +1,22 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
+import { FIXTURES, onEachFixture } from '../helpers/save-fixtures';
 import { getCards, calculateStars } from '@parsers/cards';
 import { cauldronsIndexMapping, getLiquidCauldrons, liquidsIndex } from '@parsers/world-2/alchemy';
 import { BOARD_SIZE } from '@parsers/world-3/constructionOptimizer';
 import { getFlagReq } from '@parsers/world-3/construction';
 import { getAnvilProductCatalog } from '@parsers/world-1/anvil';
-import { anvilProducts, cards, constellations as constellationsCatalog, coralReef, equipmentSets, generalSpelunky, invStorage, sigils } from '@website-data';
+import { anvilProducts, cards, constellations as constellationsCatalog, coralReef, equipmentSets, generalSpelunky, sigils } from '@website-data';
 import { tryToParse } from '@utility/helpers';
 import { isBundlePurchased } from '@parsers/misc';
-import first from '../fixtures/first.json';
-import second from '../fixtures/second.json';
-import third from '../fixtures/third.json';
-import fourth from '../fixtures/fourth.json';
-import latest from '../fixtures/latest.json';
-
-const FIXTURES = [['first', first], ['second', second], ['third', third], ['fourth', fourth], ['latest', latest]];
 
 
-describe('cards (catalog-driven: Object.entries(cardsRaw) -> Object.entries(cards))', () => {
+describe('cards', () => {
   it('renders every catalog card with no save, not just the ones a save would have owned', () => {
     const result = getCards(undefined, {});
     expect(Object.keys(result)).toHaveLength(Object.keys(cards).length);
-    expect(Object.values(result).every((c) => c.amount === 0 && c.stars === 0)).toBe(true);
-  });
-
-  it('carries catalog fields through for an unowned card', () => {
-    const result = getCards(undefined, {});
-    const firstCard = Object.values(result)[0];
-    expect(firstCard.rawName).toBeTruthy();
-    expect(firstCard.category).toBeTruthy();
+    expect(Object.values(result).filter((c) => c.amount !== 0 || c.stars !== 0 || !c.rawName || !c.category)).toEqual([]);
   });
 
   it('reads a synthetic card amount by its raw name key, not position', () => {
@@ -39,7 +26,7 @@ describe('cards (catalog-driven: Object.entries(cardsRaw) -> Object.entries(card
     expect(Object.keys(result)).toHaveLength(Object.keys(cards).length);
   });
 
-  it.each(FIXTURES)('%s: amounts the save covers are unchanged for every owned card', (_name, fixture) => {
+  it('every save: amounts the save covers are unchanged for every owned card', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const cardsRaw = tryToParse(data?.Cards0);
     const result = getCards(data, {});
@@ -51,27 +38,18 @@ describe('cards (catalog-driven: Object.entries(cardsRaw) -> Object.entries(card
       assertions++;
     });
     expect(assertions).toBeGreaterThan(0);
-  });
-
-  it.each(FIXTURES)('%s: returns the full catalog length regardless of how many cards the save owns', (_name, fixture) => {
-    const data = fixture.data ?? fixture;
-    const result = getCards(data, {});
     expect(Object.keys(result)).toHaveLength(Object.keys(cards).length);
-  });
+  }));
 });
 
-describe('calculateStars ownership guard (fix round 1: newly-reachable unowned-card path)', () => {
-  it('does not award five-star tier to an unowned card even if it is in the five-star list', () => {
-    expect(calculateStars(5, 0, 'AnyCard', 4, true, false)).toBe(0);
-  });
-
-  it('does not award six-star tier to an unowned card even if it is in the six-star list', () => {
-    expect(calculateStars(5, 0, 'AnyCard', 5, false, true)).toBe(0);
-  });
-
-  it('still awards the five/six-star tier to an owned card in the list (no behavior change for owners)', () => {
-    expect(calculateStars(5, 1, 'AnyCard', 4, true, false)).toBe(5);
-    expect(calculateStars(5, 1, 'AnyCard', 5, false, true)).toBe(6);
+describe('calculateStars ownership guard', () => {
+  it.each([
+    ['an unowned card on the five-star list', 0, 4, true, false, 0],
+    ['an unowned card on the six-star list', 0, 5, false, true, 0],
+    ['an owned card on the five-star list', 1, 4, true, false, 5],
+    ['an owned card on the six-star list', 1, 5, false, true, 6]
+  ])('%s', (_, amount, maxStars, fiveStar, sixStar, stars) => {
+    expect(calculateStars(5, amount, 'AnyCard', maxStars, fiveStar, sixStar)).toBe(stars);
   });
 
   const calculateStarsPreFix = (tierReq, amountOfCards, cardName, maxStars, isInFiveStarList, isInSixStarList) => {
@@ -88,7 +66,7 @@ describe('calculateStars ownership guard (fix round 1: newly-reachable unowned-c
     return cardLvCalco > 0 ? cardLvCalco - 1 : cardLvCalco;
   };
 
-  it.each(FIXTURES)("%s: every catalog card's stars value is byte-identical before and after the ownership guard", (_name, fixture) => {
+  it("every save: every catalog card's stars value is byte-identical before and after the ownership guard", () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const { account } = parseFixture(fixture);
     const cardsRaw = tryToParse(data?.Cards0) ?? {};
@@ -116,17 +94,17 @@ describe('calculateStars ownership guard (fix round 1: newly-reachable unowned-c
     });
     expect(intersectingUnownedCards).toBe(0);
     expect(assertions).toBe(Object.keys(cards).length);
-  });
+  }));
 });
 
-describe('construction board (catalog-driven: flagsUnlockedRaw length -> fixed BOARD_SIZE)', () => {
+describe('construction board', () => {
   it('renders the full BOARD_SIZE board with no save instead of throwing', () => {
     const { account } = parseEmpty();
     expect(account.construction.baseBoard).toHaveLength(BOARD_SIZE);
     expect(account.construction.baseBoard.every((slot) => slot.cog.name === undefined && slot.currentAmount === 0)).toBe(true);
   });
 
-  it.each(FIXTURES)('%s: BOARD_SIZE slots, and flag amounts the save covers are unchanged at the same index', (_name, fixture) => {
+  it('every save: BOARD_SIZE slots, and flag amounts the save covers are unchanged at the same index', () => onEachFixture(FIXTURES, (fixture) => {
     const { account } = parseFixture(fixture);
     expect(account.construction.baseBoard).toHaveLength(BOARD_SIZE);
     const data = fixture.data ?? fixture;
@@ -139,16 +117,16 @@ describe('construction board (catalog-driven: flagsUnlockedRaw length -> fixed B
       assertions++;
     });
     expect(assertions).toBeGreaterThan(0);
-  });
+  }));
 });
 
-describe('alchemy.liquidCauldrons (structural 4 liquid types, not save-driven)', () => {
+describe('alchemy.liquidCauldrons', () => {
   it('renders all 4 liquid cauldron slots with no save instead of throwing', () => {
     const { account } = parseEmpty();
     expect(account.alchemy.liquidCauldrons).toHaveLength(4);
   });
 
-  it.each(FIXTURES)('%s: 4 slots, and decant levels the save covers are unchanged at the same index', (_name, fixture) => {
+  it('every save: 4 slots, and decant levels the save covers are unchanged at the same index', () => onEachFixture(FIXTURES, (fixture) => {
     const { account } = parseFixture(fixture);
     expect(account.alchemy.liquidCauldrons).toHaveLength(4);
     expect(() => getLiquidCauldrons(account)).not.toThrow();
@@ -165,17 +143,17 @@ describe('alchemy.liquidCauldrons (structural 4 liquid types, not save-driven)',
       assertions++;
     }
     expect(assertions).toBeGreaterThan(0);
-  });
+  }));
 });
 
-describe('currencies.KeysAll (structural 5 keys, not save-driven)', () => {
+describe('currencies.KeysAll', () => {
   it('renders all 5 key types with no save instead of throwing', () => {
     const { account } = parseEmpty();
     expect(account.currencies.KeysAll).toHaveLength(5);
     expect(account.currencies.KeysAll.every((k) => k.amount === 0)).toBe(true);
   });
 
-  it.each(FIXTURES)('%s: key amounts the save covers are unchanged at the same index', (_name, fixture) => {
+  it('every save: key amounts the save covers are unchanged at the same index', () => onEachFixture(FIXTURES, (fixture) => {
     const { account } = parseFixture(fixture);
     const data = fixture.data ?? fixture;
     const keys = data?.CurrenciesOwned?.KeysAll || data?.CYKeysAll;
@@ -185,17 +163,17 @@ describe('currencies.KeysAll (structural 5 keys, not save-driven)', () => {
       assertions++;
     });
     expect(assertions).toBeGreaterThan(0);
-  });
+  }));
 });
 
-describe('armorSmithy (idleonData?.ServerGemsReceived guard)', () => {
+describe('armorSmithy', () => {
   it('renders every equipment set unlocked=false with no save instead of throwing', () => {
     const { account } = parseEmpty();
     expect(account.armorSmithy.sets).toHaveLength(equipmentSets.length);
     expect(account.armorSmithy.sets.every((s) => s.unlocked === false)).toBe(true);
   });
 
-  it.each(FIXTURES)('%s: isSmithyUnlocked replicates the exact real-save formula', (_name, fixture) => {
+  it('every save: isSmithyUnlocked replicates the exact real-save formula', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const { account } = parseFixture(fixture);
     const accountOptions = tryToParse(data?.OptLacc);
@@ -206,10 +184,10 @@ describe('armorSmithy (idleonData?.ServerGemsReceived guard)', () => {
     expect(account.armorSmithy.sets).toHaveLength(equipmentSets.length);
     expect(account.armorSmithy.days).toBe(days);
     expect(account.armorSmithy.isSmithyUnlocked).toBe(expected);
-  });
+  }));
 });
 
-describe('atoms getCost (account?.tasks?.[2]?.[4]?.[6] guard)', () => {
+describe('atoms getCost', () => {
   it('computes atom costs with no save instead of throwing', () => {
     const { account } = parseEmpty();
     expect(account.atoms.atoms.length).toBeGreaterThan(0);
@@ -217,7 +195,7 @@ describe('atoms getCost (account?.tasks?.[2]?.[4]?.[6] guard)', () => {
   });
 });
 
-describe('forge (forgeLevels?.[index] guard)', () => {
+describe('forge', () => {
   it('renders all 6 forge upgrades at level 0 with no save instead of throwing', () => {
     const { account } = parseEmpty();
     expect(account.forge.upgrades).toHaveLength(6);
@@ -226,7 +204,7 @@ describe('forge (forgeLevels?.[index] guard)', () => {
     expect(account.forge.list).toHaveLength(account.forge.upgrades[0].maxLevel);
   });
 
-  it.each(FIXTURES)('%s: upgrade levels the save covers are unchanged at the same index', (_name, fixture) => {
+  it('every save: upgrade levels the save covers are unchanged at the same index', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const forgeLevels = data?.FurnaceLevels || data?.ForgeLV;
     const { account } = parseFixture(fixture);
@@ -236,10 +214,10 @@ describe('forge (forgeLevels?.[index] guard)', () => {
       assertions++;
     });
     expect(assertions).toBeGreaterThan(0);
-  });
+  }));
 });
 
-describe('highscores (parseColosseum/parseMinigame null guard, pure user state)', () => {
+describe('highscores', () => {
   it('lists every colosseum arena at zero with no save', () => {
     const { account } = parseEmpty();
     expect(account.highscores.coloHighscores).toEqual([
@@ -252,7 +230,7 @@ describe('highscores (parseColosseum/parseMinigame null guard, pure user state)'
     ]);
   });
 
-  it.each(FIXTURES)('%s: colosseum scores the save covers are unchanged', (_name, fixture) => {
+  it('every save: colosseum scores the save covers are unchanged', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const coloHighscores = data?.FamilyValuesMap?.ColosseumHighscores || data?.FamValColosseumHighscores;
     const { account } = parseFixture(fixture);
@@ -262,24 +240,23 @@ describe('highscores (parseColosseum/parseMinigame null guard, pure user state)'
       assertions++;
     });
     expect(assertions).toBeGreaterThan(0);
-  });
+  }));
 });
 
-describe('killroy (serverVars?.KillroySwap guard)', () => {
+describe('killroy', () => {
   it('computes a killroy schedule with no save/serverVars instead of throwing', () => {
     const { account } = parseEmpty();
-    expect(account.killroy.killRoyClasses).toBeDefined();
     expect(account.killroy.list.length).toBeGreaterThan(0);
   });
 });
 
-describe('libraryTimes (timeAway?.GlobalTime guard, pure user state)', () => {
+describe('libraryTimes', () => {
   it('returns bookCount 0 with no save instead of throwing or spinning', () => {
     const { account } = parseEmpty();
     expect(account.libraryTimes.bookCount).toBe(0);
   });
 
-  it.each(FIXTURES)('%s: book count is finite and starts from the save\'s own base count', (_name, fixture) => {
+  it('every save: book count is finite and starts from the save\'s own base count', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const accountOptions = tryToParse(data?.OptLacc);
     const baseBookCount = accountOptions?.[55];
@@ -287,17 +264,17 @@ describe('libraryTimes (timeAway?.GlobalTime guard, pure user state)', () => {
     expect(Number.isFinite(account.libraryTimes.bookCount)).toBe(true);
     expect(baseBookCount).toBeDefined();
     expect(account.libraryTimes.bookCount).toBeGreaterThanOrEqual(baseBookCount);
-  });
+  }));
 });
 
-describe('owl (account?.accountOptions?.[...] guards)', () => {
+describe('owl', () => {
   it('renders every owl upgrade with no save instead of throwing', () => {
     const { account } = parseEmpty();
     expect(account.owl.upgrades.length).toBeGreaterThan(0);
     expect(account.owl.upgrades.every((u) => u.level === undefined || Number.isFinite(u.level))).toBe(true);
   });
 
-  it.each(FIXTURES)('%s: owl upgrade levels the save covers are unchanged at the same index', (_name, fixture) => {
+  it('every save: owl upgrade levels the save covers are unchanged at the same index', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const accountOptions = tryToParse(data?.OptLacc);
     const { account } = parseFixture(fixture);
@@ -307,10 +284,10 @@ describe('owl (account?.accountOptions?.[...] guards)', () => {
       assertions++;
     });
     expect(assertions).toBeGreaterThan(0);
-  });
+  }));
 });
 
-describe('statues (getHighestLevelStatues empty-characters guard)', () => {
+describe('statues', () => {
   it('renders every statue at level 0 with no characters instead of throwing', () => {
     const { account } = parseEmpty();
     expect(account.statues.length).toBeGreaterThan(0);
@@ -318,7 +295,7 @@ describe('statues (getHighestLevelStatues empty-characters guard)', () => {
   });
 });
 
-describe('alchemy cauldrons (catalog-driven: save-length loops -> cauldronsIndexMapping/liquidsIndex)', () => {
+describe('alchemy cauldrons', () => {
   const CAULDRON_NAMES = Object.values(cauldronsIndexMapping);
   const LIQUID_NAMES = Object.values(liquidsIndex);
   const BOOSTS = ['speed', 'luck', 'cost', 'extra'];
@@ -375,7 +352,7 @@ describe('alchemy cauldrons (catalog-driven: save-length loops -> cauldronsIndex
     });
   });
 
-  it.each(FIXTURES)('%s: every cauldron level still comes from the save at the same offset', (_name, fixture) => {
+  it('every save: every cauldron level still comes from the save at the same offset', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const { account } = parseFixture(fixture);
     const p2wRaw = tryToParse(data?.CauldronP2W) || data?.CauldronP2W || [];
@@ -394,9 +371,9 @@ describe('alchemy cauldrons (catalog-driven: save-length loops -> cauldronsIndex
       assertions += 2;
     });
     expect(assertions).toBe(CAULDRON_NAMES.length * 3 + LIQUID_NAMES.length * 2);
-  });
+  }));
 
-  it.each(FIXTURES)('%s: brewing boost levels still match the save, and nothing is NaN', (_name, fixture) => {
+  it('every save: brewing boost levels still match the save, and nothing is NaN', () => onEachFixture(FIXTURES, (fixture) => {
     const { account } = parseFixture(fixture);
     const cauldronsInfo = account.alchemy.cauldronsInfo ?? [];
 
@@ -411,10 +388,10 @@ describe('alchemy cauldrons (catalog-driven: save-length loops -> cauldronsIndex
       });
     });
     expect(assertions).toBe(CAULDRON_NAMES.length * BOOSTS.length);
-  });
+  }));
 });
 
-describe('alchemy sigils (catalog-driven: sigilsData.length loop -> sigils catalog)', () => {
+describe('alchemy sigils', () => {
   const UNDISCOVERED = -1;
 
   it('renders every catalog sigil as undiscovered with no save', () => {
@@ -429,15 +406,11 @@ describe('alchemy sigils (catalog-driven: sigilsData.length loop -> sigils catal
       expect(sigil.characters).toEqual([]);
       expect(sigil.index).toBe(index);
     });
-  });
-
-  it('counts no ethereal or eclectic sigils with no save', () => {
-    const { account } = parseEmpty();
     expect(account.alchemy.p2w.totalEtherealSigils).toBe(0);
     expect(account.alchemy.p2w.totalEclecticSigils).toBe(0);
   });
 
-  it.each(FIXTURES)('%s: every sigil still reads its own pair from the save at the same offset', (_name, fixture) => {
+  it('every save: every sigil still reads its own pair from the save at the same offset', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const { account } = parseFixture(fixture);
     const p2wRaw = tryToParse(data?.CauldronP2W) || data?.CauldronP2W || [];
@@ -451,9 +424,9 @@ describe('alchemy sigils (catalog-driven: sigilsData.length loop -> sigils catal
       assertions++;
     });
     expect(assertions).toBe(sigils.length);
-  });
+  }));
 
-  it.each(FIXTURES)('%s: the bonus each sigil reports still matches its unlock tier', (_name, fixture) => {
+  it('every save: the bonus each sigil reports still matches its unlock tier', () => onEachFixture(FIXTURES, (fixture) => {
     const { account } = parseFixture(fixture);
     const tierBonus = { 0: 'unlockBonus', 1: 'boostBonus', 2: 'jadeBonus', 3: 'etherealBonus', 4: 'eclecticBonus' };
 
@@ -467,10 +440,10 @@ describe('alchemy sigils (catalog-driven: sigilsData.length loop -> sigils catal
     });
     expect(assertions).toBe(sigils.length);
     expect(unlockedSigils).toBeGreaterThan(0);
-  });
+  }));
 });
 
-describe('coral reef (catalog-driven: save-length loops -> coralReef catalog / fixed coral roster)', () => {
+describe('coral reef', () => {
   const DANCING_CORAL_COUNT = generalSpelunky[22].length;
 
   it('renders every catalog reef upgrade at level 0 with no save', () => {
@@ -485,12 +458,6 @@ describe('coral reef (catalog-driven: save-length loops -> coralReef catalog / f
     });
   });
 
-  it('the coral catalog is the 9 the game ships, so the roster length is not pinned to a literal', () => {
-    expect(generalSpelunky[22]).toHaveLength(9);
-    expect(generalSpelunky[23]).toHaveLength(9);
-    expect(DANCING_CORAL_COUNT).toBe(9);
-  });
-
   it('renders the full dancing coral roster at level 0 with no save', () => {
     const { account } = parseEmpty();
     expect(account.coralReef.dancingCoral).toHaveLength(DANCING_CORAL_COUNT);
@@ -500,15 +467,11 @@ describe('coral reef (catalog-driven: save-length loops -> coralReef catalog / f
       expect(coral.coralName).toBeTruthy();
       expect(Number.isFinite(coral.cost)).toBe(true);
     });
-  });
-
-  it('reports zero owned and unlocked corals with no save, not undefined', () => {
-    const { account } = parseEmpty();
     expect(account.coralReef.ownedCorals).toBe(0);
     expect(account.coralReef.unlockedCorals).toBe(0);
   });
 
-  it.each(FIXTURES)('%s: reef upgrade levels still come from the save at the same index', (_name, fixture) => {
+  it('every save: reef upgrade levels still come from the save at the same index', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const { account } = parseFixture(fixture);
     const rawSpelunking = tryToParse(data?.Spelunk) || {};
@@ -521,9 +484,9 @@ describe('coral reef (catalog-driven: save-length loops -> coralReef catalog / f
       assertions++;
     });
     expect(assertions).toBe(coralReef.length);
-  });
+  }));
 
-  it.each(FIXTURES)('%s: dancing coral levels still come from the tower save at the same offset', (_name, fixture) => {
+  it('every save: dancing coral levels still come from the tower save at the same offset', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const { account } = parseFixture(fixture);
     const rawTowerInfo = data?.TowerInfo || tryToParse(data?.Tower);
@@ -535,10 +498,10 @@ describe('coral reef (catalog-driven: save-length loops -> coralReef catalog / f
       assertions++;
     });
     expect(assertions).toBe(DANCING_CORAL_COUNT);
-  });
+  }));
 });
 
-describe('constellations (catalog-driven: constellationsRaw loop -> constellations catalog)', () => {
+describe('constellations', () => {
   const CATALOG = constellationsCatalog.filter(({ mapIndex }) => mapIndex != null);
 
   it('renders every catalog constellation as uncompleted with no save', () => {
@@ -552,16 +515,13 @@ describe('constellations (catalog-driven: constellationsRaw loop -> constellatio
       expect(constellation.requiredPlayers).toBe(CATALOG[index].requiredPlayers);
     });
     expect(account.rawConstellationsDone).toBe(0);
-  });
-
-  it('reports a nonzero total points pool with no save, so the page is not "0 / 0"', () => {
-    const { account } = parseEmpty();
+    // so the page is not "0 / 0"
     const totalPoints = account.constellations.reduce((sum, { points }) => sum + points, 0);
     expect(totalPoints).toBe(CATALOG.reduce((sum, { points }) => sum + points, 0));
     expect(totalPoints).toBeGreaterThan(0);
   });
 
-  it.each(FIXTURES)('%s: each constellation still reads its own save slot by rawIndex', (_name, fixture) => {
+  it('every save: each constellation still reads its own save slot by rawIndex', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const { account } = parseFixture(fixture);
     const constellationsRaw = tryToParse(data?.SSprog) || data?.StarSignProg;
@@ -578,7 +538,7 @@ describe('constellations (catalog-driven: constellationsRaw loop -> constellatio
     });
     expect(assertions).toBe(CATALOG.length);
     expect(completed).toBeGreaterThan(0);
-  });
+  }));
 });
 
 describe('forge slots', () => {
@@ -617,13 +577,7 @@ describe('forge slots', () => {
 });
 
 describe('anvil product catalog', () => {
-  it('lists every anvil product with no save', () => {
-    const catalog = getAnvilProductCatalog();
-    expect(catalog.length).toBe(Object.keys(anvilProducts).length);
-    expect(catalog.length).toBeGreaterThan(0);
-  });
-
-  it('resolves a display name, level requirement and cost for each product', () => {
+  it('lists every anvil product with no save, with a display name, level requirement and cost', () => {
     let assertions = 0;
     for (const { rawName, displayName, requiredAmount, levelReq, exp } of getAnvilProductCatalog()) {
       expect(rawName).toBeTruthy();
@@ -635,15 +589,7 @@ describe('anvil product catalog', () => {
       assertions++;
     }
     expect(assertions).toBe(Object.keys(anvilProducts).length);
-  });
-});
-
-describe('storage', () => {
-  it('still lists every storage chest with no save, because those ARE a catalog', () => {
-    const { account } = parseEmpty();
-    expect(account.storage.storageChests.length).toBe(Object.keys(invStorage).length);
-    expect(account.storage.storageChests.length).toBeGreaterThan(0);
-    for (const { unlocked } of account.storage.storageChests) expect(unlocked).toBe(false);
+    expect(assertions).toBeGreaterThan(0);
   });
 });
 

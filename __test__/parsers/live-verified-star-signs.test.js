@@ -2,6 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
+import { within } from '../helpers/live-verified';
 import { getBestActiveCharacter } from '@parsers/talents';
 import { getInfiniteStarsCount, getStarSignBonus } from '@parsers/starSigns';
 
@@ -51,11 +52,6 @@ const GAME = {
     noChip: { Fight_AFK_Gain: 51.597803520000056, Defence: -50, Total_HP: -80, Movement_Speed: 0 }
   }
 };
-
-const TOLERANCE = 1e-9;
-const within = (actual, expected) => expected === 0
-  ? expect(actual).toBe(0)
-  : expect(Math.abs(actual / expected - 1)).toBeLessThan(TOLERANCE);
 
 const { account, characters } = parseFixture(latest);
 const loggedIn = getBestActiveCharacter(characters);

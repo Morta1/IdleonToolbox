@@ -1,27 +1,23 @@
 // @vitest-environment jsdom
 import '../../polyfills';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, within } from '@testing-library/react';
-import { ThemeProvider } from '@mui/material';
-import theme from '../../styles/theme/theme';
+import { fireEvent, screen, within } from '@testing-library/react';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { AppContext } from '@components/common/context/AppProvider';
-import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
+import { goalsHarness } from '../helpers/goals-harness';
 import AddGoalButton from '@components/goals/AddGoalButton';
 import { getDescriptor } from '@utility/goals/registry';
 import { resolveGoal } from '@utility/goals/resolve';
-import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
+import { createGoal } from '@utility/goals/store';
 import { formatNumber, statusText } from '@components/goals/parts/format';
-import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 
 const router = { pathname: '/account/world-2/bubbles', query: { demo: 'true', t: 'tab' }, isReady: true, push: vi.fn() };
 vi.mock('next/router', () => ({ useRouter: () => router }));
 
 const { account, characters } = parseFixture(latest);
 const ctx = { account, characters };
-const ACCOUNT_KEY = 'uid-test';
+const { api, mount: mountUi, seed } = goalsHarness({ account, characters });
 const bubble = getDescriptor('bubble');
 const stamp = getDescriptor('stamp');
 const skill = getDescriptor('skill');
@@ -31,36 +27,11 @@ const [charA, charB] = characters;
 const skillRowA = skill.list({ ...ctx, character: charA })[0];
 const skillRowB = skill.list({ ...ctx, character: charB })[1];
 
-let api;
-const Probe = () => {
-  const value = useGoals();
-  useEffect(() => {
-    api = value;
-  });
-  return null;
-};
-
 const outerClick = vi.fn();
-const mount = (state = {}) => render(
-  <ThemeProvider theme={theme}>
-    <AppContext.Provider value={{ state: { uid: ACCOUNT_KEY, account, characters, ...state }, dispatch: vi.fn() }}>
-      <GoalsProvider>
-        <Probe/>
-        <div onClick={outerClick}>
-          <AddGoalButton/>
-        </div>
-        <SnackbarHost/>
-      </GoalsProvider>
-    </AppContext.Provider>
-  </ThemeProvider>
-);
+const mount = (state) => mountUi(<div onClick={outerClick}><AddGoalButton/></div>, state);
 
 let createdAt = 1;
 const goal = (fields) => createGoal({ system: 'bubble', metric: 'level', createdAt: createdAt++, ...fields });
-const seed = (...goals) => localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({
-  schema: 1,
-  accounts: { [ACCOUNT_KEY]: goals }
-}));
 
 const reachedGoal = () => goal({ key: bubble.key(levelled[0]), target: 1 });
 const openGoal = () => goal({ key: bubble.key(levelled[1]), target: levelled[1].level + 1000 });
@@ -85,13 +56,7 @@ describe('Header page goals', () => {
     expect(screen.getByRole('heading', { name: 'Add goal' })).toBeTruthy();
   });
 
-  it('reads Goals with reached of total for the page systems only', async () => {
-    seed(reachedGoal(), openGoal(), stampGoal());
-    mount();
-    expect(await screen.findByRole('button', { name: 'Goals · 1 of 2 reached' })).toBeTruthy();
-  });
-
-  it('lists only the page goals, open before reached', async () => {
+  it('counts and lists only the page goals, open before reached', async () => {
     const reached = reachedGoal();
     const open = openGoal();
     seed(reached, open, stampGoal());
@@ -186,16 +151,7 @@ describe('Header page goals', () => {
     expect(screen.getByLabelText('Direction').textContent).toBe('Stay at or below');
   });
 
-  it('a panel row keyboard focus draws an outline', async () => {
-    seed(openGoal());
-    mount();
-    await openPanel('Goals · 0 of 1 reached');
-    const button = panelRows()[0].querySelector('.MuiButtonBase-root');
-    button.classList.add('Mui-focusVisible');
-    expect(getComputedStyle(button).outlineStyle).toBe('solid');
-  });
-
-  it('panel rows use the dashboard card wording', async () => {
+  it('a panel row uses the dashboard card wording and an outline on keyboard focus, and the dashboard link keeps the session query', async () => {
     const open = openGoal();
     seed(open);
     mount();
@@ -203,6 +159,11 @@ describe('Header page goals', () => {
     const view = resolveGoal(open, ctx);
     expect(statusText(view)).toBe(`Lv ${formatNumber(view.value)} of ${formatNumber(view.targetValue)}`);
     expect(within(panelRows()[0]).getByText(statusText(view))).toBeTruthy();
+    const button = panelRows()[0].querySelector('.MuiButtonBase-root');
+    button.classList.add('Mui-focusVisible');
+    expect(getComputedStyle(button).outlineStyle).toBe('solid');
+    expect(screen.getByRole('link', { name: 'All goals on the dashboard' }).getAttribute('href'))
+      .toBe('/dashboard?demo=true');
   });
 
   it('an all goal row is titled like the dashboard row, with what each entry needs', async () => {
@@ -258,25 +219,12 @@ describe('Header page goals', () => {
     expect(screen.getByRole('link', { name: 'View on dashboard' }).getAttribute('href')).toBe('/dashboard?demo=true');
   });
 
-  it.each([
-    ['Measure', 'Measurements'],
-    ['Study', 'Studies'],
-    ['Not a tab', 'Villagers'],
-    [undefined, 'Villagers']
-  ])('the Hole tab %s preselects %s', async (tab, label) => {
+  it('the page tab preselects its system', async () => {
     router.pathname = '/account/world-5/hole';
-    router.query = { demo: 'true', ...(tab ? { t: tab } : {}) };
+    router.query = { demo: 'true', t: 'Measure' };
     mount();
     await openPanel('Add goal');
-    expect(screen.getByLabelText('System').textContent).toMatch(new RegExp(`^${label}`));
-  });
-
-  it('the dashboard link keeps the session query', async () => {
-    seed(openGoal());
-    mount();
-    await openPanel('Goals · 0 of 1 reached');
-    expect(screen.getByRole('link', { name: 'All goals on the dashboard' }).getAttribute('href'))
-      .toBe('/dashboard?demo=true');
+    expect(screen.getByLabelText('System').textContent).toMatch(/^Measurements/);
   });
 
   it('renders nothing on a profile view', () => {

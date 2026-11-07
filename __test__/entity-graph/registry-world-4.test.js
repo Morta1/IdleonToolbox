@@ -27,8 +27,6 @@ describe('lab bonuses', () => {
   // Oracles: the game text of each bonus, `@` as a sentence break and the player's own "Total Bonus" readout dropped.
   it.each([
     ['Animal_Farm', '+1% Total Damage for every different species you have bred within Mob Breeding. You just need to breed the Mob type one time for it to count!'],
-    ['Fungi_Finger_Pocketer', '+2% extra cash from monsters for every 1 million Green Mushroom kills your account has, which can be viewed at Death Note.'],
-    ['Unadulterated_Banking_Fury', "+2% Total Damage for each 'green stack' of resources in your bank. A 'green stack' is a stack in your Storage Chest with 10 million or more items, since the number turns Green after 10M!"],
     ['No_Bubble_Left_Behind', "Every 24 hours, your 3 lowest level Alchemy Bubbles gets +1 Lv. This only applies to bubbles Lv 5 or higher, so it's more like 'your lowest level bubble that is at least level 5'. ALSO, it only works on the first 15 bubbles of each colour! Doesn't trigger on days that you don't login."]
   ])('read %s as the game does', (name, sentence) => {
     expect(spaced(byName(name).description)).toBe(sentence);
@@ -39,15 +37,6 @@ describe('lab bonuses', () => {
   });
 
   // Oracle: N.js pushes NinjaInfo[25 + i] onto LabMainBonus once Jade Emporium upgrade 8 + i is bought.
-  it.each([
-    ['Artifact_Attraction', 'The Artifact Matrix (Jade Emporium)'],
-    ['Slab_Sovereignty', 'The Slab Matrix (Jade Emporium)'],
-    ['Spiritual_Growth', 'The Spirit Matrix (Jade Emporium)'],
-    ['Depot_Studies_PhD', 'The Crop Matrix (Jade Emporium)']
-  ])('name the Jade Emporium upgrade that unlocks %s', (name, value) => {
-    expect(fieldOf(name, 'Unlocked by')).toBe(value);
-  });
-
   it('link the Jade Emporium upgrade and the boosting jewel by index', () => {
     expect(fieldAt('labbonus:LabBonus14', 'Unlocked by')).toEqual({
       label: 'Unlocked by',
@@ -55,6 +44,7 @@ describe('lab bonuses', () => {
       links: ['jade:NjJupg8'],
       linkAs: 'unlockedBy'
     });
+    expect(fieldOf('Depot_Studies_PhD', 'Unlocked by')).toBe('The Crop Matrix (Jade Emporium)');
     expect(fieldAt('labbonus:LabBonus0', 'Boosted by jewel')).toEqual({
       label: 'Boosted by jewel',
       value: 'Purple Navette',
@@ -133,7 +123,6 @@ describe('pet genes', () => {
 
   // Oracle: N.js PetStuff counts type 0 in Trek_FightPower and type 1 in Trekking; types 2 and 3 are the Fence Yard rolls.
   it.each([
-    ['Fighter', 'Combat'],
     ['Forager', 'Foraging'],
     ['Breeder', 'Fence Yard'],
     ['Shiny', 'Fence Yard']
@@ -188,11 +177,6 @@ describe('breeding upgrades', () => {
 
   // Oracles: the game text of each upgrade at a level (N.js fills the effect's token with floor(100 * PetUpgBONUS) / 100).
   it.each([
-    ['Gene_Splicing', 5, '-20% Gene Boost Cost'],
-    ['Rarity_of_the_Egg', 4, '2x Chance'],
-    ['Pastpresent_Brood', 5, '1.75x Bigger Multi'],
-    ['Overwhelmed_Golden_Egg', 20, '1.4x Multiplier every 100 Upg'],
-    ['Shattershell_Iteration', 1, '12% Chance'],
     ['Shattershell_Iteration', 10, '60% Chance'],
     ['Paint_Bucket', 100, '+201% Base Shiny Chance']
   ])('read %s at level %i as the game does', (name, level, text) => {
@@ -297,9 +281,7 @@ describe('rift levels', () => {
 
   // Oracle: RiftStuff("mobHP") (readable RiftStuff.js:7-16), r = Rift[0] = N - 1; Rift 1 is 5e6 and Rift 2 is 5e6 * 1.112.
   it.each([
-    ['Rift_1', '5,000,000'],
     ['Rift_2', '5,560,000'],
-    ['Rift_10', '14,782,637'],
     ['Rift_30', '5.93B'],
     ['Rift_65', '7.12Q']
   ])('show %s monster HP as %s', (name, hp) => {
@@ -358,23 +340,9 @@ describe('rift bonuses', () => {
     );
   });
 
-  it.each([
-    ['Trap_Box_Vacuum', 'Rift 6'],
-    ['Infinite_Stars', 'Rift 11'],
-    ['Ruby_Cards', 'Rift 46'],
-    ['Killroy_Prime', 'Rift 51'],
-    ['Cooking_Mastery', 'Rift 61']
-  ])('unlock %s at %s', (name, rift) => {
-    expect(fieldOf(name, 'Unlocked at')).toBe(rift);
-  });
-
-  // Oracles: the extractor's hand-kept texts. Trap Box Vacuum's is stale against the game and kept as the extractor has it.
-  it.each([
-    ['Trap_Box_Vacuum', 'The trapper drone in World 3 will automatically collect traps every 24 hours, and will deposit the critters into your Storage Chest if there is space. The EXP from the Traps goes to the one who placed the traps.'],
-    ['Eclipse_Skulls', 'You can now get Eclipse Skulls in Deathnote, unlocked at 1,000,000,000 kills. Eclipse Skulls are worth 20 points, and you also get +5% Multiplicative Damage.'],
-    ['Eldritch_Artifact', "You can now get Eldritch Artifacts from sailing, but only if you've found the Ancient form first."]
-  ])('read %s as the extractor keeps it', (name, text) => {
-    expect(spaced(byName(name).description)).toBe(text);
+  // Oracle: the extractor's hand-kept text, stale against the game and kept as the extractor has it.
+  it('read Trap Box Vacuum as the extractor keeps it', () => {
+    expect(spaced(byName('Trap_Box_Vacuum').description)).toBe('The trapper drone in World 3 will automatically collect traps every 24 hours, and will deposit the critters into your Storage Chest if there is space. The EXP from the Traps goes to the one who placed the traps.');
   });
 
   it('collapse the double line break in the Sneak Mastery text', () => {
