@@ -71,7 +71,8 @@ const VoteBallot = () => {
                        meta={thisWeek || onBallot ? <>
                          {thisWeek ? <StatusText status={'active'}>This week</StatusText> : null}
                          {thisWeek && onBallot ? ' · ' : null}
-                         {onBallot ? `On the ballot · ${formatNum(Number(bonus?.percent) || 0, 'pct')} of votes` : null}
+                         {/* A state like This week, so it reads as one rather than as grey small print */}
+                         {onBallot ? <StatusText status={'info'}>{`On the ballot · ${formatNum(Number(bonus?.percent) || 0, 'pct')} of votes`}</StatusText> : null}
                        </> : undefined}/>;
     };
     const group = (title, list) => (list.length ? <Stack gap={1}>
