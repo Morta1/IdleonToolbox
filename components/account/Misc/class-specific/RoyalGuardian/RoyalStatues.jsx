@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Stack } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import StatusText from '@components/common/StatusText';
 import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
@@ -69,33 +69,39 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels, sectionFailed }
         </ItemCard>)}
       </CardGrid> : null}
 
-      {sectionFailed || !statueFlair ? null : <Panel title={'Statue flair'}
-                                                    aside={statueFlair?.unlocked ? null : <StatusText status={'locked'}/>}
-                                                    meta={'Raises a regular statue\'s EXP multiplier, unlocked by the Statue Flair armory upgrade'}>
-        <Stack gap={2} sx={{ p: 2 }}>
-          {statueFlair?.marbleTotals?.length > 0 ? (
-            // A phone hides columns behind chevrons, so the table takes the width it has instead of its own.
-            <Box sx={{ width: { xs: '100%', sm: 'fit-content' }, maxWidth: '100%' }}>
-              <DataTable columns={flairColumns(statueFlair)} rows={statueFlair.marbleTotals} rowKey={'shardIndex'}
-                         rowLabel={({ name }) => cleanUnderscore(name)} surface={'panel'}
-                         // Locked flair: every cell in the muted color, its amounts kept.
-                         sx={statueFlair?.unlocked ? undefined : { '& td': { color: 'text.muted' } }}/>
-            </Box>
-          ) : null}
-          {statueFlair?.statues?.length ? <CardGrid size={'s'}>
-            {statueFlair.statues.map(({ index, name, level, maxLevel, cost, bonus, expMulti, costItem }) => <ItemCard
-              key={index} title={titleCaseName(cleanText(name))} level={{ value: level ?? 0, max: maxLevel }} dimmed={!statueFlair?.unlocked}
-              footer={<ItemCard.Cost icon={`data/${costItem}.png`} iconAlt={cleanUnderscore(statueFlair?.marbleTotals
-                ?.find((marble) => marble.costItem === costItem)?.name ?? '')} game={'RoyalG.SF_costo'} need={cost}
-                                     have={ownedOf(costItem)}/>}>
-              <ItemCard.Facts rows={[
-                ['EXP multi', `${formatGame(expMulti ?? 1, 'RoyalG.SF_bonus')}x`],
-                ['Bonus', `+${formatNum(bonus ?? 0)}%`]
-              ]}/>
-            </ItemCard>)}
-          </CardGrid> : null}
+      {/* A section title over the marbles' Panel and the statues' cards: a Panel holds one table, cards sit on the page */}
+      {sectionFailed || !statueFlair ? null : <Stack gap={2}>
+        <Stack gap={0.5}>
+          <Stack direction={'row'} alignItems={'center'} columnGap={1.5} flexWrap={'wrap'}>
+            <Typography variant={'sectionTitle'} component={'h2'}>Statue flair</Typography>
+            {statueFlair?.unlocked ? null : <StatusText status={'locked'}/>}
+          </Stack>
+          <Typography variant={'body2'} color={'text.secondary'}>
+            Raises a regular statue&apos;s EXP multiplier, unlocked by the Statue Flair armory upgrade
+          </Typography>
         </Stack>
-      </Panel>}
+        {statueFlair?.marbleTotals?.length > 0
+          // As wide as its table; a phone hides columns behind chevrons, so there it takes the width it has
+          ? <Panel title={'Marbles'} sx={{ width: { xs: '100%', sm: 'fit-content' }, maxWidth: '100%' }}>
+            <DataTable columns={flairColumns(statueFlair)} rows={statueFlair.marbleTotals} rowKey={'shardIndex'}
+                       rowLabel={({ name }) => cleanUnderscore(name)}
+                       // Locked flair: every cell in the muted color, its amounts kept.
+                       sx={statueFlair?.unlocked ? undefined : { '& td': { color: 'text.muted' } }}/>
+          </Panel>
+          : null}
+        {statueFlair?.statues?.length ? <CardGrid size={'s'}>
+          {statueFlair.statues.map(({ index, name, level, maxLevel, cost, bonus, expMulti, costItem }) => <ItemCard
+            key={index} title={titleCaseName(cleanText(name))} level={{ value: level ?? 0, max: maxLevel }} dimmed={!statueFlair?.unlocked}
+            footer={<ItemCard.Cost icon={`data/${costItem}.png`} iconAlt={cleanUnderscore(statueFlair?.marbleTotals
+              ?.find((marble) => marble.costItem === costItem)?.name ?? '')} game={'RoyalG.SF_costo'} need={cost}
+                                   have={ownedOf(costItem)}/>}>
+            <ItemCard.Facts rows={[
+              ['EXP multi', `${formatGame(expMulti ?? 1, 'RoyalG.SF_bonus')}x`],
+              ['Bonus', `+${formatNum(bonus ?? 0)}%`]
+            ]}/>
+          </ItemCard>)}
+        </CardGrid> : null}
+      </Stack>}
     </Stack>
   );
 };
