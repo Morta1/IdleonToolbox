@@ -43,7 +43,9 @@ const STATUS_OWN_LINE_SX = { ...STATUS_SX, flexBasis: '100%' };
 // The marker group after the state: none when the marker draws nothing (a doubler tag with nothing to say), and 8 px
 // from a shown state (a span in the title row) as when the two shared one group
 const HEADER_SX = { '& [data-title-row]:has(> span) + [data-aside]': { ml: -0.5 } };
-const ASIDE_SX = { flexShrink: 0, '&:empty': { display: 'none' } };
+// The markers take the title's line (cardTitle's 22 px) and centre on it: a marker taller than the line (Summoning's 40 px
+// boss) overhangs it instead of growing the group, which pushed the title above the icon's middle.
+const ASIDE_SX = { flexShrink: 0, height: 22, '&:empty': { display: 'none' } };
 
 // The › of a thing that opens a page: at a link card's top right, and after a title that is a link.
 export const LinkMark = ({ sx }) => <Box component={'span'} aria-hidden={'true'} sx={{ color: 'text.muted', ...sx }}>›</Box>;
