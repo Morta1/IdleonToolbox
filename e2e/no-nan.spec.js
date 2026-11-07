@@ -17,6 +17,7 @@ const ALLOWED_NAN_TEXT = new Set([
   'Gaming: sprout regrowth time, superbit tower-wave bonuses, and the acorn shop no longer show "NaN" before you have unlocked gaming, and Equinox no longer shows "Bosses killed: NaN"',
   'Dashboard: the companion claim and megaflesh timers no longer show "NaNENaN days" in their tooltips',
   'Active Stuff Calculator: every number showed as "NaN" if you had taken a snapshot before and then opened the page without being signed in - it now asks you to sign in instead',
+  'Signed-out pages no longer show NaN, undefined or repeated weeks',
 ]);
 
 const ALLOWED_UNDEFINED_TEXT = new Set([

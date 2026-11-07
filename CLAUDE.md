@@ -77,7 +77,7 @@ E2E gotchas (`npm run test:e2e` — builds, then serves `out/` on **3002**, or o
   `node tools/needs-build.mjs` says whether a change needs that build at all (exit 0 yes, 1 no): tests, docs and
   tool config don't.
 
-Test suite size. On 2026-11-07, after two sweeps: vitest 7,096 tests, 54 s on 10 workers; e2e 604 tests, 241 s on 4.
+Test suite size. On 2026-11-07, after two sweeps: vitest 7,099 tests, 53 s on 10 workers; e2e 607 tests, 253 s on 4.
 A plan's close states its counts and full-run times beside these, and a jump needs a reason. No fixed cap: the count alone
 misleads, since folding thousands of rows saved seconds while reusing parses and renders saved the time.
 
