@@ -5,6 +5,23 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.1',
+    'gameVer': '2.3.561',
+    'date': '08/11/2026',
+    'features': [
+      'Pages use more of a wide screen, and Page settings open in a panel under the page title',
+      'Dashboard: shorter character cards with their stats in a note; timers grouped by time or by world, two or three to a row; Vote and Meritocracy beside the resets; Later timers always shown',
+      'Compact cards with a Details switch on many pages, including Meals, Sailing, Summoning, Spelunking, Gem Shop and Exotic Market',
+      'Death Note: one table per world, with the multikill bonuses at the top',
+      'Characters: skills grouped by world with every rank, bigger talent and skill icons, and a green dot on the preset in use',
+      'Tome, Refinery and Sushi Station bonuses take much less room, and Pets, Bundles and Gallery tiles show their names'
+    ],
+    'fixes': [
+      'Super talents show their border again, and a talent with no max level reads 0 / 0 instead of blank',
+      'Owned and finished items no longer get a green border, and Menagerie\'s border is no longer cut off'
+    ]
+  },
+  {
     'ver': '4.0.0',
     'gameVer': '2.3.561',
     'date': '07/11/2026',
