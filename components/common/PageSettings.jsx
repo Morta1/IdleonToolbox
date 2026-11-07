@@ -40,14 +40,17 @@ const rowsSx = (px) => ({
   '& [data-settings-group] > h3': { pt: 1.5, pb: 0.5, minHeight: 0 }
 });
 
-// Docked on a desktop: a panel under the header row, its settings in columns, so they take a few rows of the page rather
-// than a long list. Open or closed is remembered per page in this browser, so a player who keeps a page's settings in
-// view opens them once.
+// Docked on a desktop: a panel under the header row, its settings side by side, left to right, so they take a row or two
+// of the page rather than a long list. A group's title spans the row and its settings follow it. Space parts them, not
+// lines: a line under a row that isn't full stops short. Open or closed is remembered per page in this browser, so a
+// player who keeps a page's settings in view opens them once.
 const DOCK_SX = (theme) => ({ ...cardSurface(theme), mb: 2, overflow: 'hidden' });
 const DOCK_HEAD_SX = { px: 2, py: 0.5, minHeight: 44, boxSizing: 'border-box', gap: 1, borderBottom: 1, borderColor: 'divider' };
-const DOCK_COLUMNS_SX = {
-  display: 'block', columnWidth: 360, columnGap: 0, columnRule: '1px solid', columnRuleColor: 'divider',
-  '& > *': { breakInside: 'avoid' }
+const DOCK_GRID_SX = {
+  display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(340px, 1fr))', columnGap: 3, py: 0.5,
+  '& [data-settings-group]': { display: 'contents' },
+  '& > *, & [data-settings-group] > *': { borderTop: 0 },
+  '& [data-settings-group] > h3': { gridColumn: '1 / -1' }
 };
 const DOCKED_KEY = 'page-settings:open';
 
@@ -88,7 +91,7 @@ const PageSettings = ({ state, defaults, onChange, onReset, onOpen, label = 'Pag
   const toggleDock = () => setDockedPages((current) => ({ ...current, [pathname]: !current?.[pathname] }));
   // An action that starts a mode closes a popover or a sheet so the page shows the mode; a dock already leaves it in view
   const rows = <SettingsContext value={{ state, onChange, close: docks ? undefined : close }}>
-    <Stack ref={rowsRef} sx={[rowsSx(isPhone ? 0 : 2), docks && DOCK_COLUMNS_SX]}>{children}</Stack>
+    <Stack ref={rowsRef} sx={[rowsSx(isPhone ? 0 : 2), docks && DOCK_GRID_SX]}>{children}</Stack>
   </SettingsContext>;
   // Reset leaves with the change it undid: the focus goes on to the first setting rather than to the popover or
   // the sheet itself
