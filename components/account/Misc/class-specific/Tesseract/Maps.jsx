@@ -13,7 +13,7 @@ import { getMaps, getRingBaseStats, getWeaponBaseStats, tachyonNames } from '@pa
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 
 // A saved checkbox from before resets once ("Hide unlocked maps")
-const MAPS_TOOLBAR = { tachyon: 'all', hideOpen: false };
+const MAPS_TOOLBAR = { tachyon: 'all', hideOpen: false, details: false };
 
 // An item's base stat ranges at its quality: a list, so a breakdown under the quality it follows (Info board step 5),
 // named and headed as the tile reads
@@ -61,10 +61,11 @@ const Maps = ({ character, account, characters, sectionFailed }) => {
       <Toolbar.Show name={'tachyon'} options={[['all', 'All tachyons', catalog.length],
         ...Object.keys(tachyonNames).map((type) => [type, tachyonNames[type], ofType(type).length])]}/>
       <Toolbar.Filter name={'hideOpen'} label={'Hide unlocked'}/>
+      <Toolbar.Filter name={'details'} label={'Details'} display/>
     </Toolbar>}
     {/* A card says what its map gives: tachyons, and its three bonuses on one line. The charge and each bonus's next step
-        open under its chevron. */}
-    {shown.length ? <CardGrid size={'m'}>
+        show with the Details pill. */}
+    {shown.length ? <CardGrid size={'m'} details={view?.details}>
       {shown.map(({ mapIndex, mapName, reqKills, portals, monster, unlocked, tachyonQuantity, tachyonType, mapBonuses, timeLeft }) =>
         <ItemCard key={mapIndex ?? mapName} icon={`data/Mface${monster?.MonsterFace}.png`} title={cleanUnderscore(mapName ?? '')}
                   dimmed={!sectionFailed && !unlocked}

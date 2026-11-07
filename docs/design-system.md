@@ -28,7 +28,7 @@ The rules that keep every page looking like one site. Read this before building 
 | A page-wide picker (a character, a world) | `PageHeaderControl` | A control in the content |
 | One number and its label | `StatTile`: inside `PageSummary` for the page's main numbers, in a plain `Stack` for a tab's own | A custom box |
 | A titled box round a list, table, chart or form | `Panel`: the title lives in its header | A heading above one card. A `sectionTitle` over a whole grid of cards is fine |
-| A thing with rows of details | `ItemCard` in a `CardGrid`, size S, M or L. At its `level`'s max it reads Maxed and drops its cost by itself. Its secondary rows (next milestone, time to charge) go in `more`, behind the chevron that opens them in place | A width on a card: the grid sets it. A cost past the cap |
+| A thing with rows of details | `ItemCard` in a `CardGrid`, size S, M or L. At its `level`'s max it reads Maxed and drops its cost by itself. Its secondary rows (next milestone, time to charge) go in `more`, which shows while the page's Details pill (`Toolbar.Filter display`, passed as `CardGrid details`) is on | A width on a card: the grid sets it. A cost past the cap |
 | A sprite and one number, scanned at a glance | `IconTile` in a `CardGrid`. A collection whose sprites need their names (hats, companions) gives each tile a `label` in a `CardGrid fill={LABELED_TILE_MIN}`, the rest in its note | A custom grid. A card per item of a long collection |
 | A table | `DataTable` (`components/common/DataTable/index.jsx`). Past rotations and Obols keep their own on purpose | A raw MUI table |
 | A chart | `components/common/charts/`, with `seriesColors` | A colour picked by hand. Series slots go in order and never cycle: a ninth is Other |

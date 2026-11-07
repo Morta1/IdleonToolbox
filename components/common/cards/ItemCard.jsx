@@ -1,13 +1,12 @@
-import { Fragment, useState } from 'react';
+import { Fragment } from 'react';
 import NextLink from 'next/link';
-import { Box, IconButton, LinearProgress, Link, Stack, Typography } from '@mui/material';
-import { IconChevronDown } from '@tabler/icons-react';
+import { Box, LinearProgress, Link, Stack, Typography } from '@mui/material';
 import GameIcon from '@components/common/GameIcon';
 import Num, { numOrNode } from '@components/common/Num';
 import StatusText from '@components/common/StatusText';
 import WithLastWord from '@components/common/WithLastWord';
 import { formatNum, gameLines } from '@utility/helpers';
-import { useCardSize } from './CardGrid';
+import { useCardDetails, useCardSize } from './CardGrid';
 import { CARD_PADDING, cardState, cardSurface, dimKeepingMeta, isNumberLike, textOf } from './tokens';
 
 // The icon follows the card size unless the card passes iconSize (2b Decision 3 keeps some art at 56 on M cards).
@@ -92,26 +91,19 @@ export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title
 // words (Gallery's "Not acquired") keeps that line at full strength, so it reads at AA.
 // A card at its level's max is Maxed unless the page names another state, so it drops its cost by itself: a page that
 // forgot to say so priced a level past the cap (Statue flair's Lv 4 / 4 asking for marble).
-// more: the card's secondary rows (the next milestone, kills to charge, an outpost's units), behind a chevron at the
-// header's end that opens them in place, under the card's own rows: a compact card a desktop fits more of, with nothing
-// out of reach. In place rather than in a note, so what it holds can be a control (Outposts' unit tiles). Not on a link
-// card, which holds no buttons.
+// more: the card's secondary rows (the next milestone, kills to charge, an outpost's units), drawn under its own rows
+// while its grid shows details: the page's Details pill (CardGrid details). Off, the card is compact and a desktop fits
+// more of them; on, every card on the page opens at once and the rows stay even. In the card rather than a note, so what
+// it holds can be a control (Outposts' unit tiles). Not on a link card, which holds no buttons.
 const reachedMax = (level) => Number.isFinite(level?.max) && level.max > 0 && (level.value ?? 0) >= level.max;
-const MORE_SX = { m: -0.75, color: 'text.secondary' };
 const ItemCard = ({ href, onClick, prefetch, status: givenStatus, dimmed, keepMeta, size, footer, more, children, ...props }) => {
   const gridSize = useCardSize();
-  const [moreOpen, setMoreOpen] = useState(false);
+  const showDetails = useCardDetails();
   const cardSize = size ?? gridSize;
   const derivedMax = givenStatus == null && reachedMax(props.level);
   const status = derivedMax ? 'maxed' : givenStatus;
-  const hasMore = Boolean(more) && !href;
-  const moreToggle = hasMore ? <IconButton size={'small'} aria-expanded={moreOpen} aria-label={moreOpen ? 'Show less' : 'Show more'}
-                                           onClick={() => setMoreOpen(!moreOpen)} sx={MORE_SX}>
-    <IconChevronDown size={18} style={{ transform: moreOpen ? 'rotate(180deg)' : 'none' }}/>
-  </IconButton> : null;
   // A label the page wrote for its own state never names the derived one
-  const named = derivedMax ? { ...props, statusLabel: undefined } : props;
-  const header = hasMore ? { ...named, aside: <>{named.aside}{moreToggle}</> } : named;
+  const header = derivedMax ? { ...props, statusLabel: undefined } : props;
   const root = href ? { component: NextLink, href, onClick, prefetch } : { component: 'article' };
   return <Box {...root} sx={[
     (theme) => cardSurface(theme),
@@ -131,7 +123,7 @@ const ItemCard = ({ href, onClick, prefetch, status: givenStatus, dimmed, keepMe
       ? <ItemCardHeader {...header} size={cardSize} status={status} link={Boolean(href)}/>
       : null}
     {children}
-    {hasMore && moreOpen ? more : null}
+    {more && showDetails && !href ? more : null}
     {footer && status !== 'maxed'
       ? <Stack gap={1} sx={{ mt: 'auto', pt: 1.5, borderTop: 1, borderColor: 'divider' }}>{footer}</Stack>
       : null}
