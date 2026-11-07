@@ -5,8 +5,6 @@ import React, { useState } from 'react';
 import { CardAndBorder } from '../common/styles';
 import { cleanUnderscore, createRange, formatNum } from '@utility/helpers';
 import Tabber from '../common/Tabber';
-import GameIcon from '../common/GameIcon';
-import InUseDot from './InUseDot';
 import Panel from '../common/cards/Panel';
 import IconTile from '../common/cards/IconTile';
 
@@ -22,20 +20,31 @@ const CardCell = ({ children }) => <Box sx={{ width: CELL_WIDTH, height: CELL_HE
   <Box sx={{ position: 'relative', width: 56, height: 72 }}>{children}</Box>
 </Box>;
 
+// The preset the game has in use: a green dot centred under its tab, clear of the card art and the open tab's ring (on
+// the sprite it crowded both, and words in the panel's corner made you count tabs). A tab clips what it draws, so this
+// one lets its dot out, and the row's own room under the pills holds it: MUI's scroller clips past its content.
+const inUseSx = (index) => (index == null ? {} : {
+  '& .MuiTabs-flexContainer': { pb: '10px' },
+  [`& [role="tab"]:nth-of-type(${index + 1})`]: {
+    overflow: 'visible',
+    '&::after': { content: '""', position: 'absolute', bottom: -8, left: '50%', width: 5, height: 5, ml: '-2.5px', borderRadius: '50%', bgcolor: 'success.main' }
+  }
+});
+
 const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
   const { equippedCards, cardSet } = cards || {};
   const [selectedTab, setSelectedTab] = useState(selectedCardPreset ?? 0);
   const cardPreset = cardPresets?.[selectedTab] ?? (selectedTab === 0 ? equippedCards : EMPTY_PRESET);
 
   return <Panel title={'Equipped cards'}>
-    <Box sx={{ mb: 1 }}>
+    <Box sx={[{ mb: 1 }, inUseSx(selectedCardPreset)]}>
       <Tabber
         level={2}
         disableQuery
         iconsOnly
         label={'Card presets'}
-        tabs={PRESETS.map((index) => `Card preset ${index + 1}`)}
-        components={PRESETS.map((index) => <TabIcon key={index} selected={selectedCardPreset === index} src={`etc/Card_Preset_${index}.png`} alt={''}/>)}
+        tabs={PRESETS.map((index) => `Card preset ${index + 1}${index === selectedCardPreset ? ', in use' : ''}`)}
+        icons={PRESETS.map((index) => `etc/Card_Preset_${index}`)}
         activeTab={selectedTab}
         onTabChange={setSelectedTab}
       />
@@ -61,11 +70,5 @@ const EquippedCards = ({ cards, cardPresets, selectedCardPreset }) => {
     </Box>
   </Panel>;
 };
-
-// The game's preset in use carries the dot on its sprite's corner, so it never fills the pill the way the open one does
-const TabIcon = ({ src, alt, selected }) => <Box component={'span'} sx={{ position: 'relative', display: 'inline-flex' }}>
-  <GameIcon src={src} size={28} alt={alt}/>
-  {selected ? <InUseDot onSprite/> : null}
-</Box>;
 
 export default EquippedCards;
