@@ -9,9 +9,8 @@ export const WHATS_NEW_KEY = 'whatsNew';
 export const WHATS_NEW_SHOWN = 'shown';
 export const WHATS_NEW_SKIPPED = 'skipped';
 
-// A hard end: after it nothing shows, with no deploy. SET THIS AT RELEASE, to two weeks after the release date. It stands
-// in the past until then, so a build of this code can't show the story to anyone.
-export const WHATS_NEW_UNTIL = '2026-01-01T00:00:00Z';
+// A hard end, two weeks after the release: after it nothing shows, with no deploy.
+export const WHATS_NEW_UNTIL = '2026-11-21T00:00:00Z';
 
 // A test or the kit (tools/page-check.mjs --whats-new) opens the window, and lets it open on the demo for shots.
 const override = () => (typeof window === 'undefined' ? undefined : window.__whatsNewKit);
