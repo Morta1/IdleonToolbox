@@ -23,7 +23,7 @@ The rules that keep every page looking like one site. Read this before building 
 | You need | Use | Don't |
 |---|---|---|
 | A setting that changes the page's numbers | `PageSettings` (`.Toggle`, `.Number`, `.Select`, or `.Action` to start a mode on the page), under a `.Group` named after its tab, even if only one tab reads it. Keep the stored key when moving one | A loose switch or number field above a tab |
-| Search, filter, sort, view | `Toolbar` (`.Search`, `.Show`, `.Filter`, `.Sort`, `.View`; `.Lead` for a page's own control that stays in the row, `.Panel` for its own phone panel) | Page settings |
+| Search, filter, sort, view | `Toolbar` (`.Search`, `.Show`, `.Filter`, `.Sort`, `.View`; `.Lead` for a page's own control that stays in the row, `.Panel` for its own phone panel; `.Show multiple` when players combine options, a box per row, as Stamps' states) | Page settings |
 | A calculator's inputs, changed each try | `Panel.Inputs`, on the tool's own tab | Page settings |
 | A page-wide picker (a character, a world) | `PageHeaderControl` | A control in the content |
 | One number and its label | `StatTile`: inside `PageSummary` for the page's main numbers, in a plain `Stack` for a tab's own | A custom box |

@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   ButtonBase,
+  Checkbox,
   IconButton,
   InputAdornment,
   MenuItem,
@@ -75,9 +76,62 @@ const Search = ({ name = 'search', placeholder }) => {
 // a Toolbar has several Show fields ("World", "Rank"): it takes "Show"'s place before the value and names the field.
 // note: a line on what an option means. Its i sits beside the option in the list, and beside the field while that option
 // is picked: the list's own keys never reach a button inside a row, so Tab finds it there.
-export const ShowField = ({ value, onChange, label = 'Show', options, fullWidth }) => {
+const counted = ([, label, count]) => (count == null ? label : `${label} (${commaNotation(count)})`);
+
+// What a multiple Show's picks read as, in the field and its result-line token: one pick its label, several their number.
+const pickedOptions = (options, value) => options.slice(1).filter(([key]) => value?.includes?.(key));
+const pickedText = (options, value) => {
+  const picked = pickedOptions(options, value);
+  return picked.length === 1 ? picked[0][1] : `${picked.length} picked`;
+};
+
+// multiple: several options at once, a box on each row (Stamps). value is the picked keys in the options' order, and the
+// first option is the whole list: [] picks it, and picking it clears the rest. Its options split the list (a row is in
+// one), so the picked counts add up.
+// The box marks a pick, so a picked row takes no tint of its own (Controls board), only hover's. As in a select's list, the
+// picked row the list focuses as it opens shows no ring, only the tint.
+const MULTI_ROW_SX = {
+  gap: 0.75, pl: 1,
+  '&.Mui-selected': { bgcolor: 'transparent' },
+  '&.Mui-selected:hover': { bgcolor: 'action.hover' },
+  '&.Mui-selected.Mui-focusVisible': { outline: 'none', bgcolor: 'action.hover' }
+};
+const MultiShowField = ({ value, onChange, label, options, fullWidth }) => {
+  const [whole, ...rest] = options;
+  const picked = pickedOptions(options, value);
+  const keys = picked.map(([key]) => key);
+  const total = picked.every(([, , count]) => count != null) ? picked.reduce((sum, [, , count]) => sum + count, 0) : null;
+  const text = picked.length === 0 ? counted(whole) : counted([null, pickedText(options, value), picked.length > 1 ? total : picked[0][2]]);
+  const pick = (next) => onChange(next.includes(whole[0]) ? [] : rest.map(([key]) => key).filter((key) => next.includes(key)));
+  const row = (option, checked) => <MenuItem key={option[0]} value={option[0]} sx={MULTI_ROW_SX}>
+    <Checkbox size="small" checked={checked} disableRipple tabIndex={-1} sx={{ p: 0.5 }} slotProps={{ input: { 'aria-hidden': true } }}/>
+    {counted(option)}
+    {option[3] ? <InfoButton label={option[1]}>{option[3]}</InfoButton> : null}
+  </MenuItem>;
+  return <TextField
+    select
+    value={keys}
+    onChange={(event) => pick(event.target.value)}
+    sx={fullWidth ? { flex: 1, width: '100%' } : undefined}
+    slotProps={{
+      select: {
+        multiple: true,
+        displayEmpty: true,
+        renderValue: () => prefixed(`${label}:`, text),
+        SelectDisplayProps: { 'aria-label': label },
+        // Without the theme's select-list class: the boxes mark the picks, not its check
+        MenuProps: { MenuListProps: { 'aria-multiselectable': true } }
+      }
+    }}
+  >
+    {row(whole, keys.length === 0)}
+    {rest.map((option) => row(option, keys.includes(option[0])))}
+  </TextField>;
+};
+
+export const ShowField = ({ value, onChange, label = 'Show', options, fullWidth, multiple = false }) => {
+  if (multiple) return <MultiShowField value={value} onChange={onChange} label={label} options={options} fullWidth={fullWidth}/>;
   const optionOf = (key) => options.find(([option]) => option === key);
-  const counted = ([, label, count]) => (count == null ? label : `${label} (${commaNotation(count)})`);
   const picked = optionOf(value);
   const field = <TextField
     select
@@ -103,10 +157,10 @@ export const ShowField = ({ value, onChange, label = 'Show', options, fullWidth 
   </Stack> : field;
 };
 
-const Show = ({ name = 'show', label, options }) => {
+const Show = ({ name = 'show', label, options, multiple }) => {
   const { state, onChange, placement } = useContext(ToolbarContext);
   return <ShowField value={state[name]} onChange={(next) => onChange({ [name]: next })} label={label} options={options}
-                    fullWidth={placement === 'panel'}/>;
+                    fullWidth={placement === 'panel'} multiple={multiple}/>;
 };
 
 // An on/off filter, a pill you press. Anything else (a ref, a drag's listeners, a key handler, sx) goes to the button.
@@ -306,7 +360,12 @@ const Toolbar = ({
   const narrowing = [
     ...searches.filter(differs).map((child) => ({ key: slotKey(child), text: `"${state[slotKey(child)]}"`, label: `search "${state[slotKey(child)]}"` })),
     ...shows.filter(differs).map((child) => {
-      const label = child.props.options.find(([value]) => value === state[slotKey(child)])?.[1] ?? '';
+      const value = state[slotKey(child)];
+      if (child.props.multiple) {
+        const labels = pickedOptions(child.props.options, value).map(([, label]) => label).join(', ');
+        return { key: slotKey(child), text: pickedText(child.props.options, value), label: labels };
+      }
+      const label = child.props.options.find(([option]) => option === value)?.[1] ?? '';
       return { key: slotKey(child), text: label, label };
     }),
     ...narrowingFilters.filter(differs).map((child) => ({ key: slotKey(child), text: child.props.label, label: child.props.label }))

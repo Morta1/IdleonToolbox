@@ -66,6 +66,36 @@ describe('Toolbar', () => {
     }).toEqual({ before: null, show: true, sort: true, search: null });
   });
 
+  it('picks several Show options at once, and its first option clears them', () => {
+    const onChange = vi.fn();
+    const options = [['all', 'All stamps', 128], ['money', 'Short on coins', 1], ['materials', 'Short on materials', 24]];
+    const multi = (show) => <ThemeProvider theme={theme}>
+      <Toolbar defaults={{ show: [] }} state={{ show }} onChange={onChange} total={128} shown={25}>
+        <Toolbar.Show multiple options={options}/>
+      </Toolbar>
+    </ThemeProvider>;
+    const { rerender } = render(multi(['money']));
+    const field = () => screen.getByRole('combobox', { name: 'Show' });
+    const one = field().textContent;
+    fireEvent.mouseDown(field());
+    fireEvent.click(screen.getByRole('option', { name: 'Short on materials (24)' }));
+    fireEvent.click(screen.getByRole('option', { name: 'All stamps (128)' }));
+    // A multiple list stays open for the next pick
+    fireEvent.keyDown(screen.getByRole('listbox'), { key: 'Escape' });
+    rerender(multi(['money', 'materials']));
+    expect({
+      one,
+      changes: onChange.mock.calls,
+      several: field().textContent,
+      token: screen.getByRole('button', { name: 'Clear Short on coins, Short on materials' }).textContent
+    }).toEqual({
+      one: 'Show:Short on coins (1)',
+      changes: [[{ show: ['money', 'materials'] }], [{ show: [] }]],
+      several: 'Show:2 picked (25)',
+      token: '2 picked'
+    });
+  });
+
   it('warns in development about a slot it cannot read, and stays quiet for direct slots', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const toolbarWarnings = () => warn.mock.calls.filter(([message]) => String(message).startsWith('Toolbar:')).length;

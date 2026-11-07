@@ -62,7 +62,9 @@ const STAMP_STATES = [['upgradable', 'Can level up'], ['reduction', 'Can level u
 const STATE_LABELS = Object.fromEntries(STAMP_STATES);
 // The state's word in a stamp's details: the two that level up are ready, a shortfall a problem, the rest a to-do
 const STATE_TONES = { upgradable: 'ready', reduction: 'ready', equipments: 'needs', level: 'needs' };
-const STAMPS_TOOLBAR = { show: 'all' };
+// Show takes several states at once: [] shows every stamp. A single pick saved before that ('materials') reads as that one.
+const STAMPS_TOOLBAR = { show: [] };
+const picksOf = (show) => (Array.isArray(show) ? show : show && show !== 'all' ? [show] : []);
 // A stamp's details open beside the grid: at 420 px, the other drawers' width, a 1920 page's last tile column sits half under it.
 const DRAWER_WIDTH = 380;
 // Beside a side ad the drawer sits over the ad's rail and reaches at most this far into the page, the page at its narrowest
@@ -133,8 +135,8 @@ const Stamps = () => {
       : stampState(stamp, stamp.level < stamp.maxLevel ? 'money' : 'material', stateOptions)))]));
   const allStates = Object.values(states).flat();
   const counts = Object.fromEntries(STAMP_STATES.map(([key]) => [key, allStates.filter((type) => type === key).length]));
-  const show = stampsFailed ? 'all' : view?.show ?? 'all';
-  const isShownState = (type) => show === 'all' || type === show;
+  const show = stampsFailed ? [] : picksOf(view?.show);
+  const isShownState = (type) => show.length === 0 || show.includes(type);
   const shownCount = allStates.filter(isShownState).length;
 
   const handleSnapshot = () => {
@@ -264,11 +266,11 @@ const Stamps = () => {
                   value={compassFailed ? '-' : `${formatNum(remainingExalted)} / ${formatNum(remainingExalted + usedExalted)}`}/>
       </PageSummary>
       <Box>
-        {stampsFailed ? null : <Toolbar state={view} defaults={STAMPS_TOOLBAR} onChange={setView} onReset={resetView}
+        {stampsFailed ? null : <Toolbar state={{ ...view, show }} defaults={STAMPS_TOOLBAR} onChange={setView} onReset={resetView}
                                         total={allStates.length} shown={shownCount} noun={'stamps'}>
           {/* A phone's row holds the Lead and the Filters button; from 600 px it stands beside the Show field */}
           {shownCount ? <Toolbar.Lead><PickLine sx={{ display: { xs: 'flex', sm: 'none' }, order: 1 }}/></Toolbar.Lead> : null}
-          <Toolbar.Show options={[['all', 'All stamps', allStates.length], ...STAMP_STATES.map(([key, label]) => [key, label, counts[key],
+          <Toolbar.Show multiple options={[['all', 'All stamps', allStates.length], ...STAMP_STATES.map(([key, label]) => [key, label, counts[key],
             key === 'impossible' ? `An out of reach stamp costs more than your best carry capacity even at the ${MAX_STAMP_REDUCTION}% reducer cap, so no reducer unlocks it. Being short on the material itself is Short on materials.` : undefined])]}/>
           {shownCount ? <PickLine sx={{ display: 'flex' }}/> : null}
         </Toolbar>}
