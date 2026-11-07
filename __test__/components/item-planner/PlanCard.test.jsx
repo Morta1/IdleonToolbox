@@ -28,11 +28,17 @@ const renderCard = (props = {}) => {
 afterEach(() => cleanup());
 
 describe('PlanCard', () => {
-  it('shows the plan progress in its header', () => {
+  it('shows the plan progress in its header, amounts in game notation, and what the next tier is short of', () => {
     renderCard();
     // Godshard Bar 195 / 50,000 blocks the plan, however many other rows are ready
     expect(screen.getByText('Short on Godshard Bar')).toBeTruthy();
     expect(screen.getByText('2 of 3 materials ready')).toBeTruthy();
+    // Caulifish: 1,000,000,000 owned of 10,000,000 needed
+    expect(screen.getAllByText('1B').length).toBeGreaterThan(0);
+    expect(screen.queryByText('1,000,000,000')).toBeNull();
+    expect(screen.getByText('Godshard Bar ×49,805')).toBeTruthy();
+    // Each chain row is named after the item it builds toward
+    expect(screen.getAllByText('Crown of the Gods').length).toBeGreaterThan(1);
   });
 
   it('shows count controls without hovering, and minus at 1 asks for 0', () => {
@@ -41,22 +47,9 @@ describe('PlanCard', () => {
     expect(onSetCount).toHaveBeenCalledWith('Crown_of_the_Gods', 0);
   });
 
-  it('shows amounts from a million up in game notation', () => {
-    renderCard();
-    // Caulifish: 1,000,000,000 owned of 10,000,000 needed
-    expect(screen.getAllByText('1B').length).toBeGreaterThan(0);
-    expect(screen.queryByText('1,000,000,000')).toBeNull();
-  });
-
-  it('shows a chain from the owned tier up, with earlier tiers behind a toggle', () => {
+  it('shows a chain from the owned tier up, earlier tiers behind a toggle, and a tier\'s chain state on hover', async () => {
     renderCard();
     expect(screen.queryByAltText('Skulled Helmet of the Divine, covered')).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Show 3 earlier tiers' }));
-    expect(screen.getByAltText('Skulled Helmet of the Divine, covered')).toBeTruthy();
-  });
-
-  it('shows the item card with its chain state when hovering a tier', async () => {
-    renderCard();
     fireEvent.click(screen.getByRole('button', { name: 'Show 3 earlier tiers' }));
     fireEvent.mouseOver(screen.getByAltText('Skulled Helmet of the Divine, covered'));
     expect(await screen.findByText('Covered by Marbiglass Headdress')).toBeTruthy();
@@ -77,13 +70,6 @@ describe('PlanCard', () => {
       owned('Caulifish', 1e9), owned('Royal_Fabric', 1e9), owned('Godshard_Bar', 1e9)] });
     renderCard({ view, showAll: false });
     expect(screen.getByText('Nothing missing: every material is ready.')).toBeTruthy();
-  });
-
-  it('names what the next tier of a chain is short of', () => {
-    renderCard();
-    expect(screen.getByText('Godshard Bar ×49,805')).toBeTruthy();
-    // Each chain row is named after the item it builds toward
-    expect(screen.getAllByText('Crown of the Gods').length).toBeGreaterThan(1);
   });
 
   it('adds the chosen item when Enter is pressed', () => {

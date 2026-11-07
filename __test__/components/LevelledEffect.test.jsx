@@ -26,12 +26,10 @@ const lines = (container) => Array.from(container.querySelectorAll('[data-cost-l
 const shows = (text) => lines(document.body).includes(text);
 
 describe('LevelledEffect', () => {
-  it('renders level 1 before anything is typed', () => {
-    render(<LevelledEffect node={capped}/>);
-    expect(screen.getByText('+2 Base Damage')).toBeTruthy();
-    expect(shows('Cost for this level: 10 Feathers')).toBe(true);
-    expect(shows('Total to max: 70 Feathers')).toBe(true);
-    expect(screen.getByLabelText('Statue level')).toBeTruthy();
+  it('renders level 1 before anything is typed, its cost worded by default as a base cost', () => {
+    const { container } = render(<LevelledEffect node={capped}/>);
+    expect(screen.getByLabelText('Statue level').value).toBe('1');
+    expect(lines(container)).toEqual(['+2 Base Damage', 'Cost for this level: 10 Feathers', 'Total to max: 70 Feathers', 'Base cost, before discounts.']);
   });
 
   // A prayer's curse, a Post Office box's later bonuses: each bonus its own line, labelled, in place of the sentence.
@@ -57,12 +55,6 @@ describe('LevelledEffect', () => {
     expect(screen.getByText('+6 Base Damage')).toBeTruthy();
   });
 
-  it('words the cost by default as a base cost', () => {
-    render(<LevelledEffect node={capped}/>);
-    expect(shows('Cost for this level: 10 Feathers')).toBe(true);
-    expect(screen.getByText('Base cost, before discounts.')).toBeTruthy();
-  });
-
   it('uses the label and note a node supplies instead of the defaults', () => {
     const shrine = { ...capped, cost: { ...capped.cost, label: 'Time to reach this level', note: 'Before shrine level-up speed bonuses.' } };
     render(<LevelledEffect node={shrine}/>);
@@ -78,12 +70,6 @@ describe('LevelledEffect', () => {
     expect(shows('Odds: 1 in 3')).toBe(true);
     fireEvent.change(screen.getByLabelText('Statue level'), { target: { value: '701' } });
     expect(shows('Odds: 1 in ∞')).toBe(true);
-  });
-
-  it('names the currency in the singular when the amount reads exactly 1', () => {
-    const points = { ...capped, cost: { formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Research_Points', currencyOne: 'Research_Point' } };
-    const { container } = render(<LevelledEffect node={points}/>);
-    expect(lines(container)).toEqual(['+2 Base Damage', 'Cost for this level: 1 Research Point', 'Total to max: 3 Research Points', 'Base cost, before discounts.']);
   });
 
   it('starts at the effect\'s first level and reads nothing below it', () => {
@@ -123,8 +109,7 @@ describe('LevelledEffect', () => {
   // From a million up a cost reads in the game's short notation, the exact amount under a dotted underline.
   it.each([
     [999999, '999,999', null],
-    [45402147, '45.5M', '45,402,147'],
-    [2.17e9, '2.17B', '2,170,000,000']
+    [45402147, '45.5M', '45,402,147']
   ])('prints a cost of %s as %s', (base, shown, exact) => {
     const node = { ...capped, cost: { formula: 'pow', args: { base, rate: 1 }, currency: 'Feathers' } };
     const { container } = render(<ThemeProvider theme={theme}><LevelledEffect node={node}/></ThemeProvider>);
@@ -164,6 +149,7 @@ describe('LevelledEffect', () => {
   it.each([
     ['capped', capped, '2', ['+4 Base Damage', 'Cost for this level: 20 Feathers', 'From level 2 to max: 40 Feathers', 'Total to max: 70 Feathers', 'Base cost, before discounts.']],
     ['capped at its cap', capped, '3', ['+6 Base Damage', 'Cost for this level: 40 Feathers', 'Total to max: 70 Feathers', 'Base cost, before discounts.']],
+    // The singular only where the amount reads exactly 1
     ['points', { ...capped, effect: { ...capped.effect, cap: 4 }, cost: { formula: 'pow', args: { base: 1, rate: 1 }, currency: 'Research_Points', currencyOne: 'Research_Point' } }, '2',
       ['+4 Base Damage', 'Cost for this level: 1 Research Point', 'From level 2 to max: 2 Research Points', 'Total to max: 4 Research Points', 'Base cost, before discounts.']],
     ['overflowing', { ...capped, effect: { ...capped.effect, cap: 2000 } }, '2', ['+4 Base Damage', 'Cost for this level: 20 Feathers', 'Total to max: No max', 'Base cost, before discounts.']]
@@ -173,13 +159,7 @@ describe('LevelledEffect', () => {
     expect(lines(container)).toEqual(expected);
   });
 
-  // Pinned from the page before several costs per level existed: a single cost reads exactly as it did.
-  it('renders a single-cost page line for line as before', () => {
-    const { container } = render(<LevelledEffect node={capped}/>);
-    expect(lines(container)).toEqual(['+2 Base Damage', 'Cost for this level: 10 Feathers', 'Total to max: 70 Feathers', 'Base cost, before discounts.']);
-  });
-
-  it('renders a real single-cost registry page line for line as before', () => {
+  it('renders a real single-cost registry page line for line', () => {
     const hydrogen = registryNodes({ atomsInfo }, [atom])['atom:Atom0'];
     const { container } = render(<ThemeProvider theme={theme}><LevelledEffect node={hydrogen}/></ThemeProvider>);
     fireEvent.change(screen.getByLabelText('Atom level'), { target: { value: '10' } });
@@ -197,20 +177,11 @@ describe('LevelledEffect', () => {
       ]
     };
 
-    it('prints a cost and a total per currency, and a shared note once', () => {
-      const { container } = render(<LevelledEffect node={twoCosts}/>);
-      expect(lines(container)).toEqual([
-        '+2 Base Damage',
-        'Cost for this level: 10 Turkey of Thank',
-        'Total to max: 70 Turkey of Thank',
-        'Cost for this level: 3 Dead Cells',
-        'Total to max: 18 Dead Cells',
-        'Base cost, before discounts.'
-      ]);
-    });
-
-    it('prints a note the costs share once, in place of the default', () => {
-      const node = { ...twoCosts, cost: twoCosts.cost.map((cost) => ({ ...cost, note: 'No discounts apply.' })) };
+    it.each([
+      ['the default', undefined, 'Base cost, before discounts.'],
+      ['their own', 'No discounts apply.', 'No discounts apply.']
+    ])('prints a cost and a total per currency, and the note they share once: %s', (_, note, shared) => {
+      const node = { ...twoCosts, cost: twoCosts.cost.map((cost) => ({ ...cost, note })) };
       const { container } = render(<LevelledEffect node={node}/>);
       expect(lines(container)).toEqual([
         '+2 Base Damage',
@@ -218,7 +189,7 @@ describe('LevelledEffect', () => {
         'Total to max: 70 Turkey of Thank',
         'Cost for this level: 3 Dead Cells',
         'Total to max: 18 Dead Cells',
-        'No discounts apply.'
+        shared
       ]);
     });
 

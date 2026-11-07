@@ -79,14 +79,7 @@ describe('MetricCard', () => {
     expect(values).toEqual(['12.20M', '12.19M', '11.00M']);
   });
 
-  it('opens the board from Top 100', () => {
-    const onOpen = vi.fn();
-    renderCard({ meta: mining, entries: [row('A', 300, 1)], onOpen });
-    fireEvent.click(screen.getByRole('link', { name: /Top 100/ }));
-    expect(onOpen).toHaveBeenCalledWith('mining');
-  });
-
-  it('links Top 100 to the board and leaves a modified click to the browser', () => {
+  it('links Top 100 to the board, opens it on a plain click and leaves a modified click to the browser', () => {
     const onOpen = vi.fn();
     renderCard({ meta: { ...mining, category: 'skills' }, entries: [row('A', 300, 1)], onOpen });
     const link = screen.getByRole('link', { name: /Top 100/ });
@@ -94,6 +87,8 @@ describe('MetricCard', () => {
     document.addEventListener('click', (event) => event.preventDefault(), { once: true });
     fireEvent.click(link, { ctrlKey: true });
     expect(onOpen).not.toHaveBeenCalled();
+    fireEvent.click(link);
+    expect(onOpen).toHaveBeenCalledWith('mining');
   });
 
   it('keeps the full label in a clamped heading, with no hover title', () => {

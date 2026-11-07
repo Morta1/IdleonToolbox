@@ -57,7 +57,7 @@ describe('royal guardian alert list', () => {
     expect(document.querySelector('img[src*="Royal_Cost"]')).toBeTruthy();
   });
 
-  it('names the world and the map monster next to every outpost', async () => {
+  it('names the world and the map monster next to every outpost, with its sprite, or the plain map name without an AFK target', async () => {
     renderDashboard();
     fireEvent.mouseOver(document.querySelector('img[src*="Royal_Cost"]'));
     await screen.findByText(/W1 Spore Meadows/);
@@ -72,24 +72,13 @@ describe('royal guardian alert list', () => {
     expect(screen.getByText("W1 The Ol' Straightaway")).toBeTruthy();
     expect(screen.getByText('Plat')).toBeTruthy();
     expect(screen.getByText('12 PTS')).toBeTruthy();
-  });
-
-  it('draws the monster sprite alongside the name', async () => {
-    renderDashboard();
-    fireEvent.mouseOver(document.querySelector('img[src*="Royal_Cost"]'));
-    await screen.findByText(/W1 Spore Meadows/);
 
     const sprites = [...document.querySelectorAll('img')]
       .map((img) => img.getAttribute('src'))
       .filter((src) => /mushG|Plat/.test(src));
     expect(sprites.length).toBe(2);
-  });
 
-  it('falls back to the plain map name where the map has no AFK target', async () => {
-    renderDashboard();
-    fireEvent.mouseOver(document.querySelector('img[src*="Royal_Cost"]'));
-
-    const owlPerch = await screen.findByText('W1 Grand Owl Perch');
+    const owlPerch = screen.getByText('W1 Grand Owl Perch');
     // No monster means no trailing label at all, rather than an empty one.
     expect(owlPerch.closest('li').querySelectorAll('img').length).toBe(0);
     expect(screen.getByText('11 PTS')).toBeTruthy();

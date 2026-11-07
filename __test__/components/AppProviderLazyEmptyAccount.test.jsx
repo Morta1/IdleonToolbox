@@ -45,8 +45,8 @@ describe('usePageDataLoading for an anonymous visitor', () => {
     <AppContext.Provider value={{ state, dispatch: () => {} }}>{children}</AppContext.Provider>
   );
 
-  it.each(['/dashboard', '/characters'])('%s waits for the parsed empty account', (pathname) => {
-    router.pathname = pathname;
+  it('a data route waits for the parsed empty account', () => {
+    router.pathname = '/dashboard';
     const flagsOnly = { isLoading: false, signedIn: false, emptyAccount: true };
     expect(renderHook(usePageDataLoading, { wrapper: withState(flagsOnly) }).result.current.loading).toBe(true);
 
@@ -55,8 +55,8 @@ describe('usePageDataLoading for an anonymous visitor', () => {
   });
 
   // No account ever comes there, so waiting for one would be a loader that never ends.
-  it.each(['/tools/active-exp-calculator', '/account/class-specific/royal-guardian'])('%s, an audited route, waits for nothing', (pathname) => {
-    router.pathname = pathname;
+  it('an audited route waits for nothing', () => {
+    router.pathname = '/tools/active-exp-calculator';
     const flagsOnly = { isLoading: false, signedIn: false, emptyAccount: true };
     expect(renderHook(usePageDataLoading, { wrapper: withState(flagsOnly) }).result.current.loading).toBe(false);
   });

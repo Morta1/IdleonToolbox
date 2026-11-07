@@ -34,7 +34,11 @@ const SLOT = [
 ];
 
 describe('StatTile', () => {
-  it.each(SLOT.flatMap(([name, ...row]) => [[name, 'compact', 'value', ...row], [name, 'hero', 'heroValue', ...row]]))(
+  // The size only picks the slot's variant, so hero repeats the two rows that reach it by different routes.
+  it.each([
+    ...SLOT.map(([name, ...row]) => [name, 'compact', 'value', ...row]),
+    ...SLOT.filter(([name]) => ['a value', 'a breakdown alone: its total'].includes(name)).map(([name, ...row]) => [name, 'hero', 'heroValue', ...row])
+  ])(
     '%s, %s', (_, size, variant, props, reads, drawer, kids) => {
       const { container } = renderCard(<StatTile label={'Level'} size={size} {...props}/>);
       expect(screen.getByText('Level')).toBeDefined();

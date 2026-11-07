@@ -56,20 +56,15 @@ describe('Overview', () => {
     expect(screen.getByText('#5')).toBeTruthy();
   });
 
-  it('asks a visitor with no player to sign in or search', async () => {
-    renderOverview({ player: { context: null } });
-    expect(await screen.findByText(/^Your standing shows here once you sign in/)).toBeTruthy();
-    // Signing in is the way onto the boards, so the prompt offers that and not Settings.
-    expect(screen.queryByRole('link', { name: 'Settings' })).toBeNull();
-    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
-    expect(await screen.findByRole('dialog')).toBeTruthy();
-  });
-
-  it('puts the standing card before the global ranking in reading order', async () => {
+  it('asks a visitor with no player to sign in or search, before the global ranking in reading order', async () => {
     renderOverview({ player: { context: null } });
     const notice = await screen.findByText(/^Your standing shows here once you sign in/);
     const ranking = await screen.findByText('Global ranking');
     expect(notice.compareDocumentPosition(ranking) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    // Signing in is the way onto the boards, so the prompt offers that and not Settings.
+    expect(screen.queryByRole('link', { name: 'Settings' })).toBeNull();
+    fireEvent.click(screen.getByRole('button', { name: 'Sign in' }));
+    expect(await screen.findByRole('dialog')).toBeTruthy();
   });
 
   it('shows a skeleton, not the sign-in notice, while the account loads', async () => {

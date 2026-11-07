@@ -28,13 +28,9 @@ describe('WikiListingPage', () => {
     const trail = container.querySelector('nav[aria-label="breadcrumb"]');
     expect({
       links: [...trail.querySelectorAll('a')].map((link) => [link.textContent, link.getAttribute('href')]),
-      current: trail.querySelector('[aria-current="page"]').textContent
-    }).toEqual({ links, current });
-  });
-
-  it('leaves the old button trail out of the category card', () => {
-    renderPage(npc);
-    expect(screen.queryByRole('button', { name: 'Wiki' })).toBeNull();
+      current: trail.querySelector('[aria-current="page"]').textContent,
+      buttonTrail: [...container.querySelectorAll('button')].filter((button) => button.textContent === 'Wiki')
+    }).toEqual({ links, current, buttonTrail: [] });
   });
 
   it('routes a plain click on a crumb in-app and leaves a modified click to the browser', () => {

@@ -54,23 +54,17 @@ const renderWith = (chars) => render(
 const critValue = () => screen.getByText('Crit chance').parentElement.textContent;
 
 describe('Compass character selection', () => {
-  it('uses the wind walker, not the first character, when the account has one', () => {
+  it('uses the wind walker, not the first character, and hands the optimizer the same one', () => {
     expect(nonWindWalker.playerId).toBe(0);
     expect(windWalker.playerId).not.toBe(0);
+    optimizerCharacter.mockClear();
     renderWith(characters);
     expect(critValue()).toContain('156.7');
+    expect(optimizerCharacter).toHaveBeenCalledWith(windWalker.name);
   });
 
-  // The bug: the old code only picked a wind walker when there was exactly one, so two or more
-  // fell back to characters[0] - a Siege Breaker here - for every stat on the page.
-  it('defaults to the first wind walker when the account has several', () => {
-    const secondWindWalker = { ...windWalker, name: 'SecondWW', playerId: 7 };
-    renderWith([...characters, secondWindWalker]);
-    expect(critValue()).toContain('156.7');
-    expect(critValue()).not.toContain('151%');
-  });
-
-  it('switches stats when another wind walker is picked', () => {
+  // Several wind walkers must not fall back to characters[0], a Siege Breaker here, for every stat on the page.
+  it('defaults to the first wind walker when the account has several, and switches stats when another is picked', () => {
     const weaker = { ...nonWindWalker, class: windWalker.class, name: 'WeakWW', playerId: 7 };
     renderWith([...characters, weaker]);
     expect(critValue()).toContain('156.7');
@@ -84,11 +78,5 @@ describe('Compass character selection', () => {
     const noWindWalkers = characters.filter((c) => !checkCharClass(c?.class, CLASSES.Wind_Walker));
     expect(() => renderWith(noWindWalkers)).not.toThrow();
     expect(screen.getByText('Multishot')).toBeDefined();
-  });
-
-  it('hands the optimizer the same wind walker the stat cards use', () => {
-    optimizerCharacter.mockClear();
-    renderWith(characters);
-    expect(optimizerCharacter).toHaveBeenCalledWith(windWalker.name);
   });
 });

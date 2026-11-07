@@ -33,19 +33,15 @@ const renderPage = () => render(
 const cardText = (title) => screen.getByText(title).closest('[data-stat-tile]').textContent;
 
 describe('Research page', () => {
-  it('renders the level with its EXP progress and the level up ETAs', () => {
+  // Registering for the tournament banks 12 hours of research gains once per tournament day, so the
+  // assumption behind the second ETA hangs off an info icon rather than sitting in the value.
+  it('renders the level with its EXP progress and the level up ETAs, the registrant assumption on an info icon', () => {
     renderPage();
     const { researchLevel, researchEXPpercent } = account.research;
     expect(cardText('Research level')).toContain(`${researchLevel} (${formatNum(researchEXPpercent, 'pct')})`);
     // 60h to level at the fixture's rate (2.3.561: Research Skill Mastery), 40h once the tournament registration is counted.
     expect(cardText('Time to level')).toContain('2d 12h');
     expect(cardText('Time with registrant')).toContain('1d 16h');
-  });
-
-  // Registering for the tournament banks 12 hours of research gains once per tournament day, so the
-  // assumption behind the second ETA hangs off an info icon rather than sitting in the value.
-  it('explains the registrant assumption on an info icon, not on the card', () => {
-    renderPage();
     const card = screen.getByText('Time with registrant').closest('[data-stat-tile]');
     expect(card.getAttribute('aria-label')).toBeNull();
     const icon = card.querySelector('[aria-label="About Time with registrant"]');

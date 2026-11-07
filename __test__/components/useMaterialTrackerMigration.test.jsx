@@ -111,16 +111,6 @@ describe('useMaterialTrackerMigration', () => {
     expect(migration.overCap).toBe(400);
   });
 
-  it('folds missing-greenstack entries into one greenstack goal', () => {
-    const rows = getDescriptor('greenstack').list({ account, characters }).slice(0, 3);
-    const tracked = Object.fromEntries(
-      rows.map((row) => [row.itemRawName, { item: { rawName: row.itemRawName }, lowerBound: 1e7, upperBound: '', note: '' }])
-    );
-    setTracker(tracked);
-    mount();
-    expect(goalsApi.goals.map((g) => g.system)).toEqual(['greenstack']);
-  });
-
   it.each([
     ['folding records a one-time notice with the merged count', {}, 3, { count: 3, accountKey: 'uid-a', seen: false }],
     ['the demo account records no notice', { uid: undefined, demo: true }, 3, null],

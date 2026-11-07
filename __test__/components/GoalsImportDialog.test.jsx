@@ -1,17 +1,13 @@
 // @vitest-environment jsdom
 import '../../polyfills';
-import React, { useEffect } from 'react';
+import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { ThemeProvider } from '@mui/material';
-import theme from '../../styles/theme/theme';
+import { fireEvent, screen, waitFor } from '@testing-library/react';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { AppContext } from '@components/common/context/AppProvider';
-import { GoalsProvider, useGoals } from '@components/goals/GoalsProvider';
+import { goalsHarness } from '../helpers/goals-harness';
 import Goals from '@components/dashboard/goals/Goals';
 import ImportDialog, { READ_ERROR } from '@components/dashboard/goals/ImportDialog';
-import SnackbarHost from '@components/common/Overlays/SnackbarHost';
 import { exportGoals, isItemGoal } from '@utility/goals/importExport';
 import { createGoal, GOALS_STORAGE_KEY } from '@utility/goals/store';
 import { trackEvent } from '@utility/analytics';
@@ -20,28 +16,11 @@ vi.mock('next/router', () => ({ useRouter: () => ({ push: vi.fn(), query: {}, is
 vi.mock('@utility/analytics', () => ({ trackEvent: vi.fn() }));
 
 const { account, characters } = parseFixture(latest);
-const KEY = 'uid-test';
+const { api, mount, seed } = goalsHarness({ account, characters });
 const bubble = (key, fields) => createGoal({ system: 'bubble', metric: 'level', key, target: 5, ...fields });
 const fileText = (goals) => JSON.stringify(exportGoals(goals, characters));
 
-let api;
-const Probe = () => {
-  const value = useGoals();
-  useEffect(() => {
-    api = value;
-  });
-  return null;
-};
-const mount = (ui) => render(
-  <ThemeProvider theme={theme}>
-    <AppContext.Provider value={{ state: { uid: KEY, account, characters }, dispatch: vi.fn() }}>
-      <GoalsProvider><Probe/>{ui}</GoalsProvider>
-      <SnackbarHost/>
-    </AppContext.Provider>
-  </ThemeProvider>
-);
-const seed = (...goals) => localStorage.setItem(GOALS_STORAGE_KEY, JSON.stringify({ schema: 1, accounts: { [KEY]: goals } }));
-const stored = () => JSON.parse(localStorage.getItem(GOALS_STORAGE_KEY)).accounts[KEY];
+const stored = () => Object.values(JSON.parse(localStorage.getItem(GOALS_STORAGE_KEY)).accounts)[0];
 
 describe('Goals import dialog', () => {
   beforeEach(() => {

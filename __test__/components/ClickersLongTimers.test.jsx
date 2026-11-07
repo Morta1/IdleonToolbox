@@ -59,13 +59,11 @@ const longTimeCount = (container) => Array.from(container.querySelectorAll('*'))
   .filter(({ children, textContent }) => children.length === 0 && textContent === 'A long time').length;
 
 describe('dashboard Clickers long duration cutoff', () => {
-  it('collapses every Clickers timer past 365 days to "A long time"', () => {
-    const { container } = renderClickers(400);
-    expect(longTimeCount(container)).toBe(4);
-  });
-
-  it('keeps the countdown on every Clickers timer within 365 days', () => {
-    const { container } = renderClickers(100);
-    expect(longTimeCount(container)).toBe(0);
+  it.each([
+    ['collapses every Clickers timer to "A long time" past', 400, 4],
+    ['keeps the countdown on every Clickers timer within', 100, 0]
+  ])('%s 365 days', (_, days, collapsed) => {
+    const { container } = renderClickers(days);
+    expect(longTimeCount(container)).toBe(collapsed);
   });
 });

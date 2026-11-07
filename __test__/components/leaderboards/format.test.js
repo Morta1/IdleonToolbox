@@ -1,6 +1,6 @@
 import '../../../polyfills';
 import { describe, expect, it, vi } from 'vitest';
-import { AGGREGATION_INTERVAL, buildMetaIndex, formatBoardValues, formatDistinctValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, TABS, untilNextRun } from '@components/leaderboards/format';
+import { AGGREGATION_INTERVAL, buildMetaIndex, formatBoardValues, formatDistinctValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
 
 const meta = {
   createdAt: 100,
@@ -210,7 +210,7 @@ describe('formatDistinctValues', () => {
   });
 });
 
-describe('round 4 value rules', () => {
+describe('value rules', () => {
   it('rounds an exact half up on its own digits', () => {
     expect(formatMetricValue('default', 2295e3, { scale: 1e8 })).toBe('2.3M');
     expect(formatMetricValue('default', 5225e3, { scale: 1e8 })).toBe('5.23M');
@@ -228,33 +228,9 @@ describe('round 4 value rules', () => {
   });
 });
 
-describe('display tabs', () => {
-  const redox = { key: 'redoxSaltRank', label: 'Redox Salt Rank', section: 'World 3', notation: 'default' };
-  const bells = { key: 'bellRings', label: 'Bell Rings', section: 'Caverns', notation: 'default' };
-
-  it('lists the display tabs', () => {
-    expect(TABS).toEqual(['Overview', 'Account', 'Character', 'Skills', 'Combat', 'Worlds']);
-  });
-
-  it('indexes boards under their display tab, keeping section order', () => {
-    const index = buildMetaIndex({ tabs: [{ key: 'worlds', label: 'Worlds', sections: [
-      { name: 'World 3', metrics: [redox] }, { name: 'Caverns', metrics: [bells] }
-    ] }] });
-    expect(index.categories.worlds).toEqual({ metrics: ['redoxSaltRank', 'bellRings'], sections: [
-      { name: 'World 3', metrics: ['redoxSaltRank'] }, { name: 'Caverns', metrics: ['bellRings'] }
-    ] });
-    expect(index.byKey.redoxSaltRank.category).toBe('worlds');
-    expect(TABS.find((tab) => tab.toLowerCase() === index.byKey.redoxSaltRank.category)).toBe('Worlds');
-  });
-
-  it('ignores an unknown tab', () => {
-    const index = buildMetaIndex({ tabs: [{ key: 'future', label: 'Future', sections: [{ name: 'Next', metrics: [bells] }] }] });
-    expect(index.byKey.bellRings.category).toBe('future');
-    expect(TABS.find((tab) => tab.toLowerCase() === 'future')).toBeUndefined();
-  });
-
+describe('retired meta', () => {
   it('reads only tabs: a meta with the retired categories list and no tabs is empty', () => {
-    const index = buildMetaIndex({ categories: [{ category: 'misc', metrics: [{ ...redox, section: 'Salt Ranks' }] }] });
+    const index = buildMetaIndex({ categories: [{ category: 'misc', metrics: [{ key: 'redoxSaltRank', label: 'Redox Salt Rank', section: 'Salt Ranks', notation: 'default' }] }] });
     expect(index.categories).toEqual({});
     expect(metaOf(index, 'redoxSaltRank').category).toBeNull();
   });

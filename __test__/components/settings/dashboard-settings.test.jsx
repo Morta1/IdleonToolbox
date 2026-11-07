@@ -42,16 +42,18 @@ describe('DashboardSettings window', () => {
     Element.prototype.scrollIntoView = () => {};
   });
 
-  it('opens on the first section with counts in the Show field', () => {
+  it('opens titled, with the legend and nothing to reset, and the Show field counts and names its filter', () => {
     render(<Harness/>);
-    expect(document.body.textContent).toContain('Configure alerts');
-    expect(document.body.querySelector('[aria-label="Show"]').textContent).toContain('All');
-    expect(showOptions()[0]).toBe(`All (${ALL_COUNT})`);
-  });
-
-  it('the legend says what the blue dot means', () => {
-    render(<Harness/>);
+    const titled = document.body.querySelectorAll('#configure-alerts-title');
+    expect(titled).toHaveLength(1);
+    expect(titled[0].tagName).toBe('H1');
+    expect(titled[0].textContent).toBe('Configure alerts');
     expect(document.body.textContent).toContain('Changed from default');
+    expect(button('Reset all').disabled).toBe(true);
+    expect(showField().textContent).toContain('All');
+    expect(showOptions()[0]).toBe(`All (${ALL_COUNT})`);
+    fireEvent.click([...document.body.querySelectorAll('[role="option"]')].find(({ textContent }) => textContent.startsWith('Edited')));
+    expect(showField().textContent).toContain('Edited');
   });
 
   it('Expand all opens every card in the section and Collapse all closes them', () => {
@@ -63,14 +65,6 @@ describe('DashboardSettings window', () => {
     expect(toggles().every((b) => b.getAttribute('aria-expanded') === 'true')).toBe(true);
     fireEvent.click(button('Collapse all'));
     expect(toggles().every((b) => b.getAttribute('aria-expanded') === 'false')).toBe(true);
-  });
-
-  it('the Show field says which filter is on', () => {
-    render(<Harness/>);
-    expect(showField().textContent).toContain('All');
-    showOptions();
-    fireEvent.click([...document.body.querySelectorAll('[role="option"]')].find(({ textContent }) => textContent.startsWith('Edited')));
-    expect(showField().textContent).toContain('Edited');
   });
 
   it('Review edits opens on the first section with edits', () => {
@@ -154,11 +148,6 @@ describe('DashboardSettings window', () => {
     expect(latest).toEqual(afterFirst);
   });
 
-  it('Reset all is disabled with nothing to reset', () => {
-    render(<Harness/>);
-    expect(button('Reset all').disabled).toBe(true);
-  });
-
   it('Reset all alerts is on the mobile menu screen', () => {
     const original = window.matchMedia;
     window.matchMedia = (query) => ({
@@ -206,13 +195,6 @@ describe('DashboardSettings window', () => {
     view.rerender(<Harness/>);
     await waitFor(() => expect(button('Undo')).toBeFalsy());
   });
-
-  it('labels the dialog by the title alone', () => {
-    render(<Harness/>);
-    const titled = document.body.querySelectorAll('#configure-alerts-title');
-    expect(titled).toHaveLength(1);
-    expect(titled[0].tagName).toBe('H1');
-  });
 });
 
 describe('DashboardSettings analytics', () => {
@@ -234,14 +216,21 @@ describe('DashboardSettings analytics', () => {
     expect(gtag).toHaveBeenCalledWith('event', 'alert_settings_reset', expect.objectContaining({ scope: 'all' }));
   });
 
-  it('search sends one debounced event with the result count and no query text', async () => {
+  it('search sends one debounced event with the result count and no query text', () => {
     render(<Harness/>);
     const input = document.body.querySelector('input[aria-label="Search alerts"]');
-    fireEvent.change(input, { target: { value: 'sal' } });
-    fireEvent.change(input, { target: { value: 'salt' } });
-    await waitFor(() => expect(gtag).toHaveBeenCalledWith('event', 'alert_settings_search', expect.objectContaining({ results: expect.any(Number) })), { timeout: 2500 });
-    const calls = gtag.mock.calls.filter(([, name]) => name === 'alert_settings_search');
-    expect(calls).toHaveLength(1);
-    expect(JSON.stringify(calls[0])).not.toContain('salt');
+    const searches = () => gtag.mock.calls.filter(([, name]) => name === 'alert_settings_search');
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    try {
+      fireEvent.change(input, { target: { value: 'sal' } });
+      fireEvent.change(input, { target: { value: 'salt' } });
+      act(() => vi.advanceTimersByTime(999));
+      expect(searches()).toEqual([]);
+      act(() => vi.advanceTimersByTime(1));
+    } finally {
+      vi.useRealTimers();
+    }
+    expect(searches()).toEqual([['event', 'alert_settings_search', expect.objectContaining({ results: expect.any(Number) })]]);
+    expect(JSON.stringify(searches()[0])).not.toContain('salt');
   });
 });

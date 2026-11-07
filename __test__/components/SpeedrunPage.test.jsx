@@ -2,7 +2,7 @@
 import '../../polyfills';
 import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import theme from '../../styles/theme/theme';
 import { parseFixture } from '../helpers/parsed-fixtures';
@@ -41,18 +41,32 @@ const showDetails = () => fireEvent.click(screen.getByRole('button', { name: 'De
 
 // 30 s: each test renders the whole page, every portal priced, and the full suite's load can stretch that past 20 s.
 describe('Speedrun page', { timeout: 30_000 }, () => {
-  it('renders the highscore panel for the demo account', () => {
-    renderWith(characters);
-    expect(screen.getByText('Portal highscore')).toBeTruthy();
-    expect(screen.getByText('Run duration')).toBeTruthy();
-    expect(screen.getByText('Void talent points per run')).toBeTruthy();
-    expect(screen.getByText('Multikill per tier')).toBeTruthy();
-    expect(screen.getByText('Portals to next step')).toBeTruthy();
-    expect(screen.getByText('Equinox goal')).toBeTruthy();
-  });
+  it('reads the demo account: its panel with its notes, its voidwalker, the portals by world and every world boss', async () => {
+    expect(characters[0]).not.toBe(voidwalker);
+    const { container } = renderWith(characters);
+    ['Run duration', 'Void talent points per run', 'Multikill per tier', 'Portals to next step', 'Equinox goal', 'Portal progress per kill']
+      .forEach((title) => expect(screen.getByText(title)).toBeTruthy());
+    // "Kill per kill" is both a card and a source inside the portal-progress breakdown.
+    expect(screen.getAllByText('Kill per kill').length).toBeGreaterThan(0);
+    expect(container.textContent).not.toMatch(/NaN|undefined|Infinity/);
 
-  it('hangs each explanation off an info icon rather than the whole card', async () => {
-    renderWith(characters);
+    const highscore = account?.accountOptions?.[158];
+    expect(highscore).toBeGreaterThan(0);
+    expect(cardValue('Portal highscore')).toContain(String(highscore));
+
+    // The demo voidwalker has not learned Void Trial Rerun, and bigBase growth answers 150 at
+    // level 0 - the panel must say so instead of advertising a 151s run.
+    expect(cardValue('Run duration')).toBe('Talent not learned');
+
+    const portals = screen.getByLabelText('speedrun portals');
+    const worlds = within(portals).getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent);
+    expect(worlds).toEqual([...worlds].sort());
+    expect(worlds[0]).toBe('World 1');
+    expect(worlds.length).toBeGreaterThan(1);
+
+    ['Amarok', 'Efaunt', 'Chizoar', 'Troll', 'Kattlekruk', 'Emperor']
+      .forEach((boss) => expect(screen.getByText(boss)).toBeTruthy());
+
     // Six notes (run duration, void points, multikill, next step, void radius, equinox). The three
     // breakdowns (kill per kill, portal progress, damage) open from their value, not an icon.
     expect(screen.getAllByRole('button', { name: /^About / })).toHaveLength(6);
@@ -60,39 +74,23 @@ describe('Speedrun page', { timeout: 30_000 }, () => {
     expect(await screen.findByText('Level Void Trial Rerun to start a speedrun')).toBeTruthy();
   });
 
-  it('shows the highscore from the save rather than a placeholder', () => {
-    renderWith(characters);
-    const highscore = account?.accountOptions?.[158];
-    expect(highscore).toBeGreaterThan(0);
-    expect(cardValue('Portal highscore')).toContain(String(highscore));
-  });
-
-  it('groups the portals by world rather than ranking them', () => {
-    renderWith(characters);
-    const portals = screen.getByLabelText('speedrun portals');
-    const worlds = within(portals).getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent);
-    expect(worlds).toEqual([...worlds].sort());
-    expect(worlds[0]).toBe('World 1');
-    expect(worlds.length).toBeGreaterThan(1);
-  });
-
-  it('prices every portal bare, once detailed view is on', () => {
+  it('detailed view prices every portal bare and names the door on maps with two', () => {
     renderWith(characters);
     const portals = screen.getByLabelText('speedrun portals');
     expect(within(portals).queryByText(/^Kills needed/)).toBeNull();
     showDetails();
     expect(within(portals).getAllByText(/^Kills needed/).length).toBeGreaterThan(100);
     expect(within(portals).getAllByText(/^Clear time/).length).toBeGreaterThan(100);
+    expect(within(portals).getByText('Door to Forest Outskirts')).toBeTruthy();
+    // Two different maps have a door to Spike Surprise, so this is deliberately getAll.
+    expect(within(portals).getAllByText('Door to Spike Surprise').length).toBeGreaterThan(0);
+    // Single-portal maps carry no door caption at all.
+    expect(within(portals).queryByText(/^Portal 1$/)).toBeNull();
+    // The demo voidwalker cannot start a run, so Void Radius never gets its speedrun bonus
+    expect(within(portals).queryByText(/^With Void Radius/)).toBeNull();
   });
 
-  it('adds the Void Radius clear time only once Void Trial Rerun is learned', () => {
-    renderWith(characters);
-    showDetails();
-    // The demo voidwalker cannot start a run, so Void Radius never gets its speedrun bonus
-    expect(within(screen.getByLabelText('speedrun portals')).queryByText(/^With Void Radius/)).toBeNull();
-    window.localStorage.clear();
-    cleanup();
-
+  it('adds the Void Radius clear time once Void Trial Rerun is learned', () => {
     const learned = characters.map((character) => character === voidwalker
       ? {
         ...character,
@@ -106,37 +104,12 @@ describe('Speedrun page', { timeout: 30_000 }, () => {
     expect(within(screen.getByLabelText('speedrun portals')).getAllByText(/^With Void Radius/).length).toBeGreaterThan(0);
   });
 
-  it('names which door each portal is on maps that have two', () => {
-    renderWith(characters);
-    showDetails();
-    const portals = screen.getByLabelText('speedrun portals');
-    expect(within(portals).getByText('Door to Forest Outskirts')).toBeTruthy();
-    // Two different maps have a door to Spike Surprise, so this is deliberately getAll.
-    expect(within(portals).getAllByText('Door to Spike Surprise').length).toBeGreaterThan(0);
-    // Single-portal maps carry no door caption at all.
-    expect(within(portals).queryByText(/^Portal 1$/)).toBeNull();
-  });
-
   it('breaks portal progress down into the bonuses most players miss', async () => {
     renderWith(characters);
     const card = screen.getByText('Portal progress per kill').closest('[data-stat-tile]');
     fireEvent.click(within(card).getByRole('button'));
     expect(await screen.findByText('Active Murdering (vault 43)')).toBeTruthy();
     expect(screen.getByText('Seawater vial')).toBeTruthy();
-  });
-
-  it('names all six world bosses with their portal payout', () => {
-    renderWith(characters);
-    ['Amarok', 'Efaunt', 'Chizoar', 'Troll', 'Kattlekruk', 'Emperor']
-      .forEach((boss) => expect(screen.getByText(boss)).toBeTruthy());
-  });
-
-  it('renders the character stats without crashing', () => {
-    const { container } = renderWith(characters);
-    // "Kill per kill" is both a card and a source inside the portal-progress breakdown.
-    expect(screen.getAllByText('Kill per kill').length).toBeGreaterThan(0);
-    expect(screen.getByText('Portal progress per kill')).toBeTruthy();
-    expect(container.textContent).not.toMatch(/NaN|undefined|Infinity/);
   });
 
   it('says so above the portal catalog when the account has no voidwalker', () => {
@@ -149,14 +122,5 @@ describe('Speedrun page', { timeout: 30_000 }, () => {
   it('renders on an empty account without crashing', () => {
     const { container } = renderWith([], {});
     expect(container.textContent).not.toMatch(/NaN|undefined/);
-  });
-
-  it('picks a voidwalker rather than the first character in the account', () => {
-    expect(voidwalker).toBeDefined();
-    expect(characters[0]).not.toBe(voidwalker);
-    renderWith(characters);
-    // The demo voidwalker has not learned Void Trial Rerun, and bigBase growth answers 150 at
-    // level 0 - the panel must say so instead of advertising a 151s run.
-    expect(cardValue('Run duration')).toBe('Talent not learned');
   });
 });

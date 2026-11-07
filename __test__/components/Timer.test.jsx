@@ -20,17 +20,12 @@ describe('Timer with no save loaded', () => {
     vi.useRealTimers();
   });
 
-  it('counts down from the target date rather than from the epoch', () => {
-    render(<Timer type={'countdown'} date={Date.now() + 3 * HOUR}/>);
-    const text = document.body.textContent;
-    expect(text).not.toMatch(/\d{4,}d:/);
-    expect(text).toBe('3h');
-  });
-
-  it('does not render an epoch-sized duration for a date days out', () => {
-    render(<Timer type={'countdown'} date={Date.now() + 7 * 24 * HOUR}/>);
-    expect(document.body.textContent).not.toMatch(/\d{4,}d:/);
-    expect(document.body.textContent).toBe('7d');
+  it.each([
+    [3 * HOUR, '3h'],
+    [7 * 24 * HOUR, '7d']
+  ])('counts down %d ms from the target date rather than from the epoch', (away, text) => {
+    render(<Timer type={'countdown'} date={Date.now() + away}/>);
+    expect(document.body.textContent).toBe(text);
   });
 
   it('still shifts by elapsed time when a real lastUpdated is given', () => {

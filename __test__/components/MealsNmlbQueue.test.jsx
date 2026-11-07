@@ -36,13 +36,9 @@ const selectNmlbSort = (getByLabelText, getByRole) => {
 };
 
 describe('Meals NMLB proc queue', () => {
-  it('is hidden until the NMLB sort is selected', () => {
-    const { queryByText } = renderMeals();
+  it('stays hidden until the NMLB sort is selected, then lists the simulated procs in order, repeating the meal that lags behind, as many as asked', () => {
+    const { getByLabelText, getByRole, getByText, getAllByText, queryByText } = renderMeals();
     expect(queryByText('No Meal Left Behind queue')).toBeNull();
-  });
-
-  it('lists the simulated procs in order, repeating the meal that lags behind', () => {
-    const { getByLabelText, getByRole, getByText, getAllByText } = renderMeals();
     selectNmlbSort(getByLabelText, getByRole);
 
     expect(getByText('No Meal Left Behind queue')).toBeTruthy();
@@ -53,11 +49,6 @@ describe('Meals NMLB proc queue', () => {
     // ...and they walk that meal up a level at a time.
     expect(procRows.slice(0, 3).map((row) => row.textContent.replace(/\s+/g, ' ')))
       .toEqual(expect.arrayContaining([expect.stringContaining('Lv 106')]));
-  });
-
-  it('honours the proc count input', () => {
-    const { getByLabelText, getByRole, getAllByText } = renderMeals();
-    selectNmlbSort(getByLabelText, getByRole);
 
     fireEvent.change(getByLabelText('Procs'), { target: { value: '3' } });
     expect(getAllByText(/^#\d+ /)).toHaveLength(3);

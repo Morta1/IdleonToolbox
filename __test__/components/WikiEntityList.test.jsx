@@ -88,28 +88,6 @@ describe('EntityList same-name rows', () => {
   });
 });
 
-describe('EntityList Pet Mart card', () => {
-  // A Pet Mart pack has no banner, so its card prints the gems and pet crystals the banner would have shown.
-  it('prints the gem and pet crystal counts beside their gems', () => {
-    const byId = {
-      'bundle:petMart1': {
-        kind: 'bundle', rawName: 'petMart1', name: 'Blob_Pack', slug: 'blob-pack', icon: '/data/Blob.png', category: 'Pet Mart',
-        petMart: true, petName: 'Mr_Blob', price: 4.99, gems: 1200, petCrystals: 35
-      }
-    };
-    const { container } = render(<ThemeProvider theme={theme}>
-      <EntityList
-        index={{ byId, searchList: [{ id: 'bundle:petMart1', kind: 'bundle', label: 'Blob Pack' }] }}
-        kind={'bundle'}
-        onNavigate={() => {}}
-        hrefFor={(id) => `/wiki/bundle/${byId[id].slug}`}
-      />
-    </ThemeProvider>);
-    const gems = [...container.querySelector('a[href="/wiki/bundle/blob-pack"]').querySelectorAll('img')].filter((img) => img.getAttribute('src').endsWith('PremiumGem.png'));
-    expect(gems.map((img) => img.closest('.MuiStack-root').textContent)).toEqual(['1,200', '35']);
-  });
-});
-
 describe('EntityList item categories', () => {
   // The Show select and the band headings both print the game's raw type; the page reads it as words.
   it('titles an item category in the Show select', () => {
@@ -363,6 +341,7 @@ describe('EntityList table', () => {
 
 describe('EntityList bundle cards', () => {
   // A banner is the row, so bundles stay cards; the sort reaches them through the Sort by control.
+  // A Pet Mart pack has no banner, so its card prints the gems and pet crystals the banner would have shown.
   it('orders the cards by price and keeps the Pet Mart card whole', () => {
     const nodes = [
       { kind: 'bundle', rawName: 'bun_a', name: 'Starter_Pack', slug: 'starter-pack', icon: '/data/bun_a.png', category: 'Gem Shop', price: 4.99, gems: 500 },

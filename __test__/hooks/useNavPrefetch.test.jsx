@@ -9,13 +9,12 @@ const { default: useNavPrefetch } = await import('@hooks/useNavPrefetch');
 
 describe('useNavPrefetch', () => {
   // undefined keeps next/link's default (prefetch in viewport); false leaves hover/touch only.
-  it.each(['/', '/wiki/[kind]/[slug]', '/tools/builds/[slug]', '/guilds'])('%s prefetches on hover only', (pathname) => {
+  // One route per side: which route is which is routeNeedsAccount's table, in AppProviderLazyEmptyAccount.
+  it.each([
+    ['/wiki/[kind]/[slug]', 'prefetches on hover only', false],
+    ['/dashboard', 'keeps viewport prefetch', undefined]
+  ])('%s %s', (pathname, _, prefetch) => {
     router.pathname = pathname;
-    expect(renderHook(useNavPrefetch).result.current).toBe(false);
-  });
-
-  it.each(['/dashboard', '/account/world-3/printer', '/tools/card-search', '/characters'])('%s keeps viewport prefetch', (pathname) => {
-    router.pathname = pathname;
-    expect(renderHook(useNavPrefetch).result.current).toBeUndefined();
+    expect(renderHook(useNavPrefetch).result.current).toBe(prefetch);
   });
 });

@@ -51,18 +51,11 @@ describe('leaderboards analytics', () => {
     expect(events('lb_board_open')).toEqual([{ metric: 'mining', source: 'card' }]);
   });
 
-  it('fires lb_player_search for a deep-linked player without the name', async () => {
-    routerState.query = { player: 'Tester' };
+  it.each([['Tester', 'found'], ['Ghost', 'not_found']])('fires lb_player_search for deep-linked %s as %s, without the name', async (player, result) => {
+    routerState.query = { player };
     renderPage();
-    await waitFor(() => expect(events('lb_player_search')).toEqual([{ result: 'found', via: 'url' }]));
-    expect(JSON.stringify(window.dataLayer)).not.toContain('Tester');
-  });
-
-  it('reports not_found for an unknown deep-linked player', async () => {
-    routerState.query = { player: 'Ghost' };
-    renderPage();
-    await waitFor(() => expect(events('lb_player_search')).toEqual([{ result: 'not_found', via: 'url' }]));
-    expect(JSON.stringify(window.dataLayer)).not.toContain('Ghost');
+    await waitFor(() => expect(events('lb_player_search')).toEqual([{ result, via: 'url' }]));
+    expect(JSON.stringify(window.dataLayer)).not.toContain(player);
   });
 
   it('fires lb_player_search with via enter from the search box', async () => {

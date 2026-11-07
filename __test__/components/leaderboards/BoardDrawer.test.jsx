@@ -28,13 +28,17 @@ const renderDrawer = (props = {}) => render(
 afterEach(() => { cleanup(); client.clear(); vi.clearAllMocks(); });
 
 describe('BoardDrawer', () => {
-  it('shows Around you first when the player is below rank 15', async () => {
+  it('shows Around you first below rank 15: your row outlined, the nearest rank above and the step to it', async () => {
     fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: aroundAt(91) });
     renderDrawer();
     expect(await screen.findByText('Around you')).toBeTruthy();
     expect(screen.getByRole('heading', { name: 'Top 100' })).toBeTruthy();
     expect(screen.getByRole('button', { name: 'Back to the top 100' })).toBeTruthy();
     expect(fetchBoard).toHaveBeenCalledWith('mining', { around: 'me', publicOnly: false });
+    expect(screen.getByText('+1 to reach N4 (#90)')).toBeTruthy();
+    const rowOf = (name) => screen.getByText(name).closest('[data-testid="rank-row"]');
+    expect(getComputedStyle(rowOf('Me')).borderColor).toBe('var(--mui-palette-identity-leaderboard-you)');
+    expect(getComputedStyle(rowOf('N0')).borderColor).not.toBe('var(--mui-palette-identity-leaderboard-you)');
   });
 
   it('names a searched player instead of saying you', async () => {
@@ -177,12 +181,6 @@ describe('BoardDrawer header and steps', () => {
     expect(screen.queryByText(/#1 /)).toBeNull();
   });
 
-  it('names the nearest rank above you and the step to reach it', async () => {
-    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: aroundAt(91) });
-    renderDrawer();
-    expect(await screen.findByText('+1 to reach N4 (#90)')).toBeTruthy();
-  });
-
   it('keeps a fractional points step above zero and skips tied neighbours', async () => {
     const globalIndex = buildMetaIndex({ totalPlayers: 2616, tabs: [] });
     fetchBoard.mockResolvedValue({ metric: 'globalRanking', createdAt: 1, top, around: [
@@ -198,14 +196,5 @@ describe('BoardDrawer header and steps', () => {
     renderDrawer();
     await screen.findByText('Around you');
     expect(screen.queryByText(/to reach/)).toBeNull();
-  });
-
-  it('outlines your row in the Around you list and no other', async () => {
-    fetchBoard.mockResolvedValue({ metric: 'mining', createdAt: 1, top, around: aroundAt(91) });
-    renderDrawer();
-    const rowOf = (name) => screen.getByText(name).closest('[data-testid="rank-row"]');
-    await screen.findByText('Me');
-    expect(getComputedStyle(rowOf('Me')).borderColor).toBe('var(--mui-palette-identity-leaderboard-you)');
-    expect(getComputedStyle(rowOf('N0')).borderColor).not.toBe('var(--mui-palette-identity-leaderboard-you)');
   });
 });

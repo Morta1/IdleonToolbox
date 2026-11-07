@@ -59,16 +59,12 @@ describe('Bone Joe Calculator page', () => {
   // The inputs persist to local storage, so one test's typing would otherwise seed the next.
   beforeEach(() => localStorage.clear());
 
-  it('renders every miniboss with no account, so the page is not empty logged out', () => {
+  it('renders every miniboss logged out at base HP, then scales it by 1.1 per pickle', () => {
     renderPage({});
     minibosses.forEach(({ name }) => {
       expect(screen.getAllByText(name.replace(/_/g, ' ')).length).toBeGreaterThan(0);
     });
     expect(screen.getByText(/pickles each character can carry shows here once you sign in/)).toBeDefined();
-  });
-
-  it('leaves HP at base with no pickles and no prayers, then scales it by 1.1 per pickle', () => {
-    renderPage({});
     const [, baseHp, hp] = rowCells('Glunko The Massive');
     expect(baseHp).toBe(formatNum(10000));
     expect(hp).toBe(baseHp);
@@ -147,7 +143,7 @@ describe('Bone Joe Calculator page', () => {
     expect(rowCells(characters[0].name)).toEqual(before);
   });
 
-  it('prices the characters off the configuration once the toggle is on', async () => {
+  it('prices the characters off the configuration once the toggle is on, and goes back to their own when it is off', async () => {
     renderPage({ characters, account });
     const character = characters[0];
     const playerInfo = getMaxDamage(character, characters, account);
@@ -172,6 +168,10 @@ describe('Bone Joe Calculator page', () => {
       });
     });
     expect(screen.getByText(/using the configuration above/)).toBeDefined();
+
+    fireEvent.click(screen.getByLabelText('Apply to characters'));
+    expect(rowCells(character.name)[2]).toBe(String(getPickleCount(character)));
+    expect(screen.getByText(/own equipped prayers and carried pickles/)).toBeDefined();
   });
 
   it('raises every cap to the target number of hits', async () => {
@@ -190,35 +190,7 @@ describe('Bone Joe Calculator page', () => {
     expect(screen.getByText(/within 5 hits/)).toBeDefined();
   });
 
-  it('goes back to each character own prayers and pickles when the toggle is off again', async () => {
-    renderPage({ characters, account });
-    const character = characters[0];
-
-    fireEvent.change(screen.getByLabelText('Pickles'), { target: { value: '5' } });
-    fireEvent.click(screen.getByLabelText('Apply to characters'));
-    await waitFor(() => expect(rowCells(character.name)[2]).toBe('5'));
-
-    fireEvent.click(screen.getByLabelText('Apply to characters'));
-    expect(rowCells(character.name)[2]).toBe(String(getPickleCount(character)));
-    expect(screen.getByText(/own equipped prayers and carried pickles/)).toBeDefined();
-  });
-
-  it('shows a single hit cap per character that matches the parser', () => {
-    renderPage({ characters, account });
-    const character = characters[0];
-    const playerInfo = getMaxDamage(character, characters, account);
-    const prayerHpMulti = getPrayerHpMulti(character, account);
-    const cells = rowCells(character.name);
-
-    expect(cells[1]).toBe(formatNum(playerInfo.maxDamage));
-    expect(cells[2]).toBe(String(getPickleCount(character)));
-    minibosses.forEach(({ rawName, baseHp }, index) => {
-      const cap = getPickleCapForHits(bossDamage(playerInfo, rawName, character), baseHp, prayerHpMulti);
-      expect(cells[3 + index]).toContain(cap < 0 ? '-' : formatNum(cap, 'whole'));
-    });
-  });
-
-  it('counts hits off the crit lifted swing rather than the plain average', () => {
+  it('shows a hit cap per character that matches the parser, and counts hits off the crit lifted swing rather than the plain average', () => {
     renderPage({ characters, account });
     const character = characters[0];
     const playerInfo = getMaxDamage(character, characters, account);
@@ -226,6 +198,13 @@ describe('Bone Joe Calculator page', () => {
     const carried = getPickleCount(character);
     const effectiveDamage = getEffectiveDamage(playerInfo);
     const cells = rowCells(character.name);
+
+    expect(cells[1]).toBe(formatNum(playerInfo.maxDamage));
+    expect(cells[2]).toBe(String(carried));
+    minibosses.forEach(({ rawName, baseHp }, index) => {
+      const cap = getPickleCapForHits(bossDamage(playerInfo, rawName, character), baseHp, prayerHpMulti);
+      expect(cells[3 + index]).toContain(cap < 0 ? '-' : formatNum(cap, 'whole'));
+    });
 
     // Crits are worth a real multiple here, so pricing a swing at the plain average would inflate
     // every hit count on the row. That gap is the bug this covers.
