@@ -4,7 +4,8 @@ import { navBarHeight } from '@components/constants';
 // beside the page, never at the window's edge. The page takes the room the ads leave, up to FRAME_MAX, so a big monitor
 // shows more of it instead of empty margins:
 // - CENTERED: two ads, one each side of the page, where both fit by width and a 600 px ad fits by height: the page is
-//   the window less 660 px (the ads and four 15 px gaps), 1243 at 1920 and about 1880 at 2560;
+//   the window and its scrollbar less 638 px (the ads, 15 px to the page and 4 px to the window's edge), 1265 at 1920
+//   and about 1905 at 2560;
 // - ONE_AD: one ad on the right from 850 px wide, narrower or shorter than that: the page is the window less 364 px;
 // - under 850 px, no ad: the page fills the window, with 16 px sides on a phone as the phone boards draw.
 // CSS only: the export and the first render agree at every size, and a page can take its width helper without the
@@ -14,7 +15,9 @@ export const FRAME_MAX = 2000;
 const AD_WIDE = 300;
 const AD_TALL = 600;
 // One ad: 16 px to the page, which keeps its 24 px sides, so the page is W - 364 (300 + 16 + 24 + 24). Two ads: 15 px
-// between each part and at the window's edges (15 + 300 + 15 + page + 15 + 300 + 15).
+// between an ad and the page, 4 at the window's edges (4 + 300 + 15 + page + 15 + 300 + 4): at 1920, less a 17 px scrollbar,
+// the page keeps the 1,248 px of four 300 px cards to a row (4 x 300 + 3 x 16), which 15 px edges took 3 px short of.
+const EDGE_GAP = 4;
 const AD_GAP = 16;
 const PAIR_GAP = 15;
 // The ads stick under the bar, the group row (52) and 24 px, where the boards draw them, clear of the band under the
@@ -51,7 +54,7 @@ export const frameSx = ({ reserveAds }) => ({
   [ONE_AD]: reserveAds
     ? grid(`minmax(0, ${FRAME_MAX}px) ${AD_WIDE}px`, '"page right"', AD_GAP)
     : grid(`minmax(0, ${FRAME_MAX + AD_GAP + AD_WIDE}px)`, '"page"', AD_GAP),
-  [CENTERED]: { ...grid(`${AD_WIDE}px minmax(0, ${FRAME_MAX}px) ${AD_WIDE}px`, '"left page right"', PAIR_GAP), px: `${PAIR_GAP}px` }
+  [CENTERED]: { ...grid(`${AD_WIDE}px minmax(0, ${FRAME_MAX}px) ${AD_WIDE}px`, '"left page right"', PAIR_GAP), px: `${EDGE_GAP}px` }
 });
 
 // The page's column: the header row and the page. minWidth 0 keeps a wide table from widening the track.

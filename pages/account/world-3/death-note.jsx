@@ -22,7 +22,7 @@ import useToolbarState from '@hooks/useToolbarState';
 
 const DEATH_NOTE_TOOLBAR = { search: '', world: 'all' };
 // A world's table at its narrowest with no scrollbar (name, a 13-digit kill count, the rank skull): four to a row on a 1920
-// window's 1245 px page
+// window's 1,265 px page
 const WORLD_TABLE_MIN = 292;
 
 // A rank's skull: StatusSkull0 to 6 by the formula below, the eclipse skull past rank 10, none before the first.

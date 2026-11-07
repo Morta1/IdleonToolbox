@@ -62,30 +62,33 @@ const Maps = ({ character, account, characters, sectionFailed }) => {
         ...Object.keys(tachyonNames).map((type) => [type, tachyonNames[type], ofType(type).length])]}/>
       <Toolbar.Filter name={'hideOpen'} label={'Hide unlocked'}/>
     </Toolbar>}
+    {/* A card says what its map gives: tachyons, and its three bonuses on one line. The charge and each bonus's next step
+        open under its chevron. */}
     {shown.length ? <CardGrid size={'m'}>
       {shown.map(({ mapIndex, mapName, reqKills, portals, monster, unlocked, tachyonQuantity, tachyonType, mapBonuses, timeLeft }) =>
         <ItemCard key={mapIndex ?? mapName} icon={`data/Mface${monster?.MonsterFace}.png`} title={cleanUnderscore(mapName ?? '')}
-                  dimmed={!sectionFailed && !unlocked}>
+                  dimmed={!sectionFailed && !unlocked}
+                  more={<ItemCard.Facts rows={[
+                    ['Kills to charge', formatNum(reqKills, 'whole')],
+                    ['Time to charge', formatDuration(timeLeft)],
+                    ...(sectionFailed ? [] : (mapBonuses ?? []).map(({ killsToNext, type }) => [`${type} next step`, nextStep(killsToNext) ?? '-']))
+                  ]}/>}>
           <ItemCard.Facts rows={[
             ['Tachyons per kill', <Stack key={'tachyons'} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
               {formatGame(tachyonQuantity ?? 0, 'ArcaneType.ArcaneTachyonQTYbase')}
               <GameIcon src={`data/Tach${tachyonType}_x1.png`} size={16} alt={tachyonNames[tachyonType] ?? ''}/>
-            </Stack>],
-            ['Kills to charge', formatNum(reqKills, 'whole')],
-            ['Time to charge', formatDuration(timeLeft)]
+            </Stack>]
           ]}/>
           {(portals ?? []).map(({ multiCharLock }, portalIndex) => <MultiCharLockText key={portalIndex} lock={multiCharLock}/>)}
-          <ItemCard.Section label={'Map bonuses'}>
-            {(mapBonuses ?? []).map(({ value, killsToNext, type }, index) => {
-              const next = sectionFailed ? null : nextStep(killsToNext);
-              return <Stack key={index} gap={0.25}>
-                <ItemCard.Facts rows={[[<Stack key={'type'} component={'span'} direction={'row'} alignItems={'center'} gap={1}>
-                  <GameIcon src={`data/StatusArc${index}.png`} size={16} alt={''}/>{type}
-                </Stack>, !sectionFailed && Number.isFinite(value) ? formatNum(1 + value / 100, 'mult', { precise: true }) : '-']]}/>
-                {next ? <Typography variant={'caption'} color={'text.secondary'} sx={{ textAlign: 'right' }}>{next}</Typography> : null}
-              </Stack>;
-            })}
-          </ItemCard.Section>
+          <Stack direction={'row'} columnGap={2} rowGap={0.5} flexWrap={'wrap'} aria-label={'Map bonuses'}>
+            {(mapBonuses ?? []).map(({ value, type }, index) => <Stack key={index} direction={'row'} alignItems={'center'} gap={0.5}>
+              <GameIcon src={`data/StatusArc${index}.png`} size={16} alt={''}/>
+              <Typography variant={'body2'} component={'span'} color={'text.secondary'}>{type}</Typography>
+              <Typography variant={'body2'} component={'span'} sx={{ fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>
+                {!sectionFailed && Number.isFinite(value) ? formatNum(1 + value / 100, 'mult', { precise: true }) : '-'}
+              </Typography>
+            </Stack>)}
+          </Stack>
         </ItemCard>)}
     </CardGrid> : null}
   </Stack>;
