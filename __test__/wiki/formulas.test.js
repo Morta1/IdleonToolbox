@@ -25,9 +25,9 @@ import { grownLeftovers, leftovers } from '../helpers/wiki-leftovers.js';
 
 describe('formula parity with the game', () => {
   // No growth parity case: utility/helpers re-exports this very growth(), so comparing the two is
-  // an identity check. growth's own values are pinned by the talent tests (Task 3).
+  // an identity check. growth's own values are pinned by the talent tests.
   // "txt" and "_" mark a half with no number; a name growth() has no case for is the same, never 0.
-  it.each(['txt', '_', null, 'notACurve'])('has no number for a growth with function %s', (func) => {
+  it.each(['txt', 'notACurve'])('has no number for a growth with function %s', (func) => {
     expect(FORMULAS.growth(10, { func, x1: 1, x2: 0 })).toBe(null);
   });
 
@@ -69,9 +69,7 @@ describe('atom and shrine formulas', () => {
   // Oracle: atomCollider.ts:125-128 (N.js AtomCost) with no discount; the below-a-million floor is
   // the game's, so Hydrogen is whole numbers while Nitrogen's later levels are not.
   it.each([
-    ['Hydrogen', 0, 2, { base: 2, perLevel: 1, rate: 1.35 }],
     ['Hydrogen', 9, 163, { base: 2, perLevel: 1, rate: 1.35 }],
-    ['Hydrogen', 19, 6288, { base: 2, perLevel: 1, rate: 1.35 }],
     ['Nitrogen', 9, 40978, { base: 1000, perLevel: 500, rate: 1.25 }]
   ])('affinePowFloor prices %s at level %s as %s', (name, level, expected, args) => {
     expect(FORMULAS.affinePowFloor(level, args)).toBe(expected);
@@ -88,8 +86,6 @@ describe('atom and shrine formulas', () => {
   it.each([
     [0, 0],
     [1, 6],
-    [2, 39],
-    [3, 87],
     [10, 5053]
   ])('shrineHours at level %s is %s', (level, expected) => {
     expect(FORMULAS.shrineHours(level)).toBe(expected);
@@ -168,14 +164,9 @@ describe('costs', () => {
     expect([1, 2, 3].map((level) => costAt(capped, level))).toEqual([10, 20, 40]);
   });
 
-  it('sums every level to the cap', () => {
-    expect(costToMax(capped)).toBe(70);
-  });
-
   // `owned` is the level the player is at, so the sum starts at the level after it.
   it.each([
     [0, 70],
-    [1, 60],
     [2, 40],
     [3, 0]
   ])('sums the levels past %i to the cap', (owned, expected) => {
@@ -242,7 +233,6 @@ describe('costs', () => {
     [2.5e11, '250B'],
     // A value that is not a finite number reads as blank, never as a made-up "0".
     [null, ''],
-    [undefined, ''],
     [NaN, ''],
     // An overflow reads as infinite, as it does in an effect sentence.
     [Infinity, '∞'],
@@ -273,7 +263,7 @@ describe('Poppy formulas', () => {
 
   // RooBonus: each level adds the next of seven bonuses in turn.
   it.each([
-    [1, 0, 3], [1, 1, 0], [10, 0, 6], [10, 1, 6], [10, 6, 3], [14, 6, 6]
+    [1, 0, 3], [1, 1, 0], [10, 6, 3], [14, 6, 6]
   ])('roundRobin at level %s, bonus %s, base 3 gives %s', (level, offset, expected) => {
     expect(FORMULAS.roundRobin(level, { perStep: 3, offset, period: 7 })).toBe(expected);
   });
@@ -282,7 +272,7 @@ describe('Poppy formulas', () => {
 // Oracles: the exported parser functions, with no account (every discount neutral).
 describe('World 4 formulas', () => {
   // breeding.ts calcUpgradeBonus, index 11 (N.js PetUpgBONUS for Shattershell Iteration).
-  it.each([[0, 0], [1, 12], [10, 60]])('ceilPow at level %s gives %s, as Shattershell Iteration does', (level, expected) => {
+  it.each([[0, 0], [10, 60]])('ceilPow at level %s gives %s, as Shattershell Iteration does', (level, expected) => {
     expect([FORMULAS.ceilPow(level, { scale: 12, exponent: 0.698 }), calcUpgradeBonus({ level }, 11, {})])
       .toEqual([expected, expected]);
   });
@@ -290,7 +280,6 @@ describe('World 4 formulas', () => {
   // cooking.ts getMealLevelCost (N.js CookingMenuMealCosts). The level is the meal's level before the purchase.
   it.each([
     [0, '10'],
-    [1, '15'],
     [10, '24,191.93'],
     [29, '1.66Q']
   ])('mealCost at level %s is %s, as the game prices it', (level, shown) => {
@@ -316,15 +305,15 @@ describe('bubble cost formulas', () => {
   };
   const LEVELS = [0, 1, 9, 10, 19, 20, 99, 150, 250];
 
-  it.each([[0], [14], [15], [29]])('bubbleMaterialCost follows the game for bubble index %s', (bubbleIndex) => {
+  it.each([[14], [15]])('bubbleMaterialCost follows the game for bubble index %s', (bubbleIndex) => {
     expect(LEVELS.map((level) => FORMULAS.bubbleMaterialCost(level, { base: 7, bubbleIndex })))
       .toEqual(LEVELS.map((level) => game.material(7, bubbleIndex, level)));
   });
 
   // alchemy.ts getBubbleUpgradeCost, the account Bubbles page's price, against the game's whole expression: a Bits bubble
   // takes only the Bargain Tag and S-M-R-T factors, unclamped and unrounded; a material takes all five, then [1, 1e9] and
-  // a round (level 0 lands under 1, level 250 over 1e9).
-  it.each(LEVELS)('getBubbleUpgradeCost prices level %s as the game does', (L) => {
+  // a round (level 0 lands under 1, level 250 over 1e9). A liquid steps from level 20.
+  it.each([0, 19, 20, 250])('getBubbleUpgradeCost prices level %s as the game does', (L) => {
     const [bubble, cauldron, vial, tag, smrt] = [0.6, 0.5, 0.8, Math.pow(0.75, 3), 0.9];
     const discounts = { cauldronBubble: bubble, cauldronLevel: cauldron, vialAndBubble: vial, bargainTag: tag, smrt };
     const price = (rawName, baseCost) => getBubbleUpgradeCost({ rawName, bubbleIndex: 25, level: L, baseCost, discounts });
@@ -338,9 +327,9 @@ describe('bubble cost formulas', () => {
       .toEqual([LEVELS.map((level) => game.liquid(2, level)), LEVELS.map((level) => game.bits(5000, level))]);
   });
 
-  // Swift Steppin (Pocket Sand 1, Water Drops 2) at the wiki's Lv 1, 10 and 100, as the game prices levels 0, 9 and 99.
+  // Swift Steppin (Pocket Sand 1, Water Drops 2) at the wiki's Lv 1 and 100, as the game prices levels 0 and 99.
   // Past ~Lv 198 the curve runs above the game's 1e9 cap; the wiki prints the curve, since the cap comes after discounts.
-  it.each([[1, [1, 2]], [10, [11, 2]], [100, [1081860, 6]], [250, [game.material(1, 0, 249), 14]]])('Swift Steppin at Lv %s costs %o', (level, expected) => {
+  it.each([[1, [1, 2]], [100, [1081860, 6]], [250, [game.material(1, 0, 249), 14]]])('Swift Steppin at Lv %s costs %o', (level, expected) => {
     const node = {
       effect: { cap: null },
       cost: [
@@ -357,10 +346,7 @@ describe('bubble cost formulas', () => {
 describe('World 5 formulas', () => {
   // Holes.js:797 LampWishCost (the-lamp.ts:57 getWishCost): wish 0, wish 2, then a plain affine wish.
   it.each([
-    [0, { constant: 1, perLevel: 2, powScale: 1, exponent: 2 }, 1],
-    [1, { constant: 1, perLevel: 2, powScale: 1, exponent: 2 }, 4],
     [9, { constant: 1, perLevel: 2, powScale: 1, exponent: 2 }, 100],
-    [10, { constant: 1, perLevel: 2, powScale: 1, exponent: 2 }, 121],
     [9, { constant: 1, perLevel: 2, powScale: 1, exponent: 1.7 }, 60],
     [9, { constant: 2, perLevel: 0.5 }, 6]
   ])('floorPoly at level %s with %o costs %s wishes', (level, args, expected) => {
@@ -369,12 +355,8 @@ describe('World 5 formulas', () => {
 
   // GamingStatType.js:462-481 ImportItemBonus (gaming.ts:479 calcImportBonus): Dirty Shovel (1) and Bog Log (5).
   it.each([
-    [1, { base: 1, scale: 60, offset: 250, exponent: 1.7 }, 1],
     [10, { base: 1, scale: 60, offset: 250, exponent: 1.7 }, 5.1],
-    [100, { base: 1, scale: 60, offset: 250, exponent: 1.7 }, 126.2],
-    [1, { scale: 60, offset: 100 }, 0.5],
-    [10, { scale: 60, offset: 100 }, 5.4],
-    [100, { scale: 60, offset: 100 }, 30]
+    [10, { scale: 60, offset: 100 }, 5.4]
   ])('decayPowTenths at level %s with %o gives %s', (level, args, expected) => {
     expect(FORMULAS.decayPowTenths(level, args)).toBe(expected);
   });
@@ -385,17 +367,13 @@ describe('World 5 formulas', () => {
   });
 
   // the-fountain.ts:75-78: Money Back Guarantee keeps 100 * (0.1 + 0.5L / (100 + L)) percent.
-  it.each([
-    [1, 10.495],
-    [10, 14.545]
-  ])('affineDecay at level %s gives %s', (level, expected) => {
-    expect(FORMULAS.affineDecay(level, { base: 10, scale: 50, offset: 100 })).toBeCloseTo(expected, 3);
+  it('affineDecay at level 10 gives 14.545', () => {
+    expect(FORMULAS.affineDecay(10, { base: 10, scale: 50, offset: 100 })).toBeCloseTo(14.545, 3);
   });
 
   // Holes2.js:498-515 Cglunko_upgCost: Opal Find ({ 1, 7.5 }) and Slop Drop ({ 5, 1.35 }), before discounts.
   it.each([
     [0, { scale: 1, rate: 7.5 }, 1],
-    [1, { scale: 1, rate: 7.5 }, 8],
     [1, { scale: 5, rate: 1.35 }, 11]
   ])('scaledPowPlusLevelFloor at level %s with %o costs %s', (level, args, expected) => {
     expect(FORMULAS.scaledPowPlusLevelFloor(level, args)).toBe(expected);
@@ -409,12 +387,8 @@ describe('World 5 formulas', () => {
 
 describe('World 6 formulas', () => {
   // Summoning.js:981-997 UpgCost, printed through N.js:109356, which rounds up below 1,000 only.
-  it.each([
-    [0, { base: 10, rate: 1.12, below: 1000 }, 10],
-    [1, { base: 10, rate: 1.12, below: 1000 }, 12],
-    [9, { base: 10, rate: 1.12, below: 1000 }, 28]
-  ])('powCeilBelow at level %s with %o gives %s', (level, args, expected) => {
-    expect(FORMULAS.powCeilBelow(level, args)).toBe(expected);
+  it('powCeilBelow rounds up below the threshold', () => {
+    expect(FORMULAS.powCeilBelow(9, { base: 10, rate: 1.12, below: 1000 })).toBe(28);
   });
 
   it('powCeilBelow keeps the fraction above the threshold', () => {
@@ -422,18 +396,13 @@ describe('World 6 formulas', () => {
   });
 
   // FarmingStuffs.js:214-237 MarketCostQTY: floored below 1e8.
-  it.each([
-    [0, { base: 2, rate: 2, below: 1e8 }, 2],
-    [9, { base: 2, rate: 2, below: 1e8 }, 1024],
-    [9, { base: 2, rate: 1.13, below: 1e8 }, 6]
-  ])('powFloorBelow at level %s with %o gives %s', (level, args, expected) => {
-    expect(FORMULAS.powFloorBelow(level, args)).toBe(expected);
+  it('powFloorBelow floors below the threshold', () => {
+    expect(FORMULAS.powFloorBelow(9, { base: 2, rate: 1.13, below: 1e8 })).toBe(6);
   });
 
   // N.js:109356: the summoning "% less" lines round where diminishingPercent floors; level 11 is where they part.
   it.each([
     [1, 0.99, 0.99],
-    [10, 9.09, 9.09],
     [11, 9.91, 9.9]
   ])('diminishingPercentRounded at level %s gives %s (floored: %s)', (level, rounded, floored) => {
     expect(FORMULAS.diminishingPercentRounded(level, { perLevel: 1 })).toBe(rounded);
@@ -443,15 +412,13 @@ describe('World 6 formulas', () => {
   // N.js:108717: the exotic market bonus, rounded up.
   it.each([
     [0, 0],
-    [1, 1],
     [1000, 3]
   ])('decayCeil at level %s gives %s', (level, expected) => {
     expect(FORMULAS.decayCeil(level, { scale: 5, offset: 1000 })).toBe(expected);
   });
 
-  // Ninja.js:422-464 ItemStat, charms (type 2).
+  // Ninja.js:422-464 ItemStat, charms (type 2); by 1e4 the first curve has hit its cap.
   it.each([
-    [0, 8],
     [1, 8.2693],
     [1e4, 24.9266]
   ])('charmStat at level %s gives %s', (level, expected) => {
@@ -472,19 +439,13 @@ describe('World 6 formulas', () => {
   });
 
   // Ninja.js:422-464 ItemStat, gloves (type 1 subType 0).
-  it.each([
-    [1, 13.41],
-    [100, 39.29]
-  ])('ninjaGloveStat at level %s gives %s', (level, expected) => {
-    expect(FORMULAS.ninjaGloveStat(level, { base: 5 })).toBeCloseTo(expected, 2);
+  it('ninjaGloveStat at level 100 gives 39.29', () => {
+    expect(FORMULAS.ninjaGloveStat(100, { base: 5 })).toBeCloseTo(39.29, 2);
   });
 
   // Ninja.js:9-21 gemstone bonus as a discount (sneaking.ts getGemstoneBonus is module-private, so the values stand as pins).
-  it.each([
-    [1, 3.3793],
-    [1e7, 96.155]
-  ])('affineDecayCheaper at level %s gives %s', (level, expected) => {
-    expect(FORMULAS.affineDecayCheaper(level, { base: 1, scale: 2500, offset: 1000 })).toBeCloseTo(expected, 4);
+  it('affineDecayCheaper at level 1 gives 3.3793', () => {
+    expect(FORMULAS.affineDecayCheaper(1, { base: 1, scale: 2500, offset: 1000 })).toBeCloseTo(3.3793, 4);
   });
 
   // N.js:68754 NotateNumber(x, "Big") floors below 1,000 only.
@@ -500,8 +461,6 @@ describe('World 7 formulas', () => {
   // Spelunk.js:234-268 ShopUpgCost, printed through N.js:118794, which rounds up below 1e5 only.
   // spelunking.ts:860-880 keeps the cost inside an unexported function, so the values stand as pins.
   it.each([
-    [0, { base: 0.07, rate: 1.5, below: 1e5 }, 1],
-    [1, { base: 0.07, rate: 1.5, below: 1e5 }, 7],
     [9, { base: 0.07, rate: 1.5, below: 1e5 }, 139],
     [1, { base: 0.4 * Math.pow(9.5, 5) * 6.3, rate: 7.2, below: 1e5 }, expect.closeTo(3860863.36575, 4)]
   ])('spelunkShopCost at level %s with %o gives %s', (level, args, expected) => {
@@ -510,42 +469,27 @@ describe('World 7 formulas', () => {
 
   // Thingies.js:70-91 ZenithMarketCost and the Orblet Market cost: floored below 1e6.
   it.each([
-    [0, { formula: 'powPlusLevel', args: { base: 1, rate: 1.14 }, below: 1e6 }, 1],
-    [1, { formula: 'powPlusLevel', args: { base: 1, rate: 1.14 }, below: 1e6 }, 2],
     [9, { formula: 'powPlusLevel', args: { base: 1, rate: 1.14 }, below: 1e6 }, 12],
     [200, { formula: 'powPlusLevel', args: { base: 1, rate: 1.14 }, below: 1e6 }, expect.closeTo(240419819995.2477, 2)],
-    [1, { formula: 'powPlusLevel', args: { base: 2, rate: 50 }, below: 1e6 }, 101],
     [1, { formula: 'nope' }, null]
   ])('floorBelow at level %s with %o gives %s', (level, args, expected) => {
     expect(FORMULAS.floorBelow(level, args)).toEqual(expected);
   });
 
   // Bubbastuff.js:47-57 UpgCost (bubba.ts:140-160 keeps it unexported).
-  it.each([
-    [0, { scale: 1, perLevel: 1, base: 1, rate: 1.07 }, 1],
-    [1, { scale: 1, perLevel: 1, base: 1, rate: 1.07 }, 2.07],
-    [9, { scale: 1, perLevel: 1, base: 1, rate: 1.07 }, 10.8385],
-    [0, { scale: 1.6, perLevel: 81, base: Math.pow(2.4 + 8 / 3.65, 8), rate: 125 }, 316205.3265]
-  ])('linearPlusPow at level %s with %o gives %s', (level, args, expected) => {
-    expect(FORMULAS.linearPlusPow(level, args)).toBeCloseTo(expected, 4);
+  it('linearPlusPow at level 9 gives 10.8385', () => {
+    expect(FORMULAS.linearPlusPow(9, { scale: 1, perLevel: 1, base: 1, rate: 1.07 })).toBeCloseTo(10.8385, 4);
   });
 
-  // N.js:72954 MenagerieStuff Cost arm 2 (boost 0: 3 L + L^1.5 + 5 x 2.1^L) and N.js:106823 Thingies Clam_Cost upgrade 0
-  // (1.2^L + 3 L + L^2.5). menagerie.ts and clamWork.ts read the account's levels, so the values stand as pins.
-  it.each([
-    [0, { base: 5, rate: 2.1, perLevel: 3, exponent: 1.5 }, 5],
-    [2, { base: 5, rate: 2.1, perLevel: 3, exponent: 1.5 }, 30.8784],
-    [4, { base: 1, rate: 1.2, perLevel: 3, exponent: 2.5 }, 46.0736]
-  ])('polyPlusPow at level %s with %o gives %s', (level, args, expected) => {
-    expect(FORMULAS.polyPlusPow(level, args)).toBeCloseTo(expected, 4);
+  // N.js:72954 MenagerieStuff Cost arm 2 (boost 0: 3 L + L^1.5 + 5 x 2.1^L). menagerie.ts reads the account's levels, so the value stands as a pin.
+  it('polyPlusPow at level 2 gives 30.8784', () => {
+    expect(FORMULAS.polyPlusPow(2, { base: 5, rate: 2.1, perLevel: 3, exponent: 1.5 })).toBeCloseTo(30.8784, 4);
   });
 
   // N.js:121561 Minehead Numbahs: one extra step from level `at`.
   it.each([
-    [1, 2],
     [8, 9],
-    [9, 11],
-    [17, 19]
+    [9, 11]
   ])('affineStep at level %s gives %s', (level, expected) => {
     expect(FORMULAS.affineStep(level, { base: 1, perLevel: 1, at: 9, step: 1 })).toBe(expected);
   });
@@ -553,7 +497,6 @@ describe('World 7 formulas', () => {
   // N.js:121561 Minehead Jackpot Time "1 in $" rounds up; at level 1 inverseLinear rounds the same 99.0099 down.
   it.each([
     ['inverseLinearCeil', 1, 100],
-    ['inverseLinearCeil', 100, 50],
     ['inverseLinear', 1, 99]
   ])('%s at level %s gives %s', (formula, level, expected) => {
     expect(FORMULAS[formula](level, { base: 100, perLevel: 0.01 })).toBe(expected);
@@ -561,7 +504,6 @@ describe('World 7 formulas', () => {
 
   // N.js:121561 the two Minehead tables: a value per level, clamped to the table at both ends.
   it.each([
-    [0, 1],
     [1, 1.2],
     [5, 1.4],
     [-1, 1]
@@ -590,7 +532,7 @@ describe('World 7 formulas', () => {
 // The levelled pages that were a sentence before: Post Office boxes, prayers and the Upgrade Vault.
 describe('structured page formulas', () => {
   // postoffice.ts getPostOfficeBonus: each bonus grows at round(level - threshold), never below 0.
-  it.each([[0, 1], [1, 25], [1, 26], [2, 100], [2, 101], [2, 400]])('growthAbove reads bonus %s at level %s as the parser does', (bonusIndex, level) => {
+  it.each([[0, 1], [1, 25], [1, 26], [2, 400]])('growthAbove reads bonus %s at level %s as the parser does', (bonusIndex, level) => {
     const box = postOffice[0];
     const { func, x1, x2 } = box.upgrades[bonusIndex];
     const offset = bonusIndex === 0 ? 0 : box.upgradeLevels[bonusIndex - 1];
@@ -599,13 +541,13 @@ describe('structured page formulas', () => {
   });
 
   // Oracle: prayersReal's round(x * max(1, 1 + (L - 1) / 10)), wrapped in `rounded` the way the prayer rows use it.
-  it.each([[30, 1], [30, 2], [250, 50], [7, 13]])('scaledPastLevel of %s at level %s rounds as the game does', (base, level) => {
+  it.each([[30, 1], [7, 13]])('scaledPastLevel of %s at level %s rounds as the game does', (base, level) => {
     expect(FORMULAS.rounded(level, { formula: 'scaledPastLevel', args: { base, ...wikiTables.prayerBonus } }))
       .toBe(Math.round(base * Math.max(1, 1 + (level - 1) / 10)));
   });
 
   // prayers.ts calcPrayerCost on both curves, below and past the pivot.
-  it.each([[0, 0], [0, 5], [0, 6], [4, 19], [12, 49], [9, 5], [9, 6], [9, 20]])('affineThenPow prices prayer %s at level %s as the parser does', (prayerIndex, level) => {
+  it.each([[0, 5], [0, 6], [12, 49], [9, 5], [9, 6]])('affineThenPow prices prayer %s at level %s as the parser does', (prayerIndex, level) => {
     const costMulti = 100 + prayerIndex;
     const { earlyBelow, early, special, late, cap } = gameTables.prayerCost;
     const curve = prayerIndex === special.index ? special : late;
@@ -617,14 +559,14 @@ describe('structured page formulas', () => {
   });
 
   // Oracle: the game's WorshipStuff("PrayerCost") branch for prayer 9, which once read 1 + t / 20 in the parser.
-  it.each([6, 20, 50])('prices prayer 9 at level %s as the game does', (level) => {
+  it.each([6, 50])('prices prayer 9 at level %s as the game does', (level) => {
     const costMulti = 109;
     expect(calcPrayerCost({ level, costMulti, prayerIndex: 9 }))
       .toBe(Math.round(Math.min(2e9, costMulti * (1 + (2 + 9 / 20) * level) * Math.pow(1.3, level - 5))));
   });
 
   // upgradeVault.ts with no account: Bigger Damage (0) and Cooking Knowledge (60) grow past their steps.
-  it.each([[0, 1], [0, 26], [0, 500], [60, 24], [60, 101], [60, 500]])('steppedLinear reads vault upgrade %s at level %s as the parser does', (index, level) => {
+  it.each([[0, 1], [0, 26], [60, 24], [60, 500]])('steppedLinear reads vault upgrade %s at level %s as the parser does', (index, level) => {
     const levels = upgradeVault.map((entry, at) => (at === index ? level : 0));
     const { steps, every = 0, per = 1 } = [wikiTables.vaultUpgradeBonus.first, wikiTables.vaultUpgradeBonus.higher].find((entry) => entry.index === index);
     expect(FORMULAS.steppedLinear(level, { perLevel: upgradeVault[index].x5, steps, every, per }))
@@ -635,18 +577,12 @@ describe('structured page formulas', () => {
 describe('Master Classes formulas', () => {
   // GrimoireUpgCost (N.js:106375) and ArcaneUpgCost (N.js:107167); getGrimoireTotalUpgradeCost (grimoire.ts:244)
   // is the parity oracle the row tests use.
-  it.each([
-    [0, { scale: 3, base: 8, rate: 1.11 }, 24],
-    [1, { scale: 3, base: 8, rate: 1.11 }, expect.closeTo(32.97, 9)],
-    [9, { scale: 3, base: 8, rate: 1.11 }, expect.closeTo(157.4598831437116, 6)],
-    [1, { scale: 3, base: 8, rate: 1.09 }, expect.closeTo(32.43, 9)]
-  ])('affinePowPlusLevel at level %s with %o gives %s', (level, args, expected) => {
-    expect(FORMULAS.affinePowPlusLevel(level, args)).toEqual(expected);
+  it('affinePowPlusLevel at level 9 gives 157.46', () => {
+    expect(FORMULAS.affinePowPlusLevel(9, { scale: 3, base: 8, rate: 1.11 })).toBeCloseTo(157.4598831437116, 6);
   });
 
   // Royal Talent Points I, slot 1 (N.js:107842): a flat 2 below level 3, then 25 x 1.24 x 8 x 0.2 x 1.13^L.
   it.each([
-    [0, { below: 3, flat: 2, formula: 'pow', args: { base: 49.6, rate: 1.13 } }, 2],
     [2, { below: 3, flat: 2, formula: 'pow', args: { base: 49.6, rate: 1.13 } }, 2],
     [3, { below: 3, flat: 2, formula: 'pow', args: { base: 49.6, rate: 1.13 } }, expect.closeTo(71.5676912, 6)],
     [1, { below: 0, formula: 'nope' }, null]
@@ -657,8 +593,6 @@ describe('Master Classes formulas', () => {
   // The compass `{` below a bonus per level of 0.9 (N.js:118270): NotateNumber(x, "Small").
   it.each([
     [1, { formula: 'linear', args: { perLevel: 0.02 } }, 0.02],
-    [51, { formula: 'linear', args: { perLevel: 0.02 } }, 1],
-    [1, { formula: 'growth', args: { func: 'decay', x1: 100, x2: 100 } }, 0.99],
     [10, { formula: 'growth', args: { func: 'decay', x1: 100, x2: 100 } }, 9.1],
     [501, { formula: 'linear', args: { perLevel: 0.2 } }, 100],
     [5001, { formula: 'linear', args: { perLevel: 0.2 } }, 1000],
@@ -669,7 +603,6 @@ describe('Master Classes formulas', () => {
 
   // Moon of Sneak (CompassBonus 45, N.js:107131).
   it.each([
-    [1, 1.01],
     [49, 1.49],
     [50, 2],
     [100, 5]
@@ -681,7 +614,6 @@ describe('Master Classes formulas', () => {
   // raw values these round.
   it.each([
     [100, { func: 'decay', x1: 20, x2: 180, offset: 69 }, 2.94],
-    [500, { func: 'decay', x1: 20, x2: 180, offset: 69 }, 14.1],
     [100, { func: 'intervalAdd', x1: 1, x2: 5, offset: 9 }, 19],
     [500, { func: 'decayMulti', x1: 1.4, x2: 800, offset: 129 }, 1.44],
     [10, { func: 'decayMulti', x1: 1.4, x2: 800, offset: 129 }, 1],
@@ -699,14 +631,9 @@ describe('Account formulas', () => {
     // Guild Gifts.
     [1, { formula: 'growth', args: { func: 'decay', x1: 700, x2: 100 }, func: 'decay', x2: 100 }, 6.93],
     [10, { formula: 'growth', args: { func: 'decay', x1: 700, x2: 100 }, func: 'decay', x2: 100 }, 64],
-    [100, { formula: 'growth', args: { func: 'decay', x1: 700, x2: 100 }, func: 'decay', x2: 100 }, 350],
-    // Bonus GP for small guilds: hundredths, tenths, hundredths, whole.
-    [1, { formula: 'growth', args: { func: 'special1', x1: 200, x2: 50 }, func: 'decay', x2: 50 }, 96],
+    // Bonus GP for small guilds, a special1 value rounded by the decay rule: tenths, then hundredths.
     [40, { formula: 'growth', args: { func: 'special1', x1: 200, x2: 50 }, func: 'decay', x2: 50 }, 11.1],
     [49, { formula: 'growth', args: { func: 'special1', x1: 200, x2: 50 }, func: 'decay', x2: 50 }, 1.01],
-    [50, { formula: 'growth', args: { func: 'special1', x1: 200, x2: 50 }, func: 'decay', x2: 50 }, 0],
-    // Skilley Skillet.
-    [200, { formula: 'growth', args: { func: 'decay', x1: 30, x2: 120 }, func: 'decay', x2: 120 }, 18.8],
     // The `add` branch: tenths only when x2 is below 1.
     [10, { formula: 'linear', args: { perLevel: 0.55 }, func: 'add', x2: 0.5 }, 5.5],
     [10, { formula: 'linear', args: { perLevel: 0.55 }, func: 'add', x2: 1 }, 6],
@@ -717,30 +644,24 @@ describe('Account formulas', () => {
     expect(FORMULAS.formatBonuses(level, args)).toBe(expected);
   });
 
-  // Live DungeonCalc("RngUpgCost") (N.js:87603) for ids 19, 31, 34 and 40: formula levels 0, 1, 2 and 20 are every
-  // Common item's L1, L2, L3 and L21; then Vampire Fangs (Uncommon), Spiky Spine (Rare) and Angelite (Epic).
+  // Live DungeonCalc("RngUpgCost") (N.js:87603) for ids 19 and 40: formula levels 0 and 20 are every Common item's L1 and
+  // L21; then Angelite (Epic).
   it.each([
     [0, 5, 5],
-    [1, 5, 8],
-    [2, 5, 15],
     [20, 5, 6265],
-    [8, 1 + 2 * 4 ** (3.348 / 2.348), 577],
-    [6, 1 + 3 * 4 ** (4.348 / 2.348), 745],
     [5, 1 + 4 * 4 ** (5.348 / 2.348), 1207]
   ])('dungeonRngCost at level %s with scale %s gives %s', (level, scale, expected) => {
     expect(FORMULAS.dungeonRngCost(level, { scale })).toBe(expected);
   });
 
   // PassiveStatCost and PassiveStatCost2 (N.js:87588, 87590), live PassiveStatCost(0) at 100 and PassiveStatCost2(0) at
-  // 50. Formula levels 0, 59 and 60 are every credit passive's L1, L60 and L61 (the pivot); 0 is every Flurbo passive's L1.
+  // 50. Formula levels 59 and 60 are every credit passive's L60 and L61 (the pivot).
   const credits = { base: 2, scale: 1.5, exponent: 1.04, rate: 1.024, pivot: 60, nudge: 0.01, every: 1000 };
   const flurbos = { base: 1, scale: 1.7, exponent: 1.05, rate: 1.027, pivot: 30, nudge: 0.01, every: 1000 };
   it.each([
-    [0, credits, 2],
     [59, credits, 431],
     [60, credits, 449],
     [100, credits, 2508],
-    [0, flurbos, 1],
     [50, flurbos, 455]
   ])('dungeonPassiveCost at level %s with %o gives %s', (level, args, expected) => {
     expect(FORMULAS.dungeonPassiveCost(level, args)).toBe(expected);

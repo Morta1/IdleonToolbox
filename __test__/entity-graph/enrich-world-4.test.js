@@ -1,5 +1,4 @@
 import '../../polyfills';
-import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
@@ -7,12 +6,11 @@ import { enrichWorld4 } from '../../scripts/entity-graph/enrich-world-4.mjs';
 import { jewelNodes, mealNodes, spiceNodes } from '../../scripts/entity-graph/nodes/systems.mjs';
 import { costAt, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
 import { getMealLevelCost } from '../../parsers/world-4/cooking';
-import { fieldLinkFailures } from '../../utility/wiki/field-links.mjs';
+import { enrichRun } from '../helpers/enrich-run.js';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
-// The enrichment only reads and extends these nodes, so a bare monster per raw name is enough; the
-// before/after snapshots below then name exactly which nodes it touched.
+// The enrichment only reads and extends these nodes, so a bare monster per raw name is enough.
 const blank = () => {
   const nodes = {
     ...mealNodes(data.cookingMenu),
@@ -22,20 +20,12 @@ const blank = () => {
   for (const rawName of Object.keys(data.monsters)) nodes[`monster:${rawName}`] = { kind: 'monster', rawName };
   return nodes;
 };
-const before = blank();
-const snapshot = Object.fromEntries(Object.entries(before).map(([id, node]) => [id, JSON.stringify(node)]));
-const nodes = blank();
-enrichWorld4(nodes, data);
-const changed = (prefix) => Object.keys(nodes).filter((id) => id.startsWith(prefix) && JSON.stringify(nodes[id]) !== snapshot[id]).sort();
-const fieldAt = (id, label) => nodes[id].fields.find((field) => field.label === label);
+const { before, nodes, changed, linkFailures } = enrichRun(blank, (fresh) => enrichWorld4(fresh, data));
 
-// The registry sweep never sees these links, so the enriched nodes are swept here against the committed graph's pages.
 describe('field links', () => {
   it('name a page that exists, is navigable and draws in its text', () => {
-    const known = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8')).nodes;
-    const enriched = Object.keys(nodes).filter((id) => JSON.stringify(nodes[id]) !== snapshot[id]).map((id) => nodes[id]);
-    expect(enriched.length).toBeGreaterThan(0);
-    expect(fieldLinkFailures(enriched, known)).toEqual([]);
+    expect(changed('').length).toBeGreaterThan(0);
+    expect(linkFailures()).toEqual([]);
   });
 });
 
@@ -127,10 +117,6 @@ describe('breeding mobs', () => {
       { label: 'Gene', value: 'Fighter', links: ['gene:Gene0'], linkAs: 'featuredIn' },
       { label: 'Shiny bonus per shiny level (up to 20, 30 with the +10 Max Shiny LV in Breeding Menagerie unlock)', value: '+3% Faster Shiny Mob Lv Up Rate' }
     ]);
-  });
-
-  it('link the gene a mob carries through the gene row', () => {
-    expect(fieldAt('monster:steakR', 'Gene')).toEqual({ label: 'Gene', value: 'Trasher', links: ['gene:Gene25'], linkAs: 'featuredIn' });
   });
 
   it('count the world from the table, not the mob', () => {

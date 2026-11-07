@@ -55,22 +55,15 @@ describe('currency shops', () => {
     expect(edges.find((edge) => edge.to === 'item:EquipmentHats10').meta).toEqual({ price: 999, currency: 'token' });
   });
 
-  // The gem shop's rows are not all items: daily resets and subscription ribbons have a price and a
-  // picture and never enter an inventory. A UI skin is the same, which is why UImain_a is absent.
-  it('skips a row that is not an item', () => {
-    const edges = currencyShopEdges(gemShop, skullShop, weeklyShop, items);
-    const targets = edges.map((edge) => edge.to);
-    expect(targets).not.toContain('item:Pdaily0');
-    expect(targets).not.toContain('item:UImain_a');
-    // `#` is the game's wildcard for "a random one of these".
-    expect(targets).not.toContain('item:Timecandy#');
-  });
-
-  // Killroy's x2 = 0 rows run a special handler and carry the placeholder Timecandy1, which is a
-  // real item key but not what the row hands over.
-  it('does not sell the placeholder on a row that drops nothing', () => {
-    const edges = currencyShopEdges(gemShop, skullShop, weeklyShop, items);
-    expect(edges.some((edge) => edge.from === 'shop:skull' && edge.to === 'item:Timecandy1')).toBe(false);
+  // The gem shop's rows are not all items: daily resets and subscription ribbons have a price and a picture and never enter
+  // an inventory, and a UI skin is the same. `#` is the game's wildcard for "a random one of these". Killroy's x2 = 0 rows run
+  // a special handler and carry the placeholder Timecandy1, which is a real item key but not what the row hands over.
+  it('sells only the rows that hand over an item', () => {
+    expect(currencyShopEdges(gemShop, skullShop, weeklyShop, items).map((edge) => [edge.from, edge.to])).toEqual([
+      ['shop:gem', 'item:Timecandy1'],
+      ['shop:skull', 'item:Pearl4'],
+      ['shop:weekly', 'item:EquipmentHats10']
+    ]);
   });
 });
 

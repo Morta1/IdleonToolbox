@@ -8,6 +8,7 @@ import { itemNodes } from '../../scripts/entity-graph/nodes/items.mjs';
 import { worldNodes } from '../../scripts/entity-graph/nodes/worlds.mjs';
 import { mapEdges } from '../../scripts/entity-graph/edges/maps.mjs';
 import { spaced } from '../../scripts/entity-graph/registry/text.mjs';
+import { enrichRun } from '../helpers/enrich-run.js';
 
 const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
 
@@ -16,12 +17,7 @@ const blank = () => {
   const items = Object.fromEntries(Object.entries(itemNodes(data.items, data.monsters, data.cards, data.stamps)).filter(([, node]) => node.card));
   return { ...maps, ...items, ...worldNodes(maps, data) };
 };
-// The before/after snapshots name exactly which nodes the enrichment touched.
-const before = blank();
-const snapshot = Object.fromEntries(Object.entries(before).map(([id, node]) => [id, JSON.stringify(node)]));
-const nodes = blank();
-enrichAccount(nodes, data);
-const changed = (prefix) => Object.keys(nodes).filter((id) => id.startsWith(prefix) && JSON.stringify(nodes[id]) !== snapshot[id]).sort();
+const { before, nodes, changed } = enrichRun(blank, (fresh) => enrichAccount(fresh, data));
 const portals = (id) => nodes[id].fields?.filter((field) => field.label === 'Portals');
 const portalLines = (id) => portals(id)?.[0].value;
 

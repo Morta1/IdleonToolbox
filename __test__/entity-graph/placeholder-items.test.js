@@ -16,26 +16,12 @@ describe('placeholder items', () => {
   };
   const nodes = itemNodes(items, {}, {}, {}, new Map(), rosterOf(['TestObj2', 'CraftMat15', 'EquipmentHats33']));
 
-  it('hides a TestObj the game leaves off The Slab', () => {
-    expect(nodes['item:TestObj2'].navigable).toBe(false);
-  });
-
-  // TestObj1 is the real Wooden Spear: craftable and on The Slab, so the prefix alone proves nothing.
-  it('keeps a TestObj the game counts as findable', () => {
-    expect(nodes['item:TestObj1']).not.toHaveProperty('navigable');
-  });
-
-  it('hides a never-filled-in name on the not-findable roster', () => {
-    expect(nodes['item:CraftMat15'].navigable).toBe(false);
-  });
-
-  it('needs both signals: a placeholder name outside the roster stays', () => {
-    expect(nodes['item:CraftMat3']).not.toHaveProperty('navigable');
-  });
-
-  // The roster also holds legacy and premium items people really own.
-  it('keeps a real item that merely sits on the roster', () => {
-    expect(nodes['item:EquipmentHats33']).not.toHaveProperty('navigable');
+  // TestObj1 is the real Wooden Spear: craftable and on The Slab, so the prefix alone proves nothing. A Filler name needs
+  // the roster too (CraftMat3 stays), and the roster also holds legacy and premium items people really own (EquipmentHats33).
+  it('hides a placeholder TestObj or Filler name on the not-findable roster, and nothing else', () => {
+    expect(Object.values(nodes).filter((node) => node.navigable === false).map((node) => node.rawName).sort())
+      .toEqual(['COIN', 'CraftMat15', 'TestObj2']);
+    expect(Object.values(nodes).filter((node) => node.navigable !== false && node.navigable !== undefined)).toEqual([]);
   });
 
   it('hides nothing when no roster is passed', () => {

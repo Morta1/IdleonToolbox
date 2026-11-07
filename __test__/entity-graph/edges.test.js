@@ -30,9 +30,9 @@ describe('drop edges', () => {
   // idleon.wiki lists the item the recipe teaches, not the recipe, and so does the game's own
   // drop table. Pointing the edge at the recipe left Dootjat Eye's page claiming nothing drops it.
   it('points a recipe drop at the item it teaches', () => {
-    const edges = dropEdges(monsterDrops, monsters);
-    expect(edges.find((edge) => edge.to === 'item:Quest36')).toBeDefined();
-    expect(edges.find((edge) => edge.to === 'item:SmithingRecipes2')).toBeUndefined();
+    const targets = dropEdges(monsterDrops, monsters).map((edge) => edge.to);
+    expect(targets).toContain('item:Quest36');
+    expect(targets).not.toContain('item:SmithingRecipes2');
   });
 
   // The row links to the item, so it has to say the drop is the recipe for it rather than the

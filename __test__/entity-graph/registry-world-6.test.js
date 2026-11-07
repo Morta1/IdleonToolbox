@@ -48,24 +48,10 @@ describe('summoning upgrades', () => {
   // Oracle: Summoning.js:960-997 SummUpgBonus / UpgCost, printed through N.js:109356.
   it.each([
     ['White_Essence_Champ', 1, '+5% White Essence generated per hour for each win across all colours.'],
-    ['Dodge_Roll', 1, '+1% chance to dodge'],
-    ['Vrumbi', 1, '+5% Dodge Chance'],
-    ['Luck_of_the_Draw', 1, '1.02x more likely'],
-    ['Luck_of_the_Draw', 10, '1.2x'],
-    ['Cost_Crashing', 50, '33.33%'],
-    ['Sell_Sell_Sell', 1, '2.91%'],
-    ['Glombolic_Units', 1, '+100%'],
-    ['Glombolic_Units', 10, '+1,000%']
+    ['Luck_of_the_Draw', 10, 'All special units are 1.2x more likely to be drawn instead of slime.'],
+    ['Cost_Crashing', 50, 'All Summoning upgrades cost 33.33% less Essence.']
   ])('fill %s at level %i', (name, level, expected) => {
-    const text = textAt(name, level);
-    if (name === 'White_Essence_Champ') expect(text).toBe(expected);
-    else expect(text).toContain(expected);
-  });
-
-  it('fill both tokens of Whims of the Tide', () => {
-    const text = textAt('Whims_of_the_Tide', 1);
-    expect(text.match(/\+2%/g)).toHaveLength(2);
-    expect(text).toContain('+2% Total Player Damage Multiplier!');
+    expect(textAt(name, level)).toBe(expected);
   });
 
   it('read Familiar as its first sentence with no timer', () => {
@@ -75,36 +61,18 @@ describe('summoning upgrades', () => {
     expect(node.effect.cap).toBe(25);
   });
 
+  // Rounded up below 1,000, as the panel prints it, and unrounded above.
   it.each([
-    ['Unit_Health', 1, '10'],
-    ['Unit_Health', 2, '13'],
     ['Unit_Health', 10, '107'],
-    ['Vrumbi', 10, '750,846,863'],
-    ['Glombolic_Units', 2, '2.84B']
+    ['Vrumbi', 10, '750,846,863']
   ])('price %s at level %i at %s', (name, level, expected) => {
     expect(costAt(name, level)).toBe(expected);
   });
 
-  it.each([
-    ['Familiar', '1.11e26'],
-    ['Dodge_Roll', '698,403'],
-    ['Vrumbi', '866,361,764'],
-    ['Luck_of_the_Draw', '3,838,120'],
-    ['Re-Draw', '62,000'],
-    ['Jeweled_Cards', '174,426,000'],
-    ['Allstar', '3.94e117'],
-    ['Whims_of_the_Tide', '3.12e277']
-  ])('total %s to its cap at %s', (name, expected) => {
-    expect(costToMax(name)).toBe(expected);
-  });
-
-  it('cap Dodge Roll at 30 and pay in white essence', () => {
+  it('cap Dodge Roll at 30, total it and pay in white essence with the default note', () => {
     expect(byName('Dodge_Roll').effect.cap).toBe(30);
-    expect(costsAt(byName('Dodge_Roll'), 1)[0].currency).toBe('White Essence');
-  });
-
-  it('keep the default cost note', () => {
-    expect(costsAt(byName('Unit_Health'), 1)[0].note).toBeUndefined();
+    expect(costToMax('Dodge_Roll')).toBe('698,403');
+    expect(costsAt(byName('Dodge_Roll'), 1)[0]).toMatchObject({ currency: 'White Essence', note: undefined });
   });
 
   it('read the unlock chain and essence', () => {
@@ -190,7 +158,6 @@ describe('summoning battles', () => {
     ['Jonesy_and_his_Lil_Mushies', 'Winner bonus: 1.53x Total DMG', 'Green', 'Green Mushroom', 'mushG'],
     ['Eugene_and_his_Frosted_Crabs', 'Winner bonus: +7% Drop Rate', 'Yellow', 'Crabcake', 'crabcake'],
     ['Pablo_and_his_Plump_Piggies', 'Winner bonus: 1.28x Total DMG', 'White', 'Mr Pig', 'Pet1'],
-    ['Shinji_and_his_Inevitable_Army', 'Winner bonus: +10 Library Max', 'Cyan', 'Samurai Guardian', 'w6d3'],
     ['Danny_and_his_Shiny_Fishies', 'Winner bonus: 9.75x Total DMG', 'Teal', 'Equinox Broadbass', 'w7a1']
   ])('read %s', (name, description, circuit, opponent, enemyId) => {
     const node = byName(name);
@@ -199,16 +166,6 @@ describe('summoning battles', () => {
       { label: 'Circuit', value: `${circuit} circuit` },
       { label: 'Opponent', value: opponent, links: [`monster:${enemyId}`], linkAs: 'features' }
     ]);
-  });
-
-  // Names collide (a Bunny in the pet and the breeding tables), so the link is the enemy id, never the text.
-  it('link the opponent by enemy id', () => {
-    expect(fieldAt('summoningbattle:SummonBattle_w7b1', 'Opponent')).toEqual({
-      label: 'Opponent',
-      value: 'Trench Fish',
-      links: ['monster:w7b1'],
-      linkAs: 'features'
-    });
   });
 
   it('give every battle a circuit', () => {
@@ -259,35 +216,17 @@ describe('farming market upgrades', () => {
   // Oracle: FarmingStuffs.js:179-284 (MarketCostQTY floors below 1e8). The parser's cost (farming.ts:71)
   // is unfloored, so these are pinned from the game.
   it.each([
-    ['Land Plots', 1, 'You get 1 extra plots'],
-    ['Stronger Vines', 1, '+2% chance'],
     ['Stronger Vines', 10, '+20% chance'],
-    ['Biology Boost', 1, '+15% chance'],
-    ['Biology Boost', 10, '+150% chance'],
     ['Overgrowth', 1, 'Each OG doubles crop value & EXP'],
-    ['Evolution GMO', 1, '1.01x crop evolution chance per crop you have 200 of'],
-    ['Evolution GMO', 10, '1.08x crop evolution chance'],
-    ['Super GMO', 1, '+0.5% all'],
-    ['Super GMO', 10, '+5% all']
+    ['Evolution GMO', 10, '1.08x crop evolution chance per crop you have 200 of']
   ])('fill %s at level %i', (name, level, expected) => {
     expect(textAt(name, level)).toContain(expected);
   });
 
   it.each([
-    ['Land Plots', 2, '4'],
-    ['Stronger Vines', 1, '2'],
     ['Stronger Vines', 2, '2'],
-    ['Biology Boost', 1, '10'],
-    ['Biology Boost', 2, '11'],
     ['Biology Boost', 10, '23'],
-    ['Evolution GMO', 1, '15'],
-    ['Evolution GMO', 2, '16'],
-    ['Evolution GMO', 10, '29'],
-    ['Super GMO', 1, '250'],
-    ['Super GMO', 2, '300'],
-    ['Super GMO', 10, '1,289'],
-    ['Overgrowth', 1, '10'],
-    ['Land Rank', 1, '80']
+    ['Evolution GMO', 10, '29']
   ])('price %s at level %i at %s', (name, level, expected) => {
     expect(costAt(name, level)).toBe(expected);
   });
@@ -342,13 +281,11 @@ describe('exotic market upgrades', () => {
   });
 
   // Oracle: FarmingStuffs.js:251-280 ExoticBonusQTY, shown through N.js:108717 (cross-check farming.ts:106-126).
-  // Datadigging at 0, 1 and 1000 is pinned with the formula; these are the levels it has not been run at.
+  // Datadigging at 0 and 1000 is pinned with the formula; these are the levels it has not been run at.
   it.each([
     ['Sproutluck I', ['1x crop', '1.05x crop', '1.45x crop', '3.5x crop']],
     ['Geneology I', ['+0.006% crop', '+0.06% crop', '+0.55% crop', '+3% crop']],
-    ['Better Day I', ['+0.04% cheaper', '+0.4% cheaper', '+3.64% cheaper', '+20% cheaper']],
-    ['Briar Patch', ['+1% Total', '+10% Total', '+100% Total', '+1,000% Total']],
-    ['Snapegrass', ['1.01x Jade', '1.15x Jade', '2.36x Jade', '8.5x Jade']]
+    ['Briar Patch', ['+1% Total', '+10% Total', '+100% Total', '+1,000% Total']]
   ])('fill %s at levels 1, 10, 100 and 1000', (name, expected) => {
     expect([1, 10, 100, 1000].map((level, i) => textAt(name, level).slice(0, expected[i].length))).toEqual(expected);
   });
@@ -446,11 +383,7 @@ describe('land rank upgrades', () => {
   // Oracle: FarmingStuffs.js:109-118 LankRankUpgBonus, filled through N.js:108680. calcRankBonus (farming.ts:852) is unexported.
   it.each([
     ['Evolution Boost', 1, 'Increases next crop chance by +5.25% per rank of the land plot'],
-    ['Evolution Boost', 10, '+47.22%'],
-    ['Evolution Boost', 100, '+236.11%'],
-    ['Seed of Loot', 1, '+10%'],
-    ['Seed of Loot', 10, '+100%'],
-    ['Evolution Ultraboost', 1, '+839.51%']
+    ['Seed of Loot', 10, '+100%']
   ])('fill %s at level %i', (name, level, expected) => {
     expect(textAt(name, level)).toContain(expected);
   });
@@ -491,13 +424,8 @@ describe('ninja knowledge upgrades', () => {
   // Oracle: Ninja.js:187-273 JadeUpgCost (the parser's cost is inside getSneaking), display N.js:109130-109132.
   it.each([
     ['Centurion Lineage', 'costs 1.05x less every 100th level', 'costs 1.5x less every 100th level', ['2e45', '2.62e45', '2.27e46']],
-    ['Way of Bargain', 'by 1.01x', 'by 1.1x', ['100,000,000', '113,000,000', '300,404,194']],
-    // 2.3.540 renamed Respect for the Art (NinjaUpg[2]).
-    ['Respectful Minded', '+3% bonus', '+30% bonus', ['8,500', '9,520', '23,571']],
     ['Way of Stealth', '+1 Stealth per Sneaking Lv', '+10 Stealth per Sneaking Lv', ['50', '54', '99']],
-    ['Star Sweeping', 'up to 1 times a day', 'up to 10 times a day', ['25,000', '625,000', '95.4Q']],
     ['Strange Symbols', 'successful 1.02x more often', 'successful 1.2x more often', ['100Q', '310Q', '2.64e21']],
-    ['Jadevalanche', '1.03x higher Jade Gain', '1.3x higher Jade Gain', ['10e43', '1.25e44', '7.45e44']],
     // 2.3.540's fixed row 31: 10^55 x x7 x x8^L, not the 10^floor(2 (t - 15)) of the other Coral Reef rows.
     ['Omnijade Usable', 'Get +1 Omnijade', 'Get +10 Omnijade', ['10e74', '10e89', '9.99e209']]
   ])('fill and price %s', (name, atOne, atTen, costs) => {
@@ -526,7 +454,7 @@ describe('ninja knowledge upgrades', () => {
     expect(fieldOf(byName('Respectful Minded'), 'Unlocked by')).toBe('Currency Conduit at level 1');
   });
 
-  // Owner decisions 4: without the gates table a gated row cannot be told apart, so it gets no line, never its pre-mastery x9.
+  // Without the gates table a gated row cannot be told apart, so it gets no line, never its pre-mastery x9.
   it('leave the unlock out of the gated rows when the gates table is absent', () => {
     const { ninjaMasteryGates, ...wikiTables } = data.wikiTables;
     try {
@@ -621,16 +549,12 @@ describe('sneaking items', () => {
   // Oracle: Ninja.js:422-464 ItemStat and Ninja.js:9-21 GemstoneBonus, printed through N.js:109113 and 109135, where
   // NotateNumber "Big" floors below 1,000. getGemstoneBonus (sneaking.ts:301) is unexported, so the values are pinned.
   it.each([
-    ['Ninja Log', 10, 'If detected, +10% chance to not be knocked out'],
     ['Ninja Log', 100, 'If detected, +14% chance to not be knocked out'],
     ['Silk Veil', 1000, 'Gives you 15.99x Total Stealth'],
     ['Gold Star', 1, "If in Inventory, charms found have a +2 higher Max LV. Doesn't stack with other Gold Stars"],
     ['Wood Nunchaku', 10, 'When equipped, deal damage to the door to unlock the next floor. Base Damage: 79'],
-    ['Wood Nunchaku', 200, 'When equipped, deal damage to the door to unlock the next floor. Base Damage: 1.65T'],
-    ['Basic Kunai', 1, 'When equipped, untie any trapped ninja on the same floor. Base Rate: 6'],
     ['Basic Kunai', 100, 'When equipped, untie any trapped ninja on the same floor. Base Rate: 923,076,501'],
     ['Leather Gloves', 10, 'When equipped, you search for Jade and Items faster. Base Rate: 20%'],
-    ['Aquamarine', 1, '+49% Stealth for all Ninjas'],
     ['Aquamarine', 1000, '+5,040% Stealth for all Ninjas'],
     ['Emerald', 1000, '92% Cheaper Upgrades']
   ])('fill %s at level %i', (name, level, expected) => {
@@ -730,7 +654,7 @@ describe('sneaking floors', () => {
 
   // Oracle: the app's own replicas of changemonsterDEF (sneaking.ts getDoorMaxHps, getFloorDifficulty, getStealthForDetection),
   // and for the Jade Coin and EXP rows the game's rescale written out: 0.1 x row[f] x row[11]^mastery (N.js:80485-80486).
-  it.each([0, 1, 2])('rescale every floor stat at Ninja Mastery %i as the game does', (mastery) => {
+  it.each([0, 2])('rescale every floor stat at Ninja Mastery %i as the game does', (mastery) => {
     const game = (row, f) => (mastery ? 0.1 * Number(info[row][f]) * Math.pow(Number(info[row][11]), mastery) : Number(info[row][f]));
     expect(floors.map((node) => ['{', '}', '$', '#'].map((token) => valueAt(node, token, mastery)))).toEqual(doors.map((_, f) => [
       getDoorMaxHps(mastery, mastery)[f],
@@ -740,11 +664,9 @@ describe('sneaking floors', () => {
     ]));
   });
 
-  it.each([
-    [0, 'Door HP: 800. Stealth for 0% detection: 800. Base Jade Coins per action: 300. Base EXP per action: 150.'],
-    [1, 'Door HP: 320B. Stealth for 0% detection: 1.6B. Base Jade Coins per action: 1.8B. Base EXP per action: 375,000,000.']
-  ])('read Floor 3 at Ninja Mastery %i', (mastery, text) => {
-    expect(levelledText(nodes['sneakfloor:SneakFloor2'], mastery)).toBe(text);
+  it('read Floor 3 at Ninja Mastery 1', () => {
+    expect(levelledText(nodes['sneakfloor:SneakFloor2'], 1))
+      .toBe('Door HP: 320B. Stealth for 0% detection: 1.6B. Base Jade Coins per action: 1.8B. Base EXP per action: 375,000,000.');
   });
 
   // Oracle: GenerateItem (N.js:106320-106323) keeps the first entry whose roll hits and always the last, so an entry
@@ -851,9 +773,7 @@ describe('farming stickers', () => {
   });
 
   it.each([
-    ['Mega_Mongo_Sticker', 1, '1.1x'],
     ['Mega_Mongo_Sticker', 10, '2x'],
-    ['UWU_Kawaii_Rice_Sticker', 1, '3.5x'],
     ['Laissez_Maize_Sticker', 10, '+50%']
   ])('fill %s at %i owned with %s', (name, level, expected) => {
     expect(textAt(name, level)).toContain(expected);

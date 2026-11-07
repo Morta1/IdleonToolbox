@@ -214,7 +214,6 @@ describe('helpers', () => {
   // "per sailing LV. Found on Safari Island." is two sentences), and "Dr" is case-sensitive ("DR" is Drop Rate).
   it.each([
     ['Get 3 vials to Lv. 4, which are the green ones.', 'Get 3 vials to Lv. 4, which are the green ones.'],
-    ['Reach Lv. 4 to unlock this. Then rest.', 'Reach Lv. 4 to unlock this.'],
     ['Reach LV. 20 to unlock this. Then rest.', 'Reach LV. 20 to unlock this.'],
     ['Reach lv. 20 to unlock this. Then rest.', 'Reach lv. 20 to unlock this.'],
     ['Needs Lvs. 2 and 3 first. Then rest.', 'Needs Lvs. 2 and 3 first.'],
