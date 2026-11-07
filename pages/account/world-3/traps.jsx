@@ -135,9 +135,10 @@ const Traps = () => {
                                                                                   details={`${itemName(critter)}: ${critters(count)} critters`}/>)}
       </CardGrid>
     </> : null}
-    <Stack gap={2}>
+    {/* A character's traps are a few tiles: side by side, three or four to a row on a desktop, not one panel per row */}
+    <CardGrid size={'l'} sx={{ alignItems: 'start' }}>
       {traps.map(trapsPanel)}
-    </Stack>
+    </CardGrid>
   </>;
 };
 

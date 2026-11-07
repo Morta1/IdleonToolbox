@@ -10,7 +10,8 @@ const nametagMeta = (nametag) => (nametag?.isAcquired
 // The nametags are worn, not placed: their bonuses, then the catalog alone
 const Nametags = ({ bonusRows, allNametags, sectionFailed }) => <>
   <BonusesPanel rows={bonusRows} sx={{ my: 3 }}/>
-  <CatalogList page={'gallery-nametags'} title={'All nametags'} noun={'nametags'} items={allNametags} meta={nametagMeta} failed={sectionFailed}/>
+  <CatalogList page={'gallery-nametags'} title={'All nametags'} noun={'nametags'} items={allNametags} meta={nametagMeta}
+               tileValue={(nametag) => `Lv ${formatNum(nametag?.level ?? 0)}`} failed={sectionFailed}/>
 </>;
 
 export default Nametags;

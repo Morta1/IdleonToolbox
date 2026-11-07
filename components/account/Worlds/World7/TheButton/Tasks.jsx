@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Box, Stack } from '@mui/material';
+import { Box } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
@@ -7,6 +7,7 @@ import { createBreakdown, flatLines } from '@parsers/breakdown';
 import { getCharacterTaskProgress } from '@parsers/world-7/button';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import Panel from '@components/common/cards/Panel';
+import CardGrid from '@components/common/cards/CardGrid';
 import StatusText from '@components/common/StatusText';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
@@ -83,7 +84,8 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, cycleLength, pressesIntoCu
       <Toolbar.Show name={'cycle'} options={cycleOptions}/>
       <Toolbar.Filter name={'hideReady'} label={'Hide ready'}/>
     </Toolbar>
-    <Stack gap={2}>
+    {/* A bonus's tasks are a few rows: its panels sit side by side on a desktop, in press order left to right */}
+    <CardGrid size={'l'} sx={{ alignItems: 'start' }}>
       {groups.map(({ bonusIdx, tasks }, groupIndex) => {
         const current = cycle === 0 && groupIndex === 0 && tasks[0]?.pressNumber < currentRunEnd;
         return <Panel key={`${cycle}-${tasks[0]?.pressNumber}`} title={bonuses?.[bonusIdx]?.name}
@@ -108,7 +110,7 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, cycleLength, pressesIntoCu
           })}
         </Panel>;
       })}
-    </Stack>
+    </CardGrid>
   </Box>;
 };
 

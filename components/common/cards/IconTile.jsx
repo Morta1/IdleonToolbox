@@ -56,6 +56,12 @@ const smallTileSx = (hasValue, empty) => ({
 
 // A fill grid lifts this, so a tile fills its column.
 const TILE_MAX = 'var(--tile-max, 72px)';
+// label: the thing's name under its sprite, for a collection whose sprites alone can't be told apart (hats, companions).
+// Two lines at most; the tile grows to hold it and its value.
+const LABEL_SX = {
+  fontSize: 12, lineHeight: '15px', color: 'text.secondary', textAlign: 'center', maxWidth: '100%', overflowWrap: 'break-word',
+  display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
+};
 
 // IconTile (Cards board): a sprite and one number, packed tight, for grids scanned at a glance. 72 px
 // square, the sprite in a 40 px box, game frames behind it; narrower only where its grid keeps a fixed column
@@ -72,11 +78,12 @@ const TILE_MAX = 'var(--tile-max, 72px)';
 // open on it (the Slab's 1,938 items).
 // buttonProps go with onSelect, onto the tile's button (the mark a page finds its tile by).
 // sub: a dimmer line under the value, inside a sheet (a talent's "/ max"). kind is what numOrNode takes.
-const IconTile = ({ icon, alt = '', value, kind, sub, frame, height = 72, badge, mark, markAlt, status, details, onSelect, selected,
+const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, height = 72, badge, mark, markAlt, status, details, onSelect, selected,
   sharedNote, buttonProps }) => {
   const small = Boolean(useSheet());
   const empty = status === 'empty';
   const hasValue = value !== undefined && !empty;
+  const hasLabel = Boolean(label) && !small && !empty;
   const emptyName = empty ? alt || 'Empty slot' : undefined;
   const longValue = small && hasValue && value?.length >= LONG_VALUE;
   const tile = <Box sx={[
@@ -97,6 +104,7 @@ const IconTile = ({ icon, alt = '', value, kind, sub, frame, height = 72, badge,
     },
     // A tile with no number keeps no room for one: its sprite sits in the middle
     !small && !hasValue && { py: 0.5, justifyContent: 'center' },
+    hasLabel && { height: 'auto', minHeight: height, justifyContent: 'flex-start', gap: '2px', pt: 0.75, pb: 0.75 },
     longValue && { containerType: 'inline-size' },
     empty && emptySlot
   ]}>
@@ -104,6 +112,7 @@ const IconTile = ({ icon, alt = '', value, kind, sub, frame, height = 72, badge,
       ? <GameIcon src={icon} size={small ? 28 : 40} alt={alt} frame={frame}
                   status={status === 'missing' ? 'missing' : undefined}/>
       : icon) : null}
+    {hasLabel ? <Typography component={'div'} sx={LABEL_SX}>{label}</Typography> : null}
     {hasValue ? <Typography component={'div'} variant={'caption'} sx={{
       ...(longValue ? LONG_VALUE_SX : {}),
       fontSize: 13,

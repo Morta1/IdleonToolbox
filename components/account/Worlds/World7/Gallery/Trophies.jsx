@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Divider, Stack, Typography } from '@mui/material';
 import { formatNum } from '@utility/helpers';
 import ItemDisplay, { ItemLine } from '@components/common/ItemDisplay';
-import CardGrid from '@components/common/cards/CardGrid';
+import CardGrid, { LABELED_TILE_MIN } from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
 import BonusesPanel from '@components/account/BonusesPanel';
@@ -49,12 +49,26 @@ export const catalogCard = (item, { meta, acquired = 'Acquired', notAcquired = '
   </ItemCard>;
 };
 
+// A catalog tile's note: what the card said, the name opening its wiki page, its state words and stat lines.
+const CatalogNote = ({ item, meta, acquired, notAcquired, failed }) => {
+  const state = item?.isAcquired ? [acquired, meta].filter(Boolean).join(' · ') : notAcquired;
+  return <Stack gap={0.75}>
+    <Typography variant={'cardTitle'} component={'div'}>
+      <ItemCard.TitleLink text={itemName(item)} onClick={() => openItemWikiPage(item?.rawName)}/>
+    </Typography>
+    {failed || !state ? null : <Typography variant={'body2'} color={'text.secondary'}>{state}</Typography>}
+    {statLines(item).map((line) => <Typography key={line} variant={'body2'}>{line}</Typography>)}
+  </Stack>;
+};
+
 const CATALOG_TOOLBAR = { search: '', show: 'all' };
 
 // A catalog under its filter, Slab's Search and Show. The default shows everything, so a guest sees the whole catalog.
 // The bar pins within this box and leaves with its cards. A failed section has no bar and shows every card: nothing on
 // the page could take back a filter it remembers. meta: an acquired item's other facts.
-export const CatalogList = ({ page, title, noun, items, meta, acquired = 'Acquired', notAcquired = 'Not acquired', failed }) => {
+// A tile per item, its name under the sprite, the rest in its note: a card each ran the page two to three times the old
+// one's height on a desktop. tileValue: a short number under the name (a nametag's level). Not acquired greys the sprite.
+export const CatalogList = ({ page, title, noun, items, meta, tileValue, acquired = 'Acquired', notAcquired = 'Not acquired', failed }) => {
   const [toolbar, setToolbar, resetToolbar] = useToolbarState(page, CATALOG_TOOLBAR);
   if (!items?.length) return null;
   const searchTerm = (toolbar?.search ?? '').trim().toLowerCase();
@@ -69,8 +83,11 @@ export const CatalogList = ({ page, title, noun, items, meta, acquired = 'Acquir
     </Toolbar>}
     {shown.length ? <Stack gap={1.5}>
       <Typography variant={'sectionTitle'} component={'h2'}>{title}</Typography>
-      <CardGrid size={'s'}>
-        {shown.map((item) => catalogCard(item, { meta: meta?.(item), acquired, notAcquired, failed }))}
+      <CardGrid size={'icon'} fill={LABELED_TILE_MIN}>
+        {shown.map((item) => <IconTile key={item?.rawName} icon={`data/${item?.rawName}.png`} alt={itemName(item)} label={itemName(item)}
+                                       value={item?.isAcquired ? tileValue?.(item) : undefined}
+                                       status={!failed && !item?.isAcquired ? 'missing' : undefined}
+                                       details={<CatalogNote item={item} meta={meta?.(item)} acquired={acquired} notAcquired={notAcquired} failed={failed}/>}/>)}
       </CardGrid>
     </Stack> : null}
   </Box>;

@@ -22,7 +22,10 @@ const columns = (size, count) => (size === 'icon'
 // Any other prop goes to the grid's own element (a list's component and name).
 // fill: an icon grid whose tiles share the row at every width, 64 px up, so a full row never ends in an empty band: 72 px
 // columns left a General Panel about 64 px unused, where 4 tiles now fit at about 68 px. --tile-max lifts IconTile's cap.
-const FILL_SX = { gridTemplateColumns: 'repeat(auto-fill, minmax(64px, 1fr))', '--tile-max': 'none' };
+// A number is the tiles' least width instead: tiles with a name under the sprite (IconTile label) take 88, where a
+// ten-letter name fits whole.
+const fillSx = (fill) => ({ gridTemplateColumns: `repeat(auto-fill, minmax(${typeof fill === 'number' ? fill : 64}px, 1fr))`, '--tile-max': 'none' });
+export const LABELED_TILE_MIN = 88;
 // An icon grid inside a sheet (the characters board's .g), 6 px apart. sheetColumns [wide, narrow]: the tiles share the
 // row, and a section under 340 px (a side-by-side column, a phone) takes the narrow count. A tile is never narrower than
 // its longest value, every digit below 1M kept: 44 px holds "99,934" at 13 px and "451,025" at IconTile's 11 px, and a
@@ -76,7 +79,7 @@ const CardGrid = ({ size = 'm', columns: count, sheetColumns, sheetBare, sheetTi
     <Box {...rest} sx={[
       flow ? { columnWidth: CARD_MIN_WIDTH[size], columnGap: 2, '& > *': { breakInside: 'avoid', mb: 2 }, '& > :last-child': { mb: 0 } }
         : { display: 'grid', gridTemplateColumns: columns(size, count), gap: size === 'icon' ? 1 : 2 },
-      !flow && fill && !sheet && size === 'icon' && FILL_SX,
+      !flow && fill && !sheet && size === 'icon' && fillSx(fill),
       evenRows && evenRowsGrid(Children.count(children)),
       withBorder && { '& > *': { border: 1, borderColor: 'divider', borderRadius: '8px', p: 2 } },
       ...(Array.isArray(sx) ? sx : [sx]),

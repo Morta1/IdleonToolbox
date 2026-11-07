@@ -1,4 +1,4 @@
-import React, { useContext, useDeferredValue, useState } from 'react';
+import React, { useContext, useDeferredValue } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Box, Stack, Typography } from '@mui/material';
 import {
@@ -14,9 +14,10 @@ import { formatGame } from '@utility/gameNotation';
 import { NextSeo } from 'next-seo';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import DataTable from '@components/common/DataTable';
+import CardGrid from '@components/common/cards/CardGrid';
 import GameIcon from '@components/common/GameIcon';
 import Toolbar from '@components/common/Toolbar';
-import usePageTop from '@hooks/usePageTop';
+
 import useToolbarState from '@hooks/useToolbarState';
 
 const DEATH_NOTE_TOOLBAR = { search: '', world: 'all' };
@@ -68,16 +69,13 @@ const DeathNote = () => {
   const parsed = state?.account?.deathNote ?? {};
   // A failed section lists every mob at zero (the parser's catalog with no save), with no multikill bonus
   const deathNote = sectionFailed && !Object.keys(parsed).length ? getDeathNote({}, [], state?.account) : parsed;
-  const pageTop = usePageTop();
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('death-note', DEATH_NOTE_TOOLBAR);
-  const [toolbarBottom, setToolbarBottom] = useState(null);
   // The table follows the search a beat behind the box, so typing stays responsive
   const searchText = useDeferredValue(toolbar?.search ?? '');
   // A failed section has no Toolbar, so nothing narrows its catalog
   const query = sectionFailed ? '' : searchText.trim().toLowerCase();
   const world = sectionFailed ? 'all' : toolbar?.world ?? 'all';
-  // One table, a band per world (the board's call over a wall of cards); each sorts within its band.
-  // A band with no world color (the minibosses) draws no accent.
+  // A band per world, each its own table that sorts on its own. A band with no world color (the minibosses) draws no accent.
   const worldBands = Object.entries(deathNote).map(([worldIndex, { mobs, rank }]) => ({
     key: worldIndex,
     label: worlds?.[worldIndex] || 'Minibosses',
@@ -111,15 +109,17 @@ const DeathNote = () => {
       <Box>
         {!sectionFailed && worldBands.length ? <Toolbar state={toolbar} defaults={DEATH_NOTE_TOOLBAR} onChange={setToolbar}
                                                         onReset={resetToolbar} total={countOf(worldBands)} shown={countOf(bands)}
-                                                        noun={'monsters'} onStickyBottom={setToolbarBottom}>
+                                                        noun={'monsters'}>
           <Toolbar.Search placeholder={'Search monsters'}/>
           <Toolbar.Show name={'world'} label={'World'} options={[['all', 'All worlds', countOf(worldBands)],
             ...worldBands.map(({ key, label, rows }) => [key, label, rows.length])]}/>
         </Toolbar> : null}
-        {/* An empty table draws no header */}
-        {bands.length ? <DataTable columns={COLUMNS} bands={bands} bandNoun={'monsters'} rowKey={'rawName'}
-                                   rowLabel={(mob) => cleanUnderscore(mob.displayName)} surface={'card'}
-                                   stickyTop={toolbarBottom ?? pageTop}/> : null}
+        {/* A short table per world, side by side, as the old page laid them out: one long table ran three times its height
+            on a desktop. A row of worlds takes its tallest one's height. A world with no match draws no table. */}
+        <CardGrid size={'s'} sx={{ alignItems: 'start' }}>
+          {bands.map((band) => <DataTable key={band.key} columns={COLUMNS} bands={[band]} bandNoun={'monsters'} rowKey={'rawName'}
+                                          rowLabel={(mob) => cleanUnderscore(mob.displayName)} surface={'card'} dense/>)}
+        </CardGrid>
       </Box>
     </>
   );
