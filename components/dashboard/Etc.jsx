@@ -670,7 +670,7 @@ const RowShape = createContext('coming');
 // word, or "A long time"), so they never contradict it. placeholderStatus: "ready" for a state to act on, "problem" for one
 // that costs something; past its time a row with no word reads Ready. lastUpdated: only a time the parsers anchor on their
 // own clock (see Timer). failed: read from a failed section's default. value: a row that shows something else than a
-// countdown. world: the label it carries in Coming up. actNow: ready while it still counts, reading its state (a window to
+// countdown. world: which By world box it goes in (the board reads it off its props). actNow: ready while it still counts, reading its state (a window to
 // visit in). info: a note off a button beside its name. control: a button that moves the row, beside its word or its time.
 // look: a state the sprite shows (AlertIcon's), with its word in state.
 const TimerRow = ({
@@ -706,13 +706,14 @@ const TimerRow = ({
   if (shape === 'ready') {
     return <ReadyCell icon={sprite} name={label} note={note} sub={sub} value={actNow && !over ? state : word} control={control}/>;
   }
-  return <ComingRow icon={sprite} name={label} note={note} sub={noTime ? null : state ?? sub} world={world}
-                    date={noTime || farOff || over ? null : when} value={shown} control={control}/>;
+  return <ReadyCell icon={sprite} name={label} note={note} sub={noTime ? null : state ?? sub}
+                    value={<Box component={'span'} sx={COMING_TIME_SX}>{shown}</Box>} control={control}/>;
 };
 
-// The board's width sets its columns, not the window's: a side ad leaves it 540 px at 900. Ready now's first column and a
-// Coming up row's name and time share one line down the table, so the eye crosses a cell, not the full width, from a name to
-// its time. One across also caps Ready now, so a stale save never buries the rest.
+// The board's width sets its columns, not the window's: a side ad leaves it 540 px at 900. Every band lays its timers out
+// as Ready now does, two or three to a row, soonest first along each row: a row the board's width wide put a time 1,300 px
+// from its name at 2k, across an empty middle. The exact date is in the icon's note. One across also caps Ready now, so a
+// stale save never buries the rest.
 const ONE_ACROSS = '@container (max-width: 699.95px)';
 const TWO_ACROSS = '@container (min-width: 700px)';
 const THREE_ACROSS = '@container (min-width: 1100px)';
@@ -748,44 +749,11 @@ const blankCell = (index, count) => <Box key={`blank-${index}`} aria-hidden sx={
   [THREE_ACROSS]: { display: index < blanksLeft(count, 3) ? 'block' : 'none' }
 }}/>;
 
-// One across, a row is its first cell with a second line. Wider, its sub, world and date take the width past Ready's first
-// column: the same width as that column, less the 1 px line between Ready's cells.
-const COMING_ROW_SX = {
-  display: 'grid', alignItems: 'center', gridTemplateColumns: 'minmax(0, 1fr)',
-  [TWO_ACROSS]: { columnGap: 1.5, gridTemplateColumns: 'calc((100% - 1px) / 2) minmax(0, 1fr) 64px 150px' },
-  [THREE_ACROSS]: { gridTemplateColumns: 'calc((100% - 2px) / 3) minmax(0, 1fr) 64px 150px' }
-};
-const COMING_LEAD_SX = { ...LEAD_CELL_SX, [ONE_ACROSS]: { minHeight: 51 } };
-const COMING_LINE_SX = { fontSize: 13, lineHeight: '18px', [TWO_ACROSS]: { display: 'none' } };
-// Each part whole: a line with a sub and a date wraps between them, and never cuts the date
-const COMING_PART_SX = { whiteSpace: 'nowrap' };
 const COMING_TIME_SX = { typography: 'body2', fontWeight: 500, whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums' };
-const WIDE_ONLY_SX = { display: 'none', [TWO_ACROSS]: { display: 'block' } };
-const COMING_SUB_SX = { ...WIDE_ONLY_SX, ...READY_SUB_SX, color: 'text.secondary', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' };
-const COMING_WORLD_SX = { ...WIDE_ONLY_SX, fontSize: 12, lineHeight: '16px', color: 'text.muted', whiteSpace: 'nowrap' };
-const COMING_DATE_SX = {
-  ...WIDE_ONLY_SX, fontSize: 13, lineHeight: '18px', color: 'text.secondary', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums',
-  textAlign: 'right', pr: '14px'
-};
-const ComingRow = ({ icon, name, note, sub, world, date, value, control }) => <Box sx={COMING_ROW_SX}>
-  <Stack direction={'row'} alignItems={'center'} gap={'10px'} sx={COMING_LEAD_SX}>
-    {icon}
-    <Box sx={{ minWidth: 0 }}>
-      <RowName name={name} note={note}/>
-      <Typography variant={'body2'} component={'div'} color={'text.secondary'} sx={COMING_LINE_SX}>
-        {sub ? <><Box component={'span'} sx={COMING_PART_SX}>{sub}</Box>{' · '}</> : null}
-        <Box component={'span'} sx={COMING_PART_SX}>{world}</Box>
-        {date ? <>{' · '}<Box component={'span'} sx={COMING_PART_SX}>{date}</Box></> : null}
-      </Typography>
-    </Box>
-    <Stack direction={'row'} alignItems={'center'} gap={0.5} sx={{ flexShrink: 0, ml: 'auto' }}>
-      {control}
-      <Box sx={COMING_TIME_SX}>{value}</Box>
-    </Stack>
-  </Stack>
-  <Box sx={COMING_SUB_SX}>{sub}</Box>
-  <Box sx={COMING_WORLD_SX}>{world}</Box>
-  <Box sx={COMING_DATE_SX}>{date}</Box>
+// A band's timers in Ready now's grid, its last row closed with blank cells
+const Cells = ({ rows, sx }) => <Box sx={[READY_GRID_SX, sx]}>
+  {rows}
+  {[0, 1].map((index) => blankCell(index, rows.length))}
 </Box>;
 
 // A row in its world's box: the box is narrow, so the time sits close to the name. No exact date, which the icon's note holds.
@@ -908,10 +876,7 @@ const SoonestBoard = ({ rows, clock, head }) => {
     {head}
     {rows.length ? <Box component={'section'} data-tour={'timers'} aria-label={'Timers'} sx={[(theme) => cardSurface(theme), BOARD_SX]}>
       {ready.length ? <Band label={'Ready now'} note={`${formatNum(ready.length, 'whole')} to act on`}>
-        <Box sx={[READY_GRID_SX, capped && !readyOpen && READY_CAPPED_SX]}>
-          <RowShape value={'ready'}>{ready}</RowShape>
-          {[0, 1].map((index) => blankCell(index, ready.length))}
-        </Box>
+        <RowShape value={'ready'}><Cells rows={ready} sx={capped && !readyOpen && READY_CAPPED_SX}/></RowShape>
         {capped ? <Stack alignItems={'center'} sx={{ display: 'none', [ONE_ACROSS]: { display: 'flex' } }}>
           <Button size={'small'} aria-expanded={readyOpen} onClick={() => setReadyOpen(!readyOpen)}
                   endIcon={readyOpen ? <IconChevronUp size={16}/> : <IconChevronDown size={16}/>} sx={FOLD_BUTTON_SX}>
@@ -920,10 +885,10 @@ const SoonestBoard = ({ rows, clock, head }) => {
         </Stack> : null}
       </Band> : null}
       <RowShape value={'coming'}>
-        {next.length ? <Band label={'Next 24 hours'} note={SOONEST_NOTE}>{next}</Band> : null}
-        {week.length ? <Band label={'This week'} note={next.length ? null : SOONEST_NOTE}>{week}</Band> : null}
-        {later.length ? <Band label={'Later'} note={next.length || week.length ? null : SOONEST_NOTE}>{later}</Band> : null}
-        {unread.length ? <Band label={'No reading'}>{unread}</Band> : null}
+        {next.length ? <Band label={'Next 24 hours'} note={SOONEST_NOTE}><Cells rows={next}/></Band> : null}
+        {week.length ? <Band label={'This week'} note={next.length ? null : SOONEST_NOTE}><Cells rows={week}/></Band> : null}
+        {later.length ? <Band label={'Later'} note={next.length || week.length ? null : SOONEST_NOTE}><Cells rows={later}/></Band> : null}
+        {unread.length ? <Band label={'No reading'}><Cells rows={unread}/></Band> : null}
       </RowShape>
     </Box> : null}
   </Stack>;
