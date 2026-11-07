@@ -7,6 +7,8 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
 import StatTile from '@components/common/cards/StatTile';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { cleanText } from '@utility/goals/registry/names';
@@ -49,8 +51,14 @@ const flairColumns = (statueFlair) => [
 ];
 
 // sectionFailed: the statues at zero by name (the parser's empty save) with no bonus or odds, and no Statue flair
+const FLAIR_TOOLBAR = { hideMaxed: false };
+
 const RoyalStatues = ({ royalStatues, statueFlair, statueLevels, sectionFailed }) => {
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('royal-statue-flair', FLAIR_TOOLBAR);
   const ownedOf = (costItem) => statueFlair?.marbleTotals?.find((marble) => marble.costItem === costItem)?.owned;
+  const isMaxed = ({ level, maxLevel }) => (level ?? 0) >= maxLevel;
+  const flairStatues = statueFlair?.statues ?? [];
+  const shownFlair = toolbar?.hideMaxed ? flairStatues.filter((statue) => !isMaxed(statue)) : flairStatues;
   return (
     <Stack direction="column" gap={3}>
       <Stack direction="row" gap={1} flexWrap="wrap">
@@ -89,11 +97,16 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels, sectionFailed }
                        sx={statueFlair?.unlocked ? undefined : { '& td': { color: 'text.muted' } }}/>
           </Panel>
           : null}
-        {statueFlair?.statues?.length ? <CardGrid size={'s'}>
+        {flairStatues.length ? <Toolbar state={toolbar} defaults={FLAIR_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+                                        total={flairStatues.length} shown={shownFlair.length} noun={'statues'}
+                                        emptyNote={'Every statue is at its max flair level.'}>
+          <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
+        </Toolbar> : null}
+        {shownFlair.length ? <CardGrid size={'s'}>
           {/* At its max a card is Maxed, which drops the cost: the parser still prices a level past the cap */}
-          {statueFlair.statues.map(({ index, name, level, maxLevel, cost, bonus, expMulti, costItem }) => <ItemCard
+          {shownFlair.map(({ index, name, level, maxLevel, cost, bonus, expMulti, costItem }) => <ItemCard
             key={index} title={titleCaseName(cleanText(name))} level={{ value: level ?? 0, max: maxLevel }} dimmed={!statueFlair?.unlocked}
-            status={(level ?? 0) >= maxLevel ? 'maxed' : undefined}
+            status={isMaxed({ level, maxLevel }) ? 'maxed' : undefined}
             footer={<ItemCard.Cost icon={`data/${costItem}.png`} iconAlt={cleanUnderscore(statueFlair?.marbleTotals
               ?.find((marble) => marble.costItem === costItem)?.name ?? '')} game={'RoyalG.SF_costo'} need={cost}
                                    have={ownedOf(costItem)}/>}>
