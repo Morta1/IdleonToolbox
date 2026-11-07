@@ -15,7 +15,7 @@ import StatTile from '@components/common/cards/StatTile';
 import { cardSurface } from '@components/common/cards/tokens';
 import CardGrid from '@components/common/cards/CardGrid';
 import { LinkMark } from '@components/common/cards/ItemCard';
-import Toolbar from '@components/common/Toolbar';
+import ViewSwitch from '@components/common/ViewSwitch';
 import useToolbarState from '@hooks/useToolbarState';
 import InfoButton from '@components/common/InfoButton';
 import AlertIcon, { counted } from './AlertIcon';
@@ -640,19 +640,23 @@ export const useTimerRows = ({ characters, account, lastUpdated, trackers, bookA
   return rows;
 };
 
-// Soonest first answers "what's next?", by world "where's my salt?": players asked for both, so the board keeps both.
-const TIMERS_TOOLBAR = { group: 'soonest' };
-const GROUP_OPTIONS = [['soonest', 'Soonest first'], ['world', 'By world']];
+// By time answers "what's next?", by world "where's my salt?": players asked for both, so the board keeps both. The switch
+// ends the resets' row rather than a sticky bar of its own: alone on two rows, the resets and the switch floated in space,
+// and nobody needs the switch to follow them down the page.
+const TIMERS_VIEW = { group: 'soonest' };
+const GROUP_OPTIONS = [['soonest', 'By time'], ['world', 'By world']];
+const HEAD_SX = { display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: 1.5 };
 const Etc = ({ characters, account, lastUpdated, trackers, bookAlert, bossAlert }) => {
   const rows = useTimerRows({ characters, account, lastUpdated, trackers, bookAlert, bossAlert });
-  const [view, setView, resetView] = useToolbarState('dashboard-timers', TIMERS_TOOLBAR);
-  const toolbar = rows.length ? <Toolbar state={view} defaults={TIMERS_TOOLBAR} onChange={setView} onReset={resetView} counted={false}
-                                         noun={'timers'}>
-    <Toolbar.View name={'group'} options={GROUP_OPTIONS}/>
-  </Toolbar> : null;
-  return <TimerBoard rows={rows} byWorld={view?.group === 'world'} toolbar={toolbar}>
+  const [view, setView] = useToolbarState('dashboard-timers', TIMERS_VIEW);
+  const head = <Box sx={HEAD_SX}>
     <Resets account={account} trackers={trackers} lastUpdated={lastUpdated}/>
-  </TimerBoard>;
+    {rows.length ? <Box sx={{ ml: 'auto' }}>
+      <ViewSwitch size={'medium'} label={'Group timers'} options={GROUP_OPTIONS} value={view?.group}
+                  onChange={(group) => setView({ group })}/>
+    </Box> : null}
+  </Box>;
+  return <TimerBoard rows={rows} byWorld={view?.group === 'world'} head={head}/>;
 };
 
 const MINIBOSS_KEYS = {
@@ -893,16 +897,15 @@ const FOLD_BUTTON_SX = { mx: 1, my: 0.5, minHeight: { xs: 44, sm: 'auto' } };
 const SOONEST_NOTE = 'Soonest first, all worlds';
 
 // The board ticks by the second, apart from Etc's heavy reads, so a row that hits zero reads Ready on the next tick.
-const TimerBoard = ({ rows, byWorld, toolbar, children }) => {
+const TimerBoard = ({ rows, byWorld, head }) => {
   const clock = useNow(SECOND);
   if (byWorld) {
     return <Stack gap={1.5} sx={{ containerType: 'inline-size' }}>
-      {children}
-      {toolbar}
+      {head}
       {rows.length ? <WorldBoard rows={rows} clock={clock}/> : null}
     </Stack>;
   }
-  return <SoonestBoard rows={rows} clock={clock} toolbar={toolbar}>{children}</SoonestBoard>;
+  return <SoonestBoard rows={rows} clock={clock} head={head}/>;
 };
 
 // Each world's timers in a box of its own, in the alerts' order, so a timer keeps its place whatever its time. A ready one
@@ -926,7 +929,7 @@ const WorldBoard = ({ rows, clock }) => {
 // The timers as what they ask of the player, in one table: everything to act on now, then what's next across all worlds. A
 // row that hits zero moves to Ready now, and a band with nothing in it isn't drawn. The soonest note sits on whichever band
 // starts that order.
-const SoonestBoard = ({ rows, clock, toolbar, children }) => {
+const SoonestBoard = ({ rows, clock, head }) => {
   const [readyOpen, setReadyOpen] = useState(false);
   const [laterOpen, setLaterOpen] = useState(false);
   const at = (place) => rows.filter((row) => placeOf(row, clock) === place);
@@ -938,8 +941,7 @@ const SoonestBoard = ({ rows, clock, toolbar, children }) => {
   // A cap that hides one row costs more than the row: its button takes the room of the row it hides
   const capped = ready.length > READY_CAP + 1;
   return <Stack gap={1.5} sx={{ containerType: 'inline-size' }}>
-    {children}
-    {toolbar}
+    {head}
     {rows.length ? <Box component={'section'} data-tour={'timers'} aria-label={'Timers'} sx={[(theme) => cardSurface(theme), BOARD_SX]}>
       {ready.length ? <Band label={'Ready now'} note={`${formatNum(ready.length, 'whole')} to act on`}>
         <Box sx={[READY_GRID_SX, capped && !readyOpen && READY_CAPPED_SX]}>
@@ -1009,7 +1011,8 @@ const Resets = ({ account, trackers, lastUpdated }) => {
           <Typography variant={'body2'}>{resets}</Typography>
         </Stack>
         : `${title}: ${date}`;
-      return <StatTile key={target} label={label} failed={noTime} sub={date}
+      // The exact time in the tile's note, not a third line: two lines keep the strip the height of the switch beside it
+      return <StatTile key={target} label={label} failed={noTime} info={words}
                        value={formatDuration(Math.ceil((time - clock) / SECOND))}
                        icon={<AlertIcon configType={'timers'} target={target} message={words} icon={icon} size={24}
                                         label={typeof words === 'string' ? undefined : title}/>}/>;
