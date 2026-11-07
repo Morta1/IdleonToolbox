@@ -65,7 +65,7 @@ const CELL_BOX = {
 };
 
 /** One cell, its level filling top to bottom. A selectable one is a button that picks it (Decision 2). */
-const GridCell = ({ sq, selected, onPick }) => {
+const GridCell = ({ sq, selected, onPick, onPreview }) => {
   const level = sq?.level ?? 0;
   const maxLv = Math.max(1, sq?.maxLv ?? 1);
   const fillCount = Math.min(level, maxLv);
@@ -84,6 +84,9 @@ const GridCell = ({ sq, selected, onPick }) => {
   const look = (theme) => ({ ...CELL_BOX, borderColor: getCellColors(theme, sq).borderColor });
   if (!canSelect) return <Box sx={look}>{inner}</Box>;
   return <ButtonBase aria-label={cleanUnderscore(sq?.name)} aria-pressed={selected} onClick={onPick}
+                     onPointerEnter={(event) => {
+                       if (event.pointerType === 'mouse') onPreview();
+                     }}
                      sx={[look, selected && { outline: '2px solid', outlineColor: 'identity.frame.accent', outlineOffset: 1 }]}>
     {inner}
   </ButtonBase>;
@@ -91,20 +94,23 @@ const GridCell = ({ sq, selected, onPick }) => {
 
 /** Grid view: fixed 20-column layout (the game's own index % 20 addressing), row count derived from the catalog so a
  * future grid growing past 12 rows renders without a code change. One square's details at a time, pinned beside the board
- * under the Toolbar, so they stay in view from square to square on a short window. */
+ * under the Toolbar, so they stay in view from square to square on a short window. A mouse resting on a square shows it
+ * there, so scanning takes no click per square; a click pins one, and leaving the board goes back to it. A tap only pins. */
 const GridView = ({ squares, stickyTop }) => {
   const [picked, setPicked] = useState(null);
+  const [hovered, setHovered] = useState(null);
   const cellCount = Math.max(squares?.length ?? 0, COLS);
   const rows = Math.ceil(cellCount / COLS);
   const firstSelectable = (squares ?? []).findIndex((square) => square?.canSelect);
-  const index = picked ?? (firstSelectable >= 0 ? firstSelectable : null);
+  const pinned = picked ?? (firstSelectable >= 0 ? firstSelectable : null);
+  const index = hovered ?? pinned;
   const square = index != null ? squares?.[index] : null;
   const name = cleanUnderscore(square?.name);
 
   return <Box sx={LAYOUT_SX}>
-    <Box sx={gridContainerSx} role={'group'} aria-label={'Research grid'}>
-      {Array.from({ length: rows * COLS }, (_, i) => <GridCell key={i} sq={squares?.[i] ?? null} selected={i === index}
-                                                                onPick={() => setPicked(i)}/>)}
+    <Box sx={gridContainerSx} role={'group'} aria-label={'Research grid'} onPointerLeave={() => setHovered(null)}>
+      {Array.from({ length: rows * COLS }, (_, i) => <GridCell key={i} sq={squares?.[i] ?? null} selected={i === pinned}
+                                                                onPick={() => setPicked(i)} onPreview={() => setHovered(i)}/>)}
     </Box>
     {square ? <Panel title={name} meta={formatNum(square.level ?? 0, 'level', { max: Math.max(1, square.maxLv ?? 1) })}
                      sx={{ flex: `1 1 ${DETAILS_MIN}px`, maxWidth: 640, position: 'sticky', top: stickyTop + STICKY_GAP }}>
