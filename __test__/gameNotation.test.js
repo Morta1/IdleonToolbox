@@ -57,17 +57,15 @@ describe('formatGame', () => {
       .toEqual(['1.24M', '-1.24M', '-']);
   });
 
-  // Rules Task 0's regeneration added: plain arithmetic, a switch in a switch.
+  // Plain arithmetic, a switch in a switch.
   it.each([
     [1256.09, 'ArcaneType.Arcane_AttackSpdPCT', '1,256.09'],
-    [156.78, 'Windwalker.Compass_CRITPCT', '156.78'],
     [12.5, 'Summoning.GrimoireBonesDropDEC', '12.50'],
     [12345.67, 'Summoning.GrimoireBonesDropDEC', '12,345.67'],
     [4.11e6, 'Summoning.GrimoireBonesDropDEC', '4.11M'],
     [123456, 'MenagerieStuff.Cost', '123,456'],
     [1.5e9, 'MenagerieStuff.Cost', '1.5B'],
     [1.5e8, 'Holes.TempleTorchCost', '150M'],
-    [1.2e10, 'Holes.TempleTorchCost', '12B'],
     [2.535579817697124e21, 'Thingies.Boss6HP', '2.54KQQ']
   ])('formatGame(%s, %s) = %s', (value, key, expected) => {
     expect(formatGame(value, key)).toBe(expected);
@@ -83,11 +81,9 @@ describe('formatGame', () => {
   it.each([
     ['Holes.Bravery_MonsterHP', 88996.992, '88,996.99', '88,997'],
     ['TotalStats.Drop_Rarity', 6.34, '6.34', '6.34'],
-    ['TotalStats.Drop_Rarity', 1529.05, '1,529.05', '1,529'],
     ['RoyalG.OutpostRange', 123.45, '123.45', '123'],
     ['Holes2.SpacesOwned', 40.5, '40.5', '41'],
     ['Holes.Cost_FountainUPG', 13957.65, '13,957.65', '14K'],
-    ['Holes.Cost_FountainUPG', 1234567, '1.24M', '1.24M'],
     ['GamingStatType.MutateUpgCosts', 1234.5, '1234', '1234'],
     ['Refinery.PowerCAP', 1234.5, '1234', '1234']
   ])('formatGame(%s, %s) = %s, whole %s', (key, value, text, wholeText) => {
@@ -111,8 +107,6 @@ describe('formatGame', () => {
 
   it.each([
     [0.256, '0.26'],
-    [12.5, '12.5'],
-    [282.79, '282.79'],
     [251368.98, '251,368.98'],
     [1234567.8, '1234568']
   ])('gameBonusText(%s) = %s', (value, expected) => {

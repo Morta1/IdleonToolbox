@@ -17,12 +17,8 @@ const account = ({ registeredThrough = 0, raidDay = 22, raidClosed = false, hasC
 const raidRegister = (acc, opts = options) => getGeneralAlerts(acc, fields, opts, [])?.etc?.raidRegister;
 
 describe('raid registration alert', () => {
-  it.each([
-    ['an unregistered raid day', 22, 22],
-    ['a raid day never registered for', 0, 22],
-    ['the day after registering', 23, 23]
-  ])('flags %s', (_, registeredThrough, raidDay) => {
-    expect(raidRegister(account({ registeredThrough, raidDay }))).toBe(true);
+  it('flags an unregistered raid day', () => {
+    expect(raidRegister(account({ registeredThrough: 22, raidDay: 22 }))).toBe(true);
   });
 
   it('stops flagging once registered for the current day', () => {

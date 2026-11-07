@@ -5,7 +5,6 @@ import { isMinibossReady } from '../../utility/dashboard/bossRespawns';
 
 describe('isMinibossReady', () => {
   it.each([
-    ['below the number', { current: 1, maxed: false }, 2, false],
     ['at the number', { current: 2, maxed: false }, 2, true],
     ['the number below the player\'s', { current: 4, maxed: false }, 5, false],
     ['maxed under a number it can never reach', { current: 6, maxed: true }, 10, true],

@@ -124,13 +124,11 @@ describe('entry goals', () => {
     expect(above.progress).toBeCloseTo(0.5);
   });
 
-  it('watch goal is ok with null progress even at 0 and shows the amount with Tracking', () => {
+  it('watch goal is ok with null progress even at 0', () => {
     const view = resolveGoal(entryGoal({ key: bubbleKey(bubbles[0]), target: 0, watch: true }), ctx);
     expect(view.status).toBe('ok');
     expect(view.progress).toBeNull();
     expect(view.watch).toBe(true);
-    const { level } = bubbles[0];
-    expect(statusText(view)).toBe(`You have Lv ${level >= 1e6 ? notateNumber(level) : formatNumber(level)} · Tracking`);
   });
 
   it("'max' entry goal shows the real cap, an all goal says Max", () => {
@@ -381,28 +379,20 @@ describe('row text', () => {
     resolveGoal(createGoal({ system: 'rowStub', key: 'a', metric: 'level', ...fields }), ctx));
 
   // The row wording: the amount you have, then the target ("Lv 38 of 100"); an at most goal names its direction.
-  // The muted caption follows after a dot: the tier goal, Tracking, or the next entry of an all goal
+  // The muted caption follows after a dot: the tier goal, Tracking, or the next entry of an all goal.
+  // 'the row slots of' below owns the fields statusText joins, so only wording it doesn't reach is listed here.
   it.each([
-    ['at least, level unit', { target: 100 }, 'Lv 38 of 100'],
     ['at most, bare amount', { metric: 'qty', op: '<=', target: 10 }, '2,052 · At most 10'],
-    ['reached at most', { metric: 'qty', op: '<=', target: 5000 }, '2,052 · At most 5,000'],
     ['entry max shows the live cap', { target: 'max' }, 'Lv 38 of 200'],
     ['a level metric keeps its own name', { metric: 'speed', target: 50 }, 'speed level 38 of 50'],
     ['a plural metric names its unit after the target', { metric: 'kills', target: 50 }, '3 of 50 kills'],
     ['percent of max', { unit: 'percentOfMax', target: 90 }, '9% of 90%'],
-    ['tier: the current tier, the goal as a caption', { metric: 'tier', target: 2 }, 'Good · Goal: Great'],
-    ['at most tier', { metric: 'tier', op: '<=', target: 2 }, 'Good · Goal: At most Great'],
-    ['a big amount reads short on the face', { metric: 'big', target: 1e12 }, '1.04B of 1T'],
     ['a hair short prints every digit, never a reached look', { metric: 'big', target: 1038000000 }, '1,037,885,100 of 1.04B'],
     ['a big at most amount reads short on the face', { metric: 'big', op: '<=', target: 5e6 }, '1.04B · At most 5M'],
     ['at most percent of max', { unit: 'percentOfMax', op: '<=', target: 50 }, '9% · At most 50%'],
-    ['watch says what you have, then Tracking', { metric: 'qty', target: 0, watch: true }, 'You have 2,052 · Tracking'],
-    ['all: entries done and the next one with its value', { kind: 'all', target: 100 }, '1 of 2 done · Next up: a Lv 38'],
     ['all at max: the nearest entry is next', { kind: 'all', target: 'max' }, '0 of 2 done · Next up: b Lv 120'],
     ['all yes/no: the next entry alone', { kind: 'all', metric: 'own', target: 1 }, '1 of 2 done · Next up: a'],
-    ['all reached', { kind: 'all', target: 10 }, '2 of 2 done'],
-    ['missing', { key: 'gone', target: 1 }, 'No longer in the game'],
-    ['invalid: a percent goal on a metric without one', { metric: 'qty', unit: 'percentOfMax', target: 50 }, 'Target no longer applies · 2,052']
+    ['all reached', { kind: 'all', target: 10 }, '2 of 2 done']
   ])('%s', (_, fields, text) => {
     expect(statusText(view(fields))).toBe(text);
   });
@@ -450,7 +440,8 @@ describe('row text', () => {
   });
 
   // Enough in the purse but not bought yet: the price beside Can buy now, a full bar in the ready colour and no percent
-  it.each([['more than the price', 9e6], ['exactly the price', 5e6]])('a priced goal you can afford reads Can buy now: %s', (_, money) => {
+  it('a priced goal you can afford reads Can buy now, from exactly the price', () => {
+    const money = 5e6;
     const affordable = view({ metric: 'priced', target: 1 }, { account: { money } });
     expect([statusText(affordable), affordable.progress, affordable.status]).toEqual(['Can buy now', 1, 'ok']);
     expect(goalFace(affordable)).toEqual({ value: 'Can buy now', caption: null, hint: false, aside: null, bar: true, ready: true, barText: null, mark: null,

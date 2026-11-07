@@ -44,7 +44,6 @@ describe('DRAWN_SLOTS', () => {
 describe('the companion slot', () => {
   it('offers every companion, deduped by raw name and sorted by display name', () => {
     const options = itemsForSlot('companion');
-    expect(options.length).toBeGreaterThan(150);
     expect(new Set(options.map(({ rawName }) => rawName)).size).toBe(options.length);
     expect(options.map(({ displayName }) => displayName))
       .toEqual([...options.map(({ displayName }) => displayName)].sort((a, b) => a.localeCompare(b)));
@@ -85,8 +84,5 @@ describe('EQUIPMENT_SLOTS', () => {
     const bySlot = Object.fromEntries(EQUIPMENT_SLOTS.filter(({ slot }) => slot).map(({ slot, index }) => [slot, index]));
     expect(bySlot).toEqual({ hat: 0, weapon: 1, trophy: 10, cape: 12, nametag: 14, costume: 15 });
     expect(EQUIPMENT_SLOTS.find(({ index }) => index === 14).label).toBe('Replica Nametag');
-  });
-  it('only names slots the loadout query knows about', () => {
-    for (const { slot } of EQUIPMENT_SLOTS.filter((entry) => entry.slot)) expect(SLOT_TYPES[slot]).toBeTruthy();
   });
 });

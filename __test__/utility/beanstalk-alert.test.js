@@ -1,23 +1,14 @@
 import '../../polyfills';
-import 'core-js/modules/web.structured-clone';
-import { beforeAll, describe, expect, it } from 'vitest';
-import { parseData } from '@parsers/index';
+import { describe, expect, it } from 'vitest';
 import { getWorld6Alerts } from '@utility/dashboard/account';
 import { ninjaExtraInfo } from '@website-data';
 import latest from '../fixtures/latest.json';
+import { parseFixture } from '../helpers/parsed-fixtures';
 
 const fields = { beanstalk: { checked: true } };
 const options = { beanstalk: { readyToPlant: { name: 'readyToPlant', checked: true } } };
 
-let account;
-let characters;
-
-beforeAll(() => {
-  const { data, charNames, companion, guildData, serverVars } = latest;
-  const parsed = parseData(data, charNames, companion, guildData, serverVars);
-  account = parsed.account;
-  characters = parsed.characters;
-});
+const { account, characters } = parseFixture(latest);
 
 const withBeanstalkData = (beanstalkData) => ({
   ...account,

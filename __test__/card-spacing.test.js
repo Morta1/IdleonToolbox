@@ -30,10 +30,6 @@ const findNestedBottomMargins = (files) => {
 describe('card row spacing', () => {
   const files = sourceFiles(SCANNED_DIRS, /\.jsx$/);
 
-  it('finds files to check at all', () => {
-    expect(files.length).toBeGreaterThan(200);
-  });
-
   it('detects the nested shape it is meant to catch', () => {
     const fixture = path.join(REPO_ROOT, '__test__', '.nested-margin-fixture.jsx');
     fs.writeFileSync(fixture, [
@@ -50,6 +46,7 @@ describe('card row spacing', () => {
   });
 
   it('no container with a bottom margin sits inside another one', () => {
+    expect(files.length).toBeGreaterThan(200);
     const offenders = findNestedBottomMargins(files);
     expect(offenders, `Doubled bottom margins:\n${offenders.join('\n')}`).toEqual([]);
   });

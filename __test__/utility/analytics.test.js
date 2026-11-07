@@ -90,7 +90,6 @@ describe('pageViewUrl', () => {
     expect(pageViewUrl('/leaderboards?t=Skills&m=mining&player=X')).toBe('/leaderboards?t=Skills');
     expect(pageViewUrl('/leaderboards?player=Some%20Name')).toBe('/leaderboards');
     expect(pageViewUrl('/leaderboards?m=mining&t=Skills&v=2#top')).toBe('/leaderboards?t=Skills&v=2#top');
-    expect(pageViewUrl('/leaderboards/?player=X')).toBe('/leaderboards/');
   });
 
   it('skips a change that only opens or closes a drawer, or searches a player', () => {

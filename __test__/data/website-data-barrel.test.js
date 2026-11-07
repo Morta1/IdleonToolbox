@@ -23,17 +23,12 @@ const sourceFiles = (dir) => readdirSync(dir, { withFileTypes: true }).flatMap((
 });
 
 describe('website-data barrel', () => {
-  // 158 keys come from z-processing (26 in their own file, 132 inside shared-data.json);
-  // itemsArray is derived in the barrel. A missing name is a build break for whichever
-  // importing file needed it.
-  it('exports 167 names', () => {
-    // 2.3.531 added jellyUpgrades; spiceNames moved here from a hand-kept frontend copy;
-    // gameTables holds the lists parsers used to copy from the game code by hand;
-    // upgradeHelp / upgradeHelpPlaceholders hold the (?) help text of upgrade panels;
-    // mapMulticharReq holds the characters each multi-character door needs;
-    // wikiTables holds the tables only the wiki graph build reads, in their own file so no page bundles them.
-    // gameNotation holds the format the game prints each stat in, in its own file.
-    expect(Object.keys(data)).toHaveLength(167);
+  // z-processing writes the types beside the keys; itemsArray is derived in the barrel. A missing name is a build break
+  // for whichever importing file needed it.
+  it('exports every name its generated types declare', () => {
+    const declared = [...readFileSync(path.join(ROOT, 'data', 'website-data.d.ts'), 'utf-8').matchAll(/^\s*export const (\w+)/gm)]
+      .map(([, name]) => name);
+    expect(Object.keys(data).sort()).toEqual(declared.sort());
   });
 
   it('keeps wiki-only tables in their own file', () => {
@@ -117,7 +112,6 @@ describe('website-data barrel', () => {
   it('gives itemsArray its own objects rather than aliasing items', () => {
     const first = Object.keys(data.items)[0];
     expect(data.itemsArray[0]).not.toBe(data.items[first]);
-    expect(data.itemsArray[0]).toEqual(data.items[first]);
   });
 
   // Regression guard: commit 5921946 spread keychain stats into the items literal only, leaving

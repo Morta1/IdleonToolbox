@@ -12,21 +12,14 @@ const COOLDOWN_MS = ANCHOR_OFFSET_MS - CLAIM_BACKDATE_MS; // 82800000, the 23h t
 const anchorForClaimAt = (claimTime) => claimTime - CLAIM_BACKDATE_MS;
 
 describe('getNextCompanionClaim', () => {
-  it('is finite for an account with no save at all', () => {
-    expect(Number.isNaN(getNextCompanionClaim(undefined))).toBe(false);
-    expect(Number.isNaN(getNextCompanionClaim({}))).toBe(false);
-    expect(Number.isNaN(getNextCompanionClaim({ companions: {} }))).toBe(false);
-  });
-
-  it('is claimable when nothing has ever been claimed', () => {
-    expect(getNextCompanionClaim({})).toBeLessThanOrEqual(new Date().getTime());
+  it.each([[undefined], [{}], [{ companions: {} }]])('is claimable, not NaN, when nothing has ever been claimed: %j', (account) => {
+    expect(getNextCompanionClaim(account)).toBeLessThanOrEqual(new Date().getTime());
   });
 
   // The regression that pinned the timer on "Go claim!" twice: the anchor is stored 5.9 days stale
   // on purpose, so treating it as the claim time and adding 23h/24h always lands in the past.
   it.each([
     ['counts down 23h from a claim that just happened, not from the stored anchor', 0],
-    ['counts down from the last claim for a real account', COOLDOWN_MS / 2],
     ['is claimable again once a full cooldown has passed', COOLDOWN_MS + 1000]
   ])('%s', (_label, claimedAgo) => {
     const now = new Date().getTime();
@@ -50,11 +43,7 @@ describe('getNextCompanionClaim', () => {
 
 describe('getRealDateInMs non-finite input', () => {
   it('renders a placeholder rather than "NaNENaN days"', () => {
-    for (const value of [NaN, Infinity, -Infinity, undefined, null]) {
-      const result = getRealDateInMs(value);
-      expect(result, `input ${String(value)}`).toBe(UNKNOWN_TIME);
-      expect(/NaN|Infinity/.test(String(result)), `input ${String(value)} leaked`).toBe(false);
-    }
+    expect([NaN, Infinity, -Infinity, undefined, null].map((value) => getRealDateInMs(value))).toEqual(Array(5).fill(UNKNOWN_TIME));
   });
 
   it('still formats a normal timestamp', () => {

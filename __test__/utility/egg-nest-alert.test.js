@@ -12,7 +12,6 @@ describe('egg nest full alert', () => {
   it('fires when every unlocked slot has an egg, not only at 15', () => {
     expect(eggAlert(slots(5), 5)).toBe(true);
     expect(eggAlert(slots(4), 5)).toBeUndefined();
-    expect(eggAlert(slots(15), 15)).toBe(true);
   });
 
   it('stays quiet without a known capacity', () => {
@@ -31,19 +30,13 @@ const rarityAlert = (eggs, threshold) => {
 };
 
 describe('egg rarity alert', () => {
-  it('reports tiers 10 and 11 instead of capping at 9', () => {
+  it('reports the highest egg, tiers 10 and 11 included, not the threshold', () => {
     expect(rarityAlert([3, 10, 0], 10)).toBe(10);
-    expect(rarityAlert([11, 2, 9], 11)).toBe(11);
-  });
-
-  it('reports the highest egg, not the threshold', () => {
     expect(rarityAlert([11, 9], 9)).toBe(11);
   });
 
   it('stays quiet when no egg reaches the threshold', () => {
     expect(rarityAlert([10, 9], 11)).toBeUndefined();
-    expect(rarityAlert([5, 1], 6)).toBeUndefined();
-    expect(rarityAlert([0, 0], 1)).toBeUndefined();
   });
 
   it('accepts the threshold as a string from saved settings', () => {

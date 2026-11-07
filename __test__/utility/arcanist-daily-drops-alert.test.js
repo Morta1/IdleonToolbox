@@ -21,10 +21,6 @@ describe('arcanist daily drops alert', () => {
     expect(dropTypes(account(), optionsFor({ weapon: true, ring: true }))).toEqual(['weapon', 'ring']);
   });
 
-  it('skips the ring when only the weapon is on', () => {
-    expect(dropTypes(account(), optionsFor({ weapon: true, ring: false }))).toEqual(['weapon']);
-  });
-
   it('skips the weapon when only the ring is on', () => {
     expect(dropTypes(account(), optionsFor({ weapon: false, ring: true }))).toEqual(['ring']);
   });

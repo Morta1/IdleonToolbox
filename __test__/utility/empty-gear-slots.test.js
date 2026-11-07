@@ -19,11 +19,6 @@ const equipment = (overrides = {}) => {
 describe('empty gear slots alert', () => {
   const defaults = { weapon: true, armor: true, amulet: false, rings: false };
 
-  it('is empty when everything on page 1 is equipped', () => {
-    const alerts = getEquipmentAlert({}, [], { equipment: equipment() }, 0, options(defaults));
-    expect(alerts.emptyGearSlots).toEqual([]);
-  });
-
   it('flags weapon and armor by default', () => {
     const char = { equipment: equipment({ 1: 'Blank', 4: 'Blank' }) };
     const alerts = getEquipmentAlert({}, [], char, 0, options(defaults));

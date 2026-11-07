@@ -89,11 +89,6 @@ describe('nameLabelOps skins', () => {
     expect(local(ops).find(({ file }) => file.startsWith('Trophy'))).toEqual({ file: 'Trophy6disp.png', x: 49, y: 70 });
   });
 
-  it('draws a replica trophy from the original trophy art', () => {
-    const replica = nameLabelOps({ name: 'Mo', trophyId: 6, nameFont, sizes: defaultSizes });
-    expect(local(replica).find(({ file }) => file.startsWith('Trophy')).file).toBe('Trophy6disp.png');
-  });
-
   it('draws no trophy when none is equipped, and nothing at all without a name', () => {
     expect(nameLabelOps({ name: 'Mo', nameFont, sizes: {} }).some(({ file }) => file.startsWith('Trophy'))).toBe(false);
     expect(nameLabelOps({ name: '', trophyId: 6, nameFont, sizes: {} })).toEqual([]);

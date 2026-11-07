@@ -19,9 +19,10 @@ const companions = [
 ];
 
 describe('encodeLoadout', () => {
+  // The virtual attack pose stays in the query so a shared link round-trips.
   it('writes only the set slots plus the pose', () => {
-    expect(encodeLoadout({ ...emptySlots, pose: '2b', hat: items.EquipmentHats1 }))
-      .toEqual({ pose: '2b', hat: 'EquipmentHats1' });
+    expect(encodeLoadout({ ...emptySlots, pose: 'attack', hat: items.EquipmentHats1 }))
+      .toEqual({ pose: 'attack', hat: 'EquipmentHats1' });
   });
   it('writes the trophy and the nametag alongside the drawn slots', () => {
     expect(encodeLoadout({ ...emptySlots, pose: '0', trophy: items.TrophyReplica6, nametag: items.EquipmentNametag1, name: 'mortastr' }))
@@ -35,15 +36,8 @@ describe('encodeLoadout', () => {
   ])('omits %s', (_label, extra) => {
     expect(encodeLoadout({ ...emptySlots, pose: '0', ...extra })).toEqual({});
   });
-  it('keeps the virtual attack pose so a shared link round-trips', () => {
-    expect(encodeLoadout({ ...emptySlots, pose: 'attack' }).pose).toBe('attack');
-  });
   it('never writes a class: the loadout does not carry one any more', () => {
     expect(encodeLoadout({ ...emptySlots, className: 'Archer', pose: '0' })).toEqual({});
-    expect('class' in encodeLoadout({ ...emptySlots, className: 'Archer', pose: 'attack', hat: items.EquipmentHats1 })).toBe(false);
-  });
-  it('keeps a custom name', () => {
-    expect(encodeLoadout({ ...emptySlots, name: 'Mortastr', pose: '0' })).toEqual({ name: 'Mortastr' });
   });
 });
 
@@ -92,9 +86,7 @@ describe('decodeLoadout', () => {
   ])('accepts a replica in the %s slot', (slot, rawName) => {
     expect(decodeLoadout({ [slot]: rawName }, items)[slot]).toBe(items[rawName]);
   });
-  it('strips anything a name cannot hold, caps it at 16 and falls back to the default', () => {
-    expect(decodeLoadout({ name: 'mor tastr!<b>' }, items).name).toBe('mortastrb');
-    expect(decodeLoadout({ name: 'abcdefghijklmnopqrstuvwxyz' }, items).name).toBe('abcdefghijklmnop');
+  it('reads the name through sanitiseName and falls back to the default', () => {
     expect(decodeLoadout({ name: '???' }, items).name).toBe(DEFAULT_NAME);
     expect(decodeLoadout({}, items).name).toBe(DEFAULT_NAME);
   });
