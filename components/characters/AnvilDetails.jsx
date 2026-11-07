@@ -31,7 +31,8 @@ const AnvilDetails = ({ character, account, characters }) => {
   return <Panel title={'Anvil details'}>
     <Panel.Group label={'Points'}>
       <Panel.KV label={'Spent'} value={`${formatNum(totalPoints - availablePoints)} / ${formatNum(totalPoints)}`}/>
-      {availablePoints > 0 ? <Panel.KV label={'Unspent'} value={<StatusText status={'needs'}>{formatNum(availablePoints)}</StatusText>}/> : null}
+      {/* Points to spend, not a shortfall: the can level up mark, as talents and stamps show it */}
+      {availablePoints > 0 ? <Panel.KV label={'Unspent'} value={<StatusText status={'up'}>{formatNum(availablePoints)}</StatusText>}/> : null}
       <Panel.KV label={'From materials'} value={formatNum(pointsFromMats)}/>
       <Panel.KV label={'From coins'} value={formatNum(pointsFromCoins)}/>
       <Panel.KV label={'From Smithing'} value={formatNum(smithingLevel)}/>

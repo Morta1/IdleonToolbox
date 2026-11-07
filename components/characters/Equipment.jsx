@@ -11,9 +11,10 @@ import { isFilledSlot } from './sectionSummary';
 const SLOTS_PER_GROUP = 8;
 
 const Equipment = ({ equipment, tools, food, account, character, characters }) => {
+  // The game's own names for its two pages of equips
   const groups = [
-    ['Worn', equipment?.slice(0, SLOTS_PER_GROUP)],
-    ['More equipment', equipment?.slice(SLOTS_PER_GROUP)],
+    ['Equipment', equipment?.slice(0, SLOTS_PER_GROUP)],
+    ['Specials', equipment?.slice(SLOTS_PER_GROUP)],
     ['Tools', tools],
     ['Food', food]
   ];
