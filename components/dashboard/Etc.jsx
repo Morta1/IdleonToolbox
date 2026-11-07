@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from 'react';
 import NextLink from 'next/link';
-import { Box, Button, Collapse, Link, Stack, Typography } from '@mui/material';
+import { Box, Button, Link, Stack, Typography } from '@mui/material';
 import { IconChevronDown, IconChevronUp } from '@tabler/icons-react';
 import { cleanUnderscore, formatDuration, formatNum, getDuration, getNextCompanionClaim, getNextResetAt, splitTime } from '@utility/helpers';
 import { fillVoteText, formatGame } from '@utility/gameNotation';
@@ -196,17 +196,6 @@ export const useTimerRows = ({ characters, account, lastUpdated, trackers, bookA
   }, 0);
 
   const closestWorshiper = getClosestWorshiper(characters);
-  const { timeAway, voteBallot } = account || {};
-  // Vote weeks run on a fixed weekly schedule, so an old save still has a next one: read from the clock, not the save.
-  const voteWeekEnds = (offset) => {
-    const clock = Math.max(now, wallClock) / 1000;
-    return (clock + 604800 - (clock + offset) % 604800) * 1000;
-  };
-  const nextVoteBonus = voteWeekEnds(197860);
-  const nextMeritocracyVote = voteWeekEnds(543460);
-  const hasVotedBonus = !!voteBallot?.selectedBonus?.[0];
-  const hasVotedMeritocracy = !!voteBallot?.selectedMeritocracyBonus?.description;
-
   const {
     bestWizard,
     bestChargeSyphon,
@@ -442,30 +431,6 @@ export const useTimerRows = ({ characters, account, lastUpdated, trackers, bookA
           icon={'data/BubbaSmokedmeat4.png'}
           placeholder={'Smoker ready'}
         /> : null}
-    </>),
-    ...inWorld('Vote', (trackers?.Etc?.bonusTimeLeft?.checked || trackers?.Etc?.meritocracyTimeLeft?.checked) && timeAway && <>
-        {trackers?.Etc?.bonusTimeLeft?.checked && <TimerRow target="Etc.bonusTimeLeft"
-          page={'/account/world-2/vote-ballot'}
-          message={(when) => <Stack gap={0.5}>
-            {voteBallot?.selectedBonus?.[0] && <Typography variant="body2">{cleanUnderscore(fillVoteText(voteBallot.selectedBonus[0], voteBallot.selectedBonus?.bonus))}</Typography>}
-            <Typography variant="body2">Next vote bonus week: {when}</Typography>
-          </Stack>}
-          time={nextVoteBonus}
-          placeholder={'New week'}
-          icon={voteBallot?.selectedBonus?.icon ? `data/${voteBallot.selectedBonus.icon}` : 'etc/Weekly.png'}
-          state={!hasVotedBonus && !failed('voteBallot') ? <StatusText status={'needs'}>Not voted</StatusText> : null}
-        />}
-        {trackers?.Etc?.meritocracyTimeLeft?.checked && <TimerRow target="Etc.meritocracyTimeLeft"
-          page={'/account/world-2/vote-ballot'}
-          message={(when) => <Stack gap={0.5}>
-            {voteBallot?.selectedMeritocracyBonus?.description && <Typography variant="body2">{cleanUnderscore(fillVoteText(voteBallot.selectedMeritocracyBonus.description, voteBallot.selectedMeritocracyBonus?.bonus))}</Typography>}
-            <Typography variant="body2">Next meritocracy vote week: {when}</Typography>
-          </Stack>}
-          time={nextMeritocracyVote}
-          placeholder={'New week'}
-          icon={voteBallot?.selectedMeritocracyBonus?.icon ? `data/${voteBallot.selectedMeritocracyBonus.icon}` : 'etc/Weekly.png'}
-          state={!hasVotedMeritocracy && !failed('voteBallot') ? <StatusText status={'needs'}>Not voted</StatusText> : null}
-        />}
     </>),
     ...inWorld('World 3', !emptyAlerts?.['World 3'] && account?.finishedWorlds?.World2 && <>
         {trackers?.['World 3']?.printer?.checked && account?.finishedWorlds?.World2 ? <TimerRow target="World 3.printer"
@@ -931,7 +896,6 @@ const WorldBoard = ({ rows, clock }) => {
 // starts that order.
 const SoonestBoard = ({ rows, clock, head }) => {
   const [readyOpen, setReadyOpen] = useState(false);
-  const [laterOpen, setLaterOpen] = useState(false);
   const at = (place) => rows.filter((row) => placeOf(row, clock) === place);
   const ready = at('ready').sort(problemFirst);
   const next = at('next').sort(soonestFirst);
@@ -958,29 +922,39 @@ const SoonestBoard = ({ rows, clock, head }) => {
       <RowShape value={'coming'}>
         {next.length ? <Band label={'Next 24 hours'} note={SOONEST_NOTE}>{next}</Band> : null}
         {week.length ? <Band label={'This week'} note={next.length ? null : SOONEST_NOTE}>{week}</Band> : null}
-        {later.length ? <Band label={'Later'} note={next.length || week.length ? null : SOONEST_NOTE}>
-          <Box>
-            <Button size={'small'} aria-expanded={laterOpen} onClick={() => setLaterOpen(!laterOpen)}
-                    endIcon={laterOpen ? <IconChevronUp size={16}/> : <IconChevronDown size={16}/>} sx={FOLD_BUTTON_SX}>
-              {laterOpen ? 'Hide later' : `Show ${formatNum(later.length, 'whole')} later`}
-            </Button>
-            <Collapse in={laterOpen}><Box sx={BAND_ROWS_SX}>{later}</Box></Collapse>
-          </Box>
-        </Band> : null}
+        {later.length ? <Band label={'Later'} note={next.length || week.length ? null : SOONEST_NOTE}>{later}</Band> : null}
         {unread.length ? <Band label={'No reading'}>{unread}</Band> : null}
       </RowShape>
     </Box> : null}
   </Stack>;
 };
 
-// The account's own resets come round on a fixed schedule, so they hold a fixed place above the table. Absolute times off the
-// save time, rolled on the clock by the second, so a reset goes straight to the next one and its tile never reads Ready: an old
-// save's lastUpdated would leave them in the past, and so would a tab left open. A phone's three share a row, as the summary's
-// list does its two, with the date free to wrap at its space.
+// Vote weeks run on a fixed weekly schedule off the server clock, so an old save still has a next one
+const VOTE_WEEK = 604800;
+const voteWeekEnds = (clockMs, offset) => {
+  const clock = clockMs / 1000;
+  return (clock + VOTE_WEEK - (clock + offset) % VOTE_WEEK) * 1000;
+};
+// A vote's tile: its chosen bonus in the note, and "Not voted" under the time while there is none
+const voteTile = ({ target, label, offset, chosen, clock, unknown }) => ({
+  target, label, time: voteWeekEnds(clock, offset),
+  icon: chosen?.icon ? `data/${chosen.icon}` : 'etc/Weekly.png',
+  resets: chosen?.text ? cleanUnderscore(fillVoteText(chosen.text, chosen.bonus)) : undefined,
+  sub: !chosen?.text && !unknown ? <StatusText status={'needs'}>Not voted</StatusText> : undefined
+});
+
+// The account's own resets come round on a fixed schedule, so they hold a fixed place above the table, and the two vote weeks
+// beside them: a week to read, not a timer to act on (players asked). Absolute times off the save time, rolled on the clock
+// by the second, so a reset goes straight to the next one and its tile never reads Ready: an old save's lastUpdated would
+// leave them in the past, and so would a tab left open. A phone fits three to a row, as the summary's list does its two,
+// with the date free to wrap at its space.
 const RESET_STRIP_SX = { mb: 0, columnGap: { xs: 1 } };
+const PHONE_TILES = 3;
 const Resets = ({ account, trackers, lastUpdated }) => {
   const clock = Math.max(lastUpdated ?? 0, useNow(SECOND));
   const formatDate = useFormatDate();
+  const { voteBallot } = account || {};
+  const voteUnknown = isSectionFailed(account, 'voteBallot');
   // Server-wide weekly boundary (weekly bosses, jewel spinner / chip repo, exotic market). Those all
   // roll on floor(GlobalTime / 604800), which is unrelated to the account's own weekly reset: the same
   // moment for every save, so it reads the clock, not how old this save is.
@@ -997,11 +971,24 @@ const Resets = ({ account, trackers, lastUpdated }) => {
     trackers?.General?.serverWeekly?.checked && account?.timeAway && {
       target: 'General.serverWeekly', label: 'Server weekly', icon: 'etc/Server.png', time: serverWeeklyReset,
       resets: 'Weekly bosses, jewel spinner, chip repo, exotic market'
-    }
+    },
+    trackers?.Etc?.bonusTimeLeft?.checked && account?.timeAway && voteTile({
+      target: 'Etc.bonusTimeLeft', label: 'Vote', offset: 197860, clock, unknown: voteUnknown,
+      chosen: { text: voteBallot?.selectedBonus?.[0], bonus: voteBallot?.selectedBonus?.bonus, icon: voteBallot?.selectedBonus?.icon }
+    }),
+    trackers?.Etc?.meritocracyTimeLeft?.checked && account?.timeAway && voteTile({
+      target: 'Etc.meritocracyTimeLeft', label: 'Meritocracy', offset: 543460, clock, unknown: voteUnknown,
+      chosen: {
+        text: voteBallot?.selectedMeritocracyBonus?.description,
+        bonus: voteBallot?.selectedMeritocracyBonus?.bonus,
+        icon: voteBallot?.selectedMeritocracyBonus?.icon
+      }
+    })
   ].filter(Boolean);
   if (!tiles.length) return null;
-  return <PageSummary label={'Resets'} sx={[RESET_STRIP_SX, { gridTemplateColumns: { xs: `repeat(${tiles.length}, minmax(0, 1fr))` } }]}>
-    {tiles.map(({ target, label, icon, time, resets }) => {
+  const phoneColumns = Math.min(tiles.length, PHONE_TILES);
+  return <PageSummary label={'Resets'} sx={[RESET_STRIP_SX, { gridTemplateColumns: { xs: `repeat(${phoneColumns}, minmax(0, 1fr))` } }]}>
+    {tiles.map(({ target, label, icon, time, resets, sub }) => {
       const noTime = time == null;
       const title = alertMeta[`timers.${target}`]?.label;
       const date = noTime ? undefined : formatDate(time, { showSeconds: false });
@@ -1012,7 +999,7 @@ const Resets = ({ account, trackers, lastUpdated }) => {
         </Stack>
         : `${title}: ${date}`;
       // The exact time in the tile's note, not a third line: two lines keep the strip the height of the switch beside it
-      return <StatTile key={target} label={label} failed={noTime} info={words}
+      return <StatTile key={target} label={label} failed={noTime} info={words} sub={sub}
                        value={formatDuration(Math.ceil((time - clock) / SECOND))}
                        icon={<AlertIcon configType={'timers'} target={target} message={words} icon={icon} size={24}
                                         label={typeof words === 'string' ? undefined : title}/>}/>;
