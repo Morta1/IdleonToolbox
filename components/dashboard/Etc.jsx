@@ -827,7 +827,6 @@ export const timersInBrief = (rows, clock) => {
 
 const BOARD_SX = { overflow: 'hidden', '& > * + *': { borderTop: 1, borderColor: 'divider' } };
 const FOLD_BUTTON_SX = { mx: 1, my: 0.5, minHeight: { xs: 44, sm: 'auto' } };
-const SOONEST_NOTE = 'Soonest first, all worlds';
 
 // The board ticks by the second, apart from Etc's heavy reads, so a row that hits zero reads Ready on the next tick.
 const TimerBoard = ({ rows, byWorld, head }) => {
@@ -860,8 +859,8 @@ const WorldBoard = ({ rows, clock }) => {
 };
 
 // The timers as what they ask of the player, in one table: everything to act on now, then what's next across all worlds. A
-// row that hits zero moves to Ready now, and a band with nothing in it isn't drawn. The soonest note sits on whichever band
-// starts that order.
+// row that hits zero moves to Ready now, and a band with nothing in it isn't drawn. No note says the order: the switch's
+// "By time" and the bands' names already do.
 const SoonestBoard = ({ rows, clock, head }) => {
   const [readyOpen, setReadyOpen] = useState(false);
   const at = (place) => rows.filter((row) => placeOf(row, clock) === place);
@@ -885,9 +884,9 @@ const SoonestBoard = ({ rows, clock, head }) => {
         </Stack> : null}
       </Band> : null}
       <RowShape value={'coming'}>
-        {next.length ? <Band label={'Next 24 hours'} note={SOONEST_NOTE}><Cells rows={next}/></Band> : null}
-        {week.length ? <Band label={'This week'} note={next.length ? null : SOONEST_NOTE}><Cells rows={week}/></Band> : null}
-        {later.length ? <Band label={'Later'} note={next.length || week.length ? null : SOONEST_NOTE}><Cells rows={later}/></Band> : null}
+        {next.length ? <Band label={'Next 24 hours'}><Cells rows={next}/></Band> : null}
+        {week.length ? <Band label={'This week'}><Cells rows={week}/></Band> : null}
+        {later.length ? <Band label={'Later'}><Cells rows={later}/></Band> : null}
         {unread.length ? <Band label={'No reading'}><Cells rows={unread}/></Band> : null}
       </RowShape>
     </Box> : null}
