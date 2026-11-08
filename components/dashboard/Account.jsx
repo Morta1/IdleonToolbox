@@ -737,7 +737,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                       ...outpost,
                       detail: `${formatNum(outpost?.ptsLeft, 'whole')} PTS`
                     }))}/>}
-                  iconPath={'etc/Royal_Cost'} imgStyle={{ width: 18, height: 18 }} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
+                  iconPath={'etc/Royal_Cost'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
               {alerts?.['World 7']?.royalGuardian?.claimableMaps?.length > 0 ?
                 <Alert target={'World 7.royalGuardian.claimableMaps'}
                   title={<RoyalGuardianList
@@ -745,7 +745,7 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                       ? ' is'
                       : 's are'} cleared and ready to claim an outpost`}
                     entries={alerts?.['World 7']?.royalGuardian?.claimableMaps}/>}
-                  iconPath={'etc/RGglyphCheck'} imgStyle={{ width: 18, height: 18 }} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
+                  iconPath={'etc/RGglyphCheck'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
               {alerts?.['World 7']?.royalGuardian?.idleUnits ?
                 <Alert target={'World 7.royalGuardian.idleUnits'}
                   title={`${formatNum(alerts?.['World 7']?.royalGuardian?.idleUnits?.count)} unit${alerts?.['World 7']?.royalGuardian?.idleUnits?.count === 1 ? ' is' : 's are'} ${alerts?.['World 7']?.royalGuardian?.idleUnits?.unassigned > 0
