@@ -17,7 +17,8 @@ export const patchNotes = [
       'Stamps: each category follows the game\'s 4-column book (or one row each with Rows), colours show which stamps can level up or are short on coins or materials, each state is a one-click filter again, and hovering a stamp previews it',
       'Pets: each pet shows its bonus again, with Details for tradable copies, the Pet Mart+ price and when it was last in the Pet Mart',
       'Pets: Tradable and Missing are one-click filters again',
-      'Vote Ballot: this week\'s bonus stands out with a green border'
+      'Vote Ballot: this week\'s bonus stands out with a green border',
+      'Killroy: this week\'s schedule sits apart from the coming weeks'
     ],
     'fixes': [
       'Dashboard: two World 7 alerts no longer sit out of line with the rest',

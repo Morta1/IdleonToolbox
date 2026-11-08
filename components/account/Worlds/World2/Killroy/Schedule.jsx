@@ -52,16 +52,25 @@ const Schedule = ({ killroy, schedule, guest, sectionFailed }) => {
     return [label, value];
   };
 
+  const weekCard = ({ classes, date, monsters }, week) => <ItemCard key={`week-${week}`} title={formatDate(date, { showSeconds: false })}>
+    <ItemCard.Facts rows={(classes ?? []).map((room, index) => roomRow(room, index, monsters))}/>
+  </ItemCard>;
+  const [thisWeek, ...coming] = schedule;
+
+  // This week apart from the coming ones, under their own headings, as Arcade's Current rotation: a muted line on the first
+  // card was all that told it from the rest
   return <Stack gap={2}>
     {sectionFailed ? null : <Typography variant={'body2'} color={'text.secondary'}>
       A green dot <Dot sx={{ mx: 0.25 }}/> marks a room under 100 kills: it still counts for the Equinox challenge.
     </Typography>}
-    <CardGrid size={'m'}>
-      {schedule?.map(({ classes, date, monsters }, week) => <ItemCard key={`week-${week}`} title={formatDate(date, { showSeconds: false })}
-                                                                      meta={week === 0 ? 'This week' : undefined}>
-        <ItemCard.Facts rows={(classes ?? []).map((room, index) => roomRow(room, index, monsters))}/>
-      </ItemCard>)}
-    </CardGrid>
+    <Stack gap={1.5}>
+      <Typography variant={'sectionTitle'} component={'h2'}>This week</Typography>
+      <CardGrid size={'m'}>{weekCard(thisWeek, 0)}</CardGrid>
+    </Stack>
+    {coming.length ? <Stack gap={1.5} sx={{ mt: 2 }}>
+      <Typography variant={'sectionTitle'} component={'h2'}>Coming weeks</Typography>
+      <CardGrid size={'m'}>{coming.map((week, index) => weekCard(week, index + 1))}</CardGrid>
+    </Stack> : null}
   </Stack>;
 };
 
