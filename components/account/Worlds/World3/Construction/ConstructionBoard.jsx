@@ -36,9 +36,9 @@ export const getCogViewValue = (cog, view) => {
   }
 };
 
-// The number a cog shows under its art, in the game's Big: its own row, never over the sprite. One line, whatever it
-// holds, centred on the art: it may take half the gap on each side, and on a board's small slots a smaller size, so a six
-// character "1.16QQ" fits under a 30 px slot.
+// The number a cog shows under its art in a step of the plan, in the game's Big. One line, whatever it holds, centred on
+// the art: it may take half the gap on each side, and in a narrow container a smaller size, so a six character "1.16QQ"
+// fits under a 30 px slot. The board itself draws its numbers on the slots (CogValue).
 export const CAPTION_HEIGHT = 16;
 export const CogCaption = ({ value, width }) => <Typography variant={'caption'} component={'div'} sx={{
   minHeight: CAPTION_HEIGHT,
@@ -51,6 +51,18 @@ export const CogCaption = ({ value, width }) => <Typography variant={'caption'} 
   fontVariantNumeric: 'tabular-nums',
   '@container (max-width: 600px)': { fontSize: 11, letterSpacing: '-0.2px' }
 }}>{value ? String(formatGame(value, 'Big', { whole: true })) : null}</Typography>;
+
+// The number a slot on the board shows, on a chip over the art's foot, as the game and the old page drew it on the cog: a
+// caption row under every slot made the board's twelve rows 16 px taller each (1.62x the old page's height). The chip is
+// the page's own ground, so the number reads whatever art is under it.
+const VALUE_CHIP_SX = {
+  position: 'absolute', left: '50%', bottom: 0, transform: 'translateX(-50%)', px: '3px', borderRadius: '4px',
+  fontSize: 11, lineHeight: '14px', whiteSpace: 'nowrap', fontVariantNumeric: 'tabular-nums', pointerEvents: 'none',
+  bgcolor: 'background.default', color: 'text.primary'
+};
+const CogValue = ({ value }) => (value ? <Typography variant={'caption'} component={'span'} data-on-art sx={VALUE_CHIP_SX}>
+  {String(formatGame(value, 'Big', { whole: true }))}
+</Typography> : null);
 
 // The sprite a cog draws: a character's head, or the cog's own art
 export const cogSprite = (name) => (name?.includes('Player') ? 'headBIG' : name);
@@ -136,9 +148,9 @@ const ConstructionBoard = ({ view, board, leftColumn, rightColumn, markSpares, d
         display: 'grid',
         gap: `${SLOT_GAP}px`,
         gridTemplateColumns: `repeat(${cols}, var(--cog-slot))`,
-        // Each row holds the slot's art and the caption row under it. The strips beside the board are taller than it,
-        // so the rows keep their own height instead of sharing the slack.
-        gridAutoRows: `minmax(calc(var(--cog-slot) + ${CAPTION_HEIGHT}px), auto)`,
+        // A row is one slot, its number on it. The strips beside the board are taller than it, so the rows keep their own
+        // height instead of sharing the slack.
+        gridAutoRows: 'var(--cog-slot)',
         alignContent: 'start'
       }}
     >
@@ -160,8 +172,8 @@ const ConstructionBoard = ({ view, board, leftColumn, rightColumn, markSpares, d
           {cog?.name && !flagPlaced
             ? <Box component={'img'} src={`${prefix}data/${cogSprite(cog?.name)}.png`} alt={''} sx={SLOT_ART_SX}/>
             : null}
+          <CogValue value={!flagPlaced ? viewValue : null}/>
         </SlotBackground>
-        <CogCaption value={!flagPlaced ? viewValue : null} width={'var(--cog-slot)'}/>
       </Stack>;
       return (
         <Box key={index}
