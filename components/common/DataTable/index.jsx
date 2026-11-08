@@ -156,8 +156,9 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, 
     },
     '& tr.detail': withDetail ? { display: 'table-row' } : fromStyle('display', until, 'table-row', 'none'),
     // An opened row and its list are one block: the row's divider goes, and the list's own closes them. Only where the
-    // list shows, or a row left open while the window widened would lose its line.
-    '& tr.row:has(+ tr.detail) > td': withDetail
+    // list shows, or a row left open while the window widened would lose its line. A class, not :has(+ tr.detail):
+    // jsdom's selector engine throws on that one, failing every test that reads a style near a table.
+    '& tr.row.open > td': withDetail
       ? { borderBottomColor: 'transparent' }
       : fromStyle('borderBottomColor', until, 'transparent', 'action.hover'),
     // 8 px between the lines and 12 under the last: at 4 and 6 an opened row read as one block against its border
@@ -362,7 +363,7 @@ const DataTable = ({
               // Row keys can hold any character, so the id is built from positions.
               const detailId = `${baseId}-${bandIndex}-${rowIndex}`;
               return <React.Fragment key={key}>
-                <tr className={`row${mute ? ' muted' : ''}${expandable && !rowExpandable ? ' word' : ''}`} onClick={rowExpandable ? rowTap(key) : undefined}
+                <tr className={`row${mute ? ' muted' : ''}${expandable && !rowExpandable ? ' word' : ''}${open && rowExpandable ? ' open' : ''}`} onClick={rowExpandable ? rowTap(key) : undefined}
                     tabIndex={firstShownMore ? -1 : undefined} ref={firstShownMore ? takeFocus(band.key) : undefined}>
                   {rankOf ? <td className={'rank'}>{rankOf(row) ?? <span className={'na'}>-</span>}</td> : null}
                   <td className={'name'}>
