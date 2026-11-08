@@ -8,6 +8,7 @@ import { monsterSprite } from '@utility/spriteImages';
 import { companions as companionsData } from '@website-data';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import Panel from '@components/common/cards/Panel';
 import GameIcon from '@components/common/GameIcon';
 
 const teamPower = (pets, companions) =>
@@ -55,14 +56,15 @@ const BattleStep = ({ step, playerCompanions, opponentCompanions }) => {
   </Typography>;
 };
 
-const MatchCard = ({ match, companionList, companionsFailed }) => {
+// ownTeam: the player's team shows on the card, where it differs between the day's matches
+const MatchCard = ({ match, companionList, companionsFailed, ownTeam }) => {
   const [showBattle, setShowBattle] = useState(false);
   const hasBattle = match.battleRounds?.length > 0;
   const result = match.result === 'win' ? 'done' : match.result === 'loss' ? 'problem' : undefined;
   return <ItemCard title={`vs ${cleanUnderscore(match.opponentName)}`} meta={match.roundName ?? 'Qualifying'}
                    status={result} statusLabel={match.result === 'win' ? 'Win' : 'Loss'}>
     {match.isQualifying ? <ItemCard.Facts rows={[['Lives', formatNum(match.playerLives ?? 0)]]}/> : null}
-    <Team label={'Your team'} pets={match.playerPets} companions={companionList} companionsFailed={companionsFailed}/>
+    {ownTeam ? <Team label={'Your team'} pets={match.playerPets} companions={companionList} companionsFailed={companionsFailed}/> : null}
     <Team label={'Opponent\'s team'} pets={match.opponentPets} companions={companionsData}/>
     {hasBattle && !companionsFailed ? <>
       <Button size={'small'} variant={'text'} sx={{ alignSelf: 'flex-start' }} aria-expanded={showBattle}
@@ -95,13 +97,29 @@ const Matches = ({ tournament, companions, sectionFailed, companionsFailed }) =>
       : <Notice>No matches recorded this tournament day.</Notice>;
   }
 
+  // The team the player sends is set for the day, so it was the same 22 names on every card: once above the matches
+  // then, and on each card only where it changed between them
+  const firstTeam = matches[0]?.playerPets ?? [];
+  const sameTeam = matches.every(({ playerPets = [] }) => playerPets.length === firstTeam.length
+    && playerPets.every((pet, index) => pet === firstTeam[index]));
+  const teamList = companionsFailed ? companionsData : companionList;
+
   return (
     <Stack gap={2}>
       <Typography variant="body2" color="text.secondary">
         {`${formatNum(matches.length)} ${matches.length === 1 ? 'match' : 'matches'} recorded this tournament day.`}
       </Typography>
+      {sameTeam ? <Panel title={'Your team'}
+                         meta={`${companionsFailed ? '-' : formatGame(teamPower(firstTeam, companionList), 'Stuff2.PetTournyPOW')} power · the same in every match`}>
+        <Box sx={{ px: 2, py: 1.25 }}>
+          <Typography variant={'body2'} component={'div'}>
+            <PetList pets={firstTeam.map((idx) => teamList?.[idx]).filter(Boolean)}/>
+          </Typography>
+        </Box>
+      </Panel> : null}
       <CardGrid size={'l'}>
-        {matches.map((match, idx) => <MatchCard key={idx} match={match} companionList={companionList} companionsFailed={companionsFailed}/>)}
+        {matches.map((match, idx) => <MatchCard key={idx} match={match} companionList={companionList} companionsFailed={companionsFailed}
+                                                ownTeam={!sameTeam}/>)}
       </CardGrid>
     </Stack>
   );
