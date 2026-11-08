@@ -213,6 +213,12 @@ const dailySource = (bubble, upgradeable) => {
   };
 };
 
+// A bubble note's head, as the Shrine note's: the name as its title, its level (and Prisma) in one line under it
+const NoteHead = ({ name, lines }) => <Box sx={{ mb: 0.5 }}>
+  <Typography variant={'cardTitle'} component={'div'}>{name}</Typography>
+  <Typography variant={'body2'} color={'text.secondary'}>{lines.filter(Boolean).join(' · ')}</Typography>
+</Box>;
+
 // A bubble levelled daily: its level, its source as the mark, the source's levels and the next level's cost on a tap
 const dailyTile = (bubble, index, { upgradeable, account, discounts }) => {
   const name = bubbleTitle(bubble.bubbleName);
@@ -221,8 +227,8 @@ const dailyTile = (bubble, index, { upgradeable, account, discounts }) => {
                    value={formatNum(bubble.level)} mark={mark} markAlt={markAlt}
                    details={<Stack gap={1}>
                      <Stack gap={0.5}>
-                       <Typography variant={'body2'}>{`${name}, Lv ${formatNum(bubble.level)}`}</Typography>
-                       <Typography variant={'body2'} color={'text.secondary'}>{text}</Typography>
+                       <NoteHead name={name} lines={[formatNum(bubble.level, 'level')]}/>
+                       <Typography variant={'body2'}>{text}</Typography>
                      </Stack>
                      {bubbleCost(bubble, { account, discounts })}
                    </Stack>}/>;
@@ -294,9 +300,8 @@ const bubbleNote = (row, { account, discounts, prismaText, effThreshold, dollarF
   const dollarText = dollarFill?.percent ? `${gameFill(dollarFill.value, 'Big')}%` : gameBonusText(dollarFill?.value ?? 0);
   return <Stack gap={1}>
     <Stack gap={0.5}>
-      <Typography variant={'body2'}>{`${name}, Lv ${formatNum(level)}`}</Typography>
-      {isPrisma && !placeholder ? <Typography variant={'body2'} color={'text.secondary'}>
-        {prismaText ? `Prisma: ${prismaText} bonus` : 'Prisma'}</Typography> : null}
+      <NoteHead name={name} lines={[formatNum(level, 'level'),
+        isPrisma && !placeholder ? (prismaText ? `Prisma ${prismaText}` : 'Prisma') : null]}/>
       <Typography variant={'body2'}>{cleanUnderscore((bubble.desc ?? '').replace(/{/g, bonusText).replace('$', dollarText))}</Typography>
       {level > 0 && dollarFill?.character ? <Typography variant={'body2'} color={'text.secondary'}>
         {`Best character: ${dollarFill.character}. The game fills this from the character you're logged in as.`}</Typography> : null}
