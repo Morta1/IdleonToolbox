@@ -1,7 +1,7 @@
 import React from 'react';
 import { Box } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
-import { ARTIFACT_TIERS as TIERS } from './sailing.consts';
+import { ARTIFACT_TIERS as TIERS, artifactTierColor } from './sailing.consts';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
@@ -66,8 +66,12 @@ const Artifacts = ({ artifacts, sectionFailed }) => <CardGrid size={'m'}>
     const tier = acquired ?? 0;
     const current = tier >= 2 ? getTierDescription(artifact, tier) : '';
     const next = tier >= 1 && tier < TIERS.length ? getTierDescription(artifact, tier + 1) : '';
+    // The form's word in its colour, as the game paints it (and the old page did)
     return <ItemCard key={`${name}-${index}`} icon={artifactIcon(rawName, tier)} title={cleanUnderscore(name)} dimmed={!tier}
-                     meta={tier ? `Tier ${tier} of ${TIERS.length} · ${TIERS[tier - 1]?.full}` : sectionFailed ? undefined : 'Not acquired'}>
+                     meta={tier ? <>
+                       {`Tier ${tier} of ${TIERS.length} · `}
+                       <Box component={'span'} sx={{ color: artifactTierColor(tier), fontWeight: 500 }}>{TIERS[tier - 1]?.full}</Box>
+                     </> : sectionFailed ? undefined : 'Not acquired'}>
       <ItemCard.Desc text={withTotalLine(artifact?.description)}/>
       {/* The tier is the meta line's; the rows say what it gives now and what the next one would */}
       <ItemCard.Facts rows={[
