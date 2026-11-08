@@ -1,10 +1,17 @@
 import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import ItemDisplay from '@components/common/ItemDisplay';
 import Panel from '@components/common/cards/Panel';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
+
+// A rate on a tile: from 1,000 an hour in the game's Big ("+144K/hr"), as a tile's other numbers read; "+143,236.38/hr"
+// ran past a 72 px tile. The tile's note keeps the exact rate.
+const tileRate = (perHour) => (Math.abs(perHour) >= 1e3
+  ? `${perHour < 0 ? '-' : '+'}${formatGame(Math.abs(perHour), 'Big', { whole: true })}/hr`
+  : formatNum(perHour, 'rate'));
 
 // A character's inventory, a Panel with its capacity. asc, and no slots to count: the active calculator's lists, which sit
 // under their own headings, so the grid alone (asc is the wider list). ratesKnown false: those lists' rates have no time
@@ -14,7 +21,7 @@ const Inventory = ({ inventory, inventoryLength, inventorySlots, amountKey = 'am
   const grid = <CardGrid size={'icon'} fill sheetColumns={[6]}>
     {inventory?.map((item, index) => <IconTile
       key={item?.rawName + '' + index} icon={`data/${item?.rawName}.png`} alt={cleanUnderscore(item?.displayName ?? item?.name ?? '')}
-      value={!ratesKnown ? '-' : item?.perHour ? formatNum(item?.perHour, 'rate') : formatNum(item?.[amountKey], 'whole')}
+      value={!ratesKnown ? '-' : item?.perHour ? tileRate(item.perHour) : formatNum(item?.[amountKey], 'whole')}
       details={ratesKnown && item?.perHour ? <ExtraData {...item} amount={item?.[amountKey]}/> : <ItemDisplay {...item} account={account}/>}/>)}
   </CardGrid>;
   return capacity && !asc
