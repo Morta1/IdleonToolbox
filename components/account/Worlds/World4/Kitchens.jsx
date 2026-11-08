@@ -1,4 +1,4 @@
-import { Box, LinearProgress, Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
 import { formatGame, mealBonusText } from '@utility/gameNotation';
@@ -13,12 +13,10 @@ import {
   spicesNames
 } from '@parsers/world-4/cooking';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import MealIcon from 'components/common/MealIcon';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import IconTile from '@components/common/cards/IconTile';
 import StatTile from '@components/common/cards/StatTile';
-import Panel from '@components/common/cards/Panel';
 import Notice from '@components/common/Notice';
 import Num from '@components/common/Num';
 import Toolbar from '@components/common/Toolbar';
@@ -30,15 +28,11 @@ const KITCHENS_TOOLBAR = { details: false };
 
 const hoursText = (hours) => (Number.isFinite(hours) ? formatDuration(hours * 3600) : 'Never');
 
-const LINE_SX = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 };
-const BAR_SX = { flex: 1, height: 6, borderRadius: 3, bgcolor: 'divider' };
-// The time to the next level sits level with the meal's name
-const ROW_SX = { alignItems: 'flex-start' };
-
-// A meal being cooked, as a Panel row: its bonus in the game's own fill, its progress to the next level (or to the
-// diamond plate, with its time), the meals an hour all kitchens make and when its next level lands. A card each left
-// one meal alone in a row of four, under a heading of its own.
-const mealRow = (foodName, meal, { totalMealSpeed, achievements, equinoxUpgrades, account }) => {
+// A meal being cooked, all kitchens together, as a tile beside the spice claims: the meals an hour and when its next level
+// lands, with its bonus in the game's own fill and its progress (to the next level, or to the diamond plate with its
+// time) in the tile's note. A card each left one meal alone in a row of four under a Totals heading, and a Panel of them
+// read as one more kitchen in the kitchens' grid.
+const mealTile = (foodName, meal, { totalMealSpeed, achievements, equinoxUpgrades, account }) => {
   const timeToDiamond = calcMealTime(11, meal, totalMealSpeed, achievements, equinoxUpgrades, account);
   const levelCost = getMealLevelCost(meal?.level, achievements, account, equinoxUpgrades);
   const diamondCost = (11 - meal?.level) * levelCost;
@@ -48,20 +42,17 @@ const mealRow = (foodName, meal, { totalMealSpeed, achievements, equinoxUpgrades
   const realEffect = getMealBonus(account, meal).value;
   const target = showDiamond ? diamondCost : levelCost;
   const name = cleanUnderscore(meal?.name);
-  return <Panel.Row key={foodName} icon={<MealIcon rawName={foodName} plateLevel={meal?.level} small/>} sx={ROW_SX}
-                    name={name} value={`${formatNum(meal?.total ?? 0)} meals/hr`}
-                    valueSub={isReady ? <StatusText status={'ready'}>Next level ready</StatusText> : `Next Lv in ${hoursText(timeTillNextLevel)}`}
-                    sub={<Stack component={'span'} gap={0.5} sx={{ mt: 0.25 }}>
-                      <span>{cleanUnderscore(meal?.effect?.replace('{', mealBonusText(realEffect)) ?? '')}</span>
-                      <Box component={'span'} sx={LINE_SX}>
-                        <LinearProgress variant={'determinate'} aria-label={`${name}: progress`} sx={BAR_SX}
-                                        value={target > 0 ? Math.min(100, 100 * (meal?.amount ?? 0) / target) : 100}/>
-                        <Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>
-                          <Num value={meal?.amount ?? 0} game={MEAL_COST} whole/>{' / '}<Num value={target ?? 0} game={MEAL_COST} whole/>
-                          {showDiamond ? ` to Lv 11, ${hoursText(timeToDiamond)}` : null}
-                        </Box>
-                      </Box>
-                    </Stack>}/>;
+  return <StatTile key={foodName} icon={`data/${foodName}.png`} label={`${name}, all kitchens`}
+                   value={`${formatNum(meal?.total ?? 0)} meals/hr`}
+                   sub={isReady ? 'Next level ready' : `Next Lv in ${hoursText(timeTillNextLevel)}`}
+                   info={<Stack gap={1}>
+                     <Typography variant={'body2'}>{cleanUnderscore(meal?.effect?.replace('{', mealBonusText(realEffect)) ?? '')}</Typography>
+                     <ItemCard.Progress label={showDiamond ? 'Progress to Lv 11' : 'Progress'}
+                                        percent={target > 0 ? Math.min(100, 100 * (meal?.amount ?? 0) / target) : 100}
+                                        value={<Num value={meal?.amount ?? 0} game={MEAL_COST} whole/>}
+                                        max={<Num value={target ?? 0} game={MEAL_COST} whole/>}/>
+                     {showDiamond ? <ItemCard.Facts rows={[['Diamond plate', hoursText(timeToDiamond)]]}/> : null}
+                   </Stack>}/>;
 };
 
 const Kitchens = ({
@@ -165,6 +156,7 @@ const Kitchens = ({
       <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={2}>
         <StatTile label={'Spice claims'}
                   value={sectionFailed ? '-' : `${formatNum(spices?.numberOfClaims ?? 0)} / ${formatNum(maxNumberOfSpiceClicks)}`}/>
+        {totals.map(([foodName, meal]) => mealTile(foodName, meal, progressOptions))}
       </Stack>
       {spices?.available?.length ? <CardGrid size={'icon'} sx={{ mb: 3 }}>
         {spices.available.map((spice, index) => <IconTile key={`${spice?.rawName}-${index}`} icon={`data/${spice?.rawName}.png`}
@@ -180,11 +172,6 @@ const Kitchens = ({
                                  total={builtKitchens.length} shown={builtKitchens.length} noun={'kitchens'}>
           <Toolbar.Filter name={'details'} label={'Details'} display/>
         </Toolbar> : null}
-        {totals.length ? <Panel title={'Cooking now'} meta={'All kitchens on each meal'} sx={{ mb: 2 }}>
-          {totals.length > 1
-            ? <Panel.Columns>{totals.map(([foodName, meal]) => mealRow(foodName, meal, progressOptions))}</Panel.Columns>
-            : totals.map(([foodName, meal]) => mealRow(foodName, meal, progressOptions))}
-        </Panel> : null}
         {/* A card leads with what its kitchen does now (its meal and the meals an hour, or its recipe), then speed, fire
             and luck a line each with the next level's cost; a recipe's spices show with the Details pill. */}
         <CardGrid size={'l'} details={toolbar?.details}>
