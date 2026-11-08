@@ -7,10 +7,14 @@ import { calcBubbleLevels } from '@parsers/world-2/alchemy';
 import { getGiantMobChance, getLifetimeStat, LIFETIME_STATS } from '@parsers/misc';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 import Panel from '@components/common/cards/Panel';
+import GameIcon from '@components/common/GameIcon';
 import ShortAmount from '@components/common/ShortAmount';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 const pct = (value) => formatNum(value ?? 0, 'pct', { precise: true });
+// A list as dense as Colosseum's and Minigame's beside it: 24 px sprites and 6 px padding, about 36 px a row, not 53
+const ROW_SX = { py: 0.75 };
+const icon = (name) => <GameIcon src={`data/${name}.png`} size={24} alt={''}/>;
 
 // failedOf: whether a section the page reads failed; a total it feeds reads "-"
 const Totals = ({ account, characters, failedOf = () => false }) => {
@@ -38,8 +42,8 @@ const Totals = ({ account, characters, failedOf = () => false }) => {
   ].filter(Boolean)), { combine: 'list' }) : null;
 
   return <Panel title={'Totals'}>
-    {totals.map(([name, icon, value]) => <Panel.Row key={name} icon={`data/${icon}.png`} name={name} value={value}/>)}
-    {account?.finishedWorlds?.World2 ? <Panel.Row icon={'data/Prayer5.png'} name={'Giant mob chance'}
+    {totals.map(([name, iconName, value]) => <Panel.Row key={name} icon={icon(iconName)} name={name} value={value} sx={ROW_SX}/>)}
+    {account?.finishedWorlds?.World2 ? <Panel.Row icon={icon('Prayer5')} name={'Giant mob chance'} sx={ROW_SX}
                                                   sub={giantMob ? `${formatNum(giantMob?.giantsAlreadySpawned ?? 0)} spawned this week` : undefined}
                                                   value={giantBreakdown
                                                     ? <Breakdown asValue data={giantBreakdown} title={'Giant mob chance'}>{giantText}</Breakdown>
