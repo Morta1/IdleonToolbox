@@ -910,10 +910,19 @@ const voteTile = ({ target, label, offset, chosen, clock, unknown }) => ({
 // The account's own resets come round on a fixed schedule, so they hold a fixed place above the table, and the two vote weeks
 // beside them: a week to read, not a timer to act on (players asked). Absolute times off the save time, rolled on the clock
 // by the second, so a reset goes straight to the next one and its tile never reads Ready: an old save's lastUpdated would
-// leave them in the past, and so would a tab left open. A phone fits three to a row, as the summary's list does its two,
-// with the date free to wrap at its space.
-const RESET_STRIP_SX = { mb: 0, columnGap: { xs: 1 } };
+// leave them in the past, and so would a tab left open. The tiles share one width, the widest one's (players asked: five
+// widths read untidy): three to a row until the board has room for them all, and a phone's three with the date free to
+// wrap at its space. RESET_TILE_ROOM: the widest tile (Server weekly, 151 px) and its gap.
+const RESET_STRIP_SX = {
+  mb: 0, columnGap: { xs: 1 }, display: { xs: 'grid', sm: 'grid' }, width: { sm: 'fit-content' }, maxWidth: '100%',
+  '& [data-stat-tile]': { width: { xs: 'auto', sm: 'auto' } }
+};
 const PHONE_TILES = 3;
+const RESET_TILE_ROOM = 160;
+const resetColumns = (count) => ({
+  gridTemplateColumns: `repeat(${Math.min(count, PHONE_TILES)}, minmax(0, 1fr))`,
+  [`@container (min-width: ${count * RESET_TILE_ROOM}px)`]: { gridTemplateColumns: `repeat(${count}, minmax(0, 1fr))` }
+});
 const Resets = ({ account, trackers, lastUpdated }) => {
   const clock = Math.max(lastUpdated ?? 0, useNow(SECOND));
   const formatDate = useFormatDate();
@@ -950,8 +959,7 @@ const Resets = ({ account, trackers, lastUpdated }) => {
     })
   ].filter(Boolean);
   if (!tiles.length) return null;
-  const phoneColumns = Math.min(tiles.length, PHONE_TILES);
-  return <PageSummary label={'Resets'} sx={[RESET_STRIP_SX, { gridTemplateColumns: { xs: `repeat(${phoneColumns}, minmax(0, 1fr))` } }]}>
+  return <PageSummary label={'Resets'} sx={[RESET_STRIP_SX, resetColumns(tiles.length)]}>
     {tiles.map(({ target, label, icon, time, resets, sub }) => {
       const noTime = time == null;
       const title = alertMeta[`timers.${target}`]?.label;
