@@ -62,18 +62,17 @@ const VoteBallot = () => {
     const onlyBallot = hasBallot && toolbar?.onlyBallot;
     const shown = onlyBallot ? current.length + candidates.length : entries.length;
 
-    // The state sits on the meta line, under the sentence: beside it, it squeezed a long sentence to a few words a line
+    // This week's bonus is the one running now: the active state, its green edge and word, so it stands out of a grid of
+    // cards that look alike (a green word alone was easy to miss). The state takes its own line under the sentence:
+    // beside it, it squeezed a long sentence to a few words a line.
     const bonusCard = ({ bonus, index }) => {
       const icon = iconOf(bonus, index);
       const thisWeek = hasBallot && bonus?.selected;
       const onBallot = hasBallot && bonus?.active;
       return <ItemCard key={index} icon={icon ? `data/${icon}` : undefined} title={describe(bonus)}
-                       meta={thisWeek || onBallot ? <>
-                         {thisWeek ? <StatusText status={'active'}>This week</StatusText> : null}
-                         {thisWeek && onBallot ? ' · ' : null}
-                         {/* A state like This week, so it reads as one rather than as grey small print */}
-                         {onBallot ? <StatusText status={'info'}>{`On the ballot · ${formatNum(Number(bonus?.percent) || 0, 'pct')} of votes`}</StatusText> : null}
-                       </> : undefined}/>;
+                       status={thisWeek ? 'active' : undefined} statusLabel={'This week'} statusOwnLine
+                       // A state like This week, so it reads as one rather than as grey small print
+                       meta={onBallot ? <StatusText status={'info'}>{`On the ballot · ${formatNum(Number(bonus?.percent) || 0, 'pct')} of votes`}</StatusText> : undefined}/>;
     };
     const group = (title, list) => (list.length ? <Stack gap={1}>
       <Typography variant={'groupLabel'} color={'text.secondary'}>{title}</Typography>
