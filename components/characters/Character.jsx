@@ -50,8 +50,9 @@ const pinnedNameSx = (pinTop) => ({
 });
 
 // One character's sheet: the line under the name runs the card's width. The sections' own top lines stopped at the last
-// full column, so with one or two sections on the name read cut off from its trophy at the right (Hαlf). The columns sit
-// 1 px up, so each column's first line lands on this one.
+// full column, so with one or two sections on the name read cut off from its trophy at the right (Hαlf). It is the only
+// line there: the columns hide the top pixel row where each column's first section draws its own (FLOW_SX). Laid on
+// top of it instead, the two drew a heavier line over the full columns at a zoom that split the pixel.
 const SHEET_NAME_SX = { px: 2, py: '12px', minHeight: 68, borderBottom: 1, borderColor: 'divider' };
 
 // A character's name row: class sprite, name, class and level on one muted line, the trophy at the right
@@ -81,7 +82,8 @@ const NameRow = ({ character, side, pinTop }) => {
 // One character is a sheet: the card fills the page and its sections flow down columns, each whole. Side by side, the card
 // takes its rows from the page's grid (SIDE_BY_SIDE_SX there), and each section keeps its row by its index.
 const FLOW_SX = (theme) => ({
-  mt: '-1px',
+  // The top row is each column's first section's own line, under the name's: hidden, so one line runs the card
+  clipPath: 'inset(1px 0 0 0)',
   columnWidth: 340,
   columnGap: 0,
   columnRule: `1px solid ${(theme.vars || theme).palette.divider}`
