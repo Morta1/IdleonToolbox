@@ -1,5 +1,5 @@
 import React from 'react';
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, Stack } from '@mui/material';
 import { cleanUnderscore } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { CAVERN_LABELS, villagerTiles } from '@components/account/Worlds/World5/Hole/commons';
@@ -26,16 +26,16 @@ const Study = ({ account, sectionFailed }) => {
   const byTime = toolbar?.sort?.key === 'time';
   const direction = toolbar?.sort?.order === 'desc' ? -1 : 1;
   const sorted = byTime ? [...studies].sort((a, b) => direction * (secondsLeft(a) - secondsLeft(b))) : studies;
-  // The game's four study lists, in its order (the parser's location)
-  const lists = [...new Set(studies.map((entry) => entry?.location))];
 
   // A study is its cavern's, in the caverns' order: it takes the name the cavern strip and picker show ("The Bottomless
   // Trench", where the game's study list says "Trench"). Its bonus is its text, so the card keeps it whole with the time
-  // to its next level; the study points behind that time show with the Details pill.
+  // to its next level; the study points behind that time show with the Details pill. Its list (the parser's location) is
+  // its meta: one grid in the game's order, as the old page had it, where a heading per list ended three of the four on
+  // a lone card (5, 5, 5 and 3 studies, four to a row).
   const studyCard = (entry) => <ItemCard key={`study-${entry?.index}`}
                                          title={CAVERN_LABELS[entry?.index] ?? cleanUnderscore(entry?.name)}
                                          level={{ value: entry?.level ?? 0 }}
-                                         meta={byTime ? entry?.location : undefined}
+                                         meta={entry?.location}
                                          status={entry?.active || entry?.peripheralVisionActive ? 'active' : undefined}
                                          statusLabel={entry?.peripheralVisionActive ? 'Active (Peripheral Vision)' : undefined}
                                          aside={entry?.name === 'The_bell'
@@ -62,12 +62,7 @@ const Study = ({ account, sectionFailed }) => {
         <Toolbar.Filter name={'details'} label={'Details'} display/>
         <Toolbar.Sort options={[['time', 'Time to next level', 'asc']]}/>
       </Toolbar>}
-      {byTime
-        ? <CardGrid size={'m'} details={toolbar?.details}>{sorted.map(studyCard)}</CardGrid>
-        : <Stack gap={3}>{lists.map((list) => <Stack key={list} gap={1}>
-          <Typography variant={'sectionTitle'} component={'h2'}>{list}</Typography>
-          <CardGrid size={'m'} details={toolbar?.details}>{studies.filter((entry) => entry?.location === list).map(studyCard)}</CardGrid>
-        </Stack>)}</Stack>}
+      <CardGrid size={'m'} details={toolbar?.details}>{sorted.map(studyCard)}</CardGrid>
     </Box>
   </>;
 };
