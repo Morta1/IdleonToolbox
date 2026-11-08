@@ -6,6 +6,7 @@ import { adBoxSx, adGutterSx, CENTERED, ONE_AD } from '@components/common/NavBar
 
 const NITRO_SIDE_AD_SIZES = [['300', '600'], ['300', '250'], ['160', '600']];
 const NITRO_HOME_AD_SIZES = [['160', '600']];
+const HOME_RAILS = '(min-width: 1650px)';
 
 const NITRO_PAIR_SIZES = [['300', '600'], ['160', '600']];
 
@@ -20,6 +21,14 @@ const placeholderSx = (theme) => ({
 });
 const SidePlaceholder = () => <Box aria-hidden sx={[placeholderSx, { position: 'absolute', inset: 0 }]}>
   <b>Ad</b>300 × 600
+</Box>;
+// Home's rails have no box in the page: Nitro pins them 10 px in from the window's sides, centred on its height, from
+// HOME_RAILS up. The stand-in takes that place.
+const RailPlaceholder = ({ side }) => <Box aria-hidden sx={[placeholderSx, (theme) => ({
+  position: 'fixed', top: '50%', transform: 'translateY(-50%)', [side]: 10, width: 160, height: 600,
+  zIndex: theme.zIndex.appBar - 1, display: 'none', [`@media ${HOME_RAILS}`]: { display: 'flex' }
+})]}>
+  <b>Ad</b>160 × 600
 </Box>;
 // It publishes its height as --nitro-ad-height, as the real anchor does, so the page pads its bottom and the footer
 // and snackbars clear it.
@@ -82,7 +91,8 @@ export const BottomBannerAd = () => <>
 // mounted across navigation and has no teardown.
 export const HomeSidebarAds = () => <div>
   <NitroRailAd id={'nitro-home-right-side-ad'} alignment={'right'} sizes={NITRO_HOME_AD_SIZES}
-               mediaQuery={'(min-width: 1650px)'} teardownOnNavigate/>
+               mediaQuery={HOME_RAILS} teardownOnNavigate/>
   <NitroRailAd id={'nitro-home-left-side-ad'} alignment={'left'} sizes={NITRO_HOME_AD_SIZES}
-               mediaQuery={'(min-width: 1650px)'} teardownOnNavigate/>
+               mediaQuery={HOME_RAILS} teardownOnNavigate/>
+  {DEV_PLACEHOLDERS ? <><RailPlaceholder side={'left'}/><RailPlaceholder side={'right'}/></> : null}
 </div>;
