@@ -5,6 +5,15 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.3',
+    'gameVer': '2.3.561',
+    'date': '08/11/2026',
+    'features': [
+      'More compact pages: Bubbles, Construction, Anvil, Kitchens, Slab, Hole, Spelunking Lore, Tournament and General; Shrines and Statues show their EXP bars again, and the Account and Tools menus open under their buttons'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '4.0.2',
     'gameVer': '2.3.561',
     'date': '08/11/2026',
