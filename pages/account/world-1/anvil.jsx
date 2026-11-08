@@ -1,6 +1,6 @@
 import React, { Fragment, useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
-import { Box, Typography } from '@mui/material';
+import { Box, LinearProgress, Stack, Typography } from '@mui/material';
 import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, fillArrayToLength, formatNum } from 'utility/helpers';
 import { formatGame } from '@utility/gameNotation';
@@ -25,6 +25,8 @@ import StatTile from '@components/common/cards/StatTile';
 import Panel from '@components/common/cards/Panel';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import InfoButton from '@components/common/InfoButton';
+import { DIM } from '@components/common/cards/tokens';
 
 // The anvil is the characters' own, not a section: its speed reads these sections (the stamp, the statue, the star
 // sign, the vault upgrade and the Hammer Hammer bubble). While one failed, every number made from the speed reads "-",
@@ -44,6 +46,13 @@ const THIRD_HAMMER_GEM_ITEM = 103;
 const hammersOwned = (character, account) => 1
   + (character?.equippedBubbles?.some(({ bubbleName }) => bubbleName === 'HAMMER_HAMMER') || isCompanionBonusActive(account, SHEEPIE) ? 1 : 0)
   + (account?.gemShopPurchases?.[THIRD_HAMMER_GEM_ITEM] === 1 ? 1 : 0);
+
+const LINE_SX = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 };
+const BAR_SX = { flex: 1, height: 6, borderRadius: 3, bgcolor: 'divider' };
+const NAME_SX = { display: 'inline-flex', alignItems: 'center', gap: 0.5 };
+// The time to full sits level with the product's name, not in the middle of its lines
+const ROW_SX = { alignItems: 'flex-start' };
+const EMPTY_SX = { opacity: DIM };
 
 // One line of parts, each kept whole ("Points 300 / 320" never breaks inside its pair)
 const metaLine = (parts) => parts.filter(Boolean).map((part, index) => <Fragment key={index}>
@@ -74,8 +83,11 @@ const Anvil = () => {
                      breakdownTitle={name} breakdownNoun={'characters'}/>;
   };
 
-  const slotCard = (slot, slotIndex, stats, afkTime) => {
-    if (!slot?.hammers) return <ItemCard key={`empty-${slotIndex}`} title={'Empty slot'} dimmed/>;
+  // A slot in two lines under its product, as the old page had it: the cap's bar with its numbers, then the hammers and
+  // the EXP waiting; the time to full on the right. The rate, the time from empty and the EXP a craft open from its i.
+  // A card per slot with six fact rows stacked two or three a character, 1.11x the old page's height.
+  const slotRow = (slot, slotIndex, stats, afkTime) => {
+    if (!slot?.hammers) return <Panel.Row key={`empty-${slotIndex}`} name={'Empty slot'} sub={'A free hammer'} sx={EMPTY_SX}/>;
     const { rawName, hammers, requiredAmount, currentXP, displayName, exp } = slot;
     const future = getAnvilFutureProduction({ ...slot, stats, afkTime });
     const capacity = stats?.anvilCapacity;
@@ -95,22 +107,34 @@ const Anvil = () => {
       ? <StatusText status={'ready'}>Full</StatusText>
       : <Timer type={'countdown'} component={'span'} date={new Date().getTime() + (timeTillCap * 1000)}
                lastUpdated={state?.lastUpdated} placeholder={<StatusText status={'ready'}>Full</StatusText>}/>;
-    return <ItemCard key={`${rawName}-${slotIndex}`} icon={`data/${rawName}.png`}
-                     title={cleanUnderscore(displayName ?? rawName)}
-                     meta={`${formatNum(hammers)} ${hammers === 1 ? 'hammer' : 'hammers'}`}>
-      {/* Without the speed, the amount made since the save is unknown: the cap alone, no bar */}
-      {speedFailed ? null : <ItemCard.Progress label={'Cap'} value={formatGame(future, 'AnvilProduceStats.Cap', { whole: true })}
-                                               max={capText}
-                                               percent={Number.isFinite(percentOfCap) ? Math.min(100, percentOfCap) : 0}/>}
-      <ItemCard.Facts rows={[
-        speedFailed ? ['Cap', capText] : null,
-        ['Full in', speedFailed ? '-' : fullIn],
-        ['Full from empty', speedFailed ? '-' : <Duration seconds={timeFromZero}/>],
-        ['Per day', speedFailed ? '-' : formatNum(perDay)],
-        ['EXP per craft', formatNum(exp ?? 0)],
-        ['EXP waiting', formatGame(currentXP ?? 0, 'Big', { whole: true })]
-      ]}/>
-    </ItemCard>;
+    const name = cleanUnderscore(displayName ?? rawName);
+    const full = !speedFailed && percentOfCap >= 100;
+    return <Panel.Row key={`${rawName}-${slotIndex}`} icon={`data/${rawName}.png`} sx={ROW_SX}
+                      name={<Box component={'span'} sx={NAME_SX}>
+                        {name}
+                        <InfoButton label={name}>
+                          <ItemCard.Facts rows={[
+                            ['Per day', speedFailed ? '-' : formatNum(perDay)],
+                            ['Full from empty', speedFailed ? '-' : <Duration seconds={timeFromZero}/>],
+                            ['EXP per craft', formatNum(exp ?? 0)]
+                          ]}/>
+                        </InfoButton>
+                      </Box>}
+                      value={speedFailed ? '-' : fullIn}
+                      valueSub={speedFailed || full ? undefined : 'until full'}
+                      sub={<Stack component={'span'} gap={0.5} sx={{ mt: 0.5 }}>
+                        {/* Without the speed, the amount made since the save is unknown: the cap alone, no bar */}
+                        <Box component={'span'} sx={LINE_SX}>
+                          {speedFailed ? null : <LinearProgress variant={'determinate'} aria-label={`${name}: share of the cap`}
+                                                                value={Number.isFinite(percentOfCap) ? Math.min(100, percentOfCap) : 0}
+                                                                color={full ? 'success' : 'primary'} sx={BAR_SX}/>}
+                          <Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>
+                            {speedFailed ? `Cap ${capText}` : `${formatGame(future, 'AnvilProduceStats.Cap', { whole: true })} / ${capText}`}
+                          </Box>
+                        </Box>
+                        <span>{metaLine([`${formatNum(hammers)} ${hammers === 1 ? 'hammer' : 'hammers'}`,
+                          `${formatGame(currentXP ?? 0, 'Big', { whole: true })} EXP waiting`])}</span>
+                      </Stack>}/>;
   };
 
   const anvilPanel = (_, index) => {
@@ -129,11 +153,7 @@ const Anvil = () => {
       availablePoints > 0 ? `${formatNum(availablePoints)} unspent` : null]);
     return <Panel key={`anvil-${index}`} icon={`data/ClassIcons${character?.classIndex}.png`}
                   title={cleanUnderscore(character?.name) || `Character ${index + 1}`} meta={meta}>
-      {slots.length ? <Box sx={{ p: 2 }}>
-        <CardGrid size={'s'}>
-          {slots.map((slot, slotIndex) => slotCard(slot, slotIndex, stats, character?.afkTime))}
-        </CardGrid>
-      </Box> : null}
+      {slots.map((slot, slotIndex) => slotRow(slot, slotIndex, stats, character?.afkTime))}
     </Panel>;
   };
 
