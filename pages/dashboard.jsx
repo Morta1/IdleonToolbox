@@ -231,11 +231,16 @@ const Dashboard = () => {
                                                                  handleOpenSettings(null, null, 'note');
                                                                }}
                                                                onDismiss={() => setDefaultsNoteDismissed(true)}/> : null}
-      {/* With no save no section draws, so there is nothing for its pills to show */}
-      {noSave ? null : <Toolbar noun={'sections'} onStickyBottom={setSectionsBarBottom}>
+      {/* With no save no section draws, so there is nothing for its pills to show. The characters' filter rides this bar
+          rather than a 40 px row of its own above the cards (players asked); display: the bar counts sections, not
+          characters, so it adds no result line. */}
+      {noSave ? null : <Toolbar noun={'sections'} onStickyBottom={setSectionsBarBottom}
+                                state={{ hideAlertless: Boolean(hideAlertless) }} defaults={{ hideAlertless: false }}
+                                onChange={(patch) => setHideAlertless(Boolean(patch.hideAlertless))}>
         <Toolbar.Lead>
           <SectionToggles order={sectionOrder} filters={filters} onFilters={handleFilters} onReorder={setSavedOrder}/>
         </Toolbar.Lead>
+        {isDisplayed('characters') ? <Toolbar.Filter name={'hideAlertless'} label={'Hide characters without alerts'} display/> : null}
       </Toolbar>}
       <PageSettings onOpen={() => handleOpenSettings(null, null, 'button')} label={'Configure alerts'}
                     changed={Object.keys(diffTrackers(baseTrackers, config)).length > 0}/>

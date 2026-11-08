@@ -8,7 +8,7 @@ import { alertMeta } from '@utility/dashboard/alertMeta';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 import GameIcon from '@components/common/GameIcon';
 import StatusText from '@components/common/StatusText';
-import Toolbar from '@components/common/Toolbar';
+import Notice from '@components/common/Notice';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import { characterStatFacts } from '@components/characters/statFacts';
@@ -277,16 +277,13 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
     </CharacterCard>;
   })?.filter(Boolean);
 
-  return <Box>
-    {/* Only this section's cards: the bar counts what it hides. With every card hidden its own empty note says so. */}
-    <Toolbar state={{ hideAlertless: Boolean(hideAlertless) }} defaults={{ hideAlertless: false }}
-             onChange={(patch) => onHideAlertless?.(Boolean(patch.hideAlertless))} onReset={() => onHideAlertless?.(false)}
-             total={characters?.length ?? 0} shown={cards?.length ?? 0} noun={'characters'}
-             emptyNote={'All caught up: no character has an alert.'}>
-      <Toolbar.Filter name={'hideAlertless'} label={'Hide characters without alerts'}/>
-    </Toolbar>
-    <CardGrid size={'s'}>{cards}</CardGrid>
-  </Box>;
+  // The filter is the page bar's pill: with every card hidden, the section says why and how back
+  if (hideAlertless && characters?.length && !cards?.length) {
+    return <Notice tone={'info'} action={{ label: 'Show all', onClick: () => onHideAlertless?.(false) }}>
+      All caught up: no character has an alert.
+    </Notice>;
+  }
+  return <CardGrid size={'s'}>{cards}</CardGrid>;
 };
 
 // A character's card: who it is, what it's doing, its alerts, and its stats in a note at the activity line's end. Opened

@@ -7,9 +7,6 @@ import { ThemeProvider } from '@mui/material';
 import theme from '../../styles/theme/theme';
 import Characters from '@components/dashboard/Characters';
 
-// The section's Toolbar pins under the profile band, which reads the route.
-vi.mock('next/router', () => ({ useRouter: () => ({ query: {}, asPath: '/dashboard', pathname: '/dashboard' }) }));
-
 const trackers = {
   bags: { checked: true, options: [{ name: 'unmaxedBags', checked: true }] }
 };
@@ -42,5 +39,16 @@ describe('dashboard unmaxed bags alert', () => {
                   trackers={{ bags: { ...trackers.bags, checked: false } }}/>
     </ThemeProvider>);
     expect(container.querySelectorAll('img[src*="MaxCapBag"]').length).toBe(0);
+  });
+
+  it('says all caught up, with a way back, when hiding characters without alerts hides every card', () => {
+    const onHideAlertless = vi.fn();
+    const { container, getByText } = render(<ThemeProvider theme={theme}>
+      <Characters characters={[character]} account={{}} lastUpdated={0} hideAlertless onHideAlertless={onHideAlertless}
+                  trackers={{ bags: { ...trackers.bags, checked: false } }}/>
+    </ThemeProvider>);
+    expect(container.querySelector('[data-cy="character-TestChar"]')).toBeNull();
+    getByText('Show all').click();
+    expect(onHideAlertless).toHaveBeenCalledWith(false);
   });
 });
