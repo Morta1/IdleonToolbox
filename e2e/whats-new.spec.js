@@ -256,13 +256,12 @@ test.describe('the story', () => {
     expect(counted).toEqual(['whats_new_replay', 'whats_new_replay']);
   });
 
-  // The link is in 4.0.0's note, and Home opens only the newest of its three: a later release folds it away
-  test('Home carries the link, for a stranger too', async ({ page }) => {
+  // The link is in 4.0.0's note. Home lists only the newest three releases, so from 4.0.3 the link lives on the patch
+  // notes page alone, where every note is open
+  test('the patch notes page carries the link, for a stranger too', async ({ page }) => {
     await open(page, { regular: false });
-    await page.goto('/');
+    await page.goto('/patch-notes');
     await staysShut(page);
-    const release = page.getByRole('button', { name: /v4\.0\.0/ });
-    if (await release.getAttribute('aria-expanded') === 'false') await release.click();
     await replayLink(page).click();
     await expect(dialog(page).getByRole('heading')).toHaveText('The Toolbox got rebuilt.', { timeout: 15_000 });
     expect(await mark(page)).toBe('"skipped"');
