@@ -2,81 +2,28 @@
 alwaysApply: true
 ---
 
-## Dashboard alerts
+## Read first, by task
 
-- When asked to create a new alert, scan these files for context:
-  - @IdleonToolbox/utility/dashboard/baseTrackers.js
-  - @IdleonToolbox/utility/dashboard/trackerStore.js
-  - @IdleonToolbox/components/dashboard/Account.jsx
-  - @IdleonToolbox/components/dashboard/Characters.jsx
-  - @IdleonToolbox/utility/dashboard/account.js
-  - @IdleonToolbox/utility/dashboard/characters.js
-- Saved configs hold only the user's edits (`{ schema: 2, edits }`); defaults come from `baseTrackers`.
-  Adding an option or changing a default needs no migration and no version bump.
-- Renaming or moving a tracker or option: add `oldPath: newPath` to `RENAMED_PATHS` in `trackerStore.js`.
-- `utility/migrations.js` is frozen at version 81 and only converts pre-R1 configs and old exported files.
-- When an alert's data key differs from the option that controls it, add it to `alertAliases` in
-  `utility/dashboard/alertMeta.js` so the settings link lands on the option.
-
-## Design system
-Before building or changing UI, read `docs/design-system.md`: which shared piece to use, where controls go, colours, type and numbers. A change to one of those rules updates that file in the same commit.
+The rules every change needs are below. Task-specific ones live in `docs/`; read the file before starting that task:
+- Building or changing UI: `docs/design-system.md` (which shared piece to use, where controls go, colours, type and
+  numbers). A change to one of those rules updates that file in the same commit.
+- Writing a test, or running page-check, e2e or a build: `docs/testing.md`.
+- A page's title, description or canonical, a new or dynamic route, `getStaticProps`, or anything that renders at build:
+  `docs/static-export-and-seo.md`.
+- Translating obfuscated game code, changing a parser, adding a `.ts` file or a path alias: `docs/parsers.md`.
+- Adding, renaming or changing a dashboard alert or tracker: `docs/dashboard-alerts.md`.
 
 ## New page
 - When being asked to create new page, make sure to add it to the correct folder path, when unsure, ask.
-- Update the relevant PAGES path at @IdleonToolbox/components/constants.jsx
+- Update the relevant PAGES path at `components/constants.jsx`
 - In case tabs are being added to the page, make sure to update the tabs array as well.
 - Every new page should have an icon, if an icon is not being provided, you can use "/data/ClassIconsNA2.png" as a temporary file.
 
-## Obfuscated code
-- When being asked to reformat, validate or restructure an obuscated code, make sure to look at @IdleonToolbox/parsers for more context.
-- Always prefer using existing functions.
-- Always use readable and maintainable code.
-- For more context you can query the @IdleonToolbox/data/website-data/ directory - which contains most of the data relevant to the project. `shared-data.json` holds the many small keys; large keys each get their own file.
-- Few examples of obfuscated function vs existing one:
-  - `m._customBlock_Summoning("WinBonus", 27, 0)` -> `getWinnerBonus(account, '<x Amber Gain')`
-  - `a.engine.getGameAttribute("OptionsListAccount")[478]` -> `account?.accountOptions?.[OPT.spelunkingTutorialStep]`
-    (`OPT` from `@parsers/accountOptions`; a new index gets a name there only with evidence of what it means, otherwise it stays numeric. `node tools/opt-inventory.mjs` lists the unnamed ones.)
-  - `m._customBlock_Summoning2("MeritocBonusz", 17, 0)` -> `getMeritocracyBonus(account, 17)`
-  - `a.engine.getGameAttribute("DNSM").h.AlchBubbles.h.M11` -> `getBubbleBonus(account, 'DEEP_DEPTH', false)`
+## Testing and deploys
+When testing add "http://localhost:3001?demo=true" to be able to access all pages without login in.
 
-## Parser safety tools
-
-Extend these instead of writing new ones next to them:
-- `npm run parse:golden` records every fixture's parsed output to `.golden/` (gitignored, local);
-  `npm run parse:golden -- --compare` fails on any changed value. Refactors that must not change
-  numbers run it before and after. Re-record from main before comparing a branch.
-- `npm run parse:golden:worker` runs the built parse worker (`public/workers/`) on the fixtures and
-  compares it with the golden output.
-- Saves parse in a Web Worker (`utility/parseSave.js`) only in production builds. `next dev` parses on
-  the main thread so parser edits show on reload, so checking the worker itself needs `npm run build`
-  and a static server.
-- `__test__/parsers/pass-convergence.test.js` fails when the 3 parse passes stop being enough.
-- `node tools/opt-inventory.mjs` lists account option indices still read by number.
-- Game-side changes to account option indices show in z-processing's impact report (`opt:N` edges).
-
-## Testing
-When testing add "http://localhost:3001?demo=true" to be able to access all pages without login in
-
-Hand checks run on `node tools/page-check.mjs <routes>` (static export on `E2E_PORT`, default 3002): sizes, demo and guest,
-forced failed sections, API replies through `--setup`, one image sheet per page, text dumps that compare with `diff -r`, and a
-DOM scan for broken words, overlaps, text out of its card, tall rows, hidden table heads and raw game marks. Extend it instead
-of writing a one-off script. A hit is a lead, and a clean run isn't "looks right": it can't see a floating footer.
-
-E2E gotchas (`npm run test:e2e` — builds, then serves `out/` on **3002**, or on `E2E_PORT` when set; `test:e2e:nobuild` reuses `out/`):
-- E2E runs against the **static export, not `next dev`**. A stale `out/` tests old code.
-- Never `waitForLoadState('networkidle')` — ad scripts never let it settle. Use `waitForRender` from `e2e/wait-helpers.js`.
-- Navigate with relative paths; the port lives only in `E2E_PORT` (default 3002), which both Playwright configs and
-  `npm run serve:e2e` read. Two checkouts running e2e or screens at once each set their own.
-  Both configs start a fresh server per run and stop at once if something already listens on the port.
-- Pre-commit runs the full vitest suite. Never `--no-verify`. `QUICK_COMMIT=1` runs the tests that import a staged
-  file plus the tests that read sources from disk, which `vitest related` can't connect to what they check, and
-  the build's type check (`tsc --noEmit --incremental -p tsconfig.build.json`): for commits between a plan's gates,
-  and the gate runs the full suite. A new test that scans sources joins `SOURCE_SCANS` in `.husky/pre-commit`.
-- `FAST_BUILD=1 npm run build` exports two wiki entity pages per kind (plus the ones e2e names) instead of ~8,000
-  and writes no sitemap: for checks between a plan's gates. A plan's gate or close builds every page; for a deploy, the
-  deploy's own build does.
-  `node tools/needs-build.mjs` says whether a change needs that build at all (exit 0 yes, 1 no): tests, docs and
-  tool config don't.
+Pre-commit runs the full vitest suite. Never `--no-verify`. `QUICK_COMMIT=1` runs only the tests a commit touches, plus
+the type check, for commits between checks; how tests are written and run is in `docs/testing.md`.
 
 Before a push to `main` (a deploy), check what the change can break, not everything:
 - Always: the full vitest suite on what goes out (the commit hook without `QUICK_COMMIT`, about a minute), and each
@@ -87,84 +34,27 @@ Before a push to `main` (a deploy), check what the change can break, not everyth
   and shared building blocks (`CardGrid`, `IconTile`, `Panel`, `ItemCard`, `Toolbar`). Then the spec that covers it, not
   the whole suite. A change that stays on one page (a layout tweak, a number format, an alert setting) skips it.
 
-Test suite size. On 2026-11-07, after two sweeps: vitest 7,099 tests, 53 s on 10 workers; e2e 607 tests, 253 s on 4.
-A plan's close states its counts and full-run times beside these, and a jump needs a reason. No fixed cap: the count alone
-misleads, since folding thousands of rows saved seconds while reusing parses and renders saved the time.
+## Components
 
-Writing vitest tests (the suite was trimmed by ~780 redundant cases on 2026-10-11 and ~4,700 on 2026-11-07; don't regrow them):
-- **Search before adding.** Grep `__test__/` for the function under test. If another file already asserts the
-  same function on the same fixture, extend that test instead of starting a new one.
-- **A sweep is one test per rule.** A rule over a derived list (a registry, every table, every save) goes through
-  `expectNoBreaks` (`helpers/sweep.js`) or `onEachFixture` (`helpers/save-fixtures.js`), and the failure names what broke.
-  `it.each` is for rows with their own expected value.
-- **It must be able to fail.** Break the code once and watch a new test fail before committing it.
-- **Proof of one change isn't a test.** Showing that a refactor or fix changed nothing is `parse:golden`'s job: no copies
-  of old code to compare against, and no tests kept only for a finished plan.
-- **Name a test for the system it checks,** never a plan or task (`task-10-...`). Tests for a temporary feature go when
-  its code goes.
-- **Time is the real cost.** A new check joins a parse or render another test already pays for, and a search or
-  optimizer runs the shortest input that still catches the break.
-- **Setup written a second time moves to `__test__/helpers/`.** Look there first.
-- **Account-wide sweeps already exist; don't repeat them per stat or section:**
-  - `breakdown-totals.test.js` rebuilds every breakdown on every fixture/character and checks for NaN lines.
-    A new breakdown only needs registering in `__test__/helpers/breakdown-totals.js`, not its own rebuild test.
-  - `nan-elimination.test.js` gates NaN/Infinity across the whole parsed tree; per-field `isFinite` tests are redundant.
-  - `empty-account.test.js` / `null-fallback-shape.test.js` own the logged-out shape.
-- **Live-verified values:** one `live-verified-*.test.js` per game system; a new reading from the same DNSM
-  table goes into that file's existing `GAME` table, not a new file. A row is a number the game's logic computes,
-  never a catalog value, and never a reading another row already pins.
-- **Test the real code.** Never assert a formula you copied into the test file, a constant against itself, or
-  `toBeDefined`/`> 0` alone. A verbatim copy of the game expression is fine as an *oracle* the parser is compared against.
-- **One exact assertion beats many partial ones:** `toEqual(fullList)` instead of `toContain` + `not.toContain` trios.
-- **Same branch, different inputs = one `it.each` table.** Separate `it` blocks are for separate branches. One row per
-  band, threshold or branch, not several inside one band.
-- Parse a fixture once (`parseFixture` caches per fixture; use module scope or `beforeAll`), never per test.
-- No hard-coded catalog/data counts; derive from the source data so a game update doesn't break the test.
-- No debug or scratch tests under `__test__/`: the glob picks up every `*.test.*` file there, untracked ones included.
+This project uses **React Compiler** (`reactCompiler: true` in `next.config.js`), so manual memoization with `useMemo` and
+`useCallback` is generally unnecessary. Components stay `.jsx`; parsers are `.ts` (`docs/parsers.md`).
 
-Writing browser tests (the vitest rules apply too):
-- **Only what a browser alone can see.** If vitest can check it, it goes there.
-- **Extend a spec before adding one.** Every gate pays for each spec's run time.
-- **A check over many routes is one test per kind of route,** and its failure lists the routes that broke.
-- **Routes come from `discoverRoutes` (`e2e/route-helpers.js`) or `getAllTestCases` (`e2e/smoke-helpers.js`).** A helper
-  a second spec needs moves into one of those files.
+Every page renders at build, so **the first render must be identical on the build machine and the client**: no
+`localStorage`, `typeof window`, `Date`, `Math.random` or timezone/locale formatting in render or in a `useState`
+initialiser; read those in an effect, or gate the markup on `useHydrated()`. Never seed a `useState` from `router.query`,
+which is empty on the first render. The rest of the export's rules: `docs/static-export-and-seo.md`.
 
-## TypeScript
+### Local storage
 
-This is a **gradual TypeScript migration**. The codebase is mixed JS/TS:
-- **Parsers** (`parsers/`) — TypeScript (`.ts`). All new parsers must be `.ts`.
-- **Components** (`components/`) — JavaScript (`.jsx`). Keep them `.jsx` unless explicitly asked to migrate.
-- **Utilities/hooks/services** — mostly `.js`, migrate to `.ts` only when requested.
+Use `useLocalStorage` from `@mantine/hooks` (`[value, setValue, remove]`), never
+`localStorage.getItem`/`setItem` with `useState`. For a one-off read outside render, use
+`readLocalStorageValue`. Keys may be dynamic (e.g. scoped by `state.uid`) — the hook re-reads when
+the key changes.
 
-### Type definitions
-- **Auto-generated — do not edit manually:**
-  - `parsers/generated-types.ts` — parsed `Account` and `Character` shapes (generated via Jest)
-  - `parsers/generated-firebase-types.ts` — raw Firebase data types (`IdleonData`, `ServerVars`, etc.)
-  - `data/website-data.d.ts` — types for the `@website-data` module (generated by `z-processing/tools/typeGenerator.js`)
-- **Canonical imports:** use `import type { IdleonData, Account } from './types'` (barrel file in `parsers/types.ts`)
-- **Ambient globals:** `custom.ts` declares `Account`, `Character`, `IdleonData` as global interfaces so `.js/.jsx` files can use them without imports. Prefer explicit imports in `.ts` files.
+- Values are JSON-serialized: `'public'` is stored as `"public"`.
+- Omit `defaultValue` when "never set" must stay distinguishable — it gets written back to storage.
 
-### Conventions in `.ts` parser files
-- Export interfaces for return types (e.g., `export interface Achievement { ... }`)
-- Use `type` imports: `import type { IdleonData, Account } from './types'`
-- Signature: `export const getXxx = (idleonData: IdleonData, account: Account, ...): ReturnType => { ... }`
-- Internal helper params can use `any` where full typing is impractical
-
-### Path aliases
-Configured in `tsconfig.json` (Next reads its `paths` natively) and mirrored in `vitest.config.js`:
-- `@components/*` → `components/*`
-- `@parsers/*` → `parsers/*`
-- `@hooks/*` → `hooks/*`
-- `@utility/*` → `utility/*`
-- `@website-data` → `data/website-data/index.js` (a barrel over per-key files)
-
-Some files use bare top-level imports instead — `services/builds`, `utility/helpers` — relying on
-`tsconfig.json`'s `baseUrl: "./"`. Keep whatever style a file already uses; don't rewrite it just
-to make a test resolve. `vitest.config.js` mirrors `baseUrl` with an anchored regex alias per
-prefix, because Vite doesn't read `baseUrl`. A new bare prefix needs an entry there, or the
-importing test fails with an opaque "Failed to resolve import".
-
-## Date & Time Formatting
+### Date & time formatting
 
 All user-facing dates and times must respect user preferences (DD/MM vs MM/DD, 24h vs 12h). Preferences are stored in localStorage (`pref-dateFormat`, `pref-timeFormat`) and exposed via `PreferencesContext`.
 
@@ -182,80 +72,8 @@ All user-facing dates and times must respect user preferences (DD/MM vs MM/DD, 2
 
 **Data export formats** (e.g., clipboard export, image footers in `Breakdown.hook.js`) may use the preference system too, so the exported data matches what the user sees on screen.
 
-## General
-
-This project uses **React Compiler** (`reactCompiler: true` in `next.config.js`), so manual memoization with `useMemo` and `useCallback` is generally unnecessary. The compiler automatically optimizes component re-renders.
-
-### Local storage
-
-Use `useLocalStorage` from `@mantine/hooks` (`[value, setValue, remove]`), never
-`localStorage.getItem`/`setItem` with `useState`. For a one-off read outside render, use
-`readLocalStorageValue`. Keys may be dynamic (e.g. scoped by `state.uid`) — the hook re-reads when
-the key changes.
-
-- Values are JSON-serialized: `'public'` is stored as `"public"`.
-- Omit `defaultValue` when "never set" must stay distinguishable — it gets written back to storage.
-
-### Page titles and descriptions
-
-`data/page-seo.js` is **generated — do not edit by hand**. `<title>`, `<meta name="description">`
-and `<link rel="canonical">` all come from `_app`'s `<Head>` as well as each page's `<NextSeo>`: a
-data page renders a loader at build, so its NextSeo never runs in the export, and the title must
-not blank during hydration. After changing a `<NextSeo>` title or description, re-run
-`node utility/generate-page-seo.mjs`.
-
-- **Never write a head tag from `_document`.** It lands outside `next/head`'s control and can't be
-  deduped against the page's `<NextSeo>` copy: every page shipped two descriptions, and
-  `_document`'s froze at the landing page while `NextSeo`'s followed the route.
-- **The canonical must keep `key="canonical"`.** next-seo emits its own under that key, and
-  `next/head` collapses two `<link>`s only when keys match.
-- **A page shipping `seoNoindex` must repeat `noindex` in its own `<NextSeo>`.** next-seo emits a
-  robots tag regardless and replaces `_app`'s by meta-name dedupe, so the page un-noindexes itself
-  once JS runs — invisible to any check on the bytes.
-- **`PAGE_SEO` is keyed by route pattern**, so all pages from one `[param].jsx` share an entry.
-  Those pages pass `seoTitle`/`seoDescription`/`seoNoindex` through `getStaticProps` instead, and
-  need an `OVERRIDES` entry or the generator reports them.
-- **Match `<title[^>]*>`, not `<title>`.** Next emits `<title data-next-head="">`; a naive regex
-  finds 1 of 251 files and calls the site untitled.
-- `e2e/static-head.spec.js` is the gate, and needs both halves — raw served HTML with no JS, and
-  the same counts re-measured after hydration. The two states have disagreed in both directions.
-- Keep `<NextSeo>` above any early-return loader, or the page loses its title while loading.
-
-Static export gotchas (`/tools/builds/[slug]` learned both the hard way):
-- **Two dynamic siblings can't coexist.** `[class].jsx` and `[build].jsx` in one directory is a
-  build error — Next refuses different param names for one dynamic path. One route branches on
-  what the slug turns out to be.
-- **Slugs that reach the filesystem must be lowercase.** The export writes one file per page, and
-  a local export runs on a case-insensitive filesystem: `frZFgN-x` and `FRzfGn-x` overwrite each
-  other on Windows while staying distinct on GitHub Pages.
-- **`fallback: false` means anything published after the deploy 404s.** `/tools/builds/view?id=`
-  stays alive for exactly that case, and is `noindex` because it duplicates every build page.
-- **Everything renders at build time.** There is no router gate: the export is the real page,
-  with `AppProvider` at `DEFAULT_STATE` (`isLoading: true`, no account, storage not yet merged).
-  Data pages therefore export `DataLoadingWrapper`'s loader; static pages export their body.
-  A page that throws under `DEFAULT_STATE` fails `next build`, which is the intended alarm.
-- **The first render must be identical on the build machine and the client.** No `localStorage`,
-  `typeof window`, `Date`, `Math.random` or timezone/locale formatting in render or in a
-  `useState` initialiser; read those in an effect, or gate the markup on `useHydrated()`
-  (`hooks/useHydrated.js`). No `useMediaQuery(..., { noSsr: true })`: `__test__/no-nossr.test.js`
-  fails on any. One mismatch anywhere makes React discard the server DOM for the whole page.
-  `e2e/hydration.spec.js` is the gate: sample routes, three widths, foreign timezone and locale,
-  seeded storage, zero React #418/#423/#425.
-- **`router.query` is empty on the first render of any page whose URL can carry a query string.**
-  Next only fills it for an `autoExport` page after mount, so `router.isReady` is `false` and
-  `router.query` is `{}` while the export's markup is being matched. Derive from the router during
-  render (`router.isReady ? router.query.x : fallback`, which re-renders the moment `isReady`
-  flips) or read it in an effect: never seed a `useState` initialiser from it, or a deep link
-  freezes on the fallback while everything that reads the router live moves on without it.
-- **Links must be real anchors to reach a crawler.** A `<Link component="button">` ships no
-  `href`. Wiki listings render anchors for every row, including the ones a collapsed band hides.
-- **Firebase and game data load on demand.** `firebase/lazy.js` is the only importer of
-  `firebase/index.js`; `authHint` in localStorage lets a known-anonymous visitor skip it. Pure
-  helpers the wiki needs live in data-free modules (`parsers/cardMath.ts`, `parsers/powerTypes.ts`),
-  never next to a `@website-data` import. `e2e/chunk-audit.spec.js` is the gate.
-
-### Patch notes
-Every user-facing change (feature or fix) gets a patch note entry in `@IdleonToolbox/data/patch-notes.js`.
+## Patch notes
+Every user-facing change (feature or fix) gets a patch note entry in `data/patch-notes.js`.
 
 - **Always ask first.** Never add a patch note entry unprompted — propose it and wait for approval, or add it only when asked.
 - Once approved, add it as part of the change itself, in the same commit — don't leave it for later.
@@ -264,7 +82,7 @@ Every user-facing change (feature or fix) gets a patch note entry in `@IdleonToo
 - Describe the user-visible effect, not the implementation.
 - Skip only for changes users can't see: refactors, tests, tooling, docs, type-only changes.
 
-### Empty-account contract (parsers)
+## Empty-account contract (parsers)
 
 Every page must render logged-out, showing the full catalog at zero (SEO requirement). Gotchas:
 
@@ -277,19 +95,8 @@ Every page must render logged-out, showing the full catalog at zero (SEO require
 - Verify real-save output is unchanged against the five `__test__/fixtures/`. Gates: `empty-account.test.js`, `nan-elimination.test.js` (NaN **and** non-finite), `e2e/no-nan.spec.js`.
 - Helpers: `liveEntries` (`parsers/catalog.ts`) drops placeholder rows; `safeSection` isolates a throwing parser.
 
-### Comments
+## Comments
 
 Few and load-bearing — why, not what. No narrating the investigation.
 
 Never delete a directive comment: `// @vitest-environment jsdom`, `eslint-*`, `@ts-*`, `webpackChunkName`, `prettier-ignore`. They're behaviour, not documentation.
-
-### Multi-pass serialization rule
-
-Some fields produced by `serializeData` depend on values that are computed during the same
-serialization step.
-
-For this reason, `serializeData` is intentionally executed multiple times (currently 3 passes).
-Each pass may unlock additional derived values for the next one.
-
-By the final pass, all cascading and inter-dependent calculations are considered stabilized, and
-code is allowed to rely on values that were produced in earlier passes.
