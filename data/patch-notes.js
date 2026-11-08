@@ -9,7 +9,8 @@ export const patchNotes = [
     'gameVer': '2.3.561',
     'date': '08/11/2026',
     'features': [
-      'Dashboard: the reset tiles share one width, and "Hide characters without alerts" moved to the top bar'
+      'Dashboard: the reset tiles share one width, and "Hide characters without alerts" moved to the top bar',
+      'Characters: bigger icons for obols, equipment, bags, prayers, bubbles, post office and chips; re-rolled obols glow; skill ranks 1 to 3 are gold, silver and bronze'
     ],
     'fixes': [
       'Dashboard: two World 7 alerts no longer sit out of line with the rest'
