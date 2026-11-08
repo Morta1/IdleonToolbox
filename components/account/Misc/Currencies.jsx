@@ -55,7 +55,8 @@ const Currencies = ({
     <Panel.Row name={'Total money'} value={<CoinDisplay dense money={money}/>}/>
     <Panel.Row icon={'data/PremiumGem.png'} name={'Gems'} value={Number(gems) || 0} kind={{ game: 'Save.Gems', whole: true }}/>
     <Box sx={{ p: 1.5 }}>
-      <CardGrid size={'icon'} fill>
+      {/* 4 to a row from 60 px: the default 64 missed 4 in a General column by a pixel, and its 11 tiles took 4 rows */}
+      <CardGrid size={'icon'} fill={60}>
         <IconTile icon={'data/rtt0.png'} alt={'World Teleports'} value={count(WorldTeleports)} details={'World Teleports'}/>
         <IconTile icon={'data/ObolFrag.png'} alt={'Obol Fragments'} value={count(ObolFragments)} details={'Obol Fragments'}/>
         <IconTile icon={'data/TixCol.png'} alt={'Colosseum Tickets'}

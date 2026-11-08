@@ -34,8 +34,12 @@ const isEmpty = (item) => !item?.displayName || item?.rawName?.includes('Blank')
 
 // A character's board: the obol is all a tile says, so it takes the sheet's 40 px (players asked for bigger icons)
 const ICON_SIZE = { character: 40 };
+// The family board's tiles carry no number, so they are as tall as they are wide (49 px at 1920) plus a little, not the
+// 72 px a number needs: the board is 80 px shorter. A board with a locked slot, whose tile prints its level, keeps 72 on
+// every tile, so its rows stay even.
+const NUMBERLESS_HEIGHT = 56;
 
-const obolTile = (item, index, type, totalLevels) => {
+const obolTile = (item, index, type, totalLevels, height) => {
   const key = `${item?.rawName}-${index}`;
   const iconSize = ICON_SIZE[type];
   if (isLocked(item)) {
@@ -48,9 +52,9 @@ const obolTile = (item, index, type, totalLevels) => {
                        : `Unlocks at character level ${formatNum(item.levelReq)}.`}/>;
   }
   // An empty socket has nothing more to say than its sprite: not a button
-  if (isEmpty(item)) return <IconTile key={key} icon={`etc/ObolEmpty${shapes[item?.shape]}.png`} alt={'Empty slot'} iconSize={iconSize}/>;
+  if (isEmpty(item)) return <IconTile key={key} icon={`etc/ObolEmpty${shapes[item?.shape]}.png`} alt={'Empty slot'} iconSize={iconSize} height={height}/>;
   // A re-rolled obol glows, as on the old page, so it shows without opening each one's note
-  return <IconTile key={key} icon={`data/${item?.rawName}.png`} alt={cleanUnderscore(item?.displayName)} iconSize={iconSize}
+  return <IconTile key={key} icon={`data/${item?.rawName}.png`} alt={cleanUnderscore(item?.displayName)} iconSize={iconSize} height={height}
                    glow={item?.rerolled ? 'identity.obolRerolled' : undefined}
                    details={item?.displayName === 'ERROR' ? undefined : <Stack gap={1}>
                      <ItemDisplay {...item} allowNegativeValues={false}/>
@@ -112,11 +116,12 @@ const ObolsView = ({ obols, type = 'character', obolStats, statOrder, characters
     </Panel>;
   }
   const slots = obols?.list?.length ? obols.list : type === 'account' ? guestBoard() : [];
+  const height = type === 'account' && !slots.some(isLocked) ? NUMBERLESS_HEIGHT : undefined;
   const board = <Stack gap={sheet ? '6px' : 1} sx={sheet ? undefined : { p: 1.5 }}>
     {rowsOf(slots, ROWS[type] ?? ROWS.character).map((row, rowIndex) => <CardGrid key={rowIndex} size={'icon'}
                                                                                      columns={row.length} sheetTile={48}
                                                                                      sx={{ justifyContent: 'center' }}>
-      {row.map((item, index) => obolTile(item, index, type, totalLevels))}
+      {row.map((item, index) => obolTile(item, index, type, totalLevels, height))}
     </CardGrid>)}
   </Stack>;
   if (type === 'account') return board;
