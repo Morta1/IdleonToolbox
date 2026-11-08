@@ -11,6 +11,11 @@ import GameIcon from '@components/common/GameIcon';
 import StatusText from '@components/common/StatusText';
 import InfoButton from '@components/common/InfoButton';
 
+// The discoveries as the old page drew them, a row of sprites, not a block of 72 px tiles: 40 px tiles 4 px apart fit
+// 6 to a row in a boss card at 1920, 1366 and on a phone, so 15 discoveries take 3 rows, not 5
+const DISCOVERY_TILE = 40;
+const DISCOVERY_GRID_SX = { gap: 0.5 };
+
 const LoreBosses = ({ loreBosses, account }) => {
   const amberDenominator = getAmberDenominator(account);
   const amberIndex = getAmberIndex(account);
@@ -30,6 +35,10 @@ const LoreBosses = ({ loreBosses, account }) => {
     // only under 50% ("88.3% (1 in 1)" said nothing more) and not for a chance that prints 0% (a guest's 1 in 25,000).
     const chance = boss.grandDiscoveryChance;
     const percent = formatNum(chance * 100, 'pct');
+    const discovered = boss.discoveriesCount ?? 0;
+    const discoveries = ['Discoveries', discovered >= boss.maxDiscoveries && discovered > 0
+      ? <StatusText key={'discoveries'} status={'maxed'}>{`${formatNum(discovered)} / ${formatNum(boss.maxDiscoveries)}`}</StatusText>
+      : `${formatNum(discovered)} / ${formatNum(boss.maxDiscoveries ?? 0)}`];
     const nextGrand = chance > 0 && found < MAX_GRAND_DISCOVERIES ? ['Next grand discovery',
       <Stack key={'next'} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
         {chance < 0.5 && percent !== '0%' ? `${percent} (${formatNum(chance, 'odds')})` : percent}
@@ -44,17 +53,17 @@ const LoreBosses = ({ loreBosses, account }) => {
         ['Found at', `Depth ${formatNum(boss.foundAt ?? 0)}`],
         ['Biggest haul', <Stack key={'haul'} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
           <GameIcon src={`data/CaveAmber${amberIndex}.png`} size={16} alt={'Amber'}/>{amberText(boss.biggestHaul)}</Stack>],
+        discoveries,
         grand,
         nextGrand
       ]}/>
-      <ItemCard.Section label={'Discoveries'}>
-        <ItemCard.Progress label={'Found'} value={boss.discoveriesCount ?? 0} max={boss.maxDiscoveries ?? 0}/>
-        <CardGrid size={'icon'} fill>
+      <ItemCard.Section>
+        <CardGrid size={'icon'} fill={DISCOVERY_TILE} sx={DISCOVERY_GRID_SX}>
           {boss.discoveries?.map((discovery) => {
             const name = cleanUnderscore(discovery?.name);
             // A discovery's sprite note, a tap away (the hover tooltip before)
             return <IconTile key={discovery?.index} icon={`data/CaveRock${iconLetter}${discovery?.index}.png`} alt={name}
-                             status={discovery?.acquired ? undefined : 'missing'}
+                             height={DISCOVERY_TILE} iconSize={32} status={discovery?.acquired ? undefined : 'missing'}
                              details={discovery?.powerReqFormatted ? `${name}: needs ${discovery.powerReqFormatted} power.` : name}/>;
           })}
         </CardGrid>
