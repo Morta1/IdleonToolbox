@@ -125,6 +125,24 @@ describe('Toolbar', () => {
     });
   });
 
+  it('swaps a pick-one pills Show to the clicked pill, and the lit pill clicked again shows the whole list', () => {
+    const onChange = vi.fn();
+    const options = [['all', 'All', 104], ['tradable', 'Tradable', 12], ['missing', 'Missing', 82]];
+    render(<ThemeProvider theme={theme}>
+      <Toolbar defaults={{ show: 'all' }} state={{ show: 'tradable' }} onChange={onChange} total={104} shown={12}>
+        <Toolbar.Show pills options={options}/>
+      </Toolbar>
+    </ThemeProvider>);
+    const group = screen.getByRole('group', { name: 'Show' });
+    const pressed = within(group).getAllByRole('button').map((button) => [button.textContent, button.getAttribute('aria-pressed')]);
+    fireEvent.click(within(group).getByRole('button', { name: 'Missing (82)' }));
+    fireEvent.click(within(group).getByRole('button', { name: 'Tradable (12)' }));
+    expect({ pressed, changes: onChange.mock.calls }).toEqual({
+      pressed: [['Tradable (12)', 'true'], ['Missing (82)', 'false']],
+      changes: [[{ show: 'missing' }], [{ show: 'all' }]]
+    });
+  });
+
   it('warns in development about a slot it cannot read, and stays quiet for direct slots', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const toolbarWarnings = () => warn.mock.calls.filter(([message]) => String(message).startsWith('Toolbar:')).length;

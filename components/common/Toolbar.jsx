@@ -162,18 +162,22 @@ export const ShowField = ({ value, onChange, label = 'Show', options, fullWidth,
   </Stack> : field;
 };
 
-// pills: a multiple Show of a few short options players flip often, each a pill in the bar, one click on or off (Stamps'
-// states, whose dots are the legend of its tiles' edges). No pill is the whole list, as no box is. The phone panel keeps
-// the box list. The pills take the row's free width and wrap inside it, so a View after them stays at the row's end
-// rather than drop to a line of its own.
-const ShowPills = ({ value, onChange, label = 'Show', options }) => {
-  const [, ...rest] = options;
-  const keys = pickedOptions(options, value).map(([key]) => key);
+// pills: a Show of a few short options players flip often, each a pill in the bar, one click on or off. No pill is the
+// whole list (the first option), as no box is. multiple: several at once (Stamps' states, whose dots are the legend of
+// its tiles' edges); without it a pill replaces the one on, as the old radio buttons did (Pets). The phone panel keeps the
+// field. Multiple pills take the row's free width and wrap inside it, so a View after them stays at the row's end rather
+// than drop to a line of its own. A pick-one set is a few pills, sized like the field it replaces: the row wraps before
+// they split.
+const ShowPills = ({ value, onChange, label = 'Show', options, multiple }) => {
+  const [whole, ...rest] = options;
+  const keys = multiple ? pickedOptions(options, value).map(([key]) => key) : [value];
   const toggle = (key) => {
+    if (!multiple) return onChange(keys.includes(key) ? whole[0] : key);
     const next = keys.includes(key) ? keys.filter((pick) => pick !== key) : [...keys, key];
     onChange(rest.map(([option]) => option).filter((option) => next.includes(option)));
   };
-  return <Stack direction="row" gap={1} flexWrap="wrap" role="group" aria-label={label} sx={{ flex: '1 1 0', minWidth: 0 }}>
+  return <Stack direction="row" gap={1} flexWrap="wrap" role="group" aria-label={label}
+                sx={multiple ? { flex: '1 1 0', minWidth: 0 } : { flex: '0 1 auto' }}>
     {rest.map((option) => <FilterPill key={option[0]} value={option[0]} on={keys.includes(option[0])} label={counted(option)}
                                       onToggle={() => toggle(option[0])}>
       {option[4] ? <ToneDot color={option[4]}/> : null}
@@ -184,7 +188,7 @@ const ShowPills = ({ value, onChange, label = 'Show', options }) => {
 const Show = ({ name = 'show', label, options, multiple, pills }) => {
   const { state, onChange, placement } = useContext(ToolbarContext);
   const change = (next) => onChange({ [name]: next });
-  if (multiple && pills && placement === 'row') return <ShowPills value={state[name]} onChange={change} label={label} options={options}/>;
+  if (pills && placement === 'row') return <ShowPills value={state[name]} onChange={change} label={label} options={options} multiple={multiple}/>;
   return <ShowField value={state[name]} onChange={change} label={label} options={options}
                     fullWidth={placement === 'panel'} multiple={multiple}/>;
 };

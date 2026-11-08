@@ -14,7 +14,9 @@ export const patchNotes = [
       'More compact pages: Bubbles, Construction, Anvil, Kitchens, Slab, Hole, Spelunking Lore, Tournament and General; Shrines and Statues show their EXP bars again, and the Account and Tools menus open under their buttons',
       'Bubbles: each bubble shows a bar toward its cap with a tick at your efficiency threshold, a setting shows the % and target level under each one, and the dim setting fades much more',
       'Characters: switch characters from the pinned bar, step by step or from a list of all of them, and Sections is a two-column checklist',
-      'Stamps: each category follows the game\'s 4-column book (or one row each with Rows), colours show which stamps can level up or are short on coins or materials, each state is a one-click filter again, and hovering a stamp previews it'
+      'Stamps: each category follows the game\'s 4-column book (or one row each with Rows), colours show which stamps can level up or are short on coins or materials, each state is a one-click filter again, and hovering a stamp previews it',
+      'Pets: each pet shows its bonus again, with Details for tradable copies, the Pet Mart+ price and when it was last in the Pet Mart',
+      'Pets: Tradable and Missing are one-click filters again'
     ],
     'fixes': [
       'Dashboard: two World 7 alerts no longer sit out of line with the rest',

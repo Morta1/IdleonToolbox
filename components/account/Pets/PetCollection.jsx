@@ -16,7 +16,6 @@ import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
 import StatTile from '@components/common/cards/StatTile';
 import GameIcon from '@components/common/GameIcon';
-import StatusText from '@components/common/StatusText';
 import Toolbar from '@components/common/Toolbar';
 import PageSettings, { PageSettingsRoom } from '@components/common/PageSettings';
 import useToolbarState from '@hooks/useToolbarState';
@@ -43,18 +42,8 @@ const readSightings = (days, petMart, lastUpdated, plusView) => {
 // The game's effect text draws its + as {: every one, in both views
 export const effectText = (text) => cleanUnderscore(`${text ?? ''}`.replaceAll('{', '+'));
 
-const PETS_TOOLBAR = { search: '', show: 'all', sort: null };
+const PETS_TOOLBAR = { search: '', show: 'all', sort: null, details: false };
 const shortDate = (date) => format(parseISO(date), 'MMM d');
-
-// When this pet (Base view) or upgrade (Pet Mart+ view) was last on its Pet Mart counter. A pet never seen shows
-// nothing, and without the worker's history only "today" is known.
-const saleLine = (sales) => {
-  if (!sales) return null;
-  const { lastSeen, inToday, historyLoaded } = sales;
-  const text = inToday ? 'In the Pet Mart today' : historyLoaded && lastSeen ? `Last appeared ${shortDate(lastSeen)}` : null;
-  if (!text) return null;
-  return <Typography variant={'body2'} color={inToday ? 'text.success' : 'text.secondary'}>{text}</Typography>;
-};
 
 const PetCollection = ({ companions, sectionFailed, tournamentFailed }) => {
   const { state, reparseOwnAccount } = useContext(AppContext);
@@ -139,89 +128,74 @@ const PetCollection = ({ companions, sectionFailed, tournamentFailed }) => {
     missing: pool.filter((comp) => (plusView ? !comp?.upgraded : !comp?.acquired)).length
   };
   const shownCount = pool.filter(matches).length;
+  // An empty option has no pill unless it is the one on (a view switch keeps the pick)
+  const showOptions = [['all', 'All', counts.all], ['tradable', 'Tradable', counts.tradable],
+    ['missing', plusView ? 'Not upgraded' : 'Missing', counts.missing]].filter(([key, , count]) => key === 'all' || count > 0 || key === show);
 
+  // Simulated and Token change what the bonus means; owned needs no word, the dim says which aren't
   const petState = (pet) => {
-    if (failed) return null;
-    if (plusView) return pet.upgraded ? { status: 'done', label: 'Upgraded' } : null;
+    if (failed || plusView) return null;
     if (pet.simulated) return { status: 'needs', label: 'Simulated' };
-    if (pet.viaToken) return { status: 'info', label: 'Token' };
-    return pet.acquired ? { status: 'done', label: 'Owned' } : null;
+    return pet.viaToken ? { status: 'info', label: 'Token' } : null;
   };
-  const petMeta = (pet) => {
-    if (failed) return undefined;
-    if (plusView) return !pet.upgraded && !pet.copies ? 'Needs the base pet' : undefined;
-    if (!pet.acquired) return 'Not owned';
-    return pet.upgraded ? 'Pet Mart+' : undefined;
-  };
-  // A missing pet's sprite greys: in the Pet Mart+ view only one with no copy to upgrade
+  // A missing pet's card dims: in the Pet Mart+ view only one with no copy to upgrade
   const isMissing = (pet) => !failed && (plusView ? !pet.upgraded && !pet.copies : !pet.acquired);
   const petName = (pet) => `${cleanUnderscore(pet.name)}${plusView || pet.upgraded ? '+' : ''}`;
-
-  // The tile's number: the copies you hold (in the Pet Mart+ view the upgraded ones), or the upgrade's price while you
-  // have none. A pet with neither keeps the value's line, blank, so the grid's tiles stay one height: a no-break space,
-  // since a line of a plain space has no height.
-  const tileValue = (pet) => {
-    if (failed) return undefined;
-    if (plusView) {
-      return pet.upgraded ? `x${formatNum(pet.upgradedCount)}` : <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
-        {petCrystalIcon(16)}{formatNum(pet.upgradeCost, 'whole')}
-      </Box>;
-    }
-    if (pet.copies > 0) return `x${formatNum(pet.copies)}`;
-    if (pet.viaToken) return 'Token';
-    return pet.simulated ? 'Simulated' : '\u00a0';
+  const crystals = (amount) => <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+    {petCrystalIcon(16)}{formatNum(amount, 'whole')}
+  </Box>;
+  // When this pet (Base view) or upgrade (Pet Mart+ view) was last on its counter: today in green. A pet never seen has
+  // no row, and without the worker's history only today is known.
+  const saleRow = ({ lastSeen, inToday, historyLoaded: known }) => {
+    if (inToday) return ['Last in the Pet Mart', <Box key={'today'} component={'span'} sx={{ color: 'text.success' }}>Today</Box>];
+    return known && lastSeen ? ['Last in the Pet Mart', shortDate(lastSeen)] : null;
   };
 
-  // What the card said: its state, its bonus, its copies, the Pet Mart+ price and when it was last in the Pet Mart
-  const petNote = (pet) => {
+  // The old page's card, tighter: the bonus under the name, the copies at the top right, the rest behind Details (a fact
+  // row on every card ran the page as tall as the old one). A row the page is about stays out: the tradable copies
+  // under the Tradable filter, the price in the Pet Mart+ view, the date while sorted by it. The date is the Pet Mart's,
+  // not the pet's, so it sits under the card's line, at its foot. A tile each said only the name, so sorting by the Pet
+  // Mart showed no dates.
+  const petCard = (pet) => {
     const stateOf = petState(pet);
-    const meta = petMeta(pet);
     const shownEffect = plusView ? pet.upgradedEffect : pet.upgraded && pet.upgradedEffect ? pet.upgradedEffect : pet.effect;
-    return <Stack gap={1}>
-      <Stack gap={0.25}>
-        <Typography variant={'body2'} fontWeight={500}>{petName(pet)}</Typography>
-        {stateOf || meta ? <Stack direction={'row'} columnGap={1} flexWrap={'wrap'}>
-          {stateOf ? <StatusText status={stateOf.status}>{stateOf.label}</StatusText> : null}
-          {meta ? <Typography variant={'body2'} color={'text.secondary'}>{meta}</Typography> : null}
-        </Stack> : null}
-      </Stack>
-      <ItemCard.Desc text={[
-        effectText(shownEffect),
-        !plusView && !failed && pet.viaToken ? 'Bonus active via Pet Bonus Token' : null,
-        !plusView && !failed && pet.simulated ? "Bonus simulated, you don't own this pet" : null
-      ].filter(Boolean)}/>
-      {failed ? null : <ItemCard.Facts rows={[
-        !plusView && pet.acquired && !pet.viaToken && !pet.simulated
-          ? ['Tradable', `${formatNum(pet.tradableCount ?? 0)} / ${formatNum(pet.copies ?? 0)}`] : null,
-        pet.upgradedCount > 0
-          ? [plusView ? 'Tradable' : 'Pet Mart+ tradable', `${formatNum(pet.upgradedTradableCount ?? 0)} / ${formatNum(pet.upgradedCount)}`]
-          : null
-      ]}/>}
-      {!pet.upgraded && pet.upgradeCost > 0 ? <Box>
-        {plusView ? null : <Typography variant={'body2'} color={'text.secondary'}>Pet Mart+</Typography>}
-        <ItemCard.Cost icon={petCrystalIcon(24)} iconAlt={'Pet Crystals'} need={pet.upgradeCost}
-                       have={failed ? undefined : state?.account?.companions?.petCrystals ?? 0}
-                       format={(value) => formatNum(value, 'whole')}/>
-      </Box> : null}
-      {saleLine(salesOf(pet.index))}
-    </Stack>;
+    const copies = plusView ? pet.upgradedCount : pet.copies;
+    const tradable = !copies || (!plusView && (pet.viaToken || pet.simulated)) ? null
+      : ['Tradable', `${formatNum((plusView ? pet.upgradedTradableCount : pet.tradableCount) ?? 0)} / ${formatNum(copies)}`];
+    const plusTradable = !plusView && pet.upgradedCount > 0
+      ? ['Pet Mart+ tradable', `${formatNum(pet.upgradedTradableCount ?? 0)} / ${formatNum(pet.upgradedCount)}`] : null;
+    const price = !pet.upgraded && pet.upgradeCost > 0 ? ['Pet Mart+', crystals(pet.upgradeCost)] : null;
+    const sale = saleRow(salesOf(pet.index));
+    const facts = (rows) => (failed || !rows.some(Boolean) ? null : <ItemCard.Facts rows={rows}/>);
+    const filteredTradable = show === 'tradable';
+    const lines = failed ? [] : [
+      plusView && !pet.upgraded && !pet.copies ? 'Needs the base pet' : null,
+      !plusView && pet.viaToken ? 'Bonus active via Pet Bonus Token' : null,
+      !plusView && pet.simulated ? "Bonus simulated, you don't own this pet" : null
+    ].filter(Boolean);
+    return <ItemCard key={pet.index} icon={monsterSprite(pet.name)} iconAlt={petName(pet)} title={petName(pet)}
+                     meta={effectText(shownEffect)} status={stateOf?.status} statusLabel={stateOf?.label} dimmed={isMissing(pet)}
+                     aside={!failed && copies > 0 ? <Typography variant={'body2'}>x{formatNum(copies)}</Typography> : null}
+                     more={facts([filteredTradable ? null : tradable, plusTradable, plusView ? null : price])}
+                     footer={!failed && sale && (toolbar.details || sortedBySighting) ? <ItemCard.Facts rows={[sale]}/> : undefined}>
+      {lines.length ? <ItemCard.Desc text={lines}/> : null}
+      {facts([filteredTradable ? tradable : null, plusView ? price : null])}
+    </ItemCard>;
   };
 
-  // While simulating, a pet you could count as owned is picked by its tile, and shows no note
+  // While simulating, a pet you could count as owned is picked by its tile
   const petTile = (pet) => {
-    const editable = editing && !plusView && pet.copies === 0 && !pet.viaToken;
-    return <IconTile key={pet.index} icon={monsterSprite(pet.name)} alt={petName(pet)} label={petName(pet)} value={tileValue(pet)}
+    const editable = !plusView && pet.copies === 0 && !pet.viaToken;
+    return <IconTile key={pet.index} icon={monsterSprite(pet.name)} alt={petName(pet)} label={petName(pet)}
                      status={isMissing(pet) ? 'missing' : undefined}
-                     {...(editable
-                       ? { onSelect: () => toggleDraft(pet.index), selected: draft?.has(pet.index) ?? false }
-                       : { details: petNote(pet) })}/>;
+                     {...(editable ? { onSelect: () => toggleDraft(pet.index), selected: draft?.has(pet.index) ?? false } : {})}/>;
   };
 
-  // A tile per pet, its name under the sprite, the rest in its note: a card each ran the page 30% past the old one's
-  // height on a desktop.
   const petList = (title, list) => (list?.length ? <Stack key={title} gap={1.5}>
     <Typography variant={'sectionTitle'} component={'h2'}>{title}</Typography>
-    <CardGrid size={'icon'} fill={LABELED_TILE_MIN}>{list.map(petTile)}</CardGrid>
+    {editing
+      ? <CardGrid size={'icon'} fill={LABELED_TILE_MIN}>{list.map(petTile)}</CardGrid>
+      : <CardGrid size={'s'} details={!failed && toolbar.details}>{list.map(petCard)}</CardGrid>}
   </Stack> : null);
 
   return <>
@@ -257,8 +231,8 @@ const PetCollection = ({ companions, sectionFailed, tournamentFailed }) => {
                           : null}>
       {failed ? null : <Toolbar.Search placeholder={'Search pets'}/>}
       <Toolbar.View options={[['pets', 'Base'], ['plus', 'Pet Mart+']]}/>
-      {failed ? null : <Toolbar.Show options={[['all', 'All', counts.all], ['tradable', 'Tradable', counts.tradable],
-        ['missing', plusView ? 'Not upgraded' : 'Missing', counts.missing]]}/>}
+      {failed || showOptions.length < 2 ? null : <Toolbar.Show pills options={showOptions}/>}
+      {failed ? null : <Toolbar.Filter name={'details'} label={'Details'} display/>}
       {failed || !historyLoaded ? null : <Toolbar.Sort options={[['lastSeen', 'Last in the Pet Mart', 'desc', ['Longest ago first', 'Most recent first']]]}/>}
     </Toolbar>}
     {/* The banner says how many and turns it off; this says what the numbers mean */}
