@@ -457,13 +457,49 @@ const readPins = () => {
   }).join(' | ');
 };
 
-// The page's content, from the top of main to the footer's links: the same span on both sites, whatever bar or sidebar sits
-// outside it. Runs in the page.
+// The page's column on either site: the first box round its h1 at least 60% of the window wide (the header's row), then
+// the outermost box of that width inside main, which leaves the old site's sidebar and the new one's ads outside it.
+// Its height, and its ink: the area its text's line boxes, sprites,
+// bars and fields cover. Area per ink is how much screen a page spends on what it shows, so a page whose tiles or cards
+// grew roomier reads high even where its height didn't grow. Runs in the page.
 const contentExtent = () => {
-  const mainTop = (document.querySelector('main')?.getBoundingClientRect().top ?? 0) + scrollY;
-  const footer = [...document.querySelectorAll('a')].find((link) => link.textContent.trim() === 'Discord bot');
-  const bottom = footer ? footer.getBoundingClientRect().top + scrollY : document.documentElement.scrollHeight;
-  return Math.round(bottom - mainTop);
+  const main = document.querySelector('main');
+  let column = main?.querySelector('h1');
+  while (column && column !== main && column.getBoundingClientRect().width < innerWidth * 0.6) column = column.parentElement;
+  const widthOf = (el) => el.getBoundingClientRect().width;
+  while (column && column.parentElement && column.parentElement !== main && Math.abs(widthOf(column.parentElement) - widthOf(column)) < 2) {
+    column = column.parentElement;
+  }
+  column ??= main;
+  const box = column.getBoundingClientRect();
+  const clipped = (rect) => Math.max(0, Math.min(rect.right, box.right) - Math.max(rect.left, box.left))
+    * Math.max(0, Math.min(rect.bottom, box.bottom) - Math.max(rect.top, box.top));
+  let ink = 0;
+  const range = document.createRange();
+  const walker = document.createTreeWalker(column, NodeFilter.SHOW_TEXT);
+  for (let node = walker.nextNode(); node; node = walker.nextNode()) {
+    if (!node.textContent.trim()) continue;
+    range.selectNodeContents(node);
+    for (const rect of range.getClientRects()) ink += clipped(rect);
+  }
+  column.querySelectorAll('img, svg, canvas, input, select, textarea, [role="progressbar"]').forEach((el) => {
+    if (el.parentElement?.closest('svg')) return;
+    ink += clipped(el.getBoundingClientRect());
+  });
+  // Card grids that end on a short row: the empty cells of each one's last row, as area. A page of groups that each end
+  // short (Lore's chapters, one group a row) spends that room on nothing. Cards only: a tile or a table row is under 80 px.
+  let gaps = 0;
+  column.querySelectorAll('*').forEach((el) => {
+    const style = getComputedStyle(el);
+    if (style.display !== 'grid') return;
+    const items = [...el.children].filter((child) => child.getBoundingClientRect().height > 0);
+    const columns = style.gridTemplateColumns.split(' ').length;
+    const first = items[0]?.getBoundingClientRect();
+    if (columns < 3 || items.length < 2 || first.height < 80) return;
+    const empty = (columns - (items.length % columns)) % columns;
+    gaps += empty * first.width * items.at(-1).getBoundingClientRect().height;
+  });
+  return { height: Math.round(box.height), width: Math.round(box.width), area: box.width * box.height, ink: Math.round(ink), gaps: Math.round(gaps) };
 };
 
 // The same route on --compare's site, at its matching width: its content height, and its shot beside ours.
@@ -478,14 +514,14 @@ const compareOne = async (browser, { route, state, size, slug }) => {
     await waitForRender(page);
     await page.waitForTimeout(500 + Number(opts.settle));
     await waitForRender(page);
-    const height = await page.evaluate(contentExtent);
+    const extent = await page.evaluate(contentExtent);
     let shot = null;
     if (!opts['no-shots'] && !touch) {
       shot = join(opts.out, `${slug}-${size.width}-compare.png`);
       const full = await page.evaluate(() => document.documentElement.scrollHeight);
       await page.screenshot({ path: shot, fullPage: true, clip: { x: 0, y: 0, width: other.width, height: Math.min(full, MAX_SHOT_HEIGHT) } });
     }
-    return { height, width: other.width, shot };
+    return { ...extent, shot };
   } catch (error) {
     return { failed: error.message.split('\n')[0].slice(0, 120) };
   } finally {
@@ -649,10 +685,22 @@ for (const result of results) {
   if (result.shifts) console.log(`  cls ${result.cls.toFixed(4)}, first paint ${result.firstPaint} ms: ${result.shifts.map(({ value, at, moves }) => `${value.toFixed(4)} at ${at} ms, moved ${moves.join('/')} px`).join(' || ') || 'none'}`);
 }
 if (opts.compare) {
-  const rows = results.filter((r) => r.content && r.compare?.height).map((r) => ({ ...r, share: r.content / r.compare.height }));
-  rows.sort((a, b) => b.share - a.share);
+  const rows = results.filter((r) => r.content?.ink && r.compare?.ink).map((r) => ({
+    ...r,
+    share: r.content.height / r.compare.height,
+    spread: (r.content.area / r.content.ink) / (r.compare.area / r.compare.ink)
+  }));
+  const line = (r) => `${r.share.toFixed(2)}x tall (${r.content.height} vs ${r.compare.height}, columns ${r.content.width} vs ${r.compare.width}), `
+    + `${r.spread.toFixed(2)}x area per ink  ${r.route} ${r.state} ${r.size}`;
   console.log(`\nContent height against ${opts.compare}, tallest share first:`);
-  for (const r of rows) console.log(`${r.share.toFixed(2)}x  ${r.content} vs ${r.compare.height}  ${r.route} ${r.state} ${r.size}`);
+  for (const r of [...rows].sort((a, b) => b.share - a.share)) console.log(line(r));
+  console.log(`\nArea per ink against ${opts.compare}, roomiest first:`);
+  for (const r of [...rows].sort((a, b) => b.spread - a.spread)) console.log(line(r));
+  const gapShare = (extent) => extent.gaps / extent.area;
+  console.log('\nShare of the column in card rows left short, most first (ours, then the other site\'s):');
+  for (const r of [...rows].filter((row) => row.content.gaps).sort((a, b) => gapShare(b.content) - gapShare(a.content))) {
+    console.log(`${(gapShare(r.content) * 100).toFixed(1)}% vs ${(gapShare(r.compare) * 100).toFixed(1)}%  ${r.route} ${r.state} ${r.size}`);
+  }
   const missing = results.filter((r) => r.compare?.failed);
   if (missing.length) console.log(`Not measured on the other site: ${missing.map((r) => `${r.route} (${r.compare.failed})`).join(', ')}`);
 }
