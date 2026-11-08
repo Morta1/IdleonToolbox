@@ -58,7 +58,8 @@ import SortField from './SortField';
 //   sort, onSortChange  a page that passes onSortChange orders its own rows (WikiEntityList.test.jsx).
 //   defaultSort     any other table sorts itself from here, band by band (DataTable.test.jsx, sortRows).
 //   sortField       a table that hides columns on a phone and has sortable ones draws a Sort field over itself there; false
-//                   where the page's Toolbar already holds one.
+//                   where the page's Toolbar already holds one. A `from` (as a column's) is where it leaves instead of the
+//                   last column's: a desktop table that folds only its least-read columns sorts by its headers (Refinery's).
 //
 // Phone
 //   phone           a column kept beside the name, as the primary one is.
@@ -154,9 +155,16 @@ const tableStyle = (data, primary, secondary, sx, stickyTop, expandable, until, 
       '&[aria-expanded="true"]::before': { transform: 'translateY(-2px) rotate(45deg)' }
     },
     '& tr.detail': withDetail ? { display: 'table-row' } : fromStyle('display', until, 'table-row', 'none'),
-    '& tr.detail > td': { ...CELL, pt: 0 },
-    // The details start under the name, past a row's 24 px icon and its 10 px gap
-    '& .detail-list': { m: 0, display: 'flex', flexDirection: 'column', gap: 0.5, ...(iconned ? { pl: '34px' } : {}) },
+    // An opened row and its list are one block: the row's divider goes, and the list's own closes them. Only where the
+    // list shows, or a row left open while the window widened would lose its line.
+    '& tr.row:has(+ tr.detail) > td': withDetail
+      ? { borderBottomColor: 'transparent' }
+      : fromStyle('borderBottomColor', until, 'transparent', 'action.hover'),
+    // 8 px between the lines and 12 under the last: at 4 and 6 an opened row read as one block against its border
+    '& tr.detail > td': { ...CELL, pt: 0, pb: 1.5 },
+    // The details start under the name, past a row's 24 px icon and its 10 px gap, and end where the row's values do,
+    // short of the 40 px chevron column
+    '& .detail-list': { m: 0, pr: '40px', display: 'flex', flexDirection: 'column', gap: 1, ...(iconned ? { pl: '34px' } : {}) },
     // The hidden columns' list: each item only where its column hides (the column rules below), so the detail slot,
     // which opens at every width, lists nothing a row already shows.
     '& .detail-item': { display: 'flex', justifyContent: 'space-between', alignItems: 'baseline', gap: 2 },
@@ -303,7 +311,7 @@ const DataTable = ({
 
   return <>
     {sortField && expandable && sortable.length ? <SortField columns={sortable} sort={sort} onChange={changeSort}
-                                                             sx={{ mb: 1, ...fromStyle('display', until, 'flex', 'none') }}/> : null}
+                                                             sx={{ mb: 1, ...fromStyle('display', sortField === true ? until : sortField, 'flex', 'none') }}/> : null}
     <Box ref={boxRef} sx={[{ overflowX: sticky ? 'visible' : 'auto' }, surface === 'card' ? cardSurface : null]}>
       <Box component={'table'} ref={tableRef} sx={tableStyle(data, primary, secondary, sx, sticky ? stickyTop : null, expandable, until, surface, fits, Boolean(detail), tight, Boolean(name.icon))}>
         <thead>

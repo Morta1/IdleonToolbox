@@ -21,14 +21,17 @@ export const patchNotes = [
       'Killroy: this week\'s schedule sits apart from the coming weeks',
       'Tournament: a notice when you\'re not registered for the Pet Tournament or the Raid',
       'Dashboard: the Vote and Meritocracy names link to their Vote Ballot tab',
-      'Dashboard: on a narrow window, each Account alerts group starts on its name\'s line, so the list is shorter'
+      'Dashboard: on a narrow window, each Account alerts group starts on its name\'s line, so the list is shorter',
+      'Refinery: each salt\'s power, rank up timer and fuel sit side by side in the salt table, and the squires sit beside the cycle times again',
+      'Tables on a phone: an opened row has more room, its numbers under the row\'s own'
     ],
     'fixes': [
       'Dashboard: two World 7 alerts no longer sit out of line with the rest',
       'Stamps: stamps you can level with coins no longer read as levelling at the previous reducer',
       'Outposts: with Details on, the five ranks keep the game\'s order on every card',
       'Sailing: artifact forms show in their colours again',
-      'Tournament: companion power shows its icon, and the champions\' names show in full'
+      'Tournament: companion power shows its icon, and the champions\' names show in full',
+      'Refinery: salt tables no longer scroll sideways at some window widths, and a salt card no longer says "Rank up" while the table says to wait'
     ]
   },
   {
