@@ -20,25 +20,32 @@ const contributorsText = (contributors, characterCount) => (!contributors.length
 // The hours a shrine needs for its next level
 const hoursToLevel = (level) => Math.floor(20 * (level - 1) + 6 * level * Math.pow(1.63, level - 1));
 
+// Three blocks a glance can tell apart: which shrine and where, what it gives, and how its next level is coming. The EXP
+// block holds the Crystal Shrine's boost, since that speeds the EXP, not the bonus.
 const shrineDetails = (shrine, entry, contributors, perHour, characterCount) => {
   const built = shrine?.shrineLevel > 0;
   const hoursReq = hoursToLevel(shrine?.shrineLevel);
   const progress = shrine?.progress ?? 0;
-  return <Stack gap={1}>
+  const map = cleanUnderscore(mapNames?.[shrine?.mapId]);
+  return <Stack gap={1.25}>
     <Box>
       <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(shrine?.name)}</Typography>
-      <Typography variant={'body2'} color={'text.secondary'}>{built ? formatNum(shrine.shrineLevel, 'level') : 'Not built yet'}</Typography>
+      <Typography variant={'body2'} color={'text.secondary'}>
+        {built ? `${formatNum(shrine.shrineLevel, 'level')}${map ? ` · ${map}` : ''}` : 'Not built yet'}
+      </Typography>
     </Box>
     <Typography variant={'body2'}>{shrineSentence(shrine, entry)}</Typography>
-    {built ? <ItemCard.Facts rows={[
-      ['Map', cleanUnderscore(mapNames?.[shrine?.mapId])],
-      ['Progress', `${gameHours(progress)} / ${gameHours(hoursReq, Math.ceil)} hours`],
-      perHour !== undefined ? ['Per hour', formatNum(perHour, 'rate')] : null,
-      perHour !== undefined ? ['Next level in', perHour > 0 ? formatDuration((hoursReq - progress) / perHour * 3600) : '-'] : null,
-      ['With cards', pct(shrine?.bonus)],
-      contributors ? ['Contributors', contributorsText(contributors, characterCount)] : null,
-      shrine?.crystalShrineBonus > 0 ? ['Crystal Shrine', pct(shrine.crystalShrineBonus)] : null
-    ]}/> : null}
+    {built ? <ItemCard.Facts rows={[['With cards', pct(shrine?.bonus)]]}/> : null}
+    {built ? <ItemCard.Section label={'Next level'}>
+      <ItemCard.Progress label={'Hours'} value={gameHours(progress)} max={gameHours(hoursReq, Math.ceil)}
+                         percent={Math.min(100, (progress / hoursReq) * 100 || 0)}/>
+      <ItemCard.Facts rows={[
+        perHour !== undefined ? ['Per hour', formatNum(perHour, 'rate')] : null,
+        perHour !== undefined ? ['Time left', perHour > 0 ? formatDuration((hoursReq - progress) / perHour * 3600) : '-'] : null,
+        contributors ? ['Contributors', contributorsText(contributors, characterCount)] : null,
+        shrine?.crystalShrineBonus > 0 ? ['Crystal Shrine', `${pct(shrine.crystalShrineBonus)} EXP`] : null
+      ]}/>
+    </ItemCard.Section> : null}
   </Stack>;
 };
 
