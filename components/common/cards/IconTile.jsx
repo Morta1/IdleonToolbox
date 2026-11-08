@@ -95,7 +95,9 @@ const ProgressFoot = ({ progress, goal = 1 }) => <Box component={'span'} aria-hi
 </Box>;
 // label: the thing's name under its sprite, for a collection whose sprites alone can't be told apart (hats, companions).
 // Two lines at most, and always the room of two: a one-line name keeps its tile as tall as its neighbours, so a row of
-// tiles lines up whatever the names.
+// tiles lines up whatever the names. labelLines: more lines for a grid whose names differ only at their end (Tournament
+// companions' "Bronze Champion Ram" and "… Troll" both cut to "Bronze Champion…"). Its tiles must be the grid's own
+// items (no details): the row stretches to its tallest tile and each value sits at its tile's foot, so the values line up.
 const LABEL_SX = {
   fontSize: 12, lineHeight: '15px', minHeight: 30, color: 'text.secondary', textAlign: 'center', maxWidth: '100%',
   overflowWrap: 'break-word', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden'
@@ -123,7 +125,7 @@ const LABEL_SX = {
 // ProgressFoot. markSize: 20 for a grid of tiles under 64 px (Statues'), where a 24 px mark hid half the sprite.
 // edge: the tile's line in a state's tone (a theme role), where players scan a grid's states at a glance (Stamps), with
 // the page's Show pills as its legend and the state's word in its note. selected's line wins over it.
-const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, iconSize, height = 72, badge, badgeColor, mark, markAlt,
+const IconTile = ({ icon, alt = '', value, kind, sub, label, labelLines = 2, frame, frameAbove, iconSize, height = 72, badge, badgeColor, mark, markAlt,
   markSize = 24, glow, progress, progressGoal, edge, status, details, onSelect, selected, sharedNote, buttonProps }) => {
   const small = Boolean(useSheet());
   const empty = status === 'empty';
@@ -166,9 +168,10 @@ const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, 
       ? <GameIcon src={icon} size={iconSize ?? (small ? 28 : 40)} alt={alt} frame={frame} frameAbove={frameAbove}
                   status={status === 'missing' ? 'missing' : undefined}/>
       : icon) : null}
-    {hasLabel ? <Typography component={'div'} sx={LABEL_SX}>{label}</Typography> : null}
+    {hasLabel ? <Typography component={'div'} sx={[LABEL_SX, labelLines !== 2 && { WebkitLineClamp: labelLines }]}>{label}</Typography> : null}
     {hasValue ? <Typography component={'div'} variant={'caption'} sx={{
       ...(longValue ? LONG_VALUE_SX : {}),
+      ...(hasLabel && labelLines > 2 ? { mt: 'auto' } : {}),
       fontSize: 13,
       fontWeight: 500,
       lineHeight: '16px',

@@ -27,7 +27,8 @@ export const patchNotes = [
       'Dashboard: two World 7 alerts no longer sit out of line with the rest',
       'Stamps: stamps you can level with coins no longer read as levelling at the previous reducer',
       'Outposts: with Details on, the five ranks keep the game\'s order on every card',
-      'Sailing: artifact forms show in their colours again'
+      'Sailing: artifact forms show in their colours again',
+      'Tournament: companion power shows its icon, and the champions\' names show in full'
     ]
   },
   {

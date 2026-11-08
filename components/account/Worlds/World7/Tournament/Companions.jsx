@@ -6,6 +6,7 @@ import { monsterSprite } from '@utility/spriteImages';
 import { companions as companionsData } from '@website-data';
 import CardGrid, { LABELED_TILE_MIN } from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
+import GameIcon from '@components/common/GameIcon';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 
@@ -17,6 +18,8 @@ const countOf = (bands) => bands.reduce((sum, { rows }) => sum + rows.length, 0)
 const nameOf = (pet) => `${cleanUnderscore(pet?.name)}${pet?.upgraded ? '+' : ''}`;
 // Strongest first, as the tournament ranks them
 const byPower = (a, b) => (b?.tourPower ?? 0) - (a?.tourPower ?? 0);
+// The power number after the game's power glyph, as the tournament screen draws it
+const POWER_SX = { display: 'inline-flex', alignItems: 'center', gap: 0.5 };
 
 // A tile per companion, its name under the sprite and its tour power, a group each for owned and not yet owned: a table
 // row each ran twice the old page's height on a desktop. Not yet owned greys the sprite, as a not-found tile does.
@@ -49,10 +52,14 @@ const Companions = ({ companions, sectionFailed }) => {
         <Typography variant={'sectionTitle'} component={'h2'}>
           {label} <Box component={'span'} sx={{ color: 'text.secondary', fontWeight: 400 }}>{count}</Box>
         </Typography>
+        {/* Three lines for a name: the champions' differ only at their end */}
         <CardGrid size={'icon'} fill={LABELED_TILE_MIN}>
-          {rows.map((pet) => <IconTile key={pet.name} icon={monsterSprite(pet?.name)} alt={nameOf(pet)} label={nameOf(pet)}
+          {rows.map((pet) => <IconTile key={pet.name} icon={monsterSprite(pet?.name)} alt={nameOf(pet)} label={nameOf(pet)} labelLines={3}
                                        status={missing ? 'missing' : undefined}
-                                       value={formatGame(pet?.tourPower ?? 0, 'Stuff2.PetTournyPOW')}/>)}
+                                       value={<Box component={'span'} sx={POWER_SX}>
+                                         <GameIcon src={'etc/Companion_Power.png'} size={16} alt={'Power'}/>
+                                         {formatGame(pet?.tourPower ?? 0, 'Stuff2.PetTournyPOW')}
+                                       </Box>}/>)}
         </CardGrid>
       </Stack>)}
     </Stack>
