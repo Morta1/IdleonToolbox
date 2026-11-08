@@ -219,11 +219,20 @@ const ConstructionMain = ({ sectionFailed }) => {
       {/* One block, one set of left and right edges. The board, the toolbar above it and the rail
           beside it all line up, and the leftover width sits evenly on both sides. */}
       <Stack gap={2} sx={{ width: '100%', maxWidth: 1500, mx: 'auto' }}>
-        <ConstructionStats construction={state?.account?.construction} optimized={optimized}/>
+        {/* A phone keeps the totals above the bar: four tiles pinned with it would take its screen */}
+        <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
+          <ConstructionStats construction={state?.account?.construction} optimized={optimized}/>
+        </Box>
         {/* A direct child of the tab's block, so it pins over the board while the tab scrolls (as on Buildings); the
-            board and the steps pin under it */}
+            board and the steps pin under it. From 600 px the totals lead it, on the view switch's row, which stood alone
+            under them: they pin with it, so a step's change to the totals shows as you go through the plan */}
         <Toolbar state={toolbar} defaults={BOARD_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
                  onStickyBottom={setToolbarBottom}>
+          <Toolbar.Lead>
+            <Box sx={{ display: { xs: 'none', sm: 'block' } }}>
+              <ConstructionStats construction={state?.account?.construction} optimized={optimized}/>
+            </Box>
+          </Toolbar.Lead>
           <Toolbar.View options={VIEWS}/>
         </Toolbar>
 

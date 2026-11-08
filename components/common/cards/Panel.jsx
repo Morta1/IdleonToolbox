@@ -127,11 +127,12 @@ const Row = ({ icon, iconAlt = '', name, sub, value, valueSub, kind, sx }) => {
 };
 
 // Rows in two columns from md, for a list that would leave half of a full width Panel empty. Lines between rows as the
-// Panel draws them, the two rows side by side under one line.
+// Panel draws them, the two rows side by side under one line. Its rows are all divs, so of-type picks the second row
+// (Emotion warns on nth-child, which a style tag rendered among the rows would throw off).
 const COLUMNS_SX = {
   display: 'grid', gridTemplateColumns: { xs: '1fr', md: 'repeat(2, 1fr)' },
   '& > * + *': { borderTop: 1, borderColor: 'divider' },
-  '& > :nth-child(2)': { borderTop: { xs: 1, md: 0 } }
+  '& > :nth-of-type(2)': { borderTop: { xs: 1, md: 0 } }
 };
 const Columns = ({ children }) => <Box sx={COLUMNS_SX}>{children}</Box>;
 
