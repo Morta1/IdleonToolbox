@@ -191,24 +191,23 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
                                 value={formatGame(bar.exp ?? 0, 'RoyalG.OutpostEXPreq', { ruleValue: bar.required ?? 0, whole: true })} max={formatGame(bar.required ?? 0, 'RoyalG.OutpostEXPreq', { whole: true })}/>;
     };
     // A compact card keeps one rank: the one a filter or a sort is on, or else the next to rank up. The Details pill shows
-    // the rest, with range and points, units, connected resources and upgrades.
+    // all five in the game's order (Trade, Intel, Command, Military, Purity), so each sits where a player expects it on
+    // every card, with range and points, units, connected resources and upgrades.
     const bars = rankBars ?? [];
     const keyBar = bars.find(({ type }) => type === focusedRank)
       ?? bars.filter((bar) => bar.unlocked && bar.expPerHour > 0).toSorted((a, b) => (a.hoursToNextRank ?? Infinity) - (b.hoursToNextRank ?? Infinity))[0]
       ?? bars[0];
+    const details = Boolean(view?.details);
     return <ItemCard key={mapIndex} icon={faceOf(monsterRawName)} iconAlt={monsterName ?? ''} title={name || `Map ${mapIndex}`}
                      meta={<WithLastWord text={meta}><InfoButton label={'this mode'} sx={{ ml: 0.5 }}>{modeHint}</InfoButton></WithLastWord>}
                      status={boosted ? 'done' : undefined} statusLabel={'Glorified'}
-                     more={<>
-                       <ItemCard.Facts rows={[
-                         ['Range', `${formatGame(range ?? 0, 'RoyalG.OutpostRange')}px`],
-                         ['PTS', `${formatNum(ptsLeft ?? 0, 'whole')} / ${formatNum(ptsTotal ?? 0, 'whole')}`]
-                       ]}/>
-                       {bars.filter((bar) => bar !== keyBar).map(rankBar)}
-                       {outpostSections(outpost)}
-                     </>}>
-      <ItemCard.Facts rows={[['Collection rate', `${formatGame(resourceRate ?? 0, 'RoyalG.OutpostResourceRate')}/hr`]]}/>
-      {keyBar ? rankBar(keyBar) : null}
+                     more={outpostSections(outpost)}>
+      <ItemCard.Facts rows={[
+        ['Collection rate', `${formatGame(resourceRate ?? 0, 'RoyalG.OutpostResourceRate')}/hr`],
+        details ? ['Range', `${formatGame(range ?? 0, 'RoyalG.OutpostRange')}px`] : null,
+        details ? ['PTS', `${formatNum(ptsLeft ?? 0, 'whole')} / ${formatNum(ptsTotal ?? 0, 'whole')}`] : null
+      ]}/>
+      {details ? bars.map(rankBar) : keyBar ? rankBar(keyBar) : null}
     </ItemCard>;
   };
 

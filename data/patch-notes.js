@@ -20,7 +20,8 @@ export const patchNotes = [
     ],
     'fixes': [
       'Dashboard: two World 7 alerts no longer sit out of line with the rest',
-      'Stamps: stamps you can level with coins no longer read as levelling at the previous reducer'
+      'Stamps: stamps you can level with coins no longer read as levelling at the previous reducer',
+      'Outposts: with Details on, the five ranks keep the game\'s order on every card'
     ]
   },
   {
