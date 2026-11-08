@@ -1,4 +1,4 @@
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, LinearProgress, Stack, Typography } from '@mui/material';
 import StatusText from '@components/common/StatusText';
 import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
 import { formatGame, mealBonusText } from '@utility/gameNotation';
@@ -18,6 +18,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import IconTile from '@components/common/cards/IconTile';
 import StatTile from '@components/common/cards/StatTile';
+import Panel from '@components/common/cards/Panel';
 import Notice from '@components/common/Notice';
 import Num from '@components/common/Num';
 import Toolbar from '@components/common/Toolbar';
@@ -29,9 +30,15 @@ const KITCHENS_TOOLBAR = { details: false };
 
 const hoursText = (hours) => (Number.isFinite(hours) ? formatDuration(hours * 3600) : 'Never');
 
-// A meal being cooked: its bonus in the game's own fill, its next level, its progress, and the diamond plate's time for
-// the Details pill
-const mealProgress = (meal, { totalMealSpeed, achievements, equinoxUpgrades, account }) => {
+const LINE_SX = { display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1 };
+const BAR_SX = { flex: 1, height: 6, borderRadius: 3, bgcolor: 'divider' };
+// The time to the next level sits level with the meal's name
+const ROW_SX = { alignItems: 'flex-start' };
+
+// A meal being cooked, as a Panel row: its bonus in the game's own fill, its progress to the next level (or to the
+// diamond plate, with its time), the meals an hour all kitchens make and when its next level lands. A card each left
+// one meal alone in a row of four, under a heading of its own.
+const mealRow = (foodName, meal, { totalMealSpeed, achievements, equinoxUpgrades, account }) => {
   const timeToDiamond = calcMealTime(11, meal, totalMealSpeed, achievements, equinoxUpgrades, account);
   const levelCost = getMealLevelCost(meal?.level, achievements, account, equinoxUpgrades);
   const diamondCost = (11 - meal?.level) * levelCost;
@@ -40,18 +47,21 @@ const mealProgress = (meal, { totalMealSpeed, achievements, equinoxUpgrades, acc
   const timeTillNextLevel = isReady ? 0 : calcTimeToNextLevel(levelCost - meal?.amount, meal?.cookReq, totalMealSpeed);
   const realEffect = getMealBonus(account, meal).value;
   const target = showDiamond ? diamondCost : levelCost;
-  return {
-    body: <>
-      <ItemCard.Desc text={meal?.effect?.replace('{', mealBonusText(realEffect))}/>
-      <ItemCard.Facts rows={[
-        ['Next level', isReady ? <StatusText key={'ready'} status={'ready'}/> : hoursText(timeTillNextLevel)]
-      ]}/>
-      <ItemCard.Progress label={showDiamond ? 'Progress to Lv 11' : 'Progress'}
-                         percent={target > 0 ? Math.min(100, 100 * (meal?.amount ?? 0) / target) : 100}
-                         value={<Num value={meal?.amount ?? 0} game={MEAL_COST} whole/>} max={<Num value={target ?? 0} game={MEAL_COST} whole/>}/>
-    </>,
-    more: showDiamond ? <ItemCard.Facts rows={[['Diamond plate', hoursText(timeToDiamond)]]}/> : null
-  };
+  const name = cleanUnderscore(meal?.name);
+  return <Panel.Row key={foodName} icon={<MealIcon rawName={foodName} plateLevel={meal?.level} small/>} sx={ROW_SX}
+                    name={name} value={`${formatNum(meal?.total ?? 0)} meals/hr`}
+                    valueSub={isReady ? <StatusText status={'ready'}>Next level ready</StatusText> : `Next Lv in ${hoursText(timeTillNextLevel)}`}
+                    sub={<Stack component={'span'} gap={0.5} sx={{ mt: 0.25 }}>
+                      <span>{cleanUnderscore(meal?.effect?.replace('{', mealBonusText(realEffect)) ?? '')}</span>
+                      <Box component={'span'} sx={LINE_SX}>
+                        <LinearProgress variant={'determinate'} aria-label={`${name}: progress`} sx={BAR_SX}
+                                        value={target > 0 ? Math.min(100, 100 * (meal?.amount ?? 0) / target) : 100}/>
+                        <Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>
+                          <Num value={meal?.amount ?? 0} game={MEAL_COST} whole/>{' / '}<Num value={target ?? 0} game={MEAL_COST} whole/>
+                          {showDiamond ? ` to Lv 11, ${hoursText(timeToDiamond)}` : null}
+                        </Box>
+                      </Box>
+                    </Stack>}/>;
 };
 
 const Kitchens = ({
@@ -82,6 +92,7 @@ const Kitchens = ({
   const progressOptions = { totalMealSpeed, achievements, equinoxUpgrades, account };
   const ownedSpice = (rawName) => spices?.available?.find((spice) => spice?.rawName === rawName)?.amount ?? 0;
   const builtKitchens = kitchens?.filter(Boolean) ?? [];
+  const makingRecipe = builtKitchens.some((kitchen) => kitchen?.status >= 3);
 
   const getRecipeTime = (possibleMeals) => {
     if (!possibleMeals) return 0;
@@ -96,12 +107,19 @@ const Kitchens = ({
     return Math.floor(2 * kitchenIndex + upgradeType);
   }
 
-  // What an upgrade's next level costs against the spice the account owns, named by the upgrade it buys
-  const upgradeCost = (label, spice, name, cost) => <Stack key={label} direction={'row'} alignItems={'center'}
-                                                           justifyContent={'space-between'} columnGap={1.5}
-                                                           flexWrap={'wrap'}>
-    <Typography variant={'body2'} color={'text.secondary'}>{label}</Typography>
-    <ItemCard.Cost icon={`data/${spice}.png`} iconAlt={name} need={cost ?? 0} have={ownedSpice(spice)} game={SPICE_COST}/>
+  // An upgrade in one line: its level and what it gives now, then its next level's cost against the spice the account
+  // owns. Three lines for speed, fire and luck, where a stat's own rows and an "Upgrade costs" section of three took eight
+  const upgradeRow = (label, level, rate, spice, name, cost) => <Stack key={label} direction={'row'} alignItems={'center'}
+                                                                       justifyContent={'space-between'} columnGap={1.5}
+                                                                       flexWrap={'wrap'}>
+    <Typography variant={'body2'} component={'div'} sx={{ display: 'flex', alignItems: 'baseline', gap: 0.75 }}>
+      <Box component={'span'} sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>{`${label} Lv ${formatNum(level ?? 0)}`}</Box>
+      <Box component={'span'} sx={{ fontWeight: 500, whiteSpace: 'nowrap' }}>{rate}</Box>
+    </Typography>
+    {/* A cost short of spice wraps under its stat with its "need" line, still at the card's right edge */}
+    <Box sx={{ ml: 'auto' }}>
+      <ItemCard.Cost icon={`data/${spice}.png`} iconAlt={name} need={cost ?? 0} have={ownedSpice(spice)} game={SPICE_COST}/>
+    </Box>
   </Stack>;
 
   // A recipe's spices and the meals they can make (greyed until found): the Details pill's part of its card, under the
@@ -157,24 +175,18 @@ const Kitchens = ({
       {/* In a failed section the page's note says why there are none */}
       {!builtKitchens.length ? (kitchensFailed ? null
         : <Notice tone={'info'}>Kitchens show here once you build your first one in World 4.</Notice>) : <Box>
-        <Toolbar state={toolbar} defaults={KITCHENS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
-                 total={builtKitchens.length} shown={builtKitchens.length} noun={'kitchens'}>
+        {/* The Details pill opens a recipe's spices and the meals it can make: a bar with no recipe has nothing to open */}
+        {makingRecipe ? <Toolbar state={toolbar} defaults={KITCHENS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+                                 total={builtKitchens.length} shown={builtKitchens.length} noun={'kitchens'}>
           <Toolbar.Filter name={'details'} label={'Details'} display/>
-        </Toolbar>
-        {totals.length ? <Stack gap={1} mb={3}>
-          <Typography variant={'sectionTitle'} component={'h2'}>Totals</Typography>
-          <CardGrid size={'m'} details={toolbar?.details}>
-            {totals.map(([foodName, meal], index) => {
-              const { body, more } = mealProgress(meal, progressOptions);
-              return <ItemCard key={`${foodName}-${index}`} icon={<MealIcon rawName={foodName} plateLevel={meal?.level} small/>}
-                               title={cleanUnderscore(meal?.name)} meta={formatNum(meal?.total ?? 0, 'rate')} more={more}>
-                {body}
-              </ItemCard>;
-            })}
-          </CardGrid>
-        </Stack> : null}
-        {/* A card leads with what its kitchen does now: meal speed while it cooks, fire speed and luck while it makes a
-            recipe. Its upgrade costs stay; the other stats and a recipe's spices show with the Details pill. */}
+        </Toolbar> : null}
+        {totals.length ? <Panel title={'Cooking now'} meta={'All kitchens on each meal'} sx={{ mb: 2 }}>
+          {totals.length > 1
+            ? <Panel.Columns>{totals.map(([foodName, meal]) => mealRow(foodName, meal, progressOptions))}</Panel.Columns>
+            : totals.map(([foodName, meal]) => mealRow(foodName, meal, progressOptions))}
+        </Panel> : null}
+        {/* A card leads with what its kitchen does now (its meal and the meals an hour, or its recipe), then speed, fire
+            and luck a line each with the next level's cost; a recipe's spices show with the Details pill. */}
         <CardGrid size={'l'} details={toolbar?.details}>
           {builtKitchens.map((kitchen, index) => {
             const kitchenIndex = kitchen?.kitchenIndex ?? index;
@@ -186,30 +198,24 @@ const Kitchens = ({
             const luckSpice = thirdSpiceIndex >= 21 ? 'CookingSpiceNA' : `CookingSpice${thirdSpiceIndex}`;
             const speedText = `${formatGame(kitchen?.mealSpeed ?? 0, 'CookingR.CookingSPEED')}/hr`;
             const fireText = `${formatGame(kitchen?.fireSpeed ?? 0, 'CookingR.CookingFIRE')}/hr`;
-            const speedRow = [`Speed Lv ${formatNum(kitchen?.speedLv ?? 0)}`, kitchen?.mealSpeedBreakdown
-              ? <Breakdown key={'speed'} asValue title={`Kitchen ${kitchenIndex + 1} speed`}
+            const speed = kitchen?.mealSpeedBreakdown
+              ? <Breakdown asValue title={`Kitchen ${kitchenIndex + 1} speed`}
                            data={{ ...kitchen.mealSpeedBreakdown, totalValue: speedText }}>{speedText}</Breakdown>
-              : speedText];
-            const fireRow = [`Fire Lv ${formatNum(kitchen?.fireLv ?? 0)}`, kitchen?.fireSpeedBreakdown
-              ? <Breakdown key={'fire'} asValue title={`Kitchen ${kitchenIndex + 1} fire`}
+              : speedText;
+            const fire = kitchen?.fireSpeedBreakdown
+              ? <Breakdown asValue title={`Kitchen ${kitchenIndex + 1} fire`}
                            data={{ ...kitchen.fireSpeedBreakdown, totalValue: fireText }}>{fireText}</Breakdown>
-              : fireText];
-            const luckRow = [`Luck Lv ${formatNum(kitchen?.luckLv ?? 0)}`, formatNum(kitchen?.mealLuck ?? 1, 'mult')];
-            const mealsPerHourRow = ['Meals per hour', formatNum((kitchen?.mealSpeed ?? 0) / (kitchen?.meal?.cookReq || 1), 'rate')];
+              : fireText;
+            const mealsPerHour = `${formatNum((kitchen?.mealSpeed ?? 0) / (kitchen?.meal?.cookReq || 1))} meals/hr`;
             return <ItemCard key={`kitchen-${kitchenIndex}`} title={`Kitchen ${kitchenIndex + 1}`}
-                             meta={isRecipe ? 'Making a recipe' : cleanUnderscore(kitchen?.meal?.name)}
-                             more={<>
-                               {isRecipe ? recipeIngredients(kitchen) : null}
-                               <ItemCard.Section>
-                                 <ItemCard.Facts rows={isRecipe ? [speedRow] : [fireRow, luckRow]}/>
-                               </ItemCard.Section>
-                             </>}>
-              <ItemCard.Facts rows={isRecipe ? [fireRow, luckRow] : [speedRow, mealsPerHourRow]}/>
-              <ItemCard.Section label={'Upgrade costs'}>
-                {upgradeCost('Speed', `CookingSpice${firstSpiceIndex}`, spicesNames[firstSpiceIndex], kitchen?.speedCost)}
-                {upgradeCost('Fire', `CookingSpice${secondSpiceIndex}`, spicesNames[secondSpiceIndex], kitchen?.fireCost)}
-                {upgradeCost('Luck', luckSpice, thirdSpiceIndex >= 20 ? 'Unknown spice' : spicesNames[thirdSpiceIndex], kitchen?.luckCost)}
-              </ItemCard.Section>
+                             meta={isRecipe ? 'Making a recipe' : `${cleanUnderscore(kitchen?.meal?.name)} · ${mealsPerHour}`}
+                             more={isRecipe ? recipeIngredients(kitchen) : null}>
+              <Stack gap={0.75}>
+                {upgradeRow('Speed', kitchen?.speedLv, speed, `CookingSpice${firstSpiceIndex}`, spicesNames[firstSpiceIndex], kitchen?.speedCost)}
+                {upgradeRow('Fire', kitchen?.fireLv, fire, `CookingSpice${secondSpiceIndex}`, spicesNames[secondSpiceIndex], kitchen?.fireCost)}
+                {upgradeRow('Luck', kitchen?.luckLv, formatNum(kitchen?.mealLuck ?? 1, 'mult'), luckSpice,
+                  thirdSpiceIndex >= 20 ? 'Unknown spice' : spicesNames[thirdSpiceIndex], kitchen?.luckCost)}
+              </Stack>
               {isRecipe ? recipeSection(kitchen, recipeTime, timeToFinish) : null}
             </ItemCard>
           })}
