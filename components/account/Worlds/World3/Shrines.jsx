@@ -10,13 +10,17 @@ const pct = (value) => `+${formatNum(value ?? 0, 'pct')}`;
 // The game's shrine sign (N.js): { is floor((level - 1) * per level + base), with no card bonus
 const shrineSentence = ({ desc, shrineLevel }, entry) => cleanUnderscore(`${desc ?? ''}`.replace('{',
   `${shrineLevel > 0 ? Math.floor((shrineLevel - 1) * (entry?.bonusPerLevel ?? 0) + (entry?.baseBonus ?? 0)) : 0}`));
-// The sign's hours: one decimal under 1,000, commas under 1M, then thousands
+// The sign's hours: one decimal under 1,000, commas under 1M, then thousands. Past 1B hours the thousands would print
+// short themselves ("7.56e73K"), so the hours print short on their own.
 const gameHours = (hours, round = Math.floor) => (hours < 1e3 ? `${Math.floor(10 * hours) / 10}` : hours < 1e6
-  ? formatNum(round(hours)) : `${formatNum(round(hours / 1e3))}K`);
+  ? formatNum(round(hours)) : hours < 1e9 ? `${formatNum(round(hours / 1e3))}K` : formatNum(round(hours)));
+// A shrine every character feeds (one that applies on every map) reads as a count, not 11 names down the note
+const contributorsText = (contributors, characterCount) => (!contributors.length ? 'Nobody on its map'
+  : contributors.length > 1 && contributors.length === characterCount ? `All ${characterCount} characters` : contributors.join(', '));
 // The hours a shrine needs for its next level
 const hoursToLevel = (level) => Math.floor(20 * (level - 1) + 6 * level * Math.pow(1.63, level - 1));
 
-const shrineDetails = (shrine, entry, contributors, perHour) => {
+const shrineDetails = (shrine, entry, contributors, perHour, characterCount) => {
   const built = shrine?.shrineLevel > 0;
   const hoursReq = hoursToLevel(shrine?.shrineLevel);
   const progress = shrine?.progress ?? 0;
@@ -32,14 +36,14 @@ const shrineDetails = (shrine, entry, contributors, perHour) => {
       perHour !== undefined ? ['Per hour', formatNum(perHour, 'rate')] : null,
       perHour !== undefined ? ['Next level in', perHour > 0 ? formatDuration((hoursReq - progress) / perHour * 3600) : '-'] : null,
       ['With cards', pct(shrine?.bonus)],
-      contributors ? ['Contributors', contributors.length ? contributors.join(', ') : 'Nobody on its map'] : null,
+      contributors ? ['Contributors', contributorsText(contributors, characterCount)] : null,
       shrine?.crystalShrineBonus > 0 ? ['Crystal Shrine', pct(shrine.crystalShrineBonus)] : null
     ]}/> : null}
   </Stack>;
 };
 
 // shrinesExpBonus: each character's EXP into each shrine (null when its section failed: no rate, no contributors)
-const Shrines = ({ shrines, shrinesExpBonus }) => <Box sx={{ p: 1.5 }}>
+const Shrines = ({ shrines, shrinesExpBonus, characterCount }) => <Box sx={{ p: 1.5 }}>
   <CardGrid size={'icon'} fill>
     {(shrines ?? []).map((shrine, index) => {
       const entry = shrineData?.[`${shrine?.rawName ?? ''}`.replace('ConTowerB', '')];
@@ -48,7 +52,7 @@ const Shrines = ({ shrines, shrinesExpBonus }) => <Box sx={{ p: 1.5 }}>
       const perHour = shrinesExpBonus ? shrinesExpBonus?.total?.[index] ?? 0 : undefined;
       return <IconTile key={shrine?.rawName ?? index} icon={`data/${shrine?.rawName}.png`} alt={cleanUnderscore(shrine?.name)}
                        value={formatNum(shrine?.shrineLevel ?? 0)} status={shrine?.shrineLevel > 0 ? undefined : 'missing'}
-                       details={shrineDetails(shrine, entry, contributors, perHour)}/>;
+                       details={shrineDetails(shrine, entry, contributors, perHour, characterCount)}/>;
     })}
   </CardGrid>
 </Box>;

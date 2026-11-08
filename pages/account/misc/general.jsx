@@ -44,7 +44,8 @@ const General = () => {
                                                     keysFailed={failedOf('currencies.KeysAll')}
                                                     ticketsFailed={failedOf('currencies.ColosseumTickets')}/>}
       {parseFailed ? null : <Panel title={'Shrines'}>
-        <Shrines shrines={account?.shrines} shrinesExpBonus={failedOf('shrinesExpBonus') ? null : account?.shrinesExpBonus}/>
+        <Shrines shrines={account?.shrines} shrinesExpBonus={failedOf('shrinesExpBonus') ? null : account?.shrinesExpBonus}
+                 characterCount={state?.characters?.length}/>
       </Panel>}
       {parseFailed ? null : <Panel title={'Statues'}>
         <Statues account={account} characters={state?.characters}/>
