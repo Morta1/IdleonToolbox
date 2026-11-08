@@ -30,6 +30,11 @@
 //            --click 'button:has-text("Skip")' --click 'button:has-text("Show me around")' --click 'button:has-text("Next")' for the tour.
 // --window   a shot is the window as it stands, not the whole page, and nothing scrolls the page before it: for an overlay.
 // --root     a selector the text scans and the dump read in place of main: '.MuiDialog-paper', a floating card.
+// --compare  another site's base (the pre-4.0 build): each route opens there too, and the run ends with every route's
+//            content height beside that site's, tallest share first, so a page that spends more room than it did is found.
+//            The content is from the top of main to the footer's links. With shots, the other site's shot joins the sheet.
+// --compare-sizes  the other site's widths, one per --sizes entry, so the two content columns match: the old site's
+//            sidebar took 303 px, so its 1570 is the new 1920's 1,267 px column. Default: the same widths.
 // --base     default http://localhost:$E2E_PORT, or 3002.
 // --no-shots scan only. --out default .page-check (gitignored). Exit 1 on any hit, 2 when the server is down.
 //
@@ -61,6 +66,8 @@ const { values: opts, positionals } = parseArgs({
     'whats-new': { type: 'boolean', default: false },
     window: { type: 'boolean', default: false },
     root: { type: 'string' },
+    compare: { type: 'string' },
+    'compare-sizes': { type: 'string' },
     base: { type: 'string', default: `http://localhost:${process.env.E2E_PORT ?? 3002}` },
     out: { type: 'string', default: '.page-check' },
     'no-shots': { type: 'boolean', default: false },
@@ -85,6 +92,11 @@ const sizes = opts.sizes.split(',').map((text) => {
   const [width, height] = text.split('x').map(Number);
   return { width, height: height || HEIGHTS[width] || 800 };
 });
+const compareWidths = opts['compare-sizes']?.split(',').map(Number) ?? [];
+const compareSizeOf = (size) => {
+  const width = compareWidths[sizes.indexOf(size)] || size.width;
+  return { width, height: size.height };
+};
 const states = opts.states.split(',');
 const schemes = opts.schemes.split(',');
 const force = opts.force?.split(',');
@@ -445,6 +457,42 @@ const readPins = () => {
   }).join(' | ');
 };
 
+// The page's content, from the top of main to the footer's links: the same span on both sites, whatever bar or sidebar sits
+// outside it. Runs in the page.
+const contentExtent = () => {
+  const mainTop = (document.querySelector('main')?.getBoundingClientRect().top ?? 0) + scrollY;
+  const footer = [...document.querySelectorAll('a')].find((link) => link.textContent.trim() === 'Discord bot');
+  const bottom = footer ? footer.getBoundingClientRect().top + scrollY : document.documentElement.scrollHeight;
+  return Math.round(bottom - mainTop);
+};
+
+// The same route on --compare's site, at its matching width: its content height, and its shot beside ours.
+const compareOne = async (browser, { route, state, size, slug }) => {
+  const other = compareSizeOf(size);
+  const touch = other.width < 768;
+  const context = await browser.newContext({ viewport: other, storageState: consent, ...(touch ? { isMobile: true, hasTouch: true } : {}) });
+  const page = await context.newPage();
+  try {
+    const response = await page.goto(opts.compare + withQuery(route, state), { waitUntil: 'domcontentloaded', timeout: 30000 });
+    if (response?.status() >= 400) return { failed: `HTTP ${response.status()}` };
+    await waitForRender(page);
+    await page.waitForTimeout(500 + Number(opts.settle));
+    await waitForRender(page);
+    const height = await page.evaluate(contentExtent);
+    let shot = null;
+    if (!opts['no-shots'] && !touch) {
+      shot = join(opts.out, `${slug}-${size.width}-compare.png`);
+      const full = await page.evaluate(() => document.documentElement.scrollHeight);
+      await page.screenshot({ path: shot, fullPage: true, clip: { x: 0, y: 0, width: other.width, height: Math.min(full, MAX_SHOT_HEIGHT) } });
+    }
+    return { height, width: other.width, shot };
+  } catch (error) {
+    return { failed: error.message.split('\n')[0].slice(0, 120) };
+  } finally {
+    await context.close();
+  }
+};
+
 const withQuery = (route, state) => {
   if (state !== 'demo') return route;
   return `${route}${route.includes('?') ? '&' : '?'}demo=true`;
@@ -520,6 +568,10 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
     if (sideways > 1) hits.sideways = [`${sideways}px`];
     result.height = height;
     result.hits = Object.fromEntries(Object.entries(hits).filter(([, list]) => list.length));
+    if (opts.compare) {
+      result.content = await page.evaluate(contentExtent);
+      result.compare = await compareOne(browser, { route, state, size, slug });
+    }
     writeFileSync(join(opts.out, `${slug}-${size.width}.txt`), await pageDump(page, opts.root ?? (opts.click ? 'body' : 'main')).catch(() => ''));
     if (!opts['no-shots']) {
       if (opts.window) {
@@ -540,6 +592,7 @@ const checkOne = async (browser, { route, state, size, scheme }) => {
         result.shots.push(file);
       }
     }
+    if (result.compare?.shot) result.shots.push(result.compare.shot);
     if (opts.pins) {
       // A phone's shots leave the page scrolled
       await page.evaluate(() => window.scrollTo(0, 0));
@@ -594,6 +647,14 @@ for (const result of results) {
   for (const [kind, list] of kinds) console.log(`  ${kind}: ${list.slice(0, 5).join(' || ')}`);
   for (const [at, line] of Object.entries(result.pins ?? {})) console.log(`  pins ${at}: ${line}`);
   if (result.shifts) console.log(`  cls ${result.cls.toFixed(4)}, first paint ${result.firstPaint} ms: ${result.shifts.map(({ value, at, moves }) => `${value.toFixed(4)} at ${at} ms, moved ${moves.join('/')} px`).join(' || ') || 'none'}`);
+}
+if (opts.compare) {
+  const rows = results.filter((r) => r.content && r.compare?.height).map((r) => ({ ...r, share: r.content / r.compare.height }));
+  rows.sort((a, b) => b.share - a.share);
+  console.log(`\nContent height against ${opts.compare}, tallest share first:`);
+  for (const r of rows) console.log(`${r.share.toFixed(2)}x  ${r.content} vs ${r.compare.height}  ${r.route} ${r.state} ${r.size}`);
+  const missing = results.filter((r) => r.compare?.failed);
+  if (missing.length) console.log(`Not measured on the other site: ${missing.map((r) => `${r.route} (${r.compare.failed})`).join(', ')}`);
 }
 if (!opts['no-shots']) {
   for (const route of routes) {
