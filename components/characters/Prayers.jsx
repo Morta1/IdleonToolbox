@@ -9,9 +9,10 @@ import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
 import StatusText from '@components/common/StatusText';
 
+// The prayer is all its tile says: the sheet's 40 px, with the sheet's 44 px tile floor under it (as Bags)
 const Prayers = ({ prayers }) => <Panel title={'Prayers'}>
-  {prayers?.length ? <CardGrid size={'icon'} sheetColumns={[8, 6]} sheetBare>
-    {prayers.map((prayer) => <IconTile key={prayer?.prayerIndex} icon={`data/Prayer${prayer?.prayerIndex}.png`}
+  {prayers?.length ? <CardGrid size={'icon'} sheetColumns={[8, 6]}>
+    {prayers.map((prayer) => <IconTile key={prayer?.prayerIndex} icon={`data/Prayer${prayer?.prayerIndex}.png`} iconSize={40}
                                        alt={cleanUnderscore(prayer?.name ?? '')} details={<PrayerDetails {...prayer}/>}/>)}
   </CardGrid> : <Typography variant={'body2'} color={'text.secondary'}>No prayers equipped</Typography>}
 </Panel>;

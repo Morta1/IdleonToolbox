@@ -9,10 +9,11 @@ import StatusText from '@components/common/StatusText';
 const PlayerBubbles = ({ bubbles }) => {
   const equipped = bubbles?.filter(({ bubbleName }) => bubbleName) ?? [];
   return <Panel title={'Equipped bubbles'}>
-    {equipped.length ? <CardGrid size={'icon'} sheetColumns={[8, 6]} sheetBare>
+    {/* The bubble is all its tile says: the sheet's 40 px, with the sheet's 44 px tile floor under it (as Bags) */}
+    {equipped.length ? <CardGrid size={'icon'} sheetColumns={[8, 6]}>
       {equipped.map((bubble, index) => {
         const name = bubble.bubbleName === 'BUG]' ? 'Bug2' : bubble.bubbleName;
-        return <IconTile key={`${name}-${index}`} icon={`data/${bubble.rawName}.png`} alt={cleanUnderscore(name)}
+        return <IconTile key={`${name}-${index}`} icon={`data/${bubble.rawName}.png`} alt={cleanUnderscore(name)} iconSize={40}
                          details={<BubbleDetails {...bubble} bubbleName={name}/>}/>;
       })}
     </CardGrid> : <StatusText status={'needs'}>No active bubble</StatusText>}

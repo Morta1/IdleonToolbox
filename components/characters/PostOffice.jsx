@@ -14,7 +14,7 @@ const PostOffice = ({ boxes, totalPointsSpent, totalOrders, showUnmaxedBoxesOnly
   return <Panel title={'Post Office'} meta={spent < orders ? `${formatNum(orders - spent)} unspent` : undefined}>
     {showUnmaxedBoxesOnly && !boxes?.some(isShown) ? <Notice>Every box is maxed.</Notice> : <CardGrid size={'icon'} sheetColumns={[6]}>
       {boxes?.map((box, index) => (isShown(box)
-        ? <IconTile key={`${box?.name}-${index}`} icon={`data/UIboxUpg${index}.png`} alt={cleanUnderscore(box?.name ?? '')}
+        ? <IconTile key={`${box?.name}-${index}`} icon={`data/UIboxUpg${index}.png`} alt={cleanUnderscore(box?.name ?? '')} iconSize={40}
                     value={formatNum(box?.level ?? 0)} details={<BoxDetails {...box}/>}/>
         : null))}
     </CardGrid>}

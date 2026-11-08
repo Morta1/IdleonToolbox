@@ -16,11 +16,12 @@ export const chipText = (chip) => cleanUnderscore(chip?.bonus?.replace(/{/g, chi
 export const chipDetails = (chip) => <ItemCard.Desc text={[titleCase(chip?.name), chipText(chip)]}/>;
 
 // A character's chip slots (drawn by Console and by /characters): a chip opens its text on a tap, a locked slot says
-// when it opens, and an open empty one is only the dashed slot
+// when it opens, and an open empty one is only the dashed slot. 40 px in /characters' sheet too, the chip being all its tile
+// says, over the sheet's 44 px tile floor (as Bags).
 const Chips = ({ playerChips, playerLabLevel }) => {
-  return <CardGrid size={'icon'} columns={7} sheetColumns={[8, 6]} sheetBare>
+  return <CardGrid size={'icon'} columns={7} sheetColumns={[8, 6]}>
     {playerChips?.map((chip, chipIndex) => chip !== -1
-      ? <IconTile key={chipIndex} icon={`data/ConsoleChip${chip?.index}.png`} alt={titleCase(chip?.name)}
+      ? <IconTile key={chipIndex} icon={`data/ConsoleChip${chip?.index}.png`} alt={titleCase(chip?.name)} iconSize={40}
                   details={chipDetails(chip)}/>
       : playerLabLevel >= CHIP_SLOT_LEVELS[chipIndex] ? <IconTile key={chipIndex} status={'empty'}/>
         : <IconTile key={chipIndex} status={'empty'} alt={'Locked slot'}
