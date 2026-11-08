@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import NextLink from 'next/link';
 import { useRouter } from 'next/router';
 import { Box, ButtonBase, ClickAwayListener, ListItemButton, ListItemText, Typography, useMediaQuery } from '@mui/material';
@@ -27,9 +27,10 @@ const REST_SWAP_MS = 120;
 // A click this soon after a rest swapped a panel in was already on its way to open it, so it doesn't close it.
 const SWAP_CLICK_GRACE_MS = 400;
 
-// The bar's open menu (a key of MENUS or null).
+// The bar's open menu (a key of MENUS or null), and the button that opened it (null: the bar's own button for it).
 export const useBarMenu = () => {
   const [openMenu, setOpenMenu] = useState(null);
+  const [menuAnchor, setMenuAnchor] = useState(null);
   const restTimer = useRef(null);
   const swappedAt = useRef(0);
   useEffect(() => () => clearTimeout(restTimer.current), []);
@@ -39,20 +40,23 @@ export const useBarMenu = () => {
     return () => trackMenuClose(openMenu);
   }, [openMenu]);
   const endRest = () => clearTimeout(restTimer.current);
-  const toggleMenu = (menu) => {
+  const toggleMenu = (menu, from = null) => {
     endRest();
-    if (menu !== openMenu) setOpenMenu(menu);
-    else if (Date.now() - swappedAt.current >= SWAP_CLICK_GRACE_MS) setOpenMenu(null);
+    if (menu !== openMenu) {
+      setMenuAnchor(from);
+      setOpenMenu(menu);
+    } else if (Date.now() - swappedAt.current >= SWAP_CLICK_GRACE_MS) setOpenMenu(null);
   };
   const restOn = (menu) => {
     endRest();
     if (!openMenu || menu === openMenu) return;
     restTimer.current = setTimeout(() => {
       swappedAt.current = Date.now();
+      setMenuAnchor(null);
       setOpenMenu((current) => (current ? menu : current));
     }, REST_SWAP_MS);
   };
-  return { openMenu, setOpenMenu, toggleMenu, restOn, endRest };
+  return { openMenu, menuAnchor, setOpenMenu, toggleMenu, restOn, endRest };
 };
 
 // The bar item for a menu (Decision 11): a click, a tap or Enter opens its panel; no opening on hover, only the swap
@@ -60,7 +64,7 @@ export const useBarMenu = () => {
 export const NavMenuButton = ({ menu, open, selected, onToggle, onRest, onRestEnd }) => (
   <ListItemButton id={buttonId(menu)} {...{ [MENU_BUTTON]: '' }} data-cy={`nav-item-${menu}`} data-tour={`nav-${menu}`}
                   selected={selected} aria-expanded={open} aria-controls={open ? navMenuId(menu) : undefined}
-                  onClick={() => onToggle(menu)} onPointerLeave={onRestEnd}
+                  onClick={(event) => onToggle(menu, event.currentTarget)} onPointerLeave={onRestEnd}
                   onPointerEnter={(event) => {
                     if (event.pointerType === 'mouse') onRest(menu);
                   }}
@@ -180,14 +184,16 @@ const PaneForm = ({ menu, pathname, nav }) => {
   </Box>;
 };
 
-// A grid that ends where its columns do. Worlds and the panes fill the page's column.
+// A grid that ends where its columns do, centred under its button. Worlds and the panes fill the page's column.
 const GRID_WIDTH = { account: 'fit-content', tools: 820 };
 
 // A menu's pages under the bar (Layout boards). Not modal: another bar item swaps it, and a click outside
 // or Esc closes it, focus back on its button (3d and 3e's rule for desktop panels). No dim and no scroll lock:
-// the panel takes the page's frame (frame.js), so its edges are the page's and it never covers a side ad.
-export const NavMenuPanel = ({ menu, onClose }) => {
+// the panel stays inside the page's frame (frame.js), so it never covers a side ad.
+// anchor: the button that opened it (a group row's name), or null for the bar's own button.
+export const NavMenuPanel = ({ menu, anchor = null, onClose }) => {
   const router = useRouter();
+  const cellRef = useRef(null);
   const panelRef = useRef(null);
   // What opened the panel (the bar's button or a group row's name), for Esc to hand the focus back to.
   const openerRef = useRef(null);
@@ -204,6 +210,33 @@ export const NavMenuPanel = ({ menu, onClose }) => {
     openerRef.current = document.activeElement;
     panelRef.current?.focus();
   }, [menu]);
+
+  // A panel narrower than the page's column centres on the button that opened it, as far as the column allows: at the
+  // column's left edge, Account's first group sat about 600 px from its button and Tools opened under Dashboard. Set
+  // before the first paint, and again when the column or the panel changes size or the window moves the bar.
+  const [shift, setShift] = useState(0);
+  useLayoutEffect(() => {
+    const place = () => {
+      const from = anchor?.isConnected ? anchor : document.getElementById(buttonId(menu));
+      const cell = cellRef.current;
+      const panel = panelRef.current;
+      if (!from || !cell || !panel) return;
+      const column = cell.getBoundingClientRect();
+      const button = from.getBoundingClientRect();
+      const width = panel.offsetWidth;
+      const centred = button.left + button.width / 2 - width / 2 - column.left;
+      setShift(Math.round(Math.max(0, Math.min(column.width - width, centred))));
+    };
+    place();
+    const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(place) : null;
+    observer?.observe(cellRef.current);
+    observer?.observe(panelRef.current);
+    window.addEventListener('resize', place);
+    return () => {
+      observer?.disconnect();
+      window.removeEventListener('resize', place);
+    };
+  }, [menu, anchor]);
 
   const nav = {
     query: sessionQuery(router?.query),
@@ -257,31 +290,33 @@ export const NavMenuPanel = ({ menu, onClose }) => {
   };
 
   // Fixed under the bar and the band while it shows (as the phone menu), after the band in the markup: the band has
-  // the bar's z-index and comes later, so a panel inside the bar would sit behind it. The frame's grid puts the panel
-  // in the page's column, and a page that caps its width (the guild pages) caps the panel the same way, so the panel's
-  // edges are the page's; the wrapper lets clicks through; the panel takes them.
+  // the bar's z-index and comes later, so a panel inside the bar would sit behind it. The frame's grid gives the cell
+  // the page's column, and a page that caps its width (the guild pages) caps the cell the same way, so the panel never
+  // passes the page's edges; the wrapper and the cell let clicks through; the panel takes them.
   return <Box sx={{
     position: 'fixed', top, left: 0, right: 0, zIndex: (theme) => theme.zIndex.drawer + 1,
     pointerEvents: 'none'
   }}>
     <Box sx={[frame.sx, frame.inner ? null : capPageWidth(OUTER_PANEL_WIDTH)]}>
-      <ClickAwayListener onClickAway={onClickAway}>
-        <Box ref={panelRef} id={navMenuId(menu)} tabIndex={-1} onKeyDown={onKeyDown} onBlur={onBlur}
-             sx={[{
-               gridArea: 'page',
-               pointerEvents: 'auto', outline: 'none', color: 'text.primary',
-               width: (form !== 'pane' && GRID_WIDTH[menu]) || '100%', maxWidth: '100%',
-               p: FORMS[form]?.pad ?? 2, bgcolor: 'background.paper', border: 1, borderTop: 0, borderColor: 'divider',
-               borderRadius: '0 0 8px 8px', boxShadow: (theme) => (theme.vars || theme).palette.shadow.floating,
-               maxHeight: `calc(100vh - ${top}px - var(--nitro-ad-height, 0px))`, overflowY: 'auto'
-             }, frame.cap ? capPageWidth(frame.cap) : null]}>
-          <nav aria-label={`${topNavLabel(menu)} pages`}>
-            {form === 'pane'
-              ? <PaneForm menu={menu} pathname={pathname} nav={nav}/>
-              : <GridForm menu={menu} form={form} pathname={pathname} nav={nav}/>}
-          </nav>
-        </Box>
-      </ClickAwayListener>
+      <Box ref={cellRef} sx={[{ gridArea: 'page', minWidth: 0 }, frame.cap ? capPageWidth(frame.cap) : null]}>
+        <ClickAwayListener onClickAway={onClickAway}>
+          <Box ref={panelRef} id={navMenuId(menu)} tabIndex={-1} onKeyDown={onKeyDown} onBlur={onBlur}
+               style={shift ? { transform: `translateX(${shift}px)` } : undefined}
+               sx={{
+                 pointerEvents: 'auto', outline: 'none', color: 'text.primary',
+                 width: (form !== 'pane' && GRID_WIDTH[menu]) || '100%', maxWidth: '100%',
+                 p: FORMS[form]?.pad ?? 2, bgcolor: 'background.paper', border: 1, borderTop: 0, borderColor: 'divider',
+                 borderRadius: '0 0 8px 8px', boxShadow: (theme) => (theme.vars || theme).palette.shadow.floating,
+                 maxHeight: `calc(100vh - ${top}px - var(--nitro-ad-height, 0px))`, overflowY: 'auto'
+               }}>
+            <nav aria-label={`${topNavLabel(menu)} pages`}>
+              {form === 'pane'
+                ? <PaneForm menu={menu} pathname={pathname} nav={nav}/>
+                : <GridForm menu={menu} form={form} pathname={pathname} nav={nav}/>}
+            </nav>
+          </Box>
+        </ClickAwayListener>
+      </Box>
     </Box>
   </Box>;
 };

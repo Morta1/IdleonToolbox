@@ -38,7 +38,7 @@ const NavBar = ({ children }) => {
   const prefetch = useNavPrefetch();
   // The bar's open menu and the phone menu (null, or { group } it opened at). A page change closes both; a query-only
   // change (a page writing its own state to the URL, Wardrobe's companion) does not.
-  const { openMenu, setOpenMenu, toggleMenu, restOn, endRest } = useBarMenu();
+  const { openMenu, menuAnchor, setOpenMenu, toggleMenu, restOn, endRest } = useBarMenu();
   const [phoneMenuAt, setPhoneMenuAt] = useState(null);
   useEffect(() => {
     const close = (url) => {
@@ -51,8 +51,8 @@ const NavBar = ({ children }) => {
     return () => router?.events?.off('routeChangeStart', close);
   }, [router?.events]);
   // A group row's name: the bar's panel from lg, where the bar has its menus; the phone menu at that group below it.
-  const openGroupMenu = (group) => {
-    if (window.matchMedia('(min-width: 1200px)').matches) toggleMenu(group.menu);
+  const openGroupMenu = (group, from) => {
+    if (window.matchMedia('(min-width: 1200px)').matches) toggleMenu(group.menu, from);
     else setPhoneMenuAt({ group: group.key });
   };
 
@@ -105,7 +105,7 @@ const NavBar = ({ children }) => {
       </Toolbar>
     </MuiAppBar>
     <ProfileBanner/>
-    {openMenu ? <NavMenuPanel key={openMenu} menu={openMenu} onClose={() => setOpenMenu(null)}/> : null}
+    {openMenu ? <NavMenuPanel key={openMenu} menu={openMenu} anchor={menuAnchor} onClose={() => setOpenMenu(null)}/> : null}
     <Box component={'main'} sx={{
       display: 'flex',
       flexDirection: 'column',

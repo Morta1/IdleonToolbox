@@ -11,7 +11,7 @@ The rules that keep every page looking like one site. Read this before building 
 
 ## A page, top to bottom
 
-1. **Frame** (`components/common/NavBar/frame.js`): the page and its side ads as one centred group. The top bar is 56 px, with Worlds, Account and Tools. Below 1200 px wide the nav is behind the burger, so words on the page can't say "top bar" there.
+1. **Frame** (`components/common/NavBar/frame.js`): the page and its side ads as one centred group. The top bar is 56 px, with Worlds, Account and Tools. A menu's panel (`NavMenu.jsx`) stays inside the page's column: Worlds fills it, while Account and Tools centre on the button that opened them, pushed in only as far as the column's edge. Below 1200 px wide the nav is behind the burger, so words on the page can't say "top bar" there.
 2. **Page header** (`components/common/NavBar/PageHeader.jsx`): the title, then Pin, Add goal and Page settings at the right. Below 900 px, on a page in a group, the buttons sit on the line above the title, so the title has the whole width. A page with no group keeps them on the title's row while they fit.
 3. **Summary:** the page's main numbers in `PageSummary`.
 4. **Tabs:** `Tabber`.

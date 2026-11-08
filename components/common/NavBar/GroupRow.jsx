@@ -105,7 +105,7 @@ const GroupRow = ({ openMenu, phoneMenuOpen, onOpenMenu }) => {
                 display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 0.5, height: 52, mt: -3, mb: 1,
                 position: 'relative', containerType: 'inline-size', '&::after': EDGE_LINE_SX
               }}>
-    <ButtonBase {...{ [MENU_BUTTON]: '' }} onClick={() => onOpenMenu(group)} aria-expanded={menuOpen || phoneMenuOpen}
+    <ButtonBase {...{ [MENU_BUTTON]: '' }} onClick={(event) => onOpenMenu(group, event.currentTarget)} aria-expanded={menuOpen || phoneMenuOpen}
                 aria-controls={menuOpen ? navMenuId(group.menu) : phoneMenuOpen ? PHONE_MENU_ID : undefined} sx={GROUP_BUTTON_SX}>
       <Typography variant="groupLabel" component="span" sx={{ fontSize: 13, fontWeight: 600 }}>{group.label}</Typography>
       <IconChevronDown size={18} aria-hidden/>
