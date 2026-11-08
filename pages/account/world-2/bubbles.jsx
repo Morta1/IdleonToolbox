@@ -473,7 +473,7 @@ const Bubbles = () => {
               return <Panel key={name} title={displayName} meta={alchemyFailed ? '-' : `${formatNum(levels)} levels`}>
                 {/* Five a row, the game's worlds of five; 8 px on a phone, so the five fit its Panel */}
                 <Box sx={{ p: { xs: 1, sm: 1.5 } }}>
-                  <CardGrid size={'icon'} columns={5}>
+                  <CardGrid size={'icon'} columns={5} fill>
                     {shown.map((row) => <IconTile key={row.rawName} icon={`data/${row.rawName}.png`} alt={row.name}
                                                   value={formatNum(row.level)} frame={prismaGlow(row)}
                                                   status={alchemyFailed ? undefined

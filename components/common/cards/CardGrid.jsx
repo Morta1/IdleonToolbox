@@ -27,8 +27,12 @@ const columns = (size, count) => (size === 'icon'
 // fill: an icon grid whose tiles share the row at every width, 64 px up, so a full row never ends in an empty band: 72 px
 // columns left a General Panel about 64 px unused, where 4 tiles now fit at about 68 px. --tile-max lifts IconTile's cap.
 // A number is the tiles' least width instead: tiles with a name under the sprite (IconTile label) take 88, where a
-// ten-letter name fits whole.
-const fillSx = (fill) => ({ gridTemplateColumns: `repeat(auto-fill, minmax(${typeof fill === 'number' ? fill : 64}px, 1fr))`, '--tile-max': 'none' });
+// ten-letter name fits whole. With columns, the count stays and its tiles share the row: Bubbles' five a row capped at
+// 72 px left a cauldron wider than 416 px (a 2560 screen, four across) an empty band on its right.
+const fillSx = (fill, count) => ({
+  gridTemplateColumns: count > 0 ? `repeat(${count}, minmax(0, 1fr))` : `repeat(auto-fill, minmax(${typeof fill === 'number' ? fill : 64}px, 1fr))`,
+  '--tile-max': 'none'
+});
 export const LABELED_TILE_MIN = 88;
 // An icon grid inside a sheet (the characters board's .g), 6 px apart. sheetColumns [wide, narrow]: the tiles share the
 // row, and a section under 340 px (a side-by-side column, a phone) takes the narrow count. A tile is never narrower than
@@ -86,7 +90,7 @@ const CardGrid = ({ size = 'm', columns: count, sheetColumns, sheetBare, sheetTi
     <Box {...rest} sx={[
       flow ? { columnWidth: CARD_MIN_WIDTH[size], columnGap: 2, '& > *': { breakInside: 'avoid', mb: 2 }, '& > :last-child': { mb: 0 } }
         : { display: 'grid', gridTemplateColumns: columns(size, count), gap: size === 'icon' ? 1 : 2 },
-      !flow && fill && !sheet && size === 'icon' && fillSx(fill),
+      !flow && fill && !sheet && size === 'icon' && fillSx(fill, count),
       // toArray: a child a page left out (null) takes no column
       evenRows && (size === 'icon' ? evenRowsGrid(Children.toArray(children).length)
         : evenRowsGrid(Children.toArray(children).length, CARD_MIN_WIDTH[size], CARD_GAP)),
