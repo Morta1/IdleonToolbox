@@ -20,7 +20,7 @@ a {
 }
 
 /* An ad's frame holds a light document: under the dark scheme's color-scheme the browser paints that frame opaque
-   white wherever the creative doesn't cover it (an empty or loading slot). Rails and the anchor live in body, outside the app. */
+   white wherever the creative doesn't cover it (an empty or loading slot). The anchor lives in body, outside the app. */
 [id^="nitro-"] {
   color-scheme: light;
 }

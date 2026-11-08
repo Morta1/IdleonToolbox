@@ -30,13 +30,14 @@ import Box from '@mui/material/Box';
 import { NextSeo } from 'next-seo';
 import Kofi from '@components/common/Kofi';
 import StructuredData, { createFAQData } from '@components/common/StructuredData';
-import { HomeSidebarAds } from '@components/common/Ads/AdUnit';
 import DiscordBotSection, { DiscordSvg } from '@components/DiscordBotSection';
 import { DISCORD_SERVER_URL } from '@components/discordLinks';
 
-// The hero's own breakpoints, not the theme's. Media keys in sx rather than useMediaQuery: the
+// The hero's own breakpoints, not the theme's. CSS keys in sx rather than useMediaQuery: the
 // hook renders `false` at build and the real value on the client, a mismatch on every phone.
-const WIDE = '@media (min-width: 1246px)';
+// WIDE reads the page's own width, not the window's: beside a side ad the page is the window less 364 px (about 990 at
+// 1366). Text and image sit side by side from a 900 px page, half the row each less the 16 px gap, the image up to 550.
+const WIDE = '@container home (min-width: 900px)';
 const ULTRA_WIDE = '@media (min-width: 1921px)';
 
 // The landing hero's own display sizes, the only type outside the Foundations scale. They are what the
@@ -112,7 +113,9 @@ const Home = () => {
   }, 5000);
 
   return (
-    <Container>
+    // The frame gives the page its sides, as on every inner page: the Container only caps the width, at the 1,152 px
+    // home had inside lg's gutters before it took the frame
+    <Container disableGutters maxWidth={false} sx={{ maxWidth: 1152, containerType: 'inline-size', containerName: 'home' }}>
       <Head>
         <link rel="preload" as="image" href={`${prefix}etc/bg_${indexes[0]}.png`}/>
       </Head>
@@ -121,7 +124,6 @@ const Home = () => {
         description="Power up your Legends of Idleon adventure with Idleon Toolbox's essential tools and resources for optimizing gameplay, character builds, crafting, and more."
       />
       <StructuredData data={faqData}/>
-      <HomeSidebarAds/>
 
       <Stack direction={'row'} flexWrap={'wrap'}
              sx={{
@@ -157,13 +159,13 @@ const Home = () => {
         </Stack>
         <Stack sx={{
           width: '100%', justifyContent: 'flex-start',
-          [WIDE]: { width: 'inherit', justifyContent: 'center' }
+          [WIDE]: { width: 'calc(50% - 16px)', maxWidth: 550, justifyContent: 'center' }
         }}>
           {/* Aspect box rather than a fixed height: every rotation paints at exactly the same size
               (the source PNGs differ by a pixel in height), the phone layout shows the whole image
               instead of a side-cropped one, and the dead space the fixed 310px left under the
               image on narrow screens is gone. */}
-          <Box sx={{ width: '100%', [WIDE]: { width: 550 }, aspectRatio: '1200 / 674', position: 'relative' }}>
+          <Box sx={{ width: '100%', aspectRatio: '1200 / 674', position: 'relative' }}>
             <MotionConfig transition={{ duration: .8 }}>
               {/* initial={false}: the first hero image is the page's LCP candidate and must paint
                   from the static HTML, not fade in after hydration. Later rotations still fade. */}
