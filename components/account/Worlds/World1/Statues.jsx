@@ -35,8 +35,9 @@ const statueDetails = ({ statue, index, account, characters, nextLv, flairLevel,
         formatNum(Math.floor(10 * getStatueBonus(account, index, flatTalents)) / 10, 'amount', { precise: true })])}/>
     </ItemCard.Section> : null}
     <ItemCard.Section label={'Next level'}>
+      <ItemCard.Progress label={'EXP'} value={formatGame(progress, 'Big', { whole: true })} max={formatGame(nextLv, 'Big', { whole: true })}
+                         percent={Math.min(100, (progress / nextLv) * 100 || 0)}/>
       <ItemCard.Facts rows={[
-        ['Progress', `${formatGame(progress, 'Big', { whole: true })} / ${formatGame(nextLv, 'Big', { whole: true })}`],
         isSectionFailed(account, 'royalGuardian') ? ['Statue Flair', '-']
           : flairMulti > 1 ? [`Statue Flair ${flairLevel}`, `${formatNum(flairMulti, 'mult')} statue EXP`] : null
       ]}/>
@@ -44,8 +45,12 @@ const statueDetails = ({ statue, index, account, characters, nextLv, flairLevel,
   </Stack>;
 };
 
+// The tiles share a row from 48 px, so a General column holds 5 of the 30-odd statues, as the old page did: from 64 px it
+// held 3, and the Panel ran to twice the next one's height.
+const STATUE_TILE_MIN = 48;
+
 const Statues = ({ characters, account }) => <Box sx={{ p: 1.5 }}>
-  <CardGrid size={'icon'} fill>
+  <CardGrid size={'icon'} fill={STATUE_TILE_MIN}>
     {(account?.statues ?? []).map((statue, index) => {
       const level = statue?.level ?? 0;
       const nextLv = Math.round(Math.pow(level, 1.17) * Math.pow(1.35, level / 10) + 1);
@@ -53,7 +58,8 @@ const Statues = ({ characters, account }) => <Box sx={{ p: 1.5 }}>
       // The game draws the flair banner as a font glyph; the pngs are crops of it (public/etc): the statue's mark
       return <IconTile key={`${statue?.name}-${index}`} icon={`data/${statue?.rawName}.png`} alt={statueName(statue?.name)}
                        value={formatNum(level)} status={level ? undefined : 'missing'}
-                       mark={flairLevel ? `etc/StatueFlair${flairLevel}.png` : undefined} markAlt={`Statue Flair ${flairLevel}`}
+                       progress={level ? (statue?.progress ?? 0) / nextLv : undefined}
+                       mark={flairLevel ? `etc/StatueFlair${flairLevel}.png` : undefined} markAlt={`Statue Flair ${flairLevel}`} markSize={20}
                        details={statueDetails({
                          statue, index, account, characters, nextLv, flairLevel,
                          flairMulti: getStatueFlairExpMulti(account, index)

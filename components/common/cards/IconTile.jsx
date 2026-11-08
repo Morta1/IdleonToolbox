@@ -100,9 +100,9 @@ const LABEL_SX = {
 // sub: a dimmer line under the value, inside a sheet (a talent's "/ max"). kind is what numOrNode takes. frameAbove: the
 // frame over the sprite (GameIcon's). iconSize: 40 in a sheet where the sprite is all a tile says (talents, skills, obols,
 // equipment): the sheet's 28 px left a talent a speck in its cell. badgeColor and glow: see Badge and glowSx; progress: see
-// ProgressFoot.
-const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, iconSize, height = 72, badge, badgeColor, mark, markAlt, glow,
-  progress, status, details, onSelect, selected, sharedNote, buttonProps }) => {
+// ProgressFoot. markSize: 20 for a grid of tiles under 64 px (Statues'), where a 24 px mark hid half the sprite.
+const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, iconSize, height = 72, badge, badgeColor, mark, markAlt,
+  markSize = 24, glow, progress, status, details, onSelect, selected, sharedNote, buttonProps }) => {
   const small = Boolean(useSheet());
   const empty = status === 'empty';
   const hasProgress = typeof progress === 'number' && Number.isFinite(progress) && !small && !empty;
@@ -157,8 +157,8 @@ const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, 
     }}>{sub}</Typography> : null}
     {hasProgress ? <ProgressFoot progress={progress}/> : null}
     {badge !== undefined && badge !== null ? <Badge badge={badge} small={small} color={badgeColor}/>
-      : mark && !empty ? <Box component={'span'} sx={{ position: 'absolute', top: 2, right: 2, display: 'inline-flex' }}>
-        <GameIcon src={mark} size={24} alt={markAlt ?? ''}/>
+      : mark && !empty ? <Box component={'span'} sx={{ position: 'absolute', top: markSize < 24 ? 1 : 2, right: markSize < 24 ? 1 : 2, display: 'inline-flex' }}>
+        <GameIcon src={mark} size={markSize} alt={markAlt ?? ''}/>
       </Box> : null}
   </Box>;
   if (onSelect) {
