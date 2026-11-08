@@ -1,5 +1,6 @@
 import { Box, Stack, Typography } from '@mui/material';
-import React, { useContext, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
+import { readLocalStorageValue } from '@mantine/hooks';
 import { AppContext } from 'components/common/context/AppProvider';
 import { cleanUnderscore, formatNum, gameFill, growth, round, shownPercent, titleCaseName } from 'utility/helpers';
 import { formatGame, gameBonusText } from '@utility/gameNotation';
@@ -11,6 +12,7 @@ import {
   getBubbleParticleCost,
   getBubbleBonus,
   getBubbleCurve,
+  getBubbleEffectPercent,
   getBubbleUpgradeCost,
   getGrindTimeBubbleDaily,
   getKrukBubblesDaily,
@@ -43,9 +45,13 @@ import useToolbarState from '@hooks/useToolbarState';
 import usePageTop from '@hooks/usePageTop';
 
 const BUBBLE_SETTINGS = {
-  classDiscount: false, bargainTags: 0, showTargets: true, effThreshold: 75, dimPastEff: false, levelThreshold: 100,
-  dimPastLevel: false, futureFromMost: false
+  classDiscount: false, bargainTags: 0, effThreshold: 75, showNumbers: false, dimPastEff: false, dimLevel: null,
+  futureFromMost: false
 };
+// usePageSettings' own key for this page, read once for the old level dim below
+const BUBBLE_SETTINGS_KEY = 'page-settings:bubbles';
+// A tile with its two number lines under the level (the target, then the share of its cap)
+const NUMBERS_TILE_HEIGHT = 100;
 const BUBBLES_TOOLBAR = { search: '', view: 'tiles' };
 
 // The sections each number on the page reads. A Summary number whose section failed reads "-", and the note names the
@@ -232,7 +238,7 @@ const isPlaceholderBubble = (bubble) => bubble?.bubbleName === 'BUBBLE';
 // One bubble's numbers, once for its tile, its details and its table row. A Prisma bubble's bonus and cap take the
 // Prisma multi. The target is the level that reaches the efficiency threshold, while the bubble is under it; a failed
 // section has no level to aim from and dims nothing. How far it is to its cap is the ratio of the two numbers as shown
-const bubbleRow = (bubble, cauldronIndex, { account, prisma, failed, effThreshold, levelThreshold, dimPastEff, dimPastLevel }) => {
+const bubbleRow = (bubble, cauldronIndex, { account, prisma, failed, effThreshold, dimPastEff, dimLevel }) => {
   const { level = 0, func = '', x1, x2 } = bubble;
   const isPrisma = !failed && isPrismaBubble(account, bubble.bubbleIndex);
   const multi = isPrisma ? prisma : 1;
@@ -258,18 +264,27 @@ const bubbleRow = (bubble, cauldronIndex, { account, prisma, failed, effThreshol
     bonusText,
     maxText,
     capPercent: maxText ? shownPercent(bonusText, maxText) : null,
+    // The share the efficiency threshold is measured on, for the tile's bar: a multiplier's starts from 1x, not 0
+    efficiency: maxText && !failed && level > 0 ? getBubbleEffectPercent(account, bubble, level) : null,
     // Infinity at a 100% threshold: a decaying bonus never reaches its cap
     target: missing > 0 && !placeholder ? level + Math.ceil(missing) : null,
-    pastThreshold: !failed && ((dimPastEff && pastEff) || (dimPastLevel && level > levelThreshold))
+    pastThreshold: !failed && ((dimPastEff && pastEff) || (dimLevel !== null && level > dimLevel))
   };
 };
 
 const prismaGlow = (row) => (row.isPrisma ? `data/aUpgradesGlow${row.cauldronIndex}.png` : undefined);
 
+// The tile's lines under its level, while the setting is on (the old page's "/ target" and "(62%)"): the level that
+// reaches the efficiency threshold while the bubble is under it, then how far it is on the bar's measure
+const numberLines = (row) => (row.level > 0 ? [
+  Number.isFinite(row.target) ? `/ ${formatNum(row.target)}` : null,
+  row.efficiency === null ? null : formatNum(row.efficiency, 'pct')
+] : []);
+
 // A bubble's details on a tap: its sentence filled as the game fills it, how far it is to its cap, the level that
 // reaches the efficiency threshold, and the next level's cost. A bubble at Lv 0 is not found yet (a cauldron's
 // unlocked bubbles stop at its first Lv 0 one), so it has no level to buy
-const bubbleNote = (row, { account, discounts, prismaText, effThreshold, showTargets, dollarFills }) => {
+const bubbleNote = (row, { account, discounts, prismaText, effThreshold, dollarFills }) => {
   const { bubble, name, level, isPrisma, placeholder, bonusText, maxText, capPercent, target } = row;
   const threshold = formatNum(effThreshold, 'pct');
   // The sentence already holds the bonus where it fills one, so the line names only how far it is to the cap
@@ -289,7 +304,7 @@ const bubbleNote = (row, { account, discounts, prismaText, effThreshold, showTar
     </Stack>
     <ItemCard.Facts rows={[
       maxText ? ['Bonus', sentenceHasBonus ? `${capText} of ${maxText}` : `${bonusText} of ${maxText} (${capText})`] : null,
-      showTargets && target !== null
+      target !== null
         ? Number.isFinite(target) ? [`Reaches ${threshold} at`, `Lv ${formatNum(target)}`] : [`Reaches ${threshold}`, 'Never']
         : null
     ]}/>
@@ -298,7 +313,7 @@ const bubbleNote = (row, { account, discounts, prismaText, effThreshold, showTar
 };
 
 // The table view: one row per bubble, banded by cauldron
-const bubbleColumns = (showTargets) => [
+const bubbleColumns = (withTargets) => [
   {
     key: 'name',
     label: 'Bubble',
@@ -306,7 +321,7 @@ const bubbleColumns = (showTargets) => [
     value: (row) => row.name
   },
   { key: 'level', label: 'Level', kind: 'amount', value: (row) => row.level },
-  showTargets ? {
+  withTargets ? {
     key: 'target',
     label: 'Target',
     kind: 'amount',
@@ -320,6 +335,13 @@ const Bubbles = () => {
   const { state } = useContext(AppContext);
   const account = state?.account;
   const [settings, setSettings, resetSettings] = usePageSettings('bubbles', BUBBLE_SETTINGS);
+  // The level dim was a switch and a number until 4.0.2: a player who had it on keeps it as the one number. The stored
+  // edits go in whole, since the hook may not have read them yet; the old keys drop out as the page no longer has them
+  useEffect(() => {
+    const stored = readLocalStorageValue({ key: BUBBLE_SETTINGS_KEY });
+    if (!stored || !(Object.hasOwn(stored, 'dimPastLevel') || Object.hasOwn(stored, 'levelThreshold'))) return;
+    setSettings({ ...stored, dimLevel: stored.dimPastLevel ? Number(stored.levelThreshold ?? 100) : null });
+  }, []);
   const [view, setView, resetView] = useToolbarState('bubbles', BUBBLES_TOOLBAR);
   const [toolbarBottom, setToolbarBottom] = useState(null);
   const pageTop = usePageTop();
@@ -343,8 +365,10 @@ const Bubbles = () => {
   const prismaMulti = getPrismaMulti(account);
   const future = futureBubbles(account?.alchemy?.cauldrons, settings?.futureFromMost);
   const effThreshold = settings?.effThreshold ?? BUBBLE_SETTINGS.effThreshold;
-  const levelThreshold = settings?.levelThreshold ?? BUBBLE_SETTINGS.levelThreshold;
+  const dimLevel = settings?.dimLevel ?? null;
   const bargainTags = settings?.bargainTags ?? 0;
+  // A failed alchemy section has no target or cap to show
+  const showNumbers = Boolean(settings?.showNumbers) && !alchemyFailed;
   const discounts = { classDiscount: settings?.classDiscount, bargainTags };
 
   const nblbText = upgradeable.upgradeableBubblesAmount
@@ -361,8 +385,7 @@ const Bubbles = () => {
   // The four cauldrons in the game's order, each bubble's numbers once; a search hides the bubbles it does not find
   const query = String(view?.search ?? '').trim().toLowerCase();
   const rowContext = {
-    account, prisma: prismaMulti?.value ?? 1, failed: alchemyFailed, effThreshold, levelThreshold,
-    dimPastEff: settings?.dimPastEff, dimPastLevel: settings?.dimPastLevel
+    account, prisma: prismaMulti?.value ?? 1, failed: alchemyFailed, effThreshold, dimPastEff: settings?.dimPastEff, dimLevel
   };
   const cauldrons = CAULDRON_INFO.map(({ name, displayName }, cauldronIndex) => {
     const rows = (alchemy?.bubbles?.[name] ?? []).filter((bubble) => bubble?.func)
@@ -379,8 +402,7 @@ const Bubbles = () => {
   const shownBubbles = cauldrons.reduce((sum, { shown }) => sum + shown.length, 0);
   const noteContext = {
     dollarFills: hasBubbles ? getBubbleDollarFills(account, state?.characters) : null,
-    account, discounts, prismaText: prismaFailed ? null : prismaText, effThreshold,
-    showTargets: settings?.showTargets ?? BUBBLE_SETTINGS.showTargets
+    account, discounts, prismaText: prismaFailed ? null : prismaText, effThreshold
   };
 
   return (
@@ -398,18 +420,15 @@ const Bubbles = () => {
         <PageSettings.Number name={'bargainTags'} label={'Bargain tags'} min={0} max={8} integer
                              defaultValue={BUBBLE_SETTINGS.bargainTags}
                              help={'Each tag cuts bubble costs by 25%, stacking: 2 tags is 43.75% off.'}/>
-        <PageSettings.Toggle name={'showTargets'} label={'Show target levels'}
-                             help={'A bubble under the efficiency threshold shows the level that reaches it.'}/>
         <PageSettings.Number name={'effThreshold'} label={'Efficiency threshold'} min={0} max={100}
                              defaultValue={BUBBLE_SETTINGS.effThreshold}
-                             help={'The share of its cap a bubble with a cap should reach, in percent.'}/>
+                             help={'The share of its cap a bubble should reach, in percent: the tick on each bar, and the level each note aims for.'}/>
+        <PageSettings.Toggle name={'showNumbers'} label={'Show % and target under each bubble'}
+                             help={'Each tile shows how far the bubble is to its cap and, while it is under the efficiency threshold, the level that reaches it.'}/>
         <PageSettings.Toggle name={'dimPastEff'} label={'Dim past the efficiency threshold'}
                              help={'Bubbles at or past the efficiency threshold are dimmed.'}/>
-        <PageSettings.Number name={'levelThreshold'} label={'Level threshold'} min={0} integer
-                             defaultValue={BUBBLE_SETTINGS.levelThreshold}
-                             help={'A bubble past this level is past the level threshold.'}/>
-        <PageSettings.Toggle name={'dimPastLevel'} label={'Dim past the level threshold'}
-                             help={'Bubbles past the level threshold are dimmed.'}/>
+        <PageSettings.Number name={'dimLevel'} label={'Dim past level'} min={0} integer
+                             help={'Bubbles past this level are dimmed. Empty: none are.'}/>
         <PageSettings.Toggle name={'futureFromMost'} label={'Future bubbles from your most progressed cauldron'}
                              help={'Off: from your least progressed cauldron, the one you are waiting on.'}/>
       </PageSettings>}
@@ -456,7 +475,7 @@ const Bubbles = () => {
         {view?.view === 'table'
           // Nothing found draws no table, not a header over nothing
           ? shownBubbles ? <DataTable
-            columns={bubbleColumns(noteContext.showTargets && !alchemyFailed)}
+            columns={bubbleColumns(!alchemyFailed)}
             bands={cauldrons.filter(({ shown }) => shown.length)
               .map(({ name, displayName, shown }) => ({ key: name, label: displayName, rows: shown }))}
             rowKey={'rawName'}
@@ -476,8 +495,13 @@ const Bubbles = () => {
                   <CardGrid size={'icon'} columns={5} fill>
                     {shown.map((row) => <IconTile key={row.rawName} icon={`data/${row.rawName}.png`} alt={row.name}
                                                   value={formatNum(row.level)} frame={prismaGlow(row)}
+                                                  progress={alchemyFailed ? undefined
+                                                    : row.efficiency === null ? null : row.efficiency / 100}
+                                                  progressGoal={effThreshold / 100}
+                                                  sub={showNumbers ? numberLines(row) : undefined}
+                                                  height={showNumbers ? NUMBERS_TILE_HEIGHT : undefined}
                                                   status={alchemyFailed ? undefined
-                                                    : row.level > 0 ? (row.pastThreshold ? 'dim' : undefined) : 'missing'}
+                                                    : row.level > 0 ? (row.pastThreshold ? 'faded' : undefined) : 'missing'}
                                                   details={alchemyFailed ? undefined : bubbleNote(row, noteContext)}/>)}
                   </CardGrid>
                 </Box>

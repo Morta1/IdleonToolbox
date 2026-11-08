@@ -48,6 +48,14 @@ const glowSx = (glow) => (theme) => {
 // card (Bubbles' cauldrons, about 50 px) does the same.
 const LONG_VALUE = 7;
 const LONG_VALUE_SX = { '@container (max-width: 49.95px)': { fontSize: 11 } };
+// A full tile's sub lines (Bubbles' target and share of cap), the tile's own width their container: 11 px below 58 px,
+// five to a narrow card, and 10 px below 52 px (Bubbles' four cauldrons across at 1920), where "/ 200,000" at 11 px
+// reached the tile's edge
+const FULL_SUB_SX = {
+  fontSize: 12, lineHeight: '14px', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', color: 'text.secondary',
+  '@container (max-width: 57.95px)': { fontSize: 11 },
+  '@container (max-width: 51.95px)': { fontSize: 10 }
+};
 const smallTileSx = (hasValue, empty) => ({
   position: 'relative',
   width: '100%',
@@ -67,14 +75,23 @@ const smallTileSx = (hasValue, empty) => ({
 // A fill grid lifts this, so a tile fills its column.
 const TILE_MAX = 'var(--tile-max, 72px)';
 // progress: how far the thing is to its next level, 0 to 1, as a 3 px bar along the tile's foot (a shrine's EXP). The
-// numbers are in the tile's note; the bar is only the glance, so it is hidden from a screen reader.
-const ProgressFoot = ({ progress }) => <Box component={'span'} aria-hidden sx={{
-  position: 'absolute', left: 8, right: 8, bottom: 4, height: 3, borderRadius: '2px', bgcolor: 'divider', overflow: 'hidden'
+// numbers are in the tile's note; the bar is only the glance, so it is hidden from a screen reader. goal: where the bar
+// counts as done, short of its end (Bubbles' efficiency threshold), drawn as a tick across it; the fill turns green there.
+// null: no bar, but its room, so a tile with nothing to fill keeps its number level with the barred tiles beside it.
+const percentOf = (share) => `${Math.min(100, Math.max(0, share * 100))}%`;
+const ProgressFoot = ({ progress, goal = 1 }) => <Box component={'span'} aria-hidden sx={{
+  position: 'absolute', left: 8, right: 8, bottom: 4, height: 3
 }}>
-  <Box component={'span'} sx={{
-    display: 'block', height: '100%', width: `${Math.min(100, Math.max(0, progress * 100))}%`,
-    bgcolor: progress >= 1 ? 'success.main' : 'primary.main'
-  }}/>
+  <Box component={'span'} sx={{ display: 'block', height: '100%', borderRadius: '2px', bgcolor: 'divider', overflow: 'hidden' }}>
+    <Box component={'span'} sx={{
+      display: 'block', height: '100%', width: percentOf(progress),
+      bgcolor: progress >= goal ? 'success.main' : 'primary.main'
+    }}/>
+  </Box>
+  {goal < 1 ? <Box component={'span'} sx={{
+    position: 'absolute', left: percentOf(goal), top: -2, bottom: -2, width: 2, ml: '-1px', borderRadius: '1px',
+    bgcolor: 'text.secondary'
+  }}/> : null}
 </Box>;
 // label: the thing's name under its sprite, for a collection whose sprites alone can't be told apart (hats, companions).
 // Two lines at most, and always the room of two: a one-line name keeps its tile as tall as its neighbours, so a row of
@@ -98,19 +115,24 @@ const LABEL_SX = {
 // mouse over it previews the note; a click hands event.currentTarget over as the anchor, and selected says the note is kept
 // open on it (the Slab's 1,938 items).
 // buttonProps go with onSelect, onto the tile's button (the mark a page finds its tile by).
-// sub: a dimmer line under the value, inside a sheet (a talent's "/ max"). kind is what numOrNode takes. frameAbove: the
+// sub: a dimmer line under the value, inside a sheet (a talent's "/ max"). On a full tile, a list of such lines (Bubbles'
+// "/ 2,250" and "62%"), with height the room for the most any tile in its grid draws: a tile with sub, even an empty
+// list, sits its sprite and value from the top, so the values of a row line up whatever lines each has. kind is what numOrNode takes. frameAbove: the
 // frame over the sprite (GameIcon's). iconSize: 40 in a sheet where the sprite is all a tile says (talents, skills, obols,
 // equipment): the sheet's 28 px left a talent a speck in its cell. badgeColor and glow: see Badge and glowSx; progress: see
 // ProgressFoot. markSize: 20 for a grid of tiles under 64 px (Statues'), where a 24 px mark hid half the sprite.
 const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, iconSize, height = 72, badge, badgeColor, mark, markAlt,
-  markSize = 24, glow, progress, status, details, onSelect, selected, sharedNote, buttonProps }) => {
+  markSize = 24, glow, progress, progressGoal, status, details, onSelect, selected, sharedNote, buttonProps }) => {
   const small = Boolean(useSheet());
   const empty = status === 'empty';
   const hasProgress = typeof progress === 'number' && Number.isFinite(progress) && !small && !empty;
+  const barRoom = (hasProgress || progress === null) && !small && !empty;
   const hasValue = value !== undefined && !empty;
   const hasLabel = Boolean(label) && !small && !empty;
   const emptyName = empty ? alt || 'Empty slot' : undefined;
   const longValue = hasValue && typeof value === 'string' && value.length >= LONG_VALUE;
+  const fullSub = !small && !empty && sub !== undefined && sub !== null;
+  const subLines = fullSub ? [].concat(sub).filter((line) => line !== null && line !== undefined && line !== '') : [];
   const tile = <Box sx={[
     (theme) => cardSurface(theme),
     (theme) => cardState(theme, selected ? 'selected' : status),
@@ -130,9 +152,10 @@ const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, 
     // A tile with no number keeps no room for one: its sprite sits in the middle
     !small && !hasValue && { py: 0.5, justifyContent: 'center' },
     hasLabel && { height: 'auto', minHeight: height, justifyContent: 'flex-start', gap: '2px', pt: 0.75, pb: 0.75 },
-    longValue && { containerType: 'inline-size' },
+    (longValue || fullSub) && { containerType: 'inline-size' },
+    fullSub && { justifyContent: 'flex-start' },
     // The value sits above the bar, not on it
-    hasProgress && { pb: '9px' },
+    barRoom && { pb: '9px' },
     empty && emptySlot,
     glow && !empty ? glowSx(glow) : null
   ]}>
@@ -156,7 +179,8 @@ const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, 
       fontVariantNumeric: 'tabular-nums',
       whiteSpace: 'nowrap'
     }}>{sub}</Typography> : null}
-    {hasProgress ? <ProgressFoot progress={progress}/> : null}
+    {subLines.map((line, index) => <Typography key={index} component={'div'} variant={'caption'} sx={FULL_SUB_SX}>{line}</Typography>)}
+    {hasProgress ? <ProgressFoot progress={progress} goal={progressGoal}/> : null}
     {badge !== undefined && badge !== null ? <Badge badge={badge} small={small} color={badgeColor}/>
       : mark && !empty ? <Box component={'span'} sx={{ position: 'absolute', top: markSize < 24 ? 1 : 2, right: markSize < 24 ? 1 : 2, display: 'inline-flex' }}>
         <GameIcon src={mark} size={markSize} alt={markAlt ?? ''}/>

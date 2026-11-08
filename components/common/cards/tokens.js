@@ -6,6 +6,9 @@ const palette = (theme) => (theme.vars || theme).palette;
 
 // Locked, not found, not reached: the whole card at .55, nothing else. A role: white takes .7, which reads as .55 does on dark.
 export const DIM = 'var(--mui-palette-dimOpacity)';
+// Done, faded by a page's setting so the rest stands out (Bubbles past the threshold): further than DIM, so it reads
+// apart from not reached.
+export const FADE = 0.3;
 export const CARD_RADIUS = 8;
 // The grid's minimum column for each card size (S bonus text, M upgrade, L rich cards).
 export const CARD_MIN_WIDTH = { s: 240, m: 300, l: 360 };
@@ -28,6 +31,7 @@ export const emptySlot = (theme) => ({ backgroundColor: 'transparent', border: `
 // and the missing cost say it. Lines are full-strength roles: alpha() cannot take a CSS variable.
 export const cardState = (theme, state) => {
   if (state === 'locked' || state === 'dim') return { opacity: DIM };
+  if (state === 'faded') return { opacity: FADE };
   if (state === 'active') return { borderColor: palette(theme).success.main };
   if (state === 'selected') {
     return { borderColor: palette(theme).primary.main, boxShadow: `inset 0 0 0 1px ${palette(theme).primary.main}` };
