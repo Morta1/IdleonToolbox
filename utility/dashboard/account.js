@@ -30,7 +30,7 @@ import { isPast } from 'date-fns';
 import { getIsland } from '@parsers/world-2/islands';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
-import { getPetMartGems } from '@parsers/world-7/tournament';
+import { getPetMartGems, getRegistrationNeeds } from '@parsers/world-7/tournament';
 import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { isHatRackEligible } from '@parsers/world-3/hatRack';
 import { isCapeVineEligible } from '@parsers/world-4/capeVine';
@@ -287,27 +287,13 @@ export const getGeneralAlerts = (account, fields, options, characters, lastUpdat
         etc.petMartGems = true;
       }
     }
-    if (options?.etc?.tournamentRegister?.checked && account?.companions?.list?.some((companion) => companion?.copies > 0)) {
-      // tournamentDay is the newer of the save's copy (accountOptions[496]) and the global doc's T.
-      // accountOptions[511] = tournament-day registered-through (registering sets it to day + 1);
-      // registered for the current tournament ⟺ 511 > day.
-      const currentTournamentDay = account?.tournament?.tournamentDay ?? 0;
-      const registeredThrough = account?.accountOptions?.[OPT.tournamentRegisteredThrough] ?? 0;
-      if (currentTournamentDay >= 1 && registeredThrough <= currentTournamentDay) {
-        etc.tournamentRegister = true;
-      }
+    // The Tournament page's notice reads the same check
+    const registration = getRegistrationNeeds(account);
+    if (options?.etc?.tournamentRegister?.checked && registration.tournament) {
+      etc.tournamentRegister = true;
     }
-    if (options?.etc?.raidRegister?.checked && account?.companions?.list?.some((companion) => companion?.copies > 0)) {
-      // The W7 raid is the tournament's sibling event, same registration shape:
-      // accountOptions[611] = raid-day registered-through (registering sets it to day + 1).
-      // The save's own current-raid-day mirror (613) only updates when the player opens the
-      // tournament UI, so it goes stale - the global doc's RD is refetched on every snapshot.
-      // RC is the raid's registration-closed flag, nothing to register for while it's set.
-      const currentRaidDay = account?.tournament?.global?.RD ?? 0;
-      const registeredThrough = account?.accountOptions?.[OPT.raidRegisteredThrough] ?? 0;
-      if (currentRaidDay >= 1 && account?.tournament?.global?.RC !== true && registeredThrough <= currentRaidDay) {
-        etc.raidRegister = true;
-      }
+    if (options?.etc?.raidRegister?.checked && registration.raid) {
+      etc.raidRegister = true;
     }
     if (options?.etc?.glimmerwickCandle?.checked && account?.accountOptions?.[OPT.tomeWishGranted] !== 1) {
       // accountOptions[492] = candle already wished on today; the game clears it on daily reset.

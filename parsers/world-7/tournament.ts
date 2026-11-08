@@ -61,6 +61,22 @@ const getRoundName = (roundIndex: number): string => {
 export const getCurrentTournamentDay = (accountOptions: any, serverGlobal: any): number =>
   Math.max(Number(accountOptions?.[OPT.tournamentDay]) || 0, Number(serverGlobal?.T) || 0);
 
+// Whether the account still has to register for the current Pet Tournament (PvP) and Raid (PvE), for the Dashboard's alerts
+// and the Tournament page's notice. accountOptions[511] / [611] hold the day registered through (registering sets it to
+// day + 1), so registered ⟺ through > day. tournamentDay is the newer of the save's copy and the global doc's T. The
+// save's own current-raid-day mirror (613) only updates when the player opens the tournament UI, so it goes stale: the
+// global doc's RD is refetched on every snapshot. RC is the raid's registration-closed flag, nothing to register for while
+// it's set. An account with no pet has no team to enter.
+export const getRegistrationNeeds = (account: any): { tournament: boolean; raid: boolean } => {
+  if (!account?.companions?.list?.some((companion: any) => companion?.copies > 0)) return { tournament: false, raid: false };
+  const tournamentDay = account?.tournament?.tournamentDay ?? 0;
+  const raidDay = account?.tournament?.global?.RD ?? 0;
+  return {
+    tournament: tournamentDay >= 1 && (account?.accountOptions?.[OPT.tournamentRegisteredThrough] ?? 0) <= tournamentDay,
+    raid: raidDay >= 1 && account?.tournament?.global?.RC !== true && (account?.accountOptions?.[OPT.raidRegisteredThrough] ?? 0) <= raidDay
+  };
+};
+
 export const getTournament = (idleonData: IdleonData, account: Account, serverTournament: any, serverVars?: any) => {
   const accountOptions = (account as any)?.accountOptions;
 

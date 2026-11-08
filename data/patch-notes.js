@@ -18,7 +18,8 @@ export const patchNotes = [
       'Pets: each pet shows its bonus again, with Details for tradable copies, the Pet Mart+ price and when it was last in the Pet Mart',
       'Pets: Tradable and Missing are one-click filters again',
       'Vote Ballot: this week\'s bonus stands out with a green border',
-      'Killroy: this week\'s schedule sits apart from the coming weeks'
+      'Killroy: this week\'s schedule sits apart from the coming weeks',
+      'Tournament: a notice when you\'re not registered for the Pet Tournament or the Raid'
     ],
     'fixes': [
       'Dashboard: two World 7 alerts no longer sit out of line with the rest',

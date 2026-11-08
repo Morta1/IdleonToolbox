@@ -12,7 +12,15 @@ import StatTile from '@components/common/cards/StatTile';
 import Companions from '@components/account/Worlds/World7/Tournament/Companions';
 import Matches from '@components/account/Worlds/World7/Tournament/Matches';
 import Leaderboard from '@components/account/Worlds/World7/Tournament/Leaderboard';
+import Notice from '@components/common/Notice';
 import useTabIndex from '@hooks/useTabIndex';
+import { getRegistrationNeeds } from '@parsers/world-7/tournament';
+
+// Which events the account still has to register for, in words: "the Pet Tournament", "the Raid", or both
+const registrationText = ({ tournament, raid }) => {
+  const events = [tournament ? 'the Pet Tournament (PvP)' : null, raid ? 'the Raid (PvE)' : null].filter(Boolean);
+  return events.length ? `You're not registered for ${events.join(' or ')} yet.` : null;
+};
 
 const Tournament = () => {
   const { state } = useContext(AppContext);
@@ -35,6 +43,8 @@ const Tournament = () => {
   const companions = companionsFailed ? [] : state?.account?.companions?.list;
   const failedNames = [tournamentFailed && 'Tournament', companionsFailed && 'Companions'].filter(Boolean);
   const shown = (value) => (tournament ? formatNum(value ?? 0) : '-');
+  // The Dashboard's registration alerts, said where the player looks for the tournament (a failed section knows nothing)
+  const unregistered = tournament && !companionsFailed ? registrationText(getRegistrationNeeds(state?.account)) : null;
 
   return <>
     <NextSeo
@@ -48,6 +58,7 @@ const Tournament = () => {
       <StatTile label={'Tournament day'} value={shown(tournament?.tournamentDay)}/>
       <StatTile label={'Registrations'} value={shown(tournament?.registrationCount)}/>
     </PageSummary>
+    {unregistered ? <Notice tone={'missing'} sx={{ mb: 2 }}>{unregistered}</Notice> : null}
 
     <Tabber tabs={tabs}>
       <Companions companions={companions} sectionFailed={companionsFailed}/>
