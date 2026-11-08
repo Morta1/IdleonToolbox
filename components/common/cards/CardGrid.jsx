@@ -63,17 +63,19 @@ const sheetGrid = (sheetColumns, sheetTile, count, bare) => {
     ...Object.fromEntries(steps.map(([width, tiles]) => [`@container (max-width: ${width - 0.05}px)`, sheetColumnsOf(tiles)]))
   };
 };
-// evenRows: an icon grid that fills the row at a count dividing its tiles, the widest with a tile at least 50 px, so 12
-// tiles take one row, then 6, 4 or 3, and no wrap leaves a row short. It reads the width it is given: its own wrapper is
-// the container.
+// evenRows: a grid that fills the row at a count dividing its children, the widest whose items keep their least width,
+// so 12 tiles take one row, then 6, 4 or 3, and no wrap leaves a row short. An icon grid's tile is at least 50 px, 8 px
+// apart; a card grid's card is its size's width, 16 px apart (Bubbles' four cauldrons: four across, then two, then one,
+// where three left Kazam alone on a row). It reads the width it is given: its own wrapper is the container.
 const EVEN_FLOOR = 50;
 const EVEN_GAP = 8;
-const evenRowsGrid = (tiles) => {
+const CARD_GAP = 16;
+const evenRowsGrid = (tiles, floor = EVEN_FLOOR, gap = EVEN_GAP) => {
   const counts = Array.from({ length: Math.max(tiles - 1, 0) }, (_, step) => tiles - step).filter((columns) => tiles % columns === 0);
   // Widest first, so a narrower query overrides the one before it
   const steps = counts.map((columns, step) => [
-    `@container (max-width: ${columns * EVEN_FLOOR + (columns - 1) * EVEN_GAP - 0.05}px)`,
-    step + 1 < counts.length ? sheetColumnsOf(counts[step + 1]) : { gridTemplateColumns: `repeat(auto-fill, minmax(${EVEN_FLOOR}px, 1fr))` }
+    `@container (max-width: ${columns * floor + (columns - 1) * gap - 0.05}px)`,
+    step + 1 < counts.length ? sheetColumnsOf(counts[step + 1]) : { gridTemplateColumns: `repeat(auto-fill, minmax(${floor}px, 1fr))` }
   ]);
   return { '--tile-max': 'none', ...sheetColumnsOf(counts[0] ?? tiles), ...Object.fromEntries(steps) };
 };
@@ -85,7 +87,9 @@ const CardGrid = ({ size = 'm', columns: count, sheetColumns, sheetBare, sheetTi
       flow ? { columnWidth: CARD_MIN_WIDTH[size], columnGap: 2, '& > *': { breakInside: 'avoid', mb: 2 }, '& > :last-child': { mb: 0 } }
         : { display: 'grid', gridTemplateColumns: columns(size, count), gap: size === 'icon' ? 1 : 2 },
       !flow && fill && !sheet && size === 'icon' && fillSx(fill),
-      evenRows && evenRowsGrid(Children.count(children)),
+      // toArray: a child a page left out (null) takes no column
+      evenRows && (size === 'icon' ? evenRowsGrid(Children.toArray(children).length)
+        : evenRowsGrid(Children.toArray(children).length, CARD_MIN_WIDTH[size], CARD_GAP)),
       withBorder && { '& > *': { border: 1, borderColor: 'divider', borderRadius: '8px', p: 2 } },
       ...(Array.isArray(sx) ? sx : [sx]),
       sheet && size === 'icon' && sheetGrid(sheetColumns, sheetTile, count, sheetBare)

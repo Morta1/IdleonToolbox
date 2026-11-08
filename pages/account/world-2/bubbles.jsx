@@ -465,7 +465,8 @@ const Bubbles = () => {
             surface={'card'}
             stickyTop={toolbarBottom ?? pageTop}
           /> : null
-          : <CardGrid size={'l'}>
+          // Four across from 1,248 px, then two, then one: three a row left the fourth cauldron alone under them
+          : <CardGrid size={'m'} evenRows>
             {cauldrons.map(({ name, displayName, levels, shown }) => {
               // A cauldron with no bubble the search finds draws no Panel over nothing
               if (!shown.length) return null;

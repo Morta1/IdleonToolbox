@@ -44,7 +44,8 @@ const glowSx = (glow) => (theme) => {
 
 // The small tile, inside a sheet (the characters board's .t): as wide as its column, a 28 px sprite, no surface of its own.
 // Its tile is as narrow as 41 px, where a value of seven characters (451,025) would run into the next one: such a tile
-// is a container, and its value draws smaller only while the tile is too narrow for it.
+// is a container, and its value draws smaller only while the tile is too narrow for it. A full tile five to a narrow
+// card (Bubbles' cauldrons, about 50 px) does the same.
 const LONG_VALUE = 7;
 const LONG_VALUE_SX = { '@container (max-width: 49.95px)': { fontSize: 11 } };
 const smallTileSx = (hasValue, empty) => ({
@@ -109,7 +110,7 @@ const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, 
   const hasValue = value !== undefined && !empty;
   const hasLabel = Boolean(label) && !small && !empty;
   const emptyName = empty ? alt || 'Empty slot' : undefined;
-  const longValue = small && hasValue && value?.length >= LONG_VALUE;
+  const longValue = hasValue && typeof value === 'string' && value.length >= LONG_VALUE;
   const tile = <Box sx={[
     (theme) => cardSurface(theme),
     (theme) => cardState(theme, selected ? 'selected' : status),
