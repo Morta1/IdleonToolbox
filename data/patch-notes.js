@@ -23,7 +23,8 @@ export const patchNotes = [
       'Dashboard: the Vote and Meritocracy names link to their Vote Ballot tab',
       'Dashboard: on a narrow window, each Account alerts group starts on its name\'s line, so the list is shorter',
       'Refinery: each salt\'s power, rank up timer and fuel sit side by side in the salt table, and the squires sit beside the cycle times again',
-      'Tables on a phone: an opened row has more room, its numbers under the row\'s own'
+      'Tables on a phone: an opened row has more room, its numbers under the row\'s own',
+      'Bubbles: the target setting no longer adds a % under each bubble; the % is in its note and the table'
     ],
     'fixes': [
       'Dashboard: two World 7 alerts no longer sit out of line with the rest',

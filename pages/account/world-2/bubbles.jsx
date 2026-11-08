@@ -50,8 +50,8 @@ const BUBBLE_SETTINGS = {
 };
 // usePageSettings' own key for this page, read once for the old level dim below
 const BUBBLE_SETTINGS_KEY = 'page-settings:bubbles';
-// A tile with its two number lines under the level (the target, then the share of its cap)
-const NUMBERS_TILE_HEIGHT = 100;
+// A tile with its target line under the level
+const NUMBERS_TILE_HEIGHT = 86;
 const BUBBLES_TOOLBAR = { search: '', view: 'tiles' };
 
 // The sections each number on the page reads. A Summary number whose section failed reads "-", and the note names the
@@ -281,12 +281,10 @@ const bubbleRow = (bubble, cauldronIndex, { account, prisma, failed, effThreshol
 
 const prismaGlow = (row) => (row.isPrisma ? `data/aUpgradesGlow${row.cauldronIndex}.png` : undefined);
 
-// The tile's lines under its level, while the setting is on (the old page's "/ target" and "(62%)"): the level that
-// reaches the efficiency threshold while the bubble is under it, then how far it is on the bar's measure
-const numberLines = (row) => (row.level > 0 ? [
-  Number.isFinite(row.target) ? `/ ${formatNum(row.target)}` : null,
-  row.efficiency === null ? null : formatNum(row.efficiency, 'pct')
-] : []);
+// The tile's line under its level, while the setting is on (the old page's "/ target"): the level that reaches the
+// efficiency threshold while the bubble is under it. The share of its cap is the bar's, and its number is in the note
+// and the table: on a late account nearly every tile read 95% to 99% under a full bar
+const targetLines = (row) => (row.level > 0 && Number.isFinite(row.target) ? [`/ ${formatNum(row.target)}`] : []);
 
 // A bubble's details on a tap: its sentence filled as the game fills it, how far it is to its cap, the level that
 // reaches the efficiency threshold, and the next level's cost. A bubble at Lv 0 is not found yet (a cauldron's
@@ -429,8 +427,8 @@ const Bubbles = () => {
         <PageSettings.Number name={'effThreshold'} label={'Efficiency threshold'} min={0} max={100}
                              defaultValue={BUBBLE_SETTINGS.effThreshold}
                              help={'The share of its cap a bubble should reach, in percent: the tick on each bar, and the level each note aims for.'}/>
-        <PageSettings.Toggle name={'showNumbers'} label={'Show % and target under each bubble'}
-                             help={'Each tile shows how far the bubble is to its cap and, while it is under the efficiency threshold, the level that reaches it.'}/>
+        <PageSettings.Toggle name={'showNumbers'} label={'Show target level under each bubble'}
+                             help={'While a bubble is under the efficiency threshold, its tile shows the level that reaches it.'}/>
         <PageSettings.Toggle name={'dimPastEff'} label={'Dim past the efficiency threshold'}
                              help={'Bubbles at or past the efficiency threshold are dimmed.'}/>
         <PageSettings.Number name={'dimLevel'} label={'Dim past level'} min={0} integer
@@ -504,7 +502,7 @@ const Bubbles = () => {
                                                   progress={alchemyFailed ? undefined
                                                     : row.efficiency === null || row.level === 0 ? null : row.efficiency / 100}
                                                   progressGoal={effThreshold / 100}
-                                                  sub={showNumbers ? numberLines(row) : undefined}
+                                                  sub={showNumbers ? targetLines(row) : undefined}
                                                   height={showNumbers ? NUMBERS_TILE_HEIGHT : undefined}
                                                   status={alchemyFailed ? undefined
                                                     : row.level > 0 ? (row.pastThreshold ? 'faded' : undefined) : 'missing'}

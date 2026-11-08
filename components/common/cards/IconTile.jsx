@@ -48,7 +48,7 @@ const glowSx = (glow) => (theme) => {
 // card (Bubbles' cauldrons, about 50 px) does the same.
 const LONG_VALUE = 7;
 const LONG_VALUE_SX = { '@container (max-width: 49.95px)': { fontSize: 11 } };
-// A full tile's sub lines (Bubbles' target and share of cap), the tile's own width their container: 11 px below 58 px,
+// A full tile's sub lines (Bubbles' target), the tile's own width their container: 11 px below 58 px,
 // five to a narrow card, and 10 px below 52 px (Bubbles' four cauldrons across at 1920), where "/ 200,000" at 11 px
 // reached the tile's edge
 const FULL_SUB_SX = {
@@ -118,7 +118,7 @@ const LABEL_SX = {
 // open on it (the Slab's 1,938 items).
 // buttonProps go with onSelect, onto the tile's button (the mark a page finds its tile by).
 // sub: a dimmer line under the value, inside a sheet (a talent's "/ max"). On a full tile, a list of such lines (Bubbles'
-// "/ 2,250" and "62%"), with height the room for the most any tile in its grid draws: a tile with sub, even an empty
+// "/ 2,250"), with height the room for the most any tile in its grid draws: a tile with sub, even an empty
 // list, sits its sprite and value from the top, so the values of a row line up whatever lines each has. kind is what numOrNode takes. frameAbove: the
 // frame over the sprite (GameIcon's). iconSize: 40 in a sheet where the sprite is all a tile says (talents, skills, obols,
 // equipment): the sheet's 28 px left a talent a speck in its cell. badgeColor and glow: see Badge and glowSx; progress: see
