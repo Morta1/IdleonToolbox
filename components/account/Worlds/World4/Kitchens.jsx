@@ -26,6 +26,15 @@ const SPICE_COST = 'CookingR.CookingUpgSpiceCostQty';
 const MEAL_COST = 'CookingR.CookingMenuMealCosts';
 const KITCHENS_TOOLBAR = { details: false };
 
+// The upgrades' table: the stat and its level (it may wrap on a phone), what it gives, then the cost at the right edge.
+// A row's cells start together, so a cost's "need" line hangs under its cost alone; the words take the cost's 24 px
+// sprite line, so the three sit on one line.
+const UPGRADES_SX = {
+  display: 'grid', gridTemplateColumns: 'auto auto 1fr', columnGap: 1.5, rowGap: 1, alignItems: 'start'
+};
+const COST_CELL_SX = { justifySelf: 'end' };
+const UPGRADE_WORDS_SX = { lineHeight: '24px' };
+
 const hoursText = (hours) => (Number.isFinite(hours) ? formatDuration(hours * 3600) : 'Never');
 
 // A meal being cooked, all kitchens together, as a tile beside the spice claims: the meals an hour and when its next level
@@ -98,20 +107,16 @@ const Kitchens = ({
     return Math.floor(2 * kitchenIndex + upgradeType);
   }
 
-  // An upgrade in one line: its level and what it gives now, then its next level's cost against the spice the account
-  // owns. Three lines for speed, fire and luck, where a stat's own rows and an "Upgrade costs" section of three took eight
-  const upgradeRow = (label, level, rate, spice, name, cost) => <Stack key={label} direction={'row'} alignItems={'center'}
-                                                                       justifyContent={'space-between'} columnGap={1.5}
-                                                                       flexWrap={'wrap'}>
-    <Typography variant={'body2'} component={'div'} sx={{ display: 'flex', alignItems: 'baseline', gap: 0.75 }}>
-      <Box component={'span'} sx={{ color: 'text.secondary', whiteSpace: 'nowrap' }}>{`${label} Lv ${formatNum(level ?? 0)}`}</Box>
-      <Box component={'span'} sx={{ fontWeight: 500, whiteSpace: 'nowrap' }}>{rate}</Box>
-    </Typography>
-    {/* A cost short of spice wraps under its stat with its "need" line, still at the card's right edge */}
-    <Box sx={{ ml: 'auto' }}>
-      <ItemCard.Cost icon={`data/${spice}.png`} iconAlt={name} need={cost ?? 0} have={ownedSpice(spice)} game={SPICE_COST}/>
+  // An upgrade as a row of a small table: its level, what it gives now, and its next level's cost against the spice the
+  // account owns, each in its own column, so the three line up. A cost short of spice keeps its "need" line under it,
+  // in its column: wrapped under the stat, a short cost sat offset from the others.
+  const upgradeRow = (label, level, rate, spice, name, cost) => <React.Fragment key={label}>
+    <Typography variant={'body2'} color={'text.secondary'} component={'div'} sx={UPGRADE_WORDS_SX}>{`${label} Lv ${formatNum(level ?? 0)}`}</Typography>
+    <Typography variant={'body2'} component={'div'} sx={[UPGRADE_WORDS_SX, { fontWeight: 500, whiteSpace: 'nowrap' }]}>{rate}</Typography>
+    <Box sx={COST_CELL_SX}>
+      <ItemCard.Cost icon={`data/${spice}.png`} iconAlt={name} need={cost ?? 0} have={ownedSpice(spice)} game={SPICE_COST} needBelow/>
     </Box>
-  </Stack>;
+  </React.Fragment>;
 
   // A recipe's spices and the meals they can make (greyed until found): the Details pill's part of its card, under the
   // recipe's progress
@@ -197,12 +202,12 @@ const Kitchens = ({
             return <ItemCard key={`kitchen-${kitchenIndex}`} title={`Kitchen ${kitchenIndex + 1}`}
                              meta={isRecipe ? 'Making a recipe' : `${cleanUnderscore(kitchen?.meal?.name)} · ${mealsPerHour}`}
                              more={isRecipe ? recipeIngredients(kitchen) : null}>
-              <Stack gap={0.75}>
+              <Box sx={UPGRADES_SX}>
                 {upgradeRow('Speed', kitchen?.speedLv, speed, `CookingSpice${firstSpiceIndex}`, spicesNames[firstSpiceIndex], kitchen?.speedCost)}
                 {upgradeRow('Fire', kitchen?.fireLv, fire, `CookingSpice${secondSpiceIndex}`, spicesNames[secondSpiceIndex], kitchen?.fireCost)}
                 {upgradeRow('Luck', kitchen?.luckLv, formatNum(kitchen?.mealLuck ?? 1, 'mult'), luckSpice,
                   thirdSpiceIndex >= 20 ? 'Unknown spice' : spicesNames[thirdSpiceIndex], kitchen?.luckCost)}
-              </Stack>
+              </Box>
               {isRecipe ? recipeSection(kitchen, recipeTime, timeToFinish) : null}
             </ItemCard>
           })}
