@@ -432,7 +432,7 @@ const Bubbles = () => {
         <PageSettings.Toggle name={'dimPastEff'} label={'Dim past the efficiency threshold'}
                              help={'Bubbles at or past the efficiency threshold are dimmed.'}/>
         <PageSettings.Number name={'dimLevel'} label={'Dim past level'} min={0} integer
-                             help={'Bubbles past this level are dimmed. Empty: none are.'}/>
+                             help={'Bubbles past this level are dimmed. Leave empty to disable.'}/>
         <PageSettings.Toggle name={'futureFromMost'} label={'Future bubbles from your most progressed cauldron'}
                              help={'Off: from your least progressed cauldron, the one you are waiting on.'}/>
       </PageSettings>}

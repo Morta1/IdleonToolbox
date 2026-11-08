@@ -5,6 +5,15 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.3',
+    'gameVer': '2.3.561',
+    'date': '09/11/2026',
+    'features': [
+      'Bubbles: the "Dim past level" setting explains that leaving it empty turns it off'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '4.0.2',
     'gameVer': '2.3.561',
     'date': '08/11/2026',
