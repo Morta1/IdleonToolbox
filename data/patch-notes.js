@@ -11,7 +11,9 @@ export const patchNotes = [
     'features': [
       'Dashboard: the reset tiles share one width, and "Hide characters without alerts" moved to the top bar'
     ],
-    'fixes': []
+    'fixes': [
+      'Dashboard: two World 7 alerts no longer sit out of line with the rest'
+    ]
   },
   {
     'ver': '4.0.1',
