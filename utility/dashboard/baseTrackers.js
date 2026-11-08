@@ -36,7 +36,7 @@ export const baseTrackers = {
           {
             name: 'miniBosses',
             type: 'input',
-            props: { label: 'Bosses threshold', value: 2, minValue: 2 },
+            props: { label: 'Bosses threshold', value: 2, minValue: 1 },
             checked: true
           },
           {
