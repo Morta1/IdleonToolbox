@@ -50,8 +50,10 @@ const Shrines = ({ shrines, shrinesExpBonus, characterCount }) => <Box sx={{ p: 
       const contributors = shrinesExpBonus ? (shrinesExpBonus?.breakdown?.[index] ?? [])
         .filter(({ value }) => value > 0).map(({ name }) => name) : null;
       const perHour = shrinesExpBonus ? shrinesExpBonus?.total?.[index] ?? 0 : undefined;
+      const built = shrine?.shrineLevel > 0;
       return <IconTile key={shrine?.rawName ?? index} icon={`data/${shrine?.rawName}.png`} alt={cleanUnderscore(shrine?.name)}
-                       value={formatNum(shrine?.shrineLevel ?? 0)} status={shrine?.shrineLevel > 0 ? undefined : 'missing'}
+                       value={formatNum(shrine?.shrineLevel ?? 0)} status={built ? undefined : 'missing'}
+                       progress={built ? (shrine?.progress ?? 0) / hoursToLevel(shrine.shrineLevel) : undefined}
                        details={shrineDetails(shrine, entry, contributors, perHour, characterCount)}/>;
     })}
   </CardGrid>

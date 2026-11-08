@@ -65,6 +65,16 @@ const smallTileSx = (hasValue, empty) => ({
 
 // A fill grid lifts this, so a tile fills its column.
 const TILE_MAX = 'var(--tile-max, 72px)';
+// progress: how far the thing is to its next level, 0 to 1, as a 3 px bar along the tile's foot (a shrine's EXP). The
+// numbers are in the tile's note; the bar is only the glance, so it is hidden from a screen reader.
+const ProgressFoot = ({ progress }) => <Box component={'span'} aria-hidden sx={{
+  position: 'absolute', left: 8, right: 8, bottom: 4, height: 3, borderRadius: '2px', bgcolor: 'divider', overflow: 'hidden'
+}}>
+  <Box component={'span'} sx={{
+    display: 'block', height: '100%', width: `${Math.min(100, Math.max(0, progress * 100))}%`,
+    bgcolor: progress >= 1 ? 'success.main' : 'primary.main'
+  }}/>
+</Box>;
 // label: the thing's name under its sprite, for a collection whose sprites alone can't be told apart (hats, companions).
 // Two lines at most, and always the room of two: a one-line name keeps its tile as tall as its neighbours, so a row of
 // tiles lines up whatever the names.
@@ -89,11 +99,13 @@ const LABEL_SX = {
 // buttonProps go with onSelect, onto the tile's button (the mark a page finds its tile by).
 // sub: a dimmer line under the value, inside a sheet (a talent's "/ max"). kind is what numOrNode takes. frameAbove: the
 // frame over the sprite (GameIcon's). iconSize: 40 in a sheet where the sprite is all a tile says (talents, skills, obols,
-// equipment): the sheet's 28 px left a talent a speck in its cell. badgeColor and glow: see Badge and glowSx.
+// equipment): the sheet's 28 px left a talent a speck in its cell. badgeColor and glow: see Badge and glowSx; progress: see
+// ProgressFoot.
 const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, iconSize, height = 72, badge, badgeColor, mark, markAlt, glow,
-  status, details, onSelect, selected, sharedNote, buttonProps }) => {
+  progress, status, details, onSelect, selected, sharedNote, buttonProps }) => {
   const small = Boolean(useSheet());
   const empty = status === 'empty';
+  const hasProgress = typeof progress === 'number' && Number.isFinite(progress) && !small && !empty;
   const hasValue = value !== undefined && !empty;
   const hasLabel = Boolean(label) && !small && !empty;
   const emptyName = empty ? alt || 'Empty slot' : undefined;
@@ -118,6 +130,8 @@ const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, 
     !small && !hasValue && { py: 0.5, justifyContent: 'center' },
     hasLabel && { height: 'auto', minHeight: height, justifyContent: 'flex-start', gap: '2px', pt: 0.75, pb: 0.75 },
     longValue && { containerType: 'inline-size' },
+    // The value sits above the bar, not on it
+    hasProgress && { pb: '9px' },
     empty && emptySlot,
     glow && !empty ? glowSx(glow) : null
   ]}>
@@ -141,6 +155,7 @@ const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, 
       fontVariantNumeric: 'tabular-nums',
       whiteSpace: 'nowrap'
     }}>{sub}</Typography> : null}
+    {hasProgress ? <ProgressFoot progress={progress}/> : null}
     {badge !== undefined && badge !== null ? <Badge badge={badge} small={small} color={badgeColor}/>
       : mark && !empty ? <Box component={'span'} sx={{ position: 'absolute', top: 2, right: 2, display: 'inline-flex' }}>
         <GameIcon src={mark} size={24} alt={markAlt ?? ''}/>
