@@ -73,9 +73,19 @@ E2E gotchas (`npm run test:e2e` — builds, then serves `out/` on **3002**, or o
   the build's type check (`tsc --noEmit --incremental -p tsconfig.build.json`): for commits between a plan's gates,
   and the gate runs the full suite. A new test that scans sources joins `SOURCE_SCANS` in `.husky/pre-commit`.
 - `FAST_BUILD=1 npm run build` exports two wiki entity pages per kind (plus the ones e2e names) instead of ~8,000
-  and writes no sitemap: for checks between a plan's gates. A gate, a close or a deploy builds every page.
+  and writes no sitemap: for checks between a plan's gates. A plan's gate or close builds every page; for a deploy, the
+  deploy's own build does.
   `node tools/needs-build.mjs` says whether a change needs that build at all (exit 0 yes, 1 no): tests, docs and
   tool config don't.
+
+Before a push to `main` (a deploy), check what the change can break, not everything:
+- Always: the full vitest suite on what goes out (the commit hook without `QUICK_COMMIT`, about a minute), and each
+  changed page looked at, desktop and phone width.
+- No local build: the deploy builds every page itself (`deploy.yml`), and a failed build deploys nothing.
+- e2e only for what several pages share: the nav, the page frame or the side ads, patch notes or What's new, page titles,
+  metadata or routing, anything that can render differently on the server and in the browser (dates, storage, the URL),
+  and shared building blocks (`CardGrid`, `IconTile`, `Panel`, `ItemCard`, `Toolbar`). Then the spec that covers it, not
+  the whole suite. A change that stays on one page (a layout tweak, a number format, an alert setting) skips it.
 
 Test suite size. On 2026-11-07, after two sweeps: vitest 7,099 tests, 53 s on 10 workers; e2e 607 tests, 253 s on 4.
 A plan's close states its counts and full-run times beside these, and a jump needs a reason. No fixed cap: the count alone
