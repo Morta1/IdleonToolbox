@@ -7,6 +7,7 @@ import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import IconTile from '@components/common/cards/IconTile';
 import GameIcon from '@components/common/GameIcon';
 import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 
@@ -14,6 +15,8 @@ import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 // rope above the bucket makes the art tall and thin: 56 px keeps its fill readable. The game draws a golden bucket in
 // gold (HoleWellBucket1) and the others in wood (HoleWellBucket0)
 const bucketIcon = (golden) => `data/HoleWellBucket${golden ? 1 : 0}.png`;
+// The 56 px art and its rate under it
+const BUCKET_TILE_HEIGHT = 88;
 
 // Seconds to fill a sediment's bar with the first N buckets on it: their rates add up (a golden bucket fills faster)
 const fillTimes = (sediment, theWell) => (theWell?.buckets ?? []).map((_, index) => {
@@ -31,15 +34,19 @@ const TheWell = ({ hole }) => {
   const golden = theWell?.goldenBucketsOwned ?? 0;
   const buckets = theWell?.buckets ?? [];
 
-  // Decision 5 (b): a bucket keeps the game's picture, its fill over the bucket, with its name and sediment beside it
-  const bucketCard = (sediment, index) => {
+  // Decision 5 (b): a bucket keeps the game's picture, its fill over the bucket. A tile with its fill rate, as the old page
+  // had them in a row; its name and sediment in its note. A card each took two rows of five for a line of numbers.
+  const bucketTile = (sediment, index) => {
     const fill = sediment === theWell?.rockLayerIndex ? 0 : sediment + 1;
     const isGolden = index < golden;
-    return <ItemCard key={`bucket-${index}`}
-                     icon={<GameIcon src={`data/HoleWellFill${fill}.png`} frame={bucketIcon(isGolden)} size={56} alt={''}/>}
-                     title={`${isGolden ? 'Golden bucket' : 'Bucket'} ${index + 1}`} meta={sedimentName(fill)}>
-      <ItemCard.Facts rows={[['Fill rate', `${formatGame(rates[index] ?? 0, 'Holes.BucketFillRate')}/hr`]]}/>
-    </ItemCard>;
+    const name = `${isGolden ? 'Golden bucket' : 'Bucket'} ${index + 1}`;
+    const rate = `${formatGame(rates[index] ?? 0, 'Holes.BucketFillRate')}/hr`;
+    return <IconTile key={`bucket-${index}`} height={BUCKET_TILE_HEIGHT} alt={name} value={rate}
+                     icon={<GameIcon src={`data/HoleWellFill${fill}.png`} frame={bucketIcon(isGolden)} size={56} alt={name}/>}
+                     details={<Stack gap={0.5}>
+                       <Typography variant={'cardTitle'} component={'div'}>{name}</Typography>
+                       <ItemCard.Facts rows={[['Sediment', sedimentName(fill)], ['Fill rate', rate]]}/>
+                     </Stack>}/>;
   };
 
   const sedimentCard = (sediment, index) => {
@@ -76,7 +83,7 @@ const TheWell = ({ hole }) => {
     <Stack gap={3}>
       {buckets.length ? <Stack gap={1}>
         <Typography variant={'sectionTitle'} component={'h2'}>Buckets</Typography>
-        <CardGrid size={'s'}>{buckets.map(bucketCard)}</CardGrid>
+        <CardGrid size={'icon'} fill>{buckets.map(bucketTile)}</CardGrid>
       </Stack> : null}
       {theWell?.sediments?.length ? <Stack gap={1}>
         <Typography variant={'sectionTitle'} component={'h2'}>Sediments</Typography>
