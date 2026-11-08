@@ -20,7 +20,8 @@ export const patchNotes = [
       'Vote Ballot: this week\'s bonus stands out with a green border',
       'Killroy: this week\'s schedule sits apart from the coming weeks',
       'Tournament: a notice when you\'re not registered for the Pet Tournament or the Raid',
-      'Dashboard: the Vote and Meritocracy names link to their Vote Ballot tab'
+      'Dashboard: the Vote and Meritocracy names link to their Vote Ballot tab',
+      'Dashboard: on a narrow window, each Account alerts group starts on its name\'s line, so the list is shorter'
     ],
     'fixes': [
       'Dashboard: two World 7 alerts no longer sit out of line with the rest',

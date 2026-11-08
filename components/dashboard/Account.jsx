@@ -1058,10 +1058,14 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
   </Panel>;
 };
 
-// A row's label over its icons on a phone, beside them from sm.
-const AlertRow = ({ label, children }) => <Stack direction={{ xs: 'column', sm: 'row' }} gap={{ xs: 0.5, sm: 2 }} sx={{ px: 2, py: 1.5 }}>
-  <Typography variant={'groupLabel'} color={'text.secondary'} sx={{ flexShrink: 0, width: { sm: 72 }, pt: { sm: 0.75 } }}>{label}</Typography>
-  <Stack direction={'row'} gap={1.5} flexWrap={'wrap'} alignItems={'center'} sx={{ minWidth: 0 }}>{children}</Stack>
+// A row's label beside its icons, as the old dashboard had it. From sm the icons wrap in a column of their own; under it the
+// label runs in as the first item of the icons' line and the icons wrap under it at full width. Over the icons, each group
+// took a line of its own (a player with the browser in a narrow window beside the game gets this layout), and a label
+// column narrowed every wrapped line, which cost more lines than it saved on a long group.
+const AlertRow = ({ label, children }) => <Stack direction={'row'} flexWrap={{ xs: 'wrap', sm: 'nowrap' }} alignItems={{ xs: 'center', sm: 'flex-start' }}
+                                                 gap={{ xs: 1.5, sm: 2 }} sx={{ px: 2, py: 1.5 }}>
+  <Typography variant={'groupLabel'} color={'text.secondary'} sx={{ flexShrink: 0, width: 72, pt: { sm: 0.75 } }}>{label}</Typography>
+  <Stack direction={'row'} gap={1.5} flexWrap={'wrap'} alignItems={'center'} sx={{ minWidth: 0, display: { xs: 'contents', sm: 'flex' } }}>{children}</Stack>
 </Stack>;
 
 // Icons are the glyphs the game draws beside each doubler's left count (DOUBLER_ICONS).
