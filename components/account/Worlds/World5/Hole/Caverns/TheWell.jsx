@@ -5,7 +5,7 @@ import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import StatTile from '@components/common/cards/StatTile';
-import CardGrid from '@components/common/cards/CardGrid';
+import CardGrid, { LABELED_TILE_MIN } from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import IconTile from '@components/common/cards/IconTile';
 import GameIcon from '@components/common/GameIcon';
@@ -83,7 +83,8 @@ const TheWell = ({ hole }) => {
     <Stack gap={3}>
       {buckets.length ? <Stack gap={1}>
         <Typography variant={'sectionTitle'} component={'h2'}>Buckets</Typography>
-        <CardGrid size={'icon'} fill>{buckets.map(bucketTile)}</CardGrid>
+        {/* 88 px, a labelled tile's width: a late account's rate ("1.61e22/hr") ran to a 64 px tile's edges */}
+        <CardGrid size={'icon'} fill={LABELED_TILE_MIN}>{buckets.map(bucketTile)}</CardGrid>
       </Stack> : null}
       {theWell?.sediments?.length ? <Stack gap={1}>
         <Typography variant={'sectionTitle'} component={'h2'}>Sediments</Typography>
