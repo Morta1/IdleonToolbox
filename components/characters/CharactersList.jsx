@@ -1,17 +1,21 @@
 import {
   Box,
   Button,
+  ButtonBase,
   Checkbox,
   Divider,
+  FormControlLabel,
   IconButton,
   Link,
   List,
   ListItem,
   ListItemIcon,
   ListItemText,
+  Popover,
   Skeleton,
   Stack,
-  Typography
+  Typography,
+  useTheme
 } from '@mui/material';
 import React, { startTransition, useContext, useEffect, useState } from 'react';
 import { AppContext, shownCharacters, shownFilters } from '@components/common/context/AppProvider';
@@ -19,7 +23,6 @@ import Notice from '@components/common/Notice';
 import { formatNum, sections } from 'utility/helpers';
 import AppDrawer from '@components/common/Overlays/AppDrawer';
 import GameIcon from '@components/common/GameIcon';
-import { FilterPill } from '@components/common/Toolbar';
 import { IconChevronDown, IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 
 // Ensure the saved selection has an entry for every current character. Characters created after
@@ -60,6 +63,36 @@ const onlyCharacter = (length, charIndex) => ({
   }), {}),
   all: false
 });
+// Every character shown, or none
+const allCharacters = (length, on) => ({
+  all: on,
+  ...Array(length).fill(false).reduce((res, _, index) => ({ ...res, [index]: on }), {})
+});
+
+const trackSection = (name, on) => {
+  if (typeof window.gtag === 'undefined') return;
+  setTimeout(() => window.gtag('event', 'filter_selection', { event_category: name, event_label: 'engagement', value: on }), 0);
+};
+
+// The sections as a checklist, in the drawer and under the wide bar's Sections button alike: two columns read top to
+// bottom, with All and None over them. Pills of sixteen widths wrapped into ragged rows, and all or none took 16 presses.
+const sectionsOf = (chips, on) => ({ ...chips, ...Object.fromEntries(sections.map(({ name }) => [name, on])) });
+const CHECKLIST_SX = {
+  display: 'grid', gridAutoFlow: 'column', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+  gridTemplateRows: `repeat(${Math.ceil(sections.length / 2)}, auto)`, columnGap: 2
+};
+const CHECK_ROW_SX = { m: 0, minHeight: 36, minWidth: 0, '& .MuiFormControlLabel-label': { fontSize: 14, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' } };
+const SectionChecklist = ({ chips, onToggle, onAll }) => <Stack gap={0.5}>
+  <Stack direction={'row'} alignItems={'center'} gap={1.5}>
+    <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'} sx={{ mr: 'auto' }}>Sections</Typography>
+    <Link component="button" type="button" underline="hover" onClick={() => onAll(true)} sx={{ font: 'inherit', fontSize: 13 }}>All</Link>
+    <Link component="button" type="button" underline="hover" onClick={() => onAll(false)} sx={{ font: 'inherit', fontSize: 13 }}>None</Link>
+  </Stack>
+  <Box sx={CHECKLIST_SX}>
+    {sections.map(({ name }) => <FormControlLabel key={name} label={name} sx={CHECK_ROW_SX}
+                                                  control={<Checkbox size="small" checked={Boolean(chips?.[name])} onChange={() => onToggle(name)}/>}/>)}
+  </Box>
+</Stack>;
 
 const CharactersList = () => {
   const { state, dispatch } = useContext(AppContext);
@@ -108,14 +141,7 @@ const CharactersList = () => {
       newState = onlyCharacter(state?.characters?.length, charIndex);
     } else {
       if (event === 'all') {
-        const newAllState = !checked.all;
-        newState = {
-          all: newAllState,
-          ...Array(state?.characters?.length).fill(false).reduce((res, _, index) => ({
-            ...res,
-            [index]: newAllState
-          }), {})
-        };
+        newState = allCharacters(state?.characters?.length, !checked.all);
       } else {
         const index = parseInt(event.target.name, 10);
         newState = {
@@ -141,16 +167,13 @@ const CharactersList = () => {
     startTransition(() => {
       dispatch({ type: 'filters', data: newChipsState });
     });
-    if (typeof window.gtag !== 'undefined') {
-      setTimeout(() => {
-        window.gtag('event', 'filter_selection', {
-          event_category: name,
-          event_label: 'engagement',
-          value: !chips?.[name]
-        });
-      }, 0);
-    }
+    trackSection(name, newChipsState[name]);
   }
+  const setAllSections = (on) => {
+    const next = sectionsOf(chips, on);
+    setSelectedChips(next);
+    startTransition(() => dispatch({ type: 'filters', data: next }));
+  };
 
   const hasCharacters = !!state?.characters?.length;
 
@@ -252,19 +275,18 @@ const CharactersList = () => {
       <Divider/>
       <List>
         <ListItem>
-          <Stack gap={2}>
-            <Typography variant={'groupLabel'} component={'h3'} color={'text.secondary'}>Sections</Typography>
-            <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-              {sections.map(({ name }, index) => <FilterPill key={`${name}-${index}`} label={name} on={chips?.[name]}
-                                                             onToggle={() => toggleSection(name)}/>)}
-            </Stack>
-          </Stack>
+          <Box sx={{ width: '100%' }}>
+            <SectionChecklist chips={chips} onToggle={toggleSection} onAll={setAllSections}/>
+          </Box>
         </ListItem>
       </List>
     </Stack>
   );
 };
 
+const ALL_LABEL = 'All characters';
+// The name button's room besides its label: 15 px sides, the 24 px class icon and its gap, the chevron and its margin
+const NAME_BUTTON_EXTRA = 96;
 const classIconOf = (classIndex) => (classIndex !== undefined ? `data/ClassIcons${classIndex}.png` : 'afk_targets/Nothing.png');
 
 // While one character shows, a step to the one before or after it, wrapping round. 40 px, 44 on touch.
@@ -273,37 +295,134 @@ const STEP_SX = {
   '@media (pointer: coarse)': { width: 44, height: 44 }
 };
 
-// The characters to show and the sections to show them with, behind one control (phase 4 Decision 9): the shown
-// characters' class icons and how many of all, opening this list in a drawer beside the page, or a sheet with Done
-// on a phone. Not modal on desktop, so a tick shows on the page at once. The page owns open, so its note can open it.
-export const CharactersPicker = ({ open, onOpenChange, buttonRef }) => {
+// A row of the wide bar's character list: the box ticks the character in or out and keeps the list open, the name shows
+// that one alone and closes it (the drawer's checkbox and Only, as one row).
+const MENU_ROW_SX = { display: 'flex', alignItems: 'center', gap: 0.5, minHeight: 36, borderRadius: '6px', '&:hover': { bgcolor: 'action.hover' } };
+const MENU_NAME_SX = {
+  flex: 1, minWidth: 0, justifyContent: 'flex-start', gap: 1, py: 0.5, pr: 1, borderRadius: '4px', font: 'inherit', textAlign: 'left',
+  '&.Mui-focusVisible': { outline: '2px solid', outlineColor: 'primary.main' }
+};
+const ELLIPSIS_SX = { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
+
+// The wide bar's characters (a named switcher the reviewers preferred to a strip of class icons, which made players hover
+// to tell two of a class apart): every character's icon, name and level under the switcher, over the page only while open.
+// Never the last one shown unticked.
+const CharacterMenu = ({ open, onClose, anchorRef }) => {
   const { state, dispatch } = useContext(AppContext);
+  const characters = state?.characters ?? [];
+  const displayed = reconcileDisplayedCharacters(shownCharacters(state), characters.length);
+  const allShown = characters.every((_, index) => displayed[index]);
+  const firstShown = Math.max(0, characters.findIndex((_, index) => displayed[index]));
+  const totalLevels = characters.reduce((sum, { level, hasData }) => sum + (hasData ? level || 0 : 0), 0);
+  const show = (data) => startTransition(() => dispatch({ type: 'displayedCharacters', data }));
+  const toggle = (index) => {
+    const next = { ...displayed, [index]: !displayed[index] };
+    const count = characters.filter((_, other) => next[other]).length;
+    if (count) show({ ...next, all: count === characters.length });
+  };
+  const only = (index) => {
+    show(onlyCharacter(characters.length, index));
+    onClose();
+  };
+  return <Popover open={open} anchorEl={() => anchorRef.current} onClose={onClose} disableScrollLock
+                  anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+                  slotProps={{ paper: { 'aria-label': 'Characters', sx: { p: 0.75, mt: 1, width: 320, maxWidth: 'calc(100vw - 32px)' } } }}>
+    <Box sx={MENU_ROW_SX}>
+      <Checkbox size="small" checked={allShown} inputProps={{ 'aria-label': 'All characters' }}
+                onChange={() => show(allShown ? onlyCharacter(characters.length, firstShown) : allCharacters(characters.length, true))}/>
+      <Typography variant={'body2'} sx={{ fontWeight: 500 }}>All characters</Typography>
+      <Typography variant={'body2'} color={'text.secondary'} sx={{ ml: 'auto', pr: 1, fontSize: 12 }}>{formatNum(totalLevels, 'level')}</Typography>
+    </Box>
+    {characters.map(({ name, classIndex, level, hasData }, index) => {
+      const on = Boolean(displayed[index]);
+      return <Box key={`${name}-${index}`} sx={MENU_ROW_SX}>
+        <Checkbox size="small" checked={on} onChange={() => toggle(index)} inputProps={{ 'aria-label': `Show ${name} beside the others` }}/>
+        <ButtonBase onClick={() => only(index)} aria-label={`Show only ${name}`} sx={MENU_NAME_SX}>
+          <GameIcon src={classIconOf(classIndex)} size={24} alt=""/>
+          <Box component="span" sx={[ELLIPSIS_SX, { flex: 1, fontSize: 14, fontWeight: on ? 500 : 400, color: on ? 'primary.main' : 'text.primary' }]}>{name}</Box>
+          <Box component="span" sx={{ fontSize: 12, color: 'text.secondary', fontVariantNumeric: 'tabular-nums' }}>{formatNum(hasData ? level : 0, 'level')}</Box>
+        </ButtonBase>
+      </Box>;
+    })}
+    <Typography sx={{ fontSize: 12, lineHeight: '16px', color: 'text.secondary', px: 1, pt: 1, pb: 0.5, mt: 0.5, borderTop: 1, borderColor: 'divider' }}>
+      Click a name to show only them. Tick boxes to compare.
+    </Typography>
+  </Popover>;
+};
+
+// The wide bar's sections: the drawer's checklist, under a button that names how many are on. Each tick shows at once.
+const SectionsButton = ({ open, onOpenChange, buttonRef }) => {
+  const { state, dispatch } = useContext(AppContext);
+  const chips = shownFilters(state);
+  const on = sections.filter(({ name }) => chips?.[name]).length;
+  const save = (next) => startTransition(() => dispatch({ type: 'filters', data: next }));
+  const toggle = (name) => {
+    const next = { ...chips, [name]: !chips?.[name] };
+    save(next);
+    trackSection(name, next[name]);
+  };
+  return <>
+    <Button ref={buttonRef} variant="outlined" onClick={() => onOpenChange(!open)} aria-haspopup="dialog" aria-expanded={open}
+            endIcon={<IconChevronDown size={18} aria-hidden/>} sx={{ color: 'text.primary', borderColor: 'outline', whiteSpace: 'nowrap' }}>
+      Sections: {formatNum(on, 'whole')} of {formatNum(sections.length, 'whole')}
+    </Button>
+    <Popover open={open} anchorEl={() => buttonRef.current} onClose={() => onOpenChange(false)} disableScrollLock
+             anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }} transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+             slotProps={{ paper: { 'aria-label': 'Sections', sx: { p: 2, mt: 1, width: 440, maxWidth: 'calc(100vw - 32px)' } } }}>
+      <SectionChecklist chips={chips} onToggle={toggle} onAll={(all) => save(sectionsOf(chips, all))}/>
+    </Popover>
+  </>;
+};
+
+// The characters to show and the sections to show them with, as one switcher in the pinned bar: the shown character's class
+// icon and name (or "+N" more, or All characters), with steps to the one before and after. A phone's switcher says
+// "1 of 11" instead, so it, the steps and Filters keep one row. From lg it opens CharacterMenu below it and Sections has its
+// own button; under lg it opens the drawer beside the page (a sheet with Done on a phone) holding both. The page owns what's
+// open, so its notes can open them, and which one a press opens is read at the press, so the export never depends on width.
+export const CharactersPicker = ({ open, onOpenChange, menuOpen, onMenuOpenChange, buttonRef, sectionsOpen, onSectionsOpenChange, sectionsRef }) => {
+  const { state, dispatch } = useContext(AppContext);
+  const theme = useTheme();
   const characters = state?.characters ?? [];
   if (!characters.length) return null;
   const displayed = shownCharacters(state);
   const shown = characters.filter((_, index) => displayed?.[index]);
+  const allShown = shown.length === characters.length;
   const step = (by) => {
     const from = characters.findIndex((_, index) => displayed?.[index]);
     const data = onlyCharacter(characters.length, (from + by + characters.length) % characters.length);
     startTransition(() => dispatch({ type: 'displayedCharacters', data }));
   };
-  return <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-    <Button ref={buttonRef} variant="outlined" onClick={() => onOpenChange(true)} aria-haspopup="dialog" aria-expanded={open}
-            endIcon={<IconChevronDown size={18} aria-hidden/>}
-            sx={{ color: 'text.primary', bgcolor: 'primary.soft', borderColor: 'primary.edge', fontWeight: 600 }}>
-      {shown.length ? <Box component="span" aria-hidden sx={{ display: 'flex', mr: 1 }}>
-        {shown.slice(0, 3).map(({ name, classIndex }, index) => (
-          <Box key={`${name}-${index}`} component="span" sx={{ display: 'inline-flex', mr: -0.5 }}>
-            <GameIcon src={classIconOf(classIndex)} size={24} alt=""/>
-          </Box>
-        ))}
-      </Box> : null}
-      Characters: {shown.length} of {characters.length}
-    </Button>
-    {shown.length === 1 && characters.length > 1 ? <Stack direction={'row'} gap={0.5}>
-      <IconButton aria-label={'Previous character'} onClick={() => step(-1)} sx={STEP_SX}><IconChevronLeft size={18}/></IconButton>
-      <IconButton aria-label={'Next character'} onClick={() => step(1)} sx={STEP_SX}><IconChevronRight size={18}/></IconButton>
-    </Stack> : null}
+  const press = () => (window.matchMedia(`(min-width: ${theme.breakpoints.values.lg}px)`).matches
+    ? onMenuOpenChange(!menuOpen) : onOpenChange(!open));
+  const name = allShown ? ALL_LABEL : shown[0]?.name ?? 'No characters';
+  const canStep = shown.length === 1 && characters.length > 1;
+  // One width while you step through the characters, the longest label it can show (a name, or "All characters"), so
+  // the arrows beside it stay put (Hαlf: "locked as if a max size name"). The rest is its padding, class icon and chevron.
+  const labelChars = Math.max(ALL_LABEL.length, ...characters.map((character) => character?.name?.length ?? 0));
+  // From lg the switcher and Sections are the bar's own items, so Sections wraps beside the bar's filters
+  return <Box sx={{ display: { xs: 'flex', lg: 'contents' }, alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
+    <Stack direction={'row'} gap={0.5} alignItems={'center'}>
+      <IconButton aria-label={'Previous character'} onClick={() => step(-1)} disabled={!canStep} sx={STEP_SX}><IconChevronLeft size={18}/></IconButton>
+      <Button ref={buttonRef} variant="outlined" onClick={press} aria-haspopup="dialog" aria-expanded={open || menuOpen}
+              aria-label={`Characters: ${allShown ? 'all' : shown.map((character) => character.name).join(', ') || 'none'}`}
+              endIcon={<IconChevronDown size={18} aria-hidden/>}
+              sx={{
+                color: 'text.primary', bgcolor: 'primary.soft', borderColor: 'primary.edge', fontWeight: 600, gap: 1, maxWidth: 260,
+                width: { sm: `calc(${labelChars}ch + ${NAME_BUTTON_EXTRA}px)` }, justifyContent: 'flex-start',
+                '& .MuiButton-endIcon': { ml: 'auto' }
+              }}>
+        {shown.length && !allShown ? <GameIcon src={classIconOf(shown[0].classIndex)} size={24} alt=""/> : null}
+        <Box component="span" sx={[ELLIPSIS_SX, { display: { xs: 'none', sm: 'inline' } }]}>{name}</Box>
+        {shown.length > 1 && !allShown
+          ? <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' }, color: 'text.secondary', fontWeight: 500 }}>+{shown.length - 1}</Box> : null}
+        <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' }, whiteSpace: 'nowrap' }}>{shown.length} of {characters.length}</Box>
+      </Button>
+      <IconButton aria-label={'Next character'} onClick={() => step(1)} disabled={!canStep} sx={STEP_SX}><IconChevronRight size={18}/></IconButton>
+    </Stack>
+    <Box sx={{ display: { xs: 'none', lg: 'contents' } }}>
+      <SectionsButton open={sectionsOpen} onOpenChange={onSectionsOpenChange} buttonRef={sectionsRef}/>
+    </Box>
+    <CharacterMenu open={menuOpen} onClose={() => onMenuOpenChange(false)} anchorRef={buttonRef}/>
     <AppDrawer open={open} onClose={() => onOpenChange(false)} title="Characters" phoneActions={[{ label: 'Done', main: true }]}>
       <CharactersList/>
     </AppDrawer>
