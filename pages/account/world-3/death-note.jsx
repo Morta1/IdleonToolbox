@@ -27,8 +27,17 @@ const DEATH_NOTE_TOOLBAR = { search: '', world: 'all' };
 // window's 1,265 px page
 const WORLD_TABLE_MIN = 292;
 // The world's name is the table's title, in its own case: in capitals "Frostbite Tundra" broke in two, so heads in one row
-// differed in height, and kept on one line it made the table scroll
-const WORLD_HEAD_SX = { '& thead th:first-of-type': { textTransform: 'none', letterSpacing: 0, fontSize: 13, color: 'text.primary' } };
+// differed in height, and kept on one line it made the table scroll. In its world's colour, as the old page wrote it
+// (palette.identity.worlds); the minibosses in their pink
+const worldHeadSx = (worldIndex) => ({
+  '& thead th:first-of-type': {
+    textTransform: 'none', letterSpacing: 0, fontSize: 13,
+    color: (theme) => {
+      const { worlds: colors, miniBosses } = (theme.vars || theme).palette.identity;
+      return colors[worldIndex] ?? miniBosses;
+    }
+  }
+});
 
 // A rank's skull: StatusSkull0 to 6 by the formula below, the eclipse skull past rank 10, none before the first.
 const skullOf = (rank) => {
@@ -129,7 +138,7 @@ const DeathNote = () => {
         <CardGrid size={'s'} sx={{ alignItems: 'start', gridTemplateColumns: `repeat(auto-fill, minmax(min(${WORLD_TABLE_MIN}px, 100%), 1fr))` }}>
           {bands.map(({ key, label, rows }) => <DataTable key={key} columns={columnsOf(label)} rows={rows} rowKey={'rawName'}
                                                           rowLabel={(mob) => cleanUnderscore(mob.displayName)} surface={'card'} dense
-                                                          sx={WORLD_HEAD_SX}/>)}
+                                                          sx={worldHeadSx(key)}/>)}
         </CardGrid>
       </Box>
     </>

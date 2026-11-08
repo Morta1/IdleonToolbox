@@ -81,6 +81,10 @@ const identity = {
   researchGrid: { levelled: '#9e9e9e', edge: '#757575', unfilled: '#616161', open: '#424242', closed: '#212121' },
   // Research's insight colors, the game's (N.js Research UI), by Insight LV
   insightLevels: ['#959494', '#987463', '#74bbcf', '#cca75d', '#4d73ef', '#ca2fe1', '#e12f2f', '#2c9745', '#ff8ac3', '#ff892e', '#766879'],
+  // Each world's colour as words (World 1 to 7), the old Death Note's world titles (utility/helpers worldColor), and its
+  // minibosses' pink. World 4's purple and World 5's red are lifted to 4.5:1 on a card; the rest already pass
+  worlds: ['#64b564', '#f1ac45', '#00bcd4', '#a074e5', '#e26161', '#5ff1b4', '#40e0d0'],
+  miniBosses: '#e987e6',
   // Sailing's artifact forms, the game's: Base, Ancient, Eldritch, Sovereign, Omnipotent, Transcendent, Verisimilitude
   artifactTiers: ['#ffffff', '#ffd700', '#ffa092', '#67da80', '#00ffde', '#b388ff', '#ff7eb6'],
   // The Tome's point tiers, the game's: bronze, silver, gold, blue
@@ -110,6 +114,8 @@ const lightIdentity = {
   superTalent: '#74622b',
   damage: { blue: '#336a7e', purple: '#8948a4', yellow: '#706332', plain: '#666450' },
   fever: { yellow: '#756200', red: '#a7433b', brown: '#805c3e', green: '#386f38', menagerie: '#306794' },
+  worlds: ['#3d6e3d', '#815c25', '#006e7c', '#7946c8', '#ad3d3d', '#2c6f53', '#1f6e66'],
+  miniBosses: '#884f87',
   artifactTiers: ['#636363', '#746200', '#8a564f', '#356f41', '#007062', '#7055a0', '#974a6c'],
   tomeTiers: { bronze: '#7c5e39', silver: '#616466', gold: '#746200', blue: '#2d6a85' },
   insightLevels: ['#646363', '#7b5d4f', '#426975', '#766036', '#3e5cc0', '#a326b7', '#be2828', '#227234', '#914e6f', '#97511b', '#6c5f6f'],

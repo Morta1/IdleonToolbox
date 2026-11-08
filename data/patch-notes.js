@@ -11,7 +11,9 @@ export const patchNotes = [
     'features': [
       'Bubbles: the "Dim past level" setting explains that leaving it empty turns it off'
     ],
-    'fixes': []
+    'fixes': [
+      'Death Note: each world\'s table title is in its world\'s colour again'
+    ]
   },
   {
     'ver': '4.0.2',
