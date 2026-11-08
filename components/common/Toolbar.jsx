@@ -96,6 +96,10 @@ const MULTI_ROW_SX = {
   '&.Mui-selected:hover': { bgcolor: 'action.hover' },
   '&.Mui-selected.Mui-focusVisible': { outline: 'none', bgcolor: 'action.hover' }
 };
+// An option's fifth entry: the colour its rows wear on the page (a theme role), as a dot before its label, so the list is
+// also their legend (Stamps' tile edges)
+const ToneDot = ({ color }) => <Box component="span" aria-hidden
+                                    sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: color, flexShrink: 0 }}/>;
 const MultiShowField = ({ value, onChange, label, options, fullWidth }) => {
   const [whole, ...rest] = options;
   const picked = pickedOptions(options, value);
@@ -104,7 +108,8 @@ const MultiShowField = ({ value, onChange, label, options, fullWidth }) => {
   const text = picked.length === 0 ? counted(whole) : counted([null, pickedText(options, value), picked.length > 1 ? total : picked[0][2]]);
   const pick = (next) => onChange(next.includes(whole[0]) ? [] : rest.map(([key]) => key).filter((key) => next.includes(key)));
   const row = (option, checked) => <MenuItem key={option[0]} value={option[0]} sx={MULTI_ROW_SX}>
-    <Checkbox size="small" checked={checked} disableRipple tabIndex={-1} sx={{ p: 0.5 }} slotProps={{ input: { 'aria-hidden': true } }}/>
+    <Checkbox size="small" checked={checked} disableRipple tabIndex={-1} sx={{ p: 0.5 }} inputProps={{ 'aria-hidden': true }}/>
+    {option[4] ? <ToneDot color={option[4]}/> : null}
     {counted(option)}
     {option[3] ? <InfoButton label={option[1]}>{option[3]}</InfoButton> : null}
   </MenuItem>;
@@ -157,9 +162,30 @@ export const ShowField = ({ value, onChange, label = 'Show', options, fullWidth,
   </Stack> : field;
 };
 
-const Show = ({ name = 'show', label, options, multiple }) => {
+// pills: a multiple Show of a few short options players flip often, each a pill in the bar, one click on or off (Stamps'
+// states, whose dots are the legend of its tiles' edges). No pill is the whole list, as no box is. The phone panel keeps
+// the box list. The pills take the row's free width and wrap inside it, so a View after them stays at the row's end
+// rather than drop to a line of its own.
+const ShowPills = ({ value, onChange, label = 'Show', options }) => {
+  const [, ...rest] = options;
+  const keys = pickedOptions(options, value).map(([key]) => key);
+  const toggle = (key) => {
+    const next = keys.includes(key) ? keys.filter((pick) => pick !== key) : [...keys, key];
+    onChange(rest.map(([option]) => option).filter((option) => next.includes(option)));
+  };
+  return <Stack direction="row" gap={1} flexWrap="wrap" role="group" aria-label={label} sx={{ flex: '1 1 0', minWidth: 0 }}>
+    {rest.map((option) => <FilterPill key={option[0]} value={option[0]} on={keys.includes(option[0])} label={counted(option)}
+                                      onToggle={() => toggle(option[0])}>
+      {option[4] ? <ToneDot color={option[4]}/> : null}
+    </FilterPill>)}
+  </Stack>;
+};
+
+const Show = ({ name = 'show', label, options, multiple, pills }) => {
   const { state, onChange, placement } = useContext(ToolbarContext);
-  return <ShowField value={state[name]} onChange={(next) => onChange({ [name]: next })} label={label} options={options}
+  const change = (next) => onChange({ [name]: next });
+  if (multiple && pills && placement === 'row') return <ShowPills value={state[name]} onChange={change} label={label} options={options}/>;
+  return <ShowField value={state[name]} onChange={change} label={label} options={options}
                     fullWidth={placement === 'panel'} multiple={multiple}/>;
 };
 
@@ -238,11 +264,13 @@ const Sort = ({ name = 'sort', options, sx }) => {
 // ViewSwitch is for two or three ways to show a thing: more than that can't hold a phone's row, so it is a field there.
 const MAX_SEGMENTS = 3;
 
-// Row only, next to the phone button. 40 px, a toolbar's size.
-const View = ({ name = 'view', options = [['cards', 'Cards'], ['table', 'Table']] }) => {
+// Row only, next to the phone button. 40 px, a toolbar's size. phone false: the views look the same on a phone's width
+// (Stamps' columns and rows, one category a row either way), so the switch shows from 600 px.
+const View = ({ name = 'view', options = [['cards', 'Cards'], ['table', 'Table']], phone = true }) => {
   const { state, onChange } = useContext(ToolbarContext);
   const pick = (value) => onChange({ [name]: value });
   const segments = <ViewSwitch size="medium" options={options} value={state[name]} onChange={pick}/>;
+  if (!phone) return <Box sx={{ display: { xs: 'none', sm: 'block' } }}>{segments}</Box>;
   if (options.length <= MAX_SEGMENTS) return segments;
   return <>
     <Box sx={{ display: { xs: 'flex', sm: 'none' }, flex: 1, minWidth: 0 }}>
@@ -344,9 +372,12 @@ const Toolbar = ({
   // A phone row holding a search, a view and the panel button left the search a few letters wide: the search
   // takes its own line there, the view and the button the next.
   const views = ofType(View);
+  const phoneViews = views.filter((child) => child.props.phone !== false);
   // A View that is a field on a phone takes the row, with no spacer before it
-  const viewIsField = views.some((child) => (child.props.options?.length ?? 0) > MAX_SEGMENTS);
-  const searchOwnRow = searches.length > 0 && (views.length > 0 || searchAlone);
+  const viewIsField = phoneViews.some((child) => (child.props.options?.length ?? 0) > MAX_SEGMENTS);
+  const searchOwnRow = searches.length > 0 && (phoneViews.length > 0 || searchAlone);
+  // Pills fill the row's free width themselves: a spacer beside them would take half of it
+  const hasPills = shows.some((child) => child.props.multiple && child.props.pills);
   const differs = (child) => !same(state[slotKey(child)], defaults[slotKey(child)]);
 
   // The panel's count: every Show, Filter and Sort away from its default.
@@ -415,7 +446,7 @@ const Toolbar = ({
             </Button>) : null}
           {/* Both layouts are in the markup and CSS picks one, so a phone does not reflow after hydration. */}
           <Box sx={{ display: { xs: 'none', sm: 'contents' } }}>{[...shows, ...filters, ...others]}</Box>
-          <Box sx={{ flex: 1, display: { xs: views.length && !viewIsField ? 'block' : 'none', sm: 'block' } }}/>
+          <Box sx={{ flex: 1, display: { xs: phoneViews.length && !viewIsField ? 'block' : 'none', sm: hasPills ? 'none' : 'block' } }}/>
           <Box sx={{ display: { xs: 'none', sm: 'contents' } }}>{sorts}</Box>
           {views}
         </Stack>

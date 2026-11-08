@@ -121,8 +121,10 @@ const LABEL_SX = {
 // frame over the sprite (GameIcon's). iconSize: 40 in a sheet where the sprite is all a tile says (talents, skills, obols,
 // equipment): the sheet's 28 px left a talent a speck in its cell. badgeColor and glow: see Badge and glowSx; progress: see
 // ProgressFoot. markSize: 20 for a grid of tiles under 64 px (Statues'), where a 24 px mark hid half the sprite.
+// edge: the tile's line in a state's tone (a theme role), where players scan a grid's states at a glance (Stamps), with
+// the page's Show pills as its legend and the state's word in its note. selected's line wins over it.
 const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, iconSize, height = 72, badge, badgeColor, mark, markAlt,
-  markSize = 24, glow, progress, progressGoal, status, details, onSelect, selected, sharedNote, buttonProps }) => {
+  markSize = 24, glow, progress, progressGoal, edge, status, details, onSelect, selected, sharedNote, buttonProps }) => {
   const small = Boolean(useSheet());
   const empty = status === 'empty';
   const hasProgress = typeof progress === 'number' && Number.isFinite(progress) && !small && !empty;
@@ -135,6 +137,7 @@ const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, 
   const subLines = fullSub ? [].concat(sub).filter((line) => line !== null && line !== undefined && line !== '') : [];
   const tile = <Box sx={[
     (theme) => cardSurface(theme),
+    edge && !empty ? { borderColor: edge } : null,
     (theme) => cardState(theme, selected ? 'selected' : status),
     small ? smallTileSx(hasValue, empty) : {
       position: 'relative',

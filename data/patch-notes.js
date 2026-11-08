@@ -13,10 +13,12 @@ export const patchNotes = [
       'Characters: bigger icons for obols, equipment, bags, prayers, bubbles, post office and chips; re-rolled obols glow; skill ranks 1 to 3 are gold, silver and bronze',
       'More compact pages: Bubbles, Construction, Anvil, Kitchens, Slab, Hole, Spelunking Lore, Tournament and General; Shrines and Statues show their EXP bars again, and the Account and Tools menus open under their buttons',
       'Bubbles: each bubble shows a bar toward its cap with a tick at your efficiency threshold, a setting shows the % and target level under each one, and the dim setting fades much more',
-      'Characters: switch characters from the pinned bar, step by step or from a list of all of them, and Sections is a two-column checklist'
+      'Characters: switch characters from the pinned bar, step by step or from a list of all of them, and Sections is a two-column checklist',
+      'Stamps: each category follows the game\'s 4-column book (or one row each with Rows), colours show which stamps can level up or are short on coins or materials, each state is a one-click filter again, and hovering a stamp previews it'
     ],
     'fixes': [
-      'Dashboard: two World 7 alerts no longer sit out of line with the rest'
+      'Dashboard: two World 7 alerts no longer sit out of line with the rest',
+      'Stamps: stamps you can level with coins no longer read as levelling at the previous reducer'
     ]
   },
   {

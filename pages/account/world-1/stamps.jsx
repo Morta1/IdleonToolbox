@@ -10,6 +10,7 @@ import GameIcon from '@components/common/GameIcon';
 import { NextSeo } from 'next-seo';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
+import { NOTE_ANCHOR, SharedNote } from '@components/common/InfoButton';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -54,17 +55,44 @@ const reducerSteps = (account) => {
   return steps.at(-1) === 90 || steps.length >= 6 ? steps : [...steps, 90];
 };
 
-// A stamp's state, the Show menu's options in its order: each stamp has exactly one. 'reduction' can level up now and
-// could at the reducer step below too, so its label says it levels up
-const STAMP_STATES = [['upgradable', 'Can level up'], ['reduction', 'Can level up at the previous reducer'], ['money', 'Short on coins'],
-  ['materials', 'Short on materials'], ['player', 'Over carry capacity'], ['impossible', 'Out of reach'],
-  ['equipments', 'Costs gear'], ['level', 'Not found yet']];
-const STATE_LABELS = Object.fromEntries(STAMP_STATES);
+// A stamp's state, each stamp exactly one, as [key, its words, its tiles' edge], in the Show pills' order: one pill each,
+// as the old page's switches, in the same words as the stamp's note, so a state reads one way. 'reduction' is a max-level
+// raise whose material still fits at the reducer step below yours. Over carry capacity (the old page's word) is fixed by a
+// higher reducer; out of reach, by none up to the cap. The three a player acts on stamp by stamp (level it, wait for
+// coins, farm the material) tint their tiles' edges, so the pills' dots are the grid's legend. Carry capacity is the
+// account's limit, not the stamp's, and most of a late account's stamps are past it: tinted, they hid the rest. A stamp
+// not found greys whole.
+const STAMP_STATES = [
+  ['upgradable', 'Can level up', 'success.main'],
+  ['reduction', 'Levels at prev. reducer', 'success.main'],
+  ['money', 'Short on coins', 'warning.main'],
+  ['materials', 'Short on materials', 'error.main'],
+  ['player', 'Over carry capacity'],
+  ['impossible', 'Out of reach'],
+  ['equipments', 'Costs gear'],
+  ['level', 'Not found yet']
+];
+const STATE_LABELS = Object.fromEntries(STAMP_STATES.map(([key, words]) => [key, words]));
+const EDGE_OF = Object.fromEntries(STAMP_STATES.map(([key, , edge]) => [key, edge]));
 // The state's word in a stamp's details: the two that level up are ready, a shortfall a problem, the rest a to-do
 const STATE_TONES = { upgradable: 'ready', reduction: 'ready', equipments: 'needs', level: 'needs' };
 // Show takes several states at once: [] shows every stamp. A single pick saved before that ('materials') reads as that one.
-const STAMPS_TOOLBAR = { show: [] };
+// view: each category a column, 4 a row as in the game's stamp book, or a row across the page (the shorter page, 4.0's
+// layout). Not "Stacked": a stack is a pile of items in Idleon, a greenstack on this very page. A phone shows one
+// category a row either way, so it has no switch
+const STAMPS_TOOLBAR = { show: [], view: 'columns' };
+const STAMP_VIEWS = [['columns', 'Columns'], ['rows', 'Rows']];
 const picksOf = (show) => (Array.isArray(show) ? show : show && show !== 'all' ? [show] : []);
+// The game's stamp book: four a row, three rows a screen, each category its own book. A tile here sits in the same column
+const BOOK_COLUMNS = 4;
+// The three books side by side, each at most as wide as its four tiles at the usual 72 px (three 8 px gaps, 12 px padding
+// a side, two 1 px edges): stretched to a third of any row, a tile grew to 140 px wide on a 2560 screen. Narrower (1366's
+// 1,002 px) they share the row down to 300 px each, then two, then one. A filter's empty book keeps its column, so the
+// rest don't widen. A Panel keeps its own height beside a taller one
+const BOOK_WIDTH = BOOK_COLUMNS * 72 + (BOOK_COLUMNS - 1) * 8 + 2 * 12 + 2;
+const BOOKS_SX = {
+  gridTemplateColumns: 'repeat(auto-fill, minmax(min(300px, 100%), 1fr))', maxWidth: 3 * BOOK_WIDTH + 2 * 16, alignItems: 'start'
+};
 // A stamp's details open beside the grid: at 420 px, the other drawers' width, a 1920 page's last tile column sits half under it.
 const DRAWER_WIDTH = 380;
 // Beside a side ad the drawer sits over the ad's rail and reaches at most this far into the page, the page at its narrowest
@@ -136,6 +164,7 @@ const Stamps = () => {
   const allStates = Object.values(states).flat();
   const counts = Object.fromEntries(STAMP_STATES.map(([key]) => [key, allStates.filter((type) => type === key).length]));
   const show = stampsFailed ? [] : picksOf(view?.show);
+  const asRows = view?.view === 'rows';
   const isShownState = (type) => show.length === 0 || show.includes(type);
   const shownCount = allStates.filter(isShownState).length;
 
@@ -268,20 +297,35 @@ const Stamps = () => {
       <Box>
         {stampsFailed ? null : <Toolbar state={{ ...view, show }} defaults={STAMPS_TOOLBAR} onChange={setView} onReset={resetView}
                                         total={allStates.length} shown={shownCount} noun={'stamps'}>
-          {/* A phone's row holds the Lead and the Filters button; from 600 px it stands beside the Show field */}
+          {/* A phone's row holds the Lead and the Filters button. A mouse previews a stamp's details over it, so the line
+              is for a tap */}
           {shownCount ? <Toolbar.Lead><PickLine sx={{ display: { xs: 'flex', sm: 'none' }, order: 1 }}/></Toolbar.Lead> : null}
-          <Toolbar.Show multiple options={[['all', 'All stamps', allStates.length], ...STAMP_STATES.map(([key, label]) => [key, label, counts[key],
-            key === 'impossible' ? `An out of reach stamp costs more than your best carry capacity even at the ${MAX_STAMP_REDUCTION}% reducer cap, so no reducer unlocks it. Being short on the material itself is Short on materials.` : undefined])]}/>
-          {shownCount ? <PickLine sx={{ display: 'flex' }}/> : null}
+          <Toolbar.Show multiple pills options={[['all', 'All stamps', allStates.length],
+            // A state no stamp is in has no pill (over carry capacity at the reducer's cap), unless it's picked, so it can be
+            // taken off: the six to eight left hold one line at 1920 where the account allows
+            ...STAMP_STATES.filter(([key]) => counts[key] > 0 || show.includes(key))
+              .map(([key, label, edge]) => [key, label, counts[key], key === 'impossible'
+                ? `An out of reach stamp costs more than your best carry capacity even at the ${MAX_STAMP_REDUCTION}% reducer cap, so no reducer unlocks it. Being short on the material itself is Short on materials.`
+                : undefined, edge])]}/>
+          <Toolbar.View options={STAMP_VIEWS} phone={false}/>
         </Toolbar>}
-        <Stack ref={gridRef} gap={2} sx={[TILE_SCROLL_SX, clearance > 0 && { pr: `${clearance}px` }]}>
+        {/* A mouse over a tile previews its details; a click opens them all in the drawer, which the preview gives way to */}
+        {stampsFailed || drawerOpen ? null : <SharedNote key={show.join()} anchor={null} onClose={noop}>
+          {(rawName) => {
+            const stamp = shownStamps.find((candidate) => candidate.rawName === rawName);
+            return stamp ? stampNote(stamp, detailsContext) : null;
+          }}
+        </SharedNote>}
+        {/* The three books side by side where they fit, each a Panel as tall as its own stamps, or one a row */}
+        <CardGrid ref={gridRef} size={'m'} sx={[TILE_SCROLL_SX, asRows ? { gridTemplateColumns: '1fr' } : BOOKS_SX,
+          clearance > 0 && { pr: `${clearance}px` }]}>
           {categories.map(({ category, levels, shown }) => {
             // A category with no stamp in the picked state draws no Panel over nothing
             if (!shown.length) return null;
             return <Panel key={category} title={category.capitalize()} meta={stampsFailed ? '-' : `${formatNum(levels)} levels`}>
               {/* 8 px on a phone, so four tiles fit its 336 px Panel */}
               <Box sx={{ p: { xs: 1, sm: 1.5 } }}>
-                <CardGrid size={'icon'} fill>
+                <CardGrid size={'icon'} columns={asRows ? undefined : BOOK_COLUMNS} fill>
                   {shown.map((stamp) => stampTile(stamp, {
                     failed: stampsFailed,
                     selected: drawerOpen && stamp.rawName === picked,
@@ -294,7 +338,7 @@ const Stamps = () => {
               </Box>
             </Panel>;
           })}
-        </Stack>
+        </CardGrid>
       </Box>
       {stampsFailed ? null : <AppDrawer open={drawerOpen} onClose={() => setDetailsOpen(false)} width={DRAWER_WIDTH} keepOpenOn={TILE}
                                         focusBack={() => tileOf(picked)}
@@ -321,15 +365,18 @@ const Stamps = () => {
   );
 };
 
-// Nothing shows until a tile is picked, so the Toolbar says how
+// A phone shows nothing until a tile is picked, so the Toolbar says how
 const PickLine = ({ sx }) => <Typography variant={'body2'} color={'text.secondary'} component={'div'}
                                          sx={[{ alignItems: 'center', minHeight: { xs: 44, sm: 40 } }, sx]}>
   Pick a stamp to see its details
 </Typography>;
 
-// A stamp as a tile (Decision 3): its level, the exalted frame, grey until found, the triangle while it can level up (at
-// the reducer in use or the step below), and the levels gained since the snapshot as a count, which wins over it.
-// A tap picks it for the details drawer, which it keeps open and swaps
+const noop = () => {};
+
+// A stamp as a tile (Decision 3): its level, the exalted frame, grey until found, its edge in its group's tone, the
+// triangle while it can level up (at the reducer in use or the step below), and the levels gained since the snapshot as a
+// count, which wins over it. A mouse over it previews its details (NOTE_ANCHOR, a mark only: a click opens the drawer, so
+// the tile stays a pressed button, not a note's). A tap picks it for the details drawer, which it keeps open and swaps
 const stampTile = (stamp, { failed, selected, onSelect }) => <IconTile
   key={stamp.rawName}
   icon={`data/${stamp.rawName}.png`}
@@ -337,10 +384,40 @@ const stampTile = (stamp, { failed, selected, onSelect }) => <IconTile
   value={formatNum(stamp.level)}
   frame={stamp.exalted ? 'etc/Exalted_Stamp_Frame.png' : undefined}
   status={failed || stamp.level > 0 ? undefined : 'missing'}
+  edge={failed ? undefined : EDGE_OF[stamp.state]}
   badge={stamp.gained > 0 ? `+${formatNum(stamp.gained)}` : STATE_TONES[stamp.state] === 'ready' ? 'up' : undefined}
   selected={selected}
   onSelect={onSelect}
-  buttonProps={{ 'data-stamp': stamp.rawName }}/>;
+  buttonProps={{ 'data-stamp': stamp.rawName, ...(failed ? {} : { [NOTE_ANCHOR]: stamp.rawName }) }}/>;
+
+// The preview a mouse gets: the drawer's first part, the stamp's sentence, its state and what its next level costs
+const stampNote = (stamp, { keepGreenstacks, reducerUnknown }) => {
+  const { displayName, level, maxLevel, effect, bonus, state: type, goldCost, materialCost, ownedMats, greenStackOwnedMats,
+    hasMoney, itemReq } = stamp;
+  const atMax = level >= maxLevel;
+  const owned = (keepGreenstacks ? greenStackOwnedMats : ownedMats) ?? 0;
+  return <Stack gap={1}>
+    <Box>
+      <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(displayName)}</Typography>
+      {maxLevel > 0 ? <Typography variant={'body2'} color={'text.secondary'}>
+        {formatNum(level, 'level', { max: maxLevel })}</Typography> : null}
+    </Box>
+    <Typography variant={'body2'} component={'div'}>{`+${cleanUnderscore((effect ?? '').replace('+{', gameBonusText(bonus)))}`}</Typography>
+    {type ? <StatusText status={STATE_TONES[type] ?? 'problem'} wrap>{STATE_LABELS[type]}</StatusText> : null}
+    {level > 0 && !(atMax && reducerUnknown) ? <ItemCard.Section label={atMax ? 'Raise the max level' : 'Next level'}>
+      {atMax
+        ? <ItemCard.Cost icon={`data/${itemReq?.rawName}.png`} iconAlt={cleanUnderscore(itemReq?.name ?? '')}
+                         need={materialCost} have={owned}/>
+        : <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+          <Typography variant={'body2'} component={'span'}>
+            <CoinDisplay dense maxCoins={3} money={getCoinsArray(goldCost)}/>
+          </Typography>
+          {hasMoney ? null : <StatusText status={'problem'}>Short</StatusText>}
+        </Stack>}
+    </ItemCard.Section> : null}
+    <Typography variant={'caption'} color={'text.secondary'}>Click for the next levels and carry capacity</Typography>
+  </Stack>;
+};
 
 // What a stamp costs to carry at the reducer in use: the smallest reducer that fits it, or none up to the cap
 const reducerLine = (minReduction, reducer) => {
@@ -448,13 +525,15 @@ const stampState = (stamp, mode, { keepGreenstacks, steps, reducer, account, cha
   if (!enoughPlayerStorage && mode === 'material') return 'player';
   if (mode === 'material' && (!hasMaterials || (keepGreenstacks && !greenStackHasMaterials))) return 'materials';
   if (!hasMoney) return 'money';
+  // A level below the max costs coins, which no reducer changes: only a max raise's material can fit a lower one. (The old
+  // page asked this of coin levels too, so nearly every coin level read "at the previous reducer".)
+  if (mode === 'money') return 'upgradable';
   // The step below the reducer in use: a typed reducer between two steps still has one before it
   const previous = steps.filter((step) => step < reducer).at(-1);
   const atPrevious = reducer !== 0 && previous !== undefined
     ? evaluateStamp(stamp, account, characters, gilded, previous, bestCarry)
     : null;
-  if (atPrevious?.materials?.length === 0 && ((atPrevious?.hasMaterials && atPrevious?.enoughPlayerStorage) || mode === 'money')
-    && atPrevious?.hasMoney) {
+  if (atPrevious?.materials?.length === 0 && atPrevious?.hasMaterials && atPrevious?.enoughPlayerStorage && atPrevious?.hasMoney) {
     return 'reduction';
   }
   return 'upgradable';

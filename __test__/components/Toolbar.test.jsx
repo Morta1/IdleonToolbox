@@ -96,6 +96,35 @@ describe('Toolbar', () => {
     });
   });
 
+  it('flips a pills Show option in one click, keeps the picks in the options order, and keeps the box list on a phone', () => {
+    const onChange = vi.fn();
+    const options = [['all', 'All stamps', 128], ['ready', 'Can level up', 11, undefined, 'success.main'],
+      ['money', 'Short on coins', 11, undefined, 'warning.main'], ['gear', 'Costs gear', 3]];
+    render(<ThemeProvider theme={theme}>
+      <Toolbar defaults={{ show: [] }} state={{ show: ['money'] }} onChange={onChange} total={128} shown={11}>
+        <Toolbar.Show multiple pills options={options}/>
+      </Toolbar>
+    </ThemeProvider>);
+    const group = screen.getByRole('group', { name: 'Show' });
+    const pill = (name) => within(group).getByRole('button', { name });
+    const pressed = within(group).getAllByRole('button').map((button) => [button.textContent, button.getAttribute('aria-pressed')]);
+    const dots = within(group).getAllByRole('button').map((button) => button.querySelectorAll('[aria-hidden="true"]').length > 0);
+    fireEvent.click(pill('Can level up (11)'));
+    fireEvent.click(pill('Short on coins (11)'));
+    fireEvent.click(screen.getByRole('button', { name: 'Filters (1)' }));
+    expect({
+      pressed,
+      dots,
+      changes: onChange.mock.calls,
+      panel: Boolean(within(screen.getByRole('dialog', { name: 'Filters' })).queryByRole('combobox', { name: 'Show' }))
+    }).toEqual({
+      pressed: [['Can level up (11)', 'false'], ['Short on coins (11)', 'true'], ['Costs gear (3)', 'false']],
+      dots: [true, true, false],
+      changes: [[{ show: ['ready', 'money'] }], [{ show: [] }]],
+      panel: true
+    });
+  });
+
   it('warns in development about a slot it cannot read, and stays quiet for direct slots', () => {
     const warn = vi.spyOn(console, 'warn').mockImplementation(() => {});
     const toolbarWarnings = () => warn.mock.calls.filter(([message]) => String(message).startsWith('Toolbar:')).length;
