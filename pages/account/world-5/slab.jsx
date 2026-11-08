@@ -44,11 +44,19 @@ const shouldDisplayItem = (item, itemDisplay) => {
   else if (itemDisplay === 'unrealistic' && item?.unrealisticGreenstack) return true;
 }
 
+// The items as the old page drew them, a dense field of sprites: 40 px tiles with a 32 px sprite, 4 px apart, 28 to a row
+// at 1920 where 72 px tiles fit 17, so the 326 missing items take 12 rows, not 20 (the Lore discoveries' rule)
+const SLAB_TILE = 40;
+const SLAB_GRID_SX = { gap: 0.5 };
+
 // Its own component so the compiler keeps each tile's markup: opening the note redraws the tile it opens on and the one
 // it leaves, not all 1,938.
 const SlabTile = ({ item: { name, rawName, greenStacked, obtained }, dimMissing, open, onToggle }) => <IconTile
   icon={`data/${rawName}.png`}
   alt={cleanUnderscore(name)}
+  height={SLAB_TILE}
+  iconSize={32}
+  markSize={16}
   status={!obtained && dimMissing ? 'missing' : undefined}
   mark={greenStacked ? 'data/GreenSymbol.png' : undefined}
   markAlt={greenStacked ? 'Greenstacked' : undefined}
@@ -120,7 +128,7 @@ const Slab = () => {
         return entry ? <SlabNote item={entry}/> : null;
       }}
     </SharedNote>
-    <CardGrid size={'icon'} fill>
+    <CardGrid size={'icon'} fill={SLAB_TILE} sx={SLAB_GRID_SX}>
       {/* Where a view holds looted and missing items, a missing one greys as a not-found tile does elsewhere; Missing
           items holds only missing ones, so it keeps their colours */}
       {shown.map((entry, index) => <SlabTile key={`${entry.rawName}-${index}`} item={entry}
