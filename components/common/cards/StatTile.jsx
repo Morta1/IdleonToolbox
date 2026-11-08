@@ -34,9 +34,11 @@ const LABEL_SX = { display: 'flex', alignItems: 'center', gap: 0.5, fontSize: 12
 // breakdownTitle names the drawer when the breakdown's own name differs from the tile's label; breakdownNoun is what a
 // list breakdown's lines count as ("11 characters", sources by default). failed: the section behind the number failed to
 // parse, so the value reads "-" with no drawer, sub or state (PageSummary's failed by default); its label and info stay.
-// icon: a sprite's path, or a node for a sprite that does something (a dashboard AlertIcon).
+// icon: a sprite's path, or a node for a sprite that does something (a dashboard AlertIcon). labelText: the label's words
+// when the label is a node (a link to the thing's page), for the note's button to name.
 const StatTile = ({
                     label,
+                    labelText,
                     value,
                     kind,
                     children,
@@ -61,7 +63,7 @@ const StatTile = ({
   const status = isFailed ? undefined : statusName;
   const shown = isFailed ? '-' : isShown(value) ? value : breakdown ? breakdownTotal(breakdown) : undefined;
   const hero = size === 'hero';
-  const name = typeof label === 'string' && label ? label : undefined;
+  const name = labelText ?? (typeof label === 'string' && label ? label : undefined);
   const number = numOrNode(shown, kind);
   const text = status ? <StatusText status={status}>{number}</StatusText> : number;
   const look = iconLook(imgStyle);

@@ -926,6 +926,7 @@ const resetColumns = (count) => ({
 const Resets = ({ account, trackers, lastUpdated }) => {
   const clock = Math.max(lastUpdated ?? 0, useNow(SECOND));
   const formatDate = useFormatDate();
+  const router = useRouter();
   const { voteBallot } = account || {};
   const voteUnknown = isSectionFailed(account, 'voteBallot');
   // Server-wide weekly boundary (weekly bosses, jewel spinner / chip repo, exotic market). Those all
@@ -970,8 +971,15 @@ const Resets = ({ account, trackers, lastUpdated }) => {
           <Typography variant={'body2'}>{resets}</Typography>
         </Stack>
         : `${title}: ${date}`;
+      // A tile whose alert has a page (Vote, Meritocracy) names it in a link, as a timer row does: the old dashboard's one
+      // click, where the icon's popup took two
+      const page = alertMeta[`timers.${target}`]?.page;
+      const name = page && !noTime
+        ? <Link component={NextLink} href={{ pathname: page.pathname, query: { ...sessionQuery(router.query), ...page.query } }}
+                color={'inherit'} underline={'hover'}>{label}<LinkMark sx={{ ml: 0.5 }}/></Link>
+        : label;
       // The exact time in the tile's note, not a third line: two lines keep the strip the height of the switch beside it
-      return <StatTile key={target} label={label} failed={noTime} info={words} sub={sub}
+      return <StatTile key={target} label={name} labelText={label} failed={noTime} info={words} sub={sub}
                        value={formatDuration(Math.ceil((time - clock) / SECOND))}
                        icon={<AlertIcon configType={'timers'} target={target} message={words} icon={icon} size={24}
                                         label={typeof words === 'string' ? undefined : title}/>}/>;
