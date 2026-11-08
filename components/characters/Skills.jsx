@@ -56,8 +56,10 @@ const WORLDS_SX = {
   [`@container (max-width: ${TWO_WORLDS_MIN - 0.05}px)`]: { gridTemplateColumns: `minmax(0, ${WORLD_WIDTH}px)` }
 };
 
-// A tile per skill, its level on it and a rank 1 to 3 as its badge, grouped by world; one details block under the grid for
-// the picked one, so a tap opens one thing.
+// A tile per skill, its level on it and its account rank as its badge, grouped by world; one details block under the grid
+// for the picked one, so a tap opens one thing. Ranks 1 to 3 wear the podium's gold, silver and bronze, so a rank 1 stands
+// out without the Rank 1 only filter, as the old page's coloured badges did.
+const MEDALS = ['identity.leaderboard.gold', 'identity.leaderboard.silver', 'identity.leaderboard.bronze'];
 const Skills = ({ skills, account, characters, character, showSkillsRankOneOnly }) => {
   const [picked, setPicked] = useState(null);
   const names = Object.keys(skills || {}).filter((skillName) => skillName !== 'character');
@@ -78,8 +80,9 @@ const Skills = ({ skills, account, characters, character, showSkillsRankOneOnly 
             const { level, rank, icon } = skills[skillName];
             // Every rank, as the old page had them: only the top 3 left the rest unread. A skill every character shares
             // has no rank.
+            const ranked = !isGlobalSkill(skillName) && rank > 0;
             return <IconTile key={skillName} icon={`data/${icon}.png`} alt={capitalize(skillName)} value={formatNum(level, 'whole')}
-                             iconSize={40} badge={!isGlobalSkill(skillName) && rank > 0 ? rank : undefined}
+                             iconSize={40} badge={ranked ? rank : undefined} badgeColor={ranked ? MEDALS[rank - 1] : undefined}
                              onSelect={() => setPicked(skillName)} selected={pickedName === skillName}/>;
           })}
         </CardGrid>)}

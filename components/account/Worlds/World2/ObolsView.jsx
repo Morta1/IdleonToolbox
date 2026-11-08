@@ -32,10 +32,14 @@ const guestBoard = () => Object.values(obolSlots?.family ?? {})
 const isLocked = (item) => item?.levelReq > 0 && item?.rawName?.includes('Locked');
 const isEmpty = (item) => !item?.displayName || item?.rawName?.includes('Blank');
 
+// A character's board: the obol is all a tile says, so it takes the sheet's 40 px (players asked for bigger icons)
+const ICON_SIZE = { character: 40 };
+
 const obolTile = (item, index, type, totalLevels) => {
   const key = `${item?.rawName}-${index}`;
+  const iconSize = ICON_SIZE[type];
   if (isLocked(item)) {
-    return <IconTile key={key} icon={`data/ObolLocked${shapes[item?.shape]}.png`} alt={'Locked slot'}
+    return <IconTile key={key} icon={`data/ObolLocked${shapes[item?.shape]}.png`} alt={'Locked slot'} iconSize={iconSize}
                      // "Lv N" is one unit (Num never wraps); "Lv 1,250" can't fit a family tile (49 px), so from
                      // four digits the level reads as its amount alone, beside the lock
                      value={item.levelReq} kind={item.levelReq >= 1e3 ? 'amount' : 'level'}
@@ -44,8 +48,10 @@ const obolTile = (item, index, type, totalLevels) => {
                        : `Unlocks at character level ${formatNum(item.levelReq)}.`}/>;
   }
   // An empty socket has nothing more to say than its sprite: not a button
-  if (isEmpty(item)) return <IconTile key={key} icon={`etc/ObolEmpty${shapes[item?.shape]}.png`} alt={'Empty slot'}/>;
-  return <IconTile key={key} icon={`data/${item?.rawName}.png`} alt={cleanUnderscore(item?.displayName)}
+  if (isEmpty(item)) return <IconTile key={key} icon={`etc/ObolEmpty${shapes[item?.shape]}.png`} alt={'Empty slot'} iconSize={iconSize}/>;
+  // A re-rolled obol glows, as on the old page, so it shows without opening each one's note
+  return <IconTile key={key} icon={`data/${item?.rawName}.png`} alt={cleanUnderscore(item?.displayName)} iconSize={iconSize}
+                   glow={item?.rerolled ? 'identity.obolRerolled' : undefined}
                    details={item?.displayName === 'ERROR' ? undefined : <Stack gap={1}>
                      <ItemDisplay {...item} allowNegativeValues={false}/>
                      {item?.rerolled ? <StatusText status={'info'}>Rerolled stats</StatusText> : null}

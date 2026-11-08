@@ -275,7 +275,9 @@ const STEP_SX = {
 
 // The characters to show and the sections to show them with, behind one control (phase 4 Decision 9): the shown
 // characters' class icons and how many of all, opening this list in a drawer beside the page, or a sheet with Done
-// on a phone. Not modal on desktop, so a tick shows on the page at once. The page owns open, so its note can open it.
+// on a phone. Not modal on desktop, so a tick shows on the page at once, and a click on the page leaves it open: players
+// keep it open while they compare (acecow), and its x, Esc or this button close it. The page owns open, so its note can
+// open it.
 export const CharactersPicker = ({ open, onOpenChange, buttonRef }) => {
   const { state, dispatch } = useContext(AppContext);
   const characters = state?.characters ?? [];
@@ -288,7 +290,8 @@ export const CharactersPicker = ({ open, onOpenChange, buttonRef }) => {
     startTransition(() => dispatch({ type: 'displayedCharacters', data }));
   };
   return <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-    <Button ref={buttonRef} variant="outlined" onClick={() => onOpenChange(true)} aria-haspopup="dialog" aria-expanded={open}
+    <Button ref={buttonRef} variant="outlined" onClick={() => onOpenChange(!open)} aria-haspopup="dialog" aria-expanded={open}
+            aria-label={`Characters: ${shown.length} of ${characters.length}`}
             endIcon={<IconChevronDown size={18} aria-hidden/>}
             sx={{ color: 'text.primary', bgcolor: 'primary.soft', borderColor: 'primary.edge', fontWeight: 600 }}>
       {shown.length ? <Box component="span" aria-hidden sx={{ display: 'flex', mr: 1 }}>
@@ -298,13 +301,15 @@ export const CharactersPicker = ({ open, onOpenChange, buttonRef }) => {
           </Box>
         ))}
       </Box> : null}
-      Characters: {shown.length} of {characters.length}
+      {/* A phone's pinned bar holds this, the steps and Filters in one row: the word goes, the class icons say it */}
+      <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' }, whiteSpace: 'pre' }}>Characters: </Box>
+      <Box component="span" sx={{ whiteSpace: 'nowrap' }}>{shown.length} of {characters.length}</Box>
     </Button>
     {shown.length === 1 && characters.length > 1 ? <Stack direction={'row'} gap={0.5}>
       <IconButton aria-label={'Previous character'} onClick={() => step(-1)} sx={STEP_SX}><IconChevronLeft size={18}/></IconButton>
       <IconButton aria-label={'Next character'} onClick={() => step(1)} sx={STEP_SX}><IconChevronRight size={18}/></IconButton>
     </Stack> : null}
-    <AppDrawer open={open} onClose={() => onOpenChange(false)} title="Characters" phoneActions={[{ label: 'Done', main: true }]}>
+    <AppDrawer open={open} onClose={() => onOpenChange(false)} title="Characters" phoneActions={[{ label: 'Done', main: true }]} stayOpen>
       <CharactersList/>
     </AppDrawer>
   </Box>;

@@ -7,8 +7,9 @@ import UpTriangle from '@components/common/UpTriangle';
 import { useSheet } from './SheetContext';
 import { cardState, cardSurface, emptySlot } from './tokens';
 
-// A count on a disc, or a plain green triangle in the corner when the thing can level up.
-const Badge = ({ badge, small }) => (badge === 'up'
+// A count on a disc, or a plain green triangle in the corner when the thing can level up. color: the disc's own colour, a
+// palette path (a skill's top 3 ranks wear the podium's medals), with dark words on it.
+const Badge = ({ badge, small, color }) => (badge === 'up'
   ? <Box component={'span'} sx={{ position: 'absolute', top: 4, right: 4, display: 'inline-flex' }}>
     <UpTriangle/>
     <Box component={'span'} sx={visuallyHidden}>Can level up</Box>
@@ -30,8 +31,16 @@ const Badge = ({ badge, small }) => (badge === 'up'
     color: 'background.default',
     bgcolor: 'text.secondary',
     // The small tile's rank (the characters board's .rk)
-    ...(small ? { minWidth: 15, height: 15, px: '2px', fontWeight: 500, lineHeight: '15px', color: 'text.primary', bgcolor: 'action.selected' } : {})
+    ...(small ? { minWidth: 15, height: 15, px: '2px', fontWeight: 500, lineHeight: '15px', color: 'text.primary', bgcolor: 'action.selected' } : {}),
+    ...(color ? { bgcolor: color, color: 'common.black', fontWeight: 700 } : {})
   }}>{badge}</Box>);
+
+// glow: a palette path, drawn round the sprite's own outline (a re-rolled obol). On the sprite's box, not the image: the box
+// clips the image, so a square sprite's glow was cut away. A solid edge and a halo: a gold sprite swallowed a soft glow alone.
+const glowSx = (glow) => (theme) => {
+  const color = glow.split('.').reduce((node, key) => node?.[key], (theme.vars || theme).palette);
+  return { '& > span:has(> img)': { filter: `drop-shadow(0 0 1px ${color}) drop-shadow(0 0 1px ${color}) drop-shadow(0 0 5px ${color})` } };
+};
 
 // The small tile, inside a sheet (the characters board's .t): as wide as its column, a 28 px sprite, no surface of its own.
 // Its tile is as narrow as 41 px, where a value of seven characters (451,025) would run into the next one: such a tile
@@ -79,10 +88,10 @@ const LABEL_SX = {
 // open on it (the Slab's 1,938 items).
 // buttonProps go with onSelect, onto the tile's button (the mark a page finds its tile by).
 // sub: a dimmer line under the value, inside a sheet (a talent's "/ max"). kind is what numOrNode takes. frameAbove: the
-// frame over the sprite (GameIcon's). iconSize: 40 in a sheet where the sprite is all a tile says (talents, skills): the
-// sheet's 28 px left a talent a speck in its cell.
-const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, iconSize, height = 72, badge, mark, markAlt, status, details,
-  onSelect, selected, sharedNote, buttonProps }) => {
+// frame over the sprite (GameIcon's). iconSize: 40 in a sheet where the sprite is all a tile says (talents, skills, obols,
+// equipment): the sheet's 28 px left a talent a speck in its cell. badgeColor and glow: see Badge and glowSx.
+const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, iconSize, height = 72, badge, badgeColor, mark, markAlt, glow,
+  status, details, onSelect, selected, sharedNote, buttonProps }) => {
   const small = Boolean(useSheet());
   const empty = status === 'empty';
   const hasValue = value !== undefined && !empty;
@@ -109,7 +118,8 @@ const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, 
     !small && !hasValue && { py: 0.5, justifyContent: 'center' },
     hasLabel && { height: 'auto', minHeight: height, justifyContent: 'flex-start', gap: '2px', pt: 0.75, pb: 0.75 },
     longValue && { containerType: 'inline-size' },
-    empty && emptySlot
+    empty && emptySlot,
+    glow && !empty ? glowSx(glow) : null
   ]}>
     {icon && !empty ? (typeof icon === 'string'
       ? <GameIcon src={icon} size={iconSize ?? (small ? 28 : 40)} alt={alt} frame={frame} frameAbove={frameAbove}
@@ -131,7 +141,7 @@ const IconTile = ({ icon, alt = '', value, kind, sub, label, frame, frameAbove, 
       fontVariantNumeric: 'tabular-nums',
       whiteSpace: 'nowrap'
     }}>{sub}</Typography> : null}
-    {badge !== undefined && badge !== null ? <Badge badge={badge} small={small}/>
+    {badge !== undefined && badge !== null ? <Badge badge={badge} small={small} color={badgeColor}/>
       : mark && !empty ? <Box component={'span'} sx={{ position: 'absolute', top: 2, right: 2, display: 'inline-flex' }}>
         <GameIcon src={mark} size={24} alt={markAlt ?? ''}/>
       </Box> : null}

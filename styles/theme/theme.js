@@ -87,7 +87,10 @@ const identity = {
   tomeTiers: { bronze: '#ffc277', silver: '#d6dbe0', gold: '#ffd700', blue: '#56ccff' },
   // The kingdom screen's own outpost modes: yellow Resource Depot, cyan Support Camp, pink Savage Stronghold
   outpostModes: ['#f7de2a', '#31cef0', '#f8b4f8'],
-  // The leaderboards' identities: whose row it is (you, a searched player) and the podium's medals
+  // The glow round a re-rolled obol's sprite, as the old characters page drew it
+  obolRerolled: '#d9d282',
+  // The leaderboards' identities: whose row it is (you, a searched player) and the podium's medals, which a skill's account
+  // rank 1 to 3 wears too
   leaderboard: { you: '#007E85', youText: '#4fc3c9', searched: '#cd861b', gold: '#f0b849', silver: '#9aa3ad', bronze: '#b8783a' },
   // The builds pages' blue, and each class family's color where it writes words (Decision 6). Their fills and edges stay in
   // utility/builds/classes.js.

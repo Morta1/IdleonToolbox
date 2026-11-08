@@ -6,7 +6,6 @@ import Notice from '@components/common/Notice';
 import Toolbar from '@components/common/Toolbar';
 import { MissingData } from '@components/common/styles';
 import { CharactersPicker } from '@components/characters/CharactersList';
-import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 import { AppContext, shownCharacters, shownFilters } from 'components/common/context/AppProvider';
 import usePageTop from '@hooks/usePageTop';
 import useToolbarState from '@hooks/useToolbarState';
@@ -37,10 +36,10 @@ const Characters = () => {
   const hasSection = sections.some(({ name }) => filters?.[name]);
   const failedSections = state?.account?.failedSections;
   const [toolbarState, setToolbar, resetToolbar] = useToolbarState('characters', CHARACTERS_TOOLBAR);
-  // A side-by-side card's name pins under the bar and the pinned Toolbar, when there is one
+  // A side-by-side card's name pins under the bar and the pinned Toolbar
   const pageTop = usePageTop();
   const [toolbarBottom, setToolbarBottom] = useState(null);
-  const pinTop = !isPending && (hasSkillsFilter || hasPostOfficeFilter) ? toolbarBottom ?? pageTop : pageTop;
+  const pinTop = hasCharacters ? toolbarBottom ?? pageTop : pageTop;
   // The picker's drawer opens from its header control or from a note below, which hands it the control's focus first,
   // so closing the drawer returns there even after a tick has taken the note away
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -58,20 +57,20 @@ const Characters = () => {
       description="View detailed character stats, skills, equipment, talents, and progression for all your Legends of Idleon characters"
     />
     {failedSections?.length ? <MissingData sections={failedSections}/> : null}
-    {/* In the header row, by the title (Decision 9) */}
-    {hasCharacters ? <PageHeaderControl>
-      <CharactersPicker open={pickerOpen} onOpenChange={setPickerOpen} buttonRef={pickerButton}/>
-    </PageHeaderControl> : null}
+    {/* The picker leads the pinned bar rather than the header row (Decision 9 had it by the title): with 11 characters
+        players switch all the way down the page, and the header scrolled away with it */}
+    {hasCharacters ? <Toolbar state={toolbarState} defaults={CHARACTERS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+                              counted={false} onStickyBottom={setToolbarBottom}>
+      <Toolbar.Lead>
+        <CharactersPicker open={pickerOpen} onOpenChange={setPickerOpen} buttonRef={pickerButton}/>
+      </Toolbar.Lead>
+      {numberOfCharacters > 0 && hasSkillsFilter ? <Toolbar.Filter name={'showRankOneOnly'} label={'Show rank 1 only'}/> : null}
+      {numberOfCharacters > 0 && hasPostOfficeFilter ? <Toolbar.Filter name={'showUnmaxedBoxesOnly'} label={'Show unmaxed boxes only'}/> : null}
+    </Toolbar> : null}
     {numberOfCharacters > 0 && !hasSection ? <Notice action={{ label: 'Choose sections', onClick: choose }}>
       No section is on: tick one under Characters to show it here.
     </Notice> : numberOfCharacters > 0 ? (
       <>
-        {!isPending && (hasSkillsFilter || hasPostOfficeFilter)
-          ? <Toolbar state={toolbarState} defaults={CHARACTERS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar} counted={false}
-                     onStickyBottom={setToolbarBottom}>
-            {hasSkillsFilter ? <Toolbar.Filter name={'showRankOneOnly'} label={'Show rank 1 only'}/> : null}
-            {hasPostOfficeFilter ? <Toolbar.Filter name={'showUnmaxedBoxesOnly'} label={'Show unmaxed boxes only'}/> : null}
-          </Toolbar> : null}
         {isPending ? <Stack alignItems={'center'} mt={1} mb={1}><CircularProgress size={24}/></Stack> : null}
         <Box sx={sideBySide ? SIDE_BY_SIDE_SX : undefined}>
           {state?.characters?.map((character, index) => {

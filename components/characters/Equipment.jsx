@@ -53,7 +53,8 @@ const Equipment = ({ equipment, tools, food, account, character, characters }) =
             if (!isFilledSlot(item)) {
               return <IconTile key={`${rawName}-${itemIndex}`} status={'empty'} alt={'Empty slot'}/>;
             }
-            return <IconTile key={`${rawName}-${itemIndex}`} icon={`data/${rawName}.png`} alt={cleanUnderscore(displayName)}
+            // The item is all a tile says: the sheet's 40 px, as talents and skills (players asked for bigger icons)
+            return <IconTile key={`${rawName}-${itemIndex}`} icon={`data/${rawName}.png`} alt={cleanUnderscore(displayName)} iconSize={40}
                              value={amount ? formatNum(amount, 'whole') : undefined}
                              details={<ItemDisplay {...item} character={character} account={account} characters={characters}
                                                    getGoldenFoodBonus={getGoldenFoodBonus} getPlayerFoodBonus={getPlayerFoodBonus}/>}/>;
