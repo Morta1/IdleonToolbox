@@ -49,12 +49,6 @@ const NavBar = ({ children }) => {
     router?.events?.on('routeChangeStart', close);
     return () => router?.events?.off('routeChangeStart', close);
   }, [router?.events]);
-  // A group row's name: the bar's panel from lg, where the bar has its menus; the phone menu at that group below it.
-  const openGroupMenu = (group, from) => {
-    if (window.matchMedia('(min-width: 1200px)').matches) toggleMenu(group.menu, from);
-    else setPhoneMenuAt({ group: group.key });
-  };
-
   // Render the authentication section based on loading state
   const renderAuthSection = () => {
     if (state.isLoading) {
@@ -112,7 +106,7 @@ const NavBar = ({ children }) => {
       <Box sx={{ flex: 1 }}>
         <PageHeaderSlots>
           <Frame header={<>
-            <GroupRow openMenu={openMenu} phoneMenuOpen={Boolean(phoneMenuAt)} onOpenMenu={openGroupMenu}/>
+            <GroupRow/>
             <PageHeader onOpenGroup={(group) => setPhoneMenuAt({ group })}/>
           </>}>
             {children}

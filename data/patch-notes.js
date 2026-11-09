@@ -12,7 +12,8 @@ export const patchNotes = [
       'Bubbles: the "Dim past level" setting explains that leaving it empty turns it off',
       'Farming: Exotic Rotation has a Table view, one line per upgrade, so about twice the weeks fit a screen; Cards keeps the old look',
       'Top bar: the line under your name shows how long ago the game last saved (e.g. "Updated 12 min ago"); the exact time is in the account menu',
-      'Refinery: a paused salt shows how long its rank-up would take once it runs again'
+      'Refinery: a paused salt shows how long its rank-up would take once it runs again',
+      'Page bar: the button with the world\'s name (e.g. "World 6") lists the worlds, each opening its first page; the Worlds menu still lists every page'
     ],
     'fixes': [
       'Death Note: each world\'s table title is in its world\'s colour again',

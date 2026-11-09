@@ -5,14 +5,13 @@ import { Box, ButtonBase, Menu, MenuItem, MenuList, Typography } from '@mui/mate
 import { IconChevronDown } from '@tabler/icons-react';
 import AppDialog from '@components/common/Overlays/AppDialog';
 import useNavPrefetch from '@hooks/useNavPrefetch';
-import { groupOf, rowSplit, SHORT_LABELS } from '@utility/navMenu';
+import { groupOf, MENUS, rowSplit, SHORT_LABELS } from '@utility/navMenu';
 import { prefix } from '@utility/helpers';
 import { sessionQuery } from '@utility/nav-query';
 import { trackEvent } from '@utility/analytics';
-import { MENU_BUTTON, navMenuId } from './NavMenu';
-import { PHONE_MENU_ID } from './PhoneMenu';
 
 const ROW_ID = 'group-row-more';
+const SWITCHER_ID = 'group-row-switcher';
 const PILL_SX = {
   display: 'inline-flex', alignItems: 'center', gap: 1, height: 36, px: 1.5, borderRadius: 999, flexShrink: 0,
   typography: 'body2', fontWeight: 500, whiteSpace: 'nowrap', textDecoration: 'none'
@@ -55,15 +54,17 @@ const Pill = ({ page, current, nav, sx }) => {
 };
 
 
-// A page's siblings (Layout boards): the group's name opens its menu, the pages are links, and what does not fit in
+// A page's siblings (Layout boards): the group's name lists the groups beside it (World 1 to 7), each opening its first
+// page, where the bar's menu already lists every page; the pages are links, and what does not fit in
 // the row's real width waits under More, never the page on screen (navMenu rowSplit). A band under the bar: it takes
 // back main's top padding, so it sits flush under the bar (or the notice band), 52 px, with the title 14 px under it
 // (8 here and 6 in the header row's 48). Scrolls with the page (Decision 10). From md; a phone has its title switcher.
-const GroupRow = ({ openMenu, phoneMenuOpen, onOpenMenu }) => {
+const GroupRow = () => {
   const router = useRouter();
   const pathname = router?.pathname ?? '';
   const prefetch = useNavPrefetch();
   const [more, setMore] = useState(null);
+  const [switcher, setSwitcher] = useState(null);
   const rowRef = useRef(null);
   const group = groupOf(pathname);
   if (!group) return null;
@@ -77,7 +78,6 @@ const GroupRow = ({ openMenu, phoneMenuOpen, onOpenMenu }) => {
       .filter((pill) => getComputedStyle(pill).display !== 'none').map((pill) => pill.getAttribute('data-row-page')));
     setMore({ anchor: event.currentTarget, kind, hidden: pages.filter(({ url }) => !shown.has(url)) });
   };
-  const menuOpen = openMenu === group.menu;
   const moreItems = (more?.hidden ?? []).map((page) => <MenuItem key={page.url} component={NextLink}
                                                                  href={{ pathname: page.url, query: nav.query }} prefetch={prefetch}
                                                                  onClick={() => {
@@ -105,11 +105,19 @@ const GroupRow = ({ openMenu, phoneMenuOpen, onOpenMenu }) => {
                 display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: 0.5, height: 52, mt: -3, mb: 1,
                 position: 'relative', containerType: 'inline-size', '&::after': EDGE_LINE_SX
               }}>
-    <ButtonBase {...{ [MENU_BUTTON]: '' }} onClick={(event) => onOpenMenu(group, event.currentTarget)} aria-expanded={menuOpen || phoneMenuOpen}
-                aria-controls={menuOpen ? navMenuId(group.menu) : phoneMenuOpen ? PHONE_MENU_ID : undefined} sx={GROUP_BUTTON_SX}>
+    <ButtonBase onClick={(event) => setSwitcher(event.currentTarget)} aria-haspopup="menu" aria-expanded={Boolean(switcher)}
+                aria-controls={switcher ? SWITCHER_ID : undefined} sx={GROUP_BUTTON_SX}>
       <Typography variant="groupLabel" component="span" sx={{ fontSize: 13, fontWeight: 600 }}>{group.label}</Typography>
       <IconChevronDown size={18} aria-hidden/>
     </ButtonBase>
+    {switcher ? <Menu id={SWITCHER_ID} anchorEl={switcher} open onClose={() => setSwitcher(null)}>
+      {(MENUS[group.menu] ?? []).map((sibling) => <MenuItem key={sibling.key} component={NextLink} selected={sibling.key === group.key}
+                                                            href={{ pathname: sibling.pages[0].url, query: nav.query }} prefetch={prefetch}
+                                                            onClick={() => setSwitcher(null)}>
+        <Box component="img" src={`${prefix}${sibling.icon}.png`} alt="" sx={{ width: 22, height: 22, objectFit: 'contain', mr: 1.5 }}/>
+        {sibling.label}
+      </MenuItem>)}
+    </Menu> : null}
     {pages.map((page) => <Pill key={page.url} page={page} current={page.url === pathname} nav={nav}
                                sx={onRow('inline-flex', showFrom[page.url])}/>)}
     {dialogBelow ? moreButton('dialog', 0, dialogBelow) : null}
