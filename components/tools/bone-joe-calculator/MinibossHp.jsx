@@ -1,8 +1,8 @@
 import React from 'react';
-import { Box, FormControlLabel, IconButton, Switch } from '@mui/material';
+import { Box, FormControlLabel, IconButton, Stack, Switch } from '@mui/material';
 import RestartAltIcon from '@mui/icons-material/RestartAlt';
 import NumberField from '@components/common/NumberField';
-import DataTable from '@components/common/DataTable';
+import StatTile from '@components/common/cards/StatTile';
 import GameIcon from '@components/common/GameIcon';
 import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
@@ -101,20 +101,15 @@ const MinibossHp = ({
         ['Each kill counts as', `${formatNum(killCredit, 'whole')} Deathnote ${killCredit === 1 ? 'kill' : 'kills'}`]
       ]}/>
     </Box>
-    <DataTable
-      columns={[
-        {
-          key: 'miniboss', label: 'Miniboss', value: ({ name }) => cleanUnderscore(name),
-          icon: ({ name }) => <GameIcon src={monsterSprite(name)} size={24} alt={''}/>
-        },
-        // A phone keeps HP, the number the pickles change.
-        { key: 'baseHp', label: 'Base HP', numeric: true, render: ({ baseHp }) => formatNum(baseHp) },
-        { key: 'hp', label: 'HP', numeric: true, phone: true, render: ({ baseHp }) => formatNum(getMinibossHp(baseHp, hpMulti, pickles)) }
-      ]}
-      rows={minibosses}
-      rowKey={'rawName'}
-      rowLabel={({ name }) => cleanUnderscore(name)}
-    />
+    {/* A tile a miniboss, its HP under its name, wrapping across the panel (#23): a three-column table put each name about
+        900 px from its HP. The base HP shows under it only where the curse or the pickles change it */}
+    <Stack direction={'row'} flexWrap={'wrap'} gap={1} sx={{ p: 2 }}>
+      {minibosses.map(({ rawName, name, baseHp }) => {
+        const hp = getMinibossHp(baseHp, hpMulti, pickles);
+        return <StatTile key={rawName} icon={monsterSprite(name)} iconAlt={''} label={cleanUnderscore(name)}
+                         value={formatNum(hp)} sub={formatNum(hp) === formatNum(baseHp) ? undefined : `Base ${formatNum(baseHp)}`}/>;
+      })}
+    </Stack>
   </Panel>;
 };
 

@@ -54,6 +54,14 @@ const prayerChip = (name) => screen.getByRole('button', { name: `Equip ${name}` 
 
 const rowCells = (label) => Array.from(screen.getByText(label).closest('tr').querySelectorAll('td'))
   .map((cell) => cell.textContent);
+// A miniboss tile: its HP, and its Base line, there only where the curse or the pickles change the HP
+const minibossTile = (label) => {
+  const tile = screen.getAllByText(label).map((node) => node.closest('[data-stat-tile]')).find(Boolean);
+  return {
+    hp: tile.querySelector('.MuiTypography-value')?.textContent,
+    base: tile.querySelector('.MuiTypography-caption')?.textContent ?? null
+  };
+};
 
 describe('Bone Joe Calculator page', () => {
   // The inputs persist to local storage, so one test's typing would otherwise seed the next.
@@ -65,19 +73,17 @@ describe('Bone Joe Calculator page', () => {
       expect(screen.getAllByText(name.replace(/_/g, ' ')).length).toBeGreaterThan(0);
     });
     expect(screen.getByText(/pickles each character can carry shows here once you sign in/)).toBeDefined();
-    const [, baseHp, hp] = rowCells('Glunko The Massive');
-    expect(baseHp).toBe(formatNum(10000));
-    expect(hp).toBe(baseHp);
+    expect(minibossTile('Glunko The Massive')).toEqual({ hp: formatNum(10000), base: null });
 
     fireEvent.change(screen.getByLabelText('Pickles'), { target: { value: '3' } });
-    expect(rowCells('Glunko The Massive')[2]).toBe(formatNum(10000 * Math.pow(1.1, 3)));
+    expect(minibossTile('Glunko The Massive')).toEqual({ hp: formatNum(10000 * Math.pow(1.1, 3)), base: `Base ${formatNum(10000)}` });
   });
 
   it('adds the prayer curse on top of the pickle multiplier', () => {
     renderPage({});
     fireEvent.change(screen.getByLabelText('Midas Minded'), { target: { value: '50' } });
     expect(screen.getByText('Monster HP curse').nextSibling.textContent).toBe('+1,475%');
-    expect(rowCells('Glunko The Massive')[2]).toBe(formatNum(10000 * 15.75));
+    expect(minibossTile('Glunko The Massive').hp).toBe(formatNum(10000 * 15.75));
   });
 
   it('caps the prayer level input at the prayer max level', () => {
@@ -106,10 +112,10 @@ describe('Bone Joe Calculator page', () => {
 
     fireEvent.click(prayerChip('Midas Minded'));
     expect(prayerChip('Midas Minded').getAttribute('aria-pressed')).toBe('true');
-    expect(rowCells('Glunko The Massive')[2]).toBe(formatNum(10000 * accountCurseMulti('Midas_Minded')));
+    expect(minibossTile('Glunko The Massive').hp).toBe(formatNum(10000 * accountCurseMulti('Midas_Minded')));
 
     fireEvent.click(prayerChip('Midas Minded'));
-    expect(rowCells('Glunko The Massive')[2]).toBe(formatNum(10000));
+    expect(minibossTile('Glunko The Massive').hp).toBe(formatNum(10000));
   });
 
   it('lets a logged in user try a level the account does not have yet', () => {
@@ -120,7 +126,7 @@ describe('Bone Joe Calculator page', () => {
     fireEvent.change(screen.getByLabelText('Midas Minded'), { target: { value: String(whatIf) } });
 
     const curse = 250 + 250 * (whatIf - 1) / 10;
-    expect(rowCells('Glunko The Massive')[2]).toBe(formatNum(10000 * (1 + curse / 100)));
+    expect(minibossTile('Glunko The Massive').hp).toBe(formatNum(10000 * (1 + curse / 100)));
     const reset = screen.getByRole('button', { name: 'Reset Midas Minded to account level' });
 
     // Resetting drops the override, so the field follows the save again. The click takes focus off the field first.
@@ -138,7 +144,7 @@ describe('Bone Joe Calculator page', () => {
     fireEvent.change(screen.getByLabelText('Pickles'), { target: { value: '5' } });
     fireEvent.click(prayerChip('Midas Minded'));
 
-    expect(rowCells('Glunko The Massive')[2])
+    expect(minibossTile('Glunko The Massive').hp)
       .toBe(formatNum(10000 * accountCurseMulti('Midas_Minded') * Math.pow(1.1, 5)));
     expect(rowCells(characters[0].name)).toEqual(before);
   });
