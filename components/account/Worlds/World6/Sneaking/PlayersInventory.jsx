@@ -40,6 +40,9 @@ const getDescription = ({ description, value = 0, type, subType }) => {
   return desc;
 }
 
+// The ninja inventory's row in game: x = 90 + 66 * (slot % 13)
+const INVENTORY_COLUMNS = 13;
+
 // One slot (Decision 8 default): the item's sprite with its symbol border as the frame, its level as the tile's number,
 // its text a tap away; an empty slot is dashed.
 const slotTile = ({ rawName, name, level, symbolLevel, description, value, type, subType }, key) => {
@@ -96,7 +99,10 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
     </CardGrid>
     {inventory?.length ? <Stack gap={1}>
       <Typography variant={'sectionTitle'} component={'h2'}>Inventory</Typography>
-      <CardGrid size={'icon'}>{inventory.map((item, index) => slotTile(item, 'inventory-' + index))}</CardGrid>
+      {/* The game's 13 a row, from md up; a phone can't fit 13, so it wraps */}
+      <CardGrid size={'icon'} sx={{ gridTemplateColumns: { md: `repeat(${INVENTORY_COLUMNS}, minmax(0, 72px))` } }}>
+        {inventory.map((item, index) => slotTile(item, 'inventory-' + index))}
+      </CardGrid>
     </Stack> : null}
   </Stack>
 };
