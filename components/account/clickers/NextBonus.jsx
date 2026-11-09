@@ -6,7 +6,8 @@ import GameIcon from '@components/common/GameIcon';
 const NextBonus = ({ entries, name, iconOf, textOf }) => {
   const index = (entries ?? []).findIndex((entry) => !entry?.unlocked);
   if (index < 0) return null;
-  return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={{ px: 2, py: 1.5, borderTop: 1, borderColor: 'divider' }}>
+  // Under the tiles on the page, not in a Panel's footer: no line or inset of its own
+  return <Stack direction={'row'} alignItems={'center'} gap={1.5}>
     <GameIcon src={iconOf(index)} size={28} alt={''}/>
     <Typography variant={'body2'} component={'div'} sx={{ minWidth: 0 }}>
       <Box component={'span'} sx={{ fontWeight: 500 }}>Next {name}:</Box> {textOf(entries[index])}

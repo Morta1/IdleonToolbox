@@ -7,7 +7,7 @@ import { formatGame } from '@utility/gameNotation';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import Panel from '@components/common/cards/Panel';
+import BonusStrip from '@components/common/cards/BonusStrip';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -45,9 +45,18 @@ const Bubba = () => {
       <StatTile label={'Meat slices per minute'} value={slices(bubba?.meatsliceRate, 'Bubbastuff.MeatsliceRate')}/>
       <StatTile label={'Next upgrade'} value={failed ? '-' : `${slices(bubba?.progress, 'Bubbastuff.MeatProdREQ')} / ${slices(bubba?.progressReq, 'Bubbastuff.MeatProdREQ')}`}/>
     </PageSummary>
-    <Panel title={'Megaflesh'} sx={{ mb: 2 }}>
-      <Box sx={{ p: 1.5 }}>
-        <CardGrid size={'icon'} evenRows>
+    {/* Bubba's bonuses as tiles in a row, as Worship's MSA Totalizer, right under the summary so the page's numbers come
+        first: two full-width columns put each name about 400 px from its value */}
+    <BonusStrip title={"Bubba's bonuses"} sx={{ mb: 3 }}>
+      {Object.values(bubba?.bonuses ?? {}).map((entry, index) => <StatTile key={entry.name} icon={`etc/Bubba_${index + 1}.png`}
+                                                                           label={entry.name}
+                                                                           value={failed ? '-' : bonusText(entry)}/>)}
+    </BonusStrip>
+    {/* Its tiles at their own size under a heading, as the bonuses above: in a boxed Panel they stretched across the
+        page, twelve mostly empty tiles over 100 px wide */}
+    <BonusStrip title={'Megaflesh'} bare sx={{ mb: 3 }}>
+      <Box>
+        <CardGrid size={'icon'} fill={72}>
           {(bubba?.megaFlesh ?? []).map((entry, index) => <IconTile key={index} icon={`data/BubbaMF${index}.png`}
                                                                    alt={`Megaflesh ${index + 1}`}
                                                                    status={entry?.unlocked ? undefined : 'missing'}
@@ -57,15 +66,7 @@ const Bubba = () => {
       </Box>
       {failed ? null : <NextBonus entries={bubba?.megaFlesh} name={'Megaflesh'} iconOf={(index) => `data/BubbaMF${index}.png`}
                                   textOf={(entry) => megafleshText(entry).replaceAll('\n', ' ')}/>}
-    </Panel>
-    <Panel title={"Bubba's bonuses"} sx={{ mb: 3 }}>
-      <Panel.Columns>
-        {Object.values(bubba?.bonuses ?? {}).map((entry, index) => <Panel.Row key={entry.name}
-                                                                                                  icon={`etc/Bubba_${index + 1}.png`}
-                                                                                                  name={entry.name}
-                                                                                                  value={failed ? '-' : bonusText(entry)}/>)}
-      </Panel.Columns>
-    </Panel>
+    </BonusStrip>
     <Upgrades upgrades={bubba?.upgrades} failed={failed} meatSlices={bubba?.meatSlices ?? 0}/>
   </>
 };

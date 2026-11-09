@@ -17,6 +17,7 @@ import { segmentColors } from '@parsers/world-4/tome';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
+import BonusStrip from '@components/common/cards/BonusStrip';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
@@ -33,11 +34,6 @@ const TIERS = ['bronze', 'silver', 'gold', 'blue'];
 
 // The rank's word art ("TOP 25%") beside its words at its own size: StatTile's 24 px icon shrank it past reading, and
 // pixel art never scales up (5e's Bell).
-// A titled row of bonus tiles that wraps
-const BonusStrip = ({ title, children }) => <Stack gap={1} component={'section'} aria-label={title}>
-  <Typography variant={'groupLabel'} component={'h2'} color={'text.secondary'}>{title}</Typography>
-  <Stack direction={'row'} flexWrap={'wrap'} gap={1}>{children}</Stack>
-</Stack>;
 const RankBadge = ({ top }) => <GameIcon src={`data/TomeTop${top}.png`} fit={'bounds'} size={[102, 17]} alt={''}/>;
 
 // The tier the parser picked, read back off its colour (a locked entry has none); its word and the theme's colour for it

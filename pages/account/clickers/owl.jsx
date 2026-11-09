@@ -7,7 +7,7 @@ import { formatGame } from '@utility/gameNotation';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import Panel from '@components/common/cards/Panel';
+import BonusStrip from '@components/common/cards/BonusStrip';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -48,9 +48,18 @@ const Owl = () => {
         ? `${formatGame(owl.progress, 'Save.OwlFeathersProduced', { whole: true })} / ${formatGame(owl.nextLvReq, 'Summoning.OwlNextUpgReq', { whole: true })}`
         : <StatusText status={'done'}>All unlocked</StatusText>}/>
     </PageSummary>
-    <Panel title={'Megafeathers'} sx={{ mb: 2 }}>
-      <Box sx={{ p: 1.5 }}>
-        <CardGrid size={'icon'} evenRows>
+    {/* Orion's bonuses as tiles in a row, as Worship's MSA Totalizer, right under the summary so the page's numbers come
+        first: two full-width columns put each name about 400 px from its value */}
+    <BonusStrip title={'Bonuses of Orion'} sx={{ mb: 3 }}>
+      {(owl?.bonuses ?? []).slice(1).map((bonus, index) => <StatTile key={bonus.name} icon={`etc/Owlb_${index + 1}.png`}
+                                                                     label={bonus.name}
+                                                                     value={failed ? '-' : bonusText(bonus)}/>)}
+    </BonusStrip>
+    {/* Its tiles at their own size under a heading, as the bonuses above: in a boxed Panel they stretched across the
+        page, ten mostly empty tiles 140 px wide */}
+    <BonusStrip title={'Megafeathers'} bare sx={{ mb: 3 }}>
+      <Box>
+        <CardGrid size={'icon'} fill={72}>
           {(owl?.megaFeathers ?? []).map((entry, index) => <IconTile key={index}
                                                                      icon={`data/Feaz${index}.png`}
                                                                      alt={`Megafeather ${index + 1}`}
@@ -60,14 +69,7 @@ const Owl = () => {
         </CardGrid>
       </Box>
       {failed ? null : <NextBonus entries={owl?.megaFeathers} name={'Megafeather'} iconOf={(index) => `data/Feaz${index}.png`} textOf={megaFeatherText}/>}
-    </Panel>
-    <Panel title={'Bonuses of Orion'} sx={{ mb: 3 }}>
-      <Panel.Columns>
-        {(owl?.bonuses ?? []).slice(1).map((bonus, index) => <Panel.Row key={bonus.name} icon={`etc/Owlb_${index + 1}.png`}
-                                                                        name={bonus.name}
-                                                                        value={failed ? '-' : bonusText(bonus)}/>)}
-      </Panel.Columns>
-    </Panel>
+    </BonusStrip>
     <CardGrid size={'m'}>
       {(owl?.upgrades ?? []).map(({ name, desc, level, cost, unlocked, x3 }, index) => <ItemCard key={index}
                                                                                                icon={`etc/Owl_${index}.png`}

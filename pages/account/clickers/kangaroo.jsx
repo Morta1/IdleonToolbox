@@ -11,6 +11,7 @@ import { PAGES } from '@components/constants';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import Panel from '@components/common/cards/Panel';
+import BonusStrip from '@components/common/cards/BonusStrip';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -24,11 +25,11 @@ const bonusText = ({ bonus, percentage }) => `${bonus > 0 ? '+' : ''}${formatGam
 // The game's fish line rounds up before its commas (N.js, the Poppy panel), a step its rule's Comma doesn't hold
 const fishText = (key) => (value) => formatGame(Math.ceil(value), key, { whole: true });
 
-// Poppy's three lists share a row at equal widths where each gets 280 px, and stack where not: a phone, and 900 px beside
-// the side ad, where three columns ran a row's name into its value.
+// Poppy's two lists share a row at equal widths where each gets 280 px, and stack where not: a phone, and a page too
+// narrow beside the side ad, where columns ran a row's name into its value.
 const LISTS_SX = {
   display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 2, alignItems: 'start',
-  '@container (min-width: 872px)': { gridTemplateColumns: 'repeat(3, minmax(0, 1fr))' }
+  '@container (min-width: 576px)': { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }
 };
 
 const Kangaroo = () => {
@@ -63,31 +64,34 @@ const Kangaroo = () => {
       <StatTile label={'Shiny per minute'} value={number(kangaroo?.shinyRatePercent, (value) => formatNum(value, 'pct'))}/>
       <StatTile label={'Average reset points'} value={number(kangaroo?.avgResetPoints, (value) => formatNum(Math.ceil(value), 'whole'))}/>
     </PageSummary>
+    {/* Poppy's bonuses as tiles in a row, then the Megafish, above the tabs as on Owl's and Bubba's pages: inside the
+        Bonuses tab they were a list Panel that put each name a column's width from its value */}
+    <BonusStrip title={"Poppy's bonuses"} sx={{ mb: 3 }}>
+      {(kangaroo?.bonuses ?? []).slice(1).map((entry, index) => <StatTile key={entry.name}
+                                                                          icon={`etc/Kangaroob_${index + 1}.png`}
+                                                                          label={entry.name}
+                                                                          value={failed ? '-' : bonusText(entry)}/>)}
+    </BonusStrip>
+    {/* Its tiles at their own size under a heading: in a boxed Panel they stretched across the page */}
+    <BonusStrip title={'Megafish'} bare sx={{ mb: 3 }}>
+      <Box>
+        <CardGrid size={'icon'} fill={72}>
+          {(kangaroo?.megaFish ?? []).map((entry, index) => <IconTile key={index}
+                                                                      icon={`data/RooMG${index}.png`}
+                                                                      alt={`Megafish ${index + 1}`}
+                                                                      status={entry.unlocked ? undefined : 'missing'}
+                                                                      value={!failed && entry.amount > 0 ? formatNum(entry.amount, 'whole') : undefined}
+                                                                      details={<ItemCard.Desc text={megaFishText(entry)}/>}/>)}
+        </CardGrid>
+      </Box>
+      {failed ? null : <NextBonus entries={kangaroo?.megaFish} name={'Megafish'} iconOf={(index) => `data/RooMG${index}.png`} textOf={megaFishText}/>}
+    </BonusStrip>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['clickers'].categories, 'kangaroo')}>
       <Upgrades upgrades={kangaroo?.upgrades} failed={failed} fish={kangaroo?.totalFish ?? 0}/>
       <Upgrades upgrades={kangaroo?.tarUpgrades} isTar failed={failed} tarFish={kangaroo?.totalTarFishOwned ?? 0}/>
-      <Stack gap={2}>
-        <Panel title={'Megafish'}>
-          <Box sx={{ p: 1.5 }}>
-            <CardGrid size={'icon'} evenRows>
-              {(kangaroo?.megaFish ?? []).map((entry, index) => <IconTile key={index}
-                                                                          icon={`data/RooMG${index}.png`}
-                                                                          alt={`Megafish ${index + 1}`}
-                                                                          status={entry.unlocked ? undefined : 'missing'}
-                                                                          value={!failed && entry.amount > 0 ? formatNum(entry.amount, 'whole') : undefined}
-                                                                          details={<ItemCard.Desc text={megaFishText(entry)}/>}/>)}
-            </CardGrid>
-          </Box>
-          {failed ? null : <NextBonus entries={kangaroo?.megaFish} name={'Megafish'} iconOf={(index) => `data/RooMG${index}.png`} textOf={megaFishText}/>}
-        </Panel>
+      <Stack gap={3}>
         <Box sx={{ containerType: 'inline-size' }}>
           <Box sx={LISTS_SX}>
-            <Panel title={"Poppy's bonuses"}>
-              {(kangaroo?.bonuses ?? []).slice(1).map((entry, index) => <Panel.Row key={entry.name}
-                                                                           icon={`etc/Kangaroob_${index + 1}.png`}
-                                                                           name={entry.name}
-                                                                           value={failed ? '-' : bonusText(entry)}/>)}
-            </Panel>
             <Panel title={'Shiny multi'}>
               <Panel.Row name={'Total multi'} value={failed ? '-' : `${formatGame(kangaroo?.totalMulti ?? 1, 'Summoning.RooShinyMulti')}x`}/>
               {(kangaroo?.allMultipliers ?? []).map(({ multi, amount }, index) => <Panel.Row key={index}
