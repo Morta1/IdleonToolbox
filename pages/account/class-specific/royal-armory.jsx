@@ -45,7 +45,7 @@ const RoyalArmory = () => {
   const sectionFailed = isSectionFailed(state?.account, 'royalGuardian');
   const royalGuardian = state?.account?.royalGuardian;
   const catalog = sectionFailed ? zeroRoyalGuardian() : null;
-  const { armory, royalStatues, statueFlair, orbletMarket, orblets, outpostStats, raw } = royalGuardian ?? {};
+  const { armory, royalStatues, statueFlair, orbletMarket, orblets, outpostStats, raw, resourceStorage } = royalGuardian ?? {};
   // Remembered per page; no default, so a pick that was never made keeps following the first Royal Guardian
   const [selectedChar, setSelectedChar] = useLocalStorage({ key: 'royal-armory:selectedChar' });
   const royalGuardians = (state?.characters ?? []).filter((character) => checkCharClass(character?.class, CLASSES.Royal_Guardian));
@@ -101,7 +101,7 @@ const RoyalArmory = () => {
         : null}
     </PageSummary>
     <Tabber tabs={tabs}>
-      <Armory account={state?.account} upgrades={catalog?.armory?.upgrades ?? armory?.upgrades} resourceStorage={raw?.[1]}
+      <Armory account={state?.account} upgrades={catalog?.armory?.upgrades ?? armory?.upgrades} resourceStorage={resourceStorage}
               resourcePerHour={royalGuardian?.resourcePerHour} costing={costing} sectionFailed={sectionFailed}/>
       <Outposts outposts={royalGuardian?.outposts} outpostStats={outpostStats}
                 resources={royalGuardian?.resources} clearingMaps={royalGuardian?.clearingMaps}

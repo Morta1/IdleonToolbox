@@ -1467,6 +1467,9 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
     deployments,
     raw,
     rawMaps,
+    // The stored amount of each resource as a number: past about 1e43 the game saves some as text ("6.05e+43"), and the
+    // Armory's cost line, handed the raw text, dropped its "have /" and its colour
+    resourceStorage: resourceStorage.map(toNum),
     armory: {
       upgrades,
       totalLevels: armoryTotalLevels,

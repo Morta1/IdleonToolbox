@@ -15,7 +15,8 @@ export const patchNotes = [
       'Refinery: a paused salt shows how long its rank-up would take once it runs again'
     ],
     'fixes': [
-      'Death Note: each world\'s table title is in its world\'s colour again'
+      'Death Note: each world\'s table title is in its world\'s colour again',
+      'Royal Armory: upgrade costs show how much you have again for very large stored resources'
     ]
   },
   {
