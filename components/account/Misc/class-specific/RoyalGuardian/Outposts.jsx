@@ -1,6 +1,7 @@
 import React, { useContext, useDeferredValue, useEffect, useState } from 'react';
 import { useDebouncedValue } from '@mantine/hooks';
-import { Stack, Typography } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
+import GameIcon from '@components/common/GameIcon';
 import { formatDuration, formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { monsterSprite } from '@utility/spriteImages';
@@ -9,7 +10,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import IconTile from '@components/common/cards/IconTile';
 import StatTile from '@components/common/cards/StatTile';
-import InfoButton from '@components/common/InfoButton';
+import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
 import WithLastWord from '@components/common/WithLastWord';
 import Notice from '@components/common/Notice';
 import Toolbar from '@components/common/Toolbar';
@@ -70,6 +71,20 @@ const RankBoundField = ({ label, onSettled }) => {
 // were cut out of that atlas ('{' '}' '[' ']', in unit-type order) into public/etc, which holds
 // the site's own assets: public/data is the untouched game dump.
 const unitIcon = (unit) => `etc/RGunit${unit}.png`;
+
+// A short amount with the game's exact one in a note, where the two differ (Meals' exactNote)
+const exactOnTap = (short, exact) => (short === exact ? short : <NoteTrigger note={exact}>{short}</NoteTrigger>);
+
+// A unit slot: a 34 px box round its sprite, dashed when empty. Its name opens in a note on hover, a tap or Enter, as a
+// tile's does: a title alone left a phone no way to read it
+const SmallSlot = ({ sprite, name }) => <NoteTrigger note={name} label={name}>
+  <Box sx={{
+    width: 34, height: 34, borderRadius: 1, display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+    border: 1, borderColor: 'divider', borderStyle: sprite ? 'solid' : 'dashed', bgcolor: 'background.default'
+  }}>
+    {sprite ? <GameIcon src={sprite} size={26} alt={''}/> : null}
+  </Box>
+</NoteTrigger>;
 
 const clearingCard = ({ mapIndex, name, world, kills, killsRequired, progress, militiaUnits, militiaRate, hoursToClear,
   monsterRawName, monsterName }, clearingHint) => {
@@ -182,13 +197,17 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
         : 'Collects its nodes straight into your resource storage.';
     const meta = [`World ${formatNum(world)}`, monsterLabel(name, monsterName), modeName, supportText, purified ? 'Purified' : null]
       .filter(Boolean).join(' · ');
+    // The time to the next rank in its two largest units, as every time left ("90d 8h": one unit misled), and the amounts
+    // short with the exact ones on a tap, where the game's full digits ("1,489,106 / 2,811,100") ran onto a second line in a
+    // 300 px card. A long time may still take the numbers under the label; the time is worth the line
     const rankBar = (bar) => {
       const time = !bar.unlocked ? ' · Locked' : bar.expPerHour > 0 ? ` · ${formatDuration((bar.hoursToNextRank ?? 0) * 3600)}` : '';
       // The rank a filter is on names its range in its label, so its level reads at a glance on every card
       const filteredRank = isRankFiltered && bar.type === rankType ? ` (filter: ${formatRankRange(minRank, maxRank)})` : '';
       return <ItemCard.Progress key={bar.type} label={`${bar.name} rank ${formatNum(bar.rank ?? 0)}${time}${filteredRank}`}
                                 percent={100 * (bar.progress ?? 0)}
-                                value={formatGame(bar.exp ?? 0, 'RoyalG.OutpostEXPreq', { ruleValue: bar.required ?? 0, whole: true })} max={formatGame(bar.required ?? 0, 'RoyalG.OutpostEXPreq', { whole: true })}/>;
+                                value={exactOnTap(formatNum(Math.floor(bar.exp ?? 0)), formatGame(bar.exp ?? 0, 'RoyalG.OutpostEXPreq', { ruleValue: bar.required ?? 0, whole: true }))}
+                                max={exactOnTap(formatNum(Math.ceil(bar.required ?? 0)), formatGame(bar.required ?? 0, 'RoyalG.OutpostEXPreq', { whole: true }))}/>;
     };
     // A compact card keeps one rank: the one a filter or a sort is on, or else the next to rank up. The Details pill shows
     // all five in the game's order (Trade, Intel, Command, Military, Purity), so each sits where a player expects it on
@@ -202,41 +221,47 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
                      meta={<WithLastWord text={meta}><InfoButton label={'this mode'} sx={{ ml: 0.5 }}>{modeHint}</InfoButton></WithLastWord>}
                      status={boosted ? 'done' : undefined} statusLabel={'Glorified'}
                      more={outpostSections(outpost)}>
-      <ItemCard.Facts rows={[
-        ['Collection rate', `${formatGame(resourceRate ?? 0, 'RoyalG.OutpostResourceRate')}/hr`],
-        details ? ['Range', `${formatGame(range ?? 0, 'RoyalG.OutpostRange')}px`] : null,
-        details ? ['PTS', `${formatNum(ptsLeft ?? 0, 'whole')} / ${formatNum(ptsTotal ?? 0, 'whole')}`] : null
-      ]}/>
+      {/* With Details, rate, range and points as one row of three, as the old card had them, not three fact rows */}
+      {details ? <ItemCard.Stats cols={[
+        ['Rate', `${formatGame(resourceRate ?? 0, 'RoyalG.OutpostResourceRate')}/hr`],
+        ['Range', `${formatGame(range ?? 0, 'RoyalG.OutpostRange')}px`],
+        ['PTS', `${formatNum(ptsLeft ?? 0, 'whole')} / ${formatNum(ptsTotal ?? 0, 'whole')}`]
+      ]}/> : <ItemCard.Facts rows={[['Collection rate', `${formatGame(resourceRate ?? 0, 'RoyalG.OutpostResourceRate')}/hr`]]}/>}
       {details ? bars.map(rankBar) : keyBar ? rankBar(keyBar) : null}
     </ItemCard>;
   };
 
   // An outpost's units, connected resources and upgrades: the Details pill's part of its card
   const outpostSections = ({ upgrades, unitSlots, passiveUnits, connectedNodes }) => <>
+      {/* The slots as small boxes in one row, and the stationary units as sprites with their counts on one line, as the old
+          card had them: 72 px tiles took three rows for seven slots and another for the stationary ones (#16) */}
       <ItemCard.Section label={'Units'}>
-        <CardGrid size={'icon'} fill>
-          {(unitSlots ?? []).map((unit, slot) => isEmptySlot(unit)
-            ? <IconTile key={slot} status={'empty'} alt={'Empty slot'}/>
-            : <IconTile key={slot} icon={unitIcon(unit)} alt={unitNames[unit] ?? `Type ${unit}`}
-                        details={unitNames[unit] ?? `Type ${unit}`}/>)}
-        </CardGrid>
-        {passiveUnits?.some((count) => count > 0) ? <>
+        <Stack direction={'row'} gap={0.5} flexWrap={'wrap'}>
+          {(unitSlots ?? []).map((unit, slot) => <SmallSlot key={slot} sprite={isEmptySlot(unit) ? null : unitIcon(unit)}
+                                                            name={isEmptySlot(unit) ? 'Empty slot' : unitNames[unit] ?? `Type ${unit}`}/>)}
+        </Stack>
+        {passiveUnits?.some((count) => count > 0) ? <Stack direction={'row'} columnGap={1.5} rowGap={0.5} alignItems={'center'} flexWrap={'wrap'}>
           <Stack direction={'row'} gap={0.5} alignItems={'center'}>
             <Typography variant={'body2'} color={'text.secondary'}>Stationary</Typography>
             <InfoButton label={'stationary units'}>Stationary units granted by Command rank and Glorification. They take no slot.</InfoButton>
           </Stack>
-          <CardGrid size={'icon'} fill>
-            {passiveUnits.map((count, type) => (count > 0
-              ? <IconTile key={type} icon={unitIcon(type)} alt={unitNames[type] ?? `Type ${type}`} value={`x${formatNum(count)}`}
-                          details={`${formatNum(count)} stationary ${unitNames[type] ?? `Type ${type}`}`}/>
-              : null))}
-          </CardGrid>
-        </> : null}
+          {passiveUnits.map((count, type) => (count > 0
+            ? <NoteTrigger key={type} note={`${formatNum(count)} stationary ${unitNames[type] ?? `Type ${type}`}`}
+                           label={`${formatNum(count)} stationary ${unitNames[type] ?? `Type ${type}`}`}>
+              <Stack direction={'row'} gap={0.25} alignItems={'center'}>
+                <GameIcon src={unitIcon(type)} size={24} alt={''}/>
+                <Typography variant={'body2'} component={'span'}>x{formatNum(count)}</Typography>
+              </Stack>
+            </NoteTrigger>
+            : null))}
+        </Stack> : null}
       </ItemCard.Section>
       <ItemCard.Section label={'Connected resources'}>
         {connectedNodes?.length
-          ? <CardGrid size={'icon'} fill>
+          // Small tiles as the unit slots above, each keeping its note (collected / max) on a tap
+          ? <CardGrid size={'icon'} fill={40}>
             {connectedNodes.map((node) => <IconTile key={node.index} icon={`data/${node.rawName}.png`} alt={`Node ${node.index}`}
+                                                    height={40} iconSize={28}
                                                     status={node.exhausted ? 'dim' : undefined}
                                                     details={node.exhausted
                                                       ? `Node ${node.index}: spent, it pays nothing until a restock refills it`
@@ -245,12 +270,23 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
           : <Typography variant={'body2'} color={'text.secondary'}>Not connected to any resource</Typography>}
       </ItemCard.Section>
       {upgrades?.length ? <ItemCard.Section label={'Upgrades'}>
+        {/* As the old card: the name in bold with its level small beside it, the cost quiet at the right, and each effect's
+            number in bold before its words, the effects side by side and wrapping whole */}
         {upgrades.map((upgrade) => <Stack key={upgrade.index} gap={0.25}>
-          <ItemCard.Facts rows={[[`${upgrade.name} Lv ${formatNum(upgrade.level ?? 0)}`,
-            upgrade.unlocked ? `${formatNum(upgrade.cost ?? 0, 'whole')} PTS` : 'Locked']]}/>
-          {upgrade.effects?.length ? <Typography variant={'body2'} color={'text.secondary'}>
-            {upgrade.effects.map((effect) => `${effect.value} ${effect.label}`).join(' · ')}
-          </Typography> : null}
+          <Stack direction={'row'} justifyContent={'space-between'} alignItems={'baseline'} gap={1}>
+            <Typography variant={'body2'} component={'div'} sx={{ fontWeight: 600 }}>
+              {upgrade.name}{' '}
+              <Typography variant={'caption'} component={'span'} color={'text.secondary'}>Lv{formatNum(upgrade.level ?? 0)}</Typography>
+            </Typography>
+            <Typography variant={'body2'} component={'div'} color={'text.secondary'} sx={{ whiteSpace: 'nowrap' }}>
+              {upgrade.unlocked ? `${formatNum(upgrade.cost ?? 0, 'whole')} PTS` : 'Locked'}
+            </Typography>
+          </Stack>
+          {upgrade.effects?.length ? <Stack direction={'row'} flexWrap={'wrap'} columnGap={1.5}>
+            {upgrade.effects.map((effect, index) => <Typography key={index} variant={'body2'} component={'div'} color={'text.secondary'}>
+              <Box component={'span'} sx={{ color: 'text.primary', fontWeight: 600 }}>{effect.value}</Box> {effect.label}
+            </Typography>)}
+          </Stack> : null}
         </Stack>)}
       </ItemCard.Section> : null}
     </>;

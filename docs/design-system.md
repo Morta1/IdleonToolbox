@@ -80,6 +80,7 @@ Variants, from `styles/theme/theme.js`: `pageTitle`, `sectionTitle`, `cardTitle`
 - **Dates:** `useFormatDate`: see Date & Time Formatting in `CLAUDE.md`.
 - **Before changing how a number prints,** read what `main` prints for a fractional value.
 - **Approved exception:** Printer tiles are whole.
+- **Approved exception:** Royal Armory's outpost rank bars print their amounts short with the game's exact ones on a tap, so a rank and its numbers keep one line in a 300 px card, as the old card's did.
 
 ## Words
 
