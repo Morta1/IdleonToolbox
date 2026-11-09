@@ -260,13 +260,17 @@ const PowerCell = ({ power, powerPerCycle, totalTime, lastUpdated }) => <Box sx=
                   aria-label={'Power'} sx={{ mt: 0.5, height: 4, borderRadius: 2, bgcolor: 'divider' }}/>
 </Box>;
 
-// Ready, a countdown, or why it isn't moving: paused on a missing material, frozen by auto refine (its power never banks
-// to the cap), or inactive
+// Ready, a countdown, or why it isn't moving: paused on a missing material (greyed, with the time it would take once it
+// runs again: #82), frozen by auto refine (its power never banks to the cap), or inactive
 const rankUpIn = ({ active, autoRefine, hasMaterialsForCycle, timeLeft }, lastUpdated) => {
   if (!active) return MUTED('Inactive');
   if (autoRefine) return MUTED('Auto refine');
-  return <Timer type={'countdown'} component={'span'} lastUpdated={lastUpdated} pause={!hasMaterialsForCycle} date={timeLeft}
-                placeholder={hasMaterialsForCycle ? <StatusText status={'ready'}/> : MUTED('Paused')}/>;
+  if (!hasMaterialsForCycle) {
+    if (!Number.isFinite(timeLeft) || timeLeft <= Date.now()) return MUTED('Paused');
+    return MUTED(<><Timer type={'countdown'} staticTime component={'span'} date={timeLeft}/>, paused</>);
+  }
+  return <Timer type={'countdown'} component={'span'} lastUpdated={lastUpdated} date={timeLeft}
+                placeholder={<StatusText status={'ready'}/>}/>;
 };
 
 // How long the stock runs, and when it's empty, the sprites of what ran out (their names are on the salt's card)
