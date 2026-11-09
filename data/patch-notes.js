@@ -9,7 +9,8 @@ export const patchNotes = [
     'gameVer': '2.3.561',
     'date': '09/11/2026',
     'features': [
-      'Bubbles: the "Dim past level" setting explains that leaving it empty turns it off'
+      'Bubbles: the "Dim past level" setting explains that leaving it empty turns it off',
+      'Farming: Exotic Rotation has a Table view, one line per upgrade, so about twice the weeks fit a screen; Cards keeps the old look'
     ],
     'fixes': [
       'Death Note: each world\'s table title is in its world\'s colour again'

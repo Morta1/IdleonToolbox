@@ -33,7 +33,8 @@ const prefixed = (prefix, label) => <>
   {label}
 </>;
 
-// Always in the row, on a phone too: a page's own lead control (the leaderboards' player search).
+// Always in the row, on a phone too: a page's own lead control (the leaderboards' player search). ownRow gives a wide
+// field its own line on a phone, as a search's, where a View beside it squeezed its label onto two lines (Exotic Rotation)
 const Lead = ({ children }) => children;
 
 // A page's own phone panel, as a function of close (the leaderboards' extras). Renders nothing in place.
@@ -380,6 +381,8 @@ const Toolbar = ({
   // A View that is a field on a phone takes the row, with no spacer before it
   const viewIsField = phoneViews.some((child) => (child.props.options?.length ?? 0) > MAX_SEGMENTS);
   const searchOwnRow = searches.length > 0 && (phoneViews.length > 0 || searchAlone);
+  const leads = ofType(Lead);
+  const ownRowLead = leads.some((child) => child.props.ownRow);
   // Pills fill the row's free width themselves: a spacer beside them would take half of it
   const hasPills = shows.some((child) => child.props.multiple && child.props.pills);
   const differs = (child) => !same(state[slotKey(child)], defaults[slotKey(child)]);
@@ -434,11 +437,13 @@ const Toolbar = ({
         {/* Toolbar board: what narrows the list from the left, Sort and View at the far right, View last, 10 px apart.
             A phone: the search, then the panel's button and View at its end. */}
         <Stack direction="row" gap={{ xs: 1, sm: '10px' }} alignItems="flex-start"
-               flexWrap={{ xs: searchOwnRow ? 'wrap' : 'nowrap', sm: 'wrap' }}>
+               flexWrap={{ xs: searchOwnRow || ownRowLead ? 'wrap' : 'nowrap', sm: 'wrap' }}>
           {searchOwnRow
             ? <Box sx={{ display: 'flex', flex: { xs: '1 1 100%', sm: '0 0 auto' } }}>{searches}</Box>
             : searches}
-          {ofType(Lead)}
+          {leads.map((child, index) => (child.props.ownRow
+            ? <Box key={child.key ?? `lead-${index}`} sx={{ display: 'flex', flex: { xs: '1 1 100%', sm: '0 0 auto' } }}>{child}</Box>
+            : child))}
           {hasPanel ? (panelIconOnly
             ? <IconButton aria-label={buttonLabel} {...panelButton}
                           sx={{ ...phoneOnly, width: 44, height: 44, bgcolor: 'action.hover', color: 'text.primary' }}>
