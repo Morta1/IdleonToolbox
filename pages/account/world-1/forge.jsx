@@ -121,9 +121,12 @@ const Forge = () => {
       <>
         <StatTile label={'Max ore capacity'} value={capText} sx={{ mb: 2 }}
                   breakdown={capBreakdown ? { ...capBreakdown, totalValue: capText } : undefined}/>
-        {slots.length ? <DataTable columns={slotColumns} rows={slots} rowKey={'index'}
-                                   rowLabel={(row) => `Slot ${row.index + 1}`} stickyTop={pageTop}
-                                   mutedWord={(row) => (row.empty ? 'Empty' : null)}/> : null}
+        {/* As wide as its five columns from lg, the design system's rule (Refinery's salts), not stretched to the page (#23) */}
+        {slots.length ? <Box sx={{ width: { xs: '100%', lg: 'fit-content' }, maxWidth: '100%' }}>
+          <DataTable columns={slotColumns} rows={slots} rowKey={'index'}
+                     rowLabel={(row) => `Slot ${row.index + 1}`} stickyTop={pageTop}
+                     mutedWord={(row) => (row.empty ? 'Empty' : null)}/>
+        </Box> : null}
       </>
       <CardGrid size={'m'}>
         {upgrades.map(upgradeCard)}
