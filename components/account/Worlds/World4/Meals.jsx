@@ -94,7 +94,8 @@ const ladleRow = (hours) => {
   const ladles = Number(hours);
   return ['Ladles', Number.isFinite(ladles) ? exactNote(formatNum(Math.ceil(ladles)), formatNum(ladles, 'exact')) : '-'];
 };
-// The ladles if one kitchen cooks the meal alone: a Details row, as it only qualifies the ladles on the card
+// The ladles if one kitchen cooks the meal alone, under the card's own. A planning number, not a footnote: behind the
+// Details pill players took it for gone (#80)
 const singleKitchenRow = (hours, singleKitchenMulti) => {
   const ladles = Number(hours);
   const fastest = Math.ceil(ladles * singleKitchenMulti?.fastest);
@@ -240,14 +241,11 @@ const Meals = ({
                              max={exactNote(<Num value={Math.ceil(bpCost ?? 0)} game={'CookingR.CookingMenuMealCosts'} whole/>, formatNum(bpCost ?? 0, 'exact'))}/>}
       {maxed ? null : <ItemCard.Facts rows={[
         [bpLevel > 0 ? `To Lv ${formatNum(bpLevel)}` : 'Next level', shownTime(timeToBp)],
-        ladleRow(timeToBp)
+        ladleRow(timeToBp),
+        singleKitchenRow(timeToBp, singleKitchenMulti)
       ]}/>}
     </ItemCard.Section>;
   };
-  // The one-kitchen ladles go with the section's own, so only where it draws them
-  const sectionSingleKitchen = (meal) => (toolbar?.view === 'compact' || !meal?.level || meal.level >= mealMaxLevel
-    ? null
-    : singleKitchenRow(entryFor(meal, target)?.timeToBp, singleKitchenMulti));
 
   return (
     <>
@@ -269,12 +267,12 @@ const Meals = ({
           <CardGrid size={'m'} details={toolbar?.details}>
             {bestSpeedMeals.map(({ name, rawName, level, current, next, timeTillNextLevel }) => <ItemCard
               key={name} icon={<MealIcon rawName={rawName} plateLevel={level} small/>} title={cleanUnderscore(name)}
-              meta={`Lv ${formatNum(level)} → ${formatNum(level + 1)}`}
-              more={<ItemCard.Facts rows={[singleKitchenRow(timeTillNextLevel, singleKitchenMulti)]}/>}>
+              meta={`Lv ${formatNum(level)} → ${formatNum(level + 1)}`}>
               <ItemCard.Facts rows={[
                 ['Bonus', `+${mealBonusText(current)}% → +${mealBonusText(next)}% (+${mealBonusText(shownGain(current, next))}%)`],
                 ['Next level', shownTime(timeTillNextLevel)],
-                ladleRow(timeTillNextLevel)
+                ladleRow(timeTillNextLevel),
+                singleKitchenRow(timeTillNextLevel, singleKitchenMulti)
               ]}/>
             </ItemCard>)}
           </CardGrid>
@@ -308,8 +306,8 @@ const Meals = ({
         <MealsFilterBar upgradableCount={upgradableCount} total={costTotal}
                         limited={limited} value={limited ? mealLimit : upgradableCount}
                         onCommit={(val) => setMealLimit(val >= upgradableCount ? 0 : val)}/>
-        {/* A card says what its meal gives and how far it is from the target. The next level's bonus, its ribbon and
-            mastery node, and one kitchen's ladles show with the Details pill. */}
+        {/* A card says what its meal gives and how far it is from the target, one kitchen's ladles included. The next
+            level's bonus, its ribbon and mastery node show with the Details pill. */}
         <CardGrid size={'m'} details={toolbar?.details}>
           {visibleMeals.map((meal) => {
             const { name, rawName, effect, level, cookingMasteryNode, index: mealIndex } = meal;
@@ -325,7 +323,6 @@ const Meals = ({
                              title={cleanUnderscore(name)} level={{ value: level ?? 0 }} dimmed={level === 0}
                              status={level >= mealMaxLevel ? 'maxed' : undefined}
                              more={<ItemCard.Facts rows={[
-                               sectionSingleKitchen(meal),
                                nextLevelNotation ? [`At Lv ${formatNum(level + 1)}`, nextLevelNotation] : null,
                                ribbonIndex > 1 ? [iconLabel('ribbon', `data/Ribbon${ribbonIndex - 1}.png`, 'Ribbon'),
                                  `Rank ${formatNum(ribbonIndex)} (${formatGame(ribbonBonus, 'Summoning.RibbonBonus')}x)`] : null,
