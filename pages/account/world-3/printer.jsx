@@ -18,10 +18,27 @@ import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import Panel from '@components/common/cards/Panel';
+import SheetContext from '@components/common/cards/SheetContext';
 
 const itemName = (rawName) => cleanUnderscore(itemsTable?.[rawName]?.displayName ?? rawName);
 // An owner-approved exception to the decimals rule: a tile has no room for 264,736.87 beside its row, and its note keeps them.
 const tileValue = (value) => formatNum(value ?? 0, 'whole');
+
+// A group of a character's printer slots in one row of the character sheet's small tiles (SheetContext), 48 px and 3 px
+// apart so a 6-digit amount clears the edges, a panel's 12 slots about 615 px, and two characters share a row (#42); the
+// group's name is for a screen reader
+const SLOT_TILE = 48;
+const SlotGroup = ({ label, slots }) => <SheetContext value={{}}>
+  <Box role={'group'} aria-label={label}>
+    <CardGrid size={'icon'} columns={slots?.length || 1} sheetTile={SLOT_TILE} sx={{ gap: '3px' }}>
+      {(slots ?? []).map((slot, slotIndex) => !slot?.item || slot.item === 'Blank'
+        ? <IconTile key={`blank-${slotIndex}`} status={'empty'}/>
+        : <IconTile key={`${slot.item}-${slotIndex}`} icon={`data/${slot.item}.png`} alt={itemName(slot.item)}
+                    value={tileValue(slot.boostedValue)} status={slot.active ? 'active' : undefined}
+                    details={`${itemName(slot.item)}: ${slot.active ? 'printing' : 'stored'}, ${formatNum(slot.boostedValue ?? 0)} per hour from a ${formatNum(slot.value ?? 0)} sample`}/>)}
+    </CardGrid>
+  </Box>
+</SheetContext>;
 
 // Printer Go Brrr's hours: the highest Maestro's level, or the max level's hours when nobody has a point in it
 const printerGoBrrr = (characters) => {
@@ -77,15 +94,11 @@ const Printer = () => {
                       <Breakdown asValue data={multiBreakdown} title={`${name} printer multi`}>{multiText}</Breakdown>
                     </Typography>
                     : null}>
-      <Box sx={{ p: 2 }}>
-        <CardGrid size={'icon'} fill>
-          {slots?.map((slot, slotIndex) => !slot?.item || slot.item === 'Blank'
-            ? <IconTile key={`blank-${slotIndex}`} status={'empty'}/>
-            : <IconTile key={`${slot.item}-${slotIndex}`} icon={`data/${slot.item}.png`} alt={itemName(slot.item)}
-                        value={tileValue(slot.boostedValue)} status={slot.active ? 'active' : undefined}
-                        details={`${itemName(slot.item)}: ${slot.active ? 'printing' : 'stored'}, ${formatNum(slot.boostedValue ?? 0)} per hour from a ${formatNum(slot.value ?? 0)} sample`}/>)}
-        </CardGrid>
-      </Box>
+      {/* The samples, then the two printing slots apart at the panel's right edge (#72) */}
+      <Stack direction={'row'} gap={1} alignItems={'flex-start'} justifyContent={'space-between'} sx={{ px: 1, py: 1.5 }}>
+        <SlotGroup label={'Samples'} slots={slots?.filter((slot) => !slot?.active)}/>
+        <SlotGroup label={'Printing'} slots={slots?.filter((slot) => slot?.active)}/>
+      </Stack>
     </Panel>;
   };
 
@@ -113,9 +126,15 @@ const Printer = () => {
                                                                details={totalNote(item, total, brrr)}/>)}
       </CardGrid>
     </> : null}
-    <Stack gap={2}>
-      {printer.map(printerPanel)}
-    </Stack>
+    {/* Two characters a row where the page holds two panels of 12 small slots (about 632 px each); one a row below that */}
+    <Box sx={{ containerType: 'inline-size' }}>
+      <Box sx={{
+        display: 'grid', gridTemplateColumns: 'minmax(0, 1fr)', gap: 1.5, alignItems: 'start',
+        '@container (min-width: 1276px)': { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' }
+      }}>
+        {printer.map(printerPanel)}
+      </Box>
+    </Box>
   </>;
 };
 
