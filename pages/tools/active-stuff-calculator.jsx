@@ -1,7 +1,9 @@
 import { NextSeo } from 'next-seo';
 import React, { useContext } from 'react';
-import { Box, Stack } from '@mui/material';
-import { formatDuration } from '@utility/helpers';
+import { Box, Stack, Typography } from '@mui/material';
+import { cleanUnderscore, formatDuration, formatNum, getCoinsArray } from '@utility/helpers';
+import CoinDisplay from '@components/common/CoinDisplay';
+import { compareInventories, getExpDiff } from '@parsers/misc/activeCalculator';
 import { AppContext } from '@components/common/context/AppProvider';
 import Notice from '@components/common/Notice';
 import { IconCopy, IconDeviceFloppy } from '@tabler/icons-react';
@@ -36,7 +38,19 @@ import {
 
 const SECTIONS = [['coins', 'Coins'], ['pets', 'Pets'], ['kills', 'Kills'], ['exp', 'Exp'], ['cards', 'Cards'], ['drops', 'Drops'],
   ['cauldrons', 'Cauldrons'], ['obols', 'Obols'], ['orblets', 'Orblets']];
-const CALCULATOR_TOOLBAR = { show: 'all', resultsOnly: false };
+// show: the picked sections, several at once; empty shows them all. details: each section's Snapshot and Now beside what
+// it gained (results first: the page answers "what did I gain, how fast")
+const CALCULATOR_TOOLBAR = { show: [], details: false };
+
+// The small sections in two columns where the page is wide, each column stacking its own (CardGrid's flow): a grid's rows
+// took their tallest section's height and left holes under the short ones. Drops, with its item grids, follows full width
+const SECTIONS_SX = {
+  columnCount: 1, columnGap: '24px',
+  '@container (min-width: 1100px)': { columnCount: 2 },
+  '& > *': { breakInside: 'avoid', mb: 3 }
+};
+
+const STEPS = ['Save snapshot here before you play.', 'Play, then cloud save in game.', 'Come back: what you gained, and how fast, shows here.'];
 const SECTION_NAMES = { breeding: 'Breeding', cards: 'Cards', alchemy: 'Alchemy', obols: 'Obols', royalGuardian: 'Royal Guardian', tesseract: 'Tesseract' };
 
 const ActiveStuffCalculator = () => {
@@ -58,9 +72,11 @@ const ActiveStuffCalculator = () => {
   const offered = SECTIONS.filter(([section]) => (section === 'pets' ? isBeastMaster
     : section === 'cauldrons' ? isShaman
       : section === 'orblets' ? isRoyalGuardian : true));
-  // A section this character's class lacks falls back to all of them
-  const show = offered.some(([section]) => section === toolbar.show) ? toolbar.show : 'all';
-  const isDisplayed = (section) => offered.some(([name]) => name === section) && (show === 'all' || show === section);
+  // The picked sections this character's class has; none left shows them all. A pick saved before the list ('coins', or
+  // 'all') reads as that one section
+  const saved = Array.isArray(toolbar.show) ? toolbar.show : toolbar.show && toolbar.show !== 'all' ? [toolbar.show] : [];
+  const show = offered.map(([section]) => section).filter((section) => saved.includes(section));
+  const isDisplayed = (section) => offered.some(([name]) => name === section) && (!show.length || show.includes(section));
 
   const handleSaveSnapshot = () => {
     const snapshotTime = new Date().getTime();
@@ -83,7 +99,18 @@ const ActiveStuffCalculator = () => {
   const snapshotTime = snapshottedChar?.snapshotTime;
   const elapsedSeconds = snapshotTime && lastUpdated !== null ? (lastUpdated - snapshotTime) / 1000 : null;
   const hasSnapshot = (snapshottedChar?.playerId + '') === selectedChar;
-  const sectionProps = { selectedChar, lastUpdated, resultsOnly: toolbar.resultsOnly };
+  const sectionProps = { selectedChar, lastUpdated, resultsOnly: !toolbar.details };
+
+  // The headline of each section, for the results row: what the page is for, at a glance
+  const hours = elapsedSeconds > 0 ? elapsedSeconds / 3600 : null;
+  const perHour = (gained) => (hours && Number.isFinite(gained) ? gained / hours : null);
+  const coinsPerHour = perHour((currentCharacter?.money ?? NaN) - (snapshottedChar?.money ?? NaN));
+  const mapIndex = snapshottedChar?.mapIndex;
+  const killsPerHour = perHour(Math.floor(currentCharacter?.kills?.[mapIndex] || 0) - Math.floor(snapshottedChar?.kills?.[mapIndex] || 0));
+  const expDiff = hasSnapshot ? getExpDiff(snapshottedChar, currentCharacter, lastUpdated) : null;
+  const levelUpIn = expDiff?.expPerMinute > 0 ? formatDuration((expDiff.expToLevel / expDiff.expPerMinute) * 60) : null;
+  const gainedItems = hasSnapshot ? compareInventories(snapshottedChar?.inventory, currentCharacter?.inventory, lastUpdated, snapshotTime, '') : [];
+  const topItem = gainedItems.toSorted((a, b) => b.difference - a.difference)[0];
 
   return <>
     <NextSeo
@@ -94,37 +121,60 @@ const ActiveStuffCalculator = () => {
     {state?.emptyAccount ? <Notice tone={'signin'} sx={{ mb: 2 }}>Sign in to compare a snapshot with your save.</Notice> : null}
     {currentCharacter ? <>
       <HeaderCharacterPicker characters={characters} value={selectedChar} onChange={setPickedChar}/>
-      <PageSummary label={'Snapshot times'}>
-        <StatTile label={'Snapshot taken'} value={snapshotTime ? formatDate(snapshotTime) : '-'} sub={snapshottedChar?.name}/>
-        <StatTile label={'Last save'} value={lastUpdated !== null ? formatDate(lastUpdated) : '-'}/>
-        <StatTile label={'Measured over'} value={elapsedSeconds > 0 ? formatDuration(elapsedSeconds) : '-'}/>
-      </PageSummary>
-      <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
-        <Button variant={'contained'} onClick={handleSaveSnapshot} startIcon={<IconDeviceFloppy size={18}/>}>Save snapshot</Button>
+      {/* Results first: what the measured stretch gained, per hour, before any section */}
+      {hasSnapshot && hours ? <PageSummary label={'Results'}>
+        <StatTile label={'Measured over'} value={formatDuration(elapsedSeconds)}/>
+        <StatTile label={'Coins per hour'} value={coinsPerHour === null ? '-' : <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+          {coinsPerHour < 0 ? '-' : null}<CoinDisplay dense money={getCoinsArray(Math.abs(coinsPerHour))}/>
+        </Box>}/>
+        <StatTile label={'Kills per hour'} value={killsPerHour === null ? '-' : formatNum(killsPerHour)}/>
+        <StatTile label={'EXP per hour'} value={expDiff?.expPerHour > 0 ? formatNum(expDiff.expPerHour) : '-'}
+                  sub={levelUpIn ? `Next level in ${levelUpIn}` : undefined}/>
+        <StatTile label={'Items gained'} value={formatNum(gainedItems.length)}
+                  sub={topItem ? `Most: ${cleanUnderscore(topItem.displayName)} +${formatNum(topItem.difference)}` : undefined}/>
+      </PageSummary> : null}
+      {/* The snapshot's controls and times on one line, under the results they feed */}
+      <Stack direction={'row'} alignItems={'center'} columnGap={1} rowGap={1} flexWrap={'wrap'} sx={{ mb: 2 }}>
+        <Button variant={'contained'} onClick={handleSaveSnapshot} startIcon={<IconDeviceFloppy size={18}/>}>
+          {hasSnapshot ? 'New snapshot' : 'Save snapshot'}
+        </Button>
         <Button variant={'outlined'} onClick={handleCopySnapshot} startIcon={<IconCopy size={18}/>}
                 disabled={!snapshottedAcc || !snapshottedChar}>
           Copy snapshot
         </Button>
         <InfoButton label={'snapshots'}>One snapshot at a time: a new one replaces the last, for any character.</InfoButton>
+        {snapshotTime ? <Typography variant={'body2'} color={'text.secondary'} sx={{ ml: 1 }}>
+          {`Snapshot ${formatDate(snapshotTime, { showSeconds: false })}${snapshottedChar?.name ? ` (${cleanUnderscore(snapshottedChar.name)})` : ''}`}
+          {lastUpdated !== null ? ` · last save ${formatDate(lastUpdated, { showSeconds: false })}` : ''}
+        </Typography> : null}
       </Stack>
       <Box>
         <Toolbar state={{ ...toolbar, show }} defaults={CALCULATOR_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
-                 total={offered.length} shown={show === 'all' ? offered.length : 1} noun={'sections'}>
-          <Toolbar.Show options={[['all', 'All sections'], ...offered]}/>
-          <Toolbar.Filter name={'resultsOnly'} label={'Results only'}/>
+                 total={offered.length} shown={show.length || offered.length} noun={'sections'}>
+          <Toolbar.Show multiple options={[['all', 'All sections'], ...offered]}/>
+          <Toolbar.Filter name={'details'} label={'Details'} display/>
         </Toolbar>
-        {!hasSnapshot ? <Notice>This character has no snapshot yet: Save snapshot takes one.</Notice> : <Stack gap={3}>
-          {elapsedSeconds !== null && elapsedSeconds <= 0 ? <Notice>Your last save is older than this snapshot: cloud save in game to see what you gained.</Notice> : null}
-          {isDisplayed('coins') ? <CoinsSection {...sectionProps}/> : null}
-          {isDisplayed('pets') ? <PetSection {...sectionProps}/> : null}
-          {isDisplayed('kills') ? <KillsSection {...sectionProps}/> : null}
-          {isDisplayed('exp') ? <ExpSection {...sectionProps}/> : null}
-          {isDisplayed('cards') ? <CardsSection {...sectionProps}/> : null}
-          {isDisplayed('drops') ? <DropSection {...sectionProps}/> : null}
-          {isDisplayed('cauldrons') ? <CauldronsSection {...sectionProps}/> : null}
-          {isDisplayed('obols') ? <ObolsSection {...sectionProps}/> : null}
-          {isDisplayed('orblets') ? <OrbletsSection {...sectionProps}/> : null}
-        </Stack>}
+        {!hasSnapshot ? <Notice>
+          <Box component={'ol'} sx={{ m: 0, pl: 2.5 }}>{STEPS.map((step) => <li key={step}>{step}</li>)}</Box>
+        </Notice> : <>
+          {elapsedSeconds !== null && elapsedSeconds <= 0 ? <Notice sx={{ mb: 2 }}>Your last save is older than this snapshot: cloud save in game to see what you gained.</Notice> : null}
+          <Box sx={{ containerType: 'inline-size' }}>
+            <Box sx={SECTIONS_SX}>
+              {isDisplayed('coins') ? <CoinsSection {...sectionProps}/> : null}
+              {isDisplayed('pets') ? <PetSection {...sectionProps}/> : null}
+              {isDisplayed('kills') ? <KillsSection {...sectionProps}/> : null}
+              {isDisplayed('exp') ? <ExpSection {...sectionProps}/> : null}
+              {isDisplayed('cards') ? <CardsSection {...sectionProps}/> : null}
+              {isDisplayed('cauldrons') ? <CauldronsSection {...sectionProps}/> : null}
+              {isDisplayed('obols') && sectionProps.resultsOnly ? <ObolsSection {...sectionProps}/> : null}
+              {isDisplayed('orblets') ? <OrbletsSection {...sectionProps}/> : null}
+            </Box>
+          </Box>
+          {/* Item grids take the full width, each with its own gap: a column's last section loses its margin at the
+              columns' foot. Obols holds two inventories once Details is on. */}
+          {isDisplayed('obols') && !sectionProps.resultsOnly ? <Box sx={{ mt: 3 }}><ObolsSection {...sectionProps}/></Box> : null}
+          {isDisplayed('drops') ? <Box sx={{ mt: 3 }}><DropSection {...sectionProps}/></Box> : null}
+        </>}
       </Box>
     </> : null}
   </>;

@@ -30,14 +30,14 @@ const ObolsSection = ({ lastUpdated, resultsOnly }) => {
     <Stack direction={'row'} flexWrap={'wrap'} gap={3} sx={{ p: 2 }}>
       {!resultsOnly ? <>
         <SectionGroup label={'Snapshot'}>
-          <Inventory inventory={consolidateItems(flattenSnapshot)} inventoryLength={flattenSnapshot?.length}/>
+          <Inventory asc inventory={consolidateItems(flattenSnapshot)} inventoryLength={flattenSnapshot?.length}/>
         </SectionGroup>
         {failed ? null : <SectionGroup label={'Now'}>
-          <Inventory inventory={consolidateItems(flattenCurrent)} inventoryLength={flattenCurrent?.length}/>
+          <Inventory asc inventory={consolidateItems(flattenCurrent)} inventoryLength={flattenCurrent?.length}/>
         </SectionGroup>}
       </> : null}
       <SectionGroup label={'Gained'}>
-        {difference.length ? <Inventory inventory={difference} amountKey={'difference'} ratesKnown={Boolean(elapsedHours(lastUpdated, snapshottedAcc?.snapshotTime))}/>
+        {difference.length ? <Inventory asc inventory={difference} amountKey={'difference'} ratesKnown={Boolean(elapsedHours(lastUpdated, snapshottedAcc?.snapshotTime))}/>
           : <Typography variant={'body2'} color={'text.secondary'}>
             {failed ? 'Obols failed to load, so there is nothing to compare.' : 'No obol has gone up since the snapshot.'}
           </Typography>}
