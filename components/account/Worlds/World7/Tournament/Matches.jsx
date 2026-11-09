@@ -10,6 +10,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
 import GameIcon from '@components/common/GameIcon';
+import { NoteTrigger } from '@components/common/InfoButton';
 
 const teamPower = (pets, companions) =>
   pets.reduce((sum, idx) => sum + (companions?.[idx]?.tourPower ?? 0), 0);
@@ -25,9 +26,16 @@ export const Pet = ({ comp, children }) => <Box component={'span'}
   {children ?? petLabel(comp)}
 </Box>;
 
-export const PetList = ({ pets }) => <Box component={'span'}
-                                          sx={{ display: 'inline-flex', flexWrap: 'wrap', columnGap: 1.5, rowGap: 0.25 }}>
-  {pets.map((comp, index) => <Pet key={index} comp={comp}/>)}
+// A team as sprites, a Pet Mart+ pet marked "+", each name a hover or tap away: a name beside every pet ran a team to
+// nine lines (#24). The battle sequence keeps names, as sentences.
+const PLUS_SX = { position: 'absolute', right: -3, bottom: -5, fontSize: 12, fontWeight: 700, lineHeight: 1, color: 'text.success' };
+export const PetList = ({ pets }) => <Box component={'span'} sx={{ display: 'inline-flex', flexWrap: 'wrap', gap: 0.75 }}>
+  {pets.map((comp, index) => <NoteTrigger key={index} note={petLabel(comp)} label={petLabel(comp)}>
+    <Box component={'span'} sx={{ position: 'relative', display: 'inline-flex' }}>
+      <GameIcon src={monsterSprite(comp?.name)} size={24} alt={petLabel(comp)}/>
+      {comp?.upgraded ? <Box component={'span'} aria-hidden sx={PLUS_SX}>+</Box> : null}
+    </Box>
+  </NoteTrigger>)}
 </Box>;
 
 // companionsFailed: the account's list failed, so the player's pets are named from the catalog and their power is "-"

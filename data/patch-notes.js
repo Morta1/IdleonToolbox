@@ -13,7 +13,8 @@ export const patchNotes = [
       'Farming: Exotic Rotation has a Table view, one line per upgrade, so about twice the weeks fit a screen; Cards keeps the old look',
       'Top bar: the line under your name shows how long ago the game last saved (e.g. "Updated 12 min ago"); the exact time is in the account menu',
       'Refinery: a paused salt shows how long its rank-up would take once it runs again',
-      'Page bar: the button with the world\'s name (e.g. "World 6") lists the worlds, each opening its first page; the Worlds menu still lists every page'
+      'Page bar: the button with the world\'s name (e.g. "World 6") lists the worlds, each opening its first page; the Worlds menu still lists every page',
+      'Tournament: teams show their pets as icons, the name on hover or tap and a "+" on Pet Mart+ pets, so a match card is much shorter'
     ],
     'fixes': [
       'Death Note: each world\'s table title is in its world\'s colour again',
