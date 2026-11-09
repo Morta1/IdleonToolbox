@@ -30,8 +30,12 @@ const Badge = ({ badge, small, color }) => (badge === 'up'
     lineHeight: '16px',
     color: 'background.default',
     bgcolor: 'text.secondary',
-    // The small tile's rank (the characters board's .rk)
-    ...(small ? { minWidth: 15, height: 15, px: '2px', fontWeight: 500, lineHeight: '15px', color: 'text.primary', bgcolor: 'action.selected' } : {}),
+    // The small tile's rank (the characters board's .rk), on a solid disc: the old see-through grey let the sprite under
+    // it swallow the white number, a skill's on a Lab sprite most (#78). The same grey, mixed opaque
+    ...(small ? {
+      minWidth: 15, height: 15, px: '2px', fontWeight: 500, lineHeight: '15px', color: 'text.primary',
+      bgcolor: 'color-mix(in srgb, var(--mui-palette-text-primary) 24%, var(--mui-palette-background-default))'
+    } : {}),
     ...(color ? { bgcolor: color, color: 'common.black', fontWeight: 700 } : {})
   }}>{badge}</Box>);
 
