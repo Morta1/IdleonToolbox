@@ -110,15 +110,13 @@ const GemShop = () => {
                      status={maxed ? 'maxed' : undefined}
                      footer={bought == null ? null : <ItemCard.Cost icon={'data/PremiumGem.png'} iconAlt={'Gems'} need={nextCost}
                                                                     have={gems} format={gemCount}/>}
-                     more={<>
-                       <ItemCard.Desc text={cleanUnderscore(desc ?? '')}/>
-                       <ItemCard.Facts rows={[bought != null && !maxed && maxPurchases - bought > 1
-                         ? ['Cost to max', formatNum(calculateTotalCostToMax(cost, costIncrement || 0, bought, maxPurchases), 'whole')]
-                         : null]}/>
-                     </>}>
+                     more={<ItemCard.Facts rows={[bought != null && !maxed && maxPurchases - bought > 1
+                       ? ['Cost to max', formatNum(calculateTotalCostToMax(cost, costIncrement || 0, bought, maxPurchases), 'whole')]
+                       : null]}/>}>
       <ItemCard.Facts rows={[
         bought == null ? ['Cost', formatNum(cost, 'whole')] : ['Bought', `${formatNum(bought, 'whole')} / ${formatNum(maxPurchases, 'whole')}`]
       ]}/>
+      <ItemCard.Desc text={cleanUnderscore(desc ?? '')}/>
     </ItemCard>;
   };
 
@@ -154,8 +152,8 @@ const GemShop = () => {
               ? <Typography variant={'body2'} color={'text.secondary'}>The save doesn't say which past specials you bought.</Typography>
               : null}
           </Stack>
-          {/* A card keeps what a purchase is weighed by: its tier, how many are bought and the next price. What it does
-              and the cost to max show with the Details pill: the text ran each card two to four lines taller. */}
+          {/* A card keeps what a purchase is weighed by: its tier, how many are bought, the next price and what it does
+              (names like "Just One, Please" don't say). The cost to max shows with the Details pill. */}
           <CardGrid size={'m'} details={toolbar.details}>{items.map(itemCard)}</CardGrid>
         </Stack>)}
       </Stack>;
