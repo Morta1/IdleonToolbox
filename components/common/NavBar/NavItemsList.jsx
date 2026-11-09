@@ -12,7 +12,7 @@ import { BAR_CRAMPED, BAR_SNUG, BAR_TIGHT } from './frame';
 
 // The bar's sections from lg (below it PhoneMenu holds them): Worlds, Account and Tools open their menu (Decision 11),
 // the rest are links.
-const NavItemsList = ({ openMenu, onMenu, onMenuRest, onMenuRestEnd }) => {
+const NavItemsList = ({ openMenu, onMenu, onMenuRest, onMenuLeave }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
   const updateQuery = sessionQuery(router?.query);
@@ -34,7 +34,7 @@ const NavItemsList = ({ openMenu, onMenu, onMenuRest, onMenuRestEnd }) => {
           if (MENUS[navItem]) {
             return <NavMenuButton key={navItem} menu={navItem} open={openMenu === navItem}
                                   selected={menuOfRoute(router?.pathname) === navItem} onToggle={onMenu}
-                                  onRest={onMenuRest} onRestEnd={onMenuRestEnd}/>;
+                                  onRest={onMenuRest} onLeave={onMenuLeave}/>;
           }
 
           const selected = router?.pathname.includes(navItem);

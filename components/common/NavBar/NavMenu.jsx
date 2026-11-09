@@ -24,47 +24,77 @@ const tabStops = (root) => [...(root?.querySelectorAll(TAB_STOPS) ?? [])].filter
 // While a panel is open, a mouse resting this long on another menu's bar item swaps to it, so a wrong guess costs one
 // move: long enough that crossing the bar swaps nothing.
 const REST_SWAP_MS = 120;
-// A click this soon after a rest swapped a panel in was already on its way to open it, so it doesn't close it.
-const SWAP_CLICK_GRACE_MS = 400;
+// A click this soon after a panel opened (a rest, a swap or a first click) was already on its way to open it, so it
+// doesn't close it: the old click-to-open habit lands just after the 200 ms rest has opened the menu.
+const CLICK_GRACE_MS = 600;
+// With no panel open, a mouse resting this long on a menu's bar item opens it: long enough that crossing the bar on the
+// way to the search opens nothing.
+const BAR_HOVER_OPEN_MS = 200;
+// A panel the mouse opened closes this long after the mouse leaves both it and its bar item, so the trip from the item
+// down into the panel, or a brief slip off its edge, keeps it.
+const HOVER_CLOSE_MS = 300;
 
 // The bar's open menu (a key of MENUS or null), and the button that opened it (null: the bar's own button for it).
+// byMouse: the mouse opened it, so it closes when the mouse leaves; a tap or Enter keeps it until a press or a click away.
 export const useBarMenu = () => {
   const [openMenu, setOpenMenu] = useState(null);
   const [menuAnchor, setMenuAnchor] = useState(null);
+  const [byMouse, setByMouse] = useState(false);
   const restTimer = useRef(null);
-  const swappedAt = useRef(0);
-  useEffect(() => () => clearTimeout(restTimer.current), []);
+  const closeTimer = useRef(null);
+  const openedAt = useRef(0);
+  useEffect(() => () => {
+    clearTimeout(restTimer.current);
+    clearTimeout(closeTimer.current);
+  }, []);
   useEffect(() => {
     if (!openMenu) return undefined;
     trackMenuOpen(openMenu);
     return () => trackMenuClose(openMenu);
   }, [openMenu]);
   const endRest = () => clearTimeout(restTimer.current);
-  const toggleMenu = (menu, from = null) => {
+  const stayOpen = () => clearTimeout(closeTimer.current);
+  const open = (menu, from, mouse) => {
+    openedAt.current = Date.now();
+    setByMouse(mouse);
+    setMenuAnchor(from);
+    setOpenMenu(menu);
+  };
+  // A click (any pointer), a tap, Enter or a group row's name opens a menu and the same press closes it, past the grace.
+  // A mouse's menu also closes when the mouse leaves; a tap's or a key's stays until a press or a click away.
+  const toggleMenu = (menu, from = null, mouse = false) => {
     endRest();
-    if (menu !== openMenu) {
-      setMenuAnchor(from);
-      setOpenMenu(menu);
-    } else if (Date.now() - swappedAt.current >= SWAP_CLICK_GRACE_MS) setOpenMenu(null);
+    stayOpen();
+    if (menu !== openMenu) open(menu, from, mouse);
+    else if (Date.now() - openedAt.current >= CLICK_GRACE_MS) setOpenMenu(null);
   };
   const restOn = (menu) => {
     endRest();
-    if (!openMenu || menu === openMenu) return;
-    restTimer.current = setTimeout(() => {
-      swappedAt.current = Date.now();
-      setMenuAnchor(null);
-      setOpenMenu((current) => (current ? menu : current));
-    }, REST_SWAP_MS);
+    stayOpen();
+    if (menu === openMenu) return;
+    restTimer.current = setTimeout(() => open(menu, null, true), openMenu ? REST_SWAP_MS : BAR_HOVER_OPEN_MS);
   };
-  return { openMenu, menuAnchor, setOpenMenu, toggleMenu, restOn, endRest };
+  const leave = () => {
+    endRest();
+    if (!byMouse) return;
+    stayOpen();
+    closeTimer.current = setTimeout(() => setOpenMenu(null), HOVER_CLOSE_MS);
+  };
+  return { openMenu, menuAnchor, byMouse, setOpenMenu, toggleMenu, restOn, leave, stayOpen };
 };
 
-// The bar item for a menu (Decision 11): a click, a tap or Enter opens its panel; no opening on hover, only the swap
-// above, for a mouse: a tap's compatibility events must not count as a rest.
-export const NavMenuButton = ({ menu, open, selected, onToggle, onRest, onRestEnd }) => (
+// The bar item for a menu (Decision 11, amended by #19): a mouse resting on it opens its panel, a click, a tap or Enter
+// opens or closes it, and a panel the mouse opened also closes when the mouse leaves both. All three menus work alike:
+// Account going to General on a click was tried and dropped, as the one bar item a click did something else on. A
+// tap's compatibility events must not count as a rest.
+export const NavMenuButton = ({ menu, open, selected, onToggle, onRest, onLeave }) => (
   <ListItemButton id={buttonId(menu)} {...{ [MENU_BUTTON]: '' }} data-cy={`nav-item-${menu}`} data-tour={`nav-${menu}`}
                   selected={selected} aria-expanded={open} aria-controls={open ? navMenuId(menu) : undefined}
-                  onClick={(event) => onToggle(menu, event.currentTarget)} onPointerLeave={onRestEnd}
+                  onClick={(event) => {
+                    const mouse = event.nativeEvent?.pointerType === 'mouse';
+                    onToggle(menu, mouse ? null : event.currentTarget, mouse);
+                  }}
+                  onPointerLeave={onLeave}
                   onPointerEnter={(event) => {
                     if (event.pointerType === 'mouse') onRest(menu);
                   }}
@@ -191,7 +221,8 @@ const GRID_WIDTH = { account: 'fit-content', tools: 820 };
 // or Esc closes it, focus back on its button (3d and 3e's rule for desktop panels). No dim and no scroll lock:
 // the panel stays inside the page's frame (frame.js), so it never covers a side ad.
 // anchor: the button that opened it (a group row's name), or null for the bar's own button.
-export const NavMenuPanel = ({ menu, anchor = null, onClose }) => {
+// byMouse: the mouse opened it, so it takes no focus (the search box keeps it) and leaving it calls onLeave.
+export const NavMenuPanel = ({ menu, anchor = null, onClose, byMouse = false, onStay, onLeave }) => {
   const router = useRouter();
   const cellRef = useRef(null);
   const panelRef = useRef(null);
@@ -207,6 +238,7 @@ export const NavMenuPanel = ({ menu, anchor = null, onClose }) => {
   const frame = useFrame();
 
   useEffect(() => {
+    if (byMouse) return;
     openerRef.current = document.activeElement;
     panelRef.current?.focus();
   }, [menu]);
@@ -301,6 +333,7 @@ export const NavMenuPanel = ({ menu, anchor = null, onClose }) => {
       <Box ref={cellRef} sx={[{ gridArea: 'page', minWidth: 0 }, frame.cap ? capPageWidth(frame.cap) : null]}>
         <ClickAwayListener onClickAway={onClickAway}>
           <Box ref={panelRef} id={navMenuId(menu)} tabIndex={-1} onKeyDown={onKeyDown} onBlur={onBlur}
+               onPointerEnter={onStay} onPointerLeave={onLeave}
                style={shift ? { transform: `translateX(${shift}px)` } : undefined}
                sx={{
                  pointerEvents: 'auto', outline: 'none', color: 'text.primary',

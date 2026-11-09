@@ -2,7 +2,8 @@ import { PAGES } from '@components/constants';
 import { PAGE_BY_URL, PAGE_INDEX } from '@utility/pageIndex';
 
 // The bar's two menus over /account (Layout boards): Worlds is the seven worlds in game order, Account the groups that
-// span them, Classes first: the largest of them, and the one the word "Account" doesn't predict. Misc is two groups in
+// span them, Basics first: it opens with General, the page three players reached for under Account (#19); Classes,
+// the largest group, follows. Misc is two groups in
 // the menu, Basics and Activities; their URLs stay /account/misc/... .
 const BASICS = ['general', 'storage', 'quests', 'constellations', 'upgrade-vault'];
 const inFolder = (folder) => PAGE_INDEX.filter(({ url }) => url.startsWith(`/account/${folder}/`));
@@ -13,11 +14,11 @@ const WORLD_GROUPS = [1, 2, 3, 4, 5, 6, 7].map((n) => ({
 }));
 
 const ACCOUNT_GROUPS = [
-  { key: 'classes', label: 'Classes', icon: PAGES.ACCOUNT['class-specific'].icon, pages: inFolder('class-specific') },
   {
     key: 'basics', label: 'Basics', icon: PAGES.ACCOUNT.misc.icon,
     pages: inFolder('misc').filter(({ url }) => BASICS.includes(lastSegment(url)))
   },
+  { key: 'classes', label: 'Classes', icon: PAGES.ACCOUNT['class-specific'].icon, pages: inFolder('class-specific') },
   {
     key: 'activities', label: 'Activities', icon: 'data/DungeonA7',
     pages: inFolder('misc').filter(({ url }) => !BASICS.includes(lastSegment(url)))
