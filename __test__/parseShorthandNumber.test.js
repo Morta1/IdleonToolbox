@@ -43,10 +43,12 @@ describe('parseShorthandNumber', () => {
     ['3.2e12', 3.2e12],
     ['1.5E3', 1500],
     ['1,000e3', 1e6],
-    // Whitespace is only in the way of the suffix; currency signs and extra minus signs are stripped.
+    // Whitespace is only in the way of the suffix; currency signs and extra minus signs in front are stripped, and so is a
+    // percent sign at the end. Anything else in the number makes it no number, never a guess.
     [' 1k ', 1000],
     ['€1.234', 1234],
     ['--123', 123],
+    ['5-a0', NaN],
     ['abc', NaN],
     ['', NaN],
     [123, NaN]

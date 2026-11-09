@@ -1085,9 +1085,12 @@ export function parseShorthandNumber(text) {
   const suffix = suffixMatch ? suffixMatch[1] : '';
   const withoutSuffix = suffixMatch ? lowerInput.slice(0, -suffix.length) : lowerInput;
 
-  // Now remove everything except digits, commas, and periods
-  // This is more robust than trying to list all possible separator characters
-  const cleaned = withoutSuffix.replace(/[^\d.,]/g, '');
+  // A currency sign, a plus or extra minus signs in front and a percent sign at the end drop off; between them only digits,
+  // separators and spaces (a French or Swiss thousands mark included). Stripping anything else read a stray key as part
+  // of the number ("5-a0" read 50)
+  const body = withoutSuffix.replace(/^[\s+\-$€£¥]+/, '').replace(/%\s*$/, '');
+  if (/[^\d.,\s'’]/.test(body)) return NaN;
+  const cleaned = body.replace(/[^\d.,]/g, '');
 
   const numberPart = cleaned;
 

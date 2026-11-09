@@ -22,11 +22,20 @@ const limitError = (value, { min, max }) => {
   return min != null && value < min ? `At least ${fieldNumber(min)}` : null;
 };
 
+// What to type instead of text that is no number, in the field's own terms: a level capped at 50 asked for "1.5B"
+const notANumber = ({ min, max, integer }) => {
+  const kind = integer ? 'a whole number' : 'a number';
+  if (min != null && max != null) return `Enter ${kind} from ${fieldNumber(min)} to ${fieldNumber(max)}`;
+  if (max != null) return `Enter ${kind} up to ${fieldNumber(max)}`;
+  if (min != null) return `Enter ${kind} of at least ${fieldNumber(min)}`;
+  return `Enter ${kind} like 1.5B`;
+};
+
 // What the text says, and what is wrong with it. Empty is null: the caller's default.
 const readNumber = (text, limits) => {
   if (text.trim() === '') return { value: null, error: null };
   const value = parseShorthandNumber(text);
-  if (Number.isNaN(value)) return { value: null, error: 'Enter a number like 1.5B' };
+  if (Number.isNaN(value)) return { value: null, error: notANumber(limits) };
   // 1e400 reads as Infinity, which no page can print or add up.
   if (!Number.isFinite(value)) return { value: null, error: 'Enter a smaller number' };
   if (limits.integer && !Number.isInteger(value)) return { value, error: 'Enter a whole number' };
@@ -100,6 +109,8 @@ const NumberField = ({
     placeholder={defaultValue != null ? (inline ? fieldNumber(defaultValue) : `${fieldNumber(defaultValue)} (default)`) : placeholder}
     error={shownError !== null}
     helperText={helperText}
+    // A field in a row of controls: Panel.Inputs floats its message under it (see INPUTS_SX)
+    {...(help === false ? { 'data-row-field': '' } : {})}
     disabled={disabled}
     fullWidth={fullWidth}
     sx={sx}

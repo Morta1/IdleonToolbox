@@ -170,6 +170,13 @@ const KV = ({ label, value, kind }) => {
 // button, alone or with its Clear) takes a row, as the Tools phone board's does; on its own row it has no field to line up with.
 const INPUTS_SX = {
   p: 2,
+  // A field in a row of controls (NumberField's data-row-field) floats its message under it on one line, so the message
+  // never makes the field taller and moves its neighbours; the row keeps that line's room at all times, so the message
+  // stays inside the Panel. Only here: elsewhere such a field's message keeps its own line, as nothing reserves the room
+  '&:has([data-row-field])': { pb: 3.5 },
+  '& [data-row-field] .MuiFormHelperText-root': {
+    position: 'absolute', top: '100%', left: 0, mx: 0, mt: '2px', whiteSpace: 'nowrap', zIndex: 1
+  },
   '& > .MuiFormControlLabel-root': { mr: 0, '@media (pointer: coarse)': { minHeight: 44 } },
   '& > .MuiFormControlLabel-root > .MuiFormControlLabel-label': { fontSize: 14 },
   [PHONE]: {
