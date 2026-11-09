@@ -52,13 +52,10 @@ const glowSx = (glow) => (theme) => {
 // card (Bubbles' cauldrons, about 50 px) does the same.
 const LONG_VALUE = 7;
 const LONG_VALUE_SX = { '@container (max-width: 49.95px)': { fontSize: 11 } };
-// A full tile's sub lines (Bubbles' target), the tile's own width their container: 11 px below 58 px,
-// five to a narrow card, and 10 px below 52 px (Bubbles' four cauldrons across at 1920), where "/ 200,000" at 11 px
-// reached the tile's edge
+// A full tile's sub lines (Bubbles' target), 12 px at every width: a line that would not fit takes a shorter form
+// (Bubbles' "/ 200K"), never a smaller size, which reached 10 px on Bubbles' 50 px tiles
 const FULL_SUB_SX = {
-  fontSize: 12, lineHeight: '14px', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', color: 'text.secondary',
-  '@container (max-width: 57.95px)': { fontSize: 11 },
-  '@container (max-width: 51.95px)': { fontSize: 10 }
+  fontSize: 12, lineHeight: '14px', fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap', color: 'text.secondary'
 };
 const smallTileSx = (hasValue, empty) => ({
   position: 'relative',

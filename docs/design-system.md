@@ -81,6 +81,9 @@ Variants, from `styles/theme/theme.js`: `pageTitle`, `sectionTitle`, `cardTitle`
 - **Before changing how a number prints,** read what `main` prints for a fractional value.
 - **Approved exception:** Printer tiles are whole.
 - **Approved exception:** Royal Armory's outpost rank bars print their amounts short with the game's exact ones on a tap, so a rank and its numbers keep one line in a 300 px card, as the old card's did.
+- **Approved exception:** Bubbles' target line under a tile prints from 10,000 in the game's short form ("/ 200K"), the
+  exact level in the tile's note, so it reads at 12 px on a 50 px tile. A tile's line takes a shorter form, never a
+  smaller size.
 
 ## Words
 

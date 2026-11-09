@@ -284,7 +284,11 @@ const prismaGlow = (row) => (row.isPrisma ? `data/aUpgradesGlow${row.cauldronInd
 // The tile's line under its level, while the setting is on (the old page's "/ target"): the level that reaches the
 // efficiency threshold while the bubble is under it. The share of its cap is the bar's, and its number is in the note
 // and the table: on a late account nearly every tile read 95% to 99% under a full bar
-const targetLines = (row) => (row.level > 0 && Number.isFinite(row.target) ? [`/ ${formatNum(row.target)}`] : []);
+// From 10,000 the game's short form ("/ 200K"), so the line fits a 50 px tile at 12 px (approved exception, design
+// system's Numbers); the note keeps the exact level. Exact, "/ 200,000" shrank to 10 px on four cauldrons across.
+const targetLines = (row) => (row.level > 0 && Number.isFinite(row.target)
+  ? [`/ ${row.target >= 1e4 ? formatGame(row.target, 'Big', { whole: true }) : formatNum(row.target)}`]
+  : []);
 
 // A bubble's details on a tap: its sentence filled as the game fills it, how far it is to its cap, the level that
 // reaches the efficiency threshold, and the next level's cost. A bubble at Lv 0 is not found yet (a cauldron's
