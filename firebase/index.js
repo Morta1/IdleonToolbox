@@ -128,6 +128,8 @@ const subscribe = async (uid, accessToken, callback) => {
 
       const cloudsave = docSnapshot.data();
       const createTime = docSnapshot._document?.createTime?.toTimestamp();
+      // The server's commit time of the save's last write: when the game's cloud save actually landed
+      const updateTime = docSnapshot._document?.version?.toTimestamp();
 
       const [companion, guildId, tournamentUser, tournamentMatchData, tournamentGlobal] = await Promise.all([
         getSnapshot(dbRef, `_comp/${uid}`),
@@ -166,7 +168,8 @@ const subscribe = async (uid, accessToken, callback) => {
         serverVars,
         createTime,
         uid,
-        accessToken
+        accessToken,
+        updateTime
       );
     },
     (err) => {

@@ -14,8 +14,8 @@ import QuickSearch from '@components/common/QuickSearch';
 import UserMenu from '@components/common/NavBar/UserMenu';
 import { ThemeLink } from '@components/common/NavBar/ThemeRows';
 
-import useFormatDate from '@hooks/useFormatDate';
 import AuthSkeleton from './AuthSkeleton';
+import DataAge, { getSavedAt } from './DataAge';
 import { BottomBannerAd, SideAds } from '@components/common/Ads/AdUnit';
 import ProfileBanner from './ProfileBanner';
 import { openCookiePolicy } from '@components/common/Etc/CookiePolicyDialog';
@@ -34,7 +34,6 @@ import PageHeader, { PageHeaderSlots } from './PageHeader';
 const NavBar = ({ children }) => {
   const { state } = useContext(AppContext);
   const router = useRouter();
-  const formatDate = useFormatDate();
   const prefetch = useNavPrefetch();
   // The bar's open menu and the phone menu (null, or { group } it opened at). A page change closes both; a query-only
   // change (a page writing its own state to the URL, Wardrobe's companion) does not.
@@ -70,11 +69,7 @@ const NavBar = ({ children }) => {
         {state?.signedIn ? (
           <Stack sx={{ px: 1, minWidth: 0 }}>
             <Typography variant={'body2'} noWrap sx={{ fontWeight: 'bold' }}>{cleanUnderscore(state?.characters?.[0]?.name)}</Typography>
-            {state?.lastUpdated ? (
-              <Typography variant={'caption'} noWrap>
-                {formatDate(state?.lastUpdated, { showSeconds: false, shortYear: true })}
-              </Typography>
-            ) : null}
+            {getSavedAt(state) ? <DataAge time={getSavedAt(state)}/> : null}
           </Stack>
         ) : null}
       </>

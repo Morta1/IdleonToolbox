@@ -1,6 +1,6 @@
 import { IconCopy, IconDatabase, IconLogin2, IconLogout2, IconSettings, IconUser } from '@tabler/icons-react';
 import IconButton from '@mui/material/IconButton';
-import { Divider, ListItemIcon, ListItemText, Menu, Typography } from '@mui/material';
+import { Box, Divider, ListItemIcon, ListItemText, Menu, Typography } from '@mui/material';
 import MenuItem from '@mui/material/MenuItem';
 import React, { useContext, useState } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -15,6 +15,11 @@ import { notify } from '@components/common/Overlays/notify';
 import AppDialog from '@components/common/Overlays/AppDialog';
 import useFormatDate from '@hooks/useFormatDate';
 import { MenuCaption, TourMenu, useThemeRows, useTourMenu } from '@components/common/NavBar/ThemeRows';
+import { getSavedAt } from '@components/common/NavBar/DataAge';
+
+// The menu's dates as a card's facts: the label grey at the left, the date at the right in the text's colour
+const DATES_SX = { display: 'grid', gridTemplateColumns: 'auto auto', justifyContent: 'space-between', columnGap: 2, rowGap: 0.25 };
+const DATE_SX = { color: 'text.primary', fontWeight: 500, textAlign: 'right', fontVariantNumeric: 'tabular-nums' };
 
 const UserMenu = () => {
   const { dispatch, state, logout } = useContext(AppContext);
@@ -29,6 +34,8 @@ const UserMenu = () => {
   const queryParams = sessionQueryWithoutProfile(router.query);
   const formatDate = useFormatDate();
   const createdAt = (state?.signedIn || state?.profile) ? state?.account?.accountCreateTime : null;
+  // The bar reads how old the data is; the exact time lives here
+  const updatedAt = (state?.signedIn || state?.profile) ? getSavedAt(state) : null;
 
   if (state?.signedIn !== prevSignedIn) {
     setPrevSignedIn(state?.signedIn);
@@ -89,7 +96,19 @@ const UserMenu = () => {
   }
 
   const rows = [
-    createdAt ? <MenuCaption key="created">{`Account created ${formatDate(createdAt, { showSeconds: false })}`}</MenuCaption> : null,
+    ...(createdAt || updatedAt ? [
+      <MenuCaption key="dates">
+        <Box component="span" sx={DATES_SX}>
+          {[['Account created', createdAt], ['Data updated', updatedAt]].filter(([, time]) => time).map(([label, time]) =>
+            <React.Fragment key={label}>
+              <span>{label}</span>
+              <Box component="span" sx={DATE_SX}>{formatDate(time, { showSeconds: false })}</Box>
+            </React.Fragment>)}
+        </Box>
+      </MenuCaption>,
+      // A divider after a caption gets none of the 8 px MUI gives one after a menu row
+      <Divider key="dates-divider" sx={{ my: 1 }}/>
+    ] : []),
     ...themeRows,
     <Divider key="theme-divider"/>,
     <MenuItem key="settings" component={NextLink} href={{ pathname: '/settings', query: sessionQuery(router.query) }} onClick={handleClose}>

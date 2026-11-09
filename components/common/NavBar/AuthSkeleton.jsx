@@ -1,22 +1,19 @@
 import React from 'react';
-import { Box, Skeleton, Stack } from '@mui/material';
+import { Skeleton, Stack, Typography } from '@mui/material';
+import { WIDEST } from './DataAge';
 
+// The signed-in bar's right end while the session loads, at its loaded size: the account button, then the name over the
+// data's age, whose line always takes its widest form's width.
 const AuthSkeleton = () => {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center', ml: 1 }}>
-      <Stack direction="row" spacing={1.5} alignItems="center">
-        
-        {/* User avatar skeleton */}
-        <Skeleton variant="circular" width={32} height={32}/>
-        
-        {/* Name and time skeleton */}
-        <Stack>
-          <Skeleton variant="text" width={90} height={18}/>
-          <Skeleton variant="text" width={70} height={14}/>
-        </Stack>
+    <Stack direction="row" alignItems="center" sx={{ ml: 1, minWidth: 0 }}>
+      <Skeleton variant="rounded" width={34} height={32} sx={{ flexShrink: 0, borderRadius: '16px' }}/>
+      <Stack sx={{ px: 1, minWidth: 0 }}>
+        <Typography variant={'body2'} component={'div'}><Skeleton width={90}/></Typography>
+        <Typography variant={'caption'} component={'div'}><Skeleton sx={{ maxWidth: '100%' }}><span>{WIDEST}</span></Skeleton></Typography>
       </Stack>
-    </Box>
+    </Stack>
   );
 };
 
-export default AuthSkeleton; 
+export default AuthSkeleton;

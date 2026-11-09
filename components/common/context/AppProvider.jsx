@@ -168,8 +168,9 @@ const AppProvider = ({ children }) => {
     tournament,
     serverVars, 
     accountCreateTime, 
-    uid, 
-    accessToken
+    uid,
+    accessToken,
+    updateTime
   ) => {
     // The player's own save replaces a viewed profile or the sample account, so drop both from the URL
     // (they are session params and would otherwise reload the other account).
@@ -180,7 +181,9 @@ const AppProvider = ({ children }) => {
 
     const accountCreateTimeInSeconds = accountCreateTime?.seconds;
     const lastUpdated = new Date().getTime();
-    
+    // When the save reached Firebase; lastUpdated is when it reached this page, the clock the timers count from
+    const savedAt = updateTime?.toMillis?.() > 0 ? updateTime.toMillis() : undefined;
+
     setRawJson({
       data,
       charNames,
@@ -189,7 +192,8 @@ const AppProvider = ({ children }) => {
       tournament,
       serverVars,
       accountCreateTime: accountCreateTimeInSeconds * 1000,
-      lastUpdated
+      lastUpdated,
+      savedAt
     });
 
     let parsedData = await parseSave(
@@ -215,6 +219,7 @@ const AppProvider = ({ children }) => {
         profile: false,
         demo: false,
         lastUpdated,
+        savedAt,
         tournament,
         serverVars,
         uid,
@@ -648,7 +653,7 @@ const AppProvider = ({ children }) => {
     }
 
     dispatch({ type: ACTION_TYPES.SET_LOADING, data: true });
-    const { data, charNames, companion, guildData, serverVars, accountCreateTime, tournament, lastUpdated } = rawJson;
+    const { data, charNames, companion, guildData, serverVars, accountCreateTime, tournament, lastUpdated, savedAt } = rawJson;
     const parsedData = await parseSave(data, charNames, companion, guildData, serverVars, accountCreateTime, tournament,
       getOwnAccountParseOptions());
 
@@ -657,6 +662,7 @@ const AppProvider = ({ children }) => {
       data: {
         ...parsedData,
         lastUpdated: lastUpdated ?? state?.lastUpdated,
+        savedAt: savedAt ?? state?.savedAt,
         isLoading: false
       }
     });
