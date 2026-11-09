@@ -14,24 +14,17 @@ import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/Worl
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import StatTile from '@components/common/cards/StatTile';
-import { SummaryFailed } from '@components/common/cards/PageSummary';
 import GameIcon from '@components/common/GameIcon';
 import StatusText from '@components/common/StatusText';
 import Timer from '@components/common/Timer';
-import Toolbar from '@components/common/Toolbar';
-import useToolbarState from '@hooks/useToolbarState';
 
 // The card text's own fill (parsers/world-6/farming.ts, `{`), so the bar and the line under it read 0.67 alike
 const effectText = (value) => String(fillRound(value ?? 0));
 // ExoticReturnsIn draws a caption; on the card's meta line it takes the line's own type
 const META_TEXT_SX = { font: 'inherit', letterSpacing: 'inherit' };
 
-const MARKET_TOOLBAR = { details: false };
-
 const Market = ({ market }) => {
   const { state } = useContext(AppContext);
-  const failed = useContext(SummaryFailed);
-  const [view, setView, resetView] = useToolbarState('farming-exotic-market', MARKET_TOOLBAR);
 
   const rotations = getExoticMarketRotations(state?.account, 2);
   const nextRotationDate = rotations?.[1]?.date;
@@ -51,7 +44,7 @@ const Market = ({ market }) => {
   }));
 
   // A card keeps what it gives (its bar and its text) and when it returns, on the level's line in place of a footer. The
-  // share of the hard cap shows with the Details pill: the card ran about a third taller than the old page's.
+  // share of the hard cap ends the effect's numbers rather than taking a row: as a row the card ran a third taller.
   const renderCards = (list) =>
     list?.map((
       {
@@ -76,13 +69,12 @@ const Market = ({ market }) => {
                        aside={isOrganic ? <Stack direction={'row'} alignItems={'center'} gap={0.5}>
                          <GameIcon src={DOUBLER_ICONS.organicLabels} size={16} alt={''}/>
                          <Typography variant={'caption'} color={'text.success'}>Organic label: x2</Typography>
-                       </Stack> : null}
-                       more={isCapped
-                         ? <ItemCard.Facts rows={[['Share of the hard cap', formatNum(percentOfCap ?? 0, 'pct')]]}/>
-                         : null}>
+                       </Stack> : null}>
         {isCapped
-          ? <ItemCard.Progress label={'Effect'} value={effectText(value)} max={effectText(maxValue)}
-                               percent={Math.min(100, percentOfCap ?? 0)}/>
+          ? <ItemCard.Progress label={'Effect'} value={effectText(value)} percent={Math.min(100, percentOfCap ?? 0)}
+                               max={<>{effectText(maxValue)}<Box component={'span'} sx={{ color: 'text.secondary' }}>
+                                 {` · ${formatNum(percentOfCap ?? 0, 'pct')}`}
+                               </Box></>}/>
           : <ItemCard.Facts rows={[['Effect', `${effectText(value)}, no cap`]]}/>}
         <ItemCard.Desc text={displayText}/>
         <HiddenCapLine system={'exotic'} index={index} name={title}/>
@@ -100,10 +92,6 @@ const Market = ({ market }) => {
       </Stack>
 
       <Box>
-        {failed ? null : <Toolbar state={view} defaults={MARKET_TOOLBAR} onChange={setView} onReset={resetView}
-                                  total={market?.length ?? 0} shown={market?.length ?? 0} noun={'upgrades'}>
-          <Toolbar.Filter name={'details'} label={'Details'} display/>
-        </Toolbar>}
         <Stack gap={4}>
           <Stack gap={1.5}>
             <Stack direction="row" alignItems="baseline" gap={2} flexWrap="wrap">
@@ -114,14 +102,14 @@ const Market = ({ market }) => {
                                placeholder={<StatusText status={'ready'}/>}/>
               </Typography> : null}
             </Stack>
-            <CardGrid size={'m'} details={!failed && view?.details}>
+            <CardGrid size={'m'}>
               {renderCards(currentRotation)}
             </CardGrid>
           </Stack>
 
           <Stack gap={1.5}>
             <Typography variant={'sectionTitle'} component={'h2'}>Off rotation</Typography>
-            <CardGrid size={'m'} details={!failed && view?.details}>
+            <CardGrid size={'m'}>
               {renderCards(offRotation)}
             </CardGrid>
           </Stack>

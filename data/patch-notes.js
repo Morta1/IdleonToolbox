@@ -14,7 +14,8 @@ export const patchNotes = [
       'Top bar: the line under your name shows how long ago the game last saved (e.g. "Updated 12 min ago"); the exact time is in the account menu',
       'Refinery: a paused salt shows how long its rank-up would take once it runs again',
       'Page bar: the button with the world\'s name (e.g. "World 6") lists the worlds, each opening its first page; the Worlds menu still lists every page',
-      'Tournament: teams show their pets as icons, the name on hover or tap and a "+" on Pet Mart+ pets, so a match card is much shorter'
+      'Tournament: teams show their pets as icons, the name on hover or tap and a "+" on Pet Mart+ pets, so a match card is much shorter',
+      'Exotic Market: each card shows its share of the hard cap beside the effect, with no Details pill to press'
     ],
     'fixes': [
       'Death Note: each world\'s table title is in its world\'s colour again',
