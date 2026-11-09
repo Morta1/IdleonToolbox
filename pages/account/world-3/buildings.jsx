@@ -14,7 +14,8 @@ import ItemCard from '@components/common/cards/ItemCard';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 import { NoteTrigger } from '@components/common/InfoButton';
-import { Duration } from '@components/common/Num';
+import Num, { Duration } from '@components/common/Num';
+import GameIcon from '@components/common/GameIcon';
 
 const BUILDINGS_TOOLBAR = { sort: null, hideMaxed: false };
 
@@ -92,8 +93,17 @@ const progressValue = (progress, buildCost) => {
     : short;
 };
 
-const costLine = ({ rawName, name, amount }) => <ItemCard.Cost key={rawName} icon={`data/${rawName}.png`}
-                                                               iconAlt={cleanUnderscore(name)} need={amount} game={'Big'}/>;
+// A level's cost as a fact's value: every building's next level and its road to max take one material each, so a
+// headed section per cost (a heading, a divider and one line, twice) gave way to a row like Time left's (#81)
+// Held to the text's 20 px line, so the sprite's box doesn't make the row taller than Time left's and lift the amount
+const costValue = (items) => <Box component={'span'}
+                                  sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: 20, verticalAlign: 'top' }}>
+  {items.map(({ rawName, name, amount }) => <Box key={rawName} component={'span'}
+                                                    sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, height: 20 }}>
+    <GameIcon src={`data/${rawName}.png`} size={16} alt={cleanUnderscore(name)}/>
+    <Num value={amount} game={'Big'} whole/>
+  </Box>)}
+</Box>;
 
 const Buildings = () => {
   const { state } = useContext(AppContext);
@@ -154,8 +164,12 @@ const Buildings = () => {
                 ['Time left', durationOrDash(tower?.timeLeft)],
                 ['In a trimmed slot', durationOrDash(tower?.trimmedTimeLeft)]
               ]}/>
-              {items?.length ? <ItemCard.Section label={'Next level'}>{items.map(costLine)}</ItemCard.Section> : null}
-              {itemsMax?.length ? <ItemCard.Section label={'To max'}>{itemsMax.map(costLine)}</ItemCard.Section> : null}
+              {items?.length || itemsMax?.length ? <ItemCard.Section>
+                <ItemCard.Facts rows={[
+                  items?.length ? ['Next level', costValue(items)] : null,
+                  itemsMax?.length ? ['To max', costValue(itemsMax)] : null
+                ]}/>
+              </ItemCard.Section> : null}
             </>}
           </ItemCard>;
         })}
