@@ -331,7 +331,7 @@ const GenericUpgradeOptimizer = ({
     {
       key: 'name',
       label: 'Name',
-      icon: upgradeImagePrefix ? (upgrade) => <GameIcon src={upgradeIconPath(upgrade)} alt={''} size={32}/> : undefined,
+      icon: upgradeImagePrefix ? (upgrade) => <GameIcon src={upgradeIconPath(upgrade)} alt={''} size={24}/> : undefined,
       render: (upgrade) => <Stack component={'span'} gap={0.25}>
         <span>{upgradeTitle(upgrade.name)}</span>
         {upgrade.lockedNow ? <Typography variant={'body2'} color={'text.secondary'} component={'span'}>{lockLabel(upgrade)}</Typography> : null}
@@ -346,7 +346,12 @@ const GenericUpgradeOptimizer = ({
       sortable: true,
       phone: true,
       value: (upgrade) => upgrade.totalCost || upgrade.cost,
-      render: (upgrade) => <Stack alignItems={'flex-end'}>{costNode(upgrade)}{costNotes(upgrade)}</Stack>
+      // The notes beside the cost, as the old table had them, so a row stays one line; under md they may wrap under it
+      // (row-reverse keeps the cost on the first line). A wrap allowed above md lets the table squeeze the column.
+      render: (upgrade) => <Stack direction={'row-reverse'} flexWrap={{ xs: 'wrap', md: 'nowrap' }} alignItems={'center'} columnGap={1}
+                                  sx={{ whiteSpace: { md: 'nowrap' } }}>
+        {costNode(upgrade)}{costNotes(upgrade)}
+      </Stack>
     }
   ];
   // # is the purchase order at every sort (as Spelunking's optimizer numbers it): numbered before the Cost sort, and
@@ -630,6 +635,8 @@ const GenericUpgradeOptimizer = ({
     sort={sort}
     onSortChange={(next) => setCostSortOrder(next?.order ?? 'none')}
     surface={'card'}
+    // A name on one line from md up: the table gave Stat changes the room and wrapped "Tempest Defence I" before its I
+    sx={{ '& td.name .row-name': { whiteSpace: { md: 'nowrap' } } }}
   />;
 
   return (

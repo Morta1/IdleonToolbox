@@ -16,7 +16,8 @@ export const patchNotes = [
     ],
     'fixes': [
       'Death Note: each world\'s table title is in its world\'s colour again',
-      'Royal Armory: upgrade costs show how much you have again for very large stored resources'
+      'Royal Armory: upgrade costs show how much you have again for very large stored resources',
+      'Upgrade Optimizers: the Table view\'s rows are one line again, so more of the plan fits on screen'
     ]
   },
   {
