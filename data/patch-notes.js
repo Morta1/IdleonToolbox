@@ -44,7 +44,8 @@ export const patchNotes = [
       'Dashboard: new World 7 timer for the next Yellow jelly construction purchase, also shown on the Jellies card',
       'Farming: every sticker chance now has a breakdown of its sources',
       'Divinity: Divinity PTS per hour with a breakdown of every source, and the rate of each character on the Styles tab',
-      'Dashboard: the World 7 Spare Workers alert now also lists Workers on empty resources, replacing their separate alert'
+      'Dashboard: the World 7 Spare Workers alert now also lists Workers on empty resources, replacing their separate alert',
+      'Quests: pick characters with the Characters page\'s switcher, one or several at once. With more than one, each quest shows who is on it again, and In progress is blue so it stands apart from Done'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',

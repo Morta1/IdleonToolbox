@@ -1,7 +1,8 @@
 import React, { useContext } from 'react';
 import { Box } from '@mui/material';
 import WorldQuest, { shapeQuests } from 'components/account/Misc/WorldQuest';
-import { cleanUnderscore, formatNum } from 'utility/helpers';
+import { formatNum } from 'utility/helpers';
+import { CharacterSelect } from '@components/characters/CharactersList';
 import { AppContext } from 'components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import PageSummary from '@components/common/cards/PageSummary';
@@ -15,7 +16,13 @@ import { MissingData, isParseFailed, isSectionFailed, joinNames } from '@compone
 const WORLDS = ['Blunder_Hills', 'Yum_Yum_Desert', 'Frostbite_Tundra', 'Hyperion_Nebula', 'Smolderin\'_Plateau',
   'Spirited_Valley', 'Shimmerfin_Deep'];
 
+// show: the picked characters, "all" or their indices joined by commas (one index before the switcher took several)
 const QUESTS_TOOLBAR = { show: '0', hideCompleted: false, doneByAny: false, missable: false };
+const pickedOf = (show, count) => {
+  if (show === 'all') return [...Array(count).keys()];
+  const picked = [...new Set(`${show}`.split(',').map(Number))].filter((index) => Number.isInteger(index) && index >= 0 && index < count);
+  return picked.length ? picked : [0];
+};
 
 // The sections Quests reads, by the name its one note gives them; a whole-parse failure names the page
 const SECTIONS = [['quests', 'Quests'], ['totalQuestsCompleted', 'Unique quests completed'], ['looty', 'the Slab']];
@@ -31,10 +38,9 @@ const Quests = () => {
     : joinNames(SECTIONS.filter(([key]) => state?.account?.failedSections?.includes(key)).map(([, name]) => name));
   const [view, setView, resetView] = useToolbarState('quests', QUESTS_TOOLBAR);
   const characters = state?.characters ?? [];
-  const picked = Number(view.show);
   // No character (a guest): nobody to finish a quest, so nothing is done and nothing is at risk
-  const selected = !characters.length || questsFailed ? [] : view.show === 'all' ? characters.map((_, index) => index)
-    : [Number.isInteger(picked) && picked >= 0 && picked < characters.length ? picked : 0];
+  const selected = !characters.length || questsFailed ? [] : pickedOf(view.show, characters.length);
+  const pick = (indices) => setView({ show: indices.length === characters.length ? 'all' : indices.join(',') });
   const worlds = parseFailed ? {} : shapeQuests(state?.account?.quests ?? {}, selected, view.doneByAny,
     lootyFailed ? null : new Set(state?.account?.looty?.greenStacks ?? []));
   const shownOf = (world) => (worlds?.[world] ?? []).filter((npc) => (!view.hideCompleted || npc?.status !== 1)
@@ -57,19 +63,22 @@ const Quests = () => {
       {parseFailed ? null : <Box>
         <Toolbar state={view} defaults={QUESTS_TOOLBAR} onChange={setView} onReset={resetView}
                  total={npcCount} shown={shownCount} noun={'NPCs'}>
+          {/* The Characters page's switcher, on this page's own pick (#91) */}
+          {selected.length ? <Toolbar.Lead>
+            <CharacterSelect characters={characters} selected={selected} onChange={pick}/>
+          </Toolbar.Lead> : null}
           <Toolbar.Lead>
             <InfoButton label={'these filters'}>
               {'Done by any counts a quest once any picked character finished it, so All characters with it finds the quests no one has done. Missable greenstacks keeps the NPCs with a quest whose item drops stop once it is finished and whose item is not greenstacked yet: keep one character on that quest until it is.'}
             </InfoButton>
           </Toolbar.Lead>
-          {characters.length && !questsFailed ? <Toolbar.Show options={[['all', 'All characters'],
-            ...characters.map((character, index) => [`${index}`, cleanUnderscore(character?.name)])]}/> : null}
           <Toolbar.Filter name={'hideCompleted'} label={'Hide completed'}/>
           <Toolbar.Filter name={'doneByAny'} label={'Done by any'}/>
           {lootyFailed ? null : <Toolbar.Filter name={'missable'} label={'Missable greenstacks'}/>}
         </Toolbar>
         <CardGrid size={'l'} sx={{ alignItems: 'start' }}>
-          {WORLDS.map((world) => <WorldQuest key={world} worldName={world} npcs={shownOf(world)} characters={characters}/>)}
+          {WORLDS.map((world) => <WorldQuest key={world} worldName={world} npcs={shownOf(world)} characters={characters}
+                                              showCharacters={selected.length > 1}/>)}
         </CardGrid>
       </Box>}
     </>

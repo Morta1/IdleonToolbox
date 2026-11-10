@@ -17,7 +17,7 @@ import {
   Typography,
   useTheme
 } from '@mui/material';
-import React, { startTransition, useContext, useEffect, useState } from 'react';
+import React, { startTransition, useContext, useEffect, useRef, useState } from 'react';
 import { AppContext, shownCharacters, shownFilters } from '@components/common/context/AppProvider';
 import Notice from '@components/common/Notice';
 import { formatNum, sections } from 'utility/helpers';
@@ -306,22 +306,18 @@ const ELLIPSIS_SX = { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis',
 
 // The wide bar's characters (a named switcher the reviewers preferred to a strip of class icons, which made players hover
 // to tell two of a class apart): every character's icon, name and level under the switcher, over the page only while open.
-// Never the last one shown unticked.
-const CharacterMenu = ({ open, onClose, anchorRef }) => {
-  const { state, dispatch } = useContext(AppContext);
-  const characters = state?.characters ?? [];
-  const displayed = reconcileDisplayedCharacters(shownCharacters(state), characters.length);
+// Never the last one shown unticked. displayed: the characters shown, by index, and all; onShow takes the next one.
+const CharacterMenu = ({ open, onClose, anchorRef, characters, displayed, onShow }) => {
   const allShown = characters.every((_, index) => displayed[index]);
   const firstShown = Math.max(0, characters.findIndex((_, index) => displayed[index]));
   const totalLevels = characters.reduce((sum, { level, hasData }) => sum + (hasData ? level || 0 : 0), 0);
-  const show = (data) => startTransition(() => dispatch({ type: 'displayedCharacters', data }));
   const toggle = (index) => {
     const next = { ...displayed, [index]: !displayed[index] };
     const count = characters.filter((_, other) => next[other]).length;
-    if (count) show({ ...next, all: count === characters.length });
+    if (count) onShow({ ...next, all: count === characters.length });
   };
   const only = (index) => {
-    show(onlyCharacter(characters.length, index));
+    onShow(onlyCharacter(characters.length, index));
     onClose();
   };
   return <Popover open={open} anchorEl={() => anchorRef.current} onClose={onClose} disableScrollLock
@@ -329,7 +325,7 @@ const CharacterMenu = ({ open, onClose, anchorRef }) => {
                   slotProps={{ paper: { 'aria-label': 'Characters', sx: { p: 0.75, mt: 1, width: 320, maxWidth: 'calc(100vw - 32px)' } } }}>
     <Box sx={MENU_ROW_SX}>
       <Checkbox size="small" checked={allShown} inputProps={{ 'aria-label': 'All characters' }}
-                onChange={() => show(allShown ? onlyCharacter(characters.length, firstShown) : allCharacters(characters.length, true))}/>
+                onChange={() => onShow(allShown ? onlyCharacter(characters.length, firstShown) : allCharacters(characters.length, true))}/>
       <Typography variant={'body2'} sx={{ fontWeight: 500 }}>All characters</Typography>
       <Typography variant={'body2'} color={'text.secondary'} sx={{ ml: 'auto', pr: 1, fontSize: 12 }}>{formatNum(totalLevels, 'level')}</Typography>
     </Box>
@@ -374,59 +370,84 @@ const SectionsButton = ({ open, onOpenChange, buttonRef }) => {
   </>;
 };
 
-// The characters to show and the sections to show them with, as one switcher in the pinned bar: the shown character's class
-// icon and name (or "+N" more, or All characters), with steps to the one before and after. A phone's switcher says
-// "1 of 11" instead, so it, the steps and Filters keep one row. From lg it opens CharacterMenu below it and Sections has its
-// own button; under lg it opens the drawer beside the page (a sheet with Done on a phone) holding both. The page owns what's
-// open, so its notes can open them, and which one a press opens is read at the press, so the export never depends on width.
-export const CharactersPicker = ({ open, onOpenChange, menuOpen, onMenuOpenChange, buttonRef, sectionsOpen, onSectionsOpenChange, sectionsRef }) => {
-  const { state, dispatch } = useContext(AppContext);
-  const theme = useTheme();
-  const characters = state?.characters ?? [];
-  if (!characters.length) return null;
-  const displayed = shownCharacters(state);
+// The shown character's class icon and name (or "+N" more, or All characters), with steps to the one before and after. A
+// phone's says "1 of 11" instead, so it, the steps and a bar's Filters keep one row. displayed and onShow as CharacterMenu's;
+// onPress opens what the button opens.
+const CharacterSwitcher = ({ characters, displayed, onShow, onPress, expanded, buttonRef }) => {
   const shown = characters.filter((_, index) => displayed?.[index]);
   const allShown = shown.length === characters.length;
   const step = (by) => {
     const from = characters.findIndex((_, index) => displayed?.[index]);
-    const data = onlyCharacter(characters.length, (from + by + characters.length) % characters.length);
-    startTransition(() => dispatch({ type: 'displayedCharacters', data }));
+    onShow(onlyCharacter(characters.length, (from + by + characters.length) % characters.length));
   };
-  const press = () => (window.matchMedia(`(min-width: ${theme.breakpoints.values.lg}px)`).matches
-    ? onMenuOpenChange(!menuOpen) : onOpenChange(!open));
   const name = allShown ? ALL_LABEL : shown[0]?.name ?? 'No characters';
   const canStep = shown.length === 1 && characters.length > 1;
   // One width while you step through the characters, the longest label it can show (a name, or "All characters"), so
   // the arrows beside it stay put (Hαlf: "locked as if a max size name"). The rest is its padding, class icon and chevron.
   const labelChars = Math.max(ALL_LABEL.length, ...characters.map((character) => character?.name?.length ?? 0));
+  return <Stack direction={'row'} gap={0.5} alignItems={'center'}>
+    <IconButton aria-label={'Previous character'} onClick={() => step(-1)} disabled={!canStep} sx={STEP_SX}><IconChevronLeft size={18}/></IconButton>
+    <Button ref={buttonRef} variant="outlined" onClick={onPress} aria-haspopup="dialog" aria-expanded={expanded}
+            aria-label={`Characters: ${allShown ? 'all' : shown.map((character) => character.name).join(', ') || 'none'}`}
+            endIcon={<IconChevronDown size={18} aria-hidden/>}
+            sx={{
+              color: 'text.primary', bgcolor: 'primary.soft', borderColor: 'primary.edge', fontWeight: 600, gap: 1, maxWidth: 260,
+              width: { sm: `calc(${labelChars}ch + ${NAME_BUTTON_EXTRA}px)` }, justifyContent: 'flex-start',
+              '& .MuiButton-endIcon': { ml: 'auto' }
+            }}>
+      {shown.length && !allShown ? <GameIcon src={classIconOf(shown[0].classIndex)} size={24} alt=""/> : null}
+      <Box component="span" sx={[ELLIPSIS_SX, { display: { xs: 'none', sm: 'inline' } }]}>{name}</Box>
+      {shown.length > 1 && !allShown
+        ? <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' }, color: 'text.secondary', fontWeight: 500 }}>+{shown.length - 1}</Box> : null}
+      <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' }, whiteSpace: 'nowrap' }}>{shown.length} of {characters.length}</Box>
+    </Button>
+    <IconButton aria-label={'Next character'} onClick={() => step(1)} disabled={!canStep} sx={STEP_SX}><IconChevronRight size={18}/></IconButton>
+  </Stack>;
+};
+
+// A page's own pick of characters (Quests) in the Characters page's switcher, its list under the button at every width.
+// selected: the picked indices; onChange takes the next ones.
+export const CharacterSelect = ({ characters, selected, onChange }) => {
+  const [open, setOpen] = useState(false);
+  const buttonRef = useRef(null);
+  if (!characters?.length) return null;
+  const picked = new Set(selected);
+  const displayed = { ...Object.fromEntries(characters.map((_, index) => [index, picked.has(index)])), all: picked.size === characters.length };
+  const onShow = (next) => onChange(characters.map((_, index) => index).filter((index) => next[index]));
+  return <>
+    <CharacterSwitcher characters={characters} displayed={displayed} onShow={onShow} onPress={() => setOpen(!open)}
+                       expanded={open} buttonRef={buttonRef}/>
+    <CharacterMenu open={open} onClose={() => setOpen(false)} anchorRef={buttonRef} characters={characters} displayed={displayed}
+                   onShow={onShow}/>
+  </>;
+};
+
+// The characters to show and the sections to show them with, as one switcher in the pinned bar, on the app's shown
+// characters. From lg it opens CharacterMenu below it and Sections has its own button; under lg it opens the drawer beside
+// the page (a sheet with Done on a phone) holding both. The page owns what's open, so its notes can open them, and which one
+// a press opens is read at the press, so the export never depends on width.
+export const CharactersPicker = ({ open, onOpenChange, menuOpen, onMenuOpenChange, buttonRef, sectionsOpen, onSectionsOpenChange, sectionsRef }) => {
+  const { state, dispatch } = useContext(AppContext);
+  const theme = useTheme();
+  const characters = state?.characters ?? [];
+  if (!characters.length) return null;
+  const onShow = (data) => startTransition(() => dispatch({ type: 'displayedCharacters', data }));
+  const press = () => (window.matchMedia(`(min-width: ${theme.breakpoints.values.lg}px)`).matches
+    ? onMenuOpenChange(!menuOpen) : onOpenChange(!open));
   // From lg the switcher and Sections are the bar's own items, so Sections wraps beside the bar's filters
   return <Box sx={{ display: { xs: 'flex', lg: 'contents' }, alignItems: 'center', gap: 1.5, flexWrap: 'wrap' }}>
-    <Stack direction={'row'} gap={0.5} alignItems={'center'}>
-      <IconButton aria-label={'Previous character'} onClick={() => step(-1)} disabled={!canStep} sx={STEP_SX}><IconChevronLeft size={18}/></IconButton>
-      <Button ref={buttonRef} variant="outlined" onClick={press} aria-haspopup="dialog" aria-expanded={open || menuOpen}
-              aria-label={`Characters: ${allShown ? 'all' : shown.map((character) => character.name).join(', ') || 'none'}`}
-              endIcon={<IconChevronDown size={18} aria-hidden/>}
-              sx={{
-                color: 'text.primary', bgcolor: 'primary.soft', borderColor: 'primary.edge', fontWeight: 600, gap: 1, maxWidth: 260,
-                width: { sm: `calc(${labelChars}ch + ${NAME_BUTTON_EXTRA}px)` }, justifyContent: 'flex-start',
-                '& .MuiButton-endIcon': { ml: 'auto' }
-              }}>
-        {shown.length && !allShown ? <GameIcon src={classIconOf(shown[0].classIndex)} size={24} alt=""/> : null}
-        <Box component="span" sx={[ELLIPSIS_SX, { display: { xs: 'none', sm: 'inline' } }]}>{name}</Box>
-        {shown.length > 1 && !allShown
-          ? <Box component="span" sx={{ display: { xs: 'none', sm: 'inline' }, color: 'text.secondary', fontWeight: 500 }}>+{shown.length - 1}</Box> : null}
-        <Box component="span" sx={{ display: { xs: 'inline', sm: 'none' }, whiteSpace: 'nowrap' }}>{shown.length} of {characters.length}</Box>
-      </Button>
-      <IconButton aria-label={'Next character'} onClick={() => step(1)} disabled={!canStep} sx={STEP_SX}><IconChevronRight size={18}/></IconButton>
-    </Stack>
+    <CharacterSwitcher characters={characters} displayed={shownCharacters(state)} onShow={onShow} onPress={press}
+                       expanded={open || menuOpen} buttonRef={buttonRef}/>
     <Box sx={{ display: { xs: 'none', lg: 'contents' } }}>
       <SectionsButton open={sectionsOpen} onOpenChange={onSectionsOpenChange} buttonRef={sectionsRef}/>
     </Box>
-    <CharacterMenu open={menuOpen} onClose={() => onMenuOpenChange(false)} anchorRef={buttonRef}/>
+    <CharacterMenu open={menuOpen} onClose={() => onMenuOpenChange(false)} anchorRef={buttonRef} characters={characters}
+                   displayed={reconcileDisplayedCharacters(shownCharacters(state), characters.length)} onShow={onShow}/>
     <AppDrawer open={open} onClose={() => onOpenChange(false)} title="Characters" phoneActions={[{ label: 'Done', main: true }]}>
       <CharactersList/>
     </AppDrawer>
   </Box>;
 };
+
 
 export default CharactersList;

@@ -7,9 +7,13 @@ import { items } from '@website-data';
 import Panel from '@components/common/cards/Panel';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
-import InfoButton from '@components/common/InfoButton';
+import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
 import WithLastWord from '@components/common/WithLastWord';
 import StatusText from '@components/common/StatusText';
+import { IconProgress } from '@tabler/icons-react';
+
+// In progress in the info tone, apart from Done's green and a missable drop's amber (#89: both read the same green)
+const inProgress = <StatusText status={'info'} icon={IconProgress}>In progress</StatusText>;
 
 // Two npcs' lines end before their lists do (N.js): Picnic Stowaway's quests after Live-Action Entertainment are his
 // "repeatable Daily Questline" that starts over every 24 hours, and Scripticus' Can't somebody else do it? is a side
@@ -107,11 +111,38 @@ const questNote = ({ Name, customArray, itemReq, rewards }) => <Stack gap={1.5}>
   {rewards?.length ? <NoteGroup label={'Rewards'} rows={rewards.map(rewardRow)}/> : null}
 </Stack>;
 
-const questSub = (quest, characters) => {
-  const working = quest?.inProgress ? quest.progress.filter(({ status }) => status === 0)
+// A character's place in an npc's line (the parser's progress): finished it, on it, or not given it yet
+const STAND = {
+  1: { word: 'done', dot: 'success.main' },
+  0: { word: 'in progress', dot: 'primary.main' },
+  '-1': { word: 'next, not started', dot: 'text.muted' }
+};
+
+// Where each picked character stands in the npc's line, as the old page drew it: its class icon on that quest, a dot for
+// its state, its name a hover or tap away (as Tournament's pets)
+const characterIcons = (quest, characters) => <Stack direction={'row'} flexWrap={'wrap'} gap={1} component={'span'} sx={{ pt: 0.5 }}>
+  {quest.progress.map(({ charIndex, status }) => {
+    const name = cleanUnderscore(characters?.[charIndex]?.name);
+    const stand = STAND[status] ?? STAND[-1];
+    return <NoteTrigger key={charIndex} note={`${name}: ${stand.word}`} label={`${name}, ${stand.word}`}>
+      <Box component={'span'} sx={{ position: 'relative', display: 'inline-flex' }}>
+        <GameIcon src={`data/ClassIcons${characters?.[charIndex]?.classIndex}.png`} size={24} alt={''}/>
+        <Box component={'span'} sx={{
+          position: 'absolute', right: -2, bottom: -2, width: 9, height: 9, borderRadius: '50%', bgcolor: stand.dot,
+          boxShadow: '0 0 0 2px var(--mui-palette-background-paper)'
+        }}/>
+      </Box>
+    </NoteTrigger>;
+  })}
+</Stack>;
+
+const questSub = (quest, characters, showCharacters) => {
+  const icons = showCharacters && quest?.progress?.length ? characterIcons(quest, characters) : null;
+  const working = !showCharacters && quest?.inProgress ? quest.progress.filter(({ status }) => status === 0)
     .map(({ charIndex }) => cleanUnderscore(characters?.[charIndex]?.name)).filter(Boolean) : [];
-  if (!working.length && !quest?.missableDrops?.length) return undefined;
+  if (!icons && !working.length && !quest?.missableDrops?.length) return undefined;
   return <Stack gap={0.5} component={'span'}>
+    {icons}
     {working.length ? <span>{`In progress for ${working.join(', ')}`}</span> : null}
     {quest?.missableDrops?.length ? <Stack direction={'row'} flexWrap={'wrap'} columnGap={1.5} rowGap={0.5} component={'span'}>
       {quest.missableDrops.map(({ rawName, greenStacked }) => <Box key={rawName} component={'span'}
@@ -129,15 +160,15 @@ const questName = (quest) => {
 };
 
 const questState = (quest) => (quest?.done ? <StatusText status={'done'}>Done</StatusText>
-  : quest?.inProgress ? <StatusText status={'active'}>In progress</StatusText> : undefined);
+  : quest?.inProgress ? inProgress : undefined);
 
 // One world: its name over its npcs, each a collapsible Panel of its quests. A world with no npc shown draws nothing.
-const questRow = (quest, index, characters) => <Panel.Row key={quest?.QuestName ?? `${quest?.Name}-${index}`}
+const questRow = (quest, index, characters, showCharacters) => <Panel.Row key={quest?.QuestName ?? `${quest?.Name}-${index}`}
                                                           name={questName(quest)}
-                                                          sub={questSub(quest, characters)}
+                                                          sub={questSub(quest, characters, showCharacters)}
                                                           value={questState(quest)}/>;
 
-const WorldQuest = ({ worldName, npcs, characters }) => {
+const WorldQuest = ({ worldName, npcs, characters, showCharacters }) => {
   if (!npcs?.length) return null;
   return <Stack gap={1.5}>
     <Typography variant={'sectionTitle'} component={'h2'}>{cleanUnderscore(worldName)}</Typography>
@@ -145,13 +176,13 @@ const WorldQuest = ({ worldName, npcs, characters }) => {
                               title={cleanUnderscore(npc?.name)}
                               meta={<>
                                 {`${formatNum(npc?.done ?? 0)} / ${formatNum(npc?.total ?? 0)} done`}
-                                {npc?.status === 0 ? <> · <StatusText status={'active'}>In progress</StatusText></>
+                                {npc?.status === 0 ? <> · {inProgress}</>
                                   : npc?.status === 1 ? <> · <StatusText status={'done'}>Done</StatusText></> : null}
                                 {npc?.missablePending ? <> · <StatusText status={'needs'}>Missable drop</StatusText></> : null}
                               </>}>
-      {npc?.npcQuests?.map((quest, index) => questRow(quest, index, characters))}
+      {npc?.npcQuests?.map((quest, index) => questRow(quest, index, characters, showCharacters))}
       {npc?.laterQuests?.length ? <Panel.Group label={npc?.laterLabel}>
-        {npc.laterQuests.map((quest, index) => questRow(quest, index, characters))}
+        {npc.laterQuests.map((quest, index) => questRow(quest, index, characters, showCharacters))}
       </Panel.Group> : null}
     </Panel>)}
   </Stack>;
