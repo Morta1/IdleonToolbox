@@ -53,3 +53,5 @@ public/workers/
 /.screens-region/
 /.screens-report/
 /.screens-today/
+# Site statistics stay out of the public repo.
+/docs/analytics/
