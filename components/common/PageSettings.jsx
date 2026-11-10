@@ -193,6 +193,34 @@ const NumberSetting = ({ name, label, help, defaultValue, min, max, integer, uni
 };
 PageSettings.Number = NumberSetting;
 
+// One free-text setting: the field and one line on what it changes. parse turns the text into the stored value, or
+// returns an error message to show in place of the help; only a valid text is stored. Empty is the default (null).
+const TextSetting = ({ name, label, help, placeholder, parse, width = 200 }) => {
+  const { state, onChange } = useContext(SettingsContext);
+  const stored = state?.[name] ?? '';
+  const [draft, setDraft] = useState(stored);
+  const [lastStored, setLastStored] = useState(stored);
+  // Reset (or another tab) moved the stored value: the field follows it
+  if (stored !== lastStored) {
+    setLastStored(stored);
+    setDraft(stored);
+  }
+  const error = draft.trim() ? parse?.(draft)?.error : null;
+  const helpId = useId();
+  const shownHelp = error ? <Box component="span" sx={{ color: 'error.main' }}>{error}</Box> : help;
+  return <Row label={label} labelFor={`${helpId}-input`} help={shownHelp} helpId={helpId}>
+    <TextField value={draft} placeholder={placeholder} error={Boolean(error)} sx={{ width, flexShrink: 0 }}
+               slotProps={{ htmlInput: { id: `${helpId}-input`, 'aria-describedby': helpId } }}
+               onChange={(event) => {
+                 const next = event.target.value;
+                 setDraft(next);
+                 if (!next.trim()) return onChange({ [name]: null });
+                 if (!parse?.(next)?.error) onChange({ [name]: next });
+               }}/>
+  </Row>;
+};
+PageSettings.Text = TextSetting;
+
 // One choice from a list ([value, label]): the field and one line on what it changes. defaultValue is what an unset
 // setting (null) means, shown as picked; picking it again stores nothing.
 const SelectSetting = ({ name, label, help, options, defaultValue }) => {

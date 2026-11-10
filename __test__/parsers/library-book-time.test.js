@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { parseFixture } from '../helpers/parsed-fixtures';
 // Values below are pinned to the 22 Aug 2026 save (latest-2026-08.json), checked against the game then.
 import latest from '../fixtures/latest-2026-08.json';
-import { getLibraryBookTimes, getTimeToNextBooks } from '@parsers/misc';
+import { getLibraryBookTimes, getTimeToBooks, getTimeToNextBooks } from '@parsers/misc';
 
 // The game's BookReqTime multiplies the "Library Checkouts" superbit by Lv0[15] of the character
 // you're logged in as. Values below were read from a live game on this fixture's account.
@@ -30,12 +30,16 @@ describe('library book time', () => {
 
   it('measures breakpoints from the leftover time, not the raw saved BookLib', () => {
     const { account, characters } = parseFixture(latest);
-    const { bookCount, next, breakpoints } = getLibraryBookTimes(latest.data, characters, account);
+    const { bookCount, next, breakpoints, baseFactor } = getLibraryBookTimes(latest.data, characters, account);
     const nextReq = getTimeToNextBooks(bookCount, account, characters, latest.data)?.value;
     const leftover = nextReq - next;
     const oneMore = breakpoints.find(({ breakpoint, label }) => !label && breakpoint === bookCount + 1);
     expect(leftover).toBeGreaterThanOrEqual(0);
     expect(leftover).toBeLessThan(nextReq);
     if (oneMore) expect(oneMore.time).toBeCloseTo(next, 6);
+    // A span from an empty library is every book's own wait, summed
+    let firstHundred = 0;
+    for (let i = 0; i < 100; i++) firstHundred += getTimeToNextBooks(i, account, characters, latest.data)?.value;
+    expect(getTimeToBooks(baseFactor, 100)).toBe(firstHundred);
   });
 });

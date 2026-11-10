@@ -336,18 +336,12 @@ export const getBookLvRange = (account: any) => {
 
 export const getLibraryBookTimes = (idleonData: any, characters: any, account: any) => {
   const { bookCount, libTime, breakdown, baseFactor } = calcBookCount(account, characters, idleonData);
-  let breakpoints = [16, 18, 20].map((maxCount) => {
+  const breakpoints = [16, 18, 20].map((maxCount) => {
     return {
       breakpoint: maxCount,
       time: calcTimeToXBooks(bookCount, maxCount, account, characters, idleonData) - libTime
     }
   })
-  breakpoints = [...breakpoints,
-  ...[20, 40, 60, 80, 100].map((maxCount) => ({
-    breakpoint: 0,
-    label: `0 to ${maxCount}`,
-    time: calcTimeToXBooks(0, maxCount, account, characters, idleonData)
-  }))]
   return {
     bookCount,
     next: getTimeToNextBooks(bookCount, account, characters, idleonData)?.value - libTime,
@@ -399,6 +393,13 @@ const calcTimeToXBooks = (bookCount: any, maxCount: any, account: any, character
 const LIBRARY_BASE_CHECKOUT_HOURS = 4;
 // One book's wait in seconds: the base time over the speed, longer with each book already out.
 const bookWait = (baseFactor: any, bookCount: any) => Math.round(baseFactor * (1 + 10 * Math.pow(bookCount, 1.4) / 100));
+
+// How long the first count books take from an empty library, at today's speed (baseFactor from getTimeToNextBooks).
+export const getTimeToBooks = (baseFactor: any, count: number) => {
+  let time = 0;
+  for (let i = 0; i < count; i++) time += bookWait(baseFactor, i);
+  return time;
+}
 
 //  "BookReqTime"
 // game: "BookReqTime"
