@@ -5,7 +5,7 @@ import { formatGame } from '@utility/gameNotation';
 import { ROYAL_RESOURCE_NAMES } from '@parsers/class-specific/royalGuardian';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
-import Panel from '@components/common/cards/Panel';
+import BonusStrip from '@components/common/cards/BonusStrip';
 import StatTile from '@components/common/cards/StatTile';
 import Notice from '@components/common/Notice';
 import Toolbar from '@components/common/Toolbar';
@@ -18,8 +18,8 @@ const RESOURCES_TOOLBAR = { world: 'all', hideUnused: false, unconnected: false 
 const amount = (value) => formatGame(value ?? 0, 'RoyalG.ArmoryUpgCost', { whole: true });
 // A balance, as the armory's resource list prints it (N.js:122791, floored)
 export const resourceBalance = (value) => formatGame(Math.floor(value ?? 0), 'Save.RoyalResources', { whole: true });
-// One to three columns of rows, as wide as the page allows
-const ROWS_GRID_SX = { display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' } };
+// Two columns on a phone, as many as fit from there
+const TILES_GRID_SX = { display: 'grid', gap: 1, gridTemplateColumns: 'repeat(auto-fill, minmax(min(168px, 100%), 1fr))' };
 
 // sectionFailed: the section's note is the page's first element: no tile numbers, nodes or Toolbar here
 const Resources = ({ resources, outposts, resourcePerHour, sectionFailed }) => {
@@ -55,14 +55,17 @@ const Resources = ({ resources, outposts, resourcePerHour, sectionFailed }) => {
         <StatTile label={'Total node levels'} value={tile(formatNum(list.reduce((sum, { nodeLevel }) => sum + (nodeLevel ?? 0), 0)))}/>
       </Stack>
 
-      {totals.length ? <Panel title={'Resources in storage'}>
-        <Box sx={ROWS_GRID_SX}>
-          {totals.map(({ resourceIndex, rawName, stored, dailyIncome }) => <Panel.Row
-            key={resourceIndex} icon={`data/${rawName}.png`} name={ROYAL_RESOURCE_NAMES[resourceIndex] ?? `Resource ${resourceIndex}`}
-            value={resourceBalance(stored)}
-            valueSub={dailyIncome > 0 ? `+${formatGame(dailyIncome, 'RoyalG.OutpostResourceRate')} a day` : 'Not collected'}/>)}
+      {/* Tiles under a heading, as the clickers' bonuses: three columns of rows put each name about 600 px from its
+          amount. Equal columns, or each tile sizes to its own day line. The game names none of these resources, so the
+          icon is the label */}
+      {totals.length ? <BonusStrip title={'Resources in storage'} bare>
+        <Box sx={TILES_GRID_SX}>
+          {totals.map(({ resourceIndex, rawName, stored, dailyIncome }) => <StatTile
+            key={resourceIndex} icon={`data/${rawName}.png`} iconAlt={ROYAL_RESOURCE_NAMES[resourceIndex] ?? `Resource ${resourceIndex}`}
+            value={resourceBalance(stored)} sx={{ width: 'auto' }}
+            sub={dailyIncome > 0 ? `+${formatGame(dailyIncome, 'RoyalG.OutpostResourceRate')} a day` : 'Not collected'}/>)}
         </Box>
-      </Panel> : null}
+      </BonusStrip> : null}
 
       {sectionFailed ? null : !list.length
         ? state?.emptyAccount ? <Notice tone={'signin'}>Your kingdom&apos;s resource nodes show here once you sign in.</Notice> : null
