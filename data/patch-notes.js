@@ -27,7 +27,8 @@ export const patchNotes = [
       'Gallery: the Bonus multi now shows a breakdown of its sources',
       'Breakdowns: stamp and bubble lines now show which stamp or bubble they come from',
       'Goals: new Tome rank goal, pick a tier like Top 1% from a list',
-      'Goals: Sushi knowledge goals can track Perfecto, for one sushi or all of them'
+      'Goals: Sushi knowledge goals can track Perfecto, for one sushi or all of them',
+      'Goals: Pets can be grouped by shiny passive, so each passive gets its own target'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',

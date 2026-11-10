@@ -11,6 +11,7 @@ import { Duration } from '@components/common/Num';
 import { AppContext } from '@components/common/context/AppProvider';
 import {
   BASE_MAX_SHINY_LEVEL,
+  getPetPassiveName,
   getTimeToLevel,
   MAX_BREEDABILITY_LEVEL,
   PET_SECONDS_PER_KILL
@@ -28,7 +29,7 @@ export const petIcon = ({ icon, monsterRawName } = {}) => icon?.startsWith('Mfac
 
 const levelOf = (pet, isShiny) => (isShiny ? pet?.shinyLevel : pet?.breedingLevel) ?? 0;
 // The passive's words without its number slot: "+{%_Drop_Rate" is "% Drop Rate"
-const passiveOf = (pet) => cleanUnderscore(pet?.rawPassive).replace(/[{}+]/g, '').trim();
+const passiveOf = (pet) => getPetPassiveName(pet?.rawPassive);
 const fenceOf = (fencePets, pet, isShiny) => {
   const fencePet = fencePets?.[pet?.monsterRawName];
   return (isShiny ? fencePet?.shiny : fencePet?.breedability) ?? 0;

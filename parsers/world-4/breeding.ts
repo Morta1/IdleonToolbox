@@ -1,5 +1,5 @@
 import { arenaBonuses, monsters, petGenes, petStats, petUpgrades, randomList, territory } from '@website-data';
-import { createRange, notateNumber, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, createRange, notateNumber, tryToParse } from '@utility/helpers';
 import { getBubbleBonus, getVialsBonusByEffect } from '@parsers/world-2/alchemy';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
@@ -22,6 +22,12 @@ import { saveField } from '@parsers/saveField';
 // Crucible (hard arena) waves cleared, OptionsListAccount[628], against the randomList[115] wave list:
 // the count of waves reached in order, only once the Menagerie unlock 8 is owned.
 // game: "TalentCalc:arenaCruc"
+// A shiny passive's name without its value slot: '+{%_Drop_Rate' reads '% Drop Rate'
+export const getPetPassiveName = (rawPassive: string): string => (cleanUnderscore(rawPassive ?? '') ?? '').replace(/[{}+]/g, '').trim();
+
+// Every shiny passive once, sorted, as the breeding page lists them
+export const PET_PASSIVE_NAMES: string[] = [...new Set((petStats as any[]).flat().map((pet: any) => getPetPassiveName(pet?.passive)))].sort();
+
 export const getArenaCrucibleCount = (account: any): number => {
   if (!isMenagerieUnlockOwned(account, 8)) return 0;
   const bestWave = Number(account?.accountOptions?.[OPT.crucibleBestWave]) || 0;

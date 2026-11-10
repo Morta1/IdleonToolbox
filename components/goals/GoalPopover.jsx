@@ -6,6 +6,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { sameScope, useGoals } from '@components/goals/GoalsProvider';
 import { ALL_CHARS, createGoal, effectiveScope, isAllChars, isCharScope, isGlobalKey, MAX_GOALS, MAX_TARGET, NEXT_TARGET } from '@utility/goals/store';
 import { isUnresolved, resolveGoal } from '@utility/goals/resolve';
+import { firstGroupOf, groupingsOf } from '@utility/goals/groups';
 import { trackEvent } from '@utility/analytics';
 import { getBubbleLevelForPercent } from '@parsers/world-2/alchemy';
 import SystemSelect from './parts/SystemSelect';
@@ -22,7 +23,7 @@ import { amountWithUnit, formatNumber, formatPercent } from './parts/format';
 
 const QUICK_PERCENT = 90;
 
-const firstGroup = (descriptor) => Object.keys(descriptor?.groups?.names ?? {})[0] ?? null;
+const firstGroup = (descriptor) => firstGroupOf(groupingsOf(descriptor)[0]);
 // A system without single entries (allOnly) starts on All
 const appliesToOf = (goal, descriptor) => {
   if (goal?.kind !== 'all') return descriptor?.allOnly ? 'all' : 'one';

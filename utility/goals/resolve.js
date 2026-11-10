@@ -1,4 +1,5 @@
 import { getDescriptor, getDescriptors } from './registry';
+import { groupingOf, isInGroup } from './groups';
 import { effectiveScope, isAllChars, isCharScope, isGlobalKey, MAX_TARGET, NEXT_TARGET, scopeKey } from './store';
 
 const STATUS_ORDER = { ok: 0, reached: 1, invalid: 2, missing: 2, unread: 2 };
@@ -64,7 +65,7 @@ const invalidView = (goal, descriptor, metric, row, ctx) => {
 // A group name already says what it is ("Day market", "World 1"), so the group label is not repeated
 const allName = (goal, descriptor) => {
   if (goal.group == null) return `All ${String(descriptor?.label ?? goal.system).toLowerCase()}`;
-  return descriptor?.groups?.names?.[goal.group] ?? String(goal.group);
+  return groupingOf(descriptor, goal.group)?.names?.[goal.group] ?? String(goal.group);
 };
 
 // A priced yes/no metric: what the account has toward the row's price. Logged out it has nothing; a row without a
@@ -244,7 +245,7 @@ const resolveInner = (goal, ctx) => {
     const inGroup = goal.group == null
       ? rows
       // an imported file can carry a numeric group id
-      : rows.filter((row) => String(descriptor.groups?.of(row)) === String(goal.group));
+      : rows.filter((row) => isInGroup(descriptor, goal.group, row));
     const entries = inGroup.map((row) => evaluateRow(goal, descriptor, metric, row, rowCtx)).filter(Boolean);
     return {
       ...base,
