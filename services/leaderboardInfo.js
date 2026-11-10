@@ -50,12 +50,18 @@ export const expandLeaderboardInfo = (account, characters) => {
     highestSpelunkingPower: withDefault(account?.spelunking?.power?.value),
     ...outpostInfo(account?.royalGuardian?.outposts),
     highestArcaneMapMulti: highestArcaneMapMulti(arcaneMaps(account, characters)),
-    sproutSpeed: sproutCyclesPerHour(account?.gaming)
+    sproutSpeed: sproutCyclesPerHour(account)
   }
 }
 
 // Sprout Speed ranks fastest first, so the board stores growth cycles per hour; the site shows it as seconds again.
-const sproutCyclesPerHour = (gaming) => (gaming?.unlocked && gaming?.sproutGrowSeconds > 0 ? 3600 / gaming.sproutGrowSeconds : 0);
+// OptLacc[411] (100x slower sprouts for 100x bits) is a player setting, not progress, so the board ranks with it off.
+const sproutCyclesPerHour = (account) => {
+  const gaming = account?.gaming;
+  if (!gaming?.unlocked || !(gaming?.sproutGrowSeconds > 0)) return 0;
+  const toggle = Number(account?.accountOptions?.[411]) || 0;
+  return 3600 * (1 + 99 * toggle) / gaming.sproutGrowSeconds;
+};
 
 // getMaps destructures account.tesseract, so an account without it gets no maps.
 const arcaneMaps = (account, characters) => {
