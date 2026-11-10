@@ -29,7 +29,8 @@ export const patchNotes = [
       'Goals: new Tome rank goal, pick a tier like Top 1% from a list',
       'Goals: Sushi knowledge goals can track Perfecto, for one sushi or all of them',
       'Goals: Pets can be grouped by shiny passive, so each passive gets its own target',
-      'Dashboard: hole layer alerts are now one alert for the 6 shared daily breaks, showing which caverns are ready and how many breaks are left'
+      'Dashboard: hole layer alerts are now one alert for the 6 shared daily breaks, showing which caverns are ready and how many breaks are left',
+      'Wiki: Arcade Upgrades show Super and Omega values, and the Effect note now says it is the max level value'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',

@@ -1,6 +1,6 @@
 // A kind's listing: its rows and the columns a reader compares them by. Data-free and importable
 // from plain node, so the page builds it at export time and the tests read the same function.
-import { costCurrency, costsAt, firstLevel, levelledText, summaryLevel } from './effects.mjs';
+import { costCurrency, costsAt, firstLevel, levelledText, summaryLevel, tierLines } from './effects.mjs';
 import { inListing } from './kinds.mjs';
 import { NO_MAX } from './listing-sort.mjs';
 import { slugify } from './names.mjs';
@@ -18,7 +18,13 @@ export const TEXT_MAX_LENGTH = 20;
 // The keys the listing itself names. A field whose label would take one gets a suffix instead.
 const FIXED_KEYS = ['name', 'category', 'effect', 'cost', 'max-level'];
 
-const EFFECT_NOTE = 'At the first level.';
+// The level the Effect cell reads at (summaryLevel): the first, or the max for a kind that opens there.
+const effectNote = (rows) => {
+  const atCap = rows.filter((node) => summaryLevel(node) !== firstLevel(node));
+  if (atCap.length < rows.length / 2) return 'At the first level.';
+  const caps = new Set(atCap.map((node) => node.effect.cap));
+  return caps.size === 1 ? `At level ${[...caps][0]}, the max.` : 'At the max level.';
+};
 
 // These kinds keep their numbers in `stats` and top-level fields that no rule can tell from the indexes
 // beside them (order, companionIndex), so they name their columns. The labels are the entity page's own,
@@ -88,7 +94,13 @@ const ruleColumns = (rows, share, distinct) => {
   const columns = [];
   if (share(effectText) >= COLUMN_SHARE) {
     const isEffect = share((node) => node.effect) >= COLUMN_SHARE;
-    columns.push({ key: 'effect', label: isEffect ? 'Effect' : 'Description', type: 'effect', sortable: false, ...(isEffect ? { note: EFFECT_NOTE } : {}) });
+    columns.push({ key: 'effect', label: isEffect ? 'Effect' : 'Description', type: 'effect', sortable: false, ...(isEffect ? { note: effectNote(rows) } : {}) });
+    // A tier past the max (an arcade upgrade's Super and Omega) reads beside the effect it multiplies.
+    const tiers = rows.find((node) => tierLines(node).length);
+    for (const { label, level } of tierLines(tiers)) {
+      const tierOf = (node) => tierLines(node).find((tier) => tier.label === label) ?? null;
+      if (share(tierOf) >= COLUMN_SHARE) columns.push({ key: `tier-${slugify(label)}`, label, type: 'effect', tier: label, sortable: false, note: `At level ${level}.` });
+    }
   }
   const firstCost = (node) => costCell(node)?.[0].amount ?? null;
   if (share(firstCost) >= COLUMN_SHARE && distinct(firstCost) >= 2) columns.push({ key: 'cost', label: 'Cost', type: 'cost', sortable: true });
@@ -141,7 +153,7 @@ const cellOf = (column, node) => {
   const override = KIND_COLUMNS[node.kind]?.columns?.find((candidate) => candidate.key === column.key);
   if (override) return override.value(node);
   if (column.type === 'facet') return facetValue(node, Boolean(column.byWorld));
-  if (column.type === 'effect') return effectText(node);
+  if (column.type === 'effect') return column.tier ? tierLines(node).find((tier) => tier.label === column.tier)?.text : effectText(node);
   if (column.type === 'cost') return costCell(node);
   if (column.type === 'max') return capOf(node);
   return fieldOf(node, column.label)?.value;

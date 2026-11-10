@@ -200,12 +200,17 @@ const arcadeName = (effect) => String(effect).replace(/^(?:[+-]?\{%?|\}x)_?/, ''
 
 // game: the ArcadeShopInfo draw, "{" -> NotateNumber(bonus, "Smaller") and "}" -> NotateNumber(1 + bonus / 100,
 // "MultiplierInfo"), so a "}x_" row prints its bonus as a multiplier (1.3x), not a percent.
-const arcadeTerm = (upgrade) => {
+// `by` scales the bonus before the `}` multiplier reads it, as the game scales ArcadBonDNz before the draw.
+const arcadeTerm = (upgrade, by = 1) => {
   const growthArgs = { func: upgrade.func, x1: upgrade.x1, x2: upgrade.x2 };
+  const bonus = by === 1 ? { formula: 'growth', args: growthArgs } : { formula: 'scaled', args: { by, formula: 'growth', args: growthArgs } };
   return String(upgrade.effect).includes('}')
-    ? { token: '}', formula: 'percentMultiplier', args: { formula: 'growth', args: growthArgs } }
-    : { token: '{', formula: 'growth', args: growthArgs };
+    ? { token: '}', formula: 'percentMultiplier', args: bonus }
+    : { token: '{', ...bonus };
 };
+
+// game: "ArcadeBonus" - an upgrade at 101 (Super) doubles its bonus, at 102 (Omega) multiplies it by 6.
+const ARCADE_TIERS = [{ label: 'Super', level: 101, by: 2 }, { label: 'Omega', level: 102, by: 6 }];
 
 // UPKEEP: the unreleased arcade rows read "+{%_who_knows" (74-79 since 2.3.540), as the arcade page hides them.
 const ARCADE_PLACEHOLDER = /who_knows/;
@@ -235,7 +240,8 @@ export const arcadeNodes = (arcadeShop, data) => {
           cap: maxLevel ?? null,
           // The listing and the search snippet quote the maxed bonus, as the old "Level 100 (max)" sentence did.
           summaryAtCap: true,
-          terms: [arcadeTerm(upgrade)]
+          terms: [arcadeTerm(upgrade)],
+          tiers: ARCADE_TIERS.map(({ label, level, by }) => ({ label, level, terms: [arcadeTerm(upgrade, by)] }))
         }
       }]];
     }));

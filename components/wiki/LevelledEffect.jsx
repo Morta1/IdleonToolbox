@@ -6,7 +6,7 @@ import { NoteTrigger } from '@components/common/InfoButton';
 import CoinAmount from './CoinAmount';
 import ShortAmount from '@components/common/ShortAmount';
 import { cleanUnderscore } from '@utility/helpers';
-import { costCurrency, costsAt, costsToMax, firstLevel, levelMax, levelledLines, levelledText, readLevel, summaryLevel } from '@utility/wiki/effects.mjs';
+import { costCurrency, costsAt, costsToMax, firstLevel, levelMax, levelledLines, levelledText, readLevel, summaryLevel, tierLines } from '@utility/wiki/effects.mjs';
 
 // One level field for every wiki page whose numbers depend on a level. A page has no save, so the
 // reader picks the level; the static HTML renders the effect's first level, a real sentence rather than a blank.
@@ -77,6 +77,10 @@ const LevelledEffect = ({ node }) => {
       {lineLabel ? <Box component={'span'} color={'text.secondary'}>{`${lineLabel}: `}</Box> : null}
       {lineText}
     </Typography>)}
+    {/* Past the field's max: the tiers read off the max level bonus whatever level the field holds. */}
+    {tierLines(node).map(({ label: tierLabel, level: tierLevel, text: tierText }) => <Line key={tierLabel} label={`${tierLabel} (level ${tierLevel})`}>
+      {tierText}
+    </Line>)}
     {costs.map(({ label: costLabel, prefix: amountPrefix, value, total, rest, note, currencyIcon, currencyAt }, i) => <React.Fragment key={i}>
       <Line label={costLabel}>
         <CostAmount amount={value} currency={currencyAt(value)} icon={currencyIcon} prefix={amountPrefix ?? ''}/>

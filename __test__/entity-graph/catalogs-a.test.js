@@ -8,7 +8,7 @@ import { constellationEdges } from '../../scripts/entity-graph/edges/catalogs-a.
 import {
   artifactNodes, equinoxNodes, godNodes, jadeNodes, superbitNodes
 } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
-import { firstLevel, levelledLines, levelledText } from '../../utility/wiki/effects.mjs';
+import { firstLevel, levelledLines, levelledText, tierLines } from '../../utility/wiki/effects.mjs';
 import { websiteData } from '../helpers/wiki-data.js';
 
 const data = websiteData();
@@ -186,11 +186,11 @@ describe('sigil nodes', () => {
 });
 
 describe('arcade nodes', () => {
-  // The old sentence printed +0.59% at level 1 and +30% at level 100 (max).
-  it('names an upgrade for what it boosts and fills it at any level up to the max', () => {
+  // The old sentence printed +0.59% at level 1 and +30% at level 100 (max); Super doubles the max, Omega takes it 6x.
+  it('names an upgrade for what it boosts and fills it at any level up to the max, then Super and Omega', () => {
     const node = arcadeNodes([{ effect: '+{%_Total_Accuracy', x1: 60, x2: 100, func: 'decay' }], data)['arcade:PachiShopICON0'];
-    expect([node.name, node.effect.cap, levelledText(node, 1), levelledText(node, 100)])
-      .toEqual(['Total_Accuracy', data.wikiTables.arcadeMaxLevel, '+0.59% Total Accuracy', '+30% Total Accuracy']);
+    expect([node.name, node.effect.cap, levelledText(node, 1), levelledText(node, 100), ...tierLines(node).map(({ text }) => text)])
+      .toEqual(['Total_Accuracy', data.wikiTables.arcadeMaxLevel, '+0.59% Total Accuracy', '+30% Total Accuracy', '+60% Total Accuracy', '+180% Total Accuracy']);
   });
 
   it('leaves the level field uncapped without the arcadeMaxLevel table', () => {

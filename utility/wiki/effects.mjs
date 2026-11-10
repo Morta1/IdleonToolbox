@@ -141,6 +141,11 @@ export const FORMULAS = {
   // Another formula's percent shown as the game's `}` multiplier, 1 + value / 100 (the arcade shop's "}x_" rows:
   // NotateNumber(1 + bonus / 100, "MultiplierInfo"), N.js ArcadeShopInfo draw).
   // game: "ArcadeShopInfo" `}` replace
+  // Another formula times a fixed factor: an arcade upgrade's Super (2x) and Omega (6x) tiers on its max level bonus.
+  scaled: (level, { by, formula, args }) => {
+    const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
+    return typeof value === 'number' ? by * value : value;
+  },
   percentMultiplier: (level, { formula, args }) => {
     const value = FORMULAS[formula] ? FORMULAS[formula](level, args || {}) : null;
     return typeof value === 'number' ? 1 + value / 100 : value;
@@ -332,6 +337,12 @@ export const levelledText = (node, level) => {
 // labelled `lines`, each filled like the description, which joins them for the bot and the meta description.
 export const levelledLines = (node, level) => (node?.effect?.lines || [])
   .map(({ label, text }) => ({ label, text: levelledText({ description: text, effect: node.effect }, level) }))
+  .filter(({ text }) => text);
+
+// The tiers past the max level (an arcade upgrade's Super and Omega), each the description filled with its own terms at
+// the cap. Empty without a cap: a tier reads off the max level bonus.
+export const tierLines = (node) => (node?.effect?.cap ? node.effect.tiers || [] : [])
+  .map(({ label, level, terms }) => ({ label, level, text: levelledText({ description: node.description, effect: { terms } }, node.effect.cap) }))
   .filter(({ text }) => text);
 
 // A node pays in one currency (`cost` is an object) or several at once (an array of them).
