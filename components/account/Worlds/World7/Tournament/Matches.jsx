@@ -10,13 +10,27 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
 import GameIcon from '@components/common/GameIcon';
-import { NoteTrigger } from '@components/common/InfoButton';
+import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
 
 const teamPower = (pets, companions) =>
   pets.reduce((sum, idx) => sum + (companions?.[idx]?.tourPower ?? 0), 0);
 
-// Match strings carry pet indices only, so an opponent's Pet Mart+ upgrades are unknown: their pets
-// read base power from the catalog. The player's own pets use the account list (upgraded power).
+// Match strings and leaderboard entries carry pet indices only, no Pet Mart+ flag (checked live: the game's own
+// getPlayerMatch hands the client the same plain list). Another player's pet is somewhere between its base power
+// (CompanionDB[7]) and its upgraded power ([9]), so their power is that range. The player's own pets use the account list.
+const petPowerRange = (comp) => ({ min: comp?.tourPower ?? 0, max: comp?.upgradedTourPower ?? comp?.tourPower ?? 0 });
+export const teamPowerRange = (comps) => comps.reduce((range, comp) => {
+  const { min, max } = petPowerRange(comp);
+  return { min: range.min + min, max: range.max + max };
+}, { min: 0, max: 0 });
+const formatPower = (value) => formatGame(value, 'Stuff2.PetTournyPOW');
+export const formatPowerRange = ({ min, max }) => min === max ? formatPower(min) : `${formatPower(min)} to ${formatPower(max)}`;
+const formatChance = (low, high) => low === high ? `${low}%` : `${low}-${high}%`;
+const chanceOf = (power, against) => power + against > 0 ? Math.round(power / (power + against) * 100) : 50;
+
+export const UNKNOWN_UPGRADES_NOTE = 'Pet Mart+ upgrades of other players are not in the tournament data the game sends, so their '
+  + 'pets show as a range: from all at base power to all upgraded. Win chances follow from the same range.';
+
 const petLabel = (comp) => `${cleanUnderscore(comp?.name)}${comp?.upgraded ? '+' : ''}`;
 
 // A pet: its 16 px sprite beside its name, one nowrap group, so a team wraps between pets
@@ -38,13 +52,16 @@ export const PetList = ({ pets }) => <Box component={'span'} sx={{ display: 'inl
   </NoteTrigger>)}
 </Box>;
 
-// companionsFailed: the account's list failed, so the player's pets are named from the catalog and their power is "-"
-const Team = ({ label, pets, companions, companionsFailed }) => {
-  const list = companionsFailed ? companionsData : companions;
+// companionsFailed: the account's list failed, so the player's pets are named from the catalog and their power is "-".
+// opponent: their upgrades are unknown, so the power is a range over the catalog.
+const Team = ({ label, pets, companions, companionsFailed, opponent }) => {
+  const list = companionsFailed || opponent ? companionsData : companions;
   const shown = (pets ?? []).map((idx) => list?.[idx]).filter(Boolean);
+  const power = opponent ? formatPowerRange(teamPowerRange(shown))
+    : companionsFailed ? '-' : formatPower(teamPower(pets ?? [], companions));
   return <ItemCard.Section label={label}>
     <Typography variant={'body2'} color={'text.secondary'}>
-      {`${companionsFailed ? '-' : formatGame(teamPower(pets ?? [], companions), 'Stuff2.PetTournyPOW')} power`}
+      {`${power} power`}
     </Typography>
     <Typography variant={'body2'} component={'div'}><PetList pets={shown}/></Typography>
   </ItemCard.Section>;
@@ -55,10 +72,13 @@ const BattleStep = ({ step, playerCompanions, opponentCompanions }) => {
   const playerComp = playerCompanions?.[step.playerDbIdx];
   const opponentComp = opponentCompanions?.[step.opponentDbIdx];
   if (!playerComp || !opponentComp) return null;
-  const totalPower = (playerComp.tourPower ?? 0) + (opponentComp.tourPower ?? 0);
-  const playerChance = totalPower > 0 ? Math.round((playerComp.tourPower ?? 0) / totalPower * 100) : 50;
-  const mine = <Pet comp={playerComp}>{`Your ${petLabel(playerComp)} ${playerChance}%`}</Pet>;
-  const theirs = <Pet comp={opponentComp}>{`${petLabel(opponentComp)} ${100 - playerChance}%`}</Pet>;
+  const playerPower = playerComp.tourPower ?? 0;
+  const { min, max } = petPowerRange(opponentComp);
+  // The player's best chance is against the opponent's pet at base power, the worst against it upgraded
+  const playerLow = chanceOf(playerPower, max);
+  const playerHigh = chanceOf(playerPower, min);
+  const mine = <Pet comp={playerComp}>{`Your ${petLabel(playerComp)} ${formatChance(playerLow, playerHigh)}`}</Pet>;
+  const theirs = <Pet comp={opponentComp}>{`${petLabel(opponentComp)} ${formatChance(100 - playerHigh, 100 - playerLow)}`}</Pet>;
   return <Typography variant={'body2'} component={'div'} sx={{ display: 'flex', flexWrap: 'wrap', columnGap: 0.75 }}>
     {step.playerWins ? mine : theirs}<span>beat</span>{step.playerWins ? theirs : mine}
   </Typography>;
@@ -73,7 +93,7 @@ const MatchCard = ({ match, companionList, companionsFailed, ownTeam }) => {
                    status={result} statusLabel={match.result === 'win' ? 'Win' : 'Loss'}>
     {match.isQualifying ? <ItemCard.Facts rows={[['Lives', formatNum(match.playerLives ?? 0)]]}/> : null}
     {ownTeam ? <Team label={'Your team'} pets={match.playerPets} companions={companionList} companionsFailed={companionsFailed}/> : null}
-    <Team label={'Opponent\'s team'} pets={match.opponentPets} companions={companionsData}/>
+    <Team label={'Opponent\'s team'} pets={match.opponentPets} opponent/>
     {hasBattle && !companionsFailed ? <>
       <Button size={'small'} variant={'text'} sx={{ alignSelf: 'flex-start' }} aria-expanded={showBattle}
               onClick={() => setShowBattle((shown) => !shown)}>
@@ -114,9 +134,12 @@ const Matches = ({ tournament, companions, sectionFailed, companionsFailed }) =>
 
   return (
     <Stack gap={2}>
-      <Typography variant="body2" color="text.secondary">
-        {`${formatNum(matches.length)} ${matches.length === 1 ? 'match' : 'matches'} recorded this tournament day.`}
-      </Typography>
+      <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+        <Typography variant="body2" color="text.secondary">
+          {`${formatNum(matches.length)} ${matches.length === 1 ? 'match' : 'matches'} recorded this tournament day.`}
+        </Typography>
+        <InfoButton label={'opponent power'}>{UNKNOWN_UPGRADES_NOTE}</InfoButton>
+      </Stack>
       {sameTeam ? <Panel title={'Your team'}
                          meta={`${companionsFailed ? '-' : formatGame(teamPower(firstTeam, companionList), 'Stuff2.PetTournyPOW')} power · the same in every match`}>
         <Box sx={{ px: 2, py: 1.25 }}>

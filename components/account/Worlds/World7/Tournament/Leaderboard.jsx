@@ -1,14 +1,14 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { CircularProgress, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum, getNumberWithOrdinal } from '@utility/helpers';
-import { formatGame } from '@utility/gameNotation';
 import { loadFirebase } from '../../../../../firebase/lazy';
 import { AppContext } from '@components/common/context/AppProvider';
 import { companions as companionsData } from '@website-data';
 import Tabber from '@components/common/Tabber';
 import Notice, { retryAction } from '@components/common/Notice';
 import Panel from '@components/common/cards/Panel';
-import { PetList } from './Matches';
+import InfoButton from '@components/common/InfoButton';
+import { formatPowerRange, PetList, teamPowerRange, UNKNOWN_UPGRADES_NOTE } from './Matches';
 
 const parseEntries = (raw) =>
   (raw ?? []).map((entryStr, idx) => {
@@ -18,8 +18,7 @@ const parseEntries = (raw) =>
     const companions = parts.slice(2).map(Number)
       .map((i) => companionsData?.[i])
       .filter(Boolean);
-    const totalTourPower = companions.reduce((sum, c) => sum + (c?.tourPower ?? 0), 0);
-    return { rank: idx + 1, name, points, companions, totalTourPower };
+    return { rank: idx + 1, name, points, companions, power: teamPowerRange(companions) };
   });
 
 // The rank as a word in the row's icon slot, in the text color (the medal colors went: the word says it)
@@ -82,11 +81,12 @@ const Leaderboard = ({ tournament }) => {
         <Notice>No data for this division.</Notice>
       ) : (
         // A two-column list with sprites, so a Panel list (3g's borderline rule): the rank, the name, the pets by name
-        <Panel title={`${divisionNames[selectedTab]} division`} meta={`${formatNum(result.entries.length)} players`}>
-          {result.entries.map(({ rank, name, points, companions, totalTourPower }) => <Panel.Row
+        <Panel title={`${divisionNames[selectedTab]} division`} meta={`${formatNum(result.entries.length)} players`}
+               aside={<InfoButton label={'team power'}>{UNKNOWN_UPGRADES_NOTE}</InfoButton>}>
+          {result.entries.map(({ rank, name, points, companions, power }) => <Panel.Row
             key={name} icon={<RankLabel rank={rank}/>} name={cleanUnderscore(name)}
             sub={<>{playerName && name === playerName ? 'You · ' : null}<PetList pets={companions}/></>}
-            value={`${formatNum(points)} pts`} valueSub={`${formatGame(totalTourPower, 'Stuff2.PetTournyPOW')} power`}/>)}
+            value={`${formatNum(points)} pts`} valueSub={`${formatPowerRange(power)} power`}/>)}
         </Panel>
       )}
     </Stack>

@@ -5,6 +5,15 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.5',
+    'gameVer': '2.3.561',
+    'date': '11/11/2026',
+    'features': [],
+    'fixes': [
+      'Tournament: opponent and leaderboard team power and win chances show as a range, since Pet Mart+ upgrades of other players are not in the game data'
+    ]
+  },
+  {
     'ver': '4.0.4',
     'gameVer': '2.3.561',
     'date': '10/11/2026',
