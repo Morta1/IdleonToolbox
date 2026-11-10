@@ -45,7 +45,8 @@ export const patchNotes = [
       'Farming: every sticker chance now has a breakdown of its sources',
       'Divinity: Divinity PTS per hour with a breakdown of every source, and the rate of each character on the Styles tab',
       'Dashboard: the World 7 Spare Workers alert now also lists Workers on empty resources, replacing their separate alert',
-      'Quests: pick characters with the Characters page\'s switcher, one or several at once. With more than one, each quest shows who is on it again, and In progress is blue so it stands apart from Done'
+      'Quests: pick characters with the Characters page\'s switcher, one or several at once. With more than one, each quest shows who is on it again, and In progress is blue so it stands apart from Done',
+      'Goals: Outposts can track Expanded Barracks, Advanced Logistics and Greater Education levels, and the outpost list shows the monster of each map'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',

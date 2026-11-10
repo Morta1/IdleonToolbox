@@ -214,7 +214,7 @@ const resolveAllCharsAll = (goal, descriptor, metric, { account, characters }, b
   return {
     ...base,
     name: allName(goal, descriptor),
-    icon: firstRows.length ? descriptor.icon(firstRows[0]) : null,
+    icon: descriptor.systemIcon ?? (firstRows.length ? descriptor.icon(firstRows[0]) : null),
     group: goal.group ?? null,
     ...summary,
     progress
@@ -288,9 +288,9 @@ const resolveInner = (goal, ctx) => {
       ...base,
       ...tier,
       name: allName(goal, descriptor),
-      // a metric can stand for the whole goal (a ribbon rank); otherwise the first entry's icon does
+      // a metric can stand for the whole goal (a ribbon rank), then the system's own icon, else the first entry's
       icon: metric.allIcon && Number.isFinite(goal.target) ? metric.allIcon(goal.target)
-        : inGroup.length ? descriptor.icon(inGroup[0]) : null,
+        : descriptor.systemIcon ?? (inGroup.length ? descriptor.icon(inGroup[0]) : null),
       group: goal.group ?? null,
       ...summarize(goal, entries, inGroup.length)
     };

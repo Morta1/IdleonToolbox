@@ -137,7 +137,7 @@ const GoalForm = ({ open, systems, initial, source, onClose, onSaved, entryOnly 
   // Each system lists its own entries; a character system counts the picked character's. Listing every system is
   // costly, so it runs when the system select opens, not on every keystroke
   const charScope = isCharScope(fixedScope) ? fixedScope : pickedScope;
-  const systemOption = (d, list) => ({ system: d.system, label: d.label, icon: list[0] ? d.icon(list[0]) : null, count: list.length });
+  const systemOption = (d, list) => ({ system: d.system, label: d.label, icon: d.systemIcon ?? (list[0] ? d.icon(list[0]) : null), count: list.length });
   const listSystemOptions = () => systems.map((d) => systemOption(d, d === descriptor
     ? rows
     : listRows(d, d.scope === 'character' ? charScope : 'account', ctx)));

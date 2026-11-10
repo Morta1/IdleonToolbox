@@ -10,7 +10,21 @@ export const metricOptions = (descriptor) => Object.entries(descriptor?.metrics 
 ]);
 
 const MetricChips = ({ options, metric, unit, onChange }) => (
+  // wraps so a system with many metrics (Outposts has nine) stays inside the dialog
   <ToggleButtonGroup size="small" exclusive fullWidth value={`${metric}:${unit}`}
+                     sx={{
+                       flexWrap: 'wrap',
+                       gap: 0.5,
+                       // the joined-group borders break where a row wraps, so every button keeps its own
+                       '& .MuiToggleButtonGroup-grouped.MuiToggleButton-root': {
+                         flex: '1 0 auto',
+                         width: 'auto',
+                         m: 0,
+                         border: 1,
+                         borderColor: 'divider',
+                         borderRadius: 1
+                       }
+                     }}
                      onChange={(e, next) => {
                        const option = options.find(({ id }) => id === next);
                        if (option) onChange(option);

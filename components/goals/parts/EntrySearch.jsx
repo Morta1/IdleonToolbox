@@ -8,6 +8,8 @@ import { GoalIcon } from './GoalVisuals';
 export const SHOWN_MATCHES = 250;
 const filterOptions = createFilterOptions({ limit: SHOWN_MATCHES });
 const allMatches = createFilterOptions();
+// Typing matches the tag beside the name too (an outpost's monster), not only the name
+const searchText = (descriptor) => (row) => [descriptor.name(row), descriptor.entryTag?.(row)].filter(Boolean).join(' ');
 
 const EntryIcon = ({ src, alt }) => <GoalIcon src={src} alt={alt} size={24}/>;
 
@@ -33,7 +35,7 @@ const EntrySearch = ({ descriptor, rows, value, goalKeys, onChange, error }) => 
   // An untouched input still holding the picked entry's name lists everything, like the Autocomplete does
   const query = selected && input === getOptionLabel(selected) ? '' : input;
   // A full filter of a big catalog, so it runs only while the list (and its hint) is showing
-  const matches = listOpen && rows.length > SHOWN_MATCHES ? allMatches(rows, { inputValue: query, getOptionLabel }).length : 0;
+  const matches = listOpen && rows.length > SHOWN_MATCHES ? allMatches(rows, { inputValue: query, getOptionLabel: searchText(descriptor) }).length : 0;
   const hint = matches > SHOWN_MATCHES ? `${SHOWN_MATCHES} of ${formatNumber(matches)}, type to filter` : null;
   return (
     <Autocomplete
@@ -42,7 +44,7 @@ const EntrySearch = ({ descriptor, rows, value, goalKeys, onChange, error }) => 
       open={listOpen}
       onOpen={() => setListOpen(true)}
       onClose={() => setListOpen(false)}
-      filterOptions={filterOptions}
+      filterOptions={(options, state) => filterOptions(options, { ...state, getOptionLabel: searchText(descriptor) })}
       value={selected}
       inputValue={input}
       onInputChange={(e, next) => setInput(next)}
