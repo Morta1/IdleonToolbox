@@ -16,6 +16,7 @@ import {
   Tabs,
   Tab,
   ButtonBase,
+  Tooltip,
   Menu,
   MenuItem,
   ListItemText,
@@ -24,7 +25,7 @@ import {
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SearchIcon from "@mui/icons-material/Search";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import { IconPin, IconPinFilled } from "@tabler/icons-react";
+import { IconClipboardText, IconPhoto, IconPin, IconPinFilled } from "@tabler/icons-react";
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from "@utility/clipboard";
 import { notify } from "@components/common/Overlays/notify";
 import AppDrawer from "@components/common/Overlays/AppDrawer";
@@ -312,6 +313,19 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
           ),
         }}
       /> : null}
+      {/* The two copies, the most used actions, out of the menu (#85, acecow), named on hover as Toolbar's sort button
+          is. The menu keeps them, named, for a touch screen, which shows no tooltip: a tap's emulated hover would open
+          it as the copy runs. */}
+      <Tooltip title="Copy as text" disableTouchListener>
+        <IconButton aria-label="Copy as text" onClick={handleCopyBreakdown} sx={{ color: "text.secondary", width: 32, height: 32 }}>
+          <IconClipboardText size={18}/>
+        </IconButton>
+      </Tooltip>
+      <Tooltip title="Copy as image" disableTouchListener>
+        <IconButton aria-label="Copy as image" onClick={handleCopyImage} sx={{ color: "text.secondary", width: 32, height: 32 }}>
+          <IconPhoto size={18}/>
+        </IconButton>
+      </Tooltip>
       <IconButton
         aria-label="Breakdown options"
         aria-haspopup="menu"
