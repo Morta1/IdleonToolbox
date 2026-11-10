@@ -14,6 +14,7 @@ const WISH_CHOICES: Record<number, string> = {
 export const getLamp = (holesObject: any, accountData: any, unlockedCaverns: any) => {
   const wishPerDay = getWishPerDay(holesObject, accountData, unlockedCaverns);
   const wishes = lampWishes.map((wish, index) => {
+    const timesWished = Number(holesObject?.wishesUsed?.[index]) || 0;
     const cost = getWishCost(holesObject?.wishesUsed?.[index], index);
     const futureCosts = getFutureWishCosts(holesObject?.wishesUsed?.[index] + 1, holesObject?.wishesUsed?.[index] + 6, index);
     let desc = wish?.description ?? '';
@@ -29,7 +30,7 @@ export const getLamp = (holesObject: any, accountData: any, unlockedCaverns: any
     const resourceBonus = getLampBonus({ holesObject, t: 99, i: 0, account: accountData });
     desc = desc.replace('#', gameFill(1 + resourceBonus / 100, 'MultiplierInfo'))
       .replace('$', gameFill(1 + resourceBonus / 400, 'MultiplierInfo'));
-    return { ...wish, cost, futureCosts, description: desc };
+    return { ...wish, timesWished, cost, futureCosts, description: desc };
   });
   const currentWishes = holesObject?.extraCalculations?.[25];
   return { wishes, wishPerDay, currentWishes };

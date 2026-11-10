@@ -21,7 +21,7 @@ const TheLamp = ({ hole }) => {
       {opalsFoundTile(hole, 6)}
     </Stack>
     <CardGrid size={'m'}>
-      {(theLamp?.wishes ?? []).map(({ description, name, futureCosts, cost }, index) => {
+      {(theLamp?.wishes ?? []).map(({ description, name, futureCosts, cost, timesWished }, index) => {
         const maxed = index === 0 && cost === NO_MORE_WISHES;
         // futureCosts holds the five wishes after the next one; the first wish stops at the game's "no more"
         const costs = [cost, ...(futureCosts ?? [])].filter((value) => !(index === 0 && value === NO_MORE_WISHES));
@@ -31,9 +31,12 @@ const TheLamp = ({ hole }) => {
           name: step ? `Wish ${step + 1}` : 'Next wish', value, formatted: formatNum(value ?? 0, 'whole')
         }))), { combine: 'list' });
         return <ItemCard key={`wish-${index}`} title={cleanUnderscore(name)} status={maxed ? 'maxed' : undefined}
-                         footer={<ItemCard.Facts rows={[['Cost', <Breakdown key={'cost'} asValue data={nextCosts}>
-                           {formatNum(cost ?? 0, 'whole')}
-                         </Breakdown>]]}/>}>
+                         footer={<ItemCard.Facts rows={[
+                           ['Times wished', formatNum(timesWished ?? 0, 'whole')],
+                           ['Cost', <Breakdown key={'cost'} asValue data={nextCosts}>
+                             {formatNum(cost ?? 0, 'whole')}
+                           </Breakdown>]
+                         ]}/>}>
           <ItemCard.Desc text={description}/>
         </ItemCard>;
       })}
