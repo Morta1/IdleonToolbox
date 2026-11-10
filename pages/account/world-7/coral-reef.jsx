@@ -10,7 +10,8 @@ import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
-import ReefUpgrades from '@components/account/Worlds/World7/CoralReef/ReefUpgrades';
+import ReefUpgrades, { REEF_SETTINGS, ReefSettings } from '@components/account/Worlds/World7/CoralReef/ReefUpgrades';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import DancingCoral from '@components/account/Worlds/World7/CoralReef/DancingCoral';
 
 const CoralReef = () => {
@@ -18,6 +19,7 @@ const CoralReef = () => {
   const section = state?.account?.coralReef;
   const sectionFailed = isSectionFailed(state?.account, 'coralReef');
   const { dancingCoral, reefUpgrades, reefDayGains, ownedCorals } = section ?? {};
+  const [settings, setSettings, resetSettings] = usePageSettings('coral-reef', REEF_SETTINGS);
   // Each dance's balance: the reef's own coral for the first, the coral item owned for the others
   const coralBalances = dancingCoral?.map((_, index) => (index === 0
     ? ownedCorals ?? 0
@@ -30,6 +32,9 @@ const CoralReef = () => {
       title="Coral Reef | Idleon Toolbox"
       description="Keep track of your coral reef upgrades, coral kid upgrades, and dancing coral"
     />
+    {reefUpgrades?.length ? <PageSettings state={settings} defaults={REEF_SETTINGS} onChange={setSettings} onReset={resetSettings}>
+      <ReefSettings/>
+    </PageSettings> : null}
     {!section || sectionFailed ? <MissingData name={'Coral Reef'} failed={sectionFailed} atZero={!isParseFailed(state?.account)}/>
       : <NotReached name={'the Coral Reef'} reached={ownedCorals > 0 || reefUpgrades?.some(({ level }) => level > 0)}/>}
     <PageSummary failed={sectionFailed}>
@@ -40,7 +45,8 @@ const CoralReef = () => {
                 breakdownTitle={'Reef day gains'}/>
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'coralReef')}>
-      <ReefUpgrades reefUpgrades={reefUpgrades} ownedCorals={ownedCorals ?? 0}/>
+      <ReefUpgrades account={state?.account} reefUpgrades={reefUpgrades} ownedCorals={ownedCorals ?? 0}
+                    levelsAhead={settings?.levelsAhead ?? 1}/>
       <DancingCoral dancingCoral={dancingCoral} balances={coralBalances}/>
     </Tabber>
   </>;

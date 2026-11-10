@@ -28,6 +28,7 @@ export const getLockedEquinox = () => ({
   unlocked: false,
   currentCharge: 0,
   chargeRequired: 0,
+  totalUpgradeLevels: 0,
   chargeRate: 0,
   timeToFull: undefined,
   // As a save with no Research reads them (the parsed shape's researchG8Level gate)
@@ -153,14 +154,14 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
     ])
   ], { round: 'round' });
 
-  // BarFillReq: no outer rounding since 2.3.525.
-  const chargeRequired = (120 + 40 * totalUpgrade) * Math.pow(1.02, totalUpgrade);
+  const chargeRequired = getEquinoxBarFillReq(totalUpgrade);
   const currentCharge = dream?.[0];
   const timeToFull = new Date().getTime() + ((chargeRequired - currentCharge) / chargeRate * 1000 * 3600);
 
   return {
     currentCharge,
     chargeRequired,
+    totalUpgradeLevels: totalUpgrade,
     chargeRate,
     timeToFull,
     challenges,
@@ -283,3 +284,8 @@ export const getTotalUpgradeLevels = (upgrades: any) => upgrades?.reduce((sum: n
 export const getEquinoxBonus = (upgrades: any, name: any) => {
   return (upgrades || [])?.filter((upgrade: any) => upgrade.name === name)?.[0]?.bonus || 0;
 };
+
+// The charge one bar needs once the upgrades add up to totalUpgradeLevels. No outer rounding since 2.3.525.
+// game: "Dreamstuff:BarFillReq"
+export const getEquinoxBarFillReq = (totalUpgradeLevels: number): number =>
+  (120 + 40 * totalUpgradeLevels) * Math.pow(1.02, totalUpgradeLevels);

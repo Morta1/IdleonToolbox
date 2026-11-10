@@ -4,7 +4,7 @@ import { formatNum } from '@utility/helpers';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import StatTile from '@components/common/cards/StatTile';
-import { LevelsAheadCaption, MAX_LEVELS_AHEAD } from '@components/common/LevelsAhead';
+import { LevelsAheadCaption, LevelsAheadSetting } from '@components/common/LevelsAhead';
 import PageSettings from '@components/common/PageSettings';
 import { getMenagerieBoostTotalCost } from '@parsers/world-7/menagerie';
 import { DOUBLER_ICONS, formatLumi, LUMI_ICON, RankRequired } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
@@ -22,8 +22,7 @@ const DOUBLER_CARDS = [
 export const BOOSTS_SETTINGS = { levelsAhead: null };
 
 export const BoostsSettings = () => <PageSettings.Group title={'Boosts'}>
-  <PageSettings.Number name={'levelsAhead'} label={'Levels ahead'} defaultValue={1} min={1} max={MAX_LEVELS_AHEAD} integer
-                       help={'Each boost also shows the total cost of this many levels.'}/>
+  <LevelsAheadSetting noun={'boost'}/>
 </PageSettings.Group>;
 
 const Boosts = ({ account, boosts, doublers, lumi, levelsAhead = 1 }) => {

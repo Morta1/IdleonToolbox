@@ -20,7 +20,7 @@ import {
   pristineCharms as rawPristineCharms,
   randomList
 } from '@website-data';
-import { getBestActiveCharacter, getHighestTalentAcrossCharacters } from "@parsers/talents";
+import { getBestActiveCharacter, getHighestTalentAcrossCharacters, getOwnOrHighestTalent } from "@parsers/talents";
 import { getLegendTalentBonus } from "@parsers/world-7/legendTalents";
 import { getUpgradeVaultBonus } from "@parsers/misc/upgradeVault";
 import { getPaletteBonus } from "@parsers/world-5/gaming";
@@ -463,6 +463,44 @@ export const getNinjaUpgradeBonus = (account: any, bonusNameOrIndex: string | nu
   const upgrades = account?.sneaking?.upgrades;
   if (typeof bonusNameOrIndex === 'number') return upgrades?.[bonusNameOrIndex]?.value;
   return upgrades?.find(({ name }: any) => name === bonusNameOrIndex)?.value;
+};
+
+// Upgrades whose own NLbonuses slow their cost growth (13 by 18, 1 by 26) or cut it (3 by 24, 4 by 25)
+const JADE_COST_SCALE_SLOWERS: Record<number, number> = { 13: 18, 1: 26 };
+const JADE_COST_CUTTERS: Record<number, number> = { 3: 24, 4: 25 };
+const CURRENCY_CONDUIT_INDEX = 8;
+const num = (value: any) => Number(value) || 0;
+
+// The Jade coins a Ninja Knowledge upgrade costs at `level` (the raw level: Omnijade levels never raise it)
+// game: "Ninja:JadeUpgCost"
+export const getJadeUpgCost = (account: any, characters: any, index: number, level: number): number => {
+  const { upgrades, gemStones, inventory } = account?.sneaking ?? {};
+  const upgrade = ninjaUpgrades?.[index];
+  if (!upgrade) return 0;
+  const nl = (at: number) => num(getLocalNinjaUpgradeBonus(upgrades, at, gemStones, inventory, account));
+  const goldCoupon = getInventoryNinjaItem(account, 'Gold_Coupon');
+  const priceRecession = getOwnOrHighestTalent(characters, 'PRICE_RECESSION', getBestActiveCharacter(characters));
+  const reduction = 1 / (1 + goldCoupon / 100)
+    / ((1 + nl(1) / 100) * (1 + num(gemStones?.[6]?.bonus) / 100) * (1 + priceRecession / 100));
+  // NjaDN3: every 100th level of the upgrade itself makes it cheaper by Centurion Lineage
+  const centurion = 1 / Math.pow(1 + nl(0) / 100, Math.floor(level / 100));
+  const base = num(upgrade.x7);
+  const scale = num(upgrade.x8);
+  let cost;
+  if (index > 16) {
+    cost = (index === 31 ? 1e55 : Math.pow(10, Math.floor(2 * (index - 15)))) * reduction * base * Math.pow(scale, level);
+  } else if (index === CURRENCY_CONDUIT_INDEX) {
+    cost = reduction / (1 + num(getBubbleBonus(account, 'LO_COST_MO_JADE', false)) / 100) * base * Math.pow(scale, level);
+  } else if (index === 0) {
+    cost = 1e45 * reduction * base * Math.pow(scale, level);
+  } else if (JADE_COST_SCALE_SLOWERS[index] !== undefined) {
+    cost = reduction * base * Math.pow(1 + (scale - 1) / (1 + nl(JADE_COST_SCALE_SLOWERS[index]) / 1500), level);
+  } else if (JADE_COST_CUTTERS[index] !== undefined) {
+    cost = reduction / (1 + nl(JADE_COST_CUTTERS[index]) / 100) * base * Math.pow(scale, level);
+  } else {
+    cost = reduction * base * Math.pow(scale, level);
+  }
+  return cost * centurion;
 };
 
 export const isJadeBonusUnlocked = (account: any, bonusName: any) => {

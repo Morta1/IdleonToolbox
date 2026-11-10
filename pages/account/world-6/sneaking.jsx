@@ -6,6 +6,8 @@ import { formatNum, getTabs } from '@utility/helpers';
 import Charms from '@components/account/Worlds/World6/Sneaking/Charms';
 import PlayersInventory from '@components/account/Worlds/World6/Sneaking/PlayersInventory';
 import Upgrades from '@components/account/Worlds/World6/Sneaking/Upgrades';
+import { UPGRADES_AHEAD_SETTINGS, UpgradesAheadSettings } from '@components/common/LevelsAhead';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { NextSeo } from 'next-seo';
 import Mastery from '@components/account/Worlds/World6/Sneaking/Mastery';
 import Gemstones from '@components/account/Worlds/World6/Sneaking/Gemstones';
@@ -43,12 +45,16 @@ const Sneaking = () => {
     detection
   } = state?.account?.sneaking || {};
   const sectionFailed = isSectionFailed(state?.account, 'sneaking');
+  const [settings, setSettings, resetSettings] = usePageSettings('sneaking', UPGRADES_AHEAD_SETTINGS);
 
   return <>
     <NextSeo
       title="Sneaking | Idleon Toolbox"
       description="Keep track of your ninja and jade upgrades and much more bonuses"
     />
+    <PageSettings state={settings} defaults={UPGRADES_AHEAD_SETTINGS} onChange={setSettings} onReset={resetSettings}>
+      <UpgradesAheadSettings/>
+    </PageSettings>
     {sectionFailed ? <MissingData name={'Sneaking'} failed atZero={!isParseFailed(state?.account) && !BLANK_WHEN_FAILED.includes(tabs[tabIndex])}/>
       : <NotReached name={'Sneaking'} reached={state?.account?.sneaking?.totalNinjaUpgradeLevels > 0}/>}
     <PageSummary failed={sectionFailed}>
@@ -70,7 +76,8 @@ const Sneaking = () => {
                         emptyAccount={state?.emptyAccount}
       />}
       <JadeEmporium upgrades={jadeEmporium} jadeCoins={jadeCoins}/>
-      <Upgrades upgrades={upgrades} omnijade={state?.account?.menagerie?.doublers?.omnijade}/>
+      <Upgrades account={state?.account} characters={state?.characters} upgrades={upgrades} jadeCoins={jadeCoins}
+                omnijade={state?.account?.menagerie?.doublers?.omnijade} levelsAhead={settings?.levelsAhead ?? 1}/>
       <Charms charms={pristineCharms}/>
       <Mastery masteryBonuses={ninjaMasteryBonuses} masteryLevel={ninjaMastery}/>
       <Gemstones gemStones={gemStones}/>

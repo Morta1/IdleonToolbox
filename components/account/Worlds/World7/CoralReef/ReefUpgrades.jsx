@@ -1,7 +1,10 @@
 import React from 'react';
 import { cleanUnderscore, formatNum, gameLines } from '@utility/helpers';
+import { formatGame } from '@utility/gameNotation';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
-import { REEF_IMAGE_LETTERS } from '@parsers/world-7/coralReef';
+import { getReefCost, REEF_IMAGE_LETTERS } from '@parsers/world-7/coralReef';
+import { LevelsAheadCaption, LevelsAheadSetting, sumLevelCosts } from '@components/common/LevelsAhead';
+import PageSettings from '@components/common/PageSettings';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -23,18 +26,35 @@ const unlocksOf = (reef, index) => createBreakdown(`Reef upgrade ${index + 1} un
     note: fillUnlock(item)
   }))), { combine: 'list' });
 
-// The game rounds a reef cost up before its commas (N.js, the reef panel)
-const ReefUpgrades = ({ reefUpgrades, ownedCorals }) => <CardGrid size={'m'}>
+// Levels ahead prices this tab only: in the Coral Reef's gear, under the tab's name
+export const REEF_SETTINGS = { levelsAhead: null };
+
+export const ReefSettings = () => <PageSettings.Group title={'Reef Upgrades'}>
+  <LevelsAheadSetting/>
+</PageSettings.Group>;
+
+const formatReefCost = (value) => formatGame(value, 'Thingies.ReefCost', { whole: true });
+
+// The game rounds a reef cost up before its commas (N.js, the reef panel), and charges each level that way
+const ReefUpgrades = ({ account, reefUpgrades, ownedCorals, levelsAhead = 1 }) => <CardGrid size={'m'}>
   {reefUpgrades?.map((reef, index) => {
     const maxed = reef?.x1 > 0 && (reef?.level ?? 0) >= reef.x1;
     const unlocks = reef?.extraData?.length ? unlocksOf(reef, index) : null;
+    const level = reef?.level ?? 0;
+    const targetLevel = reef?.x1 > 0 ? Math.min(reef.x1, level + levelsAhead) : level + levelsAhead;
     return <ItemCard key={index} icon={`data/Reef${REEF_IMAGE_LETTERS[index] || 'A'}1.png`}
                      title={gameLines(reef?.description).join(' ')}
                      level={{ value: reef?.level ?? 0, max: reef?.x1 ?? null }} status={maxed ? 'maxed' : undefined}
                      dimmed={!(reef?.level > 0)}
                      footer={reef?.cost !== undefined
-                       ? <ItemCard.Cost icon={'data/Coral0.png'} iconAlt={'Coral'} need={Math.ceil(reef.cost)} have={ownedCorals}
+                       ? <>
+                         <ItemCard.Cost icon={'data/Coral0.png'} iconAlt={'Coral'} need={Math.ceil(reef.cost)} have={ownedCorals}
                                         game={'Thingies.ReefCost'}/>
+                         {!maxed && targetLevel > level + 1
+                           ? <LevelsAheadCaption targetLevel={formatNum(targetLevel)} owned={ownedCorals} indent={32} format={formatReefCost}
+                                                 targetCost={sumLevelCosts((at) => Math.ceil(getReefCost(account, index, at)), level, targetLevel)}/>
+                           : null}
+                       </>
                        : null}>
       {unlocks
         ? <ItemCard.Facts rows={[['Unlocks', <Breakdown key={'unlocks'} asValue data={unlocks} title={'Unlocks'}>

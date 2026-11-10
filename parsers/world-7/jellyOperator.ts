@@ -286,6 +286,7 @@ export const computeJellyOperator = (save: JellySave, account: any) => {
         // a Menagerie doubler sits on it (Spelunk[53]): UpgradeQTY x2
         doubled: Boolean(doubledUpgrades?.includes(id)),
         cost: upgradeCost(position, id),
+        costExponent: Number(upgrade?.[2]) || 1,
         // game: "JellyOperation:UpgLvREQ" - Research skill level, by display position.
         lvReq: 15 + (2 * position + (Math.floor(position / 15) - Math.floor(position / 11))),
         unlocked: position === 0 || (Number(upgradeLevels?.[previousId]) || 0) >= 1

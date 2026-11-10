@@ -19,7 +19,8 @@ import CoinDisplay from '../../../components/common/CoinDisplay';
 import { getKrukBubbles, getKrukBubblesDaily } from '@parsers/world-2/alchemy';
 import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
-import CoralKidUpgrades from '@components/account/Worlds/World7/CoralReef/CoralKidUpgrades';
+import CoralKidUpgrades, { CORAL_KID_SETTINGS, CoralKidSettings } from '@components/account/Worlds/World7/CoralReef/CoralKidUpgrades';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import DivinityStyles from '@components/account/Worlds/World5/DivinityStyles';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -100,6 +101,7 @@ const Divinity = () => {
   const sectionFailed = isSectionFailed(state?.account, 'divinity');
   const { deities, linkedDeities, godRank } = divinity;
   const { coralKidUpgrades } = state?.account?.coralReef || {};
+  const [settings, setSettings, resetSettings] = usePageSettings('divinity', CORAL_KID_SETTINGS);
   // Companions(0) checks the logged-in character's divinity level
   const activeCharacter = getBestActiveCharacter(state?.characters);
   const hasKingDoot = sectionFailed ? false : isKingDootActive(activeCharacter, state?.account);
@@ -130,6 +132,10 @@ const Divinity = () => {
   });
 
   return <SummaryFailed value={sectionFailed}>
+    {coralKidUpgrades?.length ? <PageSettings state={settings} defaults={CORAL_KID_SETTINGS} onChange={setSettings}
+                                              onReset={resetSettings}>
+      <CoralKidSettings/>
+    </PageSettings> : null}
     <NextSeo
       title="Divinity | Idleon Toolbox"
       description="Keep track of your characters' gods connections and upgrades"
@@ -175,7 +181,7 @@ const Divinity = () => {
           })}
         </CardGrid>
       </div>
-      <CoralKidUpgrades coralKidUpgrades={coralKidUpgrades}/>
+      <CoralKidUpgrades coralKidUpgrades={coralKidUpgrades} levelsAhead={settings?.levelsAhead ?? 1}/>
       <DivinityStyles characters={state?.characters}/>
     </Tabber>
   </SummaryFailed>;

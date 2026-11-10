@@ -14,8 +14,10 @@ import Upgrades from '@components/account/Worlds/World7/JellyOperator/Upgrades';
 import Cells from '@components/account/Worlds/World7/JellyOperator/Cells';
 import Layout from '@components/account/Worlds/World7/JellyOperator/Layout';
 import UpgradeOptimizer from '@components/account/Worlds/World7/JellyOperator/UpgradeOptimizer';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 import useTabIndex from '@hooks/useTabIndex';
+import { UPGRADES_AHEAD_SETTINGS, UpgradesAheadSettings } from '@components/common/LevelsAhead';
 
 const JellyOperator = () => {
   const { state } = useContext(AppContext);
@@ -41,6 +43,7 @@ const JellyOperator = () => {
     layout
   } = state?.account?.jellyOperator || {};
   const sectionFailed = isSectionFailed(state?.account, 'jellyOperator');
+  const [settings, setSettings, resetSettings] = usePageSettings('jelly-operator', UPGRADES_AHEAD_SETTINGS);
   // A guest has nothing to reach yet, and a failed section says nothing about where the account is
   const locked = !unlocked && !state?.emptyAccount && !sectionFailed;
 
@@ -50,6 +53,11 @@ const JellyOperator = () => {
       description="Track your Jelly Operator obstructions, cell upgrades, bloodcells and bonuses in Legends of Idleon World 7 Research"
     />
 
+    {/* Only an upgrade with levels left to buy is priced ahead */}
+    {upgrades?.some(({ level, maxLevel }) => maxLevel === null || level < maxLevel)
+      ? <PageSettings state={settings} defaults={UPGRADES_AHEAD_SETTINGS} onChange={setSettings} onReset={resetSettings}>
+        <UpgradesAheadSettings/>
+      </PageSettings> : null}
     {/* Decision 13: the parser knows whether the account has reached it; a guest or a new account sees why it's zero */}
     {sectionFailed ? <MissingData name={'Jelly Operator'} failed atZero={!isParseFailed(state?.account) && tabs[tabIndex] !== 'Upgrade Optimizer'}/> : null}
     {state?.emptyAccount ? <Notice tone={'signin'} sx={{ mb: 2 }}>Your Jelly Operator shows here once you sign in.</Notice> : null}
@@ -76,7 +84,7 @@ const JellyOperator = () => {
       <Layout layout={layout} cells={cells}/>
       <Obstructions obstructions={obstructions}/>
       <Upgrades upgrades={upgrades} characters={state?.characters} bloodcells={bloodcells}
-                doublersOwned={state?.account?.menagerie?.doublers?.jellyOperator?.owned}/>
+                doublersOwned={state?.account?.menagerie?.doublers?.jellyOperator?.owned} levelsAhead={settings?.levelsAhead ?? 1}/>
       <UpgradeOptimizer account={state?.account} characters={state?.characters} sectionFailed={sectionFailed} locked={locked}/>
       <Cells cells={cells}/>
     </Tabber>

@@ -4,8 +4,9 @@ import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import { DoubledPreview, DoublerTag } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+import { UpgradeCostAhead } from '@components/common/LevelsAhead';
 
-const Upgrades = ({ upgrades, totalUpgradeLevels, characters, bucks, doublersOwned = 0 }) => {
+const Upgrades = ({ upgrades, totalUpgradeLevels, characters, bucks, doublersOwned = 0, levelsAhead = 1 }) => {
   const maxResearchLevel = Math.max(0, ...(characters || []).map(c => c?.skillsInfo?.research?.level ?? 0));
   // A save can keep a large amount as text
   const owned = Number(bucks ?? 0);
@@ -18,7 +19,7 @@ const Upgrades = ({ upgrades, totalUpgradeLevels, characters, bucks, doublersOwn
       </Stack>
       <CardGrid size={'m'}>
         {upgrades?.map((upgrade, i) => {
-          const { name, description, level, maxLevel, cost, lvReq, visualIndex, doubled, doublerEligible, doubledDescription } = upgrade;
+          const { name, description, level, maxLevel, cost, costExponent, lvReq, visualIndex, doubled, doublerEligible, doubledDescription } = upgrade;
           const isMaxed = maxLevel !== Infinity && level >= maxLevel;
           const meetsLvReq = maxResearchLevel >= lvReq;
           // The cost as the game draws it, "owned / cost" in TinyE; a maxed card drops it, a locked one says why
@@ -28,6 +29,8 @@ const Upgrades = ({ upgrades, totalUpgradeLevels, characters, bucks, doublersOwn
                            aside={<DoublerTag kind={'sushi'} doubled={doubled} eligible={doublerEligible} owned={doublersOwned}/>}
                            footer={<>
                              <ItemCard.Cost icon={'etc/Bucks.png'} iconAlt={'Bucks'} need={cost} have={owned} game={'SushiStuff.UpgCost'}/>
+                             <UpgradeCostAhead cost={cost} costExponent={costExponent} level={level ?? 0} maxLevel={maxLevel}
+                                               levelsAhead={levelsAhead} owned={owned} game={'SushiStuff.UpgCost'}/>
                              {meetsLvReq ? null : <Typography variant={'body2'} color={'text.secondary'}>Needs Research Lv {lvReq}</Typography>}
                            </>}>
             {description ? <ItemCard.Desc text={description}/> : null}

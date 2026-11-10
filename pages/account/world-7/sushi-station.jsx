@@ -14,7 +14,9 @@ import Sushi from '@components/account/Worlds/World7/SushiStation/Sushi';
 import Upgrades from '@components/account/Worlds/World7/SushiStation/Upgrades';
 import Bonuses from '@components/account/Worlds/World7/SushiStation/Bonuses';
 import SushiBonuses from '@components/account/Worlds/World7/SushiStation/SushiBonuses';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+import { UPGRADES_AHEAD_SETTINGS, UpgradesAheadSettings } from '@components/common/LevelsAhead';
 
 const toDuration = (hours) => secondsToCoarseDuration((hours ?? 0) * 3600) ?? 'never';
 
@@ -34,6 +36,7 @@ const SushiStation = () => {
   const { state } = useContext(AppContext);
   const sushiStation = state?.account?.sushiStation;
   const sectionFailed = isSectionFailed(state?.account, 'sushiStation');
+  const [settings, setSettings, resetSettings] = usePageSettings('sushi-station', UPGRADES_AHEAD_SETTINGS);
 
   const {
     uniqueSushi,
@@ -95,6 +98,11 @@ const SushiStation = () => {
       title="Sushi Station | Idleon Toolbox"
       description="Track your Sushi Station upgrades, sushi collection, fuel, and Ring of Gains bonuses in Legends of Idleon World 7"
     />
+    {/* Only an upgrade with levels left to buy is priced ahead */}
+    {upgrades?.some((upgrade) => upgrade && upgrade.level < upgrade.maxLevel)
+      ? <PageSettings state={settings} defaults={UPGRADES_AHEAD_SETTINGS} onChange={setSettings} onReset={resetSettings}>
+        <UpgradesAheadSettings/>
+      </PageSettings> : null}
 
     {sectionFailed ? <MissingData name={'Sushi Station'} failed atZero={!isParseFailed(state?.account)}/>
       : <NotReached name={'the Sushi Station'} reached={uniqueSushi > 0}/>}
@@ -133,7 +141,8 @@ const SushiStation = () => {
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'sushiStation')}>
       <Sushi slots={slots} knowledge={knowledge} fireplaces={fireplaces}/>
       <Upgrades upgrades={upgrades} totalUpgradeLevels={saveTotals?.upgradeLevels} characters={state?.characters}
-                  bucks={currency?.bucks} doublersOwned={state?.account?.menagerie?.doublers?.sushi?.owned}/>
+                  bucks={currency?.bucks} doublersOwned={state?.account?.menagerie?.doublers?.sushi?.owned}
+                  levelsAhead={settings?.levelsAhead ?? 1}/>
       <Bonuses rogBonuses={rogBonuses} uniqueSushi={uniqueSushi} knowledge={knowledge}
                totalKnowledgeLevels={saveTotals?.knowledgeLevels} totalPerfectos={saveTotals?.perfectos}/>
       <SushiBonuses knowledgeSummary={knowledgeSummary} knowledge={knowledge}/>

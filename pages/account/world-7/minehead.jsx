@@ -11,8 +11,10 @@ import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
 import Upgrades, { MINE_CURRENCY_ICON } from '@components/account/Worlds/World7/Minehead/Upgrades';
 import Opponents from '@components/account/Worlds/World7/Minehead/Opponents';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { DOUBLER_ICONS, DoublerUsageCard } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 import { MINEHEAD_BASE_LIVES } from '@parsers/world-7/minehead';
+import { UPGRADES_AHEAD_SETTINGS, UpgradesAheadSettings } from '@components/common/LevelsAhead';
 
 const Minehead = () => {
   const { state } = useContext(AppContext);
@@ -33,12 +35,18 @@ const Minehead = () => {
   } = section ?? {};
   // The drawer reads the tile's own text
   const perHourText = formatGame(currencyGain ?? 0, 'Minehead.CurrencyGain');
+  const [settings, setSettings, resetSettings] = usePageSettings('minehead', UPGRADES_AHEAD_SETTINGS);
 
   return <SummaryFailed value={sectionFailed}>
     <NextSeo
       title="Minehead | Idleon Toolbox"
       description="Track your Minehead upgrade levels, opponent stats, and bonus progression in Legends of Idleon World 7"
     />
+    {/* Only an upgrade with levels left to buy is priced ahead */}
+    {upgrades?.some(({ isMaxed }) => !isMaxed)
+      ? <PageSettings state={settings} defaults={UPGRADES_AHEAD_SETTINGS} onChange={setSettings} onReset={resetSettings}>
+        <UpgradesAheadSettings/>
+      </PageSettings> : null}
     {!section || sectionFailed ? <MissingData name={'Minehead'} failed={sectionFailed} atZero={!isParseFailed(account)}/>
       : <NotReached name={'Minehead'} reached={opponentsBeat > 0 || mineCurrency > 0}/>}
     <PageSummary failed={sectionFailed}>
@@ -56,7 +64,7 @@ const Minehead = () => {
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'minehead')}>
       <Upgrades upgrades={upgrades} mineCurrency={mineCurrency ?? 0}
-                doublersOwned={account?.menagerie?.doublers?.minehead?.owned ?? 0}/>
+                doublersOwned={account?.menagerie?.doublers?.minehead?.owned ?? 0} levelsAhead={settings?.levelsAhead ?? 1}/>
       <Opponents opponents={opponents}/>
     </Tabber>
   </SummaryFailed>;

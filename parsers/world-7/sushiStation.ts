@@ -175,6 +175,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
       level,
       maxLevel: maxLevel > 998 ? Infinity : maxLevel,
       cost,
+      costExponent,
       bonusPerLevel,
       doubled,
       doublerEligible,

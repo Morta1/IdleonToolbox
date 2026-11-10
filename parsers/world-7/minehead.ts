@@ -345,6 +345,8 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any, char
       doubledDescription,
       upgradeQTY,
       cost,
+      // UpgCost grows by this per level; nothing else in it depends on the upgrade's own level
+      costExponent: Number(upgrade.exponent) || 1,
       canAfford,
       description,
     };

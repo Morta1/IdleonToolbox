@@ -1,7 +1,7 @@
 import React from 'react';
 import { hasMasterclassDailyDiscount } from '@parsers/misc';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
-import { MAX_LEVELS_AHEAD } from '@components/common/LevelsAhead';
+import { LevelsAheadSetting } from '@components/common/LevelsAhead';
 
 export { formatLevelsAheadCost, LevelsAheadCaption } from '@components/common/LevelsAhead';
 
@@ -24,8 +24,7 @@ const useMasterclassCostControls = (account, page, tab = 'Upgrades') => {
   const gear = <PageSettings state={{ levelsAhead: settings?.levelsAhead ?? null, spree: discount }}
                              defaults={{ levelsAhead: null, spree: liveDiscount }} onChange={onChange} onReset={resetSettings}>
     <PageSettings.Group title={tab}>
-      <PageSettings.Number name={'levelsAhead'} label={'Levels ahead'} defaultValue={1} min={1} max={MAX_LEVELS_AHEAD} integer
-                           help={'Each upgrade also shows the total cost of this many levels.'}/>
+      <LevelsAheadSetting/>
       <PageSettings.Toggle name={'spree'} label={'Daily Shopping Spree'}
                            help={`Prices every cost with the legend talent's 80% discount. ${liveDiscount
                              ? 'You still have discounted purchases left today.'
