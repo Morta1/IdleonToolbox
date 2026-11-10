@@ -112,10 +112,15 @@ const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
             {`Each stack gives +${flowerBonus}% stealth on its floor. Leave empty to use the stacks you have there now. Accepts shorthand like 10K or 1.5M.`}
           </InfoButton>
         </Stack>
-        <NumberField label={'Target detection'} unit={'%'} sx={{ width: 140 }}
-                     value={Number.isNaN(parsedTarget) ? null : parsedTarget}
-                     min={0} max={100} help={false}
-                     onChange={(next) => setTargetInput(String(next ?? 0))}/>
+        <Stack direction={'row'} alignItems={'flex-end'} gap={0.5}>
+          <NumberField label={'Target detection'} unit={'%'} sx={{ width: 140 }}
+                       value={Number.isNaN(parsedTarget) ? null : parsedTarget}
+                       min={0} max={100} help={false}
+                       onChange={(next) => setTargetInput(String(next ?? 0))}/>
+          <InfoButton label={'Target detection'} sx={FIELD_INFO_SX}>
+            The chance a ninja gets caught. Lower is better: 0% means never detected.
+          </InfoButton>
+        </Stack>
         <Stack direction={'row'} alignItems={'center'} gap={1}>
           <ViewSwitch size={'medium'} label={'Placement'} options={[['together', 'All together'], ['alone', 'Alone']]}
                       value={placement} onChange={setPlacement}/>
@@ -146,7 +151,7 @@ const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
               value: ({ simulated }) => simulated, render: ({ simulated }) => formatDetection(simulated)
             },
             {
-              key: 'flowers', label: `Flowers needed for ${formatNum(100 * target, 'pct')}`, numeric: true, sortable: true,
+              key: 'flowers', label: `Flowers for ≤ ${formatNum(100 * target, 'pct')} detection`, numeric: true, sortable: true,
               value: ({ flowersNeeded }) => flowersNeeded,
               render: ({ flowersNeeded }) => (flowersNeeded === Infinity
                 ? <StatusText status={'problem'}>Unreachable</StatusText>
