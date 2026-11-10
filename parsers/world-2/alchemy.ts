@@ -1,4 +1,4 @@
-import { cleanUnderscore, commaOrBig, createArrayOfArrays, growth, notateNumber, round, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, titleCaseName, commaOrBig, createArrayOfArrays, growth, notateNumber, round, tryToParse } from '@utility/helpers';
 import { cauldrons, gameTables, p2w, sigils, vials } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
@@ -7,7 +7,7 @@ import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { getJewelBonus, getLabBonus } from '@parsers/world-4/lab';
 import { getEventShopBonus, getStatCurveValue, isBundlePurchased, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
 import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
-import { getStampsBonusByEffect, getStampsBonusByStat } from '@parsers/world-1/stamps';
+import { getStampNode, getStampsBonusByEffect, getStampsBonusByStat } from '@parsers/world-1/stamps';
 import { getGuildBonusBonus } from '@parsers/guild';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getStarSignBonus } from '@parsers/starSigns';
@@ -197,7 +197,7 @@ export const getLiquidCauldrons = (account: any) => {
           flat('Vial', vialBonus),
           flat('Pay 2 Win capacity', p2wBonus),
           flat('Da Daily Drip (Bubble)', firstMath),
-          flat('Stamp', stampBonus),
+          getStampNode(account, { effect: 'Cap_for_all_Liquids_in_Alchemy' }, stampBonus, undefined, 'flat'),
           flat('Arcade', Math.ceil(arcadeBonus))
         ]),
         productGroup(NUMBERED_GROUP, [
@@ -415,6 +415,9 @@ export const getBubbleCurve = ({ func, level, x1, x2 }: any): number => (level >
 // game: "BubbleBonus" plus the TalentCalc(-2) multipliers. shouldMultiply = the character is of the
 // cauldron's class; the class bubble only lands on the bubbles that qualify for it.
 // cauldron: look the bubble up in that cauldron only, for names several cauldrons share (ESSENCE_BOOST)
+// Breakdown line name for a bubble key: 'REELY_SMART' -> 'Reely Smart bubble'
+export const bubbleLineName = (bubbleName: string) => `${titleCaseName(cleanUnderscore(bubbleName))} bubble`;
+
 export const getBubbleBonus = (account: any, bubbleName: any, shouldRound?: any, shouldMultiply?: any, cauldron?: string) => {
   const candidates = cauldron ? account?.alchemy?.bubbles?.[cauldron] : account?.alchemy?.bubblesFlat;
   const targetBubble = candidates?.find(
@@ -734,7 +737,7 @@ export const getCharacterBrewSpeed = (character: any, account: any, characters: 
     breakdown: createBreakdown(`${cleanUnderscore(character?.name ?? '')} brew speed`, value, [
       flat('Base', base, { note: `Alchemy level ${alchemyLevel}` }),
       additiveGroup(NUMBERED_GROUP, [
-        percent('Stamp', stampBonus),
+        getStampNode(account, { stat: 'AlchSpd' }, stampBonus),
         percent('Guild', guildBonus),
         percent('Brewstachio (Bubble)', bubbleBonus),
         percent('Potion Package (Post Office)', postOfficeBonus)
@@ -902,7 +905,7 @@ export const getSigilSpeed = (account: any) => {
       percent('Pea Pod (Sigil)', peaPod),
       percent('Gem store', gemShop),
       percent('Vial', vial),
-      percent('Stamps', stamps)
+      getStampNode(account, { effect: '+{%_Sigil_Charge_rate' }, stamps)
     ]),
     multiplier('Summoning', 1 + winner / 100),
     multiplier('Sushi Station', 1 + sushi / 100),
@@ -1199,7 +1202,7 @@ export const getKrukBubblesDaily = (account: any) => {
       productGroup(NUMBERED_GROUP, [
         sumGroup('Base levels', [
           flat('Base', baseAmount),
-          flat('Stamp', stampBonus),
+          getStampNode(account, { effect: 'daily_Kattlekruk_bubble_LVs' }, stampBonus, undefined, 'flat'),
           flat('Legend Talent', legendBonus),
           flat('Zenith', zenithBonus)
         ]),
@@ -1207,7 +1210,7 @@ export const getKrukBubblesDaily = (account: any) => {
           multiplier('Meritocracy', meritocracyMulti),
           multiplier('Event Shop', eventShopMulti),
           additiveGroup(NUMBERED_GROUP, [
-            percent('Bubble', bubbleBonus),
+            percent(bubbleLineName('KATTLE_DA_GOAT'), bubbleBonus),
             percent('Arcade', arcadeBonus),
             percent('Spelunk', spelunkBonus)
           ])

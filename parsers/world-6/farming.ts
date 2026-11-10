@@ -20,7 +20,7 @@ import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
-import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
+import { getStampLineName, getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getEmperorBonus } from './emperor';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getMegacropSuperbitMulti, isSuperbitUnlocked } from '@parsers/world-5/gaming';
@@ -1302,7 +1302,7 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
     multiplier('Summoning meal', 1 + summoningMealBonus / 100),
     multiplier('Upgrade vault', 1 + vaultBonus78 / 100),
     multiplier('Monument', 1 + monumentBonus / 100),
-    multiplier('Stamp', 1 + stampBonus / 100),
+    multiplier(getStampLineName(account, { effect: 'Crop_Evolution_Chance' }), 1 + stampBonus / 100),
     multiplier('Grimoire', 1 + grimoireBonus / 100),
     multiplier('Achievement', 1 + (5 * achievementBonus) / 100),
     multiplier('Killroy', Math.max(1, killroyBonus)),

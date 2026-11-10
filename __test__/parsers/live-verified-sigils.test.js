@@ -18,7 +18,7 @@ const GAME = {
     'Pea Pod (Sigil)': 3150,
     'Gem store': 200,
     Vial: 134.4,
-    Stamps: 29.01098901098901
+    'Sigil Stamp': 29.01098901098901
   },
   // Each multiplier is 1 + x / 100: Summoning("WinBonus", 7), SushiStuff("RoG_BonusQTY", 41), ArcadeBonus(43),
   // DNSM.AlchVials.6turtle, Summoning("VotingBonusz", 17), GamingStatType("PaletteBonus", 20) and

@@ -1,6 +1,6 @@
 import { atomsInfo, cookingMenu, monsters, randomList, randomList2, bonuses, spiceNames, gameTables } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
-import { getStampsBonusByEffect, getStampsBonusByStat } from '@parsers/world-1/stamps';
+import { getStampNode, getStampsBonusByEffect, getStampsBonusByStat } from '@parsers/world-1/stamps';
 import { getStatsFromGear } from '@parsers/items';
 import { cleanUnderscore, gameFill, growth, lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
@@ -156,7 +156,7 @@ export const getCookingEffParts = (character: any, characters: any, account: any
     sumGroup(names.base, [
       flat('Base', 250, { note: 'Every character starts at 250' }),
       flat('Strength', Math.pow(character?.stats?.strength, .6) * (1 + getTalentBonus(talents, 'SKILL_STRENGTHEN') / 100)),
-      flat('Stamp', getStampsBonusByStat(account, 'CookingEff', character)),
+      getStampNode(account, { stat: 'CookingEff' }, getStampsBonusByStat(account, 'CookingEff', character), character, 'flat'),
       flat('Gear', baseGear),
       flat('Obols', getObolsBonus(character?.obols, bonuses?.etcBonuses?.[62])),
       // game: RiftStuff("RiftSkillBonus,9", 1) - the efficiency bonus, not the EXP one
@@ -874,7 +874,7 @@ export const parseKitchens = (cookingRaw: any, atomsRaw: any, characters: any, a
         multiplier('Turtle Vial', 1 + turtleVial / 100),
         multiplier('Cooking Speed Vials', 1 + cookingSpeedVials / 100),
         additiveGroup(NUMBERED_GROUP, [
-          percent('Stamps', cookingSpeedStamps),
+          getStampNode(account, { effect: 'Meal_Cooking_Speed' }, cookingSpeedStamps),
           percent('Jewel', Math.max(0, cookingSpeedFromJewel))
         ]),
         multiplier('Meals (Cooking Speed)', 1 + cookingSpeedMeals / 100),

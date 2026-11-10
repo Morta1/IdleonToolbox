@@ -3,7 +3,7 @@ import { items, randomList, refinery } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { calculateItemTotalAmount } from '@parsers/items';
 import { getVialsBonusByEffect } from '@parsers/world-2/alchemy';
-import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
+import { getStampNode, getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getShinyBonus } from '@parsers/world-4/breeding';
 import { CONSTRUCT_MASTERY, getConstructionMasteryBonus } from '@parsers/world-3/construction';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
@@ -128,7 +128,7 @@ export const getRefineryCycleBonuses = (account: Account, characters: any[]) => 
     percent('Salt lick', saltLickUpgrade),
     percent('Family', amplifiedFamilyBonus),
     percent('Pipe Gauge (Sigil)', sigilRefinerySpeed),
-    percent('Stamps', stampRefinerySpeed),
+    getStampNode(account, { effect: 'Faster_refinery_cycles' }, stampRefinerySpeed),
     percent('Shinies', shinyRefineryBonus),
     percent('Construction mastery', constructionMastery),
     percent('Arcade', arcadeBonus),

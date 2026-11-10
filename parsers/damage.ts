@@ -4,7 +4,7 @@ import { getPostOfficeBonus } from './world-3/postoffice';
 import { getDungeonFlurboStatBonus } from './dungeons';
 import { getCardBonusByEffect, getCardLevel } from './cards';
 import { getGuildBonusBonus } from './guild';
-import { getActiveBubbleBonus, getBubbleBonus, getSigilBonus, getVialsBonusByStat } from './world-2/alchemy';
+import { bubbleLineName, getActiveBubbleBonus, getBubbleBonus, getSigilBonus, getVialsBonusByStat } from './world-2/alchemy';
 import { getStatsFromGear } from './items';
 import { getObolsBonus } from './obols';
 import { bonuses, mapDetails, monsters, randomList } from '@website-data';
@@ -23,7 +23,7 @@ import { getStarSignBonus } from './starSigns';
 import { getArcadeBonus } from './world-2/arcade';
 import { getAfkGain, getPlayerSpeedBonus, getRespawnRate } from './character';
 import { calcTotalOnyx, getStatueBonus } from './world-1/statues';
-import { calcStampCollected, getStampsBonusByEffect, getStampsBonusByStat } from './world-1/stamps';
+import { calcStampCollected, getStampNode, getStampsBonusByEffect, getStampsBonusByStat } from './world-1/stamps';
 import { lavaLog, lavaLog2 } from '@utility/helpers';
 import { hitChance, hitCurveOf } from '@utility/hit-chance.mjs';
 import { getShrineBonus } from './world-3/shrines';
@@ -582,9 +582,9 @@ const getDamagePercent = (character: Character, characters: Character[], account
       ]),
       additiveGroup(NUMBERED_GROUP, [
         percent('Skill Mastery', skillMasteryBonus),
-        percent('Bubble (STR %)', strPercBubbleBonus),
-        percent('Bubble (AGI %)', agiPercBubbleBonus),
-        percent('Bubble (WIS %)', wisPercBubbleBonus),
+        percent(bubbleLineName('BRITTLEY_SPEARS'), strPercBubbleBonus),
+        percent(bubbleLineName('BOW_JACK'), agiPercBubbleBonus),
+        percent(bubbleLineName('MATTY_STAFFORD'), wisPercBubbleBonus),
         percent('Ruble Cuble', secondArtifactBonus),
         percent('Fun Hippoete', thirdArtifactBonus),
         percent('Trione (STR)', strBubbleBonus * Math.floor(Math.max(strength, luck) / 250)),
@@ -786,15 +786,15 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
     multiplier('Winner Bonus', 1 + winnerBonus / 100),
     additiveGroup(NUMBERED_GROUP, [
       percent('Minigame (Choppin)', dmgPerMinigameBonus),
-      percent('Bubble (DMG of Sun)', bubbleW12),
-      percent('Bubble (DMG of Moon)', bubbleA12),
-      percent('Bubble (DMG of Soul)', bubbleM12),
+      percent(bubbleLineName('DMG_OF_THE_SUN'), bubbleW12),
+      percent(bubbleLineName('DMG_OF_THE_MOON'), bubbleA12),
+      percent(bubbleLineName('DMG_OF_THE_SOUL'), bubbleM12),
       percent('Lowest Skill', lowestSkillBonus),
       percent('Apocalypse Zow', dmgPerApocBonus),
       percent('Refinery', dmgPerRefineryBonus),
       percent('Vials', dmgPerVialBonus),
       percent('Looty McShooty', dmgPerItemsBonus),
-      percent('Stamps', dmgPerStampsBonus),
+      percent('Paperwork, Great... talent', dmgPerStampsBonus),
       percent('Schematic (Well Sediment)', holeUpgrade57Bonus),
       percent('Speed', dmgPerSpeedBonus),
       percent('Dreams', dmgPerDreamBonus),
@@ -854,7 +854,7 @@ const getDamageFromHpMp = (character: Character, characters: Character[], accoun
     percent('Vault (Weapon Craft)', 0.4 * vaultUpgBonus10),
     percent('Bribe (Muscles on Muscles)', bribeBonus30),
     percent('Bribe (Photoshopped Dmg)', bribeBonus20),
-    percent('Stamps', stampBonus),
+    getStampNode(account, { effect: 'Total_Damage' }, stampBonus, character),
     percent('Land Rank', landRankBonus),
     percent('Statue', secondStatueBonus),
     percent('HP Talent (Meat Shank)', lavaLog(playerInfo.maxHp) * hpTalentBonus),
@@ -968,7 +968,7 @@ const getBaseDamage = (character: Character, characters: Character[], account: A
     flat('Owl', owlBonus),
     flat('Vault (Bigger Damage)', vaultUpgBonus0),
     flat('Vault (Slice N Dice)', vaultUpgBonus20 * vaultKillzTotal5),
-    flat('Stamps', stampsBonus),
+    getStampNode(account, { effect: 'Base_Damage' }, stampsBonus, undefined, 'flat'),
     flat('Equipment', equipmentBonus),
     flat('Obols', obolsBonus),
     flat('Statue', statueBonus),
@@ -1607,7 +1607,7 @@ const getKillPerKill = (character: Character, characters: Character[], account: 
       percent('Wisdom Talent (Memorial Skulls)', wisContribution),
       percent('Warrior Talent (Monster Decimator)', warTalentBonus),
       percent('Multi-kill', multiKillContribution, { note: 'Only while overkilling' }),
-      percent('Bubble', activeBubbleBonus),
+      percent(bubbleLineName('KILL_PER_KILL'), activeBubbleBonus),
       percent('Prayer (Fibers of Absence)', prayerBonus),
       percent('Pristine Charm (Bubblegum Law)', charmBonus),
       percent('Exotic Crop', exoticBonus),

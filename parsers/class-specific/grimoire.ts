@@ -12,7 +12,7 @@ import { getJewelBonus } from '@parsers/world-4/lab';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
-import { getBubbleBonus } from '@parsers/world-2/alchemy';
+import { bubbleLineName, getBubbleBonus } from '@parsers/world-2/alchemy';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { additiveGroup, createBreakdown, multiplier, NUMBERED_GROUP, percent } from '@parsers/breakdown';
@@ -302,7 +302,7 @@ export const getExtraBonesBonus = (character: any, account: any) => {
       multiplier('Gear', gearMulti, { note: 'At most ×1.5' }),
       additiveGroup(NUMBERED_GROUP, [
         percent('Emperor', emperorBonus),
-        percent('Bubble', bubbleBonus)
+        percent(bubbleLineName('BONE_BUBBLE'), bubbleBonus)
       ]),
       additiveGroup(NUMBERED_GROUP, [
         percent('Upgrades', grimoireUpgrades),

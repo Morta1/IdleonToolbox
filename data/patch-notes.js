@@ -24,7 +24,8 @@ export const patchNotes = [
       'Dashboard: the Spelunking stamina alert can count characters from a stamina percent, so it fires before they are full',
       'Goals: Dancing coral can now track unlocking each coral, with a bar for coral owned vs cost',
       'Characters: the Alchemy skill shows the character brew speed with a breakdown',
-      'Gallery: the Bonus multi now shows a breakdown of its sources'
+      'Gallery: the Bonus multi now shows a breakdown of its sources',
+      'Breakdowns: stamp and bubble lines now show which stamp or bubble they come from'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',

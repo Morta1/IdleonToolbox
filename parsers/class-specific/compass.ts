@@ -30,7 +30,7 @@ import { getMasterclassCostReduction } from '@parsers/misc';
 import { getJewelBonus } from '@parsers/world-4/lab';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
-import { getBubbleBonus } from '@parsers/world-2/alchemy';
+import { bubbleLineName, getBubbleBonus } from '@parsers/world-2/alchemy';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getAllMasterclassDropz } from '@parsers/misc';
@@ -682,7 +682,7 @@ export const getExtraDust = (character: any, account: any) => {
       multiplier('Gear', 1 + gearBonus / 100),
       additiveGroup(NUMBERED_GROUP, [
         percent('Emperor', emperorBonus),
-        percent('Bubble', bubbleBonus)
+        percent(bubbleLineName('DUST_BUBBLE'), bubbleBonus)
       ]),
       additiveGroup(NUMBERED_GROUP, [
         percent('Path upgrades', pathUpgrades),

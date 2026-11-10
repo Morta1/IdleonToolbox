@@ -32,7 +32,7 @@ import { getPrayerBonusAndCurse } from '@parsers/world-3/prayers';
 import { getGuildBonusBonus } from '@parsers/guild';
 import { TOOLS } from '@utility/consts';
 import { getStatueBonus } from '@parsers/world-1/statues';
-import { getStampsBonusByEffect, getStampsBonusByStat } from '@parsers/world-1/stamps';
+import { getStampNode, getStampsBonusByEffect, getStampsBonusByStat } from '@parsers/world-1/stamps';
 import { getShinyBonus } from '@parsers/world-4/breeding';
 import { getObolsBonus } from '@parsers/obols';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
@@ -125,7 +125,7 @@ export const getAllBaseSkillEffBreakdown = (character: any, account: any, charac
 
   return sumGroup('Base efficiency for all skills', [
     flat('Shiny', shinyBonus),
-    flat('Stamp', stampBonus),
+    getStampNode(account, { effect: 'All_Skill_Efficiency' }, stampBonus, character, 'flat'),
     flat('Nobisect blessing', blessingBonus),
     flat('Post office', postOfficeBonus),
     flat('Chip', chipBonus),
@@ -316,7 +316,7 @@ const getMiningEffParts = (character: any, characters: any, account: any, player
       sumGroup(names.base, [
         sumGroup(names.power, miningPowerLines, { power: 1.3, note: 'Mining power also multiplies below' }),
         flat('Strength', Math.pow(character?.stats?.strength + 1, .6) * (1 + secondTalentBonus / 100)),
-        flat('Stamp', stampBonus),
+        getStampNode(account, { effect: 'Base_Mining' }, stampBonus, character, 'flat'),
         getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
       ]),
       productGroup(names.bonuses, [
@@ -383,7 +383,7 @@ const getChoppingEffParts = (character: any, characters: any, account: any, play
       sumGroup(names.base, [
         sumGroup(names.power, powerLines, { power: 1.3, note: 'Choppin power also multiplies below' }),
         flat('Wisdom', Math.pow((wisdom + 2) * (1 + deforesting / 100) * (1 + skillWiz / 100), 0.6)),
-        flat('Stamp', getStampsBonusByStat(account, 'BaseChopEff', character)),
+        getStampNode(account, { stat: 'BaseChopEff' }, getStampsBonusByStat(account, 'BaseChopEff', character), character, 'flat'),
         getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
       ]),
       productGroup(names.bonuses, [
@@ -457,7 +457,7 @@ const getFishingEffParts = (character: any, characters: any, account: any, playe
     sumGroup(names.base, [
       sumGroup(names.power, powerLines, { power: 1.3, note: 'Fishing power also multiplies below' }),
       flat('Strength', Math.pow(strength, 0.6) * (1 + skillStrengthen / 100)),
-      flat('Stamp', getStampsBonusByStat(account, 'BaseFishEff', character)),
+      getStampNode(account, { stat: 'BaseFishEff' }, getStampsBonusByStat(account, 'BaseFishEff', character), character, 'flat'),
       getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
     ]),
     productGroup(names.bonuses, [
@@ -513,7 +513,7 @@ const getCatchingEffParts = (character: any, characters: any, account: any, play
     sumGroup(names.base, [
       sumGroup(names.power, powerLines, { power: 1.3, note: 'Catching power also multiplies below' }),
       flat('Agility', Math.pow(agility, 0.6) * (1 + ambidexterity / 100)),
-      flat('Stamp', getStampsBonusByStat(account, 'BaseCatchEff', character)),
+      getStampNode(account, { stat: 'BaseCatchEff' }, getStampsBonusByStat(account, 'BaseCatchEff', character), character, 'flat'),
       getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
     ]),
     productGroup(names.bonuses, [
@@ -572,7 +572,7 @@ const getTrappingEffParts = (character: any, characters: any, account: any, play
         sumGroup('Base trapping power', [
           sumGroup(names.power, powerLines, { power: 1.3 }),
           flat('Agility', Math.pow(character?.stats?.agility + 1, 0.6) * (1 + getTalentBonus(talents, 'SKILL_AMBIDEXTERITY') / 100)),
-          flat('Stamp', getStampsBonusByStat(account, 'TrappingEff', character)),
+          getStampNode(account, { stat: 'TrappingEff' }, getStampsBonusByStat(account, 'TrappingEff', character), character, 'flat'),
           getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
         ]),
         multiplier('Trapping level', 1 + level / 100),
@@ -622,7 +622,7 @@ const getWorshipEffParts = (character: any, characters: any, account: any, playe
       sumGroup(names.base, [
         sumGroup(names.power, powerLines, { power: 1.3 }),
         flat('Wisdom', Math.pow(character?.stats?.wisdom + 1, 0.6) * (1 + getTalentBonus(talents, 'SKILL_WIZ') / 100)),
-        flat('Stamp', getStampsBonusByStat(account, 'WorshipEff', character)),
+        getStampNode(account, { stat: 'WorshipEff' }, getStampsBonusByStat(account, 'WorshipEff', character), character, 'flat'),
         getAllBaseSkillEffBreakdown(character, account, characters, playerInfo)
       ]),
       productGroup(names.bonuses, [

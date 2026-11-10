@@ -23,7 +23,7 @@ import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getBubbleBonus, getVialsBonusByStat } from '@parsers/world-2/alchemy';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
-import { getStampsBonusByStat } from '@parsers/world-1/stamps';
+import { getStampLineName, getStampNode, getStampsBonusByStat } from '@parsers/world-1/stamps';
 import { getStatueBonus } from '@parsers/world-1/statues';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
@@ -681,11 +681,11 @@ export const getEssenceGain = (account: any, characters: any[] = []): EssenceGai
           percent('Arcade', getArcadeBonus(account?.arcade?.shop, ESSENCE_ARCADE)?.bonus ?? 0),
           percent('Upgrade vault', getUpgradeVaultBonus(vaultUpgrades, WHITE_ESSENCE_VAULT))
         ]),
-        multiplier('Stamp', 1 + stampBonus / 100)
+        multiplier(getStampLineName(account, { stat: stamp }), 1 + stampBonus / 100)
       ]
       : [
         additiveGroup(NUMBERED_GROUP, [
-          ...(stamp ? [percent('Stamp', stampBonus)] : []),
+          ...(stamp ? [getStampNode(account, { stat: stamp }, stampBonus)] : []),
           percent('Upgrade vault', getUpgradeVaultBonus(vaultUpgrades, COLOUR_ESSENCE_VAULT))
         ])
       ];

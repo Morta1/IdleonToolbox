@@ -22,8 +22,8 @@ import {
 } from '@website-data';
 import { checkCharClass, CLASSES, getTalentBonus, mainStatMap, talentPagesMap, getHighestTalentAcrossCharacters, getBestActiveCharacter, getLastBloodBerserkerLine } from './talents';
 import { getMealsBonusByEffectOrStat } from './world-4/cooking';
-import { getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './world-2/alchemy';
-import { getStampsBonusByEffect } from './world-1/stamps';
+import { bubbleLineName, getBubbleBonus, getSigilBonus, getVialsBonusByEffect, getVialsBonusByStat } from './world-2/alchemy';
+import { getStampNode, getStampsBonusByEffect } from './world-1/stamps';
 import { getAchievementStatus } from './achievements';
 import { getAtomBonus } from './world-3/atomCollider';
 import { getPrayerBonusAndCurse } from './world-3/prayers';
@@ -996,9 +996,9 @@ export const getGoldenFoodMulti = (character: any, account: any, characters: any
       gearGroup(equipmentBonusBreakdown),
       percent('Obols', obolsBonus),
       percent('Talent', hungryForGoldTalentBonus),
-      percent('Stamp', goldenAppleStamp),
+      getStampNode(account, { effect: 'Effect_from_Golden_Food._Sparkle_sparkle!' }, goldenAppleStamp),
       percent('Achievement', goldenFoodAchievement),
-      percent('Bubble', goldenFoodBubbleBonus),
+      percent(bubbleLineName('SHIMMERON'), goldenFoodBubbleBonus),
       percent('Sigil', goldenFoodSigilBonus),
       percent('Meal', mealBonus),
       percent('Star Sign', starSignBonus),

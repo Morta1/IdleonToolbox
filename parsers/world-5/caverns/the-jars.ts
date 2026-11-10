@@ -6,7 +6,7 @@ import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { cleanUnderscore, createRange, gameFill, lavaLog, notateNumber, numberWithCommas, titleCaseName } from '@utility/helpers';
 import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
-import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
+import { getStampLineName, getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
@@ -189,7 +189,7 @@ const getRupieValue = ({ holesObject, accountData }: any) => {
       multiplier('Schematic', schematicBonus4),
       multiplier('Gilded Jars', extraCalcBonus),
       multiplier('Collectibles', jarBonus1 * jarBonus2 * jarBonus3 * jarBonus4),
-      multiplier('Stamps', stampBonusMultiplier),
+      multiplier(getStampLineName(accountData, { effect: 'more_Resources_from_all_Caverns' }), stampBonusMultiplier),
       multiplier('Crystal Glunko Cove', cavernicusBonus)
     ])
   ]);

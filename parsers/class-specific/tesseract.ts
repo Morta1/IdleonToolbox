@@ -6,7 +6,7 @@ import { CLASSES, getCharacterByHighestTalent, getTalentBonus, getHighestTalentA
 import { getStatsFromGear } from '@parsers/items';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getJewelBonus } from '@parsers/world-4/lab';
-import { getBubbleBonus } from '@parsers/world-2/alchemy';
+import { bubbleLineName, getBubbleBonus } from '@parsers/world-2/alchemy';
 import { getLoreBossBonus } from '@parsers/world-7/spelunking';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getEmperorBonus } from '@parsers/world-6/emperor';
@@ -431,7 +431,7 @@ export const getExtraTachyon = (character: any, account: any) => {
       ]),
       additiveGroup(NUMBERED_GROUP, [
         percent('Emperor', emperorBonus),
-        percent('Bubble', bubbleBonus)
+        percent(bubbleLineName('TACHYON_BUBBLE'), bubbleBonus)
       ]),
       masterclassDropsGroup,
       multiplier('Meritocracy', 1 + meritocracyBonus / 100),

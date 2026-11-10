@@ -25,7 +25,7 @@ const GAME = {
     'Ore Capacity Boost': 13250,
     'Arcade shop': 15.966386554621849,
     'Godshard card': 150,
-    Stamps: 254.58243189368773,
+    'Forge Stamp': 254.58243189368773,
     Bribe: 30,
     'Upgrade vault': 790,
     Achievement: 50,

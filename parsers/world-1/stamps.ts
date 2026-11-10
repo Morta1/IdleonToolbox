@@ -1,5 +1,5 @@
-import { groupByKey, growth, notateNumber, tryToParse } from '@utility/helpers';
-import { createBreakdown, evaluateBreakdownNode, flat, percent, sumGroup } from '@parsers/breakdown';
+import { cleanUnderscore, groupByKey, growth, notateNumber, tryToParse } from '@utility/helpers';
+import { type BreakdownNode, type BreakdownUnit, createBreakdown, evaluateBreakdownNode, flat, percent, sumGroup } from '@parsers/breakdown';
 import { crafts, items, stamps } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
 import { getTalentBonus } from '@parsers/talents';
@@ -309,6 +309,32 @@ export const getStampsBonusByStat = (account: any, statName: any, character?: an
     const sum = foundStamps?.reduce((stampsSum: any, { rawName }: any) => stampsSum + getStampBonus(account, stampTreeName, rawName, character), 0);
     return final + sum;
   }, 0);
+}
+
+type StampMatch = { effect?: string, stat?: string };
+
+const getMatchingStamps = (account: any, { effect, stat }: StampMatch) =>
+  Object.entries(account?.stamps ?? {}).flatMap(([stampTreeName, stampTree]: any) => (stampTree ?? [])
+    .filter((stamp: any) => stat ? stamp?.stat === stat : stamp?.effect?.includes(effect))
+    .map((stamp: any) => ({ stampTreeName, stamp })));
+
+const stampDisplayName = (stamp: any) => cleanUnderscore(stamp?.displayName) || 'Stamp';
+
+// The breakdown node for a stamp total (getStampsBonusByEffect / getStampsBonusByStat): one line named as the game
+// names the stamp, or a Stamps group with a line per stamp when several share the effect.
+export const getStampNode = (account: any, match: StampMatch, value: number, character?: any, unit: BreakdownUnit = 'percent'): BreakdownNode => {
+  const toLine = unit === 'flat' ? flat : percent;
+  const matches = getMatchingStamps(account, match);
+  if (matches.length === 1) return toLine(stampDisplayName(matches[0].stamp), value);
+  if (!matches.length) return toLine('Stamps', value);
+  return sumGroup('Stamps', matches.map(({ stampTreeName, stamp }) =>
+    toLine(stampDisplayName(stamp), getStampBonus(account, stampTreeName, stamp?.rawName, character))));
+}
+
+// Name for a line that folds the stamp total into a factor: the stamp's own name when only one matches
+export const getStampLineName = (account: any, match: StampMatch) => {
+  const matches = getMatchingStamps(account, match);
+  return matches.length === 1 ? stampDisplayName(matches[0].stamp) : 'Stamps';
 }
 
 // game: "StampDoubler" - the Exalted stamp multiplier, in percent.

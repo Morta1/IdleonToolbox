@@ -2,7 +2,7 @@ import { items } from '@website-data';
 import { growth, notateNumber } from '@utility/helpers';
 import { getCardLevel } from '@parsers/cards';
 import { getBribeBonus } from '@parsers/world-1/bribes';
-import { getStampsBonusByStat } from '@parsers/world-1/stamps';
+import { getStampNode, getStampsBonusByStat } from '@parsers/world-1/stamps';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getCosmoBonus } from '@parsers/world-5/hole';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
@@ -180,7 +180,7 @@ export const getForgeOreCapacity = (account: Account, capacityLevel: number): { 
       percent('Arcade shop', arcade),
       percent('Godshard card', godshard)
     ]),
-    additiveGroup(NUMBERED_GROUP, [percent('Stamps', stamps)]),
+    additiveGroup(NUMBERED_GROUP, [getStampNode(account, { stat: 'ForgeCap' }, stamps)]),
     additiveGroup(NUMBERED_GROUP, [
       percent('Bribe', bribe),
       percent('Upgrade vault', vault)

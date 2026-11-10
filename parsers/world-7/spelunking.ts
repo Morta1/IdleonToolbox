@@ -15,8 +15,8 @@ import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getAdviceFishBonus, getLoggedInSkillLevel, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
-import { getStampsBonusByEffect, getStampsBonusByStat } from '@parsers/world-1/stamps';
-import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from '@parsers/world-2/alchemy';
+import { getStampNode, getStampsBonusByEffect, getStampsBonusByStat } from '@parsers/world-1/stamps';
+import { bubbleLineName, getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from '@parsers/world-2/alchemy';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getDancingCoralBonus } from '@parsers/world-7/coralReef';
@@ -656,7 +656,7 @@ export const getAmberGain = (account: any, loreBonuses: any) => {
       additiveGroup(NUMBERED_GROUP, [
         percent('Crop Depot', cropBonus),
         percent('Lamp', lampBonus),
-        percent('Stamp', stampBonus),
+        getStampNode(account, { effect: 'Spelunking_Amber_gain' }, stampBonus),
         percent('Vial', vialBonus),
         percent('Meal', mealBonus)
       ]),
@@ -1072,7 +1072,7 @@ export const getStaminaRegenRate = (account: any) => {
         multiplier('Sushi Station', 1 + getSushiBonus(account, 11) / 100),
         additiveGroup(NUMBERED_GROUP, [
           percent('Stamina Resurgence', shopUpg5),
-          percent('Bubble', bubbleBonus),
+          percent(bubbleLineName('FASTER_NRG'), bubbleBonus),
           percent('Chapter: This is gospel', chapterBonus),
           percent('Chapter: Kelp Primeval', chapterBonus5_2),
           percent('Rift', 10 * riftBonus),
@@ -1125,7 +1125,7 @@ export const getSpelunkingEfficiencyParts = (character: any, characters: any, ac
       multiplier('Chapter bonus', 1 + chapterBonus01 / 100),
       multiplier("Pit O' Pages talent", Math.max(1, talentBonus)),
       additiveGroup(NUMBERED_GROUP, [
-        percent('Stamp', stampBonus),
+        getStampNode(account, { stat: 'spelunkeff' }, stampBonus, character),
         percent('Card', cardBonus),
         percent('Vial', vialBonus),
         percent('Spapunkie bubble', bubbleBonus)

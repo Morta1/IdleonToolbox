@@ -1,6 +1,6 @@
 import { items, traps as trapsInfo, trappingInfo } from '@website-data';
 import { getBubbleBonus, getVialsBonusByStat } from '@parsers/world-2/alchemy';
-import { getStampsBonusByStat } from '@parsers/world-1/stamps';
+import { getStampNode, getStampsBonusByStat } from '@parsers/world-1/stamps';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getPrayerBonusAndCurse } from '@parsers/world-3/prayers';
@@ -279,7 +279,7 @@ export const getShinyChanceInfo = (account: any, characters: any, selectedCharac
   const breakdown = createBreakdown('Shiny Critter Chance', formatMulti(shinyMulti), [
     productGroup('On placement', [
       additiveGroup(NUMBERED_GROUP, [
-        percent('Stamps', sources?.stampBonus),
+        getStampNode(account, { stat: 'ShinyChance' }, sources?.stampBonus, characters?.find(({ name }: any) => name === selected?.name) ?? selectedCharacter),
         percent(`Task - Come 'ere Critters!`, sources?.taskBonus)
       ]),
       multiplier('Bubble - Cuz I Catch Em All', sources?.bubbleMulti),
