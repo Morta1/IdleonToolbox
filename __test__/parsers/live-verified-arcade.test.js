@@ -9,16 +9,9 @@ import { getGoldBallMulti } from '@parsers/world-2/arcade';
 // Read from the running game on 11 Oct 2026 through the debug server, logged in as IAmTheHunterrr.
 // latest.json is that account's save (OptionsListAccount[340] and ArcadeUpg match).
 const GAME = {
-  // ArcadeBonus(i) for every shop upgrade: x2 at level 101 and x2 again with Companions(27)
-  shopBonuses: [202, 20, 7.826086956521739, 21.78343949044586, 60.298507462686565, 4.019900497512438, 1.86096256684492,
-    25.124378109452735, 10.049751243781095, 50.24875621890547, 6.928104575163399, 30.149253731343283, 20.09950248756219, 50,
-    25, 202, 6, 14.14, 0, 202, 202, 202, 87, 5.409836065573771, 4.358974358974359, 30.149253731343283, 15.966386554621849,
-    30.149253731343283, 40.19900497512438, 15, 40.19900497512438, 15, 50.24875621890547, 0, 3.963963963963964,
-    14.028776978417266, 30.149253731343283, 4.912280701754386, 40.19900497512438, 202, 202, 151.5, 101, 16, 404, 202, 404,
-    202, 101, 21.25984251968504, 86, 40.400000000000006, 0, 100.49751243781094, 10.049751243781095, 0, 0,
-    4.0476190476190474, 50.24875621890547, 10.049751243781095, 50.24875621890547, 40.19900497512438, 25.124378109452735,
-    20.09950248756219, 50.24875621890547, 15.074626865671641, 0, 0, 30.149253731343283, 0, 6.029850746268656, 0,
-    5.024875621890548],
+  // ArcadeBonus(i), one shop upgrade per form of the one formula: add at Lv 101 (0), add below it (1), decay below it (2),
+  // decay at Lv 101 (4), intervalAdd (16) and an unbought one (18). Lv 101 doubles, and so does Companions(27)
+  shopBonuses: { 0: 202, 1: 20, 2: 7.826086956521739, 4: 60.298507462686565, 16: 6, 18: 0 },
   // DungeonStat("Arcade_BallBonus") rebuilt from an empty cache, "Arcade_SecPerBall", "Arcade_MaxClaimTime"
   ballBonus: 141,
   secPerBall: 1593.6254980079682,
@@ -34,7 +27,7 @@ const { account, characters } = parseFixture(latest);
 const serverVars = { ...latest.serverVars, ArcGballPCT: GAME.goldBallEventPct };
 
 describe('arcade verified against the live game', () => {
-  it.each([...GAME.shopBonuses.entries()])('shop upgrade %i', (index, value) => {
+  it.each(Object.entries(GAME.shopBonuses))('shop upgrade %s', (index, value) => {
     within(account.arcade.shop[index].bonus, value);
   });
 

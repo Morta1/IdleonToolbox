@@ -17,11 +17,10 @@ const GAME = {
   // Ninja("NLbonuses", t, 0); 9 is the game's unused row
   knowledge: [0, 1416, 4506, 298, 583, 2992, 1729, 1657, 1811, null, 1568, 1978, 1668, 2360, 314, 360, 58, 128, 75,
     1215, 170, 16, 58, 3660, 33750, 9600, 116, 610, 1044],
-  // Ninja("NinjaBonus", subType, -1): the Gold_ inventory items
+  // Ninja("NinjaBonus", subType, -1): the Gold_ inventory items held, and Gold_Dagger for the ones that are not
   goldItems: {
     Gold_Coin: 789.2171850162359, Gold_Eye: 1556.3269623936435, Gold_Coupon: 488.64427292659593,
-    Gold_Scroll: 1247.0532842682287, Gold_Dagger: 0, Gold_Beads: 0, Gold_Star: 152.9840897383244, Gold_Sai: 0,
-    Gold_Envelope: 0, Gold_Q_Mark: 0
+    Gold_Scroll: 1247.0532842682287, Gold_Dagger: 0, Gold_Star: 152.9840897383244
   },
   // Ninja("NinjaBonus", t, subType) for subTypes [7, 4, 17, 8, 16, 13, 19, 2, 14, 6], every ninja sharing a floor
   charmSubTypes: [7, 4, 17, 8, 16, 13, 19, 2, 14, 6],

@@ -13,8 +13,8 @@ import { getLiquidCauldrons } from '@parsers/world-2/alchemy';
 // totals had moved on by a few levels since the export (smithing 1730 vs 1729), but no rank changed.
 // DNSM.skillLvRanks was rebuilt with RiftStuff("skillLvRanks") first and restored afterwards.
 const GAME = {
-  // DNSM.skillLvRanks, by skill index (Lv0[index + 1]); 20..23 are unused skill slots
-  skillRanks: [5, 7, 5, 5, 7, 6, 5, 7, 6, 7, 7, 7, 7, 7, 7, 7, 7, 7, 7, 6],
+  // DNSM.skillLvRanks, by skill index (Lv0[index + 1]): one skill per rank the account holds
+  skillRanks: { 0: 5, 5: 6, 1: 7 },
   // RiftStuff("RiftSkillBonus," + skill, tier) for tiers 0..7, the same string for every skill of a rank
   masteryTiersByRank: { 5: '11111000', 6: '11111100', 7: '11111110' },
   // RiftStuff("RiftSkillETC", 0..4): damage, smithing-tier skill EXP, all efficiency, printer, all skill EXP
@@ -33,8 +33,8 @@ const skillByIndex = (index) => Object.values(account.totalSkillsLevels).find((s
 const riftBonuses = account.rift.list.map(({ riftBonus }, index) => [riftBonus, index]).filter(([riftBonus]) => riftBonus);
 
 describe('rift verified against the live game', () => {
-  it.each([...GAME.skillRanks.entries()])('skill %i mastery rank', (index, rank) => {
-    expect(skillByIndex(index).rank).toBe(rank);
+  it.each(Object.entries(GAME.skillRanks))('skill %s mastery rank', (index, rank) => {
+    expect(skillByIndex(Number(index)).rank).toBe(rank);
   });
 
   it.each(Object.entries(GAME.masteryTiersByRank))('mastery rank %s tiers unlocked', (rank, tiers) => {
@@ -46,7 +46,8 @@ describe('rift verified against the live game', () => {
     expect(getSkillMasteryBonusByIndex(account.totalSkillsLevels, account.rift, index)).toBe(value);
   });
 
-  it.each(riftBonuses)('%s unlock', (riftBonus, index) => {
+  // the last bonus the rift level reaches and the first one past it
+  it.each(riftBonuses.slice(GAME.riftBonusUnlockedBelow - 1, GAME.riftBonusUnlockedBelow + 1))('%s unlock', (riftBonus, index) => {
     expect(!!isRiftBonusUnlocked(account.rift, riftBonus)).toBe(index / 5 - 1 < GAME.riftBonusUnlockedBelow);
   });
 

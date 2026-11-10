@@ -2,7 +2,8 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { within } from '../helpers/live-verified';
+import { mismatch, within } from '../helpers/live-verified';
+import { expectNoBreaks } from '../helpers/sweep';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr.
@@ -61,8 +62,10 @@ describe('sushi station verified against the live game', () => {
     sushi.knowledgeTotals.forEach((value, index) => within(value, GAME.knowledgeTotals[index]));
   });
 
-  it.each(sushi.upgrades.map(({ visualIndex, cost }) => [visualIndex, cost]))('upgrade at position %i: cost', (position, cost) => {
-    within(cost, GAME.costs[position]);
+  it('cost of every upgrade, by its position on the screen', () => {
+    expect(sushi.upgrades).toHaveLength(GAME.costs.length);
+    expectNoBreaks(sushi.upgrades, ({ visualIndex }) => `position ${visualIndex}`,
+      ({ visualIndex, cost }) => mismatch(cost, GAME.costs[visualIndex]));
   });
 
   it.each([

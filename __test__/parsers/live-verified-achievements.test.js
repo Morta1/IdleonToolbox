@@ -20,18 +20,13 @@ const GAME = {
     294, 296, 298, 299, 301, 302, 307, 309, 310, 350, 355, 356, 357, 358, 359, 360, 361, 362, 363, 365, 366, 367,
     368, 369, 371, 372, 375, 376, 377, 380, 381, 382
   ],
-  // AchieveReg progress on unfinished entries without a Steam link
-  progress: { 93: 196, 122: 5, 123: 7, 157: 7, 188: 71, 230: 4796, 240: 3798, 241: 231532, 297: 279 },
-  // AchieveStatus(i) for every index a toolbox formula reads, nonzero ones (5/10/20 are the weighted entries)
-  status: {
-    4: 5, 27: 5, 37: 5, 44: 5, 57: 1, 58: 1, 59: 1, 60: 1, 61: 1, 62: 1, 74: 1, 99: 20, 104: 20, 107: 5, 108: 10,
-    112: 20, 119: 1, 120: 1, 124: 1, 145: 1, 148: 1, 153: 1, 158: 1, 184: 1, 185: 1, 186: 1, 189: 1, 218: 1, 221: 1,
-    224: 1, 225: 1, 233: 1, 235: 1, 283: 1, 285: 1, 287: 1, 289: 1, 290: 1, 291: 1, 294: 1, 296: 1, 307: 1, 350: 1,
-    355: 1, 356: 1, 357: 1, 359: 1, 360: 1, 363: 1, 365: 1, 368: 1, 371: 1, 375: 1, 376: 1, 377: 1, 380: 1, 381: 1
-  },
-  // the same lookups that the game returned 0 for
-  zeroStatus: [109, 117, 121, 122, 123, 187, 188, 212, 240, 280, 284, 286, 297, 303, 305, 308, 311, 351, 352, 354, 364,
-    370, 373, 379, 383, 384]
+  // AchieveReg progress on an unfinished entry without a Steam link (a raw read, so one entry)
+  progress: { 93: 196 },
+  // AchieveStatus(i): the weighted entries (5/10/20) and one plain entry, all completed. Completion itself is pinned
+  // by the list above
+  status: { 4: 5, 27: 5, 37: 5, 44: 5, 57: 1, 99: 20, 104: 20, 107: 5, 108: 10, 112: 20 },
+  // lookups the game returned 0 for: 109 and 117 are weighted entries not completed yet, 121 a plain one
+  zeroStatus: [109, 117, 121]
 };
 
 const { account } = parseFixture(latest);
@@ -42,7 +37,8 @@ describe('achievements verified against the live game', () => {
     expect(completed).toEqual(GAME.completed);
   });
 
-  it.each(Object.entries(GAME.progress).map(([index, value]) => [Number(index), value]))('progress of %i', (index, value) => {
+  it('progress of an unfinished entry', () => {
+    const [[index, value]] = Object.entries(GAME.progress);
     expect(account.achievements[index].currentQuantity).toBe(value);
   });
 

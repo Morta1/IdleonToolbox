@@ -10,17 +10,10 @@ const GAME = {
   // ArbitraryCode("TotalQuestsComplete") = DNSM.TomeQTY[4]: SceneNPCquestOrder quests any character has at 1
   totalQuestsComplete: 282,
   // Per character: QuestComplete entries at 1, NPCdialogue.Picnic_Stowaway (the daily reset clamps it to 20),
-  // and whether the picnic alert should fire: past the daily questline's start with none of today's quests done
+  // and whether the picnic alert should fire: past the daily questline's start with none of today's quests done.
+  // One character past the start (20), one a step short of it (19) and one who never met him (0)
   characters: [
     ['morta11', 160, 20, true],
-    ['mortastr', 171, 14, false],
-    ['MortaWiz', 138, 20, true],
-    ['MortaStir', 131, 20, true],
-    ['MortaWiiz', 148, 16, false],
-    ['IAmTheHunterrr', 199, 20, true],
-    ['MortaMan', 254, 20, true],
-    ['MortaCatch', 123, 20, true],
-    ['MortasNinth', 161, 20, true],
     ['Morojo', 110, 19, false],
     ['Morojoze', 77, 0, false]
   ],

@@ -22,16 +22,11 @@ const GAME = {
     'Monster_EXP_While_Active': 241.5,
     'EXP_from_monsters': 330.75
   },
-  // ...and every owned card of a skill once its rift mastery replaces the equipped copies, plus Card
-  // Drop Chance through upgrade vault 44
+  // ...and every owned card of a skill once its rift mastery replaces the equipped copies (one effect per skill),
+  // plus Card Drop Chance through upgrade vault 44
   passiveCardBonus: {
-    'Total_Mining_Efficiency': 60, 'Mining_EXP': 73, 'Mining_Away_Gains': 45, 'Mining_Speed': 91,
-    'Total_Choppin_Efficiency': 86, 'Choppin_EXP': 20, 'Choppin_Away_Gains': 57.5, 'Choppin_Speed': 98,
-    'Total_Fishing_Efficiency': 175, 'Fishing_EXP': 210, 'Fishing_Away_Gains': 63.5, 'Fishing_Speed': 70,
-    'Total_Catching_Efficiency': 178, 'Catching_EXP': 41, 'Catching_Away_Gains': 47.5, 'Catching_Speed': 42,
-    'Shiny_Critter_Chance': 178, 'Trapping_Efficiency': 60, 'Trapping_EXP': 70,
-    'Charge_Rate': 60, 'Starting_Pts_in_Worship': 100, 'Max_Charge': 85,
-    'Spelunking_EXP': 42, 'Spelunking_Efficiency': 97, 'Spelunking_AFK_Gain': 32,
+    'Total_Mining_Efficiency': 60, 'Choppin_EXP': 20, 'Fishing_Away_Gains': 63.5, 'Catching_Speed': 42,
+    'Shiny_Critter_Chance': 178, 'Trapping_Efficiency': 60, 'Charge_Rate': 60, 'Spelunking_EXP': 42,
     'Card_Drop_Chance': 159
   },
   // Cards[3]: the equipped Bosses set

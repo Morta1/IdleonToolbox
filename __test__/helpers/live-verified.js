@@ -10,6 +10,12 @@ export const within = (actual, expected, tolerance = 1e-9) => expected === 0
   ? expect(actual).toBe(0)
   : expect(Math.abs(actual / expected - 1)).toBeLessThan(tolerance);
 
+// The same closeness as a list of problems, for a table swept in one test (helpers/sweep.js expectNoBreaks)
+export const mismatch = (actual, expected, { tolerance = 1e-9, exact = false, what = '' } = {}) => {
+  const close = exact || expected === 0 ? actual === expected : Math.abs(actual / expected - 1) < tolerance;
+  return close ? [] : [`${what ? `${what}: ` : ''}got ${actual}, the game has ${expected}`];
+};
+
 // A rounded breakdown's tree before its rounding: the product of its top-level nodes
 export const unrounded = (breakdown) => breakdown.tree.reduce((product, node) => product * evaluateBreakdownNode(node), 1);
 

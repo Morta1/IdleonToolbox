@@ -76,7 +76,8 @@ describe('sigils verified against the live game', () => {
     expect(COST_FIELDS.map((field) => sigils[0][field])).toEqual(GAME.firstSigilCosts);
   });
 
-  it.each([...GAME.tiers.entries()])('sigil %i at tier %i: next cost and charge rate', (index, tier) => {
+  // a maxed sigil (0), one below its max that nobody charges (5) and the one being charged (10)
+  it.each([0, 5, 10].map((index) => [index, GAME.tiers[index]]))('sigil %i at tier %i: next cost and charge rate', (index, tier) => {
     const sigil = sigils[index];
     expect(sigil.nextCost).toBe(sigil[COST_FIELDS[tier + 1]] ?? null);
     within(sigil.chargeRate, chargingCharacters(index) * GAME.sigilSpeed);

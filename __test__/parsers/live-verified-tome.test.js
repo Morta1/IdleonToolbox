@@ -2,7 +2,8 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { within } from '../helpers/live-verified';
+import { mismatch, within } from '../helpers/live-verified';
+import { expectNoBreaks } from '../helpers/sweep';
 import { ninjaExtraInfo, tomeData } from '@website-data';
 import { quantityForPoints } from '@components/account/Worlds/World4/tomeQuantity';
 
@@ -76,9 +77,11 @@ const lines = account.tome.tome.map((line) => ({ ...line, tomeLine: Number(displ
 const comparableLines = lines.filter(({ tomeLine }) => !STALE_GAME_LINES.has(tomeLine) && tomeLine < GAME.quantities.length);
 
 describe('tome verified against the live game', () => {
-  it.each(comparableLines.map((line) => [line.tomeLine, line]))('line %i: quantity and points', (tomeLine, line) => {
-    within(line.quantity, GAME.quantities[tomeLine]);
-    expect(line.points).toBe(GAME.points[tomeLine]);
+  it('quantity and points of every line', () => {
+    expectNoBreaks(comparableLines, ({ tomeLine }) => `line ${tomeLine}`, ({ tomeLine, quantity, points }) => [
+      ...mismatch(quantity, GAME.quantities[tomeLine], { what: 'quantity' }),
+      ...mismatch(points, GAME.points[tomeLine], { what: 'points', exact: true })
+    ]);
   });
 
   it('level requirement of every line, in display order', () => {

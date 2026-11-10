@@ -2,6 +2,8 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
+import { mismatch } from '../helpers/live-verified';
+import { expectNoBreaks } from '../helpers/sweep';
 import {
   getLegendTalentBonus,
   getSuperTalentLeftToSpend,
@@ -45,9 +47,11 @@ const loggedIn = characters.find(({ name }) => name === 'IAmTheHunterrr');
 const talentsByIndex = Object.fromEntries(account.legendTalents.talents.map((talent) => [talent.originalIndex, talent]));
 
 describe('legend talents verified against the live game', () => {
-  it.each(liveEntries(legendTalents).map(({ index }) => [index]))('talent %i: bonus and max level', (index) => {
-    expect(getLegendTalentBonus(account, index)).toBe(GAME.bonuses[index]);
-    expect(talentsByIndex[index].maxLevel).toBe(GAME.maxLevels[index]);
+  it('bonus and max level of every talent', () => {
+    expectNoBreaks(liveEntries(legendTalents), ({ index }) => `talent ${index}`, ({ index }) => [
+      ...mismatch(getLegendTalentBonus(account, index), GAME.bonuses[index], { what: 'bonus', exact: true }),
+      ...mismatch(talentsByIndex[index].maxLevel, GAME.maxLevels[index], { what: 'max level', exact: true })
+    ]);
   });
 
   it('points owned and spent', () => {

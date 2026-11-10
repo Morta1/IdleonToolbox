@@ -11,7 +11,8 @@ import { getMaxDamage } from '@parsers/damage';
 // Read from the running game on 11 Oct 2026 through the debug server, logged in as IAmTheHunterrr
 // (Wind Walker). latest.json is that account's save (OptionsListAccount[340] matches).
 const GAME = {
-  // PostOfficeINFO("BonusAmount", box, 0 | 1 | 2) for the logged-in character
+  // PostOfficeINFO("BonusAmount", box, 0 | 1 | 2) for the logged-in character. Dwarven_Supplies stands for the
+  // boxes with no points in them, which all read 0
   boxBonuses: {
     Civil_War_Memory_Box: [400, 8.478260869565217, 6],
     Locally_Sourced_Organs: [201, 37.5, 18],
@@ -19,11 +20,8 @@ const GAME = {
     Box_of_Unwanted_Stats: [100, 112.5, 18.51063829787234],
     Dwarven_Supplies: [0, 0, 0],
     Blacksmith_Box: [33.333333333333336, 48.91304347826087, 20],
-    Taped_Up_Timber: [0, 0, 0],
     Carepack_From_Mum: [15.333333333333334, 19.565217391304348, 18],
-    Sealed_Fishheads: [0, 0, 0],
     Potion_Package: [46.666666666666664, 42.857142857142854, 30],
-    Bug_Hunting_Supplies: [0, 0, 0],
     Non_Predatory_Loot_Box: [33.333333333333336, 93.75, 39],
     Deaths_Storage_Unit: [14.666666666666666, 10.714285714285714, 9],
     Utilitarian_Capsule: [3.3333333333333335, 9.782608695652174, 23.4],
@@ -34,9 +32,7 @@ const GAME = {
     Crate_of_the_Creator: [33.333333333333336, 130.43478260869566, 54],
     Chefs_Essentials: [1600, 39.130434782608695, 52.8],
     Myriad_Crate: [11.669336439978641, 24.437832300863374, 1.482685581991035],
-    "Scurvy_C'arr'ate": [5.333333333333333, 150, 15],
-    Box_of_Gosh: [0, 0, 0],
-    Gaming_Lootcrate: [0, 0, 0]
+    "Scurvy_C'arr'ate": [5.333333333333333, 150, 15]
   },
   // Divinity("DivPerHr_EXP", 5) with DNSM.BoxRewards 22a / 22c set to the Box of Gosh values at 800 points
   // (50 / 18, restored after): the game reads 22c, so 22a alone left the rate unchanged

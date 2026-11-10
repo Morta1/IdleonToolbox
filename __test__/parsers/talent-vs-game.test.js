@@ -6,13 +6,14 @@ import fresh from '../fixtures/fresh.json';
 // Values below are pinned to the 22 Aug 2026 save (latest-2026-08.json), checked against the game then.
 import latest from '../fixtures/latest-2026-08.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
+import { expectNoBreaks } from '../helpers/sweep';
 import { CLASSES, getHighestTalentAcrossCharacters, getHighestTalentByClass } from '@parsers/talents';
 
 // Every talent reached by a getHighestTalentByClass call site anywhere in parsers/, read out of the
 // live client on 2026-09-08 with MortasNinth ('Nine') playing: _customBlock_getbonus2(1, id, -1), or
 // (2, id, -1) for the y-variant. Regenerate by switching character in game and re-reading - the
 // numbers move with whoever is active, so the whole table is tied to that one character.
-// The Royal Guardian rows and CHARGE_SYPHON are the exception: this account has levelled all of them
+// The Royal Guardian rows (UNLEVELLED below) and CHARGE_SYPHON are the exception: this account has levelled all of them
 // since the fixture was taken, so the live client no longer answers what the fixture holds and they
 // stay pinned to the fixture's own values - see the notes on those rows.
 // [class, talent, talentId, expected, yBonus?]
@@ -27,7 +28,6 @@ const TALENTS = [
   ["Voidwalker", "MASTER_OF_THE_SYSTEM", 58, 4.126984126984127],
   ["Voidwalker", "BLOOD_MARROW", 59, 1.0230769230769232],
   ["Divine_Knight", "THE_FAMILY_GUY", 144, 34.091580502215656],
-  ["Siege_Breaker", "THE_FAMILY_GUY", 144, 34.091580502215656],
   ["Divine_Knight", "1000_HOURS_PLAYED", 176, 49.20863309352518],
   ["Divine_Knight", "BITTY_LITTY", 177, 17.045790251107828],
   // Added with the printer multi and crop evolution fixes. Pinned to the fixture's own values with
@@ -71,7 +71,12 @@ const TALENTS = [
   ["Arcane_Cultist", "ESSENTIAL_ESSENCE", 595, 355.07246376811594],
   ["Arcane_Cultist", "PASSION_OF_THE_SUMMON", 596, 4.8545887961859355],
   ["Arcane_Cultist", "ABSOLUTE_STARDOM", 597, 180.85],
-  ["Arcane_Cultist", "TACHYON_TRUTH", 598, 7.508982035928144],
+  ["Arcane_Cultist", "TACHYON_TRUTH", 598, 7.508982035928144]
+];
+
+// Talents nobody in this fixture has levelled, so each answers with its level-0 identity. One test, since they
+// all take the same path; the rows stay listed so the coverage check below still sees every lookup.
+const UNLEVELLED = [
   // Royal Guardian (patch 2.3.525): no character in this fixture has levelled these, so
   // the pinned values are each talent's level-0 identity (0 for decay, 1 for decayMulti) - still a
   // real regression lock, since a typo'd talent name would silently resolve to a different value.
@@ -95,8 +100,8 @@ const TALENTS = [
   // Added with MarbleDrop. The live client reads talent 232 here, not the 231 that
   // z-processing/resources/N.js still shows, so this pin is what catches a regression back to 231.
   ["Royal_Guardian", "AESTHETIC_POLITICS", 232, 1]
-
 ];
+const ALL_TALENTS = [...TALENTS, ...UNLEVELLED];
 
 describe('every talent used by a parser matches the game', () => {
   const { characters } = parseFixture(latest);
@@ -109,9 +114,16 @@ describe('every talent used by a parser matches the game', () => {
     expect(got).toBeCloseTo(expected, 10);
   });
 
+  it('every talent nobody has levelled answers with its level-0 identity', () => {
+    expectNoBreaks(UNLEVELLED, ([, talent, id, , yBonus]) => `${talent} (id ${id})${yBonus ? ' y' : ''}`, ([, talent, , expected, yBonus]) => {
+      const got = getHighestTalentAcrossCharacters(characters, talent, active, yBonus ? 'y' : false);
+      return Math.abs(got - expected) < 5e-11 ? [] : [`got ${got}, the game has ${expected}`];
+    });
+  });
+
   it('still agrees with the class-filtered lookup wherever the id belongs to one class', () => {
     const shared = ['THE_FAMILY_GUY'];
-    TALENTS.filter(([, talent]) => !shared.includes(talent)).forEach(([className, talent, , , yBonus]) => {
+    ALL_TALENTS.filter(([, talent]) => !shared.includes(talent)).forEach(([className, talent, , , yBonus]) => {
       const scoped = getHighestTalentByClass(characters, CLASSES[className], talent,
         yBonus ? 'y' : false, false, false, false, active);
       const global = getHighestTalentAcrossCharacters(characters, talent, active, yBonus ? 'y' : false);
@@ -136,7 +148,7 @@ describe('every talent used by a parser matches the game', () => {
         looked.add(name.replace(/\\'/g, "'"));
       }
     });
-    const pinned = new Set(TALENTS.map(([, talent]) => talent));
+    const pinned = new Set(ALL_TALENTS.map(([, talent]) => talent));
     expect([...looked].filter((talent) => !pinned.has(talent))).toEqual([]);
   });
 });

@@ -8,8 +8,9 @@ import { getClassExpMulti } from '@parsers/character';
 
 // prayersReal(i, 0) / prayersReal(i, 1) read from the running game on 11 Oct 2026 through the debug server,
 // logged in as IAmTheHunterrr (PrayersActive 13, 3, 1, 5, 16; superbits 9, 39 and 53 owned). latest.json is that
-// save. Every prayer it has not equipped reads 0 / 0.
+// save. Every prayer it has not equipped reads 0 / 0: Big_Brain_Time stands for those.
 const GAME = {
+  Big_Brain_Time: [0, 0],
   Skilled_Dimwit: [159, 106],
   Shiny_Snitch: [28, 21],
   Tachion_of_the_Titans: [11, 11],
@@ -21,7 +22,7 @@ const { account, characters } = parseFixture(latest);
 const hunter = characters.find((character) => character?.name === 'IAmTheHunterrr');
 
 describe('prayers match the live game', () => {
-  it.each(account.prayers.map(({ name }) => [name, GAME[name] ?? [0, 0]]))('%s', (name, [bonus, curse]) => {
+  it.each(Object.entries(GAME))('%s', (name, [bonus, curse]) => {
     expect(getPrayerBonusAndCurse(hunter.activePrayers, name, account)).toEqual({ bonus, curse });
   });
 });

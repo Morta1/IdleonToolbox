@@ -2,7 +2,8 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
-import { within } from '../helpers/live-verified';
+import { mismatch, within } from '../helpers/live-verified';
+import { expectNoBreaks } from '../helpers/sweep';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr.
 // latest.json is that account's save (UpgVault and AchieveReg match). Lists are indexed by upgrade.
@@ -82,11 +83,12 @@ const { account } = parseFixture(latest);
 const vault = account.upgradeVault;
 
 describe('upgrade vault verified against the live game', () => {
-  it.each([...GAME.bonuses.entries()])('upgrade %i: bonus, cost and max level', (index, bonus) => {
-    const upgrade = vault.upgrades[index];
-    within(upgrade.bonus, bonus);
-    within(upgrade.cost, GAME.costs[index]);
-    expect(upgrade.maxLevel).toBe(GAME.maxLevels[index]);
+  it('bonus, cost and max level of every upgrade', () => {
+    expectNoBreaks(vault.upgrades.slice(0, GAME.bonuses.length), ({ index }) => `upgrade ${index}`, ({ index, bonus, cost, maxLevel }) => [
+      ...mismatch(bonus, GAME.bonuses[index], { what: 'bonus' }),
+      ...mismatch(cost, GAME.costs[index], { what: 'cost' }),
+      ...mismatch(maxLevel, GAME.maxLevels[index], { what: 'max level', exact: true })
+    ]);
   });
 
   it('VaultKillzTotal list', () => {

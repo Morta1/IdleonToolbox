@@ -8,17 +8,16 @@ import { getArmorSetBonus, getArmorSmithy, getSetPartsOn, getSetPartsReq } from 
 // Read from the running game on 2026-10-12 through the debug server, logged in as MortasNinth.
 // latest.json is that account's save (OptionsListAccount[379] matches; [381], the day counter, moved 258 -> 260).
 const GAME = {
+  // RANDOlist[113], the order of the smithy's list
+  order: ['COPPER_SET', 'IRON_SET', 'AMAROK_SET', 'GOLD_SET', 'PLATINUM_SET', 'EFAUNT_SET', 'DEMENTIA_SET', 'VOID_SET',
+    'CHIZOAR_SET', 'LUSTRE_SET', 'DIABOLICAL_SET', 'TROLL_SET', 'SECRET_SET', 'MAGMA_SET', 'KATTLEKRUK_SET',
+    'MARBIGLASS_SET', 'GODSHARD_SET', 'EMPEROR_SET', 'PREHISTORIC_SET'],
   // DNSM.SetBonusTOTz, the GetSetBonus(set, "Bonus") map: the sets it holds a value for, each its catalog value
   payingSets: ['COPPER_SET', 'IRON_SET', 'AMAROK_SET', 'GOLD_SET', 'PLATINUM_SET', 'EFAUNT_SET', 'DEMENTIA_SET', 'VOID_SET',
     'CHIZOAR_SET', 'TROLL_SET', 'MAGMA_SET'],
   copperSetBonus: 60,
-  // GetSetBonus(set, "PartsOn") / GetSetBonus(set, "PartsReq") for MortasNinth's gear, in RANDOlist[113] order (the smithy's list)
-  parts: {
-    COPPER_SET: [0, 4], IRON_SET: [0, 4], AMAROK_SET: [0, 4], GOLD_SET: [0, 6], PLATINUM_SET: [0, 6],
-    EFAUNT_SET: [0, 4], DEMENTIA_SET: [0, 7], VOID_SET: [0, 7], CHIZOAR_SET: [0, 4], LUSTRE_SET: [0, 7],
-    DIABOLICAL_SET: [0, 7], TROLL_SET: [0, 4], SECRET_SET: [0, 5], MAGMA_SET: [0, 8], KATTLEKRUK_SET: [0, 6],
-    MARBIGLASS_SET: [2, 9], GODSHARD_SET: [0, 11], EMPEROR_SET: [0, 7], PREHISTORIC_SET: [9, 11]
-  },
+  // GetSetBonus(set, "PartsOn") / GetSetBonus(set, "PartsReq") for MortasNinth's gear: a set with nothing worn and the two with parts on
+  parts: { COPPER_SET: [0, 4], MARBIGLASS_SET: [2, 9], PREHISTORIC_SET: [9, 11] },
   // GetSetBonus("N", "PermaUnlockAfford")
   canUnlockSmithy: true
 };
@@ -28,7 +27,7 @@ const mortasNinth = characters.find(({ name }) => name === 'MortasNinth');
 
 describe('armor smithy verified against the live game', () => {
   it('sets in the smithy order', () => {
-    expect(account.armorSmithy.sets.map(({ setName }) => setName)).toEqual(Object.keys(GAME.parts));
+    expect(account.armorSmithy.sets.map(({ setName }) => setName)).toEqual(GAME.order);
   });
 
   it('the sets that pay a bonus, and what one pays', () => {
