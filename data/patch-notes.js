@@ -21,7 +21,8 @@ export const patchNotes = [
       'Levels ahead setting on Coral Reef, Coral Kid, Minehead, Sushi Station, Jelly Operator and Sneaking upgrades shows the total cost of several levels',
       'Equinox can show the bar requirement a few upgrade levels ahead and how long it takes to fill',
       'Tome: entries with in-game help text now show it behind an info button',
-      'Dashboard: the Spelunking stamina alert can count characters from a stamina percent, so it fires before they are full'
+      'Dashboard: the Spelunking stamina alert can count characters from a stamina percent, so it fires before they are full',
+      'Goals: Dancing coral can now track unlocking each coral, with a bar for coral owned vs cost'
     ],
     'fixes': [
       'Farming: a crop family\'s max time under a second shows in milliseconds again instead of "<1s"',

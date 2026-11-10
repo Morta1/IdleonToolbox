@@ -54,10 +54,10 @@ const valueProblems = (d, ctx) => {
       return [
         ...(Number.isFinite(m.value(row, ctx)) ? [] : [`${name} ${d.key(row)} value`]),
         ...(max === null || (Number.isFinite(max) && max > 0) ? [] : [`${name} ${d.key(row)} max ${max}`]),
-        ...(!m.cost || (price > 0 && Number.isFinite(price)) ? [] : [`${name} ${d.key(row)} price ${price}`])
+        ...(!m.cost || (price > 0 && Number.isFinite(price)) ? [] : [`${name} ${d.key(row)} price ${price}`]),
+        ...(!m.cost || Number.isFinite(m.cost.have(ctx, row)) ? [] : [`${name} ${d.key(row)} cost have`])
       ];
-    }),
-    ...(!m.cost || Number.isFinite(m.cost.have(ctx)) ? [] : [`${name} cost have`])
+    })
   ]);
 };
 const everyDescriptor = (rule) => expectNoBreaks(DESCRIPTORS, ({ system }) => system, rule);

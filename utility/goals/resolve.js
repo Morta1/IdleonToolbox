@@ -73,9 +73,11 @@ const costOf = (metric, row, ctx) => {
   if (!metric.cost) return null;
   const price = metric.cost.price(row, ctx);
   if (!Number.isFinite(price) || price <= 0) return null;
-  const have = metric.cost.have(ctx);
+  // a row paid from its own item (a coral, say) reads its balance and icon from the row
+  const have = metric.cost.have(ctx, row);
   // display 'coins' draws the coin tiers; icon(n) and format(n) draw any other currency
-  const { label, display, icon, format } = metric.cost;
+  const { label, display, format } = metric.cost;
+  const icon = metric.cost.icon ? (n) => metric.cost.icon(n, row) : null;
   return { label, ...(display ? { display } : {}), ...(icon ? { icon } : {}), ...(format ? { format } : {}), have: Number.isFinite(have) ? have : 0, price };
 };
 
