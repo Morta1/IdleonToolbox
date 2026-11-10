@@ -240,15 +240,16 @@ describe('values with no live reading yet', () => {
     const endless = account?.accountOptions?.[319];
     const perHundred = Math.max(0, Math.floor(totalUpgradesLevels / 100));
     const health = (1 + sum([1, 10, 35, 37]))
-      * (1 + valueOf(20) / 100)
+      * (1 + (valueOf(20) + valueOf(81)) / 100)
       * (1 + (valueOf(50) + (valueOf(59) + valueOf(63) * endless)) / 100)
       * (1 + (valueOf(61) * perHundred) / 100);
     const damage = (1 + sum([3, 12, 21, 31]))
       * (1 + (valueOf(43) + valueOf(74)) / 100)
       * (1 + (valueOf(51) + (valueOf(56) + valueOf(64) * endless)) / 100)
       * (1 + (valueOf(60) * perHundred) / 100);
-    if (Number.isFinite(health)) expect(account.summoning.armyHealth).toBe(health);
-    if (Number.isFinite(damage)) expect(account.summoning.armyDamage).toBe(damage);
+    // The breakdown multiplies its groups in another order, so the last digit can differ
+    if (Number.isFinite(health)) expect(account.summoning.armyHealth / health).toBeCloseTo(1, 12);
+    if (Number.isFinite(damage)) expect(account.summoning.armyDamage / damage).toBeCloseTo(1, 12);
   }));
 });
 

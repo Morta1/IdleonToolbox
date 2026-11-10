@@ -12,7 +12,9 @@ import ItemCard from '@components/common/cards/ItemCard';
 const COLOR_MAP = { ...SUMMONING_COLOURS, 9: 'Endless' };
 const BATTLES_TOOLBAR = { show: 'open' };
 
-const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel, winnerBonuses }) => {
+const Battles = ({ battles, armyHealth, armyDamage, armyHealthBreakdown, armyDamageBreakdown, highestEndlessLevel, winnerBonuses }) => {
+  const damageText = formatGame(armyDamage, 'Summoning.UnitDMG');
+  const healthText = formatGame(armyHealth, 'Summoning.UnitHP');
   // The endless battles join the colours' as the tenth list, without writing into the parsed account
   const allBattles = [...(battles ?? []).slice(0, 9), getEndlessBattles(200, highestEndlessLevel, winnerBonuses)];
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('summoning-battles', BATTLES_TOOLBAR);
@@ -23,8 +25,10 @@ const Battles = ({ battles, armyHealth, armyDamage, highestEndlessLevel, winnerB
   return <>
     {/* A row that wraps, so a long number never breaks mid-word on a phone */}
     <Stack mb={1} direction={'row'} gap={1} flexWrap={'wrap'}>
-      <StatTile icon={'data/SumUpgIc3.png'} label={'Army damage'} value={formatGame(armyDamage, 'Summoning.UnitDMG')}/>
-      <StatTile icon={'data/SumUpgIc1.png'} label={'Army health'} value={formatGame(armyHealth, 'Summoning.UnitHP')}/>
+      <StatTile icon={'data/SumUpgIc3.png'} label={'Army damage'} value={damageText}
+                breakdown={armyDamageBreakdown ? { ...armyDamageBreakdown, totalValue: damageText } : undefined}/>
+      <StatTile icon={'data/SumUpgIc1.png'} label={'Army health'} value={healthText}
+                breakdown={armyHealthBreakdown ? { ...armyHealthBreakdown, totalValue: healthText } : undefined}/>
     </Stack>
 
     <Box>

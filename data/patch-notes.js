@@ -33,7 +33,8 @@ export const patchNotes = [
       'Wiki: Arcade Upgrades show Super and Omega values, and the Effect note now says it is the max level value',
       'Bundles: see the bundles in the gem shop right now, in the order the shop shows them',
       'Goals: Spelunking gets Biggest haul per cave, Amber gain, and Power against each discovery and lore boss requirement',
-      'Goals: All characters goals can now track every entry, like all bags or all talents, on each character'
+      'Goals: All characters goals can now track every entry, like all bags or all talents, on each character',
+      'Summoning: army damage, army health and winner bonuses show a breakdown; army health now counts Glombolic Units'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',

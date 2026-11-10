@@ -37,6 +37,8 @@ const Summoning = () => {
     allBattles,
     armyHealth,
     armyDamage,
+    armyHealthBreakdown,
+    armyDamageBreakdown,
     highestEndlessLevel,
     totalUpgradesLevels,
     summoningStones,
@@ -96,6 +98,7 @@ const Summoning = () => {
                 familiarCostReset={state?.lastUpdated + familiarCostResetSeconds * 1000}/>}
       <WinnerBonuses winnerBonuses={winnerBonuses}/>
       {parseFailed ? null : <Battles battles={allBattles} armyHealth={armyHealth} armyDamage={armyDamage}
+               armyHealthBreakdown={armyHealthBreakdown} armyDamageBreakdown={armyDamageBreakdown}
                highestEndlessLevel={highestEndlessLevel} winnerBonuses={winnerBonuses}/>}
       <Stones stones={summoningStones}/>
     </Tabber>
