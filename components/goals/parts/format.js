@@ -57,7 +57,8 @@ export const shortTier = (name) => String(name ?? '').replace(TIER_NUMBER, '');
 export const ALL_CHARACTERS = 'All characters';
 
 export const goalName = (view) => {
-  if (isAllChars(view.scope)) return `${ALL_CHARACTERS} ${view.name}`;
+  // one entry on every character keeps its key; every entry on every character has none
+  if (isAllChars(view.scope)) return view.key == null ? `${view.name} (${ALL_CHARACTERS.toLowerCase()})` : `${ALL_CHARACTERS} ${view.name}`;
   return isCharScope(view.scope) ? `${view.name} (${view.scope.char})` : view.name;
 };
 
@@ -167,6 +168,7 @@ const plainAmount = (view, entry) => (view.unit === 'percentOfMax' && Number.isF
 
 // One entry's amount in its goal's unit: "Lv 148", the tier name; a yes/no entry has none
 const entryAmount = (view, entry) => {
+  if (entry.counts) return `${formatNumber(entry.counts.met)} of ${formatNumber(entry.counts.total)}`;
   if (view.boolean) return '';
   if (view.tierName !== undefined) return shortTier(entry.valueTierName);
   return `${amountWithUnit(metricOf(view), entry.value, { percent: view.unit === 'percentOfMax' })}${plainAmount(view, entry)}`;
@@ -275,6 +277,8 @@ export const cardLabel = (view) => {
 
 // One entry of an all or group goal
 export const entryProgressText = (view, entry) => {
+  // a character of an all characters all goal counts its own entries
+  if (entry.counts) return `${formatNumber(entry.counts.met)} of ${formatNumber(entry.counts.total)} done`;
   if (view.boolean) return entry.cost ? costFaceText(entry.cost) : booleanWords(view).open;
   if (view.tierName !== undefined) return `${shortTier(entry.valueTierName)} · ${entry.value}/${entry.targetValue}`;
   return `${amountText(view, entry.value, (n) => formatHave(n, entry.targetValue))} of ${amountText(view, entry.targetValue)}${plainAmount(view, entry)}`;

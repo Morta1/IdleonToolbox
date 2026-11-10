@@ -6,12 +6,13 @@ import { firstGroupOf, groupingOf, groupingsOf } from '@utility/goals/groups';
 const ICON_SIZE = 24;
 
 // The system select and the entry search already name what is tracked, so the toggle stays short
-const helperText = (value, { label, entryLabel, allOnly }, grouping) => {
+const helperText = (value, { label, entryLabel, allOnly }, grouping, allChars = false) => {
   const reached = 'reached when all of them meet the target.';
   // A system without a single-entry goal points to the item goals that cover it
   const itemGoals = allOnly ? ' For a single item, add an item goal.' : '';
-  if (value === 'all') return `Every entry in ${label}: ${reached}${itemGoals}`;
-  if (value === 'group') return `Every entry in ${label} in the ${grouping.label.toLowerCase()} you pick: ${reached}${itemGoals}`;
+  const everyChar = allChars ? ' on every character' : '';
+  if (value === 'all') return `Every entry in ${label}${everyChar}: ${reached}${itemGoals}`;
+  if (value === 'group') return `Every entry in ${label} in the ${grouping.label.toLowerCase()} you pick${everyChar}: ${reached}${itemGoals}`;
   return `One ${entryLabel} you pick from the list.`;
 };
 
@@ -26,7 +27,7 @@ export const groupIcon = (descriptor, rows, id) => {
 const sx = { display: 'flex', alignItems: 'center', gap: 1 };
 
 // entryOnly: the goal is for one entry already picked (a page totals system, or an entry promoted from an all goal)
-const AppliesTo = ({ descriptor, rows, value, group, onChange, onGroupChange, entryOnly = false }) => {
+const AppliesTo = ({ descriptor, rows, value, group, onChange, onGroupChange, entryOnly = false, allChars = false }) => {
   const groupings = groupingsOf(descriptor);
   // A descriptor with several groupings (Pets: world, passive) gets a toggle each; the picked group says which is on
   const grouping = value === 'group' ? groupingOf(descriptor, group) : null;
@@ -50,7 +51,7 @@ const AppliesTo = ({ descriptor, rows, value, group, onChange, onGroupChange, en
           <ToggleButton key={label} value={`group-${index}`}>By {label.toLowerCase()}</ToggleButton>
         ))}
       </ToggleButtonGroup>
-      <Typography variant="body2" color="text.secondary">{helperText(value, descriptor, grouping)}</Typography>
+      <Typography variant="body2" color="text.secondary">{helperText(value, descriptor, grouping, allChars)}</Typography>
       {grouping ? (
         <TextField select size="small" fullWidth label={grouping.label} value={group ?? ''}
                    onChange={(e) => onGroupChange(e.target.value)} sx={{ '& .MuiSelect-select': sx }}>

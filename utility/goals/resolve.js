@@ -184,6 +184,41 @@ const resolveAllChars = (goal, descriptor, metric, { account, characters }, base
   };
 };
 
+// Every entry (or a group's) on every character: one entry per character, done once all of that character's entries
+// meet the target. A character with none of the entries is not counted
+const resolveAllCharsAll = (goal, descriptor, metric, { account, characters }, base) => {
+  const entries = (characters ?? []).flatMap((character) => {
+    const rowCtx = { account, characters, character };
+    const rows = descriptor.list(rowCtx) ?? [];
+    const inGroup = goal.group == null ? rows : rows.filter((row) => isInGroup(descriptor, goal.group, row));
+    const own = inGroup.map((row) => evaluateRow(goal, descriptor, metric, row, rowCtx)).filter(Boolean);
+    if (!own.length) return [];
+    const met = own.filter(({ reached }) => reached).length;
+    return [{
+      key: character.name,
+      name: character.name,
+      icon: `data/ClassIcons${character.classIndex ?? 0}`,
+      progress: own.reduce((sum, { progress }) => sum + progress, 0) / own.length,
+      reached: met === own.length,
+      counts: { met, total: own.length }
+    }];
+  });
+  const firstRows = (characters ?? []).map((character) => descriptor.list({ account, characters, character }) ?? [])
+    .find((rows) => rows.length) ?? [];
+  const summary = summarize(goal, entries, firstRows.length);
+  // characters 27 of 30 bags in are most of the way there, so the bar follows them, not only the finished ones
+  const progress = goal.watch || !entries.length ? summary.progress
+    : entries.reduce((sum, entry) => sum + entry.progress, 0) / entries.length;
+  return {
+    ...base,
+    name: allName(goal, descriptor),
+    icon: firstRows.length ? descriptor.icon(firstRows[0]) : null,
+    group: goal.group ?? null,
+    ...summary,
+    progress
+  };
+};
+
 // An entry every character shares (isGlobalKey) is one account value, whatever scope the goal was saved
 // with: it is read on the first character that has it and reads as the account's goal
 const globalContext = (goal, descriptor, { account, characters }) => {
@@ -232,8 +267,8 @@ const resolveInner = (goal, ctx) => {
     return entryView(goal, descriptor, metric, found.row, found.rowCtx, { ...base, ...tier, scope: 'account' });
   }
   if (isAllChars(goal.scope)) {
-    // only one entry across characters: an all goal over every character's entries is not offered
-    if (goal.kind !== 'entry' || descriptor.scope !== 'character') return missingView(goal, descriptor);
+    if (descriptor.scope !== 'character') return missingView(goal, descriptor);
+    if (goal.kind === 'all') return resolveAllCharsAll(goal, descriptor, metric, ctx, { ...base, ...tier });
     return resolveAllChars(goal, descriptor, metric, ctx, { ...base, ...tier });
   }
   const rowCtx = contextFor(goal, descriptor, ctx);

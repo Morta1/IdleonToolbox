@@ -32,7 +32,8 @@ export const patchNotes = [
       'Dashboard: hole layer alerts are now one alert for the 6 shared daily breaks, showing which caverns are ready and how many breaks are left',
       'Wiki: Arcade Upgrades show Super and Omega values, and the Effect note now says it is the max level value',
       'Bundles: see the bundles in the gem shop right now, in the order the shop shows them',
-      'Goals: Spelunking gets Biggest haul per cave, Amber gain, and Power against each discovery and lore boss requirement'
+      'Goals: Spelunking gets Biggest haul per cave, Amber gain, and Power against each discovery and lore boss requirement',
+      'Goals: All characters goals can now track every entry, like all bags or all talents, on each character'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',

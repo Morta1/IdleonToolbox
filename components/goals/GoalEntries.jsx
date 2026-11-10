@@ -75,7 +75,8 @@ const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
                         sx={{ flexShrink: 0, minWidth: 88, textAlign: 'right' }}>
               {entry.cost ? <CostValue cost={entry.cost}/> : entryProgressText(view, entry)}
             </Typography>
-            {descriptor?.allOnly ? null : (
+            {/* a character of an all characters all goal has no single entry to give a goal */}
+            {descriptor?.allOnly || entry.counts ? null : (
               <IconButton size="small" aria-label={`Set goal for ${entry.name}`} sx={ACTION_SX}
                           color={hasOwnGoal(entry) ? 'primary' : 'default'}
                           onClick={() => setPicking({ ...entryGoalOf(view, entry) })}>

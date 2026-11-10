@@ -198,6 +198,12 @@ describe('all and group goals', () => {
     expect([view.met, view.total]).toEqual([levels.filter((level) => level >= target).length, levels.length]);
     expect(goalTitle(view)).toBe(`All characters Mining at least Lv ${formatNumber(target)}`);
     expect(goalFace(view).value).toBe(`${view.met} of ${view.total} characters`);
+    // every entry on every character: a character is done once all its bags are owned
+    const bag = getDescriptor('bag');
+    const bags = parsed.characters.map((character) => bag.list({ ...ctx, character })).filter((rows) => rows.length);
+    const all = resolveGoal(createGoal({ system: 'bag', kind: 'all', metric: 'owned', scope: 'allChars', target: 1 }), ctx);
+    expect([all.met, all.total]).toEqual([bags.filter((rows) => rows.every((row) => row.acquired)).length, bags.length]);
+    expect(goalTitle(all)).toBe('All inventory bags (all characters)');
   });
 
   it('a global skill goal reads the first character with it as the account goal, whatever its stored scope', () => {

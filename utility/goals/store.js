@@ -54,7 +54,7 @@ export const createGoal = (fields) => ({
 
 export const isCharScope = (scope) => isObject(scope) && typeof scope.char === 'string';
 
-// One entry of a character system on every character at once
+// A character system's goal on every character at once: one entry, or every entry
 export const ALL_CHARS = 'allChars';
 export const isAllChars = (scope) => scope === ALL_CHARS;
 
