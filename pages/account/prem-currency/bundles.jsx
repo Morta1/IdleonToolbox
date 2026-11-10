@@ -40,6 +40,10 @@ const amountWith = (icon, value) => <Stack direction={'row'} gap={0.5} alignItem
 const BANNER_GRID_SX = { gridTemplateColumns: 'repeat(auto-fill, minmax(min(340px, 100%), 1fr))' };
 const OFFER_GRID_SX = { gridTemplateColumns: 'repeat(auto-fill, minmax(min(240px, 100%), 1fr))' };
 const BANNER_ART = { banner: '711 / 130', offer: '320 / 446' };
+// The gem shop shows these three server-picked bundles, stepping through them in this order and skipping any the account
+// already bought.
+const GEM_SHOP_OFFERS = ['GemBundleOffer', 'GemBundleOffer2', 'GemBundleOffer3'];
+const ORDINALS = ['1st', '2nd', '3rd'];
 
 // A banner at the tile's width. Art the game data lacks (bon_q) draws GameIcon's dashed ? box in the banner's shape, never
 // the browser's broken image. An image that failed before hydration fired its error before React was listening.
@@ -67,6 +71,9 @@ const Bundles = () => {
   const isOwned = ({ owned }) => !failed && Boolean(owned);
   // The offer is one purchase: owned once any card is, and then nothing of it is missing.
   const offerOwned = offer.some(isOwned);
+  const inShop = failed ? [] : GEM_SHOP_OFFERS
+    .map((key) => classic.find(({ name }) => name === state?.account?.serverVars?.[key]))
+    .filter(Boolean);
 
   const tabBundles = [classic, packs, offer][tab] ?? [];
   const shown = tab === 2
@@ -77,8 +84,12 @@ const Bundles = () => {
     ? <StatusText status={'done'}>Owned</StatusText>
     : <Typography variant={'body2'} color={'text.secondary'}>Not owned</Typography>);
   const priceOf = ({ price }) => (price != null ? formatNum(price, 'price') : null);
-  const bannerTile = (bundle, art) => {
-    const state = stateWord(bundle);
+  const bannerTile = (bundle, art, shopSlot) => {
+    const state = shopSlot != null
+      ? <Typography variant={'body2'}>
+        {ORDINALS[shopSlot]} in the gem shop{isOwned(bundle) ? ': owned, so the shop skips it' : ''}
+      </Typography>
+      : stateWord(bundle);
     const price = priceOf(bundle);
     return <IconTile key={bundle.name} height={'auto'} status={failed || isOwned(bundle) ? undefined : 'dim'}
                      details={state || price ? <Stack gap={0.5}>
@@ -123,6 +134,12 @@ const Bundles = () => {
     </PageSummary>
     <Tabber tabs={TABS} keepChildren>
       <Box>
+        {tab === 0 && inShop.length ? <Box sx={{ mb: 3 }}>
+          <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1.5 }}>In the gem shop now</Typography>
+          <CardGrid size={'icon'} fill sx={BANNER_GRID_SX}>
+            {inShop.map((bundle, index) => bannerTile(bundle, 'banner', index))}
+          </CardGrid>
+        </Box> : null}
         {failed ? null : <Toolbar state={view} defaults={BUNDLES_TOOLBAR} onChange={setView} onReset={resetView}
                                   total={tabBundles.length} shown={shown.length}
                                   noun={tab === 1 ? 'packs' : tab === 2 ? 'offers' : 'bundles'}>
