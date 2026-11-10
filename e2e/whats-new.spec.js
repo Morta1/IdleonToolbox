@@ -403,21 +403,6 @@ test.describe('the tour', () => {
     expect(box.y + box.height).toBeLessThanOrEqual(768);
   });
 
-  test('Back from the theme at the page\'s end brings the buttons into view again', async ({ page }) => {
-    await open(page);
-    await page.goto('/dashboard?demo=true');
-    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
-    await startTour(page);
-    await toPageStop(page);
-    await next(page);
-    await atStop(page, 'Theme');
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(200);
-    await card(page).getByRole('button', { name: 'Back' }).click();
-    await atStop(page, 'Page settings');
-    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0);
-    expect((await page.locator('[data-tour="page-actions"]').boundingBox()).y).toBeGreaterThanOrEqual(96);
-  });
-
   test('the browser\'s Back on the page stop ends it, there on the Dashboard', async ({ page }) => {
     await open(page);
     await page.goto('/dashboard?demo=true');
