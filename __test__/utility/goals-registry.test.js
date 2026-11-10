@@ -158,6 +158,9 @@ describe('deathNote', () => {
     expect(getDescriptor('deathNote').metrics.rank.tiers).toEqual(['None',
       '25K kills (mini boss 100)', '100K kills (mini boss 250)', '250K kills (mini boss 1K)', '500K kills (mini boss 5K)',
       '1M kills (mini boss 25K)', '5M kills (mini boss 100K)', '100M kills (mini boss 1M)']);
+    // a rung's kills come from the row's own table
+    const { need } = getDescriptor('deathNote').metrics.rank.tierAmount;
+    expect([need({ world: '0' }, 7), need({ world: 'miniBosses' }, 7)]).toEqual([1e8, 1e6]);
   });
 });
 

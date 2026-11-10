@@ -95,7 +95,9 @@ const tierAmountOf = (goal, metric, row, ctx, targetValue) => {
   if (!metric.tierAmount || goal.op === '<=') return null;
   const have = metric.tierAmount.have(row, ctx);
   const need = metric.tierAmount.need(row, targetValue, ctx);
-  return Number.isFinite(have) && Number.isFinite(need) && need > 0 ? { have, need } : null;
+  if (!Number.isFinite(have) || !Number.isFinite(need) || need <= 0) return null;
+  // a unit puts the amount on the goal's face ("62.3M of 100M kills"); without one only the bar follows it
+  return { have, need, ...(metric.tierAmount.unit ? { unit: metric.tierAmount.unit } : {}) };
 };
 
 // Compares one row with the goal. null = the comparison is impossible (no percent / no max / bad value).

@@ -166,11 +166,15 @@ const amountParts = (view) => {
 const plainAmount = (view, entry) => (view.unit === 'percentOfMax' && Number.isFinite(entry.amount)
   ? ` · ${amountWithUnit(metricOf(view), entry.amount)}` : '');
 
+// A tier set by an amount's cut-off, when the amount has a unit: "62.3M of 100M kills"
+const tierAmountText = (tierAmount) => (tierAmount?.unit
+  ? `${formatHave(tierAmount.have, tierAmount.need)} of ${formatNumber(tierAmount.need)} ${tierAmount.unit}` : null);
+
 // One entry's amount in its goal's unit: "Lv 148", the tier name; a yes/no entry has none
 const entryAmount = (view, entry) => {
   if (entry.counts) return `${formatNumber(entry.counts.met)} of ${formatNumber(entry.counts.total)}`;
   if (view.boolean) return '';
-  if (view.tierName !== undefined) return shortTier(entry.valueTierName);
+  if (view.tierName !== undefined) return tierAmountText(entry.tierAmount) ?? shortTier(entry.valueTierName);
   return `${amountWithUnit(metricOf(view), entry.value, { percent: view.unit === 'percentOfMax' })}${plainAmount(view, entry)}`;
 };
 
@@ -231,7 +235,7 @@ export const goalFace = (view) => {
     // a tier set by an amount's cut-off reads as the percent of that cut-off
     const aside = view.op === '<=' ? null : view.tierAmount ? percent : `${view.value}/${view.targetValue}`;
     // the step count beside the bar carries the progress, so the goal's tier name waits for the open row
-    return { ...face, value: current, caption: `Goal: ${goal}`, hint: true, aside, bar: true };
+    return { ...face, value: tierAmountText(view.tierAmount) ?? current, caption: `Goal: ${goal}`, hint: true, aside, bar: true };
   }
   const { value, target } = amountParts(view);
   const plain = plainAmount(view, view);
@@ -280,6 +284,6 @@ export const entryProgressText = (view, entry) => {
   // a character of an all characters all goal counts its own entries
   if (entry.counts) return `${formatNumber(entry.counts.met)} of ${formatNumber(entry.counts.total)} done`;
   if (view.boolean) return entry.cost ? costFaceText(entry.cost) : booleanWords(view).open;
-  if (view.tierName !== undefined) return `${shortTier(entry.valueTierName)} · ${entry.value}/${entry.targetValue}`;
+  if (view.tierName !== undefined) return tierAmountText(entry.tierAmount) ?? `${shortTier(entry.valueTierName)} · ${entry.value}/${entry.targetValue}`;
   return `${amountText(view, entry.value, (n) => formatHave(n, entry.targetValue))} of ${amountText(view, entry.targetValue)}${plainAmount(view, entry)}`;
 };

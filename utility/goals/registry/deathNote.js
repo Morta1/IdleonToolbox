@@ -48,7 +48,13 @@ export default {
       label: 'Rank',
       noun: 'rank',
       value: (row) => ranksFor(row).filter(([kills]) => (row.kills ?? 0) >= kills).length,
-      tiers: TIERS
+      tiers: TIERS,
+      // the bar follows the kills toward the target rank's cut-off on the row's own table
+      tierAmount: {
+        unit: 'kills',
+        have: (row) => row.kills ?? 0,
+        need: (row, tier) => ranksFor(row)[tier - 1]?.[0]
+      }
     }
   }
 };
