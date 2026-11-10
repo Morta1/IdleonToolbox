@@ -4,7 +4,7 @@ import { getCooking, getCookingMastery } from '@parsers/world-4/cooking';
 import { liveCount } from '@parsers/catalog';
 import { cookingMenu } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import { FIXTURES } from '../helpers/save-fixtures';
+import { FIXTURES, onEachFixture } from '../helpers/save-fixtures';
 
 describe('getCooking', () => {
   it('returns every live meal when the save is missing', () => {
@@ -26,7 +26,7 @@ describe('getCooking', () => {
 });
 
 describe('getCooking fixture regression', () => {
-  it.each(FIXTURES)('%s: meal levels and amounts read at their index, across the whole catalog', (_name, fixture) => {
+  it('every save: meal levels and amounts read at their index, across the whole catalog', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const mealsRaw = tryToParse(data?.Meals) || data?.Meals;
     const levels = mealsRaw?.[0];
@@ -42,8 +42,7 @@ describe('getCooking fixture regression', () => {
       if (index >= meals.length) return;
       expect(meals[index].amount).toBe(parseFloat(amount) || 0);
     });
-  });
-
+  }));
 });
 
 describe('getCookingMastery ribbons', () => {

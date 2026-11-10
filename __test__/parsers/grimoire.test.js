@@ -21,14 +21,6 @@ describe('getGrimoire', () => {
     expect(result.bones.every((b) => b === 0)).toBe(true);
   });
 
-  it('applies save levels at the right indexes (synthetic, unconditional)', () => {
-    const idleonData = { Grimoire: [5, 3, 0, 0, 0] };
-    const result = getGrimoire(idleonData, [], {});
-    expect(result.upgrades[0].level).toBe(5);
-    expect(result.upgrades[1].level).toBe(3);
-    expect(result.upgrades[4].level).toBe(0);
-    expect(result.upgrades).toHaveLength(liveCount(grimoire));
-  });
 });
 
 // The older saves carry no key at all, which is the missing-save path above

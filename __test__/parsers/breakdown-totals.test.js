@@ -1,6 +1,7 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
-import { collectBreakdowns } from '../helpers/breakdown-totals';
+import { collectBreakdowns, collectParsedBreakdowns } from '../helpers/breakdown-totals';
+import { parseEmpty } from '../helpers/parsed-fixtures';
 import { allFixtures } from '../helpers/save-fixtures';
 import { expectNoBreaks } from '../helpers/sweep';
 import { breakdownLines } from '../helpers/breakdown-tree';
@@ -18,8 +19,11 @@ const matches = (rebuilt, value) => value === 0
   ? Math.abs(rebuilt) < RELATIVE_TOLERANCE
   : Math.abs(rebuilt / value - 1) < RELATIVE_TOLERANCE;
 
-const SAVES = FIXTURES.map(([name, fixture]) => {
-  const checked = collectBreakdowns(fixture).filter(({ breakdown }) => !isDisplayOnlyBreakdown(breakdown));
+// The logged-out account draws the same drawers, with no character
+const EVERY_PARSE = [...FIXTURES.map(([name, fixture]) => [name, () => collectBreakdowns(fixture)]), ['empty', () => collectParsedBreakdowns(parseEmpty())]];
+
+const SAVES = EVERY_PARSE.map(([name, collect]) => {
+  const checked = collect().filter(({ breakdown }) => !isDisplayOnlyBreakdown(breakdown));
   // A character slot with no class or stats (fourth, fresh) has NaN damage and defence in the formula
   // itself; nan-elimination owns that
   return { name, checked, valued: checked.filter(({ value }) => !Number.isNaN(value)) };

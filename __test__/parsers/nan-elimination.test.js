@@ -2,6 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
 import { allFixtures, onEachFixture } from '../helpers/save-fixtures';
+import { expectNoBreaks } from '../helpers/sweep';
 import { tryToParse } from '@utility/helpers';
 import { deathNote, summoningEnemies } from '@website-data';
 import { getVialsBonusByEffect, getSigilBonus } from '@parsers/world-2/alchemy';
@@ -28,7 +29,8 @@ const KNOWN_NON_FINITE_EXCEPTIONS = {
   'button.taskSequence.[].futureRequirements.[]': 'unreachable projection past MAX_VALUE, rendered as the glyph'
 };
 
-// Every number under the account, by path with list indexes collapsed.
+// Every number under the account, by path with list indexes collapsed. A string that spells NaN counts as one: a
+// description or label built from a NaN number.
 const nonFinitePaths = (account) => {
   const nan = new Set();
   const infinity = new Set();
@@ -38,6 +40,10 @@ const nonFinitePaths = (account) => {
     if (typeof value === 'number') {
       if (Number.isNaN(value)) nan.add(at.replace(/\.\d+(\.|$)/g, '.[]$1'));
       else if (!Number.isFinite(value)) infinity.add(at.replace(/\.\d+(\.|$)/g, '.[]$1'));
+      return;
+    }
+    if (typeof value === 'string') {
+      if (/\bNaN\b/.test(value)) nan.add(`${at.replace(/\.\d+(\.|$)/g, '.[]$1')} (string)`);
       return;
     }
     if (typeof value !== 'object' || seen.has(value)) return;
@@ -52,6 +58,12 @@ describe('the gate: every account key, on every save available', () => {
   it.each(SAVES)('%s: no NaN and no unexplained Infinity', (_, parse) => {
     const { nan, infinity } = nonFinitePaths(parse().account);
     expect({ nan, infinity: infinity.filter((at) => !(at in KNOWN_NON_FINITE_EXCEPTIONS)) }).toEqual({ nan: [], infinity: [] });
+  });
+
+  // safeSection swallows a throw and hands back the fallback, so a section that breaks on a real save shows nowhere else
+  it('no section fails on a real save', () => {
+    expectNoBreaks(REAL_SAVES, ([name]) => name, ([, fixture]) =>
+      (parseFixture(fixture).account.failedSections ?? []).map((section) => `section "${section}" failed`));
   });
 
   it('discovered at least the five known fixture files', () => {

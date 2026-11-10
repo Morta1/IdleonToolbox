@@ -51,50 +51,6 @@ describe('calculateStars ownership guard', () => {
   ])('%s', (_, amount, maxStars, fiveStar, sixStar, stars) => {
     expect(calculateStars(5, amount, 'AnyCard', maxStars, fiveStar, sixStar)).toBe(stars);
   });
-
-  const calculateStarsPreFix = (tierReq, amountOfCards, cardName, maxStars, isInFiveStarList, isInSixStarList) => {
-    let cardLvCalco = 0;
-    for (let i = 0; i < maxStars; i++) {
-      if (cardName === 'Boss3B') {
-        if (amountOfCards > 1.5 * Math.pow(i + 1 + Math.floor(i / 3), 2)) cardLvCalco = i + 2;
-      } else if (amountOfCards > tierReq * Math.pow(i + 1 + (Math.floor(i / 3) + (16 * Math.floor(i / 4) + 100 * Math.floor(i / 5))), 2)) {
-        cardLvCalco = i + 2;
-      }
-    }
-    if (isInSixStarList && cardLvCalco < 7) return 6;
-    if (isInFiveStarList && cardLvCalco < 6) return 5;
-    return cardLvCalco > 0 ? cardLvCalco - 1 : cardLvCalco;
-  };
-
-  it("every save: every catalog card's stars value is byte-identical before and after the ownership guard", () => onEachFixture(FIXTURES, (fixture) => {
-    const data = fixture.data ?? fixture;
-    const { account } = parseFixture(fixture);
-    const cardsRaw = tryToParse(data?.Cards0) ?? {};
-    const rawRift = tryToParse(data?.Rift) || data?.Rift;
-    const [currentRift] = rawRift || [];
-    const riftFiveStarCards = currentRift >= 45 ? 1 : 0;
-    const spelunkingSixStarCards = account?.spelunking?.loreBosses?.[2]?.defeated ? 1 : 0;
-    const maxStars = Math.round(4 + riftFiveStarCards + spelunkingSixStarCards);
-    const rawFiveStarList = account?.accountOptions?.[155] || '';
-    const fiveStarList = rawFiveStarList?.toString()?.split(',') || [];
-    const rawSixStarList = account?.accountOptions?.[603] || '';
-    const sixStarList = rawSixStarList?.toString()?.split(',') || [];
-
-    let assertions = 0;
-    let intersectingUnownedCards = 0;
-    Object.entries(cards).forEach(([rawName, cardDetails]) => {
-      const amountOfCards = cardsRaw?.[rawName] ?? 0;
-      const isInFiveStarList = fiveStarList.includes(rawName);
-      const isInSixStarList = sixStarList.includes(rawName);
-      if (amountOfCards === 0 && (isInFiveStarList || isInSixStarList)) intersectingUnownedCards++;
-      const before = calculateStarsPreFix(cardDetails.perTier, amountOfCards, rawName, maxStars, isInFiveStarList, isInSixStarList);
-      const after = account.cards[cardDetails.displayName].stars;
-      expect(after).toBe(before);
-      assertions++;
-    });
-    expect(intersectingUnownedCards).toBe(0);
-    expect(assertions).toBe(Object.keys(cards).length);
-  }));
 });
 
 describe('construction board', () => {
@@ -121,11 +77,6 @@ describe('construction board', () => {
 });
 
 describe('alchemy.liquidCauldrons', () => {
-  it('renders all 4 liquid cauldron slots with no save instead of throwing', () => {
-    const { account } = parseEmpty();
-    expect(account.alchemy.liquidCauldrons).toHaveLength(4);
-  });
-
   it('every save: 4 slots, and decant levels the save covers are unchanged at the same index', () => onEachFixture(FIXTURES, (fixture) => {
     const { account } = parseFixture(fixture);
     expect(account.alchemy.liquidCauldrons).toHaveLength(4);

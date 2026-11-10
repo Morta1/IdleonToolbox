@@ -8,6 +8,7 @@ import first from '../fixtures/first.json';
 import latest from '../fixtures/latest.json';
 import saveFromAugust from '../fixtures/latest-2026-08.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
+import { onEachFixture } from '../helpers/save-fixtures';
 
 describe('getMinehead', () => {
   it('returns every live upgrade when the save is missing', () => {
@@ -53,13 +54,13 @@ describe('getMinehead on a real save', () => {
 
   // The dashboard currency-upgrade alert filters on canAfford alone, so the parser must keep
   // maxed and research-locked upgrades out of it.
-  it.each([['first', first], ['latest', latest]])('%s: canAfford is never true for a maxed or locked upgrade', (_name, fixture) => {
+  it('first and latest: canAfford is never true for a maxed or locked upgrade', () => onEachFixture([['first', first], ['latest', latest]], (fixture) => {
     const data = fixture.data ?? fixture;
     const result = getMinehead(data, {}, {});
     result.upgrades.forEach((upgrade) => {
       if (upgrade.isMaxed || upgrade.isLocked) expect(upgrade.canAfford).toBe(false);
     });
-  });
+  }));
 });
 
 // Differentials on the 22 Aug 2026 save (latest-2026-08.json), which reads 0 for these terms

@@ -2,7 +2,7 @@ import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { getCompass } from '@parsers/class-specific/compass';
 import { liveCount } from '@parsers/catalog';
-import { compass, abominations } from '@website-data';
+import { compass } from '@website-data';
 import { tryToParse } from '@utility/helpers';
 import latest from '../fixtures/latest.json';
 
@@ -15,25 +15,10 @@ describe('getCompass', () => {
     expect(getCompass(undefined, [], undefined, undefined).upgrades).toHaveLength(liveCount(compass));
   });
 
-  it('returns every abomination', () => {
-    const result = getCompass(undefined, [], {}, {});
-    expect(result.abominations).toHaveLength(abominations.length);
-  });
-
   it('populates dusts as a neutral 5-entry array', () => {
     const result = getCompass(undefined, [], {}, {});
     expect(result.dusts).toHaveLength(5);
     expect(result.dusts.every((d) => d.value === 0)).toBe(true);
-  });
-
-  it('applies save levels at the right indexes (synthetic, unconditional)', () => {
-    const compassRaw = [[5, 3, 0, 0, 0]];
-    const idleonData = { Compass: JSON.stringify(compassRaw) };
-    const result = getCompass(idleonData, [], {}, {});
-    expect(result.upgrades[0].level).toBe(5);
-    expect(result.upgrades[1].level).toBe(3);
-    expect(result.upgrades[4].level).toBe(0);
-    expect(result.upgrades).toHaveLength(liveCount(compass));
   });
 
   it('prints bonuses below 0.9 per level with NotateNumber "Small", the rest with CommaNotation', () => {

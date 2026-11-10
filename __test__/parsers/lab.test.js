@@ -5,7 +5,7 @@ import { getLab } from '@parsers/world-4/lab';
 import { liveCount } from '@parsers/catalog';
 import { chips, jewels, labBonuses } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import { FIXTURES } from '../helpers/save-fixtures';
+import { FIXTURES, onEachFixture } from '../helpers/save-fixtures';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import first from '../fixtures/first.json';
 
@@ -24,7 +24,7 @@ describe('getLab', () => {
 });
 
 describe('getLab fixture regression', () => {
-  it.each(FIXTURES)('%s: jewel acquisition reads at its index, beside the full chip and bonus catalogs', (_name, fixture) => {
+  it('every save: jewel acquisition reads at its index, beside the full chip and bonus catalogs', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const labRaw = tryToParse(data?.Lab) || data?.Lab;
     const jewelsRaw = labRaw?.[14];
@@ -36,7 +36,7 @@ describe('getLab fixture regression', () => {
       if (!jewels[index]) return; // beyond the catalog's live jewel count, filtered out by the real path
       expect(result.jewels[index].acquired).toBe(flag === 1);
     });
-  });
+  }));
 
 });
 

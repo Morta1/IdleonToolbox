@@ -1,8 +1,8 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
-import path from 'node:path';
 import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
+import { repoRelative, sourceFiles } from '../helpers/source-files';
 import {
   artifacts, equinoxChallenges, equinoxUpgrades, gamingPalette, gamingUpgrades, guildBonuses, islands, superbitsUpgrades
 } from '@website-data';
@@ -17,21 +17,6 @@ import demoJson from '../../data/raw.json';
 
 
 const parseReal = () => parseFixture(demoJson);
-
-const findNaN = (root) => {
-  const nan = [];
-  const seen = new WeakSet();
-  const walk = (node, path) => {
-    if (typeof node === 'number') { if (Number.isNaN(node)) nan.push(path); return; }
-    if (typeof node === 'string') { if (/\bNaN\b/.test(node)) nan.push(`${path} (string: "${node}")`); return; }
-    if (!node || typeof node !== 'object' || seen.has(node)) return;
-    seen.add(node);
-    if (Array.isArray(node)) return node.forEach((v, i) => walk(v, `${path}[${i}]`));
-    Object.entries(node).forEach(([k, v]) => walk(v, `${path}.${k}`));
-  };
-  walk(root, '');
-  return nan;
-};
 
 describe('sailing locked shape', () => {
   it('is an object, never null, for an account with no save', () => {
@@ -88,9 +73,6 @@ describe('divinity locked shape', () => {
 });
 
 describe('gaming locked shape', () => {
-  const oldSaves = Object.entries({ first, second, third, fourth })
-    .map(([name, fixture]) => [name, parseFixture(fixture).account]);
-
   it('is an object reporting unlocked: false, carrying every catalog', () => {
     const { gaming } = parseEmpty().account;
     expect(gaming.unlocked).toBe(false);
@@ -100,12 +82,6 @@ describe('gaming locked shape', () => {
     expect(gaming.fertilizerUpgrades).toHaveLength(gamingUpgrades.length);
     expect(gaming.superbitsUpgrades.every(({ unlocked }) => !unlocked)).toBe(true);
   });
-
-  it.each([['empty'], ['first'], ['second'], ['third'], ['fourth']])(
-    'has no NaN anywhere in the account for %s, a save from before World 7 or none', (name) => {
-      const account = name === 'empty' ? parseEmpty().account : oldSaves.find(([n]) => n === name)[1];
-      expect(findNaN(account)).toEqual([]);
-    });
 
   it('keeps every cross-section gaming lookup neutral', () => {
     const account = parseEmpty().account;
@@ -198,7 +174,6 @@ describe('the locked sections on a real save', () => {
     expect(account.sailing.artifacts.length).toBeGreaterThan(0);
     expect(account.equinox.chargeRate).toBeGreaterThan(0);
     expect(account.guild.members.length).toBeGreaterThan(0);
-    expect(findNaN(account.gaming)).toEqual([]);
   });
 
   it('gaming is unlocked on every save from before World 7', () => {
@@ -209,28 +184,17 @@ describe('the locked sections on a real save', () => {
 });
 
 describe('no consumer truthiness-gates account.sailing', () => {
-  const roots = ['components', 'pages', 'utility', 'hooks'];
-  const files = [];
-  const walk = (dir) => {
-    for (const entry of fs.readdirSync(dir)) {
-      const full = path.join(dir, entry);
-      if (fs.statSync(full).isDirectory()) walk(full);
-      else if (/\.(jsx?|tsx?)$/.test(entry)) files.push(full);
-    }
-  };
-  for (const r of roots) walk(path.resolve(__dirname, '../..', r));
+  const files = sourceFiles(['components', 'pages', 'utility', 'hooks']);
 
   const gateOn = (section) => new RegExp(`!\\s*(state\\s*\\??\\.\\s*)?account\\s*\\??\\.\\s*${section}\\b(?!\\s*\\??\\.)`);
 
-  it.each(['sailing', 'guild'])('has no `if (!...account?.%s)` style gate left', (section) => {
-    const gate = gateOn(section);
-    const offenders = files
-      .map((f) => ({ f, lines: fs.readFileSync(f, 'utf8').split(/\r?\n/) }))
-      .flatMap(({ f, lines }) => lines
-        .map((line, i) => ({ f, n: i + 1, line: line.trim() }))
-        .filter(({ line }) => gate.test(line)));
+  it('has no `if (!...account?.sailing)` or `account?.guild` style gate left', () => {
+    const gates = ['sailing', 'guild'].map(gateOn);
+    const offenders = files.flatMap((file) => fs.readFileSync(file, 'utf8').split(/\r?\n/)
+      .map((line, index) => `${repoRelative(file)}:${index + 1}  ${line.trim()}`)
+      .filter((line) => gates.some((gate) => gate.test(line))));
 
-    expect(offenders.map(({ f, n, line }) => `${path.relative(process.cwd(), f)}:${n}  ${line}`)).toEqual([]);
+    expect(offenders).toEqual([]);
   });
 
   it('the gate regex actually matches the pattern it is meant to catch', () => {

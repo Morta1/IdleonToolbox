@@ -4,7 +4,7 @@ import { getShrines, isLiveShrineEntry } from '@parsers/world-3/shrines';
 import { liveCount } from '@parsers/catalog';
 import { shrines } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import { FIXTURES } from '../helpers/save-fixtures';
+import { FIXTURES, onEachFixture } from '../helpers/save-fixtures';
 
 describe('getShrines', () => {
   it('returns every live shrine when the save is missing', () => {
@@ -64,7 +64,7 @@ describe('unbuilt shrines award nothing', () => {
 });
 
 describe('getShrines fixture regression', () => {
-  it.each(FIXTURES)('%s: shrine levels read at their index, across the whole catalog', (_name, fixture) => {
+  it('every save: shrine levels read at their index, across the whole catalog', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const shrinesRaw = data?.ShrineInfo || tryToParse(data?.Shrine);
     const result = getShrines(data, {});
@@ -76,6 +76,6 @@ describe('getShrines fixture regression', () => {
       expect(result[index].shrineLevel).toBe(shrineLevel);
       expect(result[index].mapId).toBe(mapId);
     });
-  });
+  }));
 
 });

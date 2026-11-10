@@ -4,7 +4,7 @@ import { calcHappyHours, getDungeons } from '@parsers/dungeons';
 import { liveCount } from '@parsers/catalog';
 import { dungeonCreditShop, dungeonStats, dungeonFlurboStats, randomList } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import { FIXTURES } from '../helpers/save-fixtures';
+import { FIXTURES, onEachFixture } from '../helpers/save-fixtures';
 import latest from '../fixtures/latest.json';
 
 describe('getDungeons', () => {
@@ -37,7 +37,7 @@ describe('getDungeons', () => {
 });
 
 describe('getDungeons fixture regression', () => {
-  it.each(FIXTURES)('%s: levels read at their index, across the whole catalogs', (_name, fixture) => {
+  it('every save: levels read at their index, across the whole catalogs', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const dungeonUpgrades = tryToParse(data?.DungUpg);
     const result = getDungeons(data, data?.OptLacc ? tryToParse(data.OptLacc) : []);
@@ -57,8 +57,7 @@ describe('getDungeons fixture regression', () => {
       if (index >= result.upgrades.length) return;
       expect(result.upgrades[index].level).toBe(level);
     });
-  });
-
+  }));
 });
 
 // The game's rank loop stops at the first RANDOlist[29] requirement the progress is still below, so

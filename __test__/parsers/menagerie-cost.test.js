@@ -1,6 +1,7 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { getMenagerieCost } from '@parsers/world-7/menagerie';
+import { expectNoBreaks } from '../helpers/sweep';
 
 // game: MenagerieStuff "CostExponent", copied verbatim as the oracle (the parser reads it from gameTables)
 const costExponentOracle = (i) => ['8', '10', '12'].includes('' + i) ? 35 : ['17', '5', '2'].includes('' + i) ? 22.8
@@ -11,9 +12,13 @@ const boostCostOracle = (i, level) => 3 * level + Math.pow(level, 1.5)
 
 describe('Menagerie boost cost', () => {
   const rows = Array.from({ length: 20 }, (_, i) => i);
-  it.each(rows)('row %i at level 3 uses its cost exponent', (row) => {
-    const boosts = rows.map(() => 3);
-    const account = { menagerieSave: [[], [], [], boosts] };
-    expect(getMenagerieCost(account, 2, row)).toBeCloseTo(boostCostOracle(row, 3), 6);
+  const account = { menagerieSave: [[], [], [], rows.map(() => 3)] };
+
+  it('every row at level 3 uses its cost exponent', () => {
+    expectNoBreaks(rows, (row) => `row ${row}`, (row) => {
+      const cost = getMenagerieCost(account, 2, row);
+      const expected = boostCostOracle(row, 3);
+      return Math.abs(cost / expected - 1) < 1e-12 ? [] : [`${cost} instead of ${expected}`];
+    });
   });
 });

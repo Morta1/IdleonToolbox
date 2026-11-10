@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import { getBreeding, calcHighestPower, getCombatMixGeneMulti } from '@parsers/world-4/breeding';
 import { petGenes, petStats, territory } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import { FIXTURES } from '../helpers/save-fixtures';
+import { FIXTURES, onEachFixture } from '../helpers/save-fixtures';
 import latest from '../fixtures/latest.json';
 
 const TOTAL_PETS = petStats.reduce((sum, world) => sum + world.length, 0);
@@ -34,7 +34,7 @@ describe('calcHighestPower', () => {
 });
 
 describe('getBreeding fixture regression', () => {
-  it.each(FIXTURES)('%s: pet levels read at their [world][pet] index, across every live species', (_name, fixture) => {
+  it('every save: pet levels read at their [world][pet] index, across every live species', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const breedingRaw = tryToParse(data?.Breeding) || data?.Breeding;
     const petsLevels = breedingRaw?.slice(4, 8);
@@ -47,8 +47,7 @@ describe('getBreeding fixture regression', () => {
         expect(pets[worldIndex][petIndex].level).toBe(level);
       });
     });
-  });
-
+  }));
 });
 
 // N.js TotalTrekkingHR: gene 14 (Flashy) multiplies by 1.5 per Flashy when no slot holds a combat pet (PetGenes[g][1] == 0,

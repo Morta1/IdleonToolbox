@@ -1,14 +1,13 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
-import { parseData } from '@parsers/index';
+import { parseFixture } from '../helpers/parsed-fixtures';
 import latest from '../fixtures/latest.json';
 import { calcCost, getPowerPerCycle, getRefineryCycles, getSaltsBalance } from '@parsers/world-3/refinery';
 
 // The game charges CostsMulti(rank) * quantity of the previous salt every cycle
 // (_customBlock_Refinery), so a salt's max safe rank is where that cost still fits inside what the
 // previous salt makes in the same span of time.
-const parsed = parseData(latest.data, latest.charNames ?? [], null, null, latest.serverVars);
-const { account, characters } = parsed;
+const { account, characters } = parseFixture(latest);
 const balances = getSaltsBalance(account, characters);
 const cycleTimes = getRefineryCycles(account, characters, latest.lastUpdated).cycles.map(({ time }) => time);
 const chained = balances.filter(({ index, unlocked }) => unlocked && index > 0);

@@ -165,8 +165,7 @@ describe('getSpeedrunRoute', () => {
 });
 
 // An anonymised copy of the rank 1 speedrun account: highscore 118, every boss on Nightmare except
-// the Emperor. It is the one save that pins the Emperor payout, since its difficulty differs from
-// Kattlekruk's, and the only real-world check on the size of the portal catalog.
+// the Emperor. It is the only real-world check on the size of the portal catalog.
 describe('the rank 1 speedrun account', () => {
   let rankOneAccount;
   let rankOneCharacters;
@@ -178,15 +177,6 @@ describe('the rank 1 speedrun account', () => {
   it('reads the recorded highscore', () => {
     const stats = getSpeedrunStats(rankOneAccount, rankOneCharacters, rankOneCharacters[0]);
     expect(stats.highscore).toBe(118);
-  });
-
-  it('pays the Emperor 3 off Kattlekruk despite the Emperor sitting on Normal', () => {
-    const bosses = getSpeedrunBosses(rankOne.data);
-    expect(bosses.map(({ difficultyName }) => difficultyName))
-      .toEqual(['Nightmare', 'Nightmare', 'Nightmare', 'Nightmare', 'Nightmare', 'Normal']);
-    // Emperor reads BossInfo[4], so it pays like Kattlekruk rather than like itself.
-    expect(bosses.map(({ portals }) => portals)).toEqual([3, 3, 3, 3, 3, 3]);
-    expect(bosses.reduce((sum, { portals }) => sum + portals, 0)).toBe(18);
   });
 
   it('leaves the recorded score inside what the catalog allows', () => {

@@ -4,7 +4,7 @@ import { applyNewBubbleChances, getAlchemy, getBaseNewBubbleChance, getExpectedN
 import { liveCount } from '@parsers/catalog';
 import { cauldrons, vials } from '@website-data';
 import { createArrayOfArrays } from '@utility/helpers';
-import { FIXTURES } from '../helpers/save-fixtures';
+import { FIXTURES, onEachFixture } from '../helpers/save-fixtures';
 import first from '../fixtures/first.json';
 import second from '../fixtures/second.json';
 import third from '../fixtures/third.json';
@@ -39,7 +39,7 @@ describe('isNamedVial', () => {
 });
 
 describe('getAlchemy fixture regression', () => {
-  it.each(FIXTURES)('%s: bubble and vial levels read at their index, across the whole catalogs', (_name, fixture) => {
+  it('every save: bubble and vial levels read at their index, across the whole catalogs', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const alchemyRaw = createArrayOfArrays(data?.CauldronInfo);
     const result = getAlchemy(data, [], {});
@@ -58,7 +58,7 @@ describe('getAlchemy fixture regression', () => {
       if (index >= result.vials.length) return;
       expect(result.vials[index].level).toBe(parseInt(level) || 0);
     });
-  });
+  }));
 
   it.each([
     ['first', first, { power: 39275.21769868224, quicc: 61829.0756120502, 'high-iq': 24497.28823226761, kazam: 24497.28823226761 }],

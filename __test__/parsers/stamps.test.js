@@ -4,7 +4,7 @@ import { getStamps, stampsMapping } from '@parsers/world-1/stamps';
 import { liveCount } from '@parsers/catalog';
 import { stamps } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import { FIXTURES } from '../helpers/save-fixtures';
+import { FIXTURES, onEachFixture } from '../helpers/save-fixtures';
 
 const CATEGORIES = ['combat', 'skills', 'misc'];
 const emptyAccount = { storage: { list: [] } };
@@ -30,7 +30,7 @@ describe('getStamps', () => {
 });
 
 describe('getStamps fixture regression', () => {
-  it.each(FIXTURES)('%s: levels read at their index, across every whole category', (_name, fixture) => {
+  it('every save: levels read at their index, across every whole category', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const stampLevelsRaw = tryToParse(data?.StampLv) || data?.StampLevel;
     const result = getStamps(data, emptyAccount);
@@ -46,6 +46,6 @@ describe('getStamps fixture regression', () => {
         expect(result[category][index].level).toBe(parseFloat(raw[key]));
       });
     });
-  });
+  }));
 
 });

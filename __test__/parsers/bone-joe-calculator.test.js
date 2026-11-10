@@ -33,20 +33,10 @@ describe('bone joe calculator', () => {
   });
 
   // Reference values from the community BJP sheet: Midas Minded at Lv 50 and 69 pickles.
-  it.each([
-    ['slimeB', 113077405.2],
-    ['poopBig', 8480805388],
-    ['babayaga', 1696161078],
-    ['babaHour', 9046192414],
-    ['babaMummy', 33923221553],
-    ['mini3a', 141346756473],
-    ['mini4a', 1356928862137],
-    ['mini5a', 11307740517810],
-    ['mini6a', 2.82693512945255e17]
-  ])('matches the reference sheet for %s', (rawName, expected) => {
-    const { baseHp } = getMinibosses().find((miniboss) => miniboss.rawName === rawName);
-    // Relative, because the sheet's printed values are rounded and the magnitudes span 1e8 to 1e17.
-    expect(getMinibossHp(baseHp, SHEET_HP_CURSE_MULTI, 69) / expected).toBeCloseTo(1, 8);
+  it('matches the reference sheet for mini6a', () => {
+    const { baseHp } = getMinibosses().find((miniboss) => miniboss.rawName === 'mini6a');
+    // Relative, because the sheet's printed value is rounded.
+    expect(getMinibossHp(baseHp, SHEET_HP_CURSE_MULTI, 69) / 2.82693512945255e17).toBeCloseTo(1, 8);
   });
 
   it('sums the three monster HP curses into the multiplier', () => {

@@ -2,14 +2,8 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import { describe, expect, it } from 'vitest';
 import { calcCardBonus, calculateAmountToNextLevel } from '@parsers/cardMath';
-import * as cards from '@parsers/cards';
 
 describe('card math', () => {
-  it('is the same function cards.ts exports, so account-side importers are unchanged', () => {
-    expect(cards.calculateAmountToNextLevel).toBe(calculateAmountToNextLevel);
-    expect(cards.calcCardBonus).toBe(calcCardBonus);
-  });
-
   it('caps at seven stars and returns the count that must be exceeded', () => {
     expect(calculateAmountToNextLevel(5, 7, 0)).toBe(0);
     expect(calculateAmountToNextLevel(5, 0, 0)).toBe(6);

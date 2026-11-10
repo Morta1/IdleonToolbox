@@ -1,7 +1,7 @@
 import '../../polyfills';
 import 'core-js/modules/web.structured-clone';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { parseData } from '@parsers/index';
+import { parseFixture } from '../helpers/parsed-fixtures';
 import { getMultiKillPerTier, getMultiKillTiers } from '@parsers/damage';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import highend from '../fixtures/highend.json';
@@ -25,8 +25,7 @@ const speedrunning = (character) => ({
 });
 
 beforeAll(() => {
-  const { data, charNames, companion, guildData, serverVars } = highend;
-  const parsed = parseData(data, charNames, companion, guildData, serverVars);
+  const parsed = parseFixture(highend);
   account = parsed.account;
   characters = parsed.characters;
   voidwalker = characters.find((c) => checkCharClass(c?.class, CLASSES.Voidwalker));

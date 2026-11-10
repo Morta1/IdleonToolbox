@@ -1,6 +1,6 @@
 import '../../polyfills';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { parseData } from '@parsers/index';
+import { parseFixture } from '../helpers/parsed-fixtures';
 import { getMaxDamage } from '@parsers/damage';
 import { mapEnemiesArray } from '@website-data';
 import latest from '../fixtures/latest.json';
@@ -23,7 +23,7 @@ const runFixture = (name, fixture) => describe(`${name} fixture`, () => {
   let characters;
 
   beforeAll(() => {
-    const parsed = parseData(fixture.data, fixture.charNames ?? [], null, null, fixture.serverVars);
+    const parsed = parseFixture(fixture);
     account = parsed.account;
     characters = parsed.characters;
   });

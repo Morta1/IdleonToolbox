@@ -1,14 +1,14 @@
 import '../../polyfills';
 import { beforeAll, describe, expect, it } from 'vitest';
-import { parseData } from '@parsers/index';
 import { getWorld7Alerts } from '@utility/dashboard/account';
 import { migrateConfig } from '@utility/migrations';
 import raw from '../../data/raw.json';
+import { parseFixture } from '../helpers/parsed-fixtures';
 
 // Shaped like what useAlerts hands the world alert builders: the tracker's fields and its options.
 const FIELDS = { royalGuardian: { checked: true } };
-// The seven the group shipped with in v70 - migration 73 adds the three unit-composition alerts
-// after them, so the v69 -> v70 test below still has to compare against this list alone.
+// The seven the group shipped with in v70: migration 73 adds the three unit-composition alerts
+// after them, so the v69 -> v70 test below compares against this list alone.
 const V70_OPTION_NAMES = [
   'idleOutposts',
   'unwiredOutposts',
@@ -19,13 +19,6 @@ const V70_OPTION_NAMES = [
   'restockLocked'
 ];
 // v73 shipped the three unit alerts; v74 adds the daily-reset modifier under the first of them.
-const V73_OPTION_NAMES = [
-  ...V70_OPTION_NAMES.slice(0, -1),
-  'overkillWorkers',
-  'strandedWorkers',
-  'sharedNodes',
-  'restockLocked'
-];
 const OPTION_NAMES = [
   ...V70_OPTION_NAMES.slice(0, -1),
   'overkillWorkers',
@@ -42,13 +35,10 @@ const OPTIONS = {
   }]))
 };
 
-const parse = () => parseData(raw.data, raw.charNames, raw.companion, raw.guildData, raw.serverVars,
-  raw.accountCreateTime);
-
 describe('royal guardian dashboard alerts', () => {
   let parsed;
   beforeAll(() => {
-    parsed = parse();
+    parsed = parseFixture(raw);
   });
 
   it('only reports outposts a rewire would actually help', () => {
@@ -170,12 +160,10 @@ describe('royal guardian dashboard alerts', () => {
       .toBeUndefined();
   });
 
-  // v70 creates the group, v73 adds the unit composition alerts, v74 the daily reset option.
-  it.each([
-    [70, V70_OPTION_NAMES],
-    [73, V73_OPTION_NAMES],
-    [74, OPTION_NAMES]
-  ])('migrates a v69 config up to v%i, and only once', (version, names) => {
+  // v70 creates the group; the later steps are checked from v69 through v78 and v80 below.
+  it('migrates a v69 config up to v70, and only once', () => {
+    const version = 70;
+    const names = V70_OPTION_NAMES;
     const stored = {
       version: 69,
       account: { 'World 7': { gallery: { checked: true, options: [] } } },

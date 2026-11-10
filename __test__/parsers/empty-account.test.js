@@ -1,6 +1,7 @@
 import '../../polyfills';
 import { describe, expect, it, vi } from 'vitest';
 import { parseEmpty, parseFixture } from '../helpers/parsed-fixtures';
+import { expectNoBreaks } from '../helpers/sweep';
 import { liveCount } from '@parsers/catalog';
 import { getCashMulti } from '@parsers/character';
 import { parseData } from '@parsers/index';
@@ -10,16 +11,11 @@ import * as websiteData from '@website-data';
 const parseReal = () => parseFixture(demoJson);
 
 describe('parseData with no save', () => {
-  it('returns an account instead of undefined', () => {
-    const parsed = parseEmpty();
-    expect(Object.keys(parsed.account).length).toBeGreaterThan(0);
-    expect(parsed.characters).toEqual([]);
-  });
-
-  it('produces the same account keys as a real save', () => {
+  it('produces the same account keys as a real save, and no characters', () => {
     const emptyKeys = Object.keys(parseEmpty().account).sort();
     const realKeys = Object.keys(parseReal().account).sort();
     expect(emptyKeys).toEqual(realKeys);
+    expect(parseEmpty().characters).toEqual([]);
   });
 
   const RAW_PASSTHROUGH_KEYS = ['accountCreateTime', 'serverVars', 'accountOptions', 'timeAway', 'weeklyBossesRaw', 'talentPoints'];
@@ -64,10 +60,12 @@ describe('a section that fails', () => {
     }
   };
 
-  it.each(['farming', 'hole', 'sailing', 'gaming', 'cooking'])('%s draws what an empty save draws', (name) => {
-    const { account } = failing([name]);
-    expect(account[name]).toEqual(parseEmpty().account[name]);
-    expect(account.failedSections).toEqual([name]);
+  it('draws what an empty save draws', () => {
+    const names = ['farming', 'hole', 'sailing', 'gaming', 'cooking'];
+    const { account } = failing(names);
+    const empty = parseEmpty().account;
+    for (const name of names) expect(account[name], name).toEqual(empty[name]);
+    expect([...account.failedSections].sort()).toEqual([...names].sort());
   });
 
   it('keeps every other section, and its gems', () => {
@@ -109,10 +107,16 @@ const CATALOG_LISTS = [
 ];
 
 describe('catalog-backed sections with no save', () => {
-  it.each(CATALOG_LISTS)('%s lists the whole catalog', (_, rowsOf, expectedCount, atLevelZero) => {
-    const rows = rowsOf(parseEmpty().account);
-    expect(rows).toHaveLength(expectedCount());
-    if (atLevelZero) expect(rows.filter(({ level }) => level !== 0)).toEqual([]);
+  it('every list holds its whole catalog', () => {
+    const { account } = parseEmpty();
+    expectNoBreaks(CATALOG_LISTS, ([name]) => name, ([, rowsOf, expectedCount, atLevelZero]) => {
+      const rows = rowsOf(account);
+      const aboveZero = atLevelZero ? rows.filter(({ level }) => level !== 0).length : 0;
+      return [
+        ...(rows.length === expectedCount() ? [] : [`${rows.length} rows instead of ${expectedCount()}`]),
+        ...(aboveZero ? [`${aboveZero} rows not at level 0`] : [])
+      ];
+    });
   });
 
   it('carries catalog fields, not just empty rows', () => {
@@ -124,10 +128,6 @@ describe('catalog-backed sections with no save', () => {
     const { stamps, alchemy } = parseEmpty().account;
     expect(Object.keys(stamps).sort()).toEqual(['combat', 'misc', 'skills']);
     expect(Object.keys(alchemy.bubbles).length).toBeGreaterThan(0);
-  });
-
-  it('breeding has its pet list populated', () => {
-    expect(parseEmpty().account.breeding.pets.length).toBeGreaterThan(0);
   });
 
   it('pure user state stays empty: inventory, obols and shop stock', () => {

@@ -4,7 +4,7 @@ import { getStorage } from '@parsers/storage';
 import { liveCount } from '@parsers/catalog';
 import { invStorage } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import { FIXTURES } from '../helpers/save-fixtures';
+import { FIXTURES, onEachFixture } from '../helpers/save-fixtures';
 
 describe('getStorage', () => {
   it('returns every live storage chest and an empty inventory when the save is missing', () => {
@@ -25,7 +25,7 @@ describe('getStorage', () => {
 });
 
 describe('getStorage fixture regression', () => {
-  it.each(FIXTURES)('%s: inventory quantities read from the save, beside the full chest catalog', (_name, fixture) => {
+  it('every save: inventory quantities read from the save, beside the full chest catalog', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const chestOrderRaw = tryToParse(data?.ChestOrder);
     const chestQuantityRaw = tryToParse(data?.ChestQuantity);
@@ -41,5 +41,5 @@ describe('getStorage fixture regression', () => {
       expect(result.list[index].rawName).toBe(itemName);
       expect(result.list[index].amount).toBe(amount);
     });
-  });
+  }));
 });

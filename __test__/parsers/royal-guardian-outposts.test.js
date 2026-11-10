@@ -159,6 +159,9 @@ describe('royal guardian outposts', () => {
     close(froggy.rankBars[2].previous, 1166.4);
     close(froggy.rankBars[2].required, 250 * Math.pow(1.8, 4));
     close(froggy.rankBars[4].required, 1e5);
+    // The ranks no outpost here sits on: Command starts at 50, Purity grows 10x a rank
+    close(getOutpostExpFormula(0, 2), 50);
+    close(getOutpostExpFormula(1, 4), 1e6);
     expect(froggy.rankBars.map(({ unlocked }) => unlocked)).toEqual([true, true, true, true, true]);
   });
 
@@ -530,15 +533,6 @@ describe('royal guardian outposts', () => {
     const [slowest] = live;
     const shared = getMissingWorkers(froggy, missHorizon, workerBonus, { [slowest.index]: slowest.drainRate * 2 });
     expect(shared === null || shared.missing < need.missing).toBe(true);
-  });
-
-  it('grows the Command rank bar by 1.8x a rank (2.3.531)', () => {
-    // Live-verified: OutpostEXPformula(rank 3, type 2) = 1166.4.
-    close(getOutpostExpFormula(3, 2), 1166.4);
-    close(getOutpostExpFormula(0, 2), 50);
-    // The other bars are untouched.
-    close(getOutpostExpFormula(3, 0), 25 * Math.pow(1.3, 3));
-    close(getOutpostExpFormula(1, 4), 1e6);
   });
 
   it('rounds passive units up, so each type arrives one Command rank after the last', () => {

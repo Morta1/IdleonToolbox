@@ -1,8 +1,8 @@
 import '../../polyfills';
-import fs from 'fs';
-import path from 'path';
-import { describe, expect, it } from 'vitest';
+import { describe, it } from 'vitest';
 import { parseFixture } from '../helpers/parsed-fixtures';
+import { allFixtures } from '../helpers/save-fixtures';
+import { expectNoBreaks } from '../helpers/sweep';
 import { notateNumber } from '@utility/helpers';
 import { evaluateBreakdownNode, formatBreakdownValue, getBreakdownNodeUnit, isBreakdownGroup } from '@parsers/breakdown';
 
@@ -12,10 +12,7 @@ import { evaluateBreakdownNode, formatBreakdownValue, getBreakdownNodeUnit, isBr
 // but only on pages a logged-out visitor can reach, and breakdowns need character data.
 //
 // So this gate renders every breakdown source the way the component does and checks the result.
-const FIXTURES_DIR = path.resolve(__dirname, '../fixtures');
-const FIXTURES = fs.readdirSync(FIXTURES_DIR)
-  .filter((file) => file.endsWith('.json'))
-  .map((file) => [file.replace(/\.json$/, ''), JSON.parse(fs.readFileSync(path.join(FIXTURES_DIR, file), 'utf-8'))]);
+const FIXTURES = allFixtures();
 
 // Mirrors Breakdown.tsx: `source.formatted ?? notateNumber(source.value, valueNotation)`, with
 // MultiplierInfo as the component's default notation.
@@ -68,21 +65,19 @@ const findBreakdowns = (node, trail = '', found = [], seen = new WeakSet()) => {
   return found;
 };
 
-describe('every breakdown source renders to a real number', () => {
-  it.each(FIXTURES)('%s', (_name, fixture) => {
-    const { account, characters } = parseFixture(fixture);
-    const breakdowns = [
-      ...findBreakdowns(account, 'account'),
-      ...characters.flatMap((character, index) => findBreakdowns(character, `characters[${index}]`))
-    ];
-
-    // A fixture with no breakdowns at all would pass vacuously and hide a regression in the walker.
-    expect(breakdowns.length).toBeGreaterThan(0);
-
-    const offenders = breakdowns.flatMap(({ trail, breakdown }) => breakdownRows(breakdown, trail)
-      .filter(({ rendered }) => /NaN|undefined/.test(rendered))
-      .map(({ where, rendered }) => `${where} = ${rendered}`));
-
-    expect(offenders).toEqual([]);
+describe('breakdowns as the drawer renders them', () => {
+  it('every source renders to a real number, on every save', () => {
+    expectNoBreaks(FIXTURES, ([name]) => name, ([, fixture]) => {
+      const { account, characters } = parseFixture(fixture);
+      const breakdowns = [
+        ...findBreakdowns(account, 'account'),
+        ...characters.flatMap((character, index) => findBreakdowns(character, `characters[${index}]`))
+      ];
+      // A fixture with no breakdowns at all would pass vacuously and hide a regression in the walker.
+      if (!breakdowns.length) return ['no breakdowns found'];
+      return breakdowns.flatMap(({ trail, breakdown }) => breakdownRows(breakdown, trail)
+        .filter(({ rendered }) => /NaN|undefined/.test(rendered))
+        .map(({ where, rendered }) => `${where} = ${rendered}`));
+    });
   });
 });

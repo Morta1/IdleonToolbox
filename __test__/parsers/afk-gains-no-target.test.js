@@ -9,8 +9,7 @@ import latest from '../fixtures/latest.json';
 const NO_RATE_TYPES = [
   ['Paying_Respect', 'paying respect at a monument'],
   ['Nothing', 'character has no AFK target'],
-  ['error', 'unrecognized AFK target'],
-  [undefined, 'unrecognized AFK target']
+  ['error', 'unrecognized AFK target']
 ];
 
 const parsed = () => parseFixture(latest);

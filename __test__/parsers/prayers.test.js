@@ -4,7 +4,7 @@ import { getPrayerBonusAndCurse, getPrayers } from '@parsers/world-3/prayers';
 import { liveCount } from '@parsers/catalog';
 import { prayers } from '@website-data';
 import { tryToParse } from '@utility/helpers';
-import { FIXTURES } from '../helpers/save-fixtures';
+import { FIXTURES, onEachFixture } from '../helpers/save-fixtures';
 
 describe('getPrayers', () => {
   it('returns every live prayer when the save is missing', () => {
@@ -26,7 +26,7 @@ describe('getPrayers', () => {
 });
 
 describe('getPrayers fixture regression', () => {
-  it.each(FIXTURES)('%s: levels read at their index, across the whole catalog', (_name, fixture) => {
+  it('every save: levels read at their index, across the whole catalog', () => onEachFixture(FIXTURES, (fixture) => {
     const data = fixture.data ?? fixture;
     const raw = data?.PrayersUnlocked || tryToParse(data?.PrayOwned) || [];
     const result = getPrayers(data, []);
@@ -35,7 +35,7 @@ describe('getPrayers fixture regression', () => {
     raw.slice(0, result.length).forEach((level, index) => {
       expect(result[index].level).toBe(level);
     });
-  });
+  }));
 
 });
 

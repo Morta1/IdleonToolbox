@@ -9,20 +9,6 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 describe('dancing coral', () => {
   const { dancingCoral, unlockedCorals } = parseFixture(raw).account.coralReef;
 
-  it('names the corals in the game\'s order', () => {
-    expect(dancingCoral.map(({ coralName }) => coralName)).toEqual([
-      'Reef_Coral',
-      'Vibrant_Coral',
-      'Glowing_Coral',
-      'Char_Coral',
-      'Neon_Coral',
-      'Aegean_Coral',
-      'Gilded_Coral',
-      'Twisted_Coral',
-      'Eternal_Coral'
-    ]);
-  });
-
   it('pairs each coral with the shrine it raises the max level of', () => {
     expect(dancingCoral.map(({ tower }) => tower?.name)).toEqual([
       'Woodular_Shrine',

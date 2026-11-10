@@ -115,6 +115,11 @@ const computedBreakdowns = (account, characters, idleonData) => {
     const portal = getPortalProgressBreakdown(account, playerInfo.killPerkill?.value ?? 1);
     addOwn('portalProgress', portal.breakdown, portal.perKill);
   });
+  // The logged-out page has no character to hand it
+  if (!characters.length) {
+    const doubleStatue = getDoubleStatueDrop(account, undefined, characters);
+    add('doubleStatue', doubleStatue.breakdown, doubleStatue.value);
+  }
   (account.farming?.plot ?? []).forEach((crop, index) => {
     const evolution = getCropEvolution(account, characters?.[0], crop);
     add(`cropEvolution[${index}]`, evolution.breakdown, evolution.isLocked ? 0 : evolution.value);
@@ -174,12 +179,11 @@ const computedBreakdowns = (account, characters, idleonData) => {
   return found;
 };
 
-// Every breakdown a fixture produces, with the number its tree must rebuild (undefined when unknown)
-export const collectBreakdowns = (fixture) => {
-  const { account, characters } = parseFixture(fixture);
-  return [
-    ...findStored(account, 'account', null, null, [], new WeakSet()),
-    ...characters.flatMap((character, index) => findStored(character, `characters[${index}]`, null, null, [], new WeakSet())),
-    ...computedBreakdowns(account, characters, fixture.data ?? fixture)
-  ];
-};
+// Every breakdown a parse produces, with the number its tree must rebuild (undefined when unknown)
+export const collectParsedBreakdowns = ({ account, characters }, idleonData) => [
+  ...findStored(account, 'account', null, null, [], new WeakSet()),
+  ...characters.flatMap((character, index) => findStored(character, `characters[${index}]`, null, null, [], new WeakSet())),
+  ...computedBreakdowns(account, characters, idleonData)
+];
+
+export const collectBreakdowns = (fixture) => collectParsedBreakdowns(parseFixture(fixture), fixture.data ?? fixture);

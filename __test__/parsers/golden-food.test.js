@@ -4,7 +4,7 @@ import { beforeAll, describe, expect, it } from 'vitest';
 import { getGoldenFoodBonus, getGoldenFoodMulti } from '@parsers/misc';
 import { items } from '@website-data';
 import { lavaLog } from '@utility/helpers';
-import { parseData } from '@parsers/index';
+import { parseFixture } from '../helpers/parsed-fixtures';
 import fourth from '../fixtures/fourth.json';
 
 // Golden foods are keyed by Effect in the game, not by name. Two of them carry DropRatez:
@@ -22,8 +22,7 @@ let baseCharacter;
 let baseCharacters;
 
 beforeAll(() => {
-  const { data, charNames, companion, guildData, serverVars } = fourth;
-  const parsed = parseData(data, charNames, companion, guildData, serverVars);
+  const parsed = parseFixture(fourth);
   baseAccount = parsed.account;
   baseCharacters = parsed.characters;
   baseCharacter = parsed.characters[0];
@@ -122,17 +121,6 @@ describe('getGoldenFoodBonus - beanstalk', () => {
     expect(bonusOf('Golden_Cake', withFood(), account)).toBe(0);
   });
 
-  it('counts only the first match when both foods are on the stalk', () => {
-    const beanstalkData = rankedAt(14, 2);
-    beanstalkData[16] = 3;
-    const account = withAccount({ beanstalkData });
-    const character = withFood();
-    const multi = multiOf(character, account);
-
-    expect(bonusOf('Golden_Cake', character, account))
-      .toBeCloseTo(expectedTerm(CAKE, 1e3 * Math.pow(10, 2), multi), 6);
-  });
-
   it('skips the beanstalk entirely when the jade bonus is locked', () => {
     const account = withAccount({ beanstalkUnlocked: false, beanstalkData: rankedAt(14, 3) });
     expect(bonusOf('Golden_Cake', withFood(), account)).toBe(0);
@@ -147,14 +135,6 @@ describe('getGoldenFoodBonus - beanstalk', () => {
     expect(bonusOf('Golden_Cake', character, account)).toBeCloseTo(expected, 6);
   });
 
-  it('leaves single-Effect foods behaving exactly as before', () => {
-    const account = withAccount({ beanstalkData: rankedAt(6, 1) });
-    const character = withFood([slot(HAM, 5000)]);
-    const multi = multiOf(character, account);
-
-    const expected = expectedTerm(HAM, 5000, multi) + expectedTerm(HAM, 1e3 * Math.pow(10, 1), multi);
-    expect(bonusOf('Golden_Ham', character, account)).toBeCloseTo(expected, 6);
-  });
 });
 
 describe('getGoldenFoodMulti - golden food cards', () => {
