@@ -5,6 +5,7 @@ import { cleanUnderscore, formatNum, gameLines, getCoinsArray, getTabs } from '@
 import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import {
+  getDivinityPointsPerHour,
   getMinorDivinityBonus,
   getTotalBlessingLevels,
   getTotalDivinityLevel,
@@ -24,6 +25,7 @@ import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import DivinityStyles from '@components/account/Worlds/World5/DivinityStyles';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
+import { createBreakdown } from '@parsers/breakdown';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import IconTile from '@components/common/cards/IconTile';
@@ -110,6 +112,7 @@ const Divinity = () => {
   const nobisectBlessing = activeCharacter && !sectionFailed
     ? getNobisectBonus(activeCharacter, state?.account, state?.characters, getMaxDamage(activeCharacter, state?.characters, state?.account))
     : null;
+  const pointsPerHour = sectionFailed ? null : getDivinityPointsPerHour(state?.account, state?.characters);
   const highestDivinityCharacter = state?.characters?.reduce((prev, curr) => {
     const prevBonus = prev?.skillsInfo?.divinity?.level;
     const currBonus = curr?.skillsInfo?.divinity?.level;
@@ -146,6 +149,8 @@ const Divinity = () => {
       {/* The game's rank is max(0, unlocked gods - 10), so a guest reads 0 */}
       <StatTile label={'God rank'} value={godRank ?? 0} kind={'amount'}/>
       <StatTile label={'Total Divinity LV'} value={getTotalDivinityLevel(state?.characters)} kind={'amount'} failed={isParseFailed(state?.account)}/>
+      <StatTile label={'Divinity PTS/hr'} value={pointsPerHour?.total ?? 0} kind={'rate'}
+                breakdown={pointsPerHour ? createBreakdown('Divinity PTS/hr', pointsPerHour.total, pointsPerHour.tree) : undefined}/>
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 5'].categories, 'divinity')}>
       <div>
@@ -182,7 +187,7 @@ const Divinity = () => {
         </CardGrid>
       </div>
       <CoralKidUpgrades coralKidUpgrades={coralKidUpgrades} levelsAhead={settings?.levelsAhead ?? 1}/>
-      <DivinityStyles characters={state?.characters}/>
+      <DivinityStyles characters={state?.characters} pointsPerHour={pointsPerHour?.perCharacter}/>
     </Tabber>
   </SummaryFailed>;
 };

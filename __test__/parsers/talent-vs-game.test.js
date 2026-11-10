@@ -59,6 +59,8 @@ const TALENTS = [
   // Fixture value with Nine playing: raw 220 plus added levels. The y-variant was verified live on
   // 2026-10-10 to take added levels (getbonus2(2, 475, -1) = 360000 on the newer save).
   ["Wizard", "CHARGE_SYPHON", 475, 372000, true],
+  // Added with Divinity PTS/hr: getbonus2(1, 505, -1) read live on 2026-11-10 answers the same.
+  ["Elemental_Sorcerer", "POLYTHEISM", 505, 40.021413276231264],
   ["Elemental_Sorcerer", "SHARED_BELIEFS", 506, 84.27672955974843],
   ["Elemental_Sorcerer", "GODS_CHOSEN_CHILDREN", 507, 7.282608695652174],
   ["Elemental_Sorcerer", "WORMHOLE_EMPEROR", 508, 1.1720116618075802],

@@ -1,4 +1,13 @@
-import { isCompanionBonusActive } from '@parsers/misc';
+import { companionLineName, isCompanionBonusActive, isCompanionLvl2Active, isMasteryBonusUnlocked } from '@parsers/misc';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
+import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
+import { getSushiBonus } from '@parsers/world-7/sushiStation';
+import { isArtifactAcquired } from '@parsers/world-5/sailing';
+import { getAchievementStatus } from '@parsers/achievements';
+import { getBribeBonus } from '@parsers/world-1/bribes';
+import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
+import { additiveGroup, flat, multiplier, NUMBERED_GROUP, percent, productGroup, sourceName } from '@parsers/breakdown';
+import type { BreakdownNode } from '@parsers/breakdown';
 import { getActiveBubbleBonus, isPrismaBubble } from '@parsers/world-2/alchemy';
 import { getPrismaMulti } from '@parsers/class-specific/tesseract';
 import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
@@ -6,9 +15,9 @@ import { getCoralKidUpgBonus } from '@parsers/world-7/coralReef';
 import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
-import { cosmoUpgrades, gods } from '@website-data';
+import { achievements, cosmoUpgrades, gods } from '@website-data';
 import { growth } from '@utility/helpers';
-import { getBestActiveCharacter } from '@parsers/talents';
+import { getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { saveField } from '@parsers/saveField';
 import { OPT } from '@parsers/accountOptions';
 
@@ -416,3 +425,109 @@ export const getTotalBlessingLevels = (deities: any[] | undefined) => deities?.r
 // Total Divinity LV across all players, the gate on Coral Kid upgrades
 export const getTotalDivinityLevel = (characters: any[] | undefined) =>
   characters?.reduce((sum, character) => sum + (character?.skillsInfo?.divinity?.level ?? 0), 0) ?? 0;
+
+// Divinity("DivPTSPerHr", t): the base points a style earns per hour, before every multiplier. Not the EXP table
+// (getDivStylePerHour): here TranQi and the fourth style earn no points.
+const DIV_PTS_STYLE_BASE = [1, 2, 4, 0, 2, 0, 8, 15];
+export const getDivStylePointsPerHour = (styleIndex: any) => DIV_PTS_STYLE_BASE[Number(styleIndex)] ?? 0;
+
+// The god slots whose blessing feeds Divinity("DivMulti", 0..4); the last two entries are artifacts
+const DIV_MULTI_BLESSINGS = [GOD_SLOT.Snehebatu, GOD_SLOT.Arctis, GOD_SLOT.Harriep, GOD_SLOT.Omniphau];
+const DIV_MULTI_ARTIFACTS = ['Ashen_Urn', 'Jade_Rock'];
+const DIVINITY_SKILL_INDEX_MASTERY_TIER = 1;
+
+// Divinity("DivPTSPerHr", 999): every account multiplier on a style's points per hour, the style rate and the
+// character's DivPerHr gate left out. The breakdown tree mirrors the game's factors.
+// game: "DivPTSPerHr"
+export const getDivinityPointsMultiplier = (account: any, characters: any) => {
+  const loggedInCharacter = getBestActiveCharacter(characters) ?? characters?.[0];
+  const deities = account?.divinity?.deities ?? [];
+  const gemShopBonus = Number(account?.gemShopPurchases?.[130]) || 0;
+  const petMartBonus = isCompanionLvl2Active(account, 0) ? 1 : 0;
+  const sushiBonus = getSushiBonus(account, 46);
+  const coralKidBonus = getCoralKidUpgBonus(account, 6);
+  const blessings = DIV_MULTI_BLESSINGS.map((slot) => ({ name: deities?.[slot]?.name, value: Number(deities?.[slot]?.blessingBonus) || 0 }));
+  const artifacts = DIV_MULTI_ARTIFACTS.map((name) => ({ name, value: Number(isArtifactAcquired(account?.sailing?.artifacts, name)?.bonus) || 0 }));
+  const divMulti = Math.max(1, [...blessings, ...artifacts].reduce((product, { value }) => product * (1 + value / 100), 1));
+  const talentBonus = getHighestTalentAcrossCharacters(characters, 'POLYTHEISM', loggedInCharacter);
+  // Bonus_MAJOR(0, 6): Purrmep, paid account wide while any character is linked to it
+  const purrmepMajor = isMajorDivinityActive(characters?.[0], account, GOD_INDEX.Purrmep, loggedInCharacter) ? 1 : 0;
+  const voteBonus = getVoteBonus(account, 23);
+  const lampBonus = getLampBonus({ holesObject: account?.hole?.holesObject, t: 1, i: 2, account });
+  const reefLevels = (account?.spelunking?.coralReefLevels ?? []).slice(0, 6)
+    .reduce((sum: number, level: any) => sum + (Number(level) || 0), 0);
+  const reefBonus = reefLevels * getCoralKidUpgBonus(account, 4);
+  // BoxRewards "22c": the third bonus of the logged-in character's Box of Gosh
+  const postOfficeBonus = getPostOfficeBonus(loggedInCharacter?.postOffice, 'Box_of_Gosh', 2);
+  const achievementBonus298 = 10 * getAchievementStatus(account?.achievements, 298);
+  const achievementBonus304 = 10 * getAchievementStatus(account?.achievements, 304);
+  const masteryBonus = 15 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.divinity?.rank, DIVINITY_SKILL_INDEX_MASTERY_TIER);
+  const bribeBonus = getBribeBonus(account?.bribes, 'Divine_PTS_Miscounting');
+  const vaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 71);
+
+  const value = (1 + gemShopBonus / 4)
+    * (1 + 0.25 * petMartBonus)
+    * (1 + sushiBonus / 100)
+    * (1 + coralKidBonus / 100)
+    * divMulti
+    * (1 + talentBonus / 100)
+    * Math.max(1, 1 + purrmepMajor)
+    * (1 + voteBonus / 100)
+    * (1 + lampBonus / 100)
+    * (1 + reefBonus / 100)
+    * (1 + (postOfficeBonus + (achievementBonus298 + achievementBonus304 + (masteryBonus + (bribeBonus + vaultBonus)))) / 100);
+
+  return {
+    value,
+    tree: [
+      productGroup(NUMBERED_GROUP, [
+        multiplier('Gem shop', 1 + gemShopBonus / 4),
+        multiplier(`${companionLineName(0)} Pet Mart+`, 1 + 0.25 * petMartBonus),
+        multiplier('Sushi', 1 + sushiBonus / 100),
+        multiplier('Coral Kid', 1 + coralKidBonus / 100),
+        ...blessings.map(({ name, value: bonus }) => multiplier(sourceName('Blessing', name), 1 + bonus / 100)),
+        ...artifacts.map(({ name, value: bonus }) => multiplier(sourceName('Artifact', name), 1 + bonus / 100)),
+        multiplier('Polytheism talent', 1 + talentBonus / 100),
+        multiplier('Purrmep major link', Math.max(1, 1 + purrmepMajor)),
+        multiplier('Vote', 1 + voteBonus / 100),
+        multiplier('Lamp', 1 + lampBonus / 100),
+        multiplier('Coral Kid (reef levels)', 1 + reefBonus / 100)
+      ]),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Post office', postOfficeBonus),
+        percent(sourceName('Achievement', achievements?.[298]?.name), achievementBonus298),
+        percent(sourceName('Achievement', achievements?.[304]?.name), achievementBonus304),
+        percent('Skill mastery', masteryBonus),
+        percent(sourceName('Bribe', 'Divine_PTS_Miscounting'), bribeBonus),
+        percent('Vault', vaultBonus)
+      ])
+    ] as BreakdownNode[]
+  };
+}
+
+// Divinity("DivPTSPerHr", t): a character's points per hour as the Divinity screen shows it, 0 when its style earns
+// none or Divinity("DivPerHr", t) says it is not gaining. The multiplier is the account's, so pass it when listing
+// several characters.
+// game: "DivPTSPerHr"
+export const getCharacterDivinityPointsPerHour = (character: any, account: any, characters: any, multiplier?: number) => {
+  if (!isGainingDivinityPoints(character, account, characters)) return 0;
+  const base = getDivStylePointsPerHour(account?.divinity?.linkedStyles?.[character?.playerId]);
+  return base * (multiplier ?? getDivinityPointsMultiplier(account, characters).value);
+}
+
+// Every character's points per hour and the account's total, the total's breakdown being the style rates of the
+// characters gaining points times the shared multiplier.
+export const getDivinityPointsPerHour = (account: any, characters: any) => {
+  const { value: multi, tree } = getDivinityPointsMultiplier(account, characters);
+  const perCharacter = (characters ?? []).map((character: any) => ({
+    playerId: character?.playerId,
+    value: getCharacterDivinityPointsPerHour(character, account, characters, multi)
+  }));
+  const styleRates = (characters ?? []).reduce((sum: number, character: any) => isGainingDivinityPoints(character, account, characters)
+    ? sum + getDivStylePointsPerHour(account?.divinity?.linkedStyles?.[character?.playerId]) : sum, 0);
+  return {
+    total: styleRates * multi,
+    perCharacter,
+    tree: [flat('Style rates', styleRates), ...tree] as BreakdownNode[]
+  };
+}

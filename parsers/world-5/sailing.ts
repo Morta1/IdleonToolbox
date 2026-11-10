@@ -920,12 +920,10 @@ const getArtifact = (artifact: any, acquired: any, lootPile: any, index: any, ch
     additionalData = `Highest level: ${highestLevel}`;
     bonus = highestLevel * artifact?.baseBonus;
     if (artifact?.name === 'Ashen_Urn') {
-      bonus = highestLevel > artifact?.[multiplierType]
-        ? artifact?.[multiplierType] * artifact?.baseBonus
-        : highestLevel * artifact?.baseBonus;
-      // game: "ArtifactBonus" caps this one at character level 200 + 200 per form above the first
-      const total = artifact?.baseBonus * Math.min(highestLevel, 200 * Math.max(0, acquired ?? 0));
-      fixedDescription = `${fixedDescription}_@_Total_Bonus:_+${gameFill(total, 'Big')}%_Divinity`;
+      // game: "ArtifactBonus" caps this one at character level 200 + 200 per form above the first. The form
+      // multipliers in the artifact table sit one form behind that cap, so they are not the cap.
+      bonus = artifact?.baseBonus * Math.min(highestLevel, 200 * Math.max(0, acquired ?? 0));
+      fixedDescription = `${fixedDescription}_@_Total_Bonus:_+${gameFill(bonus, 'Big')}%_Divinity`;
     }
   }
   else if (artifact?.name === 'Ruble_Cuble' || artifact?.name === '10_AD_Tablet' || artifact?.name === 'Jade_Rock' || artifact?.name === 'Gummy_Orb') {

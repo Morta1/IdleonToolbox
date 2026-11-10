@@ -42,7 +42,8 @@ export const patchNotes = [
       'Exotic Market: Off rotation can now be sorted in game order as well as by soonest return',
       'Leaderboards: new Sprout Speed board under World 5 (fastest growth cycle first, fills as players re-upload)',
       'Dashboard: new World 7 timer for the next Yellow jelly construction purchase, also shown on the Jellies card',
-      'Farming: every sticker chance now has a breakdown of its sources'
+      'Farming: every sticker chance now has a breakdown of its sources',
+      'Divinity: Divinity PTS per hour with a breakdown of every source, and the rate of each character on the Styles tab'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',
@@ -59,7 +60,8 @@ export const patchNotes = [
       'Dashboard: the talents the Library can raise alert now shows the Library icon, so it no longer looks like the talents below max level alert',
       'Slab: Funny 2hr Feather, Funny 2hr Slice and the Easter and Summer stones no longer count as missing greenstacks',
       'Breakdowns name each companion, and companions that showed the wrong name now read correctly',
-      'Gaming: Sprout Speed now matches the game (adds the palette, crop depot and bits toggle bonuses)'
+      'Gaming: Sprout Speed now matches the game (adds the palette, crop depot and bits toggle bonuses)',
+      'Sailing: Ashen Urn bonus now follows the game level cap for each artifact tier'
     ]
   },
   {
