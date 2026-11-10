@@ -4,7 +4,7 @@ import { cleanUnderscore, formatNum } from '@utility/helpers';
 import HiddenCapLine from '@components/common/HiddenCapLine';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
-import { getShapeColor, hasShape } from './researchGridShared';
+import { getShapeColor, gridLabelIcon, hasShape } from './researchGridShared';
 
 // A shape's color stays the game's mark beside its words
 const shapeMark = (shapeIndex) => <Stack component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
@@ -18,7 +18,7 @@ const CardView = ({ squares, details }) => <CardGrid size={'s'} details={details
   {squares?.map((square) => {
     const name = cleanUnderscore(square?.name);
     const shaped = hasShape(square);
-    return <ItemCard key={square?.index} title={name}
+    return <ItemCard key={square?.index} icon={gridLabelIcon(square?.index)} title={name}
                      level={{ value: square?.level ?? 0, max: Math.max(1, square?.maxLv ?? 1) }}
                      dimmed={!((square?.level ?? 0) >= 1)} aside={shaped ? shapeMark(square.placementShapeIndex) : null}
                      more={shaped && square?.shapeAffectMultiplier != null

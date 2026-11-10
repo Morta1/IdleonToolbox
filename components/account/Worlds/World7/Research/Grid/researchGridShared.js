@@ -8,4 +8,7 @@ export const getShapeColor = (theme, shapeIndex) => {
   return shapes[Math.min(shapeIndex ?? 0, shapes.length - 1)] ?? shapes[0];
 };
 
-export const hasShape = (sq) => sq != null && sq.placementShapeIndex != null;
+// The game's own coordinate tile (font 746, e.g. "M9"), rendered by z-processing for every real square.
+export const gridLabelIcon = (index) => (index != null ? `etc/ResGrid_${index}.png` : undefined);
+
+export const hasShape =(sq) => sq != null && sq.placementShapeIndex != null;

@@ -4,7 +4,8 @@ import { cleanUnderscore, formatNum } from '@utility/helpers';
 import HiddenCapLine from '@components/common/HiddenCapLine';
 import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
-import { getShapeColor, hasShape } from './researchGridShared';
+import GameIcon from '@components/common/GameIcon';
+import { getShapeColor, gridLabelIcon, hasShape } from './researchGridShared';
 
 const COLS = 20;
 const CELL_SIZE = 30;
@@ -112,7 +113,7 @@ const GridView = ({ squares, stickyTop }) => {
       {Array.from({ length: rows * COLS }, (_, i) => <GridCell key={i} sq={squares?.[i] ?? null} selected={i === pinned}
                                                                 onPick={() => setPicked(i)} onPreview={() => setHovered(i)}/>)}
     </Box>
-    {square ? <Panel title={name} meta={formatNum(square.level ?? 0, 'level', { max: Math.max(1, square.maxLv ?? 1) })}
+    {square ? <Panel icon={<GameIcon src={gridLabelIcon(index)} size={32} alt={''}/>} title={name} meta={formatNum(square.level ?? 0, 'level', { max: Math.max(1, square.maxLv ?? 1) })}
                      sx={{ flex: `1 1 ${DETAILS_MIN}px`, maxWidth: 640, position: 'sticky', top: stickyTop + STICKY_GAP }}>
       <Stack gap={1} sx={{ px: 2, py: 1.5 }}>
         {square.description ? <ItemCard.Desc text={square.description}/> : null}

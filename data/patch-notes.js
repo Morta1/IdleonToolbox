@@ -36,7 +36,8 @@ export const patchNotes = [
       'Goals: All characters goals can now track every entry, like all bags or all talents, on each character',
       'Summoning: army damage, army health and winner bonuses show a breakdown; army health now counts Glombolic Units',
       'Characters: HP, MP, accuracy, movement speed, crit chance, crit damage and weapon power open a breakdown',
-      'Breeding: the Total chance breakdown of each mob now lists every factor, and the Arena tab shows the Mob damage multi with its breakdown'
+      'Breeding: the Total chance breakdown of each mob now lists every factor, and the Arena tab shows the Mob damage multi with its breakdown',
+      'Research: grid squares show their in-game coordinate tile (like M9) on the cards and the grid details'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',
