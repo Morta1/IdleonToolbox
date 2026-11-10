@@ -25,6 +25,12 @@ const baseStats = (label, qualityText, stats) => createBreakdown(label, qualityT
     formatted: `${formatNum(min, 'amount', { precise: true })} to ${formatNum(max, 'amount', { precise: true })}`
   }))), { combine: 'list' });
 
+// The tile's sub line: the best roll of the item's headline stat at this quality, the rest in its breakdown
+const bestRoll = (stats, statName) => {
+  const max = stats?.find(({ name }) => name === statName)?.max;
+  return Number.isFinite(max) ? `Up to ${formatNum(max, 'whole')} ${statName}` : undefined;
+};
+
 // A map bonus moves in steps of 0.001x (the parser's kills to next step), so it keeps three decimals
 // The next step of a map bonus, where the parser can name it: "TONS" is more than 100,000 kills away
 const nextStep = (killsToNext) => {
@@ -39,6 +45,8 @@ const Maps = ({ character, account, characters, sectionFailed }) => {
   const { weaponDropChance, ringDropChance, weaponQuality, ringQuality } = account?.tesseract || {};
   const weaponQualityText = formatNum(weaponQuality ?? 0);
   const ringQualityText = formatNum(ringQuality ?? 0);
+  const weaponStats = getWeaponBaseStats(weaponQuality ?? 0);
+  const ringStats = getRingBaseStats(ringQuality ?? 0);
   const ofType = (type) => catalog.filter(({ tachyonType }) => `${tachyonType}` === type);
   const shown = sectionFailed ? catalog : catalog.filter(({ unlocked, tachyonType }) => !(view?.hideOpen && unlocked)
     && (view?.tachyon === 'all' || `${tachyonType}` === view?.tachyon));
@@ -48,13 +56,13 @@ const Maps = ({ character, account, characters, sectionFailed }) => {
       <StatTile label={'Weapon drop chance'} icon={'data/EquipmentWandsArc0.png'}
                 value={sectionFailed ? '-' : formatNum(weaponDropChance, 'odds')}/>
       <StatTile label={'Weapon quality'} value={sectionFailed ? '-' : weaponQualityText} breakdownTitle={'Weapon quality'}
-                breakdown={sectionFailed ? undefined : baseStats('Weapon quality', weaponQualityText, getWeaponBaseStats(weaponQuality ?? 0))}
-                breakdownNoun={'stats'}/>
+                breakdown={sectionFailed ? undefined : baseStats('Weapon quality', weaponQualityText, weaponStats)}
+                breakdownNoun={'stats'} sub={sectionFailed ? undefined : bestRoll(weaponStats, 'Arcanist DMG')}/>
       <StatTile label={'Ring drop chance'} icon={'data/EquipmentRingsArc0.png'}
                 value={sectionFailed ? '-' : formatNum(ringDropChance, 'odds')}/>
       <StatTile label={'Ring quality'} value={sectionFailed ? '-' : ringQualityText} breakdownTitle={'Ring quality'}
-                breakdown={sectionFailed ? undefined : baseStats('Ring quality', ringQualityText, getRingBaseStats(ringQuality ?? 0))}
-                breakdownNoun={'stats'}/>
+                breakdown={sectionFailed ? undefined : baseStats('Ring quality', ringQualityText, ringStats)}
+                breakdownNoun={'stats'} sub={sectionFailed ? undefined : bestRoll(ringStats, 'Arcanist ACC')}/>
     </Stack>
     {sectionFailed ? null : <Toolbar state={view} defaults={MAPS_TOOLBAR} onChange={setView} onReset={resetView}
                                      total={catalog.length} shown={shown.length} noun={'maps'}>

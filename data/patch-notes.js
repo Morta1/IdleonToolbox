@@ -47,7 +47,8 @@ export const patchNotes = [
       'Dashboard: the World 7 Spare Workers alert now also lists Workers on empty resources, replacing their separate alert',
       'Quests: pick characters with the Characters page\'s switcher, one or several at once. With more than one, each quest shows who is on it again, and In progress is blue so it stands apart from Done',
       'Goals: Outposts can track Expanded Barracks, Advanced Logistics and Greater Education levels, and the outpost list shows the monster of each map',
-      'Research Grid, Hole Study, Summoning and Spelunking Upgrades: the Details pill is gone, the rows it hid now always show on the cards'
+      'Research Grid, Hole Study, Summoning and Spelunking Upgrades: the Details pill is gone, the rows it hid now always show on the cards',
+      'Tesseract: the weapon and ring quality tiles show their best base stat roll'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',
