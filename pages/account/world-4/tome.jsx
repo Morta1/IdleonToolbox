@@ -15,7 +15,7 @@ import useRealDate from '@hooks/useRealDate';
 import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import NumberField from '@components/common/NumberField';
 import Timer from '@components/common/Timer';
-import { segmentColors } from '@parsers/world-4/tome';
+import { getTomeRankIndex, segmentColors, TOME_RANKS } from '@parsers/world-4/tome';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -30,7 +30,6 @@ import { quantityForPoints } from '@components/account/Worlds/World4/tomeQuantit
 import useTabIndex from '@hooks/useTabIndex';
 import { ink } from '../../../styles/theme/theme';
 
-const RANKS = ['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '80%', '90%', '95%'];
 const TOME_TOOLBAR = { search: '', hideMaxed: false, details: false };
 const TIERS = ['bronze', 'silver', 'gold', 'blue'];
 
@@ -148,11 +147,10 @@ const Tome = () => {
   });
 
   const tops = tome?.tops ?? [];
-  // The cut-offs sort from the top 0.1% down: the account's tier is the first it reaches
-  const rankIndex = tops.findIndex((score) => (tome?.totalPoints ?? 0) >= score);
-  const rankText = rankIndex >= 0 ? `Top ${RANKS[rankIndex]}` : '-';
+  const rankIndex = getTomeRankIndex(tome);
+  const rankText = rankIndex >= 0 ? `Top ${TOME_RANKS[rankIndex]}` : '-';
   const cutOffs = tops.length ? createBreakdown('Rank', rankText, flatLines(tops.map((score, index) => ({
-    name: `Top ${RANKS[index]}`, value: score, formatted: `${formatGame(score, 'Summoning.TomePTS', { whole: true })} points`
+    name: `Top ${TOME_RANKS[index]}`, value: score, formatted: `${formatGame(score, 'Summoning.TomePTS', { whole: true })} points`
   }))), { combine: 'list' }) : undefined;
   const resets = createBreakdown('Nametag reward reset', getRealDateInMs(nextResetTime), flatLines(nextResetTimes.map((time, index) => ({
     name: index ? `Reset ${index + 1}` : 'Next reset', value: time, formatted: getRealDateInMs(time)

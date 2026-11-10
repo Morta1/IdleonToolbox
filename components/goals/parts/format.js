@@ -226,7 +226,8 @@ export const goalFace = (view) => {
     if (view.watch) return { ...face, value: youHave(current), caption: TRACKING, hint: true, barText: NO_TARGET };
     const goal = view.op === '<=' ? `${directionOf(view.op)} ${shortTier(view.tierName)}` : shortTier(view.tierName);
     // a step count reads backwards for an at most goal ("6/2"), so only an at least goal has one
-    const aside = view.op === '<=' ? null : `${view.value}/${view.targetValue}`;
+    // a tier set by an amount's cut-off reads as the percent of that cut-off
+    const aside = view.op === '<=' ? null : view.tierAmount ? percent : `${view.value}/${view.targetValue}`;
     // the step count beside the bar carries the progress, so the goal's tier name waits for the open row
     return { ...face, value: current, caption: `Goal: ${goal}`, hint: true, aside, bar: true };
   }

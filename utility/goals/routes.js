@@ -46,6 +46,7 @@ export const GOAL_ROUTES = {
   chip: '/account/world-4/laboratory',
   jewel: '/account/world-4/laboratory',
   tome: '/account/world-4/tome',
+  tomeRank: '/account/world-4/tome',
   card: '/tools/card-search',
   achievement: '/account/task-board/achievements',
   task: '/account/task-board/tasks',

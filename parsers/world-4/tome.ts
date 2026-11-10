@@ -24,6 +24,13 @@ import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { OPT } from '@parsers/accountOptions';
 
+// The rank tiers, best first: the order of the sorted `tops` cut-offs
+export const TOME_RANKS = ['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '80%', '90%', '95%'];
+
+// Index into TOME_RANKS of the best tier the account reaches, -1 when below every cut-off
+export const getTomeRankIndex = (tome: any) =>
+  (tome?.tops ?? []).findIndex((score: number) => (tome?.totalPoints ?? 0) >= score);
+
 export const segmentColors = {
   bronze: '#ffc277',
   silver: '#d6dbe0',

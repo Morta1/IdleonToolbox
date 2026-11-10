@@ -3,4 +3,4 @@ export const DESCRIPTOR_FIELDS = ['system', 'label', 'entryLabel', 'scope', 'rou
   'metrics', 'iconRows', 'entryTag', 'allOnly', 'totals', 'entryOnly', 'single', 'wikiId'];
 
 export const METRIC_FIELDS = ['maxIsGoal', 'label', 'noun', 'value', 'max', 'percentOfMax', 'steps', 'tiers', 'boolean', 'verb', 'cost',
-  'allIcon', 'nextStep', 'threshold'];
+  'allIcon', 'nextStep', 'threshold', 'tierAmount'];

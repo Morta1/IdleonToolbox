@@ -89,6 +89,14 @@ const targetValueOf = (goal, metric, row, ctx, max) => {
   return goal.target;
 };
 
+// A tiered metric whose tiers are cut-offs on an amount: what the row has and what the target tier needs
+const tierAmountOf = (goal, metric, row, ctx, targetValue) => {
+  if (!metric.tierAmount || goal.op === '<=') return null;
+  const have = metric.tierAmount.have(row, ctx);
+  const need = metric.tierAmount.need(row, targetValue, ctx);
+  return Number.isFinite(have) && Number.isFinite(need) && need > 0 ? { have, need } : null;
+};
+
 // Compares one row with the goal. null = the comparison is impossible (no percent / no max / bad value).
 const evaluateRow = (goal, descriptor, metric, row, ctx) => {
   const max = metric.max?.(row, ctx) ?? null;
@@ -98,12 +106,15 @@ const evaluateRow = (goal, descriptor, metric, row, ctx) => {
   if (!Number.isFinite(targetValue)) return null;
   const reached = goal.op === '<=' ? value <= targetValue : value >= targetValue;
   const cost = costOf(metric, row, ctx);
+  const tierAmount = tierAmountOf(goal, metric, row, ctx, targetValue);
   // A percent goal keeps the plain amount too ("Lv 1,234"), so entries the same percent apart still read apart
   const amount = goal.unit === 'percentOfMax' ? metric.value(row, ctx) : null;
   let progress;
   if (reached) progress = 1;
   // Still reached only by buying it: the bar follows the purse toward the price
   else if (cost) progress = clamp01(cost.have / cost.price);
+  // A tier with a moving cut-off: the bar follows the amount toward the target tier's cut-off, not the tier count
+  else if (tierAmount) progress = clamp01(tierAmount.have / tierAmount.need);
   else if (goal.op === '<=') progress = clamp01(targetValue / value);
   else progress = clamp01(value / targetValue);
   return {
@@ -117,6 +128,7 @@ const evaluateRow = (goal, descriptor, metric, row, ctx) => {
     reached,
     ...(cost ? { cost } : {}),
     ...(Number.isFinite(amount) ? { amount } : {}),
+    ...(tierAmount ? { tierAmount } : {}),
     ...(metric.tiers ? { valueTierName: metric.tiers[value] } : {})
   };
 };

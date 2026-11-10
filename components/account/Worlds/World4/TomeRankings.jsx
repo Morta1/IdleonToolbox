@@ -17,13 +17,14 @@ import Notice from '@components/common/Notice';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
+import { TOME_RANKS } from '@parsers/world-4/tome';
 import { CLASSIFICATION_TYPES, CLASSIFICATIONS_KEY, classificationsOf, withClassification } from './tomeClassifications';
 import { quantityForPoints } from './tomeQuantity';
 import { ink } from '../../../../styles/theme/theme';
 
 const RANK_OPTIONS = [
   { label: 'All players', value: 'all' },
-  ...['0.1%', '0.5%', '1%', '5%', '10%', '25%', '50%', '60%', '70%', '80%', '90%', '95%'].map((value) => ({ label: `Top ${value}`, value }))
+  ...TOME_RANKS.map((value) => ({ label: `Top ${value}`, value }))
 ];
 const RANKINGS_TOOLBAR = { search: '', sort: { key: 'lowest', order: 'asc' }, view: 'none', hideMaxed: false };
 // The comparison and the target change every percentile and gap on the tab: in the Tome's gear, under the tab's name

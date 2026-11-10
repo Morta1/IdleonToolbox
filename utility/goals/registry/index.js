@@ -44,6 +44,7 @@ import kitchen from './kitchen';
 import chip from './chip';
 import jewel from './jewel';
 import tome from './tome';
+import tomeRank from './tomeRank';
 import card from './card';
 import achievement from './achievement';
 import task from './task';
@@ -168,7 +169,7 @@ export const DESCRIPTORS = [bubble, stamp, grimoire, compass, tesseract, armory,
   postOffice, charLevel,
   statue, forge, owl, bribe, arcade, vial, sigil, cauldronUpgrade, killroyKills, killroyUpgrade, killroyShop, kangaroo, island,
   shrine, prayer, salt, saltLick, building, atom, equinoxUpgrade, equinoxChallenge, totem, deathNote, hatRack, armorSet,
-  pet, petUpgrade, capeVine, meal, kitchen, chip, jewel, tome, card, achievement, task, merit, taskUnlock, rift,
+  pet, petUpgrade, capeVine, meal, kitchen, chip, jewel, tome, tomeRank, card, achievement, task, merit, taskUnlock, rift,
   god, fertilizer, gamingImport, superbit, logBook, palette, villager, majik, measurement, study, schematic, artifact, captain, boat, lootPile, slab,
   farmMarket, exoticMarket, landRank, crop, sticker, sneakUpgrade, jade, gemstone, pristineCharm, summonUpgrade, summonBattle, emperor,
   legendTalent, spelunkUpgrade, spelunkChapter, discovery, loreBoss, elixir, researchSquare, observation,
