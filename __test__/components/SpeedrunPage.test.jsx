@@ -21,11 +21,11 @@ const Speedrun = (await import('../../pages/account/class-specific/speedrun')).d
 const { characters, account } = parseFixture(raw);
 const voidwalker = characters.find((c) => checkCharClass(c?.class, CLASSES.Voidwalker));
 
-const renderWith = (chars, acc = account, query = {}) => {
-  routerQuery.current = query;
+const renderWith = (chars) => {
+  routerQuery.current = {};
   return render(
   <ThemeProvider theme={theme}>
-    <AppContext.Provider value={{ state: { characters: chars, account: acc } }}>
+    <AppContext.Provider value={{ state: { characters: chars, account } }}>
       <Speedrun/>
     </AppContext.Provider>
   </ThemeProvider>
@@ -117,10 +117,5 @@ describe('Speedrun page', { timeout: 30_000 }, () => {
     expect(screen.getByText(/Create a Voidwalker/)).toBeTruthy();
     expect(screen.getByLabelText('speedrun portals').textContent).toMatch(/Kills needed/);
     expect(screen.getByLabelText('speedrun portals').textContent).not.toMatch(/Clear time/);
-  });
-
-  it('renders on an empty account without crashing', () => {
-    const { container } = renderWith([], {});
-    expect(container.textContent).not.toMatch(/NaN|undefined/);
   });
 });

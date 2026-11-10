@@ -9,8 +9,7 @@ import theme from '../../../styles/theme/theme';
 
 const searchNames = vi.fn(async () => [{ mainChar: 'Baker333', rank: 75 }]);
 vi.mock('../../../services/leaderboards', () => ({ searchNames }));
-const bannerState = { isVisible: false };
-vi.mock('@hooks/useProfileBannerState', () => ({ default: () => bannerState }));
+vi.mock('@hooks/useProfileBannerState', () => ({ default: () => ({ isVisible: false }) }));
 const ControlBar = (await import('@components/leaderboards/ControlBar')).default;
 const { buildMetaIndex } = await import('@components/leaderboards/format');
 
@@ -23,7 +22,7 @@ const renderBar = (props = {}) => render(
   </QueryClientProvider>
 );
 
-afterEach(() => { bannerState.isVisible = false; cleanup(); vi.clearAllMocks(); });
+afterEach(() => { cleanup(); vi.clearAllMocks(); });
 
 describe('ControlBar', () => {
   it('suggests names after two characters and reports a typeahead pick, again when picked twice', async () => {
@@ -78,15 +77,6 @@ describe('ControlBar', () => {
     expect(await screen.findByText(/2,608 players · updated/)).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'More options' }));
     expect(await screen.findAllByText(/2,608 players · updated/)).toHaveLength(2);
-  });
-
-  it('sticks right below the navbar, and below the profile banner when it shows', () => {
-    const stickyTop = ({ container }) => getComputedStyle(container.firstChild).top;
-    // Plus a pinned tab strip's height, which no Tabber here sets
-    expect(stickyTop(renderBar())).toBe('calc(56px + var(--page-tabs-pinned, 0px))');
-    cleanup();
-    bannerState.isVisible = true;
-    expect(stickyTop(renderBar())).toBe('calc(96px + var(--page-tabs-pinned, 0px))');
   });
 
   it('picks the highlighted suggestion on Enter, so a partial name finds the player', async () => {

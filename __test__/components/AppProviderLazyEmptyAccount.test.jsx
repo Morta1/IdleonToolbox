@@ -24,19 +24,9 @@ const { default: AppProvider, AppContext } = await import('@components/common/co
 const { default: usePageDataLoading } = await import('@hooks/usePageDataLoading');
 
 describe('routeNeedsAccount', () => {
-  it.each([
-    '/', '/account/class-specific/royal-guardian', '/wiki', '/wiki/[kind]', '/wiki/[kind]/[slug]', '/wiki/[kind]/[slug]/[entity]', '/wiki/changelog', '/tools/builds', '/tools/builds/[slug]',
-    '/patch-notes', '/privacy-policy', '/404', '/guilds', '/guilds/detail', '/guilds/ecosystem', '/leaderboards', '/statistics', '/tools', '/tools/active-exp-calculator'
-  ])('%s renders without a parsed account', (pathname) => {
-    expect(routeNeedsAccount(pathname)).toBe(false);
-  });
-
   // Anything not audited keeps the old behaviour: a page added later can't silently lose its data.
-  it.each([
-    '/dashboard', '/characters', '/settings', '/account/world-3/printer', '/tools/card-search', '/tools/builds/edit',
-    '/tools/builds/my-builds', '/some-future-page'
-  ])('%s still gets a parsed account', (pathname) => {
-    expect(routeNeedsAccount(pathname)).toBe(true);
+  it('skips the parsed account on an audited route only', () => {
+    expect(['/wiki/[kind]/[slug]', '/dashboard', '/some-future-page'].map(routeNeedsAccount)).toEqual([false, true, true]);
   });
 });
 

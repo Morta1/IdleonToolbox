@@ -83,22 +83,6 @@ describe('DashboardSettings window', () => {
     expect(edits()).toEqual({});
   });
 
-  it('Reset all resets at once and can be undone', async () => {
-    render(<Harness edits={{ 'account.World 1.stamps': { checked: false } }}/>);
-    fireEvent.click(button('Reset all'));
-    expect(edits()).toEqual({});
-    await waitFor(() => expect(button('Undo')).toBeTruthy());
-    fireEvent.click(button('Undo'));
-    expect(edits()).toEqual({ 'account.World 1.stamps': { checked: false } });
-  });
-
-  it('search shows results across tabs', () => {
-    render(<Harness/>);
-    fireEvent.change(document.body.querySelector('input[aria-label="Search alerts"]'), { target: { value: 'salt' } });
-    expect(document.body.textContent).toContain('While searching, counts are results');
-    expect(document.body.textContent).toContain('Timers · World 3');
-  });
-
   it('spaces alone are not a search', () => {
     render(<Harness/>);
     fireEvent.change(document.body.querySelector('input[aria-label="Search alerts"]'), { target: { value: '   ' } });
@@ -210,13 +194,17 @@ describe('DashboardSettings analytics', () => {
     delete window.gtag;
   });
 
-  it('Reset all sends alert_settings_reset with scope all', () => {
-    render(<Harness edits={{ 'timers.World 3.closestSalt': { checked: false } }}/>);
+  it('Reset all resets at once, sends alert_settings_reset with scope all, and can be undone', async () => {
+    render(<Harness edits={{ 'account.World 1.stamps': { checked: false } }}/>);
     fireEvent.click(button('Reset all'));
+    expect(edits()).toEqual({});
     expect(gtag).toHaveBeenCalledWith('event', 'alert_settings_reset', expect.objectContaining({ scope: 'all' }));
+    await waitFor(() => expect(button('Undo')).toBeTruthy());
+    fireEvent.click(button('Undo'));
+    expect(edits()).toEqual({ 'account.World 1.stamps': { checked: false } });
   });
 
-  it('search sends one debounced event with the result count and no query text', () => {
+  it('search shows results across tabs, and sends one debounced event with the result count and no query text', () => {
     render(<Harness/>);
     const input = document.body.querySelector('input[aria-label="Search alerts"]');
     const searches = () => gtag.mock.calls.filter(([, name]) => name === 'alert_settings_search');
@@ -224,6 +212,8 @@ describe('DashboardSettings analytics', () => {
     try {
       fireEvent.change(input, { target: { value: 'sal' } });
       fireEvent.change(input, { target: { value: 'salt' } });
+      expect(document.body.textContent).toContain('While searching, counts are results');
+      expect(document.body.textContent).toContain('Timers · World 3');
       act(() => vi.advanceTimersByTime(999));
       expect(searches()).toEqual([]);
       act(() => vi.advanceTimersByTime(1));

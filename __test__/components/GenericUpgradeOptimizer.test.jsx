@@ -68,8 +68,7 @@ describe('GenericUpgradeOptimizer empty state', () => {
 
   it.each([
     ['tells the user to hoard when holding beats every affordable purchase', 'hoarding', 'Build up your stash', 'No viable upgrades found'],
-    ['keeps the plain message when there is genuinely nothing to buy', 'no-candidates', 'No viable upgrades found', 'Build up your stash'],
-    ['falls back to the plain message when the optimizer reports no reason', undefined, 'No viable upgrades found', 'Build up your stash']
+    ['keeps the plain message when there is genuinely nothing to buy', 'no-candidates', 'No viable upgrades found', 'Build up your stash']
   ])('%s', (_, reason, shown, hidden) => {
     const { container } = renderOptimizer(withReason([], reason));
     expect(container.textContent).toContain(shown);

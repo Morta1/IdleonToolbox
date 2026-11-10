@@ -4,6 +4,7 @@ import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, within } from '@testing-library/react';
 import MonsterInfo from '@components/wiki/MonsterInfo';
+import { navigateOnPlainClick } from '@components/wiki/links';
 
 const valueOf = (label) => screen.getByText(label).nextElementSibling.textContent;
 
@@ -50,10 +51,14 @@ describe('MonsterInfo location rows', () => {
     return target?.slug ? `/wiki/${target.kind}/${target.slug}` : null;
   };
 
-  it('names the world from its node and links to the page', () => {
-    render(<MonsterInfo node={node} index={{ byId }} hrefFor={hrefFor} onNavigate={() => {}}/>);
-    expect(screen.getByRole('link', { name: 'Shimmerfin Deep' }).getAttribute('href')).toBe('/wiki/world/shimmerfin-deep');
+  it('names the world from its node, links to the page and routes a plain click in-app', () => {
+    const onNavigate = vi.fn();
+    render(<MonsterInfo node={node} index={{ byId }} hrefFor={hrefFor} onNavigate={onNavigate}/>);
+    const world = screen.getByRole('link', { name: 'Shimmerfin Deep' });
+    expect(world.getAttribute('href')).toBe('/wiki/world/shimmerfin-deep');
     expect(screen.getByRole('link', { name: 'Refraction Bend' }).getAttribute('href')).toBe('/wiki/map/refraction-bend');
+    fireEvent.click(world);
+    expect(onNavigate.mock.calls).toEqual([['world:7']]);
   });
 
   it.each([
@@ -63,18 +68,24 @@ describe('MonsterInfo location rows', () => {
     render(<MonsterInfo node={node} index={{ byId: worlds }} hrefFor={hrefFor} onNavigate={() => {}}/>);
     expect(valueOf('World')).toBe('World 7');
   });
+});
 
-  // A plain click routes in-app; a modified one is the browser's (a new tab), so it never reaches the router.
-  it('routes a plain click on the world in-app and leaves a ctrl-click to the browser', () => {
+// The click rule every wiki link shares; the component tests only check that a link is wired to it.
+describe('navigateOnPlainClick', () => {
+  // [routed in-app, default prevented] for one click.
+  const click = (hasHref, event) => {
     const onNavigate = vi.fn();
-    render(<MonsterInfo node={node} index={{ byId }} hrefFor={hrefFor} onNavigate={onNavigate}/>);
-    const world = screen.getByRole('link', { name: 'Shimmerfin Deep' });
-    // Stops jsdom trying to follow the ctrl-click.
-    const block = (event) => event.preventDefault();
-    document.body.addEventListener('click', block);
-    fireEvent.click(world);
-    fireEvent.click(world, { ctrlKey: true });
-    document.body.removeEventListener('click', block);
-    expect(onNavigate.mock.calls).toEqual([['world:7']]);
+    const preventDefault = vi.fn();
+    navigateOnPlainClick(onNavigate, 'world:7', hasHref)({ button: 0, preventDefault, ...event });
+    return [onNavigate.mock.calls.length, preventDefault.mock.calls.length];
+  };
+
+  it('routes a plain click in-app, and leaves a modified click to the browser only where there is an anchor to open', () => {
+    expect({
+      plain: click(true, {}),
+      ctrl: click(true, { ctrlKey: true }),
+      middle: click(true, { button: 1 }),
+      ctrlOnButton: click(false, { ctrlKey: true })
+    }).toEqual({ plain: [1, 1], ctrl: [0, 0], middle: [0, 0], ctrlOnButton: [1, 1] });
   });
 });

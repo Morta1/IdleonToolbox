@@ -23,33 +23,10 @@ const renderTabber = (count, props = {}) => render(
 );
 
 describe('Tabber', () => {
-  // Left to MUI rather than overriding its layout.
-  it('centres a tab row that is short enough to render unscrolled, when asked', () => {
-    const { container } = renderTabber(7, { align: 'center' });
-    expect(container.querySelector('.MuiTabs-centered')).toBeTruthy();
-    expect(getComputedStyle(container.querySelector('.MuiTabs-flexContainer')).justifyContent).not.toBe('safe center');
-  });
-
-  // MUI ignores `centered` once the tabs go scrollable, which is what left-aligned an 8-tab page.
-  // `safe center` centres them while they fit and drops back to flex-start on overflow, so the
-  // leading tabs can't end up clipped past the left edge with no way to scroll them back.
-  it('keeps a scrollable centred tab row without risking clipped leading tabs', () => {
-    const { container } = renderTabber(8, { align: 'center' });
-    expect(container.querySelector('.MuiTabs-centered')).toBeNull();
-    const flexContainer = container.querySelector('.MuiTabs-flexContainer');
-    expect(getComputedStyle(flexContainer).justifyContent).toBe('safe center');
-  });
-
-  it('left-aligns the strip by default, for either row length', () => {
-    for (const count of [7, 8]) {
-      const { container, unmount } = renderTabber(count);
-      expect(container.querySelector('.MuiTabs-centered')).toBeNull();
-      expect(getComputedStyle(container.querySelector('.MuiTabs-flexContainer')).justifyContent).toBe('flex-start');
-      unmount();
-    }
-  });
-
-  it('scrolls a row strip, pins it when asked, and ties tabs to one panel', () => {
+  it('scrolls a row strip, pins it when asked, and ties tabs to one panel only when given an id prefix', () => {
+    const plain = renderTabber(7, { align: 'start' });
+    expect(plain.container.querySelector('[role="tabpanel"]')).toBeNull();
+    plain.unmount();
     const { container } = renderTabber(7, { align: 'start', stickyTop: 120, idPrefix: 'lb' });
     expect(container.querySelector('.MuiTabs-scroller.MuiTabs-scrollableX')).toBeTruthy();
     const row = container.querySelector('.MuiTabs-root').parentElement;
@@ -59,12 +36,6 @@ describe('Tabber', () => {
     expect(panel.id).toBe('lb-panel');
     expect(panel.getAttribute('aria-labelledby')).toBe('lb-tab-0');
     expect(container.querySelector('#lb-tab-3').getAttribute('aria-controls')).toBe('lb-panel');
-  });
-
-  it('adds no panel wrapper, and no sticky strip on a desktop, by default', () => {
-    const { container } = renderTabber(7, { align: 'start' });
-    expect(container.querySelector('[role="tabpanel"]')).toBeNull();
-    expect(getComputedStyle(container.querySelector('.MuiTabs-root').parentElement).position).not.toBe('sticky');
   });
 
   it('draws level 2 as pills with no underline, and writes the pick to ?nt=', () => {

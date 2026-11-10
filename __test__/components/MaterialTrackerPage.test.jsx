@@ -41,24 +41,11 @@ describe('material tracker page', () => {
     localStorage.setItem(MIGRATED_FLAG_KEY, 'true');
   });
 
-  it('shows the empty state without item goals', () => {
-    mount();
-    expect(screen.getByText('No item goals yet. Add one with Add goal, or import a file.')).toBeTruthy();
-  });
-
-  it('lists the account item goals', () => {
-    seed(
-      createGoal({ system: 'item', key: first.rawName, metric: 'quantity', target: 1e15, createdAt: 1 }),
-      createGoal({ system: 'item', key: second.rawName, metric: 'quantity', op: '<=', target: 1, createdAt: 2 })
-    );
-    mount();
-    expect(rowNames()).toEqual([item.name(first), item.name(second)]);
-  });
-
-  it('a watch goal shows only the amount and a goal note shows when its row opens', () => {
+  it('lists the account item goals; a watch goal shows only the amount and a goal note shows when its row opens', () => {
     const watch = createGoal({ system: 'item', key: first.rawName, metric: 'quantity', target: 0, watch: true, createdAt: 1 });
     seed(watch, createGoal({ system: 'item', key: second.rawName, metric: 'quantity', target: 5, note: 'Keep some for the forge', createdAt: 2 }));
     mount();
+    expect(rowNames()).toEqual([item.name(first), item.name(second)]);
     const [watchRow, noted] = within(goalList()).getAllByRole('listitem');
     expect(watchRow.querySelector('[data-goal-value]').textContent)
       .toBe(goalFace(resolveGoal(watch, { account, characters })).value);
@@ -131,8 +118,9 @@ describe('material tracker page', () => {
       .toEqual(['material-tracker']);
   });
 
-  it('the bounds, note and near alert sit with "Track my greenstacks", one line tells item goals from slab goals', () => {
+  it('without item goals: the empty state; the bounds, note and near alert sit with "Track my greenstacks", one line tells item goals from slab goals', () => {
     mount();
+    expect(screen.getByText('No item goals yet. Add one with Add goal, or import a file.')).toBeTruthy();
     const mine = screen.getByRole('group', { name: 'Track my greenstacks' });
     expect(['Lower bound', 'Upper bound', 'Note'].map((label) => !!within(mine).queryByLabelText(label))).toEqual([true, true, true]);
     expect(within(mine).getByLabelText('Show an alert when value is near the bounds')).toBeTruthy();

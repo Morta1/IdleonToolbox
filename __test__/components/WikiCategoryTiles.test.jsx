@@ -62,10 +62,8 @@ describe('CategoryTiles', () => {
       .toEqual([`${label}${counts[kind].toLocaleString('en-US')}`, heading]);
   });
 
-  it.each([
-    ['a kind', 'a[href="/wiki/pet"]', '/wiki/pet'],
-    ['a system heading', 'li.MuiListSubheader-root a[href="/wiki/sneaking"]', '/wiki/sneaking']
-  ])('routes a plain click on %s in-app and leaves a modified click to the browser', (_, selector, href) => {
+  // The system heading is checked too: it is wired apart from the kind rows.
+  it('routes a plain click on a kind and on a system heading in-app, and leaves a modified click to the browser', () => {
     const seen = [];
     // After React's own handler has run, so it records whether the default was already prevented,
     // and stops jsdom trying to navigate.
@@ -75,11 +73,12 @@ describe('CategoryTiles', () => {
     };
     document.body.addEventListener('click', record);
     const { container, onGo } = renderTiles();
-    const link = container.querySelector(selector);
+    const kind = container.querySelector('a[href="/wiki/pet"]');
 
-    fireEvent.click(link);
-    fireEvent.click(link, { ctrlKey: true });
+    fireEvent.click(kind);
+    fireEvent.click(kind, { ctrlKey: true });
+    fireEvent.click(container.querySelector('li.MuiListSubheader-root a[href="/wiki/sneaking"]'));
     document.body.removeEventListener('click', record);
-    expect([onGo.mock.calls, seen]).toEqual([[[href]], [true, false]]);
+    expect([onGo.mock.calls, seen]).toEqual([[['/wiki/pet'], ['/wiki/sneaking']], [true, false, true]]);
   });
 });

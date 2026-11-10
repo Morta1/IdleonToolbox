@@ -185,18 +185,7 @@ describe('Header page goals', () => {
     expect(within(row).queryByRole('progressbar')).toBeNull();
   });
 
-  it('Add goal in the panel opens the add popover', async () => {
-    seed(openGoal());
-    mount();
-    await openPanel('Goals · 0 of 1 reached');
-    outerClick.mockClear();
-    const panelHeader = screen.getByRole('heading', { name: 'Goals on this page' }).parentElement;
-    fireEvent.click(within(panelHeader).getByRole('button', { name: 'Add goal' }));
-    expect(await screen.findByRole('heading', { name: 'Add goal' })).toBeTruthy();
-    expect(outerClick).not.toHaveBeenCalled();
-  });
-
-  it('keeps an Add goal action beside the goals count', async () => {
+  it('keeps an Add goal action beside the goals count, and Add goal in the panel opens the add popover too', async () => {
     seed(openGoal());
     mount();
     const count = await screen.findByRole('button', { name: 'Goals · 0 of 1 reached' });
@@ -204,6 +193,13 @@ describe('Header page goals', () => {
     expect(count.nextElementSibling).toBe(add);
     fireEvent.click(add);
     expect(await screen.findByRole('heading', { name: 'Add goal' })).toBeTruthy();
+    fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    fireEvent.click(count);
+    outerClick.mockClear();
+    const panelHeader = screen.getByRole('heading', { name: 'Goals on this page' }).parentElement;
+    fireEvent.click(within(panelHeader).getByRole('button', { name: 'Add goal' }));
+    expect(await screen.findByRole('heading', { name: 'Add goal' })).toBeTruthy();
+    expect(outerClick).not.toHaveBeenCalled();
   });
 
   it('saving shows Goal saved with a dashboard link', async () => {

@@ -66,18 +66,14 @@ describe('WikiListingPage sort', () => {
   };
 
   // The export has no query, so the markup a deep link hydrates against is the default order; the sort lands once
-  // the router is ready.
-  it('sorts a deep link only once the router is ready', () => {
-    const sorted = { kind: 'monster', sort: 'health', order: 'desc' };
+  // the router is ready (e2e/wiki-listing.spec.js).
+  it('leaves a deep link in the default order until the router is ready', () => {
     const at = monster.columns.findIndex((column) => column.key === 'health');
     const strongest = monster.entries.reduce((best, entry) => ((entry.cells[at] ?? -Infinity) > (best.cells[at] ?? -Infinity) ? entry : best));
-    expect({
-      notReady: firstRow({ isReady: false, query: sorted }),
-      ready: firstRow({ isReady: true, query: sorted })
-    }).toEqual({
-      notReady: firstRow({ isReady: true, query: { kind: 'monster' } }),
-      ready: `/wiki/monster/${strongest.node.slug}`
-    });
+    const unsorted = firstRow({ isReady: true, query: { kind: 'monster' } });
+    // The sort would move another row to the top, so the two orders can be told apart.
+    expect(unsorted).not.toBe(`/wiki/monster/${strongest.node.slug}`);
+    expect(firstRow({ isReady: false, query: { kind: 'monster', sort: 'health', order: 'desc' } })).toBe(unsorted);
   });
 
   // A kind with no columns has no sort control, so a ?sort it could not undo leaves the cards in the default order.

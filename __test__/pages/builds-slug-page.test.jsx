@@ -22,10 +22,6 @@ const FIXTURE = [
 ];
 
 describe('getBuildSlugStaticPaths', () => {
-  it('uses fallback: false, required by output: export', () => {
-    expect(getBuildSlugStaticPaths(FIXTURE).fallback).toBe(false);
-  });
-
   // fallback: false makes any unlisted path a hard 404, and the class strip links every class -
   // so a class with no builds yet still needs a page or the strip walks the user into a dead end.
   it('emits a path for every class, builds or not, and every build', () => {

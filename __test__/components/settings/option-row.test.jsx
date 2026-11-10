@@ -62,14 +62,18 @@ describe('OptionRow', () => {
     expect(onAction).toHaveBeenCalledWith('setOptionValue', tracker, 'foodLust', String(option.defaultValue));
   });
 
-  it('picker tiles are pressed buttons with All and None', () => {
+  it('picker tiles are pressed buttons with All and None, carry the item name and name the tapped item under the grid', () => {
     const tracker = trackerFor('account.World 3.construction');
     const { container, onAction } = renderRow(tracker, 'materials');
     const tiles = container.querySelectorAll('button[aria-pressed]');
     expect(tiles.length).toBeGreaterThan(1);
     expect(tiles[0].getAttribute('aria-pressed')).toBe('true');
-    fireEvent.click(tiles[0]);
-    expect(onAction).toHaveBeenCalledWith('togglePickerItem', tracker, 'materials', expect.any(String));
+    const tile = container.querySelector('button[aria-label="Redox Salts"]');
+    expect(tile).toBeTruthy();
+    expect(container.textContent).toContain('Hover or tap an item to see its name');
+    fireEvent.click(tile);
+    expect(onAction).toHaveBeenCalledWith('togglePickerItem', tracker, 'materials', 'Refinery1');
+    expect(container.textContent).toContain('Redox Salts: watched');
     fireEvent.click([...container.querySelectorAll('button')].find((b) => b.textContent === 'None'));
     expect(onAction).toHaveBeenCalledWith('setPickerAll', tracker, 'materials', false);
   });
@@ -132,17 +136,6 @@ describe('OptionRow', () => {
     const { container } = renderRow(trackerFor('characters.talents'), 'talents');
     const printer = [...container.querySelectorAll('button[aria-pressed]')].find((b) => b.textContent.includes('Printer Go Brrr'));
     expect(printer.querySelector('img').getAttribute('src')).toContain('data/UISkillIcon32.png');
-  });
-
-  it('item tiles carry the item name and name the tapped item under the grid', () => {
-    const tracker = trackerFor('account.World 3.construction');
-    const { container, onAction } = renderRow(tracker, 'materials');
-    const tile = container.querySelector('button[aria-label="Redox Salts"]');
-    expect(tile).toBeTruthy();
-    expect(container.textContent).toContain('Hover or tap an item to see its name');
-    fireEvent.click(tile);
-    expect(onAction).toHaveBeenCalledWith('togglePickerItem', tracker, 'materials', 'Refinery1');
-    expect(container.textContent).toContain('Redox Salts: watched');
   });
 });
 

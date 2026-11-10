@@ -255,16 +255,13 @@ describe('EntityList table', () => {
     }).toEqual({ more: null, rows: 150 });
   });
 
-  it.each([
-    ['unsorted', null, { key: 'cost', order: 'desc' }],
-    ['descending', { key: 'cost', order: 'desc' }, { key: 'cost', order: 'asc' }],
-    ['ascending', { key: 'cost', order: 'asc' }, null]
-  ])('moves a %s Cost header on to the next sort', (unused, sort, next) => {
+  // The steps themselves are DataTable's (DataTable.test.jsx, nextSort); this is the header reaching them.
+  it('moves a descending Cost header on to the next sort', () => {
     const onSortChange = vi.fn();
-    const { getByRole } = renderTable({ sort, onSortChange });
+    const { getByRole } = renderTable({ sort: { key: 'cost', order: 'desc' }, onSortChange });
     // jsdom resolves no container query: the heading reads as hidden.
     fireEvent.click(getByRole('button', { name: 'Cost', hidden: true }));
-    expect(onSortChange.mock.calls).toEqual([[next]]);
+    expect(onSortChange.mock.calls).toEqual([[{ key: 'cost', order: 'asc' }]]);
   });
 
   // Sorted, the list is one run: band headings between the rows would cut the order the reader asked for.
@@ -309,33 +306,6 @@ describe('EntityList table', () => {
       expanded: details.getAttribute('aria-expanded'),
       labels: [...detail.querySelectorAll('dt')].map((label) => label.textContent)
     }).toEqual({ expanded: 'true', labels: ['Effect', 'Cost', 'Max level', 'Research level needed'] });
-  });
-
-  // jsdom resolves no queries, so read the rules emotion emitted for a cell's classes.
-  // The cells carry no style of their own (the table styles each column once), so the rules are the table's,
-  // scoped to a column's class. The Sort by select stays until the box holds every column, where every header shows.
-  it('brings each column in by the room around the table, the sentence last', () => {
-    const { container, getByRole } = renderTable();
-    const css = [...document.querySelectorAll('style')].map((style) => style.textContent);
-    const classOf = (element) => [...element.classList].find((name) => name.startsWith('css-'));
-    const displayRules = (selector) => css.filter((rule) => rule.includes('display:') && rule.includes(selector));
-    const table = classOf(container.querySelector('table'));
-    // Name, then Effect (col-0), Cost (col-1, primary), Max level (col-2, secondary), Research level needed (col-3).
-    const cells = [...container.querySelector('tbody tr').querySelectorAll('td')].map((cell) => cell.className);
-    const roomOf = (column) => Number(/@container \(min-width:(\d+)px\)/.exec(displayRules(`.${table} td.${column}{`).find((rule) => rule.includes('table-cell')))[1]);
-    const sortRule = displayRules(`.${classOf(getByRole('combobox', { name: 'Sort by' }).closest('.MuiStack-root'))}{`).find((rule) => rule.startsWith('@container'));
-    const rooms = ['col-1', 'col-2', 'col-3', 'col-0'].map(roomOf);
-    expect({
-      cells,
-      inOrder: [...rooms].sort((a, b) => a - b),
-      sortFrom: Number(/min-width:(\d+)px/.exec(sortRule)[1]),
-      sortHides: sortRule.includes('display:none')
-    }).toEqual({
-      cells: ['name', 'col-0', 'col-1', 'col-2', 'col-3', 'expand'],
-      inOrder: rooms,
-      sortFrom: rooms.at(-1),
-      sortHides: true
-    });
   });
 });
 

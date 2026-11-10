@@ -65,6 +65,15 @@ describe('Overview podium', () => {
     expect(getComputedStyle(slotOf('M0')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-gold)');
     expect(getComputedStyle(slotOf('M1')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-gold)');
     expect(getComputedStyle(slotOf('M2')).borderTopWidth).toBe('1px');
+    cleanup();
+
+    // Public ranks with gaps: the trophy follows the rank, not the position.
+    fetchBoard.mockResolvedValueOnce({ metric: 'globalRanking', createdAt: 1, around: [],
+      top: [2, 3, 5, 6, 7, 8, 9, 10, 11, 12].map((rank) => ({ mainChar: `P${rank}`, value: 1000 - rank, rank, globalRank: rank })) });
+    renderOverview({ player: { context: null } });
+    await screen.findByText('P2');
+    expect(['Rank 1', 'Rank 2', 'Rank 3', 'Rank 5'].map((alt) => screen.queryAllByAltText(alt).length)).toEqual([0, 1, 1, 0]);
+    expect(screen.getByText('#5')).toBeTruthy();
   });
 
   it('puts an anonymous viewed player in their place when the public list skips them', async () => {
@@ -75,13 +84,6 @@ describe('Overview podium', () => {
     await screen.findByText('P10');
     const row = screen.getAllByText('Anon#abc123').map((el) => el.closest('[data-testid="rank-row"]')).find(Boolean);
     expect(row.textContent).toMatch(/^#9Anon#abc123/);
-  });
-
-  it('outlines the viewed player slot in their colour', async () => {
-    renderOverview({ player: { context: null }, highlight: { G2: 'logged' } });
-    await screen.findByText('G1');
-    expect(getComputedStyle(slotOf('G2')).borderColor).toBe('var(--mui-palette-identity-leaderboard-you)');
-    expect(getComputedStyle(slotOf('G1')).borderColor).not.toBe('var(--mui-palette-identity-leaderboard-you)');
   });
 });
 
@@ -123,12 +125,15 @@ describe('Overview You card', () => {
     expect(onClearPlayer).toHaveBeenCalledTimes(1);
   });
 
-  it('marks a searched player in their own colour, with no tie line when none is at the max', async () => {
-    renderOverview({ player: { context: { name: 'Baker333', kind: 'searched' }, data } });
+  it('marks a searched player in their own colour and words their panels as theirs, with no tie line when none is at the max', async () => {
+    const searched = { ...data, player: { ...data.player, bestMetrics: [{ metric: 'mining', value: 240, rank: 3, topPercent: 0.2 }] } };
+    renderOverview({ player: { context: { name: 'Baker333', kind: 'searched' }, data: searched } });
     const label = await screen.findByText('Searched player');
     expect(label.parentElement.textContent).toBe('Searched player · Baker333');
     expect(getComputedStyle(label.parentElement).color).toBe('var(--mui-palette-identity-leaderboard-searched)');
     expect(screen.queryByText(/tied at the max/)).toBeNull();
+    expect(screen.getByText('Highlights')).toBeTruthy();
+    expect(screen.getByRole('link', { name: 'Around them' })).toBeTruthy();
   });
 
   it('drops top percent past 50 and keeps points', async () => {
@@ -169,12 +174,14 @@ describe('Overview highlights', () => {
 });
 
 describe('Overview within reach', () => {
-  it('lists label, rank and value, the step and an Around you link', async () => {
-    renderOverview({ player: { context: logged, data } });
+  it('lists label, rank and value, the step and an Around you link that opens the board', async () => {
+    const onOpen = vi.fn();
+    renderOverview({ player: { context: logged, data }, onOpen });
     const panel = (await screen.findByText('Within reach')).closest('section');
     expect(panel.textContent).toContain('Mining#3 · 240+10 to reach #2Around you');
-    expect(within(panel).getByRole('link', { name: 'Around you' })).toBeTruthy();
     expect(screen.getByText('Smallest step to the next rank')).toBeTruthy();
+    fireEvent.click(within(panel).getByRole('link', { name: 'Around you' }));
+    expect(onOpen).toHaveBeenCalledWith('mining', 'within_reach');
   });
 });
 

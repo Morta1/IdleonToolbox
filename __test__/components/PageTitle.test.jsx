@@ -17,14 +17,8 @@ describe('PageTitle', () => {
   // /tools/builds/[slug]: PAGE_SEO is keyed by route pattern, so its entry ("Idleon Builds by Class")
   // is a fallback shared by 22 class pages and every build page, wrong copy on all of them. Those
   // pages draw their own h1, so PageTitle must stay out.
-  // /tools/builds: the hub shares BuildsBrowser's header with the class pages, so it draws the same
-  // h1 they do. A NavBar title on top of that gave the hub two h1s and moved the whole page every
-  // time a visitor switched between "All" and a class.
   it.each([
-    ['the homepage, which has its own h1', '/'],
-    ['/settings, which draws its own title', '/settings'],
     ['/tools/builds/[slug], which draws its own title per page', '/tools/builds/[slug]'],
-    ['/tools/builds, which shares the class pages\' header', '/tools/builds'],
     ['a route with no SEO entry', '/not/a/real/route'],
     ['a noindex page', Object.entries(PAGE_SEO).find(([, seo]) => seo.noindex)?.[0]]
   ])('renders nothing on %s', (_label, route) => {

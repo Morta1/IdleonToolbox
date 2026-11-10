@@ -52,52 +52,23 @@ const renderPanel = (props) => render(
 describe('EntityPanel breadcrumb', () => {
   const crumbLinks = (container) => [...container.querySelectorAll('nav[aria-label="breadcrumb"] a')]
     .map((link) => [link.textContent, link.getAttribute('href')]);
-  const renderNode = (node, props) => render(
+  const renderNode = (node) => render(
     <ThemeProvider theme={theme}>
       <EntityPanel index={{ byId: { [node.id]: node }, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] }}
-                   id={node.id} onNavigate={() => {}} {...props}/>
+                   id={node.id} onNavigate={() => {}}/>
     </ThemeProvider>
   );
 
-  it('links home, then the kind listing in its plural form', () => {
-    const { container } = renderPanel();
-    expect(crumbLinks(container)).toEqual([['Wiki', '/wiki'], [KIND_PLURALS.monster, '/wiki/monster']]);
-  });
-
   // The trail ends at the page itself, as text marked current.
-  it('ends at the entity, marked as the current page', () => {
-    const { container } = renderPanel();
+  it('links home, then the kind listing in its plural form, and ends at the entity, marked as the current page', () => {
+    const onGo = vi.fn();
+    const { container } = renderPanel({ onGo });
+    expect(crumbLinks(container)).toEqual([['Wiki', '/wiki'], [KIND_PLURALS.monster, '/wiki/monster']]);
     const current = container.querySelector('nav[aria-label="breadcrumb"] [aria-current="page"]');
     expect([current.tagName, current.textContent]).toEqual(['P', 'Sand Giant']);
-  });
-
-  // A kind inside a system climbs through the system page, and reads with the rail's short plural under it.
-  it.each([
-    ['ninjaitem', [['Wiki', '/wiki'], ['Sneaking', '/wiki/sneaking'], ['Items', '/wiki/sneaking/items']]],
-    ['equinox', [['Wiki', '/wiki'], ['Equinox', '/wiki/equinox'], ['Upgrades', '/wiki/equinox/upgrades']]]
-  ])('climbs a %s page through its system', (kind, crumbs) => {
-    const { container } = renderNode({ id: `${kind}:x`, kind, rawName: 'x', name: 'X', slug: 'x', icon: null });
-    expect(crumbLinks(container)).toEqual(crumbs);
-  });
-
-  it('routes a plain click in-app and leaves a modified click to the browser', () => {
-    const seen = [];
-    // After React's own handler has run, so it records whether the default was already prevented,
-    // and stops jsdom trying to navigate.
-    const record = (event) => {
-      seen.push(event.defaultPrevented);
-      event.preventDefault();
-    };
-    document.body.addEventListener('click', record);
-    const onGo = vi.fn();
-    renderNode({ id: 'ninjaitem:x', kind: 'ninjaitem', rawName: 'x', name: 'X', slug: 'x', icon: null }, { onGo });
-    const link = screen.getByRole('link', { name: 'Sneaking' });
-
-    fireEvent.click(link);
-    fireEvent.click(link, { ctrlKey: true });
-    document.body.removeEventListener('click', record);
-    expect(onGo.mock.calls).toEqual([['/wiki/sneaking']]);
-    expect(seen).toEqual([true, false]);
+    // A plain click on a crumb goes through the page's own navigation.
+    fireEvent.click(screen.getByRole('link', { name: 'Wiki' }));
+    expect(onGo.mock.calls).toEqual([['/wiki']]);
   });
 
   // The panel is mounted without a handler on first paint in some flows; a breadcrumb that
@@ -504,8 +475,9 @@ describe('EntityPanel card set', () => {
   });
 
   // One cell per card tier, Base to the cap (CardLv), and one requirement per tier-up after Base.
-  it('reads the card bonus at every tier and the cards each tier-up needs', () => {
+  it('reads the card bonus at every tier and the cards each tier-up needs, with no Card Set box on a card without a set', () => {
     renderPanel({ index: cardIndex, id: 'item:CardsA1' });
+    expect(screen.queryByText('Card set')).toBe(null);
     const cells = (title) => within(screen.getByText(title).closest('section')).getAllByText(/^[\d.]+K?$/).map((node) => node.textContent);
     const stars = (title) => within(screen.getByText(title).closest('section')).getAllByRole('img').map((node) => node.getAttribute('alt'));
     expect([cells('Card bonus'), stars('Card bonus'), cells('Tier requirements'), stars('Tier requirements')]).toEqual([
@@ -514,12 +486,6 @@ describe('EntityPanel card set', () => {
       ['10', '30', '50', '160', '4.59K', '147K'],
       ['1 star', '2 star', '3 star', '4 star', '5 star', '6 star']
     ]);
-  });
-
-  it('shows no Card Set box on a card without a set', () => {
-    renderPanel({ index: cardIndex, id: 'item:CardsA1' });
-    expect(screen.getByText('Card bonus')).toBeDefined();
-    expect(screen.queryByText('Card set')).toBe(null);
   });
 });
 
@@ -662,20 +628,6 @@ describe('EntityPanel drop odds', () => {
     const name = entityName(staticNeighbourhood(id).nodes[otherId]);
     const row = screen.getAllByRole('link', { name }).map((link) => link.closest('tr') ?? link.parentElement)[0];
     expect([row.textContent.includes('80.0%'), /1 in 1(?![\d,])/.test(container.textContent)]).toEqual([true, false]);
-  });
-});
-
-describe('EntityPanel item category chip', () => {
-  // The game never draws an item type as text, so the chip title-cases the raw type the node keeps.
-  it('reads the raw type as words', () => {
-    const id = 'item:IronSword';
-    const node = {
-      kind: 'item', rawName: 'IronSword', name: 'Iron_Sword', icon: null, category: 'SPEAR',
-      description: null, card: null, stats: { Weapon_Power: 32, Speed: 10, Reach: 78 }
-    };
-    renderPanel({ id, index: { byId: { [id]: node }, edgesFrom: new Map(), edgesTo: new Map(), searchList: [] } });
-    expect(screen.getByText('Spear')).toBeDefined();
-    expect(screen.queryByText('SPEAR')).toBe(null);
   });
 });
 

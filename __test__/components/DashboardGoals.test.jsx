@@ -96,7 +96,7 @@ describe('Dashboard goals', () => {
     expect(getComputedStyle(button).outlineStyle).toBe('solid');
   });
 
-  it('a lower and an upper item goal on one entry are one range row; removing it removes both, and Undo brings both back', async () => {
+  it('a lower and an upper item goal on one entry are one range row that edits either goal; removing it removes both, and Undo brings both back', async () => {
     const key = item.key(ownedItem);
     const lower = goal({ system: 'item', key, metric: 'quantity', target: 5e5 });
     const upper = goal({ system: 'item', key, metric: 'quantity', op: '<=', target: 5e6 });
@@ -107,6 +107,11 @@ describe('Dashboard goals', () => {
     const [row] = rows();
     expect(rowText(row)[0]).toMatch(/ of 500,000 to 5M$/);
     openRow(row);
+    for (const [label, target] of [['Edit at least 500,000', '500,000'], ['Edit at most 5M', '5,000,000']]) {
+      fireEvent.click(within(row).getByRole('button', { name: label }));
+      expect((await screen.findByLabelText(/^Target/)).value).toBe(target);
+      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
+    }
     fireEvent.click(within(row).getByRole('button', { name: 'Remove' }));
     expect(api.goals).toEqual([]);
     fireEvent.click(await screen.findByRole('button', { name: 'Undo' }));
@@ -383,22 +388,6 @@ describe('Dashboard goals', () => {
     expect(within(await screen.findByRole('status')).getByText('Goal removed')).toBeTruthy();
     fireEvent.click(screen.getByRole('button', { name: 'Undo' }));
     expect([...api.goals].sort((x, y) => x.createdAt - y.createdAt)).toEqual([open, reached]);
-  });
-
-  it('an open range row edits either of its goals', async () => {
-    const key = item.key(ownedItem);
-    const lower = goal({ system: 'item', key, metric: 'quantity', target: 5e5 });
-    const upper = goal({ system: 'item', key, metric: 'quantity', op: '<=', target: 5e6 });
-    seed(lower, upper);
-    mount();
-    await screen.findByText('1 goal · 0 reached');
-    const [row] = rows();
-    openRow(row);
-    for (const [label, target] of [['Edit at least 500,000', '500,000'], ['Edit at most 5M', '5,000,000']]) {
-      fireEvent.click(within(row).getByRole('button', { name: label }));
-      expect((await screen.findByLabelText(/^Target/)).value).toBe(target);
-      fireEvent.click(screen.getByRole('button', { name: 'Cancel' }));
-    }
   });
 
   it('Clear reached removes every reached goal and one Undo brings them all back', async () => {

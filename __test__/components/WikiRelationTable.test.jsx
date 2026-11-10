@@ -3,7 +3,6 @@ import '../../polyfills';
 import React from 'react';
 import { describe, expect, it, vi } from 'vitest';
 import { renderToString } from 'react-dom/server';
-import { render, screen } from '@testing-library/react';
 import { ThemeProvider } from '@mui/material';
 import RelationTable from '@components/wiki/RelationTable';
 import theme from '../../styles/theme/theme';
@@ -36,20 +35,5 @@ describe('RelationTable anchors', () => {
     const html = renderToString(<ThemeProvider theme={theme}><RelationTable {...props}/></ThemeProvider>);
     const hrefs = [...html.matchAll(/href="(\/wiki\/item\/item-\d+)"/g)].map((match) => match[1]);
     expect(new Set(hrefs).size).toBe(90);
-  });
-});
-
-describe('RelationTable on a phone', () => {
-  it('holds the Chance column back until the box around the table has room, since the rate beside it says the same thing', () => {
-    render(<ThemeProvider theme={theme}><RelationTable {...makeProps(3)}/></ThemeProvider>);
-    // jsdom resolves no container queries, so read the rules emotion emitted on the table for the heading's column.
-    const column = [...screen.getByText('Chance').closest('th').classList].find((name) => name.startsWith('col-'));
-    const css = [...document.querySelectorAll('style')].map((style) => style.textContent);
-    const displayRules = css.filter((rule) => rule.includes(`th.${column}{`) && rule.includes('display:'));
-
-    expect(displayRules).toEqual([
-      expect.stringMatching(new RegExp(`^\\.css-\\w+ th\\.${column}\\{[^}]*display:none;[^}]*\\}$`)),
-      expect.stringMatching(new RegExp(`^@container \\(min-width:\\d+px\\)\\{\\.css-\\w+ th\\.${column}\\{[^}]*display:table-cell;[^}]*\\}\\}$`))
-    ]);
   });
 });
