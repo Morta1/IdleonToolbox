@@ -27,6 +27,7 @@ export const patchNotes = [
       'Gallery: the Bonus multi now shows a breakdown of its sources'
     ],
     'fixes': [
+      'Class EXP: now includes the Gud EXP Stamp bonus',
       'Farming: a crop family\'s max time under a second shows in milliseconds again instead of "<1s"',
       'Sneaking upgrades were missing their Jade coin cost',
       'Sneaking: the Detection tab explains that target detection is the chance to get caught, lower is better',
