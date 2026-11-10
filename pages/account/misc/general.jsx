@@ -40,7 +40,7 @@ const General = () => {
       description="View your Legends of Idleon account overview including level, gems, keys, and general progression stats"
     />
     {parseFailed ? null : <PageSettings state={settings} defaults={SETTINGS_DEFAULTS} onChange={setSettings} onReset={resetSettings}>
-      <PageSettings.Text name={'librarySpans'} label={'Library spans'} placeholder={DEFAULT_LIBRARY_SPANS.join(', ')}
+      <PageSettings.Text name={'librarySpans'} label={'Library book counts'} placeholder={DEFAULT_LIBRARY_SPANS.join(', ')}
                          parse={parseLibrarySpans} help={'How long your first 20, 40… books take. Enter counts, comma separated.'}/>
     </PageSettings>}
     {failedNames ? <MissingData name={failedNames} failed atZero={AT_ZERO_SECTIONS.some((key) => account?.failedSections?.includes(key))}/> : null}
