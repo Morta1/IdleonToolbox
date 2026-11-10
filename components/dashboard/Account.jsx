@@ -44,6 +44,7 @@ import { monsterSprite } from '@utility/spriteImages';
 import { pickerItemLabel } from '@utility/dashboard/quickEdit';
 import { formatArcadeEffect } from '@parsers/world-2/arcade';
 import { BASE_MAX_SHINY_LEVEL } from '@parsers/world-4/breeding';
+import { LAYER_BREAKS_PER_DAY } from '@parsers/world-5/caverns/motherlode';
 import { ON_ART } from '@utility/colorSets';
 
 // Every refinery alert draws the same salt icon, and one salt can raise several of them at once,
@@ -575,9 +576,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 5']?.hole?.buckets ?
                 <Alert target={'World 5.hole.buckets'} title={`One of your sediments has reached the threshold`}
                        iconPath={'data/HoleWellBucket0'}/> : null}
-              {alerts?.['World 5']?.hole?.motherlodeMaxed ?
-                <Alert target={'World 5.hole.motherlodeMaxed'} title={`You can break a layer in the motherlode cavern`}
-                       iconPath={'data/Motherlode_x1'}/> : null}
+              {alerts?.['World 5']?.hole?.layerBreaks ?
+                <Alert target={`World 5.hole.${alerts['World 5'].hole.layerBreaks.caverns[0].option}`}
+                       title={layerBreaksTitle(alerts['World 5'].hole.layerBreaks)}
+                       iconPath={'data/Opal'}/> : null}
               {alerts?.['World 5']?.hole?.bravery ?
                 <Alert target={'World 5.hole.bravery'} title={`You can hear a story in the bravery cavern`}
                        iconPath={'etc/Bravery_Statue'}/> : null}
@@ -596,15 +598,6 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 5']?.hole?.theHarp ?
                 <Alert target={'World 5.hole.theHarp'} title={`Harp power has reached the threshold`}
                        iconPath={'etc/TheHarp'}/> : null}
-              {alerts?.['World 5']?.hole?.hiveMaxed ?
-                <Alert target={'World 5.hole.hiveMaxed'} title={`You can break a layer in the hive cavern`}
-                       iconPath={'etc/TheHive'}/> : null}
-              {alerts?.['World 5']?.hole?.evertreeMaxed ?
-                <Alert target={'World 5.hole.evertreeMaxed'} title={`You can break a layer in the evertree cavern`}
-                       iconPath={'data/MotherlodeTREE_x1'}/> : null}
-              {alerts?.['World 5']?.hole?.bottomlessTrenchMaxed ?
-                <Alert target={'World 5.hole.bottomlessTrenchMaxed'} title={`You can break a layer in the bottomless trench cavern`}
-                       iconPath={'data/MotherlodeFISH_x1'}/> : null}
               {alerts?.['World 5']?.hole?.grotto ?
                 <Alert target={'World 5.hole.grotto'} title={`You can kill the monarch`}
                        iconPath={'etc/Grotto'}/> : null}
@@ -1170,6 +1163,13 @@ const Alert = ({ title, iconPath, vial, atom, breedability, imgStyle, badge, tar
       <GameIcon src={`etc/${atom ? 'Particle' : 'PetHeart'}.png`} size={16} alt={atom ? 'Particle' : 'Heart'}/>
     </Box> : null}
   </AlertIcon>;
+};
+
+// The breaks are shared, so the count is the account's, after the caverns that have a layer ready
+const layerBreaksTitle = ({ left, caverns }) => {
+  const names = caverns.map(({ name }) => name);
+  const list = names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0];
+  return `You can break a layer in ${list} (${left} of ${LAYER_BREAKS_PER_DAY} breaks left today)`;
 };
 
 // Coarse on purpose - the projection is only as good as the current cycle rates, so minute

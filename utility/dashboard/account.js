@@ -11,6 +11,7 @@ import {
 } from '@parsers/world-4/cooking';
 import { cleanUnderscore, getDuration, getNextCompanionClaim, hoursUntilDailyReset, notateNumber, notateProgress, totalHoursBetweenDates } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
+import { LAYER_BREAKS_PER_DAY } from '@parsers/world-5/caverns/motherlode';
 import { FAMILIAR_EXP_MIN_CLAIM_SECONDS, getFamiliarLevelGains, getPendingFamiliarExp } from '@parsers/world-6/summoning';
 import { items, liquidsShop, ninjaExtraInfo } from '@website-data';
 import { getPowerPerCycle, getRefineryCycleTimes, getSaltMatsTimeLeft, getSaltsBalance, hasMissingMats } from '@parsers/world-3/refinery';
@@ -1303,21 +1304,17 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
     if (buckets?.checked && !expandWhenFull && anySedimentFull.length > 0) {
       hole.buckets = true;
     }
-    const isMaxedOres = account?.hole?.caverns?.motherlode?.ores?.maxed;
-    if (motherlode?.checked && brokenLayersToday < 5 && isMaxedOres) {
-      hole.motherlodeMaxed = isMaxedOres;
-    }
-    const isMaxedBugs = account?.hole?.caverns?.theHive?.bugs?.maxed;
-    if (theHive?.checked && brokenLayersToday < 5 && isMaxedBugs) {
-      hole.hiveMaxed = isMaxedBugs;
-    }
-    const isMaxedLogs = account?.hole?.caverns?.evertree?.logs?.maxed;
-    if (evertree?.checked && brokenLayersToday < 5 && isMaxedLogs) {
-      hole.evertreeMaxed = isMaxedLogs;
-    }
-    const isMaxedFish = account?.hole?.caverns?.theBottomlessTrench?.fish?.maxed;
-    if (bottomlessTrench?.checked && brokenLayersToday < 5 && isMaxedFish) {
-      hole.bottomlessTrenchMaxed = isMaxedFish;
+    // The daily breaks are one pool shared by all four caverns, so it is one alert naming the ready ones
+    const layerBreaksLeft = Math.max(0, LAYER_BREAKS_PER_DAY - (brokenLayersToday ?? 0));
+    const caverns = account?.hole?.caverns;
+    const readyLayers = [
+      { option: 'motherlode', name: 'Motherlode', ready: motherlode?.checked && caverns?.motherlode?.ores?.maxed },
+      { option: 'theHive', name: 'The Hive', ready: theHive?.checked && caverns?.theHive?.bugs?.maxed },
+      { option: 'evertree', name: 'Evertree', ready: evertree?.checked && caverns?.evertree?.logs?.maxed },
+      { option: 'bottomlessTrench', name: 'Bottomless Trench', ready: bottomlessTrench?.checked && caverns?.theBottomlessTrench?.fish?.maxed }
+    ].filter(({ ready }) => ready);
+    if (layerBreaksLeft > 0 && readyLayers.length > 0) {
+      hole.layerBreaks = { left: layerBreaksLeft, caverns: readyLayers.map(({ option, name }) => ({ option, name })) };
     }
     if (bravery?.checked && account?.hole?.caverns?.bravery?.rewardMulti >= bravery?.props?.value) {
       hole.bravery = true;

@@ -4,6 +4,8 @@ import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 // The four layered caverns share one formula, indexed by t. Each keeps its progress at
 // Holes[11][2t] and its destroyed layers at Holes[11][2t + 1]
 export const LAYER_CAVERN = { MOTHERLODE: 0, HIVE: 1, EVERTREE: 2, TRENCH: 3 } as const;
+// game: a break is refused once OptionsListAccount[318] reaches 6; the count is shared by all four caverns
+export const LAYER_BREAKS_PER_DAY = 6;
 // The cavern UI shows a quarter of MotherlodeEffBase as the efficiency to aim for
 const SHOWN_EFFICIENCY_SHARE = 0.25;
 
