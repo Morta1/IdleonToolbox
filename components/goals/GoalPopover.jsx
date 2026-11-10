@@ -103,7 +103,7 @@ const GoalForm = ({ open, systems, initial, source, onClose, onSaved, entryOnly 
   const options = metricOptions(descriptor);
   const [appliesToChoice, setAppliesTo] = useState(appliesToOf(existing, descriptor));
   const [group, setGroup] = useState(existing?.group ?? firstGroup(descriptor));
-  const [entryKey, setEntryKey] = useState(existing?.key ?? initial?.key ?? null);
+  const [pickedKey, setEntryKey] = useState(existing?.key ?? initial?.key ?? null);
   const [choice, setChoice] = useState({
     metric: existing?.metric ?? options[0]?.metric,
     unit: existing?.unit ?? 'value'
@@ -121,16 +121,19 @@ const GoalForm = ({ open, systems, initial, source, onClose, onSaved, entryOnly 
   const pickedScope = isAllChars(pickedChar) ? ALL_CHARS : { char: pickedChar };
   // listScope: whose entries are listed; scope: what the goal is saved for
   const listScope = asksCharacter ? pickedScope : fixedScope ?? 'account';
+  const ctx = { account: state?.account, characters: state?.characters };
+  const rowCtx = rowContext(listScope, ctx);
+  const rows = listRows(descriptor, listScope, ctx);
+  // A system with one entry (Character level) picks it itself, so it has no All choice or entry list
+  const single = descriptor.single && rows.length === 1;
   // All characters tracks one entry, so it has no All or group choice
-  const appliesTo = isAllChars(listScope) ? 'one' : appliesToChoice;
+  const appliesTo = isAllChars(listScope) || single ? 'one' : appliesToChoice;
+  const entryKey = single ? descriptor.key(rows[0]) : pickedKey;
   // An entry every character shares (a global skill) is the account's goal, so no character is asked for
   const globalEntry = appliesTo === 'one' && entryKey != null && isGlobalKey(descriptor.system, entryKey);
   const scope = globalEntry ? 'account' : listScope;
   const showPicker = asksCharacter && !globalEntry;
   const allChars = isAllChars(scope);
-  const ctx = { account: state?.account, characters: state?.characters };
-  const rowCtx = rowContext(listScope, ctx);
-  const rows = listRows(descriptor, listScope, ctx);
   // Each system lists its own entries; a character system counts the picked character's. Listing every system is
   // costly, so it runs when the system select opens, not on every keystroke
   const charScope = isCharScope(fixedScope) ? fixedScope : pickedScope;
@@ -262,9 +265,9 @@ const GoalForm = ({ open, systems, initial, source, onClose, onSaved, entryOnly 
       {systems.length > 1 ? <SystemSelect current={systemOption(descriptor, rows)} listOptions={listSystemOptions} value={descriptor.system}
                         onChange={changeSystem}/> : null}
       {showPicker ? <CharacterPicker characters={state?.characters} value={pickedChar} onChange={changeCharacter}/> : null}
-      <AppliesTo descriptor={descriptor} rows={rows} value={appliesTo} group={group} onChange={setAppliesTo}
-                 onGroupChange={setGroup} entryOnly={entryOnly || isAllChars(listScope)}/>
-      {appliesTo === 'one' ? (
+      {single ? null : <AppliesTo descriptor={descriptor} rows={rows} value={appliesTo} group={group} onChange={setAppliesTo}
+                 onGroupChange={setGroup} entryOnly={entryOnly || isAllChars(listScope)}/>}
+      {appliesTo === 'one' && !single ? (
         <EntrySearch descriptor={descriptor} rows={rows} value={entryKey} goalKeys={goalKeys} onChange={setEntryKey}
                      error={entryError && attempted ? entryError : null}/>
       ) : null}

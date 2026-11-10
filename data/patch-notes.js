@@ -29,7 +29,8 @@ export const patchNotes = [
       'Sneaking upgrades were missing their Jade coin cost',
       'Sneaking: the Detection tab explains that target detection is the chance to get caught, lower is better',
       'Hole: Lamp wishes show how many times each wish was made',
-      'Goals: Research is now marked Global and its goals are for the whole account'
+      'Goals: Research is now marked Global and its goals are for the whole account',
+      'Goals: Character level goals skip the extra pick, there is only one entry'
     ]
   },
   {

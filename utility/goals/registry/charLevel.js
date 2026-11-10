@@ -5,6 +5,8 @@ export default {
   label: 'Character level',
   entryLabel: 'level',
   scope: 'character',
+  // one entry per character: the goal form picks it itself
+  single: true,
   route: GOAL_ROUTES.charLevel,
   list: ({ character }) => (character ? [character] : []),
   key: () => 'level',
