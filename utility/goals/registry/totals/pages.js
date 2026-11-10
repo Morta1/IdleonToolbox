@@ -56,6 +56,7 @@ export const spelunkingTotals = totalsDescriptor({
   route: GOAL_ROUTES.spelunkingTotals,
   entries: [
     { key: 'power', name: 'Power', icon: 'data/CaveShopUpg17', value: ({ account }) => account?.spelunking?.power?.value },
+    { key: 'amberGain', name: 'Amber gain', value: ({ account }) => account?.spelunking?.amberGain?.value },
     {
       key: 'discoveries',
       name: 'Discoveries',

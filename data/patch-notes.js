@@ -31,7 +31,8 @@ export const patchNotes = [
       'Goals: Pets can be grouped by shiny passive, so each passive gets its own target',
       'Dashboard: hole layer alerts are now one alert for the 6 shared daily breaks, showing which caverns are ready and how many breaks are left',
       'Wiki: Arcade Upgrades show Super and Omega values, and the Effect note now says it is the max level value',
-      'Bundles: see the bundles in the gem shop right now, in the order the shop shows them'
+      'Bundles: see the bundles in the gem shop right now, in the order the shop shows them',
+      'Goals: Spelunking gets Biggest haul per cave, Amber gain, and Power against each discovery and lore boss requirement'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',

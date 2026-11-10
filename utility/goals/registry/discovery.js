@@ -26,6 +26,8 @@ export default {
   name: (row) => row.goalName,
   icon: (row) => `data/CaveRock${number2letter[row.cave]}${row.index}`,
   metrics: {
-    found: { label: 'Found', value: (row) => (row.acquired ? 1 : 0), boolean: true }
+    found: { label: 'Found', value: (row) => (row.acquired ? 1 : 0), boolean: true },
+    // the rock's power requirement at its first depth, the number the Discoveries tab shows
+    power: { label: 'Power', value: (row, { account }) => account?.spelunking?.power?.value ?? 0, max: (row) => row.powerReq }
   }
 };
