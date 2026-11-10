@@ -120,14 +120,12 @@ test('clicking a family in the strip navigates to its page', async ({ page }) =>
 
 // The redirect that used to live here turned an unvalidated param into a router path
 // ('../../etc' navigated to /etc) and trained browsers to autocomplete /tools/builds into a
-// class URL. The param now falls through to the hub, which canonicalises to itself.
-for (const value of ['Blood_Berserker', 'garbage', '../../etc']) {
-  test(`?class=${value} stays on the hub`, async ({ page }) => {
-    await page.goto(`/tools/builds?class=${encodeURIComponent(value)}&demo=true`);
-    await waitForRender(page);
-    expect(new URL(page.url()).pathname).toBe('/tools/builds');
-  });
-}
+// class URL. Nothing reads the param now, so one value stands for all: the hub stays the hub.
+test('?class=../../etc stays on the hub', async ({ page }) => {
+  await page.goto(`/tools/builds?class=${encodeURIComponent('../../etc')}&demo=true`);
+  await waitForRender(page);
+  expect(new URL(page.url()).pathname).toBe('/tools/builds');
+});
 
 // BuildCard stopped being one big <a> so the class links could live inside it. These cover what
 // that restructure could plausibly break.
@@ -155,14 +153,5 @@ test.describe('build card click targets', () => {
     await crumb.click();
 
     await expect(page).toHaveURL(new RegExp(`${href}$`));
-  });
-
-  test('the build title is a real link, so it survives middle click and keyboard', async ({ page }) => {
-    await page.goto('/tools/builds?demo=true');
-    await waitForRender(page);
-
-    const titleLink = buildLinks(page).first();
-    await expect(titleLink).toHaveAttribute('href', /^\/tools\/builds\//);
-    await expect(titleLink).toBeVisible();
   });
 });

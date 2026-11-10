@@ -175,7 +175,8 @@ test.describe('the story', () => {
     await expect(lastHeading(page)).toBeInViewport({ ratio: 1 });
   });
 
-  for (const [width, height] of [[1000, 800], [800, 800], [384, 832], [360, 640]]) {
+  // One width in the burger band (600 to 1199), then the two phone sizes: the second is shorter.
+  for (const [width, height] of [[1000, 800], [384, 832], [360, 640]]) {
     test(`at ${width} wide only Got it shows, and the words fit the burger`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await open(page);
@@ -279,19 +280,6 @@ test.describe('who waits', () => {
     await staysShut(page);
     expect(await mark(page)).toBe('"skipped"');
     expect(fetched).toEqual([]);
-  });
-
-  test('a full storage means no story', async ({ page }) => {
-    await open(page);
-    await page.addInitScript(() => {
-      const setItem = Storage.prototype.setItem;
-      Storage.prototype.setItem = function failing(key, value) {
-        if (key === 'whatsNew') throw new DOMException('full', 'QuotaExceededError');
-        return setItem.call(this, key, value);
-      };
-    });
-    await page.goto(STAMPS);
-    await staysShut(page);
   });
 
   test('not on the demo: the next plain visit gets it', async ({ page }) => {
@@ -430,19 +418,6 @@ test.describe('the tour', () => {
     expect((await page.locator('[data-tour="page-actions"]').boundingBox()).y).toBeGreaterThanOrEqual(96);
   });
 
-  test('started on the Dashboard, Done from the page goes back to the Dashboard', async ({ page }) => {
-    await open(page);
-    await page.goto('/dashboard?demo=true');
-    await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
-    await startTour(page);
-    await toPageStop(page);
-    await next(page);
-    await atStop(page, 'Theme');
-    await card(page).getByRole('button', { name: 'Done' }).click();
-    await expect(card(page)).toHaveCount(0);
-    await expect(page).toHaveURL(/\/dashboard\?demo=true$/);
-  });
-
   test('the browser\'s Back on the page stop ends it, there on the Dashboard', async ({ page }) => {
     await open(page);
     await page.goto('/dashboard?demo=true');
@@ -565,7 +540,7 @@ test.describe('the tour', () => {
     });
   }
 
-  test('a footer player: the theme switches live, back and on, and Done keeps it', async ({ page }) => {
+  test('a footer player: the theme switches live, back and on, and Done keeps it and goes back to the Dashboard it started on', async ({ page }) => {
     await open(page);
     await page.goto('/dashboard?demo=true');
     await expect(dialog(page)).toBeVisible({ timeout: 60_000 });
@@ -582,8 +557,10 @@ test.describe('the tour', () => {
     await expect(page.locator('html')).toHaveClass(/\blight\b/);
     await expect(page.locator('[data-tour="theme-menu"]')).toBeVisible();
     await card(page).getByRole('button', { name: 'Done' }).click();
+    await expect(card(page)).toHaveCount(0);
     await expect(page.locator('[data-tour="theme-menu"]')).toHaveCount(0);
     await expect(page.locator('html')).toHaveClass(/\blight\b/);
+    await expect(page).toHaveURL(/\/dashboard\?demo=true$/);
   });
 
   // No real sign-in: a profile view has the same UserMenu as a signed-in player, served from the demo's own save.

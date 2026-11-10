@@ -280,18 +280,17 @@ test('every wiki listing and system page gets its own title, not the fallback', 
 });
 
 // The Discord bot's ?player= links and shared board links must consolidate to the page itself,
-// both in the served bytes and after hydration.
-for (const route of ['/leaderboards?player=Baker333', '/leaderboards?t=skills&m=mining', '/leaderboards?t=global']) {
-  test(`${route} canonicalises to /leaderboards`, async ({ page, request }) => {
-    const html = await (await request.get(route)).text();
-    const raw = [...html.matchAll(/<link rel="canonical" href="([^"]+)"/g)].map((m) => m[1]);
-    expect(raw).toEqual(['https://idleontoolbox.com/leaderboards']);
-    await page.goto(route);
-    await waitForRender(page);
-    await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://idleontoolbox.com/leaderboards');
-  });
-}
+// both in the served bytes and after hydration. One URL: the canonical drops the whole query, whatever is in it.
+test('/leaderboards?t=skills&m=mining&player=Baker333 canonicalises to /leaderboards', async ({ page, request }) => {
+  const route = '/leaderboards?t=skills&m=mining&player=Baker333';
+  const html = await (await request.get(route)).text();
+  const raw = [...html.matchAll(/<link rel="canonical" href="([^"]+)"/g)].map((m) => m[1]);
+  expect(raw).toEqual(['https://idleontoolbox.com/leaderboards']);
+  await page.goto(route);
+  await waitForRender(page);
+  await expect(page.locator('link[rel="canonical"]')).toHaveCount(1);
+  await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', 'https://idleontoolbox.com/leaderboards');
+});
 
 // One shared copy keeps the export under GitHub Pages' 1 GB: inline, these variables cost 30 KB on each of 8,600 pages.
 test('the theme variables come from a shared stylesheet, and the first paint waits for it', async ({ page, request }) => {

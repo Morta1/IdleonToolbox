@@ -97,14 +97,17 @@ const expectCleanHydration = async (browser, { route, seed, width, device = 'lig
   await context.close();
 };
 
-// Each route meets every scheme once, each at another width, so a route sees all three widths and a scheme does too. A first
-// visit adds one more width per route, rotating, so every width also sees first visits without tripling the run.
+// Every route loads three times, each at another width: a first visit, then two of the three schemes. The scheme is read
+// in _app, the same on every route, so the one a route leaves out rotates, and so does the width each state lands on:
+// first visits and every scheme see all three widths across the routes.
 SAMPLES.forEach(({ route, seed }, routeIndex) => {
-  const firstVisitWidth = WIDTHS[routeIndex % WIDTHS.length];
+  // The scheme left out repeats every three routes, so the widths shift once more every three: no scheme keeps missing one.
+  const firstWidth = routeIndex + Math.floor(routeIndex / SCHEMES.length);
+  const firstVisitWidth = WIDTHS[firstWidth % WIDTHS.length];
   test(`${route} hydrates without a mismatch at ${firstVisitWidth}px`, ({ browser }) => expectCleanHydration(browser, { route, seed, width: firstVisitWidth }));
 
-  SCHEMES.forEach(({ mode, device, paints }, schemeIndex) => {
-    const width = WIDTHS[(routeIndex + schemeIndex) % WIDTHS.length];
+  SCHEMES.filter((_, schemeIndex) => schemeIndex !== routeIndex % SCHEMES.length).forEach(({ mode, device, paints }, loadIndex) => {
+    const width = WIDTHS[(firstWidth + loadIndex + 1) % WIDTHS.length];
     test(`${route} hydrates without a mismatch at ${width}px, ${mode} on a device that prefers ${device}`, ({ browser }) => expectCleanHydration(browser, {
       route,
       seed: { ...seed, 'mui-mode': mode },
