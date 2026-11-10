@@ -1,7 +1,6 @@
 import '../../polyfills';
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
+import { resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import world6 from '../../scripts/entity-graph/registry/world-6/index.mjs';
 import summoningBattle from '../../scripts/entity-graph/registry/world-6/summoning-battle.mjs';
@@ -12,8 +11,9 @@ import { oneIn, percentLabel } from '../../utility/wiki/odds.mjs';
 import { summonEssenceColor } from '@parsers/world-6/summoning';
 import { getDoorMaxHps, getFloorDifficulty, getStealthForDetection } from '@parsers/world-6/sneaking';
 import { isFifthColumnRank } from '@parsers/world-6/farming';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 const nodes = registryNodes(data, world6);
 const report = registryReport(data, world6);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);

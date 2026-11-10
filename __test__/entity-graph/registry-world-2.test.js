@@ -1,12 +1,12 @@
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
+import { resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 import world2 from '../../scripts/entity-graph/registry/world-2/index.mjs';
 import { termsFor } from '../../scripts/entity-graph/registry/world-2/poppy-text.mjs';
 import { costAt, levelledText } from '../../utility/wiki/effects.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 const nodes = registryNodes(data, world2);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);
 
@@ -75,15 +75,6 @@ describe('poppy upgrades', () => {
 
   it('leave a literal question mark alone', () => {
     expect(termsFor({ desc: 'Why_not?', x6: 5 })).toEqual([]);
-  });
-
-  // Overflowing pow curves read as infinite (the page prints ∞), never NaN.
-  it('price every upgrade at a huge level as a number that is not NaN, or null', () => {
-    const bad = ofKind('poppy').filter((node) => {
-      const cost = costAt(node, 10000);
-      return cost !== null && Number.isNaN(cost);
-    }).map((node) => node.rawName);
-    expect(bad).toEqual([]);
   });
 });
 

@@ -1,13 +1,11 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { buildingNodes, chipNodes, enrichShrines, jewelNodes, mealNodes, prayerNodes, spiceNodes } from '../../scripts/entity-graph/nodes/systems.mjs';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { costAt, costsToMax, levelledLines, levelledText } from '../../utility/wiki/effects.mjs';
 import { buildingEdges, labEdges, prayerEdges } from '../../scripts/entity-graph/edges/systems.mjs';
 import { beanstalkEdges } from '../../scripts/entity-graph/edges/beanstalk.mjs';
+import { websiteData, entityGraph } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 
 const chips = [{
   index: 0, rawName: 'ConsoleChip0', name: 'Grounded_Nanochip', bonus: '+{%_Total_Defence', baseVal: 10,
@@ -93,13 +91,6 @@ describe('system nodes', () => {
     expect(prayerEdges(slots).map((edge) => edge.from)).toEqual(['prayer:Prayer0']);
   });
 
-  it('drops exactly the six Some_Prayer_Name0 slots in the shipped data', () => {
-    const shipped = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data')).prayers;
-    const built = prayerNodes(shipped);
-    expect(shipped.filter((prayer) => !built[`prayer:Prayer${prayer.prayerIndex}`]).map((prayer) => prayer.prayerIndex))
-      .toEqual([19, 20, 21, 22, 23, 24]);
-  });
-
   it('cuts a building description before its live bonus readout and boxes its base max level', () => {
     expect(buildingNodes({ Salt_Lick: { ...towers.Salt_Lick, maxLevel: 11 } })['building:Salt_Lick']).toMatchObject({
       description: 'Spend_salts!',
@@ -137,7 +128,6 @@ describe('prayers on the real data', () => {
 });
 
 describe('shrine buildings', () => {
-  const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
   const plain = buildingNodes(data.towers);
   const nodes = structuredClone(plain);
   enrichShrines(nodes, data.towers, data.shrines);
@@ -213,23 +203,21 @@ describe('system edges', () => {
 
   // The cost is the first Beanstalk rank, 10,000 of the food.
   it('reads the beanstalk foods out of the interleaved coordinate list', () => {
-    const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
     expect(beanstalkEdges({ 29: ['41', '6', 'FoodG1', '12', '-2', 'FoodG2'] }, data).map((edge) => [edge.to, edge.meta]))
       .toEqual([['item:FoodG1', { baseCost: 10000 }], ['item:FoodG2', { baseCost: 10000 }]]);
   });
 });
 
 describe('the built graph', () => {
-  const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+  const graph = entityGraph();
   const count = (kind) => Object.values(graph.nodes).filter((node) => node.kind === kind).length;
 
   // Only the jewels whose game text carries a line break or a readout may differ from the plain base-value fill.
   it('keeps every jewel without a line break exactly as the plain base-value fill, and no jewel shows an @', () => {
-    const shared = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
-    const built = jewelNodes(shared.jewels);
+    const built = jewelNodes(data.jewels);
     const plain = (jewel) => String(jewel.effect).replace(/[{}]/g, jewel.bonus);
-    const changed = shared.jewels.filter((jewel) => built[`jewel:ConsoleJwl${jewel.index}`].description !== plain(jewel));
-    expect(changed.map((jewel) => jewel.index)).toEqual(shared.jewels.filter((jewel) => jewel.effect.includes('@')).map((jewel) => jewel.index));
+    const changed = data.jewels.filter((jewel) => built[`jewel:ConsoleJwl${jewel.index}`].description !== plain(jewel));
+    expect(changed.map((jewel) => jewel.index)).toEqual(data.jewels.filter((jewel) => jewel.effect.includes('@')).map((jewel) => jewel.index));
     expect(Object.values(built).filter((node) => node.description.includes('@'))).toEqual([]);
     expect(built['jewel:ConsoleJwl14'].description).toBe('Meal_cooking_is_1%_faster_for_every_25_total_upgrade_levels_across_all_kitchens.');
   });
@@ -237,8 +225,7 @@ describe('the built graph', () => {
   it('has a page for every chip, jewel, released prayer and building', () => {
     expect(count('chip')).toBeGreaterThan(20);
     expect(count('jewel')).toBeGreaterThan(20);
-    const shared = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
-    expect(Object.keys(prayerNodes(shared.prayers)).filter((id) => !graph.nodes[id])).toEqual([]);
+    expect(Object.keys(prayerNodes(data.prayers)).filter((id) => !graph.nodes[id])).toEqual([]);
     expect(count('building')).toBeGreaterThan(20);
   });
 

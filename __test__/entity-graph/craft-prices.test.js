@@ -1,7 +1,6 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { craftSellPrices } from '../../scripts/entity-graph/craft-prices.mjs';
+import { entityGraph } from '../helpers/wiki-data.js';
 
 const items = {
   Grasslands1: { sellPrice: 3 },      // Spore Cap
@@ -67,7 +66,7 @@ describe('craftSellPrices', () => {
 });
 
 describe('the built graph', () => {
-  const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+  const graph = entityGraph();
   const price = (rawName) => graph.nodes[`item:${rawName}`]?.sellPrice;
 
   it('carries the recipe price, matching what idleon.wiki prints', () => {

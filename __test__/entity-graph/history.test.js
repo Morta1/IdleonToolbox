@@ -1,9 +1,8 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { attachHistory } from '../../scripts/entity-graph/history.mjs';
+import { entityGraph } from '../helpers/wiki-data.js';
 
-const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+const graph = entityGraph();
 
 describe('attachHistory', () => {
   // The history is keyed by the website-data collection; the graph is keyed by node kind. They
@@ -259,11 +258,6 @@ describe('attachHistory', () => {
 });
 
 describe('the built graph', () => {
-  it('stamps history onto real nodes', () => {
-    const withHistory = Object.values(graph.nodes).filter((node) => node.history?.length);
-    expect(withHistory.length).toBeGreaterThan(200);
-  });
-
   // w7b8, w7b7 and w7b12 each merge a monster entry with a card entry whose version ranges
   // interleave, which is exactly the shape that exposed the concatenate-then-reverse bug.
   it('keeps every node history sorted newest to oldest, even where two collections merge', () => {

@@ -1,13 +1,12 @@
 import '../../polyfills';
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { enrichWorld6 } from '../../scripts/entity-graph/enrich-world-6.mjs';
 import { jadeNodes } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
 import { monsterNodes } from '../../scripts/entity-graph/nodes/monsters.mjs';
 import { enrichRun } from '../helpers/enrich-run.js';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 
 const blank = () => ({
   ...jadeNodes(data.jadeUpgrades),

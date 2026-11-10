@@ -1,11 +1,10 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { LISTED_KINDS, inListing } from '../../utility/wiki/kinds.mjs';
 import { listingCells, listingColumns, listingEntries } from '../../utility/wiki/listing.mjs';
 import { NO_MAX, parseSort, sortColumn, sortEntries, sortQuery } from '../../utility/wiki/listing-sort.mjs';
+import { entityGraph } from '../helpers/wiki-data.js';
 
-const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+const graph = entityGraph();
 
 describe('listingEntries', () => {
   // The hub counts every kind with inListing; a listing that filtered its rows any other way would show a

@@ -1,7 +1,6 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { anvilPoints } from '../../scripts/entity-graph/anvil-points.mjs';
+import { websiteData, entityGraph } from '../helpers/wiki-data.js';
 
 const costs = [
   { costThreshold: 5, rawName: 'Grasslands1' },
@@ -22,8 +21,8 @@ describe('anvilPoints', () => {
 });
 
 describe('the built graph', () => {
-  const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
-  const sharedData = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'shared-data.json'), 'utf-8'));
+  const graph = entityGraph();
+  const sharedData = websiteData();
 
   it('annotates every anvil material', () => {
     const annotated = Object.values(graph.nodes).filter((node) => node.anvilPoints);

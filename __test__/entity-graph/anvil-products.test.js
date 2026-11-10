@@ -1,7 +1,6 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { anvilProductEdges } from '../../scripts/entity-graph/edges/anvil.mjs';
+import { entityGraph } from '../helpers/wiki-data.js';
 
 const anvilProducts = {
   0: { rawName: 'CraftMat1', requiredAmount: 100, levelReq: 1, exp: 6 },
@@ -29,7 +28,7 @@ describe('anvilProductEdges', () => {
 });
 
 describe('the built graph', () => {
-  const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+  const graph = entityGraph();
   const edges = graph.edges.filter((edge) => edge.rel === 'produces');
 
   it('gives the anvil a page that lists its real products', () => {

@@ -1,13 +1,12 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import {
   artifactIslands, artifactNodes, equinoxNodes, godNodes, jadeNodes, superbitNodes
 } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
 import { levelledText } from '../../utility/wiki/effects.mjs';
-import { loadWebsiteData, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
+import { resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 
 const gods = [
   {
@@ -165,12 +164,10 @@ describe('jade nodes', () => {
 });
 
 describe('real data', () => {
-  const dataDir = path.join(process.cwd(), 'data', 'website-data');
-  const read = (name) => JSON.parse(fs.readFileSync(path.join(dataDir, name), 'utf-8'));
-  const shared = read('shared-data.json');
+  const shared = data;
   const built = {
     god: godNodes(shared.gods, data),
-    artifact: artifactNodes(read('artifacts.json'), shared.islands, data),
+    artifact: artifactNodes(data.artifacts, shared.islands, data),
     superbit: superbitNodes(shared.superbitsUpgrades),
     equinox: equinoxNodes(shared.equinoxUpgrades),
     jade: jadeNodes(shared.jadeUpgrades)
@@ -181,7 +178,7 @@ describe('real data', () => {
   // cost exponent; every real one costs less.
   it('builds every catalog entry that is not a placeholder', () => {
     expect(Object.keys(built.god)).toHaveLength(shared.gods.length);
-    expect(Object.keys(built.artifact)).toHaveLength(read('artifacts.json').length);
+    expect(Object.keys(built.artifact)).toHaveLength(data.artifacts.length);
     const jokeExponent = Math.max(...shared.superbitsUpgrades.map((bit) => bit.x2));
     expect(Object.keys(built.superbit)).toHaveLength(shared.superbitsUpgrades.filter((bit) => bit.x2 < jokeExponent).length);
     expect(Object.keys(built.equinox)).toHaveLength(shared.equinoxUpgrades.filter((upgrade) => upgrade.name !== 'Hmm...').length);

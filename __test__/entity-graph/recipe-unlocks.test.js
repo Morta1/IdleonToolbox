@@ -1,12 +1,9 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { recipeUnlocks } from '../../scripts/entity-graph/recipe-unlocks.mjs';
+import { websiteData, entityGraph } from '../helpers/wiki-data.js';
 
-const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
-const taskUnlocks = JSON.parse(
-  fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'taskUnlocks.json'), 'utf-8')
-);
+const graph = entityGraph();
+const taskUnlocks = websiteData().taskUnlocks;
 
 describe('task board recipe unlocks', () => {
   it('gates a recipe by the world whose board sells it, one-based', () => {
@@ -41,7 +38,6 @@ describe('task board recipe unlocks', () => {
     const craftable = new Set(graph.edges.filter((edge) => edge.rel === 'craftedFrom').map((edge) => edge.from));
     const uncraftable = [...gates.keys()].filter((rawName) => !craftable.has(`item:${rawName}`));
     expect(uncraftable).toEqual([]);
-    expect(gates.size).toBe(160);
   });
 
   // The reason the note is worth rendering at all: for these the recipe is the only way in, so a

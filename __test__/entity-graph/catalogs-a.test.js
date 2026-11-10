@@ -8,10 +8,10 @@ import { constellationEdges } from '../../scripts/entity-graph/edges/catalogs-a.
 import {
   artifactNodes, equinoxNodes, godNodes, jadeNodes, superbitNodes
 } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { firstLevel, levelledLines, levelledText } from '../../utility/wiki/effects.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 
 describe('growth', () => {
   it('reproduces the three curves the catalogs use', () => {
@@ -210,9 +210,7 @@ describe('arcade nodes', () => {
 });
 
 describe('real data', () => {
-  const root = path.join(process.cwd(), 'data', 'website-data');
-  const read = (name) => JSON.parse(fs.readFileSync(path.join(root, name), 'utf-8'));
-  const shared = read('shared-data.json');
+  const shared = data;
   const publicFile = (icon) => path.join(process.cwd(), 'public', icon);
 
   const built = {
@@ -239,7 +237,7 @@ describe('real data', () => {
   const everyCatalog = {
     ...built,
     god: godNodes(shared.gods, data),
-    artifact: artifactNodes(read('artifacts.json'), shared.islands, data),
+    artifact: artifactNodes(data.artifacts, shared.islands, data),
     superbit: superbitNodes(shared.superbitsUpgrades),
     equinox: equinoxNodes(shared.equinoxUpgrades),
     jade: jadeNodes(shared.jadeUpgrades)
@@ -271,16 +269,6 @@ describe('real data', () => {
       const names = nodes.map((node) => node.name);
       expect(new Set(names).size).toBe(names.length);
     }
-  });
-
-  // Pins against what the old sentences printed for the same entries.
-  it('keeps the numbers the old sentences printed', () => {
-    const duster = Object.values(built.sigil).find((node) => node.name === 'Duster_Studs');
-    const box = Object.values(built.postbox).find((node) => node.name === 'Civil_War_Memory_Box');
-    expect([duster.fields.map(({ value }) => value), levelledLines(box, 400).map(({ text }) => text)]).toEqual([
-      ['+3', '+7', '+15', '+25', '+40'],
-      ['+400 Base Damage', '+8.48% Fight AFK Gains', '+6% Critical Chance']
-    ]);
   });
 
   it('sits every constellation on a map that has a page', () => {

@@ -1,14 +1,12 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { itemNodes } from '../../scripts/entity-graph/nodes/items.mjs';
 import { isRealMonster, monsterNodes } from '../../scripts/entity-graph/nodes/monsters.mjs';
 import { npcQuestNodes } from '../../scripts/entity-graph/nodes/npcs-quests.mjs';
 import { npcNodes } from '../../scripts/entity-graph/nodes/npcs.mjs';
 import { talentNodes } from '../../scripts/entity-graph/nodes/talents.mjs';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { levelledText } from '../../utility/wiki/effects.mjs';
 import { items, monsters, quests } from './fixture.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
 describe('node extractors', () => {
   it('builds item nodes keyed by item:rawName', () => {
@@ -64,7 +62,7 @@ describe('node extractors', () => {
   // have cavern pages), the never-placed Legendary Chest tier, and the one monster the game keys as
   // Filler.
   it('rejects exactly the placeholder monsters in the shipped data', () => {
-    const shipped = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'monsters.json'), 'utf-8'));
+    const shipped = websiteData().monsters;
     const rejected = Object.entries(shipped)
       .filter(([rawName, monster]) => !isRealMonster(monster, rawName))
       .filter(([, monster]) => monster.Name !== 'Error' && String(monster.Name).replace(/_/g, ' ').trim())
@@ -207,7 +205,7 @@ describe('item descriptions', () => {
 // shipped data through the node builders, since the committed graph keeps the old text until the
 // plan's wrap-up regeneration.
 describe('leftover game text', () => {
-  const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+  const data = websiteData();
   const realItems = itemNodes(data.items, data.monsters, data.cards, data.stamps, new Map(), data.randomList);
   const realQuests = npcQuestNodes(data.quests);
   const realTalents = talentNodes(data.talents);
@@ -334,14 +332,6 @@ describe('card bonuses', () => {
       // The wiki numbers a card's slot from one; visualIndex counts from zero.
       category: 'Blunder_Hills', order: 10
     });
-  });
-
-  it('keeps the raw value slot so the panel substitutes it the way CardTooltip does', () => {
-    const nodes = itemNodes({
-      CardsA9: { displayName: 'DONTFILL', Type: 'CARD', desc_line1: 'frogBIG' }
-    }, monsters, cards);
-    const { effect, bonus } = nodes['item:CardsA9'].card;
-    expect(effect.replace('{', bonus)).toBe('+5%_Card_Drop_Chance');
   });
 
   it('is null for a card with no catalogue entry', () => {

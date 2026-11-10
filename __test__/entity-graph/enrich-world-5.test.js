@@ -1,13 +1,12 @@
 import '../../polyfills';
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { enrichWorld5 } from '../../scripts/entity-graph/enrich-world-5.mjs';
 import { artifactNodes, godNodes, superbitNodes } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
 import { costAt, costsAt, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
 import { enrichRun } from '../helpers/enrich-run.js';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 
 const blank = () => ({
   ...godNodes(data.gods, data),

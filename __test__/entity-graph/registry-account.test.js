@@ -1,14 +1,13 @@
 import '../../polyfills';
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import account from '../../scripts/entity-graph/registry/account/index.mjs';
 import { calculateGuildBonusCost, getGuildBonusBonus } from '../../parsers/guild';
 import { getDungeonFlurboStatBonus, getDungeonStatBonus } from '../../parsers/dungeons';
 import { costCurrency, costsAt, costsToMax, FORMULAS, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 const nodes = registryNodes(data, account);
 const report = registryReport(data, account);
 const edges = registryEdges(data, account);

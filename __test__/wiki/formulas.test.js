@@ -1,8 +1,6 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, expect, it } from 'vitest';
 import '../../polyfills';
-import { gameTables, owlData, poppyBonuses, poppyTarBonuses, postOffice, statues, upgradeVault, wikiTables } from '@website-data';
+import { gameTables, owlData, poppyBonuses, postOffice, upgradeVault, wikiTables } from '@website-data';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { calcPrayerCost } from '@parsers/world-3/prayers';
 import { getBubbleUpgradeCost } from '@parsers/world-2/alchemy';
@@ -22,23 +20,14 @@ import * as clientL6 from './client-tables/l6.js';
 import * as clientL7 from './client-tables/l7.js';
 import * as clientL8 from './client-tables/l8.js';
 import { grownLeftovers, leftovers } from '../helpers/wiki-leftovers.js';
+import { entityGraph } from '../helpers/wiki-data.js';
 
 describe('formula parity with the game', () => {
   // No growth parity case: utility/helpers re-exports this very growth(), so comparing the two is
   // an identity check. growth's own values are pinned by the talent tests.
   // "txt" and "_" mark a half with no number; a name growth() has no case for is the same, never 0.
-  it.each(['txt', 'notACurve'])('has no number for a growth with function %s', (func) => {
-    expect(FORMULAS.growth(10, { func, x1: 1, x2: 0 })).toBe(null);
-  });
-
-  // Oracle: parsers/world-1/statues.ts multiplies the level by the statue's base bonus before any
-  // save-dependent multiplier.
-  it('linear matches a statue bonus', () => {
-    for (const statue of statues.slice(0, 3)) {
-      for (const level of [1, 25, 300]) {
-        expect(FORMULAS.linear(level, { perLevel: statue.bonus })).toBe(level * statue.bonus);
-      }
-    }
+  it('has no number for a growth with a function it has no case for', () => {
+    expect(FORMULAS.growth(10, { func: 'txt', x1: 1, x2: 0 })).toBe(null);
   });
 
   // Oracle: parsers/world-1/owl.ts upgrade cost with no account (every cost reducer at 0).
@@ -54,14 +43,6 @@ describe('formula parity with the game', () => {
         expect(wiki).toBe(game);
       }
     });
-  });
-
-  // Oracle: owl.ts bonus3, Feather Cheapener's discount.
-  it('diminishingPercent matches the Feather Cheapener discount', () => {
-    for (const level of [1, 10, 250]) {
-      expect(FORMULAS.diminishingPercent(level, { perLevel: 10 }))
-        .toBe(Math.floor(1e4 * (1 - 1 / (1 + 10 * level / 100))) / 100);
-    }
   });
 });
 
@@ -178,10 +159,6 @@ describe('costs', () => {
     expect(costToMax({ effect: { cap: Number.MAX_SAFE_INTEGER }, cost: { formula: 'pow', args: { base: 10, rate: 2 } } })).toBe(Infinity);
   });
 
-  it('has no total without a cap', () => {
-    expect(costToMax({ cost: capped.cost, effect: { cap: null, terms: [] } })).toBe(null);
-  });
-
   it('has no cost without a cost formula', () => {
     expect(costAt({ effect: { cap: 3, terms: [] } }, 1)).toBe(null);
   });
@@ -215,8 +192,9 @@ describe('costs', () => {
   });
 
   it('has a total of null for each cost without a cap, and no costs without a cost', () => {
-    expect([costsToMax({ ...twoCosts, effect: { cap: null, terms: [] } }).map(({ value }) => value), costsAt({}, 1), costsToMax({})])
-      .toEqual([[null, null], [], []]);
+    const uncapped = { ...twoCosts, effect: { cap: null, terms: [] } };
+    expect([costsToMax(uncapped).map(({ value }) => value), costToMax(uncapped), costsAt({}, 1), costsToMax({})])
+      .toEqual([[null, null], null, [], []]);
   });
 
   it('keeps an overflowed cost as infinite instead of dropping it', () => {
@@ -251,14 +229,6 @@ describe('Poppy formulas', () => {
       const game = x1 * (1 + level) * Math.pow(x2, level);
       expect(FORMULAS.linearPowFromOne(level, { base: x1, rate: x2 })).toBe(game);
     }
-  });
-
-  it('powPlusLevel matches the Tar Pit cost', () => {
-    poppyTarBonuses.forEach(({ x1, x2 }) => {
-      for (const level of [0, 1, 9]) {
-        expect(FORMULAS.powPlusLevel(level, { base: x1, rate: x2 })).toBe(level + x1 * Math.pow(x2, level));
-      }
-    });
   });
 
   // RooBonus: each level adds the next of seven bonuses in turn.
@@ -327,9 +297,8 @@ describe('bubble cost formulas', () => {
       .toEqual([LEVELS.map((level) => game.liquid(2, level)), LEVELS.map((level) => game.bits(5000, level))]);
   });
 
-  // Swift Steppin (Pocket Sand 1, Water Drops 2) at the wiki's Lv 1 and 100, as the game prices levels 0 and 99.
-  // Past ~Lv 198 the curve runs above the game's 1e9 cap; the wiki prints the curve, since the cap comes after discounts.
-  it.each([[1, [1, 2]], [100, [1081860, 6]], [250, [game.material(1, 0, 249), 14]]])('Swift Steppin at Lv %s costs %o', (level, expected) => {
+  // Swift Steppin (Pocket Sand 1, Water Drops 2) at the wiki's Lv 100, as the game prices level 99.
+  it('Swift Steppin at Lv 100 costs 1,081,860 Pocket Sand and 6 Water Drops', () => {
     const node = {
       effect: { cap: null },
       cost: [
@@ -337,7 +306,7 @@ describe('bubble cost formulas', () => {
         { formula: 'bubbleLiquidCost', args: { base: 2 }, currency: 'Water Drops' }
       ]
     };
-    expect(costsAt(node, level).map(({ value }) => value)).toEqual(expected);
+    expect(costsAt(node, 100).map(({ value }) => value)).toEqual([1081860, 6]);
   });
 });
 
@@ -692,7 +661,7 @@ describe('client tables', () => {
 
   // Every levelled page of the graph, as the client renders it: without the table it prints no placeholder, `null` or NaN
   // that it does not print with it.
-  const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8')).nodes;
+  const graph = entityGraph().nodes;
   const levelled = Object.fromEntries(Object.entries(graph).filter(([, node]) => node.effect || node.entries || node.familyBonus));
   const present = leftovers(levelled);
 

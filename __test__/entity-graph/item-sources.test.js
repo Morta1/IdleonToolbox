@@ -1,5 +1,3 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { currencyShopEdges } from '../../scripts/entity-graph/edges/currency-shops.mjs';
 import { containerEdges } from '../../scripts/entity-graph/edges/containers.mjs';
@@ -16,9 +14,9 @@ import { petNodes } from '../../scripts/entity-graph/nodes/pets.mjs';
 import { talentNodes } from '../../scripts/entity-graph/nodes/talents.mjs';
 import { achievementMentionEdges } from '../../scripts/entity-graph/edges/achievement-mentions.mjs';
 import { bundlePets, petEdges } from '../../scripts/entity-graph/edges/pets.mjs';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { websiteData, entityGraph } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 
 const items = {
   EquipmentHats10: { displayName: 'Pink_Headband' },
@@ -471,7 +469,7 @@ describe('harvests', () => {
 });
 
 describe('the built graph', () => {
-  const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+  const graph = entityGraph();
   const nodes = graph.nodes;
   const itemNodes = Object.entries(nodes).filter(([, node]) => node.kind === 'item' && node.navigable !== false);
 
@@ -533,7 +531,7 @@ describe('bundle nodes', () => {
 });
 
 describe('what a bundle hands over', () => {
-  const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+  const graph = entityGraph();
   const bundles = Object.values(graph.nodes).filter((node) => node.kind === 'bundle');
 
   // Two figures on the banner, not one: the chest count and the smaller "BUY NOW BONUS!" beside the
@@ -567,7 +565,7 @@ describe('what a bundle hands over', () => {
   // The Pet Mart's own version of the same guarantee: every EvolvingBundles pack gets a node, its pet
   // crystals and its pet's art. Price and gems are covered for every bundle by the banner test below.
   it('gives every pet mart pack its pet crystals and its pet', () => {
-    const shared = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'shared-data.json'), 'utf-8'));
+    const shared = websiteData();
     const packs = bundles.filter((node) => node.petMart);
     expect(packs).toHaveLength(Object.values(shared.bundles).filter((bundle) => bundle?.evolving).length);
     expect(packs.every((node) => node.petCrystals > 0)).toBe(true);
@@ -576,7 +574,7 @@ describe('what a bundle hands over', () => {
 });
 
 describe('a bundle the game adds later', () => {
-  const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+  const graph = entityGraph();
   const bundles = Object.values(graph.nodes).filter((node) => node.kind === 'bundle');
 
   // Everything a bundle grants is extracted from N.js, so a new one appears on its own with its
@@ -598,7 +596,7 @@ describe('a bundle the game adds later', () => {
 });
 
 describe('cards the drop tables already cover', () => {
-  const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+  const graph = entityGraph();
   const dropsBySource = {};
   for (const edge of graph.edges) {
     if (edge.rel !== 'drops') continue;

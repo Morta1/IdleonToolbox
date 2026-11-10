@@ -8,12 +8,12 @@ import {
 import { KIND_LABELS, KIND_PLURALS, KIND_SHORT_PLURALS } from '../../utility/wiki/kind-labels.mjs';
 import { SECOND_HOP_RELS } from '../../utility/wiki/page-graph';
 import { worldNames } from '../../scripts/entity-graph/nodes/worlds.mjs';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { ROWS } from '../../scripts/entity-graph/registry/index.mjs';
+import { websiteData, entityGraph } from '../helpers/wiki-data.js';
 
-const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+const graph = entityGraph();
 const nodes = Object.entries(graph.nodes).filter(([, node]) => node.navigable !== false);
-const shared = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'shared-data.json'), 'utf-8'));
+const shared = websiteData();
 const searchIndex = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'wiki-search-index.json'), 'utf-8'));
 const indexRow = (id) => searchIndex.find((row) => row.id === id);
 
@@ -66,7 +66,7 @@ describe('listed kinds', () => {
   // the only route in.
   it('leaves no area reachable from nowhere', () => {
     expect(nodes.some(([, node]) => node.kind === 'map' && node.slug)).toBe(true);
-    expect(nodes.filter(([, node]) => node.kind === 'world')).toHaveLength(Object.keys(worldNames(loadWebsiteData(path.join(process.cwd(), 'data', 'website-data')))).length);
+    expect(nodes.filter(([, node]) => node.kind === 'world')).toHaveLength(Object.keys(worldNames(websiteData())).length);
     const listed = new Set(graph.edges.filter((edge) => edge.rel === 'contains').map((edge) => edge.to));
     const stranded = nodes
       .filter(([id, node]) => node.kind === 'map' && node.catalog !== false && !listed.has(id))

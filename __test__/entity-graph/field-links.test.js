@@ -1,10 +1,9 @@
-import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { fieldLinkFailures, linked, linkSegments } from '../../utility/wiki/field-links.mjs';
 import { fieldLinkEdges } from '../../scripts/entity-graph/edges/field-links.mjs';
 import { ROWS } from '../../scripts/entity-graph/registry/index.mjs';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
 describe('linkSegments', () => {
   it.each([
@@ -136,7 +135,7 @@ const LINKED = [
 ];
 
 describe('linked field coverage', () => {
-  const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+  const data = websiteData();
   const nodes = Object.entries(registryNodes(data, ROWS));
 
   // The rift table carries only a monster name, so a name that is not exactly one monster (Ghost is both ghost and pghost) stays plain.

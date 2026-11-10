@@ -5,9 +5,9 @@ import { cleanVaultName, vaultId, vaultNodes, vaultTemplate } from '../../script
 import { costAt, levelledText } from '../../utility/wiki/effects.mjs';
 import { vaultEdges } from '../../scripts/entity-graph/edges/vault.mjs';
 import { glimboEdges } from '../../scripts/entity-graph/edges/glimbo.mjs';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 
 const upgrade = (overrides) => ({ name: 'Monster_Tax', x5: 2, maxLevel: 500, unlockLevel: 13, description: '', ...overrides });
 
@@ -121,10 +121,7 @@ describe('vault edges', () => {
 // Built straight from the generated data rather than entity-graph.json, so it checks these builders
 // whether or not the graph has been rebuilt since.
 describe('on the real data', () => {
-  const dataDir = path.join(process.cwd(), 'data', 'website-data');
-  const read = (name) => JSON.parse(fs.readFileSync(path.join(dataDir, name), 'utf-8'));
-  const upgradeVault = read('shared-data.json').upgradeVault;
-  const research = read('research.json');
+  const { upgradeVault, research } = data;
   const nodes = vaultNodes(upgradeVault, data);
   const edges = vaultEdges(research, upgradeVault, data);
 

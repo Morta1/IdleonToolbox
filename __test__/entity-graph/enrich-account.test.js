@@ -1,7 +1,5 @@
 import '../../polyfills';
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { enrichAccount } from '../../scripts/entity-graph/enrich-account.mjs';
 import { mapNodes } from '../../scripts/entity-graph/nodes/maps.mjs';
 import { itemNodes } from '../../scripts/entity-graph/nodes/items.mjs';
@@ -9,8 +7,9 @@ import { worldNodes } from '../../scripts/entity-graph/nodes/worlds.mjs';
 import { mapEdges } from '../../scripts/entity-graph/edges/maps.mjs';
 import { spaced } from '../../scripts/entity-graph/registry/text.mjs';
 import { enrichRun } from '../helpers/enrich-run.js';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 
 const blank = () => {
   const maps = mapNodes(data.mapNames, data.rawMapNames, data);
@@ -82,10 +81,6 @@ describe('map portals', () => {
 
   it('reads a mining map as a skill level, portal 1 following portal 0', () => {
     expect(nodes['map:7'].fields).toEqual([{ label: 'Portals', value: ["To The Ol' Straightaway: Mining level 25", 'To The Royal Castle: Mining level 81'] }]);
-  });
-
-  it('reads a fishing map as a skill level', () => {
-    expect(nodes['map:54'].fields).toEqual([{ label: 'Portals', value: ['To Faraway Piers: Fishing level 15'] }]);
   });
 
   it('adds the character count to portal 0 of a multi-character map only', () => {

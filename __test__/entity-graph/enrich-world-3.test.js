@@ -1,10 +1,9 @@
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { enrichWorld3 } from '../../scripts/entity-graph/enrich-world-3.mjs';
 import { shinyCritterOf } from '../../scripts/entity-graph/edges/harvests.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 
 // A bare node per item and monster: the enrichment only adds `fields`, so the rest of a node is
 // irrelevant here and the sweep below can see exactly which nodes it touched.

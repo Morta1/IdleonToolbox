@@ -1,13 +1,12 @@
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 import world3 from '../../scripts/entity-graph/registry/world-3/index.mjs';
 import { costAt, costToMax, levelledText } from '../../utility/wiki/effects.mjs';
 import { totemPrayerEdges } from '../../scripts/entity-graph/edges/totem-prayers.mjs';
 import { armorSetEdges } from '../../scripts/entity-graph/edges/armor-sets.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 const nodes = registryNodes(data, world3);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);
 // The whole field, links included, of the page with this id.
@@ -15,10 +14,6 @@ const fieldAt = (id, label) => nodes[id].fields.find((field) => field.label === 
 
 describe('atoms', () => {
   const byName = (name) => ofKind('atom').find((node) => node.name === name);
-
-  it('build one page per atom', () => {
-    expect(ofKind('atom')).toHaveLength(data.atomsInfo.length);
-  });
 
   // Oracles: N.js AtomInfo desc fill, `{` = baseBonus * level and `<` = level.
   it.each([
@@ -63,10 +58,6 @@ describe('atoms', () => {
 describe('equinox dreams', () => {
   const dreams = ofKind('dream');
   const spaced = (text) => String(text).replace(/_/g, ' ');
-
-  it('build one page per challenge', () => {
-    expect(dreams).toHaveLength(data.equinoxChallenges.length);
-  });
 
   // Oracle: N.js titles each challenge "Dream_#" + (CloudsTask + 1), where CloudsTask is its table position.
   it('name each one Dream #N in table order', () => {

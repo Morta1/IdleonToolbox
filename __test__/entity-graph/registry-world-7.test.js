@@ -1,7 +1,6 @@
 import '../../polyfills';
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData, missingTables, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
+import { missingTables, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import world7 from '../../scripts/entity-graph/registry/world-7/index.mjs';
 import { dropUnfilledSentences } from '../../scripts/entity-graph/registry/text.mjs';
@@ -9,8 +8,9 @@ import { costsAt, costsToMax, formatAmount, levelledText } from '../../utility/w
 import { PANEL_TEXT } from '../../utility/wiki/menagerie-jellies.mjs';
 import { getMenagerieBoost, getMenagerieCost, getMenagerieUpgUnlocked, isSideJellyUnlocked } from '@parsers/world-7/menagerie';
 import { getClamBonus, getClamCost } from '@parsers/world-7/clamWork';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 const nodes = registryNodes(data, world7);
 const report = registryReport(data, world7);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);

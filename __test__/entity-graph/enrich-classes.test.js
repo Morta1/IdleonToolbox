@@ -1,7 +1,5 @@
 import '../../polyfills';
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { enrichClasses } from '../../scripts/entity-graph/enrich-classes.mjs';
 import { buildBotIndex } from '../../scripts/entity-graph/bot-index.mjs';
 import { classNodes } from '../../scripts/entity-graph/nodes/classes.mjs';
@@ -9,8 +7,9 @@ import { FORMULAS, levelledText } from '../../utility/wiki/effects.mjs';
 import { entityDescription } from '../../utility/wiki/seo';
 import { getFamilyBonusBonus } from '../../parsers/family';
 import { enrichRun } from '../helpers/enrich-run.js';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 
 const { before, nodes, changed } = enrichRun(() => classNodes(data.classPromotions), (fresh) => enrichClasses(fresh, data));
 const familyOf = (name) => nodes[`class:${name}`].familyBonus;

@@ -1,7 +1,5 @@
 import '../../polyfills';
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import world5 from '../../scripts/entity-graph/registry/world-5/index.mjs';
 import { artifactIslands } from '../../scripts/entity-graph/nodes/catalogs-b.mjs';
@@ -11,8 +9,9 @@ import { getFountainBonusTotal } from '@parsers/world-5/caverns/the-fountain';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 import { tidy } from '../../scripts/entity-graph/registry/text.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 const nodes = registryNodes(data, world5);
 const report = registryReport(data, world5);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);

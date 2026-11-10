@@ -1,9 +1,8 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { rollupByVersion } from '../../utility/wiki/changelog';
+import { entityGraph } from '../helpers/wiki-data.js';
 
-const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+const graph = entityGraph();
 
 const nodes = {
   'monster:mushG': {

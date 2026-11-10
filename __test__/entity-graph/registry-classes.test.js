@@ -1,7 +1,5 @@
 import '../../polyfills';
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import classes from '../../scripts/entity-graph/registry/classes/index.mjs';
 import { getCompassTotalUpgradeCost } from '../../parsers/class-specific/compass';
@@ -9,8 +7,9 @@ import { calcGrimoireBonus, getGrimoireTotalUpgradeCost } from '../../parsers/cl
 import { calcTesseractBonus, getTesseractTotalUpgradeCost } from '../../parsers/class-specific/tesseract';
 import { getArmoryUpgradeCost } from '../../parsers/class-specific/royalGuardian';
 import { costsAt, costsToMax, FORMULAS, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 const nodes = registryNodes(data, classes);
 const report = registryReport(data, classes);
 const edges = registryEdges(data, classes);

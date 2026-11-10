@@ -1,8 +1,10 @@
 import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
-import graph from '../../data/entity-graph.json';
 import { currencyIcons } from '../../scripts/entity-graph/currency-icons.mjs';
+import { entityGraph } from '../helpers/wiki-data.js';
+
+const graph = entityGraph();
 
 const paid = (from, to) => ({ from, to, rel: 'upgradedWith' });
 

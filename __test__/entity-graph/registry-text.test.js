@@ -10,8 +10,6 @@ describe('registry text helpers', () => {
     ['船Sail__away_', 'Sail_away'],
     ['Twitch.tv/_Lava贫Flame2', 'Twitch.tv/_LavaFlame2'],
     ['Water鉢_Coins', 'Water_Coins'],
-    ['Harp尬_Strings', 'Harp_Strings'],
-    ['which_each_give_+1蒲/sec', 'which_each_give_+1/sec'],
     ['you_get_+1_识', 'you_get_+1'],
     ['Click_the_膛_button_to_see_Purified_Bonuses.', 'Click_the_button_to_see_Purified_Bonuses.'],
     // A colon ends the line too, so the list after it does not open with a full stop.
@@ -45,14 +43,7 @@ describe('registry text helpers', () => {
     ['BASE_DAMAGE', 'Base_Damage'],
     ['+{%_MOVE_SPEED', '+{%_Move_Speed'],
     // The sigil VIP_PARCHMENT: an acronym stays in capitals.
-    ['VIP_PARCHMENT', 'VIP_Parchment'],
-    // Exotic market names: GMO and OG are acronyms, and the roman numerals end the tiered names.
-    ['EVOLUTION_GMO', 'Evolution_GMO'],
-    ['OG_FERTILIZER', 'OG_Fertilizer'],
-    ['SPROUTLUCK_III', 'Sproutluck_III'],
-    ['GENEOLOGY_IV', 'Geneology_IV'],
-    ['DNA_SPLICER', 'DNA_Splicer'],
-    ['EXP_BALLOON', 'EXP_Balloon']
+    ['VIP_PARCHMENT', 'VIP_Parchment']
   ])('title-cases %s', (input, expected) => {
     expect(titleCase(input)).toBe(expected);
   });

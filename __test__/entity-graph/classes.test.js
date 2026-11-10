@@ -1,14 +1,12 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { talentPagesMap } from '../../parsers/classDefinitions';
 import { classNodes, classOrder } from '../../scripts/entity-graph/nodes/classes.mjs';
 import { classEdges } from '../../scripts/entity-graph/edges/classes.mjs';
+import { websiteData, entityGraph } from '../helpers/wiki-data.js';
 
-const read = (...parts) => JSON.parse(fs.readFileSync(path.join(process.cwd(), ...parts), 'utf-8'));
-const graph = read('data', 'entity-graph.json');
+const graph = entityGraph();
 // Its own file, not a shared-data key: importing it must not drag 1MB onto the builds pages.
-const promotions = read('data', 'website-data', 'classPromotions.json');
+const promotions = websiteData().classPromotions;
 
 // The tree is not written down in the wiki build any more: z-processing reads it out of the game's
 // own ClassPromotionChoices and exports it as classPromotions. parsers/classDefinitions.ts still

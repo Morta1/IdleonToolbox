@@ -6,8 +6,9 @@ import {
   LISTED_KINDS, MOVED_KINDS, SYSTEMS, entityPath, inListing, listingCounts, listingHref, systemOf, systemsWithRows
 } from '../../utility/wiki/kinds.mjs';
 import { entityName } from '../../utility/wiki/names.mjs';
+import { entityGraph } from '../helpers/wiki-data.js';
 
-const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+const graph = entityGraph();
 const searchIndex = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'wiki-search-index.json'), 'utf-8'));
 const nodes = Object.values(graph.nodes);
 const counts = listingCounts(nodes);

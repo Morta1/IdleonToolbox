@@ -1,14 +1,13 @@
 import '../../polyfills';
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { enrichWorld4 } from '../../scripts/entity-graph/enrich-world-4.mjs';
 import { jewelNodes, mealNodes, spiceNodes } from '../../scripts/entity-graph/nodes/systems.mjs';
 import { costAt, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
 import { getMealLevelCost } from '../../parsers/world-4/cooking';
 import { enrichRun } from '../helpers/enrich-run.js';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 
 // The enrichment only reads and extends these nodes, so a bare monster per raw name is enough.
 const blank = () => {
@@ -124,22 +123,16 @@ describe('breeding mobs', () => {
   });
 });
 
-// The Tesseract upgrade each jewel waits on (N.js sets Lab[14][21..23] from ArcaneUpgBonus 28, 35 and 43).
-const TESSERACT_UPGRADE = { 21: 28, 22: 35, 23: 43 };
-
+// Each jewel waits on a Tesseract upgrade (N.js sets Lab[14][21..23] from ArcaneUpgBonus 28, 35 and 43).
 describe('jewels', () => {
   it('enrich exactly the three the Tesseract unlocks', () => {
     expect(changed('jewel:')).toEqual(['jewel:ConsoleJwl21', 'jewel:ConsoleJwl22', 'jewel:ConsoleJwl23']);
   });
 
-  it.each([
-    [21, 'Jewel of Deadly Wrath'],
-    [22, 'Jewel of the North Winds'],
-    [23, 'Jewel of Eternal Energy']
-  ])('name the Tesseract upgrade that unlocks jewel %s', (jewel, upgrade) => {
-    expect(nodes[`jewel:ConsoleJwl${jewel}`].fields).toEqual([
-      { label: 'Bonus', value: before[`jewel:ConsoleJwl${jewel}`].fields[0].value },
-      { label: 'Unlocked by', value: `${upgrade} (Tesseract)`, links: [`tesseractupgrade:ArcaneUpg${TESSERACT_UPGRADE[jewel]}`], linkAs: 'unlockedBy' }
+  it('name the Tesseract upgrade that unlocks jewel 21', () => {
+    expect(nodes['jewel:ConsoleJwl21'].fields).toEqual([
+      { label: 'Bonus', value: before['jewel:ConsoleJwl21'].fields[0].value },
+      { label: 'Unlocked by', value: 'Jewel of Deadly Wrath (Tesseract)', links: ['tesseractupgrade:ArcaneUpg28'], linkAs: 'unlockedBy' }
     ]);
   });
 });

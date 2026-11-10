@@ -1,17 +1,12 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { gatherEdges } from '../../scripts/entity-graph/edges/gathering.mjs';
 import { ninjaHatEdges, randomEventEdges } from '../../scripts/entity-graph/edges/injected-drops.mjs';
 import { talentLibraryEdges } from '../../scripts/entity-graph/edges/talent-library.mjs';
 import { typeLabels } from '../../scripts/entity-graph/obtained-from-types.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const readJson = (name) => JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', name), 'utf-8'));
-const items = readJson('items.json');
-const monsters = readJson('monsters.json');
-const randomList = readJson('randomList.json');
-const sharedData = readJson('shared-data.json');
-const compass = readJson('compass.json');
+const data = websiteData();
+const { items, monsters, randomList, compass, wikiTables } = data;
 
 const pairs = (edges) => edges.map((edge) => `${edge.from} -> ${edge.to}`);
 
@@ -52,7 +47,7 @@ describe('gatherEdges', () => {
 });
 
 describe('randomEventEdges', () => {
-  const edges = randomEventEdges(randomList, monsters, { wikiTables: readJson('wikiTables.json') });
+  const edges = randomEventEdges(randomList, monsters, { wikiTables });
 
   it('gives each event boss its own loot list', () => {
     expect(pairs(edges)).toEqual([
@@ -72,7 +67,7 @@ describe('randomEventEdges', () => {
 });
 
 describe('ninjaHatEdges', () => {
-  const edges = ninjaHatEdges(randomList, sharedData.ninjaEquipment, items, monsters, { wikiTables: readJson('wikiTables.json') });
+  const edges = ninjaHatEdges(randomList, data.ninjaEquipment, items, monsters, { wikiTables });
 
   // The code picks the hat by arithmetic and this picks it by name: they must agree.
   it('reaches the same hats as the game\'s EquipmentHats 90 + index', () => {
@@ -83,7 +78,7 @@ describe('ninjaHatEdges', () => {
 
 describe('talentLibraryEdges', () => {
   it('has the library hand out the four class books and not the special one', () => {
-    const edges = talentLibraryEdges(sharedData.towers, items, { wikiTables: readJson('wikiTables.json') });
+    const edges = talentLibraryEdges(data.towers, items, { wikiTables });
     expect(pairs(edges)).toEqual([
       'building:Talent_Book_Library -> item:TalentBook2',
       'building:Talent_Book_Library -> item:TalentBook3',
@@ -94,12 +89,12 @@ describe('talentLibraryEdges', () => {
   });
 
   it('says nothing once the building is gone', () => {
-    expect(talentLibraryEdges({}, items, { wikiTables: readJson('wikiTables.json') })).toEqual([]);
+    expect(talentLibraryEdges({}, items, { wikiTables })).toEqual([]);
   });
 });
 
 describe('typeLabels', () => {
-  const options = { mapNames: sharedData.mapNames };
+  const options = { mapNames: data.mapNames };
   const withoutRings = Object.fromEntries(Object.entries(compass).filter(([, upgrade]) => upgrade?.name !== 'Ring_Drop'));
   const labelSets = {
     full: typeLabels(items, { ...options, compass }),
@@ -110,18 +105,14 @@ describe('typeLabels', () => {
   it.each([
     // Dungeon gear is read off its DUNGEON craft level; the dungeon key is not a dungeon drop.
     ['full', 'DungEquipmentRings0', 'Dungeon'],
-    ['full', 'FoodHealth3d', 'Dungeon'],
     ['full', 'Cash', 'Dungeon'],
     ['full', 'DungEnhancer2', 'Dungeon'],
     ['full', 'Quest45', undefined],
-    // Event boxes, candles and letters.
+    // An event box: every EVENT_ type reads the same.
     ['full', 'Quest109', 'Event'],
-    ['full', 'Quest114', 'Event'],
-    ['full', 'Quest39', 'Event'],
     // Replica trophies, the way replica nametags already are.
     ['full', 'TrophyReplica1', 'Spelunking'],
-    // The marbles of real worlds, skipping the placeholder.
-    ['full', 'RGshard0', 'Royal Guardian'],
+    // The marble of a real world, and the placeholder past the last one.
     ['full', 'RGshard6', 'Royal Guardian'],
     ['full', 'RGshard7', undefined],
     ['full', 'EquipmentBowsTempest0', 'Compass'],

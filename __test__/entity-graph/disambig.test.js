@@ -1,18 +1,17 @@
-import fs from 'fs';
-import path from 'path';
 import { beforeAll, describe, expect, it } from 'vitest';
 import { disambiguate, gemShopNames } from '../../scripts/entity-graph/disambig.mjs';
 import { entityName } from '../../utility/wiki/names.mjs';
+import { websiteData, freshEntityGraph } from '../helpers/wiki-data.js';
 
-const readData = (...parts) => JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', ...parts), 'utf-8'));
 const labelOf = (node) => (Object.hasOwn(node, 'disambig') ? node.disambig : null);
 
 describe('disambiguate on the real graph', () => {
   let nodes;
   beforeAll(() => {
-    const graph = readData('entity-graph.json');
+    // disambiguate writes its labels onto the nodes, so this file reads a graph of its own.
+    const graph = freshEntityGraph();
     nodes = graph.nodes;
-    disambiguate(nodes, graph.edges, gemShopNames(readData('website-data', 'gemShop.json')));
+    disambiguate(nodes, graph.edges, gemShopNames(websiteData().gemShop));
   });
 
   it('labels the same-name pages each rule was written for', () => {

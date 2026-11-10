@@ -1,11 +1,10 @@
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryEdges, registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 import world1 from '../../scripts/entity-graph/registry/world-1/index.mjs';
 import { costAt, levelledText } from '../../utility/wiki/effects.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 const nodes = registryNodes(data, world1);
 const edges = registryEdges(data, world1);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);

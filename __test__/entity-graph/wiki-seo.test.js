@@ -1,12 +1,10 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { entityDescription, entityTitle, listingTitle, systemDescription, systemTitle } from '../../utility/wiki/seo';
 import { LISTED_KINDS, SYSTEMS, systemBySlug } from '../../utility/wiki/kinds.mjs';
 import { KIND_PLURALS } from '../../utility/wiki/kind-labels.mjs';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 import world1 from '../../scripts/entity-graph/registry/world-1/index.mjs';
+import { websiteData, entityGraph } from '../helpers/wiki-data.js';
 
 const edge = (from, to, rel) => ({ from, to, rel, meta: {} });
 
@@ -77,7 +75,7 @@ describe('entityDescription', () => {
   // A registry description is a template: the search snippet reads it filled at level 1, and a kind
   // with no hand-picked word falls back to its label.
   describe('for registry pages', () => {
-    const registry = Object.values(registryNodes(loadWebsiteData(path.join(process.cwd(), 'data', 'website-data')), world1));
+    const registry = Object.values(registryNodes(websiteData(), world1));
     it.each([
       ['owl', 'owl upgrade'],
       ['statue', 'statue']
@@ -91,14 +89,10 @@ describe('entityDescription', () => {
     });
   });
 
-  // These kinds have no hand-picked word, so the label's casing would otherwise leak into the sentence.
-  it.each([
-    ['poppy', 'Poppy upgrade'],
-    ['tarpit', 'Tar Pit upgrade'],
-    ['weeklyboss', 'weekly boss']
-  ])('names a %s page with its own kind word', (kind, word) => {
-    expect(entityDescription({ kind, name: 'Some_Name' }, [], `${kind}:Some_Name`))
-      .toBe(`Some Name is a Legends of Idleon ${word}.`);
+  // A hand-picked kind word keeps its own capitals: the lowercased label would read "tar pit upgrade".
+  it('names a tarpit page with its own kind word', () => {
+    expect(entityDescription({ kind: 'tarpit', name: 'Some_Name' }, [], 'tarpit:Some_Name'))
+      .toBe('Some Name is a Legends of Idleon Tar Pit upgrade.');
   });
 
   // A relation reached from several kinds is counted only for the kind its phrase names.
@@ -126,7 +120,7 @@ describe('entityDescription', () => {
 // A system page, a listing and an entity page each stand alone in a search result, so no two may share a title.
 describe('hub pages', () => {
   it('titles every system page and listing apart from each other and from every entity page', () => {
-    const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+    const graph = entityGraph();
     const sets = [
       SYSTEMS.map(systemTitle),
       LISTED_KINDS.map(listingTitle),

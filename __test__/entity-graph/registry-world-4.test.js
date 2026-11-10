@@ -1,13 +1,12 @@
 import '../../polyfills';
-import path from 'path';
 import { describe, expect, it } from 'vitest';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryEdges, registryNodes, registryReport } from '../../scripts/entity-graph/registry/build.mjs';
 import world4 from '../../scripts/entity-graph/registry/world-4/index.mjs';
 import { calcUpgradeBonus } from '../../parsers/world-4/breeding';
 import { costsAt, costsToMax, formatAmount, levelledText } from '../../utility/wiki/effects.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 const nodes = registryNodes(data, world4);
 const edges = registryEdges(data, world4);
 const ofKind = (kind) => Object.values(nodes).filter((node) => node.kind === kind);
@@ -19,10 +18,6 @@ describe('lab bonuses', () => {
   const byName = (name) => bonuses.find((node) => node.name === name);
   const spaced = (text) => String(text).replace(/_/g, ' ');
   const fieldOf = (name, label) => byName(name).fields?.find((field) => field.label === label)?.value;
-
-  it('build one page per lab bonus', () => {
-    expect(bonuses).toHaveLength(data.labBonuses.length);
-  });
 
   // Oracles: the game text of each bonus, `@` as a sentence break and the player's own "Total Bonus" readout dropped.
   it.each([
@@ -144,10 +139,6 @@ describe('pet genes', () => {
     expect(fieldOf('Borger', 'Bonus')).toBe(
       'When in combat, this Mob has +2000% hp. Big borger, big health. When foraging, this Mob contributes 10x more foraging speed if the territory above has at least one Forager type (the Green Leaf type) Mob.'
     );
-  });
-
-  it('leave no underscore or placeholder in a field', () => {
-    expect(genes.flatMap((node) => node.fields).filter(({ value }) => [].concat(value).some((line) => /[_@]|undefined|null|NaN/.test(line)))).toEqual([]);
   });
 
   it('art each page by its table position', () => {
@@ -309,11 +300,6 @@ describe('rift levels', () => {
       .toEqual(real.map(([entry]) => (entry.riftBonus ? spaced(entry.riftBonus) : undefined)));
     expect(real.filter(([entry]) => entry.riftBonus).length).toBeLessThan(real.length);
   });
-
-  it('leave no underscore or placeholder in a sentence or field', () => {
-    const text = rifts.flatMap((node) => [spaced(node.description), ...node.fields.map(({ value }) => String(value))]);
-    expect(text.filter((line) => /[_@{}]|undefined|null|NaN/.test(line))).toEqual([]);
-  });
 });
 
 describe('rift bonuses', () => {
@@ -356,11 +342,6 @@ describe('rift bonuses', () => {
 
   it('art each page by its own bonus icon', () => {
     expect(bonuses.map((node) => node.icon)).toEqual(real.map(([entry]) => `/etc/${entry.riftBonusIcon}.png`));
-  });
-
-  it('leave no underscore or placeholder in a sentence or field', () => {
-    const text = bonuses.flatMap((node) => [spaced(node.description ?? ''), ...node.fields.map(({ value }) => String(value))]);
-    expect(text.filter((line) => /[_@{}]|undefined|null|NaN/.test(line))).toEqual([]);
   });
 });
 

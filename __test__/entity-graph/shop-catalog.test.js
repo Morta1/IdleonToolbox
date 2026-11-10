@@ -2,10 +2,10 @@ import fs from 'fs';
 import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { skullCatalog, weeklyCatalog } from '../../scripts/entity-graph/shop-catalog.mjs';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { realItem, skullRowSellsItem, weeklyRowSellsItem } from '../../scripts/entity-graph/edges/currency-shops.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 const skull = skullCatalog(data.killRoySkullShop, data.items, data);
 const weekly = weeklyCatalog(data.weeklyBossesShop, data.items);
 const rendered = (row) => row.text.replace(/_/g, ' ');

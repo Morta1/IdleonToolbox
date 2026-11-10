@@ -4,7 +4,7 @@ import os from 'os';
 import path from 'path';
 import { execFileSync } from 'child_process';
 import { describe, expect, it, vi } from 'vitest';
-import { loadWebsiteData, missingTables, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
+import { missingTables, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
 import { dropUnfilledSentences } from '../../scripts/entity-graph/registry/text.mjs';
 import { CLIENT_TABLES, CORE_TABLES, gameConstants, moduleText } from '../../scripts/entity-graph/game-constants.mjs';
 import GAME from '../../utility/wiki/game-constants.mjs';
@@ -19,8 +19,9 @@ import * as l7 from './game-tables/l7.js';
 import * as l8 from './game-tables/l8.js';
 import { grownLeftovers, leftovers } from '../helpers/wiki-leftovers.js';
 import { expectNoBreaks } from '../helpers/sweep';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 
 // Every table the graph build reads, with the output that reads it (READERS), and the fields of a table that point
 // into another section (POINTERS), from each file in game-tables/: core, then one per wiki upkeep lane, so lanes never

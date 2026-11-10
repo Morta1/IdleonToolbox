@@ -1,10 +1,8 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { glimboEdges } from '../../scripts/entity-graph/edges/glimbo.mjs';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
+import { websiteData, entityGraph } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 
 const research = [];
 research[26] = ['2', '13', '99'];
@@ -35,8 +33,8 @@ describe('glimboEdges', () => {
 });
 
 describe('the built graph', () => {
-  const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
-  const research27 = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'research.json'), 'utf-8'))[27];
+  const graph = entityGraph();
+  const research27 = websiteData().research[27];
   const edges = graph.edges.filter((edge) => edge.rel === 'buys');
 
   // Counted off the game's own list rather than a literal, so a patch adding trades does not break it.

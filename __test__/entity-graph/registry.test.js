@@ -2,7 +2,6 @@ import fs from 'fs';
 import path from 'path';
 import { describe, expect, it } from 'vitest';
 import { ROWS } from '../../scripts/entity-graph/registry/index.mjs';
-import { loadWebsiteData } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes, registryReport, sectionOf } from '../../scripts/entity-graph/registry/build.mjs';
 import { costsAt, costsToMax, levelledText, readLevel } from '../../utility/wiki/effects.mjs';
 import { KIND_LABELS, KIND_PLURALS } from '../../utility/wiki/kind-labels.mjs';
@@ -11,10 +10,11 @@ import { KIND_ART } from '../../components/wiki/CategoryTiles';
 import { fieldLinkFailures } from '../../utility/wiki/field-links.mjs';
 import { assignSlugs } from '../../scripts/entity-graph/slugs.mjs';
 import { LEFTOVER } from '../helpers/wiki-leftovers.js';
+import { websiteData, entityGraph } from '../helpers/wiki-data.js';
 
 // Built from website-data directly, not the committed graph, so a kind is covered the moment its
 // row exists, before anybody regenerates the graph.
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 const nodes = Object.values(registryNodes(data, ROWS));
 // A page's sub-entries (a merit, a trait) render like pages, so every sentence, cost, field and art check walks them too.
 const targets = nodes.flatMap((node) => [node, ...(node.entries || []).map((entry) => ({
@@ -115,12 +115,12 @@ describe('registry nodes', () => {
     });
   });
 
-  // Field labels and values render as written, so a game name must arrive spaced and a missing
-  // lookup must not print as a word.
-  it('carry fields with no leftover underscore, undefined, null or NaN', () => {
+  // Field labels and values render as written, so a game name must arrive spaced, a missing lookup must not print as
+  // a word, and no game line break (`@`) or placeholder (`{`, `}`) may be left in.
+  it('carry fields with no leftover underscore, line break, placeholder, undefined, null or NaN', () => {
     const bad = targets.flatMap((node) => (node.fields || [])
       .flatMap(({ label, value }) => [label, ...[].concat(value)])
-      .filter((text) => /_|undefined|null|NaN/.test(String(text)))
+      .filter((text) => /[_@{}]|undefined|null|NaN/.test(String(text)))
       .map((text) => `${node.kind}:${node.rawName}: ${text}`));
     expect(bad).toEqual([]);
   });
@@ -129,7 +129,7 @@ describe('registry nodes', () => {
   // every non-registry target (the link pass adds no node) and the built slug; a registry page it does not hold yet
   // takes the slug the build would give it, since slugs only collide within a kind.
   it('carry field links that name a known linkAs, resolve, and name their target', () => {
-    const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+    const graph = entityGraph();
     const known = { ...assignSlugs(registryNodes(data, ROWS)), ...graph.nodes };
     expect(fieldLinkFailures(targets, known)).toEqual([]);
   });

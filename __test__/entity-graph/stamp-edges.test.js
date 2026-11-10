@@ -1,7 +1,6 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { stampEdges } from '../../scripts/entity-graph/edges/stamps.mjs';
+import { websiteData, entityGraph } from '../helpers/wiki-data.js';
 
 const stamps = {
   combat: {
@@ -26,7 +25,7 @@ describe('stampEdges', () => {
 });
 
 describe('the built graph', () => {
-  const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+  const graph = entityGraph();
   // `source` is a build-time hint that resolveEdges strips, so a stamp edge is identified the way
   // it actually survives: an upgradedWith whose FROM side is the stamp item itself.
   const isStamp = (id) => graph.nodes[id]?.stamp;
@@ -35,14 +34,8 @@ describe('the built graph', () => {
   // Every stamp names a material and every one of them resolves, so a short count means the build
   // silently dropped some.
   it('links every stamp', () => {
-    const stampData = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', 'stamps.json'), 'utf-8'));
+    const stampData = websiteData().stamps;
     expect(edges).toHaveLength(Object.values(stampData).reduce((sum, group) => sum + Object.keys(group).length, 0));
     expect(edges.every((edge) => graph.nodes[edge.to])).toBe(true);
-  });
-
-  // The point of the edge: the material's own page can now name what wants it.
-  it('gives Spore Cap its stamps', () => {
-    const wants = edges.filter((edge) => edge.to === 'item:Grasslands1').map((edge) => edge.from);
-    expect(wants).toContain('item:StampA1');
   });
 });

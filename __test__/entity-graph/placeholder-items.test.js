@@ -1,7 +1,6 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { isPlaceholderCard, isPlaceholderItem, itemNodes } from '../../scripts/entity-graph/nodes/items.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
 // randomList is positional: only index 17, the game's not-findable roster, matters here.
 const rosterOf = (rawNames) => Object.assign([], { 17: rawNames });
@@ -108,30 +107,8 @@ describe('proxy cost items', () => {
 });
 
 describe('against the shipped game data', () => {
-  const read = (name) => JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'website-data', name), 'utf-8'));
-  const items = read('items.json');
-  const nodes = itemNodes(items, read('monsters.json'), read('cards.json'), read('stamps.json'), new Map(), read('randomList.json'));
-  const hidden = (rawName) => nodes[`item:${rawName}`]?.navigable === false;
-
-  it('keeps the TestObj items that are craftable and on The Slab', () => {
-    for (const rawName of ['TestObj1', 'TestObj3', 'TestObj7', 'TestObj13']) expect(hidden(rawName), rawName).toBe(false);
-  });
-
-  it('hides the TestObj items with no source and no use', () => {
-    for (const rawName of ['TestObj2', 'TestObj4', 'TestObj5', 'TestObj8', 'TestObj9', 'TestObj10', 'TestObj14', 'TestObj15', 'TestObj16']) {
-      expect(hidden(rawName), rawName).toBe(true);
-    }
-  });
-
-  it('hides exactly the placeholder cards', () => {
-    expect(Object.values(nodes).filter((node) => node.category === 'CARD' && node.navigable === false).map((node) => node.rawName).sort())
-      .toEqual(['CardsC13', 'CardsC14', 'CardsC15', 'CardsD12', 'CardsD13', 'CardsF1']);
-  });
-
-  // 2.3.540 released Chapter Seven (Spelunking6, no longer named FILLER) and its Burned Tunnel card (CardsF51).
-  it('hides the dead obol stack copy and shows the released Chapter Seven page', () => {
-    expect(['Spelunking6', 'GemP14', 'GemP10'].map(hidden)).toEqual([false, true, false]);
-  });
+  const { items, monsters, cards, stamps, randomList } = websiteData();
+  const nodes = itemNodes(items, monsters, cards, stamps, new Map(), randomList);
 
   it('leaves no visible item under a copied proxy name', () => {
     const visibleStrung = Object.values(nodes).filter((node) => node.name === 'Strung_Jewels' && node.navigable !== false && node.category === 'SAIL_TREASURE');

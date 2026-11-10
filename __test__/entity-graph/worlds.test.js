@@ -1,12 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import path from 'path';
 import { worldNames, worldNodes } from '../../scripts/entity-graph/nodes/worlds.mjs';
 import { worldEdges } from '../../scripts/entity-graph/edges/worlds.mjs';
-import { loadWebsiteData, missingTables, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
+import { missingTables, resetMissingTables } from '../../scripts/entity-graph/registry/data.mjs';
 import { registryNodes } from '../../scripts/entity-graph/registry/build.mjs';
 import account from '../../scripts/entity-graph/registry/account/index.mjs';
+import { websiteData } from '../helpers/wiki-data.js';
 
-const data = loadWebsiteData(path.join(process.cwd(), 'data', 'website-data'));
+const data = websiteData();
 
 const maps = {
   'map:0': { kind: 'map', rawName: '0', category: 'World 1' },

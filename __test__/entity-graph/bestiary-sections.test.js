@@ -1,9 +1,8 @@
-import fs from 'fs';
-import path from 'path';
 import { describe, it, expect } from 'vitest';
 import { SECTION_ORDER, groupEntries } from '../../utility/wiki/grouping';
+import { entityGraph } from '../helpers/wiki-data.js';
 
-const graph = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'data', 'entity-graph.json'), 'utf-8'));
+const graph = entityGraph();
 const listed = Object.values(graph.nodes).filter((node) => node.kind === 'monster' && node.catalog !== false);
 
 // idleon.wiki's Bestiary is seven world sections plus Boss, Events, Dungeon and The Rift, and it is
