@@ -7,6 +7,7 @@ import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Num from '@components/common/Num';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 // The game's sentence: { is the bonus in its own Comma rule, } the multiplier it makes (the x is the sentence's)
 const formatStickerDescription = (desc, bonus) => {
@@ -33,10 +34,10 @@ const Stickers = () => {
         : null}
     </Stack>
     <CardGrid size={'s'}>
-      {stickers.map(({ name, description, count, bonus, odds }, index) => (
+      {stickers.map(({ name, description, count, bonus, odds, oddsBreakdown }, index) => (
         <ItemCard key={name} icon={`data/FarmStickerB${index}.png`} title={cleanUnderscore(name)} dimmed={!(count > 0)}>
           <ItemCard.Desc text={formatStickerDescription(description, bonus)}/>
-          <ItemCard.Facts rows={[['Found', count ?? 0, 'amount'], ['Chance', formatOdds(odds)]]}/>
+          <ItemCard.Facts rows={[['Found', count ?? 0, 'amount'], ['Chance', <Breakdown key={'chance'} asValue data={{ ...oddsBreakdown, totalValue: formatOdds(odds) }}>{formatOdds(odds)}</Breakdown>]]}/>
         </ItemCard>
       ))}
     </CardGrid>

@@ -1,5 +1,5 @@
 import { notateNumber, tryToParse } from '@utility/helpers';
-import { exoticMarketInfo, gameTables, mapPortals, marketInfo, ninjaExtraInfo, research as researchData, seedInfo } from '@website-data';
+import { exoticMarketInfo, gameTables, mapPortals, marketInfo, ninjaExtraInfo, research as researchData, researchGridSquares, seedInfo } from '@website-data';
 import { getCharmBonus, isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { getStarSignBonus } from '@parsers/starSigns';
 import { getBubbleBonus, getVialsBonusByEffect, getVialsBonusByStat } from '@parsers/world-2/alchemy';
@@ -35,7 +35,7 @@ import { getCardBonusByEffect } from '@parsers/cards';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getTomeBubbleMulti } from '@parsers/world-4/tome';
 import LavaRand from '../../utility/lavaRand';
-import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, percent, productGroup, sourceName } from '@parsers/breakdown';
 import { saveField } from '@parsers/saveField';
 import { OPT } from '@parsers/accountOptions';
 
@@ -487,7 +487,8 @@ export const getStickerBonus = (account: any, index: any, context: number = 0) =
   return (1 + (grid68bonus + 30 * eventShopBonus37) / 100) * (1 + (20 * superBit62) / 100) * count * (baseBonusValues[index] ?? 0);
 };
 
-const getStickerOddsMulti = (characters: any, account: any) => {
+// game: "FarmingStuffs:StickerOddsMulti", one factor per source, shared by every sticker
+const getStickerOddsMultiNodes = (characters: any, account: any) => {
   const grid67bonus = getResearchGridBonus(account, 67, 2);
   const grid88bonus = getResearchGridBonus(account, 88, 0);
   const sticker5bonus = getStickerBonus(account, 5);
@@ -500,20 +501,29 @@ const getStickerOddsMulti = (characters: any, account: any) => {
   // W4 Golden Tome (opt[607]) multiplies sticker odds: 2^min(12,lvl) then +1500 per level past 11
   const goldenTome = Number(account?.accountOptions?.[OPT.goldenTomeStacks]) || 0;
   const goldenTomeMulti = Math.max(1, Math.pow(2, Math.min(12, goldenTome)) + 1500 * Math.max(0, goldenTome - 11));
-  return goldenTomeMulti
-    * (1 + grid67bonus / 100)
-    * (1 + grid88bonus / 100)
-    * (1 + sticker5bonus / 100)
-    * (1 + arcade64 / 100)
-    * (superBit55 ? getMegacropSuperbitMulti(farmingLevel) : 1)
-    * (1 + sushiBonus55 / 100)
-    * (1 + cuboidCompanion);
+  return [
+    multiplier('Golden Tome', goldenTomeMulti),
+    multiplier(sourceName('Research Grid', researchGridSquares?.[67]?.name), 1 + grid67bonus / 100),
+    multiplier(sourceName('Research Grid', researchGridSquares?.[88]?.name), 1 + grid88bonus / 100),
+    multiplier(sourceName('Sticker', researchData?.[23]?.[5]), 1 + sticker5bonus / 100),
+    multiplier('Arcade', 1 + arcade64 / 100),
+    multiplier(sourceName('Superbit', 'Mo_Stickers_Mo_Bonusers'), superBit55 ? getMegacropSuperbitMulti(farmingLevel) : 1),
+    multiplier(sourceName('Sushi', researchData?.[30]?.[55]), 1 + sushiBonus55 / 100),
+    multiplier(sourceName('Companion', 'Gelatinous_Cuboid'), 1 + cuboidCompanion)
+  ];
 };
 
-const getStickerOdds = (characters: any, account: any, index: any) => {
+// game: "FarmingStuffs:StickerOdds": the shared multi over the sticker's own base odds
+const getStickerOdds = (oddsMultiNodes: any[], account: any, index: any) => {
   const count = (account?.research?.stickerLevels ?? [])[index] ?? 0;
-  const oddsMulti = getStickerOddsMulti(characters, account);
-  return oddsMulti / (5000 * Math.pow(7, index) * Math.pow(Math.max(10 - count, 5), count));
+  const baseOdds = 5000 * Math.pow(7, index) * Math.pow(Math.max(10 - count, 5), count);
+  const oddsMulti = evaluateBreakdownNode(productGroup('Chance Multi', oddsMultiNodes));
+  const odds = oddsMulti / baseOdds;
+  const breakdown = createBreakdown('Sticker Chance (1 in)', baseOdds / oddsMulti, [
+    flat('Base Odds', baseOdds),
+    productGroup('Chance Multi', oddsMultiNodes)
+  ], { combine: 'divide' });
+  return { odds, breakdown };
 };
 
 const getStickerDMGMulti = (account: any) => {
@@ -603,18 +613,20 @@ export const updateFarming = (characters: any, account: any) => {
   const stickerNames = researchData?.[23] ?? [];
   const stickerDescriptions = researchData?.[24] ?? [];
   const stickerBaseBonus = (researchData?.[25] ?? []).map(Number);
+  const stickerOddsMultiNodes = getStickerOddsMultiNodes(characters, account);
   const stickers = stickerNames
     .map((name: any, index: any) => {
       if (name === 'Nonexistent_Sticker') return null;
       const count = (account?.research?.stickerLevels ?? [])[index] ?? 0;
       const bonus = getStickerBonus(account, index);
-      const odds = getStickerOdds(characters, account, index);
+      const { odds, breakdown: oddsBreakdown } = getStickerOdds(stickerOddsMultiNodes, account, index);
       return {
         name,
         description: getStickerDescription(account, index, stickerDescriptions[index] ?? ''),
         count,
         bonus,
         odds,
+        oddsBreakdown,
         baseBonus: stickerBaseBonus[index] ?? 0
       };
     })
