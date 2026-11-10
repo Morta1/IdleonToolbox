@@ -538,6 +538,30 @@ export const getTotalGildedSlots = (account: any) => {
   return Math.round(Math.min(MAX_GILDED_SLOTS, total));
 }
 
+// game: WorkbenchStuff("TowerBuildSlots") = 2 + gem shop 117 + ceil(Tasks[2][2][0] / 2)
+export const getTowerBuildSlots = (account: any) => Math.round(2
+  + (Number(account?.gemShopPurchases?.[117]) || 0)
+  + Math.ceil((Number(account?.tasks?.[2]?.[2]?.[0]) || 0) / 2));
+
+const YELLOW_JELLY_SLOT = 7;
+
+// The Yellow Jellyfish fills like a building in the 8th build slot: while that slot is empty it gains
+// the build rate per hour, times the trimmed boost when the slot is trimmed.
+// game: the construction tick, 7 == l && MenagerieStuff("SideJellyUnlocked", 4) adds to Menagerie[0][15]
+export const getYellowJellyBuild = (account: any) => {
+  const yellow = account?.menagerie?.jellies?.yellow;
+  const slotExists = getTowerBuildSlots(account) > YELLOW_JELLY_SLOT;
+  const slotOpen = slotExists && !account?.towers?.data?.some(({ slot }: any) => slot === YELLOW_JELLY_SLOT);
+  const buildRate = account?.construction?.totalBuildRate ?? 0;
+  const trimmed = YELLOW_JELLY_SLOT < getTotalGildedSlots(account);
+  const rate = slotOpen ? (trimmed ? getGildedBoostioBonus(account) * buildRate : buildRate) : 0;
+  const left = Math.max(0, (yellow?.requirement ?? 0) - (yellow?.progress ?? 0));
+  const ready = yellow ? left === 0 : false;
+  // ms from the save time until the next purchase, null when it is not filling
+  const timeLeft = ready ? 0 : rate > 0 ? left / rate * 3600 * 1000 : null;
+  return { slotExists, slotOpen, rate, ready, timeLeft };
+}
+
 export const getTrimmedBuildSpeed = (account: any) => {
   const buildSpeed = account?.construction?.totalBuildRate ?? 0;
   const multipliers = getGildedBoostioMultipliers(account);

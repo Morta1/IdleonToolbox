@@ -21,7 +21,7 @@ import InfoButton from '@components/common/InfoButton';
 import AlertIcon, { counted } from './AlertIcon';
 import { alertMeta } from '@utility/dashboard/alertMeta';
 import { calcHappyHours } from '@parsers/dungeons';
-import { getBuildCost, getGildedBoostioBonus, getTotalGildedSlots } from '@parsers/world-3/construction';
+import { getBuildCost, getGildedBoostioBonus, getTotalGildedSlots, getYellowJellyBuild } from '@parsers/world-3/construction';
 import { getChargeWithSyphon, getClosestWorshiper } from '@parsers/world-3/worship';
 import { isPast, isValid } from 'date-fns';
 import RandomEvent from '@components/account/Misc/RandomEvent';
@@ -285,6 +285,15 @@ export const useTimerRows = ({ characters, account, lastUpdated, trackers, bookA
   const sushiFuelFullTime = sushiFuel && sushiFuel.generation > 0 && !sushiFuelIsFull
     ? now + ((sushiFuel.cap - sushiFuel.current) / sushiFuel.generation) * 3600 * 1000
     : null;
+
+  const yellowJellyUnlocked = account?.menagerie?.jellies?.sideUnlocked?.[4]?.unlocked;
+  const yellowJelly = yellowJellyUnlocked ? getYellowJellyBuild(account) : null;
+  const yellowJellyTime = yellowJelly?.timeLeft != null ? now + yellowJelly.timeLeft : null;
+  // A building in slot 8 (or no slot 8 yet) stops the jelly: the row stays, saying so, at the end of Later
+  const yellowJellySlotWord = yellowJelly?.slotExists ? 'Slot 8 in use' : 'No slot 8';
+  const yellowJellyIdle = yellowJelly?.slotExists
+    ? 'A building sits in the 8th construction slot, so the Yellow jelly is not building'
+    : 'The Yellow jelly builds in the 8th construction slot, which you do not have yet';
 
   const rows = [
     ...inWorld('General', !emptyAlerts?.General && <>
@@ -588,6 +597,18 @@ export const useTimerRows = ({ characters, account, lastUpdated, trackers, bookA
                 : ''}`}
             time={overstimLevelUpTime}
             icon={'data/CaveShopUpg6.png'}
+          /> : null}
+        {trackers?.['World 7']?.yellowJelly?.checked && yellowJelly ?
+          <TimerRow target="World 7.yellowJelly"
+            page={'/account/world-7/menagerie'}
+            query={{ t: 'Jellies' }}
+            message={(when, over) => (yellowJellyTime == null ? yellowJellyIdle
+              : over ? 'Yellow jelly construction purchase ready' : `Yellow jelly purchase: ${when}`)}
+            value={yellowJellyTime == null ? <StatusText status={'info'}>{yellowJellySlotWord}</StatusText> : undefined}
+            time={yellowJellyTime ?? undefined}
+            icon={'data/MenaJelly5.png'}
+            placeholder={'Ready'}
+            forcePlaceholder={yellowJelly.ready}
           /> : null}
         {trackers?.['World 7']?.observationInsight?.checked
           ? observationInsightTimes.map((obs) =>

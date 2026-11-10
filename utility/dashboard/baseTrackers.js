@@ -1121,7 +1121,8 @@ export const baseTrackers = {
       sushiFuelFull: { checked: true, options: [] },
       observationInsight: { checked: true, options: [] },
       royalNodeCap: { checked: true, options: [] },
-      overstim: { checked: true, options: [] }
+      overstim: { checked: true, options: [] },
+      yellowJelly: { checked: true, options: [] }
     }
   }
 }

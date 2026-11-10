@@ -7,6 +7,7 @@ import ItemCard from '@components/common/cards/ItemCard';
 import CoinDisplay from '@components/common/CoinDisplay';
 import GameIcon from '@components/common/GameIcon';
 import StatusText from '@components/common/StatusText';
+import Timer from '@components/common/Timer';
 import Num from '@components/common/Num';
 import {
   PANEL_TEXT,
@@ -64,12 +65,19 @@ const SilverJelly = ({ silver }) => <>
 </>;
 
 // Decision 1: the slot's state in words, "In use" in the neutral tone (busy, not an error)
-const YellowJelly = ({ yellow, buildSlotOpen }) => <ItemCard.Facts rows={[
-  ['8th construction slot', buildSlotOpen
-    ? <StatusText key={'slot'} status={'ready'}>Open</StatusText>
-    : <StatusText key={'slot'} status={'info'}>In use</StatusText>],
+const YellowJelly = ({ yellow, yellowBuild, lastUpdated }) => <ItemCard.Facts rows={[
+  ['8th construction slot', !yellowBuild?.slotExists
+    ? <StatusText key={'slot'} status={'locked'}>Not unlocked</StatusText>
+    : yellowBuild?.slotOpen
+      ? <StatusText key={'slot'} status={'ready'}>Open</StatusText>
+      : <StatusText key={'slot'} status={'info'}>In use</StatusText>],
   // The game's build line, Big on both sides (MenagerieStuff.ConstBuildREQ)
   ['Build progress', `${formatGame(yellow?.progress ?? 0, 'MenagerieStuff.ConstBuildREQ', { whole: true })} / ${formatGame(yellow?.requirement ?? 0, 'MenagerieStuff.ConstBuildREQ', { whole: true })}`],
+  ['Next purchase in', yellowBuild?.ready
+    ? <StatusText key={'next'} status={'ready'}>Ready</StatusText>
+    : yellowBuild?.timeLeft != null && lastUpdated
+      ? <Timer key={'next'} type={'countdown'} component={'span'} date={lastUpdated + yellowBuild.timeLeft}/>
+      : '-'],
   ...YELLOW_BONUS_NAMES.map((name, index) => {
     const bonus = yellow?.bonuses?.[index] ?? 0;
     const perLevel = yellow?.perLevel?.[index] ?? 0;
@@ -92,7 +100,7 @@ const ChapterPages = ({ pages }) => <Stack direction={'row'} flexWrap={'wrap'} g
   </Stack>)}
 </Stack>;
 
-const JellyContent = ({ index, jellies, ladlesOwned, buildSlotOpen }) => {
+const JellyContent = ({ index, jellies, ladlesOwned, yellowBuild, lastUpdated }) => {
   if (index === 0) return <PinkJelly pink={jellies?.pink}/>;
   if (index === 1) {
     return <ItemCard.Facts rows={[
@@ -111,13 +119,13 @@ const JellyContent = ({ index, jellies, ladlesOwned, buildSlotOpen }) => {
     </>;
   }
   if (index === 3) return <SilverJelly silver={jellies?.silver}/>;
-  if (index === 4) return <YellowJelly yellow={jellies?.yellow} buildSlotOpen={buildSlotOpen}/>;
+  if (index === 4) return <YellowJelly yellow={jellies?.yellow} yellowBuild={yellowBuild} lastUpdated={lastUpdated}/>;
   return <ItemCard.Facts rows={[
     ['Top 0.1% Nametags turned in', `${formatNum(jellies?.green?.nametagsDeposited ?? 0)} / ${formatNum(jellies?.green?.nametagsRequired ?? 12)}`]
   ]}/>;
 };
 
-const Jellies = ({ jellies, ladlesOwned, buildSlotOpen }) => {
+const Jellies = ({ jellies, ladlesOwned, yellowBuild, lastUpdated }) => {
   return <CardGrid size={'m'}>
     {jellies?.sideUnlocked?.map(({ name, unlocked }, index) => {
       return <ItemCard key={name}
@@ -126,7 +134,7 @@ const Jellies = ({ jellies, ladlesOwned, buildSlotOpen }) => {
                        title={`${name} Jellyfish`}
                        status={unlocked ? undefined : 'locked'}>
         {PANEL_TEXT[index] ? <ItemCard.Desc>{PANEL_TEXT[index]}</ItemCard.Desc> : null}
-        <JellyContent index={index} jellies={jellies} ladlesOwned={ladlesOwned} buildSlotOpen={buildSlotOpen}/>
+        <JellyContent index={index} jellies={jellies} ladlesOwned={ladlesOwned} yellowBuild={yellowBuild} lastUpdated={lastUpdated}/>
       </ItemCard>;
     })}
   </CardGrid>;

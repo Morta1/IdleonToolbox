@@ -1341,5 +1341,6 @@ export const alertMeta = {
   'timers.World 7.sushiFuelFull': { label: 'Sushi fuel full', icon: 'etc/Fuel', page: { pathname: '/account/world-7/sushi-station', label: 'Sushi station' }, options: {} },
   'timers.World 7.observationInsight': { label: 'Observation insight level ups', icon: 'data/ResMagni1', page: { pathname: '/account/world-7/research', query: { t: 'Observations' }, label: 'Observations' }, options: {} },
   'timers.World 7.royalNodeCap': { label: 'Next outpost resource empty', icon: 'data/UISkillIcon226', page: { pathname: '/account/class-specific/royal-armory', query: { t: 'Resources' }, label: 'Resources' }, options: {} },
-  'timers.World 7.overstim': { label: 'Overstim level up', icon: 'data/CaveShopUpg6', page: { pathname: '/account/world-7/spelunking', label: 'Spelunking' }, options: {} }
+  'timers.World 7.overstim': { label: 'Overstim level up', icon: 'data/CaveShopUpg6', page: { pathname: '/account/world-7/spelunking', label: 'Spelunking' }, options: {} },
+  'timers.World 7.yellowJelly': { label: 'Yellow jelly construction purchase', icon: 'data/MenaJelly5', page: { pathname: '/account/world-7/menagerie', query: { t: 'Jellies' }, label: 'Jellies' }, options: {} }
 };

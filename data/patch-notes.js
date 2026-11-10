@@ -40,7 +40,8 @@ export const patchNotes = [
       'Research: grid squares show their in-game coordinate tile (like M9) on the cards and the grid details',
       'Goals: Death Note rank goals show your kills toward the target rank, and the bar follows them',
       'Exotic Market: Off rotation can now be sorted in game order as well as by soonest return',
-      'Leaderboards: new Sprout Speed board under World 5 (fastest growth cycle first, fills as players re-upload)'
+      'Leaderboards: new Sprout Speed board under World 5 (fastest growth cycle first, fills as players re-upload)',
+      'Dashboard: new World 7 timer for the next Yellow jelly construction purchase, also shown on the Jellies card'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',
