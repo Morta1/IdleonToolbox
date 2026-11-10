@@ -1,5 +1,5 @@
 import { Box, Stack, Typography } from '@mui/material';
-import { elapsedHours, Section, SectionGroup } from '@components/tools/active-calculator/common';
+import { counter, CounterTable, elapsedHours, Section, SectionGroup } from '@components/tools/active-calculator/common';
 import React, { useContext } from 'react';
 import { useLocalStorage } from '@mantine/hooks';
 import { compareInventories, consolidateItems } from '@parsers/misc/activeCalculator';
@@ -26,7 +26,11 @@ const ObolsSection = ({ lastUpdated, resultsOnly }) => {
       <Box sx={{ p: 2 }}><Notice>This snapshot has no obols: save a new one to compare them.</Notice></Box>
     </Section>;
   }
-  return <Section title={'Obols'} info={'Identical items are combined and their amounts summed.'}>
+  const hours = elapsedHours(lastUpdated, snapshottedAcc?.snapshotTime);
+  return <Section title={'Obols'} info={'Identical items are combined and their amounts summed. Obol Fragments count every source: auto trash, trashing by hand and the arcade.'}>
+    <CounterTable hours={hours} resultsOnly={resultsOnly} rows={[
+      { ...counter('Obol Fragments', snapshottedAcc?.currencies?.ObolFragments, state?.account?.currencies?.ObolFragments), icon: 'data/ObolFrag.png' }
+    ]}/>
     <Stack direction={'row'} flexWrap={'wrap'} gap={3} sx={{ p: 2 }}>
       {!resultsOnly ? <>
         <SectionGroup label={'Snapshot'}>
@@ -37,7 +41,7 @@ const ObolsSection = ({ lastUpdated, resultsOnly }) => {
         </SectionGroup>}
       </> : null}
       <SectionGroup label={'Gained'}>
-        {difference.length ? <Inventory asc inventory={difference} amountKey={'difference'} ratesKnown={Boolean(elapsedHours(lastUpdated, snapshottedAcc?.snapshotTime))}/>
+        {difference.length ? <Inventory asc inventory={difference} amountKey={'difference'} ratesKnown={Boolean(hours)}/>
           : <Typography variant={'body2'} color={'text.secondary'}>
             {failed ? 'Obols failed to load, so there is nothing to compare.' : 'No obol has gone up since the snapshot.'}
           </Typography>}

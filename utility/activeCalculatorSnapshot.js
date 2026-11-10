@@ -15,6 +15,7 @@ export const toAccountSnapshot = (account) => ({
     clearingMaps: account?.royalGuardian?.clearingMaps
   },
   obols: { inventory: account?.obols?.inventory },
+  currencies: { ObolFragments: account?.currencies?.ObolFragments },
   breeding: { fencePets: account?.breeding?.fencePets }
 });
 
