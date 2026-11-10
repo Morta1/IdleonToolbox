@@ -9,8 +9,7 @@ import {
   getDeathNoteRank,
   MINI_BOSS_DEATH_NOTE_RANKS
 } from '@parsers/world-3/deathNote';
-import { cleanUnderscore, formatNum, worlds } from 'utility/helpers';
-import { formatGame } from '@utility/gameNotation';
+import { cleanUnderscore, formatNum, notateNumber, worlds } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import DataTable from '@components/common/DataTable';
@@ -23,7 +22,7 @@ import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 
 const DEATH_NOTE_TOOLBAR = { search: '', world: 'all' };
-// A world's table at its narrowest with no scrollbar (name, a 13-digit kill count, the rank skull): four to a row on a 1920
+// A world's table at its narrowest with no scrollbar (name, a short kill count, the rank skull): four to a row on a 1920
 // window's 1,265 px page
 const WORLD_TABLE_MIN = 292;
 // The world's name is the table's title, in its own case: in capitals "Frostbite Tundra" broke in two, so heads in one row
@@ -71,7 +70,8 @@ const RANK_LEGEND = <Stack gap={1}>
 const columnsOf = (world) => [
   { key: 'monster', label: world, value: (mob) => cleanUnderscore(mob.displayName) },
   { key: 'kills', label: 'Kills', numeric: true, sortable: true, phone: true, value: (mob) => mob.kills,
-    render: (mob) => formatGame(mob.kills, 'Save.DeathNoteKills', { whole: true }) },
+    // In short form as the page always printed them (124K, 2.5B, 4.2QQ), not the game's own 4,200,000T
+    render: (mob) => notateNumber(mob.kills, 'Big') },
   {
     // On the phone row too, beside the kills: the name and two short cells fit 336 px
     key: 'rank', label: 'Rank', numeric: true, sortable: true, phone: true, info: RANK_LEGEND, value: (mob) => mob.noteRank,

@@ -67,10 +67,10 @@ const Farming = () => {
   // A character with the chip and Cropiovo Minor counts it whatever the setting
   const enableNano = hasNanoAndGordonius() || Boolean(settings?.forceNano);
 
-  // Past a billion the game prints the trade short ("2.5T"); the i keeps every digit, which players track (#87)
+  // Past a billion the game prints the trade short ("2.5T"); its drawer totals every digit, which players track (#87)
   const beanTradeAmount = Math.round(beanTrade ?? 0);
   const beanTradeText = formatGame(beanTradeAmount, 'FarmingStuffs.BeanTradeQTY');
-  const beanTradeExact = formatNum(beanTradeAmount, 'exact');
+  const beanTradeBreakdown = stats?.magicBean ? { ...stats.magicBean, totalValue: formatNum(beanTradeAmount, 'exact') } : undefined;
 
   const farmingExp = getSkillExpMulti('farming', selectedCharacter, characters, account);
   const farmingExpText = farmingExp?.value > 0 ? `${formatGame(farmingExp.value, 'FarmingStuffs.FarmingEXP')}x` : formatNum(farmingExp?.value, 'mult');
@@ -109,8 +109,7 @@ const Farming = () => {
     <PageSummary failed={sectionFailed}>
       {/* breakdownTitle: the drawer takes the tile's name; the breakdown's own stays its link and pin key */}
       <StatTile label={'Bean Trade'} icon={'data/Quest80_x1.png'} value={beanTradeText}
-                info={beanTradeText !== beanTradeExact ? `${beanTradeExact} magic beans` : undefined}
-                breakdown={stats?.magicBean} breakdownTitle={'Bean Trade'}/>
+                breakdown={beanTradeBreakdown} breakdownTitle={'Bean Trade'}/>
       <StatTile label={'Insta Grow'} value={instaGrow ?? 0} kind={'amount'}/>
       <StatTile label={'Rank points'} value={`${formatNum(usedPoints ?? 0)} / ${formatNum(totalPoints ?? 0)}`}/>
       <StatTile label={'Crops found'} value={farming?.cropsFound ?? 0} kind={'amount'}/>

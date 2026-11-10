@@ -8,7 +8,10 @@ export const patchNotes = [
     'ver': '4.0.5',
     'gameVer': '2.3.561',
     'date': '11/11/2026',
-    'features': [],
+    'features': [
+      'Death Note: kill counts show in short form again (K, B, T, Q, QQ)',
+      'Farming: pressing Bean Trade shows the full bean amount'
+    ],
     'fixes': [
       'Tournament: opponent and leaderboard team power and win chances show as a range, since Pet Mart+ upgrades of other players are not in the game data'
     ]
