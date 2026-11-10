@@ -792,7 +792,13 @@ export const baseTrackers = {
       jellyOperator: {
         checked: true,
         options: [
-          { name: 'operationsLeft', checked: true, helperText: 'Alert when you have Jelly operations left for today' },
+          {
+            name: 'operationsLeft',
+            type: 'input',
+            checked: true,
+            helperText: 'Alert when you have at least this many Jelly operations left for today',
+            props: { label: 'Min operations', value: 1, minValue: 1, helperText: '' }
+          },
           { name: 'slotsToBuy', checked: true, helperText: 'Alert when you can unlock more Jelly slots' },
           { name: 'emptySlots', checked: true, helperText: 'Alert when open Jelly slots have no cell on them' },
           { name: 'virusesUnplaced', checked: true, helperText: 'Alert when you can place more Viruses' }

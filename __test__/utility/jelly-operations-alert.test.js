@@ -37,8 +37,11 @@ const account = ({
 const jellyAlerts = (acc, opts = allOn) => getWorld7Alerts(acc, fields, opts, [])?.jellyOperator;
 
 describe('jelly operator alerts', () => {
-  it('flags unused daily operations', () => {
+  it('flags unused daily operations from the minimum up', () => {
     expect(jellyAlerts(account({ operationsLeft: 1, dailyOperations: 3 }))?.operationsLeft).toEqual({ left: 1, max: 3 });
+    const min3 = { jellyOperator: { ...allOn.jellyOperator, operationsLeft: { name: 'operationsLeft', checked: true, props: { value: 3 } } } };
+    expect(jellyAlerts(account({ operationsLeft: 2, dailyOperations: 6 }), min3)).toBeUndefined();
+    expect(jellyAlerts(account({ operationsLeft: 3, dailyOperations: 6 }), min3)?.operationsLeft).toEqual({ left: 3, max: 6 });
   });
 
   it('flags slots waiting to be unlocked', () => {

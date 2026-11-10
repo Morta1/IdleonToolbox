@@ -2144,7 +2144,8 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
   if (fields?.jellyOperator?.checked && account?.jellyOperator?.unlocked) {
     const jelly = account.jellyOperator;
     const jellyOperator = {};
-    if (options?.jellyOperator?.operationsLeft?.checked && jelly.operationsLeft > 0) {
+    const minOperations = Math.max(1, Number(options?.jellyOperator?.operationsLeft?.props?.value) || 1);
+    if (options?.jellyOperator?.operationsLeft?.checked && jelly.operationsLeft >= minOperations) {
       jellyOperator.operationsLeft = { left: jelly.operationsLeft, max: jelly.dailyOperations };
     }
     if (options?.jellyOperator?.slotsToBuy?.checked && jelly.slotPurchasesLeft > 0) {

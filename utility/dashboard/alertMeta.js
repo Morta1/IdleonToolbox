@@ -931,7 +931,10 @@ export const alertMeta = {
     icon: 'data/JellyUnit0',
     page: { pathname: '/account/world-7/jelly-operator' },
     options: {
-      operationsLeft: { label: 'Operations left today' },
+      operationsLeft: {
+        label: 'Operations left today',
+        help: 'Alerts when at least this many operations are unused. Unused operations are lost at the daily reset.'
+      },
       slotsToBuy: { label: 'Slots you can unlock' },
       emptySlots: { label: 'Open slots with no cell' },
       virusesUnplaced: { label: 'Viruses you can place' }
