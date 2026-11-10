@@ -35,12 +35,24 @@ pre-4.0 build), for finding pages that spend more room than they did.
 ## Suite size
 
 On 2026-11-07, after two sweeps: vitest 7,099 tests, 53 s on 10 workers; e2e 607 tests, 253 s on 4.
+On 2026-11-10, after a third: vitest 5,918 tests in about 65 s; e2e about 42 fewer, not timed again.
 A plan's close states its counts and full-run times beside these, and a jump needs a reason. No fixed cap: the count alone
 misleads, since folding thousands of rows saved seconds while reusing parses and renders saved the time.
 
 ## Writing vitest tests
 
-The suite was trimmed by ~780 redundant cases on 2026-10-11 and ~4,700 on 2026-11-07; don't regrow them.
+The suite was trimmed by ~780 redundant cases on 2026-10-11, ~4,700 on 2026-11-07 and ~1,200 on 2026-11-10; don't regrow
+them.
+- **A table row needs its own code.** Before adding a row to a `GAME` table or an `it.each`, find the branch, band or
+  per-index entry it alone reaches. A row that differs only by index through one formula is a repeat, and one zero or
+  not-owned row per table is enough.
+- **No mirrors.** A test that retypes a descriptor's or registry entry's own expression (`row.level ?? 0`) compares the
+  code with itself. Pin a literal read from a fixture, or leave it to the registry sweep.
+- **No styling pins in component tests.** No MUI class names, computed px values or emotion style text: jsdom has no
+  layout, so they break on a harmless tweak and prove nothing. Layout belongs to the browser tests and the screens.
+- **Shared inputs load through a helper.** Saves through `parseFixture`, website data and the entity graph through
+  `helpers/wiki-data.js` (frozen: a file that changes them takes `freshEntityGraph`). A direct `parseData`,
+  `loadWebsiteData` or graph `JSON.parse` in a test file is a cache miss on every run.
 - **Search before adding.** Grep `__test__/` for the function under test. If another file already asserts the
   same function on the same fixture, extend that test instead of starting a new one.
 - **A sweep is one test per rule.** A rule over a derived list (a registry, every table, every save) goes through
@@ -57,7 +69,8 @@ The suite was trimmed by ~780 redundant cases on 2026-10-11 and ~4,700 on 2026-1
 - **Account-wide sweeps already exist; don't repeat them per stat or section:**
   - `breakdown-totals.test.js` rebuilds every breakdown on every fixture/character and checks for NaN lines.
     A new breakdown only needs registering in `__test__/helpers/breakdown-totals.js`, not its own rebuild test.
-  - `nan-elimination.test.js` gates NaN/Infinity across the whole parsed tree; per-field `isFinite` tests are redundant.
+  - `nan-elimination.test.js` gates NaN/Infinity across the whole parsed tree, and that no section fails on a real
+    save; per-field `isFinite` and per-section "does not throw" tests are redundant.
   - `empty-account.test.js` / `null-fallback-shape.test.js` own the logged-out shape.
 - **Live-verified values:** one `live-verified-*.test.js` per game system; a new reading from the same DNSM
   table goes into that file's existing `GAME` table, not a new file. A row is a number the game's logic computes,
