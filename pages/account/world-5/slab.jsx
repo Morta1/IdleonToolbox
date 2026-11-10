@@ -1,6 +1,6 @@
 import { AppContext } from '@components/common/context/AppProvider';
 import React, { useContext, useState } from 'react';
-import { Stack, Typography } from '@mui/material';
+import { Link, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
 import { getSlabBonus } from '@parsers/world-5/sailing';
@@ -14,6 +14,7 @@ import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 import ItemCard from '@components/common/cards/ItemCard';
 import { SharedNote } from '@components/common/InfoButton';
+import { openItemWikiPage } from '@utility/wiki/item-page';
 
 const SLAB_TOOLBAR = { search: '', show: 'missing' };
 const UNREALISTIC_NOTE = 'Items you can loot but not reasonably greenstack: one-off quest rewards, shop items with a daily stock of 1 to 30, gem shop only items and event boxes. They stay out of Missing greenstacks and the greenstack total, unless you have greenstacked one.';
@@ -73,6 +74,12 @@ const SlabNote = ({ item }) => <Stack gap={1}>
       item.unobtainable ? ['Unobtainable', 'Yes'] : null
     ]}/>
   </ItemCard.Section>
+  {/* The dungeon RNG boxes are the only Slab items the wiki has no page for */}
+  {item.rawName?.startsWith('DungRNG') ? null : <Link component={'button'} type={'button'} variant={'body2'}
+                                                      onClick={() => openItemWikiPage(item.rawName)}
+                                                      sx={{ alignSelf: 'flex-start' }}>
+    Open wiki page
+  </Link>}
 </Stack>;
 
 const Slab = () => {
