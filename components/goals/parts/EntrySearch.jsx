@@ -55,10 +55,13 @@ const EntrySearch = ({ descriptor, rows, value, goalKeys, onChange, error }) => 
       renderOption={({ key, ...props }, row) => (
         <Box component="li" key={key} {...props} sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
           <EntryIcon src={descriptor.icon(row)} alt=""/>
-          {descriptor.name(row)}
-          {descriptor.entryTag?.(row) ? (
-            <Typography component="span" variant="caption" color="text.secondary">{descriptor.entryTag(row)}</Typography>
-          ) : null}
+          {/* The smaller tag shares the name's baseline; centring them leaves it riding high */}
+          <Box component="span" sx={{ display: 'flex', alignItems: 'baseline', gap: 1 }}>
+            {descriptor.name(row)}
+            {descriptor.entryTag?.(row) ? (
+              <Typography component="span" variant="caption" color="text.secondary">{descriptor.entryTag(row)}</Typography>
+            ) : null}
+          </Box>
           {goalKeys?.has(String(descriptor.key(row))) ? (
             <Typography component="span" variant="caption" color="text.secondary" sx={{ ml: 'auto', flexShrink: 0 }}>
               Has a goal

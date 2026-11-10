@@ -27,7 +27,8 @@ export const patchNotes = [
       'Farming: a crop family\'s max time under a second shows in milliseconds again instead of "<1s"',
       'Sneaking upgrades were missing their Jade coin cost',
       'Sneaking: the Detection tab explains that target detection is the chance to get caught, lower is better',
-      'Hole: Lamp wishes show how many times each wish was made'
+      'Hole: Lamp wishes show how many times each wish was made',
+      'Goals: Research is now marked Global and its goals are for the whole account'
     ]
   },
   {
