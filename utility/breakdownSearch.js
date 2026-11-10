@@ -62,13 +62,20 @@ const ENTRIES = [
   { statName: 'Tangled Cords per hour', url: '/account/world-1/anvil' },
   { statName: 'PVC Pipe per hour', url: '/account/world-1/anvil' },
   { statName: 'Storage Slots', url: '/account/misc/storage', query: { t: 'Slots' } },
+  { statName: 'Library Checkout Time', label: 'Library checkout time', aliases: ['books'], url: '/account/misc/general' },
+  { statName: 'Giant mob chance', aliases: ['giant'], url: '/account/misc/general' },
 
   { statName: 'Upgradeable Bubbles', label: 'Bubbles that will upgrade', url: '/account/world-2/bubbles' },
   { statName: 'Prisma multi', url: '/account/world-2/bubbles' },
+  { statName: 'Future bubbles', url: '/account/world-2/bubbles' },
+  { statName: 'Kruk Bubbles Daily', label: 'Kattlekruk levels per day', aliases: ['kruk'], url: '/account/world-2/bubbles' },
   { statName: 'Power brew speed', label: 'Power cauldron brew speed', url: '/account/world-2/cauldrons' },
   { statName: 'Quicc brew speed', label: 'Quicc cauldron brew speed', url: '/account/world-2/cauldrons' },
   { statName: 'High-IQ brew speed', label: 'High-IQ cauldron brew speed', url: '/account/world-2/cauldrons' },
   { statName: 'Kazam brew speed', label: 'Kazam cauldron brew speed', url: '/account/world-2/cauldrons' },
+  ...['Water Drops', 'Liquid N2', 'Trench H2O', 'Toxic Hg'].map((liquid) => ({
+    statName: `${liquid} capacity`, label: `${liquid} cauldron capacity`, aliases: ['liquid cauldron'], url: '/account/world-2/cauldrons'
+  })),
   { statName: 'Vial bonus', aliases: ['vial multi'], url: '/account/world-2/vials' },
   { statName: 'Sigil Speed', url: '/account/world-2/sigils' },
   { statName: 'Gold ball multi', url: '/account/world-2/arcade-shop' },
@@ -79,6 +86,7 @@ const ENTRIES = [
   { statName: 'Combustion cycle time', url: '/account/world-3/refinery' },
   { statName: 'Synthesis cycle time', url: '/account/world-3/refinery' },
   { statName: 'Polymerize cycle time', url: '/account/world-3/refinery' },
+  { statName: 'Max safe rank', url: '/account/world-3/refinery', scope: 'per salt' },
   { statName: 'Critter Collect Rates', url: '/account/world-3/traps', scope: 'per character' },
   { statName: 'Shiny Critter Chance', url: '/account/world-3/traps', scope: 'per character' },
   { statName: 'Equinox fill rate', url: '/account/world-3/equinox' },
@@ -89,9 +97,11 @@ const ENTRIES = [
     scope: 'per kitchen' },
   { statName: 'Fire speed', url: '/account/world-4/cooking', query: { t: 'Kitchens' }, scope: 'per kitchen' },
   { statName: 'Ribbons per day', url: '/account/world-4/cooking', query: { t: 'Ribbons' } },
+  { statName: 'Average daily ribbon rank', url: '/account/world-4/cooking', query: { t: 'Ribbons' } },
   { statName: 'Cooking Mastery EXP rate', url: '/account/world-4/cooking', query: { t: 'Mastery' } },
   { statName: 'Breedability multi', url: '/account/world-4/breeding', query: { t: 'Mobs', nt: 'Breedability' } },
   { statName: 'Shiny level multiplier', url: '/account/world-4/breeding', query: { t: 'Mobs', nt: 'Shinies' } },
+  { statName: 'Egg power range', url: '/account/world-4/breeding' },
 
   { statName: 'Loot multi', url: '/account/world-5/sailing', query: { t: 'Boats and Captains' } },
   { statName: 'Minimum Travel Time', url: '/account/world-5/sailing',
@@ -100,7 +110,23 @@ const ENTRIES = [
     scope: 'per boat' },
   { statName: 'Bit multi', url: '/account/world-5/gaming' },
   { statName: 'Palette Luck', url: '/account/world-5/gaming', query: { t: 'Palette' } },
+  { statName: 'New mutation chance', url: '/account/world-5/gaming', query: { t: 'Mutations' } },
   { statName: 'Villager EXP / hr', label: 'Villager EXP per hour', url: '/account/world-5/hole', scope: 'per villager' },
+  { statName: 'Monument Afk bonus', label: 'Monument AFK gain', aliases: ['afk bonus'], url: '/account/world-5/hole' },
+  { statName: 'Monument AFK Hours Req', label: 'Monument AFK hours needed', url: '/account/world-5/hole',
+    query: { t: 'Explore', nt: 'Wisdom' }, scope: 'per monument' },
+  { statName: 'Enemy HP', label: 'Bravery enemy HP', url: '/account/world-5/hole', query: { t: 'Explore', nt: 'Bravery' } },
+  ...['Ring', 'Ping', 'Clean', 'Renew'].map((bell) => ({
+    statName: `${bell} exp rate`, label: `${bell} bell EXP rate`, url: '/account/world-5/hole',
+    query: { t: 'Explore', nt: 'The bell' }
+  })),
+  { statName: 'Progress per hour', label: 'Jar progress per hour', url: '/account/world-5/hole',
+    query: { t: 'Explore', nt: 'The Jars' } },
+  { statName: 'Rupie value', url: '/account/world-5/hole', query: { t: 'Explore', nt: 'The Jars' } },
+  { statName: 'Extra rupie chance', url: '/account/world-5/hole', query: { t: 'Explore', nt: 'The Jars' } },
+  { statName: 'Enchant chance', label: 'Jar enchant chance', url: '/account/world-5/hole',
+    query: { t: 'Explore', nt: 'The Jars', dnt: 'Jars' }, scope: 'per jar' },
+  { statName: 'Extra torch chance', url: '/account/world-5/hole', query: { t: 'Explore', nt: 'The Temple' } },
 
   { statName: 'Growth Speed', url: '/account/world-6/farming' },
   { statName: 'OG Chance Multiplier', url: '/account/world-6/farming' },
@@ -108,11 +134,16 @@ const ENTRIES = [
   { statName: 'Crops on Vine', url: '/account/world-6/farming' },
   { statName: 'Crop Value', url: '/account/world-6/farming' },
   { statName: 'Magic Bean Trade', url: '/account/world-6/farming' },
+  { statName: 'Golden Food Bonus', aliases: ['gfood'], url: '/account/world-6/beanstalk' },
   { statName: 'Items max level', url: '/account/world-6/sneaking' },
   { statName: 'Stealth', url: '/account/world-6/sneaking',
     query: { t: 'Detection' }, scope: 'per ninja' },
   { statName: 'White essence per hour', url: '/account/world-6/summoning' },
+  { statName: 'Familiar levels', url: '/account/world-6/summoning' },
+  { statName: 'Boss HP', label: 'Summoning stone boss HP', url: '/account/world-6/summoning', query: { t: 'Stones' },
+    scope: 'per stone' },
   { statName: 'Bonus Multi', label: 'Emperor bonus multi', url: '/account/world-6/emperor' },
+  { statName: 'Boss HP', label: 'Emperor boss HP', url: '/account/world-6/emperor' },
 
   { statName: 'Spelunking Efficiency', url: '/account/world-7/spelunking' },
   { statName: 'Power', label: 'Spelunking POW', aliases: ['pow', 'power'], url: '/account/world-7/spelunking' },
@@ -125,11 +156,20 @@ const ENTRIES = [
   { statName: 'Currency / hr', label: 'Minehead currency per hour', url: '/account/world-7/minehead' },
   { statName: 'Bloodcell Multi', url: '/account/world-7/jelly-operator' },
   { statName: 'Lumi per hour', url: '/account/world-7/menagerie' },
+  { statName: 'Clusters in inventories', label: 'Zenith clusters in inventories', url: '/account/world-7/zenith-market' },
+  { statName: 'Spark multi', url: '/account/world-7/sushi-station' },
+  { statName: 'Overtuned multi', url: '/account/world-7/sushi-station' },
 
   { statName: 'Extra Dust', url: '/account/class-specific/compass', scope: 'per character' },
   { statName: 'Extra Tachyon', url: '/account/class-specific/tesseract', scope: 'per character' },
+  { statName: 'Extra Bones', url: '/account/class-specific/grimoire', scope: 'per character' },
+  { statName: 'Marble chance', url: '/account/class-specific/royal-armory' },
   { statName: 'Portal progress per kill', url: '/account/class-specific/speedrun' },
-  { statName: 'Vault cost reduction', url: '/account/misc/upgrade-vault' }
+  { statName: 'Vault cost reduction', url: '/account/misc/upgrade-vault' },
+  { statName: 'Printer Multiplier', aliases: ['printer multi'], url: '/tools/formulas' },
+  { statName: 'Crop evolution chance', url: '/tools/formulas', scope: 'per character' },
+  { statName: 'Double Statue Drop Chance', url: '/tools/formulas', scope: 'per character' },
+  { statName: 'Double Golden Food Drop Chance', url: '/tools/formulas', scope: 'per character' }
 ];
 
 // Sentence case, keeping acronyms (EXP, AFK, OG, POW...) and the game's capitalised first word
@@ -137,4 +177,5 @@ const sentenceCase = (text) => text.split(' ')
   .map((word, index) => index === 0 || word === word.toUpperCase() ? word : word.toLowerCase())
   .join(' ');
 
-export const BREAKDOWN_SEARCH = ENTRIES.map((entry) => ({ ...entry, label: sentenceCase(entry.label ?? entry.statName) }));
+// A hand label is kept as written (Toxic Hg)
+export const BREAKDOWN_SEARCH = ENTRIES.map((entry) => ({ ...entry, label: entry.label ?? sentenceCase(entry.statName) }));

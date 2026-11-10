@@ -29,8 +29,8 @@ const COLUMNS = [
     render: expText,
     // The drawer is named for its totem and headed with the cell's text
     wrap: withBreakdown((totem) => (totem?.expReward?.breakdown
-      ? { ...totem.expReward.breakdown, statName: `${totemName(totem)} EXP per wave`, totalValue: expText(totem) }
-      : undefined))
+      ? { ...totem.expReward.breakdown, totalValue: expText(totem) }
+      : undefined), (totem) => `${totemName(totem)} EXP per wave`)
   },
   {
     key: 'expPerCharge', label: 'EXP per charge', numeric: true,

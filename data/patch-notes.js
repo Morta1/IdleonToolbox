@@ -33,7 +33,8 @@ export const patchNotes = [
       'Goals: Character level goals skip the extra pick, there is only one entry',
       'Arcade Shop: Cosmic balls now use their game name instead of Royal balls',
       'World 5 Gaming: King Rat shows the crown chance the way the game does (1 in N), instead of a capped 100%',
-      'Laboratory: characters past the 10th now show in Players in the lab'
+      'Laboratory: characters past the 10th now show in Players in the lab',
+      'Search: about 30 more stat breakdowns now show up in search results, including Monument AFK gain and Extra Bones'
     ]
   },
   {
