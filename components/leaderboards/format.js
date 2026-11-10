@@ -32,7 +32,9 @@ export const showsFailure = (query) => query.isError || (query.isFetching && que
 // A ranking's values, in the site's rule: below 1M the decimals a value has (formatNum), from 1M up the short form, with
 // the fewest digits that still tell neighbours apart (formatDistinctValues): the amount kind's Big rule rounds up, so
 // 56,831,731 and 56,849,000 would both read 56.9M. A multiplier ends in x and points in pts, as the site writes them.
-const unitOf = (notation) => (notation === 'points' ? ' pts' : notation === 'multiplier' ? 'x' : '');
+const unitOf = (notation) => (notation === 'points' ? ' pts' : notation === 'multiplier' ? 'x' : notation === 'seconds' ? ' Sec' : '');
+// A seconds board stores per-hour rates so the fastest ranks first; every text turns the rate back into seconds.
+const shownOf = (notation, value) => (notation === 'seconds' && value > 0 ? 3600 / value : value);
 // Past QQ a value reads as a power of ten.
 const SCIENTIFIC_FROM = 1e21;
 // Below this a value's exact form lists four decimals: a note still tells 8.6708 from 8.6656.
@@ -78,6 +80,7 @@ const dropZeros = (text, count = trailingZeros(text)) => (count
 // One value's digits, without its unit. A board that reaches E notation uses it for every value from a million up.
 // `decimals` forces that many on a full value (a group of rows that must line up).
 const digitsOf = (notation, value, { scale, precision = 3, decimals } = {}) => {
+  if (notation === 'seconds' && value > 0 && value < 1) return formatNum(value, 'amount', { significant: precision });
   if (isFull(value)) {
     if (notation === 'points') return formatNum(value, 'amount', { decimals: decimals ?? 2 });
     return formatNum(value, notation === 'multiplier' ? 'mult' : 'amount', { decimals, bare: true });
@@ -86,7 +89,7 @@ const digitsOf = (notation, value, { scale, precision = 3, decimals } = {}) => {
 };
 
 export const formatMetricValue = (notation, raw, options = {}) => {
-  const value = numeric(raw);
+  const value = shownOf(notation, numeric(raw));
   if (!Number.isFinite(value)) return '-';
   const digits = digitsOf(notation, value, options);
   return `${isFull(value) ? digits : dropZeros(digits)}${unitOf(notation)}`;
@@ -124,7 +127,7 @@ const distinctDigits = (notation, values, scale, minDecimals = 0) => {
 
 // A value that isn't a number reads "-" and takes no part in the group.
 export const formatDistinctValues = (notation, raws, { scale, decimals } = {}) => {
-  const values = raws.map(numeric);
+  const values = raws.map((raw) => shownOf(notation, numeric(raw)));
   const texts = distinctDigits(notation, values.filter(Number.isFinite), scale, decimals);
   let at = 0;
   return values.map((value) => (Number.isFinite(value) ? texts[at++] : '-'));
@@ -134,13 +137,13 @@ export const formatDistinctValues = (notation, raws, { scale, decimals } = {}) =
 // full value on the board shows the most decimals any group took, so 10,994.10 reads one way beside 11,624.60.
 export const formatBoardValues = (notation, groups, { scale } = {}) => {
   const texts = groups.map((raws) => formatDistinctValues(notation, raws, { scale }));
-  const decimals = Math.max(0, ...groups.flatMap((raws, group) => raws.map((raw, row) => (isFull(numeric(raw)) ? decimalsOf(texts[group][row]) : 0))));
+  const decimals = Math.max(0, ...groups.flatMap((raws, group) => raws.map((raw, row) => (isFull(shownOf(notation, numeric(raw))) ? decimalsOf(texts[group][row]) : 0))));
   return decimals ? groups.map((raws) => formatDistinctValues(notation, raws, { scale, decimals })) : texts;
 };
 
 // Every digit a value has, for the note behind a short one.
 export const formatExactValue = (notation, raw) => {
-  const value = numeric(raw);
+  const value = shownOf(notation, numeric(raw));
   if (!Number.isFinite(value)) return '-';
   const abs = Math.abs(value);
   if (abs >= EXACT_BELOW) return `${value.toExponential(5).replace('e+', 'e')}${unitOf(notation)}`;
@@ -167,6 +170,12 @@ export const formatStep = (notation, diff, { scale } = {}) => {
   }
   if (notation === 'multiplier') return `${formatNum(ceilDecimals(diff, 2), 'amount', { decimals: 2 })}${unit}`;
   return formatNum(ceilDecimals(diff, 2));
+};
+
+// The gap from a value to the one above it, as "+X" (or "-X Sec" on a seconds board, where the faster time is lower).
+export const formatGap = (notation, from, to, options = {}) => {
+  if (notation !== 'seconds') return `+${formatStep(notation, numeric(to) - numeric(from), options)}`;
+  return `-${formatStep('default', shownOf(notation, numeric(from)) - shownOf(notation, numeric(to)))}${unitOf(notation)}`;
 };
 
 const GLOBAL_META = { key: GLOBAL_METRIC, label: 'Global ranking', section: '', notation: 'points', category: null };

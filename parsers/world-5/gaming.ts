@@ -129,16 +129,6 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
     }
   }).filter(({ boxName }) => !boxName.includes('Empty_Box'));
 
-  const fertilizerUpgrades = gamingRaw?.slice(1, gamingUpgrades?.length + 1)?.map((level: any, index: any) => {
-    const bonus = calcFertilizerBonus(index, gamingRaw, gamingSproutRaw, characters, account, acornShop, imports);
-    return {
-      ...gamingUpgrades?.[index],
-      level,
-      bonus,
-      description: gamingUpgrades?.[index]?.description.replace(/{/, String(bonus)),
-      cost: calcFertilizerCost(index, gamingRaw, serverVars)
-    }
-  });
   const availableDrops = getDropsAmount(gamingSproutRaw?.[25]?.[1], imports);
   const superbitsUnlocks = gamingRaw?.[12] || [];
   const superbitsUpg = superbitsUpgrades?.map((upgrade, index) => ({
@@ -165,6 +155,17 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
 
   const ratKing = calcRatKing(gamingSproutRaw, researchRaw, account, superbitsUpg);
   const { palette, paletteFinalBonus, paletteLuck } = getPalette(account, ratKing, spelunkRaw, characters);
+  const sproutGrowSeconds = calcSproutGrowSeconds(gamingRaw, gamingSproutRaw, characters, account, acornShop, palette);
+  const fertilizerUpgrades = gamingRaw?.slice(1, gamingUpgrades?.length + 1)?.map((level: any, index: any) => {
+    const bonus = calcFertilizerBonus(index, gamingRaw, sproutGrowSeconds, account);
+    return {
+      ...gamingUpgrades?.[index],
+      level,
+      bonus,
+      description: gamingUpgrades?.[index]?.description.replace(/{/, String(bonus)),
+      cost: calcFertilizerCost(index, gamingRaw, serverVars)
+    }
+  });
 
   return {
     palette,
@@ -184,6 +185,7 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
     availableSprouts,
     availableDrops,
     sproutsCapacity: fertilizerUpgrades?.[2]?.bonus,
+    sproutGrowSeconds,
     imports,
     lastShovelClicked,
     goldNuggets,
@@ -518,21 +520,13 @@ const calcImportCost = (index: any, gamingImportsValues: any) => {
     Math.pow(10, gamingImports?.[index]?.x2)) / 4 * Math.pow(1.4, gamingImportsValues?.[index]?.[0]);
 }
 
-const calcFertilizerBonus = (index: any, gamingRaw: any, gamingSproutRaw: any, characters: any, account: any, acornShop: any, imports: any) => {
+const calcFertilizerBonus = (index: any, gamingRaw: any, sproutGrowSeconds: number, account: any) => {
   if (index === 0) {
     const baseValue = gamingRaw?.[1];
     return gameFill((1 + 4 * baseValue) * Math.pow(1.065, baseValue), 'Bits');
   }
   else if (index === 1) {
-    const baseValue = gamingRaw?.[2];
-    const godBonus = getAccountMinorDivinityBonus(account, characters, GOD_INDEX.Purrmep);
-    const baseMath = 1 + (acornShop?.[1]?.bonus + godBonus) / 100;
-    const moreMath = 3 + imports?.[4]?.level / 100;
-    const baseValue2 = gamingSproutRaw?.[29]?.[1];
-    const growTime = 5e3 / ((1 + (2 * baseValue) / 100) * baseMath * (1 + moreMath * (baseValue2)));
-    const growChance = 1 / calcSproutGrowChance(gamingRaw);
-    const final = (growTime * growChance) / 60;
-    const time = 100 * final / 100;
+    const time = sproutGrowSeconds / 60;
     // game: 60 < x reads Hr, 1 < x reads Min, anything else Sec (the fertilizer panel)
     if (time > 60) return `${gameFill(time / 60, 'Small')} Hr`;
     if (time > 1) return `${gameFill(time, 'Small')} Min`;
@@ -543,6 +537,21 @@ const calcFertilizerBonus = (index: any, gamingRaw: any, gamingSproutRaw: any, c
     const maxSprouts = account?.gemShopPurchases?.find((value: any, index: any) => index === 133) ?? 0;
     return gameFill(Math.round(Math.min(24, 3 + baseValue + (maxSprouts))), 'Big', { whole: true });
   }
+}
+
+// Sprout Speed: seconds per growth cycle, SproutGrowthTime * (1 / SproutGrowthCHANCE(-1)).
+// OptionsListAccount[411] is the gaming toggle that makes sprouts grow 100x slower for 100x bits.
+const calcSproutGrowSeconds = (gamingRaw: any, gamingSproutRaw: any, characters: any, account: any, acornShop: any, palette: any) => {
+  const toggle = Number(account?.accountOptions?.[411]) || 0;
+  const godBonus = getAccountMinorDivinityBonus(account, characters, GOD_INDEX.Purrmep);
+  const growTime = 5e3 * (1 + 99 * toggle) / ((1 + (2 * (gamingRaw?.[2] ?? 0)) / 100)
+    * (1 + (palette?.[8]?.bonus ?? 0) / 100)
+    * (1 + (palette?.[11]?.bonus ?? 0) / 100)
+    * (1 + ((acornShop?.[1]?.bonus ?? 0) + godBonus) / 100)
+    * (1 + (3 + Math.round(gamingSproutRaw?.[29]?.[0] ?? 0) / 100) * (gamingSproutRaw?.[29]?.[1] ?? 0)));
+  const cropEvoMulti = Math.max(1, account?.farming?.cropDepot?.gamingEvo?.value ?? 0);
+  const growChance = Math.min(1, calcSproutGrowChance(gamingRaw) * cropEvoMulti);
+  return growTime / growChance;
 }
 
 const calcSproutGrowChance = (gamingRaw: any) => {

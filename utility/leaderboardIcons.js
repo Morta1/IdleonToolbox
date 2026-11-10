@@ -71,6 +71,7 @@ const METRIC_ICONS = {
   mp: 'data/UISkillIcon1',
   nulloSaltRank: 'data/Refinery6',
   plantsPicked: 'data/FarmPlant6',
+  sproutSpeed: 'data/GamingFert',
   postOfficeOrders: 'data/DeliveryBox',
   propagatedSaltRank: 'data/Refinery8',
   purpleSaltRank: 'data/Refinery5',

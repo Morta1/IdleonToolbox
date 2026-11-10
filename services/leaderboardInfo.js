@@ -49,9 +49,13 @@ export const expandLeaderboardInfo = (account, characters) => {
     cashMulti: withDefault(cashMulti),
     highestSpelunkingPower: withDefault(account?.spelunking?.power?.value),
     ...outpostInfo(account?.royalGuardian?.outposts),
-    highestArcaneMapMulti: highestArcaneMapMulti(arcaneMaps(account, characters))
+    highestArcaneMapMulti: highestArcaneMapMulti(arcaneMaps(account, characters)),
+    sproutSpeed: sproutCyclesPerHour(account?.gaming)
   }
 }
+
+// Sprout Speed ranks fastest first, so the board stores growth cycles per hour; the site shows it as seconds again.
+const sproutCyclesPerHour = (gaming) => (gaming?.unlocked && gaming?.sproutGrowSeconds > 0 ? 3600 / gaming.sproutGrowSeconds : 0);
 
 // getMaps destructures account.tesseract, so an account without it gets no maps.
 const arcaneMaps = (account, characters) => {

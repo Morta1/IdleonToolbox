@@ -6,7 +6,7 @@ import AppDrawer from '@components/common/Overlays/AppDrawer';
 import Notice, { retryAction } from '@components/common/Notice';
 import { formatNum } from '@utility/helpers';
 import { fetchBoard } from '../../services/leaderboards';
-import { GLOBAL_METRIC, formatBoardValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, showsFailure, staleUntilNextRun } from './format';
+import { GLOBAL_METRIC, formatBoardValues, formatExactValue, formatGap, formatMetricValue, metaOf, rankText, showsFailure, staleUntilNextRun } from './format';
 import { focusWithinRing } from '../../styles/theme/theme';
 import MetricIcon from './MetricIcon';
 import RankRow from './RankRow';
@@ -67,9 +67,9 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
     ? around.reduce((best, row) => (row.rank < myRank && (!best || row.rank > best.rank) ? row : best), null)
     : null;
   const nextStep = above
-    ? `+${formatStep(meta.notation, above.value - mine.value, { scale: meta.top })} to reach ${above.mainChar} (${rankText(above.rank)})`
+    ? `${formatGap(meta.notation, mine.value, above.value, { scale: meta.top })} to reach ${above.mainChar} (${rankText(above.rank)})`
     : showAround && rankEntry?.nv != null
-      ? `+${formatStep(meta.notation, rankEntry.nv - rankEntry.v, { scale: meta.top })} to reach ${rankText(rankEntry.nr)}`
+      ? `${formatGap(meta.notation, rankEntry.v, rankEntry.nv, { scale: meta.top })} to reach ${rankText(rankEntry.nr)}`
       : null;
   const ties = showAround && rankEntry?.t > 1 ? `${formatNum(rankEntry.t, 'whole')} tied at ${rankText(myRank)}` : null;
   const step = [nextStep, ties].filter(Boolean).join(' · ') || null;

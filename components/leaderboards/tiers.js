@@ -1,5 +1,5 @@
 import { formatNum } from '@utility/helpers';
-import { formatStep, rankText } from './format';
+import { formatGap, rankText } from './format';
 
 // Reaching the next tie group's value ties it, and under competition ranking that is its rank:
 // hence "reach", not "pass". Past 1e6 a difference is unreadable, a ratio is not, but only once
@@ -10,5 +10,5 @@ export const nextRankText = (entry, meta) => {
   if (entry.r === 1) return atMax ? 'Maxed' : entry.t > 1 ? 'Tied leader' : 'Leader';
   if (entry.nv == null) return null;
   if (entry.v >= 1e6 && entry.nv / entry.v >= 1.1) return `${formatNum(entry.nv / entry.v, 'mult')} to reach ${rankText(entry.nr)}`;
-  return `+${formatStep(meta?.notation, entry.nv - entry.v, { scale: meta?.top })} to reach ${rankText(entry.nr)}`;
+  return `${formatGap(meta?.notation, entry.v, entry.nv, { scale: meta?.top })} to reach ${rankText(entry.nr)}`;
 };

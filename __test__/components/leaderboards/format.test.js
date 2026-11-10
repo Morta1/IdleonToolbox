@@ -1,6 +1,6 @@
 import '../../../polyfills';
 import { describe, expect, it, vi } from 'vitest';
-import { AGGREGATION_INTERVAL, buildMetaIndex, formatBoardValues, formatDistinctValues, formatExactValue, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
+import { AGGREGATION_INTERVAL, buildMetaIndex, formatBoardValues, formatDistinctValues, formatExactValue, formatGap, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
 
 const meta = {
   createdAt: 100,
@@ -109,6 +109,10 @@ describe('formatStep', () => {
     expect(formatStep('multiplier', 0.000278)).toBe('0.00028x');
     expect(formatStep('default', 0.212)).toBe('0.22');
     expect(formatStep('default', 0.0113)).toBe('0.012');
+    // A seconds board stores cycles per hour: values and gaps read back as seconds, faster is lower.
+    expect(formatMetricValue('seconds', 3600 / 3.86)).toBe('3.86 Sec');
+    expect(formatMetricValue('seconds', 3600 / 0.0236)).toBe('0.0236 Sec');
+    expect(formatGap('seconds', 3600 / 4, 3600 / 3.86)).toBe('-0.14 Sec');
     expect(formatStep('default', 30_546_577, { scale: 1e9 })).toBe('30.6M');
     expect(formatStep('default', 6.0038e12, { scale: 1e14 })).toBe('6.01T');
     expect(formatStep('multiplier', 14.9016)).toBe('14.91x');

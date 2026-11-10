@@ -39,7 +39,8 @@ export const patchNotes = [
       'Breeding: the Total chance breakdown of each mob now lists every factor, and the Arena tab shows the Mob damage multi with its breakdown',
       'Research: grid squares show their in-game coordinate tile (like M9) on the cards and the grid details',
       'Goals: Death Note rank goals show your kills toward the target rank, and the bar follows them',
-      'Exotic Market: Off rotation can now be sorted in game order as well as by soonest return'
+      'Exotic Market: Off rotation can now be sorted in game order as well as by soonest return',
+      'Leaderboards: new Sprout Speed board under World 5 (fastest growth cycle first, fills as players re-upload)'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',
@@ -55,7 +56,8 @@ export const patchNotes = [
       'Search: about 30 more stat breakdowns now show up in search results, including Monument AFK gain and Extra Bones',
       'Dashboard: the talents the Library can raise alert now shows the Library icon, so it no longer looks like the talents below max level alert',
       'Slab: Funny 2hr Feather, Funny 2hr Slice and the Easter and Summer stones no longer count as missing greenstacks',
-      'Breakdowns name each companion, and companions that showed the wrong name now read correctly'
+      'Breakdowns name each companion, and companions that showed the wrong name now read correctly',
+      'Gaming: Sprout Speed now matches the game (adds the palette, crop depot and bits toggle bonuses)'
     ]
   },
   {
