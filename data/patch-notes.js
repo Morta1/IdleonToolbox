@@ -38,7 +38,8 @@ export const patchNotes = [
       'Characters: HP, MP, accuracy, movement speed, crit chance, crit damage and weapon power open a breakdown',
       'Breeding: the Total chance breakdown of each mob now lists every factor, and the Arena tab shows the Mob damage multi with its breakdown',
       'Research: grid squares show their in-game coordinate tile (like M9) on the cards and the grid details',
-      'Goals: Death Note rank goals show your kills toward the target rank, and the bar follows them'
+      'Goals: Death Note rank goals show your kills toward the target rank, and the bar follows them',
+      'Exotic Market: Off rotation can now be sorted in game order as well as by soonest return'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',

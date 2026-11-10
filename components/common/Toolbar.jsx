@@ -225,8 +225,10 @@ const Filter = ({ name, label }) => {
 // hides below its headers' width.) words: what the button says for an option whose key isn't a number. true for names,
 // which read A to Z, or the option's own [ascending, descending] ("Oldest first", "Newest first").
 const Sort = ({ name = 'sort', options, sx }) => {
-  const { state, onChange, placement } = useContext(ToolbarContext);
+  const { state, defaults, onChange, placement } = useContext(ToolbarContext);
   const sort = state[name] ?? null;
+  // A page whose default is one of its options (Exotic Market's Returns soonest) would list that order twice
+  const defaultListed = options.some(([key]) => key === defaults?.[name]?.key);
   const descending = sort?.order === 'desc';
   const labelOf = (key) => options.find(([value]) => value === key)?.[1] ?? key;
   const words = options.find(([value]) => value === sort?.key)?.[3];
@@ -249,7 +251,7 @@ const Sort = ({ name = 'sort', options, sx }) => {
         }
       }}
     >
-      <MenuItem value="">Default</MenuItem>
+      {defaultListed ? null : <MenuItem value="">Default</MenuItem>}
       {options.map(([key, label]) => <MenuItem key={key} value={key}>{label}</MenuItem>)}
     </TextField>
     {/* No tooltip in the phone panel: a tap's emulated hover would open it over the panel's Done */}
