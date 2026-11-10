@@ -30,7 +30,8 @@ export const patchNotes = [
       'Sneaking: the Detection tab explains that target detection is the chance to get caught, lower is better',
       'Hole: Lamp wishes show how many times each wish was made',
       'Goals: Research is now marked Global and its goals are for the whole account',
-      'Goals: Character level goals skip the extra pick, there is only one entry'
+      'Goals: Character level goals skip the extra pick, there is only one entry',
+      'Arcade Shop: Cosmic balls now use their game name instead of Royal balls'
     ]
   },
   {

@@ -20,11 +20,11 @@ export const ARCADE_MAX_LEVEL = 100;
 export const ARCADE_SUPER_LEVEL = 101;
 export const ARCADE_OMEGA_LEVEL = 102;
 
-// game: "DungeonCalc:ArcadeCost" - Lv 100 -> 101 costs 5 Royal balls, Lv 101 -> 102 costs 2 Omega balls;
+// game: "DungeonCalc:ArcadeCost" - Lv 100 -> 101 costs 5 Cosmic balls, Lv 101 -> 102 costs 2 Omega balls;
 // null below Lv 100 (the gold-ball curve lives with the shop page)
-export const getArcadeCapCost = (level: number): { cost: number, currency: 'royal' | 'omega' } | null =>
+export const getArcadeCapCost = (level: number): { cost: number, currency: 'cosmic' | 'omega' } | null =>
   level === ARCADE_SUPER_LEVEL ? { cost: 2, currency: 'omega' }
-    : level === ARCADE_MAX_LEVEL ? { cost: 5, currency: 'royal' }
+    : level === ARCADE_MAX_LEVEL ? { cost: 5, currency: 'cosmic' }
       : null;
 
 // The shop data ends in placeholder rows ("+{%_who_knows") the game has not filled yet
@@ -78,7 +78,7 @@ export const getGoldBallMulti = (account: Account, serverVars: ServerVars, chara
 const parseArcade = (arcadeRaw: any, account: Account, serverVars: ServerVars, characters?: any[]) => {
   const balls = (account as any)?.accountOptions?.[OPT.arcadeBalls] ?? 0;
   const goldBalls = (account as any)?.accountOptions?.[OPT.arcadeGoldBalls] ?? 0;
-  const royalBalls = (account as any)?.accountOptions?.[OPT.arcadeCosmicBalls] ?? 0;
+  const cosmicBalls = (account as any)?.accountOptions?.[OPT.arcadeCosmicBalls] ?? 0;
   // 2.3.540 Omega balls (Menagerie unlock 6), spent on the Lv 101 -> 102 Omega upgrade
   const omegaBalls = (account as any)?.accountOptions?.[OPT.omegaArcadeBalls] ?? 0;
 
@@ -103,7 +103,7 @@ const parseArcade = (arcadeRaw: any, account: Account, serverVars: ServerVars, c
     shop: arcadeShopList,
     balls,
     goldBalls,
-    royalBalls,
+    cosmicBalls,
     omegaBalls,
     totalUpgradeLevels,
     goldBallMulti: getGoldBallMulti(account, serverVars, characters, arcadeShopList)

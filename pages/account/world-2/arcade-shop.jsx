@@ -23,13 +23,13 @@ import ItemCard from '@components/common/cards/ItemCard';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 
-// The game's Gold, Royal and Omega ball glyphs (font 472) and Super / Omega level banners (font 675)
+// The game's Gold, Cosmic and Omega ball glyphs (font 472) and Super / Omega level banners (font 675)
 const GOLD_BALL_ICON = 'etc/GoldBall.png';
-const ROYAL_BALL_ICON = 'etc/RoyalBall.png';
+const COSMIC_BALL_ICON = 'etc/CosmicBall.png';
 const OMEGA_BALL_ICON = 'etc/OmegaBall.png';
 const ARCADE_SUPER_BANNER = 'etc/ArcadeSuper.png';
 const ARCADE_OMEGA_BANNER = 'etc/ArcadeOmega.png';
-// The game draws every arcade cost "Cost:_" + CommaNotation(ArcadeCost), the cap's Royal and Omega balls included, so
+// The game draws every arcade cost "Cost:_" + CommaNotation(ArcadeCost), the cap's Cosmic and Omega balls included, so
 // the balls that pay for them read in the same rule
 const COST_RULE = 'DungeonCalc.ArcadeCost';
 const BALLS_RULE = 'Save.ArcadeBalls';
@@ -45,7 +45,7 @@ const SECTION_NAMES = {
 
 const upgradeIndexOf = (upgrade) => parseInt(upgrade?.iconName?.replace('PachiShopICON', ''), 10);
 
-// game: "DungeonCalc:ArcadeCost" (gold balls below Lv 100; Royal and Omega balls are getArcadeCapCost). stampMath is
+// game: "DungeonCalc:ArcadeCost" (gold balls below Lv 100; Cosmic and Omega balls are getArcadeCapCost). stampMath is
 // the Arcade Stamp's cut, at most 40%.
 const getCost = (level, upgradeIndex, stampMath) => {
   // Different cost formulas based on upgrade index
@@ -88,7 +88,7 @@ const ArcadeShop = () => {
   const failedSection = Object.keys(SECTION_NAMES).find((section) => isSectionFailed(account, section));
   const arcadeFailed = isSectionFailed(account, 'arcade');
   const stampsFailed = isSectionFailed(account, 'stamps');
-  const { balls, goldBalls, royalBalls, omegaBalls, goldBallMulti } = account?.arcade ?? {};
+  const { balls, goldBalls, cosmicBalls, omegaBalls, goldBallMulti } = account?.arcade ?? {};
   // A failed section's {} default: the shop at zero, the parser's own with no save, with no cost or state
   const shop = ((arcadeFailed ? getArcade({}, {}, {})?.shop : account?.arcade?.shop) ?? [])
     .filter((upgrade) => !isArcadePlaceholder(upgrade));
@@ -112,12 +112,12 @@ const ArcadeShop = () => {
   const multiText = multiFailed ? '-' : formatNum(goldBallMulti?.value ?? 1, 'mult');
   const ballsText = (value) => (arcadeFailed ? '-' : formatGame(value ?? 0, BALLS_RULE, { whole: true }));
 
-  // An upgrade below Lv 100 costs gold balls; Lv 100 to Super costs Royal balls and Super to Omega Omega balls, where
+  // An upgrade below Lv 100 costs gold balls; Lv 100 to Super costs Cosmic balls and Super to Omega Omega balls, where
   // the game shows no more cost. The cost line stands alone, as the game's "Cost:" line does.
   const capFooter = (capCost) => {
     const omega = capCost.currency === 'omega';
-    return <ItemCard.Cost icon={omega ? OMEGA_BALL_ICON : ROYAL_BALL_ICON} iconAlt={omega ? 'Omega balls' : 'Royal balls'}
-                          need={capCost.cost} have={(omega ? omegaBalls : royalBalls) ?? 0} game={COST_RULE}/>;
+    return <ItemCard.Cost icon={omega ? OMEGA_BALL_ICON : COSMIC_BALL_ICON} iconAlt={omega ? 'Omega balls' : 'Cosmic balls'}
+                          need={capCost.cost} have={(omega ? omegaBalls : cosmicBalls) ?? 0} game={COST_RULE}/>;
   };
   const goldFooter = (level, upgradeIndex) => (stampsFailed
     ? <ItemCard.Facts rows={[['Next cost', '-'], ['Cost to max', '-']]}/>
@@ -152,7 +152,7 @@ const ArcadeShop = () => {
       <StatTile label={'Gold balls'} icon={GOLD_BALL_ICON} value={ballsText(goldBalls)}/>
       <StatTile label={'Gold ball multi'} value={multiText}
                 breakdown={!multiFailed && goldBallMulti?.breakdown ? { ...goldBallMulti.breakdown, totalValue: multiText } : undefined}/>
-      <StatTile label={'Royal balls'} icon={ROYAL_BALL_ICON} value={ballsText(royalBalls)}/>
+      <StatTile label={'Cosmic balls'} icon={COSMIC_BALL_ICON} value={ballsText(cosmicBalls)}/>
       <StatTile label={'Omega balls'} icon={OMEGA_BALL_ICON} value={ballsText(omegaBalls)}/>
       <StatTile label={'Cost to max all'} icon={!costFailed && totalCostToMax > 0 ? GOLD_BALL_ICON : undefined}
                 value={costFailed ? '-' : formatGame(totalCostToMax, COST_RULE, { whole: true })}/>

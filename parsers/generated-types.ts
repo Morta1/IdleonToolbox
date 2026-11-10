@@ -2463,7 +2463,7 @@ export interface Account {
       }[];
     balls: number;
     goldBalls: number;
-    royalBalls: number;
+    cosmicBalls: number;
     omegaBalls: number;
     totalUpgradeLevels: number;
     goldBallMulti: {

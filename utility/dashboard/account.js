@@ -611,7 +611,7 @@ export const getWorld2Alerts = (account, fields, options, characters) => {
       }
     }
     if (options?.arcade?.unmaxedRotation?.checked) {
-      // Arcade upgrades cap at level 100 (gold balls); 101 = Super (Royal balls), 102 = Omega (Omega balls, 2.3.540).
+      // Arcade upgrades cap at level 100 (gold balls); 101 = Super (Cosmic balls), 102 = Omega (Omega balls, 2.3.540).
       const cap = options?.arcade?.includeOmega?.checked ? ARCADE_OMEGA_LEVEL
         : options?.arcade?.includeSuper?.checked ? ARCADE_SUPER_LEVEL : ARCADE_MAX_LEVEL;
       const unmaxed = account?.arcade?.shop?.filter((upgrade) => upgrade?.active && !isArcadePlaceholder(upgrade)
