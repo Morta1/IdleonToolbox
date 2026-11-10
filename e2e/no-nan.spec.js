@@ -192,10 +192,10 @@ const TOOL_STATES = [
     await expect(page.getByText(/^x\d+ drop$/).first()).toBeVisible();
   }],
   ['Tools calculator', '/tools/bone-joe-calculator', async (page) => {
-    const row = page.getByRole('row', { name: /Glunko/ });
-    const before = await row.innerText();
+    const tile = page.locator('[data-stat-tile]').filter({ hasText: /Glunko/ });
+    const before = await tile.innerText();
     await page.getByLabel('Pickles').fill('5');
-    await expect(row).not.toHaveText(before);
+    await expect(tile).not.toHaveText(before);
   }]
 ];
 
