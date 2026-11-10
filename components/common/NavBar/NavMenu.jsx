@@ -110,25 +110,28 @@ export const NavMenuButton = ({ menu, open, selected, onToggle, onRest, onLeave 
 // The panel's forms (Decision 3): full where a tall window gives the grid room, compact where it only just fits.
 // Worlds' seven columns are the only grid that outgrows a window: below 1280 wide, or 600 tall (its 383 px under the bar
 // and band, over a 90 px anchor ad), they take two panes, the groups and then the open group's pages. Rows and heads per form.
+// The full form's links are 15 px beside 24 px sprites (#21): at 14 px and 18 px, after the old sidebar's 16 and 32,
+// many sprites couldn't be made out. A size setting was weighed and declined: browser zoom already is one.
 const FORMS = {
-  full: { row: 26, head: 38, headIcon: 28, pad: 3 },
-  compact: { row: 23, head: 32, headIcon: 24, pad: 1.5 }
+  full: { row: 30, icon: 24, font: 15, head: 38, headIcon: 28, pad: 3 },
+  compact: { row: 23, icon: 18, head: 32, headIcon: 24, pad: 1.5 }
 };
+const PANE_LINK = { row: 30, icon: 18 };
 
-const PageLink = ({ page, current, height, nav }) => (
+const PageLink = ({ page, current, size, nav }) => (
   <Box component="li" sx={{ listStyle: 'none' }}>
     <Box component={NextLink} href={{ pathname: page.url, query: nav.query }} prefetch={false}
          data-cy={page.url.split('/').at(-1)} aria-current={current ? 'page' : undefined}
          onClick={() => nav.onNavigate(page.url)}
          sx={{
-           display: 'flex', alignItems: 'center', gap: 1, minHeight: height, py: '2px', px: 1, borderRadius: 1,
-           typography: 'body2', textDecoration: 'none',
+           display: 'flex', alignItems: 'center', gap: 1, minHeight: size.row, py: '2px', px: 1, borderRadius: 1,
+           typography: 'body2', ...(size.font ? { fontSize: size.font } : null), textDecoration: 'none',
            color: current ? 'text.primary' : 'text.secondary',
            bgcolor: current ? 'primary.soft' : 'transparent',
            '&:hover': { color: 'text.primary', bgcolor: current ? 'primary.soft' : 'action.hover' }
          }}>
       <Box component="img" src={`${prefix}${page.icon}.png`} alt="" style={page.style}
-           sx={{ width: 18, height: 18, objectFit: 'contain', flexShrink: 0 }}/>
+           sx={{ width: size.icon, height: size.icon, objectFit: 'contain', flexShrink: 0 }}/>
       {/* A name too long for its column takes a second line, never an ellipsis */}
       <Box component="span" sx={{ minWidth: 0, lineHeight: 1.25 }}>{page.label}</Box>
     </Box>
@@ -136,7 +139,7 @@ const PageLink = ({ page, current, height, nav }) => (
 );
 
 const GroupColumn = ({ group, form, pathname, nav }) => {
-  const { row, head, headIcon } = FORMS[form];
+  const { head, headIcon } = FORMS[form];
   return <Box>
     <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, height: head, mb: 0.5, borderBottom: 1, borderColor: 'divider' }}>
       <Box component="img" src={`${prefix}${group.icon}.png`} alt="" style={group.style}
@@ -144,7 +147,7 @@ const GroupColumn = ({ group, form, pathname, nav }) => {
       <Typography variant="value" component="div" noWrap>{group.label}</Typography>
     </Box>
     <Box component="ul" aria-label={group.label} sx={{ m: 0, p: 0 }}>
-      {group.pages.map((page) => <PageLink key={page.url} page={page} current={page.url === pathname} height={row}
+      {group.pages.map((page) => <PageLink key={page.url} page={page} current={page.url === pathname} size={FORMS[form]}
                                            nav={nav}/>)}
     </Box>
   </Box>;
@@ -206,7 +209,7 @@ const PaneForm = ({ menu, pathname, nav }) => {
           gridColumn: 2, gridRow: '1 / -1', alignSelf: 'start', m: 0, p: 0,
           display: 'grid', gridTemplateColumns: 'repeat(2, minmax(0, 1fr))', columnGap: 2
         }}>
-          {group.pages.map((page) => <PageLink key={page.url} page={page} current={page.url === pathname} height={30}
+          {group.pages.map((page) => <PageLink key={page.url} page={page} current={page.url === pathname} size={PANE_LINK}
                                                nav={nav}/>)}
         </Box> : null}
       </React.Fragment>;

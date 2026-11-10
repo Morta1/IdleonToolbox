@@ -5,6 +5,15 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.4',
+    'gameVer': '2.3.561',
+    'date': '10/11/2026',
+    'features': [
+      'Worlds, Account and Tools menus: bigger page names and icons on larger screens, so every icon can be made out'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '4.0.3',
     'gameVer': '2.3.561',
     'date': '09/11/2026',
