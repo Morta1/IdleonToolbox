@@ -13,8 +13,9 @@ export const formatHave = (value, target) => {
   return value < target && short === formatNumber(target) ? formatNum(Math.floor(value), 'exact') : short;
 };
 
-// Floored so 89.99% never reads as a reached 90%
-export const formatPercent = (n) => `${Math.floor(n)}%`;
+// Two decimals so 99.1% and 99.8% read apart, floored so 89.999% never reads as a reached 90%. The epsilon keeps
+// 99.42 (stored as 99.4199...) from flooring to 99.41
+export const formatPercent = (n) => formatNum(Math.floor(n * 100 + 1e-9) / 100, 'pct');
 
 export const REACHED = 'Reached';
 export const NO_LONGER_IN_GAME = 'No longer in the game';
@@ -65,7 +66,8 @@ export const amountText = (view, n, format = formatNumber) => (view.unit === 'pe
 // Some progress never reads as none: under 1% shows <1%
 export const progressPercent = (view) => {
   const progress = view.progress ?? 0;
-  return progress > 0 && progress < 0.01 ? '<1%' : formatPercent(progress * 100);
+  // how much of the goal is done, so whole percents
+  return progress > 0 && progress < 0.01 ? '<1%' : `${Math.floor(progress * 100)}%`;
 };
 
 // A goal's value colour: green when reached, muted when it cannot be measured
@@ -159,11 +161,15 @@ const amountParts = (view) => {
   return { value: amount(formatHave(view.value, view.targetValue ?? view.target)), target: `of ${targetText(view)}${suffix}` };
 };
 
+// A percent goal's plain amount after its percent: " · Lv 1,234"; nothing on any other goal
+const plainAmount = (view, entry) => (view.unit === 'percentOfMax' && Number.isFinite(entry.amount)
+  ? ` · ${amountWithUnit(metricOf(view), entry.amount)}` : '');
+
 // One entry's amount in its goal's unit: "Lv 148", the tier name; a yes/no entry has none
 const entryAmount = (view, entry) => {
   if (view.boolean) return '';
   if (view.tierName !== undefined) return shortTier(entry.valueTierName);
-  return amountWithUnit(metricOf(view), entry.value, { percent: view.unit === 'percentOfMax' });
+  return `${amountWithUnit(metricOf(view), entry.value, { percent: view.unit === 'percentOfMax' })}${plainAmount(view, entry)}`;
 };
 
 // What an entry goal has now, in its unit; nothing for a yes/no goal or an unknown amount
@@ -225,9 +231,11 @@ export const goalFace = (view) => {
     return { ...face, value: current, caption: `Goal: ${goal}`, hint: true, aside, bar: true };
   }
   const { value, target } = amountParts(view);
-  if (view.watch) return { ...face, value: youHave(value), caption: TRACKING, hint: true, barText: NO_TARGET };
+  const plain = plainAmount(view, view);
+  if (view.watch) return { ...face, value: youHave(`${value}${plain}`), caption: TRACKING, hint: true, barText: NO_TARGET };
   let text = value;
   if (target) text = target.startsWith('of ') ? `${value} ${target}` : `${value} · ${target}`;
+  text = `${text}${plain}`;
   return { ...face, value: text, aside: percent, bar: barred };
 };
 
@@ -268,5 +276,5 @@ export const cardLabel = (view) => {
 export const entryProgressText = (view, entry) => {
   if (view.boolean) return entry.cost ? costFaceText(entry.cost) : booleanWords(view).open;
   if (view.tierName !== undefined) return `${shortTier(entry.valueTierName)} · ${entry.value}/${entry.targetValue}`;
-  return `${amountText(view, entry.value, (n) => formatHave(n, entry.targetValue))} of ${amountText(view, entry.targetValue)}`;
+  return `${amountText(view, entry.value, (n) => formatHave(n, entry.targetValue))} of ${amountText(view, entry.targetValue)}${plainAmount(view, entry)}`;
 };

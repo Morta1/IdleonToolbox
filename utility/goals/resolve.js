@@ -96,6 +96,8 @@ const evaluateRow = (goal, descriptor, metric, row, ctx) => {
   if (!Number.isFinite(targetValue)) return null;
   const reached = goal.op === '<=' ? value <= targetValue : value >= targetValue;
   const cost = costOf(metric, row, ctx);
+  // A percent goal keeps the plain amount too ("Lv 1,234"), so entries the same percent apart still read apart
+  const amount = goal.unit === 'percentOfMax' ? metric.value(row, ctx) : null;
   let progress;
   if (reached) progress = 1;
   // Still reached only by buying it: the bar follows the purse toward the price
@@ -112,6 +114,7 @@ const evaluateRow = (goal, descriptor, metric, row, ctx) => {
     progress,
     reached,
     ...(cost ? { cost } : {}),
+    ...(Number.isFinite(amount) ? { amount } : {}),
     ...(metric.tiers ? { valueTierName: metric.tiers[value] } : {})
   };
 };

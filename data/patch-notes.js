@@ -14,7 +14,8 @@ export const patchNotes = [
       'Breakdowns: Copy as text and Copy as image are buttons next to the search again, no menu to open',
       'Farming: the Bean Trade tile\'s i shows the exact amount once it passes a billion',
       'Library: set your own book counts for the First N books take times in the General page settings (default 20 to 100)',
-      'Active Stuff Calculator: Obols now shows Obol Fragments gained per hour and per day'
+      'Active Stuff Calculator: Obols now shows Obol Fragments gained per hour and per day',
+      'Goals: percent of max goals show two decimals and the level, so close entries read apart'
     ],
     'fixes': [
       'Farming: a crop family\'s max time under a second shows in milliseconds again instead of "<1s"'

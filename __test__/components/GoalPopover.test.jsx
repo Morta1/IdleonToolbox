@@ -47,7 +47,7 @@ describe('GoalPopover', () => {
     const level = getBubbleLevelForPercent(account, bubbleRow, 90);
     const step = button(`90% = Lv ${formatNumber(level)}`);
     expect(step).toBeTruthy();
-    expect(screen.getByText(new RegExp(`^You have Lv ${formatNumber(bubbleRow.level)} · \\d+% of max$`))).toBeTruthy();
+    expect(screen.getByText(new RegExp(`^You have Lv ${formatNumber(bubbleRow.level)} · [\\d.]+% of max$`))).toBeTruthy();
     fireEvent.click(step);
     save();
     expect(api.goals).toHaveLength(1);

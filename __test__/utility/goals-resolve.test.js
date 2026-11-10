@@ -383,10 +383,10 @@ describe('row text', () => {
     ['entry max shows the live cap', { target: 'max' }, 'Lv 38 of 200'],
     ['a level metric keeps its own name', { metric: 'speed', target: 50 }, 'speed level 38 of 50'],
     ['a plural metric names its unit after the target', { metric: 'kills', target: 50 }, '3 of 50 kills'],
-    ['percent of max', { unit: 'percentOfMax', target: 90 }, '9% of 90%'],
+    ['percent of max', { unit: 'percentOfMax', target: 90 }, '9.5% of 90% · Lv 38'],
     ['a hair short prints every digit, never a reached look', { metric: 'big', target: 1038000000 }, '1,037,885,100 of 1.04B'],
     ['a big at most amount reads short on the face', { metric: 'big', op: '<=', target: 5e6 }, '1.04B · At most 5M'],
-    ['at most percent of max', { unit: 'percentOfMax', op: '<=', target: 50 }, '9% · At most 50%'],
+    ['at most percent of max', { unit: 'percentOfMax', op: '<=', target: 50 }, '9.5% · At most 50% · Lv 38'],
     ['all at max: the nearest entry is next', { kind: 'all', target: 'max' }, '0 of 2 done · Next up: b Lv 120'],
     ['all yes/no: the next entry alone', { kind: 'all', metric: 'own', target: 1 }, '1 of 2 done · Next up: a'],
     ['all reached', { kind: 'all', target: 10 }, '2 of 2 done']
