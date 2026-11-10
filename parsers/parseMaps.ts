@@ -217,7 +217,7 @@ export const unrealisticGreenstackItems = ([
   'NPCtoken1', 'NPCtoken2', 'NPCtoken3', 'NPCtoken28', 'NPCtoken29', 'NPCtoken30', 'NPCtoken39', 'NPCtoken40', 'NPCtoken41',
   // Event only / no source in the current build
   'Quest39', 'Quest75', 'Quest85', 'Quest88', 'Quest91', 'Quest92', 'Quest109', 'Quest113', 'Quest111', 'Quest114', 'Quest119', 'Quest120',
-  'Quest93', 'Quest98', 'Quest100', 'Quest107', 'Quest97', 'Quest102', 'Quest76', 'GemP36', 'StoneT1e', 'StoneHelm1b', 'StoneW3b',
+  'Quest93', 'Quest98', 'Quest100', 'Quest107', 'Quest97', 'Quest102', 'Quest76', 'GemP36', 'GemP37', 'Quest112','StoneT1e', 'StoneHelm1b', 'StoneW3b',
   'FoodG15', 'Timecandy10', 'Line6', 'ItemsCoupon1', 'ItemsCoupon2', 'BallJoePickle', 'CaveGoldPiece', 'FoodPotMana2',
   // Repeatable in theory, zero stackers across all profiles
   'Crystal1', 'Crystal2', 'Crystal3', 'Crystal4', 'Crystal5', 'Crystal6', 'Mayo', 'Trash', 'Trash2', 'Trash3', 'KeyFrag',
@@ -231,6 +231,7 @@ export const unrealisticGreenstackItems = ([
   'FoodEvent1', 'FoodEvent2', 'FoodEvent3', 'FoodEvent4', // Giftmas event foods, 3-4 stackers
   'ClassSwap', 'ResetBox', 'CardPack6', 'Quest30', 'Quest35', 'Quest36', 'Quest40', 'Quest71', 'Quest89', 'Timecandy8',
   'EquipmentSmithingTabs4', 'EquipmentSmithingTabs5', 'EquipmentSmithingTabs6',
+  'StoneWe', 'StoneAe', 'StoneTe', 'StoneWeb', 'StoneAeB', 'StoneT1eb', // Easter and Summer stones: event monsters and boxes only
   // Chest-storable but nowhere near 10M: 0 of 338 leaderboard players stacked them, biggest chest
   // stacks 117,800 Sesame Seeds (1/100 mimic drop) and 6,042 Orblets
   'Quest45', 'Orblet'

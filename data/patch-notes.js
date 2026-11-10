@@ -47,7 +47,8 @@ export const patchNotes = [
       'World 5 Gaming: King Rat shows the crown chance the way the game does (1 in N), instead of a capped 100%',
       'Laboratory: characters past the 10th now show in Players in the lab',
       'Search: about 30 more stat breakdowns now show up in search results, including Monument AFK gain and Extra Bones',
-      'Dashboard: the talents the Library can raise alert now shows the Library icon, so it no longer looks like the talents below max level alert'
+      'Dashboard: the talents the Library can raise alert now shows the Library icon, so it no longer looks like the talents below max level alert',
+      'Slab: Funny 2hr Feather, Funny 2hr Slice and the Easter and Summer stones no longer count as missing greenstacks'
     ]
   },
   {
