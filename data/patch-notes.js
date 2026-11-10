@@ -43,7 +43,8 @@ export const patchNotes = [
       'Leaderboards: new Sprout Speed board under World 5 (fastest growth cycle first, fills as players re-upload)',
       'Dashboard: new World 7 timer for the next Yellow jelly construction purchase, also shown on the Jellies card',
       'Farming: every sticker chance now has a breakdown of its sources',
-      'Divinity: Divinity PTS per hour with a breakdown of every source, and the rate of each character on the Styles tab'
+      'Divinity: Divinity PTS per hour with a breakdown of every source, and the rate of each character on the Styles tab',
+      'Dashboard: the World 7 Spare Workers alert now also lists Workers on empty resources, replacing their separate alert'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',

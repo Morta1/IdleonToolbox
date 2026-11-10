@@ -629,7 +629,7 @@ export const baseTrackers = {
             type: 'input',
             props: { label: 'Hours to empty within', value: 24, minValue: 1 },
             checked: true,
-            helperText: 'Alert when an outpost has more Workers than it needs to empty its resource within this many hours. Workers only add collection rate, so the spare ones could be Traders or Surveyors and earn rank EXP instead'
+            helperText: 'Alert when an outpost has more Workers than it needs to empty its resource within this many hours. Workers only add collection rate, so the spare ones could be Traders or Surveyors and earn rank EXP instead. Also lists outposts whose resources are all empty with nothing better in range: all their Workers are spare'
           },
           {
             name: 'overkillBeforeReset',
@@ -640,11 +640,6 @@ export const baseTrackers = {
             name: 'missingWorkers',
             checked: true,
             helperText: 'Alert when an outpost needs more Workers to empty its resource before the daily reset, and has Traders or Surveyors that could become them. A resource only restocks and gains a level if it is already empty when the reset lands. Uses the hours above instead when that alert measures against them'
-          },
-          {
-            name: 'strandedWorkers',
-            checked: true,
-            helperText: 'Alert when an outpost\'s resources are all empty and nothing better is in range, while Workers are still assigned to it. They add collection rate to a resource that has none left, so Traders or Surveyors would earn rank EXP instead'
           },
           {
             name: 'idleGuards',

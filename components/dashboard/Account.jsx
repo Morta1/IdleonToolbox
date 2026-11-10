@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import {
   cleanUnderscore,
@@ -752,18 +752,19 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   title={<RoyalGuardianList
                     headline={`${formatNum(alerts?.['World 7']?.royalGuardian?.overkillWorkers?.count)} outpost${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.count === 1
                       ? ' has'
-                      : 's have'} more Workers than they need to empty their resource ${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.beforeReset
+                      : 's have'} Workers they do not need ${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.beforeReset
                       ? "before today's reset"
                       : `within ${formatNum(alerts?.['World 7']?.royalGuardian?.overkillWorkers?.horizon)}h`}: the spare ones would earn ${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.surveyors
                       ? 'rank EXP as Traders or Surveyors'
                       : 'Trade rank EXP as Traders'}`}
-                    entries={alerts?.['World 7']?.royalGuardian?.overkillWorkers?.outposts?.map((outpost) => ({
+                    entries={alerts?.['World 7']?.royalGuardian?.overkillWorkers?.outposts?.toSorted((a, b) => Number(b?.empty) - Number(a?.empty)).map((outpost) => ({
                       ...outpost,
+                      group: outpost?.empty ? 'Resource already empty' : 'Empties in time without them',
                       detail: `${formatNum(outpost?.workers)} Worker${outpost?.workers === 1 ? '' : 's'}, ${formatNum(outpost?.expPerHour, 'rate')}${alerts?.['World 7']?.royalGuardian?.overkillWorkers?.surveyors
                         ? ` Trade or ${formatNum(outpost?.intelExpPerHour, 'rate')} Intel`
                         : ''} EXP`
                     }))}/>}
-                  iconPath={'etc/RGunit0'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
+                  iconPath={'etc/RGunit0'} maxWidth={RG_LIST_WIDE_TOOLTIP_WIDTH}/> : null}
               {alerts?.['World 7']?.royalGuardian?.missingWorkers ?
                 <Alert target={'World 7.royalGuardian.missingWorkers'}
                   title={<RoyalGuardianList
@@ -777,19 +778,6 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                       detail: `+${formatNum(outpost?.workers)} Worker${outpost?.workers === 1 ? '' : 's'}, empties in ${formatDuration(outpost?.hoursToEmpty * 3600)}`
                     }))}/>}
                   iconPath={'etc/RGunit0'} badge={'deficit'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
-              {alerts?.['World 7']?.royalGuardian?.strandedWorkers ?
-                <Alert target={'World 7.royalGuardian.strandedWorkers'}
-                  title={<RoyalGuardianList
-                    headline={`${formatNum(alerts?.['World 7']?.royalGuardian?.strandedWorkers?.count)} outpost${alerts?.['World 7']?.royalGuardian?.strandedWorkers?.count === 1
-                      ? ' has'
-                      : 's have'} Workers on an empty resource with nothing better in range: ${alerts?.['World 7']?.royalGuardian?.strandedWorkers?.surveyors
-                      ? 'Traders or Surveyors would earn rank EXP instead'
-                      : 'Traders would earn Trade rank EXP instead'}`}
-                    entries={alerts?.['World 7']?.royalGuardian?.strandedWorkers?.outposts?.map((outpost) => ({
-                      ...outpost,
-                      detail: `${outpost?.workers} Worker${outpost?.workers === 1 ? '' : 's'}`
-                    }))}/>}
-                  iconPath={'etc/RGunit1'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
               {alerts?.['World 7']?.royalGuardian?.idleGuards ?
                 <Alert target={'World 7.royalGuardian.idleGuards'}
                   title={<RoyalGuardianList
@@ -1089,6 +1077,8 @@ const MAX_LISTED_OUTPOSTS = 6;
 // column ("2 Workers, +6/hr EXP"); the default hover preview wraps that into a ragged second
 // line for most entries, and 460 still did for the longer map names. The quick edit stacks them on a phone.
 const RG_LIST_TOOLTIP_WIDTH = 540;
+// Spare Workers carries a Trade and an Intel rate per line, so its numbers column alone is ~390px.
+const RG_LIST_WIDE_TOOLTIP_WIDTH = 700;
 
 const RG_RANK_ALERTS = [
   { option: 'tradeRank', rank: 'Trade', holders: 'Traders', unit: 'Trader', iconPath: 'etc/RGunit1', badge: 'rankUp' },
@@ -1104,8 +1094,14 @@ const RoyalGuardianList = ({ headline, entries = [] }) => {
   return <Stack gap={.5}>
     <Typography variant={'body2'}>{headline}{listed.length > 0 ? ':' : ''}</Typography>
     {listed.length > 0 ? <Stack component={'ul'} sx={{ m: 0, pl: 2.5 }}>
-      {listed.map(({ name, mapIndex, world, monsterRawName, monsterName, detail }) => <Typography component={'li'} variant={'body2'}
-                                                                                                  key={mapIndex}>
+      {listed.map(({ name, mapIndex, world, monsterRawName, monsterName, group, detail }, index) => <Fragment key={mapIndex}>
+        {/* Entries sorted by group get a heading where a new group starts, so a reason shared
+            by many lines is said once. */}
+        {group && group !== listed[index - 1]?.group ? <Typography component={'li'} variant={'caption'} color={'text.secondary'}
+                                                                   sx={{ listStyle: 'none', ml: -2.5, mt: index > 0 ? 0.5 : 0 }}>
+          {group}
+        </Typography> : null}
+        <Typography component={'li'} variant={'body2'}>
         {/* Two columns: what the outpost is on the left, its numbers (worker count, PTS) on the
             right, so the numbers line up down the list instead of trailing each name at a
             different offset. */}
@@ -1121,7 +1117,8 @@ const RoyalGuardianList = ({ headline, entries = [] }) => {
           </span>
           {detail ? <Box component={'span'} sx={{ color: 'text.secondary', textAlign: { sm: 'right' }, whiteSpace: { sm: 'nowrap' } }}>{detail}</Box> : null}
         </Box>
-      </Typography>)}
+      </Typography>
+      </Fragment>)}
       {others > 0 ? <Typography component={'li'} variant={'body2'} color={'text.secondary'}>
         and {others} more
       </Typography> : null}

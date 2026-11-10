@@ -1786,15 +1786,24 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     const horizon = resetHorizon ?? (rgOptions?.overkillWorkers?.props?.value ?? 24);
 
     if (rgOptions?.overkillWorkers?.checked) {
+      // Two ways a Worker earns nothing: its resource empties in time without it, or every resource
+      // it is wired to is already empty with nothing better in range (with a fresh node in reach,
+      // idleOutposts says the better thing: move the connection). getSpareWorkers skips the second
+      // case, so the two never list the same outpost.
+      const toEntry = (outpost, workers, empty) => ({
+        ...pickOutpostEntry(outpost),
+        workers,
+        empty,
+        expPerHour: (outpost.rankBars?.[0]?.expPerUnit ?? 0) * workers,
+        intelExpPerHour: surveyors ? (outpost.rankBars?.[1]?.expPerUnit ?? 0) * workers : 0
+      });
       const overkill = collectors
-        .map((outpost) => ({ outpost, workers: getSpareWorkers(outpost, horizon, workerRateBonus) }))
-        .filter(({ workers }) => workers > 0)
-        .map(({ outpost, workers }) => ({
-          ...pickOutpostEntry(outpost),
-          workers,
-          expPerHour: (outpost.rankBars?.[0]?.expPerUnit ?? 0) * workers,
-          intelExpPerHour: surveyors ? (outpost.rankBars?.[1]?.expPerUnit ?? 0) * workers : 0
-        }));
+        .map((outpost) => {
+          const empty = !outpost.freshNodeInReach
+            && (!(outpost.connectedNodes?.length > 0) || outpost.connectedNodes.every(({ exhausted }) => exhausted));
+          return toEntry(outpost, empty ? slotWorkersOf(outpost) : getSpareWorkers(outpost, horizon, workerRateBonus), empty);
+        })
+        .filter(({ workers }) => workers > 0);
       if (overkill.length > 0) {
         royalGuardian.overkillWorkers = {
           count: overkill.length,
@@ -1827,19 +1836,6 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
           beforeReset: resetHorizon != null,
           outposts: missing
         };
-      }
-    }
-
-    if (rgOptions?.strandedWorkers?.checked) {
-      // Only where a rewire is not on the table: with a fresh node in reach, idleOutposts already
-      // says the better thing, and moving the connection beats retraining the Workers.
-      const stranded = collectors
-        .filter(({ connectedNodes, freshNodeInReach }) => !freshNodeInReach
-          && (!(connectedNodes?.length > 0) || connectedNodes.every(({ exhausted }) => exhausted)))
-        .map((outpost) => ({ ...pickOutpostEntry(outpost), workers: slotWorkersOf(outpost) }))
-        .filter(({ workers }) => workers > 0);
-      if (stranded.length > 0) {
-        royalGuardian.strandedWorkers = { count: stranded.length, surveyors, outposts: stranded };
       }
     }
 
@@ -1920,7 +1916,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
         const keeper = soloCapable.reduce((best, link) =>
           (link.node.drainRate > best.node.drainRate ? link : best), soloCapable[0]);
         // Spare only if the slot can go somewhere better: with nothing live in reach, dropping the
-        // link buys the outpost nothing, so the same rule as idleOutposts/strandedWorkers applies.
+        // link buys the outpost nothing, so the same rule as idleOutposts and the empty-resource Spare Workers applies.
         links.filter((link) => link !== keeper && link.outpost.freshNodeInReach)
           .forEach(({ outpost }) => redundant.set(outpost.mapIndex, pickOutpostEntry(outpost)));
       });

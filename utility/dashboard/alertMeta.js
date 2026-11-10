@@ -760,7 +760,7 @@ export const alertMeta = {
       },
       overkillWorkers: {
         label: 'Spare Workers',
-        help: 'Alerts when an outpost has more Workers than it needs to empty its resource within this many hours. Workers only add collection rate, so the spare ones could be Traders or Surveyors and earn rank EXP instead.',
+        help: 'Alerts when an outpost has more Workers than it needs to empty its resource within this many hours. Workers only add collection rate, so the spare ones could be Traders or Surveyors and earn rank EXP instead. Also lists outposts whose resources are all empty with nothing better in range: all their Workers are spare.',
         unit: 'h',
         group: 'Units'
       },
@@ -773,11 +773,6 @@ export const alertMeta = {
       missingWorkers: {
         label: 'Resources that miss the reset',
         help: 'Alerts when an outpost needs more Workers to empty its resource before the daily reset, and has Traders or Surveyors that could become them. A resource only restocks and gains a level if it is already empty when the reset lands. Follows Spare Workers: when that one uses its hours instead of the reset, so does this.',
-        group: 'Units'
-      },
-      strandedWorkers: {
-        label: 'Workers on empty resources',
-        help: 'Alerts when every resource of an outpost is empty and nothing better is in range, while Workers are still assigned to it. Traders or Surveyors would earn rank EXP instead.',
         group: 'Units'
       },
       idleGuards: {

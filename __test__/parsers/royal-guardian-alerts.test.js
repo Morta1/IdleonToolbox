@@ -87,7 +87,7 @@ describe('royal guardian dashboard alerts', () => {
       ...(alerts.idleSupportCamps ?? []),
       ...(alerts.unspentPts?.outposts ?? []),
       ...(alerts.claimableMaps ?? []),
-      ...(alerts.strandedWorkers?.outposts ?? [])
+      ...(alerts.overkillWorkers?.outposts ?? [])
     ];
     expect(listed.length).toBeGreaterThan(0);
 
@@ -183,19 +183,20 @@ describe('royal guardian dashboard alerts', () => {
     expect(twice.account['World 7'].royalGuardian.options.map(({ name }) => name)).toEqual(names);
   });
 
-  it('flags Workers stranded on a spent outpost with nothing left to rewire to', () => {
+  it('lists Workers stranded on a spent outpost with nothing left to rewire to as spare', () => {
     const { account, characters } = parsed;
     const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, characters)?.royalGuardian;
     const outpostBy = (name) => account.royalGuardian.outposts.find((outpost) => outpost.name === name);
 
     // The kingdom in this save is fully drained, which is exactly the stranded case.
-    expect(alerts.strandedWorkers.count).toBeGreaterThan(0);
-    expect(alerts.strandedWorkers.count).toBe(alerts.strandedWorkers.outposts.length);
+    const stranded = alerts.overkillWorkers.outposts.filter(({ empty }) => empty);
+    expect(stranded.length).toBeGreaterThan(0);
+    expect(alerts.overkillWorkers.count).toBe(alerts.overkillWorkers.outposts.length);
 
     // Stranded is the case idleOutposts deliberately skips: nothing better is in range, so the
     // Workers are the thing to change rather than the connection.
     const idleNames = new Set((alerts.idleOutposts ?? []).map(({ name }) => name));
-    alerts.strandedWorkers.outposts.forEach(({ name, workers }) => {
+    stranded.forEach(({ name, workers }) => {
       const outpost = outpostBy(name);
       expect(workers).toBe(outpost.unitSlots.filter((unit) => unit === 0).length);
       expect(workers).toBeGreaterThan(0);
@@ -285,7 +286,7 @@ describe('royal guardian dashboard alerts', () => {
     expect(alerts.overkillWorkers.outposts).toEqual([
       {
         name: 'Overkill', mapIndex: 2, world: 1, monsterRawName: 'mushG', monsterName: 'Green Mushroom',
-        workers: 2, expPerHour: 20, intelExpPerHour: 0
+        workers: 2, empty: false, expPerHour: 20, intelExpPerHour: 0
       }
     ]);
     expect(alerts.overkillWorkers.count).toBe(1);
