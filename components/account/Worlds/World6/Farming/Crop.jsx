@@ -15,6 +15,14 @@ const MULTI_STATS = ['gamingEvo', 'cookingSpeed'];
 const depotValue = (stat, value) => (stat === 'critters' ? `+${formatGame(value, 'FarmingStuffs.CropSCbonus')}`
   : MULTI_STATS.includes(stat) ? (value ? `${formatGame(value, 'FarmingStuffs.CropSCbonus_Multi')}x` : formatNum(value, 'mult')) : `${formatGame(value, 'FarmingStuffs.CropSCbonus')}%`);
 
+// A family's max time under a second reads in milliseconds (Eleven, #86): late in the game every family is under one,
+// and "<1s" on each told them apart no more. The old page printed them the same way.
+const maxTimeText = (seconds) => {
+  if (!(seconds > 0) || seconds >= 1) return formatDuration(seconds);
+  const ms = seconds * 1000;
+  return ms >= 1 ? `${Math.round(ms)}ms` : `${ms.toPrecision(2)}ms`;
+};
+
 const Crop = ({ crop, maxTimes, cropDepot }) => {
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
@@ -32,7 +40,7 @@ const Crop = ({ crop, maxTimes, cropDepot }) => {
             <GameIcon src={img} size={24} alt={''}/>
             <Typography variant={'cardTitle'} component={'h3'}>{label}</Typography>
             <Typography variant={'body2'} color={'text.secondary'} component={'span'}>
-              Max time <Breakdown asValue data={maxTimes?.[index]?.breakdown}>{formatDuration(maxTimes?.[index]?.value)}</Breakdown>
+              Max time <Breakdown asValue data={maxTimes?.[index]?.breakdown}>{maxTimeText(maxTimes?.[index]?.value)}</Breakdown>
             </Typography>
           </Stack>
           <CardGrid size={'icon'}>

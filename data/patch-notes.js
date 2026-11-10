@@ -12,7 +12,9 @@ export const patchNotes = [
       'Worlds, Account and Tools menus: bigger page names and icons on larger screens, so every icon can be made out',
       'Characters: each character shows what it\'s doing, how long it\'s been AFK and its map under its name, even with no section on'
     ],
-    'fixes': []
+    'fixes': [
+      'Farming: a crop family\'s max time under a second shows in milliseconds again instead of "<1s"'
+    ]
   },
   {
     'ver': '4.0.3',
