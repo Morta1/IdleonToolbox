@@ -35,7 +35,8 @@ export const patchNotes = [
       'Goals: Spelunking gets Biggest haul per cave, Amber gain, and Power against each discovery and lore boss requirement',
       'Goals: All characters goals can now track every entry, like all bags or all talents, on each character',
       'Summoning: army damage, army health and winner bonuses show a breakdown; army health now counts Glombolic Units',
-      'Characters: HP, MP, accuracy, movement speed, crit chance, crit damage and weapon power open a breakdown'
+      'Characters: HP, MP, accuracy, movement speed, crit chance, crit damage and weapon power open a breakdown',
+      'Breeding: the Total chance breakdown of each mob now lists every factor, and the Arena tab shows the Mob damage multi with its breakdown'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',

@@ -6,7 +6,7 @@ import { evaluateBreakdown, evaluateBreakdownNode } from '@parsers/breakdown';
 import { getKrukBubblesDaily, getUpgradeableBubbles, getVialMultiplier } from '@parsers/world-2/alchemy';
 import { getVoteBallot } from '@parsers/world-2/voteBallot';
 import { getShinyChanceInfo, getTrapsBonuses } from '@parsers/world-3/traps';
-import { calcBreedabilityMulti, calcShinyLvMulti } from '@parsers/world-4/breeding';
+import { calcBreedabilityMulti, calcPetDamageMulti, calcShinyLvMulti } from '@parsers/world-4/breeding';
 import { calcDailyRibbons } from '@parsers/world-4/cooking';
 import { getExtraDust } from '@parsers/class-specific/compass';
 import { getExtraBonesBonus } from '@parsers/class-specific/grimoire';
@@ -33,7 +33,7 @@ const COMBINES = [
   ['kruk bubbles daily', 'sum', (account) => [getKrukBubblesDaily(account).breakdown]],
   ['vote and meritocracy multis', 'product', ({ voteBallot }) => [voteBallot.voteMultiBreakdown, voteBallot.meritocracyMultBreakdown]],
   ['shiny critter chance', 'product', (account, characters) => characters.map((character) => getShinyChanceInfo(account, characters, character).breakdown)],
-  ['breedability and shiny level multis', 'product', (account, characters) => [calcBreedabilityMulti(account, characters).breakdown, calcShinyLvMulti(account, characters).breakdown]],
+  ['breedability, shiny level and mob damage multis', 'product', (account, characters) => [calcBreedabilityMulti(account, characters).breakdown, calcShinyLvMulti(account, characters).breakdown, calcPetDamageMulti(account, characters).breakdown]],
   ['cooking mastery exp rate', 'product', ({ cooking }) => [cooking.cookingMastery.expRateBreakdown]],
   ['daily ribbons', 'sum', ({ cooking }) => {
     const daily = calcDailyRibbons(cooking.cookingMastery.dailyRibbons);

@@ -18,6 +18,7 @@ import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent } f
 import { isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 import { OPT } from '@parsers/accountOptions';
 import { saveField } from '@parsers/saveField';
+import { getPaletteBonus } from '@parsers/world-5/gaming';
 
 // Crucible (hard arena) waves cleared, OptionsListAccount[628], against the randomList[115] wave list:
 // the count of waves reached in order, only once the Menagerie unlock 8 is owned.
@@ -305,13 +306,14 @@ const getBreedingMulti = (account: any, breedingRaw: any, worldIndex: any, petIn
   const breedingBonus = calcUpgradeBonus(account?.breeding?.petUpgrades?.[9], 9, account);
   const rawCurrentRift = account?.rift?.currentRift;
   const currentRift = Number.isFinite(rawCurrentRift) ? rawCurrentRift : 0;
-  const totalChance = (1 + (10 * gemShopBonus) / 100)
+  const gemShopMulti = 1 + (10 * gemShopBonus) / 100;
+  const riftBubbleBonus = bubbleBonus * currentRift;
+  const breedingUpgradeMulti = Math.pow(Math.max(1, breedingBonus), totalKitchenLevels / 100);
+  const totalChance = gemShopMulti
     * (1 + (vialBonus
-      + bubbleBonus
-      * currentRift) / 100)
+      + riftBubbleBonus) / 100)
     * (1 + stampBonus / 100)
-    * (1 + mealBonus / 100) * Math.pow(Math.max(1, breedingBonus),
-      totalKitchenLevels / 100)
+    * (1 + mealBonus / 100) * breedingUpgradeMulti
     * baseBreedingChance
     * first
     * second
@@ -325,6 +327,14 @@ const getBreedingMulti = (account: any, breedingRaw: any, worldIndex: any, petIn
     third,
     fourth,
     fifth,
+    // game: Breeding("TotalBreedChance"), the account-wide factors beside the mob's own five
+    baseBreedingChance,
+    gemShopMulti,
+    vialBonus,
+    riftBubbleBonus,
+    stampBonus,
+    mealBonus,
+    breedingUpgradeMulti,
     totalChance
   }
 }
@@ -502,6 +512,47 @@ export const calcShinyLvMulti = (account: any, characters: any) => {
       multiplier('Summoning bonus', 1 + summoningBonus / 100),
       multiplier('Shiny levels past 20', shinyOverLevelMulti),
       multiplier('Lamp bonus', 1 + lampBonus / 100)
+    ])
+  };
+}
+
+// game: PetStuff("PetBonusDMG"), the multi on every mob's fighting damage (arena and territory fights).
+// The game also adds a breeding screen value (_GenINFO[118] of the breeding actor) to the percent group;
+// nothing in the save sets it and it reads 0 live, so it is left out.
+export const calcPetDamageMulti = (account: any, characters: any) => {
+  const breedingBonus = calcUpgradeBonus(account?.breeding?.petUpgrades?.[6], 6, account);
+  const paletteBonus = getPaletteBonus(account, 26) ?? 0;
+  const shinyOverLevelMulti = getShinyOverLevelMulti(account?.breeding?.shinyOverLevels ?? 0);
+  const sushiBonus = getSushiBonus(account, 10);
+  const vialBonus = getVialsBonusByEffect(account?.alchemy?.vials, null, 'PetDmg');
+  const achievementBonus = 5 * getAchievementStatus(account?.achievements, 222);
+  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'PetDmg');
+  // game: DNSM.StarSigns of the logged-in character
+  const starSignBonus = getStarSignBonus(getBestActiveCharacter(characters), account, 'Mob_DMG_for') ?? 0;
+  const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 30)?.bonus ?? 0;
+  const vaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 58);
+
+  const value = (1 + breedingBonus / 100)
+    * (1 + paletteBonus / 100)
+    * shinyOverLevelMulti
+    * (1 + sushiBonus / 100)
+    * (1 + (vialBonus + achievementBonus + mealBonus + starSignBonus + arcadeBonus + vaultBonus) / 100);
+
+  return {
+    value,
+    breakdown: createBreakdown('Mob damage', notateNumber(value, 'MultiplierInfo'), [
+      multiplier('Breeding bonus', 1 + breedingBonus / 100),
+      multiplier('Palette bonus', 1 + paletteBonus / 100),
+      multiplier('Shiny levels past 20', shinyOverLevelMulti),
+      multiplier('Sushi bonus', 1 + sushiBonus / 100),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Vial bonus', vialBonus),
+        percent('Achievement bonus', achievementBonus),
+        percent('Meal bonus', mealBonus),
+        percent('Starsign bonus', starSignBonus),
+        percent('Arcade bonus', arcadeBonus),
+        percent('Upgrade vault bonus', vaultBonus)
+      ])
     ])
   };
 }

@@ -17,7 +17,7 @@ import {
   PET_SECONDS_PER_KILL
 } from '@parsers/world-4/breeding';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
-import { createBreakdown, flatLines } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent } from '@parsers/breakdown';
 import { monsterSprite } from '@utility/spriteImages';
 
 const MOBS_TOOLBAR = { fenced: false, below: 'all', passive: 'any', sort: null, view: 'cards' };
@@ -35,10 +35,25 @@ const fenceOf = (fencePets, pet, isShiny) => {
   return (isShiny ? fencePet?.shiny : fencePet?.breedability) ?? 0;
 };
 
-// The breedability chance's five factors (a hover list today), opened from the chance, their product
+// The mob's own five factors of its breed chance, after the account-wide ones
 const BREEDING_MULTIS = [['Genetic multi', 'Breeding.1stMulti', 'first'], ['Breedable multi', 'Breeding.2ndMulti', 'second'],
   ['Rarity multi', 'Breeding.3rdMulti', 'third'], ['Pastpres multi', 'Breeding.4thMulti', 'fourth'],
   ['Failure multi', 'Breeding.5thMulti', 'fifth']];
+
+// Every factor of the game's TotalBreedChance, their product the chance
+const chanceBreakdown = (multis, chanceText) => createBreakdown('Total chance', chanceText, [
+  multiplier('Base chance', multis?.baseBreedingChance ?? 1),
+  multiplier('Gem shop bonus', multis?.gemShopMulti ?? 1),
+  additiveGroup(NUMBERED_GROUP, [
+    percent('Vial bonus', multis?.vialBonus ?? 0),
+    percent('Bubble bonus', multis?.riftBubbleBonus ?? 0)
+  ]),
+  multiplier('Stamp bonus', 1 + (multis?.stampBonus ?? 0) / 100),
+  multiplier('Meal bonus', 1 + (multis?.mealBonus ?? 0) / 100),
+  multiplier('Breeding bonus', multis?.breedingUpgradeMulti ?? 1),
+  ...BREEDING_MULTIS.map(([name, key, field]) => multiplier(name, multis?.[field] ?? 1,
+    { formatted: `${formatGame(multis?.[field] ?? 1, key)}x` }))
+], { max: 1 });
 
 const petCard = (pet, { isShiny, fencePets, multi, breeding, targetLevel }) => {
   const {
@@ -66,10 +81,7 @@ const petCard = (pet, { isShiny, fencePets, multi, breeding, targetLevel }) => {
   const chanceText = chance > 0.1
     ? `${formatGame(Math.min(100, 100 * chance), 'Breeding.TotalBreedChance')}%`
     : formatNum(chance, 'odds');
-  const multis = isShiny ? undefined : createBreakdown('Total chance', chanceText, flatLines(BREEDING_MULTIS
-    .map(([name, key, field]) => ({
-      name, value: breedingMultipliers?.[field] ?? 1, formatted: `${formatGame(breedingMultipliers?.[field] ?? 1, key)}x`
-    }))), { combine: 'list' });
+  const multis = isShiny ? undefined : chanceBreakdown(breedingMultipliers, chanceText);
   const passiveTotal = breeding?.passivesTotals?.[rawPassive];
 
   return <ItemCard key={monsterName} icon={petIcon(pet)} iconAlt={''} title={cleanUnderscore(monsterName)}
