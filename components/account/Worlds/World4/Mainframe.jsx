@@ -33,7 +33,7 @@ export const labBonusText = ({ description, bonusDesc, extraData } = {}) => {
 
 const Mainframe = ({ characters, jewels, labBonuses, playersCords, account, sectionFailed }) => {
   const loggedInCharacter = getBestActiveCharacter(characters);
-  const players = (playersCords ?? []).slice(0, 10).flatMap((playerCord, index) => {
+  const players = (playersCords ?? []).flatMap((playerCord, index) => {
     const character = characters?.[index];
     const connectedByGod = isMajorDivinityActive(character, account, GOD_INDEX.Arctis, loggedInCharacter);
     const isUploaded = character?.afkTarget === 'Laboratory' || connectedByGod;
