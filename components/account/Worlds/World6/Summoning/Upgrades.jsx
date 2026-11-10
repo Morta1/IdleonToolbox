@@ -9,7 +9,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 
-const UPGRADES_TOOLBAR = { sort: null, view: 'group', details: false };
+const UPGRADES_TOOLBAR = { sort: null, view: 'group' };
 
 const Upgrades = ({ upgrades, essences, familiarCostReset }) => {
   const hydrated = useHydrated();
@@ -23,14 +23,14 @@ const Upgrades = ({ upgrades, essences, familiarCostReset }) => {
   };
   // The parser fills the game's text; | is the familiar cost's reset, here as the time left. A line whose } the parser
   // has no total for is left out rather than printed empty.
-  // A "Total bonus" line is what the upgrade gives now, so a compact card keeps only that one and the line above it (what
-  // each win or level adds) shows with the Details pill. Without one, the whole text is the bonus and stays.
+  // A "Total bonus" line is what the upgrade gives now, so it leads and the line it sums (what each win or level adds)
+  // follows. Without one, the whole text is the bonus.
   const bonusLines = (upgrade) => {
     const bonus = typeof upgrade.totalBonus === 'number' ? upgrade.bonus
       : (upgrade.bonus ?? '').split('@').filter((line) => !line.includes('}')).join('@');
     const lines = getSummoningUpgradeText({ ...upgrade, bonus }).split('\n').map(resetLine).filter(Boolean);
     const total = lines.find((line) => /^total bonus/i.test(line));
-    return total ? [[total], lines.filter((line) => line !== total)] : [lines, []];
+    return total ? [total, ...lines.filter((line) => line !== total)] : lines;
   };
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('summoning-upgrades', UPGRADES_TOOLBAR);
   const byCost = toolbar?.sort?.key === 'cost';
@@ -44,34 +44,32 @@ const Upgrades = ({ upgrades, essences, familiarCostReset }) => {
   // One card for both views: the cost reads "owned / cost" against its colour's essence
   const upgradeCard = ({ level, value, maxLvl, name, bonus, totalBonus, doubled, totalCost, originalIndex, colour }, key) => {
     const colourIndex = Number(colour);
-    const [cardLines, notes] = bonusLines({ bonus, value, totalBonus, originalIndex });
+    const cardLines = bonusLines({ bonus, value, totalBonus, originalIndex });
     return <ItemCard key={key} icon={`data/SumUpgIc${originalIndex}.png`} title={cleanUnderscore(name)}
                      level={{ value: level, max: maxLvl }} status={level >= maxLvl ? 'maxed' : undefined}
                      dimmed={!(level > 0 || (colour === '0' && originalIndex === 2))}
                      aside={doubled ? <GameIcon src={'etc/Doubled.png'} size={24} alt={'Doubled'}/> : null}
                      footer={<ItemCard.Cost icon={`data/SummC${colourIndex + 1}.png`}
                                             iconAlt={`${SUMMONING_COLOURS[colourIndex]} essence`}
-                                            need={totalCost ?? 0} have={essences?.[colourIndex]}/>}
-                     more={notes.length ? <ItemCard.Desc text={notes}/> : null}>
+                                            need={totalCost ?? 0} have={essences?.[colourIndex]}/>}>
       <ItemCard.Desc text={cardLines}/>
     </ItemCard>;
   };
 
   return <Box>
     <Toolbar state={toolbar} defaults={UPGRADES_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}>
-      <Toolbar.Filter name={'details'} label={'Details'} display/>
       <Toolbar.Sort options={[['cost', 'Cost', 'asc']]}/>
       <Toolbar.View options={[['group', 'By color'], ['grid', 'All']]}/>
     </Toolbar>
     {toolbar?.view === 'grid'
-      ? <CardGrid size={'m'} details={toolbar?.details}>
+      ? <CardGrid size={'m'}>
         {sorted(listForm).map((upgrade, index) => upgradeCard(upgrade, 'upgrade-' + index))}
       </CardGrid>
       : <Stack gap={3}>
         {Object.entries(upgrades || {})?.map(([colorIndex, colorUpgrades]) => (SUMMONING_COLOURS[colorIndex]
           ? <Stack key={'color-upgrade-' + colorIndex} gap={1}>
             <Typography variant={'sectionTitle'} component={'h2'}>{SUMMONING_COLOURS[colorIndex]}</Typography>
-            <CardGrid size={'m'} details={toolbar?.details}>
+            <CardGrid size={'m'}>
               {sorted(colorUpgrades).map((upgrade, index) => upgradeCard(upgrade, 'upgrade-' + colorIndex + '-' + index))}
             </CardGrid>
           </Stack> : null))}

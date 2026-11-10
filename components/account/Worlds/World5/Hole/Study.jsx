@@ -11,7 +11,7 @@ import { Duration } from '@components/common/Num';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 
-const STUDY_TOOLBAR = { sort: null, details: false };
+const STUDY_TOOLBAR = { sort: null };
 
 const Study = ({ account, sectionFailed }) => {
   const hole = account?.hole;
@@ -29,7 +29,7 @@ const Study = ({ account, sectionFailed }) => {
 
   // A study is its cavern's, in the caverns' order: it takes the name the cavern strip and picker show ("The Bottomless
   // Trench", where the game's study list says "Trench"). Its bonus is its text, so the card keeps it whole with the time
-  // to its next level; the study points behind that time show with the Details pill. Its list (the parser's location) is
+  // to its next level and the study points behind that time. Its list (the parser's location) is
   // its meta: one grid in the game's order, as the old page had it, where a heading per list ended three of the four on
   // a lone card (5, 5, 5 and 3 studies, four to a row).
   const studyCard = (entry) => <ItemCard key={`study-${entry?.index}`}
@@ -41,13 +41,13 @@ const Study = ({ account, sectionFailed }) => {
                                          aside={entry?.name === 'The_bell'
                                            ? <InfoButton label={'The Bell study'}>Its bonus triggers on rings 19, 39, 59 and
                                              79, then every 20 rings.</InfoButton> : null}
-                                         more={<ItemCard.Facts rows={[
-                                           ['Progress', `${formatGame(entry?.progress ?? 0, 'Holes.StudyReqForBolaia', { whole: true })} / ${formatGame(entry?.req ?? 0, 'Holes.StudyReqForBolaia', { whole: true })}`]
-                                         ]}/>}
                                          footer={<ItemCard.Facts rows={[
                                            ['Next level', <Duration key={'next'} seconds={secondsLeft(entry)}/>]
                                          ]}/>}>
     <ItemCard.Desc text={entry?.description}/>
+    <ItemCard.Facts rows={[
+      ['Progress', `${formatGame(entry?.progress ?? 0, 'Holes.StudyReqForBolaia', { whole: true })} / ${formatGame(entry?.req ?? 0, 'Holes.StudyReqForBolaia', { whole: true })}`]
+    ]}/>
   </ItemCard>;
 
   return <>
@@ -59,10 +59,9 @@ const Study = ({ account, sectionFailed }) => {
     <Box>
       {sectionFailed ? null : <Toolbar state={toolbar} defaults={STUDY_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
                total={studies.length} shown={studies.length} noun={'studies'}>
-        <Toolbar.Filter name={'details'} label={'Details'} display/>
         <Toolbar.Sort options={[['time', 'Time to next level', 'asc']]}/>
       </Toolbar>}
-      <CardGrid size={'m'} details={toolbar?.details}>{sorted.map(studyCard)}</CardGrid>
+      <CardGrid size={'m'}>{sorted.map(studyCard)}</CardGrid>
     </Box>
   </>;
 };
