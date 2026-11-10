@@ -67,7 +67,8 @@ export const patchNotes = [
       'Slab: Funny 2hr Feather, Funny 2hr Slice and the Easter and Summer stones no longer count as missing greenstacks',
       'Breakdowns name each companion, and companions that showed the wrong name now read correctly',
       'Gaming: Sprout Speed now matches the game (adds the palette, crop depot and bits toggle bonuses)',
-      'Sailing: Ashen Urn bonus now follows the game level cap for each artifact tier'
+      'Sailing: Ashen Urn bonus now follows the game level cap for each artifact tier',
+      'Dashboard: sharper icon on the Royal Guardian unspent PTS alert'
     ]
   },
   {
