@@ -2,7 +2,7 @@ import { growth } from '@utility/helpers';
 import { isTalentBannedForAllLevels } from '@utility/talentBans';
 import { classes, talents } from '@website-data';
 import { getAchievementStatus } from './achievements';
-import { isCompanionBonusActive } from './misc';
+import { companionLineName, isCompanionBonusActive } from './misc';
 import { getCharacterMinorDivinityBonus, GOD_INDEX } from './world-5/divinity';
 import { getEquinoxBonus } from './world-3/equinox';
 import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
@@ -379,7 +379,7 @@ export const getTalentAddedLevels = (talents: any, presetIndex: any, familyEffBo
     flat('Symbol of Beyond', symbolAddedLevel),
     flat('Family', familyBonus),
     flat('Achievement', achievementBonus),
-    flat('Companion', companionBonus),
+    flat(companionLineName(1), companionBonus),
     flat('Equinox', equinoxBonus),
     flat('Grimoire', grimoireBonus),
     flat('Kattlekruk set', armorSetBonus),

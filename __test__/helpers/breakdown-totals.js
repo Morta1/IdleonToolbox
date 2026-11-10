@@ -79,6 +79,9 @@ const computedBreakdowns = (account, characters, idleonData) => {
     addOwn('damage', playerInfo.damageBreakdown, playerInfo.maxDamage);
     addOwn('defence', playerInfo.defence?.breakdown, playerInfo.defence?.value);
     addOwn('killPerKill', playerInfo.killPerkill?.breakdown, playerInfo.killPerkill?.value);
+    const STATS = { maxHp: 'maxHp', maxMp: 'maxMp', movementSpeed: 'movementSpeed', accuracy: 'accuracy', critDamage: 'critDamage',
+      critChance: 'critChance', weaponPower: 'weaponPower' };
+    Object.entries(STATS).forEach(([name, key]) => addOwn(name, playerInfo.breakdowns?.[key], playerInfo[key]));
     const respawn = getRespawnRate(character, account);
     addOwn('respawnRate', respawn.breakdown, respawn.respawnRate);
     const classExp = getClassExpMulti(character, account, characters);

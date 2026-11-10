@@ -1,7 +1,7 @@
 import { gameFill, notateNumber, tryToParse, lavaLog } from '@utility/helpers';
 import { research as researchData, upgradeVault } from '@website-data';
 import { liveEntries } from '@parsers/catalog';
-import { isBundlePurchased, getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
+import { isBundlePurchased, getEventShopBonus, companionLineName, isCompanionBonusActive } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { createBreakdown, multiplier } from '@parsers/breakdown';
@@ -81,7 +81,7 @@ export const getVaultCostReduction = (accountData: any) => {
     cheaperFactor,
     breakdown: createBreakdown('Vault cost reduction', notateNumber(cheaperFactor, 'MultiplierInfo'), [
       multiplier('Darts', 1 / dartsBonusReduction),
-      multiplier('Companion (Sushi Roll)', companionMulti > 0 ? 1 / companionMulti : 1),
+      multiplier(companionLineName(99), companionMulti > 0 ? 1 / companionMulti : 1),
       multiplier('Sushi Station', sushiDiscount > 0 ? 1 / sushiDiscount : 1)
     ])
   };

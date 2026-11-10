@@ -17,7 +17,7 @@ import {
   getMinigameScore,
   getSkillMasteryBonusByIndex,
   getSkillCardBonus,
-  isCompanionBonusActive,
+  companionLineName, isCompanionBonusActive,
   isMasteryBonusUnlocked
 } from '@parsers/misc';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
@@ -196,7 +196,7 @@ export const getAllEffBreakdown = (character: any, characters: any, account: any
     ]),
     additiveGroup(NUMBERED_GROUP, [
       percent('Chaotic Troll card', chaoticTrollBonus),
-      percent('Companion', companionBonus)
+      percent(companionLineName(5), companionBonus)
     ]),
     additiveGroup('Summoning bonuses', [percent('Summoning', winnerBonus)]),
     additiveGroup(NUMBERED_GROUP, [

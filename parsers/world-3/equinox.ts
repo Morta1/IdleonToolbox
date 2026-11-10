@@ -1,7 +1,7 @@
 import { equinoxChallenges, equinoxUpgrades } from '@website-data';
 import { tryToParse } from '@utility/helpers';
 import { getVialsBonusByStat } from '@parsers/world-2/alchemy';
-import { getEventShopBonus, isBundlePurchased, isCompanionBonusActive } from '@parsers/misc';
+import { getEventShopBonus, isBundlePurchased, companionLineName, isCompanionBonusActive } from '@parsers/misc';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getCosmoBonus } from '@parsers/world-5/hole';
@@ -139,7 +139,7 @@ const parseEquinox = (weeklyBoss: any, dream: any, account: any) => {
       multiplier('Vote', 1 + voteBonus / 100),
       multiplier('Research G8', 1 + researchG8Bonus / 100),
       multiplier('Tome', 1 + loreEpiBonus / 100),
-      multiplier('Companion', 1 + companionBonus),
+      multiplier(companionLineName(15), 1 + companionBonus),
       multiplier('Cosmo', 1 + cosmoBonus / 100),
       multiplier('Event shop', 1 + 0.5 * eventShopBonus),
       multiplier('Obsolete No More', 1 + obsoleteNoMore / 100),

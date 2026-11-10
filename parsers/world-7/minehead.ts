@@ -2,7 +2,7 @@ import { gameFill } from '@utility/helpers';
 import { mineheadUpgrades, upgradeVault, research as researchData, researchGridSquares, items, gameTables } from '@website-data';
 import { getAtomBonus } from '@parsers/world-3/atomCollider';
 import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
-import { isCompanionBonusActive, isCompanionLvl2Active, getEventShopBonus, isBundlePurchased } from '@parsers/misc';
+import { companionLineName, isCompanionBonusActive, isCompanionLvl2Active, getEventShopBonus, isBundlePurchased } from '@parsers/misc';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getButtonBonus } from '@parsers/world-7/button';
@@ -252,7 +252,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any, char
       multiplier(getGridName(148), 1 + grid148Bonus / 100),
       multiplier('Royal Guardian Outpost', outpostRogBonus),
       multiplier('Merit (Tasks)', 1 + meritBonus / 100),
-      multiplier('Companion Bonus', companionMulti),
+      multiplier(companionLineName(143), companionMulti),
       multiplier('Opponent Bonus (capped 3x)', Math.min(3, 1 + getBonusQTY(6) / 100)),
       additiveGroup(NUMBERED_GROUP, [
         percent('Miney Farmey I', getUpgradeQTY(5)),

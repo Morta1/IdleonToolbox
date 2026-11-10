@@ -1,4 +1,4 @@
-import { gameFill } from '@utility/helpers';
+import { cleanUnderscore, gameFill, titleCaseName } from '@utility/helpers';
 
 // Breakdown trees read by components/common/Breakdown/Breakdown.tsx. Kept free of game data so the
 // component can import it.
@@ -151,6 +151,9 @@ export const info = line();
 // The factor a cap or softcap left on a value: what it is now over what it was before
 export const softcapLine = (after: number, before: number, note: string, name = 'Softcap'): BreakdownLine =>
   multiplier(name, before > 0 ? after / before : 1, { note });
+
+// A line named for its source as the game names it: sourceName('Talent', 'MANA_BOOSTER') reads Talent (Mana Booster)
+export const sourceName = (kind: string, gameName?: string) => gameName ? `${kind} (${titleCaseName(cleanUnderscore(gameName))})` : kind;
 
 // A group with nothing a player would recognise as setting it apart from its siblings: the drawer names it
 // Group 1, Group 2... top to bottom

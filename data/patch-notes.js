@@ -34,7 +34,8 @@ export const patchNotes = [
       'Bundles: see the bundles in the gem shop right now, in the order the shop shows them',
       'Goals: Spelunking gets Biggest haul per cave, Amber gain, and Power against each discovery and lore boss requirement',
       'Goals: All characters goals can now track every entry, like all bags or all talents, on each character',
-      'Summoning: army damage, army health and winner bonuses show a breakdown; army health now counts Glombolic Units'
+      'Summoning: army damage, army health and winner bonuses show a breakdown; army health now counts Glombolic Units',
+      'Characters: HP, MP, accuracy, movement speed, crit chance, crit damage and weapon power open a breakdown'
     ],
     'fixes': [
       'Class EXP: now includes the Gud EXP Stamp bonus',
@@ -49,7 +50,8 @@ export const patchNotes = [
       'Laboratory: characters past the 10th now show in Players in the lab',
       'Search: about 30 more stat breakdowns now show up in search results, including Monument AFK gain and Extra Bones',
       'Dashboard: the talents the Library can raise alert now shows the Library icon, so it no longer looks like the talents below max level alert',
-      'Slab: Funny 2hr Feather, Funny 2hr Slice and the Easter and Summer stones no longer count as missing greenstacks'
+      'Slab: Funny 2hr Feather, Funny 2hr Slice and the Easter and Summer stones no longer count as missing greenstacks',
+      'Breakdowns name each companion, and companions that showed the wrong name now read correctly'
     ]
   },
   {

@@ -1,7 +1,7 @@
 import { gameFill, notateNumber, lavaLog, lavaLog2 } from '@utility/helpers';
 import { generalSpelunky, coralReef, gameTables } from '@website-data';
 import {
-  isCompanionBonusActive,
+  companionLineName, isCompanionBonusActive,
   getEventShopBonus,
   getKillRoyShopBonus,
   getLoggedInSkillLevel
@@ -334,7 +334,7 @@ export const getReefDayGains = (account: any) => {
   const breakdown = createBreakdown('Reef day gains', notateNumber(value, 'MultiplierInfo'), [
     flat('Base', REEF_DAY_BASE_GAINS),
     productGroup(NUMBERED_GROUP, [
-      multiplier('Companion', 1 + companionBonusValue),
+      multiplier(companionLineName(40), 1 + companionBonusValue),
       multiplier('Event Shop', 1 + 0.3 * eventShopBonus),
       multiplier('Gem Shop', 1 + (20 * gemShopBonus) / 100),
       additiveGroup(NUMBERED_GROUP, [

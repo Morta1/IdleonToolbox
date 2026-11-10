@@ -4,7 +4,7 @@ import { ninjaExtraInfo } from '@website-data';
 import { hasClearedMap } from '@parsers/portals';
 import { getCosmoBonus } from '@parsers/world-5/hole';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
-import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
+import { getEventShopBonus, companionLineName, isCompanionBonusActive } from '@parsers/misc';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
@@ -53,7 +53,7 @@ const parseVoteBallot = (idleonData: IdleonData, accountData: Account, character
     additiveGroup(NUMBERED_GROUP, [
       percent('Demonflesh', demonfleshPenalty, { note: demonfleshPenalty ? 'Not handed in yet' : undefined }),
       percent('Clam Work', 5 * clamWorkBonus),
-      percent('Companion (Pufferblob)', companionBonus),
+      percent(companionLineName(39), companionBonus),
       percent('Legend Talent', legendTalentBonus),
       percent('Arcade', arcadeBonus),
       percent('Event Shop', 20 * meritocracyEventShopBonus),
@@ -112,16 +112,16 @@ const parseVoteBallot = (idleonData: IdleonData, accountData: Account, character
     * (1 + (companionBonus3 + equinoxBonus + (cosmoBonus + (winnerBonus +
       (17 * eventShopBonus2 + 13 * eventShopBonus3 + (companionBonus2 + (paletteBonus + (legendTalentBonus2 + ballotSushiBonus))))))) / 100);
   const voteMultiBreakdown = createBreakdown('Bonus multi', voteMulti, [
-    multiplier('Companion (Poppy)', 1 + poppyBonus / 100),
+    multiplier(companionLineName(161), 1 + poppyBonus / 100),
     multiplier('Meritocracy Bonus', 1 + meritocracyBonus / 100),
     additiveGroup(NUMBERED_GROUP, [
-      percent('Companion (Crystal Cuttlefish)', companionBonus3),
+      percent(companionLineName(41), companionBonus3),
       percent('Equinox', equinoxBonus),
       percent('Cosmo', cosmoBonus),
       percent('Summoning Win', winnerBonus),
       percent('Event Shop 7', 17 * eventShopBonus2),
       percent('Event Shop 16', 13 * eventShopBonus3),
-      percent('Companion (Mashed Potato)', companionBonus2),
+      percent(companionLineName(19), companionBonus2),
       percent('Palette', paletteBonus),
       percent('Legend Talent', legendTalentBonus2),
       percent('Sushi Tier 50', ballotSushiBonus)

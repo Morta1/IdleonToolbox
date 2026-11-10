@@ -2,7 +2,7 @@ import { lavaLog, notateNumber, tryToParse } from '@utility/helpers';
 import { GOD_INDEX, isMajorDivinityActive } from '@parsers/world-5/divinity';
 import { getArtifactFormBonus } from '@parsers/world-5/sailing';
 import { getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
-import { getEventShopBonus, getSkillMasteryBonusByIndex, isCompanionBonusActive } from '@parsers/misc';
+import { getEventShopBonus, getSkillMasteryBonusByIndex, companionLineName, isCompanionBonusActive } from '@parsers/misc';
 import { getAtomColliderThreshold } from '@parsers/world-3/atomCollider';
 import { getCharmBonus } from '@parsers/world-6/sneaking';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
@@ -119,7 +119,7 @@ export const getPrinterMulti = (accountData: Account, charactersData: any[]) => 
     ]),
     multiplier('Vote', voteBonus),
     multiplier('Winter event', 1 + (2 * Number(accountData?.accountOptions?.[OPT.printerEventShopDays] ?? 0) * getEventShopBonus(accountData, 4)) / 100),
-    multiplier('Companion', companionBonus),
+    multiplier(companionLineName(17), companionBonus),
     multiplier('Compass', compassBonus),
     multiplier('Yet Another Printer Multi (Legend talent)', yetAnotherPrinterMulti)
   ]);

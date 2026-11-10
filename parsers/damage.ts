@@ -17,11 +17,11 @@ import {
   getMinigameScore,
   getSkillMasteryBonusByIndex,
   isArenaBonusActive,
-  isCompanionBonusActive
+  companionLineName, isCompanionBonusActive
 } from './misc';
 import { getStarSignBonus } from './starSigns';
 import { getArcadeBonus } from './world-2/arcade';
-import { getAfkGain, getPlayerSpeedBonus, getRespawnRate } from './character';
+import { getAfkGain, getPlayerSpeedInfo, getRespawnRate } from './character';
 import { calcTotalOnyx, getStatueBonus } from './world-1/statues';
 import { calcStampCollected, getStampNode, getStampsBonusByEffect, getStampsBonusByStat } from './world-1/stamps';
 import { lavaLog, lavaLog2 } from '@utility/helpers';
@@ -82,11 +82,16 @@ import {
   percent,
   productGroup,
   softcapLine,
+  sourceName,
   sumGroup
 } from './breakdown';
 import type { BreakdownNode } from './breakdown';
 import { getCharacterFamilyBonus } from './family';
 import { OPT } from '@parsers/accountOptions';
+
+const STAT_SHORT: Record<string, string> = { strength: 'STR', agility: 'AGI', wisdom: 'WIS', luck: 'LUK' };
+const statueLineName = (account: Account, index: number) => sourceName('Statue', (account as any)?.statues?.[index]?.name);
+const shrineLineName = (account: Account, index: number) => sourceName('Shrine', (account as any)?.shrines?.[index]?.name);
 
 // The speedrun route re-runs this once per map with only mapIndex/targetMonster changed, so the
 // map-invariant stats can be computed once and passed back in via `shared` (one object per
@@ -111,13 +116,14 @@ export const getMaxDamage = (character: Character, characters: Character[], acco
       + (intTalentBonus
         + lukTalentBonus)
       + statBubbleBonus) / 100);
-    const movementSpeed = getPlayerSpeedBonus(character, characters, account);
+    const movementSpeed = getPlayerSpeedInfo(character, characters, account);
     const invariants = {
       damageFromStat,
-      maxMp: getMaxMp(character, characters, account),
+      maxMp: getMaxMpInfo(character, characters, account),
       movementSpeed,
-      accuracy: getAccuracy(character, characters, account, movementSpeed),
+      accuracy: getAccuracy(character, characters, account, movementSpeed.value),
       critDamage: getCritDamage(character, characters, account),
+      weaponPower: getWeaponPower(character, characters, account),
       mastery: getMastery(character, characters, account)
     };
     if (shared) shared.invariants = invariants;
@@ -132,12 +138,25 @@ export const getMaxDamage = (character: Character, characters: Character[], acco
   playerInfo.afkGains = afkGains;
   // null means the character has no AFK target, so it earns nothing per hour
   const afkGainsRate = afkGains ?? 0;
-  playerInfo.maxHp = getMaxHp(character, characters, account);
-  playerInfo.maxMp = invariantStats.maxMp;
-  playerInfo.movementSpeed = invariantStats.movementSpeed;
-  playerInfo.accuracy = invariantStats.accuracy;
-  playerInfo.critDamage = invariantStats.critDamage;
-  playerInfo.critChance = getCritChance(character, characters, account, playerInfo);
+  const maxHp = getMaxHpInfo(character, characters, account);
+  playerInfo.maxHp = maxHp.value;
+  playerInfo.maxMp = invariantStats.maxMp.value;
+  playerInfo.movementSpeed = invariantStats.movementSpeed.value;
+  playerInfo.accuracy = invariantStats.accuracy.value;
+  playerInfo.critDamage = invariantStats.critDamage.value;
+  playerInfo.weaponPower = invariantStats.weaponPower.value;
+  const critChance = getCritChance(character, characters, account, playerInfo);
+  playerInfo.critChance = critChance.value;
+  // The stats the character page opens a drawer for, besides damage, defence and kill per kill
+  playerInfo.breakdowns = {
+    maxHp: maxHp.breakdown,
+    maxMp: invariantStats.maxMp.breakdown,
+    movementSpeed: invariantStats.movementSpeed.breakdown,
+    accuracy: invariantStats.accuracy.breakdown,
+    critDamage: invariantStats.critDamage.breakdown,
+    critChance: critChance.breakdown,
+    weaponPower: invariantStats.weaponPower.breakdown
+  };
   playerInfo.hitChance = getHitChance(character, characters, account, playerInfo);
   playerInfo.mastery = invariantStats.mastery;
 
@@ -612,8 +631,8 @@ const getDamagePercent = (character: Character, characters: Character[], account
         percent('Account Option (435)', accountOpt435)
       ]),
       additiveGroup(NUMBERED_GROUP, [
-        percent('Companion (Frog)', companion10 ?? 0),
-        percent('Companion (Valenslime)', companion156 ?? 0),
+        percent(companionLineName(10), companion10 ?? 0),
+        percent(companionLineName(156), companion156 ?? 0),
         percent('Cards', cardBonus),
         percent('Card Set', cardSetBonus)
       ]),
@@ -651,11 +670,11 @@ const getDamagePercent = (character: Character, characters: Character[], account
       ]),
       multiplier('Killroy', 1 + killroyBonus, { note: 'Max ×3' }),
       multiplier('Sushi', 1 + sushiDmgBonus / 100),
-      multiplier('Companion (Ancient Golem)', 1 + companion12),
-      multiplier('Companion (Chippy)', 1 + companion33),
-      multiplier('Companion (Glunko)', 1 + 2 * companion160),
-      multiplier('Companion (Crystal Glunko)', 1 + 0.5 * companion168),
-      multiplier('Companion (Magician Grub)', 1 + companion170),
+      multiplier(companionLineName(12), 1 + companion12),
+      multiplier(companionLineName(33), 1 + companion33),
+      multiplier(companionLineName(160), 1 + 2 * companion160),
+      multiplier(companionLineName(168), 1 + 0.5 * companion168),
+      multiplier(companionLineName(170), 1 + companion170),
       multiplier('Crystal Card', 1 + crystalCardBonus / 100),
       multiplier('Meritocracy', 1 + meritBonus5 / 100),
       multiplier('Eclectic Sigils (Research Grid)', 1 + eclecticSigilBonus / 100),
@@ -896,7 +915,7 @@ const getBaseDamage = (character: Character, characters: Character[], account: A
   const intWpTalent = getTalentBonus(character?.flatTalents, 'POWER_OVERWHELMING');
 
   const baseWp = getTalentBonus(character?.flatTalents, 'SHARPENED_AXE');
-  const weaponPower = getWeaponPower(character, characters, account);
+  const weaponPower = getWeaponPower(character, characters, account).value;
   const arcadeBonus = getArcadeBonus(account?.arcade?.shop, 'Base_Damage')?.bonus ?? 0;
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Nomwich', character, account, characters);
 
@@ -1035,23 +1054,74 @@ const getAccuracy = (character: Character, characters: Character[], account: Acc
   // Snehebatu's minor bonus is the accuracy/defence one.
   const minorBonus = getCharacterMinorDivinityBonus(character, account, GOD_INDEX.Snehebatu);
 
+  const tipToeActive = (movementSpeed / 100) > 1.99;
   let accuracy = (character?.stats as any)?.[accuracyStat]
     * (1 + bubbleBonus / 100) *
     (1 + (activeBuff + (cardBonus
       + (starSignBonus
         + (secondActiveBuff + (statueBonus
           + (arcadeBonus + (flurboBonus + (bribeBonus + (companionBonus23 ?? 0))))))))) / 100);
-  if ((movementSpeed / 100) > 1.99) {
+  if (tipToeActive) {
     accuracy *= (1 + tipToeQuickness / 100);
   }
+  const statAccuracy = accuracy;
+  const prayerMulti = Math.max(0.1, 1 + (prayerBonus - prayerCurse - secondPrayerCurse) / 100);
   accuracy = (Math.pow(accuracy / 4, 1.4)
     + (accuracy + baseAccuracy))
     * (1 + (accuracy + 2 * cardSetBonus) / 200)
-    * Math.max(0.1, 1 + (prayerBonus - prayerCurse - secondPrayerCurse) / 100)
+    * prayerMulti
     * (1 + (chipBonus + mealBonus + kangarooBonus + voteBonus + amarokSetBonus) / 100) * (1 + minorBonus / 100)
-  return accuracy;
+
+  const statName = STAT_SHORT[accuracyStat] ?? 'Stat';
+  // The stat's accuracy counts three times: as itself, raised to 1.4 and as a percent bonus
+  const breakdown = createBreakdown('Accuracy', notateNumber(accuracy), [
+    sumGroup('Base accuracy', [
+      productGroup(`${statName} accuracy`, [
+        flat(statName, (character?.stats as any)?.[accuracyStat]),
+        multiplier(bubbleLineName('SHAQURACY'), 1 + bubbleBonus / 100),
+        additiveGroup(NUMBERED_GROUP, [
+          percent(sourceName('Talent', 'EXTENDO_RANGEO'), activeBuff),
+          percent('Cards', cardBonus),
+          percent('Star Sign', starSignBonus),
+          percent(sourceName('Talent', 'BALANCED_SPIRIT'), secondActiveBuff),
+          percent(statueLineName(account, 14), statueBonus),
+          percent('Arcade', arcadeBonus),
+          percent('Dungeons', flurboBonus),
+          percent('Bribe', bribeBonus),
+          percent(companionLineName(23), companionBonus23 ?? 0)
+        ]),
+        multiplier(sourceName('Talent', 'TIPTOE_QUICKNESS'), tipToeActive ? 1 + tipToeQuickness / 100 : 1,
+          { note: 'From 200% movement speed' })
+      ], { unit: 'flat' }),
+      flat(`${statName} accuracy scaling`, Math.pow(statAccuracy / 4, 1.4)),
+      flat('Base', 2),
+      flat('Vials', vialBonus),
+      flat(sourceName('Post Office', 'Box_of_Unwanted_Stats'), postOfficeBonus),
+      flat('Cards', baseCardBonus),
+      flat('Equipment', equipmentBonus),
+      flat(sourceName('Golden Food', 'Butter_Bar'), goldenFoodBonus),
+      getStampNode(account, { effect: 'Base_Accuracy' }, stampBonus, undefined, 'flat')
+    ]),
+    additiveGroup(NUMBERED_GROUP, [
+      percent(`${statName} accuracy`, statAccuracy / 2),
+      percent('Card Set', cardSetBonus)
+    ]),
+    multiplier('Prayers', prayerMulti, { note: 'At least ×0.1' }),
+    additiveGroup(NUMBERED_GROUP, [
+      percent('Lab Chip', chipBonus),
+      percent('Meals', mealBonus),
+      percent('Kangaroo', kangarooBonus),
+      percent('Vote', voteBonus),
+      percent('Amarok Set', amarokSetBonus)
+    ]),
+    multiplier('Minor Divinity', 1 + minorBonus / 100)
+  ]);
+  return { value: accuracy, breakdown };
 }
-export const getMaxMp = (character: Character, characters: Character[], account: Account) => {
+export const getMaxMp = (character: Character, characters: Character[], account: Account) =>
+  getMaxMpInfo(character, characters, account).value;
+
+const getMaxMpInfo = (character: Character, characters: Character[], account: Account) => {
   // customBlock_PlayerMPmax
   const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Base_MP');
   const cardPercentBonus = getCardBonusByEffect(character?.cards?.equippedCards, 'Total_MP');
@@ -1071,9 +1141,31 @@ export const getMaxMp = (character: Character, characters: Character[], account:
     + (maxHpTalentBonus + agiMaxHpTalentBonus) / 100) * (1 + (postOfficePercentBonus
       + cardPercentBonus) / 100);
 
-  return baseMp * percentageMp;
+  const value = baseMp * percentageMp;
+  const breakdown = createBreakdown('MP', notateNumber(value), [
+    sumGroup('Base MP', [
+      flat('Base', 10),
+      flat('Cards', cardBonus),
+      getStampNode(account, { effect: 'Base_MP' }, stampBonus, undefined, 'flat'),
+      flat(sourceName('Talent', 'MANA_BOOSTER'), mpTalentBonus),
+      flat('WIS', character?.stats?.wisdom),
+      flat(sourceName('Post Office', 'Magician_Starterpack'), postOfficeBonus)
+    ]),
+    additiveGroup(NUMBERED_GROUP, [
+      percent(sourceName('Talent', 'MANA_OVERDRIVE'), maxHpTalentBonus),
+      percent(sourceName('Talent', 'HEMA_OVERDRIVE'), agiMaxHpTalentBonus)
+    ]),
+    additiveGroup(NUMBERED_GROUP, [
+      percent(sourceName('Post Office', 'Magician_Starterpack'), postOfficePercentBonus),
+      percent('Cards', cardPercentBonus)
+    ])
+  ]);
+  return { value, breakdown };
 }
-export const getMaxHp = (character: Character, characters: Character[], account: Account) => {
+export const getMaxHp = (character: Character, characters: Character[], account: Account) =>
+  getMaxHpInfo(character, characters, account).value;
+
+const getMaxHpInfo = (character: Character, characters: Character[], account: Account) => {
   // customBlock_PlayerHPmax
   const foodBonus = getFoodBonus(character, account, 'HpBaseBoosts');
   const statueBonus = getStatueBonus(account, 4, character?.flatTalents);
@@ -1120,7 +1212,37 @@ export const getMaxHp = (character: Character, characters: Character[], account:
       + cardPercentBonus) / 100)
     * (1 + starSignBonus / 100)
 
-  return flatHp * percentageHp;
+  const value = flatHp * percentageHp;
+  const breakdown = createBreakdown('HP', notateNumber(value), [
+    sumGroup('Base HP', [
+      flat('Base', 15),
+      flat('Cards', cardBonus),
+      getStampNode(account, { effect: 'Base_HP' }, stampBonus, undefined, 'flat'),
+      flat('Food', foodBonus),
+      flat(statueLineName(account, 4), statueBonus),
+      flat(sourceName('Post Office', 'Locally_Sourced_Organs'), postOfficeBonus),
+      flat(sourceName('Talent', 'HEALTH_BOOSTER'), hpTalentBonus),
+      flat(sourceName('Talent', 'UBERCHARGED_HEALTH'), hpStarTalentBonus),
+      flat('STR', Math.pow(character?.stats?.strength * (1 + hpPercentTalentBonus / 100), 1.05),
+        { note: `Raised by ${sourceName('Talent', 'STRENGTH_IN_NUMBERS')}` })
+    ]),
+    additiveGroup(NUMBERED_GROUP, [
+      percent(sourceName('Talent', 'HEALTH_OVERDRIVE'), maxHpTalentBonus),
+      percent(sourceName('Talent', 'HEMA_OVERDRIVE'), agiMaxHpTalentBonus),
+      percent('Equipment', equipmentBonus),
+      percent('Obols', obolsBonus)
+    ]),
+    multiplier(shrineLineName(account, 1), 1 + shrineBonus / 100),
+    multiplier(sourceName('Golden Food', 'Golden_Jam'), goldenFoodMulti),
+    multiplier(sourceName('Post Office', 'Locally_Sourced_Organs'), 1 + postOfficePercentBonus / 100),
+    multiplier(sourceName('Talent', 'NO_PAIN_NO_GAIN'), 1 - activeBuff / 100),
+    additiveGroup(NUMBERED_GROUP, [
+      percent('Family', amplifiedFamilyBonus),
+      percent('Cards', cardPercentBonus)
+    ]),
+    multiplier('Star Sign', 1 + starSignBonus / 100)
+  ]);
+  return { value, breakdown };
 }
 const getWeaponPower = (character: Character, characters: Character[], account: Account) => {
   // "Weapon_Power" ==
@@ -1163,7 +1285,7 @@ const getWeaponPower = (character: Character, characters: Character[], account: 
   const bestBeginnerBonus = Math.min(beginnerBonus, Math.floor(highestBeginner / 10));
   const wpFromFood = getFoodBonus(character, account, 'WeaponPowerBoosts');
 
-  return 5 + postOfficeBonus
+  const value = 5 + postOfficeBonus
     + flurbo + wpFromFood
     + (cardBonus + cardPassiveBonus
       + (guildBonus + sigilBonus))
@@ -1176,6 +1298,44 @@ const getWeaponPower = (character: Character, characters: Character[], account: 
             (wpPerSailingTalentBonus * Math.floor(character?.skillsInfo?.sailing?.level / 10) + wpPerDivinityTalentBonus
               * Math.floor(character?.skillsInfo?.divinity?.level / 10))) + (wpPerPetTalentBonus * lavaLog(firstStoredPet) +
                 wpPerLabTalentBonus * Math.floor(character?.skillsInfo?.laboratory?.level / 10))))))));
+
+  const perTenLevels = (talent: string, bonus: number, skill: string) =>
+    flat(sourceName('Talent', talent), bonus * Math.floor((character?.skillsInfo as any)?.[skill]?.level / 10),
+      { note: `Per 10 ${skill.charAt(0).toUpperCase()}${skill.slice(1)} levels` });
+  const breakdown = createBreakdown('Weapon power', notateNumber(value), [
+    flat('Base', 5),
+    flat(sourceName('Post Office', 'Deaths_Storage_Unit'), postOfficeBonus),
+    flat('Dungeons', flurbo),
+    flat('Food', wpFromFood),
+    flat('Cards', cardBonus + cardPassiveBonus),
+    flat('Guild', guildBonus),
+    flat(sourceName('Sigil', 'DUSTER_STUDS'), sigilBonus),
+    productGroup('Equipment', [
+      sumGroup(NUMBERED_GROUP, [
+        flat('Equipment', equipmentBonus),
+        flat('Obols', obols)
+      ]),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('Lab Chip', chipBonus),
+        percent(bubbleLineName('SPEAR_POWAH'), strBubbleBonus),
+        percent(bubbleLineName('BOW_POWER'), agiBubbleBonus),
+        percent(bubbleLineName('WAND_PAWUR'), intBubbleBonus)
+      ])
+    ], { unit: 'flat' }),
+    flat(sourceName('Talent', 'BEGINNER_BEST_CLASS'), bestBeginnerBonus),
+    flat('Vials', vialBonus),
+    flat('Family', familyBonus),
+    flat('Star Sign', starSignBonus),
+    flat('Arcade', arcadeBonus),
+    perTenLevels('TOUGH_STEAKS', wpPerCookingTalentBonus, 'cooking'),
+    perTenLevels('GAMER_STRENGTH', wpPerGamingTalentBonus, 'gaming'),
+    perTenLevels('CREW_ROWING_STRENGTH', wpPerSailingTalentBonus, 'sailing'),
+    perTenLevels('BELIEVER_STRENGTH', wpPerDivinityTalentBonus, 'divinity'),
+    flat(sourceName('Talent', 'ANIMALISTIC_FEROCITY'), wpPerPetTalentBonus * lavaLog(firstStoredPet),
+      { note: 'Grows with the first stored pet' }),
+    perTenLevels('WIRED_IN_POWER', wpPerLabTalentBonus, 'laboratory')
+  ], { combine: 'sum' });
+  return { value, breakdown };
 }
 const getCritDamage = (character: Character, characters: Character[], account: Account) => {
   // customBlock_CritDamage
@@ -1198,9 +1358,25 @@ const getCritDamage = (character: Character, characters: Character[], account: A
   else {
     critDamage = ((character?.stats?.strength - 1e3) / (character?.stats?.strength + 2500)) * 0.5 + 0.255;
   }
-  return 1.2 + (warTalentBonus + statueBonus + (wisTalentBonus
+  const value = 1.2 + (warTalentBonus + statueBonus + (wisTalentBonus
     + (stampBonus + ((100 * critDamage) / 1.8 + (bubbleBonus
       + (cardBonus - prayerCurse + (begTalentBonus + (equipmentBonus + obolsBonus + activeBuff)))))))) / 100;
+  const breakdown = createBreakdown('Crit damage', notateNumber(value), [
+    percent('Base', 20),
+    percent('STR', (100 * critDamage) / 1.8),
+    percent(sourceName('Talent', 'CRITIKILL'), warTalentBonus),
+    percent(sourceName('Talent', 'FARSIGHT'), wisTalentBonus),
+    percent(sourceName('Talent', 'KNUCKLEBUSTER'), begTalentBonus),
+    percent(sourceName('Talent', 'DIVINE_INTERVENTION'), activeBuff),
+    percent(statueLineName(account, 5), statueBonus),
+    getStampNode(account, { effect: 'Critical_Damage' }, stampBonus),
+    percent(bubbleLineName('BAPPITY_BOOPITY'), bubbleBonus),
+    percent('Cards', cardBonus),
+    percent(sourceName('Prayer', 'Circular_Criticals'), -prayerCurse),
+    percent('Equipment', equipmentBonus),
+    percent('Obols', obolsBonus)
+  ], { combine: 'additive' });
+  return { value, breakdown };
 }
 const getCritChance = (character: Character, characters: Character[], account: Account, playerInfo: any) => {
   // customBlock_CritChance
@@ -1234,7 +1410,7 @@ const getCritChance = (character: Character, characters: Character[], account: A
     critChance = ((character?.stats?.agility - 1e3) / (character?.stats?.agility + 2500)) * 0.5 + 0.255;
   }
 
-  return 5 + cardSetBonus
+  const value = 5 + cardSetBonus
     + (cardBonus
       + Math.min(cardBonusPassive, 50)
       + (starTalentBonus
@@ -1247,7 +1423,28 @@ const getCritChance = (character: Character, characters: Character[], account: A
       + (wisTalentBonus
         + 5 * achievementBonus
         + (postOfficeBonus
-          + perAccuracyBonus) + (critChance / 2.3 * 100 + bubbleBonus)))
+          + perAccuracyBonus) + (critChance / 2.3 * 100 + bubbleBonus)));
+  const breakdown = createBreakdown('Crit chance', notateNumber(value), [
+    percent('Base', 5),
+    percent('AGI', critChance / 2.3 * 100),
+    percent('Card Set', cardSetBonus),
+    percent('Cards', cardBonus),
+    percent('Cards (passive)', Math.min(cardBonusPassive, 50), { note: 'Max +50%' }),
+    percent(sourceName('Talent', 'MEGA_CRIT'), starTalentBonus),
+    percent(sourceName('Talent', 'OVERACCURATE_CRIT'), perAccuracyBonus, { note: 'Grows with accuracy past the target monster defence' }),
+    percent(sourceName('Talent', 'I_SEE_YOU'), arcTalentBonus),
+    percent(sourceName('Talent', 'FARSIGHT'), wisTalentBonus),
+    percent('Equipment', equipmentBonus),
+    percent('Obols', obolsBonus),
+    percent(sourceName('Prayer', 'Circular_Criticals'), prayerBonus),
+    percent('Meals', mealBonus),
+    percent(statueLineName(account, 13), statueBonus),
+    percent('Star Sign', starSignBonus),
+    percent('Achievement', 5 * achievementBonus),
+    percent(sourceName('Post Office', 'Civil_War_Memory_Box'), postOfficeBonus),
+    percent(bubbleLineName('CHEAP_SHOT'), bubbleBonus)
+  ], { combine: 'sum' });
+  return { value, breakdown };
 }
 // DNSM.arbAcc3 holds the defence of the monster a damage pixel just hit and is reset to this sentinel
 // right after, so AFK and per-hour math always see the target's own Defence.
@@ -1453,7 +1650,7 @@ const getPlayerDefence = (character: Character, characters: Character[], account
             percent('Bubble Bonus', bubbleBonus),
             percent('Vault', vaultUpgBonus46),
             percent('Card Bonus', secondCardBonus + passiveCardBonus),
-            percent('Companion', companionBonus21 ?? 0)
+            percent(companionLineName(21), companionBonus21 ?? 0)
           ])
         ], { unit: 'flat' }),
         flat('Meal Bonus', mealBonus),
@@ -1573,11 +1770,11 @@ const getKillPerKill = (character: Character, characters: Character[], account: 
   // branches; this site computes kill-per-kill with a single formula shared by both paths.
   const royalStatueMultikillBonus = getRoyalStatueBonus(account, 2);
   const companionFactors = [
-    multiplier('Companion (14)', 1 + companionBonus(14)),
+    multiplier(companionLineName(14), 1 + companionBonus(14)),
     multiplier('Royal Statue (Extra Kills)', 1 + royalStatueMultikillBonus / 100),
-    multiplier('Companion (Crystal Glunko)', 1 + 0.2 * companionBonus(168)),
-    multiplier('Companion (29)', 1 + companionBonus(29)),
-    multiplier('Companion (154)', 1 + companionBonus(154))
+    multiplier(companionLineName(168), 1 + 0.2 * companionBonus(168)),
+    multiplier(companionLineName(29), 1 + companionBonus(29)),
+    multiplier(companionLineName(154), 1 + companionBonus(154))
   ];
   const companionMulti = companionFactors.reduce((total, { value }) => total * value, 1);
   const gearFactors = [

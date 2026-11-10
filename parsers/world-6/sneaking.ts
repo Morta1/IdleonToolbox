@@ -40,7 +40,7 @@ import { getIsland } from "@parsers/world-2/islands";
 import { getEmperorBonus } from "@parsers/world-6/emperor";
 import { getSushiBonus } from "@parsers/world-7/sushiStation";
 import { getJellyBonus } from "@parsers/world-7/jellyOperator";
-import { isCompanionBonusActive } from "@parsers/misc";
+import { companionLineName, isCompanionBonusActive } from "@parsers/misc";
 import { getTomeBubbleMulti } from "@parsers/world-4/tome";
 import { OPT } from '@parsers/accountOptions';
 import { saveField } from '@parsers/saveField';
@@ -635,7 +635,7 @@ const getNinjaStealthParts = (account: any, characters: any[], playerIndex: numb
     multiplier('Sushi', 1 + getSushiBonus(account, 32) / 100),
     multiplier('Jelly', 1 + getJellyBonus(account, 16) / 100),
     multiplier('Shhhhhhhhhhh', 1 + shhhh / 100),
-    multiplier('Companion (Smoke Devil)', 1 + 39 * (isCompanionBonusActive(account, 163) ? 1 : 0))
+    multiplier(companionLineName(163), 1 + 39 * (isCompanionBonusActive(account, 163) ? 1 : 0))
   ];
 
   const baseStealth = baseSources.reduce((product: number, node) => product * evaluateBreakdownNode(node), 1);

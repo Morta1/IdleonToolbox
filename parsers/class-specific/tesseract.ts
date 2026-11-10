@@ -16,7 +16,7 @@ import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getPaletteBonus } from '@parsers/world-5/gaming';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
-import { isCompanionBonusActive } from '@parsers/misc';
+import { companionLineName, isCompanionBonusActive } from '@parsers/misc';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { additiveGroup, createBreakdown, multiplier, NUMBERED_GROUP, percent } from '@parsers/breakdown';
@@ -621,7 +621,7 @@ export const getPrismaMulti = (account: any) => {
       percent('Ethereal Sigils', sigilsBonus),
       percent('Exotic Market', exoticMarketBonus),
       percent('Legend Talent', legendBonus),
-      percent('Companion', 50 * companionBonus),
+      percent(companionLineName(88), 50 * companionBonus),
       percent('Cap', 100 * (value - uncapped), { note: `At most ×${MAX_PRISMA_MULTI}` })
     ], { combine: 'additive' })
   };

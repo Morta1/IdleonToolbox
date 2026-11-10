@@ -55,10 +55,10 @@ export const characterStatFacts = (character, characters, account, playerInfo = 
     stat('Damage', playerInfo?.maxDamage, () => <GameIconNotation value={notateDamage(playerInfo)} sx={{ typography: 'body2', fontWeight: 500, display: 'inline-flex', flexWrap: 'wrap', justifyContent: 'flex-end' }}/>,
       { breakdown: playerInfo?.damageBreakdown, notation: 'ThreeDecimals' }),
     // Big from 1M, as the game's HP bar (N.js:82671): the stats panel's PlayerHPmax is bare digits up to 1e8 (N.js:81962)
-    stat('HP', playerInfo?.maxHp, (hp) => formatNum(hp)),
-    stat('MP', playerInfo?.maxMp, (mp) => formatNum(mp)),
-    stat('Accuracy', playerInfo?.accuracy, (accuracy) => formatGame(accuracy, 'PlayerAccTot')),
-    stat('Movement speed', playerInfo?.movementSpeed, (speed) => `${formatGame(speed, 'PlayerSpeedBonus')}%`),
+    stat('HP', playerInfo?.maxHp, (hp) => formatNum(hp), { breakdown: playerInfo?.breakdowns?.maxHp }),
+    stat('MP', playerInfo?.maxMp, (mp) => formatNum(mp), { breakdown: playerInfo?.breakdowns?.maxMp }),
+    stat('Accuracy', playerInfo?.accuracy, (accuracy) => formatGame(accuracy, 'PlayerAccTot'), { breakdown: playerInfo?.breakdowns?.accuracy }),
+    stat('Movement speed', playerInfo?.movementSpeed, (speed) => `${formatGame(speed, 'PlayerSpeedBonus')}%`, { breakdown: playerInfo?.breakdowns?.movementSpeed }),
     stat('Cash multi', cashMulti, (multi) => `${cashMultiText(multi)}x`, { breakdown: cashBreakdown, notation: 'Smaller' }),
     stat('Drop rate', dropRate, (rate) => `${formatGame(rate, 'TotalStats.Drop_Rarity')}x`, { breakdown: dropBreakdown, notation: 'ThreeDecimals' }),
     respawnFact(getRespawnRate(character, account) || {}),
@@ -78,8 +78,9 @@ export const characterPanelFacts = (character, characters, account, playerInfo) 
     stat('Kills per hour', playerInfo?.finalKillsPerHour, (kills) => formatGame(Math.floor(kills), 'ArbitraryCode.KillPerKill')),
     stat('Kill per kill', playerInfo?.killPerkill?.value, (kills) => formatNum(kills, 'mult'), { breakdown: playerInfo?.killPerkill?.breakdown, notation: 'ThreeDecimals' }),
     stat('Defence', playerInfo?.defence?.value, (defence) => formatGame(defence, 'TotalStats.Defence'), { breakdown: playerInfo?.defence?.breakdown }),
-    stat('Crit chance', playerInfo?.critChance, (chance) => formatNum(Math.min(CRIT_CHANCE_DISPLAY_CAP, chance), 'pct')),
-    stat('Crit damage', playerInfo?.critDamage, (damage) => formatNum(damage, 'mult')),
+    stat('Weapon power', playerInfo?.weaponPower, (power) => formatNum(power), { breakdown: playerInfo?.breakdowns?.weaponPower }),
+    stat('Crit chance', playerInfo?.critChance, (chance) => formatNum(Math.min(CRIT_CHANCE_DISPLAY_CAP, chance), 'pct'), { breakdown: playerInfo?.breakdowns?.critChance }),
+    stat('Crit damage', playerInfo?.critDamage, (damage) => formatNum(damage, 'mult'), { breakdown: playerInfo?.breakdowns?.critDamage, notation: 'ThreeDecimals' }),
     stat('EXP multi', classExp, (multi) => <GameIconNotation value={notateExpMulti(multi)} sx={{ typography: 'body2', fontWeight: 500, display: 'inline-flex' }}/>,
       { breakdown: classExpBreakdown, notation: 'Smaller' })
   ];

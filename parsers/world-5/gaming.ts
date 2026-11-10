@@ -2,7 +2,7 @@ import { gamingImports, gamingPalette, gamingUpgrades, randomList2, superbitsUpg
 import { gameFill, notateNumber, number2letter, tryToParse } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { getAccountMinorDivinityBonus, GOD_INDEX } from '@parsers/world-5/divinity';
-import { getHighestLevelCharacter, getLoggedInSkillLevel, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
+import { getHighestLevelCharacter, getLoggedInSkillLevel, companionLineName, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
 import { getEquinoxBonus } from '@parsers/world-3/equinox';
 import { getMeritocracyBonus, getVoteBonus } from '@parsers/world-2/voteBallot';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
@@ -281,7 +281,7 @@ export const getBitsMulti = (account: any, characters: any) => {
     multiplier('Bit Toggle', 1 + 99 * accountOptionToggle),
     multiplier('Research Grid', 1 + gridBonus / 100),
     multiplier('Gummy Orb Artifact', 1 + gummyOrbArtifactBonus / 100),
-    multiplier('Companion', Math.max(1, 1 + companionBonus)),
+    multiplier(companionLineName(53), Math.max(1, 1 + companionBonus)),
     multiplier('Weatherbook Artifact', 1 + weatherbookArtifactBonus / 100),
     multiplier('Monument', 1 + monumentBonus / 100),
     multiplier('Skill Mastery', 1 + (15 * skillMastery) / 100),

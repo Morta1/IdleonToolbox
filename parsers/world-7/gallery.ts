@@ -6,6 +6,7 @@ import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import {
   getEventShopBonus,
   getKillRoyShopBonus,
+  companionLineName,
   isCompanionBonusActive,
   isCompanionLvl2Active,
   isBundlePurchased
@@ -319,7 +320,7 @@ const getGalleryBonusSources = (rawSpelunk: any, account: any, character?: any) 
     percent('Bubble', Math.min(20, getBubbleBonus(account, 'CODFREY_RULZ_OK', false))),
     // Game: min(CardLv("w7a11"), 10) - the coefficient is 1 and the cap is on the level itself.
     percent('Card (Coralcave Crab)', Math.min(getCardLevel(account?.cards, 'w7a11'), 10)),
-    percent('Companion (Bubba the Seal)', companionBonus || 0),
+    percent(companionLineName(49), companionBonus || 0),
     percent('Sushi', getSushiBonus(account, 54))
   ];
 }

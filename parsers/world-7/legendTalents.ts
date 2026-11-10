@@ -2,7 +2,7 @@ import type { IdleonData, Account } from '../types';
 import { gameFill, tryToParse } from '@utility/helpers';
 import { generalSpelunky, legendTalents, researchGridSquares, gameTables } from '@website-data';
 import { getGildedBoostioBonus } from '@parsers/world-3/construction';
-import { getEventShopBonus, getGuaranteedCrystalMobs, isCompanionBonusActive } from '@parsers/misc';
+import { getEventShopBonus, getGuaranteedCrystalMobs, companionLineName, isCompanionBonusActive } from '@parsers/misc';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getResearchGridBonus } from '@parsers/world-7/research';
@@ -215,7 +215,7 @@ export const getLegendPointsOwned = (accountData: Account = {} as Account, chara
     breakdown: createBreakdown('Legend Points', value, [
       flat('Character levels', totalPointsFromLevels),
       flat('Clam Work', clamWorkBonus1 + clamWorkBonus4),
-      flat('Companion', 10 * companionBonus),
+      flat(companionLineName(37), 10 * companionBonus),
       flat('Gem shop', gemItem42),
       flat('Obsidian (Artifact)', artifactPoints),
       flat('Event shop', 2 * eventShopBonus),

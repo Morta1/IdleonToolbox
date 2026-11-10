@@ -63,6 +63,7 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
       <Fact {...facts.HP}/>
       <Fact {...facts.MP}/>
       <Fact {...facts.Accuracy}/>
+      <Fact {...facts['Weapon power']}/>
       <Fact {...facts['Crit chance']}/>
       <Fact {...facts['Crit damage']}/>
       <Fact {...facts['Movement speed']}/>

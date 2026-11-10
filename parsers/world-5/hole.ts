@@ -10,7 +10,7 @@ import { getTheHarp, getUniqueHarpStringTypes } from '@parsers/world-5/caverns/t
 import { getLamp } from '@parsers/world-5/caverns/the-lamp';
 import { getHive } from '@parsers/world-5/caverns/the-hive';
 import { getGrotto } from '@parsers/world-5/caverns/grotto';
-import { getEventShopBonus, isBundlePurchased, isCompanionBonusActive } from '@parsers/misc';
+import { getEventShopBonus, isBundlePurchased, companionLineName, isCompanionBonusActive } from '@parsers/misc';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getJustice } from '@parsers/world-5/caverns/justice';
@@ -679,7 +679,7 @@ const getVillagerExpPerHour = (holesObject: any, accountData: any, t: any, least
       multiplier('Compass', 1 + compassBonus / 100),
       multiplier('Legend Talent', 1 + getLegendTalentBonus(accountData, 12) / 100),
       multiplier('Charm', 1 + charmBonus / 100),
-      multiplier('Companion', 1 + 2 * companionBonus),
+      multiplier(companionLineName(13), 1 + 2 * companionBonus),
       multiplier('Statue', 1 + statueBonus / 100),
       multiplier('Jars', 1 + jarBonuses / 100),
       multiplier('Event shop', 1 + (25 * eventBonus) / 100),
