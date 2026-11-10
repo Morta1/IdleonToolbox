@@ -66,7 +66,8 @@ const findBreakdowns = (node, trail = '', found = [], seen = new WeakSet()) => {
 };
 
 describe('breakdowns as the drawer renders them', () => {
-  it('every source renders to a real number, on every save', () => {
+  // One test parses every save (about 10 s alone, 26 s under the full suite's load), past the 20 s default
+  it('every source renders to a real number, on every save', { timeout: 60_000 }, () => {
     expectNoBreaks(FIXTURES, ([name]) => name, ([, fixture]) => {
       const { account, characters } = parseFixture(fixture);
       const breakdowns = [
