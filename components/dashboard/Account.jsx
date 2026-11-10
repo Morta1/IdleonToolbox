@@ -875,7 +875,9 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                     ? ''
                     : 's'} ${alerts?.['World 7']?.spelunking?.fullStaminaCharacters?.count === 1
                     ? 'has'
-                    : 'have'} full stamina`}
+                    : 'have'} ${alerts?.['World 7']?.spelunking?.fullStaminaCharacters?.percent < 100
+                    ? `${alerts?.['World 7']?.spelunking?.fullStaminaCharacters?.percent}%+`
+                    : 'full'} stamina`}
                   iconPath={'data/CaveShopUpg4'}/>
                 : null}
               {alerts?.['World 7']?.spelunking?.overstimLevel?.current >= alerts?.['World 7']?.spelunking?.overstimLevel?.threshold

@@ -720,6 +720,12 @@ export const baseTrackers = {
             checked: true
           },
           {
+            name: 'staminaPercent',
+            type: 'input',
+            props: { label: 'Stamina %', value: 50, minValue: 1, maxValue: 100 },
+            checked: false
+          },
+          {
             name: 'overstimLevel',
             type: 'input',
             props: { label: 'Overstim level threshold', value: 1, minValue: 1 },

@@ -1957,11 +1957,17 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
     if (options?.spelunking?.fullStaminaCharacters?.checked) {
       const threshold = options?.spelunking?.fullStaminaCharacters?.props?.value ?? 1;
       const charactersStamina = account?.spelunking?.charactersStamina ?? [];
-      const fullStaminaCount = charactersStamina.filter(({ isFull }) => isFull).length;
+      const percent = options?.spelunking?.staminaPercent?.checked
+        ? Math.min(100, Math.max(1, options?.spelunking?.staminaPercent?.props?.value ?? 100))
+        : 100;
+      const fullStaminaCount = charactersStamina.filter(({ isFull, currentStamina, characterStamina }) => percent >= 100
+        ? isFull
+        : currentStamina >= characterStamina * percent / 100).length;
       if (fullStaminaCount >= threshold) {
         spelunking.fullStaminaCharacters = {
           count: fullStaminaCount,
-          threshold
+          threshold,
+          percent
         };
       }
     }

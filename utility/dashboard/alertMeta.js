@@ -860,6 +860,12 @@ export const alertMeta = {
         help: 'Alerts when at least this many characters have full stamina.',
         unit: 'characters'
       },
+      staminaPercent: {
+        label: 'Count characters from a stamina %',
+        help: 'Counts a character once its stamina reaches this percent of its max, instead of waiting for full.',
+        unit: '%',
+        dependsOn: 'fullStaminaCharacters'
+      },
       overstimLevel: { label: 'Overstim level reached', help: 'Alerts when your Overstim level reaches this value.' }
     }
   },
