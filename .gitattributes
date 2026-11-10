@@ -1,0 +1,5 @@
+# The build rewrites these with LF. Checked out as CRLF they changed size on every build, and git then lists them as
+# modified with an empty diff.
+data/graph-stats.json text eol=lf
+scripts/entity-graph/registry-report.json text eol=lf
+utility/wiki/game-constants.mjs text eol=lf
