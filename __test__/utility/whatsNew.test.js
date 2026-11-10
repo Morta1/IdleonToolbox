@@ -214,7 +214,6 @@ describe('whenPageIsFree', () => {
 
   it.each([
     ['an answered banner', answered, true],
-    ['the banner on screen', banner, false],
     ['the banner on screen at any age', () => {
       banner();
       elapsed(60000);

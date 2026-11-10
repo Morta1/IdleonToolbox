@@ -1,5 +1,6 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
+import { expectNoBreaks } from '../helpers/sweep';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
 import { diffTrackers, resolveTrackers } from '@utility/dashboard/trackerStore';
 import { allTrackers, buildModel } from '@utility/dashboard/settingsModel';
@@ -157,8 +158,11 @@ describe('call site key shapes', () => {
     ['characters', 'crystalCountdown', 'ClassIcons42'],
     ['timers', 'World 5.villagers', 'explore']
   ];
-  it.each(cases)('%s %s resolves item %s', (configType, target, key) => {
-    expect(quick(configType, target, { items: [{ key }] }).kind).toBe('pickerItems');
+  it('every call site resolves its item key to a picker item', () => {
+    expectNoBreaks(cases, ([configType, target, key]) => `${configType} ${target} ${key}`, ([configType, target, key]) => {
+      const { kind } = quick(configType, target, { items: [{ key }] });
+      return kind === 'pickerItems' ? [] : [`resolved as ${kind}`];
+    });
   });
 });
 

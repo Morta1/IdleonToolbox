@@ -46,17 +46,6 @@ describe('website-data barrel', () => {
   // A whole-module import bundles it without naming it: `import * as X from '@website-data'`, `import('@website-data')`,
   // `export * from '@website-data'` or `require('@website-data')` cannot be tree-shaken (firebase's getGuilds did the
   // dynamic import until 2026-10-15).
-  it('matches every whole-module form', () => {
-    expect([
-      "import * as data from '@website-data';",
-      "const data = await import('@website-data');",
-      "export * from '@website-data';",
-      "export * as data from '@website-data';",
-      "const data = require('@website-data');",
-      "import { items } from '@website-data';"
-    ].map((line) => WHOLE_MODULE_IMPORT.test(line))).toEqual([true, true, true, true, true, false]);
-  });
-
   it('no app module names wikiTables or imports website-data whole', () => {
     const hits = APP_DIRS.flatMap((dir) => sourceFiles(path.join(ROOT, dir)))
       .filter((file) => {

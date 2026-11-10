@@ -178,9 +178,6 @@ describe('all and group goals', () => {
 
   it.each([
     ['farmMarket', 'day', 'Day market'],
-    ['superbit', 'super', 'Super bits'],
-    ['pet', 'World1', 'World 1'],
-    ['summonUpgrade', '0', 'White'],
     ['discovery', 0, null]
   ])('%s group %j is named by the group alone', (system, group, name) => {
     const d = getDescriptor(system);

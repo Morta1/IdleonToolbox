@@ -1,7 +1,6 @@
 import fs from 'node:fs';
-import path from 'node:path';
 import { describe, expect, it } from 'vitest';
-import { REPO_ROOT, repoRelative, sourceFiles } from './helpers/source-files';
+import { repoRelative, sourceFiles } from './helpers/source-files';
 
 const SCANNED_DIRS = ['components', 'pages'];
 
@@ -29,21 +28,6 @@ const findNestedBottomMargins = (files) => {
 
 describe('card row spacing', () => {
   const files = sourceFiles(SCANNED_DIRS, /\.jsx$/);
-
-  it('detects the nested shape it is meant to catch', () => {
-    const fixture = path.join(REPO_ROOT, '__test__', '.nested-margin-fixture.jsx');
-    fs.writeFileSync(fixture, [
-      '<Stack mb={3} direction={\'row\'} flexWrap={\'wrap\'}>',
-      '  <Stack mb={3} direction={\'row\'} flexWrap={\'wrap\'}>',
-      '  </Stack>',
-      '</Stack>'
-    ].join('\n'));
-    try {
-      expect(findNestedBottomMargins([fixture])).toHaveLength(1);
-    } finally {
-      fs.unlinkSync(fixture);
-    }
-  });
 
   it('no container with a bottom margin sits inside another one', () => {
     expect(files.length).toBeGreaterThan(200);

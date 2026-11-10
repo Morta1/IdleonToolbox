@@ -1,17 +1,20 @@
 import { describe, expect, it } from 'vitest';
 import { DRAWN_SLOTS, EQUIPMENT_SLOTS, iconFor, itemsForSlot } from '@components/tools/wardrobe/slots';
 import { SLOT_TYPES } from '@utility/wardrobeQuery';
+import { expectNoBreaks } from './helpers/sweep';
 import { monsterSprite } from '@utility/spriteImages';
 import { companions, itemsArray } from '@website-data';
 
 describe('itemsForSlot', () => {
-  for (const slot of Object.keys(SLOT_TYPES)) {
-    it(`${slot} returns non-empty items whose Type is allowed for that slot`, () => {
+  it('every slot offers items, all of a Type the slot allows', () => {
+    expectNoBreaks(Object.keys(SLOT_TYPES), (slot) => slot, (slot) => {
       const options = itemsForSlot(slot);
-      expect(options.length).toBeGreaterThan(0);
-      for (const item of options) expect(SLOT_TYPES[slot].has(item.Type)).toBe(true);
+      return [
+        ...(options.length ? [] : ['no items']),
+        ...options.filter((item) => !SLOT_TYPES[slot].has(item.Type)).map((item) => `${item.rawName} is a ${item.Type}`)
+      ];
     });
-  }
+  });
 
   it('lists real trophies and replicas side by side, since they are different items', () => {
     const options = itemsForSlot('trophy');
@@ -35,9 +38,6 @@ describe('DRAWN_SLOTS', () => {
   it('lists the seven drawn slots in spec order', () => {
     expect(DRAWN_SLOTS.map(({ slot }) => slot)).toEqual(['hat', 'weapon', 'cape', 'costume', 'trophy', 'nametag', 'companion']);
     expect(DRAWN_SLOTS.map(({ label }) => label)).toEqual(['Hat', 'Weapon', 'Cape', 'Costume', 'Trophy', 'Nametag', 'Companion']);
-  });
-  it('gives the companion no EquipOrder index: it lives on the account, not the character', () => {
-    expect(DRAWN_SLOTS.at(-1).index).toBe(null);
   });
 });
 

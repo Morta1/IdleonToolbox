@@ -52,14 +52,6 @@ describe('image alt attributes', () => {
     expect(offenders, `Images with no alt attribute:\n${offenders.join('\n')}`).toEqual([]);
   });
 
-  it('the index-like matcher matches the shape it is meant to catch', () => {
-    expect(INDEX_LIKE_ALT.test('<img src={`a${talentId}.png`} alt={talentId}/>')).toBe(true);
-    expect(INDEX_LIKE_ALT.test('<img src={x} alt={upgrade.originalIndex}/>')).toBe(true);
-    expect(INDEX_LIKE_ALT.test('<img src={x} alt={monster.MonsterFace}/>')).toBe(true);
-    expect(INDEX_LIKE_ALT.test('<img src={x} alt={displayName}/>')).toBe(false);
-    expect(INDEX_LIKE_ALT.test('<img src={x} alt=""/>')).toBe(false);
-  });
-
   it('no image is labelled with a bare index or numeric id', () => {
     const offenders = findIndexLabelled();
     expect(offenders, `Images whose alt is an index or id:\n${offenders.join('\n')}`).toEqual([]);

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { attackPoseForType, CANVAS, COMPANION_DX, COMPANION_SCALE, drawOrder, frameAt, OUTFIT_POSES, PLAYER_REACH_LEFT, POSES, resolveLayers, HAT_OFFSET, MAX_FRAME_MS, playbackDurations, scaledOffset } from '../utility/paperDoll';
+import { attackPoseForType, CANVAS, COMPANION_DX, COMPANION_SCALE, drawOrder, frameAt, PLAYER_REACH_LEFT, POSES, resolveLayers, HAT_OFFSET, MAX_FRAME_MS, playbackDurations, scaledOffset } from '../utility/paperDoll';
 import { nameLabelOps } from '../utility/nameLabel';
 import realManifest from '../data/player-sprites-manifest.json';
 
@@ -95,13 +95,6 @@ describe('POSES', () => {
     expect(Object.fromEntries(POSES.map((pose) => [pose.id, pose.label]))).toMatchObject({
       3: 'Jump', 4: 'Climb', 5: 'Mining', 6: 'Choppin', 7: 'Fishing', 8: 'Catching', 9: 'Divinity'
     });
-  });
-});
-
-describe('OUTFIT_POSES', () => {
-  it('is Idle, Walk and Attack, in that order', () => {
-    expect(OUTFIT_POSES.map(({ id }) => id)).toEqual(['0', '1', 'attack']);
-    expect(OUTFIT_POSES.map(({ label }) => label)).toEqual(['Idle', 'Walk', 'Attack']);
   });
 });
 

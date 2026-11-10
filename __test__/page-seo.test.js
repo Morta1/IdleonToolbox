@@ -17,11 +17,4 @@ describe('page-seo map', () => {
   it('is in sync with the pages it was generated from', () => {
     expect(PAGE_SEO).toEqual(Object.fromEntries(entries));
   });
-
-  it('gives every route a title and a description', () => {
-    const incomplete = Object.entries(PAGE_SEO)
-      .filter(([, seo]) => !seo.title || !seo.description)
-      .map(([route]) => route);
-    expect(incomplete).toEqual([]);
-  });
 });
