@@ -31,7 +31,8 @@ export const patchNotes = [
       'Hole: Lamp wishes show how many times each wish was made',
       'Goals: Research is now marked Global and its goals are for the whole account',
       'Goals: Character level goals skip the extra pick, there is only one entry',
-      'Arcade Shop: Cosmic balls now use their game name instead of Royal balls'
+      'Arcade Shop: Cosmic balls now use their game name instead of Royal balls',
+      'World 5 Gaming: King Rat shows the crown chance the way the game does (1 in N), instead of a capped 100%'
     ]
   },
   {

@@ -621,14 +621,16 @@ const calcRatKing = (gamingSproutRaw: any, researchRaw: any, account: any, super
   );
 
   const arcadeBonusCrown = getArcadeBonus(account?.arcade?.shop, 'New_Crown_Chance')?.bonus ?? 0;
+  // game raises 1.5 to the box's growth level when it rolls; the King Rat screen uses level 0
   const ratCrownOdds = Math.min(1,
     0.05
     * (1 + 0.5 * superbit60)
     * (1 + (ratShopBonus2 + (ratBaseBonus ?? 0) + arcadeBonusCrown) / 100)
-    * Math.pow(1.5, crownsCount)
     * (1 + getSushiBonus(account, 31) / 100)
     * (1 + getJellyBonus(account, 42) / 100)
   );
+  // King Rat screen's "1 in N": 1.111 per crown stands in for the second roll, which must land a new crown
+  const ratCrownOneIn = (1 / ratCrownOdds) * Math.pow(1.111, crownsCount);
 
   const paletteBonus34 = getPaletteBonus(account, 34) ?? 0;
   const gridBonus108 = getResearchGridBonus(account, 108, 0);
@@ -644,7 +646,7 @@ const calcRatKing = (gamingSproutRaw: any, researchRaw: any, account: any, super
     { name: 'Extra crowns', level: bitMultiUpgLv ?? 0, bonus: ratShopBonus2, cost: calcRatShopCost(2, ratShopRaw) },
   ];
 
-  return { crownsCount, kingRatUnlocked: !!kingRatUnlocked, ratBitMulti, ratCurrencyGain, ratCrownOdds, shopUpgrades };
+  return { crownsCount, kingRatUnlocked: !!kingRatUnlocked, ratBitMulti, ratCurrencyGain, ratCrownOdds, ratCrownOneIn, shopUpgrades };
 };
 
 const calcRatShopCost = (t: any, ratShopRaw: any) => {
