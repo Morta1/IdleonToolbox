@@ -239,7 +239,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
         <Alert target={'talents.libraryUpgradableTalents'}
           title={<TalentList name={name} noun={'talent'} verb={'the Library can raise'}
                              talents={alerts?.talents?.libraryUpgradableTalents}/>}
-          iconPath={`data/${getTalentBookIcon(character?.class)}`}/> : null}
+          iconPath={'data/Libz'}/> : null}
       {trackers?.tools?.checked && alerts?.tools?.length > 0 ? alerts?.tools?.map(({
                                                                                      rawName,
                                                                                      displayName
