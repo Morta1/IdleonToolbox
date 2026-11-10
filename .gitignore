@@ -55,3 +55,7 @@ public/workers/
 /.screens-today/
 # Site statistics stay out of the public repo.
 /docs/analytics/
+# Rewritten by Next on every dev and build run.
+/next-env.d.ts
+# Personal IDE settings.
+/.idea/
