@@ -23,7 +23,8 @@ export const patchNotes = [
       'Tome: entries with in-game help text now show it behind an info button',
       'Dashboard: the Spelunking stamina alert can count characters from a stamina percent, so it fires before they are full',
       'Goals: Dancing coral can now track unlocking each coral, with a bar for coral owned vs cost',
-      'Characters: the Alchemy skill shows the character brew speed with a breakdown'
+      'Characters: the Alchemy skill shows the character brew speed with a breakdown',
+      'Gallery: the Bonus multi now shows a breakdown of its sources'
     ],
     'fixes': [
       'Farming: a crop family\'s max time under a second shows in milliseconds again instead of "<1s"',

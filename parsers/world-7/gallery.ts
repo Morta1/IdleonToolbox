@@ -18,6 +18,7 @@ import { getPlayerLabChipBonus } from '@parsers/world-4/lab';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { isMapClearedBy } from '@parsers/world-3/hatRack';
 import { saveField } from '@parsers/saveField';
+import { createBreakdown, percent } from '@parsers/breakdown';
 
 export const getGallery = (idleonData: any, account: any) => {
   const rawSpelunk = saveField(idleonData, 'Spelunk');
@@ -303,22 +304,34 @@ export const getNametagBonuses = (rawSpelunk: any, account: any, character?: any
   };
 }
 
-// game: "GalleryBonusMulti"
-export const getGalleryBonusMulti = (rawSpelunk: any, account: any, character?: any) => {
-  const baseValue = rawSpelunk?.[13]?.[4] ?? 0;
-  const chipBonus = character ? getPlayerLabChipBonus(character, account, 16) ? 10 : 0 : 0;
-  const clamWorkBonus = 3 * getClamWorkBonus(account, 7);
-  const killroyBonus = getKillRoyShopBonus(account, 3);
-  // Bubble is account-wide, so it belongs on the account-level multi too. Alchemy is serialized
-  // (index.ts) well before gallery in the same pass, so there is no stale-data window to guard.
-  const bubbleBonus = Math.min(20, getBubbleBonus(account, 'CODFREY_RULZ_OK', false));
-  // Game: min(CardLv("w7a11"), 10) - the coefficient is 1 and the cap is on the level itself.
-  const cardBonus = Math.min(getCardLevel(account?.cards, 'w7a11'), 10);
+// game: "GalleryBonusMulti". Each source in percent points, summed into 1 + total / 100.
+const getGalleryBonusSources = (rawSpelunk: any, account: any, character?: any) => {
+  const coralReefLevel = rawSpelunk?.[13]?.[4] ?? 0;
   const companionBonus = isCompanionBonusActive(account, 49) ? account?.companions?.list?.at(49)?.bonus : 0;
-  const sushiBonus54 = getSushiBonus(account, 54);
-
-  return 1 + (3 * baseValue + chipBonus + clamWorkBonus + killroyBonus + bubbleBonus + cardBonus + companionBonus + sushiBonus54) / 100;
+  return [
+    percent('Coral Reef', 3 * coralReefLevel),
+    // The chip is per character, so the account-level multi leaves it out
+    ...(character ? [percent('Chip', getPlayerLabChipBonus(character, account, 16) ? 10 : 0)] : []),
+    percent('Clam Work', 3 * getClamWorkBonus(account, 7)),
+    percent('Killroy', getKillRoyShopBonus(account, 3)),
+    // Bubble is account-wide, so it belongs on the account-level multi too. Alchemy is serialized
+    // (index.ts) well before gallery in the same pass, so there is no stale-data window to guard.
+    percent('Bubble', Math.min(20, getBubbleBonus(account, 'CODFREY_RULZ_OK', false))),
+    // Game: min(CardLv("w7a11"), 10) - the coefficient is 1 and the cap is on the level itself.
+    percent('Card (Coralcave Crab)', Math.min(getCardLevel(account?.cards, 'w7a11'), 10)),
+    percent('Companion (Bubba the Seal)', companionBonus || 0),
+    percent('Sushi', getSushiBonus(account, 54))
+  ];
 }
+
+export const getGalleryBonusMulti = (rawSpelunk: any, account: any, character?: any) => {
+  const total = getGalleryBonusSources(rawSpelunk, account, character).reduce((sum, { value }) => sum + (value || 0), 0);
+  return 1 + total / 100;
+}
+
+export const getGalleryBonusMultiBreakdown = (rawSpelunk: any, account: any, character?: any) =>
+  createBreakdown('Gallery bonus multi', getGalleryBonusMulti(rawSpelunk, account, character),
+    getGalleryBonusSources(rawSpelunk, account, character), { combine: 'additive' });
 
 // game: "PodiumsOwned"
 export const getPodiumsOwned = (rawSpelunk: any, account: any) => {

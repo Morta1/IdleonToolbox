@@ -15,6 +15,7 @@ import { bonusRows } from '@components/account/BonusesPanel';
 import Nametags from '@components/account/Worlds/World7/Gallery/Nametags';
 import {
   getGalleryBonusMulti,
+  getGalleryBonusMultiBreakdown,
   getTrophyBonuses,
   getNametagBonuses,
   getAllTrophies,
@@ -58,6 +59,9 @@ const Gallery = () => {
     allTrophies,
     allNametags
   } = galleryData;
+  const multiBreakdown = rawSpelunk && !sectionFailed
+    ? getGalleryBonusMultiBreakdown(rawSpelunk, account, perCharacter ? character : null)
+    : undefined;
 
   return <>
     <NextSeo
@@ -82,7 +86,8 @@ const Gallery = () => {
       : <NotReached name={'the Gallery'} reached={section?.trophiesUsed?.length > 0 || section?.nametagsUsed?.length > 0}/>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Podiums'} value={podiumsOwned ?? 0} kind={'amount'}/>
-      <StatTile label={'Bonus multi'} value={<Num value={bonusMulti ?? 1} game={'Gallery.GalleryBonusMulti'} unit={'x'}/>}/>
+      <StatTile label={'Bonus multi'} value={<Num value={bonusMulti ?? 1} game={'Gallery.GalleryBonusMulti'} unit={'x'}/>}
+                breakdown={multiBreakdown} breakdownTitle={'Gallery bonus multi'}/>
       <StatTile label={'Level 2 podiums'} icon={'data/GalleryPod1.png'} value={lv2PodiumsOwned ?? 0} kind={'amount'}/>
       <StatTile label={'Level 3 podiums'} icon={'data/GalleryPod2.png'} value={lv3PodiumsOwned ?? 0} kind={'amount'}/>
       <StatTile label={'Level 4 podiums'} icon={'data/GalleryPod3.png'} value={lv4PodiumsOwned ?? 0} kind={'amount'}/>
