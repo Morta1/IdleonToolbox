@@ -17,7 +17,7 @@ import { DOUBLER_SPELUNK_ROW, getDoublerMulti, isDoublerEligible } from '@parser
 import { getBestActiveCharacter } from '@parsers/talents';
 import { getGildedBoostioBonus } from '@parsers/world-3/construction';
 import { EQUINOX_CLOUD, getCloudBonus } from '@parsers/world-3/equinox';
-import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
 import { saveField } from '@parsers/saveField';
 
 // The player's lives before Minehead upgrade 6
@@ -191,6 +191,28 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any, char
     * (1 + (50 * nomenclatureAcquired) / 100)
     * (1 + legendTalent40Bonus / 100)
     * (1 + getJellyBonus(account, 9) / 100);
+
+  const upgradeName = (idx: number) => (mineheadUpgrades?.[idx]?.name ?? `Upgrade ${idx}`).replace(/_/g, ' ');
+  const baseDamageBreakdown = createBreakdown('Base damage', baseDMG, [
+    sumGroup(NUMBERED_GROUP, [
+      flat('Base', 1),
+      flat(upgradeName(0), getUpgradeQTY(0)),
+      flat(upgradeName(7), getUpgradeQTY(7)),
+      flat(upgradeName(25), getUpgradeQTY(25)),
+      flat('Dancing Coral (Aegean)', dancingCoral5)
+    ]),
+    productGroup(NUMBERED_GROUP, [
+      additiveGroup(NUMBERED_GROUP, [
+        percent(upgradeName(4), getUpgradeQTY(4)),
+        percent(upgradeName(21), getUpgradeQTY(21)),
+        percent(upgradeName(27), getUpgradeQTY(27))
+      ]),
+      multiplier((researchGridSquares?.[167]?.name ?? 'Grid 167').replace(/_/g, ' '), 1 + grid167Bonus / 100),
+      multiplier('Nomenclature (Artifact)', 1 + (50 * nomenclatureAcquired) / 100),
+      multiplier('Minehead My Beloved', 1 + legendTalent40Bonus / 100),
+      multiplier('Jelly Operator', 1 + getJellyBonus(account, 9) / 100)
+    ])
+  ]);
 
   // Currency gain per hour:
   //   grid129 * (1+grid148/100) * companionMulti * min(3, 1+BonusQTY(6)/100)
@@ -455,6 +477,7 @@ export const getMinehead = (idleonData: any, account: any, serverVars: any, char
     baseDMG,
     currencyGain,
     currencyGainBreakdown,
+    baseDamageBreakdown,
     bluecrownOdds: getBluecrownOdds(),
     upgrades,
     opponents,

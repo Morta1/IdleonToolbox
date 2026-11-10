@@ -30,11 +30,13 @@ const Minehead = () => {
     baseDMG,
     currencyGain,
     currencyGainBreakdown,
+    baseDamageBreakdown,
     upgrades,
     opponents
   } = section ?? {};
   // The drawer reads the tile's own text
   const perHourText = formatGame(currencyGain ?? 0, 'Minehead.CurrencyGain');
+  const baseDamageText = formatGame(baseDMG ?? 1, 'Minehead.BaseDMG');
   const [settings, setSettings, resetSettings] = usePageSettings('minehead', UPGRADES_AHEAD_SETTINGS);
 
   return <SummaryFailed value={sectionFailed}>
@@ -57,7 +59,9 @@ const Minehead = () => {
       <StatTile label={'Opponents beaten'} value={opponentsBeat ?? 0} kind={'amount'}/>
       <StatTile label={'Max lives'} value={maxHP_You ?? MINEHEAD_BASE_LIVES} kind={'amount'}/>
       <DoublerUsageCard title={'Doublers'} doubler={account?.menagerie?.doublers?.minehead} icon={DOUBLER_ICONS.minehead}/>
-      <StatTile label={'Base damage'} value={formatGame(baseDMG ?? 1, 'Minehead.BaseDMG')}/>
+      <StatTile label={'Base damage'} value={baseDamageText}
+                breakdown={baseDamageBreakdown ? { ...baseDamageBreakdown, totalValue: baseDamageText } : undefined}
+                breakdownTitle={'Base damage'}/>
       <StatTile label={'Mine currency per hour'} value={perHourText}
                 breakdown={currencyGainBreakdown ? { ...currencyGainBreakdown, totalValue: perHourText } : undefined}
                 breakdownTitle={'Mine currency per hour'}/>
