@@ -22,7 +22,8 @@ export const patchNotes = [
       'Equinox can show the bar requirement a few upgrade levels ahead and how long it takes to fill',
       'Tome: entries with in-game help text now show it behind an info button',
       'Dashboard: the Spelunking stamina alert can count characters from a stamina percent, so it fires before they are full',
-      'Goals: Dancing coral can now track unlocking each coral, with a bar for coral owned vs cost'
+      'Goals: Dancing coral can now track unlocking each coral, with a bar for coral owned vs cost',
+      'Characters: the Alchemy skill shows the character brew speed with a breakdown'
     ],
     'fixes': [
       'Farming: a crop family\'s max time under a second shows in milliseconds again instead of "<1s"',

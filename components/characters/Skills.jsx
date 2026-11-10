@@ -7,6 +7,7 @@ import { getSkillExpMulti } from '@parsers/character';
 import { getSkillEfficiency } from '@parsers/efficiency';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { getMaxDamage } from '@parsers/damage';
+import { getCharacterBrewSpeed } from '@parsers/world-2/alchemy';
 import { isGlobalSkill } from '@utility/consts';
 import Panel from '@components/common/cards/Panel';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -28,6 +29,9 @@ const SkillDetails = ({ skillName, skill, character, characters, account }) => {
   const efficiency = getSkillEfficiency(skillName, character, characters, account, playerInfo);
   const multiText = expMulti ? `${skillNumber(expMulti.value, skillStatKey(skillName, 'EXPmulti'), expMulti.formattedValue)}x` : null;
   const efficiencyText = efficiency ? skillNumber(efficiency.value, skillStatKey(skillName, 'Efficiency'), efficiency.formattedValue) : null;
+  // Alchemy has no efficiency: the character's brew speed is what it adds to any cauldron it stands in
+  const brewSpeed = skillName === 'alchemy' ? getCharacterBrewSpeed(character, account, characters) : null;
+  const brewSpeedText = brewSpeed ? formatNum(brewSpeed.value, 'rate') : null;
   return <Box sx={{ mt: 1 }}>
     <Panel.KV label={capitalize(skillName)} value={formatNum(level, 'level')}/>
     {!isGlobalSkill(skillName) && rank != null
@@ -39,6 +43,8 @@ const SkillDetails = ({ skillName, skill, character, characters, account }) => {
       ? <Breakdown asValue title={'EXP multi'} data={{ ...expMulti.breakdown, totalValue: multiText }}>{multiText}</Breakdown> : multiText}/> : null}
     {efficiency ? <Panel.KV label={'Efficiency'} value={efficiency.breakdown
       ? <Breakdown asValue title={'Efficiency'} data={{ ...efficiency.breakdown, totalValue: efficiencyText }}>{efficiencyText}</Breakdown> : efficiencyText}/> : null}
+    {brewSpeed ? <Panel.KV label={'Brew speed'} value={<Breakdown asValue title={'Brew speed'}
+      data={{ ...brewSpeed.breakdown, totalValue: brewSpeedText }}>{brewSpeedText}</Breakdown>}/> : null}
   </Box>;
 };
 
