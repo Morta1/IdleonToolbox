@@ -1,6 +1,9 @@
 import React from 'react';
 import { Box, Stack, Typography } from '@mui/material';
+import { differenceInMinutes } from 'date-fns';
 import { cleanUnderscore, formatNum, prefix, sections } from 'utility/helpers';
+import { getActivityIcon } from '@utility/spriteImages';
+import Timer from '@components/common/Timer';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 import GameIcon from '@components/common/GameIcon';
 import Panel from '@components/common/cards/Panel';
@@ -28,7 +31,7 @@ const TITLES = { Cards: 'Equipped cards', 'Obols Stats': 'Obol stats', 'Star Sig
 
 const ONE_LINE_SX = { minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' };
 
-const SIDE_NAME_HEIGHT = 64;
+const SIDE_NAME_HEIGHT = 82;
 
 // Side by side, the name stays in view. A sticky item sticks only inside its grid area, so it spans every row of the card,
 // with a spacer holding its room in the first one. Its line sits on the first section's own, 1 px down, drawn over the
@@ -53,10 +56,31 @@ const pinnedNameSx = (pinTop) => ({
 // full column, so with one or two sections on the name read cut off from its trophy at the right (Hαlf). It is the only
 // line there: the columns hide the top pixel row where each column's first section draws its own (FLOW_SX). Laid on
 // top of it instead, the two drew a heavier line over the full columns at a zoom that split the pixel.
-const SHEET_NAME_SX = { px: 2, py: '12px', minHeight: 68, borderBottom: 1, borderColor: 'divider' };
+const SHEET_NAME_SX = { px: 2, py: '12px', minHeight: 86, borderBottom: 1, borderColor: 'divider' };
 
-// A character's name row: class sprite, name, class and level on one muted line, the trophy at the right
-const NameRow = ({ character, side, pinTop }) => {
+const MUTED_LINE_SX = { ...ONE_LINE_SX, fontSize: 13, lineHeight: '18px' };
+
+// What the character is doing (Hαlf, #59): its AFK target's sprite and name, how long it has been AFK (read from both
+// ends of the save, as the dashboard's card does), then its map, last so a narrow column cuts it first
+const ActivityLine = ({ character, lastUpdated }) => {
+  const { afkTarget, afkTime, currentMap, hasData } = character;
+  if (!hasData) return null;
+  const isActive = differenceInMinutes(lastUpdated, afkTime) <= 5;
+  const activity = afkTarget && afkTarget !== '_' ? cleanUnderscore(afkTarget) : 'Nothing';
+  const map = currentMap ? cleanUnderscore(currentMap) : null;
+  return <Stack direction={'row'} alignItems={'center'} gap={0.75} sx={{ minWidth: 0, color: 'text.secondary' }}>
+    <GameIcon src={getActivityIcon(character).slice(prefix.length)} size={16} alt={''}/>
+    <Typography color={'inherit'} component={'div'} sx={MUTED_LINE_SX}>
+      {`${activity} · `}
+      {isActive ? 'Active' : <>AFK <Timer type={'up'} date={afkTime} lastUpdated={lastUpdated} component={'span'}/></>}
+      {map && map !== activity ? ` · ${map}` : null}
+    </Typography>
+  </Stack>;
+};
+
+// A character's name row: class sprite, name, class and level on one muted line, what it's doing on the next, the
+// trophy at the right
+const NameRow = ({ character, side, pinTop, lastUpdated }) => {
   const { name, classIndex, class: className, level, equipment, hasData } = character;
   const trophy = equipment?.reduce((res, { rawName }) => (!res && rawName?.includes('Trophy') ? rawName : res), '');
   return <Stack direction={'row'} alignItems={'center'} gap={1.5} sx={[
@@ -71,9 +95,10 @@ const NameRow = ({ character, side, pinTop }) => {
         {trophy ? <Box component={'img'} src={`${prefix}data/${trophy.replace('Replica', '')}disp.png`} alt={''}
                        sx={{ flex: '0 10000 102px', minWidth: 64, height: 19, objectFit: 'contain', objectPosition: 'right', display: 'block' }}/> : null}
       </Stack>
-      <Typography color={'text.secondary'} component={'div'} sx={{ ...ONE_LINE_SX, fontSize: 13, lineHeight: '18px' }}>
+      <Typography color={'text.secondary'} component={'div'} sx={MUTED_LINE_SX}>
         {hasData ? `${cleanUnderscore(className)} · ${formatNum(level, 'level')}` : formatNum(0, 'level')}
       </Typography>
+      <ActivityLine character={character} lastUpdated={lastUpdated}/>
     </Stack>
   </Stack>;
 };
@@ -159,7 +184,7 @@ const Character = ({
 
   return <Box data-character-card sx={[(theme) => cardSurface(theme), side && sideCardSx(shown.length + 1)]}>
     {side ? <Box sx={{ gridRow: 1, gridColumn: 1, height: SIDE_NAME_HEIGHT }}/> : null}
-    <NameRow character={character} side={side} pinTop={pinTop}/>
+    <NameRow character={character} side={side} pinTop={pinTop} lastUpdated={lastUpdated}/>
     <Box sx={side ? { display: 'contents' } : FLOW_SX}>
       {shown.map((section, index) => {
         const title = TITLES[section.name] ?? section.name;

@@ -78,10 +78,12 @@ const Characters = () => {
       {numberOfCharacters > 0 && hasSkillsFilter ? <Toolbar.Filter name={'showRankOneOnly'} label={'Show rank 1 only'}/> : null}
       {numberOfCharacters > 0 && hasPostOfficeFilter ? <Toolbar.Filter name={'showUnmaxedBoxesOnly'} label={'Show unmaxed boxes only'}/> : null}
     </Toolbar> : null}
-    {numberOfCharacters > 0 && !hasSection ? <Notice action={{ label: 'Choose sections', onClick: () => choose('sections') }}>
-      No section is on: tick one under Characters to show it here.
-    </Notice> : numberOfCharacters > 0 ? (
+    {/* With no section on, each card still shows who the character is and what it's doing (#59) */}
+    {numberOfCharacters > 0 ? (
       <>
+        {!hasSection ? <Box sx={{ mb: 2 }}><Notice action={{ label: 'Choose sections', onClick: () => choose('sections') }}>
+          No section is on: tick one under Characters to show more here.
+        </Notice></Box> : null}
         {isPending ? <Stack alignItems={'center'} mt={1} mb={1}><CircularProgress size={24}/></Stack> : null}
         <Box sx={sideBySide ? SIDE_BY_SIDE_SX : undefined}>
           {state?.characters?.map((character, index) => {

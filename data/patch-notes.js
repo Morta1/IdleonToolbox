@@ -9,7 +9,8 @@ export const patchNotes = [
     'gameVer': '2.3.561',
     'date': '10/11/2026',
     'features': [
-      'Worlds, Account and Tools menus: bigger page names and icons on larger screens, so every icon can be made out'
+      'Worlds, Account and Tools menus: bigger page names and icons on larger screens, so every icon can be made out',
+      'Characters: each character shows what it\'s doing, how long it\'s been AFK and its map under its name, even with no section on'
     ],
     'fixes': []
   },
