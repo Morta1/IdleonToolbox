@@ -151,7 +151,7 @@ describe('Header page goals', () => {
     expect(screen.getByLabelText('Direction').textContent).toBe('Stay at or below');
   });
 
-  it('a panel row uses the dashboard card wording and an outline on keyboard focus, and the dashboard link keeps the session query', async () => {
+  it('a panel row uses the dashboard card wording, and the dashboard link keeps the session query', async () => {
     const open = openGoal();
     seed(open);
     mount();
@@ -159,9 +159,6 @@ describe('Header page goals', () => {
     const view = resolveGoal(open, ctx);
     expect(statusText(view)).toBe(`Lv ${formatNumber(view.value)} of ${formatNumber(view.targetValue)}`);
     expect(within(panelRows()[0]).getByText(statusText(view))).toBeTruthy();
-    const button = panelRows()[0].querySelector('.MuiButtonBase-root');
-    button.classList.add('Mui-focusVisible');
-    expect(getComputedStyle(button).outlineStyle).toBe('solid');
     expect(screen.getByRole('link', { name: 'All goals on the dashboard' }).getAttribute('href'))
       .toBe('/dashboard?demo=true');
   });

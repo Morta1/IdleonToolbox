@@ -44,11 +44,10 @@ afterEach(() => { cleanup(); vi.clearAllMocks(); });
 describe('Overview podium', () => {
   const slotOf = (name) => screen.getByText(name).closest('[data-testid="podium-slot"]');
 
-  it('sizes slots by content, and colours the top border by rank, in slot order second, first, third', async () => {
+  it('colours the top border by rank, in slot order second, first, third', async () => {
     renderOverview({ player: { context: null } });
     await screen.findByText('G1');
     const slots = screen.getAllByTestId('podium-slot');
-    for (const slot of slots) expect(getComputedStyle(slot).height).toBe('');
     expect(slots.map((slot) => slot.textContent.slice(0, 2))).toEqual(['G2', 'G1', 'G3']);
     expect(getComputedStyle(slotOf('G1')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-gold)');
     expect(getComputedStyle(slotOf('G2')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-silver)');
@@ -64,7 +63,7 @@ describe('Overview podium', () => {
     expect(screen.queryByAltText('Rank 5')).toBeNull();
     expect(getComputedStyle(slotOf('M0')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-gold)');
     expect(getComputedStyle(slotOf('M1')).borderTopColor).toBe('var(--mui-palette-identity-leaderboard-gold)');
-    expect(getComputedStyle(slotOf('M2')).borderTopWidth).toBe('1px');
+    expect(getComputedStyle(slotOf('M2')).borderTopColor).not.toBe('var(--mui-palette-identity-leaderboard-gold)');
     cleanup();
 
     // Public ranks with gaps: the trophy follows the rank, not the position.

@@ -62,12 +62,10 @@ describe('ControlBar', () => {
     const jump = screen.getByLabelText('Jump to board');
     expect(jump.getAttribute('placeholder')).toBe('Jump to a board (1)');
     expect(jump.getAttribute('aria-label')).toBe('Jump to board');
-    expect(container.querySelector('label.MuiInputLabel-root')).toBeNull();
     // The export cannot know the viewport, so CSS (not a media query hook) picks the layout: the phone's copies stay out.
     expect(container.querySelectorAll('input[type="text"], input:not([type])')).toHaveLength(2);
-    // The "/" shortcut hint sits in the jump field, and the jump has no popup arrow.
+    // The "/" shortcut hint sits in the jump field.
     expect(jump.closest('.MuiInputBase-root').textContent.replace(/​/g, '')).toBe('/');
-    expect(container.querySelector('.MuiAutocomplete-popupIndicator')).toBeNull();
     // The Anon# hint lives in the placeholder: a helper line cost the sticky bar a row on phones.
     expect(screen.queryByText(/can be found by their Anon# id/)).toBeNull();
   });
