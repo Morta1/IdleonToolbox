@@ -22,7 +22,8 @@ pre-4.0 build), for finding pages that spend more room than they did.
 
 ## Commits and builds
 
-- Pre-commit runs the tests that import a staged file plus the tests that read sources from disk, which `vitest
+- Pre-commit runs the tests that import a staged file (for a staged parser: only the tests that name its path or are
+  named after it, since every parser sits under `parsers/index`) plus the tests that read sources from disk, which `vitest
   related` can't connect to what they check, the build's type check (`tsc --noEmit --incremental -p tsconfig.build.json`)
   and eslint on the staged files: about 30 s. Pre-push runs the full suite once per push; `FULL_COMMIT=1` runs it at
   commit time too. Never `--no-verify`. A new test that scans sources joins `SOURCE_SCANS` in `.husky/pre-commit`.

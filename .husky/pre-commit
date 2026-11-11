@@ -33,8 +33,21 @@ fi
 if [ "$FULL_COMMIT" = "1" ]; then
   npm test
 else
+  # Every parser sits under parsers/index, so vitest related turns one staged parser into ~300 test files. A staged
+  # parser runs only the tests that import it by path or are named after it; pre-push catches the rest.
+  targets=
+  for f in $staged; do
+    case "$f" in
+      parsers/*.ts|parsers/*.js)
+        stem=${f%.*}
+        stem=$(printf '%s' "$stem" | awk -F/ '{print (NF>1 ? $(NF-1)"/"$NF : $NF)}')
+        base=$(basename "$stem")
+        targets="$targets $(grep -rlE "['\"/]$stem['\"]" __test__ --include='*.test.*') $(find __test__ -iname "*$base*.test.*")" ;;
+      *) targets="$targets $f" ;;
+    esac
+  done
   # A test file named on the command line is related to itself, so the scans ride in the same run.
-  npx vitest related --run --passWithNoTests $staged $SOURCE_SCANS
+  npx vitest related --run --passWithNoTests $targets $SOURCE_SCANS
   npx vitest run "$SOURCE_SCAN_TEST" -t "$SOURCE_SCAN_NAME"
 fi
 failed=0
