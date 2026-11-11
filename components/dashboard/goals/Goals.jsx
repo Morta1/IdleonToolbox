@@ -51,6 +51,8 @@ const LAYOUTS = [
 const LAYOUT_KEY = 'goals-dashboard-layout';
 // The dashboard leads with the goals closest to done; the rest wait behind Show all so the alerts stay in reach
 const SHOWN_GOALS = 8;
+// A few systems read at a glance as pills; past that the list would wrap, so it stays a field
+const PILL_SYSTEMS = 5;
 const SHOW_ALL_KEY = 'goals-dashboard-show-all';
 // Looks like the header button but does nothing: it only shows where to click
 const AddGoalReplica = () => (
@@ -132,7 +134,7 @@ const Goals = () => {
   const { state } = useContext(AppContext);
   const { enabled, goals, saveMany } = useGoals();
   const [editing, setEditing] = useState(null);
-  const [systemFilter, setSystemFilter] = useState('');
+  const [systemFilter, setSystemFilter] = useState([]);
   const [reachedOpen, setReachedOpen] = useState(false);
   const [showAll, setShowAll] = useLocalStorage({ key: SHOW_ALL_KEY, defaultValue: false });
   // Saved before the direction existed as the sort's name alone: that sort, in its one direction
@@ -146,9 +148,9 @@ const Goals = () => {
   const views = pairRanges(resolveGoals(goals, { account: state?.account, characters: state?.characters }));
   const reached = views.filter(({ status }) => status === 'reached');
   const systems = systemsOf(views);
-  // A filter on a system whose goals are all gone falls back to All
-  const activeSystem = systems.some(({ system }) => system === systemFilter) ? systemFilter : '';
-  const filtered = activeSystem ? views.filter(({ system }) => system === activeSystem) : views;
+  // A picked system whose goals are all gone drops out; with none picked, every goal shows
+  const activeSystems = systemFilter.filter((picked) => systems.some(({ system }) => system === picked));
+  const filtered = activeSystems.length ? views.filter(({ system }) => activeSystems.includes(system)) : views;
   const createdAt = new Map(goals.map(({ id, createdAt: at }) => [id, at ?? 0]));
   const createdAtOf = (view) => Math.max(...(view.goalIds ?? [view.id]).map((id) => createdAt.get(id) ?? 0));
   const sortKey = typeof sort === 'string' ? sort : sort?.key;
@@ -215,18 +217,18 @@ const Goals = () => {
         ) : null}
         {views.length === 0 ? <Box sx={{ p: 2 }}><FirstGoalIntro query={router.query}/></Box> : (
           <>
-            <Toolbar inPanel state={{ show: activeSystem, sort: shownSort, view: layoutId }}
-                     defaults={{ show: '', sort: DEFAULT_SORT, view: LAYOUTS[0][0] }}
+            <Toolbar inPanel state={{ show: activeSystems, sort: shownSort, view: layoutId }}
+                     defaults={{ show: [], sort: DEFAULT_SORT, view: LAYOUTS[0][0] }}
                      onChange={({ show, sort: nextSort, view }) => {
                        if (show !== undefined) setSystemFilter(show);
                        if (nextSort !== undefined) setSort(nextSort ?? DEFAULT_SORT);
                        if (view) setLayout(view);
                      }}
                      onReset={() => {
-                       setSystemFilter('');
+                       setSystemFilter([]);
                        setSort(DEFAULT_SORT);
                      }} total={views.length} shown={filtered.length} noun={'goals'}>
-              <Toolbar.Show options={[['', 'All', views.length], ...systems.map(({ system, label, count }) => [system, label, count])]}/>
+              <Toolbar.Show multiple pills={systems.length <= PILL_SYSTEMS} options={[['', 'All', views.length], ...systems.map(({ system, label, count }) => [system, label, count])]}/>
               <Toolbar.Sort options={SORTS}/>
               <Toolbar.View options={LAYOUTS}/>
             </Toolbar>

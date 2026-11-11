@@ -271,22 +271,23 @@ describe('Dashboard goals', () => {
     expect(row.querySelector('[data-goal-note]')).toBeNull();
   });
 
-  it('the Show field filters the rows and All brings every goal back', async () => {
+  it('a few systems are pills that combine, and none on shows every goal', async () => {
     seed(openGoal(), goal({ key: bubble.key(levelled[2]), target: levelled[2].level + 1000 }),
       goal({ system: 'stamp', key: stamp.key(levelledStamp), target: levelledStamp.level * 10 }));
     mount();
     await screen.findByText('3 goals · 0 reached');
-    expect(screen.getByRole('combobox', { name: 'Show' }).textContent).toContain('All');
-    pick('Show', 'Stamps (1)');
+    const pill = (name) => within(screen.getByRole('group', { name: 'Show' })).getByRole('button', { name });
+    fireEvent.click(pill(/Stamps/));
     expect(rowNames()).toEqual([stamp.name(levelledStamp)]);
-    expect(screen.getByRole('combobox', { name: 'Show' }).textContent).toContain('Stamps');
-    pick('Show', 'Bubbles (2)');
+    fireEvent.click(pill(/Bubbles/));
+    expect(rowNames()).toHaveLength(3);
+    fireEvent.click(pill(/Stamps/));
     expect(rowNames()).toHaveLength(2);
-    pick('Show', 'All (3)');
+    fireEvent.click(pill(/Bubbles/));
     expect(rowNames()).toHaveLength(3);
   });
 
-  it('the Show field lists every system, however many there are', async () => {
+  it('past five systems the Show field lists every system and picks several', async () => {
     const systems = ['bubble', 'stamp', 'grimoire', 'slab', 'killroyKills', 'summonStone', 'bribe'];
     seed(...systems.map((system) => {
       const d = getDescriptor(system);
@@ -299,7 +300,9 @@ describe('Dashboard goals', () => {
     fireEvent.mouseDown(screen.getByRole('combobox', { name: 'Show' }));
     expect(screen.getAllByRole('option').map((m) => m.textContent)).toEqual(['All (7)', ...names]);
     fireEvent.click(screen.getByRole('option', { name: names[6] }));
-    expect(screen.getByRole('combobox', { name: 'Show' }).textContent).toContain(names[6].replace(' (1)', ''));
+    expect(screen.getByRole('combobox', { name: 'Show', hidden: true }).textContent).toContain(names[6].replace(' (1)', ''));
+    fireEvent.click(screen.getByRole('option', { name: names[0] }));
+    expect(screen.getByRole('combobox', { name: 'Show', hidden: true }).textContent).toContain('2 picked');
   });
 
   it('Rows is the default layout; Cards has its own actions slot, and the choice is remembered', async () => {
