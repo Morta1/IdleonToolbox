@@ -23,13 +23,15 @@ export const patchNotes = [
       'Card search: presets can preview on a character, showing its drop rate, damage, AFK gains, kill rates and cash multi now and with the preset',
       'Stamps: Save levels snapshot sits on the No Stamp Left Behind tile, so the stamp it levelled is easy to spot',
       'Anvil: speed breakdown on each character, Smithing EXP per hour, next point costs, EXP waiting since your save and items made all time',
-      'Bribes: grouped into their sets, with locked bribes, what unlocks the Bail and Grail sets, and the coins to buy the ones for sale'
+      'Bribes: grouped into their sets, with locked bribes, what unlocks the Bail and Grail sets, and the coins to buy the ones for sale',
+      'Forge: forge stats with a speed breakdown, bars per hour, barrel effects and how long they last, each upgrade\'s current bonus and the cost to max all'
     ],
     'fixes': [
       'Tournament: opponent and leaderboard team power and win chances show as a range, since Pet Mart+ upgrades of other players are not in the game data',
       'Fishing Efficiency breakdown: the Strength bonus now lists each source, Skelefish Stamp included',
       'Anvil: points include Acme Anvil, and EXP per craft includes your EXP bonus',
-      'Leaderboards: Sprout Speed shows times in seconds again'
+      'Leaderboards: Sprout Speed shows times in seconds again',
+      'Forge: Empty in counts the ore your storage refill will load, and locked slots show as Locked'
     ]
   },
   {
