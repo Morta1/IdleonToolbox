@@ -165,6 +165,31 @@ export const getPlayerCards = (char: any, account: Account): Record<string, any>
   };
 }
 
+// Omega Nanochip (lab chip 20) doubles card slot 1, Omega Motherboard (chip 21) slot 8
+export const getCardSlotChipBoosts = (account: any, playerId: number): number[] => {
+  const chips = account?.lab?.playersChips?.[playerId];
+  const has = (chipIndex: number) => Boolean(chips?.find((chip: any) => chip?.index === chipIndex));
+  return Array.from({ length: 8 }, (_, slot) => (slot === 0 && has(20)) || (slot === 7 && has(21)) ? 2 : 1);
+}
+
+// The character as the game would see it wearing a loadout: its cards in these slots take the character's chip boosts.
+// cards: the account's card objects (legendBonus already on them), null for an empty slot; cardSet: a getCardSets entry.
+export const withCardLoadout = (character: any, account: any, loadoutCards: any[], cardSet: any): any => {
+  const boosts = getCardSlotChipBoosts(account, character?.playerId);
+  return {
+    ...character,
+    cards: {
+      ...character?.cards,
+      cardSet: cardSet ? { ...cardSet, bonus: calcCardBonus(cardSet) } : {},
+      equippedCards: Array.from({ length: 8 }, (_, slot) => {
+        const card = loadoutCards?.[slot];
+        if (!card) return {};
+        return { ...card, cardName: card?.displayName, ...(boosts[slot] > 1 ? { chipBoost: boosts[slot] } : {}) };
+      })
+    }
+  };
+}
+
 export const getEquippedCardsData = (cardsArray: any[], account: Account): any[] => {
   return cardsArray?.map((card: any) => ({
     ...(cards?.[card]?.displayName ? { cardName: cards?.[card]?.displayName } : {}),

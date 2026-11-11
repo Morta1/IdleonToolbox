@@ -39,7 +39,8 @@ export const ImportFromCharacterDialog = ({ characters, getCard, getCardSet, onI
                   onClick={() => onImport({
                     name: `${cleanUnderscore(character.name)} ${loadout.label.toLowerCase()}`,
                     cardSet: loadout.cardSet,
-                    cards: loadout.cards
+                    cards: loadout.cards,
+                    previewOn: character.playerId
                   })}>
             Import
           </Button>

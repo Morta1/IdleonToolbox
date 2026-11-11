@@ -4,6 +4,7 @@ import GameIcon from '@components/common/GameIcon';
 import { NOTE_ANCHOR, NoteTrigger, SHARED_NOTE_ID } from '@components/common/InfoButton';
 import { numOrNode } from '@components/common/Num';
 import UpTriangle from '@components/common/UpTriangle';
+import { GAME_HEX } from '@utility/colorSets';
 import { useSheet } from './SheetContext';
 import { cardState, cardSurface, emptySlot } from './tokens';
 
@@ -36,7 +37,7 @@ const Badge = ({ badge, small, color }) => (badge === 'up'
       minWidth: 15, height: 15, px: '2px', fontWeight: 500, lineHeight: '15px', color: 'text.primary',
       bgcolor: 'color-mix(in srgb, var(--mui-palette-text-primary) 24%, var(--mui-palette-background-default))'
     } : {}),
-    ...(color ? { bgcolor: color, color: 'common.black', fontWeight: 700 } : {})
+    ...(color ? { bgcolor: color, color: GAME_HEX.text, fontWeight: 700 } : {})
   }}>{badge}</Box>);
 
 // glow: a palette path, drawn round the sprite's own outline (a re-rolled obol). On the sprite's box, not the image: the box
@@ -110,7 +111,8 @@ const LABEL_SX = {
 // draw (VialArt), with height the tile's own for it. Missing greys the sprite, empty is a dashed slot, active and
 // selected are the ItemCard lines. details open on click, tap, Enter or hover. mark is a game mark on the sprite's
 // corner (the Rat King's crown on a crowned plant, the greenstack symbol), named for a screen reader by markAlt; a tile
-// carries a badge or a mark, not both.
+// carries a badge or a mark, not both. An empty slot keeps its mark when the mark belongs to the slot (a card preset's
+// chip-doubled slot).
 // onSelect makes the tile a button that picks it, for a grid too large to draw a note per tile: the page shows the
 // picked one's details once, and selected draws the selected line. An empty slot draws no sprite, so its alt names it
 // ("Empty slot" by default) when it has details to open or can be picked; one with neither is not a button.
@@ -189,7 +191,7 @@ const IconTile = ({ icon, alt = '', value, kind, sub, label, labelLines = 2, fra
     {subLines.map((line, index) => <Typography key={index} component={'div'} variant={'caption'} sx={FULL_SUB_SX}>{line}</Typography>)}
     {hasProgress ? <ProgressFoot progress={progress} goal={progressGoal}/> : null}
     {badge !== undefined && badge !== null ? <Badge badge={badge} small={small} color={badgeColor}/>
-      : mark && !empty ? <Box component={'span'} sx={{ position: 'absolute', top: markSize < 24 ? 1 : 2, right: markSize < 24 ? 1 : 2, display: 'inline-flex' }}>
+      : mark ? <Box component={'span'} sx={{ position: 'absolute', top: markSize < 24 ? 1 : 2, right: markSize < 24 ? 1 : 2, display: 'inline-flex' }}>
         <GameIcon src={mark} size={markSize} alt={markAlt ?? ''}/>
       </Box> : null}
   </Box>;

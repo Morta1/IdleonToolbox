@@ -45,6 +45,7 @@ import {
   calcCardBonus,
   getCardBonusByEffect,
   getCardLevel,
+  getCardSlotChipBoosts,
   getEquippedCardBonus,
   getEquippedCardsData,
   getPlayerCards
@@ -444,13 +445,12 @@ export const initializeCharacter = (char: any, charactersLevels: any, account: a
   character.cardPresets = char?.CardPreset?.map((cardPreset: any) => getEquippedCardsData(cardPreset, account));
   character.cards = getPlayerCards(char, account);
 
-  const omegaNanochipBonus = account?.lab?.playersChips?.[char?.playerId]?.find((chip: any) => chip.index === 20);
-  const omegaMotherboardChipBonus = account?.lab?.playersChips?.[char?.playerId]?.find((chip: any) => chip.index === 21);
+  const chipBoosts = getCardSlotChipBoosts(account, char?.playerId);
   const legendBonus = getLegendTalentBonus(account, 21);
-  character.cards.equippedCards = character?.cards?.equippedCards?.map((card: any, index: any) => ((index === 0 && omegaNanochipBonus) || (index === 7 && omegaMotherboardChipBonus))
+  character.cards.equippedCards = character?.cards?.equippedCards?.map((card: any, index: any) => chipBoosts[index] > 1
     ? ({
       ...card,
-      chipBoost: 2,
+      chipBoost: chipBoosts[index],
       legendBonus: 1 + legendBonus / 100
     })
     : ({

@@ -19,7 +19,8 @@ export const patchNotes = [
       'Goals: Menagerie totals track Jellyfish progress: ladles, chapters and pages tracked, Silver, Pink and Yellow Jellyfish levels',
       'The Well: Full in breakdown lists the times without golden buckets and with each golden bucket',
       'Dashboard: character cards stop at 6 to a row, like the character select in game',
-      'Goals: bubble % of max goals show the level that reaches the target beside your current level'
+      'Goals: bubble % of max goals show the level that reaches the target beside your current level',
+      'Card search: presets can preview on a character, showing its drop rate, damage, AFK gains, kill rates and cash multi now and with the preset'
     ],
     'fixes': [
       'Tournament: opponent and leaderboard team power and win chances show as a range, since Pet Mart+ upgrades of other players are not in the game data',

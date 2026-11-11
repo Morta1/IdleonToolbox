@@ -246,6 +246,7 @@ export default function CardSearch() {
           presets={presets}
           selected={selected}
           characters={state?.characters}
+          account={state?.account}
           hasAccount={Boolean(state?.account) && !state?.emptyAccount}
           targetSlot={targetSlot}
           onTargetSlot={setTargetSlot}

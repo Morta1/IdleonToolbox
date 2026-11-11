@@ -2,7 +2,7 @@ import { cleanUnderscore } from 'utility/helpers';
 
 export const PRESET_SLOTS = 8;
 
-export const emptyPreset = (name) => ({ name, cardSet: null, cards: Array(PRESET_SLOTS).fill(null) });
+export const emptyPreset = (name) => ({ name, cardSet: null, cards: Array(PRESET_SLOTS).fill(null), previewOn: null });
 
 // Storage can hold anything (old shapes, hand edits) and card names a game update has since removed
 export const normalizePresets = (storedPresets, catalogCards, cardSetsData) => {
@@ -15,7 +15,9 @@ export const normalizePresets = (storedPresets, catalogCards, cardSetsData) => {
       cards: Array.from({ length: PRESET_SLOTS }, (_, slot) => {
         const displayName = Array.isArray(preset.cards) ? preset.cards[slot] : null;
         return catalogCards[displayName] ? displayName : null;
-      })
+      }),
+      // The character the panel previews the preset on (playerId), kept per preset
+      previewOn: Number.isInteger(preset.previewOn) ? preset.previewOn : null
     }));
 };
 
