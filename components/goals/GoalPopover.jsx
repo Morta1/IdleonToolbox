@@ -8,7 +8,6 @@ import { ALL_CHARS, createGoal, effectiveScope, isAllChars, isCharScope, isGloba
 import { isUnresolved, resolveGoal } from '@utility/goals/resolve';
 import { firstGroupOf, groupingsOf } from '@utility/goals/groups';
 import { trackEvent } from '@utility/analytics';
-import { getBubbleLevelForPercent } from '@parsers/world-2/alchemy';
 import SystemSelect from './parts/SystemSelect';
 import AppliesTo from './parts/AppliesTo';
 import EntrySearch from './parts/EntrySearch';
@@ -71,7 +70,7 @@ const parseTarget = (text) => {
   return Number.isFinite(n) ? n : null;
 };
 
-const buildSteps = ({ descriptor, metric, row, value, max, percent, appliesTo, account }) => {
+const buildSteps = ({ metric, row, value, max, percent, appliesTo, account }) => {
   if (percent) return [{ label: `${QUICK_PERCENT}%`, target: String(QUICK_PERCENT) }];
   const steps = [];
   if (appliesTo !== 'one') {
@@ -85,8 +84,8 @@ const buildSteps = ({ descriptor, metric, row, value, max, percent, appliesTo, a
       if (max == null || value + step <= max) steps.push({ label: `+${formatNumber(step)}`, target: String(value + step) });
     }
   }
-  if (descriptor.system === 'bubble') {
-    const level = getBubbleLevelForPercent(account, row, QUICK_PERCENT);
+  if (metric.levelForPercent) {
+    const level = metric.levelForPercent(row, { account }, QUICK_PERCENT);
     if (Number.isFinite(level)) steps.push({ label: `${QUICK_PERCENT}% = Lv ${formatNumber(level)}`, target: String(level) });
   }
   return steps;
@@ -247,7 +246,7 @@ const GoalForm = ({ open, systems, initial, source, onClose, onSaved, entryOnly 
   // Quick steps all climb, so an at most goal has none
   const steps = metric.tiers || metric.boolean || nextStep || op === '<='
     ? []
-    : buildSteps({ descriptor, metric, row, value, max, percent, appliesTo, account: ctx.account });
+    : buildSteps({ metric, row, value, max, percent, appliesTo, account: ctx.account });
 
   const shownError = (unreachable && attempted && 'No entry can reach this target.')
     || (rejected === 'cap' && `You have ${MAX_GOALS} goals. Remove some first.`)

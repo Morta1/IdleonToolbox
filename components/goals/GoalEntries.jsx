@@ -71,8 +71,10 @@ const GoalEntries = ({ view, source = 'dashboard', maxHeight = 320 }) => {
             <Box sx={{ display: { xs: 'none', sm: 'flex' }, flex: 1 }}>
               <GoalBar progress={entry.progress} label={entry.name} sx={{ flex: 1, minWidth: 40 }}/>
             </Box>
-            <Typography variant="body2" color="text.secondary" noWrap
-                        sx={{ flexShrink: 0, minWidth: 88, textAlign: 'right' }}>
+            {/* a phone wraps a long amount ("82.19% of 95% · Lv 321,197 of 390,512") rather than squeeze the name */}
+            <Typography variant="body2" color="text.secondary"
+                        sx={{ flexShrink: 0, minWidth: 88, maxWidth: { xs: '50%', sm: 'none' }, textAlign: 'right',
+                          whiteSpace: { xs: 'normal', sm: 'nowrap' }, overflow: 'hidden', textOverflow: 'ellipsis' }}>
               {entry.cost ? <CostValue cost={entry.cost}/> : entryProgressText(view, entry)}
             </Typography>
             {/* a character of an all characters all goal has no single entry to give a goal */}

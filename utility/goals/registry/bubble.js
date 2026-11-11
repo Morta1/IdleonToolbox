@@ -1,4 +1,4 @@
-import { CAULDRON_INFO, getBubbleEffectPercent } from '@parsers/world-2/alchemy';
+import { CAULDRON_INFO, getBubbleEffectPercent, getBubbleLevelForPercent } from '@parsers/world-2/alchemy';
 import { cleanUnderscore, pascalCase } from '@utility/helpers';
 import { GOAL_ROUTES } from '../routes';
 
@@ -27,6 +27,8 @@ export default {
       noun: 'level',
       value: (row) => row.level,
       percentOfMax: (row, { account }) => getBubbleEffectPercent(account, row),
+      // the level a percent target needs, shown beside the level you have
+      levelForPercent: (row, { account }, percent) => getBubbleLevelForPercent(account, row, percent),
       steps: [100, 1000]
     }
   }

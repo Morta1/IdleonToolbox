@@ -2,5 +2,5 @@
 export const DESCRIPTOR_FIELDS = ['system', 'label', 'entryLabel', 'scope', 'route', 'groups', 'list', 'key', 'name', 'icon', 'systemIcon',
   'metrics', 'iconRows', 'entryTag', 'allOnly', 'totals', 'entryOnly', 'single', 'wikiId'];
 
-export const METRIC_FIELDS = ['maxIsGoal', 'label', 'noun', 'value', 'max', 'percentOfMax', 'steps', 'tiers', 'boolean', 'verb', 'cost',
+export const METRIC_FIELDS = ['maxIsGoal', 'label', 'noun', 'value', 'max', 'percentOfMax', 'levelForPercent', 'steps', 'tiers', 'boolean', 'verb', 'cost',
   'allIcon', 'nextStep', 'threshold', 'tierAmount'];

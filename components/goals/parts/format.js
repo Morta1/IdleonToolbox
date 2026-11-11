@@ -162,9 +162,14 @@ const amountParts = (view) => {
   return { value: amount(formatHave(view.value, view.targetValue ?? view.target)), target: `of ${targetText(view)}${suffix}` };
 };
 
-// A percent goal's plain amount after its percent: " · Lv 1,234"; nothing on any other goal
-const plainAmount = (view, entry) => (view.unit === 'percentOfMax' && Number.isFinite(entry.amount)
-  ? ` · ${amountWithUnit(metricOf(view), entry.amount)}` : '');
+// A percent goal's plain amount after its percent: " · Lv 1,234", with the level its target needs when known
+// (" · Lv 1,234 of 2,000"); nothing on any other goal
+const plainAmount = (view, entry) => {
+  if (view.unit !== 'percentOfMax' || !Number.isFinite(entry.amount)) return '';
+  if (!Number.isFinite(entry.amountTarget)) return ` · ${amountWithUnit(metricOf(view), entry.amount)}`;
+  // kept on one line (no-break spaces) so a phone wraps it whole after the percent
+  return ` · ${`${unitOf(metricOf(view))}${formatHave(entry.amount, entry.amountTarget)} of ${formatNumber(entry.amountTarget)}`.replaceAll(' ', ' ')}`;
+};
 
 // A tier set by an amount's cut-off, when the amount has a unit: "62.3M of 100M kills"
 const tierAmountText = (tierAmount) => (tierAmount?.unit

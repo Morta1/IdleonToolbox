@@ -112,6 +112,8 @@ const evaluateRow = (goal, descriptor, metric, row, ctx) => {
   const tierAmount = tierAmountOf(goal, metric, row, ctx, targetValue);
   // A percent goal keeps the plain amount too ("Lv 1,234"), so entries the same percent apart still read apart
   const amount = goal.unit === 'percentOfMax' ? metric.value(row, ctx) : null;
+  // and the level its target percent needs ("Lv 1,234 of 2,000"), on metrics that can work it out
+  const amountTarget = Number.isFinite(amount) && metric.levelForPercent ? metric.levelForPercent(row, ctx, targetValue) : null;
   let progress;
   if (reached) progress = 1;
   // Still reached only by buying it: the bar follows the purse toward the price
@@ -131,6 +133,7 @@ const evaluateRow = (goal, descriptor, metric, row, ctx) => {
     reached,
     ...(cost ? { cost } : {}),
     ...(Number.isFinite(amount) ? { amount } : {}),
+    ...(Number.isFinite(amountTarget) ? { amountTarget } : {}),
     ...(tierAmount ? { tierAmount } : {}),
     ...(metric.tiers ? { valueTierName: metric.tiers[value] } : {})
   };
