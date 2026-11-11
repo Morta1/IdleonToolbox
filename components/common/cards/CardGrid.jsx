@@ -14,9 +14,14 @@ export const useCardDetails = () => useContext(CardDetails);
 // IconTiles are a fixed 72 px square, so their grid packs whole tiles 8 px apart (the Cards board's icon grid). The icon
 // size holds IconTiles only: an ItemCard reads its padding from the grid's size. count fixes the icon grid's columns
 // (a ninja's 4 equipped slots stay one row): each up to 72 px, narrower when the row has less room.
-const columns = (size, count) => (size === 'icon'
-  ? count > 0 ? `repeat(${count}, minmax(0, 72px))` : 'repeat(auto-fill, 72px)'
-  : `repeat(auto-fill, minmax(min(${CARD_MIN_WIDTH[size]}px, 100%), 1fr))`);
+// maxColumns: a card grid stops at that many across, its cards growing instead (the dashboard's characters: 6, as the
+// game's character select pages them). A card's least width is then the larger of its size's and a 1/maxColumns share.
+const columns = (size, count, maxColumns) => {
+  if (size === 'icon') return count > 0 ? `repeat(${count}, minmax(0, 72px))` : 'repeat(auto-fill, 72px)';
+  const least = `min(${CARD_MIN_WIDTH[size]}px, 100%)`;
+  return `repeat(auto-fill, minmax(${maxColumns > 0
+    ? `max(${least}, calc((100% - ${(maxColumns - 1) * CARD_GAP}px) / ${maxColumns}))` : least}, 1fr))`;
+};
 
 // Cards never set a width: the grid picks the column count and every card stretches to its row.
 // min(…, 100%) keeps an L card from overflowing a phone. withBorder frames children that are not
@@ -83,13 +88,13 @@ const evenRowsGrid = (tiles, floor = EVEN_FLOOR, gap = EVEN_GAP) => {
   ]);
   return { '--tile-max': 'none', ...sheetColumnsOf(counts[0] ?? tiles), ...Object.fromEntries(steps) };
 };
-const CardGrid = ({ size = 'm', columns: count, sheetColumns, sheetBare, sheetTile, withBorder, flow, fill, evenRows, details, children, sx, ...rest }) => {
+const CardGrid = ({ size = 'm', columns: count, maxColumns, sheetColumns, sheetBare, sheetTile, withBorder, flow, fill, evenRows, details, children, sx, ...rest }) => {
   const sheet = useSheet();
   const inherited = useCardDetails();
   const grid = <CardDetails.Provider value={details ?? inherited}><CardSize.Provider value={size}>
     <Box {...rest} sx={[
       flow ? { columnWidth: CARD_MIN_WIDTH[size], columnGap: 2, '& > *': { breakInside: 'avoid', mb: 2 }, '& > :last-child': { mb: 0 } }
-        : { display: 'grid', gridTemplateColumns: columns(size, count), gap: size === 'icon' ? 1 : 2 },
+        : { display: 'grid', gridTemplateColumns: columns(size, count, maxColumns), gap: size === 'icon' ? 1 : 2 },
       !flow && fill && !sheet && size === 'icon' && fillSx(fill, count),
       // toArray: a child a page left out (null) takes no column
       evenRows && (size === 'icon' ? evenRowsGrid(Children.toArray(children).length)

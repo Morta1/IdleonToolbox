@@ -283,7 +283,7 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
       All caught up: no character has an alert.
     </Notice>;
   }
-  return <CardGrid size={'s'}>{cards}</CardGrid>;
+  return <CardGrid size={'s'} maxColumns={6}>{cards}</CardGrid>;
 };
 
 // A character's card: who it is, what it's doing, its alerts, and its stats in a note at the activity line's end. Opened
