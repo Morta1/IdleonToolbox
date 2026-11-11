@@ -15,7 +15,8 @@ export const patchNotes = [
       'Cooking: each meal card shows its ladles with the ladle icon again',
       'Compass Medallions: each medallion shows its dust, weakness and drops',
       'Grimoire, Compass and Tesseract: form stats as compact tiles',
-      'Goals: filter by several systems at once, shown as buttons when you track 5 systems or fewer'
+      'Goals: filter by several systems at once, shown as buttons when you track 5 systems or fewer',
+      'Goals: Menagerie totals track Jellyfish progress: ladles, chapters and pages tracked, Silver, Pink and Yellow Jellyfish levels'
     ],
     'fixes': [
       'Tournament: opponent and leaderboard team power and win chances show as a range, since Pet Mart+ upgrades of other players are not in the game data',

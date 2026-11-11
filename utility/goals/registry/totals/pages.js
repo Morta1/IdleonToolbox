@@ -14,6 +14,7 @@ import { getEventShopBonus, getEventShopItems, getLifetimeStat, LIFETIME_STATS }
 import { getAchievementWorldTotals } from '@parsers/achievements';
 import { getWorldTaskLevels } from '@parsers/tasks';
 import { getCrucibleMaxLevel } from '@parsers/world-7/menagerie';
+import { YELLOW_BONUS_NAMES } from '@utility/wiki/menagerie-jellies.mjs';
 import { worldsArray } from '@utility/helpers';
 import { MINEHEAD_BASE_LIVES } from '@parsers/world-7/minehead';
 import { getTotalStatueLevels } from '@parsers/class-specific/royalGuardian';
@@ -626,7 +627,58 @@ export const menagerieTotals = totalsDescriptor({
       key: 'boostLevels',
       name: 'Total Boost LV',
       value: ({ account }) => account?.menagerie?.boosts?.reduce((sum, { level }) => sum + (level ?? 0), 0) ?? 0
-    }
+    },
+    {
+      key: 'pinkShellLevel',
+      name: 'Pink Jellyfish Shell LV',
+      icon: 'data/MenaJelly1',
+      value: ({ account }) => account?.menagerie?.jellies?.pink?.levels?.[0] ?? 0
+    },
+    {
+      key: 'pinkLumiLevel',
+      name: 'Pink Jellyfish Lumi LV',
+      icon: 'data/MenaJelly1',
+      value: ({ account }) => account?.menagerie?.jellies?.pink?.levels?.[1] ?? 0
+    },
+    {
+      key: 'ladles',
+      name: 'Blue Jellyfish ladles owned',
+      icon: 'data/MenaJelly2',
+      value: ({ account }) => account?.menagerie?.jellies?.ladle ?? 0
+    },
+    {
+      key: 'chaptersTracked',
+      name: 'Red Jellyfish chapters tracked',
+      icon: 'data/MenaJelly3',
+      value: ({ account }) => account?.menagerie?.jellies?.red?.chaptersTracked ?? 0,
+      max: ({ account }) => account?.menagerie?.jellies?.red?.chapterSlots
+    },
+    {
+      key: 'pagesTracked',
+      name: 'Red Jellyfish pages tracked',
+      icon: 'data/MenaJelly3',
+      value: ({ account }) => account?.menagerie?.jellies?.red?.chapterPages?.reduce((sum, pages) => sum + (pages ?? 0), 0) ?? 0
+    },
+    {
+      key: 'silverObolLevel',
+      name: 'Silver Jellyfish obol MISC LV',
+      icon: 'data/MenaJelly4',
+      value: ({ account }) => account?.menagerie?.jellies?.silver?.levels?.[0] ?? 0,
+      max: ({ account }) => account?.menagerie?.jellies?.silver?.maxLevels?.[0]
+    },
+    {
+      key: 'silverFragmentLevel',
+      name: 'Silver Jellyfish fragments LV',
+      icon: 'data/MenaJelly4',
+      value: ({ account }) => account?.menagerie?.jellies?.silver?.levels?.[1] ?? 0,
+      max: ({ account }) => account?.menagerie?.jellies?.silver?.maxLevels?.[1]
+    },
+    ...YELLOW_BONUS_NAMES.map((bonus, index) => ({
+      key: `yellowLevel${index}`,
+      name: `Yellow Jellyfish ${bonus.replace(/^hourly /, '')} LV`,
+      icon: 'data/MenaJelly5',
+      value: ({ account }) => account?.menagerie?.jellies?.yellow?.levels?.[index] ?? 0
+    }))
   ]
 });
 
