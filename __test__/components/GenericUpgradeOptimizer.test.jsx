@@ -255,7 +255,7 @@ describe('GenericUpgradeOptimizer game order', () => {
 
   const namedRow = (name, index, level) => ({ ...buildRow({}), name, index, level });
   const rowNames = (container) => [...container.querySelectorAll('tbody tr.row')]
-    .map((row) => row.querySelector('td.name').textContent);
+    .map((row) => row.querySelector('td.name').textContent.replace(/x[\d,]+$/, ''));
 
   it('lists one row per upgrade in in-game position, not purchase order', () => {
     seedSetting('groupMode', 'Game order');
@@ -281,12 +281,13 @@ describe('GenericUpgradeOptimizer game order', () => {
   });
 
   it.each([
-    ['Upgrade', ['Late_Upgrade', 'Late_Upgrade', 'Early_Upgrade'], 'Upgrades #1 to #2'],
-    ['Summary', ['Late_Upgrade', 'Early_Upgrade', 'Late_Upgrade'], '2 upgrades, #1 to #3']
-  ])('a %s card names where its steps sit in the plan', (group, names, place) => {
+    ['Upgrade', ['Late_Upgrade', 'Late_Upgrade', 'Early_Upgrade']],
+    ['Summary', ['Late_Upgrade', 'Early_Upgrade', 'Late_Upgrade']]
+  ])('a %s card counts its steps instead of listing their places', (group, names) => {
     seedSetting('groupMode', group);
     const { container } = renderOptimizer(names.map((name, step) => namedRow(name, 1, 10 + step)));
-    expect(container.textContent).toContain(place);
+    expect(container.textContent).toContain('x2');
+    expect(container.textContent).not.toMatch(/#1 to #/);
   });
 });
 

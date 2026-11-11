@@ -10,7 +10,6 @@ import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import Panel from '@components/common/cards/Panel';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 import { isParseFailed, isSectionFailed, MissingData } from '@components/common/styles';
 import Upgrades from '@components/account/Misc/class-specific/Compass/Upgrades';
@@ -22,6 +21,7 @@ import { dustNames, getCompass, getCompassStats, getExtraDust } from '@parsers/c
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
 import useTabIndex from '@hooks/useTabIndex';
+import FormStats from '@components/account/Misc/class-specific/FormStats';
 
 // The Tempest Form stat panel's rows, in the game's names, each in its game rule (Windwalker.Compass_*)
 const tempestRows = (stats) => [
@@ -50,7 +50,6 @@ const zeroCompass = () => {
   }
 };
 // One to three columns of rows, as wide as the page allows
-const FORM_GRID_SX = { display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, py: 0.5 };
 
 const Compass = () => {
   const { state } = useContext(AppContext);
@@ -127,12 +126,7 @@ const Compass = () => {
                                                        icon={`data/Dust${index}_x1.png`}
                                                        value={shown(formatGame(dusts?.[index]?.value ?? 0, 'Windwalker.CompassUpgCost', { whole: true }))}/>)}
     </PageSummary>
-    <Panel title={'Tempest Form'} meta={formMeta} sx={{ mb: 3 }}>
-      <Box sx={FORM_GRID_SX}>
-        {tempestRows(tempestStats).map(([label, value]) => <Panel.KV key={label} label={label}
-                                                                     value={selectedWindWalker && !sectionFailed ? value : '-'}/>)}
-      </Box>
-    </Panel>
+    <FormStats title={'Tempest Form'} meta={formMeta} rows={tempestRows(tempestStats)} shown={Boolean(selectedWindWalker && !sectionFailed)}/>
     <Tabber tabs={tabs}>
       <Upgrades dollarFills={dollarFills} account={state?.account} upgrades={catalog?.groupedUpgrades ?? groupedUpgrades} dusts={dusts} costing={costing}
                 sectionFailed={sectionFailed}/>

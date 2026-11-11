@@ -23,7 +23,7 @@ import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { clampCustomMax, MAX_CUSTOM_UPGRADES } from '@parsers/genericUpgradeOptimizer';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 import { OPT } from '@parsers/accountOptions';
-import { stepLevels, stepMeta } from './upgradeSteps';
+import { stepCount, stepCountUnderName, stepLevelCell, stepMeta } from './upgradeSteps';
 
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
 // 'Game order' is Summary sorted by in-game list position: reordering single steps would scatter
@@ -334,10 +334,11 @@ const GenericUpgradeOptimizer = ({
       icon: upgradeImagePrefix ? (upgrade) => <GameIcon src={upgradeIconPath(upgrade)} alt={''} size={24}/> : undefined,
       render: (upgrade) => <Stack component={'span'} gap={0.25}>
         <span>{upgradeTitle(upgrade.name)}</span>
+        {stepCountUnderName(upgrade)}
         {upgrade.lockedNow ? <Typography variant={'body2'} color={'text.secondary'} component={'span'}>{lockLabel(upgrade)}</Typography> : null}
       </Stack>
     },
-    { key: 'level', label: 'Level', cellSx: { whiteSpace: 'nowrap' }, render: (upgrade) => stepLevels(upgrade) },
+    { key: 'level', label: 'Level', cellSx: { whiteSpace: 'nowrap' }, render: (upgrade) => stepLevelCell(upgrade) },
     { key: 'stats', label: 'Stat changes', render: (upgrade) => renderTableStats(upgrade) },
     {
       key: 'cost',
@@ -569,7 +570,7 @@ const GenericUpgradeOptimizer = ({
     const grouped = upgrade.sequence?.length > 1 && Boolean(upgrade.combinedStatChanges);
     return <ItemCard key={position} title={upgradeTitle(upgrade.name)}
                      icon={upgradeImagePrefix ? upgradeIconPath(upgrade) : undefined}
-                     meta={stepMeta(upgrade)}
+                     meta={stepMeta(upgrade)} aside={stepCount(upgrade)}
                      status={upgrade.lockedNow ? 'locked' : undefined} statusLabel={upgrade.lockedNow ? lockLabel(upgrade) : undefined}
                      footer={<>
                        <ItemCard.Facts rows={[[grouped ? 'Total cost' : 'Cost', costNode(upgrade)]]}/>
@@ -582,11 +583,24 @@ const GenericUpgradeOptimizer = ({
   };
 
   // A group's levels are in the Level column, so the stats cell holds only the changes
+  // One line per stat, "Damage: +125B (+1.33%)", as Spelunking's table reads: a card's label-and-value row split
+  // apart in a phone's details, its label mid-row and its value wrapped under it
+  const renderTableStatLines = (statChanges, upgrade) => {
+    const rebuildTime = getRebuildTime(upgrade);
+    return <Stack gap={0.5}>
+      {(statChanges ?? []).map((change, index) => <Stack key={index} gap={0.25}>
+        <span>{statLabel(change.stat)}: <Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>
+          {`${formatChange(change.change)} (${formatPercentChange(change.percentChange)})`}
+        </Box></span>
+        {renderHoardingNote(change, rebuildTime)}
+      </Stack>)}
+    </Stack>;
+  };
   const renderTableStats = (upgrade) => {
     if (upgrade.sequence?.length > 1 && upgrade.combinedStatChanges) {
-      return renderStatChanges(upgrade.combinedStatChanges, upgrade);
+      return renderTableStatLines(upgrade.combinedStatChanges, upgrade);
     }
-    return category === 'all' ? cleanUnderscore(upgrade.description ?? '') : renderStatChanges(upgrade.statChanges, upgrade);
+    return category === 'all' ? cleanUnderscore(upgrade.description ?? '') : renderTableStatLines(upgrade.statChanges, upgrade);
   };
 
   // A band per resource when the list is split, in the order the plan first needs each one.

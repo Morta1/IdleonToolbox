@@ -18,7 +18,6 @@ import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import Panel from '@components/common/cards/Panel';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 import { isParseFailed, isSectionFailed, MissingData } from '@components/common/styles';
 import Upgrades from '@components/account/Misc/class-specific/Tesseract/Upgrades';
@@ -27,6 +26,7 @@ import { getDropRate } from '@parsers/character';
 import UpgradeOptimizer from '@components/account/Misc/class-specific/Tesseract/UpgradeOptimizer';
 import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
 import useTabIndex from '@hooks/useTabIndex';
+import FormStats from '@components/account/Misc/class-specific/FormStats';
 
 // The Arcanist Form stat panel's rows, in the game's names, each in its game rule (ArcaneType.Arcane_*)
 const arcanistRows = (stats) => [
@@ -40,7 +40,6 @@ const arcanistRows = (stats) => [
   ['Attack speed', `${formatGame(100 + (stats?.attackSpeed ?? 0), 'ArcaneType.Arcane_AttackSpdPCT')}%`]
 ];
 // One to three columns of rows, as wide as the page allows
-const FORM_GRID_SX = { display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, py: 0.5 };
 // A failed section's catalog at zero, from the parser's own empty save: every upgrade by name
 const zeroTesseract = () => {
   try {
@@ -110,12 +109,7 @@ const Tesseract = () => {
       {Object.keys(tachyonNames).map((index) => <StatTile key={index} label={tachyonNames[index]} icon={`data/Tach${index}_x1.png`}
                                                           value={shown(formatGame(tachyons?.[index]?.value ?? 0, 'ArcaneType.ArcaneUpgCost', { whole: true }))}/>)}
     </PageSummary>
-    <Panel title={'Arcanist Form'} meta={formMeta} sx={{ mb: 3 }}>
-      <Box sx={FORM_GRID_SX}>
-        {arcanistRows(arcanistStats).map(([label, value]) => <Panel.KV key={label} label={label}
-                                                                       value={selectedArcanist && !sectionFailed ? value : '-'}/>)}
-      </Box>
-    </Panel>
+    <FormStats title={'Arcanist Form'} meta={formMeta} rows={arcanistRows(arcanistStats)} shown={Boolean(selectedArcanist && !sectionFailed)}/>
     <Tabber tabs={tabs}>
       <Upgrades account={state?.account} upgrades={catalog?.upgrades ?? upgrades} tachyons={tachyons} costing={costing}
                 prismaChance={sectionFailed ? undefined : prismaChance} character={sectionFailed ? undefined : selectedArcanist} sectionFailed={sectionFailed}/>

@@ -9,7 +9,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
 import NumberField from '@components/common/NumberField';
-import { stepLevels, stepMeta } from '@components/account/Misc/class-specific/upgradeSteps';
+import { stepCount, stepCountUnderName, stepLevelCell, stepMeta } from '@components/account/Misc/class-specific/upgradeSteps';
 import ViewSwitch from '@components/common/ViewSwitch';
 import Notice from '@components/common/Notice';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
@@ -263,14 +263,14 @@ const UpgradeOptimizer = ({ character, account }) => {
       key: 'name',
       label: 'Name',
       icon: (upgrade) => <GameIcon src={`data/CaveShopUpg${upgrade.originalIndex}.png`} alt={''} size={24}/>,
-      render: (upgrade) => cleanUpgradeName(upgrade.name)
+      render: (upgrade) => <span>{cleanUpgradeName(upgrade.name)}{stepCountUnderName(upgrade)}</span>
     },
     ...(optimizationCategory === 'All' ? [{ key: 'category', label: 'Category', render: (upgrade) => upgrade.category || 'Unknown' }] : []),
     {
       key: 'level',
       label: 'Level',
       cellSx: { whiteSpace: 'nowrap' },
-      render: (upgrade) => stepLevels(upgrade, upgrade?.x3)
+      render: (upgrade) => stepLevelCell(upgrade, upgrade?.x3)
     },
     {
       key: 'change',
@@ -295,6 +295,7 @@ const UpgradeOptimizer = ({ character, account }) => {
     const combined = isCombined(upgrade);
     return <ItemCard key={position} icon={`data/CaveShopUpg${upgrade.originalIndex}.png`} title={cleanUpgradeName(upgrade.name)}
                      meta={stepMeta(upgrade, { max: upgrade?.x3, extra: optimizationCategory === 'All' ? upgrade.category : null })}
+                     aside={stepCount(upgrade)}
                      footer={<ItemCard.Facts rows={[[combined ? 'Total cost' : 'Cost', amberCost(combined ? upgrade.totalCost : upgrade.cost)]]}/>}>
       {combined
         ? <ItemCard.Section label={'Total benefits'}>

@@ -10,7 +10,6 @@ import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import Panel from '@components/common/cards/Panel';
 import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 import { isParseFailed, isSectionFailed, MissingData } from '@components/common/styles';
 import Upgrades from '@components/account/Misc/class-specific/Grimoire/Upgrades';
@@ -22,6 +21,7 @@ import { getMaxDamage } from '@parsers/damage';
 import { getSkillEfficiency } from '@parsers/efficiency';
 import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
 import useTabIndex from '@hooks/useTabIndex';
+import FormStats from '@components/account/Misc/class-specific/FormStats';
 
 // The Wraith Form stat panel's rows, in the game's names, each in its game rule (Summoning.Grimoire_*)
 const wraithRows = (stats) => [
@@ -33,7 +33,6 @@ const wraithRows = (stats) => [
   ['Crit damage', `${formatGame(stats?.critDamage, 'Summoning.Grimoire_CRITDMG')}x`]
 ];
 // One to three columns of rows, as wide as the page allows
-const FORM_GRID_SX = { display: 'grid', gridTemplateColumns: { xs: '1fr', sm: 'repeat(2, 1fr)', lg: 'repeat(3, 1fr)' }, py: 0.5 };
 // A failed section's catalogs at zero, from the parser's own empty save: every upgrade and monster by name
 const zeroGrimoire = () => {
   try {
@@ -104,12 +103,7 @@ const Grimoire = () => {
       {boneNames.map((name, index) => <StatTile key={name} label={name} icon={`data/Bone${index}_x1.png`}
                                                 value={shown(formatGame(bones?.[index] ?? 0, 'Summoning.GrimoireUpgCost', { whole: true }))}/>)}
     </PageSummary>
-    <Panel title={'Wraith Form'} meta={formMeta} sx={{ mb: 3 }}>
-      <Box sx={FORM_GRID_SX}>
-        {wraithRows(wraithStats).map(([label, value]) => <Panel.KV key={label} label={label}
-                                                                   value={selectedCharacter && !sectionFailed ? value : '-'}/>)}
-      </Box>
-    </Panel>
+    <FormStats title={'Wraith Form'} meta={formMeta} rows={wraithRows(wraithStats)} shown={Boolean(selectedCharacter && !sectionFailed)}/>
     <Tabber tabs={tabs}>
       <Upgrades account={state?.account} upgrades={catalog?.upgrades ?? upgrades} bones={bones} costing={costing}
                 sectionFailed={sectionFailed}/>

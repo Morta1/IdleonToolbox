@@ -16,7 +16,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Panel from '@components/common/cards/Panel';
 import NumberField from '@components/common/NumberField';
-import { stepLevels, stepMeta } from '@components/account/Misc/class-specific/upgradeSteps';
+import { stepCount, stepCountUnderName, stepLevelCell, stepMeta } from '@components/account/Misc/class-specific/upgradeSteps';
 
 const pointsOptions = [10, 25, 50, 100, 250, 500, 1000];
 const groupModes = ['None', 'Upgrade', 'Summary'];
@@ -160,7 +160,7 @@ const UpgradeOptimizer = () => {
     const hasSequence = upgrade.sequence?.length > 1;
     return <ItemCard key={upgrade.upgradeIndex} icon={`data/RankUpg${upgrade.index}.png`} title={cleanUnderscore(upgrade.name)}
                      meta={stepMeta(asStep(upgrade), { max: upgrade.maxLevel || null })}
-                     aside={renderCapStatus(upgrade)}
+                     aside={stepCount(upgrade) || renderCapStatus(upgrade) ? <>{stepCount(upgrade)}{renderCapStatus(upgrade)}</> : null}
                      footer={<ItemCard.Facts rows={[[hasSequence ? 'Total cost' : 'Cost',
                        points(hasSequence ? upgrade.totalCost : upgrade.cost)]]}/>}>
       {hasSequence
@@ -179,14 +179,14 @@ const UpgradeOptimizer = () => {
       icon: (upgrade) => <GameIcon src={`data/RankUpg${upgrade.index}.png`} alt={''} size={24}/>,
       render: (upgrade) => {
         const capStatus = renderCapStatus(upgrade);
-        return <span>{cleanUnderscore(upgrade.name)}{capStatus ? <> {capStatus}</> : null}</span>;
+        return <span>{cleanUnderscore(upgrade.name)}{capStatus ? <> {capStatus}</> : null}{stepCountUnderName(asStep(upgrade))}</span>;
       }
     },
     {
       key: 'level',
       label: 'Level',
       cellSx: { whiteSpace: 'nowrap' },
-      render: (upgrade) => stepLevels(asStep(upgrade), upgrade.maxLevel || null)
+      render: (upgrade) => stepLevelCell(asStep(upgrade), upgrade.maxLevel || null)
     },
     { key: 'stats', label: 'Stat changes', render: (upgrade) => renderStatChange(upgrade) },
     {

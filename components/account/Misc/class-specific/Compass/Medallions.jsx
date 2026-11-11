@@ -1,11 +1,13 @@
 import React from 'react';
-import { Stack, Typography } from '@mui/material';
+import { Stack } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { dustNames } from '@parsers/class-specific/compass';
 import { monsterSprite } from '@utility/spriteImages';
 import CardGrid from '@components/common/cards/CardGrid';
-import IconTile from '@components/common/cards/IconTile';
+import ItemCard from '@components/common/cards/ItemCard';
+import GameIcon from '@components/common/GameIcon';
+import { NoteTrigger } from '@components/common/InfoButton';
 import StatTile from '@components/common/cards/StatTile';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
@@ -16,6 +18,11 @@ const MEDALLIONS_TOOLBAR = { found: 'all', dust: 'all' };
 
 // abominations: the section's list, whose weaknesses name the elements (the parser keeps its element names to itself).
 // sectionFailed: the catalog at zero by name, with no found state, no coin and no Toolbar.
+// A fact's value led by its game icon, on the value's own line
+const iconValue = (src, text) => <Stack component={'span'} direction={'row'} alignItems={'center'} gap={0.5} justifyContent={'flex-end'}>
+  <GameIcon src={src} size={20} alt={''}/>{text}
+</Stack>;
+
 const Medallions = ({ medallions, totalAcquiredMedallions, abominations, sectionFailed }) => {
   const [view, setView, resetView] = useToolbarState('compass-medallions', MEDALLIONS_TOOLBAR);
   const catalog = medallions ?? [];
@@ -36,23 +43,31 @@ const Medallions = ({ medallions, totalAcquiredMedallions, abominations, section
       <Toolbar.Show name={'dust'} label={'Dusts'} options={[['all', 'All dusts', catalog.length],
         ...dustTypes.map((type) => [type, cleanUnderscore(dustNames[type]), catalog.filter(({ dustType }) => `${dustType}` === type).length])]}/>
     </Toolbar>}
-    {shown.length ? <CardGrid size={'icon'}>
+    {/* Dust, weakness and drops in plain view, each by its game icon, as the cards had them before the redesign: behind a
+        tile's tap they read as gone */}
+    {shown.length ? <CardGrid size={'s'}>
       {shown.map(({ Name, rawName, imageName, acquired, description, drops, weakness, dustType, dustBaseQuantity }) => {
         const name = cleanUnderscore(Name ?? rawName ?? '');
-        const perKill = formatGame(dustBaseQuantity ?? 0, 'Windwalker.CompassDustQTYbase');
         const element = elementName(weakness);
-        return <IconTile key={rawName ?? Name} icon={monsterSprite(imageName)} alt={name}
-                         status={!sectionFailed && !acquired ? 'missing' : undefined}
-                         mark={!sectionFailed && acquired ? 'data/WWcoin.png' : undefined} markAlt={'Medallion found'}
-                         value={perKill}
-                         details={<Stack gap={0.5}>
-                           <Typography variant={'body2'}>{`${name}${description ? ` (${cleanUnderscore(description)})` : ''}`}</Typography>
-                           <Typography variant={'body2'}>{`${perKill} ${cleanUnderscore(dustNames[dustType] ?? 'dust')} per kill`}</Typography>
-                           {element ? <Typography variant={'body2'}>{`Weak to ${cleanUnderscore(element)}`}</Typography> : null}
-                           {drops?.length ? <Typography variant={'body2'}>
-                             {`Drops ${drops.map((item) => cleanUnderscore(item?.displayName ?? item?.rawName ?? '')).join(', ')}`}
-                           </Typography> : null}
-                         </Stack>}/>;
+        const dustName = cleanUnderscore(dustNames[dustType] ?? 'Dust');
+        return <ItemCard key={rawName ?? Name} icon={monsterSprite(imageName)} iconAlt={name} title={name}
+                         meta={description ? cleanUnderscore(description) : undefined}
+                         dimmed={!sectionFailed && !acquired}
+                         aside={!sectionFailed && acquired ? <GameIcon src={'data/WWcoin.png'} size={24} alt={'Medallion found'}/> : null}>
+          <ItemCard.Facts rows={[
+            [dustName, iconValue(`data/Dust${dustType}_x1.png`, `${formatGame(dustBaseQuantity ?? 0, 'Windwalker.CompassDustQTYbase')} per kill`)],
+            element ? ['Weak to', iconValue(`data/WWeffect${weakness}.png`, cleanUnderscore(element))] : null,
+            drops?.length ? ['Drops', <Stack key={'drops'} component={'span'} direction={'row'} gap={0.5} flexWrap={'wrap'}
+                                              justifyContent={'flex-end'}>
+              {drops.map((item, index) => {
+                const itemName = cleanUnderscore(item?.displayName ?? item?.rawName ?? '');
+                return <NoteTrigger key={`${item?.rawName}-${index}`} note={itemName} label={itemName}>
+                  <GameIcon src={`data/${item?.rawName}.png`} size={28} alt={itemName}/>
+                </NoteTrigger>;
+              })}
+            </Stack>] : null
+          ]}/>
+        </ItemCard>;
       })}
     </CardGrid> : null}
   </Stack>;

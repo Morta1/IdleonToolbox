@@ -89,23 +89,34 @@ const nmlbOrder = (meals, mealMaxLevel) => (meals ?? [])
   .filter((meal) => meal?.level >= NO_MEAL_LEFT_BEHIND_MIN_LEVEL && meal?.level < mealMaxLevel)
   .toSorted((a, b) => (a.level === b.level ? b.index - a.index : a.level - b.level));
 
-// Ladles and hours are the same number (1 ladle = 1 hour of cook time): the row under a time
-const ladleRow = (hours) => {
-  const ladles = Number(hours);
-  return ['Ladles', Number.isFinite(ladles) ? exactNote(formatNum(Math.ceil(ladles)), formatNum(ladles, 'exact')) : '-'];
-};
-// The ladles if one kitchen cooks the meal alone, under the card's own. A planning number, not a footnote: behind the
-// Details pill players took it for gone (#80)
-const singleKitchenRow = (hours, singleKitchenMulti) => {
-  const ladles = Number(hours);
+// The ladles if one kitchen cooks the meal alone: your fastest kitchen first, your slowest second
+const singleKitchenText = (ladles, singleKitchenMulti) => {
   const fastest = Math.ceil(ladles * singleKitchenMulti?.fastest);
   const slowest = Math.ceil(ladles * singleKitchenMulti?.slowest);
   if (!(ladles > 0 && Number.isFinite(fastest) && Number.isFinite(slowest))) return null;
-  return [<Box key={'single'} component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
-    1 kitchen
-    <InfoButton label={'1 kitchen'}>Ladles needed if only one kitchen cooks this meal: your fastest kitchen first, your
-      slowest second.</InfoButton>
-  </Box>, formatNum(fastest) === formatNum(slowest) ? formatNum(fastest) : `${formatNum(fastest)} to ${formatNum(slowest)}`];
+  return formatNum(fastest) === formatNum(slowest) ? formatNum(fastest) : `${formatNum(fastest)} to ${formatNum(slowest)}`;
+};
+// A meal card's foot: the ladle with its count beside it, as the cards had it before the redesign, so the number players
+// look for sits by its icon. Ladles and hours are the same number (1 ladle = 1 hour of cook
+// time). The one-kitchen line under it is a planning number, not a footnote: behind the Details pill players took it
+// for gone (#80).
+const ladleFooter = (hours, singleKitchenMulti) => {
+  const ladles = Number(hours);
+  const single = singleKitchenText(ladles, singleKitchenMulti);
+  return <Stack direction={'row'} alignItems={'center'} gap={1.5}>
+    <GameIcon src={'data/Ladle.png'} size={32} alt={'Ladles'}/>
+    <Box>
+      <Typography variant={'body1'} component={'div'}>
+        {Number.isFinite(ladles) ? exactNote(formatNum(Math.ceil(ladles)), formatNum(ladles, 'exact')) : '-'}
+      </Typography>
+      {single ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}
+                            sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+        1 kitchen: {single}
+        <InfoButton label={'1 kitchen'}>Ladles needed if only one kitchen cooks this meal: your fastest kitchen first, your
+          slowest second.</InfoButton>
+      </Typography> : null}
+    </Box>
+  </Stack>;
 };
 
 const Meals = ({
@@ -240,11 +251,16 @@ const Meals = ({
                              value={exactNote(<Num value={Math.floor(amount ?? 0)} game={'CookingR.CookingMenuMealCosts'} whole/>, formatNum(amount ?? 0, 'exact'))}
                              max={exactNote(<Num value={Math.ceil(bpCost ?? 0)} game={'CookingR.CookingMenuMealCosts'} whole/>, formatNum(bpCost ?? 0, 'exact'))}/>}
       {maxed ? null : <ItemCard.Facts rows={[
-        [bpLevel > 0 ? `To Lv ${formatNum(bpLevel)}` : 'Next level', shownTime(timeToBp)],
-        ladleRow(timeToBp),
-        singleKitchenRow(timeToBp, singleKitchenMulti)
+        [bpLevel > 0 ? `To Lv ${formatNum(bpLevel)}` : 'Next level', shownTime(timeToBp)]
       ]}/>}
     </ItemCard.Section>;
+  };
+  // The ladles to the same target, at the card's foot (in Compact too); none once the target is reached
+  const mealFooter = (meal) => {
+    const entry = entryFor(meal, target);
+    if (!entry || meal.level === 0 || meal.level >= mealMaxLevel) return null;
+    if (entry.bpLevel > 0 && meal.amount >= entry.bpCost) return null;
+    return ladleFooter(entry.timeToBp, singleKitchenMulti);
   };
 
   return (
@@ -267,12 +283,11 @@ const Meals = ({
           <CardGrid size={'m'} details={toolbar?.details}>
             {bestSpeedMeals.map(({ name, rawName, level, current, next, timeTillNextLevel }) => <ItemCard
               key={name} icon={<MealIcon rawName={rawName} plateLevel={level} small/>} title={cleanUnderscore(name)}
-              meta={`Lv ${formatNum(level)} → ${formatNum(level + 1)}`}>
+              meta={`Lv ${formatNum(level)} → ${formatNum(level + 1)}`}
+              footer={ladleFooter(timeTillNextLevel, singleKitchenMulti)}>
               <ItemCard.Facts rows={[
                 ['Bonus', `+${mealBonusText(current)}% → +${mealBonusText(next)}% (+${mealBonusText(shownGain(current, next))}%)`],
-                ['Next level', shownTime(timeTillNextLevel)],
-                ladleRow(timeTillNextLevel),
-                singleKitchenRow(timeTillNextLevel, singleKitchenMulti)
+                ['Next level', shownTime(timeTillNextLevel)]
               ]}/>
             </ItemCard>)}
           </CardGrid>
@@ -322,6 +337,7 @@ const Meals = ({
             return <ItemCard key={mealIndex} icon={<MealIcon rawName={rawName} plateLevel={level}/>}
                              title={cleanUnderscore(name)} level={{ value: level ?? 0 }} dimmed={level === 0}
                              status={level >= mealMaxLevel ? 'maxed' : undefined}
+                             footer={mealFooter(meal)}
                              more={<ItemCard.Facts rows={[
                                nextLevelNotation ? [`At Lv ${formatNum(level + 1)}`, nextLevelNotation] : null,
                                ribbonIndex > 1 ? [iconLabel('ribbon', `data/Ribbon${ribbonIndex - 1}.png`, 'Ribbon'),

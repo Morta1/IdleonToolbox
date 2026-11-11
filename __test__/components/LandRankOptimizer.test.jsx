@@ -39,7 +39,8 @@ describe('Land rank upgrade optimizer', () => {
     expect(screen.getByText(/Evolution Ultraboost/)).toBeTruthy();
     // 100 points, spread across the evolution upgrades by marginal gain rather than dumped in one.
     expect(screen.getByText('63 pts').previousSibling?.textContent).toBe('Total cost');
-    expect(screen.getAllByText(/^Lv [\d,]+ → [\d,]+( \/ [\d,]+)?$/)[0].parentElement.textContent).toMatch(/ · 63 upgrades, #\d+ to #\d+$/);
+    expect(screen.getAllByText(/^Lv [\d,]+ → [\d,]+( \/ [\d,]+)?$/).length).toBeGreaterThan(0);
+    expect(screen.getByText('x63')).toBeTruthy();
   });
 
   it('switches the plan when the category changes', () => {
