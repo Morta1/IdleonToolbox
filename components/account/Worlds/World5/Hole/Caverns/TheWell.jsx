@@ -2,7 +2,7 @@ import { Stack, Typography } from '@mui/material';
 import { formatDuration } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
-import { createBreakdown, flatLines } from '@parsers/breakdown';
+import { createBreakdown, flatLines, listGroup } from '@parsers/breakdown';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid, { LABELED_TILE_MIN } from '@components/common/cards/CardGrid';
@@ -19,11 +19,15 @@ const bucketIcon = (golden) => `data/HoleWellBucket${golden ? 1 : 0}.png`;
 const BUCKET_TILE_HEIGHT = 88;
 
 // Seconds to fill a sediment's bar with the first N buckets on it: their rates add up (a golden bucket fills faster)
-const fillTimes = (sediment, theWell) => (theWell?.buckets ?? []).map((_, index) => {
-  const rate = (theWell?.bucketRates ?? []).slice(0, index + 1).reduce((sum, value) => sum + value, 0)
-    || (theWell?.fillRate ?? 0) * (index + 1);
+const fillTimes = (sediment, rates) => rates.map((_, index) => {
+  const rate = rates.slice(0, index + 1).reduce((sum, value) => sum + value, 0);
   return rate > 0 ? ((sediment?.max ?? 0) - (sediment?.current ?? 0)) / rate * 3600 : Infinity;
 });
+// One row per bucket count
+const fillLines = (sediment, rates) => flatLines(fillTimes(sediment, rates).map((seconds, count) => ({
+  name: `${count + 1} ${count ? 'buckets' : 'bucket'}`, value: Number.isFinite(seconds) ? seconds : 0,
+  formatted: Number.isFinite(seconds) ? formatDuration(seconds) : '-'
+})));
 const sedimentText = (value) => formatGame(Math.max(0, value ?? 0), 'Holes.SedimentMax', { whole: true });
 // A sediment by its place in the parser's list: the rock layer first, then the sediments by their sprite
 const sedimentName = (index) => (index === 0 ? 'Rocks' : `Sediment ${index}`);
@@ -55,12 +59,18 @@ const TheWell = ({ hole }) => {
     const locked = !isRocks && !max;
     const totalRate = theWell?.totalFillRate ?? (theWell?.fillRate ?? 0) * buckets.length;
     const fullIn = totalRate > 0 ? (max - current) / totalRate * 3600 : Infinity;
-    // Info 5: the time with each count of buckets, a list inside a hover note before
-    const byBuckets = createBreakdown(`${sedimentName(index)} full in`, formatDuration(fullIn), flatLines(fillTimes(sediment, theWell)
-      .map((seconds, count) => ({
-        name: `${count + 1} ${count ? 'buckets' : 'bucket'}`, value: Number.isFinite(seconds) ? seconds : 0,
-        formatted: Number.isFinite(seconds) ? formatDuration(seconds) : '-'
-      }))), { combine: 'list' });
+    // Info 5: the time with each count of buckets. A golden bucket fills one sediment only, so the times without it sit
+    // beside the ones with it
+    const bucketRates = theWell?.bucketRates?.length ? theWell.bucketRates : buckets.map(() => theWell?.fillRate ?? 0);
+    // Golden buckets come first, so the first rate over the golden multiplier is an ordinary bucket's
+    const baseRate = (bucketRates[0] ?? 0) / (theWell?.goldenBucketMulti || 1);
+    // One group per golden count the account can put on this sediment, 0 up to the ones it owns
+    const goldenCounts = Array.from({ length: golden + 1 }, (_, count) => count);
+    const tree = golden > 0
+      ? goldenCounts.map((count) => listGroup(count ? `With ${count} golden ${count > 1 ? 'buckets' : 'bucket'}` : 'Without golden bucket',
+        fillLines(sediment, bucketRates.map((_, slot) => (slot < count ? bucketRates[slot] : baseRate)))))
+      : fillLines(sediment, bucketRates);
+    const byBuckets = createBreakdown(`${sedimentName(index)} full in`, formatDuration(fullIn), tree, { combine: 'list' });
     return <ItemCard key={`sediment-${index}`} icon={`data/HoleWellFill${index}.png`} title={sedimentName(index)}
                      status={locked ? 'locked' : undefined}>
       {isRocks ? <ItemCard.Facts rows={[['Left', formatGame(Math.abs(current), 'Holes.SedimentMax', { whole: true })]]}/> : null}
