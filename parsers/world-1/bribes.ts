@@ -38,7 +38,8 @@ const parseBribes = (bribesRaw: any): Bribe[] | undefined => {
   });
 }
 
-export const getBribeBonus = (bribes: Bribe[] | undefined, bribeName: string): number => {
+// Only what it reads, so callers holding the generated Account shape (no state) still type-check.
+export const getBribeBonus = (bribes: Pick<Bribe, 'name' | 'done' | 'value'>[] | undefined, bribeName: string): number => {
   return bribes?.find(({ name, done }) => name === bribeName && done)?.value ?? 0;
 }
 
