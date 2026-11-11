@@ -17,7 +17,8 @@ export const patchNotes = [
       'Grimoire, Compass and Tesseract: form stats as compact tiles'
     ],
     'fixes': [
-      'Tournament: opponent and leaderboard team power and win chances show as a range, since Pet Mart+ upgrades of other players are not in the game data'
+      'Tournament: opponent and leaderboard team power and win chances show as a range, since Pet Mart+ upgrades of other players are not in the game data',
+      'Fishing Efficiency breakdown: the Strength bonus now lists each source, Skelefish Stamp included'
     ]
   },
   {

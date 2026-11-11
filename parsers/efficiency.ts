@@ -32,7 +32,7 @@ import { getPrayerBonusAndCurse } from '@parsers/world-3/prayers';
 import { getGuildBonusBonus } from '@parsers/guild';
 import { TOOLS } from '@utility/consts';
 import { getStatueBonus } from '@parsers/world-1/statues';
-import { getStampNode, getStampsBonusByEffect, getStampsBonusByStat } from '@parsers/world-1/stamps';
+import { getStampLineName, getStampNode, getStampsBonusByEffect, getStampsBonusByStat } from '@parsers/world-1/stamps';
 import { getShinyBonus } from '@parsers/world-4/breeding';
 import { getObolsBonus } from '@parsers/obols';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
@@ -445,12 +445,9 @@ const getFishingEffParts = (character: any, characters: any, account: any, playe
   const power = evaluateBreakdownNode(sumGroup(names.power, powerLines));
   const strength = character?.stats?.strength;
   const skillStrengthen = getTalentBonus(talents, 'SKILL_STRENGTHEN');
-  const strengthScaling = skillStrengthen
-    + 10 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.fishing?.rank, 1)
-    + getVoteBonus(account, 8)
-    + getArmorSetBonus(account, 'PLATINUM_SET')
-    + 15 * getBribeBonus(account?.bribes, 'Fishermaster')
-    + getStampsBonusByStat(account, 'FishEffPerLv', character) * level;
+  // game: 1 + (STR / 100)^0.35 * (1 + sum / 100), split into each source's share of the multiplier
+  const strengthPower = Math.pow(strength / 100, 0.35);
+  const strengthShare = (name: string, bonus: number) => percent(name, strengthPower * bonus);
   const { value: gear } = getStatsFromGear(character, 19, account);
 
   const tree = [
@@ -462,9 +459,15 @@ const getFishingEffParts = (character: any, characters: any, account: any, playe
     ]),
     productGroup(names.bonuses, [
       multiplier('Fishing level', 1 + level / 200),
-      multiplier('Strength', 1 + Math.pow(strength / 100, 0.35) * (1 + strengthScaling / 100), {
-        note: 'Scaled by Skill Strengthen, skill mastery, vote, Platinum set, Fishermaster bribe and the per-level stamp'
-      }),
+      additiveGroup('Strength', [
+        percent('Strength', 100 * strengthPower),
+        strengthShare('Skill Strengthen talent', skillStrengthen),
+        strengthShare('Skill mastery', 10 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.fishing?.rank, 1)),
+        strengthShare('Vote', getVoteBonus(account, 8)),
+        strengthShare('Platinum set', getArmorSetBonus(account, 'PLATINUM_SET')),
+        strengthShare('Fishermaster bribe', 15 * getBribeBonus(account?.bribes, 'Fishermaster')),
+        strengthShare(getStampLineName(account, { stat: 'FishEffPerLv' }), getStampsBonusByStat(account, 'FishEffPerLv', character) * level)
+      ]),
       multiplier('Fishing power', 1 + power / 100),
       multiplier('Golden food', getGoldenFoodMultiplier('Golden_Ribs', character, account, characters)),
       multiplier('Brute Efficiency talent', 1 + getTalentBonus(talents, 'BRUTE_EFFICIENCY') / 100),
