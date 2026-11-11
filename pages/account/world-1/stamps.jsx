@@ -35,7 +35,6 @@ import {
 } from '@parsers/world-1/stamps';
 import Link from '@mui/material/Link';
 import { useLocalStorage } from '@mantine/hooks';
-import Button from '@mui/material/Button';
 import { isValid } from 'date-fns';
 import useFormatDate from '@hooks/useFormatDate';
 import { getExaltedStampBonus } from '@parsers/world-1/stamps';
@@ -271,19 +270,19 @@ const Stamps = () => {
                              help={'Carry capacity as at its best: Ruck Sack on, Zerg Rushogen off, the VMan talent, the three carry star signs and a Nanochip if you own one.'}/>
         <PageSettings.Toggle name={'showGained'} label={'Show levels gained'}
                              help={'Each stamp that levelled since your snapshot shows how many levels.'}/>
-        <Stack gap={0.5}>
-          <Button variant={'text'} onClick={handleSnapshot} sx={{ alignSelf: 'flex-start' }}>Save levels snapshot</Button>
-          <Typography variant={'caption'} color={'text.secondary'}>
-            {isValid(levelsSnapshot?.snapshotTime) ? `Saved ${formatDate(levelsSnapshot.snapshotTime)}` : 'No snapshot yet'}
-          </Typography>
-        </Stack>
       </PageSettings>}
       <PageSummary>
         <StatTile label={'Gilded stamps'} icon={'data/GildedStamp.png'} value={riftFailed ? '-' : formatNum(gildedStamps)}
                   sub={gildedSub}/>
+        {/* The save keeps no record of the stamp it picked: the snapshot is how a player finds it */}
         <StatTile label={'No Stamp Left Behind'} value={perDayText} failed={isParseFailed(state?.account)}
                   breakdown={stampsPerDay?.breakdown ? { ...stampsPerDay.breakdown, totalValue: perDayText } : undefined}
-                  breakdownTitle={'No Stamp Left Behind'}/>
+                  breakdownTitle={'No Stamp Left Behind'}
+                  info={'Every day, No Stamp Left Behind gives all its levels to one random stamp you own. Save a snapshot of your levels: the stamps that levelled since then show how many levels they gained.'}
+                  sub={stampsFailed ? undefined : <Stack component={'span'} sx={{ alignItems: 'flex-start' }}>
+                    <Link component={'button'} type={'button'} variant={'caption'} onClick={handleSnapshot}>Save levels snapshot</Link>
+                    <span>{isValid(levelsSnapshot?.snapshotTime) ? `Saved ${formatDate(levelsSnapshot.snapshotTime)}` : 'No snapshot yet'}</span>
+                  </Stack>}/>
         <StatTile label={'Exalted multi'} value={exaltedFailed ? '-' : exaltedText}
                   breakdown={!exaltedFailed && exaltedMulti?.breakdown ? { ...exaltedMulti.breakdown, totalValue: exaltedText } : undefined}
                   breakdownTitle={'Exalted multi'}/>
