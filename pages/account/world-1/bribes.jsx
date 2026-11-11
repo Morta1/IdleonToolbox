@@ -1,4 +1,4 @@
-import React, { Fragment, useContext } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, getCoinsArray } from 'utility/helpers';
@@ -8,8 +8,11 @@ import { getBribes, getBribeSets } from '@parsers/world-1/bribes';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import MetaParts from '@components/common/MetaParts';
 
 const coins = (amount) => <CoinDisplay dense money={getCoinsArray(amount)}/>;
+// The coins follow their label on one line, as the set's other parts
+const SALE_SX = { display: 'inline-flex', alignItems: 'center', gap: 0.5 };
 
 const Bribes = () => {
   const { state } = useContext(AppContext);
@@ -55,10 +58,8 @@ const Bribes = () => {
           return <Box component={'section'} key={setIndex}>
             <Stack direction={'row'} alignItems={'baseline'} flexWrap={'wrap'} columnGap={1.5} sx={{ mb: 1.5 }}>
               <Typography variant={'sectionTitle'} component={'h2'}>Set {setIndex + 1}</Typography>
-              <Typography variant={'body2'} color={'text.secondary'} component={'div'}
-                          sx={{ display: 'flex', alignItems: 'center', gap: 0.5, flexWrap: 'wrap' }}>
-                {meta.map((part, index) => <Fragment key={index}>{index ? ' · ' : null}{part}</Fragment>)}
-                {signedIn && costLeft > 0 ? <> · For sale now: {coins(costLeft)}</> : null}
+              <Typography variant={'body2'} color={'text.secondary'} component={'div'}>
+                <MetaParts>{[...meta, signedIn && costLeft > 0 ? <Box key={'sale'} component={'span'} sx={SALE_SX}>For sale now: {coins(costLeft)}</Box> : null]}</MetaParts>
               </Typography>
             </Stack>
             <CardGrid size={'s'}>{setBribes.map(bribeCard)}</CardGrid>
