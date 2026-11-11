@@ -22,11 +22,11 @@ The rules every change needs are below. Task-specific ones live in `docs/`; read
 ## Testing and deploys
 When testing add "http://localhost:3001?demo=true" to be able to access all pages without login in.
 
-Pre-commit runs the full vitest suite. Never `--no-verify`. `QUICK_COMMIT=1` runs only the tests a commit touches, plus
-the type check, for commits between checks; how tests are written and run is in `docs/testing.md`.
+Pre-commit runs only the tests a commit touches, the type check and eslint; pre-push runs the full vitest suite. Never
+`--no-verify`. How tests are written and run is in `docs/testing.md`.
 
 Before a push to `main` (a deploy), check what the change can break, not everything:
-- Always: the full vitest suite on what goes out (the commit hook without `QUICK_COMMIT`, about a minute), and each
+- Always: the full vitest suite on what goes out (the pre-push hook runs it, about two minutes), and each
   changed page looked at, desktop and phone width.
 - No local build: the deploy builds every page itself (`deploy.yml`), and a failed build deploys nothing.
 - e2e only for what several pages share: the nav, the page frame or the side ads, patch notes or What's new, page titles,

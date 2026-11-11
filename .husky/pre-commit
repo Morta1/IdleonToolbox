@@ -11,30 +11,41 @@ SOURCE_SCANS="__test__/no-nossr.test.js __test__/alt-text.test.js __test__/card-
 # game-tables.test.js scans the wiki sources in one test, and the rest of the file takes about 40 s: only that test runs.
 SOURCE_SCAN_TEST="__test__/entity-graph/game-tables.test.js"
 SOURCE_SCAN_NAME="reads no table without a reader"
-# QUICK_COMMIT=1 is for commits between a plan's gates: it runs the tests that import a staged file plus the source
-# scans above, and type-checks, and the gate runs the full suite. Every other commit runs the full suite.
-if [ "$QUICK_COMMIT" = "1" ]; then
-  staged=$(git diff --cached --name-only --diff-filter=ACMR)
-  if [ -n "$staged" ]; then
-    # The type check next build runs (tsconfig.build.json: errors in .ts and .tsx), here so a commit between gates
-    # that skips the build still meets it. It runs beside the tests; its incremental state sits in .next/cache,
-    # which builds keep and git ignores.
-    tsc_log=$(mktemp)
-    trap 'rm -f "$tsc_log"' EXIT
-    npx tsc --noEmit --incremental -p tsconfig.build.json --tsBuildInfoFile .next/cache/tsc-precommit.tsbuildinfo > "$tsc_log" 2>&1 &
-    tsc_pid=$!
-    # A test file named on the command line is related to itself, so the scans ride in the same run.
-    npx vitest related --run --passWithNoTests $staged $SOURCE_SCANS
-    npx vitest run "$SOURCE_SCAN_TEST" -t "$SOURCE_SCAN_NAME"
-    if ! wait "$tsc_pid"; then
-      cat "$tsc_log"
-      echo "pre-commit: tsc -p tsconfig.build.json found type errors" >&2
-      exit 1
-    fi
-  fi
-else
-  npm test
-fi
-# Lint only what is being committed.
+# Every commit runs the quick check: the tests that import a staged file, the source scans above, the build's type check
+# and eslint on the staged files. The full suite runs once per push (.husky/pre-push), not once per commit: with several
+# sessions committing on one checkout, parallel full suites starved each other into 5-10 minute commits.
+# FULL_COMMIT=1 runs the full suite here too.
+staged=$(git diff --cached --name-only --diff-filter=ACMR)
+[ -n "$staged" ] || exit 0
+# The type check next build runs (tsconfig.build.json: errors in .ts and .tsx) and eslint run beside the tests.
+# tsc's incremental state sits in .next/cache, which builds keep and git ignores.
+tsc_log=$(mktemp)
+lint_log=$(mktemp)
+trap 'rm -f "$tsc_log" "$lint_log"' EXIT
+npx tsc --noEmit --incremental -p tsconfig.build.json --tsBuildInfoFile .next/cache/tsc-precommit.tsbuildinfo > "$tsc_log" 2>&1 &
+tsc_pid=$!
 files=$(git diff --cached --name-only --diff-filter=ACMR -- '*.js' '*.jsx' '*.mjs' '*.ts' '*.tsx')
-[ -z "$files" ] || npx eslint --no-warn-ignored --pass-on-unpruned-suppressions $files
+lint_pid=
+if [ -n "$files" ]; then
+  npx eslint --no-warn-ignored --pass-on-unpruned-suppressions $files > "$lint_log" 2>&1 &
+  lint_pid=$!
+fi
+if [ "$FULL_COMMIT" = "1" ]; then
+  npm test
+else
+  # A test file named on the command line is related to itself, so the scans ride in the same run.
+  npx vitest related --run --passWithNoTests $staged $SOURCE_SCANS
+  npx vitest run "$SOURCE_SCAN_TEST" -t "$SOURCE_SCAN_NAME"
+fi
+failed=0
+if ! wait "$tsc_pid"; then
+  cat "$tsc_log"
+  echo "pre-commit: tsc -p tsconfig.build.json found type errors" >&2
+  failed=1
+fi
+if [ -n "$lint_pid" ] && ! wait "$lint_pid"; then
+  cat "$lint_log"
+  echo "pre-commit: eslint found errors" >&2
+  failed=1
+fi
+exit $failed

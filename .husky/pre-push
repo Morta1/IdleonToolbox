@@ -1,0 +1,3 @@
+# The full vitest suite, once per push: commits run only the tests they touch (.husky/pre-commit).
+# It tests the working tree, so uncommitted edits from another session on this checkout can fail it.
+npm test

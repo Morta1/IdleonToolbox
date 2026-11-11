@@ -22,10 +22,10 @@ pre-4.0 build), for finding pages that spend more room than they did.
 
 ## Commits and builds
 
-- Pre-commit runs the full vitest suite. Never `--no-verify`. `QUICK_COMMIT=1` runs the tests that import a staged
-  file plus the tests that read sources from disk, which `vitest related` can't connect to what they check, and
-  the build's type check (`tsc --noEmit --incremental -p tsconfig.build.json`): for commits between a plan's gates,
-  and the gate runs the full suite. A new test that scans sources joins `SOURCE_SCANS` in `.husky/pre-commit`.
+- Pre-commit runs the tests that import a staged file plus the tests that read sources from disk, which `vitest
+  related` can't connect to what they check, the build's type check (`tsc --noEmit --incremental -p tsconfig.build.json`)
+  and eslint on the staged files: about 30 s. Pre-push runs the full suite once per push; `FULL_COMMIT=1` runs it at
+  commit time too. Never `--no-verify`. A new test that scans sources joins `SOURCE_SCANS` in `.husky/pre-commit`.
 - `FAST_BUILD=1 npm run build` exports two wiki entity pages per kind (plus the ones e2e names) instead of ~8,000
   and writes no sitemap: for checks between a plan's gates. A plan's gate or close builds every page; for a deploy, the
   deploy's own build does. `node tools/needs-build.mjs` says whether a change needs that build at all (exit 0 yes, 1 no):
