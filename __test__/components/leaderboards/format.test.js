@@ -113,6 +113,9 @@ describe('formatStep', () => {
     expect(formatMetricValue('seconds', 3600 / 3.86)).toBe('3.86 Sec');
     expect(formatMetricValue('seconds', 3600 / 0.0236)).toBe('0.0236 Sec');
     expect(formatGap('seconds', 3600 / 4, 3600 / 3.86)).toBe('-0.14 Sec');
+    // A column of sub-second times (the live top 10 of 2026-11-11) reads as seconds, never the stored rate.
+    expect(formatDistinctValues('seconds', [26_065_833.4, 4_931_729.6, 2_195_121.9, 1_525_423.7], { scale: 26_065_833.4 }))
+      .toEqual(['0.000138 Sec', '0.000730 Sec', '0.00164 Sec', '0.00236 Sec']);
     expect(formatStep('default', 30_546_577, { scale: 1e9 })).toBe('30.6M');
     expect(formatStep('default', 6.0038e12, { scale: 1e14 })).toBe('6.01T');
     expect(formatStep('multiplier', 14.9016)).toBe('14.91x');

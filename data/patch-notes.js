@@ -28,7 +28,8 @@ export const patchNotes = [
     'fixes': [
       'Tournament: opponent and leaderboard team power and win chances show as a range, since Pet Mart+ upgrades of other players are not in the game data',
       'Fishing Efficiency breakdown: the Strength bonus now lists each source, Skelefish Stamp included',
-      'Anvil: points include Acme Anvil, and EXP per craft includes your EXP bonus'
+      'Anvil: points include Acme Anvil, and EXP per craft includes your EXP bonus',
+      'Leaderboards: Sprout Speed shows times in seconds again'
     ]
   },
   {

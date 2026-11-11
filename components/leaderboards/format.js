@@ -79,8 +79,12 @@ const dropZeros = (text, count = trailingZeros(text)) => (count
 
 // One value's digits, without its unit. A board that reaches E notation uses it for every value from a million up.
 // `decimals` forces that many on a full value (a group of rows that must line up).
+// A time under a second reads in significant figures, so it has no decimals to line up with the rest of a column.
+const isSubSecond = (notation, value) => notation === 'seconds' && value > 0 && value < 1;
+const alignsDecimals = (notation, value) => isFull(value) && !isSubSecond(notation, value);
+
 const digitsOf = (notation, value, { scale, precision = 3, decimals } = {}) => {
-  if (notation === 'seconds' && value > 0 && value < 1) return formatNum(value, 'amount', { significant: precision });
+  if (isSubSecond(notation, value)) return formatNum(value, 'amount', { significant: precision });
   if (isFull(value)) {
     if (notation === 'points') return formatNum(value, 'amount', { decimals: decimals ?? 2 });
     return formatNum(value, notation === 'multiplier' ? 'mult' : 'amount', { decimals, bare: true });
@@ -108,7 +112,7 @@ const distinctDigits = (notation, values, scale, minDecimals = 0) => {
   // Float noise is not a difference: 11,444.999999996 and 11,445 are the same score.
   const same = (a, b) => Math.abs(a - b) <= 1e-9 * Math.max(1, Math.abs(a));
   const distinct = (texts) => values.every((value, at) => values.every((other, to) => same(value, other) || texts[at] !== texts[to]));
-  const aligned = (texts) => new Set(texts.filter((text, at) => isFull(values[at])).map(decimalsOf)).size <= 1;
+  const aligned = (texts) => new Set(texts.filter((text, at) => alignsDecimals(notation, values[at])).map(decimalsOf)).size <= 1;
   const unit = unitOf(notation);
   for (let step = 0; step <= MAX_PRECISION - 3 + 3; step++) {
     const level = step <= MAX_PRECISION - 3 ? { precision: step + 3 } : { precision: MAX_PRECISION, decimals: step - (MAX_PRECISION - 3) + 1 };
@@ -121,8 +125,8 @@ const distinctDigits = (notation, values, scale, minDecimals = 0) => {
     }
   }
   // Last resort, still aligned: full values share two decimals when any of them has some.
-  const fractional = values.some((value) => isFull(value) && !isWhole(value));
-  return values.map((value) => (isFull(value) && fractional ? `${digitsOf(notation, value, { decimals: Math.max(2, minDecimals) })}${unit}` : formatExactValue(notation, value)));
+  const fractional = values.some((value) => alignsDecimals(notation, value) && !isWhole(value));
+  return values.map((value) => (alignsDecimals(notation, value) && fractional ? `${digitsOf(notation, value, { decimals: Math.max(2, minDecimals) })}${unit}` : exactText(notation, value)));
 };
 
 // A value that isn't a number reads "-" and takes no part in the group.
@@ -137,14 +141,17 @@ export const formatDistinctValues = (notation, raws, { scale, decimals } = {}) =
 // full value on the board shows the most decimals any group took, so 10,994.10 reads one way beside 11,624.60.
 export const formatBoardValues = (notation, groups, { scale } = {}) => {
   const texts = groups.map((raws) => formatDistinctValues(notation, raws, { scale }));
-  const decimals = Math.max(0, ...groups.flatMap((raws, group) => raws.map((raw, row) => (isFull(shownOf(notation, numeric(raw))) ? decimalsOf(texts[group][row]) : 0))));
+  const decimals = Math.max(0, ...groups.flatMap((raws, group) => raws.map((raw, row) => (alignsDecimals(notation, shownOf(notation, numeric(raw))) ? decimalsOf(texts[group][row]) : 0))));
   return decimals ? groups.map((raws) => formatDistinctValues(notation, raws, { scale, decimals })) : texts;
 };
 
 // Every digit a value has, for the note behind a short one.
-export const formatExactValue = (notation, raw) => {
-  const value = shownOf(notation, numeric(raw));
+export const formatExactValue = (notation, raw) => exactText(notation, shownOf(notation, numeric(raw)));
+
+// `value` is already what the row shows (a seconds board's time, not its stored rate).
+const exactText = (notation, value) => {
   if (!Number.isFinite(value)) return '-';
+  if (isSubSecond(notation, value)) return `${formatNum(value, 'amount', { significant: 6 })}${unitOf(notation)}`;
   const abs = Math.abs(value);
   if (abs >= EXACT_BELOW) return `${value.toExponential(5).replace('e+', 'e')}${unitOf(notation)}`;
   const digits = abs < SMALL
