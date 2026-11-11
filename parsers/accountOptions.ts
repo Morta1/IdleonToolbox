@@ -43,6 +43,8 @@ export const OPT = {
   islandBottles: 162,
   trashIslandGarbageGainLevel: 163,
   trashIslandBottleGainLevel: 164,
+  // 1 once the Garbage Tuna's reward that lets you buy The Art of the Bail bribe was claimed
+  trashIslandBribeUnlock: 165,
   randoIslandLootLevel: 166,
   randoIslandDoubleBossLevel: 167,
   islandsUnlocked: 169,

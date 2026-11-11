@@ -1,8 +1,8 @@
-import React, { Fragment, useContext } from 'react';
+import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
 import { Box, LinearProgress, Stack, Typography } from '@mui/material';
 import StatusText from '@components/common/StatusText';
-import { cleanUnderscore, fillArrayToLength, formatNum } from 'utility/helpers';
+import { cleanUnderscore, fillArrayToLength, formatNum, getCoinsArray } from 'utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Timer from 'components/common/Timer';
 import {
@@ -10,7 +10,10 @@ import {
   getAnvilProductCatalog,
   getAnvilSlotPerHour,
   getAnvilTotalsBreakdowns,
+  getAnvilExpBreakdown,
+  getAnvilFutureExp,
   getAnvilFutureProduction,
+  getAnvilTotalPoints,
   getPlayerAnvil,
   getTimeTillCap
 } from '@parsers/world-1/anvil';
@@ -27,6 +30,10 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import InfoButton from '@components/common/InfoButton';
 import { DIM } from '@components/common/cards/tokens';
+import GameIcon from '@components/common/GameIcon';
+import MetaParts from '@components/common/MetaParts';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import CoinDisplay from '@components/common/CoinDisplay';
 
 // The anvil is the characters' own, not a section: its speed reads these sections (the stamp, the statue, the star
 // sign, the vault upgrade and the Hammer Hammer bubble). While one failed, every number made from the speed reads "-",
@@ -55,9 +62,30 @@ const ROW_SX = { alignItems: 'flex-start' };
 const EMPTY_SX = { opacity: DIM };
 
 // One line of parts, each kept whole ("Points 300 / 320" never breaks inside its pair)
-const metaLine = (parts) => parts.filter(Boolean).map((part, index) => <Fragment key={index}>
-  {index ? ' · ' : null}<Box component={'span'} sx={{ whiteSpace: 'nowrap' }}>{part}</Box>
-</Fragment>);
+const metaLine = (parts) => <MetaParts>{parts}</MetaParts>;
+
+// A material cost as the game's sprite after the amount: an item's name made both rows wrap in the note
+const matAmount = (amount, rawName) => <Box component={'span'} sx={NAME_SX}>
+  {formatNum(amount, 'whole')}<GameIcon src={`data/${rawName}.png`} size={16} alt={itemName(rawName)}/>
+</Box>;
+
+// Where the points came from and the next ones to buy: only the material being bought now, as players farm one at a
+// time. Every material to max is on the character page.
+const pointsNote = (stats) => {
+  const { anvilCost = {}, pointsFromCoins = 0, pointsFromMats = 0 } = stats ?? {};
+  const [currentMat, nextMat] = anvilCost?.matsToMax ?? [];
+  // The last material runs to the 700 cap; an earlier one only until the anvil asks for the next item
+  const restLabel = nextMat ? `Next ${formatNum(currentMat?.points, 'whole')} points` : 'To max';
+  const rows = [
+    ['From coins', formatNum(pointsFromCoins, 'whole')],
+    ['From materials', formatNum(pointsFromMats, 'whole')],
+    ['From Acme Anvil', formatNum(stats?.pointsFromAcme ?? 0, 'whole')],
+    ...(anvilCost?.coinsToMax > 0 ? [['Next coin point', <CoinDisplay key={'next-coin'} dense money={getCoinsArray(anvilCost?.nextCoinUpgrade)}/>]] : []),
+    ...(currentMat ? [['Next material point', matAmount(anvilCost?.nextMatUpgrade, currentMat.rawName)],
+      ...(currentMat.points > 1 ? [[restLabel, matAmount(currentMat.amount, currentMat.rawName)]] : [])] : [])
+  ];
+  return <ItemCard.Facts rows={rows}/>;
+};
 
 const catalogCard = ({ rawName, displayName, requiredAmount, levelReq, exp }) => <ItemCard
   key={rawName} icon={`data/${rawName}.png`} title={cleanUnderscore(displayName)}>
@@ -88,7 +116,7 @@ const Anvil = () => {
   // A card per slot with six fact rows stacked two or three a character, 1.11x the old page's height.
   const slotRow = (slot, slotIndex, stats, afkTime) => {
     if (!slot?.hammers) return <Panel.Row key={`empty-${slotIndex}`} name={'Empty slot'} sub={'A free hammer'} sx={EMPTY_SX}/>;
-    const { rawName, hammers, requiredAmount, currentXP, displayName, exp } = slot;
+    const { rawName, hammers, displayName, exp, totalProduced } = slot;
     const future = getAnvilFutureProduction({ ...slot, stats, afkTime });
     const capacity = stats?.anvilCapacity;
     const percentOfCap = Math.round(future / capacity * 100);
@@ -116,7 +144,8 @@ const Anvil = () => {
                           <ItemCard.Facts rows={[
                             ['Per day', speedFailed ? '-' : formatNum(perDay)],
                             ['Full from empty', speedFailed ? '-' : <Duration seconds={timeFromZero}/>],
-                            ['EXP per craft', formatNum(exp ?? 0)]
+                            ['EXP per craft', formatNum((exp ?? 0) * (stats?.expMulti ?? 1))],
+                            ['Made all time', formatNum(totalProduced ?? 0, 'whole')]
                           ]}/>
                         </InfoButton>
                       </Box>}
@@ -133,7 +162,7 @@ const Anvil = () => {
                           </Box>
                         </Box>
                         <span>{metaLine([`${formatNum(hammers)} ${hammers === 1 ? 'hammer' : 'hammers'}`,
-                          `${formatGame(currentXP ?? 0, 'Big', { whole: true })} EXP waiting`])}</span>
+                          `${formatGame(speedFailed ? slot.currentXP ?? 0 : getAnvilFutureExp({ ...slot, stats, afkTime }), 'Big', { whole: true })} EXP waiting`])}</span>
                       </Stack>}/>;
   };
 
@@ -142,15 +171,24 @@ const Anvil = () => {
     const smithing = character?.skillsInfo?.smithing?.level ?? 0;
     const { stats, production } = getPlayerAnvil(character, state?.characters, state?.account);
     const { availablePoints = 0, pointsFromCoins = 0, pointsFromMats = 0 } = stats ?? {};
-    const totalPoints = pointsFromCoins + pointsFromMats + smithing;
+    const totalPoints = getAnvilTotalPoints(stats, smithing);
     const working = production?.filter(({ hammers }) => hammers > 0) ?? [];
     const placed = working.reduce((res, { hammers }) => res + hammers, 0);
     // An Empty slot is a free hammer. Hammers stack on a product, so a card per hammer would draw blanks for a full anvil
     const free = Math.max(0, hammersOwned(character, state?.account) - placed);
     const slots = fillArrayToLength(working.length + free, working);
-    const meta = metaLine([`Smithing ${formatNum(smithing, 'level')}`,
-      `Points ${formatNum(totalPoints - availablePoints)} / ${formatNum(totalPoints)}`,
-      availablePoints > 0 ? `${formatNum(availablePoints)} unspent` : null]);
+    const speedText = `${formatGame(stats?.anvilSpeed, 'AnvilProduceStats.ProductionSpeed')} / hr`;
+    // Two lines on every card, the full card width each: the speed on the right squeezed the rest into three
+    const speed = speedFailed ? null : <span key={'speed'}>Speed <Breakdown asValue title={`${cleanUnderscore(character?.name)}: anvil speed`}
+                                                                          data={{ ...stats?.speedBreakdown, totalValue: speedText }}>{speedText}</Breakdown></span>;
+    const meta = <>
+      {metaLine([`Smithing ${formatNum(smithing, 'level')}`, speed])}
+      {metaLine([<Box component={'span'} key={'points'} sx={NAME_SX}>
+        {`Points ${formatNum(totalPoints - availablePoints)} / ${formatNum(totalPoints)}`}
+        <InfoButton label={'Anvil points'}>{pointsNote(stats)}</InfoButton>
+      </Box>,
+      availablePoints > 0 ? `${formatNum(availablePoints)} unspent` : null])}
+    </>;
     return <Panel key={`anvil-${index}`} icon={`data/ClassIcons${character?.classIndex}.png`}
                   title={cleanUnderscore(character?.name) || `Character ${index + 1}`} meta={meta}>
       {slots.map((slot, slotIndex) => slotRow(slot, slotIndex, stats, character?.afkTime))}
@@ -158,6 +196,12 @@ const Anvil = () => {
   };
 
   const products = Object.entries(totals);
+  const { perHour: expPerHour, breakdown: expBreakdown } = getAnvilExpBreakdown(state?.account, state?.characters);
+  const expText = speedFailed ? '-' : formatNum(expPerHour, 'rate');
+  const expTile = expPerHour > 0 ? <StatTile key={'smithing-exp'} icon={'data/ClassIcons43.png'} label={'Smithing EXP'} value={expText}
+                                             sub={speedFailed ? undefined : `${formatNum(expPerHour * 24)} per day`}
+                                             breakdown={speedFailed ? undefined : { ...expBreakdown, totalValue: expText }}
+                                             breakdownTitle={'Smithing EXP'} breakdownNoun={'characters'}/> : null;
 
   return <>
     <NextSeo
@@ -167,7 +211,7 @@ const Anvil = () => {
     {speedFailed ? <MissingData name={SECTION_NAMES[speedFailed]} failed/> : !anvil.length
       ? <Notice tone={'signin'} sx={{ mb: 2 }}>Each character&apos;s anvil shows here once you sign in.</Notice>
       : null}
-    {products.length ? <PageSummary>{products.map(productTile)}</PageSummary> : null}
+    {products.length ? <PageSummary>{expTile}{products.map(productTile)}</PageSummary> : null}
     {/* Two or three characters a row from md: a character runs two or three slots, so a full-width Panel was mostly
      empty */}
     {anvil.length ? <CardGrid size={'l'}>{anvil.map(anvilPanel)}</CardGrid> : <>

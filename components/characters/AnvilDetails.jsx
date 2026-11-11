@@ -4,7 +4,7 @@ import { cleanUnderscore, formatNum, getCoinsArray } from 'utility/helpers';
 import { items } from '@website-data';
 import { formatGame } from '@utility/gameNotation';
 import CoinDisplay from '../common/CoinDisplay';
-import { calcAnvilExp, getPlayerAnvil } from '@parsers/world-1/anvil';
+import { getAnvilTotalPoints, getPlayerAnvil } from '@parsers/world-1/anvil';
 import GameIcon from '@components/common/GameIcon';
 import Panel from '@components/common/cards/Panel';
 import StatusText from '@components/common/StatusText';
@@ -12,7 +12,7 @@ import StatusText from '@components/common/StatusText';
 const Coins = ({ amount }) => <CoinDisplay title={''} maxCoins={3} money={getCoinsArray(amount)}/>;
 
 const AnvilDetails = ({ character, account, characters }) => {
-  const { stats } = getPlayerAnvil(character, characters, account);
+  const { stats, production } = getPlayerAnvil(character, characters, account);
   const {
     xpPoints,
     speedPoints,
@@ -20,14 +20,15 @@ const AnvilDetails = ({ character, account, characters }) => {
     anvilSpeed,
     anvilCapacity,
     anvilCost,
-    baseAnvilExp,
+    expMulti,
     availablePoints,
     pointsFromCoins,
     pointsFromMats,
     pointsFromAcme
   } = stats;
   const smithingLevel = character?.skillsInfo?.smithing?.level ?? 0;
-  const totalPoints = pointsFromCoins + pointsFromMats + smithingLevel + pointsFromAcme;
+  const totalPoints = getAnvilTotalPoints(stats, smithingLevel);
+  const madeAllTime = production?.filter(({ totalProduced }) => totalProduced > 0) ?? [];
   return <Panel title={'Anvil details'}>
     <Panel.Group label={'Points'}>
       <Panel.KV label={'Spent'} value={`${formatNum(totalPoints - availablePoints)} / ${formatNum(totalPoints)}`}/>
@@ -42,7 +43,7 @@ const AnvilDetails = ({ character, account, characters }) => {
       <Panel.KV label={'In capacity'} value={formatNum(capPoints)}/>
     </Panel.Group>
     <Panel.Group label={'Bonus'}>
-      <Panel.KV label={'EXP'} value={`${formatGame(calcAnvilExp(character, characters, account, baseAnvilExp, xpPoints), 'AnvilProduceStats.ProdExpBonus')}%`}/>
+      <Panel.KV label={'EXP'} value={`${formatGame(100 * (expMulti - 1), 'AnvilProduceStats.ProdExpBonus')}%`}/>
       <Panel.KV label={'Speed'} value={formatGame(anvilSpeed, 'AnvilProduceStats.ProductionSpeed')}/>
       <Panel.KV label={'Capacity'} value={formatGame(anvilCapacity, 'AnvilProduceStats.Cap', { whole: true })}/>
     </Panel.Group>
@@ -53,12 +54,18 @@ const AnvilDetails = ({ character, account, characters }) => {
       </Stack>}/> : null}
       <Panel.KV label={'Upgrade cost'} value={formatNum(anvilCost?.nextMatUpgrade, 'whole')}/>
       <Panel.KV label={'Total spent'} value={formatNum(anvilCost?.totalMats, 'whole')}/>
+      {anvilCost?.matsToMax?.map(({ rawName, amount }) => <Panel.KV key={rawName} value={formatNum(amount, 'whole')}
+                                                                    label={`${cleanUnderscore(items?.[rawName]?.displayName ?? rawName)} to max`}/>)}
     </Panel.Group>
     <Panel.Group label={'Money'}>
       <Panel.KV label={'Upgrade cost'} value={<Coins amount={anvilCost?.nextCoinUpgrade}/>}/>
       <Panel.KV label={'Total spent'} value={<Coins amount={anvilCost?.totalCoins}/>}/>
       {anvilCost?.coinsToMax > 0 ? <Panel.KV label={'Coins to max'} value={<Coins amount={anvilCost?.coinsToMax}/>}/> : null}
     </Panel.Group>
+    {madeAllTime.length ? <Panel.Group label={'Made all time'}>
+      {madeAllTime.map(({ rawName, displayName, totalProduced }) => <Panel.KV key={rawName} label={cleanUnderscore(displayName ?? rawName)}
+                                                                            value={formatNum(totalProduced, 'whole')}/>)}
+    </Panel.Group> : null}
   </Panel>;
 };
 

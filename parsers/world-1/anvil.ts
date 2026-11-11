@@ -9,7 +9,7 @@ import { getStatueBonus } from '@parsers/world-1/statues';
 import { getPostOfficeBonus } from '@parsers/world-3/postoffice';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getAllSkillsExp } from '@parsers/character';
-import { createBreakdown, evaluateBreakdownNode, flat, sumGroup } from '@parsers/breakdown';
+import { additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, NUMBERED_GROUP, percent, sumGroup } from '@parsers/breakdown';
 import type { BreakdownGroup, BreakdownLine } from '@parsers/breakdown';
 import { cleanUnderscore, notateNumber } from '@utility/helpers';
 
@@ -62,7 +62,32 @@ export const getCoinCost = (pointsFromCoins: any, anvilCostReduction: any, _unus
   return Math.round(baseCost * (1 + pointsFromCoins / 100) * Math.max(0.1, 1 - anvilCostReduction / 100));
 }
 
+// game: the anvil sells points for coins below 600 and for monster materials below 700
 const MAX_POINTS_FROM_COINS = 600;
+const MAX_POINTS_FROM_MATS = 700;
+
+// game: Costs2TypeAnvilPA, the material the point after `points` costs
+const getMatItemForPoint = (points: number) =>
+  (anvilUpgradeCost.find(({ costThreshold }) => points < costThreshold) ?? anvilUpgradeCost[anvilUpgradeCost.length - 1])?.rawName;
+
+// Every material the points still for sale cost, in the order the anvil asks for them
+export const getMatsToMax = (pointsFromMats = 0, anvilCostReduction = 0) => {
+  const totals: { rawName: string, amount: number, points: number }[] = [];
+  for (let point = pointsFromMats; point < MAX_POINTS_FROM_MATS; point++) {
+    const rawName = getMatItemForPoint(point);
+    const last = totals[totals.length - 1];
+    const cost = getMonsterMatCost(point, anvilCostReduction);
+    if (last?.rawName === rawName) {
+      last.amount += cost;
+      last.points += 1;
+    } else totals.push({ rawName, amount: cost, points: 1 });
+  }
+  return totals;
+}
+
+// game: AnvilPAstats[0] is set to this less the points spent: Smithing level, Acme Anvil and the bought points
+export const getAnvilTotalPoints = ({ pointsFromCoins = 0, pointsFromMats = 0, pointsFromAcme = 0 }: any = {}, smithingLevel = 0) =>
+  pointsFromCoins + pointsFromMats + pointsFromAcme + smithingLevel;
 export const getCoinToMax = (pointsFromCoins: any, anvilCostReduction: any) => {
   let costToMax = 0;
   for (let i = pointsFromCoins; i < MAX_POINTS_FROM_COINS; i++) {
@@ -168,7 +193,8 @@ export const getPlayerAnvil = (character: any, characters: any, account: any) =>
     nextMatUpgrade: getMonsterMatCost(pointsFromMats, anvilCostReduction),
     totalCoins: getTotalCoinCost(pointsFromCoins, anvilCostReduction),
     nextCoinUpgrade: getCoinCost(pointsFromCoins, anvilCostReduction, true),
-    coinsToMax: getCoinToMax(pointsFromCoins, anvilCostReduction)
+    coinsToMax: getCoinToMax(pointsFromCoins, anvilCostReduction),
+    matsToMax: getMatsToMax(pointsFromMats, anvilCostReduction)
   };
 
   stats.baseAnvilExp = getAllSkillsExp(character, characters, account)?.value;
@@ -182,6 +208,17 @@ export const getPlayerAnvil = (character: any, characters: any, account: any) =>
   const talentTownSpeedBonus = getTalentBonus(character?.flatTalents, 'BROKEN_TIME');
   const upgradeVaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 24);
   stats.anvilSpeed = 3600 * getAnvilSpeed(character?.stats?.agility, speedPoints, anvilZoomerBonus, blackSmithBoxBonus1, hammerHammerBonus, anvilStatueBonus, bobBuildGuyStarSign, talentTownSpeedBonus, upgradeVaultBonus);
+  stats.speedBreakdown = createBreakdown('Anvil speed', `${notateNumber(stats.anvilSpeed, 'Big')} / hr`, [
+    flat('Base', 3600),
+    additiveGroup(NUMBERED_GROUP, [percent('Anvil Zoomer Stamp', anvilZoomerBonus), percent('Speed points', 2 * (speedPoints ?? 0))]),
+    additiveGroup(NUMBERED_GROUP, [percent('Blacksmith Box', blackSmithBoxBonus1), percent('Anvil Statue', anvilStatueBonus),
+      percent('Upgrade Vault', upgradeVaultBonus)]),
+    multiplier('Hammer Hammer (Bubble)', 1 + hammerHammerBonus / 100),
+    multiplier('Agility', getSpeedBonusFromAgility(character?.stats?.agility)),
+    additiveGroup(NUMBERED_GROUP, [percent('Star Signs', bobBuildGuyStarSign), percent('Broken Time (Talent)', talentTownSpeedBonus)])
+  ]);
+  // game: ProdExpBonus, what each craft's EXP is multiplied by
+  stats.expMulti = 1 + calcAnvilExp(character, characters, account, stats.baseAnvilExp, xpPoints) / 100;
 
   const charMaterialBag = character?.carryCapBags?.find(({ Class }: any) => Class === 'bCraft');
   stats.anvilCapacity = Math.round(Math.min(2e9, charMaterialBag?.capacityPerSlot * (2 + 0.1 * capPoints)));
@@ -254,6 +291,17 @@ export const getAnvilFutureProduction = ({
   const progress = currentProgress + (hammers ?? 0) * timePassed * stats?.anvilSpeed / 3600;
   return Math.min(currentAmount + Math.floor(progress / requiredAmount), stats?.anvilCapacity);
 };
+// game: each craft adds its EXP times ProdExpBonus to the slot's EXP, so the EXP waiting grows with the items made
+export const getAnvilFutureExp = (slot: any) => {
+  const made = Math.max(0, getAnvilFutureProduction(slot) - (slot?.currentAmount ?? 0));
+  return (slot?.currentXP ?? 0) + made * (slot?.stats?.expMulti ?? 1) * (slot?.exp ?? 0);
+};
+
+// A character's Smithing EXP an hour from the anvil, every product being made counted until it fills
+export const getAnvilExpPerHour = (stats: any, production: any[] = []) => production
+  .filter(({ hammers }: any) => hammers > 0)
+  .reduce((sum: number, slot: any) => sum + getAnvilSlotPerHour(stats, slot) * (stats?.expMulti ?? 1) * (slot?.exp ?? 0), 0);
+
 export const getAnvilProductCatalog = () => Object.values(anvilProducts as Record<string, any>)
   .map((product: any) => ({
     ...product,
@@ -286,3 +334,12 @@ export const getAnvilTotalsBreakdowns = (account: any, characters: any) => Objec
     const name = cleanUnderscore((items as any)?.[rawName]?.displayName ?? rawName);
     return [rawName, createBreakdown(`${name} per hour`, `${notateNumber(perHour, 'Big')} / hr`, group.children, { combine: 'sum' })];
   }));
+// Smithing EXP an hour from every character's anvil, one line per character
+export const getAnvilExpBreakdown = (account: any, characters: any) => {
+  const lines = (account?.anvil ?? []).map((_: any, index: any) => {
+    const { stats, production } = getPlayerAnvil(characters?.[index], characters, account);
+    return flat(characters?.[index]?.name ?? `Character ${index + 1}`, getAnvilExpPerHour(stats, production));
+  }).filter(({ value }: any) => value > 0);
+  const perHour = evaluateBreakdownNode(sumGroup('Smithing EXP', lines));
+  return { perHour, breakdown: createBreakdown('Smithing EXP per hour', `${notateNumber(perHour, 'Big')} / hr`, lines, { combine: 'sum' }) };
+};

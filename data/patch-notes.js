@@ -21,11 +21,14 @@ export const patchNotes = [
       'Dashboard: character cards stop at 6 to a row, like the character select in game',
       'Goals: bubble % of max goals show the level that reaches the target beside your current level',
       'Card search: presets can preview on a character, showing its drop rate, damage, AFK gains, kill rates and cash multi now and with the preset',
-      'Stamps: Save levels snapshot sits on the No Stamp Left Behind tile, so the stamp it levelled is easy to spot'
+      'Stamps: Save levels snapshot sits on the No Stamp Left Behind tile, so the stamp it levelled is easy to spot',
+      'Anvil: speed breakdown on each character, Smithing EXP per hour, next point costs, EXP waiting since your save and items made all time',
+      'Bribes: grouped into their sets, with locked bribes, what unlocks the Bail and Grail sets, and the coins to buy the ones for sale'
     ],
     'fixes': [
       'Tournament: opponent and leaderboard team power and win chances show as a range, since Pet Mart+ upgrades of other players are not in the game data',
-      'Fishing Efficiency breakdown: the Strength bonus now lists each source, Skelefish Stamp included'
+      'Fishing Efficiency breakdown: the Strength bonus now lists each source, Skelefish Stamp included',
+      'Anvil: points include Acme Anvil, and EXP per craft includes your EXP bonus'
     ]
   },
   {
