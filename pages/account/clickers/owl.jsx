@@ -1,7 +1,7 @@
 import { NextSeo } from 'next-seo';
 import { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Box } from '@mui/material';
+import { Box, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { MissingData, isSectionFailed } from '@components/common/styles';
@@ -16,6 +16,11 @@ import NextBonus from '@components/account/clickers/NextBonus';
 import { getOwl } from '@parsers/world-1/owl';
 
 const megaFeatherText = ({ description, totalBonus }) => cleanUnderscore(`${description ?? ''}`.replace('{', () => formatNum(totalBonus ?? 1, 'mult', { bare: true })));
+
+// The game's panel title: "Fractal_2_Megafeather" past the first Fractal
+const megaFeatherTitle = ({ name, amount }) => `${name}${amount > 1 ? ` ${amount}` : ''} Megafeather`;
+
+const SHINY_NOTE = 'The game rolls for a Shiny Feather once a second while it runs, and each one owned makes the next 1.1x rarer. Time away gets a single roll for the whole stretch, so it finds fewer.';
 
 // The game fills Orion's bonuses with the raw number (N.js, the Orion panel): commas and no K. Shiny Feather is a count
 const bonusText = ({ name, bonus, percentage }) => (name === 'Shiny Feather'
@@ -44,6 +49,8 @@ const Owl = () => {
       <StatTile label={'Feathers'} icon={'etc/Owlb_0.png'} value={failed ? '-' : formatGame(Math.ceil(feathers), 'Save.OwlFeathers', { whole: true })}/>
       <StatTile label={'Feathers per second'} value={failed ? '-' : formatGame(featherRate, 'Summoning.OwlFeatherRate')}/>
       <StatTile label={'Feathers per hour'} value={failed ? '-' : formatGame(featherRate * 3600, 'Summoning.OwlFeatherRate')}/>
+      <StatTile label={'Shiny feathers per hour'} icon={'etc/Owlb_7.png'} value={failed ? '-' : formatNum(owl?.shinyPerHour ?? 0)}
+                info={failed ? undefined : SHINY_NOTE}/>
       <StatTile label={'Next upgrade'} value={failed || owl?.nextLvReq == null ? '-' : owl.nextLvReq > 0
         ? `${formatGame(owl.progress, 'Save.OwlFeathersProduced', { whole: true })} / ${formatGame(owl.nextLvReq, 'Summoning.OwlNextUpgReq', { whole: true })}`
         : <StatusText status={'done'}>All unlocked</StatusText>}/>
@@ -51,9 +58,11 @@ const Owl = () => {
     {/* Orion's bonuses as tiles in a row, as Worship's MSA Totalizer, right under the summary so the page's numbers come
         first: two full-width columns put each name about 400 px from its value */}
     <BonusStrip title={'Bonuses of Orion'} sx={{ mb: 3 }}>
+      {/* The game draws a lock in place of a bonus still at 0 (N.js, the Orion panel) */}
       {(owl?.bonuses ?? []).slice(1).map((bonus, index) => <StatTile key={bonus.name} icon={`etc/Owlb_${index + 1}.png`}
                                                                      label={bonus.name}
-                                                                     value={failed ? '-' : bonusText(bonus)}/>)}
+                                                                     status={bonus.bonus > 0 ? undefined : 'locked'}
+                                                                     value={failed ? '-' : bonus.bonus > 0 ? bonusText(bonus) : 'Locked'}/>)}
     </BonusStrip>
     {/* Its tiles at their own size under a heading, as the bonuses above: in a boxed Panel they stretched across the
         page, ten mostly empty tiles 140 px wide */}
@@ -62,13 +71,17 @@ const Owl = () => {
         <CardGrid size={'icon'} fill={72}>
           {(owl?.megaFeathers ?? []).map((entry, index) => <IconTile key={index}
                                                                      icon={`data/Feaz${index}.png`}
-                                                                     alt={`Megafeather ${index + 1}`}
+                                                                     alt={megaFeatherTitle(entry)}
                                                                      status={entry.unlocked ? undefined : 'missing'}
                                                                      value={!failed && entry.amount > 0 ? formatGame(entry.amount, 'Summoning.OwlMegafeather', { whole: true }) : undefined}
-                                                                     details={<ItemCard.Desc text={megaFeatherText(entry)}/>}/>)}
+                                                                     details={<>
+                                                                       <Typography variant={'cardTitle'} component={'div'}>{megaFeatherTitle(entry)}</Typography>
+                                                                       <ItemCard.Desc text={megaFeatherText(entry)}/>
+                                                                     </>}/>)}
         </CardGrid>
       </Box>
-      {failed ? null : <NextBonus entries={owl?.megaFeathers} name={'Megafeather'} iconOf={(index) => `data/Feaz${index}.png`} textOf={megaFeatherText}/>}
+      {failed ? null : <NextBonus entries={owl?.megaFeathers} name={'Megafeather'} iconOf={(index) => `data/Feaz${index}.png`} textOf={megaFeatherText}
+                                    titleOf={({ name }) => name}/>}
     </BonusStrip>
     <CardGrid size={'m'}>
       {(owl?.upgrades ?? []).map(({ name, desc, level, cost, unlocked, x3 }, index) => <ItemCard key={index}

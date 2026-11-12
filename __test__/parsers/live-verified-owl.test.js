@@ -24,7 +24,7 @@ const GAME = {
     'Total DMG': 882,
     'Skill XP': 1176,
     'Drop Rate': 294,
-    'All Stats': 588
+    'All Stat': 588
   },
   // DNSM.OwlBonusAll: the megafeather boost to every bonus, in percent
   bonusAll: 2000

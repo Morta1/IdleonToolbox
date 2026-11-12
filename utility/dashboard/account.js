@@ -405,11 +405,11 @@ export const getWorld1Alerts = (account, fields, options) => {
   }
   if (fields?.owl?.checked && account?.accountOptions?.[OPT.owlFeathers] > 0) {
     const owl = {};
-    const { nextLvReq, feathers, upgrades } = account?.owl;
+    const { feathers, upgrades } = account?.owl;
     const featherRestart = upgrades?.[4];
     const megaFeatherRestart = upgrades?.[8];
-    const featherRestartAvailable = (nextLvReq === 0 || featherRestart?.nextLvReq < nextLvReq) && feathers >= featherRestart?.cost;
-    const megaFeatherRestartAvailable = nextLvReq === 0 && feathers >= megaFeatherRestart?.cost;
+    const featherRestartAvailable = featherRestart?.unlocked && feathers >= featherRestart?.cost;
+    const megaFeatherRestartAvailable = megaFeatherRestart?.unlocked && feathers >= megaFeatherRestart?.cost;
     if (options?.owl?.featherRestart?.checked && featherRestartAvailable) {
       owl.featherRestart = true;
     }
