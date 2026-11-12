@@ -1,11 +1,12 @@
 import { Box } from '@mui/material';
-import { cleanUnderscore } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import React from 'react';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Notice from '@components/common/Notice';
+import StatTile from '@components/common/cards/StatTile';
 
 // Off by default, so the completed ones stay hidden as before: a Filter away from its default is what the Toolbar
 // names as narrowing, and "Hide completed" on by default would read as a filter when it was turned off
@@ -25,7 +26,11 @@ const Challenges = ({ challenges, sectionFailed }) => {
   const list = challenges ?? [];
   const shown = list.filter(({ current }) => toolbar?.showDone || current !== -1);
 
+  const completed = list.filter(({ current }) => current === -1).length;
   return <Box>
+    {/* The completed ones hide by default, so the count says how far along the clouds are */}
+    <StatTile label={'Completed'} value={sectionFailed ? '-' : `${formatNum(completed)} / ${formatNum(list.length)}`}
+              sx={{ mb: 2 }}/>
     <Toolbar state={toolbar} defaults={CHALLENGES_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
              total={list.length} shown={shown.length} noun={'challenges'}>
       <Toolbar.Filter name={'showDone'} label={'Show completed'}/>

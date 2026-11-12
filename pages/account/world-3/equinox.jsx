@@ -55,7 +55,7 @@ const Equinox = () => {
                                      sub={futureFill ? `fills in ${futureFill}` : undefined}/> : null}
       </PageSummary> : null}
       <Tabber tabs={getTabs(PAGES.ACCOUNT['world 3'].categories, 'Equinox')}>
-        <Upgrades upgrades={equinox?.upgrades} sectionFailed={sectionFailed}/>
+        <Upgrades upgrades={equinox?.upgrades} challenges={equinox?.challenges} sectionFailed={sectionFailed}/>
         <Challenges challenges={equinox?.challenges} sectionFailed={sectionFailed}/>
       </Tabber>
     </>
