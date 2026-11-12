@@ -2,7 +2,7 @@
 // Source of truth is each page's own <NextSeo>. Re-run the generator after changing one.
 export const PAGE_SEO = {
   "/404": { title: "Page Not Found | Idleon Toolbox", description: "This page could not be found.", noindex: true },
-  "/account/class-specific/apocalypses": { title: "Apocalypses | Idleon Toolbox", description: "Dedicated to the barbarian/blood berserker class to keep track of Zow and Chow talents" },
+  "/account/class-specific/apocalypses": { title: "Apocalypses | Idleon Toolbox", description: "Track each Barbarian and Blood Berserker's Zow, Chow, Super Chow and Wow kills, monster by monster" },
   "/account/class-specific/compass": { title: "Compass | Idleon Toolbox", description: "Keep track of your compass levels, upgrades and compass stats" },
   "/account/class-specific/grimoire": { title: "Grimoire | Idleon Toolbox", description: "Keep track of your grimoire levels, upgrades and wraith stats" },
   "/account/class-specific/royal-armory": { title: "Royal Armory | Idleon Toolbox", description: "Keep track of your Royal Guardian's armory, royal statues, statue flair and orblet market" },

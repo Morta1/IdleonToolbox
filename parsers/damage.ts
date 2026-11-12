@@ -1,5 +1,5 @@
 import type { Account, Character } from './types';
-import { CLASSES, getTalentBonus, getTalentBonusIfActive, mainStatMap, getHighestTalentAcrossCharacters } from './talents';
+import { CLASSES, getTalentBonus, getTalentBonusIfActive, mainStatMap, getHighestTalentAcrossCharacters, getApocalypseCount } from './talents';
 import { getPostOfficeBonus } from './world-3/postoffice';
 import { getDungeonFlurboStatBonus } from './dungeons';
 import { getCardBonusByEffect, getCardLevel } from './cards';
@@ -719,7 +719,7 @@ const getDamageFromPerX = (character: Character, characters: Character[], accoun
 
   // Talent 110 (APOCALYPSE_ZOW)
   const dmgPerApoc = getTalentBonus(character?.flatTalents, 'APOCALYPSE_ZOW');
-  const zows = character?.zow?.finished?.[0] + 1 || 0;
+  const zows = getApocalypseCount(character, 'zow');
   const dmgPerApocBonus = dmgPerApoc * zows;
 
   const monster = monsters?.[character?.targetMonster];

@@ -2,7 +2,8 @@ import React, { useContext } from 'react';
 import { Box, Stack, Typography } from '@mui/material';
 import { NextSeo } from 'next-seo';
 import { AppContext } from '@components/common/context/AppProvider';
-import { CLASSES, talentPagesMap } from '@parsers/talents';
+import { CLASSES, getApocalypseCount, getBestActiveCharacter, getHighestTalentAcrossCharacters, getLastBloodBerserkerLine, getTalentBonus, getVoidWalkerTalentEnhancements,
+  talentPagesMap } from '@parsers/talents';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
@@ -11,15 +12,19 @@ import Notice from '@components/common/Notice';
 import StatusText from '@components/common/StatusText';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
 
 // Every Barbarian and Blood Berserker by default, the old first-visit pick. A pick saved before (apocalypseCharacters)
 // is not read: it resets once.
 const APOCALYPSES_TOOLBAR = { show: 'maniacs', superChow: false };
 // The three apocalypses, their kill thresholds (the parser's getBarbarianZowChow) and the rule their Panel names
+// talent: the one whose second number caps the count (game CalcTalentMAP[110]/[146]). Super Chow and Wow count only on the
+// account's last Blood Berserker-line character (CalcTalentDT1), so the others' Chow stops at its first tier
 const APOCALYPSES = [
-  { key: 'zow', name: 'Zow', thresholds: [1e5], rule: '100K kills each' },
-  { key: 'chow', name: 'Chow', thresholds: [1e6, 1e8], rule: '1M kills for Chow, 100M for Super Chow' },
-  { key: 'wow', name: 'Wow', thresholds: [1e9], rule: '1B kills each' }
+  { key: 'zow', name: 'Zow', thresholds: [1e5], rule: '100K kills each', talent: 'APOCALYPSE_ZOW' },
+  { key: 'chow', name: 'Chow', thresholds: [1e6, 1e8], rule: '1M kills for Chow, 100M for Super Chow', talent: 'APOCALYPSE_CHOW' },
+  { key: 'wow', name: 'Wow', thresholds: [1e9], rule: '1B kills each, for the whole account', accountWide: true }
 ];
 const TIER_NAMES = { chow: ['Chow', 'Super Chow'] };
 
@@ -32,26 +37,33 @@ const nextTier = ({ key, name, thresholds }, kills, done) => {
   return `${formatNum(Math.max(0, thresholds[tier] - kills), 'whole')} more for ${TIER_NAMES[key]?.[tier] ?? name}`;
 };
 
-// One apocalypse of one character: its monsters left as tiles, the done count and the rule in the meta
-const apocalypsePanel = (character, apocalypse, hideSuperChow) => {
+// One apocalypse of one character: its monsters left as tiles, the done count (with the talent's cap) and the rule in the
+// meta. countsAccount: the character whose Super Chow and Wow the game counts
+const apocalypsePanel = (character, apocalypse, hideSuperChow, countsAccount) => {
   const monsters = character?.[apocalypse.key];
   const finished = monsters?.finished ?? [];
+  const tiers = apocalypse.key === 'chow' && !countsAccount ? 1 : apocalypse.thresholds.length;
+  const reached = (done) => (done ?? []).slice(0, tiers).every(Boolean);
   const list = monsters?.list ?? [];
-  const allDone = monsters ? list.every(({ done }) => done?.every(Boolean)) : false;
-  const left = list.filter(({ done, kills }) => !done?.every(Boolean) && !(hideSuperChow && apocalypse.key === 'chow' && kills > 1e6));
-  const doneText = apocalypse.key === 'chow'
-    ? `${formatNum(finished[0] ?? 0)} Chow, ${formatNum(finished[1] ?? 0)} Super Chow done`
-    : `${formatNum(finished[0] ?? 0)} done`;
-  return <Panel key={apocalypse.key} title={`${cleanUnderscore(character?.name)}: ${apocalypse.name}`} meta={`${doneText} · ${apocalypse.rule}`}
+  const allDone = monsters ? list.every(({ done }) => reached(done)) : false;
+  // A boss, dungeon or arena map counts too, but stays off the farming list until it has a kill
+  const left = list.filter(({ done, kills, sideMap }) => !reached(done) && !(sideMap && !(kills >= 1))
+    && !(hideSuperChow && apocalypse.key === 'chow' && kills > 1e6));
+  // game: the talent counts at most its level in monster types, and its screen says "(Capped)" past that
+  const cap = apocalypse.talent ? getTalentBonus(character?.flatTalents, apocalypse.talent, true) : 0;
+  const capText = cap > 0 && (finished[0] ?? 0) > cap ? ` (capped at ${formatNum(cap)} by the talent level)` : '';
+  const doneText = apocalypse.key === 'chow' && countsAccount
+    ? `${formatNum(finished[0] ?? 0)} Chow${capText}, ${formatNum(finished[1] ?? 0)} Super Chow done`
+    : `${formatNum(finished[0] ?? 0)} done${capText}`;
+  const rule = apocalypse.key === 'chow' && !countsAccount ? '1M kills each' : apocalypse.rule;
+  return <Panel key={apocalypse.key} title={`${cleanUnderscore(character?.name)}: ${apocalypse.name}`} meta={`${doneText} · ${rule}`}
                 aside={allDone ? <StatusText status={'done'}>Done</StatusText> : null}>
-    {!monsters ? <Box sx={{ p: 2 }}>
-      <Notice tone={'locked'}>{`${apocalypse.name} is still locked for ${cleanUnderscore(character?.name)}.`}</Notice>
-    </Box> : left.length ? <Box sx={{ p: 2 }}>
+    {left.length ? <Box sx={{ p: 2 }}>
       <CardGrid size={'icon'} fill>
         {left.map(({ mapName, name, monsterFace, kills, done }, index) => {
           // A kill counts once it is whole: the tile, its details and the next tier all read the floor
           const shownKills = Math.floor(kills ?? 0);
-          const next = nextTier(apocalypse, shownKills, done);
+          const next = nextTier(apocalypse, shownKills, done?.slice(0, tiers));
           return <IconTile
             key={`${name}-${index}`} icon={`data/Mface${monsterFace}.png`} alt={cleanUnderscore(name ?? '')} value={formatNum(shownKills, 'whole')}
             details={<Stack gap={0.5}>
@@ -72,16 +84,44 @@ const Apocalypses = () => {
   const maniacs = characters.filter(isManiac);
   const shownCharacters = view?.show === 'all' ? characters : view?.show === 'maniacs' ? maniacs
     : characters.filter((character) => `${character?.playerId}` === view?.show);
+  // game CalcTalentDT1: the last Blood Berserker-line character's kills count Super Chow and Wow for everyone
+  const counter = getLastBloodBerserkerLine(characters);
+  const superChows = counter?.chow?.finished?.[1] ?? 0;
+  const wows = counter?.wow?.finished?.[0] ?? 0;
+  const counterName = cleanUnderscore(counter?.name ?? '');
+  // Zow and Chow are each character's own; the summary reads the Barbarian whose Super Chow and Wow count. game
+  // TalentCalc(110/146): the talent's first number per monster type counted, capped at its level
+  const zows = getApocalypseCount(counter, 'zow');
+  const chows = getApocalypseCount(counter, 'chow');
+  const zowBonus = getTalentBonus(counter?.flatTalents, 'APOCALYPSE_ZOW') * zows;
+  const chowBonus = getTalentBonus(counter?.flatTalents, 'APOCALYPSE_CHOW') * chows;
+  // game TalENHNC[146]: Super Chow's 1.1x per monster on Chow only once Enhancement Eclipse reaches 125 (0 before)
+  const eclipse = getHighestTalentAcrossCharacters(characters, 'ENHANCEMENT_ECLIPSE', getBestActiveCharacter(characters));
+  const chowMulti = getVoidWalkerTalentEnhancements(characters, state?.account, eclipse, 146);
 
   return (
     <>
       <NextSeo
         title="Apocalypses | Idleon Toolbox"
-        description="Dedicated to the barbarian/blood berserker class to keep track of Zow and Chow talents"
+        description="Track each Barbarian and Blood Berserker's Zow, Chow, Super Chow and Wow kills, monster by monster"
       />
       {!characters.length
         ? <Notice tone={'signin'}>Each Barbarian&apos;s Zow, Chow and Wow progress shows here once you sign in.</Notice>
-        : <Stack gap={3}>
+        : <>
+          {/* The summary keeps its own space under it, as on every page */}
+          {counter ? <PageSummary>
+            <StatTile label={'Zow'} icon={'data/UISkillIcon110.png'} value={formatNum(zows)} sub={`+${formatNum(zowBonus)}% damage`}
+                      info={`Monster types with 100K kills on ${counterName}, up to the talent's level.`}/>
+            <StatTile label={'Chow'} icon={'data/UISkillIcon146.png'} value={formatNum(chows)} sub={`+${formatNum(chowBonus)}% cooking`}
+                      info={`Monster types with 1M kills on ${counterName}, up to the talent's level. Its bonus is to cooking EXP and efficiency.`}/>
+            <StatTile label={'Super Chow'} icon={'data/UISkillIcon146.png'} value={formatNum(superChows)}
+                      sub={chowMulti > 0 ? `Chow bonus ${formatNum(chowMulti, 'mult')}` : 'Needs Enhancement Eclipse 125'}
+                      info={`Monsters with 100M kills on ${counterName}, the account's last Blood Berserker. Once Enhancement Eclipse reaches 125, each one makes Chow's bonus 1.1x higher.`}/>
+            <StatTile label={'Wow'} icon={'data/UISkillIcon209.png'} value={formatNum(wows)}
+                      sub={`Counted on ${counterName}`}
+                      info={`Monsters with 1B kills on ${counterName}, the account's last Blood Berserker. Its Gold Food bonus works for every character.`}/>
+          </PageSummary> : null}
+          <Stack gap={3}>
           <Toolbar state={view} defaults={APOCALYPSES_TOOLBAR} onChange={setView} onReset={resetView}
                    total={characters.length} shown={shownCharacters.length} noun={'characters'}>
             <Toolbar.Show options={[['maniacs', 'Barbarians', maniacs.length], ['all', 'All characters', characters.length],
@@ -95,9 +135,11 @@ const Apocalypses = () => {
             ? <Notice>No Barbarian or Blood Berserker on this account: pick a character in Show.</Notice>
             : null}
           {shownCharacters.map((character) => <Stack key={character?.playerId} gap={2}>
-            {APOCALYPSES.map((apocalypse) => apocalypsePanel(character, apocalypse, view?.superChow))}
+            {APOCALYPSES.filter((apocalypse) => !apocalypse.accountWide || character === counter)
+              .map((apocalypse) => apocalypsePanel(character, apocalypse, view?.superChow, character === counter))}
           </Stack>)}
-        </Stack>}
+          </Stack>
+        </>}
     </>
   );
 };

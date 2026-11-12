@@ -15,7 +15,8 @@ export const patchNotes = [
       'World 5: Sailing artifacts get search and filters; Divinity shows the next god offerings; Gaming superbits get search; Hole caverns and the Slab show more breakdowns',
       'World 6: Farming stickers, crops and the Exotic Market show more; Sneaking knockout chance opens to how it is made; Summoning gets upgrade search; Beanstalk shows golden food ranks; Emperor totals open to their base and multi',
       'World 7: Legend Talents, Zenith Market and Advice Fish show next level values; Research marks Active observations; Coral Reef shows shrine targets; Clam Work shows unlock levels; Minehead gets upgrade search, a next opponent and Not beaten view, and doublers show as an icon; Glimbo trades show how many items you own against the next trade cost; Sushi Station shows knowledge levels waiting to be collected, slots out of those unlocked and icons on its tiles; Jelly Operator gets upgrade and obstruction search, the next obstruction, and the game icons on its tiles; Menagerie missions can show only the claimable ones and say how far since the last claim, and boosts get search; The Button lists its tasks by the game cycle they fall in; upgrade optimizers group repeated steps',
-      'Misc: Quests get search by NPC, quest or reward, mark quests not started, and filter faster; Dungeon traits show sections with no pick and the rank a locked one needs, and RNG items can hide maxed ones; Constellations show points ready to claim, and Star Signs get a search across all three trees'
+      'Misc: Quests get search by NPC, quest or reward, mark quests not started, and filter faster; Dungeon traits show sections with no pick and the rank a locked one needs, and RNG items can hide maxed ones; Constellations show points ready to claim, and Star Signs get a search across all three trees',
+      'Classes: Apocalypses gets a summary of Zow, Chow, Super Chow and Wow, shows Super Chow and Wow only on the character the game counts them on, and says when a talent level caps the count'
     ],
     'fixes': [
       'Spelunking: Overstim showed an old level and its progress as a huge percent',
@@ -24,7 +25,8 @@ export const patchNotes = [
       'Hole caverns: The Well ignored buckets in its sediment times, and The Bell counted every bell as filling',
       'Coral Reef: Dancing Coral bonuses had no unit, and Char Coral read 172 instead of its 2.72x Class EXP',
       'Sushi Station: fuel could read above its cap, the part that goes to Overtuned now shows on its own',
-      'Star Signs: the infinite icon could sit on the wrong signs when only some of them are infinite'
+      'Star Signs: the infinite icon could sit on the wrong signs when only some of them are infinite',
+      'Apocalypses: boss, dungeon and arena maps were left out of the Zow, Chow and Wow counts, and the Zow damage and Chow cooking bonuses ignored the talent level cap'
     ]
   },
   {

@@ -40,7 +40,7 @@ import {
 import { calculateItemTotalAmount, createItemsWithUpgrades, getStatsFromGear } from './items';
 import { getInventoryList } from './storage';
 import { skillIndexMap, skillsMaps } from './parseMaps';
-import { applyTalentAddedLevels, checkCharClass, CLASSES, createTalentPage, getActiveBuffs, getBubonicGreenTube, getMaestroHand, getTalentAddedLevels, getTalentBonus, getTalentBonusIfActive, getVoidWalkerTalentEnhancements, mainStatMap, starTalentsPages, talentPagesMap, getHighestTalentAcrossCharacters, getBestActiveCharacter, getBaseTalentBonus, isActiveCharacter } from './talents';
+import { applyTalentAddedLevels, checkCharClass, CLASSES, createTalentPage, getActiveBuffs, getBubonicGreenTube, getMaestroHand, getTalentAddedLevels, getTalentBonus, getTalentBonusIfActive, getVoidWalkerTalentEnhancements, mainStatMap, starTalentsPages, talentPagesMap, getHighestTalentAcrossCharacters, getBestActiveCharacter, getBaseTalentBonus, isActiveCharacter, getApocalypseCount } from './talents';
 import {
   calcCardBonus,
   getCardBonusByEffect,
@@ -1091,7 +1091,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     const mealBonus = getMealsBonusByEffectOrStat(account, null, 'CookExp');
     const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Chefs_Essentials', 1);
     const talentBonus = getTalentBonus(character?.flatTalents, 'APOCALYPSE_CHOW');
-    const chows = character?.chow?.finished?.[0] ?? 1;
+    const chows = getApocalypseCount(character, 'chow');
     // game: CardBonusREAL(85) - equipped cards only, rift mastery never makes cooking cards passive
     const cardBonus = getCardBonusByEffect(character?.cards?.equippedCards, cardBonuses[85]);
     const talentBonus2 = getTalentBonus(character?.flatTalents, 'TEMPESTUOUS_EMOTIONS');
@@ -3181,32 +3181,30 @@ const getPrinterSampleRate = (character: any, account: any) => {
 
   return Math.floor(1e3 * printerSample) / 10;
 }
+// Boss, dungeon and arena maps: they count like any other (below), but a list of monsters to farm leaves them out until
+// they have a kill.
+const SIDE_MAPS = new Set(["Grandfrog's_Gazebo", "Grandfrog's_Backyard", 'Gravel_Tomb', 'Heaty_Hole', "Igloo's_Basement",
+  'Inside_the_Igloo', 'End_Of_The_Road', "Efaunt's_Tomb", "Eycicles's_Nest", 'Enclave_a_la_Troll', "Chizoar's_Cavern",
+  "KattleKruk's_Volcano", 'Castle_Interior', "Emperor's_Castle"]);
+
+// game TalentCalc (N.js CalcTalentMAP 110/146/"49_4"/209): every map whose AFK target is a FIGHTING monster counts, boss,
+// dungeon and arena maps included; a map's kills are MapDetails[r][0][0] - KillsLeft2Advance[r][0]
 export const getBarbarianZowChow = (allKills: any, thresholds: any) => {
-  const excludedMaps = ([
-    'Nothing', 'Z', 'Copper',
-    'Iron', 'Starfire', 'Plat', 'Void',
-    'Filler', 'JungleZ', 'Grandfrog\'s_Gazebo',
-    'Grandfrog\'s_Backyard', 'Gravel_Tomb', 'Heaty_Hole',
-    'Igloo\'s_Basement', 'Inside_the_Igloo', 'End_Of_The_Road',
-    'Efaunt\'s_Tomb', 'Eycicles\'s_Nest', 'Enclave_a_la_Troll',
-    'Chizoar\'s_Cavern', 'KattleKruk\'s_Volcano', 'Castle_Interior', 'Emperor\'s_Castle'] as any).toSimpleObject();
   const list = Object.values(mapNames).map((mapName, index) => {
     const rawName = mapEnemiesArray?.[index];
     const { MonsterFace, Name, AFKtype } = monsters?.[rawName] || {};
-    const kills = Math.abs(allKills?.[index]?.[0] - mapDetails?.[index]?.[0]?.[0]);
+    const kills = mapDetails?.[index]?.[0]?.[0] - allKills?.[index]?.[0];
     return {
       mapName,
       afkTarget: rawName,
-      kills,
+      kills: Number.isFinite(kills) ? kills : 0,
       monsterFace: MonsterFace,
       name: Name,
       afkType: AFKtype,
+      sideMap: SIDE_MAPS.has(mapName as string) || `${mapName}`.includes('Colosseum'),
       done: thresholds?.map((threshold: any) => kills >= threshold)
     }
-  }).filter(({
-    mapName,
-    afkType
-  }) => afkType === 'FIGHTING' && !excludedMaps[mapName] && !afkType.includes('Fish') && !afkType.includes('Bug') && !mapName.includes('Colosseum'));
+  }).filter(({ afkType }) => afkType === 'FIGHTING');
 
   const finished = list?.reduce((sum, { done }) => [done?.[0] ? sum?.[0] + 1 : sum?.[0],
   done?.[1] ? sum?.[1] + 1 : sum?.[1]], [0, 0]);

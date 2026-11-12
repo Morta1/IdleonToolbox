@@ -519,6 +519,13 @@ export const checkCharClass = (charClass: any, className: any) => {
   return talentPagesMap[charClass]?.includes(className);
 }
 
+// game CalcTalentMAP[110]/[146]: the monster types a character's Zow (100K kills) or Chow (1M) counts, capped at the
+// talent's second number (its level). TalentCalc multiplies the first number by this, with no +1
+export const getApocalypseCount = (character: any, key: 'zow' | 'chow'): number => {
+  const talent = key === 'zow' ? 'APOCALYPSE_ZOW' : 'APOCALYPSE_CHOW';
+  return Math.min(character?.[key]?.finished?.[0] ?? 0, getTalentBonus(character?.flatTalents, talent, true));
+}
+
 // TalentCalc's CalcTalentDT1: the LAST character in save order whose class line runs through Blood
 // Berserker (a Death Bringer counts). CalcTalentMAP[209] (Apocalypse Wow) and ["49_4"] count its
 // kill milestones, whoever holds the talent.

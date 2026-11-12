@@ -18,7 +18,7 @@ import { getPetArenaCrucBonus, getShinyBonus } from '@parsers/world-4/breeding';
 import { getMenagerieBoost, isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
 import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { isSuperbitUnlocked } from '@parsers/world-5/gaming';
-import { getTalentBonus, getVoidWalkerTalentEnhancements, getBestActiveCharacter, getHighestTalentAcrossCharacters, getOwnOrHighestTalent, checkCharClass, CLASSES } from '@parsers/talents';
+import { getTalentBonus, getVoidWalkerTalentEnhancements, getBestActiveCharacter, getHighestTalentAcrossCharacters, getOwnOrHighestTalent, checkCharClass, CLASSES, getApocalypseCount } from '@parsers/talents';
 import { EQUINOX_CLOUD, getCloudBonus, getEquinoxBonus } from '@parsers/world-3/equinox';
 import LavaRand from '@utility/lavaRand';
 import { allProwess, efficiencyGroupNames, getAllBaseSkillEffBreakdown, getAllEffBreakdown } from '@parsers/efficiency';
@@ -148,7 +148,7 @@ export const applyMealsMulti = (meals: any, multiplier: any) => {
 // game: SkillStats("CookingEfficiency"): base efficiency * every multiplier
 export const getCookingEffParts = (character: any, characters: any, account: any, playerInfo: any) => {
   const talents = character?.flatTalents;
-  const chows = character?.chow?.finished?.[0] ?? 1;
+  const chows = getApocalypseCount(character, 'chow');
   const { value: multiplierGear } = getStatsFromGear(character, 67, account);
   const { value: baseGear } = getStatsFromGear(character, 62, account);
   const names = efficiencyGroupNames('cooking');
