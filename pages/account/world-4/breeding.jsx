@@ -3,7 +3,7 @@ import { AppContext } from '@components/common/context/AppProvider';
 import BreedingUpgrades from '@components/account/Worlds/World4/Breeding/BreedingUpgrades';
 import BreedingArena from '@components/account/Worlds/World4/Breeding/BreedingArena';
 import Territory from '@components/account/Worlds/World4/Breeding/Territory';
-import { formatNum, getTabs } from 'utility/helpers';
+import { formatDuration, formatNum, getTabs } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
 import Pets from '@components/account/Worlds/World4/Breeding/Pets/Pets';
 import { getJewelBonus } from '@parsers/world-4/lab';
@@ -21,25 +21,32 @@ import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import { Duration } from '@components/common/Num';
-import { createBreakdown, flatLines } from '@parsers/breakdown';
+import { additiveGroup, createBreakdown, divideGroup, flat, flatLines, percent } from '@parsers/breakdown';
 
 // The game's egg time (other sections' bonuses): 2 hours over the jewel, meal, bubble, achievement, skill mastery and
 // vote bonuses
-const calcTimePerEgg = (account) => {
-  const emeraldRhinestoneBonus = getJewelBonus(account?.lab?.jewels, 11);
-  const mealBonus = getMealsBonusByEffectOrStat(account, null, 'TimeEgg');
-  const bubbleBonus = getBubbleBonus(account, 'EGG_INK', false);
-  const achievement = getAchievementStatus(account?.achievements, 220);
-  const skillMasteryBonus = isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.breeding?.rank, 1);
-  const voteBonus = getVoteBonus(account, 16) || 0;
+const BASE_EGG_SECONDS = 7200;
+const eggSpeedSources = (account) => [
+  percent('Emerald Rhinestone (Jewel)', getJewelBonus(account?.lab?.jewels, 11)),
+  percent('Meals', getMealsBonusByEffectOrStat(account, null, 'TimeEgg')),
+  percent('Egg Ink (Bubble)', getBubbleBonus(account, 'EGG_INK', false)),
+  percent('Achievement', 10 * getAchievementStatus(account?.achievements, 220)),
+  percent('Breeding mastery', 15 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.breeding?.rank, 1)),
+  percent('Vote', getVoteBonus(account, 16) || 0)
+];
 
-  return 7200 / (1 + (emeraldRhinestoneBonus
-    + (mealBonus
-      + (bubbleBonus
-        + (10 * achievement
-          + (15 * skillMasteryBonus
-            + voteBonus))))) / 100) * 1000;
+const calcTimePerEgg = (account) => {
+  const sum = eggSpeedSources(account).reduce((total, { value }) => total + (Number(value) || 0), 0);
+  return BASE_EGG_SECONDS / (1 + sum / 100) * 1000;
 };
+
+// 2 hours over the egg speed sources, in seconds
+const eggTimeBreakdown = (account, text) => createBreakdown('Time per egg', text, [
+  divideGroup('Time per egg', [
+    flat('Base', BASE_EGG_SECONDS, { formatted: formatDuration(BASE_EGG_SECONDS) }),
+    additiveGroup('Egg speed', eggSpeedSources(account))
+  ], { formatted: text })
+]);
 
 const rangeText = (range) => `${formatNum(Math.floor(range?.minPower ?? 0))} to ${formatNum(Math.floor(range?.maxPower ?? 0))}`;
 
@@ -74,7 +81,9 @@ const Breeding = () => {
                   info={'The game updates this timer only when you enter the World 4 town.'}
                   value={sectionFailed ? '-' : <Timer type={'countdown'} lastUpdated={state?.lastUpdated}
                                                      date={now + (timePerEgg - (breeding?.timeToNextEgg ?? 0))}/>}/>
-        <StatTile label={'Time per egg'} value={sectionFailed ? '-' : <Duration seconds={timePerEgg / 1000}/>}/>
+        <StatTile label={'Time per egg'} value={sectionFailed ? '-' : <Duration seconds={timePerEgg / 1000}/>}
+                  breakdownTitle={'Time per egg'}
+                  breakdown={sectionFailed ? undefined : eggTimeBreakdown(state?.account, formatDuration(timePerEgg / 1000))}/>
         <StatTile label={'Eggs'} icon={'data/PetEgg1.png'}
                   value={sectionFailed ? '-' : `${formatNum(laid.length)} / ${formatNum(capacity)}`}/>
         <StatTile label={'Egg power range'} value={sectionFailed ? '-' : rangeText(best)}
@@ -95,7 +104,7 @@ const Breeding = () => {
               lastUpdated={state?.lastUpdated}
               sectionFailed={sectionFailed}
         />
-        <Territory {...breeding} spices={state?.account?.cooking?.spices}/>
+        <Territory {...breeding} spices={state?.account?.cooking?.spices} lastUpdated={state?.lastUpdated}/>
         <BreedingUpgrades petUpgrades={breeding?.petUpgrades}
                           deadCells={breeding?.deadCells}
                           account={state?.account}

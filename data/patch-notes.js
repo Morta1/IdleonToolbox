@@ -31,7 +31,8 @@ export const patchNotes = [
       'Hat Rack: total hats shows out of every helmet the rack takes, the bonus multi shows where it comes from, and a tile lists characters who do not get the rack\'s bonuses yet',
       'Cape Vine: the bonus multi shows where it comes from, and a tile lists characters who do not get the vine\'s bonuses yet',
       'Gallery: a tile lists characters who do not get the gallery\'s bonuses yet',
-      'Cooking: a recipe shows its fire level, the game\'s new recipe chance and each new meal\'s odds, its possible meals now match the game, the next kitchen shows what it costs, and the meal max level shows where it comes from'
+      'Cooking: a recipe shows its fire level, the game\'s new recipe chance and each new meal\'s odds, its possible meals now match the game, the next kitchen shows what it costs, and the meal max level shows where it comes from',
+      'Breeding: time per egg shows where it comes from, each territory counts down to its next spice, and territory cards are shorter'
     ],
     'fixes': []
   },
