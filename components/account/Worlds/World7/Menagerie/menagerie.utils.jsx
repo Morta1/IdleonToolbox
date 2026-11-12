@@ -1,4 +1,4 @@
-import { Typography } from '@mui/material';
+import { Box, Tooltip, Typography } from '@mui/material';
 import { formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import StatTile from '@components/common/cards/StatTile';
@@ -38,13 +38,15 @@ export const RankRequired = ({ rank }) => <Typography variant={'body2'} color={'
 
 // Level-row tag: "x2 Doubler" once a Menagerie doubler sits on the upgrade, "Doubler eligible" when one could.
 // Eligibility only shows once the account owns a doubler of that kind, like DoublerUsageCard.
+// The doubler's icon alone, its words in the tooltip: full on a doubled upgrade, faded on one a doubler could go on
 export const DoublerTag = ({ kind, doubled, eligible, owned }) => {
   if (!doubled && !(eligible && owned > 0)) return null;
-  return <Typography variant={'caption'} color={doubled ? 'secondary' : 'text.secondary'}
-                     sx={{ display: 'inline-flex', alignItems: 'center', gap: .5 }}>
-    <GameIcon src={DOUBLER_ICONS[kind]} size={16} alt={''}/>
-    {doubled ? 'x2 Doubler' : 'Doubler eligible'}
-  </Typography>;
+  const label = doubled ? 'x2 Doubler' : 'Doubler eligible';
+  return <Tooltip title={label}>
+    <Box component={'span'} sx={{ display: 'inline-flex', opacity: doubled ? 1 : 0.4 }}>
+      <GameIcon src={DOUBLER_ICONS[kind]} size={20} alt={label}/>
+    </Box>
+  </Tooltip>;
 };
 
 // Numbers as the descriptions print them: "+1,228", "36.90x", "6.5e25", "25.3Q", "+76,000%"

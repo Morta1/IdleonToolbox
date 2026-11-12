@@ -2,7 +2,7 @@ import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { NextSeo } from 'next-seo';
 import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
-import { formatNum, getTabs } from '@utility/helpers';
+import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
@@ -37,6 +37,7 @@ const Minehead = () => {
   // The drawer reads the tile's own text
   const perHourText = formatGame(currencyGain ?? 0, 'Minehead.CurrencyGain');
   const baseDamageText = formatGame(baseDMG ?? 1, 'Minehead.BaseDMG');
+  const nextOpponent = opponents?.find((opponent) => !opponent?.beaten);
   const [settings, setSettings, resetSettings] = usePageSettings('minehead', UPGRADES_AHEAD_SETTINGS);
 
   return <SummaryFailed value={sectionFailed}>
@@ -56,7 +57,8 @@ const Minehead = () => {
       <StatTile label={'Mine currency'} icon={MINE_CURRENCY_ICON}
                 value={<Num value={mineCurrency ?? 0} game={'Minehead.UpgCost'} whole/>}/>
       <StatTile label={'Daily tries'} value={`${formatNum(dailyTriesLeft ?? 0)} / ${formatNum(dailyTriesMax ?? 3)}`}/>
-      <StatTile label={'Opponents beaten'} value={opponentsBeat ?? 0} kind={'amount'}/>
+      <StatTile label={'Opponents beaten'} value={opponentsBeat ?? 0} kind={'amount'}
+                sub={nextOpponent ? `Next: ${cleanUnderscore(nextOpponent.name)}, ${formatGame(nextOpponent.maxHP ?? 0, 'Minehead.MaxHP_Opp')} HP` : undefined}/>
       <StatTile label={'Max lives'} value={maxHP_You ?? MINEHEAD_BASE_LIVES} kind={'amount'}/>
       <DoublerUsageCard title={'Doublers'} doubler={account?.menagerie?.doublers?.minehead} icon={DOUBLER_ICONS.minehead}/>
       <StatTile label={'Base damage'} value={baseDamageText}
