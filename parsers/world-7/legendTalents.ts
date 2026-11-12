@@ -1,5 +1,5 @@
 import type { IdleonData, Account } from '../types';
-import { gameFill, tryToParse } from '@utility/helpers';
+import { descriptionValueText, gameFill, tryToParse } from '@utility/helpers';
 import { generalSpelunky, legendTalents, researchGridSquares, gameTables } from '@website-data';
 import { getGildedBoostioBonus } from '@parsers/world-3/construction';
 import { getEventShopBonus, getGuaranteedCrystalMobs, companionLineName, isCompanionBonusActive } from '@parsers/misc';
@@ -119,15 +119,11 @@ const parseLegendTalents = (spelunkingRaw: any, accountData: Account = {} as Acc
   };
 }
 
-// The description's first number at the next level, as the text writes it: "{" is the bonus ("+2,500%"), "}" its
-// multiplier ("1.25x"), and Double Aint Enough's "$" is 2 + bonus / 100. The other "$" read account values, not the level.
+// The next level's number as the description writes it. Double Aint Enough's "$" is 2 + bonus / 100; the other "$"
+// read account values, not the level.
 const getNextLevelValue = (description: string, index: number, nextBonus: number): string | null => {
-  const match = description?.match(/([+-]?)([{}$])(%?)/);
-  if (!match) return null;
-  const [, sign, token, percentSign] = match;
-  if (token === '{') return `${sign}${gameFill(nextBonus, 'Comma')}${percentSign}`;
-  if (token === '}') return `${gameFill(1 + nextBonus / 100, 'MultiplierInfo')}x`;
-  return index === 2 ? `${2 + nextBonus / 100}x` : null;
+  if (index === 2) return `${2 + nextBonus / 100}x`;
+  return descriptionValueText(description, nextBonus);
 };
 
 const processLegendTalentDescription = (description: string, index: number, bonus: number, accountData: Account = {} as Account): string => {

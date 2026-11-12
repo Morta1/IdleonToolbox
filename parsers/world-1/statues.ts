@@ -1,4 +1,4 @@
-import { tryToParse, gameFill } from '@utility/helpers';
+import { descriptionValueText, tryToParse, gameFill } from '@utility/helpers';
 import { statues as statuesList, zenithMarket } from '@website-data';
 import { getTalentBonus, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
@@ -93,7 +93,9 @@ const getZenithMarket = (rawSpelunking: any) => {
       cost,
       level,
       description,
-      costToMax
+      costToMax,
+      nextLevelValue: maxLevel > 0 && level < maxLevel
+        ? descriptionValueText(bonusObj?.description, Math.floor(bonusObj?.x4 * (level + 1))) : null
     }
   })
 }

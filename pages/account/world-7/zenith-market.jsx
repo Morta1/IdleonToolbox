@@ -36,6 +36,17 @@ const ZenithMarket = () => {
       { combine: 'list' })
     : undefined;
 
+  // Clusters in inventories are not spent until they are brought to the Zenelith: how many next levels the balance and
+  // them pay for together, cheapest first
+  const nextCosts = (market ?? []).filter((item) => !(item?.x3 > 0 && (item?.level ?? 0) >= item.x3))
+    .map((item) => item?.cost ?? 0).sort((a, b) => a - b);
+  let budget = (clusters ?? 0) + totalInventoryClusters;
+  let coveredCount = 0;
+  for (const cost of nextCosts) {
+    if (cost > budget) break;
+    budget -= cost;
+    coveredCount += 1;
+  }
   return <>
     <NextSeo
       title="Zenith Market | Idleon Toolbox"
@@ -48,7 +59,9 @@ const ZenithMarket = () => {
       <StatTile label={'Zenith clusters'} icon={CLUSTER_ICON}
                 value={<Num value={clusters ?? 0} game={'Save.ZenithClusters'} whole/>}/>
       <StatTile label={'Clusters in inventories'} value={totalInventoryClusters} kind={'whole'} failed={false}
-                breakdown={inventoryBreakdown} breakdownTitle={'Clusters in inventories'}/>
+                breakdown={inventoryBreakdown} breakdownTitle={'Clusters in inventories'}
+                sub={totalInventoryClusters > 0 && coveredCount ? `With your balance: ${formatNum(coveredCount)} upgrade${coveredCount > 1 ? 's' : ''}` : undefined}
+                info={'Clusters count toward your balance once you bring them to the Zenelith in World 7. The count is how many next levels they and your balance pay for together, cheapest first.'}/>
       <StatTile label={'Total upgrade LV'} value={account?.spelunking?.saveTotals?.zenithMarketUpgradeLevels ?? 0}
                 kind={'amount'} failed={false}/>
     </PageSummary>
@@ -62,9 +75,10 @@ const ZenithMarket = () => {
                          footer={<ItemCard.Cost icon={CLUSTER_ICON} iconAlt={'Zenith Clusters'} need={item?.cost ?? 0}
                                                 have={clusters ?? 0} game={'Thingies.ZenithMarketCost'}/>}>
           {item?.description ? <ItemCard.Desc text={item.description}/> : null}
-          {item?.costToMax > 0
-            ? <ItemCard.Facts rows={[['Cost to max', formatGame(item.costToMax, 'Thingies.ZenithMarketCost', { whole: true })]]}/>
-            : null}
+          <ItemCard.Facts rows={[
+            item?.nextLevelValue ? ['Next level', item.nextLevelValue] : null,
+            item?.costToMax > 0 ? ['Cost to max', formatGame(item.costToMax, 'Thingies.ZenithMarketCost', { whole: true })] : null
+          ]}/>
         </ItemCard>;
       })}
     </CardGrid>

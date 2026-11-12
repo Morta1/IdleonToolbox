@@ -49,7 +49,8 @@ export const patchNotes = [
       'Spelunking: Overstim shows the level it will really be at with its progress, the rate shows when the next level comes, and the Upgrade Optimizer groups repeated steps of one upgrade by default',
       'Research: observations with a lens on them read Active and can be shown on their own, their rates show only when observed, and grid cards no longer have the Shape label',
       'Legend Talents: each talent that is not maxed shows what its next level gives',
-      'Coral Reef: Dancing Coral bonuses show their unit (Char Coral as its Class EXP multiplier), and a shrine under level 201 shows how far its bonus is'
+      'Coral Reef: Dancing Coral bonuses show their unit (Char Coral as its Class EXP multiplier), and a shrine under level 201 shows how far its bonus is',
+      'Zenith Market: each upgrade shows what its next level gives, and the clusters in your inventories show how many upgrades they would pay for with your balance'
     ],
     'fixes': []
   },
