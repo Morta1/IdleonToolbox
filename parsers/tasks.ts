@@ -1,5 +1,5 @@
 import { tryToParse } from '@utility/helpers';
-import { merits, tasks, taskUnlocks as taskUnlocksData } from '@website-data';
+import { gameTables, merits, tasks, taskUnlocks as taskUnlocksData } from '@website-data';
 import type { IdleonData } from './types';
 
 // Task slot 8 is the daily task: TaskDescriptions[w][8 + Tasks[5][w]]
@@ -89,8 +89,11 @@ export const getTasks = (idleonData: IdleonData): {
   const unlockedRecipes = tasksRaw?.[3]?.flat()?.reduce((sum: number, unlock: number) => sum + unlock, 0) ?? 0;
   const unlockPointsOwned = getUnlockPointsOwned(unlockPointsFormula, tasksRaw?.[4]?.[0] ?? 0);
   const pointsReq = getPointsReq(unlockPointsFormula, unlockPointsOwned, 0);
+  const columnLocks = getUnlockColumnLocks((taskUnlocksData as any[])?.length ?? 0, unlockedRecipes,
+    Number(idleonData?.CYAnvilTabsOwned ?? 0));
   const taskUnlocks = {
     taskUnlocksList,
+    columnLocks,
     unlockedRecipes,
     unlockPointsOwned,
     currentPoints: tasksRaw?.[4]?.[0] ?? 0,
@@ -98,6 +101,22 @@ export const getTasks = (idleonData: IdleonData): {
   }
   return { tasks: parseTasks(tasksRaw), tasksDescriptions, meritsDescriptions, unlockedRecipes, taskUnlocks };
 }
+
+// game TaskStuff("UnlockColumnsOpened"): column 0 is always open, then one more per earlier column whose recipe
+// threshold is reached with Anvil tab (t + 2) owned. A locked column's text (the board draw) is the recipes still
+// needed, else "Unlock Anvil Tab N First" when the matching Anvil tab is missing.
+const getUnlockColumnLocks = (columns: number, recipes: number, anvilTabsOwned: number) => {
+  const thresholds: number[] = gameTables.taskUnlockColumnThresholds ?? [];
+  let opened = 1;
+  for (let t = 0; t < columns - 1; t++) {
+    if (thresholds[t] - recipes <= 0 && anvilTabsOwned > t + 1) opened++;
+  }
+  return Array.from({ length: columns }, (_, column) => {
+    if (column < opened) return { open: true, recipesNeeded: 0, anvilTab: null };
+    const recipesNeeded = Math.max(0, (thresholds[column - 1] ?? 0) - recipes);
+    return { open: false, recipesNeeded, anvilTab: !recipesNeeded && anvilTabsOwned < column + 1 ? column + 1 : null };
+  });
+};
 
 const parseTasks = (tasksRaw: any): any => {
   return tasksRaw;

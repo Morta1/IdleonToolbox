@@ -10452,6 +10452,16 @@
       66,
       67
     ],
+    "taskUnlockColumnThresholds": [
+      7,
+      22,
+      60,
+      90,
+      106,
+      119,
+      999,
+      999
+    ],
     "worshipMapType": [
       26,
       63,

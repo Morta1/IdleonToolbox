@@ -997,6 +997,7 @@ declare module '@website-data' {
       root: number;
     };
     eventShopRotation: number[];
+    taskUnlockColumnThresholds: number[];
     worshipMapType: number[];
     worshipExpRewards: {
       base: number;
