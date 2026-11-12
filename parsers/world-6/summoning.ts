@@ -164,14 +164,15 @@ const parseSummoning = (rawSummon: any, killRoyKills: any, account: any, seriali
     const doubled = isDoubled(index);
     const level = upgradesLevels?.[index] ?? 0;
     const stoneTrials = Number(killRoyKills?.[`SummzTrz${upgrade.colour}`]) || 0;
-    const multi = (doubled ? doubledBase + allstar / 100 : 1)
-      * (stoneTrials > 0 && Number(upgrade.filler) === 1 ? 1 + stoneTrials : 1);
+    const doubledMulti = doubled ? doubledBase + allstar / 100 : 1;
+    const multi = doubledMulti * (stoneTrials > 0 && Number(upgrade.filler) === 1 ? 1 + stoneTrials : 1);
     return {
       ...upgrade,
       originalIndex: index,
       level,
       value: level * upgrade.bonusQty * multi,
-      doubled
+      doubled,
+      doubledMulti
     }
   });
   // game: "Summoning:UpgCost". ESSENTIAL_ESSENCE scales with every upgrade level bought, Cost
@@ -290,6 +291,7 @@ export const getEndlessBattles = (battles = 100, highestEndlessLevel: any, winne
       bonus,
       bonusQty,
       difficulty: { name, sentence: rest.join('_') },
+      battle: i + 1,
       won: highestEndlessLevel > i,
       icon: `etc/${monster?.enemyId}_monster.png`
     });

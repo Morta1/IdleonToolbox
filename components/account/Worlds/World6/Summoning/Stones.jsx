@@ -1,4 +1,4 @@
-import { Stack } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import React from 'react';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
@@ -6,9 +6,18 @@ import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
+import InfoButton from '@components/common/InfoButton';
 
 const Stones = ({ stones }) => {
-  return <CardGrid size={'m'}>
+  return <Stack gap={1}>
+    <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+      <Typography variant={'body2'} color={'text.secondary'}>Each stone boosts its colour's upgrades.</Typography>
+      <InfoButton label={'Summoning stones'}>
+        A stone multiplies the bonus of most of its colour's upgrades by its kills + 1. Each kill makes the next
+        boss 4,000x tougher.
+      </InfoButton>
+    </Stack>
+    <CardGrid size={'m'}>
     {stones?.map(({ name, bonus, kills, bossHp, nextLevelHps, monsterIcon, index, mapName, mapMonsterIcon, mapMonsterName }) => {
       // Info 5: the next kills' HP, a list in a note before, opens as the HP's breakdown
       const hpBreakdown = createBreakdown('Boss HP', formatNum(bossHp),
@@ -32,7 +41,8 @@ const Stones = ({ stones }) => {
         ]}/>
       </ItemCard>;
     })}
-  </CardGrid>
+    </CardGrid>
+  </Stack>
 };
 
 export default Stones;
