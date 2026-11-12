@@ -68,14 +68,16 @@ const Tasks = () => {
     const requirement = task.requirement ?? 0;
     // The board draws "Tap to Complete!" once the stat reaches the rank's requirement
     const ready = !failed && !maxed && requirement > 0 && (task.stat ?? 0) >= requirement;
-    // Every claim pays task points (the Unlocks pool); only the 8 permanent tasks pay merits
+    // Every claim pays task points (the Unlocks pool), the board's trophy (font 316 "^"), then merits, which only the 8
+    // permanent tasks pay: the game's order on the card
     const pay = <Stack key={'pay'} direction={'row'} gap={0.5} alignItems={'center'}>
+      {formatGame(task.taskPointReward ?? 0, 'TaskStuff.TaskPointREQ', { whole: true })}
+      <GameIcon src={'etc/TaskPoints.png'} size={16} alt={'Task points'}/>
       {daily ? null : <>
+        {' · '}
         {formatGame(task.meritReward ?? 0, 'TaskStuff.MeritsGiven', { whole: true })}
         <GameIcon src={`etc/Merit_${world}.png`} size={16} alt={'Merits'}/>
-        {' · '}
       </>}
-      {`${formatGame(task.taskPointReward ?? 0, 'TaskStuff.TaskPointREQ', { whole: true })} Task points`}
     </Stack>;
     return <ItemCard key={task.index} icon={`data/TaskRank${failed ? 0 : task.level}.png`} title={cleanUnderscore(task.name)}
                      meta={daily ? 'Daily task' : undefined}
