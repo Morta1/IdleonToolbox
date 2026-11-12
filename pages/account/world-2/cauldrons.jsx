@@ -7,6 +7,7 @@ import { formatGame } from '@utility/gameNotation';
 import { MissingData, PlayersList, isSectionFailed } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import CoinDisplay from '@components/common/CoinDisplay';
+import InfoButton from '@components/common/InfoButton';
 import { Duration } from '@components/common/Num';
 import GameIcon from '@components/common/GameIcon';
 import StatusText from '@components/common/StatusText';
@@ -91,9 +92,9 @@ const getNewBubbleBreakdown = (displayName, cauldron) => {
 
 // A brew boost: its level and the brew toward the next one (the game floors it first), Maxed at the cap. A failed
 // section's catalog has no brew: the pair reads "-" with no bar
-const boostRow = ([statName, label, effect], { level = 0, progress = 0, req = 0, bonus = 0 } = {}, failed) => {
+const boostRow = ([statName, label], { level = 0, progress = 0, req = 0 } = {}, failed) => {
   if (failed) return <ItemCard.Facts key={statName} rows={[[label, '-']]}/>;
-  const name = `${label} · ${formatNum(level, 'level', { max: CAULDRONS_MAX_LEVELS.brewing })} · ${effect(bonus)}`;
+  const name = `${label} · ${formatNum(level, 'level', { max: CAULDRONS_MAX_LEVELS.brewing })}`;
   return level >= CAULDRONS_MAX_LEVELS.brewing
     ? <ItemCard.Facts key={statName} rows={[[name, <StatusText key={'maxed'} status={'maxed'}/>]]}/>
     : <ItemCard.Progress key={statName} label={name} value={brewReq(Math.floor(progress))} max={brewReq(req)}
@@ -128,7 +129,13 @@ const brewingCard = ({ name, displayName }, index, cauldron = {}, characters, fa
       newBubble?.chance > 0 && newBubble.chance < 50 ? ['Odds', formatNum(newBubble.chance / 100, 'odds')] : null,
       ['Attempts ready', failed ? '-' : attempts > 0 ? `${formatNum(attempts)}${expected}` : '0']
     ]}/>
-    <ItemCard.Section label={'Boosts'}>
+    <ItemCard.Section label={failed ? 'Boosts' : <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+      Boosts
+      {/* What each boost gives: one note, since at the same levels every cauldron repeats the same four lines */}
+      <InfoButton label={`${displayName} boosts`}>
+        <ItemCard.Facts rows={BOOSTS.map(([statName, label, effect]) => [label, effect(boosts?.[statName]?.bonus ?? 0)])}/>
+      </InfoButton>
+    </Box>}>
       {BOOSTS.map((boost) => boostRow(boost, boosts?.[boost[0]], failed))}
     </ItemCard.Section>
   </ItemCard>;
