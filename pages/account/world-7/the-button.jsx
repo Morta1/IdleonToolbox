@@ -36,7 +36,7 @@ const TheButton = () => {
     {!section || sectionFailed ? <MissingData name={'The Button'} failed={sectionFailed} atZero={!parseFailed}/>
       : <NotReached name={'the Button'} reached={totalPresses > 0}/>}
     <PageSummary failed={sectionFailed}>
-      <StatTile label={'Total presses'} value={totalPresses ?? 0} kind={'amount'}/>
+      <StatTile label={'Total presses'} icon={'etc/ButtonG.png'} value={totalPresses ?? 0} kind={'amount'}/>
       <StatTile label={'Insta skips left'} value={instaSkipsLeft ?? 0} kind={'amount'}/>
       <StatTile label={'Insta skips per week'} value={instaSkipsPerWeek ?? 0} kind={'amount'}/>
       <StatTile label={'Bonus multi'} value={formatNum(bonusMulti ?? 1, 'mult')}/>

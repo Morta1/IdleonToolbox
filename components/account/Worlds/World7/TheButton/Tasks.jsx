@@ -14,7 +14,7 @@ import useToolbarState from '@hooks/useToolbarState';
 import { SummaryFailed } from '@components/common/cards/PageSummary';
 import { PRESSES_PER_BONUS } from './Bonuses';
 
-const TASKS_TOOLBAR = { cycle: 0, hideReady: false };
+const TASKS_TOOLBAR = { gameCycle: null, hideReady: false };
 
 // The game's task line, whole (a requirement that scales by a power reads whole, as its sentence does). A save balance
 // can arrive as a numeric string (Jade's "3.85e124"): it is a number, not ∞.
@@ -61,11 +61,21 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, cycleLength, pressesIntoCu
     return { progress: bestProgress, bestChar };
   };
 
-  const cycles = cycleLength ? Math.ceil((taskSequence?.length ?? 0) / cycleLength) : 0;
-  // At least Cycle 1, the default: a failed section has no tasks, and the Show select would read blank
-  const cycleOptions = Array.from({ length: Math.max(cycles, 1) }, (_, index) => [index, `Cycle ${index + 1}`]);
-  const cycle = Math.min(toolbar?.cycle ?? 0, Math.max(0, cycles - 1));
-  const rows = taskSequence?.slice(cycle * cycleLength, (cycle + 1) * cycleLength) ?? [];
+  // The game's cycles, the number the Summary shows: the list starts at the next press, so the current cycle holds only
+  // the presses it has left. At least one option, so a failed section's Show select never reads blank
+  const cycleOf = (task) => (cycleLength ? Math.floor((task?.pressNumber ?? 0) / cycleLength) + 1 : 1);
+  const currentCycle = cycleLength ? Math.floor((totalPresses ?? 0) / cycleLength) + 1 : 1;
+  // The look-ahead ends mid-cycle: a cycle past the current one shows only when the list holds all of its presses
+  const pressesPerCycle = (taskSequence ?? []).filter(Boolean).reduce((counts, task) => {
+    counts[cycleOf(task)] = (counts[cycleOf(task)] ?? 0) + 1;
+    return counts;
+  }, {});
+  const cycleNumbers = Object.keys(pressesPerCycle).map(Number).sort((a, b) => a - b)
+    .filter((number) => number === currentCycle || pressesPerCycle[number] >= cycleLength);
+  const cycleOptions = (cycleNumbers.length ? cycleNumbers : [currentCycle])
+    .map((number) => [number, `Cycle ${formatNum(number)}${number === currentCycle ? ' (current)' : ''}`]);
+  const cycle = cycleNumbers.includes(toolbar?.gameCycle) ? toolbar.gameCycle : (cycleNumbers[0] ?? currentCycle);
+  const rows = (taskSequence ?? []).filter((task) => task && cycleOf(task) === cycle);
   // Each task's best progress over the characters, once per task: four of them read a character's drop rate or damage
   const best = Object.fromEntries([...new Set(rows.map(({ index }) => index))]
     .map((index) => [index, getBestProgress(rows.find((task) => task.index === index))]));
@@ -79,15 +89,17 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, cycleLength, pressesIntoCu
   const currentRunEnd = (totalPresses ?? 0) + PRESSES_PER_BONUS - (pressesIntoCurrentBonus ?? 0);
 
   return <Box>
-    <Toolbar state={toolbar} defaults={TASKS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+    {/* The select shows the cycle in view: the default is the current one, which only the save knows */}
+    <Toolbar state={{ ...toolbar, gameCycle: cycle }} defaults={{ ...TASKS_TOOLBAR, gameCycle: cycleNumbers[0] ?? currentCycle }}
+             onChange={setToolbar} onReset={resetToolbar}
              total={rows.length} shown={shownRows.length} noun={'tasks'}>
-      <Toolbar.Show name={'cycle'} options={cycleOptions}/>
+      <Toolbar.Show name={'gameCycle'} options={cycleOptions}/>
       <Toolbar.Filter name={'hideReady'} label={'Hide ready'}/>
     </Toolbar>
     {/* A bonus's tasks are a few rows: its panels sit side by side on a desktop, in press order left to right */}
     <CardGrid size={'l'} sx={{ alignItems: 'start' }}>
       {groups.map(({ bonusIdx, tasks }, groupIndex) => {
-        const current = cycle === 0 && groupIndex === 0 && tasks[0]?.pressNumber < currentRunEnd;
+        const current = cycle === currentCycle && groupIndex === 0 && tasks[0]?.pressNumber < currentRunEnd;
         return <Panel key={`${cycle}-${tasks[0]?.pressNumber}`} title={bonuses?.[bonusIdx]?.name}
                       aside={current
                         ? <StatusText status={'active'}>
@@ -96,7 +108,7 @@ const Tasks = ({ taskSequence, bonuses, totalPresses, cycleLength, pressesIntoCu
                         : null}>
           {tasks.map((task) => {
             const { progress, bestChar } = best[task.index] ?? {};
-            const first = !failed && cycle === 0 && task.pressNumber === rows[0]?.pressNumber;
+            const first = !failed && cycle === currentCycle && task.pressNumber === rows[0]?.pressNumber;
             const sub = [first ? 'Next press' : null, bestChar ? `Best: ${cleanUnderscore(bestChar.name)}` : null].filter(Boolean).join(' · ');
             return <Panel.Row key={task.pressNumber} name={task.description} sub={sub || undefined}
                               value={isReady(task)
