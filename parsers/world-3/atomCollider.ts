@@ -13,6 +13,7 @@ import { getMenagerieBoost, isMenagerieUnlockOwned } from '@parsers/world-7/mena
 import type { IdleonData, Account } from '../types';
 import { saveField } from '@parsers/saveField';
 import { OPT } from '@parsers/accountOptions';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, percent } from '@parsers/breakdown';
 
 export const getAtoms = (idleonData: IdleonData, account: Account) => {
   const atomsRaw = saveField(idleonData, 'Atoms') || idleonData?.Atoms
@@ -57,34 +58,15 @@ const getAtomBonusDisplay = (index: number, value: number) => index === FLUORIDE
 const parseAtoms = (divinityRaw: any, atomsRaw: any, account: Account) => {
   const localAtoms = atomsRaw ?? [];
   const particles = divinityRaw?.[39] ?? 0;
+  const costCut = getAtomCostCut(account, localAtoms?.[NEON_INDEX] ?? 0);
+  const maxLevelBreakdown = getAtomMaxLevelBreakdown(account);
+  const maxLevel = maxLevelBreakdown.totalValue;
   const atoms = atomsInfo?.map((atomInfo, index) => {
     const level = localAtoms?.[index] ?? 0;
-    const atomColliderLevel = account?.towers?.data?.[8]?.level ?? 0;
-    const atomReductionFromAtom = calcAtomBonus(NEON_INDEX, localAtoms?.[NEON_INDEX] ?? 0, account);
-    const bubbleBonus = getBubbleBonus(account, 'ATOM_SPLIT', false)
-    const reduxSuperbit = isSuperbitUnlocked(account, 'Atom_Redux')?.unlocked ?? 0;
-    const maxLevelSuperbit = isSuperbitUnlocked(account, 'Isotope_Discovery') ?? 0;
-    const stampBonusReduction = getStampsBonusByEffect(account, 'Lower_Atom_Upgrade_Costs');
-    const compassBonus = getCompassBonus(account, 53);
-    const eventShopBonus = getEventShopBonus(account, 28) ? 20 : 0;
-    // game: "AtomCollider:AtomMaxLv"
-    const maxLevel = Math.round(20 + (10 * (maxLevelSuperbit ? 1 : 0) + compassBonus + (eventShopBonus
-      + getMenagerieBoost(account, 17))));
-    
-
-    const costObject = {
-      account,
-      atomReductionFromAtom,
-      reduxSuperbit,
-      bubbleBonus,
-      atomColliderLevel,
-      stampBonusReduction,
-      atomInfo,
-      level
-    };
+    const costObject = { multi: costCut.multi, atomInfo, level };
     const cost = getCost(costObject);
     const nextLeveCost = getCost({ ...costObject, level: level + 1 });
-    const costToMax = getCostToMax({ ...costObject, maxLevel })
+    const costToMax = getCostToMax({ ...costObject, maxLevel });
 
     const value = calcAtomBonus(index, level, account);
     return {
@@ -99,38 +81,72 @@ const parseAtoms = (divinityRaw: any, atomsRaw: any, account: Account) => {
     }
   });
 
-  // game: "AtomCollider:AtomsAvailableAtAll" - 11 base atoms plus one per unlock source.
-  const totalAtomsAvailable = Math.round(11 + Math.min(1, getCompassBonus(account, 47))
-    + Math.min(1, getCompassBonus(account, 58)) + Math.min(1, getJellyBonus(account, 17))
-    + Math.min(1, getMineheadBonusQTY(account, 7)) + Math.min(1, getSushiBonus(account, 22))
-    + (isMenagerieUnlockOwned(account, 16) ? 1 : 0));
+  // game: "AtomCollider:AtomsAvailableAtAll" - 11 base atoms plus one per unlock source. The atoms past that count are
+  // locked, in their order
+  const unlockSources = [
+    { name: 'Compass upgrade 47', unlocked: Math.min(1, getCompassBonus(account, 47)) > 0 },
+    { name: 'Compass upgrade 58', unlocked: Math.min(1, getCompassBonus(account, 58)) > 0 },
+    { name: 'Jelly Operator', unlocked: Math.min(1, getJellyBonus(account, 17)) > 0 },
+    { name: 'Minehead', unlocked: Math.min(1, getMineheadBonusQTY(account, 7)) > 0 },
+    { name: 'Sushi Station', unlocked: Math.min(1, getSushiBonus(account, 22)) > 0 },
+    { name: 'Menagerie', unlocked: isMenagerieUnlockOwned(account, 16) }
+  ];
+  const totalAtomsAvailable = Math.round(BASE_ATOMS + unlockSources.filter(({ unlocked }) => unlocked).length);
 
   return {
     particles,
-    atoms,
+    atoms: atoms.map((atom, index) => ({ ...atom, locked: index >= totalAtomsAvailable })),
     totalAtomsAvailable,
+    unlockSources,
+    costCut,
+    maxLevelBreakdown,
     stampReducer: atoms?.[HYDROGEN_INDEX]?.value ?? 0
   }
 }
 
-const getCost = ({
-                   account,
-                   atomReductionFromAtom,
-                   reduxSuperbit,
-                   bubbleBonus,
-                   atomColliderLevel,
-                   stampBonusReduction,
-                   atomInfo,
-                   level
-                 }: any) => {
+const BASE_ATOMS = 11;
+const BASE_MAX_LEVEL = 20;
+
+// game: AtomMaxLv, 20 plus its sources
+const getAtomMaxLevelBreakdown = (account: Account) => {
+  const superbit = isSuperbitUnlocked(account, 'Isotope_Discovery') ? 10 : 0;
+  const compass = getCompassBonus(account, 53);
+  const eventShop = getEventShopBonus(account, 28) ? 20 : 0;
+  const menagerie = getMenagerieBoost(account, 17);
+  const value = Math.round(BASE_MAX_LEVEL + superbit + compass + eventShop + menagerie);
+  return createBreakdown('Atom max level', value, [
+    flat('Base', BASE_MAX_LEVEL),
+    flat('Isotope Discovery (Superbit)', superbit),
+    flat('Compass', compass),
+    flat('Event shop', eventShop),
+    flat('Menagerie', menagerie)
+  ], { combine: 'sum' });
+};
+
+// game: AtomCost's divisor, 1 + the sum of every atom cost cut / 100, the same for every atom
+export const getAtomCostCut = (account: Account, neonLevel: number) => {
+  const sources = [
+    percent('Palette', getPaletteBonus(account, 35)),
+    percent('Stamps', getStampsBonusByEffect(account, 'Lower_Atom_Upgrade_Costs')),
+    percent('Neon (Atom)', calcAtomBonus(NEON_INDEX, neonLevel, account)),
+    percent('Atom Redux (Superbit)', 10 * ((isSuperbitUnlocked(account, 'Atom_Redux')?.unlocked ?? 0) ? 1 : 0)),
+    percent('Grimoire', getGrimoireBonus((account as any)?.grimoire?.upgrades, 51)),
+    percent('Compass', getCompassBonus(account, 50)),
+    percent('Atom Split (Bubble)', getBubbleBonus(account, 'ATOM_SPLIT', false)),
+    percent('Atom Collider level', ((account as any)?.towers?.data?.[8]?.level ?? 0) / 10),
+    percent('Merit', 7 * ((account as any)?.tasks?.[2]?.[4]?.[6] ?? 0)),
+    percent('Bubba', (account as any)?.bubba?.bonuses?.atomCost?.bonus ?? 0)
+  ];
+  // The game's own order, grimoire and compass added together first: a float sum in another order moves the last digit
+  const [palette, stamps, neon, redux, grimoire, compass, bubble, collider, merit, bubba] = sources.map(({ value }: any) => Number(value) || 0);
+  const sum = palette + stamps + neon + redux + (grimoire + compass) + bubble + collider + merit + bubba;
+  const multi = 1 / (1 + sum / 100);
+  return { sum, multi, breakdown: createBreakdown('Atom cost divisor', 1 + sum / 100, [additiveGroup(NUMBERED_GROUP, sources)]) };
+};
+
+const getCost = ({ multi, atomInfo, level }: any) => {
   // 'AtomCost' == e
-  const grimoireBonus = getGrimoireBonus(account?.grimoire?.upgrades, 51);
-  const compassBonus = getCompassBonus(account, 50);
-  const paletteBonus = getPaletteBonus(account, 35);
-  const bubbaAtomCostBonus = account?.bubba?.bonuses?.atomCost?.bonus ?? 0;
-  const baseCost = (1 / (1 + (paletteBonus + stampBonusReduction + atomReductionFromAtom + 10 * (reduxSuperbit ? 1 : 0)
-    + (grimoireBonus + compassBonus) + bubbleBonus + atomColliderLevel / 10 + 7 * (account?.tasks?.[2]?.[4]?.[6] ?? 0) + bubbaAtomCostBonus) / 100));
-  const cost = baseCost * (atomInfo?.x3 + atomInfo?.x1 * level) * Math.pow(atomInfo?.x2, level);
+  const cost = multi * (atomInfo?.x3 + atomInfo?.x1 * level) * Math.pow(atomInfo?.x2, level);
   return cost < UNFLOORED_ATOM_COST ? Math.floor(cost) : cost;
 }
 const getCostToMax = (costObject: any) => {
