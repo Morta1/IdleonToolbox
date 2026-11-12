@@ -1,4 +1,4 @@
-import { holeFountUpg } from '@website-data';
+import { holeFountUpg, holesInfo } from '@website-data';
 import { gameFill, lavaLog } from '@utility/helpers';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
@@ -7,6 +7,7 @@ import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getBellBonus } from '@parsers/world-5/caverns/the-bell';
 import { getCosmoBonus, getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { OPT } from '@parsers/accountOptions';
+import { type BreakdownNode, createBreakdown, flat, multiplier, softcapLine } from '@parsers/breakdown';
 
 // Each tier represents a water color. The first upgrade in each tier ("X_Water") is the gate
 // that unlocks the NEXT color: tier 0/0 ("Yellow_Water") unlocks Yellow, tier 1/0 ("Green_Water")
@@ -162,6 +163,50 @@ const getFountCurrencyAllMulti = (holesObject: any, accountData: any) => {
     * (1 + getBellBonus({ holesObject, t: 6 }) / 100);
 };
 
+// game: "Fount_DesireMulti", the value multi on the desired currency (Holes[11][82])
+const getFountDesireMulti = (holesObject: any) => 1 + getFountainBonusTotal(holesObject, 1, 11) / 100;
+
+// game: "Fount_LuckyCoinValue"
+const getFountLuckyCoinValue = (holesObject: any, currencyType: number) =>
+  1 + (getLuckyCoins(holesObject, currencyType) * getFountLuckyCoinValuePer(holesObject)) / 100;
+
+// game: "Fount_CurrencyTotValue": what one collected coin adds. Green coins (6+) take the square root of desire, base and
+// the total multi together; the desire multi only counts on the desired currency.
+// Holes[30] starts at -1 and only a lucky coin raises it, so until then the game's own lucky-coin factor is below 1
+// (1 - 25% on a fresh account, negative once the per-coin bonus passes 100%), and it adds this value as it is
+const getFountCurrencyTotValue = (holesObject: any, accountData: any, currencyType: number, desiredCurrency: number) => {
+  const desired = currencyType === desiredCurrency;
+  const desireMulti = desired ? getFountDesireMulti(holesObject) : 1;
+  const baseValue = getFountCurrencyBaseValue(holesObject, currencyType);
+  const allMulti = getFountCurrencyAllMulti(holesObject, accountData);
+  const luckyValue = getFountLuckyCoinValue(holesObject, currencyType);
+  const duckMulti = getFountDuckMulti(holesObject, accountData);
+  const core = desireMulti * baseValue * allMulti;
+  const rooted = currencyType >= 6 ? Math.pow(core, 0.5) : core;
+  const value = rooted * luckyValue * duckMulti;
+  const lines: (BreakdownNode | null)[] = [
+    desired ? multiplier('Greatest Desire', desireMulti) : null,
+    flat('Base value', baseValue),
+    multiplier('Total Currency Multi', allMulti),
+    currencyType >= 6 ? softcapLine(rooted, core, 'Green coins get the square root of their value.', 'Green coins') : null,
+    multiplier('Lucky coins', luckyValue),
+    multiplier('Rubber Duckies', duckMulti)
+  ];
+  const breakdown = createBreakdown(`${CURRENCY_NAMES[currencyType]} value per coin`, value,
+    lines.filter((node): node is BreakdownNode => Boolean(node)));
+  return { valuePerCoin: value, desired, valueBreakdown: breakdown };
+};
+
+// game: "CanWeBUY_Marbleize": HolesInfo[76] lists the "water_index" upgrades that can never be marbleized
+const NOT_MARBLEIZABLE: string[] = holesInfo?.[76] ?? [];
+
+// game: "Fount_MarbleizeCost", tier = Holes[32][water][index]
+const getFountMarbleizeCost = (t: number, i: number, tier: number) => {
+  if (t >= 2) return 25e4 * Math.pow(2 * (5 + tier), tier);
+  if (i === 13) return 1500 * Math.pow(10 + 5 * tier, tier);
+  return 500 * Math.pow(5 + tier, tier);
+};
+
 const getSpacesOwned = (holesObject: any) => Math.min(16, 1 + getFountainBonusTotal(holesObject, 0, 10));
 // game: "MaxStackSize"
 const getMaxStackSize = (holesObject: any) => Math.min(50, 3 + getSchematicBonus({ holesObject, t: 97, i: 3 })
@@ -313,6 +358,8 @@ export const getTheFountain = (holesObject: any, accountData: any) => {
       const prereqName = u.prereqIndex === -1 ? null : tierUpgrades[u.prereqIndex]?.name ?? null;
       const prereqCurrentLevel = u.prereqIndex === -1 ? 0 : (tierLevels[u.prereqIndex] ?? 0);
       const prereqRequiredLevel = (t === 0 && (i === 14 || i === 2)) ? 1 : 10;
+      // The game draws the Marbleize panel only once Marble_Filling is owned; there is no cap on the tier
+      const marbleizable = getFountainBonusTotal(holesObject, 1, 10) >= 1 && !NOT_MARBLEIZABLE.includes(`${t}_${i}`);
       const unlocks = tierUpgrades
         .map((other, otherIdx) => ({ idx: otherIdx, prereq: Number(other.prereqIndex) }))
         .filter(({ prereq }) => prereq === i)
@@ -332,6 +379,10 @@ export const getTheFountain = (holesObject: any, accountData: any) => {
         maxLevel: null,
         marbleTier,
         marbleMulti,
+        marbleizable,
+        marbleizeCost: getFountMarbleizeCost(t, i, marbleTier),
+        // game: "Fountain_MarbleBonNEXT"
+        marbleMultiNext: 1.5 + 0.5 * (marbleTier + 1),
         bonus,
         bonusPerLevel: u.bonusPerLevel,
         cost,
@@ -373,7 +424,8 @@ export const getTheFountain = (holesObject: any, accountData: any) => {
     type,
     name,
     amount: Math.max(0, wellSediment[30 + type] ?? 0),
-    baseValue: getFountCurrencyBaseValue(holesObject, type)
+    baseValue: getFountCurrencyBaseValue(holesObject, type),
+    ...getFountCurrencyTotValue(holesObject, accountData, type, desiredCurrency)
   }));
   const currencyAllMulti = getFountCurrencyAllMulti(holesObject, accountData);
   // game: Fountain_OpalCost, paid in coin Holes[9][30 + min(9, floor(n / 5))] with n = Holes[7][15]

@@ -39,7 +39,7 @@ export const patchNotes = [
       'Sailing: the Artifacts tab counts the artifacts found and maxed (with how many sit at each form), and can search artifacts by name or effect and show only the ones not maxed or not found',
       'Divinity: the page shows the Divinity points you own, and the Gods tab shows the two offerings for the next god with their chance, cost and time to afford',
       'Gaming: the Superbits tab can search superbits by name or effect, show one group at a time and hide the ones you own',
-      'Hole caverns: The Well times each sediment by the buckets on it and shows when the rocks break, only the active bell counts as filling, the layer caverns show the breaks left today, and the Den, Harp, Lamp, Jars, Gambit, Fountain and Glunko Cove show max levels, chord EXP, when a wish is affordable, the next jar, note and opal costs and the double pickup chance'
+      'Hole caverns: The Well times each sediment by the buckets on it and shows when the rocks break, only the active bell counts as filling, the layer caverns show the breaks left today, and the Den, Harp, Lamp, Jars, Gambit, Fountain and Glunko Cove show max levels, chord EXP, when a wish is affordable, the next jar, note and opal costs and the double pickup chance. The Lamp\'s wishes per day, Gambit\'s points multi, the Cove\'s drop rate and the Jars\' new collectible chance show where they come from, and the Fountain shows each coin\'s worth, each upgrade\'s marbleize cost and its bars side by side'
     ],
     'fixes': []
   },

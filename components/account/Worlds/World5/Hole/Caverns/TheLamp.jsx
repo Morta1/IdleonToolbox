@@ -18,11 +18,14 @@ const affordText = (days) => days === 0 ? <StatusText key={'afford'} status={'re
 
 const TheLamp = ({ hole }) => {
   const theLamp = hole?.caverns?.theLamp;
+  const wishPerDayText = formatNum(theLamp?.wishPerDay ?? 0, 'amount', { precise: true });
+  const wishPerDayBreakdown = theLamp?.wishPerDayBreakdown;
 
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Wishes'} value={theLamp?.currentWishes ?? 0} kind={{ game: 'Save.LampWishes' }}/>
-      <StatTile label={'Wishes per day'} value={formatNum(theLamp?.wishPerDay ?? 0, 'amount', { precise: true })}/>
+      <StatTile label={'Wishes per day'} value={wishPerDayText}
+                breakdown={wishPerDayBreakdown ? { ...wishPerDayBreakdown, totalValue: wishPerDayText } : undefined}/>
       {opalsFoundTile(hole, 6)}
     </Stack>
     <CardGrid size={'m'}>

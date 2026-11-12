@@ -8,7 +8,6 @@ import { getHoleLeaderboardTotals } from '@parsers/world-5/hole';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
-import Panel from '@components/common/cards/Panel';
 import GameIcon from '@components/common/GameIcon';
 import { DIM } from '@components/common/cards/tokens';
 import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
@@ -16,6 +15,7 @@ import ViewSwitch from '@components/common/ViewSwitch';
 import { Duration } from '@components/common/Num';
 import useToolbarState from '@hooks/useToolbarState';
 import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 
 const NODE = 56;
 const PAD = 36;
@@ -28,6 +28,9 @@ const FOUNTAIN_VIEW_PHONE = { view: 'list' };
 
 // Each currency's balance reads like its costs (Holes.Cost_FountainUPG)
 const currencyText = (value) => formatGame(value ?? 0, 'Holes.Cost_FountainUPG', { whole: true });
+
+// What one collected coin adds to its balance (Holes2.Fount_CurrencyTotValue)
+const valueText = (value) => formatNum(value ?? 0, 'amount');
 
 // "1 in N" (the game's own line, Holes2.Fount_DuckChance) rides after the percent only under 50%, and never beside a 0%
 const duckText = (chance) => {
@@ -48,6 +51,12 @@ const parsePos = (position) => {
 const upgradeCost = (upgrade, currencies) => <ItemCard.Cost icon={`data/HoleFountainCoin${upgrade?.currencyType}.png`}
   iconAlt={`${CURRENCY_NAMES[upgrade?.currencyType] ?? 'Fountain'} coin`} need={upgrade?.cost ?? 0}
   have={currencies?.find((currency) => currency.type === upgrade?.currencyType)?.amount} game={'Holes.Cost_FountainUPG'}/>;
+// Marbleizing: its marble cost against the marbles owned, and the bonus multi it leads to (the game's Marbleize panel)
+const upgradeMarbleize = (upgrade, marbles) => upgrade?.marbleizable ? <ItemCard.Facts rows={[
+  ['Marbleize', <ItemCard.Cost key={'marbleize'} need={upgrade.marbleizeCost ?? 0} have={marbles ?? 0}
+                               game={'Holes.Fount_MarbleizeCost'}/>],
+  ['Next marble multi', formatNum(upgrade.marbleMultiNext ?? 1, 'mult')]
+]}/> : null;
 const upgradeLevel = (upgrade) => `Lv ${formatNum(upgrade?.level ?? 0)}${upgrade?.marbleTier > 0
   ? ` · Marble ${formatNum(upgrade.marbleMulti, 'mult')}` : ''}`;
 const upgradeNeeds = (upgrade) => (!upgrade?.unlocked && upgrade?.prereqName
@@ -56,17 +65,18 @@ const upgradeNeeds = (upgrade) => (!upgrade?.unlocked && upgrade?.prereqName
 const opensNames = (upgrade, water) => (upgrade?.unlocks ?? [])
   .map((index) => cleanUnderscore(water?.upgrades?.[index]?.name ?? '')).filter(Boolean);
 // An upgrade's details, once: the graph's note on a node
-const upgradeNote = (upgrade, water, currencies) => <Stack gap={0.75} sx={{ maxWidth: 320 }}>
+const upgradeNote = (upgrade, water, currencies, marbles) => <Stack gap={0.75} sx={{ maxWidth: 320 }}>
   <Typography variant={'body2'} component={'div'}>{cleanUnderscore(upgrade?.name)}</Typography>
   <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{upgradeLevel(upgrade)}</Typography>
   {upgradeNeeds(upgrade) ? <StatusText status={'locked'} wrap>{upgradeNeeds(upgrade)}</StatusText> : null}
   <ItemCard.Desc text={upgrade?.description}/>
   {upgradeCost(upgrade, currencies)}
+  {upgradeMarbleize(upgrade, marbles)}
   {opensNames(upgrade, water).length ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>
     {`Opens at Lv 10: ${opensNames(upgrade, water).join(', ')}`}</Typography> : null}
 </Stack>;
 
-const FountainGraph = ({ water, t, currencies }) => {
+const FountainGraph = ({ water, t, currencies, marbles }) => {
   const nodes = (water?.upgrades ?? []).map((u) => ({ ...u, pos: parsePos(u.position) }));
   const positioned = nodes.filter((n) => n.pos !== null);
 
@@ -157,7 +167,7 @@ const FountainGraph = ({ water, t, currencies }) => {
           const np = nodeAt(u.index);
           // A click, a tap or Enter pins the upgrade's details; a hover previews them
           return <Box key={`upg-${t}-${u.index}`} sx={{ position: 'absolute', left: np.x, top: np.y }}>
-            <NoteTrigger block label={cleanUnderscore(u.name)} note={upgradeNote(u, water, currencies)}>
+            <NoteTrigger block label={cleanUnderscore(u.name)} note={upgradeNote(u, water, currencies, marbles)}>
               <Box sx={{ position: 'relative', width: NODE, height: NODE + 14, opacity: u.unlocked ? 1 : DIM }}>
                 <GameIcon src={`data/HoleFountainUpg${t}_${u.index}.png`} size={56} fit={'canvas'} alt={''}/>
                 <Typography variant={'caption'} component={'div'} sx={{
@@ -184,7 +194,7 @@ const groupByDepth = (upgrades) => {
   return [...map.entries()].sort(([a], [b]) => a - b);
 };
 
-const FountainList = ({ water, t, currencies }) => <Stack gap={2} sx={{ mt: 1 }}>
+const FountainList = ({ water, t, currencies, marbles }) => <Stack gap={2} sx={{ mt: 1 }}>
   {groupByDepth(water?.upgrades ?? []).map(([depth, ups]) => <Stack key={`tier-${t}-${depth}`} gap={1}>
     <Typography variant={'groupLabel'} component={'div'} color={'text.secondary'}>
       {depth === 0 ? 'Starting upgrades' : `Tier ${depth + 1}`}
@@ -196,6 +206,7 @@ const FountainList = ({ water, t, currencies }) => <Stack gap={2} sx={{ mt: 1 }}
         {/* The header says Locked; what it waits on wraps here, where a long name has room */}
         {upgradeNeeds(u) ? <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{upgradeNeeds(u)}</Typography> : null}
         <ItemCard.Desc text={u.description}/>
+        {upgradeMarbleize(u, marbles)}
       </ItemCard>)}
     </CardGrid>
   </Stack>)}
@@ -209,15 +220,20 @@ const TheFountain = ({ hole, sectionFailed }) => {
   const currencies = fountain?.currencies ?? [];
   const bars = fountain?.fountainBars ?? [];
   const nextOpal = fountain?.nextOpal;
+  const marbles = fountain?.marbleCurrency ?? 0;
 
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Marbles'} value={formatGame(fountain?.marbleCurrency ?? 0, 'Save.FountainMarbles', { whole: true })}/>
       <StatTile label={'Max coins'} value={formatGame((fountain?.spacesOwned ?? 0) * (fountain?.maxStackSize ?? 0), 'Holes2.MaxCoinz', { whole: true })}
                 info={`The most coins the floor holds before they collect themselves: ${formatGame(fountain?.spacesOwned ?? 0, 'Holes2.SpacesOwned', { whole: true })} spaces of ${formatGame(fountain?.maxStackSize ?? 0, 'Holes2.MaxStackSize', { whole: true })}.`}/>
-      {currencies.map((currency) => <StatTile key={`cur-${currency.type}`} label={currency.name}
+      {currencies.map((currency) => <StatTile key={`cur-${currency.type}`} labelText={currency.name}
+                                              label={currency.desired ? <>{currency.name} <StatusText status={'selected'}
+                                                sx={{ fontSize: 'inherit' }}>Desired</StatusText></> : currency.name}
                                               icon={`data/HoleFountainCoin${currency.type}.png`}
-                                              value={currencyText(currency.amount)}/>)}
+                                              value={currencyText(currency.amount)}
+                                              sub={currency.valueBreakdown ? <>Worth <Breakdown asValue data={currency.valueBreakdown}
+                                                title={`${currency.name} value per coin`}>{valueText(currency.valuePerCoin)}</Breakdown> each</> : null}/>)}
       {opalsFoundTile(hole, 15)}
       <StatTile label={'Next opal'} value={<ItemCard.Cost icon={`data/HoleFountainCoin${nextOpal?.currencyType ?? 0}.png`}
                                                          iconAlt={`${CURRENCY_NAMES[nextOpal?.currencyType ?? 0] ?? 'Fountain'} coin`}
@@ -225,10 +241,11 @@ const TheFountain = ({ hole, sectionFailed }) => {
                                                          game={'Holes.Cost_FountainUPG'}/>}/>
       <StatTile label={'Total fountain upgrades'} value={getHoleLeaderboardTotals(hole).fountainUpgrades} kind={'amount'}/>
     </Stack>
-    {bars.length > 0 ? <Panel title={'Fountain bars'} sx={{ mb: 3 }}>
-      {bars.map((bar) => <Stack key={`bar-${bar.tier}`} gap={1} sx={{ px: 2, py: 1.5 }}>
-        <ItemCard.Progress label={<>{bar.name} <InfoButton label={bar.name}>{bar.description}</InfoButton></>} barLabel={bar.name}
-                           value={bar.progress ?? 0} max={bar.req ?? 0} kind={'whole'}/>
+    {/* A card a bar, side by side: one full-width panel stacked three short bars into a screen's height */}
+    {bars.length > 0 ? <CardGrid size={'m'} sx={{ mb: 3 }}>
+      {bars.map((bar) => <ItemCard key={`bar-${bar.tier}`}
+                                   title={<>{bar.name} <InfoButton label={bar.name}>{bar.description}</InfoButton></>}>
+        <ItemCard.Progress label={'Fill'} barLabel={bar.name} value={bar.progress ?? 0} max={bar.req ?? 0} kind={'whole'}/>
         <ItemCard.Facts rows={[
           ['Time to full', <Duration key={'full'} seconds={(bar.timeToFullMs ?? 0) / 1000}/>],
           ['Full cycle', msToDate(bar.timeFullCycleMs ?? 0)],
@@ -238,8 +255,8 @@ const TheFountain = ({ hole, sectionFailed }) => {
             label={'Rubber Ducky chance'}>The chance per full bar to gain one more Rubber Ducky stack.</InfoButton></Fragment>,
             duckText(bar.duckChance)] : null
         ]}/>
-      </Stack>)}
-    </Panel> : null}
+      </ItemCard>)}
+    </CardGrid> : null}
     {visibleWaters.length ? <>
       <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'} mb={2}>
         <Typography variant={'sectionTitle'} component={'h2'}>Upgrades</Typography>
@@ -253,8 +270,8 @@ const TheFountain = ({ hole, sectionFailed }) => {
             {!water.unlocked ? <StatusText status={'locked'}/> : null}
           </Stack>
           {shown?.view === 'list'
-            ? <FountainList water={water} t={water.tier} currencies={currencies}/>
-            : <FountainGraph water={water} t={water.tier} currencies={currencies}/>}
+            ? <FountainList water={water} t={water.tier} currencies={currencies} marbles={marbles}/>
+            : <FountainGraph water={water} t={water.tier} currencies={currencies} marbles={marbles}/>}
         </Stack>)}
       </Stack>
     </> : null}

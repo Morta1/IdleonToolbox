@@ -35,13 +35,15 @@ const CrystalGlunkoCove = ({ hole }) => {
   const cove = hole?.caverns?.crystalGlunkoCove;
   const upgrades = cove?.upgrades ?? [];
   const shapes = cove?.shapes ?? [];
+  const dropRateBreakdown = cove?.dropRateBreakdown;
   // A shape's name is the upgrade that is paid in it (each upgrade's requirement is its shape's item name)
   const shapeName = (shape) => cleanUnderscore(upgrades.find((upgrade) => upgrade?.shapeId === shape?.index)?.requirement)
     || `Shape ${(shape?.index ?? 0) + 1}`;
 
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
-      <StatTile label={'Cove drop rate'} value={cove?.dropRate ?? 1} kind={'mult'}/>
+      <StatTile label={'Cove drop rate'} value={cove?.dropRate ?? 1} kind={'mult'}
+                breakdown={dropRateBreakdown ? { ...dropRateBreakdown, totalValue: formatNum(cove?.dropRate ?? 1, 'mult') } : undefined}/>
       <StatTile label={'Cove AFK gains'} value={100 * (cove?.afkRate ?? 0)} kind={'pct'}/>
       <StatTile label={'Multikill per tier'} value={cove?.multiKillTier ?? 0} kind={'pct'}/>
       <StatTile label={'Base multikill'} value={cove?.multiKillBase ?? 0} kind={'pct'}/>

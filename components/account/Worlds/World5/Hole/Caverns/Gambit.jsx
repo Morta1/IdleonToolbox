@@ -16,6 +16,8 @@ const Gambit = ({ hole }) => {
   const doublers = gambit?.summoningDoublers;
   const totalTime = getHoleLeaderboardTotals(hole).gambitTime;
   // The game's $ in the first bonus is the doublers left to appoint (Gambit_SummoningDoublersLeft)
+  const pointsMultiText = `${formatGame(gambit?.pointsMulti ?? 1, 'Holes.GambitPTSmulti')}x`;
+  const pointsMultiBreakdown = gambit?.pointsMultiBreakdown;
   const doublersLeft = Math.max(0, (doublers?.total ?? 0) - (doublers?.appointed ?? 0));
 
   return <>
@@ -29,7 +31,8 @@ const Gambit = ({ hole }) => {
       <StatTile label={'Total gambit time'} value={totalTime > 0 ? msToClock(totalTime * 1000) : '-'}/>
       <StatTile label={'Base points'} value={formatGame(Math.floor(gambit?.basePoints ?? 0), 'Holes.GambitPts', { whole: true })}/>
       <StatTile label={'Points'} value={formatGame(Math.floor(points), 'Holes.GambitPts', { whole: true })}/>
-      <StatTile label={'Points multi'} value={`${formatGame(gambit?.pointsMulti ?? 1, 'Holes.GambitPTSmulti')}x`}/>
+      <StatTile label={'Points multi'} value={pointsMultiText}
+                breakdown={pointsMultiBreakdown ? { ...pointsMultiBreakdown, totalValue: pointsMultiText } : undefined}/>
       {nextUnlock ? <StatTile label={'Next bonus at'} value={formatGame(nextUnlock.pointsReq ?? 0, 'Holes.GambitPtsREQ', { whole: true })}
                               sub={cleanUnderscore(nextUnlock.name)}/> : null}
       <StatTile label={'Summoning doublers'} value={`${formatNum(doublers?.appointed ?? 0)} / ${formatNum(doublers?.total ?? 0)}`}/>

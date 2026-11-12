@@ -1,11 +1,12 @@
 import { getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { holesBuildings, holesInfo } from '@website-data';
-import { GAME_LN10, gameFill, lavaLog, lavaLog2 } from '@utility/helpers';
+import { GAME_LN10, cleanUnderscore, gameFill, lavaLog, lavaLog2, titleCaseName } from '@utility/helpers';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getEventShopBonus } from '@parsers/misc';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
+import { createBreakdown, percent } from '@parsers/breakdown';
 
 // Event shop purchase that grants extra summoning doublers
 const EVENT_SHOP_DOUBLERS_INDEX = 15;
@@ -16,7 +17,7 @@ export const GAMBIT_RUNS = 6;
 const RUN_SCHEMATIC_OFFSET = 88;
 
 export const getGambit = (holesObject: any, accountData: any) => {
-  const pointsMulti = getPointsMulti(holesObject, accountData);
+  const { value: pointsMulti, breakdown: pointsMultiBreakdown } = getPointsMultiSources(holesObject, accountData);
   const basePoints = getPoints(holesObject, accountData, 99);
   const points = getPoints(holesObject, accountData, 777);
   const bonuses = holesInfo?.[71]?.map((bonusRaw: any, index: any) => {
@@ -53,6 +54,7 @@ export const getGambit = (holesObject: any, accountData: any) => {
   const totalTime = times.reduce((sum: any, time: any) => sum + time, 0);
   return {
     pointsMulti,
+    pointsMultiBreakdown,
     basePoints,
     points,
     bonuses,
@@ -73,16 +75,31 @@ const getPointReq = (index: any) => {
   return 2e3 + 1e3 * (index + 1) * (1 + index / 5) * Math.pow(1.26, index);
 }
 
-const getPointsMulti = (holesObject: any, accountData: any) => {
-  return 1 + (getMeasurementBonus({ holesObject, accountData, t: 13 })
-    + getStudyBonus(holesObject, 13, 0)
-    + getSchematicBonus({ holesObject: accountData?.hole?.holesObject, t: 78, i: 10 })
-    + getMonumentBonus({ holesObject, t: 2, i: 7 })
-    + getJarBonus({ holesObject, i: 23, account: accountData })
-    + getJarBonus({ holesObject, i: 30, account: accountData })
-    + getTesseractBonus(accountData, 47)
-  ) / 100;
+const collectibleName = (i: number) => titleCaseName(cleanUnderscore(holesInfo?.[67]?.[i]?.split('|')?.[0] ?? 'Collectible'));
+
+// game: "GambitPTSmulti"
+const getPointsMultiSources = (holesObject: any, accountData: any) => {
+  const measurement = getMeasurementBonus({ holesObject, accountData, t: 13 });
+  const study = getStudyBonus(holesObject, 13, 0);
+  const schematic = getSchematicBonus({ holesObject: accountData?.hole?.holesObject, t: 78, i: 10 });
+  const monument = getMonumentBonus({ holesObject, t: 2, i: 7 });
+  const jar23 = getJarBonus({ holesObject, i: 23, account: accountData });
+  const jar30 = getJarBonus({ holesObject, i: 30, account: accountData });
+  const arcane = getTesseractBonus(accountData, 47);
+  const value = 1 + (measurement + study + schematic + monument + jar23 + jar30 + arcane) / 100;
+  const breakdown = createBreakdown('Points multi', value, [
+    percent('Measurement', measurement),
+    percent('Study', study),
+    percent(`${titleCaseName(cleanUnderscore(holesBuildings?.[78]?.name ?? 'Schematic'))} (Schematic)`, schematic),
+    percent('Monument', monument),
+    percent(collectibleName(23), jar23),
+    percent(collectibleName(30), jar30),
+    percent('Arcane', arcane)
+  ], { combine: 'additive' });
+  return { value, breakdown };
 }
+
+const getPointsMulti = (holesObject: any, accountData: any) => getPointsMultiSources(holesObject, accountData).value;
 
 const getPoints = (holesObject: any, accountData: any, t: any): any => {
   const base = holesObject?.extraCalculations[Math.round(t + 65)]

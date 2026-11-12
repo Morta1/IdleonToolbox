@@ -4,6 +4,7 @@ import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getStudyBonus } from '@parsers/world-5/hole';
 import { OPT } from '@parsers/accountOptions';
 import { isBundlePurchased } from '@parsers/misc';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent } from '@parsers/breakdown';
 
 // Cavern 18: Crystal Glunko Cove. Mirrors N.js customBlock_Holes2 Cglunko_* handlers.
 // Cove upgrade level t (0..23) lives in OptionsListAccount[630 + t]; gooey shapes (the cove currency)
@@ -45,17 +46,39 @@ const getCglunkoPdig = (account: any): number => {
   return sum;
 };
 
+const upgradeName = (t: number) => (randomList2?.[11]?.[t] ?? `Upgrade ${t + 1}`).replace(/_/g, ' ');
+
 // game: "Cglunko_DR" - drop-rate multiplier active while a character is in Cavern 18.
-const getCglunkoDropRate = (account: any): number => {
+const getCglunkoDropRate = (account: any) => {
   const uB = (t: number) => getCglunkoBonus(account, t);
   const opt = (i: number) => account?.accountOptions?.[i] ?? 0;
-  return (1 + (uB(1) + uB(17) + uB(21)) / 100)
-    * (1 + uB(3) / 100)
-    * (1 + uB(12) / 100)
-    * (1 + (uB(10) * getCglunkoBdig(account)) / 100)
-    * (1 + (uB(22) * getCglunkoPdig(account)) / 100)
-    * (1 + (uB(4) * Math.ceil(lavaLog(opt(668)))) / 100)
-    * (1 + (uB(18) * Math.ceil(lavaLog(opt(200)))) / 100);
+  const blueDigits = getCglunkoBdig(account);
+  const purpDigits = getCglunkoPdig(account);
+  // OptionsListAccount[668] is the Glunko kills, [200] the highest normal drop rate
+  const killDigits = Math.ceil(lavaLog(opt(668)));
+  const dropRateDigits = Math.ceil(lavaLog(opt(OPT.highestDropRateMulti)));
+  const slopDrop = 1 + (uB(1) + uB(17) + uB(21)) / 100;
+  const droplier = 1 + uB(3) / 100;
+  const droplierPlus = 1 + uB(12) / 100;
+  const blueCollector = 1 + (uB(10) * blueDigits) / 100;
+  const purpCollector = 1 + (uB(22) * purpDigits) / 100;
+  const killionaire = 1 + (uB(4) * killDigits) / 100;
+  const richGetRich = 1 + (uB(18) * dropRateDigits) / 100;
+  const value = slopDrop * droplier * droplierPlus * blueCollector * purpCollector * killionaire * richGetRich;
+  const breakdown = createBreakdown('Cove drop rate', value, [
+    additiveGroup('Slop Drop upgrades', [
+      percent(upgradeName(1), uB(1)),
+      percent(upgradeName(17), uB(17)),
+      percent(upgradeName(21), uB(21))
+    ]),
+    multiplier(upgradeName(3), droplier),
+    multiplier(upgradeName(12), droplierPlus),
+    multiplier(upgradeName(10), blueCollector, { note: `${blueDigits} blue shape digits` }),
+    multiplier(upgradeName(22), purpCollector, { note: `${purpDigits} purp shape digits` }),
+    multiplier(upgradeName(4), killionaire, { note: `${killDigits} Glunko kill digits` }),
+    multiplier(upgradeName(18), richGetRich, { note: `${dropRateDigits} drop rate digits` })
+  ]);
+  return { value, breakdown };
 };
 
 // game: "Cglunko_AFKgains" - AFK-gains rate (fraction) while in Cavern 18.
@@ -120,10 +143,12 @@ export const getCrystalGlunkoCove = (holesObject: any, accountData: any) => {
     owned
   }));
 
+  const dropRate = getCglunkoDropRate(accountData);
   return {
     upgrades,
     shapes,
-    dropRate: getCglunkoDropRate(accountData),
+    dropRate: dropRate.value,
+    dropRateBreakdown: dropRate.breakdown,
     afkGains: getCglunkoAfkGains(accountData),
     afkRate: getCoveAfkGains(accountData),
     multiKillTier: getCglunkoBonus(accountData, 6),

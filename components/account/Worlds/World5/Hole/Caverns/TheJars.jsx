@@ -43,10 +43,14 @@ const TheJars = ({ hole, sectionFailed }) => {
       formatted: `${formatNum(count, 'whole')} (${formatNum(count * Math.pow(10, tier - 1), 'whole')} quantity)`
     }))), { combine: 'list' }) : null;
     const enchant = jar?.enchant?.breakdown;
+    const newCollectible = jar?.newCollectible?.breakdown;
     return <ItemCard key={`jar-${index}`} icon={`etc/Jar_${index}.png`} title={cleanUnderscore(jar?.name)} dimmed={!jar?.unlocked}>
       <ItemCard.Desc>{jar?.effect}</ItemCard.Desc>
       <ItemCard.Facts rows={[
         enchant ? ['Enchant chance', <Breakdown key={'enchant'} asValue data={enchant}>{enchant.totalValue}</Breakdown>] : null,
+        newCollectible ? ['New collectible chance', <Breakdown key={'collectible'} asValue data={newCollectible}>
+          {newCollectible.totalValue}
+        </Breakdown>] : null,
         ['Jars per hour', <Breakdown key={'rates'} asValue data={rates}>{formatNum(perSlots(1))}</Breakdown>],
         ['Destroyed', jar?.destroyed ?? 0, 'amount'],
         ['Held', held ? <Breakdown key={'held'} asValue data={held}>{heldText}</Breakdown> : heldText],

@@ -11,7 +11,7 @@ import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
 import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
-import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, listGroup, multiplier, percent, productGroup, sumGroup } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, listGroup, multiplier, percent, productGroup, sourceName, sumGroup } from '@parsers/breakdown';
 
 
 // The Jars header shows the jars found out of this many
@@ -54,7 +54,8 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
       destroyed: holesObject?.extraCalculations?.slice(40, 50)?.[index] || 0,
       owned: jarInventory?.[index],
       // Enchanted Jar (index 4): expose precise odds, per-tier scaling and source breakdown
-      enchant: index === 4 ? enchant : undefined
+      enchant: index === 4 ? enchant : undefined,
+      newCollectible: index === 2 ? getNewCollectibleBreakdown(holesObject, accountData, newCollectibleChance) : undefined
     }
   });
   const totalEnhancingLevels = (holesObject?.jarStuff?.slice(0, 40) ?? [])
@@ -313,25 +314,54 @@ export const getRupieDigits = (holesObject: any) => Array.from({ length: RUPIE_T
   Math.ceil(lavaLog(holesObject?.wellSediment?.[RUPIE_SEDIMENT_OFFSET + i] || 0)))
   .reduce((sum, digits) => sum + digits, 0);
 
+const collectibleName = (i: number) => titleCaseName(cleanUnderscore(holesInfo?.[67]?.[i]?.split('|')?.[0] ?? 'Collectible'));
+
 // game: "JarNewCollectibleChance"
-export const getNewCollectibleChance = (holesObject: any, account: any) => {
+const getNewCollectibleSources = (holesObject: any, account: any) => {
   const collectEmAll = getSchematicBonus({ holesObject, t: 76, i: 1 }) === 1 ? getRupieDigits(holesObject) : 0;
   const jarJarCollectible = isSuperbitUnlocked(account, superbitsUpgrades?.[JAR_JAR_COLLECTIBLE_SUPERBIT]?.name)
     ? Math.pow(1.05, account?.spelunking?.discoveriesCount ?? 0)
     : 0;
-  const multi = (1 + getJarBonus({ holesObject, i: 7, account }) / 100)
-    * Math.max(1, Math.pow(1.02, collectEmAll))
-    * (1 + getJarBonus({ holesObject, i: 25, account }) / 100)
-    * (1 + getPaletteBonus(account, 2) / 100)
-    * (1 + getExoticMarketBonus(account, 52) / 100)
-    * Math.max(1, jarJarCollectible);
-
+  const collectible7 = 1 + getJarBonus({ holesObject, i: 7, account }) / 100;
+  const collectEmAllMulti = Math.max(1, Math.pow(1.02, collectEmAll));
+  const collectible25 = 1 + getJarBonus({ holesObject, i: 25, account }) / 100;
+  const palette = 1 + getPaletteBonus(account, 2) / 100;
+  const exotic = 1 + getExoticMarketBonus(account, 52) / 100;
+  const superbit = Math.max(1, jarJarCollectible);
+  const multi = collectible7 * collectEmAllMulti * collectible25 * palette * exotic * superbit;
   const found = Array.from({ length: COLLECTIBLE_COUNT }, (_, i) => holesObject?.jarStuff?.[i])
     .filter((level) => level >= 1).length;
+  const decay = (1 + Math.pow(found, 1.9)) * Math.pow(1.5, Math.max(0, found - 16));
+  return { collectible7, collectEmAllMulti, collectible25, palette, exotic, superbit, multi, found, decay };
+}
+
+export const getNewCollectibleChance = (holesObject: any, account: any) => {
+  const { multi, found, decay } = getNewCollectibleSources(holesObject, account);
   if (found === 0) {
     return 0.25;
   }
-  return (0.2 * multi) / ((1 + Math.pow(found, 1.9)) * Math.pow(1.5, Math.max(0, found - 16)));
+  return (0.2 * multi) / decay;
+}
+
+// The tree is in percent, as the Ornate Jar's text shows the chance
+const getNewCollectibleBreakdown = (holesObject: any, account: any, chance: number) => {
+  const sources = getNewCollectibleSources(holesObject, account);
+  const label = `${gameFill(100 * chance, 'Small')}%`;
+  const tree = sources.found === 0 ? [
+    flat('Base', 25, { formatted: '25%', note: 'No collectibles found yet' })
+  ] : [
+    flat('Base', 20, { formatted: '20%' }),
+    productGroup(NUMBERED_GROUP, [
+      multiplier(collectibleName(7), sources.collectible7),
+      multiplier("Collect 'Em All (Schematic)", sources.collectEmAllMulti),
+      multiplier(collectibleName(25), sources.collectible25),
+      multiplier('Palette', sources.palette),
+      multiplier('Exotic market', sources.exotic),
+      multiplier(sourceName('Superbit', superbitsUpgrades?.[JAR_JAR_COLLECTIBLE_SUPERBIT]?.name), sources.superbit)
+    ]),
+    multiplier('Collectibles found', 1 / sources.decay, { note: `${sources.found} found` })
+  ];
+  return { value: 100 * chance, label, breakdown: createBreakdown('New collectible chance', label, tree) };
 }
 
 // A probability (0-1) as a percent. The game floors anything under 0.01% to "0%"; the shared rule keeps two figures.
