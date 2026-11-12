@@ -33,7 +33,8 @@ const arcanistRows = (stats) => [
   ['Damage', formatGame(stats?.damage, 'ArcaneType.Arcane_DMG')],
   ['Accuracy', formatGame(stats?.accuracy, 'ArcaneType.Arcane_ACC')],
   ['Defence', formatGame(stats?.defence, 'ArcaneType.Arcane_DEF')],
-  ['Mastery', formatNum(stats?.mastery, 'pct')],
+  // game: mastery is a fraction, the minimum damage share (0.25 = 25%)
+  ['Mastery', formatNum(100 * (stats?.mastery ?? 0), 'pct')],
   ['Crit chance', `${formatGame(stats?.critPct, 'ArcaneType.Arcane_CRITPCT')}%`],
   ['Crit damage', `${formatGame(stats?.critDamage, 'ArcaneType.Arcane_CRITDMG')}x`],
   // The game's stat panel prints 100 plus the bonus.

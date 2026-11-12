@@ -17,26 +17,28 @@ import Abominations from '@components/account/Misc/class-specific/Compass/Abomin
 import Medallions from '@components/account/Misc/class-specific/Compass/Medallions';
 import Portals from '@components/account/Misc/class-specific/Compass/Portals';
 import UpgradeOptimizer from '@components/account/Misc/class-specific/Compass/UpgradeOptimizer';
-import { dustNames, getCompass, getCompassStats, getExtraDust } from '@parsers/class-specific/compass';
+import { dustNames, getCompass, getCompassStats, getExtraDust, getTempestElement } from '@parsers/class-specific/compass';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import useMasterclassCostControls from '@components/account/Misc/class-specific/useMasterclassCostControls';
 import useTabIndex from '@hooks/useTabIndex';
 import FormStats from '@components/account/Misc/class-specific/FormStats';
 
-// The Tempest Form stat panel's rows, in the game's names, each in its game rule (Windwalker.Compass_*)
+// The Tempest Form stat panel's rows in the game panel's order (HP, DMG, attack speed, crit, crit DMG, ACC, DEF, move
+// speed), then the stats it doesn't list, each in its game rule (Windwalker.Compass_*)
 const tempestRows = (stats) => [
   ['HP', formatGame(stats?.hp, 'Windwalker.Compass_HP')],
   ['Damage', formatGame(stats?.damage, 'Windwalker.Compass_DMG')],
-  ['Accuracy', formatGame(stats?.accuracy, 'Windwalker.Compass_ACC')],
-  ['Defence', formatGame(stats?.defence, 'Windwalker.Compass_DEF')],
-  ['Mastery', formatNum(stats?.mastery, 'pct')],
-  ['Crit chance', `${formatGame(stats?.critPct, 'Windwalker.Compass_CRITPCT')}%`],
-  ['Crit damage', `${formatGame(stats?.critDamage, 'Windwalker.Compass_CRITDMG')}x`],
   // The game's stat panel prints 100 plus the bonus; the parser's move speed already holds the 100.
   ['Attack speed', `${formatGame(100 + (stats?.attackSpeed ?? 0), 'Windwalker.Compass_AttackSpdPCT')}%`],
-  ['Invulnerable time', formatNum(stats?.invulnerableTime, 'amount', { precise: true })],
-  ['Range', formatNum(stats?.range)],
+  ['Crit chance', `${formatGame(stats?.critPct, 'Windwalker.Compass_CRITPCT')}%`],
+  ['Crit damage', `${formatGame(stats?.critDamage, 'Windwalker.Compass_CRITDMG')}x`],
+  ['Accuracy', formatGame(stats?.accuracy, 'Windwalker.Compass_ACC')],
+  ['Defence', formatGame(stats?.defence, 'Windwalker.Compass_DEF')],
   ['Move speed', `${formatGame(stats?.moveSpeed, 'Windwalker.Compass_MoveSpeed')}%`],
+  // game Compass_MASTERY is a fraction, the minimum damage share (0.7 = 70%)
+  ['Mastery', formatNum(100 * (stats?.mastery ?? 0), 'pct')],
+  ['Invulnerable time', `${formatNum(stats?.invulnerableTime, 'amount', { precise: true })}s`],
+  ['Range', formatNum(stats?.range)],
   ['Multishot', formatNum(stats?.multiShotPct, 'pct')]
 ];
 // A failed section's catalogs at zero, from the parser's own empty save: every upgrade, abomination, medallion and
@@ -77,7 +79,9 @@ const Compass = () => {
   const tempestStats = getCompassStats(selectedWindWalker, state?.account);
   const dollarFills = {
     dropRate: selectedWindWalker ? getDropRate(selectedWindWalker, state?.account, state?.characters)?.dropRate : 0,
-    mapIndex: selectedWindWalker?.mapIndex
+    mapIndex: selectedWindWalker?.mapIndex,
+    // 2's element and 121's multi read the picked Wind Walker's Tempest gear; none picked, their sentences say it in words
+    ...(selectedWindWalker ? { element: getTempestElement(selectedWindWalker, state?.account), weaponPower: tempestStats?.weaponPower ?? 0 } : {})
   };
   const extraDust = getExtraDust(selectedWindWalker, state?.account);
   // Levels ahead and the Daily Shopping Spree price the Upgrades tab: in the page's gear, under the tab's name

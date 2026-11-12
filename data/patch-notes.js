@@ -5,6 +5,18 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.7',
+    'gameVer': '2.3.561',
+    'date': '13/11/2026',
+    'features': [
+      'Classes: Compass lists Tempest Form stats in the game\'s order, says what unlocks each locked upgrade and how many abominations open the next town, fills in your Tempest element and weapon multiplier, and gets search on Portals and Medallions'
+    ],
+    'fixes': [
+      'Compass and Tesseract: Mastery read 0.7% and 0.25% instead of 70% and 25%',
+      'Compass: the upgrade optimizer skipped Mastery Destruction and the Tempest Health upgrades, and the Extra dust breakdown called Spire of Dust "Per solardust"'
+    ]
+  },
+  {
     'ver': '4.0.6',
     'gameVer': '2.3.561',
     'date': '12/11/2026',

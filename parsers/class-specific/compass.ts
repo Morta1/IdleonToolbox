@@ -45,12 +45,16 @@ export const dustNames = {
   4: 'Novadust'
 };
 
+// Tempest HP (game Compass_HP: 28, 87, then 140, 146 and 92 as a %) also feeds damage and accuracy through their
+// log(HP) upgrades (78, 84), so the HP upgrades count for all three
+const HP_UPGRADES = [28, 87, 140, 146, 92];
+
 export const UPGRADE_CATEGORIES = {
   damage: {
     name: 'Damage',
     stats: ['damage'],
     upgradeIndices: [6, 8, 10, 23, 113, 112, 14, 119, 15, 122, 123, 121, 129, 130, 127, 24, 132, 135, 126, 48, 155, 157,
-      158, 60, 64, 74, 75, 81, 85, 94, 78]
+      158, 60, 64, 74, 75, 81, 85, 94, 78, 26, ...HP_UPGRADES]
   },
   dust: {
     name: 'Dust',
@@ -60,7 +64,7 @@ export const UPGRADE_CATEGORIES = {
   accuracy: {
     name: 'Accuracy',
     stats: ['accuracy'],
-    upgradeIndices: [6, 17, 22, 120, 124, 19, 22, 125, 134, 128, 133, 25, 131, 136, 147, 61, 79, 84, 90]
+    upgradeIndices: [6, 17, 22, 120, 124, 19, 22, 125, 134, 128, 133, 25, 131, 136, 147, 61, 79, 84, 90, ...HP_UPGRADES]
   },
   defence: {
     name: 'Defence',
@@ -80,7 +84,7 @@ export const UPGRADE_CATEGORIES = {
   hp: {
     name: 'HP',
     stats: ['hp'],
-    upgradeIndices: [28, 84, 87, 92]
+    upgradeIndices: [84, ...HP_UPGRADES]
   }
 };
 
@@ -372,7 +376,9 @@ const getGroupedUpgrades = (upgrades: any[], abominations: any[]) => {
     if (path === 'Abomination') {
       list = list.map((upg: any, i: any) => ({
         ...upg,
-        unlocked: !!abominations?.[i]?.unlocked
+        unlocked: !!abominations?.[i]?.unlocked,
+        // Each slayer opens with its abomination's kill
+        unlockText: abominations?.[i] ? `Kill ${abominations[i].name} in World ${abominations[i].world}` : undefined
       }));
     }
     else {
@@ -392,14 +398,15 @@ const getGroupedUpgrades = (upgrades: any[], abominations: any[]) => {
   }).filter(Boolean);
 
   // Default group: 0 always shown, 170 gated on Pathfinder, 171/172 on their own drop-unlock upgrades
+  const opensAt = (gate: number) => (upgrades[gate] ? `Unlocks at ${upgrades[gate].name} Lv. 1` : undefined);
   const defaultListWithUnlocks = [
     { upgrade: upgrades[0], unlocked: true },
-    { upgrade: upgrades[170], unlocked: (upgrades[0]?.level ?? 0) >= 1 },
-    { upgrade: upgrades[171], unlocked: getLocalCompassBonus(upgrades, 3) >= 0.01 },
-    { upgrade: upgrades[172], unlocked: getLocalCompassBonus(upgrades, 4) >= 0.01 }
+    { upgrade: upgrades[170], unlocked: (upgrades[0]?.level ?? 0) >= 1, unlockText: opensAt(0) },
+    { upgrade: upgrades[171], unlocked: getLocalCompassBonus(upgrades, 3) >= 0.01, unlockText: opensAt(3) },
+    { upgrade: upgrades[172], unlocked: getLocalCompassBonus(upgrades, 4) >= 0.01, unlockText: opensAt(4) }
   ]
     .filter(({ upgrade }) => upgrade)
-    .map(({ upgrade, unlocked }) => ({ ...upgrade, unlocked }));
+    .map(({ upgrade, unlocked, unlockText }) => ({ ...upgrade, unlocked, unlockText }));
   return [{ path: 'Default', list: defaultListWithUnlocks }, ...groupedUpgrades];
 }
 
@@ -532,8 +539,22 @@ export const getCompassStats = (character: any, account: any) => {
     invulnerableTime,
     range,
     moveSpeed,
-    multiShotPct
+    multiShotPct,
+    // game WWzWepAtk: the Tempest bow and rings' weapon power, which upgrade 121's sentence prints as 1.05^power
+    weaponPower: equipmentWeaponPower
   }
+}
+
+// game Windwalker("CurrentEffect"): the Tempest element the gear gives most of (EffectAmount, EtcBonuses 80-83 times
+// compass 8 and 74 and Elemental Mayhem per 100 upgrade levels), Wind first on a tie, then Fire, Grass, Ice; none at 0
+export const getTempestElement = (character: any, account: any) => {
+  if (!character) return null;
+  const upgrades = account?.compass?.upgrades;
+  const multi = 1 + (getLocalCompassBonus(upgrades, 8) + getLocalCompassBonus(upgrades, 74)
+    + getTalentBonus(character?.flatTalents, 'ELEMENTAL_MAYHEM') * ((account?.compass?.totalUpgradeLevels ?? 0) / 100)) / 100;
+  const amounts = [0, 1, 2, 3].map((element) => (getStatsFromGear(character, 80 + element, account)?.value ?? 0) * multi);
+  const index = [1, 0, 2, 3].find((element) => amounts[element] > 0 && amounts.every((amount) => amounts[element] >= amount));
+  return index == null ? null : { index, amount: amounts[index] };
 }
 
 export const getCompassBonus = (account: any, index: number) => {
@@ -575,8 +596,10 @@ const getTempestAllDropBonus = (account: any, dropRate: number) => (0 < (account
     + getCompassBonus(account, 111) + getCompassBonus(account, 115) + getCompassBonus(account, 116)) / 100);
 
 // game: the compass panel's "$" that read the character (the rest getTotalBonusText fills at the parse). 2's element and
-// 121's multi read the Tempest gear worn right now (EffectAmount, WWzWepAtk), so their sentences say that in words.
-export const getCompassDollar = (index: number, account: any, { dropRate: rawDropRate = 0, mapIndex = 0 }: { dropRate?: number; mapIndex?: number } = {}) => {
+// 121's multi read the picked Wind Walker's Tempest gear (EffectAmount, WWzWepAtk); with no Wind Walker they say it in words.
+export const getCompassDollar = (index: number, account: any, { dropRate: rawDropRate = 0, mapIndex = 0, element, weaponPower }: {
+  dropRate?: number; mapIndex?: number; element?: { index: number; amount: number } | null; weaponPower?: number
+} = {}) => {
   const bonus = (upgradeIndex: number) => getCompassBonus(account, upgradeIndex);
   // A failed section's drop rate can read NaN: the sentence reads the base chance
   const dropRate = Number.isFinite(rawDropRate) ? rawDropRate : 1;
@@ -585,7 +608,8 @@ export const getCompassDollar = (index: number, account: any, { dropRate: rawDro
   const oneIn = (chance: number) => gameFill(Math.max(1, 1 / Math.max(1e-7, chance)), 'Comma', { whole: true });
   switch (index) {
     case 2:
-      return 'the one your Tempest gear gives';
+      if (element === undefined) return 'the one your Tempest gear gives';
+      return element ? `${['Fire', 'Wind', 'Grass', 'Ice'][element.index]}, with ${gameFill(1 + element.amount / 100, 'MultiplierInfo')}x bonus dmg` : 'None';
     case 3:
       return oneIn(625e-6 * allDrop * (1 + bonus(106) / 100));
     case 4:
@@ -598,7 +622,7 @@ export const getCompassDollar = (index: number, account: any, { dropRate: rawDro
     case 12:
       return oneIn(5e-4 * allDrop * (1 + (bonus(112) + bonus(118)) / 100));
     case 121:
-      return 'more';
+      return weaponPower === undefined ? 'more' : `${gameFill(Math.pow(1.05, weaponPower), 'MultiplierInfo')}x`;
     default:
       return undefined;
   }
@@ -674,7 +698,7 @@ export const getExtraDust = (character: any, account: any) => {
         percent('Upgrades', compassUpgrades),
         percent('Exotic Market', exoticBonus)
       ]),
-      multiplier('Per solardust', 1 + upgrade38 / 100),
+      multiplier('Spire of Dust', 1 + upgrade38 / 100),
       masterclassDropsGroup,
       multiplier('Meritocracy', 1 + meritocracyBonus / 100),
       multiplier('Charm (Twinkle Taffy)', 1 + charmBonus / 100),

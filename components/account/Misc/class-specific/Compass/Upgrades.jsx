@@ -2,7 +2,7 @@ import React from 'react';
 import { Stack, Typography } from '@mui/material';
 import { compass } from '@website-data';
 import { dustNames, getCompassDollar, getCompassTotalUpgradeCost } from '@parsers/class-specific/compass';
-import { formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatNum } from '@utility/helpers';
 import MasterclassUpgradeCard, { formatNextLevelBonus, masterclassText } from '../MasterclassUpgradeCard';
 import CardGrid from '@components/common/cards/CardGrid';
 import GameIcon from '@components/common/GameIcon';
@@ -40,7 +40,7 @@ const Upgrades = ({ account, upgrades, dusts, costing, dollarFills, sectionFaile
 
   const renderUpgradeCard = (upgrade) => {
     const {
-      name, cost, description, level, x4, killsProgress, x3, baseIconIndex, index, shapeIcon, unlocksAt, unlocked, path
+      name, cost, description, level, x4, killsProgress, x3, baseIconIndex, index, shapeIcon, unlocksAt, unlocked, path, unlockText
     } = upgrade;
     const owned = dusts?.[x3]?.value || 0;
     const nextCost = isOverridden ? getCompassTotalUpgradeCost(account, upgrade, level + 1, forceLegendTalent) : cost;
@@ -64,7 +64,9 @@ const Upgrades = ({ account, upgrades, dusts, costing, dollarFills, sectionFaile
                                    nextCost={nextCost}
                                    targetLevel={targetLevel}
                                    targetCost={targetCost}
-                                   unlockText={!unlocked && unlocksAt > 0 ? `Unlocks at ${path}: ${unlocksAt}` : null}
+                                   // A path card opens at its root's level; a slayer or a default card names its own gate
+                                   unlockText={unlocked ? null : unlockText ? cleanUnderscore(unlockText)
+                                     : unlocksAt > 0 ? `Unlocks at ${path} Lv. ${unlocksAt}` : null}
                                    unlocked={unlocked}
                                    catalogOnly={sectionFailed}/>;
   };

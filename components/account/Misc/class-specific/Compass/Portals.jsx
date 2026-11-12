@@ -11,17 +11,26 @@ import MultiCharLockText from '@components/common/MultiCharLockText';
 // Mining and fishing maps idle on an ore or a fish, which has no monster face
 const SKILL_MAP_ICONS = { MINING: 'ClassIconsM', FISHING: 'ClassIcons45' };
 // A saved checkbox from before resets once
-const PORTALS_TOOLBAR = { hideOpen: false };
+const PORTALS_TOOLBAR = { search: '', world: 'all', hideOpen: false };
+const worldOf = (mapIndex) => Math.floor((mapIndex ?? 0) / 50) + 1;
 
 // dusts: what each portal's cost is paid from. sectionFailed: the catalog at zero by name, every door's cost and no
 // open state, no Toolbar.
 const Portals = ({ maps, dusts, sectionFailed }) => {
   const [view, setView, resetView] = useToolbarState('compass-portals', PORTALS_TOOLBAR);
   const catalog = maps ?? [];
-  const shown = view?.hideOpen && !sectionFailed ? catalog.filter(({ unlocked }) => !unlocked) : catalog;
+  const worlds = [...new Set(catalog.map(({ mapIndex }) => worldOf(mapIndex)))].toSorted((a, b) => a - b);
+  // Search reads the map and its monster
+  const search = (view?.search ?? '').trim().toLowerCase();
+  const shown = sectionFailed ? catalog : catalog.filter(({ unlocked, mapIndex, mapName, monster }) => !(view?.hideOpen && unlocked)
+    && (view?.world === 'all' || `${worldOf(mapIndex)}` === view?.world)
+    && (!search || cleanUnderscore(`${mapName ?? ''} ${monster?.Name ?? ''}`).toLowerCase().includes(search)));
   return <Stack gap={3}>
     {sectionFailed ? null : <Toolbar state={view} defaults={PORTALS_TOOLBAR} onChange={setView} onReset={resetView}
                                      total={catalog.length} shown={shown.length} noun={'maps'}>
+      <Toolbar.Search placeholder={'Search maps or monsters'}/>
+      <Toolbar.Show name={'world'} label={'World'} options={[['all', 'All worlds', catalog.length],
+        ...worlds.map((world) => [`${world}`, `World ${world}`, catalog.filter(({ mapIndex }) => worldOf(mapIndex) === world).length])]}/>
       <Toolbar.Filter name={'hideOpen'} label={'Hide unlocked'}/>
     </Toolbar>}
     {shown.length ? <CardGrid size={'s'}>

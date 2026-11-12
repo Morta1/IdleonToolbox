@@ -14,7 +14,7 @@ import useToolbarState from '@hooks/useToolbarState';
 
 // A saved checkbox from before resets once ("Hide coined monsters", "Show wind walker drops": the drops are in each
 // medallion's details now)
-const MEDALLIONS_TOOLBAR = { found: 'all', dust: 'all' };
+const MEDALLIONS_TOOLBAR = { search: '', found: 'all', dust: 'all' };
 
 // abominations: the section's list, whose weaknesses name the elements (the parser keeps its element names to itself).
 // sectionFailed: the catalog at zero by name, with no found state, no coin and no Toolbar.
@@ -29,8 +29,11 @@ const Medallions = ({ medallions, totalAcquiredMedallions, abominations, section
   const elementName = (index) => abominations?.find(({ weakness }) => weakness?.index === index)?.weakness?.name;
   const found = catalog.filter(({ acquired }) => acquired).length;
   const dustTypes = Object.keys(dustNames).filter((type) => catalog.some(({ dustType }) => `${dustType}` === type));
-  const shown = sectionFailed ? catalog : catalog.filter(({ acquired, dustType }) => (view?.found === 'found' ? acquired
-    : view?.found === 'missing' ? !acquired : true) && (view?.dust === 'all' || `${dustType}` === view?.dust));
+  // Search reads the medallion's monster and where it is found
+  const search = (view?.search ?? '').trim().toLowerCase();
+  const shown = sectionFailed ? catalog : catalog.filter(({ acquired, dustType, Name, rawName, description }) => (view?.found === 'found' ? acquired
+    : view?.found === 'missing' ? !acquired : true) && (view?.dust === 'all' || `${dustType}` === view?.dust)
+    && (!search || cleanUnderscore(`${Name ?? rawName ?? ''} ${description ?? ''}`).toLowerCase().includes(search)));
   return <Stack gap={3}>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       <StatTile label={'Medallions found'}
@@ -38,6 +41,7 @@ const Medallions = ({ medallions, totalAcquiredMedallions, abominations, section
     </Stack>
     {sectionFailed ? null : <Toolbar state={view} defaults={MEDALLIONS_TOOLBAR} onChange={setView} onReset={resetView}
                                      total={catalog.length} shown={shown.length} noun={'medallions'}>
+      <Toolbar.Search placeholder={'Search medallions'}/>
       <Toolbar.Show name={'found'} label={'Medallions'} options={[['all', 'All medallions', catalog.length], ['found', 'Found', found],
         ['missing', 'Not found', catalog.length - found]]}/>
       <Toolbar.Show name={'dust'} label={'Dusts'} options={[['all', 'All dusts', catalog.length],

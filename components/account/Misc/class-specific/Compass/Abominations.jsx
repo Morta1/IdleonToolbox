@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack } from '@mui/material';
+import { Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -10,6 +10,10 @@ import useToolbarState from '@hooks/useToolbarState';
 // A saved checkbox from before resets once.
 const ABOMINATIONS_TOOLBAR = { show: 'all' };
 
+// game TitanKillReqTown: Tempest Form enters World 1 to 5's town (maps 0, 50, 100, 150, 200) once this many abominations
+// are killed
+const TOWN_GATES = [3, 8, 17, 25, 30];
+
 // sectionFailed: the catalog at zero by name (the parser's own empty save), with no killed state and no Toolbar
 const Abominations = ({ abominations, sectionFailed }) => {
   const [view, setView, resetView] = useToolbarState('compass-abominations', ABOMINATIONS_TOOLBAR);
@@ -17,12 +21,16 @@ const Abominations = ({ abominations, sectionFailed }) => {
   const killed = catalog.filter(({ unlocked }) => unlocked).length;
   const shown = sectionFailed ? catalog : catalog.filter(({ unlocked }) => view?.show === 'killed' ? unlocked
     : view?.show === 'notKilled' ? !unlocked : true);
+  const nextTown = sectionFailed ? -1 : TOWN_GATES.findIndex((gate) => killed < gate);
   return <Stack gap={3}>
     {sectionFailed ? null : <Toolbar state={view} defaults={ABOMINATIONS_TOOLBAR} onChange={setView} onReset={resetView}
                                      total={catalog.length} shown={shown.length} noun={'abominations'}>
       <Toolbar.Show options={[['all', 'All abominations', catalog.length], ['killed', 'Killed', killed],
         ['notKilled', 'Not killed', catalog.length - killed]]}/>
     </Toolbar>}
+    {nextTown >= 0 ? <Typography variant={'body2'} color={'text.secondary'}>
+      {`Tempest Form enters the World ${nextTown + 1} town at ${formatNum(TOWN_GATES[nextTown])} abominations killed: ${formatNum(TOWN_GATES[nextTown] - killed)} more to go.`}
+    </Typography> : null}
     {shown.length ? <CardGrid size={'s'}>
       {shown.map((abomination) => {
         const { name, unlocked, weakness, hp, map, world } = abomination;
