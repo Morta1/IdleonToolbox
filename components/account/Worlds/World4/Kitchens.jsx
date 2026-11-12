@@ -1,6 +1,6 @@
 import { Box, Stack, Typography } from '@mui/material';
 import StatusText from '@components/common/StatusText';
-import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatDuration, formatNum, getCoinsArray } from '@utility/helpers';
 import { formatGame, mealBonusText } from '@utility/gameNotation';
 import Timer from 'components/common/Timer';
 import React from 'react';
@@ -9,6 +9,8 @@ import {
   calcTimeToNextLevel,
   getMealBonus,
   getMealLevelCost,
+  getNewKitchenCost,
+  MAX_KITCHENS,
   maxNumberOfSpiceClicks,
   spicesNames
 } from '@parsers/world-4/cooking';
@@ -19,6 +21,7 @@ import IconTile from '@components/common/cards/IconTile';
 import StatTile from '@components/common/cards/StatTile';
 import Notice from '@components/common/Notice';
 import Num from '@components/common/Num';
+import CoinDisplay from '@components/common/CoinDisplay';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 
@@ -94,15 +97,6 @@ const Kitchens = ({
   const builtKitchens = kitchens?.filter(Boolean) ?? [];
   const makingRecipe = builtKitchens.some((kitchen) => kitchen?.status >= 3);
 
-  const getRecipeTime = (possibleMeals) => {
-    if (!possibleMeals) return 0;
-    const lastMeal = possibleMeals[possibleMeals.length - 1];
-    if (lastMeal?.index < meals?.length) {
-      return 2 * lastMeal?.cookReq
-    }
-    return 2 * 5000000000;
-  }
-
   const getSpiceForUpgrade = (kitchenIndex, upgradeType) => {
     return Math.floor(2 * kitchenIndex + upgradeType);
   }
@@ -126,35 +120,53 @@ const Kitchens = ({
     return <Stack gap={1}>
       {usedSpices.length ? <>
         <Typography variant={'body2'} color={'text.secondary'}>Spices</Typography>
-        <CardGrid size={'icon'} fill>
+        {/* Small tiles, as the design system's sprites in a card: the default 72 px ones stood twice as tall as the rows */}
+        <CardGrid size={'icon'} fill={40}>
           {usedSpices.map((spice, index) => <IconTile key={`${spice}-${index}`} icon={`data/CookingSpice${spice}.png`}
-                                                      alt={spicesNames[spice]} details={`${spicesNames[spice] ?? 'Spice'} spice`}/>)}
+                                                      alt={spicesNames[spice]} height={40} iconSize={32}
+                                                      details={`${spicesNames[spice] ?? 'Spice'} spice`}/>)}
         </CardGrid>
       </> : null}
       {kitchen?.possibleMeals?.length ? <>
         <Typography variant={'body2'} color={'text.secondary'}>Possible meals</Typography>
-        <CardGrid size={'icon'} fill>
+        {/* A meal not found yet shows its chance from one finished recipe (the game's roll: the top meal first) */}
+        <CardGrid size={'icon'} fill={48}>
           {kitchen.possibleMeals.map((food, index) => {
             const name = cleanUnderscore(meals?.[food?.index]?.name ?? food?.rawName);
-            const found = (meals?.[food?.index]?.level ?? 0) > 0;
+            const chance = formatNum((food?.chance ?? 0) * 100, 'pct');
             return <IconTile key={`possible-${food?.rawName}-${index}`} icon={`data/${food?.rawName}.png`} alt={name}
-                             status={found ? undefined : 'missing'} details={found ? name : `${name}: not found yet`}/>;
+                             height={52} iconSize={28}
+                             status={food?.found ? undefined : 'missing'} value={food?.found ? undefined : chance}
+                             details={food?.found ? `${name}: found` : `${name}: not found yet, ${chance} from this recipe`}/>;
           })}
         </CardGrid>
       </> : null}
     </Stack>;
   };
 
-  // A kitchen making a recipe: its progress and when it's done
-  const recipeSection = (kitchen, recipeTime, timeToFinish) => <ItemCard.Section label={'Recipe'}>
-    <ItemCard.Progress label={'Progress'}
-                       percent={recipeTime > 0 ? Math.min(100, 100 * (kitchen?.currentProgress ?? 0) / recipeTime) : 0}
-                       value={<Num value={kitchen?.currentProgress ?? 0} game={MEAL_COST} whole/>}
-                       max={<Num value={recipeTime} game={MEAL_COST} whole/>}/>
-    <ItemCard.Facts rows={[['Done in', <Timer key={'done'} variant={'body2'} placeholder={<StatusText status={'ready'}/>}
-                                              type={'countdown'} date={new Date().getTime() + (timeToFinish * 1000 * 3600)}
-                                              lastUpdated={lastUpdated}/>]]}/>
-  </ItemCard.Section>;
+  // A kitchen making a recipe, as the game's kitchen screen: the bar fills to fire level 1 (the recipe can be finished),
+  // then each level needs 3x the last and makes a new meal 1.5x likelier; the game's new recipe chance under it
+  const recipeSection = (kitchen) => {
+    const { fireLevel = 0, nextFireReq = 0, previousFireReq = 0, newChance = 0 } = kitchen?.recipe ?? {};
+    const progress = kitchen?.currentProgress ?? 0;
+    const hoursLeft = kitchen?.fireSpeed > 0 ? Math.max(0, nextFireReq - progress) / kitchen.fireSpeed : 0;
+    const span = Math.max(nextFireReq - previousFireReq, 1);
+    return <ItemCard.Section label={'Recipe'}>
+      <ItemCard.Progress label={fireLevel < 1 ? 'Fill to fire up' : `Fire Lv ${formatNum(fireLevel)}`}
+                         percent={Math.min(100, Math.max(0, 100 * (progress - previousFireReq) / span))}
+                         value={<Num value={progress} game={MEAL_COST} whole/>}
+                         max={<Num value={nextFireReq} game={MEAL_COST} whole/>}/>
+      <ItemCard.Facts rows={[
+        [fireLevel < 1 ? 'Fires up in' : 'Next fire level in', <Timer key={'done'} variant={'body2'}
+                                                                      placeholder={<StatusText status={'ready'}/>}
+                                                                      type={'countdown'} date={new Date().getTime() + (hoursLeft * 1000 * 3600)}
+                                                                      lastUpdated={lastUpdated}/>],
+        fireLevel >= 1 ? ['New recipe chance', formatNum(newChance * 100, 'pct')] : null
+      ]}/>
+    </ItemCard.Section>;
+  };
+
+  const nextKitchen = builtKitchens.length;
 
   return (
     <>
@@ -183,8 +195,6 @@ const Kitchens = ({
           {builtKitchens.map((kitchen, index) => {
             const kitchenIndex = kitchen?.kitchenIndex ?? index;
             const isRecipe = kitchen?.status >= 3;
-            const recipeTime = getRecipeTime(kitchen?.possibleMeals);
-            const timeToFinish = (recipeTime - kitchen?.currentProgress) / kitchen?.fireSpeed;
             const [firstSpiceIndex, secondSpiceIndex, thirdSpiceIndex] = [0, 1, 2]
               .map((ind) => getSpiceForUpgrade(kitchenIndex, ind));
             const luckSpice = thirdSpiceIndex >= 21 ? 'CookingSpiceNA' : `CookingSpice${thirdSpiceIndex}`;
@@ -208,9 +218,14 @@ const Kitchens = ({
                 {upgradeRow('Luck', kitchen?.luckLv, formatNum(kitchen?.mealLuck ?? 1, 'mult'), luckSpice,
                   thirdSpiceIndex >= 20 ? 'Unknown spice' : spicesNames[thirdSpiceIndex], kitchen?.luckCost)}
               </Box>
-              {isRecipe ? recipeSection(kitchen, recipeTime, timeToFinish) : null}
+              {isRecipe ? recipeSection(kitchen) : null}
             </ItemCard>
           })}
+          {/* The next kitchen to build, where it will stand, with its coin cost: the ones after it would only repeat it */}
+          {!sectionFailed && !kitchensFailed && nextKitchen < MAX_KITCHENS
+            ? <ItemCard key={'next-kitchen'} title={`Kitchen ${formatNum(nextKitchen + 1)}`} status={'locked'} dimmed>
+              <ItemCard.Facts rows={[['Costs', <CoinDisplay key={'cost'} dense money={getCoinsArray(getNewKitchenCost(nextKitchen))}/>]]}/>
+            </ItemCard> : null}
         </CardGrid>
       </Box>}
     </>

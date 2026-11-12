@@ -9,7 +9,12 @@ import { NextSeo } from 'next-seo';
 import Tabber from '../../../components/common/Tabber';
 import { cleanUnderscore, getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
-import { calcTotalMeals, getTotalMealSpeed, parseKitchens } from '@parsers/world-4/cooking';
+import {
+  calcTotalMeals,
+  getMealMaxLevelBreakdown,
+  getTotalMealSpeed,
+  parseKitchens
+} from '@parsers/world-4/cooking';
 import MenuItem from '@mui/material/MenuItem';
 import { getPlayerLabChipBonus } from '@parsers/world-4/lab';
 import { PAGES } from '@components/constants';
@@ -53,6 +58,7 @@ const Cooking = () => {
     : cooking?.kitchens;
 
   const totalMealSpeed = getTotalMealSpeed(kitchens);
+  const mealSpeedText = kitchensFailed ? '-' : `${formatGame(totalMealSpeed, 'CookingR.CookingSPEED')}/hr`;
 
   return (
     <>
@@ -82,9 +88,9 @@ const Cooking = () => {
       </PageSettings> : null}
       {sectionFailed ? <MissingData name={'Cooking'} failed atZero={!isParseFailed(account) && tabs[tabIndex] === 'Meals'}/> : kitchensFailed ? <MissingData name={'Kitchens'} failed/> : null}
       <PageSummary>
-        <StatTile label={'Meal speed'} value={kitchensFailed ? '-' : `${formatGame(totalMealSpeed, 'CookingR.CookingSPEED')}/hr`}
-                  sub={enableNanoChip && !kitchensFailed ? 'Nano chip counted' : undefined}/>
-        <StatTile label={'Meal max level'} value={sectionFailed ? '-' : cooking?.mealMaxLevel ?? 0} kind={'amount'}/>
+        <StatTile label={'Meal speed'} value={mealSpeedText} sub={enableNanoChip && !kitchensFailed ? 'Nano chip counted' : undefined}/>
+        <StatTile label={'Meal max level'} value={sectionFailed ? '-' : cooking?.mealMaxLevel ?? 0} kind={'amount'}
+                  breakdownTitle={'Meal max level'} breakdown={sectionFailed ? undefined : getMealMaxLevelBreakdown(account)}/>
         <StatTile label={'Total meal levels'} value={sectionFailed ? '-' : calcTotalMeals(cooking?.meals) ?? 0} kind={'amount'}/>
       </PageSummary>
       <Tabber tabs={tabs}>

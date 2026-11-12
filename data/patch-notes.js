@@ -30,7 +30,8 @@ export const patchNotes = [
       'Armor Smithy: each set shows how many of its parts you own, a set you own in full reads Ready to unlock, parts you are missing are greyed, and the parts view is about half as tall',
       'Hat Rack: total hats shows out of every helmet the rack takes, the bonus multi shows where it comes from, and a tile lists characters who do not get the rack\'s bonuses yet',
       'Cape Vine: the bonus multi shows where it comes from, and a tile lists characters who do not get the vine\'s bonuses yet',
-      'Gallery: a tile lists characters who do not get the gallery\'s bonuses yet'
+      'Gallery: a tile lists characters who do not get the gallery\'s bonuses yet',
+      'Cooking: a recipe shows its fire level, the game\'s new recipe chance and each new meal\'s odds, its possible meals now match the game, the next kitchen shows what it costs, and the meal max level shows where it comes from'
     ],
     'fixes': []
   },
