@@ -1,4 +1,4 @@
-import { getStampsBonusByEffect } from '@parsers/world-1/stamps';
+import { getStampNode, getStampsBonusByEffect } from '@parsers/world-1/stamps';
 import { round } from '@utility/helpers';
 import { getCardBonusByEffect } from '@parsers/cards';
 import { getCharacterByHighestTalent, getTalentBonus, getTalentBonusIfActive, mainStatMap, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
@@ -11,7 +11,7 @@ import { getArmorSetBonus } from '@parsers/world-3/armorSmithy';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getSkillExpMulti } from '@parsers/character';
-import { createBreakdown, evaluateBreakdown, flat, multiplier, productGroup } from '@parsers/breakdown';
+import { additiveGroup, createBreakdown, evaluateBreakdown, flat, multiplier, percent, productGroup } from '@parsers/breakdown';
 import type { StatBreakdown } from '@parsers/breakdown';
 import { saveField } from '@parsers/saveField';
 
@@ -144,42 +144,91 @@ export const getSoulsReward = ({ waveMulti, minEfficiency, efficiency, foodEffec
     * (1 + (bonuses?.vault || 0) / 100));
 }
 
-export const getMaxCharge = (character: any, account: any) => {
+// game: the worship max charge's terms, shared by the value and its breakdown
+const maxChargeTerms = (character: any, account: any) => {
   const mainStat = mainStatMap?.[character?.class];
-  const cardBonus = getCardBonusByEffect(account?.cards, 'Max_Charge');
-  const postOfficeBonus = getPostOfficeBonus(character?.postOffice, 'Crate_of_the_Creator', 1);
-  const wizardTalentBonus = getTalentBonusIfActive(character?.activeBuffs, 'CHARGE_SYPHON', 'y');
-  const stampBonus = getStampsBonusByEffect(account, 'Max_Charge', character);
-  const bubbleBonus = getBubbleBonus(account, 'GOSPEL_LEADER', false, mainStat === 'wisdom');
-  const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'CALL_ME_POPE', account);
   const skullSpeed = character?.tools?.[5]?.rawName !== 'Blank' ? character?.tools?.[5]?.lvReqToCraft : 0;
-  return Math.floor(Math.max(50, cardBonus
+  return {
+    cardBonus: getCardBonusByEffect(account?.cards, 'Max_Charge'),
+    postOfficeBonus: getPostOfficeBonus(character?.postOffice, 'Crate_of_the_Creator', 1),
+    wizardTalentBonus: getTalentBonusIfActive(character?.activeBuffs, 'CHARGE_SYPHON', 'y'),
+    stampBonus: getStampsBonusByEffect(account, 'Max_Charge', character),
+    bubbleBonus: getBubbleBonus(account, 'GOSPEL_LEADER', false, mainStat === 'wisdom'),
+    worshipTens: Math.floor(character?.skillsInfo?.worship?.level / 10),
+    activeBubbleBonus: getActiveBubbleBonus(character?.equippedBubbles, 'CALL_ME_POPE', account),
+    skullSpeed
+  };
+};
+
+const MIN_MAX_CHARGE = 50;
+
+export const getMaxCharge = (character: any, account: any) => {
+  const { cardBonus, postOfficeBonus, wizardTalentBonus, stampBonus, bubbleBonus, worshipTens, activeBubbleBonus,
+    skullSpeed } = maxChargeTerms(character, account);
+  return Math.floor(Math.max(MIN_MAX_CHARGE, cardBonus
     + postOfficeBonus + (wizardTalentBonus + (stampBonus
       + bubbleBonus
-      * Math.floor(character?.skillsInfo?.worship?.level / 10)) + Math.round(skullSpeed) * Math.max(activeBubbleBonus, 1))))
+      * worshipTens) + Math.round(skullSpeed) * Math.max(activeBubbleBonus, 1))))
+};
+
+// Where a character's max charge comes from: a sum, the skull's part times Call Me Pope while it is equipped
+export const getMaxChargeBreakdown = (character: any, account: any) => {
+  const { cardBonus, postOfficeBonus, wizardTalentBonus, stampBonus, bubbleBonus, worshipTens, activeBubbleBonus,
+    skullSpeed } = maxChargeTerms(character, account);
+  const value = getMaxCharge(character, account);
+  return createBreakdown('Max charge', value, [
+    flat('Skull', Math.round(skullSpeed) * Math.max(activeBubbleBonus, 1),
+      activeBubbleBonus > 1 ? { note: `${Math.round(skullSpeed)} x Call Me Pope ${round(activeBubbleBonus)}` } : undefined),
+    flat('Gospel Leader (Bubble)', bubbleBonus * worshipTens, { note: `per 10 worship levels (${worshipTens})` }),
+    getStampNode(account, { effect: 'Max_Charge' }, stampBonus, character, 'flat'),
+    flat('Cards', cardBonus),
+    flat('Crate of the Creator (Post Office)', postOfficeBonus),
+    flat('Charge Syphon (Talent)', wizardTalentBonus)
+  ], { combine: 'sum' });
 };
 
 // game: an empty skull slot still reads ItemDefinitionsGET["Blank"], whose Speed is 3 (and lvReqToCraft 0)
 const BLANK_SKULL_SPEED = 3;
 
-export const getChargeRate = (character: any, account: any) => {
+// The charge rate's terms: the skull and worship level set its base, the rest multiply it
+const chargeRateTerms = (character: any, account: any) => {
   const skull = character?.tools?.[5];
   const skullSpeed = skull?.rawName && skull?.rawName !== 'Blank' ? skull?.Speed : BLANK_SKULL_SPEED;
-  const cardBonus = getCardBonusByEffect(account?.cards, 'Charge_Rate');
-  const stampBonus = getStampsBonusByEffect(account, 'Charge_Rate_per_Hour', character);
-  const wizardTalentBonus = getTalentBonus(character?.flatTalents, 'NEARBY_OUTLET');
-  const activeBubbleBonus = getActiveBubbleBonus(character?.equippedBubbles, 'CALL_ME_POPE', account)
-  if (skullSpeed < 3) {
-    return 6 / Math.max(5.7 + Math.pow(4 - skullSpeed, 2.2) - (.9 * Math.pow(character?.skillsInfo?.worship?.level, .5) /
-        (Math.pow(character?.skillsInfo?.worship?.level, .5) + 250) + .6 * character?.skillsInfo?.worship?.level /
-        (character?.skillsInfo?.worship?.level + 40)), .57) * Math.max(activeBubbleBonus, 1)
-      * (1 + (cardBonus + stampBonus) / 100) * Math.max(wizardTalentBonus, 1);
-  } else {
-    return (6 / Math.max(5.7 - (0.2 * Math.pow(skullSpeed, 1.3) + ((0.9 * Math.pow(character?.skillsInfo?.worship?.level, 0.5)) /
-        (Math.pow(character?.skillsInfo?.worship?.level, 0.5) + 250) + (0.6 * character?.skillsInfo?.worship?.level) / (character?.skillsInfo?.worship?.level + 40))), 0.57))
-      * Math.max(activeBubbleBonus, 1) * (1 + (cardBonus + stampBonus) / 100)
-      * Math.max(wizardTalentBonus, 1)
-  }
+  const level = character?.skillsInfo?.worship?.level;
+  const base = skullSpeed < 3
+    ? 6 / Math.max(5.7 + Math.pow(4 - skullSpeed, 2.2) - (.9 * Math.pow(level, .5) /
+      (Math.pow(level, .5) + 250) + .6 * level / (level + 40)), .57)
+    : (6 / Math.max(5.7 - (0.2 * Math.pow(skullSpeed, 1.3) + ((0.9 * Math.pow(level, 0.5)) /
+      (Math.pow(level, 0.5) + 250) + (0.6 * level) / (level + 40))), 0.57));
+  return {
+    base,
+    activeBubbleBonus: getActiveBubbleBonus(character?.equippedBubbles, 'CALL_ME_POPE', account),
+    cardBonus: getCardBonusByEffect(account?.cards, 'Charge_Rate'),
+    stampBonus: getStampsBonusByEffect(account, 'Charge_Rate_per_Hour', character),
+    wizardTalentBonus: getTalentBonus(character?.flatTalents, 'NEARBY_OUTLET')
+  };
+};
+
+export const getChargeRate = (character: any, account: any) => {
+  const { base, activeBubbleBonus, cardBonus, stampBonus, wizardTalentBonus } = chargeRateTerms(character, account);
+  return base * Math.max(activeBubbleBonus, 1) * (1 + (cardBonus + stampBonus) / 100) * Math.max(wizardTalentBonus, 1);
+};
+
+// Where a character's charge rate comes from, per day as its card reads it
+export const getChargeRateBreakdown = (character: any, account: any) => {
+  const { base, activeBubbleBonus, cardBonus, stampBonus, wizardTalentBonus } = chargeRateTerms(character, account);
+  const value = 24 * getChargeRate(character, account);
+  return createBreakdown('Charge rate per day', value, [
+    flat('Base (skull and worship level)', 24 * base),
+    productGroup('Multipliers', [
+      multiplier('Call Me Pope (Bubble)', Math.max(activeBubbleBonus, 1)),
+      additiveGroup('Cards and stamps', [
+        percent('Cards', cardBonus),
+        getStampNode(account, { effect: 'Charge_Rate_per_Hour' }, stampBonus, character)
+      ]),
+      multiplier('Nearby Outlet (Talent)', Math.max(wizardTalentBonus, 1))
+    ])
+  ]);
 };
 
 export const getPlayerWorship = (character: any, account: any, playerCharge: any) => {

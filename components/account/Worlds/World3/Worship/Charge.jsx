@@ -3,7 +3,9 @@ import { Stack } from '@mui/material';
 import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import Timer from '../../../../common/Timer';
-import { getChargeWithSyphon, getClosestWorshiper } from '@parsers/world-3/worship';
+import { getChargeRateBreakdown, getChargeWithSyphon, getClosestWorshiper, getMaxChargeBreakdown } from '@parsers/world-3/worship';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
+import GameIcon from '@components/common/GameIcon';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -38,15 +40,24 @@ const Charge = () => {
                                                                        lastUpdated={state?.lastUpdated}/></> : undefined}/>
       </Stack>
       <CardGrid size={'m'}>
-        {characters.map(({ worship, tools, name, classIndex, skillsInfo }, index) => {
+        {characters.map((character, index) => {
+          const { worship, tools, name, classIndex, skillsInfo } = character;
           const skull = tools?.find(({ name }) => name?.includes('Skull'));
           const timeLeft = ((worship?.maxCharge ?? 0) - (worship?.currentCharge ?? 0)) / worship?.chargeRate * 1000 * 3600;
+          const rateText = `${formatNum((worship?.chargeRate ?? 0) * 24, 'pct')} per day`;
+          const maxText = formatNum(worship?.maxCharge ?? 0);
           return <ItemCard key={`${name}-${index}`} icon={`data/ClassIcons${classIndex}.png`} title={cleanUnderscore(name)}
                            meta={[`Worship Lv ${formatNum(skillsInfo?.worship?.level ?? 0)}`, skull ? cleanUnderscore(skull.name) : null]
-                             .filter(Boolean).join(' · ')}>
-            <ItemCard.Progress label={'Charge'} value={Math.floor(worship?.currentCharge ?? 0)} max={worship?.maxCharge ?? 0}/>
+                             .filter(Boolean).join(' · ')}
+                           // The skull is the charge's main item: its sprite beside the name the meta line gives
+                           aside={skull?.rawName ? <GameIcon src={`data/${skull.rawName}.png`} size={32} alt={cleanUnderscore(skull.name)}/> : null}>
+            <ItemCard.Progress label={'Charge'} value={Math.floor(worship?.currentCharge ?? 0)}
+                               max={<Breakdown asValue title={`${cleanUnderscore(name)} max charge`}
+                                               data={{ ...getMaxChargeBreakdown(character, state?.account), totalValue: maxText }}>{maxText}</Breakdown>}
+                               percent={worship?.maxCharge > 0 ? Math.min(100, (worship?.currentCharge ?? 0) / worship.maxCharge * 100) : 0}/>
             <ItemCard.Facts rows={[
-              ['Charge rate', `${formatNum((worship?.chargeRate ?? 0) * 24, 'pct')} per day`],
+              ['Charge rate', <Breakdown key={'rate'} asValue title={`${cleanUnderscore(name)} charge rate`}
+                                         data={{ ...getChargeRateBreakdown(character, state?.account), totalValue: rateText }}>{rateText}</Breakdown>],
               ['Full in', Number.isFinite(timeLeft)
                 ? <Timer key={'full'} type={'countdown'} component={'span'} placeholder={full} date={now + timeLeft}
                          lastUpdated={state?.lastUpdated}/>

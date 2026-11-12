@@ -21,7 +21,8 @@ export const patchNotes = [
       'Atom Collider: atoms you have not unlocked read Locked, and new tiles show particles per hour, atoms unlocked, the atom cost cut and the max level, each with where it comes from',
       'Equinox: a locked upgrade shows the challenge that unlocks it, upgrades show the max levels their challenges can still add, and the Challenges tab counts the completed ones',
       'Buildings: each building explains what it does, and its next level shows what you own of the material it needs',
-      'Death Note: new tiles show the monster closest to its next rank and, with the rift bonus, your Eclipse skulls and the damage they give'
+      'Death Note: new tiles show the monster closest to its next rank and, with the rift bonus, your Eclipse skulls and the damage they give',
+      'Worship: each character\'s max charge and charge rate show where they come from, and its skull shows as an icon'
     ],
     'fixes': []
   },
