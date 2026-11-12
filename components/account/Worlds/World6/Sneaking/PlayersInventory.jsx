@@ -86,9 +86,13 @@ const PlayersInventory = ({ players, characters, account, dropList, inventory, d
           </ItemCard.Section>
           <ItemCard.Section label={'Floor loot'}>
             <Stack direction={'row'} gap={0.5} flexWrap={'wrap'}>
-              {dropList?.[floor]?.map(({ rawName, name, description, value, type, subType }, index) => (type !== 0
+              {dropList?.[floor]?.map(({ rawName, name, description, value, type, subType, floorChance }, index) => (type !== 0
                 ? <NoteTrigger key={`droplist-${rawName}-${index}`}
-                               note={cleanUnderscore(getDescription({ description, value, type, subType }))}
+                               note={<>
+                                 {cleanUnderscore(getDescription({ description, value, type, subType }))}
+                                 <br/>
+                                 {`Drop chance: ${formatDetection(floorChance)}`}
+                               </>}
                                label={cleanUnderscore(name ?? rawName)}>
                   <GameIcon src={`data/${rawName}.png`} size={24} alt={''}/>
                 </NoteTrigger> : null))}

@@ -149,9 +149,10 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
 
   const classNames = (charactersData ?? []).map((character: any) => character?.class);
   const dropList = getFloorDropLists(selectedNinjaMastery, classNames).map((entry: any) => entry.toChunks(2))
-    ?.map((array: any) => array?.map(([itemName, dropChance]: any) => ({
+    ?.map((array: any) => getFloorLootChances(array, rawSneaking?.[106] ?? []).map(({ itemName, dropChance, floorChance }) => ({
       ...(ninjaEquipment as Record<string, any>)[itemName],
-      dropChance
+      dropChance,
+      floorChance
     })));
 
   const spelunkProgress = rawSpelunking?.[13]?.[3] ?? 0; // This tracks how many special upgrades are unlocked
@@ -277,6 +278,7 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     beanstalkData,
     totalJadeEmporiumUnlocked,
     unlockedFloors,
+    selectedNinjaMastery: selectedNinjaMastery ?? 0,
     gemStones,
     lastLooted,
     ninjaMasteryBonuses,
@@ -551,6 +553,23 @@ const getFloorDropLists = (selectedMastery: number = 0, classNames: string[] = [
   return lists;
 };
 
+// Game: Ninja("GenerateItem"). dropChance is a fraction rolled in list order, the first hit kept and the last item taking
+// what is left. A hat already found (Ninja[106]) is passed over 80% of the time, which hands its share down the list.
+const getFloorLootChances = (chunks: [string, string][], foundItems: string[]) => {
+  let remaining = 1;
+  return chunks.map(([itemName, dropChance], index) => {
+    const isLast = index === chunks.length - 1;
+    const keep = itemName?.includes('NjItem') && foundItems.includes(itemName) ? 0.2 : 1;
+    const hit = isLast ? 1 : Number(dropChance) * keep;
+    const floorChance = remaining * hit;
+    remaining -= floorChance;
+    return { itemName, dropChance, floorChance };
+  });
+};
+
+// A detected ninja dodges the knockout with min(90%, NinjaBonus(t, 0)): the Ninja Log charm.
+export const getKnockoutChance = (detection: number, dodge: number) => detection * (1 - Math.min(0.9, dodge / 100));
+
 export const getDetectionChance = (stealth: number, difficulty: number) => {
   return Math.max(0, Math.min(1, 1 - 1.1 * stealth / (stealth + difficulty)));
 };
@@ -686,11 +705,17 @@ export const getSneakingDetection = (idleonData: any, account: any, characters: 
     const floorMates = all.filter((mate) => mate.playerIndex !== ninja.playerIndex && mate.floor === ninja.floor);
     const flowers = flowerStacks?.[ninja.floor] ?? 0;
     const stealth = getNinjaStealth(ninja, flowers, flowerBonus, floorMates);
+    const difficulty = getFloorDifficulty(ninja.floor, mastery);
+    const detection = getDetectionChance(stealth, difficulty);
+    const dodge = getNinjaCharmBonus(account, ninja.playerIndex, 0);
     return {
       ...ninja,
       stealth,
       stealthBreakdown: getNinjaStealthBreakdown(ninja, flowers, flowerBonus, floorMates),
-      detection: getDetectionChance(stealth, getFloorDifficulty(ninja.floor, mastery))
+      detection,
+      difficulty,
+      dodge,
+      knockout: getKnockoutChance(detection, dodge)
     };
   });
 

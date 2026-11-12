@@ -37,6 +37,7 @@ const Sneaking = () => {
     gemStones,
     ninjaMasteryBonuses,
     ninjaMastery,
+    selectedNinjaMastery,
     itemsMaxLevelBreakdown,
     dailyCharmRollCount,
     remainingPristineRolls,
@@ -65,6 +66,9 @@ const Sneaking = () => {
                 info={`Current pristine chance: ${formatNum(pristineCharmChance, 'odds')}.`}/>
       <StatTile label={'Remaining symbol rolls'} value={remainingSymbolRolls ?? 0} kind={'amount'}/>
       <StatTile label={'Items max level'} breakdown={itemsMaxLevelBreakdown}/>
+      <StatTile label={'Selected mastery'} value={selectedNinjaMastery ?? 0} kind={'amount'}
+                sub={(selectedNinjaMastery ?? 0) < (ninjaMastery ?? 0) ? `Highest: ${ninjaMastery}` : undefined}
+                info={'The mastery you are playing. Below your highest one, every door is open.'}/>
     </PageSummary>
     <Tabber tabs={tabs}>
       {sectionFailed ? null : <PlayersInventory players={players}

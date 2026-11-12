@@ -41,7 +41,8 @@ export const patchNotes = [
       'Gaming: the Superbits tab can search superbits by name or effect, show one group at a time and hide the ones you own',
       'Hole caverns: The Well times each sediment by the buckets on it and shows when the rocks break, only the active bell counts as filling, the layer caverns show the breaks left today, and the Den, Harp, Lamp, Jars, Gambit, Fountain and Glunko Cove show max levels, chord EXP, when a wish is affordable, the next jar, note and opal costs and the double pickup chance. The Lamp\'s wishes per day, Gambit\'s points multi, the Cove\'s drop rate and the Jars\' new collectible chance show where they come from, and the Fountain shows each coin\'s worth, each upgrade\'s marbleize cost and its bars side by side',
       'Slab: a new tile shows the multi on the Slab\'s own bonuses and where it comes from, and the looted count explains the items the Slab doesn\'t show',
-      'Farming: unlocked land rank upgrades no longer read as locked and the 5th column shows its cap, stickers show which seed finds them, your best plot\'s chance and plots blocked by a megacrop, Crop Scientist lines show what each new crop adds and what unlocks them, locked market upgrades show their crop requirement, and the Exotic Market shows purchases left this week'
+      'Farming: unlocked land rank upgrades no longer read as locked and the 5th column shows its cap, stickers show which seed finds them, your best plot\'s chance and plots blocked by a megacrop, Crop Scientist lines show what each new crop adds and what unlocks them, locked market upgrades show their crop requirement, and the Exotic Market shows purchases left this week',
+      'Sneaking: the selected mastery shows at the top, items show their drop chance on your floor, and each ninja\'s detection card shows one knockout chance that opens to the stealth, floor difficulty and Ninja Log dodge behind it'
     ],
     'fixes': []
   },

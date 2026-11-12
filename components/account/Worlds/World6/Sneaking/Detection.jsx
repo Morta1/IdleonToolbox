@@ -14,6 +14,7 @@ import ItemCard from '@components/common/cards/ItemCard';
 import Panel, { FIELD_INFO_SX } from '@components/common/cards/Panel';
 import Notice from '@components/common/Notice';
 import { cleanUnderscore, formatNum, parseShorthandNumber } from '@utility/helpers';
+import { createBreakdown, info, listGroup, multiplier } from '@parsers/breakdown';
 import {
   getDetectionChance,
   getFloorDifficulty,
@@ -29,6 +30,18 @@ export const formatDetection = (detection) => {
   const percent = 100 * (detection ?? 0);
   return percent > 0 && percent < 0.01 ? formatNum(percent, 'pct', { precise: true }) : formatNum(percent, 'pct', { decimals: 2 });
 };
+
+// The knockout chance as made: the detection (set by the ninja's stealth against the floor's difficulty), times what
+// a Ninja Log's dodge (at most 90%) leaves
+const knockoutBreakdown = ({ detection, stealth, difficulty, dodge, knockout }) => createBreakdown('Knockout chance', formatDetection(knockout), [
+  listGroup('Detection', [info('Stealth', stealth ?? 0, { formatted: formatNum(stealth ?? 0) }),
+    info('Floor difficulty', difficulty ?? 0, { formatted: formatNum(difficulty ?? 0) })],
+    { formatted: formatDetection(detection) }),
+  multiplier('Ninja Log dodge', 1 - Math.min(90, dodge ?? 0) / 100)
+]);
+
+// Safe, at risk, or knocked out most of the time
+const riskColor = (knockout) => (!(knockout > 0) ? 'text.success' : knockout < 0.5 ? 'text.warning' : 'text.error');
 
 const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
   const { ninjas = [], flowerStacks = [], flowerBonus = 0, mastery: currentMastery = 0 } = detection || {};
@@ -68,16 +81,27 @@ const Detection = ({ detection, characters, ninjaMastery, emptyAccount }) => {
   return <Stack gap={3}>
     <Stack gap={1}>
       <Typography variant={'sectionTitle'} component={'h2'}>Current detection</Typography>
-      {ninjas.length ? <Typography variant={'body2'} color={'text.secondary'}>
-        Mastery {currentMastery}, each ninja on their current floor with the Funeral Flowers stacked there.
-      </Typography> : noNinjas(`Each ninja's detection on their current floor shows here`)}
+      {ninjas.length ? <Stack direction={'row'} alignItems={'center'} gap={0.5}>
+        <Typography variant={'body2'} color={'text.secondary'}>
+          Mastery {currentMastery}, each ninja on their current floor with the Funeral Flowers stacked there.
+        </Typography>
+        <InfoButton label={'Knockout chance'}>
+          The chance a ninja gets knocked out on each action: its detection, the chance of getting caught, lowered by
+          its Ninja Log charms' dodge (up to 90%). Open a value to see how it is made.
+        </InfoButton>
+      </Stack> : noNinjas(`Each ninja's detection on their current floor shows here`)}
       <CardGrid size={'s'}>
-        {ninjas.map(({ playerIndex, floor: ninjaFloor, stealth, stealthBreakdown, detection: chance }) => (
+        {ninjas.map(({ playerIndex, floor: ninjaFloor, stealth, stealthBreakdown, detection: chance, difficulty, dodge, knockout }) => (
           <ItemCard key={`current-${playerIndex}`} icon={`data/ClassIcons${characters?.[playerIndex]?.classIndex}.png`}
                     title={cleanUnderscore(characters?.[playerIndex]?.name)}
                     meta={`Floor ${ninjaFloor + 1} · ${formatNum(flowerStacks?.[ninjaFloor] ?? 0, 'whole')} flowers`}>
             <ItemCard.Facts rows={[
-              ['Detection', formatDetection(chance)],
+              // One row on every card: what a player acts on, its colour the risk, and how it is made (detection, and a
+              // Ninja Log's dodge where there is one) in its drawer
+              ['Knockout chance', <Breakdown key={'knockout'} asValue title={`${cleanUnderscore(characters?.[playerIndex]?.name)} knockout chance`}
+                                             data={knockoutBreakdown({ detection: chance, stealth, difficulty, dodge, knockout })}>
+                <Box component={'span'} sx={{ color: riskColor(knockout) }}>{formatDetection(knockout)}</Box>
+              </Breakdown>],
               ['Stealth', <Breakdown key={'stealth'} asValue data={stealthBreakdown}><Num value={stealth}
                                                                                         game={'Ninja.Stealth'}/></Breakdown>]
             ]}/>
