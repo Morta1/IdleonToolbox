@@ -1,7 +1,7 @@
 import React, { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
 import { Stack } from '@mui/material';
-import { cleanUnderscore, formatNum, gameLines, getCoinsArray, getTabs } from '@utility/helpers';
+import { cleanUnderscore, formatDuration, formatNum, gameLines, getCoinsArray, getTabs } from '@utility/helpers';
 import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import {
@@ -149,6 +149,7 @@ const Divinity = () => {
       {/* The game's rank is max(0, unlocked gods - 10), so a guest reads 0 */}
       <StatTile label={'God rank'} value={godRank ?? 0} kind={'amount'}/>
       <StatTile label={'Total Divinity LV'} value={getTotalDivinityLevel(state?.characters)} kind={'amount'} failed={isParseFailed(state?.account)}/>
+      <StatTile label={'Divinity points'} value={sectionFailed ? '-' : formatGame(divinity?.divinityPoints ?? 0, 'Big', { whole: true })}/>
       <StatTile label={'Divinity PTS/hr'} value={pointsPerHour?.total ?? 0} kind={'rate'}
                 breakdown={pointsPerHour ? createBreakdown('Divinity PTS/hr', pointsPerHour.total, pointsPerHour.tree) : undefined}/>
     </PageSummary>
@@ -156,6 +157,14 @@ const Divinity = () => {
       <div>
         <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
           <StatTile label={'Total blessing levels'} value={getTotalBlessingLevels(deities)} kind={'amount'} failed={sectionFailed}/>
+          {/* The game's two offerings for the next god: a likelier one costs more */}
+          {sectionFailed ? null : (divinity?.offerings ?? []).map(({ chance, cost }, index) => {
+            const left = cost - (divinity?.divinityPoints ?? 0);
+            const perHour = pointsPerHour?.total ?? 0;
+            const wait = left <= 0 ? 'Can afford now' : perHour > 0 ? `${formatDuration(left / perHour * 3600)} to afford` : null;
+            return <StatTile key={index} label={`Offering ${index + 1}: ${formatNum(chance * 100, 'pct')} chance`}
+                             value={`${formatGame(cost, 'Big', { whole: true })} pts`} sub={wait}/>;
+          })}
         </Stack>
         <CardGrid size={'m'}>
           {deities?.map(({

@@ -64,9 +64,28 @@ const parseDivinity = (divinityRaw: any, serializedCharactersData: any, accountD
     blessingLevels,
     unlockedDeities,
     godRank: godRank < 0 ? 0 : godRank,
-    divinityPoints: Number(divinityRaw?.[24]) || 0
+    divinityPoints: Number(divinityRaw?.[24]) || 0,
+    offerings: getDivinityOfferings(divinityRaw, accountData?.serverVars)
   }
 }
+
+// game: Divinity("OfferingOdds", t), the chance of offering t (Divinity[26 + t] picks its tier)
+const OFFERING_ODDS = [0.01, 0.05, 0.1, 0.25, 0.5];
+const OFFERINGS = 2;
+// game: Divinity("OfferingCost", t), the Divinity points offering t costs: it grows with every god unlocked (each past
+// the third also x the server's DivCostAfter3, between x1 and x1.8) and is the chance times that, so a sure offering
+// costs the most. Unlocked gods past the last raise the god rank, so the offerings never run out
+export const getDivinityOfferings = (divinityRaw: any, serverVars: any) => {
+  const unlocked = Number(divinityRaw?.[25]) || 0;
+  const afterThird = Math.min(1.8, Math.max(1, 1 + (Number(serverVars?.DivCostAfter3) || 0) / 100));
+  return Array.from({ length: OFFERINGS }, (_, offering) => {
+    const tier = Number(divinityRaw?.[26 + offering]) || 0;
+    const chance = OFFERING_ODDS[tier] ?? 1;
+    let cost = (20 * Math.pow(unlocked + 1.3, 2.3) * Math.pow(2.2, unlocked) + 60) * chance;
+    if (unlocked > 2) cost *= Math.pow(afterThird, unlocked - 2);
+    return { tier, chance, cost: cost < 1 ? 1 : cost < 1e6 ? Math.ceil(cost) : cost };
+  });
+};
 
 export const getDivStylePerHour = (index: any) => {
   return 0 === index ? 1 : 1 === index ? 2 : 2 === index || 3 === index

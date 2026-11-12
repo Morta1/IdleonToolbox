@@ -36,7 +36,8 @@ export const patchNotes = [
       'Laboratory: the Mainframe counts the lab bonuses and jewels that are on, and each player\'s range shows where it comes from',
       'Rift: new tiles show the rift you are on and the next bonus, and the current task has a progress bar',
       'Tome: the rank shows the points to the next one, and the entries can be sorted by the points they have left',
-      'Sailing: the Artifacts tab counts the artifacts found and maxed (with how many sit at each form), and can search artifacts by name or effect and show only the ones not maxed or not found'
+      'Sailing: the Artifacts tab counts the artifacts found and maxed (with how many sit at each form), and can search artifacts by name or effect and show only the ones not maxed or not found',
+      'Divinity: the page shows the Divinity points you own, and the Gods tab shows the two offerings for the next god with their chance, cost and time to afford'
     ],
     'fixes': []
   },
