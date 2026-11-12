@@ -49,14 +49,18 @@ const Merits = () => {
   const meritCard = (merit, index) => {
     const maxed = isMaxed(merit);
     const gate = maxed ? null : meritGate(merit);
+    const gateText = gate ? `Needs ${gate.name} at rank ${formatNum(gate.rank)}` : null;
+    const locked = !failed && gate && !gate.met;
     return <ItemCard key={index} icon={`data/${merit.icon}.png`} title={meritSentence(merit)}
                      meta={failed ? undefined : `Purchases ${formatNum(merit.level ?? 0)} / ${formatNum(merit.totalLevels)}`}
-                     status={maxed ? 'maxed' : undefined}
+                     status={maxed ? 'maxed' : locked ? 'locked' : undefined}
+                     statusLabel={locked ? gateText : undefined}
                      footer={failed ? null : <ItemCard.Cost icon={`etc/Merit_${world}.png`} iconAlt={'Merits'}
-                                                            need={merit.meritCost} have={meritsOf(world)}/>}>
-      {gate ? <ItemCard.Facts rows={[['Needs', failed
+                                                            need={merit.meritCost}
+                                                            have={locked ? undefined : meritsOf(world)}/>}>
+      {gate && !locked ? <ItemCard.Facts rows={[['Needs', failed
         ? `${gate.name} at rank ${formatNum(gate.rank)}`
-        : <StatusText key={'gate'} status={gate.met ? 'done' : 'needs'} wrap>{`${gate.name} at rank ${formatNum(gate.rank)}`}</StatusText>]]}/>
+        : <StatusText key={'gate'} status={'done'} wrap>{`${gate.name} at rank ${formatNum(gate.rank)}`}</StatusText>]]}/>
         : null}
     </ItemCard>;
   };
@@ -68,7 +72,7 @@ const Merits = () => {
     />
     {failed ? <MissingData name={'Merits'} failed atZero/> : null}
     <PageSummary>
-      {worldsArray.map((name, index) => <StatTile key={name} label={name} icon={`etc/Merit_${index}.png`}
+      {worldsArray.map((name, index) => <StatTile key={name} label={`${name} merits`} icon={`etc/Merit_${index}.png`}
                                                   value={failed ? '-' : formatNum(meritsOf(index))}/>)}
     </PageSummary>
     <Tabber tabs={worldsArray} keepChildren>
