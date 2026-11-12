@@ -4,6 +4,7 @@ import { getCompanionBonus, isBundlePurchased } from '@parsers/misc';
 import { getHatRackBonus, isMapClearedBy } from '@parsers/world-3/hatRack';
 import { saveField } from '@parsers/saveField';
 import { OPT } from '@parsers/accountOptions';
+import { additiveGroup, createBreakdown, NUMBERED_GROUP, percent } from '@parsers/breakdown';
 
 // The equipment slot TotalStats skips once the Cape Vine is on (TotalStatsDRI2 12)
 export const CAPE_SLOT = 12;
@@ -57,6 +58,7 @@ const parseCapeVine = (rawCapes: string[], inSave: boolean, account: any) => {
   return {
     inSave,
     bonusMulti: getCapeVineBonusMulti(account, rawCapes.length, 999),
+    bonusMultiBreakdown: getCapeVineBonusMultiBreakdown(account, rawCapes.length),
     capeBonuses: getCapeBonuses(rawCapes, account),
     capesUsed,
     allCapes,
@@ -89,6 +91,15 @@ export const getCapeVineBonusMulti = (account: any, capeCount: number, slot: num
   const multi = 1 + (capeCount + getCompanionBonus(account, CATHIE_COMPANION)) / 100;
   return getGoldCapeVinesOwned(account) > slot || slot === 999 ? multi : NORMAL_VINE_MULTI * multi;
 }
+
+// The vine's full multi (slot 999) and where it comes from: +1% a cape on the vine, and Catherine
+export const getCapeVineBonusMultiBreakdown = (account: any, capeCount: number) => {
+  const sources = [
+    percent('Capes on the vine (+1% each)', capeCount),
+    percent('Catherine (Companion)', getCompanionBonus(account, CATHIE_COMPANION))
+  ];
+  return createBreakdown('Bonus multi', getCapeVineBonusMulti(account, capeCount, 999), [additiveGroup(NUMBERED_GROUP, sources)]);
+};
 
 // game: "InitializeCapeBonuses"
 const getCapeBonuses = (rawCapes: string[], account: any) => {

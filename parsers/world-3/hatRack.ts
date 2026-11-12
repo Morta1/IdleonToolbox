@@ -5,6 +5,7 @@ import { getMineheadBonusQTY } from '@parsers/world-7/minehead';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { hasClearedMap } from '@parsers/portals';
 import { saveField } from '@parsers/saveField';
+import { additiveGroup, createBreakdown, NUMBERED_GROUP, percent } from '@parsers/breakdown';
 
 // The rack lists its totals as the base stats first, then the etc bonuses by id
 const HAT_BONUS_ORDER: string[] = [
@@ -30,6 +31,7 @@ const parseHatRack = (rawSpelunk: any, account: any) => {
 
   return {
     bonusMulti,
+    bonusMultiBreakdown: getHatRackBonusMultiBreakdown(rawSpelunk, account),
     hatBonuses,
     hatsUsed,
     allPremiumHelmets,
@@ -37,15 +39,23 @@ const parseHatRack = (rawSpelunk: any, account: any) => {
   }
 }
 
-// game: "HatrackBonusMulti"
-export const getHatRackBonusMulti = (rawSpelunk: any, account: any) => {
-  const hatCount = rawSpelunk?.[46]?.length || 0;
-  const eventShopBonus = getEventShopBonus(account, 30);
-  const mineheadBonus = getMineheadBonusQTY(account, 21);
-  const sushiBonus = getSushiBonus(account, 36);
-  const companion31 = isCompanionBonusActive(account, 31) ? (account?.companions?.list?.at(31)?.bonus ?? 0) : 0;
-  return 1 + (hatCount + companion31 + 10 * eventShopBonus + mineheadBonus + sushiBonus) / 100;
-}
+// game: "HatrackBonusMulti", 1 + (hats on the rack + Companions(31) + 10 x event shop 30 + Minehead 21 + Sushi 36) / 100
+const getHatRackMultiSources = (rawSpelunk: any, account: any) => [
+  percent('Hats on the rack (+1% each)', rawSpelunk?.[46]?.length || 0),
+  percent('Wild Boar (Companion)', isCompanionBonusActive(account, 31) ? (account?.companions?.list?.at(31)?.bonus ?? 0) : 0),
+  percent('Event shop', 10 * getEventShopBonus(account, 30)),
+  percent('Minehead', getMineheadBonusQTY(account, 21)),
+  percent('Sushi Station', getSushiBonus(account, 36))
+];
+
+const sumSources = (sources: any[]) => sources.reduce((sum, { value }: any) => sum + (Number(value) || 0), 0);
+
+export const getHatRackBonusMulti = (rawSpelunk: any, account: any) => 1 + sumSources(getHatRackMultiSources(rawSpelunk, account)) / 100;
+
+export const getHatRackBonusMultiBreakdown = (rawSpelunk: any, account: any) => {
+  const sources = getHatRackMultiSources(rawSpelunk, account);
+  return createBreakdown('Bonus multi', 1 + sumSources(sources) / 100, [additiveGroup(NUMBERED_GROUP, sources)]);
+};
 
 export const getHatBonuses = (rawSpelunk: any, account: any) => {
   const rawHats = rawSpelunk?.[46];

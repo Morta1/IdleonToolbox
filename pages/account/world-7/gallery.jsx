@@ -19,7 +19,8 @@ import {
   getTrophyBonuses,
   getNametagBonuses,
   getAllTrophies,
-  getAllNametags
+  getAllNametags,
+  isGalleryActive
 } from '@parsers/world-7/gallery';
 
 const galleryValue = (value, percent) => formatNum(value, percent ? 'pct' : 'amount', { signed: true });
@@ -59,6 +60,8 @@ const Gallery = () => {
     allTrophies,
     allNametags
   } = galleryData;
+  // game: Gallery("GalleryBonusSystemON"), a character gets the gallery's bonuses only once it has cleared Spirit Village
+  const withoutGallery = sectionFailed ? [] : (state?.characters ?? []).filter((char) => !isGalleryActive(char));
   const multiBreakdown = rawSpelunk && !sectionFailed
     ? getGalleryBonusMultiBreakdown(rawSpelunk, account, perCharacter ? character : null)
     : undefined;
@@ -91,6 +94,9 @@ const Gallery = () => {
       <StatTile label={'Level 2 podiums'} icon={'data/GalleryPod1.png'} value={lv2PodiumsOwned ?? 0} kind={'amount'}/>
       <StatTile label={'Level 3 podiums'} icon={'data/GalleryPod2.png'} value={lv3PodiumsOwned ?? 0} kind={'amount'}/>
       <StatTile label={'Level 4 podiums'} icon={'data/GalleryPod3.png'} value={lv4PodiumsOwned ?? 0} kind={'amount'}/>
+      {withoutGallery.length ? <StatTile label={'No gallery bonuses'} value={formatNum(withoutGallery.length)}
+                                         sub={withoutGallery.map(({ name }) => cleanUnderscore(name)).join(', ')}
+                                         info={"A character gets the Gallery's bonuses once it has cleared Spirit Village in World 6."}/> : null}
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'Gallery')}>
       <Trophies

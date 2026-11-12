@@ -27,7 +27,10 @@ export const patchNotes = [
       'Traps: new tiles show when your next trap is ready and how many traps you have set out of how many you can',
       'Salt Lick: each upgrade shows its bonus at max, how many levels your salt can buy now, and the Salt Lick level that unlocks it',
       'Construction: a new Cog makers tab shows each maker\'s progress, cogs ready, cogs per hour and when the next one is done, a tile counts down to your next flag, and hovering a cog outlines the cogs that boost it and the squares it boosts',
-      'Armor Smithy: each set shows how many of its parts you own, a set you own in full reads Ready to unlock, parts you are missing are greyed, and the parts view is about half as tall'
+      'Armor Smithy: each set shows how many of its parts you own, a set you own in full reads Ready to unlock, parts you are missing are greyed, and the parts view is about half as tall',
+      'Hat Rack: total hats shows out of every helmet the rack takes, the bonus multi shows where it comes from, and a tile lists characters who do not get the rack\'s bonuses yet',
+      'Cape Vine: the bonus multi shows where it comes from, and a tile lists characters who do not get the vine\'s bonuses yet',
+      'Gallery: a tile lists characters who do not get the gallery\'s bonuses yet'
     ],
     'fixes': []
   },
