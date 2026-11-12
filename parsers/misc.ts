@@ -1135,10 +1135,31 @@ export const getRandomEvents = (account: any) => {
     const eventName = getEventName(eventType);
     const dateInMs = (seed + i) * 3600 * 1000;
     if (isPast(dateInMs + 3600 * 1000)) continue;
-    eventList.push({ mapName, eventName, date: dateInMs })
+    // An event holds its map for its whole clock hour (the boss spawns on entering the map within it): the first hour,
+    // still running, is live
+    eventList.push({ mapName, eventName, eventType, date: dateInMs, live: i === 0 })
   }
   return eventList;
 }
+
+// The five random events with their rare drops (game RANDOlist[82 + type], shown on the event banner, dark until found
+// in the Slab, Cards[1]) and the maps they can land on. No save needed but for the found state
+export const getRandomEventCatalog = (account?: any) => {
+  const found = new Set(account?.looty?.lootyRaw ?? []);
+  return [0, 1, 2, 3, 4].map((eventType) => ({
+    eventType,
+    eventName: getEventName(eventType),
+    drops: ((randomList?.[82 + eventType] ?? []) as string[]).map((rawName) => ({
+      rawName,
+      name: (items as any)?.[rawName]?.displayName ?? rawName,
+      found: found.has(rawName)
+    })),
+    maps: getEventMaps(eventType).map((raw: any) => mapNames?.[rawMapNames?.indexOf(raw)]).filter(Boolean),
+    // The worlds its map pool covers (50 maps a world)
+    worlds: [...new Set(getEventMaps(eventType).map((raw: any) => rawMapNames?.indexOf(raw))
+      .filter((index: number) => index >= 0).map((index: number) => Math.floor(index / 50) + 1))].sort((a, b) => a - b)
+  }));
+};
 
 const getEventMaps = (eventType: any) => {
   const [world1, world2, world3] = randomList.slice(68, 71)
