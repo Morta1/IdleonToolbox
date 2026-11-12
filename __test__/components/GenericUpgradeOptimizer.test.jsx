@@ -140,6 +140,8 @@ const seedSetting = (key, value) => window.localStorage.setItem(
 describe('GenericUpgradeOptimizer split by resource', () => {
   beforeEach(() => {
     window.localStorage.clear();
+    // These read each step on its own card, so the default grouping is turned off
+    seedSetting('groupMode2', 'None');
   });
 
   it('leaves the sequence unsectioned by default', () => {
@@ -181,6 +183,8 @@ describe('GenericUpgradeOptimizer split by resource', () => {
 describe('GenericUpgradeOptimizer unlock marker', () => {
   beforeEach(() => {
     window.localStorage.clear();
+    // These read each step on its own card, so the default grouping is turned off
+    seedSetting('groupMode2', 'None');
   });
 
   it.each([
@@ -238,7 +242,7 @@ describe('GenericUpgradeOptimizer discount marker', () => {
   });
 
   it('counts how many steps of a grouped row were discounted', () => {
-    seedSetting('groupMode', 'Upgrade');
+    seedSetting('groupMode2', 'Upgrade');
     const { container } = renderOptimizer([
       buildDiscountRow({ hadReduction: true, level: 10 }),
       buildDiscountRow({ hadReduction: true, level: 11 }),
@@ -258,7 +262,7 @@ describe('GenericUpgradeOptimizer game order', () => {
     .map((row) => row.querySelector('td.name').textContent.replace(/x[\d,]+$/, ''));
 
   it('lists one row per upgrade in in-game position, not purchase order', () => {
-    seedSetting('groupMode', 'Game order');
+    seedSetting('groupMode2', 'Game order');
     seedSetting('viewMode', 'list');
     const { container } = renderOptimizer([
       namedRow('Late_Upgrade', 30, 10),
@@ -271,7 +275,7 @@ describe('GenericUpgradeOptimizer game order', () => {
   });
 
   it('leaves Summary in purchase order', () => {
-    seedSetting('groupMode', 'Summary');
+    seedSetting('groupMode2', 'Summary');
     seedSetting('viewMode', 'list');
     const { container } = renderOptimizer([
       namedRow('Late_Upgrade', 30, 10),
@@ -284,7 +288,7 @@ describe('GenericUpgradeOptimizer game order', () => {
     ['Upgrade', ['Late_Upgrade', 'Late_Upgrade', 'Early_Upgrade']],
     ['Summary', ['Late_Upgrade', 'Early_Upgrade', 'Late_Upgrade']]
   ])('a %s card counts its steps instead of listing their places', (group, names) => {
-    seedSetting('groupMode', group);
+    seedSetting('groupMode2', group);
     const { container } = renderOptimizer(names.map((name, step) => namedRow(name, 1, 10 + step)));
     expect(container.textContent).toContain('x2');
     expect(container.textContent).not.toMatch(/#1 to #/);

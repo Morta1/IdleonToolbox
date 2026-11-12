@@ -136,9 +136,11 @@ const GenericUpgradeOptimizer = ({
     key: `${resourceKey}:genericUpgradeOptimizer:costSortOrder`,
     defaultValue: 'none'
   });
+  // Back-to-back steps of one upgrade read as one card by default. A new key: the old one stored 'None' for everyone
+  // who opened an optimizer, since the hook writes its default back
   const [groupMode, setGroupMode] = useLocalStorage({
-    key: `${resourceKey}:genericUpgradeOptimizer:groupMode`,
-    defaultValue: 'None'
+    key: `${resourceKey}:genericUpgradeOptimizer:groupMode2`,
+    defaultValue: 'Upgrade'
   });
   const [storedSplitByResource, setSplitByResource] = useLocalStorage({
     key: `${resourceKey}:genericUpgradeOptimizer:splitByResource`,

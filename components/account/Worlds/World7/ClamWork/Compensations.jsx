@@ -3,12 +3,12 @@ import { cleanUnderscore } from '@utility/helpers';
 import Panel from '@components/common/cards/Panel';
 import StatusText from '@components/common/StatusText';
 
-// A titled list of bonus sentences and their state
+// A titled list of bonus sentences and their state. Compensation N unlocks at Worker class Lv N (game: ClamWorkBonus)
 const Compensations = ({ compensations }) => <Panel title={'Compensations'}>
   {compensations?.map((compensation, index) => <Panel.Row key={index} name={cleanUnderscore(compensation?.name)}
                                                           value={compensation?.unlocked === 1
                                                             ? <StatusText status={'done'}>Unlocked</StatusText>
-                                                            : <StatusText status={'locked'}/>}/>)}
+                                                            : <StatusText status={'locked'}>{`Worker class Lv ${index + 1}`}</StatusText>}/>)}
 </Panel>;
 
 export default Compensations;

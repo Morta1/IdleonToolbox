@@ -50,7 +50,8 @@ export const patchNotes = [
       'Research: observations with a lens on them read Active and can be shown on their own, their rates show only when observed, and grid cards no longer have the Shape label',
       'Legend Talents: each talent that is not maxed shows what its next level gives',
       'Coral Reef: Dancing Coral bonuses show their unit (Char Coral as its Class EXP multiplier), and a shrine under level 201 shows how far its bonus is',
-      'Zenith Market: each upgrade shows what its next level gives, and the clusters in your inventories show how many upgrades they would pay for with your balance'
+      'Zenith Market: each upgrade shows what its next level gives, and the clusters in your inventories show how many upgrades they would pay for with your balance',
+      'Clam Work: locked compensations show the Worker class level that unlocks them, and every upgrade optimizer groups repeated steps of one upgrade by default'
     ],
     'fixes': []
   },
