@@ -1049,19 +1049,27 @@ export const calcArtifactsAcquired = (boats: any) => {
   return boats?.reduce((res: any, { acquired }: any) => res + (acquired ?? 0), 0);
 }
 
+// game: Sailing("SlabboBonus_AllMulti") x the Slab Sovereignty lab bonus (MainframeBonus 15), the multiplier on the
+// Slab's own bonuses (Jade coins, Essence, POW, Research EXP)
+export const getSlabBonusMulti = (account: any) => {
+  const lines = [
+    multiplier('Slab Sovereignty (Lab)', 1 + getLabBonus(account?.lab?.labBonuses, 15) / 100),
+    multiplier('Merit', 1 + getMeritocracyBonus(account, 23) / 100),
+    multiplier('Legend talent', 1 + getLegendTalentBonus(account, 28) / 100),
+    multiplier('Upgrade Vault', 1 + getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 74) / 100)
+  ];
+  const value = lines.reduce((product, { value: factor }) => product * factor, 1);
+  return { value, breakdown: createBreakdown('Slab bonus multi', value, lines) };
+};
+
 export const getSlabBonus = (account: any, index: any) => {
   // Game: Ninja("EmporiumBonus", 17 / 18) - the unlock flags
   const jadeEmporiumBonus = getJadeEmporiumBonus(account, 'Jade_Coin_Magnetism');
   const jadeEmporiumBonus2 = getJadeEmporiumBonus(account, 'Essence_Confetti');
   const superbitBonus = isSuperbitUnlocked(account, 'Slabby_Spelunking');
   const superbitBonus2 = isSuperbitUnlocked(account, 'Slabby_Research');
-  const slabSovereignty = getLabBonus(account?.lab?.labBonuses, 15); // gem multi
   const lootedItems = account?.looty?.rawLootedItems;
-  const vaultBonus74 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 74);
-  const slabMultipliers = (1 + slabSovereignty / 100)
-    * (1 + getMeritocracyBonus(account, 23) / 100)
-    * (1 + getLegendTalentBonus(account, 28) / 100)
-    * (1 + vaultBonus74 / 100);
+  const slabMultipliers = getSlabBonusMulti(account).value;
   return 4 == index ? (1 == jadeEmporiumBonus ?
     5 * slabMultipliers * Math.floor(Math.max(0, lootedItems - 1e3) / 10) : 0)
     : 5 == index ? (1 == jadeEmporiumBonus2 ?

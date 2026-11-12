@@ -3,7 +3,7 @@ import React, { useContext, useState } from 'react';
 import { Link, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { NextSeo } from 'next-seo';
-import { getSlabBonus } from '@parsers/world-5/sailing';
+import { getSlabBonus, getSlabBonusMulti } from '@parsers/world-5/sailing';
 import { isMissingGreenstack } from '@parsers/misc';
 import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
@@ -88,6 +88,8 @@ const Slab = () => {
   const sectionFailed = isSectionFailed(state?.account, 'looty');
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('slab', SLAB_TOOLBAR);
   const items = looty?.slabItems ?? [];
+  const slabMulti = getSlabBonusMulti(state?.account);
+  const slabMultiText = formatNum(slabMulti.value, 'mult');
   const offList = (looty?.lootedItems ?? 0) - items.filter(({ obtained }) => obtained).length;
   const searchTerm = (toolbar?.search ?? '').trim().toLowerCase();
   const shown = items.filter((item) => shouldDisplayItem(item, toolbar?.show ?? 'missing'))
@@ -115,10 +117,13 @@ const Slab = () => {
     {sectionFailed ? <MissingData name={'the Slab'} failed atZero={!isParseFailed(state?.account)}/> : null}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Looted items'} value={`${formatNum(looty?.lootedItems ?? 0)} / ${formatNum(looty?.totalItems ?? 0)}`}
-                sub={offList > 0 ? `${formatNum(offList)} the list doesn't name` : undefined}/>
+                info={offList > 0 ? `The game counts every item you've looted, and the Slab's bonuses use that count. ${formatNum(offList)} of them (premium stones and the like) don't appear on the Slab, so they have no tile here.` : undefined}/>
       <StatTile label={'Missing items'} value={looty?.missingItems ?? 0} kind={'amount'}/>
       <StatTile label={'Greenstacks'}
                 value={`${formatNum(looty?.greenstackableStackedCount ?? 0)} / ${formatNum(looty?.greenstackableCount ?? 0)}`}/>
+      {sectionFailed ? null : <StatTile label={'Slab bonus multi'} value={slabMultiText} breakdownTitle={'Slab bonus multi'}
+                                        breakdown={{ ...slabMulti.breakdown, totalValue: slabMultiText }}
+                                        info={'Multiplies the Jade coins, Essence, POW and Research EXP bonuses.'}/>}
       {SLAB_BONUSES.map(({ name, icon, value }) => <StatTile key={name} label={name} icon={`data/${icon}.png`}
                                                               value={value(state?.account) ?? 0} kind={'pct'}/>)}
     </PageSummary>
