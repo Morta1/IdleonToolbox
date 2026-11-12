@@ -31,6 +31,14 @@ const trapNote = (slot, collectRate) => <Stack gap={0.5}>
   <Typography variant={'body2'}>{`Critters ${critters((slot?.crittersQuantity ?? 0) * (collectRate?.critter ?? 1))}`}</Typography>
 </Stack>;
 
+// A character's trap slots: its trap set's number (+1 with the Call Me Ash bubble), at most 8, or what it has out
+const maxTrapsOf = (character, trapSlots, plusOneTrap) => {
+  const usedTrap = character?.tools?.[4]?.rawName !== 'Blank' ? character?.tools?.[4] : null;
+  return Math.min(8, usedTrap
+    ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + plusOneTrap
+    : trapSlots.length);
+};
+
 const Traps = () => {
   const { state } = useContext(AppContext);
   const sectionFailed = isSectionFailed(state?.account, 'traps');
@@ -61,14 +69,20 @@ const Traps = () => {
                      breakdown={group?.children ? createBreakdown(label, text, group.children, { combine: 'sum' }) : undefined}/>;
   };
   const shinyText = formatNum(shiny?.multiplier ?? 1, 'mult');
+  // Every trap out, and the slots they could fill
+  const placed = traps.flatMap((trapSlots) => trapSlots.filter((slot) => slot?.name));
+  const slotsTotal = traps.reduce((sum, trapSlots, index) => sum + Math.max(trapSlots.length,
+    maxTrapsOf(characters[index], trapSlots, plusOneTrap)), 0);
+  // The next trap to finish, read off the clock as the trap timers do; the ones already done count as ready
+  const now = new Date().getTime();
+  const pending = placed.map(({ timeLeft }) => timeLeft).filter((date) => date > now);
+  const nextReady = pending.length ? Math.min(...pending) : null;
+  const readyNow = placed.length - pending.length;
 
   const trapsPanel = (trapSlots, index) => {
     const character = characters[index];
     const trap = character?.tools?.find(({ Type }) => Type === 'TRAP_BOX_SET');
-    const usedTrap = character?.tools?.[4]?.rawName !== 'Blank' ? character?.tools?.[4] : null;
-    const maxTraps = Math.min(8, usedTrap
-      ? parseInt(usedTrap?.rawName?.charAt(usedTrap?.rawName?.length - 1) ?? 0) + plusOneTrap
-      : trapSlots.length);
+    const maxTraps = maxTrapsOf(character, trapSlots, plusOneTrap);
     const realTraps = trapSlots.length >= maxTraps ? trapSlots : fillArrayToLength(maxTraps, trapSlots);
     const charTotals = trapSlots.reduce((total, { crittersQuantity, trapExp, rawName }) => ({
       ...total,
@@ -123,6 +137,12 @@ const Traps = () => {
     <PageSummary failed={isParseFailed(state?.account)}>
       {rateTile('Critter collect rate', collectRate?.critter, 'TrappingStuffs.CollectAllPCT')}
       {rateTile('EXP collect rate', collectRate?.exp, 'TrappingStuffs.CollectAllPCTexp')}
+      {placed.length ? <StatTile label={'Next trap ready'} sub={`${formatNum(readyNow)} ready now`}
+                                 value={nextReady ? <Timer type={'countdown'} component={'span'} date={nextReady}
+                                                           placeholder={<StatusText status={'ready'}/>}/>
+                                   : <StatusText status={'ready'}>All ready</StatusText>}/> : null}
+      {characters.length ? <StatTile label={'Traps set'} value={`${formatNum(placed.length)} / ${formatNum(slotsTotal)}`}
+                                     info={'Each character\'s limit is its trap set\'s, +1 with the Call Me Ash bubble.'}/> : null}
       <StatTile label={'Shiny chance'} value={shinyText} sub={`${formatNum(shiny?.bundleSize ?? 1)} per drop`}
                 breakdownTitle={'Shiny chance'}
                 breakdown={shiny?.breakdown ? { ...shiny.breakdown, totalValue: shinyText } : undefined}/>

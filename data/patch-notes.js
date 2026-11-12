@@ -23,7 +23,8 @@ export const patchNotes = [
       'Buildings: each building explains what it does, and its next level shows what you own of the material it needs',
       'Death Note: new tiles show the monster closest to its next rank and, with the rift bonus, your Eclipse skulls and the damage they give',
       'Worship: each character\'s max charge and charge rate show where they come from, and its skull shows as an icon',
-      'Prayers: with the Gaming superbits, each prayer shows what it gives a character with no prayer equipped, and the souls you own show at the top'
+      'Prayers: with the Gaming superbits, each prayer shows what it gives a character with no prayer equipped, and the souls you own show at the top',
+      'Traps: new tiles show when your next trap is ready and how many traps you have set out of how many you can'
     ],
     'fixes': []
   },
