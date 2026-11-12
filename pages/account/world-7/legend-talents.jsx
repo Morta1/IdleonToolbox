@@ -58,6 +58,7 @@ const talentCard = (talent) => {
                    status={talent?.level >= talent?.maxLevel ? 'maxed' : undefined}
                    dimmed={!(talent?.level > 0)}>
     {talent?.description ? <ItemCard.Desc text={talent.description}/> : null}
+    {talent?.nextLevelValue ? <ItemCard.Facts rows={[['Next level', talent.nextLevelValue]]}/> : null}
   </ItemCard>;
 };
 

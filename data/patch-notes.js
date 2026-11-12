@@ -47,7 +47,8 @@ export const patchNotes = [
       'Beanstalk: each golden food shows its rank, what the beanstalk gives now and at the next rank, and an Upgradable badge when you own enough for the next rank',
       'Emperor: attempts show how many you get per day, and each bonus total opens to its base and the bonus multi',
       'Spelunking: Overstim shows the level it will really be at with its progress, the rate shows when the next level comes, and the Upgrade Optimizer groups repeated steps of one upgrade by default',
-      'Research: observations with a lens on them read Active and can be shown on their own, their rates show only when observed, and grid cards no longer have the Shape label'
+      'Research: observations with a lens on them read Active and can be shown on their own, their rates show only when observed, and grid cards no longer have the Shape label',
+      'Legend Talents: each talent that is not maxed shows what its next level gives'
     ],
     'fixes': []
   },
