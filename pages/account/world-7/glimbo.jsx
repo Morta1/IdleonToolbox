@@ -8,6 +8,7 @@ import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import GlimboTrades from '@components/account/Worlds/World7/Glimbo/GlimboTrades';
 import { getResearchGridBonus } from '@parsers/world-7/research';
+import { getAllItems } from '@parsers/items';
 
 const Glimbo = () => {
   const { state } = useContext(AppContext);
@@ -15,6 +16,9 @@ const Glimbo = () => {
   const section = account?.minehead;
   const sectionFailed = isSectionFailed(account, 'minehead');
   const { glimbo, glimboTotalTrades } = section ?? {};
+  // How many of each trade item the account holds, in every inventory and storage
+  const owned = (state?.characters && account ? getAllItems(state.characters, account) : [])
+    .reduce((counts, item) => ({ ...counts, [item?.rawName]: (counts[item?.rawName] ?? 0) + (item?.amount || 0) }), {});
   const dropRateBonus = getResearchGridBonus(account, 168, 0) >= 1 ? getResearchGridBonus(account, 168, 2) : 0;
 
   return <>
@@ -30,7 +34,7 @@ const Glimbo = () => {
       <StatTile label={'Drop rate bonus'} failed={false}
                 value={<Num value={1 + (dropRateBonus ?? 0) / 100} game={'Minehead.GlimboDRmulti'} unit={'x'}/>}/>
     </PageSummary>
-    <GlimboTrades glimbo={glimbo}/>
+    <GlimboTrades glimbo={glimbo} owned={owned}/>
   </>;
 };
 
