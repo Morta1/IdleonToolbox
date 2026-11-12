@@ -1,7 +1,10 @@
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { createBreakdown, info, listGroup } from '@parsers/breakdown';
+import { Box, Typography } from '@mui/material';
+import InfoButton from '@components/common/InfoButton';
 import CardGrid from '@components/common/cards/CardGrid';
+import GameIcon from '@components/common/GameIcon';
 import ItemCard from '@components/common/cards/ItemCard';
 
 // The upgrade's short name: "Permanently boosts Crop Evolution Chance! ..." is Crop Evolution Chance. A flat unlock
@@ -11,6 +14,7 @@ const shortName = (text) => text.match(/boosts (?:the |your )?(.+?)(?:!| by |\.\
 // Below Lv 2 the Gallery upgrade's description is its +1 Grade chance, which names no upgrade: its name is the
 // multiplier the game's description names from Lv 2
 const GALLERY = 5;
+const SKULL_ICON = 'etc/Killroy_Skull.png';
 const GALLERY_NAME = 'Gallery Multiplier';
 
 const breakpointText = ({ level, bonusDisplay }) => `${formatNum(level, 'level')} (${bonusDisplay})`;
@@ -28,7 +32,18 @@ const breakpointsTrigger = (title, nextBreakpoint, breakpoints) => {
   </Breakdown>;
 };
 
-const PermanentUpgrades = ({ killroy, sectionFailed }) => <CardGrid size={'m'}>
+// "Cost", with an "i" holding what the levels to the next breakpoint cost against the skulls you have
+const costLabel = (title, toBreakpoint) => (toBreakpoint
+  ? <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+    Cost
+    <InfoButton label={`${title} cost to the next breakpoint`}>
+      <Typography variant={'body2'} sx={{ mb: 1 }}>{`To Lv ${formatNum(toBreakpoint.level)}, the next breakpoint:`}</Typography>
+      <ItemCard.Cost icon={SKULL_ICON} iconAlt={'Skulls'} need={toBreakpoint.need} have={toBreakpoint.have}/>
+    </InfoButton>
+  </Box>
+  : 'Cost');
+
+const PermanentUpgrades = ({ killroy, sectionFailed, skulls = killroy?.skulls }) => <CardGrid size={'m'}>
   {(killroy?.permanentUpgrades ?? []).map(({
                                             description,
                                             level,
@@ -37,7 +52,8 @@ const PermanentUpgrades = ({ killroy, sectionFailed }) => <CardGrid size={'m'}>
                                             capDisplay,
                                             breakpoints,
                                             nextBreakpoint,
-                                            appliedBonuses
+                                            appliedBonuses,
+                                            cost
                                           }, index) => {
     const text = cleanUnderscore(description ?? '');
     const name = index === GALLERY ? GALLERY_NAME : shortName(text);
@@ -50,7 +66,14 @@ const PermanentUpgrades = ({ killroy, sectionFailed }) => <CardGrid size={'m'}>
       {!sectionFailed && progress != null
         ? <ItemCard.Progress label={'Toward its cap'} value={bonusDisplay} max={capDisplay} percent={progress}/>
         : null}
-      <ItemCard.Facts rows={[!sectionFailed && nextBreakpoint ? ['Next breakpoint', breakpointsTrigger(title, nextBreakpoint, breakpoints)] : null]}/>
+      <ItemCard.Facts rows={[
+        cost ? [costLabel(title, !sectionFailed && nextBreakpoint ? {
+          level: nextBreakpoint.level, need: (nextBreakpoint.level - (level ?? 0)) * cost, have: skulls ?? 0
+        } : null), <Box key={'cost'} component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+          <GameIcon src={SKULL_ICON} size={16} alt={'Skulls'}/>{formatNum(cost)}
+        </Box>] : null,
+        !sectionFailed && nextBreakpoint ? ['Next breakpoint', breakpointsTrigger(title, nextBreakpoint, breakpoints)] : null
+      ]}/>
       {applied.length ? <ItemCard.Section label={'Applied to'}>
         <ItemCard.Facts rows={applied.map(({ name: target, value, max }) => [target, `${formatNum(value, 'mult')} / ${formatNum(max, 'mult')}`])}/>
       </ItemCard.Section> : null}

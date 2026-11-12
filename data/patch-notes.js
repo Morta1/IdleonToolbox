@@ -14,7 +14,8 @@ export const patchNotes = [
       'Vials: search, a table view with every vial\'s bonus, daily attempts left and the material each level costs',
       'Sigils: each sigil shows what its next tier gives, and Sigil syrup explains what one does',
       'Arcade Shop: a countdown to when the arcade is full, how often a ball comes, and what Cosmic and Omega balls do',
-      'Islands: Fractal shows its next bonus and how many hours to go, each shop shows what you have to spend, and the tiles have icons'
+      'Islands: Fractal shows its next bonus and how many hours to go, each shop shows what you have to spend, and the tiles have icons',
+      'Killroy: each permanent upgrade shows its skull cost, and what it takes to reach its next breakpoint'
     ],
     'fixes': []
   },

@@ -1788,6 +1788,8 @@ export const getKillRoy = (idleonData: any, charactersData: any, accountData: an
       breakpoints,
       nextBreakpoint,
       appliedBonuses: capInfo ? getAppliedBonuses(i, bonus, capInfo.cap) : null,
+      // game: SkullShopDesc[i][1], a fixed skull price for every purchase. The 3rd fight stops selling once unlocked
+      cost: i === 0 && unlockedThirdKillRoy ? null : Number(upgrade?.x1) || 0,
       description: description?.replace(replacementChar, formatDescriptionBonus(bonus, i))
     }
   });
