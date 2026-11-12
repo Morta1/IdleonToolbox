@@ -26,8 +26,8 @@ export default {
       value: (row) => row.owned,
       boolean: true,
       verb: 'buy',
-      // bought with the stars the event shop page counts
-      cost: { label: 'stars', icon: () => 'etc/Event_Currency', have: ({ account }) => account?.accountOptions?.[OPT.eventShopCurrency] ?? 0, price: (row) => row.price }
+      // bought with the Event Points the event shop page counts
+      cost: { label: 'Event Points', icon: () => 'etc/Event_Currency', have: ({ account }) => account?.accountOptions?.[OPT.eventShopCurrency] ?? 0, price: (row) => row.price }
     }
   }
 };

@@ -2073,6 +2073,7 @@ export const getEventShopRotation = (account: any): {
   tiers: EventShopTier[];
   starsToFinish: number;
   offRotation: EventShopBonus[];
+  currentEvent: string | null;
 } => {
   const bonusOf = (index: number, text: string, price: string): EventShopBonus => {
     const [name, description] = text.split('@');
@@ -2086,7 +2087,8 @@ export const getEventShopRotation = (account: any): {
   const tiers = EVENT_SHOP_TIERS.map((name, tier) => {
     const bonuses = current.slice(4 * tier, 4 * tier + 4).map((index) => catalog[index]).filter(Boolean);
     const owned = bonuses.filter((bonus) => bonus.owned).length;
-    const lockedBy: EventShopTier['lockedBy'] = previous && (previous.lockedBy || previous.owned < previous.bonuses.length)
+    // game: a tier opens once the 4 bonuses of the tier right before it are owned, whatever the tiers before that
+    const lockedBy: EventShopTier['lockedBy'] = previous && previous.owned < previous.bonuses.length
       ? { name: previous.name, owned: previous.owned, total: previous.bonuses.length }
       : null;
     const starsLeft = bonuses.filter((bonus) => !bonus.owned).reduce((sum, bonus) => sum + bonus.price, 0);
@@ -2110,5 +2112,11 @@ export const getEventShopRotation = (account: any): {
     .map((bonus) => ({ ...bonus, lastSold: lastSold.get(bonus.index) ?? null }))
     .sort((a, b) => Number(a.owned) - Number(b.owned) || recency(b).localeCompare(recency(a)) || a.index - b.index);
 
-  return { tiers, starsToFinish: tiers.reduce((sum, tier) => sum + tier.starsLeft, 0), offRotation };
+  return {
+    tiers,
+    starsToFinish: tiers.reduce((sum, tier) => sum + tier.starsLeft, 0),
+    offRotation,
+    // The event the current rotation sells for, as the off-rotation cards name theirs
+    currentEvent: rotations.at(-1)?.event ?? null
+  };
 }

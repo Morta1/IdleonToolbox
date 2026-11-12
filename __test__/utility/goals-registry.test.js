@@ -669,7 +669,7 @@ describe('remaining systems: account pages, class-specific and worlds 1-4', () =
   // The price each page prints and the currency it is paid with; a goal's bar runs from one to the other
   it.each([
     ['bribe', 'purchased', 'coins', () => account.currencies.rawMoney, () => account.bribes.map(({ price }) => price)],
-    ['eventShop', 'owned', 'stars', () => account.accountOptions[310], () => getEventShopItems().map(({ price }) => Number(price))],
+    ['eventShop', 'owned', 'Event Points', () => account.accountOptions[310], () => getEventShopItems().map(({ price }) => Number(price))],
     ['jade', 'unlocked', 'jade coins', () => Number(account.sneaking.jadeCoins),
       () => account.sneaking.jadeEmporium.filter(({ name }) => name !== 'UNDER_CONSTRUCTION').map(({ cost }) => cost)],
     ['superbit', 'unlocked', 'bits', () => account.gaming.bits, () => account.gaming.superbitsUpgrades.map(({ cost }) => cost)],

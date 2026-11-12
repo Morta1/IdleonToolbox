@@ -10,7 +10,7 @@ export const patchNotes = [
     'date': '13/11/2026',
     'features': [
       'Classes: Compass lists Tempest Form stats in the game\'s order, says what unlocks each locked upgrade and how many abominations open the next town, fills in your Tempest element and weapon multiplier, and gets search on Portals and Medallions; Tesseract maps get search, show tachyons per drop with Extra tachyon and each bonus\'s kills, drop tiles count today\'s drops against the daily cap, and a Next upgrade tile shows while upgrades are locked; Royal Armory names statues by their marble with how many you have, shows flair tier names, a Next level row on shelves and when the next shelf opens; Speedrun shows each portal\'s kills and clear time on its card, gets portal search, shows bosses as small tiles with their portal total, and says which map its kill tiles are for',
-      'Misc: Friends Stats shows filled slots out of your total, each friend\'s level against the 30,000 cap, and dims bonuses no friend gives; Random Events lists every event with its rare drops and the worlds it spawns in (also signed out), and the schedule counts down to each event and marks the one running now'
+      'Misc: Friends Stats shows filled slots out of your total, each friend\'s level against the 30,000 cap, and dims bonuses no friend gives; Random Events lists every event with its rare drops and the worlds it spawns in (also signed out), and the schedule counts down to each event and marks the one running now; Event Shop calls its currency Event Points as the game does, names the current event, gets bonus search, and off-rotation bonuses show just their price'
     ],
     'fixes': [
       'Compass and Tesseract: Mastery read 0.7% and 0.25% instead of 70% and 25%',
@@ -18,7 +18,8 @@ export const patchNotes = [
       'Tesseract: Total tachyons collected counted held tachyons twice, Prisma chance showed before its upgrade was bought, and the optimizer skipped Bludon Hoarding and Fractal Tesseract',
       'Royal Armory: Marble chance showed before the Royal Marble shelf was bought, when no marbles drop',
       'Speedrun: Void talent points read as earned per run (they come from your highscore), and Void radius showed a bonus before Void Trial Rerun was learned',
-      'Skill EXP: the Skill EXP friend bonus was left out of all-skill EXP'
+      'Skill EXP: the Skill EXP friend bonus was left out of all-skill EXP',
+      'Event Shop: the Forbidden Aisle could read locked after its Blackmarket bonuses were owned'
     ]
   },
   {

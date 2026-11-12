@@ -15,7 +15,7 @@ import StatusText from '@components/common/StatusText';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 
-const EVENT_SHOP_TOOLBAR = { hideOwned: false };
+const EVENT_SHOP_TOOLBAR = { search: '', hideOwned: false };
 // A pair never breaks inside itself in a line of words that wraps
 const pair = (a, b) => `${formatNum(a)} / ${formatNum(b)}`;
 
@@ -41,11 +41,15 @@ const EventShop = () => {
   const parseFailed = state?.account?.failedSections?.includes('*');
   const [view, setView, resetView] = useToolbarState('event-shop', EVENT_SHOP_TOOLBAR);
   const hideOwned = !parseFailed && view.hideOwned;
-  const { tiers, starsToFinish, offRotation } = getEventShopRotation(parseFailed ? {} : state?.account);
+  const { tiers, starsToFinish, offRotation, currentEvent } = getEventShopRotation(parseFailed ? {} : state?.account);
+  // The game's Event Points (item Event_Point), the shop's currency
   const stars = state?.account?.accountOptions?.[OPT.eventShopCurrency] ?? 0;
+  // Search reads the bonus's name and what it does
+  const search = (view?.search ?? '').trim().toLowerCase();
   const total = offRotation.length + tiers.reduce((sum, tier) => sum + tier.bonuses.length, 0);
   const owned = offRotation.filter(({ owned }) => owned).length + tiers.reduce((sum, tier) => sum + tier.owned, 0);
-  const visible = (bonus) => !(hideOwned && bonus.owned);
+  const visible = (bonus) => !(hideOwned && bonus.owned)
+    && (!search || cleanUnderscore(`${bonus.name ?? ''} ${bonus.description ?? ''}`).toLowerCase().includes(search));
   const shownOffRotation = offRotation.filter(visible);
   const shownCount = shownOffRotation.length + tiers.reduce((sum, tier) => sum + tier.bonuses.filter(visible).length, 0);
 
@@ -53,8 +57,10 @@ const EventShop = () => {
     const ownedNow = !parseFailed && isOwned;
     return <ItemCard key={`event-bonus-${index}`} icon={`data/EventShopBuy${index}.png`} title={titleCaseName(cleanUnderscore(name))}
                      dimmed={locked} status={ownedNow ? 'done' : undefined} statusLabel={'Owned'}
-                     footer={ownedNow ? null : <ItemCard.Cost icon={'etc/Event_Currency.png'} iconAlt={'Stars'} game={'Save.EventShopCurrency'} need={price}
-                                                              have={parseFailed ? undefined : stars}/>}>
+                     // Only the current rotation is for sale, so an off-rotation card prices the bonus without
+                     // weighing it against the points held
+                     footer={ownedNow ? null : <ItemCard.Cost icon={'etc/Event_Currency.png'} iconAlt={'Event Points'} game={'Save.EventShopCurrency'} need={price}
+                                                              have={parseFailed || off ? undefined : stars}/>}>
       <ItemCard.Desc text={cleanUnderscore(description ?? '')}/>
       {off ? <ItemCard.Facts rows={[['Last sold', lastSoldText(lastSold)]]}/> : null}
     </ItemCard>;
@@ -63,25 +69,26 @@ const EventShop = () => {
   return <>
     <NextSeo
       title="Event Shop | Idleon Toolbox"
-      description="Track your event shop purchases, star currency, and bonus progression in Legends of Idleon"
+      description="Track your event shop purchases, Event Points, and bonus progression in Legends of Idleon"
     />
     {parseFailed ? <MissingData name={'your save'} failed atZero/> : null}
     <PageSummary>
-      <StatTile label={'Stars'} icon={'etc/Event_Currency.png'} value={parseFailed ? '-' : stars} kind={{ game: 'Save.EventShopCurrency', whole: true }}/>
+      <StatTile label={'Event Points'} icon={'etc/Event_Currency.png'} value={parseFailed ? '-' : stars} kind={{ game: 'Save.EventShopCurrency', whole: true }}/>
       <StatTile label={'Bonuses owned'} value={parseFailed ? '-' : `${formatNum(owned)} / ${formatNum(total)}`}/>
-      <StatTile label={'Stars to finish the rotation'} value={parseFailed ? '-' : formatNum(starsToFinish ?? 0)}/>
+      <StatTile label={'Points to finish the rotation'} value={parseFailed ? '-' : formatNum(starsToFinish ?? 0)}/>
     </PageSummary>
     <Box>
       {parseFailed ? null : <Toolbar state={view} defaults={EVENT_SHOP_TOOLBAR} onChange={setView} onReset={resetView}
                                      total={total} shown={shownCount} noun={'bonuses'}>
+        <Toolbar.Search placeholder={'Search bonuses'}/>
         <Toolbar.Filter name={'hideOwned'} label={'Hide owned'}/>
       </Toolbar>}
-      <Typography variant={'sectionTitle'} component={'h2'}>Current rotation</Typography>
+      <Typography variant={'sectionTitle'} component={'h2'}>{currentEvent ? `Current rotation: ${currentEvent}` : 'Current rotation'}</Typography>
       {tiers.map(({ name, bonuses, owned: tierOwned, starsLeft, lockedBy }) => {
         const shown = bonuses.filter(visible);
         const progress = parseFailed ? null : lockedBy
           ? `Unlocks once every ${lockedBy.name} bonus is owned (${pair(lockedBy.owned, lockedBy.total)})`
-          : `${pair(tierOwned, bonuses.length)} owned${starsLeft ? `, ${formatNum(starsLeft)} stars left` : ''}`;
+          : `${pair(tierOwned, bonuses.length)} owned${starsLeft ? `, ${formatNum(starsLeft)} points left` : ''}`;
         return <Stack key={name} mt={2} gap={1}>
           <Stack direction={'row'} alignItems={'baseline'} columnGap={1} flexWrap={'wrap'}>
             <Typography variant={'groupLabel'} component={'h3'}>{name}</Typography>

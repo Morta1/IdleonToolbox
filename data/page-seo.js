@@ -14,7 +14,7 @@ export const PAGE_SEO = {
   "/account/clickers/owl": { title: "Owl | Idleon Toolbox", description: "Track your Owl minigame upgrades, feather progress, and bonus multipliers in Legends of Idleon" },
   "/account/misc/constellations": { title: "Constellations | Idleon Toolbox", description: "Explore all constellation completions and star sign bonuses for your Legends of Idleon characters" },
   "/account/misc/dungeons": { title: "Dungeons | Idleon Toolbox", description: "Dungeon information including happy hour times, currency, upgrades and more" },
-  "/account/misc/event-shop": { title: "Event Shop | Idleon Toolbox", description: "Track your event shop purchases, star currency, and bonus progression in Legends of Idleon" },
+  "/account/misc/event-shop": { title: "Event Shop | Idleon Toolbox", description: "Track your event shop purchases, Event Points, and bonus progression in Legends of Idleon" },
   "/account/misc/friends-stats": { title: "Friends Stats | Idleon Toolbox", description: "View all friendship bonuses and their effects on your Legends of Idleon account progression" },
   "/account/misc/general": { title: "General | Idleon Toolbox", description: "View your Legends of Idleon account overview including level, gems, keys, and general progression stats" },
   "/account/misc/guild": { title: "Guild | Idleon Toolbox", description: "Keep track of your guild members, gp, bonuses and more" },
