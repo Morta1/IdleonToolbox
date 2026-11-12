@@ -18,10 +18,14 @@ const friendsCatalog = () => {
   }
 };
 
+const FRIEND_LEVEL_CAP = 30000;
+
 const FriendsStats = () => {
   const { state } = useContext(AppContext);
   const failed = isSectionFailed(state?.account, 'friendBonusStats');
   const { bonuses = [], slots, multiplier } = (failed ? friendsCatalog() : state?.account?.friendBonusStats) ?? {};
+  // Each picked bonus fills a slot: an open one is a bonus to pick now
+  const filled = (bonuses ?? []).filter((bonus) => bonus?.friendName).length;
 
   return (
     <>
@@ -31,17 +35,20 @@ const FriendsStats = () => {
       />
       {failed ? <MissingData name={'Friends Stats'} failed atZero/> : null}
       <PageSummary>
-        <StatTile label={'Slots'} value={failed ? '-' : formatNum(slots ?? 0)}/>
-        <StatTile label={'Multiplier'} value={failed ? '-' : formatNum(multiplier ?? 1, 'mult')}/>
+        <StatTile label={'Slots'} value={failed ? '-' : `${formatNum(filled)} / ${formatNum(slots ?? 0)}`}/>
+        <StatTile label={'Multiplier'} value={failed ? '-' : formatNum(multiplier ?? 1, 'mult')}
+                  info={'From the Mr Pig companion and an upgraded Spearfish companion'}/>
       </PageSummary>
       <CardGrid size={'s'}>
         {(bonuses ?? []).map((bonus, index) => <ItemCard key={`friend-bonus-${bonus?.statIndex ?? index}`}
                                                          title={failed
                                                            ? `${bonus?.name ?? ''}`.replace(/^%\s*/, '')
                                                            : `${formatNum(bonus?.value ?? 0, 'pct', { bare: true })}${bonus?.name ?? ''}`}
+                                                         // game: a friend's level counts up to 30,000 (FriendBonusQTY)
                                                          meta={failed ? undefined : bonus?.friendName
-                                                           ? `${bonus.friendName} · ${formatNum(bonus?.level ?? 0, 'level')}`
-                                                           : 'No friend gives it yet'}/>)}
+                                                           ? `${bonus.friendName} · ${formatNum(bonus?.level ?? 0, 'level')} / ${formatNum(FRIEND_LEVEL_CAP)}`
+                                                           : 'No friend gives it yet'}
+                                                         dimmed={!failed && !bonus?.friendName} keepMeta/>)}
       </CardGrid>
     </>
   );

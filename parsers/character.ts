@@ -1823,6 +1823,8 @@ export const getAllSkillsExp = (character: any, characters: any[], account: any)
   const guildBonus = getGuildBonusBonus(account?.guild?.guildBonuses, 14);
   const owlBonus = getOwlBonus(account?.owl?.bonuses, 'Skill XP');
   const armorSetBonus = getArmorSetBonus(account, 'CHIZOAR_SET');
+  // game AllSkillxpz: ... + Thingies("FriendBonusStatz", 4, 0), the Skill EXP friend bonus
+  const friendBonus = getFriendBonus(account, 4) ?? 0;
 
   const luckyCharmBonus = Math.min(150, 100 * (checkCharClass(character?.class, CLASSES.Maestro)
     ? Number(luckyCharmEnhancement)
@@ -1855,7 +1857,8 @@ export const getAllSkillsExp = (character: any, characters: any[], account: any)
     percent('Guild', guildBonus),
     percent('Owl', owlBonus),
     percent('Armor set', armorSetBonus),
-    percent('Schematic', schematicBonus)
+    percent('Schematic', schematicBonus),
+    percent('Friend bonus', friendBonus)
   ]);
   return { value: evaluateBreakdownNode(breakdown), breakdown };
 }

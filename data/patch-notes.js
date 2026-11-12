@@ -9,14 +9,16 @@ export const patchNotes = [
     'gameVer': '2.3.561',
     'date': '13/11/2026',
     'features': [
-      'Classes: Compass lists Tempest Form stats in the game\'s order, says what unlocks each locked upgrade and how many abominations open the next town, fills in your Tempest element and weapon multiplier, and gets search on Portals and Medallions; Tesseract maps get search, show tachyons per drop with Extra tachyon and each bonus\'s kills, drop tiles count today\'s drops against the daily cap, and a Next upgrade tile shows while upgrades are locked; Royal Armory names statues by their marble with how many you have, shows flair tier names, a Next level row on shelves and when the next shelf opens; Speedrun shows each portal\'s kills and clear time on its card, gets portal search, shows bosses as small tiles with their portal total, and says which map its kill tiles are for'
+      'Classes: Compass lists Tempest Form stats in the game\'s order, says what unlocks each locked upgrade and how many abominations open the next town, fills in your Tempest element and weapon multiplier, and gets search on Portals and Medallions; Tesseract maps get search, show tachyons per drop with Extra tachyon and each bonus\'s kills, drop tiles count today\'s drops against the daily cap, and a Next upgrade tile shows while upgrades are locked; Royal Armory names statues by their marble with how many you have, shows flair tier names, a Next level row on shelves and when the next shelf opens; Speedrun shows each portal\'s kills and clear time on its card, gets portal search, shows bosses as small tiles with their portal total, and says which map its kill tiles are for',
+      'Misc: Friends Stats shows filled slots out of your total, each friend\'s level against the 30,000 cap, and dims bonuses no friend gives'
     ],
     'fixes': [
       'Compass and Tesseract: Mastery read 0.7% and 0.25% instead of 70% and 25%',
       'Compass: the upgrade optimizer skipped Mastery Destruction and the Tempest Health upgrades, and the Extra dust breakdown called Spire of Dust "Per solardust"',
       'Tesseract: Total tachyons collected counted held tachyons twice, Prisma chance showed before its upgrade was bought, and the optimizer skipped Bludon Hoarding and Fractal Tesseract',
       'Royal Armory: Marble chance showed before the Royal Marble shelf was bought, when no marbles drop',
-      'Speedrun: Void talent points read as earned per run (they come from your highscore), and Void radius showed a bonus before Void Trial Rerun was learned'
+      'Speedrun: Void talent points read as earned per run (they come from your highscore), and Void radius showed a bonus before Void Trial Rerun was learned',
+      'Skill EXP: the Skill EXP friend bonus was left out of all-skill EXP'
     ]
   },
   {
