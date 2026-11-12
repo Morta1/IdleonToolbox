@@ -19,26 +19,49 @@ import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import Panel from '@components/common/cards/Panel';
 import SheetContext from '@components/common/cards/SheetContext';
+import StatusText from '@components/common/StatusText';
 
 const itemName = (rawName) => cleanUnderscore(itemsTable?.[rawName]?.displayName ?? rawName);
 // An owner-approved exception to the decimals rule: a tile has no room for 264,736.87 beside its row, and its note keeps them.
 const tileValue = (value) => formatNum(value ?? 0, 'whole');
 
-// A group of a character's printer slots in one row of the character sheet's small tiles (SheetContext), 48 px and 3 px
-// apart so a 6-digit amount clears the edges, a panel's 12 slots about 615 px, and two characters share a row (#42); the
-// group's name is for a screen reader
-const SLOT_TILE = 48;
-const SlotGroup = ({ label, slots }) => <SheetContext value={{}}>
-  <Box role={'group'} aria-label={label}>
-    <CardGrid size={'icon'} columns={slots?.length || 1} sheetTile={SLOT_TILE} sx={{ gap: '3px' }}>
-      {(slots ?? []).map((slot, slotIndex) => !slot?.item || slot.item === 'Blank'
-        ? <IconTile key={`blank-${slotIndex}`} status={'empty'}/>
-        : <IconTile key={`${slot.item}-${slotIndex}`} icon={`data/${slot.item}.png`} alt={itemName(slot.item)}
-                    value={tileValue(slot.boostedValue)} status={slot.active ? 'active' : undefined}
-                    details={`${itemName(slot.item)}: ${slot.active ? 'printing' : 'stored'}, ${formatNum(slot.boostedValue ?? 0)} per hour from a ${formatNum(slot.value ?? 0)} sample`}/>)}
+// A group of a character's printer slots in the character sheet's small tiles (SheetContext): one row while the panel is
+// wide enough, fewer tiles a row below that (CardGrid's sheet steps read the group's own width). The group's name is for
+// a screen reader. better: the printing items with a bigger stored sample, whose slot takes the warning edge and a line in its note
+const SlotGroup = ({ label, slots, better = [], fixed = false }) => <SheetContext value={{}}>
+  {/* A size container has no width of its own: the samples take the room left, the printing slots a 52 px tile each */}
+  <Box role={'group'} aria-label={label} sx={{
+    containerType: 'inline-size', minWidth: 0,
+    ...(fixed ? { width: (slots?.length || 1) * 52 + ((slots?.length || 1) - 1) * 6, flex: 'none' } : { flex: 1 })
+  }}>
+    <CardGrid size={'icon'} columns={slots?.length || 1} sheetColumns={fixed ? [slots?.length || 1] : [slots?.length || 1, Math.ceil((slots?.length || 1) / 2)]}>
+      {(slots ?? []).map((slot, slotIndex) => {
+        if (!slot?.item || slot.item === 'Blank') return <IconTile key={`blank-${slotIndex}`} status={'empty'}/>;
+        const bigger = slot.active ? better.find(({ item }) => item === slot.item) : null;
+        const note = `${itemName(slot.item)}: ${slot.active ? 'printing' : 'stored'}, ${formatNum(slot.boostedValue ?? 0)} per hour from a ${formatNum(slot.value ?? 0)} sample`;
+        return <IconTile key={`${slot.item}-${slotIndex}`} icon={`data/${slot.item}.png`} alt={itemName(slot.item)}
+                         value={tileValue(slot.boostedValue)} status={slot.active && !bigger ? 'active' : undefined}
+                         edge={bigger ? 'warning.main' : undefined}
+                         details={bigger ? <Stack gap={0.5}>
+                           <Typography variant={'body2'}>{note}</Typography>
+                           <StatusText status={'needs'} wrap>
+                             {`A stored sample is ${formatNum(bigger.ratio, 'mult')} bigger: swap it in`}
+                           </StatusText>
+                         </Stack> : note}/>;
+      })}
     </CardGrid>
   </Box>
 </SheetContext>;
+
+const isFilled = (slot) => slot?.item && slot.item !== 'Blank';
+// Each printing item the character holds a bigger stored sample of, by how many times bigger the biggest is
+const betterSamples = (slots) => (slots ?? []).filter((slot) => slot?.active && isFilled(slot) && slot.value > 0)
+  .map((printing) => {
+    const best = Math.max(0, ...(slots ?? []).filter((slot) => !slot?.active && slot?.item === printing.item)
+      .map((slot) => Number(slot.value) || 0));
+    return { item: printing.item, ratio: best / printing.value };
+  })
+  .filter(({ ratio }) => ratio > 1);
 
 // Printer Go Brrr's hours: the highest Maestro's level, or the max level's hours when nobody has a point in it
 const printerGoBrrr = (characters) => {
@@ -94,10 +117,12 @@ const Printer = () => {
                       <Breakdown asValue data={multiBreakdown} title={`${name} printer multi`}>{multiText}</Breakdown>
                     </Typography>
                     : null}>
-      {/* The samples, then the two printing slots apart at the panel's right edge (#72) */}
-      <Stack direction={'row'} gap={1} alignItems={'flex-start'} justifyContent={'space-between'} sx={{ px: 1, py: 1.5 }}>
+      {/* The samples, then the two printing slots apart at the panel's right edge (#72); on a phone the printing
+          slots go under the samples, which wrap, instead of 12 tiles squeezed into one row */}
+      <Stack direction={{ xs: 'column', sm: 'row' }} gap={1} alignItems={{ xs: 'stretch', sm: 'flex-start' }}
+             justifyContent={'space-between'} sx={{ px: 1, py: 1.5 }}>
         <SlotGroup label={'Samples'} slots={slots?.filter((slot) => !slot?.active)}/>
-        <SlotGroup label={'Printing'} slots={slots?.filter((slot) => slot?.active)}/>
+        <SlotGroup label={'Printing'} slots={slots?.filter((slot) => slot?.active)} better={betterSamples(slots)} fixed/>
       </Stack>
     </Panel>;
   };
@@ -113,7 +138,7 @@ const Printer = () => {
     <PageSummary>
       <StatTile label={'Atom threshold'} value={formatGame(atomThreshold, 'AtomCollider.AtomThreshold')}/>
       {/* A failed printer section has no output: the tile it feeds shows no number */}
-      <StatTile label={'Atoms per hour'} value={printerFailed ? '-' : formatNum(atoms, 'amount', { precise: true })}
+      <StatTile label={'Atoms per hour'} icon={'etc/Particle.png'} value={printerFailed ? '-' : formatNum(atoms, 'amount', { precise: true })}
                 sub={printerFailed ? undefined : `${formatNum(atoms * 24, 'amount', { precise: true })} per day`}/>
     </PageSummary>
     {Object.keys(totals).length ? <>
