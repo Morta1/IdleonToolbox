@@ -72,14 +72,16 @@ const Guild = () => {
     <GuildSeo/>
     {guildFailed ? <MissingData name={'Guild'} failed atZero={tabs[tabIndex] === 'Bonuses'}/> : null}
     {hasMembers ? <PageSummary>
+      {/* The game's "#20" beside the guild name: the level the member cap comes from */}
       <StatTile label={'Guild'} icon={`data/G2icon${state?.account?.accountOptions?.[OPT.guildIcon]}.png`}
-                value={state?.account?.accountOptions?.[OPT.guildName]}/>
+                value={state?.account?.accountOptions?.[OPT.guildName]} sub={`Level ${formatNum(guild?.level ?? 0)}`}/>
       <StatTile label={'Members'} value={`${formatNum(members.length)} / ${formatNum(guild?.maxMembers ?? 0)}`}/>
-      <StatTile label={'Guild GP'} value={`${formatNum(guild?.totalGp ?? 0)} / ${formatNum(Math.round(guild?.levelReq ?? 0))}`}/>
+      <StatTile label={'Guild XP'} value={`${formatNum(guild?.totalGp ?? 0)} / ${formatNum(Math.round(guild?.levelReq ?? 0))}`}/>
+      <StatTile label={'Unspent GP'} value={formatNum(guild?.unspentGp ?? 0, 'whole')}/>
     </PageSummary> : null}
     <Tabber tabs={tabs}>
       {membersTab}
-      <GuildBonuses bonuses={guild?.guildBonuses} sectionFailed={guildFailed}/>
+      <GuildBonuses bonuses={guild?.guildBonuses} sectionFailed={guildFailed} unspentGp={hasMembers ? guild?.unspentGp : undefined}/>
     </Tabber>
   </>
 };

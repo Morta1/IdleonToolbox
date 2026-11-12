@@ -7,15 +7,19 @@ import usePageTop from '@hooks/usePageTop';
 import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
 
-// The rank icon (members past the fourth rank keep its room, so names line up), the name, and the two titles.
+// The rank icon (members past the fourth rank keep its room, so names line up) and the name; the Rank column says the title
 const MemberName = ({ member }) => <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>
   {member.rank < 5
     ? <GameIcon src={`etc/GuildRank${member.rank}.png`} alt={''} size={16}/>
     : <Box component={'span'} sx={{ display: 'inline-block', width: 16, height: 16 }}/>}
   <Typography component={'span'} variant={'body2'}>
-    {cleanUnderscore(member.name)} {member.rank === 0 ? '(King)' : member.rank === 1 ? '(Leader)' : ''}
+    {cleanUnderscore(member.name)}
   </Typography>
 </Box>;
+
+// game: the wanted-bonus column reads "N/A (King)" and "N/A (Leader)" for ranks 0 and 1, whose wants count for nothing
+const wantedText = (member) => (member.rank === 0 ? 'N/A (King)' : member.rank === 1 ? 'N/A (Leader)'
+  : cleanUnderscore(member.wantedBonus?.name) || 'Guild Gifts');
 
 const GuildMembers = ({ members, saves }) => {
   const formatDate = useFormatDate();
@@ -32,11 +36,16 @@ const GuildMembers = ({ members, saves }) => {
     value: (member) => member.gpEarned - (save?.members?.find(({ name }) => name === member.name)?.gpEarned ?? 0)
   }));
   const columns = [
+    // The game's header sorts by rank as well as by name: lower rank first (the King, then the Leader)
+    { key: 'rank', label: 'Rank', value: (member) => member.rank, sortable: true,
+      render: (member) => (member.rank === 0 ? 'King' : member.rank === 1 ? 'Leader' : 'Member') },
     { key: 'name', label: 'Name', value: (member) => member.name, sortable: true, render: (member) => <MemberName member={member}/> },
+    { key: 'class', label: 'Class', from: 'sm', value: (member) => member.classIndex,
+      render: (member) => <GameIcon src={`data/ClassIcons${member.classIndex ?? 0}.png`} alt={''} size={24}/> },
     { key: 'level', label: 'Level', kind: 'amount', sortable: true, value: (member) => member.level },
     { key: 'gpEarned', label: 'Earned GP', kind: 'amount', sortable: true, phone: true, value: (member) => member.gpEarned },
     ...saveColumns,
-    { key: 'wanted', label: 'Wanted bonus', value: (member) => cleanUnderscore(member.wantedBonus?.name) || 'Guild Gifts' }
+    { key: 'wanted', label: 'Wanted bonus', sortable: true, value: wantedText }
   ];
 
   return <DataTable

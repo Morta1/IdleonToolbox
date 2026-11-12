@@ -21,6 +21,7 @@ export interface GuildMemberParsed {
   gpEarned: number;
   wantedBonus: GuildBonusEntry | number;
   rank: number;
+  classIndex: number;
 }
 
 export interface GuildTaskEntry {
@@ -38,6 +39,7 @@ export interface GuildResult {
   level: number;
   levelReq: number;
   totalGp: number;
+  unspentGp?: number;
 }
 
 export const getLockedGuild = (): GuildResult => {
@@ -83,7 +85,9 @@ export const getGuild = (idleonData: IdleonData, guildData: GuildData | null): G
     maxMembers,
     level,
     levelReq,
-    totalGp
+    totalGp,
+    // The GP the guild still has to spend on bonuses (the game's "GP;" on the bonus screen)
+    unspentGp: guildData?.points ?? 0
   }
 }
 
@@ -121,7 +125,9 @@ const parseGuildMembers = (guildData: GuildData, bonuses: any[]): GuildMemberPar
       level: d,
       gpEarned: e,
       wantedBonus: bonuses?.[f] || -1,
-      rank: g
+      rank: g,
+      // game: ClassIcons{c}, clamped 0..40
+      classIndex: Math.max(0, Math.min(40, Number(c) || 0))
     }
   })
 }
