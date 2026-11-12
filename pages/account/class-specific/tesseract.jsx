@@ -5,6 +5,7 @@ import { useLocalStorage } from '@mantine/hooks';
 import { checkCharClass, CLASSES } from '@parsers/talents';
 import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
+import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { formatGame } from '@utility/gameNotation';
 import {
   getArcanistStats,
@@ -57,6 +58,8 @@ const Tesseract = () => {
   const [tabIndex] = useTabIndex(tabs);
   const sectionFailed = isSectionFailed(state?.account, 'tesseract');
   const { upgrades, totalUpgradeLevels, tachyons } = state?.account?.tesseract || {};
+  // game ArcaneUpgUNLOCKED: an upgrade opens once the total levels reach its x6, as Grimoire's next upgrade tile reads
+  const nextUnlock = (upgrades ?? []).find(({ unlocked }) => !unlocked);
   const catalog = sectionFailed ? zeroTesseract() : null;
   // Remembered per page; no default, so a pick that was never made keeps following the first Arcane Cultist
   const [selectedChar, setSelectedChar] = useLocalStorage({ key: 'tesseract:selectedChar' });
@@ -106,6 +109,9 @@ const Tesseract = () => {
       <StatTile label={'Prisma chance'} value={shown(prismaText)}/>
       <StatTile label={'Extra tachyon'} value={shown(extraTachyonText)} breakdownTitle={'Extra tachyon'}
                 breakdown={!sectionFailed && extraTachyon?.breakdown ? { ...extraTachyon.breakdown, totalValue: extraTachyonText } : undefined}/>
+      {!sectionFailed && nextUnlock?.name ? <StatTile label={'Next upgrade'} value={cleanUpgradeName(nextUnlock.name)}
+                                                      sub={`At ${formatNum(nextUnlock.x6)} total ${nextUnlock.x6 === 1 ? 'level' : 'levels'}`}
+                                                      info={cleanUnderscore(nextUnlock.description ?? '')}/> : null}
       {/* Every tachyon cost on the Upgrades tab prints in this rule, so the balances do too */}
       {Object.keys(tachyonNames).map((index) => <StatTile key={index} label={tachyonNames[index]} icon={`data/Tach${index}_x1.png`}
                                                           value={shown(formatGame(tachyons?.[index]?.value ?? 0, 'ArcaneType.ArcaneUpgCost', { whole: true }))}/>)}
@@ -115,7 +121,8 @@ const Tesseract = () => {
       <Upgrades account={state?.account} upgrades={catalog?.upgrades ?? upgrades} tachyons={tachyons} costing={costing}
                 prismaChance={sectionFailed ? undefined : prismaChance} character={sectionFailed ? undefined : selectedArcanist} sectionFailed={sectionFailed}/>
       <UpgradeOptimizer account={state?.account} character={selectedArcanist} sectionFailed={sectionFailed}/>
-      <Maps account={state?.account} character={selectedArcanist} characters={state?.characters} sectionFailed={sectionFailed}/>
+      <Maps account={state?.account} character={selectedArcanist} characters={state?.characters} sectionFailed={sectionFailed}
+            extraTachyon={sectionFailed ? null : extraTachyon?.value}/>
     </Tabber>
   </>
 };

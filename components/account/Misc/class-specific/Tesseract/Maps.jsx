@@ -9,11 +9,19 @@ import GameIcon from '@components/common/GameIcon';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 import MultiCharLockText from '@components/common/MultiCharLockText';
-import { getMaps, getRingBaseStats, getWeaponBaseStats, tachyonNames } from '@parsers/class-specific/tesseract';
+import { getMaps, getRingBaseStats, getTesseractBonus, getWeaponBaseStats, tachyonNames } from '@parsers/class-specific/tesseract';
+import { OPT } from '@parsers/accountOptions';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 
 // A saved checkbox from before resets once ("Hide unlocked maps")
-const MAPS_TOOLBAR = { tachyon: 'all', hideOpen: false, details: false };
+const MAPS_TOOLBAR = { search: '', tachyon: 'all', hideOpen: false, details: false };
+// game: an Arcanist weapon or ring drops only while its upgrade (5, 23) is bought and fewer than 100 dropped today
+const DAILY_DROP_CAP = 100;
+
+const TachAmount = ({ value, type, short }) => <Stack component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
+  {short ? formatNum(value ?? 0) : formatGame(value ?? 0, 'ArcaneType.ArcaneTachyonQTYbase')}
+  <GameIcon src={`data/Tach${type}_x1.png`} size={16} alt={tachyonNames[type] ?? ''}/>
+</Stack>;
 
 // An item's base stat ranges at its quality: a list, so a breakdown under the quality it follows (Info board step 5),
 // named and headed as the tile reads
@@ -39,7 +47,9 @@ const nextStep = (killsToNext) => {
 };
 
 // sectionFailed: the maps at zero by name, with no open state, bonus or Toolbar; the drop numbers read "-"
-const Maps = ({ character, account, characters, sectionFailed }) => {
+// A kill drops 1 or 2 tachyon drops, each base x Extra tachyon (game ArcaneTachyonQTYbase, "Tachyons per drop").
+// extraTachyon: the page's multiplier, none on a failed section
+const Maps = ({ character, account, characters, extraTachyon, sectionFailed }) => {
   const [view, setView, resetView] = useToolbarState('tesseract-maps', MAPS_TOOLBAR);
   const catalog = getMaps(account, characters, character) ?? [];
   const { weaponDropChance, ringDropChance, weaponQuality, ringQuality } = account?.tesseract || {};
@@ -48,24 +58,39 @@ const Maps = ({ character, account, characters, sectionFailed }) => {
   const weaponStats = getWeaponBaseStats(weaponQuality ?? 0);
   const ringStats = getRingBaseStats(ringQuality ?? 0);
   const ofType = (type) => catalog.filter(({ tachyonType }) => `${tachyonType}` === type);
-  const shown = sectionFailed ? catalog : catalog.filter(({ unlocked, tachyonType }) => !(view?.hideOpen && unlocked)
-    && (view?.tachyon === 'all' || `${tachyonType}` === view?.tachyon));
+  // Search reads the map and its monster
+  const search = (view?.search ?? '').trim().toLowerCase();
+  const shown = sectionFailed ? catalog : catalog.filter(({ unlocked, tachyonType, mapName, monster }) => !(view?.hideOpen && unlocked)
+    && (view?.tachyon === 'all' || `${tachyonType}` === view?.tachyon)
+    && (!search || cleanUnderscore(`${mapName ?? ''} ${monster?.Name ?? ''}`).toLowerCase().includes(search)));
+  // Each drop's state today: its upgrade unbought, the daily cap reached, or how many dropped so far
+  const dropState = (upgradeIndex, dropsToday) => {
+    if (sectionFailed) return undefined;
+    if (!(getTesseractBonus(account, upgradeIndex) > 0)) {
+      return `Needs ${cleanUnderscore(account?.tesseract?.upgrades?.[upgradeIndex]?.name ?? 'its upgrade')}`;
+    }
+    const dropped = Number(account?.accountOptions?.[dropsToday] ?? 0) || 0;
+    return dropped >= DAILY_DROP_CAP ? 'Daily cap reached' : `${formatNum(dropped)} of ${formatNum(DAILY_DROP_CAP)} today`;
+  };
 
   return <Stack gap={3}>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       <StatTile label={'Weapon drop chance'} icon={'data/EquipmentWandsArc0.png'}
-                value={sectionFailed ? '-' : formatNum(weaponDropChance, 'odds')}/>
+                value={sectionFailed ? '-' : formatNum(weaponDropChance, 'odds')}
+                sub={dropState(5, OPT.arcanistWeaponDropsToday)}/>
       <StatTile label={'Weapon quality'} value={sectionFailed ? '-' : weaponQualityText} breakdownTitle={'Weapon quality'}
                 breakdown={sectionFailed ? undefined : baseStats('Weapon quality', weaponQualityText, weaponStats)}
                 breakdownNoun={'stats'} sub={sectionFailed ? undefined : bestRoll(weaponStats, 'Arcanist DMG')}/>
       <StatTile label={'Ring drop chance'} icon={'data/EquipmentRingsArc0.png'}
-                value={sectionFailed ? '-' : formatNum(ringDropChance, 'odds')}/>
+                value={sectionFailed ? '-' : formatNum(ringDropChance, 'odds')}
+                sub={dropState(23, OPT.arcanistRingDropsToday)}/>
       <StatTile label={'Ring quality'} value={sectionFailed ? '-' : ringQualityText} breakdownTitle={'Ring quality'}
                 breakdown={sectionFailed ? undefined : baseStats('Ring quality', ringQualityText, ringStats)}
                 breakdownNoun={'stats'} sub={sectionFailed ? undefined : bestRoll(ringStats, 'Arcanist ACC')}/>
     </Stack>
     {sectionFailed ? null : <Toolbar state={view} defaults={MAPS_TOOLBAR} onChange={setView} onReset={resetView}
                                      total={catalog.length} shown={shown.length} noun={'maps'}>
+      <Toolbar.Search placeholder={'Search maps or monsters'}/>
       <Toolbar.Show name={'tachyon'} options={[['all', 'All tachyons', catalog.length],
         ...Object.keys(tachyonNames).map((type) => [type, tachyonNames[type], ofType(type).length])]}/>
       <Toolbar.Filter name={'hideOpen'} label={'Hide unlocked'}/>
@@ -80,13 +105,15 @@ const Maps = ({ character, account, characters, sectionFailed }) => {
                   more={<ItemCard.Facts rows={[
                     ['Kills to charge', formatNum(reqKills, 'whole')],
                     ['Time to charge', formatDuration(timeLeft)],
-                    ...(sectionFailed ? [] : (mapBonuses ?? []).map(({ killsToNext, type }) => [`${type} next step`, nextStep(killsToNext) ?? '-']))
+                    // The game's crystal tooltip: each bonus's kills so far and its next step
+                    ...(sectionFailed ? [] : (mapBonuses ?? []).map(({ kills, killsToNext, type }) => [`${type} kills`,
+                      [formatNum(kills ?? 0, 'whole'), nextStep(killsToNext)].filter(Boolean).join(', ')]))
                   ]}/>}>
           <ItemCard.Facts rows={[
-            ['Tachyons per kill', <Stack key={'tachyons'} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
-              {formatGame(tachyonQuantity ?? 0, 'ArcaneType.ArcaneTachyonQTYbase')}
-              <GameIcon src={`data/Tach${tachyonType}_x1.png`} size={16} alt={tachyonNames[tachyonType] ?? ''}/>
-            </Stack>]
+            ['Tachyons per drop', <TachAmount key={'base'} value={tachyonQuantity} type={tachyonType}/>],
+            extraTachyon > 1
+              ? ['With Extra tachyon', <TachAmount key={'extra'} value={(tachyonQuantity ?? 0) * extraTachyon} type={tachyonType} short/>]
+              : null
           ]}/>
           {(portals ?? []).map(({ multiCharLock }, portalIndex) => <MultiCharLockText key={portalIndex} lock={multiCharLock}/>)}
           <Stack direction={'row'} columnGap={2} rowGap={0.5} flexWrap={'wrap'} aria-label={'Map bonuses'}>

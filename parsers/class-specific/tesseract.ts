@@ -45,7 +45,7 @@ export const TESSERACT_UPGRADE_CATEGORIES = {
   defence: {
     name: 'Defence',
     stats: ['defence'],
-    upgradeIndices: [2, 11, 22, 29, 44, 46, 55, 39, 49, 54]
+    upgradeIndices: [2, 11, 22, 29, 44, 46, 55, 39, 49, 54, 41]
   },
   crit: {
     name: 'Crit',
@@ -60,7 +60,8 @@ export const TESSERACT_UPGRADE_CATEGORIES = {
   tachyons: {
     name: 'Extra Tachyons',
     stats: ['tachyons'],
-    upgradeIndices: [17, 34, 56]
+    // 39 multiplies 17, 34 and 56 (game ArcaneUpgBonus)
+    upgradeIndices: [17, 34, 56, 39]
   }
 };
 
@@ -137,9 +138,12 @@ export const getTesseract = (idleonData: any, characters: any[], account: any, _
   }
 }
 
-// OptionsListAccount[388-393] = tachyons held per type, [394] = lifetime tachyons (leaderboard sums all 7)
-export const getTotalTachyonsCollected = (account: any) => (account?.accountOptions?.slice(388, 395) ?? [])
-  .reduce((sum: number, value: any) => sum + (typeof value === 'number' ? value : 0), 0);
+// OptionsListAccount[388-393] = tachyons held per type, [394] = lifetime tachyons: every drop adds to both, so the game's
+// "Tachyons Collected" (talent 598) is [394] alone. Adding the balances counted every held tachyon twice.
+export const getTotalTachyonsCollected = (account: any) => {
+  const lifetime = Number(account?.accountOptions?.[394] ?? 0);
+  return Number.isFinite(lifetime) ? lifetime : 0;
+};
 
 export const getTesseractBonus = (account: any, index: any) => {
   return account?.tesseract?.upgrades?.[index]?.bonus || 0;
@@ -577,6 +581,8 @@ const getCrystalChargeReq = (characters: any, upgrades: any) => {
 // dropped this session but not yet picked up (+1 on drop, -1 on pickup, which adds 1 to OLA[395]).
 // It lives on an actor and never reaches the save, so it is 0 for any loaded account.
 export const getPrismaFragChance = (character: any, account: any, upgrades: any) => {
+  // game: 0 == ArcaneUpgBonus(3) ? 0 : ..., no chance before upgrade 3 (whose sentence then prints 1 in 10,000)
+  if (!(calcTesseractBonus(upgrades, 3, 0) > 0)) return 0;
   const primoPrisma = getTalentBonus(character?.flatTalents, 'PRIMO_PRISMA');
   return (1 / (1e3 * Math.pow(1.27, account?.accountOptions?.[OPT.prismaFound] ?? 0)))
     * Math.max(1, (character?.dropRate?.dropRate - 1)
