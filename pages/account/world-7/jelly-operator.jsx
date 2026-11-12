@@ -47,6 +47,7 @@ const JellyOperator = () => {
   // A guest has nothing to reach yet, and a failed section says nothing about where the account is
   const locked = !unlocked && !state?.emptyAccount && !sectionFailed;
 
+  const nextObstruction = obstructions?.find(({ index, defeated }) => !defeated && index < (maxObstructionsDefeated ?? Infinity));
   return <SummaryFailed value={sectionFailed}>
     <NextSeo
       title="Jelly Operator | Idleon Toolbox"
@@ -63,26 +64,27 @@ const JellyOperator = () => {
     {state?.emptyAccount ? <Notice tone={'signin'} sx={{ mb: 2 }}>Your Jelly Operator shows here once you sign in.</Notice> : null}
     {sectionFailed ? null : <NotReached name={'the Jelly Operator'} reached={unlocked}/>}
     <PageSummary failed={sectionFailed}>
-      <StatTile label={'Obstructions removed'}
-                value={`${formatNum(obstructionsDefeated ?? 0)} / ${formatNum(maxObstructionsDefeated ?? 0)}`}/>
-      <StatTile label={'Operations left'} value={operationsLeft ?? 0} kind={'amount'}
+      <StatTile label={'Obstructions removed'} icon={'data/JellyOp0.png'}
+                value={`${formatNum(obstructionsDefeated ?? 0)} / ${formatNum(maxObstructionsDefeated ?? 0)}`}
+                sub={nextObstruction ? `Next: ${nextObstruction.name}, ${formatNum(nextObstruction.hp ?? 0)} HP` : undefined}/>
+      <StatTile label={'Operations left'} icon={'etc/JellyOperation.png'} value={operationsLeft ?? 0} kind={'amount'}
                 sub={`${formatNum(dailyOperations ?? 2)} a day`}/>
       {/* The game's balance line: commas under 1e9, where the upgrade costs print Big */}
       <StatTile label={'Bloodcells'} icon={'etc/Bloodcell.png'}
                 value={<Num value={Math.floor(bloodcells ?? 0)} game={'Save.JellyCurrency'} whole/>}/>
-      <StatTile label={'Bloodcell multi'} value={<Num value={bloodcellMulti ?? 1} game={'JellyOperation.CurrencyMulti'} unit={'x'}/>}
+      <StatTile label={'Bloodcell multi'} icon={'etc/Bloodcell.png'} value={<Num value={bloodcellMulti ?? 1} game={'JellyOperation.CurrencyMulti'} unit={'x'}/>}
                 breakdown={bloodcellMultiBreakdown} breakdownTitle={'Bloodcell multi'}/>
-      <StatTile label={'Cell types unlocked'} value={`${formatNum(unitsOwned ?? 0)} / ${formatNum(cells?.length ?? 0)}`}/>
+      <StatTile label={'Cell types unlocked'} icon={'data/JellyUnit0.png'} value={`${formatNum(unitsOwned ?? 0)} / ${formatNum(cells?.length ?? 0)}`}/>
       <StatTile label={'Total cell LV'} value={cellLevelTotal ?? 0} kind={'amount'}/>
       <StatTile label={'Total upgrade LV'} value={upgradeLevelTotal ?? 0} kind={'amount'}/>
-      <StatTile label={'Jelly slots'} value={slotsOwned ?? 0} kind={'amount'}
+      <StatTile label={'Jelly slots'} icon={'data/JellyUpg9.png'} value={slotsOwned ?? 0} kind={'amount'}
                 sub={slotPurchasesLeft > 0 ? `+${formatNum(slotPurchasesLeft)} to buy` : undefined}/>
       <DoublerUsageCard title={'Doublers'} doubler={state?.account?.menagerie?.doublers?.jellyOperator}
                         icon={DOUBLER_ICONS.jellyOperator}/>
     </PageSummary>
     <Tabber tabs={tabs}>
       <Layout layout={layout} cells={cells}/>
-      <Obstructions obstructions={obstructions}/>
+      <Obstructions obstructions={obstructions} max={maxObstructionsDefeated}/>
       <Upgrades upgrades={upgrades} characters={state?.characters} bloodcells={bloodcells}
                 doublersOwned={state?.account?.menagerie?.doublers?.jellyOperator?.owned} levelsAhead={settings?.levelsAhead ?? 1}/>
       <UpgradeOptimizer account={state?.account} characters={state?.characters} sectionFailed={sectionFailed} locked={locked}/>
