@@ -1,6 +1,4 @@
-import { Box, MenuItem, TextField } from '@mui/material';
 import React, { useContext } from 'react';
-import { useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
@@ -9,7 +7,6 @@ import { PAGES } from '@components/constants';
 import Tabber from '@components/common/Tabber';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
-import { PageHeaderControl } from '@components/common/NavBar/PageHeader';
 import { isSectionFailed, MissingData } from '@components/common/styles';
 import Armory from '@components/account/Misc/class-specific/RoyalGuardian/Armory';
 import UpgradeOptimizer from '@components/account/Misc/class-specific/RoyalGuardian/UpgradeOptimizer';
@@ -46,12 +43,11 @@ const RoyalArmory = () => {
   const royalGuardian = state?.account?.royalGuardian;
   const catalog = sectionFailed ? zeroRoyalGuardian() : null;
   const { armory, royalStatues, statueFlair, orbletMarket, orblets, outpostStats, raw, resourceStorage } = royalGuardian ?? {};
-  // Remembered per page; no default, so a pick that was never made keeps following the first Royal Guardian
-  const [selectedChar, setSelectedChar] = useLocalStorage({ key: 'royal-armory:selectedChar' });
-  const royalGuardians = (state?.characters ?? []).filter((character) => checkCharClass(character?.class, CLASSES.Royal_Guardian));
-  const selectedRoyalGuardian = royalGuardians.find((character) => character?.playerId === selectedChar) ?? royalGuardians[0];
+  // Armory costs and the optimizer are account-wide: the optimizer only needs a Royal Guardian to exist, so no picker
+  const selectedRoyalGuardian = (state?.characters ?? []).find((character) => checkCharClass(character?.class, CLASSES.Royal_Guardian));
   const selectedRogBonus = outpostStats?.rogBonuses?.find((bonus) => bonus?.selected);
-  const { marbleDropChanceEffective, marblesDropped, marbleEarlyBoost } = royalGuardian?.guardian ?? {};
+  const { marbleDropChanceEffective, marblesDropped, marbleEarlyBoost, marbleShelfBought } = royalGuardian?.guardian ?? {};
+  const marbleShelfName = cleanUnderscore(armory?.upgrades?.find(({ index }) => index === 41)?.name ?? 'Royal Marble shelf');
   // Levels ahead and the Daily Shopping Spree price the Armory tab: in the page's gear, under the tab's name
   const { gear: costSettings, ...costing } = useMasterclassCostControls(state?.account, 'royal-armory', 'Armory');
   // The chance by world is a list, so a breakdown (Info board step 5), headed with the tile's own World 1 chance
@@ -74,30 +70,20 @@ const RoyalArmory = () => {
     />
     {sectionFailed ? <MissingData name={'Royal Armory'} failed atZero={!BLANK_WHEN_FAILED.includes(tabs[tabIndex])}/> : null}
     {armory?.upgrades?.length ? costSettings : null}
-    {royalGuardians.length > 1 ? <PageHeaderControl>
-      <TextField select value={selectedRoyalGuardian?.playerId ?? ''} onChange={(event) => setSelectedChar(event.target.value)}
-                 sx={{ minWidth: 180 }}
-                 slotProps={{
-                   select: {
-                     renderValue: (id) => <><Box component={'span'} sx={{ color: 'text.secondary', mr: 0.75 }}>Character</Box>
-                       {royalGuardians.find((character) => character?.playerId === id)?.name}</>,
-                     SelectDisplayProps: { 'aria-label': 'Royal Guardian' }
-                   }
-                 }}>
-        {royalGuardians.map((character) => <MenuItem key={character?.playerId} value={character?.playerId}>{cleanUnderscore(character?.name)}</MenuItem>)}
-      </TextField>
-    </PageHeaderControl> : null}
     <PageSummary>
       <StatTile label={'Total armory levels'} value={shown(formatGame(armory?.totalLevels ?? 0, 'RoyalG.ArmoryUpgTotal', { whole: true }))}/>
       <StatTile label={'Shelves unlocked'}
-                value={shown(`${formatNum(armory?.unlockedSlots ?? 0)} / ${formatNum(armory?.slotToId?.length ?? 0)}`)}/>
+                value={shown(`${formatNum(armory?.unlockedSlots ?? 0)} / ${formatNum(armory?.slotToId?.length ?? 0)}`)}
+                sub={!sectionFailed && armory?.nextShelfAt ? `Next at ${formatNum(armory.nextShelfAt)} total levels` : undefined}/>
       <StatTile label={'Outposts built'} value={shown(formatGame(outpostStats?.built ?? 0, 'RoyalG.TotalStatz', { whole: true }))}/>
       {sectionFailed ? <StatTile label={'Marble chance'} value={'-'}/>
+        : marbleShelfBought === false ? <StatTile label={'Marble chance'} value={'None'} sub={`Needs ${marbleShelfName}`}/>
         : marbleBreakdown ? <StatTile label={'Marble chance'} sub={'World 1, per kill on an outpost map'}
                                       value={marbleText(marbleDropChanceEffective[0])} breakdown={marbleBreakdown}
                                       breakdownTitle={'Marble chance'} breakdownNoun={'worlds'}/> : null}
       {!sectionFailed && selectedRogBonus
-        ? <StatTile label={selectedRogBonus.name} value={`${formatGame(selectedRogBonus.value ?? 1, 'RoyalG.OutpostROGbon')}x`}/>
+        ? <StatTile label={selectedRogBonus.name} value={`${formatGame(selectedRogBonus.value ?? 1, 'RoyalG.OutpostROGbon')}x`}
+                    sub={'Compounding Outposting'} info={'The bonus picked on the Compounding Outposting shelf. It grows with every outpost built.'}/>
         : null}
     </PageSummary>
     <Tabber tabs={tabs}>

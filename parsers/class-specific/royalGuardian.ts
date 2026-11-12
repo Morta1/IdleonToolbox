@@ -212,6 +212,8 @@ export interface RoyalStatue {
   upgradeOdds: number;
   cost: number;
   costItem: string;
+  owned: number;
+  marbleName?: string;
   named: boolean;
 }
 
@@ -507,20 +509,21 @@ const GLORIFICATION_LINE = '10%_chance_to_Glorify_the_current_Outpost';
 // which would corrupt exactly that value. Same fix already used in world-7/research.ts.
 const replaceToken = (str: string, placeholder: string, value: string): string => str.split(placeholder).join(value);
 
+// The { and } fills of a royal sentence, shared with the Armory's Next level row
+export const formatRoyalBonus = (bonus: number): string => gameFill(bonus, bonus >= 1e9 ? 'Big' : 'Comma');
+export const formatRoyalMulti = (bonus: number, multiplierInfo?: boolean): string => {
+  if (bonus >= 1e9) return gameFill(1 + bonus / 100, multiplierInfo ? 'MultiplierInfo' : 'Big');
+  // The game floors } from a bonus of 1e3 up; below 1M it shows its decimals by the site's rule
+  return 1 + bonus / 100 < 1e6 || multiplierInfo
+    ? gameFill(1 + bonus / 100, 'MultiplierInfo')
+    : commaNotation(Math.floor(1 + bonus / 100));
+};
+
 const applyBonusTokens = (description: string, bonus: number, dollarValue?: string | null, multiplierInfo?: boolean): string => {
   if (typeof description !== 'string') return '';
   let result = description;
-  if (bonus >= 1e9) {
-    result = replaceToken(result, '{', gameFill(bonus, 'Big'));
-    result = replaceToken(result, '}', gameFill(1 + bonus / 100, multiplierInfo ? 'MultiplierInfo' : 'Big'));
-  } else {
-    // The game floors } from a bonus of 1e3 up; below 1M it shows its decimals by the site's rule
-    const multiplier = 1 + bonus / 100 < 1e6 || multiplierInfo
-      ? gameFill(1 + bonus / 100, 'MultiplierInfo')
-      : commaNotation(Math.floor(1 + bonus / 100));
-    result = replaceToken(result, '{', gameFill(bonus, 'Comma'));
-    result = replaceToken(result, '}', multiplier);
-  }
+  result = replaceToken(result, '{', formatRoyalBonus(bonus));
+  result = replaceToken(result, '}', formatRoyalMulti(bonus, multiplierInfo));
   // Unlike { and }, "$" is not a generic "second bonus" token here (contrast world-7/research.ts):
   // the game's own armory tooltip renderer (MenuType2 == 106 draw loop) hand-picks a different
   // value per upgrade id instead of a shared formula. See resolveArmoryDollarToken. A null/undefined
@@ -828,7 +831,9 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
   // nothing by the 99th. The armory shelf 41 text quotes the unboosted chance, so both are kept.
   const marblesDropped = toNum(raw?.[3]?.[5]);
   const marbleEarlyBoost = Math.max(1, 100 - marblesDropped);
-  const marbleDropChanceEffective = marbleDropChance.map((chance) => Math.min(1, chance * marbleEarlyBoost));
+  // game: no marble drops at all until the Royal Marble shelf (armory 41) has a level (1 <= RoyalG[2][41])
+  const marbleShelfBought = toNum(armoryLevels?.[41]) >= 1;
+  const marbleDropChanceEffective = marbleDropChance.map((chance) => (marbleShelfBought ? Math.min(1, chance * marbleEarlyBoost) : 0));
 
   // game: the Royal Armory list (N.js MenuType2 == 106 draw loop) overwrites the raw "$" in
   // CustomLists.ArmoryUpg[id][9] with a value it hand-picks per shelf id - there is no shared
@@ -930,7 +935,10 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       cost: getArmoryUpgradeCost(slot, slotToId, armoryLevels, costReduction, account),
       costResourceIndex,
       costResourceRawName: costResourceIndex >= 0 ? `RGres${costResourceIndex}` : '',
-      description: applyBonusTokens(entry?.description, bonus, resolveArmoryDollarToken(index))
+      description: applyBonusTokens(entry?.description, bonus, resolveArmoryDollarToken(index)),
+      // The sentence before its fills, so the Armory's Next level row knows its unit
+      rawDescription: entry?.description,
+      nextLevelBonus: (level + 1) * toNum(entry?.bonusPerLevel)
     };
   });
 
@@ -960,6 +968,11 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       upgradeOdds: getRoyalStatueOdds(index, level),
       cost: 1, // game: "Statue_Cost"
       costItem: level === 0 ? `RGshard${index}` : 'RGenh',
+      // game: the statue panel's "You have: N" of its cost item (its marble at Lv 0, Parchments after), chest and
+      // inventories; Statue_CanAfford greys the button below the one-item cost
+      owned: calcTotalItemOwned((account as any)?.storage, characters, level === 0 ? `RGshard${index}` : 'RGenh'),
+      // Each statue goes with its marble (RGshard): "Leafy Marble" names the Leafy statue
+      marbleName: (items as any)?.[`RGshard${index}`]?.displayName,
       named: !/^\d+$/.test(rawName)
     };
   });
@@ -1474,6 +1487,8 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       upgrades,
       totalLevels: armoryTotalLevels,
       unlockedSlots,
+      // The total armory levels that open the next shelf, none once every shelf is open
+      nextShelfAt: unlockedSlots < slotToId.length ? toNum(shelfUnlockThresholds?.[unlockedSlots]) : null,
       // Display slot -> upgrade id. 69 slots for 83 upgrades: ids 5-8, 13-16, 34, 54, 64-67 have no
       // shelf (the world 5-8 unlocks and militias), so slot index is not the upgrade id.
       slotToId
@@ -1508,6 +1523,7 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       marbleEarlyBoost,
       // What a kill actually rolls against: the per-world chance with the early-marble boost.
       marbleDropChanceEffective,
+      marbleShelfBought,
       royalRadius: ROYAL_RADIUS
     },
     resources: detailedResources,

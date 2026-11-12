@@ -3,6 +3,7 @@ import { cleanUnderscore, formatNum, shownDifference } from '@utility/helpers';
 import { formatCompassBonus, formatCompassMulti } from '@parsers/class-specific/compass';
 import { formatGrimoireBonus, formatGrimoireMulti } from '@parsers/class-specific/grimoire';
 import { formatTesseractBonus, formatTesseractMulti } from '@parsers/class-specific/tesseract';
+import { formatRoyalBonus, formatRoyalMulti } from '@parsers/class-specific/royalGuardian';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 import WithLastWord from '@components/common/WithLastWord';
@@ -64,7 +65,8 @@ const MasterclassUpgradeCard = ({
 const SENTENCE_FILLS = {
   grimoire: (upgrade, multi) => (multi ? formatGrimoireMulti : formatGrimoireBonus),
   compass: ({ smallNotation }, multi) => (value) => (multi ? formatCompassMulti(value) : formatCompassBonus(value, smallNotation)),
-  tesseract: (upgrade, multi) => (multi ? formatTesseractMulti : formatTesseractBonus)
+  tesseract: (upgrade, multi) => (multi ? formatTesseractMulti : formatTesseractBonus),
+  armory: (upgrade, multi) => (multi ? formatRoyalMulti : formatRoyalBonus)
 };
 
 // The unit a sentence prints after its number, from its text in the game's data: "}x" a multiplier, "{%" a percent

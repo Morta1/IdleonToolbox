@@ -281,8 +281,16 @@ describe('royal marble drop chance', () => {
   const withMarbles = (dropped) => {
     const royalG = buildRoyalG();
     royalG[3][5] = dropped;
+    // game: no marble drops until the Royal Marble shelf (armory 41) has a level
+    royalG[2][41] = Math.max(1, royalG[2][41] ?? 0);
     return parse(royalG).guardian;
   };
+
+  it('drops nothing until the Royal Marble shelf is bought', () => {
+    const royalG = buildRoyalG();
+    royalG[2][41] = 0;
+    expect(parse(royalG).guardian.marbleDropChanceEffective.every((chance) => chance === 0)).toBe(true);
+  });
 
   it('keeps the per-world base chance on the game curve', () => {
     const { marbleDropChance } = withMarbles(0);

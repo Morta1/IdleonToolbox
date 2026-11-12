@@ -4,7 +4,7 @@ import { formatDuration, formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { cleanText, gameText } from '@utility/goals/registry/names';
 import { getArmoryTotalUpgradeCost, ROYAL_RESOURCE_NAMES } from '@parsers/class-specific/royalGuardian';
-import MasterclassUpgradeCard from '../MasterclassUpgradeCard';
+import MasterclassUpgradeCard, { formatNextLevelBonus } from '../MasterclassUpgradeCard';
 import CardGrid from '@components/common/cards/CardGrid';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
@@ -69,6 +69,9 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour, costing, 
                                          maxLevel={capped ? maxLevel : Infinity}
                                          // The parser turns the game's @ into line breaks: one line each
                                          description={gameText(description).split('\n')}
+                                         // A sentence with a { or } to fill has a next level to show, as its siblings' cards
+                                         nextLevelBonus={/[{}]/.test(upgrade?.rawDescription ?? '')
+                                           ? formatNextLevelBonus(upgrade, 'armory', upgrade.rawDescription) : null}
                                          currencyIcon={costResourceRawName}
                                          currencyName={ROYAL_RESOURCE_NAMES[costResourceIndex] ?? ''}
                                          costGame={'RoyalG.ArmoryUpgCost'}

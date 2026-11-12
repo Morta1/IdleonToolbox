@@ -14,6 +14,13 @@ import { formatGame } from '@utility/gameNotation';
 import { cleanText } from '@utility/goals/registry/names';
 import { getTotalStatueLevels } from '@parsers/class-specific/royalGuardian';
 
+// game: the flair level's name, "NO_FLAIR COMMON_FLAIR GRAND_FLAIR SUPERIOR_FLAIR ELEGANT_FLAIR..." by RoyalG[22][i]
+const FLAIR_NAMES = ['No flair', 'Common flair', 'Grand flair', 'Superior flair', 'Elegant flair', 'Illustrious flair', 'Mesmerizing flair'];
+// A statue is named for its marble: "Leafy_Marble" is the Leafy statue. A marble the game hasn't made yet carries a
+// placeholder name ("NoNotYety_Marble"), so that statue keeps its number, counted from 1
+const statueTitle = (marbleName, index) => (marbleName && !/NotYet/i.test(marbleName)
+  ? `${cleanUnderscore(marbleName).replace(/ Marble$/, '')} Statue` : `Statue ${index + 1}`);
+
 const TIER_NOTE = 'Total marble to bring every statue of that marble up to this level from its current level.';
 const LOCKED_TIER_NOTE = 'Locked: needs the Menagerie unlock that boosts max Flair LV of Statues to Elegant.';
 // The flair costs and the marbles owned, in their game rules
@@ -65,14 +72,20 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels, sectionFailed }
         <StatTile label={'Total statue levels'} value={sectionFailed ? '-' : formatNum(getTotalStatueLevels(statueLevels))}/>
       </Stack>
       {royalStatues?.length ? <CardGrid size={'s'}>
-        {royalStatues.map(({ index, description, level, bonus, upgradeOdds, costItem, named }) => <ItemCard
-          key={index} icon={`data/${costItem}.png`} title={`Statue ${index}`} level={{ value: level ?? 0 }}
+        {royalStatues.map(({ index, description, level, bonus, upgradeOdds, costItem, named, owned, marbleName }) => <ItemCard
+          key={index} icon={`data/${costItem}.png`} title={statueTitle(marbleName, index)} level={{ value: level ?? 0 }}
           status={named ? undefined : 'locked'} statusLabel={'Unreleased'}>
           <ItemCard.Desc text={named ? statueSentence(description) : 'Not yet released in-game.'}/>
           {sectionFailed ? null : <ItemCard.Facts rows={[
             // A named statue's sentence prints its bonus already
             named ? null : ['Bonus', formatGame(bonus ?? 0, 'RoyalG.StatueBon')],
-            ['Upgrade odds', upgradeOdds > 0 ? `1 in ${formatGame(1 / upgradeOdds, 'RoyalG.StatueUpgOdds', { whole: true })}` : '-']
+            ['Upgrade odds', upgradeOdds > 0 ? `1 in ${formatGame(1 / upgradeOdds, 'RoyalG.StatueUpgOdds', { whole: true })}` : '-'],
+            // The game's "You have: N" of the item a try costs (one); the try greys out below it
+            named ? ['You have', <Stack key={'owned'} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}
+                                         sx={{ color: owned >= 1 ? 'text.primary' : 'text.secondary' }}>
+              {owned >= 1e9 ? formatGame(owned, 'RoyalG.SF_weOwn') : formatNum(owned ?? 0, 'whole')}
+              <GameIcon src={`data/${costItem}.png`} size={16} alt={''}/>
+            </Stack>] : null
           ]}/>}
         </ItemCard>)}
       </CardGrid> : null}
@@ -106,6 +119,7 @@ const RoyalStatues = ({ royalStatues, statueFlair, statueLevels, sectionFailed }
           {/* At its max a card is Maxed, which drops the cost: the parser still prices a level past the cap */}
           {shownFlair.map(({ index, name, level, maxLevel, cost, bonus, expMulti, costItem }) => <ItemCard
             key={index} title={titleCaseName(cleanText(name))} level={{ value: level ?? 0, max: maxLevel }} dimmed={!statueFlair?.unlocked}
+            meta={FLAIR_NAMES[level ?? 0]}
             status={isMaxed({ level, maxLevel }) ? 'maxed' : undefined}
             footer={<ItemCard.Cost icon={`data/${costItem}.png`} iconAlt={cleanUnderscore(statueFlair?.marbleTotals
               ?.find((marble) => marble.costItem === costItem)?.name ?? '')} game={'RoyalG.SF_costo'} need={cost}
