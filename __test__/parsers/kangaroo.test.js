@@ -27,6 +27,8 @@ describe('getKangaroo banked fish', () => {
     const kangaroo = parseWith(() => {});
     expect(kangaroo.pendingFish).toBeGreaterThan(0);
     expect(kangaroo.totalFish).toBe(kangaroo.fish + kangaroo.pendingFish);
+    // The bank counts toward fish caught too, so it opens upgrades
+    expect(kangaroo.fishCaught).toBe(kangaroo.progress + kangaroo.pendingFish);
   });
 
   it('reports no pending fish when the bank is empty', () => {

@@ -125,6 +125,7 @@ export const OPT = {
   kangarooFishCaught: 280,
   kangarooFishCatchBank: 288,
   kangarooShinyProgress: 289,
+  kangarooResetPointsUnspent: 290,
   kangarooResetBluefin: 291,
   kangarooResetShiny: 292,
   kangarooResetCheaper: 293,

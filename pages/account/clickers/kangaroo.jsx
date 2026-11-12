@@ -1,7 +1,7 @@
 import { NextSeo } from 'next-seo';
 import { useContext } from 'react';
 import { AppContext } from '@components/common/context/AppProvider';
-import { Box, Stack } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { MissingData, isSectionFailed } from '@components/common/styles';
@@ -16,6 +16,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
 import StatusText from '@components/common/StatusText';
+import { DIM } from '@components/common/cards/tokens';
 import NextBonus from '@components/account/clickers/NextBonus';
 import { getKangaroo } from '@parsers/world-2/kangaroo';
 
@@ -53,7 +54,7 @@ const Kangaroo = () => {
       <StatTile label={'Fish per minute'} value={number(fishRate, formatNum)}/>
       <StatTile label={'Fish per hour'} value={number(fishRate * 60, formatNum)}/>
       <StatTile label={'Next upgrade'} value={failed || kangaroo?.nextLvReq == null ? '-' : kangaroo.nextLvReq > 0
-        ? `${formatGame(kangaroo.progress, 'Save.RooFishCaught', { whole: true })} / ${formatGame(kangaroo.nextLvReq, 'Summoning.RooNextUpgReq', { whole: true })}`
+        ? `${formatGame(kangaroo.fishCaught ?? kangaroo.progress, 'Save.RooFishCaught', { whole: true })} / ${formatGame(kangaroo.nextLvReq, 'Summoning.RooNextUpgReq', { whole: true })}`
         : <StatusText status={'done'}>All unlocked</StatusText>}/>
       <StatTile label={'Tar fish'} icon={'etc/KTar.png'}
                 value={number(kangaroo?.totalTarFishOwned, fishText('Save.RooTarFish'))}/>
@@ -61,16 +62,24 @@ const Kangaroo = () => {
                 value={failed || !(kangaroo?.tarFishRate > 0) ? '-' : tarPitOpen ? formatGame(3600 / kangaroo.tarFishRate, 'Summoning.RooCatchREQ_T') : '0'}/>
       <StatTile label={'Shiny progress'} icon={'etc/KShiny.png'}
                 value={number(kangaroo?.shinyProgress, (value) => `${formatGame(value, 'Summoning.RooCatchREQ_S')}%`)}/>
-      <StatTile label={'Shiny per minute'} value={number(kangaroo?.shinyRatePercent, (value) => formatNum(value, 'pct'))}/>
-      <StatTile label={'Average reset points'} value={number(kangaroo?.avgResetPoints, (value) => formatNum(Math.ceil(value), 'whole'))}/>
+      {/* Per hour, as Shiny Lure's own text puts it */}
+      <StatTile label={'Shiny per hour'} value={number(kangaroo?.shinyRatePercent, (value) => formatNum(value * 60, 'pct'))}/>
+      <StatTile label={'Unspent points'} value={number(kangaroo?.unspentResetPoints, (value) => formatNum(value, 'whole'))}/>
+      <StatTile label={'Next reset gives'} value={number(kangaroo?.nextResetPoints, (value) => `${formatNum(value, 'whole')} points`)}/>
     </PageSummary>
     {/* Poppy's bonuses as tiles in a row, then the Megafish, above the tabs as on Owl's and Bubba's pages: inside the
         Bonuses tab they were a list Panel that put each name a column's width from its value */}
     <BonusStrip title={"Poppy's bonuses"} sx={{ mb: 3 }}>
-      {(kangaroo?.bonuses ?? []).slice(1).map((entry, index) => <StatTile key={entry.name}
-                                                                          icon={`etc/Kangaroob_${index + 1}.png`}
-                                                                          label={entry.name}
-                                                                          value={failed ? '-' : bonusText(entry)}/>)}
+      {(kangaroo?.bonuses ?? []).slice(1).map((entry, index) => {
+        // The game draws a lock on a bonus Bonuses from Poppy hasn't reached yet
+        const locked = !failed && entry.unlocked === false;
+        return <StatTile key={entry.name}
+                         icon={`etc/Kangaroob_${index + 1}.png`}
+                         imgStyle={locked ? { opacity: DIM } : undefined}
+                         label={entry.name}
+                         status={locked ? 'locked' : undefined}
+                         value={failed ? '-' : locked ? `Needs Lv ${entry.unlockLevel}` : bonusText(entry)}/>;
+      })}
     </BonusStrip>
     {/* Its tiles at their own size under a heading: in a boxed Panel they stretched across the page */}
     <BonusStrip title={'Megafish'} bare sx={{ mb: 3 }}>
@@ -78,13 +87,17 @@ const Kangaroo = () => {
         <CardGrid size={'icon'} fill={72}>
           {(kangaroo?.megaFish ?? []).map((entry, index) => <IconTile key={index}
                                                                       icon={`data/RooMG${index}.png`}
-                                                                      alt={`Megafish ${index + 1}`}
+                                                                      alt={entry.title ?? `Megafish ${index + 1}`}
                                                                       status={entry.unlocked ? undefined : 'missing'}
                                                                       value={!failed && entry.amount > 0 ? formatNum(entry.amount, 'whole') : undefined}
-                                                                      details={<ItemCard.Desc text={megaFishText(entry)}/>}/>)}
+                                                                      details={<>
+                                                                        <Typography variant={'cardTitle'} component={'div'}>{entry.title}</Typography>
+                                                                        <ItemCard.Desc text={megaFishText(entry)}/>
+                                                                      </>}/>)}
         </CardGrid>
       </Box>
-      {failed ? null : <NextBonus entries={kangaroo?.megaFish} name={'Megafish'} iconOf={(index) => `data/RooMG${index}.png`} textOf={megaFishText}/>}
+      {failed ? null : <NextBonus entries={kangaroo?.megaFish} name={'Megafish'} iconOf={(index) => `data/RooMG${index}.png`} textOf={megaFishText}
+                                   titleOf={(entry) => entry?.name}/>}
     </BonusStrip>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['clickers'].categories, 'kangaroo')}>
       <Upgrades upgrades={kangaroo?.upgrades} failed={failed} fish={kangaroo?.totalFish ?? 0}/>
@@ -100,10 +113,12 @@ const Kangaroo = () => {
                                                                                              value={failed ? '-' : `${formatGame(multi, 'Summoning.RooShinyMulti_Fish')}x`}/>)}
             </Panel>
             <Panel title={'Reset bonuses'}>
-              {(kangaroo?.resetBonuses ?? []).map(({ desc, level }, index) => <Panel.Row key={index}
-                                                                                         icon={`data/RooReset${index}.png`}
-                                                                                         name={cleanUnderscore(desc)}
-                                                                                         value={failed ? '-' : formatNum(level ?? 0, 'level')}/>)}
+              {(kangaroo?.resetBonuses ?? []).map(({ desc, level, unlocked }, index) => <Panel.Row key={index}
+                                                                                                   icon={`data/RooReset${index}.png`}
+                                                                                                   name={cleanUnderscore(desc)}
+                                                                                                   value={failed ? '-' : unlocked === false
+                                                                                                     ? <StatusText status={'locked'}>Needs Megafish 3</StatusText>
+                                                                                                     : formatNum(level ?? 0, 'level')}/>)}
             </Panel>
           </Box>
         </Box>
