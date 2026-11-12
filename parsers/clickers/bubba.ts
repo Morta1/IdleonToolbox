@@ -1,6 +1,7 @@
-import { gameFill, lavaLog, lavaLog2, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, gameFill, lavaLog, lavaLog2, tryToParse } from '@utility/helpers';
 import { bubbaUpgrades, generalSpelunky } from '@website-data';
-import { getEventShopBonus, isCompanionBonusActive } from '@parsers/misc';
+import { getCompanionBonus, getEventShopBonus } from '@parsers/misc';
+import { additiveGroup, createBreakdown, flat, multiplier, percent, sumGroup } from '@parsers/breakdown';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
@@ -11,6 +12,11 @@ import { getPetArenaCrucBonus } from '@parsers/world-4/breeding';
 import { OPT } from '@parsers/accountOptions';
 
 const BUBBA_CHEAPENER_BOOST = 20;
+const UNCAPPED_LEVEL = 999;
+const MAX_UPGRADE_TYPES = 28;
+// Bubba Boon (upgrade 3): its level unlocks Bubba's IdleOn bonuses one by one
+const BUBBA_BOON = 3;
+export const SMOKER_UPGRADE = 15;
 
 // Minehead opponent whose bonus makes every Bubba upgrade cheaper
 const MINEHEAD_BUBBA_COST_BONUS = 5;
@@ -34,8 +40,7 @@ const getTotalUpgTypesAvailable = (rawBubba: any) => {
   const meatProduced = rawBubba?.[0]?.[4] || 0;
   let totalAvailable = 1; // Start with at least 1 upgrade type available
 
-  // Check up to 28 upgrade types (max)
-  for (let i = 1; i < 28; i++) {
+  for (let i = 1; i < MAX_UPGRADE_TYPES; i++) {
     const meatReq = getMeatProdREQ(i);
     if (meatProduced >= meatReq) {
       totalAvailable = i + 1;
@@ -45,16 +50,21 @@ const getTotalUpgTypesAvailable = (rawBubba: any) => {
     }
   }
 
-  return Math.min(28, totalAvailable);
+  return Math.min(MAX_UPGRADE_TYPES, totalAvailable);
 };
 
 const parseBubba = (rawBubba: any, account: any) => {
   const totalUpgTypesAvailable = getTotalUpgTypesAvailable(rawBubba);
   const megafleshOwned = rawBubba?.[1]?.[8] || 0;
   const upgrades = bubbaUpgrades.map((upgrade, index) => {
+    const level = rawBubba?.[1]?.[index] || 0;
+    // game: an upgrade buys while Bubba[1][n] < BubbaUpg[n][4], 999 meaning no cap
+    const maxLevel = upgrade?.x4 && upgrade.x4 !== UNCAPPED_LEVEL ? upgrade.x4 : null;
     return {
       ...upgrade,
-      level: rawBubba?.[1]?.[index] || 0,
+      level,
+      maxLevel,
+      maxed: maxLevel !== null && level >= maxLevel,
       prestige: rawBubba?.[2]?.[index] || 0,
       realLV: getRealLV(rawBubba, index),
       cost: getUpgradeCost(rawBubba, account, index),
@@ -67,7 +77,9 @@ const parseBubba = (rawBubba: any, account: any) => {
   const megaFlesh = megafleshDesc.map((description: any, index: any) => {
     const base = {
       description: replaceLineBreaks(description),
-      unlocked: index + 1 <= megafleshOwned
+      unlocked: index + 1 <= megafleshOwned,
+      // game: the panel title, "GLAZED_MEGAFLESH ... CHROMATIC_#_MEGAFLESH" (the 12th counts its stacks)
+      name: MEGAFLESH_NAMES[index]
     };
     if (index === 0) {
       const value = 1 + (getMegafleshOwned(rawBubba, 0) * getTotalQTYofLVs(rawBubba)) / 100;
@@ -81,7 +93,9 @@ const parseBubba = (rawBubba: any, account: any) => {
       return {
         ...base,
         amount,
-        totalBonus: gameFill(value, 'MultiplierInfo')
+        totalBonus: gameFill(value, 'MultiplierInfo'),
+        // Every Megaflesh past the 12th stacks on it: MegafleshOwned(11) = Bubba[1][8] - 11, +0.20x each
+        nextBonus: gameFill(megafleshOwned >= 12 ? value + 0.2 : value, 'MultiplierInfo')
       };
     }
     return base;
@@ -90,15 +104,18 @@ const parseBubba = (rawBubba: any, account: any) => {
     upgrades,
     meatSlices: rawBubba?.[0]?.[0] || 0,
     meatsliceRate: 60 * getMeatsliceRate(rawBubba, account),
+    meatsliceRateBreakdown: getMeatsliceRateBreakdown(rawBubba, account),
     progress: rawBubba?.[0]?.[4] || 0,
     progressReq: getProgressReq(totalUpgTypesAvailable),
+    // game: with every type out, the panel draws a max mark instead of the next goal
+    allUpgradesAvailable: totalUpgTypesAvailable >= MAX_UPGRADE_TYPES,
     bonuses: getBubbaBonusesObject(rawBubba, account),
     totalUpgTypesAvailable,
     megafleshOwned,
     megaFlesh,
     // Smoker (upgrade 15) smoking time: banked seconds [0][14] plus pending idle seconds [0][7],
     // which the game folds into [0][14] next time the Bubba window ticks
-    smokerUnlocked: totalUpgTypesAvailable > 15,
+    smokerUnlocked: totalUpgTypesAvailable > SMOKER_UPGRADE,
     smokerSeconds: (rawBubba?.[0]?.[14] || 0) + (rawBubba?.[0]?.[7] || 0)
   };
 }
@@ -117,20 +134,23 @@ const getBubbaBonusesObject = (rawBubba: any, account: any) => {
     buildRate: { name: 'Build Rate', id: 1 },
     critterGain: { name: 'Critter Gain', id: 2 },
     soulGain: { name: 'Soul Gain', id: 3 },
-    totalDamage: { name: 'Total Damage', id: 4 },
+    totalDamage: { name: 'Total DMG', id: 4 },
     allKills: { name: 'All Kills', id: 5 },
-    expMulti: { name: 'EXP Multi', id: 6 },
+    expMulti: { name: 'XP Multi', id: 6 },
     atomCost: { name: 'Atom Cost', id: 7, isNegative: true }
   };
 
-  // Use reduce to build the final object dynamically
+  const boonLevel = rawBubba?.[1]?.[BUBBA_BOON] || 0;
   return Object.keys(bonusMap).reduce((acc, key) => {
     const { name, id, isNegative = false } = (bonusMap as Record<string, any>)[key];
 
     (acc as Record<string, any>)[key] = {
       name,
       bonus: getBubbaBonuses(rawBubba, account, id),
-      isNegative
+      isNegative,
+      // game: bonus n is ceil((Bubba Boon - (n - 1)) / 7) steps, so it starts at Bubba Boon Lv n; at 0 the game draws a lock
+      unlockLevel: id,
+      unlocked: boonLevel >= id
     };
 
     return acc;
@@ -271,9 +291,12 @@ const getMegafleshOwned = (rawBubba: any, megafleshIndex: any) => {
 };
 
 // game: "BubbaRoG_Bonuses" - Ring of Greed bonuses
+const MEGAFLESH_NAMES = ['Glazed', 'Mutton', 'Bacon', 'Pork', 'Sooshi', 'Salmon', 'Golden', 'Beef', 'Tenderloin', 'Sirloin',
+  'Ambiguous', 'Chromatic'];
+
 const getBubbaBonuses = (rawBubba: any, account: any, ringIndex: any) => {
   const rogBonusesData = generalSpelunky?.[33] || [];
-  const companionBonus = isCompanionBonusActive(account, 51) ? account?.companions?.list?.at(51)?.bonus : 0;
+  const companionBonus = getCompanionBonus(account, 51);
 
   // Calculate Bubba_RoG_all: 20 * sum of MegafleshOwned for indices 1, 3, 6, 9, 11
   const bubbaRoGAll = 20 * (
@@ -287,8 +310,7 @@ const getBubbaBonuses = (rawBubba: any, account: any, ringIndex: any) => {
   // Get the Ring of Greed bonus value for this ring index
   const rogBonusValue = parseFloat(rogBonusesData?.[Math.round(ringIndex)] || '0');
 
-  // Get the level of upgrade index 3 (Bubba[1][3])
-  const upgrade3Level = rawBubba?.[1]?.[3] || 0;
+  const upgrade3Level = rawBubba?.[1]?.[BUBBA_BOON] || 0;
 
   // Calculate the bonus: (1 + Bubba_RoG_all / 100) * Spelunky[33][ringIndex] * Math.ceil((Bubba[1][3] - (ringIndex - 1)) / 7)
   const bonus = (1 + bubbaRoGAll / 100)
@@ -376,37 +398,76 @@ const formatUpgradeDescription = (rawBubba: any, upgradeIndex: any) => {
   return replaceLineBreaks(description.split('@').filter((line: string) => !line.includes('~')).join('@'));
 };
 
+const SLICE_UPGRADES = [0, 7, 23];
+const MEAT_UPGRADES = [2, 11, 19];
+const CROSSOVER = 24;
+
+// game: "MeatsliceRate"'s factors, per second
+const getMeatsliceRateParts = (rawBubba: any, account: any) => {
+  const crossover = getTotUpgBonus(rawBubba, CROSSOVER) * lavaLog(account?.accountOptions?.[OPT.kangarooFish] || 1);
+  return {
+    slices: SLICE_UPGRADES.map((index) => ({ index, value: getTotUpgBonus(rawBubba, index) })),
+    meat: [...MEAT_UPGRADES.map((index) => ({ index, value: getTotUpgBonus(rawBubba, index) })), { index: CROSSOVER, value: crossover }],
+    happinessBonus: getHappinessBonus(rawBubba),
+    eventShop: 1 + 2 * getEventShopBonus(account, 58),
+    diceMulti: getDiceMulti(rawBubba),
+    smokeMeatMulti: getSmokeMeatMulti(rawBubba),
+    charisma: 1 + getCharismaBonus(rawBubba, 0) / 100,
+    // game: (1 + 2 * Breeding("PetArenaCrucBonus", "0", 10, 0))
+    crucible: 1 + 2 * getPetArenaCrucBonus(account, 10),
+    megaflesh: 1 + (getMegafleshOwned(rawBubba, 0) * getTotalQTYofLVs(rawBubba)) / 100,
+    gifts: 1 + getGiftPassiveBonus(rawBubba, 0, true) / 100,
+    spareCoinsMulti: getSpareCoinsMulti(rawBubba),
+    vault: 1 + getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 65) / 100,
+    sushi: 1 + getSushiBonus(account, 39) / 100,
+    jelly: 1 + getJellyBonus(account, 58) / 100,
+    // Bubba Forever (Green Water)
+    fountain: 1 + getFountainBonusTotal(account?.hole?.holesObject, 2, 18) / 100
+  };
+};
+
+const sumValues = (entries: { value: number }[]) => entries.reduce((total, { value }) => total + value, 0);
+
 // game: "MeatsliceRate"
 const getMeatsliceRate = (rawBubba: any, account: any) => {
-  const baseRate = getTotUpgBonus(rawBubba, 0) + getTotUpgBonus(rawBubba, 7) + getTotUpgBonus(rawBubba, 23);
-  const percentageBonus = (getTotUpgBonus(rawBubba, 2)
-    + getTotUpgBonus(rawBubba, 11)
-    + getTotUpgBonus(rawBubba, 19)
-    + getTotUpgBonus(rawBubba, 24) * lavaLog(account?.accountOptions?.[OPT.kangarooFish] || 1)) / 100;
+  const parts = getMeatsliceRateParts(rawBubba, account);
+  return sumValues(parts.slices)
+    * (1 + sumValues(parts.meat) / 100)
+    * parts.happinessBonus
+    * parts.eventShop
+    * parts.diceMulti
+    * parts.smokeMeatMulti
+    * parts.charisma
+    * parts.crucible
+    * parts.megaflesh
+    * parts.gifts
+    * parts.spareCoinsMulti
+    * parts.vault
+    * parts.sushi
+    * parts.jelly
+    * parts.fountain;
+};
 
-  const happinessBonus = getHappinessBonus(rawBubba);
-  const diceMulti = getDiceMulti(rawBubba);
-  const smokeMeatMulti = getSmokeMeatMulti(rawBubba);
-  const charismaBonus = getCharismaBonus(rawBubba, 0) / 100;
-  const megafleshBonus = (getMegafleshOwned(rawBubba, 0) * getTotalQTYofLVs(rawBubba)) / 100;
-  const giftPassiveBonus = getGiftPassiveBonus(rawBubba, 0, true) / 100;
-  const spareCoinsMulti = getSpareCoinsMulti(rawBubba);
-  const vaultBonus65 = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 65);
+const upgradeName = (index: number): string => cleanUnderscore(bubbaUpgrades?.[index]?.name ?? '') ?? '';
 
-  return baseRate
-    * (1 + percentageBonus)
-    * happinessBonus
-    * (1 + 2 * getEventShopBonus(account, 58))
-    * diceMulti
-    * smokeMeatMulti
-    * (1 + charismaBonus)
-    // game: (1 + 2 * Breeding("PetArenaCrucBonus", "0", 10, 0))
-    * (1 + 2 * getPetArenaCrucBonus(account, 10))
-    * (1 + megafleshBonus)
-    * (1 + giftPassiveBonus)
-    * spareCoinsMulti
-    * (1 + vaultBonus65 / 100)
-    * (1 + getSushiBonus(account, 39) / 100)
-    * (1 + getJellyBonus(account, 58) / 100)
-    * (1 + getFountainBonusTotal(account?.hole?.holesObject, 2, 18) / 100); // Bubba Forever (Green Water)
+// The slices-per-minute tile's drawer: the slice upgrades per minute, then what multiplies them
+const getMeatsliceRateBreakdown = (rawBubba: any, account: any) => {
+  const parts = getMeatsliceRateParts(rawBubba, account);
+  return createBreakdown('Meat slices per minute', 60 * getMeatsliceRate(rawBubba, account), [
+    sumGroup('Slice upgrades', parts.slices.map(({ index, value }) => flat(upgradeName(index), 60 * value))),
+    additiveGroup('Meat upgrades', parts.meat.map(({ index, value }) => percent(upgradeName(index), value))),
+    multiplier('Happiness', parts.happinessBonus),
+    multiplier('Frozen Dice', parts.diceMulti),
+    multiplier('Smoked Meat', parts.smokeMeatMulti),
+    multiplier('Spare Coins', parts.spareCoinsMulti),
+    multiplier('Charisma Chart', parts.charisma),
+    multiplier('Gifts', parts.gifts),
+    multiplier('Megaflesh', parts.megaflesh),
+    multiplier('Event Shop', parts.eventShop),
+    multiplier('Crucible', parts.crucible),
+    multiplier('Upgrade Vault', parts.vault),
+    multiplier('Sushi Station', parts.sushi),
+    multiplier('Jelly Operator', parts.jelly),
+    multiplier('Fountain', parts.fountain)
+  ]);
 };
