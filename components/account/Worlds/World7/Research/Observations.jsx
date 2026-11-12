@@ -22,7 +22,9 @@ const observationLevelColor = (level) => (theme) => {
   return colors[Math.min(level, colors.length - 1)];
 };
 
-const OBSERVATIONS_TOOLBAR = { hideFound: false };
+const OBSERVATIONS_TOOLBAR = { show: 'all' };
+// An observation is active while a lens sits on it
+const isActive = (obs) => Boolean(obs?.found) && (obs?.lensTypes ?? []).some((type) => LENSES[type]);
 
 // A rate under 10 keeps Precise's three decimals, so a real rate under 0.5/hr never reads 0
 const insightRate = (value) => formatNum(value ?? 0, 'amount', { precise: (value ?? 0) < 10 });
@@ -32,25 +34,27 @@ const observationCard = (obs) => {
   // Decision 8: the insight colors stay the game's own list on the name, the level beside it in words
   const level = obs?.insightLevel ?? 0;
   const lenses = (obs?.lensTypes ?? []).map((type) => LENSES[type]).filter(Boolean);
+  // The rates are 0 until a lens sits on the observation, so they show only on the observed ones
+  const observed = isActive(obs);
   const showMob = obs?.mapMob && obs.mapMob !== '_' && obs?.mapMobFace !== 0;
   return <ItemCard key={obs?.index} icon={`data/ResObj${obs?.index}.png`}
                    title={level >= 1 ? <Box component={'span'} sx={{ color: observationLevelColor(level) }}>{name}</Box> : name}
-                   status={obs?.found ? 'done' : undefined} statusLabel={'Found'} dimmed={!obs?.unlocked}>
+                   status={observed ? 'active' : obs?.found ? 'done' : undefined} statusLabel={observed ? 'Active' : 'Found'} dimmed={!obs?.unlocked}>
     {obs?.description ? <ItemCard.Desc text={obs.description}/> : null}
     <ItemCard.Facts rows={[
       ['Research LV needed', formatNum(obs?.researchLvReq ?? 0)],
       ['Insight LV', formatNum(obs?.insightLevel ?? 0)],
       obs?.found ? ['Insight EXP', `${formatGame(obs.insightExp ?? 0, 'Save.ObservationExp')} / ${formatNum(obs.insightExpREQ ?? 0, 'whole')}`] : null,
-      obs?.found ? [<React.Fragment key={'displayed'}>
+      observed ? [<React.Fragment key={'displayed'}>
         Displayed insight per hour <InfoButton label={'Displayed insight per hour'}>Insight EXP per hour as the
         game shows it: the insight rate times the Research EXP multi. Insight levels slower than this.</InfoButton>
       </React.Fragment>, insightRate(obs.insightExpRate)] : null,
-      obs?.found ? [<React.Fragment key={'real'}>
+      observed ? [<React.Fragment key={'real'}>
         Real insight per hour <InfoButton label={'Real insight per hour'}>The Insight EXP you gain per hour: the
         displayed rate over the Research EXP multi. This is how fast Insight levels.</InfoButton>
       </React.Fragment>, insightRate(obs.realInsightExpRate)] : null,
       // The same stat as the Summary's Research EXP rate, so the same rule
-      obs?.found ? ['Research EXP rate', `${formatGame(obs.researchEXPrate ?? 0, 'ResearchStuff.ResearchEXPrateTOT')}/hr`] : null,
+      observed ? ['Research EXP rate', `${formatGame(obs.researchEXPrate ?? 0, 'ResearchStuff.ResearchEXPrateTOT')}/hr`] : null,
       lenses.length ? ['Lenses', <Stack key={'lenses'} component={'span'} direction={'row'} gap={1} flexWrap={'wrap'}
                                         justifyContent={'flex-end'}>
         {lenses.map((lens) => <Stack key={lens.src} component={'span'} direction={'row'} alignItems={'center'} gap={0.5}>
@@ -70,11 +74,13 @@ const observationCard = (obs) => {
 const Observations = ({ observations }) => {
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('research-observations', OBSERVATIONS_TOOLBAR);
   const list = observations ?? [];
-  const visible = toolbar?.hideFound ? list.filter((obs) => !obs?.found) : list;
+  const active = list.filter(isActive);
+  const notFound = list.filter((obs) => !obs?.found);
+  const visible = toolbar?.show === 'active' ? active : toolbar?.show === 'notFound' ? notFound : list;
   return <Box>
     <Toolbar state={toolbar} defaults={OBSERVATIONS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
              total={list.length} shown={visible.length} noun={'observations'}>
-      <Toolbar.Filter name={'hideFound'} label={'Hide found'}/>
+      <Toolbar.Show options={[['all', 'All', list.length], ['active', 'Active', active.length], ['notFound', 'Not found', notFound.length]]}/>
     </Toolbar>
     <CardGrid size={'m'}>{visible.map(observationCard)}</CardGrid>
   </Box>;
