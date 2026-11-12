@@ -116,9 +116,10 @@ export const getWeeklyBoss = (account: Account, weeks: number = 10) => {
     const dateInMs = Math.floor((seed + i) * 604800 * 1000);
     triplets = triplets.map((triplet: number[], index: number) => ({
       actions: triplet.map((index: number) => weeklyBossesActions?.[index]),
+      actionIndices: triplet,
       task: tasks?.[index]
     }));
-    weeklyBossesList.push({ bossName, shopItems, triplets, date: new Date(dateInMs) });
+    weeklyBossesList.push({ bossId, bossName, shopItems, triplets, date: new Date(dateInMs) });
   }
   return weeklyBossesList;
 }
@@ -150,8 +151,9 @@ export const getWeeklyBossCarryCap = (character: any, account: Account, loggedIn
 
 // game: WeeklyBoss("TaskQTY"), for the character whose turn it is. HP, MP, accuracy, defence, speed and
 // max damage are the logged-in character's in the game, so these read as if the turn character were
-// logged in. The game draws the number rounded.
-export const getTaskQuantity = (turn: number, bossId: number, account: Account, characters: any[]): number => {
+// logged in. The game draws the number rounded. Carry capacity reads the logged-in character's boosts, and the game
+// lets any character click it: `loggedInCharacter` is that character (the turn character when left out).
+export const getTaskQuantity = (turn: number, bossId: number, account: Account, characters: any[], loggedInCharacter?: any): number => {
   if (turn >= characters?.length) return 0;
   const character = characters?.[turn];
   if (bossId === 0) return character?.skillsInfo?.mining?.level;
@@ -165,7 +167,7 @@ export const getTaskQuantity = (turn: number, bossId: number, account: Account, 
   if (bossId === 8) return character?.skillsInfo?.laboratory?.level;
   if (bossId === 9) return character?.skillsInfo?.divinity?.level;
   if (bossId === 24) return character?.skillsInfo?.construction?.level;
-  if (bossId === 15) return getWeeklyBossCarryCap(character, account);
+  if (bossId === 15) return getWeeklyBossCarryCap(character, account, loggedInCharacter ?? character);
   // Unlike its neighbours this one isn't per character - the game reads the account-wide unique
   // quest count, so every character's turn contributes the same number.
   if (bossId === 16) return account?.totalQuestsCompleted;

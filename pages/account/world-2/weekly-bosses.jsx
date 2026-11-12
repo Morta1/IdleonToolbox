@@ -16,14 +16,18 @@ import Tabber from '@components/common/Tabber';
 import { PAGES } from '@components/constants';
 import WeeklyPrizes from '@components/account/Worlds/World2/WeeklyPrizes';
 import { format, isValid } from 'date-fns';
+import PageSettings, { usePageSettings } from '@components/common/PageSettings';
+import WeeklyBestRoute, { ROUTE_GOALS } from '@components/account/Worlds/World2/WeeklyBestRoute';
 
 const PRIZE_HORIZON = 52;
+const ROUTE_SETTINGS = { routeGoal: 'skulls' };
 const weekLabel = (date, index) => (index === 0 ? 'Now' : isValid(date) ? format(date, 'MMM d') : `${index + 1}`);
 
 const WeeklyBosses = () => {
   const { state } = useContext(AppContext);
   const [weeks, setWeeks] = useState(10);
   const [picked, setPicked] = useState(0);
+  const [settings, setSettings, resetSettings] = usePageSettings('weekly-bosses', ROUTE_SETTINGS);
   const account = state?.account;
   const trophies = Number(account?.accountOptions?.[OPT.weeklyBossTrophies]) || 0;
   const schedule = getWeeklyBoss(account, weeks);
@@ -37,6 +41,13 @@ const WeeklyBosses = () => {
       title="Weekly Bosses | Idleon Toolbox"
       description="Track your weekly boss fights, trophies, and predicted boss schedules in Legends of Idleon"
     />
+    {state?.emptyAccount ? null : <PageSettings state={settings} defaults={ROUTE_SETTINGS} onChange={setSettings}
+                                               onReset={resetSettings}>
+      <PageSettings.Group title={'Battle solver'}>
+        <PageSettings.Select name={'routeGoal'} label={'Goal'} options={ROUTE_GOALS} defaultValue={ROUTE_SETTINGS.routeGoal}
+                             help={'What the solver aims for first. Ties go to more skulls, then trophies and the other buff.'}/>
+      </PageSettings.Group>
+    </PageSettings>}
     <PageSummary>
       <StatTile label={'Trophies'} icon={TROPHY_ICON} value={formatNum(trophies)}/>
       {/* The two fight buffs that last the week: a guest has no fight */}
@@ -76,6 +87,10 @@ const WeeklyBosses = () => {
         </CardGrid>
       </>}
       <WeeklyPrizes account={account} schedule={prizeSchedule} weeks={PRIZE_HORIZON}/>
+      {/* A guest has no characters to play the fight with */}
+      {state?.emptyAccount || !schedule.length ? <Notice tone={'signin'}>
+        The Battle solver uses your characters' own levels and stats: it shows here once you sign in.
+      </Notice> : <WeeklyBestRoute account={account} characters={state?.characters} goal={settings.routeGoal}/>}
     </Tabber>
   </>;
 };

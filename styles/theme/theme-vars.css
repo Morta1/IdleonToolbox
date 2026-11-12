@@ -211,6 +211,9 @@
   --mui-palette-identity-family-Warrior: #e85d3c;
   --mui-palette-identity-family-Archer: #4caf50;
   --mui-palette-identity-family-Mage: #3d9ff5;
+  --mui-palette-identity-weeklyAction-Attack: #ffb74d;
+  --mui-palette-identity-weeklyAction-Buff: #90caf9;
+  --mui-palette-identity-weeklyAction-Misc: #81c784;
   --mui-palette-identity-discord-main: #5865F2;
   --mui-palette-identity-discord-hover: #4752c4;
   --mui-palette-identity-discord-text: #ffffff;
@@ -558,6 +561,9 @@
   --mui-palette-identity-family-Warrior: #b33315;
   --mui-palette-identity-family-Archer: #317234;
   --mui-palette-identity-family-Mage: #0966b7;
+  --mui-palette-identity-weeklyAction-Attack: #9b4f00;
+  --mui-palette-identity-weeklyAction-Buff: #1565c0;
+  --mui-palette-identity-weeklyAction-Misc: #2c7130;
   --mui-palette-identity-discord-main: #5865F2;
   --mui-palette-identity-discord-hover: #4752c4;
   --mui-palette-identity-discord-text: #ffffff;

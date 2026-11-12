@@ -100,6 +100,8 @@ const identity = {
   // utility/builds/classes.js.
   builds: { main: '#2087e8', onMain: '#ffffff', soft: 'rgba(32, 135, 232, 0.16)', edge: 'rgba(32, 135, 232, 0.55)' },
   family: { Beginner: '#f5b93c', Warrior: '#e85d3c', Archer: '#4caf50', Mage: '#3d9ff5' },
+  // The weekly boss fight's three kinds of action, its option words told apart at a glance
+  weeklyAction: { Attack: '#ffb74d', Buff: '#90caf9', Misc: '#81c784' },
   // Discord's brand colour, on the two Discord buttons
   discord: { main: '#5865F2', hover: '#4752c4', text: '#ffffff' },
   // The surface of a picture of the game (Research's grid, the kingdom map): dark in both schemes, its words pinned to it
@@ -121,7 +123,8 @@ const lightIdentity = {
   insightLevels: ['#646363', '#7b5d4f', '#426975', '#766036', '#3e5cc0', '#a326b7', '#be2828', '#227234', '#914e6f', '#97511b', '#6c5f6f'],
   leaderboard: { ...identity.leaderboard, youText: '#2c6c70', searched: '#8a5912' },
   builds: { main: '#1565c0', onMain: '#ffffff', soft: 'rgba(21, 101, 192, 0.08)', edge: 'rgba(21, 101, 192, 0.5)' },
-  family: { Beginner: '#8d6107', Warrior: '#b33315', Archer: '#317234', Mage: '#0966b7' }
+  family: { Beginner: '#8d6107', Warrior: '#b33315', Archer: '#317234', Mage: '#0966b7' },
+  weeklyAction: { Attack: '#9b4f00', Buff: '#1565c0', Misc: '#2c7130' }
 };
 
 // The roles from the redesign's Foundations board. Components ask for a role by its job

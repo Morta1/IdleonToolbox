@@ -4,6 +4,7 @@ import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
 import { getTaskQuantity, getWeeklyBoss, getWeeklyBossCarryCap } from '@parsers/world-2/weeklyBosses';
+import { playFightRoute } from '@parsers/world-2/weeklyBossFight';
 import { weeklyBosses, weeklyBossesActions, weeklyBossesShop } from '@website-data';
 
 // Read from the running game on 2026-10-12 through the debug server, logged in as MortasNinth, raid turn 0
@@ -32,6 +33,17 @@ const GAME = {
   carryCap: 1691851851
 };
 
+// The fight on 2026-11-12 (Eclectic Lazlo, 11 characters), a Misc and trophy route clicked through
+// ActorEvents_623's own click handler with POW held at 0.5 and two equinox trophy clouds: where it ended
+const FIGHT = {
+  globalTime: Date.UTC(2026, 10, 12) / 1000,
+  picks: [3, 1, 3, 3, 3, 1, 3, 1, 3, 1, 3, 2, 3, 2, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 1, 3],
+  end: {
+    turn: 11, skull: 5, trophies: 49, dealt: 25537.752000000004,
+    keys: { f: 0, h: 0, l: 0, p: -96, d: 800, g: 10, n: -92, c: 60, m: 2, q: 2, i: 0, b: 42 }
+  }
+};
+
 const { account, characters } = parseFixture(latest);
 const [thisWeek] = getWeeklyBoss(account, 1);
 const loggedInIndex = characters.findIndex(({ name }) => name === GAME.loggedIn);
@@ -52,6 +64,14 @@ describe('weekly boss verified against the live game', () => {
 
   it.each(Object.entries(GAME.taskQuantities))('task %s quantity', (task, quantity) => {
     within(getTaskQuantity(loggedInIndex, Number(task), account, characters), quantity);
+  });
+
+  it('fight route ends where the game ended', () => {
+    const [week] = getWeeklyBoss({ timeAway: { GlobalTime: FIGHT.globalTime } }, 1);
+    const { dealt, ...end } = playFightRoute(week, Array(11).fill(0.5), FIGHT.picks, 2);
+    within(dealt, FIGHT.end.dealt);
+    const { dealt: _, ...expected } = FIGHT.end;
+    expect(end).toEqual(expected);
   });
 
   it('material bag task reads the turn character bag with the logged-in multipliers', () => {

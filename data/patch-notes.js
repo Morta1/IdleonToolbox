@@ -16,7 +16,7 @@ export const patchNotes = [
       'Arcade Shop: a countdown to when the arcade is full, how often a ball comes, and what Cosmic and Omega balls do',
       'Islands: Fractal shows its next bonus and how many hours to go, each shop shows what you have to spend, and the tiles have icons',
       'Killroy: each permanent upgrade shows its skull cost, and what it takes to reach its next breakpoint',
-      'Weekly Bosses: a Prizes tab shows when each prize is next in the shop, weeks show their dates, UI skins you own read Owned, each week shows the trophies to buy the rest, and this week\'s Class EXP and damage buffs show at the top',
+      'Weekly Bosses: a Prizes tab shows when each prize is next in the shop, weeks show their dates, UI skins you own read Owned, each week shows the trophies to buy the rest, this week\'s Class EXP and damage buffs show at the top, and a new Battle solver tab works out which option to pick on each turn for the most skulls, Class EXP, damage or trophies, using your own characters',
       'Printer: a printing slot gets an amber border when you hold a bigger sample of the same item, and the slots fit a phone',
       'Atom Collider: atoms you have not unlocked read Locked, and new tiles show particles per hour, atoms unlocked, the atom cost cut and the max level, each with where it comes from',
       'Equinox: a locked upgrade shows the challenge that unlocks it, upgrades show the max levels their challenges can still add, and the Challenges tab counts the completed ones',
