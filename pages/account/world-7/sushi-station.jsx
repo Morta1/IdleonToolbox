@@ -129,8 +129,13 @@ const SushiStation = () => {
       <StatTile label={'Fuel per hour'} icon={'etc/Fuel.png'} value={formatGame(fuel?.generation ?? 0, 'SushiStuff.FuelGen')}/>
       {/* Decision 2: the multis keep Precise's 3 decimals (1.122x); the phone list fixes the wrap */}
       {sparks > 0 || sparkBonus?.potassiumCount > 0
-        ? <StatTile label={'Spark multi'} icon={'etc/Charfire4.gif'} breakdown={sparkBreakdown} skipNotation/> : null}
-      {overtuned?.unlocked ? <StatTile label={'Overtuned multi'} icon={'data/SushiUpg28.png'} breakdown={overtunedBreakdown} skipNotation/> : null}
+        ? <StatTile label={'Spark multi'} icon={'etc/Charfire4.gif'} breakdown={sparkBreakdown} skipNotation
+                     sub={`${formatGame(sparks ?? 0, 'Big')} sparks · ${sparkBonus?.potassiumCount > 0
+                       ? `+${formatGame(sparkBonus.perHr ?? 0, 'Big')}/hr` : 'no purple fires'}`}
+                     info={'Potassium Firelighter turns fireplaces purple: each makes 1 spark a second, and sparks boost every fireplace bonus.'}/> : null}
+      {overtuned?.unlocked ? <StatTile label={'Overtuned multi'} icon={'data/SushiUpg28.png'} breakdown={overtunedBreakdown} skipNotation
+                     sub={`${formatGame(overtuned?.value ?? 0, 'Big')} stored · +${formatGame(overtuned?.perHr ?? 0, 'SushiStuff.FuelGen')}/hr at full fuel`}
+                     info={'Overtuned Fuel stores the fuel you make while fuel sits at its cap, and the stored amount sets this multi.'}/> : null}
       {nextSushi ? <StatTile label={'Next unlock'} icon={`data/Sushi${nextTier}.png`}
                              value={`${nextSushi?.name} (${formatGame(Math.ceil(nextFuelCost), 'SushiStuff.FuelCost', { whole: true })} fuel)`}
                              info={`Cook a Tier ${nextTier + 1} sushi to discover ${nextSushi?.name}.`}/> : null}
