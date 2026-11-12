@@ -6,6 +6,7 @@ export interface Achievement {
   steamIndex?: number;
   completed: boolean;
   currentQuantity?: number;
+  progressTarget?: number;
   [key: string]: unknown;
 }
 
@@ -21,9 +22,26 @@ const parseAchievements = (achievementsRaw: any, steamAchievementsRaw: any): Ach
     // The game reads completion from AchieveReg alone (AchieveStatus, the achievements page, superbit 0). A
     // finished Steam achievement only adds 2 to its linked entry, which is not enough for Big Mobs Eek (5).
     const completed = achievementsRaw?.[index] === -1;
-    // Most Steam-linked entries sit at 0 until the Steam side finishes, so the Steam counter is the useful progress
-    const currentQuantity = steamIndex ? steamAchievementsRaw?.[steamIndex] : achievementsRaw?.[index];
-    return { ...achievement, completed, ...(!completed && currentQuantity >= 0 ? { currentQuantity } : {}) }
+    // game (the achievements page's "Progress:"): its own counter when its own target is above 2.5, else the Steam counter
+    // when the Steam target is (most Steam-linked entries sit at 1 and count on the Steam side). steamQuantity is the
+    // Steam target; without it in the data the Steam count still shows, with no target
+    const ownTarget = Number(achievement?.quantity) || 0;
+    const steamTarget = Number((achievement as any)?.steamQuantity);
+    const steamLinked = steamIndex != null && steamIndex >= 0;
+    let currentQuantity: number | undefined;
+    let progressTarget: number | undefined;
+    if (ownTarget > 2.5) {
+      currentQuantity = achievementsRaw?.[index];
+      progressTarget = ownTarget;
+    } else if (steamLinked && (Number.isFinite(steamTarget) ? steamTarget > 2.5 : true)) {
+      currentQuantity = steamAchievementsRaw?.[steamIndex as number];
+      progressTarget = Number.isFinite(steamTarget) ? steamTarget : undefined;
+    }
+    return {
+      ...achievement,
+      completed,
+      ...(!completed && Number(currentQuantity) >= 0 ? { currentQuantity: Number(currentQuantity), ...(progressTarget ? { progressTarget } : {}) } : {})
+    }
   });
 }
 

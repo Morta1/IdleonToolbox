@@ -10,7 +10,8 @@ export const patchNotes = [
     'date': '13/11/2026',
     'features': [
       'Classes: Compass lists Tempest Form stats in the game\'s order, says what unlocks each locked upgrade and how many abominations open the next town, fills in your Tempest element and weapon multiplier, and gets search on Portals and Medallions; Tesseract maps get search, show tachyons per drop with Extra tachyon and each bonus\'s kills, drop tiles count today\'s drops against the daily cap, and a Next upgrade tile shows while upgrades are locked; Royal Armory names statues by their marble with how many you have, shows flair tier names, a Next level row on shelves and when the next shelf opens; Speedrun shows each portal\'s kills and clear time on its card, gets portal search, shows bosses as small tiles with their portal total, and says which map its kill tiles are for',
-      'Misc: Friends Stats shows filled slots out of your total, each friend\'s level against the 30,000 cap, and dims bonuses no friend gives; Random Events lists every event with its rare drops and the worlds it spawns in (also signed out), and the schedule counts down to each event and marks the one running now; Event Shop calls its currency Event Points as the game does, names the current event, gets bonus search, and off-rotation bonuses show just their price; My guild shows the guild level and unspent GP, members\' rank and class, a Next level on each bonus, and the full Guild Gifts and small-guild sentences; Tournament shows your rank points toward the next division and counts down to the season\'s end'
+      'Misc: Friends Stats shows filled slots out of your total, each friend\'s level against the 30,000 cap, and dims bonuses no friend gives; Random Events lists every event with its rare drops and the worlds it spawns in (also signed out), and the schedule counts down to each event and marks the one running now; Event Shop calls its currency Event Points as the game does, names the current event, gets bonus search, and off-rotation bonuses show just their price; My guild shows the guild level and unspent GP, members\' rank and class, a Next level on each bonus, and the full Guild Gifts and small-guild sentences; Tournament shows your rank points toward the next division and counts down to the season\'s end',
+      'Task Board: Achievements gets a search across all worlds, a table view with each task and its rewards, and marks Steam exclusive achievements'
     ],
     'fixes': [
       'Compass and Tesseract: Mastery read 0.7% and 0.25% instead of 70% and 25%',
@@ -21,7 +22,8 @@ export const patchNotes = [
       'Skill EXP: the Skill EXP friend bonus was left out of all-skill EXP',
       'Event Shop: the Forbidden Aisle could read locked after its Blackmarket bonuses were owned',
       'My guild: locked bonuses looked buyable, and the King\'s wanted bonus read Guild Gifts instead of N/A',
-      'Tournament: the leaderboard showed Diamond and Master divisions the game doesn\'t have, and Matches called your last day\'s matches today\'s'
+      'Tournament: the leaderboard showed Diamond and Master divisions the game doesn\'t have, and Matches called your last day\'s matches today\'s',
+      'Achievements: Steam achievements hid their progress, and Big Mobs Eek counted the wrong number'
     ]
   },
   {

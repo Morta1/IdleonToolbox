@@ -13,6 +13,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 42,
+    "steamQuantity": 1,
     "gems": 10,
     "candy": {
       "rawName": "Timecandy1",
@@ -32,6 +33,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 14,
+    "steamQuantity": 2,
     "gems": 8
   },
   {
@@ -48,6 +50,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 46,
+    "steamQuantity": 100,
     "gems": 5,
     "candy": {
       "rawName": "Timecandy1",
@@ -68,6 +71,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 45,
+    "steamQuantity": 1,
     "gems": 18,
     "candy": {
       "rawName": "Timecandy2",
@@ -101,6 +105,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 43,
+    "steamQuantity": 1,
     "gems": 15,
     "candy": {
       "rawName": "Timecandy2",
@@ -133,6 +138,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 3,
+    "steamQuantity": 20,
     "gems": 8
   },
   {
@@ -161,6 +167,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 9,
+    "steamQuantity": 1,
     "gems": 8
   },
   {
@@ -189,6 +196,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 0,
+    "steamQuantity": 1,
     "gems": 10
   },
   {
@@ -204,6 +212,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 20,
+    "steamQuantity": 10,
     "gems": 8
   },
   {
@@ -219,6 +228,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 17,
+    "steamQuantity": 25,
     "gems": 8
   },
   {
@@ -235,6 +245,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 44,
+    "steamQuantity": 1,
     "gems": 20,
     "candy": {
       "rawName": "Timecandy2",
@@ -306,6 +317,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 4,
+    "steamQuantity": 40,
     "gems": 12
   },
   {
@@ -387,6 +399,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 33,
+    "steamQuantity": 1,
     "gems": 8,
     "candy": {
       "rawName": "Timecandy1",
@@ -433,6 +446,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 27,
+    "steamQuantity": 13,
     "gems": 20,
     "candy": {
       "rawName": "Timecandy3",
@@ -452,6 +466,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 23,
+    "steamQuantity": 1,
     "gems": 10
   },
   {
@@ -480,6 +495,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 28,
+    "steamQuantity": 1,
     "gems": 15
   },
   {
@@ -534,6 +550,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 12,
+    "steamQuantity": 500,
     "gems": 14
   },
   {
@@ -549,6 +566,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 25,
+    "steamQuantity": 1,
     "gems": 15
   },
   {
@@ -578,6 +596,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 29,
+    "steamQuantity": 103,
     "gems": 25,
     "candy": {
       "rawName": "Timecandy3",
@@ -598,6 +617,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 30,
+    "steamQuantity": 141,
     "gems": 25,
     "candy": {
       "rawName": "Timecandy3",
@@ -658,6 +678,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 36,
+    "steamQuantity": 1,
     "gems": 25,
     "candy": {
       "rawName": "Timecandy2",
@@ -758,6 +779,7 @@
     "steamExclusive": true,
     "secretAchievement": true,
     "steamIndex": 39,
+    "steamQuantity": 1,
     "gems": 25,
     "candy": {
       "rawName": "Timecandy2",
@@ -777,6 +799,7 @@
     "steamExclusive": true,
     "secretAchievement": true,
     "steamIndex": 40,
+    "steamQuantity": 1,
     "gems": 25
   },
   {
@@ -793,6 +816,7 @@
     "steamExclusive": true,
     "secretAchievement": true,
     "steamIndex": 38,
+    "steamQuantity": 1,
     "gems": 10,
     "candy": {
       "rawName": "Timecandy1",
@@ -813,6 +837,7 @@
     "steamExclusive": true,
     "secretAchievement": true,
     "steamIndex": 41,
+    "steamQuantity": 1,
     "gems": 40,
     "candy": {
       "rawName": "Timecandy2",
@@ -846,6 +871,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 24,
+    "steamQuantity": 1,
     "gems": 20
   },
   {
@@ -1050,6 +1076,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 1,
+    "steamQuantity": 1,
     "gems": 18
   },
   {
@@ -1065,6 +1092,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 5,
+    "steamQuantity": 60,
     "gems": 16
   },
   {
@@ -1080,6 +1108,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 10,
+    "steamQuantity": 1,
     "gems": 15
   },
   {
@@ -1095,6 +1124,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 15,
+    "steamQuantity": 4,
     "gems": 16
   },
   {
@@ -1255,6 +1285,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 18,
+    "steamQuantity": 75,
     "gems": 16
   },
   {
@@ -1270,6 +1301,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 21,
+    "steamQuantity": 30,
     "gems": 16
   },
   {
@@ -1299,6 +1331,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 31,
+    "steamQuantity": 67,
     "gems": 25,
     "candy": {
       "rawName": "Timecandy3",
@@ -1319,6 +1352,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 32,
+    "steamQuantity": 128,
     "gems": 25,
     "candy": {
       "rawName": "Timecandy3",
@@ -1339,6 +1373,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 34,
+    "steamQuantity": 100,
     "gems": 20,
     "candy": {
       "rawName": "Timecandy2",
@@ -1359,6 +1394,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 47,
+    "steamQuantity": 2000,
     "gems": 12,
     "candy": {
       "rawName": "Timecandy4",
@@ -1379,6 +1415,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 51,
+    "steamQuantity": 1,
     "gems": 25,
     "candy": {
       "rawName": "Timecandy3",
@@ -1555,6 +1592,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 26,
+    "steamQuantity": 1,
     "gems": 25
   },
   {
@@ -1571,6 +1609,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 37,
+    "steamQuantity": 1,
     "gems": 35,
     "candy": {
       "rawName": "Timecandy2",
@@ -2034,6 +2073,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 2,
+    "steamQuantity": 1,
     "gems": 25
   },
   {
@@ -2049,6 +2089,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 6,
+    "steamQuantity": 80,
     "gems": 20
   },
   {
@@ -2064,6 +2105,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 16,
+    "steamQuantity": 8,
     "gems": 25
   },
   {
@@ -2159,6 +2201,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 52,
+    "steamQuantity": 1,
     "gems": 15,
     "candy": {
       "rawName": "Timecandy2",
@@ -2179,6 +2222,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 53,
+    "steamQuantity": 1,
     "gems": 15,
     "candy": {
       "rawName": "Timecandy2",
@@ -2328,6 +2372,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 11,
+    "steamQuantity": 1,
     "gems": 20
   },
   {
@@ -2369,6 +2414,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 13,
+    "steamQuantity": 3000,
     "gems": 22
   },
   {
@@ -2384,6 +2430,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 7,
+    "steamQuantity": 100,
     "gems": 23
   },
   {
@@ -2413,6 +2460,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 54,
+    "steamQuantity": 1,
     "gems": 25,
     "candy": {
       "rawName": "Timecandy4",
@@ -2433,6 +2481,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 55,
+    "steamQuantity": 1,
     "gems": 30,
     "candy": {
       "rawName": "Timecandy6",
@@ -2491,6 +2540,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 19,
+    "steamQuantity": 150,
     "gems": 24
   },
   {
@@ -2519,6 +2569,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 22,
+    "steamQuantity": 100,
     "gems": 24
   },
   {
@@ -2535,6 +2586,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 35,
+    "steamQuantity": 2000,
     "gems": 30,
     "candy": {
       "rawName": "Timecandy4",
@@ -2568,6 +2620,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 48,
+    "steamQuantity": 30000,
     "gems": 25,
     "candy": {
       "rawName": "Timecandy5",
@@ -2640,6 +2693,7 @@
     "steamExclusive": true,
     "secretAchievement": true,
     "steamIndex": 56,
+    "steamQuantity": 1,
     "gems": 1,
     "candy": {
       "rawName": "Timecandy5",
@@ -3032,6 +3086,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 60,
+    "steamQuantity": 1,
     "gems": 50,
     "candy": {
       "rawName": "Timecandy4",
@@ -3090,6 +3145,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 8,
+    "steamQuantity": 125,
     "gems": 30
   },
   {
@@ -3132,6 +3188,7 @@
     "steamExclusive": true,
     "secretAchievement": true,
     "steamIndex": 58,
+    "steamQuantity": 1,
     "gems": 30,
     "candy": {
       "rawName": "Timecandy4",
@@ -3217,6 +3274,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 59,
+    "steamQuantity": 1000,
     "gems": 50,
     "candy": {
       "rawName": "Timecandy6",
@@ -3394,6 +3452,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 49,
+    "steamQuantity": 111000,
     "gems": 100,
     "candy": {
       "rawName": "Timecandy6",
@@ -3414,6 +3473,7 @@
     "steamExclusive": true,
     "secretAchievement": false,
     "steamIndex": 57,
+    "steamQuantity": 1,
     "gems": 30,
     "candy": {
       "rawName": "Timecandy5",

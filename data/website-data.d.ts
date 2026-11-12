@@ -28,6 +28,7 @@ declare module '@website-data' {
       steamExclusive: boolean;
       secretAchievement: boolean;
       steamIndex?: number;
+      steamQuantity?: number;
       gems?: number;
       candy?: {
         rawName: string;
