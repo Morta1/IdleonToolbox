@@ -41,8 +41,8 @@ const MasterclassUpgradeCard = ({
   const title = cleanUpgradeName(name);
   return <ItemCard icon={<GameIcon src={`data/${icon}.png`} frame={frame ? `data/${frame}.png` : undefined} size={40} alt={''}/>}
                    title={helpIcon ? <WithLastWord text={title}>{helpIcon}</WithLastWord> : title}
-                   // An uncapped upgrade (an armory shelf past 999) reads its level with no max
-                   level={{ value: level, max: Number.isFinite(maxLevel) ? maxLevel : null }}
+                   // An uncapped upgrade reads its level with no max: the game prints "Lv N" for a max of 999 or more
+                   level={{ value: level, max: Number.isFinite(maxLevel) && maxLevel < 999 ? maxLevel : null }}
                    status={catalogOnly ? undefined : isMaxed ? 'maxed' : unlocked ? undefined : 'locked'}
                    footer={catalogOnly ? null : <>
                      <ItemCard.Cost icon={`data/${currencyIcon}.png`} iconAlt={currencyName} game={costGame} need={nextCost}

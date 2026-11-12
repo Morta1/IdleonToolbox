@@ -58,6 +58,8 @@ export const GRIMOIRE_UPGRADE_CATEGORIES = {
   }
 };
 
+const STACK_OPTIONS: Record<number, number> = { 13: OPT.grimoireKnockouts, 21: OPT.grimoireEliminations, 31: OPT.grimoireAnnihilations };
+
 export const formatGrimoireBonus = (bonus: number) => gameFill(bonus, 'Comma');
 export const formatGrimoireMulti = (bonus: number) => gameFill(1 + bonus / 100, 'MultiplierInfo');
 
@@ -84,9 +86,15 @@ const parseGrimoire = (grimoireRaw: any, ribbonRaw: any, charactersData: any, ac
   });
   upgrades = upgrades.map((upgrade, index) => {
     const bonus = calcGrimoireBonus(upgrades, index);
+    // game: Knockout! (13), Elimination! (21) and Annihilation! (31) name their stacks, "N Stacks Total: +X% DMG",
+    // X = floor(stacks * bonus)
+    const stackOption = STACK_OPTIONS[index];
+    const stacks = stackOption != null ? Number(account?.accountOptions?.[stackOption] ?? 0) || 0 : null;
     return {
       ...upgrade,
       index,
+      stacks,
+      stacksTotal: stacks != null ? Math.floor(stacks * bonus) : null,
       unlocked: upgrade?.unlockLevel <= totalUpgradeLevels,
       bonus,
       monsterProgress: getMonsterProgress(account, index),

@@ -51,7 +51,7 @@ const Upgrades = ({ account, upgrades, bones, costing, sectionFailed }) => {
       </Toolbar>}
       {sorted.length ? <CardGrid size={'m'}>
         {sorted.map((upgrade) => {
-          const { name, cost, description, monsterProgress, boneType, unlockLevel, level, unlocked, x4, index } = upgrade;
+          const { name, cost, description, monsterProgress, boneType, unlockLevel, level, unlocked, x4, index, stacks, stacksTotal } = upgrade;
           const owned = bones?.[boneType] || 0;
           const nextCost = isOverridden ? getGrimoireTotalUpgradeCost(account, upgrade, level + 1, forceLegendTalent) : cost;
           const targetLevel = Math.min(level + levelsAhead, x4);
@@ -66,6 +66,9 @@ const Upgrades = ({ account, upgrades, bones, costing, sectionFailed }) => {
                                          // The three monster ladders' target, after the space the game's "Target:$" lacks
                                          description={masterclassText(description, ` ${monsterProgress ? cleanUnderscore(monsterProgress) : '?'}`)}
                                          nextLevelBonus={nextLevelRow(catalog, upgrade)}
+                                         // The game names these three by their stacks, "78 Stacks Total: +27,378% DMG"
+                                         extraData={stacks != null && !sectionFailed
+                                           ? `${formatNum(stacks)} stacks, total +${formatNum(stacksTotal ?? 0)}% damage` : undefined}
                                          footerLine={unlocked && level < x4 ? nextUnlockLine : null}
                                          currencyIcon={`Bone${boneType}_x1`}
                                          currencyName={boneNames[boneType]}

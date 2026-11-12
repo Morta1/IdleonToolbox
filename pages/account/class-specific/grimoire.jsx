@@ -109,7 +109,7 @@ const Grimoire = () => {
                 sectionFailed={sectionFailed}/>
       <UpgradeOptimizer account={state?.account} character={selectedCharacter}
                         fishingEfficiency={fishingEfficiency} sectionFailed={sectionFailed}/>
-      <Monsters monsters={catalog?.monsterDrops ?? monsterDrops}/>
+      <Monsters monsters={catalog?.monsterDrops ?? monsterDrops} extraBones={sectionFailed ? null : wraithStats?.extraBones}/>
     </Tabber>
   </>;
 };
