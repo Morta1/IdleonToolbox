@@ -7,6 +7,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import GameIcon from '@components/common/GameIcon';
 import Toolbar from '@components/common/Toolbar';
+import { getRiftTaskGoal } from '@parsers/world-4/rift';
 import useToolbarState from '@hooks/useToolbarState';
 
 const TASKS_TOOLBAR = { done: false };
@@ -55,6 +56,10 @@ const Tasks = ({ list, currentRift = 0, currentProgress, characters, chars }) =>
                          status={riftIndex < currentRift ? 'done' : isCurrent ? 'active' : undefined}
                          statusLabel={riftIndex < currentRift ? 'Done' : isCurrent ? 'Current' : undefined}>
           <ItemCard.Desc text={taskText}/>
+          {isCurrent && getRiftTaskGoal(task) !== null ? <ItemCard.Progress label={'Progress'}
+                                                                            value={formatGame(Number(currentProgress) || 0, 'Save.RiftProgress', { whole: true })}
+                                                                            max={formatNum(getRiftTaskGoal(task))}
+                                                                            percent={Math.min(100, 100 * (Number(currentProgress) || 0) / getRiftTaskGoal(task))}/> : null}
           {isCurrent && finishedCharacters?.length ? <ItemCard.Section label={'Done by'}>
             <Stack gap={0.5}>
               {finishedCharacters.map(({ name, classIndex }, index) => <Box key={`${name}-${index}`} component={'span'}

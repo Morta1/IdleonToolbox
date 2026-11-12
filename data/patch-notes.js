@@ -33,7 +33,8 @@ export const patchNotes = [
       'Gallery: a tile lists characters who do not get the gallery\'s bonuses yet',
       'Cooking: a recipe shows its fire level, the game\'s new recipe chance and each new meal\'s odds, its possible meals now match the game, the next kitchen shows what it costs, and the meal max level shows where it comes from',
       'Breeding: time per egg shows where it comes from, each territory counts down to its next spice, and territory cards are shorter',
-      'Laboratory: the Mainframe counts the lab bonuses and jewels that are on, and each player\'s range shows where it comes from'
+      'Laboratory: the Mainframe counts the lab bonuses and jewels that are on, and each player\'s range shows where it comes from',
+      'Rift: new tiles show the rift you are on and the next bonus, and the current task has a progress bar'
     ],
     'fixes': []
   },
