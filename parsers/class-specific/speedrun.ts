@@ -1,4 +1,4 @@
-import { mapEnemiesArray, mapMonsterCounts, mapNames, mapPortalDestinations, mapPortals, monsters } from '@website-data';
+import { equinoxChallenges, mapEnemiesArray, mapMonsterCounts, mapNames, mapPortalDestinations, mapPortals, monsters } from '@website-data';
 import { getHighestTalentAcrossCharacters, getTalentBonus, getTalentCooldown } from '@parsers/talents';
 import { gameFill } from '@utility/helpers';
 import { getMaxDamage } from '@parsers/damage';
@@ -15,8 +15,10 @@ import type { MultiCharDoorLock } from '@parsers/portals';
 // list of portals unlocked this run) grows past the stored value it overwrites it.
 export const SPEEDRUN_HIGHSCORE_INDEX = 158;
 
-// Equinox challenge 32: "Unlock 75 or more Portals on a single Voidwalker Speedrun".
-export const EQUINOX_PORTAL_GOAL = 75;
+// Equinox challenge "Unlock 75 or more Portals on a single Voidwalker Speedrun": its goal from the game's data, found
+// by its label so a reorder of the challenges can't point it elsewhere
+export const EQUINOX_PORTAL_GOAL: number = Number((equinoxChallenges as any[])
+  ?.find((challenge: any) => /Voidwalker_Speedrun/.test(challenge?.label ?? ''))?.goal) || 75;
 
 // MASTER_OF_THE_SYSTEM gives its bonus per 5 maps of highscore, so the score only pays out
 // in steps of 5.

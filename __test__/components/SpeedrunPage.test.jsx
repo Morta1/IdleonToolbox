@@ -37,14 +37,12 @@ const cardValue = (title) => screen.getByText(title).parentElement.textContent.r
 // The page's choices persist to localStorage, so one test's toggle would leak into the next.
 beforeEach(() => window.localStorage.clear());
 
-const showDetails = () => fireEvent.click(screen.getByRole('button', { name: 'Detailed view' }));
-
 // 30 s: each test renders the whole page, every portal priced, and the full suite's load can stretch that past 20 s.
 describe('Speedrun page', { timeout: 30_000 }, () => {
   it('reads the demo account: its panel with its notes, its voidwalker, the portals by world and every world boss', async () => {
     expect(characters[0]).not.toBe(voidwalker);
     const { container } = renderWith(characters);
-    ['Run duration', 'Void talent points per run', 'Multikill per tier', 'Portals to next step', 'Equinox goal', 'Portal progress per kill']
+    ['Run duration', 'Void talent points', 'Multikill per tier', 'Portals to next step', 'Equinox goal', 'Portal progress per kill']
       .forEach((title) => expect(screen.getByText(title)).toBeTruthy());
     // "Kill per kill" is both a card and a source inside the portal-progress breakdown.
     expect(screen.getAllByText('Kill per kill').length).toBeGreaterThan(0);
@@ -67,18 +65,16 @@ describe('Speedrun page', { timeout: 30_000 }, () => {
     ['Amarok', 'Efaunt', 'Chizoar', 'Troll', 'Kattlekruk', 'Emperor']
       .forEach((boss) => expect(screen.getByText(boss)).toBeTruthy());
 
-    // Six notes (run duration, void points, multikill, next step, void radius, equinox). The three
+    // Six notes (run duration, multikill, next step, void radius, equinox, and the Emperor's payout bug). The three
     // breakdowns (kill per kill, portal progress, damage) open from their value, not an icon.
     expect(screen.getAllByRole('button', { name: /^About / })).toHaveLength(6);
     fireEvent.click(screen.getByRole('button', { name: 'About Run duration' }));
     expect(await screen.findByText('Level Void Trial Rerun to start a speedrun')).toBeTruthy();
   });
 
-  it('detailed view prices every portal bare and names the door on maps with two', () => {
+  it('prices every portal bare on its card and names the door on maps with two', () => {
     renderWith(characters);
     const portals = screen.getByLabelText('speedrun portals');
-    expect(within(portals).queryByText(/^Kills needed/)).toBeNull();
-    showDetails();
     expect(within(portals).getAllByText(/^Kills needed/).length).toBeGreaterThan(100);
     expect(within(portals).getAllByText(/^Clear time/).length).toBeGreaterThan(100);
     expect(within(portals).getByText('Door to Forest Outskirts')).toBeTruthy();
@@ -100,7 +96,6 @@ describe('Speedrun page', { timeout: 30_000 }, () => {
       }
       : character);
     renderWith(learned);
-    showDetails();
     expect(within(screen.getByLabelText('speedrun portals')).getAllByText(/^With Void Radius/).length).toBeGreaterThan(0);
   });
 

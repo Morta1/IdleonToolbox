@@ -11,6 +11,7 @@ import { checkCharClass, CLASSES } from '@parsers/talents';
 import { getPortalProgressBreakdown, getSpeedrunPlan, getSpeedrunStats } from '@parsers/class-specific/speedrun';
 import { getMaxDamage } from '@parsers/damage';
 import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
+import { mapNames } from '@website-data';
 import Portals from '@components/account/Misc/class-specific/Speedrun/Portals';
 import Bosses from '@components/account/Misc/class-specific/Speedrun/Bosses';
 
@@ -56,6 +57,8 @@ const Speedrun = () => {
   // Each drawer is named and headed as its tile reads
   const killPerKillText = formatNum(killPerKill?.value ?? 1, 'mult');
   const damageText = formatNum(playerInfo?.maxDamage ?? 0);
+  // Kill per kill, multikill tiers and damage read the Voidwalker's current map and monster, unlike the cards below
+  const onMap = selectedVoidwalker?.mapIndex != null ? `On ${cleanUnderscore(mapNames?.[selectedVoidwalker.mapIndex] ?? '')}` : undefined;
   // "-" marks a tile the missing Voidwalker feeds
   const ofVoidwalker = (value) => (selectedVoidwalker ? value : '-');
   // With no Voidwalker the progress rests on a stand-in kill per kill of 1: the tile, the drawer's heading, its Kill per
@@ -92,23 +95,26 @@ const Speedrun = () => {
                 info={runUnlocked
                   ? `Void Trial Rerun lasts this long, once every ${formatDuration(runCooldown)}`
                   : 'Level Void Trial Rerun to start a speedrun'}/>
-      <StatTile label={'Void talent points per run'} value={ofVoidwalker(formatNum(voidPointsPerRun ?? 0))}
-                info={`${formatNum(voidPointsPerPortal ?? 0)} per portal unlocked`}/>
-      <StatTile label={'Multikill per tier'} value={formatNum(multiKillBonus ?? 0, 'pct')}
+      {/* game "Void Talent Pts": a standing total, the talent's points per portal times the highscore */}
+      <StatTile label={'Void talent points'} value={ofVoidwalker(formatNum(voidPointsPerRun ?? 0))}
+                sub={selectedVoidwalker ? `${formatNum(voidPointsPerPortal ?? 0)} per portal of highscore` : undefined}/>
+      <StatTile label={'Multikill per tier'} icon={'data/UISkillIcon58.png'} value={formatNum(multiKillBonus ?? 0, 'pct')}
                 info={`${formatNum(multiKillPerFiveMaps ?? 0, 'pct')} per 5 maps of highscore, applied to every character`}/>
       <StatTile label={'Portals to next step'} value={formatNum(portalsToNextStep ?? 0)}
                 info={'Multikill per tier only goes up every 5 portals of highscore'}/>
-      <StatTile label={'Void radius'} icon={'data/UISkillIcon46.png'} value={ofVoidwalker(formatNum(voidRadiusBonus ?? 0, 'pct'))}
+      {/* game: Void Radius pays only while Void Trial Rerun's buff is on, so with that talent unlearned it never applies */}
+      <StatTile label={'Void radius'} icon={'data/UISkillIcon46.png'}
+                value={ofVoidwalker(runUnlocked ? formatNum(voidRadiusBonus ?? 0, 'pct') : 'Needs Void Trial Rerun')}
                 info={'Extra multikill per tier for 20s per cast, only during a speedrun'}/>
       <StatTile label={'Equinox goal'} sub={`${formatNum(equinoxGoal ?? 0)} portals in one run`}
                 value={equinoxGoalReached ? 'Done' : `${formatNum(portalsToEquinoxGoal ?? 0)} to go`}
-                info={'Unlock 75 or more portals on a single speedrun'}/>
-      <StatTile label={'Kill per kill'} value={ofVoidwalker(killPerKillText)} breakdownTitle={'Kill per kill'}
+                info={`Unlock ${formatNum(equinoxGoal ?? 0)} or more portals on a single speedrun`}/>
+      <StatTile label={'Kill per kill'} value={ofVoidwalker(killPerKillText)} breakdownTitle={'Kill per kill'} sub={onMap}
                 breakdown={killPerKill?.breakdown ? { ...killPerKill.breakdown, totalValue: killPerKillText } : undefined}/>
       <StatTile label={'Portal progress per kill'} value={progressText} breakdownTitle={'Portal progress per kill'}
                 breakdown={progressBreakdown ? { ...progressBreakdown, totalValue: progressText } : undefined}/>
-      <StatTile label={'Multikill tiers'} value={ofVoidwalker(formatNum(playerInfo?.multiKillTiers ?? 0))}/>
-      <StatTile label={'Damage'} value={ofVoidwalker(damageText)} breakdownTitle={'Damage'}
+      <StatTile label={'Multikill tiers'} value={ofVoidwalker(formatNum(playerInfo?.multiKillTiers ?? 0))} sub={onMap}/>
+      <StatTile label={'Damage'} value={ofVoidwalker(damageText)} breakdownTitle={'Damage'} sub={onMap}
                 breakdown={playerInfo?.damageBreakdown ? { ...playerInfo.damageBreakdown, totalValue: damageText } : undefined}/>
     </PageSummary>
     <Bosses bosses={plan?.bosses} bossPortals={plan?.bossPortals} runUnlocked={plan?.runUnlocked}
