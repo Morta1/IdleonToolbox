@@ -1,5 +1,7 @@
 import React from 'react';
-import { Stack } from '@mui/material';
+import { Box, Stack } from '@mui/material';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 import { formatNum } from '@utility/helpers';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
@@ -25,7 +27,13 @@ export const BoostsSettings = () => <PageSettings.Group title={'Boosts'}>
   <LevelsAheadSetting noun={'boost'}/>
 </PageSettings.Group>;
 
+const BOOSTS_TOOLBAR = { search: '' };
+
 const Boosts = ({ account, boosts, doublers, lumi, levelsAhead = 1 }) => {
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('menagerie-boosts', BOOSTS_TOOLBAR);
+  const list = boosts ?? [];
+  const search = (toolbar?.search ?? '').trim().toLowerCase();
+  const shown = search ? list.filter(({ description }) => String(description ?? '').toLowerCase().includes(search)) : list;
   return <>
     <Stack direction={'row'} gap={2} flexWrap={'wrap'} mb={3}>
       {DOUBLER_CARDS.map(({ key, title }) => {
@@ -34,8 +42,13 @@ const Boosts = ({ account, boosts, doublers, lumi, levelsAhead = 1 }) => {
         return <StatTile key={key} label={title} icon={DOUBLER_ICONS[key]} value={`${formatNum(used)} / ${formatNum(owned)}`}/>;
       })}
     </Stack>
+    <Box>
+    <Toolbar state={toolbar} defaults={BOOSTS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+             total={list.length} shown={shown.length} noun={'boosts'}>
+      <Toolbar.Search placeholder={'Search boosts'}/>
+    </Toolbar>
     <CardGrid size={'m'}>
-      {boosts?.map(({ index, description, level, perLevel, cost, visible, rankRequired }) => {
+      {shown.map(({ index, description, level, perLevel, cost, visible, rankRequired }) => {
         const targetLevel = (level ?? 0) + levelsAhead;
         return <ItemCard key={`boost-${index}`}
                          icon={`data/MenaIconP${index}.png`}
@@ -55,6 +68,7 @@ const Boosts = ({ account, boosts, doublers, lumi, levelsAhead = 1 }) => {
         </ItemCard>;
       })}
     </CardGrid>
+    </Box>
   </>;
 };
 

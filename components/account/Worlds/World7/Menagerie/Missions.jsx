@@ -1,5 +1,7 @@
 import React from 'react';
-import { Stack } from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 import { formatNum, getBitIndex } from '@utility/helpers';
 import { formatBits, formatGame } from '@utility/gameNotation';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -29,14 +31,34 @@ const Progress = ({ progress, requirement, increment, claims, isLogScale, isBits
   const previous = claims > 0 && increment > 0 ? requirement - increment : 0;
   const step = requirement - previous;
   const percent = step > 0 ? Math.min(100, Math.max(0, (progress - previous) / step * 100)) : 100;
-  return <ItemCard.Progress label={'Progress'} percent={percent}
-                            value={formatAmount(progress, isLogScale, isBits)}
-                            max={formatAmount(requirement, isLogScale, isBits)}/>;
+  // The totals print; the bar measures this step, so its own line says so once a claim moved where it starts
+  return <Stack gap={0.5}>
+    <ItemCard.Progress label={'Progress'} percent={percent}
+                       value={formatAmount(progress, isLogScale, isBits)}
+                       max={formatAmount(requirement, isLogScale, isBits)}/>
+    {previous > 0 && !isLogScale
+      ? <Typography variant={'caption'} color={'text.secondary'}>
+        {`${formatGame(Math.max(0, progress - previous), 'MenagerieStuff.MissionProg', { whole: true })} of ${formatGame(step, 'MenagerieStuff.MissionProg', { whole: true })} since your last claim`}
+      </Typography>
+      : null}
+  </Stack>;
 };
 
+const MISSIONS_TOOLBAR = { show: 'all' };
+
 const Missions = ({ missions, unlocked }) => {
-  return <CardGrid size={'m'}>
-    {missions?.map(({
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('menagerie-missions', MISSIONS_TOOLBAR);
+  // The game's order stays; the missions to claim now are one pick away (the Summary counts them)
+  const list = missions ?? [];
+  const claimableNow = list.filter((mission) => Boolean(unlocked && mission?.visible && mission?.canClaim));
+  const shown = toolbar?.show === 'claimable' && claimableNow.length ? claimableNow : list;
+  return <Box>
+    {claimableNow.length ? <Toolbar state={toolbar} defaults={MISSIONS_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+                                    total={list.length} shown={shown.length} noun={'missions'}>
+      <Toolbar.Show options={[['all', 'All', list.length], ['claimable', 'Claimable', claimableNow.length]]}/>
+    </Toolbar> : null}
+    <CardGrid size={'m'}>
+    {shown.map(({
       index, name, description, claims, progress, requirement, increment, claimable, isLogScale, isBits, canClaim, visible
     }) => {
       return <ItemCard key={`mission-${index}`}
@@ -58,7 +80,8 @@ const Missions = ({ missions, unlocked }) => {
         ]}/>
       </ItemCard>;
     })}
-  </CardGrid>;
+    </CardGrid>
+  </Box>;
 };
 
 export default Missions;
