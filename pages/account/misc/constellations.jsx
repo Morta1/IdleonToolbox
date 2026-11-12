@@ -3,8 +3,6 @@ import { AppContext } from 'components/common/context/AppProvider';
 import ConstellationsComp from 'components/account/Misc/Constellations';
 import StarSigns from 'components/account/Misc/StarSigns';
 import { NextSeo } from 'next-seo';
-import { getShinyBonus } from '@parsers/world-4/breeding';
-import { isRiftBonusUnlocked } from '../../../parsers/world-4/rift';
 import { parseConstellations, parseStarSigns } from '@parsers/starSigns';
 import Tabber from '../../../components/common/Tabber';
 import { getTabs } from '@utility/helpers';
@@ -25,13 +23,6 @@ const Constellations = () => {
   const starSignsFailed = isSectionFailed(state?.account, 'starSigns');
   const failedNames = [constellationsFailed && 'Constellations', starSignsFailed && 'Star signs'].filter(Boolean);
 
-  const getInfiniteStar = (rift, pets) => {
-    if (isRiftBonusUnlocked(rift, 'Infinite_Stars')) {
-      return 5 + getShinyBonus(pets, 'Infinite_Star_Signs');
-    }
-  }
-
-  const infiniteStars = starSignsFailed ? 0 : getInfiniteStar(state?.account?.rift, state?.account?.breeding?.pets);
   // A failed section draws the game's catalog at zero: no claim, no sign unlocked
   const constellations = constellationsFailed ? parseConstellations([]) : state?.account?.constellations;
   const stars = displayOrder(starSignsFailed ? parseStarSigns(undefined, {}) : state?.account?.starSigns);
@@ -45,7 +36,7 @@ const Constellations = () => {
     <Tabber tabs={getTabs(PAGES.ACCOUNT.misc.categories, 'constellations')} clearOnChange={['nt']}>
       <ConstellationsComp constellations={constellations ?? []} characters={state?.characters}
                           sectionFailed={constellationsFailed}/>
-      <StarSigns starSigns={stars} infiniteStars={infiniteStars}/>
+      <StarSigns starSigns={stars}/>
     </Tabber>
   </div>
 };

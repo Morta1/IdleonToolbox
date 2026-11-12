@@ -49,14 +49,15 @@ const SHEET_PILL = {
 };
 
 // names: what a reader sees and hears. A sprite-only pill (iconsOnly) shows its sprite, or the caller's
-// own node (components), and carries its name as aria-label.
-export const SectionPills = ({ tabs, names, icons, iconsOnly, components, selectedTab, onSelect, label }) => {
+// own node (components), and carries its name as aria-label. sx: pills that sit in a Toolbar's row drop the margin
+// under them (Star Signs' trees beside its search).
+export const SectionPills = ({ tabs, names, icons, iconsOnly, components, selectedTab, onSelect, label, sx }) => {
   const small = Boolean(useSheet()) && iconsOnly;
   return <Tabs
     value={selectedTab}
     onChange={(event, index) => onSelect(index)}
     aria-label={label}
-    sx={small ? SHEET_PILLS : PILLS}
+    sx={[small ? SHEET_PILLS : PILLS, ...(Array.isArray(sx) ? sx : [sx])]}
   >
     {tabs.map((tab, index) => <Tab
       key={`${tab}-${index}`}

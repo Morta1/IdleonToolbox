@@ -4,29 +4,35 @@ import { IconCheck } from '@tabler/icons-react';
 import { visuallyHidden } from '@mui/utils';
 import { cleanUnderscore, formatStarSignBonus, getTabs } from 'utility/helpers';
 import GameIcon from '@components/common/GameIcon';
-import Tabber from '../../common/Tabber';
+import { SectionPills } from '@components/common/SectionTabs';
 import DataTable from '@components/common/DataTable';
 import { PAGES } from '@components/constants';
 import useTabIndex from '@hooks/useTabIndex';
 import usePageTop from '@hooks/usePageTop';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
+
+const TREES = ['chronus', 'hydron', 'seraph'];
+const STAR_SIGNS_TOOLBAR = { search: '' };
 
 const bonusLines = ({ bonuses, description }) => (bonuses
   ? bonuses.map(({ rawName, bonus }) => cleanUnderscore(formatStarSignBonus(rawName, bonus)))
   : [cleanUnderscore(description)]);
 
-const StarSigns = ({ starSigns, infiniteStars }) => {
+const StarSigns = ({ starSigns }) => {
   const tabs = getTabs(PAGES.ACCOUNT.misc.categories, 'constellations', 'Star Signs');
-  const [selectedTab] = useTabIndex(tabs, { queryKey: 'nt' });
+  const [selectedTab, selectTab] = useTabIndex(tabs, { queryKey: 'nt' });
   // 34 rows: the header sticks under the page's top, as Constellations' does.
   const pageTop = usePageTop();
-  const tree = selectedTab === 0 ? 'chronus' : selectedTab === 1 ? 'hydron' : 'seraph';
-  // Infinite stars count from the first sign of Chronus on, so each later tree starts past the ones before it.
-  const infiniteCount = selectedTab === 0 ? infiniteStars : selectedTab === 1 ? infiniteStars - 34 : infiniteStars - 63;
-  // Each sign keeps its place in the whole tree, which is what the infinite stars count, before the game's
-  // placeholders (Filler, Unknown) leave the list.
-  const rows = (starSigns ?? []).filter((sign) => sign.tree === tree)
-    .map((sign, position) => ({ ...sign, position }))
-    .filter(({ indexedStarName }) => !indexedStarName.includes('Filler') && !indexedStarName.includes('Unknown'));
+  const [view, setView, resetView] = useToolbarState('star-signs', STAR_SIGNS_TOOLBAR);
+  // Search reads the name and the bonus lines across the three trees; each tree's tab counts its matches
+  const search = (view?.search ?? '').trim().toLowerCase();
+  // The game's placeholders (Filler, Unknown) are not signs
+  const signs = (starSigns ?? []).filter(({ indexedStarName }) => !indexedStarName.includes('Filler') && !indexedStarName.includes('Unknown'));
+  const matches = (sign) => !search || `${cleanUnderscore(sign?.indexedStarName)} ${bonusLines(sign).join(' ')}`.toLowerCase().includes(search);
+  const byTree = TREES.map((tree) => signs.filter((sign) => sign.tree === tree && matches(sign)));
+  const rows = byTree[selectedTab] ?? [];
+  const shownCount = byTree.reduce((sum, list) => sum + list.length, 0);
 
   const columns = [
     {
@@ -37,9 +43,10 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
           <IconCheck size={20} stroke={2.5} aria-hidden={'true'}/><Box component={'span'} sx={visuallyHidden}>Unlocked</Box>
         </Box>
         : <Box component={'span'} sx={{ display: 'inline-block', width: 24, height: 24, flexShrink: 0 }}/>),
-      render: ({ indexedStarName, unlocked, position }) => <>
+      // The game turns signs infinite in its catalog order, not this list's (the parser's isInfiniteStar)
+      render: ({ indexedStarName, isInfiniteStar }) => <>
         {cleanUnderscore(indexedStarName)}
-        {unlocked && position < infiniteCount
+        {isInfiniteStar
           ? <GameIcon src={`data/SignStarInf${selectedTab}.png`} size={16} alt={'Infinite star'}/>
           : null}
       </>
@@ -59,10 +66,17 @@ const StarSigns = ({ starSigns, infiniteStars }) => {
 
   return (
     <>
-      <Tabber level={2} label={'Star signs'} tabs={tabs} labels={tabs.map((tab) => tab.capitalize())} keepChildren>
-        <DataTable columns={columns} rows={rows} rowKey={'indexedStarName'} rowLabel={({ indexedStarName }) => cleanUnderscore(indexedStarName)}
-                   surface={'card'} stickyTop={pageTop}/>
-      </Tabber>
+      {/* The trees sit beside the search: one bar, each tree's pill counting its matches while a search is on */}
+      <Toolbar state={view} defaults={STAR_SIGNS_TOOLBAR} onChange={setView} onReset={resetView}
+               total={signs.length} shown={shownCount} noun={'star signs'}>
+        <Toolbar.Search placeholder={'Search signs or bonuses'}/>
+        <Toolbar.Lead ownRow>
+          <SectionPills tabs={tabs} selectedTab={selectedTab} onSelect={selectTab} label={'Star signs'} sx={{ mb: 0, alignSelf: 'center' }}
+                        names={tabs.map((tab, index) => (search ? `${tab.capitalize()} (${byTree[index]?.length ?? 0})` : tab.capitalize()))}/>
+        </Toolbar.Lead>
+      </Toolbar>
+      <DataTable columns={columns} rows={rows} rowKey={'indexedStarName'} rowLabel={({ indexedStarName }) => cleanUnderscore(indexedStarName)}
+                 surface={'card'} stickyTop={pageTop}/>
     </>
   );
 };

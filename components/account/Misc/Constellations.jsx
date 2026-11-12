@@ -65,11 +65,13 @@ const ConstellationsComp = ({ constellations = [], characters = [], sectionFaile
     return uniqueSorted.map((idx) => cleanUnderscore(characterNames?.[idx]) || `Char ${idx + 1}`);
   };
 
-  // The points the game has added: the claimed constellations'
-  const { ownedPoints, totalPoints } = (constellations ?? []).reduce((res, { points, done }) => ({
-    ownedPoints: res.ownedPoints + (done ? points ?? 0 : 0),
-    totalPoints: res.totalPoints + (points ?? 0)
-  }), { ownedPoints: 0, totalPoints: 0 });
+  // The points the game has added: the claimed constellations'. Ready ones add theirs once claimed at their star
+  const { ownedPoints, totalPoints, readyPoints, readyCount } = (constellations ?? []).reduce((res, row) => ({
+    ownedPoints: res.ownedPoints + (row?.done ? row?.points ?? 0 : 0),
+    totalPoints: res.totalPoints + (row?.points ?? 0),
+    readyPoints: res.readyPoints + (stateOf(row) === 'ready' ? row?.points ?? 0 : 0),
+    readyCount: res.readyCount + (stateOf(row) === 'ready' ? 1 : 0)
+  }), { ownedPoints: 0, totalPoints: 0, readyPoints: 0, readyCount: 0 });
 
   const columns = [
     {
@@ -119,7 +121,10 @@ const ConstellationsComp = ({ constellations = [], characters = [], sectionFaile
     <Stack gap={3}>
       <Box>
         <StatTile label={'Constellation points'}
-                  value={sectionFailed ? '-' : `${formatNum(ownedPoints)} / ${formatNum(totalPoints)}`}/>
+                  value={sectionFailed ? '-' : `${formatNum(ownedPoints)} / ${formatNum(totalPoints)}`}
+                  sub={!sectionFailed && readyCount
+                    ? `+${formatNum(readyPoints)} from ${formatNum(readyCount)} ready to claim`
+                    : undefined}/>
       </Box>
       <Box>
         {sectionFailed ? null : <Toolbar state={view} defaults={CONSTELLATIONS_TOOLBAR} onChange={setView} onReset={resetView}
