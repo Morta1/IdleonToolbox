@@ -7,6 +7,8 @@ import {
   ECLIPSE_SKULL_RANK,
   getDeathNote,
   getDeathNoteRank,
+  getEclipseSkullsBonus,
+  getNextDeathNoteRank,
   MINI_BOSS_DEATH_NOTE_RANKS
 } from '@parsers/world-3/deathNote';
 import { cleanUnderscore, formatNum, notateNumber, worlds } from 'utility/helpers';
@@ -18,6 +20,8 @@ import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import GameIcon from '@components/common/GameIcon';
 import Toolbar from '@components/common/Toolbar';
+import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
+import { monsterSprite } from '@utility/spriteImages';
 
 import useToolbarState from '@hooks/useToolbarState';
 
@@ -68,6 +72,7 @@ const RANK_LEGEND = <Stack gap={1}>
 // A world's table names its world in its first column's head, where "Monster" said nothing: the band that named it took two
 // lines a table, and its multikill bonus now sits in the tiles above, where the worlds compare at a glance.
 const columnsOf = (world) => [
+  // No face beside the name: at 1920 and 1280 it wrapped long names onto two lines and made the tables 200 to 350 px taller
   { key: 'monster', label: world, value: (mob) => cleanUnderscore(mob.displayName) },
   { key: 'kills', label: 'Kills', numeric: true, sortable: true, phone: true, value: (mob) => mob.kills,
     // In short form as the page always printed them (124K, 2.5B, 4.2QQ), not the game's own 4,200,000T
@@ -82,6 +87,8 @@ const columnsOf = (world) => [
   }
 ];
 
+// What to farm next: the mob nearest its next skull across every world, by the share of the way there (a mob's kill
+// speed differs, so the raw kills left would pick a slow one)
 const DeathNote = () => {
   const { state } = useContext(AppContext);
   const sectionFailed = isSectionFailed(state?.account, 'deathNote');
@@ -105,6 +112,13 @@ const DeathNote = () => {
       noteRank: getDeathNoteRank(state?.account, mob.kills, worldIndex === 'miniBosses')
     }))
   }));
+  const nearest = worldBands.flatMap(({ key, label, rows }) => rows.map((mob) => ({
+    ...mob, world: label, next: getNextDeathNoteRank(state?.account, mob.kills, key === 'miniBosses')
+  })))
+    .filter(({ next }) => next && next.kills > 0)
+    .toSorted((a, b) => (b.kills / b.next.kills) - (a.kills / a.next.kills))[0];
+  const eclipseOn = isRiftBonusUnlocked(state?.account?.rift, 'Eclipse_Skulls');
+  const eclipseBonus = eclipseOn ? getEclipseSkullsBonus(state?.account) : 0;
   const countOf = (list) => list.reduce((sum, { rows }) => sum + rows.length, 0);
   const bands = worldBands
     .filter(({ key }) => world === 'all' || key === world)
@@ -124,7 +138,14 @@ const DeathNote = () => {
       {worldBands.length ? <PageSummary label={'Multikill bonus'}>
         {worldBands.map(({ key, label, multikill }) => <StatTile key={key} label={`${label} multikill`} failed={sectionFailed}
                                                                  value={formatNum(multikill ?? 0, 'pct')}/>)}
+        {/* Past rank 10 a mob with over 1B kills turns into an eclipse skull: each adds 5% damage (getEclipseSkullsBonus) */}
+        {!sectionFailed && nearest ? <StatTile label={'Closest to the next rank'} icon={nearest.icon ?? monsterSprite(nearest.rawName)}
+                                               value={cleanUnderscore(nearest.displayName)}
+                                               sub={`${notateNumber(nearest.next.toGo, 'Big')} kills to +${formatNum(nearest.next.points)} (${nearest.world})`}/> : null}
+        {eclipseOn ? <StatTile label={'Eclipse skulls'} icon={'etc/EclipseSkull.png'} failed={sectionFailed}
+                               value={formatNum(eclipseBonus / 5)} sub={`+${formatNum(eclipseBonus)}% damage`}/> : null}
       </PageSummary> : null}
+
       <Box>
         {!sectionFailed && worldBands.length ? <Toolbar state={toolbar} defaults={DEATH_NOTE_TOOLBAR} onChange={setToolbar}
                                                         onReset={resetToolbar} total={countOf(worldBands)} shown={countOf(bands)}
