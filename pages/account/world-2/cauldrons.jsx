@@ -7,11 +7,11 @@ import { formatGame } from '@utility/gameNotation';
 import { MissingData, PlayersList, isSectionFailed } from '@components/common/styles';
 import { NextSeo } from 'next-seo';
 import CoinDisplay from '@components/common/CoinDisplay';
+import { Duration } from '@components/common/Num';
 import GameIcon from '@components/common/GameIcon';
 import StatusText from '@components/common/StatusText';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
-import Panel from '@components/common/cards/Panel';
 import {
   CAULDRON_INFO,
   CAULDRONS_MAX_LEVELS,
@@ -27,7 +27,14 @@ import { NUMBERED_GROUP, createBreakdown, flat, info, listGroup, multiplier, pro
 // 'alchemy.liquidCauldrons': the liquid caps)
 const SECTION_NAMES = { alchemy: 'Cauldrons', 'alchemy.cauldrons': 'Brewing', 'alchemy.liquidCauldrons': 'Liquids' };
 
-const BOOSTS = [['speed', 'Speed'], ['luck', 'Luck'], ['cost', 'Cost'], ['extra', 'Extra']];
+// Each boost's effect in the game's own words (the cauldron panel's "Speed (Lv.{) - Brew Rate increased by }%")
+const BOOSTS = [
+  ['speed', 'Speed', (bonus) => `+${formatNum(bonus)}% brew rate`],
+  ['luck', 'Luck', (bonus) => `${formatNum(bonus)}x new bubble chance`],
+  ['cost', 'Cost', (bonus) => `-${formatNum(bonus)}% bubble costs`],
+  ['extra', 'Extra', (bonus) => `${formatNum(bonus)}% double level chance`]
+];
+const DECANT_EFFECT = { Cap: (bonus) => `+${formatNum(bonus)} capacity`, Rate: (bonus) => `+${formatNum(bonus)}% regen` };
 const NEXT_BUBBLES_SHOWN = 10;
 const HEADING_SX = { mt: 4, mb: 1.5 };
 
@@ -38,6 +45,9 @@ const brewReq = (value) => formatGame(value, 'CauldronStats.CauldronLvsBrewREQ',
 // The game draws the liquid in its jar in Small beside the cap in Big: NotateNumber(CauldronInfo[6][i], "Small"), a
 // save field with no gameNotation key, so the mode is named here. A balance a bubble's cost spends, so it stays as the game prints it
 const liquidAmount = (value) => gameFill(value, 'Small', { whole: true });
+
+// Time to full needs a cap and a rate above zero; a full jar reads Ready
+const hasRateAndCap = (maxLiquid, rate) => Number.isFinite(maxLiquid) && rate?.value > 0;
 
 // A level against its max, with the Maxed word once it is there
 const levelValue = (level = 0, max) => (level >= max
@@ -81,9 +91,9 @@ const getNewBubbleBreakdown = (displayName, cauldron) => {
 
 // A brew boost: its level and the brew toward the next one (the game floors it first), Maxed at the cap. A failed
 // section's catalog has no brew: the pair reads "-" with no bar
-const boostRow = ([statName, label], { level = 0, progress = 0, req = 0 } = {}, failed) => {
+const boostRow = ([statName, label, effect], { level = 0, progress = 0, req = 0, bonus = 0 } = {}, failed) => {
   if (failed) return <ItemCard.Facts key={statName} rows={[[label, '-']]}/>;
-  const name = `${label} · ${formatNum(level, 'level', { max: CAULDRONS_MAX_LEVELS.brewing })}`;
+  const name = `${label} · ${formatNum(level, 'level', { max: CAULDRONS_MAX_LEVELS.brewing })} · ${effect(bonus)}`;
   return level >= CAULDRONS_MAX_LEVELS.brewing
     ? <ItemCard.Facts key={statName} rows={[[name, <StatusText key={'maxed'} status={'maxed'}/>]]}/>
     : <ItemCard.Progress key={statName} label={name} value={brewReq(Math.floor(progress))} max={brewReq(req)}
@@ -128,15 +138,19 @@ const brewingCard = ({ name, displayName }, index, cauldron = {}, characters, fa
 // that step or the section failed they read "-", and the liquid shows no bar and no half a pair.
 const liquidCard = ({ displayName }, index, { upgrades = {}, jar, amount, characters, failed }) => {
   const { regen, capacity, players = [] } = upgrades;
-  const { maxLiquid, decantCap, decantRate, isDragonic, maxLiquidBreakdown } = jar ?? {};
+  const { maxLiquid, decantCap, decantRate, isDragonic, maxLiquidBreakdown, rate } = jar ?? {};
   const hasCap = Number.isFinite(maxLiquid);
+  const rateText = rate ? `${formatNum(rate.value)}/hr` : null;
+  // Under one unit short reads full: the jar's amount and cap differ only past the decimal
+  const toFull = hasRateAndCap(maxLiquid, rate) ? Math.max(0, maxLiquid - amount) / rate.value * 3600 : null;
+  const isFull = hasCap && maxLiquid - amount < 1;
   const capText = hasCap ? formatGame(maxLiquid, 'CauldronStats.LiquidCap', { whole: true }) : '-';
   const cap = hasCap && maxLiquidBreakdown
     ? <Breakdown key={'cap'} asValue title={`${displayName} capacity`}
                  data={{ ...maxLiquidBreakdown, totalValue: capText }}>{capText}</Breakdown>
     : capText;
-  const decant = (label, { level = 0, progress = 0, req = 0 } = {}) => (jar
-    ? [`${label} · ${formatNum(level, 'level')}`, `${brewReq(progress)} / ${brewReq(req)}`]
+  const decant = (label, { level = 0, progress = 0, req = 0, bonus = 0 } = {}) => (jar
+    ? [`${label} · ${formatNum(level, 'level')} · ${DECANT_EFFECT[label](bonus)}`, `${brewReq(progress)} / ${brewReq(req)}`]
     : [label, '-']);
   return <ItemCard key={displayName} icon={`data/aJarL${index}.png`} title={displayName}
                    meta={isDragonic ? 'Dragonic' : undefined}
@@ -148,6 +162,12 @@ const liquidCard = ({ displayName }, index, { upgrades = {}, jar, amount, charac
                                  percent={maxLiquid > 0 ? Math.min(100, amount / maxLiquid * 100) : 0}/> : null}
     <ItemCard.Facts rows={[
       hasCap ? null : ['Liquid', '-'],
+      ['Per hour', rate
+        ? <Breakdown key={'rate'} asValue title={`${displayName} per hour`}
+                     data={{ ...rate.breakdown, totalValue: rateText }}>{rateText}</Breakdown>
+        : '-'],
+      isFull ? null
+        : toFull !== null ? ['Full in', <Duration key={'full'} seconds={toFull}/>] : null,
       decant('Cap', decantCap),
       decant('Rate', decantRate)
     ]}/>
@@ -208,13 +228,21 @@ const Cauldrons = () => {
         })}
       </CardGrid>
 
-      <CardGrid size={'m'} sx={{ mt: 4 }}>
-        <Panel title={'Player and vials'}>
-          <Panel.KV label={'Alchemy speed'} value={alchemyFailed ? '-' : formatNum(player?.speedLv ?? 0, 'level')}/>
-          <Panel.KV label={'Extra EXP'} value={alchemyFailed ? '-' : formatNum(player?.extraExpLv ?? 0, 'level')}/>
-          <Panel.KV label={'Vial attempts'} value={alchemyFailed ? '-' : levelValue(vials?.attempts ?? 0, CAULDRONS_MAX_LEVELS.vialsAttempts)}/>
-          <Panel.KV label={'Vial RNG'} value={alchemyFailed ? '-' : levelValue(vials?.rng ?? 0, CAULDRONS_MAX_LEVELS.vialsRng)}/>
-        </Panel>
+      {/* The account-wide Pay 2 Win levels, beside the cauldron and liquid ones */}
+      <Typography variant={'sectionTitle'} component={'h3'} sx={HEADING_SX}>Player and vials</Typography>
+      <CardGrid size={'m'}>
+        <ItemCard title={'Player'}>
+          <ItemCard.Facts rows={[
+            ['Alchemy speed', alchemyFailed ? '-' : formatNum(player?.speedLv ?? 0, 'level')],
+            ['Extra EXP', alchemyFailed ? '-' : formatNum(player?.extraExpLv ?? 0, 'level')]
+          ]}/>
+        </ItemCard>
+        <ItemCard title={'Vials'}>
+          <ItemCard.Facts rows={[
+            ['Attempts', alchemyFailed ? '-' : levelValue(vials?.attempts ?? 0, CAULDRONS_MAX_LEVELS.vialsAttempts)],
+            ['RNG', alchemyFailed ? '-' : levelValue(vials?.rng ?? 0, CAULDRONS_MAX_LEVELS.vialsRng)]
+          ]}/>
+        </ItemCard>
       </CardGrid>
     </>
   );

@@ -153,7 +153,7 @@ export const getLiquidCauldrons = (account: any) => {
     const decantRateLevelValue = decantRateLevel ?? 0;
     const [decantCapReq, decantRateReq] = [getCauldronBrewReq(decantCapLevelValue + 1),
     getCauldronBrewReq(decantRateLevelValue + 1)]
-    const brewBonus = getCauldronBrewBonus(index + 4, decantCapLevelValue); // CauldStatDN1
+    const brewBonus = getCauldronBoostBonus(index + 4, LIQUID_CAP_BOOST, decantCapLevelValue); // CauldStatDN1
     const bleachLiquidCauldron = account?.gemShopPurchases?.find((value: any, index: any) => index === 106) ?? 0;
     const saltLickBonus = getSaltLickBonus(account?.saltLick, 5);
     let bleachLiquidBonus = 0;
@@ -212,12 +212,14 @@ export const getLiquidCauldrons = (account: any) => {
       decantCap: {
         level: decantCapLevelValue,
         progress: decantCapProgress ?? 0,
-        req: decantCapReq
+        req: decantCapReq,
+        bonus: brewBonus
       },
       decantRate: {
         level: decantRateLevelValue,
         progress: decantRateProgress ?? 0,
-        req: decantRateReq
+        req: decantRateReq,
+        bonus: getCauldronBoostBonus(index + 4, LIQUID_RATE_BOOST, decantRateLevelValue)
       }
     }
   });
@@ -227,14 +229,21 @@ const getCauldronBrewReq = (level: any) => {
   return Math.floor(1.6 + Math.pow(1.25 * level, 1.8));
 }
 
-//
-const getCauldronBrewBonus = (index: any, cauldronVal: any) => {
-  // a.engine.getGameAttribute("CauldronInfo")[8][0 | t][2][1] - capacity
-  if (index < 4) {
-    return Math.round(10 * growth('decay', 90, 100, cauldronVal, false, 0)) / 10;
+// game: CauldronStats("CauldronLvsBrewBonus", cauldron, boost). A brewing cauldron (0-3): Speed +5% brew rate a
+// level, Luck a 1 + 5% a level new bubble multi, Cost a bubble cost cut that decays toward 90%, Extra +2% a level
+// chance for a double level. A liquid's (4-7): Cap (2) +1 capacity a level, Rate (3) +2% regen a level.
+export const getCauldronBoostBonus = (cauldronIndex: number, boostIndex: number, level: number) => {
+  const lvl = Number(level) || 0;
+  if (cauldronIndex < 4) {
+    if (boostIndex === 0) return Math.round(5 * lvl);
+    if (boostIndex === 1) return Math.round(10 * (1 + 0.05 * lvl)) / 10;
+    if (boostIndex === 2) return Math.round(10 * growth('decay', lvl, 90, 100, false)) / 10;
+    return Math.round(2 * lvl);
   }
-  return Math.round(cauldronVal);
+  return boostIndex === 2 ? Math.round(lvl) : Math.round(2 * lvl);
 }
+const LIQUID_CAP_BOOST = 2;
+const LIQUID_RATE_BOOST = 3;
 
 const getPay2Win = (idleonData: any, alchemyActivity: any, serializedCharactersData: any) => {
   // game: CauldronJobs[0][liquid + 4], the job a character brews a liquid at (ResearchSpeed)
@@ -569,7 +578,7 @@ const getCauldrons = (cauldronsProgress: any, cauldronsRaw: any, p2w: any, alche
       unlockedBubbles,
       players
     };
-    Object.entries(cauldronsAsObject).forEach(([name, stats]: any) => {
+    Object.entries(cauldronsAsObject).forEach(([name, stats]: any, boostIndex) => {
       const [progress = 0, level = 0] = stats ?? [];
       cauldronsObject[cauldronsLevelsMapping[i]] = {
         ...cauldronsObject[cauldronsLevelsMapping[i]],
@@ -578,6 +587,7 @@ const getCauldrons = (cauldronsProgress: any, cauldronsRaw: any, p2w: any, alche
           [name]: {
             progress,
             level: parseInt(level),
+            bonus: getCauldronBoostBonus(i / 4, boostIndex, parseInt(level)),
             req: getCauldronBonus(0, 2, p2w.cauldrons[i / 4]?.boostReq?.level, parseInt(level))
           }
         }
@@ -655,7 +665,7 @@ export const applyNewBubbleChances = (account: any, characters: any) => {
   return Object.fromEntries(Object.entries(account?.alchemy?.cauldrons ?? {}).map(([name, cauldron]: any) => {
     const index = CAULDRON_INFO.findIndex((info) => info.name === name);
     const luckLevel = cauldron?.boosts?.luck?.level ?? 0;
-    const luck = Math.round(10 * (1 + 0.05 * luckLevel)) / 10;
+    const luck = getCauldronBoostBonus(index, 1, luckLevel);
     const [x1, x2, func] = p2w[0][1];
     const p2wLevel = account?.alchemy?.p2w?.cauldrons?.[index]?.newBubble?.level ?? 0;
     const p2wBonus = Math.max(growth(func, p2wLevel, x1, x2, false), 1);
@@ -685,7 +695,6 @@ export const applyNewBubbleChances = (account: any, characters: any) => {
 // game: CauldronStats("ResearchSpeed") / ("SpecificSpdBonuses")
 const ALCHEMY_LEVEL_POWER = 0.8;
 const WISDOM_CURVE_DIVISOR = 0.6;
-const SPEED_BOOST_PER_LEVEL = 5;
 const GUILD_TOWN_PRODUCTION_INDEX = 5;
 const MAFIOSO_COMPANION_INDEX = 46;
 const PLAYER_P2W_INDEX = 3;
@@ -766,7 +775,7 @@ export const getCauldronBrewMulti = (account: any, cauldronIndex: number) => {
   const p2wBonus = getCauldronP2wBonus(CAULDRON_P2W_INDEX, CAULDRON_P2W_SPEED, p2wLevel);
   const ivory = isIvoryCauldron(account, cauldronIndex) ? IVORY_CAULDRON_MULTI : 1;
   const speedLevel = account?.alchemy?.cauldrons?.[CAULDRON_INFO[cauldronIndex]?.name]?.boosts?.speed?.level ?? 0;
-  const speedBoost = Math.round(SPEED_BOOST_PER_LEVEL * speedLevel);
+  const speedBoost = getCauldronBoostBonus(cauldronIndex, 0, speedLevel);
   const value = (1 + vialBonus / 100) * (1 + p2wBonus / 100) * ivory * (1 + speedBoost / 100);
   return {
     value,
@@ -807,6 +816,75 @@ export const applyBrewSpeeds = (account: any, characters: any) => {
       }
     }];
   }));
+}
+
+// game: CauldronStats("LiquidHRrate", liquid), per hour. The decant Rate and Pay 2 Win regen count only once the
+// account's best Alchemy level is past the liquid's gate; the characters brewing it add their brew speed.
+const LIQUID_RATE_ALCHEMY_GATE = [-1, 19, 34, 119];
+const LIQUID_P2W_INDEX = 1;
+const LIQUID_P2W_REGEN = 0;
+const BLEACH_LIQUID_GEM_INDEX = 106;
+const LIQUID_RATE_VAULT_INDEX = 38;
+const LIQUID_RATE_VOTE_INDEX = 12;
+const VIADUCT_LAB_INDEX = 6;
+const LIQUID_RATE_SALT_LICK_INDEX = 5;
+
+export const applyLiquidRates = (account: any, characters: any) => {
+  const alchemyLevel = Math.max(0, ...(characters ?? []).map((character: any) => character?.skillsInfo?.alchemy?.level ?? 0));
+  const vialRegen = getVialsBonusByStat(account?.alchemy?.vials, 'LiquidRegen');
+  const stampBonus = getStampsBonusByStat(account, 'LiquidSpd');
+  const saltLickBonus = getSaltLickBonus(account?.saltLick, LIQUID_RATE_SALT_LICK_INDEX);
+  const sigilBonus = getSigilBonus(account?.alchemy?.p2w?.sigils, 'PECULIAR_VIAL');
+  const vaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, LIQUID_RATE_VAULT_INDEX);
+  const voteBonus = getVoteBonus(account, LIQUID_RATE_VOTE_INDEX);
+  // MainframeBonus(6) is 1 while off; a save with no lab reads 0 here
+  const viaduct = getLabBonus(account?.lab?.labBonuses, VIADUCT_LAB_INDEX) || 1;
+  const viaductMulti = 1 - 7.5 * (viaduct - 1) / 100;
+  const bleached = Number(account?.gemShopPurchases?.find((_: any, index: number) => index === BLEACH_LIQUID_GEM_INDEX) ?? 0);
+  return (account?.alchemy?.liquidCauldrons ?? []).map((jar: any, index: number) => {
+    const unlocked = alchemyLevel > LIQUID_RATE_ALCHEMY_GATE[index];
+    const rateBoost = unlocked ? jar?.decantRate?.bonus ?? 0 : 0;
+    const p2wLevel = account?.alchemy?.p2w?.liquids?.[index]?.regen?.level ?? 0;
+    const p2wRegen = unlocked ? getCauldronP2wBonus(LIQUID_P2W_INDEX, LIQUID_P2W_REGEN, p2wLevel) : 0;
+    const brewers = (account?.alchemy?.p2w?.liquids?.[index]?.players ?? [])
+      .map(({ index: playerIndex }: any) => characters?.find(({ playerId }: any) => playerId === playerIndex))
+      .filter(Boolean)
+      .map((character: any) => ({ character, ...getCharacterBrewSpeed(character, account, characters) }));
+    const brewSpeed = brewers.reduce((sum: number, { value }: any) => sum + value, 0);
+    const tankMulti = bleached > index ? (account?.accountOptions?.[OPT.dragonicCauldrons] > index ? 1.95 : 1.5) : 1;
+    const value = tankMulti
+      * (1 + (rateBoost + p2wRegen + vialRegen) / 100)
+      * (1 + (brewSpeed + stampBonus + saltLickBonus + sigilBonus + vaultBonus) / 100)
+      * viaductMulti
+      * (1 + voteBonus / 100);
+    return {
+      ...jar,
+      rate: {
+        value,
+        breakdown: createBreakdown(`${LIQUID_INFO[index]?.displayName} per hour`, value, [
+          multiplier(jar?.isDragonic ? 'Dragonic' : 'Bleach', tankMulti),
+          additiveGroup(NUMBERED_GROUP, [
+            percent('Rate', rateBoost),
+            percent('Pay 2 Win regen', p2wRegen),
+            percent('Vial', vialRegen)
+          ]),
+          additiveGroup(NUMBERED_GROUP, [
+            sumGroup('Characters brewing', brewers.map(({ character, value: speed }: any) =>
+              percent(cleanUnderscore(character?.name ?? '') ?? '', speed)), {
+              unit: 'percent',
+              ...(brewers.length ? {} : { note: 'No character is brewing here' })
+            }),
+            getStampNode(account, { stat: 'LiquidSpd' }, stampBonus),
+            percent('Salt Lick', saltLickBonus),
+            percent('Peculiar Vial (Sigil)', sigilBonus),
+            percent('Upgrade Vault', vaultBonus)
+          ]),
+          multiplier('Viaduct of the Gods (Lab)', viaductMulti),
+          multiplier('Vote', 1 + voteBonus / 100)
+        ])
+      }
+    };
+  });
 }
 
 const getP2WBonus = (p2wIndex: any, bonusIndex: any, level: any) => {

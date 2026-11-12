@@ -14,6 +14,7 @@ import {
   getBubbleCurve,
   getBubbleEffectPercent,
   getBubbleUpgradeCost,
+  getCauldronBoostBonus,
   getGrindTimeBubbleDaily,
   getKrukBubblesDaily,
   getMaxBonus,
@@ -160,7 +161,7 @@ const materialCost = (account, { index, level, cauldron }, { rawName, baseCost }
       cauldronBubble: Math.max(0.05, 1 - (growth('decay', lastBubbleLvl, 40, 12, false) / 100)
         * growth('decayMulti', classMultiplierLvl, 2, 50, false)
         * growth('decayMulti', multiBubble, 1.4, 30, false)),
-      cauldronLevel: Math.max(0.1, 1 - (Math.round(10 * growth('decay', cauldronCostLvl, 90, 100, false)) / 10) / 100),
+      cauldronLevel: Math.max(0.1, 1 - getCauldronBoostBonus(CAULDRON_INFO.findIndex(({ name }) => name === cauldron), 2, cauldronCostLvl) / 100),
       vialAndBubble: Math.max(0.05, 1 - vialAndBubbleBonus / 100),
       bargainTag: Math.max(0.1, Math.pow(0.75, bargainTags || 0)),
       smrt: Math.max(0.9, 1 - 0.1 * getAchievementStatus(account?.achievements, 108))
