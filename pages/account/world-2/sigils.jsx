@@ -51,6 +51,13 @@ const sigilProgress = (progress, unlocked) => (unlocked === UNDISCOVERED && prog
 
 const ready = <StatusText status={'ready'}>Ready to level up</StatusText>;
 
+// A bonus with the sign and % its sentence puts around the "{" ("+{%_Drop_Rate" reads "+1,050%")
+const bonusWithUnit = (effect = '', value) => {
+  const at = effect.indexOf('{');
+  const sign = at > 0 && /[+-]/.test(effect[at - 1]) ? effect[at - 1] : '';
+  return `${sign}${gameBonusText(value)}${effect[at + 1] === '%' ? '%' : ''}`;
+};
+
 // A sigil: its tier in words beside the game's tint, its bonus, and the progress toward its next tier. timeLeft counts
 // from the save, so the countdown ends at the save's time plus it, and a time that ran out since then shows Ready, not a
 // countdown that would be false (one label for both). A failed section's catalog has the name and art only. A failed
@@ -71,6 +78,7 @@ const sigilCard = (sigil, { failed, progressionFailed, tierGatesFailed, tierUnlo
   const timeLeft = (nextCost - progress) / chargeRate * 3600 * 1000;
   const base = sigilsCatalog?.[index]?.[TIER_BONUS[unlocked]];
   const boost = base > 0 ? bonus / base : 1;
+  const nextBonus = sigil?.[TIER_BONUS[unlocked + 1]] ?? 0;
   const nextRow = isReady ? ['Next tier', ready]
     : progressionFailed ? ['Next tier', '-']
     : Number.isFinite(timeLeft) && Number.isFinite(lastUpdated)
@@ -81,6 +89,8 @@ const sigilCard = (sigil, { failed, progressionFailed, tierGatesFailed, tierUnlo
                    dimmed={unlocked === UNDISCOVERED} status={maxed ? 'maxed' : charging.length ? 'active' : undefined}
                    statusLabel={maxed ? undefined : 'Charging'}
                    footer={maxed ? null : gateUnknown ? <ItemCard.Facts rows={[['Next tier', '-']]}/> : <ItemCard.Facts rows={[
+                     // The next tier's bonus, Chilled Yarn and the meritocracy bonus included (the parser's tier values)
+                     nextBonus > 0 ? [`${TIER_WORDS[unlocked + 1]} gives`, bonusWithUnit(effect, nextBonus)] : null,
                      ['Progress', `${sigilProgress(progress, unlocked)} / ${formatGame(nextCost, 'Save.SigilCost', { whole: true })}`],
                      nextRow
                    ]}/>}>
@@ -132,10 +142,12 @@ const Sigils = () => {
       <StatTile label={'Sigil speed'} value={speedText}
                 breakdown={!progressionFailed && sigilSpeed?.breakdown ? { ...sigilSpeed.breakdown, totalValue: speedText } : undefined}
                 breakdownTitle={'Sigil speed'}/>
+      {/* The game spends one syrup for 24 hours of sigil charge at once (sigiluse: GenINFO[50] + 86400) */}
       <StatTile label={'Sigil syrup'} icon={'data/SigilSyrup.png'}
+                info={'Using one in Alchemy adds 24 hours of charging to every sigil a character is charging.'}
                 value={formatNum(account?.accountOptions?.[OPT.sigilSyrup] ?? 0)} failed={isParseFailed(account)}/>
       <StatTile label={'Total sigil levels'} value={alchemyFailed ? '-' : formatNum(calcSigilsLevels(sigils))}/>
-      <StatTile label={'Prisma from sigils'}
+      <StatTile label={'Prisma from sigils'} icon={'data/Quest99.png'}
                 value={alchemyFailed ? '-' : formatNum(0.2 * etherealSigils, 'pct', { signed: true })}
                 sub={alchemyFailed ? undefined : `${formatNum(etherealSigils)} ethereal sigils`}
                 info={prismaCapped ? 'Your Prisma multi is already at its x5 cap, so this adds nothing now.' : undefined}/>
