@@ -12,7 +12,8 @@ export const patchNotes = [
       'Bubbles: bubble details show the bonus with Multorange, Premigreen or Severapurple and with your class bubble, and the summary tiles have icons',
       'Cauldrons: each boost shows what it gives, each liquid shows how much it makes per hour and when it fills, and Player and vials moved into Pay 2 Win',
       'Vials: search, a table view with every vial\'s bonus, daily attempts left and the material each level costs',
-      'Sigils: each sigil shows what its next tier gives, and Sigil syrup explains what one does'
+      'Sigils: each sigil shows what its next tier gives, and Sigil syrup explains what one does',
+      'Arcade Shop: a countdown to when the arcade is full, how often a ball comes, and what Cosmic and Omega balls do'
     ],
     'fixes': []
   },

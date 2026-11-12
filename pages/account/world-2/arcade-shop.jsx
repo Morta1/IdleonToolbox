@@ -14,6 +14,10 @@ import {
   isArcadePlaceholder
 } from '@parsers/world-2/arcade';
 import { getStampBonus } from '@parsers/world-1/stamps';
+import { getArcadeBallsToClaim, getMaxClaimTime, getSecPerBall } from '@parsers/dungeons';
+import { Duration } from '@components/common/Num';
+import Timer from '@components/common/Timer';
+import StatusText from '@components/common/StatusText';
 import { NextSeo } from 'next-seo';
 import { fedBy, MissingData, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
@@ -33,6 +37,9 @@ const ARCADE_OMEGA_BANNER = 'etc/ArcadeOmega.png';
 // the balls that pay for them read in the same rule
 const COST_RULE = 'DungeonCalc.ArcadeCost';
 const BALLS_RULE = 'Save.ArcadeBalls';
+
+// The arcade never charges a ball faster than this (Balls_to_claim's max(Arcade_SecPerBall, 1800))
+const MIN_SEC_PER_BALL = 1800;
 
 const ARCADE_TOOLBAR = { hideMaxed: false, hideSuper: false, hideOmega: false };
 
@@ -110,7 +117,13 @@ const ArcadeShop = () => {
   const multiFailed = fedBy(account, 'arcade', 'gaming', 'tesseract', 'farming', 'coralReef', 'companions');
   const costFailed = arcadeFailed || stampsFailed;
   const multiText = multiFailed ? '-' : formatNum(goldBallMulti?.value ?? 1, 'mult');
-  const ballsText = (value) => (arcadeFailed ? '-' : formatGame(value ?? 0, BALLS_RULE, { whole: true }));
+  const secPerBall = Math.max(getSecPerBall(account), MIN_SEC_PER_BALL);
+  const maxClaimHours = getMaxClaimTime(account) / 3600;
+  const maxBalls = getArcadeBallsToClaim(account);
+  // TimeAway.Arcade is the last claim in seconds; the arcade stops filling MaxClaimTime after it
+  const lastClaim = Number(account?.timeAway?.Arcade);
+  const fullAt = Number.isFinite(lastClaim) && lastClaim > 0 ? (lastClaim + getMaxClaimTime(account)) * 1000 : null;
+  const ballsText = (value) =>(arcadeFailed ? '-' : formatGame(value ?? 0, BALLS_RULE, { whole: true }));
 
   // An upgrade below Lv 100 costs gold balls; Lv 100 to Super costs Cosmic balls and Super to Omega Omega balls, where
   // the game shows no more cost. The cost line stands alone, as the game's "Cost:" line does.
@@ -149,11 +162,20 @@ const ArcadeShop = () => {
     {failedSection ? <MissingData name={SECTION_NAMES[failedSection]} failed atZero={arcadeFailed}/> : null}
     <PageSummary>
       <StatTile label={'Balls'} icon={'data/PachiBall0.png'} value={ballsText(balls)}/>
+      {/* game: Arcade_SecPerBall (never under 30 min a ball) and Arcade_MaxClaimTime, from the last claim */}
+      <StatTile label={'Arcade full in'}
+                value={fullAt ? <Timer type={'countdown'} component={'span'} date={fullAt}
+                                       placeholder={<StatusText status={'ready'}>Full: claim now</StatusText>}/> : '-'}
+                sub={<>1 ball every <Duration seconds={secPerBall}/></>}
+                info={`Holds up to ${formatNum(maxBalls)} balls (${formatNum(maxClaimHours)}h). Balls past that are lost until you claim.`}/>
       <StatTile label={'Gold balls'} icon={GOLD_BALL_ICON} value={ballsText(goldBalls)}/>
       <StatTile label={'Gold ball multi'} value={multiText}
                 breakdown={!multiFailed && goldBallMulti?.breakdown ? { ...goldBallMulti.breakdown, totalValue: multiText } : undefined}/>
-      <StatTile label={'Cosmic balls'} icon={COSMIC_BALL_ICON} value={ballsText(cosmicBalls)}/>
-      <StatTile label={'Omega balls'} icon={OMEGA_BALL_ICON} value={ballsText(omegaBalls)}/>
+      {/* game: ArcadeBonus, Lv 101 Super doubles the bonus and Lv 102 Omega makes it 6x */}
+      <StatTile label={'Cosmic balls'} icon={COSMIC_BALL_ICON} value={ballsText(cosmicBalls)}
+                info={'Spend 5 on a Lv 100 upgrade to make it Super. Super doubles that upgrade\'s bonus.'}/>
+      <StatTile label={'Omega balls'} icon={OMEGA_BALL_ICON} value={ballsText(omegaBalls)}
+                info={'Spend 2 on a Super upgrade to make it Omega. Omega makes that upgrade\'s bonus 6x its Lv 100 bonus (3x Super).'}/>
       <StatTile label={'Cost to max all'} icon={!costFailed && totalCostToMax > 0 ? GOLD_BALL_ICON : undefined}
                 value={costFailed ? '-' : formatGame(totalCostToMax, COST_RULE, { whole: true })}/>
     </PageSummary>
