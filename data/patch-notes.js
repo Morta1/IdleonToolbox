@@ -26,7 +26,8 @@ export const patchNotes = [
       'Prayers: with the Gaming superbits, each prayer shows what it gives a character with no prayer equipped, and the souls you own show at the top',
       'Traps: new tiles show when your next trap is ready and how many traps you have set out of how many you can',
       'Salt Lick: each upgrade shows its bonus at max, how many levels your salt can buy now, and the Salt Lick level that unlocks it',
-      'Construction: a new Cog makers tab shows each maker\'s progress, cogs ready, cogs per hour and when the next one is done, a tile counts down to your next flag, and hovering a cog outlines the cogs that boost it and the squares it boosts'
+      'Construction: a new Cog makers tab shows each maker\'s progress, cogs ready, cogs per hour and when the next one is done, a tile counts down to your next flag, and hovering a cog outlines the cogs that boost it and the squares it boosts',
+      'Armor Smithy: each set shows how many of its parts you own, a set you own in full reads Ready to unlock, parts you are missing are greyed, and the parts view is about half as tall'
     ],
     'fixes': []
   },
