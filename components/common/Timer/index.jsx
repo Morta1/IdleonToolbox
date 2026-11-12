@@ -13,6 +13,7 @@ const TOO_FAR = { days: 1000, hours: 0, minutes: 0, seconds: 0 };
 // amount left at the save (date = now + time left), so the save's age comes off it once. A date already anchored on the
 // save, or a date of its own, takes no lastUpdated: the age would come off twice.
 // A countdown past its end stops counting and reads placeholder, the row's own word, or Ready: never a count-up.
+// prefix leads only the running time ("Next in 3d"), so a placeholder reads on its own.
 const Timer = forwardRef(({
                             date,
                             lastUpdated,
@@ -20,6 +21,7 @@ const Timer = forwardRef(({
                             pause,
                             staticTime,
                             placeholder,
+                            prefix,
                             variant = 'inherit',
                             ...rest
                           }, ref) => {
@@ -90,7 +92,7 @@ const Timer = forwardRef(({
   return <Typography {...rest} ref={ref} variant={variant} component={'span'}>
     {time.overtime ? placeholder ?? <StatusText status={'ready'}/>
       : pause && placeholder ? placeholder
-        : timeText(time, type === 'countdown')}
+        : <>{prefix}{timeText(time, type === 'countdown')}</>}
   </Typography>;
 })
 

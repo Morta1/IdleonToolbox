@@ -50,6 +50,14 @@ const Market = ({ market }) => {
     ?.filter(u => !u.isAvailableThisWeek)
     ?.sort(sortKey === 'game' ? byGame : byReturn);
 
+  // game: "ExoticPurchasesAllowed" a week (OptionsListAccount 416 counts them); a purchase is free, keeping its crop, while
+  // the share bought so far is under "PCTofExoticPurchasesFREE"
+  const farming = state?.account?.farming;
+  const purchasesAllowed = farming?.exoticMarkeMaxPurchases ?? 0;
+  const purchased = Number(farming?.exoticMarketUpgradesPurchased) || 0;
+  const purchasesLeft = Math.max(0, purchasesAllowed - purchased);
+  const freeTotal = Math.ceil(purchasesAllowed * (farming?.pctExoticPurchasesFree ?? 0) / 100);
+  const freeLeft = Math.max(0, Math.min(freeTotal, purchasesAllowed) - purchased);
   const breakpoints = [50, 75, 90, 95, 99].map(pct => ({
     pct,
     lvlNeeded: Math.ceil(findExoticCappedThresholdLevel(pct))
@@ -95,10 +103,15 @@ const Market = ({ market }) => {
 
   return (
     <Stack gap={4}>
-      {organicLabels?.owned > 0 ? <Stack direction="row" gap={2} flexWrap="wrap">
-        <DoublerUsageCard title={'Organic Labels'} doubler={organicLabels} icon={DOUBLER_ICONS.organicLabels}/>
-      </Stack> : null}
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+        {organicLabels?.owned > 0
+          ? <DoublerUsageCard title={'Organic Labels'} doubler={organicLabels} icon={DOUBLER_ICONS.organicLabels}/> : null}
+        {purchasesAllowed > 0 ? <StatTile label={'Purchases left this week'}
+                                          value={`${formatNum(purchasesLeft)} / ${formatNum(purchasesAllowed)}`}
+                                          sub={freeLeft > 0 ? `${formatNum(freeLeft)} free` : undefined}
+                                          info={freeTotal > 0
+                                            ? `The first ${formatNum(freeTotal)} each week are free: they keep the crop you pay with. After those, a purchase spends all of that crop.`
+                                            : 'Each purchase spends all of the crop it is paid with.'}/> : null}
         {breakpoints.map(({ pct, lvlNeeded }) => <StatTile key={pct} label={`${pct}% of cap`}
                                                            value={formatNum(lvlNeeded, 'level')}/>)}
       </Stack>
@@ -110,8 +123,8 @@ const Market = ({ market }) => {
               <Typography variant={'sectionTitle'} component={'h2'}>Current rotation</Typography>
               {nextRotationDate instanceof Date ? <Typography variant={'caption'} color={'text.secondary'}>
                 {/* The Timer ticks itself and reads like every timer; its text placeholder would draw at body1 */}
-                Next in <Timer type={'countdown'} date={nextRotationDate.getTime()} component={'span'}
-                               placeholder={<StatusText status={'ready'}/>}/>
+                <Timer type={'countdown'} date={nextRotationDate.getTime()} component={'span'} prefix={'Next in '}
+                       placeholder={'Rotated since your save'}/>
               </Typography> : null}
             </Stack>
             <CardGrid size={'m'}>

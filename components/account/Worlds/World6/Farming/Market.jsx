@@ -1,4 +1,6 @@
 import { Stack } from '@mui/material';
+import { useContext } from 'react';
+import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
 import { DAY_MARKET_SIZE, sumMarketLevels } from '@parsers/world-6/farming';
 import StatTile from '@components/common/cards/StatTile';
@@ -6,7 +8,18 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import { formatGame } from '@utility/gameNotation';
 
+// game: FarmingStuffs("MarketUpgUnlocked"): each market opens its upgrades in order, one more each time crops found reaches
+// the next upgrade's requirement
+const unlockedCount = (list, cropsFound) => {
+  const first = list.findIndex(({ cropReq }) => cropsFound < (cropReq ?? 0));
+  return first === -1 ? list.length : first;
+};
+
 const Market = ({ market, crop }) => {
+  const { state } = useContext(AppContext);
+  const cropsFound = state?.account?.farming?.cropsFound ?? 0;
+  const dayOpen = unlockedCount(market?.slice(0, DAY_MARKET_SIZE) ?? [], cropsFound);
+  const nightOpen = unlockedCount(market?.slice(DAY_MARKET_SIZE, DAY_MARKET_SIZE * 2) ?? [], cropsFound);
   return (<>
     <Stack direction={'row'} flexWrap={'wrap'} gap={1} mb={2}>
       <StatTile label={'Total day market levels'} value={formatNum(sumMarketLevels(market?.slice(0, DAY_MARKET_SIZE)))}/>
@@ -14,9 +27,10 @@ const Market = ({ market, crop }) => {
                 value={formatNum(sumMarketLevels(market?.slice(DAY_MARKET_SIZE, DAY_MARKET_SIZE * 2)))}/>
     </Stack>
     <CardGrid size={'m'}>
-      {market?.map(({ name, level, maxLvl, bonus, value, baseValue, costToMax, type, cost, nextUpgrades }, marketIndex) => {
+      {market?.map(({ name, level, maxLvl, bonus, value, baseValue, costToMax, type, cost, nextUpgrades, cropReq }, marketIndex) => {
         // The day market pays in its own crops, the night market in beans; a night upgrade lists only its next step
         const isDay = marketIndex < DAY_MARKET_SIZE;
+        const locked = isDay ? marketIndex >= dayOpen : marketIndex - DAY_MARKET_SIZE >= nightOpen;
         const costIcon = (nextType) => `data/${isDay ? `FarmCrop${nextType}` : 'FarmCropBean'}.png`;
         const ownedOf = (nextType) => Math.max(0, crop?.[isDay ? nextType : 'beans'] ?? 0);
         const later = (level < maxLvl
@@ -31,9 +45,10 @@ const Market = ({ market, crop }) => {
         // The next cost leads, named, then the later steps: as a footer it sat unlabelled under them
         return <ItemCard key={'upgrade' + marketIndex} title={titleCaseName(cleanUnderscore(name))}
                          level={{ value: level, max: maxLvl }} meta={isDay ? 'Day market' : 'Night market'}
-                         status={level >= maxLvl ? 'maxed' : undefined}>
+                         status={locked ? 'locked' : level >= maxLvl ? 'maxed' : undefined} dimmed={locked}>
           <ItemCard.Desc text={bonusText}/>
-          {level < maxLvl ? <ItemCard.Section label={'Next cost'}>
+          {locked ? <ItemCard.Facts rows={[['Unlocks at', `${formatNum(cropReq ?? 0)} crops found (${formatNum(Math.max(0, (cropReq ?? 0) - cropsFound))} to go)`]]}/> : null}
+          {!locked && level < maxLvl ? <ItemCard.Section label={'Next cost'}>
             <ItemCard.Cost icon={costIcon(type)} need={Math.floor(cost)} have={ownedOf(type)}
                            game={'FarmingStuffs.MarketCostQTY'}/>
           </ItemCard.Section> : null}

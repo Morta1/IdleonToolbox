@@ -56,14 +56,17 @@ export const getFarming = (idleonData: any, accountData: any, charactersData: an
   const rawSpelunk = saveField(idleonData, 'Spelunk') || idleonData?.Spelunk;
   // Spelunk[50]: the exotic upgrade indices that carry a Menagerie organic label
   const organicLabels = Array.isArray(rawSpelunk?.[50]) ? rawSpelunk[50].map(Number) : [];
-  return parseFarming(rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFarmingRanks, accountData, charactersData, organicLabels);
+  // Research[10][plot]: 1 while a megacrop sits unclaimed on the plot, which stops that plot finding stickers
+  const rawResearch = saveField(idleonData, 'Research') || idleonData?.Research;
+  const megacropFlags = Array.isArray(rawResearch?.[10]) ? rawResearch[10] : [];
+  return parseFarming(rawFarmingUpgrades, rawFarmingPlot, rawFarmingCrop, rawFarmingRanks, accountData, charactersData, organicLabels, megacropFlags);
 }
 
 // An organic label doubles that exotic's bonus; exotic 39 is capped at 50 after it
 const EXOTIC_ORGANIC_MULTI = 2;
 const EXOTIC_39_CAP = 50;
 
-const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCrop: any, rawFarmingRanks: any, account: any, charactersData: any, organicLabels: number[] = []) => {
+const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCrop: any, rawFarmingRanks: any, account: any, charactersData: any, organicLabels: number[] = [], megacropFlags: any[] = []) => {
   const gemVineBonus = account?.gemShopPurchases?.find((value: any, index: any) => index === 139) ?? 0;
   const marketLevels = rawFarmingUpgrades?.slice(2, marketInfo.length + 2);
   const beans = rawFarmingUpgrades?.[1] ?? 0;
@@ -235,6 +238,7 @@ const parseFarming = (rawFarmingUpgrades: any, rawFarmingPlot: any, rawFarmingCr
       growthReq,
       isLocked,
       currentOG,
+      megacropBlocked: Number(megacropFlags?.[cropIndex] ?? 0) !== 0,
       cropRawName: `FarmCrop${type}.png`,
       seedRawName: `Seed_${seedType}.png`
     }
@@ -620,13 +624,24 @@ export const updateFarming = (characters: any, account: any) => {
       const count = (account?.research?.stickerLevels ?? [])[index] ?? 0;
       const bonus = getStickerBonus(account, index);
       const { odds, breakdown: oddsBreakdown } = getStickerOdds(stickerOddsMultiNodes, account, index);
+      // game: "FarmingStuffs:AttemptMegacropGrowth": an OG gain rolls the plot's seed's sticker at odds x 2^(new OG)
+      const seedPlots = (newPlot ?? []).filter(({ seedType }: any) => seedType === index);
+      const blockedPlots = seedPlots.filter(({ megacropBlocked }: any) => megacropBlocked).length;
+      const bestPlotOdds = seedPlots.reduce((best: number, { currentOG, megacropBlocked }: any) => megacropBlocked
+        ? best
+        : Math.max(best, Math.min(1, odds * Math.max(1, Math.pow(2, (currentOG ?? 0) + 1)))), 0);
       return {
+        index,
         name,
         description: getStickerDescription(account, index, stickerDescriptions[index] ?? ''),
         count,
         bonus,
         odds,
         oddsBreakdown,
+        seed: seedInfo?.[index],
+        plantedPlots: seedPlots.length,
+        blockedPlots,
+        bestPlotOdds,
         baseBonus: stickerBaseBonus[index] ?? 0
       };
     })
@@ -884,6 +899,20 @@ const getCropType = ({ index, cropId, cropIdIncrement, level }: any) => {
       * level)
 }
 
+// game: "FarmingStuffs:CropSCbonus" line t, each gated by Ninja("EmporiumBonus", id): 27,24,25,26,23,28,29,38,40,44
+const CROP_SCIENTIST_LINES: { stat: string, name: string, jade: string, step?: number, base?: number, after?: number, every?: number }[] = [
+  { stat: 'damage', name: 'DMG', jade: 'Reinforced_Science_Pencil', step: 20 },
+  { stat: 'gamingEvo', name: 'Gaming Evo', jade: 'Science_Pen', base: 1.02 },
+  { stat: 'jadeCoin', name: 'Jade Coin', jade: 'Science_Marker', step: 8 },
+  { stat: 'cookingSpeed', name: 'Meal Spd', jade: 'Science_Featherpen', base: 1.1 },
+  { stat: 'cash', name: 'Cash', jade: 'Science_Environmentally_Sourced_Pencil', step: 15 },
+  { stat: 'shiny', name: 'Pet Rate', jade: 'Science_Crayon', step: 7 },
+  { stat: 'critters', name: 'Critters', jade: 'Science_Paintbrush', step: 0.1 },
+  { stat: 'dropRate', name: 'Drop Rate', jade: 'Science_Highlighter', step: 1, after: 100 },
+  { stat: 'spelunky', name: 'Spelunky', jade: 'Science_Fancy_Pen', step: 5, after: 200 },
+  { stat: 'researchExp', name: 'Research Exp', jade: 'Science_Chalk', step: 1, after: 200, every: 10 }
+];
+
 const getCropDepotBonuses = (account: any) => {
   // 'CropSCbonus' == e
   // MainframeBonus(17): Depot Studies PhD plus the Pure Opal Rhombol
@@ -894,49 +923,17 @@ const getCropDepotBonuses = (account: any) => {
   const extraBonus = (1 + labBonus / 100)
     * (1 + (grimoireBonus + exoticBonus40 + vaultBonus79) / 100);
 
-  let bonuses = {
-    damage: { name: 'DMG', value: 0 },
-    gamingEvo: { name: 'Gaming Evo', value: 0 },
-    jadeCoin: { name: 'Jade Coin', value: 0 },
-    cookingSpeed: { name: 'Meal Spd', value: 0 },
-    cash: { name: 'Cash', value: 0 },
-    shiny: { name: 'Pet Rate', value: 0 },
-    critters: { name: 'Critters', value: 0 },
-    dropRate: { name: 'Drop Rate', value: 0 },
-    spelunky: { name: 'Spelunky', value: 0 },
-    researchExp: { name: 'Research Exp', value: 0 }
-  };
-  if (isJadeBonusUnlocked(account, 'Reinforced_Science_Pencil')) {
-    bonuses.damage.value = 20 * Math.round(account?.farming?.cropsFound) * extraBonus;
-  }
-  if (isJadeBonusUnlocked(account, 'Science_Pen')) {
-    bonuses.gamingEvo.value = Math.pow(1.02, Math.round(account?.farming?.cropsFound)) * extraBonus;
-  }
-  if (isJadeBonusUnlocked(account, 'Science_Marker')) {
-    bonuses.jadeCoin.value = 8 * Math.round(account?.farming?.cropsFound) * extraBonus;
-  }
-  if (isJadeBonusUnlocked(account, 'Science_Featherpen')) {
-    bonuses.cookingSpeed.value = Math.pow(1.1, Math.round(account?.farming?.cropsFound)) * extraBonus;
-  }
-  if (isJadeBonusUnlocked(account, 'Science_Environmentally_Sourced_Pencil')) {
-    bonuses.cash.value = 15 * Math.round(account?.farming?.cropsFound) * extraBonus;
-  }
-  if (isJadeBonusUnlocked(account, 'Science_Crayon')) {
-    bonuses.shiny.value = 7 * Math.round(account?.farming?.cropsFound) * extraBonus;
-  }
-  if (isJadeBonusUnlocked(account, 'Science_Paintbrush')) {
-    bonuses.critters.value = 0.1 * Math.round(account?.farming?.cropsFound) * extraBonus;
-  }
-  if (isJadeBonusUnlocked(account, 'Science_Highlighter')) {
-    bonuses.dropRate.value = Math.round(Math.max(0, account?.farming?.cropsFound - 100)) * extraBonus;
-  }
-  if (isJadeBonusUnlocked(account, 'Science_Fancy_Pen')) {
-    bonuses.spelunky.value = 5 * Math.round(Math.max(0, account?.farming?.cropsFound - 200)) * extraBonus;
-  }
-  if (isJadeBonusUnlocked(account, 'Science_Chalk')) {
-    bonuses.researchExp.value = Math.round(Math.max(0, Math.floor((account?.farming?.cropsFound - 200) / 10))) * extraBonus;
-  }
-  return bonuses;
+  const cropsFound = account?.farming?.cropsFound ?? 0;
+  return Object.fromEntries(CROP_SCIENTIST_LINES.map(({ stat, name, jade, step, base, after = 0, every }) => {
+    const unlocked = Boolean(isJadeBonusUnlocked(account, jade));
+    const counted = every
+      ? Math.round(Math.max(0, Math.floor((cropsFound - after) / every)))
+      : Math.round(Math.max(0, cropsFound - after));
+    const value = !unlocked ? 0 : base ? Math.pow(base, Math.round(cropsFound)) * extraBonus : (step ?? 0) * counted * extraBonus;
+    // One more crop: a multiplier line grows by its base, a flat line by its step through the shared multi
+    const perCrop = base ?? (step ?? 0) * extraBonus;
+    return [stat, { name, value, unlocked, unlockName: jade, perCrop, multiplicative: Boolean(base), after, every: every ?? 1, pastAfter: cropsFound >= after }];
+  }));
 }
 
 export const getMarketBonus = (market: any, bonusName: any, value = 'baseValue') => {

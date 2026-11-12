@@ -1,5 +1,5 @@
 import { Stack, Typography } from '@mui/material';
-import { createRange, formatDuration, formatNum, titleCaseName } from '@utility/helpers';
+import { cleanUnderscore, createRange, formatDuration, formatNum, titleCaseName } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { seedInfo } from '@website-data';
 import React from 'react';
@@ -15,6 +15,15 @@ const MULTI_STATS = ['gamingEvo', 'cookingSpeed'];
 const depotValue = (stat, value) => (stat === 'critters' ? `+${formatGame(value, 'FarmingStuffs.CropSCbonus')}`
   : MULTI_STATS.includes(stat) ? (value ? `${formatGame(value, 'FarmingStuffs.CropSCbonus_Multi')}x` : formatNum(value, 'mult')) : `${formatGame(value, 'FarmingStuffs.CropSCbonus')}%`);
 
+// What one more found crop adds to a line: a multiplier line by its base, the rest by its step through the shared multi
+const perCropText = (stat, { perCrop, multiplicative, after, every, pastAfter } = {}) => {
+  if (!(perCrop > 0)) return undefined;
+  const step = multiplicative ? formatNum(perCrop, 'mult')
+    : stat === 'critters' ? formatNum(perCrop, 'amount', { signed: true }) : formatNum(perCrop, 'pct', { signed: true });
+  const per = every > 1 ? `per ${formatNum(every)} crops` : 'per crop';
+  return `${step} ${per}${after > 0 && !pastAfter ? ` past ${formatNum(after)}` : ''}`;
+};
+
 // A family's max time under a second reads in milliseconds (Eleven, #86): late in the game every family is under one,
 // and "<1s" on each told them apart no more. The old page printed them the same way.
 const maxTimeText = (seconds) => {
@@ -26,9 +35,13 @@ const maxTimeText = (seconds) => {
 const Crop = ({ crop, maxTimes, cropDepot }) => {
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
-      {Object.entries(cropDepot ?? {}).map(([stat, { name, value }], index) => <StatTile key={stat} label={name}
-                                                                                  icon={`etc/Pen_${index}.png`}
-                                                                                  value={depotValue(stat, value)}/>)}
+      {Object.entries(cropDepot ?? {}).map(([stat, line], index) => <StatTile key={stat} label={line?.name}
+                                                                      icon={`etc/Pen_${index}.png`}
+                                                                      value={line?.unlocked === false ? 'Locked' : depotValue(stat, line?.value)}
+                                                                      status={line?.unlocked === false ? 'locked' : undefined}
+                                                                      sub={line?.unlocked === false
+                                                                        ? `Needs ${cleanUnderscore(line?.unlockName)}`
+                                                                        : perCropText(stat, line)}/>)}
     </Stack>
     <Stack gap={3}>
       {seedInfo.map(({ name, seedId, cropIdMin, cropIdMax }, index) => {

@@ -137,7 +137,7 @@ const Farming = () => {
       <Market market={market} crop={crop}/>
       {parseFailed ? null : <ExoticMarket market={exoticMarket} crop={crop}/>}
       <ExoticMarketRotation/>
-      <RankDatabase ranks={ranks} hasLandRank={hasLandRank}/>
+      <RankDatabase ranks={ranks} hasLandRank={hasLandRank} totalPoints={totalPoints}/>
       {sectionFailed ? null : <LandRankOptimizer/>}
       <Crop crop={crop} maxTimes={maxTimes} cropDepot={cropDepot}/>
       <Stickers/>
