@@ -8,6 +8,12 @@ const DAILY_TASK_INDEX = 8;
 // game TaskStuff("MeritsGiven", level): merits paid for ranking a task up from `level`
 const getMeritsGiven = (level: number): number => Math.round(1 + Math.floor(level / 5));
 
+// The board's claim: Tasks[4][0] (task points, the Unlocks pool) grows by floor(row[3] + (world + 1) * level) on every
+// slot, the daily one too, read before the rank goes up. asNumber is parseFloat: Achievement Hunter's shifted row
+// ("2|0|Filler_lol") reads 2.
+const getTaskPointsGiven = (task: any, world: number, level: number): number =>
+  Math.floor((parseFloat(task?.x) || 0) + (world + 1) * level);
+
 // The merit shop panel's first line (TaskShopDesc draw): on a row with options every `}` becomes the option for the
 // level, then every `{` becomes the per-level bonus times the level. Blank420q marks a row with no options.
 export const getMeritDescription = (merit: any, level: number): string => {
@@ -56,7 +62,8 @@ export const getTasks = (idleonData: IdleonData): {
         level,
         maxLevel,
         requirement,
-        meritReward: isDailyTask ? 0 : getMeritsGiven(level)
+        meritReward: isDailyTask ? 0 : getMeritsGiven(level),
+        taskPointReward: getTaskPointsGiven(realTask, worldIndex, level)
       }
     })
   })?.map((worldTasks: any[]) => worldTasks?.slice(0, DAILY_TASK_INDEX + 1));
@@ -100,11 +107,13 @@ const parseTasks = (tasksRaw: any): any => {
 // in World 7 Part 3!"). They are neither doable nor countable, so they stay out of the totals too.
 export const isPlaceholderTask = ({ name }: any): boolean => name === 'Undisclosed_Task';
 
-// The Tasks page header for one world: its first 9 slots (8 tasks and the daily one), placeholders left out
+// The Tasks page header for one world: worldTasks is its first 9 slots (8 tasks and the daily one); the rank totals
+// count only the 8 permanent tasks, as calcTotalTasks does (the daily resets each day), placeholders left out
 export const getWorldTaskLevels = (tasksDescriptions: any, world: number) => {
-  const worldTasks = tasksDescriptions?.[world]?.slice(0, 9) ?? [];
-  const totalLevels = worldTasks.reduce((sum: number, task: any) => isPlaceholderTask(task) ? sum : sum + task.level, 0);
-  const maxLevels = worldTasks.reduce((sum: number, task: any) => isPlaceholderTask(task) ? sum : sum + task.maxLevel, 0);
+  const worldTasks = tasksDescriptions?.[world]?.slice(0, DAILY_TASK_INDEX + 1) ?? [];
+  const counted = worldTasks.slice(0, DAILY_TASK_INDEX).filter((task: any) => !isPlaceholderTask(task));
+  const totalLevels = counted.reduce((sum: number, task: any) => sum + task.level, 0);
+  const maxLevels = counted.reduce((sum: number, task: any) => sum + task.maxLevel, 0);
   return { worldTasks, totalLevels, maxLevels };
 };
 

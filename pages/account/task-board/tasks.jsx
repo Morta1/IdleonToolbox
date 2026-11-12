@@ -3,7 +3,7 @@ import { AppContext } from '../../../components/common/context/AppProvider';
 import Tabber from '../../../components/common/Tabber';
 import { NextSeo } from 'next-seo';
 import { Box, Stack } from '@mui/material';
-import { cleanUnderscore, formatNum, worldsArray } from '@utility/helpers';
+import { cleanUnderscore, formatNum, getNextResetAt, worldsArray } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { MissingData, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
@@ -16,7 +16,10 @@ import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 import { getTasks, getWorldTaskLevels, isPlaceholderTask } from '@parsers/tasks';
 import useTabIndex from '@hooks/useTabIndex';
+import useNow from '@hooks/useNow';
+import Timer from '@components/common/Timer';
 
+const MINUTE = 60e3;
 const TASKS_TOOLBAR = { hideCompleted: false };
 // Slot 8 is the day's task: one rank, no merits (parsers/tasks.ts)
 const DAILY_TASK = 8;
@@ -48,6 +51,11 @@ const Tasks = () => {
   const tasksDescriptions = failed ? getTasks(undefined).tasksDescriptions : state?.account?.tasksDescriptions;
   const worlds = worldsArray.map((name, index) => ({ name, ...getWorldTaskLevels(tasksDescriptions, index) }));
   const ranks = (done, max) => (failed ? '-' : `${formatNum(done)} / ${formatNum(max)}`);
+  // A done daily counts down to the game's daily reset (TimeAway.ShopRestock); the clock reads 0 until hydration
+  const clock = useNow(MINUTE);
+  const nextDailyReset = clock && !failed
+    ? getNextResetAt(state?.account, Math.max(clock, state?.lastUpdated ?? 0), { fallbackSavedAt: state?.lastUpdated })
+    : null;
 
   const worldTasks = (worlds[world]?.worldTasks ?? [])
     .map((task, index) => ({ ...task, index }))
@@ -58,15 +66,30 @@ const Tasks = () => {
     const daily = task.index === DAILY_TASK;
     const maxed = !failed && task.level >= task.maxLevel;
     const requirement = task.requirement ?? 0;
+    // The board draws "Tap to Complete!" once the stat reaches the rank's requirement
+    const ready = !failed && !maxed && requirement > 0 && (task.stat ?? 0) >= requirement;
+    // Every claim pays task points (the Unlocks pool); only the 8 permanent tasks pay merits
+    const pay = <Stack key={'pay'} direction={'row'} gap={0.5} alignItems={'center'}>
+      {daily ? null : <>
+        {formatGame(task.meritReward ?? 0, 'TaskStuff.MeritsGiven', { whole: true })}
+        <GameIcon src={`etc/Merit_${world}.png`} size={16} alt={'Merits'}/>
+        {' · '}
+      </>}
+      {`${formatGame(task.taskPointReward ?? 0, 'TaskStuff.TaskPointREQ', { whole: true })} Task points`}
+    </Stack>;
     return <ItemCard key={task.index} icon={`data/TaskRank${failed ? 0 : task.level}.png`} title={cleanUnderscore(task.name)}
                      meta={daily ? 'Daily task' : undefined}
                      level={failed || daily ? undefined : { value: task.level, max: task.maxLevel }}
-                     status={maxed ? 'maxed' : undefined}
-                     footer={failed || daily ? null : <ItemCard.Facts rows={[['Next rank pays', <Stack key={'pay'} direction={'row'} gap={0.5} alignItems={'center'}>
-                       {formatGame(task.meritReward ?? 0, 'TaskStuff.MeritsGiven', { whole: true })}
-                       <GameIcon src={`etc/Merit_${world}.png`} size={16} alt={'Merits'}/>
-                     </Stack>]]}/>}>
-      <ItemCard.Desc text={taskSentence(task, maxed)}/>
+                     status={maxed ? 'maxed' : ready ? 'ready' : undefined}
+                     statusLabel={ready ? 'Tap to complete' : undefined}
+                     footer={failed ? null : <ItemCard.Facts rows={[[daily ? 'Completing pays' : 'Next rank pays', pay]]}/>}>
+      {daily && maxed
+        ? <ItemCard.Desc>
+          <div>{taskSentence(task, maxed)}</div>
+          {nextDailyReset ? <div><Timer type={'countdown'} date={nextDailyReset} prefix={'New daily task in '}
+                                        placeholder={'New daily task ready'}/></div> : null}
+        </ItemCard.Desc>
+        : <ItemCard.Desc text={taskSentence(task, maxed)}/>}
       {/* The game caps the count at the requirement: "2M/2M", then "Tap to Complete!" */}
       {failed || maxed ? null : <ItemCard.Progress label={'Progress'}
                                                    percent={requirement > 0 ? Math.min(100, (task.stat / requirement) * 100) : 0}

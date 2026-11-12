@@ -233,6 +233,7 @@ export interface Account {
         maxLevel: number;
         requirement: null | number;
         meritReward: number;
+        taskPointReward: number | null;
       }[])[];
   meritsDescriptions: ({
         descLine1: string;

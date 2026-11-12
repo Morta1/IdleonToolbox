@@ -79,8 +79,8 @@ const PAGE_VALUES = [
   ['sailingTotals', 'boatLevels', 7119, null],
   ...achievementOracle.map(({ key, completed, total }) => ['achievementTotals', key, completed, real(total)]),
   ...worldsArray.map((_, world) => {
-    // the Tasks page header for that world tab
-    const worldTasks = account.tasksDescriptions?.[world]?.slice(0, 9) ?? [];
+    // the Tasks page header for that world tab: the 8 permanent tasks, not the daily slot
+    const worldTasks = account.tasksDescriptions?.[world]?.slice(0, 8) ?? [];
     const counted = worldTasks.filter(({ name }) => name !== 'Undisclosed_Task');
     return ['taskTotals', `world${world + 1}`, counted.reduce((sum, { level }) => sum + level, 0), real(counted.reduce((sum, { maxLevel }) => sum + maxLevel, 0))];
   })
