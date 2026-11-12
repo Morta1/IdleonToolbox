@@ -5,6 +5,15 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.6',
+    'gameVer': '2.3.561',
+    'date': '12/11/2026',
+    'features': [
+      'Bubbles: bubble details show the bonus with Multorange, Premigreen or Severapurple and with your class bubble, and the summary tiles have icons'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '4.0.5',
     'gameVer': '2.3.561',
     'date': '11/11/2026',
