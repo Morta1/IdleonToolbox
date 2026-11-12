@@ -30,7 +30,7 @@ import { quantityForPoints } from '@components/account/Worlds/World4/tomeQuantit
 import useTabIndex from '@hooks/useTabIndex';
 import { ink } from '../../../styles/theme/theme';
 
-const TOME_TOOLBAR = { search: '', hideMaxed: false, details: false };
+const TOME_TOOLBAR = { search: '', hideMaxed: false, details: false, sort: null };
 const TIERS = ['bronze', 'silver', 'gold', 'blue'];
 
 // The rank's word art ("TOP 25%") beside its words at its own size: StatTile's 24 px icon shrank it past reading, and
@@ -159,10 +159,22 @@ const Tome = () => {
   const accountLevel = state?.account?.accountLevel ?? 0;
   const search = String(toolbar?.search ?? '').trim().toLowerCase();
   const entries = (tome?.tome ?? []).map((bonus, position) => ({ bonus, position }));
-  const shown = entries
+  // Points still to earn; a locked entry earns nothing yet, so it sorts after every open one
+  const pointsLeft = (bonus) => (isTomeEntryLocked(bonus, accountLevel) ? -1
+    : Math.max(0, (bonus?.maxPoints ?? 0) - (bonus?.points ?? 0)));
+  const sortSign = toolbar?.sort?.order === 'asc' ? 1 : -1;
+  const filtered = entries
     .filter(({ bonus }) => !search || cleanUnderscore(bonus?.name).toLowerCase().includes(search))
     .filter(({ bonus }) => !toolbar?.hideMaxed || isTomeEntryLocked(bonus, accountLevel)
       || !(bonus?.maxPoints && bonus?.points >= bonus?.maxPoints));
+  const shown = toolbar?.sort?.key === 'left'
+    ? filtered.toSorted((a, b) => (pointsLeft(a.bonus) < 0) - (pointsLeft(b.bonus) < 0)
+      || sortSign * (pointsLeft(a.bonus) - pointsLeft(b.bonus)))
+    : filtered;
+  // The next better cut-off and the points to it (the lowest one while below every cut-off)
+  const nextRankIndex = rankIndex < 0 ? tops.length - 1 : rankIndex - 1;
+  const toNextRank = nextRankIndex >= 0 && tops[nextRankIndex] != null
+    ? Math.max(0, tops[nextRankIndex] - (tome?.totalPoints ?? 0)) : null;
 
   return <>
     <NextSeo
@@ -179,6 +191,8 @@ const Tome = () => {
       <StatTile label={'Rank'} value={tome?.top >= 0 && !sectionFailed
         ? <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 1 }}>{rankText}<RankBadge top={tome.top}/></Box>
         : rankText}
+                sub={!sectionFailed && toNextRank != null
+                  ? `${formatGame(toNextRank, 'Summoning.TomePTS', { whole: true })} to Top ${TOME_RANKS[nextRankIndex]}` : undefined}
                 breakdown={cutOffs} breakdownTitle={'Rank'} breakdownNoun={'cut-offs'}/>
       {/* An absolute date: the countdown is not shifted by the save's upload time */}
       <StatTile label={'Nametag reward reset'} value={<Timer type={'countdown'} date={nextResetTime}/>}
@@ -205,6 +219,7 @@ const Tome = () => {
             <Toolbar.Search placeholder={'Search the Tome'}/>
             <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>
             <Toolbar.Filter name={'details'} label={'Details'} display/>
+            <Toolbar.Sort options={[['left', 'Points left', 'desc']]}/>
           </Toolbar>}
           {/* An entry has no sprite to tile, so it keeps a card, five to a row on a 1920 window where four were. The
               title names what the Tome counts, so the quantity reads under it as the game lists it, with the tier:

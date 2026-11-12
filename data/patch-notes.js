@@ -34,7 +34,8 @@ export const patchNotes = [
       'Cooking: a recipe shows its fire level, the game\'s new recipe chance and each new meal\'s odds, its possible meals now match the game, the next kitchen shows what it costs, and the meal max level shows where it comes from',
       'Breeding: time per egg shows where it comes from, each territory counts down to its next spice, and territory cards are shorter',
       'Laboratory: the Mainframe counts the lab bonuses and jewels that are on, and each player\'s range shows where it comes from',
-      'Rift: new tiles show the rift you are on and the next bonus, and the current task has a progress bar'
+      'Rift: new tiles show the rift you are on and the next bonus, and the current task has a progress bar',
+      'Tome: the rank shows the points to the next one, and the entries can be sorted by the points they have left'
     ],
     'fixes': []
   },
