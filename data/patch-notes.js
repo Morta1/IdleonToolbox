@@ -24,7 +24,8 @@ export const patchNotes = [
       'Death Note: new tiles show the monster closest to its next rank and, with the rift bonus, your Eclipse skulls and the damage they give',
       'Worship: each character\'s max charge and charge rate show where they come from, and its skull shows as an icon',
       'Prayers: with the Gaming superbits, each prayer shows what it gives a character with no prayer equipped, and the souls you own show at the top',
-      'Traps: new tiles show when your next trap is ready and how many traps you have set out of how many you can'
+      'Traps: new tiles show when your next trap is ready and how many traps you have set out of how many you can',
+      'Salt Lick: each upgrade shows its bonus at max, how many levels your salt can buy now, and the Salt Lick level that unlocks it'
     ],
     'fixes': []
   },
