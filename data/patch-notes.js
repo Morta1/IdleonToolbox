@@ -45,7 +45,8 @@ export const patchNotes = [
       'Sneaking: the selected mastery shows at the top, items show their drop chance on your floor, and each ninja\'s detection card shows one knockout chance that opens to the stealth, floor difficulty and Ninja Log dodge behind it',
       'Summoning: upgrades can be searched and the doubled star shows its multiplier, Endless lists the next 10 battles with Show more, and Stones explains what a stone boosts',
       'Beanstalk: each golden food shows its rank, what the beanstalk gives now and at the next rank, and an Upgradable badge when you own enough for the next rank',
-      'Emperor: attempts show how many you get per day, and each bonus total opens to its base and the bonus multi'
+      'Emperor: attempts show how many you get per day, and each bonus total opens to its base and the bonus multi',
+      'Spelunking: Overstim shows the level it will really be at with its progress, the rate shows when the next level comes, and the Upgrade Optimizer groups repeated steps of one upgrade by default'
     ],
     'fixes': []
   },

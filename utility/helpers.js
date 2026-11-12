@@ -332,7 +332,8 @@ export const cleanUnderscore = (str) => {
 const SENTENCE_END = /[.!?:]$/;
 const MID_SENTENCE = (before, line) => !SENTENCE_END.test(before) && (/^[a-z]/.test(line) || /\d$/.test(before));
 export const gameLines = (text, { keepBlank = false, sentences = false } = {}) => {
-  const lines = cleanUnderscore(text).split('@').map((line) => line.trim());
+  // The game writes "Total Bonus:+5%" with no space after the colon
+  const lines = cleanUnderscore(text).split('@').map((line) => line.trim().replace(/^(total bonus:)(?=\S)/i, '$1 '));
   if (keepBlank) return lines;
   if (!sentences) return lines.filter(Boolean);
   // A blank line is a paragraph break: the line after it never joins

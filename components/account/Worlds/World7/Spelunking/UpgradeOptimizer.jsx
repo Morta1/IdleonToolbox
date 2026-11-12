@@ -55,9 +55,11 @@ const UpgradeOptimizer = ({ character, account }) => {
     key: 'spelunkingUpgradeOptimizer:viewMode',
     defaultValue: 'grid'
   });
+  // Back-to-back steps of one upgrade read as one card by default. A new key: the old one stored 'None' for everyone
+  // who opened the tab, since the hook writes its default back
   const [groupMode, setGroupMode] = useLocalStorage({
-    key: 'spelunkingUpgradeOptimizer:groupMode',
-    defaultValue: 'None'
+    key: 'spelunkingUpgradeOptimizer:groupMode2',
+    defaultValue: 'Upgrade'
   });
 
   const denominator = getAmberDenominator(account);

@@ -7,6 +7,7 @@ import { getAmberIndex, getAmberDenominator } from '@parsers/world-7/spelunking'
 import { formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Num from '@components/common/Num';
+import Timer from '@components/common/Timer';
 import StatTile from '@components/common/cards/StatTile';
 import PageSummary, { SummaryFailed } from '@components/common/cards/PageSummary';
 import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
@@ -41,8 +42,10 @@ const Spelunking = () => {
     power,
     totalGrandDiscoveries,
     overstimRate,
-    overstimLevel,
-    overstimCurrent,
+    overstimEffectiveLevel,
+    overstimEffectiveCurrent,
+    overstimEffectiveReq,
+    overstimPendingLevels,
     charactersAtMaxStamina,
     charactersStamina,
     overstimStack,
@@ -63,6 +66,10 @@ const Spelunking = () => {
   // A save from before World 7 has no Spelunk at all, and the parser still fills every tile
   const reached = amber > 0 || upgrades?.some(({ level }) => level > 0);
   // The drawer totals the tile's own text, so both read 30.987 (the parser's total is in MultiplierInfo)
+  // Overstim fills at overstimRate an hour toward the effective level's requirement (0 while the meter is locked)
+  const overstimLevelUpTime = overstimRate > 0 && state?.lastUpdated
+    ? state.lastUpdated + ((overstimEffectiveReq - overstimEffectiveCurrent) / overstimRate) * 3600 * 1000
+    : null;
   const staminaRegenText = formatNum(staminaRegenRate?.value, 'amount', { precise: true });
   const staminaRegenDrawer = staminaRegenRate?.breakdown ? { ...staminaRegenRate.breakdown, totalValue: staminaRegenText } : undefined;
 
@@ -83,9 +90,12 @@ const Spelunking = () => {
                 value={`${state?.account?.accountOptions?.[OPT.dailyPageReads] ?? 0} / ${maxDailyPageReads}`}/>
       <StatTile label={'Stamina Regen Rate'} icon={'data/CaveShopUpg4.png'}
                 value={staminaRegenText} breakdown={staminaRegenDrawer}/>
-      <StatTile label={'Overstim'} icon={'data/CaveShopUpg6.png'}
-                value={`${formatNum(overstimLevel)} + ${formatNum(overstimCurrent, 'pct')}`}/>
-      <StatTile label={'Overstim Rate'} icon={'data/CaveShopUpg6.png'} value={formatNum(overstimRate)}
+      <StatTile label={'Overstim'} icon={'data/CaveShopUpg6.png'} value={formatNum(overstimEffectiveLevel ?? 0, 'level')}
+                sub={`${formatGame(overstimEffectiveCurrent, 'Spelunk.OverstimQtyREQ', { ruleValue: overstimEffectiveReq, whole: true })} / ${formatGame(overstimEffectiveReq, 'Spelunk.OverstimQtyREQ', { whole: true })}`}
+                info={overstimPendingLevels > 0 ? `Includes ${overstimPendingLevels} banked level${overstimPendingLevels > 1 ? 's' : ''}: they apply when you next open spelunking.` : undefined}/>
+      <StatTile label={'Overstim Rate'} icon={'data/CaveShopUpg6.png'} value={`${formatNum(overstimRate)}/hr`}
+                sub={overstimLevelUpTime ? <Timer type={'countdown'} date={overstimLevelUpTime} component={'span'}
+                                                  prefix={'Next in '} placeholder={'Leveled since your save'}/> : undefined}
                 info={`Every character's stamina regen feeds overstim once they're topped off. ${charactersAtMaxStamina ?? 0} of ${charactersStamina?.length ?? 0} are at max stamina right now, the rest fill their missing stamina first.`}/>
       <StatTile label={'Discoveries'} value={`${discoveriesCount} / ${maxDiscoveries}`}/>
       <StatTile label={'Grand Discoveries'} value={totalGrandDiscoveries} kind={'amount'}/>
