@@ -8,6 +8,9 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import IconTile from '@components/common/cards/IconTile';
 import Notice from '@components/common/Notice';
+import PageSummary from '@components/common/cards/PageSummary';
+import StatTile from '@components/common/cards/StatTile';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { titleCase } from './Chips';
 
 // A jewel's effect filled the game's way, each "@" a line. Some effects hardcode the "1." of a multiplier ("1.}x more
@@ -39,8 +42,22 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords, account, sect
     const isUploaded = character?.afkTarget === 'Laboratory' || connectedByGod;
     return isUploaded ? [{ playerCord, index, character, connectedByGod }] : [];
   });
+  const bonusesOn = (labBonuses ?? []).filter(({ active }) => active).length;
+  const jewelsFound = (jewels ?? []).filter(({ acquired }) => acquired).length;
+  const jewelsOn = (jewels ?? []).filter(({ acquired, active }) => acquired && active).length;
+  const range = (playerCord, name) => {
+    const text = `${formatGame(playerCord?.lineWidth ?? 0, 'Labb.Dist')}px`;
+    return playerCord?.lineWidthBreakdown
+      ? <Breakdown asValue title={`${name} range`} data={{ ...playerCord.lineWidthBreakdown, totalValue: text }}>{text}</Breakdown>
+      : text;
+  };
   return (
     <>
+      {sectionFailed ? null : <PageSummary>
+        <StatTile label={'Lab bonuses on'} value={`${formatNum(bonusesOn)} / ${formatNum(labBonuses?.length ?? 0)}`}/>
+        <StatTile label={'Jewels on'} value={`${formatNum(jewelsOn)} / ${formatNum(jewelsFound)}`}
+                  sub={`${formatNum(jewelsFound)} of ${formatNum(jewels?.length ?? 0)} found`}/>
+      </PageSummary>}
       {players.length ? <>
         <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1 }}>Players in the lab</Typography>
         <CardGrid size={'s'}>
@@ -49,7 +66,7 @@ const Mainframe = ({ characters, jewels, labBonuses, playersCords, account, sect
             iconAlt={''} title={cleanUnderscore(character?.name)}
             meta={[connectedByGod ? 'Linked by Arctis' : null, playerCord?.soupedUp ? 'Souped up' : null].filter(Boolean).join(' · ') || undefined}>
             <ItemCard.Facts rows={[
-              ['Range', `${formatGame(playerCord?.lineWidth ?? 0, 'Labb.Dist')}px`],
+              ['Range', range(playerCord, cleanUnderscore(character?.name))],
               ['Position', `${formatNum(playerCord?.x ?? 0)}, ${formatNum(playerCord?.y ?? 0)}`]
             ]}/>
           </ItemCard>)}
