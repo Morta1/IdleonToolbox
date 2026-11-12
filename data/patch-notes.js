@@ -44,7 +44,8 @@ export const patchNotes = [
       'Farming: unlocked land rank upgrades no longer read as locked and the 5th column shows its cap, stickers show which seed finds them, your best plot\'s chance and plots blocked by a megacrop, Crop Scientist lines show what each new crop adds and what unlocks them, locked market upgrades show their crop requirement, and the Exotic Market shows purchases left this week',
       'Sneaking: the selected mastery shows at the top, items show their drop chance on your floor, and each ninja\'s detection card shows one knockout chance that opens to the stealth, floor difficulty and Ninja Log dodge behind it',
       'Summoning: upgrades can be searched and the doubled star shows its multiplier, Endless lists the next 10 battles with Show more, and Stones explains what a stone boosts',
-      'Beanstalk: each golden food shows its rank, what the beanstalk gives now and at the next rank, and an Upgradable badge when you own enough for the next rank'
+      'Beanstalk: each golden food shows its rank, what the beanstalk gives now and at the next rank, and an Upgradable badge when you own enough for the next rank',
+      'Emperor: attempts show how many you get per day, and each bonus total opens to its base and the bonus multi'
     ],
     'fixes': []
   },

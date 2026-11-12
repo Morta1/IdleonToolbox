@@ -2,7 +2,8 @@ import { useContext } from 'react';
 import { NextSeo } from 'next-seo';
 import { AppContext } from '@components/common/context/AppProvider';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
-import { createBreakdown, flatLines } from '@parsers/breakdown';
+import { createBreakdown, flat, flatLines, multiplier } from '@parsers/breakdown';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
@@ -48,8 +49,8 @@ const Emperor = () => {
       : <NotReached name={'the Emperor'} reached={highestEmperorShowdown > 0}/>}
     <PageSummary failed={sectionFailed}>
       <StatTile label={'Highest showdown'} value={highestEmperorShowdown ?? 0} kind={'amount'}/>
-      <StatTile label={'Daily attempts'} icon={'data/GemP45.png'} value={dailyAttempts ?? 0} kind={'amount'}/>
-      <StatTile label={'Attempts'} icon={'data/GemP45.png'} value={`${attempts} / ${maxAttempts}`}/>
+      <StatTile label={'Attempts'} icon={'data/GemP45.png'} value={`${attempts} / ${maxAttempts}`}
+                sub={`+${formatNum(dailyAttempts ?? 0)} per day`}/>
       <StatTile label={'Boss HP'} value={formatNum(bossHp?.[0])} breakdown={bossHpBreakdown}/>
       {bonusMulti ? <StatTile label={'Bonus Multi'} value={formatNum(bonusMulti?.totalValue, 'mult')}
                               breakdown={bonusMulti}/> : null}
@@ -57,18 +58,21 @@ const Emperor = () => {
                                   breakdown={upcomingBreakdown} breakdownTitle={'Next level bonus'}/> : null}
     </PageSummary>
     <CardGrid size={'m'}>
-      {bonuses?.map(({ bonus, baseBonus, indexes, value, icon }, index) => {
+      {bonuses?.map(({ bonus, baseTotal, totalBonus, indexes, value, icon }, index) => {
         const [realValue, ...nameParts] = cleanUnderscore(bonus).split(' ');
-        const [baseValue] = cleanUnderscore(baseBonus || bonus).split(' ');
         // "20% cheaper Farming Upgrades" leaves a lowercase name once its number is the Total row
         const bonusName = nameParts.join(' ').capitalize();
         // A state never rests on color: the reached levels and the next ones are named
         const reached = indexes?.filter((level) => level < highestEmperorShowdown).map((level) => level + 1) ?? [];
         const next = indexes?.filter((level) => level >= highestEmperorShowdown).map((level) => level + 1) ?? [];
+        // The game multiplies the raw total (240 for Ninja Stealth's 3.40x), rounds it down, then shows it as the card does
+        const totalBreakdown = createBreakdown(`${bonusName} (${realValue})`, formatNum(totalBonus ?? 0), [
+          flat('Base', baseTotal ?? 0),
+          multiplier('Bonus multi', bonusMulti?.totalValue ?? 1, { note: 'Rounded down' })
+        ]);
         return <ItemCard key={'upgrade-' + index} icon={icon ? `${icon}.png` : undefined} title={bonusName}>
           <ItemCard.Facts rows={[
-            ['Total', realValue],
-            ['Base', baseValue],
+            ['Total', <Breakdown key={'total'} asValue data={totalBreakdown}>{realValue}</Breakdown>],
             ['Per level', cleanUnderscore(value)],
             ['Reached at', reached.join(', ') || 'None'],
             ['Next at', next.join(', ') || 'None']

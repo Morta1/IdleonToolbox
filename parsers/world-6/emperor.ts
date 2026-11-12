@@ -69,6 +69,7 @@ export const getEmperor = (idleonData: any, account: any) => {
       bonus,
       baseBonus,
       totalBonus: realTotal,
+      baseTotal,
       // showdown levels that unlocked this bonus (the page's "Per level" steps)
       levels: unlockCounts[`${rawBonus.name}|${rawBonus.index}`] ?? 0,
       rawIndex: rawBonus.index,
