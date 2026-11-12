@@ -216,9 +216,9 @@ const ConstructionMain = ({ sectionFailed }) => {
 
   return (
     <>
-      {/* One block, one set of left and right edges. The board, the toolbar above it and the rail
-          beside it all line up, and the leftover width sits evenly on both sides. */}
-      <Stack gap={2} sx={{ width: '100%', maxWidth: 1500, mx: 'auto' }}>
+      {/* One block, one set of left and right edges: the board, the toolbar above it and the rail beside it all line
+          up, starting at the page's left edge like every other page */}
+      <Stack gap={2} sx={{ width: '100%', maxWidth: 1500 }}>
         {/* A phone keeps the totals above the bar: four tiles pinned with it would take its screen */}
         <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
           <ConstructionStats construction={state?.account?.construction} optimized={optimized}/>

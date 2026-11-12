@@ -3,6 +3,7 @@ import ConstructionMain from '../../../components/account/Worlds/World3/Construc
 import Tabber from '../../../components/common/Tabber';
 import { NextSeo } from 'next-seo';
 import CogStatCalculator from '../../../components/account/Worlds/World3/Construction/CogStatCalculator';
+import CogMakers from '@components/account/Worlds/World3/Construction/CogMakers';
 import { getTabs } from '@utility/helpers';
 import { PAGES } from '@components/constants';
 import { AppContext } from '@components/common/context/AppProvider';
@@ -19,6 +20,7 @@ const Construction = () => {
     {failed ? <MissingData name={'Construction'} failed/> : null}
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 3'].categories, 'construction')}>
       <ConstructionMain sectionFailed={failed}/>
+      <CogMakers/>
       <CogStatCalculator/>
     </Tabber>
   </>

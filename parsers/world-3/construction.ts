@@ -1,5 +1,5 @@
 import { notateNumber, number2letter, tryToParse } from '@utility/helpers';
-import { createBreakdown, evaluateBreakdownNode, flat, multiplier, NUMBERED_GROUP, productGroup, sumGroup } from '@parsers/breakdown';
+import { additiveGroup, createBreakdown, evaluateBreakdownNode, flat, multiplier, NUMBERED_GROUP, percent, productGroup, sumGroup } from '@parsers/breakdown';
 import { cogKeyMap, flagsReqs, randomList, towers, gameTables } from '@website-data';
 import { createCogstructionData } from '@parsers/world-3/cogstrution';
 import { getGambitBonus } from '@parsers/world-5/caverns/gambit';
@@ -22,6 +22,8 @@ import { getJewelBonus } from '@parsers/world-4/lab';
 import { getOutpostRogBonus } from '@parsers/class-specific/royalGuardian';
 import type { IdleonData, Account } from '../types';
 import { saveField } from '@parsers/saveField';
+import { getBubbleBonus, getVialsBonusByStat } from '@parsers/world-2/alchemy';
+import { getCardLevel } from '@parsers/cards';
 
 // The board maths lives in its own module so the optimizer can run in a Web Worker without pulling
 // website-data in. Re-exported here because everything already imports it from this file.
@@ -51,11 +53,62 @@ export const getConstruction = (idleonData: IdleonData, account: Account, charac
   const cogsMap = parseConstruction(cogMap);
   const board = getFlags(idleonData, cogsMap, cogOrderRaw, account, characters);
   const cogstruction = createCogstructionData(cogsMap, cogOrderRaw);
+  const towersRaw = idleonData?.TowerInfo || saveField(idleonData, 'Tower');
   return {
     ...board,
-    cogstruction
+    cogstruction,
+    cogMakers: getCogMakers(cogOrderRaw, towersRaw)
   };
 }
+
+// The four cog makers above the board: CogOrder 96-107 holds three character slots per maker, and maker n
+// fills TowerInfo[62 + n] toward its next Nooby, Decent, Superb or Ulti cog
+const COG_MAKER_SLOT_START = 96;
+const COG_MAKER_SLOTS = 3;
+const COG_MAKER_PROGRESS_INDEX = 62;
+const COG_MAKER_TIER_KEYS = ['0', '1', '2', '3'];
+// game: WorkbenchStuff("CogBuildClaims") stops counting at 100
+const MAX_COG_CLAIMS = 100;
+
+// game: WorkbenchStuff("CogBuildReq", maker, claims), the progress the claims-th cog needs (each costs 2 + maker
+// times the one before)
+export const getCogBuildReq = (maker: number, claims: number) => claims < 0
+  ? 0
+  : Number(randomList?.[12]?.[maker] ?? 0) * Math.pow(2 + maker, claims);
+
+export const getCogMakers = (cogOrderRaw: any[], towersRaw: any[]) => COG_MAKER_TIER_KEYS.map((tierKey, maker) => {
+  const progress = Number(towersRaw?.[COG_MAKER_PROGRESS_INDEX + maker]) || 0;
+  // game: WorkbenchStuff("CogBuildClaims"), the cogs waiting to be claimed
+  let ready = 0;
+  while (ready < MAX_COG_CLAIMS && progress >= getCogBuildReq(maker, ready)) ready += 1;
+  const slots = Array.from({ length: COG_MAKER_SLOTS }, (_, slot) => cogOrderRaw?.[COG_MAKER_SLOT_START + COG_MAKER_SLOTS * maker + slot]);
+  return {
+    maker,
+    tier: COG_TIERS[tierKey],
+    icon: `Cog${tierKey}A00`,
+    progress,
+    ready,
+    // The game's bar and "progress / need" both run between the last cog's need and the next one's
+    previousReq: getCogBuildReq(maker, ready - 1),
+    nextReq: getCogBuildReq(maker, ready),
+    characters: slots.filter((name: any) => String(name ?? '').startsWith('Player_')).map((name: string) => name.slice(7))
+  };
+});
+
+// game: WorkbenchStuff("CogBuildSpdBonus"), the multiplier on every character's build speed in a cog maker (the
+// tutorial's 900x is left out). The Boss3A card counts 8% a level, at most 50%
+const COG_MAKE_CARD_PER_LEVEL = 8;
+const COG_MAKE_CARD_CAP = 50;
+export const getCogMakeSpeedBonus = (account: any) => {
+  const sources = [
+    percent('Cogs For Hands (Bubble)', getBubbleBonus(account, 'COGS_FOR_HANDS', false)),
+    percent('Sippy Cup (Vial)', getVialsBonusByStat(account?.alchemy?.vials, 'CogSpd')),
+    percent('Chizoar (Card)', Math.min(COG_MAKE_CARD_PER_LEVEL * getCardLevel(account?.cards, 'Boss3A'), COG_MAKE_CARD_CAP))
+  ];
+  const sum = sources.reduce((total, { value }: any) => total + (Number(value) || 0), 0);
+  const value = 1 + sum / 100;
+  return { value, breakdown: createBreakdown('Cog making speed', value, [additiveGroup(NUMBERED_GROUP, sources)]) };
+};
 
 export const getFlags = (idleonData: IdleonData, cogsMap: any[], cogOrderRaw: any[], account: Account, characters?: any[]) => {
   const flagsUnlockedRaw = idleonData?.FlagUnlock || tryToParse(idleonData?.FlagU);

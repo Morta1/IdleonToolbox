@@ -7,10 +7,9 @@ import {
   secondsToCoarseDuration
 } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
-import React from 'react';
+import React, { useState } from 'react';
 import { styled } from '@mui/material/styles';
 import { BOARD_SIZE, BOARD_X, getCogDisplayName } from '@parsers/world-3/construction';
-import { cogSlotLabel } from '@parsers/world-3/constructionOptimizer';
 import { NoteTrigger } from '@components/common/InfoButton';
 
 const SLOT_GAP = 8;
@@ -97,8 +96,14 @@ const cogNote = ({ currentAmount, requiredAmount, cog, affectedBy, affects, flag
     {stats.map(({ name, value }, statIndex) => <Typography key={`${name}-${statIndex}`} variant={'body2'}>
       {formatNum(value, 'mult', { bare: true })}{cleanUnderscore(name)}
     </Typography>)}
-    {affectedBy?.length > 0 ? <Typography variant={'body2'} color={'text.secondary'}>{`Affected by: ${affectedBy.map(cogSlotLabel).join(', ')}`}</Typography> : null}
-    {affects?.length > 0 ? <Typography variant={'body2'} color={'text.secondary'}>{`Affects: ${affects.map(cogSlotLabel).join(', ')}`}</Typography> : null}
+    {/* Counts, with the squares themselves outlined on the board while this cog is hovered: the board has no row or
+        column labels, so a list of coordinates had to be counted out by hand */}
+    {affectedBy?.length > 0 ? <Typography variant={'body2'} color={'text.secondary'}>
+      {`Boosted by ${formatNum(affectedBy.length)} cog${affectedBy.length === 1 ? '' : 's'} (amber)`}
+    </Typography> : null}
+    {affects?.length > 0 ? <Typography variant={'body2'} color={'text.secondary'}>
+      {`Boosts ${formatNum(affects.length)} square${affects.length === 1 ? '' : 's'} (blue)`}
+    </Typography> : null}
   </Stack>;
 };
 
@@ -116,6 +121,11 @@ const SLOT_ART_SX = { width: 'var(--cog-slot)', height: 'var(--cog-slot)', displ
 export const BOARD_MIN_WIDTH = (BOARD_X + 2) * SLOT_MIN + (BOARD_X + 1) * SLOT_GAP;
 
 const ConstructionBoard = ({ view, board, leftColumn, rightColumn, markSpares, dimUnchanged, highlightSlots, boardFlaggyRate }) => {
+  // The board cog under the pointer (or open on a tap): the cogs boosting it and the squares it boosts get outlined
+  const [hovered, setHovered] = useState(null);
+  const hoveredSlot = hovered != null ? board?.[hovered] : null;
+  const boostedBy = new Set(hoveredSlot?.affectedBy ?? []);
+  const boosts = new Set(hoveredSlot?.affects ?? []);
   // The side strips hold 12 small cogs against the board's 8 rows. Laying all three out in one grid
   // left 48 blank cells in the middle, so each is its own grid and they simply sit side by side.
   const columns = [
@@ -177,9 +187,15 @@ const ConstructionBoard = ({ view, board, leftColumn, rightColumn, markSpares, d
       </Stack>;
       return (
         <Box key={index}
+             onMouseEnter={boardPosition >= 0 && cog?.name ? () => setHovered(boardPosition) : undefined}
+             onMouseLeave={boardPosition >= 0 ? () => setHovered(null) : undefined}
+             onFocus={boardPosition >= 0 && cog?.name ? () => setHovered(boardPosition) : undefined}
+             onBlur={boardPosition >= 0 ? () => setHovered(null) : undefined}
              sx={{
                // The step you are on takes the selected line's color; a cog pulled from the inventory keeps success
-               outline: stepHighlight
+               outline: boostedBy.has(boardPosition)
+                 ? '2px solid var(--mui-palette-warning-main)'
+                 : boosts.has(boardPosition) || stepHighlight
                  ? '2px solid var(--mui-palette-primary-main)'
                  : fromSpares
                    ? '1px solid var(--mui-palette-success-main)'
