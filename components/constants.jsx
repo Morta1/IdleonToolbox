@@ -124,7 +124,7 @@ export const PAGES = {
           icon: 'etc/Killroy_Skull',
           tabs: ['Schedule', 'Upgrades', 'Permanent Upgrades', 'Monsters']
         },
-        { label: 'weeklyBosses', icon: 'etc/SWR_Containment' },
+        { label: 'weeklyBosses', icon: 'etc/SWR_Containment', tabs: ['Weeks', 'Prizes'] },
         { label: 'voteBallot', icon: 'etc/VoteBallot', tabs: ['Bonus', 'Meritocracy'] }
       ]
     },

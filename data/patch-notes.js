@@ -16,7 +16,7 @@ export const patchNotes = [
       'Arcade Shop: a countdown to when the arcade is full, how often a ball comes, and what Cosmic and Omega balls do',
       'Islands: Fractal shows its next bonus and how many hours to go, each shop shows what you have to spend, and the tiles have icons',
       'Killroy: each permanent upgrade shows its skull cost, and what it takes to reach its next breakpoint',
-      'Weekly Bosses: UI skins you own read Owned, each week shows the trophies to buy the rest, and this week\'s Class EXP and damage buffs show at the top'
+      'Weekly Bosses: a Prizes tab shows when each prize is next in the shop, weeks show their dates, UI skins you own read Owned, each week shows the trophies to buy the rest, and this week\'s Class EXP and damage buffs show at the top'
     ],
     'fixes': []
   },

@@ -5,13 +5,20 @@ import { AppContext } from '@components/common/context/AppProvider';
 import { getWeeklyBoss, getWeeklyBossBuffs } from '@parsers/world-2/weeklyBosses';
 import { weeklyBosses as BOSSES } from '@website-data';
 import WeeklyBoss, { TROPHY_ICON } from '@components/account/Worlds/World2/WeeklyBoss';
-import { cleanUnderscore, formatNum } from '@utility/helpers';
+import { cleanUnderscore, formatNum, getTabs } from '@utility/helpers';
 import { OPT } from '@parsers/accountOptions';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import Notice from '@components/common/Notice';
+import Tabber from '@components/common/Tabber';
+import { PAGES } from '@components/constants';
+import WeeklyPrizes from '@components/account/Worlds/World2/WeeklyPrizes';
+import { format, isValid } from 'date-fns';
+
+const PRIZE_HORIZON = 52;
+const weekLabel = (date, index) => (index === 0 ? 'Now' : isValid(date) ? format(date, 'MMM d') : `${index + 1}`);
 
 const WeeklyBosses = () => {
   const { state } = useContext(AppContext);
@@ -22,6 +29,8 @@ const WeeklyBosses = () => {
   const schedule = getWeeklyBoss(account, weeks);
   const week = schedule[picked];
   const buffs = getWeeklyBossBuffs(account);
+  // A year ahead, so a prize drawn rarely still finds its next week
+  const prizeSchedule = getWeeklyBoss(account, PRIZE_HORIZON);
 
   return <>
     <NextSeo
@@ -38,31 +47,36 @@ const WeeklyBosses = () => {
                   info={`From the chilly cheese hotdogs MISC action in this week's fight, up to +${buffs.cap}%. It resets with the week.`}/>
       </>}
     </PageSummary>
-    {schedule.length ? <>
-      <CardGrid size={'icon'}>
-        {schedule.map(({ bossName }, index) => <IconTile key={`week-${index}`} icon={`etc/${bossName}.png`}
-                                                         alt={`${cleanUnderscore(bossName)}, week ${index + 1}`}
-                                                         value={index + 1} kind={'amount'}
-                                                         onSelect={() => setPicked(index)}
-                                                         selected={picked === index}/>)}
-      </CardGrid>
-      <Button variant={'text'} onClick={() => setWeeks((count) => count + 10)} sx={{ alignSelf: 'flex-start', mt: 1, mb: 2 }}>
-        Show 10 more weeks
-      </Button>
-      {week ? <WeeklyBoss {...week} bossIndex={picked} account={account} characters={state?.characters}
-                          trophies={trophies}/> : null}
-    </> : <>
-      {/* A guest has no clock until they sign in; a save can come without one */}
-      {state?.emptyAccount ? <Notice tone={'signin'} sx={{ mb: 2 }}>
-        Weekly bosses follow your save&apos;s clock: the coming weeks show here once you sign in.
-      </Notice> : <Notice tone={'missing'} sx={{ mb: 2 }}>
-        Weekly bosses follow your save&apos;s game clock, and this save has none.
-      </Notice>}
-      <CardGrid size={'icon'}>
-        {BOSSES.map(({ bossName }) => <IconTile key={bossName} icon={`etc/${bossName}.png`}
-                                                alt={cleanUnderscore(bossName)} details={cleanUnderscore(bossName)}/>)}
-      </CardGrid>
-    </>}
+    <Tabber tabs={getTabs(PAGES.ACCOUNT['world 2'].categories, 'weeklyBosses')}>
+      {schedule.length ? <>
+        <CardGrid size={'icon'}>
+          {/* Each week by when it starts (an unambiguous month name), the first being this one */}
+          {schedule.map(({ bossName, date }, index) => <IconTile key={`week-${index}`} icon={`etc/${bossName}.png`}
+                                                                 alt={`${cleanUnderscore(bossName)}, ${weekLabel(date, index)}`}
+                                                                 value={weekLabel(date, index)}
+                                                                 onSelect={() => setPicked(index)}
+                                                                 selected={picked === index}/>)}
+        </CardGrid>
+        <Button variant={'text'} onClick={() => setWeeks((count) => count + 10)}
+                sx={{ alignSelf: 'flex-start', mt: 1, mb: 2 }}>
+          Show 10 more weeks
+        </Button>
+        {week ? <WeeklyBoss {...week} bossIndex={picked} account={account} characters={state?.characters}
+                            trophies={trophies}/> : null}
+      </> : <>
+        {/* A guest has no clock until they sign in; a save can come without one */}
+        {state?.emptyAccount ? <Notice tone={'signin'} sx={{ mb: 2 }}>
+          Weekly bosses follow your save&apos;s clock: the coming weeks show here once you sign in.
+        </Notice> : <Notice tone={'missing'} sx={{ mb: 2 }}>
+          Weekly bosses follow your save&apos;s game clock, and this save has none.
+        </Notice>}
+        <CardGrid size={'icon'}>
+          {BOSSES.map(({ bossName }) => <IconTile key={bossName} icon={`etc/${bossName}.png`}
+                                                  alt={cleanUnderscore(bossName)} details={cleanUnderscore(bossName)}/>)}
+        </CardGrid>
+      </>}
+      <WeeklyPrizes account={account} schedule={prizeSchedule} weeks={PRIZE_HORIZON}/>
+    </Tabber>
   </>;
 };
 

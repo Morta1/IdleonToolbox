@@ -13,7 +13,15 @@ import GameIcon from '@components/common/GameIcon';
 export const TROPHY_ICON = 'data/Trophie.png';
 
 // A UI skin is a 960 x 66 strip of the game's top bar: its left end, beside the skin's name
-const skinIcon = (src) => <GameIcon src={src} fit={'strip'} side={'left'} size={32} alt={''}/>;
+const skinIcon = (src, size = 32) => <GameIcon src={src} fit={'strip'} side={'left'} size={size} alt={''}/>;
+
+// Gold Food and Statues draw the week's rolled one (FoodG + n, EquipmentStatues + n): the first stands in for it
+const ROLLED_PRIZE_SPRITES = { FoodG: 'FoodG1', EquipmentStatues: 'EquipmentStatues1' };
+export const prizeRawName = (rawName) => ROLLED_PRIZE_SPRITES[rawName] ?? rawName;
+// A prize's art: a skin's strip, or the item's sprite
+export const prizeIcon = ({ name, rawName }, size = 32) => (name?.includes('_UI')
+  ? skinIcon(`data/${prizeRawName(rawName)}.png`, size)
+  : `data/${prizeRawName(rawName)}.png`);
 
 // One week: its shop priced in trophies, and the turn each character takes (only this week has a current turn)
 const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, characters, trophies }) => {
@@ -23,11 +31,10 @@ const WeeklyBoss = ({ bossIndex, bossName, shopItems, triplets, date, account, c
   const toBuy = (shopItems ?? []).filter(({ rawName }) => !isWeeklyUiOwned(account, rawName));
   const toBuyCost = toBuy.reduce((sum, { x1 }) => sum + (Number(x1) || 0), 0);
 
-  const shopCard = ({ name, rawName, x1 }, index) => {
-    const fixedRawName = rawName === 'FoodG' ? 'FoodG1' : rawName;
-    return <ItemCard key={`shop-${index}`} title={cleanUnderscore(name)}
-                     icon={name?.includes('_UI') ? skinIcon(`data/${fixedRawName}.png`) : `data/${fixedRawName}.png`}
-                     footer={isWeeklyUiOwned(account, fixedRawName) ? <StatusText status={'done'}>Owned</StatusText>
+  const shopCard = (prize, index) => {
+    const { name, rawName, x1 } = prize;
+    return <ItemCard key={`shop-${index}`} title={cleanUnderscore(name)} icon={prizeIcon(prize)}
+                     footer={isWeeklyUiOwned(account, rawName) ? <StatusText status={'done'}>Owned</StatusText>
                        : <ItemCard.Cost icon={TROPHY_ICON} iconAlt={'Trophies'} need={x1 ?? 0} have={trophies}
                                         format={(value) => formatNum(value, 'whole')}/>}/>;
   };
