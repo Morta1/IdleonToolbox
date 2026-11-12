@@ -1,5 +1,6 @@
 import { Box, Stack, Typography } from '@mui/material';
-import { formatDuration, formatNum, getCoinsArray } from '@utility/helpers';
+import { formatNum, getCoinsArray } from '@utility/helpers';
+import { Duration } from '@components/common/Num';
 import { bitsIcon, formatBits, formatGame } from '@utility/gameNotation';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import React from 'react';
@@ -52,20 +53,23 @@ const TheBell = ({ hole }) => {
       {bells.length ? <Stack gap={1}>
         <Typography variant={'sectionTitle'} component={'h2'}>Bells</Typography>
         <CardGrid size={'m'}>
-          {bells.map(({ name, expRate, expReq, exp, readyUses }, index) => {
+          {bells.map(({ name, expRate, expReq, exp, readyUses, selected }, index) => {
             const rate = expRate?.value ?? 0;
             const title = `${name?.charAt(0)?.toUpperCase() ?? ''}${name?.slice(1) ?? ''}`;
             // The game's "N/hr" (Holes.BellExpPerHR), the drawer named and headed the same
             const rateText = `${formatGame(rate, 'Holes.BellExpPerHR')}/hr`;
             const secondsToFull = rate > 0 ? ((expReq ?? 0) - (exp ?? 0)) / rate * 3600 : null;
-            return <ItemCard key={`bell-${index}`} title={<><BellArt index={index}/>{title}</>}>
+            // Only the selected bell gains exp, so the others' time only starts once picked
+            const fullLabel = selected || !(secondsToFull > 0) ? 'Full in' : 'Full in if selected';
+            return <ItemCard key={`bell-${index}`} title={<><BellArt index={index}/>{title}</>}
+                             status={selected ? 'active' : undefined} statusLabel={selected ? 'Active' : undefined}>
               <ItemCard.Facts rows={[
                 ['EXP rate', expRate?.breakdown
                   ? <Breakdown key={'rate'} asValue data={{ ...expRate.breakdown, totalValue: rateText }}
                                title={`${title} EXP rate`}>{rateText}</Breakdown>
                   : rateText],
                 ['EXP', `${formatGame(exp ?? 0, 'Holes.BellEXPreq', { whole: true })} / ${formatGame(expReq ?? 0, 'Holes.BellEXPreq', { whole: true })}`],
-                ['Time to full', secondsToFull === null ? '-' : secondsToFull > 0 ? formatDuration(secondsToFull)
+                [fullLabel, secondsToFull === null ? '-' : secondsToFull > 0 ? <Duration key={'full'} seconds={secondsToFull}/>
                   : <StatusText key={'ready'} status={'ready'}>{readyUses > 1 ? `Ready (x${formatNum(readyUses)})` : 'Ready'}</StatusText>]
               ]}/>
             </ItemCard>;

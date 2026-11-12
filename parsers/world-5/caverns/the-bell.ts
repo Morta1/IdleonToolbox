@@ -21,7 +21,9 @@ export const getTheBell = (holesObject: any, accountData: any) => {
     const exp = holesObject?.bellRelated[2 * index];
     const bonus = getBellBonus({ holesObject, t: index });
     const readyUses = getBellReadyUses(holesObject, index);
-    return { name, expRate, description: bellsDescriptions?.[index], bonus, expReq, exp, readyUses };
+    // Only the selected bell (Holes[11][19]) gains exp on the game's tick
+    const selected = Number(holesObject?.extraCalculations?.[19]) === index;
+    return { name, expRate, description: bellsDescriptions?.[index], bonus, expReq, exp, readyUses, selected };
   })
   const improvementMethods = holesInfo[60].map((description: any, index: any) => {
     const level = holesObject?.bellImprovementMethods?.[index];

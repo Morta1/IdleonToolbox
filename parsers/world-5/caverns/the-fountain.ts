@@ -376,6 +376,14 @@ export const getTheFountain = (holesObject: any, accountData: any) => {
     baseValue: getFountCurrencyBaseValue(holesObject, type)
   }));
   const currencyAllMulti = getFountCurrencyAllMulti(holesObject, accountData);
+  // game: Fountain_OpalCost, paid in coin Holes[9][30 + min(9, floor(n / 5))] with n = Holes[7][15]
+  const opalsBought = Number(holesObject?.opalsPerCavern?.[15]) || 0;
+  const opalCurrencyType = Math.min(9, Math.floor(opalsBought / 5));
+  const nextOpal = {
+    cost: 100 * Math.pow(1 + opalsBought, 1.5) * Math.pow(4.8, opalsBought),
+    currencyType: opalCurrencyType,
+    owned: Math.max(0, Number(wellSediment[30 + opalCurrencyType]) || 0)
+  };
 
   // Only show fountain bars that are actually active in-game (FountainBar_DoWeHave logic).
   const activeMulti = getFountainBarActiveSpdMulti(holesObject);
@@ -414,6 +422,7 @@ export const getTheFountain = (holesObject: any, accountData: any) => {
     fountainSpeedBonus,
     currencies,
     currencyAllMulti,
+    nextOpal,
     marblePerFill: getFountMarblePerFill(holesObject),
     fountainBars,
     spacesOwned,

@@ -9,6 +9,7 @@ import CardGrid, { LABELED_TILE_MIN } from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import IconTile from '@components/common/cards/IconTile';
 import GameIcon from '@components/common/GameIcon';
+import { Duration } from '@components/common/Num';
 import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 
 // The bucket and its sediment fill share one 62 x 128 canvas, so the game's picture is the fill drawn over the bucket. The
@@ -54,11 +55,12 @@ const TheWell = ({ hole }) => {
   };
 
   const sedimentCard = (sediment, index) => {
-    const { current = 0, max = 0 } = sediment ?? {};
+    const { current = 0, max = 0, fillRate = 0 } = sediment ?? {};
     const isRocks = index === 0;
     const locked = !isRocks && !max;
-    const totalRate = theWell?.totalFillRate ?? (theWell?.fillRate ?? 0) * buckets.length;
-    const fullIn = totalRate > 0 ? (max - current) / totalRate * 3600 : Infinity;
+    const fullIn = fillRate > 0 ? (max - current) / fillRate * 3600 : Infinity;
+    // The rock layer is negative and breaks when its buckets bring it to 0
+    const breaksIn = fillRate > 0 ? Math.max(0, -current) / fillRate * 3600 : Infinity;
     // Info 5: the time with each count of buckets. A golden bucket fills one sediment only, so the times without it sit
     // beside the ones with it
     const bucketRates = theWell?.bucketRates?.length ? theWell.bucketRates : buckets.map(() => theWell?.fillRate ?? 0);
@@ -73,11 +75,14 @@ const TheWell = ({ hole }) => {
     const byBuckets = createBreakdown(`${sedimentName(index)} full in`, formatDuration(fullIn), tree, { combine: 'list' });
     return <ItemCard key={`sediment-${index}`} icon={`data/HoleWellFill${index}.png`} title={sedimentName(index)}
                      status={locked ? 'locked' : undefined}>
-      {isRocks ? <ItemCard.Facts rows={[['Left', formatGame(Math.abs(current), 'Holes.SedimentMax', { whole: true })]]}/> : null}
+      {isRocks ? <ItemCard.Facts rows={[
+        ['Left', formatGame(Math.abs(current), 'Holes.SedimentMax', { whole: true })],
+        ['Breaks in', Number.isFinite(breaksIn) ? <Duration key={'breaks'} seconds={breaksIn}/> : '-']
+      ]}/> : null}
       {!isRocks && !locked ? <>
         <ItemCard.Progress label={'Filled'} value={sedimentText(current)} max={sedimentText(max)}
                            percent={max > 0 ? Math.min(100, (current / max) * 100) : 0}/>
-        {/* No rate (no bucket on it yet): nothing to time */}
+        {/* No bucket on it: nothing to time */}
         <ItemCard.Facts rows={[['Full in', Number.isFinite(fullIn)
           ? <Breakdown key={'full'} asValue data={byBuckets}>{formatDuration(fullIn)}</Breakdown> : '-']]}/>
       </> : null}
@@ -86,7 +91,10 @@ const TheWell = ({ hole }) => {
 
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
-      <StatTile label={'Opal cost'} icon={'data/HoleWellFill1.png'} value={formatGame(theWell?.opalCost ?? 0, 'Holes.WellOpal_cost', { whole: true })}/>
+      <StatTile label={'Opal cost'}>
+        <ItemCard.Cost icon={'data/HoleWellFill1.png'} iconAlt={sedimentName(1)} need={theWell?.opalCost ?? 0}
+                       have={theWell?.opalCostOwned ?? 0} game={'Holes.WellOpal_cost'}/>
+      </StatTile>
       {opalsFoundTile(hole, 0)}
       <StatTile label={'Total bar expansions'} value={getHoleLeaderboardTotals(hole).barExpansions} kind={'amount'}/>
     </Stack>

@@ -6,10 +6,15 @@ import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import StatusText from '@components/common/StatusText';
 import { opalsFoundTile } from '@components/account/Worlds/World5/Hole/commons';
 
 // The first wish's cost past level 10 (LampWishCost): the game's "no more wishes"
 const NO_MORE_WISHES = 999999;
+
+// The days are daily resets at the average wishes per day (each reset rolls the fraction)
+const affordText = (days) => days === 0 ? <StatusText key={'afford'} status={'ready'}>Now</StatusText>
+  : days > 0 ? `In ${formatNum(days, 'whole')} ${days === 1 ? 'day' : 'days'}` : '-';
 
 const TheLamp = ({ hole }) => {
   const theLamp = hole?.caverns?.theLamp;
@@ -21,7 +26,7 @@ const TheLamp = ({ hole }) => {
       {opalsFoundTile(hole, 6)}
     </Stack>
     <CardGrid size={'m'}>
-      {(theLamp?.wishes ?? []).map(({ description, name, futureCosts, cost, timesWished }, index) => {
+      {(theLamp?.wishes ?? []).map(({ description, name, futureCosts, cost, timesWished, daysToAfford }, index) => {
         const maxed = index === 0 && cost === NO_MORE_WISHES;
         // futureCosts holds the five wishes after the next one; the first wish stops at the game's "no more"
         const costs = [cost, ...(futureCosts ?? [])].filter((value) => !(index === 0 && value === NO_MORE_WISHES));
@@ -30,12 +35,15 @@ const TheLamp = ({ hole }) => {
         const nextCosts = createBreakdown(`${cleanUnderscore(name)} cost`, formatNum(cost ?? 0, 'whole'), flatLines(costs.map((value, step) => ({
           name: step ? `Wish ${step + 1}` : 'Next wish', value, formatted: formatNum(value ?? 0, 'whole')
         }))), { combine: 'list' });
+        // A wish whose cost never changes lists one number six times: it reads as a plain cost
+        const fixedCost = costs.every((value) => value === costs[0]);
         return <ItemCard key={`wish-${index}`} title={cleanUnderscore(name)} status={maxed ? 'maxed' : undefined}
                          footer={<ItemCard.Facts rows={[
                            ['Times wished', formatNum(timesWished ?? 0, 'whole')],
-                           ['Cost', <Breakdown key={'cost'} asValue data={nextCosts}>
+                           ['Cost', fixedCost ? formatNum(cost ?? 0, 'whole') : <Breakdown key={'cost'} asValue data={nextCosts}>
                              {formatNum(cost ?? 0, 'whole')}
-                           </Breakdown>]
+                           </Breakdown>],
+                           maxed ? null : ['Affordable', affordText(daysToAfford)]
                          ]}/>}>
           <ItemCard.Desc text={description}/>
         </ItemCard>;

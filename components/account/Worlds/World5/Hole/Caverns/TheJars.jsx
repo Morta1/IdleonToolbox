@@ -25,7 +25,8 @@ const TheJars = ({ hole, sectionFailed }) => {
   const perHour = theJars?.perHour?.value ?? 0;
   const perHourText = formatNum(perHour);
   const rupieText = formatGame(theJars?.rupieValue?.value ?? 0, 'Holes.JarRupieValue');
-  const extraText = formatNum(theJars?.rupieExtraChance?.value ?? 0, 'pct');
+  const newJar = theJars?.newJar;
+  const extraText =formatNum(theJars?.rupieExtraChance?.value ?? 0, 'pct');
 
   const jarCard = (jar, index) => {
     const req = jar?.req ?? 0;
@@ -76,6 +77,11 @@ const TheJars = ({ hole, sectionFailed }) => {
                 info={'Every jar counted as its tier 1 equivalent: a tier 2 jar is worth 10.'}/>
       <StatTile label={'Total enhancing levels'} value={theJars?.totalEnhancingLevels ?? 0} kind={'amount'}/>
       <StatTile label={'Total jars destroyed'} value={theJars?.totalJarsDestroyed ?? 0} kind={'amount'}/>
+      <StatTile label={'Next jar type'}
+                value={newJar?.maxed ? 'All jar types owned' : <ItemCard.Cost icon={`data/HoleJarR${newJar?.rupieTier ?? 0}.png`}
+                                                                   iconAlt={`Rupie tier ${(newJar?.rupieTier ?? 0) + 1}`}
+                                                                   need={newJar?.cost ?? 0} have={newJar?.owned ?? 0}/>}
+                sub={newJar?.maxed ? undefined : cleanUnderscore(theJars?.jars?.[(newJar?.rupieTier ?? 0) + 1]?.name)}/>
       {opalsFoundTile(hole, 10)}
     </Stack>
     {theJars?.activeSlots?.length ? <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>

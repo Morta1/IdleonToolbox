@@ -42,11 +42,13 @@ const CrystalGlunkoCove = ({ hole }) => {
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
       <StatTile label={'Cove drop rate'} value={cove?.dropRate ?? 1} kind={'mult'}/>
-      <StatTile label={'Cove AFK gains'} value={100 * (cove?.afkGains ?? 0)} kind={'pct'}/>
+      <StatTile label={'Cove AFK gains'} value={100 * (cove?.afkRate ?? 0)} kind={'pct'}/>
       <StatTile label={'Multikill per tier'} value={cove?.multiKillTier ?? 0} kind={'pct'}/>
       <StatTile label={'Base multikill'} value={cove?.multiKillBase ?? 0} kind={'pct'}/>
       <StatTile label={'Faster respawn'} value={cove?.respawn ?? 0} kind={'pct'}/>
-      <StatTile label={'Double pickup'} value={cove?.doublePickup ?? 0} kind={'mult'}/>
+      {/* Past 100% the whole part is a sure extra pickup and the rest the chance of one more */}
+      <StatTile label={'Double pickup chance'} value={100 * (cove?.doublePickup ?? 0)} kind={'pct'}
+                sub={`Average ${formatNum(1 + (cove?.doublePickup ?? 0), 'mult')} shapes per pickup`}/>
       {opalsFoundTile(hole, 17)}
     </Stack>
     {shapes.length ? <Stack gap={1}>

@@ -38,7 +38,8 @@ export const patchNotes = [
       'Tome: the rank shows the points to the next one, and the entries can be sorted by the points they have left',
       'Sailing: the Artifacts tab counts the artifacts found and maxed (with how many sit at each form), and can search artifacts by name or effect and show only the ones not maxed or not found',
       'Divinity: the page shows the Divinity points you own, and the Gods tab shows the two offerings for the next god with their chance, cost and time to afford',
-      'Gaming: the Superbits tab can search superbits by name or effect, show one group at a time and hide the ones you own'
+      'Gaming: the Superbits tab can search superbits by name or effect, show one group at a time and hide the ones you own',
+      'Hole caverns: The Well times each sediment by the buckets on it and shows when the rocks break, only the active bell counts as filling, the layer caverns show the breaks left today, and the Den, Harp, Lamp, Jars, Gambit, Fountain and Glunko Cove show max levels, chord EXP, when a wish is affordable, the next jar, note and opal costs and the double pickup chance'
     ],
     'fixes': []
   },

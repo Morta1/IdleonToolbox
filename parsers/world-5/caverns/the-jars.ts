@@ -94,10 +94,20 @@ export const getTheJars = (holesObject: any, jarsRaw: any, accountData: any) => 
 
   const perHour = getProductionPerHour({ holesObject, accountData, collectibles });
 
+  // game: CanWeAfford_Jar pays in rupie tier Holes[9][20 + Holes[11][37]] and stops at 9 jar types
+  const ownedJarTypes = Number(holesObject?.extraCalculations?.[37]) || 0;
+  const newJar = {
+    cost: newJarCost,
+    rupieTier: ownedJarTypes,
+    owned: Math.max(0, Number(rupies[ownedJarTypes]) || 0),
+    maxed: ownedJarTypes >= 9
+  };
+
   return {
     unlockedSlots,
     opalChance,
     newJarCost,
+    newJar,
     rupieValue,
     rupieExtraChance,
     jarAesthetic,
@@ -275,8 +285,8 @@ const getProductionReq = ({ holesObject, i }: any) => {
 }
 
 const getNewJarCost = ({ holesObject }: any) => {
-  return 50 * Math.pow(1 + holesObject?.extraCalculations?.[37], 1.5)
-    * Math.pow(4.8, holesObject?.extraCalculations?.[37]);
+  const owned = Number(holesObject?.extraCalculations?.[37]) || 0;
+  return 50 * Math.pow(1 + owned, 1.5) * Math.pow(4.8, owned);
 }
 
 const getOpalChance = ({ holesObject, account }: any) => {

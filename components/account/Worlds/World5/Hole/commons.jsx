@@ -5,6 +5,7 @@ import { cleanUnderscore, formatNum, gameFill, getTabs, msToDate } from '@utilit
 import { formatGame } from '@utility/gameNotation';
 import { CURRENCY_NAMES } from '@parsers/world-5/caverns/the-fountain';
 import { PAGES } from '@components/constants';
+import { LAYER_BREAKS_PER_DAY } from '@parsers/world-5/caverns/motherlode';
 
 // The 18 caverns in the game's order. Five names became URL values in lower case (?nt=The well), which links, alerts
 // and goals keep: the strip, the picker and the studies show them as their siblings read
@@ -97,13 +98,17 @@ export const monumentBonusCard = ({ description, level, bonus, cap, progression,
   </ItemCard>);
 
 // A skilling cavern's numbers: the efficiency its layer asks for and what it has gathered of the layer's need (the game's
-// panel: commas under 1e9, then Big, on the larger side's size so the pair reads one form), the layer, and the opals found there
+// panel: commas under 1e9, then Big, on the larger side's size so the pair reads one form), the layer, the day's layer
+// breaks left, and the opals found there
 export const skillingTiles = ({ hole, cavernIndex, effLabel, eff, layerLabel = 'Layer', layer, resource, icon, done, required }) => {
   const amount = (value) => gameFill(value ?? 0, Math.max(done ?? 0, required ?? 0) < 1e9 ? 'Comma' : 'Big', { whole: true });
   return <>
     <StatTile label={effLabel} value={formatGame(eff ?? 0, 'Holes.MotherlodeEffBase', { whole: true })}/>
     <StatTile label={layerLabel} value={layer ?? 0} kind={'amount'}/>
     <StatTile label={resource} icon={icon} value={`${amount(done)} / ${amount(required)}`}/>
+    <StatTile label={'Breaks left today'}
+              value={`${formatNum(hole?.caverns?.motherlode?.layerBreaksLeft ?? LAYER_BREAKS_PER_DAY)} / ${formatNum(LAYER_BREAKS_PER_DAY)}`}
+              info={'The four layer caverns share these breaks. They come back at the daily reset.'}/>
     {opalsFoundTile(hole, cavernIndex)}
   </>;
 };

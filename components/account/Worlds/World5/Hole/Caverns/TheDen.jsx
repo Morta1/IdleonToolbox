@@ -17,9 +17,9 @@ const TheDen = ({ hole }) => {
       {opalsFoundTile(hole, 2)}
     </Stack>
     <CardGrid size={'m'}>
-      {(theDen?.amplifiers ?? []).map(({ ampName, ampDescription, level, bonus }, index) =>
+      {(theDen?.amplifiers ?? []).map(({ ampName, ampDescription, level, maxLevel, bonus }, index) =>
         <ItemCard key={`amp-${index}`} icon={`data/HoleFightAmp${index}.png`} title={titleCaseName(cleanUnderscore(ampName))}
-                  level={{ value: level ?? 0 }} status={index < (theDen?.ownedAmps ?? 0) ? undefined : 'locked'}>
+                  level={{ value: level ?? 0, max: maxLevel }} status={index < (theDen?.ownedAmps ?? 0) ? undefined : 'locked'}>
           {/* The parser's bonus is already the game's Small or Big */}
           <ItemCard.Desc text={(ampDescription ?? '').replace('{', bonus)}/>
         </ItemCard>)}

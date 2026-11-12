@@ -12,6 +12,7 @@ export const getTheDen = (holesObject: any) => {
       ampName,
       ampDescription,
       level: holesObject?.dawgDenAmplifierLevels?.[index],
+      maxLevel: getAmpStoneMax(index),
       // The game prints the last amplifier with 'Small' notation, its value stays under 1 for many charges
       bonus: gameFill(getAmpDebuff(holesObject, index), index === LAST_AMPLIFIER ? 'Small' : 'Big')
     }

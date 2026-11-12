@@ -22,6 +22,10 @@ export const getTheHarp = (holesObject: any, accountData: any) => {
   const stringTypes = getStringTypesOwned(holesObject);
   const uniqueStringTypes = getUniqueHarpStringTypes(holesObject);
   const newNoteCost = getNewNoteCost(holesObject);
+  // CanWeAfford_Harp: the next note is paid with note Holes[11][20], and none is left to buy from note 9 on
+  const newNoteIndex = Math.max(0, Number(holesObject?.extraCalculations?.[20]) || 0);
+  const allNotesOwned = newNoteIndex >= HARP_NOTES - 1;
+  const newNoteOwned = Math.max(0, holesObject?.wellSediment?.[10 + newNoteIndex] ?? 0);
   const power = holesObject?.extraCalculations?.[22];
   const powerRate = getHarpPowerPerHour(holesObject);
   const stringAllBonus = getHarpStringAllBonus(holesObject, uniqueStringTypes);
@@ -63,6 +67,9 @@ export const getTheHarp = (holesObject: any, accountData: any) => {
     stringTypes,
     uniqueStringTypes,
     newNoteCost,
+    newNoteIndex,
+    newNoteOwned,
+    allNotesOwned,
     powerRate,
     power,
     harpExpGain,

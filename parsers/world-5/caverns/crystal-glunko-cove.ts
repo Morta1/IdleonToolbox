@@ -3,6 +3,7 @@ import { items, randomList2 } from '@website-data';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
 import { getStudyBonus } from '@parsers/world-5/hole';
 import { OPT } from '@parsers/accountOptions';
+import { isBundlePurchased } from '@parsers/misc';
 
 // Cavern 18: Crystal Glunko Cove. Mirrors N.js customBlock_Holes2 Cglunko_* handlers.
 // Cove upgrade level t (0..23) lives in OptionsListAccount[630 + t]; gooey shapes (the cove currency)
@@ -61,7 +62,12 @@ const getCglunkoDropRate = (account: any): number => {
 const getCglunkoAfkGains = (account: any): number =>
   (10 + (getCglunkoBonus(account, 8) + getCglunkoBonus(account, 13))) / 100;
 
-// game: "Cglunko_DoublePickup" - chance (0..3) to double-pick shapes, from schematics 101/103/105.
+// game: the cove's AFK rate (DNSM AFKgainzzDNz) is Cglunko_AFKgains with the bun_u bundle's +30% on top
+const getCoveAfkGains = (account: any): number =>
+  getCglunkoAfkGains(account) * (1 + (isBundlePurchased(account, 'bun_u') ? 30 : 0) / 100);
+
+// game: "Cglunko_DoublePickup" (0..3), from schematics 101/103/105. A pickup gives 1 + floor(random + x) times the
+// drop, so the whole part is guaranteed extra pickups and the fraction is the chance of one more.
 const getCglunkoDoublePickup = (holesObject: any): number =>
   Math.min((getSchematicBonus({ holesObject, t: 101, i: 10 })
     + getSchematicBonus({ holesObject, t: 103, i: 10 })
@@ -119,6 +125,7 @@ export const getCrystalGlunkoCove = (holesObject: any, accountData: any) => {
     shapes,
     dropRate: getCglunkoDropRate(accountData),
     afkGains: getCglunkoAfkGains(accountData),
+    afkRate: getCoveAfkGains(accountData),
     multiKillTier: getCglunkoBonus(accountData, 6),
     multiKillBase: getCglunkoBonus(accountData, 15),
     respawn: getCglunkoBonus(accountData, 2),

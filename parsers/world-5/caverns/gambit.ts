@@ -1,7 +1,7 @@
 import { getMeasurementBonus, getStudyBonus } from '@parsers/world-5/hole';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
-import { holesInfo } from '@website-data';
-import { gameFill, lavaLog, lavaLog2 } from '@utility/helpers';
+import { holesBuildings, holesInfo } from '@website-data';
+import { GAME_LN10, gameFill, lavaLog, lavaLog2 } from '@utility/helpers';
 import { getMonumentBonus } from '@parsers/world-5/caverns/bravery';
 import { getEventShopBonus } from '@parsers/misc';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
@@ -12,6 +12,8 @@ const EVENT_SHOP_DOUBLERS_INDEX = 15;
 const EVENT_SHOP_DOUBLERS = 10;
 // game: "GambitPts" sums Gambit_0 to 5, Holes[11][65] to [70]
 export const GAMBIT_RUNS = 6;
+// game: GambitChallengeUnlocked: run 0 is always open, run t needs schematic 88 + t
+const RUN_SCHEMATIC_OFFSET = 88;
 
 export const getGambit = (holesObject: any, accountData: any) => {
   const pointsMulti = getPointsMulti(holesObject, accountData);
@@ -37,6 +39,17 @@ export const getGambit = (holesObject: any, accountData: any) => {
     return sum + (val !== -1 ? 1 : 0)
   }, 0);
   const times = Array.from({ length: GAMBIT_RUNS }, (_, run) => holesObject?.extraCalculations?.[65 + run]);
+  const runs = times.map((time, run) => {
+    const schematic = RUN_SCHEMATIC_OFFSET + run;
+    return {
+      time,
+      unlocked: run === 0 || Boolean(holesObject?.engineerSchematics?.[schematic]),
+      schematicName: run === 0 ? '' : holesBuildings?.[schematic]?.name ?? ''
+    };
+  });
+  // game: on entering the cavern, an opal for each step floor(getLOG(points)) has climbed past Holes[7][13]
+  const opalsGiven = Number(holesObject?.opalsPerCavern?.[13]) || 0;
+  const nextOpalPoints = Math.exp(GAME_LN10 * (opalsGiven + 1));
   const totalTime = times.reduce((sum: any, time: any) => sum + time, 0);
   return {
     pointsMulti,
@@ -46,6 +59,8 @@ export const getGambit = (holesObject: any, accountData: any) => {
     nextUnlock,
     times,
     totalTime,
+    runs,
+    nextOpalPoints,
     summoningDoublers: {
       appointed: appointedDoublers,
       total: totalDoublers

@@ -12,21 +12,6 @@ import { getCglunkoBonus } from '@parsers/world-5/caverns/crystal-glunko-cove';
 
 export const getTheWell = (holesObject: any, accountData: any) => {
   const { wellSediment, sedimentMulti, wellBuckets } = holesObject;
-  const sediments = fillArrayToLength(10).map((_, index) => {
-    if (0 <= wellSediment[index]) {
-      return {
-        current: wellSediment?.[index],
-        max: getSedimentMax({ sedimentMulti, index })
-      }
-    } else if (9999999 < -1 * wellSediment[index]) {
-      return { current: wellSediment[index] }
-    } else {
-      return { current: wellSediment[index] }
-    }
-  });
-  const rockLayerIndex = sediments.findIndex(({ current }) => current < 0);
-  sediments.unshift(sediments[rockLayerIndex]);
-
   const numberOfBuckets = getOwnedBuckets(holesObject);
   const buckets = fillArrayToLength(numberOfBuckets, wellBuckets);
   // Fountain Yellow Water idx 15 ("Golden_Bucket_Boost") makes the first bucket golden, with a faster fill rate.
@@ -42,6 +27,23 @@ export const getTheWell = (holesObject: any, accountData: any) => {
     (i < goldenBucketsOwned ? goldenBucketMulti : 1) * baseFillRate
   );
   const totalFillRate = bucketRates.reduce((sum, r) => sum + r, 0);
+  // The game's tick adds a bucket's rate only to the sediment it sits on (Holes[10][bucket])
+  const sedimentFillRate = (index: number) => bucketRates
+    .reduce((sum, rate, bucket) => (Number(buckets[bucket]) === index ? sum + rate : sum), 0);
+  const sediments = fillArrayToLength(10).map((_, index) => {
+    const fillRate = sedimentFillRate(index);
+    if (0 <= wellSediment[index]) {
+      return {
+        current: wellSediment?.[index],
+        max: getSedimentMax({ sedimentMulti, index }),
+        fillRate
+      }
+    }
+    // The rock layer is stored negative and climbs to 0 as its buckets fill it
+    return { current: wellSediment[index], fillRate }
+  });
+  const rockLayerIndex = sediments.findIndex(({ current }) => current < 0);
+  sediments.unshift(sediments[rockLayerIndex]);
   const opalCost = getOpalCost(holesObject)
   const expandWhenFull = holesObject?.extraCalculations?.[10];
 
@@ -57,6 +59,8 @@ export const getTheWell = (holesObject: any, accountData: any) => {
     goldenBucketsOwned,
     goldenBucketMulti,
     opalCost,
+    // CanWeAfford_Well pays the opal from the first sediment (Holes[9][0])
+    opalCostOwned: Math.max(0, wellSediment?.[0] ?? 0),
     expandWhenFull
   }
 }

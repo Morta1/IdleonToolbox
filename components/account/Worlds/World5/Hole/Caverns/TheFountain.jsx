@@ -208,6 +208,7 @@ const TheFountain = ({ hole, sectionFailed }) => {
   const visibleWaters = (fountain?.waters ?? []).filter((w) => w?.implemented);
   const currencies = fountain?.currencies ?? [];
   const bars = fountain?.fountainBars ?? [];
+  const nextOpal = fountain?.nextOpal;
 
   return <>
     <Stack direction={'row'} gap={1} flexWrap={'wrap'} mb={3}>
@@ -218,6 +219,10 @@ const TheFountain = ({ hole, sectionFailed }) => {
                                               icon={`data/HoleFountainCoin${currency.type}.png`}
                                               value={currencyText(currency.amount)}/>)}
       {opalsFoundTile(hole, 15)}
+      <StatTile label={'Next opal'} value={<ItemCard.Cost icon={`data/HoleFountainCoin${nextOpal?.currencyType ?? 0}.png`}
+                                                         iconAlt={`${CURRENCY_NAMES[nextOpal?.currencyType ?? 0] ?? 'Fountain'} coin`}
+                                                         need={nextOpal?.cost ?? 0} have={nextOpal?.owned ?? 0}
+                                                         game={'Holes.Cost_FountainUPG'}/>}/>
       <StatTile label={'Total fountain upgrades'} value={getHoleLeaderboardTotals(hole).fountainUpgrades} kind={'amount'}/>
     </Stack>
     {bars.length > 0 ? <Panel title={'Fountain bars'} sx={{ mb: 3 }}>

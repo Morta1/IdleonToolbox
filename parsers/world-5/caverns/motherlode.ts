@@ -1,5 +1,6 @@
 import { getStudyBonus } from '@parsers/world-5/hole';
 import { getJarBonus } from '@parsers/world-5/caverns/the-jars';
+import { OPT } from '@parsers/accountOptions';
 
 // The four layered caverns share one formula, indexed by t. Each keeps its progress at
 // Holes[11][2t] and its destroyed layers at Holes[11][2t + 1]
@@ -35,9 +36,12 @@ export const getMotherlode = (holesObject: any, accountData: any) => {
   const layer = holesObject?.extraCalculations?.[1];
   const minedOres = holesObject?.extraCalculations?.[0];
   const reqOres = getTotalOreReq(holesObject, accountData, LAYER_CAVERN.MOTHERLODE);
+  const brokenToday = Number(accountData?.accountOptions?.[OPT.motherlodeLayersBrokenToday]) || 0;
   return {
     miningEff,
     layer: layer + 1,
+    // Shared by all four layer caverns, so the other three read it from here
+    layerBreaksLeft: Math.max(0, LAYER_BREAKS_PER_DAY - brokenToday),
     ores: {
       mined: minedOres,
       required: reqOres,
