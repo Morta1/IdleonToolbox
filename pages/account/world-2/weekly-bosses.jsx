@@ -2,7 +2,7 @@ import { useContext, useState } from 'react';
 import { NextSeo } from 'next-seo';
 import Button from '@mui/material/Button';
 import { AppContext } from '@components/common/context/AppProvider';
-import { getWeeklyBoss } from '@parsers/world-2/weeklyBosses';
+import { getWeeklyBoss, getWeeklyBossBuffs } from '@parsers/world-2/weeklyBosses';
 import { weeklyBosses as BOSSES } from '@website-data';
 import WeeklyBoss, { TROPHY_ICON } from '@components/account/Worlds/World2/WeeklyBoss';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
@@ -21,6 +21,7 @@ const WeeklyBosses = () => {
   const trophies = Number(account?.accountOptions?.[OPT.weeklyBossTrophies]) || 0;
   const schedule = getWeeklyBoss(account, weeks);
   const week = schedule[picked];
+  const buffs = getWeeklyBossBuffs(account);
 
   return <>
     <NextSeo
@@ -29,6 +30,13 @@ const WeeklyBosses = () => {
     />
     <PageSummary>
       <StatTile label={'Trophies'} icon={TROPHY_ICON} value={formatNum(trophies)}/>
+      {/* The two fight buffs that last the week: a guest has no fight */}
+      {state?.emptyAccount ? null : <>
+        <StatTile label={'Class EXP this week'} value={formatNum(buffs.classExp, 'pct', { signed: true })}
+                  info={`From the tea break MISC action in this week's fight, up to +${buffs.cap}%. It resets with the week.`}/>
+        <StatTile label={'Damage this week'} value={formatNum(buffs.damage, 'pct', { signed: true })}
+                  info={`From the chilly cheese hotdogs MISC action in this week's fight, up to +${buffs.cap}%. It resets with the week.`}/>
+      </>}
     </PageSummary>
     {schedule.length ? <>
       <CardGrid size={'icon'}>

@@ -56,6 +56,21 @@ const getShopItems = (seed: number): { shopItems: any[]; extraSeed: number } => 
   }
 }
 
+// game: the skin picker reads WeeklyBoss["UI_" + Number2Letter[i + 1]], the letter the skin's UImain_ sprite ends in
+export const isWeeklyUiOwned = (account: Account, rawName: string = ''): boolean => {
+  const letter = rawName.match(/^UImain_([a-z])$/)?.[1];
+  return Boolean(letter) && Number((account as any)?.weeklyBossesRaw?.[`UI_${letter}`]) === 1;
+};
+
+// The two fight buffs that last the week outside it, each capped at 150% where the game reads them: the tea break
+// (MISC "c", +Class EXP) and the chilly hotdogs (MISC "g", +damage to all characters)
+const WEEKLY_BUFF_CAP = 150;
+export const getWeeklyBossBuffs = (account: Account) => ({
+  classExp: Math.min(WEEKLY_BUFF_CAP, Number((account as any)?.weeklyBossesRaw?.c) || 0),
+  damage: Math.min(WEEKLY_BUFF_CAP, Number((account as any)?.weeklyBossesRaw?.g) || 0),
+  cap: WEEKLY_BUFF_CAP
+});
+
 const MAX_ACCUMULATOR_SIZE = 9;
 export const getWeeklyBoss = (account: Account, weeks: number = 10) => {
   // The weeks are seeded from the save's clock: with none, every week would draw the same boss with no date
