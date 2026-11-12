@@ -1070,14 +1070,24 @@ const goldenFoodEffects: Record<string, string> = (() => {
 // The game's GoldFoodBonuses() keys off a food's Effect, not its name, so every golden food sharing
 // that Effect feeds the same stat. Two foods carry DropRatez - Golden_Cake and Golden_Sugar_Cookie -
 // and matching on the name alone dropped whichever one wasn't hardcoded at the call site.
+// One golden food's bonus: its Amount, grown by how many of it count (log scale), times the character's golden food multi
+const goldenFoodValue = (amount: any, quantity: any, multi: any) => !amount || !quantity
+  ? 0
+  : amount * (multi ?? 1) * 0.05 * lavaLog(1 + quantity) * (1 + lavaLog(1 + quantity) / 2.14);
+
+// What a beanstalk rank adds on its own: rank r counts as 1,000 * 10^r of the food (rank 0 adds nothing)
+export const getBeanstalkRankBonus = (rawName: string, rank: number, character: any, account: any, characters: any) => {
+  if (!character || !(rank > 0)) return 0;
+  const multi = getGoldenFoodMulti(character, account, characters)?.value;
+  return goldenFoodValue((items as any)?.[rawName]?.Amount, 1e3 * Math.pow(10, rank), multi);
+};
+
 export const getGoldenFoodBonus = (foodName: any, character: any, account: any, characters: any) => {
   if (!character) return 0;
   const effect = goldenFoodEffects?.[foodName];
   if (!effect) return 0;
   const goldenFoodMulti = getGoldenFoodMulti(character, account, characters);
-  const foodBonus = (amount: any, quantity: any) => !amount || !quantity
-    ? 0
-    : amount * goldenFoodMulti?.value * 0.05 * lavaLog(1 + quantity) * (1 + lavaLog(1 + quantity) / 2.14);
+  const foodBonus = (amount: any, quantity: any) => goldenFoodValue(amount, quantity, goldenFoodMulti?.value);
 
   // Equipped slots: the game walks every food slot and adds each GOLDEN_FOOD whose Effect matches.
   const baseBonus = (character?.food ?? []).reduce((sum: number, food: any) => food?.Type === 'GOLDEN_FOOD'
