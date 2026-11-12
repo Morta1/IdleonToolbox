@@ -107,7 +107,7 @@ const SushiStation = () => {
     {sectionFailed ? <MissingData name={'Sushi Station'} failed atZero={!isParseFailed(state?.account)}/>
       : <NotReached name={'the Sushi Station'} reached={uniqueSushi > 0}/>}
     <PageSummary failed={sectionFailed}>
-      <StatTile label={'Unique sushi'} value={uniqueSushi ?? 0} kind={'amount'}/>
+      <StatTile label={'Unique sushi'} icon={'data/SushiUpg44.png'} value={uniqueSushi ?? 0} kind={'amount'}/>
       {/* The upgrade panel's own print, so the balance reads as Upgrades' costs do */}
       <StatTile label={'Bucks'} icon={'etc/Bucks.png'}
                 value={<Num value={Math.floor(currency?.bucks ?? 0)} game={'SushiStuff.UpgCost'} whole/>}/>
@@ -119,27 +119,33 @@ const SushiStation = () => {
                                              info={'Multiplies all Bucks gained. Combining sushi adds the created tier to the combo, cooking new sushi or stalling ends it. Based on your best combo ever, caps just under 101x.'}/> : null}
       <DoublerUsageCard title={'Doublers'} doubler={state?.account?.menagerie?.doublers?.sushi} icon={DOUBLER_ICONS.sushi}/>
       <StatTile label={'Fuel'} icon={'etc/Fuel.png'}
-                value={`${formatGame(fuel?.current ?? 0, 'SushiStuff.FuelCap', { whole: true })} / ${formatGame(fuel?.cap ?? 0, 'SushiStuff.FuelCap', { whole: true })}`}/>
+                value={`${formatGame(fuel?.current ?? 0, 'SushiStuff.FuelCap', { whole: true })} / ${formatGame(fuel?.cap ?? 0, 'SushiStuff.FuelCap', { whole: true })}`}
+                sub={fuel?.overCap > 0
+                  ? `+${formatGame(fuel.overCap, 'SushiStuff.FuelCap', { whole: true })} ${overtuned?.unlocked ? 'to Overtuned' : 'past the cap'}`
+                  : undefined}
+                info={fuel?.overCap > 0
+                  ? `Full. Your save holds ${formatGame(fuel.overCap, 'SushiStuff.FuelCap', { whole: true })} more past the cap: it ${overtuned?.unlocked ? 'goes to Overtuned' : 'is lost'} the next time you open the station.`
+                  : undefined}/>
       <StatTile label={'Fuel per hour'} icon={'etc/Fuel.png'} value={formatGame(fuel?.generation ?? 0, 'SushiStuff.FuelGen')}/>
       {/* Decision 2: the multis keep Precise's 3 decimals (1.122x); the phone list fixes the wrap */}
       {sparks > 0 || sparkBonus?.potassiumCount > 0
-        ? <StatTile label={'Spark multi'} breakdown={sparkBreakdown} skipNotation/> : null}
-      {overtuned?.unlocked ? <StatTile label={'Overtuned multi'} breakdown={overtunedBreakdown} skipNotation/> : null}
+        ? <StatTile label={'Spark multi'} icon={'etc/Charfire4.gif'} breakdown={sparkBreakdown} skipNotation/> : null}
+      {overtuned?.unlocked ? <StatTile label={'Overtuned multi'} icon={'data/SushiUpg28.png'} breakdown={overtunedBreakdown} skipNotation/> : null}
       {nextSushi ? <StatTile label={'Next unlock'} icon={`data/Sushi${nextTier}.png`}
                              value={`${nextSushi?.name} (${formatGame(Math.ceil(nextFuelCost), 'SushiStuff.FuelCost', { whole: true })} fuel)`}
                              info={`Cook a Tier ${nextTier + 1} sushi to discover ${nextSushi?.name}.`}/> : null}
       {sushiCooking?.nextUnperfectedIdx >= 0
-        ? <StatTile label={'Perfecto chance'} value={formatNum(perfectoChance, 'pct')}
+        ? <StatTile label={'Perfecto chance'} icon={'etc/SushiPerfectoStar.png'} value={formatNum(perfectoChance, 'pct')}
                     info={`Base chance to Perfecto ${knowledge?.[sushiCooking?.nextUnperfectedIdx]?.name ?? 'the next sushi'}; past 100% it is certain.`}/>
         : null}
-      <StatTile label={'Salt Shaker'} value={Number(shakerUses?.[0] ?? 0)} kind={'amount'} info={'Chance to tier-up all sushi.'}/>
-      <StatTile label={'Pepper Shaker'} value={Number(shakerUses?.[1] ?? 0)} kind={'amount'}
+      <StatTile label={'Salt Shaker'} icon={'data/SushiUpg17.png'} value={Number(shakerUses?.[0] ?? 0)} kind={'amount'} info={'Chance to tier-up all sushi.'}/>
+      <StatTile label={'Pepper Shaker'} icon={'data/SushiUpg18.png'} value={Number(shakerUses?.[1] ?? 0)} kind={'amount'}
                 info={'Chance to Perfecto sushi (2x knowledge bonus).'}/>
-      <StatTile label={'Saffron Shaker'} value={Number(shakerUses?.[2] ?? 0)} kind={'amount'}
+      <StatTile label={'Saffron Shaker'} icon={'data/SushiUpg19.png'} value={Number(shakerUses?.[2] ?? 0)} kind={'amount'}
                 info={'Generate 1 hour\'s worth of Bucks instantly.'}/>
     </PageSummary>
     <Tabber tabs={getTabs(PAGES.ACCOUNT['world 7'].categories, 'sushiStation')}>
-      <Sushi slots={slots} knowledge={knowledge} fireplaces={fireplaces}/>
+      <Sushi slots={slots} slotsOwned={state?.account?.sushiStation?.slotsOwned} knowledge={knowledge} fireplaces={fireplaces}/>
       <Upgrades upgrades={upgrades} totalUpgradeLevels={saveTotals?.upgradeLevels} characters={state?.characters}
                   bucks={currency?.bucks} doublersOwned={state?.account?.menagerie?.doublers?.sushi?.owned}
                   levelsAhead={settings?.levelsAhead ?? 1}/>

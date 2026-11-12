@@ -14,14 +14,15 @@ export const patchNotes = [
       'World 4: Cooking shows each new meal chance and the next kitchen; Breeding, Laboratory, Rift and Tome show what is next; Cape Vine shows where its multi comes from',
       'World 5: Sailing artifacts get search and filters; Divinity shows the next god offerings; Gaming superbits get search; Hole caverns and the Slab show more breakdowns',
       'World 6: Farming stickers, crops and the Exotic Market show more; Sneaking knockout chance opens to how it is made; Summoning gets upgrade search; Beanstalk shows golden food ranks; Emperor totals open to their base and multi',
-      'World 7: Legend Talents, Zenith Market and Advice Fish show next level values; Research marks Active observations; Coral Reef shows shrine targets; Clam Work shows unlock levels; Minehead gets upgrade search, a next opponent and Not beaten view, and doublers show as an icon; Glimbo trades show how many items you own against the next trade cost; upgrade optimizers group repeated steps'
+      'World 7: Legend Talents, Zenith Market and Advice Fish show next level values; Research marks Active observations; Coral Reef shows shrine targets; Clam Work shows unlock levels; Minehead gets upgrade search, a next opponent and Not beaten view, and doublers show as an icon; Glimbo trades show how many items you own against the next trade cost; Sushi Station shows knowledge levels waiting to be collected, slots out of those unlocked and icons on its tiles; upgrade optimizers group repeated steps'
     ],
     'fixes': [
       'Spelunking: Overstim showed an old level and its progress as a huge percent',
       'Farming: unlocked land rank upgrades read as locked',
       'Cooking: the possible meals for a recipe did not match the game',
       'Hole caverns: The Well ignored buckets in its sediment times, and The Bell counted every bell as filling',
-      'Coral Reef: Dancing Coral bonuses had no unit, and Char Coral read 172 instead of its 2.72x Class EXP'
+      'Coral Reef: Dancing Coral bonuses had no unit, and Char Coral read 172 instead of its 2.72x Class EXP',
+      'Sushi Station: fuel could read above its cap, the part that goes to Overtuned now shows on its own'
     ]
   },
   {

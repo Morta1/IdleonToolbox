@@ -18,6 +18,22 @@ const MAX_TIER = ((researchData as any[])?.[30]?.length ?? 1) - 1;
 
 // game: the board is 15 columns of 8 slots, a fireplace under each column
 const SUSHI_SLOTS = 120;
+// game: 10 slots to start, one more per level of Sushi Slot (0) and the Hot (14), Cold (15) and Milktoast (16) Slots
+const BASE_SUSHI_SLOTS = 10;
+const SLOT_UPGRADES = [0, 14, 15, 16];
+
+// game: SushiStuff("KnowledgeXP_req")
+const getKnowledgeXpReq = (level: number) => (3 + (level + Math.pow(level, 1.5))) * Math.pow(1.5, Math.max(0, level - 2));
+// The level and leftover EXP once the Knowledge tab spends the banked EXP (it levels one step at a time, any number)
+const getKnowledgeAfterOpen = (level: number, xp: number) => {
+  let openLevel = level;
+  let openXp = xp;
+  for (let i = 0; i < 1000 && openXp >= getKnowledgeXpReq(openLevel); i++) {
+    openXp -= getKnowledgeXpReq(openLevel);
+    openLevel += 1;
+  }
+  return { openLevel, openXp, openXpReq: getKnowledgeXpReq(openLevel), pendingLevels: openLevel - level };
+};
 const SUSHI_COLUMNS = 15;
 
 // game: "SushiStuff:FuelCost", the fuel to cook a tier
@@ -369,7 +385,9 @@ export const getSushiStation = (idleonData: any, account: any) => {
       rawName: name,
       level: Number(knowledgeLevels?.[i]) || 0,
       xp: Number(knowledgeXP?.[i]) || 0,
-      xpReq: (() => { const lv = Number(knowledgeLevels?.[i]) || 0; return (3 + (lv + Math.pow(lv, 1.5))) * Math.pow(1.5, Math.max(0, lv - 2)); })(),
+      xpReq: getKnowledgeXpReq(Number(knowledgeLevels?.[i]) || 0),
+      // The game spends banked EXP into levels only while its Knowledge tab is open: what the tab will reach
+      ...getKnowledgeAfterOpen(Number(knowledgeLevels?.[i]) || 0, Number(knowledgeXP?.[i]) || 0),
       bonusSpecific: bonus,
       bonusDescription: catDesc,
       category: cat,
@@ -433,7 +451,9 @@ export const getSushiStation = (idleonData: any, account: any) => {
     unlocked,
     uniqueSushi,
     nextFuelCost: getNextFuelCost(uniqueSushi),
-    fuel: { current: fuel, cap: fuelCap, generation: fuelGen },
+    // Past the cap, the game moves the rest into Overtuned (when owned) and sets fuel to the cap the next time the
+    // station draws, so the save can hold more than the cap
+    fuel: { current: Math.min(fuel, fuelCap), stored: fuel, overCap: Math.max(0, fuel - fuelCap), cap: fuelCap, generation: fuelGen },
     currency: {
       bucks, currencyMulti, currencyPerHR, overtunedMulti,
       combo: {
@@ -459,6 +479,7 @@ export const getSushiStation = (idleonData: any, account: any) => {
       nextBreakpoints: getNextBreakpoints(fireplaceSparkMulti, SPARK_COEFFICIENT, 1, sparks, sparksPerHr)
     },
     slots,
+    slotsOwned: Math.min(SUSHI_SLOTS, BASE_SUSHI_SLOTS + SLOT_UPGRADES.reduce((sum, idx) => sum + (Number(upgradeLevels?.[idx]) || 0), 0)),
     upgrades: upgrades.map((upgrade: any) => ({
       ...upgrade,
       description: fillUpgradeText(upgrade.description, upgrade.upgradeIndex, upgrade.upgradeQTY),
@@ -478,7 +499,6 @@ export const getSushiStation = (idleonData: any, account: any) => {
     },
     knowledgeSummary,
     shakerUses,
-    slotsOwned: 10,
     // the leaderboard totals: Sushi[2] upgrades, Sushi[7] knowledge, Sushi[5] >= 1 perfectos
     saveTotals: {
       upgradeLevels: sumSaveArray(upgradeLevels),

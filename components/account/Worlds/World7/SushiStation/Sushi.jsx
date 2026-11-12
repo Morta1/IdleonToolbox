@@ -32,7 +32,7 @@ const slotNote = (slot, sushiName) => <Stack gap={0.5}>
   <Panel.KV label={'Fireplace'} value={slot.fireplaceType >= 0 ? FIREPLACE_NAMES[slot.fireplaceType] : 'None'}/>
 </Stack>;
 
-const Sushi = ({ slots, knowledge, fireplaces }) => {
+const Sushi = ({ slots, slotsOwned, knowledge, fireplaces }) => {
   const board = slots ?? [];
   const hearths = fireplaces ?? [];
   const filled = board.filter((slot) => slot.tier >= 0).length;
@@ -40,7 +40,9 @@ const Sushi = ({ slots, knowledge, fireplaces }) => {
   return (
     <Stack gap={3}>
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-        <StatTile label={'Slots filled'} value={`${formatNum(filled)} / ${formatNum(board.length)}`}/>
+        {/* Out of the slots unlocked, not the board's 120: the rest stay locked until their upgrades */}
+        <StatTile label={'Slots filled'} value={`${formatNum(filled)} / ${formatNum(slotsOwned ?? board.length)}`}
+                  info={'Slots unlocked: 10 to start, plus the levels of the Sushi, Hot, Cold and Milktoast Slot upgrades.'}/>
       </Stack>
       {/* The 15-wide grid keeps the game's layout; on a phone it scrolls on its own instead of widening the page */}
       <Box sx={{ maxWidth: '100%', overflowX: 'auto' }}>
