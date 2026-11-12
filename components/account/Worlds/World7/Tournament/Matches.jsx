@@ -114,7 +114,7 @@ const MatchCard = ({ match, companionList, companionsFailed, ownTeam }) => {
 // sectionFailed: the tournament section failed, so there is nothing to say under the page's note
 const Matches = ({ tournament, companions, sectionFailed, companionsFailed }) => {
   const { state } = useContext(AppContext);
-  const { matches = [] } = tournament ?? {};
+  const { matches = [], matchDay } = tournament ?? {};
   const companionList = companions ?? [];
   if (sectionFailed) return null;
 
@@ -122,7 +122,7 @@ const Matches = ({ tournament, companions, sectionFailed, companionsFailed }) =>
   if (!matches.length) {
     return state?.emptyAccount
       ? <Notice tone={'signin'}>Your match history shows here once you sign in.</Notice>
-      : <Notice>No matches recorded this tournament day.</Notice>;
+      : <Notice>No matches recorded yet.</Notice>;
   }
 
   // The team the player sends is set for the day, so it was the same 22 names on every card: once above the matches
@@ -136,7 +136,8 @@ const Matches = ({ tournament, companions, sectionFailed, companionsFailed }) =>
     <Stack gap={2}>
       <Stack direction={'row'} alignItems={'center'} gap={0.5}>
         <Typography variant="body2" color="text.secondary">
-          {`${formatNum(matches.length)} ${matches.length === 1 ? 'match' : 'matches'} recorded this tournament day.`}
+          {/* The matches are from the last day the account played (user.l), not necessarily today */}
+          {`${formatNum(matches.length)} ${matches.length === 1 ? 'match' : 'matches'} from your last tournament day${matchDay ? ` (day ${formatNum(matchDay)})` : ''}.`}
         </Typography>
         <InfoButton label={'opponent power'}>{UNKNOWN_UPGRADES_NOTE}</InfoButton>
       </Stack>

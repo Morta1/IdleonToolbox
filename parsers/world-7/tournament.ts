@@ -72,17 +72,26 @@ export const getRegistrationNeeds = (account: any): { tournament: boolean; raid:
   const tournamentDay = account?.tournament?.tournamentDay ?? 0;
   const raidDay = account?.tournament?.global?.RD ?? 0;
   return {
-    tournament: tournamentDay >= 1 && (account?.accountOptions?.[OPT.tournamentRegisteredThrough] ?? 0) <= tournamentDay,
+    // C: the tournament's registration-closed flag, as RC is the raid's (inferred from that pairing)
+    tournament: tournamentDay >= 1 && account?.tournament?.global?.C !== true
+      && (account?.accountOptions?.[OPT.tournamentRegisteredThrough] ?? 0) <= tournamentDay,
     raid: raidDay >= 1 && account?.tournament?.global?.RC !== true && (account?.accountOptions?.[OPT.raidRegisteredThrough] ?? 0) <= raidDay
   };
 };
 
-export const getTournament = (idleonData: IdleonData, account: Account, serverTournament: any, serverVars?: any) => {
+export const getTournament = (idleonData: IdleonData, account: Account, serverTournament: any, serverVars?: any, characters?: any[]) => {
   const accountOptions = (account as any)?.accountOptions;
 
-  // Division tier from OptLacc[495]; user.r is the player's rank WITHIN the division (not the tier)
-  const divisionIndex = accountOptions?.[OPT.tournamentDivision] ?? 0;
+  // game: user.r is the rank points; the divisions are getTournamentDivReqs() (the global doc's R), and the division is
+  // the last whose requirement the points reach. OptLacc[495] is only written when the tournament screen closes, so it
+  // stands in only without the global doc
   const playerRank = serverTournament?.user?.r ?? null;
+  const divisionReqs: number[] = (Array.isArray(serverTournament?.global?.R) ? serverTournament.global.R : []).map(Number);
+  const reached = divisionReqs.filter((req) => (playerRank ?? 0) >= req).length - 1;
+  const divisionIndex = divisionReqs.length && playerRank != null ? Math.max(0, reached) : accountOptions?.[OPT.tournamentDivision] ?? 0;
+  const nextDivisionPoints = divisionReqs[divisionIndex + 1] ?? null;
+  // game: the season's end (serverVars tgt_EoS, seconds), counted down in days on the tournament screen
+  const seasonEnd = Number(serverVars?.tgt_EoS) > 0 ? Number(serverVars.tgt_EoS) * 1000 : null;
   const matchDay = serverTournament?.user?.l ?? accountOptions?.[OPT.tournamentLastMatchDay] ?? 0;
   const tournamentDay = getCurrentTournamentDay(accountOptions, serverTournament?.global);
   const registrationCount = accountOptions?.[OPT.tournamentRegistrations] ?? 0;
@@ -145,7 +154,8 @@ export const getTournament = (idleonData: IdleonData, account: Account, serverTo
     return { rank: rank + 1, name, points, companionIndices, totalTourPower };
   });
 
-  const playerName = matches[0]?.playerName ?? null;
+  // game: GetPlayersUsernames[OptLacc[494]], the character the account enters with; the first match's name stands in
+  const playerName = characters?.[Number(accountOptions?.[494])]?.name ?? matches[0]?.playerName ?? null;
 
   // Tournament Pet Mart. The _TOURNAMENT doc carries today's rotation of five pets per counter:
   // I/B/A for the base shop and LI/LB/LA for Pet Mart+ (the "+" upgrade of a pet you already own),
@@ -182,7 +192,11 @@ export const getTournament = (idleonData: IdleonData, account: Account, serverTo
     playerName,
     divisionName: tournyStuff?.divisionNames?.[divisionIndex] ?? 'Bronze',
     divisionScale: tournyStuff?.divisionScales?.[divisionIndex] ?? 200,
-    divisionNames: tournyStuff?.divisionNames ?? [],
+    // Only the divisions the game runs: as many as its requirements list
+    divisionNames: (tournyStuff?.divisionNames ?? []).slice(0, divisionReqs.length || undefined),
+    nextDivisionPoints,
+    nextDivisionName: tournyStuff?.divisionNames?.[divisionIndex + 1] ?? null,
+    seasonEnd,
     playerRank,
     tournamentDay,
     matchDay,

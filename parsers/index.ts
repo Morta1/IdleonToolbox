@@ -434,7 +434,7 @@ const serializeData = (idleonData: IdleonData, serverVars: ServerVars, staticDat
   accountData.coralReef = safeSection<any>('coralReef', {}, () => getCoralReef(idleonData, accountData, charactersData));
   accountData.clamWork = safeSection<any>('clamWork', {}, () => getClamWork(idleonData, accountData));
   accountData.minehead = safeSection<any>('minehead', {}, () => getMinehead(idleonData, accountData, serverVars, charactersData));
-  accountData.tournament = safeSection<any>('tournament', {}, () => getTournament(idleonData, accountData, staticData.tournamentServerData, serverVars));
+  accountData.tournament = safeSection<any>('tournament', {}, () => getTournament(idleonData, accountData, staticData.tournamentServerData, serverVars, charactersData));
   accountData.research = safeSection<any>('research', {}, () => getResearch(idleonData, accountData, charactersData, serverVars));
   accountData.button = safeSection<any>('button', {}, () => getButton(accountData, charactersData));
   accountData.sushiStation = safeSection<any>('sushiStation', {}, () => getSushiStation(idleonData, accountData));

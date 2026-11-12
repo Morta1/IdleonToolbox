@@ -9,6 +9,7 @@ import { formatNum, getTabs } from '@utility/helpers';
 import { tournyStuff } from '@website-data';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
+import Timer from '@components/common/Timer';
 import Companions from '@components/account/Worlds/World7/Tournament/Companions';
 import Matches from '@components/account/Worlds/World7/Tournament/Matches';
 import Leaderboard from '@components/account/Worlds/World7/Tournament/Leaderboard';
@@ -53,9 +54,13 @@ const Tournament = () => {
     />
     {failedNames.length ? <MissingData name={failedNames.join(' and ')} failed atZero={companionsFailed && tabs[tabIndex] === 'Companions'}/> : null}
     <PageSummary>
-      <StatTile label={'Division'} value={tournament?.divisionName ?? '-'}/>
-      <StatTile label={'Match day'} value={shown(tournament?.matchDay)}/>
-      <StatTile label={'Tournament day'} value={shown(tournament?.tournamentDay)}/>
+      {/* game: the rank points against the next division's requirement ("12 PTS"), and the season's days left */}
+      <StatTile label={'Division'} value={tournament?.divisionName ?? '-'}
+                sub={tournament?.nextDivisionPoints != null
+                  ? `${formatNum(tournament?.playerRank ?? 0)} / ${formatNum(tournament.nextDivisionPoints)} pts to ${tournament.nextDivisionName}`
+                  : tournament?.playerRank != null ? `${formatNum(tournament.playerRank)} pts` : undefined}/>
+      <StatTile label={'Season ends in'}
+                value={tournament?.seasonEnd ? <Timer type={'countdown'} date={tournament.seasonEnd}/> : '-'}/>
       <StatTile label={'Registrations'} value={shown(tournament?.registrationCount)}/>
     </PageSummary>
     {unregistered ? <Notice tone={'missing'} sx={{ mb: 2 }}>{unregistered}</Notice> : null}
