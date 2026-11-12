@@ -71,7 +71,8 @@ const FOLD_CHEVRON_SX = { display: 'none', [PHONE]: { display: 'inline-flex' }, 
 // so a long meta never wraps beside it; a breakpoint's name does the same below that breakpoint, for a wide aside.
 // foldOnPhone: below 600 px the header is a row to tap, closed at first, so what follows the Panel comes first; from 600 px
 // it is an ordinary Panel, no button. CSS picks, so the first render matches the export and the words stay in the page.
-const Panel = ({ icon, iconAlt = '', title, meta, aside, asideOwnRow, collapsible, defaultOpen = true, foldOnPhone, children, sx }) => {
+// lazy: a closed collapsible panel mounts no body, for a page of many closed panels (Quests: 76 NPCs and their rows)
+const Panel = ({ icon, iconAlt = '', title, meta, aside, asideOwnRow, collapsible, defaultOpen = true, lazy, foldOnPhone, children, sx }) => {
   const [open, setOpen] = useState(defaultOpen);
   const [foldOpen, setFoldOpen] = useState(false);
   const bodyId = useId();
@@ -104,7 +105,9 @@ const Panel = ({ icon, iconAlt = '', title, meta, aside, asideOwnRow, collapsibl
         <IconChevronDown size={20} aria-hidden style={{ transform: foldOpen ? 'rotate(180deg)' : 'none' }}/>
       </Box> : null}
     </Stack>
-    <Box id={bodyId} hidden={!shown} sx={[ROWS_SX, foldOnPhone && !foldOpen && { [PHONE]: { display: 'none' } }]}>{children}</Box>
+    <Box id={bodyId} hidden={!shown} sx={[ROWS_SX, foldOnPhone && !foldOpen && { [PHONE]: { display: 'none' } }]}>
+      {lazy && !shown ? null : children}
+    </Box>
   </Box>;
 };
 

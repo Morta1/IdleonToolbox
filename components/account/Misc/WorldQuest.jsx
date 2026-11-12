@@ -87,13 +87,19 @@ const spriteLabel = (src, text) => <Stack direction={'row'} alignItems={'center'
   {text}
 </Stack>;
 
-const rewardRow = ({ name, rawName = '', amount }) => {
-  if (rawName === 'COIN') return [spriteLabel('data/Coins1.png', 'Coins'), <CoinDisplay key={'coins'} dense money={getCoinsArray(amount)}/>];
-  if (rawName.includes('Experience')) {
-    return [spriteLabel('data/XP.png', `${EXP_TYPES[parseInt(rawName.replace('Experience', ''))] ?? ''} EXP`.trim()), formatNum(amount ?? 0)];
-  }
-  const sprite = rawName.includes('Talent') ? 'TalentBook1' : rawName.includes('Recipes') ? `SmithingRecipes${rawName.at(-1)}` : rawName;
-  return [spriteLabel(`data/${sprite}.png`, cleanUnderscore(name || rawName)), formatNum(amount ?? 0)];
+// The reward's label as its row prints it; the page search reads the same text
+export const rewardName = ({ name, rawName = '' }) => {
+  if (rawName === 'COIN') return 'Coins';
+  if (rawName.includes('Experience')) return `${EXP_TYPES[parseInt(rawName.replace('Experience', ''))] ?? ''} EXP`.trim();
+  return cleanUnderscore(name || rawName);
+};
+
+const rewardRow = (reward) => {
+  const { rawName = '', amount } = reward;
+  if (rawName === 'COIN') return [spriteLabel('data/Coins1.png', rewardName(reward)), <CoinDisplay key={'coins'} dense money={getCoinsArray(amount)}/>];
+  const sprite = rawName.includes('Experience') ? 'XP' : rawName.includes('Talent') ? 'TalentBook1'
+    : rawName.includes('Recipes') ? `SmithingRecipes${rawName.at(-1)}` : rawName;
+  return [spriteLabel(`data/${sprite}.png`, rewardName(reward)), formatNum(amount ?? 0)];
 };
 
 const NoteGroup = ({ label, rows }) => <Stack gap={0.5}>
@@ -172,12 +178,13 @@ const WorldQuest = ({ worldName, npcs, characters, showCharacters }) => {
   if (!npcs?.length) return null;
   return <Stack gap={1.5}>
     <Typography variant={'sectionTitle'} component={'h2'}>{cleanUnderscore(worldName)}</Typography>
-    {npcs.map((npc) => <Panel key={npc?.name} collapsible defaultOpen={false} icon={npcSprite(npc?.name)}
+    {npcs.map((npc) => <Panel key={npc?.name} collapsible defaultOpen={false} lazy icon={npcSprite(npc?.name)}
                               title={cleanUnderscore(npc?.name)}
                               meta={<>
                                 {`${formatNum(npc?.done ?? 0)} / ${formatNum(npc?.total ?? 0)} done`}
                                 {npc?.status === 0 ? <> · {inProgress}</>
-                                  : npc?.status === 1 ? <> · <StatusText status={'done'}>Done</StatusText></> : null}
+                                  : npc?.status === 1 ? <> · <StatusText status={'done'}>Done</StatusText></>
+                                    : <> · <Box component={'span'} sx={{ color: 'text.secondary' }}>Not started</Box></>}
                                 {npc?.missablePending ? <> · <StatusText status={'needs'}>Missable drop</StatusText></> : null}
                               </>}>
       {npc?.npcQuests?.map((quest, index) => questRow(quest, index, characters, showCharacters))}

@@ -440,10 +440,11 @@ const Toolbar = ({
             A phone: the search, then the panel's button and View at its end. */}
         <Stack direction="row" gap={{ xs: 1, sm: '10px' }} alignItems="flex-start"
                flexWrap={{ xs: searchOwnRow || ownRowLead ? 'wrap' : 'nowrap', sm: 'wrap' }}>
+          {leads.filter((child) => child.props.beforeSearch)}
           {searchOwnRow
             ? <Box sx={{ display: 'flex', flex: { xs: '1 1 100%', sm: '0 0 auto' } }}>{searches}</Box>
             : searches}
-          {leads.map((child, index) => (child.props.ownRow
+          {leads.filter((child) => !child.props.beforeSearch).map((child, index) => (child.props.ownRow
             ? <Box key={child.key ?? `lead-${index}`} sx={{ display: 'flex', flex: { xs: '1 1 100%', sm: '0 0 auto' } }}>{child}</Box>
             : child))}
           {hasPanel ? (panelIconOnly
