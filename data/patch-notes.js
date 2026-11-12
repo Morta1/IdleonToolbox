@@ -19,7 +19,8 @@ export const patchNotes = [
       'Weekly Bosses: a Prizes tab shows when each prize is next in the shop, weeks show their dates, UI skins you own read Owned, each week shows the trophies to buy the rest, and this week\'s Class EXP and damage buffs show at the top',
       'Printer: a printing slot gets an amber border when you hold a bigger sample of the same item, and the slots fit a phone',
       'Atom Collider: atoms you have not unlocked read Locked, and new tiles show particles per hour, atoms unlocked, the atom cost cut and the max level, each with where it comes from',
-      'Equinox: a locked upgrade shows the challenge that unlocks it, upgrades show the max levels their challenges can still add, and the Challenges tab counts the completed ones'
+      'Equinox: a locked upgrade shows the challenge that unlocks it, upgrades show the max levels their challenges can still add, and the Challenges tab counts the completed ones',
+      'Buildings: each building explains what it does, and its next level shows what you own of the material it needs'
     ],
     'fixes': []
   },

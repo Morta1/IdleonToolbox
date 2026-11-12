@@ -13,7 +13,8 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
-import { NoteTrigger } from '@components/common/InfoButton';
+import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
+import { calculateItemTotalAmount } from '@parsers/items';
 import Num, { Duration } from '@components/common/Num';
 import GameIcon from '@components/common/GameIcon';
 
@@ -79,6 +80,22 @@ const SORTS = {
   cost: (a, b) => (a?.buildCost - b?.buildCost) || ((a?.buildCost - a?.progress) - (b?.buildCost - b?.progress))
 };
 
+// What a building does: the game's description up to its "Current Bonuses", whose numbers each building fills its own
+// way. In a note beside the name: on the card, 28 descriptions made the page about 400 px taller
+const whatItDoes = (name) => (towersTable?.[name]?.desc ?? '').split('_@_Current_Bonuses')[0].split('_@_')
+  .map((line) => cleanUnderscore(line).trim()).filter(Boolean);
+const titleWithNote = (name) => {
+  const lines = whatItDoes(name);
+  return lines.length ? <Box component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5 }}>
+    {cleanUnderscore(name)}
+    <InfoButton label={`What ${cleanUnderscore(name)} does`}>{lines.join(' ')}</InfoButton>
+  </Box> : cleanUnderscore(name);
+};
+
+// What you own of a material: the storage, and the refinery's own storage for its salts (as the Refinery page counts)
+const ownedOf = (account, rawName) => calculateItemTotalAmount(
+  [...(account?.storage?.list ?? []), ...(account?.refinery?.refineryStorage ?? [])], rawName, true, true);
+
 const durationOrDash = (seconds) => (Number.isFinite(seconds) ? <Duration seconds={seconds}/> : '-');
 // A tower's progress pair in the game's rule, its exact digits on a tap only while a double holds both numbers whole
 // (under 2^53): past it 'exact' prints Big, which repeated the card's pair or mixed the two kinds ("1.3e23 / 37.7Q")
@@ -103,6 +120,21 @@ const costValue = (items) => <Box component={'span'}
     <GameIcon src={`data/${rawName}.png`} size={16} alt={cleanUnderscore(name)}/>
     <Num value={amount} game={'Big'} whole/>
   </Box>)}
+</Box>;
+
+// The next level's materials against what you own, as ItemCard.Cost colours them (the need green when covered, amber
+// when short) but in a Facts row, so "Next level" keeps its label and lines up with "To max"
+const ownedCostValue = (items, account) => <Box component={'span'}
+                                                sx={{ display: 'inline-flex', alignItems: 'center', gap: 1.5, height: 20, verticalAlign: 'top' }}>
+  {items.map(({ rawName, name, amount }) => {
+    const have = ownedOf(account, rawName);
+    return <Box key={rawName} component={'span'} sx={{ display: 'inline-flex', alignItems: 'center', gap: 0.5, height: 20 }}>
+      <GameIcon src={`data/${rawName}.png`} size={16} alt={cleanUnderscore(name)}/>
+      <Box component={'span'} sx={{ color: 'text.secondary', fontWeight: 400 }}><Num value={have} game={'Big'} whole/></Box>
+      <Box component={'span'} sx={{ color: 'text.muted', fontWeight: 400 }}>/</Box>
+      <Box component={'span'} sx={{ color: have < amount ? 'text.warning' : 'text.success' }}><Num value={amount} game={'Big'} whole/></Box>
+    </Box>;
+  })}
 </Box>;
 
 const Buildings = () => {
@@ -149,10 +181,10 @@ const Buildings = () => {
         {shown.map((tower, index) => {
           const { name, progress, level, maxLevel, inProgress, isSlotTrimmed, isMaxed, items, itemsMax, buildCost } = tower;
           if (tower?.catalogOnly) {
-            return <ItemCard key={`${name}-${index}`} icon={`data/ConTower${tower?.index}.png`} title={cleanUnderscore(name)}
+            return <ItemCard key={`${name}-${index}`} icon={`data/ConTower${tower?.index}.png`} title={titleWithNote(name)}
                              level={{ value: 0 }}/>;
           }
-          return <ItemCard key={`${name}-${index}`} icon={`data/ConTower${tower?.index}.png`} title={cleanUnderscore(name)}
+          return <ItemCard key={`${name}-${index}`} icon={`data/ConTower${tower?.index}.png`} title={titleWithNote(name)}
                            level={{ value: level, max: maxLevel }}
                            status={isMaxed ? 'maxed' : isSlotTrimmed || inProgress ? 'active' : undefined}
                            statusLabel={isMaxed ? undefined : isSlotTrimmed ? 'Trimmed slot' : inProgress ? 'Building' : undefined}>
@@ -166,7 +198,7 @@ const Buildings = () => {
               ]}/>
               {items?.length || itemsMax?.length ? <ItemCard.Section>
                 <ItemCard.Facts rows={[
-                  items?.length ? ['Next level', costValue(items)] : null,
+                  items?.length ? ['Next level', ownedCostValue(items, state?.account)] : null,
                   itemsMax?.length ? ['To max', costValue(itemsMax)] : null
                 ]}/>
               </ItemCard.Section> : null}
