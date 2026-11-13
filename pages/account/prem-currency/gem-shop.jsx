@@ -12,6 +12,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
+import { gemCostToMax, gemItemRestock, isNewMeal, isUnlimitedGemItem, mealsLeftToUnlock } from '@parsers/gemShop';
 
 // Keyed by `${categoryName}_${globalIndex}` - globalIndex is reused across categories
 // (e.g. usables>Limited_Specials and past_limited_specials both use 87-94), so a flat
@@ -53,15 +54,7 @@ const PRIORITY_TIERS = ['S', 'A', 'B', 'C'];
 // stay reachable when a tier filter is selected instead of silently disappearing.
 const getPriority = (categoryName, globalIndex) => priorities[`${categoryName}_${globalIndex}`] || 'Unranked';
 
-const calculateTotalCostToMax = (baseCost, costIncrement, currentPurchases, maxPurchases) => {
-  let totalCost = 0;
-  for (let i = currentPurchases; i < maxPurchases; i++) {
-    totalCost += baseCost + (i * costIncrement);
-  }
-  return totalCost;
-};
-
-const SHOP_TOOLBAR = { search: '', tier: 'all', hideMaxed: false, details: false };
+const SHOP_TOOLBAR = { search: '', tier: 'all', hideMaxed: false };
 const TIERS = [['all', 'All tiers'], ['S', 'S tier'], ['A', 'A tier'], ['B', 'B tier'], ['C', 'C tier'], ['Unranked', 'Unranked']];
 const TIER_NAME = { S: 'S tier', A: 'A tier', B: 'B tier', C: 'C tier' };
 const PAST_CATEGORY = 'past_limited_specials';
@@ -81,6 +74,18 @@ const GemShop = () => {
   const boughtOf = (category, globalIndex) => (failed || category === PAST_CATEGORY
     ? null
     : state?.account?.gemShopPurchases?.[globalIndex] ?? 0);
+  const mealsLeft = failed ? null : mealsLeftToUnlock(state?.account);
+  // What a card says about its purchases: New Meal's cap is the meals still locked, a restocking item's max is one day's
+  // or week's stock (sold out, never maxed), and an unlimited item has no count at all
+  const purchaseOf = ({ category, globalIndex, maxPurchases }) => {
+    const bought = boughtOf(category, globalIndex);
+    if (bought == null) return { bought };
+    if (isNewMeal(globalIndex)) return { bought, mealsLeft, maxed: mealsLeft === 0 };
+    if (isUnlimitedGemItem(maxPurchases)) return { bought, unlimited: true };
+    const restock = gemItemRestock(globalIndex);
+    if (restock) return { bought, restock, soldOut: bought >= maxPurchases };
+    return { bought, permanent: true, maxed: bought >= maxPurchases };
+  };
 
   const allItems = (gemShop ?? []).flatMap(({ name, sections }) => Object.entries(sections ?? {})
     .flatMap(([sectionName, items]) => (items ?? []).filter(isRealItem).map((item) => ({ ...item, category: name, sectionName }))));
@@ -90,32 +95,41 @@ const GemShop = () => {
     return [itemTitle(displayName), cleanUnderscore(desc ?? ''), cleanUnderscore(sectionName.capitalize())]
       .some((text) => text.toLowerCase().includes(search));
   };
-  const isMaxed = ({ category, globalIndex, maxPurchases }) => {
-    const bought = boughtOf(category, globalIndex);
-    return bought != null && bought >= maxPurchases;
-  };
+  const isMaxed = (item) => Boolean(purchaseOf(item).maxed);
   const isVisible = (item) => (toolbar.tier === 'all' || getPriority(item.category, item.globalIndex) === toolbar.tier)
     && !(hideMaxed && isMaxed(item)) && matchesSearch(item);
   const countOf = (tier) => allItems.filter((item) => tier === 'all' || getPriority(item.category, item.globalIndex) === tier).length;
   const shownCount = allItems.filter(isVisible).length;
+  // Unlimited and restocking items have no cap to reach; a globalIndex two rows share counts once
+  const permanentItems = [...new Map(allItems.filter((item) => purchaseOf(item).permanent)
+    .map((item) => [item.globalIndex, item])).values()];
+  const permanentBought = permanentItems.reduce((sum, item) => sum + Math.min(purchaseOf(item).bought, item.maxPurchases), 0);
+  const permanentTotal = permanentItems.reduce((sum, { maxPurchases }) => sum + maxPurchases, 0);
+  const gemsToMax = permanentItems.reduce((sum, item) =>
+    sum + gemCostToMax(item.cost, item.costIncrement || 0, purchaseOf(item).bought, item.maxPurchases), 0);
 
   const itemCard = (item, index) => {
     const { category, globalIndex, rawName, displayName, desc, cost, maxPurchases, costIncrement } = item;
-    const bought = boughtOf(category, globalIndex);
-    const maxed = bought != null && bought >= maxPurchases;
-    const nextCost = cost + (bought ?? 0) * (costIncrement || 0);
+    const { bought, maxed, soldOut, restock, permanent, mealsLeft: left } = purchaseOf(item);
+    // A sold-out item's next one is sold after the restock, which sets its count back to 0
+    const nextCost = cost + (soldOut ? 0 : bought ?? 0) * (costIncrement || 0);
+    // Cost to max: up to the cap, or for New Meal up to the last locked meal
+    const cap = permanent ? maxPurchases : left != null ? bought + left : null;
+    const status = maxed ? 'maxed' : soldOut ? 'info' : undefined;
+    const factRow = left != null
+      ? ['Meals left to unlock', formatNum(left, 'whole')]
+      : permanent || restock
+        ? ['Bought', `${formatNum(bought, 'whole')} / ${formatNum(maxPurchases, 'whole')}`]
+        : ['Cost', formatNum(cost, 'whole')];
     return <ItemCard key={`${category}-${globalIndex}-${rawName}-${index}`}
                      icon={rawName?.includes(';') ? undefined : `data/${rawName}.png`}
                      title={itemTitle(displayName)} meta={TIER_NAME[getPriority(category, globalIndex)]}
-                     status={maxed ? 'maxed' : undefined}
+                     status={status} statusLabel={soldOut ? `Sold out ${restock === 'day' ? 'today' : 'this week'}` : undefined}
                      footer={bought == null ? null : <ItemCard.Cost icon={'data/PremiumGem.png'} iconAlt={'Gems'} need={nextCost}
-                                                                    have={gems} format={gemCount}/>}
-                     more={<ItemCard.Facts rows={[bought != null && !maxed && maxPurchases - bought > 1
-                       ? ['Cost to max', formatNum(calculateTotalCostToMax(cost, costIncrement || 0, bought, maxPurchases), 'whole')]
-                       : null]}/>}>
-      <ItemCard.Facts rows={[
-        bought == null ? ['Cost', formatNum(cost, 'whole')] : ['Bought', `${formatNum(bought, 'whole')} / ${formatNum(maxPurchases, 'whole')}`]
-      ]}/>
+                                                                    have={gems} format={gemCount}/>}>
+      <ItemCard.Facts rows={[factRow, cap != null && !maxed && cap - bought > 1
+        ? ['Cost to max', formatNum(gemCostToMax(cost, costIncrement || 0, bought, cap), 'whole')]
+        : null]}/>
       <ItemCard.Desc text={cleanUnderscore(desc ?? '')}/>
     </ItemCard>;
   };
@@ -128,13 +142,15 @@ const GemShop = () => {
     {failed ? <MissingData name={'Gem Shop'} failed atZero/> : null}
     <PageSummary>
       <StatTile label={'Gems'} icon={'data/PremiumGem.png'} value={gems == null ? '-' : gemCount(gems)}/>
+      <StatTile label={'Permanent upgrades bought'}
+                value={failed ? '-' : `${formatNum(permanentBought, 'whole')} / ${formatNum(permanentTotal, 'whole')}`}/>
+      <StatTile label={'Gems to max permanent upgrades'} icon={'data/PremiumGem.png'} value={failed ? '-' : gemCount(gemsToMax)}/>
     </PageSummary>
     <Toolbar state={toolbar} defaults={SHOP_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
              total={allItems.length} shown={shownCount} noun={'items'}>
       <Toolbar.Search placeholder={'Search items'}/>
       <Toolbar.Show name={'tier'} options={TIERS.map(([key, label]) => [key, label, countOf(key)])}/>
       {failed ? null : <Toolbar.Filter name={'hideMaxed'} label={'Hide maxed'}/>}
-      <Toolbar.Filter name={'details'} label={'Details'} display/>
     </Toolbar>
     {(gemShop ?? []).map(({ name, sections }) => {
       const visibleSections = Object.entries(sections ?? {})
@@ -153,8 +169,8 @@ const GemShop = () => {
               : null}
           </Stack>
           {/* A card keeps what a purchase is weighed by: its tier, how many are bought, the next price and what it does
-              (names like "Just One, Please" don't say). The cost to max shows with the Details pill. */}
-          <CardGrid size={'m'} details={toolbar.details}>{items.map(itemCard)}</CardGrid>
+              (names like "Just One, Please" don't say), and the cost to max where more than one is left. */}
+          <CardGrid size={'m'}>{items.map(itemCard)}</CardGrid>
         </Stack>)}
       </Stack>;
     })}

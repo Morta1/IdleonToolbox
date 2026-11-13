@@ -22,9 +22,16 @@ describe('bundle ownership', () => {
   it('draws the Starter Pack offer from its OffersBG cards', () => {
     const bundles = getBundles({ BundlesReceived: JSON.stringify({ bon_w: 1 }) });
     expect(bundles.filter((b) => b.starterOffer)).toEqual([
-      { name: 'bon_w', owned: true, price: 6.99, image: 'OffersBG0', starterOffer: true },
-      { name: 'bon_x', owned: false, price: 14.99, image: 'OffersBG1', starterOffer: true },
-      { name: 'bon_y', owned: false, price: 29.99, image: 'OffersBG2', starterOffer: true }
+      { name: 'bon_w', owned: true, price: 6.99, image: 'OffersBG0', starterOffer: true, offered: false },
+      { name: 'bon_x', owned: false, price: 14.99, image: 'OffersBG1', starterOffer: true, offered: false },
+      { name: 'bon_y', owned: false, price: 29.99, image: 'OffersBG2', starterOffer: true, offered: false }
     ]);
+  });
+
+  // game: the offer shows only while ServerGemsReceived < 5000 and no card is bought
+  it('stops offering the Starter Pack at 5,000 received gems', () => {
+    const offered = (save) => getBundles(save).filter((b) => b.starterOffer).map((b) => b.offered);
+    expect([offered({ ServerGemsReceived: 4999 }), offered({ ServerGemsReceived: 5000 })])
+      .toEqual([[true, true, true], [false, false, false]]);
   });
 });

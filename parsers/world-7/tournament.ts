@@ -179,9 +179,14 @@ export const getTournament = (idleonData: IdleonData, account: Account, serverTo
     })
     .filter(Boolean);
   const shopDay = global?.S ?? 0;
+  const gemsClaimedShopDay = Number(accountOptions?.[OPT.petMartGemsClaimedDay]) || 0;
+  const gemsMultiplier = Number(serverVars?.GemPM_x) || 0;
   const petMart = {
     shopDay,
-    gems: getPetMartGems(shopDay, Number(accountOptions?.[OPT.petMartGemsClaimedDay]) || 0, Number(serverVars?.GemPM_x) || 0),
+    gems: getPetMartGems(shopDay, gemsClaimedShopDay, gemsMultiplier),
+    // The gems' inputs, so a page can work them out for a later shop day than the save's (getPetMartGems)
+    gemsClaimedShopDay,
+    gemsMultiplier,
     petCrystals: (account as any)?.companions?.petCrystals ?? 0,
     offers: readOffers(global?.I, global?.B, global?.A),
     plusOffers: readOffers(global?.LI, global?.LB, global?.LA)

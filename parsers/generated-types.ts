@@ -233,7 +233,7 @@ export interface Account {
         maxLevel: number;
         requirement: null | number;
         meritReward: number;
-        taskPointReward: number | null;
+        taskPointReward: number;
       }[])[];
   meritsDescriptions: ({
         descLine1: string;
@@ -257,6 +257,11 @@ export interface Account {
           unlocks: Record<string, any>[];
           unlocked: number;
         }[])[];
+    columnLocks: {
+        open: boolean;
+        recipesNeeded: number;
+        anvilTab: null;
+      }[];
     unlockedRecipes: number;
     unlockPointsOwned: number;
     currentPoints: number;
@@ -4349,18 +4354,21 @@ export interface Account {
     progress: number;
     nextLvReq: number;
     megaFeathers: {
+        name: string;
         description: string;
         unlocked: boolean;
         amount?: number;
         totalBonus?: number;
       }[];
     featherRate: number;
+    shinyPerHour: number;
     restartMulti: number;
   };
   kangaroo: {
     resetBonuses: {
         desc: string;
         level: number;
+        unlocked: boolean;
       }[];
     upgrades: {
         name: string;
@@ -4379,6 +4387,8 @@ export interface Account {
         name: string;
         bonus: number;
         percentage?: boolean;
+        unlocked?: boolean;
+        unlockLevel?: number;
       }[];
     fish: number;
     pendingFish: number;
@@ -4387,6 +4397,8 @@ export interface Account {
     nextLvReq: number;
     megaFish: {
         description: string;
+        name: string;
+        title: string;
         unlocked: boolean;
         amount?: number;
         totalBonus?: number;
@@ -4416,7 +4428,9 @@ export interface Account {
     shinyProgress: number;
     shinyRate: number;
     shinyRatePercent: number;
-    avgResetPoints: number;
+    fishCaught: number;
+    unspentResetPoints: number;
+    nextResetPoints: number;
   };
   voteBallot: {
     bonuses: {
@@ -5376,6 +5390,8 @@ export interface Account {
         x5: number;
         x6: number;
         level: number;
+        maxLevel: null | number;
+        maxed: boolean;
         prestige: number;
         realLV: number;
         cost: number;
@@ -5384,43 +5400,69 @@ export interface Account {
       }[];
     meatSlices: number;
     meatsliceRate: number;
+    meatsliceRateBreakdown: {
+      statName: string;
+      totalValue: number;
+      tree: {
+          name: string;
+          combine?: string;
+          children?: Record<string, any>[];
+          value?: number;
+          unit?: string;
+        }[];
+    };
     progress: number;
     progressReq: number;
+    allUpgradesAvailable: boolean;
     bonuses: {
       buildRate: {
         name: string;
         bonus: number;
         isNegative: boolean;
+        unlockLevel: number;
+        unlocked: boolean;
       };
       critterGain: {
         name: string;
         bonus: number;
         isNegative: boolean;
+        unlockLevel: number;
+        unlocked: boolean;
       };
       soulGain: {
         name: string;
         bonus: number;
         isNegative: boolean;
+        unlockLevel: number;
+        unlocked: boolean;
       };
       totalDamage: {
         name: string;
         bonus: number;
         isNegative: boolean;
+        unlockLevel: number;
+        unlocked: boolean;
       };
       allKills: {
         name: string;
         bonus: number;
         isNegative: boolean;
+        unlockLevel: number;
+        unlocked: boolean;
       };
       expMulti: {
         name: string;
         bonus: number;
         isNegative: boolean;
+        unlockLevel: number;
+        unlocked: boolean;
       };
       atomCost: {
         name: string;
         bonus: number;
         isNegative: boolean;
+        unlockLevel: number;
+        unlocked: boolean;
       };
     };
     totalUpgTypesAvailable: number;
@@ -5428,8 +5470,10 @@ export interface Account {
     megaFlesh: {
         description: string;
         unlocked: boolean;
+        name: string;
         totalBonus?: string;
         amount?: number;
+        nextBonus?: string;
       }[];
     smokerUnlocked: boolean;
     smokerSeconds: number;

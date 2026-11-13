@@ -48,7 +48,10 @@ describe('Tournament Pet Mart rotation', () => {
 
   it('is empty, not throwing, without a tournament doc', () => {
     const { petMart } = getTournament({}, { accountOptions: [] }, null);
-    expect(petMart).toEqual({ shopDay: 0, gems: { offered: false, claimable: false, amount: 0 }, petCrystals: 0, offers: [], plusOffers: [] });
+    expect(petMart).toEqual({
+      shopDay: 0, gems: { offered: false, claimable: false, amount: 0 }, gemsClaimedShopDay: 0, gemsMultiplier: 0,
+      petCrystals: 0, offers: [], plusOffers: []
+    });
   });
 
   it('drops malformed rows instead of producing NaN prices', () => {

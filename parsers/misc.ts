@@ -648,6 +648,13 @@ export const getBundles = (idleonData: any) => {
 
   if (!bundlesData) return [];
 
+  // The game draws the Starter Pack offer only while ServerGemsReceived < 5000, none of bon_w/x/y is bought and the
+  // first character's level sits in a band under serverVar GemD1_LvMAX. The level band is left out, so `offered` is
+  // "not yet ruled out", never "on sale now".
+  // game: ServerGemsReceived / BundlesReceived.bon_w|x|y / GemD1_LvMAX (the NewPlayer2/3 offer image)
+  const starterOffered = (Number(idleonData?.ServerGemsReceived) || 0) < 5000
+    && !ownedBundles.bon_w && !ownedBundles.bon_x && !ownedBundles.bon_y;
+
   // Get all bundles from website-data and check ownership status.
   // bin_* are the Pet Mart "evolving" packs: they carry a display name, the companion they grant
   // and their two currency amounts, none of which the older bun_/bon_ bundles have.
@@ -660,7 +667,7 @@ export const getBundles = (idleonData: any) => {
         price: bundle.price,
         // The Starter Pack offer (bon_w/x/y) is drawn from OffersBG<card>.png, not <key>.png.
         ...(bundle.image ? { image: bundle.image } : {}),
-        ...(bundle.starterOffer ? { starterOffer: true } : {}),
+        ...(bundle.starterOffer ? { starterOffer: true, offered: starterOffered } : {}),
         ...(bundle.evolving ? {
           evolving: true,
           displayName: bundle.name,
@@ -678,6 +685,20 @@ export const getBundles = (idleonData: any) => {
       if (aType !== bType) return aType - bType;
       return a.name.localeCompare(b.name);
     });
+};
+
+// The Pet Mart's first slot sells one pet pack for real money: the first in serverVar GemEvoOrder whose pack and pet are
+// both not owned, or none. GemEvoOrder lists EvolvingBundles positions, which run bin_a, bin_b, ... as getBundles sorts them.
+// game: GemEvoOrder / EvolvingBundles[i][0] (pet) / BundlesReceived[EvolvingBundles[i][4]] (TournyStuff "n")
+export const getPetMartPackRotation = (bundles: any[], serverVars: any): any[] | null => {
+  if (typeof serverVars?.GemEvoOrder !== 'string') return null;
+  const packs = (bundles ?? []).filter(({ evolving }) => evolving);
+  return serverVars.GemEvoOrder.split(',').map((index: string) => packs[Number(index)]).filter(Boolean);
+};
+
+export const getPetMartPack = (bundles: any[], serverVars: any, companions: any[]): any | null => {
+  const petOwned = (pack: any) => (companions?.[pack.companionIndex]?.copies ?? 0) > 0;
+  return getPetMartPackRotation(bundles, serverVars)?.find((pack) => !pack.owned && !petOwned(pack)) ?? null;
 };
 
 export const isBundlePurchased = (account: any, name: string): boolean => {
@@ -1443,7 +1464,9 @@ export const getMinigameScore = (account: any, bonusName: any) => {
 }
 
 export const getCompanions = (companionObject: any = {}, accountOptions: any = [], simulatedIndices: any = []) => {
-  const maxStorage = companionObject?.p ?? 60;
+  // game: getCompanionInfoMe().length < Math.max(120, getStorage()) gates every box; getStorage() is `p`, 60 when unset
+  const maxStorage = Math.max(120, Number(companionObject?.p) || 60);
+  const storedPets = Array.isArray(companionObject?.l) ? companionObject.l.length : 0;
   const [companionIndex] = companionObject?.e?.split(',') || [];
   const companion = companions?.[companionIndex];
   const ownedCompanions = companionObject?.l?.reduce((result: any, comp: any) => {
@@ -1548,6 +1571,7 @@ export const getCompanions = (companionObject: any = {}, accountOptions: any = [
     freeClaimAnchor: companionObject?.t,
     petCrystals: companionObject?.s,
     maxStorage,
+    storedPets,
     tokens: {
       owned: tokensOwned,
       used: tokensUsed,

@@ -12,6 +12,8 @@ import Notice from '@components/common/Notice';
 import StatusText from '@components/common/StatusText';
 import { effectText, petCrystalIcon } from '@components/account/Pets/PetCollection';
 import PastRotations from '@components/account/Pets/PastRotations';
+import PetPackCard from '@components/account/Pets/PetPackCard';
+import { getPetMartGems } from '@parsers/world-7/tournament';
 
 // The tournament's Pet Mart: two counters that each restock daily with five pets. The base counter
 // sells the pet itself, the + counter sells the Pet Mart+ upgrade of a pet you already own. Both
@@ -19,14 +21,24 @@ import PastRotations from '@components/account/Pets/PastRotations';
 // The full + price list lives in the Pets tab's Pet Mart+ view; this tab is today's stock and the
 // log of past rotations.
 
-const priceLine = ({ list, price }, size = 16) => {
+// crystals: the save's Pet Crystals, undefined when unknown. The game marks an offer it can't sell you (crystals under the
+// price it charges); like ItemCard.Cost, the price turns amber and "need X more" names the gap.
+const priceLine = ({ list, price }, crystals, size = 16) => {
   const discounted = list > price;
-  return <Stack direction={'row'} gap={0.5} alignItems={'center'} component={'span'}>
-    {petCrystalIcon(size)}
-    {discounted ? <Typography variant={'body2'} component={'span'} color={'text.secondary'} sx={{ textDecoration: 'line-through' }}>
-      {formatNum(list, 'whole')}
+  const short = typeof crystals === 'number' && crystals < (price ?? 0);
+  return <Stack direction={'row'} columnGap={1} rowGap={0} alignItems={'center'} flexWrap={'wrap'} component={'span'}>
+    <Stack direction={'row'} gap={0.5} alignItems={'center'} component={'span'}>
+      {petCrystalIcon(size)}
+      {discounted ? <Typography variant={'body2'} component={'span'} color={'text.secondary'} sx={{ textDecoration: 'line-through' }}>
+        {formatNum(list, 'whole')}
+      </Typography> : null}
+      <Typography variant={'body2'} component={'span'} color={short ? 'text.warning' : discounted ? 'text.success' : 'text.primary'}>
+        {formatNum(price ?? 0, 'whole')}
+      </Typography>
+    </Stack>
+    {short ? <Typography variant={'body2'} component={'span'} color={'text.secondary'}>
+      need {formatNum(price - crystals, 'whole')} more
     </Typography> : null}
-    <Typography variant={'body2'} component={'span'} color={discounted ? 'text.success' : 'text.primary'}>{formatNum(price ?? 0, 'whole')}</Typography>
   </Stack>;
 };
 
@@ -61,14 +73,18 @@ const readRotations = (data, petMart, lastUpdated) => {
   };
 };
 
-const PetMart = ({ petMart, companions, lastUpdated, sectionFailed, companionsFailed, guest }) => {
+const PetMart = ({ petMart, companions, pack, lastUpdated, sectionFailed, companionsFailed, guest }) => {
   const { data, isPending, isError, refetch } = usePetMartHistory();
   const formatDate = useFormatDate();
   const savePetMart = sectionFailed ? null : petMart;
   const { today, todayDate, history, pastDays, loggingSince } = readRotations(data, savePetMart, lastUpdated);
-  const saveIsToday = today?.source === 'save';
   const waiting = !today && isPending;
-  const gems = savePetMart?.gems;
+  // Worked out for today's shop day, so a save from before the restock still shows them: claimable while the save's last
+  // claimed shop day is under today's
+  const gems = savePetMart && today?.shopDay >= 1
+    ? getPetMartGems(today.shopDay, savePetMart.gemsClaimedShopDay ?? 0, savePetMart.gemsMultiplier ?? 0)
+    : null;
+  const crystals = companionsFailed || guest || typeof savePetMart?.petCrystals !== 'number' ? undefined : savePetMart.petCrystals;
 
   const offerCard = (offer, plus) => {
     const companion = companions?.[offer.index];
@@ -82,7 +98,7 @@ const PetMart = ({ petMart, companions, lastUpdated, sectionFailed, companionsFa
     return <ItemCard key={`${plus ? 'plus' : 'base'}-${offer.index}`} icon={name ? monsterSprite(name) : undefined}
                      title={`${titleCaseName(cleanUnderscore(name))}${plus ? '+' : ''}`}
                      status={have ? 'done' : undefined} statusLabel={plus ? 'Upgraded' : 'Owned'}
-                     footer={priceLine(offer)}>
+                     footer={priceLine(offer, plus && have ? undefined : crystals)}>
       {effect ? <ItemCard.Desc text={effectText(effect)}/> : null}
       {needsBasePet ? <ItemCard.Facts rows={[['Needs', 'the base pet']]}/> : null}
     </ItemCard>;
@@ -108,8 +124,9 @@ const PetMart = ({ petMart, companions, lastUpdated, sectionFailed, companionsFa
     <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
       <StatTile label={'New pets in'} value={<Timer type={'countdown'} date={getNextPetMartRestock()} component={'span'}
                                                      placeholder={<StatusText status={'ready'}>Restocked</StatusText>}/>}/>
-      {saveIsToday && gems?.offered ? <StatTile label={'Daily free gems'} icon={'data/PremiumGem.png'}
-                                                value={gems.claimable ? `${formatNum(gems.amount, 'whole')} to claim` : 'Claimed'}/> : null}
+      {/* Once claimed the game keeps the day's amount on show */}
+      {gems?.offered ? <StatTile label={'Daily free gems'} icon={'data/PremiumGem.png'}
+                                 value={`${formatNum(gems.amount, 'whole')} ${gems.claimable ? 'to claim' : 'claimed'}`}/> : null}
     </Stack>
     {/* No heading over nothing: a guest whose history failed has only the note above */}
     {today || waiting || todayMissing ? <Stack gap={2}>
@@ -118,6 +135,11 @@ const PetMart = ({ petMart, companions, lastUpdated, sectionFailed, companionsFa
         {today?.shopDay != null ? <Typography variant={'caption'} color={'text.secondary'}>Shop day {today.shopDay}</Typography> : null}
       </Stack>
       {today ? <>
+          {/* The game's left slot: a pet pack for real money, the first in its order whose pack and pet you don't own */}
+          {pack ? <Stack gap={1}>
+            <Typography variant={'groupLabel'} component={'h3'}>Pet pack</Typography>
+            <CardGrid size={'s'}><PetPackCard pack={pack}/></CardGrid>
+          </Stack> : null}
           {counter('Pet Mart+ upgrades', today.plus, true)}
           {counter('Pet Mart pets', today.base, false)}
         </>

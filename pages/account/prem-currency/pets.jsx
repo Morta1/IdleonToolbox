@@ -12,7 +12,7 @@ import StatusText from '@components/common/StatusText';
 import PetCollection, { canSimulatePets, PET_CRYSTAL_LOOK } from '@components/account/Pets/PetCollection';
 import { PageSettingsRoom } from '@components/common/PageSettings';
 import PetMart from '@components/account/Pets/PetMart';
-import { getCompanions } from '@parsers/misc';
+import { getCompanions, getPetMartPack } from '@parsers/misc';
 
 const Pets = () => {
   const { state } = useContext(AppContext);
@@ -22,6 +22,9 @@ const Pets = () => {
   // A failed section draws the game's pets at zero (the parser's own empty save): no copy, token or simulation
   const companions = companionsFailed ? getCompanions(undefined, []) : state?.account?.companions;
   const anchor = companions?.freeClaimAnchor;
+  // The pet pack in the Pet Mart's first slot, read from the save's server vars and bundles
+  const pack = companionsFailed || isSectionFailed(state?.account, 'bundles') ? null
+    : getPetMartPack(state?.account?.bundles, state?.account?.serverVars, companions?.list);
   const count = (value) => (companionsFailed ? '-' : formatNum(value ?? 0));
 
   return <>
@@ -33,6 +36,8 @@ const Pets = () => {
     <PageSummary>
       <StatTile label={'Pet crystals'} icon={'data/PremiumGem.png'} imgStyle={PET_CRYSTAL_LOOK} value={count(companions?.petCrystals)}/>
       <StatTile label={'Boxes opened'} value={count(companions?.totalBoxesOpened)}/>
+      {/* The game opens no box, free or bought, once the pets held reach the cap */}
+      <StatTile label={'Pet storage'} value={companionsFailed ? '-' : `${count(companions?.storedPets)} / ${count(companions?.maxStorage)}`}/>
       <StatTile label={'Tokens available'} icon={'data/Quest119.png'} value={count(companions?.tokens?.remaining)}/>
       <StatTile label={'Token bonuses active'} icon={'data/Quest119.png'} value={count(companions?.tokens?.used)}/>
       {/* The claim deadline is absolute (getNextCompanionClaim), so the Timer takes no lastUpdated: the save's age is no
@@ -45,7 +50,7 @@ const Pets = () => {
       <PetCollection companions={companions?.list} sectionFailed={companionsFailed} tournamentFailed={tournamentFailed}/>
       <>
         {canSimulatePets(state, companionsFailed) ? <PageSettingsRoom/> : null}
-        <PetMart petMart={state?.account?.tournament?.petMart} companions={companions?.list} lastUpdated={state?.lastUpdated}
+        <PetMart petMart={state?.account?.tournament?.petMart} companions={companions?.list} pack={pack} lastUpdated={state?.lastUpdated}
                  sectionFailed={tournamentFailed} companionsFailed={companionsFailed} guest={Boolean(state?.emptyAccount)}/>
       </>
     </Tabber>

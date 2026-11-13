@@ -998,6 +998,10 @@ declare module '@website-data' {
     };
     eventShopRotation: number[];
     taskUnlockColumnThresholds: number[];
+    gemShopRestocks: {
+      daily: number[];
+      weekly: number[];
+    };
     worshipMapType: number[];
     worshipExpRewards: {
       base: number;
