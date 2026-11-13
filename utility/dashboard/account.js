@@ -36,6 +36,7 @@ import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { isHatRackEligible } from '@parsers/world-3/hatRack';
 import { isCapeVineEligible } from '@parsers/world-4/capeVine';
 import { getGoldCostToMaxLevel, getStampsPerDay } from '@parsers/world-1/stamps';
+import { getInventoryClusters } from '@parsers/world-1/statues';
 import { getTomeWishPity } from '@parsers/world-4/tome';
 import { BOSS_RESPAWN_ALERTS, isMinibossReady } from './bossRespawns';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
@@ -2011,8 +2012,11 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       const doubleClusterUpgrade = account?.zenith?.market?.find(upgrade => upgrade?.name === 'DOUBLE_CLUSTER');
       const clusters = account?.zenith?.clusters ?? 0;
       if (doubleClusterUpgrade && (!doubleClusterUpgrade?.x3 || (doubleClusterUpgrade?.level || 0) < doubleClusterUpgrade?.x3)) {
-        if (clusters >= doubleClusterUpgrade?.cost) {
+        const cost = doubleClusterUpgrade?.cost ?? 0;
+        if (clusters >= cost) {
           zenithMarket.doubleCluster = true;
+        } else if (clusters + getInventoryClusters(getCachedAllItems(characters, account)).total >= cost) {
+          zenithMarket.doubleCluster = 'inventory';
         }
       }
     }

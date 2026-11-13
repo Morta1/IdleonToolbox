@@ -30,7 +30,8 @@ export const patchNotes = [
       'Poppy: upgrades read as locked until the fish waiting to be added were counted, and the average reset points left out unspent points',
       'Bubba: upgrade levels left out their bonus levels, and capped upgrades still showed a cost',
       'Gem Shop: unlimited and restocking items read as maxed or showed a cost to max',
-      'Palette board: a colour level and odds stay centred on its hex after a live level up'
+      'Palette board: a colour level and odds stay centred on its hex after a live level up',
+      'Dashboard: the Double Clusters alert counts the Zenith Clusters still in your inventories'
     ]
   },
   {

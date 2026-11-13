@@ -63,7 +63,17 @@ export const parseStatues = (statuesRaw: any, charactersData: any[], rawSpelunki
   }
 };
 
-export const getZenithBonus = (account: any, bonusIndex: number, _unused2?: any): number => {
+// Zenith Cluster items (Quest110) still in storage and the inventories: they join the market balance
+// (OPT.zenithClusters) only once brought to the Zenelith. `items` is a getAllItems list.
+export const getInventoryClusters = (items: any[] = []) => {
+  const byOwner = (items || [])
+    .filter((item: any) => item?.rawName === 'Quest110' && (item?.amount || 0) > 0)
+    .map((item: any) => ({ owner: item?.owner === 'storage' ? 'Storage' : item?.owner, amount: item.amount }));
+  const total = byOwner.reduce((sum: number, { amount }: any) => sum + amount, 0);
+  return { byOwner, total };
+};
+
+export const getZenithBonus =(account: any, bonusIndex: number, _unused2?: any): number => {
   return account?.zenith?.market?.[bonusIndex]?.bonus ?? 0
 }
 

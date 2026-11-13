@@ -5,6 +5,7 @@ import { cleanUnderscore, formatNum, titleCaseName } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { MissingData, NotReached, isParseFailed, isSectionFailed } from '@components/common/styles';
 import { getAllItems } from '@parsers/items';
+import { getInventoryClusters } from '@parsers/world-1/statues';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 import Num from '@components/common/Num';
 import PageSummary from '@components/common/cards/PageSummary';
@@ -21,15 +22,8 @@ const ZenithMarket = () => {
   const sectionFailed = isSectionFailed(account, 'statues');
   const { market, clusters } = section ?? {};
 
-  // The clusters still sitting in storage and the inventories (the balance is the account's, OPT.zenithClusters).
-  // Storage is the account's chest, named like a place; characters keep their own spelling.
-  const clusterInventoryData = characters && account
-    ? getAllItems(characters, account)
-      .filter((item) => item?.rawName === 'Quest110')
-      .map((item) => ({ owner: item?.owner === 'storage' ? 'Storage' : item?.owner, amount: item?.amount || 0 }))
-      .filter((item) => item.amount > 0)
-    : [];
-  const totalInventoryClusters = clusterInventoryData.reduce((sum, item) => sum + (item.amount || 0), 0);
+  const { byOwner: clusterInventoryData, total: totalInventoryClusters } =
+    getInventoryClusters(characters && account ? getAllItems(characters, account) : []);
   const inventoryBreakdown = clusterInventoryData.length
     ? createBreakdown('Clusters in inventories', formatNum(totalInventoryClusters, 'whole'),
       flatLines(clusterInventoryData.map(({ owner, amount }) => ({ name: owner, value: amount, formatted: formatNum(amount, 'whole') }))),

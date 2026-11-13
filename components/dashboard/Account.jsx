@@ -881,7 +881,9 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   iconPath={'data/LegendTalentIcon12'}/> : null}
               {alerts?.['World 7']?.zenithMarket?.doubleCluster ?
                 <Alert target={'World 7.zenithMarket.doubleCluster'}
-                  title={'You can afford Double Clusters upgrade'}
+                  title={alerts?.['World 7']?.zenithMarket?.doubleCluster === 'inventory'
+                    ? 'You can afford Double Clusters upgrade: bring your clusters to the Zenelith'
+                    : 'You can afford Double Clusters upgrade'}
                   iconPath={'etc/Cluster'}/> : null}
               {alerts?.['World 7']?.zenithMarket?.clusterFarming ?
                 <Alert target={'World 7.zenithMarket.clusterFarming'}
