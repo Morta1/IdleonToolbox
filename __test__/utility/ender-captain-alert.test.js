@@ -4,9 +4,9 @@ import { getWorld5Alerts } from '../../utility/dashboard/account';
 import { migrateConfig } from '../../utility/migrations';
 
 const fields = { sailing: { checked: true } };
-const sailingOptions = (alwaysEnder) => ({
+const sailingOptions = (alwaysEnder, better = true) => ({
   sailing: {
-    captains: { name: 'captains', checked: true },
+    captains: { name: 'captains', checked: better },
     alwaysAlertEnderCaptains: { name: 'alwaysAlertEnderCaptains', checked: alwaysEnder }
   }
 });
@@ -33,15 +33,15 @@ const account = (crewType = 6) => ({
   }
 });
 
-const captainAlerts = (acc, alwaysEnder) => getWorld5Alerts(acc, fields, sailingOptions(alwaysEnder), [])?.sailing?.captains;
+const captainAlerts = (acc, alwaysEnder, better) => getWorld5Alerts(acc, fields, sailingOptions(alwaysEnder, better), [])?.sailing?.captains;
 
 describe('ender captain shop alert', () => {
   it('stays quiet on a weaker Ender when every slot is already Ender', () => {
     expect(captainAlerts(account(), false)).toBeUndefined();
   });
 
-  it('flags a weaker Ender when always-alert is on', () => {
-    expect(captainAlerts(account(), true)?.[0]?.enderCaptain).toBe(true);
+  it('flags a weaker Ender when always-alert is on, even with Better captain off', () => {
+    expect(captainAlerts(account(), true, false)?.[0]?.enderCaptain).toBe(true);
   });
 
   it('still flags an Ender while some slots are not Ender', () => {

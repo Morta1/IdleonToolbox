@@ -546,12 +546,12 @@ export const alertMeta = {
     page: { pathname: '/account/world-5/sailing' },
     options: {
       captains: { label: 'Better captain in the shop', page: { query: { t: 'Boats and Captains' }, label: 'Captains' } },
-      chests: { label: 'Chest capacity full', page: { query: { t: 'Chests' }, label: 'Chests' } },
       alwaysAlertEnderCaptains: {
         label: 'Every Ender captain in the shop',
-        help: 'Alerts on every Ender captain in the shop, even when all your captains are already Ender and its stats are not higher.',
-        dependsOn: 'captains'
-      }
+        page: { query: { t: 'Boats and Captains' }, label: 'Captains' },
+        help: 'Alerts on every Ender captain in the shop, even when all your captains are already Ender and its stats are not higher. Works on its own: turn off Better captain in the shop to see only Ender captains.'
+      },
+      chests: { label: 'Chest capacity full', page: { query: { t: 'Chests' }, label: 'Chests' } }
     }
   },
   'account.World 5.hole': {

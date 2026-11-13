@@ -556,8 +556,8 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 title={'Your boats have enough sailing time to fill every chest slot: open Sailing to collect'}
                 iconPath={'npcs/Chesty'}/> : null}
               {alerts?.['World 5']?.sailing?.captains?.length > 0 ?
-                alerts?.['World 5']?.sailing?.captains?.map(({ captain, bonus, badCaptains, enderCaptain }) => {
-                  return <Alert target={'World 5.sailing.captains'}
+                alerts?.['World 5']?.sailing?.captains?.map(({ captain, bonus, badCaptains, enderCaptain, option }) => {
+                  return <Alert target={`World 5.sailing.${option}`}
                     key={'captain' + captain?.captainIndex}
                     ariaLabel={`Captain ${captain?.captainIndex} in the shop`}
                     title={<Stack gap={1}>

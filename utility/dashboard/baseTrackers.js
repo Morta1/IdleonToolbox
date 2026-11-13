@@ -432,12 +432,12 @@ export const baseTrackers = {
         checked: true,
         options: [
           { name: 'captains', checked: true },
-          { name: 'chests', checked: true },
           {
             name: 'alwaysAlertEnderCaptains',
             checked: false,
-            helperText: 'Alert on every Ender captain in the shop, even when all your captains are already Ender and its stats are not higher'
-          }
+            helperText: 'Alert on every Ender captain in the shop, even when all your captains are already Ender and its stats are not higher. Works without Better captain in the shop'
+          },
+          { name: 'chests', checked: true }
         ]
       },
       hole: {

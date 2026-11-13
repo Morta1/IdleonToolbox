@@ -1185,8 +1185,10 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
   }
   if (fields?.sailing?.checked) {
     const sailing = {};
-    const { captains, chests, alwaysAlertEnderCaptains } = options?.sailing || {};
-    if (captains?.checked) {
+    const { captains: betterCaptains, chests, alwaysAlertEnderCaptains } = options?.sailing || {};
+    const alertBetter = betterCaptains?.checked;
+    const alertEveryEnder = alwaysAlertEnderCaptains?.checked;
+    if (alertBetter || alertEveryEnder) {
       const { captains, shopCaptains } = account?.sailing || {};
       const allSlotsEnder = captains?.length > 0 && captains?.every((c) => c?.captainType === 6);
       const relevantCaptains = shopCaptains?.reduce((res, shopCaption) => {
@@ -1227,12 +1229,17 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
           }
           return false;
         });
-        if ((matches?.length > 0 && captainType !== -1) || (captainType === 6 && (alwaysAlertEnderCaptains?.checked || !allSlotsEnder || matches?.length > 0))) {
+        const isEnder = captainType === 6;
+        const betterAlert = alertBetter && (isEnder
+          ? !allSlotsEnder || matches?.length > 0
+          : matches?.length > 0 && captainType !== -1);
+        if (betterAlert || (isEnder && alertEveryEnder)) {
           const isSameValue = firstBonusIndex === secondBonusIndex;
           const temp = {
             captain: shopCaption,
             isSameValue,
-            enderCaptain: captainType === 6,
+            enderCaptain: isEnder,
+            option: betterAlert ? 'captains' : 'alwaysAlertEnderCaptains',
             badCaptains: matches.map(({
               captainIndex,
               firstBonusDescription: fbDesc,
