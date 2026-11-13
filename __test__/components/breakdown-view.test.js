@@ -270,6 +270,9 @@ describe('share and gain', () => {
     ['the one amount group when every factor is x1', 'product',
       [sumGroup('Size', [flat('Base', 2), flat('Talent', 6)]), multiplier('Bundle', 1)],
       { Size: 100, Base: 25, Talent: 75 }],
+    ['the lines of a base its multipliers multiply as their share of that base', 'product',
+      [sumGroup('Size', [flat('Base', 2), flat('Talent', 6)]), multiplier('Bundle', 3)],
+      { Bundle: 100, Base: 25, Talent: 75 }],
     ['nothing on a min root, where one value is picked', 'min', [flat('Uncapped', 3), flat('Cap', 50)], {}]
   ])('shares %s', (_name, combine, nodes, expected) => {
     expect(byName(computeShares(nodes, combine))).toEqual(expected);

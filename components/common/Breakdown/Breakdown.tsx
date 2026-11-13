@@ -52,6 +52,7 @@ import {
   computeGains,
   computeRootGain,
   computeShares,
+  findBaseGroups,
   findDivisorNodes,
   formatGain,
   formatShare,
@@ -175,6 +176,10 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
     valueNotation, skipNotation, countNoun, query: searchQuery, showInactive, pinned, rootCombine,
     ...(insightsOn ? { shares, gains, faster } : {})
   })
+  // The bases whose lines show their share of the base, by the name their row reads (Group 1 for an unnamed one)
+  const baseNames = insightsOn ? findBaseGroups(tree, rootCombine)
+    .map((base) => views.find(({ key }) => key === `/${tree.indexOf(base)}:${base.name}`)?.name)
+    .filter(Boolean) : []
   const expanded = expandedKeys ?? defaultExpandedKeys(data, views)
   // Searching opens every group that still has a match
   const isExpanded = (key: string) => !!searchQuery.trim() || expanded.has(key)
@@ -366,7 +371,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
 
     {insightsOn ? (
       <Typography variant="caption" color="text.secondary" sx={{ display: "block", px: isMobile ? 2 : 3, pt: 1 }}>
-        % = share of your total
+        % = share of your total{baseNames.length ? `; lines in ${baseNames.join(" and ")}: share of it` : ""}
       </Typography>
     ) : null}
     {insightsOn && showRootGain ? (

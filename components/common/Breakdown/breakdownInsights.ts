@@ -31,10 +31,11 @@ const additivePoints = (node: BreakdownNode) => getBreakdownNodeUnit(node) === '
 export const computeShares = (tree: BreakdownNode[], rootCombine: BreakdownCombine) => {
   const shares = new Map<BreakdownNode, number>();
   const split = (children: BreakdownNode[], weights: number[], budget: number) => {
-    const total = weights.reduce((sum, weight) => sum + weight, 0);
-    // Penalties that outweigh the rest (a ×0.05 prayer in a ×0.9 product) would flip every sign over a
-    // negative total, so those split by size: bonuses stay positive and penalties negative
-    const scale = total > 1e-12 ? total : weights.reduce((sum, weight) => sum + Math.abs(weight), 0);
+    // Over a net total a penalty pushes every bonus past 100% (Damage's softcap) or flips every sign once it
+    // outweighs them, so any penalty splits by size: bonuses stay positive, penalties negative, none past 100%
+    const scale = weights.some((weight) => weight < 0)
+      ? weights.reduce((sum, weight) => sum + Math.abs(weight), 0)
+      : weights.reduce((sum, weight) => sum + weight, 0);
     if (!Number.isFinite(scale) || scale < 1e-12) return false;
     children.forEach((child, index) => assign(child, budget * weights[index] / scale));
     return true;
@@ -67,7 +68,24 @@ export const computeShares = (tree: BreakdownNode[], rootCombine: BreakdownCombi
   if (rootCombine === 'list' || rootCombine === 'min') return shares;
   assign(root, 100);
   shares.delete(root);
+  // The base a top level of multipliers multiplies has no share of the total, so its lines split the base
+  findBaseGroups(tree, rootCombine).forEach((base) => {
+    assign(base, 100);
+    shares.delete(base);
+  });
   return shares;
+}
+
+/**
+ * The amount groups a top-level product multiplies (Base damage, Base HP), when its multipliers carry the
+ * whole share of the total. Their lines show their share of that base instead.
+ */
+export const findBaseGroups = (tree: BreakdownNode[], rootCombine: BreakdownCombine) => {
+  if (rootCombine !== 'product') return [];
+  const children = operandsOf(rootOf(tree, rootCombine));
+  const factors = children.filter(isFactor);
+  if (!factors.some((factor) => Math.abs(Math.log(evaluateBreakdownNode(factor))) > 1e-12)) return [];
+  return children.filter((child) => isBreakdownGroup(child) && !factors.includes(child));
 }
 
 /**
