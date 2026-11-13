@@ -3417,10 +3417,15 @@ export const getPlayerSpeedInfo = (character: any, characters: any, account: any
 // Every AFK type gains at least 1%
 const MIN_AFK_GAINS = 0.01;
 
-export const getAfkGain = (character: any, characters: any, account: any) => {
+// afkTypeOverride rates a skill the character is not doing. Its map is then unknown, so the bonuses that depend on the
+// map it stands on (Shrine, Tesseract Map) apply only where they apply off-map.
+export const getAfkGain = (character: any, characters: any, account: any, afkTypeOverride?: string) => {
   // null until a branch below claims the afkType, so an unhandled type stays distinguishable from a real 0
   let gains: number | null = null;
-  const { afkType } = character;
+  const afkType = afkTypeOverride ?? character.afkType;
+  const offTarget = afkType !== character.afkType;
+  const mapIndex = offTarget ? -1 : character?.mapIndex;
+  const mapNote = offTarget ? { note: 'Depends on the map: shown as 0 until the character does this skill' } : {};
   const { guild, bribes, shrines, tasks } = account;
   const afkGainsTaskBonus = tasks?.[2]?.[1]?.[2] > character?.playerId ? 2 : 0;
   // FamBonusQTYs[50], as the played character sees it
@@ -3462,7 +3467,7 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
   const summoningBonus = getWinnerBonus(account, '+{% AFK Gains');
   const compassBonus = getCompassBonus(account, 57);
   const voidSetBonus = getArmorSetBonus(account, 'VOID_SET');
-  const shrineBonus = getShrineBonus(shrines, 8, character?.mapIndex, account.cards, account?.sailing?.artifacts);
+  const shrineBonus = getShrineBonus(shrines, 8, mapIndex, account.cards, account?.sailing?.artifacts);
   const goldenFoodBonus = getGoldenFoodBonus('Golden_Dumpling', character, account, characters);
   const voteBonus = getVoteBonus(account, 6);
   const vaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 23);
@@ -3513,7 +3518,7 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
     percent('Divinity Minor', divinityMinorBonus),
     percent(companionLineName(6), compBonus),
     percent(companionLineName(25), compBonus25),
-    percent('Shrine', shrineBonus),
+    percent('Shrine', shrineBonus, shrineBonus ? {} : mapNote),
     percent('Rando Event Looty', randoEventLooty * randomItemsFound),
     percent('Summoning', summoningBonus),
     percent('Golden Food', goldenFoodBonus),
@@ -3527,12 +3532,12 @@ export const getAfkGain = (character: any, characters: any, account: any) => {
   const bribeAfkGains = bribes?.[24]?.done ? bribes?.[24]?.value : 0;
   const tickTockTalentBonus = getTalentBonus(character?.flatStarTalents, 'TICK_TOCK');
   // AFKgainzzALLmulti - multiplier applied to all AFK types
-  const tesseractMapBonus = getTesseractMapBonus(account, characters, character, 2);
+  const tesseractMapBonus = offTarget ? 0 : getTesseractMapBonus(account, characters, character, 2);
   const { value: equipmentAfkMulti } = getStatsFromGear(character, 92, account);
   const afkMulti = (1 + tesseractMapBonus! / 100) * (1 + equipmentAfkMulti / 100);
   // Every type is (base + additive%) / 100 * afkMulti
   const afkMultipliers = productGroup(NUMBERED_GROUP, [
-    multiplier('Tesseract Map', 1 + tesseractMapBonus! / 100),
+    multiplier('Tesseract Map', 1 + tesseractMapBonus! / 100, mapNote),
     multiplier('Equipment AFK multi', 1 + equipmentAfkMulti / 100)
   ]);
   const afkCategories = (base: number, entries: BreakdownNode[]) => [

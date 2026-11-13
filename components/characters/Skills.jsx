@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { formatNum } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import gameNotation from '../../data/website-data/gameNotation.json';
-import { getSkillExpMulti } from '@parsers/character';
+import { getAfkGain, getSkillExpMulti } from '@parsers/character';
 import { getSkillEfficiency } from '@parsers/efficiency';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { getMaxDamage } from '@parsers/damage';
@@ -20,6 +20,23 @@ const SKILL_STAT_NAMES = { chopping: 'Choppin' };
 const skillStatKey = (skillName, stat) => `SkillStats.${SKILL_STAT_NAMES[skillName] ?? capitalize(skillName)}${stat}`;
 // The game's own rule where it prints this skill's number; the parser's text where it doesn't
 const skillNumber = (value, key, fallback) => (gameNotation[key] ? formatGame(value, key) : fallback);
+// The AFK targets with their own AFK gains rate, by skill. Divinity's is a flat 100%, so it has nothing to break down.
+const SKILL_AFK_TYPES = {
+  mining: 'MINING', chopping: 'CHOPPIN', fishing: 'FISHING', catching: 'CATCHING', cooking: 'COOKING',
+  laboratory: 'LABORATORY', spelunking: 'SPELUNKING'
+};
+// Research is account wide: one rate for every character. The rest print as the Stats panel's AFK gains does.
+const getSkillAfkRate = (skillName, character, characters, account) => {
+  if (skillName === 'research') {
+    const { researchAFKrate, researchAFKrateBreakdown } = account?.research || {};
+    return researchAFKrateBreakdown
+      ? { breakdown: researchAFKrateBreakdown, text: `${formatGame(researchAFKrate, 'AFKgainrates.Research')}%` } : null;
+  }
+  const afkType = SKILL_AFK_TYPES[skillName];
+  if (!afkType) return null;
+  const { afkGains, breakdown } = getAfkGain(character, characters, account, afkType);
+  return { breakdown, text: `${formatGame(afkGains * 100, 'AFKgainrates.Fighting')}%` };
+};
 
 // The picked skill's numbers; its two breakdowns open from their values, each headed as its value reads
 const SkillDetails = ({ skillName, skill, character, characters, account }) => {
@@ -32,6 +49,7 @@ const SkillDetails = ({ skillName, skill, character, characters, account }) => {
   // Alchemy has no efficiency: the character's brew speed is what it adds to any cauldron it stands in
   const brewSpeed = skillName === 'alchemy' ? getCharacterBrewSpeed(character, account, characters) : null;
   const brewSpeedText = brewSpeed ? formatNum(brewSpeed.value, 'rate') : null;
+  const afkRate = getSkillAfkRate(skillName, character, characters, account);
   return <Box sx={{ mt: 1 }}>
     <Panel.KV label={capitalize(skillName)} value={formatNum(level, 'level')}/>
     {!isGlobalSkill(skillName) && rank != null
@@ -45,6 +63,8 @@ const SkillDetails = ({ skillName, skill, character, characters, account }) => {
       ? <Breakdown asValue title={'Efficiency'} data={{ ...efficiency.breakdown, totalValue: efficiencyText }}>{efficiencyText}</Breakdown> : efficiencyText}/> : null}
     {brewSpeed ? <Panel.KV label={'Brew speed'} value={<Breakdown asValue title={'Brew speed'}
       data={{ ...brewSpeed.breakdown, totalValue: brewSpeedText }}>{brewSpeedText}</Breakdown>}/> : null}
+    {afkRate ? <Panel.KV label={'AFK rate'} value={<Breakdown asValue title={'AFK rate'}
+      data={{ ...afkRate.breakdown, totalValue: afkRate.text }}>{afkRate.text}</Breakdown>}/> : null}
   </Box>;
 };
 

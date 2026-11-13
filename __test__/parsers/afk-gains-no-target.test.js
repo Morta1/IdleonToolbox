@@ -48,4 +48,15 @@ describe('getAfkGain with no productive AFK target', () => {
     expect(Number.isFinite(afkGains)).toBe(true);
     expect(afkGainsUnavailableReason).toBeUndefined();
   });
+
+  it('rates a skill the character is not doing, with the map-bound multi left out', () => {
+    const { characters, account } = parsed();
+    const fighter = characters.find(({ afkType }) => afkType === 'FIGHTING');
+
+    const { afkGains, breakdown } = getAfkGain(fighter, characters, account, 'MINING');
+
+    expect(afkGains).toBeGreaterThan(0.01);
+    const tesseract = breakdown.tree.at(-1).children.find(({ name }) => name === 'Tesseract Map');
+    expect(tesseract).toMatchObject({ value: 1, note: expect.stringContaining('Depends on the map') });
+  });
 });
