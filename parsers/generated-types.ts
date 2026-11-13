@@ -6370,6 +6370,7 @@ export interface Character {
         name: string;
         afkType: string;
         sideMap: boolean;
+        bossMap: boolean;
         done: boolean[];
       }[];
   };
@@ -6383,6 +6384,7 @@ export interface Character {
         name: string;
         afkType: string;
         sideMap: boolean;
+        bossMap: boolean;
         done: boolean[];
       }[];
   };
@@ -6396,6 +6398,7 @@ export interface Character {
         name: string;
         afkType: string;
         sideMap: boolean;
+        bossMap: boolean;
         done: boolean[];
       }[];
   };

@@ -46,8 +46,10 @@ const apocalypsePanel = (character, apocalypse, hideSuperChow, countsAccount) =>
   const reached = (done) => (done ?? []).slice(0, tiers).every(Boolean);
   const list = monsters?.list ?? [];
   const allDone = monsters ? list.every(({ done }) => reached(done)) : false;
-  // A boss, dungeon or arena map counts too, but stays off the farming list until it has a kill
-  const left = list.filter(({ done, kills, sideMap }) => !reached(done) && !(sideMap && !(kills >= 1))
+  // A boss map spawns no monsters so it can't be farmed (it still counts once reached); a side map stays off until it
+  // has a kill
+  const left = list.filter(({ done, kills, sideMap, bossMap }) => !reached(done) && !bossMap
+    && !(sideMap && !(kills >= 1))
     && !(hideSuperChow && apocalypse.key === 'chow' && kills > 1e6));
   // game: the talent counts at most its level in monster types, and its screen says "(Capped)" past that
   const cap = apocalypse.talent ? getTalentBonus(character?.flatTalents, apocalypse.talent, true) : 0;

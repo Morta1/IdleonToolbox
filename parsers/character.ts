@@ -15,6 +15,7 @@ import {
   monsters,
   ninjaExtraInfo,
   randomList,
+  rawMapNames,
   deathNote,
   starSignByIndexMap
 } from '@website-data';
@@ -3190,6 +3191,11 @@ const SIDE_MAPS = new Set(["Grandfrog's_Gazebo", "Grandfrog's_Backyard", 'Gravel
   'Inside_the_Igloo', 'End_Of_The_Road', "Efaunt's_Tomb", "Eycicles's_Nest", 'Enclave_a_la_Troll', "Chizoar's_Cavern",
   "KattleKruk's_Volcano", 'Castle_Interior', "Emperor's_Castle"]);
 
+// game "CanWeSpawnMobs": a boss scene never spawns its AFK target, so its kill counter never moves (Chizoar's Cavern
+// reads 999 from its unlock flag); a kill count set in the save still counts. The list's other scenes (Meel's Crypt,
+// Equinox Valley, The Clamworks) spawn through their own mechanics
+const isBossScene = (scene: string | undefined) => !!scene && scene.toLowerCase().includes('boss');
+
 // game TalentCalc (N.js CalcTalentMAP 110/146/"49_4"/209): every map whose AFK target is a FIGHTING monster counts, boss,
 // dungeon and arena maps included; a map's kills are MapDetails[r][0][0] - KillsLeft2Advance[r][0]
 export const getBarbarianZowChow = (allKills: any, thresholds: any) => {
@@ -3205,6 +3211,7 @@ export const getBarbarianZowChow = (allKills: any, thresholds: any) => {
       name: Name,
       afkType: AFKtype,
       sideMap: SIDE_MAPS.has(mapName as string) || `${mapName}`.includes('Colosseum'),
+      bossMap: isBossScene(rawMapNames?.[index]),
       done: thresholds?.map((threshold: any) => kills >= threshold)
     }
   }).filter(({ afkType }) => afkType === 'FIGHTING');

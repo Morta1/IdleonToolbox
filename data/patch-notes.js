@@ -35,7 +35,8 @@ export const patchNotes = [
       'Dashboard: the Double Clusters alert counts the Zenith Clusters still in your inventories',
       'Buildings: towers outside a build slot show their real progress and time left instead of a huge number and Ready',
       'Dashboard: the Sailing chest alert now fires when your banked sailing time fills every chest slot',
-      'Dashboard: the Ender captain alert in Sailing now works without the Better captain alert'
+      'Dashboard: the Ender captain alert in Sailing now works without the Better captain alert',
+      'Apocalypses: boss maps no longer show up as monsters left to kill'
     ]
   },
   {
