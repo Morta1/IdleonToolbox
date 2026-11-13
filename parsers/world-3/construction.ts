@@ -466,7 +466,8 @@ const parseTowers = (towersRaw: any, totemInfo: any) => {
       name: towerName,
       level,
       nextLevel: (level + 1) === towersRaw?.[towerData.index + towersLength],
-      progress: towersRaw?.[towerData?.index + 12 + towersLength * 2] ?? 0,
+      // big progress is saved as a string ("2.04e+23"); the game reads it with asNumber
+      progress: Number(towersRaw?.[towerData?.index + 12 + towersLength * 2]) || 0,
       inProgress: inProgress?.includes(towerData?.index),
       slot: inProgress?.findIndex((ind: any) => ind === towerData?.index)
     }
