@@ -4,8 +4,10 @@
 
 const url = process.env.NEXT_PUBLIC_BUILDS_URL;
 
-const authHeaders = (token) => ({
-  'Content-Type': 'application/json',
+// Content-Type only with a body: on a GET it turns a simple request into one the browser has
+// to preflight first, and preflights never come from the Worker's cache.
+const authHeaders = (token, hasBody) => ({
+  ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
   ...(token ? { Authorization: token } : {})
 });
 
@@ -21,7 +23,7 @@ const parseError = async (response) => {
 const request = async (path, { method = 'GET', body, token, signal } = {}) => {
   const response = await fetch(`${url}${path}`, {
     method,
-    headers: authHeaders(token),
+    headers: authHeaders(token, body != null),
     body: body != null ? JSON.stringify(body) : undefined,
     signal
   });

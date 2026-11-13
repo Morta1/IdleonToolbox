@@ -25,7 +25,7 @@ const detail = (shortId) => ({
   viewCount: 999
 });
 
-const ok = (shortId) => ({ ok: true, json: async () => ({ build: detail(shortId) }) });
+const bulk = (...ids) => ({ ok: true, json: async () => ({ items: ids.map(detail), total: ids.length }) });
 
 describe('toStaticBuild', () => {
   // BuildDetail renders every kept field: dropping one shows a blank author or date on a seeded
@@ -52,74 +52,17 @@ describe('fetchBuildDetailAtBuildTime', () => {
     resetBuildsCacheForTests();
   });
 
-  it('returns the static build for an id', async () => {
-    vi.stubGlobal('fetch', vi.fn(async (url) => ok(String(url).split('/').pop())));
+  it('returns the static build for an id, from the one shared bulk request', async () => {
+    const spy = vi.fn(async () => bulk('aaa', 'bbb'));
+    vi.stubGlobal('fetch', spy);
     expect(await fetchBuildDetailAtBuildTime('aaa')).toEqual(toStaticBuild(detail('aaa')));
+    expect((await fetchBuildDetailAtBuildTime('bbb')).shortId).toBe('bbb');
+    expect(spy).toHaveBeenCalledTimes(1);
   });
 
-  // The list drives the exported paths, so a failure there must stop the deploy. One missing
-  // payload only costs that page its head start - it still fetches on mount.
-  it('resolves null rather than throwing when one build fails, after a fixed number of attempts', async () => {
-    const spy = vi.fn(async () => ({ ok: false, status: 500 }));
-    vi.stubGlobal('fetch', spy);
-    await expect(fetchBuildDetailAtBuildTime('bad')).resolves.toBeNull();
-    expect(spy).toHaveBeenCalledTimes(3);
-  });
-
-  // Keyed per id, not per call: a batch keyed on the whole list made every forked worker fetch all
-  // 121 details, including workers that only rendered class pages.
-  it('caches per id, and a second id is not served the first one', async () => {
-    const spy = vi.fn(async (url) => ok(String(url).split('/').pop()));
-    vi.stubGlobal('fetch', spy);
-
-    const first = await fetchBuildDetailAtBuildTime('aaa');
-    const again = await fetchBuildDetailAtBuildTime('aaa');
-    const other = await fetchBuildDetailAtBuildTime('bbb');
-
-    expect(first.shortId).toBe('aaa');
-    expect(again).toBe(first);
-    expect(other.shortId, 'bbb must not be served aaa from the cache').toBe('bbb');
-    expect(spy).toHaveBeenCalledTimes(2);
-  });
-
-  it('retries a build that fails transiently', async () => {
-    let calls = 0;
-    vi.stubGlobal('fetch', vi.fn(async (url) => {
-      calls += 1;
-      if (calls === 1) throw new Error('socket hang up');
-      return ok(String(url).split('/').pop());
-    }));
-    await expect(fetchBuildDetailAtBuildTime('aaa')).resolves.not.toBeNull();
-    expect(calls).toBe(2);
-  });
-
-  // undici's default header timeout is 300s; without an explicit signal a stalled Worker hangs the
-  // build for hours per attempt instead of failing over to fetch-on-mount.
-  it('bounds each request with a timeout signal', async () => {
-    const spy = vi.fn(async () => ok('aaa'));
-    vi.stubGlobal('fetch', spy);
-    await fetchBuildDetailAtBuildTime('aaa');
-    expect(spy.mock.calls[0][1].signal).toBeInstanceOf(AbortSignal);
-  });
-
-  // One bad build is a warning. Half of them silently reverting to fetch-on-mount is the exact
-  // regression this change exists to prevent, so it fails the deploy instead.
-  it('throws once failures pass the floor, not before', async () => {
-    vi.stubGlobal('fetch', vi.fn(async (url) => {
-      const id = String(url).split('/').pop();
-      if (id.startsWith('bad')) return { ok: false, status: 500 };
-      return ok(id);
-    }));
-
-    // 9 good, 1 bad: 10%: under the floor, and below the minimum sample for most of it.
-    for (let i = 0; i < 9; i++) await fetchBuildDetailAtBuildTime(`good${i}`);
-    await expect(fetchBuildDetailAtBuildTime('bad0')).resolves.toBeNull();
-
-    // Push the ratio over 20%.
-    await expect(
-      (async () => {
-        for (let i = 1; i < 6; i++) await fetchBuildDetailAtBuildTime(`bad${i}`);
-      })()
-    ).rejects.toThrow(/refusing to deploy/);
+  // One missing payload only costs that page its head start - it still fetches on mount.
+  it('resolves null for a build the bulk response does not carry', async () => {
+    vi.stubGlobal('fetch', vi.fn(async () => bulk('aaa')));
+    await expect(fetchBuildDetailAtBuildTime('zzz')).resolves.toBeNull();
   });
 });

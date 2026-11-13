@@ -12,6 +12,7 @@ const build = (shortId, cls = 'Warrior', subclass = 'Barbarian') => ({
 });
 
 const okResponse = (body) => ({ ok: true, status: 200, json: async () => body });
+const bulk = (items, total = items.length) => okResponse({ items, total });
 
 describe('fetchAllBuildsAtBuildTime', () => {
   beforeEach(() => {
@@ -24,58 +25,52 @@ describe('fetchAllBuildsAtBuildTime', () => {
   });
 
   it('fetches once and shares the result across callers', async () => {
-    global.fetch = vi.fn(async () => okResponse({ items: [build('a')], nextCursor: null }));
+    global.fetch = vi.fn(async () => bulk([build('a')]));
     const [first, second] = await Promise.all([
       fetchAllBuildsAtBuildTime(),
       fetchAllBuildsAtBuildTime()
     ]);
     expect(global.fetch).toHaveBeenCalledTimes(1);
-    expect(first).toBe(second);
+    expect(first).toEqual(second);
   });
 
   it('throws on a non-ok response, and does not cache it: a retry can still succeed', async () => {
     global.fetch = vi.fn()
       .mockResolvedValueOnce({ ok: false, status: 500, json: async () => ({}) })
-      .mockResolvedValueOnce(okResponse({ items: [build('a')], nextCursor: null }));
+      .mockResolvedValueOnce(bulk([build('a')]));
     await expect(fetchAllBuildsAtBuildTime()).rejects.toThrow(/500/);
     const result = await fetchAllBuildsAtBuildTime();
     expect(result).toHaveLength(1);
   });
 
   it('sends a browser User-Agent to get past Cloudflare', async () => {
-    global.fetch = vi.fn(async () => okResponse({ items: [build('a')], nextCursor: null }));
+    global.fetch = vi.fn(async () => bulk([build('a')]));
     await fetchAllBuildsAtBuildTime();
     const [, options] = global.fetch.mock.calls[0];
     expect(options.headers['User-Agent']).toBe(BUILD_FETCH_USER_AGENT);
     expect(BUILD_FETCH_USER_AGENT).toMatch(/Mozilla/);
   });
 
-  it('follows nextCursor until exhausted, passing it on the next request', async () => {
-    global.fetch = vi.fn()
-      .mockResolvedValueOnce(okResponse({ items: [build('a')], nextCursor: 'c1' }))
-      .mockResolvedValueOnce(okResponse({ items: [build('b')], nextCursor: null }));
-    const result = await fetchAllBuildsAtBuildTime();
-    expect(result.map((b) => b.shortId)).toEqual(['a', 'b']);
-    expect(global.fetch).toHaveBeenCalledTimes(2);
-    expect(global.fetch.mock.calls[1][0]).toContain('cursor=c1');
-  });
-
   it('throws when the API returns zero builds', async () => {
-    global.fetch = vi.fn(async () => okResponse({ items: [], nextCursor: null }));
+    global.fetch = vi.fn(async () => bulk([]));
     await expect(fetchAllBuildsAtBuildTime()).rejects.toThrow(/no builds/i);
   });
 
   it('skips malformed records but keeps valid ones', async () => {
-    global.fetch = vi.fn(async () => okResponse({
-      items: [build('a'), { title: 'no id' }, { shortId: 'c' }],
-      nextCursor: null
-    }));
+    global.fetch = vi.fn(async () => bulk([build('a'), { title: 'no id' }, { shortId: 'c' }]));
     const result = await fetchAllBuildsAtBuildTime();
     expect(result.map((b) => b.shortId)).toEqual(['a']);
   });
 
-  it('throws instead of returning a truncated list when the page cap is hit', async () => {
-    global.fetch = vi.fn(async () => okResponse({ items: [build('a')], nextCursor: 'more' }));
-    await expect(fetchAllBuildsAtBuildTime()).rejects.toThrow(/exceeded|truncated/i);
+  it('throws instead of returning a truncated list', async () => {
+    global.fetch = vi.fn(async () => bulk([build('a')], 2));
+    await expect(fetchAllBuildsAtBuildTime()).rejects.toThrow(/truncated/i);
+  });
+
+  // The landing page passes every build through its props: payloads there bloat each export.
+  it('returns list-shaped builds, without payload or description', async () => {
+    global.fetch = vi.fn(async () => bulk([{ ...build('a'), payload: { v: 1 }, description: 'd' }]));
+    const [only] = await fetchAllBuildsAtBuildTime();
+    expect(only).toEqual(build('a'));
   });
 });

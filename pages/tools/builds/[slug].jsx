@@ -112,8 +112,7 @@ export async function getStaticPaths() {
 
 export async function getStaticProps({ params }) {
   const builds = await fetchAllBuildsAtBuildTime();
-  // Only this page's build. Fetching the whole set here made every forked worker pull all 121
-  // details, including workers that only rendered class pages.
+  // Only this page's build, picked out of the one bulk response every page shares.
   const build = builds.find((entry) => buildToSlug(entry) === params.slug);
   const detail = build ? await fetchBuildDetailAtBuildTime(build.shortId) : null;
   return getBuildSlugStaticProps(builds, params.slug, detail);
