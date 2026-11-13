@@ -5,6 +5,15 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.8',
+    'gameVer': '2.3.561',
+    'date': '14/11/2026',
+    'features': [
+      'Stamps: a Page setting shows the material you own and need under each stamp at its max level'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '4.0.7',
     'gameVer': '2.3.561',
     'date': '13/11/2026',

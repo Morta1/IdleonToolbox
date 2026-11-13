@@ -131,7 +131,7 @@ const Stamps = () => {
   const stampReducer = account?.atoms?.stampReducer ?? 0;
   const steps = reducerSteps(account);
   // gilded follows the account until the player changes it: a default that moves with the save, stored only as an edit
-  const stampDefaults = { gilded: gildedStamps > 0, reducer: null, keepGreenstacks: false, bestCarry: false, showGained: true };
+  const stampDefaults = { gilded: gildedStamps > 0, reducer: null, keepGreenstacks: false, bestCarry: false, showGained: true, showMaterial: false };
   const [settings, setSettings, resetSettings] = usePageSettings('stamps', stampDefaults);
   // A failed section's page has no settings, so a saved reducer prices nothing there
   const reducerSet = !stampsFailed && settings?.reducer !== null && settings?.reducer !== undefined;
@@ -270,6 +270,8 @@ const Stamps = () => {
                              help={'Carry capacity as at its best: Ruck Sack on, Zerg Rushogen off, the VMan talent, the three carry star signs and a Nanochip if you own one.'}/>
         <PageSettings.Toggle name={'showGained'} label={'Show levels gained'}
                              help={'Each stamp that levelled since your snapshot shows how many levels.'}/>
+        <PageSettings.Toggle name={'showMaterial'} label={'Show material under each stamp'}
+                             help={'A stamp at its max level shows the material that raises it: what you own over what it needs.'}/>
       </PageSettings>}
       <PageSummary>
         <StatTile label={'Gilded stamps'} icon={'data/GildedStamp.png'} value={riftFailed ? '-' : formatNum(gildedStamps)}
@@ -327,6 +329,7 @@ const Stamps = () => {
                 <CardGrid size={'icon'} columns={asRows ? undefined : BOOK_COLUMNS} fill>
                   {shown.map((stamp) => stampTile(stamp, {
                     failed: stampsFailed,
+                    material: settings?.showMaterial && !stampsFailed ? materialLines(stamp, detailsContext) : undefined,
                     selected: drawerOpen && stamp.rawName === picked,
                     onSelect: stampsFailed ? undefined : () => {
                       setPicked(stamp.rawName);
@@ -376,11 +379,13 @@ const noop = () => {};
 // triangle while it can level up (at the reducer in use or the step below), and the levels gained since the snapshot as a
 // count, which wins over it. A mouse over it previews its details (NOTE_ANCHOR, a mark only: a click opens the drawer, so
 // the tile stays a pressed button, not a note's). A tap picks it for the details drawer, which it keeps open and swaps
-const stampTile = (stamp, { failed, selected, onSelect }) => <IconTile
+const stampTile = (stamp, { failed, material, selected, onSelect }) => <IconTile
   key={stamp.rawName}
   icon={`data/${stamp.rawName}.png`}
   alt={cleanUnderscore(stamp.displayName)}
   value={formatNum(stamp.level)}
+  sub={material}
+  height={material ? MATERIAL_TILE_HEIGHT : undefined}
   frame={stamp.exalted ? 'etc/Exalted_Stamp_Frame.png' : undefined}
   status={failed || stamp.level > 0 ? undefined : 'missing'}
   edge={failed ? undefined : EDGE_OF[stamp.state]}
@@ -388,6 +393,23 @@ const stampTile = (stamp, { failed, selected, onSelect }) => <IconTile
   selected={selected}
   onSelect={onSelect}
   buttonProps={{ 'data-stamp': stamp.rawName, ...(failed ? {} : { [NOTE_ANCHOR]: stamp.rawName }) }}/>;
+
+// Two sub lines fit a 72 px tile where "12.3M / 45.6M" on one does not: the sprite and what you own, then what it needs
+const MATERIAL_TILE_HEIGHT = 102;
+const shortCount = (value) => (value >= 1e4 ? formatGame(value, 'Big', { whole: true }) : formatNum(value, 'whole'));
+// Only a stamp at its max level costs its material (a level below costs coins); every other tile gets no lines, so the
+// grid's tiles keep one height
+const materialLines = ({ level, maxLevel, itemReq, materialCost, ownedMats, greenStackOwnedMats }, { keepGreenstacks, reducerUnknown }) => {
+  if (!(level > 0) || level < maxLevel || reducerUnknown || !itemReq?.rawName) return [];
+  const owned = (keepGreenstacks ? greenStackOwnedMats : ownedMats) ?? 0;
+  return [
+    <Stack key={'owned'} component={'span'} direction={'row'} sx={{ alignItems: 'center', justifyContent: 'center', gap: 0.5 }}>
+      <GameIcon src={`data/${itemReq.rawName}.png`} size={16} alt={cleanUnderscore(itemReq.name ?? '')}/>
+      {shortCount(owned)}
+    </Stack>,
+    `/ ${shortCount(materialCost ?? 0)}`
+  ];
+};
 
 // The preview a mouse gets: the drawer's first part, the stamp's sentence, its state and what its next level costs
 const stampNote = (stamp, { keepGreenstacks, reducerUnknown }) => {
