@@ -29,7 +29,8 @@ export const patchNotes = [
       'Owl: Feather Generation read as locked after a restart, the first upgrade goal read 100 instead of 1,000, and the Feather Restart alerts could miss',
       'Poppy: upgrades read as locked until the fish waiting to be added were counted, and the average reset points left out unspent points',
       'Bubba: upgrade levels left out their bonus levels, and capped upgrades still showed a cost',
-      'Gem Shop: unlimited and restocking items read as maxed or showed a cost to max'
+      'Gem Shop: unlimited and restocking items read as maxed or showed a cost to max',
+      'Palette board: a colour level and odds stay centred on its hex after a live level up'
     ]
   },
   {

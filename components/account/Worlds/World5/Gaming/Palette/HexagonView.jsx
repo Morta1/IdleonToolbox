@@ -130,7 +130,8 @@ const HexagonView = ({ palette, hexagonPositions, gridBounds, hexagonSize, itemM
                   opacity: 0.7,
                   pointerEvents: 'none'
                 }}/> : null}
-                <Stack gap={1} alignItems={'center'} justifyContent={'center'}>
+                {/* nowrap + centred: a live level up can lay the stack out narrower than its text, wrapping the odds off-centre */}
+                <Stack gap={1} alignItems={'center'} justifyContent={'center'} sx={{ whiteSpace: 'nowrap', textAlign: 'center' }}>
                   {level > 0 ? <Typography variant={'value'} component={'div'} sx={ON_FILL_SX}>
                     {formatNum(level, 'level')}
                   </Typography> : null}
