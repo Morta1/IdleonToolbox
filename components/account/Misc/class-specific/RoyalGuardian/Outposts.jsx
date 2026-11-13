@@ -10,7 +10,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
 import IconTile from '@components/common/cards/IconTile';
 import StatTile from '@components/common/cards/StatTile';
-import InfoButton, { NoteTrigger } from '@components/common/InfoButton';
+import InfoButton, { DottedValue, NoteTrigger } from '@components/common/InfoButton';
 import WithLastWord from '@components/common/WithLastWord';
 import Notice from '@components/common/Notice';
 import Toolbar from '@components/common/Toolbar';
@@ -72,8 +72,10 @@ const RankBoundField = ({ label, onSettled }) => {
 // the site's own assets: public/data is the untouched game dump.
 const unitIcon = (unit) => `etc/RGunit${unit}.png`;
 
-// A short amount with the game's exact one in a note, where the two differ (Meals' exactNote)
-const exactOnTap = (short, exact) => (short === exact ? short : <NoteTrigger note={exact}>{short}</NoteTrigger>);
+// A short amount with the game's exact one in a note, where the two differ (Meals' exactNote): the dotted underline says so
+const exactOnTap = (short, exact) => (short === exact ? short : <DottedValue note={exact}>{short}</DottedValue>);
+// The game prints a rate's every digit up to a billion ("330,759,269/hr"), which wrapped in a 300 px card's stat box
+const rateValue = (rate) => exactOnTap(`${formatNum(rate ?? 0)}/hr`, `${formatGame(rate ?? 0, 'RoyalG.OutpostResourceRate')}/hr`);
 
 // A unit slot: a 34 px box round its sprite, dashed when empty. Its name opens in a note on hover, a tap or Enter, as a
 // tile's does: a title alone left a phone no way to read it
@@ -223,10 +225,10 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
                      more={outpostSections(outpost)}>
       {/* With Details, rate, range and points as one row of three, as the old card had them, not three fact rows */}
       {details ? <ItemCard.Stats cols={[
-        ['Rate', `${formatGame(resourceRate ?? 0, 'RoyalG.OutpostResourceRate')}/hr`],
+        ['Rate', rateValue(resourceRate)],
         ['Range', `${formatGame(range ?? 0, 'RoyalG.OutpostRange')}px`],
         ['PTS', `${formatNum(ptsLeft ?? 0, 'whole')} / ${formatNum(ptsTotal ?? 0, 'whole')}`]
-      ]}/> : <ItemCard.Facts rows={[['Collection rate', `${formatGame(resourceRate ?? 0, 'RoyalG.OutpostResourceRate')}/hr`]]}/>}
+      ]}/> : <ItemCard.Facts rows={[['Collection rate', rateValue(resourceRate)]]}/>}
       {details ? bars.map(rankBar) : keyBar ? rankBar(keyBar) : null}
     </ItemCard>;
   };
@@ -291,7 +293,11 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
       </ItemCard.Section> : null}
     </>;
 
-  const grid = (items) => <CardGrid size={'m'} details={view?.details}>
+  // Every part of a card on its own grid row, level with the same part of the cards beside it, so rates and ranks read
+  // across. Details: header, rate/range/PTS, a bar per rank, then units, connected resources and upgrades. Compact: header,
+  // collection rate, one bar (a clearing map's three parts fit either)
+  const alignRows = view?.details ? 2 + OUTPOST_RANK_NAMES.length + 3 : 3;
+  const grid = (items) => <CardGrid size={'m'} details={view?.details} alignRows={alignRows}>
     {items.map((item) => (item.isClearing ? clearingCard(item, clearingHint) : outpostCard(item)))}
   </CardGrid>;
   const groupedWorlds = [...new Set(sorted.map(({ world }) => world))].sort((a, b) => a - b);

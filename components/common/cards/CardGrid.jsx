@@ -10,6 +10,11 @@ export const useCardSize = () => useContext(CardSize);
 // passes on what it sits in, so an icon grid inside a card changes nothing.
 const CardDetails = createContext(false);
 export const useCardDetails = () => useContext(CardDetails);
+// alignRows: each ItemCard spans that many of the grid's rows as a subgrid, one row per part (its header, each fact row,
+// each bar), so a row's cards keep every part level and read across (Outposts' rates and ranks). Every card must span the
+// same count: the most parts any card draws. A grid that doesn't say passes on what it sits in.
+const CardRows = createContext(0);
+export const useCardRows = () => useContext(CardRows);
 
 // IconTiles are a fixed 72 px square, so their grid packs whole tiles 8 px apart (the Cards board's icon grid). The icon
 // size holds IconTiles only: an ItemCard reads its padding from the grid's size. count fixes the icon grid's columns
@@ -88,10 +93,11 @@ const evenRowsGrid = (tiles, floor = EVEN_FLOOR, gap = EVEN_GAP) => {
   ]);
   return { '--tile-max': 'none', ...sheetColumnsOf(counts[0] ?? tiles), ...Object.fromEntries(steps) };
 };
-const CardGrid = ({ size = 'm', columns: count, maxColumns, sheetColumns, sheetBare, sheetTile, withBorder, flow, fill, evenRows, details, children, sx, ...rest }) => {
+const CardGrid = ({ size = 'm', columns: count, maxColumns, sheetColumns, sheetBare, sheetTile, withBorder, flow, fill, evenRows, details, alignRows, children, sx, ...rest }) => {
   const sheet = useSheet();
   const inherited = useCardDetails();
-  const grid = <CardDetails.Provider value={details ?? inherited}><CardSize.Provider value={size}>
+  const inheritedRows = useCardRows();
+  const grid = <CardRows.Provider value={alignRows ?? inheritedRows}><CardDetails.Provider value={details ?? inherited}><CardSize.Provider value={size}>
     <Box {...rest} sx={[
       flow ? { columnWidth: CARD_MIN_WIDTH[size], columnGap: 2, '& > *': { breakInside: 'avoid', mb: 2 }, '& > :last-child': { mb: 0 } }
         : { display: 'grid', gridTemplateColumns: columns(size, count, maxColumns), gap: size === 'icon' ? 1 : 2 },
@@ -105,7 +111,7 @@ const CardGrid = ({ size = 'm', columns: count, maxColumns, sheetColumns, sheetB
     ]}>
       {children}
     </Box>
-  </CardSize.Provider></CardDetails.Provider>;
+  </CardSize.Provider></CardDetails.Provider></CardRows.Provider>;
   return evenRows ? <Box sx={{ containerType: 'inline-size' }}>{grid}</Box> : grid;
 };
 

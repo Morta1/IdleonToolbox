@@ -6,7 +6,7 @@ import Num, { numOrNode } from '@components/common/Num';
 import StatusText from '@components/common/StatusText';
 import WithLastWord from '@components/common/WithLastWord';
 import { formatNum, gameLines } from '@utility/helpers';
-import { useCardDetails, useCardSize } from './CardGrid';
+import { useCardDetails, useCardRows, useCardSize } from './CardGrid';
 import { CARD_PADDING, cardState, cardSurface, dimKeepingMeta, isNumberLike, textOf } from './tokens';
 
 // The icon follows the card size unless the card passes iconSize (2b Decision 3 keeps some art at 56 on M cards).
@@ -99,6 +99,7 @@ const reachedMax = (level) => Number.isFinite(level?.max) && level.max > 0 && (l
 const ItemCard = ({ href, onClick, prefetch, status: givenStatus, dimmed, keepMeta, size, footer, more, children, ...props }) => {
   const gridSize = useCardSize();
   const showDetails = useCardDetails();
+  const alignRows = useCardRows();
   const cardSize = size ?? gridSize;
   const derivedMax = givenStatus == null && reachedMax(props.level);
   const status = derivedMax ? 'maxed' : givenStatus;
@@ -117,7 +118,10 @@ const ItemCard = ({ href, onClick, prefetch, status: givenStatus, dimmed, keepMe
       color: 'text.primary',
       textDecoration: 'none'
     },
-    href && ((theme) => ({ '&:hover': { borderColor: (theme.vars || theme).palette.primary.main } }))
+    href && ((theme) => ({ '&:hover': { borderColor: (theme.vars || theme).palette.primary.main } })),
+    // Unused rows at the foot take no gap: the card's last part closes it
+    alignRows > 0 && { display: 'grid', gridTemplateRows: 'subgrid', gridRow: `span ${alignRows}`, rowGap: 0,
+      '& > *:not(:last-child)': { mb: 1.5 } }
   ]}>
     {header.title || header.icon || header.level || header.meta
       ? <ItemCardHeader {...header} size={cardSize} status={status} link={Boolean(href)}/>
