@@ -33,7 +33,8 @@ export const patchNotes = [
       'Gem Shop: unlimited and restocking items read as maxed or showed a cost to max',
       'Palette board: a colour level and odds stay centred on its hex after a live level up',
       'Dashboard: the Double Clusters alert counts the Zenith Clusters still in your inventories',
-      'Buildings: towers outside a build slot show their real progress and time left instead of a huge number and Ready'
+      'Buildings: towers outside a build slot show their real progress and time left instead of a huge number and Ready',
+      'Dashboard: the Sailing chest alert now fires when your banked sailing time fills every chest slot'
     ]
   },
   {

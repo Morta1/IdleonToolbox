@@ -89,8 +89,7 @@ const parseSailing = (artifactsList: any, sailingRaw: any, captainsRaw: any, boa
   const rareTreasureChance = getRareTreasureChance();
   const lootPileList = getLootPile(lootPile);
   const captainsAndBoats = getCaptainsAndBoats(sailingRaw, captainsRaw, boatsRaw, account, charactersData, charactersLevels, artifactsList, lootPileList, serverVars);
-  const boatsRoundtrips = captainsAndBoats?.boats?.map(({ maxTime }: any) => maxTime).filter((time: any) => Number.isFinite(time));
-  const timeToFullChests = calculateMaxCapacityTime(boatsRoundtrips, maxChests - (chests?.length || 0));
+  const timeToFullChests = getTimeToFullChests(captainsAndBoats?.boats, maxChests - (chests?.length || 0));
   const trades = getFutureTrades(captainsAndBoats, sailingRaw?.[0], lootPileList, artifactsList, account);
 
   return {
@@ -106,22 +105,49 @@ const parseSailing = (artifactsList: any, sailingRaw: any, captainsRaw: any, boa
   };
 }
 
-const calculateMaxCapacityTime = (roundtripTimes: any, maxCapacity: any) => {
-  if (!roundtripTimes?.length) return undefined;
-  const minTime = Math.min(...roundtripTimes);
-  const acquisitionRate = maxCapacity / minTime;
-  let accumulatedTime = 0;
-  let chestCount = 0;
+const getChestBoats = (boats: any) => (boats ?? []).filter((boat: any) => boat?.chestOdds && boat?.island?.distance > 0 && boat?.speed?.value > 0);
 
-  for (const boatTime of roundtripTimes) {
-    accumulatedTime += boatTime;
-    chestCount += acquisitionRate * (accumulatedTime - boatTime);
-    if (chestCount >= maxCapacity) {
-      break;
+// game: boats only move while the Sailing menu is open. Each frame spends 3% of the unspent sailing time
+// (OptionsListAccount[124]), all of it once 10s or less is left; an arriving boat drops its overshoot, and
+// with the chest shelf full it parks. Cloud trips bring no chest.
+export const getChestsFromSailingTime = (boats: any, freeSlots: number, seconds: number) => {
+  const chestBoats = getChestBoats(boats).map((boat: any) => ({
+    progress: boat.distanceTraveled ?? 0,
+    distance: boat.island.distance,
+    perSecond: boat.speed.value / 3600
+  }));
+  let chests = 0;
+  let pool = Math.max(0, seconds || 0);
+  while (pool > 0 && chests < freeSlots && chestBoats.length) {
+    const step = pool > 10 ? 0.03 * pool : pool;
+    pool = pool > 10 ? 0.97 * pool : 0;
+    for (const boat of chestBoats) {
+      boat.progress += step * boat.perSecond;
+      if (boat.progress > boat.distance) {
+        chests += 1;
+        boat.progress = 0;
+      }
     }
   }
+  return Math.min(chests, freeSlots);
+}
 
-  return accumulatedTime;
+// Least unspent sailing time (ms) that fills every free chest slot
+const getTimeToFullChests = (boats: any, freeSlots: number) => {
+  const chestBoats = getChestBoats(boats);
+  if (!chestBoats.length) return undefined;
+  if (freeSlots <= 0) return 0;
+  const fills = (seconds: number) => getChestsFromSailingTime(chestBoats, freeSlots, seconds) >= freeSlots;
+  let high = 60;
+  while (!fills(high) && high < 1e13) high *= 2;
+  if (!fills(high)) return undefined;
+  let low = 0;
+  while (high - low > 1) {
+    const mid = (low + high) / 2;
+    if (fills(mid)) high = mid;
+    else low = mid;
+  }
+  return Math.ceil(high) * 1000;
 }
 
 const getFutureTrades = ({ boats }: any = {}, islands: any, lootPileList: any, artifactsList: any, account: any) => {

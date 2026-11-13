@@ -14,6 +14,7 @@ import { getHoopsData, getDartsData } from '@parsers/highScores';
 import { getDoubleStatueDrop, getKillRoyShopBonus } from '@parsers/misc';
 import { getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
+import { getChestsFromSailingTime } from '@parsers/world-5/sailing';
 import raw from '../../data/raw.json';
 
 const FIXTURES = allFixtures();
@@ -133,18 +134,11 @@ describe('values with no live reading yet', () => {
 
   it('time to full chests', () => onEverySave(({ account }) => {
     if (!account.sailing) return;
-    const trips = account.sailing.boats.map((boat) => (boat.island?.distance / boat.speed?.value) * 3600 * 1000).filter(Number.isFinite);
-    if (!trips.length) return expect(account.sailing.timeToFullChests).toBeUndefined();
-    const capacity = account.sailing.maxChests - (account.sailing.chests?.length || 0);
-    const rate = capacity / Math.min(...trips);
-    let elapsed = 0;
-    let chests = 0;
-    for (const trip of trips) {
-      elapsed += trip;
-      chests += rate * (elapsed - trip);
-      if (chests >= capacity) break;
-    }
-    expect(account.sailing.timeToFullChests).toBe(elapsed);
+    const { boats, maxChests, chests, timeToFullChests } = account.sailing;
+    const free = maxChests - (chests?.length || 0);
+    if (!boats.some((boat) => boat.chestOdds)) return expect(timeToFullChests).toBeUndefined();
+    if (free <= 0) return expect(timeToFullChests).toBe(0);
+    expect(getChestsFromSailingTime(boats, free, timeToFullChests / 1000)).toBe(free);
   }));
 
   // game: SummVictories(0), every career win with endless included. A win counts if it is a white battle or a Death Note monster.

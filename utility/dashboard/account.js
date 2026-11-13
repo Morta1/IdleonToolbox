@@ -9,9 +9,10 @@ import {
   getTotalMealSpeed,
   maxNumberOfSpiceClicks
 } from '@parsers/world-4/cooking';
-import { cleanUnderscore, getDuration, getNextCompanionClaim, hoursUntilDailyReset, notateNumber, notateProgress, totalHoursBetweenDates } from '../helpers';
+import { cleanUnderscore, getNextCompanionClaim, hoursUntilDailyReset, notateNumber, notateProgress, totalHoursBetweenDates } from '../helpers';
 import { isRiftBonusUnlocked } from '@parsers/world-4/rift';
 import { LAYER_BREAKS_PER_DAY } from '@parsers/world-5/caverns/motherlode';
+import { getChestsFromSailingTime } from '@parsers/world-5/sailing';
 import { FAMILIAR_EXP_MIN_CLAIM_SECONDS, getFamiliarLevelGains, getPendingFamiliarExp } from '@parsers/world-6/summoning';
 import { items, liquidsShop, ninjaExtraInfo } from '@website-data';
 import { getPowerPerCycle, getRefineryCycleTimes, getSaltMatsTimeLeft, getSaltsBalance, hasMissingMats } from '@parsers/world-3/refinery';
@@ -1261,14 +1262,14 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
       }
     }
     if (chests?.checked) {
-      const sailingTime = 259200 < account?.accountOptions?.[124]
-        ? Math.floor(account?.accountOptions?.[124] / 8640) / 10
-        : Math.floor(account?.accountOptions?.[124] / 3600);
-      const { maxChests, timeToFullChests } = account?.sailing;
-      const { hours } = getDuration(new Date().getTime(), timeToFullChests);
-      const availableChests = sailingTime > hours && maxChests > 0;
-      if (availableChests > 0) {
-        sailing.chests = availableChests;
+      const { maxChests, chests: shelf, boats } = account?.sailing || {};
+      const freeSlots = (maxChests || 0) - (shelf?.length || 0);
+      // the save's unspent sailing time, plus the time credited since (TimeAway.Sailing) at its 1x floor
+      const lastCredit = Number(account?.timeAway?.Sailing) || Number(account?.timeAway?.GlobalTime) || 0;
+      const unspentSeconds = (Number(account?.accountOptions?.[OPT.unspentSailingSeconds]) || 0)
+        + (lastCredit > 0 ? Math.max(0, Date.now() / 1000 - lastCredit) : 0);
+      if (maxChests > 0 && (freeSlots <= 0 || getChestsFromSailingTime(boats, freeSlots, unspentSeconds) >= freeSlots)) {
+        sailing.chests = true;
       }
     }
     if (Object.keys(sailing).length > 0) {

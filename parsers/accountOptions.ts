@@ -28,6 +28,7 @@ export const OPT = {
   killroyPearlDropsLevel: 111,
   killroyDone: 113,
   dragonicCauldrons: 123,
+  unspentSailingSeconds: 124,
   daysSinceLastSample: 125,
   atomColliderThresholdSetting: 133,
   hydrogenDays: 134,

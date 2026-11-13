@@ -552,9 +552,9 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                   title={`Snail upgrade success chance is ${formatNum(alerts?.['World 5']?.gaming?.snail, 'pct')}`}
                   iconPath={'data/GamingItem7'}/> : null}
 
-              {alerts?.['World 5']?.sailing?.chests > 0 ? <Alert target={'World 5.sailing.chests'} key={'sailing-chest-alert'}
-                                                                 title={`You've reached the maximum capacity of chests`}
-                                                                 iconPath={'npcs/Chesty'}/> : null}
+              {alerts?.['World 5']?.sailing?.chests ? <Alert target={'World 5.sailing.chests'} key={'sailing-chest-alert'}
+                title={'Your boats have enough sailing time to fill every chest slot: open Sailing to collect'}
+                iconPath={'npcs/Chesty'}/> : null}
               {alerts?.['World 5']?.sailing?.captains?.length > 0 ?
                 alerts?.['World 5']?.sailing?.captains?.map(({ captain, bonus, badCaptains, enderCaptain }) => {
                   return <Alert target={'World 5.sailing.captains'}
