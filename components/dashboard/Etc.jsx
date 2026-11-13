@@ -17,7 +17,7 @@ import CardGrid from '@components/common/cards/CardGrid';
 import { LinkMark } from '@components/common/cards/ItemCard';
 import ViewSwitch from '@components/common/ViewSwitch';
 import useToolbarState from '@hooks/useToolbarState';
-import InfoButton from '@components/common/InfoButton';
+import InfoButton, { DottedValue } from '@components/common/InfoButton';
 import AlertIcon, { counted } from './AlertIcon';
 import { alertMeta } from '@utility/dashboard/alertMeta';
 import { calcHappyHours } from '@parsers/dungeons';
@@ -669,6 +669,7 @@ const inWorld = (world, rows) => (rows ? React.Children.toArray(rows.props.child
 // Plain functions so React Compiler reads the clock each time the row's values change, never only once.
 const deadlineOf = (time, lastUpdated) => (lastUpdated ? time - (Date.now() - lastUpdated) : time);
 const isOver = (deadline) => deadline <= Date.now();
+const yearsLeft = (deadline) => (deadline - Date.now()) / YEAR;
 
 // What a row's props say right now, read by the row and by the board that places it, so the two never disagree.
 const readRow = ({ failed, time, value, forcePlaceholder, long, lastUpdated }) => {
@@ -676,9 +677,10 @@ const readRow = ({ failed, time, value, forcePlaceholder, long, lastUpdated }) =
   const noTime = failed || (time == null && value === undefined && !forcePlaceholder);
   const deadline = deadlineOf(time, lastUpdated);
   // A date past what a Date can hold has no exact time either
-  const farOff = long || (Number.isFinite(deadline) && !isValid(new Date(deadline)));
+  const dated = Number.isFinite(deadline) && isValid(new Date(deadline));
+  const farOff = long || (Number.isFinite(deadline) && !dated);
   const over = !farOff && (forcePlaceholder || isOver(deadline));
-  return { noTime, deadline, farOff, over };
+  return { noTime, deadline, dated, farOff, over };
 };
 
 // The shape a TimerRow draws, from the band that holds it: a Ready now cell or a Coming up row.
@@ -688,7 +690,7 @@ const RowShape = createContext('coming');
 // so with a mark, a muted sub, or a state (what qualifies a countdown, gone once it reads its word), and its countdown or its
 // word, plain: a state reads as a state, and nobody expects one to leave the page. Counting, it carries its exact
 // time too. message(when, over): the quick edit's words, with when the row's own state (the exact time, its
-// word, or "A long time"), so they never contradict it. placeholderStatus: "ready" for a state to act on, "problem" for one
+// word, or "A long time" past what a Date holds), so they never contradict it. placeholderStatus: "ready" for a state to act on, "problem" for one
 // that costs something; past its time a row with no word reads Ready. lastUpdated: only a time the parsers anchor on their
 // own clock (see Timer). failed: read from a failed section's default. value: a row that shows something else than a
 // countdown. world: which By world box it goes in (the board reads it off its props). actNow: ready while it still counts, reading its state (a window to
@@ -703,14 +705,19 @@ const TimerRow = ({
   const formatDate = useFormatDate();
   const title = name ?? alertMeta[`timers.${target}`]?.label;
   const word = <StatusText status={placeholderStatus}>{placeholder}</StatusText>;
-  const { noTime, deadline, farOff, over } = readRow({ failed, time, value: ownValue, forcePlaceholder, long, lastUpdated });
-  const when = farOff ? 'A long time' : over ? placeholder : formatDate(deadline, { showSeconds: false });
+  const { noTime, deadline, dated, farOff, over } = readRow({ failed, time, value: ownValue, forcePlaceholder, long, lastUpdated });
+  // A row past the year cut-off still names its date in the icon's note while a Date can hold it, and past that how many years
+  const when = farOff && !dated
+    ? Number.isFinite(deadline) ? `in ${formatNum(yearsLeft(deadline))} years` : 'A long time'
+    : over ? placeholder : formatDate(deadline, { showSeconds: false });
   const words = noTime ? undefined : message ? message(when, over) : `${title}: ${when}`;
+  // A counting time opens its end from a dotted underline, so nobody does the math off the countdown
+  const ends = (content) => (Number.isFinite(deadline) ? <DottedValue label={`${title} ends`} note={`Ends ${when}`}>{content}</DottedValue> : content);
   const shown = noTime ? '-'
     : ownValue !== undefined ? ownValue
-      : farOff ? 'A long time'
-        : forcePlaceholder ? word
-          : <Timer type={'countdown'} date={time} lastUpdated={lastUpdated} component={'span'} placeholder={word}/>;
+      : farOff ? ends('A long time')
+        : forcePlaceholder || over ? word
+          : ends(<Timer type={'countdown'} date={time} lastUpdated={lastUpdated} component={'span'} placeholder={word}/>);
   const href = page ? { pathname: page, query: { ...sessionQuery(router.query), ...query } } : null;
   const label = href && !noTime
     ? <Link component={NextLink} href={href} color={'inherit'} underline={'hover'} variant={'body2'} sx={{ fontWeight: 'inherit' }}>{title}<LinkMark sx={{ ml: 0.5 }}/></Link>
