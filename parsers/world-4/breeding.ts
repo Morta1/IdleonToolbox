@@ -9,7 +9,8 @@ import { getStarSignBonus } from '@parsers/starSigns';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { getLampBonus } from '@parsers/world-5/caverns/the-lamp';
 import { getUpgradeVaultBonus } from '@parsers/misc/upgradeVault';
-import { getLoggedInSkillLevel } from '@parsers/misc';
+import { getLoggedInSkillLevel, isMasteryBonusUnlocked } from '@parsers/misc';
+import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { CLASSES, getBestActiveCharacter, getHighestTalentAcrossCharacters } from '@parsers/talents';
 import { getArcadeBonus } from '@parsers/world-2/arcade';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
@@ -581,3 +582,21 @@ export const getEggsPowerRange = (characters: any) => {
     }
   })
 }
+
+// The game's egg time (other sections' bonuses): 2 hours over the jewel, meal, bubble, achievement, skill mastery and
+// vote bonuses
+export const BASE_EGG_SECONDS = 7200;
+export const eggSpeedSources = (account: any) => [
+  percent('Emerald Rhinestone (Jewel)', getJewelBonus(account?.lab?.jewels, 11)),
+  percent('Meals', getMealsBonusByEffectOrStat(account, null, 'TimeEgg')),
+  percent('Egg Ink (Bubble)', getBubbleBonus(account, 'EGG_INK', false)),
+  percent('Achievement', 10 * getAchievementStatus(account?.achievements, 220)),
+  percent('Breeding mastery', 15 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.breeding?.rank, 1)),
+  percent('Vote', getVoteBonus(account, 16) || 0)
+];
+
+// Milliseconds per egg
+export const calcTimePerEgg = (account: any): number => {
+  const sum = eggSpeedSources(account).reduce((total, { value }) => total + (Number(value) || 0), 0);
+  return BASE_EGG_SECONDS / (1 + sum / 100) * 1000;
+};

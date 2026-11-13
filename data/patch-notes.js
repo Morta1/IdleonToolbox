@@ -12,7 +12,8 @@ export const patchNotes = [
       'Stamps: a Page setting shows the material you own and need under each stamp at its max level',
       'Gaming Imports: the Elegant Seashell card shows your shell rank and plants evolved, and the Bog Log card shows your best round and its bit multiplier once Pro Log Flipper is unlocked',
       'Characters: the Skills panel shows an AFK rate breakdown for every AFK skill, not only the one the character is doing',
-      'Royal Armory: outpost cards line up their rates and ranks side by side for easy comparing, and long rates show short (331M/hr) with the exact number on hover'
+      'Royal Armory: outpost cards line up their rates and ranks side by side for easy comparing, and long rates show short (331M/hr) with the exact number on hover',
+      'Leaderboards: 42 new boards across every tab, from Achievements to Crop Evolution. Upload your profile again to appear on all of them.'
     ],
     'fixes': [
       'Breakdowns: base lines on Damage, HP, MP, Accuracy and AFK Gains now show their share of the base, and no share goes past 100%'

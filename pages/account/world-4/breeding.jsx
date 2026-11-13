@@ -6,14 +6,8 @@ import Territory from '@components/account/Worlds/World4/Breeding/Territory';
 import { formatDuration, formatNum, getTabs } from 'utility/helpers';
 import { NextSeo } from 'next-seo';
 import Pets from '@components/account/Worlds/World4/Breeding/Pets/Pets';
-import { getJewelBonus } from '@parsers/world-4/lab';
-import { getMealsBonusByEffectOrStat } from '@parsers/world-4/cooking';
-import { getBubbleBonus } from '@parsers/world-2/alchemy';
-import { getAchievementStatus } from '@parsers/achievements';
-import { isMasteryBonusUnlocked } from '@parsers/misc';
 import Timer from '../../../components/common/Timer';
 import Tabber from '../../../components/common/Tabber';
-import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { PAGES } from '@components/constants';
 import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
 import PageSummary from '@components/common/cards/PageSummary';
@@ -21,24 +15,8 @@ import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import { Duration } from '@components/common/Num';
-import { additiveGroup, createBreakdown, divideGroup, flat, flatLines, percent } from '@parsers/breakdown';
-
-// The game's egg time (other sections' bonuses): 2 hours over the jewel, meal, bubble, achievement, skill mastery and
-// vote bonuses
-const BASE_EGG_SECONDS = 7200;
-const eggSpeedSources = (account) => [
-  percent('Emerald Rhinestone (Jewel)', getJewelBonus(account?.lab?.jewels, 11)),
-  percent('Meals', getMealsBonusByEffectOrStat(account, null, 'TimeEgg')),
-  percent('Egg Ink (Bubble)', getBubbleBonus(account, 'EGG_INK', false)),
-  percent('Achievement', 10 * getAchievementStatus(account?.achievements, 220)),
-  percent('Breeding mastery', 15 * isMasteryBonusUnlocked(account?.rift, account?.totalSkillsLevels?.breeding?.rank, 1)),
-  percent('Vote', getVoteBonus(account, 16) || 0)
-];
-
-const calcTimePerEgg = (account) => {
-  const sum = eggSpeedSources(account).reduce((total, { value }) => total + (Number(value) || 0), 0);
-  return BASE_EGG_SECONDS / (1 + sum / 100) * 1000;
-};
+import { additiveGroup, createBreakdown, divideGroup, flat, flatLines } from '@parsers/breakdown';
+import { BASE_EGG_SECONDS, calcTimePerEgg, eggSpeedSources } from '@parsers/world-4/breeding';
 
 // 2 hours over the egg speed sources, in seconds
 const eggTimeBreakdown = (account, text) => createBreakdown('Time per egg', text, [
