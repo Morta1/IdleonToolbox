@@ -14,6 +14,7 @@ import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
 
 const IMPORTS_TOOLBAR = { boxDetails: false };
+const PRO_LOG_FLIPPER = 56;
 
 // The game's font draws ₣ as its bits icon; | is the box text's line break
 const importText = (text) => cleanUnderscore(text ?? '').replace(/₣/g, 'bits').replace(/\|/g, '@');
@@ -72,6 +73,19 @@ const importExtras = (index, item, gaming, account, lastUpdated) => {
         <ShopTable rows={acornShop.map(({ description, level, cost }) => ({ name: description, level, cost }))} currency={'acorns'}/>
       </ItemCard.Section> : null}
     </>;
+  }
+  if (index === 3 && acquired) {
+    return <ItemCard.Facts rows={[
+      ['Shell rank', gaming?.elegantShellRank ?? 0, 'amount'],
+      ['Plants evolved', gaming?.totalPlantsPicked ?? 0, 'amount']
+    ]}/>;
+  }
+  // The game records and draws the best round only once Pro Log Flipper (superbit 56) is unlocked
+  if (index === 5 && gaming?.superbitsUpgrades?.[PRO_LOG_FLIPPER]?.unlocked) {
+    return <ItemCard.Facts rows={[
+      ['Best round', gaming?.logGameBestRound ?? 0, 'amount'],
+      ['Multiplier', formatNum(gaming?.logGameMulti ?? 1, 'mult')]
+    ]}/>;
   }
   if (index === 6) {
     return <ItemCard.Facts rows={[

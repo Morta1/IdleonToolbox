@@ -94,6 +94,9 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
   const bestNugget = gamingRaw?.[8];
   const elegantShellRank = gamingSproutRaw?.[28]?.[2];
   const totalPlantsPicked = gamingSproutRaw?.[28]?.[1];
+  // game: OptionsListAccount[497] is saved only while superbit 56 (Pro Log Flipper) is owned
+  const logGameBestRound = account?.accountOptions?.[OPT.logGameBestRound] ?? 0;
+  const logGameMulti = getLogGameMulti(logGameBestRound);
   const lastShovelClicked = gamingSproutRaw?.[26]?.[1];
   const goldNuggets = calcGoldNuggets(lastShovelClicked);
   const [squirrelLevel, lastAcornClicked, squirrelMulti] = gamingSproutRaw?.[27];
@@ -204,11 +207,16 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
     poingHighscore,
     poingMulti,
     totalPlantsPicked,
+    logGameBestRound,
+    logGameMulti,
     selectedSlots: spelunkRaw?.[10]?.reduce((res: any, value: any) => value !== -1 ? res + 1 : res, 0),
     ratKingCrownsClaimed: researchRaw?.[11]?.length || 0,
     ratKing
   };
 }
+
+// game: GamingStatType LogGameMulti
+export const getLogGameMulti = (bestRound: any) => Math.max(1, Math.pow(1.2, (bestRound ?? 1) - 1));
 
 export const getTotalPaletteLevels = (palette: any) => palette?.reduce((sum: number, item: any) => sum + (item?.level || 0), 0) ?? 0;
 
@@ -249,7 +257,7 @@ export const getBitsMulti = (account: any, characters: any) => {
   const cardBonus = getCardBonusByEffect(account?.cards, 'Gaming_Bit_Multi_(Passive)');
   const stickerBonus = getStickerBonus(account, 3);
   const vaultBonus = getUpgradeVaultBonus(account?.upgradeVault?.upgrades, 68);
-  const logGameMulti = Math.max(1, Math.pow(1.2, (account?.accountOptions?.[OPT.logGameBestRound] ?? 1) - 1));
+  const logGameMulti = getLogGameMulti(account?.accountOptions?.[OPT.logGameBestRound]);
   const value = (1 + 99 * accountOptionToggle)
     * (1 + gridBonus / 100)
     * (1 + gummyOrbArtifactBonus / 100)
