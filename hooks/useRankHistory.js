@@ -70,13 +70,14 @@ const useRankHistory = (uid, data) => {
     let newVisit = false;
     try {
       newVisit = !window.sessionStorage.getItem(visitKey(uid));
-      window.sessionStorage.setItem(visitKey(uid), '1');
     } catch {
       newVisit = false;
     }
     const next = nextHistory(parse(read(storageKey(uid))), data, newVisit);
     if (!next) return;
     try {
+      // Marked only once a newer run is applied: a tab opened before the next run still moves prev when that run lands.
+      window.sessionStorage.setItem(visitKey(uid), '1');
       window.localStorage.setItem(storageKey(uid), JSON.stringify(next));
       window.dispatchEvent(new Event('lb-seen'));
     } catch {
