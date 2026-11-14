@@ -1,11 +1,14 @@
-import React from 'react';
-import { Link, Skeleton, Stack, Typography } from '@mui/material';
+import React, { useContext, useState } from 'react';
+import { Button, Link, Skeleton, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
 import NextLink from 'next/link';
 import useHydrated from '@hooks/useHydrated';
 import useNow from '@hooks/useNow';
 import useFormatDate from '@hooks/useFormatDate';
+import useRankHistory from '@hooks/useRankHistory';
+import { AppContext } from '@components/common/context/AppProvider';
+import { formatNum } from '@utility/helpers';
 import GameIcon from '@components/common/GameIcon';
 import Notice, { retryAction } from '@components/common/Notice';
 import Panel from '@components/common/cards/Panel';
@@ -17,7 +20,7 @@ import CategoryTiles from './CategoryTiles';
 import { boardHref, openOnPlainClick } from './MetricCard';
 import MetricIcon from './MetricIcon';
 import RankRow, { ExactValue, HIGHLIGHT, MEDAL, TROPHIES } from './RankRow';
-import YouCard from './YouCard';
+import YouCard, { MoveText } from './YouCard';
 
 // Slots by position, left to right: second, first, third. The medal follows the row's rank, not its slot.
 const PODIUM_SLOTS = [1, 0, 2];
@@ -87,7 +90,7 @@ const settingsLink = <Link component={NextLink} href="/settings">Settings</Link>
 const standingOf = (player) => (player.context && !player.isError && player.data ? { data: player.data, kind: player.context.kind } : null);
 
 // The slot beside the global ranking: the You card, or whatever stands in for it.
-const YouSlot = ({ player, self, index, onClearPlayer, nextRun }) => {
+const YouSlot = ({ player, self, index, onClearPlayer, nextRun, changes }) => {
   const hydrated = useHydrated();
   const now = useNow(30000);
   const formatDate = useFormatDate();
@@ -120,7 +123,7 @@ const YouSlot = ({ player, self, index, onClearPlayer, nextRun }) => {
     }
     return <Notice>You are not on the leaderboards yet: upload your profile with leaderboards on in {settingsLink}.</Notice>;
   }
-  return <YouCard data={player.data} kind={player.context.kind} index={index}
+  return <YouCard data={player.data} kind={player.context.kind} index={index} changes={changes}
                   onClear={onClearPlayer} clearLabel={self.name ? 'Back to you' : 'Clear'}/>;
 };
 
@@ -162,7 +165,34 @@ const WithinReach = ({ reach, kind, index, onOpen, linkPlayer }) => (
   </Panel>
 );
 
+// The boards that moved most since the last visit, as Highlights lists the strongest ones; the rest one tap away.
+const SHOWN_MOVES = 3;
+const SinceLastVisit = ({ changes, index, onOpen, linkPlayer }) => {
+  const formatDate = useFormatDate();
+  const [showAll, setShowAll] = useState(false);
+  const moves = showAll ? changes.boards : changes.boards.slice(0, SHOWN_MOVES);
+  const rest = changes.boards.length - SHOWN_MOVES;
+  return <Panel title="Since your last visit"
+                meta={`Since ${formatDate(changes.since, { showSeconds: false })} · ${formatNum(changes.boards.length, 'whole')} ${changes.boards.length === 1 ? 'board' : 'boards'} moved`}>
+    {moves.map((move) => {
+      const meta = metaOf(index, move.metric);
+      const tabName = tabOfCategory(meta.category);
+      return <Panel.Row key={move.metric} sx={REACH_ROW_SX} icon={<MetricIcon metric={move.metric} label={meta.label}/>}
+                        name={<Link href={boardHref(meta, linkPlayer)} onClick={openOnPlainClick((key) => onOpen(key, 'since_last_visit'), move.metric)}
+                                    color="inherit" underline="none" sx={STRETCHED_LINK_SX}>{meta.label}</Link>}
+                        sub={`${tabName ? `${tabName} · ` : ''}${rankText(move.from)} to ${rankText(move.to)}`}
+                        value={<MoveText delta={move.delta}/>}/>;
+    })}
+    {rest > 0 ? <Box sx={{ px: 2, py: 1 }}>
+      <Button size="small" onClick={() => setShowAll(!showAll)} aria-expanded={showAll}>
+        {showAll ? 'Show fewer' : `And ${formatNum(rest, 'whole')} more`}
+      </Button>
+    </Box> : null}
+  </Panel>;
+};
+
 const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab, onClearPlayer, linkPlayer = null }) => {
+  const { state } = useContext(AppContext);
   const podium = useQuery({
     queryKey: ['lb-podium', !showAnonymous],
     queryFn: () => fetchBoard(GLOBAL_METRIC, { limit: 10, publicOnly: !showAnonymous }),
@@ -172,6 +202,10 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab
   const standing = standingOf(player);
   const picks = standing?.data.player.bestMetrics ?? [];
   const reach = standing ? withinReach(standing.data.ranks, index) : [];
+  // Only the signed-in player's own standing keeps a history: a searched player's changes would be this browser's guess.
+  const changes = useRankHistory(state?.uid, standing?.kind === 'logged' ? standing.data : null);
+  const moved = changes?.boards.length ? changes : null;
+  const panels = [picks.length, reach.length, moved].filter(Boolean).length;
   // An anonymous player in the top 10 is missing from the public list; they still go in their place.
   const viewed = standing?.data.player;
   const podiumRows = podium.data?.top ?? [];
@@ -186,7 +220,8 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab
         {/* The player's own standing comes first in the markup, so narrow screens show it first and
             read it first; side by side it moves to the right column. */}
         <Box sx={{ '@container (min-width: 860px)': { order: 1 } }}>
-          <YouSlot player={player} self={self} index={index} onClearPlayer={onClearPlayer} nextRun={nextRun}/>
+          <YouSlot player={player} self={self} index={index} onClearPlayer={onClearPlayer} nextRun={nextRun}
+                   changes={standing?.kind === 'logged' ? changes : null}/>
         </Box>
         {showsFailure(podium)
           ? <Notice key={podium.errorUpdateCount} tone={'error'} action={retryAction(() => podium.refetch(), podium.isFetching)}>
@@ -196,13 +231,14 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab
             ? <Podium rows={rows} highlight={highlight} onOpen={onOpen} linkPlayer={linkPlayer} index={index}/>
             : <Skeleton variant="rounded" height={420}/>}
       </Box>
-      {picks.length || reach.length ? (
+      {panels ? (
         <Box sx={{
           display: 'grid', gridTemplateColumns: '1fr', gap: 2.5, alignItems: 'start',
-          '@container (min-width: 760px)': { gridTemplateColumns: picks.length && reach.length ? '1fr 1fr' : '1fr' }
+          '@container (min-width: 760px)': { gridTemplateColumns: panels > 1 ? '1fr 1fr' : '1fr' }
         }}>
           {picks.length ? <Highlights picks={picks} kind={standing.kind} index={index}/> : null}
           {reach.length ? <WithinReach reach={reach} kind={standing.kind} index={index} onOpen={onOpen} linkPlayer={linkPlayer}/> : null}
+          {moved ? <SinceLastVisit changes={moved} index={index} onOpen={onOpen} linkPlayer={linkPlayer}/> : null}
         </Box>
       ) : null}
       <CategoryTiles index={index} ranks={standing?.data.ranks} onTab={onTab} linkPlayer={linkPlayer}/>
