@@ -14,7 +14,8 @@ export const patchNotes = [
       'Characters: the Skills panel shows an AFK rate breakdown for every AFK skill, not only the one the character is doing',
       'Royal Armory: outpost cards line up their rates and ranks side by side for easy comparing, and long rates show short (331M/hr) with the exact number on hover',
       'Leaderboards: 42 new boards across every tab, from Achievements to Crop Evolution. Upload your profile again to appear on all of them.',
-      'Characters: STR, AGI, WIS and LUK show where each stat comes from'
+      'Characters: STR, AGI, WIS and LUK show where each stat comes from',
+      'Dashboard: the Spelunking stamina % alert is now separate from the full stamina alert, with its own characters threshold and a grey icon'
     ],
     'fixes': [
       'Breakdowns: base lines on Damage, HP, MP, Accuracy and AFK Gains now show their share of the base, and no share goes past 100%'

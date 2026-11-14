@@ -211,9 +211,9 @@ const OptionRow = ({ option, tracker, foldedOptions = [], disabledReason = null,
         ? <PerWorld option={option} tracker={tracker} onAction={onAction} disabled={!option.checked || disabled}/> : null}
       {foldedOptions.map((folded) => <Box key={folded.name} sx={{ mt: 1 }}>
         <Typography variant="body2" color="text.secondary" sx={{ mb: 0.5 }}>{folded.label}</Typography>
-        {folded.type === 'array'
-          ? <ToggleChips option={folded} tracker={tracker} onAction={onAction} disabled={disabled}/>
-          : <Help text={folded.help}/>}
+        {folded.type === 'array' ? <ToggleChips option={folded} tracker={tracker} onAction={onAction} disabled={disabled}/> : null}
+        {folded.type === 'input' ? <OptionNumberField option={folded} tracker={tracker} onAction={onAction} disabled={disabled}/> : null}
+        {folded.type !== 'array' ? <Help text={folded.help}/> : null}
         <Help text={folded.type === 'array' ? folded.help : null}/>
       </Box>)}
     </Box>

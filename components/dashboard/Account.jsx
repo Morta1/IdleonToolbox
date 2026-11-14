@@ -849,16 +849,21 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                     ? ''
                     : 's'} available (${formatNum(alerts?.['World 7']?.spelunking?.pageReads?.current)}/${formatNum(alerts?.['World 7']?.spelunking?.pageReads?.max)})`}
                   iconPath={'data/Spelunking0'}/> : null}
+              {alerts?.['World 7']?.spelunking?.staminaPercent?.count >= alerts?.['World 7']?.spelunking?.staminaPercent?.threshold
+                ?
+                <Alert target={'World 7.spelunking.staminaPercent'}
+                  title={`${formatNum(alerts?.['World 7']?.spelunking?.staminaPercent?.count)} character${alerts?.['World 7']?.spelunking?.staminaPercent?.count === 1
+                    ? ' has'
+                    : 's have'} ${alerts?.['World 7']?.spelunking?.staminaPercent?.percent}%+ stamina`}
+                  iconPath={'data/CaveShopUpg4'}
+                  imgStyle={{ filter: 'grayscale(1)' }}/>
+                : null}
               {alerts?.['World 7']?.spelunking?.fullStaminaCharacters?.count >= alerts?.['World 7']?.spelunking?.fullStaminaCharacters?.threshold
                 ?
                 <Alert target={'World 7.spelunking.fullStaminaCharacters'}
                   title={`${formatNum(alerts?.['World 7']?.spelunking?.fullStaminaCharacters?.count)} character${alerts?.['World 7']?.spelunking?.fullStaminaCharacters?.count === 1
-                    ? ''
-                    : 's'} ${alerts?.['World 7']?.spelunking?.fullStaminaCharacters?.count === 1
-                    ? 'has'
-                    : 'have'} ${alerts?.['World 7']?.spelunking?.fullStaminaCharacters?.percent < 100
-                    ? `${alerts?.['World 7']?.spelunking?.fullStaminaCharacters?.percent}%+`
-                    : 'full'} stamina`}
+                    ? ' has'
+                    : 's have'} full stamina`}
                   iconPath={'data/CaveShopUpg4'}/>
                 : null}
               {alerts?.['World 7']?.spelunking?.overstimLevel?.current >= alerts?.['World 7']?.spelunking?.overstimLevel?.threshold

@@ -1956,18 +1956,25 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
         };
       }
     }
+    const charactersStamina = account?.spelunking?.charactersStamina ?? [];
     if (options?.spelunking?.fullStaminaCharacters?.checked) {
       const threshold = options?.spelunking?.fullStaminaCharacters?.props?.value ?? 1;
-      const charactersStamina = account?.spelunking?.charactersStamina ?? [];
-      const percent = options?.spelunking?.staminaPercent?.checked
-        ? Math.min(100, Math.max(1, options?.spelunking?.staminaPercent?.props?.value ?? 100))
-        : 100;
-      const fullStaminaCount = charactersStamina.filter(({ isFull, currentStamina, characterStamina }) => percent >= 100
-        ? isFull
-        : currentStamina >= characterStamina * percent / 100).length;
+      const fullStaminaCount = charactersStamina.filter(({ isFull }) => isFull).length;
       if (fullStaminaCount >= threshold) {
         spelunking.fullStaminaCharacters = {
           count: fullStaminaCount,
+          threshold
+        };
+      }
+    }
+    if (options?.spelunking?.staminaPercent?.checked) {
+      const percent = Math.min(100, Math.max(1, options?.spelunking?.staminaPercent?.props?.value ?? 50));
+      const threshold = options?.spelunking?.staminaPercentCharacters?.props?.value ?? 1;
+      const percentCount = charactersStamina.filter(({ isFull, currentStamina, characterStamina }) => isFull
+        || currentStamina >= characterStamina * percent / 100).length;
+      if (percentCount >= threshold) {
+        spelunking.staminaPercent = {
+          count: percentCount,
           threshold,
           percent
         };
