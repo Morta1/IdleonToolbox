@@ -1,30 +1,48 @@
 import { tryToParse } from '@utility/helpers';
 
 const url = process.env.NEXT_PUBLIC_PROFILES_URL;
+// kind: what failed, for the upload analytics: cooldown (429), auth (401), server (other statuses), network (no answer),
+// client (anything before the request).
+export class UploadError extends Error {
+  constructor(kind, message, status = null) {
+    super(message);
+    this.kind = kind;
+    this.status = status;
+  }
+}
+
+const GENERIC_UPLOAD_ERROR = 'An error has occurred while uploading your profile. Please try again later.';
+
 export const uploadProfile = async ({ profile, profileAccess, leaderboardParticipation }, token) => {
+  let body;
   try {
-    const parsedProfile = parseProfile(profile);
-    const response = await fetch(`${url}/profiles`, {
+    body = JSON.stringify({ profile: parseProfile(profile), profileAccess, leaderboardParticipation });
+  } catch (err) {
+    console.error('Error has occurred: ', err);
+    throw new UploadError('client', GENERIC_UPLOAD_ERROR);
+  }
+  let response;
+  try {
+    response = await fetch(`${url}/profiles`, {
       method: 'POST',
-      body: JSON.stringify({ profile: parsedProfile, profileAccess, leaderboardParticipation }),
+      body,
       headers: {
         'Content-Type': 'application/json',
         'Authorization': token
       }
     });
-    if (response?.status !== 200) {
-      throw response;
-    }
-    return await response?.json();
   } catch (err) {
     console.error('Error has occurred: ', err);
-    if (err?.status === 429) {
-      throw 'You have uploaded your profile in the past 4 hours. Please wait until the cooldown is over.'
-    } else if (err?.status === 500 || err?.status === 400) {
-      throw 'An error has occurred while uploading your profile. Please try again later.'
-    }
-    throw 'An error has occurred while uploading your profile. Please try again later.';
+    throw new UploadError('network', 'Could not reach the server. Check your connection and try again.');
   }
+  if (response.status === 200) return await response.json();
+  if (response.status === 429) {
+    throw new UploadError('cooldown', 'You have uploaded your profile in the past hour. Please wait until the cooldown is over.', 429);
+  }
+  if (response.status === 401) {
+    throw new UploadError('auth', 'Your sign-in was not accepted. Sign out, sign in again and upload.', 401);
+  }
+  throw new UploadError('server', GENERIC_UPLOAD_ERROR, response.status);
 }
 
 // null is the worker's answer that no such profile exists. Anything else that isn't a save throws: no answer, a 5xx, or

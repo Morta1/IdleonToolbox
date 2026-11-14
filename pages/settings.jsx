@@ -30,7 +30,7 @@ import Panel from '@components/common/cards/Panel';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 import { useRouter } from 'next/router';
 import { isValid } from 'date-fns';
-import { uploadProfile } from '../services/profiles';
+import { UploadError, uploadProfile } from '../services/profiles';
 import { expandLeaderboardInfo } from '../services/leaderboardInfo';
 import { copyForSupport, copyRawData, formatNum, sortKeys } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
@@ -43,7 +43,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks';
 
-const HOURS = 4;
+const HOURS = 1;
 const WAIT_TIME = 1000 * 60 * 60 * HOURS;
 
 const ACCESS_LABELS = { off: 'Off', public: 'Public', anonymous: 'Anonymous' };
@@ -216,63 +216,67 @@ const Settings = () => {
   };
 
   const handleUpdate = async () => {
-    const userData = JSON.parse(sessionStorage.getItem('rawJson'));
-    if (removeGemsInfo) {
-      delete userData.data.GemsOwned;
-      delete userData.data.ServerGems;
-      delete userData.data.ServerGemsReceived;
-      delete userData.data.BundlesReceived;
-      delete userData.data.GemsPacksPurchased;
-      delete userData.data.CYGems;
-    }
-    const parsedData = expandLeaderboardInfo(state?.account, state?.characters);
     setUploaded(false);
-    if (!lastUpload || ((WAIT_TIME - (Date.now() - lastUpload)) < 0)) {
-      setLoading(true);
-      setError('');
-      try {
-        // Safety: no leaderboard without a profile
-        const safeParticipation = profileAccess === 'off' ? 'off' : leaderboardParticipation;
-        const result = await uploadProfile({
-          profile: { ...userData, parsedData },
-          profileAccess,
-          leaderboardParticipation: safeParticipation
-        }, state?.accessToken);
-        const newAnonId = result?.anonId || null;
-        if (newAnonId) {
-          setAnonId(newAnonId);
-        } else {
-          removeAnonId();
-        }
-        setUploaded(true);
-        setLastUpload(Date.now());
-        setLastUploadAccess(profileAccess);
-        setLastUploadParticipation(safeParticipation);
-
-        if (typeof window.gtag !== 'undefined') {
-          window.gtag('event', 'profile_uploaded', {
-            event_category: 'engagement',
-            event_label: 'success',
-            upload_status: 'success',
-            profile_access: profileAccess,
-            leaderboard: safeParticipation,
-            value: 1
-          });
-        }
-      } catch (err) {
-        setError(err);
-        if (typeof window.gtag !== 'undefined') {
-          window.gtag('event', 'profile_uploaded', {
-            event_category: 'engagement',
-            event_label: 'failure',
-            upload_status: 'failure',
-            value: 0,
-            error_message: errorMessage(err)
-          });
-        }
+    if (lastUpload && (WAIT_TIME - (Date.now() - lastUpload)) >= 0) return;
+    setLoading(true);
+    setError('');
+    try {
+      // Inside the try: a save that cannot be read or parsed is a failure the upload analytics must see too.
+      const userData = JSON.parse(sessionStorage.getItem('rawJson'));
+      if (!userData?.data) throw new UploadError('client', 'Your save is not loaded in this tab. Reload the page and try again.');
+      if (removeGemsInfo) {
+        delete userData.data.GemsOwned;
+        delete userData.data.ServerGems;
+        delete userData.data.ServerGemsReceived;
+        delete userData.data.BundlesReceived;
+        delete userData.data.GemsPacksPurchased;
+        delete userData.data.CYGems;
       }
-      setLoading(false);
+      const parsedData = expandLeaderboardInfo(state?.account, state?.characters);
+      // Safety: no leaderboard without a profile
+      const safeParticipation = profileAccess === 'off' ? 'off' : leaderboardParticipation;
+      const result = await uploadProfile({
+        profile: { ...userData, parsedData },
+        profileAccess,
+        leaderboardParticipation: safeParticipation
+      }, state?.accessToken);
+      const newAnonId = result?.anonId || null;
+      if (newAnonId) {
+        setAnonId(newAnonId);
+      } else {
+        removeAnonId();
+      }
+      setUploaded(true);
+      setLastUpload(Date.now());
+      setLastUploadAccess(profileAccess);
+      setLastUploadParticipation(safeParticipation);
+
+      if (typeof window.gtag !== 'undefined') {
+        window.gtag('event', 'profile_uploaded', {
+          event_category: 'engagement',
+          event_label: 'success',
+          upload_status: 'success',
+          upload_trigger: 'manual',
+          profile_access: profileAccess,
+          leaderboard: safeParticipation,
+          value: 1
+        });
+      }
+    } catch (err) {
+      setError(err);
+      if (typeof window.gtag !== 'undefined') {
+        window.gtag('event', 'profile_uploaded', {
+          event_category: 'engagement',
+          event_label: 'failure',
+          upload_status: 'failure',
+          upload_trigger: 'manual',
+          upload_error: err?.kind ?? 'client',
+          value: 0,
+          error_message: errorMessage(err)
+        });
+      }
     }
+    setLoading(false);
   };
 
   // A guest can still set the date and time formats. isLoading is true on the export and the first render, so the note
@@ -344,7 +348,7 @@ const Settings = () => {
               label="Upload profile"
               description={<Stack alignItems="flex-start" gap={0.25} component="span">
                 <span>
-                  Updates once every 4 hours.
+                  Updates once an hour.
                   {isValid(parseInt(lastUpload)) ? <> Last uploaded {formatDate(parseInt(lastUpload), { showSeconds: false })}
                     {isDisabled ? <>, next in <Timer type={'countdown'} date={parseInt(lastUpload) + WAIT_TIME} placeholder={'now'}/></> : null}
                     {lastUploadAccess ? <>, as <strong>{ACCESS_LABELS[lastUploadAccess] ?? lastUploadAccess}</strong></> : null}
