@@ -414,9 +414,10 @@ const materialLines = ({ level, maxLevel, itemReq, materialCost, ownedMats, gree
 // The preview a mouse gets: the drawer's first part, the stamp's sentence, its state and what its next level costs
 const stampNote = (stamp, { keepGreenstacks, reducerUnknown }) => {
   const { displayName, level, maxLevel, effect, bonus, state: type, goldCost, materialCost, ownedMats, greenStackOwnedMats,
-    hasMoney, itemReq } = stamp;
+    hasMoney, itemReq, bestCharacter } = stamp;
   const atMax = level >= maxLevel;
   const owned = (keepGreenstacks ? greenStackOwnedMats : ownedMats) ?? 0;
+  const carrier = atMax && bestCharacter?.character ? bestCharacter : null;
   return <Stack gap={1}>
     <Box>
       <Typography variant={'cardTitle'} component={'div'}>{cleanUnderscore(displayName)}</Typography>
@@ -435,6 +436,12 @@ const stampNote = (stamp, { keepGreenstacks, reducerUnknown }) => {
           </Typography>
           {hasMoney ? null : <StatusText status={'problem'}>Short</StatusText>}
         </Stack>}
+      {carrier ? <Stack direction={'row'} alignItems={'center'} gap={1} flexWrap={'wrap'}>
+        <Typography variant={'body2'} component={'span'}>
+          {`Best capacity: ${carrier.character} (${formatNum(carrier.maxCapacity ?? 0, 'whole')})`}
+        </Typography>
+        {carrier.maxCapacity >= materialCost ? null : <StatusText status={'problem'}>Short</StatusText>}
+      </Stack> : null}
     </ItemCard.Section> : null}
     <Typography variant={'caption'} color={'text.secondary'}>Click for the next levels and carry capacity</Typography>
   </Stack>;

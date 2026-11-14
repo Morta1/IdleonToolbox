@@ -5,6 +5,15 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.9',
+    'gameVer': '2.3.561',
+    'date': '15/11/2026',
+    'features': [
+      'Stamps: the hover note on a max level stamp now shows the character with the best carry capacity'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '4.0.8',
     'gameVer': '2.3.561',
     'date': '14/11/2026',
