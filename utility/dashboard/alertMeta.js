@@ -291,7 +291,8 @@ export const alertMeta = {
     options: {
       daily: {
         label: 'Daily boss raid not done',
-        help: 'Alerts when you have not reset the W2 boss raid today (bonus class exp and damage).'
+        help: 'Alerts when you have not reset the W2 boss raid today (bonus class exp and damage).',
+        page: { query: { t: 'Battle solver' }, label: 'Battle solver' }
       },
       trophy: {
         label: 'Trophies left this week',
