@@ -5,7 +5,13 @@ import { cleanUnderscore, fillArrayToLength, formatNum } from 'utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Timer from 'components/common/Timer';
 import { NextSeo } from 'next-seo';
-import { calcTotalCritters, formatShinyChance, getShinyChanceInfo, getTrapsBonuses } from '@parsers/world-3/traps';
+import {
+  calcTotalCritters,
+  formatShinyChance,
+  getShinyChanceInfo,
+  getTrapsBonuses,
+  sumTrapShinies
+} from '@parsers/world-3/traps';
 import { createBreakdown, findBreakdownNode } from '@parsers/breakdown';
 import { items as itemsTable } from '@website-data';
 import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
@@ -60,6 +66,15 @@ const Traps = () => {
   const collectRate = collectRates[activeIndex] ?? bonuses?.max;
   const totals = calcTotalCritters(state?.account, collectRate ?? {}) ?? {};
   const shiny = getShinyChanceInfo(state?.account, state?.characters, activeCharacter);
+  const shinyTotals = sumTrapShinies(traps.flat(), shiny);
+  // Under one expected shiny is a small chance, not a count: it shows nothing (the chance stays in each trap's note)
+  const shownShinies = (entry) => (entry?.shinies ?? 0) >= 1 ? entry.shinies : 0;
+  const anyShinyTile = Object.values(shinyTotals).some(shownShinies);
+  // A critter's shiny row: the expected shinies and the traps' average chance of dropping them
+  const shinyRow = (rawName, { shinies, traps: trapCount }) => <Panel.Row key={rawName} icon={`data/${rawName}.png`}
+                                                                          name={itemName(rawName)}
+                                                                          value={critters(shinies)}
+                                                                          valueSub={`${formatShinyChance(shinies / (trapCount * (shiny?.bundleSize ?? 1)) * 100)} chance`}/>;
   const callMeAshBubble = state?.account?.alchemy?.bubbles?.quicc?.find(({ bubbleName }) => bubbleName === 'CALL_ME_ASH')?.level;
   const plusOneTrap = callMeAshBubble > 0 ? 1 : 0;
 
@@ -93,6 +108,7 @@ const Traps = () => {
         exp: (total?.[rawName]?.exp ?? 0) + (trapExp * (collectRate?.exp ?? 1))
       }
     }), {});
+    const charShinies = sumTrapShinies(trapSlots, shiny);
     const meta = [`Trapping Lv ${formatNum(character?.skillsInfo?.trapping?.level ?? 0)}`,
       trap?.rawName ? itemName(trap.rawName) : null].filter(Boolean).join(' · ');
     return <Panel key={`traps-${index}`} icon={`data/ClassIcons${character?.classIndex}.png`}
@@ -107,11 +123,11 @@ const Traps = () => {
             : <IconTile key={`empty-${slotIndex}`} status={'empty'}/>)}</CardGrid>
           : <Typography variant={'body2'} color={'text.secondary'}>Equip a trap set to place traps.</Typography>}
       </Box>
-      {Object.entries(charTotals).map(([critter, { critters: count, exp }]) => <Panel.Row key={critter}
-                                                                                         icon={`data/${critter}.png`}
-                                                                                         name={itemName(critter)}
-                                                                                         value={critters(count)}
-                                                                                         valueSub={`${formatGame(exp, 'TrappingStuffs.TotalEXP')} EXP`}/>)}
+      {Object.entries(charTotals).flatMap(([critter, { critters: count, exp }]) => [
+        <Panel.Row key={critter} icon={`data/${critter}.png`} name={itemName(critter)} value={critters(count)}
+                   valueSub={`${formatGame(exp, 'TrappingStuffs.TotalEXP')} EXP`}/>,
+        shownShinies(charShinies[`${critter}A`]) ? shinyRow(`${critter}A`, charShinies[`${critter}A`]) : null
+      ])}
     </Panel>;
   };
 
@@ -152,9 +168,15 @@ const Traps = () => {
     {Object.keys(totals).length ? <>
       <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1.5 }}>In your traps</Typography>
       <CardGrid size={'icon'} sx={{ mb: 3 }}>
-        {Object.entries(totals).map(([critter, { critters: count }]) => <IconTile key={critter} icon={`data/${critter}.png`}
-                                                                                  alt={itemName(critter)} value={critters(count)}
-                                                                                  details={`${itemName(critter)}: ${critters(count)} critters`}/>)}
+        {Object.entries(totals).map(([critter, { critters: count }]) => {
+          const shinyCount = shownShinies(shinyTotals[`${critter}A`]);
+          return <IconTile key={critter} icon={`data/${critter}.png`} alt={itemName(critter)} value={critters(count)}
+                           sub={shinyCount ? [`${critters(shinyCount)} shiny`] : []} height={anyShinyTile ? 88 : 72}
+                           details={<Stack gap={0.5}>
+                             <Typography variant={'body2'}>{`${itemName(critter)}: ${critters(count)} critters`}</Typography>
+                             {shinyCount ? <Typography variant={'body2'}>{`${itemName(`${critter}A`)}: ${critters(shinyCount)}`}</Typography> : null}
+                           </Stack>}/>;
+        })}
       </CardGrid>
     </> : null}
     {/* A character's traps are a few tiles: side by side, three or four to a row on a desktop, not one panel per row */}

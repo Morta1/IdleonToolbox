@@ -252,6 +252,28 @@ export const getShinyChance = (character: any, account: any): ShinyChance & { so
   return { multiplier, openMulti: onOpenMulti / prayerDivider, bundleSize, critters, sources };
 }
 
+// game: on open each trap rolls its saved chance x the collector's open-time factor once, and a hit
+// drops "<critter>A" x the per-drop amount; the critter collect rate never touches shinies.
+// So a trap's expected shinies are its capped chance times the per-drop amount.
+export const getTrapShinies = (slot: any, { openMulti = 1, bundleSize = 1 }: any = {}) => {
+  const chance = Math.min(100, (slot?.rareChance ?? 0) * openMulti);
+  return { chance, shinies: chance / 100 * bundleSize };
+}
+
+// Expected shinies by shiny critter ("Critter3A"), over the given trap slots
+export const sumTrapShinies = (trapSlots: any[] = [], shiny?: any) => trapSlots.reduce((res: any, slot: any) => {
+  if (!slot?.rawName) return res;
+  const { shinies } = getTrapShinies(slot, shiny);
+  const key = `${slot.rawName}A`;
+  return {
+    ...res,
+    [key]: {
+      shinies: (res?.[key]?.shinies ?? 0) + shinies,
+      traps: (res?.[key]?.traps ?? 0) + 1
+    }
+  };
+}, {});
+
 // The game rolls the chance against 100 * random(), so anything at or above 100 is a guaranteed
 // shiny and the surplus buys nothing on that critter.
 export const formatShinyChance = (value: number) => {
@@ -300,6 +322,12 @@ export const getShinyChanceInfo = (account: any, characters: any, selectedCharac
         percent('Arcade', sources?.arcadeBonus)
       ]),
       multiplier('Prayer - Shiny Snitch', 1 / sources?.prayerDivider, { formatted: `/${sources?.prayerDivider}` })
+    ]),
+    // game: round((1 + prayersReal(3, 0)) * RareBonusOnOpenMULTI)
+    listGroup(`Shinies per drop: ${bundleSize}`, [
+      info('Prayer - Shiny Snitch', 1 + (sources?.shinySnitchBonus ?? 0), { formatted: formatMulti(1 + (sources?.shinySnitchBonus ?? 0)) }),
+      info('Meritocracy', sources?.meritocracyBonus ?? 0, { formatted: `+${gameFill(sources?.meritocracyBonus ?? 0, 'Big')}%` }),
+      info('Menagerie', sources?.menagerieBundleBonus ?? 0, { formatted: `+${gameFill(sources?.menagerieBundleBonus ?? 0, 'Big')}%` })
     ]),
     listGroup('Chance by critter (trap placed by this character)', critters?.map(({ name, chance }: any) =>
       info(cleanUnderscore(name) as string, chance, { formatted: formatShinyChance(chance) })) ?? []),

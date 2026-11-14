@@ -43,6 +43,7 @@ describe('Traps shiny chance', () => {
     expect(drawer.getByText('Shiny chance')).toBeDefined();
     expect(drawer.getByText('On placement')).toBeDefined();
     expect(drawer.getByText('On collection')).toBeDefined();
+    expect(drawer.getByText(/^Shinies per drop: \d+$/)).toBeDefined();
   });
 
   it('opens each collect rate\'s own breakdown from its tile', () => {

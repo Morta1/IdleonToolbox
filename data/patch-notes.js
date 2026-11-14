@@ -9,7 +9,8 @@ export const patchNotes = [
     'gameVer': '2.3.561',
     'date': '15/11/2026',
     'features': [
-      'Stamps: the hover note on a max level stamp now shows the character with the best carry capacity'
+      'Stamps: the hover note on a max level stamp now shows the character with the best carry capacity',
+      'Traps: each critter in In your traps and in every character panel now shows how many shinies it will give on collect, and the Shiny chance breakdown shows what sets the shinies per drop'
     ],
     'fixes': [
       'Traps: each trap now shows its real shiny chance, using the chance saved when it was placed',
