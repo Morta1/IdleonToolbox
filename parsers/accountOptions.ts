@@ -52,6 +52,11 @@ export const OPT = {
   crystalIslandUnclaimedDays: 171,
   shimmerBestDps: 172,
   shimmerCurrency: 173,
+  // OptionsListAccount[174..177] * AllShimmerBonuses: TotalStats base STR, AGI, WIS, LUK
+  shimmerStrLevel: 174,
+  shimmerAgiLevel: 175,
+  shimmerWisLevel: 176,
+  shimmerLukLevel: 177,
   shimmerTotalDmgLevel: 178,
   shimmerClassExpLevel: 179,
   shimmerSkillEffLevel: 180,

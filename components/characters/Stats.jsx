@@ -15,6 +15,7 @@ import InfoButton from '@components/common/InfoButton';
 import StatusText from '@components/common/StatusText';
 import Panel from '@components/common/cards/Panel';
 import { fedBy } from '@components/common/styles';
+import { getMainStatInfo } from '@parsers/mainStats';
 
 const STAT_LABELS = { strength: 'STR', agility: 'AGI', wisdom: 'WIS', luck: 'LUK' };
 const STAT_KEYS = { strength: 'TotalStats.STR', agility: 'TotalStats.AGI', wisdom: 'TotalStats.WIS', luck: 'TotalStats.LUK' };
@@ -54,7 +55,9 @@ const Stats = ({ statsFilter, character, lastUpdated, account, characters }) => 
     <Panel.Group label={'Attributes'}>
       <Panel.KV label={'Total stats'} value={formatNum(totalStats(stats))}/>
       {Object.entries(stats || {}).map(([statName, statValue]) => (statName !== 'level'
-        ? <Panel.KV key={statName} label={STAT_LABELS[statName] ?? statName} value={STAT_KEYS[statName] ? formatGame(statValue, STAT_KEYS[statName]) : formatNum(statValue)}/>
+        ? <Fact key={statName} label={STAT_LABELS[statName] ?? statName}
+                value={STAT_KEYS[statName] ? formatGame(statValue, STAT_KEYS[statName]) : formatNum(statValue)}
+                breakdown={STAT_KEYS[statName] && !failed ? getMainStatInfo(character, account, characters, statName).breakdown : null}/>
         : null))}
     </Panel.Group>
     <Panel.Group label={'Combat'}>
