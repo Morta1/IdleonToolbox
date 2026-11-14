@@ -20,7 +20,8 @@ import CategoryTiles from './CategoryTiles';
 import { boardHref, openOnPlainClick } from './MetricCard';
 import MetricIcon from './MetricIcon';
 import RankRow, { ExactValue, HIGHLIGHT, MEDAL, TROPHIES } from './RankRow';
-import YouCard, { MoveText } from './YouCard';
+import YouCard from './YouCard';
+import RankDelta from '@components/common/RankDelta';
 
 // Slots by position, left to right: second, first, third. The medal follows the row's rank, not its slot.
 const PODIUM_SLOTS = [1, 0, 2];
@@ -181,7 +182,7 @@ const SinceLastVisit = ({ changes, index, onOpen, linkPlayer }) => {
                         name={<Link href={boardHref(meta, linkPlayer)} onClick={openOnPlainClick((key) => onOpen(key, 'since_last_visit'), move.metric)}
                                     color="inherit" underline="none" sx={STRETCHED_LINK_SX}>{meta.label}</Link>}
                         sub={`${tabName ? `${tabName} · ` : ''}${rankText(move.from)} to ${rankText(move.to)}`}
-                        value={<MoveText delta={move.delta}/>}/>;
+                        value={<RankDelta delta={move.delta}/>}/>;
     })}
     {rest > 0 ? <Box sx={{ px: 2, py: 1 }}>
       <Button size="small" onClick={() => setShowAll(!showAll)} aria-expanded={showAll}>

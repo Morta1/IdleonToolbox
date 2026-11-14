@@ -1,8 +1,9 @@
 import { Stack, Typography, useTheme } from '@mui/material';
 import { styled } from '@mui/material/styles';
-import { IconCaretDownFilled, IconCaretUpFilled, IconPin, IconPinFilled } from '@tabler/icons-react';
+import { IconPin, IconPinFilled } from '@tabler/icons-react';
 import DataTable from '@components/common/DataTable';
 import GameIcon, { MissingArt } from '@components/common/GameIcon';
+import RankDelta from '@components/common/RankDelta';
 import StatusText from '@components/common/StatusText';
 import TagLine from '@components/common/TagLine';
 import { getGuildLevel } from '@parsers/guildLevel';
@@ -30,15 +31,6 @@ const NameButton = styled('button')(({ theme }) => ({
   '&:focus-visible': focusRing(theme)
 }));
 const NameRow = styled('span')({ display: 'inline-flex', alignItems: 'center', flexWrap: 'wrap', gap: 8 });
-const RankDelta = styled('span')(({ theme }) => ({
-  ...theme.typography.caption,
-  display: 'inline-flex',
-  alignItems: 'center',
-  fontWeight: 500,
-  fontVariantNumeric: 'tabular-nums',
-  color: (theme.vars || theme).palette.text.success,
-  '&[data-fell]': { color: (theme.vars || theme).palette.text.error }
-}));
 const PinButton = styled('button')(({ theme }) => ({
   display: 'inline-flex',
   alignItems: 'center',
@@ -76,11 +68,8 @@ const GuildName = ({ guild, router }) => {
   return <NameRow>
     <GuildLink guild={guild} router={router}/>
     {yourGuild ? <StatusText status={'selected'}>Your guild</StatusText> : null}
-    {/* Two weeks of rank change: the arrow is the sign, so the color is never alone. */}
-    {rank_delta_2w ? <RankDelta data-fell={rank_delta_2w > 0 ? '' : undefined}>
-      {rank_delta_2w < 0 ? <IconCaretUpFilled size={14} aria-label={'Up'}/> : <IconCaretDownFilled size={14} aria-label={'Down'}/>}
-      {formatNum(Math.abs(rank_delta_2w), 'whole')}
-    </RankDelta> : null}
+    {/* Two weeks of rank change; rank_delta_2w is now minus then, so a climb is negative. */}
+    {rank_delta_2w ? <RankDelta delta={-rank_delta_2w} caption/> : null}
   </NameRow>;
 };
 

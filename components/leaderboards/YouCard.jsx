@@ -4,6 +4,7 @@ import Box from '@mui/material/Box';
 import InfoButton from '@components/common/InfoButton';
 import Panel from '@components/common/cards/Panel';
 import StatTile from '@components/common/cards/StatTile';
+import RankDelta from '@components/common/RankDelta';
 import { formatNum } from '@utility/helpers';
 import { countStanding, firstPlaces, topPercentLabel } from './standing';
 import { HIGHLIGHT, LABEL_COLOR } from './RankRow';
@@ -17,12 +18,6 @@ const SHOWN = 6;
 const boardList = (names) => names.length > SHOWN ? `${names.slice(0, SHOWN).join(', ')} and ${names.length - SHOWN} more` : names.join(', ');
 
 // onClear: leaves a searched player; it reads "Back to you" when the visitor has standing of their own.
-// A move in words, never a chip: "up 2", "down 1".
-export const MoveText = ({ delta, suffix = '' }) => (
-  <Box component="span" sx={{ color: delta > 0 ? 'text.success' : 'text.error', fontWeight: 500 }}>
-    {delta > 0 ? 'up' : 'down'} {formatNum(Math.abs(delta), 'whole')}{suffix}
-  </Box>
-);
 const counterMove = (now, before) => (now === before ? 'no change' : `${now > before ? '+' : '-'}${formatNum(Math.abs(now - before), 'whole')} since last visit`);
 
 // changes: what moved since the signed-in player's last visit (useRankHistory), or null.
@@ -56,7 +51,7 @@ const YouCard = ({ data, kind, index, onClear, clearLabel = 'Clear', changes = n
       <Stack gap={1.5} sx={{ p: 2 }}>
         <Stack direction="row" alignItems="baseline" columnGap={1.25} flexWrap="wrap">
           <Typography component="p" variant="heroValue">{rankText(player.rank)}</Typography>
-          {changes?.rank ? <Typography variant="body2" component="span"><MoveText delta={changes.rank} suffix=" since your last visit"/></Typography> : null}
+          {changes?.rank ? <Typography variant="body2" component="span"><RankDelta delta={changes.rank} suffix=" since your last visit"/></Typography> : null}
           <Typography variant="body2" color="text.secondary">{of}</Typography>
         </Stack>
         <Stack direction="row" flexWrap="wrap" gap={1}>
