@@ -16,9 +16,10 @@ const buildAccount = ({ shiny1 = 0, shiny2 = 0, taskLevel = 0 } = {}) => ({
 
 describe('getShinyChance', () => {
   it('falls back to the raw per-critter chances with no account', () => {
-    const { multiplier, bundleSize, critters } = getShinyChanceInfo(undefined, undefined);
+    const { multiplier, openMulti, bundleSize, critters } = getShinyChanceInfo(undefined, undefined);
 
     expect(multiplier).toBe(1);
+    expect(openMulti).toBe(1);
     expect(bundleSize).toBe(1);
     expect(critters).toHaveLength(11);
     expect(critters[0]).toMatchObject({ rawName: 'Critter1', baseChance: 5, chance: 5 });

@@ -11,7 +11,9 @@ export const patchNotes = [
     'features': [
       'Stamps: the hover note on a max level stamp now shows the character with the best carry capacity'
     ],
-    'fixes': []
+    'fixes': [
+      'Traps: each trap now shows its real shiny chance, using the chance saved when it was placed'
+    ]
   },
   {
     'ver': '4.0.8',

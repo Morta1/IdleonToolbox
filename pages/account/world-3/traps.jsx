@@ -5,7 +5,7 @@ import { cleanUnderscore, fillArrayToLength, formatNum } from 'utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import Timer from 'components/common/Timer';
 import { NextSeo } from 'next-seo';
-import { calcTotalCritters, getShinyChanceInfo, getTrapsBonuses } from '@parsers/world-3/traps';
+import { calcTotalCritters, formatShinyChance, getShinyChanceInfo, getTrapsBonuses } from '@parsers/world-3/traps';
 import { createBreakdown, findBreakdownNode } from '@parsers/breakdown';
 import { items as itemsTable } from '@website-data';
 import { MissingData, isParseFailed, isSectionFailed } from '@components/common/styles';
@@ -22,13 +22,15 @@ const itemName = (rawName) => cleanUnderscore(itemsTable?.[rawName]?.displayName
 const trapBoxName = (trapType) => itemName(`TrapBoxSet${(trapType ?? 0) + 1}`);
 const critters = (value) => formatGame(value ?? 0, 'TrappingStuffs.TotalQTY', { whole: true });
 
-// A trap's numbers at the collector's rates: the box, its quantity and EXP (or shiny) multis, trap EXP and critters
-const trapNote = (slot, collectRate) => <Stack gap={0.5}>
+// A trap's numbers at the collector's rates: the box, its quantity and EXP (or shiny) multis, trap EXP, critters
+// and the shiny chance (the placer's saved chance times the collector's open-time bonuses)
+const trapNote = (slot, collectRate, shinyOpenMulti) => <Stack gap={0.5}>
   <Typography variant={'body2'}>{`${slot?.name}: ${trapBoxName(slot?.trapType)}`}</Typography>
   <Typography variant={'body2'}>{`Quantity x${slot?.trapData?.quantity ?? 1}`}</Typography>
   <Typography variant={'body2'}>{`${slot?.trapData?.trapType === 0 ? 'EXP' : 'Shiny'} x${slot?.trapData?.exp ?? 1}`}</Typography>
   <Typography variant={'body2'}>{`Trap EXP ${formatGame((slot?.trapExp ?? 0) * (collectRate?.exp ?? 1), 'TrappingStuffs.TotalEXP')}`}</Typography>
   <Typography variant={'body2'}>{`Critters ${critters((slot?.crittersQuantity ?? 0) * (collectRate?.critter ?? 1))}`}</Typography>
+  <Typography variant={'body2'}>{`Shiny chance ${formatShinyChance((slot?.rareChance ?? 0) * (shinyOpenMulti ?? 1))}`}</Typography>
 </Stack>;
 
 // A character's trap slots: its trap set's number (+1 with the Call Me Ash bubble), at most 8, or what it has out
@@ -101,7 +103,7 @@ const Traps = () => {
                         mark={`data/TrapBoxSet${(slot.trapType ?? 0) + 1}.png`} markAlt={trapBoxName(slot.trapType)}
                         value={<Timer type={'countdown'} component={'span'} sx={{ font: 'inherit' }} date={slot.timeLeft}
                                       placeholder={<StatusText status={'ready'}/>}/>}
-                        details={trapNote(slot, collectRate)}/>
+                        details={trapNote(slot, collectRate, shiny?.openMulti)}/>
             : <IconTile key={`empty-${slotIndex}`} status={'empty'}/>)}</CardGrid>
           : <Typography variant={'body2'} color={'text.secondary'}>Equip a trap set to place traps.</Typography>}
       </Box>
