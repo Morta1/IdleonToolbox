@@ -68,15 +68,14 @@ const StarSigns = ({ starSigns }) => {
 
   return (
     <>
-      {/* The trees sit beside the search: one bar, each tree's pill counting its matches while a search or filter is on */}
+      {/* The trees are tabs, so they sit above the bar as other pages' section pills do; each counts its matches while a
+          search or filter is on */}
+      <SectionPills tabs={tabs} selectedTab={selectedTab} onSelect={selectTab} label={'Star signs'}
+                    names={tabs.map((tab, index) => (search || hideUnlocked ? `${tab.capitalize()} (${byTree[index]?.length ?? 0})` : tab.capitalize()))}/>
       <Toolbar state={view} defaults={STAR_SIGNS_TOOLBAR} onChange={setView} onReset={resetView}
                total={signs.length} shown={shownCount} noun={'star signs'}>
         <Toolbar.Search placeholder={'Search signs or bonuses'}/>
         <Toolbar.Filter name={'hideUnlocked'} label={'Hide unlocked'}/>
-        <Toolbar.Lead ownRow>
-          <SectionPills tabs={tabs} selectedTab={selectedTab} onSelect={selectTab} label={'Star signs'} sx={{ mb: 0, alignSelf: 'center' }}
-                        names={tabs.map((tab, index) => (search || hideUnlocked ? `${tab.capitalize()} (${byTree[index]?.length ?? 0})` : tab.capitalize()))}/>
-        </Toolbar.Lead>
       </Toolbar>
       {rows.length === 0 && (search || hideUnlocked)
         ? <Notice>{search ? `No ${tabs[selectedTab]?.capitalize()} sign matches.` : `Every ${tabs[selectedTab]?.capitalize()} sign is unlocked.`}</Notice>
