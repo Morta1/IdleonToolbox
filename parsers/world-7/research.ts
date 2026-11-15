@@ -356,10 +356,6 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
     })),
     transcendentArtifactsUnlocked: grid109 >= 1 ? 1 : 0,
     greenSigilsUnlocked: grid128 >= 1 && loreBoss6 ? 1 : 0,
-    greenSigilTrueDMG:
-      grid128 >= 1 && loreBoss6
-        ? 1 + (getResearchGridBonusInternal(account, research, 127, 0) * account?.alchemy?.p2w?.totalEclecticSigils) / 100
-        : 1,
     refineryTab3Unlocked: grid49 ? 1 : 0,
     refineryTabsOwned: Math.round(2 + (grid49 ? 1 : 0)),
     tinyCogsUnlocked: grid89 ? 1 : 0,

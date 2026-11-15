@@ -185,6 +185,11 @@ export const getMaxDamage = (character: Character, characters: Character[], acco
   return playerInfo;
 }
 
+// The damage formula's own green sigil term: Labb("TotalGreenSigils") x ResearchStuff("Grid_Bonus", 127), capped at
+// +100%. The game's ResearchStuff("GreenSigilTrueDMG") works out the same bonus uncapped but nothing ever calls it.
+export const getEclecticSigilDamageBonus = (account: Account) =>
+  Math.min(100, (account?.alchemy?.p2w?.totalEclecticSigils ?? 0) * getResearchGridBonus(account, 127, 0));
+
 export const notateDamage = (playerInfo: any) => {
   const { minDamage, maxDamage } = playerInfo;
   let notation;
@@ -539,8 +544,7 @@ const getDamagePercent = (character: Character, characters: Character[], account
   const crystal6Card: any = Object.values(account?.cards ?? {}).find((c: any) => c?.rawName === 'Crystal6');
   const crystalCardBonus = Math.min(1.5 * (crystal6Card?.amount > 0 ? (crystal6Card?.stars ?? 0) + 1 : 0), 15);
   const meritBonus5 = getMeritocracyBonus(account, 5);
-  // Labb("TotalGreenSigils") x ResearchStuff("Grid_Bonus", 127), capped at +100%
-  const eclecticSigilBonus = Math.min(100, (account?.alchemy?.p2w?.totalEclecticSigils ?? 0) * getResearchGridBonus(account, 127, 0));
+  const eclecticSigilBonus = getEclecticSigilDamageBonus(account);
   damage *= (1 + crystalCardBonus / 100) * (1 + meritBonus5 / 100) * (1 + eclecticSigilBonus / 100);
 
   // Bundle bonus

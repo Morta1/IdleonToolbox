@@ -8,6 +8,7 @@ import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { calcSigilsLevels, getAlchemy, getSigilNextCost, getSigilTierUnlocks } from '@parsers/world-2/alchemy';
 import { getPrismaMulti } from '@parsers/class-specific/tesseract';
 import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
+import { getEclecticSigilDamageBonus } from '@parsers/damage';
 import { sigils as sigilsCatalog } from '@website-data';
 import { NextSeo } from 'next-seo';
 import Timer from '../../../components/common/Timer';
@@ -153,9 +154,9 @@ const Sigils = () => {
                 info={prismaCapped ? 'Your Prisma multi is already at its x5 cap, so this adds nothing now.' : undefined}/>
       {research?.greenSigilsUnlocked || researchFailed
         ? <StatTile label={'TRUE DMG multi'}
-                    value={researchFailed || alchemyFailed ? '-' : formatNum(research?.greenSigilTrueDMG ?? 1, 'mult')}
+                    value={researchFailed || alchemyFailed ? '-' : formatNum(1 + getEclecticSigilDamageBonus(account) / 100, 'mult')}
                     sub={researchFailed || alchemyFailed ? undefined : `${formatNum(eclecticSigils)} eclectic sigils`}
-                    info={'The game never reads this bonus in its damage formula: a game bug.'}/>
+                    info={'Multiplies your damage, up to x2.'}/>
         : null}
     </PageSummary>
     <CardGrid size={'m'}>
