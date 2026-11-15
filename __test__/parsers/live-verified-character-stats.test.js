@@ -87,7 +87,7 @@ describe('Character stats verified against the live game', () => {
   });
 
   it('non consume chance', () => {
-    expect(hunter.nonConsumeChance).toBe(GAME.nonConsumeChance);
+    expect(hunter.nonConsumeChance.value).toBe(GAME.nonConsumeChance);
   });
 
   // The hourly formula needs the character's own map, so the live value is rebuilt for the saved AFK target

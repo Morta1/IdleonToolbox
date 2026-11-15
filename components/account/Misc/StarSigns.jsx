@@ -6,6 +6,7 @@ import { cleanUnderscore, formatStarSignBonus, getTabs } from 'utility/helpers';
 import GameIcon from '@components/common/GameIcon';
 import { SectionPills } from '@components/common/SectionTabs';
 import DataTable from '@components/common/DataTable';
+import Notice from '@components/common/Notice';
 import { PAGES } from '@components/constants';
 import useTabIndex from '@hooks/useTabIndex';
 import usePageTop from '@hooks/usePageTop';
@@ -13,7 +14,7 @@ import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
 
 const TREES = ['chronus', 'hydron', 'seraph'];
-const STAR_SIGNS_TOOLBAR = { search: '' };
+const STAR_SIGNS_TOOLBAR = { search: '', hideUnlocked: false };
 
 const bonusLines = ({ bonuses, description }) => (bonuses
   ? bonuses.map(({ rawName, bonus }) => cleanUnderscore(formatStarSignBonus(rawName, bonus)))
@@ -27,10 +28,11 @@ const StarSigns = ({ starSigns }) => {
   const [view, setView, resetView] = useToolbarState('star-signs', STAR_SIGNS_TOOLBAR);
   // Search reads the name and the bonus lines across the three trees; each tree's tab counts its matches
   const search = (view?.search ?? '').trim().toLowerCase();
+  const hideUnlocked = !!view?.hideUnlocked;
   // The game's placeholders (Filler, Unknown) are not signs
   const signs = (starSigns ?? []).filter(({ indexedStarName }) => !indexedStarName.includes('Filler') && !indexedStarName.includes('Unknown'));
   const matches = (sign) => !search || `${cleanUnderscore(sign?.indexedStarName)} ${bonusLines(sign).join(' ')}`.toLowerCase().includes(search);
-  const byTree = TREES.map((tree) => signs.filter((sign) => sign.tree === tree && matches(sign)));
+  const byTree = TREES.map((tree) => signs.filter((sign) => sign.tree === tree && matches(sign) && !(hideUnlocked && sign.unlocked)));
   const rows = byTree[selectedTab] ?? [];
   const shownCount = byTree.reduce((sum, list) => sum + list.length, 0);
 
@@ -66,17 +68,20 @@ const StarSigns = ({ starSigns }) => {
 
   return (
     <>
-      {/* The trees sit beside the search: one bar, each tree's pill counting its matches while a search is on */}
+      {/* The trees sit beside the search: one bar, each tree's pill counting its matches while a search or filter is on */}
       <Toolbar state={view} defaults={STAR_SIGNS_TOOLBAR} onChange={setView} onReset={resetView}
                total={signs.length} shown={shownCount} noun={'star signs'}>
         <Toolbar.Search placeholder={'Search signs or bonuses'}/>
+        <Toolbar.Filter name={'hideUnlocked'} label={'Hide unlocked'}/>
         <Toolbar.Lead ownRow>
           <SectionPills tabs={tabs} selectedTab={selectedTab} onSelect={selectTab} label={'Star signs'} sx={{ mb: 0, alignSelf: 'center' }}
-                        names={tabs.map((tab, index) => (search ? `${tab.capitalize()} (${byTree[index]?.length ?? 0})` : tab.capitalize()))}/>
+                        names={tabs.map((tab, index) => (search || hideUnlocked ? `${tab.capitalize()} (${byTree[index]?.length ?? 0})` : tab.capitalize()))}/>
         </Toolbar.Lead>
       </Toolbar>
-      <DataTable columns={columns} rows={rows} rowKey={'indexedStarName'} rowLabel={({ indexedStarName }) => cleanUnderscore(indexedStarName)}
-                 surface={'card'} stickyTop={pageTop}/>
+      {rows.length === 0 && (search || hideUnlocked)
+        ? <Notice>{search ? `No ${tabs[selectedTab]?.capitalize()} sign matches.` : `Every ${tabs[selectedTab]?.capitalize()} sign is unlocked.`}</Notice>
+        : <DataTable columns={columns} rows={rows} rowKey={'indexedStarName'} rowLabel={({ indexedStarName }) => cleanUnderscore(indexedStarName)}
+                     surface={'card'} stickyTop={pageTop}/>}
     </>
   );
 };

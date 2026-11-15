@@ -1,5 +1,5 @@
-import { gamingImports, gamingPalette, gamingUpgrades, randomList2, superbitsUpgrades } from '@website-data';
-import { gameFill, notateNumber, number2letter, tryToParse } from '@utility/helpers';
+import { gamingImports, gamingPalette, gamingUpgrades, randomList2, research as researchData, superbitsUpgrades } from '@website-data';
+import { cleanUnderscore, formatNum, gameFill, notateNumber, number2letter, tryToParse } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { getAccountMinorDivinityBonus, GOD_INDEX } from '@parsers/world-5/divinity';
 import { getHighestLevelCharacter, getLoggedInSkillLevel, companionLineName, isCompanionBonusActive, isMasteryBonusUnlocked } from '@parsers/misc';
@@ -25,7 +25,7 @@ import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getSushiBonus } from '@parsers/world-7/sushiStation';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getSchematicBonus } from '@parsers/world-5/caverns/the-well';
-import { NUMBERED_GROUP, additiveGroup, createBreakdown, multiplier, percent } from '@parsers/breakdown';
+import { NUMBERED_GROUP, additiveGroup, createBreakdown, flat, multiplier, percent, productGroup, sourceName } from '@parsers/breakdown';
 import { saveField } from '@parsers/saveField';
 import { OPT } from '@parsers/accountOptions';
 
@@ -123,9 +123,8 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
       ...(index === 0 ? {
         saveSprinklerChance: saveSprinklerChance * 100
       } : {}),
-      ...(index === 1 ? {
-        maxNuggetValue: maxNuggetValue(bonus?.result, getEquinoxBonus(account?.equinox?.upgrades, 'Metal_Detector'), account?.accountOptions?.[OPT.nuggetsSinceUpgrade] ?? 0)
-      } : {}),
+      ...(index === 1 ? maxNuggetRoll(cleanUnderscore(item?.name), bonus?.result,
+        getEquinoxBonus(account?.equinox?.upgrades, 'Metal_Detector'), account?.accountOptions?.[OPT.nuggetsSinceUpgrade] ?? 0) : {}),
       ...(index === 2 ? {
         acornShop
       } : {})
@@ -468,8 +467,20 @@ const getDropsAmount = (baseValue: any, fertilizerUpgrades: any) => {
 
 }
 
-const maxNuggetValue = (bonus: any, equinoxBonus: any, nbNuggetsSinceUpgrade: any) => {
-  return bonus * (1 / Math.pow(1e-5, 0.64)) * (1 + equinoxBonus * nbNuggetsSinceUpgrade / 100);
+// The best roll a dig can land (1e-5, raised to -0.64): the panel's lowest roll is the max over this
+const NUGGET_ROLL_RANGE = 1 / Math.pow(1e-5, 0.64);
+
+const maxNuggetRoll = (importName: string | undefined, bonus: any, equinoxBonus: any, nbNuggetsSinceUpgrade: any) => {
+  const metalDetector = 1 + (equinoxBonus ?? 0) * nbNuggetsSinceUpgrade / 100;
+  const maxNuggetValue = bonus * NUGGET_ROLL_RANGE * metalDetector;
+  return {
+    maxNuggetValue,
+    maxNuggetValueBreakdown: createBreakdown('Rolls', formatNum(maxNuggetValue ?? 0, 'whole'), [
+      flat(importName || 'Dirty Shovel', bonus ?? 0),
+      multiplier('Luckiest dig', NUGGET_ROLL_RANGE),
+      multiplier(sourceName('Equinox', 'Metal_Detector'), metalDetector)
+    ])
+  };
 }
 
 const calcResourcePerTime = (type: any, squirrelLevel: any) => {
@@ -648,6 +659,20 @@ const calcRatKing = (gamingSproutRaw: any, researchRaw: any, account: any, super
   );
   // King Rat screen's "1 in N": 1.111 per crown stands in for the second roll, which must land a new crown
   const ratCrownOneIn = (1 / ratCrownOdds) * Math.pow(1.111, crownsCount);
+  const ratCrownOneInBreakdown = createBreakdown('Crown chance', `1 in ${formatGame(ratCrownOneIn, 'GamingStatType.RatCrownOdds')}`, [
+    multiplier('Crowns owned', Math.pow(1.111, crownsCount)),
+    productGroup('Chance per box', [
+      flat('Base chance', 0.05, { formatted: '5%' }),
+      multiplier(sourceName('Superbit', (superbitsUpgrades as any)?.[60]?.name), 1 + 0.5 * superbit60),
+      additiveGroup(NUMBERED_GROUP, [
+        percent('King Rat Shop (Extra crowns)', ratShopBonus2),
+        percent('King Rat of Olde', ratBaseBonus ?? 0),
+        percent(sourceName('Arcade', 'New_Crown_Chance'), arcadeBonusCrown)
+      ]),
+      multiplier(sourceName('Sushi', (researchData as any)?.[30]?.[31]), 1 + getSushiBonus(account, 31) / 100),
+      multiplier(sourceName('Jelly Operator', (researchData as any)?.[45]?.[42]), 1 + getJellyBonus(account, 42) / 100)
+    ], { unit: 'flat', max: 1, formatted: `${formatNum(100 * ratCrownOdds)}%` })
+  ], { combine: 'divide' });
 
   const paletteBonus34 = getPaletteBonus(account, 34) ?? 0;
   const gridBonus108 = getResearchGridBonus(account, 108, 0);
@@ -663,7 +688,7 @@ const calcRatKing = (gamingSproutRaw: any, researchRaw: any, account: any, super
     { name: 'Extra crowns', level: bitMultiUpgLv ?? 0, bonus: ratShopBonus2, cost: calcRatShopCost(2, ratShopRaw) },
   ];
 
-  return { crownsCount, kingRatUnlocked: !!kingRatUnlocked, ratBitMulti, ratCurrencyGain, ratCrownOdds, ratCrownOneIn, shopUpgrades };
+  return { crownsCount, kingRatUnlocked: !!kingRatUnlocked, ratBitMulti, ratCurrencyGain, ratCrownOdds, ratCrownOneIn, ratCrownOneInBreakdown, shopUpgrades };
 };
 
 const calcRatShopCost = (t: any, ratShopRaw: any) => {

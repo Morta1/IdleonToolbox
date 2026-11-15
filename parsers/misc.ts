@@ -268,9 +268,15 @@ export const getGuaranteedCrystalMobs = (account: any) => {
       + (taskBonus + 4 * achievementBonus)))
 }
 
-// Daily Shopping Spree (legend talent 23): true while today's discounted purchases aren't used up.
-export const hasMasterclassDailyDiscount = (account: any): boolean =>
-  account?.accountOptions?.[OPT.masterclassDiscountsUsedToday] < getLegendTalentBonus(account, 23);
+// Daily Shopping Spree (legend talent 23): the discounted masterclass purchases it grants a day, one pool for every
+// masterclass. The game discounts while accountOptions[masterclassDiscountsUsedToday] is below it.
+export const getMasterclassDiscountGrant = (account: any): number => getLegendTalentBonus(account, 23) ?? 0;
+
+export const getMasterclassDiscountsLeft = (account: any): number =>
+  Math.max(0, getMasterclassDiscountGrant(account) - (account?.accountOptions?.[OPT.masterclassDiscountsUsedToday] ?? 0));
+
+// True while today's discounted purchases aren't used up.
+export const hasMasterclassDailyDiscount = (account: any): boolean => getMasterclassDiscountsLeft(account) > 0;
 
 // game: "AllMasterclassCostReduxPrefix" - the pre-2.3.525 whole formula, now just the first factor.
 const getAllMasterclassCostReduxPrefix = (account: any, forceLegendTalent: any) => {

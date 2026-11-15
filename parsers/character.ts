@@ -77,7 +77,7 @@ import { getPlayerQuests } from './quests';
 import { getPortalKillsLeftDisplay } from './portals';
 import { getJewelBonus, getLabBonus, getLabEfficiency, getPlayerLabChipBonus } from './world-4/lab';
 import { getAchievementStatus } from './achievements';
-import { lavaLog, notateNumber, commaNotation } from '@utility/helpers';
+import { lavaLog, notateNumber, commaNotation, formatNum } from '@utility/helpers';
 import { getArcadeBonus } from './world-2/arcade';
 import { isArtifactAcquired } from './world-5/sailing';
 import { getPetArenaCrucBonus, getShinyBonus } from './world-4/breeding';
@@ -125,6 +125,7 @@ import {
   gearGroup,
   info,
   listGroup,
+  minGroup,
   multiplier,
   NUMBERED_GROUP,
   percent,
@@ -3843,7 +3844,27 @@ const getNonConsumeChance = (character: any, account: any) => {
   const carePackFromMumBonus = getPostOfficeBonus(postOffice, 'Carepack_From_Mum', 0);
   const crabCakeBonus = getEquippedCardBonus(cards?.equippedCards, 'B3' as any);
   const starSingBonus = getStarSignByEffect(starSigns, account, 'chance_to_not');
-  return Math.min(bubbleMath, jewelMath * (freeMealBonus + (carePackFromMumBonus + (crabCakeBonus + starSingBonus + biteButNotChewBubbleBonus))))
+  const value = Math.min(bubbleMath, jewelMath * (freeMealBonus + (carePackFromMumBonus + (crabCakeBonus + starSingBonus + biteButNotChewBubbleBonus))));
+  const jewelName = sourceName('Jewel', 'Pyrite_Navette');
+  return {
+    value,
+    breakdown: createBreakdown('Non consume chance', formatNum(value, 'pct'), [
+      productGroup('Uncapped chance', [
+        multiplier(jewelName, jewelMath),
+        sumGroup(NUMBERED_GROUP, [
+          percent(sourceName('Talent', 'FREE_MEAL'), freeMealBonus),
+          percent(sourceName('Post Office', 'Carepack_From_Mum'), carePackFromMumBonus),
+          percent(sourceName('Card', 'Crabcake'), crabCakeBonus),
+          percent('Star Sign', starSingBonus),
+          percent(bubbleLineName('BITE_BUT_NOT_CHEW'), biteButNotChewBubbleBonus)
+        ])
+      ], { unit: 'percent' }),
+      minGroup('Non consume chance cap', [
+        sumGroup(NUMBERED_GROUP, [percent('Base', 90), percent(jewelName, 5 * nonConsumeJewelBonus)]),
+        sumGroup(NUMBERED_GROUP, [percent('Max', 98), percent(bubbleLineName('BITE_BUT_NOT_CHEW'), Math.min(biteButNotChewBubbleBonus, 1))])
+      ])
+    ], { combine: 'min' })
+  };
 }
 // VaultKillzTotal(11): floor(log10) of the W5 portal kills
 const VAULT_PORTAL_KILLS_LOG_INDEX = 11;

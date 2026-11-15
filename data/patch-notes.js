@@ -10,7 +10,12 @@ export const patchNotes = [
     'date': '15/11/2026',
     'features': [
       'Stamps: the hover note on a max level stamp now shows the character with the best carry capacity',
-      'Traps: each critter in In your traps and in every character panel now shows how many shinies it will give on collect, and the Shiny chance breakdown shows what sets the shinies per drop'
+      'Traps: each critter in In your traps and in every character panel now shows how many shinies it will give on collect, and the Shiny chance breakdown shows what sets the shinies per drop',
+      'New breakdowns: crown chance and nugget rolls in Gaming, pearl value and black pearl value in Clam Work, and non consume chance on Characters',
+      'Star Signs: a Hide unlocked filter shows only the signs left to unlock',
+      'Breeding: shiny pets on the fence show the time to max level, with a sort for it',
+      'Spelunking: a Missing only filter on Lore bosses shows only the discoveries you still need',
+      'Compass, Grimoire, Tesseract and Royal Armory: the Daily Shopping Spree setting shows how many discounted purchases are left today'
     ],
     'fixes': [
       'Traps: each trap now shows its real shiny chance, using the chance saved when it was placed',

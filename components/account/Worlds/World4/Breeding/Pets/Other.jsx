@@ -77,6 +77,9 @@ const petCard = (pet, { isShiny, fencePets, multi, breeding, targetLevel }) => {
   // A pet off the fence gains nothing, so it has no time to a level
   const timeLeft = onFence > 0 ? ((goal - progress) / (multi?.value ?? 1) / onFence) * 8.64e+7 : NaN;
   const timeToThreshold = getTimeToLevel(pet, multi?.value ?? 1, onFence || undefined, targetLevel, isShiny, maxShinyLevel);
+  const timeToMax = isShiny ? getTimeToLevel(pet, multi?.value ?? 1, onFence || undefined, maxShinyLevel, isShiny, maxShinyLevel) : 0;
+  // The "To Lv N" row already reads the max when its target reaches it
+  const showToMax = !isMaxed && targetLevel < maxShinyLevel && timeToMax > 0 && Number.isFinite(timeLeft) && timeToMax !== timeLeft;
   const chance = breedingMultipliers?.totalChance ?? 0;
   const chanceText = chance > 0.1
     ? `${formatGame(Math.min(100, 100 * chance), 'Breeding.TotalBreedChance')}%`
@@ -93,6 +96,7 @@ const petCard = (pet, { isShiny, fencePets, multi, breeding, targetLevel }) => {
       !isMaxed && Number.isFinite(timeLeft) ? ['Next level', <Duration key={'next'} seconds={timeLeft / 1000}/>] : null,
       !isMaxed && timeToThreshold > 0 && Number.isFinite(timeLeft) && timeToThreshold !== timeLeft
         ? [`To Lv ${formatNum(targetLevel)}`, <Duration key={'to'} seconds={timeToThreshold / 1000}/>] : null,
+      showToMax ? ['To max', <Duration key={'max'} seconds={timeToMax / 1000}/>] : null,
       !isShiny ? ['Total chance', <Breakdown key={'chance'} asValue title={'Total chance'} data={multis}>{chanceText}</Breakdown>] : null,
       isShiny ? ['Shiny passive', cleanUnderscore(passive)] : null,
       isShiny && passiveTotal != null ? ['All pets', cleanUnderscore(rawPassive?.replace('{', formatNum(passiveTotal)))] : null
@@ -120,7 +124,9 @@ const Other = ({ pets, fencePets, isShiny, multi, killPetTimeUnlocked, sectionFa
   // The sort's time counts one copy for a pet off the fence, as before
   const timeLeft = (pet) => ((isShiny ? pet?.shinyGoal - pet?.shinyProgress : pet?.breedingGoal - pet?.breedingProgress)
     / (multi?.value ?? 1) / (fenceOf(fencePets, pet, isShiny) || 1)) * 8.64e+7;
-  const sorted = toolbar.sort?.key === 'time' ? shown.toSorted((a, b) => timeLeft(a) - timeLeft(b)) : shown;
+  const maxTime = (pet) => getTimeToLevel(pet, multi?.value ?? 1, fenceOf(fencePets, pet, isShiny) || 1, maxThreshold, isShiny, maxThreshold);
+  const sorted = toolbar.sort?.key === 'time' ? shown.toSorted((a, b) => timeLeft(a) - timeLeft(b))
+    : isShiny && toolbar.sort?.key === 'maxTime' ? shown.toSorted((a, b) => maxTime(a) - maxTime(b)) : shown;
   const ordered = toolbar.sort?.order === 'desc' ? sorted.toReversed() : sorted;
   const cardOptions = { isShiny, fencePets, multi, breeding, targetLevel };
   const groups = isShiny && toolbar.view === 'grouped'
@@ -150,7 +156,7 @@ const Other = ({ pets, fencePets, isShiny, multi, killPetTimeUnlocked, sectionFa
           ...levels.map((level) => [String(level), `Below Lv ${level}`, list.filter((pet) => levelOf(pet, isShiny) < level).length])]}/>
         {isShiny ? <Toolbar.Show name={'passive'} label={'Passive'} options={[['any', 'Any passive', list.length],
           ...passives.map((passive) => [passive, passive, list.filter((pet) => passiveOf(pet) === passive).length])]}/> : null}
-        <Toolbar.Sort options={[['time', 'Time to next level', 'asc']]}/>
+        <Toolbar.Sort options={[['time', 'Time to next level', 'asc'], ...(isShiny ? [['maxTime', 'Time to max level', 'asc']] : [])]}/>
         {isShiny ? <Toolbar.View options={[['cards', 'All'], ['grouped', 'By passive']]}/> : null}
       </Toolbar>}
       {groups ? groups.map(([passive, group]) => <Stack key={passive} gap={1} sx={{ mb: 3 }}>

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Stack } from '@mui/material';
+import { Box, Stack } from '@mui/material';
 import { cleanUnderscore, formatNum, gameLines, number2letter } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import { getAmberDenominator, getAmberIndex, MAX_GRAND_DISCOVERIES } from '@parsers/world-7/spelunking';
@@ -10,11 +10,14 @@ import IconTile from '@components/common/cards/IconTile';
 import GameIcon from '@components/common/GameIcon';
 import StatusText from '@components/common/StatusText';
 import InfoButton from '@components/common/InfoButton';
+import Toolbar from '@components/common/Toolbar';
+import useToolbarState from '@hooks/useToolbarState';
 
 // The discoveries as the old page drew them, a row of sprites, not a block of 72 px tiles: 40 px tiles 4 px apart fit
 // 6 to a row in a boss card at 1920, 1366 and on a phone, so 15 discoveries take 3 rows, not 5
 const DISCOVERY_TILE = 40;
 const DISCOVERY_GRID_SX = { gap: 0.5 };
+const LORE_BOSSES_TOOLBAR = { missingOnly: false };
 
 const LoreBosses = ({ loreBosses, account }) => {
   const amberDenominator = getAmberDenominator(account);
@@ -23,6 +26,11 @@ const LoreBosses = ({ loreBosses, account }) => {
   const { depths = 0, manicDepths = 0 } = account?.spelunking?.saveTotals || {};
   // The game's amber line, as the haul's own print (Spelunk[2]): over the denominator, commas under 1e9, Big past it
   const amberText = (value) => formatGame((value ?? 0) / amberDenominator, 'Spelunk.AmberDenominator', { whole: true });
+  const [toolbar, setToolbar, resetToolbar] = useToolbarState('spelunking-lore-bosses', LORE_BOSSES_TOOLBAR);
+  const missingOnly = !!toolbar?.missingOnly;
+  const bosses = (loreBosses ?? []).filter(Boolean);
+  // Missing only keeps the discoveries still to find, and the bosses that have any
+  const shownBosses = missingOnly ? bosses.filter((boss) => boss.discoveries?.some((discovery) => !discovery?.acquired)) : bosses;
 
   const bossCard = (boss) => {
     const iconLetter = number2letter[boss.index];
@@ -59,7 +67,7 @@ const LoreBosses = ({ loreBosses, account }) => {
       ]}/>
       <ItemCard.Section>
         <CardGrid size={'icon'} fill={DISCOVERY_TILE} sx={DISCOVERY_GRID_SX}>
-          {boss.discoveries?.map((discovery) => {
+          {boss.discoveries?.filter((discovery) => !missingOnly || !discovery?.acquired).map((discovery) => {
             const name = cleanUnderscore(discovery?.name);
             // A discovery's sprite note, a tap away (the hover tooltip before)
             return <IconTile key={discovery?.index} icon={`data/CaveRock${iconLetter}${discovery?.index}.png`} alt={name}
@@ -80,9 +88,15 @@ const LoreBosses = ({ loreBosses, account }) => {
           ? <StatTile label={'Total best manic depth'} value={manicDepths} kind={'amount'}/>
           : null}
       </Stack>
-      <CardGrid size={'m'}>
-        {loreBosses?.map((boss) => (boss ? bossCard(boss) : null))}
-      </CardGrid>
+      <Box>
+        <Toolbar state={toolbar} defaults={LORE_BOSSES_TOOLBAR} onChange={setToolbar} onReset={resetToolbar}
+                 total={bosses.length} shown={shownBosses.length} noun={'bosses'}>
+          <Toolbar.Filter name={'missingOnly'} label={'Missing only'}/>
+        </Toolbar>
+        <CardGrid size={'m'}>
+          {shownBosses.map(bossCard)}
+        </CardGrid>
+      </Box>
     </Stack>
   );
 };

@@ -1,5 +1,6 @@
 import React from 'react';
-import { hasMasterclassDailyDiscount } from '@parsers/misc';
+import { getMasterclassDiscountGrant, getMasterclassDiscountsLeft } from '@parsers/misc';
+import { formatNum } from '@utility/helpers';
 import PageSettings, { usePageSettings } from '@components/common/PageSettings';
 import { LevelsAheadSetting } from '@components/common/LevelsAhead';
 
@@ -14,7 +15,8 @@ const COST_SETTINGS = { levelsAhead: null, spree: null };
 // reads the rest.
 const useMasterclassCostControls = (account, page, tab = 'Upgrades') => {
   const [settings, setSettings, resetSettings] = usePageSettings(page, COST_SETTINGS);
-  const liveDiscount = hasMasterclassDailyDiscount(account);
+  const discountsLeft = getMasterclassDiscountsLeft(account);
+  const liveDiscount = discountsLeft > 0;
   const discount = settings?.spree ?? liveDiscount;
   // The gear shows the Spree as it prices, and counts it as changed only while it differs from today's allowance; a
   // switch back to the live state stores nothing, so the next day follows the game again.
@@ -26,9 +28,7 @@ const useMasterclassCostControls = (account, page, tab = 'Upgrades') => {
     <PageSettings.Group title={tab}>
       <LevelsAheadSetting/>
       <PageSettings.Toggle name={'spree'} label={'Daily Shopping Spree'}
-                           help={`Prices every cost with the legend talent's 80% discount. ${liveDiscount
-                             ? 'You still have discounted purchases left today.'
-                             : 'You have no discounted purchases left today.'}`}/>
+                           help={`Prices every cost with the legend talent's 80% discount. ${formatNum(discountsLeft)} of ${formatNum(getMasterclassDiscountGrant(account))} discounted purchases left today.`}/>
     </PageSettings.Group>
   </PageSettings>;
 

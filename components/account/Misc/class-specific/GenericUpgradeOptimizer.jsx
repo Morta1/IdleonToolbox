@@ -19,10 +19,9 @@ import StatTile from '@components/common/cards/StatTile';
 import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import { AppContext } from '@components/common/context/AppProvider';
 import { useLocalStorage } from '@mantine/hooks';
-import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { getMasterclassDiscountGrant, getMasterclassDiscountsLeft } from '@parsers/misc';
 import { clampCustomMax, MAX_CUSTOM_UPGRADES } from '@parsers/genericUpgradeOptimizer';
 import { createBreakdown, flatLines } from '@parsers/breakdown';
-import { OPT } from '@parsers/accountOptions';
 import { stepCount, stepCountUnderName, stepLevelCell, stepMeta } from './upgradeSteps';
 
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
@@ -152,12 +151,8 @@ const GenericUpgradeOptimizer = ({
     key: `${resourceKey}:genericUpgradeOptimizer:onlyAffordable`,
     defaultValue: false
   });
-  // The legend talent grants a fixed number of discounted masterclass purchases, and
-  // accountOptions[480] counts how many were already spent - the game only discounts while
-  // accountOptions[480] < getLegendTalentBonus(account, 23), so the leftovers are what the
-  // simulation may still spend, not the full grant.
-  const dailyReductionGrant = getLegendTalentBonus(account, 23) ?? 0;
-  const remainingReductions = Math.max(0, dailyReductionGrant - (account?.accountOptions?.[OPT.masterclassDiscountsUsedToday] ?? 0));
+  // Today's leftover discounted purchases are what the simulation may still spend, not the full grant
+  const remainingReductions = getMasterclassDiscountsLeft(account);
   // Only an explicit edit is stored. Seeding storage with the live count instead froze whatever it
   // read on the first visit - wrong the moment the day rolled over or anything was bought - and it
   // was that frozen seed, not the field itself, that made the field unsafe to show on Royal Guardian.
@@ -726,7 +721,7 @@ const GenericUpgradeOptimizer = ({
               onChange={(next) => setReductionOverride(next)}
             />
             <InfoButton label={'Masterclass reductions'} sx={FIELD_INFO_SX}>
-              {`Daily Shopping Spree makes your first ${formatNum(dailyReductionGrant)} Masterclass purchases each day 80% cheaper, and the allowance resets every day. This starts at what today has left, so steps past it are priced at full rate: raise it to plan across several days, or clear it to follow the live count.`}
+              {`Daily Shopping Spree makes your first ${formatNum(getMasterclassDiscountGrant(account))} Masterclass purchases each day 80% cheaper, and the allowance resets every day. This starts at what today has left, so steps past it are priced at full rate: raise it to plan across several days, or clear it to follow the live count.`}
             </InfoButton>
           </Stack> : null}
         </Panel.Inputs>

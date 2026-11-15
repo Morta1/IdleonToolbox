@@ -64,7 +64,7 @@ export const characterStatFacts = (character, characters, account, playerInfo = 
     respawnFact(getRespawnRate(character, account) || {}),
     afkFact(getAfkGain(character, characters, account) || {}),
     crystalFact(crystalSpawnChance),
-    stat('Non consume chance', nonConsumeChance, (chance) => formatNum(chance, 'pct'))
+    stat('Non consume chance', nonConsumeChance?.value, (chance) => formatNum(chance, 'pct'), { breakdown: nonConsumeChance?.breakdown })
   ];
 };
 

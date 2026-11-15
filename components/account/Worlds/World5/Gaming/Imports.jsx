@@ -48,7 +48,7 @@ const snailFacts = (gaming) => {
 
 // An import's own extras, by its place in the game's list
 const importExtras = (index, item, gaming, account, lastUpdated) => {
-  const { acquired, saveSprinklerChance, maxNuggetValue, acornShop } = item;
+  const { acquired, saveSprinklerChance, maxNuggetValue, maxNuggetValueBreakdown, acornShop } = item;
   if (index === 0) return <ItemCard.Facts rows={[['Save sprinkler chance', formatNum(saveSprinklerChance ?? 0, 'pct')]]}/>;
   if (index === 1 && acquired) {
     const nuggets = byTimeAway('Nuggets', gaming?.goldNuggets, gaming?.nuggetsBreakpoints);
@@ -56,7 +56,9 @@ const importExtras = (index, item, gaming, account, lastUpdated) => {
       ['Since last dig', <Timer key={'timer'} date={new Date().getTime() - (gaming?.lastShovelClicked ?? 0) * 1000}
                                 lastUpdated={lastUpdated}/>],
       ['Nuggets', <Breakdown key={'nuggets'} asValue data={nuggets}>{formatNum(gaming?.goldNuggets ?? 0, 'whole')}</Breakdown>],
-      ['Rolls', `${formatNum((maxNuggetValue ?? 0) / 1584.89, 'whole')} to ${formatNum(maxNuggetValue ?? 0, 'whole')}`],
+      ['Rolls', <Breakdown key={'rolls'} asValue data={maxNuggetValueBreakdown}>
+        {`${formatNum((maxNuggetValue ?? 0) / 1584.89, 'whole')} to ${formatNum(maxNuggetValue ?? 0, 'whole')}`}
+      </Breakdown>],
       ['Best nugget', formatGame(Number(gaming?.bestNugget) || 0, 'Save.BestNugget', { whole: true })],
       ['Since upgrade', account?.accountOptions?.[OPT.nuggetsSinceUpgrade] ?? 0, 'amount']
     ]}/>;

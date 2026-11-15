@@ -60,13 +60,18 @@ const ClamWork = () => {
     clamHp,
     mobs,
     pearlValue,
+    pearlValueBreakdown,
     blackPearlValue,
+    blackPearlValueBreakdown,
     upgrades,
     ownedPearls,
     compensations,
     scurge,
     respawn
   } = clam;
+
+  const pearlValueText = formatGame(pearlValue ?? 1, 'Thingies.ClamPearlValue');
+  const blackPearlValueText = formatGame(blackPearlValue ?? 50, 'Thingies.Clam_BlackPearlValue');
 
   // The optimizer walks account.clamWork.upgrades, so it has to see the multikill-aware levels too.
   const optimizerAccount = { ...account, clamWork: { ...section, upgrades, scurge } };
@@ -102,8 +107,10 @@ const ClamWork = () => {
                 value={<Num value={ownedPearls ?? 0} game={'Save.ClamPearls'} whole/>}/>
       <StatTile label={'Promotion chance'} value={(promotionChance ?? 0) * 100} kind={'pct'}/>
       <StatTile label={'Promotion cost'} value={formatGame(promotionCost ?? 0, 'Thingies.Clam_Cost', { whole: true })}/>
-      <StatTile label={'Pearl value multiplier'} value={formatGame(pearlValue ?? 1, 'Thingies.ClamPearlValue')}/>
-      <StatTile label={'Black pearl value'} value={formatGame(blackPearlValue ?? 50, 'Thingies.Clam_BlackPearlValue')}/>
+      <StatTile label={'Pearl value multiplier'} value={pearlValueText}
+                breakdown={pearlValueBreakdown ? { ...pearlValueBreakdown, totalValue: pearlValueText } : undefined}/>
+      <StatTile label={'Black pearl value'} value={blackPearlValueText}
+                breakdown={blackPearlValueBreakdown ? { ...blackPearlValueBreakdown, totalValue: blackPearlValueText } : undefined}/>
       <StatTile label={'Clam mobs'} value={formatGame(mobs ?? 0, 'Thingies.Clam_Mobs', { whole: true })}/>
       <StatTile label={'Clam HP'} value={clamHp ?? 0} kind={'amount'}/>
       <StatTile label={'Respawn time'} value={`${formatNum(respawn ?? 60)}s`}/>

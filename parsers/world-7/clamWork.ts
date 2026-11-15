@@ -1,5 +1,6 @@
 import type { IdleonData, Account } from '../types';
-import { gameFill, tryToParse } from '@utility/helpers';
+import { cleanUnderscore, gameFill, titleCaseName, tryToParse } from '@utility/helpers';
+import { createBreakdown, flat, multiplier } from '@parsers/breakdown';
 import { generalSpelunky, gameTables } from '@website-data';
 import { getOptimizedGenericUpgrades } from '@parsers/genericUpgradeOptimizer';
 import { getScurgeExp, getScurgeLevel, getScurgeUpgradeLevel, isMenagerieUnlockOwned } from '@parsers/world-7/menagerie';
@@ -105,6 +106,12 @@ export const parseClamWork = (account: Account, spelunkingRaw?: any, multiKill: 
   const mobs = getClamMobs(levels);
   const blackPearlValue = getBlackPearlValue(levels);
   const pearlValue = getClamPearlValue(levels, multiKill, scurgeState);
+  const pearlValueBreakdown = createBreakdown('Pearl value multiplier', pearlValue,
+    getClamPearlValueFactors(levels, multiKill, scurgeState).map(({ name, value }) => multiplier(name, value)));
+  const blackPearlValueBreakdown = createBreakdown('Black pearl value', blackPearlValue, [
+    flat('Base', BLACK_PEARL_BASE_VALUE),
+    flat(upgradeName(pearlUpgradeNames[5]), getClamBonus(levels, 5))
+  ], { combine: 'sum' });
   const ownedPearls = (account as any)?.accountOptions?.[OPT.clamPearls] ?? 0;
 
   const clamWorkDescriptions = generalSpelunky?.[27];
@@ -145,7 +152,9 @@ export const parseClamWork = (account: Account, spelunkingRaw?: any, multiKill: 
     clamHp,
     mobs,
     pearlValue,
+    pearlValueBreakdown,
     blackPearlValue,
+    blackPearlValueBreakdown,
     upgrades,
     ownedPearls,
     pearls: [{ name: 'Pearls', value: ownedPearls }],
@@ -262,16 +271,22 @@ export const getClamBonus = (levels: number[], index: number, multiKill: number 
   return perLevel * upgradeLevel;
 }
 
-const getBlackPearlValue = (levels: number[]): number => 50 + getClamBonus(levels, 5);
+const BLACK_PEARL_BASE_VALUE = 50;
+const getBlackPearlValue = (levels: number[]): number => BLACK_PEARL_BASE_VALUE + getClamBonus(levels, 5);
 
-// game: "Thingies:ClamPearlValue"
-const getClamPearlValue = (levels: number[], multiKill: number = DEFAULT_CLAM_MULTIKILL, scurgeState: ScurgeState = NO_SCURGE): number => {
-  return (1 + getClamBonus(levels, 0))
-    * (1 + getClamBonus(levels, 3, multiKill) / 100)
-    * (1 + getClamBonus(levels, 7) / 100)
-    * (1 + getScurgeBonus(scurgeState, 1) / 100)
-    * (1 + (getScurgeBonus(scurgeState, 8) * scurgeState.level) / 100);
-}
+const upgradeName = (name: string | undefined): string => titleCaseName(cleanUnderscore(name));
+
+// game: "Thingies:ClamPearlValue", one factor per upgrade
+const getClamPearlValueFactors = (levels: number[], multiKill: number, scurgeState: ScurgeState) => [
+  { name: upgradeName(pearlUpgradeNames[0]), value: 1 + getClamBonus(levels, 0) },
+  { name: upgradeName(pearlUpgradeNames[3]), value: 1 + getClamBonus(levels, 3, multiKill) / 100 },
+  { name: upgradeName(pearlUpgradeNames[7]), value: 1 + getClamBonus(levels, 7) / 100 },
+  { name: upgradeName(scurgeUpgradeNames[1]), value: 1 + getScurgeBonus(scurgeState, 1) / 100 },
+  { name: upgradeName(scurgeUpgradeNames[8]), value: 1 + (getScurgeBonus(scurgeState, 8) * scurgeState.level) / 100 }
+];
+
+const getClamPearlValue = (levels: number[], multiKill: number = DEFAULT_CLAM_MULTIKILL, scurgeState: ScurgeState = NO_SCURGE): number =>
+  getClamPearlValueFactors(levels, multiKill, scurgeState).reduce((total, { value }) => total * value, 1);
 
 // Relative pearl income: mobs on the map x pearl value x the 10x roll x drop chance. Proportional
 // to pearls per hour, so it ranks upgrades correctly. Drop rate and the Clamworks AFK penalty are
