@@ -247,8 +247,9 @@ export const calcTimeToRankUp = (account: Account, characters: any[], _lastUpdat
   const { combustionTime, synthesisTime, polymerizeTime } = computeRefineryCycleTimes(account, characters);
   const powerPerCycle = getPowerPerCycle(rank, account);
   const cycleTime = index <= 2 ? combustionTime : index <= 5 ? synthesisTime : polymerizeTime;
+  // Refinery Throttle only fills the Combustion and Synthesis tabs, never Polymerize
   const cyclesPerDay = (24 * 60 * 60 / cycleTime)
-    + (includeSquireCycles
+    + (includeSquireCycles && index <= 5
     ? (refineryData?.squiresCycles ?? 0)
     : 0);
   // The game rounds the remaining cycles and clamps power to the cap, so a salt within half a

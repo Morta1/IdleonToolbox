@@ -160,7 +160,7 @@ const Refinery = () => {
     {unlockedSalts.length ? <PageSettings state={settings} defaults={REFINERY_SETTINGS} onChange={setSettings}
                                           onReset={resetSettings}>
       <PageSettings.Toggle name={'squireCycles'} label={'Count squire cycles'}
-                           help={'Adds the cycles your squires\' Refinery Throttle makes each day to every rank up time.'}/>
+                           help={'Adds the cycles your squires\' Refinery Throttle makes each day to every Combustion and Synthesis rank up time.'}/>
       <PageSettings.Toggle name={'nextLevelCost'} label={'Show next level cost'}
                            help={'Each cost also shows what the next rank costs.'}/>
     </PageSettings> : null}

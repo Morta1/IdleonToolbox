@@ -14,7 +14,8 @@ export const patchNotes = [
     ],
     'fixes': [
       'Traps: each trap now shows its real shiny chance, using the chance saved when it was placed',
-      'Dashboard: the daily W2 boss fight alert opens the Battle solver tab'
+      'Dashboard: the daily W2 boss fight alert opens the Battle solver tab',
+      'Refinery: Count squire cycles no longer speeds up Polymerize salts, since Refinery Throttle only fills the Combustion and Synthesis tabs'
     ]
   },
   {
