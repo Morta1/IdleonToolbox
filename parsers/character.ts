@@ -1384,7 +1384,7 @@ const getSkillExpMultiParts = (skillName: string, character: any, characters: an
     return {
       value,
       tree: [
-        flat('Div style per hour', character?.divStyle?.divPerHour),
+        flat('Base EXP per hour (style)', character?.divStyle?.divPerHour),
         productGroup(NUMBERED_GROUP, [
           multiplier('Gem shop', 1 + gemShopBonus / 4),
           multiplier('Legend talent', 1 + legendBonus / 100),

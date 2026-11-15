@@ -109,6 +109,12 @@ const futureBubbles = (cauldrons, fromMost) => {
 // The page's one name style for a bubble ("Roid Ragin")
 const bubbleTitle = (name) => titleCaseName(cleanUnderscore(name ?? ''));
 
+// How many bubbles you have prisma'd, from the save's list ("_3,a12,c18,": cauldron letter and bubble index). The list
+// starts from the option's 0, so the first entry reads "0c9". No total beside the count: some bubbles can't be
+// prisma'd and the catalog does not say which.
+const prismaBubbleCount = (alchemy) => new Set(String(alchemy?.prismaBubbles ?? '').split(',')
+  .map((entry) => entry.match(/[_a-z]\d+$/)?.[0]).filter(Boolean)).size;
+
 // A liquid isn't an item: its only art is the _x1 sprite
 const materialSprite = (rawName = '') => (rawName.startsWith('Liquid') ? `${rawName}_x1` : rawName);
 
@@ -481,8 +487,9 @@ const Bubbles = () => {
         <StatTile label={'Prisma multi'} icon={'data/Quest99.png'} value={prismaFailed ? '-' : prismaText}
                   breakdown={!prismaFailed && prismaMulti?.breakdown ? { ...prismaMulti.breakdown, totalValue: prismaText } : undefined}
                   breakdownTitle={'Prisma multi'}/>
-        <StatTile label={'Prisma fragments'} icon={'data/Quest99.png'}
-                  value={alchemyFailed ? '-' : formatNum(fragments)}/>
+        <StatTile label={'Prisma bubbles'} icon={'data/Quest99.png'}
+                  value={alchemyFailed ? '-' : formatNum(prismaBubbleCount(alchemy))}
+                  sub={alchemyFailed ? undefined : `${formatNum(fragments)} fragments`}/>
         <StatTile label={'Particle upgrades'} icon={'etc/Particle.png'} value={formatNum(account?.accountOptions?.[OPT.alternateParticles] ?? 0)} failed={isParseFailed(account)}/>
         {pricedWith ? <StatTile label={'Priced with'} value={pricedWith}/> : null}
       </PageSummary>

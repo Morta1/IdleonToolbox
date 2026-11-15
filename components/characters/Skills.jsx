@@ -44,7 +44,11 @@ const SkillDetails = ({ skillName, skill, character, characters, account }) => {
   const playerInfo = getMaxDamage(character, characters, account);
   const expMulti = getSkillExpMulti(skillName, character, characters, account, playerInfo);
   const efficiency = getSkillEfficiency(skillName, character, characters, account, playerInfo);
-  const multiText = expMulti ? `${skillNumber(expMulti.value, skillStatKey(skillName, 'EXPmulti'), expMulti.formattedValue)}x` : null;
+  // Divinity's number is the game's DivPerHr_EXP: EXP per hour before the AFK rate, an amount rather than a multiplier
+  const isExpPerHour = skillName === 'divinity';
+  const expLabel = isExpPerHour ? 'EXP per hour' : 'EXP multi';
+  const expText = expMulti ? skillNumber(expMulti.value, skillStatKey(skillName, 'EXPmulti'), expMulti.formattedValue) : null;
+  const multiText = !expMulti ? null : isExpPerHour ? expText : `${expText}x`;
   const efficiencyText = efficiency ? skillNumber(efficiency.value, skillStatKey(skillName, 'Efficiency'), efficiency.formattedValue) : null;
   // Alchemy has no efficiency: the character's brew speed is what it adds to any cauldron it stands in
   const brewSpeed = skillName === 'alchemy' ? getCharacterBrewSpeed(character, account, characters) : null;
@@ -57,8 +61,8 @@ const SkillDetails = ({ skillName, skill, character, characters, account }) => {
     <Box sx={{ py: 0.75 }}>
       <ItemCard.Progress label={'EXP'} value={formatGame(exp, 'Big', { whole: true })} max={formatGame(expReq, 'Big', { whole: true })} percent={Math.min(100, (exp / expReq * 100) || 0)}/>
     </Box>
-    {expMulti ? <Panel.KV label={'EXP multi'} value={expMulti.breakdown
-      ? <Breakdown asValue title={'EXP multi'} data={{ ...expMulti.breakdown, totalValue: multiText }}>{multiText}</Breakdown> : multiText}/> : null}
+    {expMulti ? <Panel.KV label={expLabel} value={expMulti.breakdown
+      ? <Breakdown asValue title={expLabel} data={{ ...expMulti.breakdown, totalValue: multiText }}>{multiText}</Breakdown> : multiText}/> : null}
     {efficiency ? <Panel.KV label={'Efficiency'} value={efficiency.breakdown
       ? <Breakdown asValue title={'Efficiency'} data={{ ...efficiency.breakdown, totalValue: efficiencyText }}>{efficiencyText}</Breakdown> : efficiencyText}/> : null}
     {brewSpeed ? <Panel.KV label={'Brew speed'} value={<Breakdown asValue title={'Brew speed'}

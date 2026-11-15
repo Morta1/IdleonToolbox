@@ -54,7 +54,7 @@ import { getJellyBonus } from '@parsers/world-7/jellyOperator';
 import { getWinnerBonus } from '@parsers/world-6/summoning';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
 import { getSaltLickBonus } from '@parsers/world-3/saltLick';
-import { additiveGroup, createBreakdown, flat, gearGroup, multiplier, NUMBERED_GROUP, percent, productGroup, sumGroup } from '@parsers/breakdown';
+import { additiveGroup, createBreakdown, flat, gearGroup, multiplier, NUMBERED_GROUP, percent, productGroup, sourceName, sumGroup } from '@parsers/breakdown';
 import { getCharacterFamilyBonus } from './family';
 import { OPT } from '@parsers/accountOptions';
 import { saveField } from '@parsers/saveField';
@@ -325,19 +325,32 @@ export const getMasterclassCostReduction = (account: any, forceLegendTalent: any
 // (verified live: "+{ Max possible Lv of Talent books from the Talent Book Library", BonusPerLv = 2).
 const TASK_SHOP_BOOK_LV_PER_MERIT = 2;
 export const getBookLvRange = (account: any) => {
-  const atomLevel = account?.atoms?.atoms?.[7]?.level ?? 0;
-  const minBookLv = Math.round(101
-    + 5 * (account?.gemShopPurchases?.[113] ?? 0)
-    + getBribeBonus(account?.bribes, 'Library_Double_Agent')
-    + atomLevel);
-  const maxBookLv = Math.round(125
-    + (isArtifactAcquired(account?.sailing?.artifacts, 'Fury_Relic')?.bonus ?? 0)
-    + getWinnerBonus(account, '+{ Library Max')
-    + 10 * Math.min(atomLevel, 1)
-    + Math.min(5, Math.max(0, 5 * getAchievementStatus(account?.achievements, 145)))
-    + getSaltLickBonus(account?.saltLick, 4)
-    + TASK_SHOP_BOOK_LV_PER_MERIT * (account?.tasks?.[2]?.[2]?.[2] ?? 0));
-  return { minBookLv, maxBookLv };
+  const atom = account?.atoms?.atoms?.[7];
+  const atomLevel = atom?.level ?? 0;
+  const atomName = sourceName('Atom', atom?.name ?? 'Oxygen_-_Library_Booker');
+  const minTree = [
+    flat('Base', 101),
+    flat(sourceName('Gem shop', 'BURNING_BAD_BOOKS'), 5 * (account?.gemShopPurchases?.[113] ?? 0)),
+    flat(sourceName('Bribe', 'Library_Double_Agent'), getBribeBonus(account?.bribes, 'Library_Double_Agent')),
+    flat(atomName, atomLevel)
+  ];
+  const maxTree = [
+    flat('Base', 125),
+    flat(sourceName('Artifact', 'Fury_Relic'), isArtifactAcquired(account?.sailing?.artifacts, 'Fury_Relic')?.bonus ?? 0),
+    flat('Summoning win bonus', getWinnerBonus(account, '+{ Library Max')),
+    flat(atomName, 10 * Math.min(atomLevel, 1)),
+    flat(sourceName('Achievement', account?.achievements?.[145]?.name ?? 'Checkout_Takeout'),
+      Math.min(5, Math.max(0, 5 * getAchievementStatus(account?.achievements, 145)))),
+    flat(sourceName('Salt Lick', account?.saltLick?.[4]?.name ?? 'Spontaneity_Salts'), getSaltLickBonus(account?.saltLick, 4)),
+    flat('Merit shop', TASK_SHOP_BOOK_LV_PER_MERIT * (account?.tasks?.[2]?.[2]?.[2] ?? 0))
+  ];
+  const minBookLv = Math.round(minTree.reduce((sum, { value }) => sum + value, 0));
+  const maxBookLv = Math.round(maxTree.reduce((sum, { value }) => sum + value, 0));
+  const breakdowns = [
+    createBreakdown('Min book level', minBookLv, minTree, { label: 'Min level', combine: 'sum', round: 'round' }),
+    createBreakdown('Max book level', maxBookLv, maxTree, { label: 'Max level', combine: 'sum', round: 'round' })
+  ];
+  return { minBookLv, maxBookLv, breakdowns };
 }
 
 export const getLibraryBookTimes = (idleonData: any, characters: any, account: any) => {
@@ -353,7 +366,8 @@ export const getLibraryBookTimes = (idleonData: any, characters: any, account: a
     next: getTimeToNextBooks(bookCount, account, characters, idleonData)?.value - libTime,
     breakdown,
     breakpoints,
-    baseFactor
+    baseFactor,
+    bookLvRange: getBookLvRange(account)
   }
 }
 

@@ -36,7 +36,7 @@ const booksTake = (count) => `First ${formatNum(count, 'whole')} books take`;
 // spans: the book counts the player picked (Page settings). The first is a row; the longer ones are an ⓘ note on it, not a
 // fold in the card: opened in it, they grew the card, and on General's flowing columns every card after it moved.
 const Library = ({ libraryTimes, failed, live, spans = DEFAULT_LIBRARY_SPANS }) => {
-  const { bookCount, next, breakpoints, breakdown, baseFactor } = libraryTimes || {};
+  const { bookCount, next, breakpoints, breakdown, baseFactor, bookLvRange } = libraryTimes || {};
   // A span is how long that many books take from none, not a wait: a duration, with no date.
   const spanTimes = baseFactor > 0 ? spans.map((count) => ({ count, time: getTimeToBooks(baseFactor, count) })) : [];
   const [firstSpan, ...longerSpans] = spanTimes;
@@ -50,6 +50,7 @@ const Library = ({ libraryTimes, failed, live, spans = DEFAULT_LIBRARY_SPANS }) 
   </InfoButton> : null;
   // The parser's total is seconds: the drawer is headed as its value reads
   const checkoutTime = formatDuration(breakdown?.totalValue);
+  const bookLvText = bookLvRange ? `${formatNum(bookLvRange.minBookLv, 'whole')} to ${formatNum(bookLvRange.maxBookLv, 'whole')}` : null;
 
   if (failed) {
     return <Panel icon={'data/Libz.png'} title={'Library'}>
@@ -62,6 +63,8 @@ const Library = ({ libraryTimes, failed, live, spans = DEFAULT_LIBRARY_SPANS }) 
     <Panel.KV label={'Books ready'} value={formatNum(bookCount)}/>
     {breakdown ? <Panel.Row name={'Checkout time'}
                             value={<Breakdown asValue title={'Checkout time'} data={{ ...breakdown, totalValue: checkoutTime }}>{checkoutTime}</Breakdown>}/> : null}
+    {bookLvText ? <Panel.Row name={'Book level range'}
+                             value={<Breakdown asValue title={'Book level range'} data={bookLvRange.breakdowns}>{bookLvText}</Breakdown>}/> : null}
     {live && next > 0 ? <WaitRow name={'Next book in'} time={next}/> : null}
     {live ? breakpoints?.filter(({ time }) => time > 0).map(({ breakpoint, time }) =>
       <WaitRow key={breakpoint} name={`${breakpoint} books in`} time={time}/>) : null}

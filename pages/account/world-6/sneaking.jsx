@@ -12,6 +12,7 @@ import { NextSeo } from 'next-seo';
 import Mastery from '@components/account/Worlds/World6/Sneaking/Mastery';
 import Gemstones from '@components/account/Worlds/World6/Sneaking/Gemstones';
 import Detection from '@components/account/Worlds/World6/Sneaking/Detection';
+import Hats from '@components/account/Worlds/World6/Sneaking/Hats';
 import { PAGES } from '@components/constants';
 import PageSummary from '@components/common/cards/PageSummary';
 import StatTile from '@components/common/cards/StatTile';
@@ -31,6 +32,9 @@ const Sneaking = () => {
     players,
     inventory,
     dropList,
+    hatsFound,
+    hatsTotal,
+    hats,
     pristineCharms,
     upgrades,
     doorsCurrentHp,
@@ -66,6 +70,7 @@ const Sneaking = () => {
                 info={`Current pristine chance: ${formatNum(pristineCharmChance, 'odds')}.`}/>
       <StatTile label={'Remaining symbol rolls'} value={remainingSymbolRolls ?? 0} kind={'amount'}/>
       <StatTile label={'Items max level'} breakdown={itemsMaxLevelBreakdown}/>
+      <StatTile label={'Hats found'} value={`${formatNum(hatsFound ?? 0)} / ${formatNum(hatsTotal ?? 0)}`}/>
       <StatTile label={'Selected mastery'} value={selectedNinjaMastery ?? 0} kind={'amount'}
                 sub={(selectedNinjaMastery ?? 0) < (ninjaMastery ?? 0) ? `Highest: ${ninjaMastery}` : undefined}
                 info={'The mastery you are playing. Below your highest one, every door is open.'}/>
@@ -85,6 +90,7 @@ const Sneaking = () => {
       <Charms charms={pristineCharms}/>
       <Mastery masteryBonuses={ninjaMasteryBonuses} masteryLevel={ninjaMastery}/>
       <Gemstones gemStones={gemStones}/>
+      <Hats hats={hats}/>
       {sectionFailed ? null : <Detection detection={detection} characters={state?.characters} ninjaMastery={ninjaMastery}
                  emptyAccount={state?.emptyAccount}/>}
     </Tabber>

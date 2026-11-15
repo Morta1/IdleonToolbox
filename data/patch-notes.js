@@ -15,7 +15,11 @@ export const patchNotes = [
       'Star Signs: a Hide unlocked filter shows only the signs left to unlock',
       'Breeding: shiny pets on the fence show the time to max level, with a sort for it',
       'Spelunking: a Missing only filter on Lore bosses shows only the discoveries you still need',
-      'Compass, Grimoire, Tesseract and Royal Armory: the Daily Shopping Spree setting shows how many discounted purchases are left today'
+      'Compass, Grimoire, Tesseract and Royal Armory: the Daily Shopping Spree setting shows how many discounted purchases are left today',
+      'Characters: divinity shows EXP per hour instead of a multiplier',
+      'Library: a Book level range row shows the min and max book level with their sources',
+      'Sneaking: a new Hats tab lists every hat, found or missing, with the floor it drops on',
+      'Bubbles: the Prisma bubbles tile counts your prisma bubbles, with your fragments under it'
     ],
     'fixes': [
       'Traps: each trap now shows its real shiny chance, using the chance saved when it was placed',

@@ -155,6 +155,8 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
       floorChance
     })));
 
+  const hats = getHats(rawSneaking?.[106]);
+
   const spelunkProgress = rawSpelunking?.[13]?.[3] ?? 0; // This tracks how many special upgrades are unlocked
 
   // The Ninja Knowledge tree: the root needs nothing, every other upgrade its prerequisite (NinjaUpg x9) at level 1, and
@@ -273,6 +275,9 @@ const parseSneaking = (rawSneaking: any, rawSpelunking: any, serverVars: any, ch
     players,
     pristineCharms,
     dropList,
+    hatsFound: hats.found,
+    hatsTotal: hats.total,
+    hats: hats.list,
     doorsCurrentHp,
     doorMaxHps,
     beanstalkData,
@@ -551,6 +556,29 @@ const getFloorDropLists = (selectedMastery: number = 0, classNames: string[] = [
     items.forEach(({ item, chance }: any) => list.splice(list.length - 2, 0, item, String(chance)));
   });
   return lists;
+};
+
+// Ninja hats: the NjItem headgear in ninjaEquipment. Ninja[106] lists every item found (gemstones and hats); the game's
+// hats found count is its NjItem entries. Where a hat drops is every floor list holding it, a mastery row's with its mastery.
+const getHatDropFloors = (rawName: string) => [
+  ...getFloorDropLists().flatMap((list, floor) => list.includes(rawName) ? [`${floor + 1}`] : []),
+  ...(gameTables.sneakingMasteryDrops ?? [])
+    .filter(({ items }: any) => items?.some(({ item }: any) => item === rawName))
+    .map(({ list, mastery }: any) => `${list - FIRST_DROP_LIST_INDEX + 1} (mastery ${mastery})`)
+];
+
+const getHats = (foundItems: unknown) => {
+  const found = new Set(Array.isArray(foundItems) ? foundItems : []);
+  const hats = Object.values(ninjaEquipment as Record<string, any>)
+    .filter(({ type, rawName }) => type === 0 && String(rawName ?? '').startsWith('NjItem'))
+    .map(({ rawName, name, description }) => ({
+      rawName,
+      name: cleanUnderscore(name ?? rawName),
+      description: cleanUnderscore(description ?? ''),
+      found: found.has(rawName),
+      floors: getHatDropFloors(rawName)
+    }));
+  return { list: hats, found: hats.filter(({ found }) => found).length, total: hats.length };
 };
 
 // Game: Ninja("GenerateItem"). dropChance is a fraction rolled in list order, the first hit kept and the last item taking
