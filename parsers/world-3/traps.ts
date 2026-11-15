@@ -53,8 +53,9 @@ export const calcTotalCritters = (account: any, { critter, exp }: any) => {
       res = {
         ...res,
         [rawName]: {
-          critters: (res?.[rawName]?.critters ?? 0) + (crittersQuantity * critter || 1),
-          exp: (res?.[rawName]?.exp ?? 0) + (trapExp * exp || 1)
+          // An EXP trap holds 0 critters: it must add 0, not 1
+          critters: (res?.[rawName]?.critters ?? 0) + (crittersQuantity ?? 0) * (critter ?? 1),
+          exp: (res?.[rawName]?.exp ?? 0) + (trapExp ?? 0) * (exp ?? 1)
         }
       }
     }, {});
@@ -252,25 +253,23 @@ export const getShinyChance = (character: any, account: any): ShinyChance & { so
   return { multiplier, openMulti: onOpenMulti / prayerDivider, bundleSize, critters, sources };
 }
 
-// game: on open each trap rolls its saved chance x the collector's open-time factor once, and a hit
-// drops "<critter>A" x the per-drop amount; the critter collect rate never touches shinies.
-// So a trap's expected shinies are its capped chance times the per-drop amount.
-export const getTrapShinies = (slot: any, { openMulti = 1, bundleSize = 1 }: any = {}) => {
-  const chance = Math.min(100, (slot?.rareChance ?? 0) * openMulti);
-  return { chance, shinies: chance / 100 * bundleSize };
-}
+// game: on open each trap rolls its saved chance x the collector's open-time factor once, whatever its
+// critter quantity (EXP traps roll too), and a hit drops "<critter>A" x the per-drop amount; the critter
+// collect rate never touches shinies. A trap gives all of a drop or nothing, so only traps at 100% are a count.
+export const getTrapShinyChance = (slot: any, { openMulti = 1 }: any = {}) =>
+  Math.min(100, (slot?.rareChance ?? 0) * openMulti);
 
-// Expected shinies by shiny critter ("Critter3A"), over the given trap slots
+// By shiny critter ("Critter3A"): the shinies the traps at 100% are sure to give, and the chances of the rest
 export const sumTrapShinies = (trapSlots: any[] = [], shiny?: any) => trapSlots.reduce((res: any, slot: any) => {
   if (!slot?.rawName) return res;
-  const { shinies } = getTrapShinies(slot, shiny);
+  const chance = getTrapShinyChance(slot, shiny);
   const key = `${slot.rawName}A`;
+  const entry = res?.[key] ?? { sureTraps: 0, sureShinies: 0, chances: [] };
   return {
     ...res,
-    [key]: {
-      shinies: (res?.[key]?.shinies ?? 0) + shinies,
-      traps: (res?.[key]?.traps ?? 0) + 1
-    }
+    [key]: chance >= 100
+      ? { ...entry, sureTraps: entry.sureTraps + 1, sureShinies: entry.sureShinies + (shiny?.bundleSize ?? 1) }
+      : { ...entry, chances: [...entry.chances, chance] }
   };
 }, {});
 

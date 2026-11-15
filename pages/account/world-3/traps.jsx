@@ -27,6 +27,13 @@ import Panel from '@components/common/cards/Panel';
 const itemName = (rawName) => cleanUnderscore(itemsTable?.[rawName]?.displayName ?? rawName);
 const trapBoxName = (trapType) => itemName(`TrapBoxSet${(trapType ?? 0) + 1}`);
 const critters = (value) => formatGame(value ?? 0, 'TrappingStuffs.TotalQTY', { whole: true });
+const trapsText = (count) => `${formatNum(count)} ${count === 1 ? 'trap' : 'traps'}`;
+// One chance, or the range when the traps were placed with different ones
+const chanceText = (chances) => {
+  const low = Math.min(...chances);
+  const high = Math.max(...chances);
+  return low === high ? formatShinyChance(low) : `${formatShinyChance(low)} to ${formatShinyChance(high)}`;
+};
 
 // A trap's numbers at the collector's rates: the box, its quantity and EXP (or shiny) multis, trap EXP, critters
 // and the shiny chance (the placer's saved chance times the collector's open-time bonuses)
@@ -67,14 +74,16 @@ const Traps = () => {
   const totals = calcTotalCritters(state?.account, collectRate ?? {}) ?? {};
   const shiny = getShinyChanceInfo(state?.account, state?.characters, activeCharacter);
   const shinyTotals = sumTrapShinies(traps.flat(), shiny);
-  // Under one expected shiny is a small chance, not a count: it shows nothing (the chance stays in each trap's note)
-  const shownShinies = (entry) => (entry?.shinies ?? 0) >= 1 ? entry.shinies : 0;
-  const anyShinyTile = Object.values(shinyTotals).some(shownShinies);
-  // A critter's shiny row: the expected shinies and the traps' average chance of dropping them
-  const shinyRow = (rawName, { shinies, traps: trapCount }) => <Panel.Row key={rawName} icon={`data/${rawName}.png`}
-                                                                          name={itemName(rawName)}
-                                                                          value={critters(shinies)}
-                                                                          valueSub={`${formatShinyChance(shinies / (trapCount * (shiny?.bundleSize ?? 1)) * 100)} chance`}/>;
+  const anyShinyTile = Object.values(shinyTotals).some(({ sureShinies }) => sureShinies > 0);
+  const perDrop = `${formatNum(shiny?.bundleSize ?? 1)} per drop`;
+  // A trap gives a whole drop or nothing: a count only for the traps at 100%, a chance for the rest, never an average
+  const shinyRow = (rawName, { sureTraps, sureShinies, chances }) => {
+    const value = sureTraps ? critters(sureShinies) : chanceText(chances);
+    const valueSub = !chances.length ? `${trapsText(sureTraps)} at 100%`
+      : sureTraps ? `+${trapsText(chances.length)} at ${chanceText(chances)}`
+        : `${trapsText(chances.length)}, ${perDrop}`;
+    return <Panel.Row key={rawName} icon={`data/${rawName}.png`} name={itemName(rawName)} value={value} valueSub={valueSub}/>;
+  };
   const callMeAshBubble = state?.account?.alchemy?.bubbles?.quicc?.find(({ bubbleName }) => bubbleName === 'CALL_ME_ASH')?.level;
   const plusOneTrap = callMeAshBubble > 0 ? 1 : 0;
 
@@ -126,7 +135,7 @@ const Traps = () => {
       {Object.entries(charTotals).flatMap(([critter, { critters: count, exp }]) => [
         <Panel.Row key={critter} icon={`data/${critter}.png`} name={itemName(critter)} value={critters(count)}
                    valueSub={`${formatGame(exp, 'TrappingStuffs.TotalEXP')} EXP`}/>,
-        shownShinies(charShinies[`${critter}A`]) ? shinyRow(`${critter}A`, charShinies[`${critter}A`]) : null
+        charShinies[`${critter}A`] ? shinyRow(`${critter}A`, charShinies[`${critter}A`]) : null
       ])}
     </Panel>;
   };
@@ -169,12 +178,15 @@ const Traps = () => {
       <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1.5 }}>In your traps</Typography>
       <CardGrid size={'icon'} sx={{ mb: 3 }}>
         {Object.entries(totals).map(([critter, { critters: count }]) => {
-          const shinyCount = shownShinies(shinyTotals[`${critter}A`]);
+          const { sureShinies = 0, chances = [] } = shinyTotals[`${critter}A`] ?? {};
+          const shinyName = itemName(`${critter}A`);
           return <IconTile key={critter} icon={`data/${critter}.png`} alt={itemName(critter)} value={critters(count)}
-                           sub={shinyCount ? [`${critters(shinyCount)} shiny`] : []} height={anyShinyTile ? 88 : 72}
+                           sub={sureShinies ? [`${critters(sureShinies)} shiny`] : []} height={anyShinyTile ? 88 : 72}
                            details={<Stack gap={0.5}>
                              <Typography variant={'body2'}>{`${itemName(critter)}: ${critters(count)} critters`}</Typography>
-                             {shinyCount ? <Typography variant={'body2'}>{`${itemName(`${critter}A`)}: ${critters(shinyCount)}`}</Typography> : null}
+                             {sureShinies ? <Typography variant={'body2'}>{`${shinyName}: ${critters(sureShinies)}`}</Typography> : null}
+                             {chances.length ? <Typography variant={'body2'}>
+                               {`${shinyName}: ${trapsText(chances.length)} at ${chanceText(chances)}, ${perDrop}`}</Typography> : null}
                            </Stack>}/>;
         })}
       </CardGrid>
