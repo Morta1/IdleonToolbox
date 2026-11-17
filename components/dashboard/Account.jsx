@@ -601,6 +601,9 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 5']?.hole?.grotto ?
                 <Alert target={'World 5.hole.grotto'} title={`You can kill the monarch`}
                        iconPath={'etc/Grotto'}/> : null}
+              {alerts?.['World 5']?.hole?.gambit ?
+                <Alert target={'World 5.hole.gambit'} title={`Your daily Gambit attempt is ready`}
+                       iconPath={'etc/Gambit_0'}/> : null}
               {alerts?.['World 5']?.hole?.jars >= 0 ?
                 <Alert target={'World 5.hole.jars'} title={`You can break ${counted(alerts?.['World 5']?.hole?.jars, 'jar')} in the jars cavern`}
                        iconPath={'etc/Jar_0'}/> : null}

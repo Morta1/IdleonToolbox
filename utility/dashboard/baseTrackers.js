@@ -466,6 +466,7 @@ export const baseTrackers = {
           },
           { name: 'theHive', checked: true },
           { name: 'grotto', checked: true },
+          { name: 'gambit', checked: true },
           {
             name: 'justice',
             checked: true,

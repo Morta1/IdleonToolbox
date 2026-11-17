@@ -2371,6 +2371,7 @@ export interface Account {
         totalTime: number;
         runs: Record<string, any>[];
         nextOpalPoints: number;
+        attemptReady: boolean;
         summoningDoublers: {
           appointed: number;
           total: number;

@@ -201,7 +201,7 @@ const parseHole = (holeRaw: any, jarsRaw: any, accountData: any) => {
   const theJars = getTheJars(holesObject, jarsRaw, accountData);
   const evertree = getEvertree(holesObject, accountData);
   const wisdom = getWisdom(holesObject, accountData);
-  const gambit = getGambit(holesObject, accountData);
+  const gambit = getGambit(holesObject, accountData, unlockedCaverns);
   const theTemple = getTheTemple(holesObject);
   const theFountain = getTheFountain(holesObject, accountData);
   const theBottomlessTrench = getBottomlessTrench(holesObject, accountData);

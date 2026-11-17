@@ -10,7 +10,8 @@ export const patchNotes = [
     'date': '17/11/2026',
     'features': [
       'Spelunking and Farming Land Rank upgrade optimizers: new Game order group lists each upgrade once in the upgrade menu order',
-      'Prayers: each card shows how much its bonus and curse grow per level'
+      'Prayers: each card shows how much its bonus and curse grow per level',
+      'Dashboard: The Hole alerts include Gambit attempt ready, when the daily Gambit challenge is available'
     ],
     'fixes': [
       'Acorn Shop: fixed a typo in the Palette Luck upgrade',

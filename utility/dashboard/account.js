@@ -1297,6 +1297,7 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
       theHarp,
       theHive,
       grotto,
+      gambit,
       villagersLevelUp,
       jars,
       jarsFull,
@@ -1351,6 +1352,9 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
     }
     if (grotto?.checked && account?.hole?.caverns?.grotto?.mushroomKillsLeft <= 0) {
       hole.grotto = true;
+    }
+    if (gambit?.checked && account?.hole?.caverns?.gambit?.attemptReady) {
+      hole.gambit = true;
     }
     const readyToLevelVillagers = account?.hole?.villagers?.filter(({ readyToLevel }) => readyToLevel);
     if (villagersLevelUp?.checked && readyToLevelVillagers.length > 0) {

@@ -15,8 +15,11 @@ const EVENT_SHOP_DOUBLERS = 10;
 export const GAMBIT_RUNS = 6;
 // game: GambitChallengeUnlocked: run 0 is always open, run t needs schematic 88 + t
 const RUN_SCHEMATIC_OFFSET = 88;
+// game: the Gambit cavern is cavern 13; Holes[11][64] is the daily attempt, 0 until used, reset each day
+const GAMBIT_CAVERN = 13;
+const DAILY_ATTEMPT_INDEX = 64;
 
-export const getGambit = (holesObject: any, accountData: any) => {
+export const getGambit = (holesObject: any, accountData: any, unlockedCaverns: number = 0) => {
   const { value: pointsMulti, breakdown: pointsMultiBreakdown } = getPointsMultiSources(holesObject, accountData);
   const basePoints = getPoints(holesObject, accountData, 99);
   const points = getPoints(holesObject, accountData, 777);
@@ -52,6 +55,7 @@ export const getGambit = (holesObject: any, accountData: any) => {
   const opalsGiven = Number(holesObject?.opalsPerCavern?.[13]) || 0;
   const nextOpalPoints = Math.exp(GAME_LN10 * (opalsGiven + 1));
   const totalTime = times.reduce((sum: any, time: any) => sum + time, 0);
+  const attemptReady = unlockedCaverns > GAMBIT_CAVERN && Number(holesObject?.extraCalculations?.[DAILY_ATTEMPT_INDEX]) === 0;
   return {
     pointsMulti,
     pointsMultiBreakdown,
@@ -63,6 +67,7 @@ export const getGambit = (holesObject: any, accountData: any) => {
     totalTime,
     runs,
     nextOpalPoints,
+    attemptReady,
     summoningDoublers: {
       appointed: appointedDoublers,
       total: totalDoublers

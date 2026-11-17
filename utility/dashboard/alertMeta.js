@@ -612,6 +612,7 @@ export const alertMeta = {
       },
       theHive: { label: 'Hive layer ready to break', group: 'Resource caverns', page: { query: { t: 'Explore', nt: 'The hive' }, label: 'The Hive' } },
       grotto: { label: 'Monarch ready to fight', group: 'Other caverns', page: { query: { t: 'Explore', nt: 'Grotto' }, label: 'Grotto' } },
+      gambit: { label: 'Gambit attempt ready', group: 'Other caverns', page: { query: { t: 'Explore', nt: 'Gambit' }, label: 'Gambit' } },
       justice: {
         label: 'Justice story ready',
         help: 'Alerts when the Justice reward multi reaches this value.',
