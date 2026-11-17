@@ -17,7 +17,8 @@ export const patchNotes = [
     'fixes': [
       'Acorn Shop: fixed a typo in the Palette Luck upgrade',
       'Dashboard: the refinery materials alert counts 3D Printer output, so printed materials only alert when the printer cannot keep up',
-      'Slab: Nomwich and the Valentine chocolates now count as Unrealistic greenstacks'
+      'Slab: Nomwich and the Valentine chocolates now count as Unrealistic greenstacks',
+      'Settings: uploading your profile right after signing in with Google or Apple no longer fails'
     ]
   },
   {

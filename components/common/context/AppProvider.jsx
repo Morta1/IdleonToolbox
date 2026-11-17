@@ -589,6 +589,9 @@ const AppProvider = ({ children }) => {
             const { signInWithToken } = await loadFirebase();
             const userData = await signInWithToken(id_token, state?.loginType);
             uid = userData?.uid;
+            // The profile upload needs Firebase's own token: google's is not the one the worker reads, and apple's
+            // has no user_id, so an upload right after either sign-in was refused until a reload.
+            accessToken = userData?.accessToken;
           }
         }
 
@@ -597,7 +600,7 @@ const AppProvider = ({ children }) => {
           // on an account with no characters, which would leave a signed-in visitor marked 'no'.
           writeAuthHint('yes');
           const { subscribe } = await loadFirebase();
-          const unsub = await subscribe(uid, accessToken || id_token?.id_token, handleCloudUpdate);
+          const unsub = await subscribe(uid, accessToken, handleCloudUpdate);
           unsubscribeRef.current = unsub;
 
           if (typeof window?.gtag !== 'undefined') {
