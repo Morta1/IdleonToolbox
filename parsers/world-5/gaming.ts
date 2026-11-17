@@ -602,7 +602,7 @@ const calcFertilizerCost = (index: any, gamingRaw: any, serverVars: any) => {
 }
 
 const calcAcornShop = (gamingSproutRaw: any, account: any) => {
-  const bonusTexts = ['All plants give x{ bits', 'All plants grow {% faster', 'Boosts Palette Lucky by +{%']
+  const bonusTexts = ['All plants give x{ bits', 'All plants grow {% faster', 'Boosts Palette Luck by +{%']
   const [, , firstValue, secondValue] = gamingSproutRaw?.[27];
   return [firstValue, secondValue, account?.accountOptions?.[OPT.acornShopPaletteLevel] ?? 0].map((value, index) => {
     const bonus = index === 0 ? 1 + (8 * value) / (250 + (value)) : index === 1

@@ -5,6 +5,15 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.10',
+    'gameVer': '2.3.561',
+    'date': '17/11/2026',
+    'features': [],
+    'fixes': [
+      'Acorn Shop: fixed a typo in the Palette Luck upgrade'
+    ]
+  },
+  {
     'ver': '4.0.9',
     'gameVer': '2.3.561',
     'date': '15/11/2026',
