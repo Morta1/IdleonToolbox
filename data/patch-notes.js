@@ -10,7 +10,8 @@ export const patchNotes = [
     'date': '17/11/2026',
     'features': [],
     'fixes': [
-      'Acorn Shop: fixed a typo in the Palette Luck upgrade'
+      'Acorn Shop: fixed a typo in the Palette Luck upgrade',
+      'Dashboard: the refinery materials alert counts 3D Printer output, so printed materials only alert when the printer cannot keep up'
     ]
   },
   {

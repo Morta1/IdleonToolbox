@@ -443,12 +443,12 @@ export interface SaltMatsTimeLeft {
 }
 
 // How long each running salt can keep cycling before one of its inputs runs dry. A material fed by
-// another salt only drains by the difference between the two rates, the same per-hour model
-// getSaltsBalance compares with; printed materials have no continuous income, so their stock is
-// treated as fixed until the player collects the printer again.
+// another salt or by the 3D Printer only drains by the difference between the rates, the same
+// per-hour model getSaltsBalance compares with.
 export const getSaltMatsTimeLeft = (account: Account, characters: any[], precomputedCycleTimes?: any): SaltMatsTimeLeft[] => {
   const salts: any[] = account?.refinery?.salts ?? [];
   const cycleTimes = precomputedCycleTimes ?? computeRefineryCycleTimes(account, characters);
+  const printedPerHour = getPrintedPerHour(account);
 
   return salts.reduce((res: SaltMatsTimeLeft[], salt: any, index: number) => {
     const { rawName, rank, cost, active, unlocked } = salt;
@@ -464,9 +464,10 @@ export const getSaltMatsTimeLeft = (account: Account, characters: any[], precomp
       const producer = producerIndex >= 0 ? salts[producerIndex] : null;
       // A salt outputs `powerPerCycle` of its own item each cycle, which is the unit the next salt's
       // cost is priced in.
-      const incomePerHour = producer?.unlocked && producer?.active
+      const saltIncomePerHour = producer?.unlocked && producer?.active
         ? getPowerPerCycle(producer?.rank, account) * 3600 / getSaltCycleTime(producerIndex, cycleTimes)
         : 0;
+      const incomePerHour = saltIncomePerHour + (printedPerHour[item?.rawName] ?? 0);
       const netPerHour = drainPerHour - incomePerHour;
       return {
         rawName: item?.rawName,
