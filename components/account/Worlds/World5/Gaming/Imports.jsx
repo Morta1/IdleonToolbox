@@ -78,7 +78,8 @@ const importExtras = (index, item, gaming, account, lastUpdated) => {
   }
   if (index === 3 && acquired) {
     return <ItemCard.Facts rows={[
-      ['Shell rank', gaming?.elegantShellRank ?? 0, 'amount'],
+      // game draws "Rank_" + (GamingSprout[28][2] + 1); the bits multi uses the raw value
+      ['Shell rank', (gaming?.elegantShellRank ?? 0) + 1, 'amount'],
       ['Plants evolved', gaming?.totalPlantsPicked ?? 0, 'amount']
     ]}/>;
   }
