@@ -12,7 +12,8 @@ export const patchNotes = [
       'Spelunking and Farming Land Rank upgrade optimizers: new Game order group lists each upgrade once in the upgrade menu order',
       'Prayers: each card shows how much its bonus and curse grow per level',
       'Dashboard: The Hole alerts include Gambit attempt ready, when the daily Gambit challenge is available',
-      'Leaderboards: Since your last visit now shows how much your value on each board changed, under its rank move'
+      'Leaderboards: Since your last visit now shows how much your value on each board changed, under its rank move',
+      'Sailing: each boat upgrade shows the level where its value jumps, what the boat reaches there, how many levels are left and what they cost'
     ],
     'fixes': [
       'Acorn Shop: fixed a typo in the Palette Luck upgrade',

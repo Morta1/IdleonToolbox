@@ -81,25 +81,31 @@ const cloudSection = (cloud) => {
   </ItemCard.Section>;
 };
 
-// A boat upgrade's level and the next level's cost against the treasure owned, in the footer; its value next and its
-// next bonus level with what reaching it costs, in the Details pill's rows. Two of each sit side by side (Cards board's
-// L card).
-const upgradeCost = (title, level, resource) => <Stack gap={0.75} sx={UPGRADE_SX}>
-  <Typography variant={'groupLabel'} color={'text.secondary'}>{`${title} · Lv ${formatNum(level ?? 0)}`}</Typography>
-  {resource ? <ItemCard.Cost icon={`data/${resource.rawName}.png`} iconAlt={treasureName(treasureIndex(resource.rawName))} needBelow
-                             need={resource.required ?? 0} have={resource.amount ?? 0} game={'Sailing.BoatUpgCostQty'}/> : null}
-</Stack>;
-const upgradeNext = (title, level, step, value, next, key, breakpointResource) => {
-  const breakpoint = (level ?? 0) + (step - ((level ?? 0) % step));
-  const bonusCost = breakpointResource ? `: ${formatGame(breakpointResource?.required ?? 0, 'Sailing.BoatUpgCostQty', { whole: true })}` : '';
+// A boat upgrade's level and the next level's cost against the treasure owned, then its way to the next jump level and
+// what buying every level up to it costs, in the footer; its value next in the Details pill's rows. Each level's gain
+// grows every 8 Loot levels (7 Speed), so that level lifts the whole value: the bar names the value it reaches. Two of
+// each sit side by side (Cards board's L card).
+const treasureCost = (resource) => <ItemCard.Cost icon={`data/${resource.rawName}.png`} iconAlt={treasureName(treasureIndex(resource.rawName))}
+                                                  needBelow need={resource.required ?? 0} have={resource.amount ?? 0}
+                                                  game={'Sailing.BoatUpgCostQty'}/>;
+const upgradeCost = (title, level, step, upgrade, key, resource, breakpointResource) => {
+  const done = (level ?? 0) % step;
+  const left = step - done;
+  const jumpValue = upgrade?.nextBreakpointValue ?? upgrade?.nextLevelValue ?? 0;
   return <Stack gap={0.75} sx={UPGRADE_SX}>
-    <Typography variant={'groupLabel'} color={'text.secondary'}>{`${title} next level`}</Typography>
-    <Typography variant={'body2'} component={'div'} sx={{ fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>
-      {`${formatGame(value ?? 0, key)} → ${formatGame(next ?? 0, key)}`}
-    </Typography>
-    <Typography color={'text.secondary'} component={'div'} sx={{ fontSize: 13, lineHeight: '18px' }}>{`Bonus at Lv ${formatNum(breakpoint)}${bonusCost}`}</Typography>
+    <Typography variant={'groupLabel'} color={'text.secondary'}>{`${title} · Lv ${formatNum(level ?? 0)}`}</Typography>
+    {resource ? treasureCost(resource) : null}
+    <ItemCard.Progress label={`Lv ${formatNum((level ?? 0) + left)}: ${formatGame(jumpValue, key)} ${title}`}
+                       side={`${formatNum(left)} left`} percent={100 * done / step}/>
+    {breakpointResource ? treasureCost(breakpointResource) : null}
   </Stack>;
 };
+const upgradeNext = (title, value, next, key) => <Stack gap={0.75} sx={UPGRADE_SX}>
+  <Typography variant={'groupLabel'} color={'text.secondary'}>{`${title} next level`}</Typography>
+  <Typography variant={'body2'} component={'div'} sx={{ fontWeight: 500, fontVariantNumeric: 'tabular-nums' }}>
+    {`${formatGame(value ?? 0, key)} → ${formatGame(next ?? 0, key)}`}
+  </Typography>
+</Stack>;
 // The footer draws its own line above its pair
 const UPGRADE_ROW_SX = { display: 'flex', flexWrap: 'wrap', gap: 2 };
 const UPGRADES_SX = { ...UPGRADE_ROW_SX, pt: 1, borderTop: 1, borderColor: 'divider' };
@@ -199,13 +205,13 @@ const BoatsAndCaptains = ({
                                              ]}/>
                                              {cloud ? cloudSection(cloud) : nextChestSection(chestOdds, artifactChance)}
                                              <Box sx={UPGRADES_SX}>
-                                               {upgradeNext('Loot', lootLevel, 8, loot?.value, loot?.nextLevelValue, 'Sailing.BoatValue', breakpointResources?.[0])}
-                                               {upgradeNext('Speed', speedLevel, 7, speed?.raw, speed?.nextLevelValue, 'Sailing.BoatSpeed', breakpointResources?.[1])}
+                                               {upgradeNext('Loot', loot?.value, loot?.nextLevelValue, 'Sailing.BoatValue')}
+                                               {upgradeNext('Speed', speed?.raw, speed?.nextLevelValue, 'Sailing.BoatSpeed')}
                                              </Box>
                                            </>}
                                            footer={<Box sx={UPGRADE_ROW_SX}>
-                                             {upgradeCost('Loot', lootLevel, resources?.[0])}
-                                             {upgradeCost('Speed', speedLevel, resources?.[1])}
+                                             {upgradeCost('Loot', lootLevel, 8, loot, 'Sailing.BoatValue', resources?.[0], breakpointResources?.[0])}
+                                             {upgradeCost('Speed', speedLevel, 7, speed, 'Sailing.BoatSpeed', resources?.[1], breakpointResources?.[1])}
                                            </Box>}>
           <ItemCard.Stats cols={[
             ['Loot', formatGame(loot?.value ?? 0, 'Sailing.BoatValue')],

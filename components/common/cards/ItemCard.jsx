@@ -184,13 +184,14 @@ const Stats = ({ cols }) => <Box sx={{ display: 'grid', gridAutoFlow: 'column', 
 
 // One bar: label, numbers, 6 px. percent overrides value / max for a bar that does not start at zero
 // (a Menagerie mission measures from its last claim), and value and max may then be ready-made nodes. barLabel names the
-// bar where the label is a node (a name with its i). kind is what numOrNode takes.
-const Progress = ({ label, barLabel, value, max, kind = 'amount', percent: fill }) => {
+// bar where the label is a node (a name with its i). kind is what numOrNode takes. side replaces "value / max" with its
+// own words for a bar whose count is not a fraction (a Sailing boat's "6 left" to its next jump).
+const Progress = ({ label, barLabel, value, max, kind = 'amount', percent: fill, side }) => {
   const percent = fill ?? (max > 0 ? Math.min(100, Math.max(0, (value / max) * 100)) : 100);
   return <Stack gap={0.75}>
     <Stack direction={'row'} justifyContent={'space-between'} sx={ROW_SX}>
       <Typography variant={'body2'} color={'text.secondary'} component={'div'}>{label}</Typography>
-      <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{numOrNode(value, kind)} / {numOrNode(max, kind)}</Typography>
+      <Typography variant={'body2'} component={'div'} sx={VALUE_SX}>{side ?? <>{numOrNode(value, kind)} / {numOrNode(max, kind)}</>}</Typography>
     </Stack>
     <LinearProgress variant={'determinate'} value={percent} color={percent >= 100 ? 'success' : 'primary'}
                     aria-label={barLabel ?? (typeof label === 'string' ? label : undefined)}
