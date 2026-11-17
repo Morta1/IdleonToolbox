@@ -18,7 +18,8 @@ import { getOptimizedSpelunkingPowerUpgrades, getOptimizedSpelunkingAmberGainUpg
 import { clampCustomMax, MAX_CUSTOM_UPGRADES } from '@parsers/genericUpgradeOptimizer';
 
 const maxUpgradesOptions = [5, 10, 25, 50, 100, 200, 300];
-const groupModes = ['None', 'Upgrade', 'Summary'];
+// Game order is Summary sorted by the upgrade menu: column (x7) left to right, then row (x8) top to bottom
+const groupModes = ['None', 'Upgrade', 'Summary', 'Game order'];
 const optimizationCategorys = ['Power', 'Amber Gain', 'All'];
 
 // The plan's inputs, each under the key it has always had
@@ -215,7 +216,7 @@ const UpgradeOptimizer = ({ character, account }) => {
       };
     });
   }
-  else if (groupMode === 'Summary') {
+  else if (groupMode === 'Summary' || groupMode === 'Game order') {
     const grouped = {};
     optimizedUpgrades.forEach((upgrade, index) => {
       if (!grouped[upgrade.name]) {
@@ -242,6 +243,9 @@ const UpgradeOptimizer = ({ character, account }) => {
     });
 
     displayUpgrades = Object.values(grouped);
+    if (groupMode === 'Game order') {
+      displayUpgrades.sort((a, b) => (a.x7 - b.x7) || (a.x8 - b.x8));
+    }
   }
   else {
     displayUpgrades = optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
@@ -333,6 +337,9 @@ const UpgradeOptimizer = ({ character, account }) => {
           <FormControlLabel label="Only affordable"
                             control={<Switch checked={onlyAffordable} onChange={() => setSettings({ onlyAffordable: !onlyAffordable })}/>}/>
         </Panel.Inputs>
+        {groupMode === 'Game order' ? <Typography variant={'body2'} color={'text.secondary'} sx={{ p: 2 }}>
+          Game order lists one row per upgrade in the game's menu order.
+        </Typography> : null}
       </Panel> : null}
 
       <Typography variant={'sectionTitle'} component={'h2'}>

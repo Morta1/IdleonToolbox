@@ -8,7 +8,9 @@ export const patchNotes = [
     'ver': '4.0.10',
     'gameVer': '2.3.561',
     'date': '17/11/2026',
-    'features': [],
+    'features': [
+      'Spelunking and Farming Land Rank upgrade optimizers: new Game order group lists each upgrade once in the upgrade menu order'
+    ],
     'fixes': [
       'Acorn Shop: fixed a typo in the Palette Luck upgrade',
       'Dashboard: the refinery materials alert counts 3D Printer output, so printed materials only alert when the printer cannot keep up'

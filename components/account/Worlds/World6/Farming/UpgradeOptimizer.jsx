@@ -19,7 +19,8 @@ import NumberField from '@components/common/NumberField';
 import { stepCount, stepCountUnderName, stepLevelCell, stepMeta } from '@components/account/Misc/class-specific/upgradeSteps';
 
 const pointsOptions = [10, 25, 50, 100, 250, 500, 1000];
-const groupModes = ['None', 'Upgrade', 'Summary'];
+// Game order is Summary sorted by rank index: the Land Rank menu reads left to right in rows of five
+const groupModes = ['None', 'Upgrade', 'Summary', 'Game order'];
 const METHOD_NOTE = 'Every land rank upgrade costs exactly 1 rank point, so the plan spends points one at a time on whichever upgrade gains the most. Goals group the upgrades by what they boost: a percent of total damage and a percent of rank EXP aren\'t the same kind of percent.';
 
 const goalDescriptions = {
@@ -108,7 +109,7 @@ const UpgradeOptimizer = () => {
       combinedPercentChange: combinePercentChange(upgrade.sequence)
     }));
   }
-  else if (groupMode === 'Summary') {
+  else if (groupMode === 'Summary' || groupMode === 'Game order') {
     const grouped = {};
     optimizedUpgrades.forEach((upgrade, index) => {
       if (!grouped[upgrade.name]) {
@@ -122,6 +123,9 @@ const UpgradeOptimizer = () => {
       group.combinedPercentChange = combinePercentChange(group.sequence);
     });
     displayUpgrades = Object.values(grouped);
+    if (groupMode === 'Game order') {
+      displayUpgrades.sort((a, b) => a.index - b.index);
+    }
   }
   else {
     displayUpgrades = optimizedUpgrades.map((upgrade, index) => ({ ...upgrade, upgradeIndex: index }));
@@ -222,7 +226,12 @@ const UpgradeOptimizer = () => {
         <FormControlLabel label={'Only affordable'}
                           control={<Switch checked={onlyAffordable} onChange={() => setSettings({ onlyAffordable: !onlyAffordable })}/>}/>
       </Panel.Inputs>
-      {goalDescriptions[goal] ? <Typography variant={'body2'} color={'text.secondary'} sx={{ p: 2 }}>{goalDescriptions[goal]}</Typography> : null}
+      {goalDescriptions[goal] || groupMode === 'Game order' ? <Stack gap={0.5} sx={{ p: 2 }}>
+        {goalDescriptions[goal] ? <Typography variant={'body2'} color={'text.secondary'}>{goalDescriptions[goal]}</Typography> : null}
+        {groupMode === 'Game order' ? <Typography variant={'body2'} color={'text.secondary'}>
+          Game order lists one row per upgrade in the game's menu order.
+        </Typography> : null}
+      </Stack> : null}
     </Panel> : null}
 
     <Stack direction={'row'} alignItems={'center'} gap={2} flexWrap={'wrap'}>
