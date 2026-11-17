@@ -5,6 +5,7 @@ import BlackStars, { BlackStarPreviews } from './BlackStars';
 import HiddenCapLine from '@components/common/HiddenCapLine';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import PaletteNote from './PaletteNote';
 
 // The game's own print of a colour's odds: commas up to 999,999, Big past it (the amount kind's switch)
 export const paletteOdds = (chance) => `1 in ${formatNum(1 / chance, 'whole')}`;
@@ -25,6 +26,7 @@ const CardView = ({ colours, fastestIndices, blackStarsOwned }) => <CardGrid siz
       ]}/>
       {description ? <ItemCard.Desc text={description}/> : null}
       <HiddenCapLine system={'palette'} index={item.index} name={colourName(item)}/>
+      <PaletteNote index={item.index} name={colourName(item)}/>
       <BlackStarPreviews description={description} previews={blackStarPreviews} owned={blackStarsOwned}/>
     </ItemCard>;
   })}

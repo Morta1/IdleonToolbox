@@ -8,6 +8,7 @@ import { NoteTrigger } from '@components/common/InfoButton';
 import GameIcon from '@components/common/GameIcon';
 import ItemCard from '@components/common/cards/ItemCard';
 import { colourName, paletteOdds } from './CardView';
+import PaletteNote from './PaletteNote';
 import { GAME_HEX, ON_ART } from '@utility/colorSets';
 
 const HEX_CLIP = 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)';
@@ -32,6 +33,7 @@ const hexNote = (item, isTop3, blackStarsOwned) => {
     </Stack> : null}
     {description ? <ItemCard.Desc text={description}/> : null}
     <HiddenCapLine system={'palette'} index={item.index} inline/>
+    <PaletteNote index={item.index} inline/>
     <BlackStarPreviews description={description} previews={blackStarPreviews} owned={blackStarsOwned}/>
   </Stack>;
 };

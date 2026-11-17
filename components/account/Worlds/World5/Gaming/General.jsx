@@ -62,7 +62,7 @@ const General = ({ account, gaming, sectionFailed, characters, lastUpdated }) =>
       <Superbits superbits={superbitsUpgrades} bits={bits}/>
       <Mutations account={account} gaming={gaming} lastUpdated={lastUpdated}/>
       <LogBook logBook={logBook} crowns={gaming?.ratKing?.crownsCount ?? 0}/>
-      <Palette account={account} gaming={gaming}/>
+      <Palette account={account} gaming={gaming} characters={characters}/>
     </Tabber>
   </>;
 };

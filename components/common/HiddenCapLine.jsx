@@ -24,7 +24,7 @@ const sourceName = (name) => {
 // name: the capped bonus the line sits under (its card's title), which names the cap; else its first source.
 const HiddenCapLine = ({ system, index, name, inline, sx }) => {
   const { state } = useContext(AppContext);
-  const hiddenCap = getHiddenCap(state?.account, system, index);
+  const hiddenCap = getHiddenCap(state?.account, system, index, state?.characters);
   if (!hiddenCap) return null;
   const { cap, total, unit, sources } = hiddenCap;
   const shared = sources.length > 1;

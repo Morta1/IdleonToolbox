@@ -1,4 +1,5 @@
 import { getPaletteBonus } from '@parsers/world-5/gaming';
+import { getDoubleGoldenFoodDrop, getDoubleStatueDrop } from '@parsers/misc';
 import { getExoticMarketBonus } from '@parsers/world-6/farming';
 import { getResearchGridBonus } from '@parsers/world-7/research';
 import { getJellyBonus } from '@parsers/world-7/jellyOperator';
@@ -36,11 +37,25 @@ const gridSource = (account: any, index: number, mode = 0): HiddenCapSource => (
   value: getResearchGridBonus(account, index, mode)
 });
 
+// A summed stat's breakdown lines are the terms its cap is checked against
+const breakdownSources = (breakdown: any): HiddenCapSource[] =>
+  (breakdown?.tree ?? []).map(({ name, value }: any) => ({ name, value }));
+
 // game: "PaletteBonus" 17 + "ExoticBonusQTY" 46 share min(1, floor(rand + x / 100)), the 2x Snail Mail roll
 const doubleSnailMail = (account: any) => ({ cap: 100, sources: [paletteSource(account, 17), exoticSource(account, 46)] });
 
-const CAPS: Record<CapSystem, Record<number, (account: any) => { cap: number; unit?: HiddenCap['unit']; sources: HiddenCapSource[] }>> = {
+const CAPS: Record<CapSystem, Record<number, (account: any, characters?: any) => { cap: number; unit?: HiddenCap['unit']; sources: HiddenCapSource[] }>> = {
   palette: {
+    // game: randomFloat() < ArcaneType("DoubleItemDropz", 0) / 100, the 2x statue roll. Statue Metallurgy is the
+    // killing character's star talent, so the best character's stands in for it.
+    19: (account, characters) => {
+      const chances = (characters?.length ? characters : [undefined])
+        .map((character: any) => getDoubleStatueDrop(account, character, characters));
+      const best = chances.reduce((top: any, chance: any) => chance.value > top.value ? chance : top);
+      return { cap: 100, sources: breakdownSources(best.breakdown) };
+    },
+    // game: randomFloat() < ArcaneType("DoubleItemDropz", 1) / 100, the 2x Gold Food roll
+    24: (account) => ({ cap: 100, sources: breakdownSources(getDoubleGoldenFoodDrop(account).breakdown) }),
     // game: min(0.75, (ImportItemBonus(5) + PaletteBonus(9)) / 100), the free Log Game roll
     9: (account) => ({
       cap: 75,
@@ -88,8 +103,8 @@ const CAPS: Record<CapSystem, Record<number, (account: any) => { cap: number; un
   }
 };
 
-export const getHiddenCap = (account: any, system: CapSystem, index: number): HiddenCap | null => {
-  const entry = CAPS[system]?.[index]?.(account);
+export const getHiddenCap = (account: any, system: CapSystem, index: number, characters?: any): HiddenCap | null => {
+  const entry = CAPS[system]?.[index]?.(account, characters);
   if (!entry) return null;
   const total = entry.sources.reduce((sum, { value }) => sum + (Number(value) || 0), 0);
   return { cap: entry.cap, total, unit: entry.unit ?? 'percent', sources: entry.sources };

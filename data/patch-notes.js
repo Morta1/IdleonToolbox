@@ -5,6 +5,15 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.11',
+    'gameVer': '2.3.561',
+    'date': '18/11/2026',
+    'features': [
+      'Gaming Palette: Creamy Orange and Light Cyan now show their 100% cap, Magenta says the game does not use it yet, Peachy Pink notes it also raises Flaggy and Construction EXP'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '4.0.10',
     'gameVer': '2.3.561',
     'date': '17/11/2026',

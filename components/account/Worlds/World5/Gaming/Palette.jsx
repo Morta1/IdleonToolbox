@@ -31,7 +31,7 @@ for (let s = 0; s < 37; s++) {
 }
 const GRID_BOUNDS = { width: _maxX - _minX, height: _maxY - _minY, offsetX: _minX, offsetY: _minY };
 
-const Palette = ({ account, gaming }) => {
+const Palette = ({ account, gaming, characters }) => {
   const { palette, paletteFinalBonus, paletteLuck, selectedSlots } = gaming ?? account?.gaming ?? {};
   const blackStars = account?.menagerie?.doublers?.blackStars;
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('gaming-palette', PALETTE_TOOLBAR);
@@ -41,7 +41,7 @@ const Palette = ({ account, gaming }) => {
   const fastestIndices = new Set(palette
     .filter((item) => item?.chance > 0 && item?.chance < Infinity)
     .filter((item) => {
-      const hiddenCap = getHiddenCap(account, 'palette', item.index);
+      const hiddenCap = getHiddenCap(account, 'palette', item.index, characters);
       return !hiddenCap || hiddenCap.total < hiddenCap.cap;
     })
     .sort((a, b) => b.chance - a.chance)
