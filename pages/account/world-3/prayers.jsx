@@ -20,6 +20,12 @@ const calcCostToMax = (prayer) => Array.from({ length: Math.max(0, (prayer?.maxL
   (_, step) => calcPrayerCost({ ...prayer, level: (prayer?.level ?? 0) + step }))
   .reduce((sum, cost) => sum + cost, 0);
 
+// Bonus and curse each grow by a tenth of their base per level (_customBlock_prayersReal); a line with no number has no step
+const levelStep = ({ x1, x2, effect, curse }) => [
+  effect?.includes('{') ? `Bonus ${formatNum(x1 / 10, 'amount', { signed: true })}` : null,
+  curse?.includes('{') ? `Curse ${formatNum(x2 / 10, 'amount', { signed: true })}` : null
+].filter(Boolean).join(', ');
+
 const Prayers = () => {
   const { state } = useContext(AppContext);
   const sectionFailed = isSectionFailed(state?.account, 'prayers');
@@ -67,6 +73,7 @@ const Prayers = () => {
             <ItemCard.Facts rows={[
               ['Bonus', fillPrayer(effect, prayerValue(x1, level))],
               ['Curse', fillPrayer(curse, prayerValue(x2, level))],
+              priced && levelStep(prayer) ? ['Each level', levelStep(prayer)] : null,
               // The game leaves one prayer (Tachion of the Titans) out of the superbit share: no row where it gives nothing
               passiveBonus > 0 ? ['With none equipped', fillPrayer(effect, passiveBonus)] : null,
               ['Unlocks at', `Wave ${formatNum(unlockWave ?? 0)} in ${cleanUnderscore(unlockZone ?? '')}`],

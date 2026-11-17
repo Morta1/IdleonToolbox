@@ -9,7 +9,8 @@ export const patchNotes = [
     'gameVer': '2.3.561',
     'date': '17/11/2026',
     'features': [
-      'Spelunking and Farming Land Rank upgrade optimizers: new Game order group lists each upgrade once in the upgrade menu order'
+      'Spelunking and Farming Land Rank upgrade optimizers: new Game order group lists each upgrade once in the upgrade menu order',
+      'Prayers: each card shows how much its bonus and curse grow per level'
     ],
     'fixes': [
       'Acorn Shop: fixed a typo in the Palette Luck upgrade',
