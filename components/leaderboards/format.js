@@ -92,11 +92,15 @@ const digitsOf = (notation, value, { scale, precision = 3, decimals } = {}) => {
   return shortNumber(value, scientificFrom(scale), precision);
 };
 
-export const formatMetricValue = (notation, raw, options = {}) => {
-  const value = shownOf(notation, numeric(raw));
-  if (!Number.isFinite(value)) return '-';
+// `value` is already what the row shows (a seconds board's time, not its stored rate).
+const shownText = (notation, value, options) => {
   const digits = digitsOf(notation, value, options);
   return `${isFull(value) ? digits : dropZeros(digits)}${unitOf(notation)}`;
+};
+
+export const formatMetricValue = (notation, raw, options = {}) => {
+  const value = shownOf(notation, numeric(raw));
+  return Number.isFinite(value) ? shownText(notation, value, options) : '-';
 };
 
 const MAX_PRECISION = 8;
@@ -183,6 +187,21 @@ export const formatStep = (notation, diff, { scale } = {}) => {
 export const formatGap = (notation, from, to, options = {}) => {
   if (notation !== 'seconds') return `+${formatStep(notation, numeric(to) - numeric(from), options)}`;
   return `-${formatStep('default', shownOf(notation, numeric(from)) - shownOf(notation, numeric(to)))}${unitOf(notation)}`;
+};
+
+// A board's value moving from one run to the next, as it is (never rounded up the way a step is), in the board's own value
+// rules: { text: "+X" or "-X", exact, better }, or null when it would read as zero. A seconds board compares times, not
+// its stored rates, so a faster run reads as fewer seconds and counts as better.
+export const formatChange = (notation, from, to, { scale } = {}) => {
+  const [before, after] = [numeric(from), numeric(to)];
+  if (notation === 'seconds' && !(before > 0 && after > 0)) return null;
+  const diff = shownOf(notation, after) - shownOf(notation, before);
+  const size = Math.abs(diff);
+  if (!Number.isFinite(diff) || size <= 1e-9 * Math.max(1, Math.abs(shownOf(notation, before)))) return null;
+  const text = shownText(notation, size, { scale });
+  if (!/[1-9]/.test(text)) return null;
+  const sign = diff > 0 ? '+' : '-';
+  return { text: `${sign}${text}`, exact: `${sign}${exactText(notation, size)}`, better: notation === 'seconds' ? diff < 0 : diff > 0 };
 };
 
 const GLOBAL_META = { key: GLOBAL_METRIC, label: 'Global ranking', section: '', notation: 'points', category: null };

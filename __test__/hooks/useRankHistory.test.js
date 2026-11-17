@@ -15,7 +15,8 @@ describe('nextHistory', () => {
     expect(stored.prev).toBeNull();
     // A new visit days later: the old cur becomes prev
     stored = nextHistory(stored, reply(3, 17, { a: 9, b: 41 }), true);
-    expect(rankChanges(stored)).toMatchObject({ since: 2, rank: 2, boards: [{ metric: 'a', from: 11, to: 9, delta: 2 }, { metric: 'b', from: 40, to: 41, delta: -1 }] });
+    stored.prev.ranks.a[1] = 7;
+    expect(rankChanges(stored)).toMatchObject({ since: 2, rank: 2, boards: [{ metric: 'a', from: 11, to: 9, delta: 2, valueFrom: 7, valueTo: 10 }, { metric: 'b', from: 40, to: 41, delta: -1 }] });
     // A later run in that visit keeps the same baseline
     stored = nextHistory(stored, reply(4, 16, { a: 8, b: 41 }), false);
     expect(rankChanges(stored).since).toBe(2);

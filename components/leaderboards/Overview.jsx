@@ -13,7 +13,7 @@ import GameIcon from '@components/common/GameIcon';
 import Notice, { retryAction } from '@components/common/Notice';
 import Panel from '@components/common/cards/Panel';
 import { fetchBoard } from '../../services/leaderboards';
-import { AGGREGATION_INTERVAL, GLOBAL_METRIC, TABS, formatExactValue, formatMetricValue, metaOf, profileUrl, rankText, showsFailure, staleUntilNextRun } from './format';
+import { AGGREGATION_INTERVAL, GLOBAL_METRIC, TABS, formatChange, formatExactValue, formatMetricValue, metaOf, profileUrl, rankText, showsFailure, staleUntilNextRun } from './format';
 import { topPercentLabel, withinReach } from './standing';
 import { nextRankText } from './tiers';
 import CategoryTiles from './CategoryTiles';
@@ -168,6 +168,7 @@ const WithinReach = ({ reach, kind, index, onOpen, linkPlayer }) => (
 
 // The boards that moved most since the last visit, as Highlights lists the strongest ones; the rest one tap away.
 const SHOWN_MOVES = 3;
+const CHANGE_SX = { fontWeight: 500, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' };
 const SinceLastVisit = ({ changes, index, onOpen, linkPlayer }) => {
   const formatDate = useFormatDate();
   const [showAll, setShowAll] = useState(false);
@@ -178,11 +179,15 @@ const SinceLastVisit = ({ changes, index, onOpen, linkPlayer }) => {
     {moves.map((move) => {
       const meta = metaOf(index, move.metric);
       const tabName = tabOfCategory(meta.category);
+      const change = formatChange(meta.notation, move.valueFrom, move.valueTo, { scale: meta.top });
       return <Panel.Row key={move.metric} sx={REACH_ROW_SX} icon={<MetricIcon metric={move.metric} label={meta.label}/>}
                         name={<Link href={boardHref(meta, linkPlayer)} onClick={openOnPlainClick((key) => onOpen(key, 'since_last_visit'), move.metric)}
                                     color="inherit" underline="none" sx={STRETCHED_LINK_SX}>{meta.label}</Link>}
                         sub={`${tabName ? `${tabName} · ` : ''}${rankText(move.from)} to ${rankText(move.to)}`}
-                        value={<RankDelta delta={move.delta}/>}/>;
+                        value={<RankDelta delta={move.delta}/>}
+                        valueSub={change ? <Box component="span" sx={{ color: change.better ? 'text.success' : 'text.error', ...CHANGE_SX }}>
+                          <ExactValue text={change.text} exact={change.exact}/>
+                        </Box> : null}/>;
     })}
     {rest > 0 ? <Box sx={{ px: 2, py: 1 }}>
       <Button size="small" onClick={() => setShowAll(!showAll)} aria-expanded={showAll}>

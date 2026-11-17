@@ -1,6 +1,6 @@
 import '../../../polyfills';
 import { describe, expect, it, vi } from 'vitest';
-import { AGGREGATION_INTERVAL, buildMetaIndex, formatBoardValues, formatDistinctValues, formatExactValue, formatGap, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
+import { AGGREGATION_INTERVAL, buildMetaIndex, formatBoardValues, formatChange, formatDistinctValues, formatExactValue, formatGap, formatMetricValue, formatStep, metaOf, rankText, staleUntilNextRun, untilNextRun } from '@components/leaderboards/format';
 
 const meta = {
   createdAt: 100,
@@ -129,6 +129,22 @@ describe('formatStep', () => {
     expect(formatStep('default', 1)).toBe('1');
     expect(formatStep('default', 2.5e9)).toBe('2.5B');
     expect(formatStep('bits', 5.69e20, { scale: 2.7e119 })).toBe('5.69e20');
+  });
+});
+
+describe('formatChange', () => {
+  it('reports a change as it is, signed, better by the board', () => {
+    expect(formatChange('default', 117, 234.321)).toEqual({ text: '+117.32', exact: '+117.321', better: true });
+    expect(formatChange('multiplier', 3.5, 3.2)).toMatchObject({ text: '-0.30x', better: false });
+    // A seconds board stores rates: 4 Sec to 3.86 Sec is 0.14 Sec faster.
+    expect(formatChange('seconds', 3600 / 4, 3600 / 3.86)).toMatchObject({ text: '-0.140 Sec', better: true });
+    expect(formatChange('seconds', 3600 / 3.86, 3600 / 5)).toMatchObject({ text: '+1.14 Sec', better: false });
+    expect(formatChange('default', 56_831_731, 96_517_910, { scale: 1e9 })).toEqual({ text: '+39.7M', exact: '+39,686,179', better: true });
+  });
+
+  it('gives nothing for a change that would read as zero', () => {
+    expect(formatChange('points', 12.001, 12.003)).toBeNull();
+    expect(formatChange('default', 11_444.999999996, 11_445)).toBeNull();
   });
 });
 

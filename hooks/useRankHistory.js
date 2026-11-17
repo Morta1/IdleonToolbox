@@ -49,13 +49,17 @@ export const nextHistory = (stored, data, newVisit) => {
   return { name, prev: newVisit ? stored.cur : stored.prev, cur };
 };
 
-// What moved between prev and cur: the global rank, and each board both runs ranked. Positive is up.
+// What moved between prev and cur: the global rank, and each board both runs ranked. Positive is up. A moved board
+// carries both runs' values (valueFrom, valueTo) as stored.
 export const rankChanges = (history) => {
   if (!history?.prev || !history?.cur) return null;
   const { prev, cur } = history;
   const boards = Object.entries(cur.ranks)
     .filter(([metric, [r]]) => prev.ranks[metric] != null && prev.ranks[metric][0] !== r)
-    .map(([metric, [r]]) => ({ metric, from: prev.ranks[metric][0], to: r, delta: prev.ranks[metric][0] - r }))
+    .map(([metric, [r, v]]) => {
+      const [from, valueFrom] = prev.ranks[metric];
+      return { metric, from, to: r, delta: from - r, valueFrom, valueTo: v };
+    })
     .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta) || a.to - b.to);
   // The previous run's ranks in /player's entry shape, for countStanding.
   const prevEntries = Object.fromEntries(Object.entries(prev.ranks).map(([metric, [r, v]]) => [metric, { r, v }]));
