@@ -31,6 +31,7 @@ import ErrorBoundary from '@components/common/ErrorBoundary';
 import { useRouter } from 'next/router';
 import { isValid } from 'date-fns';
 import { UploadError, uploadProfile } from '../services/profiles';
+import { loadFirebase } from '../firebase/lazy';
 import { expandLeaderboardInfo } from '../services/leaderboardInfo';
 import { copyForSupport, copyRawData, formatNum, sortKeys } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
@@ -235,11 +236,14 @@ const Settings = () => {
       const parsedData = expandLeaderboardInfo(state?.account, state?.characters);
       // Safety: no leaderboard without a profile
       const safeParticipation = profileAccess === 'off' ? 'off' : leaderboardParticipation;
+      // The token in state is the sign-in's and has run out in a tab open for over an hour. If Firebase cannot be
+      // asked, the old one still goes out and the worker answers for it.
+      const freshToken = await loadFirebase().then(({ getFreshToken }) => getFreshToken()).catch(() => null);
       const result = await uploadProfile({
         profile: { ...userData, parsedData },
         profileAccess,
         leaderboardParticipation: safeParticipation
-      }, state?.accessToken);
+      }, freshToken ?? state?.accessToken);
       const newAnonId = result?.anonId || null;
       if (newAnonId) {
         setAnonId(newAnonId);

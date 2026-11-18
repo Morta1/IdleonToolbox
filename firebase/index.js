@@ -84,6 +84,13 @@ const checkUserStatus = () => {
   });
 };
 
+// A token lasts an hour, so the one kept from sign-in goes stale in an open tab. getIdToken hands back the current one
+// and renews it when it is about to run out. null when nobody is signed in.
+const getFreshToken = async () => {
+  await auth.authStateReady();
+  return auth.currentUser ? auth.currentUser.getIdToken() : null;
+};
+
 const subscribe = async (uid, accessToken, callback) => {
   goOnline(database);
   const dbRef = ref(database);
@@ -272,5 +279,6 @@ export {
   signInWithCustom,
   subscribe,
   checkUserStatus,
+  getFreshToken,
   userSignOut
 }
