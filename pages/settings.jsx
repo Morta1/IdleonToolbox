@@ -243,7 +243,7 @@ const Settings = () => {
         profile: { ...userData, parsedData },
         profileAccess,
         leaderboardParticipation: safeParticipation
-      }, freshToken ?? state?.accessToken);
+      }, freshToken ?? state?.accessToken, freshToken ? 'fresh' : 'stored');
       const newAnonId = result?.anonId || null;
       if (newAnonId) {
         setAnonId(newAnonId);

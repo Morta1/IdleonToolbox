@@ -13,7 +13,8 @@ export class UploadError extends Error {
 
 const GENERIC_UPLOAD_ERROR = 'An error has occurred while uploading your profile. Please try again later.';
 
-export const uploadProfile = async ({ profile, profileAccess, leaderboardParticipation }, token) => {
+// tokenSource tells the worker's log whether the token came from Firebase just now ('fresh') or from sign-in ('stored').
+export const uploadProfile = async ({ profile, profileAccess, leaderboardParticipation }, token, tokenSource) => {
   let body;
   try {
     body = JSON.stringify({ profile: parseProfile(profile), profileAccess, leaderboardParticipation });
@@ -28,7 +29,8 @@ export const uploadProfile = async ({ profile, profileAccess, leaderboardPartici
       body,
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': token
+        'Authorization': token,
+        ...(tokenSource ? { 'X-Token-Source': tokenSource } : {})
       }
     });
   } catch (err) {
