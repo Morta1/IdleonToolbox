@@ -12,7 +12,8 @@ export const patchNotes = [
       'Dashboard: new Royal Guardian alert when you can afford a ticked Orblet Market upgrade'
     ],
     'fixes': [
-      'Vote Ballot and other weekly server bonuses now update after the reset without reloading the page'
+      'Vote Ballot and other weekly server bonuses now update after the reset without reloading the page',
+      'New or renamed characters now show their names without reloading the page'
     ]
   },
   {

@@ -138,7 +138,7 @@ const subscribe = async (uid, accessToken, callback) => {
       // The server's commit time of the save's last write: when the game's cloud save actually landed
       const updateTime = docSnapshot._document?.version?.toTimestamp();
 
-      const [companion, guildId, tournamentUser, tournamentMatchData, tournamentGlobal, freshServerVars] = await Promise.all([
+      const [companion, guildId, tournamentUser, tournamentMatchData, tournamentGlobal, freshServerVars, freshCharNames] = await Promise.all([
         getSnapshot(dbRef, `_comp/${uid}`),
         getSnapshot(dbRef, `_usgu/${uid}/g`),
         getSnapshot(dbRef, `_tournament/${uid}`),
@@ -151,6 +151,9 @@ const subscribe = async (uid, accessToken, callback) => {
         // Same for the server vars: the weekly ballot, Pet Mart pack and other rotating values change at reset,
         // and a tab left open kept last week's ballot.
         getDoc(doc(firestore, '_vars', '_vars')).then((d) => (d?.exists() ? d.data() : null)).catch(() => null),
+        // Character names too: they pair with characters by position, so a character made, deleted or renamed
+        // in an open tab would otherwise get the login-time names.
+        getSnapshot(dbRef, `_uid/${uid}`),
       ]);
 
       const guild = guildId ? await getSnapshot(dbRef, `_guild/${guildId}`) : null;
@@ -171,7 +174,7 @@ const subscribe = async (uid, accessToken, callback) => {
 
       callback(
         cloudsave,
-        charNames,
+        freshCharNames?.length ? freshCharNames : charNames,
         companion,
         guildData,
         tournament,
