@@ -828,6 +828,12 @@ export const alertMeta = {
         help: 'Alerts until you buy Resource Replenish in the armory, the one-time upgrade that refills empty resources every day.',
         group: 'Outposts',
         page: { query: { t: 'Armory' }, label: 'Armory' }
+      },
+      orbletMarket: {
+        label: 'Affordable Orblet Market upgrades',
+        help: 'Alerts when the Orblets in your inventories and storage can buy a ticked Orblet Market upgrade.',
+        group: 'Orblet Market',
+        page: { query: { t: 'Orblet Market' }, label: 'Orblet Market' }
       }
     }
   },

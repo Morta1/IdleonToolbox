@@ -41,7 +41,7 @@ import { getInventoryClusters } from '@parsers/world-1/statues';
 import { getTomeWishPity } from '@parsers/world-4/tome';
 import { BOSS_RESPAWN_ALERTS, isMinibossReady } from './bossRespawns';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
-import { getIdleGuards, getMissingWorkers, getSpareWorkers } from '@parsers/class-specific/royalGuardian';
+import { getIdleGuards, getMissingWorkers, getSpareWorkers, orbletUpgradeKey } from '@parsers/class-specific/royalGuardian';
 import { getCompassBonus } from '@parsers/class-specific/compass';
 import { calcTotalItemOwned } from '@parsers/storage';
 import { OPT } from '@parsers/accountOptions';
@@ -1940,6 +1940,19 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
 
     if (rgOptions?.restockLocked?.checked && account?.royalGuardian?.outpostStats?.restockUnlocked === false) {
       royalGuardian.restockLocked = true;
+    }
+
+    if (rgOptions?.orbletMarket?.checked) {
+      const selected = rgOptions?.orbletMarket?.props?.value;
+      const orblets = account?.royalGuardian?.orblets ?? 0;
+      const affordable = (account?.royalGuardian?.orbletMarket ?? [])
+        .filter(({ name, maxed, cost }) => selected?.[orbletUpgradeKey(name)] && !maxed && orblets >= cost);
+      if (affordable.length > 0) {
+        royalGuardian.orbletMarket = {
+          orblets,
+          upgrades: affordable.map(({ index, name, level, cost }) => ({ index, name, level, cost }))
+        };
+      }
     }
 
     if (Object.keys(royalGuardian).length > 0) {

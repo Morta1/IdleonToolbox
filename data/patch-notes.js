@@ -8,7 +8,9 @@ export const patchNotes = [
     'ver': '4.0.12',
     'gameVer': '2.3.561',
     'date': '19/11/2026',
-    'features': [],
+    'features': [
+      'Dashboard: new Royal Guardian alert when you can afford a ticked Orblet Market upgrade'
+    ],
     'fixes': [
       'Vote Ballot and other weekly server bonuses now update after the reset without reloading the page'
     ]

@@ -501,6 +501,12 @@ export const getOutpostKillsReq = (mapIndex: number): number => {
 const getResourceNodeMax = (nodeIndex: number, baseMaxQuantity: number, nodeLevel: number): number =>
   5 * baseMaxQuantity * Math.pow(1.5, nodeLevel) * Math.pow(5, Math.floor(nodeIndex / RESOURCE_NODES_PER_WORLD));
 
+// The dashboard's per-upgrade toggle key: "FULL_CLEAR" -> "fullClear", which its chips print as "Full Clear".
+export const orbletUpgradeKey = (name: string): string => `${name ?? ''}`.toLowerCase()
+  .replace(/_([a-z])/g, (_, letter: string) => letter.toUpperCase());
+export const ORBLET_UPGRADE_KEYS: string[] = liveEntries<any>(orbletMarketCatalog as any[])
+  .map(({ entry }) => orbletUpgradeKey(entry?.name));
+
 const GLORIFICATION_INDEX = 4;
 const GLORIFICATION_LINE = '10%_chance_to_Glorify_the_current_Outpost';
 

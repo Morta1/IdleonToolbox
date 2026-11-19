@@ -5,7 +5,8 @@ import {
   formatDuration,
   formatNum,
   getNumberWithOrdinal,
-  pascalCase
+  pascalCase,
+  titleCaseName
 } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
 import ArrowDropUpIcon from '@mui/icons-material/ArrowDropUp';
@@ -834,6 +835,16 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 7.royalGuardian.restockLocked'}
                   title={'Resource Replenish is unbought, so your empty resources never refill'}
                   iconPath={'data/UISkillIcon226'} badge={'locked'}/> : null}
+              {alerts?.['World 7']?.royalGuardian?.orbletMarket ?
+                <Alert target={'World 7.royalGuardian.orbletMarket'}
+                  title={<RoyalGuardianList
+                    headline={`Your ${formatNum(alerts?.['World 7']?.royalGuardian?.orbletMarket?.orblets, 'whole')} Orblets can buy ${counted(alerts?.['World 7']?.royalGuardian?.orbletMarket?.upgrades?.length, 'Orblet Market upgrade')}`}
+                    entries={alerts?.['World 7']?.royalGuardian?.orbletMarket?.upgrades?.map(({ index, name, level, cost }) => ({
+                      mapIndex: index,
+                      name: `${titleCaseName(cleanUnderscore(name))} Lv ${formatNum(level + 1)}`,
+                      detail: `${formatGame(cost, 'Thingies.OrbletMarketCost')} Orblets`
+                    }))}/>}
+                  iconPath={'data/Orblet'} maxWidth={RG_LIST_TOOLTIP_WIDTH}/> : null}
               {alerts?.['World 7']?.gallery?.missingTrophies?.length > 0 && !failed('gallery') ?
                 alerts?.['World 7']?.gallery?.missingTrophies?.map(({ itemName, owner, rawName }, index) =>
                   <Alert target={'World 7.gallery.missingTrophies'}

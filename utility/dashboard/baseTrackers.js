@@ -3,6 +3,7 @@ import { getRawRefinerySalts } from '@parsers/misc';
 import { getPrinterExclusions } from '@parsers/world-3/printer';
 import { getClassTalentPicker, getCrystalCountdownSkills } from '@parsers/talents';
 import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
+import { ORBLET_UPGRADE_KEYS } from '@parsers/class-specific/royalGuardian';
 import { bellOptions } from '@utility/migrations';
 
 export const baseTrackers = {
@@ -698,6 +699,13 @@ export const baseTrackers = {
             name: 'restockLocked',
             checked: true,
             helperText: 'Alert until you buy Resource Replenish in the armory, the one-time upgrade that refills empty resources every day. It goes away once bought'
+          },
+          {
+            name: 'orbletMarket',
+            type: 'array',
+            category: 'Alert when your Orblets can buy these Orblet Market upgrades',
+            props: { value: Object.fromEntries(ORBLET_UPGRADE_KEYS.map((key) => [key, true])) },
+            checked: true
           }
         ]
       },

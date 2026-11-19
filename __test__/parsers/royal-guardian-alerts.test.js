@@ -41,6 +41,15 @@ describe('royal guardian dashboard alerts', () => {
     parsed = parseFixture(raw);
   });
 
+  it('lists ticked Orblet Market upgrades the Orblets can buy, skipping maxed ones', () => {
+    const rg = parsed.account.royalGuardian;
+    const market = rg.orbletMarket.map((upgrade, index) => ({ ...upgrade, cost: index * 10, maxed: index === 1 }));
+    const account = { ...parsed.account, royalGuardian: { ...rg, orbletMarket: market, orblets: 25 } };
+    const value = { emulsion: true, hydration: true, talented: false, fullClear: true };
+    const alerts = getWorld7Alerts(account, FIELDS, { royalGuardian: { orbletMarket: { checked: true, props: { value } } } }, parsed.characters);
+    expect(alerts?.royalGuardian?.orbletMarket?.upgrades?.map(({ index }) => index)).toEqual([0]);
+  });
+
   it('only reports outposts a rewire would actually help', () => {
     const { account, characters } = parsed;
     const alerts = getWorld7Alerts(account, FIELDS, OPTIONS, characters)?.royalGuardian;
