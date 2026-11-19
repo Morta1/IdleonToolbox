@@ -28,6 +28,8 @@ const MAX_SKULLS = 5;
 // The two outside buffs the fight writes (tea break "c", chilly cheese "g") count up to 150 where the game reads them
 const BUFF_CAP = 150;
 const BEAM_WIDTH = 2000;
+// Far past any real fight's length: a loop the seen states miss ends here, not in an out-of-memory tab
+const MAX_LEVELS = 1000;
 
 const n = (value: unknown) => Number(value) || 0;
 const actionOf = (index: number) => (weeklyBossesActions as any[])[index];
@@ -186,14 +188,18 @@ const stepsOf = (state: State) => {
 };
 
 // The whole fight, each click kept, from a fresh start. A beam: at each click every option of every kept state, the
-// same states merged, the best by the goal's score kept. Every fight ends: rewinds work once or reset their count.
+// same states merged, the best by the goal's score kept. A state already kept at an earlier click is dropped: the same
+// fight ahead, only more clicks to get there. That is what ends the joke: on the final character it adds the extra
+// turn it spends, so picking it again changes nothing, as often as the game lets you.
 // It yields after each click's level, a few milliseconds of work, so a page can hand the browser back between them.
 function* searchFight(week: any, nChars: number, pows: number[], cloudBonus: number, goal: FightGoal): Generator<void, State[]> {
   const score = SCORES[goal];
   const boss = bossOf(week);
-  let front: State[] = [{ turn: 0, dealt: 0, skull: 0, best: 0, trophies: 0, pickups: 0, w: {}, trail: null }];
+  const start: State = { turn: 0, dealt: 0, skull: 0, best: 0, trophies: 0, pickups: 0, w: {}, trail: null };
+  let front: State[] = [start];
+  const seen = new Set([stateKey(start)]);
   const finished: State[] = [];
-  while (front.length) {
+  for (let level = 0; front.length && level < MAX_LEVELS; level++) {
     const next = new Map<string, State>();
     for (const state of front) {
       for (let option = 0; option < 3; option++) {
@@ -210,18 +216,21 @@ function* searchFight(week: any, nChars: number, pows: number[], cloudBonus: num
         if (child.turn >= nChars) finished.push(child);
         else {
           const key = stateKey(child);
-          if (!next.has(key)) next.set(key, child);
+          if (!next.has(key) && !seen.has(key)) next.set(key, child);
         }
       }
     }
-    front = [...next.values()];
-    if (front.length > BEAM_WIDTH) {
+    let kept = [...next.entries()];
+    if (kept.length > BEAM_WIDTH) {
       // Each state scored once, not once per comparison
-      front = front.map((state) => ({ state, value: score(state, boss) }))
+      kept = kept.map((entry) => ({ entry, value: score(entry[1], boss) }))
         .sort((x, y) => y.value - x.value)
         .slice(0, BEAM_WIDTH)
-        .map(({ state }) => state);
+        .map(({ entry }) => entry);
     }
+    // Only what the beam kept: a state it cut was never played on, so reaching it later is still news
+    for (const [key] of kept) seen.add(key);
+    front = kept.map(([, state]) => state);
     yield;
   }
   return finished;

@@ -14,7 +14,8 @@ export const patchNotes = [
     'fixes': [
       'Vote Ballot and other weekly server bonuses now update after the reset without reloading the page',
       'New or renamed characters now show their names without reloading the page',
-      'Dashboard: the refinery materials alert no longer fires for a material the 3D Printer prints faster than the salt uses it'
+      'Dashboard: the refinery materials alert no longer fires for a material the 3D Printer prints faster than the salt uses it',
+      'Weekly Bosses: the Battle solver no longer runs out of memory on some weeks'
     ]
   },
   {
