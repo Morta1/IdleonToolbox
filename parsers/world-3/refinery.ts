@@ -482,3 +482,23 @@ export const getSaltMatsTimeLeft = (account: Account, characters: any[], precomp
     return [...res, { rawName, hoursLeft, mats }];
   }, []);
 };
+
+// Inputs of a running salt that the 3D Printer prints at least as fast as the salt uses them. The
+// stock can still hit zero between printer collects, but it never falls behind.
+export const getPrinterCoveredMats = (account: Account, characters: any[], precomputedCycleTimes?: any): Record<string, string[]> => {
+  const salts: any[] = account?.refinery?.salts ?? [];
+  const cycleTimes = precomputedCycleTimes ?? computeRefineryCycleTimes(account, characters);
+  const printedPerHour = getPrintedPerHour(account);
+
+  return salts.reduce((res: Record<string, string[]>, salt: any, index: number) => {
+    const { rawName, rank, cost, active, unlocked } = salt;
+    if (!unlocked || !active) return res;
+    const cycleTime = getSaltCycleTime(index, cycleTimes);
+    if (!(cycleTime > 0)) return res;
+    const covered = (cost ?? []).filter((item: any) => {
+      const printed = printedPerHour[item?.rawName] ?? 0;
+      return printed > 0 && printed >= calcCost(account?.refinery, rank, item?.quantity, item?.rawName, index) * 3600 / cycleTime;
+    }).map(({ rawName: matName }: any) => matName);
+    return covered.length > 0 ? { ...res, [rawName]: covered } : res;
+  }, {});
+};
