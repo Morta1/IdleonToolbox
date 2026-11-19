@@ -138,7 +138,7 @@ const subscribe = async (uid, accessToken, callback) => {
       // The server's commit time of the save's last write: when the game's cloud save actually landed
       const updateTime = docSnapshot._document?.version?.toTimestamp();
 
-      const [companion, guildId, tournamentUser, tournamentMatchData, tournamentGlobal] = await Promise.all([
+      const [companion, guildId, tournamentUser, tournamentMatchData, tournamentGlobal, freshServerVars] = await Promise.all([
         getSnapshot(dbRef, `_comp/${uid}`),
         getSnapshot(dbRef, `_usgu/${uid}/g`),
         getSnapshot(dbRef, `_tournament/${uid}`),
@@ -148,6 +148,9 @@ const subscribe = async (uid, accessToken, callback) => {
         // time made the shop-day go stale across a daily reset, so the Pet Mart gems alert
         // silently stopped triggering even when gems were claimable.
         getDoc(doc(firestore, '_TOURNAMENT', '_TOURNAMENT')).then((d) => (d?.exists() ? d.data() : null)),
+        // Same for the server vars: the weekly ballot, Pet Mart pack and other rotating values change at reset,
+        // and a tab left open kept last week's ballot.
+        getDoc(doc(firestore, '_vars', '_vars')).then((d) => (d?.exists() ? d.data() : null)).catch(() => null),
       ]);
 
       const guild = guildId ? await getSnapshot(dbRef, `_guild/${guildId}`) : null;
@@ -172,7 +175,7 @@ const subscribe = async (uid, accessToken, callback) => {
         companion,
         guildData,
         tournament,
-        serverVars,
+        freshServerVars ?? serverVars,
         createTime,
         uid,
         accessToken,

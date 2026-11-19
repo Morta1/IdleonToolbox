@@ -5,6 +5,15 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.12',
+    'gameVer': '2.3.561',
+    'date': '19/11/2026',
+    'features': [],
+    'fixes': [
+      'Vote Ballot and other weekly server bonuses now update after the reset without reloading the page'
+    ]
+  },
+  {
     'ver': '4.0.11',
     'gameVer': '2.3.561',
     'date': '18/11/2026',
