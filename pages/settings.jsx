@@ -24,14 +24,13 @@ import {
   IconUserCircle
 } from '@tabler/icons-react';
 import { styled } from '@mui/material/styles';
-import InfoButton from '@components/common/InfoButton';
 import Notice from '@components/common/Notice';
 import Panel from '@components/common/cards/Panel';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 import { useRouter } from 'next/router';
 import { isValid } from 'date-fns';
 import { UploadError, uploadProfile } from '../services/profiles';
-import { loadFirebase } from '../firebase/lazy';
+import { currentToken } from '../firebase/lazy';
 import { expandLeaderboardInfo } from '../services/leaderboardInfo';
 import { copyForSupport, copyRawData, formatNum, sortKeys } from '@utility/helpers';
 import { formatGame } from '@utility/gameNotation';
@@ -48,11 +47,15 @@ const HOURS = 1;
 const WAIT_TIME = 1000 * 60 * 60 * HOURS;
 
 const ACCESS_LABELS = { off: 'Off', public: 'Public', anonymous: 'Anonymous' };
+// Shown under the control for the value picked, so what Off means is read before the Upload button below it.
+const ACCESS_DESCRIPTIONS = {
+  off: 'Your profile shows nowhere, not even on your link.',
+  public: "Anyone with your character's name can view it.",
+  anonymous: 'Only people with your anonymous ID can view it.'
+};
 
 // A light line between options gives the eye a path from a label across to its control at the panel's far side.
 const OPTIONS_SX = { px: 2, '& > * + *': { borderTop: 1, borderColor: 'divider' } };
-// The options that belong to the row above them: on a rail, split the same way.
-const RAIL_SX = { pl: 2, mb: 1.5, borderLeft: '2px solid', borderColor: 'divider', '& > * + *': { borderTop: 1, borderColor: 'divider' } };
 
 const SettingRow = ({ label, description, children }) => (
   <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'flex-start', sm: 'center' }}
@@ -236,14 +239,12 @@ const Settings = () => {
       const parsedData = expandLeaderboardInfo(state?.account, state?.characters);
       // Safety: no leaderboard without a profile
       const safeParticipation = profileAccess === 'off' ? 'off' : leaderboardParticipation;
-      // The token in state is the sign-in's and has run out in a tab open for over an hour. If Firebase cannot be
-      // asked, the old one still goes out and the worker answers for it.
-      const freshToken = await loadFirebase().then(({ getFreshToken }) => getFreshToken()).catch(() => null);
+      const { token, source } = await currentToken(state?.accessToken);
       const result = await uploadProfile({
         profile: { ...userData, parsedData },
         profileAccess,
         leaderboardParticipation: safeParticipation
-      }, freshToken ?? state?.accessToken, freshToken ? 'fresh' : 'stored');
+      }, token, source);
       const newAnonId = result?.anonId || null;
       if (newAnonId) {
         setAnonId(newAnonId);
@@ -347,6 +348,42 @@ const Settings = () => {
             </ButtonStyle>
           </SettingRow>
 
+          {/* What an upload sends, then the button that sends it: a setting under the button is read after the press,
+              and the next upload is an hour away. */}
+          <SettingRow label="Profile access" description={ACCESS_DESCRIPTIONS[profileAccess]}>
+            <ToggleButtonGroup
+              value={profileAccess}
+              exclusive
+              onChange={(_, val) => {
+                if (!val) return;
+                setProfileAccess(val);
+                if (val === 'off') {
+                  setLeaderboardParticipation('off');
+                }
+              }}
+              size="small"
+            >
+              <ToggleButton value="off">Off</ToggleButton>
+              <ToggleButton value="public">Public</ToggleButton>
+              <ToggleButton value="anonymous">Anonymous</ToggleButton>
+            </ToggleButtonGroup>
+          </SettingRow>
+
+          <SettingRow label="Leaderboard participation"
+                      description={profileAccess === 'off' ? 'Set Profile access to Public or Anonymous first.' : 'Appear in public rankings'}>
+            <Switch
+              checked={leaderboardParticipation === 'on'}
+              disabled={profileAccess === 'off'}
+              inputProps={{ 'aria-label': 'Leaderboard participation' }}
+              onChange={() => {
+                setLeaderboardParticipation(leaderboardParticipation === 'on' ? 'off' : 'on');
+              }}
+            />
+          </SettingRow>
+          <SettingRow label="Hide gem info" description="Remove gems and bundle data from uploads">
+            <Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)} inputProps={{ 'aria-label': 'Hide gem info' }}/>
+          </SettingRow>
+
           <Box>
             <SettingRow
               label="Upload profile"
@@ -362,6 +399,8 @@ const Settings = () => {
                   Now set to <strong>{ACCESS_LABELS[profileAccess] ?? profileAccess}</strong> with the leaderboard
                   {' '}<strong>{effectiveParticipation === 'on' ? 'on' : 'off'}</strong>: upload again to apply.
                 </Typography> : null}
+                {/* An upload as Off is real (it takes a profile down), but shows nowhere: say so before the press, which
+                    also starts the hour's wait. The line above covers an Off that is a change from the last upload. */}
                 {anonId ? <span>Your anonymous ID is <strong>{anonId}</strong>.</span> : null}
                 <Button variant="text" size="small" onClick={() => setStatsOpen(true)} sx={{ p: 0, minWidth: 0 }}>
                   View calculated stats
@@ -381,47 +420,6 @@ const Settings = () => {
               </ErrorBoundary> : null}
             </AppDialog>
 
-            <Box sx={RAIL_SX}>
-              <SettingRow label="Hide gem info" description="Remove gems and bundle data from uploads">
-                <Switch checked={removeGemsInfo} onChange={() => setRemoveGemsInfo(!removeGemsInfo)} inputProps={{ 'aria-label': 'Hide gem info' }}/>
-              </SettingRow>
-
-              <SettingRow label={<Stack direction="row" alignItems="center" gap={0.5}>
-                Profile access
-                <InfoButton label={'Profile access'}>
-                  Off: not visible anywhere. Public: anyone with your character's name can view it. Anonymous: only people with your anonymous ID can view it.
-                </InfoButton>
-              </Stack>} description="Control how your profile can be accessed">
-                <ToggleButtonGroup
-                  value={profileAccess}
-                  exclusive
-                  onChange={(_, val) => {
-                    if (!val) return;
-                    setProfileAccess(val);
-                    if (val === 'off') {
-                      setLeaderboardParticipation('off');
-                    }
-                  }}
-                  size="small"
-                >
-                  <ToggleButton value="off">Off</ToggleButton>
-                  <ToggleButton value="public">Public</ToggleButton>
-                  <ToggleButton value="anonymous">Anonymous</ToggleButton>
-                </ToggleButtonGroup>
-              </SettingRow>
-
-              <SettingRow label="Leaderboard participation"
-                          description="Appear in public rankings (requires profile access to be enabled)">
-                <Switch
-                  checked={leaderboardParticipation === 'on'}
-                  disabled={profileAccess === 'off'}
-                  inputProps={{ 'aria-label': 'Leaderboard participation' }}
-                  onChange={() => {
-                    setLeaderboardParticipation(leaderboardParticipation === 'on' ? 'off' : 'on');
-                  }}
-                />
-              </SettingRow>
-            </Box>
           </Box>
         </Box></Panel> : null}
 
