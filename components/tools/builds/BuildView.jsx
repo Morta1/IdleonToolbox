@@ -134,7 +134,9 @@ const BuildView = ({ shortId, summary, initialBuild = null }) => {
     return () => {
       cancelled = true;
     };
-  }, [signedIn, shortId, state?.accessToken]);
+    // Keyed on the user, not the token: the token is replaced while the tab stays open, and each
+    // replacement refetched this. services/builds swaps in Firebase's current token on every call.
+  }, [signedIn, shortId, state?.uid]);
 
   const handleDeleteClick = () => setDeleteDialogOpen(true);
 
