@@ -2,13 +2,15 @@
 // each function optionally takes a `token` (Firebase JWT) that the Worker uses
 // to identify the caller for writes and private reads.
 
+import { currentToken } from '../firebase/lazy';
+
 const url = process.env.NEXT_PUBLIC_BUILDS_URL;
 
 // Content-Type only with a body: on a GET it turns a simple request into one the browser has
 // to preflight first, and preflights never come from the Worker's cache.
-const authHeaders = (token, hasBody) => ({
+const authHeaders = (token, source, hasBody) => ({
   ...(hasBody ? { 'Content-Type': 'application/json' } : {}),
-  ...(token ? { Authorization: token } : {})
+  ...(token ? { Authorization: token, 'X-Token-Source': source } : {})
 });
 
 const parseError = async (response) => {
@@ -20,10 +22,12 @@ const parseError = async (response) => {
   }
 };
 
-const request = async (path, { method = 'GET', body, token, signal } = {}) => {
+// A caller's token is the one kept from sign-in: every signed-in request swaps it for Firebase's current one here.
+const request = async (path, { method = 'GET', body, token: stored, signal } = {}) => {
+  const { token, source } = stored ? await currentToken(stored) : {};
   const response = await fetch(`${url}${path}`, {
     method,
-    headers: authHeaders(token, body != null),
+    headers: authHeaders(token, source, body != null),
     body: body != null ? JSON.stringify(body) : undefined,
     signal
   });
