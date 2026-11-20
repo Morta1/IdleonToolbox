@@ -17,11 +17,17 @@ const REACH_SHOWN = 3;
 const PANEL_WIDTH = 280;
 // Wide screens get the card in a panel beside the map, where it hides nothing. Both places are drawn and CSS picks one,
 // so the first paint is already the right layout.
-const OVER_MAP_ONLY = { display: { xs: 'block', lg: 'none' } };
+// A phone's map is too small to float a card over, so there it sits under the map instead.
+const OVER_MAP_ONLY = { display: { xs: 'none', sm: 'block', lg: 'none' } };
 const BESIDE_MAP_ONLY = { display: { xs: 'none', lg: 'block' } };
+const BELOW_MAP_ONLY = { display: { xs: 'block', sm: 'none' } };
+// Ring labels only dodge a card that sits over the map
+const CARD_OFF_MAP = { display: { xs: 'block', sm: 'none', lg: 'block' } };
 
 // The kingdom screen's own coordinate space, padded so markers near an edge are not clipped.
 const PADDING = 45;
+// game: the kingdom screen paints UImap{world}.png at (75, 27), in the same space as MapDetails positions
+const WORLD_ART = { x: 75, y: 27, width: 811, height: 433 };
 
 const distance = (ax, ay, bx, by) => Math.sqrt(Math.pow(ax - bx, 2) + Math.pow(ay - by, 2));
 
@@ -101,12 +107,11 @@ const KingdomMap = ({ outposts, resources }) => {
   ];
   const xs = points.map(([x]) => x);
   const ys = points.map(([, y]) => y);
-  // Bounds come from the markers themselves, not from the screen's origin: worlds sit at different
-  // offsets in the kingdom's coordinate space, and anchoring at 0 pads one side with dead space.
-  const minX = (xs.length > 0 ? Math.min(...xs) : 0) - PADDING;
-  const minY = (ys.length > 0 ? Math.min(...ys) : 0) - PADDING;
-  const width = (xs.length > 0 ? Math.max(...xs) : 1) - minX + PADDING;
-  const height = (ys.length > 0 ? Math.max(...ys) : 1) - minY + PADDING;
+  // The world's art sets the frame, widened only for a marker that sits past its edge.
+  const minX = Math.min(WORLD_ART.x, ...xs.map((x) => x - PADDING));
+  const minY = Math.min(WORLD_ART.y, ...ys.map((y) => y - PADDING));
+  const width = Math.max(WORLD_ART.x + WORLD_ART.width, ...xs.map((x) => x + PADDING)) - minX;
+  const height = Math.max(WORLD_ART.y + WORLD_ART.height, ...ys.map((y) => y + PADDING)) - minY;
 
   const dimmed = (isRelevant) => (focused && !isRelevant ? 0.12 : 1);
 
@@ -197,8 +202,8 @@ const KingdomMap = ({ outposts, resources }) => {
 
   // Over the map the card is pointer-transparent and parks in the corner away from the marker;
   // in the side panel it fills the panel and scrolls, since the panel can take the pointer.
-  const cardSx = (overlayWidth, sidePanel) => (sidePanel
-    ? { p: 1.25, height: '100%', overflowY: 'auto', border: '1px solid', borderColor: 'divider' }
+  const cardSx = (overlayWidth, sidePanel, below) => (sidePanel
+    ? { p: 1.25, border: '1px solid', borderColor: 'divider', ...(below ? {} : { height: '100%', overflowY: 'auto' }) }
     : {
       ...OVER_MAP_ONLY,
       position: 'absolute',
@@ -211,7 +216,7 @@ const KingdomMap = ({ outposts, resources }) => {
       [cardRight ? 'right' : 'left']: 8,
       [cardBottom ? 'bottom' : 'top']: 8
     });
-  const cardFor = (sidePanel) => {
+  const cardFor = (sidePanel, below = false) => {
     // The overlay card is capped rather than scrollable: it cannot take the pointer, so a scrollbar
     // inside it would be unreachable. The side panel sits off the map, so it lists everything.
     const reachShown = sidePanel ? Infinity : REACH_SHOWN;
@@ -220,7 +225,7 @@ const KingdomMap = ({ outposts, resources }) => {
     const rankList = rankTargets.slice(0, reachShown);
     const rankOverflow = rankTargets.length - rankList.length;
     return focusedNode
-          ? <Paper elevation={sidePanel ? 0 : 8} sx={cardSx(210, sidePanel)}>
+          ? <Paper elevation={sidePanel ? 0 : 8} sx={cardSx(210, sidePanel, below)}>
             <Stack direction="row" gap={1} alignItems="center">
               <NodeIcon node={focusedNode} size={28}/>
               <Stack direction="column">
@@ -259,7 +264,7 @@ const KingdomMap = ({ outposts, resources }) => {
               : null}
           </Paper>
           : focused
-            ? <Paper elevation={sidePanel ? 0 : 8} sx={cardSx(250, sidePanel)}>
+            ? <Paper elevation={sidePanel ? 0 : 8} sx={cardSx(250, sidePanel, below)}>
             <Typography variant="cardTitle" component="div">{focused.name}</Typography>
             <Typography variant="caption" color="text.secondary">
               {MODE_LABELS[focused.mode]}
@@ -354,7 +359,7 @@ const KingdomMap = ({ outposts, resources }) => {
                     }}/>
         {MODE_LABELS.map((label, mode) => (
           <Stack key={label} direction="row" gap={0.75} alignItems="center">
-            <Box sx={{ width: 12, height: 12, borderRadius: '50%', backgroundColor: MODE_MAP_COLOR[mode] }}/>
+            <Box component="img" src={`${prefix}etc/RoyalOutpostDot${mode}.png`} alt="" sx={{ width: 23, height: 18 }}/>
             <Typography variant="caption">{label}</Typography>
           </Stack>
         ))}
@@ -407,7 +412,34 @@ const KingdomMap = ({ outposts, resources }) => {
                  setSelected(null);
                  setSelectedNode(null);
                }}
-               sx={{ width: '100%', height: '100%', display: 'block' }}>
+               sx={{
+                 width: '100%',
+                 height: '100%',
+                 display: 'block',
+                 // Chrome rings a clicked SVG group even when it is not keyboard focus; only Tab should get the ring
+                 '& [role="button"]:focus:not(:focus-visible)': { outline: 'none' },
+                 // A phone draws the map at under half the game's size, so outposts grow to stay readable and tappable
+                 [theme.breakpoints.down('sm')]: {
+                   '& .outpost-marker': { transform: 'scale(1.6)', transformBox: 'fill-box', transformOrigin: 'center' },
+                   '& .outpost-hit': { r: 26 }
+                 }
+               }}>
+            <defs>
+              {/* An even outline in the map's surface colour, so light sprites still read on snow and sand */}
+              <filter id="node-halo" x="-25%" y="-25%" width="150%" height="150%">
+                <feMorphology in="SourceAlpha" operator="dilate" radius={1.5} result="grow"/>
+                <feFlood style={{ floodColor: OUTLINE }} floodOpacity={0.85}/>
+                <feComposite in2="grow" operator="in" result="halo"/>
+                <feMerge>
+                  <feMergeNode in="halo"/>
+                  <feMergeNode in="SourceGraphic"/>
+                </feMerge>
+              </filter>
+            </defs>
+            {/* The art steps back while an outpost is focused, so its rings and fills read on bright worlds */}
+            <image href={`${prefix}data/UImap${activeWorld}.png`} x={WORLD_ART.x} y={WORLD_ART.y}
+                   width={WORLD_ART.width} height={WORLD_ART.height} opacity={focused ? 0.45 : 1}
+                   style={{ pointerEvents: 'none', transition: 'opacity 150ms' }}/>
             {/* The reach ring sits under everything so markers stay readable inside it. */}
             {showGuardRing
               ? <>
@@ -471,7 +503,9 @@ const KingdomMap = ({ outposts, resources }) => {
                   {/* Spent nodes are simply faded: a node with resource left keeps its full colour. */}
                   <image href={`${prefix}data/${node.rawName}.png`} x={node.anchorX - 12} y={node.anchorY - 12}
                          width={24} height={24}
-                         style={node.exhausted ? { filter: 'grayscale(1)', opacity: 0.35 } : undefined}/>
+                         style={node.exhausted
+                           ? { filter: 'url(#node-halo) grayscale(1)', opacity: 0.6 }
+                           : { filter: 'url(#node-halo)' }}/>
                 </g>
               );
             })}
@@ -491,9 +525,18 @@ const KingdomMap = ({ outposts, resources }) => {
                    onMouseLeave={() => setHovered(null)}
                    onClick={pinOutpost}
                    onKeyDown={onActivate(pinOutpost)}>
-                  <circle cx={outpost.mapX} cy={outpost.mapY} r={isFocused ? 12 : 9}
-                          fill={MODE_MAP_COLOR[outpost.mode] ?? MODE_MAP_COLOR[0]}
-                          stroke={OUTLINE} strokeWidth={2}/>
+                  {/* The marker art is only 17px tall; this gives a click or tap a sensible target */}
+                  <circle className="outpost-hit" cx={outpost.mapX} cy={outpost.mapY} r={18}
+                          fill="transparent" pointerEvents="all"/>
+                  <g className="outpost-marker">
+                    {/* game: the kingdom screen flanks the map's spot with its mode's fence pieces (font 106 glyphs) */}
+                    <image href={`${prefix}etc/RoyalOutpost${outpost.mode}.png`} x={outpost.mapX - 27} y={outpost.mapY - 6}
+                           width={56} height={17}/>
+                    {/* game: the map's own dome marker sits in the fence gap; tinted per mode, the cyan one recoloured from the locked grey */}
+                    <image href={`${prefix}etc/RoyalOutpostDot${outpost.mode}.png`}
+                           x={outpost.mapX - (isFocused ? 15 : 11.5)} y={outpost.mapY - (isFocused ? 11 : 8.5)}
+                           width={isFocused ? 30 : 23} height={isFocused ? 23.5 : 18}/>
+                  </g>
                   {isFocused
                     ? <text x={outpost.mapX} y={outpost.mapY - 18} textAnchor="middle" fontSize={14}
                             fill="currentColor" stroke={OUTLINE} strokeWidth={3} paintOrder="stroke">
@@ -504,7 +547,7 @@ const KingdomMap = ({ outposts, resources }) => {
               );
             })}
 
-            {[[false, OVER_MAP_ONLY], [true, BESIDE_MAP_ONLY]].map(([sidePanel, place]) => (
+            {[[false, OVER_MAP_ONLY], [true, CARD_OFF_MAP]].map(([sidePanel, place]) => (
               <Box component="g" key={`labels-${sidePanel}`} sx={place}>
                 {ringLabels(sidePanel).map(({ key, x, y, text }) => (
                   <text key={key} x={x} y={y} textAnchor="middle" dominantBaseline="middle" fontSize={13}
@@ -531,6 +574,7 @@ const KingdomMap = ({ outposts, resources }) => {
           </Box>
         </Box>
       </Stack>
+      {cardFor(true) ? <Box sx={BELOW_MAP_ONLY}>{cardFor(true, true)}</Box> : null}
     </Stack>
   );
 };

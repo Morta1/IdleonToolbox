@@ -5,6 +5,15 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.13',
+    'gameVer': '2.3.561',
+    'date': '20/11/2026',
+    'features': [
+      'Royal Guardian Outposts map: shows the game world map with the game outpost markers, and on phones the details sit under the map'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '4.0.12',
     'gameVer': '2.3.561',
     'date': '19/11/2026',
