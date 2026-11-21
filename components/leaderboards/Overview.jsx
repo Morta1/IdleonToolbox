@@ -2,7 +2,6 @@ import React, { useContext, useState } from 'react';
 import { Button, Link, Skeleton, Stack, Typography } from '@mui/material';
 import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
-import NextLink from 'next/link';
 import useHydrated from '@hooks/useHydrated';
 import useNow from '@hooks/useNow';
 import useFormatDate from '@hooks/useFormatDate';
@@ -21,6 +20,8 @@ import { boardHref, openOnPlainClick } from './MetricCard';
 import MetricIcon from './MetricIcon';
 import RankRow, { ExactValue, HIGHLIGHT, MEDAL, TROPHIES } from './RankRow';
 import YouCard from './YouCard';
+import UploadReminder from './UploadReminder';
+import { openUploadPrompt } from '@components/common/UploadPrompt';
 import RankDelta from '@components/common/RankDelta';
 
 // Slots by position, left to right: second, first, third. The medal follows the row's rank, not its slot.
@@ -85,7 +86,8 @@ const Podium = ({ rows, highlight, onOpen, linkPlayer, index }) => (
   </Panel>
 );
 
-const settingsLink = <Link component={NextLink} href="/settings">Settings</Link>;
+// The way onto the boards from here: the join card's choice, opened in place.
+const JOIN = { label: 'Join the leaderboards', onClick: openUploadPrompt };
 
 // What the player's data allows: a standing to show, or null while the You slot shows a notice instead.
 const standingOf = (player) => (player.context && !player.isError && player.data ? { data: player.data, kind: player.context.kind } : null);
@@ -116,13 +118,13 @@ const YouSlot = ({ player, self, index, onClearPlayer, nextRun, changes }) => {
     // as the visitor's own standing.
     if (player.context.kind === 'searched') return <Skeleton variant="rounded" height={180}/>;
     if (self.participation === 'off') {
-      return <Notice>You are not on the leaderboards: turn them on in {settingsLink} and upload again.</Notice>;
+      return <Notice action={JOIN}>You are not on the leaderboards: your last upload had them off.</Notice>;
     }
     const recent = hydrated && self.lastUpload && now - self.lastUpload < AGGREGATION_INTERVAL;
     if (recent && nextRun) {
       return <Notice>Almost there: boards refresh every 30 min, next at {formatDate(nextRun, { timeOnly: true, showSeconds: false })}.</Notice>;
     }
-    return <Notice>You are not on the leaderboards yet: upload your profile with leaderboards on in {settingsLink}.</Notice>;
+    return <Notice action={JOIN}>You are not on the leaderboards yet.</Notice>;
   }
   return <YouCard data={player.data} kind={player.context.kind} index={index} changes={changes}
                   onClear={onClearPlayer} clearLabel={self.name ? 'Back to you' : 'Clear'}/>;
@@ -222,6 +224,7 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab
     // Columns follow the width this page actually gets, which the side rails shrink well below the
     // viewport's: a viewport breakpoint squeezed the podium to 160px on a 1024px screen.
     <Stack gap={2.5} sx={{ containerType: 'inline-size' }}>
+      {standing?.kind === 'logged' ? <UploadReminder/> : null}
       <Box sx={{ display: 'grid', gridTemplateColumns: '1fr', gap: 2.5, alignItems: 'start', '@container (min-width: 860px)': { gridTemplateColumns: 'minmax(0, 1fr) 420px' } }}>
         {/* The player's own standing comes first in the markup, so narrow screens show it first and
             read it first; side by side it moves to the right column. */}

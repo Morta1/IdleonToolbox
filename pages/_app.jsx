@@ -13,6 +13,8 @@ import AppProvider from '../components/common/context/AppProvider';
 import PreferencesProvider from '../components/common/context/PreferencesProvider';
 import { GoalsProvider } from '../components/goals/GoalsProvider';
 import SnackbarHost from '@components/common/Overlays/SnackbarHost';
+import UploadPrompt from '@components/common/UploadPrompt';
+import AutoUpload from '@components/common/AutoUpload';
 import WhatsNewGate from '@components/common/WhatsNew/WhatsNewGate';
 import { NextSeo } from 'next-seo';
 import NavBar from '../components/common/NavBar';
@@ -280,6 +282,8 @@ const MyApp = (props) => {
                 </ErrorBoundary>
               </NavBar>
               <SnackbarHost/>
+              <UploadPrompt/>
+              <AutoUpload/>
               <WhatsNewGate/>
               </GoalsProvider>
             </AppProvider>

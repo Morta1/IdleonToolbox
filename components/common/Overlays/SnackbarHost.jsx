@@ -7,10 +7,11 @@ import { visuallyHidden } from '@mui/utils';
 import { closeAllNotices, closeNotice, noticeSnapshot, serverNoticeSnapshot, subscribeNotices } from './notify';
 
 // MUI's fixed bottom center, full width with 8 px sides on a phone, above the anchor ad and, until it is answered, the
-// consent banner (z 9999999), which hid an Undo.
+// consent banner (z 9999999), which hid an Undo. On a phone it also clears the join card (UploadPrompt), which spans
+// the screen there; on a desktop the card sits at the page's right edge, clear of the center.
 const BOTTOM_SX = {
   bottom: {
-    xs: 'calc(var(--nitro-ad-height, 0px) + var(--consent-banner-height, 0px) + 8px)',
+    xs: 'calc(var(--nitro-ad-height, 0px) + var(--consent-banner-height, 0px) + var(--upload-prompt-height, 0px) + 8px)',
     sm: 'calc(var(--nitro-ad-height, 0px) + var(--consent-banner-height, 0px) + 24px)'
   }
 };

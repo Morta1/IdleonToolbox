@@ -65,7 +65,9 @@ describe('Overview', () => {
 
   it('tells a signed-in player who turned leaderboards off', async () => {
     renderOverview({ player: { context: { name: 'Me', kind: 'logged' }, data: null }, self: { ...self, name: 'Me', participation: 'off' } });
-    expect(await screen.findByText(/^You are not on the leaderboards: turn them on/)).toBeTruthy();
+    expect(await screen.findByText(/^You are not on the leaderboards: your last upload had them off/)).toBeTruthy();
+    // The way on is offered in place, no longer a trip to Settings.
+    expect(screen.getByRole('button', { name: 'Join the leaderboards' })).toBeTruthy();
   });
 
   it('offers a retry when the player fetch fails', async () => {

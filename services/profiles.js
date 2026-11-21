@@ -2,22 +2,29 @@ import { tryToParse } from '@utility/helpers';
 
 const url = process.env.NEXT_PUBLIC_PROFILES_URL;
 // kind: what failed, for the upload analytics: cooldown (429), auth (401), server (other statuses), network (no answer),
-// client (anything before the request).
+// client (anything before the request). An automatic upload adds two the worker answers on purpose: off (403, automatic
+// uploads are switched off) and manual-first (409, nothing was uploaded by hand as Public or Anonymous yet).
+// hours: the worker's current gap between automatic uploads, when its answer carried one.
 export class UploadError extends Error {
-  constructor(kind, message, status = null) {
+  constructor(kind, message, status = null, hours = null) {
     super(message);
     this.kind = kind;
     this.status = status;
+    this.hours = hours;
   }
 }
 
 const GENERIC_UPLOAD_ERROR = 'An error has occurred while uploading your profile. Please try again later.';
 
 // tokenSource tells the worker's log whether the token came from Firebase just now ('fresh') or from sign-in ('stored').
-export const uploadProfile = async ({ profile, profileAccess, leaderboardParticipation }, token, tokenSource) => {
+// trigger 'auto': the site uploading by itself; the worker then keeps the access it has stored.
+// Answers { anonId?, autoUploadHours }.
+export const uploadProfile = async ({ profile, profileAccess, leaderboardParticipation, trigger }, token, tokenSource) => {
   let body;
   try {
-    body = JSON.stringify({ profile: parseProfile(profile), profileAccess, leaderboardParticipation });
+    body = JSON.stringify({
+      profile: parseProfile(profile), profileAccess, leaderboardParticipation, ...(trigger === 'auto' ? { trigger } : {})
+    });
   } catch (err) {
     console.error('Error has occurred: ', err);
     throw new UploadError('client', GENERIC_UPLOAD_ERROR);
@@ -33,7 +40,12 @@ export const uploadProfile = async ({ profile, profileAccess, leaderboardPartici
     console.error('Error has occurred: ', err);
     throw new UploadError('network', 'Could not reach the server. Check your connection and try again.');
   }
-  if (response.status === 200) return await response.json();
+  if (response.status === 200) return (await response.json()) ?? {};
+  if (trigger === 'auto' && [403, 409, 429].includes(response.status)) {
+    const hours = (await response.json().catch(() => null))?.autoUploadHours ?? null;
+    const kind = { 403: 'off', 409: 'manual-first', 429: 'cooldown' }[response.status];
+    throw new UploadError(kind, 'The automatic upload was not accepted.', response.status, hours);
+  }
   if (response.status === 429) {
     throw new UploadError('cooldown', 'You have uploaded your profile in the past hour. Please wait until the cooldown is over.', 429);
   }

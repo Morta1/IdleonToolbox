@@ -9,6 +9,7 @@ export const patchNotes = [
     'gameVer': '2.3.561',
     'date': '21/11/2026',
     'features': [
+      'Automatic profile upload: turn it on in Settings and your profile re-uploads every 6 hours while you use the site, so your leaderboard ranks stay up to date',
       'Settings: you can now delete your uploaded profile. The Off option for Profile access was removed: pick Public or Anonymous, or delete the profile'
     ],
     'fixes': []

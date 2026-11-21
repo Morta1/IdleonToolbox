@@ -29,7 +29,8 @@ import Panel from '@components/common/cards/Panel';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 import { useRouter } from 'next/router';
 import { isValid } from 'date-fns';
-import { deleteProfile, getProfileStatus, UploadError, uploadProfile } from '../services/profiles';
+import { deleteProfile, getProfileStatus } from '../services/profiles';
+import useProfileUpload, { HOUR_MS, isShown } from '@hooks/useProfileUpload';
 import { currentToken } from '../firebase/lazy';
 import { expandLeaderboardInfo } from '../services/leaderboardInfo';
 import { copyForSupport, copyRawData, formatNum, sortKeys } from '@utility/helpers';
@@ -43,8 +44,7 @@ import FileCopyIcon from '@mui/icons-material/FileCopy';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks';
 
-const HOURS = 1;
-const WAIT_TIME = 1000 * 60 * 60 * HOURS;
+const WAIT_TIME = HOUR_MS;
 
 // Off is no longer a choice (a profile that should not show is deleted), but an upload made as Off is still named.
 const ACCESS_LABELS = { off: 'Off', public: 'Public', anonymous: 'Anonymous' };
@@ -113,16 +113,17 @@ const Settings = () => {
   const [selectedKeys, setSelectedKeys] = useState([]);
   const [loading, setLoading] = useState(false);
   const [uploaded, setUploaded] = useState(false);
-  const [lastUpload, setLastUpload, removeLastUpload] = useLocalStorage({ key: `${state?.uid}/lastUpload` });
+  const {
+    upload, lastUpload, lastUploadAccess, lastUploadParticipation, lastUploadTrigger, anonId, autoUpload, setAutoUpload,
+    autoHours, setAutoHours, autoFailed, setShown
+  } = useProfileUpload();
+  const [, , removeLastUpload] = useLocalStorage({ key: `${state?.uid}/lastUpload` });
+  const [, , removeAnonId] = useLocalStorage({ key: `${state?.uid}/anonId` });
+  const [, , removeLastUploadAccess] = useLocalStorage({ key: `${state?.uid}/lastUploadAccess` });
+  const [, , removeLastUploadParticipation] = useLocalStorage({ key: `${state?.uid}/lastUploadParticipation` });
   const now = useNow(10000);
-  const isDisabled = Boolean(lastUpload) && now > 0 && (WAIT_TIME - (now - lastUpload)) > 0;
-  const [anonId, setAnonId, removeAnonId] = useLocalStorage({ key: `${state?.uid}/anonId` });
-  const [lastUploadAccess, setLastUploadAccess, removeLastUploadAccess] = useLocalStorage({
-    key: `${state?.uid}/lastUploadAccess`
-  });
-  const [lastUploadParticipation, setLastUploadParticipation, removeLastUploadParticipation] = useLocalStorage({
-    key: `${state?.uid}/lastUploadParticipation`
-  });
+  // The hour is the worker's wait after an upload by hand; an automatic upload does not start it.
+  const isDisabled = Boolean(lastUpload) && lastUploadTrigger !== 'auto' && now > 0 && (WAIT_TIME - (now - lastUpload)) > 0;
   // No default: nothing is picked until the player picks. A stored 'off' (the old third choice) reads as nothing picked.
   const [storedAccess, setProfileAccess] = useLocalStorage({ key: 'data:profileAccess' });
   const profileAccess = ACCESS_DESCRIPTIONS[storedAccess] ? storedAccess : null;
@@ -147,7 +148,12 @@ const Settings = () => {
     let cancelled = false;
     currentToken(state?.accessToken)
       .then(({ token, source }) => getProfileStatus(token, source))
-      .then((res) => { if (!cancelled) setServerProfile(res); })
+      .then((res) => {
+        if (cancelled) return;
+        setServerProfile(res);
+        if (Number.isFinite(res?.autoUploadHours)) setAutoHours(res.autoUploadHours);
+        setShown(res?.exists && isShown(res.profileAccess) ? 'yes' : 'no');
+      })
       .catch(() => {});
     return () => {
       cancelled = true;
@@ -242,61 +248,11 @@ const Settings = () => {
     setLoading(true);
     setError('');
     try {
-      // Inside the try: a save that cannot be read or parsed is a failure the upload analytics must see too.
-      const userData = JSON.parse(sessionStorage.getItem('rawJson'));
-      if (!userData?.data) throw new UploadError('client', 'Your save is not loaded in this tab. Reload the page and try again.');
-      if (removeGemsInfo) {
-        delete userData.data.GemsOwned;
-        delete userData.data.ServerGems;
-        delete userData.data.ServerGemsReceived;
-        delete userData.data.BundlesReceived;
-        delete userData.data.GemsPacksPurchased;
-        delete userData.data.CYGems;
-      }
-      const parsedData = expandLeaderboardInfo(state?.account, state?.characters);
-      const safeParticipation = leaderboardParticipation;
-      const { token, source } = await currentToken(state?.accessToken);
-      const result = await uploadProfile({
-        profile: { ...userData, parsedData },
-        profileAccess,
-        leaderboardParticipation: safeParticipation
-      }, token, source);
-      const newAnonId = result?.anonId || null;
-      if (newAnonId) {
-        setAnonId(newAnonId);
-      } else {
-        removeAnonId();
-      }
+      await upload({ profileAccess, leaderboardParticipation, removeGems: removeGemsInfo });
       setUploaded(true);
-      setLastUpload(Date.now());
-      setLastUploadAccess(profileAccess);
-      setLastUploadParticipation(safeParticipation);
       setServerProfile({ exists: true });
-
-      if (typeof window.gtag !== 'undefined') {
-        window.gtag('event', 'profile_uploaded', {
-          event_category: 'engagement',
-          event_label: 'success',
-          upload_status: 'success',
-          upload_trigger: 'manual',
-          profile_access: profileAccess,
-          leaderboard: safeParticipation,
-          value: 1
-        });
-      }
     } catch (err) {
       setError(err);
-      if (typeof window.gtag !== 'undefined') {
-        window.gtag('event', 'profile_uploaded', {
-          event_category: 'engagement',
-          event_label: 'failure',
-          upload_status: 'failure',
-          upload_trigger: 'manual',
-          upload_error: err?.kind ?? 'client',
-          value: 0,
-          error_message: errorMessage(err)
-        });
-      }
     }
     setLoading(false);
   };
@@ -308,6 +264,8 @@ const Settings = () => {
       const { token, source } = await currentToken(state?.accessToken);
       await deleteProfile(token, source);
       setServerProfile({ exists: false });
+      setShown('no');
+      setAutoUpload(false);
       setUploaded(false);
       // The hour between uploads stays on the server, so the time stays here; what the upload was sent as goes.
       removeAnonId();
@@ -325,6 +283,21 @@ const Settings = () => {
   // never flashes at an account that is still loading, and both renders match.
   const hasAccount = Boolean(state?.signedIn || state?.profile || state?.manualImport || state?.demo);
   const effectiveParticipation = profileAccess ? leaderboardParticipation : 'off';
+  // Automatic upload: on this browser, and only once an upload by hand shows the profile to someone.
+  const canAuto = isShown(lastUploadAccess);
+  const autoOn = canAuto && autoUpload;
+  const sameDay = (time) => new Date(time).toDateString() === new Date(now).toDateString();
+  const when = (time) => (sameDay(time)
+    ? `today at ${formatDate(time, { timeOnly: true, showSeconds: false })}`
+    : formatDate(time, { showSeconds: false }));
+  const autoStatus = !canAuto ? null
+    : !autoUpload ? 'Off on this browser.'
+      : autoHours <= 0 ? 'Automatic uploads are paused for everyone right now.'
+        : autoFailed?.kind === 'auth' ? 'Paused, sign in again.'
+          : !now ? null
+            : lastUploadTrigger === 'auto' && isValid(parseInt(lastUpload)) ? `Uploaded automatically ${when(parseInt(lastUpload))}.`
+              : isValid(parseInt(lastUpload)) ? `Next one on a visit after ${when(parseInt(lastUpload) + autoHours * HOUR_MS)}.`
+                : null;
   const settingsChangedSinceUpload = lastUploadAccess && profileAccess
     && (lastUploadAccess !== profileAccess || lastUploadParticipation !== effectiveParticipation);
 
@@ -420,7 +393,7 @@ const Settings = () => {
               description={<Stack alignItems="flex-start" gap={0.25} component="span">
                 {profileAccess ? <span>
                   Updates once an hour.
-                  {isValid(parseInt(lastUpload)) ? <> Last uploaded {formatDate(parseInt(lastUpload), { showSeconds: false })}
+                  {isValid(parseInt(lastUpload)) ? <> Last uploaded {lastUploadTrigger === 'auto' ? 'automatically ' : ''}{formatDate(parseInt(lastUpload), { showSeconds: false })}
                     {isDisabled ? <>, next in <Timer type={'countdown'} date={parseInt(lastUpload) + WAIT_TIME} placeholder={'now'}/></> : null}
                     {lastUploadAccess ? <>, as <strong>{ACCESS_LABELS[lastUploadAccess] ?? lastUploadAccess}</strong></> : null}
                     {lastUploadParticipation ? <> with the leaderboard <strong>{lastUploadParticipation === 'on' ? 'on' : 'off'}</strong></> : null}.</> : null}
@@ -449,8 +422,17 @@ const Settings = () => {
             </AppDialog>
           </Box>
 
+          <SettingRow label="Upload automatically while the toolbox is open"
+                      description={<Stack alignItems="flex-start" gap={0.25} component="span">
+                        <span>{canAuto ? `As ${ACCESS_LABELS[lastUploadAccess]}, on this browser.` : 'Upload once manually to turn this on.'}</span>
+                        {autoStatus ? <span>{autoStatus}</span> : null}
+                      </Stack>}>
+            <Switch checked={autoOn} disabled={!canAuto} inputProps={{ 'aria-label': 'Upload automatically' }}
+                    onChange={() => setAutoUpload(!autoOn)}/>
+          </SettingRow>
+
           {serverProfile?.exists ? <Box>
-            <SettingRow label="Delete profile" description="Remove your uploaded profile and your leaderboard places">
+            <SettingRow label="Delete profile" description="Remove your uploaded profile and your leaderboard ranks">
               <ButtonStyle variant="outlined" color="error" size="small" loading={deleting}
                            onClick={() => setDeleteOpen(true)}>Delete</ButtonStyle>
             </SettingRow>
@@ -461,7 +443,7 @@ const Settings = () => {
                        ]}>
               <Typography variant="body2" sx={{ mb: 1.5 }}>
                 Your profile link stops working now, and you leave the leaderboards within 30 minutes. A record of your
-                past leaderboard places is kept for 30 days, then deleted.
+                past leaderboard ranks is kept for 30 days, then deleted.
               </Typography>
               <Typography variant="body2">
                 Your game save and your settings here are not touched. You can upload again later.
