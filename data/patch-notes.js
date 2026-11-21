@@ -5,6 +5,15 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.14',
+    'gameVer': '2.3.561',
+    'date': '21/11/2026',
+    'features': [
+      'Settings: you can now delete your uploaded profile. The Off option for Profile access was removed: pick Public or Anonymous, or delete the profile'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '4.0.13',
     'gameVer': '2.3.561',
     'date': '20/11/2026',

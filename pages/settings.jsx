@@ -29,7 +29,7 @@ import Panel from '@components/common/cards/Panel';
 import ErrorBoundary from '@components/common/ErrorBoundary';
 import { useRouter } from 'next/router';
 import { isValid } from 'date-fns';
-import { UploadError, uploadProfile } from '../services/profiles';
+import { deleteProfile, getProfileStatus, UploadError, uploadProfile } from '../services/profiles';
 import { currentToken } from '../firebase/lazy';
 import { expandLeaderboardInfo } from '../services/leaderboardInfo';
 import { copyForSupport, copyRawData, formatNum, sortKeys } from '@utility/helpers';
@@ -46,10 +46,10 @@ import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks';
 const HOURS = 1;
 const WAIT_TIME = 1000 * 60 * 60 * HOURS;
 
+// Off is no longer a choice (a profile that should not show is deleted), but an upload made as Off is still named.
 const ACCESS_LABELS = { off: 'Off', public: 'Public', anonymous: 'Anonymous' };
-// Shown under the control for the value picked, so what Off means is read before the Upload button below it.
+// Shown under the control for the value picked, so it is read before the Upload button below it.
 const ACCESS_DESCRIPTIONS = {
-  off: 'Your profile shows nowhere, not even on your link.',
   public: "Anyone with your character's name can view it.",
   anonymous: 'Only people with your anonymous ID can view it.'
 };
@@ -123,10 +123,9 @@ const Settings = () => {
   const [lastUploadParticipation, setLastUploadParticipation, removeLastUploadParticipation] = useLocalStorage({
     key: `${state?.uid}/lastUploadParticipation`
   });
-  const [profileAccess, setProfileAccess] = useLocalStorage({
-    key: 'data:profileAccess',
-    defaultValue: 'off'
-  });
+  // No default: nothing is picked until the player picks. A stored 'off' (the old third choice) reads as nothing picked.
+  const [storedAccess, setProfileAccess] = useLocalStorage({ key: 'data:profileAccess' });
+  const profileAccess = ACCESS_DESCRIPTIONS[storedAccess] ? storedAccess : null;
   const [leaderboardParticipation, setLeaderboardParticipation] = useLocalStorage({
     key: 'data:leaderboardParticipation',
     defaultValue: 'off'
@@ -136,6 +135,24 @@ const Settings = () => {
   const [error, setError] = useState('');
   const [open, setOpen] = useState(false);
   const [statsOpen, setStatsOpen] = useState(false);
+  // What the server holds for this account. undefined until it answers: the Delete row waits for a yes.
+  const [serverProfile, setServerProfile] = useState();
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
+
+  // Not on the token: it is renewed every hour, and the request fetches a current one itself.
+  useEffect(() => {
+    if (!state?.signedIn || !state?.uid) return;
+    let cancelled = false;
+    currentToken(state?.accessToken)
+      .then(({ token, source }) => getProfileStatus(token, source))
+      .then((res) => { if (!cancelled) setServerProfile(res); })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [state?.signedIn, state?.uid]);
 
   // One-time migration: derive new profileAccess + leaderboardParticipation
   // from the old profileVisibility + leaderboardConsent localStorage keys.
@@ -237,8 +254,7 @@ const Settings = () => {
         delete userData.data.CYGems;
       }
       const parsedData = expandLeaderboardInfo(state?.account, state?.characters);
-      // Safety: no leaderboard without a profile
-      const safeParticipation = profileAccess === 'off' ? 'off' : leaderboardParticipation;
+      const safeParticipation = leaderboardParticipation;
       const { token, source } = await currentToken(state?.accessToken);
       const result = await uploadProfile({
         profile: { ...userData, parsedData },
@@ -255,6 +271,7 @@ const Settings = () => {
       setLastUpload(Date.now());
       setLastUploadAccess(profileAccess);
       setLastUploadParticipation(safeParticipation);
+      setServerProfile({ exists: true });
 
       if (typeof window.gtag !== 'undefined') {
         window.gtag('event', 'profile_uploaded', {
@@ -284,11 +301,31 @@ const Settings = () => {
     setLoading(false);
   };
 
+  const handleDelete = async () => {
+    setDeleting(true);
+    setDeleteError('');
+    try {
+      const { token, source } = await currentToken(state?.accessToken);
+      await deleteProfile(token, source);
+      setServerProfile({ exists: false });
+      setUploaded(false);
+      // The hour between uploads stays on the server, so the time stays here; what the upload was sent as goes.
+      removeAnonId();
+      removeLastUploadAccess();
+      removeLastUploadParticipation();
+      notify('Profile deleted');
+    } catch (err) {
+      setDeleteError(err);
+    }
+    setDeleting(false);
+    setDeleteOpen(false);
+  };
+
   // A guest can still set the date and time formats. isLoading is true on the export and the first render, so the note
   // never flashes at an account that is still loading, and both renders match.
   const hasAccount = Boolean(state?.signedIn || state?.profile || state?.manualImport || state?.demo);
-  const effectiveParticipation = profileAccess === 'off' ? 'off' : leaderboardParticipation;
-  const settingsChangedSinceUpload = lastUploadAccess
+  const effectiveParticipation = profileAccess ? leaderboardParticipation : 'off';
+  const settingsChangedSinceUpload = lastUploadAccess && profileAccess
     && (lastUploadAccess !== profileAccess || lastUploadParticipation !== effectiveParticipation);
 
   return <>
@@ -350,30 +387,23 @@ const Settings = () => {
 
           {/* What an upload sends, then the button that sends it: a setting under the button is read after the press,
               and the next upload is an hour away. */}
-          <SettingRow label="Profile access" description={ACCESS_DESCRIPTIONS[profileAccess]}>
+          <SettingRow label="Profile access" description={ACCESS_DESCRIPTIONS[profileAccess] ?? 'Choose who can see your profile.'}>
             <ToggleButtonGroup
               value={profileAccess}
               exclusive
-              onChange={(_, val) => {
-                if (!val) return;
-                setProfileAccess(val);
-                if (val === 'off') {
-                  setLeaderboardParticipation('off');
-                }
-              }}
+              onChange={(_, val) => { if (val) setProfileAccess(val); }}
               size="small"
             >
-              <ToggleButton value="off">Off</ToggleButton>
               <ToggleButton value="public">Public</ToggleButton>
               <ToggleButton value="anonymous">Anonymous</ToggleButton>
             </ToggleButtonGroup>
           </SettingRow>
 
           <SettingRow label="Leaderboard participation"
-                      description={profileAccess === 'off' ? 'Set Profile access to Public or Anonymous first.' : 'Appear in public rankings'}>
+                      description={profileAccess ? 'Appear in public rankings' : 'Set Profile access to Public or Anonymous first.'}>
             <Switch
-              checked={leaderboardParticipation === 'on'}
-              disabled={profileAccess === 'off'}
+              checked={effectiveParticipation === 'on'}
+              disabled={!profileAccess}
               inputProps={{ 'aria-label': 'Leaderboard participation' }}
               onChange={() => {
                 setLeaderboardParticipation(leaderboardParticipation === 'on' ? 'off' : 'on');
@@ -388,19 +418,17 @@ const Settings = () => {
             <SettingRow
               label="Upload profile"
               description={<Stack alignItems="flex-start" gap={0.25} component="span">
-                <span>
+                {profileAccess ? <span>
                   Updates once an hour.
                   {isValid(parseInt(lastUpload)) ? <> Last uploaded {formatDate(parseInt(lastUpload), { showSeconds: false })}
                     {isDisabled ? <>, next in <Timer type={'countdown'} date={parseInt(lastUpload) + WAIT_TIME} placeholder={'now'}/></> : null}
                     {lastUploadAccess ? <>, as <strong>{ACCESS_LABELS[lastUploadAccess] ?? lastUploadAccess}</strong></> : null}
                     {lastUploadParticipation ? <> with the leaderboard <strong>{lastUploadParticipation === 'on' ? 'on' : 'off'}</strong></> : null}.</> : null}
-                </span>
+                </span> : <span>Choose Public or Anonymous above first.</span>}
                 {settingsChangedSinceUpload ? <Typography component="span" variant="body2" color="text.warning">
                   Now set to <strong>{ACCESS_LABELS[profileAccess] ?? profileAccess}</strong> with the leaderboard
                   {' '}<strong>{effectiveParticipation === 'on' ? 'on' : 'off'}</strong>: upload again to apply.
                 </Typography> : null}
-                {/* An upload as Off is real (it takes a profile down), but shows nowhere: say so before the press, which
-                    also starts the hour's wait. The line above covers an Off that is a change from the last upload. */}
                 {anonId ? <span>Your anonymous ID is <strong>{anonId}</strong>.</span> : null}
                 <Button variant="text" size="small" onClick={() => setStatsOpen(true)} sx={{ p: 0, minWidth: 0 }}>
                   View calculated stats
@@ -408,7 +436,7 @@ const Settings = () => {
               </Stack>}
             >
               <Stack direction="row" alignItems="center" gap={1}>
-                <ButtonStyle disabled={isDisabled} loading={loading} onClick={handleUpdate}
+                <ButtonStyle disabled={isDisabled || !profileAccess} loading={loading} onClick={handleUpdate}
                              variant="contained" size="small">Upload</ButtonStyle>
                 {uploaded && <CheckCircleIcon fontSize="small" sx={{ color: 'text.success' }}/>}
               </Stack>
@@ -419,8 +447,28 @@ const Settings = () => {
                 <StatsDialogBody account={state?.account} characters={state?.characters}/>
               </ErrorBoundary> : null}
             </AppDialog>
-
           </Box>
+
+          {serverProfile?.exists ? <Box>
+            <SettingRow label="Delete profile" description="Remove your uploaded profile and your leaderboard places">
+              <ButtonStyle variant="outlined" color="error" size="small" loading={deleting}
+                           onClick={() => setDeleteOpen(true)}>Delete</ButtonStyle>
+            </SettingRow>
+            <AppDialog open={deleteOpen} onClose={() => setDeleteOpen(false)} size="s" title="Delete your profile?"
+                       actions={[
+                         { label: 'Cancel' },
+                         { label: 'Delete profile', main: true, danger: true, disabled: deleting, onClick: handleDelete }
+                       ]}>
+              <Typography variant="body2" sx={{ mb: 1.5 }}>
+                Your profile link stops working now, and you leave the leaderboards within 30 minutes. A record of your
+                past leaderboard places is kept for 30 days, then deleted.
+              </Typography>
+              <Typography variant="body2">
+                Your game save and your settings here are not touched. You can upload again later.
+              </Typography>
+            </AppDialog>
+          </Box> : null}
+          {deleteError ? <Notice tone={'error'} sx={{ mb: 1.5 }}>{errorMessage(deleteError)}</Notice> : null}
         </Box></Panel> : null}
 
         {/* Data */}

@@ -27,11 +27,7 @@ export const uploadProfile = async ({ profile, profileAccess, leaderboardPartici
     response = await fetch(`${url}/profiles`, {
       method: 'POST',
       body,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': token,
-        ...(tokenSource ? { 'X-Token-Source': tokenSource } : {})
-      }
+      headers: signedHeaders(token, tokenSource)
     });
   } catch (err) {
     console.error('Error has occurred: ', err);
@@ -45,6 +41,33 @@ export const uploadProfile = async ({ profile, profileAccess, leaderboardPartici
     throw new UploadError('auth', 'Your sign-in was not accepted. Sign out, sign in again and upload.', 401);
   }
   throw new UploadError('server', GENERIC_UPLOAD_ERROR, response.status);
+}
+
+const signedHeaders = (token, tokenSource) => ({
+  'Content-Type': 'application/json',
+  'Authorization': token,
+  ...(tokenSource ? { 'X-Token-Source': tokenSource } : {})
+});
+
+// Whether the signed-in account has a profile on the server: { exists, profileAccess, leaderboardParticipation, uploadedAt }.
+// Throws on anything but an answer, so "unknown" is never read as "no profile".
+export const getProfileStatus = async (token, tokenSource) => {
+  const response = await fetch(`${url}/profiles/me`, { method: 'GET', headers: signedHeaders(token, tokenSource) });
+  if (!response.ok) throw new Error(`The profile api answered ${response.status}`);
+  return await response.json();
+}
+
+export const deleteProfile = async (token, tokenSource) => {
+  let response;
+  try {
+    response = await fetch(`${url}/profiles`, { method: 'DELETE', headers: signedHeaders(token, tokenSource) });
+  } catch (err) {
+    console.error('Error has occurred: ', err);
+    throw new Error('Could not reach the server. Check your connection and try again.');
+  }
+  if (response.status === 200) return;
+  if (response.status === 401) throw new Error('Your sign-in was not accepted. Sign out, sign in again and delete.');
+  throw new Error('An error has occurred while deleting your profile. Please try again later.');
 }
 
 // null is the worker's answer that no such profile exists. Anything else that isn't a save throws: no answer, a 5xx, or
