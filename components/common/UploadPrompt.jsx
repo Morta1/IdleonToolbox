@@ -60,7 +60,7 @@ const UploadPrompt = () => {
   const uid = state?.uid;
   const own = useOwnSave();
   const now = useNow(60000);
-  const { upload, shown, setShown, setAutoUpload, autoHours, setAutoHours } = useProfileUpload();
+  const { upload, adopt, shown, lastUploadAccess, setAutoUpload, autoHours } = useProfileUpload();
   // 'never', or the time until which "Not now" put it away. Kept in this browser only, per account.
   const [answer, setAnswer] = useLocalStorage({ key: `${uid}/uploadPrompt` });
   const [, setProfileAccess] = useLocalStorage({ key: 'data:profileAccess' });
@@ -75,22 +75,22 @@ const UploadPrompt = () => {
   const [right, setRight] = useState(16);
   const card = useRef(null);
 
-  // Asked once per browser: each ask costs the worker a database connect, so the answer is kept.
+  // Asked once per browser: each ask costs the worker a database connect, so the answer is kept. Asked again only by
+  // a browser that knows a profile is shown but not how it was uploaded.
+  const known = shown === 'no' || (shown === 'yes' && isShown(lastUploadAccess));
   useEffect(() => {
-    if (!own || shown) return;
+    if (!own || known) return;
     let cancelled = false;
     currentToken(state?.accessToken)
       .then(({ token, source }) => getProfileStatus(token, source))
       .then((res) => {
-        if (cancelled) return;
-        if (Number.isFinite(res?.autoUploadHours)) setAutoHours(res.autoUploadHours);
-        setShown(res?.exists && isShown(res.profileAccess) ? 'yes' : 'no');
+        if (!cancelled) adopt(res);
       })
       .catch(() => {});
     return () => {
       cancelled = true;
     };
-  }, [own, shown, uid]);
+  }, [own, known, uid]);
 
   useEffect(() => {
     const open = () => {

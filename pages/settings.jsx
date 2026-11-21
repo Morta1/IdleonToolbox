@@ -115,7 +115,7 @@ const Settings = () => {
   const [uploaded, setUploaded] = useState(false);
   const {
     upload, lastUpload, lastUploadAccess, lastUploadParticipation, lastUploadTrigger, anonId, autoUpload, setAutoUpload,
-    autoHours, setAutoHours, autoFailed, setShown
+    autoHours, autoFailed, setShown, adopt
   } = useProfileUpload();
   const [, , removeLastUpload] = useLocalStorage({ key: `${state?.uid}/lastUpload` });
   const [, , removeAnonId] = useLocalStorage({ key: `${state?.uid}/anonId` });
@@ -151,8 +151,12 @@ const Settings = () => {
       .then((res) => {
         if (cancelled) return;
         setServerProfile(res);
-        if (Number.isFinite(res?.autoUploadHours)) setAutoHours(res.autoUploadHours);
-        setShown(res?.exists && isShown(res.profileAccess) ? 'yes' : 'no');
+        adopt(res);
+        // Nothing picked in this browser yet: show what the account is uploaded as, not an empty choice.
+        if (res?.exists && isShown(res.profileAccess) && !readLocalStorageValue({ key: 'data:profileAccess' })) {
+          setProfileAccess(res.profileAccess);
+          setLeaderboardParticipation(res.leaderboardParticipation === 'on' ? 'on' : 'off');
+        }
       })
       .catch(() => {});
     return () => {

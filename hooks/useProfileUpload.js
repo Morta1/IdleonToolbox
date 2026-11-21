@@ -69,8 +69,21 @@ const useProfileUpload = () => {
     }
   };
 
+  // The server's answer about the account (GET /profiles/me). A browser with no note of an upload by hand takes the
+  // server's, so automatic upload, the reminder and the leaderboards' "You" work on a second device too.
+  const adopt = (status) => {
+    if (Number.isFinite(status?.autoUploadHours)) setAutoHours(status.autoUploadHours);
+    const visible = Boolean(status?.exists && isShown(status.profileAccess));
+    setShown(visible ? 'yes' : 'no');
+    if (!visible || isShown(lastUploadAccess)) return;
+    setLastUploadAccess(status.profileAccess);
+    setLastUploadParticipation(status.leaderboardParticipation === 'on' ? 'on' : 'off');
+    if (status.uploadedAt && !lastUpload) setLastUpload(status.uploadedAt);
+    if (status.anonId) setAnonId(status.anonId);
+  };
+
   return {
-    upload, lastUpload, lastUploadAccess, lastUploadParticipation, lastUploadTrigger, anonId,
+    upload, adopt, lastUpload, lastUploadAccess, lastUploadParticipation, lastUploadTrigger, anonId,
     autoUpload: autoUpload === 'on', setAutoUpload: (on) => setAutoUpload(on ? 'on' : 'off'),
     autoHours: Number.isFinite(autoHours) ? autoHours : DEFAULT_AUTO_HOURS, setAutoHours,
     autoFailed: autoFailed ?? null,
