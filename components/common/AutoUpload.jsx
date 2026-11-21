@@ -1,4 +1,5 @@
 import { useContext, useEffect, useRef } from 'react';
+import { readLocalStorageValue } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import { useOwnSave } from '@components/common/UploadPrompt';
 import useProfileUpload, { HOUR_MS, isShown } from '@hooks/useProfileUpload';
@@ -21,6 +22,10 @@ const AutoUpload = () => {
     if (!ready) return;
     const attempt = () => {
       if (busy.current || document.visibilityState !== 'visible' || Date.now() - since < autoHours * HOUR_MS) return;
+      // The store itself, read now: the hook's value can be a render behind, and another tab may have just uploaded.
+      const last = Number(readLocalStorageValue({ key: `${state?.uid}/lastUpload` })) || 0;
+      const failedAt = readLocalStorageValue({ key: `${state?.uid}/autoUploadFailed` })?.at ?? 0;
+      if (Date.now() - Math.max(last, failedAt) < autoHours * HOUR_MS) return;
       busy.current = true;
       // The worker keeps the access it has stored; these are sent for its log only. Never with gem info.
       upload({ profileAccess: lastUploadAccess, leaderboardParticipation: lastUploadParticipation, removeGems: true, trigger: 'auto' })

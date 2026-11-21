@@ -3,7 +3,7 @@ import {
   Box, Button, Checkbox, FormControlLabel, IconButton, Link, Radio, RadioGroup, Stack, Typography
 } from '@mui/material';
 import { IconX } from '@tabler/icons-react';
-import { useLocalStorage } from '@mantine/hooks';
+import { readLocalStorageValue, useLocalStorage } from '@mantine/hooks';
 import { AppContext } from '@components/common/context/AppProvider';
 import Notice from '@components/common/Notice';
 import { notify } from '@components/common/Overlays/notify';
@@ -80,6 +80,10 @@ const UploadPrompt = () => {
   const known = shown === 'no' || (shown === 'yes' && isShown(lastUploadAccess));
   useEffect(() => {
     if (!own || known) return;
+    // The hook hands over what is stored one render after the account's id arrives, so on every page load `known`
+    // is false for a moment. Read the store itself before asking, or each page load asks the server again.
+    const stored = readLocalStorageValue({ key: `${uid}/profileShown` });
+    if (stored === 'no' || (stored === 'yes' && isShown(readLocalStorageValue({ key: `${uid}/lastUploadAccess` })))) return;
     let cancelled = false;
     currentToken(state?.accessToken)
       .then(({ token, source }) => getProfileStatus(token, source))
