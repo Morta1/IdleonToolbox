@@ -1,95 +1,39 @@
-import { useEffect, useSyncExternalStore } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { fetchHistory } from '../services/leaderboards';
 
-// The signed-in player's ranks as this browser last saw them, so the leaderboards can show what moved since the last
-// visit. Stored per uid as { name, prev, cur }; prev and cur are { createdAt, rank, ranks: { metric: [r, v] } }, the value
-// kept so the You card's counters count a past run the way they count this one (maxed boards).
-// cur follows every run the page sees; prev moves to the old cur only once per browser session, when a visit starts,
-// so a page left open or a reload after the next 30-minute run keeps "since your last visit" meaning the last visit.
-// The raw string is the snapshot (compared by value); parsing it again each render is cheap and never loops.
-const storageKey = (uid) => `${uid}/lbSeen`;
-const visitKey = (uid) => `${uid}/lbVisit`;
-
-const subscribe = (changed) => {
-  window.addEventListener('storage', changed);
-  window.addEventListener('lb-seen', changed);
-  return () => {
-    window.removeEventListener('storage', changed);
-    window.removeEventListener('lb-seen', changed);
-  };
-};
-
-const read = (key) => {
-  try {
-    return window.localStorage.getItem(key);
-  } catch {
-    return null;
-  }
-};
-
-const parse = (raw) => {
-  try {
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-};
-
-const snapshotOf = (data) => ({
-  createdAt: data.createdAt,
-  rank: data.player.rank,
-  ranks: Object.fromEntries(Object.entries(data.ranks ?? {}).map(([metric, { r, v }]) => [metric, [r, v]]))
-});
-
-// Next stored value for a new /player reply, or null when nothing changes.
-export const nextHistory = (stored, data, newVisit) => {
-  const name = data.player.mainChar;
-  const cur = snapshotOf(data);
-  if (!stored || stored.name !== name || !stored.cur) return { name, prev: null, cur };
-  if (cur.createdAt <= stored.cur.createdAt) return null;
-  return { name, prev: newVisit ? stored.cur : stored.prev, cur };
-};
-
-// What moved between prev and cur: the global rank, and each board both runs ranked. Positive is up. A moved board
-// carries both runs' values (valueFrom, valueTo) as stored.
-export const rankChanges = (history) => {
-  if (!history?.prev || !history?.cur) return null;
-  const { prev, cur } = history;
-  const boards = Object.entries(cur.ranks)
-    .filter(([metric, [r]]) => prev.ranks[metric] != null && prev.ranks[metric][0] !== r)
-    .map(([metric, [r, v]]) => {
-      const [from, valueFrom] = prev.ranks[metric];
+// What moved between a past standing of the player (the history route's snapshot) and their standing now (the /player
+// reply): the global rank, points, and each board both ranked. Positive is up. Null with nothing to compare with.
+// A past board entry is [rank, value, tied, at the max].
+export const historyChanges = (data, history) => {
+  const past = history?.snapshot;
+  if (!past || !data?.player) return null;
+  const boards = Object.entries(data.ranks ?? {})
+    .filter(([metric, { r }]) => past.ranks[metric] != null && past.ranks[metric][0] !== r)
+    .map(([metric, { r, v }]) => {
+      const [from, valueFrom] = past.ranks[metric];
       return { metric, from, to: r, delta: from - r, valueFrom, valueTo: v };
     })
     .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta) || a.to - b.to);
-  // The previous run's ranks in /player's entry shape, for countStanding.
-  const prevEntries = Object.fromEntries(Object.entries(prev.ranks).map(([metric, [r, v]]) => [metric, { r, v }]));
-  return { since: prev.createdAt, rank: prev.rank - cur.rank, boards, prevEntries };
+  return {
+    since: past.at,
+    range: history.range ?? null,
+    rank: past.rank - data.player.rank,
+    // Points are a sum over every board, so they only compare between standings with the same number of boards.
+    pointsFrom: history.boardsNow != null && past.boards === history.boardsNow ? past.points : null,
+    boards,
+    past: past.ranks
+  };
 };
 
-// data: the /player reply for the signed-in player only (never a searched one). Returns rankChanges or null.
-const useRankHistory = (uid, data) => {
-  const raw = useSyncExternalStore(subscribe, () => (uid ? read(storageKey(uid)) : null), () => null);
-  useEffect(() => {
-    if (!uid || !data?.player || !data.createdAt) return;
-    let newVisit = false;
-    try {
-      newVisit = !window.sessionStorage.getItem(visitKey(uid));
-    } catch {
-      newVisit = false;
-    }
-    const next = nextHistory(parse(read(storageKey(uid))), data, newVisit);
-    if (!next) return;
-    try {
-      // Marked only once a newer run is applied: a tab opened before the next run still moves prev when that run lands.
-      window.sessionStorage.setItem(visitKey(uid), '1');
-      window.localStorage.setItem(storageKey(uid), JSON.stringify(next));
-      window.dispatchEvent(new Event('lb-seen'));
-    } catch {
-      // A full or blocked storage only costs the changes, never the page.
-    }
-  }, [uid, data?.createdAt, data?.player?.mainChar]);
-  const history = parse(raw);
-  return history?.name === data?.player?.mainChar ? rankChanges(history) : null;
-};
+const FIVE_MINUTES = 5 * 60 * 1000;
+
+// The signed-in player's own history only (never a searched player's). range: 7, 30 or 90 days back, or null for the
+// default view, the player's latest standing recorded at least 12 hours before their newest one.
+const useRankHistory = (name, range = null) => useQuery({
+  queryKey: ['lb-history', name, range],
+  queryFn: () => fetchHistory(name, range),
+  enabled: Boolean(name),
+  staleTime: FIVE_MINUTES
+});
 
 export default useRankHistory;

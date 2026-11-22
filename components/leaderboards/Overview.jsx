@@ -1,12 +1,15 @@
 import React, { useContext, useState } from 'react';
-import { Button, Link, Skeleton, Stack, Typography } from '@mui/material';
+import { Button, Link, Skeleton, Stack, Switch, Typography } from '@mui/material';
+import { format } from 'date-fns';
 import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
 import useHydrated from '@hooks/useHydrated';
 import useNow from '@hooks/useNow';
 import useFormatDate from '@hooks/useFormatDate';
-import useRankHistory from '@hooks/useRankHistory';
-import { AppContext } from '@components/common/context/AppProvider';
+import useRankHistory, { historyChanges } from '@hooks/useRankHistory';
+import useProfileUpload, { isShown } from '@hooks/useProfileUpload';
+import { PreferencesContext } from '@components/common/context/PreferencesProvider';
+import ViewSwitch from '@components/common/ViewSwitch';
 import { formatNum } from '@utility/helpers';
 import GameIcon from '@components/common/GameIcon';
 import Notice, { retryAction } from '@components/common/Notice';
@@ -93,7 +96,7 @@ const JOIN = { label: 'Join the leaderboards', onClick: openUploadPrompt };
 const standingOf = (player) => (player.context && !player.isError && player.data ? { data: player.data, kind: player.context.kind } : null);
 
 // The slot beside the global ranking: the You card, or whatever stands in for it.
-const YouSlot = ({ player, self, index, onClearPlayer, nextRun, changes }) => {
+const YouSlot = ({ player, self, index, onClearPlayer, nextRun, changes, changesLabel }) => {
   const hydrated = useHydrated();
   const now = useNow(30000);
   const formatDate = useFormatDate();
@@ -126,7 +129,7 @@ const YouSlot = ({ player, self, index, onClearPlayer, nextRun, changes }) => {
     }
     return <Notice action={JOIN}>You are not on the leaderboards yet.</Notice>;
   }
-  return <YouCard data={player.data} kind={player.context.kind} index={index} changes={changes}
+  return <YouCard data={player.data} kind={player.context.kind} index={index} changes={changes} changesLabel={changesLabel}
                   onClear={onClearPlayer} clearLabel={self.name ? 'Back to you' : 'Clear'}/>;
 };
 
@@ -168,22 +171,59 @@ const WithinReach = ({ reach, kind, index, onOpen, linkPlayer }) => (
   </Panel>
 );
 
-// The boards that moved most since the last visit, as Highlights lists the strongest ones; the rest one tap away.
-const SHOWN_MOVES = 3;
-const CHANGE_SX = { fontWeight: 500, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' };
-const SinceLastVisit = ({ changes, index, onOpen, linkPlayer }) => {
+// "20 Nov", with the time while it is under two days old, in the visitor's own date order and clock.
+const RECENT_MS = 48 * 60 * 60 * 1000;
+const useWhen = () => {
+  const { dateFormat } = useContext(PreferencesContext);
   const formatDate = useFormatDate();
+  const now = useNow(60000);
+  return (ms, { time = true } = {}) => {
+    const day = format(ms, dateFormat === 'MDY' ? 'MMM d' : 'd MMM');
+    return time && now - ms < RECENT_MS ? `${day}, ${formatDate(ms, { timeOnly: true, showSeconds: false })}` : day;
+  };
+};
+
+// The signed-in player's progress: what moved against an earlier standing of theirs, kept by the server (one a day
+// they upload). base is the default comparison, their latest standing recorded at least 12 hours before the newest;
+// a picked range compares with the standing nearest that many days back. The boards that moved most show first.
+const SHOWN_MOVES = 3;
+const RANGE_DAYS = [7, 30, 90];
+const CHANGE_SX = { fontWeight: 500, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' };
+const LINE_SX = { px: 2, py: 1.25 };
+const Progress = ({ base, changes, range, onRange, loading, standingAt, index, onOpen, linkPlayer }) => {
+  const when = useWhen();
   const [showAll, setShowAll] = useState(false);
-  const moves = showAll ? changes.boards : changes.boards.slice(0, SHOWN_MOVES);
-  const rest = changes.boards.length - SHOWN_MOVES;
-  return <Panel title="Since your last visit"
-                meta={`Since ${formatDate(changes.since, { showSeconds: false })} · ${formatNum(changes.boards.length, 'whole')} ${changes.boards.length === 1 ? 'board' : 'boards'} moved`}>
-    {moves.map((move) => {
+  const { autoUpload, setAutoUpload, lastUploadAccess, autoHours } = useProfileUpload();
+  const reachable = base.ranges ?? [];
+  const compared = base.snapshot?.at ?? null;
+  const moves = changes ? (showAll ? changes.boards : changes.boards.slice(0, SHOWN_MOVES)) : [];
+  const rest = changes ? changes.boards.length - SHOWN_MOVES : 0;
+  const count = changes?.boards.length ?? 0;
+  return <Panel title={changes ? `Since ${when(changes.since)}` : 'Your progress'}
+                meta={changes
+                  ? `Ranking of ${when(standingAt)} against ${when(changes.since)} · ${formatNum(count, 'whole')} ${count === 1 ? 'board' : 'boards'} moved`
+                  : base.first ? `Tracking started ${when(base.first, { time: false })}` : null}>
+    {compared || reachable.length ? <Stack direction="row" alignItems="center" columnGap={1.5} rowGap={1} flexWrap="wrap"
+                                           sx={{ ...LINE_SX, borderBottom: 1, borderColor: 'divider' }}>
+      <Typography variant="body2" color="text.secondary">Compare with</Typography>
+      {/* A range no upload of theirs reaches yet stays in view, greyed: it shows what is coming. */}
+      <ViewSwitch label="Compare with" value={range ?? 0} onChange={(next) => onRange(next || null)}
+                  options={[[0, compared ? `Since ${when(compared, { time: false })}` : 'Last upload', !compared],
+                    ...RANGE_DAYS.map((days) => [days, `${days} days`, !reachable.includes(days)])]}/>
+    </Stack> : null}
+    {loading ? <Box sx={LINE_SX}><Skeleton variant="text" width={220}/></Box> : null}
+    {!loading && !changes ? <Typography variant="body2" sx={LINE_SX}>Changes show after your next upload.</Typography> : null}
+    {!loading && changes && !count ? <Typography variant="body2" sx={LINE_SX}>No board moved since {when(changes.since)}.</Typography> : null}
+    {!loading && !changes && !autoUpload && isShown(lastUploadAccess) && autoHours > 0
+      ? <Panel.Row sx={{ borderTop: 1, borderColor: 'divider' }} name="Upload automatically while the toolbox is open" sub="Records your ranks on every day you visit."
+                   value={<Switch checked={false} onChange={() => setAutoUpload(true)} inputProps={{ 'aria-label': 'Upload automatically' }}/>}/>
+      : null}
+    {loading ? null : moves.map((move) => {
       const meta = metaOf(index, move.metric);
       const tabName = tabOfCategory(meta.category);
       const change = formatChange(meta.notation, move.valueFrom, move.valueTo, { scale: meta.top });
       return <Panel.Row key={move.metric} sx={REACH_ROW_SX} icon={<MetricIcon metric={move.metric} label={meta.label}/>}
-                        name={<Link href={boardHref(meta, linkPlayer)} onClick={openOnPlainClick((key) => onOpen(key, 'since_last_visit'), move.metric)}
+                        name={<Link href={boardHref(meta, linkPlayer)} onClick={openOnPlainClick((key) => onOpen(key, 'progress'), move.metric)}
                                     color="inherit" underline="none" sx={STRETCHED_LINK_SX}>{meta.label}</Link>}
                         sub={`${tabName ? `${tabName} · ` : ''}${rankText(move.from)} to ${rankText(move.to)}`}
                         value={<RankDelta delta={move.delta}/>}
@@ -191,7 +231,7 @@ const SinceLastVisit = ({ changes, index, onOpen, linkPlayer }) => {
                           <ExactValue text={change.text} exact={change.exact}/>
                         </Box> : null}/>;
     })}
-    {rest > 0 ? <Box sx={{ px: 2, py: 1 }}>
+    {!loading && rest > 0 ? <Box sx={{ px: 2, py: 1 }}>
       <Button size="small" onClick={() => setShowAll(!showAll)} aria-expanded={showAll}>
         {showAll ? 'Show fewer' : `And ${formatNum(rest, 'whole')} more`}
       </Button>
@@ -200,7 +240,7 @@ const SinceLastVisit = ({ changes, index, onOpen, linkPlayer }) => {
 };
 
 const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab, onClearPlayer, linkPlayer = null }) => {
-  const { state } = useContext(AppContext);
+  const when = useWhen();
   const podium = useQuery({
     queryKey: ['lb-podium', !showAnonymous],
     queryFn: () => fetchBoard(GLOBAL_METRIC, { limit: 10, publicOnly: !showAnonymous }),
@@ -210,10 +250,16 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab
   const standing = standingOf(player);
   const picks = standing?.data.player.bestMetrics ?? [];
   const reach = standing ? withinReach(standing.data.ranks, index) : [];
-  // Only the signed-in player's own standing keeps a history: a searched player's changes would be this browser's guess.
-  const changes = useRankHistory(state?.uid, standing?.kind === 'logged' ? standing.data : null);
-  const moved = changes?.boards.length ? changes : null;
-  const panels = [picks.length, reach.length, moved].filter(Boolean).length;
+  // Ranges are the signed-in player's own: a searched player shows none.
+  const own = standing?.kind === 'logged' ? standing.data : null;
+  const [range, setRange] = useState(null);
+  const base = useRankHistory(own?.player.mainChar ?? null);
+  const ranged = useRankHistory(range ? own?.player.mainChar ?? null : null, range);
+  const history = range ? ranged : base;
+  const changes = own ? historyChanges(own, history.data) : null;
+  // No row recorded for the name yet reads { tracked: false }: no panel, as for a failed read.
+  const tracked = own && base.data && base.data.tracked !== false ? base.data : null;
+  const panels = [picks.length, reach.length].filter(Boolean).length;
   // An anonymous player in the top 10 is missing from the public list; they still go in their place.
   const viewed = standing?.data.player;
   const podiumRows = podium.data?.top ?? [];
@@ -230,7 +276,7 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab
             read it first; side by side it moves to the right column. */}
         <Box sx={{ '@container (min-width: 860px)': { order: 1 } }}>
           <YouSlot player={player} self={self} index={index} onClearPlayer={onClearPlayer} nextRun={nextRun}
-                   changes={standing?.kind === 'logged' ? changes : null}/>
+                   changes={changes} changesLabel={changes ? (changes.range ? `in ${changes.range} days` : `since ${when(changes.since)}`) : ''}/>
         </Box>
         {showsFailure(podium)
           ? <Notice key={podium.errorUpdateCount} tone={'error'} action={retryAction(() => podium.refetch(), podium.isFetching)}>
@@ -240,6 +286,8 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab
             ? <Podium rows={rows} highlight={highlight} onOpen={onOpen} linkPlayer={linkPlayer} index={index}/>
             : <Skeleton variant="rounded" height={420}/>}
       </Box>
+      {tracked ? <Progress base={tracked} changes={changes} range={range} onRange={setRange} loading={Boolean(range) && ranged.isPending}
+                           standingAt={own.createdAt} index={index} onOpen={onOpen} linkPlayer={linkPlayer}/> : null}
       {panels ? (
         <Box sx={{
           display: 'grid', gridTemplateColumns: '1fr', gap: 2.5, alignItems: 'start',
@@ -247,7 +295,6 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab
         }}>
           {picks.length ? <Highlights picks={picks} kind={standing.kind} index={index}/> : null}
           {reach.length ? <WithinReach reach={reach} kind={standing.kind} index={index} onOpen={onOpen} linkPlayer={linkPlayer}/> : null}
-          {moved ? <SinceLastVisit changes={moved} index={index} onOpen={onOpen} linkPlayer={linkPlayer}/> : null}
         </Box>
       ) : null}
       <CategoryTiles index={index} ranks={standing?.data.ranks} onTab={onTab} linkPlayer={linkPlayer}/>

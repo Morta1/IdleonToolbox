@@ -17,6 +17,21 @@ export const countStanding = (ranks, index) => {
   return { firsts, top25, top100 };
 };
 
+// The same counters for a past standing from the history route, whose entries are [rank, value, tied, at the max].
+// The max flag was stored with the standing: whether a board was maxed that day cannot be read from today's boards.
+export const countPast = (ranks) => {
+  let firsts = 0;
+  let top25 = 0;
+  let top100 = 0;
+  for (const [r, , , atMax] of Object.values(ranks ?? {})) {
+    if (atMax) continue;
+    if (r === 1) firsts++;
+    if (r <= 25) top25++;
+    if (r <= 100) top100++;
+  }
+  return { firsts, top25, top100 };
+};
+
 // The You card's first places, split the way a player reads them: alone at #1, sharing #1 (a
 // bare total read as "I have no first place" to a player tied with 87 others), and holding the
 // max on a maxed board, which is counted apart.

@@ -1,26 +1,32 @@
-import { nextHistory, rankChanges } from '@hooks/useRankHistory';
+import { historyChanges } from '@hooks/useRankHistory';
+import { countPast } from '@components/leaderboards/standing';
 
-const reply = (createdAt, rank, ranks, mainChar = 'Me') => ({
-  createdAt, player: { mainChar, rank }, ranks: Object.fromEntries(Object.entries(ranks).map(([k, r]) => [k, { r, v: 10 }]))
+// The /player reply now, and the history route's past standing: a board entry there is [rank, value, tied, at the max].
+const now = (rank, ranks) => ({
+  createdAt: 9, player: { mainChar: 'Me', rank, compositeScore: 500 },
+  ranks: Object.fromEntries(Object.entries(ranks).map(([key, r]) => [key, { r, v: 10 }]))
+});
+const history = (snapshot, extra = {}) => ({ range: null, boardsNow: 3, snapshot: { at: 2, rank: 19, points: 440, boards: 3, ...snapshot }, ...extra });
+
+describe('historyChanges', () => {
+  it('lists the boards whose rank moved against the past standing, biggest move first', () => {
+    const changes = historyChanges(now(17, { a: 9, b: 41, c: 5, d: 3 }), history({ ranks: { a: [11, 7, 1, 0], b: [40, 10, 1, 0], c: [5, 2, 1, 0] } }, { range: 30 }));
+    // c did not move and d was unranked then: neither is listed.
+    expect(changes).toMatchObject({
+      since: 2, range: 30, rank: 2, pointsFrom: 440,
+      boards: [{ metric: 'a', from: 11, to: 9, delta: 2, valueFrom: 7, valueTo: 10 }, { metric: 'b', from: 40, to: 41, delta: -1 }]
+    });
+  });
+
+  it('leaves points out when the past standing had another number of boards, and has nothing without one', () => {
+    expect(historyChanges(now(17, {}), history({ ranks: {}, boards: 2 })).pointsFrom).toBeNull();
+    expect(historyChanges(now(17, {}), { range: 7, snapshot: null })).toBeNull();
+    expect(historyChanges(now(17, {}), undefined)).toBeNull();
+  });
 });
 
-describe('nextHistory', () => {
-  it('keeps "since your last visit" across a session and moves it only on a new visit', () => {
-    let stored = nextHistory(null, reply(1, 20, { a: 12, b: 40 }), true);
-    expect(stored.prev).toBeNull();
-    // Same run again (a refresh): nothing to write
-    expect(nextHistory(stored, reply(1, 20, { a: 12, b: 40 }), false)).toBeNull();
-    // Next run in the same session: cur follows, prev stays
-    stored = nextHistory(stored, reply(2, 19, { a: 11, b: 40 }), false);
-    expect(stored.prev).toBeNull();
-    // A new visit days later: the old cur becomes prev
-    stored = nextHistory(stored, reply(3, 17, { a: 9, b: 41 }), true);
-    stored.prev.ranks.a[1] = 7;
-    expect(rankChanges(stored)).toMatchObject({ since: 2, rank: 2, boards: [{ metric: 'a', from: 11, to: 9, delta: 2, valueFrom: 7, valueTo: 10 }, { metric: 'b', from: 40, to: 41, delta: -1 }] });
-    // A later run in that visit keeps the same baseline
-    stored = nextHistory(stored, reply(4, 16, { a: 8, b: 41 }), false);
-    expect(rankChanges(stored).since).toBe(2);
-    // Another name (Anon# id vs main character) starts over
-    expect(nextHistory(stored, reply(5, 16, { a: 8 }, 'Anon#1'), true)).toMatchObject({ name: 'Anon#1', prev: null });
+describe('countPast', () => {
+  it('counts a past standing from its own at-the-max flags', () => {
+    expect(countPast({ a: [1, 5, 1, 0], b: [1, 9, 40, 1], c: [20, 1, 1, 0], d: [90, 1, 1, 0], e: [300, 1, 1, 0] })).toEqual({ firsts: 1, top25: 2, top100: 3 });
   });
 });

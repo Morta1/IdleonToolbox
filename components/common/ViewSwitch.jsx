@@ -2,7 +2,8 @@ import { ToggleButton, ToggleButtonGroup } from '@mui/material';
 import useTabIndex from '@hooks/useTabIndex';
 
 // A segmented switch: two or three ways to show the same thing, one always on (Tabs board level 3, the
-// Toolbar board's View, the Controls board's "Segmented"). options are [value, label] pairs. 32 px in a
+// Toolbar board's View, the Controls board's "Segmented"). options are [value, label] pairs, with a third `true` for
+// one that cannot be picked yet. 32 px in a
 // section's title row (size small, the default), 40 in a toolbar (size medium). Four or more tighten on a phone, to hold
 // its 320 px row.
 const Segmented = ({ options, value, onChange, label = 'View', size = 'small', disabled, sx }) => <ToggleButtonGroup
@@ -24,7 +25,7 @@ const Segmented = ({ options, value, onChange, label = 'View', size = 'small', d
     ...sx
   }}
 >
-  {options.map(([key, text]) => <ToggleButton key={String(key)} value={key}>{text}</ToggleButton>)}
+  {options.map(([key, text, off]) => <ToggleButton key={String(key)} value={key} disabled={Boolean(off)}>{text}</ToggleButton>)}
 </ToggleButtonGroup>;
 
 // The view lives in the URL like a tab (?dnt= under a ?nt= tab), so an old link opens the same view.

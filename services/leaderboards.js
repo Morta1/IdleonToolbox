@@ -12,6 +12,10 @@ export const fetchMeta = () => getJson('/leaderboards/meta');
 
 export const fetchPlayer = (name) => getJson(`/leaderboards/player?name=${encodeURIComponent(name)}`);
 
+// The signed-in player's past standing: `range` days back (7, 30 or 90), or the default comparison without one.
+export const fetchHistory = (name, range) =>
+  getJson(`/leaderboards/history?name=${encodeURIComponent(name)}${range ? `&range=${range}` : ''}`);
+
 export const fetchBoard = (metric, { limit = 100, around, publicOnly } = {}) => {
   const params = new URLSearchParams({ metric, limit: String(limit) });
   if (around) params.set('around', around);

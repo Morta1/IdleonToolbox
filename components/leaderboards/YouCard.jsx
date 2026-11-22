@@ -6,9 +6,9 @@ import Panel from '@components/common/cards/Panel';
 import StatTile from '@components/common/cards/StatTile';
 import RankDelta from '@components/common/RankDelta';
 import { formatNum } from '@utility/helpers';
-import { countStanding, firstPlaces, topPercentLabel } from './standing';
+import { countPast, countStanding, firstPlaces, topPercentLabel } from './standing';
 import { HIGHLIGHT, LABEL_COLOR } from './RankRow';
-import { formatMetricValue, rankText } from './format';
+import { formatChange, formatMetricValue, rankText } from './format';
 
 const TILE_SX = { flex: '1 1 96px', width: 'auto', alignItems: 'flex-start', bgcolor: 'background.default' };
 // A short label never folds beside a long list of boards.
@@ -17,20 +17,25 @@ const LABEL_SX = { whiteSpace: 'nowrap' };
 const SHOWN = 6;
 const boardList = (names) => names.length > SHOWN ? `${names.slice(0, SHOWN).join(', ')} and ${names.length - SHOWN} more` : names.join(', ');
 
-// onClear: leaves a searched player; it reads "Back to you" when the visitor has standing of their own.
-const counterMove = (now, before) => (now === before ? 'no change' : `${now > before ? '+' : '-'}${formatNum(Math.abs(now - before), 'whole')} since last visit`);
+const MOVE_SX = { fontWeight: 500, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' };
+// A counter's move as a bare number: the range is named once, beside the rank. Nothing when it did not move.
+const counterMove = (now, before) => (now === before ? null
+  : <Box component="span" sx={{ ...MOVE_SX, color: now > before ? 'text.success' : 'text.error' }}>{now > before ? '+' : '-'}{formatNum(Math.abs(now - before), 'whole')}</Box>);
 
-// changes: what moved since the signed-in player's last visit (useRankHistory), or null.
-const YouCard = ({ data, kind, index, onClear, clearLabel = 'Clear', changes = null }) => {
+// onClear: leaves a searched player; it reads "Back to you" when the visitor has standing of their own.
+// changes: what moved against a past standing of the signed-in player (historyChanges), or null. changesLabel names
+// that standing after the rank's move: "in 30 days", "since 16 Nov, 23:50".
+const YouCard = ({ data, kind, index, onClear, clearLabel = 'Clear', changes = null, changesLabel = '' }) => {
   const { player, ranks } = data;
   const counts = countStanding(ranks, index);
-  const before = changes ? countStanding(changes.prevEntries, index) : null;
+  const before = changes ? countPast(changes.past) : null;
+  const points = changes?.pointsFrom != null ? formatChange('points', changes.pointsFrom, player.compositeScore) : null;
   // A maxed board is shared by everyone who reached the max, so it is counted apart from the firsts.
   const firsts = firstPlaces(ranks, index);
   const atMax = firsts.atMax.length;
   // One line per part, and the tile as wide as its longest: a wrap mid-part splits "+3 at the / max".
-  const firstsSub = [firsts.tied.length ? `${formatNum(firsts.tied.length, 'whole')} tied` : null, atMax ? `+${formatNum(atMax, 'whole')} at the max` : null,
-    before ? counterMove(counts.firsts, before.firsts) : null].filter(Boolean);
+  const firstsSub = [firsts.tied.length ? `${formatNum(firsts.tied.length, 'whole')} tied` : null, atMax ? `+${formatNum(atMax, 'whole')} at the max` : null].filter(Boolean);
+  const firstsMove = before ? counterMove(counts.firsts, before.firsts) : null;
   const topPercent = topPercentLabel(Math.max(0.1, (player.rank / player.totalUsers) * 100));
   const of = [player.totalUsers != null ? `of ${formatNum(player.totalUsers, 'whole')}` : null, topPercent, formatMetricValue('points', player.compositeScore)].filter(Boolean).join(' · ');
   const label = (key) => index.byKey[key]?.label ?? key;
@@ -51,12 +56,15 @@ const YouCard = ({ data, kind, index, onClear, clearLabel = 'Clear', changes = n
       <Stack gap={1.5} sx={{ p: 2 }}>
         <Stack direction="row" alignItems="baseline" columnGap={1.25} flexWrap="wrap">
           <Typography component="p" variant="heroValue">{rankText(player.rank)}</Typography>
-          {changes?.rank ? <Typography variant="body2" component="span"><RankDelta delta={changes.rank} suffix=" since your last visit"/></Typography> : null}
-          <Typography variant="body2" color="text.secondary">{of}</Typography>
+          {changes?.rank ? <Typography variant="body2" component="span"><RankDelta delta={changes.rank} suffix={` ${changesLabel}`}/></Typography> : null}
+          <Typography variant="body2" color="text.secondary">
+            {of}
+            {points ? <>{' '}<Box component="span" sx={{ ...MOVE_SX, color: points.better ? 'text.success' : 'text.error' }}>{points.text}</Box></> : null}
+          </Typography>
         </Stack>
         <Stack direction="row" flexWrap="wrap" gap={1}>
           <StatTile label="First places" value={counts.firsts} sx={{ ...TILE_SX, minWidth: 'min-content' }}
-                    sub={firstsSub.length ? firstsSub.map((line) => <Box key={line} sx={LABEL_SX}>{line}</Box>) : null}/>
+                    sub={firstsSub.length || firstsMove ? <>{firstsSub.map((line) => <Box key={line} sx={LABEL_SX}>{line}</Box>)}{firstsMove}</> : null}/>
           <StatTile label="Top 25" value={counts.top25} sx={TILE_SX} sub={before ? counterMove(counts.top25, before.top25) : null}/>
           <StatTile label="Top 100" value={counts.top100} sx={TILE_SX} sub={before ? counterMove(counts.top100, before.top100) : null}/>
         </Stack>
