@@ -1,5 +1,6 @@
 import { historyChanges } from '@hooks/useRankHistory';
 import { countPast } from '@components/leaderboards/standing';
+import { rankPoints } from '@components/leaderboards/RankChart';
 
 // The /player reply now, and the history route's past standing: a board entry there is [rank, value, tied, at the max].
 const now = (rank, ranks) => ({
@@ -28,5 +29,13 @@ describe('historyChanges', () => {
 describe('countPast', () => {
   it('counts a past standing from its own at-the-max flags', () => {
     expect(countPast({ a: [1, 5, 1, 0], b: [1, 9, 40, 1], c: [20, 1, 1, 0], d: [90, 1, 1, 0], e: [300, 1, 1, 0] })).toEqual({ firsts: 1, top25: 2, top100: 3 });
+  });
+});
+
+describe('rankPoints', () => {
+  it('adds the rank now only when a run later than the last recorded day ranked the player', () => {
+    expect(rankPoints([[1, 50], [5, 40]], 9, 38)).toEqual([{ x: 1, y: 50 }, { x: 5, y: 40 }, { x: 9, y: 38 }]);
+    expect(rankPoints([[1, 50], [5, 40]], 5, 40)).toHaveLength(2);
+    expect(rankPoints(undefined, 9, 38)).toEqual([{ x: 9, y: 38 }]);
   });
 });

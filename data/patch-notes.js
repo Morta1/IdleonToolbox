@@ -9,7 +9,8 @@ export const patchNotes = [
     'gameVer': '2.3.561',
     'date': '22/11/2026',
     'features': [
-      'Leaderboards: your overview now shows your progress: which boards moved since your last upload, or over the last 7, 30 or 90 days. This replaces "since your last visit" and now follows your account on any device'
+      'Leaderboards: your overview now shows your progress: which boards moved since your last upload, or over the last 7, 30 or 90 days. This replaces "since your last visit" and now follows your account on any device',
+      'Leaderboards: the progress panel now charts your global rank over time, one point per day you uploaded. It appears once you have 3 points'
     ],
     'fixes': []
   },

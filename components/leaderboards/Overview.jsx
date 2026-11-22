@@ -23,6 +23,7 @@ import { boardHref, openOnPlainClick } from './MetricCard';
 import MetricIcon from './MetricIcon';
 import RankRow, { ExactValue, HIGHLIGHT, MEDAL, TROPHIES } from './RankRow';
 import YouCard from './YouCard';
+import RankChart, { MIN_POINTS, rankPoints } from './RankChart';
 import UploadReminder from './UploadReminder';
 import { openUploadPrompt } from '@components/common/UploadPrompt';
 import RankDelta from '@components/common/RankDelta';
@@ -190,7 +191,7 @@ const SHOWN_MOVES = 3;
 const RANGE_DAYS = [7, 30, 90];
 const CHANGE_SX = { fontWeight: 500, fontVariantNumeric: 'tabular-nums', whiteSpace: 'nowrap' };
 const LINE_SX = { px: 2, py: 1.25 };
-const Progress = ({ base, changes, range, onRange, loading, standingAt, index, onOpen, linkPlayer }) => {
+const Progress = ({ base, changes, range, onRange, loading, standingAt, rankNow, index, onOpen, linkPlayer }) => {
   const when = useWhen();
   const [showAll, setShowAll] = useState(false);
   const { autoUpload, setAutoUpload, lastUploadAccess, autoHours } = useProfileUpload();
@@ -199,6 +200,7 @@ const Progress = ({ base, changes, range, onRange, loading, standingAt, index, o
   const moves = changes ? (showAll ? changes.boards : changes.boards.slice(0, SHOWN_MOVES)) : [];
   const rest = changes ? changes.boards.length - SHOWN_MOVES : 0;
   const count = changes?.boards.length ?? 0;
+  const points = rankPoints(base.series, standingAt, rankNow);
   return <Panel title={changes ? `Since ${when(changes.since)}` : 'Your progress'}
                 meta={changes
                   ? `Ranking of ${when(standingAt)} against ${when(changes.since)} · ${formatNum(count, 'whole')} ${count === 1 ? 'board' : 'boards'} moved`
@@ -211,6 +213,13 @@ const Progress = ({ base, changes, range, onRange, loading, standingAt, index, o
                   options={[[0, compared ? `Since ${when(compared, { time: false })}` : 'Last upload', !compared],
                     ...RANGE_DAYS.map((days) => [days, `${days} days`, !reachable.includes(days)])]}/>
     </Stack> : null}
+    {points.length >= MIN_POINTS ? <Box sx={{ px: 2, pt: 1.5, pb: 1, borderBottom: 1, borderColor: 'divider' }}>
+      <Stack direction="row" justifyContent="space-between" alignItems="baseline" columnGap={2} flexWrap="wrap" sx={{ mb: 1 }}>
+        <Typography variant="body2" sx={{ fontWeight: 500 }}>Global rank</Typography>
+        <Typography variant="body2" color="text.secondary">One point per day you uploaded</Typography>
+      </Stack>
+      <RankChart points={points}/>
+    </Box> : null}
     {loading ? <Box sx={LINE_SX}><Skeleton variant="text" width={220}/></Box> : null}
     {!loading && !changes ? <Typography variant="body2" sx={LINE_SX}>Changes show after your next upload.</Typography> : null}
     {!loading && changes && !count ? <Typography variant="body2" sx={LINE_SX}>No board moved since {when(changes.since)}.</Typography> : null}
@@ -287,7 +296,7 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab
             : <Skeleton variant="rounded" height={420}/>}
       </Box>
       {tracked ? <Progress base={tracked} changes={changes} range={range} onRange={setRange} loading={Boolean(range) && ranged.isPending}
-                           standingAt={own.createdAt} index={index} onOpen={onOpen} linkPlayer={linkPlayer}/> : null}
+                           standingAt={own.createdAt} rankNow={own.player.rank} index={index} onOpen={onOpen} linkPlayer={linkPlayer}/> : null}
       {panels ? (
         <Box sx={{
           display: 'grid', gridTemplateColumns: '1fr', gap: 2.5, alignItems: 'start',

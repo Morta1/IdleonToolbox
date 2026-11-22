@@ -13,7 +13,8 @@ import { ChartTooltipContent } from './ChartTooltip';
 // that x. Points are not tab stops: ChartFrame's table is the keyboard's way in (Decision 9). Charts are the one place
 // a tooltip opens off something that is not an i: it only repeats what the table holds.
 // series: [{ id, label, color, data: [{ x, y }] }]; xDomain: { min, max } (default: the data's); axis overrides the
-// value ticks; reverse puts the smallest value on top (rank #1).
+// value ticks; reverse puts the smallest value on top (rank #1); dots marks each point of series[0], for a line of a
+// few uneven snapshots, where the joins alone do not show which days were recorded.
 const MARGIN = { top: 12, bottom: 32, left: 48 };
 // The right edge keeps room for the last x label's half; the latest value's label gets more only when it would
 // clip (a week still under way ends mid-plot, and the phone's plot needs the width).
@@ -27,7 +28,7 @@ const round = (value) => Math.round(value * 10) / 10;
 
 const LineChart = ({
                      label, series, xDomain, xTicks = [], formatX = String, tooltipTitle = String,
-                     formatValue = formatNum, formatTick = chartNum, reverse = false, axis, height = 200
+                     formatValue = formatNum, formatTick = chartNum, reverse = false, dots = false, axis, height = 200
                    }) => {
   const theme = useTheme();
   const box = useRef(null);
@@ -97,6 +98,8 @@ const LineChart = ({
         {hoverX != null ? <line x1={px(hoverX)} x2={px(hoverX)} y1={MARGIN.top} y2={MARGIN.top + plotH} stroke={edge}/> : null}
         {series.toReversed().map((item) => <path key={item.id} d={pathOf(item.data)} fill={'none'} stroke={item.color}
                                                  strokeWidth={2} strokeLinejoin={'round'} strokeLinecap={'round'}/>)}
+        {dots ? main.data.filter((point) => point.y != null).map((point) =>
+          <circle key={point.x} cx={px(point.x)} cy={py(point.y)} r={3} fill={main.color}/>) : null}
         {atHover.map(({ item, point }) => <circle key={item.id} cx={px(point.x)} cy={py(point.y)} r={3} fill={item.color}/>)}
         {last ? <g transform={`translate(${px(last.x)}, ${py(last.y)})`}>
           {/* A plate in the card color from the dot past the label: a line that runs behind it (last week's) stops short
