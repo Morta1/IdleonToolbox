@@ -9,7 +9,7 @@ import Notice from '@components/common/Notice';
 import { notify } from '@components/common/Overlays/notify';
 import useNow from '@hooks/useNow';
 import useProfileUpload, { everyHours, isShown } from '@hooks/useProfileUpload';
-import { errorMessage } from '@utility/analytics';
+import { errorMessage, trackEvent } from '@utility/analytics';
 import { getProfileStatus } from '../../services/profiles';
 import { currentToken } from '../../firebase/lazy';
 
@@ -127,6 +127,12 @@ const UploadPrompt = () => {
     };
   }, [visible, step, error]);
 
+  // card: it showed by itself. leaderboards: opened from that page's Join.
+  const source = asked ? 'leaderboards' : 'card';
+  useEffect(() => {
+    if (visible) trackEvent('upload_prompt_shown', { source });
+  }, [visible, source]);
+
   if (!visible) return null;
 
   const close = (next) => {
@@ -141,7 +147,7 @@ const UploadPrompt = () => {
     setError(null);
     try {
       // Leaderboards on: that is what the card offers. Gem info is not sent from here.
-      await upload({ profileAccess: access, leaderboardParticipation: 'on', removeGems: true });
+      await upload({ profileAccess: access, leaderboardParticipation: 'on', removeGems: true, source });
       setProfileAccess(access);
       setParticipation('on');
       setAutoUpload(keepUpdated && autoHours > 0);
@@ -164,10 +170,10 @@ const UploadPrompt = () => {
     </Stack>
     {step === 'offer' ? <>
       <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-        Upload your profile to see where you rank on the leaderboards.
+        Upload your profile to see where you rank on the leaderboards and track your progress over time.
       </Typography>
       <Stack direction="row" alignItems="center" gap={1}>
-        <Button variant="contained" size="small" onClick={() => setStep('choose')}>Join</Button>
+        <Button variant="contained" size="small" onClick={() => { trackEvent('upload_prompt_join', { source }); setStep('choose'); }}>Join</Button>
         <Button variant="text" size="small" onClick={() => close(now + PUT_AWAY_MS)}>Not now</Button>
         <Link component="button" type="button" variant="body2" color="text.secondary" onClick={() => close('never')}
               sx={{ ml: 'auto' }}>
@@ -189,7 +195,7 @@ const UploadPrompt = () => {
             <Typography variant="body2" sx={{ fontWeight: 'fontWeightMedium' }}>Keep it updated while the toolbox is open</Typography>
             <Typography variant="body2" color="text.secondary">
               {keepUpdated
-                ? `Uploaded again ${everyHours(autoHours)} while you use the site, so your leaderboard ranks stay up to date. Turn it off any time in Settings.`
+                ? `Uploaded again ${everyHours(autoHours)} while you use the site, so your leaderboard ranks stay up to date and your progress is tracked. Turn it off any time in Settings.`
                 : 'Without it, your leaderboard ranks only update when you upload manually.'}
             </Typography>
           </Stack>}/>

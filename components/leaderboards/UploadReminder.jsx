@@ -33,7 +33,7 @@ const UploadReminder = () => {
     setBusy(true);
     setError(null);
     try {
-      await upload({ profileAccess: lastUploadAccess, leaderboardParticipation: lastUploadParticipation ?? 'on', removeGems });
+      await upload({ profileAccess: lastUploadAccess, leaderboardParticipation: lastUploadParticipation ?? 'on', removeGems, source: 'reminder' });
       setAutoUpload(true);
       notify('Profile uploaded. It now updates automatically.');
     } catch (err) {

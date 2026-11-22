@@ -34,7 +34,8 @@ const useProfileUpload = () => {
   // Whether the server shows a profile for the account ('yes' or 'no'), asked once per browser (UploadPrompt).
   const [shown, setShown] = useLocalStorage({ key: `${uid}/profileShown` });
 
-  const upload = async ({ profileAccess, leaderboardParticipation, removeGems = true, trigger = 'manual' }) => {
+  // source: where the upload was started (settings, card, leaderboards, reminder, auto), for analytics only.
+  const upload = async ({ profileAccess, leaderboardParticipation, removeGems = true, trigger = 'manual', source = trigger === 'auto' ? 'auto' : 'settings' }) => {
     try {
       const { sendProfile } = await import('@utility/profileUpload');
       const result = await sendProfile({
@@ -54,7 +55,7 @@ const useProfileUpload = () => {
         setShown(isShown(profileAccess) ? 'yes' : 'no');
       }
       track({
-        event_label: 'success', upload_status: 'success', upload_trigger: trigger, profile_access: profileAccess,
+        event_label: 'success', upload_status: 'success', upload_trigger: trigger, upload_source: source, profile_access: profileAccess,
         leaderboard: leaderboardParticipation, value: 1
       });
       return result;
@@ -62,7 +63,7 @@ const useProfileUpload = () => {
       if (Number.isFinite(err?.hours)) setAutoHours(err.hours);
       if (trigger === 'auto') setAutoFailed({ kind: err?.kind ?? 'client', at: Date.now() });
       track({
-        event_label: 'failure', upload_status: 'failure', upload_trigger: trigger, upload_error: err?.kind ?? 'client',
+        event_label: 'failure', upload_status: 'failure', upload_trigger: trigger, upload_source: source, upload_error: err?.kind ?? 'client',
         value: 0, error_message: errorMessage(err)
       });
       throw err;
