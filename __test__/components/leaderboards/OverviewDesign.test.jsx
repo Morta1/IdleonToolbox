@@ -180,7 +180,7 @@ describe('Overview within reach', () => {
     expect(panel.textContent).toContain('Mining#3 · 240+10 to reach #2Around you');
     expect(screen.getByText('Smallest step to the next rank')).toBeTruthy();
     fireEvent.click(within(panel).getByRole('link', { name: 'Around you' }));
-    expect(onOpen).toHaveBeenCalledWith('mining', 'within_reach');
+    expect(onOpen).toHaveBeenCalledWith('mining', 'within_reach', expect.objectContaining({ label: 'boards within reach' }));
   });
 });
 

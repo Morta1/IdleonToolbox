@@ -46,6 +46,10 @@ const Leaderboards = () => {
   // How the open board was opened. A card or link click gets focus back from MUI; the board jump and a
   // deep link have nothing useful to return to, so closing focuses the board instead.
   const [openSource, setOpenSource] = useState(null);
+  // The Overview's "Compare with" pick: the opened board's own progress follows it.
+  const [range, setRange] = useState(null);
+  // The list the open board came from, in its order, for the drawer's previous and next: { keys, label }.
+  const [boardList, setBoardList] = useState(null);
   // Each answer is a note of its own, so one that repeats (a Retry that failed again) is read out again.
   const showSearchNote = (note) => setSearchNote((previous) => ({ ...note, id: (previous?.id ?? 0) + 1 }));
 
@@ -188,8 +192,10 @@ const Leaderboards = () => {
   // opener: that close would undo the switch, so a close in the same click as an open is dropped.
   const openedThisClick = useRef(false);
 
-  const openBoard = (metric, source) => {
+  const openBoard = (metric, source, list = null) => {
     trackLeaderboardEvent('lb_board_open', { metric, source });
+    // A step keeps the list it steps through; any other open brings its own, or none.
+    if (source !== 'step') setBoardList(list);
     // Another board while one is open takes its place in the history too, so closing it steps back past
     // both, not to the first board.
     const switching = Boolean(router.query.m);
@@ -241,6 +247,18 @@ const Leaderboards = () => {
     const { m, ...rest } = router.query;
     setQuery(rest, { replace: true });
   };
+
+  // Previous and next walk the list the board was opened from, else its tab's boards as the tab lays them out, wrapping round.
+  const openMetric = drawerMetric ?? shownMetric;
+  const openCategory = index.byKey[openMetric]?.category;
+  const tabName = TABS.find((entry) => entry.toLowerCase() === openCategory);
+  const stepList = boardList?.keys.includes(openMetric) ? boardList
+    : tabName ? { keys: (index.categories[openCategory]?.sections ?? []).flatMap((section) => section.metrics), label: `${tabName} boards` } : null;
+  const stepAt = stepList ? stepList.keys.indexOf(openMetric) : -1;
+  const steps = stepAt >= 0 ? {
+    at: stepAt, of: stepList.keys.length, label: stepList.label,
+    onStep: (by) => openBoard(stepList.keys[(stepAt + by + stepList.keys.length) % stepList.keys.length], 'step')
+  } : null;
 
   const highlight = {};
   if (self.name) highlight[self.name] = 'logged';
@@ -306,6 +324,8 @@ const Leaderboards = () => {
           onOpen={openBoard}
           onTab={openTab}
           onClearPlayer={clearPlayerFromCard}
+          range={range}
+          onRange={setRange}
           linkPlayer={queryPlayer}
         />
       ) : showsFailure(tabQuery) ? (
@@ -338,11 +358,13 @@ const Leaderboards = () => {
     </Tabber>
     <BoardDrawer
       open={Boolean(drawerMetric)}
-      metricKey={drawerMetric ?? shownMetric}
+      metricKey={openMetric}
+      steps={steps}
+      progress={context?.kind === 'logged' && playerData ? { name: playerData.player.mainChar, standingAt: playerQuery.data.createdAt, range } : null}
       index={index}
       player={playerData?.player.mainChar ?? null}
       kind={context?.kind}
-      rankEntry={playerData?.ranks?.[drawerMetric ?? shownMetric] ?? null}
+      rankEntry={playerData?.ranks?.[openMetric] ?? null}
       focusBoardOnClose={openSource == null || openSource === 'jump' || openSource === 'switch'}
       showAnonymous={showAnonymous}
       onClose={closeBoard}

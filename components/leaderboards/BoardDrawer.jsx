@@ -1,5 +1,6 @@
-import React, { useId } from 'react';
-import { Button, CircularProgress, Stack, Typography } from '@mui/material';
+import React, { useEffect, useId } from 'react';
+import { Button, CircularProgress, IconButton, Stack, Typography } from '@mui/material';
+import { IconChevronLeft, IconChevronRight } from '@tabler/icons-react';
 import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
 import AppDrawer from '@components/common/Overlays/AppDrawer';
@@ -10,12 +11,16 @@ import { GLOBAL_METRIC, formatBoardValues, formatExactValue, formatGap, formatMe
 import { focusWithinRing } from '../../styles/theme/theme';
 import MetricIcon from './MetricIcon';
 import RankRow from './RankRow';
+import BoardProgress from './BoardProgress';
 
 // At rank 15 or better the window would repeat the top of the Top 100 list.
 const AROUND_SKIP_RANK = 15;
 // A card lists a board's first ten: the drawer prints those the way the card did.
 const CARD_ROWS = 10;
 const NOWRAP_SX = { whiteSpace: 'nowrap' };
+// 40 px, 44 on touch, as the characters switcher's steps.
+const STEP_SX = { width: 40, height: 40, color: 'text.secondary', '@media (pointer: coarse)': { width: 44, height: 44 } };
+const TYPING = 'input, textarea, select, [contenteditable="true"], [role="slider"], [role="tablist"]';
 
 const SectionHeading = ({ children, note, action, id, sx }) => (
   <Stack direction="row" alignItems="baseline" columnGap={1} flexWrap="wrap" sx={{ px: 2.5, pb: 0.75, ...sx }}>
@@ -43,8 +48,22 @@ const focusBoardLink = (metricKey, force) => {
 
 // rankEntry: the player's entry for this board from /player ({ r, v, t, nr, nv }), the fallback
 // for the step when everyone in the around window shares the player's rank.
-const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, showAnonymous, focusBoardOnClose = false, onClose }) => {
+// steps: where this board sits in the list it was opened from ({ at, of, label, onStep }), for the header's previous and
+// next. progress: the signed-in player's own history ({ name, standingAt, range }), null for anyone else.
+const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, showAnonymous, focusBoardOnClose = false, steps = null, progress = null, onClose }) => {
   const titleId = useId();
+  const canStep = Boolean(steps && steps.of > 1);
+  // Left and Right step too, on a keyboard. Not while typing, nor inside something that uses the arrows itself.
+  useEffect(() => {
+    if (!open || !canStep) return undefined;
+    const onKey = (event) => {
+      if (event.altKey || event.ctrlKey || event.metaKey || event.shiftKey || event.target.closest?.(TYPING)) return;
+      if (event.key === 'ArrowLeft') steps.onStep(-1);
+      else if (event.key === 'ArrowRight') steps.onStep(1);
+    };
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [open, canStep, steps?.at, steps?.of, metricKey]);
   const meta = metaOf(index, metricKey ?? GLOBAL_METRIC);
   const boardQuery = useQuery({
     queryKey: ['lb-board', metricKey, player?.toLowerCase() ?? '', !showAnonymous],
@@ -115,9 +134,20 @@ const BoardDrawer = ({ open, metricKey, index, player, kind, rankEntry = null, s
       title={meta.label}
       icon={<MetricIcon metric={meta.key} label={meta.label}/>}
       subtitle={summary}
+      controls={canStep ? <Stack direction="row">
+        <IconButton aria-label="Previous board" onClick={() => steps.onStep(-1)} sx={STEP_SX}><IconChevronLeft size={20}/></IconButton>
+        <IconButton aria-label="Next board" onClick={() => steps.onStep(1)} sx={STEP_SX}><IconChevronRight size={20}/></IconButton>
+      </Stack> : null}
       // MUI hands focus back after onExited, so the check waits for that to land first.
       onExited={() => setTimeout(() => focusBoardLink(metricKey, focusBoardOnClose), 50)}>
       <Box sx={[{ pb: 2 }, focusWithinRing]}>
+        {canStep ? <Typography variant="body2" color="text.secondary" sx={{ px: 2.5, pt: 0.5 }}>
+          {formatNum(steps.at + 1, 'whole')} of {formatNum(steps.of, 'whole')} {steps.label}
+        </Typography> : null}
+        {progress && kind === 'logged' && metricKey && metricKey !== GLOBAL_METRIC
+          ? <BoardProgress key={metricKey} name={progress.name} metricKey={metricKey} meta={meta} entry={rankEntry} standingAt={progress.standingAt}
+                           range={progress.range} heading={<SectionHeading sx={{ pt: 1.75 }}>Your progress</SectionHeading>}/>
+          : null}
         {showsFailure(boardQuery) ? (
           <Notice key={errorUpdateCount} tone={'error'} sx={{ m: 2 }} action={retryAction(() => refetch(), isFetching)}>Couldn't load this board.</Notice>
         ) : isLoading ? (

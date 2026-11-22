@@ -10,7 +10,8 @@ export const patchNotes = [
     'date': '22/11/2026',
     'features': [
       'Leaderboards: your overview now shows your progress: which boards moved since your last upload, or over the last 7, 30 or 90 days. This replaces "since your last visit" and now follows your account on any device',
-      'Leaderboards: the progress panel now charts your global rank over time, one point per day you uploaded. It appears once you have 3 points'
+      'Leaderboards: the progress panel now charts your global rank over time, one point per day you uploaded. It appears once you have 3 points',
+      'Leaderboards: open any board to see your own rank on it over time, and step to the next board with the new arrows in its header'
     ],
     'fixes': []
   },

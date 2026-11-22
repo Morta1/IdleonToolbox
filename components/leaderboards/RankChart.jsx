@@ -18,7 +18,8 @@ export const rankPoints = (series, nowAt, nowRank) => {
   return points;
 };
 
-const RankChart = ({ points }) => {
+// renderValue: a board's own value beside each rank, as a column of the table twin.
+const RankChart = ({ points, label = 'Your global rank over time', seriesLabel = 'Global rank', renderValue = null }) => {
   const theme = useTheme();
   const formatDate = useFormatDate();
   const ranks = points.map((point) => point.y);
@@ -32,10 +33,11 @@ const RankChart = ({ points }) => {
     rowLabel: (row) => when(row.x),
     columns: [
       { key: 'x', label: 'Date', render: (row) => when(row.x) },
-      { key: 'y', label: 'Rank', numeric: true, phone: true, render: (row) => rankText(row.y) }
+      { key: 'y', label: 'Rank', numeric: true, phone: true, render: (row) => rankText(row.y) },
+      ...(renderValue ? [{ key: 'value', label: 'Value', numeric: true, phone: true, render: renderValue }] : [])
     ]
   }}>
-    <LineChart label="Your global rank over time" series={[{ id: 'Rank', label: 'Global rank', color: seriesColors(theme)[0], data: points }]}
+    <LineChart label={label} series={[{ id: 'Rank', label: seriesLabel, color: seriesColors(theme)[0], data: points }]}
                reverse dots axis={axis} formatTick={rankText} formatValue={rankText} height={180}
                xTicks={labelIndexes(points.length, 4).map((i) => points[i].x)} formatX={(x) => format(new Date(x), 'MMM d')}
                tooltipTitle={when}/>

@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { fetchHistory } from '../services/leaderboards';
+import { fetchBoardHistory, fetchHistory } from '../services/leaderboards';
 
 // What moved between a past standing of the player (the history route's snapshot) and their standing now (the /player
 // reply): the global rank, points, and each board both ranked. Positive is up. Null with nothing to compare with.
@@ -33,6 +33,14 @@ const useRankHistory = (name, range = null) => useQuery({
   queryKey: ['lb-history', name, range],
   queryFn: () => fetchHistory(name, range),
   enabled: Boolean(name),
+  staleTime: FIVE_MINUTES
+});
+
+// The same player's line on one board, for the chart in the opened board.
+export const useBoardHistory = (name, metric) => useQuery({
+  queryKey: ['lb-history-board', name, metric],
+  queryFn: () => fetchBoardHistory(name, metric),
+  enabled: Boolean(name && metric),
   staleTime: FIVE_MINUTES
 });
 

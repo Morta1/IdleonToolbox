@@ -64,8 +64,10 @@ const LineChart = ({
   const plotW = Math.max(0, width - left - right);
   const plotH = height - MARGIN.top - MARGIN.bottom;
   const everyNth = Math.ceil(xTicks.length / (Math.floor(plotW / X_LABEL_ROOM) + 1));
-  const shownXTicks = xTicks.filter((_, i) => i % everyNth === 0);
-  const px =(x) => round(left + ((x - xMin) / (xMax - xMin || 1)) * plotW);
+  const px = (x) => round(left + ((x - xMin) / (xMax - xMin || 1)) * plotW);
+  // Snapshots are not evenly spaced in time: of two labels that would touch, the later one stays.
+  const shownXTicks = xTicks.filter((_, i) => i % everyNth === 0)
+    .reduceRight((kept, x) => (kept.length && px(kept[0]) - px(x) < X_LABEL_ROOM ? kept : [x, ...kept]), []);
   const py = (y) => {
     const share = (y - min) / (max - min || 1);
     return round(MARGIN.top + (reverse ? share : 1 - share) * plotH);

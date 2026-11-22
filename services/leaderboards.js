@@ -16,6 +16,10 @@ export const fetchPlayer = (name) => getJson(`/leaderboards/player?name=${encode
 export const fetchHistory = (name, range) =>
   getJson(`/leaderboards/history?name=${encodeURIComponent(name)}${range ? `&range=${range}` : ''}`);
 
+// One board over the player's recorded days: { metric, series: [[recorded at, rank, value]] }.
+export const fetchBoardHistory = (name, metric) =>
+  getJson(`/leaderboards/history?name=${encodeURIComponent(name)}&metric=${encodeURIComponent(metric)}`);
+
 export const fetchBoard = (metric, { limit = 100, around, publicOnly } = {}) => {
   const params = new URLSearchParams({ metric, limit: String(limit) });
   if (around) params.set('around', around);

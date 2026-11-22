@@ -1,6 +1,7 @@
 import { historyChanges } from '@hooks/useRankHistory';
 import { countPast } from '@components/leaderboards/standing';
 import { rankPoints } from '@components/leaderboards/RankChart';
+import { boardPoints } from '@components/leaderboards/BoardProgress';
 
 // The /player reply now, and the history route's past standing: a board entry there is [rank, value, tied, at the max].
 const now = (rank, ranks) => ({
@@ -37,5 +38,8 @@ describe('rankPoints', () => {
     expect(rankPoints([[1, 50], [5, 40]], 9, 38)).toEqual([{ x: 1, y: 50 }, { x: 5, y: 40 }, { x: 9, y: 38 }]);
     expect(rankPoints([[1, 50], [5, 40]], 5, 40)).toHaveLength(2);
     expect(rankPoints(undefined, 9, 38)).toEqual([{ x: 9, y: 38 }]);
+    // A board's line carries the value too, and has no point for a player who is not on it now.
+    expect(boardPoints([[1, 50, 7]], 9, { r: 48, v: 8 })).toEqual([{ x: 1, y: 50, value: 7 }, { x: 9, y: 48, value: 8 }]);
+    expect(boardPoints([[1, 50, 7]], 9, null)).toHaveLength(1);
   });
 });

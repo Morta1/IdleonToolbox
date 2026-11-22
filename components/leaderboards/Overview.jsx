@@ -1,14 +1,13 @@
-import React, { useContext, useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Link, Skeleton, Stack, Switch, Typography } from '@mui/material';
-import { format } from 'date-fns';
 import Box from '@mui/material/Box';
 import { useQuery } from '@tanstack/react-query';
 import useHydrated from '@hooks/useHydrated';
 import useNow from '@hooks/useNow';
+import useWhen from './useWhen';
 import useFormatDate from '@hooks/useFormatDate';
 import useRankHistory, { historyChanges } from '@hooks/useRankHistory';
 import useProfileUpload, { isShown } from '@hooks/useProfileUpload';
-import { PreferencesContext } from '@components/common/context/PreferencesProvider';
 import ViewSwitch from '@components/common/ViewSwitch';
 import { formatNum } from '@utility/helpers';
 import GameIcon from '@components/common/GameIcon';
@@ -166,23 +165,11 @@ const WithinReach = ({ reach, kind, index, onOpen, linkPlayer }) => (
                           {rankText(entry.r)} · <ExactValue text={valueText} exact={formatExactValue(meta.notation, entry.v)}/>
                           <Box sx={{ color: 'primary.main' }}>{nextRankText(entry, meta)}</Box>
                         </>}
-                        value={<Link href={boardHref(meta, linkPlayer)} onClick={openOnPlainClick((key) => onOpen(key, 'within_reach'), entry.key)}
+                        value={<Link href={boardHref(meta, linkPlayer)} onClick={openOnPlainClick((key) => onOpen(key, 'within_reach', { keys: reach.map((item) => item.key), label: 'boards within reach' }), entry.key)}
                                      sx={STRETCHED_LINK_SX}>{kind === 'logged' ? 'Around you' : 'Around them'}</Link>}/>;
     })}
   </Panel>
 );
-
-// "20 Nov", with the time while it is under two days old, in the visitor's own date order and clock.
-const RECENT_MS = 48 * 60 * 60 * 1000;
-const useWhen = () => {
-  const { dateFormat } = useContext(PreferencesContext);
-  const formatDate = useFormatDate();
-  const now = useNow(60000);
-  return (ms, { time = true } = {}) => {
-    const day = format(ms, dateFormat === 'MDY' ? 'MMM d' : 'd MMM');
-    return time && now - ms < RECENT_MS ? `${day}, ${formatDate(ms, { timeOnly: true, showSeconds: false })}` : day;
-  };
-};
 
 // The signed-in player's progress: what moved against an earlier standing of theirs, kept by the server (one a day
 // they upload). base is the default comparison, their latest standing recorded at least 12 hours before the newest;
@@ -232,7 +219,7 @@ const Progress = ({ base, changes, range, onRange, loading, standingAt, rankNow,
       const tabName = tabOfCategory(meta.category);
       const change = formatChange(meta.notation, move.valueFrom, move.valueTo, { scale: meta.top });
       return <Panel.Row key={move.metric} sx={REACH_ROW_SX} icon={<MetricIcon metric={move.metric} label={meta.label}/>}
-                        name={<Link href={boardHref(meta, linkPlayer)} onClick={openOnPlainClick((key) => onOpen(key, 'progress'), move.metric)}
+                        name={<Link href={boardHref(meta, linkPlayer)} onClick={openOnPlainClick((key) => onOpen(key, 'progress', { keys: changes.boards.map((item) => item.metric), label: 'boards that moved' }), move.metric)}
                                     color="inherit" underline="none" sx={STRETCHED_LINK_SX}>{meta.label}</Link>}
                         sub={`${tabName ? `${tabName} · ` : ''}${rankText(move.from)} to ${rankText(move.to)}`}
                         value={<RankDelta delta={move.delta}/>}
@@ -248,7 +235,7 @@ const Progress = ({ base, changes, range, onRange, loading, standingAt, rankNow,
   </Panel>;
 };
 
-const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab, onClearPlayer, linkPlayer = null }) => {
+const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab, onClearPlayer, range, onRange, linkPlayer = null }) => {
   const when = useWhen();
   const podium = useQuery({
     queryKey: ['lb-podium', !showAnonymous],
@@ -261,7 +248,6 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab
   const reach = standing ? withinReach(standing.data.ranks, index) : [];
   // Ranges are the signed-in player's own: a searched player shows none.
   const own = standing?.kind === 'logged' ? standing.data : null;
-  const [range, setRange] = useState(null);
   const base = useRankHistory(own?.player.mainChar ?? null);
   const ranged = useRankHistory(range ? own?.player.mainChar ?? null : null, range);
   const history = range ? ranged : base;
@@ -295,7 +281,7 @@ const Overview = ({ index, showAnonymous, player, self, highlight, onOpen, onTab
             ? <Podium rows={rows} highlight={highlight} onOpen={onOpen} linkPlayer={linkPlayer} index={index}/>
             : <Skeleton variant="rounded" height={420}/>}
       </Box>
-      {tracked ? <Progress base={tracked} changes={changes} range={range} onRange={setRange} loading={Boolean(range) && ranged.isPending}
+      {tracked ? <Progress base={tracked} changes={changes} range={range} onRange={onRange} loading={Boolean(range) && ranged.isPending}
                            standingAt={own.createdAt} rankNow={own.player.rank} index={index} onOpen={onOpen} linkPlayer={linkPlayer}/> : null}
       {panels ? (
         <Box sx={{
