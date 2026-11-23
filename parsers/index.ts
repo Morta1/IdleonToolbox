@@ -174,11 +174,8 @@ export const parseData = (idleonData: IdleonData, charNames: string[], companion
   } catch (err) {
     console.error('Error while parsing data', err);
     if (typeof window !== 'undefined' && typeof window.gtag !== 'undefined') {
-      window.gtag('event', 'error', {
-        event_category: 'error',
-        event_label: 'parse',
-        value: 1
-      });
+      // Not 'error': GA keeps that name for itself and drops an event sent under it
+      window.gtag('event', 'parse_failed');
     }
     // Tells utility/parseSave a worker parse failed: window.gtag above doesn't exist in a worker.
     // '*' marks every section failed, so pages say the save couldn't be read rather than that it is empty.

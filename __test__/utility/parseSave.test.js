@@ -45,7 +45,7 @@ describe('parseSave', () => {
     try {
       const { parseSave: withWorker } = await import('@utility/parseSave');
       expect(await withWorker(...emptyArgs)).toEqual({ account: {}, characters: [] });
-      expect([...window.dataLayer].map((args) => [...args])).toEqual([['event', 'error', { event_category: 'error', event_label: 'parse', value: 1 }]]);
+      expect([...window.dataLayer].map((args) => [...args])).toEqual([['event', 'parse_failed', undefined]]);
     } finally {
       vi.unstubAllGlobals();
       vi.unstubAllEnvs();

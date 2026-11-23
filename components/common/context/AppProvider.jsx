@@ -612,8 +612,9 @@ const AppProvider = ({ children }) => {
             window.gtag('event', 'login', {
               action: 'login',
               category: 'engagement',
+              // GA's own field for a login's method; `value` takes numbers only, so the method never showed there.
               // 'email-password' is the label older reports already use for email sign-ins.
-              value: state?.loginType === 'email' ? 'email-password' : state?.loginType
+              method: state?.loginType === 'email' ? 'email-password' : state?.loginType
             });
           }
           

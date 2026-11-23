@@ -12,7 +12,8 @@ const pending = new Map();
 // worker's failed parse is reported here. Either way the flag never reaches app state.
 const settle = (result, fromWorker) => {
   if (result?.parseFailed) {
-    if (fromWorker) trackEvent('error', { event_category: 'error', event_label: 'parse', value: 1 });
+    // Not 'error': GA keeps that name for itself and drops an event sent under it
+    if (fromWorker) trackEvent('parse_failed');
     delete result.parseFailed;
   }
   return result;

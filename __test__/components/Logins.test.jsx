@@ -70,7 +70,7 @@ describe('the GA login event', () => {
     vi.useRealTimers();
 
     await waitFor(() => expect(window.gtag).toHaveBeenCalledWith('event', 'login', expect.anything()), { timeout: 3000 });
-    expect(window.gtag.mock.calls.find(([, name]) => name === 'login')[2].value).toBe(label);
+    expect(window.gtag.mock.calls.find(([, name]) => name === 'login')[2].method).toBe(label);
   });
 });
 
