@@ -159,6 +159,9 @@ const AppProvider = ({ children }) => {
   const unsubscribeRef = useRef(null);
   // A profile that never arrived has moved the visitor to the 404: their own save lands behind it, leaving the URL alone.
   const leftProfile = useRef(false);
+  // The account whose save GA was told about. The game saves every few minutes and each save lands here: reporting all
+  // of them made an idle tab look like a new visit every half hour.
+  const reportedSave = useRef(null);
 
   const handleCloudUpdate = async (
     data, 
@@ -229,7 +232,8 @@ const AppProvider = ({ children }) => {
       }
     });
 
-    if (typeof window?.gtag !== 'undefined') {
+    if (reportedSave.current !== uid && typeof window?.gtag !== 'undefined') {
+      reportedSave.current = uid;
       window.gtag('event', 'save_imported', {
         event_category: 'engagement',
         event_label: 'cloud',
@@ -287,6 +291,7 @@ const AppProvider = ({ children }) => {
       }
     }
 
+    reportedSave.current = null;
     if (typeof window?.gtag !== 'undefined') {
       window.gtag('event', 'logout', {
         action: 'logout',
