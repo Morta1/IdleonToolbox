@@ -4,6 +4,7 @@ import { CacheProvider, ThemeProvider as EmotionThemeProvider } from '@emotion/r
 import { CssBaseline, ThemeProvider } from '@mui/material';
 import { useColorScheme } from '@mui/material/styles';
 import '../polyfills';
+import '../utility/dom-guard';
 import createEmotionCache from '../utility/createEmotionCache';
 import theme from '../styles/theme/theme';
 import '../styles/globals.css';

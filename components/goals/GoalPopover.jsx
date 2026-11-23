@@ -147,7 +147,9 @@ const GoalForm = ({ open, systems, initial, source, onClose, onSaved, entryOnly 
   const row = appliesTo === 'one' && entryKey != null
     ? rows.find((r) => String(descriptor.key(r)) === String(entryKey))
     : undefined;
-  const metric = descriptor.metrics[choice.metric];
+  // A saved goal can name a metric this system no longer has (or the system is not offered here): its first one then
+  const metricKey = descriptor.metrics[choice.metric] ? choice.metric : options[0]?.metric;
+  const metric = descriptor.metrics[metricKey];
   const percent = choice.unit === 'percentOfMax';
   // All characters has no single amount to show or step from
   const value = row && !allChars ? metric.value(row, rowCtx) : null;
@@ -173,7 +175,7 @@ const GoalForm = ({ open, systems, initial, source, onClose, onSaved, entryOnly 
     scope,
     ...(appliesTo === 'one' && row ? { key: descriptor.key(row) } : {}),
     ...(appliesTo === 'group' ? { group } : {}),
-    metric: choice.metric,
+    metric: metricKey,
     unit: choice.unit,
     op: nextStep ? '>=' : op,
     target: parsed,
@@ -272,7 +274,7 @@ const GoalForm = ({ open, systems, initial, source, onClose, onSaved, entryOnly 
       ) : null}
       {have ? <Typography variant="body2" color="text.secondary">{have}</Typography> : null}
       {options.length > 1 ? (
-        <MetricChips options={options} metric={choice.metric} unit={choice.unit} onChange={changeChoice}/>
+        <MetricChips options={options} metric={metricKey} unit={choice.unit} onChange={changeChoice}/>
       ) : null}
       {metric.tiers ? (
         <TierSelect tiers={metric.tiers} value={target} error={shownTargetError} onChange={setTarget}/>

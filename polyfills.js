@@ -1,5 +1,6 @@
 import "core-js/actual/array/to-spliced";
 import "core-js/actual/array/to-sorted";
+import "core-js/actual/array/to-reversed";
 import "core-js/actual/array/find-last";
 import 'core-js/actual/string/starts-with';
 import 'core-js/actual/structured-clone';
