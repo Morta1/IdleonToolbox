@@ -8,9 +8,13 @@ export const patchNotes = [
     'ver': '4.0.16',
     'gameVer': '2.3.561',
     'date': '24/11/2026',
-    'features': [],
+    'features': [
+      'Refinery: each salt card shows its power per cycle, with a breakdown'
+    ],
     'fixes': [
-      'Beanstalk: the next rank of Golden Nomwich and Butter Bar no longer shows a percent sign, and the Butter Bar note shows its real bonus'
+      'Beanstalk: the next rank of Golden Nomwich and Butter Bar no longer shows a percent sign, and the Butter Bar note shows its real bonus',
+      'Refinery: rank up material costs now count the Panda companion, and the next rank cost counts the full power it needs',
+      'Refinery: salt cards show short once per material, beside what you own or print'
     ]
   },
   {

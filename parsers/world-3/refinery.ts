@@ -93,6 +93,14 @@ export const getPowerPerCycle = (rank: number, account: Account | null = null) =
   return Math.floor(Math.min(MAX_POWER_PER_CYCLE, Math.pow(rank, 1.3) * (1 + (companionBonus ?? 0))));
 }
 
+export const getPowerPerCycleBreakdown = (rank: number, account: Account | null) => {
+  const companionBonus = isCompanionBonusActive(account, 35) ? account?.companions?.list?.at(35)?.bonus : 0;
+  return createBreakdown('Power per cycle', getPowerPerCycle(rank, account), [
+    flat(`Rank ${rank}`, Math.pow(rank, 1.3)),
+    multiplier('Panda (Companion)', 1 + (companionBonus ?? 0))
+  ], { max: MAX_POWER_PER_CYCLE, round: 'floor' });
+};
+
 // The rank at which power per cycle hits its cap - ranking past it only raises the salt's cost.
 const getMaxUsefulRank = (account: Account | null = null) => {
   const companionBonus = isCompanionBonusActive(account, 35) ? account?.companions?.list?.at(35)?.bonus : 0;
@@ -424,7 +432,7 @@ export const getSaltsBalance = (account: Account, characters: any[], precomputed
   }, []);
 }
 
-export const calcResourceToRankUp = (rank: number, refined: number, powerCap: number, itemCost: number, account: Account | null = null) => {
+export const calcResourceToRankUp = (rank: number, refined: number, powerCap: number, itemCost: number, account: Account | null) => {
   const powerPerCycle = getPowerPerCycle(rank, account);
   const remainingProgress = powerCap - refined;
   return (remainingProgress / powerPerCycle) * itemCost;

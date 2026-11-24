@@ -3,6 +3,7 @@ import StatusText from '@components/common/StatusText';
 import DataTable from '@components/common/DataTable';
 import GameIcon from '@components/common/GameIcon';
 import InfoButton, { DottedValue } from '@components/common/InfoButton';
+import { Breakdown } from '@components/common/Breakdown/Breakdown';
 import withBreakdown from '@components/common/DataTable/withBreakdown';
 import React, { useContext } from 'react';
 import { AppContext } from 'components/common/context/AppProvider';
@@ -22,7 +23,9 @@ import {
   calcCost,
   calcResourceToRankUp,
   calcTimeToRankUp,
+  getPowerCap,
   getPowerPerCycle,
+  getPowerPerCycleBreakdown,
   getRefineryCycles,
   getSaltsBalance
 } from '@parsers/world-3/refinery';
@@ -104,20 +107,18 @@ const Refinery = () => {
       const short = cycleCost > totalAmount;
       const gain = gainPerHour ?? 0;
       const uncovered = (amount) => !printUnknown && short && gain < amount;
+      const cycleShort = uncovered(cycleCost);
+      const hourShort = uncovered(costPerHour) || (isSalt && costPerHour > previousSaltPerHour);
       return {
         name, rawName, totalAmount, gainPerHour, printUnknown, showNext: Boolean(settings?.nextLevelCost),
-        cycle: { value: cycleCost, next: nextLevelCost, short: uncovered(cycleCost), nextShort: uncovered(nextLevelCost) },
-        hour: {
-          value: costPerHour,
-          next: nextLevelPerHour,
-          short: uncovered(costPerHour) || (isSalt && costPerHour > previousSaltPerHour),
-          nextShort: uncovered(nextLevelPerHour) || (isSalt && nextLevelPerHour > previousSaltPerHour)
-        },
+        // What falls behind, named once: the stock a cycle needs, else what comes in per hour
+        shortOn: cycleShort ? 'owned' : hourShort ? 'printing' : null,
+        cycle: { value: cycleCost, next: nextLevelCost },
+        hour: { value: costPerHour, next: nextLevelPerHour },
         rankUp: {
-          value: calcResourceToRankUp(rank, refined, powerCap, cycleCost),
-          next: calcResourceToRankUp(rank + 1, refined, powerCap, nextLevelCost),
-          short,
-          nextShort: nextLevelCost > totalAmount
+          value: calcResourceToRankUp(rank, refined, powerCap, cycleCost, account),
+          // A rank up empties the salt's power, so the next rank starts from 0 to its own cap
+          next: calcResourceToRankUp(rank + 1, 0, getPowerCap(rank + 1), nextLevelCost, account)
         }
       };
     });
@@ -127,7 +128,7 @@ const Refinery = () => {
       // The game draws a salt's power as Whole(refined) / Whole(PowerCAP)
       power: { refined: refined ?? 0, cap: powerCap ?? 0, percent: powerCap > 0 ? Math.min(100, (refined / powerCap) * 100) : 0 },
       // What runs a salt dry: the materials its stock and what comes in can't cover, as its card marks them short
-      short: rows.filter(({ cycle }) => cycle.short).map(({ name, rawName }) => ({ name, rawName }))
+      short: rows.filter(({ shortOn }) => shortOn === 'owned').map(({ name, rawName }) => ({ name, rawName }))
     };
   };
   const factsOf = salts.map((salt, saltIndex) => (salt?.unlocked === false ? null : saltFacts(salt, saltIndex)));
@@ -137,11 +138,17 @@ const Refinery = () => {
   // ranking up is the salt table's Action, so the card no longer says "Rank up" where the table says "Wait"
   const saltPanel = (salt, saltIndex) => {
     const { saltName, rawName, rank, autoRefinePercentage } = salt;
-    const { active, hasMaterialsForCycle, rows } = factsOf[saltIndex];
+    const { active, hasMaterialsForCycle, rows, powerPerCycle } = factsOf[saltIndex];
     const saltState = !active ? <StatusText status={'info'}>Inactive</StatusText>
       : !hasMaterialsForCycle ? <StatusText status={'needs'}>Missing materials</StatusText> : null;
     // The game's auto refine field is a 0 / 0.01 toggle, so a percentage would read as a rounding bug
-    const meta = `Rank ${formatNum(rank)} · Auto refine ${autoRefinePercentage > 0 ? 'on' : 'off'}`;
+    // Power per cycle is what sets the Rank up costs: its drawer says what makes it
+    const meta = <>
+      {`Rank ${formatNum(rank)} · Auto refine ${autoRefinePercentage > 0 ? 'on' : 'off'} · Power per cycle `}
+      <Breakdown data={getPowerPerCycleBreakdown(rank, account)} title={`${cleanUnderscore(saltName)} power per cycle`} asValue>
+        {formatNum(powerPerCycle)}
+      </Breakdown>
+    </>;
     return <Panel key={`${saltName}-${saltIndex}`} icon={`data/${rawName}.png`} title={cleanUnderscore(saltName)}
                   meta={meta} aside={saltState}>
       {/* The card's body is the container its columns' room is measured on */}
@@ -356,25 +363,32 @@ const SaltChainSummary = ({ balances, failed }) => {
   </Box>;
 }
 
-// A cost cell: the amount, "short" when the stock and what comes in can't cover it, and with Show next level cost on,
-// the next rank's amount. Each on its own line, so a short cost never widens its column: beside the amount it made a
-// half-width salt's table scroll.
-const CostAmount = ({ value, next, short, nextShort, showNext }) => <>
+// "short" goes on its own line, so it never widens its column: beside the amount it made a half-width salt's table scroll
+const Short = ({ sx }) => <Box sx={[{ whiteSpace: 'nowrap' }, sx]}><StatusText status={'problem'}>short</StatusText></Box>;
+
+// The card's width its last three columns need
+const ALL_COSTS = { room: 570 };
+// Owned and Printing /hr wait in the row's Details below that, so the cycle cost shows their "short" until they join
+const SHORT_WHEN_FOLDED_SX = { [`@container (min-width:${ALL_COSTS.room}px)`]: { display: 'none' } };
+
+// A cost cell: the amount and, with Show next level cost on, the next rank's amount on its own line
+const CostAmount = ({ value, next, showNext }) => <>
   <Box sx={{ whiteSpace: 'nowrap' }}>{formatNum(value, 'whole')}</Box>
-  {short ? <Box sx={{ whiteSpace: 'nowrap' }}><StatusText status={'problem'}>short</StatusText></Box> : null}
   {showNext && next ? <Typography variant={'caption'} component={'div'} color={'text.secondary'} sx={{ whiteSpace: 'nowrap' }}>
-    next {formatNum(next, 'whole')}{nextShort ? ', short' : ''}
+    next {formatNum(next, 'whole')}
   </Typography> : null}
 </>;
 
 const costColumn = (key, label, from) => ({
   key, label, numeric: true, from,
-  render: (row) => <CostAmount {...row[key]} showNext={row.showNext}/>
+  render: (row) => <>
+    <CostAmount {...row[key]} showNext={row.showNext}/>
+    {key === 'cycle' && row.shortOn ? <Short sx={SHORT_WHEN_FOLDED_SX}/> : null}
+  </>
 });
 
 // The last three join by the card's width (its body is the container), not the window's: a salt with short rows on most
 // materials needs about 527 px of table, which a card gives from 570, and beside one side ad a 900 px window's card had 502
-const ALL_COSTS = { room: 570 };
 const COST_COLUMNS = [
   {
     key: 'material', label: 'Material', value: ({ name }) => cleanUnderscore(name),
@@ -383,11 +397,15 @@ const COST_COLUMNS = [
   costColumn('cycle', 'Cycle'),
   costColumn('hour', 'Hour'),
   costColumn('rankUp', 'Rank up', ALL_COSTS),
-  { key: 'owned', label: 'Owned', numeric: true, from: ALL_COSTS, render: ({ totalAmount }) => formatNum(totalAmount, 'whole') },
+  {
+    key: 'owned', label: 'Owned', numeric: true, from: ALL_COSTS,
+    render: ({ totalAmount, shortOn }) => <>{formatNum(totalAmount, 'whole')}{shortOn === 'owned' ? <Short/> : null}</>
+  },
   {
     key: 'printing', label: 'Printing /hr', numeric: true, from: ALL_COSTS,
     info: 'What keeps coming in per hour: the printer for a material, the salt above for a salt. Trapped critters are not counted.',
-    render: ({ gainPerHour, printUnknown }) => (printUnknown ? '-' : gainPerHour == null ? null : formatNum(gainPerHour))
+    render: ({ gainPerHour, printUnknown, shortOn }) => (printUnknown ? '-' : gainPerHour == null ? null
+      : <>{formatNum(gainPerHour)}{shortOn === 'printing' ? <Short/> : null}</>)
   }
 ];
 
