@@ -11,6 +11,7 @@ import BonusStrip from '@components/common/cards/BonusStrip';
 import CardGrid from '@components/common/cards/CardGrid';
 import IconTile from '@components/common/cards/IconTile';
 import ItemCard from '@components/common/cards/ItemCard';
+import Run from '@components/account/clickers/bubba/Run';
 import Upgrades from '@components/account/clickers/bubba/Upgrades';
 import NextBonus from '@components/account/clickers/NextBonus';
 import { getBubba } from '@parsers/clickers/bubba';
@@ -90,6 +91,7 @@ const Bubba = () => {
       {failed ? null : <NextBonus entries={bubba?.megaFlesh} name={'Megaflesh'} iconOf={(index) => `data/BubbaMF${index}.png`}
                                   stackingIndex={(bubba?.megaFlesh?.length ?? 0) - 1} textOf={nextMegafleshText}/>}
     </BonusStrip>
+    <Run run={bubba?.run} failed={failed}/>
     <Upgrades upgrades={bubba?.upgrades} failed={failed} meatSlices={bubba?.meatSlices ?? 0}
               smokerSeconds={bubba?.smokerSeconds ?? 0}/>
   </>
