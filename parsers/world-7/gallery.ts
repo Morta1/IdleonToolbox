@@ -1,5 +1,5 @@
 import { notateNumber } from '@utility/helpers';
-import { items, itemsArray, gameTables } from '@website-data';
+import { items, itemsArray, gameTables, randomList } from '@website-data';
 import { getJadeEmporiumBonus } from '@parsers/world-6/sneaking';
 import { getLoreBonus } from '@parsers/world-7/spelunking';
 import { isArtifactAcquired } from '@parsers/world-5/sailing';
@@ -34,6 +34,11 @@ export const getCharacterGalleryBonuses = (idleonData: any, account: any, charac
   const { bonuses: nametagBonuses } = getNametagBonuses(rawSpelunk, account, character);
   return { bonusMulti, trophyBonuses, nametagBonuses };
 }
+
+// game: RANDOlist[64], the items the game draws as blank on every player but its developer. The catalogs list one only
+// when it is owned.
+const devItems = new Set<string>(randomList?.[64] as any);
+const isListed = (item: any) => item.isAcquired || !devItems.has(item.rawName);
 
 const parseGallery = (rawSpelunk: any, account: any, character?: any) => {
   const bonusMulti = getGalleryBonusMulti(rawSpelunk, account, character);
@@ -464,6 +469,7 @@ export const getAllTrophies = (rawSpelunk: any, account: any, character?: any) =
         isAcquired
       };
     })
+    .filter(isListed)
     .sort((a: any, b: any) => {
       // Sort by acquired status first (acquired first), then by ID
       if (a.isAcquired !== b.isAcquired) {
@@ -521,6 +527,7 @@ export const getAllNametags = (rawSpelunk: any, account: any, character?: any) =
         isAcquired
       };
     })
+    .filter(isListed)
     .sort((a: any, b: any) => {
       // Sort by acquired status first (acquired first), then by ID
       if (a.isAcquired !== b.isAcquired) {
