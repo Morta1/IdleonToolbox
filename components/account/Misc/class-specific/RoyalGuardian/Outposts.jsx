@@ -169,7 +169,8 @@ const Outposts = ({ outposts, outpostStats, resources, clearingMaps, activeKillC
     if (SORT_VALUE[sortKey]) return direction * (SORT_VALUE[sortKey](b) - SORT_VALUE[sortKey](a));
     if (sortKey?.startsWith(RANK_SORT_PREFIX)) {
       const type = Number(sortKey.slice(RANK_SORT_PREFIX.length));
-      return direction * ((b.rankBars?.[type]?.rank || 0) - (a.rankBars?.[type]?.rank || 0)) || a.mapIndex - b.mapIndex;
+      // EXP adds up across ranks, so it orders by rank and breaks a tie by who is closer to the next.
+      return direction * ((b.rankBars?.[type]?.exp || 0) - (a.rankBars?.[type]?.exp || 0)) || a.mapIndex - b.mapIndex;
     }
     return a.mapIndex - b.mapIndex;
   });

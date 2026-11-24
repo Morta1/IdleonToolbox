@@ -10,7 +10,8 @@ export const patchNotes = [
     'date': '24/11/2026',
     'features': [
       'Refinery: each salt card shows its power per cycle, with a breakdown',
-      'Random Events: the running event now shows at the top of the page, and the dashboard timer shows where it is and how long it has left'
+      'Random Events: the running event now shows at the top of the page, and the dashboard timer shows where it is and how long it has left',
+      'Royal Armory: outposts tied on a rank are now sorted by the EXP of that rank'
     ],
     'fixes': [
       'Beanstalk: the next rank of Golden Nomwich and Butter Bar no longer shows a percent sign, and the Butter Bar note shows its real bonus',
