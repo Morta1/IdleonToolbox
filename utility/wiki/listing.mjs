@@ -49,6 +49,9 @@ export const KIND_COLUMNS = {
     ]
   },
   npc: { facet: 'World' },
+  // `fields`: shown before the numbers, whatever the rule says of them. The map is what a reader looks an observation up
+  // for, and the rule drops a linked field.
+  observation: { fields: ['Found in'] },
   pet: {
     columns: [
       { key: 'power', label: 'Power', format: 'amount', value: (node) => node.tourPower || null },
@@ -90,7 +93,7 @@ const capOf = (node) => {
 };
 
 // Steps 3 to 6 of the rule: the effect, the first level's cost, the max level, then the fields, numbers first.
-const ruleColumns = (rows, share, distinct) => {
+const ruleColumns = (rows, share, distinct, named = []) => {
   const columns = [];
   if (share(effectText) >= COLUMN_SHARE) {
     const isEffect = share((node) => node.effect) >= COLUMN_SHARE;
@@ -107,6 +110,7 @@ const ruleColumns = (rows, share, distinct) => {
   if (share(capOf) >= COLUMN_SHARE && distinct(capOf) >= 2) columns.push({ key: 'max-level', label: 'Max level', type: 'max', sortable: true });
 
   const labels = [...new Set(rows.flatMap((node) => (node.fields || []).map((field) => field.label)))];
+  const leads = [];
   const numbers = [];
   const texts = [];
   for (const label of labels) {
@@ -115,7 +119,9 @@ const ruleColumns = (rows, share, distinct) => {
     const carried = rows.map((node) => fieldOf(node, label)).filter(Boolean);
     const values = carried.map((field) => field.value);
     const formats = [...new Set(carried.map((field) => field.format))];
-    if (values.every((value) => typeof value === 'number')) {
+    if (named.includes(label)) {
+      leads.push({ label, type: 'text', sortable: true });
+    } else if (values.every((value) => typeof value === 'number')) {
       if (formats.length === 1) numbers.push({ label, type: 'number', sortable: true, ...(formats[0] ? { format: formats[0] } : {}) });
     } else if (values.every((value) => typeof value === 'string')
       && !carried.some((field) => field.links?.length)
@@ -125,7 +131,7 @@ const ruleColumns = (rows, share, distinct) => {
     }
   }
   const taken = new Set(FIXED_KEYS);
-  const fields = [...numbers, ...texts].map((column) => {
+  const fields = [...leads, ...numbers, ...texts].map((column) => {
     let key = slugify(column.label);
     while (taken.has(key)) key = `${key}-field`;
     taken.add(key);
@@ -145,7 +151,7 @@ export const listingColumns = (kind, rows) => {
     columns.push({ key: 'category', label: override?.facet ?? 'Category', type: 'facet', sortable: true, ...(byWorld ? { byWorld } : {}) });
   }
   if (override?.columns) columns.push(...override.columns.map(({ key, label, format }) => ({ key, label, type: 'number', sortable: true, format })));
-  else columns.push(...ruleColumns(rows, share, distinct));
+  else columns.push(...ruleColumns(rows, share, distinct, override?.fields));
   return columns.slice(0, MAX_DATA_COLUMNS);
 };
 

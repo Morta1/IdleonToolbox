@@ -116,7 +116,14 @@ const plural = (kind) => KIND_PLURALS[kind] || kind;
 
 export const listingTitle = (kind) => `${plural(kind)} | Idleon Toolbox`;
 
-export const listingDescription = (kind, rows) => `Every one of the ${rows.toLocaleString('en-US')} ${plural(kind).toLowerCase()} in Legends of Idleon, and what each one connects to.`;
+// A kind people search by what its list shows says so.
+const LISTING_SHOWS = { observation: 'location, research level needed and EXP of each one' };
+
+export const listingDescription = (kind, rows) => {
+  const listed = `${rows.toLocaleString('en-US')} ${plural(kind).toLowerCase()} in Legends of Idleon`;
+  const shows = LISTING_SHOWS[kind];
+  return shows ? `All ${listed}: ${shows}.` : `Every one of the ${listed}, and what each one connects to.`;
+};
 
 // The group rides along because Minehead, Sushi Station and Royal Armory are already page titles.
 export const systemTitle = (system) => `${system.label} (${system.group}) | Idleon Toolbox`;

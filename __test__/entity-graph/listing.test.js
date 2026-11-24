@@ -62,7 +62,7 @@ describe('listingColumns', () => {
       summoningupgrade: ['Effect', 'Cost', 'Max level', 'Essence'],
       rift: ['Description', 'Monster HP'],
       mineheadopponent: ['Description', 'HP'],
-      observation: ['Effect', 'Research level needed', 'Research EXP per Magnifier'],
+      observation: ['Effect', 'Found in', 'Research level needed', 'Research EXP per Magnifier'],
       advicefish: ['Effect', 'Cost', 'Account level needed']
     });
   });

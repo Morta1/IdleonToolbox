@@ -51,7 +51,7 @@ const JellyOperator = () => {
   return <SummaryFailed value={sectionFailed}>
     <NextSeo
       title="Jelly Operator | Idleon Toolbox"
-      description="Track your Jelly Operator obstructions, cell upgrades, bloodcells and bonuses in Legends of Idleon World 7 Research"
+      description="Jelly Operator layout, obstructions, cells and bonuses, with an upgrade optimizer, for Legends of Idleon World 7"
     />
 
     {/* Only an upgrade with levels left to buy is priced ahead */}
