@@ -65,6 +65,8 @@ const Beanstalk = () => {
   const rankBonus = (rawName, rank) => getBeanstalkRankBonus(rawName, rank, bestCharacter?.character, state?.account, state?.characters);
   const stalkSentence = ({ desc_line1, desc_line2, rawName }, rank) => cleanUnderscore(`${desc_line1} ${desc_line2}`)
     .replace('[', formatNum(rankBonus(rawName, rank), 'pct', { bare: true }));
+  // Golden Nomwich and Butter Bar give a flat amount: their sentence has no % after the bonus
+  const givesPercent = ({ desc_line1, desc_line2 }) => `${desc_line1} ${desc_line2}`.includes('[%');
   return <>
     <NextSeo
       title="Beanstalk | Idleon Toolbox"
@@ -107,7 +109,7 @@ const Beanstalk = () => {
                                           label={`${cleanUnderscore(displayName)} details`}>{sprite}</NoteTrigger>
                            : sprite}>
           <ItemCard.Desc text={stalkSentence(item, rank)}/>
-          {breakpoint ? <ItemCard.Facts rows={[['Next rank', formatNum(rankBonus(rawName, rank + 1), 'pct')]]}/> : null}
+          {breakpoint ? <ItemCard.Facts rows={[['Next rank', formatNum(rankBonus(rawName, rank + 1), 'pct', { bare: !givesPercent(item) })]]}/> : null}
           {breakpoint
             ? <ItemCard.Progress label={'Owned'} value={owned} max={<Num value={breakpoint} whole/>}
                                  percent={Math.min(100, (100 * (total ?? 0)) / breakpoint)}/>

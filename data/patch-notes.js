@@ -5,6 +5,15 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.16',
+    'gameVer': '2.3.561',
+    'date': '24/11/2026',
+    'features': [],
+    'fixes': [
+      'Beanstalk: the next rank of Golden Nomwich and Butter Bar no longer shows a percent sign, and the Butter Bar note shows its real bonus'
+    ]
+  },
+  {
     'ver': '4.0.15',
     'gameVer': '2.3.561',
     'date': '22/11/2026',
