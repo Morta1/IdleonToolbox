@@ -13,6 +13,8 @@ export default function ConsentScripts() {
       />
       <Script id="ga-analytics" strategy="afterInteractive">
         {`
+          // Localhost and preview deploys stay out of GA: its own opt-out flag. translate.goog is a visitor reading through Google Translate.
+          window['ga-disable-G-YER8JY07QK'] = !/(^|\\.)idleontoolbox\\.com$|\\.translate\\.goog$/.test(location.hostname);
           window.dataLayer = window.dataLayer || [];
           function gtag(){dataLayer.push(arguments);}
       
