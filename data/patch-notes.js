@@ -14,7 +14,7 @@ export const patchNotes = [
       'Royal Armory: outposts tied on a rank are now sorted by the EXP of that rank',
       'Dashboard: Bravery, Justice and Wisdom alerts use a % of their max linear reward multi instead of a fixed number. Custom numbers were reset',
       'Gallery: the two developer-only items, I Made This Game and Lavas Awesome Nametag, are hidden unless you own them',
-      'Bubba: the page now shows your dice rolls, smoked meats, spare coins, charisma attributes and gifts, with their multipliers'
+      'Bubba: the page now shows your happiness, dice rolls, smoked meats, spare coins, charisma attributes and gifts, with their multipliers'
     ],
     'fixes': [
       'Beanstalk: the next rank of Golden Nomwich and Butter Bar no longer shows a percent sign, and the Butter Bar note shows its real bonus',

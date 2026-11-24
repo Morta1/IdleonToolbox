@@ -126,7 +126,9 @@ const parseBubba = (rawBubba: any, account: any) => {
 export const SMOKER_MAX_QUALITY_SECONDS = 0.89 * 7200 / 0.11;
 
 // The upgrade each of the run's features waits on (game: "T_FeatureUnlocked")
-const FEATURE_UPGRADE = { charisma: 6, gifts: 9, dice: 12, smokedMeat: SMOKER_UPGRADE, coins: 21 };
+const FEATURE_UPGRADE = { happiness: 1, charisma: 6, gifts: 9, dice: 12, smokedMeat: SMOKER_UPGRADE, coins: 21 };
+// The words on the game's BubbaHappyIcon art
+const MOODS = ['Amused', 'Beaming', 'Contented', 'Delighted', 'Ecstatic'];
 const CHARISMA_MAX_LEVEL = 120;
 const COIN_NAMES = ['Pennies', 'Nickels', 'Quarters', 'Dollars'];
 const BACON_MEGAFLESH = 2;
@@ -155,13 +157,20 @@ const getSelectedGift = (rawBubba: any, gift: number) => {
   };
 };
 
-// What buying a Megaflesh resets: dice, smoked meats, spare coins, charisma and gifts
+// What buying a Megaflesh resets: happiness, dice, smoked meats, spare coins, charisma and gifts
 const getRun = (rawBubba: any) => {
   const feature = (index: number) => ({
     unlocked: getTotUpgBonus(rawBubba, index) >= 0.1,
     upgradeName: upgradeName(index)
   });
+  const moodRank = getHappinessRank(rawBubba);
   return {
+    happiness: {
+      ...feature(FEATURE_UPGRADE.happiness),
+      multi: getHappinessBonus(rawBubba),
+      rank: moodRank,
+      mood: MOODS[moodRank]
+    },
     dice: {
       ...feature(FEATURE_UPGRADE.dice),
       multi: getDiceMulti(rawBubba),
@@ -283,6 +292,12 @@ const getTotUpgBonus = (rawBubba: any, upgradeIndex: any) => {
 const getHappinessBonus = (rawBubba: any) => {
   const happiness = rawBubba?.[0]?.[1] || 0;
   return 1 + (10 * (lavaLog2(happiness) + 25 * lavaLog(happiness) + Math.pow(happiness, 0.75))) / 100;
+};
+
+// game: floor of "HappinessRank", which picks the mood's art
+const getHappinessRank = (rawBubba: any) => {
+  const happiness = rawBubba?.[0]?.[1] || 0;
+  return Math.floor(Math.min(4, lavaLog(Math.pow(Math.max(1, happiness / 30 + 1), 1.5))));
 };
 
 // game: "TotalQTYofLVs"
