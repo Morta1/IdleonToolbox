@@ -6,6 +6,7 @@ import {
   getMonumentAfkReq,
   getMonumentBonus,
   getMonumentHourBonus,
+  getMonumentMaxLinearMulti,
   getMonumentMultiReward,
   getMonumentMultiplier,
   getMonumentTimeToReady,
@@ -17,6 +18,7 @@ import { getStudyBonus } from '@parsers/world-5/hole';
 export const getJustice = (holesObject: any, accountData: any) => {
 
   const rewardMulti = getMonumentMultiReward(holesObject, 1, accountData) || 0;
+  const maxLinearMulti = getMonumentMaxLinearMulti(holesObject, 1, accountData);
   const timeForNextFight = getMonumentTimeToReady(holesObject, 1, accountData);
   const hours = holesObject?.braveryMonument?.[2] || 0;
   const hoursRewards = holesInfo?.[31]?.slice(8, 16);
@@ -54,6 +56,7 @@ export const getJustice = (holesObject: any, accountData: any) => {
   const bonusLvsMultiplier = getAllMonumentsBonusLvs(accountData);
   return {
     rewardMulti,
+    maxLinearMulti,
     hours,
     hoursRewards,
     hoursBreakpoints,

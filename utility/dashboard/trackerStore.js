@@ -3,7 +3,18 @@ import { migrateConfig } from '@utility/migrations';
 export const TRACKERS_SCHEMA = 2;
 
 // Old path -> new path, for when an option or tracker is renamed after R1.
-export const RENAMED_PATHS = {};
+export const RENAMED_PATHS = {
+  'account.World 5.hole.bravery': 'account.World 5.hole.braveryPercent',
+  'account.World 5.hole.justice': 'account.World 5.hole.justicePercent',
+  'account.World 5.hole.wisdom': 'account.World 5.hole.wisdomPercent'
+};
+
+// Renamed options whose number changed meaning (a reward multi became a %): only the on/off choice carries over.
+const VALUE_RESET_PATHS = new Set([
+  'account.World 5.hole.bravery',
+  'account.World 5.hole.justice',
+  'account.World 5.hole.wisdom'
+]);
 
 const CONFIG_TYPES = ['account', 'characters', 'timers'];
 
@@ -31,7 +42,23 @@ export const getTracker = (config, type, section, name) =>
   section ? config?.[type]?.[section]?.[name] : config?.[type]?.[name];
 
 const renameEdits = (edits) => Object.fromEntries(Object.entries(edits || {})
-  .map(([path, edit]) => [RENAMED_PATHS[path] ?? path, edit]));
+  .map(([path, edit]) => {
+    const { value, ...rest } = edit ?? {};
+    return [RENAMED_PATHS[path] ?? path, VALUE_RESET_PATHS.has(path) ? rest : edit];
+  }));
+
+// The same renames on a pre-R1 config, which holds whole options instead of edits.
+const renameLegacyOptions = (config) => {
+  forEachTracker(config, (path, tracker) => {
+    tracker?.options?.forEach((option) => {
+      const oldPath = `${path}.${option?.name}`;
+      const newPath = RENAMED_PATHS[oldPath];
+      if (!newPath) return;
+      option.name = newPath.slice(path.length + 1);
+      if (VALUE_RESET_PATHS.has(oldPath) && option.props) delete option.props.value;
+    });
+  });
+};
 
 const sameScalar = (a, b) => String(a ?? '') === String(b ?? '');
 
@@ -127,6 +154,7 @@ const seedNewOptions = (edits) => {
 
 export const convertLegacyTrackers = (base, legacy) => {
   const migrated = migrateConfig(base, structuredClone(legacy));
+  renameLegacyOptions(migrated);
   const edits = diffTrackers(base, migrated);
   dropUnderOffTrackers(base, migrated, edits);
   seedNewOptions(edits);

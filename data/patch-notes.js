@@ -11,7 +11,8 @@ export const patchNotes = [
     'features': [
       'Refinery: each salt card shows its power per cycle, with a breakdown',
       'Random Events: the running event now shows at the top of the page, and the dashboard timer shows where it is and how long it has left',
-      'Royal Armory: outposts tied on a rank are now sorted by the EXP of that rank'
+      'Royal Armory: outposts tied on a rank are now sorted by the EXP of that rank',
+      'Dashboard: Bravery, Justice and Wisdom alerts use a % of their max linear reward multi instead of a fixed number. Custom numbers were reset'
     ],
     'fixes': [
       'Beanstalk: the next rank of Golden Nomwich and Butter Bar no longer shows a percent sign, and the Butter Bar note shows its real bonus',

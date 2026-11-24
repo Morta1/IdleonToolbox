@@ -569,9 +569,10 @@ export const alertMeta = {
       motherlode: { label: 'Motherlode layer ready to break', group: 'Resource caverns', page: { query: { t: 'Explore', nt: 'Motherlode' }, label: 'Motherlode' } },
       evertree: { label: 'Evertree layer ready to break', group: 'Resource caverns', page: { query: { t: 'Explore', nt: 'Evertree' }, label: 'Evertree' } },
       bottomlessTrench: { label: 'Bottomless Trench layer ready to break', group: 'Resource caverns', page: { query: { t: 'Explore', nt: 'The Bottomless Trench' }, label: 'Bottomless Trench' } },
-      bravery: {
+      braveryPercent: {
         label: 'Bravery fight ready',
-        help: 'Alerts when the Bravery reward multi reaches this value.',
+        help: 'Alerts when the Bravery reward multi reaches this % of its max linear multi. 0 alerts as soon as a fight is ready.',
+        unit: '%',
         group: 'Monuments',
         page: { query: { t: 'Explore', nt: 'Bravery' }, label: 'Bravery' }
       },
@@ -613,16 +614,18 @@ export const alertMeta = {
       theHive: { label: 'Hive layer ready to break', group: 'Resource caverns', page: { query: { t: 'Explore', nt: 'The hive' }, label: 'The Hive' } },
       grotto: { label: 'Monarch ready to fight', group: 'Other caverns', page: { query: { t: 'Explore', nt: 'Grotto' }, label: 'Grotto' } },
       gambit: { label: 'Gambit attempt ready', group: 'Other caverns', page: { query: { t: 'Explore', nt: 'Gambit' }, label: 'Gambit' } },
-      justice: {
+      justicePercent: {
         label: 'Justice court case ready',
-        help: 'Alerts when the Justice reward multi reaches this value.',
+        help: 'Alerts when the Justice reward multi reaches this % of its max linear multi. 0 alerts as soon as a court case is ready.',
+        unit: '%',
         group: 'Monuments',
         page: { query: { t: 'Explore', nt: 'Justice' }, label: 'Justice' }
       },
       villagersLevelUp: { label: 'Villagers ready to level up', group: 'Villagers and studies' },
-      wisdom: {
+      wisdomPercent: {
         label: 'Wisdom memory game ready',
-        help: 'Alerts when the Wisdom reward multi reaches this value.',
+        help: 'Alerts when the Wisdom reward multi reaches this % of its max linear multi. 0 alerts as soon as a memory game is ready.',
+        unit: '%',
         group: 'Monuments',
         page: { query: { t: 'Explore', nt: 'Wisdom' }, label: 'Wisdom' }
       },

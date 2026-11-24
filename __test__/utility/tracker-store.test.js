@@ -1,7 +1,7 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
 import { baseTrackers } from '@utility/dashboard/baseTrackers';
-import { diffTrackers, resolveTrackers, toStoredTrackers } from '@utility/dashboard/trackerStore';
+import { convertLegacyTrackers, diffTrackers, resolveTrackers, toStoredTrackers } from '@utility/dashboard/trackerStore';
 
 const optionOf = (config, section, tracker, name) =>
   config.account[section][tracker].options.find((option) => option.name === name);
@@ -47,6 +47,23 @@ describe('resolveTrackers', () => {
     });
     expect(resolved.account['World 1'].goneTracker).toBeUndefined();
     expect(optionOf(resolved, 'World 3', 'construction', 'materials').props.value.NotASalt).toBeUndefined();
+  });
+});
+
+describe('monument thresholds, once a reward multi and now a %', () => {
+  it('keep the on/off choice and drop the old number', () => {
+    const resolved = resolveTrackers(baseTrackers, {
+      'account.World 5.hole.bravery': { checked: false, value: '120' },
+      'account.World 5.hole.wisdom': { value: '50' }
+    });
+    expect(diffTrackers(baseTrackers, resolved)).toEqual({ 'account.World 5.hole.braveryPercent': { checked: false } });
+  });
+
+  it('do the same on a pre-R1 config', () => {
+    const legacy = structuredClone(baseTrackers);
+    const bravery = optionOf(legacy, 'World 5', 'hole', 'braveryPercent');
+    Object.assign(bravery, { name: 'bravery', checked: false, props: { ...bravery.props, value: '120' } });
+    expect(convertLegacyTrackers(baseTrackers, legacy)).toEqual({ 'account.World 5.hole.braveryPercent': { checked: false } });
   });
 });
 

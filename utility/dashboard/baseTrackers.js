@@ -453,10 +453,10 @@ export const baseTrackers = {
           { name: 'evertree', checked: true },
           { name: 'bottomlessTrench', checked: true },
           {
-            name: 'bravery',
+            name: 'braveryPercent',
             checked: true,
             type: 'input',
-            props: { label: 'Reward multi threshold', value: 1, minValue: 1, helperText: '' }
+            props: { label: 'Max linear multi threshold', value: 0, minValue: 0, maxValue: 100, helperText: '%' }
           },
           ...bellOptions,
           {
@@ -469,17 +469,17 @@ export const baseTrackers = {
           { name: 'grotto', checked: true },
           { name: 'gambit', checked: true },
           {
-            name: 'justice',
+            name: 'justicePercent',
             checked: true,
             type: 'input',
-            props: { label: 'Reward multi threshold', value: 1, minValue: 1, helperText: '' }
+            props: { label: 'Max linear multi threshold', value: 0, minValue: 0, maxValue: 100, helperText: '%' }
           },
           { name: 'villagersLevelUp', checked: true },
           {
-            name: 'wisdom',
+            name: 'wisdomPercent',
             checked: true,
             type: 'input',
-            props: { label: 'Reward multi threshold', value: 1, minValue: 1, helperText: '' }
+            props: { label: 'Max linear multi threshold', value: 0, minValue: 0, maxValue: 100, helperText: '%' }
           },
           {
             name: 'jars',

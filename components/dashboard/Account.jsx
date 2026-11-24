@@ -581,14 +581,14 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={`World 5.hole.${alerts['World 5'].hole.layerBreaks.caverns[0].option}`}
                        title={layerBreaksTitle(alerts['World 5'].hole.layerBreaks)}
                        iconPath={'data/Opal'}/> : null}
-              {alerts?.['World 5']?.hole?.bravery ?
-                <Alert target={'World 5.hole.bravery'} title={`You can fight in the bravery cavern`}
+              {alerts?.['World 5']?.hole?.braveryPercent ?
+                <Alert target={'World 5.hole.braveryPercent'} title={monumentTitle('Bravery', 'You can fight in the bravery cavern', alerts['World 5'].hole.braveryPercent)}
                        iconPath={'etc/Bravery_Statue'}/> : null}
-              {alerts?.['World 5']?.hole?.justice ?
-                <Alert target={'World 5.hole.justice'} title={`You can hear a court case in the justice cavern`}
+              {alerts?.['World 5']?.hole?.justicePercent ?
+                <Alert target={'World 5.hole.justicePercent'} title={monumentTitle('Justice', 'You can hear a court case in the justice cavern', alerts['World 5'].hole.justicePercent)}
                        iconPath={'data/Justice_Monument_x1'}/> : null}
-              {alerts?.['World 5']?.hole?.wisdom ?
-                <Alert target={'World 5.hole.wisdom'} title={`You can play a memory game in the wisdom cavern`}
+              {alerts?.['World 5']?.hole?.wisdomPercent ?
+                <Alert target={'World 5.hole.wisdomPercent'} title={monumentTitle('Wisdom', 'You can play a memory game in the wisdom cavern', alerts['World 5'].hole.wisdomPercent)}
                        iconPath={'data/Wisdom_Monument_x1'}/> : null}
               {alerts?.['World 5']?.hole?.bells?.map(({ name, readyUses, index }) => {
                 const bellName = name?.capitalize();
@@ -1184,6 +1184,10 @@ const Alert = ({ title, iconPath, vial, atom, breedability, imgStyle, badge, tar
 };
 
 // The breaks are shared, so the count is the account's, after the caverns that have a layer ready
+const monumentTitle = (name, ready, { threshold, percent }) => (threshold > 0
+  ? `${name} reward multi is at ${formatNum(percent, 'pct')} of its max linear multi`
+  : ready);
+
 const layerBreaksTitle = ({ left, caverns }) => {
   const names = caverns.map(({ name }) => name);
   const list = names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names.at(-1)}` : names[0];

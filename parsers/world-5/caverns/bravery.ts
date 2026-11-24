@@ -34,6 +34,7 @@ export const getBravery = (holesObject: any, accountData: any) => {
   const min = getBraveryMinDamage(holesObject, accountData);
   const max = getBraveryMaxDamage(holesObject, accountData);
   const rewardMulti = getMonumentMultiReward(holesObject, 0, accountData) || 0;
+  const maxLinearMulti = getMonumentMaxLinearMulti(holesObject, 0, accountData);
   const timeForNextFight = getMonumentTimeToReady(holesObject, 0, accountData);
   const opalChance = Math.min(0.5, Math.pow(0.5, holesObject?.opalsPerCavern?.[3])
     * (1 + getMonumentBonus({ holesObject, t: 0, i: 5 }) / 100));
@@ -94,6 +95,7 @@ export const getBravery = (holesObject: any, accountData: any) => {
     nextHourBreakpoint,
     timeForNextFight,
     rewardMulti,
+    maxLinearMulti,
     afkPercent,
     monumentAfkReq: getMonumentAfkReq(afkPercent?.value, nextHourBreakpoint?.hours, hours, afkPercent?.multi)
   };
@@ -179,6 +181,9 @@ export const getMonumentMaxLinearTime = (holesObject: any, t: any, accountData: 
 
 const getMonumentRewardBonus = (accountData: any) => (1 + getMeritocracyBonus(accountData, 7) / 100)
   * (1 + getLegendTalentBonus(accountData, 27) / 100);
+
+export const getMonumentMaxLinearMulti = (holesObject: any, t: any, accountData: any) =>
+  getMonumentMaxLinearTime(holesObject, t, accountData) / 72e3 * getMonumentRewardBonus(accountData);
 
 export const getMonumentMultiReward = (holesObject: any, t: any, accountData: any) => {
   const maxLinearTime = getMonumentMaxLinearTime(holesObject, t, accountData)

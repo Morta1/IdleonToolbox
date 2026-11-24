@@ -1301,9 +1301,6 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
       motherlode,
       evertree,
       bottomlessTrench,
-      bravery,
-      justice,
-      wisdom,
       theHarp,
       theHive,
       grotto,
@@ -1336,15 +1333,15 @@ export const getWorld5Alerts = (account, fields, options, characters) => {
     if (layerBreaksLeft > 0 && readyLayers.length > 0) {
       hole.layerBreaks = { left: layerBreaksLeft, caverns: readyLayers.map(({ option, name }) => ({ option, name })) };
     }
-    if (bravery?.checked && account?.hole?.caverns?.bravery?.rewardMulti >= bravery?.props?.value) {
-      hole.bravery = true;
-    }
-    if (justice?.checked && account?.hole?.caverns?.justice?.rewardMulti >= justice?.props?.value) {
-      hole.justice = true;
-    }
-    if (wisdom?.checked && account?.hole?.caverns?.wisdom?.rewardMulti >= wisdom?.props?.value) {
-      hole.wisdom = true;
-    }
+    ['bravery', 'justice', 'wisdom'].forEach((monument) => {
+      const option = options?.hole?.[`${monument}Percent`];
+      const { rewardMulti, maxLinearMulti } = caverns?.[monument] ?? {};
+      const threshold = Number(option?.props?.value) || 0;
+      // Below 1x the game starts no run, whatever the percent
+      if (option?.checked && rewardMulti >= 1 && rewardMulti >= maxLinearMulti * threshold / 100) {
+        hole[`${monument}Percent`] = { threshold, percent: 100 * rewardMulti / maxLinearMulti };
+      }
+    });
     const readyBells = account?.hole?.caverns?.theBell?.bells?.map(({ name, readyUses }, index) => ({
       name,
       readyUses,

@@ -31,9 +31,7 @@ import useBossRespawns from '@hooks/useBossRespawns';
 import { isMinibossReady } from '@utility/dashboard/bossRespawns';
 import { useRouter } from 'next/router';
 import { calcCost, calcTimeToRankUp, getRefineryCycles } from '@parsers/world-3/refinery';
-import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
-import { getMonumentMaxLinearTime } from '@parsers/world-5/caverns/bravery';
-import { getMeritocracyBonus } from '@parsers/world-2/voteBallot';
+import { getMonumentMaxLinearMulti, getMonumentMaxLinearTime } from '@parsers/world-5/caverns/bravery';
 import { CRYSTAL_ISLAND_MAX_DAYS, getCrystalIslandMobs, getIsland } from '@parsers/world-2/islands';
 import { SMOKER_MAX_QUALITY_SECONDS } from '@parsers/clickers/bubba';
 import { OPT } from '@parsers/accountOptions';
@@ -212,9 +210,7 @@ export const useTimerRows = ({ characters, account, lastUpdated, trackers, bookA
     if (!holesObject) return null;
     const maxLinearTime = getMonumentMaxLinearTime(holesObject, t, account);
     const currentTime = holesObject?.extraCalculations?.[Math.round(11 + t)] || 0;
-    const maxLinearMulti = (maxLinearTime / 72e3)
-      * (1 + getMeritocracyBonus(account, 7) / 100)
-      * (1 + getLegendTalentBonus(account, 27) / 100);
+    const maxLinearMulti = getMonumentMaxLinearMulti(holesObject, t, account);
     const timeUntilMax = Math.max(0, maxLinearTime - currentTime);
     const timeUntilMaxDate = timeUntilMax > 0 ? now + timeUntilMax * 1000 : null;
 
