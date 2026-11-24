@@ -31,7 +31,6 @@ import { getShrineBonus } from './world-3/shrines';
 import { isSuperbitUnlocked } from './world-5/gaming';
 import { getStatsFromGear } from './items';
 import LavaRand from '../utility/lavaRand';
-import { isPast } from 'date-fns';
 import { getGuildBonusBonus } from './guild';
 import { getStarSignBonus } from './starSigns';
 import { getPlayerFoodBonus } from './character';
@@ -1153,13 +1152,14 @@ export const getGoldenFoodBonus = (foodName: any, character: any, account: any, 
 export const getGoldenFoodMultiplier = (foodName: any, character: any, account: any, characters: any) =>
   1 + (getGoldenFoodBonus(foodName, character, account, characters) || 0) / 100;
 
-export const getRandomEvents = (account: any) => {
+// now: a ticking clock from the caller, so an open page starts and ends its events on time
+export const getRandomEvents = (account: any, now: number = Date.now()) => {
   if (!account) return [];
   const randEventHour = account?.serverVars?.RandEvntHr;
   // The schedule is the server's, not the save's: a save older than 100 hours still reads the hours ahead
   if (!Number.isFinite(randEventHour)) return [];
   const eventList = []
-  const seed = Math.floor(new Date().getTime() / 3600000);
+  const seed = Math.floor(now / 3600000);
   for (let i = 0; i < 100; i++) {
     const actualSeed = seed + i + randEventHour;
     const eventRng = new LavaRand(actualSeed);
@@ -1175,7 +1175,6 @@ export const getRandomEvents = (account: any) => {
     const mapName = mapNames?.[realMapIndex];
     const eventName = getEventName(eventType);
     const dateInMs = (seed + i) * 3600 * 1000;
-    if (isPast(dateInMs + 3600 * 1000)) continue;
     // An event holds its map for its whole clock hour (the boss spawns on entering the map within it): the first hour,
     // still running, is live
     eventList.push({ mapName, eventName, eventType, date: dateInMs, live: i === 0 })

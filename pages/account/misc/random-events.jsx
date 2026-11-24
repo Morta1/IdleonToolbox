@@ -6,6 +6,7 @@ import { isValid } from 'date-fns';
 import { NextSeo } from 'next-seo';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import useFormatDate from '@hooks/useFormatDate';
+import useNow from '@hooks/useNow';
 import Notice from '@components/common/Notice';
 import { MissingData } from '@components/common/styles';
 import CardGrid from '@components/common/cards/CardGrid';
@@ -38,10 +39,11 @@ const worldsText = (worlds) => {
 const RandomEvents = () => {
   const { state } = useContext(AppContext);
   const formatDate = useFormatDate();
+  const now = useNow();
   const signedIn = Boolean(state?.account) && !state?.emptyAccount;
   // The catalog needs no save, so it draws signed out too; the schedule and the found state are the save's
   const catalog = getRandomEventCatalog(signedIn ? state?.account : undefined);
-  const events = signedIn ? getRandomEvents(state?.account) : [];
+  const events = signedIn ? getRandomEvents(state?.account, now) : [];
   // The list reads the server's schedule, not a section: only a whole-parse failure leaves it nothing to read
   const parseFailed = state?.account?.failedSections?.includes('*');
   const drops = catalog.flatMap(({ drops: eventDrops }) => eventDrops);
@@ -58,23 +60,11 @@ const RandomEvents = () => {
     </PageSummary> : null}
     <Stack gap={3}>
       <Stack gap={1.5}>
-        <Typography variant={'sectionTitle'} component={'h2'}>Events</Typography>
-        <CardGrid size={'m'}>
-          {catalog.map(({ eventType, eventName, drops: eventDrops, worlds }) => <ItemCard
-            key={eventType} icon={`etc/${eventName}.png`} title={cleanUnderscore(eventName)}
-            meta={worldsText(worlds)}>
-            <ItemCard.Section label={'Rare drops'}>
-              <ItemCard.Facts rows={eventDrops.map((drop) => dropRow(drop, signedIn))}/>
-            </ItemCard.Section>
-          </ItemCard>)}
-        </CardGrid>
-      </Stack>
-      <Stack gap={1.5}>
-        <Typography variant={'sectionTitle'} component={'h2'}>Next 100 hours</Typography>
+        <Typography variant={'sectionTitle'} component={'h2'}>Schedule</Typography>
         {parseFailed ? null : !signedIn
           ? <Notice tone={'signin'}>The next random events show here once you sign in.</Notice>
           : !events?.length
-            ? <Notice>No random event is on the way in the next 100 hours.</Notice>
+            ? <Notice>No random event is coming up soon.</Notice>
             : <CardGrid size={'s'}>
               {events.map((event, index) => {
                 const live = Boolean(event?.live);
@@ -87,6 +77,18 @@ const RandomEvents = () => {
                 </ItemCard>;
               })}
             </CardGrid>}
+      </Stack>
+      <Stack gap={1.5}>
+        <Typography variant={'sectionTitle'} component={'h2'}>Events</Typography>
+        <CardGrid size={'m'}>
+          {catalog.map(({ eventType, eventName, drops: eventDrops, worlds }) => <ItemCard
+            key={eventType} icon={`etc/${eventName}.png`} title={cleanUnderscore(eventName)}
+            meta={worldsText(worlds)}>
+            <ItemCard.Section label={'Rare drops'}>
+              <ItemCard.Facts rows={eventDrops.map((drop) => dropRow(drop, signedIn))}/>
+            </ItemCard.Section>
+          </ItemCard>)}
+        </CardGrid>
       </Stack>
     </Stack>
   </>;

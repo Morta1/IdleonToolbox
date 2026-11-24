@@ -42,6 +42,7 @@ import { sessionQuery } from '@utility/nav-query';
 const maxTimeValue = 9.007199254740992e+15;
 const SECOND = 1000;
 const MINUTE = 60 * 1000;
+const HOUR = 60 * MINUTE;
 const DAY = 864e5;
 const WEEK = 7 * DAY;
 const YEAR = 365 * DAY;
@@ -70,11 +71,14 @@ export const useTimerRows = ({ characters, account, lastUpdated, trackers, bookA
     const allEmpty = Object.values(data || {}).every(({ checked }) => !checked);
     return { ...res, [alertName]: allEmpty };
   }, {});
-  const events = getRandomEvents(account);
-  // `events[0]` is still listed while its hour is running, so it's the event happening NOW, not the
-  // next one to spawn. The icon and the countdown have to resolve to the same event or the tile
-  // shows one event's name above another event's timer.
-  const nextEvent = events?.find(({ date }) => date > now) ?? events?.[0];
+  // The running event, unless one is already done today (the game spawns one a day), else the next one. The icon, the sub
+  // and the countdown all read this one event.
+  const randomEventDone = Boolean(account?.accountOptions?.[137]);
+  const randomEvent = getRandomEvents(account, wallClock).find(({ live }) => !live || !randomEventDone);
+  // Running, the row is named for the event, so its map has room on a phone
+  const randomEventName = cleanUnderscore(randomEvent?.eventName);
+  const randomEventMap = cleanUnderscore(randomEvent?.mapName);
+  const randomEventEnd = randomEvent?.date + HOUR;
   const nextHappyHours = calcHappyHours(account?.serverVars?.HappyHours) || [];
   const nextPrinterCycle = now + (3600 - (account?.timeAway?.GlobalTime - account?.timeAway?.Printer)) * 1000;
   const nextCompanionClaim = getNextCompanionClaim(account);
@@ -348,13 +352,18 @@ export const useTimerRows = ({ characters, account, lastUpdated, trackers, bookA
           icon={'etc/Happy_Hour.png'}
           placeholder={'Claim'}
         /> : null}
-        {trackers?.General?.randomEvents?.checked && events?.length > 0 ? <TimerRow target="General.randomEvents"
+        {trackers?.General?.randomEvents?.checked && randomEvent ? <TimerRow target="General.randomEvents"
           page={'/account/misc/random-events'}
-          sub={cleanUnderscore(nextEvent?.eventName)}
-          message={() => <RandomEvent {...nextEvent}/>}
-          time={nextEvent?.date}
-          placeholder={'Started'}
-          icon={`etc/${nextEvent?.eventName}.png`}
+          name={randomEvent.live ? randomEventName : undefined}
+          sub={randomEvent.live ? randomEventMap : `${randomEventName}, ${randomEventMap}`}
+          message={() => <RandomEvent {...randomEvent}/>}
+          time={randomEvent.live ? randomEventEnd : randomEvent.date}
+          placeholder={randomEvent.live ? 'Ended' : 'Started'}
+          state={randomEvent.live
+            ? <StatusText status={'ready'}><Timer type={'countdown'} date={randomEventEnd} placeholder={'0s'}/></StatusText>
+            : null}
+          actNow={randomEvent.live}
+          icon={`etc/${randomEvent.eventName}.png`}
         /> : null}
         {trackers?.General?.sailingTrades?.checked && account?.finishedWorlds?.World4 && account?.sailing?.trades?.length > 0
           ? <TimerRow target="General.sailingTrades"
