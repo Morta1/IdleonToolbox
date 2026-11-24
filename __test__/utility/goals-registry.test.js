@@ -24,7 +24,7 @@ import { resolveGoal } from '@utility/goals/resolve';
 import { booleanWords } from '@components/goals/parts/format';
 import { createGoal } from '@utility/goals/store';
 import { liveEntries } from '@parsers/catalog';
-import { achievements, cauldrons, constellations, dungeonCreditShop, emperorBonuses, exoticMarketInfo, riftInfo, gemShop, gamingImports, generalSpelunky, holeFountUpg, holesInfo, itemsArray, jadeUpgrades, legendTalents, merits, mineheadUpgrades, ninjaExtraInfo, ninjaUpgrades, prayers, researchGridSquares, researchOccurrences, tasks, tomeData, upgradeVault } from '@website-data';
+import { achievements, cauldrons, constellations, dungeonCreditShop, emperorBonuses, exoticMarketInfo, riftInfo, gemShop, gamingImports, generalSpelunky, holeFountUpg, holesInfo, itemsArray, jadeUpgrades, legendTalents, merits, mineheadUpgrades, ninjaExtraInfo, ninjaUpgrades, prayers, randomList, researchGridSquares, researchOccurrences, tasks, tomeData, upgradeVault } from '@website-data';
 import { cleanUpgradeName } from '@utility/goals/registry/names';
 import { isTrackableItem } from '@utility/materialTracker';
 import { ARTIFACT_TIERS } from '@components/account/Worlds/World5/Sailing/sailing.consts';
@@ -326,18 +326,26 @@ describe('filtered lists keep catalog keys', () => {
   });
 });
 
-// The page sorts these by what you own, so the order moves with the save; the key set must not.
+// The Gallery lists the developer's own items (RANDOlist[64]) only when the save owns them
+const galleryKeys = (type, rows) => {
+  const owned = new Set(rows.filter(({ isAcquired }) => isAcquired).map(({ rawName }) => rawName));
+  return itemsArray.filter((item) => item?.Type === type && (owned.has(item.rawName) || !randomList[64].includes(item.rawName)))
+    .map(({ rawName }) => rawName);
+};
+
+// The page sorts these by what you own, so the order moves with the save; the key set must not, but for galleryKeys.
 const sortedCatalogKeys = {
   // the page lists by display index and drops the filler rows; the key is the game's talent index
   legendTalent: () => legendTalents.map((t, i) => [t, i]).filter(([t]) => t.name !== 'filler').map(([, i]) => String(i)),
-  trophy: () => itemsArray.filter((item) => item?.Type === 'TROPHY').map((item) => item.rawName),
-  nametag: () => itemsArray.filter((item) => item?.Type === 'NAMETAG').map((item) => item.rawName)
+  trophy: ({ account }) => galleryKeys('TROPHY', account.gallery.allTrophies),
+  nametag: ({ account }) => galleryKeys('NAMETAG', account.gallery.allNametags)
 };
 describe('sorted lists keep catalog keys', () => {
   it.each(Object.keys(sortedCatalogKeys))('%s', (system) => {
     const d = getDescriptor(system);
     for (const fx of Object.values(fixtures)) {
-      expect(d.list(parseFixture(fx)).map(d.key).toSorted()).toEqual(sortedCatalogKeys[system]().toSorted());
+      const parsed = parseFixture(fx);
+      expect(d.list(parsed).map(d.key).toSorted()).toEqual(sortedCatalogKeys[system](parsed).toSorted());
     }
   });
 });
