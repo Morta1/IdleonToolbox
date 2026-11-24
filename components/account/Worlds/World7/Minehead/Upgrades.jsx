@@ -3,7 +3,7 @@ import { Box, Typography } from '@mui/material';
 import { cleanUnderscore, formatNum } from '@utility/helpers';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
-import { DoubledPreview, DoublerTag } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+import { DoublerLine, DoublerTag } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 import { UpgradeCostAhead } from '@components/common/LevelsAhead';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
@@ -31,7 +31,7 @@ const Upgrades = ({ upgrades, mineCurrency, doublersOwned = 0, levelsAhead = 1 }
     return <ItemCard key={index ?? position} icon={`data/MineUpg${index}.png`} title={cleanUnderscore(name)}
                      level={{ value: level ?? 0, max: maxLevel ?? null }} status={isMaxed ? 'maxed' : undefined}
                      dimmed={isLocked}
-                     aside={<DoublerTag kind={'minehead'} doubled={doubled} eligible={doublerEligible} owned={doublersOwned}/>}
+                     marked={doubled} aside={<DoublerTag kind={'minehead'} doubled={doubled}/>}
                      footer={<>
                        <ItemCard.Cost icon={MINE_CURRENCY_ICON} iconAlt={'Mine currency'} need={cost ?? 0} have={mineCurrency}
                                       game={'Minehead.UpgCost'}/>
@@ -46,7 +46,8 @@ const Upgrades = ({ upgrades, mineCurrency, doublersOwned = 0, levelsAhead = 1 }
                          : null}
                      </>}>
       {description ? <ItemCard.Desc text={description}/> : null}
-      <DoubledPreview description={description} doubledDescription={doubledDescription} owned={doublersOwned}/>
+      <DoublerLine description={description} doubledDescription={doubledDescription} doubled={doubled}
+                   eligible={doublerEligible} owned={doublersOwned}/>
     </ItemCard>;
   })}
     </CardGrid>

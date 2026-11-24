@@ -7,7 +7,7 @@ import StatusText from '@components/common/StatusText';
 import WithLastWord from '@components/common/WithLastWord';
 import { formatNum, gameLines } from '@utility/helpers';
 import { useCardDetails, useCardRows, useCardSize } from './CardGrid';
-import { CARD_PADDING, cardState, cardSurface, dimKeepingMeta, isNumberLike, textOf } from './tokens';
+import { CARD_PADDING, cardMarked, cardState, cardSurface, dimKeepingMeta, isNumberLike, textOf } from './tokens';
 
 // The icon follows the card size unless the card passes iconSize (2b Decision 3 keeps some art at 56 on M cards).
 const ICON_SIZE = { s: 32, m: 40, l: 56 };
@@ -89,6 +89,7 @@ export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title
 // the whole card is the link, so it holds no buttons; onClick opens it in place (a page that keeps its query), and
 // prefetch false leaves a large page's data until it is opened. keepMeta: a dimmed card whose meta line is its state in
 // words (Gallery's "Not acquired") keeps that line at full strength, so it reads at AA.
+// marked: an edge for a limited thing the player placed here (a doubler); the card names it with an icon in aside.
 // A card at its level's max is Maxed unless the page names another state, so it drops its cost by itself: a page that
 // forgot to say so priced a level past the cap (Statue flair's Lv 4 / 4 asking for marble).
 // more: the card's secondary rows (the next milestone, kills to charge, an outpost's units), drawn under its own rows
@@ -96,7 +97,7 @@ export const ItemCardHeader = ({ icon, iconAlt = '', iconSize, size = 'm', title
 // more of them; on, every card on the page opens at once and the rows stay even. In the card rather than a note, so what
 // it holds can be a control (Outposts' unit tiles). Not on a link card, which holds no buttons.
 const reachedMax = (level) => Number.isFinite(level?.max) && level.max > 0 && (level.value ?? 0) >= level.max;
-const ItemCard = ({ href, onClick, prefetch, status: givenStatus, dimmed, keepMeta, size, footer, more, children, ...props }) => {
+const ItemCard = ({ href, onClick, prefetch, status: givenStatus, dimmed, keepMeta, marked, size, footer, more, children, ...props }) => {
   const gridSize = useCardSize();
   const showDetails = useCardDetails();
   const alignRows = useCardRows();
@@ -109,6 +110,7 @@ const ItemCard = ({ href, onClick, prefetch, status: givenStatus, dimmed, keepMe
   return <Box {...root} sx={[
     (theme) => cardSurface(theme),
     (theme) => (dimmed && keepMeta && !status ? dimKeepingMeta(theme) : cardState(theme, status ?? (dimmed ? 'dim' : undefined))),
+    marked && cardMarked,
     {
       display: 'flex',
       flexDirection: 'column',

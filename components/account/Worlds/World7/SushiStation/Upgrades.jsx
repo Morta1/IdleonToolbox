@@ -3,7 +3,7 @@ import { Stack, Typography } from '@mui/material';
 import StatTile from '@components/common/cards/StatTile';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
-import { DoubledPreview, DoublerTag } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+import { DoublerLine, DoublerTag } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 import { UpgradeCostAhead } from '@components/common/LevelsAhead';
 
 const Upgrades = ({ upgrades, totalUpgradeLevels, characters, bucks, doublersOwned = 0, levelsAhead = 1 }) => {
@@ -26,7 +26,7 @@ const Upgrades = ({ upgrades, totalUpgradeLevels, characters, bucks, doublersOwn
           return <ItemCard key={visualIndex ?? i} icon={`data/SushiUpg${upgrade.upgradeIndex}.png`} title={name}
                            level={{ value: level ?? 0, max: Number.isFinite(maxLevel) ? maxLevel : null }}
                            status={isMaxed ? 'maxed' : undefined} dimmed={!meetsLvReq}
-                           aside={<DoublerTag kind={'sushi'} doubled={doubled} eligible={doublerEligible} owned={doublersOwned}/>}
+                           marked={doubled} aside={<DoublerTag kind={'sushi'} doubled={doubled}/>}
                            footer={<>
                              <ItemCard.Cost icon={'etc/Bucks.png'} iconAlt={'Bucks'} need={cost} have={owned} game={'SushiStuff.UpgCost'}/>
                              <UpgradeCostAhead cost={cost} costExponent={costExponent} level={level ?? 0} maxLevel={maxLevel}
@@ -34,7 +34,8 @@ const Upgrades = ({ upgrades, totalUpgradeLevels, characters, bucks, doublersOwn
                              {meetsLvReq ? null : <Typography variant={'body2'} color={'text.secondary'}>Needs Research Lv {lvReq}</Typography>}
                            </>}>
             {description ? <ItemCard.Desc text={description}/> : null}
-            <DoubledPreview description={description} doubledDescription={doubledDescription} owned={doublersOwned}/>
+            <DoublerLine description={description} doubledDescription={doubledDescription} doubled={doubled}
+                         eligible={doublerEligible} owned={doublersOwned}/>
           </ItemCard>;
         })}
       </CardGrid>

@@ -36,15 +36,13 @@ export const RankRequired = ({ rank }) => <Typography variant={'body2'} color={'
   Lumi Rank {formatNum(rank ?? 0)} required
 </Typography>;
 
-// Level-row tag: "x2 Doubler" once a Menagerie doubler sits on the upgrade, "Doubler eligible" when one could.
-// Eligibility only shows once the account owns a doubler of that kind, like DoublerUsageCard.
-// The doubler's icon alone, its words in the tooltip: full on a doubled upgrade, faded on one a doubler could go on
-export const DoublerTag = ({ kind, doubled, eligible, owned }) => {
-  if (!doubled && !(eligible && owned > 0)) return null;
-  const label = doubled ? 'x2 Doubler' : 'Doubler eligible';
-  return <Tooltip title={label}>
-    <Box component={'span'} sx={{ display: 'inline-flex', opacity: doubled ? 1 : 0.4 }}>
-      <GameIcon src={DOUBLER_ICONS[kind]} size={20} alt={label}/>
+// The doubler's icon on a doubled upgrade, beside its card's marked edge. An upgrade a doubler could go on has no icon:
+// DoublerLine says so in words.
+export const DoublerTag = ({ kind, doubled }) => {
+  if (!doubled) return null;
+  return <Tooltip title={'Doubled'}>
+    <Box component={'span'} sx={{ display: 'inline-flex' }}>
+      <GameIcon src={DOUBLER_ICONS[kind]} size={20} alt={'Doubled'}/>
     </Box>
   </Tooltip>;
 };
@@ -60,12 +58,13 @@ export const getDoubledChanges = (description, doubledDescription) => {
   return doubled.filter((token, index) => token !== current[index]);
 };
 
-// "Doubled: +76,000%" under the description (parser leaves doubledDescription null when not applicable)
-export const DoubledPreview = ({ description, doubledDescription, owned }) => {
-  if (!(owned > 0) || !doubledDescription) return null;
-  const changes = getDoubledChanges(description, doubledDescription);
-  if (!changes.length) return null;
-  return <Typography variant={'body2'} color={'secondary'}>
-    Doubled: {changes.join(' · ')}
+// "Can be doubled: +76,000%" under the description of an upgrade a doubler could go on, with the values that would change
+// (the parser leaves doubledDescription null at level 0). Shown once the account owns a doubler of that kind, like
+// DoublerUsageCard.
+export const DoublerLine = ({ description, doubledDescription, doubled, eligible, owned }) => {
+  if (doubled || !eligible || !(owned > 0)) return null;
+  const changes = doubledDescription ? getDoubledChanges(description, doubledDescription) : [];
+  return <Typography variant={'body2'} color={'text.secondary'}>
+    {['Can be doubled', changes.join(' · ')].filter(Boolean).join(': ')}
   </Typography>;
 };

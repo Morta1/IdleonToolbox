@@ -39,6 +39,13 @@ export const cardState = (theme, state) => {
   return {};
 };
 
+// A thing the player put a limited mark on (a Menagerie doubler): an edge apart from active's green and selected's primary,
+// beside whatever state the card has, so a maxed one shows both.
+export const cardMarked = (theme) => ({
+  borderColor: palette(theme).secondary.main,
+  boxShadow: `inset 0 0 0 1px ${palette(theme).secondary.main}`
+});
+
 // A dimmed card whose state words must read at AA (Gallery's "Not acquired"): its surface and contents at DIM, its
 // meta line at full strength. opacity can't be undone inside a parent, so it goes on each part, not on the card.
 export const dimKeepingMeta = (theme) => ({

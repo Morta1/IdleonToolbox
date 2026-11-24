@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Typography } from '@mui/material';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
-import { DoubledPreview, DoublerTag } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
+import { DoublerLine, DoublerTag } from '@components/account/Worlds/World7/Menagerie/menagerie.utils';
 import { UpgradeCostAhead } from '@components/common/LevelsAhead';
 import Toolbar from '@components/common/Toolbar';
 import useToolbarState from '@hooks/useToolbarState';
@@ -34,7 +34,7 @@ const Upgrades = ({ upgrades, characters, bloodcells, doublersOwned = 0, levelsA
       return <ItemCard key={id} icon={`data/JellyUpg${id}.png`} title={name}
                        level={{ value: level ?? 0, max: maxLevel ?? null }} status={isMaxed ? 'maxed' : undefined}
                        dimmed={!(meetsLvReq && unlocked)}
-                       aside={<DoublerTag kind={'jellyOperator'} doubled={doubled} eligible={doublerEligible} owned={doublersOwned}/>}
+                       marked={doubled} aside={<DoublerTag kind={'jellyOperator'} doubled={doubled}/>}
                        footer={<>
                          {/* The first upgrade costs nothing: "0 / 0" read like missing data */}
                          {cost > 0 || level > 0
@@ -47,7 +47,8 @@ const Upgrades = ({ upgrades, characters, bloodcells, doublersOwned = 0, levelsA
                          {unlocked ? null : <Typography variant={'body2'} color={'text.secondary'}>Needs the previous upgrade</Typography>}
                        </>}>
         {description ? <ItemCard.Desc text={description.replace(/\n/g, '@')}/> : null}
-        <DoubledPreview description={description} doubledDescription={doubledDescription} owned={doublersOwned}/>
+        <DoublerLine description={description} doubledDescription={doubledDescription} doubled={doubled}
+                     eligible={doublerEligible} owned={doublersOwned}/>
       </ItemCard>;
     })}
     </CardGrid>
