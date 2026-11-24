@@ -34,7 +34,7 @@ export const getBravery = (holesObject: any, accountData: any) => {
   const min = getBraveryMinDamage(holesObject, accountData);
   const max = getBraveryMaxDamage(holesObject, accountData);
   const rewardMulti = getMonumentMultiReward(holesObject, 0, accountData) || 0;
-  const timeForNextFight = 72E3 * (1 - rewardMulti);
+  const timeForNextFight = getMonumentTimeToReady(holesObject, 0, accountData);
   const opalChance = Math.min(0.5, Math.pow(0.5, holesObject?.opalsPerCavern?.[3])
     * (1 + getMonumentBonus({ holesObject, t: 0, i: 5 }) / 100));
   const ownedSwords = Math.round(Math.min(9, 3 + (2 * getMonumentHourBonus({ holesObject, t: 0, i: 1 })
@@ -177,13 +177,22 @@ export const getMonumentMaxLinearTime = (holesObject: any, t: any, accountData: 
       (10 * superbitBonus + legendTalentBonus / 24)));
 }
 
+const getMonumentRewardBonus = (accountData: any) => (1 + getMeritocracyBonus(accountData, 7) / 100)
+  * (1 + getLegendTalentBonus(accountData, 27) / 100);
+
 export const getMonumentMultiReward = (holesObject: any, t: any, accountData: any) => {
   const maxLinearTime = getMonumentMaxLinearTime(holesObject, t, accountData)
 
   return (Math.min(holesObject?.extraCalculations?.[Math.round(11 + t)], maxLinearTime) / 72e3
     + (Math.pow(1 + Math.max(0, holesObject?.extraCalculations?.[Math.round(11 + t)] - maxLinearTime) / 72e3, 0.3) - 1))
-    * (1 + getMeritocracyBonus(accountData, 7) / 100)
-    * (1 + getLegendTalentBonus(accountData, 27) / 100);
+    * getMonumentRewardBonus(accountData);
+}
+
+// Seconds until the reward multi reaches 1x, at the bonuses active now. The game's own line ignores them (it counts the
+// gap at the 1x rate), so it shows a longer wait.
+export const getMonumentTimeToReady = (holesObject: any, t: any, accountData: any) => {
+  const elapsed = holesObject?.extraCalculations?.[Math.round(11 + t)] || 0;
+  return 72e3 / getMonumentRewardBonus(accountData) - elapsed;
 }
 
 const getBraveryMinDamage = (holesObject: any, accountData: any) => {

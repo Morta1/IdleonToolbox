@@ -16,7 +16,7 @@ const Wisdom = ({ hole }) => {
                 value={formatNum(wisdom?.timePerMatch ?? 0, 'amount', { precise: true })}/>
       <StatTile label={'Instant matches'} icon={'etc/Wisdom_InstantMatch.png'} value={wisdom?.instantMatches ?? 0}
                 kind={'amount'}/>
-      {monumentTiles(wisdom, hole)}
+      {monumentTiles(wisdom, hole, 'memory game')}
       {opalsFoundTile(hole, 12)}
     </Stack>
     <CardGrid size={'m'}>{(wisdom?.bonuses ?? []).map(monumentBonusCard)}</CardGrid>

@@ -15,7 +15,8 @@ export const patchNotes = [
     'fixes': [
       'Beanstalk: the next rank of Golden Nomwich and Butter Bar no longer shows a percent sign, and the Butter Bar note shows its real bonus',
       'Refinery: rank up material costs now count the Panda companion, and the next rank cost counts the full power it needs',
-      'Refinery: salt cards show short once per material, beside what you own or print'
+      'Refinery: salt cards show short once per material, beside what you own or print',
+      'Monuments: Justice and Wisdom no longer say Next fight, and all three countdowns count your reward multi bonuses'
     ]
   },
   {

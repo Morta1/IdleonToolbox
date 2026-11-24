@@ -13,7 +13,7 @@ const Justice = ({ hole }) => {
       <StatTile label={'Coins'} icon={'etc/Justice_Coin.png'} value={justice?.coins ?? 0} kind={'whole'}/>
       <StatTile label={'Popularity'} icon={'etc/Justice_Popularity.png'} value={justice?.popularity ?? 0} kind={'amount'}/>
       <StatTile label={'Dismissals'} icon={'etc/Justice_Dismissals.png'} value={justice?.dismissals ?? 0} kind={'amount'}/>
-      {monumentTiles(justice, hole)}
+      {monumentTiles(justice, hole, 'court case')}
       {opalsFoundTile(hole, 9)}
       <StatTile label={'Total justice levels'} value={getHoleLeaderboardTotals(hole).justiceLevels} kind={'amount'}/>
     </Stack>

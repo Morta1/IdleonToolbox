@@ -570,7 +570,7 @@ export const alertMeta = {
       evertree: { label: 'Evertree layer ready to break', group: 'Resource caverns', page: { query: { t: 'Explore', nt: 'Evertree' }, label: 'Evertree' } },
       bottomlessTrench: { label: 'Bottomless Trench layer ready to break', group: 'Resource caverns', page: { query: { t: 'Explore', nt: 'The Bottomless Trench' }, label: 'Bottomless Trench' } },
       bravery: {
-        label: 'Bravery story ready',
+        label: 'Bravery fight ready',
         help: 'Alerts when the Bravery reward multi reaches this value.',
         group: 'Monuments',
         page: { query: { t: 'Explore', nt: 'Bravery' }, label: 'Bravery' }
@@ -614,14 +614,14 @@ export const alertMeta = {
       grotto: { label: 'Monarch ready to fight', group: 'Other caverns', page: { query: { t: 'Explore', nt: 'Grotto' }, label: 'Grotto' } },
       gambit: { label: 'Gambit attempt ready', group: 'Other caverns', page: { query: { t: 'Explore', nt: 'Gambit' }, label: 'Gambit' } },
       justice: {
-        label: 'Justice story ready',
+        label: 'Justice court case ready',
         help: 'Alerts when the Justice reward multi reaches this value.',
         group: 'Monuments',
         page: { query: { t: 'Explore', nt: 'Justice' }, label: 'Justice' }
       },
       villagersLevelUp: { label: 'Villagers ready to level up', group: 'Villagers and studies' },
       wisdom: {
-        label: 'Wisdom game ready',
+        label: 'Wisdom memory game ready',
         help: 'Alerts when the Wisdom reward multi reaches this value.',
         group: 'Monuments',
         page: { query: { t: 'Explore', nt: 'Wisdom' }, label: 'Wisdom' }

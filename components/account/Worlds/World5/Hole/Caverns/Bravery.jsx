@@ -21,7 +21,7 @@ const Bravery = ({ hole }) => {
       <StatTile label={'Swords'} icon={'data/HoleBraverySword.png'} value={bravery?.ownedSwords ?? 0} kind={'amount'}/>
       <StatTile label={'Max rethrows'} icon={'etc/Bravery_Rethrow.png'} value={bravery?.maxRethrow ?? 0} kind={'amount'}/>
       <StatTile label={'Max retelling'} icon={'etc/Bravery_Retelling.png'} value={bravery?.maxRetelling ?? 0} kind={'amount'}/>
-      {monumentTiles(bravery, hole)}
+      {monumentTiles(bravery, hole, 'fight')}
       {enemyHp ? <StatTile label={'Enemy HP'} breakdown={enemyHp}/> : null}
       {opalsFoundTile(hole, 3)}
       <StatTile label={'Total bravery levels'} value={getHoleLeaderboardTotals(hole).braveryLevels} kind={'amount'}/>

@@ -66,9 +66,9 @@ export const monumentRewardText = (reward, hole) => cleanUnderscore((reward ?? '
   .replace('$', formatNum(hole?.caverns?.justice?.coins ?? 0))
   .replace('#', formatNum(hole?.caverns?.wisdom?.attempts ?? 0)));
 
-// The tiles every monument shows after its own: the opal odds, its hours and reward multi, the next fight, the AFK
+// The tiles every monument shows after its own: the opal odds, its hours and reward multi, the next run (what the monument calls it), the AFK
 // hours the next reward needs, and that reward. The three parsers hand the same fields.
-export const monumentTiles = (monument, hole) => {
+export const monumentTiles = (monument, hole, run) => {
   const next = monument?.nextHourBreakpoint;
   const nextHours = Number(next?.hours ?? 0);
   const afkHours = monument?.monumentAfkReq;
@@ -77,7 +77,7 @@ export const monumentTiles = (monument, hole) => {
     <StatTile label={'Opal chance'} icon={'data/Opal.png'} value={(monument?.opalChance ?? 0) * 100} kind={'pct'}/>
     <StatTile label={'Hours'} value={monument?.hours ?? 0} kind={{ game: 'Save.MonumentHours' }}/>
     <StatTile label={'Reward multi'} value={(monument?.rewardMulti ?? 0) < 1 ? 0 : monument.rewardMulti} kind={'mult'}/>
-    <StatTile label={'Next fight in'}
+    <StatTile label={`Next ${run} in`}
               value={monument?.timeForNextFight > 0 ? msToDate(monument.timeForNextFight * 1000) : <StatusText status={'ready'}/>}/>
     {afkHours ? <StatTile label={'AFK hours needed'} value={afkText} breakdownTitle={'AFK hours needed'}
                           breakdown={{ ...afkHours, totalValue: afkText }} breakdownNoun={'characters'}/> : null}

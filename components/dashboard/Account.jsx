@@ -582,10 +582,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                        title={layerBreaksTitle(alerts['World 5'].hole.layerBreaks)}
                        iconPath={'data/Opal'}/> : null}
               {alerts?.['World 5']?.hole?.bravery ?
-                <Alert target={'World 5.hole.bravery'} title={`You can hear a story in the bravery cavern`}
+                <Alert target={'World 5.hole.bravery'} title={`You can fight in the bravery cavern`}
                        iconPath={'etc/Bravery_Statue'}/> : null}
               {alerts?.['World 5']?.hole?.justice ?
-                <Alert target={'World 5.hole.justice'} title={`You can hear a story in the justice cavern`}
+                <Alert target={'World 5.hole.justice'} title={`You can hear a court case in the justice cavern`}
                        iconPath={'data/Justice_Monument_x1'}/> : null}
               {alerts?.['World 5']?.hole?.wisdom ?
                 <Alert target={'World 5.hole.wisdom'} title={`You can play a memory game in the wisdom cavern`}

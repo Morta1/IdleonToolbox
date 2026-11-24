@@ -1049,7 +1049,7 @@ const minibossProps = (miniboss, dailyReset, killsWanted) => {
   return { sub: count, value: next, time: dailyReset == null ? undefined : dailyReset + (daysTillNext - 1) * DAY, message: () => `${count}, ${next}` };
 };
 
-// A monument's reward multi against its max linear growth, as a row's props. Past that max it's time to fight. Below it the
+// A monument's reward multi against its max linear growth, as a row's props. Past that max it's ready. Below it the
 // date it gets there is a deadline like any other, so it sorts with them and counts down to it, with the ratio as its muted
 // line, and at zero it moves to Ready now. One with neither (no date, not past it) has nothing to count and nothing to act on.
 const monumentProps = (currentMulti, { maxLinearMulti, timeUntilMaxDate } = {}) => {
@@ -1057,10 +1057,10 @@ const monumentProps = (currentMulti, { maxLinearMulti, timeUntilMaxDate } = {}) 
   const pair = `${formatNum(currentMulti, 'mult')} / ${formatNum(maxMulti, 'mult')}`;
   const past = `Past its max linear growth: ${pair}`;
   if (Math.round(100 * currentMulti) > Math.round(100 * maxMulti)) {
-    return { sub: pair, placeholder: 'Fight', forcePlaceholder: true, message: () => past };
+    return { sub: pair, placeholder: 'Ready', forcePlaceholder: true, message: () => past };
   }
   if (timeUntilMaxDate) {
-    return { sub: pair, placeholder: 'Fight', time: timeUntilMaxDate, message: (when, over) => (over ? past : `Max linear growth: ${when}`) };
+    return { sub: pair, placeholder: 'Ready', time: timeUntilMaxDate, message: (when, over) => (over ? past : `Max linear growth: ${when}`) };
   }
   return { sub: 'At max linear growth', value: pair, message: () => 'At max linear growth' };
 };
