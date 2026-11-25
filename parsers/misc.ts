@@ -560,7 +560,8 @@ export const getCurrencies = (account: any, idleonData: any, processedData: any)
     '4_HR_Time_Candy': 4,
     '12_HR_Time_Candy': 12,
     '24_HR_Time_Candy': 24,
-    '72_HR_Time_Candy': 72
+    '72_HR_Time_Candy': 72,
+    'Spirit_Time_Candy': 24
   };
 
   const specialCandy = {

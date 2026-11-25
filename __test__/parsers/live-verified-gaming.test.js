@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { within } from '../helpers/live-verified';
-import { getBitsMulti } from '@parsers/world-5/gaming';
+import { getBitsMulti, getNewMutationChance } from '@parsers/world-5/gaming';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
 // latest.json is that account's save (OptionsListAccount[340] matches). Caches were rebuilt first
@@ -38,5 +38,12 @@ describe('gaming verified against the live game', () => {
     const megacrop = superbit('Mo_Stickers_Mo_Bonusers');
     expect(megacrop.totalBonus).toBeCloseTo(3.76, 9);
     expect(megacrop.additionalInfo).toBe('438 farming level');
+  });
+
+  it('DNA lost on failed tries raises the new mutation chance, from the second mutation on', () => {
+    // NewMutantChanceDEC in N.js, not read live: the save has every mutation
+    expect(getNewMutationChance(5, 2651)).toBe(11.5);
+    expect(getNewMutationChance(5, 2651, 1, 2651)).toBe(72.8);
+    expect(getNewMutationChance(0, 10, 1, 2651)).toBe(getNewMutationChance(0, 10));
   });
 });

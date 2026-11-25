@@ -160,6 +160,7 @@ export const OPT = {
   grimoireAnnihilations: 336,
   vaultKnockouts: 338,
   vaultOresMined: 340,
+  gamingLostDna: 342,
   vaultFishCaught: 345,
   vaultBugsCaught: 346,
   pureMemoryBestRound: 353,

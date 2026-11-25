@@ -149,10 +149,11 @@ const parseGaming = (gamingRaw: any, gamingSproutRaw: any, spelunkRaw: any, rese
   const mutations = getMutations();
   const mutationCost = (25 + (10 * (evolutionLevel + 1) + Math.pow(evolutionLevel + 1, 2))) * Math.pow(1.3, evolutionLevel);
   const voteBonus = (1 + getVoteBonus(account, 21) / 100);
-  const newMutationChance = getNewMutationChance(unlockedMutations, dna, voteBonus);
+  const lostDna = account?.accountOptions?.[OPT.gamingLostDna] ?? 0;
+  const newMutationChance = getNewMutationChance(unlockedMutations, dna, voteBonus, lostDna);
   const mutationChanceBreakpoints = [100, 200, 300, 400, 500].map((bp) => ({
     value: bp,
-    chance: getNewMutationChance(unlockedMutations, bp)
+    chance: getNewMutationChance(unlockedMutations, bp, voteBonus, lostDna)
   }));
 
   const ratKing = calcRatKing(gamingSproutRaw, researchRaw, account, superbitsUpg);
@@ -351,10 +352,12 @@ export const getBitsMulti = (account: any, characters: any) => {
   }
 }
 
-export const getNewMutationChance = (unlockedMutations: any, dna: any, voteBonus = 1) => {
+export const getNewMutationChance = (unlockedMutations: any, dna: any, voteBonus = 1, lostDna = 0) => {
+  // The DNA spent on failed tries since the last new mutation
+  const lostDnaBonus = 1 + 10 * Math.pow(Math.max(0, lostDna / (70 * Math.pow(1.7, unlockedMutations) + lostDna)), 2);
   return Math.floor(1e3 * (0 === unlockedMutations
     ? Math.min(0.8, (7 * dna) / (100 + dna) * voteBonus)
-    : Math.min(0.99, ((42 * dna) / (100 + dna)) * Math.pow(0.31, unlockedMutations) * voteBonus))) / 10
+    : Math.min(0.99, ((42 * dna) / (100 + dna)) * Math.pow(0.31, unlockedMutations) * voteBonus * lostDnaBonus))) / 10
 }
 
 const getMutations = () => {
