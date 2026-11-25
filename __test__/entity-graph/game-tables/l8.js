@@ -59,7 +59,7 @@ export const everyListReader = (input) => {
     ...npcNodes(input.npcRoster),
     ...stationNodes(),
     ...jadeNodes(input.jadeUpgrades),
-    ...monsterNodes(input.monsters, input.mapNames)
+    ...monsterNodes(input.monsters, input.mapNames, input)
   };
   enrichWorld3(pages, input);
   enrichWorld6(pages, input);

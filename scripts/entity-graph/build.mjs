@@ -135,7 +135,7 @@ const websiteData = loadWebsiteData(path.join(dataDir, 'website-data'));
 
 const nodes = {
   ...itemNodes(items, monsters, cards, stamps, craftSellPrices(crafts, items), randomList),
-  ...monsterNodes(monsters, mapNames),
+  ...monsterNodes(monsters, mapNames, websiteData),
   ...npcQuestNodes(quests),
   // After npcQuestNodes: the roster covers every quest NPC too, and carries a name and an icon
   // where the quest-derived node has only a raw key.

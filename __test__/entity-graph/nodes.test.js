@@ -45,6 +45,18 @@ describe('node extractors', () => {
     expect(nodes['monster:Plain'].stats).toEqual({ health: 5 });
   });
 
+  // Oracle: BossDetails in N.js, which the boss door writes to BossInfo and the fight reads
+  it('gives a keyed boss the numbers of its fight, not the stand-ins in monsters.json', () => {
+    const data = websiteData();
+    const nodes = monsterNodes(data.monsters, data.mapNames, data);
+    const statsOf = (id) => nodes[`monster:${id}`].stats;
+    expect(statsOf('wolfA')).toMatchObject({ health: 6e4, defence: 5, experience: 15e3 });
+    expect(statsOf('Boss2B')).toMatchObject({ health: 3e7, defence: 3000, experience: 2e6 });
+    expect(statsOf('Boss5C')).toMatchObject({ health: 1e15, defence: 25, experience: 2e9 });
+    expect(Object.keys(statsOf('Boss6A'))).toEqual(['respawn']);
+    expect(statsOf('wolfA').attack).toBeUndefined();
+  });
+
   // Seven monsters are literally named "Error" in the game data: tutorial spawners, cut content
   // and boss body parts. They are not entities and must not reach the browse list.
   // monster:Nothing is named "_", which reads as a blank row in the bestiary and would export a

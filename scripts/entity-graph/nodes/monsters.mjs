@@ -1,16 +1,41 @@
 import { hitCurveOf } from '../../../utility/hit-chance.mjs';
+import { gameTable } from '../registry/data.mjs';
+
+// The world bosses in bossDetails' order: A, B and C are a boss's difficulties. monsters.json
+// holds stand-ins for them (600 Defence, 12,000 EXP, 1,000 Attack); the fight reads the boss door's table. Kattlekruk's
+// health there is multiplied by his own scene, and monsters.json holds the product. The Emperor's
+// Defence and EXP follow the difficulty Kattlekruk was last left on and his health the showdowns won (enrich-world-6.mjs),
+// never his own bossDetails row. No boss has one attack figure. Those rows are left out.
+// UPKEEP: the families are named by hand, re-check when a world adds a keyed boss.
+const BOSS_FAMILIES = ['wolf', 'Boss2', 'Boss3', 'Boss4', 'Boss5', 'Boss6'];
+const KATTLEKRUK = 4;
+const EMPEROR = 5;
+const bossStats = (rawName, monster, data) => {
+  const [, family, difficulty] = rawName.match(/^([A-Za-z0-9]+)([ABC])$/) ?? [];
+  const row = BOSS_FAMILIES.indexOf(family);
+  if (row < 0) return null;
+  if (row === EMPEROR) return { attack: undefined, health: undefined, defence: undefined, experience: undefined };
+  const at = (stat) => gameTable(data, 'bossDetails')?.[stat]?.[row]?.['ABC'.indexOf(difficulty)];
+  return {
+    attack: undefined,
+    health: row < KATTLEKRUK ? at('health') : monster?.MonsterHPTotal,
+    defence: at('defence'),
+    experience: at('experience')
+  };
+};
 
 // Everything idleon.wiki puts in a monster's Information box, taken straight from monsters.json.
 // The two accuracy figures are not stored: the infobox inverts the game's hit-chance formula
 // (utility/hit-chance.mjs) for 5% and 100%. Only the curve rides along, because the game picks it
 // from the Type: monsters need 0.5x / 1.5x Defence, ores, trees, fish and bugs 0.25x / 1.98x.
-const monsterStats = (monster) => {
+const monsterStats = (rawName, monster, data) => {
   const stats = {
     attack: monster?.Damages?.[0],
     health: monster?.MonsterHPTotal,
     defence: monster?.Defence,
     experience: monster?.ExpGiven,
-    respawn: monster?.RespawnTime
+    respawn: monster?.RespawnTime,
+    ...bossStats(rawName, monster, data)
   };
   // A 0 attack is a fact (six early monsters never hit); the other stats at 0 mean the game has none for it.
   for (const key of Object.keys(stats)) {
@@ -101,7 +126,7 @@ export const monsterCategory = (rawName, monster) => {
 // Bronze Chest(W1) is true and worth keeping. They just do not belong in the bestiary listing.
 export const isBestiary = (category) => category === 'Monster';
 
-export const monsterNodes = (monsters, mapNames) => {
+export const monsterNodes = (monsters, mapNames, data) => {
   const nodes = {};
   for (const [rawName, monster] of Object.entries(monsters)) {
     if (!isRealMonster(monster, rawName)) continue;
@@ -114,7 +139,7 @@ export const monsterNodes = (monsters, mapNames) => {
       category: monsterCategory(rawName, monster),
       // Has a page, does not belong in the kind's listing. Same idea as COIN's navigable: false.
       ...(isBestiary(monsterCategory(rawName, monster)) ? {} : { catalog: false }),
-      stats: monsterStats(monster),
+      stats: monsterStats(rawName, monster, data),
       location: monsterLocation(monster, mapNames)
     };
   }

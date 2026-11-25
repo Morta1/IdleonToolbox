@@ -10,7 +10,7 @@ const data = websiteData();
 
 const blank = () => ({
   ...jadeNodes(data.jadeUpgrades),
-  ...monsterNodes(data.monsters, data.mapNames)
+  ...monsterNodes(data.monsters, data.mapNames, data)
 });
 const { nodes, changed } = enrichRun(blank, (fresh) => enrichWorld6(fresh, data));
 const jadeNamed = (name) => Object.values(nodes).find((node) => node.kind === 'jade' && node.name === name);

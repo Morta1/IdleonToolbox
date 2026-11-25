@@ -1,4 +1,5 @@
 import { enrichWorld3 } from '../../../scripts/entity-graph/enrich-world-3.mjs';
+import { monsterNodes } from '../../../scripts/entity-graph/nodes/monsters.mjs';
 import { rebuild } from './rebuild.js';
 
 // The build-time tables read before the wiki upkeep lanes. Each lane keeps the same two maps for its own tables in
@@ -16,6 +17,7 @@ const trapItems = (input) => {
 
 // Every table the graph build reads, with the output that reads it.
 export const READERS = {
+  bossDetails: (input) => monsterNodes(input.monsters, input.mapNames, input),
   trapTimeUnits: trapItems,
   legendTalentColours: rebuild('legendtalent'),
   legendTalentMaxLevelGroups: rebuild('legendtalent'),

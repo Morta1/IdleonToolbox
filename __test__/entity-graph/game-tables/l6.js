@@ -8,7 +8,7 @@ import { rebuild } from './rebuild.js';
 
 // The Jade Emporium and Emperor nodes the World 6 enrich pass adds its fields to.
 const enriched = (input) => {
-  const nodes = { ...jadeNodes(input.jadeUpgrades), ...monsterNodes(input.monsters, input.mapNames) };
+  const nodes = { ...jadeNodes(input.jadeUpgrades), ...monsterNodes(input.monsters, input.mapNames, input) };
   enrichWorld6(nodes, input);
   return nodes;
 };
