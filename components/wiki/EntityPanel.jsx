@@ -27,6 +27,7 @@ import { formatAmount, starterBundleCapacity } from '@utility/wiki/effects.mjs';
 import { collapseRows, tableThreshold } from '@utility/wiki/relations';
 import usePageTop from '@hooks/usePageTop';
 import RelationTable from './RelationTable';
+import MapAtlas, { RowNumber } from './MapAtlas';
 import NpcQuestRow from './NpcQuestRow';
 import CoinAmount, { isCoin } from './CoinAmount';
 import Price from './Price';
@@ -52,6 +53,7 @@ const WIDE_HEADER = { bundle: 711, world: 811 };
 
 const quantityLabel = (meta) => (meta?.quantity != null ? `x${notateAmount(meta.quantity)}` : '');
 const amountLabel = (meta) => (meta?.amount != null ? `x${notateAmount(meta.amount)}` : '');
+const needLabel = (meta) => meta?.need ?? '';
 const spawnLabel = (meta) => (meta?.count > 0 ? `${meta.count} spawns` : '');
 const orderLabel = (meta) => (meta?.order != null ? `#${meta.order}` : '');
 // What a container rolls. The pools are weighted and the weights are the game's own, so this is a
@@ -228,13 +230,17 @@ const REL_SECTIONS = {
   map: [
     { title: 'World', dir: 'to', rel: 'contains' },
     { title: 'Enemy', dir: 'from', rel: 'spawns', show: spawnLabel },
+    { title: 'Bosses', dir: 'from', rel: 'mapBoss' },
     { title: 'Critters', dir: 'from', rel: 'harvests', show: harvestLabel },
     { title: 'NPCs', dir: 'from', rel: 'hosts' },
     { title: 'Shop', dir: 'from', rel: 'hasShop' },
     // Constellations, observations and totems: banded by kind, since all three sit on a map.
     { title: 'Found here', dir: 'to', rel: 'locatedIn', groupByKind: true },
-    { title: 'Connects to', dir: 'from', rel: 'connectsTo' },
-    { title: 'Reachable from', dir: 'to', rel: 'connectsTo' }
+    { title: 'Connects to', dir: 'from', rel: 'connectsTo', show: needLabel },
+    { title: 'Reachable from', dir: 'to', rel: 'connectsTo' },
+    // A drawn map's page alone has these two and Bosses (utility/wiki/map-atlas.mjs).
+    { title: 'Places', dir: 'from', rel: 'mapPlace', flat: true },
+    { title: 'Gathering', dir: 'from', rel: 'mapGathering' }
   ],
   // Never a table, however many areas a world has. The table's columns are quantities and drop
   // rates, none of which an area row carries, so tabulating World 1's 42 would trade the one thing
@@ -416,7 +422,7 @@ const achievementGroups = (node) => [{
 
 const KIND_BOXES = { bundle: bundleGroups, pet: petGroups, achievement: achievementGroups };
 
-const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
+const EntityPanel = ({ index, id, atlas = null, onNavigate, onGo, hrefFor }) => {
   const pageTop = usePageTop();
   // byId is a plain object, so ?e=__proto__ would otherwise resolve to Object.prototype and render
   // a blank card instead of the empty state.
@@ -555,7 +561,8 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
           contents. A world's is the island map the game draws when you pick where to travel, which
           is the same shape and the same job. Both read as a header rather than as an avatar, so
           they span the card and the title sits under them. */}
-      {WIDE_HEADER[node.kind] && node.icon && !node.petMart && !node.starterOffer ? <Box
+      {atlas?.island ? <Box sx={{ mb: 1.5 }}><MapAtlas atlas={atlas} name={shownName(entityName(node))} onGo={onGo}/></Box> : null}
+      {!atlas?.island && WIDE_HEADER[node.kind] && node.icon && !node.petMart && !node.starterOffer ? <Box
         component={'img'}
         src={node.icon}
         alt={''}
@@ -577,6 +584,7 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
       <Stack direction={'column'} gap={3} alignItems={'flex-start'}
              sx={{ mt: 1.5, [`@container (min-width: ${ROW_FROM}px)`]: { flexDirection: 'row' } }}>
         <Box sx={{ flexGrow: 1, minWidth: 0, width: '100%' }}>
+          {atlas && !atlas.island ? <MapAtlas atlas={atlas} name={shownName(entityName(node))} onGo={onGo}/> : null}
           {/* A vial or bubble's description is a template with a `{` in it, and AlchemyInfo is
               what fills that in; printing the raw form here would show the brace. */}
           {/* A talent's description is a template too, and TalentInfo is what fills it in at
@@ -615,10 +623,10 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
           {/* Two columns once the column itself has room (beside the rail at 900 it is 262 px), which halves the
               scrolling on the long sections. A short section stays in one: two entries spread across a 1200px row put the
               second one half a screen from its own heading, which reads as a layout fault rather than density.
-              A section rendering its own Row is a block per entry and never columnar. */}
+              A section rendering its own Row is a block per entry and never columnar, and a map's numbers read straight down. */}
           <Box sx={{
             display: 'grid',
-            gridTemplateColumns: Row || size < COLUMN_MIN
+            gridTemplateColumns: Row || size < COLUMN_MIN || node.kind === 'map'
               ? '1fr'
               : 'repeat(auto-fill, minmax(min(260px, 100%), 1fr))',
             columnGap: 3,
@@ -628,6 +636,7 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
             const otherId = dir === 'from' ? edge.to : edge.from;
             const other = index.byId[otherId];
             if (!other) return null;
+            const onPicture = groups.some((group) => group.edges.some(({ meta }) => meta?.number));
             if (Row) return <Row
               key={`${otherId}-${edgeIndex}`}
               index={index}
@@ -640,7 +649,9 @@ const EntityPanel = ({ index, id, onNavigate, onGo, hrefFor }) => {
             const detail = show ? show(edge.meta || {}) : null;
             return <Stack key={`${otherId}-${edgeIndex}`}>
               <Stack direction={'row'} gap={1} alignItems={'center'}>
-                <EntityIcon node={other} size={24}/>
+                {onPicture ? <RowNumber number={edge.meta?.number}/> : null}
+                {/* A map has no art, and on a drawn map's page its number stands in the room an icon would take. */}
+                {onPicture && !other.icon ? null : <EntityIcon node={other} size={24}/>}
                 {/* A currency has no page worth opening, so it reads as a plain label. */}
                 {other.navigable === false
                   ? <Typography variant={'body2'}>{entityName(other)}</Typography>

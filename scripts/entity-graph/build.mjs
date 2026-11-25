@@ -112,6 +112,9 @@ const classPromotions = readJson('classPromotions.json');
 // missing file degrades to no history rather than failing the build.
 const historyPath = path.join(dataDir, 'entity-history.json');
 const entityHistory = fs.existsSync(historyPath) ? JSON.parse(fs.readFileSync(historyPath, 'utf-8')) : {};
+// Drawn by z-processing (scripts/mapAtlas.js), and exported on its own as entity-history.json is: no file, no atlas.
+const atlasPath = path.join(dataDir, 'map-atlas.json');
+const mapAtlas = fs.existsSync(atlasPath) ? JSON.parse(fs.readFileSync(atlasPath, 'utf-8')) : {};
 const shops = sharedData.shops;
 const mapNames = sharedData.mapNames;
 const rawMapNames = sharedData.rawMapNames;
@@ -184,7 +187,7 @@ enrichClasses(nodes, websiteData);
 
 // A world is derived from the areas in it, so it can only be built once the map nodes exist.
 Object.assign(nodes, worldNodes(nodes, websiteData));
-enrichAccount(nodes, websiteData);
+enrichAccount(nodes, websiteData, mapAtlas);
 // After the last enricher: a placeholder whose term a builder left out (its table absent) takes its sentence with it.
 dropUnfilledSentences(nodes);
 
@@ -230,7 +233,7 @@ const rawEdges = [
   ...totemPrayerEdges(nodes, sharedData.prayers),
   ...armorSetEdges(sharedData.equipmentSets),
   ...petMartEdges(bundleInfo, companions, nodes),
-  ...mapEdges(sharedData),
+  ...mapEdges(sharedData, mapAtlas),
   // Reads the finished node set too: an area's enemy is named on the monster node.
   ...worldEdges(nodes, sharedData),
   ...alchemyEdges(vials, cauldrons),

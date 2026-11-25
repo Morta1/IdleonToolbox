@@ -77,7 +77,7 @@ describe('listed kinds', () => {
   // Without the world listing, the trail is monsters and NPCs plus the portals out of them, and
   // those two are what it misses (The Oasis now hosts an observation). Kept as its own check so removing the world catalog cannot
   // silently strand them again.
-  it('reaches all but two areas from the monster and NPC trail alone', () => {
+  it('reaches all but one area from the monster and NPC trail alone', () => {
     const isMap = (id) => graph.nodes[id]?.kind === 'map';
     const seeds = new Set();
     for (const edge of graph.edges) {
@@ -106,16 +106,16 @@ describe('listed kinds', () => {
     const stranded = nodes
       .filter(([id, node]) => node.kind === 'map' && node.catalog !== false && !seen.has(id))
       .map(([, node]) => node.name);
-    // Both host nothing at all, so nothing can link to them. Named areas, so they keep their
-    // pages: How_Did_u_get_here is a joke room you are not meant to reach, which is why it has no
+    // It hosts nothing, so nothing can link to it. A named area, so it keeps its
+    // page: a joke room you are not meant to reach, which is why it has no
     // portal in either direction.
-    expect(stranded.sort()).toEqual(['Grand_Owl_Perch', 'How_Did_u_get_here']);
+    expect(stranded.sort()).toEqual(['How_Did_u_get_here']);
   });
 
   // A kind added to the graph later has no listing until it is named here, which would leave its
   // pages out of the sitemap and off the category grid without anything failing.
   it('lists every other kind the graph carries', () => {
-    const unlisted = new Set(['quest', 'shop', 'station', 'spice', 'map']);
+    const unlisted = new Set(['quest', 'shop', 'station', 'spice']);
     // Registry kinds count before the committed graph is regenerated with them, so a new row does not
     // fail this until the next build.
     const kinds = [...new Set([...nodes.map(([, node]) => node.kind), ...ROWS.map((row) => row.kind)])].filter((kind) => !unlisted.has(kind));

@@ -9,6 +9,9 @@ export const GAME_HEX = { fill: '#fff', edge: '#000', text: '#000', halo: 'rgba(
 // Words and marks sitting on a game sprite: the plate under a boss's name, and the dark edge around a glyph on an icon.
 export const ON_ART = { plate: 'rgba(0, 0, 0, 0.65)', text: '#fff', error: '#e57373', outline: '#000' };
 
+// The numbers on a wiki map's picture.
+export const ON_MAP = { plate: 'rgba(15, 20, 26, 0.82)', text: '#fff', edge: '#90caf9', label: '#0f141a' };
+
 // The breakdown drawer's copy-as-image, a canvas picture players post: it reads the same whoever posts it.
 export const SHARE_IMAGE = {
   page: '#141A21',

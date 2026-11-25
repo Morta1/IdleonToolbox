@@ -8,11 +8,13 @@ import { entityHref, pageIndex } from '@utility/wiki/page-graph';
 
 // One page per entity. The whole point of the route: 3,466 entities used to share /wiki and one
 // title, and a shared URL cannot be linked to, ranked or sitemapped separately.
-const WikiEntityPage = ({ slice, seoTitle, seoDescription }) => {
+const WikiEntityPage = ({ slice, atlas = null, seoTitle, seoDescription }) => {
   // No graph download here: everything this page renders came from static props one hop away.
   const index = pageIndex(slice);
 
   const go = useWikiGo();
+  // A row of a drawn map can lead to a page that is no entity's (Orion's is the owl's listing).
+  const hrefFor = (id) => index.byId[id]?.href ?? entityHref(index.byId[id]);
 
   return <WikiRail current={slice.node?.kind}>
     <Box>
@@ -23,9 +25,10 @@ const WikiEntityPage = ({ slice, seoTitle, seoDescription }) => {
         key={slice.id}
         index={index}
         id={slice.id}
-        hrefFor={(id) => entityHref(index.byId[id])}
+        atlas={atlas}
+        hrefFor={hrefFor}
         onNavigate={(id) => {
-          const href = entityHref(index.byId[id]);
+          const href = hrefFor(id);
           if (href) go(href);
         }}
         onGo={go}

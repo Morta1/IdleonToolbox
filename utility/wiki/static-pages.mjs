@@ -11,6 +11,7 @@ import {
   looseKindAt, movedListingHref, routeClashes, systemBySlug, systemOf, systemsWithRows
 } from './kinds.mjs';
 import { listingEntries } from './listing.mjs';
+import { atlasFor, atlasListing, islandFor } from './map-atlas.mjs';
 import { entityDescription, entityTitle, listingDescription, listingTitle, systemDescription, systemTitle } from './seo.js';
 
 // Repeats the graph build's guard, so next build stops even on a graph built before the guard existed.
@@ -40,7 +41,9 @@ const pageNodes = (graph) => {
 export const wikiHomeProps = () => ({ props: { counts: rowCounts(staticGraph().graph) } });
 
 export const listingProps = (kind) => {
-  const { columns, entries } = listingEntries(staticGraph().graph, kind);
+  const { graph } = staticGraph();
+  const listing = listingEntries(graph, kind);
+  const { columns, entries } = kind === 'map' ? atlasListing(graph, listing) : listing;
   if (entries.length === 0) return { notFound: true };
 
   return {
@@ -57,10 +60,13 @@ export const listingProps = (kind) => {
 
 const entityProps = (id) => {
   const slice = staticNeighbourhood(id);
+  const draw = { map: atlasFor, world: islandFor }[slice.node.kind];
+  const drawn = draw?.(staticGraph().graph, id, slice) ?? null;
   return {
     props: {
       page: 'entity',
       slice,
+      ...drawn,
       seoTitle: entityTitle(slice.node),
       seoDescription: entityDescription(slice.node, slice.edges, id)
     }

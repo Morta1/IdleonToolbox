@@ -22,6 +22,7 @@ export const KIND_ART = {
   // and letterbox to an unreadable strip in a square tile, so the tile takes the one landmark on
   // them that survives being 44px wide.
   world: 'etc/World_Category.png',
+  map: 'etc/Map_Portal.png',
   // Not a bundle banner: at tile size a 711x120 strip is unreadable either squashed or cropped.
   // The gem chest is what every bundle is drawn around, and it is square.
   bundle: 'data/PremiumGem.png',
@@ -115,7 +116,7 @@ export const KIND_ART = {
 };
 
 // Every listed kind carries real art, so there is no drawn stand-in any more: the glyphs existed
-// for quests, maps and shops, and none of the three has a listing left.
+// for quests, maps and shops: quests and shops have no listing left, and maps wear their portal.
 export const KindArt = ({ kind, size = 40 }) => {
   const art = KIND_ART[kind];
   if (!art) return null;

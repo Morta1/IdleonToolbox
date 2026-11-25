@@ -18,13 +18,8 @@ import { KIND_PLURALS, kindLabel } from './kind-labels.mjs';
 // "Sold by" (149 links), the town map's "Shop", and the 29 town NPCs that carry the shop of the
 // town they stand in.
 //
-// Map is absent too. Nobody arrives at the wiki wanting an area: they want an item or a mob, and
-// the map is where that trail leads rather than where it starts. Most are one hop from a monster's
-// "Found in" or an NPC's, and following the portals reaches almost all of them. World is what
-// covers the rest: Grand Owl Perch, The Oasis and How_Did_u_get_here host nothing and connect to
-// nothing, so they were pages nothing linked to until their world listed them.
-// World IS worth browsing where its 163 areas are not. Seven tiles, each the game's own map art,
-// and "what is in World 3" is the question somebody asks before they know an area's name.
+// Maps are browsed by their pictures, a world at a time. World is the shorter way in: seven tiles, each the game's own
+// map art, and "what is in World 3" is the question somebody asks before they know an area's name.
 // Bundles ARE worth browsing, unlike the shops: 34 of them, each a set of things bought together,
 // and "what was in that pack" is the question they exist to answer.
 // Achievements ARE worth browsing: 420 of them, banded by world, and the question "what is left to
@@ -49,7 +44,7 @@ import { KIND_PLURALS, kindLabel } from './kind-labels.mjs';
 // kinds come first, so on the home page their tiles sit straight under the world's heading rather than
 // trailing a system's tiles as though they were part of it.
 const GROUPS = [
-  { label: 'Encyclopedia', entries: ['item', 'monster', 'npc', 'world', 'class', 'talent'] },
+  { label: 'Encyclopedia', entries: ['item', 'monster', 'npc', 'world', 'map', 'class', 'talent'] },
   // What belongs to the account rather than to a place in the game: progress, companions, purchases,
   // the account-wide vault, the guild, the Task Board's merit shops and the dungeons.
   {

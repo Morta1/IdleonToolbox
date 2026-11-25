@@ -13,6 +13,7 @@ const BLURB = {
   npc: 'Everyone who gives a quest, and what they want for it.',
   achievement: 'Every achievement, banded by world, with the gems and time candy it pays out.',
   world: 'Every world, and every area inside it with the enemy that lives there.',
+  map: 'Every map, with its portals, NPCs and observations.',
   class: 'Every class, what it promotes into, and the talents it brings with it.',
   talent: 'Every talent in the game, what it does at each level, and what it costs to cast.',
   pet: 'Every companion pet, its bonus, and the bundle it came in.',

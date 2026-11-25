@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, Link, Stack, Typography } from '@mui/material';
 import CardGrid from '@components/common/cards/CardGrid';
 import ItemCard from '@components/common/cards/ItemCard';
+import { cardSurface } from '@components/common/cards/tokens';
 import EntityIcon from './EntityIcon';
 import GemCount from './GemCount';
 import ListingTable, { Disambig } from './ListingTable';
@@ -36,8 +37,23 @@ const PetMartCard = ({ entry, ...link }) => <ItemCard
 
 // The kinds whose art is a banner rather than an icon, and so are laid out two to a row.
 const BANNER_KINDS = new Set(['bundle', 'world']);
+// The kinds browsed by a small picture: four to a row, two on a phone.
+const THUMB_KINDS = new Set(['map']);
+const THUMB_SX = { gridTemplateColumns: { xs: 'repeat(2, minmax(0, 1fr))', sm: 'repeat(auto-fill, minmax(220px, 1fr))' }, gap: { xs: 1.25, sm: 2 } };
 
-const Band = ({ band, onNavigate, hrefFor, banner, labelOf }) => {
+const ThumbCard = ({ entry, band, href, onClick }) => <Link href={href} onClick={onClick} underline={'none'}
+                                                            sx={(theme) => ({ ...cardSurface(theme), display: 'block', overflow: 'hidden' })}>
+  {entry.node.thumb
+    ? <Box component={'img'} src={entry.node.thumb} alt={''} loading={'lazy'}
+           sx={{ display: 'block', width: '100%', aspectRatio: '16 / 9', objectFit: 'cover' }}/>
+    : <Box sx={{ aspectRatio: '16 / 9', bgcolor: 'action.hover' }}/>}
+  <Box sx={{ px: 1.25, py: 1 }}>
+    <Typography variant={'body2'}>{entry.label}<Disambig entry={entry} band={band}/></Typography>
+    <Typography variant={'caption'} component={'div'} color={'text.secondary'} sx={{ minHeight: 18 }}>{entry.node.target}</Typography>
+  </Box>
+</Link>;
+
+const Band = ({ band, onNavigate, hrefFor, banner, thumbs, labelOf }) => {
   const [expanded, setExpanded] = useState(false);
   const rows = visibleRows(band.entries, expanded);
   const hidden = band.entries.length - rows.length;
@@ -59,8 +75,10 @@ const Band = ({ band, onNavigate, hrefFor, banner, labelOf }) => {
     {/* A bundle's art is a 711x120 shop banner carrying its name, its price and its contents, and
         a world's is the 811x433 island map carrying its name. In the five-column grid every other
         category uses both arrive unreadable, so they get wide cards instead: the art IS the row. */}
-    <CardGrid size={banner ? 'l' : 's'} sx={banner ? { gridTemplateColumns: 'repeat(auto-fill, minmax(min(340px, 100%), 1fr))' } : { rowGap: 0.5 }}>
+    <CardGrid size={banner ? 'l' : 's'} sx={thumbs ? THUMB_SX : banner ? { gridTemplateColumns: 'repeat(auto-fill, minmax(min(340px, 100%), 1fr))' } : { rowGap: 0.5 }}>
       {rows.map((entry) => {
+        if (thumbs) return <ThumbCard key={entry.id} entry={entry} band={heading} href={hrefFor?.(entry.id)}
+                                      onClick={navigateOnPlainClick(onNavigate, entry.id, true)}/>;
         if (!banner) {
           return <Stack key={entry.id} direction={'row'} gap={1} alignItems={'center'} sx={{ py: 0.4 }}>
             <EntityIcon node={entry.node} size={32}/>
@@ -246,6 +264,7 @@ const EntityList = ({ index, kind, onNavigate, hrefFor, columns = [], sort = nul
       onNavigate={onNavigate}
       hrefFor={hrefFor}
       banner={BANNER_KINDS.has(kind)}
+      thumbs={THUMB_KINDS.has(kind)}
       labelOf={labelOf}
     />)}
   </Stack>;

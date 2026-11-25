@@ -126,8 +126,8 @@
     "teaches": 333,
     "setPiece": 192,
     "spawns": 139,
-    "connectsTo": 133,
-    "hosts": 121,
+    "connectsTo": 151,
+    "hosts": 118,
     "contains": 154,
     "gathers": 46
   },

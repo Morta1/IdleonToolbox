@@ -3,7 +3,7 @@
 // icon or a cost of its own, so none is a kind.
 import { spaced, tidy, titleCase } from './registry/text.mjs';
 import { linked } from '../../utility/wiki/field-links.mjs';
-import { NO_ENEMY } from './edges/maps.mjs';
+import { NO_ENEMY, isHiddenExit } from './edges/maps.mjs';
 
 const addFields = (node, fields) => {
   if (!node) return;
@@ -56,14 +56,14 @@ const portalLabel = (requirement, portal, mapIndex, afkType, multicharReq) => {
 // A map with no line gets no field. What is left out on purpose: the portals past the requirement
 // list and the town portals whose requirement is the sentinel 1 (each opens on a different trigger,
 // none of it in data), the tutorial portals and the portals into a placeholder map.
-const mapPortalFields = (nodes, { mapPortals, mapPortalDestinations, mapEnemiesArray, monsters, mapMulticharReq }) => {
+const mapPortalFields = (nodes, { mapPortals, mapPortalDestinations, mapEnemiesArray, monsters, mapMulticharReq }, atlas) => {
   for (const [mapIndex, destinations] of Object.entries(mapPortalDestinations || {})) {
     const node = nodes[`map:${mapIndex}`];
     if (!node) continue;
     const enemy = mapEnemiesArray?.[mapIndex];
     const afkType = enemy && !NO_ENEMY.has(enemy) ? monsters?.[enemy]?.AFKtype : null;
     const lines = (destinations || []).flatMap((destination, portal) => {
-      if (destination < 0 || String(destination) === String(mapIndex)) return [];
+      if (destination < 0 || String(destination) === String(mapIndex) || isHiddenExit(atlas, mapIndex, destination)) return [];
       const target = nodes[`map:${destination}`];
       const requirement = mapPortals?.[mapIndex]?.[portal];
       // UPKEEP: Z is the padding marker; only Echoing Egress portal 0 leads to one, map 35, a scene name the game never gives a display name.
@@ -76,8 +76,8 @@ const mapPortalFields = (nodes, { mapPortals, mapPortalDestinations, mapEnemiesA
 };
 
 // Runs after the world nodes exist: world:4 is derived from the map nodes.
-export const enrichAccount = (nodes, data) => {
+export const enrichAccount = (nodes, data, atlas = {}) => {
   addFields(nodes['world:4'], arenaFields(data));
   joinCardSets(nodes, data.cardSets);
-  mapPortalFields(nodes, data);
+  mapPortalFields(nodes, data, atlas);
 };
