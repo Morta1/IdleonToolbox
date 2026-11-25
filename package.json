@@ -11,7 +11,7 @@
     "dev": "node utility/build-worker.mjs && next dev --port=3001",
     "build": "next build",
     "start": "npx serve@latest out",
-    "postbuild": "node utility/generate-sitemap.mjs",
+    "postbuild": "node utility/share-wiki-css.mjs && node utility/generate-sitemap.mjs",
     "test": "vitest run",
     "test:e2e": "node e2e/generate-specs.js && npm run build && npx playwright test",
     "test:e2e:nobuild": "node e2e/generate-specs.js && npx playwright test",
