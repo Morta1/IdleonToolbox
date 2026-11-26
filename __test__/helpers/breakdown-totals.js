@@ -124,8 +124,9 @@ const computedBreakdowns = (account, characters, idleonData) => {
     add('doubleStatue', doubleStatue.breakdown, doubleStatue.value);
   }
   (account.farming?.plot ?? []).forEach((crop, index) => {
+    // A locked plot's drawer explains the chance it gets once unlocked
     const evolution = getCropEvolution(account, characters?.[0], crop);
-    add(`cropEvolution[${index}]`, evolution.breakdown, evolution.isLocked ? 0 : evolution.value);
+    add(`cropEvolution[${index}]`, evolution.breakdown, getCropEvolution(account, characters?.[0], { ...crop, isLocked: 0 }).value);
   });
   getTrapsBonuses(account, characters).perCharacter.forEach(({ breakdown }, index) =>
     add(`traps[${index}]`, breakdown, undefined));

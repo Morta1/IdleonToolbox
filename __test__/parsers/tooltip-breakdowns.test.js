@@ -15,7 +15,7 @@ describe('tooltip breakdowns (empty)', () => {
   it('crop evolution is base chance * multipliers, capped and rounded', () => {
     (account.farming?.plot ?? []).forEach((crop) => {
       const { value, isLocked, breakdown } = getCropEvolution(account, characters?.[0], crop);
-      if (isLocked) return expect(breakdown.combine).toBe('list');
+      if (isLocked) return expect(breakdown.totalValue).toBe(`Locked (${evaluateBreakdown(breakdown)}%)`);
       expect(evaluateBreakdown(breakdown)).toBe(value);
     });
   });

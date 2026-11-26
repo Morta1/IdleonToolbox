@@ -1331,18 +1331,17 @@ export const getCropEvolution = (account: any, character: any, crop: any, forceS
   ]);
 
   const uncappedChance = evaluateBreakdownNode(baseChance) * evaluateBreakdownNode(multipliers);
-  let value = Math.round(10 * Math.min(CROP_EVO_MAX_CHANCE, uncappedChance)) / 10;
+  const chance = Math.round(10 * Math.min(CROP_EVO_MAX_CHANCE, uncappedChance)) / 10;
   // A plot's lock is exactly this roll's off switch - the game skips the crop type increment
-  // while it's set, and shows "NO" in place of the percentage. The bonuses below are still worth
-  // seeing, so only the chance itself is zeroed.
+  // while it's set, and shows "NO" in place of the percentage. The breakdown keeps the chance the
+  // plot gets once unlocked, so only the value is zeroed.
   const isLocked = Boolean(crop?.isLocked);
-  if (isLocked) value = 0;
   if (uncappedChance > CROP_EVO_MAX_CHANCE) multipliers.note = `Capped at ${CROP_EVO_MAX_CHANCE}%`;
 
   return {
-    value,
+    value: isLocked ? 0 : chance,
     isLocked,
-    breakdown: createBreakdown('Crop evolution chance', isLocked ? 'Locked' : `${value}%`, [baseChance, multipliers],
-      isLocked ? { combine: 'list' } : { max: CROP_EVO_MAX_CHANCE, round: 'round', step: CROP_EVO_CHANCE_STEP })
+    breakdown: createBreakdown('Crop evolution chance', isLocked ? `Locked (${chance}%)` : `${chance}%`, [baseChance, multipliers],
+      { max: CROP_EVO_MAX_CHANCE, round: 'round', step: CROP_EVO_CHANCE_STEP })
   }
 }

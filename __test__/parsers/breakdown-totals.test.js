@@ -9,7 +9,7 @@ import { DEFAULT_ROOT_COMBINE, evaluateBreakdown, isDisplayOnlyBreakdown } from 
 import { computeGains, computeShares } from '@components/common/Breakdown/breakdownInsights';
 
 // Every breakdown's tree, combined the way its root says, must rebuild the stat it explains. Display-only
-// breakdowns (root combine 'list': per-level tables, two values in one drawer, a locked crop) are skipped
+// breakdowns (root combine 'list': per-level tables, two values in one drawer) are skipped
 // on purpose; everything else is checked against the number the page shows.
 const FIXTURES = allFixtures();
 
