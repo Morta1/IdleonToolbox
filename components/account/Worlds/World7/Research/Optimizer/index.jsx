@@ -62,8 +62,7 @@ const Optimizer = ({ research, squares }) => {
     <Panel title={'Research Optimizer'}>
       <Stack gap={2} sx={{ p: 2 }}>
         <Stack direction={'row'} flexWrap={'wrap'} gap={3} alignItems={'flex-start'}>
-          <TextField select label={'Goal'} value={goal} onChange={(event) => setGoal(event.target.value)} sx={{ minWidth: 240 }}
-                     helperText={GOALS[goal].hint}>
+          <TextField select label={'Goal'} value={goal} onChange={(event) => setGoal(event.target.value)} sx={{ minWidth: 240 }}>
             {Object.entries(GOALS).map(([key, { label }]) => <MenuItem key={key} value={key}>{label}</MenuItem>)}
           </TextField>
           <Stack gap={0.75} sx={{ flex: '1 1 320px' }}>

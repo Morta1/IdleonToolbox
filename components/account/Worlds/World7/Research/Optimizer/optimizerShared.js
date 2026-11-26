@@ -21,6 +21,6 @@ export const pickMoves = (plans) => {
 
 // The goals the tab optimizes for, with the grid nodes each one reads.
 export const GOALS = {
-  researchExp: { label: 'Research EXP', hint: 'Grid nodes, glasses and kaleidoscopes' },
-  insight: { label: 'Insight EXP', hint: 'Grid nodes, monocles and kaleidoscopes' }
+  researchExp: { label: 'Research EXP' },
+  insight: { label: 'Insight EXP' }
 };
