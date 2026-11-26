@@ -147,7 +147,7 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
         {!steps.length
           ? `For ${goalLabel}, your shapes are already where I'd put them.`
           : `Move ${steps.length} shape${steps.length === 1 ? '' : 's'}: ${gainText(plan.ratio)} ${goalLabel}${losses.length
-            ? `, but ${losses.length} node${losses.length === 1 ? '' : 's'} lose${losses.length === 1 ? 's' : ''} part of a bonus: ${losses.map((node) => nodeName(squares, node)).join(', ')}`
+            ? `, but ${losses.map((node) => `${nodeName(squares, node)} drops from ${bonusText(node, bonus(input.owners, node))} to ${bonusText(node, bonus(plan.owners, node))}`).join(', ')}`
             : ', and no node loses its bonus'}.`}
       </Typography>
       {goal === 'researchExp' && steps.length ? <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
