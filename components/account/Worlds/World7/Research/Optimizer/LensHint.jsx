@@ -2,18 +2,19 @@ import React, { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { Link } from '@mui/material';
 import Notice from '@components/common/Notice';
-import { useResearchOptimizer } from '@hooks/useResearchOptimizer';
+import { getOptimizerKey, useResearchOptimizer } from '@hooks/useResearchOptimizer';
 import { gainText } from './optimizerShared';
 
 /** One line on the Observations tab when moving lenses would raise Research EXP today, leading to the Optimizer tab. */
 const LensHint = ({ input }) => {
   const router = useRouter();
   const lenses = useResearchOptimizer();
-  const runKey = JSON.stringify([input?.lensSlots, input?.insightLevels]);
+  const options = { goal: 'researchExp', realHours: 0 };
+  const runKey = getOptimizerKey('lenses', input, options);
   const hasLenses = (input?.lensSlots ?? []).some(({ observation }) => observation >= 0);
 
   useEffect(() => {
-    if (hasLenses) lenses.run('lenses', input, { goal: 'researchExp', realHours: 0 });
+    if (hasLenses) lenses.run('lenses', input, options);
   }, [runKey]);
 
   const plan = lenses.status === 'done' ? lenses.result : null;

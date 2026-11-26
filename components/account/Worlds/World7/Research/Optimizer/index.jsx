@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, MenuItem, Stack, TextField, Typography } from '@mui/material';
 import Panel from '@components/common/cards/Panel';
 import ViewSwitch from '@components/common/ViewSwitch';
-import { useResearchOptimizer } from '@hooks/useResearchOptimizer';
+import { getOptimizerKey, useResearchOptimizer } from '@hooks/useResearchOptimizer';
 import ShapesView from './ShapesView';
 import LensesView from './LensesView';
 import { GOALS, HORIZON_LABEL, HORIZONS, gainText, pickMoves } from './optimizerShared';
@@ -46,12 +46,17 @@ const Optimizer = ({ research, squares }) => {
   const lensesKey = JSON.stringify([goal, input?.lensSlots, input?.insightLevels, when, keepMonocles]);
   const lensCount = (input?.lensSlots ?? []).filter(({ observation }) => observation >= 0).length;
 
+  // The searches rerun on any change to what they read; the views (and their ticks) reset only when the layout does.
+  const shapesOptions = { goal };
+  const lensesOptions = { goal, realHours: HORIZONS[when], keepMonocles };
+  const shapesRunKey = getOptimizerKey('shapes', input, shapesOptions);
+  const lensesRunKey = getOptimizerKey('lenses', input, lensesOptions);
   useEffect(() => {
-    if (input?.shapesOwned) shapes.run('shapes', input, { goal });
-  }, [shapesKey]);
+    if (input?.shapesOwned) shapes.run('shapes', input, shapesOptions);
+  }, [shapesRunKey]);
   useEffect(() => {
-    if (lensCount) lenses.run('lenses', input, { goal, realHours: HORIZONS[when], keepMonocles });
-  }, [lensesKey]);
+    if (lensCount) lenses.run('lenses', input, lensesOptions);
+  }, [lensesRunKey]);
 
   return <Stack gap={3}>
     <Panel title={'Research Optimizer'}>

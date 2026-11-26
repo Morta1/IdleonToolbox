@@ -40,4 +40,18 @@ describe('useResearchOptimizer', () => {
     act(() => result.current.cancel());
     expect(result.current.status).toBe('idle');
   });
+
+  it('reuses a finished result for the same input and options, and reruns when either changes', () => {
+    const first = renderHook(() => useResearchOptimizer());
+    act(() => first.result.current.run('lenses', input, { goal: 'researchExp' }));
+    const cached = first.result.current.result;
+    // Another component (the Observations hint) leaving defaults out gets the same entry
+    const second = renderHook(() => useResearchOptimizer());
+    act(() => second.result.current.run('lenses', input, { goal: 'researchExp', realHours: 0, keepMonocles: false }));
+    expect(second.result.current.result).toBe(cached);
+    act(() => second.result.current.run('lenses', input, { goal: 'insight' }));
+    expect(second.result.current.result).not.toBe(cached);
+    act(() => second.result.current.run('lenses', { ...input, expMulti: 3 }, { goal: 'researchExp' }));
+    expect(second.result.current.result).not.toBe(cached);
+  });
 });
