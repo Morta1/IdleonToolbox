@@ -5,7 +5,7 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import { within, withLoggedInDivinity, withSkillLevel } from '../helpers/live-verified';
 import { getGridBonusAllmulti, getResearch, getResearchGridCanSelect } from '@parsers/world-7/research';
 import {
-  applyShapeMoves, createResearchScorer, getCoveredNodes, getGridLabel, getInsightExpReq, getLensDrags, getObservationBaseRate, getTurnPresses,
+  applyLensDrags, applyShapeMoves, createResearchScorer, getCoveredNodes, getGridLabel, getInsightExpReq, getLensDrags, getObservationBaseRate, getTurnPresses,
   isInsideDragBounds, optimizeLenses, optimizeShapes, parseShapeCatalog
 } from '@parsers/world-7/researchOptimizer';
 import { research as researchData } from '@website-data';
@@ -228,10 +228,7 @@ describe('research optimizer lenses', () => {
     const counts = (slots) => slots.reduce((map, { observation, type }) => ({ ...map, [`${observation}:${type}`]: (map[`${observation}:${type}`] ?? 0) + 1 }), {});
     const perObservation = Object.values(plan.slots.reduce((map, { observation }) => ({ ...map, [observation]: (map[observation] ?? 0) + 1 }), {}));
     expect(Math.max(...perObservation)).toBeLessThanOrEqual(input.lensCap);
-    const rebuilt = input.lensSlots.filter(({ observation }) => observation >= 0).map((slot) => ({ ...slot }));
-    for (const { type, from, to, count } of plan.drags) {
-      for (let n = 0; n < count; n++) rebuilt.find((slot) => slot.type === type && slot.observation === from).observation = to;
-    }
+    const rebuilt = applyLensDrags(input.lensSlots.filter(({ observation }) => observation >= 0), plan.drags);
     expect(counts(rebuilt)).toEqual(counts(plan.slots));
   });
 });

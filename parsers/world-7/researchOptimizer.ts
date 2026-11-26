@@ -444,6 +444,32 @@ export const getLensDrags = (from: LensSlot[], to: LensSlot[], cap: number) => {
   return ordered;
 };
 
+// What a lens layout is worth for a goal: Insight as it runs today, Research EXP at the horizon with the Insight levels
+// the lenses earn by then.
+export const scoreLensLayout = (input: ResearchOptimizerInput, layout: LensSlot[], {
+  goal = 'researchExp',
+  realHours = 0,
+  owners = input.owners,
+  scorer = createResearchScorer(input)
+}: { goal?: ResearchGoal; realHours?: number; owners?: number[]; scorer?: ReturnType<typeof createResearchScorer> } = {}) => {
+  const hours = getResearchHours(input, realHours);
+  return goal === 'insight'
+    ? scorer.insightRate(owners, layout)
+    : scorer.expRate(owners, layout, hours > 0 ? scorer.insightLevelsAfter(owners, layout, hours) : input.insightLevels);
+};
+
+// The layout after the first drags of a plan
+export const applyLensDrags = (slots: LensSlot[], drags: LensDrag[]) => {
+  const layout = slots.map((slot) => ({ ...slot }));
+  for (const { type, from, to, count } of drags) {
+    for (let n = 0; n < count; n++) {
+      const slot = layout.find((item) => item.type === type && item.observation === from);
+      if (slot) slot.observation = to;
+    }
+  }
+  return layout;
+};
+
 export const optimizeLenses = (input: ResearchOptimizerInput, {
   goal = 'researchExp',
   realHours = 0,
@@ -455,10 +481,7 @@ export const optimizeLenses = (input: ResearchOptimizerInput, {
   const hours = getResearchHours(input, realHours);
   const found = input.observationsFound;
   const slots = input.lensSlots.filter(({ observation }) => observation >= 0 && observation < found);
-  // Insight is scored as it runs today; Research EXP at the horizon, with the Insight levels the lenses earn by then.
-  const score = (layout: LensSlot[]) => (goal === 'insight'
-    ? scorer.insightRate(owners, layout)
-    : scorer.expRate(owners, layout, hours > 0 ? scorer.insightLevelsAfter(owners, layout, hours) : input.insightLevels));
+  const score = (layout: LensSlot[]) => scoreLensLayout(input, layout, { goal, realHours, owners, scorer });
   const today = (layout: LensSlot[]) => scorer.goalRate(goal, owners, layout);
   const movable = (slot: LensSlot) => !(keepMonocles && slot.type === LENS.monocle);
   const random = seeded(found * 7919 + slots.length);

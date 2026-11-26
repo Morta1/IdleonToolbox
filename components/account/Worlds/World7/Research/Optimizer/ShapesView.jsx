@@ -43,17 +43,17 @@ const StepRow = ({ step, index, state, gainSoFar, onPick, squares, catalog, goal
   const goalHolds = holds.filter((node) => GOAL_NODES[goal].includes(node));
   const others = holds.length - goalHolds.length;
   return <ButtonBase onClick={onPick} sx={{
-    justifyContent: 'flex-start', textAlign: 'left', borderRadius: 1, p: 1, gap: 1, alignItems: 'flex-start',
+    justifyContent: 'flex-start', textAlign: 'left', borderRadius: 1, px: 1, py: 1.25, gap: 1.5, alignItems: 'flex-start',
     opacity: state === 'done' ? 0.55 : 1, bgcolor: state === 'current' ? 'primary.soft' : undefined
   }}>
-    <Box sx={{ width: 22, flexShrink: 0, pt: '1px', color: state === 'done' ? 'text.success' : 'text.secondary', fontWeight: 700, fontSize: 14 }}>
+    <Box sx={{ width: 20, flexShrink: 0, lineHeight: '20px', color: state === 'done' ? 'text.success' : 'text.secondary', fontWeight: 700, fontSize: 14 }}>
       {state === 'done' ? <IconCheck size={18}/> : index + 1}
     </Box>
     <Stack gap={0.25} sx={{ minWidth: 0 }}>
       <Typography variant={'body2'} sx={{ fontWeight: 500 }}>
         {shapeName(catalog, to.shape)}
-        <Typography component={'span'} variant={'body2'} color={'text.secondary'}> · {gainText(gainSoFar)} so far</Typography>
       </Typography>
+      <Typography variant={'caption'} color={'text.success'}>{gainText(gainSoFar)} so far</Typography>
       <Typography variant={'body2'}>
         {turn.presses > 0
           ? `Turn: press the ${turn.button} button ${turn.presses} times (${from.rot % 360}° to ${to.rot % 360}°). Then drag`
@@ -159,21 +159,23 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
     <Stack direction={'row'} flexWrap={'wrap'} gap={2} alignItems={'flex-start'}>
       <Panel title={'Your grid'} meta={steps.length ? (finished ? 'After every step' : at ? `After ${at} step${at === 1 ? '' : 's'}` : 'Now') : undefined}
              sx={{ flex: '1 1 460px', minWidth: 0 }}>
-        <Box sx={{ p: 1.5, display: next ? { xs: 'none', sm: 'block' } : 'block' }}>
+        <Stack gap={1.5} sx={{ p: 2 }}>
+        <Box sx={{ display: next ? { xs: 'none', sm: 'block' } : 'block' }}>
           {board({ stays, moves: boardMoves, label: `Your Research grid ${at ? `after ${at} step${at === 1 ? '' : 's'}` : 'now'}${next ? `, with step ${at + 1} drawn on it` : ''}` })}
         </Box>
         {/* On a phone the whole board is too small to read: the part the next step changes */}
-        {next ? <Box sx={{ p: 1.5, display: { xs: 'block', sm: 'none' } }}>
+        {next ? <Box sx={{ display: { xs: 'block', sm: 'none' } }}>
           {board({ stays, moves: boardMoves, view: cropAround(catalog, [next.from, next.to]), labels: true,
             label: `The part of your grid that step ${at + 1} changes, with each cell's coordinate` })}
         </Box> : null}
-        <Typography variant={'caption'} color={'text.secondary'} component={'p'} sx={{ px: 2, pb: 1.5 }}>
+        <Typography variant={'caption'} color={'text.secondary'} component={'p'}>
           Outlined cells add to {goalLabel}. The next shape to move is dashed where it is now and solid where it goes.
         </Typography>
+        </Stack>
       </Panel>
 
       {steps.length ? <Panel title={'Steps to apply'} meta={`${at} / ${steps.length}`} sx={{ flex: '1 1 380px', minWidth: 0 }}>
-        <Stack gap={1.5} sx={{ p: 2 }}>
+        <Stack gap={2} sx={{ p: 2 }}>
           <LinearProgress variant={'determinate'} value={(at / steps.length) * 100} sx={{ height: 6, borderRadius: 3 }}/>
           <Stack direction={'row'} gap={1} alignItems={'center'} flexWrap={'wrap'}>
             <Button size={'small'} variant={'outlined'} disabled={at === 0} onClick={() => setCursor(at - 1)}>Back</Button>
@@ -192,16 +194,15 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
               Where step {at + 1} puts the {shapeName(catalog, next.shape)}. Each cell shows its coordinate in the game.
             </Typography>
           </Stack> : null}
-        </Stack>
-        <Stack sx={{ px: 1, pb: 1 }}>
+        {/* The rows' highlight reaches 8 px past the text, which lines up with the panel's 16 px */}
+        <Stack sx={{ mx: -1 }}>
           {steps.map((step, i) => <StepRow key={step.shape} step={step} index={i} gainSoFar={gainAfter[i]}
                                            state={i < at ? 'done' : i === at ? 'current' : 'next'} onPick={() => setCursor(i)}
                                            squares={squares} catalog={catalog} goal={goal}/>)}
         </Stack>
-        <Box sx={{ px: 2, pt: 1, pb: 2.5 }}>
-          <Notice tone={'missing'}>Go in this order and leave the other shapes alone. A moved shape only takes nodes no other shape
-            holds, so picking one up, even to put it back, can change who holds a node.</Notice>
-        </Box>
+        <Notice tone={'missing'}>Go in this order and leave the other shapes alone. A moved shape only takes nodes no other shape
+          holds, so picking one up, even to put it back, can change who holds a node.</Notice>
+        </Stack>
       </Panel> : null}
     </Stack>
 
