@@ -13,6 +13,7 @@ import { PAGES } from '@components/constants';
 import Grid from '@components/account/Worlds/World7/Research/Grid';
 import Observations from '@components/account/Worlds/World7/Research/Observations';
 import PostyNotes from '@components/account/Worlds/World7/Research/PostyNotes';
+import Optimizer from '@components/account/Worlds/World7/Research/Optimizer';
 
 // Time left in the Numbers board's style; no rate, no time
 const timeText = (hours) => (hours > 0 ? formatDuration(hours * 3600) : '-');
@@ -114,6 +115,7 @@ const Research = () => {
         {parseFailed ? null : <Observations observations={observations}/>}
       </Stack>
       <PostyNotes postyNotes={postyNotes}/>
+      {parseFailed || sectionFailed ? null : <Optimizer research={section} squares={gridSquares ?? []}/>}
     </Tabber>
   </SummaryFailed>;
 };

@@ -256,7 +256,7 @@ export const PAGES = {
             { tab: 'Lore', nestedTab: 'Bosses' }
           ]
         },
-        { label: 'research', icon: 'data/ClassIcons61', tabs: ['Grid', 'Observations', 'Posty Notes'] },
+        { label: 'research', icon: 'data/ClassIcons61', tabs: ['Grid', 'Observations', 'Posty Notes', 'Optimizer'] },
         { label: 'Gallery', icon: 'data/GalleryPodiumA3', tabs: ['Trophies', 'Nametags'] },
         { label: 'LegendTalents', icon: 'etc/Whallamus', tabs: [] },
         { label: 'coralReef', icon: 'data/ReefA1', tabs: ['Reef Upgrades', 'Dancing Coral'] },
