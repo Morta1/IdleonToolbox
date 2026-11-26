@@ -121,7 +121,9 @@ const LensesView = ({ research, optimizer, goal = 'researchExp', horizon: chosen
     </Stack>}
 
     <Stack direction={'row'} flexWrap={'wrap'} gap={2} alignItems={'flex-start'}>
-      <Panel title={'Your observations'} meta={drags.length ? 'After your drags' : undefined} sx={{ flex: '1 1 460px', minWidth: 0 }}>
+      <Panel title={<>Your observations <InfoButton label={'Your observations'}>Up to {input.lensCap} lenses fit on one
+        observation.{drags.length ? ' Marked observations change: tap one to find its drags.' : ''} Tap a kaleidoscope to see the 4
+        observations it boosts.</InfoButton></>} meta={drags.length ? 'After your drags' : undefined} sx={{ flex: '1 1 460px', minWidth: 0 }}>
         <Stack gap={1.5} sx={{ p: 2 }}>
           <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(8, minmax(0, 1fr))', gap: 0.75, maxWidth: 640 }}>
             {found.map(({ index, insightLevel }) => {
@@ -150,10 +152,6 @@ const LensesView = ({ research, optimizer, goal = 'researchExp', horizon: chosen
               </ButtonBase>;
             })}
           </Box>
-          <Typography variant={'caption'} color={'text.secondary'} component={'p'}>
-            Up to {input.lensCap} lenses on one observation.{drags.length ? ' Marked observations change: tap one to find its drags.' : ''} Tap
-            a kaleidoscope to see the 4 observations it boosts.
-          </Typography>
         </Stack>
       </Panel>
 
@@ -169,7 +167,7 @@ const LensesView = ({ research, optimizer, goal = 'researchExp', horizon: chosen
           {anyWait
             ? <Notice tone={'missing'}>A lens dropped on a full observation knocks a random one off: do the marked drags after the one they
               name. The rest work in any order.</Notice>
-            : <Typography variant={'caption'} color={'text.secondary'}>Any order works.</Typography>}
+            : null}
         </Stack>
       </Panel> : null}
     </Stack>

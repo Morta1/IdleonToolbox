@@ -167,12 +167,10 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
       </Stack> : null}
     </Stack>
 
-    {/* It changes which moves you get, so it stays in sight until LV 90 */}
-    {input.canRotate ? null : <Notice>Turning shapes unlocks at Research LV 90: until then, each shape keeps its current turn.</Notice>}
 
     <Stack direction={'row'} flexWrap={'wrap'} gap={2} alignItems={'flex-start'}>
       <Panel title={<>Your grid <InfoButton label={'Your grid'}>Only levelled nodes count: a shape over a node at level 0 gives
-        nothing until you level it.</InfoButton></>} sx={{ flex: '1 1 460px', minWidth: 0, maxWidth: 760 }}>
+        nothing until you level it.{input.canRotate ? '' : ' Turning shapes unlocks at Research LV 90: until then, each shape keeps its current turn.'}</InfoButton></>} sx={{ flex: '1 1 460px', minWidth: 0, maxWidth: 760 }}>
         <Stack gap={1.5} sx={{ p: 2 }}>
           {/* On a phone the whole grid is too small to read: each move's close-up in its row does the job there */}
           <Box sx={{ display: steps.length ? { xs: 'none', sm: 'block' } : 'block' }}>
