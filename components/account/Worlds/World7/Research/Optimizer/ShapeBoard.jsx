@@ -31,7 +31,7 @@ export const cropAround = (catalog, placements, pad = 20) => {
  * The Research grid with shapes over it. `stays` are drawn faint, `moves` (in order) dashed where they are now and solid
  * where they go, with their step number. `focus` dims every move but that one. `labels` prints each cell's coordinate.
  */
-const ShapeBoard = ({ goalNodes = [], catalog, levels, maxLevels, selectable, stays = [], moves = [], focus = null, view = FULL, labels = false, label }) => {
+const ShapeBoard = ({ closeUp = false, goalNodes = [], catalog, levels, maxLevels, selectable, stays = [], moves = [], focus = null, view = FULL, labels = false, label }) => {
   const theme = useTheme();
   const palette = (theme.vars || theme).palette;
   const grid = palette.identity.researchGrid;
@@ -55,10 +55,12 @@ const ShapeBoard = ({ goalNodes = [], catalog, levels, maxLevels, selectable, st
       return <g key={node}>
         <rect x={cellX(node)} y={cellY(node)} width={26} height={26} style={{ fill: level > 0 ? grid.unfilled : grid.open, stroke: grid.edge, strokeWidth: 1.5 }}/>
         {level > 0 ? <rect x={cellX(node)} y={cellY(node)} width={26} height={(26 * Math.min(level, max)) / max} style={{ fill: grid.levelled }}/> : null}
-        {labels ? <text x={cellX(node) + 13} y={cellY(node) + 17} textAnchor={'middle'} fontSize={9} fontWeight={700}
-                        style={{ fill: palette.identity.frame.surface }}>{getGridLabel(node)}</text> : null}
       </g>;
     })}
+    {/* Under the shapes, so an outline never hides one */}
+    {goalNodes.filter((node) => (levels[node] ?? 0) > 0 && inView(node)).map((node) => <rect
+      key={`goal-${node}`} x={cellX(node)} y={cellY(node)} width={26} height={26}
+      style={{ fill: 'none', stroke: palette.primary.main, strokeWidth: 3 }}/>)}
     {stays.map((placement) => <polygon key={`stay-${placement.shape}`} points={points(getShapeVertices(catalog[placement.shape], placement))}
                                        style={{ fill: shapeColor(placement.shape), fillOpacity: 0.16, stroke: shapeColor(placement.shape), strokeWidth: 1.5 }}/>)}
     {moves.map(({ from, to }, i) => {
@@ -68,14 +70,21 @@ const ShapeBoard = ({ goalNodes = [], catalog, levels, maxLevels, selectable, st
       return <g key={`move-${to.shape}`} style={{ opacity: focus == null || focus === i ? 1 : 0.12 }}>
         {from ? <polygon points={points(getShapeVertices(catalog[from.shape], from))}
                          style={{ fill: 'none', stroke: color, strokeWidth: 1.5, strokeDasharray: '4 4', opacity: 0.8 }}/> : null}
-        <polygon points={points(toVertices)} style={{ fill: color, fillOpacity: 0.3, stroke: color, strokeWidth: 2.5 }}/>
-        <circle cx={bx} cy={by} r={11} style={{ fill: palette.identity.frame.surface, stroke: color, strokeWidth: 2 }}/>
-        <text x={bx} y={by + 4.5} textAnchor={'middle'} fontSize={13} fontWeight={700} style={{ fill: palette.identity.frame.text }}>{i + 1}</text>
+        {/* A dark edge round the shape keeps it readable over light cells and outlines */}
+        <polygon points={points(toVertices)} style={{ fill: 'none', stroke: palette.identity.frame.surface, strokeWidth: closeUp ? 7 : 5.5, strokeLinejoin: 'round' }}/>
+        <polygon points={points(toVertices)}
+                 style={{ fill: color, fillOpacity: closeUp ? 0.45 : 0.3, stroke: color, strokeWidth: closeUp ? 3.5 : 2.5, strokeLinejoin: 'round' }}/>
+        {/* The close-up names its step beside it, so the number would only cover the cells */}
+        {closeUp ? null : <>
+          <circle cx={bx} cy={by} r={11} style={{ fill: palette.identity.frame.surface, stroke: color, strokeWidth: 2 }}/>
+          <text x={bx} y={by + 4.5} textAnchor={'middle'} fontSize={13} fontWeight={700} style={{ fill: palette.identity.frame.text }}>{i + 1}</text>
+        </>}
       </g>;
     })}
-    {goalNodes.filter((node) => (levels[node] ?? 0) > 0 && inView(node)).map((node) => <rect
-      key={`goal-${node}`} x={cellX(node)} y={cellY(node)} width={26} height={26}
-      style={{ fill: 'none', stroke: palette.primary.main, strokeWidth: 3 }}/>)}
+    {/* Coordinates last, so a shape never hides the cell it should land on */}
+    {labels ? nodes.filter((node) => (levels[node] ?? 0) > 0 || selectable[node]).map((node) => <text
+      key={`label-${node}`} x={cellX(node) + 13} y={cellY(node) + 17} textAnchor={'middle'} fontSize={9} fontWeight={700}
+      style={{ fill: palette.identity.frame.text, paintOrder: 'stroke', stroke: palette.identity.frame.surface, strokeWidth: 2.5 }}>{getGridLabel(node)}</text>) : null}
   </svg>;
 };
 

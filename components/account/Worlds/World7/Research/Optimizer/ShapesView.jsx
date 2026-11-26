@@ -6,6 +6,7 @@ import StatTile from '@components/common/cards/StatTile';
 import Notice from '@components/common/Notice';
 import ViewSwitch from '@components/common/ViewSwitch';
 import DataTable from '@components/common/DataTable';
+import { researchGridSquares } from '@website-data';
 import { GOAL_NODES, getGridLabel, parseShapeCatalog } from '@parsers/world-7/researchOptimizer';
 import ShapeBoard, { cropAround } from './ShapeBoard';
 import { GOALS, gainText, pickMoves, shapeName } from './optimizerShared';
@@ -21,9 +22,10 @@ const ShapeIcon = ({ entry, shape }) => {
 
 const nodeName = (squares, node) => cleanUnderscore(squares?.[node]?.name ?? '');
 
-// A node's bonus as its description writes it: '}x' is a multiplier (1 + bonus / 100), '{%' a percent.
-const bonusText = (square, value) => {
-  const text = square?.description ?? '';
+// A node's bonus as its description template writes it (the parsed one has the numbers filled in):
+// '}x' is a multiplier (1 + bonus / 100), '{%' a percent.
+const bonusText = (node, value) => {
+  const text = researchGridSquares?.[node]?.description ?? '';
   if (text.includes('}x')) return `${formatNum(1 + value / 100)}x`;
   if (text.includes('{%')) return `+${formatNum(value)}%`;
   return formatNum(value);
@@ -216,7 +218,7 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
       <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
         <Box sx={{ flex: '0 1 260px', minWidth: 180 }}>
           <ShapeBoard goalNodes={GOAL_NODES[goal]} catalog={catalog} levels={input.levels} maxLevels={squares.map((square) => square?.maxLv ?? 1)} selectable={input.selectable}
-                      moves={[{ to: step.to }]} view={cropAround(catalog, [step.to])} labels
+                      moves={[{ to: step.to }]} view={cropAround(catalog, [step.to])} labels closeUp
                       label={`Close-up of step ${shown + 1}, with each cell's coordinate`}/>
         </Box>
         <Stack gap={0.5} sx={{ flex: '1 1 160px' }}>
@@ -230,7 +232,7 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
                                               onDone={() => setDone({ ...done, [i]: !done[i] })}
                                               onFocus={() => setFocus(focus === i ? null : i)} squares={squares} catalog={catalog} goal={goal}/>)}
       </Stack>
-      <Box sx={{ px: 2, pb: 2 }}>
+      <Box sx={{ px: 2, pt: 1, pb: 2.5 }}>
         <Notice tone={'missing'}>Go in this order and leave the other shapes alone. A moved shape only takes nodes no other shape
           holds, so picking one up, even to put it back, can change who holds a node.</Notice>
       </Box>
@@ -241,7 +243,7 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
         { key: 'name', label: 'Node', value: ({ node, name }) => `${getGridLabel(node)} ${name}` },
         { key: 'adds', label: 'Adds to', value: ({ goal: isGoal }) => (isGoal ? goalLabel : 'Other') },
         { key: 'shape', label: 'Shape', value: ({ shapeBefore, shapeAfter }) => `${shapeBefore} → ${shapeAfter}` },
-        { key: 'bonus', label: 'Bonus', numeric: true, value: ({ after }) => after, render: ({ node, before, after }) => `${bonusText(squares[node], before)} → ${bonusText(squares[node], after)}` }
+        { key: 'bonus', label: 'Bonus', numeric: true, value: ({ after }) => after, render: ({ node, before, after }) => `${bonusText(node, before)} → ${bonusText(node, after)}` }
       ]}/>
     </Panel> : null}
   </Stack>;
