@@ -118,58 +118,55 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
   })).sort((a, b) => Number(b.goal) - Number(a.goal));
 
   return <Stack gap={3}>
-    <Panel title={'Shapes inputs'}>
-      <Stack direction={'row'} flexWrap={'wrap'} gap={3} alignItems={'flex-start'} sx={{ p: 2 }}>
-        <Panel.Inputs>
-          <TextField select label={'Shapes to move'} value={chosen} onChange={(event) => setMoves(Number(event.target.value))} sx={{ minWidth: 140 }}>
-            <MenuItem value={0}>None</MenuItem>
-            {worthwhile.map(({ moves: count }) => <MenuItem key={count} value={count}>{count}</MenuItem>)}
-            {worthwhile.some(({ moves: count }) => count === chosen) || chosen === 0 ? null : <MenuItem value={chosen}>{chosen}</MenuItem>}
-          </TextField>
-        </Panel.Inputs>
-        <Box sx={{ overflowX: 'auto' }}>
-          <Typography variant={'caption'} color={'text.secondary'}>What each move is worth</Typography>
-          <Box component={'table'} sx={{ borderCollapse: 'collapse', '& td, & th': { pr: 2, py: 0.5, textAlign: 'left', fontSize: 13 } }}>
-            <thead><tr><th>Moves</th><th>{goalLabel}</th><th>Nodes that lose a bonus</th></tr></thead>
-            <tbody>
-              {worthwhile.map((candidate) => {
-                const lost = lossesFor(candidate);
-                return <Box component={'tr'} key={candidate.moves} sx={{ bgcolor: candidate.moves === chosen ? 'primary.soft' : undefined }}>
-                  <td>{candidate.moves}</td>
-                  <td>{gainText(candidate.ratio)}</td>
-                  <Box component={'td'} sx={{ color: lost.length ? 'text.error' : undefined }}>
-                    {lost.length ? `✕ ${lost.length}: ${lost.map((node) => nodeName(squares, node)).join(', ')}` : 'None'}
-                  </Box>
-                </Box>;
-              })}
-              {lastWorthwhile && lastWorthwhile < plans.length ? <tr>
-                <td>{lastWorthwhile + 1} or more</td>
-                <td>{gainText(worthwhile.at(-1).ratio)}</td>
-                <Box component={'td'} sx={{ color: 'text.secondary' }}>No more to gain</Box>
-              </tr> : null}
-            </tbody>
-          </Box>
-        </Box>
-      </Stack>
-    </Panel>
-
+    {/* One block: what to do, how many moves, and only the numbers the headline doesn't already say */}
     <Stack gap={1.5}>
-      <Typography variant={'sectionTitle'} component={'p'}>
-        {chosen === 0
-          ? `For ${goalLabel}, your shapes are already where I'd put them.`
-          : tiny
-          ? `Your shapes are within ${gainText(plan.ratio)} of the best layout I found.`
-          : `Move ${plan.steps.length} shape${plan.steps.length === 1 ? '' : 's'}: ${gainText(plan.ratio)} ${goalLabel}${losses.length ? '' : ', and no node loses its bonus'}.`}
-      </Typography>
-      <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-        <StatTile label={goalLabel} value={gainText(plan.ratio)} status={tiny ? undefined : 'success'}/>
-        {goal === 'researchExp' ? <StatTile label={'Research EXP per hour'}
-                  value={`${formatNum(research?.researchEXPrateTOT ?? 0)} → ${formatNum((research?.researchEXPrateTOT ?? 0) * plan.ratio)}`}/> : null}
-        {goal === 'researchExp' && hoursNow > 0 ? <StatTile label={`Research LV ${formatNum((research?.researchLevel ?? 0) + 1)} in`}
-                                  value={`${formatDuration(hoursNow * 3600)} → ${formatDuration((hoursNow / plan.ratio) * 3600)}`}/> : null}
-        <StatTile label={'Shapes to move'} value={`${plan.steps.length} of ${input.shapesOwned}`}/>
-        <StatTile label={'Nodes that lose a bonus'} value={losses.length} kind={'amount'}/>
+      <Stack direction={'row'} flexWrap={'wrap'} alignItems={'center'} justifyContent={'space-between'} gap={2}>
+        <Typography variant={'sectionTitle'} component={'p'} sx={{ flex: '1 1 320px' }}>
+          {chosen === 0
+            ? `For ${goalLabel}, your shapes are already where I'd put them.`
+            : tiny
+            ? `Your shapes are within ${gainText(plan.ratio)} of the best layout I found.`
+            : `Move ${plan.steps.length} shape${plan.steps.length === 1 ? '' : 's'}: ${gainText(plan.ratio)} ${goalLabel}${losses.length
+              ? `, but ${losses.length} node${losses.length === 1 ? '' : 's'} lose${losses.length === 1 ? 's' : ''} part of a bonus: ${losses.map((node) => nodeName(squares, node)).join(', ')}`
+              : ', and no node loses its bonus'}.`}
+        </Typography>
+        <TextField select size={'small'} label={'Shapes to move'} value={chosen} onChange={(event) => setMoves(Number(event.target.value))}
+                   sx={{ minWidth: 140 }}>
+          <MenuItem value={0}>None</MenuItem>
+          {worthwhile.map(({ moves: count }) => <MenuItem key={count} value={count}>{count}</MenuItem>)}
+          {worthwhile.some(({ moves: count }) => count === chosen) || chosen === 0 ? null : <MenuItem value={chosen}>{chosen}</MenuItem>}
+        </TextField>
       </Stack>
+      {goal === 'researchExp' && chosen > 0 ? <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
+        <StatTile label={'Research EXP per hour'}
+                  value={`${formatNum(research?.researchEXPrateTOT ?? 0)} → ${formatNum((research?.researchEXPrateTOT ?? 0) * plan.ratio)}`}/>
+        {hoursNow > 0 ? <StatTile label={`Research LV ${formatNum((research?.researchLevel ?? 0) + 1)} in`}
+                                  value={`${formatDuration(hoursNow * 3600)} → ${formatDuration((hoursNow / plan.ratio) * 3600)}`}/> : null}
+      </Stack> : null}
+      {/* Worth a table only when move counts differ in what they give */}
+      {worthwhile.length >= 2 ? <Box sx={{ overflowX: 'auto' }}>
+        <Typography variant={'caption'} color={'text.secondary'}>What each move is worth</Typography>
+        <Box component={'table'} sx={{ borderCollapse: 'collapse', '& td, & th': { pr: 2, py: 0.5, textAlign: 'left', fontSize: 13 } }}>
+          <thead><tr><th>Moves</th><th>{goalLabel}</th><th>Nodes that lose a bonus</th></tr></thead>
+          <tbody>
+            {worthwhile.map((candidate) => {
+              const lost = lossesFor(candidate);
+              return <Box component={'tr'} key={candidate.moves} sx={{ bgcolor: candidate.moves === chosen ? 'primary.soft' : undefined }}>
+                <td>{candidate.moves}</td>
+                <td>{gainText(candidate.ratio)}</td>
+                <Box component={'td'} sx={{ color: lost.length ? 'text.error' : undefined }}>
+                  {lost.length ? `✕ ${lost.length}: ${lost.map((node) => nodeName(squares, node)).join(', ')}` : 'None'}
+                </Box>
+              </Box>;
+            })}
+            {lastWorthwhile && lastWorthwhile < plans.length ? <tr>
+              <td>{lastWorthwhile + 1} or more</td>
+              <td>{gainText(worthwhile.at(-1).ratio)}</td>
+              <Box component={'td'} sx={{ color: 'text.secondary' }}>No more to gain</Box>
+            </tr> : null}
+          </tbody>
+        </Box>
+      </Box> : null}
     </Stack>
 
     <Notice>Only levelled nodes count: a shape over a node at level 0 gives nothing until you level it.
