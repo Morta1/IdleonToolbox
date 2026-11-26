@@ -63,7 +63,7 @@ const ShapeBoard = ({ closeUp = false, goalNodes = [], catalog, levels, maxLevel
       style={{ fill: 'none', stroke: palette.primary.main, strokeWidth: 3 }}/>)}
     {stays.map((placement) => <polygon key={`stay-${placement.shape}`} points={points(getShapeVertices(catalog[placement.shape], placement))}
                                        style={{ fill: shapeColor(placement.shape), fillOpacity: 0.16, stroke: shapeColor(placement.shape), strokeWidth: 1.5 }}/>)}
-    {moves.map(({ from, to }, i) => {
+    {moves.map(({ from, to, number }, i) => {
       const color = shapeColor(to.shape);
       const toVertices = getShapeVertices(catalog[to.shape], to);
       const [bx, by] = middle(toVertices);
@@ -77,7 +77,7 @@ const ShapeBoard = ({ closeUp = false, goalNodes = [], catalog, levels, maxLevel
         {/* The close-up names its step beside it, so the number would only cover the cells */}
         {closeUp ? null : <>
           <circle cx={bx} cy={by} r={11} style={{ fill: palette.identity.frame.surface, stroke: color, strokeWidth: 2 }}/>
-          <text x={bx} y={by + 4.5} textAnchor={'middle'} fontSize={13} fontWeight={700} style={{ fill: palette.identity.frame.text }}>{i + 1}</text>
+          <text x={bx} y={by + 4.5} textAnchor={'middle'} fontSize={13} fontWeight={700} style={{ fill: palette.identity.frame.text }}>{number ?? i + 1}</text>
         </>}
       </g>;
     })}
