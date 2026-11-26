@@ -7,6 +7,7 @@ import { expectNoBreaks } from '../helpers/sweep';
 import { breakdownLines } from '../helpers/breakdown-tree';
 import { DEFAULT_ROOT_COMBINE, evaluateBreakdown, isDisplayOnlyBreakdown } from '@parsers/breakdown';
 import { computeGains, computeShares } from '@components/common/Breakdown/breakdownInsights';
+import { breakdownLinkFor, sourceKey } from '@utility/breakdownSourceLinks';
 
 // Every breakdown's tree, combined the way its root says, must rebuild the stat it explains. Display-only
 // breakdowns (root combine 'list': per-level tables, two values in one drawer) are skipped
@@ -52,6 +53,14 @@ describe('breakdown totals, on every save', () => {
     everySave(({ valued }) => valued.filter(({ emptySlot }) => !emptySlot).flatMap(({ where, breakdown }) => breakdownLines(breakdown.tree)
       .filter(({ value }) => typeof value !== 'number' || !Number.isFinite(value))
       .map(({ name, value }) => `${where} > ${name} = ${value}`)));
+  });
+
+  // Every line without a page to open, by source: a new or renamed line changes the list, so it gets an entry in
+  // utility/breakdownSourceLinks.js (or stays here on purpose) instead of silently losing its link
+  it('lists the lines that link to no page', async () => {
+    const unlinked = new Set(SAVES.flatMap(({ checked }) => checked.flatMap(({ breakdown }) => breakdownLines(breakdown.tree)
+      .filter((line) => !breakdownLinkFor(line)).map((line) => sourceKey(line.name)))));
+    await expect(`${[...unlinked].sort().join('\n')}\n`).toMatchFileSnapshot('./__snapshots__/unlinked-breakdown-lines.txt');
   });
 
   // The drawer's share mode splits the total, so the top-level shares add back up to 100%. Where penalties

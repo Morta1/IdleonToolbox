@@ -8,7 +8,8 @@ import {
   isInactiveBreakdownNode,
   listGroup
 } from '@parsers/breakdown';
-import type { BreakdownCombine, BreakdownLine, BreakdownNode, BreakdownUnit, StatBreakdown } from '@parsers/breakdown';
+import type { BreakdownCombine, BreakdownLine, BreakdownLink, BreakdownNode, BreakdownUnit, StatBreakdown } from '@parsers/breakdown';
+import { breakdownLinkFor } from '@utility/breakdownSourceLinks';
 
 // The older breakdown shape: flat categories of sources, one level of sub-sections
 interface LegacySource {
@@ -50,6 +51,8 @@ export interface ViewNode {
   gain?: number;
   // The gain is how much faster a time gets (the group divides it), not how much the total grows
   faster?: boolean;
+  // The page a line's bonus comes from (utility/breakdownSourceLinks.js)
+  link?: BreakdownLink;
   children?: ViewNode[];
 }
 
@@ -179,6 +182,7 @@ const buildViewNodes = (nodes: BreakdownNode[], options: ViewOptions, parentKey 
       const key = `${parentKey}/${index}:${node.name}`;
       const pinKey = (node as PinnedLine).pinKey ?? key;
       const nameMatches = !!query && node.name.toLowerCase().includes(query);
+      const link: BreakdownLink | undefined = isBreakdownGroup(node) ? undefined : breakdownLinkFor(node);
       const view: ViewNode = {
         key,
         pinKey,
@@ -187,6 +191,7 @@ const buildViewNodes = (nodes: BreakdownNode[], options: ViewOptions, parentKey 
         inactive: isInactiveBreakdownNode(node),
         depth,
         ...(node.note ? { note: node.note } : {}),
+        ...(link ? { link } : {}),
         ...(options.shares?.has(node) ? { share: options.shares.get(node) } : {}),
         ...(options.gains?.has(node) ? { gain: options.gains.get(node) } : {}),
         ...(options.gains?.has(node) && options.faster?.has(node) ? { faster: true } : {})

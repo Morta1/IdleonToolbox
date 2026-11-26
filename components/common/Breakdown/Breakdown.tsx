@@ -23,7 +23,12 @@ import {
   ListItemText,
   ListSubheader,
   Divider,
+  Link,
 } from "@mui/material";
+import NextLink from "next/link";
+import { breakdownLinkHref } from "@utility/breakdownSourceLinks";
+import { sessionQuery } from "@utility/nav-query";
+import { LinkMark } from "@components/common/cards/ItemCard";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SearchIcon from "@mui/icons-material/Search";
 import CheckIcon from "@mui/icons-material/Check";
@@ -139,6 +144,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"))
   const router = useRouter()
   const linkedKey = router?.isReady ? router.query.breakdown : undefined
+  const session = sessionQuery(router?.query)
   const datasetKeys = datasets.map((dataset) => breakdownKey(dataset.statName)).join("|")
   const [menuAnchor, setMenuAnchor] = useState<HTMLElement | null>(null)
 
@@ -269,7 +275,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
       {renderNodes(node.children)}
     </GroupRow>
     : <LineRow key={node.key} node={node} isMobile={isMobile} insight={insight} pinned={pinned.has(node.pinKey)}
-               onPin={(event) => togglePin(node.pinKey, event)}/>)
+               onPin={(event) => togglePin(node.pinKey, event)} session={session}/>)
 
   // Stays put under the header while the sources scroll.
   const toolbar = <>
@@ -570,12 +576,13 @@ const GroupRow = ({ node, expanded, onToggle, isMobile, insight, children }: {
   )
 }
 
-const LineRow = ({ node, pinned, onPin, isMobile, insight }: {
+const LineRow = ({ node, pinned, onPin, isMobile, insight, session }: {
   node: ViewNode,
   insight: RowInsight,
   pinned: boolean,
   onPin: (event: React.MouseEvent) => void,
-  isMobile: boolean
+  isMobile: boolean,
+  session: Record<string, string | string[]>
 }) => (
   <Box
     sx={{
@@ -618,7 +625,11 @@ const LineRow = ({ node, pinned, onPin, isMobile, insight }: {
       </IconButton>
       <Box sx={{ minWidth: 0 }}>
         <Typography variant="body2" color="text.primary" sx={{ opacity: 0.8 }}>
-          {node.name}
+          {node.link
+            ? <Link component={NextLink} href={breakdownLinkHref(node.link, session)} color="inherit" underline="hover">
+              <WithLastWord text={node.name}><LinkMark sx={{ ml: 0.5, color: 'text.secondary' }}/></WithLastWord>
+            </Link>
+            : node.name}
         </Typography>
         {node.note ? <Typography variant="caption" color="text.secondary">{node.note}</Typography> : null}
       </Box>

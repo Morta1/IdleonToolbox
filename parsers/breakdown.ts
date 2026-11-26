@@ -24,6 +24,13 @@ export interface BreakdownBounds {
   step?: number;
 }
 
+// The page (and tab) a bonus comes from, as the nav names them: what the drawer's link opens
+export interface BreakdownLink {
+  url: string;
+  tab?: string;
+  nestedTab?: string;
+}
+
 export interface BreakdownLine {
   name: string;
   value: number;
@@ -31,6 +38,9 @@ export interface BreakdownLine {
   // Shown verbatim instead of the formatted value
   formatted?: string;
   note?: string;
+  // Where the bonus comes from when its name alone does not say (utility/breakdownSourceLinks.js reads the name
+  // otherwise); false for a line whose name matches a page that is not its source
+  link?: BreakdownLink | false;
 }
 
 export interface BreakdownGroup extends BreakdownBounds {
@@ -139,9 +149,10 @@ export const formatBreakdownValue = (value: number, unit?: BreakdownUnit) => {
   return `${value < 0 ? '-' : ''}${amount}`;
 }
 
-type LineOptions = Pick<BreakdownLine, 'formatted' | 'note'>;
-const line = (unit?: BreakdownUnit) => (name: string, value: number, { formatted, note }: LineOptions = {}): BreakdownLine =>
-  ({ name, value, ...(unit ? { unit } : {}), ...(formatted ? { formatted } : {}), ...(note ? { note } : {}) });
+type LineOptions = Pick<BreakdownLine, 'formatted' | 'note' | 'link'>;
+const line = (unit?: BreakdownUnit) => (name: string, value: number, { formatted, note, link }: LineOptions = {}): BreakdownLine =>
+  ({ name, value, ...(unit ? { unit } : {}), ...(formatted ? { formatted } : {}), ...(note ? { note } : {}),
+    ...(link !== undefined ? { link } : {}) });
 export const percent = line('percent');
 export const multiplier = line('multiplier');
 export const flat = line('flat');

@@ -11,7 +11,8 @@ export const patchNotes = [
     'features': [
       'Breakdowns: new Fixed order sort that stays the same for every account, so two accounts are easier to compare',
       'Royal Armory: upgrades show their own in-game icons on the cards, in the optimizer and in goals',
-      'Orblet Market: upgrades show their cost to max, and Glorification shows the outposts left and the average cost to glorify them'
+      'Orblet Market: upgrades show their cost to max, and Glorification shows the outposts left and the average cost to glorify them',
+      'Breakdowns: bonus lines now link to the page and tab where that bonus comes from'
     ],
     'fixes': [
       'Farming: the crop evo breakdown of a locked plot now shows its total and each bonus share'
