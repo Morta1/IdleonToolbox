@@ -5,6 +5,15 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.18',
+    'gameVer': '2.3.561',
+    'date': '27/11/2026',
+    'features': [
+      'Research: the Grid tab shows how many grid points you have left to spend, and a new dashboard alert tells you when some are unspent'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '4.0.17',
     'gameVer': '2.3.561',
     'date': '26/11/2026',

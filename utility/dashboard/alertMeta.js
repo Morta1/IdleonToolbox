@@ -923,7 +923,8 @@ export const alertMeta = {
         label: 'Observation insight level reached',
         help: 'Alerts when a found observation reaches this insight level.'
       },
-      observationRollsLeft: { label: 'Observation rolls left today' }
+      observationRollsLeft: { label: 'Observation rolls left today' },
+      unspentGridPoints: { label: 'Unspent research grid points', page: { pathname: '/account/world-7/research', query: { t: 'Grid' }, label: 'Grid' } }
     }
   },
   'account.World 7.sushiStation': {

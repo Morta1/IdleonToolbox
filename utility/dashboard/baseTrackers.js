@@ -789,7 +789,8 @@ export const baseTrackers = {
             props: { label: 'Insight level threshold', value: 3, minValue: 1 },
             checked: true
           },
-          { name: 'observationRollsLeft', checked: true }
+          { name: 'observationRollsLeft', checked: true },
+          { name: 'unspentGridPoints', checked: true }
         ]
       },
       sushiStation: {

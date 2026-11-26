@@ -37,6 +37,7 @@ const Research = () => {
     researchEXPrateAFK,
     gridPTSearned,
     gridPTSpent,
+    gridPTSavailable,
     shapesOwned,
     magnifiersOwned,
     magnifyingGlassOwned,
@@ -95,7 +96,8 @@ const Research = () => {
       {/* Decision 6: the numbers that count one tab's list sit at that tab's top */}
       <Stack gap={3}>
         <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-          <StatTile label={'Grid points'} value={`${formatNum(gridPTSpent ?? 0)} / ${formatNum(gridPTSearned ?? 0)}`} failed={sectionFailed}/>
+          <StatTile label={'Grid points'} value={`${formatNum(gridPTSpent ?? 0)} / ${formatNum(gridPTSearned ?? 0)}`} failed={sectionFailed}
+                    sub={gridPTSavailable > 0 ? `${formatNum(gridPTSavailable)} to spend` : undefined}/>
           <StatTile label={'Shapes owned'} value={shapesOwned ?? 0} kind={'amount'} failed={sectionFailed}/>
           <StatTile label={'Lenses'} value={magnifiersOwned ?? 0} kind={'amount'} failed={sectionFailed}/>
           <StatTile label={'Magnifying Glasses'} icon={'data/ResMagni0.png'} value={magnifyingGlassOwned ?? 0}

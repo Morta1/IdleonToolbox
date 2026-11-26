@@ -931,6 +931,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 7.research.observationRollsLeft'}
                   title={`You have ${formatNum(alerts?.['World 7']?.research?.observationRollsLeft?.left)} observation roll${alerts?.['World 7']?.research?.observationRollsLeft?.left === 1 ? '' : 's'} left (${formatNum(alerts?.['World 7']?.research?.observationRollsLeft?.left)}/${formatNum(alerts?.['World 7']?.research?.observationRollsLeft?.max)})`}
                   iconPath={'data/ResObsClip'}/> : null}
+              {alerts?.['World 7']?.research?.unspentGridPoints > 0 ?
+                <Alert target={'World 7.research.unspentGridPoints'}
+                  title={`You have ${formatNum(alerts?.['World 7']?.research?.unspentGridPoints)} unspent research grid point${alerts?.['World 7']?.research?.unspentGridPoints === 1 ? '' : 's'}`}
+                  iconPath={'data/ClassIcons61'}/> : null}
               {alerts?.['World 7']?.research?.insightLevel?.observations?.length > 0 ?
                 <Alert target={'World 7.research.insightLevel'}
                   ariaLabel={`${alerts?.['World 7']?.research?.insightLevel?.observations?.length} observations at their insight target`}

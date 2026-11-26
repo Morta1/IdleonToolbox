@@ -2125,7 +2125,7 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
   }
   if (fields?.research?.checked) {
     const research = {};
-    const { insightLevel, observationRollsLeft } = options?.research || {};
+    const { insightLevel, observationRollsLeft, unspentGridPoints } = options?.research || {};
     if (insightLevel?.checked) {
       const threshold = insightLevel?.props?.value ?? 3;
       const list = account?.research?.observations?.filter(obs =>
@@ -2141,6 +2141,14 @@ export const getWorld7Alerts = (account, fields, options, characters) => {
       const allFound = account?.research?.totalOccurrencesFound >= account?.research?.occurrencesToBeFound;
       if (rollsLeft > 0 && !allFound) {
         research.observationRollsLeft = { left: rollsLeft, max: rollsPerDay };
+      }
+    }
+    if (unspentGridPoints?.checked) {
+      const free = account?.research?.gridPTSavailable ?? 0;
+      // Free points with every reachable node maxed have nowhere to go
+      const canSpend = account?.research?.gridSquares?.some((square) => square?.canSelect && square?.name !== 'Name' && square?.level < square?.maxLv);
+      if (free > 0 && canSpend) {
+        research.unspentGridPoints = free;
       }
     }
     if (Object.keys(research).length > 0) {
