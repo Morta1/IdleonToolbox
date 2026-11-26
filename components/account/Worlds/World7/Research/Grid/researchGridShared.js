@@ -5,7 +5,7 @@
 
 export const getShapeColor = (theme, shapeIndex) => {
   const shapes = (theme.vars || theme).palette.identity.researchShapes;
-  return shapes[Math.min(shapeIndex ?? 0, shapes.length - 1)] ?? shapes[0];
+  return shapes[shapeIndex ?? 0] ?? shapes[0];
 };
 
 // The game's own coordinate tile (font 746, e.g. "M9"), rendered by z-processing for every real square.

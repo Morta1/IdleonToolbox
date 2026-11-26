@@ -72,10 +72,13 @@ const identity = {
   // The Legendary Fever squares' colors and the game's Menagerie link color in Legend Talent descriptions
   fever: { yellow: '#e5c100', red: '#e05a4f', brown: '#a5764f', green: '#5cb85c', menagerie: '#4ea8f0' },
   // Research's grid shapes, the game's: a line and the 25% tint a shaped cell's empty part shows
+  // One per shape in CustomLists.Research[0] (10), told apart by lightness as well as hue
   researchShapes: [
     { line: '#b39ddb', tint: 'rgba(179, 157, 219, 0.25)' }, { line: '#81d4fa', tint: 'rgba(129, 212, 250, 0.25)' },
     { line: '#ffb74d', tint: 'rgba(255, 183, 77, 0.25)' }, { line: '#a5d6a7', tint: 'rgba(165, 214, 167, 0.25)' },
-    { line: '#ef9a9a', tint: 'rgba(239, 154, 154, 0.25)' }, { line: '#ce93d8', tint: 'rgba(206, 147, 216, 0.25)' }
+    { line: '#ef9a9a', tint: 'rgba(239, 154, 154, 0.25)' }, { line: '#fff59d', tint: 'rgba(255, 245, 157, 0.25)' },
+    { line: '#80cbc4', tint: 'rgba(128, 203, 196, 0.25)' }, { line: '#f48fb1', tint: 'rgba(244, 143, 177, 0.25)' },
+    { line: '#bcaaa4', tint: 'rgba(188, 170, 164, 0.25)' }, { line: '#e6ee9c', tint: 'rgba(230, 238, 156, 0.25)' }
   ],
   // Research's grid cells, the game's greys: a levelled cell, a cell's edge, its unfilled part, an open cell, a closed one
   researchGrid: { levelled: '#9e9e9e', edge: '#757575', unfilled: '#616161', open: '#424242', closed: '#212121' },
