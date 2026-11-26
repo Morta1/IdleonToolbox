@@ -130,3 +130,228 @@ export const getTurnPresses = (from: number, to: number) => {
 // The game's coordinate label for a node, as on its tile: a letter per column and the row counted from the bottom.
 export const getGridLabel = (node: number, rows = GRID_CELLS / GRID_COLUMNS) =>
   `${String.fromCharCode(65 + (node % GRID_COLUMNS))}${rows - Math.floor(node / GRID_COLUMNS)}`;
+
+// ---------------------------------------------------------------------------------------------------------------
+// Scoring: Research EXP per hour for a set of node owners and lens slots (game: ResearchStuff "ResearchEXPrateTOT").
+
+export const LENS = { glass: 0, monocle: 1, kaleidoscope: 2 } as const;
+
+export interface LensSlot {
+  observation: number;
+  type: number;
+}
+
+export interface ResearchOptimizerInput {
+  shapesOwned: number;
+  canRotate: boolean;
+  placements: ShapePlacement[];
+  owners: number[];
+  selectable: boolean[];
+  levels: number[];
+  // Each node's mode-0 bonus without its shape's multiplier
+  nodeValue: number[];
+  shapeCatalog: { polygons: string[]; dims: string[]; bonusPcts: (string | number)[] };
+  totalOccurrencesFound: number;
+  expAdditive: number;
+  expGrid70: number;
+  expMulti: number;
+  observationsFound: number;
+  insightLevels: number[];
+  insightExp: number[];
+  lensSlots: LensSlot[];
+  lensCap: number;
+  // Kalei_MultiBase without grid 52 and 72, in percent
+  kaleiOther: number;
+  // ObservationInsightExpRate per monocle without grid 91 / 92 and the kaleidoscope multi
+  monocleRate: number;
+  afkRatePct: number;
+}
+
+// ResearchEXPmulti's additive sum reads these nodes (mode 2 for 94 and 112), and grid 70 is a factor of its own.
+const EXP_SUM_NODES = [31, 50, 51, 90, 94, 110, 112];
+const EXP_FACTOR_NODE = 70;
+// Nodes the lenses read: 93 scales a glass by its observation's Insight level, 52 and 72 feed the kaleidoscope.
+const LENS_NODES = [52, 72, 93];
+export const RESEARCH_EXP_NODES = [...EXP_SUM_NODES, EXP_FACTOR_NODE, ...LENS_NODES];
+
+// game: ResearchStuff("ResearchEXPrateObj") before its count and multipliers
+export const getObservationBaseRate = (i: number) =>
+  (4 + (i / 2 + Math.floor(i / 4))) * (1 + Math.pow(i, 1 + (i / 15) * 0.4) / 10) + (Math.pow(i, 1.5) + 1.5 * i);
+
+// game: ResearchStuff("ObservationInsightExpREQ")
+export const getInsightExpReq = (i: number, level: number) =>
+  (2 + 0.7 * i) * Math.pow(1.75 + i / 200, level) * (1 + Math.pow(i, 2) / 100) + level;
+
+// Kaleidoscopes boost the observation left, right, above and below them on the 8-wide board.
+export const getKaleidoscopeNeighbours = (observation: number) => [
+  observation % 8 !== 7 ? observation + 1 : -1,
+  observation % 8 !== 0 ? observation - 1 : -1,
+  observation > 7 ? observation - 8 : -1,
+  observation < 72 ? observation + 8 : -1
+].filter((n) => n >= 0);
+
+const countLenses = (slots: LensSlot[]) => {
+  const glasses = new Map<number, number>();
+  const monocles = new Map<number, number>();
+  const kaleidoscopes = new Map<number, number>();
+  for (const { observation, type } of slots) {
+    if (observation < 0) continue;
+    if (type === LENS.glass) glasses.set(observation, (glasses.get(observation) ?? 0) + 1);
+    else if (type === LENS.monocle) monocles.set(observation, (monocles.get(observation) ?? 0) + 1);
+    else for (const n of getKaleidoscopeNeighbours(observation)) kaleidoscopes.set(n, (kaleidoscopes.get(n) ?? 0) + 1);
+  }
+  return { glasses, monocles, kaleidoscopes };
+};
+
+export const createResearchScorer = (input: ResearchOptimizerInput) => {
+  const catalog = parseShapeCatalog(input.shapeCatalog.polygons, input.shapeCatalog.dims, input.shapeCatalog.bonusPcts);
+  const pct = (shape: number) => (shape >= 0 ? catalog[shape]?.bonusPct ?? 0 : 0);
+  const shaped = (owners: number[], node: number) => (input.nodeValue[node] ?? 0) * (1 + pct(owners[node]) / 100);
+  const totalLevels = (levels: number[]) =>
+    levels.slice(0, input.observationsFound).reduce((sum, level) => sum + (level >= 1 ? level : 0), 0);
+  const sumPart = (owners: number[], levels: number[]) => EXP_SUM_NODES.reduce((sum, node) => {
+    const count = node === 94 ? totalLevels(levels) : node === 112 ? input.totalOccurrencesFound : 1;
+    return sum + shaped(owners, node) * count;
+  }, 0);
+  const otherAdditive = input.expAdditive - sumPart(input.owners, input.insightLevels);
+  const restMulti = input.expMulti / ((1 + input.expAdditive / 100) * (1 + input.expGrid70 / 100) || 1);
+
+  const expMulti = (owners: number[], levels: number[]) =>
+    (1 + (otherAdditive + sumPart(owners, levels)) / 100) * (1 + shaped(owners, EXP_FACTOR_NODE) / 100) * restMulti;
+  const kaleiBase = (owners: number[]) => (input.kaleiOther + shaped(owners, 52) + shaped(owners, 72)) / 100;
+
+  // Research EXP per hour of research time
+  const expRate = (owners: number[], slots: LensSlot[], levels = input.insightLevels) => {
+    const { glasses, kaleidoscopes } = countLenses(slots);
+    const g93 = shaped(owners, 93);
+    const base = kaleiBase(owners);
+    let rate = 0;
+    glasses.forEach((count, i) => {
+      if (i >= input.observationsFound) return;
+      rate += count * getObservationBaseRate(i) * (1 + (g93 * (levels[i] ?? 0)) / 100) * (1 + (kaleidoscopes.get(i) ?? 0) * base);
+    });
+    return rate * expMulti(owners, levels);
+  };
+
+  // Insight EXP per hour of research time on each observation
+  const insightRates = (owners: number[], slots: LensSlot[]) => {
+    const { monocles, kaleidoscopes } = countLenses(slots);
+    const perMonocle = input.monocleRate * (1 + (shaped(owners, 91) + shaped(owners, 92)) / 100);
+    const base = kaleiBase(owners);
+    const rates = new Map<number, number>();
+    monocles.forEach((count, i) => rates.set(i, count * perMonocle * (1 + (kaleidoscopes.get(i) ?? 0) * base)));
+    return rates;
+  };
+
+  // Insight levels after `hours` of research time with these lenses
+  const insightLevelsAfter = (owners: number[], slots: LensSlot[], hours: number) => {
+    const levels = input.insightLevels.slice();
+    insightRates(owners, slots).forEach((rate, i) => {
+      if (i >= input.observationsFound) return;
+      let exp = (input.insightExp[i] ?? 0) + rate * hours;
+      while (exp >= getInsightExpReq(i, levels[i] ?? 0)) {
+        exp -= getInsightExpReq(i, levels[i] ?? 0);
+        levels[i] = (levels[i] ?? 0) + 1;
+      }
+    });
+    return levels;
+  };
+
+  return { catalog, pct, shaped, expMulti, expRate, insightRates, insightLevelsAfter };
+};
+
+// ---------------------------------------------------------------------------------------------------------------
+// Shape search: the best layout for 1, 2, ... moves, moving as few shapes as the gain allows.
+
+export interface ShapeStep {
+  shape: number;
+  from: ShapePlacement;
+  to: ShapePlacement;
+  turn: { presses: number; button: 'left' | 'right' };
+  holds: number[];
+}
+
+export interface ShapePlan {
+  moves: number;
+  ratio: number;
+  steps: ShapeStep[];
+  owners: number[];
+}
+
+const POSITION_STEP = 6;
+const ANGLE_STEP = 15;
+
+export const getShapeCandidates = (input: ResearchOptimizerInput, catalog: ShapeCatalogEntry[], shape: number) => {
+  const entry = catalog[shape];
+  const current = input.placements[shape];
+  const angles = input.canRotate ? Array.from({ length: 360 / ANGLE_STEP }, (_, i) => i * ANGLE_STEP) : [current.rot];
+  const seen = new Set<string>();
+  const candidates: ShapeMove[] = [];
+  for (const rot of angles) {
+    for (let x = SHAPE_BOUNDS.minX; x + entry.width <= SHAPE_BOUNDS.maxX; x += POSITION_STEP) {
+      for (let y = SHAPE_BOUNDS.minY; y + entry.height <= SHAPE_BOUNDS.maxY; y += POSITION_STEP) {
+        const covered = getCoveredNodes(entry, { shape, x, y, rot }, input.selectable);
+        if (!covered.some((node) => input.levels[node] > 0)) continue;
+        const key = covered.join(',');
+        if (seen.has(key)) continue;
+        seen.add(key);
+        candidates.push({ shape, x, y, rot, covered });
+      }
+    }
+  }
+  return candidates;
+};
+
+export const optimizeShapes = (input: ResearchOptimizerInput, {
+  maxMoves = input.shapesOwned,
+  beamWidth = 8,
+  onProgress
+}: { maxMoves?: number; beamWidth?: number; onProgress?: (share: number) => void } = {}) => {
+  const scorer = createResearchScorer(input);
+  const { catalog, pct } = scorer;
+  const shapes = Array.from({ length: input.shapesOwned }, (_, shape) => shape);
+  const coverage = shapes.map((shape) => getCoveredNodes(catalog[shape], input.placements[shape], input.selectable));
+  const candidates = shapes.map((shape) => getShapeCandidates(input, catalog, shape));
+  // Spare shapes break ties: once the goal is maxed, a shape on more levelled nodes beats one on none.
+  const spare = (owners: number[]) => owners.reduce((sum, shape, node) =>
+    sum + (shape >= 0 && input.levels[node] > 0 && !RESEARCH_EXP_NODES.includes(node) ? pct(shape) : 0), 0);
+  const value = (owners: number[]) => scorer.expRate(owners, input.lensSlots) * (1 + 1e-7 * spare(owners));
+  const now = scorer.expRate(input.owners, input.lensSlots);
+
+  type Node = { moves: ShapeMove[]; owners: number[]; v: number };
+  let beam: Node[] = [{ moves: [], owners: input.owners, v: value(input.owners) }];
+  const plans: ShapePlan[] = [];
+  const limit = Math.min(maxMoves, shapes.length);
+  for (let k = 1; k <= limit; k++) {
+    const next: Node[] = [];
+    for (const node of beam) {
+      const used = new Set(node.moves.map(({ shape }) => shape));
+      for (const shape of shapes) {
+        if (used.has(shape)) continue;
+        for (const candidate of candidates[shape]) {
+          const moves = [...node.moves, candidate];
+          const owners = applyShapeMoves(input.owners, coverage, moves);
+          next.push({ moves, owners, v: value(owners) });
+        }
+      }
+    }
+    next.sort((a, b) => b.v - a.v);
+    beam = next.slice(0, k === 1 ? beamWidth * 4 : beamWidth);
+    const best = beam[0];
+    if (!best) break;
+    plans.push({
+      moves: k,
+      ratio: scorer.expRate(best.owners, input.lensSlots) / (now || 1),
+      owners: best.owners,
+      steps: best.moves.map(({ shape, x, y, rot }) => ({
+        shape,
+        from: input.placements[shape],
+        to: { shape, x, y, rot },
+        turn: getTurnPresses(input.placements[shape].rot, rot),
+        holds: best.owners.flatMap((owner, node) => (owner === shape && input.levels[node] > 0 ? [node] : []))
+      }))
+    });
+    onProgress?.(k / limit);
+  }
+  return { now, plans };
+};

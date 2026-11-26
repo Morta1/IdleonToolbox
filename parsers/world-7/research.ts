@@ -38,6 +38,7 @@ import { getClamWorkBonus } from '@parsers/world-7/clamWork';
 import { getMenagerieBoost } from '@parsers/world-7/menagerie';
 import { saveField } from '@parsers/saveField';
 import { OPT } from '@parsers/accountOptions';
+import type { ResearchOptimizerInput } from '@parsers/world-7/researchOptimizer';
 
 // Save key for Research: game may use idleonData.Research or similar
 // RiftStuff("RiftSkillBonus,19", tier): research is rift skill 19, its rank from the account's summed Research LV
@@ -180,7 +181,8 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
     };
   });
 
-  const { value: researchEXPmulti, breakdown: researchEXPmultiBreakdown } = getResearchEXPmulti(account, research, characters);
+  const { value: researchEXPmulti, breakdown: researchEXPmultiBreakdown, additive: researchEXPadditive, grid70: researchEXPgrid70 } =
+    getResearchEXPmulti(account, research, characters);
   let researchEXPrateTOT = 0;
   for (let obsIndex = 0; obsIndex < occurrencesToBeFound; obsIndex++) {
     researchEXPrateTOT += getResearchEXPrateObj(account, research, obsIndex);
@@ -307,6 +309,9 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
   const opticalMonocleOwned = Math.round(gridBonus91Lv);
   const kaleidoscopeOwned = Math.round(getResearchGridBonusInternal(account, research, 72, 1) + (getEventShopBonus(account, 33) ? 1 : 0));
   const magnifiersOwned = getMagnifiersOwned(account, research, researchLevel, gridBonus91Lv);
+  // game: "ResearchStuff:MagnifiersPerSlot", how many lenses of any kind one observation holds
+  const magnifiersPerSlot = Math.min(4, Math.round(1 + Math.min(1, Math.floor(researchLevel / 40)) + Math.min(1, Math.floor(researchLevel / 70))
+    + Math.min(1, Math.floor(researchLevel / 120))));
 
   return {
     gridSquares,
@@ -327,15 +332,7 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
     // Lens slots holding a Magnifying Glass (type 0). The game never stores this directly: MagnifiersOwned
     // is the total slot count across all three lens types, so the glasses are whatever's left over.
     magnifyingGlassOwned: Math.max(0, magnifiersOwned - kaleidoscopeOwned - opticalMonocleOwned),
-    magnifiersPerSlot: Math.min(
-      4,
-      Math.round(
-        1 +
-        Math.min(1, Math.floor(researchLevel / 40)) +
-        Math.min(1, Math.floor(researchLevel / 70)) +
-        Math.min(1, Math.floor(researchLevel / 120))
-      )
-    ),
+    magnifiersPerSlot,
     researchEXPmulti,
     researchEXPmultiBreakdown,
     researchEXPrateTOT,
@@ -380,7 +377,11 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
     timeToLevel,
     timeToLevelRegistrant,
     timeToNextUnlock,
-    timeToNextUnlockRegistrant
+    timeToNextUnlockRegistrant,
+    optimizer: getResearchOptimizerInput(account, research, {
+      raw, gridSquares, shapesOwned, researchLevel, occurrencesToBeFound, totalOccurrencesFound, magnifiersOwned, magnifiersPerSlot,
+      expMulti: researchEXPmulti, expAdditive: researchEXPadditive, expGrid70: researchEXPgrid70, afkRatePct: researchAFKrate
+    })
   };
 };
 
@@ -527,6 +528,51 @@ function getTotalOccurrencesFound(research: any, maxOccurrences: any) {
     if (Number(occurrenceFoundState[obsIndex]) >= 1) foundCount++;
   }
   return foundCount;
+}
+
+// What the Research Optimizer (researchOptimizer.ts) needs, as plain numbers it can score layouts with in a worker.
+function getResearchOptimizerInput(account: any, research: any, parts: any): ResearchOptimizerInput {
+  const { raw, gridSquares, shapesOwned, researchLevel, occurrencesToBeFound, totalOccurrencesFound, magnifiersOwned, magnifiersPerSlot } = parts;
+  const bonusPct = (shape: number) => (shape >= 0 ? Number(researchData?.[5]?.[shape]) || 0 : 0);
+  const owners = gridSquares.map((_: any, node: number) => {
+    const shape = Number(research?.gridObservationIndex?.[node]);
+    return Number.isFinite(shape) && shape >= 0 ? shape : -1;
+  });
+  const positions = raw?.[6] ?? [];
+  const slots = research?.shapePlacements ?? [];
+  const nodeValue = gridSquares.map((square: any, node: number) => (Number(square?.bonus) || 0) / (1 + bonusPct(owners[node]) / 100));
+  const shaped = (node: number) => nodeValue[node] * (1 + bonusPct(owners[node]) / 100);
+  const optimalOptometry = Number(isJadeBonusUnlocked(account, 'Optimal_Optometry'));
+  return {
+    shapesOwned,
+    canRotate: researchLevel >= 90,
+    placements: Array.from({ length: shapesOwned }, (_, shape) => ({
+      shape,
+      x: Number(positions[4 * shape]) || 0,
+      y: Number(positions[4 * shape + 1]) || 0,
+      rot: Number(positions[4 * shape + 2]) || 0
+    })),
+    owners,
+    selectable: gridSquares.map((square: any) => Boolean(square?.canSelect)),
+    levels: gridSquares.map((square: any) => Number(square?.level) || 0),
+    nodeValue,
+    shapeCatalog: { polygons: researchData?.[0] ?? [], dims: researchData?.[1] ?? [], bonusPcts: researchData?.[5] ?? [] },
+    totalOccurrencesFound: totalOccurrencesFound ?? 0,
+    expAdditive: parts.expAdditive ?? 0,
+    expGrid70: parts.expGrid70 ?? 0,
+    expMulti: parts.expMulti ?? 1,
+    observationsFound: occurrencesToBeFound ?? 0,
+    insightLevels: (research?.observationInsight ?? []).map((level: any) => Number(level) || 0),
+    insightExp: (research?.observationInsightExp ?? []).map((exp: any) => Number(exp) || 0),
+    lensSlots: Array.from({ length: magnifiersOwned ?? 0 }, (_, slot) => ({
+      observation: Number(slots[4 * slot + 2] ?? -1),
+      type: Number(slots[4 * slot + 3]) || 0
+    })),
+    lensCap: magnifiersPerSlot ?? 1,
+    kaleiOther: getKaleiMultiBase(account, research) * 100 - shaped(52) - shaped(72),
+    monocleRate: 3 * (1 + (35 * optimalOptometry) / 100) * (1 + getJellyBonus(account, 7) / 100),
+    afkRatePct: parts.afkRatePct ?? 0
+  };
 }
 
 function getKaleiMultiBase(account: any, research: any) {
@@ -761,7 +807,7 @@ function getResearchEXPmulti(account: any, research: any, characters: any) {
     multiplier('Royal Guardian Outpost', outpostRogFactor)
   ]);
 
-  return { value, breakdown };
+  return { value, breakdown, additive, grid70 };
 }
 
 // game: AFKgainrates("Research"), shown as ResearchStuff("AFKgainsRatePCT")

@@ -4,7 +4,9 @@ import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { within, withLoggedInDivinity, withSkillLevel } from '../helpers/live-verified';
 import { getGridBonusAllmulti, getResearch, getResearchGridCanSelect } from '@parsers/world-7/research';
-import { applyShapeMoves, getCoveredNodes, getGridLabel, getTurnPresses, parseShapeCatalog } from '@parsers/world-7/researchOptimizer';
+import {
+  applyShapeMoves, createResearchScorer, getCoveredNodes, getGridLabel, getTurnPresses, isInsideDragBounds, optimizeShapes, parseShapeCatalog
+} from '@parsers/world-7/researchOptimizer';
 import { research as researchData } from '@website-data';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
@@ -168,5 +170,24 @@ describe('research optimizer shape model against the live game', () => {
 
   it('grid labels read like the game tiles', () => {
     expect([91, 31, 50, 110].map((node) => getGridLabel(node))).toEqual(['L8', 'L11', 'K10', 'K7']);
+  });
+});
+
+describe('research optimizer scoring', () => {
+  const input = account.research.optimizer;
+
+  it('scores the save as the parser does: EXP multi and EXP rate', () => {
+    const scorer = createResearchScorer(input);
+    within(scorer.expMulti(input.owners, input.insightLevels), account.research.researchEXPmulti, 1e-9);
+    within(scorer.expRate(input.owners, input.lensSlots), account.research.researchEXPrateTOT, 1e-9);
+  });
+
+  it('a one-move plan stays inside the drag box and scores what it claims', () => {
+    const fixed = { ...input, canRotate: false };
+    const { now, plans: [plan] } = optimizeShapes(fixed, { maxMoves: 1, beamWidth: 1 });
+    const scorer = createResearchScorer(fixed);
+    expect(plan.ratio).toBeGreaterThanOrEqual(1);
+    within(plan.ratio, scorer.expRate(plan.owners, fixed.lensSlots) / now, 1e-12);
+    expect(plan.steps.every(({ shape, to }) => isInsideDragBounds(scorer.catalog[shape], to))).toBe(true);
   });
 });
