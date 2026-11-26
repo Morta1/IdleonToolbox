@@ -99,7 +99,11 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
   const hoursNow = research?.timeToLevel;
   const shown = focus ?? Math.max(0, plan.steps.findIndex((_, i) => !done[i]));
   const step = plan.steps[shown];
-  const lossesFor = (candidate) => input.levels.filter((level, node) => level > 0 && pct(candidate.owners[node]) < pct(input.owners[node])).length;
+  const lossesFor = (candidate) => input.levels.flatMap((level, node) => (level > 0 && pct(candidate.owners[node]) < pct(input.owners[node]) ? [node] : []));
+  // Only the move counts that add something: a count that gains no more than the one before it is folded into
+  // "N or more", so the table ends where the gain stops.
+  const worthwhile = plans.reduce((kept, candidate) => (candidate.ratio - (kept.at(-1)?.ratio ?? 1) >= 0.0001 ? [...kept, candidate] : kept), []);
+  const lastWorthwhile = worthwhile.at(-1)?.moves ?? 0;
   const bonus = (owners, node) => (input.nodeValue[node] ?? 0) * (1 + pct(owners[node]) / 100);
   const rows = changes.map((node) => ({
     node,
@@ -113,11 +117,12 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
 
   return <Stack gap={3}>
     <Panel title={'Shapes inputs'}>
-      <Stack direction={'row'} flexWrap={'wrap'} gap={3} sx={{ p: 2 }}>
+      <Stack direction={'row'} flexWrap={'wrap'} gap={3} alignItems={'flex-start'} sx={{ p: 2 }}>
         <Panel.Inputs>
           <TextField select label={'Shapes to move'} value={chosen} onChange={(event) => setMoves(Number(event.target.value))} sx={{ minWidth: 140 }}>
             <MenuItem value={0}>None</MenuItem>
-            {plans.map(({ moves: count }) => <MenuItem key={count} value={count}>{count === plans.length ? `All ${count}` : count}</MenuItem>)}
+            {worthwhile.map(({ moves: count }) => <MenuItem key={count} value={count}>{count}</MenuItem>)}
+            {worthwhile.some(({ moves: count }) => count === chosen) || chosen === 0 ? null : <MenuItem value={chosen}>{chosen}</MenuItem>}
           </TextField>
         </Panel.Inputs>
         <Box sx={{ overflowX: 'auto' }}>
@@ -125,11 +130,21 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
           <Box component={'table'} sx={{ borderCollapse: 'collapse', '& td, & th': { pr: 2, py: 0.5, textAlign: 'left', fontSize: 13 } }}>
             <thead><tr><th>Moves</th><th>{goalLabel}</th><th>Nodes that lose a bonus</th></tr></thead>
             <tbody>
-              {plans.map((candidate) => <Box component={'tr'} key={candidate.moves} sx={{ bgcolor: candidate.moves === chosen ? 'primary.soft' : undefined }}>
-                <td>{candidate.moves}</td>
-                <td>{gainText(candidate.ratio)}</td>
-                <td>{lossesFor(candidate) || 'None'}</td>
-              </Box>)}
+              {worthwhile.map((candidate) => {
+                const lost = lossesFor(candidate);
+                return <Box component={'tr'} key={candidate.moves} sx={{ bgcolor: candidate.moves === chosen ? 'primary.soft' : undefined }}>
+                  <td>{candidate.moves}</td>
+                  <td>{gainText(candidate.ratio)}</td>
+                  <Box component={'td'} sx={{ color: lost.length ? 'text.error' : undefined }}>
+                    {lost.length ? `✕ ${lost.length}: ${lost.map((node) => nodeName(squares, node)).join(', ')}` : 'None'}
+                  </Box>
+                </Box>;
+              })}
+              {lastWorthwhile && lastWorthwhile < plans.length ? <tr>
+                <td>{lastWorthwhile + 1} or more</td>
+                <td>{gainText(worthwhile.at(-1).ratio)}</td>
+                <Box component={'td'} sx={{ color: 'text.secondary' }}>No more to gain</Box>
+              </tr> : null}
             </tbody>
           </Box>
         </Box>
@@ -159,7 +174,8 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
       {input.canRotate ? '' : ' Turning shapes unlocks at Research LV 90, so until then I move them as they are turned now.'}</Notice>
 
     <Panel title={'Your grid'} aside={<ViewSwitch options={[['suggested', 'Suggested'], ['now', 'Now']]} value={view} onChange={setView}/>}>
-      <Box sx={{ p: 1.5, maxWidth: 640, display: plan.steps.length && view !== 'now' ? { xs: 'none', sm: 'block' } : 'block' }}>
+      <Stack direction={'row'} flexWrap={'wrap'} alignItems={'flex-start'}>
+      <Box sx={{ p: 1.5, flex: '1 1 420px', maxWidth: 640, display: plan.steps.length && view !== 'now' ? { xs: 'none', sm: 'block' } : 'block' }}>
         <ShapeBoard goalNodes={GOAL_NODES[goal]} catalog={catalog} levels={input.levels} maxLevels={squares.map((square) => square?.maxLv ?? 1)} selectable={input.selectable}
                     stays={view === 'now' ? input.placements : stays}
                     moves={view === 'now' ? [] : plan.steps.map(({ from, to }) => ({ from, to }))} focus={focus}
@@ -172,6 +188,28 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
                     view={cropAround(catalog, plan.steps.flatMap(({ from, to }) => [from, to]))} labels
                     label={'The part of your grid that changes, with each cell\'s coordinate'}/>
       </Box> : null}
+      <Stack gap={1} sx={{ p: 1.5, flex: '1 1 200px' }}>
+        {plan.steps.length ? <>
+          <Typography variant={'groupLabel'}>Move, in this order</Typography>
+          {plan.steps.map(({ shape }, i) => <Stack key={shape} direction={'row'} alignItems={'center'} gap={1}>
+            <Typography variant={'body2'} sx={{ width: 16, fontWeight: 700 }}>{i + 1}</Typography>
+            <ShapeIcon entry={catalog[shape]} shape={shape}/>
+            <Typography variant={'body2'}>{shapeName(catalog, shape)}</Typography>
+          </Stack>)}
+        </> : null}
+        {stays.length ? <>
+          <Typography variant={'groupLabel'} sx={{ mt: plan.steps.length ? 1 : 0 }}>{plan.steps.length ? 'Leave where they are' : 'Your shapes'}</Typography>
+          {stays.map(({ shape }) => <Stack key={shape} direction={'row'} alignItems={'center'} gap={1}>
+            <Box sx={{ width: 16 }}/>
+            <ShapeIcon entry={catalog[shape]} shape={shape}/>
+            <Typography variant={'body2'} color={'text.secondary'}>{shapeName(catalog, shape)}</Typography>
+          </Stack>)}
+        </> : null}
+        <Typography variant={'caption'} color={'text.secondary'} sx={{ mt: 1 }}>
+          Outlined cells add to {goalLabel}. A moved shape is dashed where it is now.
+        </Typography>
+      </Stack>
+      </Stack>
     </Panel>
 
     {plan.steps.length ? <Panel title={'In the game'} meta={`${Object.values(done).filter(Boolean).length} of ${plan.steps.length} done`}>
