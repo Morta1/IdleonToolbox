@@ -137,7 +137,7 @@ const LensesView = ({ research, optimizer, goal = 'researchExp', horizon: chosen
                                    bgcolor: reached.includes(index) ? 'primary.soft' : 'background.default'
                                  }}>
                 {net ? <Box component={'span'} sx={{
-                  position: 'absolute', top: -9, right: -6, px: 0.5, height: 18, borderRadius: 9, bgcolor: 'primary.main',
+                  position: 'absolute', top: -9, right: -6, zIndex: 1, px: 0.5, height: 18, borderRadius: 9, bgcolor: 'primary.main',
                   color: 'primary.contrastText', fontSize: 10, fontWeight: 700, display: 'flex', alignItems: 'center', whiteSpace: 'nowrap'
                 }}>{net}</Box> : null}
                 <GameIcon src={`data/ResObj${index}.png`} size={32} alt={''}/>
