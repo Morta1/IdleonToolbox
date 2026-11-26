@@ -18,7 +18,8 @@ export const patchNotes = [
       'Research: the Observations tab tells you when moving your lenses would give more Research EXP'
     ],
     'fixes': [
-      'Farming: the crop evo breakdown of a locked plot now shows its total and each bonus share'
+      'Farming: the crop evo breakdown of a locked plot now shows its total and each bonus share',
+      'Research: the Optimizer suggested moving lenses onto observations you haven\'t discovered yet'
     ]
   },
   {

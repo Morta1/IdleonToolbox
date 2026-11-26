@@ -231,4 +231,12 @@ describe('research optimizer lenses', () => {
     const rebuilt = applyLensDrags(input.lensSlots.filter(({ observation }) => observation >= 0), plan.drags);
     expect(counts(rebuilt)).toEqual(counts(plan.slots));
   });
+
+  it('never drags a lens onto an undiscovered observation', () => {
+    const wanted = new Set(optimizeLenses(input, { restarts: 4 }).drags.map(({ to }) => to));
+    expect(wanted.size).toBeGreaterThan(0);
+    const discovered = Array.from({ length: input.observationsFound }, (_, i) => !wanted.has(i));
+    const plan = optimizeLenses({ ...input, discovered }, { restarts: 4 });
+    expect(plan.drags.filter(({ to }) => wanted.has(to))).toEqual([]);
+  });
 });

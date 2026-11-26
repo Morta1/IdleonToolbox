@@ -549,6 +549,7 @@ function getResearchOptimizerInput(account: any, research: any, parts: any): Res
     expGrid70: parts.expGrid70 ?? 0,
     expMulti: parts.expMulti ?? 1,
     observationsFound: occurrencesToBeFound ?? 0,
+    discovered: Array.from({ length: occurrencesToBeFound ?? 0 }, (_, i) => (Number(research?.occurrenceFoundState?.[i]) || 0) >= 1),
     insightLevels: (research?.observationInsight ?? []).map((level: any) => Number(level) || 0),
     insightExp: (research?.observationInsightExp ?? []).map((exp: any) => Number(exp) || 0),
     lensSlots: Array.from({ length: magnifiersOwned ?? 0 }, (_, slot) => ({

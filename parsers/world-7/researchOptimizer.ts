@@ -156,6 +156,8 @@ export interface ResearchOptimizerInput {
   expGrid70: number;
   expMulti: number;
   observationsFound: number;
+  // Unlocked observations still showing "?" take no lens, so the lens search never targets them
+  discovered?: boolean[];
   insightLevels: number[];
   insightExp: number[];
   lensSlots: LensSlot[];
@@ -481,6 +483,7 @@ export const optimizeLenses = (input: ResearchOptimizerInput, {
   const hours = getResearchHours(input, realHours);
   const found = input.observationsFound;
   const slots = input.lensSlots.filter(({ observation }) => observation >= 0 && observation < found);
+  const targets = Array.from({ length: found }, (_, i) => i).filter((i) => input.discovered?.[i] ?? true);
   const score = (layout: LensSlot[]) => scoreLensLayout(input, layout, { goal, realHours, owners, scorer });
   const today = (layout: LensSlot[]) => scorer.goalRate(goal, owners, layout);
   const movable = (slot: LensSlot) => !(keepMonocles && slot.type === LENS.monocle);
@@ -493,7 +496,7 @@ export const optimizeLenses = (input: ResearchOptimizerInput, {
       improved = false;
       for (let i = 0; i < layout.length; i++) {
         if (!movable(layout[i])) continue;
-        for (let observation = 0; observation < found; observation++) {
+        for (const observation of targets) {
           if (observation === layout[i].observation) continue;
           const trial = layout.map((slot) => ({ ...slot }));
           trial[i].observation = observation;
@@ -523,7 +526,7 @@ export const optimizeLenses = (input: ResearchOptimizerInput, {
       const i = Math.floor(random() * start.length);
       if (!movable(start[i])) continue;
       const trial = start.map((slot) => ({ ...slot }));
-      trial[i].observation = Math.floor(random() * found);
+      trial[i].observation = targets[Math.floor(random() * targets.length)];
       if (fitsCap(trial, input.lensCap)) start.splice(0, start.length, ...trial);
     }
     const result = climb(start);
