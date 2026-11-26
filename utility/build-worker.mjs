@@ -22,6 +22,7 @@ const LEGACY = ['public/construction-optimizer.worker.js', 'public/parse.worker.
 
 const WORKERS = [
   { name: 'constructionOptimizer', entry: 'workers/constructionOptimizer.worker.js' },
+  { name: 'researchOptimizer', entry: 'workers/researchOptimizer.worker.js' },
   {
     name: 'parse',
     entry: 'workers/parse.worker.js',

@@ -311,7 +311,12 @@ export const optimizeShapes = (input: ResearchOptimizerInput, {
   const { catalog, pct } = scorer;
   const shapes = Array.from({ length: input.shapesOwned }, (_, shape) => shape);
   const coverage = shapes.map((shape) => getCoveredNodes(catalog[shape], input.placements[shape], input.selectable));
-  const candidates = shapes.map((shape) => getShapeCandidates(input, catalog, shape));
+  // Building the candidates is about a fifth of the run; the moves share the rest.
+  const candidates = shapes.map((shape) => {
+    const list = getShapeCandidates(input, catalog, shape);
+    onProgress?.((0.2 * (shape + 1)) / shapes.length);
+    return list;
+  });
   // Spare shapes break ties: once the goal is maxed, a shape on more levelled nodes beats one on none.
   const spare = (owners: number[]) => owners.reduce((sum, shape, node) =>
     sum + (shape >= 0 && input.levels[node] > 0 && !RESEARCH_EXP_NODES.includes(node) ? pct(shape) : 0), 0);
@@ -351,7 +356,7 @@ export const optimizeShapes = (input: ResearchOptimizerInput, {
         holds: best.owners.flatMap((owner, node) => (owner === shape && input.levels[node] > 0 ? [node] : []))
       }))
     });
-    onProgress?.(k / limit);
+    onProgress?.(0.2 + (0.8 * k) / limit);
   }
   return { now, plans };
 };
