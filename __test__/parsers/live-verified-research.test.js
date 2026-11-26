@@ -3,7 +3,9 @@ import { describe, expect, it } from 'vitest';
 import latest from '../fixtures/latest.json';
 import { parseFixture } from '../helpers/parsed-fixtures';
 import { within, withLoggedInDivinity, withSkillLevel } from '../helpers/live-verified';
-import { getGridBonusAllmulti, getResearch } from '@parsers/world-7/research';
+import { getGridBonusAllmulti, getResearch, getResearchGridCanSelect } from '@parsers/world-7/research';
+import { applyShapeMoves, getCoveredNodes, getGridLabel, getTurnPresses, parseShapeCatalog } from '@parsers/world-7/researchOptimizer';
+import { research as researchData } from '@website-data';
 
 // Read from the running game on 2026-10-11 through the debug server, logged in as IAmTheHunterrr (Wind Walker).
 // latest.json is that account's save (OptionsListAccount[340] matches). "NoDoot" = DNSM.CompanionBon[0] set
@@ -114,5 +116,57 @@ describe('research verified against the live game', () => {
     const grid48 = (research) => research.gridSquares.find(({ index }) => index === 48)?.bonuses?.[0];
     within(grid48(getResearch(data, account, characters)), GAME.grid48);
     within(grid48(getResearch(data, account, withLoggedInDivinity(characters, 1))), GAME.grid48NoDoot);
+  });
+});
+
+// Read 2026-11-26 from the owner's live game (Research LV 127, 7 shapes) while moving two shapes by hand: the star
+// (shape 5) from (317,84) at 0 degrees to (312,112) at 135, then the diamond (shape 0) from (352,159) at 90 to (318,46)
+// at 0. Research[1] (node -> shape) was read before and after each drag. '.' is no shape.
+const SHAPE_MOVES = {
+  levels: '000000000000000000000000000000030000000000000002421430000000000000031242400000000000003234442340000000000141212210000000000003211433300000000000002441223000000000004443123421000000000004442444000000000000000000000000000000000000000000000000',
+  placements: [[352, 159, 90], [239, 98, 0], [418, 144, 0], [321, 213, 0], [188, 168, 0], [317, 84, 0], [148, 240, 5]],
+  moves: [{ shape: 5, x: 312, y: 112, rot: 135 }, { shape: 0, x: 318, y: 46, rot: 0 }],
+  owners: [
+    '...............................................111.5...............111555.............411455522..........44444.00............44444333.............4444333...........66666.333............6666...................................................',
+    '...............................................111.5...............111555.............411455522..........44444500............44444333.............4444333...........66666.333............6666...................................................',
+    '...............................0...............11105...............111555.............411455522..........44444555............44444333.............4444333...........66666.333............6666...................................................'
+  ]
+};
+
+describe('research optimizer shape model against the live game', () => {
+  const catalog = parseShapeCatalog(researchData[0], researchData[1], researchData[5]);
+  const decode = (text) => [...text].map((char) => (char === '.' ? -1 : Number(char)));
+  const selectableFor = (gridLevels) => gridLevels.map((_, node) => getResearchGridCanSelect({ gridLevels }, node));
+
+  it('every node the save gives a shape is one that shape covers', () => {
+    const saved = typeof data.Research === 'string' ? JSON.parse(data.Research) : data.Research;
+    const selectable = selectableFor(saved[0]);
+    const misplaced = saved[1].flatMap((shape, node) => {
+      if (shape < 0) return [];
+      const [x, y, rot] = saved[6].slice(4 * shape, 4 * shape + 3);
+      return getCoveredNodes(catalog[shape], { shape, x, y, rot }, selectable).includes(node) ? [] : [[node, shape]];
+    });
+    expect(misplaced).toEqual([]);
+  });
+
+  it('moving shapes one at a time gives the owners the game gave', () => {
+    const selectable = selectableFor([...SHAPE_MOVES.levels].map(Number));
+    const coverage = SHAPE_MOVES.placements.map(([x, y, rot], shape) => getCoveredNodes(catalog[shape], { shape, x, y, rot }, selectable));
+    const moves = SHAPE_MOVES.moves.map((move) => ({ ...move, covered: getCoveredNodes(catalog[move.shape], move, selectable) }));
+    const [before, afterStar, afterDiamond] = SHAPE_MOVES.owners.map(decode);
+    expect(applyShapeMoves(before, coverage, moves.slice(0, 1))).toEqual(afterStar);
+    expect(applyShapeMoves(before, coverage, moves)).toEqual(afterDiamond);
+  });
+
+  it.each([
+    ['0 to 135 is 27 right presses', 0, 135, { presses: 27, button: 'right' }],
+    ['90 to 0 is 18 left presses', 90, 0, { presses: 18, button: 'left' }],
+    ['350 to 10 goes on past 360', 350, 10, { presses: 4, button: 'right' }]
+  ])('turn buttons: %s', (_, from, to, expected) => {
+    expect(getTurnPresses(from, to)).toEqual(expected);
+  });
+
+  it('grid labels read like the game tiles', () => {
+    expect([91, 31, 50, 110].map((node) => getGridLabel(node))).toEqual(['L8', 'L11', 'K10', 'K7']);
   });
 });

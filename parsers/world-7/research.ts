@@ -606,7 +606,7 @@ function getObservationInsightExpRate(account: any, research: any, observationIn
 
 /** Grid_CanWeSelect: whether this grid square can be selected in the UI. */
 // game: "Grid_CanWeSelect"
-function getResearchGridCanSelect(research: any, gridIndex: any) {
+export function getResearchGridCanSelect(research: any, gridIndex: any) {
   const gridLevels = research?.gridLevels ?? [];
   const level = Number(gridLevels[gridIndex]) || 0;
   const square = (researchGridSquares || [])[gridIndex];
