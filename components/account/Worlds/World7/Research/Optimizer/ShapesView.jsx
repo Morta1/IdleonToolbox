@@ -4,6 +4,7 @@ import { cleanUnderscore, formatDuration, formatNum } from '@utility/helpers';
 import Panel from '@components/common/cards/Panel';
 import StatTile from '@components/common/cards/StatTile';
 import Notice from '@components/common/Notice';
+import InfoButton from '@components/common/InfoButton';
 import DataTable from '@components/common/DataTable';
 import { researchGridSquares } from '@website-data';
 import {
@@ -40,7 +41,7 @@ const bonusText = (node, value) => {
 // A gain smaller than this (as a share) is not worth a move of its own
 const SMALL_GAIN = 0.0005;
 
-const StepRow = ({ step, index, done, current, gainSoFar, onTick, onPick, closeUp, squares, catalog, goal }) => {
+const StepRow = ({ step, index, done, current, gainSoFar, lowers, onTick, onPick, closeUp, squares, catalog, goal }) => {
   const { to, from, turn, holds } = step;
   const goalHolds = holds.filter((node) => GOAL_NODES[goal].includes(node));
   const others = holds.length - goalHolds.length;
@@ -61,6 +62,9 @@ const StepRow = ({ step, index, done, current, gainSoFar, onTick, onPick, closeU
             {goalHolds.length ? `Holds ${goalHolds.map((node) => `${getGridLabel(node)} ${nodeName(squares, node)}`).join(', ')}` : 'Holds'}
             {others ? `${goalHolds.length ? ', and ' : ' '}${others} other node${others === 1 ? '' : 's'}` : ''}
           </Typography>
+          {lowers.length ? <Typography variant={'caption'} color={'text.error'}>
+            Lowers {lowers.length === 1 ? nodeName(squares, lowers[0]) : `${lowers.length} bonuses`}
+          </Typography> : null}
         </Stack>
       </ButtonBase>
       {closeUp ? <Box sx={{ maxWidth: 240 }}>{closeUp}</Box> : null}
@@ -110,7 +114,8 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
   const moves = steps.map(({ to }) => ({ ...to, covered: getCoveredNodes(catalog[to.shape], to, input.selectable) }));
   const now = scorer.goalRate(goal, input.owners, input.lensSlots) || 1;
   // What the moves up to and including each one give
-  const gainAfter = steps.map((_, i) => scorer.goalRate(goal, applyShapeMoves(input.owners, coverage, moves.slice(0, i + 1)), input.lensSlots) / now);
+  const ownersAfter = steps.map((_, i) => applyShapeMoves(input.owners, coverage, moves.slice(0, i + 1)));
+  const gainAfter = ownersAfter.map((owners) => scorer.goalRate(goal, owners, input.lensSlots) / now);
   // A plan of 3 or more folds the moves after the gain is all but reached
   const reached = steps.length >= 3 ? gainAfter.findIndex((ratio) => plan.ratio - ratio < SMALL_GAIN) : -1;
   const shownCount = !showAll && reached >= 0 && reached < steps.length - 1 ? reached + 1 : steps.length;
@@ -123,6 +128,9 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
   const pct = (shape) => (shape >= 0 ? catalog[shape]?.bonusPct ?? 0 : 0);
   const changes = input.levels.flatMap((level, node) => (level > 0 && pct(plan.owners[node]) !== pct(input.owners[node]) ? [node] : []));
   const losses = changes.filter((node) => pct(plan.owners[node]) < pct(input.owners[node]));
+  // Each lost bonus belongs to the first move that lowers it
+  const lowersAt = steps.map((_, i) => losses.filter((node) => pct(ownersAfter[i][node]) < pct(input.owners[node])
+    && (i === 0 || pct(ownersAfter[i - 1][node]) >= pct(input.owners[node]))));
   const hoursNow = research?.timeToLevel;
   const bonus = (owners, node) => (input.nodeValue[node] ?? 0) * (1 + pct(owners[node]) / 100);
   const rows = changes.map((node) => ({
@@ -132,8 +140,9 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
     shapeBefore: shapeName(catalog, input.owners[node]),
     shapeAfter: shapeName(catalog, plan.owners[node]),
     before: bonus(input.owners, node),
-    after: bonus(plan.owners, node)
-  })).sort((a, b) => Number(b.goal) - Number(a.goal));
+    after: bonus(plan.owners, node),
+    lost: losses.includes(node)
+  })).sort((a, b) => Number(b.lost) - Number(a.lost) || Number(b.goal) - Number(a.goal));
   const board = (props) => <ShapeBoard goalNodes={GOAL_NODES[goal]} catalog={catalog} levels={input.levels}
                                        maxLevels={squares.map((square) => square?.maxLv ?? 1)} selectable={input.selectable} {...props}/>;
   const tick = (i) => {
@@ -147,7 +156,7 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
         {!steps.length
           ? `For ${goalLabel}, your shapes are already where I'd put them.`
           : `Move ${steps.length} shape${steps.length === 1 ? '' : 's'}: ${gainText(plan.ratio)} ${goalLabel}${losses.length
-            ? `, but ${losses.map((node) => `${nodeName(squares, node)} drops from ${bonusText(node, bonus(input.owners, node))} to ${bonusText(node, bonus(plan.owners, node))}`).join(', ')}`
+            ? `, but ${losses.length} other bonus${losses.length === 1 ? '' : 'es'} drop${losses.length === 1 ? 's' : ''}`
             : ', and no node loses its bonus'}.`}
       </Typography>
       {goal === 'researchExp' && steps.length ? <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
@@ -158,11 +167,12 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
       </Stack> : null}
     </Stack>
 
-    <Notice>Only levelled nodes count: a shape over a node at level 0 gives nothing until you level it.
-      {input.canRotate ? '' : ' Turning shapes unlocks at Research LV 90, so until then I move them as they are turned now.'}</Notice>
+    {/* It changes which moves you get, so it stays in sight until LV 90 */}
+    {input.canRotate ? null : <Notice>Turning shapes unlocks at Research LV 90: until then, each shape keeps its current turn.</Notice>}
 
     <Stack direction={'row'} flexWrap={'wrap'} gap={2} alignItems={'flex-start'}>
-      <Panel title={'Your grid'} sx={{ flex: '1 1 460px', minWidth: 0 }}>
+      <Panel title={<>Your grid <InfoButton label={'Your grid'}>Only levelled nodes count: a shape over a node at level 0 gives
+        nothing until you level it.</InfoButton></>} sx={{ flex: '1 1 460px', minWidth: 0, maxWidth: 760 }}>
         <Stack gap={1.5} sx={{ p: 2 }}>
           {/* On a phone the whole grid is too small to read: each move's close-up in its row does the job there */}
           <Box sx={{ display: steps.length ? { xs: 'none', sm: 'block' } : 'block' }}>
@@ -183,7 +193,7 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
           <Stack sx={{ mx: -1 }}>
             {steps.slice(0, shownCount).map((step, i) => <StepRow
               key={step.shape} step={step} index={i} gainSoFar={gainAfter[i]} done={i < doneThrough} current={i === current}
-              onTick={() => tick(i)} onPick={() => setPicked(picked === i ? null : i)} squares={squares} catalog={catalog} goal={goal}
+              lowers={lowersAt[i]} onTick={() => tick(i)} onPick={() => setPicked(picked === i ? null : i)} squares={squares} catalog={catalog} goal={goal}
               closeUp={i === current ? board({
                 stays: [], moves: [{ to: step.to }], view: cropAround(catalog, [step.to]), labels: true, closeUp: true,
                 label: `Close-up of move ${i + 1}, with each cell's coordinate`
@@ -204,7 +214,8 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
         { key: 'name', label: 'Node', value: ({ node, name }) => `${getGridLabel(node)} ${name}` },
         { key: 'adds', label: 'Adds to', value: ({ goal: isGoal }) => (isGoal ? goalLabel : 'Other') },
         { key: 'shape', label: 'Shape', value: ({ shapeBefore, shapeAfter }) => `${shapeBefore} → ${shapeAfter}` },
-        { key: 'bonus', label: 'Bonus', numeric: true, value: ({ after }) => after, render: ({ node, before, after }) => `${bonusText(node, before)} → ${bonusText(node, after)}` }
+        { key: 'bonus', label: 'Bonus', numeric: true, value: ({ after }) => after, render: ({ node, before, after }) => `${bonusText(node, before)} → ${bonusText(node, after)}`,
+          tone: ({ lost }) => (lost ? 'bad' : null) }
       ]}/>
     </Panel> : null}
   </Stack>;
