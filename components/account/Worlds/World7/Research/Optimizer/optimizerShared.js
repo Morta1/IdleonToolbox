@@ -18,3 +18,9 @@ export const pickMoves = (plans) => {
   const best = Math.max(...plans.map(({ ratio }) => ratio));
   return (plans.find(({ ratio }) => ratio - 1 >= (best - 1) * 0.999) ?? plans.at(-1))?.moves ?? 1;
 };
+
+// The goals the tab optimizes for, with the grid nodes each one reads.
+export const GOALS = {
+  researchExp: { label: 'Research EXP', hint: 'Grid nodes, glasses and kaleidoscopes' },
+  insight: { label: 'Insight EXP', hint: 'Grid nodes, monocles and kaleidoscopes' }
+};

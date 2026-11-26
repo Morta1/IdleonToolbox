@@ -8,7 +8,7 @@ import StatTile from '@components/common/cards/StatTile';
 import Notice from '@components/common/Notice';
 import ViewSwitch from '@components/common/ViewSwitch';
 import { getKaleidoscopeNeighbours } from '@parsers/world-7/researchOptimizer';
-import { gainText } from './optimizerShared';
+import { GOALS, gainText } from './optimizerShared';
 
 const LENSES = [
   { src: 'data/ResMagni0.png', name: 'Magnifying Glass', plural: 'Magnifying Glasses' },
@@ -26,7 +26,10 @@ const countsByObservation = (slots) => slots.reduce((map, { observation, type })
   return map.set(observation, counts);
 }, new Map());
 
-const LensesView = ({ research, optimizer, horizon, setHorizon, keepMonocles, setKeepMonocles }) => {
+const LensesView = ({ research, optimizer, goal = 'researchExp', horizon: chosenHorizon, setHorizon, keepMonocles, setKeepMonocles }) => {
+  const goalLabel = GOALS[goal].label;
+  // Insight is planned for today; the horizon only counts for Research EXP.
+  const horizon = goal === 'insight' ? 'now' : chosenHorizon;
   const input = research?.optimizer;
   const [view, setView] = useState('suggested');
   const [done, setDone] = useState({});
@@ -49,12 +52,12 @@ const LensesView = ({ research, optimizer, horizon, setHorizon, keepMonocles, se
   return <Stack gap={3}>
     <Panel title={'Lenses inputs'}>
       <Panel.Inputs sx={{ p: 2 }}>
-        <Panel.InputGroup label={<>Plan for <InfoButton label={'Plan for'}>Monocles don&apos;t make Research EXP, so moving them
+        {goal === 'insight' ? null : <Panel.InputGroup label={<>Plan for <InfoButton label={'Plan for'}>Monocles don&apos;t make Research EXP, so moving them
           leaves today&apos;s number the same. They make Insight: each Insight level adds Research EXP through Game Design 102,
           and early observations level up far faster. Insight only grows during research time, at your AFK rate while
           you&apos;re away.</InfoButton></>}>
           <ViewSwitch options={[['now', 'Now'], ['week', '1 week'], ['month', '1 month']]} value={horizon} onChange={setHorizon} label={'Plan for'}/>
-        </Panel.InputGroup>
+        </Panel.InputGroup>}
         <FormControlLabel control={<Checkbox checked={keepMonocles} onChange={(event) => setKeepMonocles(event.target.checked)}/>}
                           label={'Keep my monocles where they are'}/>
       </Panel.Inputs>
@@ -63,12 +66,12 @@ const LensesView = ({ research, optimizer, horizon, setHorizon, keepMonocles, se
     {!plan ? <Panel title={'Finding the best layout'}><Box sx={{ p: 2 }}><LinearProgress/></Box></Panel> : <Stack gap={1.5}>
       <Typography variant={'sectionTitle'} component={'p'}>
         {nothingToDo
-          ? `For Research EXP ${HORIZON_LABEL[horizon]}, your lenses are already where I'd put them.`
-          : `Move ${drags.reduce((sum, { count }) => sum + count, 0)} lenses: ${gainText(plan.ratioAtHorizon)} Research EXP ${HORIZON_LABEL[horizon]}${plan.ratioToday >= 1 - 1e-9 ? ', nothing lost today' : ''}.`}
+          ? `For ${goalLabel} ${HORIZON_LABEL[horizon]}, your lenses are already where I'd put them.`
+          : `Move ${drags.reduce((sum, { count }) => sum + count, 0)} lenses: ${gainText(plan.ratioAtHorizon)} ${goalLabel} ${HORIZON_LABEL[horizon]}${plan.ratioToday >= 1 - 1e-9 ? ', nothing lost today' : ''}.`}
       </Typography>
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-        <StatTile label={'Research EXP today'} value={gainText(plan.ratioToday)}/>
-        {HORIZONS[horizon] ? <StatTile label={`Research EXP ${HORIZON_LABEL[horizon]}`} value={gainText(plan.ratioAtHorizon)}/> : null}
+        <StatTile label={`${goalLabel} today`} value={gainText(plan.ratioToday)}/>
+        {HORIZONS[horizon] ? <StatTile label={`${goalLabel} ${HORIZON_LABEL[horizon]}`} value={gainText(plan.ratioAtHorizon)}/> : null}
         <StatTile label={'Lenses to move'} value={`${drags.reduce((sum, { count }) => sum + count, 0)} of ${current.length}`}/>
         {HORIZONS[horizon] ? <StatTile label={'Insight levels gained'} value={`+${formatNum(plan.insightLevelsGained)}`}/> : null}
       </Stack>

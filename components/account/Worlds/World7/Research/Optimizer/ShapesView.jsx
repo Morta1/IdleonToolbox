@@ -6,15 +6,32 @@ import StatTile from '@components/common/cards/StatTile';
 import Notice from '@components/common/Notice';
 import ViewSwitch from '@components/common/ViewSwitch';
 import DataTable from '@components/common/DataTable';
-import { RESEARCH_EXP_NODES, getGridLabel, parseShapeCatalog } from '@parsers/world-7/researchOptimizer';
+import { GOAL_NODES, getGridLabel, parseShapeCatalog } from '@parsers/world-7/researchOptimizer';
 import ShapeBoard, { cropAround } from './ShapeBoard';
-import { gainText, pickMoves, shapeName } from './optimizerShared';
+import { GOALS, gainText, pickMoves, shapeName } from './optimizerShared';
+
+const ShapeIcon = ({ entry, shape }) => {
+  const scale = 20 / Math.max(entry.width, entry.height, 1);
+  const color = (theme) => (theme.vars || theme).palette.identity.researchShapes[shape]?.line;
+  return <Box component={'svg'} width={24} height={24} viewBox={'0 0 24 24'} aria-hidden sx={(theme) => ({ color: color(theme), flexShrink: 0 })}>
+    <polygon points={entry.polygon.map(([x, y]) => `${2 + x * scale + (20 - entry.width * scale) / 2},${2 + y * scale + (20 - entry.height * scale) / 2}`).join(' ')}
+             fill={'currentColor'} fillOpacity={0.35} stroke={'currentColor'} strokeWidth={1.5}/>
+  </Box>;
+};
 
 const nodeName = (squares, node) => cleanUnderscore(squares?.[node]?.name ?? '');
 
-const StepRow = ({ step, index, done, focused, onDone, onFocus, squares, catalog }) => {
+// A node's bonus as its description writes it: '}x' is a multiplier (1 + bonus / 100), '{%' a percent.
+const bonusText = (square, value) => {
+  const text = square?.description ?? '';
+  if (text.includes('}x')) return `${formatNum(1 + value / 100)}x`;
+  if (text.includes('{%')) return `+${formatNum(value)}%`;
+  return formatNum(value);
+};
+
+const StepRow = ({ step, index, done, focused, onDone, onFocus, squares, catalog, goal }) => {
   const { to, from, turn, holds } = step;
-  const goalHolds = holds.filter((node) => RESEARCH_EXP_NODES.includes(node));
+  const goalHolds = holds.filter((node) => GOAL_NODES[goal].includes(node));
   const others = holds.length - goalHolds.length;
   return <Stack direction={'row'} gap={1} alignItems={'flex-start'}
                 sx={{ p: 1, borderRadius: 1, opacity: done ? 0.55 : 1, bgcolor: focused ? 'primary.soft' : undefined }}>
@@ -39,7 +56,8 @@ const StepRow = ({ step, index, done, focused, onDone, onFocus, squares, catalog
   </Stack>;
 };
 
-const ShapesView = ({ research, squares, optimizer }) => {
+const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
+  const goalLabel = GOALS[goal].label;
   const input = research?.optimizer;
   const [moves, setMoves] = useState(null);
   const [view, setView] = useState('suggested');
@@ -48,7 +66,16 @@ const ShapesView = ({ research, squares, optimizer }) => {
   const catalog = parseShapeCatalog(input?.shapeCatalog?.polygons, input?.shapeCatalog?.dims, input?.shapeCatalog?.bonusPcts);
 
   if (!input?.shapesOwned) {
-    return <Notice>Your first shape comes at Research LV 20.</Notice>;
+    return <Stack gap={2}>
+      <Notice>Your first shape comes at Research LV 20. Each shape multiplies the bonus of the grid nodes it covers:</Notice>
+      <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: 1 }}>
+        {catalog.map((entry, shape) => <Stack key={shape} direction={'row'} alignItems={'center'} gap={1}
+                                              sx={{ p: 1, borderRadius: 1, border: 1, borderColor: 'divider' }}>
+          <ShapeIcon entry={entry} shape={shape}/>
+          <Typography variant={'body2'}>{shapeName(catalog, shape)}</Typography>
+        </Stack>)}
+      </Box>
+    </Stack>;
   }
   if (optimizer.status !== 'done') {
     return <Panel title={'Finding the best layout'}>
@@ -76,7 +103,7 @@ const ShapesView = ({ research, squares, optimizer }) => {
   const bonus = (owners, node) => (input.nodeValue[node] ?? 0) * (1 + pct(owners[node]) / 100);
   const rows = changes.map((node) => ({
     node,
-    goal: RESEARCH_EXP_NODES.includes(node),
+    goal: GOAL_NODES[goal].includes(node),
     name: nodeName(squares, node),
     shapeBefore: shapeName(catalog, input.owners[node]),
     shapeAfter: shapeName(catalog, plan.owners[node]),
@@ -96,7 +123,7 @@ const ShapesView = ({ research, squares, optimizer }) => {
         <Box sx={{ overflowX: 'auto' }}>
           <Typography variant={'caption'} color={'text.secondary'}>What each move is worth</Typography>
           <Box component={'table'} sx={{ borderCollapse: 'collapse', '& td, & th': { pr: 2, py: 0.5, textAlign: 'left', fontSize: 13 } }}>
-            <thead><tr><th>Moves</th><th>Research EXP</th><th>Nodes that lose a bonus</th></tr></thead>
+            <thead><tr><th>Moves</th><th>{goalLabel}</th><th>Nodes that lose a bonus</th></tr></thead>
             <tbody>
               {plans.map((candidate) => <Box component={'tr'} key={candidate.moves} sx={{ bgcolor: candidate.moves === chosen ? 'primary.soft' : undefined }}>
                 <td>{candidate.moves}</td>
@@ -112,38 +139,45 @@ const ShapesView = ({ research, squares, optimizer }) => {
     <Stack gap={1.5}>
       <Typography variant={'sectionTitle'} component={'p'}>
         {chosen === 0
-          ? "For Research EXP, your shapes are already where I'd put them."
+          ? `For ${goalLabel}, your shapes are already where I'd put them.`
           : tiny
           ? `Your shapes are within ${gainText(plan.ratio)} of the best layout I found.`
-          : `Move ${plan.steps.length} shape${plan.steps.length === 1 ? '' : 's'}: ${gainText(plan.ratio)} Research EXP${losses.length ? '' : ', and no node loses its bonus'}.`}
+          : `Move ${plan.steps.length} shape${plan.steps.length === 1 ? '' : 's'}: ${gainText(plan.ratio)} ${goalLabel}${losses.length ? '' : ', and no node loses its bonus'}.`}
       </Typography>
       <Stack direction={'row'} gap={1} flexWrap={'wrap'}>
-        <StatTile label={'Research EXP'} value={gainText(plan.ratio)} status={tiny ? undefined : 'success'}/>
-        <StatTile label={'Research EXP per hour'}
-                  value={`${formatNum(research?.researchEXPrateTOT ?? 0)} → ${formatNum((research?.researchEXPrateTOT ?? 0) * plan.ratio)}`}/>
-        {hoursNow > 0 ? <StatTile label={`Research LV ${formatNum((research?.researchLevel ?? 0) + 1)} in`}
+        <StatTile label={goalLabel} value={gainText(plan.ratio)} status={tiny ? undefined : 'success'}/>
+        {goal === 'researchExp' ? <StatTile label={'Research EXP per hour'}
+                  value={`${formatNum(research?.researchEXPrateTOT ?? 0)} → ${formatNum((research?.researchEXPrateTOT ?? 0) * plan.ratio)}`}/> : null}
+        {goal === 'researchExp' && hoursNow > 0 ? <StatTile label={`Research LV ${formatNum((research?.researchLevel ?? 0) + 1)} in`}
                                   value={`${formatDuration(hoursNow * 3600)} → ${formatDuration((hoursNow / plan.ratio) * 3600)}`}/> : null}
         <StatTile label={'Shapes to move'} value={`${plan.steps.length} of ${input.shapesOwned}`}/>
         <StatTile label={'Nodes that lose a bonus'} value={losses.length} kind={'amount'}/>
       </Stack>
     </Stack>
 
-    <Notice>Only levelled nodes count: a shape over a node at level 0 gives nothing until you level it.</Notice>
+    <Notice>Only levelled nodes count: a shape over a node at level 0 gives nothing until you level it.
+      {input.canRotate ? '' : ' Turning shapes unlocks at Research LV 90, so until then I move them as they are turned now.'}</Notice>
 
     <Panel title={'Your grid'} aside={<ViewSwitch options={[['suggested', 'Suggested'], ['now', 'Now']]} value={view} onChange={setView}/>}>
-      <Box sx={{ p: 1.5, maxWidth: 640 }}>
-        <ShapeBoard catalog={catalog} levels={input.levels} maxLevels={squares.map((square) => square?.maxLv ?? 1)} selectable={input.selectable}
+      <Box sx={{ p: 1.5, maxWidth: 640, display: plan.steps.length && view !== 'now' ? { xs: 'none', sm: 'block' } : 'block' }}>
+        <ShapeBoard goalNodes={GOAL_NODES[goal]} catalog={catalog} levels={input.levels} maxLevels={squares.map((square) => square?.maxLv ?? 1)} selectable={input.selectable}
                     stays={view === 'now' ? input.placements : stays}
                     moves={view === 'now' ? [] : plan.steps.map(({ from, to }) => ({ from, to }))} focus={focus}
                     label={view === 'now' ? 'Your Research grid with the shapes where they are now'
                       : 'Your Research grid with the suggested moves, numbered in order'}/>
       </Box>
+      {plan.steps.length && view !== 'now' ? <Box sx={{ p: 1.5, display: { xs: 'block', sm: 'none' } }}>
+        <ShapeBoard goalNodes={GOAL_NODES[goal]} catalog={catalog} levels={input.levels} maxLevels={squares.map((square) => square?.maxLv ?? 1)}
+                    selectable={input.selectable} stays={stays} moves={plan.steps.map(({ from, to }) => ({ from, to }))} focus={focus}
+                    view={cropAround(catalog, plan.steps.flatMap(({ from, to }) => [from, to]))} labels
+                    label={'The part of your grid that changes, with each cell\'s coordinate'}/>
+      </Box> : null}
     </Panel>
 
     {plan.steps.length ? <Panel title={'In the game'} meta={`${Object.values(done).filter(Boolean).length} of ${plan.steps.length} done`}>
       <Stack direction={'row'} flexWrap={'wrap'} gap={2} sx={{ p: 2, borderBottom: 1, borderColor: 'divider' }}>
         <Box sx={{ flex: '0 1 260px', minWidth: 180 }}>
-          <ShapeBoard catalog={catalog} levels={input.levels} maxLevels={squares.map((square) => square?.maxLv ?? 1)} selectable={input.selectable}
+          <ShapeBoard goalNodes={GOAL_NODES[goal]} catalog={catalog} levels={input.levels} maxLevels={squares.map((square) => square?.maxLv ?? 1)} selectable={input.selectable}
                       moves={[{ to: step.to }]} view={cropAround(catalog, [step.to])} labels
                       label={`Close-up of step ${shown + 1}, with each cell's coordinate`}/>
         </Box>
@@ -156,7 +190,7 @@ const ShapesView = ({ research, squares, optimizer }) => {
       <Stack sx={{ p: 1 }}>
         {plan.steps.map((item, i) => <StepRow key={item.shape} step={item} index={i} done={Boolean(done[i])} focused={focus === i}
                                               onDone={() => setDone({ ...done, [i]: !done[i] })}
-                                              onFocus={() => setFocus(focus === i ? null : i)} squares={squares} catalog={catalog}/>)}
+                                              onFocus={() => setFocus(focus === i ? null : i)} squares={squares} catalog={catalog} goal={goal}/>)}
       </Stack>
       <Box sx={{ px: 2, pb: 2 }}>
         <Notice tone={'missing'}>Go in this order and leave the other shapes alone. A moved shape only takes nodes no other shape
@@ -167,9 +201,9 @@ const ShapesView = ({ research, squares, optimizer }) => {
     {rows.length ? <Panel title={'Nodes that change'}>
       <DataTable rowKey={'node'} rows={rows} rowLabel={({ name }) => name} columns={[
         { key: 'name', label: 'Node', value: ({ node, name }) => `${getGridLabel(node)} ${name}` },
-        { key: 'adds', label: 'Adds to', value: ({ goal }) => (goal ? 'Research EXP' : 'Other') },
+        { key: 'adds', label: 'Adds to', value: ({ goal: isGoal }) => (isGoal ? goalLabel : 'Other') },
         { key: 'shape', label: 'Shape', value: ({ shapeBefore, shapeAfter }) => `${shapeBefore} → ${shapeAfter}` },
-        { key: 'bonus', label: 'Bonus', numeric: true, value: ({ after }) => after, render: ({ before, after }) => `${formatNum(before)} → ${formatNum(after)}` }
+        { key: 'bonus', label: 'Bonus', numeric: true, value: ({ after }) => after, render: ({ node, before, after }) => `${bonusText(squares[node], before)} → ${bonusText(squares[node], after)}` }
       ]}/>
     </Panel> : null}
   </Stack>;

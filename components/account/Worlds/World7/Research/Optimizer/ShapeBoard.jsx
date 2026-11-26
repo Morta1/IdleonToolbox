@@ -3,7 +3,6 @@ import { useTheme } from '@mui/material';
 import {
   GRID_CELLS,
   GRID_COLUMNS,
-  RESEARCH_EXP_NODES,
   getGridLabel,
   getShapeVertices
 } from '@parsers/world-7/researchOptimizer';
@@ -32,7 +31,7 @@ export const cropAround = (catalog, placements, pad = 20) => {
  * The Research grid with shapes over it. `stays` are drawn faint, `moves` (in order) dashed where they are now and solid
  * where they go, with their step number. `focus` dims every move but that one. `labels` prints each cell's coordinate.
  */
-const ShapeBoard = ({ catalog, levels, maxLevels, selectable, stays = [], moves = [], focus = null, view = FULL, labels = false, label }) => {
+const ShapeBoard = ({ goalNodes = [], catalog, levels, maxLevels, selectable, stays = [], moves = [], focus = null, view = FULL, labels = false, label }) => {
   const theme = useTheme();
   const palette = (theme.vars || theme).palette;
   const grid = palette.identity.researchGrid;
@@ -74,7 +73,7 @@ const ShapeBoard = ({ catalog, levels, maxLevels, selectable, stays = [], moves 
         <text x={bx} y={by + 4.5} textAnchor={'middle'} fontSize={13} fontWeight={700} style={{ fill: palette.identity.frame.text }}>{i + 1}</text>
       </g>;
     })}
-    {RESEARCH_EXP_NODES.filter((node) => (levels[node] ?? 0) > 0 && inView(node)).map((node) => <rect
+    {goalNodes.filter((node) => (levels[node] ?? 0) > 0 && inView(node)).map((node) => <rect
       key={`goal-${node}`} x={cellX(node)} y={cellY(node)} width={26} height={26}
       style={{ fill: 'none', stroke: palette.primary.main, strokeWidth: 3 }}/>)}
   </svg>;
