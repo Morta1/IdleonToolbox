@@ -14,6 +14,7 @@ import Grid from '@components/account/Worlds/World7/Research/Grid';
 import Observations from '@components/account/Worlds/World7/Research/Observations';
 import PostyNotes from '@components/account/Worlds/World7/Research/PostyNotes';
 import Optimizer from '@components/account/Worlds/World7/Research/Optimizer';
+import LensHint from '@components/account/Worlds/World7/Research/Optimizer/LensHint';
 
 // Time left in the Numbers board's style; no rate, no time
 const timeText = (hours) => (hours > 0 ? formatDuration(hours * 3600) : '-');
@@ -112,6 +113,7 @@ const Research = () => {
           <StatTile label={'Max roll'} value={maxRoll ?? 0} kind={'amount'} failed={sectionFailed}/>
           <StatTile label={'Rolls per day'} value={rollsPerDay ?? 3} kind={'amount'} failed={sectionFailed}/>
         </Stack>
+        {parseFailed || sectionFailed ? null : <LensHint input={section?.optimizer}/>}
         {parseFailed ? null : <Observations observations={observations}/>}
       </Stack>
       <PostyNotes postyNotes={postyNotes}/>
