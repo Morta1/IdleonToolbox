@@ -251,6 +251,10 @@ export interface OrbletUpgrade {
   bonus: number;
   bonusPerLevel: number;
   cost: number;
+  // Every level left to the max; 0 for GLORIFICATION, which has no levels to buy.
+  costToMax: number;
+  // GLORIFICATION only: the outposts it can still glorify and the average Orblets for all of them.
+  glorification: { outpostsLeft: number; averageCost: number } | null;
   maxed: boolean;
 }
 
@@ -508,7 +512,20 @@ export const ORBLET_UPGRADE_KEYS: string[] = liveEntries<any>(orbletMarketCatalo
   .map(({ entry }) => orbletUpgradeKey(entry?.name));
 
 const GLORIFICATION_INDEX = 4;
+const GLORIFICATION_CHANCE = 0.1;
 const GLORIFICATION_LINE = '10%_chance_to_Glorify_the_current_Outpost';
+
+// game: "OrbletMarketCost" - the floor only applies below 1e6.
+const getOrbletCost = (entry: any, level: number): number => {
+  const cost = level + toNum(entry?.baseCost) * Math.pow(toNum(entry?.costScaling), level);
+  return cost < 1e6 ? Math.floor(cost) : cost;
+};
+
+const getOrbletCostToMax = (entry: any, level: number, maxLevel: number): number => {
+  let total = 0;
+  for (let next = level; next < maxLevel; next++) total += getOrbletCost(entry, next);
+  return total;
+};
 
 // split/join, not regex .replace(): the replacement string can itself legitimately contain "$"
 // (see below), and String.replace treats "$" specially in its REPLACEMENT argument ($&, $1...),
@@ -707,11 +724,11 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
 
   // Also moved ahead of `upgrades`: several "$" tokens read the OTHER catalog's own bonus (orblet
   // market), so it has to exist before the armory map runs rather than after it.
+  const outpostsToGlorify = outposts.filter(({ boosted }) => !boosted).length;
   const orbletUpgrades: OrbletUpgrade[] = liveEntries<any>(orbletMarketCatalog as any[]).map(({ entry, index }) => {
+    const isGlorification = index === GLORIFICATION_INDEX;
     const level = toNum(orbletLevels?.[index]);
     const bonus = Math.floor(toNum(entry?.bonusPerLevel) * level);
-    // game: "OrbletMarketCost" - the floor only applies below 1e6.
-    const rawCost = level + toNum(entry?.baseCost) * Math.pow(toNum(entry?.costScaling), level);
     const maxLevel = toNum(entry?.maxLevel);
     return {
       ...entry,
@@ -720,13 +737,17 @@ export const getRoyalGuardian = (idleonData: IdleonData, account: Account, chara
       maxLevel,
       bonus,
       bonusPerLevel: toNum(entry?.bonusPerLevel),
-      cost: rawCost < 1e6 ? Math.floor(rawCost) : rawCost,
-      maxed: maxLevel > 0 && level >= maxLevel,
+      cost: getOrbletCost(entry, level),
+      costToMax: isGlorification ? 0 : getOrbletCostToMax(entry, level, maxLevel),
+      // game: every attempt sets the level to 1, so from the second on it costs the level 1 price.
+      glorification: isGlorification
+        ? { outpostsLeft: outpostsToGlorify, averageCost: outpostsToGlorify * getOrbletCost(entry, 1) / GLORIFICATION_CHANCE }
+        : null,
+      maxed: isGlorification ? outposts.length > 0 && outpostsToGlorify === 0 : maxLevel > 0 && level >= maxLevel,
       // game: for GLORIFICATION (index 4) this "$" is overwritten with one of three strings about the CURRENT map's own
       // outpost (no outpost / not glorified / glorified): the line that says what the upgrade does stands for them. Every
-      // other orblet description's placeholders are the shared {/} bonus pair only, so only this sentence leaves its bonus out.
-      description: applyBonusTokens(entry?.description, bonus, index === GLORIFICATION_INDEX ? GLORIFICATION_LINE : null),
-      bonusInSentence: index !== GLORIFICATION_INDEX
+      // other orblet description's placeholders are the shared {/} bonus pair only.
+      description: applyBonusTokens(entry?.description, bonus, isGlorification ? GLORIFICATION_LINE : null)
     };
   });
   const orbletBonus = (index: number): number => orbletUpgrades.find((u) => u.index === index)?.bonus ?? 0;

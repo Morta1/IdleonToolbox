@@ -3077,8 +3077,12 @@ export interface Account {
         level: number;
         bonus: number;
         cost: number;
+        costToMax: number;
+        glorification: {
+          outpostsLeft: number;
+          averageCost: number;
+        } | null;
         maxed: boolean;
-        bonusInSentence: boolean;
       }[];
     orblets: number;
     guardian: {

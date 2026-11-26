@@ -10,7 +10,8 @@ export const patchNotes = [
     'date': '26/11/2026',
     'features': [
       'Breakdowns: new Fixed order sort that stays the same for every account, so two accounts are easier to compare',
-      'Royal Armory: upgrades show their own in-game icons on the cards, in the optimizer and in goals'
+      'Royal Armory: upgrades show their own in-game icons on the cards, in the optimizer and in goals',
+      'Orblet Market: upgrades show their cost to max, and Glorification shows the outposts left and the average cost to glorify them'
     ],
     'fixes': []
   },
