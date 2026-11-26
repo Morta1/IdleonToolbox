@@ -19,11 +19,14 @@ import {
   Tooltip,
   Menu,
   MenuItem,
+  ListItemIcon,
   ListItemText,
+  ListSubheader,
   Divider,
 } from "@mui/material";
 import ChevronRightIcon from "@mui/icons-material/ChevronRight";
 import SearchIcon from "@mui/icons-material/Search";
+import CheckIcon from "@mui/icons-material/Check";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import { IconClipboardText, IconPhoto, IconPin, IconPinFilled } from "@tabler/icons-react";
 import { CLIPBOARD_ERROR_MESSAGE, copyText } from "@utility/clipboard";
@@ -42,6 +45,7 @@ import {
   flattenView,
   formatTotal,
   hasInactiveNodes,
+  hasSortedNodes,
   isLegacyBreakdown,
   toBreakdownTree
 } from "./breakdownView";
@@ -64,6 +68,12 @@ import { ink } from '../../../styles/theme/theme';
 const TOP_GAINS_SHOWN = 3
 // A list breakdown's lines from which its drawer offers a search
 const SEARCH_FROM = 10
+
+type SortOrder = "value" | "fixed"
+const SORT_ORDERS: { order: SortOrder, label: string }[] = [
+  { order: "value", label: "Highest value" },
+  { order: "fixed", label: "Fixed order" }
+]
 
 // Info board: a value that opens a breakdown carries a 14 px bars glyph, and a hover tints the whole value
 const VALUE_TRIGGER_SX = { "&:hover": { bgcolor: "primary.soft" } }
@@ -118,6 +128,8 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   const [showInactive, setShowInactive] = useLocalStorage<boolean>({ key: "breakdown-show-inactive", defaultValue: true })
   // Contribution and upgrade impact, shown together
   const [showInsights, setShowInsights] = useLocalStorage<boolean>({ key: "breakdown-insights", defaultValue: true })
+  // Fixed order stays the same on every account, so two of them line up
+  const [sortOrder, setSortOrder] = useLocalStorage<SortOrder>({ key: "breakdown-sort", defaultValue: "value" })
   // null until the first toggle, so each tab starts from its own default
   const [expandedKeys, setExpandedKeys] = useState<Set<string> | null>(null)
   // No defaultValue: it would be written back for every breakdown ever opened
@@ -172,8 +184,10 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   const bestGain = gainValues.length > 1 && Math.max(...gainValues) > 0 ? Math.max(...gainValues) : undefined
   const shownGains = gainValues.filter((gain) => gain > 0).sort((a, b) => b - a).slice(0, TOP_GAINS_SHOWN)
   const insight: RowInsight = { on: insightsOn, bestGain, minShownGain: shownGains.at(-1) }
+  const canSort = open && hasSortedNodes(tree, rootCombine)
+  const fixedOrder = canSort && sortOrder === "fixed"
   const views = buildView(tree, {
-    valueNotation, skipNotation, countNoun, query: searchQuery, showInactive, pinned, rootCombine,
+    valueNotation, skipNotation, countNoun, query: searchQuery, showInactive, pinned, fixedOrder, rootCombine,
     ...(insightsOn ? { shares, gains, faster } : {})
   })
   // The bases whose lines show their share of the base, by the name their row reads (Group 1 for an unnamed one)
@@ -184,7 +198,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
   // Searching opens every group that still has a match
   const isExpanded = (key: string) => !!searchQuery.trim() || expanded.has(key)
   const canHideInactive = hasInactiveNodes(tree)
-  const hasToggles = canHideInactive || hasInsights
+  const hasToggles = canSort || canHideInactive || hasInsights
 
   const runFromMenu = (action: () => void) => {
     setMenuAnchor(null)
@@ -204,7 +218,7 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
 
   // Exports carry the drawer's % column only while it is shown
   const exportRows = () => flattenView(buildView(tree, {
-    valueNotation, skipNotation, countNoun, query: "", showInactive, pinned, rootCombine, ...(insightsOn ? { shares } : {})
+    valueNotation, skipNotation, countNoun, query: "", showInactive, pinned, fixedOrder, rootCombine, ...(insightsOn ? { shares } : {})
   })).map((row) => ({ ...row, shareText: row.share !== undefined && !row.inactive ? formatShare(row.share) : "" }))
 
   const handleCopyImage = async () => {
@@ -350,7 +364,18 @@ export function Breakdown({ data: dataProp, children, valueNotation = "Multiplie
       onClose={() => setMenuAnchor(null)}
       anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
       transformOrigin={{ vertical: "top", horizontal: "right" }}
+      // All of its rows at once: the theme caps a menu lower, for long lists
+      slotProps={{ paper: { sx: { maxHeight: "calc(100% - 96px)" } } }}
     >
+      {canSort ? <ListSubheader key="sort" role="presentation" disableSticky sx={{ lineHeight: "32px", bgcolor: "transparent" }}>Sort</ListSubheader> : null}
+      {canSort ? SORT_ORDERS.map(({ order, label }) => (
+        <MenuItem key={order} role="menuitemradio" aria-checked={sortOrder === order}
+                  onClick={() => runFromMenu(() => setSortOrder(order))}>
+          <ListItemIcon>{sortOrder === order ? <CheckIcon fontSize="small"/> : null}</ListItemIcon>
+          <ListItemText>{label}</ListItemText>
+        </MenuItem>
+      )) : null}
+      {canSort && (canHideInactive || hasInsights) ? <Divider/> : null}
       {canHideInactive ? menuCheck(showInactive, "Show inactive sources", () => runFromMenu(() => setShowInactive(!showInactive))) : null}
       {hasInsights ? menuCheck(insightsOn, "Show share and impact", () => runFromMenu(() => setShowInsights(!showInsights))) : null}
       {hasToggles ? <Divider/> : null}

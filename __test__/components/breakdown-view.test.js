@@ -20,7 +20,7 @@ import {
   productGroup,
   sumGroup
 } from '@parsers/breakdown';
-import { buildView, collectGroupKeys, flattenView, hasInactiveNodes, toBreakdownTree } from '@components/common/Breakdown/breakdownView';
+import { buildView, collectGroupKeys, flattenView, hasInactiveNodes, hasSortedNodes, toBreakdownTree } from '@components/common/Breakdown/breakdownView';
 import {
   computeGains,
   computeRootGain,
@@ -87,6 +87,9 @@ describe('buildView', () => {
     const smallKey = plain.children.find(({ name }) => name === 'Small').pinKey;
     const [pinnedView] = buildView(tree, { ...options, pinned: new Set([smallKey]) });
     expect(pinnedView.children[0].name).toBe('Small');
+    // Fixed order leaves every line, pinned or not, where the tree lists it
+    const [ordered] = buildView(tree, { ...options, fixedOrder: true, pinned: new Set([plain.children[0].pinKey]) });
+    expect(ordered.children.map(({ name }) => name)).toEqual(['Small', 'Group']);
   });
 
   it('shows a group with one visible entry as that entry, with the group value', () => {
@@ -109,6 +112,8 @@ describe('buildView', () => {
     expect(buildView(lines, options).map(({ name }) => name)).toEqual(['Small', 'Big']);
     const mixed = [flat('Base', 3), multiplier('Speed', 9)];
     expect(buildView(mixed, { ...options, rootCombine: 'product' }).map(({ name }) => name)).toEqual(['Base', 'Speed']);
+    expect([hasSortedNodes(lines, 'additive'), hasSortedNodes(mixed, 'product'), hasSortedNodes(tree, 'list')])
+      .toEqual([true, false, true]);
   });
 
   it('numbers unnamed groups top to bottom, nested ones under their numbered parent, and keeps the numbers while searching', () => {

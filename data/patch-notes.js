@@ -5,6 +5,15 @@ import { replayWhatsNew } from '@utility/whatsNew';
 /* eslint-disable react/jsx-key */
 export const patchNotes = [
   {
+    'ver': '4.0.17',
+    'gameVer': '2.3.561',
+    'date': '26/11/2026',
+    'features': [
+      'Breakdowns: new Fixed order sort that stays the same for every account, so two accounts are easier to compare'
+    ],
+    'fixes': []
+  },
+  {
     'ver': '4.0.16',
     'gameVer': '2.3.561',
     'date': '24/11/2026',
