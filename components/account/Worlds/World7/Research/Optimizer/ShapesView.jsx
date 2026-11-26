@@ -192,8 +192,9 @@ const ShapesView = ({ research, squares, optimizer, goal = 'researchExp' }) => {
           {shownCount < steps.length ? <Button size={'small'} color={'inherit'} onClick={() => setShowAll(true)} sx={{ alignSelf: 'flex-start' }}>
             {steps.length - shownCount} more move{steps.length - shownCount === 1 ? '' : 's'} add only {gainText(plan.ratio / gainAfter[shownCount - 1])}
           </Button> : null}
-          <Notice tone={'missing'}>Go in this order and leave the other shapes alone. A moved shape only takes nodes no other shape
-            holds, so picking one up, even to put it back, can change who holds a node.</Notice>
+          {/* With one move there is no order to keep, but touching another shape still can move nodes */}
+          <Notice tone={'missing'}>{steps.length > 1 ? 'Go in this order and leave the other shapes alone. ' : 'Leave the other shapes alone. '}A
+            moved shape only takes nodes no other shape holds, so picking one up, even to put it back, can change who holds a node.</Notice>
         </Stack>
       </Panel> : null}
     </Stack>
