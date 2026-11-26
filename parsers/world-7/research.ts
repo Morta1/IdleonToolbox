@@ -63,14 +63,14 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
   const researchLevel = getLoggedInSkillLevel(characters, 'research');
 
   const gridLevels = raw[0] ?? [];
-  // raw[1] = grid index -> observation bonus category index (-1 = none, 0..9 = which category from researchData[5]).
-  // Game uses Research[1][t] directly as index into CustomLists.Research[5] for the observation bonus %.
-  const gridShapeIndex = raw[1] ?? []; // 240 entries: observation bonus category index per cell (-1 or 0..9)
-  const gridObservationIndex = gridShapeIndex; // raw[1] IS the observation index directly
+  // raw[1] = grid node -> the shape holding it (-1 = none). The node's bonus is multiplied by that shape's % from
+  // CustomLists.Research[5][shape]; the shapes' positions and angles are raw[6] (x, y, rotation per shape).
+  const gridShapeIndex = raw[1] ?? [];
+  const gridObservationIndex = gridShapeIndex;
   const occurrenceFoundState = raw[2] ?? [];
   const observationInsightExp = raw[3] ?? []; // current insight EXP per observation (progress to next level)
   const observationInsight = raw[4] ?? []; // insight level per observation
-  // raw[5] = 80 shapes × 4: [pixelX, pixelY, observationIndex, type] per shape. Type: 0=Magnifying Glass (Research EXP), 1=Optical Monocle (Insight), 2=Kaleidoscope.
+  // raw[5] = 80 lens slots × 4: [pixelX, pixelY, observationIndex, type]. Type: 0=Magnifying Glass (Research EXP), 1=Optical Monocle (Insight), 2=Kaleidoscope.
   const shapePlacements = raw[5] ?? [];
   const optionsListAccount = account?.accountOptions ?? [];
   // raw[9] = sticker level per sticker type (farming: indices 0–4)
@@ -124,17 +124,6 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
   );
   const gridPTSavailable = Math.round(gridPTSearned - gridPTSpent);
 
-  // Map grid index -> shape type (0=Magnifying Glass (Research EXP), 1=Optical Monocle (Insight), 2=Kaleidoscope). Game stores cell->shape in raw[1], type in raw[5][4*shapeIndex+3].
-  const gridIndexToPlacementType: Record<number, any> = {};
-  const gridCellCount = (researchGridSquares || []).length;
-  for (let gridCellIndex = 0; gridCellIndex < gridCellCount; gridCellIndex++) {
-    const shapeIndexOnCell = gridShapeIndex[gridCellIndex];
-    if (shapeIndexOnCell != null && Number(shapeIndexOnCell) >= 0) {
-      const lensType = shapePlacements[4 * shapeIndexOnCell + 3];
-      if (lensType !== undefined && lensType !== null) gridIndexToPlacementType[gridCellIndex] = Number(lensType);
-    }
-  }
-
   const gridSquares = (researchGridSquares || []).map((square, index) => {
     const level = Number(gridLevels[index]) || 0;
     const maxLv = square?.maxLv != null ? Number(square.maxLv) : (square as any)?.col != null
@@ -149,7 +138,6 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
     const canSelect = getResearchGridCanSelect(research, index);
     const gridRow = Math.floor(index / 20);
     const gridCol = index % 20;
-    const placementType = gridIndexToPlacementType[index] ?? null; // 0=Magnifying Glass (Research EXP), 1=Optical Monocle (Insight), 2=Kaleidoscope
     const shapeIndexOnCell = gridShapeIndex[index];
     const placementShapeIndex =
       shapeIndexOnCell != null && Number(shapeIndexOnCell) >= 0 ? Number(shapeIndexOnCell) : null;
@@ -174,7 +162,6 @@ export const getResearch = (idleonData: any, account: any, characters: any, serv
       canSelect,
       gridRow,
       gridCol,
-      placementType,
       placementShapeIndex, // which shape (0, 1, 2, ...) is on this cell; used for per-shape color
       shapeAffectMultiplier, // when affected by a shape: multiplier (e.g. 1.15 for +15%)
       description
