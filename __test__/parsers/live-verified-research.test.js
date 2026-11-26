@@ -177,10 +177,12 @@ describe('research optimizer shape model against the live game', () => {
 describe('research optimizer scoring', () => {
   const input = account.research.optimizer;
 
-  it('scores the save as the parser does: EXP multi and EXP rate', () => {
+  it('scores the save as the parser does: EXP multi, EXP rate and Insight rate', () => {
     const scorer = createResearchScorer(input);
     within(scorer.expMulti(input.owners, input.insightLevels), account.research.researchEXPmulti, 1e-9);
     within(scorer.expRate(input.owners, input.lensSlots), account.research.researchEXPrateTOT, 1e-9);
+    const insight = account.research.observations.reduce((sum, { realInsightExpRate }) => sum + (realInsightExpRate ?? 0), 0);
+    within(scorer.insightRate(input.owners, input.lensSlots), insight, 1e-9);
   });
 
   it('a one-move plan stays inside the drag box and scores what it claims', () => {

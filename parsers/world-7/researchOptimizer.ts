@@ -173,6 +173,11 @@ const EXP_FACTOR_NODE = 70;
 // Nodes the lenses read: 93 scales a glass by its observation's Insight level, 52 and 72 feed the kaleidoscope.
 const LENS_NODES = [52, 72, 93];
 export const RESEARCH_EXP_NODES = [...EXP_SUM_NODES, EXP_FACTOR_NODE, ...LENS_NODES];
+// Insight: 91 and 92 multiply every monocle, 52 and 72 the kaleidoscopes next to them.
+export const INSIGHT_NODES = [52, 72, 91, 92];
+
+export type ResearchGoal = 'researchExp' | 'insight';
+export const GOAL_NODES: Record<ResearchGoal, number[]> = { researchExp: RESEARCH_EXP_NODES, insight: INSIGHT_NODES };
 
 // game: ResearchStuff("ResearchEXPrateObj") before its count and multipliers
 export const getObservationBaseRate = (i: number) =>
@@ -257,7 +262,12 @@ export const createResearchScorer = (input: ResearchOptimizerInput) => {
     return levels;
   };
 
-  return { catalog, pct, shaped, expMulti, expRate, insightRates, insightLevelsAfter };
+  // All Insight EXP per hour of research time, across the observations
+  const insightRate = (owners: number[], slots: LensSlot[]) => [...insightRates(owners, slots).values()].reduce((sum, rate) => sum + rate, 0);
+  const goalRate = (goal: ResearchGoal, owners: number[], slots: LensSlot[]) =>
+    (goal === 'insight' ? insightRate(owners, slots) : expRate(owners, slots));
+
+  return { catalog, pct, shaped, expMulti, expRate, insightRates, insightRate, insightLevelsAfter, goalRate };
 };
 
 // ---------------------------------------------------------------------------------------------------------------
@@ -303,10 +313,11 @@ export const getShapeCandidates = (input: ResearchOptimizerInput, catalog: Shape
 };
 
 export const optimizeShapes = (input: ResearchOptimizerInput, {
+  goal = 'researchExp',
   maxMoves = input.shapesOwned,
   beamWidth = 8,
   onProgress
-}: { maxMoves?: number; beamWidth?: number; onProgress?: (share: number) => void } = {}) => {
+}: { goal?: ResearchGoal; maxMoves?: number; beamWidth?: number; onProgress?: (share: number) => void } = {}) => {
   const scorer = createResearchScorer(input);
   const { catalog, pct } = scorer;
   const shapes = Array.from({ length: input.shapesOwned }, (_, shape) => shape);
@@ -319,9 +330,10 @@ export const optimizeShapes = (input: ResearchOptimizerInput, {
   });
   // Spare shapes break ties: once the goal is maxed, a shape on more levelled nodes beats one on none.
   const spare = (owners: number[]) => owners.reduce((sum, shape, node) =>
-    sum + (shape >= 0 && input.levels[node] > 0 && !RESEARCH_EXP_NODES.includes(node) ? pct(shape) : 0), 0);
-  const value = (owners: number[]) => scorer.expRate(owners, input.lensSlots) * (1 + 1e-7 * spare(owners));
-  const now = scorer.expRate(input.owners, input.lensSlots);
+    sum + (shape >= 0 && input.levels[node] > 0 && !GOAL_NODES[goal].includes(node) ? pct(shape) : 0), 0);
+  const rate = (owners: number[]) => scorer.goalRate(goal, owners, input.lensSlots);
+  const value = (owners: number[]) => rate(owners) * (1 + 1e-7 * spare(owners));
+  const now = rate(input.owners);
 
   type Node = { moves: ShapeMove[]; owners: number[]; v: number };
   let beam: Node[] = [{ moves: [], owners: input.owners, v: value(input.owners) }];
@@ -346,7 +358,7 @@ export const optimizeShapes = (input: ResearchOptimizerInput, {
     if (!best) break;
     plans.push({
       moves: k,
-      ratio: scorer.expRate(best.owners, input.lensSlots) / (now || 1),
+      ratio: rate(best.owners) / (now || 1),
       owners: best.owners,
       steps: best.moves.map(({ shape, x, y, rot }) => ({
         shape,
@@ -433,17 +445,21 @@ export const getLensDrags = (from: LensSlot[], to: LensSlot[], cap: number) => {
 };
 
 export const optimizeLenses = (input: ResearchOptimizerInput, {
+  goal = 'researchExp',
   realHours = 0,
   owners = input.owners,
   keepMonocles = false,
   restarts = 40
-}: { realHours?: number; owners?: number[]; keepMonocles?: boolean; restarts?: number } = {}): LensPlan => {
+}: { goal?: ResearchGoal; realHours?: number; owners?: number[]; keepMonocles?: boolean; restarts?: number } = {}): LensPlan => {
   const scorer = createResearchScorer(input);
   const hours = getResearchHours(input, realHours);
   const found = input.observationsFound;
   const slots = input.lensSlots.filter(({ observation }) => observation >= 0 && observation < found);
-  const score = (layout: LensSlot[]) => scorer.expRate(owners, layout,
-    hours > 0 ? scorer.insightLevelsAfter(owners, layout, hours) : input.insightLevels);
+  // Insight is scored as it runs today; Research EXP at the horizon, with the Insight levels the lenses earn by then.
+  const score = (layout: LensSlot[]) => (goal === 'insight'
+    ? scorer.insightRate(owners, layout)
+    : scorer.expRate(owners, layout, hours > 0 ? scorer.insightLevelsAfter(owners, layout, hours) : input.insightLevels));
+  const today = (layout: LensSlot[]) => scorer.goalRate(goal, owners, layout);
   const movable = (slot: LensSlot) => !(keepMonocles && slot.type === LENS.monocle);
   const random = seeded(found * 7919 + slots.length);
 
@@ -497,7 +513,7 @@ export const optimizeLenses = (input: ResearchOptimizerInput, {
   return {
     hours: realHours,
     slots: best.layout,
-    ratioToday: scorer.expRate(owners, best.layout) / (scorer.expRate(owners, slots) || 1),
+    ratioToday: today(best.layout) / (today(slots) || 1),
     ratioAtHorizon: best.value / (score(slots) || 1),
     insightLevelsGained: sum(levelsBest) - sum(levelsNow),
     drags: getLensDrags(slots, best.layout, input.lensCap)
