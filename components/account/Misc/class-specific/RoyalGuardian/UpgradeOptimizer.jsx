@@ -21,10 +21,7 @@ const UpgradeOptimizer = ({ character, account, sectionFailed }) => (
     resourceKey="royalGuardian.raw.1"
     resourceImagePrefix="RGres"
     resourceImageSuffix="" // RGres{n}.png has no _x1 variant, unlike the other masterclasses' currencies
-    upgradeImagePrefix="RGres"
-    // The armory has no per-upgrade icon asset; the game itself renders each shelf slot with its
-    // own currency icon, so the "upgrade icon" and "resource icon" are the same file.
-    getUpgradeIconIndex={(upgrade) => upgrade.costResourceIndex}
+    upgradeImagePrefix="RAupg"
     getResourceType={(upgrade) => upgrade.costResourceIndex}
     // The shelf is laid out by display slot, not upgrade id.
     getGameOrder={(upgrade) => upgrade.slot}

@@ -16,8 +16,7 @@ import UpgradeHelpIcon from '@components/common/UpgradeHelpIcon';
 const ARMORY_TOOLBAR = { search: '', sort: null, hideMaxed: false, hideLocked: false };
 const SORT_VALUE = { cost: (upgrade) => upgrade.cost || 0, level: (upgrade) => upgrade.level || 0 };
 
-// The armory renders every upgrade at its OWN shelf currency icon (RGres{costResourceIndex}.png) -
-// this is the game's own render, not a per-upgrade icon; there is no such asset.
+// The icon follows the upgrade id (RAupg{id}.png), the cost's the shelf's currency (RGres{n}.png), as the game draws them.
 // costing: the page's Levels ahead and Daily Shopping Spree (its Page settings). sectionFailed: the shelves at zero by
 // name (the parser's empty save), with no cost, state or Toolbar.
 const Armory = ({ account, upgrades, resourceStorage, resourcePerHour, costing, sectionFailed }) => {
@@ -63,7 +62,7 @@ const Armory = ({ account, upgrades, resourceStorage, resourcePerHour, costing, 
 
           return <MasterclassUpgradeCard key={index}
                                          name={name}
-                                         icon={costResourceRawName}
+                                         icon={`RAupg${index}`}
                                          helpIcon={<UpgradeHelpIcon label={cleanText(name)} panel="armory" index={index}/>}
                                          level={level}
                                          maxLevel={capped ? maxLevel : Infinity}

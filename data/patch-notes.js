@@ -9,7 +9,8 @@ export const patchNotes = [
     'gameVer': '2.3.561',
     'date': '26/11/2026',
     'features': [
-      'Breakdowns: new Fixed order sort that stays the same for every account, so two accounts are easier to compare'
+      'Breakdowns: new Fixed order sort that stays the same for every account, so two accounts are easier to compare',
+      'Royal Armory: upgrades show their own in-game icons on the cards, in the optimizer and in goals'
     ],
     'fixes': []
   },

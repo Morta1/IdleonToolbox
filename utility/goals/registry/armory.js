@@ -11,7 +11,7 @@ export default {
   list: ({ account }) => (account?.royalGuardian?.armory?.upgrades ?? []).filter(({ slot }) => slot >= 0),
   key: (row) => String(row.index),
   name: (row) => cleanText(row.name),
-  icon: (row) => `data/${row.costResourceRawName}`,
+  icon: (row) => `data/RAupg${row.index}`,
   metrics: {
     level: {
       label: 'Level',
