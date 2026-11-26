@@ -12,7 +12,10 @@ export const patchNotes = [
       'Breakdowns: new Fixed order sort that stays the same for every account, so two accounts are easier to compare',
       'Royal Armory: upgrades show their own in-game icons on the cards, in the optimizer and in goals',
       'Orblet Market: upgrades show their cost to max, and Glorification shows the outposts left and the average cost to glorify them',
-      'Breakdowns: bonus lines now link to the page and tab where that bonus comes from'
+      'Breakdowns: bonus lines now link to the page and tab where that bonus comes from',
+      'Research: new Optimizer tab that finds where to put your grid shapes and observation lenses for Research EXP or Insight EXP, with each move to make in the game, step by step',
+      'Research: each of the 10 grid shapes now has its own colour on the Grid tab',
+      'Research: the Observations tab tells you when moving your lenses would give more Research EXP'
     ],
     'fixes': [
       'Farming: the crop evo breakdown of a locked plot now shows its total and each bonus share'
