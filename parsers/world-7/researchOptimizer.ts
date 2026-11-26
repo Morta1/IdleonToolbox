@@ -355,3 +355,146 @@ export const optimizeShapes = (input: ResearchOptimizerInput, {
   }
   return { now, plans };
 };
+
+// ---------------------------------------------------------------------------------------------------------------
+// Lens search: lens counts are fixed by their sources, so only where each one sits changes.
+
+export interface LensDrag {
+  type: number;
+  from: number;
+  to: number;
+  count: number;
+}
+
+export interface LensPlan {
+  hours: number;
+  slots: LensSlot[];
+  ratioToday: number;
+  ratioAtHorizon: number;
+  insightLevelsGained: number;
+  drags: LensDrag[];
+}
+
+// Insight only grows during research time, which builds at the AFK rate while the player is away.
+export const getResearchHours = (input: ResearchOptimizerInput, realHours: number) =>
+  realHours * Math.min(1, Math.max(0, input.afkRatePct) / 100);
+
+const lensCounts = (slots: LensSlot[]) => {
+  const counts = new Map<number, number>();
+  for (const { observation } of slots) if (observation >= 0) counts.set(observation, (counts.get(observation) ?? 0) + 1);
+  return counts;
+};
+
+const fitsCap = (slots: LensSlot[], cap: number) => [...lensCounts(slots).values()].every((count) => count <= cap);
+
+// A small seeded generator, so the same save always gets the same plan.
+const seeded = (seed: number) => () => {
+  seed = (seed * 1664525 + 1013904223) % 4294967296;
+  return seed / 4294967296;
+};
+
+/**
+ * The drags that turn one layout into another, ordered so each lands where there is room: a lens dropped on a full
+ * observation knocks a random one off (game: MagnifiersPerSlot check in ActorEvents_741).
+ */
+export const getLensDrags = (from: LensSlot[], to: LensSlot[], cap: number) => {
+  const pending: LensDrag[] = [];
+  for (const type of [LENS.glass, LENS.monocle, LENS.kaleidoscope]) {
+    const before = lensCounts(from.filter((slot) => slot.type === type));
+    const after = lensCounts(to.filter((slot) => slot.type === type));
+    const sources: number[] = [];
+    const targets: number[] = [];
+    new Set([...before.keys(), ...after.keys()]).forEach((observation) => {
+      const diff = (after.get(observation) ?? 0) - (before.get(observation) ?? 0);
+      for (let i = 0; i < Math.abs(diff); i++) (diff > 0 ? targets : sources).push(observation);
+    });
+    sources.forEach((source, i) => {
+      const target = targets[i];
+      const last = pending[pending.length - 1];
+      if (last && last.type === type && last.from === source && last.to === target) last.count += 1;
+      else pending.push({ type, from: source, to: target, count: 1 });
+    });
+  }
+  const ordered: LensDrag[] = [];
+  const counts = lensCounts(from);
+  while (pending.length) {
+    const index = Math.max(0, pending.findIndex(({ to, count }) => (counts.get(to) ?? 0) + count <= cap));
+    const [drag] = pending.splice(index, 1);
+    counts.set(drag.from, (counts.get(drag.from) ?? 0) - drag.count);
+    counts.set(drag.to, (counts.get(drag.to) ?? 0) + drag.count);
+    ordered.push(drag);
+  }
+  return ordered;
+};
+
+export const optimizeLenses = (input: ResearchOptimizerInput, {
+  realHours = 0,
+  owners = input.owners,
+  keepMonocles = false,
+  restarts = 40
+}: { realHours?: number; owners?: number[]; keepMonocles?: boolean; restarts?: number } = {}): LensPlan => {
+  const scorer = createResearchScorer(input);
+  const hours = getResearchHours(input, realHours);
+  const found = input.observationsFound;
+  const slots = input.lensSlots.filter(({ observation }) => observation >= 0 && observation < found);
+  const score = (layout: LensSlot[]) => scorer.expRate(owners, layout,
+    hours > 0 ? scorer.insightLevelsAfter(owners, layout, hours) : input.insightLevels);
+  const movable = (slot: LensSlot) => !(keepMonocles && slot.type === LENS.monocle);
+  const random = seeded(found * 7919 + slots.length);
+
+  const climb = (start: LensSlot[]) => {
+    let layout = start.map((slot) => ({ ...slot }));
+    let value = score(layout);
+    for (let improved = true; improved;) {
+      improved = false;
+      for (let i = 0; i < layout.length; i++) {
+        if (!movable(layout[i])) continue;
+        for (let observation = 0; observation < found; observation++) {
+          if (observation === layout[i].observation) continue;
+          const trial = layout.map((slot) => ({ ...slot }));
+          trial[i].observation = observation;
+          if (!fitsCap(trial, input.lensCap)) {
+            // Swap with a lens of another kind already there
+            const j = trial.findIndex((slot, k) => k !== i && slot.observation === observation && slot.type !== trial[i].type && movable(slot));
+            if (j < 0) continue;
+            trial[j].observation = layout[i].observation;
+            if (!fitsCap(trial, input.lensCap)) continue;
+          }
+          const trialValue = score(trial);
+          if (trialValue > value * (1 + 1e-12)) {
+            layout = trial;
+            value = trialValue;
+            improved = true;
+          }
+        }
+      }
+    }
+    return { layout, value };
+  };
+
+  let best = climb(slots);
+  for (let r = 0; r < restarts; r++) {
+    const start = slots.map((slot) => ({ ...slot }));
+    for (let j = 0; j < start.length * 2; j++) {
+      const i = Math.floor(random() * start.length);
+      if (!movable(start[i])) continue;
+      const trial = start.map((slot) => ({ ...slot }));
+      trial[i].observation = Math.floor(random() * found);
+      if (fitsCap(trial, input.lensCap)) start.splice(0, start.length, ...trial);
+    }
+    const result = climb(start);
+    if (result.value > best.value * (1 + 1e-12)) best = result;
+  }
+
+  const levelsNow = hours > 0 ? scorer.insightLevelsAfter(owners, slots, hours) : input.insightLevels;
+  const levelsBest = hours > 0 ? scorer.insightLevelsAfter(owners, best.layout, hours) : input.insightLevels;
+  const sum = (levels: number[]) => levels.slice(0, found).reduce((total, level) => total + level, 0);
+  return {
+    hours: realHours,
+    slots: best.layout,
+    ratioToday: scorer.expRate(owners, best.layout) / (scorer.expRate(owners, slots) || 1),
+    ratioAtHorizon: best.value / (score(slots) || 1),
+    insightLevelsGained: sum(levelsBest) - sum(levelsNow),
+    drags: getLensDrags(slots, best.layout, input.lensCap)
+  };
+};

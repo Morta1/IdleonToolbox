@@ -5,7 +5,8 @@ import { parseFixture } from '../helpers/parsed-fixtures';
 import { within, withLoggedInDivinity, withSkillLevel } from '../helpers/live-verified';
 import { getGridBonusAllmulti, getResearch, getResearchGridCanSelect } from '@parsers/world-7/research';
 import {
-  applyShapeMoves, createResearchScorer, getCoveredNodes, getGridLabel, getTurnPresses, isInsideDragBounds, optimizeShapes, parseShapeCatalog
+  applyShapeMoves, createResearchScorer, getCoveredNodes, getGridLabel, getInsightExpReq, getLensDrags, getObservationBaseRate, getTurnPresses,
+  isInsideDragBounds, optimizeLenses, optimizeShapes, parseShapeCatalog
 } from '@parsers/world-7/researchOptimizer';
 import { research as researchData } from '@website-data';
 
@@ -189,5 +190,46 @@ describe('research optimizer scoring', () => {
     expect(plan.ratio).toBeGreaterThanOrEqual(1);
     within(plan.ratio, scorer.expRate(plan.owners, fixed.lensSlots) / now, 1e-12);
     expect(plan.steps.every(({ shape, to }) => isInsideDragBounds(scorer.catalog[shape], to))).toBe(true);
+  });
+});
+
+// Read 2026-11-26 from the owner's live game: ResearchStuff("ObservationInsightExpREQ", i) at the save's Insight level,
+// and ResearchStuff("ResearchEXPrateObj", 42) with 4 glasses there, Insight LV 8, Grid_Bonus(93) 19.08 and
+// 5 kaleidoscopes next to it at Kalei_MultiBase 0.9742.
+const LENS_GAME = {
+  insightReq35At10: 245350.41222923566,
+  insightReq0At13: 2900.51752397418,
+  expRateObservation42: 595591.935244616
+};
+
+describe('research optimizer lenses', () => {
+  const input = account.research.optimizer;
+
+  it('Insight cost and an observation EXP rate match the game', () => {
+    within(getInsightExpReq(35, 10), LENS_GAME.insightReq35At10, 1e-12);
+    within(getInsightExpReq(0, 13), LENS_GAME.insightReq0At13, 1e-12);
+    within(4 * getObservationBaseRate(42) * (1 + (19.08 * 8) / 100) * (1 + 5 * 0.9742), LENS_GAME.expRateObservation42, 1e-12);
+  });
+
+  it('drags onto a full observation wait until a lens has left it', () => {
+    const from = [{ observation: 0, type: 0 }, { observation: 1, type: 1 }, { observation: 1, type: 1 }];
+    const to = [{ observation: 1, type: 0 }, { observation: 1, type: 1 }, { observation: 2, type: 1 }];
+    expect(getLensDrags(from, to, 2)).toEqual([
+      { type: 1, from: 1, to: 2, count: 1 },
+      { type: 0, from: 0, to: 1, count: 1 }
+    ]);
+  });
+
+  it('a plan for today never costs EXP, keeps the per-observation cap and its drags rebuild it', () => {
+    const plan = optimizeLenses(input, { restarts: 4 });
+    expect(plan.ratioToday).toBeGreaterThanOrEqual(1);
+    const counts = (slots) => slots.reduce((map, { observation, type }) => ({ ...map, [`${observation}:${type}`]: (map[`${observation}:${type}`] ?? 0) + 1 }), {});
+    const perObservation = Object.values(plan.slots.reduce((map, { observation }) => ({ ...map, [observation]: (map[observation] ?? 0) + 1 }), {}));
+    expect(Math.max(...perObservation)).toBeLessThanOrEqual(input.lensCap);
+    const rebuilt = input.lensSlots.filter(({ observation }) => observation >= 0).map((slot) => ({ ...slot }));
+    for (const { type, from, to, count } of plan.drags) {
+      for (let n = 0; n < count; n++) rebuilt.find((slot) => slot.type === type && slot.observation === from).observation = to;
+    }
+    expect(counts(rebuilt)).toEqual(counts(plan.slots));
   });
 });
