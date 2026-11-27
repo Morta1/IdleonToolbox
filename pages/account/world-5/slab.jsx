@@ -18,7 +18,7 @@ import { openItemWikiPage } from '@utility/wiki/item-page';
 
 const SLAB_TOOLBAR = { search: '', show: 'missing' };
 const UNREALISTIC_NOTE = 'Items you can loot but not reasonably greenstack: one-off quest rewards, shop items with a daily stock of 1 to 30, gem shop only items and event boxes. They stay out of Missing greenstacks and the greenstack total, unless you have greenstacked one.';
-const SHOWS = [['missing', 'Missing items'], ['looted', 'Looted items'], ['all', 'All items'], ['rotation', 'GemShop rotation'],
+const SHOWS = [['missing', 'Missing items'], ['owned', 'Owned, not in Slab'], ['looted', 'Looted items'], ['all', 'All items'], ['rotation', 'GemShop rotation'],
   ['unobtainable', 'Unobtainable'], ['greenstacked', 'Greenstacks'], ['greenstackable', 'Missing greenstacks'],
   ['unrealistic', 'Unrealistic greenstacks']];
 
@@ -34,8 +34,24 @@ const SLAB_BONUSES = [
   { name: 'Research EXP', icon: 'ClassIcons61', value: (account) => getSlabBonus(account, 7) }
 ];
 
+// Where each item sits on the account, the first place found: storage, then each character's inventory, then what they
+// wear (equipment, tools, food). A missing Slab item found here is one already in hand.
+const ownedWhere = (account, characters) => {
+  const where = new Map();
+  const note = (list, label) => (list ?? []).forEach((entry) => {
+    const rawName = entry?.rawName;
+    if (rawName && rawName !== 'Blank' && (entry?.amount ?? 1) > 0 && !where.has(rawName)) where.set(rawName, label);
+  });
+  note(account?.storage?.list, 'In storage');
+  (characters ?? []).forEach((character) => note(character?.inventory, `In ${cleanUnderscore(character?.name)}'s inventory`));
+  (characters ?? []).forEach((character) => note([...(character?.equipment ?? []), ...(character?.tools ?? []), ...(character?.food ?? [])],
+    `Worn by ${cleanUnderscore(character?.name)}`));
+  return where;
+};
+
 const shouldDisplayItem = (item, itemDisplay) => {
   if (itemDisplay === 'all') return true;
+  else if (itemDisplay === 'owned' && !item?.obtained && !item?.unobtainable && item?.ownedAt) return true;
   else if (itemDisplay === 'looted' && item?.obtained) return true;
   else if (itemDisplay === 'missing' && !item?.obtained && !item?.unobtainable) return true;
   else if (itemDisplay === 'rotation' && item?.onRotation) return true;
@@ -70,6 +86,7 @@ const SlabNote = ({ item }) => <Stack gap={1}>
     <ItemCard.Facts rows={[
       ['Looted', item.obtained ? 'Yes' : 'No'],
       ['Greenstacked', item.greenStacked ? 'Yes' : 'No'],
+      !item.obtained && item.ownedAt ? ['You have one', item.ownedAt] : null,
       item.onRotation ? ['GemShop rotation', 'Yes'] : null,
       item.unobtainable ? ['Unobtainable', 'Yes'] : null
     ]}/>
@@ -87,7 +104,8 @@ const Slab = () => {
   const looty = state?.account?.looty ?? {};
   const sectionFailed = isSectionFailed(state?.account, 'looty');
   const [toolbar, setToolbar, resetToolbar] = useToolbarState('slab', SLAB_TOOLBAR);
-  const items = looty?.slabItems ?? [];
+  const where = ownedWhere(state?.account, state?.characters);
+  const items = (looty?.slabItems ?? []).map((entry) => (where.has(entry?.rawName) ? { ...entry, ownedAt: where.get(entry.rawName) } : entry));
   const slabMulti = getSlabBonusMulti(state?.account);
   const slabMultiText = formatNum(slabMulti.value, 'mult');
   const offList = (looty?.lootedItems ?? 0) - items.filter(({ obtained }) => obtained).length;
