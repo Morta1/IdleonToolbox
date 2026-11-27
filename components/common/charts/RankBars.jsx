@@ -1,5 +1,6 @@
 import { Box, useTheme } from '@mui/material';
 import Tooltip from '@components/Tooltip';
+import GameIcon from '@components/common/GameIcon';
 import { chartLines, seriesColors } from '@utility/chartTheme';
 import { focusRing } from '../../../styles/theme/theme';
 import { ChartTooltipContent } from './ChartTooltip';
@@ -14,7 +15,7 @@ const WIDEST_ROW = 44;
 // chart has that few today): sorted bars in one color (slot 1, an Other row in grey), the value at the tip and no
 // axis. 18 px bars about 10 px apart, square where they start on the 23% edge and 4 px round at the end; the
 // hovered row lightens. From sm the names share one column, right-aligned against the bars, so every bar starts at the
-// same x and a short name stays by its bar; on a phone each name sits above its bar. rows: [{ key, name, tag, value, tip, detail, other }], sorted and folded by the
+// same x and a short name stays by its bar; on a phone each name sits above its bar. rows: [{ key, name, icon, tag, value, tip, detail, other }], sorted and folded by the
 // caller; tip is the short value at the bar's end, detail the exact one in the tooltip, which sits on the bar's end
 // (the row is the hit area, up to 712 px wide). A bar is at least 2 px, so a row far below the first still shows
 // a mark (Decision 4). The focus ring sits inside the row, clear of its neighbours.
@@ -23,6 +24,7 @@ const RankBars = ({ label, rows }) => {
   const color = seriesColors(theme)[0];
   const { edge } = chartLines(theme);
   const max = Math.max(0, ...rows.map((row) => row.value));
+  const hasIcons = rows.some((row) => row.icon || row.swatch);
   const { open, markProps } = useMarkFocus(rows.length);
 
   return <Box component={'ol'} aria-label={label} sx={{
@@ -45,9 +47,18 @@ const RankBars = ({ label, rows }) => {
         '&:focus-visible .bar': { filter: 'brightness(1.25)' },
         '&:focus-visible': focusRing(theme, -2)
       }}>
-        <Box sx={{ typography: 'body2', color: 'text.secondary', minWidth: 0, overflowWrap: 'anywhere', textAlign: { sm: 'right' } }}>
-          {row.name}
-          {row.tag ? <Box component={'span'} sx={{ typography: 'caption', color: 'text.muted', ml: 0.75 }}>{row.tag}</Box> : null}
+        <Box sx={{
+          typography: 'body2', color: 'text.secondary', minWidth: 0, overflowWrap: 'anywhere', textAlign: { sm: 'right' },
+          ...(hasIcons ? { display: 'flex', alignItems: 'center', gap: 1, justifyContent: { sm: 'flex-end' } } : {})
+        }}>
+          {/* A row with no sprite (Other) keeps the sprite's room, so its name lines up with the rest */}
+          {/* swatch: a colour the row is (a palette colour), drawn as a square in the sprite's place */}
+          {hasIcons ? (row.icon ? <GameIcon src={row.icon} size={24} alt={''}/>
+            : <Box component={'span'} sx={{ width: 24, height: 24, flexShrink: 0, ...(row.swatch ? { bgcolor: row.swatch, borderRadius: '4px', border: 1, borderColor: 'divider' } : {}) }}/>) : null}
+          <span>
+            {row.name}
+            {row.tag ? <Box component={'span'} sx={{ typography: 'caption', color: 'text.muted', ml: 0.75 }}>{row.tag}</Box> : null}
+          </span>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, minWidth: 0, borderLeft: `1px solid ${edge}` }}>
           <Box className={'bar'} sx={{

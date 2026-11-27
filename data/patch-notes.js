@@ -9,7 +9,8 @@ export const patchNotes = [
     'gameVer': '2.3.561',
     'date': '27/11/2026',
     'features': [
-      'Research: the Grid tab shows how many grid points you have left to spend, and a new dashboard alert tells you when some are unspent'
+      'Research: the Grid tab shows how many grid points you have left to spend, and a new dashboard alert tells you when some are unspent',
+      'Statistics: filter every chart by total level and by class, with a page for each class, icons on every row, and new charts for linked gods, super talents, 3D printer samples, meditation styles, meals cooking and black stars'
     ],
     'fixes': []
   },

@@ -61,6 +61,11 @@ const OVERRIDES = {
   // One route pattern, one page per class and one per published build. Each supplies its real
   // title and description through static props, which _app prefers over this map; these are the
   // fallback only.
+  // One page per class; each passes its own title through static props.
+  '/statistics/[classSlug]': {
+    title: 'Idleon Class Statistics | Idleon Toolbox',
+    description: 'What Legends of Idleon players use on each class, counted from uploaded profiles.'
+  },
   '/tools/builds/[slug]': {
     title: 'Idleon Builds by Class | Idleon Toolbox',
     description: 'Community builds for every Legends of Idleon class and subclass.'

@@ -75,16 +75,16 @@ for (const route of ['/guilds', '/guilds/detail']) {
   });
 }
 
-// The first GameIcon that mounts starts the sprite-bounds download, not the module's import: a page that imports a
-// card with an icon slot but draws no icon (Statistics' Panels) never asks for it.
+// The first GameIcon that mounts starts the sprite-bounds download, not the module's import: a page that imports
+// GameIcon but draws none (Statistics with only its icon-free column charts) never asks for it.
 test('a page with no game icon never downloads the sprite bounds', async ({ page, request }) => {
-  await page.route(/\/visualizations$/, (route) => route.fulfill({
+  await page.route(/\/statistics\?class=/, (route) => route.fulfill({
     status: 200,
     headers: { 'access-control-allow-origin': '*', 'content-type': 'application/json' },
-    body: JSON.stringify({ topPrayers: [{ prayer: 1, count: 5 }, { prayer: 5, count: 3 }] })
+    body: JSON.stringify({ classes: [], players: [{ b: 1, n: 5 }], worlds: [{ b: 1, k: 1, n: 3 }, { b: 1, k: 2, n: 2 }] })
   }));
   await page.goto('/statistics');
-  await expect(page.getByText(/top prayers/i).first()).toBeVisible({ timeout: 20_000 });
+  await expect(page.getByText(/world reached/i).first()).toBeVisible({ timeout: 20_000 });
   await page.waitForTimeout(1500);
   expect(offenders(await loadedScripts(page, request), SPRITE_BOUNDS_MARKER)).toEqual([]);
 });
