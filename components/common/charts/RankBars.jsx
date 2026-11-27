@@ -48,8 +48,9 @@ const RankBars = ({ label, rows }) => {
         '&:focus-visible': focusRing(theme, -2)
       }}>
         <Box sx={{
-          typography: 'body2', color: 'text.secondary', minWidth: 0, overflowWrap: 'anywhere', textAlign: { sm: 'right' },
-          ...(hasIcons ? { display: 'flex', alignItems: 'center', gap: 1, justifyContent: { sm: 'flex-end' } } : {})
+          // With sprites the rows read as a list: sprite and name from the left edge, so the sprites line up
+          typography: 'body2', color: 'text.secondary', minWidth: 0, overflowWrap: 'anywhere',
+          ...(hasIcons ? { display: 'flex', alignItems: 'center', gap: 1 } : { textAlign: { sm: 'right' } })
         }}>
           {/* A row with no sprite (Other) keeps the sprite's room, so its name lines up with the rest */}
           {/* swatch: a colour the row is (a palette colour), drawn as a square in the sprite's place */}

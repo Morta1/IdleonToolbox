@@ -1,4 +1,5 @@
-import { useTheme } from '@mui/material';
+import { Box, Stack, useTheme } from '@mui/material';
+import GameIcon from '@components/common/GameIcon';
 import ChartFrame from '@components/common/charts/ChartFrame';
 import ColumnChart from '@components/common/charts/ColumnChart';
 import RankBars from '@components/common/charts/RankBars';
@@ -46,7 +47,14 @@ const barTable = (config, rows) => ({
   rowKey: 'key',
   rowLabel: (row) => row.name,
   columns: [
-    { key: 'name', label: config.nameLabel, render: (row) => row.name },
+    // The row's sprite (or colour) beside its name, as the bars draw it
+    {
+      key: 'name', label: config.nameLabel, render: (row) => <Stack direction={'row'} alignItems={'center'} gap={1}>
+        {row.icon ? <GameIcon src={row.icon} size={24} alt={''}/>
+          : row.swatch ? <Box component={'span'} sx={{ width: 24, height: 24, flexShrink: 0, bgcolor: row.swatch, borderRadius: '4px', border: 1, borderColor: 'divider' }}/> : null}
+        <span>{row.name}</span>
+      </Stack>
+    },
     ...(config.tagLabel ? [{ key: 'tag', label: config.tagLabel, render: (row) => row.tag ?? null }] : []),
     { key: 'value', label: unitOf(config), numeric: true, phone: true, render: (row) => <Num value={row.value}/> },
     // A share's bars print the percent, so a phone keeps it beside the count.
