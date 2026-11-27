@@ -44,9 +44,14 @@ const AFK_TYPE_ICONS = {
   DIVINITY: 'data/ClassIcons55.png', SPELUNKING: 'data/ClassIcons60.png', Nothing: 'data/Afkz5.png'
 };
 
-// Spots whose monster entry has no name or sprite of its own: an idle character, and the Bravery monument
+// Spots whose monster entry has no name or sprite of its own: an idle character, and the three monuments
 const SPOT_NAMES = { Nothing: 'Nothing (idle)' };
-const SPOT_ICONS = { Nothing: 'afk_targets/Nothing.png', Bravery_Monument: 'afk_targets/Bravery.png' };
+const SPOT_ICONS = {
+  Nothing: 'afk_targets/Nothing.png',
+  Bravery_Monument: 'afk_targets/Bravery.png',
+  Justice_Monument: 'afk_targets/Justice.png',
+  Wisdom_Monument: 'afk_targets/Wisdom.png'
+};
 
 // The band's rows, every band's when none is picked
 export const inBand = (rows, band) => (band ? (rows ?? []).filter((row) => row.b === band) : (rows ?? []));
@@ -123,7 +128,7 @@ const CHARACTER_CHARTS = {
       }
       return [...byType].map(([type, { value, top }]) => ({
         key: type, name: titleCaseName(cleanUnderscore(type)), value,
-        icon: AFK_TYPE_ICONS[type] ?? (top ? monsterSprite(top[0]) : undefined)
+        icon: AFK_TYPE_ICONS[type] ?? (top ? SPOT_ICONS[top[0]] ?? monsterSprite(top[0]) : undefined)
       }));
     }
   },
@@ -172,7 +177,7 @@ const PLAYER_CHARTS = {
     }))
   }),
   blackStars: pctChart({
-    title: 'Black stars', per: 'starPlayers', nameLabel: 'Colour', subtitle: 'Of the players who placed any, each colour starred',
+    title: 'Gaming palette black stars', per: 'starPlayers', nameLabel: 'Colour', subtitle: 'Of the players who placed any, each colour starred',
     rows: (raw) => sumBy(raw, (row) => row.k).map(([colour, value]) => {
       const entry = gamingPalette?.[colour];
       return {

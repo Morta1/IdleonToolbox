@@ -223,12 +223,14 @@ export function exportedStatisticsSlugs(outDir) {
   return fs.readdirSync(dir).filter((f) => f.endsWith('.html')).map((f) => f.replace(/\.html$/, '')).sort()
 }
 
+// /statistics itself first, then one entry per class page
 export function buildStatisticsSitemapEntries(slugs, lastmod) {
-  return (slugs || []).filter((slug) => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)).map((slug) => urlBlock({
+  const page = urlBlock({ loc: '/statistics', lastmod, priority: getPagePriority('/statistics') })
+  return [page, ...(slugs || []).filter((slug) => /^[a-z0-9]+(-[a-z0-9]+)*$/.test(slug)).map((slug) => urlBlock({
     loc: `/statistics/${slug}`,
     lastmod,
     priority: 0.6
-  })).join('\n')
+  }))].join('\n')
 }
 
 export function pruneUnexportedSlugs(slugs, outDir) {
@@ -307,8 +309,8 @@ async function generateSitemap() {
     // Dynamic route: real slugs are appended below. Without this exclusion the
     // glob emits a literal /tools/builds/[slug] URL.
     '!pages/tools/builds/[slug].jsx',
-    // Same, for the statistics class pages: listed one by one below.
-    '!pages/statistics/[classSlug].jsx',
+    // Same, for /statistics and its class pages: listed one by one below.
+    '!pages/statistics/[[...classSlug]].jsx',
     // Same, for the wiki: three files serve every system page, listing, entity and redirect between them.
     '!pages/wiki/[kind]/[slug]/[entity].jsx',
     '!pages/wiki/[kind]/[slug].jsx',
@@ -337,7 +339,7 @@ async function generateSitemap() {
   const classEntries = buildClassSitemapEntries(classSlugs, today, builds)
   const detailEntries = buildDetailSitemapEntries(pruneUnexportedBuilds(builds, 'out'), today)
   const wikiEntries = buildWikiSitemapEntries(today)
-  const statisticsEntries = buildStatisticsSitemapEntries(exportedStatisticsSlugs('out'), pageLastmod('pages/statistics/[classSlug].jsx', gitDates, today))
+  const statisticsEntries = buildStatisticsSitemapEntries(exportedStatisticsSlugs('out'), pageLastmod('pages/statistics/[[...classSlug]].jsx', gitDates, today))
 
   const sitemap = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

@@ -187,7 +187,7 @@ const BuildClassPage = ({
         </Typography>
       )}
 
-      {/* Every class has a statistics page (/statistics/[classSlug] lists the same CLASS_KEYS), which links back here */}
+      {/* Every class has a statistics page (/statistics/[[...classSlug]] lists the same CLASS_KEYS), which links back here */}
       <Typography variant="body2" sx={{ mt: siblings?.length > 0 ? 1 : 4 }}>
         <Link href={`/statistics/${slug}`} data-class-link="" style={{ color: 'inherit' }}>
           {`${displayName} statistics`}
