@@ -6,6 +6,7 @@ import { isMeditatingOnClaim } from '@parsers/world-5/divinity';
 import {
   checkCharClass,
   CLASSES,
+  getBaseTalentBonus,
   getTalentBonus,
   getTalentBonusIfActive,
   isBookEligibleTalent,
@@ -279,6 +280,32 @@ export const hasAvailableToolUpgrade = (character) => {
     return alerts;
   }, []);
 }
+// The skills the Maestro's Right Hand of Action talent boosts. A character gets it only while its level there is below
+// the Maestro's (getMaestroHand), so any character level with or above the Maestro gets nothing in that skill.
+const RIGHT_HAND_SKILLS = ['mining', 'chopping', 'fishing', 'catching', 'trapping', 'worship'];
+export const rightHandAlerts = (account, characters, character, lastUpdated, options) => {
+  if (!options.rightHand?.checked) return null;
+  // The game reads the last Maestro in the character list, as getMaestroHand does
+  const maestro = characters?.filter((char) => checkCharClass(char?.class, CLASSES.Maestro))?.at(-1);
+  if (!maestro || maestro.name !== character?.name || !getBaseTalentBonus(maestro?.flatTalents, 'RIGHT_HAND_OF_ACTION')) return null;
+  const levelIn = (char, skill) => char?.skillsInfo?.[skill]?.level ?? 0;
+  const behind = RIGHT_HAND_SKILLS.flatMap((skill) => {
+    const own = levelIn(maestro, skill);
+    const best = characters.filter((char) => char?.name !== maestro.name)
+      .reduce((top, char) => (levelIn(char, skill) > (top?.level ?? -1) ? { name: char.name, level: levelIn(char, skill) } : top), null);
+    return best && best.level >= own ? [{ skill, own, best }] : [];
+  });
+  return behind.length ? { skills: behind } : null;
+};
+
+// A character with no god linked while the account has gods unlocked: it gets no minor link bonus
+export const divinityLinkAlert = (account, characters, character, lastUpdated, options) => {
+  if (!options.divinityLink?.checked) return null;
+  if (!account?.divinity?.unlocked || !(account?.divinity?.unlockedDeities > 0)) return null;
+  const slot = Number(account?.divinity?.linkedDeities?.[character?.playerId]);
+  return Number.isFinite(slot) && slot < 0 ? { unlinked: true } : null;
+};
+
 export const getDivinityAlert = (account, characters, character, lastUpdated, options) => {
   if (!options.divinityStyle.checked) return null;
   const isMeditating = isMeditatingOnClaim(character, account);

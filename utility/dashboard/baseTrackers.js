@@ -963,6 +963,8 @@ export const baseTrackers = {
     },
     tools: { checked: true, options: [] },
     divinityStyle: { checked: true, options: [] },
+    divinityLink: { checked: true, options: [] },
+    rightHand: { checked: true, options: [] },
     talents: {
       checked: true,
       options: [{

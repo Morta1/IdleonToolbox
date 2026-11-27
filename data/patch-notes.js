@@ -10,7 +10,8 @@ export const patchNotes = [
     'date': '27/11/2026',
     'features': [
       'Research: the Grid tab shows how many grid points you have left to spend, and a new dashboard alert tells you when some are unspent',
-      'Statistics: filter every chart by total level and by class, with a page for each class, icons on every row, and new charts for linked gods, super talents, 3D printer samples, meditation styles, meals cooking and black stars'
+      'Statistics: filter every chart by total level and by class, with a page for each class, icons on every row, and new charts for linked gods, super talents, 3D printer samples, meditation styles, meals cooking and black stars',
+      'Dashboard: two new character alerts: your Maestro isn\'t the highest in a Right Hand of Action skill, and a character isn\'t linked to a god'
     ],
     'fixes': [
       'Research: the Optimizer suggested moving lenses onto observations your Research level can\'t study yet'

@@ -1176,6 +1176,18 @@ export const alertMeta = {
     page: { pathname: '/account/world-5/divinity', query: { t: 'Styles' }, label: 'Divinity styles' },
     options: {}
   },
+  'characters.divinityLink': {
+    label: 'Not linked to a god',
+    icon: 'data/ClassIcons55',
+    page: { pathname: '/account/world-5/divinity', label: 'Divinity' },
+    options: {}
+  },
+  'characters.rightHand': {
+    label: 'Maestro not the highest in a skill',
+    icon: 'data/UISkillIcon43',
+    page: { pathname: '/characters', label: 'Characters' },
+    options: {}
+  },
   'characters.talents': {
     label: 'Talents',
     icon: 'data/TalentBook1',

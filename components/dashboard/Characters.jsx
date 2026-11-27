@@ -20,12 +20,14 @@ import {
   cardsAlert,
   classSpecificAlerts,
   crystalCountdownAlerts,
+  divinityLinkAlert,
   getDivinityAlert,
   getEquipmentAlert,
   getInventoryLocation,
   obolsAlerts,
   postOfficeAlerts,
   questsAlerts,
+  rightHandAlerts,
   starSignsAlerts,
   talentsAlerts,
   toolsAlerts,
@@ -77,6 +79,8 @@ const alertsMap = {
   talents: talentsAlerts,
   cards: cardsAlert,
   divinityStyle: getDivinityAlert,
+  divinityLink: divinityLinkAlert,
+  rightHand: rightHandAlerts,
   equipment: getEquipmentAlert,
   bags: bagsAlerts,
   classSpecific: classSpecificAlerts
@@ -126,6 +130,12 @@ const Characters = ({ characters = [], account, lastUpdated, trackers, hideAlert
       {trackers?.divinityStyle && Object.keys(alerts?.divinityStyle).length ?
         <Alert target={'divinityStyle'} title={`${name} ${alerts?.divinityStyle?.text}`}
                iconPath={`etc/${alerts?.divinityStyle?.icon}`}/> : null}
+      {trackers?.divinityLink && alerts?.divinityLink?.unlinked ?
+        <Alert target={'divinityLink'} title={`${name} isn't linked to a god`} iconPath={'data/ClassIcons55'}/> : null}
+      {trackers?.rightHand && alerts?.rightHand?.skills?.length ?
+        <Alert target={'rightHand'}
+               title={`${name} isn't the highest in ${alerts.rightHand.skills.map(({ skill, own, best }) => `${pascalCase(skill)} (${cleanUnderscore(best.name)} ${formatNum(best.level)}, ${name} ${formatNum(own)})`).join(', ')}: characters at or above the Maestro's level get no Right Hand of Action bonus there`}
+               iconPath={'data/UISkillIcon43'}/> : null}
       {trackers?.worship && alerts?.worship?.chargeOverdue ?
         <Alert target={'worship.chargeOverdue'} title={`${name} worship is full`} iconPath={'data/ClassIcons50'}/> : null}
       {trackers?.traps && alerts?.traps?.trapsOverdue ?
