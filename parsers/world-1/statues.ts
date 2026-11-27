@@ -63,6 +63,28 @@ export const parseStatues = (statuesRaw: any, charactersData: any[], rawSpelunki
   }
 };
 
+// Statues the Statue Man in W1 town would upgrade now: dropping a stack of exactly 20,000 of a Gold statue makes it Onyx
+// (Statue Man tier 2+), exactly 1,000,000 of an Onyx one makes it Zenith (tier 3+). The game skips the first statue
+// (its `0 < index` check). `items` is a getAllItems list: a stack can be gathered from storage and the inventories.
+const ONYX_STACK = 20000;
+const ZENITH_STACK = 1e6;
+export const getStatuesReadyToUpgrade = (account: any, items: any[] = []) => {
+  const tier = Number(account?.accountOptions?.[OPT.statueTierUnlocked]) || 0;
+  if (tier < 2) return [];
+  const owned = (statueIndex: number) => (items || [])
+    .filter((item: any) => item?.rawName === `EquipmentStatues${statueIndex + 1}`)
+    .reduce((sum: number, item: any) => sum + (Number(item?.amount) || 0), 0);
+  const statues = Array.isArray(account?.statues) ? account.statues : [];
+  return statues.flatMap((statue: any) => {
+    const index = statue?.statueIndex;
+    if (!(index > 0)) return [];
+    const grade = account?.statueGrades?.[index] ?? 0;
+    if (grade === 1 && owned(index) >= ONYX_STACK) return [{ name: statue.name, to: 'Onyx', icon: 'StatueO1' }];
+    if (grade === 2 && tier >= 3 && owned(index) >= ZENITH_STACK) return [{ name: statue.name, to: 'Zenith', icon: 'StatueZ1' }];
+    return [];
+  });
+};
+
 // Zenith Cluster items (Quest110) still in storage and the inventories: they join the market balance
 // (OPT.zenithClusters) only once brought to the Zenelith. `items` is a getAllItems list.
 export const getInventoryClusters = (items: any[] = []) => {

@@ -10,6 +10,8 @@ export const OPT = {
   daysUntilWeeklyReset: 39,
   libraryBooks: 55,
   giantMobsSpawned: 57,
+  // The Statue Man's tier: 2 takes 20,000-statue stacks to Onyx, 3 also 1,000,000-statue stacks to Zenith
+  statueTierUnlocked: 69,
   dungeonCreditsEarned: 71,
   arcadeBalls: 74,
   arcadeGoldBalls: 75,

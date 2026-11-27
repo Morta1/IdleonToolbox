@@ -166,6 +166,17 @@ export const alertMeta = {
       }
     }
   },
+  'account.World 1.statues': {
+    label: 'Statues',
+    icon: 'data/StatueG1',
+    page: { pathname: '/account/misc/general', label: 'General' },
+    options: {
+      readyToUpgrade: {
+        label: 'Statue stack ready for Onyx or Zenith',
+        help: 'Alerts when you own 20,000 of a Gold statue or 1,000,000 of an Onyx one, once the Statue Man takes them.'
+      }
+    }
+  },
   'account.World 1.owl': {
     label: 'Orion the owl',
     icon: 'etc/Owl',
@@ -708,6 +719,7 @@ export const alertMeta = {
         help: 'Alerts while the familiar upgrade is below this level and not maxed.'
       },
       battleAttempts: { label: 'Battle attempts left', page: { query: { t: 'Battles' }, label: 'Battles' } },
+      doublers: { label: 'Upgrade doublers left to place', page: { query: { t: 'Upgrades' }, label: 'Upgrades' } },
       familiarExp: {
         label: 'Unclaimed familiar EXP',
         help: 'Alerts once this many hours of familiar EXP are waiting. Claim it by standing in the Summoning area with the Summoning skill selected.'

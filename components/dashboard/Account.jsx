@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { Box, Stack, Typography } from '@mui/material';
+import { Box, capitalize, Stack, Typography } from '@mui/material';
 import {
   cleanUnderscore,
   formatDuration,
@@ -224,6 +224,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
               {alerts?.['World 1']?.stamps?.exaltedStamps > 0 ?
                 <Alert target={'World 1.stamps.exaltedStamps'} title={`You have ${counted(alerts?.['World 1']?.stamps?.exaltedStamps, 'unused exalted stamp')}`}
                        iconPath={'etc/Exalted_Stamp_Frame'}/> : null}
+              {alerts?.['World 1']?.statues?.readyToUpgrade?.map(({ name, to, icon }) =>
+                <Alert key={`statue-${name}`} target={'World 1.statues.readyToUpgrade'}
+                       title={`${capitalize(cleanUnderscore(name.toLowerCase()))} statue can become ${to}`}
+                       iconPath={`data/${icon}`}/>)}
               {alerts?.['World 1']?.owl?.featherRestart ?
                 <Alert target={'World 1.owl.featherRestart'} title={`Feather restart can be upgraded`}
                        iconPath={'etc/Owl_4'}/> : null}
@@ -670,6 +674,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 6.summoning.familiarLevelUp'}
                   title={`Claiming familiar EXP gives ${formatNum(alerts?.['World 6']?.summoning?.familiarLevelUp.characters)} character${alerts?.['World 6']?.summoning?.familiarLevelUp.characters > 1 ? 's' : ''} a Summoning level`}
                   iconPath={'data/SumExp'}/> : null}
+              {alerts?.['World 6']?.summoning?.doublers > 0 ?
+                <Alert target={'World 6.summoning.doublers'}
+                  title={`You have ${counted(alerts?.['World 6']?.summoning?.doublers, 'upgrade doubler')} left to place`}
+                  iconPath={'etc/Doubled'}/> : null}
               {alerts?.['World 6']?.farming?.missingPlots?.length > 0 ?
                 <Alert target={'World 6.farming.missingPlots'}
                   title={`You have ${counted(alerts?.['World 6']?.farming?.missingPlots?.length, 'seed')} available to be planted`}

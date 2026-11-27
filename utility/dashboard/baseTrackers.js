@@ -115,6 +115,10 @@ export const baseTrackers = {
           }
         ]
       },
+      statues: {
+        checked: true,
+        options: [{ name: 'readyToUpgrade', checked: true }]
+      },
       owl: {
         checked: true,
         options: [{ name: 'featherRestart', checked: true }, { name: 'megaFeatherRestart', checked: true }]
@@ -576,7 +580,8 @@ export const baseTrackers = {
             type: 'input',
             props: { label: 'Hours', value: 24, minValue: 1, helperText: '' }
           },
-          { name: 'familiarLevelUp', checked: false }
+          { name: 'familiarLevelUp', checked: false },
+          { name: 'doublers', checked: true }
         ]
       },
       etc: {

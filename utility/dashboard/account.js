@@ -45,7 +45,7 @@ import { MINE_CURRENCY_UPGRADE_INDICES } from '@parsers/world-7/minehead';
 import { isHatRackEligible } from '@parsers/world-3/hatRack';
 import { isCapeVineEligible } from '@parsers/world-4/capeVine';
 import { getGoldCostToMaxLevel, getStampsPerDay } from '@parsers/world-1/stamps';
-import { getInventoryClusters } from '@parsers/world-1/statues';
+import { getInventoryClusters, getStatuesReadyToUpgrade } from '@parsers/world-1/statues';
 import { getTomeWishPity } from '@parsers/world-4/tome';
 import { BOSS_RESPAWN_ALERTS, isMinibossReady } from './bossRespawns';
 import { getTesseractBonus } from '@parsers/class-specific/tesseract';
@@ -389,8 +389,14 @@ const getAffordableStampLevels = (account, threshold) => {
   };
 }
 
-export const getWorld1Alerts = (account, fields, options) => {
+export const getWorld1Alerts = (account, fields, options, characters) => {
   const alerts = {};
+  if (fields?.statues?.checked && options?.statues?.readyToUpgrade?.checked) {
+    const ready = getStatuesReadyToUpgrade(account, getCachedAllItems(characters, account));
+    if (ready.length > 0) {
+      alerts.statues = { readyToUpgrade: ready };
+    }
+  }
   if (fields?.stamps?.checked) {
     const stamps = {};
     if (options?.stamps?.gildedStamps?.checked && isRiftBonusUnlocked(account?.rift, 'Stamp_Mastery')) {
@@ -1522,7 +1528,12 @@ export const getWorld6Alerts = (account, fields, options, characters, lastUpdate
   }
   if (fields?.summoning?.checked) {
     const summoning = {};
-    const { familiar, battleAttempts, familiarExp, familiarLevelUp } = options?.summoning;
+    const { familiar, battleAttempts, familiarExp, familiarLevelUp, doublers } = options?.summoning;
+    // game: "Gambit_SummoningDoublersLeft", the Summoning upgrade doublers earned and not yet placed
+    const { total: doublersOwned = 0, appointed = 0 } = account?.hole?.caverns?.gambit?.summoningDoublers ?? {};
+    if (doublers?.checked && doublersOwned - appointed > 0) {
+      summoning.doublers = Math.round(doublersOwned - appointed);
+    }
     const { level, maxLvl } = account?.summoning?.upgrades?.[0]?.[2] || {};
     if (familiar?.checked && level < maxLvl && level < familiar?.props?.value) {
       summoning.familiar = { level, maxLvl };

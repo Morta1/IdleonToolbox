@@ -13,7 +13,9 @@ export const patchNotes = [
       'Statistics: filter every chart by total level and by class, with a page for each class, icons on every row, and new charts for linked gods, super talents, 3D printer samples, meditation styles, meals cooking and black stars',
       'Dashboard: two new character alerts: your Maestro isn\'t the highest in a Right Hand of Action skill, and a character isn\'t linked to a god',
       'Slab: a new "Owned, not in Slab" view lists the missing items you already have, and where each one is',
-      'Dashboard: new alerts for a built shrine no character is levelling, and unspent Land Rank points'
+      'Dashboard: new alerts for a built shrine no character is levelling, and unspent Land Rank points',
+      'Dashboard: new alert when a statue stack is big enough for the Statue Man to make it Onyx or Zenith',
+      'Dashboard: new alert for Summoning upgrade doublers you haven\'t placed yet'
     ],
     'fixes': [
       'Research: the Optimizer suggested moving lenses onto observations your Research level can\'t study yet'
