@@ -168,7 +168,8 @@ const StatisticsPage = ({ classId = null }) => {
   const scope = shownClass != null
     ? <>Showing <b>{formatNum(picked.characters)} {name} characters</b> of the {playersText}</>
     : <>Showing <b>{bandScope ? `the ${playersText}` : `all ${playersText}`}</b></>;
-  const perOf = { characters: picked.characters, allCharacters: all.characters, players: all.players, starPlayers: all.starPlayers };
+  // Every count a chart's shares can be of: characters, players, or the players who placed a kind of doubler
+  const perOf = { ...all, characters: picked.characters, allCharacters: all.characters };
   const charts = chartsFor(data, band, shownClass)
     .map((entry) => ({ ...entry, title: entry.title ?? entry.chart.title, rows: chartRows(entry.chart, entry.raw, perOf[entry.chart.per]) }))
     .filter(({ rows }) => rows.length);

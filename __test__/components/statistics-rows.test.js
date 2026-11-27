@@ -46,6 +46,18 @@ describe('statistics rows', () => {
     expect(slot.values).toEqual({ [CLASSES.Mage]: 3, Other: 2 });
   });
 
+  it('names every doubler kind\'s picks and shares them out of the players who placed any', () => {
+    const picks = { b: 1, k: 1, n: 3 };
+    const data = Object.fromEntries(['mineheadDoublers', 'sushiDoublers', 'jellyDoublers', 'organicLabels', 'omnijade'].map((kind) => [kind, [picks]]));
+    const charts = chartsFor({ ...data, doublerPlayers: [{ b: 1, k: 'omnijade', n: 6 }] }, 1, null);
+    for (const kind of Object.keys(data)) {
+      const [row] = charts.find((entry) => entry.key === kind).chart.rows(data[kind]);
+      expect(row.name, kind).toMatch(/\w/);
+      expect(row.icon, kind).toMatch(/^data\/\w+\.png$/);
+    }
+    expect(counted({ doublerPlayers: [{ b: 1, k: 'omnijade', n: 6 }] }, 1, null).omnijade).toBe(6);
+  });
+
   it('counts one band and one class', () => {
     const data = { classes: [{ b: 1, c: 7, n: 30, lv: 90 }, { b: 2, c: 7, n: 5 }, { b: 1, c: 9, n: 20 }], players: [{ b: 1, n: 40 }, { b: 2, n: 4 }], minGroup: 10 };
     expect(counted(data, 1, 7)).toMatchObject({ characters: 30, players: 40, medianLevel: 90, tooFew: false });

@@ -7,12 +7,17 @@ import {
   cookingMenu,
   deathNote,
   divStyles,
+  exoticMarketInfo,
   gamingPalette,
   gods,
   items,
+  jellyUpgrades,
+  mineheadUpgrades,
   monsters,
+  ninjaUpgrades,
   prayers,
   stamps,
+  sushiUpgrades,
   talents
 } from '@website-data';
 import { altStampsMapping, stampsMapping } from '@parsers/world-1/stamps';
@@ -74,6 +79,8 @@ export const counted = (data, band, classId) => {
     characters: total(classRows),
     players: total(inBand(data?.players, band)),
     starPlayers: total(inBand(data?.blackStarPlayers, band)),
+    // Per Menagerie doubler kind, the players who placed any: { mineheadDoublers: 812, ... }
+    ...Object.fromEntries(sumBy(inBand(data?.doublerPlayers, band), (row) => row.k)),
     // A band's median from its row; across every band, the class's own median (medians can't be added up)
     medianLevel: classId == null ? null : band ? classRows[0]?.lv ?? null : data?.classMedians?.find((row) => row.c === classId)?.lv ?? null,
     tooFew: classId != null && classRows.length > 0 && total(classRows) < (data?.minGroup ?? 0)
@@ -156,6 +163,14 @@ const CHARACTER_CHARTS = {
   }
 };
 
+const doublerChart = (key, title, nameLabel, nameOf, iconOf) => ({
+  [key]: pctChart({
+    title, per: key, nameLabel, subtitle: 'Of the players who placed any, each upgrade picked',
+    rows: (raw) => sumBy(raw, (row) => row.k).filter(([id]) => nameOf(id) && nameOf(id) !== 'Name')
+      .map(([id, value]) => ({ key: String(id), name: nameOf(id), icon: iconOf(id), value }))
+  })
+});
+
 const PLAYER_CHARTS = {
   pocketGods: pctChart({
     title: 'Pocket divinity', per: 'players', nameLabel: 'God', subtitle: 'Players with each god in a pocket divinity spot',
@@ -186,6 +201,17 @@ const PLAYER_CHARTS = {
       };
     })
   }),
+  // Where players place their limited Menagerie doublers, each a share of the players who placed any of that kind
+  ...doublerChart('mineheadDoublers', 'Minehead doublers', 'Upgrade',
+    (id) => cleanUnderscore(mineheadUpgrades?.[id]?.name), (id) => `data/MineUpg${id}.png`),
+  ...doublerChart('sushiDoublers', 'Sushi doublers', 'Upgrade',
+    (id) => cleanUnderscore(sushiUpgrades?.[id]?.[0]), (id) => `data/SushiUpg${id}.png`),
+  ...doublerChart('jellyDoublers', 'Jelly Operator doublers', 'Upgrade',
+    (id) => cleanUnderscore(jellyUpgrades?.[id]?.[0]), (id) => `data/JellyUpg${id}.png`),
+  ...doublerChart('organicLabels', 'Organic labels', 'Exotic market upgrade',
+    (id) => titleCaseName(cleanUnderscore(exoticMarketInfo?.[id]?.name)), (id) => `data/FarmCrop${exoticMarketInfo?.[id]?.x2}.png`),
+  ...doublerChart('omnijade', 'Omnijade', 'Ninja upgrade',
+    (id) => cleanUnderscore(ninjaUpgrades?.[id]?.name), (id) => `data/NjUpgI${id}.png`),
   prismaBubbles: pctChart({
     title: 'Prisma bubbles', per: 'players', nameLabel: 'Bubble', tagLabel: 'Cauldron', subtitle: "Players with it prisma'd",
     rows: (raw) => sumBy(raw, (row) => row.k).flatMap(([bubble, value]) => {
