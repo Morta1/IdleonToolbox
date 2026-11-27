@@ -249,8 +249,20 @@ const StatisticsPage = ({ classId = null }) => {
   }
 
   const tabs = tabsFor(data, band);
+  // Who the counted players are, for the band picked: the context every share on the tabs is read in
+  const topClass = classOptions[0];
+  const worldRows = inBand(data.worlds, band);
+  const worldPlayers = worldRows.reduce((sum, row) => sum + (row.n ?? 0), 0);
+  const inWorld7 = worldRows.filter((row) => Number(row.k) === 7).reduce((sum, row) => sum + (row.n ?? 0), 0);
   return <>
     {header}
+    <PageSummary label={'Player base'}>
+      <StatTile label={'Players counted'} value={formatNum(all.players)}/>
+      <StatTile label={'Characters counted'} value={formatNum(all.characters)}/>
+      <StatTile label={'Most common class'} icon={topClass ? classIcon(topClass.id) : undefined}
+                value={topClass ? `${className(topClass.id)} (${pct(topClass.share)})` : '-'}/>
+      <StatTile label={'In World 7'} value={worldPlayers ? pct((inWorld7 / worldPlayers) * 100) : '-'}/>
+    </PageSummary>
     <Tabber tabs={tabs.map(({ key }) => key)}>
       {tabs.map((tab) => <Box key={tab.key}>
         {bandBar}
