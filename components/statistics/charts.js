@@ -44,6 +44,10 @@ const AFK_TYPE_ICONS = {
   DIVINITY: 'data/ClassIcons55.png', SPELUNKING: 'data/ClassIcons60.png', Nothing: 'data/Afkz5.png'
 };
 
+// Spots whose monster entry has no name or sprite of its own: an idle character, and the Bravery monument
+const SPOT_NAMES = { Nothing: 'Nothing (idle)' };
+const SPOT_ICONS = { Nothing: 'afk_targets/Nothing.png', Bravery_Monument: 'afk_targets/Bravery.png' };
+
 // The band's rows, every band's when none is picked
 export const inBand = (rows, band) => (band ? (rows ?? []).filter((row) => row.b === band) : (rows ?? []));
 const total = (rows, field = 'n') => rows.reduce((sum, row) => sum + (row[field] ?? 0), 0);
@@ -126,7 +130,11 @@ const CHARACTER_CHARTS = {
   spots: pctChart({
     title: 'AFK spots', classTitle: 'Where they AFK', per: 'characters', nameLabel: 'Spot', from: 'activities',
     rows: (raw) => sumBy(raw, (row) => row.k).filter(([spot]) => monsters?.[spot]?.AFKtype && monsters[spot].AFKtype !== 'error')
-      .map(([spot, value]) => ({ key: spot, name: cleanUnderscore(monsters[spot].Name || spot), icon: monsterSprite(spot), value }))
+      .map(([spot, value]) => ({
+        key: spot, value,
+        name: SPOT_NAMES[spot] ?? cleanUnderscore(monsters[spot].Name?.trim() || spot),
+        icon: SPOT_ICONS[spot] ?? monsterSprite(spot)
+      }))
   }),
   prints: pctChart({
     title: '3D printer', classTitle: 'What they print', per: 'characters', nameLabel: 'Sample',
