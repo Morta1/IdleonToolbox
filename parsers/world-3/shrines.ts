@@ -10,6 +10,7 @@ import { getTalentBonus } from '@parsers/talents';
 import { getVialsBonusByEffect } from '@parsers/world-2/alchemy';
 import { getVoteBonus } from '@parsers/world-2/voteBallot';
 import { getLegendTalentBonus } from '@parsers/world-7/legendTalents';
+import { isJadeBonusUnlocked } from '@parsers/world-6/sneaking';
 import { saveField } from '@parsers/saveField';
 
 const startingIndex = 18;
@@ -45,11 +46,13 @@ export const parseShrines = (shrinesRaw: any, towersRaw: any, account: any) => {
   return liveShrines.map(({ entry, index: localIndex }) => {
     const index = startingIndex + localIndex;
     const item = shrinesRaw?.[localIndex];
-    const [mapId = 0, , , shrineLevel = 0, progress = 0] = item ?? [];
+    const [mapId = 0, node = 0, , shrineLevel = 0, progress = 0] = item ?? [];
     const { shrineName, desc } = entry;
     const crystalShrineBonus = shrinesRaw?.[2]?.[0] === mapId ? shrineStuff?.[2] : 0;
     return {
       mapId,
+      // The game draws a shrine at [map 0, node 0] as not placed
+      placed: !(Number(mapId) === 0 && Number(node) === 0),
       shrineLevel,
       name: shrineName,
       rawName: `ConTowerB${index}`,
@@ -122,6 +125,20 @@ const isGlobalApplicable = (shrine: any, playerMapId: any, legendTalentBonus: an
   if (!(shrine?.shrineLevel > 0)) return false;
   return isWorldTourApplicable(shrine, playerMapId) || (playerMapId === shrine?.mapId) || !!legendTalentBonus;
 }
+
+// Built, placed shrines no character levels: shrine EXP comes only from a character's claimed AFK time on the shrine's
+// map, in its world with World Tour, or anywhere with legend talent 38 (the away-gains loop isGlobalApplicable mirrors).
+// keepsProgress: moving a shrine resets its EXP toward the next level unless the Shrine Collective Bargaining Agreement
+// emporium bonus is owned.
+export const getIdleShrines = (account: any, characters: any) => {
+  const legendTalentBonus = getLegendTalentBonus(account, 38);
+  if (legendTalentBonus) return [];
+  const keepsProgress = isJadeBonusUnlocked(account, 'Shrine_Collective_Bargaining_Agreement');
+  return (account?.shrines ?? [])
+    .filter((shrine: any) => shrine?.shrineLevel > 0 && shrine?.placed
+      && !(characters ?? []).some((character: any) => isGlobalApplicable(shrine, character?.mapIndex, legendTalentBonus)))
+    .map((shrine: any) => ({ ...shrine, losesProgress: !keepsProgress && Number(shrine?.progress) > 0 }));
+};
 
 export const getShrineBonus = (shrines: any, shrineIndex: any, playerMapId: any, cards: any, artifacts: any) => {
   const shrine = shrines?.[shrineIndex];

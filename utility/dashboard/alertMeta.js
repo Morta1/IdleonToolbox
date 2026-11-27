@@ -361,6 +361,11 @@ export const alertMeta = {
     options: {
       flags: { label: 'Finished flags on the board' },
       buildings: { label: 'Buildings ready to build', page: { pathname: '/account/world-3/buildings', label: 'Buildings' } },
+      idleShrines: {
+        label: 'Shrines no one is levelling',
+        help: 'A built shrine only gains EXP from characters AFK on its map (or its world with Shrine World Tour). Off with Shrine World Order Bill, which levels every shrine.',
+        page: { pathname: '/account/misc/general', label: 'General (Shrines)' }
+      },
       materials: {
         label: 'Salts out of materials',
         help: 'Alerts when a ticked salt has run out of materials, or will within the lead time below.',
@@ -689,7 +694,8 @@ export const alertMeta = {
       totalCrops: { label: 'Crops ready to collect', help: 'Alerts when your plots hold this many crops in total.' },
       missingPlots: { label: 'Empty plots' },
       beanTrade: { label: 'Bean trade value reached', help: 'Alerts when your bean trade reaches this value.' },
-      exoticPurchases: { label: 'Exotic market purchases left', page: { query: { t: 'Exotic Market' }, label: 'Exotic Market' } }
+      exoticPurchases: { label: 'Exotic market purchases left', page: { query: { t: 'Exotic Market' }, label: 'Exotic Market' } },
+      rankPoints: { label: 'Unspent Land Rank points', page: { query: { t: 'Rank database' }, label: 'Rank database' } }
     }
   },
   'account.World 6.summoning': {

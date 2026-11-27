@@ -273,6 +273,7 @@ export const baseTrackers = {
         checked: true, options: [
           { name: 'flags', checked: true },
           { name: 'buildings', checked: true },
+          { name: 'idleShrines', checked: true },
           {
             name: 'materials', type: 'array', props: { value: getRawRefinerySalts(), type: 'img' },
             checked: true,
@@ -555,7 +556,8 @@ export const baseTrackers = {
             props: { label: 'Bean trade value', value: 1, minValue: 1, helperText: '' },
             checked: false
           },
-          { name: 'exoticPurchases', checked: true }
+          { name: 'exoticPurchases', checked: true },
+          { name: 'rankPoints', checked: true }
         ]
       },
       summoning: {

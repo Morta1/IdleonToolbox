@@ -1,6 +1,6 @@
 import '../../polyfills';
 import { describe, expect, it } from 'vitest';
-import { getShrines, isLiveShrineEntry } from '@parsers/world-3/shrines';
+import { getIdleShrines, getShrines, isLiveShrineEntry } from '@parsers/world-3/shrines';
 import { liveCount } from '@parsers/catalog';
 import { shrines } from '@website-data';
 import { tryToParse } from '@utility/helpers';
@@ -78,4 +78,18 @@ describe('getShrines fixture regression', () => {
     });
   }));
 
+});
+
+describe('getIdleShrines', () => {
+  const shrine = (mapId, extra = {}) => ({ name: `Shrine_${mapId}`, mapId, placed: true, shrineLevel: 3, progress: 10, worldTour: false, ...extra });
+
+  it('flags a built, placed shrine only when no character stands on its map, or its world with World Tour', () => {
+    const account = {
+      shrines: [shrine(5), shrine(60), shrine(70, { worldTour: true }), shrine(80, { shrineLevel: 0 }), shrine(0, { placed: false })]
+    };
+    const idle = getIdleShrines(account, [{ mapIndex: 5 }, { mapIndex: 99 }]);
+    // map 5 has a character; map 70 shares world 1 (maps 50-99) with map 99 under World Tour; level 0 and unplaced never count
+    expect(idle.map(({ mapId }) => mapId)).toEqual([60]);
+    expect(idle[0].losesProgress).toBe(true);
+  });
 });

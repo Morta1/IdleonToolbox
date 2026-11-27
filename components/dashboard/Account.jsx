@@ -362,6 +362,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 3.atomCollider.stampReducer'}
                   title={`Stamp reducer has reached your threshold (${formatNum(alerts?.['World 3']?.atomCollider?.stampReducerValue, 'pct')})`}
                   iconPath={'data/Atom0'}/> : null}
+              {alerts?.['World 3']?.construction?.idleShrines?.map(({ name, rawName, losesProgress }) => <Alert key={rawName}
+                target={'World 3.construction.idleShrines'}
+                title={`Your ${cleanUnderscore(name)} is not being levelled by anyone: no character is AFK on its map${losesProgress ? '. Moving it loses its progress toward the next level' : ''}`}
+                iconPath={`data/${rawName}`}/>)}
               {alerts?.['World 3']?.construction?.flags?.length > 0 ?
                 <Alert target={'World 3.construction.flags'}
                   title={`${formatNum(alerts?.['World 3']?.construction?.flags?.length)} flag${alerts?.['World 3']?.construction?.flags?.length === 1 ? ' is' : 's are'} finished on the construction board`}
@@ -688,6 +692,10 @@ const Account = ({ account, characters, trackers, lastUpdated }) => {
                 <Alert target={'World 6.farming.beanTrade'}
                   title={`Your bean trade has reached ${formatGame(Math.floor(alerts?.['World 6']?.farming?.beanTrade), 'FarmingStuffs.BeanTradeQTY')}`}
                   iconPath={'data/Quest80_x1'}/> : null}
+              {alerts?.['World 6']?.farming?.rankPoints > 0 ?
+                <Alert target={'World 6.farming.rankPoints'}
+                  title={`You have ${counted(alerts?.['World 6']?.farming?.rankPoints, 'unspent Land Rank point')} in the Rank database`}
+                  iconPath={'data/RankUpg0'}/> : null}
               {alerts?.['World 6']?.farming?.exoticPurchases ?
                 <Alert target={'World 6.farming.exoticPurchases'}
                   title={`You have ${formatNum(alerts?.['World 6']?.farming?.exoticPurchases.available)} exotic purchase${alerts?.['World 6']?.farming?.exoticPurchases.available > 1
