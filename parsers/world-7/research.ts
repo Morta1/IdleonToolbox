@@ -549,7 +549,10 @@ function getResearchOptimizerInput(account: any, research: any, parts: any): Res
     expGrid70: parts.expGrid70 ?? 0,
     expMulti: parts.expMulti ?? 1,
     observationsFound: occurrencesToBeFound ?? 0,
-    discovered: Array.from({ length: occurrencesToBeFound ?? 0 }, (_, i) => (Number(research?.occurrenceFoundState?.[i]) || 0) >= 1),
+    // A lens can study an observation once it is found and the Research LV reaches its requirement: a found one
+    // still under it reads "Research LV N required to study" in game and gives 0 EXP/hr
+    discovered: Array.from({ length: occurrencesToBeFound ?? 0 }, (_, i) => (Number(research?.occurrenceFoundState?.[i]) || 0) >= 1
+      && researchLevel >= (Number((researchOccurrences as any)?.[i]?.researchLvReq) || 0)),
     insightLevels: (research?.observationInsight ?? []).map((level: any) => Number(level) || 0),
     insightExp: (research?.observationInsightExp ?? []).map((exp: any) => Number(exp) || 0),
     lensSlots: Array.from({ length: magnifiersOwned ?? 0 }, (_, slot) => ({
