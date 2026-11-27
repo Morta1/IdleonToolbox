@@ -20,9 +20,9 @@ const pct = (value) => formatNum(value, 'pct', { decimals: 1 });
 // and the percent. per: the count a 'pct' row is a share of (characters or players).
 const barRows = (config, raw, per) => {
   const rows = config.rows(raw).filter((row) => row.value > 0).toSorted((a, b) => b.value - a.value);
-  if (config.form === 'rank') return rows.slice(0, PCT_ROWS).map((row) => ({ ...row, tip: chartNum(row.value), detail: formatNum(row.value) }));
+  if (config.form === 'rank') return rows.map((row) => ({ ...row, tip: chartNum(row.value), detail: formatNum(row.value) }));
   if (config.form === 'pct') {
-    return rows.slice(0, PCT_ROWS).map((row) => {
+    return rows.map((row) => {
       const share = per ? (row.value / per) * 100 : 0;
       return { ...row, share, tip: pct(share), detail: `${formatNum(row.value)} · ${pct(share)}` };
     });
@@ -85,15 +85,22 @@ const columnTable = (config, columns, rows) => {
 };
 
 // The rows a chart would draw, so the page can leave an empty chart out
-export const chartRows = (config, raw, per) => (['rank', 'share', 'pct'].includes(config.form) ? barRows(config, raw, per) : config.rows(raw));
+export const chartRows = (config, raw, per) => {
+  if (['rank', 'share', 'pct'].includes(config.form)) return barRows(config, raw, per);
+  // Columns with nothing in any of them (data not counted yet) leave the chart out, as an empty list does
+  const rows = config.rows(raw);
+  return rows.some((row) => Object.values(row.values ?? {}).some((value) => value > 0)) ? rows : [];
+};
 
 // One chart from its entry in the chart list and the band's raw rows.
 const StatisticsChart = ({ config, title, rows }) => {
   const series = seriesColors(useTheme());
 
   if (['rank', 'share', 'pct'].includes(config.form)) {
-    return <ChartFrame table={barTable(config, rows)}>
-      <RankBars label={title} rows={rows}/>
+    // The bars draw the top of the list; its table holds every row
+    const cut = config.form !== 'share' && rows.length > PCT_ROWS;
+    return <ChartFrame table={barTable(config, rows)} tableLabel={cut ? `Show all ${formatNum(rows.length)} as a table` : undefined}>
+      <RankBars label={title} rows={cut ? rows.slice(0, PCT_ROWS) : rows}/>
     </ChartFrame>;
   }
 

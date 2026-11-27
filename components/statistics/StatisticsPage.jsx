@@ -12,11 +12,12 @@ import ErrorBoundary from '@components/common/ErrorBoundary';
 import Notice, { retryAction } from '@components/common/Notice';
 import Toolbar, { FilterPill } from '@components/common/Toolbar';
 import GameIcon from '@components/common/GameIcon';
+import Tabber from '@components/common/Tabber';
 import { formatNum } from '@utility/helpers';
 import { classToSlug } from '@utility/builds/class-paths.mjs';
 import { classes } from '@website-data';
 import StatisticsChart, { chartRows } from './StatisticsChart';
-import { BANDS, chartsFor, classIcon, className, counted, inBand, parseBand } from './charts';
+import { BANDS, classChartsFor, classIcon, className, counted, inBand, parseBand, tabsFor } from './charts';
 
 const API_URL = process.env.NEXT_PUBLIC_PROFILES_URL;
 const REQUEST_TIMEOUT = 20000;
@@ -139,8 +140,8 @@ const StatisticsPage = ({ classId = null }) => {
   const { data } = current;
   const busy = current.key !== classKey && !failed;
   const dim = busy && slowKey === classKey;
-  // The header and the picker follow the route at once; the numbers below follow what has loaded
-  const header = <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ mb: 2 }}>
+  // The title and the class picker follow the route at once; the numbers below follow what has loaded
+  const title = <Stack direction={'row'} alignItems={'center'} gap={2} sx={{ minWidth: 0 }}>
     <GameIcon src={classId != null ? classIcon(classId) : 'etc/World_Category.png'} size={40} alt={''}/>
     <Typography variant={'pageTitle'} component={'h1'}>{classId != null ? `${className(classId)} statistics` : 'Statistics'}</Typography>
   </Stack>;
@@ -150,7 +151,7 @@ const StatisticsPage = ({ classId = null }) => {
   }, retrying)}>Couldn't load the statistics.</Notice> : null;
 
   if (!data) {
-    return <>{header}{failNotice ?? (current.key ? <Notice tone={'info'}>No statistics yet.</Notice> : <SimpleLoader message={'Loading statistics...'}/>)}</>;
+    return <><Box sx={{ mb: 2 }}>{title}</Box>{failNotice ?? (current.key ? <Notice tone={'info'}>No statistics yet.</Notice> : <SimpleLoader message={'Loading statistics...'}/>)}</>;
   }
 
   const shownClass = current.key === 'all' ? null : Number(current.key);
@@ -168,27 +169,30 @@ const StatisticsPage = ({ classId = null }) => {
   const scope = shownClass != null
     ? <>Showing <b>{formatNum(picked.characters)} {name} characters</b> of the {playersText}</>
     : <>Showing <b>{bandScope ? `the ${playersText}` : `all ${playersText}`}</b></>;
-  // Every count a chart's shares can be of: characters, players, or the players who placed a kind of doubler
-  const perOf = { ...all, characters: picked.characters, allCharacters: all.characters };
-  const charts = chartsFor(data, band, shownClass)
+  // Every count a chart's shares can be of: characters, players, every band's players, or the players who placed a kind
+  // of doubler
+  const perOf = { ...all, characters: picked.characters, allCharacters: all.characters, allPlayers: counted(data, null, null).players };
+  const withRows = (entries) => entries
     .map((entry) => ({ ...entry, title: entry.title ?? entry.chart.title, rows: chartRows(entry.chart, entry.raw, perOf[entry.chart.per]) }))
     .filter(({ rows }) => rows.length);
 
-  return <>
-    {header}
-    <Typography variant={'body2'} color={'text.secondary'} sx={{ mb: 2 }}>
-      {classId != null
-        ? `What players use on this class, from the profiles uploaded to Idleon Toolbox, refreshed every 3 hours.`
-        : 'Counted from every profile players have uploaded to Idleon Toolbox, refreshed every 3 hours.'}
-    </Typography>
-    <Toolbar counted={false}>
-      <Toolbar.Lead ownRow>
-        <Box sx={{ width: { xs: '100%', sm: 'auto' } }}>
-          <Labeled id={'statistics-class-label'} label={'Class'}>
-            <ClassPicker classId={classId} options={classOptions} total={all.characters} onPick={pickClass} fullWidth/>
-          </Labeled>
+  // Two columns from 1300 px. A column chart, or a list left alone on its row, takes the whole row.
+  const grid = (entries) => <CardGrid size={'l'} sx={{ gridTemplateColumns: 'minmax(0, 1fr)', '@media (min-width:1300px)': { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' } }}>
+    {entries.map(({ key, chart, title: chartTitle, rows }, index) => {
+      const wide = ['spread', 'stacked'].includes(chart.form) || (index === entries.length - 1 && entries.length % 2 === 1);
+      return <Panel key={key} title={chartTitle}
+                    meta={`${chart.subtitle ? `${chart.subtitle} · ` : ''}${formatNum(perOf[chart.per] ?? 0)} ${/haracters$/.test(chart.per) ? 'characters' : 'players'} counted`}
+                    sx={{ ...CHART_PANEL_SX, ...(wide ? { gridColumn: '1 / -1' } : {}) }}>
+        <Box sx={{ ...COLUMN_SX, flexGrow: 1, p: { xs: 1.5, sm: 2 } }}>
+          <ErrorBoundary title={"This chart didn't load"}><StatisticsChart config={chart} title={chartTitle} rows={rows}/></ErrorBoundary>
         </Box>
-      </Toolbar.Lead>
+      </Panel>;
+    })}
+  </CardGrid>;
+
+  // The band applies to every tab, so its bar heads each one; the class picker opens a class page, so it sits by the title
+  const bandBar = <>
+    <Toolbar counted={false}>
       <Toolbar.Lead ownRow>
         <Box sx={{ width: { xs: '100%', sm: 'auto' } }}>
           <Labeled id={'statistics-band-label'} label={'Total level'}>
@@ -200,29 +204,68 @@ const StatisticsPage = ({ classId = null }) => {
     {/* The bar's room is kept while nothing loads, so nothing below moves when it shows */}
     <Box sx={{ height: 4 }}>{dim ? <LinearProgress aria-label={'Loading statistics'}/> : null}</Box>
     {failNotice ? <Box sx={{ mt: 1 }}>{failNotice}</Box> : null}
-    <Box aria-busy={busy} sx={{ transition: 'opacity 150ms', ...(dim ? { opacity: 0.5, pointerEvents: 'none' } : {}) }}>
+  </>;
+  const loading = (children) => <Box aria-busy={busy} sx={{ transition: 'opacity 150ms', ...(dim ? { opacity: 0.5, pointerEvents: 'none' } : {}) }}>
     <Typography aria-live={'polite'} sx={{ mt: 1.5, mb: 2 }}>{scope}</Typography>
-    {shownClass != null ? <PageSummary>
-      <StatTile label={'Share of characters'} value={all.characters ? pct((picked.characters / all.characters) * 100) : '-'}/>
-      <StatTile label={'Characters counted'} value={formatNum(picked.characters)}/>
-      <StatTile label={'Median level'} value={picked.medianLevel != null ? formatNum(Math.round(picked.medianLevel)) : '-'}/>
-      <StatTile label={'Builds'} value={<Link component={NextLink} href={`/tools/builds/${classToSlug(classes?.[shownClass])}`} underline={'hover'}>
-        {name} builds <LinkMark/>
-      </Link>}/>
-    </PageSummary> : null}
-    {picked.tooFew || (shownClass != null && !picked.characters)
-      ? <Box sx={{ mb: 2 }}><Notice tone={'info'}>Too few {name} characters in this level band to show their choices.</Notice></Box>
-      : null}
-    {charts.length ?<CardGrid size={'l'} sx={{ gridTemplateColumns: 'minmax(0, 1fr)', '@media (min-width:1300px)': { gridTemplateColumns: 'repeat(2, minmax(0, 1fr))' } }}>
-      {charts.map(({ key, chart, title, rows }) => <Panel key={key} title={title}
-                                                           meta={`${chart.subtitle ? `${chart.subtitle} · ` : ''}${formatNum(perOf[chart.per] ?? 0)} ${/haracters$/.test(chart.per) ? 'characters' : 'players'} counted`}
-                                                           sx={CHART_PANEL_SX}>
-        <Box sx={{ ...COLUMN_SX, flexGrow: 1, p: { xs: 1.5, sm: 2 } }}>
-          <ErrorBoundary title={'This chart didn\'t load'}><StatisticsChart config={chart} title={title} rows={rows}/></ErrorBoundary>
-        </Box>
-      </Panel>)}
-    </CardGrid> : null}
-    </Box>
+    {children}
+  </Box>;
+
+  const header = <>
+    <Stack direction={{ xs: 'column', sm: 'row' }} alignItems={{ xs: 'stretch', sm: 'flex-end' }} justifyContent={'space-between'} gap={2} sx={{ mb: 1 }}>
+      {title}
+      <Box sx={{ width: { xs: '100%', sm: 'auto' } }}>
+        <Labeled id={'statistics-class-label'} label={'Class page'}>
+          <ClassPicker classId={classId} options={classOptions} total={all.characters} onPick={pickClass} fullWidth/>
+        </Labeled>
+      </Box>
+    </Stack>
+    <Typography variant={'body2'} color={'text.secondary'} sx={{ mb: 2 }}>
+      {classId != null
+        ? 'What players use on this class, from the profiles uploaded to Idleon Toolbox, refreshed every 3 hours.'
+        : 'Counted from every profile players have uploaded to Idleon Toolbox, refreshed every 3 hours.'}
+    </Typography>
+  </>;
+
+  if (shownClass != null) {
+    const charts = withRows(classChartsFor(data, band));
+    return <>
+      {header}
+      {bandBar}
+      {loading(<>
+        <PageSummary>
+          <StatTile label={'Share of characters'} value={all.characters ? pct((picked.characters / all.characters) * 100) : '-'}/>
+          <StatTile label={'Characters counted'} value={formatNum(picked.characters)}/>
+          <StatTile label={'Median level'} value={picked.medianLevel != null ? formatNum(Math.round(picked.medianLevel)) : '-'}/>
+          <StatTile label={'Builds'} value={<Link component={NextLink} href={`/tools/builds/${classToSlug(classes?.[shownClass])}`} underline={'hover'}>
+            {name} builds <LinkMark/>
+          </Link>}/>
+        </PageSummary>
+        {picked.tooFew || !picked.characters
+          ? <Box sx={{ mb: 2 }}><Notice tone={'info'}>Too few {name} characters in this level band to show their choices.</Notice></Box>
+          : null}
+        {charts.length ? grid(charts) : null}
+      </>)}
+    </>;
+  }
+
+  const tabs = tabsFor(data, band);
+  return <>
+    {header}
+    <Tabber tabs={tabs.map(({ key }) => key)}>
+      {tabs.map((tab) => <Box key={tab.key}>
+        {bandBar}
+        {loading(<Stack gap={3}>
+          {tab.groups.map((group) => {
+            const charts = withRows(group.charts);
+            if (!charts.length) return null;
+            return <Box key={group.title ?? 'main'}>
+              {group.title ? <Typography variant={'sectionTitle'} component={'h2'} sx={{ mb: 1.5 }}>{group.title}</Typography> : null}
+              {grid(charts)}
+            </Box>;
+          })}
+        </Stack>)}
+      </Box>)}
+    </Tabber>
   </>;
 };
 

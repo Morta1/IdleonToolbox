@@ -258,7 +258,8 @@ const PLAYER_CHARTS = {
 // Columns over a range: one series and a bar each
 const SPREAD_CHARTS = {
   totalLevels: {
-    form: 'spread', title: 'Total levels', per: 'players', unit: 'Players', nameLabel: 'Total level',
+    // Every band: picked by a total level band, this chart would only show that band back
+    form: 'spread', title: 'Total levels', per: 'allPlayers', subtitle: 'Every total level band', unit: 'Players', nameLabel: 'Total level',
     // Every bucket from the first one kept to the last, a missing one at 0, so the axis never jumps a step. A bucket
     // runs to the next one; 18,000 holds everyone past it.
     rows: (raw) => {
@@ -313,21 +314,48 @@ export const CLASS_DISTRIBUTION = {
   rows: (raw) => sumBy(raw, (row) => row.c).map(([id, value]) => ({ key: String(id), name: className(id), icon: classIcon(id), value }))
 };
 
-// The charts a view draws, in order, each with the raw rows it reads: the class view leads with its class's panels,
-// the all-classes view with the class split and the account-wide charts.
-export const chartsFor = (data, band, classId) => {
-  const rowsOf = (chart, key) => inBand(data?.[chart.from ?? key], band);
-  const character = Object.entries(CHARACTER_CHARTS).map(([key, chart]) => ({ key, chart, raw: rowsOf(chart, key) }));
-  const distribution = { key: 'classes', chart: CLASS_DISTRIBUTION, raw: inBand(data?.classes, band) };
-  if (classId != null) {
-    return [...character.filter(({ key }) => key !== 'activities').map((entry) => ({ ...entry, title: entry.chart.classTitle })), distribution];
+const ALL_CHARTS = { ...CHARACTER_CHARTS, ...PLAYER_CHARTS, ...SPREAD_CHARTS, classes: CLASS_DISTRIBUTION };
+// Charts that always count every band: Total levels picked by a total level band would only show that band back.
+const EVERY_BAND = new Set(['totalLevels']);
+
+// The all-classes view's tabs (the ?t= values), each a list of groups under an optional heading. Each tab counts one
+// kind of thing: characters, players' account choices, and the player base itself.
+export const STATISTICS_TABS = [
+  { key: 'Characters', groups: [{ charts: ['prayers', 'superTalents', 'gods', 'activities', 'prints', 'styles'] }] },
+  {
+    key: 'Account', groups: [
+      { title: 'Doublers', charts: ['mineheadDoublers', 'sushiDoublers', 'jellyDoublers', 'organicLabels', 'omnijade'] },
+      { title: 'Other choices', charts: ['pocketGods', 'w7Gods', 'meals', 'blackStars', 'prismaBubbles', 'exaltedStamps'] }
+    ]
+  },
+  {
+    key: 'Players', groups: [
+      { charts: ['classes', 'monsters', 'bubbles', 'stamps'] },
+      { title: 'Player base', charts: ['slots', 'totalLevels', 'worlds', 'accountAge'] }
+    ]
   }
-  const players = Object.entries(PLAYER_CHARTS).map(([key, chart]) => ({ key, chart, raw: inBand(data?.[key], band) }));
-  const spreads = Object.entries(SPREAD_CHARTS).map(([key, chart]) => ({ key, chart, raw: inBand(data?.[key], band) }));
-  return [
-    distribution,
-    ...character.filter(({ key }) => key !== 'spots'),
-    ...players,
-    ...spreads
-  ];
+];
+
+// One chart with the raw rows it reads for the band
+const entryOf = (data, band, key) => {
+  const chart = ALL_CHARTS[key];
+  return { key, chart, raw: inBand(data?.[chart.from ?? key], EVERY_BAND.has(key) ? null : band) };
 };
+
+// The class view's charts, in order: its class's panels, then the class split
+export const classChartsFor = (data, band) => [
+  ...['prayers', 'superTalents', 'gods', 'spots', 'prints', 'styles']
+    .map((key) => ({ ...entryOf(data, band, key), title: ALL_CHARTS[key].classTitle })),
+  entryOf(data, band, 'classes')
+];
+
+// The all-classes view: each tab's groups with their charts
+export const tabsFor = (data, band) => STATISTICS_TABS.map((tab) => ({
+  ...tab,
+  groups: tab.groups.map((group) => ({ ...group, charts: group.charts.map((key) => entryOf(data, band, key)) }))
+}));
+
+// Every chart either view draws, flat: what the tests read
+export const chartsFor = (data, band, classId) => (classId != null
+  ? classChartsFor(data, band)
+  : tabsFor(data, band).flatMap((tab) => tab.groups.flatMap((group) => group.charts)));
